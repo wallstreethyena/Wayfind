@@ -2,14 +2,34 @@
 // homepage poster menu synthetic.  Keep this free of browser/network code so
 // the hermetic monitor guard can red-prove its decisions.
 
-// RAILS currently declares 19 records, one of which (`events`) is deliberately
-// retired into Night Out.  These are the 18 tiles a reader must be able to
-// choose on the homepage.  This explicit product contract catches both a
-// disappeared tile and a quietly-added tile that has no monitored owner.
+// RAILS currently declares 19 records.  FOUR never reach the homepage menu:
+// `events` is retired into Night Out (`retiredInto`), `lunchcity` / `drive`
+// were deliberately un-promoted by #1196 (`posterHidden: true`), and `chef`
+// was hidden by the owner on 2026-09-10 (`posterHidden: true` — the record,
+// the id, and Ron Duprat's seven picks all stay; only the tile comes off the
+// track).  These are the 15 tiles a reader must be able to choose.  This explicit
+// product contract catches both a disappeared tile and a quietly-added tile
+// that has no monitored owner.
+//
+// WAS 18 UNTIL 2026-09-09, AND THAT COST A DAY.  #1196 was a Cindy
+// creator-page PR.  Inside it, "Lunch in My City" and "Worth the Drive"
+// "should no longer be promoted": both gained `posterHidden: true`,
+// DaypartRail learned to honour the flag, and test-creator-pages gained
+// assertions REQUIRING them to stay hidden.  This list was not touched.  So
+// two guards asserted opposite things about the same two tiles, and the
+// synthetic monitor failed on every scheduled run from 2026-09-08 18:25Z —
+// masking a real continuation failure sitting in the same scenario.
+//
+// The list stays EXPLICIT on purpose: derived from RAILS it would happily
+// expect 15 the day someone hides a tile by accident, which is the failure it
+// exists to catch.  What is new is that check-synthetic-monitor-hermetic.mjs
+// now asserts this list equals DaypartRail's own visibility predicate over
+// RAILS, so the product decision and the monitored contract cannot disagree
+// silently again — changing one without the other fails the build.
 export const EXPECTED_VISIBLE_POSTER_IDS = Object.freeze([
-  "season", "lunchcity", "today", "trending", "eat", "beach", "family",
-  "locals", "cindy", "drive", "tonight", "datenight", "break",
-  "breakfast", "birthday", "blog", "chef", "augtober",
+  "season", "today", "trending", "eat", "beach", "family",
+  "locals", "cindy", "tonight", "datenight", "break",
+  "breakfast", "birthday", "blog", "augtober",
 ]);
 
 const asId = (value) => value == null ? "" : String(value);

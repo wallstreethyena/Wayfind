@@ -17,10 +17,8 @@
 //      lands in the thread they were going to paste it into anyway, with the
 //      page's own OG card (each guide has one — see the guide's
 //      generateMetadata) rather than a bare blue URL.
-//   2. It SAYS SO when it copies instead. On a desktop there is no sheet, so
-//      the tap writes to the clipboard, and a clipboard write with no feedback
-//      is indistinguishable from a broken button. That is the whole reason this
-//      is a client component and not an <a>.
+//   2. A browser without Web Share opens the shared Text message / Email / Copy
+//      chooser. Copy confirms only after the reader explicitly chooses it.
 //
 // The ordering rule it depends on — sheet BEFORE clipboard, because on iOS the
 // clipboard consumes the tap's activation — lives in lib/shareOut.js.

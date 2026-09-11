@@ -140,6 +140,12 @@ for (const rel of PAGES) {
 // simply never got it — and an EVENT page is the worst place to omit it,
 // because it carries two share controls: most of its readers arrive from a text
 // message, where the browser has no back stack to offer.
+function backSourceFor(src, rel) {
+  const imported = src.match(/import ReturnToWayfind from "([^"]+)"/);
+  const shared = join(ROOT, "app/components/ReturnToWayfind.js");
+  return /<ReturnToWayfind\b/.test(src) && imported && join(ROOT, dirname(rel), imported[1].replace(/\.js$/, "") + ".js") === shared
+    ? stripComments(readFileSync(shared, "utf8")) : src;
+}
 const EXITS = [
   "app/florida-events/[slug]/page.js",
   "app/florida-events/page.js",
@@ -147,7 +153,7 @@ const EXITS = [
 ];
 for (const rel of EXITS) {
   const src = stripComments(readFileSync(join(ROOT, rel), "utf8"));
-  const home = /href="\/"/.test(src);
+  const home = /href="\/"/.test(backSourceFor(src, rel));
   const shelf = /href="\/florida-events"/.test(src) || /href="\/events"/.test(src);
   ok(home || shelf,
     `${rel} gives the reader a way out — a link back to Wayfind or to the shelf this page sits on (weaker check, source)`);
@@ -157,7 +163,8 @@ for (const rel of EXITS) {
 // the Möbius page had instead of one.
 for (const rel of ["app/florida-events/[slug]/page.js", "app/florida-events/page.js"]) {
   const src = stripComments(readFileSync(join(ROOT, rel), "utf8"));
-  ok(/Back to Wayfind/.test(src) && /href="\/"/.test(src),
+  const backSource = backSourceFor(src, rel);
+  ok(/Back to Wayfind/.test(backSource) && /href="\/"/.test(backSource),
     `${rel} carries the shared "Back to Wayfind" pill, the same affordance /guides has had since v6`);
 }
 

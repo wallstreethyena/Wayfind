@@ -45,6 +45,9 @@ import os from "node:os";
 import assert from "node:assert/strict";
 
 import { SCENARIOS, REQUIRED_FLOWS, HOMEPAGE_CARD_BUDGET_MS } from "./lib/synthetic/scenarios.mjs";
+// The product decision itself. Imported so the approved poster list can be
+// checked against it rather than against a copy that drifts (see §0).
+import { RAILS } from "../lib/rails.js";
 import {
   EXPECTED_VISIBLE_POSTER_IDS,
   posterMenuDiff,
@@ -75,6 +78,72 @@ const ok = (c, m) => { if (c) pass++; else fails.push(m); };
 // scenarios.mjs already self-validates at import time (throws if malformed) —
 // reaching this line at all is itself a passing assertion. What follows adds
 // checks that module CANNOT make about itself: coverage and cross-entry shape.
+
+// ── 0. THE APPROVED POSTER LIST MUST MATCH THE RENDERER'S OWN PREDICATE ────
+// 2026-09-09. #1196 was a Cindy creator-page PR. Buried in it was a product
+// decision: "Lunch in My City" and "Worth the Drive" "should no longer be
+// promoted". Both gained `posterHidden: true` in lib/rails.js, DaypartRail
+// learned to honour the flag, and test-creator-pages gained assertions
+// REQUIRING them to stay hidden. menuPosterIntegrity's approved list was not
+// touched, so two guards asserted opposite things about the same two tiles.
+//
+// The synthetic monitor then failed on EVERY scheduled run from 2026-09-08
+// 18:25Z — and because the scenario stopped at the first failure, it masked a
+// real continuation bug sitting in the same scenario. A false failure does not
+// merely waste attention; it conceals a true one.
+//
+// This is the parity check that makes that impossible. The approved list stays
+// EXPLICIT (derived, it would happily expect 15 the day someone hides a tile
+// by accident — the exact failure it exists to catch), and this asserts it
+// equals DaypartRail's own visibility predicate over RAILS. Changing the
+// product decision without changing the monitored contract now fails the
+// build, in the same commit, instead of a day later in a monitor nobody reads.
+{
+  // Read the predicate out of the COMPONENT rather than restating it, so a
+  // change to what "visible" means cannot leave this guard checking the old
+  // rule while claiming parity with the new one.
+  const railSrc = readFileSync(path.resolve("./app/components/DaypartRail.js"), "utf8");
+  const PREDICATE_RX = /!r\.posterHidden\s*&&\s*!r\.artStale\s*&&\s*!r\.retiredInto/;
+  ok(PREDICATE_RX.test(railSrc),
+    "DaypartRail still filters the poster menu on !posterHidden && !artStale && !retiredInto — if this changed, the parity check below is comparing against a rule the app no longer uses");
+
+  const visibleFromRails = RAILS
+    .filter((r) => r && !r.posterHidden && !r.artStale && !r.retiredInto)
+    .map((r) => r.id);
+
+  const approved = [...EXPECTED_VISIBLE_POSTER_IDS].sort();
+  const rendered = [...visibleFromRails].sort();
+  const missingFromApproved = rendered.filter((id) => !approved.includes(id));
+  const staleInApproved = approved.filter((id) => !rendered.includes(id));
+
+  ok(missingFromApproved.length === 0 && staleInApproved.length === 0,
+    `EXPECTED_VISIBLE_POSTER_IDS must equal DaypartRail's visible set over RAILS. ` +
+    `Approved but no longer rendered: [${staleInApproved.join(", ") || "none"}] (a product decision landed without updating the monitored contract — this is the #1196 shape). ` +
+    `Rendered but not approved: [${missingFromApproved.join(", ") || "none"}] (a tile reached the homepage with no monitored owner).`);
+
+  // Self-tests: prove the comparison has teeth in BOTH directions, using
+  // fabricated sets rather than the real ones.
+  {
+    const cmp = (a, b) => ({
+      stale: a.filter((x) => !b.includes(x)),
+      unowned: b.filter((x) => !a.includes(x)),
+    });
+    const dropped = cmp(["a", "b", "c"], ["a", "b"]);
+    ok(dropped.stale.join(",") === "c" && dropped.unowned.length === 0,
+      "self-test: a tile hidden in RAILS but still approved is reported as STALE (the #1196 direction)");
+    const added = cmp(["a", "b"], ["a", "b", "d"]);
+    ok(added.unowned.join(",") === "d" && added.stale.length === 0,
+      "self-test: a tile rendered but not approved is reported as UNOWNED (a quietly-added tile)");
+    ok(cmp(["a", "b"], ["b", "a"]).stale.length === 0 && cmp(["a", "b"], ["b", "a"]).unowned.length === 0,
+      "self-test: ORDER is not a difference — the contract is a set, and the menu's order is DaypartRail's business");
+  }
+
+  // The four excluded records, named, so a future reader does not have to
+  // re-derive why the record count and the tile count differ.
+  const excluded = RAILS.filter((r) => r && (r.posterHidden || r.artStale || r.retiredInto)).map((r) => r.id).sort();
+  ok(excluded.join(",") === "chef,drive,events,lunchcity",
+    `exactly four RAILS records stay off the homepage menu — events (retiredInto Night Out), lunchcity and drive (posterHidden by #1196), and chef (posterHidden by the owner on 2026-09-10; the record and Ron's seven picks stay, only the tile comes off the track). Got: [${excluded.join(", ")}]. If this list changed, say so deliberately here and in menuPosterIntegrity's header.`);
+}
 
 ok(Array.isArray(SCENARIOS) && SCENARIOS.length > 0, "SCENARIOS is a non-empty array");
 ok(Array.isArray(REQUIRED_FLOWS) && REQUIRED_FLOWS.length >= 11,

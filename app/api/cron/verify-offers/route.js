@@ -8,13 +8,36 @@
 // REVERIFY_TTL_MS) and, if it no longer clears the hard invariant,
 // suppresses it proactively — instead of waiting for a fixed-cadence owner
 // notice, the record heals itself on the next run.
+//
+// THE SILENT-SUCCESS GAP (closed 2026-09-09). public.verified_offers was
+// never applied to production (supabase/migrations/*_wf_verified_offers.sql
+// fixes that) while this route's only persistence dependency,
+// lib/verifiedOfferStore.js, degrades every failure to []/false/no-op by
+// design — correct for its user-facing callers, wrong here: a missing table
+// and "nothing was stale" were indistinguishable, both reading as
+// { ok: true, checked: 0 }. This route now tells those apart explicitly, on
+// every terminal path, same jobCannotRun/jobFailed contract as
+// app/api/cron/revenue-heartbeat (lib/jobFail.js):
+//   dependency missing  -- no SUPABASE_URL/SUPABASE_SERVICE_ROLE_KEY at all
+//                           -> jobCannotRun, 503, does not attempt work
+//   query failed         -- credentials present but the read itself failed
+//                           (e.g. the table still is not there) -> jobFailed, 500
+//   genuinely zero work  -- the query ran; there was nothing past expiry
+//                           -> normal 200 completion, pulsed attempted:0
+// A wf_job_pulse row is recorded on EVERY one of those paths (lib/jobPulse.js
+// recordPulse), so app/api/cron/job-watch can see this job the same way it
+// already sees revenue-heartbeat.
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 import { resolveVerified } from "../../../../lib/bookingResolver.js";
-import { getFanoutCount, getStaleLiveOffers, persistOffer, suppressOffer } from "../../../../lib/verifiedOfferStore.js";
+import { getFanoutCount, getStaleLiveOffersStatus, persistOffer, suppressOffer } from "../../../../lib/verifiedOfferStore.js";
 import { credential } from "../../../../lib/envPlaceholder.js";
+import { recordPulse } from "../../../../lib/jobPulse.js";
+import { jobCannotRun, jobFailed } from "../../../../lib/jobFail.js";
+
+const JOB = "verify-offers";
 
 const getKey = () => credential(process.env["VIATOR_API_KEY"]);
 
@@ -49,8 +72,17 @@ export async function GET(req) {
   const auth = req.headers.get("authorization") || "";
   if (!secret || auth !== "Bearer " + secret) return new Response("unauthorized", { status: 401 });
 
-  const stale = await getStaleLiveOffers(30);
+  const status = await getStaleLiveOffersStatus(30);
+  if (status.dependencyMissing) return jobCannotRun(JOB, status.error);
+  if (!status.ok) return jobFailed(JOB, status.error);
+
+  const stale = status.rows;
   const results = { checked: 0, stillLive: 0, suppressed: 0, upstreamError: 0, skippedNoName: 0 };
+
+  if (stale.length === 0) {
+    await recordPulse(JOB, { attempted: 0, succeeded: 0, note: "idle: no live offers past expiry" });
+    return Response.json({ ok: true, job: JOB, ...results });
+  }
 
   for (const row of stale) {
     results.checked++;
@@ -84,5 +116,17 @@ export async function GET(req) {
     }
   }
 
-  return Response.json({ ok: true, ...results });
+  // succeeded = rows re-verification reached a definitive conclusion for
+  // (still live, or correctly suppressed); failed = rows an upstream error
+  // stopped from reaching one -- distinct from skippedNoName, legacy rows
+  // this sweep cannot rebuild a search term for, which is data age, not a
+  // failure this run had.
+  await recordPulse(JOB, {
+    attempted: results.checked,
+    succeeded: results.stillLive + results.suppressed,
+    failed: results.upstreamError,
+    note: results.upstreamError ? `${results.upstreamError} upstream error(s) during re-verification` : null,
+  });
+
+  return Response.json({ ok: true, job: JOB, ...results });
 }

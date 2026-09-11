@@ -101,18 +101,99 @@ export async function collect() {
     out.rows.push(["Owned inventory", `${fmt(total)} rows · ${fmt(oper)} OPERATIONAL`, "`wf_inventory` live count"]);
     out.rows.push(["Owned editorial", `${fmt(edit)} rows carry \`editorial\` (${(edit / total * 100).toFixed(1)}%)`, "`wf_inventory` live count"]);
   } catch (e) { out.warnings.push(`wf_inventory: ${e.message}`); }
+
+  let photoLedgerRow = null;
   try {
     const r = await fetch(`${s.url}/rest/v1/wf_spend_ledger?select=sku,used,cap,month&month=eq.${month}&order=sku`,
       { headers: { apikey: s.key, Authorization: `Bearer ${s.key}` }, cache: "no-store" });
     const rows = r.ok ? await r.json() : [];
     if (!rows.length) out.warnings.push(`wf_spend_ledger: no rows for ${month}`);
     for (const row of rows) {
+      if (row.sku === "photos") photoLedgerRow = row;
       const pct = row.cap ? Math.round((row.used / row.cap) * 100) : 0;
       // Flag rides OUTSIDE the value so it never nests inside render()'s bold.
       const flag = pct >= 100 ? " — EXHAUSTED" : pct >= 80 ? " — near the line" : "";
       out.rows.push([`Google free tier · ${row.sku}`, `${fmt(row.used)}/${fmt(row.cap)} (${pct}%)`, `\`wf_spend_ledger\` ${row.month}${flag}`]);
     }
   } catch (e) { out.warnings.push(`wf_spend_ledger: ${e.message}`); }
+
+  // 2026-09-08 — the `photos` ledger exhausted 950/950 on 2026-09-01 and
+  // nothing measured what readers actually saw. These rows are that
+  // measurement: live counts + the last photo-monitor pulse, computed
+  // through the SAME lib/photoCoverage.js computePhotoCoverage() math
+  // app/api/health/photos and scripts/photo-monitor.mjs use, so this doc can
+  // never disagree with either about how the percentage is derived.
+  try {
+    const { computePhotoCoverage, computePhotoRunway } = await import("../lib/photoCoverage.js");
+    const { describePhotoRunway, photosPaidConfigured } = await import("../lib/photoRunwayTruth.js");
+    const activeWithRef = await count(s, "wf_inventory?select=place_id&status=eq.OPERATIONAL&or=(excluded.is.null,excluded.is.false)&photo_ref=not.is.null");
+    // 2026-09-09: open+budget_blocked, not open alone. A budget_blocked row
+    // is a live-dependency wait (lib/photoRepair.js re-checks wf_spend_ledger
+    // every drain), not a resolved one — counting it out would print a
+    // backlog drop that never happened the day this status split shipped.
+    // See scripts/photo-monitor.mjs's currentOpenCount, fixed the same day.
+    const openRows = await count(s, "wf_photo_repair_queue?select=place_id&status=in.(open,budget_blocked)");
+    const blockedRows = await count(s, "wf_photo_repair_queue?select=place_id&status=eq.budget_blocked");
+    const unresolvedRows = await count(s, "wf_photo_repair_queue?select=place_id&status=eq.unresolved");
+    const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+    const recoveries7d = await count(s, `wf_photo_repair_queue?select=place_id&status=eq.recovered&updated_at=gte.${encodeURIComponent(sevenDaysAgo)}`);
+    const coverage = computePhotoCoverage({ activeWithRef, openRows, unresolvedRows, recoveries7d });
+
+    const pulseR = await fetch(`${s.url}/rest/v1/wf_job_pulse?job=eq.photo-monitor&select=note,ran_at&order=ran_at.desc&limit=1`,
+      { headers: { apikey: s.key, Authorization: `Bearer ${s.key}` }, cache: "no-store" });
+    const pulseRows = pulseR.ok ? await pulseR.json() : [];
+    const pulseRow = pulseRows[0];
+    const pctMatch = pulseRow && /placeholder-rate\s+(\d+)%\s+of\s+(\d+)\s+probes/.exec(String(pulseRow.note || ""));
+    // COVERAGE IS REPORTED FROM THE SAMPLE, NOT FABRICATED FROM ABSENT INPUTS
+    // (2026-09-08, Astra review). The exact-fresh / same-place-fresh counts a
+    // true coverage percentage needs are a wf_places_cache × wf_inventory
+    // cross-reference this generator does not run, so computePhotoCoverage
+    // returns `measured:false` and a null percentage rather than 0 — printing
+    // that 0 would have published "0.0% (0 of 19,852 …)" as a live, generated,
+    // timestamped fact, which is exactly the confident lie check-os-state
+    // exists to stop. The monitor's probe sample IS a real measurement of the
+    // same quantity, so that is what this row says, labelled as sampled.
+    out.rows.push([
+      "Real-photo coverage (sampled)",
+      pctMatch ? `${100 - Number(pctMatch[1])}% of ${pctMatch[2]} probed card surfaces served a real photo` : "not measured yet — no photo-monitor pulse",
+      "`wf_job_pulse` latest `photo-monitor` note (probe sample, not a full census)",
+    ]);
+    out.rows.push([
+      "Placeholder rate (last monitor run)",
+      pctMatch ? `${pctMatch[1]}% of ${pctMatch[2]} probes` : "no photo-monitor pulse yet",
+      "`wf_job_pulse` latest `photo-monitor` note",
+    ]);
+    out.rows.push(["Active refs in scope", `${fmt(coverage.activeWithRef)} active rows carry a \`photo_ref\``, "`wf_inventory` live count"]);
+
+    out.rows.push(["Photo repair queue", `${fmt(openRows)} open (${fmt(blockedRows)} budget-blocked) · ${fmt(unresolvedRows)} unresolved`, "`wf_photo_repair_queue` live count"]);
+    out.rows.push(["Photo recoveries (7d)", fmt(recoveries7d), "`wf_photo_repair_queue` `status=recovered&updated_at=gte.<7d>`"]);
+
+    // Burn rate / runway is historical measurement; the live paid switch is
+    // a separate fact. A ledger cap can remain at 2,000 after paid fetching
+    // is turned off, so never turn that stored headroom into a fake countdown.
+    const repairPulseR = await fetch(`${s.url}/rest/v1/wf_job_pulse?job=eq.photo-repair&select=note,ran_at&order=ran_at.desc&limit=2`,
+      { headers: { apikey: s.key, Authorization: `Bearer ${s.key}` }, cache: "no-store" });
+    const repairPulseRows = repairPulseR.ok ? await repairPulseR.json() : [];
+    const runway = computePhotoRunway(repairPulseRows.map((r) => ({ note: r.note, ranAt: r.ran_at })));
+    const paidEnabled = photosPaidConfigured({
+      gate: process.env.WAYFIND_GATE,
+      paid: process.env.WAYFIND_PHOTOS_PAID,
+      cap: process.env.GOOGLE_PHOTOS_MONTH_CAP,
+    });
+    const runwayTruth = describePhotoRunway({ runway, allowance: photoLedgerRow, paidEnabled });
+    out.rows.push([
+      "Photo budget runway",
+      runwayTruth.text,
+      "live photo paid switch + current `wf_spend_ledger` row + last two `photo-repair` pulses",
+    ]);
+    out.rows.push([
+      "Photo allowance",
+      runwayTruth.allowanceUsed != null && runwayTruth.allowanceCap != null
+        ? `${fmt(runwayTruth.allowanceUsed)}/${fmt(runwayTruth.allowanceCap)} used · ${fmt(runwayTruth.reserve)} reserve`
+        : "unreadable",
+      "current `wf_spend_ledger` photos row",
+    ]);
+  } catch (e) { out.warnings.push(`wf_photo_repair_queue / photo coverage: ${e.message}`); }
   return out;
 }
 

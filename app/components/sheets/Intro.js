@@ -16,6 +16,7 @@ import { useEffect, useRef } from "react";
 import { C, useDialogFocus, Icon } from "../kit";
 import { nowContext } from "../../../lib/nowContext.js";
 import { markIntroSeen } from "../../../lib/introGate.js";
+import { activeSeasonalMark, NORMAL_MARK } from "../../../lib/seasonalBrand.js";
 
 // Premium redesign, Phase 4: the mood tiles draw from the app's one line-icon
 // language instead of an emoji grid, calmer and on-brand.
@@ -52,6 +53,11 @@ export default function IntroSheet({ ctx }) {
   const { introOpen, setIntroOpen, introSel, setIntroSel, user, locName, weather, suggested, liveOpen, EXPERIENCES, logEvent, openExperience, introTriggerRef } = ctx;
   const introDlgRef = useRef(null);
   const introLocation = String(locName || "").replace(/\s*,\s*/g, ", ").trim();
+  // Seasonal wordmark (lib/seasonalBrand.js). This sheet is loaded via
+  // next/dynamic({ ssr:false }) (see app/home.js), so it never server-renders
+  // — this read only ever happens client-side and there is no hydration pass
+  // to disagree with.
+  const seasonalWordmark = activeSeasonalMark() || NORMAL_MARK;
   // WHY THIS INSTRUMENTATION EXISTS (2026-07-31)
   // -------------------------------------------
   // This overlay is the hard gate in front of every first visit, and until now
@@ -210,7 +216,7 @@ export default function IntroSheet({ ctx }) {
                 <source media="(max-width: 760px)" srcSet={INTRO_VISUAL_MOBILE} />
                 <img src={INTRO_VISUAL} alt="" />
               </picture>
-              <div className="wf-intro-brand"><img src="/brand/wayfind-wordmark-transparent-v2.png" alt="Wayfind" /></div>
+              <div className="wf-intro-brand"><img src={seasonalWordmark.png} alt="Wayfind" /></div>
               <div className="wf-intro-copy">
                 <div className="wf-intro-kicker">Your local concierge</div>
                 <div className="wf-intro-title">A better plan is closer than you think.</div>

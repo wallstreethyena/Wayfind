@@ -35,6 +35,7 @@ function idOf(item, getId) {
  * @param {boolean} [opts.enabled]    false suppresses every fetch (e.g. no origin yet)
  * @param {string}  [opts.itemsKey]   "places" (default) or "cards" (Fall Intent)
  * @param {func}    [opts.getId]      item -> stable id, for dedupe
+ * @param {number}  [opts.timeoutMs]   client deadline for networked page requests
  * @param {any[]}   [opts.seedItems]  already-known page 0 (skips the first network call —
  *                                     DaypartRail seeds this from data it already fetched
  *                                     in the homepage's one bulk /api/rails response)
@@ -59,6 +60,7 @@ export function usePagedRail(endpoint, params, {
   seedItems = null,
   seedTotal = null,
   source = null,
+  timeoutMs,
 } = {}) {
   const local = Array.isArray(source);
   // v8.97 — THE SEED IS PART OF THE KEY, BY CONTENT.
@@ -145,7 +147,7 @@ export function usePagedRail(endpoint, params, {
     for (const [k, v] of Object.entries(params || {})) if (v != null && v !== "") q.set(k, String(v));
     q.set("page", String(pageToLoad));
     q.set("size", String(size));
-    fetchJsonWithDeadline(`${endpoint}?${q.toString()}`)
+    fetchJsonWithDeadline(`${endpoint}?${q.toString()}`, timeoutMs ? { timeoutMs } : undefined)
       .then((body) => {
         // A location/rail change while this request was in flight must not
         // splice a stale rail's cards into the new one.
@@ -174,7 +176,7 @@ export function usePagedRail(endpoint, params, {
         if (currentKeyRef.current === requestKey) { setLoading(false); setLoadingMore(false); }
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [local, endpoint, JSON.stringify(params), size, itemsKey, getId]);
+  }, [local, endpoint, JSON.stringify(params), size, itemsKey, getId, timeoutMs]);
 
   useEffect(() => {
     if (!key || askedKeyRef.current === key) return;
@@ -204,12 +206,16 @@ export function usePagedRail(endpoint, params, {
   // it sidesteps any ordering hazard between React detaching the OLD
   // sentinel's ref and attaching the NEW one in the same commit.
   const observerRef = useRef(null);
+  const sentinelNodeRef = useRef(null);
   const fetchMoreRef = useRef(fetchMore);
   fetchMoreRef.current = fetchMore;
 
-  const sentinelRef = useCallback((el) => {
+  const attachObserver = useCallback((el) => {
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+      observerRef.current = null;
+    }
     if (!el) return;
-    if (observerRef.current) observerRef.current.disconnect();
     if (typeof IntersectionObserver !== "function") return;
     observerRef.current = new IntersectionObserver((entries) => {
       if (entries.some((entry) => entry.isIntersecting)) fetchMoreRef.current();
@@ -217,7 +223,22 @@ export function usePagedRail(endpoint, params, {
     observerRef.current.observe(el);
   }, []);
 
-  useEffect(() => () => { if (observerRef.current) observerRef.current.disconnect(); }, [key]);
+  const sentinelRef = useCallback((el) => {
+    sentinelNodeRef.current = el;
+    attachObserver(el);
+  }, [attachObserver]);
+
+  useEffect(() => {
+    // A seed-content or location change changes `key`, but React can keep the
+    // sentinel card's DOM node when its item id and index are unchanged. The
+    // previous effect cleanup disconnects that node without re-running its
+    // stable callback ref, so explicitly reattach the node the ref remembers.
+    if (key && sentinelNodeRef.current && !observerRef.current) attachObserver(sentinelNodeRef.current);
+    return () => {
+      if (observerRef.current) observerRef.current.disconnect();
+      observerRef.current = null;
+    };
+  }, [key, attachObserver]);
 
   // THE SENTINEL RULE — index (loaded − 3). Clamped at 0 so a rail shorter
   // than 3 cards never throws; hasMore is already false in that case, so

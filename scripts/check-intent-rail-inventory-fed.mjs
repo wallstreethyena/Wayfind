@@ -47,7 +47,9 @@ ok(/fetchNightOutPool\(/.test(route),
     `the combined inventory must deduplicate before composition (the same row three times produced ${places.filter((p) => p.id === "dupe").length} cards)`);
   ok(places.length === 1, "positive control: the dedupe fixture really did qualify, so the assertion above is not vacuous");
 }
-ok(/night-out:v4/.test(route), "the expanded answer must use the v4 cache identity");
+ok(/const key = `night-out:v5:\$\{geoCell\(lat\)\}:\$\{geoCell\(lng\)\}`/.test(route)
+  && !/night-out:v4/.test(route),
+  "the intent-admission change must use the v5 cache identity at the real route key");
 ok(!/useIntentCandidates/.test(daypart),
   "DaypartRail must not issue a duplicate inventory request while NightOutRails loads the complete answer");
 ok(/<NightOutRails[\s\S]{0,400}?places=\{nightOutPlaces\}/.test(daypart),

@@ -520,6 +520,14 @@
     },
     "owner": "Revenue QA"
   },
+  "scripts/test-photos-paid-cap.mjs": {
+    "protects": "The photo-only paid switch (WAYFIND_PHOTOS_PAID + GOOGLE_PHOTOS_MONTH_CAP) raises the photos ledger ceiling alone, fails closed on shut or garbage config, and every Place Photo media or Details request inside the resolver's self-heal fan-out takes its own atomic ledger grant.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "A regression could let the photo allowance widen other Google SKUs, or let one 2,000-event budget become several thousand billable media requests because the ledger metered decisions instead of requests."
+    },
+    "owner": "Revenue QA"
+  },
   "scripts/test-spend-bypass-regression.mjs": {
     "protects": "Every client-reachable Google spend path fails closed on missing or denied configuration, and no cache or inventory fallback can bypass the atomic ledger.",
     "blastRadius": {
@@ -557,6 +565,54 @@
     "blastRadius": {
       "category": "revenue",
       "detail": "A regression could bypass finite autocomplete budgets or disguise a denied provider as successful empty search suggestions."
+    },
+    "owner": "Revenue QA"
+  },
+  "scripts/check-affiliate-opportunity-refresh.mjs": {
+    "protects": "A monetization opportunity seen again is recorded as seen again: the Atlas writer goes through the atomic wf_affiliate_opportunity_seen RPC, so hits increments, last_seen_at refreshes and resolved_at clears, first_seen_at never moves, the function stays revoked from anon/authenticated, and the route reports the database's own effect counts rather than the size of the batch it sent.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "Measured on production 2026-09-08: the queue's only writer used PostgREST resolution=ignore-duplicates, which SKIPS an existing row. All 63 rows sat at hits=1, frozen at first_seen_at = last_seen_at = 2026-08-21, and wf_affiliate_worklist orders by hits DESC \u2014 so the ranking signal for which unmonetized places we walk past most often was structurally pinned at 1, and a place that was resolved and later lost its product could never reappear. The 21-day Atlas cycle was due to start re-seeing that cohort around 2026-09-11, at which point every re-sighting would have been a silent no-op."
+    },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-free-photo-serving.mjs": {
+    "protects": "A free, permanently-licensed photo in wf_place_photo prevents the photos ledger grant from ever being taken (app/api/photo/route.js's authorizeSpend), while same-place Google recovery still wins, details_ids_only stays unaffected, and a broken free-photo lookup fails closed instead of spending or crashing the route.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "The photos ledger is already exhausted at 950/950 for September with 10,028 cached photo URIs expiring 2026-09-25..2026-10-04; if the free-photo check in authorizeSpend regressed to a no-op, every one of those places would silently fall back to spending (or being denied) a paid Google grant instead of serving the photo Wayfind already owns for free, undetectable from the served image alone."
+    },
+    "owner": "Revenue QA"
+  },
+  "scripts/check-pinned-offer-serveable.mjs": {
+    "protects": "A founder-pinned partner product cannot paint a Book CTA unless the catalogue still carries it and has not proven it dead \u2014 with UNKNOWN (never probed, 403, timeout) explicitly NOT counted as dead.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "Hermetic, and scoped to the RECORDED verdict (RETIRED_VIATOR_PINS): it proves that ledger is a real lock, not that the ledger is current. A product that dies after today is detected by check-inventory-integrity's credentialed sweep and contained by check-pin-quarantine-live's feed. If either of those is removed, this file degrades into checking a cache nobody invalidates."
+    },
+    "owner": "Revenue QA"
+  },
+  "scripts/check-pin-quarantine-live.mjs": {
+    "protects": "A pinned partner product that dies in the catalogue loses its Book CTA WITHOUT a deploy \u2014 and no way of failing to check (403, 500, network, truncated page, feed unreachable) is ever mistaken for the product being dead.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "Renders IconicPlaceCard only. The other pin surfaces (IntentRail, BestNearby, the Detail sheet, BookingCTA, PlacePageBookLink) are covered by the call-site sweep in section 6 \u2014 which proves they PASS the live verdict, not that their markup changes when it fires. A surface that passes the catalogue and then ignores the null it gets back would pass this guard."
+    },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-travelpayouts-attribution.mjs": {
+    "protects": "Travelpayouts click tokens are stored before redirect, account and campaign identities match, and provider bookings reconcile idempotently with monotonic status and nullable money.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "A regression can misattribute bookings, issue unrecorded tokens, duplicate sales or overwrite newer provider truth."
+    },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-travelpayouts-provisioning.mjs": {
+    "protects": "Travelpayouts short links are provisioned in bounded batches using exact provider response account and destination identity.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "Wrong-account or poisoned short links can send buyers to an incorrect program or make conversion attribution unverifiable."
     },
     "owner": "Revenue QA"
   }

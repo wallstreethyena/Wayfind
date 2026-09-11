@@ -125,7 +125,7 @@ const initialsOf = (name) => String(name || "WF").split(/\s+/).filter(Boolean).s
 // (app/home.js's rail lives in an IIFE inside the render tree). The query is
 // scoped to a data attribute this component owns, so it cannot collide with
 // anything else on the page.
-export function RailNav({ railId, count, unit, total }) {
+export function RailNav({ railId, count, unit, total, loaded }) {
   // v8.39 — `total` is how many CARDS the rail holds; `count` is the number the
   // hint is allowed to claim, which is not always the same thing (the trending
   // rails now carry categorical venues behind their proven ones and say so in
@@ -144,7 +144,9 @@ export function RailNav({ railId, count, unit, total }) {
   };
   return (
     <div className="wf-rail-nav">
-      <span className="wf-rail-nav-hint"><b>{count}</b> {unit} · swipe or tap ›</span>
+      <span className="wf-rail-nav-hint">{Number.isFinite(loaded) && loaded <= cards
+        ? <><b>{loaded}</b> of <b>{cards}</b></>
+        : <><b>{count}</b> {unit}</>}</span>
       <span className="wf-rail-nav-btns">
         <button type="button" className="wf-rail-nav-btn" aria-label={"Previous " + unit} onClick={() => move(-1)}>‹</button>
         <button type="button" className="wf-rail-nav-btn" aria-label={"Next " + unit} onClick={() => move(1)}>›</button>
@@ -256,6 +258,12 @@ export function RailDots({ railId, count }) {
  * @param {object}   p
  * @param {string}   p.photo       image URL; a monogram tile stands in when absent
  * @param {string}   p.photoFallback second src tried once if `photo` fails to load
+ * @param {string}   p.photoAttr   photo credit line (e.g. a Wikimedia Commons
+ *   author, "NPS", "Recreation.gov") — renders a small corner badge on the
+ *   photo. Omit for a photo that needs no credit (the common case: Wayfind's
+ *   own Google Places photos).
+ * @param {string}   p.photoAttrHref link for that credit (the license / source
+ *   page); the badge is a plain label instead of a link when omitted
  * @param {string}   p.title       place / event name (clamped to 2 lines by CSS)
  * @param {string}   p.eyebrow     the small category line ("Sports", "Fine dining")
  * @param {func}     p.onEyebrow   makes the eyebrow a real control; omit for a plain label
@@ -265,6 +273,8 @@ export function RailDots({ railId, count }) {
  * @param {string[]} p.facts       meta row, middot-separated by CSS
  * @param {object}   p.award       { icon, label, tone } tone: 1|2|3|creator
  * @param {object[]} p.chips       [{ key, icon, label, onClick }] — onClick makes it a pill button
+ * @param {object[]} p.creatorVideos compact, pre-verified creator reels for a
+ *   non-place card; place cards continue to resolve their own creator signals
  * @param {node}     p.badge       caller-owned node in the chip row (a flame, a "Selling fast")
  * @param {object}   p.cta         { label, href, external, onClick } the money action
  * @param {node}     p.ctaNode     tracked caller-owned CTA rendered in the same money-action slot
@@ -272,8 +282,8 @@ export function RailDots({ railId, count }) {
  * @param {string}   p.href        when the card body is a link rather than a handler
  */
 export default function RailCard({
-  photo, photoFallback, title, eyebrow, onEyebrow, rank, score, when, facts, award, chips, badge, cta, ctaNode, take,
-  onOpen, href, external, ariaLabel, className,
+  photo, photoFallback, photoAttr, photoAttrHref, title, eyebrow, onEyebrow, rank, score, when, facts, award, chips, badge, cta, ctaNode, take,
+  onOpen, href, external, ariaLabel, className, creatorVideos = null,
   // v8.70 — see the IconicPlaceCard note: inside .wf8-pcrail (the rail's
   // tap-expanded horizontal scroller) `loading="lazy"` never resolves, so a
   // lazy image there is a permanently blank one. Opt-out, default unchanged.
@@ -317,7 +327,11 @@ export default function RailCard({
   // v8.33 — the creator face. Guarded the same way IconicPlaceCard guards it:
   // a rail is the one surface where a single throw takes out a whole row.
   let railCreatorVideos = [];
-  try { railCreatorVideos = place ? (creatorVideosFor(place) || []) : []; } catch (e) { railCreatorVideos = []; }
+  try {
+    railCreatorVideos = Array.isArray(creatorVideos)
+      ? creatorVideos
+      : place ? (creatorVideosFor(place) || []) : [];
+  } catch (e) { railCreatorVideos = []; }
   const fb = useCardActions(canFallback && !(onSave && onLike && onDislike));
   const content = useContentCardActions(contentSubject);
   // GUARD-HONESTY 2026-09-07 — the fallback-less half of the "photo fails to
@@ -413,6 +427,25 @@ export default function RailCard({
               />
             : <div className="wf-place-card-monogram" aria-hidden="true">{initialsOf(title)}</div>}
           {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
+          {/* v8.56.13 (#1188) — CC-license credit for the free permanent photo
+              lane (lib/freePhoto.js, wf_place_photo). Not decoration: Wikimedia
+              licenses REQUIRE a visible author + license credit. Bottom-right —
+              rank owns top-left, score owns the card's top-right corner
+              (outside this box entirely). Renders only when a caller actually
+              passes photoAttr; every existing call site is unaffected. */}
+          {photoAttr
+            ? (photoAttrHref
+                ? <a
+                    className="wf-place-card-photo-attr"
+                    href={photoAttrHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={"Photo: " + photoAttr}
+                    aria-label={"Photo credit: " + photoAttr}
+                    onClick={(e) => e.stopPropagation()}
+                  >©</a>
+                : <span className="wf-place-card-photo-attr" title={"Photo: " + photoAttr} aria-label={"Photo credit: " + photoAttr}>©</span>)
+            : null}
         </div>
         <div className="wf-place-card-content" style={{ position: "relative" }}>
           <div className="wf-place-card-title-row" style={{ display: "flex", alignItems: "flex-start" }}>

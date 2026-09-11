@@ -17,7 +17,9 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase, hasSupabase } from "../../lib/supabase";
+import { activeSeasonalMark, NORMAL_MARK } from "../../lib/seasonalBrand";
 import { C, TYPE, RADII, MOTION } from "../components/kit";
+import styles from "./command-center.module.css";
 import {
   CAT, STATUS, Delta, DefTip, SourceBadge, NotConnected, Frame, DataTable, EmptyNote,
   StatTile, Sparkline, LineChart, Columns, StackedColumns, HBarList, Funnel, CohortGrid, StatusPill,
@@ -29,10 +31,18 @@ const RANGES = [
   ["today", "Today"], ["yesterday", "Yesterday"], ["7d", "7 days"], ["30d", "30 days"],
   ["month", "This month"], ["last_month", "Last month"], ["custom", "Custom"],
 ];
-const SECTIONS = [
-  ["alerts", "Alerts"], ["intelligence", "Intelligence & leads"], ["overview", "Overview"], ["traffic", "Traffic"], ["journey", "Journey"],
-  ["places", "Places & affiliate"], ["retention", "Signups"], ["health", "Health"], ["ops", "Code & ops"],
+const GROUPS = [
+  { id: "today", label: "Today & business", short: "Today", sections: ["briefing", "alerts", "overview"], description: "The few facts that matter most right now, followed by the complete business picture." },
+  { id: "visitors", label: "Visitors", short: "Visitors", sections: ["traffic", "journey", "retention"], description: "How people find Wayfind, what they do next, and whether they come back." },
+  { id: "commerce", label: "Places & tickets", short: "Places", sections: ["places"], description: "Which places people open, save, share, and choose for tickets or booking." },
+  { id: "reliability", label: "Reliability", short: "Health", sections: ["health"], description: "Whether Wayfind is working quickly and reliably for visitors." },
+  { id: "details", label: "Details", short: "Details", sections: ["intelligence", "ops", "sources"], description: "Research leads, releases, and the exact definitions behind every number." },
 ];
+const SECTION_GROUP = Object.fromEntries(GROUPS.flatMap((group) => group.sections.map((id) => [id, group.id])));
+const groupForHash = (hash) => {
+  const id = String(hash || "").replace(/^#/, "");
+  return GROUPS.some((group) => group.id === id) ? id : SECTION_GROUP[id] || "today";
+};
 
 // ── data plumbing ───────────────────────────────────────────────────────────
 function useAuthState() {
@@ -66,21 +76,38 @@ function authHeaders(auth) {
 function usePanel(panel, auth, range, { refreshMs = 0, enabled = true } = {}) {
   const [state, setState] = useState({ data: null, loading: true, error: null, status: null, fetchedAt: null });
   const timer = useRef(null);
+  const request = useRef({ controller: null, generation: 0 });
   const load = useCallback(async () => {
     if (!enabled || auth.status !== "ready") return;
+    if (request.current.controller) request.current.controller.abort();
+    const controller = new AbortController();
+    const generation = request.current.generation + 1;
+    request.current = { controller, generation };
+    let timedOut = false;
+    const timeout = setTimeout(() => { timedOut = true; controller.abort(); }, 15000);
     setState((s) => ({ ...s, loading: true }));
     try {
       const qs = new URLSearchParams({ range: range.key });
       if (range.key === "custom" && range.from && range.to) { qs.set("from", range.from); qs.set("to", range.to); }
-      const r = await fetch(`/api/command-center/${panel}?${qs}`, { headers: authHeaders(auth), cache: "no-store" });
-      const body = await r.json().catch(() => null);
+      const r = await fetch(`/api/command-center/${panel}?${qs}`, { headers: authHeaders(auth), cache: "no-store", signal: controller.signal });
+      const body = await r.json();
+      if (request.current.generation !== generation || controller.signal.aborted) return;
       setState({ data: r.ok ? body : null, loading: false, error: r.ok ? null : (body && body.reason) || `http_${r.status}`, status: r.status, fetchedAt: new Date() });
     } catch (e) {
-      setState((s) => ({ ...s, loading: false, error: "network", status: 0, fetchedAt: new Date() }));
+      if (request.current.generation !== generation || (e && e.name === "AbortError" && !timedOut)) return;
+      setState((s) => ({ ...s, loading: false, error: timedOut ? "timeout" : "network", status: 0, fetchedAt: new Date() }));
+    } finally {
+      clearTimeout(timeout);
     }
   }, [panel, auth, range.key, range.from, range.to, enabled]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+    return () => {
+      request.current.generation += 1;
+      if (request.current.controller) request.current.controller.abort();
+    };
+  }, [load]);
   useEffect(() => {
     if (!refreshMs) return;
     function tick() { if (typeof document === "undefined" || document.visibilityState === "visible") load(); }
@@ -99,37 +126,45 @@ function deltaOf(cur, prev) {
   return { pct, dir: Math.abs(pct) < 0.5 ? "flat" : pct > 0 ? "up" : "down", abs: c - p };
 }
 const COMP_SHORT = { yesterday: "vs yesterday", last_week: "vs last week", last_month: "vs last month", prior_period: "vs prior period", prev_month_to_date: "vs last month" };
+function pageTitle(path) {
+  const clean = String(path || "/").split(/[?#]/)[0];
+  if (clean === "/") return "Home";
+  if (clean === "/command-center") return "Command Center";
+  const slug = clean.split("/").filter(Boolean).pop() || "Home";
+  return slug.replace(/[-_]+/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
 
 // ── shell pieces ────────────────────────────────────────────────────────────
 function Card({ children, style }) {
-  return <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: RADII.card, padding: 16, minWidth: 0, ...style }}>{children}</div>;
+  return <div className={styles.card} style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: RADII.card, padding: 16, minWidth: 0, ...style }}>{children}</div>;
 }
 function Section({ id, title, sub, children, loading }) {
   return (
-    <section id={id} aria-labelledby={`${id}-h`} style={{ margin: "26px 0", opacity: loading ? 0.55 : 1, transition: `opacity ${MOTION.base} ${MOTION.ease}` }}>
-      <h2 id={`${id}-h`} style={{ ...TYPE.display, color: C.text, margin: "0 0 2px" }}>{title}</h2>
-      {sub ? <p style={{ fontSize: 12.5, color: C.muted, margin: "0 0 12px", lineHeight: 1.5 }}>{sub}</p> : <div style={{ height: 12 }} />}
+    <section id={id} aria-labelledby={`${id}-h`} className={styles.dataSection} style={{ opacity: loading ? 0.55 : 1, transition: `opacity ${MOTION.base} ${MOTION.ease}` }}>
+      <h2 id={`${id}-h`} className={styles.sectionTitle}>{title}</h2>
+      {sub ? <p className={styles.sectionIntro}>{sub}</p> : <div style={{ height: 12 }} />}
       {children}
     </section>
   );
 }
 function Grid({ min = 170, children, gap = 10 }) {
-  return <div style={{ display: "grid", gridTemplateColumns: `repeat(auto-fill, minmax(${min}px, 1fr))`, gap }}>{children}</div>;
+  return <div style={{ display: "grid", gridTemplateColumns: `repeat(auto-fill, minmax(min(100%, ${min}px), 1fr))`, gap, minWidth: 0 }}>{children}</div>;
 }
 function Two({ children, min = 320 }) {
-  return <div style={{ display: "grid", gridTemplateColumns: `repeat(auto-fit, minmax(${min}px, 1fr))`, gap: 12 }}>{children}</div>;
+  return <div style={{ display: "grid", gridTemplateColumns: `repeat(auto-fit, minmax(min(100%, ${min}px), 1fr))`, gap: 12, minWidth: 0 }}>{children}</div>;
 }
 
 function PanelError({ error, status, reload }) {
   const msg = status === 403 ? "This account is signed in but is not the owner account." :
     status === 401 ? "Session expired — sign in again on the main app." :
     status === 503 ? "Server not configured: set WF_OWNER_USER_ID (and/or METRICS_SECRET) in the environment." :
+    error === "timeout" ? "This section took longer than 15 seconds to answer. The old data was not used." :
     `Panel failed to load (${error || "unknown"}).`;
   return (
     <div role="alert" style={{ border: `1px solid ${STATUS.serious}`, borderRadius: RADII.control, padding: 12, fontSize: 12.5, color: C.light, display: "flex", gap: 10, alignItems: "center" }}>
       <span aria-hidden="true" style={{ color: STATUS.serious, fontWeight: 800 }}>✕</span>
       <span style={{ flex: 1 }}>{msg}</span>
-      <button type="button" onClick={reload} style={{ background: C.adim, color: C.light, border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 11, fontWeight: 800, padding: "4px 10px", cursor: "pointer" }}>Retry</button>
+      <button type="button" onClick={reload} className={styles.retryButton} style={{ background: C.adim, color: C.light, border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 11, fontWeight: 800, padding: "4px 10px", cursor: "pointer" }}>Retry</button>
     </div>
   );
 }
@@ -170,6 +205,90 @@ function LockScreen({ auth, setAuth, denied, notConfigured }) {
 }
 
 // ── sections ────────────────────────────────────────────────────────────────
+function OwnerBriefing({ auth }) {
+  // The briefing is deliberately fixed: yesterday's ET business results plus
+  // health checked now. The global range controls the detailed panels below.
+  const p = usePanel("briefing", auth, { key: "today" }, { refreshMs: 60000 });
+  const d = dget(p.data, "data", null);
+  const toItem = (item, status, prefix, index) => typeof item === "string"
+    ? { id: `${prefix}-${index}`, title: item, status }
+    : { ...item, id: item.id || `${prefix}-${index}`, status: item.status || status };
+  const priorities = (dget(d, "needsChanges", []) || []).map((item, index) => toItem(item, "warn", "priority", index));
+  const improvements = (dget(d, "improvements", []) || []).map((item, index) => toItem(item, "routine", "improvement", index));
+  const cards = (dget(d, "cards", []) || []).map((item, index) => toItem(item, "routine", "card", index));
+  const workingWell = dget(d, "workingWell", []) || [];
+  const items = cards.length ? cards : [...priorities, ...improvements];
+  const headline = dget(d, "summary.headline", null) || dget(d, "headline", null) || dget(d, "title", null);
+  const summaryDetail = dget(d, "summary.detail", null);
+  const generatedAt = dget(p.data, "generatedAt", null) || dget(d, "generatedAt", null);
+  const dateKey = dget(d, "dateKey", null);
+  const periodLabel = dget(d, "period.label", null);
+  const overallStatus = String(dget(d, "summary.status", null) || dget(d, "status", "unknown")).toLowerCase();
+  const statusLabel = { healthy: "Working well", attention: "Needs attention", limited: "Limited data", good: "Working well", warn: "Needs attention", unknown: "Not enough data", routine: "Routine" }[overallStatus] || "Update";
+  const generatedDate = generatedAt ? new Date(generatedAt) : null;
+  const generatedLabel = generatedDate && !Number.isNaN(generatedDate.getTime())
+    ? generatedDate.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
+    : null;
+
+  if (p.error) {
+    return (
+      <Section id="briefing" title="Your owner briefing">
+        <PanelError {...p} reload={p.reload} />
+      </Section>
+    );
+  }
+
+  return (
+    <section id="briefing" aria-labelledby="briefing-h" className={styles.briefing} style={{ opacity: p.loading && !p.data ? 0.6 : 1 }}>
+      <div className={styles.briefingTopline}>
+        <div>
+          <span className={styles.eyebrow}>Owner briefing</span>
+          <h1 id="briefing-h" className={styles.briefingTitle}>{headline || "What needs your attention"}</h1>
+          {summaryDetail ? <p className={styles.briefingSummary}>{String(summaryDetail)}</p> : null}
+          <p className={styles.briefingCoverage}>{periodLabel || "Yesterday"}{dateKey ? ` · ${dateKey}` : ""} business results · site health checked now</p>
+        </div>
+        <div className={styles.briefingMeta}>
+          <span className={`${styles.overallStatus} ${styles[`briefing_${overallStatus}`] || ""}`}>{statusLabel}</span>
+          {generatedLabel ? <span className={styles.updated}>Updated {generatedLabel}</span> : null}
+        </div>
+      </div>
+      {p.loading && !p.data ? (
+        <div className={styles.briefingEmpty}>Gathering the facts for your briefing…</div>
+      ) : items.length ? (
+        <div className={styles.briefingGrid}>
+          {items.map((item, index) => {
+            const severity = String(item.severity || item.status || "info").toLowerCase();
+            const detail = item.detail || item.plainLanguage || item.explanation || item.why || item.summary;
+            const action = item.action || item.nextStep;
+            const value = item.value ?? item.metricValue ?? null;
+            return (
+              <a key={item.id || item.title || index} href={`#${item.anchor || item.section || "overview"}`} className={`${styles.briefingItem} ${styles[`briefing_${severity}`] || ""}`}>
+                <span className={styles.briefingStatus}>{item.label || item.statusLabel || ({ good: "Working well", warn: "Needs attention", needs_change: "Needs attention", unknown: "Not enough data", routine: "Improvement" }[severity]) || "Update"}</span>
+                <span className={styles.briefingItemTop}>
+                  <strong>{item.title || item.name || "Business update"}</strong>
+                  {value != null ? <b>{String(value)}</b> : null}
+                </span>
+                {detail ? <span className={styles.briefingDetail}>{String(detail)}</span> : null}
+                {action ? <span className={styles.briefingAction}>Next: {String(action)}</span> : null}
+                {item.source ? <span className={styles.briefingSource}><SourceBadge source={item.source} /></span> : null}
+              </a>
+            );
+          })}
+        </div>
+      ) : (
+        <div className={styles.briefingEmpty}>No briefing items were returned. Open the sections below for the source data.</div>
+      )}
+      {workingWell.length ? (
+        <div className={styles.workingWell}>
+          <span className={styles.workingWellTitle}>Working well</span>
+          <ul>{workingWell.map((item, index) => <li key={`${String(item)}-${index}`}>{String(item)}</li>)}</ul>
+        </div>
+      ) : null}
+      {dget(d, "source", null) ? <div className={styles.briefingPanelSource}><SourceBadge source={dget(d, "source")} /></div> : null}
+    </section>
+  );
+}
+
 function AlertsSection({ auth, range }) {
   const p = usePanel("alerts", auth, { key: "today" }, { refreshMs: 120000 });
   const alerts = dget(p.data, "data.alerts", []);
@@ -379,12 +498,12 @@ function TrafficSection({ auth, range }) {
   const entries = useMemo(() => {
     const m = new Map();
     for (const r of entryExit) m.set(r.entry, (m.get(r.entry) || 0) + Number(r.sessions || 0));
-    return [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([label, value]) => ({ label, value }));
+    return [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([path, value]) => ({ label: pageTitle(path), path, value }));
   }, [entryExit]);
   const exits = useMemo(() => {
     const m = new Map();
     for (const r of entryExit) m.set(r.exit, (m.get(r.exit) || 0) + Number(r.sessions || 0));
-    return [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([label, value]) => ({ label, value }));
+    return [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([path, value]) => ({ label: pageTitle(path), path, value }));
   }, [entryExit]);
   const deviceRows = useMemo(() => {
     const rows = dget(d, "devices.data", null) || [];
@@ -502,7 +621,7 @@ function TrafficSection({ auth, range }) {
         </Card>
         <Card>
           <Frame title="Entry & exit pages" def="Where sessions start and end (PostHog sessions)." source={dget(d, "entryExit.source")}
-            columns={["Entry page", "Sessions"]} rows={entries.map((r) => [r.label, r.value])}>
+            columns={["Type", "Full path", "Sessions"]} rows={[...entries.map((r) => ["Entry", r.path, r.value]), ...exits.map((r) => ["Exit", r.path, r.value])]}>
             {entries.length ? (
               <div style={{ display: "grid", gap: 10 }}>
                 <div><div style={{ ...TYPE.eyebrow, color: C.muted, marginBottom: 4 }}>Top entries</div><HBarList color={CAT[0]} items={entries} maxRows={5} /></div>
@@ -928,7 +1047,7 @@ function SourcesFooter({ auth }) {
     <Section id="sources" title="Event dictionary & definitions"
       sub="Canonical metric vocabulary → the real tracked signal each number is computed from. Existing production event names are preserved; nothing is double-fired or renamed.">
       <Card>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 10 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 280px), 1fr))", gap: 10, overflowWrap: "anywhere" }}>
           {Object.entries(em).map(([name, spec]) => (
             <div key={name} style={{ border: `1px solid ${C.border}`, borderRadius: RADII.control, padding: "10px 12px" }}>
               <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 4 }}>
@@ -947,11 +1066,60 @@ function SourcesFooter({ auth }) {
   );
 }
 
+function RangeControls({ rangeKey, setRangeKey, custom, setCustom }) {
+  return (
+    <div className={styles.rangeControls}>
+      <label className={styles.mobileRangeLabel} htmlFor="cc-range">Date range</label>
+      <select id="cc-range" className={styles.mobileRange} value={rangeKey} onChange={(event) => setRangeKey(event.target.value)}>
+        {RANGES.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
+      </select>
+      <div className={styles.desktopRanges} aria-label="Date range">
+        {RANGES.map(([key, label]) => (
+          <button key={key} type="button" onClick={() => setRangeKey(key)} aria-pressed={rangeKey === key}
+            className={rangeKey === key ? styles.rangeSelected : styles.rangeButton}>{label}</button>
+        ))}
+      </div>
+      {rangeKey === "custom" ? (
+        <div className={styles.customRange}>
+          <label htmlFor="cc-from"><span>From</span><input id="cc-from" type="date" value={custom.from} onChange={(event) => setCustom((current) => ({ ...current, from: event.target.value }))} /></label>
+          <span aria-hidden="true" className={styles.rangeArrow}>→</span>
+          <label htmlFor="cc-to"><span>To</span><input id="cc-to" type="date" value={custom.to} onChange={(event) => setCustom((current) => ({ ...current, to: event.target.value }))} /></label>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function GroupNav({ activeGroup, setActiveGroup }) {
+  return (
+    <nav aria-label="Dashboard sections" className={styles.groupNav}>
+      {GROUPS.map((group) => (
+        <a key={group.id} href={`#${group.id}`} onClick={() => setActiveGroup(group.id)} aria-current={activeGroup === group.id ? "page" : undefined}
+          className={activeGroup === group.id ? styles.groupNavSelected : styles.groupNavLink}>
+          <span className={styles.groupLong}>{group.label}</span>
+          <span className={styles.groupShort}>{group.short}</span>
+        </a>
+      ))}
+    </nav>
+  );
+}
+
+function GroupHeading({ group }) {
+  return (
+    <div className={styles.groupHeading}>
+      <span className={styles.eyebrow}>Command center</span>
+      <h1>{group.label}</h1>
+      <p>{group.description}</p>
+    </div>
+  );
+}
+
 // ── main ────────────────────────────────────────────────────────────────────
 export default function CommandCenter() {
   const [auth, setAuth] = useAuthState();
   const [rangeKey, setRangeKey] = useState("today");
   const [custom, setCustom] = useState({ from: "", to: "" });
+  const [activeGroup, setActiveGroup] = useState("today");
   // Custom range ships the raw local dates; the SERVER resolves them to ET day
   // boundaries (DST-correct) in lib/commandCenter/time.js — never a client guess.
   const range = useMemo(() => rangeKey === "custom"
@@ -960,6 +1128,20 @@ export default function CommandCenter() {
 
   // Gate probe: ask the server who we are (403 => signed in but not owner).
   const meta = usePanel("meta", auth, { key: "today" }, { enabled: auth.status === "ready" });
+  useEffect(() => {
+    const readHash = () => setActiveGroup(groupForHash(window.location.hash));
+    readHash();
+    window.addEventListener("hashchange", readHash);
+    return () => window.removeEventListener("hashchange", readHash);
+  }, []);
+  useEffect(() => {
+    const id = window.location.hash.replace(/^#/, "");
+    if (!id) return;
+    const frame = window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => document.getElementById(id)?.scrollIntoView({ block: "start" }));
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [activeGroup]);
 
   if (auth.status === "loading") {
     return <div style={{ minHeight: "60vh", display: "grid", placeItems: "center", color: C.muted, fontFamily: FONT }}>Checking session…</div>;
@@ -972,55 +1154,65 @@ export default function CommandCenter() {
     );
   }
 
+  const group = GROUPS.find((item) => item.id === activeGroup) || GROUPS[0];
+  // Seasonal wordmark (lib/seasonalBrand.js). This branch only ever renders
+  // client-side — useAuthState() above starts at status:"loading" on every
+  // server render and only reaches "ready" inside a useEffect — so there is
+  // no SSR HTML for this <img> to disagree with at hydration.
+  const seasonalWordmark = activeSeasonalMark() || NORMAL_MARK;
   return (
-    <div style={{ fontFamily: FONT, color: C.text, maxWidth: 1180, margin: "0 auto", padding: "0 16px 60px" }}>
-      <header style={{ position: "sticky", top: 0, zIndex: 40, background: "rgba(13,17,23,.94)", backdropFilter: "blur(6px)", borderBottom: `1px solid ${C.border}`, margin: "0 -16px", padding: "10px 16px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-          <span style={{ fontSize: 16, fontWeight: 800, letterSpacing: "-0.3px" }}>Wayfind <span style={{ color: C.light }}>Command Center</span></span>
-          <span style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: "0.6px", textTransform: "uppercase", color: C.gold, border: `1px solid ${C.gold}`, borderRadius: 99, padding: "2px 8px" }}>Owner only</span>
-          <span style={{ flex: 1 }} />
-          <nav aria-label="Sections" style={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-            {SECTIONS.map(([id, label]) => (
-              <a key={id} href={`#${id}`} style={{ fontSize: 11, fontWeight: 700, color: C.muted, textDecoration: "none", padding: "4px 7px", borderRadius: 7 }}>{label}</a>
-            ))}
-          </nav>
+    <div className={styles.root}>
+      <header className={styles.header}>
+        <div className={styles.headerMain}>
+          <a href="#today" onClick={() => setActiveGroup("today")} className={styles.brand} aria-label="Wayfind Command Center home">
+            <img className={styles.brandLogo} src={seasonalWordmark.png} width={seasonalWordmark.width} height={seasonalWordmark.height} alt="" aria-hidden="true" />
+            <b>Command Center</b>
+          </a>
+          <span className={styles.ownerBadge}>Owner</span>
+          <span className={styles.headerSpacer} />
+          <RangeControls rangeKey={rangeKey} setRangeKey={setRangeKey} custom={custom} setCustom={setCustom} />
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
-          <span style={{ ...TYPE.eyebrow, color: C.muted, marginRight: 2 }}>Range</span>
-          {RANGES.map(([k, label]) => (
-            <button key={k} type="button" onClick={() => setRangeKey(k)} aria-pressed={rangeKey === k}
-              style={{
-                background: rangeKey === k ? C.adim : "transparent", color: rangeKey === k ? C.light : C.light,
-                border: `1px solid ${rangeKey === k ? C.light : C.border}`, borderRadius: 999, fontSize: 11.5, fontWeight: 800,
-                padding: "5px 11px", cursor: "pointer", transition: `all ${MOTION.fast} ${MOTION.ease}`, minHeight: 30,
-              }}>{label}</button>
-          ))}
-          {rangeKey === "custom" && (
-            <span style={{ display: "inline-flex", gap: 6, alignItems: "center" }}>
-              <label style={{ position: "absolute", left: -9999 }} htmlFor="cc-from">From</label>
-              <input id="cc-from" type="date" value={custom.from} onChange={(e) => setCustom((c) => ({ ...c, from: e.target.value }))}
-                style={{ background: C.card, color: C.text, border: `1px solid ${C.border}`, borderRadius: 8, padding: "4px 8px", fontSize: 16, colorScheme: "dark" }} />
-              <span style={{ color: C.muted, fontSize: 11 }}>→</span>
-              <label style={{ position: "absolute", left: -9999 }} htmlFor="cc-to">To</label>
-              <input id="cc-to" type="date" value={custom.to} onChange={(e) => setCustom((c) => ({ ...c, to: e.target.value }))}
-                style={{ background: C.card, color: C.text, border: `1px solid ${C.border}`, borderRadius: 8, padding: "4px 8px", fontSize: 16, colorScheme: "dark" }} />
-            </span>
-          )}
-          <span style={{ flex: 1 }} />
-          <span style={{ fontSize: 10.5, color: C.muted }}>{auth.email ? `Signed in: ${auth.email}` : "Access-key mode"} · auto-refresh 60s</span>
-        </div>
+        <GroupNav activeGroup={activeGroup} setActiveGroup={setActiveGroup} />
+        <div className={styles.sessionLine}>{auth.email ? `Signed in as ${auth.email}` : "Access-key mode"} · panels refresh while visible · dates use Eastern Time</div>
       </header>
 
-      <AlertsSection auth={auth} range={range} />
-      <IntelligenceSection auth={auth} />
-      <OverviewSection auth={auth} range={range} />
-      <TrafficSection auth={auth} range={range} />
-      <JourneySection auth={auth} range={range} />
-      <PlacesSection auth={auth} range={range} />
-      <RetentionSection auth={auth} range={range} />
-      <HealthSection auth={auth} range={range} />
-      <OpsSection auth={auth} />
-      <SourcesFooter auth={auth} />
+      <div id={group.id} className={styles.main}>
+        {activeGroup === "today" ? (
+          <>
+            <OwnerBriefing auth={auth} />
+            <AlertsSection auth={auth} range={range} />
+            <OverviewSection auth={auth} range={range} />
+          </>
+        ) : null}
+        {activeGroup === "visitors" ? (
+          <>
+            <GroupHeading group={group} />
+            <TrafficSection auth={auth} range={range} />
+            <JourneySection auth={auth} range={range} />
+            <RetentionSection auth={auth} range={range} />
+          </>
+        ) : null}
+        {activeGroup === "commerce" ? (
+          <>
+            <GroupHeading group={group} />
+            <PlacesSection auth={auth} range={range} />
+          </>
+        ) : null}
+        {activeGroup === "reliability" ? (
+          <>
+            <GroupHeading group={group} />
+            <HealthSection auth={auth} range={range} />
+          </>
+        ) : null}
+        {activeGroup === "details" ? (
+          <>
+            <GroupHeading group={group} />
+            <IntelligenceSection auth={auth} />
+            <OpsSection auth={auth} />
+            <SourcesFooter auth={auth} />
+          </>
+        ) : null}
+      </div>
     </div>
   );
 }

@@ -52,7 +52,7 @@ const CSS = String(WF_PLACE_CARD_CSS || "");
 ok(CSS.length > 2000 && CSS.includes(".wf-rail-card"), `PROBE: the shipped place-card stylesheet was read (${CSS.length} chars)`);
 
 // ── 1. the rules exist, and say what they mean ────────────────────────────
-ok(/@media\(min-width:1100px\)\{\s*\.wf-rail>\.wf-rail-card\{min-width:min\(440px,100%\)\}/.test(CSS),
+ok(/@media\(min-width:1100px\)\{\s*(?:\.wf-rail>\.wf-place-card,)?\.wf-rail>\.wf-rail-card\{min-width:min\(440px,100%\)\}/.test(CSS),
   "a desktop rail card has a width FLOOR — without it --wf-rail-vis:3.4 makes the 1512px card narrower than the 1280px one");
 ok(/min-width:min\(440px,\s*100%\)/.test(CSS),
   "…expressed with min(…,100%) so a rail inside a narrower column gets a full-width card, never one wider than its own scroller");

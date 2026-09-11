@@ -1,44 +1,11 @@
 "use client";
 
-// app/components/CreatorMapPanel.js — A CREATOR'S OWN MAP.
-//
-// Owner, 2026-08-30: "a nice interactive map of all of the places that she has
-// recommended … I want the map to look like the one in the image [a Mapme
-// 'FOODIE MAP'] … and don't forget to link all of the places into the
-// interactive cindy map."
-//
-// WHAT IS BORROWED FROM THAT REFERENCE and what is not. The FUNCTION is: a
-// category rail with a live count beside each row, a map beside it, and
-// clicking a category filters the pins. That is what makes a many-pin map
-// readable, so it is reproduced exactly. The LOOK is ours — Wayfind's dark
-// surface and type scale — because a pastel bubble-font panel is another
-// product's brand and this page has to sit inside ours.
-//
-// THE MAP ITSELF IS <MapView>, NOT A SECOND MAP. That component already owns
-// the pin families, the glyph rendering, the clustering, the teardown and the
-// worker-URL fix that took three attempts to get right (see its header). A
-// creator page drawing its own maplibre instance would be a second thing to
-// keep working, and the first divergence would be silent — one map showing a
-// family colour the other does not. This file contributes the sidebar, the
-// filtering and the framing, and hands the rest over.
-//
-// THE SIDEBAR AND THE PINS ASK THE SAME QUESTION, ARGUMENT FOR ARGUMENT.
-// MapView colours a pin with pinColorFor(place, category); this file groups
-// with pinFamily(place) — the same resolver — and `category` is deliberately
-// NOT passed to MapView here, so both calls see exactly one argument. Pass a
-// view category to one and not the other and a place whose primary type is
-// unknown gets a named family in the list and a neutral pin on the map, which
-// reads as a bug and is unprovable from either side.
-//
-// EVERY PIN IS A PLACE SHE ACTUALLY FILMED. The rows come from her curated
-// entries joined to wf_inventory by placeId on the SERVER (lib/creatorPlaces.js),
-// so a spot with no coordinates is simply absent rather than approximated.
-// Nothing here invents a location.
+// Categories and Apple pins share the inventory classification. All places is the default.
 import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { pinFamily } from "../../lib/mapPinGlyph.js";
 
-const MapView = dynamic(() => import("./MapView"), { ssr: false });
+const CreatorAppleMap = dynamic(() => import("./CreatorAppleMap"), { ssr: false });
 
 const FAMILY_LABEL = {
   cafe: "Coffee & cafés",
@@ -72,7 +39,7 @@ const CSS = `
 .wfcm-map{position:relative;min-height:420px;border-radius:16px;overflow:hidden;border:1px solid rgba(148,163,184,.18);min-width:0;background:#0F1520}
 @media(max-width:759px){
 .wfcm-grid{grid-template-columns:1fr}
-.wfcm-side{display:flex;gap:8px;overflow-x:auto;padding:8px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.wfcm-side{display:flex;gap:8px;overflow-x:auto;overscroll-behavior-x:contain;padding:8px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .wfcm-side::-webkit-scrollbar{display:none}
 .wfcm-row{width:auto;flex:0 0 auto;margin-bottom:0;white-space:nowrap}
 .wfcm-map{min-height:340px}
@@ -117,14 +84,6 @@ export default function CreatorMapPanel({ handle, places = [], intro = "" }) {
 
   if (!rows.length) return null;
 
-  // The centre is the centroid of what is currently shown, and MapView is asked
-  // to `fit` — so the frame comes from her places rather than from a search
-  // origin. showOrigin={false} for the same reason: nobody chose a centre on
-  // this page, and a pin labelled "Search center" would be a claim about a
-  // location that does not exist.
-  const lat = shown.reduce((a, p) => a + p.lat, 0) / (shown.length || 1);
-  const lng = shown.reduce((a, p) => a + p.lng, 0) / (shown.length || 1);
-
   return (
     <section aria-label={`@${handle}'s map`} style={{ margin: "30px 0 8px" }}>
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
@@ -149,21 +108,13 @@ export default function CreatorMapPanel({ handle, places = [], intro = "" }) {
               aria-pressed={active === g.fam}
               onClick={() => { setActive(active === g.fam ? null : g.fam); setSelectedId(null); }}
             >
-              <span>{g.label}</span><b>{g.n}</b>
+              <i aria-hidden="true" style={{ fontStyle: "normal" }}>{({ cafe: "☕", food: "🍽", drinks: "🍸", culture: "🏛", outdoors: "🌳", water: "🌊", shop: "🛍", stay: "🛏", shows: "🎭" })[g.fam] || "📍"}</i><span>{g.label}</span><b>{g.n}</b>
             </button>
           ))}
         </div>
 
         <div className="wfcm-map">
-          <MapView
-            places={shown}
-            center={{ lat, lng }}
-            fit
-            showOrigin={false}
-            styleMode="bright"
-            selectedId={selectedId}
-            onSelect={(p) => setSelectedId(p && p.id ? String(p.id) : null)}
-          />
+          <CreatorAppleMap places={shown} onSelect={setSelectedId} />
         </div>
       </div>
 
@@ -179,6 +130,7 @@ export default function CreatorMapPanel({ handle, places = [], intro = "" }) {
             {[selected.city, selected.rating ? `${selected.rating.toFixed(1)}★${selected.reviews ? ` · ${selected.reviews.toLocaleString()} reviews` : ""}` : null].filter(Boolean).join(" · ")}
           </div>
           <div style={{ marginTop: 9 }}>
+            <a href={`https://maps.apple.com/?daddr=${selected.lat},${selected.lng}&dirflg=d`} target="_blank" rel="noopener" style={{ color: "#eed4a6", marginRight: 16, fontWeight: 800 }}>Directions ↗</a>
             <a href={`/p/${encodeURIComponent(selected.id)}`} style={{ fontSize: 13.5, fontWeight: 800, color: "#F97316", textDecoration: "none", marginRight: 16 }}>
               Open in Wayfind →
             </a>

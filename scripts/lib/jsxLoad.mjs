@@ -15,7 +15,7 @@ import ts from "typescript";
 // "react" by walking up from the importing file, and an OS-tmpdir build cannot
 // see node_modules. First attempt used os.tmpdir() and failed with
 // ERR_MODULE_NOT_FOUND for react.
-export async function loadComponent(entryAbs, repoRoot) {
+export async function loadComponent(entryAbs, repoRoot, { onGraph } = {}) {
   const out = mkdtempSync(path.join(repoRoot, ".wf-jsx-"));
   process.on("exit", () => { try { rmSync(out, { recursive: true, force: true }); } catch (e) {} });
   const done = new Map();
@@ -135,5 +135,9 @@ export async function loadComponent(entryAbs, repoRoot) {
     return file;
   };
 
-  return import(emit(entryAbs));
+  const compiledEntry = emit(entryAbs);
+  // Expose this invocation's exact source-to-module mapping to guards that
+  // must drive a child store. Directory sweeps can select another run's copy.
+  if (onGraph) onGraph(new Map(done));
+  return import(compiledEntry);
 }

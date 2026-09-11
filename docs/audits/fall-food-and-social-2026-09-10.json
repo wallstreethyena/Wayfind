@@ -1,0 +1,97 @@
+{
+  "audit_date": "2026-09-10",
+  "origin": {
+    "label": "Bradenton",
+    "lat": 27.4989,
+    "lng": -82.5748,
+    "food_radius_miles": 27
+  },
+  "qualified_additions": [
+    {
+      "place_id": "ChIJ1U_vFp0Xw4gRGKl6mJGJ9UI",
+      "name": "Joy Coffee",
+      "lat": 27.4597729,
+      "lng": -82.5757174,
+      "distance_miles": 2.7,
+      "inventory_status": "OPERATIONAL",
+      "stored_place_photo": true,
+      "source_url": "https://joycoffeebradenton.square.site/?fulfillment=PICKUP&location_id=LMTGQ2Y8V9RM8",
+      "verified": "2026-09-10",
+      "source_excerpt": "The official Square menu identifies Joy Coffee at 4524 14th St W, Bradenton and lists Spiced Pumpkin Flat White ($6), Classic Spiced Pumpkin Latte ($7), Pumpkin Bread ($5), Pumpkin Cloud Cold Brew ($7.50), Pumpkin Shaken Espresso ($6), Spiced Pumpkin Chai ($7.50) and Spiced Pumpkin Matcha Latte ($7.50).",
+      "retrieval_note": "A text-only retrieval labeled the menu items Unavailable, while a later fully hydrated live browser showed prices and pickup in nine minutes. No order was placed. Because availability can change, the card says the online menu lists these options and tells readers to confirm availability; it does not promise stock or an end date."
+    },
+    {
+      "place_id": "ChIJA-QkamE7w4gRfdzcxEHyPls",
+      "name": "ATRIA Cafe",
+      "lat": 27.4648662,
+      "lng": -82.4325881,
+      "distance_miles": 9.03,
+      "inventory_status": "OPERATIONAL",
+      "stored_place_photo": true,
+      "source_url": "https://order.toasttab.com/online/atria-cafe-lwr",
+      "verified": "2026-09-10",
+      "source_excerpt": "The official live Toast menu identifies Atria Cafe LWR at 4120 Lakewood Ranch Blvd, Bradenton and lists Pumpkin Spice Latte with pumpkin syrup and autumn spice, Vermont Maple Latte, Apple Pie French Toast, Thanksgiving Chicken Club and Autumn Seared Chicken Salad."
+    },
+    {
+      "place_id": "ChIJY5LPSxJAw4gRMhj-bOy9MKU",
+      "name": "Buddy Brew Coffee Sarasota",
+      "lat": 27.3364,
+      "lng": -82.544416,
+      "distance_miles": 11.38,
+      "inventory_status": "OPERATIONAL",
+      "stored_place_photo": true,
+      "source_url": "https://order.toasttab.com/online/buddybrewsarasota",
+      "verified": "2026-09-10",
+      "source_excerpt": "The official Toast menu identifies Buddy Brew Coffee Sarasota at 1289 N Palm Ave and has a literal Fall Specials section listing Spiced Pumpkin Latte, Caramel Apple Latte, Salted Maple Iced Flat White, Pumpkin Pie Matcha and Apple Cider Sparkler; its pastry menu also lists Pumpkin Bread, Maple Pecan Muffin and Apple Cinnamon Muffin."
+    }
+  ],
+  "rejected_or_held_leads": [
+    {
+      "name": "First Watch Bradenton",
+      "place_id": "ChIJHRtA_2MXw4gR8krgF386Zso",
+      "reason": "official geographic exclusion",
+      "source_url": "https://firstwatch.com/first-watch-debuts-new-fall-menu",
+      "evidence_date": "2026-08-18",
+      "evidence": "The current fall-menu release says the limited menu runs through October 26, 2026, but its footnote says it is not available in the Tampa Bay area."
+    },
+    {
+      "name": "Oxford Exchange",
+      "place_id": "ChIJ11hsiYXEwogRjDBv39F04J8",
+      "distance_miles": 31.47,
+      "reason": "outside the unchanged 27-mile food radius"
+    },
+    {
+      "name": "On Swann",
+      "place_id": "ChIJ5crCip3EwogRQnhkbw_Ir6U",
+      "distance_miles": 30.85,
+      "reason": "outside the unchanged 27-mile food radius"
+    },
+    {
+      "name": "White Oak lead",
+      "reason": "no canonical local identity, exact owner-provided source URL or literal current seasonal menu evidence exists in the reviewed repository or production inventory"
+    },
+    {
+      "name": "Local creator food visits",
+      "place_ids": [
+        "ChIJIQGDwpgXw4gRxIJcGmjtyK4",
+        "ChIJo_IdHf0lw4gRHDbQNKBRE84",
+        "ChIJHR5ndAAXw4gR8YMNFEoI_f0",
+        "ChIJNx9_bQA5w4gRnwQGGQQhsLQ",
+        "ChIJPSkey7Elw4gR5gvfcin8NQc",
+        "ChIJEUEmzE1Bw4gRHHXe_oxJF7E",
+        "ChIJU-JqYJo5w4gRTKYuKEM5uH0"
+      ],
+      "reason": "taxonomy and literal-evidence failure: the reviewed posts document ordinary visits or orders, not a current fall menu. Salted caramel, maple, or toasted marshmallow in a creator caption is fall-adjacent wording, not proof of a seasonal program. Keep these associations on place detail pages."
+    },
+    {
+      "name": "Joe the Boar Sarasota",
+      "source_url": "https://www.instagram.com/reel/DdAFZJIq-D7/",
+      "reason": "the reviewed association says only that a creator highlighted the venue; it contains no literal current seasonal food or drink claim"
+    }
+  ],
+  "existing_registry_disposition": {
+    "Paradeco Coffee Roasters": "eligible at 19.32 miles and already renders",
+    "Sol St Pete Bistro": "eligible at 19.45 miles and verified visible through its stored signals.photo_url image path; photo_ref alone is not the image eligibility test"
+  },
+  "social_audit_disposition": "The 45-source social attachment audit is association-complete. Those records supply creator attribution and detail-page evidence; they do not independently establish a current local fall menu for any additional Bradenton-area food place."
+}

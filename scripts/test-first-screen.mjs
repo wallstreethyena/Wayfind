@@ -29,6 +29,8 @@
 // the `suggested` prohibition — is untouched, and every assertion about it
 // below is the original.
 import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { loadComponent } from "./lib/jsxLoad.mjs";
 import { shellSrc } from "./lib/shellSrc.mjs";
 import { railArtSize } from "../lib/rails.js";
 
@@ -50,7 +52,7 @@ import { railArtSize } from "../lib/rails.js";
 // reason a delimiter like this is allowed to exist at all, and it is why the
 // probe is an assertion rather than a comment.
 const sliceEventsSlot = (src) => {
-  const a = src.indexOf('const eventsRailSlot = (mode = "events") => {');
+  const a = src.indexOf('const eventsRailSlot = (mode = "events", selectPosterEvents = null) => {');
   const b = src.indexOf("\n  };\n", a);
   return a > -1 && b > a ? src.slice(a, b) : "";
 };
@@ -277,12 +279,31 @@ passed++;
   ok(/key: "more"/.test(slot),
     "…with a tail rail for everything outside them — a civic event nobody bucketed is still on tonight, so it is never dropped");
 }
-// The honest zero-events fallback in the feed — a card and three alternative
-// intents — must survive. It is the one thing in that position that was never
-// the promo deck, and it is what a visitor sees when tonight is genuinely empty.
-ok(/Array\.isArray\(foryouEvents\) && foryouEvents\.length === 0/.test(code),
-  "the zero-events fallback is gone — a visitor with nothing on tonight now gets silence instead of an alternative");
-ok(/Nothing strong tonight nearby/.test(code), "…and it must still say so in words, not just render an empty box");
+// THE ZERO-EVENTS FALLBACK IS GONE, BY OWNER DECISION (2026-09-09), and this
+// assertion is now the INVERSE of what it was for two releases.
+//
+// It used to be a card reading "Nothing strong tonight nearby" over three
+// intent chips, and the two assertions here demanded it survive. The owner
+// asked for it off the main page. Reversing a guard is the dangerous direction
+// — the old rule existed so a visitor with an empty night was never met with
+// silence — so the reasoning is recorded rather than the assertion just
+// deleted: the three destinations still have doors. Date night and Hidden gems
+// are two of the fifteen cards in <DaypartRail> at the top of the same column,
+// and "It's raining (or too hot)" is a vibe chip (VIBES `rainy`, which sets
+// spec.indoorOnly). What went away is the card ANNOUNCING the emptiness, not
+// the alternatives themselves.
+//
+// Asserted as an absence, so the block cannot drift back in unnoticed — and
+// per AGENTS.md §4d an absence probe has to prove it can find a known positive
+// first, or it passes on a file it failed to read.
+ok(/const \[foryouEvents, setForyouEvents\]/.test(code),
+  "positive control: home.js was really read and still declares foryouEvents — if THIS fails the absence checks below prove nothing");
+ok(!/Nothing strong tonight nearby/.test(code),
+  "the zero-events card is back on the main page — the owner removed it on 2026-09-09; put it behind a decision, not a re-add");
+ok(!/foryouEvents\.length === 0 &&/.test(code),
+  "…and so is the branch that rendered it");
+ok(!/src: "events_empty"/.test(code),
+  "…the events_empty intent chips are back; they were removed with the card");
 
 // 4. Geometry is reserved from SHARED constants, so skeleton and live rail
 //    cannot drift apart and the swap stays shift-free.
@@ -338,7 +359,7 @@ ok(/const EV_RAIL_MIN_H = \d+/.test(code), "EV_RAIL_MIN_H constant missing");
   // was the half of this sentence that was not true until now — it was built
   // once and handed to nothing; scripts/check-events-rail-renders.mjs is what
   // asserts the handing-over, which is the part this file never checked.
-  const slotStart = code.indexOf('const eventsRailSlot = (mode = "events") => {');
+  const slotStart = code.indexOf('const eventsRailSlot = (mode = "events", selectPosterEvents = null) => {');
   ok(slotStart > -1, "the events rail is built once, as eventsRailSlot, and handed to the menu");
   const slot = sliceEventsSlot(code);
   ok(slot.length > 400, `PROBE: the events-rail slot was delimited (${slot.length} chars)`);
@@ -394,7 +415,9 @@ ok(/Events near you/.test(skel), "the events rail must show its real heading —
 // 6. Motion respects the reduced-motion preference (repo-wide rule).
 // WF_LAYOUT_CSS moved to app/components/css.js (decomposition wave 1) — still
 // the same shell, still the same inline <style> tag, so read the shell.
-const cssM = shellSrc().match(/const WF_LAYOUT_CSS = `([^`]*)`/);
+// Inspect the actual composed stylesheet, including shared skeleton styles.
+const { WF_LAYOUT_CSS } = await loadComponent(fileURLToPath(new URL("../app/components/css.js", import.meta.url)), fileURLToPath(new URL("..", import.meta.url)));
+const cssM = WF_LAYOUT_CSS ? [null, WF_LAYOUT_CSS] : null;
 ok(!!cssM, "WF_LAYOUT_CSS missing");
 ok(/\.wf-sk\{/.test(cssM[1]), "the .wf-sk shimmer style is missing");
 ok(/prefers-reduced-motion:reduce\)\{\.wf-sk\{animation:none\}/.test(cssM[1].replace(/\s/g, "")),

@@ -31,6 +31,7 @@ import IntentRailBody from "./IntentRail";
 import { applyCollapsedAttr, DEFAULT_COLLAPSED_RAILS, isCollapsed, markRailsReady, nextCollapsed, readCollapsed, writeCollapsed } from "../../lib/railCollapse";
 import { toDisplayScore } from "../../lib/score.js";
 import { placePartnerPick } from "../../lib/placePartnerPicks.js";
+import { usePinQuarantine } from "../../lib/pinQuarantine.js";
 import { nowSubline } from "../../lib/intentPages.js";
 import { LOAD_FAILED, LOAD_PENDING, canClaim, isFailed, settleLoad } from "../../lib/loadState.js";
 import { couponForPlace } from "../../lib/coupons.js";
@@ -415,6 +416,15 @@ export default function BestNearby({
   // them. `toggle` still closes it, so the accordion is not being deleted —
   // its default is being inverted.
   const [open, setOpen] = useState(DEFAULT_SECTION);
+  // LIVE QUARANTINE (2026-09-10). A pinned product that dies in the
+  // catalogue must stop painting a Book button without waiting for a
+  // deploy. The snapshot is always a usable catalog and quarantines
+  // nothing until the server has named a specific code dead, so passing
+  // it is unconditionally safe. See lib/pinQuarantine.js.
+  // Declared here, ABOVE every early return: it is a hook, and an exit
+  // above it would move React's hook count between renders — the exact
+  // failure scripts/check-hook-order.mjs exists for.
+  const pinQ = usePinQuarantine();
   // v7.05: `open` no longer means "the only section that is open" — the
   // collapsed set below decides that. It is now the section the reader last
   // acted on, which is what the headline describes and what the mount fetch
@@ -898,7 +908,7 @@ export default function BestNearby({
     { id: "quickbite", label: "The 30-Minute Break", sub: "Half the break dies deciding. The best quick, counter-serve food near you — already ranked.", emoji: "⚡", line: true, intent: "quick-bite", href: "/quick-bite", unit: "quick bites" },
     { id: "todo", label: "What Should We Do Today?", sub: "Ends the 'I don't know, you pick' spiral: real plans, ranked for right now.", icon: "attractions" },
     { id: "gems", label: "Places You'd Never Find", sub: "Loved by the few who've found them, missed by the big lists — and near you.", icon: "gem", line: true, intent: "hidden-gems", href: "/hidden-gems", unit: "hidden gems" },
-    { id: "creators", label: "Locals Know", sub: "Not a listicle: creators who actually went, matched to places near you.", icon: "film", line: true, slot: "creators" },
+    { id: "creators", label: "Creators Pick", sub: "Not a listicle: creators who actually went, matched to places near you.", icon: "film", line: true, slot: "creators" },
     { id: "tonight", label: "Tonight's Move", sub: "Plans that fit tonight's hours — not somebody's reheated weekend list.", icon: "ticket", line: true, intent: "tonight", href: "/tonight", unit: "picks for tonight" },
     { id: "drive", label: "Worth the Drive", sub: "An hour in the car has to earn itself. These are the ones that do.", icon: "car", line: true, intent: "worth-the-drive", href: "/worth-the-drive", unit: "day trips" },
     { id: "events", label: "Events Near You", sub: "Stop finding out the day after: concerts, shows and one-nighters near you.", icon: "ticket", line: true, slot: "events" },
@@ -1040,7 +1050,7 @@ export default function BestNearby({
                 // is an exact normalized-name match against nine curated rows,
                 // so this is null on almost every card and never a guessed
                 // ticket link for a venue we have not confirmed sells one.
-                const partner = placePartnerPick(p);
+                const partner = placePartnerPick(p, pinQ);
                 const coupon = couponForPlace(p);
                 // The SAME facts row the food cards carry (owner, 2026-08-09:
                 // "we don't have much information like the ones from the

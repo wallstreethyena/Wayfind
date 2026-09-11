@@ -8,6 +8,7 @@ import pytest
 from wayfind_audit.analyze import audit
 from wayfind_audit.cli import main, markdown
 from wayfind_audit.collect import collect
+from wayfind_audit.duplicate_reviews import distinct_review
 from wayfind_audit.snapshot import COLUMNS, AuditError, read_snapshot, validate
 
 
@@ -302,3 +303,76 @@ def test_spatial_join_matches_bruteforce():
     result = audit(sample(rows))["duplicates"]
     assert {(p["left_id"], p["right_id"]) for p in result["candidate_pairs"]} == expected
     assert result["compared_pairs"] == len(expected) > 0
+
+
+def test_failure_without_attempts_is_not_idle():
+    data = sample()
+    data["datasets"]["jobs"]["rows"][0][3:] = [0, 0, 1]
+    result = audit(data)
+    assert result["jobs"][0]["idle_runs"] == 0
+    assert result["jobs"][0]["zero_attempt_failure_runs"] == 1
+    assert result["recent_jobs"][0]["zero_attempt_failure_runs"] == 1
+
+
+def test_excluded_duplicate_retained_outside_active_queue():
+    result = audit(sample([place("a"), place("b", excluded=True, status="EXCLUDED")]))
+    assert result["duplicates"]["candidate_pairs"] == []
+    assert len(result["duplicates"]["inactive_pairs"]) == 1
+    assert result["input_counts"]["places"] == 2
+
+
+def test_recent_jobs_excludes_old_failures_and_compares_timezones():
+    data = sample()
+    data["datasets"]["jobs"]["rows"] = [
+        [1, "helper", "2026-09-01T12:00:00Z", 5, 0, 5],
+        [2, "helper", "2026-09-05T07:00:00-04:00", 0, 0, 0],
+    ]
+    data["expected_counts"]["jobs"] = 2
+    result = audit(data)
+    assert result["jobs"][0]["zero_output_runs"] == 1
+    assert result["recent_jobs"][0]["runs"] == 1
+    assert result["recent_jobs"][0]["idle_runs"] == 1
+    assert result["recent_jobs"][0]["zero_output_runs"] == 0
+
+
+def test_distinct_restaurants_review_is_identity_scoped():
+    rows = [
+        place("ChIJJ-YCrau32YgRrR2M1W_RPF4", name="Sadelle's Coconut Grove"),
+        place("ChIJgW_5qc632YgRJp09efZfDEg", name="Isabelle's Coconut Grove"),
+    ]
+    result = audit(sample(rows))["duplicates"]
+    assert result["candidate_pairs"] == []
+    assert len(result["reviewed_distinct_pairs"]) == 1
+    rows[1][1] = "Sadelle's Coconut Grove"
+    result = audit(sample(rows))["duplicates"]
+    assert len(result["candidate_pairs"]) == 1
+    assert result["reviewed_distinct_pairs"] == []
+
+
+def test_ephesus_locations_review_is_symmetric_and_identity_scoped():
+    first_id = "ChIJNblf529rw4gRV-g7pW90fGI"
+    second_id = "ChIJj1pZOABrw4gRDH0EH8jmQa4"
+    first_name = "ephesus mediterranean delights"
+    second_name = "ephesus mediterranean delights ii"
+
+    assert distinct_review(first_id, second_id, first_name, second_name, "food")
+    assert distinct_review(second_id, first_id, second_name, first_name, "food")
+    assert (
+        distinct_review(first_id, second_id, first_name, "ephesus mediterranean delights", "food")
+        is None
+    )
+    assert distinct_review(first_id + "x", second_id, first_name, second_name, "food") is None
+    assert distinct_review(first_id, second_id, first_name, second_name, "restaurant") is None
+
+    result = audit(
+        sample(
+            [
+                place(first_id, name="Ephesus Mediterranean Delights"),
+                place(second_id, name="Ephesus Mediterranean Delights II"),
+            ]
+        )
+    )["duplicates"]
+    assert result["candidate_pairs"] == []
+    assert [(p["left_id"], p["right_id"]) for p in result["reviewed_distinct_pairs"]] == [
+        (first_id, second_id)
+    ]

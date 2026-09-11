@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import RailCard, { RailDots, RailNav } from "./RailCard";
+import RailHeading from "./RailHeading";
 import { directionsUrl } from "./kit";
 import { splitBreakfastRails } from "../../lib/breakfastRails.js";
 import { toHookLine } from "../../lib/editorialHook";
@@ -10,22 +11,20 @@ import { wayfindScore } from "../../lib/wayfindScore.js";
 import { topPickAward } from "../../lib/topPickAward.js";
 import { priceLabel } from "../../lib/price.js";
 import { railScrollNeedsMore } from "../../lib/railResponse.js";
+import { visibleRails } from "../../lib/railVisibility.js";
 
 const compact = (n) => Number(n) >= 1000 ? Math.round(Number(n) / 100) / 10 + "k" : String(Number(n) || 0);
 
 export default function BreakfastRails({ places = [], city = "", hasMore = false, loadingMore = false, onLoadMore, onOpenPlace, isSaved, liked, disliked, isLiked, isDisliked, onSave, onLike, onDislike, onShare }) {
-  const rails = useMemo(() => splitBreakfastRails(places), [places]);
+  const rails = useMemo(() => visibleRails(splitBreakfastRails(places), "places"), [places]);
   return (
     <>
       {rails.map((rail) => (
         <section key={rail.id} aria-label={rail.title} style={{ marginTop: 22 }}>
-          <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 800, color: "#F1F5F9" }}>{rail.title}</h2>
-          <p className="wf-rail-deck" style={{ color: "#AEB8C6" }}>{rail.deck}</p>
-          {!rail.places.length ? (
-            <p style={{ margin: "8px 0 0", fontSize: 13, color: "#8b93a1" }}>No nearby place clearly qualifies for this rail yet.</p>
-          ) : (
-            <>
-              <RailNav railId={rail.id} count={rail.places.length} unit={rail.places.length === 1 ? "ranked place" : "ranked places"} />
+          <RailHeading title={rail.title} description={rail.deck}>
+            <RailNav railId={rail.id} count={rail.places.length} unit={rail.places.length === 1 ? "ranked place" : "ranked places"} />
+          </RailHeading>
+          <>
               <div className="wf-rail wf-rail-exploding" data-rail={rail.id} tabIndex={0} role="region" aria-label={rail.title}
                 onScroll={(event) => {
                   if (hasMore && !loadingMore && railScrollNeedsMore(event.currentTarget, Math.max(180, event.currentTarget.clientWidth * 0.75))) onLoadMore?.();
@@ -66,8 +65,7 @@ export default function BreakfastRails({ places = [], city = "", hasMore = false
                 })}
               </div>
               {rail.places.length > 1 ? <RailDots railId={rail.id} count={rail.places.length} /> : null}
-            </>
-          )}
+          </>
         </section>
       ))}
       {hasMore ? <button type="button" className="wf8-thinbtn" disabled={loadingMore} onClick={() => onLoadMore?.()}>

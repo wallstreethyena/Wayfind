@@ -32,7 +32,8 @@
 // silently passing it.
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { createElement } from "react";
+import { act, createElement } from "react";
+import { createRoot } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadComponent } from "./lib/jsxLoad.mjs";
 
@@ -91,6 +92,202 @@ ok(at2 && at2.hasMore === false, "…and reports nothing more to fetch");
 // would fail on correct code, which CLAUDE.md rates worse than no guard.
 ok(at10 && typeof at10.sentinelRef === "function", `the hook returns a sentinelRef CALLBACK alongside the index (got ${at10 && typeof at10.sentinelRef}) — a formula computed and never returned reaches no caller`);
 ok(at10 && typeof at10.fetchMore === "function", "…and a fetchMore the observer can call");
+
+// ── 1b. THE OBSERVER SURVIVES A SAME-NODE SEED UPDATE ─────────────────────
+// NightOutRails first renders a fallback seed, then replaces it with the real
+// bulk response. The first ten ids can be identical while only total changes
+// from 10 to 16. That changes usePagedRail's key, but React keeps card #8's
+// DOM node and does not call a stable callback ref again. This is a real React
+// client mount/update (effects and callback refs both run), not an SSR-only
+// hook read: an effect cleanup that disconnects on key change must explicitly
+// reattach the still-mounted node or paging dies at ten cards.
+class TestNode {
+  constructor(nodeType, nodeName, ownerDocument = null) {
+    this.nodeType = nodeType;
+    this.nodeName = nodeName;
+    this.tagName = nodeType === 1 ? nodeName : undefined;
+    this.ownerDocument = ownerDocument;
+    this.parentNode = null;
+    this.childNodes = [];
+    this.namespaceURI = "http://www.w3.org/1999/xhtml";
+    this.style = {};
+    this.attributes = new Map();
+  }
+  get firstChild() { return this.childNodes[0] || null; }
+  get lastChild() { return this.childNodes[this.childNodes.length - 1] || null; }
+  appendChild(node) {
+    if (node.parentNode) node.parentNode.removeChild(node);
+    this.childNodes.push(node);
+    node.parentNode = this;
+    return node;
+  }
+  insertBefore(node, before) {
+    if (node.parentNode) node.parentNode.removeChild(node);
+    const index = this.childNodes.indexOf(before);
+    if (index < 0) throw new Error("insertBefore target is not a child");
+    this.childNodes.splice(index, 0, node);
+    node.parentNode = this;
+    return node;
+  }
+  removeChild(node) {
+    const index = this.childNodes.indexOf(node);
+    if (index < 0) throw new Error("removeChild target is not a child");
+    this.childNodes.splice(index, 1);
+    node.parentNode = null;
+    return node;
+  }
+  setAttribute(name, value) { this.attributes.set(name, String(value)); }
+  removeAttribute(name) { this.attributes.delete(name); }
+  addEventListener() {}
+  removeEventListener() {}
+}
+class TestElement extends TestNode {
+  constructor(name, ownerDocument) {
+    super(1, name.toUpperCase(), ownerDocument);
+    this.tagName = name.toUpperCase();
+    this.localName = name.toLowerCase();
+  }
+  set textContent(value) {
+    this.childNodes = [];
+    this._text = String(value ?? "");
+  }
+  get textContent() { return this._text || this.childNodes.map((node) => node.textContent).join(""); }
+}
+class TestText extends TestNode {
+  constructor(value, ownerDocument) { super(3, "#text", ownerDocument); this.nodeValue = String(value); }
+  set textContent(value) { this.nodeValue = String(value); }
+  get textContent() { return this.nodeValue; }
+}
+class TestComment extends TestNode {
+  constructor(value, ownerDocument) { super(8, "#comment", ownerDocument); this.nodeValue = String(value); }
+}
+class TestDocument extends TestNode {
+  constructor() {
+    super(9, "#document", null);
+    this.ownerDocument = this;
+    this.documentElement = new TestElement("html", this);
+    this.body = new TestElement("body", this);
+    this.documentElement.appendChild(this.body);
+  }
+  createElement(name) { return new TestElement(name, this); }
+  createElementNS(_namespace, name) { return new TestElement(name, this); }
+  createTextNode(value) { return new TestText(value, this); }
+  createComment(value) { return new TestComment(value, this); }
+  addEventListener() {}
+  removeEventListener() {}
+}
+
+const priorBrowserGlobals = Object.fromEntries([
+  "document", "window", "Node", "Element", "HTMLElement", "HTMLIFrameElement",
+  "IntersectionObserver", "IS_REACT_ACT_ENVIRONMENT", "fetch",
+].map((name) => [name, globalThis[name]]));
+const testDocument = new TestDocument();
+const TestIFrame = class extends TestElement {};
+const testWindow = {
+  document: testDocument,
+  HTMLElement: TestElement,
+  HTMLIFrameElement: TestIFrame,
+  addEventListener() {},
+  removeEventListener() {},
+};
+testDocument.defaultView = testWindow;
+
+const observers = [];
+class TestIntersectionObserver {
+  constructor(callback) { this.callback = callback; this.targets = new Set(); observers.push(this); }
+  observe(node) { this.targets.add(node); }
+  disconnect() { this.targets.clear(); }
+  fire() {
+    if (!this.targets.size) return;
+    this.callback([...this.targets].map((target) => ({ target, isIntersecting: true })));
+  }
+}
+
+let releaseStalePage;
+const requests = [];
+const firstExtra = Array.from({ length: 6 }, (_, i) => ({ id: `a${i + 10}` }));
+globalThis.fetch = async (url) => {
+  requests.push(String(url));
+  if (requests.length === 1) {
+    return { ok: true, status: 200, json: async () => ({ places: firstExtra, total: 16, hasMore: false }) };
+  }
+  return new Promise((resolve) => {
+    releaseStalePage = () => resolve({
+      ok: true,
+      status: 200,
+      json: async () => ({ places: [{ id: "stale-a10" }], total: 11, hasMore: false }),
+    });
+  });
+};
+Object.assign(globalThis, {
+  document: testDocument,
+  window: testWindow,
+  Node: TestNode,
+  Element: TestElement,
+  HTMLElement: TestElement,
+  HTMLIFrameElement: TestIFrame,
+  IntersectionObserver: TestIntersectionObserver,
+  IS_REACT_ACT_ENVIRONMENT: true,
+});
+
+const seed = (prefix) => Array.from({ length: 10 }, (_, i) => ({ id: `${prefix}${i}` }));
+const firstTen = seed("a");
+let liveHook = null;
+function LifecycleProbe({ params, seedItems, seedTotal }) {
+  liveHook = usePagedRail("/api/night-out", params, { seedItems, seedTotal });
+  return createElement("div", null, liveHook.items.map((item, index) => createElement("article", {
+    key: item.id,
+    ref: index === liveHook.sentinelIndex ? liveHook.sentinelRef : null,
+  })));
+}
+
+const host = testDocument.createElement("div");
+const root = createRoot(host);
+try {
+  await act(async () => {
+    root.render(createElement(LifecycleProbe, { params: { lat: "27.57" }, seedItems: firstTen, seedTotal: 10 }));
+  });
+  const originalSentinel = host.firstChild?.childNodes[7];
+  ok(originalSentinel && observers.some((observer) => observer.targets.has(originalSentinel)),
+    "client mount observes the eighth card — positive control that the lifecycle test reached a real callback ref");
+
+  // Same ten ids and therefore the same card #8 DOM node; only the real total
+  // changes. This is the fallback -> remote transition that failed live.
+  await act(async () => {
+    root.render(createElement(LifecycleProbe, { params: { lat: "27.57" }, seedItems: firstTen.slice(), seedTotal: 16 }));
+  });
+  ok(host.firstChild?.childNodes[7] === originalSentinel,
+    "fallback-to-remote update keeps the eighth card's DOM node — positive control for the exact same-node lifecycle");
+  await act(async () => { for (const observer of observers) observer.fire(); });
+  ok(requests.length === 1 && /[?&]page=1(?:&|$)/.test(requests[0] || ""),
+    `the still-mounted sentinel remains observed after the seed key changes and requests page 1 (requests: ${requests.join(", ") || "none"})`);
+  ok(liveHook?.items.length === 16 && liveHook?.hasMore === false,
+    `the page-1 response appends six cards and closes paging at 16 (items=${liveHook?.items.length}, hasMore=${liveHook?.hasMore})`);
+
+  // Preserve the existing stale-response contract while touching observer
+  // attachment: a request from one location cannot append after location and
+  // seed have changed beneath it.
+  const oldLocationSeed = seed("c");
+  await act(async () => {
+    root.render(createElement(LifecycleProbe, { params: { lat: "27.58" }, seedItems: oldLocationSeed, seedTotal: 11 }));
+  });
+  await act(async () => { for (const observer of observers) observer.fire(); });
+  ok(requests.length === 2 && /lat=27.58/.test(requests[1] || ""),
+    "a newly keyed location can page through its reattached sentinel — positive control for the pending stale request");
+  const newLocationSeed = seed("d");
+  await act(async () => {
+    root.render(createElement(LifecycleProbe, { params: { lat: "28.00" }, seedItems: newLocationSeed, seedTotal: 10 }));
+  });
+  await act(async () => { if (releaseStalePage) releaseStalePage(); await Promise.resolve(); });
+  ok(liveHook?.items.length === 10 && liveHook.items.every((item) => item.id.startsWith("d")),
+    "a prior location's late page response is ignored after the key changes");
+} finally {
+  await act(async () => root.unmount());
+  for (const [name, value] of Object.entries(priorBrowserGlobals)) {
+    if (value === undefined) delete globalThis[name];
+    else globalThis[name] = value;
+  }
+}
 
 // ── 2. RailNav PREFERS total OVER count, BY RENDERING IT ────────────────────
 const cardMod = await loadComponent(fileURLToPath(new URL("../app/components/RailCard.js", import.meta.url)), REPO);
@@ -177,4 +374,4 @@ if (fail.length) {
   for (const message of fail) console.error("  - " + message);
   process.exit(1);
 }
-console.log(`check-rail-paging-contract: OK — ${pass} assertions; usePagedRail was RENDERED and its sentinel read back at two page sizes (7 at size 10, 2 at size 5 — a literal cannot be both), RailNav was RENDERED three ways to prove it keys off the true total, and the four structural JSX-wiring rules each carry a matching positive control and a non-matching red-prove. False-positive surface: 4 rail sections + RailCard.js + usePagedRail.js; it proves nothing about rails outside that list.`);
+console.log(`check-rail-paging-contract: OK — ${pass} assertions; usePagedRail ran through a real client mount, same-node seed-key update, page-1 append and stale-location response, and its sentinel was also read back at two page sizes (7 at size 10, 2 at size 5). RailNav was RENDERED three ways to prove it keys off the true total, and the four structural JSX-wiring rules each carry a matching positive control and a non-matching red-prove. False-positive surface: 4 rail sections + RailCard.js + usePagedRail.js; it proves nothing about rails outside that list.`);

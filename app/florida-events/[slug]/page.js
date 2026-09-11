@@ -7,6 +7,9 @@
 // namespace.
 //
 // The answer box comes FIRST. Nobody wants 500 words before the date.
+import EventPlacePhoto from "../../components/EventPlacePhoto.js";
+import EventDetailShell from "../../components/EventDetailShell.js";
+import EventSectionNav from "../../components/EventSectionNav.js";
 import EventExperienceStyles from "../../components/EventExperienceStyles.js";
 import { notFound } from "next/navigation";
 import { safeUrl } from "../../../lib/links.js";
@@ -17,9 +20,14 @@ import { addressLine, appleDirectionsUrl } from "../../../lib/placeWhere";
 import ShareButton from "../../components/ShareButton";
 import SaveEventButton from "./SaveEventButton.js";
 import EventWhere from "../../components/EventWhere";
+import ReturnToWayfind from "../../components/ReturnToWayfind.js";
 import { eventPairings, pairingHref } from "../../../lib/eventPairings";
 import { eventTicketCta } from "../../../lib/eventTicketDeals.js";
 import { clockLabel } from "../../../lib/fallPool.js";
+import { eventSocialPosts } from "../../../lib/eventSocial.js";
+import VideoFacade from "../../components/VideoFacade.js";
+import CreatorPlaybackDetails from "../../components/CreatorPlaybackDetails.js";
+import { isEmbeddable } from "../../../lib/videoEmbed";
 
 // Same two-letter monogram convention as RailCard/IconicPlaceCard's card
 // fallback (app/components/css.js .wf-place-card-monogram) — the letters an
@@ -73,7 +81,6 @@ export async function generateMetadata({ params }) {
 const S = {
   page: { maxWidth: 720, margin: "0 auto", padding: "28px 18px 60px", background: "#0D1117", color: "#E6EDF3", fontFamily: "var(--wf-sans)", lineHeight: 1.65 },
   kicker: { fontSize: 12, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: "#FF8A3D" },
-  h1: { fontSize: 30, lineHeight: 1.2, margin: "10px 0 8px", fontWeight: 800, color: "#FFFFFF" },
   // v9.00 — THE CONCISE REASON TO GO, right under the title. card_hook is a
   // line every curated row already carries (isTrusted requires one) and it
   // used to surface nowhere on this page until "Why it's worth going" much
@@ -89,61 +96,17 @@ const S = {
   note: { fontSize: 14.5, color: "#C9D1D9", background: "#161B22", borderLeft: "3px solid #FF8A3D", borderRadius: 8, padding: "10px 14px", margin: "0 0 14px" },
   link: { color: "#FF8A3D", textDecoration: "none", fontWeight: 700 },
   foot: { fontSize: 13.5, color: "#8B949E", marginTop: 30, borderTop: "1px solid #21262D", paddingTop: 14 },
-  // v8.69 — owned event photography (see lib/eventPhotos.js for the consent
-  // rule that gates it). The hero is a wide band; the strip below it scrolls
-  // horizontally and shows phone photos at the portrait aspect they were shot
-  // at, because letterboxing a 2:3 photo into a 2:1 slot crops the subject out.
-  hero: { width: "100%", height: "auto", aspectRatio: "1200 / 631", objectFit: "cover", borderRadius: 14, display: "block", margin: "0 0 16px", background: "#161B22" },
-  // v9.00 — A HERO MUST NEVER RENDER AS NOTHING. Before this, an event with no
-  // owned-photography consent record (lib/eventPhotos.js — most events, by
-  // design, since consent defaults to NO) got no hero at all: the page opened
-  // straight on the kicker and h1, which is exactly the "text document, not a
-  // premium event page" the owner named. The ladder is now: (1) owned,
-  // consented photography (shots.hero); (2) a real photo the row already
-  // holds (hero_image — a PLACE photo, often Google's own, so it is not
-  // gated by the person-likeness consent law eventPhotos.js enforces); (3)
-  // only when neither exists, this monogram panel, in the same visual
-  // language as app/components/css.js's .wf-place-card-monogram fallback —
-  // never a giant empty rectangle, and never a stretched stock photo standing
-  // in for an event we hold no rights to. Same failure shape PR #1151 fixes
-  // for place cards; this is that fix applied to the event hero.
-  heroFallback: {
-    width: "100%", aspectRatio: "1200 / 631", borderRadius: 14, margin: "0 0 16px",
-    display: "flex", alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden",
-    background: "radial-gradient(circle at 32% 22%,rgba(255,138,61,.22),transparent 45%),linear-gradient(155deg,#1B2433 0%,#131A25 55%,#0D1117 100%)",
-    border: "1px solid rgba(255,142,61,.16)",
-  },
   heroFallbackRing: {
     width: 84, height: 84, borderRadius: 22, display: "flex", alignItems: "center", justifyContent: "center",
     border: "1px solid rgba(255,142,61,.34)", background: "rgba(255,255,255,.02)",
     boxShadow: "0 18px 40px rgba(0,0,0,.35), inset 0 1px rgba(255,255,255,.06)",
   },
   heroFallbackMark: { fontSize: 28, fontWeight: 900, letterSpacing: ".06em", color: "#FFC08F" },
-  // v8.70 — THE RAIL, REBUILT SO IT CANNOT STRETCH.
-  //
-  // The first version put width + aspect-ratio directly on the <img> inside a
-  // flex row. Two things then went wrong together on desktop: a flex row's
-  // default `align-items: stretch` overrides an item's own computed height, and
-  // the intrinsic width/height attributes (853x1280) give the box something
-  // enormous to stretch to. The result was four full-viewport-height slabs.
-  //
-  // The fix is to stop asking the image to size itself at all. Each photo sits
-  // in a wrapper with an EXPLICIT px width AND height; the <img> just fills it
-  // with object-fit: cover. No aspect-ratio maths, no intrinsic-size influence,
-  // and `alignItems: flex-start` means nothing can be stretched by the row.
-  strip: {
-    display: "flex", alignItems: "flex-start", gap: 10,
-    overflowX: "auto", overscrollBehaviorX: "contain",
-    padding: "2px 0 10px", margin: "0 0 6px",
-    WebkitOverflowScrolling: "touch", scrollSnapType: "x mandatory",
-  },
-  shotBox: {
-    flex: "0 0 auto", width: 172, height: 258,
-    borderRadius: 12, overflow: "hidden", background: "#161B22",
-    scrollSnapAlign: "start",
-  },
-  shot: { width: "100%", height: "100%", objectFit: "cover", display: "block" },
   credit: { fontSize: 12.5, color: "#8B949E", margin: "0 0 22px" },
+  social: { margin: "22px 0", padding: "16px", border: "1px solid #26303B", borderRadius: 14, background: "#111821" },
+  socialRail: { display: "flex", gap: 14, overflowX: "auto", overscrollBehaviorX: "contain", padding: "4px 2px 10px", scrollSnapType: "x proximity" },
+  socialPost: { flex: "0 0 min(78vw, 300px)", maxWidth: 300, scrollSnapAlign: "start", borderRadius: 20, overflow: "hidden", border: "1px solid #65443d", background: "linear-gradient(180deg,#302021,#191415)" },
+  socialLink: { display: "block", color: "#efd0a6", fontSize: 14, fontWeight: 800, textDecoration: "none", padding: "0 16px 18px" },
   // v8.88 — the way back. Byte-identical to the pill on /guides and
   // /guides/[slug] (check-guides pins that anchor) because a reader who has
   // seen it once should not have to learn a second control: this page simply
@@ -166,17 +129,16 @@ const S = {
   // finds it before anything else. Directions is deliberately the SECONDARY
   // action, one level down inside EventWhere — the hierarchy the owner asked
   // for. scripts/check-event-hero-and-directions.mjs proves the count of one.
-  ticketWrap: { margin: "-8px 0 24px" },
+  ticketWrap: { margin: "16px 0 24px" },
   tix: {
     display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
     width: "100%", boxSizing: "border-box", maxWidth: "100%", textAlign: "center", overflowWrap: "anywhere", padding: "16px 20px", borderRadius: 14,
     background: "linear-gradient(180deg,#FFA35C,#F97316)", border: "1px solid #F97316", color: "#111827",
     fontSize: 16, fontWeight: 850, textDecoration: "none", lineHeight: 1.4,
-    boxShadow: "0 16px 34px rgba(249,115,22,.32)",
+    boxShadow: "0 0 22px rgba(249,115,22,.30), 0 12px 36px rgba(249,115,22,.38), inset 0 1px 0 rgba(255,255,255,.3)",
   },
   disclosure: { margin: "10px 0 0", fontSize: 11.5, color: "#8B949E", textAlign: "center" },
   actionsRow: { display: "flex", gap: 10, flexWrap: "wrap" },
-  shareTop: { margin: "-8px 0 22px" },
   shareEnd: { margin: "28px 0 4px", padding: "18px 20px", borderRadius: 16, background: "#0E1520", border: "1px solid #1F2A3A" },
   shareAsk: { margin: "0 0 12px", fontSize: 15.5, lineHeight: 1.5, color: "#C9D1D9" },
   // "Nearby & worth it" — compact place cards (thumbnail + text), the same
@@ -231,6 +193,23 @@ export default async function CuratedEventPage({ params }) {
   // 2026-09-06: "does not have the address nor the website for the place".
   const site = eventWebsiteUrl(e) || null;
   const ticket = eventTicketCta(e.event_id, { surface: "florida_event_page" });
+  const socialPosts = eventSocialPosts(e.event_id) || [];
+  // The card's creator mark promises that the post is one tap away. Reuse the
+  // event's already-cleared hero as the click-to-load cover so that promise is
+  // visible before Instagram's third-party iframe is requested.
+  const socialPoster = shots && shots.hero ? shots.hero.src : (e.hero_image || null);
+  const socialPosterFallback = shots && shots.hero ? (e.hero_image || null) : null;
+  const socialDetails = (post) => <>
+    <div style={{ padding: "18px 16px 14px" }}>
+      <h3 style={{ margin: "0 0 6px", color: "#fff", fontFamily: "Georgia,serif", fontSize: 22, lineHeight: 1.25 }}>{e.event_name}</h3>
+      <p style={{ margin: "0 0 10px", color: "#aaa3a0", fontSize: 13 }}>{[e.venue, e.city].filter(Boolean).join(" · ")}</p>
+      <p style={{ margin: 0, color: "#cbbab2", fontSize: 13, lineHeight: 1.5 }}>Seen by @{post.creator}. {socialPoster ? "Event cover shown." : "Open the creator’s post to see more."}</p>
+    </div>
+    <a href={post.url} target="_blank" rel="noopener" style={S.socialLink}
+      aria-label={`View @${post.creator}'s Instagram post about ${e.event_name} (opens in a new tab)`}>
+      View @{post.creator}&rsquo;s post on Instagram ↗
+    </a>
+  </>;
   // Real nearby places worth an outing, ranked by Wayfind — [] (and no section)
   // where there is nothing honestly nearby, so a page never shows a thin shelf.
   // They render inside <EventWhere> (numbered cards + the same numbers as pins).
@@ -262,71 +241,30 @@ export default async function CuratedEventPage({ params }) {
           Two doors, because they answer different questions: the product, and
           the shelf this event sits on. */}
       <div className="wf-event-brand"><a href="/" aria-label="Wayfind home"><img src="/brand/wayfind-official-white.png" alt="Wayfind" width="145" height="42" /></a><div style={S.backRow}>
-        <a style={S.back} href="/">&lsaquo; Back to Wayfind</a>
+        <ReturnToWayfind style={S.back} />
         <a style={S.back} href="/florida-events">&lsaquo; Florida Events</a>
       </div>
 
       </div>
-      <div className="wf-event-hero">
-
-      {/* Owned photography leads — eventPhotos() fails closed when there is
-          no consent record, so a person never appears on this page without
-          one. hero_image is a PLACE photo (often Google's own), not of a
-          person, so it is not gated by that same law and is the second rung.
-          Only when NEITHER exists does the page fall to the monogram (v9.00,
-          S.heroFallback below): a hero must never render as nothing. */}
-      {shots && shots.hero ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <div className="wf-event-photo"><img src={shots.hero.src} alt={shots.hero.alt} width={shots.hero.w} height={shots.hero.h} /></div>
-      ) : e.hero_image ? (
-        <div className="wf-event-photo"><img src={e.hero_image} alt={e.image_alt || `${e.event_name} at ${e.venue || e.city}`} /></div>
-      ) : (
-        <div className="wf-event-photo" style={S.heroFallback} role="img" aria-label={`${e.event_name} — no photo available yet`}>
-          <div style={S.heroFallbackRing}><span style={S.heroFallbackMark}>{heroInitials(e.short_title || e.event_name)}</span></div>
-        </div>
-      )}
-
-      <aside className="wf-event-booking" aria-label="Event details and booking">
-      <div className="wf-event-eyebrow">Your next good plan</div>
-      <h1 style={S.h1}>{e.event_name} {e.year}</h1>
-      {/* The answer box. Date first, always. */}
-      <div className="wf-event-summary">
-        <div style={S.row}><span style={S.k}>When</span><span style={S.v}>{dateRangeLabel(e)}, {e.year}{clockLabel(e.start_time) ? ` · ${clockLabel(e.start_time)}${clockLabel(e.end_time) ? "–" + clockLabel(e.end_time) : ""}` : ""}</span></div>
-        <div style={S.row}>
-          <span style={S.k}>Where</span>
-          <span style={S.v}>
-            {e.venue ? <div>{e.venue}</div> : null}
-            {/* The street, on its own line. When we hold no street address
-                this falls back to "City, ST" — the same fact the venue line
-                already implies, so it is only printed when it ADDS something
-                (no venue name to carry it). Never a fabricated precision. */}
-            {where && (e.venue ? where !== `${e.city}, ${e.state}` : true)
-              ? <div style={S.addr}>{where}</div>
-              : (!e.venue ? <div style={S.addr}>{e.city}, {e.state}</div> : null)}
-          </span>
-        </div>
-        {/* v9.00 — the Website row that lived here is gone. It printed the
-            raw path ("buschgardens.com/tampa/events/howl-o-scream") as link
-            text with no width limit — the exact "raw URL wraps badly" defect
-            the owner named — and it duplicated the "Official site" button
-            <EventWhere> already renders below with a clean, host-only
-            caption. One official-site affordance, not two, and never a raw
-            path as visible text. */}
-        <div style={S.row}><span style={S.k}>Cost</span><span style={S.v}>{e.is_free ? "Free" : (e.price_band || "Ticketed — see the organiser")}</span></div>
-        {e.minimum_age ? <div style={S.row}><span style={S.k}>Age</span><span style={S.v}>{e.minimum_age}+</span></div> : null}
-        {e.duration_recommendation ? <div style={S.row}><span style={S.k}>Time needed</span><span style={S.v}>{e.duration_recommendation}</span></div> : null}
-        {e.crowd_level ? <div style={S.row}><span style={S.k}>Crowds</span><span style={S.v}>{e.crowd_level}</span></div> : null}
-        {e.wayfind_verdict ? <div style={S.row}><span style={S.k}>Verdict</span><span style={S.v}>{e.wayfind_verdict}</span></div> : null}
-      </div>
-
-      {/* v9.00 — THE PRIMARY ACTION, and only that one. Directions used to
-          render TWICE — once as its own pill here, once inside <EventWhere>
-          below — which is the exact "directions are duplicated" defect the
-          owner named (2026-09-07). Get Directions now renders from EXACTLY
-          ONE place (EventWhere, handed `dirs` below): it is the SECONDARY
-          action, because the primary thing a reader does on an event they
-          have to BUY a ticket to is buy the ticket. Absent entirely when no
-          affiliate sells the way in — the button never outruns inventory. */}
+      <EventSectionNav />
+      <EventDetailShell
+        title={`${e.event_name} ${e.year}`}
+        facts={[
+          { label: "When", value: `${dateRangeLabel(e)}, ${e.year}${clockLabel(e.start_time) ? ` · ${clockLabel(e.start_time)}${clockLabel(e.end_time) ? "–" + clockLabel(e.end_time) : ""}` : ""}` },
+          { label: "Where", value: <>{e.venue ? <div>{e.venue}</div> : null}{where && (e.venue ? where !== `${e.city}, ${e.state}` : true) ? <div style={S.addr}>{where}</div> : (!e.venue ? <div style={S.addr}>{e.city}, {e.state}</div> : null)}</> },
+          { label: "Cost", value: e.is_free ? "Free" : (e.price_band || (e.is_free === false ? "Ticketed · see the organiser" : "See the organiser for admission details")) },
+          { label: "Age", value: e.minimum_age ? `${e.minimum_age}+` : null },
+          { label: "Time needed", value: e.duration_recommendation },
+          { label: "Crowds", value: e.crowd_level },
+          { label: "Verdict", value: e.wayfind_verdict },
+        ]}
+        story={<>
+          {e.schedule_note ? <p style={S.note}>{e.schedule_note}</p> : null}
+          {e.card_hook ? <p style={S.hook}>{e.card_hook}</p> : null}
+          {e.editorial_summary ? <p style={S.p}>{e.editorial_summary}</p> : null}
+          {e.why_go ? <><h2 style={S.h2}>Why it&rsquo;s worth going</h2><p style={S.p}>{e.why_go}</p></> : null}
+        </>}
+        actions={<>
       {ticket ? (
         <div style={S.ticketWrap}>
           <a style={S.tix} href={ticket.href} target="_blank" rel="sponsored nofollow noopener"
@@ -348,7 +286,7 @@ export default async function CuratedEventPage({ params }) {
           the foot catches the far larger group who only know after reading. An
           event is the strongest share case on the site — the whole point of
           "Friday, free, 7pm" is the person you are going with. */}
-      <div style={S.shareTop}>
+      <div className="wf-event-secondary-actions">
         <div style={S.actionsRow}>
           <SaveEventButton
             id={`wfc:${e.event_id}`}
@@ -368,8 +306,63 @@ export default async function CuratedEventPage({ params }) {
         </div>
       </div>
 
-      <p className="wf-event-booking-note">{e.is_free ? "Confirm dates and availability on the official listing." : "Confirm availability and booking terms with the ticket provider before paying."}</p>
-      </aside></div>
+        </>}
+        note={e.is_free ? "Confirm dates and availability on the official listing." : "Confirm availability and booking terms with the ticket provider before paying."}
+        media={<>
+      {shots && shots.hero ? (
+        <div className="wf-event-photo"><EventPlacePhoto priority src={shots.hero.src} name={shots.hero.alt || e.event_name} /></div>
+      ) : e.hero_image ? (
+        <div className="wf-event-photo"><EventPlacePhoto priority src={e.hero_image} name={e.image_alt || `${e.event_name} at ${e.venue || e.city}`} /></div>
+      ) : (
+        <div className="wf-event-photo wf-event-photo-fallback" role="img" aria-label={`${e.event_name} — no photo available yet`}>
+          <div style={S.heroFallbackRing}><span style={S.heroFallbackMark}>{heroInitials(e.short_title || e.event_name)}</span></div>
+        </div>
+      )}
+
+      {shots && shots.photos.filter((p) => p.src !== shots.hero?.src).map((p) => (
+        <div key={p.src} className="wf-event-photo">
+          <EventPlacePhoto src={p.src} name={p.alt || e.event_name} />
+        </div>
+      ))}
+        </>}
+        credit={shots && shots.credit ? <p style={S.credit}>
+          Photos: {shots.creditUrl ? <a style={S.link} href={shots.creditUrl} rel="nofollow noopener" target="_blank">{shots.credit}</a> : shots.credit}, shared with Wayfind for this listing.
+        </p> : null}
+      />
+
+      {/* A Fall card that names a creator must pay that promise off before the
+          map and nearby recommendations. The map can be more than a viewport
+          tall on mobile; placing the post after it made the card marker look
+          unrelated to the detail page. */}
+      {socialPosts.length ? (
+        <section id="event-creators" data-event-section="Creator posts" tabIndex={-1} style={{ ...S.social, maxWidth: 820, margin: "0 auto 40px" }} aria-label="Creator posts about this event">
+          <h2 style={{ ...S.h2, marginTop: 0 }}>Seen from local creators</h2>
+          <div style={S.socialRail}>
+            {socialPosts.map((post) => (
+              <article key={post.url} style={S.socialPost}>
+                {/* The facade paints only Wayfind UI until the reader taps it;
+                    Instagram's official iframe and third-party request are
+                    created after that click. The native link below remains a
+                    visible fallback when an embed is blocked or removed. */}
+                {isEmbeddable(post.platform, post.url) ? <CreatorPlaybackDetails buttonStyle={{ color: "#efd0a6" }} details={socialDetails(post)}>
+                  <VideoFacade
+                    platform={post.platform}
+                    url={post.url}
+                    label={`@${post.creator}'s post about ${e.event_name}`}
+                    poster={socialPoster}
+                    fallbackPoster={socialPosterFallback}
+                    coverTitle={e.event_name}
+                    coverCity={e.city}
+                    coverEyebrow={`THE @${post.creator} EDIT`}
+                    fallbackLabel="Event cover shown"
+                  />
+                </CreatorPlaybackDetails> : socialDetails(post)}
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       {/* v8.99 — WHERE IT IS, ON A MAP, WITH YOUR ROUTE AND WHAT IS NEARBY.
           One shared block (app/components/EventWhere.js) — the rule for every
           event page, curated or live. Sits right under the answer box because
@@ -384,36 +377,7 @@ export default async function CuratedEventPage({ params }) {
         picks={pairings}
       />
 
-      <div className="wf-event-content">
-      {e.schedule_note ? <p style={S.note}>{e.schedule_note}</p> : null}
-      {e.editorial_summary ? <p style={S.p}>{e.editorial_summary}</p> : null}
-
-      {e.why_go ? (<><h2 style={S.h2}>Why it&rsquo;s worth going</h2><p style={S.p}>{e.why_go}</p></>) : null}
-
-      {shots && shots.photos.length ? (
-        <>
-          <h2 style={S.h2}>What it looks like</h2>
-          <div style={S.strip}>
-            {shots.photos.map((p) => (
-              <div key={p.src} style={S.shotBox}>
-                {/* No width/height attributes: the wrapper is the box, and the
-                    intrinsic 853x1280 is exactly what the row stretched to. */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={p.src} alt={p.alt} loading="lazy" style={S.shot} />
-              </div>
-            ))}
-          </div>
-          {shots.credit ? (
-            <p style={S.credit}>
-              {"Photos: "}
-              {shots.creditUrl
-                ? <a style={S.link} href={shots.creditUrl} rel="nofollow noopener" target="_blank">{shots.credit}</a>
-                : shots.credit}
-              {", shared with Wayfind for this listing."}
-            </p>
-          ) : null}
-        </>
-      ) : null}
+      <div className="wf-event-content" id="event-planning" data-event-section={e.skip_if || e.insider_tip || e.parking_tip || e.fun_fact || e.pairing ? "Planning tips" : undefined} tabIndex={-1}>
       {e.skip_if ? (<><h2 style={S.h2}>Who should skip it</h2><p style={S.p}>{e.skip_if}</p></>) : null}
       {e.insider_tip ? (<><h2 style={S.h2}>The move</h2><p style={S.p}>{e.insider_tip}</p></>) : null}
       {e.parking_tip ? (<><h2 style={S.h2}>Getting there</h2><p style={S.p}>{e.parking_tip}</p></>) : null}

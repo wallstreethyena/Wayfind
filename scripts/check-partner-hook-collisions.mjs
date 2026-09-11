@@ -23,7 +23,7 @@
 // would pass on a file whose lookup was broken some other way. Every assertion
 // below therefore INVOKES the real resolver and checks the returned offer id,
 // which is the thing that actually ships.
-import { PLACE_PARTNER_PICKS, placePartnerPick } from "../lib/placePartnerPicks.js";
+import { PLACE_PARTNER_PICKS, RETIRED_VIATOR_PINS, placePartnerPick } from "../lib/placePartnerPicks.js";
 import { VENUE_OFFERS, venueOfferFor } from "../lib/venueOffers.js";
 import { PARTNER_OFFER_REGISTRY, partnerOfferById } from "../lib/partnerOfferRegistry.js";
 import { UT_PLACE_DEAL_IDS } from "../lib/deals.js";
@@ -156,6 +156,17 @@ for (const [key, ids] of multiMarket) {
 // ── 4. EVERY hook on BOTH surfaces resolves to a real, tracked destination ─
 // An id that resolves to nothing renders a live money link that dead-ends.
 const HOST_OK = /^https:\/\/(www\.)?(tiqets|klook|gocity|ticketnetwork|viator)\.com\//;
+// A code the 2026-09-09 catalogue audit proved ABSENT from wf_experiences is no
+// longer "live-verified", so it is dropped from this record before the
+// assertion below reads it — otherwise re-pinning a dead SKU would pass.
+// Derived from RETIRED_VIATOR_PINS so it stays true without being remembered.
+let retiredDropped = 0;
+for (const r of RETIRED_VIATOR_PINS) {
+  if (VIATOR_PLACE_PRODUCT_CODES[r.offerId] !== undefined) { delete VIATOR_PLACE_PRODUCT_CODES[r.offerId]; retiredDropped++; }
+}
+ok(retiredDropped === RETIRED_VIATOR_PINS.length,
+  `every retired pin was present in the verified-code table and has been dropped from it (${retiredDropped}/${RETIRED_VIATOR_PINS.length}) — a mismatch means the two records have drifted`);
+
 for (const row of [...PLACE_PARTNER_PICKS, ...VENUE_OFFERS]) {
   // v6.98: Undercover Tourist hooks are TABLE-backed (wf_deals; the
   // deals-health cron owns liveness + CJ attribution) — the registry cannot

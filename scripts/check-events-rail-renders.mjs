@@ -117,14 +117,14 @@ const railMeta = stripComments(readFileSync(join(ROOT, "lib/rails.js"), "utf8"))
   // expression container that actually paints it.
   ok(/^\s*eventsSlot\s*=\s*null,\s*$/m.test(rail),
     "DaypartRail DESTRUCTURES eventsSlot in its props (defaulting to null, so /v8 and an empty feed keep the old behaviour)");
-  ok(/eventsSlot\("night-out"\)/.test(nightOut),
+  ok(/eventsSlot\("night-out", selectPosterEvents\)/.test(nightOut),
     "…and NightOutRails CALLS it in night-out mode — accepting a prop is not showing its dated inventory");
   ok(/retiredInto: "tonight"/.test(railMeta) && /!r\.retiredInto/.test(rail),
     "the standalone Events poster is retired into Night Out and hidden without deleting its inventory metadata");
   ok(!/if \(id === "events"/.test(rail) && !/selRail\.id === "events" && eventsSlot/.test(rail),
     "the obsolete Events tile branch and standalone drop are both gone");
-  ok(/selRail\.id === "datenight" \|\| selRail\.id === "birthday" \|\| selRail\.id === "breakfast" \|\| selRail\.id === "break" \|\| selRail\.id === "eat" \|\| selRail\.id === "today" \|\| selRail\.id === "augtober" \|\| selRail\.id === "tonight"/.test(rail),
-    "Date Night, Birthday, Breakfast, Lunch Break, Actually Worth Eating, Today's Best Options, Augtober, and Night Out own their answers and cannot fall through into generic venue place cards");
+  ok(/selRail\.id === "datenight" \|\| selRail\.id === "birthday" \|\| selRail\.id === "family" \|\| selRail\.id === "breakfast" \|\| selRail\.id === "break" \|\| selRail\.id === "eat" \|\| selRail\.id === "today" \|\| selRail\.id === "augtober" \|\| selRail\.id === "tonight"/.test(rail),
+    "Date Night, Birthday, Family Day, Breakfast, Lunch Break, Actually Worth Eating, Today's Best Options, Augtober, and Night Out own their answers and cannot fall through into generic venue place cards");
 }
 
 // ── 3. THE RAIL'S PROMISE MATCHES WHAT IS BEHIND IT ─────────────────────────

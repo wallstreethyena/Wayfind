@@ -19,10 +19,13 @@
 // pin in the middle of a city is a claim we cannot back.
 //
 // Server component. The map is client-only behind EventVenueMapLoader.
-import EventPlacePhoto from "./EventPlacePhoto.js";
 import EventVenueMapLoader from "./EventVenueMapLoader.js";
 import EventRouteJump from "./EventRouteJump.js";
+import EventNearbyCards from "./EventNearbyCards.js";
+import EventStays from "./EventStays.js";
+import { WF_PLACE_CARD_CSS } from "./css.js";
 import { websiteHost } from "../../lib/placeWhere.js";
+import { Suspense } from "react";
 
 const ACCENT = "#F97316";
 const PICK = "#2EC9A6";
@@ -38,36 +41,44 @@ const CSS = `
 .wfw-addr{margin:6px 0 0;font-size:14.5px;line-height:1.5;color:#CBD5E1}
 .wfw-addr a{color:inherit;text-decoration:none;border-bottom:1px dotted rgba(203,213,225,.45)}
 .wfw-addr a:hover{color:#FDBA74;border-bottom-color:#FDBA74}
-.wfw-acts{min-width:0;max-width:100%;display:flex;flex-wrap:wrap;gap:10px;flex:0 0 auto}
-.wfw-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 18px;border-radius:13px;font-size:14.5px;font-weight:800;line-height:1;text-decoration:none;max-width:100%;white-space:normal;overflow-wrap:anywhere;line-height:1.4;transition:transform .15s ease,box-shadow .15s ease}
+.wfw-acts{min-width:0;max-width:100%;display:flex;flex:1 1 320px;flex-wrap:wrap;justify-content:flex-end;gap:10px}
+.wfw-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-width:0;padding:12px 18px;border-radius:13px;font-size:14.5px;font-weight:800;text-decoration:none;max-width:100%;white-space:normal;overflow-wrap:anywhere;line-height:1.4;transition:transform .15s ease,box-shadow .15s ease}
 .wfw-btn:hover{transform:translateY(-1px)}
 .wfw-dir{background:${ACCENT};border:1px solid ${ACCENT};color:#0D1117;box-shadow:0 10px 26px rgba(249,115,22,.28)}
 .wfw-site{background:rgba(148,163,184,.08);border:1px solid rgba(148,163,184,.3);color:#F1F5F9}
 .wfw-site:hover{border-color:rgba(249,115,22,.6);color:#FDBA74}
-.wfw-site small{font-weight:700;color:#94A3B8;font-size:12px}
+.wfw-official{flex-direction:column;gap:1px}
+.wfw-official small{display:block;max-width:100%;font-weight:700;color:#94A3B8;font-size:12px;line-height:1.35;overflow-wrap:anywhere}
 .wfw-map{padding:0 10px 10px}
-.wfw-nearcard{margin-top:14px;border-radius:22px;border:1px solid rgba(46,201,166,.26);background:linear-gradient(180deg,rgba(46,201,166,.06),rgba(13,19,28,.95));box-shadow:0 18px 44px rgba(0,0,0,.32);overflow:hidden}
-.wfw-near{padding:18px 18px 18px}
+.wfw-nearcard{margin:14px 10px 10px;border-radius:18px;border:1px solid rgba(46,201,166,.26);background:linear-gradient(180deg,rgba(46,201,166,.06),rgba(13,19,28,.95));box-shadow:0 18px 44px rgba(0,0,0,.32);overflow:hidden}
+.wfw-near{padding:22px 18px 18px}
 .wfw-near-k{font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:${PICK};margin:0 0 6px}
 .wfw-near h3{margin:0 0 4px;font-size:17px;font-weight:850;color:#F8FAFC;letter-spacing:-.2px}
-.wfw-near p{margin:0 0 12px;font-size:13.5px;line-height:1.5;color:#94A3B8}
-.wfw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(250px,100%),1fr));gap:10px}
-.wfw-p{display:flex;gap:12px;align-items:center;padding:8px;border-radius:14px;background:rgba(148,163,184,.06);border:1px solid rgba(148,163,184,.14);text-decoration:none;color:#F8FAFC;transition:border-color .15s ease,background .15s ease}
-.wfw-p:hover{border-color:rgba(46,201,166,.55);background:rgba(46,201,166,.07)}
-.wfw-p img{width:60px;height:60px;border-radius:11px;object-fit:cover;background:linear-gradient(145deg,#1B2433,#0E1520);flex:0 0 auto}
-.wfw-n{position:absolute;left:-6px;top:-6px;width:22px;height:22px;border-radius:999px;background:${PICK};color:#0D1117;font-size:12px;font-weight:800;display:grid;place-items:center;border:2px solid #0F1520}
-.wfw-th{display:block;position:relative;flex:0 0 60px;width:60px;height:60px}
-.wfw-b{min-width:0;flex:1}
-.wfw-b b{display:block;font-size:14.5px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wfw-b small{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-top:4px;font-size:12.5px;font-weight:700;color:#94A3B8}
-.wfw-b u{text-decoration:none;color:#0D1117;background:${PICK};border-radius:999px;padding:2px 8px;font-size:12px;font-weight:800}
+.wfw-near p{margin:0 0 16px;font-size:13.5px;line-height:1.5;color:#94A3B8}
+.wf-event-nearby-rail{margin:0;padding-block:4px 12px}
 .wfw-foot{padding:0 18px 16px;font-size:11.5px;color:#64748B}
-@media (max-width:560px){.wfw-head{padding:16px 14px 12px}.wfw-acts{width:100%}.wfw-btn{flex:1}.wfw-map{padding:0 6px 6px}.wfw-near{padding:14px 14px 14px}}
+@media (max-width:560px){.wfw-head{align-items:stretch;padding:16px 14px 12px}.wfw-acts{width:100%;flex:1 1 100%;display:grid;grid-template-columns:minmax(0,1fr)}.wfw-btn{width:100%}.wfw-map{padding:0 6px 6px}.wfw-near{padding:14px 14px 14px}}
 `;
 
-const thumbUrl = (p) => (p.photoRef
-  ? "/api/photo?ref=" + encodeURIComponent(p.photoRef) + "&w=640"
-  : "/api/photo?place=" + encodeURIComponent(p.id) + "&w=640");
+// One admission boundary feeds both children. If a row cannot produce a real
+// scored place card or a truthful map pin, it belongs in neither. Keeping this
+// as one ordered array makes card rank N and map pin N the same place by
+// construction, including after malformed provider rows are removed.
+export function eventNearbyPlaces(picks, hasPoint) {
+  if (!hasPoint || !Array.isArray(picks)) return [];
+  return picks.filter((place) => place
+    && place.id
+    && place.name
+    && typeof place.href === "string"
+    && place.href.length > 0
+    && Number.isFinite(place.lat)
+    && Number.isFinite(place.lng)
+    && Number.isFinite(place.distMi)
+    && place.distMi >= 0
+    && Number.isFinite(place.wfScore)
+    && place.wfScore > 0
+    && place.wfScore <= 100);
+}
 
 /**
  * @param {{
@@ -84,10 +95,10 @@ export default function EventWhere({ venue, address, directionsHref, website, la
   const hasPoint = Number.isFinite(lat) && Number.isFinite(lng) && !(lat === 0 && lng === 0);
   if (!venue && !address) return null;
   const host = website ? websiteHost(website) : "";
-  const pins = hasPoint ? picks.filter((p) => p && Number.isFinite(p.lat) && Number.isFinite(p.lng)) : [];
+  const pins = eventNearbyPlaces(picks, hasPoint);
   return (
-    <section className="wfw" aria-label="Where it is and how to get there">
-      <style dangerouslySetInnerHTML={{ __html: CSS }} />
+    <section id="event-location" data-event-section="Map & directions" tabIndex={-1} className="wfw" aria-label="Where it is and how to get there">
+      <style dangerouslySetInnerHTML={{ __html: WF_PLACE_CARD_CSS + CSS }} />
       <div className="wfw-card">
         <div className="wfw-head">
           <div style={{ minWidth: 0, flex: "1 1 260px" }}>
@@ -110,8 +121,8 @@ export default function EventWhere({ venue, address, directionsHref, website, la
                 <a className="wfw-btn wfw-site" href={directionsHref} target="_blank" rel="noopener nofollow" aria-label={"Open directions to " + (venue || address) + " in Apple Maps"}>Open in Apple Maps ↗</a>
               ) : null}
               {website ? (
-                <a className="wfw-btn wfw-site" href={website} target="_blank" rel={(sponsoredWebsite ? "sponsored " : "") + "nofollow noopener"} aria-label={"Official site for " + (venue || address)}>
-                  Official site ↗{host ? <small>{host}</small> : null}
+                <a className="wfw-btn wfw-site wfw-official" href={website} target="_blank" rel={(sponsoredWebsite ? "sponsored " : "") + "nofollow noopener"} aria-label={"Official site for " + (venue || address)}>
+                  <span>Official site ↗</span>{host ? <small>{host}</small> : null}
                 </a>
               ) : null}
             </div>
@@ -123,44 +134,24 @@ export default function EventWhere({ venue, address, directionsHref, website, la
           </div>
         ) : null}
         {hasPoint ? <div className="wfw-foot">The orange pin marks the event venue. Numbered teal pins match the nearby places below.</div> : null}
-      </div>
-      {/* v9.00 (owner, 2026-09-07, on the premium event page): "near this
-          event" recommendations must be "clearly separated … and cannot be
-          mistaken for the venue the user is buying a ticket to". Before this
-          the nearby cards sat INSIDE the same .wfw-card as the venue's own
-          address and buttons — one bordered box, one accent color, nothing
-          telling a reader that photo #2 in the grid is a different business
-          down the street, not part of what they are about to pay for. This
-          is now its own card: a different accent (teal, the same color as
-          the numbered pins, never the venue card's orange), its own border
-          and background, and a heading that says in words that these are
-          not the venue. */}
-      {pins.length > 0 ? (
-        <div className="wfw-nearcard" aria-label={"Other places near " + (venue || "the venue") + " — not the venue itself"}>
-          <div className="wfw-near">
-            <p className="wfw-near-k">Nearby — not the venue</p>
-            <h3>Worth a stop near {venue || "here"}</h3>
-            <p>Separate places, not part of {venue || "the event"} — ranked by Wayfind. The numbers match the pins on the map above.</p>
-            <div className="wfw-grid">
-              {pins.map((p, i) => (
-                <a key={p.id} className="wfw-p" href={p.href}>
-                  <span className="wfw-th">
-                    <EventPlacePhoto src={thumbUrl(p)} name={p.name} />
-                    <span className="wfw-n" aria-hidden="true">{i + 1}</span>
-                  </span>
-                  <span className="wfw-b">
-                    <b>{p.name}</b>
-                    <small>
-                      {Number.isFinite(p.wfScore) ? <u>{(p.wfScore / 10).toFixed(1)}</u> : null}
-                      <span>{p.cat || "Nearby"}{p.distMi != null ? ` · ${p.distMi.toFixed(1)} mi` : ""}</span>
-                    </small>
-                  </span>
-                </a>
-              ))}
+        {/* v9.01 (owner, 2026-09-11): map results belong inside the map
+            panel as the standard horizontal IconicPlaceCard rail. They remain
+            unmistakably separate from the ticketed venue through the teal
+            pin color, border, label, heading, and explicit "not the venue"
+            copy. The prior portrait-photo grid and its second standalone
+            panel are gone. */}
+        {pins.length > 0 ? (
+          <section id="event-nearby" data-event-section="Nearby places" tabIndex={-1} className="wfw-nearcard" aria-label={"Other places near " + (venue || "the venue") + " — not the venue itself"}>
+            <div className="wfw-near">
+              <p className="wfw-near-k">Nearby — not the venue</p>
+              <h3>Worth a stop near {venue || "here"}</h3>
+              <p>Separate places, not part of {venue || "the event"} — ranked by Wayfind. The numbers match the pins on the map above.</p>
+              <EventNearbyCards places={pins} />
             </div>
-          </div>
-        </div>
-      ) : null}
+          </section>
+        ) : null}
+      </div>
+      {hasPoint ? <Suspense fallback={null}><EventStays lat={lat} lng={lng} venue={venue} /></Suspense> : null}
     </section>
   );
 }

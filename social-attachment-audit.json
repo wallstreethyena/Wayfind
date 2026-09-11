@@ -1,0 +1,1464 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-09-10",
+  "scope": "Prepared owner-submitted Instagram associations in this release candidate; contains no source captions. Production attachment is verified only after deployment.",
+  "association_policy": "event_associations are dedicated event or organiser posts eligible for exact event surfaces. roundup_event_mentions preserve reviewed calendar/venue mentions as audit evidence only. venue_context_associations identify the event venue without proving the named event. Neither audit-only class is published as exact event media.",
+  "public_entrypoint": "Home → select Creators Pick → Browse all creator finds. Place-linked posts open a Wayfind venue card; exact-ID venues can continue to full place details. Event-only posts render on the listed Florida event route.",
+  "summary": {
+    "source_total": 45,
+    "sources_with_place_association": 38,
+    "sources_with_event_association": 7,
+    "sources_with_any_association": 45,
+    "event_only_sources": 7,
+    "remaining_unmapped_sources": 0,
+    "place_association_count": 55,
+    "unique_place_association_count": 52,
+    "sources_with_roundup_event_mentions": 2,
+    "roundup_event_mention_count": 11,
+    "exact_event_association_count": 7,
+    "sources_with_venue_context_association": 2,
+    "venue_context_association_count": 2
+  },
+  "roundup_reviews": [
+    {
+      "shortcode": "Dc3xGQTBSp4",
+      "expected_featured_subjects": 3,
+      "covered_subjects": 3,
+      "subjects": [
+        "Double Six Cafe",
+        "Blooming Floral Cafe",
+        "The Perfect Press Coffee Co."
+      ],
+      "excluded_incidental_hosts": [
+        "La Sétima Club"
+      ]
+    },
+    {
+      "shortcode": "Dc1JISKOJwM",
+      "expected_featured_subjects": 3,
+      "covered_subjects": 3,
+      "subjects": [
+        "@ The Diner — Orlando",
+        "@ The Diner — Lake Buena Vista",
+        "@ The Diner — Dr. Phillips"
+      ]
+    },
+    {
+      "shortcode": "Dc4GPHqBG6H",
+      "expected_brand_locations_authorized": 2,
+      "covered_brand_locations": 2,
+      "scope_note": "Brand content; no branch filming claim."
+    },
+    {
+      "shortcode": "Dc3WlMLx2iv",
+      "expected_featured_subjects": 6,
+      "covered_subjects": 6,
+      "subjects": [
+        "Pinto's Farm",
+        "Tinez Farms",
+        "The Berry Farm",
+        "By Brothers",
+        "Flamingo Road Nursery",
+        "Bedner's Farm Fresh Market"
+      ]
+    },
+    {
+      "shortcode": "Dc3asu4uUOI",
+      "expected_calendar_items": 20,
+      "accounted_items": 20,
+      "attached_items": 15,
+      "unresolved_or_historical_items": 5,
+      "item_dispositions": [
+        {
+          "subject": "Urban Kai",
+          "disposition": "attached_name_city_creator_card"
+        },
+        {
+          "subject": "Tampa Bay Rodeo & Family Festival",
+          "disposition": "roundup_mention_retained; not_published_as_exact_event_media"
+        },
+        {
+          "subject": "SCREAM-A-GEDDON",
+          "disposition": "roundup_mention_retained; not_published_as_exact_event_media"
+        },
+        {
+          "subject": "Tampa Comic Convention",
+          "disposition": "historical_announcement; venue_not_forced"
+        },
+        {
+          "subject": "Hyde Park Fresh Market",
+          "disposition": "roundup_mention_retained; venue_subject_card_only; not_published_as_exact_event_media"
+        },
+        {
+          "subject": "Howl-O-Scream",
+          "disposition": "roundup_mention_retained; not_published_as_exact_event_media"
+        },
+        {
+          "subject": "Busch Gardens Bier Fest",
+          "disposition": "event_unresolved; no date invented"
+        },
+        {
+          "subject": "JW Marriott Art Market",
+          "disposition": "attached_venue; event_unresolved"
+        },
+        {
+          "subject": "Jekyll Emerald City High Tea",
+          "disposition": "attached_name_city_creator_card; event_unresolved"
+        },
+        {
+          "subject": "Pride & Passion",
+          "disposition": "roundup_mention_retained; not_published_as_exact_event_media"
+        },
+        {
+          "subject": "Girls in Aviation",
+          "disposition": "event_venue_and_coordinates_unresolved; incidental_facility_not_attached"
+        },
+        {
+          "subject": "Buccaneers home opener",
+          "disposition": "venue_unspecified; no stadium inferred"
+        },
+        {
+          "subject": "Gallagher's fall opening",
+          "disposition": "roundup_mention_retained; not_published_as_exact_event_media"
+        },
+        {
+          "subject": "Kerby's Fall Kickoff",
+          "disposition": "attached_name_city_creator_card; event_unresolved"
+        },
+        {
+          "subject": "Sunshine Market at Midtown",
+          "disposition": "roundup_mention_retained; not_published_as_exact_event_media"
+        },
+        {
+          "subject": "Beats on the Street",
+          "disposition": "event_unresolved; district_not_forced"
+        },
+        {
+          "subject": "Westshore Marina Sunday Market",
+          "disposition": "roundup_mention_retained; not_published_as_exact_event_media"
+        },
+        {
+          "subject": "Florida Avenue Brewing paint party",
+          "disposition": "attached_name_city_creator_card; branch_not_inferred"
+        },
+        {
+          "subject": "Art of Banksy at Straz",
+          "disposition": "attached_venue; event_unresolved"
+        },
+        {
+          "subject": "Ro Hyde Park omakase",
+          "disposition": "attached_venue; event_unresolved"
+        }
+      ]
+    }
+  ],
+  "records": [
+    {
+      "shortcode": "Dc2WqU-xuCD",
+      "creator_handle": "funtampa",
+      "native_url": "https://www.instagram.com/reel/Dc2WqU-xuCD/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Dade City"
+      ],
+      "place_associations": [],
+      "event_associations": [
+        {
+          "event_id": "screamageddon-2026",
+          "native_wayfind_surface": "/florida-events/scream-a-geddon-dade-city-2026",
+          "renderability": "server_rendered_creator_credit_and_native_link",
+          "association_kind": "exact_event"
+        }
+      ],
+      "association_status": "prepared",
+      "public_navigation": "/florida-events/scream-a-geddon-dade-city-2026",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "DdEXS08Rk_f",
+      "creator_handle": "addyabnormal",
+      "native_url": "https://www.instagram.com/reel/DdEXS08Rk_f/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Lake Buena Vista"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "the-edison-disney-springs",
+          "place_id": "ChIJDVFcVYZ_3YgRU4PZ5Fw44Ek",
+          "name": "The Edison",
+          "city": "Lake Buena Vista",
+          "address": "Disney Springs, Lake Buena Vista, FL",
+          "native_wayfind_surface": "/p/ChIJDVFcVYZ_3YgRU4PZ5Fw44Ek",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "DdEpGiVgq9r",
+      "creator_handle": "wekivaisland",
+      "native_url": "https://www.instagram.com/reel/DdEpGiVgq9r/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Longwood"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "wekiva-island-longwood",
+          "place_id": null,
+          "name": "Wekiva Island",
+          "city": "Longwood",
+          "address": "1014 Miami Springs Drive, Longwood, FL 32779",
+          "native_wayfind_surface": "creator_find_preview:wekiva-island-longwood",
+          "renderability": "registry_backed_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "DdFAiJevTcn",
+      "creator_handle": "tazacafefm",
+      "native_url": "https://www.instagram.com/reel/DdFAiJevTcn/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Fort Myers"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "taza-cafe-fort-myers",
+          "place_id": null,
+          "name": "Taza Cafe Fort Myers",
+          "city": "Fort Myers",
+          "address": "4458 Cleveland Avenue, Fort Myers, FL 33901",
+          "native_wayfind_surface": "creator_find_preview:taza-cafe-fort-myers",
+          "renderability": "registry_backed_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "DcvnLAkBIyJ",
+      "creator_handle": "toddlerfriendlytampabay",
+      "native_url": "https://www.instagram.com/reel/DcvnLAkBIyJ/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Riverview"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "wolfes-produce-riverview",
+          "place_id": null,
+          "name": "Growing Memories at Wolfe's Produce",
+          "city": "Riverview",
+          "address": "6005 US Highway 301 S, Riverview, FL 33578",
+          "native_wayfind_surface": "creator_find_preview:wolfes-produce-riverview",
+          "renderability": "registry_backed_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "Dc_KiM5xqhv",
+      "creator_handle": "flacoffeefestival",
+      "native_url": "https://www.instagram.com/p/Dc_KiM5xqhv/",
+      "native_path_kind": "p",
+      "true_city": [
+        "Orlando"
+      ],
+      "place_associations": [],
+      "event_associations": [
+        {
+          "event_id": "florida-coffee-festival-2026",
+          "native_wayfind_surface": "/florida-events/florida-coffee-festival-orlando-2026",
+          "renderability": "server_rendered_creator_credit_and_native_link",
+          "association_kind": "exact_event"
+        }
+      ],
+      "association_status": "prepared",
+      "public_navigation": "/florida-events/florida-coffee-festival-orlando-2026",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "DdERBhBRAGw",
+      "creator_handle": "toddlerfriendlytampabay",
+      "native_url": "https://www.instagram.com/reel/DdERBhBRAGw/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Lutz"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "happy-hangar-cafe-lutz",
+          "place_id": "ChIJ3aykOYywwogRzgNrH-W_jBU",
+          "name": "The Happy Hangar Café",
+          "city": "Lutz",
+          "address": "4241 Birdsong Blvd, Lutz, FL",
+          "native_wayfind_surface": "/p/ChIJ3aykOYywwogRzgNrH-W_jBU",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "Dc57I18xTbz",
+      "creator_handle": "whenintampa",
+      "native_url": "https://www.instagram.com/reel/Dc57I18xTbz/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Tampa"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "mi-cafecito-tampa",
+          "place_id": null,
+          "name": "Mi Cafecito",
+          "city": "Tampa",
+          "address": "2202 W Platt Street, Tampa, FL 33606",
+          "native_wayfind_surface": "creator_find_preview:mi-cafecito-tampa",
+          "renderability": "registry_backed_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "Dc3Vjs7hCYo",
+      "creator_handle": "toddlerfriendlytampabay",
+      "native_url": "https://www.instagram.com/reel/Dc3Vjs7hCYo/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Tampa"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "roosters-cigars-coffee-tampa",
+          "place_id": null,
+          "name": "Roosters Cigars & Coffee",
+          "city": "Tampa",
+          "address": "3103 N Howard Avenue, Tampa, FL 33607",
+          "native_wayfind_surface": "creator_find_preview:roosters-cigars-coffee-tampa",
+          "renderability": "registry_backed_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "DdAFZJIq-D7",
+      "creator_handle": "eatlocalflorida",
+      "native_url": "https://www.instagram.com/reel/DdAFZJIq-D7/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Sarasota"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "joe-the-boar-sarasota",
+          "place_id": "ChIJdfcBx1RBw4gRHlEUsS7539U",
+          "name": "Joe the Boar",
+          "city": "Sarasota",
+          "address": "Sarasota, FL",
+          "native_wayfind_surface": "/p/ChIJdfcBx1RBw4gRHlEUsS7539U",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "DdBmAipNq-h",
+      "creator_handle": "clewithkids",
+      "native_url": "https://www.instagram.com/reel/DdBmAipNq-h/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Cleveland"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "cleveland-metroparks-zoo",
+          "place_id": null,
+          "name": "Cleveland Metroparks Zoo",
+          "city": "Cleveland",
+          "address": "Cleveland, OH",
+          "native_wayfind_surface": "creator_find_preview:cleveland-metroparks-zoo",
+          "renderability": "registry_backed_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "Dc3xGQTBSp4",
+      "creator_handle": "tampavida",
+      "native_url": "https://www.instagram.com/reel/Dc3xGQTBSp4/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Tampa"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "blooming-floral-cafe-tampa",
+          "place_id": "ChIJ9d2y1ivFwogRU2MFLQrwqsc",
+          "name": "Blooming Floral Cafe",
+          "city": "Tampa",
+          "address": "Seminole Heights, Tampa, FL",
+          "native_wayfind_surface": "/p/ChIJ9d2y1ivFwogRU2MFLQrwqsc",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        },
+        {
+          "curated_key": "perfect-press-coffee-tampa",
+          "place_id": "ChIJc9TZhGDAwogRRHZ5EzKtJIc",
+          "name": "The Perfect Press Coffee Co.",
+          "city": "Tampa",
+          "address": "4526 W Village Dr, Tampa, FL 33624",
+          "native_wayfind_surface": "/p/ChIJc9TZhGDAwogRRHZ5EzKtJIc",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        },
+        {
+          "curated_key": "double-six-cafe-tampa",
+          "place_id": null,
+          "name": "Double Six Cafe",
+          "city": "Tampa",
+          "address": "815 E 7th Avenue, Tampa, FL 33602",
+          "native_wayfind_surface": "creator_find_preview:double-six-cafe-tampa",
+          "renderability": "registry_backed_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "DdEQo4bvl2z",
+      "creator_handle": "koryaversa",
+      "native_url": "https://www.instagram.com/reel/DdEQo4bvl2z/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Philadelphia"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "craftsman-row-saloon-philadelphia",
+          "place_id": null,
+          "name": "Craftsman Row Saloon",
+          "city": "Philadelphia",
+          "address": "Philadelphia, PA",
+          "native_wayfind_surface": "creator_find_preview:craftsman-row-saloon-philadelphia",
+          "renderability": "registry_backed_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "Db1EZROASQF",
+      "creator_handle": "travel_worth_telling",
+      "native_url": "https://www.instagram.com/reel/Db1EZROASQF/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Edinburgh"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "frankenstein-bier-keller-edinburgh",
+          "place_id": null,
+          "name": "Frankenstein & Bier Keller",
+          "city": "Edinburgh",
+          "address": "Old Town, Edinburgh, Scotland",
+          "native_wayfind_surface": "creator_find_preview:frankenstein-bier-keller-edinburgh",
+          "renderability": "registry_backed_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "Dc1ypmeSIzh",
+      "creator_handle": "foodbytiana",
+      "native_url": "https://www.instagram.com/reel/Dc1ypmeSIzh/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Tampa"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "roasted813-tampa",
+          "place_id": "ChIJv30X8SzHwogRVHpiMio-n70",
+          "name": "Roasted!",
+          "city": "Tampa",
+          "address": "11301 N 56th St Ste 10, Temple Terrace, FL 33617",
+          "native_wayfind_surface": "/p/ChIJv30X8SzHwogRVHpiMio-n70",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "DdAH96yx1xa",
+      "creator_handle": "pintosfarm",
+      "native_url": "https://www.instagram.com/reel/DdAH96yx1xa/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Miami"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "pintos-farm-miami",
+          "place_id": null,
+          "name": "Pinto's Farm",
+          "city": "Miami",
+          "address": "14890 SW 216 Street, Miami, FL 33170",
+          "native_wayfind_surface": "creator_find_preview:pintos-farm-miami",
+          "renderability": "registry_backed_creator_card"
+        }
+      ],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true,
+      "venue_context_associations": [
+        {
+          "event_id": "pintos-fall-at-the-farm-2026",
+          "native_wayfind_surface": "/florida-events/pintos-fall-at-the-farm-2026",
+          "renderability": "audit_only_place_card_evidence_not_published_as_exact_event_media",
+          "association_kind": "venue_context"
+        }
+      ],
+      "event_associations": []
+    },
+    {
+      "shortcode": "Dc5nkpsMH9_",
+      "creator_handle": "thelittleleopardcoffee",
+      "native_url": "https://www.instagram.com/p/Dc5nkpsMH9_/",
+      "native_path_kind": "p",
+      "true_city": [
+        "Tottington"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "little-leopard-coffee-tottington",
+          "place_id": null,
+          "name": "The Little Leopard Coffee",
+          "city": "Tottington",
+          "address": "South Royd Street, Tottington, Bury, BL8 3LY, United Kingdom",
+          "native_wayfind_surface": "creator_find_preview:little-leopard-coffee-tottington",
+          "renderability": "registry_backed_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "DdAPsV2DI28",
+      "creator_handle": "jackspumpkinpopup",
+      "native_url": "https://www.instagram.com/reel/DdAPsV2DI28/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Chicago"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "jacks-pumpkin-popup-chicago",
+          "place_id": null,
+          "name": "Jack's Pumpkin Pop-Up",
+          "city": "Chicago",
+          "address": "1265 W Le Moyne St, Chicago, IL 60642",
+          "native_wayfind_surface": "creator_find_preview:jacks-pumpkin-popup-chicago",
+          "renderability": "registry_backed_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "Dcwn-ivKvst",
+      "creator_handle": "maymont_rva",
+      "native_url": "https://www.instagram.com/reel/Dcwn-ivKvst/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Richmond"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "maymont-richmond",
+          "place_id": null,
+          "name": "Maymont",
+          "city": "Richmond",
+          "address": "2201 Shields Lake Dr, Richmond, VA 23220",
+          "native_wayfind_surface": "creator_find_preview:maymont-richmond",
+          "renderability": "registry_backed_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "Dc_2_gehAkP",
+      "creator_handle": "foodbytiana",
+      "native_url": "https://www.instagram.com/reel/Dc_2_gehAkP/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Tampa"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "nazca-tampa",
+          "place_id": "ChIJT4Y7OwDBwogRICfhJkopIHg",
+          "name": "NAZCA",
+          "city": "Tampa",
+          "address": "10412 N Dale Mabry Hwy, Tampa, FL 33618",
+          "native_wayfind_surface": "/p/ChIJT4Y7OwDBwogRICfhJkopIHg",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "Dc162pRtU71",
+      "creator_handle": "thefloridaplayground",
+      "native_url": "https://www.instagram.com/reel/Dc162pRtU71/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Brandon"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "milkshake-factory-brandon",
+          "place_id": "ChIJYT6hEfvPwogRXtCm4bU3InA",
+          "name": "MilkShake Factory Brandon",
+          "city": "Brandon",
+          "address": "Brandon, FL",
+          "native_wayfind_surface": "/p/ChIJYT6hEfvPwogRXtCm4bU3InA",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "DcNMoDCJnyn",
+      "creator_handle": "marin_mommies",
+      "native_url": "https://www.instagram.com/reel/DcNMoDCJnyn/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Woodside"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "filoli-woodside",
+          "place_id": null,
+          "name": "Filoli",
+          "city": "Woodside",
+          "address": "86 Cañada Rd, Woodside, CA 94062",
+          "native_wayfind_surface": "creator_find_preview:filoli-woodside",
+          "renderability": "registry_backed_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "Dc6LAYQvpOt",
+      "creator_handle": "wanderlusttravelcouple",
+      "native_url": "https://www.instagram.com/reel/Dc6LAYQvpOt/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Columbus"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "bottoms-up-coffee-columbus",
+          "place_id": null,
+          "name": "Bottoms Up Coffee",
+          "city": "Columbus",
+          "address": "Columbus, OH",
+          "native_wayfind_surface": "creator_find_preview:bottoms-up-coffee-columbus",
+          "renderability": "registry_backed_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "DdDGRHSOX3B",
+      "creator_handle": "brevardbanana",
+      "native_url": "https://www.instagram.com/reel/DdDGRHSOX3B/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Melbourne"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "brevard-zoo-melbourne",
+          "place_id": "ChIJI0Ja3y4E3ogRoNdEL3xe4Ek",
+          "name": "Brevard Zoo",
+          "city": "Melbourne",
+          "address": "8225 N Wickham Rd, Melbourne, FL 32940",
+          "native_wayfind_surface": "/p/ChIJI0Ja3y4E3ogRoNdEL3xe4Ek",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true,
+      "venue_context_associations": [
+        {
+          "event_id": "beware-the-night-brevard-zoo-2026",
+          "native_wayfind_surface": "/florida-events/beware-the-night-brevard-zoo-2026",
+          "renderability": "audit_only_place_card_evidence_not_published_as_exact_event_media",
+          "association_kind": "venue_context"
+        }
+      ],
+      "event_associations": []
+    },
+    {
+      "shortcode": "Dcy54DOCLJP",
+      "creator_handle": "kulturas.pasadena",
+      "native_url": "https://www.instagram.com/reel/Dcy54DOCLJP/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Pasadena"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "kulturas-pasadena",
+          "place_id": null,
+          "name": "Kulturas Latin Kitchen & Cantina",
+          "city": "Pasadena",
+          "address": "187 N Sierra Madre Blvd, Pasadena, CA 91107",
+          "native_wayfind_surface": "creator_find_preview:kulturas-pasadena",
+          "renderability": "registry_backed_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "Dc1JISKOJwM",
+      "creator_handle": "josyinorlando",
+      "native_url": "https://www.instagram.com/reel/Dc1JISKOJwM/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Orlando",
+        "Lake Buena Vista"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "at-the-diner-orlando",
+          "place_id": "ChIJuTGc8gN_54gRwRztnG7fJ-Y",
+          "name": "@ The Diner",
+          "city": "Orlando",
+          "address": "Orlando, FL",
+          "native_wayfind_surface": "/p/ChIJuTGc8gN_54gRwRztnG7fJ-Y",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        },
+        {
+          "curated_key": "at-the-diner-lake-buena-vista",
+          "place_id": "ChIJUTIu2jqB3YgR8YmZ3ILb4gk",
+          "name": "@ The Diner",
+          "city": "Lake Buena Vista",
+          "address": "Lake Buena Vista, FL",
+          "native_wayfind_surface": "/p/ChIJUTIu2jqB3YgR8YmZ3ILb4gk",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        },
+        {
+          "curated_key": "at-the-diner-dr-phillips",
+          "place_id": null,
+          "name": "@ The Diner Dr. Phillips",
+          "city": "Orlando",
+          "address": "Dr. Phillips, Orlando, FL",
+          "native_wayfind_surface": "creator_find_preview:at-the-diner-dr-phillips",
+          "renderability": "registry_backed_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "Dc4GPHqBG6H",
+      "creator_handle": "atthediner",
+      "native_url": "https://www.instagram.com/reel/Dc4GPHqBG6H/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Orlando",
+        "Lake Buena Vista"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "at-the-diner-orlando",
+          "place_id": "ChIJuTGc8gN_54gRwRztnG7fJ-Y",
+          "name": "@ The Diner",
+          "city": "Orlando",
+          "address": "Orlando, FL",
+          "native_wayfind_surface": "/p/ChIJuTGc8gN_54gRwRztnG7fJ-Y",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        },
+        {
+          "curated_key": "at-the-diner-lake-buena-vista",
+          "place_id": "ChIJUTIu2jqB3YgR8YmZ3ILb4gk",
+          "name": "@ The Diner",
+          "city": "Lake Buena Vista",
+          "address": "Lake Buena Vista, FL",
+          "native_wayfind_surface": "/p/ChIJUTIu2jqB3YgR8YmZ3ILb4gk",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "Dc3WlMLx2iv",
+      "creator_handle": "fashion.eat.travel",
+      "native_url": "https://www.instagram.com/reel/Dc3WlMLx2iv/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Miami",
+        "Davie",
+        "Boynton Beach"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "by-brothers-miami",
+          "place_id": "ChIJz4Ucz5Lp2YgRG9sCckMPEQ0",
+          "name": "By Brothers",
+          "city": "Miami",
+          "address": "15515 SW 177th Ave, Miami, FL 33187",
+          "native_wayfind_surface": "/p/ChIJz4Ucz5Lp2YgRG9sCckMPEQ0",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        },
+        {
+          "curated_key": "pintos-farm-miami",
+          "place_id": null,
+          "name": "Pinto's Farm",
+          "city": "Miami",
+          "address": "14890 SW 216 Street, Miami, FL 33170",
+          "native_wayfind_surface": "creator_find_preview:pintos-farm-miami",
+          "renderability": "registry_backed_creator_card"
+        },
+        {
+          "curated_key": "tinez-farms-miami",
+          "place_id": null,
+          "name": "Tinez Farms",
+          "city": "Miami",
+          "address": "16405 SW 177th Avenue, Miami, FL 33187",
+          "native_wayfind_surface": "creator_find_preview:tinez-farms-miami",
+          "renderability": "registry_backed_creator_card"
+        },
+        {
+          "curated_key": "the-berry-farm-miami",
+          "place_id": null,
+          "name": "The Berry Farm",
+          "city": "Miami",
+          "address": "13720 SW 216th Street, Miami, FL 33170",
+          "native_wayfind_surface": "creator_find_preview:the-berry-farm-miami",
+          "renderability": "registry_backed_creator_card"
+        },
+        {
+          "curated_key": "flamingo-road-nursery-davie",
+          "place_id": null,
+          "name": "Flamingo Road Nursery",
+          "city": "Davie",
+          "address": "1655 S Flamingo Road, Davie, FL 33325",
+          "native_wayfind_surface": "creator_find_preview:flamingo-road-nursery-davie",
+          "renderability": "registry_backed_creator_card"
+        },
+        {
+          "curated_key": "bedners-farm-boynton-beach",
+          "place_id": null,
+          "name": "Bedner's Farm Fresh Market",
+          "city": "Boynton Beach",
+          "address": "10066 Lee Road, Boynton Beach, FL 33473",
+          "native_wayfind_surface": "creator_find_preview:bedners-farm-boynton-beach",
+          "renderability": "registry_backed_creator_card"
+        }
+      ],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true,
+      "roundup_event_mentions": [
+        {
+          "event_id": "the-berry-farm-harvest-festival-2026",
+          "native_wayfind_surface": "/florida-events/the-berry-farm-harvest-festival-2026",
+          "renderability": "audit_only_not_published_as_exact_event_media",
+          "association_kind": "roundup_mention"
+        },
+        {
+          "event_id": "bedners-fall-festival-2026",
+          "native_wayfind_surface": "/florida-events/bedners-fall-festival-2026",
+          "renderability": "audit_only_not_published_as_exact_event_media",
+          "association_kind": "roundup_mention"
+        },
+        {
+          "event_id": "pintos-fall-at-the-farm-2026",
+          "native_wayfind_surface": "/florida-events/pintos-fall-at-the-farm-2026",
+          "renderability": "audit_only_not_published_as_exact_event_media",
+          "association_kind": "roundup_mention"
+        }
+      ],
+      "event_associations": []
+    },
+    {
+      "shortcode": "Dc3asu4uUOI",
+      "creator_handle": "influencetampa",
+      "native_url": "https://www.instagram.com/reel/Dc3asu4uUOI/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Tampa",
+        "Tampa Bay",
+        "Seffner",
+        "Dade City",
+        "Dover",
+        "St. Petersburg"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "ro-hyde-park-tampa",
+          "place_id": "ChIJe_sgCQTFwogRzB1ctERShiI",
+          "name": "Ro Hyde Park",
+          "city": "Tampa",
+          "address": "1500 W Swann Ave, Tampa, FL 33606",
+          "native_wayfind_surface": "/p/ChIJe_sgCQTFwogRzB1ctERShiI",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        },
+        {
+          "curated_key": "hyde-park-village-tampa",
+          "place_id": "ChIJQZRp15bDwogReY6sMTk-YWg",
+          "name": "Hyde Park Village",
+          "city": "Tampa",
+          "address": "1602 W Swann Ave, Tampa, FL 33606",
+          "native_wayfind_surface": "/p/ChIJQZRp15bDwogReY6sMTk-YWg",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        },
+        {
+          "curated_key": "jw-marriott-tampa-water-street",
+          "place_id": "ChIJBwQpZK_FwogRsoz9WgSYnOk",
+          "name": "JW Marriott Tampa Water Street",
+          "city": "Tampa",
+          "address": "Tampa, FL",
+          "native_wayfind_surface": "/p/ChIJBwQpZK_FwogRsoz9WgSYnOk",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        },
+        {
+          "curated_key": "straz-center-tampa",
+          "place_id": "ChIJce6XFIjEwogRaNJA6ZKu31c",
+          "name": "Straz Center for the Performing Arts",
+          "city": "Tampa",
+          "address": "Tampa, FL",
+          "native_wayfind_surface": "/p/ChIJce6XFIjEwogRaNJA6ZKu31c",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        },
+        {
+          "curated_key": "urban-kai-tampa-bay-roundup",
+          "place_id": null,
+          "name": "Urban Kai",
+          "city": "Tampa Bay",
+          "address": null,
+          "native_wayfind_surface": "creator_find_preview:urban-kai-tampa-bay-roundup",
+          "renderability": "registry_backed_creator_card"
+        },
+        {
+          "curated_key": "jekyll-hyde-park-tampa",
+          "place_id": null,
+          "name": "Jekyll Hyde Park",
+          "city": "Tampa",
+          "address": null,
+          "native_wayfind_surface": "creator_find_preview:jekyll-hyde-park-tampa",
+          "renderability": "registry_backed_creator_card"
+        },
+        {
+          "curated_key": "kerbys-nursery-seffner",
+          "place_id": null,
+          "name": "Kerby's Nursery",
+          "city": "Seffner",
+          "address": null,
+          "native_wayfind_surface": "creator_find_preview:kerbys-nursery-seffner",
+          "renderability": "registry_backed_creator_card"
+        },
+        {
+          "curated_key": "florida-avenue-brewing-tampa-bay",
+          "place_id": null,
+          "name": "Florida Avenue Brewing Co.",
+          "city": "Tampa Bay",
+          "address": null,
+          "native_wayfind_surface": "creator_find_preview:florida-avenue-brewing-tampa-bay",
+          "renderability": "registry_backed_creator_card"
+        }
+      ],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true,
+      "roundup_event_mentions": [
+        {
+          "event_id": "screamageddon-2026",
+          "native_wayfind_surface": "/florida-events/scream-a-geddon-dade-city-2026",
+          "renderability": "audit_only_not_published_as_exact_event_media",
+          "association_kind": "roundup_mention"
+        },
+        {
+          "event_id": "tampa-bay-rodeo-2026-09-04",
+          "native_wayfind_surface": "/florida-events/tampa-bay-rodeo-2026-09-04",
+          "renderability": "audit_only_not_published_as_exact_event_media",
+          "association_kind": "roundup_mention"
+        },
+        {
+          "event_id": "hyde-park-fresh-market-2026-09-06",
+          "native_wayfind_surface": "/florida-events/hyde-park-fresh-market-2026-09-06",
+          "renderability": "audit_only_not_published_as_exact_event_media",
+          "association_kind": "roundup_mention"
+        },
+        {
+          "event_id": "howl-o-scream-tampa-2026",
+          "native_wayfind_surface": "/florida-events/howl-o-scream-busch-gardens-tampa-2026",
+          "renderability": "audit_only_not_published_as_exact_event_media",
+          "association_kind": "roundup_mention"
+        },
+        {
+          "event_id": "gallaghers-pumpkins-2026",
+          "native_wayfind_surface": "/florida-events/gallaghers-pumpkins-st-pete-2026",
+          "renderability": "audit_only_not_published_as_exact_event_media",
+          "association_kind": "roundup_mention"
+        },
+        {
+          "event_id": "sunshine-market-midtown-2026-09-26",
+          "native_wayfind_surface": "/florida-events/sunshine-market-midtown-2026-09-26",
+          "renderability": "audit_only_not_published_as_exact_event_media",
+          "association_kind": "roundup_mention"
+        },
+        {
+          "event_id": "westshore-marina-sunday-market-2026-09-27",
+          "native_wayfind_surface": "/florida-events/westshore-marina-sunday-market-2026-09-27",
+          "renderability": "audit_only_not_published_as_exact_event_media",
+          "association_kind": "roundup_mention"
+        },
+        {
+          "event_id": "pride-and-passion-tampa-2026",
+          "native_wayfind_surface": "/florida-events/pride-and-passion-tampa-2026",
+          "renderability": "audit_only_not_published_as_exact_event_media",
+          "association_kind": "roundup_mention"
+        }
+      ],
+      "event_associations": []
+    },
+    {
+      "shortcode": "Dc2vk3eBHGQ",
+      "creator_handle": "cheatdayorlando",
+      "native_url": "https://www.instagram.com/reel/Dc2vk3eBHGQ/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Dade City"
+      ],
+      "place_associations": [],
+      "event_associations": [
+        {
+          "event_id": "screamageddon-2026",
+          "native_wayfind_surface": "/florida-events/scream-a-geddon-dade-city-2026",
+          "renderability": "server_rendered_creator_credit_and_native_link",
+          "association_kind": "exact_event"
+        }
+      ],
+      "association_status": "prepared",
+      "public_navigation": "/florida-events/scream-a-geddon-dade-city-2026",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "Dc2Ha9liyr4",
+      "creator_handle": "mrs.motivateyofitness",
+      "native_url": "https://www.instagram.com/reel/Dc2Ha9liyr4/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Wilsonville"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "yesteryear-farm-wilsonville",
+          "place_id": null,
+          "name": "Yesteryear Farm",
+          "city": "Wilsonville",
+          "address": "Wilsonville, OR",
+          "native_wayfind_surface": "creator_find_preview:yesteryear-farm-wilsonville",
+          "renderability": "registry_backed_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "Dc19fW8hFX4",
+      "creator_handle": "somehowimeverywhere",
+      "native_url": "https://www.instagram.com/reel/Dc19fW8hFX4/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Orlando"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "dead-coconut-club-citywalk-orlando",
+          "place_id": null,
+          "name": "Dead Coconut Club",
+          "city": "Orlando",
+          "address": "6000 Universal Boulevard, Orlando, FL 32819",
+          "native_wayfind_surface": "creator_find_preview:dead-coconut-club-citywalk-orlando",
+          "renderability": "registry_backed_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "Dc2e78nNoMm",
+      "creator_handle": "cheatdayorlando",
+      "native_url": "https://www.instagram.com/reel/Dc2e78nNoMm/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Dade City"
+      ],
+      "place_associations": [],
+      "event_associations": [
+        {
+          "event_id": "screamageddon-2026",
+          "native_wayfind_surface": "/florida-events/scream-a-geddon-dade-city-2026",
+          "renderability": "server_rendered_creator_credit_and_native_link",
+          "association_kind": "exact_event"
+        }
+      ],
+      "association_status": "prepared",
+      "public_navigation": "/florida-events/scream-a-geddon-dade-city-2026",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "DcmJDFWNQcU",
+      "creator_handle": "santasfarm",
+      "native_url": "https://www.instagram.com/reel/DcmJDFWNQcU/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Eustis"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "santas-christmas-tree-forest-eustis",
+          "place_id": null,
+          "name": "Santa's Christmas Tree Forest",
+          "city": "Eustis",
+          "address": "35317 Huff Road, Eustis, FL 32736",
+          "native_wayfind_surface": "creator_find_preview:santas-christmas-tree-forest-eustis",
+          "renderability": "registry_backed_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "Dc2DrP1vCT4",
+      "creator_handle": "blackcraft",
+      "native_url": "https://www.instagram.com/reel/Dc2DrP1vCT4/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Los Angeles"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "blackcraft-coffee-los-angeles",
+          "place_id": null,
+          "name": "Blackcraft Coffee",
+          "city": "Los Angeles",
+          "address": "457 N Fairfax Ave, Los Angeles, CA 90036",
+          "native_wayfind_surface": "creator_find_preview:blackcraft-coffee-los-angeles",
+          "renderability": "registry_backed_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "Dc1tftaJCal",
+      "creator_handle": "lumleysfarm",
+      "native_url": "https://www.instagram.com/reel/Dc1tftaJCal/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Plant City"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "lumleys-farm-plant-city",
+          "place_id": null,
+          "name": "Lumley's Farm",
+          "city": "Plant City",
+          "address": "4810 James L Redman Parkway, Plant City, FL 33567",
+          "native_wayfind_surface": "creator_find_preview:lumleys-farm-plant-city",
+          "renderability": "registry_backed_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "Dc2B4ASphDx",
+      "creator_handle": "hunsaderfarms",
+      "native_url": "https://www.instagram.com/reel/Dc2B4ASphDx/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Bradenton"
+      ],
+      "place_associations": [],
+      "event_associations": [
+        {
+          "event_id": "hunsader-pumpkin-2026",
+          "native_wayfind_surface": "/florida-events/hunsader-farms-pumpkin-festival-2026",
+          "renderability": "server_rendered_creator_credit_and_native_link",
+          "association_kind": "exact_event"
+        }
+      ],
+      "association_status": "prepared",
+      "public_navigation": "/florida-events/hunsader-farms-pumpkin-festival-2026",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "Dc18gHiB0hl",
+      "creator_handle": "miriaminspired",
+      "native_url": "https://www.instagram.com/reel/Dc18gHiB0hl/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Orlando"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "helena-modern-riviera-icon-park",
+          "place_id": "ChIJP1om-VJ-54gRAF-_k_y5cig",
+          "name": "Helena Modern Riviera",
+          "city": "Orlando",
+          "address": "8441 International Drive, Orlando, FL 32819",
+          "native_wayfind_surface": "/p/ChIJP1om-VJ-54gRAF-_k_y5cig",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "Dcy2QiqvUjb",
+      "creator_handle": "midwesttravelmama",
+      "native_url": "https://www.instagram.com/reel/Dcy2QiqvUjb/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Gretna"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "valas-pumpkin-patch-gretna",
+          "place_id": null,
+          "name": "Vala's Pumpkin Patch",
+          "city": "Gretna",
+          "address": "12102 S 180th St, Gretna, NE 68028",
+          "native_wayfind_surface": "creator_find_preview:valas-pumpkin-patch-gretna",
+          "renderability": "registry_backed_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "Dc2dtxHNbtt",
+      "creator_handle": "paigepbryant",
+      "native_url": "https://www.instagram.com/reel/Dc2dtxHNbtt/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Dade City"
+      ],
+      "place_associations": [],
+      "event_associations": [
+        {
+          "event_id": "screamageddon-2026",
+          "native_wayfind_surface": "/florida-events/scream-a-geddon-dade-city-2026",
+          "renderability": "server_rendered_creator_credit_and_native_link",
+          "association_kind": "exact_event"
+        }
+      ],
+      "association_status": "prepared",
+      "public_navigation": "/florida-events/scream-a-geddon-dade-city-2026",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "DcbOCOcm3qq",
+      "creator_handle": "raglanroadpub",
+      "native_url": "https://www.instagram.com/reel/DcbOCOcm3qq/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Lake Buena Vista"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "raglan-road-disney-springs",
+          "place_id": "ChIJOcKapod_3YgR90H_S_UKiMA",
+          "name": "Raglan Road Irish Pub",
+          "city": "Lake Buena Vista",
+          "address": "1640 E Buena Vista Dr, Lake Buena Vista, FL 32830",
+          "native_wayfind_surface": "/p/ChIJOcKapod_3YgR90H_S_UKiMA",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "DcycQAlkXid",
+      "creator_handle": "horrornightsorl",
+      "native_url": "https://www.instagram.com/reel/DcycQAlkXid/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Orlando"
+      ],
+      "place_associations": [],
+      "event_associations": [
+        {
+          "event_id": "hhn-orlando-2026",
+          "native_wayfind_surface": "/florida-events/halloween-horror-nights-orlando-2026",
+          "renderability": "server_rendered_creator_credit_and_native_link",
+          "association_kind": "exact_event"
+        }
+      ],
+      "association_status": "prepared",
+      "public_navigation": "/florida-events/halloween-horror-nights-orlando-2026",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "DbgKsnLuFoh",
+      "creator_handle": "linvillaorchards",
+      "native_url": "https://www.instagram.com/reel/DbgKsnLuFoh/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Media"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "linvilla-orchards-cafe-media",
+          "place_id": null,
+          "name": "Linvilla Cafe",
+          "city": "Media",
+          "address": "137 West Knowlton Road, Media, PA 19063",
+          "native_wayfind_surface": "creator_find_preview:linvilla-orchards-cafe-media",
+          "renderability": "registry_backed_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "Db9L1uGSkGx",
+      "creator_handle": "lemosfarmhmb",
+      "native_url": "https://www.instagram.com/reel/Db9L1uGSkGx/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Half Moon Bay"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "lemos-farm-half-moon-bay",
+          "place_id": null,
+          "name": "Lemos Farm",
+          "city": "Half Moon Bay",
+          "address": "12320 San Mateo Road, Half Moon Bay, CA 94019",
+          "native_wayfind_surface": "creator_find_preview:lemos-farm-half-moon-bay",
+          "renderability": "registry_backed_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "DcvnnXMxjQL",
+      "creator_handle": "table4onesocially",
+      "native_url": "https://www.instagram.com/reel/DcvnnXMxjQL/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Croton-on-Hudson"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "van-cortlandt-manor-croton",
+          "place_id": null,
+          "name": "Van Cortlandt Manor",
+          "city": "Croton-on-Hudson",
+          "address": "525 S Riverside Ave, Croton-on-Hudson, NY 10520",
+          "native_wayfind_surface": "creator_find_preview:van-cortlandt-manor-croton",
+          "renderability": "registry_backed_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    }
+  ]
+}

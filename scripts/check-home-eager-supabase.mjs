@@ -116,6 +116,25 @@ function redProve() {
 }
 
 redProve();
+// Exercise the production loader's single-flight and rejection-reset behavior.
+// Load the source as a data module so this Node guard can inject a deterministic
+// first-attempt chunk failure without importing the real Supabase dependency.
+const lazySource = readFileSync(path.join(ROOT, "lib/lazySupabase.js"), "utf8");
+const lazyModule = await import(`data:text/javascript;base64,${Buffer.from(lazySource).toString("base64")}`);
+let loadAttempts = 0;
+const expectedClient = { from() {} };
+const getTestClient = lazyModule.createLazyClientLoader(() => {
+  loadAttempts++;
+  return loadAttempts === 1 ? Promise.reject(new Error("synthetic stale chunk")) : Promise.resolve({ supabase: expectedClient });
+});
+const firstA = getTestClient();
+const firstB = getTestClient();
+ok(firstA === firstB, "concurrent callers must share one in-flight lazy import");
+const firstResults = await Promise.allSettled([firstA, firstB]);
+ok(firstResults.every((r) => r.status === "rejected") && loadAttempts === 1, "the synthetic first chunk failure must reach both callers from one attempt");
+const recovered = await getTestClient();
+ok(recovered === expectedClient && loadAttempts === 2, "a rejected lazy import must reset so the next attempt can recover");
+ok(await getTestClient() === expectedClient && loadAttempts === 2, "a recovered client must stay cached after the retry");
 try {
   const graph = buildGraph(ROOT, "app/home.js");
   const paths = pathsToTarget(graph, "app/home.js", TARGET);

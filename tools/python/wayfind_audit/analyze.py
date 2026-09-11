@@ -3,11 +3,13 @@
 import math
 import re
 import unicodedata
+from datetime import timedelta
 from difflib import SequenceMatcher
 
 import duckdb
 
-from .snapshot import AuditError, validate
+from .duplicate_reviews import distinct_review
+from .snapshot import AuditError, timestamp, validate
 
 
 def normalize_name(name):
@@ -117,7 +119,8 @@ def audit(snapshot, max_pairs=100_000):
             """select job, count(*) as runs,
           sum(attempted) as attempted, sum(succeeded) as succeeded, sum(failed) as failed,
           count(*) filter(where attempted > 0 and succeeded = 0) as zero_output_runs,
-          count(*) filter(where attempted = 0) as idle_runs,
+          count(*) filter(where attempted = 0 and succeeded = 0 and failed = 0) as idle_runs,
+          count(*) filter(where attempted = 0 and failed > 0) as zero_attempt_failure_runs,
           count(*) filter(where succeeded + failed <> attempted) as inconsistent_counter_runs,
           min(ran_at) as first_run, max(ran_at) as last_run
           from jobs group by job order by zero_output_runs desc, job""",
@@ -128,6 +131,19 @@ def audit(snapshot, max_pairs=100_000):
                 if row["attempted"] and not row["inconsistent_counter_runs"]
                 else None
             )
+        recent_since = (timestamp(snapshot["until"]) - timedelta(hours=24)).isoformat()
+        recent_jobs = dict_rows(
+            db,
+            """select job, count(*) as runs,
+          sum(attempted) as attempted, sum(succeeded) as succeeded, sum(failed) as failed,
+          count(*) filter(where attempted > 0 and succeeded = 0) as zero_output_runs,
+          count(*) filter(where attempted = 0 and succeeded = 0 and failed = 0) as idle_runs,
+          count(*) filter(where attempted = 0 and failed > 0) as zero_attempt_failure_runs
+          from jobs where cast(ran_at as timestamptz) >= cast('"""
+            + recent_since
+            + """' as timestamptz)
+          group by job order by job""",
+        )
         duplicate_result = duplicates(db, snapshot["datasets"]["places"]["rows"], max_pairs)
         return {
             "schema_version": 1,
@@ -141,6 +157,8 @@ def audit(snapshot, max_pairs=100_000):
             "editorial_content_flags": content_flags,
             "ledger": ledger,
             "jobs": jobs,
+            "recent_jobs": recent_jobs,
+            "recent_since": max(timestamp(snapshot["since"]), timestamp(recent_since)).isoformat(),
             "duplicates": duplicate_result,
             "costs": {
                 "actual_usd": None,
@@ -213,6 +231,10 @@ def duplicates(db, rows, max_pairs):
             "Duplicate comparison ceiling reached; refusing a partial report. Increase --max-pairs or explicitly scope input."
         )
     out = []
+    inactive = []
+    reviewed = []
+    categories = {r[0]: r[5] for r in rows}
+    state = {r[0]: (r[6], r[7]) for r in rows}
     for left, right, a, b, distance in candidates:
         # Symmetric ratio avoids SequenceMatcher's argument-order sensitivity.
         ratio = min(
@@ -220,7 +242,22 @@ def duplicates(db, rows, max_pairs):
             SequenceMatcher(None, b, a, autojunk=False).ratio(),
         )
         if ratio >= 0.92:
-            out.append(
+            review = distinct_review(left, right, a, b, categories[left])
+            if review:
+                reviewed.append({"left_id": left, "right_id": right, **review})
+                continue
+            # Retain inactive pairs as evidence, but do not send deliberately
+            # excluded records back to the active duplicate review queue.
+            target = (
+                inactive
+                if any(
+                    state[x][1] is True
+                    or state[x][0] in ("EXCLUDED", "CLOSED_PERMANENTLY", "CLOSED_TEMPORARILY")
+                    for x in (left, right)
+                )
+                else out
+            )
+            target.append(
                 {
                     "left_id": left,
                     "right_id": right,
@@ -232,6 +269,8 @@ def duplicates(db, rows, max_pairs):
             )
     return {
         "candidate_pairs": out,
+        "inactive_pairs": inactive,
+        "reviewed_distinct_pairs": reviewed,
         "compared_pairs": len(candidates),
         "located_named_records": len(points),
         "skipped_records": missing,

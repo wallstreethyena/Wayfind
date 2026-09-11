@@ -20,7 +20,7 @@ export const maxDuration = 20;
 // the composer's Wayfind Score ranking. No provider calls, no widened
 // predicates, and serveFromInventory's semantics are untouched for the cafés,
 // hotels and Family rails that depend on them.
-import { NET_DEADLINE_MS } from "../../../lib/fetchDeadline.js";
+import { NET_DEADLINE_MS, DB_DEADLINE_MS } from "../../../lib/fetchDeadline.js";
 import { composeNightOutRails } from "../../../lib/nightOutIntent.js";
 import { fetchNightOutPool } from "../../../lib/nightOutPool.js";
 import { completeAnswersOnly, fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
@@ -28,7 +28,22 @@ import { windowRailAnswer } from "../../../lib/railResponse.js";
 import { pageOneRail } from "../../../lib/railPage.js";
 import { nightOutEditorialEvidence } from "../../../lib/nightOutEvidence.js";
 
-const NIGHT_OUT_DB_DEADLINE_MS = 3000;
+// THE POOL READ IS NOT A CACHE LOOKUP (2026-09-09). This route used to give
+// every page of the exhaustive owned read a 3-second ceiling, tighter even than
+// DB_DEADLINE_MS, which lib/fetchDeadline.js sizes for "one small row from our
+// own database". A pool page is a thousand rows — 400 KB now that photo_ref is
+// hydrated after admission, 970 KB before — and on the 2026-09-09 deploy ten
+// cold cells asked at once: three categories each, thirty concurrent pages,
+// every one aborted at 3s, ten 503s in four seconds. Measured from a laptop the
+// same page completes in 1.2–1.9s alone; under that burst it does not.
+//
+// So a page gets the per-upstream-call ceiling every other owned-pool route
+// already uses (lunch-break, birthday, date-night, today-discovery all pass
+// NET_DEADLINE_MS), and the WHOLE read is bounded by NIGHT_OUT_POOL_BUDGET_MS
+// so a multi-page category cannot walk the function past maxDuration: 20s
+// total, 14s for the paged read, which leaves the photo hydration (one DB
+// deadline), composition and the response inside the limit with room to spare.
+const NIGHT_OUT_POOL_BUDGET_MS = 14000;
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
@@ -47,7 +62,7 @@ export async function GET(request) {
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
     return Response.json({ error: "lat and lng are required" }, { status: 400, headers: { "cache-control": "no-store" } });
   }
-  const key = `night-out:v4:${geoCell(lat)}:${geoCell(lng)}`;
+  const key = `night-out:v5:${geoCell(lat)}:${geoCell(lng)}`;
   try {
     const cached = await fastCachedRail(key, async () => {
       const origin = { lat, lng };
@@ -57,7 +72,9 @@ export async function GET(request) {
       // curated would be refused before anything could restore it. Curing
       // candidate starvation by creating evidence starvation is a lateral move.
       const pool = await fetchNightOutPool(lat, lng, {
-        deadlineMs: Math.min(NET_DEADLINE_MS, NIGHT_OUT_DB_DEADLINE_MS),
+        deadlineMs: NET_DEADLINE_MS,
+        deadlineAt: Date.now() + NIGHT_OUT_POOL_BUDGET_MS,
+        photoDeadlineMs: DB_DEADLINE_MS,
         editorialOverride: nightOutEditorialEvidence,
       });
       const composed = composeNightOutRails([], pool.places, origin);

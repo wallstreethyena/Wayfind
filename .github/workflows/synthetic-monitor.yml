@@ -64,3 +64,16 @@ jobs:
           path: synthetic-evidence/
           retention-days: 14
           if-no-files-found: ignore
+      # HEARTBEAT. 2026-09-09: this workflow failed on every scheduled run from
+      # 2026-09-08 18:25Z and nothing said so, because a workflow that fails
+      # inside GitHub writes no wf_job_pulse row and job-watch can only alert on
+      # rows that exist. It also runs far less often than its own cron claims
+      # (8 runs in 27 hours against a declared */30), so its silence needs to be
+      # detectable too. `always()` so a FAILED run still leaves a beat — a
+      # heartbeat that only fires on success is not a heartbeat.
+      - name: Heartbeat
+        if: always()
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/record-workflow-pulse.mjs --job=synthetic-monitor --outcome=${{ steps.run.outcome }}

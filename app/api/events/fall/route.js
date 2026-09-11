@@ -18,7 +18,7 @@ import { eventTicketCta } from "../../../../lib/eventTicketDeals.js";
 import { hasCjPid } from "../../../../lib/deals.js";
 import { supabase } from "../../../../lib/supabase.js";
 import { wayfindScore } from "../../../../lib/wayfindScore.js";
-import { cardImageSrc } from "../../../../lib/placePhoto.js";
+import { cardImageSrc, hasStoredPlacePhoto } from "../../../../lib/placePhoto.js";
 import { fastCachedRail, geoCell } from "../../../../lib/railFastCache.js";
 import { composeFallIntentRails } from "../../../../lib/fallIntentRails.js";
 import { pageOneRail } from "../../../../lib/railPage.js";
@@ -26,6 +26,7 @@ import { FALL_PHOTO_PLACE_IDS, FALL_PHOTO_SPOTS } from "../../../../lib/fallPhot
 import { FALL_DISCOVERIES_2026, FALL_DISCOVERY_RAIL, FALL_SEASONAL_PLACE_IDS } from "../../../../lib/fallDiscoveries2026.js";
 import { windowRailAnswer } from "../../../../lib/railResponse.js";
 import { FALL_COLLECTION_POSTER, FALL_EVENT_VENUE_PLACE_IDS, fallEventCardImageSrc, mergeFallDiscoveryRows } from "../../../../lib/fallEventImage.js";
+import { eventSocialPosts } from "../../../../lib/eventSocial.js";
 
 const FALL_DB_DEADLINE_MS = 3500;
 
@@ -59,7 +60,11 @@ export async function GET(request) {
     // hold a de-dated event plus none of that day's 21 new ones. The rail cache
     // keeps a good answer for an hour, so without this bump the owner's own
     // Parrish cell would have served the wrong set until it aged out.
-    const key = `fall-intents:v11:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v12 published the September 10 Sarasota additions and verified
+    // corrections. v13 adds Sōl St Pete's verified seasonal offering without
+    // reusing a cache written before that registry entry existed. v14 adds
+    // compact creator-reel credit to event cards whose detail page can play it.
+    const key = `fall-intents:v14:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     const cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
@@ -121,6 +126,16 @@ export async function GET(request) {
         const inventory = inventoryById.get(e.place_id) || null;
         const hasImageProof = (!!e.hero_image && e.hero_image !== FALL_COLLECTION_POSTER) || !!inventory?.photo_ref;
         const image = hasImageProof ? fallEventCardImageSrc(e, 640, inventory) : null;
+        const detailHref = e.slug && pageSlugs.has(e.slug) ? "/florida-events/" + e.slug : null;
+        // The card marker promises a video one tap away, so publish it only
+        // when our event page exists and only for canonical Instagram reels.
+        // /p/ may be a still or carousel and stays available on the detail page
+        // under truthful "post" wording. URLs do not ride in the rail payload:
+        // CreatorCardMark needs only platform + handle, while the page resolves
+        // the server-owned association again when opened.
+        const creatorReels = detailHref ? eventSocialPosts(e.event_id)
+          .filter((post) => post.platform === "instagram" && /instagram\.com\/reels?\/[\w-]+\/?(?:[?#].*)?$/.test(post.url))
+          .map((post) => ({ platform: post.platform, creator: post.creator })) : [];
         return ({
         ...e,
         kind: "event",
@@ -140,7 +155,7 @@ export async function GET(request) {
         // The event's OWN page (dates, hours, parking, why-go, JSON-LD) —
         // the card body opens this, not the venue's place sheet.
         slug: e.slug || null,
-        detailHref: e.slug && pageSlugs.has(e.slug) ? "/florida-events/" + e.slug : null,
+        detailHref,
         hook: e.card_hook,
         take: e.editorial_summary || null,
         // Collection art belongs on the collection tile, never on a named
@@ -151,6 +166,7 @@ export async function GET(request) {
         url: eventOutboundUrl(e) || null,   // 2026-09-02: link_ok + quarantine + safeUrl gated
         is_free: !!e.is_free, price_band: e.price_band || null,
         tags: e.tags || [],
+        creatorReels,
         ticket,
       });
       })
@@ -218,20 +234,24 @@ export async function GET(request) {
       const seasonalPlaceIds = new Set(seasonalPlaces.map((place) => place.id));
       const places = [...seasonalPlaces, ...(placeResult.error ? [] : (placeResult.data || []))
         .filter((p) => !seasonalPlaceIds.has(p.place_id))
-        .filter((p) => !!p.photo_ref)
-        .filter((p) => (!p.status || p.status === "OPERATIONAL") && p.signals && typeof p.signals.rating === "number" && p.signals.rating > 0)
+        .filter((p) => hasStoredPlacePhoto(p))
+        .filter((p) => (!p.status || p.status === "OPERATIONAL")
+          && (FALL_PLACE_IDS[p.place_id] || (typeof p.signals?.rating === "number" && p.signals.rating > 0)))
         .map((p) => ({
           kind: "place",
           id: p.place_id,
           title: p.name, name: p.name,
           lat: p.lat, lng: p.lng, metro: p.metro, category: p.category,
-          rating: p.signals.rating, reviews: p.signals.reviews || 0,
-          wfScore: wayfindScore(p.signals.rating, p.signals.reviews || 0),
+          rating: typeof p.signals?.rating === "number" ? p.signals.rating : null,
+          reviews: p.signals?.reviews || 0,
+          wfScore: typeof p.signals?.rating === "number" && p.signals.rating > 0
+            ? wayfindScore(p.signals.rating, p.signals.reviews || 0)
+            : null,
           // This place is here because of its verified seasonal offering. The
           // generic inventory summary may still be useful elsewhere, but it
           // must never hide the evidence that earned this fall recommendation.
           take: FALL_PLACE_IDS[p.place_id] || FALL_PHOTO_SPOTS[p.place_id]?.visualProof || p.editorial || null,
-          image: cardImageSrc({ place_id: p.place_id, photo_ref: p.photo_ref }, 640),
+          image: cardImageSrc({ place_id: p.place_id, photo_ref: p.photo_ref, signals: p.signals }, 640),
           fallRail: FALL_PLACE_RAIL[p.place_id] || (FALL_PHOTO_SPOTS[p.place_id] ? "photos" : null),
           ...(FALL_PHOTO_SPOTS[p.place_id] || {}),
         }))]

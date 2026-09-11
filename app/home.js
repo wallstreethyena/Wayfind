@@ -5,6 +5,7 @@ import { mergeHealedPlacePhotos } from "../lib/detailHero";
 import { RON_DUPRAT_TOP7, chefHookCard, chefPickPlaces } from "../lib/chefPicks";
 import { fallCardClass, fallShareLine } from "../lib/fallSkin.js";
 import { siteTodayStr } from "../lib/siteTime";
+import { activeSeasonalMark } from "../lib/seasonalBrand";
 import { lunchRevealCookieValue, lunchRevealCount, lunchRevealLimit } from "../lib/lunchReveal";
 import { intentRadiusMi, intentScopeLabel } from "../lib/momentIntents";
 import { MAP_DEFAULT_CATEGORY } from "../lib/mapExplorer";
@@ -76,6 +77,7 @@ import { saveItem as saveMonetized, fetchSavedItems } from "../lib/savedItems";
 // v7.08 — the one writer that knows a cache from a preference, and the sweep
 // that reclaims the budget the caches had already taken. See lib/localStore.js.
 import { setLocal, sweepLocal } from "../lib/localStore";
+import { browsePosition, horizontalPositions, restoreBrowsePosition } from "../lib/restoreBrowsePosition";
 import { placeRouteBackPlan } from "../lib/railReaction";
 import { reconcileIds } from "../lib/syncReconcile";
 // v4.94: the ONE junk filter — composites and any non-aggregator pool call it too.
@@ -201,7 +203,7 @@ import { sponsorRailNear, partnerCollectionById, hydratePartnerCollection } from
 import { toDisplayScore, pickEligibleByScore, cardComplete, displayableAt } from "../lib/score";
 import { stampOwnerPick } from "../lib/ownerBump.js";
 import { frontPageEvents, bestFirst } from "../lib/frontEvents";
-import { NIGHT_OUT_MAX_MI, NIGHT_OUT_RAIL_DEFS, nightOutDistanceMi, nightOutEventRail } from "../lib/nightOutIntent.js";
+import { settleLoad } from "../lib/loadState.js";
 import { HOME_AFFILIATE_ACTIVITY_FETCH_LIMIT, HOME_AFFILIATE_ACTIVITY_RADIUS_MI, homeAffiliateActivities } from "../lib/homeAffiliateActivities";
 // July 2026 decomposition (wave 1): the homepage's ~520 lines of server-
 // rendered CSS live in their own shell file. They are still concatenated into
@@ -298,7 +300,7 @@ function _viatorCityParams(cityQ, center) {
 // and v8.x because check-version.mjs only asserts VERSION == BUILD_ID, not
 // that either moved — and the owner used the footer label to judge whether
 // production was stale. A version label that never changes is disinformation.
-const BUILD_ID = "v8.56.11";
+const BUILD_ID = "v8.56.16";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -2055,7 +2057,15 @@ function AreaInsight({ metro, cat, town, center, onFind, onLog = NOLOG }) {
         <div style={{ padding: "19px 20px 21px", borderTop: "1px solid rgba(255,255,255,.07)" }}>
           <div style={{ marginBottom: 11, color: "#7F8C9B", fontSize: 9.5, fontWeight: 900, letterSpacing: ".17em", textTransform: "uppercase" }}>What locals know</div>
           {visibleItems.map((x, i) => {
-            const book = x.viatorUrl ? Aff.viatorDirectUrl(x.viatorUrl) : null;
+            // 2026-09-10 (affiliate deep-link audit, owner P0): this was
+            // Aff.viatorDirectUrl(), which renders a LIVE monetized viator.com
+            // href straight into crawlable DOM — every click bypassed
+            // /api/viator/go, so there was no provider_redirect_started, no
+            // server record, and any JS-rendering crawler "clicked" it. Same
+            // destination and same attribution (the route re-applies
+            // withViatorTracking), but the handoff is ours and can fail closed.
+            // /culture/[metro] and /guides/[slug] already do exactly this.
+            const book = x.viatorUrl ? Aff.viatorProductGoUrl(x.viatorUrl, cTitle, "culture", "culture_local_guide") : null;
             const body = book ? <>{x.story} <a href={book} target="_blank" rel="noreferrer" onClick={(e) => { e.stopPropagation(); e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || book; try { onLog("culture_book", null, { metro, q: x.name }); } catch (er) {} openExternal(_live); }} style={{ color: "#59DDBB", fontWeight: 850, textDecoration: "none" }}>Book ↗</a></> : x.story;
             return featureRow(String(i + 1).padStart(2, "0"), x.name, body, "#FF9B4B", (e) => { e.stopPropagation(); try { onLog("insight_find", null, { metro, q: x.name }); } catch (er) {} onFind && onFind(x.query || x.name); }, "item-" + i);
           })}
@@ -2128,11 +2138,13 @@ function AuthWall({ label, onSignIn }) {
   );
 }
 
-// Branded loading indicator: the Wayfind pin, gently pulsing.
+// Shared loading indicator. Keep it neutral: a loading state is structure, not
+// a second brand impression competing with the header wordmark.
 function Loader({ label, size, pad, sub }) {
+  const blockSize = size || 26;
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 10, padding: pad || "10px 2px", color: C.muted, fontSize: 13 }}>
-      <div style={{ animation: "wfbob 1.1s ease-in-out infinite", display: "flex" }}><Critter size={size || 26} /></div>
+    <div role="status" aria-busy="true" style={{ display: "flex", alignItems: "center", gap: 10, padding: pad || "10px 2px", color: C.muted, fontSize: 13 }}>
+      <div className="wf-sk" aria-hidden="true" style={{ width: blockSize, height: blockSize, borderRadius: 7, flex: "0 0 auto" }} />
       {(label || sub) && (
         <span>
           {label}
@@ -3725,12 +3737,18 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // mechanically amended below because their callbacks actually read it.
   useEffect(() => {
     let active = true;
-    getSupabase().then((client) => {
-      if (!active) return;
-      supabase = client;
-      if (client) setSupabaseReady(true);
-    });
-    return () => { active = false; };
+    let retryTimer = null;
+    const loadSupabase = () => {
+      getSupabase().then((client) => {
+        if (!active) return;
+        supabase = client;
+        if (client) setSupabaseReady(true);
+      }).catch(() => {
+        if (active) retryTimer = setTimeout(loadSupabase, 1200);
+      });
+    };
+    loadSupabase();
+    return () => { active = false; if (retryTimer) clearTimeout(retryTimer); };
   }, []);
   const [screen, setScreen] = useState("suggested");
   const [cat, setCat] = useState(MAP_DEFAULT_CATEGORY);
@@ -4159,6 +4177,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // instead of the URL being unknown until a client fetch resolves ~11s in.
   // null => no server events (fail-soft) => skeleton, exactly as before.
   const [foryouEvents, setForyouEvents] = useState(initialEvents);
+  const [foryouEventsFailed, setForyouEventsFailed] = useState(false);
   const [libraryEvents, setLibraryEvents] = useState([]); // curated civic/library events for the local-community hero card
   const [shareCopied, setShareCopied] = useState(false);
   const [beachCond, setBeachCond] = useState(null);
@@ -4428,7 +4447,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       setMenuOrder(orderExploreMenu(new Date(), p ? p.utcOffsetMinutes : null));
     } catch (e) {}
   }, [suggested]);
-  const pickBrowse = (id) => { const nv = browseCat === id ? null : id; setMoodPick(nv); setBrowseCat(nv); if (nv) { setCat(nv); setSub("all"); setVibe("all"); } };
+  const pickBrowse = (id) => { const nv = browseCat === id ? null : id; if (!nv) { closeBrowse(); return; } captureBrowseReturn(); setMoodPick(nv); setBrowseCat(nv); if (nv) { setCat(nv); setSub("all"); setVibe("all"); } };
   const openCuisine = (label, fromPlace) => {
     if (!label) return;
     const ctx = condCtxFromNow(nowContext({ weather }));
@@ -4440,7 +4459,6 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // built from data already loaded. No new fetching, no new card systems.
   const intentCtx = () => condCtxFromNow(nowContext({ weather }));
   const intentPool = () => dedupePlaces([...(suggested || []), ...(places || []), ...(homeTodo || [])].filter(Boolean), true);
-  const openRainy = () => { const list = Ranking.rankByConditions(intentPool().filter((pp) => { try { return Ranking.venueLean(pp).lean === "indoor"; } catch { return false; } }), intentCtx()).slice(0, 10); setCuisineSheet({ title: "Rainy-day picks", sub: "Indoor spots that hold up, ranked for right now.", label: "rainy day", list }); };
   const [top10Open, setTop10Open] = useState(false);
   const [food10Open, setFood10Open] = useState(false);
   const [debugOn, setDebugOn] = useState(false);
@@ -4632,6 +4650,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // the reader on a browse block that is not there.
   const openBrowse = (id) => {
     if (!id) return;
+    captureBrowseReturn();
     if (screen !== "suggested") {
       setScreen("suggested");
       try { if (SCREEN_PATH[screen]) window.history.pushState({ wf: "screen" }, "", "/"); } catch (e) {}
@@ -5867,29 +5886,18 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // zero here is the thing that cancelled it — see landingRef above. Stranding
   // is still impossible: a landing always ends (settled, abandoned to the reader,
   // or the 4s ceiling) and every path that does not land still resets.
-  useEffect(() => { try { if (scrollRef.current && !landingRef.current) scrollRef.current.scrollTo({ top: 0 }); } catch (e) {} setMapPreview(null); setEventPreview(null); setMapDrawer(false); }, [cat, sub, vibe, intent, searchRadius, screen, activeBadge]);
+  useEffect(() => { try { if (scrollRef.current && !landingRef.current && !posRestore.current) scrollRef.current.scrollTo({ top: 0 }); } catch (e) {} setMapPreview(null); setEventPreview(null); setMapDrawer(false); }, [cat, sub, vibe, intent, searchRadius, screen, activeBadge]);
   // v6.08 (PR-C): when a place detail closes (back), restore the list scroll
   // position captured on open. The list stays mounted behind the sheet so its
   // items already exist; a double rAF waits for the close re-render. Keyed by
   // the list identity so switching lists never cross-restores.
   useEffect(() => {
     if (detail != null) return;
-    // v8.23.4 — FALL BACK TO THE STORED COPY. v6.08 wrote wf_sc_<key> to
-    // sessionStorage next to this ref and nothing ever read it, so the write was
-    // dead the day it shipped: after any reload the ref is empty and the reader
-    // lost their row. Same key, so it still cannot cross-restore between lists.
     const key = screen + "|" + cat + "|" + sub + "|" + vibe;
-    let s = scrollRestore.current;
-    if ((!s || s.key !== key) && scrollRef.current) {
-      try {
-        const stored = sessionStorage.getItem("wf_sc_" + key);
-        if (stored != null && Number.isFinite(Number(stored))) s = { key, top: Number(stored) };
-      } catch (e) {}
-    }
+    const s = scrollRestore.current;
     if (!s || !scrollRef.current || s.key !== key) return;
-    const top = s.top;
     scrollRestore.current = null;
-    requestAnimationFrame(() => requestAnimationFrame(() => { try { if (scrollRef.current) scrollRef.current.scrollTop = top; } catch (e) {} }));
+    return restoreBrowsePosition(scrollRef.current, s);
   }, [detail]);
   // ══ v8.23.4 — DO NOT LOSE THE READER'S PLACE ═══════════════════════════
   //
@@ -5914,47 +5922,84 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // ago", not a preference. It must not resurrect a three-day-old tab state on
   // a fresh visit, and the 30-minute ceiling below is a second belt on that.
   const posRestore = useRef(null);
+  const cancelPositionRestore = useRef(null);
   const posRead = useRef(false);
-  useEffect(() => {
-    if (posRead.current) return;
-    posRead.current = true;
+  const browseReturn = useRef(null);
+  const activeEntryKey = useRef(null);
+  const positionWriter = useRef(null);
+  const writingPosition = useRef(false);
+  function captureBrowseReturn() {
+    if (!browseCat && scrollRef.current) browseReturn.current = browsePosition(scrollRef.current);
+  }
+  const [restoreVersion, setRestoreVersion] = useState(0);
+  function positionEntryKey() {
+    const h = window.history;
+    let key = h.state?.__wfPositionKey;
+    if (!key) {
+      key = Date.now().toString(36) + Math.random().toString(36).slice(2);
+      h.replaceState({ ...h.state, __wfPositionKey: key }, "");
+    }
+    activeEntryKey.current = key;
+    return key;
+  }
+  function readPosition() {
+    const key = positionEntryKey();
+    const raw = sessionStorage.getItem("wf_pos_entry_" + key) || (["/", "/v8"].includes(window.location.pathname) && !window.location.search ? sessionStorage.getItem("wf_pos") : null);
+    const p = JSON.parse(raw || "null");
+    if (!p || !p.ts || Date.now() - p.ts > 30 * 60000) {
+      sessionStorage.removeItem("wf_pos");
+      return null;
+    }
+    return p;
+  }
+  function applyPosition(p) {
+    if (!p) return false;
+    // Prepare storage before setters can remount a poster.
     try {
-      const raw = sessionStorage.getItem("wf_pos");
-      if (!raw) return;
-      const p = JSON.parse(raw);
-      if (!p || typeof p !== "object" || !p.ts || Date.now() - p.ts > 30 * 60000) {
-        sessionStorage.removeItem("wf_pos");
-        return;
-      }
-      if (p.screen) setScreen(p.screen);
-      if (p.cat) setCat(p.cat);
-      if (p.browseCat !== undefined) setBrowseCat(p.browseCat);
-      if (p.sub) setSub(p.sub);
-      if (p.vibe) setVibe(p.vibe);
-      posRestore.current = { top: Number(p.top) || 0, win: Number(p.win) || 0, at: Date.now() };
-    } catch (e) {}
+      if (p.poster) sessionStorage.setItem("wf_poster_position", JSON.stringify(p.poster));
+      else sessionStorage.removeItem("wf_poster_position");
+    } catch {}
+    posRestore.current = p;
+    browseReturn.current = p.browseReturn || null;
+    if (p.screen) setScreen(p.screen);
+    if (p.cat) setCat(p.cat);
+    if (p.browseCat !== undefined) setBrowseCat(p.browseCat);
+    if (p.sub) setSub(p.sub);
+    if (p.vibe) setVibe(p.vibe);
+    if (p.center && Number.isFinite(p.center.lat) && Number.isFinite(p.center.lng)) {
+      manualRef.current = true;
+      setCenter((prev) => prev?.lat === p.center.lat && prev?.lng === p.center.lng ? prev : p.center);
+      setLocName(p.locName || ""); setLocResolved(true);
+    }
+    if (p.searchMode && Array.isArray(p.searchPlaces)) setPlaces(p.searchPlaces);
+    for (const [key, setter] of Object.entries({ query: setQuery, intent: setIntent, sortBy: setSortBy,
+      searchRadius: setSearchRadius, quickFilter: setQuickFilter, searchMode: setSearchMode,
+      searchLabel: setSearchLabel, visibleCount: setVisibleCount, activeBadge: setActiveBadge,
+      moodPick: setMoodPick, eventCat: setEventCat, eventDate: setEventDate })) {
+      if (p[key] !== undefined) setter(p[key]);
+    }
+    window.dispatchEvent(new CustomEvent("wf:restore-browse", { detail: p }));
+    setRestoreVersion((v) => v + 1);
+    return true;
+  }
+  useEffect(() => {
+    if (posRead.current || initialPlaceId) return;
+    posRead.current = true;
+    try { applyPosition(readPosition()); } catch {}
   }, []);
-  // APPLIED AFTER THE STATE SETTLES, and that ordering is the whole trick: the
-  // effect above this block zeroes the scroll on every [cat, sub, vibe, screen,
-  // ...] change, which includes the ones the restore itself just made. So the
-  // position is re-applied on the render those setters produce, behind a double
-  // rAF, and only within four seconds of the read — long enough for the feed to
-  // mount, short enough that a later filter change is never hijacked.
   useEffect(() => {
     const r = posRestore.current;
-    if (!r) return undefined;
-    if (Date.now() - r.at > 4000) { posRestore.current = null; return undefined; }
-    let a = 0, b = 0;
-    a = requestAnimationFrame(() => {
-      b = requestAnimationFrame(() => {
-        try {
-          if (scrollRef.current && r.top) scrollRef.current.scrollTop = r.top;
-        } catch (e) {}
-        posRestore.current = null;
-      });
+    if (!r || !scrollRef.current) return undefined;
+    cancelPositionRestore.current?.();
+    const cancel = restoreBrowsePosition(scrollRef.current, r, () => {
+      if (posRestore.current === r) posRestore.current = null;
     });
-    return () => { cancelAnimationFrame(a); cancelAnimationFrame(b); };
-  }, [screen, cat, browseCat, sub, vibe]);
+    cancelPositionRestore.current = cancel;
+    return () => {
+      cancel();
+      if (cancelPositionRestore.current === cancel) cancelPositionRestore.current = null;
+    };
+  }, [screen, cat, browseCat, sub, vibe, restoreVersion]);
   // The writer. On every taxonomy change, on a throttled scroll, and — the one
   // that actually saves the Google Maps round trip — on pagehide, which fires
   // when the browser is leaving THIS document, including for an outbound link.
@@ -5966,36 +6011,47 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // resilience, it is a comment that lies. scripts/check-shell-scroll.mjs now
   // fails the build on any new window.scroll* in the shell.
   useEffect(() => {
-    const write = () => {
+    if (initialPlaceId) return undefined;
+    const write = (entryOverride) => {
+      if (writingPosition.current || posRestore.current || !scrollRef.current) return;
+      writingPosition.current = true;
       try {
-        sessionStorage.setItem("wf_pos", JSON.stringify({
-          screen, cat, browseCat, sub, vibe,
-          top: scrollRef.current ? scrollRef.current.scrollTop : 0,
-          ts: Date.now(),
-        }));
-      } catch (e) {}
+        const p = { screen, cat, browseCat, sub, vibe, ...browsePosition(scrollRef.current),
+          horizontal: horizontalPositions(scrollRef.current), center, locName, query, intent, sortBy,
+          searchRadius, quickFilter, searchMode, searchLabel, visibleCount, activeBadge, moodPick,
+          eventCat, eventDate, searchPlaces: searchMode ? places : undefined, browseReturn: browseReturn.current,
+          poster: JSON.parse(sessionStorage.getItem("wf_poster_position") || "null"), ts: Date.now() };
+        sessionStorage.setItem("wf_pos", JSON.stringify(p));
+        sessionStorage.setItem("wf_pos_entry_" + (typeof entryOverride === "string" ? entryOverride : positionEntryKey()), JSON.stringify(p));
+      } catch {} finally { writingPosition.current = false; }
     };
-    write();
-    let t = null;
-    const onScroll = () => { if (t) return; t = setTimeout(() => { t = null; write(); }, 400); };
-    const el = scrollRef.current;
-    try { if (el) el.addEventListener("scroll", onScroll, { passive: true }); } catch (e) {}
-    try {
-      window.addEventListener("scroll", onScroll, { passive: true });
-      window.addEventListener("pagehide", write);
-    } catch (e) {}
+    positionWriter.current = write;
+    const frame = requestAnimationFrame(() => write());
+    let timer;
+    const onScroll = () => { clearTimeout(timer); timer = setTimeout(write, 150); };
+    const capture = () => {
+      if (!browseCat && scrollRef.current) browseReturn.current = browsePosition(scrollRef.current);
+      write();
+    };
+    document.addEventListener("click", capture, true);
+    document.addEventListener("scroll", onScroll, { capture: true, passive: true });
+    window.addEventListener("pagehide", write);
     return () => {
-      if (t) clearTimeout(t);
-      try { if (el) el.removeEventListener("scroll", onScroll); } catch (e) {}
-      try {
-        window.removeEventListener("scroll", onScroll);
-        window.removeEventListener("pagehide", write);
-      } catch (e) {}
+      cancelAnimationFrame(frame); clearTimeout(timer);
+      document.removeEventListener("click", capture, true);
+      document.removeEventListener("scroll", onScroll, true);
+      window.removeEventListener("pagehide", write);
     };
-  }, [screen, cat, browseCat, sub, vibe]);
+  }, [screen, cat, browseCat, sub, vibe, center, locName, query, intent, sortBy, searchRadius,
+      quickFilter, searchMode, searchLabel, visibleCount, activeBadge, moodPick, eventCat, eventDate, restoreVersion, places]);
+  function closeBrowse() {
+    posRestore.current = browseReturn.current || { top: 0, horizontal: [] };
+    setBrowseCat(null); setMoodPick(null); setSub("all");
+    setRestoreVersion((v) => v + 1);
+  }
 
   // Reset the explore list back to 5 whenever a new result set loads or search mode flips.
-  useEffect(() => { setVisibleCount(5); }, [places, searchMode]);
+  useEffect(() => { if (!posRestore.current) setVisibleCount(5); }, [places, searchMode]);
   function pickSub(id) { setSub(id); setVibe("all"); try { logEvent("filter_changed", null, { cat, sub: id }); } catch (e) {} }
 
   // Signal functions — record engagement, drive personalised ranking, trigger sign-up.
@@ -6364,7 +6420,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     }
     try { const _aud = {}; experienceBadges(p, null, 99, _aud); logEvent("detail_open", p, { identity: _aud.identity || null, blocked: (_aud.blocked || []).length, ctx: typeof context === "string" ? context : null }); } catch (e) {}
     // v6.08 (PR-C): remember where we were in the list so back returns here, not to the top.
-    try { if (scrollRef.current) { const _k = screen + "|" + cat + "|" + sub + "|" + vibe; const _t = scrollRef.current.scrollTop; scrollRestore.current = { key: _k, top: _t }; sessionStorage.setItem("wf_sc_" + _k, String(_t)); } } catch (e) {}
+    try { if (scrollRef.current) { const _k = screen + "|" + cat + "|" + sub + "|" + vibe; const _t = scrollRef.current.scrollTop; scrollRestore.current = { key: _k, ...browsePosition(scrollRef.current) };  } } catch (e) {}
     setDetail(p);
     // /p/{id} and any card that skipped withMemberSignal still show the raw
     // score until this overlay lands. Same function as the list path.
@@ -7442,7 +7498,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         // A new screen pushes a history entry; refining the same screen's filter
         // replaces in place (no dead Back step).
         if (window.location.pathname !== SCREEN_PATH[screen]) window.history.pushState({ wf: "screen" }, "", target);
-        else window.history.replaceState({ wf: "screen" }, "", target);
+        else window.history.replaceState({ ...window.history.state, wf: "screen" }, "", target);
       } else if (prev && SCREEN_PATH[prev] && PATH_SCREEN[window.location.pathname]) {
         // Left a standalone screen for the feed/detail -> restore "/".
         window.history.pushState({ wf: "screen" }, "", "/");
@@ -7467,6 +7523,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     const onPop = () => {
       try {
         const p = window.location.pathname;
+        if (activeEntryKey.current) positionWriter.current?.(activeEntryKey.current);
+        const key = window.history.state?.__wfPositionKey;
+        activeEntryKey.current = key;
+        if (key) {
+          const saved = JSON.parse(sessionStorage.getItem("wf_pos_entry_" + key) || "null");
+          if (saved && Date.now() - saved.ts <= 30 * 60000 && applyPosition(saved)) return;
+        }
         const scr = PATH_SCREEN[p];
         if (scr === "events") {
           const sp = new URLSearchParams(window.location.search);
@@ -7948,6 +8011,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // hides the strip and never blocks the picks.
   useEffect(() => {
     if (screen !== "suggested" || !center) return;
+    setForyouEventsFailed(false);
+    setForyouEvents(null);
     // #219 primer consume: an inline script in app/layout.js starts this exact
     // fetch BEFORE hydration, using the SAME wf_center -> DEFAULT_CENTER
     // resolution this client uses — so on the common path the response is
@@ -7962,20 +8027,21 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     let cancelled = false;
     (async () => {
       try {
-        const data = _primeOk
+        const settled = await settleLoad(async () => _primeOk
           ? await _prime.p
-          : await fetch("/api/events?lat=" + center.lat.toFixed(2) + "&lng=" + center.lng.toFixed(2) + "&radius=25&city=" + encodeURIComponent(locName || "")).then((r) => (r.ok ? r.json() : null)); // GET = CDN-cacheable (2dp — the server cache key's own granularity)
-        if (!data) { if (!cancelled) setForyouEvents([]); return; }
+          : await fetch("/api/events?lat=" + center.lat.toFixed(2) + "&lng=" + center.lng.toFixed(2) + "&radius=25&city=" + encodeURIComponent(locName || "")).then((r) => (r.ok ? r.json() : null))); // GET = CDN-cacheable (2dp — the server cache key's own granularity)
+        const data = settled.ok ? settled.data : null;
+        if (!Array.isArray(data?.events)) { if (!cancelled) { setForyouEvents([]); setForyouEventsFailed(true); } return; }
         const evs = ((data && data.events) || []).filter((e) => e && e.dest);
         if (!cancelled) {
           // v6.42 (owner, PERMANENT): the front page NEVER shows civic/community
           // programs — ticketed categories only (lib/frontEvents; locked by
           // scripts/test-front-events.mjs). They still live on the Events tab
-          // under "Local events". Depth 24 so the priority rail has inventory.
-          setForyouEvents(frontPageEvents(evs, eventBucket).usable.slice(0, 24));
+          // under "Local events". Keep the full pool for intent-specific rails.
+          setForyouEvents(frontPageEvents(evs, eventBucket).usable);
           setLibraryEvents(evs.filter((e) => e.civic).slice(0, 6));
         }
-      } catch { if (!cancelled) { setForyouEvents([]); setLibraryEvents([]); } }
+      } catch { if (!cancelled) { setForyouEvents([]); setForyouEventsFailed(true); setLibraryEvents([]); } }
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -7996,7 +8062,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail]);
+  }, [detail, supabaseReady]);
 
   function onQueryChange(v) {
     setQuery(v);
@@ -9100,6 +9166,34 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0 }); window.scrollTo(0, 0); } catch (e) {}
   };
 
+  // The wordmark is a deliberate fresh-home action. Back/Forward restores a
+  // reader's place; tapping the brand returns to the top-level poster shelf.
+  // Keep those contracts separate so position memory never turns the logo into
+  // a no-op at the footer or reopens a poster the reader meant to leave.
+  const returnHomeTop = () => {
+    cancelLanding();
+    cancelPositionRestore.current?.();
+    cancelPositionRestore.current = null;
+    posRestore.current = null;
+    browseReturn.current = null;
+    setActiveList(null); setSysFolder(null); setListMenu(null); setRenamingList(null);
+    setActiveTrip(null); setTripNoteEdit(null); setTripMoveFor(null); setMapListOverride(null);
+    setNavShortcuts(false);
+    try {
+      sessionStorage.removeItem("wf_poster_position");
+      const entryKey = positionEntryKey();
+      const saved = JSON.parse(sessionStorage.getItem("wf_pos_entry_" + entryKey) || sessionStorage.getItem("wf_pos") || "null");
+      if (saved && typeof saved === "object") {
+        const home = { ...saved, screen: "suggested", cat: "food", browseCat: null, browseReturn: null, sub: "all", vibe: "all", top: 0, anchor: null, horizontal: [], poster: null, ts: Date.now() };
+        sessionStorage.setItem("wf_pos", JSON.stringify(home));
+        sessionStorage.setItem("wf_pos_entry_" + entryKey, JSON.stringify(home));
+      }
+    } catch {}
+    try { window.dispatchEvent(new Event("wf:home")); } catch {}
+    openSuggested();
+    try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0, left: 0, behavior: "auto" }); } catch {}
+  };
+
   // v8.2 — THE RAIL BAND, as one named expression, because it no longer renders
   // inside .wf-col-main and a band that spans the page should not be indented
   // three levels into a column it has left. Every prop is unchanged and every
@@ -9152,9 +9246,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // CONTENT prop under scripts/test-first-screen.mjs's rule rather than a
   // callable read only inside the drop, alongside memberSignalsFor and
   // applyMemberSignal. Nothing here is allocated until the events tile opens.
-  const eventsRailSlot = (mode = "events") => {
+  // Specialty selectors travel with the lazy poster that needs them. Keeping
+  // this dependency out of home's eager imports protects first-load JS.
+  const eventsRailSlot = (mode = "events", selectPosterEvents = null) => {
     if (foryouEvents === null) {
-      if (mode === "night-out") return { pending: true, byRail: {} };
+      if (["night-out", "date-night", "summer-sports", "today-entertainment"].includes(mode)) return { pending: true, byRail: {} };
       return (
         <div className="wf-rail wf-rail-events" aria-hidden="true" role="status" aria-busy="true" style={{ minHeight: EV_RAIL_MIN_H, overflow: "hidden" }}>
           {[0, 1].map((i) => (
@@ -9186,18 +9282,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         onCopied={() => showToast("Event link copied")}
       />
     );
-    if (mode === "night-out") {
-      const rows = Object.fromEntries(NIGHT_OUT_RAIL_DEFS.map((rail) => [rail.id, []]));
-      for (const event of shown) {
-        const railId = nightOutEventRail(event);
-        const distMi = nightOutDistanceMi(event, center || {});
-        if (railId && distMi != null && distMi <= NIGHT_OUT_MAX_MI) rows[railId].push(event);
-      }
+    if (["night-out", "date-night", "summer-sports", "today-entertainment"].includes(mode)) {
+      const rows = selectPosterEvents(fp.usable.filter((event) => eventSignals.disliked[event.id] !== true), { mode, center, bucketOf: eventBucket });
       return {
         pending: false,
-        byRail: Object.fromEntries(NIGHT_OUT_RAIL_DEFS.map((rail) => [
-          rail.id,
-          rows[rail.id].map((event, index) => renderEventCard(event, index + 1)),
+        failed: foryouEventsFailed,
+        byRail: Object.fromEntries(Object.entries(rows).map(([id, events]) => [
+          id, events.map((event, index) => renderEventCard(event, index + 1)),
         ])),
       };
     }
@@ -9288,6 +9379,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         // it clears wf_center and re-asks the device.
         locName={locName}
         onRecenter={recenterToMe}
+        onBrowseCreators={() => setSocialFind({ library: true })}
         // Coconut Grove sponsor tile — geo-gated (sponsorRailNear returns null
         // outside the 20mi gate), pinned to the front of the amazon rail, opens
         // the curated partner sheet on tap. Only when location has resolved.
@@ -9417,10 +9509,24 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             {/* THE LOGO (owner, 2026-07-22): the OFFICIAL asset, not a text lookalike.
                 Allowed here because the header background IS the logo's baked
                 #040810 — the one placement the brand rule sanctions in-app. */}
-            <div className="wf-wordmark" role="img" aria-label="wayfind" onClick={openSuggested}>
+            {/* v9 seasonal (lib/seasonalBrand.js): the mark is normally a
+                TWO-SLICE sprite (.wf-wordmark-text + .wf-wordmark-pin, see
+                WF_LAYOUT_CSS) because the normal asset has clean empty columns
+                to cut between the word and the pin. The Halloween asset does
+                NOT — the web physically connects pin to wordmark and the hat
+                spans both — so slicing it would cut the art. `.is-seasonal`
+                (added by app/components/css.js) hides the pin slice and gives
+                the text slice the whole image instead of a crop. Resolved
+                inline, same pattern as siteTodayStr() elsewhere in this file
+                (e.g. fallCardClass(..., siteTodayStr()) a few hundred lines
+                down): a plain function call at render time, not a hook — so
+                server and client agree on the same venue-local (ET) day
+                because both read the same wall-clock instant through
+                Intl/America-New-York, not the runtime's own default zone. */}
+            <button type="button" className={`wf-wordmark${activeSeasonalMark() ? " is-seasonal" : ""}`} aria-label="Wayfind home" onClick={returnHomeTop} style={{ padding: 0, border: 0, background: "transparent", color: "inherit", font: "inherit" }}>
               <span className="wf-wordmark-text" aria-hidden="true" />
               <span className="wf-wordmark-pin" aria-hidden="true" />
-            </div>
+            </button>
             {/* The location used to sit HERE, and could not fit. Measured on
                 production at 390px: the row is 362px, the wordmark sprite is a
                 fixed 154px, and the weather (71px) and Sign in (86px) are both
@@ -9431,6 +9537,15 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                 "Parrish, FL" is a SHORT name — "St. Petersburg, FL" needs 118px.
                 A variable-length city cannot share this row, so it gets its own
                 (see below) where any name fits. Locked by check-home-location. */}
+            {/* WIDTH SAFETY for the seasonal mark (v9, lib/seasonalBrand.js):
+                the fixed 154px above is the NORMAL two-slice sprite's total
+                footprint (117.4px text + 5px gap + 31.65px pin, mobile). The
+                Halloween mark is ONE slice at 147.4px total (see
+                app/components/css.js's `.is-seasonal` rule) — 6.6px NARROWER
+                than the 154px this comment already measured against weather
+                (71px) and Sign in (86px), both flex-shrink:0. So the seasonal
+                mark cannot re-open the clipping this comment describes; it
+                only ever gives the row back space. */}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
             {weather && (weather.feels != null || weather.temp != null) && (
@@ -10179,35 +10294,29 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                   opposite direction, which is the same defect
                   scripts/test-first-screen.mjs was written for.
 
-                  What survives is the honest zero-events fallback below: it
-                  was never the deck, and it offers something the rail cannot —
-                  an alternative intent when tonight is empty.
+                  AND THE ZERO-EVENTS FALLBACK IS GONE TOO (owner, 2026-09-09).
+                  It used to live here: a card reading "Nothing strong tonight
+                  nearby" over three intent chips (Date night / Rainy day /
+                  Hidden gems). The owner asked for it off the main page, and
+                  nothing is lost by it — Date night and Hidden gems are two of
+                  the fifteen cards in <DaypartRail> at the top of this column,
+                  and "it's raining (or too hot)" is a vibe chip in the picker
+                  (VIBES, `rainy`, which sets spec.indoorOnly). So the reader
+                  with an empty night still has those doors; what they no longer
+                  get is a card announcing the emptiness above them.
+
+                  scripts/test-first-screen.mjs asserted this block's presence
+                  for two releases and now asserts its ABSENCE, so it cannot
+                  drift back in unnoticed. `openRainy` went with it — that card
+                  was its only caller, and lib/categories.js's
+                  `{ id: "rainy", act: { type: "sheet", sheet: "rainy" } }` is
+                  not wired to anything (no reader of `act.sheet` exists), so
+                  keeping the helper would have left a function nothing could
+                  reach.
 
                   Every legacy *_hero_open event still fires from the rail
                   (lib/dayparts.js LEGACY_HERO_EVENT) for one release, so no
                   dashboard flatlines at cutover. */}
-              {!browseCat && Array.isArray(foryouEvents) && foryouEvents.length === 0 && (
-                <div style={{ marginBottom: 10, boxSizing: "border-box" }}>
-                  {/* v8: no minHeight here any more. EV_SECTION_MIN_H reserved
-                      248px for the promo deck this block used to sit above;
-                      with the deck gone that reserve is 248px of empty column —
-                      the same class of defect (a reserve that does not match
-                      what renders) that scripts/test-first-screen.mjs exists to
-                      catch, just pointing the other way. This block is a card
-                      and three chips, and it reserves itself. */}
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                    <div style={{ fontSize: 15, fontWeight: 800, color: C.text, display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name="ticket" size={17} color={C.accent} />Events near you</div>
-                  </div>
-                  <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: "12px 15px" }}>
-                    <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 10 }}>Nothing strong tonight nearby. Try one of these instead.</div>
-                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                      <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Date night", src: "events_empty" }); } catch (e) {} openExperience("romantic"); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.adim, border: `1px solid ${C.accent}`, color: C.accent, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Date night</button>
-                      <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Rainy day", src: "events_empty" }); } catch (e) {} openRainy(); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Rainy day</button>
-                      <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Hidden gems", src: "events_empty" }); } catch (e) {} openExperience("gem"); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Hidden gems</button>
-                    </div>
-                  </div>
-                </div>
-              )}
                       {!browseCat && <HomeAffiliateActivityRail
                         items={homeAffiliateItems}
                         contentId={cityNow}
@@ -10239,7 +10348,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               {browseCat && (
                 <div ref={browseAnchorRef} style={{ marginBottom: 16, scrollMarginTop: 10 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
-                    <div onClick={() => { setBrowseCat(null); setMoodPick(null); setSub("all"); }} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px" }}>‹ Back</div>
+                    <div onClick={closeBrowse} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px" }}>‹ Back</div>
                     {browseCat !== "attractions" && <SortControl sortBy={sortBy} onSort={(k) => setSortBy(k)} mi={sliderMi} onMi={(m) => { autoRadiusRef.current = false; setSliderMi(m); const mm = Math.round(m * 1609.34); if (mm > (searchRadius || 0)) setSearchRadius(mm); }} where={locName ? locName.split(",")[0] : ""} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={dealsOnly} onDeals={setDealsOnly} />}
                   </div>
                   {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <AreaInsight onLog={logEvent} metro={_cm} cat={browseCat} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /> : null; })()}
@@ -10781,7 +10890,34 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               </>
             )}
             <div style={{ position: "absolute", bottom: "max(20px, calc(env(safe-area-inset-bottom) + 12px))", left: 0, right: 0, textAlign: "center", pointerEvents: "none" }}>
-              {(() => { const by = lightboxIndex >= 0 && detail && Array.isArray(detail.photoAttrs) ? (detail.photoAttrs[lightboxIndex] || "") : ""; return <div style={{ color: "rgba(255,255,255,.85)", fontSize: 11.5, fontWeight: 600, marginBottom: 3 }}>{by === "Wayfind" ? "Photo: Wayfind" : by ? "Photo: " + by + " · via Google" : "Photo via Google"}</div>; })()}
+              {(() => {
+                // #1188 — SOURCE-AWARE, not hardcoded. The old version said
+                // "· via Google" for every photo whose per-photo author string
+                // was empty — correct for an actual Google photo with no named
+                // author, but ALSO exactly the shape a NON-Google single-photo
+                // source leaves behind: app/api/outdoors/route.js sets a
+                // place-level detail.photoAttr ("NPS", "Recreation.gov") but
+                // never a per-photo detail.photoAttrs[] entry, so those cards'
+                // lightbox falsely credited Google. A free Wikimedia photo
+                // (lib/freePhoto.js) would leave the identical shape. The tell
+                // is the ARRAY itself, not one entry in it: Google's own
+                // normalize (lib/google.js) always populates photoAttrs with
+                // one slot per photo (even a "" slot for an unnamed Google
+                // author); a source that never populated the array at all is
+                // never Google, so this only claims Google when there is
+                // actual per-photo evidence for it.
+                // Kept as the literal `detail.photoAttrs[lightboxIndex]` shape
+                // (test-lightbox-paging.mjs asserts on exactly this text) —
+                // the per-photo lookup that keeps a paging viewer's credit on
+                // the photo actually on screen.
+                const by = lightboxIndex >= 0 && detail && Array.isArray(detail.photoAttrs) ? (detail.photoAttrs[lightboxIndex] || "") : "";
+                const singleSourceAttr = detail && Array.isArray(detail.photoAttrs) && detail.photoAttrs.length === 0 ? (detail.photoAttr || "") : "";
+                const label = by === "Wayfind" ? "Photo: Wayfind"
+                  : by ? "Photo: " + by + " · via Google"
+                  : singleSourceAttr ? "Photo: " + singleSourceAttr
+                  : "Photo via Google";
+                return <div style={{ color: "rgba(255,255,255,.85)", fontSize: 11.5, fontWeight: 600, marginBottom: 3 }}>{label}</div>;
+              })()}
               {canPage && <div aria-live="polite" style={{ color: "rgba(255,255,255,.92)", fontSize: 12.5, fontWeight: 700, marginBottom: 3 }}>{lightboxIndex + 1} / {total}</div>}
               <div style={{ color: "rgba(255,255,255,.6)", fontSize: 12 }}>{canPage ? "Swipe to browse · tap to close" : "Tap anywhere to close"}</div>
             </div>
@@ -10966,8 +11102,10 @@ function SwipeRow({ children, onDelete }) {
 // /api/experiences — a DB read, so the distance rungs reach 90/120mi with NO
 // per-mile Google Places cost (unlike the place-search radius, which stays 60mi
 // to protect against the Places bill). Ships DARK (renders null) until the
-// migration + cron populate the table. Every card href is pid-wrapped through
-// lib/affiliates.viatorDirectUrl, and the section carries the FTC commission
+// migration + cron populate the table. Every card href goes through our own
+// /api/viator/go via lib/affiliates.viatorProductGoUrl (2026-09-10 — it used to
+// be viatorDirectUrl, i.e. a live partner href in crawlable DOM), and the
+// section carries the FTC commission
 // disclosure proximate to the earning cards — test-experiences-v3 locks both.
 // Default 30mi = the user's home market only (honest "near you"); the rungs
 // widen EXPLICITLY (60→90→120 reaches Orlando from Sarasota). Every card also
@@ -11038,7 +11176,7 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
       {busy && !st.items.length ? (
         <div aria-busy="true" style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain" }}>
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="wf-skeleton" style={{ flex: "0 0 200px", height: 150, borderRadius: 12 }} aria-hidden="true" />
+            <div key={i} className="wf-sk" style={{ flex: "0 0 200px", height: 150, borderRadius: 12 }} aria-hidden="true" />
           ))}
         </div>
       ) : st.items.length === 0 ? (
@@ -11046,7 +11184,12 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 10 }}>
           {st.items.map((t) => {
-            const href = Aff.viatorDirectUrl(t.url);
+            // 2026-09-10 (affiliate deep-link audit, owner P0): was
+            // Aff.viatorDirectUrl(t.url) — a raw monetized partner href in the
+            // DOM. Routed through our own redirect for the same reasons as the
+            // culture rail above. Null still means UNATTRIBUTABLE, so the row
+            // suppression immediately below is unchanged.
+            const href = Aff.viatorProductGoUrl(t.url, t.city, cat, "exp_rail");
             // v6.79 (AGENTS.md §6b): null means UNATTRIBUTABLE, so suppress the row entirely. Rendering <a> with href={null} would be a dead link that looks clickable — worse than the untracked one it replaced.
             if (!href) return null;
             return (
@@ -11080,7 +11223,8 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
 // v6.56 (owner): the PERMANENT bookable-experiences rail on Things to do —
 // "All" shows top trending; each sub-menu shows experiences themed to it
 // (lib/experiencesData catalog keys). Every href is affiliate-wrapped via
-// viatorDirectUrl (the ONE tracking builder). Fails soft to no rail.
+// viatorProductGoUrl — our own /api/viator/go, which re-applies the ONE
+// tracking builder server-side. Fails soft to no rail.
 // 2026-08-02 — the chip -> inventory decision moved OUT of this file into
 // lib/browseCommerceMap.js, so a guard can import and CALL it instead of
 // regexing a literal out of a 9,500-line client component. See that file for
@@ -11517,7 +11661,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
     ? { rank: cardRank, label: "Wayfind curator's pick", curator: true }
     : topPickAward({ category: pcat, rank: cardRank });
   return (
-    <div className={`wf-place-card${fallCardClass(p && p.id, siteTodayStr())}${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${isCuratorPick ? " is-curator-pick" : ""}${!(curatedHook || knownForHook || aiSummary) ? " is-no-take" : ""}`} style={{ position: "relative" }}>
+    <div data-wf-position-key={"place-" + p.id} className={`wf-place-card${fallCardClass(p && p.id, siteTodayStr())}${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${isCuratorPick ? " is-curator-pick" : ""}${!(curatedHook || knownForHook || aiSummary) ? " is-no-take" : ""}`} style={{ position: "relative" }}>
       <button type="button" className="wf-place-card-open" onClick={onDetail} aria-label={`Open ${p.name}`} style={{ position: "absolute", inset: 0, zIndex: 0, width: "100%", height: "100%", opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
       {/* v8.62 (owner, 2026-08-26, live): "top right hand corner of the card,
           not in front of the image." The score badge is a direct child of the

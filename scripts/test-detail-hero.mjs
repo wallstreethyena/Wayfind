@@ -94,6 +94,22 @@ const detailsRoute = readFileSync(new URL("../app/api/places/details/route.js", 
 ok(/detail:\s*"[^"]*photos/.test(detailsRoute),
   "the fixed rich-detail field mask asks for photos so a photoless list row can heal");
 
+// Owned place identities must open even when paid enrichment is unavailable.
+{
+  const routeBody = detailsRoute.replace(/^import .*;$/gm, "").replace(/export /g, "");
+  const compile = new Function("NextResponse", "gateShut", "spendAllow", "getInventoryIdentity", "process", "fetch", routeBody + "\nreturn POST;");
+  let paidCalls = 0;
+  const post = compile({ json: (body, options) => ({ body, status: options?.status || 200 }) },
+    () => true, async () => { paidCalls++; return false; },
+    async (id) => id === "ChIJowned" ? { place_id: id, name: "Owned family venue", lat: 27.3, lng: -82.5, signals: { rating: 4.7, reviews: 900 } } : null,
+    { env: { GOOGLE_MAPS_SERVER_KEY: "test-only" } }, async () => { paidCalls++; throw new Error("No paid calls allowed"); });
+  const owned = await post({ json: async () => ({ placeId: "ChIJowned", kind: "place" }) });
+  ok(owned.body.place?.id === "ChIJowned" && owned.body.source === "inventory", "owned card opens from inventory with spending gate shut");
+  const missing = await post({ json: async () => ({ placeId: "ChIJmissing", kind: "place" }) });
+  ok(!missing.body.place && missing.body.error === "gate shut", "missing identity still respects spending gate");
+  ok(paidCalls === 0, "owned identity and closed gate do not spend on Google");
+}
+
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 ok(/mergeHealedPlacePhotos\s*\(/.test(home),
   "openDetail merges healed photos onto the already-open sheet");

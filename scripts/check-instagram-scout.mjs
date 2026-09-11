@@ -18,7 +18,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
-import { toCandidate, rankCandidates, engagementScore, isVideo, captionSignals, HASHTAG_WEEKLY_LIMIT } from "../lib/instagramGraph.js";
+import { toCandidate, rankCandidates, engagementScore, isVideo, captionSignals, HASHTAG_WEEKLY_LIMIT , IG_UNCONFIGURED_REASON } from "../lib/instagramGraph.js";
 import { IG_HANDLES, IG_HASHTAGS, hashtagsForWeek } from "../lib/instagramSources.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -132,6 +132,17 @@ ok(new Set(IG_HASHTAGS).size === IG_HASHTAGS.length, "no duplicate hashtags (a d
 ok(new Set(IG_HANDLES.map((h) => h.handle)).size === IG_HANDLES.length, "no duplicate handles");
 ok(IG_HANDLES.every((h) => /^[a-z0-9._]{1,30}$/.test(h.handle) && h.why), "every handle is lowercase-valid and carries the reason it is watched");
 ok(/wf_social_source_health/.test(routeRaw), "a handle that cannot be resolved is recorded, not retried forever");
+// SHIPS DARK means IDLE, not DEAD. Until 2026-09-09 the unconfigured branch
+// recorded attempted=1/succeeded=0, which wf_job_health counts as a dead run and
+// job-watch paged hourly about a scout that was never switched on. Assert the
+// pulse shape on the real source, and that the note cannot page on run one.
+{
+  const branch = route.slice(route.indexOf("if (!igConfigured())"), route.indexOf("const db = admin()"));
+  ok(/attempted:\s*0,\s*succeeded:\s*0,\s*failed:\s*0/.test(branch), "unconfigured scout records an IDLE pulse (0/0/0), never a dead run");
+  ok(/note:\s*IG_UNCONFIGURED_REASON/.test(branch), "the idle pulse carries the named reason constant, not free text");
+  ok(!/^(billing|quota):/i.test(IG_UNCONFIGURED_REASON), `the reason does NOT carry the immediate-escalation prefix (${IG_UNCONFIGURED_REASON})`);
+  ok(!/503/.test(branch), "an unconfigured scout answers 200/idle, not 503 — Vercel cron must not log a deliberate no-op as a failure");
+}
 ok(!/searchParams\.get\(["']key["']\)/.test(route), "the cron secret is accepted only in the Authorization header, never a query string");
 ok(/authorization:\s*`Bearer \$\{igToken\(\)\}`/.test(routeRaw), "Graph calls send their token in the Authorization header");
 ok(/mapConcurrent\(IG_HANDLES,\s*GRAPH_WORKERS/.test(routeRaw)

@@ -111,8 +111,9 @@ function componentHarness(name) {
   };
   const imports = {
     react,
-    '../../lib/clientJson.js':{fetchJsonWithDeadline:(_url,opts)=>new Promise((resolve,reject)=>pending.push({resolve,reject,opts}))},
-    '../../lib/nightOutIntent.js':{composeNightOutRails:()=>({rails:[]})},
+    '../../lib/clientJson.js':{fetchJsonWithDeadline:(url,opts)=>new Promise((resolve,reject)=>pending.push({url,resolve,reject,opts}))},
+    '../../lib/nightOutIntent.js':{composeNightOutRails:()=>({rails:[{id:'live-music',places:[]},{id:'night-tours',places:[]}]})},
+    '../../lib/nightTourProducts.js':{nightTourCacheCovers:()=>true,nightTourProducts:items=>items || []},
     '../../lib/seasons.js':{fallSkinLive:()=>true},
     '../../lib/homeAffiliateActivities.js':{homeAffiliateActivities:items=>items || []},
     '../../lib/summerPicks.js':{composeSummerPickRails:(places,tours)=>[{cards:[...places,...tours]}]},
@@ -124,17 +125,42 @@ function componentHarness(name) {
 const p={center:{lat:27.58,lng:-82.43},city:'Parrish'};
 const n=componentHarness('NightOutRails');
 n.render(p);
-ok(n.pending.length === 1 && n.pending[0].opts.retries === 1, 'Night Out opts into bounded read recovery');
+const parrishMain = n.pending.find((request) => request.url.startsWith('/api/night-out?'));
+const parrishTours = n.pending.find((request) => request.url.startsWith('/api/experiences?'));
+ok(n.pending.length === 2 && parrishMain?.opts.retries === 1 && parrishTours?.opts.retries == null,
+  'Night Out retries its owned place read while its cached experience read remains a one-attempt request');
 n.render({...p,center:{lat:27.581,lng:-82.431}});
-ok(n.pending.length === 1, 'same-cell coordinate jitter does not cancel and strand an in-flight request');
-n.pending[0].resolve({rails:[{id:'cocktails',places:[{id:'parrish-card'}]}]}); await n.flush();
+ok(n.pending.length === 2, 'same-cell coordinate jitter does not cancel and strand in-flight requests');
+parrishMain.resolve({rails:[{id:'cocktails',places:[{id:'parrish-card'}]}]}); await n.flush();
 ok(JSON.stringify(n.render(p)).includes('parrish-card'), 'the original request paints cards after same-cell jitter');
 const other={center:{lat:25.76,lng:-80.19},city:'Miami'};
 ok(!JSON.stringify(n.render(other)).includes('parrish-card'), 'a new city hides old cards immediately, before effects settle');
-n.pending[1].resolve({bad:'malformed'}); await n.flush();
+const miamiMain = n.pending.find((request) => request.url.startsWith('/api/night-out?') && request.url.includes('lat=25.76'));
+ok(!!miamiMain, 'the city change starts a new Night Out place read identified by its request URL');
+miamiMain.resolve({bad:'malformed'}); await n.flush();
 ok(JSON.stringify(n.render(other)).includes('Try again'), 'malformed Night Out success reaches a recoverable error instead of eternal loading');
 const missing=componentHarness('NightOutRails');
 ok(JSON.stringify(missing.render({})).includes('Choose a location') && missing.pending.length === 0, 'missing coordinates never become a request for zero-zero');
+const eventDown=componentHarness('NightOutRails');
+const failedEventsSlot=()=>({failed:true,pending:false,byRail:{}});
+eventDown.render({...p,eventsSlot:failedEventsSlot});
+eventDown.pending.find((request)=>request.url.startsWith('/api/night-out?')).resolve({rails:[
+  {id:'cocktails',title:'Cocktails',deck:'Drinks',places:[{id:'bar-one'}]},
+  {id:'shows',title:'Shows',deck:'Stages',places:[{id:'show-one'}]},
+]});
+await eventDown.flush();
+const eventDownText=JSON.stringify(eventDown.render({...p,eventsSlot:failedEventsSlot}));
+ok((eventDownText.match(/could not reach current event inventory/g)||[]).length === 1
+  && eventDownText.includes('bar-one') && eventDownText.includes('show-one'),
+  'a failed event source paints one collection notice while preserving every available venue rail');
+const venueDown=componentHarness('NightOutRails');
+const availableEvents=()=>({pending:false,byRail:{'live-music':['available-concert']}});
+venueDown.render({...p,eventsSlot:availableEvents});
+venueDown.pending.find(request=>request.url.startsWith('/api/night-out?')).reject(new Error('venue source down'));
+await venueDown.flush();
+const venueDownText=JSON.stringify(venueDown.render({...p,eventsSlot:availableEvents}));
+ok(venueDownText.includes('available-concert') && venueDownText.includes('Some venue results are unavailable'),
+  'available concerts survive an unrelated venue read failure with one explicit partial-source notice');
 for (const name of ['NightOutRails','BirthdayRails','DateNightRails','TodayDiscoveryRails','FallIntentRails','SummerIntentRails']) {
   const h=componentHarness(name); h.render(p); const count=h.pending.length;
   ok(count > 0, `${name}: the first effect actually ran`);

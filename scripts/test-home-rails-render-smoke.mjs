@@ -103,6 +103,92 @@ for (const [label, props] of RAIL_CASES) {
   ok(!err, `RailCard renders with ${label} — threw: ${err && err.message}`);
 }
 
+// Creator evidence has two real card paths. Places resolve the compact registry
+// from their identity; fall events arrive with compact, pre-verified reel credit
+// because an event is deliberately not passed as a place. Render both paths and
+// the empty event control so a source-level prop assertion cannot claim a mark
+// that never reaches the DOM.
+{
+  const eventWithCreator = renderToStaticMarkup(createElement(RailCard, {
+    title: "Scream-A-Geddon", eyebrow: "Haunted Houses & Fright Nights",
+    href: "/florida-events/scream-a-geddon-dade-city-2026",
+    creatorVideos: [{ platform: "instagram", creator: "funtampa" }],
+  }));
+  const eventWithoutCreator = renderToStaticMarkup(createElement(RailCard, {
+    title: "No Social Event", eyebrow: "Fall Festivals",
+    href: "/florida-events/no-social-event",
+    creatorVideos: [],
+  }));
+  const ordinaryCuratedPlace = renderToStaticMarkup(createElement(RailCard, {
+    title: "Hashtag Café", eyebrow: "Coffee",
+    place: { id: "ChIJEUEmzE1Bw4gRHHXe_oxJF7E", name: "Hashtag Café", city: "Sarasota" },
+  }));
+  ok(eventWithCreator.includes("wf-place-card-credit") && eventWithCreator.includes("@funtampa") && eventWithCreator.includes("Instagram"),
+    "an event card renders its explicit, attributed Instagram reel credit");
+  ok(!eventWithoutCreator.includes("wf-place-card-credit"),
+    "an event with no creator reels renders no empty or invented creator mark");
+  ok(ordinaryCuratedPlace.includes("wf-place-card-credit") && ordinaryCuratedPlace.includes("@cindy.selects"),
+    "an ordinary place card still resolves creator credit from its place identity");
+  // RailCard owns body activation on its article, including keyboard activation;
+  // `href` is intentionally consumed by the click handler rather than emitted as
+  // a nested anchor around four in-card controls. The raw server markup should
+  // therefore stay button-shaped and the inert credit must not introduce a link.
+  ok(eventWithCreator.includes('role="button"') && !eventWithCreator.includes('href="/florida-events/scream-a-geddon'),
+    "the event remains a body-activatable RailCard without nesting its detail href around creator credit");
+}
+
+// VideoFacade must start as Wayfind-owned markup only. The official third-party
+// iframe appears after a reader action, which renderToStaticMarkup cannot fire.
+// Instagram is post-neutral for both /p/ and /reel/: the official embed can
+// choose to show only a native handoff even when the URL identifies a reel.
+const videoFacadeModule = await load("app/components/VideoFacade.js");
+const VideoFacade = videoFacadeModule.default;
+const playbackDetailsModule = await load("app/components/CreatorPlaybackDetails.js");
+const CreatorPlaybackDetails = playbackDetailsModule.default;
+{
+  const reel = renderToStaticMarkup(createElement(VideoFacade, {
+    platform: "instagram", url: "https://www.instagram.com/reel/Dc2WqU-xuCD/",
+    label: "@funtampa's post about Scream-A-Geddon",
+  }));
+  const post = renderToStaticMarkup(createElement(VideoFacade, {
+    platform: "instagram", url: "https://www.instagram.com/p/Dc_KiM5xqhv/",
+    label: "@flacoffeefestival's post about Florida Coffee Festival",
+  }));
+  ok(reel.includes('aria-label="View post — @funtampa') && reel.includes("◎") && !reel.includes("▶") && reel.includes("View post"),
+    "an Instagram reel uses post-neutral wording because its official embed may decline inline playback");
+  ok(!reel.includes("<iframe") && !reel.includes("instagram.com/reel/Dc2WqU-xuCD/embed"),
+    "a reel facade makes no Instagram iframe request before the reader clicks");
+  ok(post.includes('aria-label="View post — @flacoffeefestival') && post.includes("◎") && !post.includes("▶"),
+    "an Instagram /p/ initially renders View with no video-only play mark");
+  ok(!post.includes("<iframe") && !post.includes("instagram.com/p/Dc_KiM5xqhv/embed"),
+    "a /p/ facade makes no Instagram iframe request before the reader clicks");
+
+  const grouped = renderToStaticMarkup(createElement(CreatorPlaybackDetails, {
+    details: createElement("a", { href: "https://www.instagram.com/reel/example/" }, "Creator's original post"),
+  }, createElement(VideoFacade, {
+    platform: "instagram", url: "https://www.instagram.com/reel/Dc2WqU-xuCD/",
+    label: "creator post", coverTitle: "A premium cover", coverCity: "Sarasota",
+  })));
+  ok(grouped.includes("data-creator-playback-details") && grouped.includes('aria-expanded="true"') && grouped.includes("Creator&#x27;s original post"),
+    "playback Details starts expanded in server markup with its attribution link");
+  ok(!grouped.includes("<iframe") && grouped.includes("aspect-ratio:3 / 4"),
+    "a premium poster keeps its 3:4 cover before interaction and still creates no eager iframe");
+
+  let open = true;
+  let playing = false;
+  videoFacadeModule.startCreatorPlayback(
+    (value) => { playing = value; },
+    () => { open = playbackDetailsModule.playbackDetailsReducer(open, "play"); },
+  );
+  ok(playing === true && open === false, "the real facade Play handler starts playback and collapses Details");
+  open = playbackDetailsModule.playbackDetailsReducer(open, "toggle");
+  ok(open === true, "the executed Details transition reopens the supporting content");
+
+  const facadeSource = readFileSync(path.join(REPO, "app/components/VideoFacade.js"), "utf8");
+  ok(/if \(play\)[\s\S]*?aspectRatio: "9 \/ 16"[\s\S]*?<iframe/.test(facadeSource),
+    "the active player branch is locked to a full 9:16 frame");
+}
+
 // v7.05 — THE FOUR INTENT RAILS. IntentRailBody is the newest member of the
 // menu and the one with the most ways to throw at render time: it reads an
 // INTENT_PAGES entry, an IntersectionObserver, a module-level pool and six
@@ -216,4 +302,4 @@ if (fail.length) {
   fail.forEach((f) => console.error("  - " + f));
   process.exit(1);
 }
-console.log(`test-home-rails-render-smoke: OK — ${pass} assertions; BestNearby, RailCard, IntentRailBody and DateNightRails were CALLED across ${CASES.length + RAIL_CASES.length + INTENT_CASES.length + DN_CASES.length + 1} prop shapes, which is the only check that separates "the source reads right" from "the component runs"`);
+console.log(`test-home-rails-render-smoke: OK — ${pass} assertions; BestNearby, RailCard, VideoFacade, IntentRailBody and DateNightRails were CALLED across ${CASES.length + RAIL_CASES.length + INTENT_CASES.length + DN_CASES.length + 6} prop shapes, which is the only check that separates "the source reads right" from "the component runs"`);

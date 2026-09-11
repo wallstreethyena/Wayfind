@@ -223,8 +223,13 @@ function leakSharedFallback() {
   const raw = read("app/api/photo/route.js");
   const code = strip(raw);
   ok(code.length > 200, "positive control: /api/photo route still has a body after comment-strip");
-  ok(/spendAllow\(\s*["']photos["']\s*\)/.test(code),
-    "/api/photo still spends only after spendAllow(\"photos\") — do not weaken the gate");
+  // 2026-09-09: the photos SKU is authorized through spendAllowPhotos() (free
+  // tier, or the owner's photo-only cap); it is still one atomic ledger grant
+  // per outbound request and still refuses when the gate is shut.
+  ok(/spendAllowPhotos\(\s*\)/.test(code),
+    "/api/photo still spends only after spendAllowPhotos() — do not weaken the gate");
+  ok(!/spendAllow\(\s*["']photos["']\s*\)/.test(code),
+    "/api/photo must not fall back to the generic spendAllow(\"photos\") path (it would ignore the photo-only ceiling)");
   ok(/gateShut\(\)/.test(code), "/api/photo still honors gateShut()");
   ok(/resolvePlacePhoto\(/.test(code),
     "/api/photo must CALL resolvePlacePhoto — a string mention is the substring trap");

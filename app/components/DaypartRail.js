@@ -31,6 +31,7 @@
 // rail must lead with tonight, not the afternoon. scripts/check-one-clock.mjs
 // enforces this; scripts/test-dayparts.mjs proves the four bands never
 // contradict nowContext's three.
+import { browsePosition, restoreBrowsePosition } from "../../lib/restoreBrowsePosition";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 
@@ -74,6 +75,9 @@ const DateNightRails = dynamic(() => import("./DateNightRails"), { ssr: false })
 // Birthday uses the same lazy multi-rail contract: the seven evidence-gated
 // rails are absent from the homepage bundle until its postcard is opened.
 const BirthdayRails = dynamic(() => import("./BirthdayRails"), { ssr: false });
+// Family Day uses the same in-place poster drop as Date Night and Birthday.
+// Its ten rails stay out of the first-load bundle and mount only after a tap.
+const FamilyDayPage = dynamic(() => import("./FamilyDayPage"), { ssr: false });
 const BreakfastRails = dynamic(() => import("./BreakfastRails"), { ssr: false });
 const WorthEatingRails = dynamic(() => import("./WorthEatingRails"), { ssr: false });
 const LunchBreakRails = dynamic(() => import("./LunchBreakRails"), { ssr: false });
@@ -81,6 +85,7 @@ const TodayDiscoveryRails = dynamic(() => import("./TodayDiscoveryRails"), { ssr
 const FallIntentRails = dynamic(() => import("./FallIntentRails"), { ssr: false });
 const SummerIntentRails = dynamic(() => import("./SummerIntentRails"), { ssr: false });
 const NightOutRails = dynamic(() => import("./NightOutRails"), { ssr: false });
+const CreatorPicksRails = dynamic(() => import("./CreatorPicksRails"), { ssr: false });
 import { DAYPARTS, partForHour, orderFor, railHref, dateNightIntentHref, LEGACY_HERO_EVENT } from "../../lib/dayparts.js";
 import { siteHourFloat, tzForPoint } from "../../lib/nowContext.js";
 import { railArt, railArtSrcSet, railArtFallback, railTint, RAIL_ART_SIZES, railArtSize } from "../../lib/rails.js";
@@ -322,6 +327,10 @@ export default function DaypartRail({
   // machinery); without it the drop still explains itself, it just cannot
   // offer the fix.
   onRecenter = null,
+  // Opens the existing all-creators library sheet. It lives outside the
+  // result-state branches below so an unlocated or uncovered reader can still
+  // reach every reviewed native post.
+  onBrowseCreators = null,
   // The dated, best-first, ticket-bearing inventory. Night Out requests its
   // ten-way subdivision with eventsSlot("night-out"); Date Night calls the
   // no-argument legacy surface below. Keeping the cards in home.js preserves
@@ -483,6 +492,23 @@ export default function DaypartRail({
   // makes the "Try again" button a real button and not decoration.
   const [retryNonce, setRetryNonce] = useState(0);
   const [selected, setSelected] = useState(null);
+  const resumePoster = useRef(false);
+  const posterReturn = useRef(null);
+  const cancelPosterRestore = useRef(null);
+  useEffect(() => {
+    if (initialRail || !["/", "/v8"].includes(window.location.pathname)) return;
+    try {
+      const saved = JSON.parse(sessionStorage.getItem("wf_poster_position") || "null");
+      if (saved && Date.now() - saved.ts < 30 * 60000 && railById.has(saved.id)) {
+        resumePoster.current = true;
+        posterReturn.current = saved.returnPosition || null;
+        setSelected(saved.id);
+      } else {
+        sessionStorage.removeItem("wf_poster_position");
+      }
+    } catch { try { sessionStorage.removeItem("wf_poster_position"); } catch {} }
+  }, []);
+  useEffect(() => () => cancelPosterRestore.current?.(), []);
   const [railPageState, setRailPageState] = useState({});
   const railPageInFlight = useRef(new Set());
   // A page response may outlive a city, daypart, or selected-poster change.
@@ -535,6 +561,31 @@ export default function DaypartRail({
   // one arrives.
   const answered = live != null;
   const railById = useMemo(() => new Map((sponsor ? [sponsor, ...rails] : rails).map((r) => [r.id, r])), [sponsor, rails]);
+  useEffect(() => {
+    if (!["/", "/v8"].includes(window.location.pathname)) return undefined;
+    const save = () => {
+      try {
+        if (selected) sessionStorage.setItem("wf_poster_position", JSON.stringify({ id: selected, returnPosition: posterReturn.current, ts: Date.now() }));
+        else sessionStorage.removeItem("wf_poster_position");
+      } catch {}
+    };
+    const restore = (event) => {
+      const saved = event.detail?.poster;
+      resumePoster.current = true;
+      posterReturn.current = saved?.returnPosition || null;
+      setSelected(saved && railById.has(saved.id) ? saved.id : null);
+    };
+    const frame = requestAnimationFrame(save);
+    window.addEventListener("pagehide", save);
+    document.addEventListener("click", save, true);
+    window.addEventListener("wf:restore-browse", restore);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("pagehide", save);
+      document.removeEventListener("click", save, true);
+      window.removeEventListener("wf:restore-browse", restore);
+    };
+  }, [selected, railById]);
   // NOTE on `artStale`: a rail can be renamed in code while the reader keeps
   // seeing the old claim, because the headline on these tiles is PIXELS.
   // `trending` still reads "EXPLODING TRENDS NEAR YOU" in the artwork, and the
@@ -864,6 +915,10 @@ export default function DaypartRail({
     const targetId = requested.retiredInto || id;
     const rail = railById.get(targetId);
     if (!rail) return;
+    cancelPosterRestore.current?.();
+    const root = document.querySelector(".wf-scrollarea");
+    if (!selected && root) posterReturn.current = browsePosition(root);
+    resumePoster.current = false;
     setSelected(targetId);
     logEvent("rail_open", {
       rail_id: targetId, rail_title: rail.title, daypart, region: shown.region, city: shown.citySlug,
@@ -881,9 +936,32 @@ export default function DaypartRail({
     // cutover; delete LEGACY_HERO_EVENT once the new series has history.
     const legacy = LEGACY_HERO_EVENT[targetId];
     if (legacy) logEvent(legacy, { src: "rail", rail_id: targetId });
-  }, [railById, daypart, shown, order, locName]);
+  }, [railById, daypart, shown, order, locName, selected]);
 
-  const close = useCallback(() => setSelected(null), []);
+  const close = useCallback(() => {
+    resumePoster.current = false;
+    setSelected(null);
+    try { sessionStorage.removeItem("wf_poster_position"); } catch {}
+    cancelPosterRestore.current?.();
+    const root = document.querySelector(".wf-scrollarea");
+    if (root) cancelPosterRestore.current = restoreBrowsePosition(root, posterReturn.current || { top: 0 });
+  }, []);
+
+  // The app wordmark means "fresh home", distinct from browser Back. Back may
+  // restore this open poster; the logo must collapse it and show the poster
+  // shelf at the top. A window event keeps that shell action independent of
+  // this component's private selected state.
+  useEffect(() => {
+    const returnHome = () => {
+      resumePoster.current = false;
+      setSelected(null);
+      cancelPosterRestore.current?.();
+      cancelPosterRestore.current = null;
+      try { sessionStorage.removeItem("wf_poster_position"); } catch {}
+    };
+    window.addEventListener("wf:home", returnHome);
+    return () => window.removeEventListener("wf:home", returnHome);
+  }, []);
 
   // Which tile is currently saying "Link copied". One at a time, cleared on a
   // timer that matches the wf8Said animation — a toast that outlives its own
@@ -997,7 +1075,7 @@ export default function DaypartRail({
   // left where the reader put it. The nav passes it, because a tab tap must
   // always visibly answer.
   useEffect(() => {
-    if (!selected || typeof window === "undefined") return undefined;
+    if (!selected || resumePoster.current || typeof window === "undefined") return undefined;
     if (!menuRef.current) return undefined;
     const cancel = landOnResults(() => menuRef.current, { probe: () => pcRef.current });
     if (pcRef.current) pcRef.current.scrollLeft = 0;
@@ -1098,7 +1176,7 @@ export default function DaypartRail({
   // Neither may fall through to the generic place pool: doing so made the
   // Events drop begin with real happenings and end with buildings where an
   // event might happen on some other date.
-  const railOwnsItsOwnAnswer = !!(selRail && (selRail.id === "season" || selRail.id === "datenight" || selRail.id === "birthday" || selRail.id === "breakfast" || selRail.id === "break" || selRail.id === "eat" || selRail.id === "today" || selRail.id === "augtober" || selRail.id === "tonight"));
+  const railOwnsItsOwnAnswer = !!(selRail && (selRail.id === "season" || selRail.id === "datenight" || selRail.id === "birthday" || selRail.id === "family" || selRail.id === "breakfast" || selRail.id === "break" || selRail.id === "eat" || selRail.id === "today" || selRail.id === "augtober" || selRail.id === "tonight" || selRail.id === "locals"));
   // A COMPOSER FED BY /api/rails HAS NO ANSWER UNTIL /api/rails DOES (v9.0).
   // Breakfast and Actually Worth Eating do not fetch anything of their own:
   // they split `shown.places` into identity rails. So while the rails request
@@ -1123,7 +1201,7 @@ export default function DaypartRail({
   // selection is never a half-cropped card at the viewport edge (his
   // screenshot). scroll-snap is proximity, so a programmatic center sticks.
   useEffect(() => {
-    if (!selected) return;
+    if (!selected || resumePoster.current) return;
     const track = trackRef.current;
     if (!track) return;
     const tile = track.querySelector(".wf8-tile.is-sel");
@@ -1490,19 +1568,19 @@ export default function DaypartRail({
       <section className="wf8-railsec" aria-label="What to do right now">
         <div className="wf8-in">
           <div className="wf8-railwrap">
-            <div className="wf8-track" ref={trackRef}>
+            <div className="wf8-track" data-wf-scroll-key="poster-track" ref={trackRef}>
               {order.filter((id) => {
                 const r = railById.get(id);
-                return r && !r.artStale && !r.retiredInto;
+                return r && !r.posterHidden && !r.artStale && !r.retiredInto;
               }).map((id, i) => {
                 const r = railById.get(id);
                 if (!r) return null;
                 if (r.artStale || r.retiredInto) return null;
                 const base = railArt(r, shown.region);
                 const railDest = railHref(r, shown.region, shown.citySlug);
-                const href = id === "datenight" || id === "season"
+                const href = id === "datenight" || id === "season" || id === "family"
                   ? dateNightIntentHref({
-                    href: railDest || (id === "season" ? "/summer-picks" : "/date-night"),
+                    href: railDest || (id === "family" ? "/family" : id === "season" ? "/summer-picks" : "/date-night"),
                     cityLabel: shown.cityLabel || cityLabel,
                     lat: (center && Number.isFinite(center.lat) ? center.lat : lat),
                     lng: (center && Number.isFinite(center.lng) ? center.lng : lng),
@@ -1512,6 +1590,7 @@ export default function DaypartRail({
                 const tileClass = `wf8-tile${selected === id ? " is-sel" : ""}${artReady[id] ? " is-art-ready" : ""}`;
                 const artBox = railArtSize(id);
                 const art = (
+                    <>
                     <picture>
                       <source type="image/avif" srcSet={railArtSrcSet(base, "avif")} sizes={RAIL_ART_SIZES} />
                       <source type="image/webp" srcSet={railArtSrcSet(base, "webp")} sizes={RAIL_ART_SIZES} />
@@ -1529,6 +1608,7 @@ export default function DaypartRail({
                         onError={() => markArtReady(id)}
                       />
                     </picture>
+                    </>
                 );
                 const label = `${r.title} — ${r.short}`;
                 // THE TILE IS THE BOX; THE LINK INSIDE IT IS THE DESTINATION.
@@ -1637,6 +1717,7 @@ export default function DaypartRail({
               active
               center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
               city={shown.cityLabel || ""}
+              eventsSlot={eventsSlot}
               onTrack={(name, props) => logEvent(name, props)}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
               isSaved={isSaved || undefined}
@@ -1662,6 +1743,27 @@ export default function DaypartRail({
               center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
               city={shown.cityLabel || ""}
               onTrack={(name, props) => logEvent(name, props)}
+              onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
+              isSaved={isSaved || undefined}
+              liked={liked || undefined}
+              disliked={disliked || undefined}
+              isLiked={isLiked || undefined}
+              isDisliked={isDisliked || undefined}
+              onSave={onSave || undefined}
+              onLike={onLike || undefined}
+              onDislike={onDislike || undefined}
+              onShare={onShare || undefined}
+            />
+          ) : null}
+
+          {/* Family Day is ten location-aware rails inside this postcard's
+              homepage drop. The standalone route remains for sharing and
+              modified clicks, while a normal tap stays in the home shell. */}
+          {selRail && selRail.id === "family" ? (
+            <FamilyDayPage
+              embedded
+              center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
+              city={shown.cityLabel || cityLabel || ""}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
               isSaved={isSaved || undefined}
               liked={liked || undefined}
@@ -1737,7 +1839,30 @@ export default function DaypartRail({
               active
               center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
               city={shown.cityLabel || ""}
+              eventsSlot={eventsSlot}
               onTrack={(name, props) => logEvent(name, props)}
+              onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
+              isSaved={isSaved || undefined}
+              liked={liked || undefined}
+              disliked={disliked || undefined}
+              isLiked={isLiked || undefined}
+              isDisliked={isDisliked || undefined}
+              onSave={onSave || undefined}
+              onLike={onLike || undefined}
+              onDislike={onDislike || undefined}
+              onShare={onShare || undefined}
+            />
+          ) : null}
+
+          {selRail && selRail.id === "locals" ? (
+            <CreatorPicksRails
+              places={dropList}
+              city={shown.cityLabel || ""}
+              pageScope={selectedPageScope}
+              hasMore={selectedHasMore}
+              loadingMore={railPageState[selectedPageScope] === "loading"}
+              loadFailed={railPageState[selectedPageScope] === "failed"}
+              onLoadMore={loadSelectedRailPage}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
               isSaved={isSaved || undefined}
               liked={liked || undefined}
@@ -1775,6 +1900,7 @@ export default function DaypartRail({
               active
               center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
               city={shown.cityLabel || ""}
+              eventsSlot={eventsSlot}
               onTrack={(name, props) => logEvent(name, props)}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
             />
@@ -1802,18 +1928,6 @@ export default function DaypartRail({
               onDislike={onDislike || undefined}
             />
           ) : null}
-          {/* v8.93 (owner: "…and the events, which I don't see"). Date Night
-              gets the dated rows too, from the SAME thunk the events tile
-              renders — one definition of "what is on tonight", so the two
-              surfaces cannot drift into disagreeing about it. Called, not
-              tested for truthiness: eventsSlot is always a function and
-              returns null when nothing is on, which is the only honest way to
-              ask (the v8.87 note on the tile above). It sits BELOW the
-              journey rails because a table is the decision and a show is the
-              thing you build around it. */}
-          {selRail && selRail.id === "datenight" && eventsSlot ? (
-            <div style={{ marginTop: 22 }}>{eventsSlot()}</div>
-          ) : null}
           {selRail && selRail.guides ? (
             <ul className="wf8-grail" aria-label="Local guides">
               {guides.map((g, i) => (
@@ -1838,7 +1952,7 @@ export default function DaypartRail({
             </ul>
           ) : selRail && !railOwnsItsOwnAnswer && dropList.length ? (
             <div className="wf8-pcwrap">
-              <ul className="wf8-pcrail" ref={pcRef}>
+              <ul className="wf8-pcrail" data-wf-scroll-key={"poster-" + selected} ref={pcRef}>
                 {dropList.slice(0, mounted).map((p, i) => {
                   // v8.69 — the paid card is index 0 of its own rail and is the
                   // ONLY card here that is not a ranked result. Two consequences,
@@ -2156,6 +2270,11 @@ export default function DaypartRail({
                 ) : null}
               </div>
             </div>
+          ) : null}
+          {selected === "locals" && onBrowseCreators ? (
+            <button type="button" className="wf8-thinbtn" onClick={onBrowseCreators} style={{ marginTop: 14 }}>
+              Browse all creator finds
+            </button>
           ) : null}
           {/* Lane E — the tail is OUTSIDE the ternary above on purpose: it is
               not one of the drive rail's states (results / pending / thin /
