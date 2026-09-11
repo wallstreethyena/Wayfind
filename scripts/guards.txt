@@ -1459,3 +1459,6 @@ node scripts/test-event-popularity.mjs
 node scripts/test-empty-rail-visibility.mjs
 node scripts/test-night-tour-products.mjs
 node scripts/test-creator-picks-rails.mjs
+node scripts/test-map-area-data.mjs
+node scripts/test-apple-explorer-map.mjs
+node scripts/test-map-screen-render.mjs

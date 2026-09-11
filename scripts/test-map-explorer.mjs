@@ -68,8 +68,8 @@ ok(/mapDefaultAppliedRef/.test(home), "a one-time-per-session guard exists so th
 ok(/mapRetryKey/.test(home), "a retry key exists so a failed map can be remounted from scratch instead of being a dead end");
 
 const screen = readFileSync(new URL("../app/components/screens/Map.js", import.meta.url), "utf8");
-ok(!/showSubs=\{false\}/.test(screen) && /activeCat=\{cat\}/.test(screen), "the map's category bar shows its sub-filter row, same as Home and Itinerary");
-ok(/setCat\("attractions"\)/.test(screen) && /MAP_DEFAULT_CATEGORY/.test(screen), "the map opens defaulted to Activities (attractions) the first time it is visited in a session");
+ok(/MAP_CATEGORIES.map/.test(screen) && /aria-pressed=\{mapCategory === item.id\}/.test(screen), "every map category has an accessible filter");
+ok(/useState\("all"\)/.test(screen) && !/setCat\("attractions"\)/.test(screen), "the map defaults to all categories without changing the home category");
 ok(/key=\{mapRetryKey\}/.test(screen) && /onRetry=\{/.test(screen), "the map view remounts on retry via a key change");
 ok(!/Numbered by rank/.test(screen), "the bulky map legend is gone; numbered pins and the result drawer carry that meaning");
 ok(/bottom: 76/.test(screen) && /Browse list/.test(screen), "the result drawer floats above bottom navigation and remains discoverable");
@@ -126,4 +126,4 @@ ok(/onRetry/.test(view) && /Try again/.test(view), "a failed map load offers a r
 ok(/\}, 26000\);/.test(view), "the load watchdog gives the heavier bright style a realistic 26s window before giving up");
 ok(/event\.error && !map\.loaded\(\) &&/.test(view), "an error after the map has already rendered once is treated as normal map noise, not a load failure");
 
-console.log(`test-map-explorer: OK — ${pass} assertions (Activities-first map open, zoomed out to frame the whole 5/10/15/20mi ring set, sub-filters visible, resilient remount-based retry)`);
+console.log(`test-map-explorer: OK — ${pass} assertions (All-category Apple map open, zoomed out to frame the whole 5/10/15/20mi ring set, sub-filters visible, resilient remount-based retry)`);

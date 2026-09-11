@@ -50,7 +50,8 @@ ok(catParams.length > 40, `PROBE: CategoryMenu's parameter list was read (${catP
 ok(catParams.split(",").map((x) => x.trim().split(/[=\s]/)[0]).includes("compact"),
    "CategoryMenu no longer accepts a `compact` prop");
 ok(/if \(compact\) \{[\s\S]{0,600}?wf-mapfp/.test(home), "the compact layout is not behind a branch — it would apply to every call site");
-ok(/<CategoryMenu compact/.test(map), "the map does not request the compact panel");
+// The Apple explorer owns its independent all-category filter; home retains CategoryMenu.
+ok(/MAP_CATEGORIES.map/.test(map) && /minHeight: 44/.test(map), "the map needs compact category filters with 44px touch targets");
 const others = [...home.matchAll(/<CategoryMenu\b[^>]*/g)].map((m) => m[0]);
 ok(others.length >= 2, `home.js renders ${others.length} CategoryMenu call sites — under 2 means this file is reading nothing`);
 ok(others.every((t) => !/\bcompact\b/.test(t)), "a home.js call site opted into the compact layout — that reshapes the home feed");
@@ -92,7 +93,7 @@ ok(/backdrop-filter:blur\(18px\) saturate\(140%\)/.test(home), "the panel is not
 // ── the subfilter row mounts only with a category, and resets on change ───
 ok(/const open = !!\(activeCat && subs\.length > 1\)/.test(home), "the subfilter row is not conditional on a selected category");
 ok(/\{open \?/.test(home), "the subfilter row renders unconditionally — it must MOUNT, not just hide");
-ok(/setCat\(id\); setSub\("all"\)/.test(map), "switching category does not reset the sub-filter — a stale filter would carry across");
+ok(/setMapCategory\(item.id\); setMapPreview\(null\)/.test(map) && !/setSub\(/.test(map), "the independent map category clears selection and cannot inherit home subfilters");
 
 // ── ticket 2c: the seventh 'Search' tile is gone ─────────────────────────
 ok(!/aria-label="Search"/.test(map), "the Search tile is back in the category row — there is a search bar directly above it");

@@ -24,7 +24,7 @@ const iconic = strip(readFileSync(new URL("../app/components/IconicPlaceCard.js"
 ok(/<IconicPlaceCard/.test(map), "the bottom slot no longer renders IconicPlaceCard — the owner's money card IS the map result card (v7.16)");
 ok(/import IconicPlaceCard from "\.\.\/IconicPlaceCard"/.test(map), "Map.js imports the shared card — never a second card system");
 ok(/maxHeight: 356/.test(map) && /overflowY: "auto"/.test(map), "the card shell lost its 356px cap + scroll — the map must stay visible behind it");
-ok(/ranked by fit/.test(map), "the ranked-position footer is gone — it is the payoff of a ranked map");
+ok(/Wayfind Score 9\.2\+/.test(map), "the ranked-position footer is gone — it is the payoff of a ranked map");
 ok(/aria-label="Next place"/.test(map) && /aria-label="Previous place"/.test(map), "the paging arrows are gone");
 ok(/onTouchEnd=/.test(map) && /dy > 60/.test(map), "swipe-down no longer dismisses the card");
 ok(/onOpen=\{\(\) => \{[\s\S]{0,160}?openDetail\(mp\)/.test(map), "opening the card no longer opens the in-app detail sheet");
@@ -79,7 +79,8 @@ ok(/\["==", \["get", "anySel"\], 1\], \.5/.test(view), "unselected pins no longe
 //  matched against a literal — v8.89)
 ok(!/scoreLabel/.test(view) && !/"wf-place-ranks"/.test(view), "score text crept back onto the pins — the score belongs to the card (v7.16)");
 ok(/slice\(0, 60\)/.test(view), "the density cap fell below 60 — the thin-map complaint comes back");
-ok(/slice\(0, 40\)/.test(map), "the default map pool cap fell below 40");
+// Owner 2026-09-10 supersedes the old 40-place ceiling: complete area coverage.
+ok(/selectMapPlaces\(areaPlaces, mapCategory, viewport\)/.test(map) && !/slice\(0, (40|60)\)/.test(map), "the map must use the complete qualifying area pool without a top-N cap");
 ok(/clusterRadius: 30/.test(view), "the cluster radius widened again — more clustering means fewer visible pins");
 ok(/pixelRatio: PIN_DPR/.test(view), "pin sprites are not registered at 2x — they would render blurry on retina");
 // v8.94 — PARSED, NOT MATCHED. This was a literal of the whole dependency
