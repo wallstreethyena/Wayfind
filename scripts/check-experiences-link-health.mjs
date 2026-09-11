@@ -20,6 +20,7 @@ import {
   DEAD_AFTER_FAILS,
 } from "../lib/experienceLinkHealth.js";
 import { PROVIDERS, resolveOffer } from "../lib/commerceProviders.js";
+import { GET as runExperienceLinkHealth } from "../app/api/cron/experiences-link-health/route.js";
 
 const REPO = fileURLToPath(new URL("..", import.meta.url));
 let pass = 0; const fail = [];
@@ -87,6 +88,129 @@ ok(/classifyProductProbe/.test(routeSrc) && /nextHealthState/.test(routeSrc), "t
 let crons = [];
 try { crons = JSON.parse(readFileSync(REPO + "vercel.json", "utf8")).crons || []; } catch {}
 ok(crons.some((c) => String(c.path || "").startsWith("/api/cron/experiences-link-health")), "vercel.json must schedule the sweep — a pipeline that ran once is indistinguishable from no pipeline");
+
+/* ── 7. the real route reports work truthfully ──────────────────────────── */
+async function runSweep({ selected = [], selectStatus = 200, patchStatus = 204, patchThrows = false, productStatus = 200, productBody = { status: "ACTIVE" }, withViatorKey = true } = {}) {
+  const saved = {
+    CRON_SECRET: process.env.CRON_SECRET,
+    VIATOR_API_KEY: process.env.VIATOR_API_KEY,
+    SUPABASE_URL: process.env.SUPABASE_URL,
+    SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
+    fetch: globalThis.fetch,
+  };
+  process.env.CRON_SECRET = "cron-fixture";
+  process.env.SUPABASE_URL = "https://fixture.supabase.co";
+  process.env.SUPABASE_SERVICE_ROLE_KEY = "service-fixture";
+  if (withViatorKey) process.env.VIATOR_API_KEY = "viator-fixture";
+  else delete process.env.VIATOR_API_KEY;
+
+  const pulses = [], patches = [], providerRequests = [];
+  globalThis.fetch = async (url, init = {}) => {
+    const u = String(url);
+    const method = String(init.method || "GET").toUpperCase();
+    if (u.endsWith("/rest/v1/wf_job_pulse") && method === "POST") {
+      pulses.push(JSON.parse(init.body));
+      return new Response(null, { status: 201 });
+    }
+    if (u.includes("/rest/v1/wf_experiences")) {
+      if (method === "PATCH") {
+        patches.push({ url: u, body: JSON.parse(init.body) });
+        if (patchThrows) throw new Error("fixture PATCH network failure");
+        return new Response(null, { status: patchStatus });
+      }
+      return selectStatus === 200
+        ? Response.json(selected)
+        : Response.json({ error: "fixture select failure" }, { status: selectStatus });
+    }
+    if (u.includes("api.viator.com/partner/products/")) {
+      providerRequests.push(u);
+      return productStatus === 200
+        ? Response.json(productBody)
+        : new Response(null, { status: productStatus });
+    }
+    throw new Error("unexpected fetch " + u);
+  };
+
+  try {
+    const response = await runExperienceLinkHealth(new Request("https://www.gowayfind.com/api/cron/experiences-link-health", {
+      headers: { authorization: "Bearer cron-fixture" },
+    }));
+    return { response, body: await response.json(), pulses, patches, providerRequests };
+  } finally {
+    globalThis.fetch = saved.fetch;
+    for (const key of ["CRON_SECRET", "VIATOR_API_KEY", "SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY"]) {
+      if (saved[key] === undefined) delete process.env[key];
+      else process.env[key] = saved[key];
+    }
+  }
+}
+
+{
+  const r = await runSweep({ withViatorKey: false });
+  ok(r.response.status === 503 && r.body.ok === false, "missing VIATOR_API_KEY fails loud with HTTP 503");
+  ok(r.providerRequests.length === 0, "missing configuration never makes a provider request");
+  ok(r.pulses.length === 1 && r.pulses[0].job === "experiences-link-health" && r.pulses[0].failed === 1, "missing configuration records one failed pulse when database credentials are available");
+}
+{
+  const r = await runSweep({ selectStatus: 500 });
+  ok(r.response.status === 500 && r.body.ok === false, "an unreadable wf_experiences worklist cannot answer HTTP 200");
+  ok(r.pulses.length === 1 && r.pulses[0].failed === 1, "a worklist read failure records one failed pulse");
+}
+{
+  const r = await runSweep({ selected: {} });
+  ok(r.response.status === 500 && r.body.ok === false, "a malformed wf_experiences worklist cannot answer HTTP 200");
+  ok(r.pulses.length === 1 && r.pulses[0].failed === 1, "a malformed worklist records one failed pulse");
+}
+{
+  const r = await runSweep();
+  ok(r.response.status === 200 && r.body.ok === true && r.body.checked === 0, "an empty worklist remains a healthy HTTP 200 idle run");
+  ok(r.providerRequests.length === 0, "an empty worklist makes no provider request");
+  ok(r.pulses.length === 1 && r.pulses[0].attempted === 0 && r.pulses[0].succeeded === 0 && r.pulses[0].failed === 0, "an empty worklist records exactly one idle pulse");
+}
+{
+  const row = { product_code: "FIRST404", link_ok: true, fail_count: 0 };
+  const r = await runSweep({ selected: [row], productStatus: 404 });
+  const statePatch = r.patches.find((p) => p.url.includes("product_code=eq.FIRST404"));
+  ok(statePatch?.body?.link_ok === true && statePatch?.body?.fail_count === 1, "the first 404 persists fail_count=1 while keeping a previously-live row available");
+}
+{
+  const row = { product_code: "SECOND404", link_ok: true, fail_count: 1 };
+  const r = await runSweep({ selected: [row], productStatus: 404 });
+  const statePatch = r.patches.find((p) => p.url.includes("product_code=eq.SECOND404"));
+  ok(statePatch?.body?.link_ok === false && statePatch?.body?.fail_count === 2, "the second consecutive 404 reaches the quarantine threshold and persists link_ok=false");
+}
+{
+  const row = { product_code: "UNKNOWN", link_ok: true, fail_count: 0 };
+  const r = await runSweep({ selected: [row], productStatus: 429 });
+  ok(r.response.status === 500 && r.body.ok === false && r.body.unknown === 1, "an all-inconclusive provider run is a visible failure, never false HTTP 200 success");
+  ok(r.pulses.length === 1 && r.pulses[0].attempted === 1 && r.pulses[0].succeeded === 0, "an all-inconclusive run records attempted work with zero successes");
+}
+{
+  const row = { product_code: "BLOCKED", link_ok: true, fail_count: 7 };
+  const r = await runSweep({ selected: [row], productStatus: 403 });
+  const timestampPatch = r.patches.find((p) => p.url.includes("product_code=in."));
+  ok(r.response.status === 500 && r.body.unknown === 1, "a provider 403 is reported as inconclusive rather than healthy work");
+  ok(timestampPatch && Object.hasOwn(timestampPatch.body, "last_checked_at"), "a provider 403 still advances only the health-check timestamp");
+  ok(timestampPatch && !Object.hasOwn(timestampPatch.body, "link_ok") && !Object.hasOwn(timestampPatch.body, "fail_count"), "a provider 403 preserves the prior link_ok and fail_count state");
+}
+{
+  const row = { product_code: "WRITEFAIL", link_ok: null, fail_count: 0 };
+  const r = await runSweep({ selected: [row], patchStatus: 500 });
+  ok(r.response.status === 500 && r.body.ok === false && /persistence failed/.test(r.body.error || ""), "a health-state PATCH failure returns HTTP 500");
+  ok(r.pulses.length === 1 && r.pulses[0].failed === 1, "a health-state PATCH failure records one failed pulse");
+}
+{
+  const row = { product_code: "WRITETHROW", link_ok: null, fail_count: 0 };
+  const r = await runSweep({ selected: [row], patchThrows: true });
+  ok(r.response.status === 500 && r.body.ok === false && /patch-fetch-error/.test(r.body.error || ""), "a thrown PATCH network failure is converted to an HTTP 500 persistence failure");
+  ok(r.pulses.length === 1 && r.pulses[0].failed === 1, "a thrown PATCH network failure still records one failed pulse");
+}
+{
+  const row = { product_code: "LIVE", link_ok: null, fail_count: 0 };
+  const r = await runSweep({ selected: [row] });
+  ok(r.response.status === 200 && r.body.ok === true && r.body.alive === 1, "a definitive healthy probe preserves the successful response contract");
+  ok(r.pulses.length === 1 && r.pulses[0].attempted === 1 && r.pulses[0].succeeded === 1 && r.pulses[0].failed === 0, "a healthy run records one truthful successful pulse");
+}
 
 /* ── verdict ─────────────────────────────────────────────────────────────── */
 if (fail.length) {
