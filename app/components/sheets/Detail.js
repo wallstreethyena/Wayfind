@@ -9,6 +9,7 @@
 // same as every other extraction phase.
 import { pilotForPlace } from "../../../lib/beachPlanning";
 import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { safeUrl } from "../../../lib/links.js";
 import { C, sheetBg, sheet, SHEET_EASE, Grabber, directionsUrl, offerLabel, scoreLabel, stars, PlaceScoreChip, PriceBadge, TRENDING_POPULARITY_THRESHOLD } from "../kit";
 import { priceLevelOf } from "../../../lib/price";
@@ -41,6 +42,11 @@ import { hasRealPlacePhoto, realPlacePhotoSrc } from "../../../lib/detailHero";
 import { editorialRequestQuery, carriedEditorial, hasSourcedEditorialFields } from "../../../lib/editorialLookup";
 import { whyWayfindPickedBody } from "../../../lib/insightWhy";
 import { isOwnerPick } from "../../../lib/ownerBump";
+
+// This rail brings the full shared place card with it. Keep that code outside
+// the homepage's eager detail bundle and request it only for plausible hotel
+// or flagship-attraction details; the server still verifies the exact ID.
+const TripConnections = dynamic(() => import("../TripConnections"), { ssr: false, loading: () => null });
 
 // Community takes (v6.54, owner: "the review is capped on characters we
 // should be able to allow the user to have more characters and write it
@@ -1557,6 +1563,9 @@ export default function DetailSheet({ ctx }) {
                 );
               })()}
               {/* v6.25: "More like this" — similar experience among loaded places, matched on shared traits. */}
+              {!detail._event && ["hotel", "entertainment", "wildlife", "museum"].includes(placeKind(detail)) ? (
+                <TripConnections place={detail} onOpenPlace={(place) => openDetail(place, "trip_connections")} />
+              ) : null}
               {!detail._event && (() => {
                 const simPool = dedupePlaces([...(suggested || []), ...places]);
                 const badgesOf = (x) => { try { return new Set(experienceBadges(x, null, 99).map((b) => b.key)); } catch (er) { return new Set(); } };
