@@ -16,8 +16,10 @@
 // Hermetic fixture: WRITE stub creds unconditionally (never read ambient env),
 // so buildNearbyPool proceeds past its "no creds -> []" guard and uses the
 // injected fetchImpl below. The stub URL is never actually fetched.
-process.env.NEXT_PUBLIC_SUPABASE_URL = "https://stub.supabase.co";
-process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "stub-anon-key";
+const STUB_SUPABASE_URL = "https://stub.supabase.co";
+const STUB_SUPABASE_ANON_KEY = "stub-anon-key";
+process.env.NEXT_PUBLIC_SUPABASE_URL = STUB_SUPABASE_URL;
+process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = STUB_SUPABASE_ANON_KEY;
 
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -80,16 +82,14 @@ const ORIGIN = { lat: 25.7272, lng: -80.2578, city: "Miami", place_id: "p2" };
 // owners opt into completeness so configuration/read failures reject before a
 // failure-shaped empty result can enter a persistent cache.
 {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   process.env.NEXT_PUBLIC_SUPABASE_URL = "";
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "";
   const failSoft = await eventPairings(ORIGIN, { fetchImpl: stub([]) });
   let strictRejected = false;
   try { await eventPairings(ORIGIN, { fetchImpl: stub([]), requireComplete: true }); }
   catch (error) { strictRejected = /incomplete/.test(String(error?.message)); }
-  process.env.NEXT_PUBLIC_SUPABASE_URL = url;
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = key;
+  process.env.NEXT_PUBLIC_SUPABASE_URL = STUB_SUPABASE_URL;
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = STUB_SUPABASE_ANON_KEY;
   ok(failSoft.length === 0, "the existing non-cached pairing API remains fail-soft");
   ok(strictRejected, "a cache-owned pairing load rejects missing configuration instead of returning a cacheable empty shelf");
 
