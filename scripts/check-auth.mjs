@@ -9,6 +9,12 @@ const entitlements = readFileSync(new URL("../ios/App/App/App.entitlements", imp
 const xcodeProject = readFileSync(new URL("../ios/App/App.xcodeproj/project.pbxproj", import.meta.url), "utf8");
 const capacitorConfig = readFileSync(new URL("../capacitor.config.ts", import.meta.url), "utf8");
 const fail = (m) => { console.error("check-auth: FAIL — " + m); process.exit(1); };
+const lazyStart = s.indexOf("const [supabaseReady");
+const lazyEnd = s.indexOf("const [screen", lazyStart);
+const lazyInit = lazyStart >= 0 && lazyEnd > lazyStart ? s.slice(lazyStart, lazyEnd) : "";
+if (!lazyInit.includes("const loadSupabase = () =>") || !lazyInit.includes("getSupabase().then") || !lazyInit.includes("retryTimer = setTimeout(loadSupabase, 1200)") || !lazyInit.includes("if (retryTimer) clearTimeout(retryTimer)")) {
+  fail("lazy Supabase initialization must retry a transient chunk failure and clear its retry timer on unmount");
+}
 if (!s.includes('_event === "PASSWORD_RECOVERY"')) fail("PASSWORD_RECOVERY handler missing");
 // ── SESSION STABILITY (owner-reported, 2026-08-07) ─────────────────────────
 // "I keep getting logged out while browsing." Only an explicit SIGNED_OUT may
@@ -71,4 +77,3 @@ console.log("check-auth: OK — recovery contract + native Google/Apple UI, OAut
 if (!/retryTimer = setTimeout\(/.test(s) || !/if \(retryTimer\) clearTimeout\(retryTimer\)/.test(s)) {
   fail("the load-race getSession retry (with cleanup) is missing — a same-tab reload that loses the storage race stays signed out until the next backgrounding");
 }
-
