@@ -103,7 +103,8 @@ ok(!/if \(!c\) return true/.test(dd), "the fail-open branch is gone from lib/dea
 const route = read("app/api/deals/route.js");
 ok(/serveDeals\(category, parseFloat\(sp\.get\("lat"\)\), parseFloat\(sp\.get\("lng"\)\)\)/.test(route), "the /api/deals route forwards lat/lng");
 const home = read("app/home.js");
-ok(/function UnifiedBrowseCommerceRail/.test(home) && /"&lat=" \+ lat\.toFixed\(3\)/.test(home), "the unified rail passes the user's location to /api/deals");
+const browseRail = read("app/components/UnifiedBrowseCommerceRail.js");
+ok(/function UnifiedBrowseCommerceRail/.test(browseRail) && /"&lat=" \+ lat\.toFixed\(3\)/.test(browseRail), "the extracted unified rail passes the user's location to /api/deals");
 // RE-POINTED v8.13.1 (2026-08-18): "travel" is deliberately OFF the home
 // browse mounts — #790 (owner-account merge, pinned by its
 // test-session-map-parity.mjs) evicted the national car-rental rail that was

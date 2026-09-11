@@ -69,9 +69,11 @@ for (const p of walk(join(root, "app"))) {
 // Viator tile renderer uses the house chip", and the variable it iterates is
 // not part of that. Still COUNTED rather than `includes`d, because one rail
 // having the chip says nothing about the other.
-const houseChips = (home.match(/PlaceScoreChip p=\{\{ rating: [A-Za-z_$][\w$]*\.rating, reviews: [A-Za-z_$][\w$]*\.reviews \}\}/g) || []).length;
+const browseRail = readFileSync(new URL("../app/components/UnifiedBrowseCommerceRail.js", import.meta.url), "utf8");
+const viatorTileSources = home + "\n" + browseRail;
+const houseChips = (viatorTileSources.match(/PlaceScoreChip p=\{\{ rating: [A-Za-z_$][\w$]*\.rating, reviews: [A-Za-z_$][\w$]*\.reviews \}\}/g) || []).length;
 ok(houseChips >= 2, `Viator tiles lost the house PlaceScoreChip (found ${houseChips} tile renderers using it, expected at least 2)`);
-ok(!/`★ \$\{t\.rating\}`|>★ \{t\.rating\}/.test(home), "raw Google-star lead is back on Viator tiles");
+ok(!/`★ \$\{t\.rating\}`|>★ \{t\.rating\}/.test(viatorTileSources), "raw Google-star lead is back on Viator tiles");
 
 // Things to Do place rows ARE the house card (owner, 2026-08-25). The
 // compact 96×96 + yellow medal ring was Image-1 and is the reject.
