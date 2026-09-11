@@ -202,7 +202,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
           try {
             emitCommerce("commerce_cta_clicked", {
               surface: "detail_primary",
-              provider: "viator",
+              provider: tu.startsWith("/api/hotels/go?") ? "stay22" : "viator",
               offer_id: offerId,
               city_id: primaryCity || null,
               canonical_place_id: detail.id || null,

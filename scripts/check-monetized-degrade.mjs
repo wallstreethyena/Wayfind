@@ -153,6 +153,7 @@ const KNOWN_UNMONETIZED = new Set([
   "experienceGoUrl",      // returns our OWN /api/viator/go route — attribution happens server-side at the 302
   // uberEatsGoUrl deleted 2026-08-26 with /api/eats/go — see the BUILDERS note.
   "ticketmasterGoUrl",    // returns our OWN /api/ticketmaster/go route — same server-side-attribution class as experienceGoUrl
+  "hotelGoUrl",           // returns our OWN /api/hotels/go; test-earning-handoff executes the attributed server redirect
   "hotelUrl",             // Stay22: the href is rewritten at click time by LinkSwap, so a static assert would be wrong
   // hotelSearchUrl was DELETED from lib/affiliates.js 2026-07-30 (bare
   // booking.com link, unattributable by construction, zero callers). It is

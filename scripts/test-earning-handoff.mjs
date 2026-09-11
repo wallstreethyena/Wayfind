@@ -13,6 +13,7 @@
 // Set affiliate placeholders BEFORE any lib import. affiliates.js reads
 // NEXT_PUBLIC_VIATOR_PID at module load; a static import would hoist past this.
 process.env.NEXT_PUBLIC_VIATOR_PID = "P_TEST_000000";
+process.env.WF_SUPPRESS_ANALYTICS = "1";
 process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY = "e2e-placeholder-not-a-real-key";
 process.env.NEXT_PUBLIC_SUPABASE_URL = "https://e2eplaceholder.supabase.co";
 process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "e2e-placeholder-anon-key-not-real";
@@ -75,21 +76,43 @@ ok(!/verifiedUrl\s*=\s*[^\n]*viatorDirectUrl\s*\(/.test(bookingResolve),
 ok(/viatorProductGoUrl\s*\(/.test(bookingResolve),
   "bookingTargets verifiedUrl must be built with viatorProductGoUrl");
 
-// Hotel Stay22 / booking.com: fail-closed. hotelUrl still EXISTS (Stay22
-// LinkSwap elsewhere) but must not be the earning tu.
+// Hotel booking is enabled globally through a tracked first-party redirect.
 {
   const hotel = { id: "hotel_1", name: "Test Inn", address: "1 Main, Orlando, FL", types: ["lodging", "hotel"] };
   const t = bookingTargets(hotel, "hotels", null, "Orlando, FL");
   const rawHotel = hotelUrl(hotel);
   ok(rawHotel && /booking\.com/i.test(rawHotel),
     "positive control — hotelUrl still builds a booking.com search (we are not deleting the builder)");
-  ok(!t.tu || !/booking\.com/i.test(String(t.tu)),
-    `bookingTargets must not return a booking.com earning href (got ${t.tu})`);
+  ok(t.tu?.startsWith("/api/hotels/go?") && !/booking\.com/i.test(String(t.tu)),
+    `bookingTargets must return the tracked hotel route (got ${t.tu})`);
   ok(!/hotelUrl\s*\(/.test(bookingResolve),
     "bookingTargets must not call hotelUrl — that is the raw booking.com earning href");
+  ok(isEarningGoHref(t.tu) && isEarningGoHref("https://www.gowayfind.com" + t.tu), "hotel booking stays on the shared earning handoff path");
+  ok(withClickId(t.tu, "wf-hotel-test").includes("click_id=wf-hotel-test"), "hotel click IDs survive the handoff");
+  ok(!bookingTargets({ ...hotel, name: "LeVisa Massage Spa & Wellness", primaryType: "massage" }, "hotels", null, "Orlando, FL").tu, "standalone massage is not hotel booking");
+  for (const primaryType of ["restaurant", "gym"]) {
+    ok(!bookingTargets({ ...hotel, name: "Test Business", primaryType }, "hotels", null, "Orlando, FL").tu, "non-hotel primary identities cannot earn hotel rates");
+  }
+  ok(!bookingTargets({ ...hotel, name: undefined }, "hotels", null, "Orlando, FL").tu, "missing hotel names do not generate booking links");
 }
 
 // Guide hotel CTA belt: no booking.com earning href.
+{
+  const { GET } = await import("../app/api/hotels/go/route.js");
+  const q = new URLSearchParams({ name: "ROOST Tampa", address: "Tampa, FL", click_id: "wf-hotel-test-123", url: "https://evil.example" });
+  const call = (query, ua = "Mozilla/5.0") => GET(new Request("https://www.gowayfind.com/api/hotels/go?" + query, { headers: { "user-agent": ua } }));
+  const response = await call(q);
+  const destination = new URL(response.headers.get("location"));
+  ok(response.status === 302 && response.headers.get("cache-control").includes("no-store"), "hotel redirect is uncached");
+  ok(destination.origin === "https://www.stay22.com" && destination.pathname === "/allez/booking", "hotel handoff uses the fixed Stay22 endpoint");
+  ok(destination.searchParams.get("aid") === "wayfindllc" && destination.searchParams.get("campaign") === "wf-hotel-test-123", "hotel handoff preserves verified affiliate and click attribution");
+  const booking = new URL(destination.searchParams.get("link"));
+  ok(booking.origin === "https://www.booking.com" && booking.searchParams.get("ss") === "ROOST Tampa, Tampa, FL", "hotel location survives; hostile destination input is ignored");
+  for (const bad of ["name=Hotel", "name=Hotel&address=Tampa&lat=91&lng=0", "name=Hotel&address=Tampa&lng=0"]) {
+    ok((await call(bad)).headers.get("location") === "https://www.gowayfind.com/?go=hotels", "invalid hotel data never leaves for a provider");
+  }
+  ok((await call(q, "Googlebot")).headers.get("location") === "https://www.gowayfind.com/?go=hotels", "crawlers do not create affiliate clicks");
+}
 ok(/booking\\\.com/i.test(read("lib/guideCta.js")),
   "guide hotel CTA rejects a leftover booking.com earning href (fail-closed belt)");
 
