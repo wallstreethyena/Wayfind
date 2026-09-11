@@ -432,17 +432,18 @@ def write_markdown(report: dict, path: Path) -> None:
         for f in c.get("failures") or []:
             a(f"- **FAILED**: {f}")
         a("")
-    a("## Watchlist — the same shape, not repaired in this pass")
+    a("## Legacy watchlist audit")
     a("")
-    a("A systemic audit fails by producing a clean report that quietly covers a smaller system than the")
-    a("reader thinks. These are written down for that reason.")
+    a("These six items began as deferred findings. They remain audited after repair so deleting a helper,")
+    a("identity, completeness check, or successor path cannot turn missing evidence into a clean report.")
     a("")
-    for w in report.get("watchlist", []):
-        a(f"**`{w['file']}`**")
+    for w in report.get("watchlistAudit", []):
+        a(f"**{w['verdict']} — `{w['file']}`**")
         a("")
-        a(f"- the cut: {w['cut']}")
-        a(f"- what it costs: {w['impact']}")
-        a(f"- why it was left: {w['why_deferred']}")
+        for evidence in w["evidence"]:
+            a(f"- {evidence}")
+        a(f"- historical cut: {w['cut']}")
+        a(f"- historical impact: {w['impact']}")
         a("")
     a("## Raw reads with no `order=`")
     a("")
@@ -458,52 +459,342 @@ def write_markdown(report: dict, path: Path) -> None:
 
 
 # ---------------------------------------------------------------------------
-# THE WATCHLIST
+# THE OLD SIX-ITEM WATCHLIST IS NOW AN AUDITED CONTRACT
 #
-# Owned-inventory consumers with the same SHAPE that this pass did NOT repair.
-# They are written down rather than left implicit, because the failure mode of a
-# systemic audit is a clean report that quietly covers a smaller system than the
-# reader thinks. Each entry names the file, what the cut is, and why it was left.
+# These began as prose describing work deferred from the first audit. All six
+# have since been repaired. Leaving the prose unchanged would make the weekly
+# report lie in the other direction; deleting it would let any repair disappear
+# without the auditor noticing. Keep the historical cut and impact, then prove
+# the current resolution from executable source. A missing file, helper, call,
+# identity, completeness check, or successor path is VULNERABLE. In particular,
+# deleting the retired generic feed is only a fix while the dedicated Night Out
+# path exists and no runtime caller still asks for the retired endpoint.
 # ---------------------------------------------------------------------------
 
-WATCHLIST = [
+LEGACY_WATCHLIST = [
     {
+        "id": "generic-intent-feed",
         "file": "app/api/intent-candidates/route.js:70",
         "cut": "per-category top-400, then a GLOBAL `places.slice(0, limit)` (400, max 600) by raw Wayfind Score before any rail identity runs",
-        "why_deferred": "its consumers apply their own identity downstream, and its largest consumer — Night Out — now has its own identity-first route, so this is the client's fail-soft fallback rather than the shipped answer",
         "impact": "a niche venue that did not crack the global top-400 by score is invisible to every rail that would have wanted it",
     },
     {
+        "id": "inventory-box-batch",
         "file": "lib/inventoryBoxBatch.js:93",
         "cut": "a consolidated union read across a metro cluster's WIDE boxes with `limit = min(1000 * cities, 20000)` and NO `order=`",
-        "why_deferred": "it is a hot path feeding the landing pools, where the sub is always 'all' and no narrow identity follows — the damage is nondeterminism rather than starvation, and it deserves its own change with its own measurement",
         "impact": "a cluster whose union exceeds the limit is ranked over an arbitrary heap slice, so the same query returns a different top list after any UPDATE",
     },
     {
+        "id": "morning-identity-pools",
         "file": "lib/railsData.js:993-994",
         "cut": "buildIdentityPool for breakfast and quickeats passes no `typeOv`, so its tier-2 read has no category or type filter at all: every row in the box, ordered by review count, top 300, and only then isBreakfastPlace / isQuickService",
-        "why_deferred": "ordered (so deterministic) and on a small radius, and it sits inside the rail-menu compute where a change needs its own latency measurement",
         "impact": "a genuine breakfast cafe with modest review count, in a dense box holding 300 more-reviewed rows of any category, never reaches the predicate",
     },
     {
+        "id": "nearby-complete-rings",
         "file": "lib/nearbyPool.js:258",
         "cut": "`limit=400` per ring ordered by review count, with identity applied after the read but before any further cut",
-        "why_deferred": "identity already runs before every count-based cut, and the ring ladder widens when the identity-passed count is short — the mildest form of the shape",
         "impact": "a long-tail identity match outside the 400 most-reviewed rows of a dense ring is still excluded",
     },
     {
+        "id": "date-night-shopping",
         "file": "app/api/date-night/route.js",
         "cut": "not a retrieval bug — the `shopping` rail is declared in DATE_NIGHT_RAIL_DEFS but no `shopping` category is ever read, so it can never populate",
-        "why_deferred": "found by this audit, fixed separately: adding a read is a product change, not a retrieval fix",
         "impact": "one Date Night rail is permanently empty everywhere",
     },
     {
+        "id": "today-instagram-exact-ids",
         "file": "app/api/today-discovery/route.js",
         "cut": "not a retrieval bug — the Instagram rail's evidence is a curated creator-video set, and the places carrying it are still reached only through the broad food/nightlife/hotels/shopping reads",
-        "why_deferred": "the honest fix is an exact place-id read for the curated set, like Birthday's rewards, which is a small change with its own proof",
         "impact": "an Instagram-corroborated place outside the top 400 of its category is invisible to the rail built for it",
     },
 ]
+
+
+def _source(root: Path, rel: str) -> str | None:
+    path = root / rel
+    if not path.is_file():
+        return None
+    return strip_comments(path.read_text(encoding="utf8", errors="replace"))
+
+
+def _function(src: str | None, name: str) -> str | None:
+    """Return one named JS function through its balanced closing brace.
+
+    Scoping checks to the function prevents a reassuring token elsewhere in a
+    large route from satisfying the contract. This is deliberately a small JS
+    scanner, not a parser; unresolved or malformed source fails closed.
+    """
+    if not src:
+        return None
+    m = re.search(r"\b(?:export\s+)?(?:async\s+)?function\s+" + re.escape(name) + r"\s*\([^)]*\)\s*\{", src)
+    if not m:
+        return None
+    # The regex ends on the function body's opening brace. Searching from the
+    # function name would stop on a destructured parameter or `deps = {}`.
+    start = m.end() - 1
+    depth, quote, escaped = 0, None, False
+    for i in range(start, len(src)):
+        ch = src[i]
+        if quote:
+            if escaped:
+                escaped = False
+            elif ch == "\\":
+                escaped = True
+            elif ch == quote:
+                quote = None
+            continue
+        if ch in "\"'`":
+            quote = ch
+        elif ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                return src[m.start(): i + 1]
+    return None
+
+
+def _calls(src: str | None, name: str) -> list[str]:
+    """Return balanced calls to `name`; an unterminated call is not evidence."""
+    if not src:
+        return []
+    found: list[str] = []
+    for m in re.finditer(r"\b" + re.escape(name) + r"\s*\(", src):
+        start = src.find("(", m.start())
+        depth, quote, escaped = 0, None, False
+        for i in range(start, len(src)):
+            ch = src[i]
+            if quote:
+                if escaped:
+                    escaped = False
+                elif ch == "\\":
+                    escaped = True
+                elif ch == quote:
+                    quote = None
+                continue
+            if ch in "\"'`":
+                quote = ch
+            elif ch == "(":
+                depth += 1
+            elif ch == ")":
+                depth -= 1
+                if depth == 0:
+                    found.append(src[m.start(): i + 1])
+                    break
+    return found
+
+
+def _result(meta: dict, checks: list[tuple[bool, str, str]]) -> dict:
+    failures = [failure for held, _, failure in checks if not held]
+    evidence = [proof for held, proof, _ in checks if held]
+    evidence.extend(f"FAILED: {failure}" for failure in failures)
+    return {
+        **meta,
+        "verdict": "FIXED" if not failures else "VULNERABLE",
+        "evidence": evidence,
+        "failures": failures,
+    }
+
+
+def audit_legacy_watchlist(root: Path = ROOT) -> list[dict]:
+    """Prove the six former watchlist fixes; never infer safety from absence."""
+    by_id = {item["id"]: item for item in LEGACY_WATCHLIST}
+    out: list[dict] = []
+    owned_src = _source(root, "lib/ownedPool.js")
+    owned_read = _function(owned_src, "readOwnedCategory")
+    owned_fetch = _function(owned_src, "fetchOwnedPool")
+    owned_reader_held = bool(
+        owned_read and "order=place_id.asc" in owned_read and '"Range-Unit": "items"' in owned_read
+        and "truncated: false" in owned_read and owned_fetch
+        and re.search(r"if\s*\(\s*truncated\s*&&\s*!opts\.allowTruncated\s*\)", owned_fetch)
+    )
+
+    # 1. The cap-first endpoint was retired. Absence alone is not proof: require
+    # its dedicated successor and prove no app/lib caller still names the old
+    # endpoint or hook.
+    old_route = root / "app/api/intent-candidates/route.js"
+    old_hook = root / "app/components/useIntentCandidates.js"
+    night_route = _source(root, "app/api/night-out/route.js")
+    night_component = _source(root, "app/components/NightOutRails.js")
+    night_reader = _source(root, "lib/nightOutPool.js")
+    night_fetch = _function(night_reader, "fetchNightOutPool")
+    night_admit = _function(night_reader, "admitNightOutRows")
+    runtime_refs = []
+    for top in ("app", "lib"):
+        base = root / top
+        if not base.is_dir():
+            runtime_refs.append(f"missing runtime tree {top}/")
+            continue
+        for path in base.rglob("*.js"):
+            src = strip_comments(path.read_text(encoding="utf8", errors="replace"))
+            if re.search(r"/api/intent-candidates|\buseIntentCandidates\b", src):
+                runtime_refs.append(str(path.relative_to(root)))
+    out.append(_result(by_id["generic-intent-feed"], [
+        (not old_route.exists() and not old_hook.exists(),
+         "the cap-first endpoint and duplicate client hook are retired",
+         "the retired cap-first endpoint or client hook exists"),
+        (not runtime_refs, "no app/lib runtime caller names the retired feed",
+         "retired feed still has runtime references: " + ", ".join(runtime_refs)),
+        (bool(night_route and re.search(r"\bfetchNightOutPool\s*\(", night_route)),
+         "the dedicated Night Out route calls its identity-first owned reader",
+         "dedicated Night Out successor is missing or does not call fetchNightOutPool"),
+        (bool(night_component and re.search(r"fetchJsonWithDeadline\s*\(\s*[\"']/api/night-out\?", night_component)),
+         "NightOutRails calls the dedicated bounded endpoint",
+         "NightOutRails does not call the dedicated Night Out endpoint"),
+        (bool(night_fetch and night_admit and "readCategory(" in night_fetch
+              and "admitNightOutRows(raw" in night_fetch and "railOf(place)" in night_admit),
+         "the successor reads the owned pool before calling the shipped Night Out identity",
+         "the dedicated Night Out reader or its identity admission is missing"),
+    ]))
+
+    # 2. The union reader is an accelerator only. Deterministic order plus a
+    # full-limit refusal means an ambiguous partial universe never reaches the
+    # cache; missing either half restores the old defect.
+    batch = _source(root, "lib/inventoryBoxBatch.js")
+    union = _function(batch, "fetchUnionBox")
+    prime = _function(batch, "primeConsolidatedInventoryReads")
+    rejects_full = bool(union and re.search(
+        r"if\s*\(\s*!Array\.isArray\(rows\)\s*\|\|\s*rows\.length\s*>=\s*limit\s*\)\s*return\s*\[\]", union))
+    out.append(_result(by_id["inventory-box-batch"], [
+        (union is not None and prime is not None,
+         "the union reader and cache-prime caller both exist",
+         "fetchUnionBox or primeConsolidatedInventoryReads is missing"),
+        (bool(union and "order=place_id.asc" in union),
+         "the union read has stable place_id order",
+         "union read is not ordered by place_id.asc"),
+        (rejects_full,
+         "a non-array or full-limit response is refused as ambiguous",
+         "union reader does not refuse rows.length >= limit"),
+        (bool(prime and re.search(r"if\s*\(\s*!rows\.length\s*\)\s*return", prime)
+              and "deps.readUnion || fetchUnionBox" in prime),
+         "an empty/refused accelerator result leaves the authoritative reads unprimed",
+         "the prime path can cache a refused result or no longer uses fetchUnionBox"),
+    ]))
+
+    # 3. Breakfast and Quick Eats share one complete owned-food read. Require
+    # both real identities inside that read, use of its survivors, and a call
+    # after creators are assigned (one of the helper's declared source pools).
+    rails = _source(root, "lib/railsData.js")
+    morning = _function(rails, "buildMorningIdentityPools")
+    owned_calls = _calls(morning, "fetchOwnedPool")
+    morning_call = owned_calls[0] if len(owned_calls) == 1 else ""
+    creator_at = rails.find("pools.creators = creators") if rails else -1
+    invocation_at = rails.rfind("buildMorningIdentityPools(pools, origin)") if rails else -1
+    out.append(_result(by_id["morning-identity-pools"], [
+        (morning is not None and len(owned_calls) == 1,
+         "one shared morning helper performs one exhaustive owned read",
+         "buildMorningIdentityPools is missing or does not contain exactly one fetchOwnedPool call"),
+        (bool(re.search(r"categories\s*:\s*\[\s*[\"']food[\"']\s*\]", morning_call)
+              and re.search(r"\bidentity\s*:", morning_call)),
+         "the shared read injects identity into the owned food pool",
+         "the shared read lacks food category or an injected identity"),
+        ("isBreakfastPlace(place)" in morning_call and "isStrongQuickService(place)" in morning_call,
+         "breakfast and strong Quick Eats identities both run inside admission",
+         "one of the two real morning identities is outside the owned-pool admission"),
+        (bool(morning and "owned.places" in morning),
+         "both output pools are assembled from admitted owned survivors",
+         "the helper does not consume the admitted owned.places result"),
+        (owned_reader_held,
+         "the shared owned reader is ordered, exhaustive, and refuses truncation",
+         "lib/ownedPool.js is missing or no longer proves ordered paging and truncation refusal"),
+        (bool(rails and not re.search(r"buildIdentityPool\s*\(\s*pools\s*,\s*origin\s*,\s*(?:isBreakfastPlace|isQuickService)", rails)),
+         "the old broad top-300 morning widening calls are absent",
+         "Breakfast or Quick Eats still calls the broad capped buildIdentityPool path"),
+        (creator_at >= 0 and invocation_at > creator_at,
+         "the helper runs after pools.creators is assigned",
+         "the morning helper is missing at its consumer or runs before creators are available"),
+    ]))
+
+    # 4. Nearby rings use the shared exhaustive pager. The truncated refusal
+    # must execute before any returned row faces identity and scoring.
+    nearby = _source(root, "lib/nearbyPool.js")
+    nearby_fn = _function(nearby, "buildNearbyPool")
+    read_at = nearby_fn.find("readOwnedCategory(") if nearby_fn else -1
+    trunc_at = nearby_fn.find("result.truncated") if nearby_fn else -1
+    rows_at = nearby_fn.find("result.rows") if nearby_fn else -1
+    identity_at = nearby_fn.find("identity: cfg.identity") if nearby_fn else -1
+    out.append(_result(by_id["nearby-complete-rings"], [
+        (read_at >= 0, "each selected ring reads through readOwnedCategory",
+         "buildNearbyPool is missing or bypasses readOwnedCategory"),
+        (bool(nearby_fn and "pageSize:" in nearby_fn and "maxRows:" in nearby_fn),
+         "the ring reader declares paging and a loud runaway bound",
+         "the exhaustive ring read lost its page size or runaway bound"),
+        (read_at < trunc_at < rows_at if read_at >= 0 else False,
+         "a truncated/incomplete read is refused before rows face selection",
+         "result.truncated is missing or checked after candidate iteration"),
+        (identity_at > rows_at >= 0,
+         "the category identity runs only over the completed ring",
+         "the completed rows do not reach cfg.identity after the truncation check"),
+        (not bool(nearby_fn and re.search(r"limit=400|signals->reviews\.desc\.nullslast", nearby_fn)),
+         "the old review-ranked 400-row shelf is absent",
+         "the old review-ranked 400-row candidate shelf returned"),
+        (owned_reader_held,
+         "the shared owned reader is ordered, exhaustive, and refuses truncation",
+         "lib/ownedPool.js is missing or no longer proves ordered paging and truncation refusal"),
+    ]))
+
+    # 5. Shopping is a real input to Date Night, with its shipped predicate
+    # injected before ranking, and degradation prevents a partial answer from
+    # masquerading as complete.
+    date = _source(root, "app/api/date-night/route.js")
+    date_fn = _function(date, "buildDateNightAnswer")
+    date_calls = _calls(date_fn, "fetchOwnedPool")
+    shopping_calls = [c for c in date_calls if re.search(r"categories\s*:\s*\[\s*[\"']shopping[\"']\s*\]", c)]
+    shopping_call = shopping_calls[0] if len(shopping_calls) == 1 else ""
+    out.append(_result(by_id["date-night-shopping"], [
+        (len(shopping_calls) == 1 and bool(re.search(r"\bidentity\s*:\s*isDateShopping\b", shopping_call)),
+         "Shopping has one exhaustive owned read with isDateShopping injected",
+         "Date Night lacks exactly one shopping read with isDateShopping at admission"),
+        (bool(date_fn and (re.search(r"Promise\.resolve\(\s*shoppingPool\.places\s*\)", date_fn)
+                           or re.search(r"ownedPools\.then\s*\(\s*\(\s*\[\s*,\s*shopping\s*\]\s*\)\s*=>\s*shopping\.places", date_fn))),
+         "admitted shopping survivors feed the rail composer",
+         "shoppingPool.places does not reach composition"),
+        (bool(date_fn and re.search(r"shoppingPool\.stats\.degraded", date_fn)),
+         "shopping read degradation marks the answer incomplete",
+         "a degraded shopping read can masquerade as a complete answer"),
+        (not bool(date_fn and re.search(r"serveFromInventory\s*\(\s*[\"']shopping[\"']", date_fn)),
+         "Shopping does not fall back to a broad capped category shelf",
+         "Date Night Shopping uses broad serveFromInventory again"),
+        (owned_reader_held,
+         "the shared owned reader is ordered, exhaustive, and refuses truncation",
+         "lib/ownedPool.js is missing or no longer proves ordered paging and truncation refusal"),
+    ]))
+
+    # 6. Instagram identity is an exact curated Place-ID set, so those rows are
+    # admitted independently of broad category shelves and merged before them.
+    today = _source(root, "app/api/today-discovery/route.js")
+    ids_fn = _function(today, "instagramPlaceIds")
+    exact_fn = _function(today, "exactInstagramInventory")
+    get_fn = _function(today, "GET")
+    exact_reader = _function(_source(root, "lib/inventoryServe.js"), "serveInventoryByPlaceIds")
+    exact_calls = _calls(exact_fn, "serveInventoryByPlaceIds")
+    creator_at = get_fn.find("for (const raw of creatorExact)") if get_fn else -1
+    broad_at = get_fn.find("pools.forEach") if get_fn else -1
+    out.append(_result(by_id["today-instagram-exact-ids"], [
+        (bool(ids_fn and "allCreators()" in ids_fn and "spot.placeId" in ids_fn
+              and re.search(r"instagram", ids_fn, re.I)),
+         "the exact set is derived from curated Instagram creator place IDs",
+         "instagramPlaceIds is missing or no longer derives curated Instagram place IDs"),
+        (bool(exact_fn and "instagramPlaceIds()" in exact_fn and len(exact_calls) == 1),
+         "the curated IDs are read through one chunked exact-ID call site",
+         "exactInstagramInventory is missing or bypasses serveInventoryByPlaceIds"),
+        (bool(exact_calls and re.search(r"\bfailLoud\s*:\s*true\b", exact_calls[0])),
+         "exact-ID read failure is loud rather than a plausible empty rail",
+         "the exact Instagram read is not fail-loud"),
+        (bool(exact_reader and "place_id=in.(${list})" in exact_reader
+              and "if (options.failLoud) throw error" in exact_reader),
+         "the shared exact-ID reader queries place_id and propagates fail-loud errors",
+         "serveInventoryByPlaceIds is missing or no longer exact and fail-loud"),
+        (bool(get_fn and "exactInstagramInventory(lat, lng, radiusM)" in get_fn),
+         "the shipped Today request awaits the exact Instagram inventory",
+         "the Today GET path does not call exactInstagramInventory"),
+        (creator_at >= 0 and broad_at > creator_at,
+         "exact creator places are admitted before broad category shelves",
+         "creatorExact is missing from composition or is admitted after broad shelves"),
+    ]))
+
+    return out
 
 
 def main() -> int:
@@ -553,6 +844,8 @@ def main() -> int:
         verdict = classify(s, static_hits, first)
         out_surfaces.append({**s, **verdict, "measurements": measurements})
 
+    watchlist_audit = audit_legacy_watchlist()
+    unresolved_watchlist = [item for item in watchlist_audit if item["verdict"] != "FIXED"]
     report = {
         "date": _dt.date.today().isoformat(),
         "mode": args.mode,
@@ -568,7 +861,9 @@ def main() -> int:
             "exactIdReads": len(exact_id_reads),
         },
         "controls": controls,
-        "watchlist": WATCHLIST,
+        "watchlistAudit": watchlist_audit,
+        "watchlist": unresolved_watchlist,
+        "resolvedWatchlist": [item for item in watchlist_audit if item["verdict"] == "FIXED"],
         "surfaces": out_surfaces,
     }
     verdicts = {s["id"]: s["verdict"] for s in out_surfaces}
@@ -599,6 +894,8 @@ def main() -> int:
         "distinctPlacesRecoveredAlreadyShipped": len(shipped - pending),
         "railSlotsPending": slots_pending,
         "railSlotsAlreadyShipped": slots_shipped,
+        "watchlistFixed": [item["id"] for item in watchlist_audit if item["verdict"] == "FIXED"],
+        "watchlistVulnerable": [item["id"] for item in unresolved_watchlist],
     }
 
     (ROOT / "artifacts").mkdir(exist_ok=True)
@@ -616,6 +913,9 @@ def main() -> int:
         if controls:
             print(f"  honesty + mutation controls      : {controls['assertions']} assertions, "
                   + ("all held" if controls["ok"] else f"{len(controls['failures'])} FAILED"))
+        print(f"  legacy watchlist fixes           : {len(watchlist_audit) - len(unresolved_watchlist)}/{len(watchlist_audit)} verified")
+        for item in unresolved_watchlist:
+            print(f"      · {item['id']}: " + "; ".join(item["failures"]))
         print("")
         for s in out_surfaces:
             print(f"  {s['id']:<18} {s['verdict']:<15} {s['radiusMi']:>3}mi  {', '.join(s['categories'])}")
@@ -624,10 +924,12 @@ def main() -> int:
         print("")
         print(f"  artifacts/candidate-starvation-audit.json written")
 
-    # Exit non-zero when a control failed. A VULNERABLE surface is a finding, not
-    # a broken auditor, so it does not fail the run — the Friday report is meant
-    # to be readable, not to page.
-    return 0 if (controls is None or controls["ok"]) else 1
+    # Registered VULNERABLE surfaces remain report findings. The six legacy
+    # items are different: they are repaired invariants now, so every mode must
+    # fail if one regresses. The JSON is still written first for diagnosis.
+    controls_ok = controls is None or controls["ok"]
+    legacy_ok = not unresolved_watchlist
+    return 0 if controls_ok and legacy_ok else 1
 
 
 if __name__ == "__main__":

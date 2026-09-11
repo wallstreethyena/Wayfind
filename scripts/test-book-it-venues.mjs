@@ -16,9 +16,11 @@
 //      name hit in the wrong city MUST return null.
 import { VENUE_OFFERS, venueOfferFor } from "../lib/venueOffers.js";
 import { PARTNER_OFFER_REGISTRY, partnerOfferById } from "../lib/partnerOfferRegistry.js";
-import { PROVIDERS } from "../lib/commerceProviders.js";
+import { PROVIDERS, resolveOffer } from "../lib/commerceProviders.js";
 import { TP_PROGRAMS, isTpProgramLive } from "../lib/travelpayouts.js";
 import { bookItTarget } from "../lib/monetize.js";
+import { placePartnerPick } from "../lib/placePartnerPicks.js";
+import { resolveDetailCta } from "../lib/detailCta.js";
 
 let pass = 0;
 const fail = (m) => { console.error("test-book-it-venues: FAIL — " + m); process.exit(1); };
@@ -58,7 +60,7 @@ for (const row of VENUE_OFFERS) {
 // ── 3. THE MATCH WORKS, and the geo gate holds ────────────────────────────
 const live = Object.keys(TP_PROGRAMS).filter(isTpProgramLive);
 const HIT = [
-  ["The Florida Aquarium", "Tampa", "tampa-deal-florida-aquarium"],
+  ["The Florida Aquarium", "Tampa", "tampa-family-florida-aquarium"],
   ["Henry B. Plant Museum", "Tampa", "tampa-hidden-plant-museum"],
   ["Empire State Building", "New York", "nyc-hook-empire-state"],
   ["SEA LIFE Orlando Aquarium", "Orlando", "orlando-tonight-sealife"],
@@ -100,5 +102,43 @@ ok(venueOfferFor("Florida Aquarium Gift Shop", "Tampa") === null,
 const ev = bookItTarget({ name: "Van Wezel Performing Arts Hall", types: ["performing_arts_theater"] }, { available: live, city: "Sarasota" });
 ok(ev && ev.kind === "search" && ev.provider === "ticketnetwork",
    "the pre-existing destination-search path is untouched for events (ticketnetwork)");
+
+// Owner's Klook links must agree on the card, primary sheet and Book-it path.
+// Assert the actual product id inside the tracked redirect, not just a label.
+const klookCases = [
+  ["The Florida Aquarium", "Tampa", "tampa-family-florida-aquarium", "159925"],
+  ["Kennedy Space Center Visitor Complex", "Merritt Island", "merritt-island-klook-kennedy-admission", "4293"],
+  ["Universal Orlando Resort", "Orlando", "orlando-klook-universal-admission", "4912"],
+  ["Universal Studios Florida", "Orlando", "orlando-klook-universal-admission", "4912"],
+  ["Universal's Islands of Adventure", "Orlando", "orlando-klook-universal-admission", "4912"],
+  ["Universal Epic Universe", "Orlando", "orlando-klook-universal-admission", "4912"],
+];
+for (const [name, city, offerId, productId] of klookCases) {
+  const detail = { name, types: ["tourist_attraction"] };
+  const pin = placePartnerPick(detail);
+  const primary = resolveDetailCta({ detail, kind: "attraction", locName: city });
+  const secondary = bookItTarget(detail, { available: live, city });
+  for (const [surface, target] of [["card", pin], ["primary", primary], ["Book-it", secondary]]) {
+    ok(target?.provider === "klook" && target.offerId === offerId, `${name}: ${surface} selects the same exact Klook product`);
+  }
+  ok(primary.label === "Tickets · Klook", `${name}: primary names the actual seller`);
+  const go = new URL(primary.href, "https://www.gowayfind.com");
+  ok(go.pathname === "/api/commerce/go" && go.searchParams.get("offer") === offerId,
+    `${name}: primary uses the internal tracked redirect`);
+  const result = await resolveOffer("klook", offerId);
+  ok(!!result.dest && !result.error, `${name}: server resolves the offer`);
+  const tracked = new URL(result.dest);
+  const destination = new URL(tracked.searchParams.get("u"));
+  ok(tracked.hostname === "tp.media" && tracked.searchParams.get("campaign_id") === "137" && tracked.searchParams.get("p") === "4110",
+    `${name}: uses the existing Klook Travelpayouts program`);
+  ok(destination.hostname === "www.klook.com" && destination.pathname.includes(`/activity/${productId}-`) && !destination.searchParams.has("aid"),
+    `${name}: exact activity, no competing direct-account attribution`);
+  ok(venueOfferFor(name, "Los Angeles") === null, `${name}: Book-it refuses another market`);
+}
+for (const name of ["Halloween Horror Nights", "Halloween Horror Nights at Universal Orlando", "Universal Studios Hollywood", "Universal CityWalk", "Universal Orlando Resort Hotel", "Florida Aquarium Gift Shop", "Kennedy Space Center Bus Tour", "Everglades National Park"]) {
+  ok(placePartnerPick({ name })?.provider !== "klook", `${name}: never inherits an unrelated Klook admission pin`);
+  ok(venueOfferFor(name, "Orlando")?.provider !== "klook", `${name}: never inherits an unrelated Book-it offer`);
+}
+ok(placePartnerPick({ name: "Universal Volcano Bay" })?.provider === "undercover_tourist", "Volcano Bay retains its existing ticket product");
 
 console.log(`test-book-it-venues: OK — ${pass} assertions (${VENUE_OFFERS.length} venues, every offer id resolved against the registry, ${HIT.length} exact matches CALLED through bookItTarget, ${WRONG.length} wrong-city cases refused, search path intact)`);

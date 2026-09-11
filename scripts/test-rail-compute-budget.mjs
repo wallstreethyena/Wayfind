@@ -54,12 +54,18 @@ const TYPE_BY_CAT = {
 };
 const PRIMARY_BY_CAT = { food: "restaurant", attractions: "tourist_attraction", nightlife: "bar", beach: "natural_feature" };
 
-function parseIntent(url) {
+function parseIntent(url, init) {
   const u = new URL(url);
   const sp = u.searchParams;
   const select = sp.get("select") || "";
   const limit = Number(sp.get("limit")) || 0;
-  const latGte = Number(sp.get("lat")?.replace(/^gte\./, "")) || null;
+  const headers = init && init.headers;
+  const rangeValue = headers && typeof headers.get === "function"
+    ? headers.get("range")
+    : headers && (headers.Range || headers.range);
+  const rangeMatch = String(rangeValue || "").match(/^(\d+)-(\d+)$/);
+  const rangeStart = rangeMatch ? Number(rangeMatch[1]) : 0;
+  const rangeSize = rangeMatch ? Number(rangeMatch[2]) - rangeStart + 1 : 0;
   // URLSearchParams.get("lat") only returns the FIRST lat= — this endpoint
   // sends both lat=gte.X and lat=lte.Y, so read the raw query string instead.
   const raw = u.search;
@@ -70,7 +76,7 @@ function parseIntent(url) {
   const maxLng = num(/lng=lte\.(-?[\d.]+)/);
   const catMatch = raw.match(/category(?:\.eq\.|=eq\.)([a-z]+)/) || raw.match(/or=\(category\.eq\.([a-z]+)/);
   const category = catMatch ? catMatch[1] : null;
-  return { select, limit, minLat, maxLat, minLng, maxLng, category };
+  return { select, limit, rangeStart, rangeSize, order: sp.get("order") || "", minLat, maxLat, minLng, maxLng, category };
 }
 
 // WO8b (2026-09-02) — A FIXED, POSITION-ADDRESSABLE WORLD, not a per-call
@@ -136,15 +142,26 @@ function buildWorld() {
 const WORLD = buildWorld();
 
 function fixtureRows(intent) {
-  const n = Math.max(0, intent.limit || 0);
+  // PostgREST accepts either limit= (the legacy rail reads) or an HTTP Range
+  // (readOwnedCategory's exhaustive paging). Treating a missing limit as zero
+  // made every Range-paged identity read look like a legitimately empty town.
+  const n = Math.max(0, intent.rangeSize || intent.limit || 0);
+  const from = intent.rangeSize ? intent.rangeStart : 0;
   const cat = intent.category && CATS.includes(intent.category) ? intent.category : "food";
   const wantsEditorial = /(^|,)editorial(,|$)/.test(intent.select);
   const hasBox = [intent.minLat, intent.maxLat, intent.minLng, intent.maxLng].every((v) => Number.isFinite(v));
   const pts = WORLD[cat] || [];
-  const matches = hasBox
+  let matches = hasBox
     ? pts.filter((p) => p.lat >= intent.minLat && p.lat <= intent.maxLat && p.lng >= intent.minLng && p.lng <= intent.maxLng)
     : pts;
-  return matches.slice(0, n).map((p) => {
+  if (intent.order === "place_id.asc") {
+    matches = matches.slice().sort((a, b) => {
+      const ai = `fixture_${cat}_${a.idx}`;
+      const bi = `fixture_${cat}_${b.idx}`;
+      return ai < bi ? -1 : ai > bi ? 1 : 0;
+    });
+  }
+  return matches.slice(from, from + n).map((p) => {
     const row = {
       place_id: `fixture_${cat}_${p.idx}`,
       name: `Fixture ${cat[0].toUpperCase()}${cat.slice(1)} Spot ${p.idx}`,
@@ -213,10 +230,10 @@ export async function runComputeHarness({ beachRows = 6, unknownAsEmpty = true, 
   globalThis.fetch = async (input, init) => {
     const url = typeof input === "string" ? input : input.url;
     if (url.includes("/rest/v1/wf_inventory")) {
-      const intent = parseIntent(url);
+      const intent = parseIntent(url, init);
       const rows = fixtureRows(intent);
       const resp = jsonResponse(rows);
-      calls.push({ url, table: "wf_inventory", rows: rows.length, bytes: resp.__bytes, editorial: /(^|,)editorial(,|$)/.test(intent.select) });
+      calls.push({ url, table: "wf_inventory", rows: rows.length, bytes: resp.__bytes, editorial: /(^|,)editorial(,|$)/.test(intent.select), rangeStart: intent.rangeStart, rangeSize: intent.rangeSize });
       return resp;
     }
     if (url.includes("/rest/v1/wf_beach_water_geo")) {

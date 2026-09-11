@@ -28,6 +28,7 @@
  * `editorial` back), not a promise that these exact numbers are optimal.
  */
 import { readFileSync, writeFileSync, unlinkSync, existsSync } from "node:fs";
+import { randomUUID } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { join, dirname } from "node:path";
 import { runComputeHarness, FIXTURE_EDITORIAL_BYTES, EQUIVALENCE_SCENARIOS, EQUIVALENCE_SNAPSHOT_PATH, snapshotRails } from "./test-rail-compute-budget.mjs";
@@ -44,6 +45,8 @@ const ok = (c, m) => { if (!c) { console.error("  FAIL: " + m); fails++; } };
 const r = await runComputeHarness();
 ok(r.ok, "the harness completed (loadRailPlaces did not throw)");
 ok(r.restCallCount > 0, "CONTROL: the run actually made wf_inventory/wf_beach_water_geo calls — a 0 here would make every assertion below vacuous");
+ok(r.restCalls.some((c) => c.table === "wf_inventory" && c.rangeSize > 0 && c.rows > 0),
+  "CONTROL: a Range-paged wf_inventory read returned fixture rows — otherwise readOwnedCategory can silently exercise an empty mock and thin the identity rails while the compute budgets pass");
 
 ok(r.restCallCount <= MAX_CALLS,
   `${r.restCallCount} wf_inventory/wf_beach_water_geo calls for one cold compute, budget is ${MAX_CALLS} (measured-after-state x 1.2 headroom). A rise here means a pool builder started re-reading a box it (or another builder) already read this compute, or a new un-batched fan-out was added — see lib/inventoryReadCache.js and lib/inventoryBoxBatch.js.`);
@@ -81,28 +84,20 @@ ok(r.restBytes <= MAX_BYTES,
 // lib/railsData.js itself is never touched. ─────────────────────────────────
 {
   const original = readFileSync(RAILS_DATA_PATH, "utf8");
-  const DRIVE_POOL_PRIME_BLOCK = `  // WO8b (2026-09-02) — THIS is the fan-out WO8's own follow-up flagged as
-  // the largest remaining round-trip cost: every OTHER landing city within
-  // DRIVE_REACH_MI, x2 categories, each its own read. Prime overlapping
-  // clusters into ONE read the same way loadPools does; extra's cities are
-  // usually close enough together (that is why they are all inside one
-  // reader's 27mi reach) to cluster into a small number of consolidated
-  // reads rather than one per city.
-  if (readCache) {
-    await primeConsolidatedInventoryReads(
-      jobs.map(({ cat, center }) => ({ catSlug: cat, city: center })),
-      readCache
-    ).catch(() => {});
-  }
-`;
-  const occurrences = original.split(DRIVE_POOL_PRIME_BLOCK).length - 1;
+  // Match the executable call, not its prose comment or line wrapping. The
+  // red-proof's target is this exact drive-job mapping; comments may be edited
+  // without changing the protected behavior.
+  const DRIVE_POOL_PRIME_RE = /if\s*\(readCache\)\s*(?:\{\s*)?await\s+primeConsolidatedInventoryReads\(\s*jobs\.map\(\(\{\s*cat\s*,\s*center\s*\}\)\s*=>\s*\(\{\s*catSlug\s*:\s*cat\s*,\s*city\s*:\s*center\s*\}\)\)\s*,\s*readCache\s*\)\.catch\(\(\)\s*=>\s*\{\s*\}\)\s*;\s*\}?/g;
+  const occurrences = [...original.matchAll(DRIVE_POOL_PRIME_RE)].length;
   ok(occurrences === 1,
-    `CONTROL: expected the drive-pool priming block to appear exactly once in lib/railsData.js for the red-prove to target unambiguously; found ${occurrences}. The block's text drifted from this guard — update either the source comment or this literal to match.`);
+    `CONTROL: expected the drive-pool priming call to appear exactly once in lib/railsData.js for the red-prove to target unambiguously; found ${occurrences}.`);
   if (occurrences === 1) {
-    const mutated = original.replace(DRIVE_POOL_PRIME_BLOCK, "");
-    ok(mutated.length === original.length - DRIVE_POOL_PRIME_BLOCK.length,
-      "CONTROL: the mutation removed exactly the target block's length — a partial match would silently prove nothing");
-    const scratchPath = join(ROOT, "lib/.redprove-drivepool-reverted.js");
+    const mutated = original.replace(DRIVE_POOL_PRIME_RE, "");
+    ok(mutated !== original,
+      "CONTROL: the mutation removed the exact drive-pool priming call — a no-op would silently prove nothing");
+    // Full guards and a developer's targeted guard can overlap. A fixed name
+    // lets one run overwrite or unlink the other run's mutation mid-load.
+    const scratchPath = join(ROOT, `lib/.redprove-drivepool-reverted-${process.pid}-${randomUUID()}.js`);
     writeFileSync(scratchPath, mutated);
     try {
       const reverted = await runComputeHarness({ entryPath: scratchPath });

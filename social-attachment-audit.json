@@ -2,14 +2,22 @@
   "schema_version": 1,
   "observed_at": "2026-09-10",
   "scope": "Prepared owner-submitted Instagram associations in this release candidate; contains no source captions. Production attachment is verified only after deployment.",
+  "association_policy": "event_associations are dedicated event or organiser posts eligible for exact event surfaces. roundup_event_mentions preserve reviewed calendar/venue mentions as audit evidence only. venue_context_associations identify the event venue without proving the named event. Neither audit-only class is published as exact event media.",
   "public_entrypoint": "Home → select Creators Pick → Browse all creator finds. Place-linked posts open a Wayfind venue card; exact-ID venues can continue to full place details. Event-only posts render on the listed Florida event route.",
   "summary": {
     "source_total": 45,
     "sources_with_place_association": 38,
-    "sources_with_event_association": 11,
+    "sources_with_event_association": 7,
     "sources_with_any_association": 45,
     "event_only_sources": 7,
-    "remaining_unmapped_sources": 0
+    "remaining_unmapped_sources": 0,
+    "place_association_count": 55,
+    "unique_place_association_count": 52,
+    "sources_with_roundup_event_mentions": 2,
+    "roundup_event_mention_count": 11,
+    "exact_event_association_count": 7,
+    "sources_with_venue_context_association": 2,
+    "venue_context_association_count": 2
   },
   "roundup_reviews": [
     {
@@ -67,11 +75,11 @@
         },
         {
           "subject": "Tampa Bay Rodeo & Family Festival",
-          "disposition": "attached_event"
+          "disposition": "roundup_mention_retained; not_published_as_exact_event_media"
         },
         {
           "subject": "SCREAM-A-GEDDON",
-          "disposition": "attached_event"
+          "disposition": "roundup_mention_retained; not_published_as_exact_event_media"
         },
         {
           "subject": "Tampa Comic Convention",
@@ -79,11 +87,11 @@
         },
         {
           "subject": "Hyde Park Fresh Market",
-          "disposition": "attached_event_and_venue"
+          "disposition": "roundup_mention_retained; venue_subject_card_only; not_published_as_exact_event_media"
         },
         {
           "subject": "Howl-O-Scream",
-          "disposition": "attached_event"
+          "disposition": "roundup_mention_retained; not_published_as_exact_event_media"
         },
         {
           "subject": "Busch Gardens Bier Fest",
@@ -99,7 +107,7 @@
         },
         {
           "subject": "Pride & Passion",
-          "disposition": "attached_event"
+          "disposition": "roundup_mention_retained; not_published_as_exact_event_media"
         },
         {
           "subject": "Girls in Aviation",
@@ -111,7 +119,7 @@
         },
         {
           "subject": "Gallagher's fall opening",
-          "disposition": "attached_event"
+          "disposition": "roundup_mention_retained; not_published_as_exact_event_media"
         },
         {
           "subject": "Kerby's Fall Kickoff",
@@ -119,7 +127,7 @@
         },
         {
           "subject": "Sunshine Market at Midtown",
-          "disposition": "attached_event"
+          "disposition": "roundup_mention_retained; not_published_as_exact_event_media"
         },
         {
           "subject": "Beats on the Street",
@@ -127,7 +135,7 @@
         },
         {
           "subject": "Westshore Marina Sunday Market",
-          "disposition": "attached_event"
+          "disposition": "roundup_mention_retained; not_published_as_exact_event_media"
         },
         {
           "subject": "Florida Avenue Brewing paint party",
@@ -158,7 +166,8 @@
         {
           "event_id": "screamageddon-2026",
           "native_wayfind_surface": "/florida-events/scream-a-geddon-dade-city-2026",
-          "renderability": "server_rendered_creator_credit_and_native_link"
+          "renderability": "server_rendered_creator_credit_and_native_link",
+          "association_kind": "exact_event"
         }
       ],
       "association_status": "prepared",
@@ -274,7 +283,8 @@
         {
           "event_id": "florida-coffee-festival-2026",
           "native_wayfind_surface": "/florida-events/florida-coffee-festival-orlando-2026",
-          "renderability": "server_rendered_creator_credit_and_native_link"
+          "renderability": "server_rendered_creator_credit_and_native_link",
+          "association_kind": "exact_event"
         }
       ],
       "association_status": "prepared",
@@ -534,16 +544,18 @@
           "renderability": "registry_backed_creator_card"
         }
       ],
-      "event_associations": [
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true,
+      "venue_context_associations": [
         {
           "event_id": "pintos-fall-at-the-farm-2026",
           "native_wayfind_surface": "/florida-events/pintos-fall-at-the-farm-2026",
-          "renderability": "server_rendered_creator_credit_and_native_link"
+          "renderability": "audit_only_place_card_evidence_not_published_as_exact_event_media",
+          "association_kind": "venue_context"
         }
       ],
-      "association_status": "prepared",
-      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
-      "native_link_renderable": true
+      "event_associations": []
     },
     {
       "shortcode": "Dc5nkpsMH9_",
@@ -732,16 +744,18 @@
           "renderability": "hydrated_place_detail_and_creator_card"
         }
       ],
-      "event_associations": [
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true,
+      "venue_context_associations": [
         {
           "event_id": "beware-the-night-brevard-zoo-2026",
           "native_wayfind_surface": "/florida-events/beware-the-night-brevard-zoo-2026",
-          "renderability": "server_rendered_creator_credit_and_native_link"
+          "renderability": "audit_only_place_card_evidence_not_published_as_exact_event_media",
+          "association_kind": "venue_context"
         }
       ],
-      "association_status": "prepared",
-      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
-      "native_link_renderable": true
+      "event_associations": []
     },
     {
       "shortcode": "Dcy54DOCLJP",
@@ -910,26 +924,30 @@
           "renderability": "registry_backed_creator_card"
         }
       ],
-      "event_associations": [
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true,
+      "roundup_event_mentions": [
         {
           "event_id": "the-berry-farm-harvest-festival-2026",
           "native_wayfind_surface": "/florida-events/the-berry-farm-harvest-festival-2026",
-          "renderability": "server_rendered_creator_credit_and_native_link"
+          "renderability": "audit_only_not_published_as_exact_event_media",
+          "association_kind": "roundup_mention"
         },
         {
           "event_id": "bedners-fall-festival-2026",
           "native_wayfind_surface": "/florida-events/bedners-fall-festival-2026",
-          "renderability": "server_rendered_creator_credit_and_native_link"
+          "renderability": "audit_only_not_published_as_exact_event_media",
+          "association_kind": "roundup_mention"
         },
         {
           "event_id": "pintos-fall-at-the-farm-2026",
           "native_wayfind_surface": "/florida-events/pintos-fall-at-the-farm-2026",
-          "renderability": "server_rendered_creator_credit_and_native_link"
+          "renderability": "audit_only_not_published_as_exact_event_media",
+          "association_kind": "roundup_mention"
         }
       ],
-      "association_status": "prepared",
-      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
-      "native_link_renderable": true
+      "event_associations": []
     },
     {
       "shortcode": "Dc3asu4uUOI",
@@ -1018,51 +1036,60 @@
           "renderability": "registry_backed_creator_card"
         }
       ],
-      "event_associations": [
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true,
+      "roundup_event_mentions": [
         {
           "event_id": "screamageddon-2026",
           "native_wayfind_surface": "/florida-events/scream-a-geddon-dade-city-2026",
-          "renderability": "server_rendered_creator_credit_and_native_link"
+          "renderability": "audit_only_not_published_as_exact_event_media",
+          "association_kind": "roundup_mention"
         },
         {
           "event_id": "tampa-bay-rodeo-2026-09-04",
           "native_wayfind_surface": "/florida-events/tampa-bay-rodeo-2026-09-04",
-          "renderability": "server_rendered_creator_credit_and_native_link"
+          "renderability": "audit_only_not_published_as_exact_event_media",
+          "association_kind": "roundup_mention"
         },
         {
           "event_id": "hyde-park-fresh-market-2026-09-06",
           "native_wayfind_surface": "/florida-events/hyde-park-fresh-market-2026-09-06",
-          "renderability": "server_rendered_creator_credit_and_native_link"
+          "renderability": "audit_only_not_published_as_exact_event_media",
+          "association_kind": "roundup_mention"
         },
         {
           "event_id": "howl-o-scream-tampa-2026",
           "native_wayfind_surface": "/florida-events/howl-o-scream-busch-gardens-tampa-2026",
-          "renderability": "server_rendered_creator_credit_and_native_link"
+          "renderability": "audit_only_not_published_as_exact_event_media",
+          "association_kind": "roundup_mention"
         },
         {
           "event_id": "gallaghers-pumpkins-2026",
           "native_wayfind_surface": "/florida-events/gallaghers-pumpkins-st-pete-2026",
-          "renderability": "server_rendered_creator_credit_and_native_link"
+          "renderability": "audit_only_not_published_as_exact_event_media",
+          "association_kind": "roundup_mention"
         },
         {
           "event_id": "sunshine-market-midtown-2026-09-26",
           "native_wayfind_surface": "/florida-events/sunshine-market-midtown-2026-09-26",
-          "renderability": "server_rendered_creator_credit_and_native_link"
+          "renderability": "audit_only_not_published_as_exact_event_media",
+          "association_kind": "roundup_mention"
         },
         {
           "event_id": "westshore-marina-sunday-market-2026-09-27",
           "native_wayfind_surface": "/florida-events/westshore-marina-sunday-market-2026-09-27",
-          "renderability": "server_rendered_creator_credit_and_native_link"
+          "renderability": "audit_only_not_published_as_exact_event_media",
+          "association_kind": "roundup_mention"
         },
         {
           "event_id": "pride-and-passion-tampa-2026",
           "native_wayfind_surface": "/florida-events/pride-and-passion-tampa-2026",
-          "renderability": "server_rendered_creator_credit_and_native_link"
+          "renderability": "audit_only_not_published_as_exact_event_media",
+          "association_kind": "roundup_mention"
         }
       ],
-      "association_status": "prepared",
-      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
-      "native_link_renderable": true
+      "event_associations": []
     },
     {
       "shortcode": "Dc2vk3eBHGQ",
@@ -1077,7 +1104,8 @@
         {
           "event_id": "screamageddon-2026",
           "native_wayfind_surface": "/florida-events/scream-a-geddon-dade-city-2026",
-          "renderability": "server_rendered_creator_credit_and_native_link"
+          "renderability": "server_rendered_creator_credit_and_native_link",
+          "association_kind": "exact_event"
         }
       ],
       "association_status": "prepared",
@@ -1145,7 +1173,8 @@
         {
           "event_id": "screamageddon-2026",
           "native_wayfind_surface": "/florida-events/scream-a-geddon-dade-city-2026",
-          "renderability": "server_rendered_creator_credit_and_native_link"
+          "renderability": "server_rendered_creator_credit_and_native_link",
+          "association_kind": "exact_event"
         }
       ],
       "association_status": "prepared",
@@ -1237,7 +1266,8 @@
         {
           "event_id": "hunsader-pumpkin-2026",
           "native_wayfind_surface": "/florida-events/hunsader-farms-pumpkin-festival-2026",
-          "renderability": "server_rendered_creator_credit_and_native_link"
+          "renderability": "server_rendered_creator_credit_and_native_link",
+          "association_kind": "exact_event"
         }
       ],
       "association_status": "prepared",
@@ -1305,7 +1335,8 @@
         {
           "event_id": "screamageddon-2026",
           "native_wayfind_surface": "/florida-events/scream-a-geddon-dade-city-2026",
-          "renderability": "server_rendered_creator_credit_and_native_link"
+          "renderability": "server_rendered_creator_credit_and_native_link",
+          "association_kind": "exact_event"
         }
       ],
       "association_status": "prepared",
@@ -1349,7 +1380,8 @@
         {
           "event_id": "hhn-orlando-2026",
           "native_wayfind_surface": "/florida-events/halloween-horror-nights-orlando-2026",
-          "renderability": "server_rendered_creator_credit_and_native_link"
+          "renderability": "server_rendered_creator_credit_and_native_link",
+          "association_kind": "exact_event"
         }
       ],
       "association_status": "prepared",

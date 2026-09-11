@@ -89,7 +89,7 @@ async function buildDateNightAnswer({ lat, lng, city, hour }) {
    * predicate or changing the score.
    */
   const toIntentPlace = (row, o) => toDateNightPlace(invRowToPlace(row), o);
-  const [dinnerPool, shoppingPool] = await Promise.all([
+  const ownedPools = Promise.all([
     fetchOwnedPool(lat, lng, {
       categories: ["food"],
       radiusMi: DATE_NIGHT_WIDEN_MI,
@@ -107,7 +107,7 @@ async function buildDateNightAnswer({ lat, lng, city, hour }) {
   ]);
 
   const pools = await Promise.all([
-    Promise.resolve(dinnerPool.places),
+    ownedPools.then(([dinner]) => dinner.places),
     serveFromInventory("food", lat, lng, radiusM, n, "dessert"),
     serveFromInventory("nightlife", lat, lng, radiusM, n, "speakeasy"),
     serveFromInventory("nightlife", lat, lng, radiusM, n, "music"),
@@ -116,7 +116,7 @@ async function buildDateNightAnswer({ lat, lng, city, hour }) {
     serveFromInventory("attractions", lat, lng, radiusM, n, "tours"),
     serveFromInventory("attractions", lat, lng, radiusM, n, "museums"),
     serveFromInventory("attractions", lat, lng, radiusM, n, "beaches"),
-    Promise.resolve(shoppingPool.places),
+    ownedPools.then(([, shopping]) => shopping.places),
   ]);
 
   // Weather is optional enrichment. Unknown conditions deliberately fail
@@ -135,6 +135,7 @@ async function buildDateNightAnswer({ lat, lng, city, hour }) {
     outdoorOK: wxSignals.outdoorOK,
     beachShow: wxSignals.beachShow,
   });
+  const [dinnerPool, shoppingPool] = await ownedPools;
   const degraded = !!dinnerPool.stats.degraded || !!shoppingPool.stats.degraded;
   return {
     rails: composed.rails,

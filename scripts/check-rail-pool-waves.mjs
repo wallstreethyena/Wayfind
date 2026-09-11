@@ -64,27 +64,28 @@ const DR = strip(readFileSync(join(ROOT, "app/components/DaypartRail.js"), "utf8
   const body = RD.slice(RD.indexOf("export async function loadRailPlaces"), RD.indexOf("export const RAIL_DATA_LIMITS"));
   ok(body.length > 800, `PROBE: loadRailPlaces body was delimited (${body.length} chars) — a -1 here would scan the whole file`);
 
-  const waves = (body.match(/await Promise\.all\(\[/g) || []).length;
-  ok(waves === 2, `the builders run in exactly TWO waves, got ${waves} Promise.all blocks`);
-
-  // The real assertion: NO pool builder is awaited on its own any more. A
-  // tenth builder added later as a bare `await` would silently put the series
-  // back, one stage at a time, and no reader would ever see why the tile got
-  // slower.
-  const solo = body.match(/pools\.\w+\s*=\s*await\s+build/g) || [];
-  ok(solo.length === 0,
-    `no pool builder may be awaited on its own — each one adds its full latency to a request the reader is timing out on. Found: ${solo.join(", ")}`);
-
-  // Wave 2 must stay wave 2: breakfast and quickeats read pools.creators.
+  // The morning questions now share ONE complete food read. Their second
+  // stage is one await, not two parallel builders. Preserve the dependency
+  // and parallel first stage rather than requiring obsolete call spelling.
   const w1 = body.indexOf("await Promise.all([");
-  const w2 = body.indexOf("await Promise.all([", w1 + 10);
-  ok(body.indexOf("buildCreatorsPool") < w2 && body.indexOf("buildCreatorsPool") > w1,
-    "buildCreatorsPool is in WAVE 1 — breakfast and quickeats list \"creators\" as a source cat and cannot start before it lands");
-  for (const name of ["isBreakfastPlace", "isQuickService"]) {
-    ok(body.indexOf(name) > w2, `${name}'s builder is in WAVE 2, after pools.creators is assigned`);
+  const assigned = body.indexOf("pools.creators = creators;");
+  const morning = body.indexOf("await buildMorningIdentityPools(pools, origin)");
+  ok(w1 >= 0, "independent builders still run in parallel");
+  const solo = body.match(/pools\.\w+\s*=\s*await\s+build/g) || [];
+  ok(solo.length === 0, "independent builders must not become sequential awaits");
+  ok(body.indexOf("buildCreatorsPool", w1) > w1 && assigned > body.indexOf("buildCreatorsPool", w1),
+    "creator results are built in the parallel stage and then assigned");
+  ok(assigned >= 0 && morning > assigned,
+    "the shared morning read starts only AFTER creator results are assigned");
+  const helper = RD.slice(RD.indexOf("async function buildMorningIdentityPools"), RD.indexOf("async function buildCreatorsPool"));
+  ok(helper.length > 500 && /addSource\(pools\.creators\)/.test(helper),
+    "morning identity includes the completed creator source");
+  for (const predicate of ["isBreakfastPlace", "isStrongQuickService"]) {
+    ok(helper.includes(predicate + "(place)"), `${predicate} runs in the shared owned identity read`);
   }
-  ok(/pools\.creators = creators;/.test(body) && body.indexOf("pools.creators = creators;") < w2,
-    "…and pools.creators is ASSIGNED before wave 2 starts, not merely computed");
+  ok(body.indexOf("pools.breakfast = morning.breakfast") > morning
+    && body.indexOf("pools.quickeats = morning.quickeats") > morning,
+    "both morning pools receive the shared read's result");
 }
 
 /* ── 2. NO BUILDER MAY MUTATE A SHARED ROW ─────────────────────────────────
@@ -179,7 +180,7 @@ const DR = strip(readFileSync(join(ROOT, "app/components/DaypartRail.js"), "utf8
     "…and the load is BOUNDED, not merely caught — a hang is not a rejection, and an unbounded await is what actually reached the reader (scripts/check-fetch-deadlines.mjs pins the deadline and its ordering against the client budget)");
   ok(/covered: !failed,/.test(RD),
     "…and reports covered:false when it did — `covered:true` with zero places tells the reader \"nothing near you clears this bar\", which is a claim about their town made on the strength of our own crash");
-  ok(/\n\s*failed,\n/.test(RD), "…and carries the fact out, so a caller can tell the two apart");
+  ok(/\bfailed,\s*(?:\n|region:)/.test(RD), "…and carries the fact out, so a caller can tell the two apart");
 }
 
 /* ── 5. THE PIPELINE ACTUALLY RUNS ─────────────────────────────────────────
