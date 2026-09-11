@@ -42,6 +42,7 @@ import { hasRealPlacePhoto, realPlacePhotoSrc } from "../../../lib/detailHero";
 import { editorialRequestQuery, carriedEditorial, hasSourcedEditorialFields } from "../../../lib/editorialLookup";
 import { whyWayfindPickedBody } from "../../../lib/insightWhy";
 import { isOwnerPick } from "../../../lib/ownerBump";
+import { ATTRACTION_DISCOVERY_IDS } from "../../../lib/tripAttractions.js";
 
 // This rail brings the full shared place card with it. Keep that code outside
 // the homepage's eager detail bundle and request it only for plausible hotel
@@ -1563,7 +1564,7 @@ export default function DetailSheet({ ctx }) {
                 );
               })()}
               {/* v6.25: "More like this" — similar experience among loaded places, matched on shared traits. */}
-              {!detail._event && ["hotel", "entertainment", "wildlife", "museum"].includes(placeKind(detail)) ? (
+              {!detail._event && (ATTRACTION_DISCOVERY_IDS.includes(detail.id) || ["hotel", "entertainment", "wildlife", "museum"].includes(placeKind(detail))) ? (
                 <TripConnections place={detail} onOpenPlace={(place) => openDetail(place, "trip_connections")} />
               ) : null}
               {!detail._event && (() => {
