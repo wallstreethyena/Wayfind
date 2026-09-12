@@ -43,8 +43,8 @@ export function checkSocialAttachments(repo) {
     venueContextLinks.set(url, ids);
   }
   const unresolved = audit.retrievable_unresolved_sources || [];
-  ensure(audit.records.length === 46, `expected 46 audited sources, got ${audit.records.length}`);
-  ensure(new Set(audit.records.map((row) => row.shortcode)).size === 46, "shortcodes must be unique");
+  ensure(audit.records.length === 47, `expected 47 audited sources, got ${audit.records.length}`);
+  ensure(new Set(audit.records.map((row) => row.shortcode)).size === 47, "shortcodes must be unique");
   ensure(unresolved.length === 4, `expected 4 retrievable unresolved sources, got ${unresolved.length}`);
   ensure(new Set([...audit.records, ...unresolved].map((row) => row.shortcode)).size === audit.records.length + unresolved.length, "mapped and unresolved shortcodes must be unique");
   for (const row of unresolved) {
@@ -96,7 +96,7 @@ export function checkSocialAttachments(repo) {
     const row = audit.records.find((candidate) => candidate.native_url === url);
     ensure(row?.venue_context_associations?.some((event) => event.event_id === eventId && event.association_kind === "venue_context"), `${eventId} venue-context post ${url} has no matching audit record`);
   }
-  ensure(audit.summary.sources_with_any_association === 46, "mapped source coverage drifted");
+  ensure(audit.summary.sources_with_any_association === 47, "mapped source coverage drifted");
   ensure(audit.summary.retrievable_reported_source_total === audit.records.length + unresolved.length, "retrievable intake total drifted");
   ensure(audit.summary.retrievable_reported_sources_mapped === audit.records.length, "retrievable mapped-source total drifted");
   ensure(audit.summary.remaining_unmapped_sources === unresolved.length, "retrievable unresolved-source total drifted");
