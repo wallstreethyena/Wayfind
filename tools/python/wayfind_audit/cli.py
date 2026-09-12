@@ -37,6 +37,59 @@ def table(rows, columns):
     return "\n".join(lines)
 
 
+def domain_outcome_rows(section):
+    rows = []
+    for summary in section["jobs"]:
+        latest = summary["latest"]
+        outcome = latest["outcome"]
+        if outcome is None:
+            detail = "unknown: " + latest["reason"]
+        elif summary["job"] == "photo-repair":
+            detail = (
+                f"recovered={outcome['recovered']} classified={outcome['classified']} "
+                f"budget_blocked={outcome['budget_blocked']} released={outcome['released']} "
+                f"worker_errors={outcome['worker_errors']}"
+            )
+            if outcome["partial"]:
+                detail += " PARTIAL: " + outcome["partial_reason"]
+                if outcome["partial_reason"] == "work_budget":
+                    detail += (
+                        f" {outcome['work_budget_seconds']}s after "
+                        f"{outcome['recovered'] + outcome['classified'] + outcome['budget_blocked'] + outcome['worker_errors']}/"
+                        f"{outcome['attempted_limit']} attempted"
+                    )
+        elif summary["job"] == "photo-monitor":
+            detail = (
+                f"reported_placeholder_rate={outcome['reported_placeholder_rate_pct']}% "
+                f"sampled={outcome['sampled']} "
+                f"alert_state={outcome['alert_state']}"
+            )
+        else:
+            detail = (
+                f"accepted={outcome['accepted']} valid_rejections={outcome['valid_rejections']} "
+                f"worker_errors={outcome['worker_errors']} deferred={outcome['deferred']} "
+                f"worklist_state={outcome['worklist_state']}"
+            )
+            if outcome["partial"] is True:
+                detail += " PARTIAL"
+            elif outcome["partial"] is None:
+                detail += " completion=unknown"
+        rows.append(
+            {
+                "job": summary["job"],
+                "runs": summary["runs"],
+                "interpreted_runs": summary["interpreted_runs"],
+                "unknown_runs": summary["unknown_runs"],
+                "partial_runs": (
+                    "n/a" if summary["job"] == "photo-monitor" else summary["partial_runs"]
+                ),
+                "latest_at": latest["ran_at"],
+                "latest_domain_outcome": detail,
+            }
+        )
+    return rows
+
+
 def markdown(report):
     demo = "SYNTHETIC DEMO" if report["source_kind"] == "fixture" else "LIVE DATA SNAPSHOT"
     pairs = report["duplicates"]["candidate_pairs"]
@@ -83,9 +136,10 @@ def markdown(report):
         "",
         table(report["ledger"], ["month", "sku", "used", "cap", "utilization_pct", "state"]),
         "",
-        "## Job outcomes",
+        "## Raw job pulse counters",
         "",
         f"Window: {cell(report['observation_window']['since'])} to {cell(report['observation_window']['until'])} (end exclusive).",
+        "These producer-specific counters are telemetry; succeeded does not necessarily mean restored or accepted.",
         "",
         table(
             report["jobs"],
@@ -95,15 +149,15 @@ def markdown(report):
                 "attempted",
                 "succeeded",
                 "failed",
-                "zero_output_runs",
+                "zero_pulse_succeeded_runs",
                 "idle_runs",
                 "zero_attempt_failure_runs",
                 "inconsistent_counter_runs",
-                "success_pct",
+                "pulse_succeeded_pct",
             ],
         ),
         "",
-        "## Latest 24-hour job outcomes",
+        "## Latest 24-hour raw pulse counters",
         "",
         f"Since {cell(report['recent_since'])}. Idle means all three counters are zero. Zero-attempt failures are separate; old failures do not prove a current outage.",
         "",
@@ -115,9 +169,47 @@ def markdown(report):
                 "attempted",
                 "succeeded",
                 "failed",
-                "zero_output_runs",
+                "zero_pulse_succeeded_runs",
                 "idle_runs",
                 "zero_attempt_failure_runs",
+            ],
+        ),
+        "",
+        "## Domain job outcomes",
+        "",
+        "The raw pulse counters above use producer-specific units. Photo repair classification is not restoration; photo monitor pulse failure can mean a new alert rather than broken images; place-photo rejections are not worker errors. A missing, malformed or counter-inconsistent note stays unknown.",
+        "",
+        "### Full observation window",
+        "",
+        f"{cell(report['job_outcomes']['full_window']['window']['since'])} to {cell(report['job_outcomes']['full_window']['window']['until'])} (end exclusive).",
+        "",
+        table(
+            domain_outcome_rows(report["job_outcomes"]["full_window"]),
+            [
+                "job",
+                "runs",
+                "interpreted_runs",
+                "unknown_runs",
+                "partial_runs",
+                "latest_at",
+                "latest_domain_outcome",
+            ],
+        ),
+        "",
+        "### Latest 24 hours within the snapshot",
+        "",
+        f"{cell(report['job_outcomes']['latest_24_hours']['window']['since'])} to {cell(report['job_outcomes']['latest_24_hours']['window']['until'])} (end exclusive).",
+        "",
+        table(
+            domain_outcome_rows(report["job_outcomes"]["latest_24_hours"]),
+            [
+                "job",
+                "runs",
+                "interpreted_runs",
+                "unknown_runs",
+                "partial_runs",
+                "latest_at",
+                "latest_domain_outcome",
             ],
         ),
         "",

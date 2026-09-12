@@ -5,6 +5,8 @@ import json
 from datetime import datetime
 from pathlib import Path
 
+SNAPSHOT_SCHEMA_VERSION = 2
+
 PLACE_COLUMNS = [
     "place_id",
     "name",
@@ -23,7 +25,7 @@ PLACE_COLUMNS = [
     "sourced_facts",
 ]
 LEDGER_COLUMNS = ["month", "sku", "used", "cap"]
-JOB_COLUMNS = ["id", "job", "ran_at", "attempted", "succeeded", "failed"]
+JOB_COLUMNS = ["id", "job", "ran_at", "attempted", "succeeded", "failed", "note"]
 COLUMNS = {"places": PLACE_COLUMNS, "ledger": LEDGER_COLUMNS, "jobs": JOB_COLUMNS}
 # SQL content lengths are conservative diagnostics; see the boundary note below.
 QUERIES = {
@@ -43,7 +45,7 @@ left join public.wf_editorial e using (place_id)
 order by i.place_id
 """,
     "ledger": "select month, sku, used, cap from public.wf_spend_ledger order by month, sku",
-    "jobs": """select id, job, ran_at, attempted, succeeded, failed
+    "jobs": """select id, job, ran_at, attempted, succeeded, failed, note
 from public.wf_job_pulse where ran_at >= %(since)s and ran_at < %(until)s
 order by ran_at, id""",
 }
@@ -76,8 +78,8 @@ def integer(value, label, nullable=False):
 
 
 def validate(data):
-    if not isinstance(data, dict) or data.get("schema_version") != 1:
-        raise AuditError("Expected snapshot schema_version 1")
+    if not isinstance(data, dict) or data.get("schema_version") != SNAPSHOT_SCHEMA_VERSION:
+        raise AuditError(f"Expected snapshot schema_version {SNAPSHOT_SCHEMA_VERSION}")
     if data.get("source_kind") not in ("production", "fixture"):
         raise AuditError("source_kind must be production or fixture")
     timestamp(data.get("captured_at"))
@@ -146,8 +148,10 @@ def validate(data):
                     raise AuditError("jobs: job name required")
                 if not since <= timestamp(row[2]) < until:
                     raise AuditError("jobs: row outside declared observation window")
-                for v in row[3:]:
+                for v in row[3:6]:
                     integer(v, "job counter")
+                if row[6] is not None and not isinstance(row[6], str):
+                    raise AuditError("jobs: note must be text or null")
     return data
 
 
@@ -182,7 +186,11 @@ def render_export_sql():
     sql = "-- Read-only single-statement export. No editorial prose or credentials.\n"
     sql += "with clock as (select statement_timestamp() as until),\n"
     sql += ",\n".join(name + " as (" + query + ")" for name, query in queries.items())
-    sql += "\nselect jsonb_build_object('schema_version',1,'source_kind','production',"
+    sql += (
+        "\nselect jsonb_build_object('schema_version',"
+        + str(SNAPSHOT_SCHEMA_VERSION)
+        + ",'source_kind','production',"
+    )
     sql += "'scope','all wf_inventory rows','consistency','single_statement',"
     sql += "'captured_at',(select until from clock),'since',(select until - interval '7 days' from clock),"
     sql += "'until',(select until from clock),'expected_counts',jsonb_build_object("
