@@ -48,6 +48,19 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Guard suite (all of scripts/guards.txt)
         run: node scripts/run-guards.mjs
+      # The regular suite remains runnable in browser-free deploy images. Merge
+      # CI has installed Chromium above, so absence/launch failure is fatal here.
+      # This second invocation also emits reviewable dimensions and screenshots.
+      - name: Required rendered place-card standard
+        run: node scripts/check-place-card-standard.mjs --require-browser
+      - name: Upload place-card geometry evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: place-card-standard-${{ github.sha }}
+          path: artifacts/place-card-standard/
+          if-no-files-found: error
+          retention-days: 14
       - name: Production build
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"

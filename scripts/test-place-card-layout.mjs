@@ -111,7 +111,7 @@ function resolveChromium() {
 }
 const launchOpts = resolveChromium();
 if (!launchOpts) {
-  console.log("test-place-card-layout: SKIPPED — no Chromium on this machine (build image); the layout contract is enforced on cloud dev and the Mac merge pipeline, both of which run it with a real browser");
+  console.log("test-place-card-layout: NOT RUN — Chromium is unavailable; no rendered layout claim was verified on this machine");
   process.exit(0);
 }
 const browser = await chromium.launch(launchOpts);

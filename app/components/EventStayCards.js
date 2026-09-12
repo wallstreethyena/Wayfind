@@ -14,7 +14,7 @@ export default function EventStayCards({ places, title = "Stay near this event",
     return () => setStays?.([]);
   }, [places, setStays]);
   return <EventPlaceRail railClassName="wf-event-stays-rail" title={title} description={description} label={label} count={places.length} headingAction={headingAction}>
-    {places.map((place, index) => <li className="wf-event-stay" key={place.id}>
+    {places.map((place, index) => <li className="wf-event-stay wf-place-card-slot" key={place.id}>
       <ul className="wf-event-stay-card">
       <IconicPlaceCard eagerMedia place={place} rank={index + 1} href={place.detailHref}
         editorial={place.blurb || null} editorialTier="known" surface={surface}

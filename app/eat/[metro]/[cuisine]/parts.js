@@ -25,16 +25,11 @@ import { useEffect, useRef } from "react";
 import { track } from "../../../../lib/track";
 import { emitCommerce, rankBucket, mintClickId } from "../../../../lib/commerce";
 import { showsDisclosure } from "../../../../lib/rowCta";
+import IconicPlaceCard from "../../../components/IconicPlaceCard";
 // funnelProps emits the COMMERCE dialect (city_id/category/canonical_place_id).
 // Sending `metro`/`cuisine` here would be silently DROPPED by the commerce
 // whitelist and the funnel breakdown would return nothing (lib/funnel.js).
 import { funnelProps } from "../../../../lib/funnel";
-
-const STARS = (r) => {
-  if (r == null) return null;
-  const full = Math.max(0, Math.min(5, Math.round(Number(r))));
-  return "★★★★★".slice(0, full) + "☆☆☆☆☆".slice(0, 5 - full);
-};
 
 export default function CuisineListClient({ places, metro, cuisine }) {
   const rootRef = useRef(null);
@@ -67,54 +62,26 @@ export default function CuisineListClient({ places, metro, cuisine }) {
   }, [places.length, metro, cuisine]);
 
   return (
-    <div className="wf-sl-list" ref={rootRef}>
+    <ol className="wf-place-card-list" ref={rootRef} style={{ listStyle: "none", margin: 0, padding: 0 }}>
       {places.map((p, i) => {
         const cta = p.cta;
-        const stars = STARS(p.rating);
         return (
-          <div className={"wf-sl-row" + (i === 0 ? " wf-sl-first" : "")} key={p.id}>
-            <div className="wf-sl-rank" aria-hidden="true">{i + 1}</div>
-
-            <div className="wf-sl-info">
-              {/* The name still opens the place, and the existing list->detail
-                  event is unchanged — the funnel already being measured keeps
-                  working across this redesign. */}
-              <a
-                className="wf-sl-name"
+          <li className="wf-place-card-slot" key={p.id}>
+            <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+              <IconicPlaceCard
+                place={{ ...p, wfScore: p.wfScore, priceLevel: p.price, primaryType: "restaurant", types: ["restaurant"], cardCategory: "Restaurant" }}
+                rank={i + 1}
                 href={"/p/" + encodeURIComponent(p.id)}
-                onClick={() => {
+                editorial={p.hook || null}
+                editorialTier="known"
+                surface="cuisine_shortlist"
+                onOpen={() => {
                   try { track("cuisine_place_open", { place_id: p.id, place_name: p.name, cuisine, metro, rank: i + 1 }); } catch (e) {}
+                  window.location.assign("/p/" + encodeURIComponent(p.id));
                 }}
-              >
-                {p.name}
-              </a>
-
-              <div className="wf-sl-badges">
-                {stars ? <span className="wf-sl-stars" aria-hidden="true">{stars}</span> : null}
-                {p.rating != null ? <span className="wf-sl-rating">{p.rating}</span> : null}
-                {p.reviews ? <span className="wf-sl-reviews">{p.reviews.toLocaleString()} reviews</span> : null}
-                {/* A separator is drawn only when BOTH sides exist, so a row with
-                    no price never renders a stranded "·". */}
-                {p.price && (p.rating != null || p.reviews) ? <span className="wf-sl-dot" aria-hidden="true">·</span> : null}
-                {p.price ? <span className="wf-sl-price">{p.price}</span> : null}
-              </div>
-
-              {/* Rendered ONLY when real editorial exists. No placeholder prose: a
-                  missing hook is an honest blank, not an invitation to invent one.
-                  Measured coverage is ~22% of rows, and that is the truth. */}
-              {p.hook ? (
-                <div className="wf-sl-known">Known for <b>{p.hook}</b></div>
-              ) : null}
-
-              {/* Deal chip: only where a place matched a LIVE registry deal, with
-                  its REAL expiry from couponEndsLabel. Never a hardcoded date. */}
-              {p.deal ? (
-                <div className="wf-sl-deal">
-                  <span aria-hidden="true">✦</span>&nbsp;{p.deal.title}
-                  {p.deal.ends ? <span className="wf-sl-exp">&nbsp;· {p.deal.ends}</span> : null}
-                </div>
-              ) : null}
-            </div>
+              />
+            </ul>
+            {p.deal ? <div className="wf-sl-deal"><span aria-hidden="true">✦</span>&nbsp;{p.deal.title}{p.deal.ends ? <span className="wf-sl-exp">&nbsp;· {p.deal.ends}</span> : null}</div> : null}
 
             <div className="wf-sl-actions" data-offer={p.id} data-cta={cta.type} data-rank={i + 1}>
               {cta.href ? (
@@ -161,9 +128,9 @@ export default function CuisineListClient({ places, metro, cuisine }) {
                 <div className="wf-sl-ftc">We may earn a commission — never affects ranking.</div>
               ) : null}
             </div>
-          </div>
+          </li>
         );
       })}
-    </div>
+    </ol>
   );
 }

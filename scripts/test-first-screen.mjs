@@ -307,7 +307,7 @@ ok(!/src: "events_empty"/.test(code),
 
 // 4. Geometry is reserved from SHARED constants, so skeleton and live rail
 //    cannot drift apart and the swap stays shift-free.
-ok(/const EV_RAIL_MIN_H = \d+/.test(code), "EV_RAIL_MIN_H constant missing");
+ok(/import \{ PLACE_CARD_HEIGHT_PX \} from "\.\.\/lib\/placeCardStandard.js"/.test(code) && /const EV_RAIL_MIN_H = PLACE_CARD_HEIGHT_PX/.test(code), "event rail reservation must use the shared place-card height constant");
 // v8: the rail reserves its own geometry in CSS rather than from a JS constant,
 // because it has no loading state to stay in sync with — the tile's box is
 // fixed before the art decodes (width + aspect from --wf8-tw / --wf8-ratio) and
