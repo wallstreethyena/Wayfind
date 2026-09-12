@@ -66,7 +66,7 @@ export async function GET(request) {
     // reusing a cache written before that registry entry existed. v14 adds
     // compact creator-reel credit to event cards whose detail page can play it.
     const key = `fall-intents:v14:${today}:${geoCell(lat)}:${geoCell(lng)}`;
-    const cached = await fastCachedRail(key, async () => {
+    let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
         ...Object.keys(FALL_PLACE_IDS),
@@ -279,8 +279,8 @@ export async function GET(request) {
     // Derive against the full cached rails outside the cache compute. This
     // makes the selector work immediately with v14 entries written before the
     // metadata existed, without changing the rail cache epoch or its refresh.
-    const answer = { ...cached.value, stayDestinations: fallStayDestinations(cached.value.rails) };
-    return Response.json(windowRailAnswer(answer, full), { headers });
+    cached = { ...cached, value: { ...cached.value, stayDestinations: fallStayDestinations(cached.value.rails) } };
+    return Response.json(windowRailAnswer(cached.value, full), { headers });
   } catch (error) {
     console.error("[api/events/fall] inventory unavailable", { message: String(error?.message || error) });
     return json({ error: "Fall inventory is temporarily unavailable" }, 503, "no-store");

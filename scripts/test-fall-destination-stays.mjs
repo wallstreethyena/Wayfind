@@ -96,8 +96,8 @@ const fallSource = fs.readFileSync(new URL("../app/components/FallIntentRails.js
 assert.match(fallSource, /firstPopulatedRail[\s\S]*index === firstPopulatedRail \? <DestinationStays/, "the automatic stays rail mounts after the first populated Fall rail");
 assert.doesNotMatch(fallSource, /<DestinationStays[^>]*(?:center|lat|lng)=/, "the visitor center is never passed as the hotel destination");
 const fallRoute = fs.readFileSync(new URL("../app/api/events/fall/route.js", import.meta.url), "utf8");
-assert.match(fallRoute, /const answer = \{ \.\.\.cached\.value, stayDestinations: fallStayDestinations\(cached\.value\.rails\) \}/, "destination metadata derives from full cached rails after cache lookup, so pre-deploy cache entries also gain it");
-assert.match(fallRoute, /windowRailAnswer\(answer, full\)/, "wire pagination retains the full-answer destination metadata");
+assert.match(fallRoute, /cached = \{ \.\.\.cached, value: \{ \.\.\.cached\.value, stayDestinations: fallStayDestinations\(cached\.value\.rails\) \} \}/, "a request-local clone derives destination metadata from full cached rails, so pre-deploy cache entries gain it without mutating shared cache state");
+assert.match(fallRoute, /windowRailAnswer\(cached\.value, full\)/, "wire pagination retains the full-answer destination metadata through the established cache-value envelope");
 
 const { GET } = await import("../app/api/trip-connections/route.js");
 for (const url of [
