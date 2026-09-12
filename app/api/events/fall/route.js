@@ -27,6 +27,7 @@ import { FALL_DISCOVERIES_2026, FALL_DISCOVERY_RAIL, FALL_SEASONAL_PLACE_IDS } f
 import { windowRailAnswer } from "../../../../lib/railResponse.js";
 import { FALL_COLLECTION_POSTER, FALL_EVENT_VENUE_PLACE_IDS, fallEventCardImageSrc, mergeFallDiscoveryRows } from "../../../../lib/fallEventImage.js";
 import { eventSocialPosts } from "../../../../lib/eventSocial.js";
+import { fallStayDestinations } from "../../../../lib/fallStayDestinations.js";
 
 const FALL_DB_DEADLINE_MS = 3500;
 
@@ -275,7 +276,11 @@ export async function GET(request) {
       if (!paged) return Response.json({ error: "unknown rail" }, { status: 404, headers: { "cache-control": "no-store" } });
       return Response.json({ rail: railId, today: cached.value.today, phase: cached.value.phase, ...paged }, { headers });
     }
-    return Response.json(windowRailAnswer(cached.value, full), { headers });
+    // Derive against the full cached rails outside the cache compute. This
+    // makes the selector work immediately with v14 entries written before the
+    // metadata existed, without changing the rail cache epoch or its refresh.
+    const answer = { ...cached.value, stayDestinations: fallStayDestinations(cached.value.rails) };
+    return Response.json(windowRailAnswer(answer, full), { headers });
   } catch (error) {
     console.error("[api/events/fall] inventory unavailable", { message: String(error?.message || error) });
     return json({ error: "Fall inventory is temporarily unavailable" }, 503, "no-store");

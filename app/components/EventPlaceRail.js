@@ -6,7 +6,7 @@ import { RailNav, RailDots } from "./RailCard";
 
 // Event pages use the same heading, paging controls and dots as home posters.
 // Each instance owns its target, so Nearby and Stays cannot scroll each other.
-export default function EventPlaceRail({ title, description, label, count, railClassName = "", children }) {
+export default function EventPlaceRail({ title, description, label, count, railClassName = "", headingAction = null, children }) {
   const railId = "event-places-" + useId().replace(/:/g, "");
   if (!count) return null;
   return <div className="wf-event-place-rail">
@@ -20,6 +20,7 @@ export default function EventPlaceRail({ title, description, label, count, railC
       @media(min-width:1100px){.wf-event-place-rail .wf-event-stay{min-width:min(440px,100%)}}
     ` }} />
     <RailHeading title={title} description={description}>
+      {headingAction}
       <RailNav railId={railId} count={count} total={count} loaded={count} unit="places" />
     </RailHeading>
     <ol className={`wf-rail${railClassName ? " " + railClassName : ""}`} data-rail={railId} aria-label={label} tabIndex={0}>{children}</ol>
