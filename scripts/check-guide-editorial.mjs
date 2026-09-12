@@ -28,7 +28,7 @@ const hubSource = fs.readFileSync(path.resolve('app/guides/page.js'), 'utf8');
 const tracked = new Set(execFileSync('git', ['ls-files', 'public'], { encoding: 'utf8' }).trim().split('\n'));
 ok(tracked.size > 0, 'tracked image inventory is nonempty');
 ok(slugs.length > 0, 'the guide registry is nonempty before measuring coverage');
-ok(slugs.length === 41, `the reviewed publication set remains 41 guides (got ${slugs.length})`);
+ok(slugs.length === 42, `the reviewed publication set remains 42 guides (got ${slugs.length})`);
 ok(pageSource.includes('<div style={S.page} className="wf-guide-editorial">') && !pageSource.includes('<main style={S.page}'), 'guide route uses a div inside the application main landmark');
 ok(hubSource.includes('<div className={styles.page}>') && !hubSource.includes('<main className={styles.page}>'), 'guide index uses a div inside the application main landmark');
 ok(!pageSource.includes('Seasonal menus can change'), 'the general source register has no blanket seasonal-menu label');
