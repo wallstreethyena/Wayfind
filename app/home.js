@@ -70,6 +70,7 @@ import { cardAffiliateProvider } from "../lib/cardAffiliate";
 import ViatorCommerceLink from "./components/ViatorCommerceLink";
 import HomeAffiliateActivityRail from "./components/HomeAffiliateActivityRail";
 import { commerceHref } from "../lib/commerce";
+import { themeParkIntent } from "../lib/themeParks";
 // v4.86: every place search flows through the multi-source aggregator
 // (Google + Foursquare, merged + deduped) — same signature, bigger pool.
 import { searchPlaces } from "../lib/sources";
@@ -144,6 +145,7 @@ const loadThingsToDo = () => import("./components/ThingsToDoList");
 const ThingsToDoList = nextDynamic(loadThingsToDo, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
 const UnifiedBrowseCommerceRail = nextDynamic(() => import("./components/UnifiedBrowseCommerceRail"), { ssr: false });
 const TripConnections = nextDynamic(() => import("./components/TripConnections"), { ssr: false });
+const ThemeParkRail = nextDynamic(() => import("./components/ThemeParkRail"), { ssr: false });
 const SHEET_LOADERS = [loadHookDetail, loadAccount, loadMenu, loadAuth, loadDetail, loadIntro, loadSocialFind];
 const SCREEN_LOADERS = [loadSurprise, loadCoupons, loadSaved, loadItinerary, loadShared, loadEventsScreen, loadMap, loadExperience, loadThingsToDo, ...SHEET_LOADERS];
 const SurpriseScreen = nextDynamic(loadSurprise, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
@@ -8400,20 +8402,23 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     setSuggestions([]);
     // Check if it's a Wayfind experience keyword first (burgers, rooftop, live music…).
     const ql = q.toLowerCase();
-    const feel = feelingToMoment(ql);
-    if (feel) { setQuery(""); try { logEvent("feeling_search", null, { q: ql.slice(0, 40) }); } catch (e) {} openMoment(feel); return; }
-    if (ql.length >= 3) {
-      const expHit = Object.keys(EXPERIENCES).find((k) => {
-        const e = EXPERIENCES[k];
-        const lab = (e.label || "").toLowerCase();
-        // EXACT key/label match only — label-substring matching swallowed CITY names
-        // that appear inside experience labels: typing "Sarasota" matched the
-        // "Best of Sarasota" label, opened that sheet, and the app never
-        // recentered (the exact bug #361 fixed then still exhibited). A bare
-        // city must fall through to the area-first search below.
-        return k === ql || lab === ql || (e.keyword && e.keyword.toLowerCase().includes(ql));
-      });
-      if (expHit) { setQuery(""); openExperience(expHit); return; }
+    const parkIntent = themeParkIntent(q);
+    if (!parkIntent) {
+      const feel = feelingToMoment(ql);
+      if (feel) { setQuery(""); try { logEvent("feeling_search", null, { q: ql.slice(0, 40) }); } catch (e) {} openMoment(feel); return; }
+      if (ql.length >= 3) {
+        const expHit = Object.keys(EXPERIENCES).find((k) => {
+          const e = EXPERIENCES[k];
+          const lab = (e.label || "").toLowerCase();
+          // EXACT key/label match only — label-substring matching swallowed CITY names
+          // that appear inside experience labels: typing "Sarasota" matched the
+          // "Best of Sarasota" label, opened that sheet, and the app never
+          // recentered (the exact bug #361 fixed then still exhibited). A bare
+          // city must fall through to the area-first search below.
+          return k === ql || lab === ql || (e.keyword && e.keyword.toLowerCase().includes(ql));
+        });
+        if (expHit) { setQuery(""); openExperience(expHit); return; }
+      }
     }
     // v6.60 (owner, 2026-07-25) -- CITY INTENT WINS.
     //
@@ -8455,6 +8460,34 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       setQuery("");
     };
     try {
+      // Theme park intent is resolved from the same exact identity catalogue
+      // as the permanent rails. Exact searches open the verified park card;
+      // broad Disney, Universal, Orlando, or Florida searches open the scored
+      // park set. A temporarily unavailable owned inventory endpoint falls
+      // through to the standard search ladder below instead of dead-ending.
+      if (parkIntent) {
+        try {
+          const parkMode = /orlando/i.test(q) && parkIntent.kind === "broad" ? "orlando" : "flagship";
+          const response = await fetch(`/api/theme-parks?mode=${parkMode}&q=${encodeURIComponent(q)}`);
+          const body = response.ok ? await response.json() : null;
+          const parkRows = body && Array.isArray(body.items) ? body.items : [];
+          if (parkRows.length) {
+            setQuery("");
+            setSearchMode(true);
+            setLoading(false);
+            if (parkIntent.kind === "exact") {
+              openDetail(parkRows[0], "theme_park_search");
+            } else {
+              const title = parkIntent.kind === "operator"
+                ? `${parkIntent.operator === "disney" ? "Disney" : "Universal"} parks`
+                : /orlando/i.test(q) ? "Orlando's Biggest Parks" : "Florida's Biggest Parks";
+              setHookDetail({ id: "theme-parks-" + Date.now(), theme: "search", title, themeTitle: title, label: title, themeBody: "Verified park cards with one current ticket path, ranked by Wayfind Score.", emoji: "🎢", accent: C.accent, places: parkRows, sections: null });
+            }
+            try { logEvent("theme_park_search", parkRows[0], { q: q.slice(0, 80), kind: parkIntent.kind, results: parkRows.length }); } catch (error) {}
+            return;
+          }
+        } catch (error) {}
+      }
       // GUIDE PLACE-INTENT (fix for "guides → app converts 0%", 2026-08-07).
       // A guide's "Open in Wayfind" declares intent=place: the query names one
       // specific place, so the area-first rule below must NOT apply — that rule
@@ -10324,6 +10357,19 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                         contentId={cityNow}
                         onLog={(action, place, extra) => { try { logEvent(action, place, extra); } catch (e) {} }}
                       />}
+                      {!browseCat && <ThemeParkRail
+                        mode="flagship"
+                        onOpenPlace={(place) => openDetail(place, "theme_park_rail")}
+                        isSaved={isSaved}
+                        isOnTrip={isOnTrip}
+                        liked={liked}
+                        disliked={disliked}
+                        onSave={(event, place) => { try { quickSaveFavorite(place); } catch (error) {} }}
+                        onItinerary={(event, place) => { try { addToItinerary(place); } catch (error) {} }}
+                        onLike={(event, place) => { try { toggleLike(event, place); } catch (error) {} }}
+                        onDislike={(event, place) => { try { toggleDislike(event, place); } catch (error) {} }}
+                        onShare={(place) => shareLink(place.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(place.id)), () => showToast("Link copied"), null, () => { try { addShared(place); giveawayMark(place.id); } catch (error) {} })}
+                      />}
               {/* v6.97 — THE MISSING BRIDGE (owner's own note on the mockup). The
                   guides pull real traffic from Google every month and every reader
                   dead-ends there, because nothing on the home screen has ever linked
@@ -10358,6 +10404,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                       list (wf_things_to_do) — the stacked Viator rail + Bookable
                       Experiences chips are gone from this page; tours interleave and
                       earn their rank. Family keeps its bookable rail. */}
+                  {browseCat === "family" && <ThemeParkRail mode="family" onOpenPlace={(place) => openDetail(place, "theme_park_family")} isSaved={isSaved} isOnTrip={isOnTrip} liked={liked} disliked={disliked} onSave={(event, place) => quickSaveFavorite(place)} onItinerary={(event, place) => addToItinerary(place)} onLike={(event, place) => toggleLike(event, place)} onDislike={(event, place) => toggleDislike(event, place)} onShare={(place) => shareLink(place.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(place.id)), () => showToast("Link copied"))} />}
+                  {browseCat === "attractions" && (!sub || sub === "all" || sub === "themeparks") && <ThemeParkRail mode={Culture.resolveMetro(locName) === "orlando" ? "orlando" : "flagship"} onOpenPlace={(place) => openDetail(place, "theme_park_activities")} isSaved={isSaved} isOnTrip={isOnTrip} liked={liked} disliked={disliked} onSave={(event, place) => quickSaveFavorite(place)} onItinerary={(event, place) => addToItinerary(place)} onLike={(event, place) => toggleLike(event, place)} onDislike={(event, place) => toggleDislike(event, place)} onShare={(place) => shareLink(place.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(place.id)), () => showToast("Link copied"))} />}
                   {browseCat === "family" && center && <UnifiedBrowseCommerceRail places={view} key={[browseCat, sub, center.lat, center.lng].join(":")} cat="family" sub={sub} initialExperiences={!sub || sub === "all" ? (browseTours?.key === browseTourKey ? browseTours.items : null) : undefined} categories={["attractions"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
                   {browseCat === "attractions" && center && <UnifiedBrowseCommerceRail places={view} key={[browseCat, sub, center.lat, center.lng].join(":")} cat="attractions" sub={sub} initialExperiences={!sub || sub === "all" ? (browseTours?.key === browseTourKey ? browseTours.items : null) : undefined} categories={["attractions", "more"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
                   {browseCat === "hotels" && center && view.length > 0 && <UnifiedBrowseCommerceRail places={view} key={[browseCat, sub, center.lat, center.lng].join(":")} cat="hotels" sub={sub} categories={["stays"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
