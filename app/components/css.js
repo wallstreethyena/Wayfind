@@ -572,18 +572,25 @@ ${WF_SKELETON_CSS}
 .wf-place-card.is-disliked{border-color:rgba(248,113,113,.28)!important}
 @media(max-width:430px){
   .wf-place-card{--wf-card-badge-w:78px}
-  .wf-place-card-score{inset:auto auto 8px 5px}
-  .wf-place-card-score~.wf-place-card-layout .wf-place-card-heading{padding-right:0}
-  .wf-place-card-photo-attr{top:8px;right:8px;bottom:auto}
+  .wf-place-card-score~.wf-place-card-layout .wf-place-card-category{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .wf-place-card-score~.wf-place-card-layout .wf-place-card-name{width:calc(100% + var(--wf-card-badge-w) + 10px);margin-top:27px}
   .wf-place-card-layout{--wf-place-card-media:88px}
   .wf-place-card-layout>img,.wf-place-card-layout>.wf-place-card-media{width:88px!important}
-  .wf-place-card-content{padding-inline:10px!important}
+  .wf-place-card-content{padding:10px 10px 8px!important}
   .wf-place-card-name{font-size:15px!important}
+  .wf-place-card-meta{margin:3px 0 2px!important}
   .wf-place-card-meta>span{font-size:9.75px!important}
+  .wf-place-card-award{min-height:22px;margin:0 0 2px;padding:2px 7px 2px 4px}
+  .wf-place-card-highlights{margin-bottom:2px!important}
+  .wf-place-card-highlights>button,.wf-place-card-highlights>span{min-height:21px;padding:1px 7px!important}
   .wf-place-card-highlights>button{font-size:9px!important}
-  .wf-sheet-card-actions{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px!important}
-  .wf-sheet-card-actions:has(.wf-place-card-book){grid-template-columns:repeat(5,minmax(0,1fr))}
-  .wf-sheet-card-actions>.wf-place-card-like,.wf-sheet-card-actions>.wf-place-card-dislike{width:100%!important;min-width:0!important;flex:1 1 auto}
+  .wf-place-card-take{-webkit-line-clamp:1}
+  .wf-rail-card-cta{min-height:30px}
+  .wf-place-card-actions{--wf-act-h:34px;padding-top:4px}
+  .wf-sheet-card-actions{grid-template-columns:minmax(44px,1fr) 26px 26px minmax(48px,1fr);gap:4px!important}
+  .wf-sheet-card-actions:has(.wf-place-card-book){grid-template-columns:minmax(44px,1fr) 26px 26px minmax(48px,1fr)}
+  .wf-sheet-card-actions>.wf-place-card-book{grid-column:1/-1}
+  .wf-sheet-card-actions>.wf-place-card-like,.wf-sheet-card-actions>.wf-place-card-dislike{width:100%!important;min-width:0!important;flex:1 1 auto;padding-inline:0!important}
   .wf-sheet-card-actions>a,.wf-sheet-card-actions>button,.wf-sheet-card-actions>span{min-width:0!important;padding-inline:4px!important;font-size:9.5px!important;overflow:hidden}
 }
 @media(min-width:${WF_DESKTOP_BP}px){
@@ -785,8 +792,9 @@ a:has(>.wf-place-card)>.wf-place-card .wf-place-card-share{color:#DFE5EE!importa
   color:#0B0E1A;
 }
 .wf-pcc-more{color:#94A3B8;font-size:10.5px;font-weight:800}
-@media(max-width:390px){
-  .wf-place-card-credit{gap:6px;padding-top:8px}
+@media(max-width:430px){
+  .wf-place-card-credit{gap:5px;padding-top:3px}
+  .wf-place-card-credit~.wf-place-card-actions{padding-top:4px}
   .wf-pcc-plat{padding:0 6px;letter-spacing:.03em}
   .wf-pcc-name{font-size:11px}
 }

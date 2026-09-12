@@ -46,11 +46,9 @@ jobs:
       # explicitly skip, which is insufficient evidence for a merge review.
       - name: Install Chromium for rendered guards
         run: npx playwright install --with-deps chromium
-      - name: Guard suite (all of scripts/guards.txt)
-        run: node scripts/run-guards.mjs
       # The regular suite remains runnable in browser-free deploy images. Merge
       # CI has installed Chromium above, so absence/launch failure is fatal here.
-      # This second invocation also emits reviewable dimensions and screenshots.
+      # Run this first so layout failures always have reviewable evidence.
       - name: Required rendered place-card standard
         if: always()
         run: node scripts/check-place-card-standard.mjs --require-browser
@@ -62,6 +60,8 @@ jobs:
           path: artifacts/place-card-standard/
           if-no-files-found: error
           retention-days: 14
+      - name: Guard suite (all of scripts/guards.txt)
+        run: node scripts/run-guards.mjs
       - name: Production build
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"

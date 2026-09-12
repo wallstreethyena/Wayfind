@@ -276,6 +276,15 @@ if (!browserConfig) {
   });
   const iconic = (id) => React.createElement(Iconic, { place: place(id), rank: 1, href: `/p/${id}`, onSave: noop, onLike: noop, onDislike: noop, onShare: noop });
   const rail = React.createElement(RailCard, { title: "Sarasota Guided Mangrove Tunnel Kayak Tour", score: 9.2, rank: 1, href: "/p/rail", photo: "", category: "Activities", distMi: 3.2, place: place("rail"), onSave: noop, onLike: noop, onDislike: noop, onShare: noop });
+  const richRail = React.createElement(RailCard, {
+    title: "Sarasota Guided Mangrove Tunnel Kayak Tour", score: 9.2, rank: 1,
+    href: "/p/rich-rail", eyebrow: "Activities", facts: ["Orlando", "6.9 mi"],
+    take: "A verified local outing with a useful creator guide.",
+    chips: [{ label: "Local favorite", icon: "★" }],
+    creatorVideos: [{ creator: "horrornightsorl", platform: "instagram" }],
+    cta: { label: "See details", href: "/p/rich-rail" },
+    place: place("rich-rail"), onSave: noop, onLike: noop, onDislike: noop, onShare: noop,
+  });
   const eventPlaces = [place("event-a"), place("event-b")].map((item) => ({ ...item, href: `/p/${item.id}`, editorial: "A verified local favorite." }));
   const event = React.createElement(EventNearbyCards, { places: eventPlaces });
   const stayPlaces = [place("stay-a", "Sarasota Harbor Hotel"), place("stay-b", "Gulf Coast Inn")].map((item) => ({ ...item, detailHref: `/p/${item.id}`, blurb: "A practical stay near the venue.", mapsOnly: false }));
@@ -291,7 +300,7 @@ if (!browserConfig) {
   const section = (adapter, body, cls = "wf-rail") => `<section data-adapter="${adapter}"><div class="${cls}">${renderToStaticMarkup(body)}</div></section>`;
   const fixture = `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>*{box-sizing:border-box}body{padding:0 13px;color:#fff;font:12px sans-serif}section[data-adapter]{display:block;margin:12px 0 24px}section[data-adapter]::before{content:attr(data-adapter);display:block;margin-bottom:6px;color:#86efac;font-weight:800}${WF_PLACE_CARD_CSS}</style></head><body style="margin:0;background:#040810">
   ${section("iconic", React.createElement(React.Fragment, null, iconic("iconic-a"), iconic("iconic-b")))}
-  ${section("rail-card", React.createElement(React.Fragment, null, rail, rail))}
+  ${section("rail-card", React.createElement(React.Fragment, null, rail, richRail))}
   <section data-adapter="event-nearby-place-rail">${renderToStaticMarkup(event)}</section>
   <section data-adapter="event-stay-place-rail">${renderToStaticMarkup(stays)}</section>
   ${section("things-to-do", React.createElement(React.Fragment, null, thing, thing))}
@@ -325,8 +334,8 @@ if (!browserConfig) {
             const actions = card.querySelector(".wf-place-card-actions,.wf-place-card-sk-actions");
             const cs = getComputedStyle(card), contentCss = content ? getComputedStyle(content) : null, nameCss = name ? getComputedStyle(name) : null, actionCss = actions ? getComputedStyle(actions) : null;
             const headingCss = heading ? getComputedStyle(heading) : null;
-            const headingTextWidth = heading ? heading.getBoundingClientRect().width - parseFloat(headingCss.paddingLeft || "0") - parseFloat(headingCss.paddingRight || "0") : null;
-            return { box: box(card), scrollWidth: card.scrollWidth, root: [cs.height, cs.width, cs.borderRadius, cs.backgroundColor], content: contentCss ? [contentCss.paddingTop, contentCss.paddingRight, contentCss.paddingBottom, contentCss.paddingLeft] : null, name: nameCss ? [nameCss.fontSize, nameCss.lineHeight, nameCss.fontWeight] : null, headingTextWidth, hasBooking: !!card.querySelector('.wf-place-card-book'), actionStyles: Object.fromEntries(['save','like','dislike','share'].map(key => { const el = card.querySelector('.wf-place-card-' + key); if (!el) return [key,null]; const style = getComputedStyle(el); return [key,[style.height,style.fontSize,style.fontWeight,style.paddingLeft,style.paddingRight,style.borderRadius]]; })), actions: actionCss ? [actionCss.display, actionCss.gridTemplateColumns, actionCss.height, actionCss.columnGap] : null, media: media ? box(media) : null, score: score ? box(score) : null, controls: [...card.querySelectorAll(".wf-place-card-actions>*")].map(box) };
+            const headingTextWidth = name ? name.getBoundingClientRect().width - parseFloat(nameCss.paddingLeft || "0") - parseFloat(nameCss.paddingRight || "0") : null;
+            return { box: box(card), scrollWidth: card.scrollWidth, root: [cs.height, cs.width, cs.borderRadius, cs.backgroundColor], content: contentCss ? [contentCss.paddingTop, contentCss.paddingRight, contentCss.paddingBottom, contentCss.paddingLeft] : null, name: nameCss ? [nameCss.fontSize, nameCss.lineHeight, nameCss.fontWeight] : null, headingTextWidth, extras: [...card.querySelectorAll(".wf-rail-card-cta,.wf-place-card-credit")].map(box), nameBox: name ? box(name) : null, labelFits: [...card.querySelectorAll(".wf-place-card-save,.wf-place-card-share,.wf-place-card-book")].map(el => ({name:el.className, fits:el.scrollWidth <= el.clientWidth + 1})), hasBooking: !!card.querySelector('.wf-place-card-book'), actionStyles: Object.fromEntries(['save','like','dislike','share'].map(key => { const el = card.querySelector('.wf-place-card-' + key); if (!el) return [key,null]; const style = getComputedStyle(el); return [key,[style.height,style.fontSize,style.fontWeight,style.paddingLeft,style.paddingRight,style.borderRadius]]; })), actions: actionCss ? [actionCss.display, actionCss.gridTemplateColumns, actionCss.height, actionCss.columnGap] : null, media: media ? box(media) : null, score: score ? box(score) : null, controls: [...card.querySelectorAll(".wf-place-card-actions>*")].map(box) };
           }),
         }));
         return { innerWidth, scrollWidth: document.documentElement.scrollWidth, adapters };
@@ -349,10 +358,17 @@ if (!browserConfig) {
         if ((width === 320 || width === 360) && card.headingTextWidth != null) ok(card.headingTextWidth >= 120, `${width}px ${card.adapter}: title keeps at least 120px of readable line width (got ${card.headingTextWidth})`);
         if (card.score) {
           ok(card.score.x >= card.box.x - 1 && card.score.right <= card.box.right + 1 && card.score.y >= card.box.y - 1 && card.score.bottom <= card.box.bottom + 1, `${width}px ${card.adapter}: score badge stays inside the card`);
-          if (width <= 430 && card.media) ok(card.score.x >= card.media.x - 1 && card.score.right <= card.media.right + 1 && card.score.y >= card.media.y - 1 && card.score.bottom <= card.media.bottom + 1, `${width}px ${card.adapter}: narrow score badge stays inside the media box`);
+          if (card.media) ok(card.score.x >= card.media.right - 1, `${width}px ${card.adapter}: score stays clear of the photo`);
+          ok(card.score.y - card.box.y <= 24 && card.box.right - card.score.right <= 24, `${width}px ${card.adapter}: score preserves the owner’s top-right placement`);
+          if (card.nameBox) ok(!(Math.min(card.score.right, card.nameBox.right) - Math.max(card.score.x, card.nameBox.x) > 1 && Math.min(card.score.bottom, card.nameBox.bottom) - Math.max(card.score.y, card.nameBox.y) > 1), `${width}px ${card.adapter}: score never overlaps the title`);
         }
+        for (const label of card.labelFits) ok(label.fits, `${width}px ${card.adapter}: action label fits without clipping (${label.name})`);
         ok(card.controls.length >= 4, `${width}px ${card.adapter}: positive control found at least four action controls (got ${card.controls.length})`);
         for (const control of card.controls) ok(control.x >= card.box.x - 1 && control.right <= card.box.right + 1 && control.y >= card.box.y - 1 && control.bottom <= card.box.bottom + 1, `${width}px ${card.adapter}: action control stays inside card body`);
+        for (const extra of card.extras) {
+          ok(extra.h > 0 && extra.x >= card.box.x - 1 && extra.right <= card.box.right + 1 && extra.y >= card.box.y - 1 && extra.bottom <= card.box.bottom + 1, `${width}px ${card.adapter}: CTA and creator credit stay visible inside the card`);
+          for (const control of card.controls) ok(!(Math.min(extra.right, control.right) - Math.max(extra.x, control.x) > 1 && Math.min(extra.bottom, control.bottom) - Math.max(extra.y, control.y) > 1), `${width}px ${card.adapter}: CTA/creator credit never overlaps reactions`);
+        }
         for (let i = 0; i < card.controls.length; i++) for (let j = i + 1; j < card.controls.length; j++) {
           const a = card.controls[i], b = card.controls[j];
           const ox = Math.min(a.right, b.right) - Math.max(a.x, b.x), oy = Math.min(a.bottom, b.bottom) - Math.max(a.y, b.y);
