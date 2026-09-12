@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { THEME_PARKS, themeParkForPlace, themeParkIntent, themeParkHeading, orderThemeParks } from "../lib/themeParks.js";
-import { themeParkRows } from "../lib/themeParksServer.js";
+import { themeParkRows, loadThemeParks } from "../lib/themeParksServer.js";
 import { placePartnerPick } from "../lib/placePartnerPicks.js";
 
 for (const park of THEME_PARKS) for (const alias of park.aliases) {
@@ -43,5 +43,29 @@ assert.doesNotMatch(component, /commerceHref|klook\.com|tiqets\.com|undercoverto
 const server = fs.readFileSync(new URL("../lib/themeParksServer.js", import.meta.url), "utf8");
 assert.match(server, /wf_inventory/);
 assert.doesNotMatch(server, /googleapis|searchNearby|searchText/);
+
+// Execute the real REST reader against the deployed inventory schema. A made-up
+// column must fail the same way PostgREST rejected photo_url in hosted review.
+const inventoryColumns = new Set("place_id,name,lat,lng,category,primary_type,google_types,status,excluded,signals,editorial,photo_ref".split(","));
+const originalFetch = globalThis.fetch;
+const env = { url: "https://inventory.test", key: "fixture-only" };
+try {
+  globalThis.fetch = async (url) => {
+    const query = new URL(url);
+    assert.equal(query.pathname, "/rest/v1/wf_inventory");
+    assert.ok(query.searchParams.get("name").startsWith("in.("));
+    const unknown = query.searchParams.get("select").split(",").filter((field) => !inventoryColumns.has(field));
+    if (unknown.length) return Response.json({ error: "unknown inventory column" }, { status: 400 });
+    return Response.json([row("Gatorland", "g", 4.7, 1000)]);
+  };
+  assert.equal((await loadThemeParks({ env }))[0].id, "g", "real reader uses supported inventory columns");
+  globalThis.fetch = async () => Response.json({ error: "unknown column" }, { status: 400 });
+  await assert.rejects(loadThemeParks({ env }), /returned 400/);
+  globalThis.fetch = async () => Response.json({ rows: [] });
+  await assert.rejects(loadThemeParks({ env }), /invalid response/);
+} finally { globalThis.fetch = originalFetch; }
+const ownedOnly = { ...row("Gatorland", "owned", 4.7, 1000), photo_ref: null };
+ownedOnly.signals.photo_url = "/owned-gatorland.jpg";
+assert.equal(themeParkRows([ownedOnly])[0].photo, "/owned-gatorland.jpg", "owned URLs come from the real signals field");
 
 console.log(`test-theme-park-core: OK — ${THEME_PARKS.length} exact park identities, owned inventory only, one winner, score order, standard card`);
