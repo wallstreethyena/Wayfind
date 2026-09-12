@@ -42,9 +42,25 @@ export async function GET(req) {
   const requested = boundedQueryCount(new URL(req.url).searchParams.get("queries") || 2);
   const free = await verifySerpFreeInventory(key, requested);
   if (!free.ok) {
-    await recordPulse("social-discovery", { attempted: 1, succeeded: 0, failed: 1, note: `configuration: ${free.reason}` });
-    return Response.json({ ok: false, configured: free.reason !== "unconfigured", reason: free.reason,
-      free_calls: 0, paid_calls: 0, publication_enabled: false }, { status: 503, headers });
+    // PARKED, NOT AN INCIDENT (2026-09-09). "unconfigured" (no SERPAPI_KEY) and
+    // "not_zero_cost_plan" (the account exists but SerpAPI is no longer free)
+    // are both permanent, owner-decided states, not transient errors — the
+    // same class lib/popularity.js already parks Yelp/Foursquare for, and that
+    // instagram-scout ships dark for. Recording attempted=1/failed=1 here paged
+    // job-watch once a day forever for a query that was never going to run
+    // without the owner choosing to pay (see OWNER'S FREE-FIRST RULE in
+    // lib/popularity.js). attempted=0/succeeded=0/failed=0, with no billing:/
+    // quota: prefix, reads as IDLE under lib/jobPulse.classifyHealth. A
+    // genuinely transient check failure (bad account response, or a network/
+    // timeout error) still records as a real failure below, and
+    // insufficient_free_inventory — the plan is free, the quota just ran out —
+    // stays a real, actionable failure too.
+    const parked = free.reason === "unconfigured" || free.reason === "not_zero_cost_plan";
+    await recordPulse("social-discovery", parked
+      ? { attempted: 0, succeeded: 0, failed: 0, note: `parked_${free.reason}` }
+      : { attempted: 1, succeeded: 0, failed: 1, note: `configuration: ${free.reason}` });
+    return Response.json({ ok: parked, idle: parked, configured: free.reason !== "unconfigured", reason: free.reason,
+      free_calls: 0, paid_calls: 0, publication_enabled: false }, { status: parked ? 200 : 503, headers });
   }
 
   const day = siteTodayStr(new Date());
