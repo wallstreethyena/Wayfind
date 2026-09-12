@@ -465,7 +465,7 @@ ${WF_SKELETON_CSS}
   font-size:10.5px!important;
   line-height:1.35!important;
     display:-webkit-box;
-  -webkit-line-clamp:2;
+  -webkit-line-clamp:1;
   -webkit-box-orient:vertical;
   text-overflow:ellipsis;
 }
@@ -566,14 +566,16 @@ ${WF_SKELETON_CSS}
 .wf-sheet-card-actions>.wf-place-card-save,
 .wf-sheet-card-actions>.wf-place-card-share{min-width:0!important;margin-left:0!important;padding-inline:8px!important}
 .wf-sheet-card-actions>span{min-width:0!important;overflow:hidden}
-.wf-sheet-card-actions:has(.wf-place-card-book){grid-template-columns:repeat(5,minmax(0,1fr))}
+.wf-sheet-card-actions:has(.wf-place-card-book){grid-template-columns:minmax(64px,.9fr) 42px 42px minmax(76px,1fr)}
+.wf-sheet-card-actions>.wf-place-card-book{grid-column:1/-1}
 .wf-sheet-card-actions:not(:has(.wf-place-card-like)){grid-template-columns:minmax(64px,1fr) minmax(76px,1fr)}
 .wf-place-card.is-liked{border-color:rgba(76,224,179,.35)!important}
 .wf-place-card.is-disliked{border-color:rgba(248,113,113,.28)!important}
 @media(max-width:430px){
   .wf-place-card{--wf-card-badge-w:78px}
   .wf-place-card-score~.wf-place-card-layout .wf-place-card-category{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .wf-place-card-score~.wf-place-card-layout .wf-place-card-name{width:calc(100% + var(--wf-card-badge-w) + 10px);margin-top:27px}
+  .wf-place-card-score~.wf-place-card-layout .wf-place-card-name{width:calc(100% + var(--wf-card-badge-w) + 10px);margin-top:32px}
+  .wf-place-card-score~.wf-place-card-layout .wf-place-card-heading:not(:has(>.wf-place-card-category)) .wf-place-card-name{margin-top:42px}
   .wf-place-card-layout{--wf-place-card-media:88px}
   .wf-place-card-layout>img,.wf-place-card-layout>.wf-place-card-media{width:88px!important}
   .wf-place-card-content{padding:10px 10px 8px!important}
@@ -584,13 +586,12 @@ ${WF_SKELETON_CSS}
   .wf-place-card-highlights{margin-bottom:2px!important}
   .wf-place-card-highlights>button,.wf-place-card-highlights>span{min-height:21px;padding:1px 7px!important}
   .wf-place-card-highlights>button{font-size:9px!important}
-  .wf-place-card-take{-webkit-line-clamp:1}
-  .wf-rail-card-cta{min-height:30px}
+  .wf-rail-card-cta{min-height:30px!important}
   .wf-place-card-actions{--wf-act-h:34px;padding-top:4px}
-  .wf-sheet-card-actions{grid-template-columns:minmax(44px,1fr) 26px 26px minmax(48px,1fr);gap:4px!important}
-  .wf-sheet-card-actions:has(.wf-place-card-book){grid-template-columns:minmax(44px,1fr) 26px 26px minmax(48px,1fr)}
-  .wf-sheet-card-actions>.wf-place-card-book{grid-column:1/-1}
+  .wf-sheet-card-actions{grid-template-columns:44px 26px 26px minmax(0,1fr);gap:4px!important}
+  .wf-sheet-card-actions:has(.wf-place-card-book){grid-template-columns:44px 26px 26px minmax(0,1fr)}
   .wf-sheet-card-actions>.wf-place-card-like,.wf-sheet-card-actions>.wf-place-card-dislike{width:100%!important;min-width:0!important;flex:1 1 auto;padding-inline:0!important}
+  .wf-sheet-card-actions>.wf-place-card-save,.wf-sheet-card-actions>.wf-place-card-share{padding-inline:4px!important}
   .wf-sheet-card-actions>a,.wf-sheet-card-actions>button,.wf-sheet-card-actions>span{min-width:0!important;padding-inline:4px!important;font-size:9.5px!important;overflow:hidden}
 }
 @media(min-width:${WF_DESKTOP_BP}px){
@@ -636,7 +637,7 @@ ${WF_SKELETON_CSS}
   display:flex!important;
   align-items:center;
   justify-content:center;
-  min-height:34px;
+  min-height:30px;
   margin-top:auto;
   padding:0 12px;
   border:1px solid rgba(249,115,22,.5);
@@ -732,10 +733,10 @@ a:has(>.wf-place-card)>.wf-place-card .wf-place-card-share{color:#DFE5EE!importa
   min-width:0;
   gap:8px;
   margin-top:auto;
-  padding-top:10px;
+  padding-top:3px;
   pointer-events:none;
 }
-.wf-place-card-credit~.wf-place-card-actions{margin-top:0!important;padding-top:8px}
+.wf-place-card-credit~.wf-place-card-actions{margin-top:0!important;padding-top:4px}
 .wf-pcc-name{
   min-width:0;
   flex:1 1 auto;
