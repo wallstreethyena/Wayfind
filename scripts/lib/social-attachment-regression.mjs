@@ -43,8 +43,8 @@ export function checkSocialAttachments(repo) {
     venueContextLinks.set(url, ids);
   }
   const unresolved = audit.retrievable_unresolved_sources || [];
-  ensure(audit.records.length === 46, `expected 46 audited sources, got ${audit.records.length}`);
-  ensure(new Set(audit.records.map((row) => row.shortcode)).size === 46, "shortcodes must be unique");
+  ensure(audit.records.length === 47, `expected 47 audited sources, got ${audit.records.length}`);
+  ensure(new Set(audit.records.map((row) => row.shortcode)).size === 47, "shortcodes must be unique");
   ensure(unresolved.length === 4, `expected 4 retrievable unresolved sources, got ${unresolved.length}`);
   ensure(new Set([...audit.records, ...unresolved].map((row) => row.shortcode)).size === audit.records.length + unresolved.length, "mapped and unresolved shortcodes must be unique");
   for (const row of unresolved) {
@@ -96,7 +96,7 @@ export function checkSocialAttachments(repo) {
     const row = audit.records.find((candidate) => candidate.native_url === url);
     ensure(row?.venue_context_associations?.some((event) => event.event_id === eventId && event.association_kind === "venue_context"), `${eventId} venue-context post ${url} has no matching audit record`);
   }
-  ensure(audit.summary.sources_with_any_association === 46, "mapped source coverage drifted");
+  ensure(audit.summary.sources_with_any_association === 47, "mapped source coverage drifted");
   ensure(audit.summary.retrievable_reported_source_total === audit.records.length + unresolved.length, "retrievable intake total drifted");
   ensure(audit.summary.retrievable_reported_sources_mapped === audit.records.length, "retrievable mapped-source total drifted");
   ensure(audit.summary.remaining_unmapped_sources === unresolved.length, "retrievable unresolved-source total drifted");
@@ -109,8 +109,48 @@ export function checkSocialAttachments(repo) {
 
   const tampaRoundup = "https://www.instagram.com/reel/Dc3asu4uUOI/";
   const farmRoundup = "https://www.instagram.com/reel/Dc3WlMLx2iv/";
+  const screamJess = "https://www.instagram.com/reel/Dc2vEpFiFL5/";
+  const screamOriginal = [
+    "https://www.instagram.com/reel/Dc2WqU-xuCD/",
+    "https://www.instagram.com/reel/Dc2vk3eBHGQ/",
+    "https://www.instagram.com/reel/Dc2e78nNoMm/",
+    "https://www.instagram.com/reel/Dc2dtxHNbtt/",
+  ];
+  const screamPosts = eventSocialPosts("screamageddon-2026");
+  const screamWfc = eventSocialPosts("wfc:screamageddon-2026");
+  const screamUrls = screamPosts.map((post) => post.url);
+  const otherHalloween = [
+    "hhn-orlando-2026",
+    "howl-o-scream-tampa-2026",
+    "howl-o-scream-seaworld-2026",
+    "brick-or-treat-2026",
+    "beware-the-night-brevard-zoo-2026",
+    "mnsshp-2026",
+  ];
   ensure(eventSocialPosts("howl-o-scream-tampa-2026").length === 0, "Howl-O-Scream must not claim the general Tampa September roundup as event footage");
-  ensure(eventSocialPosts("wfc:screamageddon-2026").length === 4, "the wfc: event-id path keeps all four dedicated Scream-A-Geddon posts");
+  ensure(screamWfc.length === 5, "the wfc: event-id path keeps all five dedicated Scream-A-Geddon posts");
+  ensure(screamPosts.length === 5, "screamageddon-2026 keeps the original four dedicated posts plus the verified Jess reel");
+  ensure(screamPosts.some((post) => post.url === screamJess && post.creator === "makingmemorieswithjess"), "Dc2vEpFiFL5 resolves on screamageddon-2026 as makingmemorieswithjess");
+  ensure(screamOriginal.every((url) => screamUrls.includes(url)), "the original four Scream-A-Geddon URLs remain");
+  ensure(screamUrls.join("\0") === screamWfc.map((post) => post.url).join("\0"), "wfc:screamageddon-2026 and screamageddon-2026 return the same five URLs");
+  ensure(new Set(screamUrls).size === screamUrls.length, "Scream-A-Geddon exact posts have no duplicate URLs");
+  ensure(!eventSocialPosts("hhn-orlando-2026").some((post) => post.url === screamJess), "Jess's Scream-A-Geddon reel must not appear on HHN");
+  for (const eventId of otherHalloween) {
+    ensure(!eventSocialPosts(eventId).some((post) => post.url === screamJess), `Dc2vEpFiFL5 must not attach to ${eventId}`);
+  }
+  const hhn = eventSocialPosts("hhn-orlando-2026");
+  const hhnExpected = [
+    "https://www.instagram.com/reel/DcycQAlkXid/",
+    "https://www.instagram.com/reel/DcwSHqZj-TU/",
+  ];
+  ensure(
+    hhn.length === 2
+      && hhn.map((post) => post.url).join("\0") === hhnExpected.join("\0")
+      && hhn.every((post) => post.creator === "horrornightsorl"),
+    "HHN keeps the two official #1306 reels in that order"
+  );
+  ensure(!roundupLinks.has(screamJess) && !venueContextLinks.has(screamJess), "Dc2vEpFiFL5 stays off ROUNDUP_MENTIONS and VENUE_CONTEXT_POSTS");
+  ensure(eventSocialPosts("scream-a-geddon-dade-city-2026").length === 0, "the public slug is not an eventSocial key");
   ensure(!eventSocialPosts("screamageddon-2026").some((post) => post.url === tampaRoundup), "Scream-A-Geddon must not mix a roundup mention into its dedicated event posts");
   ensure(eventSocialPosts("pintos-fall-at-the-farm-2026").length === 0, "Pinto's event must not promote either a farm roundup or a venue-only post as event footage");
   ensure(eventSocialPosts("florida-coffee-festival-2026").some((post) => post.url.endsWith("/Dc_KiM5xqhv/") && post.association === "exact_event"), "Florida Coffee Festival's dedicated organiser post remains available as the positive control");
