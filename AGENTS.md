@@ -326,3 +326,43 @@ When a requested task overlaps an existing, merged or reportedly deployed change
 6. Report what was verified, the exact revision, remaining defects or verification gaps,
    and the next concrete action. “Already merged” is a starting point for this audit,
    never a substitute for it.
+
+## 14. One place card standard across the entire site
+
+Owner instruction, 2026-09-12: all place cards on every page must use the same
+size, dimensions, and established look. This is a product rule, not a suggestion.
+
+- `lib/placeCardStandard.js` owns the sizing values. `WF_PLACE_CARD_CSS` in
+  `app/components/css.js` owns the card's geometry, typography, spacing, media,
+  frame, and controls. The standard card body is **268px high**. Its shared
+  responsive width is capped at **440px** and fits narrower containers.
+- Use the existing shared place card components and their supported slots.
+  This includes home/menu/poster results, event and place recommendations,
+  maps, favorites, itineraries, creator place picks, sponsored places, guides,
+  and city/category result pages. A new page is not a new design system.
+- New UI must compose the site's established navigation, rail headings,
+  cards, buttons, loading components, and design tokens. Reuse the existing
+  look and feel; a feature request does not authorize a different visual
+  language. A genuinely new visual pattern requires explicit owner direction.
+- Never introduce a local card height, width formula, media geometry, title
+  style, action sizing, or duplicate card renderer to make one surface fit.
+  Do not override the shared sizing variables in a route, wrapper, inline
+  style, or separate stylesheet. Fix a content-fit problem in the shared
+  contract while retaining visible, usable controls and truthful disclosures.
+- Wrappers may arrange cards using the shared rail, list, and slot classes.
+  Verified booking details and required disclosures may accompany the card;
+  they must not change its body dimensions. Existing seasonal treatments and
+  meaningful state badges do not authorize a new layout.
+- `scripts/check-place-card-standard.mjs` must run in the guard suite. New raw
+  card renderers require a registered real-render fixture in the same change.
+  Do not add exclusions, weaken a measurement, or bypass the required browser
+  check to ship a private design. Missing browser evidence is not a pass.
+- Verify achieved phone, tablet, and desktop widths, actual card dimensions,
+  style parity, and control containment. Reintroducing the historical 340px
+  event override must make the protection fail. Update all affected fixtures
+  whenever the shared contract changes.
+- Changing the sitewide visual standard itself requires the owner's explicit
+  design direction. Updating a feature alone does not grant that permission.
+
+See `docs/ui/place-card-standard.md` for the contract and
+`docs/ui/place-card-audit.md` for the surfaces audited when this rule was added.

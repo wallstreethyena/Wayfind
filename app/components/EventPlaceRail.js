@@ -13,11 +13,7 @@ export default function EventPlaceRail({ title, description, label, count, railC
     <style dangerouslySetInnerHTML={{ __html: `
       .wf-event-place-rail{min-width:0}
       .wf-event-place-rail>.wf-rail{list-style:none;margin:0;padding:4px 0 8px}
-      .wf-event-place-rail .wf-place-card{--wf-card-h:340px}
-      .wf-event-place-rail .wf-event-stay{flex:0 0 calc((100% - (var(--wf-rail-vis) - 1) * var(--wf-rail-gap)) / var(--wf-rail-vis));min-width:0;scroll-snap-align:start}
       .wf-event-stay-card{list-style:none;margin:0;padding:0}
-      .wf-event-stay-card>.wf-place-card{width:100%;box-sizing:border-box;margin-bottom:0}
-      @media(min-width:1100px){.wf-event-place-rail .wf-event-stay{min-width:min(440px,100%)}}
     ` }} />
     <RailHeading title={title} description={description}>
       {headingAction}

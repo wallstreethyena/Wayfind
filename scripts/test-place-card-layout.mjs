@@ -111,7 +111,7 @@ function resolveChromium() {
 }
 const launchOpts = resolveChromium();
 if (!launchOpts) {
-  console.log("test-place-card-layout: SKIPPED — no Chromium on this machine (build image); the layout contract is enforced on cloud dev and the Mac merge pipeline, both of which run it with a real browser");
+  console.log("test-place-card-layout: NOT RUN — Chromium is unavailable; no rendered layout claim was verified on this machine");
   process.exit(0);
 }
 const browser = await chromium.launch(launchOpts);
@@ -149,7 +149,7 @@ const m = await p.evaluate(() => {
       card: { x: cb.x, y: cb.y, w: cb.width, h: cb.height }, kids, pills,
       laneBox: laneBox ? { y: laneBox.y, h: laneBox.h || laneBox.height } : null,
       media: box(media), score: box(score), title: box(title), name: box(name),
-      heading: box(heading), headingContentRight,
+      heading: box(heading), headingContentRight, headingContentTop: heading ? heading.getBoundingClientRect().top + parseFloat(getComputedStyle(heading).paddingTop || "0") : null,
       nameLines: lineRects(name), categoryLines: lineRects(category),
       scoreInTitle: !!(score && title && title.contains(score)),
       scoreInMedia: !!(score && media && media.contains(score)),
@@ -223,8 +223,8 @@ m.cards.forEach((c, ci) => {
     ok(catClash.length === 0, `${tag}: no eyebrow LINE runs under the badge (worst overlap ${catClash.length ? Math.round(Math.max(...catClash.map((l) => l.x + l.w - c.score.x))) : 0}px)`);
     // And the gutter is not merely big enough by luck: the heading's padded
     // box must clear the badge's left edge outright.
-    if (c.headingContentRight != null) ok(c.headingContentRight <= c.score.x + 1,
-      `${tag}: the heading's reserved gutter clears the badge (text may reach ${Math.round(c.headingContentRight)}, badge starts ${Math.round(c.score.x)}) — the reserve is derived from --wf-card-badge-w, never a hardcoded px`);
+    if (c.headingContentRight != null) ok(c.headingContentTop >= scoreBottom - 1 || c.headingContentRight <= c.score.x + 1,
+      `${tag}: the heading's reserved row or gutter clears the badge (text may reach ${Math.round(c.headingContentRight)}, badge starts ${Math.round(c.score.x)}) — the reserve is derived from --wf-card-badge-w, never a hardcoded px`);
   }
   if (c.laneBox) for (const pl of c.pills) {
     ok(pl.y >= c.laneBox.y - 1 && pl.y + pl.h <= c.laneBox.y + (c.laneBox.h || 0) + 1.5,

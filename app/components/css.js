@@ -1,5 +1,12 @@
 import { RAIL_IDS } from "../../lib/railCollapse";
 import { HALLOWEEN_MARK } from "../../lib/seasonalBrand";
+import {
+  PLACE_CARD_GAP_PX,
+  PLACE_CARD_HEIGHT_PX,
+  PLACE_CARD_MAX_WIDTH_PX,
+  PLACE_CARD_PAGE_GUTTER_PX,
+  PLACE_CARD_PHONE_PEEK,
+} from "../../lib/placeCardStandard.js";
 // app/components/css.js — the homepage's server-rendered CSS, lifted verbatim
 // out of app/home.js (July 2026 decomposition, wave 1).
 //
@@ -94,29 +101,9 @@ export const WF_SEARCH_CSS = `.wf-search-row{filter:drop-shadow(0 11px 20px rgba
      official string stays fully readable. Do not invent a new brand line. */
   `.wf-search-row{min-width:0}.wf-search-field{flex:1;min-width:0;position:relative}.wf-scope-city{max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.wf-search-input{min-width:0}` +
   `@media(max-width:430px){.wf-scope{padding:0 8px;gap:4px}.wf-scope-city{max-width:56px}.wf-search-icon{display:none!important}.wf-search-input{font-size:14px!important;padding-left:12px!important;padding-right:8px!important}.wf-search-submit{width:46px!important}}`;
-// v8.93.1 — THE ONE CARD WIDTH, FOR EVERY RAIL ON THE SITE.
-// Owner, 2026-08-30, with a screenshot of one event card spanning the whole
-// desktop window and a crop of the KPOT card: "this is how the card should
-// look EVERYWHERE ... are you able to fix this permanently, globally?"
-
-// THE ROOT CAUSE was this rule reading `flex:0 0 100%`. One card per scroller
-// width is right on a phone and absurd on a 1900px desktop — the card grows,
-// the 108px photo does not, and the result is the stretched row he
-// photographed. Exploding Trends looked correct only because railMenuCss
-// overrides this for `.wf8 .wf-rail-exploding` alone, so ONE rail in ONE
-// container had the right answer and every other rail on the site fell back
-// to full width. That is why he kept seeing it "a lot on the desktop".
-
-// So the peek moves into the BASE rule, where every `.wf-rail` inherits it:
-// --wf-rail-vis is how many cards a row shows, on the same ladder the drop
-// already uses (1.08 → 1.35 → 1.9 → 2.4 → 3.4), so a card is the same size
-// whether it sits in the feed, a drop, or an events rail. The fractional
-// values are deliberate: the part-card at the edge is what tells a reader the
-// row scrolls.
-
-// `width:auto` matters — a leftover `width:100%` would fight the flex-basis
-// and win on some engines, which is how the first attempt at this looked
-// right in Chrome and wrong in Safari.
+// Every place-card surface consumes the single geometry contract in
+// lib/placeCardStandard.js. The viewport formula keeps a 1.08-card phone peek
+// and caps the same card body at the desktop measure.
 export const WF_PLACE_CARD_CSS = `
 ${WF_SKELETON_CSS}
 .wf-ticket-pill{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 9px 0 8px;border-radius:7px;text-decoration:none;position:relative;color:#FFD9AE;background:linear-gradient(180deg,rgba(253,186,116,.17),rgba(249,115,22,.10));border:1px solid rgba(253,186,116,.44);box-shadow:inset 0 1px 0 rgba(255,236,209,.18),0 1px 0 rgba(0,0,0,.34);transition:background .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease}
@@ -132,15 +119,14 @@ ${WF_SKELETON_CSS}
 @media (prefers-reduced-motion:reduce){.wf-ticket-pill{transition:none}.wf-ticket-pill:hover{transform:none}}
 
 .wf-place-card,.wf-place-card *,.wf-place-card *::before,.wf-place-card *::after{box-sizing:border-box}
-.wf-place-card{--wf-card-h:268px;--wf-card-badge-w:104px;height:var(--wf-card-h);box-sizing:border-box;position:relative}
+.wf-place-card,.wf-place-card-slot,.wf-place-card-list,.wf-rail,.wf8-pcrail{--wf-place-card-width:min(100%,${PLACE_CARD_MAX_WIDTH_PX}px,calc((100vw - ${PLACE_CARD_PAGE_GUTTER_PX * 2}px - (${PLACE_CARD_PHONE_PEEK} - 1) * ${PLACE_CARD_GAP_PX}px) / ${PLACE_CARD_PHONE_PEEK}))}
+.wf-place-card{--wf-card-h:${PLACE_CARD_HEIGHT_PX}px;--wf-card-badge-w:104px;width:var(--wf-place-card-width);flex:0 0 var(--wf-place-card-width);height:var(--wf-card-h);box-sizing:border-box;position:relative}
 .wf-place-card-layout{height:100%;box-sizing:border-box}
 .wf-place-card-monogram{height:100%;box-sizing:border-box}
 .wf-place-card-content{display:flex;flex-direction:column;height:100%;box-sizing:border-box}
-.wf-place-card-name{display:-webkit-box!important;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.wf-place-card-name{display:-webkit-box!important;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .wf-place-card-meta{flex-wrap:nowrap!important;overflow:hidden;white-space:nowrap}
 .wf-place-card-highlights{display:flex;flex-wrap:nowrap;align-items:center;max-height:30px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y;mask-image:linear-gradient(90deg,#000 90%,transparent 99.5%);-webkit-mask-image:linear-gradient(90deg,#000 90%,transparent 99.5%)}.wf-place-card-highlights::-webkit-scrollbar{display:none}.wf-place-card-highlights-wrap{position:relative;min-width:0}.wf-pill-more{position:absolute;right:-2px;top:50%;transform:translateY(-50%);pointer-events:none;color:#F97316;font-size:15px;font-weight:800;line-height:1;text-shadow:0 0 8px rgba(11,14,26,.9);animation:wfPillMore 1.8s ease-in-out 3}@keyframes wfPillMore{0%,100%{opacity:.85;transform:translateY(-50%) translateX(0)}50%{opacity:1;transform:translateY(-50%) translateX(3px)}}@media (prefers-reduced-motion:reduce){.wf-pill-more{animation:none}}.wf-place-card-highlights>button,.wf-place-card-highlights>span,.wf-place-card-highlights>a{flex:0 0 auto;white-space:nowrap;align-self:center;max-height:100%}
-.wf8-pcrail .wf-place-card{box-sizing:border-box;margin-bottom:0!important}
-.wf8-pcrail .wf-place-card-actions{padding-top:10px}
 .wf-place-card{
   position:relative;
   margin-bottom:12px!important;
@@ -479,7 +465,7 @@ ${WF_SKELETON_CSS}
   font-size:10.5px!important;
   line-height:1.35!important;
     display:-webkit-box;
-  -webkit-line-clamp:2;
+  -webkit-line-clamp:1;
   -webkit-box-orient:vertical;
   text-overflow:ellipsis;
 }
@@ -524,7 +510,7 @@ ${WF_SKELETON_CSS}
 //    --wf-card-h and clips anything that outgrows it.
 `.wf-place-card-take.is-known-for{border-left-color:rgba(148,163,184,.34);color:#AEB9C9!important}
 .wf-place-card-actions{--wf-act-h:38px;align-items:center;gap:5px!important;margin-top:auto!important;padding-top:9px;flex-wrap:wrap!important;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
-.wf-place-card-actions>a,.wf-place-card-actions>button{
+.wf-place-card-actions>a,.wf-place-card-actions>button,.wf-place-card-actions>span{
   display:inline-flex!important;
   min-height:var(--wf-act-h);
   height:var(--wf-act-h);
@@ -579,18 +565,33 @@ ${WF_SKELETON_CSS}
 }
 .wf-sheet-card-actions>.wf-place-card-save,
 .wf-sheet-card-actions>.wf-place-card-share{min-width:0!important;margin-left:0!important;padding-inline:8px!important}
-.wf-sheet-card-actions:has(.wf-place-card-book){grid-template-columns:minmax(70px,.8fr) minmax(64px,.8fr) 42px 42px minmax(76px,1fr)}
+.wf-sheet-card-actions>span{min-width:0!important;overflow:hidden}
+.wf-sheet-card-actions:has(.wf-place-card-book){grid-template-columns:minmax(64px,.9fr) 42px 42px minmax(76px,1fr)}
+.wf-sheet-card-actions>.wf-place-card-book{grid-column:1/-1}
 .wf-sheet-card-actions:not(:has(.wf-place-card-like)){grid-template-columns:minmax(64px,1fr) minmax(76px,1fr)}
-.wf-rail-card .wf-sheet-card-actions:not(:has(.wf-place-card-like)){grid-template-columns:minmax(50px,1fr) minmax(56px,1fr)}
 .wf-place-card.is-liked{border-color:rgba(76,224,179,.35)!important}
 .wf-place-card.is-disliked{border-color:rgba(248,113,113,.28)!important}
 @media(max-width:430px){
+  .wf-place-card-score~.wf-place-card-layout .wf-place-card-category{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .wf-place-card-score~.wf-place-card-layout .wf-place-card-name{width:calc(100% + var(--wf-card-badge-w) + 10px);margin-top:32px}
+  .wf-place-card-score~.wf-place-card-layout .wf-place-card-heading:not(:has(>.wf-place-card-category)) .wf-place-card-name{margin-top:42px}
   .wf-place-card-layout{--wf-place-card-media:88px}
   .wf-place-card-layout>img,.wf-place-card-layout>.wf-place-card-media{width:88px!important}
-  .wf-place-card-content{padding-inline:10px!important}
+  .wf-place-card-content{padding:10px 10px 8px!important}
   .wf-place-card-name{font-size:15px!important}
+  .wf-place-card-meta{margin:3px 0 2px!important}
   .wf-place-card-meta>span{font-size:9.75px!important}
+  .wf-place-card-award{min-height:22px;margin:0 0 2px;padding:2px 7px 2px 4px}
+  .wf-place-card-highlights{margin-bottom:2px!important}
+  .wf-place-card-highlights>button,.wf-place-card-highlights>span{min-height:21px;padding:1px 7px!important}
   .wf-place-card-highlights>button{font-size:9px!important}
+  .wf-rail-card-cta{min-height:30px!important}
+  .wf-place-card-actions{--wf-act-h:34px;padding-top:4px}
+  .wf-sheet-card-actions{grid-template-columns:44px 26px 26px minmax(0,1fr);gap:4px!important}
+  .wf-sheet-card-actions:has(.wf-place-card-book){grid-template-columns:44px 26px 26px minmax(0,1fr)}
+  .wf-sheet-card-actions>.wf-place-card-like,.wf-sheet-card-actions>.wf-place-card-dislike{width:100%!important;min-width:0!important;flex:1 1 auto;padding-inline:0!important}
+  .wf-sheet-card-actions>.wf-place-card-save,.wf-sheet-card-actions>.wf-place-card-share{padding-inline:4px!important}
+  .wf-sheet-card-actions>a,.wf-sheet-card-actions>button,.wf-sheet-card-actions>span{min-width:0!important;padding-inline:4px!important;font-size:9.5px!important;overflow:hidden}
 }
 @media(min-width:${WF_DESKTOP_BP}px){
   .wf-place-card-layout{--wf-place-card-media:108px}
@@ -601,7 +602,7 @@ ${WF_SKELETON_CSS}
 .wf-rail{
   display:flex;
   align-items:stretch;
-  gap:10px;
+  gap:${PLACE_CARD_GAP_PX}px;
   overflow-x:auto;
   overflow-y:hidden;
     overscroll-behavior-inline:contain;
@@ -611,55 +612,31 @@ ${WF_SKELETON_CSS}
   scrollbar-width:none;
 }
 .wf-rail::-webkit-scrollbar{display:none}
-.wf-rail{
-  --wf-rail-vis:1.08;
-  --wf-rail-gap:10px;
-}
-@media(min-width:560px){ .wf-rail{--wf-rail-vis:1.35} }
-@media(min-width:900px){ .wf-rail{--wf-rail-vis:1.9} }
-@media(min-width:1100px){ .wf-rail{--wf-rail-vis:2.4} }
-@media(min-width:1400px){ .wf-rail{--wf-rail-vis:3.4} }
-.wf-rail-solo{max-width:min(100%,440px);margin:0}
-.wf-rail>.wf-place-card,.wf-rail>.wf-rail-card{
-  flex:0 0 calc((100% - (var(--wf-rail-vis) - 1) * var(--wf-rail-gap)) / var(--wf-rail-vis));
-  width:auto;
+.wf-rail-solo{max-width:min(100%,${PLACE_CARD_MAX_WIDTH_PX}px);margin:0}
+.wf-rail>.wf-place-card,.wf-rail>.wf-rail-card,.wf8-pcrail>.wf-place-card,.wf8-pcrail>.wf-rail-card{
   margin-bottom:0!important;
   scroll-snap-align:start;
 }
 .wf-rail-card{display:flex;flex-direction:column;cursor:pointer}
-
-@media(min-width:1100px){ .wf-rail>.wf-place-card,.wf-rail>.wf-rail-card{min-width:min(440px,100%)} }
-
-.wf-rail-events>.wf-rail-card{min-height:245px}
-
-.wf-rail-card:not(:has(.wf-place-card-actions)){--wf-card-h:236px}
-.wf-rail-card>.wf-place-card-layout{flex:1}
-.wf-rail-card .wf-place-card-content{padding:12px 12px 10px!important}
-.wf-rail-card .wf-place-card-name{
-  display:-webkit-box;
-  
-  -webkit-line-clamp:3;
-  -webkit-box-orient:vertical;
-  overflow:hidden;
-  min-height:2.3em;
-  font-size:15px!important;
-  line-height:1.15!important;
-}
-.wf-rail-card .wf-place-card-meta{flex-wrap:nowrap!important;overflow:hidden;gap:4px 10px!important;margin:7px 0 6px!important}
-
-@media(max-width:560px){
-  
-  .wf-rail-card{--wf-card-badge-w:88px}
-}
-.wf-rail-card .wf-place-card-highlights{flex-wrap:nowrap!important;overflow:hidden}
-.wf-rail-top40 .wf-place-card-highlights{flex-wrap:wrap!important;overflow:visible;max-height:none;mask-image:none;-webkit-mask-image:none}
-.wf-rail-card .wf-place-card-award{margin-bottom:6px}
-.wf-rail-card .wf-place-card-take{white-space:normal!important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:6px}
+.wf-place-card-slot{flex:0 0 var(--wf-place-card-width);width:var(--wf-place-card-width);min-width:0;scroll-snap-align:start}
+.wf-place-card-slot-list{margin:0;padding:0;list-style:none}
+.wf-place-card-slot>.wf-place-card,.wf-place-card-slot>ul>.wf-place-card{width:100%;max-width:100%;flex-basis:auto;margin-bottom:0!important}
+.wf-place-card-list{display:flex;flex-wrap:wrap;align-items:stretch;gap:${PLACE_CARD_GAP_PX}px;margin:0;padding:0;list-style:none}
+.wf-place-card-list>.wf-place-card,.wf-place-card-list>.wf-place-card-slot{margin-bottom:0!important}
+.wf-place-card-attachment{margin-top:8px;padding:12px;border:1px solid rgba(159,177,203,.25);border-top:3px solid var(--wf-place-card-accent,#8B5CF6);border-radius:17px;background:#111824}
+.wf-place-card-attachment-person{margin-bottom:5px;color:var(--wf-place-card-accent-light,#DFE5EE);font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.wf-place-card-attachment-meta{margin-bottom:8px;color:#A8B2C2;font-size:11.5px}
+.wf-place-card-attachment-body{margin:0 0 10px;color:#DFE5EE;font-size:12.5px;line-height:1.45}
+.wf-place-card-attachment-primary{display:flex;min-height:44px;align-items:center;justify-content:center;padding:10px 14px;border-radius:12px;background:var(--wf-place-card-accent,#8B5CF6);color:#FFF!important;font-size:13px;font-weight:800;text-decoration:none}
+.wf-place-card-attachment-primary>span{margin-left:7px}
+.wf-place-card-attachment-links{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px;margin-top:4px}
+.wf-place-card-attachment-link{display:inline-flex;min-height:44px;align-items:center;padding:0 9px;color:#A8B2C2!important;font-size:12px;font-weight:650;text-decoration:none}
+.wf-place-card-attachment-disclosure{margin-top:6px;color:#7C8797;font-size:10.5px;line-height:1.5}
 .wf-rail-card-cta{
   display:flex!important;
   align-items:center;
   justify-content:center;
-  min-height:34px;
+  min-height:30px;
   margin-top:auto;
   padding:0 12px;
   border:1px solid rgba(249,115,22,.5);
@@ -673,13 +650,6 @@ ${WF_SKELETON_CSS}
   transition:border-color .18s ease,background .18s ease;
 }
 .wf-rail-card-cta:hover,.wf-rail-card-cta:focus-visible{border-color:rgba(255,155,80,.85);background:linear-gradient(180deg,rgba(249,115,22,.3),rgba(249,115,22,.12))}
-.wf-rail-card .wf-place-card-actions{margin-top:auto!important;padding-top:8px}
-.wf-rail-card .wf-rail-card-cta~.wf-place-card-actions{margin-top:0!important;padding-top:6px}
-.wf-rail-card .wf-sheet-card-actions{grid-template-columns:minmax(50px,1fr) 38px 38px minmax(56px,1fr);gap:5px!important}
-.wf-rail-card .wf-place-card-actions{--wf-act-h:36px}
-.wf-rail-card .wf-place-card-like,.wf-rail-card .wf-place-card-dislike{width:38px!important;min-width:38px!important;flex:0 0 38px}
-.wf-rail-card .wf-place-card-like svg,.wf-rail-card .wf-place-card-dislike svg{width:17px;height:17px}
-.wf-rail-card .wf-place-card-actions>a,.wf-rail-card .wf-place-card-actions>button{padding:0 7px!important;font-size:10px!important}
 
 .wf-rail-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 10px;font-family:var(--wf-sans,-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif)}
 .wf-rail-heading-copy{flex:1 1 160px;min-width:0}
@@ -762,10 +732,10 @@ a:has(>.wf-place-card)>.wf-place-card .wf-place-card-share{color:#DFE5EE!importa
   min-width:0;
   gap:8px;
   margin-top:auto;
-  padding-top:10px;
+  padding-top:3px;
   pointer-events:none;
 }
-.wf-place-card-credit~.wf-place-card-actions{margin-top:0!important;padding-top:8px}
+.wf-place-card-credit~.wf-place-card-actions{margin-top:0!important;padding-top:4px}
 .wf-pcc-name{
   min-width:0;
   flex:1 1 auto;
@@ -822,18 +792,11 @@ a:has(>.wf-place-card)>.wf-place-card .wf-place-card-share{color:#DFE5EE!importa
   color:#0B0E1A;
 }
 .wf-pcc-more{color:#94A3B8;font-size:10.5px;font-weight:800}
-@media(max-width:390px){
-  .wf-place-card-credit{gap:6px;padding-top:8px}
+@media(max-width:430px){
+  .wf-place-card-credit{gap:5px;padding-top:3px}
+  .wf-place-card-credit~.wf-place-card-actions{padding-top:4px}
   .wf-pcc-plat{padding:0 6px;letter-spacing:.03em}
   .wf-pcc-name{font-size:11px}
-}
-
-@media(max-width:360px){
-  .wf-rail-card .wf-place-card-content{padding-inline:9px!important}
-  .wf-rail-card .wf-sheet-card-actions{grid-template-columns:minmax(42px,1fr) 34px 34px minmax(46px,1fr);gap:4px!important}
-  .wf-rail-card .wf-place-card-actions{--wf-act-h:34px}
-  .wf-rail-card .wf-place-card-like,.wf-rail-card .wf-place-card-dislike{width:34px!important;min-width:34px!important;flex:0 0 34px}
-  .wf-rail-card .wf-place-card-actions>a,.wf-rail-card .wf-place-card-actions>button{padding:0 5px!important;font-size:9.5px!important}
 }
 
 .wf-rail-bridge{
@@ -858,10 +821,6 @@ a:has(>.wf-place-card)>.wf-place-card .wf-place-card-share{color:#DFE5EE!importa
 .wf-rail-bridge-title{font-size:13px;font-weight:750;line-height:1.2}
 .wf-rail-bridge-sub{color:#94A3B8;font-size:11px}
 
-@media(min-width:${WF_DESKTOP_BP}px){
-  .wf-rail{gap:12px}
-  .wf-rail-card .wf-place-card-name{font-size:16px!important}
-}
 .wf-bottom-nav{
   padding:3px 4px 2px!important;
   gap:2px!important;
@@ -906,7 +865,7 @@ a:has(>.wf-place-card)>.wf-place-card .wf-place-card-share{color:#DFE5EE!importa
 .wf-place-card-sk-line.is-title{height:16px;margin-top:6px}
 .wf-place-card-sk-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:auto;padding-top:10px}
 .wf-place-card-sk-actions>.wf-sk{height:34px;border-radius:999px}
-.wf8-pcrail>.wf-place-card-sk{flex:0 0 calc((100% - (var(--wf8-pcvis) - 1) * var(--wf8-pcgap)) / var(--wf8-pcvis));scroll-snap-align:start;margin-bottom:0!important}
+.wf8-pcrail>.wf-place-card-sk{flex:0 0 var(--wf-place-card-width);width:var(--wf-place-card-width);scroll-snap-align:start;margin-bottom:0!important}
 .wf8-tile-sk{position:absolute;inset:12px 12px auto;z-index:1;pointer-events:none}
 .wf8-tile.is-art-ready .wf8-tile-sk{display:none}
 `;
