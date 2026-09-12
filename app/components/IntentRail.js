@@ -55,6 +55,7 @@ import { lawfulSort } from "../../lib/lawfulOrder.js";
 import PlaceCardSkeleton from "./PlaceCardSkeleton";
 import { topPickAward } from "../../lib/topPickAward";
 import { settleLoad } from "../../lib/loadState.js";
+import { PLACE_CARD_HEIGHT_PX } from "../../lib/placeCardStandard.js";
 // v8.57 — THIS RAIL PAINTS A SKELETON, SO IT MUST REACH A DECISION.
 // The try/catch/finally below is intact and still does the work. What it could
 // NOT do is see a fetch that neither resolves nor rejects: every await stays
@@ -65,10 +66,8 @@ import { settleLoad } from "../../lib/loadState.js";
 // released. Locked by scripts/check-no-stuck-loading.mjs section 5.
 const INTENT_RAIL_LOAD_TIMEOUT_MS = 12000;
 
-// Measured against the Top 40 rail, which renders the identical card with the
-// identical chip and action rows. One constant so the skeleton and the live
-// rail reserve the same box and the swap cannot shift the page.
-export const INTENT_RAIL_CARD_H = 224;
+// Skeleton and live rail reserve the canonical card body height.
+export const INTENT_RAIL_CARD_H = PLACE_CARD_HEIGHT_PX;
 const RAIL_MAX = 12;
 const RAIL_CANDIDATE_MAX = 24;
 // TWO queries on the first pass, not three. Measured on a cold Orlando: four

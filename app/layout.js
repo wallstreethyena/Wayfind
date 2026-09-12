@@ -1,6 +1,7 @@
 import Script from "next/script";
 import DocumentPosition from "./components/DocumentPosition";
 import "maplibre-gl/dist/maplibre-gl.css";
+import "./links.css";
 import { fontVariables } from "./fonts";
 import { SITE_URL } from "../lib/site";
 import { cardActionBridgeScript } from "../lib/cardActionAttrs";

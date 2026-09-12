@@ -13,6 +13,9 @@
  */
 import { readFileSync, existsSync } from "node:fs";
 import path from "node:path";
+import React from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { loadComponent } from "./lib/jsxLoad.mjs";
 
 let pass = 0;
 const fail = [];
@@ -78,8 +81,19 @@ const rows = rowsRaw.replace(/\/\*[\s\S]*?\*\//g, " ").split("\n").filter((l) =>
 
 ok(/resolveRowCta\(/.test(page), "the page resolves each row's CTA through the ONE ladder");
 ok(/showsDisclosure\(/.test(rows), "the rows gate the FTC line on showsDisclosure(), not on 'a CTA exists'");
-ok(/\{p\.hook \?/.test(rows),
-  "the 'Known for' line is CONDITIONAL on real editorial — measured coverage is ~22% of rows, and a placeholder would be invented prose");
+const CuisineListClient = (await loadComponent(path.resolve(R), path.resolve("."))).default;
+const fixtureCta = { type: "directions", label: "Directions", href: "https://maps.example/place", monetized: false, provider: null, offerId: null };
+const editorialHook = "Hand-folded soup dumplings and a glass-walled kitchen make the craft visible from every table.";
+const editorialMarkup = renderToStaticMarkup(React.createElement(CuisineListClient, {
+  metro: "sarasota",
+  cuisine: "dumplings",
+  places: [
+    { id: "with-editorial", name: "Dumpling House", rating: 4.8, reviews: 320, wfScore: 91, hook: editorialHook, cta: fixtureCta, secondary: null, deal: null },
+    { id: "without-editorial", name: "Second Restaurant", rating: 4.7, reviews: 210, wfScore: 89, hook: null, cta: fixtureCta, secondary: null, deal: null },
+  ],
+}));
+ok((editorialMarkup.match(/wf-place-card-take is-known-for/g) || []).length === 1 && editorialMarkup.includes(editorialHook.replace(/[.!?]+$/, "")),
+  "real editorial is delegated to IconicPlaceCard's known-for tier, while a row without editorial renders no take");
 ok(!/Known for <b>\{?["'`]/.test(rows), "no hardcoded 'Known for' text");
 ok(/couponEndsLabel/.test(page), "the deal chip's expiry comes from couponEndsLabel — the REAL date");
 ok(!/Ends Aug 31|Ends Jul|Ends Sep/.test(page + rows), "no hardcoded expiry date anywhere (the mock's 'Ends Aug 31' is illustrative)");

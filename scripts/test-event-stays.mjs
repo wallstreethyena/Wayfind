@@ -7,7 +7,10 @@ const good = hotel("near");
 const selected = selectEventStays([good, good, hotel("far", { lat: 27.3, lng: -82.5 }), hotel("cafe", { types: ["cafe"] }), hotel("better", { wfScore: 96 }), hotel("bad", { lat: null })], origin);
 assert.deepEqual(selected.map((p) => p.id), ["better", "near"]);
 assert.ok(selected.every((p) => p.distMi < 12));
-assert.equal(selectEventStays([hotel("wfh-owned", { googlePlaceId: "ChIJ-test" })], origin)[0].detailHref, "/p/ChIJ-test");
+const canonicalOwned = selectEventStays([hotel("wfh-owned", { googlePlaceId: "ChIJ-test" })], origin)[0];
+assert.equal(canonicalOwned.id, "ChIJ-test", "the event card, map pin, and /p route share the Google Place identity");
+assert.equal(canonicalOwned.sourceId, "wfh-owned", "the owned-inventory identity remains available as provenance");
+assert.equal(canonicalOwned.detailHref, "/p/ChIJ-test");
 assert.match(selectEventStays([hotel("wfh-owned")], origin)[0].detailHref, /^https:\/\/maps.apple.com\//);
 assert.equal(selectEventStays([hotel("wfh-owned")], origin)[0].mapsOnly, true);
 assert.deepEqual(selectEventStays([good], { lat: 0, lng: 0 }), []);
@@ -31,6 +34,8 @@ const stockRejected = await eventStays(origin, { readOwned: async () => [], read
 assert.equal(stockRejected.places[0].photo, "/api/photo?ref=places%2Froost%2Fphotos%2Fexact&w=640", "event Stays must reject a shared stock URL and retain the place-bound ref");
 const merged = await eventStays(origin, { readOwned: async () => [hotel("wfh-real", { googlePlaceId: "real", wfScore: 99, blurb: "Owned editorial" })], readInventory: async () => [{ id: "real", displayName: { text: "Real Hotel" }, location: { latitude: 28.48, longitude: -81.47 }, types: ["hotel"], rating: 4, userRatingCount: 10 }] });
 assert.equal(merged.places.length, 1);
+assert.equal(merged.places[0].id, "real", "the owned row wins dedupe without keeping a parallel card identity");
+assert.equal(merged.places[0].sourceId, "wfh-real");
 assert.equal(merged.places[0].wfScore, 99);
 assert.equal(merged.places[0].blurb, "Owned editorial");
 const serviceRows = await eventStays(origin, { readOwned: async () => [], readInventory: async () => [

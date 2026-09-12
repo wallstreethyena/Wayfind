@@ -215,6 +215,7 @@ import { WF_LAYOUT_CSS, WF_SEARCH_CSS, WF_PLACE_CARD_CSS, WF_TASTE_CSS, WF_RAIL_
 // the bundle the card copy and nothing else.
 import DaypartRail from "./components/DaypartRail";
 import PlaceCardSkeleton from "./components/PlaceCardSkeleton";
+import { PLACE_CARD_HEIGHT_PX } from "../lib/placeCardStandard.js";
 import { WF_RAIL_MENU_CSS } from "./components/railMenuCss";
 import { RAILS } from "../lib/rails";
 // v8.3: the category tabs resolve their city segment through the SAME builder
@@ -9131,7 +9132,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // auth + password-recovery sheets
     authOpen, authMode, setAuthMode, isStandalone, signInWithProvider, authEmail, setAuthEmail, authPassword, setAuthPassword, passwordAuth, authSending, resetSending, sendPasswordReset, recoveryOpen, setRecoveryOpen, newPw, setNewPw, newPw2, setNewPw2, pwSaving, saveNewPassword, authReady,
     // detail sheet (G3)
-    detail, setDetail, detailExtra, setLightbox, reviewsOpen, setReviewsOpen, hoursOpen, setHoursOpen, venueEvents, venueEventsLoading, venueEventsOpen, setVenueEventsOpen, videos, videosLoading, beachCond, beachCondLoading, insight, insightLoading, insightFull, insightFullLoading, showMore, viaTours, debugOn, placeComments, setPlaceComments, commentType, setCommentType, placePosts, setPlacePosts, confirmDel, setConfirmDel, taInfo, insider, detailContext, myVotes, communityVotes, galleryRef, noteRef, scrollGallery, loadFullInsight, addReservation, handleVote, loadVenueEvents, placeShareUrl, FeaturedTag, curatedNote, curatedFor, wayfindNotes, betterAlternatives, similarPlaces, relatedPicks, placeKind, isBeach, beachSignals, weather,
+    detail, setDetail, detailExtra, setLightbox, reviewsOpen, setReviewsOpen, hoursOpen, setHoursOpen, venueEvents, venueEventsLoading, venueEventsOpen, setVenueEventsOpen, videos, videosLoading, beachCond, beachCondLoading, insight, insightLoading, insightFull, insightFullLoading, showMore, viaTours, debugOn, placeComments, setPlaceComments, commentType, setCommentType, placePosts, setPlacePosts, confirmDel, setConfirmDel, taInfo, insider, detailContext, myVotes, communityVotes, galleryRef, noteRef, scrollGallery, loadFullInsight, addReservation, handleVote, loadVenueEvents, placeShareUrl, FeaturedTag, curatedNote, curatedFor, wayfindNotes, betterAlternatives, similarPlaces, relatedPicks, placeKind, isBeach, beachSignals, weather, isSharedPlaceArrival: !!initialPlaceId,
     // social find sheet (v6.93) — the "bookshelf" of curated creator-video
     // places: the place+video the user tapped in from, every other nearby
     // find (for the "more near you" strip), and the region-availability list
@@ -9256,9 +9257,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       if (["night-out", "date-night", "summer-sports", "today-entertainment"].includes(mode)) return { pending: true, byRail: {} };
       return (
         <div className="wf-rail wf-rail-events" aria-hidden="true" role="status" aria-busy="true" style={{ minHeight: EV_RAIL_MIN_H, overflow: "hidden" }}>
-          {[0, 1].map((i) => (
-            <div key={i} className="wf-sk" style={{ width: "100%", height: EV_RAIL_MIN_H, borderRadius: 17, flexShrink: 0, opacity: 1 - i * 0.22 }} />
-          ))}
+          <PlaceCardSkeleton count={2} as="div" />
         </div>
       );
     }
@@ -11674,7 +11673,7 @@ const wstat = { flexShrink: 0, whiteSpace: "nowrap", fontSize: 12, fontWeight: 7
 // anything. Both the skeleton and the live rail read these same constants —
 // that is the whole point; do not hardcode either number twice.
 const EV_HERO_H = 248; // Owner visual refinement: restore a taller, more cinematic hero while preserving the shared loading/live geometry.   // the featured hero <a> height
-const EV_RAIL_MIN_H = 245; // v7.03: measured on PRODUCTION at 390 and 1024 with the real webfonts loaded (243 / 245) — the first pass measured 236 in a harness with system fonts, which under-reserved by 7px. Same number .wf-rail-events pins in css.js.
+const EV_RAIL_MIN_H = PLACE_CARD_HEIGHT_PX; // Loading and loaded cards share the global geometry contract.
 // ALL THREE rail states (loading / empty / populated) reserve this same floor.
 // Measured 2026-07-21: without it, a sparse market where events resolve to []
 // collapsed the ~312px skeleton into a ~130px empty state and yanked the feed

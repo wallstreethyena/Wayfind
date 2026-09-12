@@ -18,6 +18,8 @@
 // MAX-WIDTH, MARGIN or DISPLAY re-creates the bug, so this test fails the build.
 import { readFileSync } from "node:fs";
 import { shellSrc } from "./lib/shellSrc.mjs";
+import { loadComponent } from "./lib/jsxLoad.mjs";
+import { PLACE_CARD_HEIGHT_PX } from "../lib/placeCardStandard.js";
 
 let passed = 0;
 const fail = (m) => { console.error("test-layout-shift: FAIL — " + m); process.exit(1); };
@@ -136,10 +138,11 @@ ok(/<RailCard[\s\S]*photo=\{item\.image\}[\s\S]*title=\{item\.title\}/.test(affi
 ok(!/minHeight|fit-content|height:\s*["']?auto/.test(affiliateComponent),
   "the activity rail does not reintroduce content-driven card geometry");
 {
-  const cssSrc = readFileSync(new URL("../app/components/css.js", import.meta.url), "utf8").replace(/\s*\n\s*/g, "");
-  const rule = (cssSrc.match(/\.wf-place-card\{[^}]*\}/) || [""])[0];
-  ok(/--wf-card-h:\d+px/.test(rule) && /height:var\(--wf-card-h\)/.test(rule),
-    ".wf-place-card still owns a fixed height");
+  const { WF_PLACE_CARD_CSS } = await loadComponent(new URL("../app/components/css.js", import.meta.url).pathname, new URL("../", import.meta.url).pathname);
+  const cssSrc = String(WF_PLACE_CARD_CSS).replace(/\s*\n\s*/g, "");
+  const rule = (cssSrc.match(/\.wf-place-card(?:,[^{]+)?\{[^}]*--wf-card-h[^}]*\}/) || [""])[0];
+  ok(rule.includes(`--wf-card-h:${PLACE_CARD_HEIGHT_PX}px`) && /height:var\(--wf-card-h\)/.test(cssSrc),
+    `.wf-place-card still owns the shared fixed ${PLACE_CARD_HEIGHT_PX}px height`);
 }
 
 

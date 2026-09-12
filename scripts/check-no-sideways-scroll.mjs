@@ -28,6 +28,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { loadComponent } from "./lib/jsxLoad.mjs";
 
 let pass = 0;
 const fail = (m) => { console.error("check-no-sideways-scroll: FAIL — " + m); process.exit(1); };
@@ -76,7 +77,10 @@ for (const f of SHELL) {
 // A horizontal rail is legitimate; a rail that lets its scroll CHAIN to the
 // page is the thing that shifts the layout. overscroll-behavior-inline:contain
 // on the shared rail class is what stops the chain at the rail's edge.
-const css = read("app/components/css.js");
+// Load the exported CSS so template interpolation braces cannot terminate the
+// source regex before it reaches overscroll-behavior-inline.
+const { WF_PLACE_CARD_CSS } = await loadComponent(path.join(REPO, "app/components/css.js"), REPO);
+const css = String(WF_PLACE_CARD_CSS);
 ok(/\.wf-rail\b[^}]*overscroll-behavior(-inline)?:\s*contain/.test(css) || /overscrollBehaviorInline:\s*"contain"/.test(read("app/components/RailCard.js")),
    "the shared rail must set overscroll-behavior-inline:contain, or a flick past the last card chains the scroll to the page");
 
