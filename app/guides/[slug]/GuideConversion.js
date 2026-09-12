@@ -117,8 +117,8 @@ export default function GuideConversion({ slug, region, cta, next, social, socia
                 try {
                   emitCommerce("commerce_cta_clicked", {
                     surface: "guide",
-                    provider: cta.kind === "hotel" ? "stay22" : (cta.kind === "deal" ? "deal" : "viator"),
-                    offer_id: cta.place || slug,
+                    provider: cta.provider || (cta.kind === "hotel" ? "stay22" : (cta.kind === "deal" ? "deal" : "viator")),
+                    offer_id: cta.offerId || cta.place || slug,
                     content_id: slug,
                     city_id: region || null,
                     category: cta.kind || null,

@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 637,
-    "totalRegistryEntries": 638,
-    "guardsTxtLineCount": 636,
-    "guardsTxtReachedFileCount": 631,
+    "totalOnDiskGuardFiles": 640,
+    "totalRegistryEntries": 641,
+    "guardsTxtLineCount": 639,
+    "guardsTxtReachedFileCount": 634,
     "criticalCount": 76,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 426,
+      "CALL": 429,
       "RENDER": 70,
       "STRUCTURAL": 141,
       "OTHER": 1
@@ -9126,7 +9126,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 74,
+      "assertionCount": 82,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -11187,6 +11187,28 @@
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-guide-park-ticket-cta.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 17,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
@@ -14435,6 +14457,53 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 10,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-theme-park-core.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 43,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": "The statewide theme park rail uses exact owned place identities, the existing single ticket winner, visible Wayfind Score order and the standard place card without exposing partner destinations.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "A loose identity or duplicate commerce path can sell the wrong park, hide a strong park or send a buyer through an untracked link."
+      },
+      "owner": "Revenue QA"
+    },
+    {
+      "file": "scripts/test-theme-park-surfaces.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 18,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

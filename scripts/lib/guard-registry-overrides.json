@@ -631,5 +631,13 @@
       "detail": "Truncated inventory or broad category leakage can hide relevant offers or show unsuitable family activities."
     },
     "owner": "Revenue QA"
+  },
+  "scripts/test-theme-park-core.mjs": {
+    "protects": "The statewide theme park rail uses exact owned place identities, the existing single ticket winner, visible Wayfind Score order and the standard place card without exposing partner destinations.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "A loose identity or duplicate commerce path can sell the wrong park, hide a strong park or send a buyer through an untracked link."
+    },
+    "owner": "Revenue QA"
   }
 }

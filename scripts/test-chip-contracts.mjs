@@ -24,6 +24,18 @@ let pass = 0, fail = 0;
 const ok = (c, m) => { c ? pass++ : (fail++, console.log("  FAIL:", m)); };
 const p = (name, types, primary) => ({ name, types, primary_type: primary || types[0], primaryType: primary || types[0] });
 
+// Theme Parks is an identity promise, not a name search. A real park type
+// passes even when its name omits "theme park"; a hotel or restaurant cannot
+// pass just because it borrows a park brand in its name.
+ok(placeAllowed("attractions", "themeparks", p("Universal Epic Universe", ["amusement_park", "tourist_attraction"], "amusement_park")),
+  "Theme Parks keeps a real amusement park");
+ok(placeAllowed("attractions", "themeparks", p("Magic Kingdom Park", ["theme_park", "tourist_attraction"], "theme_park")),
+  "Theme Parks keeps a real theme park");
+ok(!placeAllowed("attractions", "themeparks", p("Universal's Cabana Bay Beach Resort", ["hotel", "lodging"], "hotel")),
+  "Theme Parks refuses a park-branded hotel");
+ok(!placeAllowed("attractions", "themeparks", p("Theme Park Cafe", ["restaurant", "food"], "restaurant")),
+  "Theme Parks refuses a restaurant whose name says theme park");
+
 // ── Arts refuses the substring accidents (real rows, real types) ───────────
 ok(!placeAllowed("attractions", "arts", p("Tampa Fishing Charters, Inc.", ["fishing_charter", "tour_agency", "point_of_interest"])),
   "a fishing charter is not Arts — `fishing_charter` must not match on the ART inside chARTer");
@@ -122,5 +134,5 @@ ok(placeAllowed("attractions", "marinas", p("Tampa Fishing Charters, Inc.", ["fi
 ok(placeAllowed("food", "breakfast", p("Keke's Breakfast Cafe", ["breakfast_restaurant", "brunch_restaurant", "restaurant"], "breakfast_restaurant")),
   "Keke's still belongs to Breakfast");
 
-console.log(`\ntest-chip-contracts: ${fail ? "FAIL" : "OK"} — ${pass} executed placeAllowed verdicts; Arts refuses charters/gyms and keeps theaters, Desserts refuses BBQ and keeps creameries`);
+console.log(`\ntest-chip-contracts: ${fail ? "FAIL" : "OK"} — ${pass} executed placeAllowed verdicts; Theme Parks requires park types, Arts refuses charters/gyms, and Desserts refuses BBQ`);
 process.exit(fail ? 1 : 0);
