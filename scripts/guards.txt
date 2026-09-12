@@ -1470,6 +1470,7 @@ node scripts/test-creator-picks-rails.mjs
 node scripts/test-rail-visual-standard.mjs
 
 node scripts/test-event-stays.mjs
+node scripts/test-fall-destination-stays.mjs
 node scripts/test-event-driving-route.mjs
 
 node scripts/test-morning-candidate-integrity.mjs
