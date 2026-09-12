@@ -3333,6 +3333,87 @@
           "evidence": "No author visit notes were supplied; source review is not firsthand experience."
         }
       }
+    },
+    {
+      "slug": "tonights-move-tampa-september-12-2026",
+      "url": "https://www.gowayfind.com/guides/tonights-move-tampa-september-12-2026",
+      "primary_query": "tampa tonight september 12 2026",
+      "geography": "Tampa",
+      "decision": "Saturday, September 12, 2026 in Tampa: Bruno Mars at 7, Rays vs Astros at 6:10. You cannot do both. Also The Strokes, ArtWalk, Afterglow, and what is not tonight.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/unsplash/tampa-waterfront-kody-cheyne.webp; 1600x1067; Kody Cheyne; Unsplash License."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Delivered image is 1600x1067; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "unknown",
+          "evidence": "No intent-fit sibling was added; a same-city link alone is insufficient evidence."
+        },
+        "comparison_shortcut": {
+          "status": "pass",
+          "evidence": "3 choices point to existing article sections."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
     }
   ]
 }
