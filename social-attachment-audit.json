@@ -1,23 +1,23 @@
 {
   "schema_version": 1,
-  "observed_at": "2026-09-11",
+  "observed_at": "2026-09-12",
   "scope": "Prepared owner-submitted Instagram associations in this release candidate; contains no source captions. This inventory covers links retrievable from the repository, reachable Git history, and four recalled links from the current conversation. It does not claim access to or completeness against all prior chat history. Production attachment is verified only after deployment.",
   "association_policy": "event_associations are dedicated event or organiser posts eligible for exact event surfaces. roundup_event_mentions preserve reviewed calendar/venue mentions as audit evidence only. venue_context_associations identify the event venue without proving the named event. Neither audit-only class is published as exact event media.",
   "public_entrypoint": "Home → select Creators Pick → Browse all creator finds. Place-linked posts open a Wayfind venue card; exact-ID venues can continue to full place details. Event-only posts render on the listed Florida event route.",
   "summary": {
-    "source_total": 45,
-    "retrievable_reported_source_total": 49,
-    "retrievable_reported_sources_mapped": 45,
+    "source_total": 47,
+    "retrievable_reported_source_total": 51,
+    "retrievable_reported_sources_mapped": 47,
     "sources_with_place_association": 38,
-    "sources_with_event_association": 7,
-    "sources_with_any_association": 45,
-    "event_only_sources": 7,
+    "sources_with_event_association": 9,
+    "sources_with_any_association": 47,
+    "event_only_sources": 9,
     "remaining_unmapped_sources": 4,
     "place_association_count": 55,
     "unique_place_association_count": 52,
     "sources_with_roundup_event_mentions": 2,
     "roundup_event_mention_count": 11,
-    "exact_event_association_count": 7,
+    "exact_event_association_count": 9,
     "sources_with_venue_context_association": 2,
     "venue_context_association_count": 2
   },
@@ -1422,6 +1422,48 @@
       ],
       "association_status": "prepared",
       "public_navigation": "/florida-events/halloween-horror-nights-orlando-2026",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "DcwSHqZj-TU",
+      "creator_handle": "horrornightsorl",
+      "native_url": "https://www.instagram.com/reel/DcwSHqZj-TU/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Orlando"
+      ],
+      "place_associations": [],
+      "event_associations": [
+        {
+          "event_id": "hhn-orlando-2026",
+          "native_wayfind_surface": "/florida-events/halloween-horror-nights-orlando-2026",
+          "renderability": "server_rendered_creator_credit_and_native_link",
+          "association_kind": "exact_event"
+        }
+      ],
+      "association_status": "prepared",
+      "public_navigation": "/florida-events/halloween-horror-nights-orlando-2026",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "Dc9QNl-o6DK",
+      "creator_handle": "adventurouslittlethinkers",
+      "native_url": "https://www.instagram.com/reel/Dc9QNl-o6DK/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Winter Haven"
+      ],
+      "place_associations": [],
+      "event_associations": [
+        {
+          "event_id": "brick-or-treat-2026",
+          "native_wayfind_surface": "/florida-events/legoland-florida-brick-or-treat-2026",
+          "renderability": "server_rendered_creator_credit_and_native_link",
+          "association_kind": "exact_event"
+        }
+      ],
+      "association_status": "prepared",
+      "public_navigation": "/florida-events/legoland-florida-brick-or-treat-2026",
       "native_link_renderable": true
     },
     {
