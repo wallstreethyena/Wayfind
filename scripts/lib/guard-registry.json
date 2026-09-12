@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 640,
-    "totalRegistryEntries": 641,
-    "guardsTxtLineCount": 639,
-    "guardsTxtReachedFileCount": 634,
+    "totalOnDiskGuardFiles": 641,
+    "totalRegistryEntries": 642,
+    "guardsTxtLineCount": 640,
+    "guardsTxtReachedFileCount": 635,
     "criticalCount": 76,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 429,
-      "RENDER": 70,
+      "RENDER": 71,
       "STRUCTURAL": 141,
       "OTHER": 1
     }
@@ -11165,6 +11165,28 @@
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-guide-editorial-mode.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 30,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
