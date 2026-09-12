@@ -52,6 +52,7 @@ jobs:
       # CI has installed Chromium above, so absence/launch failure is fatal here.
       # This second invocation also emits reviewable dimensions and screenshots.
       - name: Required rendered place-card standard
+        if: always()
         run: node scripts/check-place-card-standard.mjs --require-browser
       - name: Upload place-card geometry evidence
         if: always()

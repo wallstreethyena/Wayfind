@@ -52,7 +52,16 @@ const classText = (initializer) => {
   const expression = initializer.expression;
   if (ts.isStringLiteral(expression) || ts.isNoSubstitutionTemplateLiteral(expression)) return expression.text;
   if (ts.isTemplateExpression(expression)) return expression.head.text + expression.templateSpans.map((span) => " " + span.literal.text).join("");
-  return expression.getText();
+  const parts = [];
+  const visit = (node) => {
+    if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) parts.push(node.text);
+    else if (ts.isTemplateExpression(node)) {
+      parts.push(node.head.text, ...node.templateSpans.map((span) => span.literal.text));
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(expression);
+  return parts.join(" ");
 };
 const exactClass = (text, token) => new RegExp(`(?:^|\\s)${token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:\\s|$)`).test(text);
 const rootRenderers = new Set();
@@ -105,6 +114,7 @@ const RENDERER_ADAPTERS = {
   "app/components/IconicPlaceCard.js": "iconic",
   "app/components/PlaceCardSkeleton.js": "skeleton",
   "app/components/RailCard.js": "rail-card",
+  "app/components/ThingsToDoList.js": "things-to-do",
   "app/home.js": "home-live-route",
 };
 const discovered = [...rootRenderers].sort();
@@ -288,7 +298,7 @@ if (!browserConfig) {
   ${section("skeleton", React.createElement(PlaceCardSkeleton, { count: 2, as: "div" }))}
   ${section("home-live-route", React.createElement(React.Fragment, null, homeCard, homeCard))}
   ${section("sponsored", React.createElement(React.Fragment, null, sponsor, sponsor))}
-  <section data-adapter="guide-list-slot"><ol class="wf-place-card-list"><li class="wf-place-card-slot"><ul>${renderToStaticMarkup(React.createElement(GuidePlaceCard, { place: place("guide-a"), rank: 1, editorial: "A verified local favorite." }))}</ul></li><li class="wf-place-card-slot"><ul>${renderToStaticMarkup(React.createElement(GuidePlaceCard, { place: place("guide-b"), rank: 2, editorial: "A verified local favorite." }))}</ul></li></ol></section>
+  <section data-adapter="guide-list-slot"><ol class="wf-place-card-list"><li class="wf-place-card-slot"><ul class="wf-place-card-slot-list">${renderToStaticMarkup(React.createElement(GuidePlaceCard, { place: place("guide-a"), rank: 1, editorial: "A verified local favorite." }))}</ul></li><li class="wf-place-card-slot"><ul class="wf-place-card-slot-list">${renderToStaticMarkup(React.createElement(GuidePlaceCard, { place: place("guide-b"), rank: 2, editorial: "A verified local favorite." }))}</ul></li></ol></section>
   ${MUTATION ? '<style>.wf-event-place-rail .wf-place-card{--wf-card-h:340px}.wf-event-place-rail .wf-place-card-name{font-size:22px}</style>' : ""}
   </body></html>`;
   const temp = mkdtempSync(path.join(ROOT, ".wf-card-standard-"));
@@ -316,7 +326,7 @@ if (!browserConfig) {
             const cs = getComputedStyle(card), contentCss = content ? getComputedStyle(content) : null, nameCss = name ? getComputedStyle(name) : null, actionCss = actions ? getComputedStyle(actions) : null;
             const headingCss = heading ? getComputedStyle(heading) : null;
             const headingTextWidth = heading ? heading.getBoundingClientRect().width - parseFloat(headingCss.paddingLeft || "0") - parseFloat(headingCss.paddingRight || "0") : null;
-            return { box: box(card), scrollWidth: card.scrollWidth, root: [cs.height, cs.width, cs.borderRadius, cs.backgroundColor], content: contentCss ? [contentCss.paddingTop, contentCss.paddingRight, contentCss.paddingBottom, contentCss.paddingLeft] : null, name: nameCss ? [nameCss.fontSize, nameCss.lineHeight, nameCss.fontWeight] : null, headingTextWidth, actions: actionCss ? [actionCss.display, actionCss.gridTemplateColumns, actionCss.height] : null, media: media ? box(media) : null, score: score ? box(score) : null, controls: [...card.querySelectorAll(".wf-place-card-actions>*")].map(box) };
+            return { box: box(card), scrollWidth: card.scrollWidth, root: [cs.height, cs.width, cs.borderRadius, cs.backgroundColor], content: contentCss ? [contentCss.paddingTop, contentCss.paddingRight, contentCss.paddingBottom, contentCss.paddingLeft] : null, name: nameCss ? [nameCss.fontSize, nameCss.lineHeight, nameCss.fontWeight] : null, headingTextWidth, hasBooking: !!card.querySelector('.wf-place-card-book'), actionStyles: Object.fromEntries(['save','like','dislike','share'].map(key => { const el = card.querySelector('.wf-place-card-' + key); if (!el) return [key,null]; const style = getComputedStyle(el); return [key,[style.height,style.fontSize,style.fontWeight,style.paddingLeft,style.paddingRight,style.borderRadius]]; })), actions: actionCss ? [actionCss.display, actionCss.gridTemplateColumns, actionCss.height, actionCss.columnGap] : null, media: media ? box(media) : null, score: score ? box(score) : null, controls: [...card.querySelectorAll(".wf-place-card-actions>*")].map(box) };
           }),
         }));
         return { innerWidth, scrollWidth: document.documentElement.scrollWidth, adapters };
@@ -355,7 +365,14 @@ if (!browserConfig) {
         if (card.content && reference.content) ok(JSON.stringify(card.content) === JSON.stringify(reference.content), `${width}px ${card.adapter}: content padding matches IconicPlaceCard`);
         if (card.name && reference.name) ok(JSON.stringify(card.name) === JSON.stringify(reference.name), `${width}px ${card.adapter}: title typography matches IconicPlaceCard`);
         if (card.media && reference.media) ok(Math.abs(card.media.w - reference.media.w) <= .5, `${width}px ${card.adapter}: media width matches IconicPlaceCard`);
-        if (card.actions && reference.actions) ok(card.actions[0] === reference.actions[0] && card.actions[1] === reference.actions[1], `${width}px ${card.adapter}: action layout matches IconicPlaceCard`);
+        if (card.actions && reference.actions) {
+          ok(card.actions[0] === reference.actions[0] && card.actions[3] === reference.actions[3], `${width}px ${card.adapter}: action display and spacing match IconicPlaceCard`);
+          if (card.controls.length === reference.controls.length) ok(card.actions[1] === reference.actions[1], `${width}px ${card.adapter}: equal control counts use equal action tracks`);
+          else ok(card.controls.length === 5 && card.hasBooking, `${width}px ${card.adapter}: the only extra action is the existing booking control`);
+        }
+      }
+      for (const card of live) for (const key of ['save','like','dislike','share']) {
+        ok(card.actionStyles[key] && JSON.stringify(card.actionStyles[key]) === JSON.stringify(reference.actionStyles[key]), `${width}px ${card.adapter}: ${key} height, font, padding and radius match the shared action`);
       }
       const skeletons = measured.adapters.find((adapter) => adapter.id === "skeleton")?.cards || [];
       for (const card of skeletons) {

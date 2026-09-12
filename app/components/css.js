@@ -510,7 +510,7 @@ ${WF_SKELETON_CSS}
 //    --wf-card-h and clips anything that outgrows it.
 `.wf-place-card-take.is-known-for{border-left-color:rgba(148,163,184,.34);color:#AEB9C9!important}
 .wf-place-card-actions{--wf-act-h:38px;align-items:center;gap:5px!important;margin-top:auto!important;padding-top:9px;flex-wrap:wrap!important;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
-.wf-place-card-actions>a,.wf-place-card-actions>button{
+.wf-place-card-actions>a,.wf-place-card-actions>button,.wf-place-card-actions>span{
   display:inline-flex!important;
   min-height:var(--wf-act-h);
   height:var(--wf-act-h);
@@ -565,7 +565,8 @@ ${WF_SKELETON_CSS}
 }
 .wf-sheet-card-actions>.wf-place-card-save,
 .wf-sheet-card-actions>.wf-place-card-share{min-width:0!important;margin-left:0!important;padding-inline:8px!important}
-.wf-sheet-card-actions:has(.wf-place-card-book){grid-template-columns:minmax(70px,.8fr) minmax(64px,.8fr) 42px 42px minmax(76px,1fr)}
+.wf-sheet-card-actions>span{min-width:0!important;overflow:hidden}
+.wf-sheet-card-actions:has(.wf-place-card-book){grid-template-columns:repeat(5,minmax(0,1fr))}
 .wf-sheet-card-actions:not(:has(.wf-place-card-like)){grid-template-columns:minmax(64px,1fr) minmax(76px,1fr)}
 .wf-place-card.is-liked{border-color:rgba(76,224,179,.35)!important}
 .wf-place-card.is-disliked{border-color:rgba(248,113,113,.28)!important}
@@ -583,7 +584,7 @@ ${WF_SKELETON_CSS}
   .wf-sheet-card-actions{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px!important}
   .wf-sheet-card-actions:has(.wf-place-card-book){grid-template-columns:repeat(5,minmax(0,1fr))}
   .wf-sheet-card-actions>.wf-place-card-like,.wf-sheet-card-actions>.wf-place-card-dislike{width:100%!important;min-width:0!important;flex:1 1 auto}
-  .wf-sheet-card-actions>a,.wf-sheet-card-actions>button{min-width:0!important;padding-inline:4px!important;font-size:9.5px!important;overflow:hidden}
+  .wf-sheet-card-actions>a,.wf-sheet-card-actions>button,.wf-sheet-card-actions>span{min-width:0!important;padding-inline:4px!important;font-size:9.5px!important;overflow:hidden}
 }
 @media(min-width:${WF_DESKTOP_BP}px){
   .wf-place-card-layout{--wf-place-card-media:108px}
