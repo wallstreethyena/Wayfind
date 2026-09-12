@@ -24,6 +24,7 @@ import GuideDealCards from "./GuideDealCards";
 // to. See lib/guideDeals.js for why that gap existed.
 import ShareButton from "../../components/ShareButton";
 import { guideDealIds } from "../../../lib/guideDeals";
+import { guideCommerceChrome } from "../../../lib/guideEditorialMode";
 import GuideEmailCapture from "./GuideEmailCapture";
 import { COUPONS, couponIsLive, couponEndsLabel } from "../../../lib/coupons";
 // Venue-local US Eastern, DST-aware. NEVER new Date().toISOString() — that is UTC
@@ -409,6 +410,7 @@ export default async function GuidePage({ params }) {
   // v5.75 (SEO): return a real 404 for unknown guide slugs instead of a
   // 200-status "not found" body — otherwise Google indexes infinite junk URLs.
   if (!g) notFound();
+  const chrome = guideCommerceChrome(g);
   // PLACE-INTENT DEEP LINK. A guide's "Open in Wayfind" names a SPECIFIC
   // place, but a bare "/?q=" ran the app's area-first search: "Airboat the
   // Everglades headwaters" geocoded to Everglades City, recentered the app 100
@@ -790,7 +792,7 @@ export default async function GuidePage({ params }) {
         </p>
       ) : null}
       <p className="wf-guide-intro" style={S.p}>{g.intro}</p>
-      {quickChoices.length ? (
+      {chrome.chooseQuickly && quickChoices.length ? (
         <section className="wf-guide-quick" aria-labelledby="guide-quick-title">
           <h2 id="guide-quick-title">Choose quickly</h2>
           <div>{quickChoices.map((choice) => (
@@ -799,7 +801,7 @@ export default async function GuidePage({ params }) {
         </section>
       ) : null}
       <GuideReadingNav guide={g} />
-      <ExploreBridge city={bridgeCity} picks={bridgePicks} entryPage={"/guides/" + params.slug} pageType="guide" />
+      {chrome.exploreBridge ? <ExploreBridge city={bridgeCity} picks={bridgePicks} entryPage={"/guides/" + params.slug} pageType="guide" /> : null}
       {/* AUDIT F2 (2026-08-02) — guides took ~276 of the 685 visitors across
           the top 25 pages (40%, and a floor, since that list truncates at 25)
           and carried no bookable rail at all. The curated partner inventory
@@ -818,7 +820,7 @@ export default async function GuidePage({ params }) {
           Sits BELOW the intro and ABOVE the picks: the guide's own editorial
           earns the reader first. These never enter the guide's ranking, and
           the component carries its own commission disclosure. */}
-      {railIntent && bridgeCity ? (
+      {chrome.bookableHighlights && railIntent && bridgeCity ? (
         <IntentPartnerPick
           city={bridgeCity.name}
           intent={railIntent}
@@ -841,7 +843,7 @@ export default async function GuidePage({ params }) {
           ranked block genuinely differs by hour and weather, which a static
           listicle cannot fake and a competitor cannot scrape once and cache.
           Renders NOTHING when we have no weather or nothing true to say. */}
-      {nowHeadline && nowExplainer ? (
+      {chrome.liveNow && nowHeadline && nowExplainer ? (
         <section className="wf-guide-now" aria-label="Right now">
           <div className="wf-guide-now-head">{nowHeadline}</div>
           <p className="wf-guide-now-why">{nowExplainer}</p>
@@ -858,7 +860,7 @@ export default async function GuidePage({ params }) {
           PRODUCT does. Real ranked places, classified by venueLean on Google
           TYPES (reliable, unlike prose), so this scales to every guide and
           every future city with no editorial work. */}
-      {liveIndoor.length ? (
+      {chrome.liveNow && liveIndoor.length ? (
         <section className="wf-guide-now wf-guide-now-live" aria-label="Open right now">
           <div className="wf-guide-now-head">Better right now</div>
           <p className="wf-guide-now-why">
@@ -876,7 +878,7 @@ export default async function GuidePage({ params }) {
           point at the sibling that can. Strictly more useful than a generic
           "Open in Wayfind", and it is chosen from the indoor data, not a
           hardcoded pairing. Absent when no sibling qualifies. */}
-      {sibling ? (
+      {chrome.liveNow && sibling ? (
         <section className="wf-guide-now wf-guide-now-handoff" aria-label="Better for these conditions">
           <p className="wf-guide-now-why">
             {nowCtx.reason.charAt(0).toUpperCase() + nowCtx.reason.slice(1)} — and most of this guide is outdoors.
@@ -941,7 +943,7 @@ export default async function GuidePage({ params }) {
           </ul>
         </section>
       ) : null}
-      {dealCards.length ? (
+      {chrome.liveDeals && dealCards.length ? (
         <GuideDealCards slug={params.slug} region={g.region || "Orlando"} deals={dealCards} />
       ) : null}
       {g.faq && g.faq.length ? (
@@ -964,7 +966,7 @@ export default async function GuidePage({ params }) {
         slug={params.slug}
         region={g.region || "Orlando"}
         cta={primaryCta}
-        next={continueTo}
+        next={chrome.keepExploring ? continueTo : null}
         social={social}
         socialStatus={socialStatus}
       />
@@ -978,11 +980,13 @@ export default async function GuidePage({ params }) {
           answers 200 with a "Not found" body: a soft-404, the exact shape
           scripts/check-rail-routes.mjs exists to forbid. Passing null omits
           segmented hrefs rather than inventing Sarasota. */}
+      {chrome.keepExploring ? (
       <DiscoveryPaths
         region={g.region === "Orlando" ? "orlando" : "fl"}
         citySlug={bridgeCity ? bridgeSlug : null}
         cityLabel={bridgeCity ? bridgeCity.name : ""}
       />
+      ) : null}
       {/* v8.23 — THE SECOND SHARE, and the one that will do the work. The hero
           control catches a reader who already knew they wanted to send this;
           this one catches the far larger group who only know it after reading.
