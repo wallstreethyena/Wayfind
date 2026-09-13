@@ -15,6 +15,8 @@
 //   3. the skeleton reserves the live height, so the swap does not shift.
 // And one new one: the rail must not fork a second card component again.
 import { readFileSync } from "node:fs";
+import { loadComponent } from "./lib/jsxLoad.mjs";
+import { PLACE_CARD_HEIGHT_PX } from "../lib/placeCardStandard.js";
 
 const src = readFileSync("app/home.js", "utf8");
 const rail = readFileSync("app/components/RailCard.js", "utf8");
@@ -116,8 +118,9 @@ ok(/\{ key: genre \? "genre" : "segment"/.test(card), "every event card gets at 
 ok(/GENRE_JUNK/.test(src) && /raw\.length > 22/.test(src), "…and junk genres (Miscellaneous/Other) and over-long comma-packed ones are dropped rather than printed or truncated");
 
 // ── 5. NO LAYOUT SHIFT ──────────────────────────────────────────────────────
-ok(/const EV_RAIL_MIN_H = 245/.test(src), "the loading skeleton reserves the live card height — measured on PRODUCTION with the real webfonts, not in a system-font harness");
-ok(/\.wf-rail-events>\.wf-rail-card\{min-height:245px\}/.test(css), "…and the live rail pins that SAME number as its card floor, so the two cannot drift apart silently");
+ok(/const EV_RAIL_MIN_H = PLACE_CARD_HEIGHT_PX/.test(src) && /<PlaceCardSkeleton count=\{2\} as="div"/.test(src), "event loading uses the canonical skeleton and shared height constant");
+const { WF_PLACE_CARD_CSS } = await loadComponent(process.cwd() + "/app/components/css.js", process.cwd());
+ok(WF_PLACE_CARD_CSS.includes(`--wf-card-h:${PLACE_CARD_HEIGHT_PX}px`) && /height:var\(--wf-card-h\)/.test(WF_PLACE_CARD_CSS), "loaded cards consume the same shared height as their loading reservation");
 {
   // v7.06 — THE SKELETON MOVED WITH THE RAIL. The events rail is now section
   // nine of the home menu (owner, 2026-08-09: "i also want to add events into
@@ -133,8 +136,8 @@ ok(/\.wf-rail-events>\.wf-rail-card\{min-height:245px\}/.test(css), "…and the 
   const slotStart = src.indexOf('const eventsRailSlot = (mode = "events", selectPosterEvents = null) => {');
   ok(slotStart > -1, "PROBE: the events rail is built as eventsRailSlot (if this is -1 the checks below prove nothing)");
   const skel = src.slice(slotStart, src.indexOf("const discoveryMenu = (", slotStart));
-  ok(/width: "100%"/.test(skel), "the skeleton blocks are full-width like the live card, so the swap moves nothing sideways either");
-  ok(/borderRadius: 17/.test(skel), "…and its corner radius");
+  const skeletonSource = readFileSync("app/components/PlaceCardSkeleton.js", "utf8");
+  ok(/<PlaceCardSkeleton count=\{2\} as="div"/.test(skel) && /className="wf-place-card wf-place-card-sk"/.test(skeletonSource), "the event skeleton inherits live-card width and radius through the canonical root class");
   ok(/className="wf-rail wf-rail-events"/.test(skel), "…and the skeleton uses the same rail class as the live row, so gutter, padding and box model are one definition, not two");
 }
 

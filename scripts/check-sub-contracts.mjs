@@ -80,7 +80,7 @@ const SUBFILTERS = readSubfilters();
 const EXPECTED_SUBCHIPS = new Set([
   "food:breakfast", "food:cafes", "food:lunch", "food:dinner", "food:quickbites", "food:delivery", "food:dessert",
   "nightlife:bars", "nightlife:clubs", "nightlife:speakeasy", "nightlife:karaoke", "nightlife:sports", "nightlife:music",
-  "attractions:outdoors", "attractions:beaches", "attractions:museums", "attractions:family", "attractions:tours", "attractions:spa", "attractions:landmarks", "attractions:arts", "attractions:marinas",
+  "attractions:themeparks", "attractions:outdoors", "attractions:beaches", "attractions:museums", "attractions:family", "attractions:tours", "attractions:spa", "attractions:landmarks", "attractions:arts", "attractions:marinas",
   "beach:beaches", "family:toddlers", "family:kids", "family:adults", "family:rainy",
   "hotels:luxury", "hotels:budget", "hotels:beach", "hotels:boutique",
   "shopping:malls", "shopping:boutiques", "shopping:markets", "shopping:outlets", "shopping:giftshops",

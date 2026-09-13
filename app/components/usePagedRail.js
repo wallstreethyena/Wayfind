@@ -206,12 +206,16 @@ export function usePagedRail(endpoint, params, {
   // it sidesteps any ordering hazard between React detaching the OLD
   // sentinel's ref and attaching the NEW one in the same commit.
   const observerRef = useRef(null);
+  const sentinelNodeRef = useRef(null);
   const fetchMoreRef = useRef(fetchMore);
   fetchMoreRef.current = fetchMore;
 
-  const sentinelRef = useCallback((el) => {
+  const attachObserver = useCallback((el) => {
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+      observerRef.current = null;
+    }
     if (!el) return;
-    if (observerRef.current) observerRef.current.disconnect();
     if (typeof IntersectionObserver !== "function") return;
     observerRef.current = new IntersectionObserver((entries) => {
       if (entries.some((entry) => entry.isIntersecting)) fetchMoreRef.current();
@@ -219,7 +223,22 @@ export function usePagedRail(endpoint, params, {
     observerRef.current.observe(el);
   }, []);
 
-  useEffect(() => () => { if (observerRef.current) observerRef.current.disconnect(); }, [key]);
+  const sentinelRef = useCallback((el) => {
+    sentinelNodeRef.current = el;
+    attachObserver(el);
+  }, [attachObserver]);
+
+  useEffect(() => {
+    // A seed-content or location change changes `key`, but React can keep the
+    // sentinel card's DOM node when its item id and index are unchanged. The
+    // previous effect cleanup disconnects that node without re-running its
+    // stable callback ref, so explicitly reattach the node the ref remembers.
+    if (key && sentinelNodeRef.current && !observerRef.current) attachObserver(sentinelNodeRef.current);
+    return () => {
+      if (observerRef.current) observerRef.current.disconnect();
+      observerRef.current = null;
+    };
+  }, [key, attachObserver]);
 
   // THE SENTINEL RULE — index (loaded − 3). Clamped at 0 so a rail shorter
   // than 3 cards never throws; hasMore is already false in that case, so

@@ -16,13 +16,20 @@
 // Hermetic fixture: WRITE stub creds unconditionally (never read ambient env),
 // so buildNearbyPool proceeds past its "no creds -> []" guard and uses the
 // injected fetchImpl below. The stub URL is never actually fetched.
-process.env.NEXT_PUBLIC_SUPABASE_URL = "https://stub.supabase.co";
-process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "stub-anon-key";
+const STUB_SUPABASE_URL = "https://stub.supabase.co";
+const STUB_SUPABASE_ANON_KEY = "stub-anon-key";
+process.env.NEXT_PUBLIC_SUPABASE_URL = STUB_SUPABASE_URL;
+process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = STUB_SUPABASE_ANON_KEY;
 
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { eventPairings, pairingHref } from "../lib/eventPairings.js";
+import {
+  createCachedEventPairings,
+  EVENT_PAIRINGS_CACHE_KEY,
+  EVENT_PAIRINGS_REVALIDATE_SECONDS,
+} from "../lib/eventPairingsCache.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 let pass = 0;
@@ -71,6 +78,34 @@ const ORIGIN = { lat: 25.7272, lng: -80.2578, city: "Miami", place_id: "p2" };
   ok((await eventPairings({}, { fetchImpl: stub([mkRow(1)]) })).length === 0, "an event with no coordinates yields no pairings");
 }
 
+// The dynamic event route retains its historical fail-soft array API. Cache
+// owners opt into completeness so configuration/read failures reject before a
+// failure-shaped empty result can enter a persistent cache.
+{
+  process.env.NEXT_PUBLIC_SUPABASE_URL = "";
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "";
+  const failSoft = await eventPairings(ORIGIN, { fetchImpl: stub([]) });
+  let strictRejected = false;
+  try { await eventPairings(ORIGIN, { fetchImpl: stub([]), requireComplete: true }); }
+  catch (error) { strictRejected = /incomplete/.test(String(error?.message)); }
+  process.env.NEXT_PUBLIC_SUPABASE_URL = STUB_SUPABASE_URL;
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = STUB_SUPABASE_ANON_KEY;
+  ok(failSoft.length === 0, "the existing non-cached pairing API remains fail-soft");
+  ok(strictRejected, "a cache-owned pairing load rejects missing configuration instead of returning a cacheable empty shelf");
+
+  const partialFetch = async (requestUrl) => {
+    const value = String(requestUrl);
+    if (value.includes("category=eq.attractions")) throw new Error("fixture category outage");
+    return { ok: true, json: async () => value.includes("category=eq.food") ? [1, 2, 3, 4].map((i) => mkRow(i)) : [] };
+  };
+  const partial = await eventPairings({ ...ORIGIN, place_id: "not-in-pool" }, { fetchImpl: partialFetch });
+  let partialRejected = false;
+  try { await eventPairings({ ...ORIGIN, place_id: "not-in-pool" }, { fetchImpl: partialFetch, requireComplete: true }); }
+  catch (error) { partialRejected = /things-to-do/.test(String(error?.message)); }
+  ok(partial.length >= 3, "the historical fail-soft path can still serve surviving categories");
+  ok(partialRejected, "the cached path rejects a biased ranking when one category is unavailable");
+}
+
 // 5. The link goes into the app shell at /p/[id], carrying the place's own data.
 {
   const href = pairingHref({ id: "abc", name: "Spot", city: "Miami", rating: 4.7, reviews: 900, wfScore: 92, cat: "Restaurant" });
@@ -84,9 +119,100 @@ ok(/e\.hero_image/.test(hub) && /<img/.test(hub), "the hub renders the event's h
 ok(/dateRangeLabel\(e\)/.test(hub), "the hub card badge is the DATE (dateRangeLabel)");
 ok(!/PlaceScoreChip|wayfindScore\s*\(/.test(hub), "the hub never renders a Wayfind Score on an event card — an event is dated, not quality-ranked");
 
-// 7. SOURCE — the event page wires the nearby module and only renders it when non-empty.
+// 7. CACHE CONTRACT. The curated page is ISR, but the exhaustive inventory
+// reader below eventPairings deliberately uses cache: "no-store". Execute the
+// real wrapper against a cache double: the loader must run inside the boundary,
+// identical identities must coalesce, and every input that can change the
+// answer must produce its own cache entry.
+{
+  const stored = new Map();
+  const configs = [];
+  const loads = [];
+  let insideBoundary = false;
+  let escapedBoundary = false;
+  const cache = (fn, keyParts, options) => {
+    configs.push({ keyParts, options });
+    return async (...args) => {
+      const key = JSON.stringify([...keyParts, ...args]);
+      if (stored.has(key)) return stored.get(key);
+      insideBoundary = true;
+      try {
+        const value = await fn(...args);
+        stored.set(key, value);
+        return value;
+      } finally {
+        insideBoundary = false;
+      }
+    };
+  };
+  const cached = createCachedEventPairings({
+    cache,
+    load: async (event, options) => {
+      if (!insideBoundary) escapedBoundary = true;
+      loads.push({ event, options });
+      return [{ id: `${event.lat}:${event.lng}:${event.city}:${event.place_id}` }];
+    },
+  });
+  const base = { lat: 28.05, lng: -82.42, city: "Tampa", place_id: "busch-gardens" };
+  await cached(base);
+  await cached({ ...base });
+  await cached({ ...base, event_name: "A field pairings do not read" });
+  await cached({ ...base, lat: 28.06 });
+  await cached({ ...base, lng: -82.41 });
+  await cached({ ...base, city: "Temple Terrace" });
+  await cached({ ...base, place_id: "another-venue" });
+  await cached({ ...base, place_id: undefined, placeId: "busch-gardens" });
+
+  ok(configs.length === 1 && configs[0].keyParts[0] === EVENT_PAIRINGS_CACHE_KEY && EVENT_PAIRINGS_CACHE_KEY === "event-pairings-v2", "event pairings use a fresh versioned Data Cache namespace");
+  ok(configs[0].options.revalidate === EVENT_PAIRINGS_REVALIDATE_SECONDS && EVENT_PAIRINGS_REVALIDATE_SECONDS === 3600, "the pairing cache and parent ISR page share a one-hour lifetime");
+  ok(!escapedBoundary, "every exhaustive pairing load executes inside the Data Cache boundary");
+  ok(loads.length === 5, `identical inputs coalesce while lat, lng, city, and venue identity split the cache (got ${loads.length} loads)`);
+  ok(loads.every(({ event }) => Object.hasOwn(event, "lat") && Object.hasOwn(event, "lng") && Object.hasOwn(event, "city") && Object.hasOwn(event, "place_id")), "the cached loader receives every field eventPairings reads");
+  ok(loads.every(({ options }) => options?.requireComplete === true), "the persistent cache opts into complete candidate pools");
+}
+
+// A rejected load must stay outside the cache while the page remains fail-soft;
+// a complete, genuinely empty read is cacheable and should coalesce.
+{
+  const stored = new Map();
+  const attempts = new Map();
+  const cache = (fn, keyParts) => async (...args) => {
+    const key = JSON.stringify([...keyParts, ...args]);
+    if (stored.has(key)) return stored.get(key);
+    const value = await fn(...args);
+    stored.set(key, value);
+    return value;
+  };
+  const load = async (event, options) => {
+    ok(options?.requireComplete === true, "recovery and healthy-empty loads retain strict completeness");
+    const key = event.place_id;
+    attempts.set(key, (attempts.get(key) || 0) + 1);
+    if (key === "recover" && attempts.get(key) === 1) throw new Error("degraded fixture");
+    if (key === "recover") return [{ id: "recovered-place" }];
+    return [];
+  };
+  const originalError = console.error;
+  console.error = () => {};
+  try {
+    const cached = createCachedEventPairings({ cache, load });
+    const degraded = await cached({ ...ORIGIN, place_id: "recover" });
+    const recovered = await cached({ ...ORIGIN, place_id: "recover" });
+    const emptyFirst = await cached({ ...ORIGIN, place_id: "healthy-empty" });
+    const emptySecond = await cached({ ...ORIGIN, place_id: "healthy-empty" });
+    ok(degraded.unavailable === true && degraded.places.length === 0, "an unavailable pairing read stays distinct while the ISR page remains renderable");
+    ok(recovered.unavailable === false && recovered.places[0]?.id === "recovered-place" && attempts.get("recover") === 2, "a degraded result is not admitted to the pairing Data Cache and a later cache invocation can recover");
+    ok(emptyFirst.unavailable === false && emptyFirst.places.length === 0 && emptySecond.places.length === 0 && attempts.get("healthy-empty") === 1, "a complete empty result remains distinct, cacheable, and coalesced");
+  } finally {
+    console.error = originalError;
+  }
+}
+
+// 8. SOURCE — the ISR event page uses the cache boundary and only renders
+// nearby places when non-empty.
 const slug = readFileSync(path.join(ROOT, "app/florida-events/[slug]/page.js"), "utf8");
-ok(/eventPairings\(/.test(slug) && /pairingHref\(/.test(slug), "the event page fetches pairings and links them");
+ok(/pairingResult\s*=\s*await cachedEventPairings\(e\)/.test(slug) && /pairingResult\.places\.map/.test(slug) && /pairingHref\(/.test(slug), "the ISR event page fetches pairings through the cache boundary and links complete places");
+ok(!/import\s*\{[^}]*\beventPairings\b[^}]*\}\s*from/.test(slug), "the ISR event page cannot bypass the cached pairing entrypoint");
+ok(/pairingResult\.unavailable[\s\S]*Nearby picks are temporarily unavailable/.test(slug), "the ISR page distinguishes unavailable pairing inventory from a healthy empty shelf");
 // v8.99 — the nearby cards render INSIDE the shared <EventWhere> block (with
 // the map pins), so the never-a-thin-shelf gate lives there now: the page must
 // hand its pairings to EventWhere, and EventWhere must render the shelf only

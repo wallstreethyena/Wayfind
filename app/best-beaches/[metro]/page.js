@@ -7,9 +7,9 @@
 import { notFound } from "next/navigation";
 import { BEACH_METROS, rankBeaches, beachWhy } from "../../../lib/beaches";
 import { mapWfEditorial } from "../../../lib/editorialRule";
-import { toDisplayScore } from "../../../lib/score";
-import { isPerfectScore } from "../../../lib/lawfulOrder";
 import EditorialLandingHero, { editorialHeroCss } from "../../components/EditorialLandingHero";
+import IconicPlaceCard from "../../components/IconicPlaceCard";
+import { WF_PLACE_CARD_CSS } from "../../components/css";
 import { SITE_URL } from "../../../lib/site";
 import BeachPageClient, { BackControl } from "./parts";
 import TourStrip from "../../components/TourStrip";
@@ -120,7 +120,6 @@ const QUICK_LABEL = {
 const firstSentence = (t) => { const m = String(t || "").match(/^.*?[.!?](\s|$)/); return m ? m[0].trim() : (t || null); };
 
 const C = { bg: "#040810", card: "#0B0E15", border: "rgba(255,255,255,.08)", text: "#F1F5F9", muted: "#8b93a1", accent: "#F97316", gold: "#E8C97A", green: "#3ee08a" };
-const MEDAL = ["#E8C97A", "#C7CCD6", "#B8804A"];
 // The editorial-landing look now lives in app/components/EditorialLandingHero.
 // This page is its REFERENCE IMPLEMENTATION: it keeps the original class
 // prefix so the extraction could be proven byte-identical, and any future
@@ -162,7 +161,7 @@ export default async function BeachesPage({ params }) {
   return (
     <main style={{ background: C.bg, minHeight: "100vh", color: C.text, fontFamily: "var(--wf-sans)" }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
-      <style dangerouslySetInnerHTML={{ __html: BEACH_PREMIUM_CSS }} />
+      <style dangerouslySetInnerHTML={{ __html: BEACH_PREMIUM_CSS + WF_PLACE_CARD_CSS }} />
       <EditorialLandingHero
         backControl={<BackControl fallback="/" />}
         heroImg={heroImg}
@@ -184,48 +183,22 @@ export default async function BeachesPage({ params }) {
 
       <div style={{ maxWidth: 680, margin: "0 auto", padding: "18px 20px 60px" }}>
         {params.metro === "manatee-sarasota" ? <a href="/beach-conditions" style={{ display: "block", padding: 18, border: "1px solid #2dd4bf", borderRadius: 14, color: "#2dd4bf", textDecoration: "none" }}><strong>Beach conditions ↗</strong><br /><span style={{ fontSize: 13 }}>Weather, swimming reports and red tide for five local beaches. See sources and sample dates.</span></a> : null}
-        <ol style={{ listStyle: "none", margin: "18px 0 0", padding: 0 }}>
+        <ol className="wf-place-card-list" style={{ listStyle: "none", margin: "18px 0 0", padding: 0 }}>
           {beaches.map((b, i) => (
-            <li key={b.id} style={{ margin: "14px 0 0" }}>
-              {/* v6.60 (owner): image-forward — the photo IS the card (it is
-                  what sells). Name, Score and Best-for ride the image; one hook
-                  line below; everything else collapses. Live water conditions
-                  moved OFF the list (they live in the detail sheet). */}
-              <a href={"/p/" + encodeURIComponent(b.id)} style={{ display: "block", borderRadius: 16, overflow: "hidden", border: "1px solid " + C.border, background: C.card, textDecoration: "none", color: "inherit" }}>
-                <div style={{ position: "relative", aspectRatio: "16 / 10", background: "#10141d" }}>
-                  {b.photo_ref ? <img src={"/api/photo?ref=" + encodeURIComponent(b.photo_ref) + "&w=640"} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} /> : null}
-                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(4,8,16,0) 40%, rgba(4,8,16,.5) 66%, rgba(4,8,16,.92) 100%)" }} />
-                  <div style={{ position: "absolute", top: 10, left: 10, width: 30, height: 30, borderRadius: "50%", background: "rgba(4,8,16,.55)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    {i < 3
-                      ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={MEDAL[i]} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-label={"Rank " + (i + 1)}><path d="M8 21h8" /><path d="M12 17v4" /><path d="M7 4h10v6a5 5 0 0 1-10 0V4z" /><path d="M7 6H4a1 1 0 0 0-1 1c0 2.2 1.8 4 4 4" /><path d="M17 6h3a1 1 0 0 1 1 1c0 2.2-1.8 4-4 4" /></svg>
-                      : <span style={{ fontSize: 13, fontWeight: 800, color: C.text }}>{i + 1}</span>}
-                  </div>
-                  <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "14px 15px 13px" }}>
-                    <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
-                      <span style={{ fontSize: 21, fontWeight: 800, color: "#fff", textShadow: "0 1px 8px rgba(0,0,0,.75)", letterSpacing: "-0.4px" }}>{b.name}</span>
-                      {/* v6.66 — the perfect-score flame reaches the beach cards too (owner:
-                          "i like this, can you find more places to put this in the
-                          website"). This surface prints the score as a bare number
-                          rather than through PlaceScoreChip/WayfindScoreBadge, so it
-                          did not inherit the v6.63 treatment automatically. */}
-                      <span style={{ fontSize: 15, fontWeight: 800, color: C.green, textShadow: "0 1px 5px rgba(0,0,0,.7)" }}>{toDisplayScore(b.wf)}{isPerfectScore(b.wf) ? " \u{1F525}" : ""}</span>
-                    </div>
-                    {(() => { const bf = (BEST_FOR[params.metro] || {})[b.id] || null; return bf ? <div style={{ fontSize: 12.5, color: "rgba(255,255,255,.92)", marginTop: 3, textShadow: "0 1px 5px rgba(0,0,0,.75)" }}><span style={{ fontWeight: 800, color: C.gold }}>Best for: </span>{bf}</div> : null; })()}
-                  </div>
-                </div>
-                {(() => { const ed = editorials[b.id];
-                  if (!ed) return (<div style={{ padding: "11px 15px 13px" }}><p style={{ fontSize: 12.5, color: "rgba(241,245,249,.82)", lineHeight: 1.5, margin: 0 }}>{beachWhy(b, meta.short)}</p></div>);
-                  return (<div style={{ padding: "11px 15px 13px" }}>
-                    {ed.knownFor ? <p style={{ fontSize: 13, fontWeight: 700, color: C.gold, lineHeight: 1.45, margin: 0 }}>{ed.knownFor}</p> : null}
-                    <details style={{ margin: "8px 0 0" }}>
-                      <summary style={{ fontSize: 11, fontWeight: 700, color: "rgba(139,147,161,.9)", cursor: "pointer", listStyle: "none" }}>How we verified this ›</summary>
-                      {ed.why ? <p style={{ fontSize: 12, color: "rgba(241,245,249,.8)", lineHeight: 1.55, margin: "6px 0 0" }}>{ed.why}</p> : null}
-                      {(ed.watchOut || ed.goodToKnow) ? <p style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.5, margin: "5px 0 0" }}><span style={{ fontWeight: 800, color: "rgba(241,245,249,.7)" }}>Know before you go: </span>{[ed.watchOut, ed.goodToKnow].filter(Boolean).join(" ")}</p> : null}
-                      {ed.sources && ed.sources.length ? <p style={{ fontSize: 10, color: "rgba(139,147,161,.7)", margin: "5px 0 0" }}>Sourced: {ed.sources.join(" · ")}</p> : null}
-                    </details>
-                  </div>);
-                })()}
-              </a>
+            <li className="wf-place-card-slot" key={b.id}>
+              {(() => { const ed = editorials[b.id]; const bestFor = (BEST_FOR[params.metro] || {})[b.id] || null; return <>
+                <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+                  <IconicPlaceCard place={{ ...b, photoRef: b.photo_ref, wfScore: b.wf, cardCategory: "Beach" }} rank={i + 1}
+                    href={"/p/" + encodeURIComponent(b.id)} editorial={(ed && ed.knownFor) || beachWhy(b, meta.short)} editorialTier="known"
+                    rankingNote={bestFor ? "Best for: " + bestFor : null} surface="best_beaches" />
+                </ul>
+                {ed ? <details style={{ margin: "8px 0 0" }}>
+                  <summary style={{ fontSize: 11, fontWeight: 700, color: "rgba(139,147,161,.9)", cursor: "pointer", listStyle: "none" }}>How we verified this ›</summary>
+                  {ed.why ? <p style={{ fontSize: 12, color: "rgba(241,245,249,.8)", lineHeight: 1.55, margin: "6px 0 0" }}>{ed.why}</p> : null}
+                  {(ed.watchOut || ed.goodToKnow) ? <p style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.5, margin: "5px 0 0" }}><span style={{ fontWeight: 800, color: "rgba(241,245,249,.7)" }}>Know before you go: </span>{[ed.watchOut, ed.goodToKnow].filter(Boolean).join(" ")}</p> : null}
+                  {ed.sources && ed.sources.length ? <p style={{ fontSize: 10, color: "rgba(139,147,161,.7)", margin: "5px 0 0" }}>Sourced: {ed.sources.join(" · ")}</p> : null}
+                </details> : null}
+              </>; })()}
               {i === 2 && beaches.length > 3 ? (
                 <section style={{ background: C.card, border: "1px solid " + C.border, borderRadius: 16, padding: "14px 16px", margin: "4px 0 16px" }}>
                   <div style={{ fontSize: 13.5, fontWeight: 800, marginBottom: 6 }}>Why Wayfind ranked them this way</div>

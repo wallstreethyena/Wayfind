@@ -30,9 +30,16 @@ This document does not claim a release.
 | Instagram controls | View post wording; no promise that a Reel necessarily plays inline |
 | Hotel data mapping | Retains valid same-place inventory photo URLs before falling back to a photo reference |
 
-The committed association audit covers 45 source records and 55 place
-associations across 52 distinct place keys. It checks stored editorial evidence
-and identity; it is not a new live viewing of every source video.
+The association audit has 49 retrievable reported links: 45 mapped source
+records and four unresolved conversation-recalled links. The mapped records
+contain 55 place associations across 52 distinct place keys. The four unresolved
+shortcodes are `Dc50nKNB9pJ`, `Dc_wbrxy7dr`, `DdE9KVAlB5y`, and `Dc1zpeROuEE`;
+none exists in the repository or reachable Git history, and public exact-ID
+search returned no attributable identity metadata. They remain unattached until
+the owner supplies a creator/place label or screenshot/caption that proves the
+subject. This count is complete only for records retrievable during this audit;
+it does not claim access to all prior chat history or a new live viewing of every
+source video.
 
 ## Checks and release gates
 

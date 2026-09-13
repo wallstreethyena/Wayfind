@@ -1,3 +1,5 @@
+import { PLACE_CARD_GAP_PX, PLACE_CARD_HEIGHT_PX } from "../../lib/placeCardStandard.js";
+
 // app/components/railMenuCss.js — the rail menu's stylesheet, as a string.
 //
 // Same pattern as app/components/css.js: one exported template literal, injected
@@ -36,7 +38,7 @@ export const WF_RAIL_MENU_CSS =
   `.wf8-h1{font-size:clamp(24px,3.2vw,34px);line-height:1.18;font-weight:700;letter-spacing:normal;margin:0 0 10px;color:#fff}` +
   `.wf8-hsub{font-size:17px;line-height:1.5;color:var(--wf8-mut);font-weight:400;margin:0 auto;max-width:560px}` +
   `@media(max-width:560px){.wf8-hero{padding:20px var(--wf8-pad) 18px}.wf8-hlogo{height:30px;margin-bottom:11px}.wf8-h1{font-size:23px}.wf8-hsub{font-size:15px}}` +
-  `.wf8{--wf8-band:#0A0E1A;--wf8-card:#101725;--wf8-line:rgba(255,255,255,.08);--wf8-line2:rgba(255,255,255,.14);--wf8-tx:#F4F7FF;--wf8-mut:#A9B5CD;--wf8-dim:#7A87A0;--wf8-acc:#FF6A2B;--wf8-acc2:#FF8A3D;--wf8-pad:22px;--wf8-ratio:.5625;--wf8-tw:min(clamp(300px,34vw,440px),calc(62vh * var(--wf8-ratio)));--wf8-pcvis:3.4;--wf8-pcgap:13px;position:relative;color:var(--wf8-tx);font-family:var(--wf-sans,-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif)}.wf8 *{box-sizing:border-box}.wf8 button{background:none;border:0;cursor:pointer;font:inherit;color:inherit}.wf8 a{color:inherit;text-decoration:none}.wf8-in{max-width:1720px;margin:0 auto;padding:0 var(--wf8-pad)}` +
+  `.wf8{--wf8-band:#0A0E1A;--wf8-card:#101725;--wf8-line:rgba(255,255,255,.08);--wf8-line2:rgba(255,255,255,.14);--wf8-tx:#F4F7FF;--wf8-mut:#A9B5CD;--wf8-dim:#7A87A0;--wf8-acc:#FF6A2B;--wf8-acc2:#FF8A3D;--wf8-pad:22px;--wf8-ratio:.5625;--wf8-tw:min(clamp(300px,34vw,440px),calc(62vh * var(--wf8-ratio)));position:relative;color:var(--wf8-tx);font-family:var(--wf-sans,-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif)}.wf8 *{box-sizing:border-box}.wf8 button{background:none;border:0;cursor:pointer;font:inherit;color:inherit}.wf8 a{color:inherit;text-decoration:none}.wf8-in{max-width:1720px;margin:0 auto;padding:0 var(--wf8-pad)}` +
   // the page dresses for the hour — scoped to the root, never to <body>
   `.wf8.is-morning{--wf8-acc:#FF8A3D;--wf8-acc2:#FFB25E;--wf8-band:#0B1119}.wf8.is-lunch{--wf8-acc:#FF6A2B;--wf8-acc2:#FF8A3D;--wf8-band:#0A0E17}.wf8.is-afternoon{--wf8-acc:#FF7A2B;--wf8-acc2:#FFA23A;--wf8-band:#0C0D16}.wf8.is-night{--wf8-band:#0A0711;--wf8-card:#12101F;--wf8-acc:#FBBF24;--wf8-acc2:#FCD34D;--wf8-line:rgba(255,255,255,.09);--wf8-line2:rgba(255,255,255,.16)}` +
   // the daypart bar
@@ -62,30 +64,9 @@ export const WF_RAIL_MENU_CSS =
   // v8.3: .wf8-catwrap / -catrail / -cat / -cico / -ctx removed with the chip
   // row they styled (see DaypartRail.js). Nothing else referenced them.
     // the place cards — ONE horizontal rail, below the band, never a stack
-  `.wf8-pcwrap{position:relative;margin:0 calc(var(--wf8-pad) * -1)}.wf8-pcrail{display:flex;gap:var(--wf8-pcgap);overflow-x:auto;scrollbar-width:none;scroll-snap-type:x mandatory;padding:4px var(--wf8-pad) 6px;scroll-padding-left:var(--wf8-pad);margin:0;list-style:none}.wf8-pcrail::-webkit-scrollbar{display:none}@media(min-width:1100px){.wf8-pcrail>.wf-place-card{min-width:min(440px,100%)}}.wf8-pcrail>.wf-place-card{flex:0 0 calc((100% - (var(--wf8-pcvis) - 1) * var(--wf8-pcgap)) / var(--wf8-pcvis));scroll-snap-align:start;margin-bottom:0!important;contain:paint style;content-visibility:auto;contain-intrinsic-size:auto 420px}` +
-  // THE TRENDING DROP USES THE SAME COLUMN AS EVERY OTHER DROP.
-  //
-  // <ExplodingNearby> is rendered by exactly one caller — DaypartRail, inside
-  // this .wf8 subtree — but it brings its own .wf-rail from app/components/css.js,
-  // and that rail's card rule is flex:0 0 100%. On a phone that rule is close to
-  // right and owner-set (2026-08-08: "i want the card size to be full"); measured,
-  // --wf8-pcvis 1.08 below 560px is a 321px card in a 364px column — still the
-  // full card the owner asked for, now with the same sliver of peek Tonight's
-  // Move already shows on that phone. On a DESKTOP the two rails disagreed
-  // loudly: Tonight's Move served 3.4 cards across a 1396px column while
-  // the trend directly above it served ONE card stretched to that full 1396px —
-  // same component, same score chip, same action row, 3.6x the width (measured
-  // by scripts/test-drop-rail-parity.mjs: trend 1396, place 383). It read as a
-  // different, broken card, and a stretched card is a weaker card: the photo
-  // shrinks to a sliver of its own frame and the Directions CTA becomes a
-  // 1300px band nobody reads as a button.
-  //
-  // So the trend rail inherits the drop's geometry rather than restating it:
-  // --wf8-pcvis and --wf8-pcgap are the SAME variables .wf8-pcrail uses, which
-  // means the responsive steps below (3.4 / 2.4 / 1.9 / 1.35 / 1.08) move both
-  // rails together forever. Higher specificity than .wf-rail>.wf-rail-card, so
-  // no !important is needed and nothing outside .wf8 is touched.
-  `.wf8 .wf-rail-exploding{gap:var(--wf8-pcgap);margin:0 calc(var(--wf8-pad) * -1);padding:4px var(--wf8-pad) 6px;scroll-padding-left:var(--wf8-pad)}.wf8 .wf-rail-exploding>.wf-place-card,.wf8 .wf-rail-exploding>.wf-rail-card{flex:0 0 calc((100% - (var(--wf8-pcvis) - 1) * var(--wf8-pcgap)) / var(--wf8-pcvis));width:auto}` +
+  `.wf8-pcwrap{position:relative;margin:0 calc(var(--wf8-pad) * -1)}.wf8-pcrail{display:flex;align-items:stretch;gap:${PLACE_CARD_GAP_PX}px;overflow-x:auto;scrollbar-width:none;scroll-snap-type:x mandatory;padding:4px var(--wf8-pad) 6px;scroll-padding-left:var(--wf8-pad);margin:0;list-style:none}.wf8-pcrail::-webkit-scrollbar{display:none}.wf8-pcrail>.wf-place-card{scroll-snap-align:start;margin-bottom:0!important;contain:paint style;content-visibility:auto;contain-intrinsic-size:auto ${PLACE_CARD_HEIGHT_PX}px}` +
+  // Nested discovery rails use the same shared card token as the drop.
+  `.wf8 .wf-rail-exploding{margin:0 calc(var(--wf8-pad) * -1);padding:4px var(--wf8-pad) 6px;scroll-padding-left:var(--wf8-pad)}` +
   // a rail whose axis nothing nearby clears. Honest, not padded.
   `.wf8-thin{display:flex;flex-direction:column;gap:9px;align-items:flex-start;padding:16px 0 8px;border-left:3px solid var(--wf8-acc);padding-left:14px}.wf8-thin p{margin:0;font-size:15px;line-height:1.5;color:var(--wf8-mut);max-width:620px}.wf8-thin a{font-size:15px;font-weight:700;color:var(--wf8-acc2)}` +
   // v8.46 — the action row of an honest-empty drop. A reader who lands on
@@ -107,7 +88,7 @@ export const WF_RAIL_MENU_CSS =
   `.wf8-slowsay p{margin:0;font-size:14px;line-height:1.5;color:var(--wf8-mut);max-width:620px}` +
   `.wf8-slowsay a{font-size:15px;font-weight:700;color:var(--wf8-acc2)}` +
   // the guides library — what Local Guides opens onto
-  `.wf8-grail{display:flex;gap:var(--wf8-pcgap);overflow-x:auto;scrollbar-width:none;scroll-snap-type:x mandatory;padding:4px var(--wf8-pad) 6px;scroll-padding-left:var(--wf8-pad);margin:0 calc(var(--wf8-pad) * -1);list-style:none}.wf8-grail::-webkit-scrollbar{display:none}` +
+  `.wf8-grail{display:flex;gap:13px;overflow-x:auto;scrollbar-width:none;scroll-snap-type:x mandatory;padding:4px var(--wf8-pad) 6px;scroll-padding-left:var(--wf8-pad);margin:0 calc(var(--wf8-pad) * -1);list-style:none}.wf8-grail::-webkit-scrollbar{display:none}` +
   // The <li> is the flex ITEM, so the width and the snap point belong to it; the
   // <a> is the card and fills it. With the sizing on the <a> instead, every li
   // shrank to its content and the rail came out ragged — uneven heights, columns
@@ -119,7 +100,7 @@ export const WF_RAIL_MENU_CSS =
   // 9:16 poster does not start full-size and disappear behind browser chrome.
   // Width still owns desktop and installed-app layouts; only a constrained
   // phone viewport invokes the third min() term.
-  `@media(max-width:900px){.wf8-track{padding:10px var(--wf8-pad) 16px}.wf8-tile.is-sel,.wf8.is-open .wf8-tile.is-sel{transform:translateY(-6px) scale(1.03)}.wf8-tshare{width:36px;height:36px;top:9px;right:9px}.wf8-tsaid{height:36px;top:9px;right:53px}}@media(max-width:1400px){.wf8{--wf8-pcvis:2.4}}@media(max-width:1100px){.wf8{--wf8-pcvis:1.9}}@media(max-width:900px){.wf8{--wf8-tw:min(76vw,340px);--wf8-pcvis:1.35;--wf8-pcgap:11px;--wf8-pad:16px}.wf8-grail>li{flex:0 0 min(78vw,320px)}}@supports(height:100svh){@media(max-width:900px){.wf8{--wf8-tw:min(76vw,340px,calc(68svh * var(--wf8-ratio)))}}}@media(max-width:560px){.wf8{--wf8-pcvis:1.08;--wf8-pad:13px}}@media (prefers-reduced-motion:reduce){.wf8.is-open .wf8-menusec{animation:none}.wf8-tile,.wf8-gcard,.wf8-tim,.wf8-tshare{transition:none}.wf8-tile::before{display:none}.wf8-tile:hover,.wf8-tile:has(:focus-visible){transform:translateY(-4px)}.wf8-tile:hover .wf8-tim{transform:none}.wf8-tsaid{animation:none}}` +
+  `@media(max-width:900px){.wf8-track{padding:10px var(--wf8-pad) 16px}.wf8-tile.is-sel,.wf8.is-open .wf8-tile.is-sel{transform:translateY(-6px) scale(1.03)}.wf8-tshare{width:36px;height:36px;top:9px;right:9px}.wf8-tsaid{height:36px;top:9px;right:53px}.wf8{--wf8-tw:min(76vw,340px);--wf8-pad:16px}.wf8-grail>li{flex:0 0 min(78vw,320px)}}@supports(height:100svh){@media(max-width:900px){.wf8{--wf8-tw:min(76vw,340px,calc(68svh * var(--wf8-ratio)))}}}@media(max-width:560px){.wf8{--wf8-pad:13px}}@media (prefers-reduced-motion:reduce){.wf8.is-open .wf8-menusec{animation:none}.wf8-tile,.wf8-gcard,.wf8-tim,.wf8-tshare{transition:none}.wf8-tile::before{display:none}.wf8-tile:hover,.wf8-tile:has(:focus-visible){transform:translateY(-4px)}.wf8-tile:hover .wf8-tim{transform:none}.wf8-tsaid{animation:none}}` +
   `@media(hover:none),(pointer:coarse){.wf8-track,.wf8-pcrail{scroll-snap-type:x proximity}.wf8-tile,.wf8-tile.is-sel,.wf8.is-open .wf8-tile,.wf8.is-open .wf8-tile.is-sel{animation:none;transition:none;transform:none;filter:none}.wf8-tim{transition:none}.wf8-tshare,.wf8-tsaid{backdrop-filter:none;-webkit-backdrop-filter:none}}`;
 // v8.93 — THE DATE NIGHT EXCEPTION IS GONE, and its absence is the fix.
 //

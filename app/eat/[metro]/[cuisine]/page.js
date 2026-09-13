@@ -26,6 +26,7 @@ import { notFound } from "next/navigation";
 import { SITE_URL } from "../../../../lib/site";
 import { CUISINE_METROS } from "../../../../lib/cuisine";
 import CuisineListClient from "./parts";
+import { WF_PLACE_CARD_CSS } from "../../../components/css";
 import FoodTourRail from "../../../components/FoodTourRail";
 import { METRO_DESTS, pickFoodTours } from "../../../../lib/foodTours";
 import { resolveRowCta, secondaryCta, directionsUrl } from "../../../../lib/rowCta";
@@ -144,24 +145,6 @@ const CSS = `
 .wf-sl-rulewrap{flex:1;height:1px;background:linear-gradient(to right,${M.goldSoft},transparent);min-width:40px}
 .wf-sl-ranked{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#9a9080;font-weight:700}
 
-.wf-sl-list{background:${M.cream};border-radius:22px;box-shadow:0 24px 60px rgba(0,0,0,.4);overflow:hidden}
-.wf-sl-row{display:grid;grid-template-columns:64px 1fr auto;gap:20px;padding:26px 40px;border-bottom:1px solid ${M.line};align-items:center;transition:background .15s ease}
-.wf-sl-row:hover{background:rgba(255,253,248,.85)}
-.wf-sl-row:last-child{border-bottom:none}
-.wf-sl-rank{font-family:${M.serif};font-size:34px;color:rgba(30,36,48,.28);text-align:center;line-height:1}
-.wf-sl-first .wf-sl-rank{color:${M.coralDeep}}
-.wf-sl-info{min-width:0}
-.wf-sl-name{display:block;font-family:${M.serif};font-size:23px;color:${M.ink};margin-bottom:5px;text-decoration:none}
-.wf-sl-name:hover{color:${M.coralDeep}}
-.wf-sl-name:focus-visible{outline:2px solid ${M.coral};outline-offset:3px}
-.wf-sl-badges{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:7px}
-.wf-sl-stars{color:${M.gold};font-size:13px;letter-spacing:1px}
-.wf-sl-rating{font-weight:700;font-size:14px;color:${M.ink}}
-.wf-sl-reviews{color:${M.muted};font-size:13.5px}
-.wf-sl-dot{color:#c4bba8}
-.wf-sl-price{font-size:13.5px;color:#7a6a45;font-weight:700}
-.wf-sl-known{font-size:14.5px;color:#4a4438;line-height:1.5;max-width:52ch}
-.wf-sl-known b{color:${M.coralDeep};font-weight:700}
 .wf-sl-deal{display:inline-flex;align-items:center;gap:7px;margin-top:9px;background:rgba(232,99,46,.09);border:1px solid rgba(232,99,46,.3);color:${M.coralDeep};font-size:12.5px;font-weight:700;border-radius:999px;padding:5px 12px}
 .wf-sl-exp{font-weight:500;color:#a06a4a;font-style:italic}
 .wf-sl-actions{display:flex;flex-direction:column;gap:9px;align-items:stretch;min-width:172px}
@@ -179,8 +162,6 @@ const CSS = `
 @media (max-width:760px){
   .wf-sl-head{padding:26px 24px}
   .wf-sl-h1{font-size:34px}
-  .wf-sl-row{grid-template-columns:40px 1fr;padding:20px 22px}
-  .wf-sl-rank{font-size:26px}
   .wf-sl-actions{grid-column:1 / -1;flex-direction:row;flex-wrap:wrap;min-width:0}
   .wf-sl-cta{flex:1}
   .wf-sl-ftc{flex-basis:100%}
@@ -257,6 +238,7 @@ export default async function CuisineListPage({ params }) {
     // 0-100 -> /10, one decimal. Null stays NULL: a missing base score must never
     // coerce to 0, which renders as a fake red 0.1/10.
     score: r.wf_score == null ? null : Math.round((Number(r.wf_score) / 10) * 10) / 10,
+    wfScore: r.wf_score == null ? null : Number(r.wf_score),
     price: r.price_level || null,
     why: r.why_here || null,
   })).map((p) => {
@@ -306,7 +288,7 @@ export default async function CuisineListPage({ params }) {
   return (
     <main style={{ background: "#141a24", minHeight: "100vh", color: "#1e2430", fontFamily: "var(--wf-sans)" }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
-      <style dangerouslySetInnerHTML={{ __html: CSS }} />
+      <style dangerouslySetInnerHTML={{ __html: CSS + WF_PLACE_CARD_CSS }} />
 
       <div className="wf-sl-sheet">
         <div className="wf-sl-head">

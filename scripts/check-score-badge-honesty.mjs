@@ -79,8 +79,12 @@ ok(checked >= 2, `PROBE: at least two score-bearing surfaces were read (got ${ch
 /* ── 3. the scale must be legible ──────────────────────────────────────── */
 {
   const landing = readFileSync(new URL("../lib/landing.js", import.meta.url), "utf8");
-  ok(/\/10/.test(landing),
-    'the landing badge must print its denominator — "9.6" alone is ambiguous against a 5-star world, and the live page shipped zero occurrences of "/10"');
+  const iconic = readFileSync(new URL("../app/components/IconicPlaceCard.js", import.meta.url), "utf8");
+  const kit = readFileSync(new URL("../app/components/kit.js", import.meta.url), "utf8");
+  ok(/import IconicPlaceCard from ["'][^"']*IconicPlaceCard["']/.test(landing) && /<IconicPlaceCard\b/.test(landing),
+    "landing results delegate their score rendering to the canonical IconicPlaceCard instead of duplicating badge markup");
+  ok(/<WayfindScoreBadge\s+score=\{score\}/.test(iconic) && /<span[^>]*>\/10<\/span>/.test(kit),
+    'the delegated shared badge prints its denominator — "9.6" alone is ambiguous against a 5-star world');
 }
 
 /* ── 4. prove the check can fail ───────────────────────────────────────── */

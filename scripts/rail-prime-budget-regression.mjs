@@ -45,18 +45,14 @@ const railsSource = readFileSync(join(ROOT, "lib/railsData.js"), "utf8");
 const loadStart = railsSource.indexOf("export async function loadPools");
 const loadEnd = railsSource.indexOf("async function buildIdentityPool", loadStart);
 const loadBody = loadStart >= 0 && loadEnd > loadStart ? railsSource.slice(loadStart, loadEnd) : "";
-const primePos = loadBody.indexOf("primeConsolidatedInventoryReads(");
-const rankedMark = loadBody.indexOf('opts?.onStage?.("ranked")');
-const rankedWave = loadBody.indexOf("const results = await Promise.all(jobs.map");
-const nearbyMark = loadBody.indexOf('opts?.onStage?.("nearby")');
-const nearbyWave = loadBody.indexOf("buildNearbyPool(readerOrigin");
+const primePos = loadBody.indexOf("await primeReads(");
+const jointMark = loadBody.indexOf('readerOrigin ? "ranked-nearby" : "ranked"');
+const jointWave = loadBody.indexOf("const taskResults = await runPoolReadTasks(tasks)");
 const stageOrderSafe = loadBody.length > 1000
-  && primePos >= 0 && primePos < rankedMark && rankedMark < rankedWave
-  && rankedWave < nearbyMark && nearbyMark < nearbyWave
-  && (loadBody.match(/opts\?\.onStage\?\.\("ranked"\)/g) || []).length === 1
-  && (loadBody.match(/opts\?\.onStage\?\.\("nearby"\)/g) || []).length === 1;
+  && primePos >= 0 && primePos < jointMark && jointMark < jointWave
+  && (loadBody.match(/"ranked-nearby"/g) || []).length === 1;
 ok(cache.size() === 0 && stageOrderSafe,
-  "empty/failed prime stays fail-soft AND loadPools records exactly one ranked and nearby boundary in causal order");
+  "empty/failed prime stays fail-soft AND loadPools records one joint ranked-nearby boundary after the prime");
 
 if (fails) {
   console.error(`rail-prime-budget-regression: ${fails} failure(s)`);

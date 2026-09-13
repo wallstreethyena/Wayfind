@@ -21,6 +21,7 @@ ok(/from\("wf_saved_items"\)/.test(sav), "writes to wf_saved_items (not saved_pl
 
 // ── home: handler + rails wired ──
 const home = read("app/home.js");
+const browseRail = read("app/components/UnifiedBrowseCommerceRail.js");
 ok(/async function saveMonetizedItem\(item\)/.test(home) && /requireAuth\(/.test(home.slice(home.indexOf("saveMonetizedItem"))), "home has a signed-in-gated save handler");
 ok(/<UnifiedBrowseCommerceRail[^>]*onSave={saveMonetizedItem}/.test(home), "the mixed-provider rail gets the save handler");
 ok(/categories=\{\["attractions",\s*"more"\]\}/.test(home), "the mixed rail includes attraction and discount inventory");
@@ -31,10 +32,10 @@ ok(/categories=\{\["attractions",\s*"more"\]\}/.test(home), "the mixed rail incl
 // rail's save had been broken. Asserted as a chain now: the save reads the
 // card's own kind, and the rail demonstrably produces both kinds — which is
 // what "the right item_type" actually means.
-ok(/item_type: card\.kind/.test(home), "the mixed rail's save passes the card's own kind as item_type");
-ok(/kind: "experience"/.test(home) && /kind: "deal"/.test(home), "the mixed rail builds BOTH experience and deal cards, so card.kind resolves to both saved item types");
+ok(/item_type: card\.kind/.test(browseRail), "the extracted mixed rail's save passes the card's own kind as item_type");
+ok(/kind: "experience"/.test(browseRail) && /kind: "deal"/.test(browseRail), "the extracted mixed rail builds BOTH experience and deal cards, so card.kind resolves to both saved item types");
 ok(/item_type: "deal"/.test(home), "the deal rail's own save still names its item type");
-ok(/provider: "viator"/.test(home), "saved experiences carry their provider");
+ok(/provider: "viator"/.test(browseRail), "saved experiences carry their provider");
 
 // ── Saved tab reads BOTH stores ──
 const saved = read("app/components/screens/Saved.js");

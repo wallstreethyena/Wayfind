@@ -3,6 +3,10 @@
 Every new or changed discovery rail uses the same presentation components.
 The content and ranking may vary; the layout and waiting experience do not.
 
+Place cards follow `docs/ui/place-card-standard.md` and AGENTS.md section 14.
+Their body height is 268px and their responsive width comes from the one
+shared sizing contract. Wrappers must not add their own card geometry or look.
+
 * Use `RailHeading` for the title and description. Its title uses the shared
   bold sans serif font, including Family and seasonal rails. Let long copy wrap.
 * Put `RailNav` inside the heading. Counts use green, bold, tabular numbers.

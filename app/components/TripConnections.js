@@ -57,8 +57,8 @@ export function TripConnectionsContent({ state, currentKey, titleId, center, onO
   return <section style={{ marginBottom: 18 }} aria-labelledby={titleId}>
     <h2 id={titleId} style={{ margin: "0 0 3px", color: "#F8F5EE", fontSize: 17, lineHeight: 1.25 }}>{state.title}</h2>
     <p style={{ margin: "0 0 10px", color: "#9AA4B2", fontSize: 12.5, lineHeight: 1.45 }}>{state.description}</p>
-    <div className="wf8-pcrail" role="list" aria-label={state.title} style={{ margin: 0, padding: 0, gap: 20 }}>
-      {state.places.map((item, index) => <div role="listitem" key={item.id} style={{ minWidth: 0, flex: "0 0 min(380px, calc(100vw - 48px))", scrollSnapAlign: "start" }}>
+    <div className="wf-rail" role="list" aria-label={state.title} style={{ margin: 0, padding: 0 }}>
+      {state.places.map((item, index) => <div role="listitem" className="wf-place-card-slot" key={item.id}>
         <IconicPlaceCard {...tripConnectionCardProps(item, index, { kind: state.kind, center, onOpenPlace })} />
         {state.kind === "stays" ? <div style={{ marginTop: 8 }}>
           {item.mapsOnly ? <a href={item.detailHref} style={{ color: "#AAB4C2", fontSize: 12.5 }}>View in Apple Maps</a> : null}

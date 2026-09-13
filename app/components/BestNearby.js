@@ -63,6 +63,7 @@ import { siteTodayStr } from "../../lib/siteTime.js";
 import { nowContext } from "../../lib/nowContext.js";
 import { gateOutdoor, coarseCat } from "../../lib/ranking.js";
 import { topPickAward } from "../../lib/topPickAward.js";
+import { PLACE_CARD_HEIGHT_PX } from "../../lib/placeCardStandard.js";
 // v7.06 — ONE editorial-line implementation, shared by every place surface.
 import { toHookLine } from "../../lib/editorialHook.js";
 import useEditorialHooks from "./useEditorialHooks";
@@ -305,9 +306,8 @@ function top40OpenNow(r, statusOf) {
   const st = statusOf(r);
   return st.open !== false;
 }
-// Matches the events rail's floor so the two read as one system; measured the
-// same way (a real render at 390 and 1024 with the shipped webfonts).
-const TOP40_CARD_H = 224;
+// Loading and live rails reserve the canonical card body height.
+const TOP40_CARD_H = PLACE_CARD_HEIGHT_PX;
 const compactReviews = (n) => (Number(n) >= 1000 ? Math.round(Number(n) / 100) / 10 + "k" : String(Number(n) || 0));
 // wf_best_picks returns Google's raw primary_type ("mexican_restaurant").
 // Title-cased with the underscores gone, it is the card's eyebrow — the same

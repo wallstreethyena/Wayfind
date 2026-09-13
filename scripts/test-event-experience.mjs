@@ -32,7 +32,8 @@ function page(file) {
   directionsUrl:()=> 'https://www.google.com/maps/dir/?api=1&destination=test',
   appleDirectionsUrl:()=> 'https://maps.apple.com/?daddr=27.3,-82.5&dirflg=d',
   websiteUrl:()=> 'https://www.universalorlando.com',websiteHost:()=> 'universalorlando.com',safeUrl:()=>null,SITE_URL:'https://www.gowayfind.com',
-  eventPairings:async()=>Array.from({length:6},(_,i)=>({id:'fixture-place-'+i,name:['A long nearby restaurant name that should wrap cleanly','Nearby coffee and breakfast','A nearby dinner spot'][i%3],lat:27.3+i*.01,lng:-82.5,cat:'Restaurant',wfScore:98,distMi:1.2})),pairingHref:()=>'/p/fixture',clockLabel:()=>null,
+  eventPairings:async()=>Array.from({length:6},(_,i)=>({id:'fixture-place-'+i,name:['A long nearby restaurant name that should wrap cleanly','Nearby coffee and breakfast','A nearby dinner spot'][i%3],lat:27.3+i*.01,lng:-82.5,cat:'Restaurant',wfScore:98,distMi:1.2})),
+  cachedEventPairings:async()=>({places:Array.from({length:6},(_,i)=>({id:'fixture-place-'+i,name:['A long nearby restaurant name that should wrap cleanly','Nearby coffee and breakfast','A nearby dinner spot'][i%3],lat:27.3+i*.01,lng:-82.5,cat:'Restaurant',wfScore:98,distMi:1.2})),unavailable:false}),pairingHref:()=>'/p/fixture',clockLabel:()=>null,
   eventSocialPosts:()=>social,
   isEmbeddable:()=>true,
   embedSrc:()=>"https://www.instagram.com/reel/fixture/embed/", PLATFORM:{instagram:{label:"Instagram",color:"#E1306C"}},
@@ -44,6 +45,7 @@ function page(file) {
  const require=(spec)=>{
   if(spec==='react')return React;
   if(spec.includes('CreatorPlaybackDetails'))return {default:p=>React.createElement(React.Fragment,null,p.children,React.createElement('button',null,'Details'),React.createElement('div',null,p.details)),usePlaybackDetails:()=>null};
+  if(spec.includes('CreatorVideoRail'))return {default:page('app/components/CreatorVideoRail.js')};
   if(spec.includes('VideoFacade'))return {default:page('app/components/VideoFacade.js')};
   if(spec.includes('EventDetailShell'))return {default:page('app/components/EventDetailShell.js')};
   if(spec.includes('EventExperienceStyles'))return {default:page('app/components/EventExperienceStyles.js')};
@@ -132,6 +134,9 @@ for(const owned of [true,false]) {
  photographs=owned?{hero:{src:'/event-cover.jpg',alt:'Event cover',w:1200,h:630},photos:[]}:null;
  const html=renderToStaticMarkup(await local({params:{slug:'fixture'}}));
  assert.match(html,/THE @fixturecreator EDIT/);
+ assert.match(html,/Swipe to see every creator post/);
+ assert.match(html,/aria-label="Previous creator posts about Fixture local event/);
+ assert.match(html,/role="region" aria-label="creator posts about Fixture local event/);
  assert.doesNotMatch(html,/THE CINDY SELECTS EDIT|Cindy Selects · Video guide/);
  assert.match(html,/font-family:Georgia,serif/);
  assert.match(html,/aspect-ratio:3 \/ 4/);
@@ -141,4 +146,4 @@ for(const owned of [true,false]) {
  assert.doesNotMatch(html,/<iframe/);
  assert.match(html,/0 0 22px rgba\(249,115,22,.30\)/);
 }
-console.log('event creator style: 18 assertions across owned and venue header covers; visible before hydration, real creator credit, click-to-load, glow');
+console.log('event creator style: 24 assertions across owned and venue header covers; shared Cindy rail, visible poster before hydration, real creator credit, click-to-load, glow');

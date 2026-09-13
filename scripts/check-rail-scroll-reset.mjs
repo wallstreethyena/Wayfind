@@ -25,13 +25,14 @@ let fails = 0;
 const ok = (cond, msg) => { if (!cond) { console.error("  FAIL: " + msg); fails++; } };
 
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
+const component = readFileSync(new URL("../app/components/UnifiedBrowseCommerceRail.js", import.meta.url), "utf8");
 
 // Scope every assertion to the component body so a matching string elsewhere
 // in the 10k-line file can never stand in for the real thing.
-const start = home.indexOf("function UnifiedBrowseCommerceRail(");
-ok(start !== -1, "UnifiedBrowseCommerceRail exists in app/home.js");
-const end = home.indexOf("\nfunction ", start + 10);
-const body = start !== -1 ? home.slice(start, end === -1 ? undefined : end) : "";
+const start = component.indexOf("function UnifiedBrowseCommerceRail(");
+ok(start !== -1, "UnifiedBrowseCommerceRail exists in its extracted component module");
+const end = component.indexOf("\nfunction ", start + 10);
+const body = start !== -1 ? component.slice(start, end === -1 ? undefined : end) : "";
 
 // 1. the reset effect, keyed on the content identity
 ok(/const laneRef = useRef\(null\)/.test(body),

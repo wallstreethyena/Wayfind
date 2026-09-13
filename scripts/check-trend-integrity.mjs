@@ -59,11 +59,18 @@ for (const f of SCORE_MODULES) {
     ok(!re.test(code), `${f} must NOT import lib/${m}.js — Exploding Topics may reorder results, it may never feed the displayed Wayfind Score (AGENTS.md §8)`);
   }
 }
-// Prove the probe can find a positive (AGENTS.md §4d): the same regex must
-// detect an import that IS there, or the absences above prove nothing.
+// Prove the import-path probe can find a REAL positive (AGENTS.md §4d) after
+// Supabase moved behind the homepage's dynamic boundary. The trend module must
+// still reach the same real client for venue-demand reads, just not eagerly.
+const trendCode = codeOf(read("lib/trendSignal.js"));
+const trendIdents = identOf(read("lib/trendSignal.js"));
+const lazyCode = codeOf(read("lib/lazySupabase.js"));
+const lazyProbeRe = new RegExp(`(?:import|require)[^\\n;]*['"\`][^'"\`]*lazySupabase(?:\\.js)?['"\`]`);
 const probeRe = new RegExp(`(?:import|require)[^\\n;]*['"\`][^'"\`]*supabase(?:\\.js)?['"\`]`);
-ok(probeRe.test(codeOf(read("lib/trendSignal.js"))),
-  "the import probe finds trendSignal's real supabase import — so the zero results above are evidence, not a broken regex");
+ok(
+  lazyProbeRe.test(trendCode) && /\bgetSupabase\s*\(\s*\)/.test(trendIdents) && probeRe.test(lazyCode),
+  "the import probe follows trendSignal -> getSupabase() -> lazySupabase's real dynamic supabase import — so the score-boundary absences are evidence, not a broken probe"
+);
 
 // The inverse direction: the trend modules must not read or write a score field.
 for (const m of TREND_MODULES) {

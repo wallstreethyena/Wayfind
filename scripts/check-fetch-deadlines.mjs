@@ -195,8 +195,10 @@ const read = (p) => readFileSync(join(ROOT, p), "utf8");
   ok(/const\s+degraded\s*=/.test(code), "the route computes a `degraded` flag from the payload");
   ok(/degraded[\s\S]{0,80}no-store/.test(raw),
     "…and a degraded payload is served no-store, so the very next request rebuilds and the cell self-heals instead of latching an empty answer for an hour");
-  ok(/data\.failed\s*===\s*true/.test(code),
-    "…derived from data.failed, the flag railMenuData sets when the build did not complete");
+  ok(/completeAnswersOnly/.test(code)
+      && /const\s+answerIsComplete\s*=/.test(code)
+      && /const\s+degraded\s*=\s*!answerIsComplete\(data\)/.test(code),
+    "…derived through the shared explicit-completion predicate, which also rejects legacy cache entries without a complete healthy answer");
   ok(/export const maxDuration\s*=\s*\d+/.test(code),
     "the route declares maxDuration — the platform ceiling outside both deadlines, so a stall in code neither of them bounds still ends in a response");
   ok(/s-maxage=3600/.test(raw), "CONTROL: the healthy answer still keeps the hour it earned (without this, 'no-store everywhere' would pass)");

@@ -3,7 +3,9 @@
 // The map is browser-only. This shim keeps EventWhere server-rendered and
 // defers MapKit JS until the map is near the viewport.
 import dynamic from "next/dynamic";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useEventMapPlaces } from "./EventMapPlaces.js";
+import { mergeEventMapPlaces } from "../../lib/eventMapPlaces.js";
 import EventDrivingRoute from "./EventDrivingRoute.js";
 
 const EventVenueMap = dynamic(() => import("./EventVenueMap"), {
@@ -12,6 +14,8 @@ const EventVenueMap = dynamic(() => import("./EventVenueMap"), {
 });
 
 export default function EventVenueMapLoader(props) {
+  const stays = useEventMapPlaces()?.stays || [];
+  const mapPicks = useMemo(() => mergeEventMapPlaces(props.picks, stays), [props.picks, stays]);
   const host = useRef(null);
   const [visible, setVisible] = useState(false);
   const [mapController, setMapController] = useState(null);
@@ -22,7 +26,7 @@ export default function EventVenueMapLoader(props) {
     return () => observer.disconnect();
   }, []);
   return <div ref={host}>
-    {visible ? <EventVenueMap {...props} onMapReady={setMapController} /> : <div className="wfev wfev-h" style={{ minHeight: 340 }} aria-label="Venue map loads as you scroll" />}
+    {visible ? <EventVenueMap {...props} picks={mapPicks} onMapReady={setMapController} /> : <div className="wfev wfev-h" style={{ minHeight: 340 }} aria-label="Venue map loads as you scroll" />}
     <EventDrivingRoute venue={props.venue} directionsHref={props.directionsHref} mapController={mapController} />
   </div>;
 }

@@ -31,6 +31,7 @@ import { SURFACE_BY_ID, SURFACES } from "./lib/starvationSurfaces.mjs";
 import { rankInventory } from "../lib/inventoryServe.js";
 import { admitOwnedRows, readOwnedCategory } from "../lib/ownedPool.js";
 import { sbEnv } from "../lib/serverCache.js";
+import { collectReadEvidence } from "./lib/starvationReadEvidence.mjs";
 
 const arg = (k, d) => {
   const hit = process.argv.find((a) => a.startsWith(`--${k}=`));
@@ -92,21 +93,15 @@ const { SUB_ALLOW } = await import("../lib/placeFilter.js");
 const OLD_DB_LIMIT = 1000;  // lib/inventoryServe.js — `&limit=1000`, no order=
 
 const rawByCat = {};
-const readStats = {};
+let readEvidence;
 {
   const { boxForRadius } = await import("../lib/inventoryServe.js");
   const box = boxForRadius(LAT, LNG, radiusM);
   const env = sbEnv();
   const settled = await Promise.allSettled(surface.categories.map((c) => readOwnedCategory(env, c, box, {})));
-  settled.forEach((r, i) => {
-    const cat = surface.categories[i];
-    rawByCat[cat] = r.status === "fulfilled" ? r.value.rows : [];
-    readStats[cat] = r.status === "fulfilled" ? r.value.rows.length : null;
-  });
-  if (Object.values(readStats).every((v) => v === null)) {
-    console.error("audit-starvation-measure: every owned read failed");
-    process.exit(5);
-  }
+  const collected = collectReadEvidence(surface.categories, settled);
+  Object.assign(rawByCat, collected.rawByCat);
+  readEvidence = collected.evidence;
 }
 
 // ── OLD: the shipped CUT, over those same rows ──────────────────────────────
@@ -162,9 +157,11 @@ const next = {
   places: nextAdmit.places,
   stats: {
     ...nextAdmit.stats,
-    perCategory: readStats,
-    truncated: false,
-    sourceFailures: Object.values(readStats).filter((v) => v === null).length,
+    perCategory: readEvidence.perCategory,
+    truncated: readEvidence.actualTruncated,
+    sourceFailures: readEvidence.sourceFailures,
+    unknownFailures: readEvidence.unknownFailures,
+    complete: readEvidence.complete,
     broadByDesign: Object.keys(byDesign),
   },
 };
@@ -183,6 +180,7 @@ const railRows = surface.rails.filter((id) => !notMeasured[id]).map((id) => ({
 }));
 
 const report = {
+  measurementVersion: 1,
   surface: surface.id,
   title: surface.title,
   route: surface.route,
@@ -200,16 +198,19 @@ const report = {
     dbWindowTruncated: oldReads.some((r) => r.dbTruncated),
   },
   next: {
-    rowsRead: next.stats.perCategory,
+    rowsRead: Object.fromEntries(Object.entries(next.stats.perCategory).map(([category, evidence]) => [category, evidence.rows])),
     rows: next.stats.rows,
     servable: next.stats.servable,
     withinRadius: next.stats.withinRadius,
     qualified: next.stats.qualified,
     truncated: next.stats.truncated,
     sourceFailures: next.stats.sourceFailures,
+    unknownFailures: next.stats.unknownFailures,
+    complete: next.stats.complete,
     broadByDesign: next.stats.broadByDesign || [],
     byRail: newBuckets,
   },
+  readEvidence,
   // TWO DIFFERENT NUMBERS, AND THEY ARE NOT INTERCHANGEABLE (owner review,
   // 2026-09-06). `recovered` counts RAIL SLOTS — a place on two rails counts
   // twice, and summing it across overlapping surfaces and overlapping metro
@@ -250,3 +251,5 @@ if (asJson) {
   if (report.genuinelyOne.length) console.log(`Genuinely one verified option: ${report.genuinelyOne.join(", ")}`);
   console.log("");
 }
+
+if (!readEvidence.complete) process.exitCode = 1;

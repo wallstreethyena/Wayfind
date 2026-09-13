@@ -67,7 +67,7 @@ for (const key of legacyKeys) {
   ok(currentLegacy.has(key), `stale legacy identity baseline entry: ${key.replace("\u0000", ": ")}`);
 }
 
-// Fifteen IDs were read from wf_inventory during this repair; Blue Spring's
+// Eighteen IDs were read from wf_inventory during this repair; Blue Spring's
 // ID was confirmed in wf_place_ids and its fresh details cache. Pinning the
 // identity prevents a later headline edit or broad alias from quietly moving
 // a card to a different venue while leaving the card count green.
@@ -86,6 +86,8 @@ const verifiedPlaceIds = new Map([
   [pickKey("things-to-do-orlando-not-theme-parks", "East End Market"), "ChIJz4eUs7N654gRiMJs2630XVc"],
   [pickKey("st-armands-circle-restaurants", "Café on St. Armands"), "ChIJ8_xGlpFqw4gRpBDnt0x_mdg"],
   [pickKey("best-restaurants-disney-springs", "Jaleo by José Andrés"), "ChIJ0_My9aR_3YgRQnilGsmaCps"],
+  [pickKey("best-restaurants-disney-springs", "Wine Bar George"), "ChIJ_7j9pYd_3YgRmJkanPMuZ0k"],
+  [pickKey("best-restaurants-disney-springs", "T-REX Cafe"), "ChIJO3vjMIF_3YgRqb3SdwzbyII"],
   [pickKey("magical-dining-orlando-2026", "ÔMO by Jônt, Winter Park"), "ChIJO3PrEmdx54gRW1c11w1Yxlo"],
   [pickKey("magical-dining-orlando-2026", "Kaya, Mills 50"), "ChIJ3YuEdVp754gRoWwBx528kNc"],
 ]);

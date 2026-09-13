@@ -72,7 +72,9 @@ const railsData = readFileSync(new URL("../lib/railsData.js", import.meta.url), 
 // 2) the PLACES rotate, because they are re-ranked every regeneration
 ok(/revalidate = 3600/.test(readFileSync(new URL("../app/page.js", import.meta.url), "utf8")),
   "the homepage must regenerate hourly, or the rail's places freeze with the page");
-ok(/rankedFor\(/.test(railsData), "the rail's places come from the live ranking engine, not a stored list");
+ok(/const rank = \(deps && deps\.rankedFor\) \|\| rankedFor;/.test(railsData)
+  && /then\(\(\) => rank\(cat, city, \{/.test(railsData),
+"the rail's production dependency is the live ranking engine and the read queue invokes it, not a stored list");
 // 3) and no rail may be a frozen single pick
 // v8.33 — this used to read `/MAX_CARDS = 12/`, which pinned a CEILING to prove
 // a rail is a row rather than one frozen pick. The ceiling is gone (owner: "no
