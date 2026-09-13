@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { commerceHref, emitCommerce, mintClickId } from "../../lib/commerce";
-import { resolvedIntentPartnerPicks, fetchPartnerInventory } from "../../lib/intentPartnerPicks";
+import { resolvedIntentPartnerPicks, fetchPartnerInventory, qualifyPartnerInventory, PARTNER_INVENTORY_CANDIDATE_COUNT, PARTNER_RAIL_RENDER_LIMIT } from "../../lib/intentPartnerPicks";
 import { rankExperiences, experienceWayfindScore } from "../../lib/experiencesData";
 import { couponsForIntent } from "../../lib/coupons";
 import { dealScope } from "../../lib/dealSheet";
@@ -126,16 +126,22 @@ export default function IntentPartnerPick({ city, intent, inventory, accent = "#
     // One rail carries both the editor-curated products and the remaining
     // verified local inventory. The selector dedupes offer ids and titles;
     // the shared score ordering puts the strongest evidence first and leaves
-    // unrated products after every score-bearing product.
+    // unrated products after every score-bearing product. Ask for a 40–50
+    // candidate window, then keep the best PARTNER_RAIL_RENDER_LIMIT after
+    // qualification so a dead/imageless/duplicate row cannot pad the rail.
     () => {
-      const bookable = rankExperiences(resolvedIntentPartnerPicks(city, intent, activeInventory, 12));
+      const bookable = rankExperiences(resolvedIntentPartnerPicks(city, intent, qualifyPartnerInventory(activeInventory), PARTNER_INVENTORY_CANDIDATE_COUNT));
       const seen = new Set();
       return [...bookable, ...networkDeals, ...localCoupons].filter((pick) => {
         const key = `${pick.provider}:${pick.offerId}`;
-        if (!pick.image || seen.has(key)) return false;
+        const titleKey = String(pick.title || "").trim().toLowerCase();
+        if (!pick.image) return false;
+        if (!pick.offerId || !pick.provider || pick.link_ok === false) return false;
+        if (seen.has(key) || (titleKey && seen.has(titleKey))) return false;
         seen.add(key);
+        if (titleKey) seen.add(titleKey);
         return true;
-      }).sort((a, b) => evidenceScore(b) - evidenceScore(a));
+      }).sort((a, b) => evidenceScore(b) - evidenceScore(a)).slice(0, PARTNER_RAIL_RENDER_LIMIT);
     },
     [city, intent, activeInventory, networkDeals, localCoupons]
   );
@@ -228,7 +234,7 @@ export default function IntentPartnerPick({ city, intent, inventory, accent = "#
               style={{ flex: "0 0 200px", scrollSnapAlign: "start", borderRadius: 12, overflow: "hidden", border: `1px solid ${C.border}`, background: C.card, color: "inherit", textDecoration: "none" }}
             >
               <div data-bookable-card-media aria-hidden="true" style={{ position: "relative", height: 86, overflow: "hidden", borderBottom: `1px solid ${C.border}` }}>
-                <img src={pick.image} alt="" loading="lazy" onError={(event) => { const card = event.currentTarget.closest("a"); if (card) card.style.display = "none"; }} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block", objectFit: "cover" }} />
+                <img src={pick.image} alt="" loading="lazy" decoding="async" onError={(event) => { const card = event.currentTarget.closest("a"); if (card) card.style.display = "none"; }} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block", objectFit: "cover" }} />
                 <span data-partner-badge style={{ position: "absolute", top: 7, right: 7, zIndex: 1, padding: "3px 6px", borderRadius: 999, border: "1px solid rgba(255,255,255,.24)", background: "rgba(7,12,20,.82)", backdropFilter: "blur(8px)", color: "#fff", fontSize: 8.5, fontWeight: 800, lineHeight: 1.1, whiteSpace: "nowrap" }}>via {pick.merchant}</span>
               </div>
               <div style={{ padding: "8px 10px" }}>

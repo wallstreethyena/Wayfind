@@ -639,5 +639,13 @@
       "detail": "A loose identity or duplicate commerce path can sell the wrong park, hide a strong park or send a buyer through an untracked link."
     },
     "owner": "Revenue QA"
+  },
+  "scripts/test-bookable-highlights-30.mjs": {
+    "protects": "The existing Bookable highlights rail can render 30 qualified unique local affiliate cards when that many valid products exist, without dead links, missing art, duplicates, filler, or another city's inventory.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "A leftover 12-cap or an unscoped experiences read can hide verified local inventory or flood a guide with the wrong market's products."
+    },
+    "owner": "Revenue QA"
   }
 }

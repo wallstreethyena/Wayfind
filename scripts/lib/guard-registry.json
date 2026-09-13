@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-12",
+  "generated": "2026-09-13",
   "generator": "scripts/lib/build-guard-registry.mjs",
   "derivation": "scripts/lib/deriveGuardRegistry.mjs",
   "schemaNotes": "Mechanically-derived fields (class/assertionCount/wiring/gating/critical/criticalReasons) are regenerated every run from scripts/guards.txt, package.json, .github/workflows/*.yml, ops/*.workflow.yml and scripts/lib/guardHonestyAnalysis.mjs — editing them by hand will be overwritten on the next `node scripts/lib/build-guard-registry.mjs`. Hand-authored fields (protects/blastRadius/owner) live in scripts/lib/guard-registry-overrides.json and are merged in; they are REQUIRED for every entry with critical:true and optional elsewhere. scripts/check-guard-registry.mjs (the CI guard) re-derives guards.txt wiring LIVE rather than trusting this file's cached `wiring.guardsTxt` — and since 2026-09-07 it also re-derives EVERY mechanically-derived field via scripts/lib/deriveGuardRegistry.mjs and fails when the committed snapshot disagrees, so a stale registry can no longer be merged unnoticed.",
@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 641,
-    "totalRegistryEntries": 642,
-    "guardsTxtLineCount": 640,
-    "guardsTxtReachedFileCount": 635,
-    "criticalCount": 76,
+    "totalOnDiskGuardFiles": 642,
+    "totalRegistryEntries": 643,
+    "guardsTxtLineCount": 641,
+    "guardsTxtReachedFileCount": 636,
+    "criticalCount": 77,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 429,
-      "RENDER": 71,
+      "RENDER": 72,
       "STRUCTURAL": 141,
       "OTHER": 1
     }
@@ -3797,7 +3797,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 123,
+      "assertionCount": 141,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -8633,6 +8633,33 @@
       "blastRadius": {
         "category": "revenue",
         "detail": "A false-positive 'live' program, or a duplicate CTA, either monetizes inventory that shouldn't be, or confuses the primary Viator CTA with a second, competing one."
+      },
+      "owner": "Revenue QA"
+    },
+    {
+      "file": "scripts/test-bookable-highlights-30.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 53,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-filename:bookable"
+      ],
+      "protects": "The existing Bookable highlights rail can render 30 qualified unique local affiliate cards when that many valid products exist, without dead links, missing art, duplicates, filler, or another city's inventory.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "A leftover 12-cap or an unscoped experiences read can hide verified local inventory or flood a guide with the wrong market's products."
       },
       "owner": "Revenue QA"
     },
