@@ -139,6 +139,9 @@ for (const name of ["Halloween Horror Nights", "Halloween Horror Nights at Unive
   ok(placePartnerPick({ name })?.provider !== "klook", `${name}: never inherits an unrelated Klook admission pin`);
   ok(venueOfferFor(name, "Orlando")?.provider !== "klook", `${name}: never inherits an unrelated Book-it offer`);
 }
-ok(placePartnerPick({ name: "Universal Volcano Bay" })?.provider === "undercover_tourist", "Volcano Bay retains its existing ticket product");
+for (const name of ["Universal Volcano Bay", "Universal's Volcano Bay"]) {
+  const pick = placePartnerPick({ name });
+  ok(pick?.provider === "klook" && pick?.offerId === "orlando-klook-universal-admission", `${name} uses the verified destination with water park admission, never the excluding offer 6`);
+}
 
 console.log(`test-book-it-venues: OK — ${pass} assertions (${VENUE_OFFERS.length} venues, every offer id resolved against the registry, ${HIT.length} exact matches CALLED through bookItTarget, ${WRONG.length} wrong-city cases refused, search path intact)`);

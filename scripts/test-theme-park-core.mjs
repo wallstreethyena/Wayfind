@@ -53,12 +53,13 @@ try {
   globalThis.fetch = async (url) => {
     const query = new URL(url);
     assert.equal(query.pathname, "/rest/v1/wf_inventory");
-    assert.ok(query.searchParams.get("name").startsWith("in.("));
+    assert.ok(query.searchParams.get("or").includes('name.ilike."EPCOT"'), "whole-name query is case insensitive");
+    assert.ok(!/[%*]/.test(query.searchParams.get("or")), "no wildcard expands park identity");
     const unknown = query.searchParams.get("select").split(",").filter((field) => !inventoryColumns.has(field));
     if (unknown.length) return Response.json({ error: "unknown inventory column" }, { status: 400 });
-    return Response.json([row("Gatorland", "g", 4.7, 1000)]);
+    return Response.json([row("Gatorland", "g", 4.7, 1000), row("Epcot", "epcot", 4.7, 163052), row("PEPPA PIG Theme Park Florida", "peppa", 4.1, 2079)]);
   };
-  assert.equal((await loadThemeParks({ env }))[0].id, "g", "real reader uses supported inventory columns");
+  assert.deepEqual((await loadThemeParks({ env })).map(p => p.id), ["epcot", "g", "peppa"], "real reader keeps deployed spelling variants in score order");
   globalThis.fetch = async () => Response.json({ error: "unknown column" }, { status: 400 });
   await assert.rejects(loadThemeParks({ env }), /returned 400/);
   globalThis.fetch = async () => Response.json({ rows: [] });
