@@ -57,7 +57,7 @@ const CASES = [
     VT("ChIJx", [{ url: "https://www.viator.com/tours/Orlando/x/d123-456" }]), "Orlando, FL"],
   ["bookable kind, no product -> tracked search", D({ types: ["museum", "tourist_attraction"] }), "museum", null, "Orlando, FL"],
   ["BEACH is never bookable (the Coquina->Mumbai bug)", D({ types: ["beach", "natural_feature", "tourist_attraction"], category: "beach" }), "beach", null, "Sarasota, FL"],
-  ["hotel -> no raw booking.com (founder P0 fail-closed)", D({ types: ["lodging", "hotel"] }), "hotels", null, "Orlando, FL"],
+  ["hotel -> tracked Stay22 handoff", D({ types: ["lodging", "hotel"] }), "hotels", null, "Orlando, FL"],
   ["restaurant -> nothing monetized", D({ types: ["restaurant", "food"] }), "food", null, "Tampa, FL"],
   ["no address falls back to locName", D({ address: "", types: ["museum", "tourist_attraction"] }), "museum", null, "Orlando, FL"],
 ];
@@ -66,6 +66,8 @@ const CASES = [
 const BEFORE_KINDS = ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"];
 const Aff = await import("../lib/affiliates.js");
 function bookingTargetsExpected(detail, kind, topItem, locName) {
+  if (kind === "hotels") return { verifiedUrl: null, goFallback: null, tk: null,
+    tu: "/api/hotels/go?" + new URLSearchParams({ name: detail.name, address: detail.address, surface: "hotel_booking", content: detail.id }) };
   const bcity = (() => { try { const parts = String(detail.address || "").split(",").map((x) => x.trim()); return parts.length >= 3 ? parts[1] : (locName ? locName.split(",")[0] : ""); } catch (e) { return ""; } })();
   // Founder P0 (2026-08-19): earning href is viatorProductGoUrl, never
   // viatorDirectUrl. Hotel Stay22/booking.com is fail-closed (no durable hop).

@@ -1,16 +1,21 @@
 #!/usr/bin/env node
 import { readFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import {
   FALL_INTENT_RAIL_DEFS, FALL_MIN_RESULTS, FALL_NEAR_MI, FALL_RAIL_RADIUS_MI, fallEventRail, fallPhase,
   fallRailOrder, composeFallIntentRails,
 } from "../lib/fallIntentRails.js";
-import { FALL_PLACE_IDS, FALL_PLACE_RAIL } from "../lib/fallPool.js";
+import { FALL_OFFERING_SOURCES, FALL_PLACE_IDS, FALL_PLACE_RAIL } from "../lib/fallPool.js";
+import { fallCardClass } from "../lib/fallSkin.js";
+import { hasStoredPlacePhoto } from "../lib/placePhoto.js";
 import { FALL_DISCOVERIES_2026, FALL_DISCOVERY_RAIL, FALL_SEASONAL_PLACE_IDS } from "../lib/fallDiscoveries2026.js";
 import { GULF_COAST_FALL_2026_ROWS } from "../lib/gulfCoastFall2026.js";
 import { railScrollNeedsMore, windowRailAnswer } from "../lib/railResponse.js";
 import { FALL_PHOTO_PLACE_IDS, FALL_PHOTO_SPOTS } from "../lib/fallPhotoSpots.js";
 import { FALL_COLLECTION_POSTER, fallEventCardImageSrc } from "../lib/fallEventImage.js";
+import { FALL_EVENT_VENUE_PLACE_IDS } from "../lib/fallEventImage.js";
 import { DISPLAYABLE_STATUS } from "../lib/curatedEvents.js";
+import { railRenderState, RAIL_RENDER_STATE } from "../lib/railVisibility.js";
 
 let pass = 0;
 const failures = [];
@@ -25,6 +30,44 @@ const event = (over = {}) => ({
 });
 
 const expected = ["food", "farms", "theme-parks", "haunts", "family", "oktoberfest", "date-night", "festivals", "photos", "day-trips"];
+const publication = JSON.parse(readFileSync(new URL("./fixtures/fall-sarasota-publication-2026-09-10.json", import.meta.url), "utf8"));
+const publicationIds = new Set([...publication.rows, ...publication.patches].map((row) => row.event_id));
+const publishedRows = [
+  ...publication.rows,
+  ...publication.patches.map((patch) => ({ event_id: patch.event_id, ...patch.set })),
+];
+const publishedById = new Map(publishedRows.map((row) => [row.event_id, row]));
+const selectedCurated = publication.selected.filter((row) => row.action !== "KEEP PROVIDER");
+ok(publication.rows.length === 4 && publication.patches.length === 25 && publication.provider_records.length === 1, "Sarasota publication reconciles four additions, 25 corrections and one retained provider");
+ok(publicationIds.size === 29 && new Set(publication.selected.map((row) => row.event_id)).size === 30, "the 30 selections have unique canonical identities");
+ok(!publicationIds.has(publication.provider_records[0].event_id), "the Vampire Circus provider event is not duplicated in curated storage");
+ok(selectedCurated.every((row) => fallEventRail(publishedById.get(row.event_id)) === row.primary_rail), "every curated publication executes into its reviewed primary taxonomy rail");
+ok(publication.rows.every((row) => row.event_status === "scheduled" && row.source_tier === 1 && row.verification_confidence === "high"), "every added event passes the canonical trust threshold");
+ok(publication.patches.every((row) => !Object.keys(row.set).some((field) => ["slug", "event_id", "link_ok", "link_verdict", "link_checked_at", "link_final_url"].includes(field))), "corrections preserve canonical identity and independently maintained link health");
+ok(publication.rail_photo_holds.every((id) => publishedById.get(id)?.hero_image === null && fallEventCardImageSrc(publishedById.get(id)) === null), "unproven photos stay off rails without borrowing a nearby place identity");
+const photoReady = publishedRows.filter((row) => row.hero_image);
+ok(photoReady.length === 24 && photoReady.every((row) => {
+  const proof = publication.venue_proof.find((place) => place.place_id === row.place_id);
+  return proof?.has_photo && proof.status === "OPERATIONAL" && !proof.excluded
+    && FALL_EVENT_VENUE_PLACE_IDS[row.event_id] === row.place_id
+    && row.hero_image === `/api/photo?place=${row.place_id}&w=${proof.live_photo_width}`;
+}), "every one of the 24 photo-ready cards has the exact operational owned venue and its own image URL");
+const composedPublication = composeFallIntentRails(photoReady, [], { lat: 27.3364, lng: -82.5307, today: "2026-09-10", now: new Date("2026-09-10T16:00:00Z") });
+const renderedPublication = composedPublication.rails.flatMap((rail) => rail.cards.map((row) => row.event_id || row.id));
+ok(renderedPublication.slice().sort().join("|") === photoReady.map((row) => row.event_id).sort().join("|"), "Sarasota renders the exact 24 photo-ready curated selections once, without filling from held candidates");
+const runaway = publishedById.get("runaway-pumpkin-5k-family-fest-2026");
+const nearbyRunaway = (lat, lng) => composeFallIntentRails([runaway], [], { lat, lng, today: "2026-09-10", now: new Date("2026-09-10T16:00:00Z") }).rails.flatMap((rail) => rail.cards);
+ok(nearbyRunaway(27.3364, -82.5307).length === 0 && nearbyRunaway(27.04, -82.217).length === 1, "Runaway remains outside Sarasota's 27-mile family cap but eligible from North Port when its photo is resolved");
+ok(publishedById.get("sarasota-medieval-fair-2026").end_date === "2026-12-06", "the full Medieval Fair series retains its verified December closing date");
+ok(publishedById.get("wellen-park-spooktacular-2026").end_time === "19:00:00" && publishedById.get("wellen-park-spooktacular-2026").is_free === null, "Wellen follows the organizer's 7pm close without inventing free admission");
+ok(fallEventRail(publishedById.get("freedom-factory-halloween-destruction-2026")) === "festivals", "loud Halloween demolition racing remains a festival rather than a gentle family Halloween recommendation");
+const oldGulfSeed = new URL("./seed-gulf-coast-fall-2026.mjs", import.meta.url).pathname;
+const legacyDry = spawnSync(process.execPath, [oldGulfSeed, "--dry"], { encoding: "utf8" });
+ok(legacyDry.status === 0 && /INSERT gallaghers-pumpkins-2026/.test(legacyDry.stdout)
+  && ![...publicationIds].some((id) => new RegExp(`(?:INSERT|PATCH)\\s+${id}(?:\\s|:)`).test(legacyDry.stdout)), "the executable older Gulf seed retains unrelated rows and cannot replay any superseded Sarasota record");
+const staleOnly = spawnSync(process.execPath, [oldGulfSeed, "--dry", "--only=utc-night-market-tailgate-2026-09-17"], { encoding: "utf8" });
+ok(staleOnly.status !== 0 && /Superseded/.test(staleOnly.stderr), "an explicit stale UTC seed request fails before any database write");
+const sarasotaAudit = JSON.parse(readFileSync(new URL("./fixtures/fall-sarasota-audit-2026-09-08.json", import.meta.url), "utf8"));
 ok(FALL_INTENT_RAIL_DEFS.length === 10, "the collection has exactly ten rails");
 ok(FALL_INTENT_RAIL_DEFS.map((rail) => rail.id).join("|") === expected.join("|"), "the ten approved base intents are present in order");
 ok(new Set(FALL_INTENT_RAIL_DEFS.map((rail) => rail.title)).size === 10, "every rail title is unique");
@@ -33,7 +76,7 @@ ok(FALL_NEAR_MI === 27, "the nearby ring ends at 27 miles");
 ok(FALL_MIN_RESULTS === 8, "eight remains the target depth, never a reason to violate the radius");
 ok(["food", "family", "date-night"].every((id) => FALL_RAIL_RADIUS_MI[id] === 27), "food, family and spooky date night stay local at 27 miles");
 ok(["farms", "haunts", "oktoberfest", "festivals", "photos"].every((id) => FALL_RAIL_RADIUS_MI[id] === 45), "seasonal destinations widen only to 45 miles");
-ok(["theme-parks", "day-trips"].every((id) => FALL_RAIL_RADIUS_MI[id] === 60), "only theme parks and day trips reach the 60-mile ring");
+ok(FALL_RAIL_RADIUS_MI["theme-parks"] === 150 && FALL_RAIL_RADIUS_MI["day-trips"] === 60, "the owner-approved 150-mile exception applies only to Halloween theme parks; day trips stay at 60 miles");
 
 ok(fallPhase("2026-09-01") === "early", "September opens in the early fall phase");
 ok(fallPhase("2026-09-30") === "opening", "late September promotes farms and Oktoberfest");
@@ -90,8 +133,54 @@ const farmCards = distanceLaw.rails.find((rail) => rail.id === "farms").cards;
 ok(farmCards.map((card) => card.id).join("|") === "farm-near", "a farm beyond its 45-mile rail radius is rejected");
 ok(!farmCards.some((card) => card.id === "farm-unknown"), "unknown distance is rejected rather than guessed nearby");
 
+// Reproduce the owner's Bradenton screenshot: Orlando was cut off at 60 mi.
+// Real park coordinates also cover Sarasota; boundary controls protect the
+// hard cap and prove the exception does not leak into another seasonal rail.
+const park = (id, title, lat, lng) => event({ id, event_id: id, event_name: title, title, lat, lng, tags: ["fall", "halloween", "theme-park"] });
+const orlandoParks = [
+  park("park-universal", "Halloween Horror Nights", 28.4749, -81.4664),
+  park("park-magic-kingdom", "Mickey's Not-So-Scary Halloween Party", 28.4177, -81.5812),
+  park("park-seaworld", "SeaWorld Spooktacular", 28.4110418, -81.4612275),
+];
+for (const origin of [{ city: "Bradenton", lat: 27.4989, lng: -82.5748 }, { city: "Sarasota", lat: 27.3364, lng: -82.5307 }]) {
+  const answer = composeFallIntentRails(orlandoParks, [], { ...origin, today: "2026-09-10", now });
+  const cards = answer.rails.find((rail) => rail.id === "theme-parks").cards;
+  ok(cards.length === 3 && cards.every((card) => card.distMi > 60 && card.distMi <= 150), `${origin.city} can see three distinct verified Orlando Halloween park trips beyond the old 60-mile cap`);
+}
+const capOrigin = { lat: 27.4989, lng: -82.5748, today: "2026-09-10", now };
+const capPlaces = [
+  { id: "park-inside", name: "Inside Halloween Park", lat: 29.66, lng: -82.5748, fallRail: "theme-parks" },
+  { id: "park-outside", name: "Outside Halloween Park", lat: 29.69, lng: -82.5748, fallRail: "theme-parks" },
+  ...expected.filter((id) => id !== "theme-parks").map((id) => ({ id: `${id}-orlando`, name: `${id} Orlando`, lat: 28.4749, lng: -81.4664, fallRail: id })),
+];
+const capAnswer = composeFallIntentRails([], capPlaces, capOrigin);
+ok(capAnswer.rails.flatMap((rail) => rail.cards.map((card) => card.id)).join("|") === "park-inside", "a park just inside 150 miles qualifies; a park beyond 150 miles and every other distant seasonal intent remain excluded");
+
 ok(Object.keys(FALL_PLACE_IDS).sort().join("|") === Object.keys(FALL_PLACE_RAIL).sort().join("|"), "every vetted fall place has exactly one primary intent assignment");
 ok(Object.values(FALL_PLACE_RAIL).every((rail) => expected.includes(rail)), "every fall place assignment targets an approved rail");
+const solId = "ChIJ9ZpMS-7jwogRWChZqTQG66g";
+const fallPlaceIds = Object.keys(FALL_PLACE_IDS);
+ok(fallPlaceIds.includes(solId) && FALL_PLACE_RAIL[solId] === "food",
+  "Sōl St Pete's documented pumpkin curry appears once, under Fall Drinks & Seasonal Bites");
+ok(FALL_OFFERING_SOURCES[solId]?.source === "https://solstpete.com/st-petersburg-warehouse-arts-district-sol-st-pete-bistro-food-menu"
+  && FALL_OFFERING_SOURCES[solId]?.verified === "2026-09-10"
+  && /Golden Pumpkin Curry Di Mare/.test(FALL_OFFERING_SOURCES[solId]?.offering || ""),
+  "Sōl's fall eligibility is pinned to its official current menu and named dish");
+ok(fallCardClass(solId, "2026-09-10") === " wf-fall-card", "Sōl wears the fall card during the annual fall window");
+const localMenus = [
+  { id: "ChIJ1U_vFp0Xw4gRGKl6mJGJ9UI", name: "Joy Coffee", lat: 27.4597729, lng: -82.5757174 },
+  { id: "ChIJA-QkamE7w4gRfdzcxEHyPls", name: "ATRIA Cafe", lat: 27.4648662, lng: -82.4325881 },
+  { id: "ChIJY5LPSxJAw4gRMhj-bOy9MKU", name: "Buddy Brew Coffee", lat: 27.3364, lng: -82.544416 },
+];
+ok(localMenus.every(({ id }) => FALL_PLACE_IDS[id] && FALL_PLACE_RAIL[id] === "food"
+  && FALL_OFFERING_SOURCES[id]?.verified === "2026-09-10"
+  && /pumpkin/i.test(FALL_OFFERING_SOURCES[id]?.offering || "")
+  && fallCardClass(id, "2026-09-10") === " wf-fall-card"), "three exact local venues have named pumpkin menu proof, one food assignment and seasonal styling");
+for (const origin of [{ lat: 27.4989, lng: -82.5748 }, { lat: 27.3364, lng: -82.5307 }]) {
+  const answer = composeFallIntentRails([], localMenus.map((p) => ({ ...p, fallRail: FALL_PLACE_RAIL[p.id] })), { ...origin, today: "2026-09-10", now });
+  ok(answer.rails.find((rail) => rail.id === "food").cards.length === 3, "all three verified menu additions qualify from the Gulf Coast without widening food beyond 27 miles");
+}
+ok(!FALL_PLACE_IDS["ChIJHRtA_2MXw4gR8krgF386Zso"], "First Watch Bradenton is excluded because the official fall menu announcement excludes the Tampa Bay area");
 ok(FALL_PHOTO_PLACE_IDS.length >= 6, "the photo rail has a useful researched Gulf Coast starting set");
 ok(Object.values(FALL_PHOTO_SPOTS).every((spot) => spot.shotLocation && spot.visualProof && spot.fallReason && spot.bestTime && spot.accessNote && /^https:\/\//.test(spot.sourceUrl)), "every photo spot carries the exact shot, visible asset, fall reason, timing, access and proof source");
 
@@ -111,7 +200,65 @@ const seedSources = ["seed-fall-sarasota-2026.mjs", "seed-fall-instagram-finds-s
   .map((name) => readFileSync(new URL("../scripts/" + name, import.meta.url), "utf8"));
 const seededIds = new Set(seedSources.flatMap((src) => [...src.matchAll(/event_id: "([a-z0-9-]+-2026)"/g)].map((m) => m[1])));
 const gulfCoastIds = new Set(GULF_COAST_FALL_2026_ROWS.map((row) => row.event_id));
-ok(Object.keys(FALL_DISCOVERY_RAIL).every((id) => discoveryIds.includes(id) || seededIds.has(id) || gulfCoastIds.has(id)), "every explicit rail pin names canonical discovery source data");
+const gulfById = new Map(GULF_COAST_FALL_2026_ROWS.map((row) => [row.event_id, row]));
+const auditSelected = Array.isArray(sarasotaAudit.selected) ? sarasotaAudit.selected : [];
+const auditDisposition = sarasotaAudit.source_dispositions || {};
+const auditSelectedIds = auditSelected.map((row) => row.id);
+const dispositionGroups = [
+  auditDisposition.selected || [],
+  (auditDisposition.canonical_alias_to_selected || []).map((row) => row.source_id),
+  (auditDisposition.already_represented || []).map((row) => row.source_id),
+  auditDisposition.verified_pending_identity || [],
+  auditDisposition.verified_taxonomy_mismatch || [],
+  auditDisposition.out_of_scope || [],
+  auditDisposition.hold || [],
+  auditDisposition.reject || [],
+  auditDisposition.place_menu || [],
+];
+const dispositionIds = dispositionGroups.flat();
+const nonPublishDispositionIds = [
+  ...(auditDisposition.verified_pending_identity || []),
+  ...(auditDisposition.verified_taxonomy_mismatch || []),
+  ...(auditDisposition.out_of_scope || []),
+  ...(auditDisposition.hold || []),
+  ...(auditDisposition.reject || []),
+  ...(auditDisposition.place_menu || []),
+];
+ok(auditSelected.length === 8 && new Set(auditSelectedIds).size === auditSelectedIds.length, "the Sarasota audit has exactly eight unique publish selections");
+ok(Array.isArray(sarasotaAudit.master_ids) && sarasotaAudit.master_ids.length === 75 && new Set(sarasotaAudit.master_ids).size === 75, "the fixture carries all 75 distinct master source IDs exactly once");
+ok(dispositionIds.length === 75 && new Set(dispositionIds).size === 75, "every master source ID has exactly one disposition with no overlap");
+ok(dispositionIds.every((id) => sarasotaAudit.master_ids.includes(id)) && sarasotaAudit.master_ids.every((id) => dispositionIds.includes(id)), "the source-disposition union reconciles exactly to the 75-ID master list");
+ok(auditSelectedIds.every((id) => !nonPublishDispositionIds.includes(id)), "no held, rejected, pending, out-of-scope, or place-menu candidate is selected for publication");
+ok((auditDisposition.already_represented || []).every((row) => (row.canonical_event_id || row.canonical_slug) || (row.canonical_provider && row.provider_event_id && /^https:\/\/www\.gowayfind\.com\//.test(row.live_url))), "every already-represented source records either a canonical event identity or a provider-backed live Wayfind route");
+ok(auditSelected.every((audit) => {
+  const row = gulfById.get(audit.id);
+  return row
+    && FALL_DISCOVERY_RAIL[audit.id] === (publication.selected.find((row) => row.event_id === audit.id)?.primary_rail || audit.rail)
+    && FALL_EVENT_VENUE_PLACE_IDS[audit.id] === audit.place_id
+    && row.place_id === audit.place_id
+    && audit.source_urls.some((url) => [row.source_url, row.official_event_url, row.official_ticket_url].includes(url));
+}), "every selected Sarasota event has one audited rail, its owned venue identity, and a checked source URL");
+ok(nonPublishDispositionIds.every((id) => !gulfById.has(id)), "held, rejected, pending, out-of-scope, and place-menu audit candidates are absent from the publish registry");
+const ghostbusters = gulfById.get("ghostbusters-in-concert-van-wezel-2026");
+ok(ghostbusters && FALL_DISCOVERY_RAIL[ghostbusters.event_id] === "date-night" && !ghostbusters.audience.includes("families") && !ghostbusters.audience.includes("kids"), "Ghostbusters stays a date-night concert, never a family Halloween card");
+ok(!gulfById.has("3-daughters-fall-bouquet-workshop-2026-09-09") && !("3-daughters-fall-bouquet-workshop-2026-09-09" in FALL_DISCOVERY_RAIL), "3 Daughters' non-spooky floral workshop stays out of every Fall intent rail");
+const sarasotaSelected = composeFallIntentRails(
+  GULF_COAST_FALL_2026_ROWS.filter((row) => auditSelectedIds.includes(row.event_id)),
+  [],
+  { lat: 27.3364, lng: -82.5307, today: "2026-09-08", now: new Date("2026-09-08T12:00:00Z") },
+);
+const sarasotaSelectedByRail = Object.fromEntries(sarasotaSelected.rails.map((rail) => [rail.id, rail.cards.map((card) => card.event_id || card.id).sort()]));
+ok(sarasotaSelectedByRail["date-night"].join("|") === "ghostbusters-in-concert-van-wezel-2026", "Sarasota composition places only the spooky Ghostbusters concert in date night");
+ok(sarasotaSelectedByRail.family.join("|") === "trick-or-treat-on-the-lake-benderson-2026|venice-night-market-halloween-2026", "Sarasota composition places Benderson trick-or-treat and the verified Venice Halloween market in family");
+ok(sarasotaSelectedByRail.festivals.join("|") === [
+  "night-of-wonder-ringling-2026",
+  "sun-fiesta-venice-2026",
+  "uf-ifas-edfest-plant-sale-2026",
+  "utc-night-market-tailgate-2026-09-17",
+  "wellen-park-wine-festival-2026",
+].sort().join("|"), "Sarasota composition returns the exact five remaining audited outdoor-night and festival cards");
+ok(sarasotaSelected.rails.flatMap((rail) => rail.cards).map((card) => card.event_id || card.id).sort().join("|") === auditSelectedIds.slice().sort().join("|"), "Sarasota composition renders every selected audit card exactly once");
+ok(Object.keys(FALL_DISCOVERY_RAIL).every((id) => discoveryIds.includes(id) || seededIds.has(id) || gulfCoastIds.has(id) || publicationIds.has(id)), "every explicit rail pin names canonical discovery source data");
 ok([...gulfCoastIds].every((id) => id in FALL_DISCOVERY_RAIL), "every reviewed Gulf Coast event has one explicit primary intent");
 ok([...seededIds].filter((id) => !(id in FALL_DISCOVERY_RAIL)).length === 0 && seededIds.size >= 22, `every seeded row (${seededIds.size}) is pinned to one shelf`);
 ok(Object.values(FALL_DISCOVERY_RAIL).every((rail) => expected.includes(rail)), "every explicit pin targets an approved rail");
@@ -175,15 +322,28 @@ const route = readFileSync(new URL("../app/api/events/fall/route.js", import.met
 const daypart = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
 const component = readFileSync(new URL("../app/components/FallIntentRails.js", import.meta.url), "utf8");
 const card = readFileSync(new URL("../app/components/RailCard.js", import.meta.url), "utf8");
-ok(/fall-intents:v10:/.test(route) && /fastCachedRail/.test(route), "the API uses a versioned shared FastCache key (v10: retires statewide-fallback payloads)");
+ok(/fall-intents:v14:/.test(route) && /fastCachedRail/.test(route), "the API uses a new shared FastCache key for playable social posts and the wider Halloween park radius");
+const imageProofId = "ChIJB-QyVtEXw4gRk5F8bn3YV28";
+ok(hasStoredPlacePhoto({ place_id: imageProofId, signals: { photo_url: "https://cdn.example.test/owned.jpg" } }),
+  "an owned signals.photo_url is stored image proof");
+ok(!hasStoredPlacePhoto({ place_id: imageProofId, signals: { photo_url: "https://images.pexels.com/not-owned.jpg" } })
+  && !hasStoredPlacePhoto({ place_id: imageProofId, signals: { photo_url: "not a URL" } }),
+  "stock and malformed signals.photo_url values are not stored image proof");
 ok(/hasImageProof[\s\S]{0,220}inventory\?\.photo_ref/.test(route)
-  && /filter\(\(p\) => !!p\.photo_ref\)/.test(route),
-  "Fall events and places require stored image proof before a card can ship");
+  && /filter\(\(p\) => hasStoredPlacePhoto\(p\)\)/.test(route)
+  && /cardImageSrc\(\{ place_id: p\.place_id, photo_ref: p\.photo_ref, signals: p\.signals \}/.test(route),
+  "Fall places require validated image proof and preserve an owned signals.photo_url without a Google photo call");
+ok(/hasStoredPlacePhoto/.test(route) && !/filter\(\(p\) => !!p\.photo_ref \|\| !!p\.signals\?\.photo_url/.test(route),
+  "a truthy stock or malformed signals.photo_url cannot admit a fall place card");
+ok(/FALL_PLACE_IDS\[p\.place_id\] \|\| \(typeof p\.signals\?\.rating/.test(route)
+  && /rating: typeof p\.signals\?\.rating === "number" \? p\.signals\.rating : null/.test(route)
+  && /wfScore: typeof p\.signals\?\.rating === "number"/.test(route),
+  "a vetted fall place may ship without an invented rating or Wayfind Score");
 // 2026-09-03 — the partner URL never reaches the DOM. The route's ticket is
 // built by eventTicketCta (an /api/commerce/go href), and the raw affiliate_url
 // column is read only to GATE (active/link_ok/PID), never to render.
 ok(/eventTicketCta\(e\.event_id/.test(route) && !/href:\s*deal\.affiliate_url/.test(route), "the fall ticket CTA is the commerce redirect, not the raw CJ link");
-ok(/schedule:\s*fallScheduleChip\(e\)/.test(route) && /detailHref:\s*e\.slug && pageSlugs\.has\(e\.slug\) \? "\/florida-events\/"/.test(route), "every fall event card ships its schedule chip and its own event page");
+ok(/schedule:\s*fallScheduleChip\(e\)/.test(route) && /const detailHref = e\.slug && pageSlugs\.has\(e\.slug\) \? "\/florida-events\/"/.test(route) && /\n\s*detailHref,/.test(route), "every fall event card ships its schedule chip and its own confirmed event page");
 ok(/key:\s*"schedule"/.test(component) && /card\.schedule\?\.label/.test(component), "the schedule chip is the first chip on an event card");
 ok(/href=\{eventBodyHref\}/.test(component) && /card\.detailHref/.test(component), "the card body opens the event page when the row has one");ok(/FALL_DISCOVERIES_2026/.test(route) && /eventRows/.test(route), "publish-ready fall discoveries are served even when their database seed lags");
 ok(/take: FALL_PLACE_IDS\[p\.place_id\] \|\| FALL_PHOTO_SPOTS\[p\.place_id\]\?\.visualProof \|\| p\.editorial/.test(route), "verified seasonal or visual evidence wins over a generic inventory summary");
@@ -213,7 +373,11 @@ ok(/domRef=\{\w+ === sentinelIndex \? sentinelRef : undefined\}/.test(component)
 ok(!/Load every verified fall option/.test(component) && !/setFull/.test(component) && !/railScrollNeedsMore/.test(component),
   "the old whole-blob scroll-triggered full=1 loader is fully removed from Fall, not merely unreachable");
 ok(/service miss, not an empty city/.test(component), "a failed service is not misreported as an empty location");
-ok(/seasonal look-alike/.test(component), "thin rails render the approved honest empty state");
+ok(/railRenderState/.test(component)
+  && railRenderState([]) === RAIL_RENDER_STATE.HIDDEN
+  && railRenderState([], { loading: true }) === RAIL_RENDER_STATE.LOADING
+  && railRenderState([], { error: true }) === RAIL_RENDER_STATE.ERROR,
+"thin rails hide only after a healthy zero; loading and service failure stay visibly distinct");
 ok(/actionItem=\{isEvent \? \{[\s\S]{0,220}type: "event"/.test(component), "dated events receive live isolated content actions instead of dead place reactions");
 ok(/sponsored: true/.test(component) && /commerce_cta_clicked/.test(component), "affiliate tickets are disclosed and measured");
 ok(/cta\.sponsored \? "sponsored nofollow noopener"/.test(card), "the shared card emits sponsored rel on paid outbound links");

@@ -118,8 +118,15 @@ const CSS = strip(readFileSync(join(ROOT, "app/components/railMenuCss.js"), "utf
     "the internal mobile page scroller drives the quiet gate, and the Safari fallback uses that same budget");
   ok(/content-visibility:auto/.test(CSS) && /contain:paint style/.test(CSS),
     "mounted offscreen cards keep their full design but do not demand paint work from the phone");
-  ok(/nth-child\(n\+13\)\{animation:none\}/.test(CSS),
-    "offscreen background chunks do not start invisible entrance animations; the visible first twelve retain the premium motion");
+  // The owner retired entrance motion for every card, including the visible
+  // first twelve. Keep the original no-wasted-background-animation guarantee
+  // by checking the shared rule itself, rather than a now-obsolete exception.
+  const noEntrance = (rule) => !!rule && !/animation(?:-delay)?:/.test(rule);
+  const cardRule = CSS.match(/\.wf8-pcrail>\.wf-place-card\{([^}]*)\}/)?.[1];
+  ok(noEntrance("flex:0 0 100%;scroll-snap-align:start"), "positive control: a stationary card rule is accepted");
+  ok(!noEntrance("animation:cardDrop .5s both"), "negative control: a card entrance is rejected");
+  ok(noEntrance(cardRule) && !CSS.includes("wf8CardDrop"),
+    "visible and offscreen cards both avoid entrance animations under the shared rail standard");
 }
 
 /* ── 3. THE WINDOW ACTUALLY FOLLOWS THE READER ─────────────────────────────

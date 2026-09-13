@@ -17,6 +17,9 @@ copyFileSync(new URL("../lib/placeCategory.js", import.meta.url), join(tmp, "pla
 // (ONE national-chain veto for the browse Breakfast tab AND the rail).
 // breakfast.js is itself import-free, so the standalone property holds.
 copyFileSync(new URL("../lib/breakfast.js", import.meta.url), join(tmp, "breakfast.js"));
+// Morning menu identity is shared with the Breakfast poster.  Copy its real
+// module with the standalone gate rather than testing a stripped import graph.
+copyFileSync(new URL("../lib/morningIdentity.js", import.meta.url), join(tmp, "morningIdentity.js"));
 copyFileSync(new URL("../lib/placeFilter.js", import.meta.url), join(tmp, "placeFilter.mjs"));
 const { placeAllowed } = await import(join(tmp, "placeFilter.mjs"));
 if (typeof placeAllowed !== "function") fail("placeAllowed not exported from lib/placeFilter.js");
@@ -150,15 +153,16 @@ const MUST_PASS = [
   ["food", "all", "First Watch", ["restaurant", "breakfast_restaurant"]],
   ["food", "lunch", "S.O.B. Burgers", ["hamburger_restaurant"]],
   ["food", "lunch", "Burger Culture Lutz", ["hamburger_restaurant"]],
+  // Morning identity is exclusive. With no primary type, a dual-service
+  // bakery/café resolves Café-first, so it cannot be a duplicate Breakfast
+  // assertion whose only difference is provider type order.
   ["food", "cafes", "Farmer's Milk Cafe & Bakery", ["cafe", "bakery", "coffee_shop"]],
-  ["food", "breakfast", "Farmer's Milk Cafe & Bakery", ["cafe", "bakery", "breakfast_restaurant", "coffee_shop"]],
   ["food", "cafes", "Peachey's Baking Co — Landings", ["donut_shop", "bakery", "coffee_shop"]],
   ["food", "dessert", "Peachey's Baking Co — Landings", ["donut_shop", "bakery", "coffee_shop"]],
   ["food", "breakfast", "The Frog Pond SPB", ["breakfast_restaurant", "brunch_restaurant", "restaurant"]],
   ["food", "breakfast", "The Frog Pond Downtown St. Petersburg", ["breakfast_restaurant", "brunch_restaurant"]],
   ["food", "breakfast", "The Frog Pond North Redington Beach", ["breakfast_restaurant", "brunch_restaurant", "restaurant"]],
   ["food", "cafes", "Campfired", ["cafe", "brunch_restaurant", "breakfast_restaurant"]],
-  ["food", "breakfast", "Campfired", ["brunch_restaurant", "breakfast_restaurant", "cafe"]],
   ["nightlife", "all", "Dive Cocktail Den", ["cocktail_bar", "bar"]],
   ["nightlife", "speakeasy", "Dive Cocktail Den", ["cocktail_bar", "bar"]],
   ["food", "lunch", "P J's Sandwich Shop", ["sandwich_shop"]],

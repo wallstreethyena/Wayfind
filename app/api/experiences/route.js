@@ -12,13 +12,30 @@ export const dynamic = "force-dynamic";
 export async function GET(req) {
   const sp = new URL(req.url).searchParams;
   const num = (k) => { const v = parseFloat(sp.get(k)); return Number.isFinite(v) ? v : undefined; };
-  const res = await serveExperiences({
-    metro: sp.get("metro") || undefined,
-    city: sp.get("city") || undefined,
-    lat: num("lat"), lng: num("lng"), mi: num("mi"),
-    cat: sp.get("cat") || "all",
-    page: num("page"), limit: num("limit"),
-  });
+  const browseCat = sp.get("browseCat") || undefined;
+  const browseSub = sp.get("browseSub") || undefined;
+  let res;
+  try {
+    res = await serveExperiences({
+      metro: sp.get("metro") || undefined,
+      city: sp.get("city") || undefined,
+      lat: num("lat"), lng: num("lng"), mi: num("mi"),
+      cat: sp.get("cat") || "all", browseCat, browseSub,
+      page: num("page"), limit: num("limit"),
+    });
+  } catch (e) {
+    // Only the new complete browse read throws. Its failure must be visibly
+    // unavailable, never cached or confused with a real market containing 0.
+    if (browseCat || browseSub) {
+      const message = String(e && e.message);
+      const reason = /ceiling/i.test(message) ? "browse-read-incomplete"
+        : /deadline|abort/i.test(message) ? "browse-read-timeout" : "browse-read-error";
+      return Response.json({ dark: true, unavailable: true, reason, items: [], total: 0, chipCounts: {}, markets: [] }, {
+        status: 503, headers: { "Cache-Control": "no-store" },
+      });
+    }
+    throw e;
+  }
   const cache = res.dark ? "no-store" : "public, s-maxage=300, stale-while-revalidate=1800";
   return Response.json(res, { headers: { "Cache-Control": cache } });
 }

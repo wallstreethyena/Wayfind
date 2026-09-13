@@ -47,6 +47,7 @@ import { coarseCat } from "../../lib/ranking";
 import { priceLabel } from "../../lib/price";
 import { businessStatus } from "../../lib/businessStatus";
 import { placePartnerPick } from "../../lib/placePartnerPicks";
+import { usePinQuarantine } from "../../lib/pinQuarantine";
 import { commerceHref, emitCommerce, mintClickId } from "../../lib/commerce";
 import { couponForPlace } from "../../lib/coupons";
 import { recommendationIds, uniqueRecommendations } from "../../lib/recommendationDedupe.js";
@@ -54,6 +55,7 @@ import { lawfulSort } from "../../lib/lawfulOrder.js";
 import PlaceCardSkeleton from "./PlaceCardSkeleton";
 import { topPickAward } from "../../lib/topPickAward";
 import { settleLoad } from "../../lib/loadState.js";
+import { PLACE_CARD_HEIGHT_PX } from "../../lib/placeCardStandard.js";
 // v8.57 — THIS RAIL PAINTS A SKELETON, SO IT MUST REACH A DECISION.
 // The try/catch/finally below is intact and still does the work. What it could
 // NOT do is see a fetch that neither resolves nor rejects: every await stays
@@ -64,10 +66,8 @@ import { settleLoad } from "../../lib/loadState.js";
 // released. Locked by scripts/check-no-stuck-loading.mjs section 5.
 const INTENT_RAIL_LOAD_TIMEOUT_MS = 12000;
 
-// Measured against the Top 40 rail, which renders the identical card with the
-// identical chip and action rows. One constant so the skeleton and the live
-// rail reserve the same box and the swap cannot shift the page.
-export const INTENT_RAIL_CARD_H = 224;
+// Skeleton and live rail reserve the canonical card body height.
+export const INTENT_RAIL_CARD_H = PLACE_CARD_HEIGHT_PX;
 const RAIL_MAX = 12;
 const RAIL_CANDIDATE_MAX = 24;
 // TWO queries on the first pass, not three. Measured on a cold Orlando: four
@@ -145,6 +145,15 @@ export default function IntentRailBody({
   isSaved, liked, disliked, onSave, onLike, onDislike, onShare,
 }) {
   const def = INTENT_PAGES[intent];
+  // LIVE QUARANTINE (2026-09-10). A pinned product that dies in the
+  // catalogue must stop painting a Book button without waiting for a
+  // deploy. The snapshot is always a usable catalog and quarantines
+  // nothing until the server has named a specific code dead, so passing
+  // it is unconditionally safe. See lib/pinQuarantine.js.
+  // ABOVE EVERY EARLY RETURN — this is a hook, and `if (!def) return null`
+  // below it would otherwise move React's hook count between renders
+  // (the failure scripts/check-hook-order.mjs was written for).
+  const pinQ = usePinQuarantine();
   // null = never asked for. "loading" = in flight. Array = the answer, which
   // may legitimately be short or empty.
   const [rows, setRows] = useState(null);
@@ -478,7 +487,7 @@ export default function IntentRailBody({
   }, [visibleIdKey]);
   if (!def) return null;
   const thin = Array.isArray(rows) && list.length < MIN_ROWS;
-  const hasPartner = list.some((r) => placePartnerPick(r));
+  const hasPartner = list.some((r) => placePartnerPick(r, pinQ));
 
   return (
     <div ref={rootRef} style={{ minHeight: rows === null || rows === "loading" ? INTENT_RAIL_CARD_H : undefined }}>
@@ -503,7 +512,7 @@ export default function IntentRailBody({
           <div className={"wf-rail wf-rail-" + intent} data-rail={intent} tabIndex={0} role="region" aria-label={label || unit} style={{ minHeight: INTENT_RAIL_CARD_H }}>
             {list.map((r, i) => {
               const st = rowStatus(r);
-              const partner = placePartnerPick(r);
+              const partner = placePartnerPick(r, pinQ);
               const coupon = couponForPlace(r);
               const facts = [
                 r.reviews ? compactReviews(r.reviews) + " reviews" : null,

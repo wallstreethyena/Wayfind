@@ -256,7 +256,7 @@ ok(chipCommerce("attractions", "outdoors").catalogs.length >= 3, "Outdoors spans
 // rail gained a cat= prop when it was extended to all seven browse categories.
 {
   const mount = (home.match(/\{browseCat === "attractions" && center && <UnifiedBrowseCommerceRail[^\n]*/) || [""])[0];
-  ok(/includeExperiences=\{!!\(sub && sub !== "all"\)\}/.test(mount), "the unified commerce rail renders once and only adds experience inventory on sub-filters");
+  ok(!/includeExperiences=\{!!\(sub && sub !== "all"\)\}/.test(mount), "the unified commerce rail includes bookable inventory on Attractions/All as well as every submenu");
 }
 // v6.79: these two assertions used to require the literal `|| t.url` /
 // `|| r.booking_url` fallback. The DECISION they encode is right — a tour href

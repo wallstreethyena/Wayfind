@@ -1,3 +1,4 @@
+import ReturnToWayfind from "../components/ReturnToWayfind";
 // Terms of Service for Wayfind, operated by WAYFIND LLC (Florida).
 const CONTACT_EMAIL = "hello@gowayfind.com";
 const EFFECTIVE = "June 30, 2026";
@@ -17,7 +18,7 @@ export default function Terms() {
   return (
     <div style={{ background: "#0D1117", minHeight: "100dvh" }}>
       <div style={wrap}>
-        <a href="/" style={{ ...a, fontSize: 13 }}>‹ Back to Wayfind</a>
+        <ReturnToWayfind style={{ ...a, fontSize: 13 }} />
         <h1 style={{ ...h1, marginTop: 18 }}>Terms of Service</h1>
         <div style={muted}>Effective {EFFECTIVE}</div>
 

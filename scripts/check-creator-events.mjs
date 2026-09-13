@@ -9,6 +9,7 @@
 // `verified.through` date. Not with a caveat, not with last year's dates —
 // nothing. Everything else in this file protects that one line.
 import { CREATOR_EVENTS, creatorEventsFor, occurrences, needsVerification, isVerified } from "../lib/creatorEvents.js";
+import { checkSocialAttachments } from "./lib/social-attachment-regression.mjs";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -147,5 +148,7 @@ for (const ev of CREATOR_EVENTS) {
 ok(isVerified({ verified: { through: "2030-01-01" } }, "2026-08-06") === true, "isVerified is true inside the window");
 ok(isVerified({ verified: { through: "2026-08-05" } }, "2026-08-06") === false, "…and false one day past it");
 ok(isVerified({}, "2026-08-06") === false, "…and false when there is no verification at all — fails closed");
+
+checkSocialAttachments(REPO);
 
 console.log(`check-creator-events: PASS (${pass} assertions)`);

@@ -39,10 +39,11 @@ import { fileURLToPath } from "node:url";
 // The real functions BEHIND the two source-checked rungs above — not just a
 // regex over the JSX that calls them. websiteHost is what the "Official
 // site" caption in EventWhere.js actually renders (rung 2), and
-// directionsUrl is what the one Get-directions button's href actually
-// resolves to (rung 1). Executing them here proves the underlying behavior,
-// not merely that the right function name appears in the source text.
-import { websiteHost, directionsUrl } from "../lib/placeWhere.js";
+// appleDirectionsUrl is what the one Get-directions button's href actually
+// resolves to on the event pages (rung 1; Apple, permanently — owner
+// 2026-09-08). Executing them here proves the underlying behavior, not
+// merely that the right function name appears in the source text.
+import { websiteHost, appleDirectionsUrl } from "../lib/placeWhere.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(path.join(ROOT, p), "utf8");
@@ -98,30 +99,30 @@ function heroLadderComplete(page) {
     && !/:\s*null\s*\)\}?\s*$/.test(block.trim()); // the final rung must not be a no-op
 }
 
-// 4. NEARBY RECOMMENDATIONS STRUCTURALLY AND VISUALLY SEPARATE FROM THE
-// VENUE. The venue card and the nearby card must be TWO different DOM
-// containers (nearby not nested inside .wfw-card), with visibly distinct
-// copy stating these are not the venue, and a distinct accent color from the
-// venue card's own (never the venue's orange — PICK teal instead, the same
-// color already used for the numbered map pins).
+// 4. NEARBY RECOMMENDATIONS LIVE INSIDE THE MAP PANEL BUT REMAIN CLEARLY
+// DISTINCT FROM THE VENUE. The latest owner direction places the standard
+// IconicPlaceCard rail inside .wfw-card. Its own semantic region, map key,
+// and explicit accessible copy must still prevent a nearby business
+// from reading as part of the ticketed venue.
 function nearbySeparatedFromVenue(where) {
   const cardOpen = where.indexOf('<div className="wfw-card">');
-  // The boundary is the START of the nearby card's own opening tag, not just
-  // the class name substring — className="wfw-nearcard" also appears earlier,
-  // inside the CSS template's `.wfw-nearcard{...}` rule, which would put
-  // nearIdx BEFORE cardOpen and always fail this check.
-  const nearIdx = where.indexOf('<div className="wfw-nearcard"');
+  const nearIdx = where.indexOf('<section id="event-nearby"');
   if (cardOpen === -1 || nearIdx === -1) return false;
-  // The venue card must fully CLOSE before the nearby card begins: the
-  // nearby markup is a SIBLING <div>, not a child, of .wfw-card.
+  // At the nearby opening, .wfw-card must still be open. Counting its div
+  // descendants proves the region is housed in the panel instead of merely
+  // appearing later in the same outer EventWhere section.
   const between = where.slice(cardOpen, nearIdx);
   const opens = (between.match(/<div\b/g) || []).length;
   const closes = (between.match(/<\/div>/g) || []).length;
-  const cardClosedFirst = closes >= opens; // every <div> opened after wfw-card, including wfw-card itself, has been closed
-  const distinctAccent = /\.wfw-nearcard\{[^}]*rgba\(46,201,166/.test(where) // PICK teal
-    && !/\.wfw-nearcard\{[^}]*rgba\(249,115,22/.test(where); // never the venue card's orange (ACCENT)
+  const nestedInMapPanel = opens > closes;
+  // Owner requested the flat home-poster rail, so venue separation comes
+  // from the map key + semantic region rather than another bordered panel.
+  const flatRail = /\.wfw-nearcard\{[^}]*min-width:0/.test(where)
+    && !/\.wfw-nearcard\{[^}]*(?:border:|background:|box-shadow:)/.test(where);
+  const mapKey = /aria-label="Map key"/.test(where) && /wfw-key-nearby/.test(where);
   const saysNotTheVenue = /not the venue|not part of/i.test(where.slice(nearIdx, nearIdx + 800));
-  return cardClosedFirst && distinctAccent && saysNotTheVenue;
+  const standardRail = /<EventNearbyCards places=\{pins\}/.test(where);
+  return nestedInMapPanel && flatRail && mapKey && saysNotTheVenue && standardRail;
 }
 
 /* ── EXECUTE the real functions the JSX above calls, not just their source ─
@@ -133,9 +134,13 @@ function nearbySeparatedFromVenue(where) {
    raw, wrapping URL structurally impossible, not merely absent today. */
 
 const buschGardens = { venue: "Busch Gardens Tampa Bay", address: "10165 N McKinley Dr", city: "Tampa", state: "FL", lat: 28.0371, lng: -82.4195 };
-const dirHref = directionsUrl(buschGardens);
-ok(typeof dirHref === "string" && dirHref.startsWith("https://www.google.com/maps/dir/?"),
-  `directionsUrl (the one Get-directions button's href) resolves to the turn-by-turn /maps/dir endpoint for a real venue shape, not /maps/search (got ${dirHref})`);
+const dirHref = appleDirectionsUrl(buschGardens);
+ok(typeof dirHref === "string" && dirHref.startsWith("https://maps.apple.com/?daddr=") && /&dirflg=d\b/.test(dirHref),
+  `appleDirectionsUrl (the one Get-directions button's href) resolves to an Apple Maps turn-by-turn DIRECTIONS link (daddr + driving), not a map search (got ${dirHref})`);
+ok(/daddr=10165%20N%20McKinley%20Dr%2C%20Tampa%2C%20FL/.test(dirHref) && /&q=Busch%20Gardens%20Tampa%20Bay/.test(dirHref),
+  `the Apple link carries the FULL street + town line as the destination and the venue name as the card label (got ${dirHref})`);
+ok(/appleDirectionsUrl\(e\)/.test(read(PAGE_PATH)) && !/[^a-zA-Z]directionsUrl\(/.test(read(PAGE_PATH)),
+  `${PAGE_PATH} builds its directions href through appleDirectionsUrl, never the Google ladder (Apple permanently, owner 2026-09-08)`);
 
 const rawOfficialUrl = "https://buschgardens.com/tampa/events/howl-o-scream/";
 const captionHost = websiteHost(rawOfficialUrl);
@@ -162,13 +167,13 @@ ok(!/>\{site\}</.test(pageSrc) && !/\{site\.replace\(/.test(pageSrc),
 
 ok(heroLadderComplete(pageSrc),
   `${PAGE_PATH} hero renders owned photography, then hero_image, then a monogram fallback — never nothing`);
-ok(/heroFallback:\s*\{/.test(pageSrc) && /heroFallbackMark:\s*\{/.test(pageSrc),
-  `${PAGE_PATH} defines the monogram fallback panel style (S.heroFallback / S.heroFallbackMark)`);
+ok(/className="wf-event-photo wf-event-photo-fallback"/.test(pageSrc) && /heroFallbackMark:\s*\{/.test(pageSrc),
+  `${PAGE_PATH} renders the shared portrait fallback panel with the monogram mark`);
 ok(/function heroInitials\(/.test(pageSrc),
   `${PAGE_PATH} derives fallback initials the same way RailCard/IconicPlaceCard do (not a stock image)`);
 
 ok(nearbySeparatedFromVenue(whereSrc),
-  `${WHERE_PATH}: the nearby-places card is a structurally separate container from the venue card, with a distinct accent and copy that says it is not the venue`);
+  `${WHERE_PATH}: the standard nearby place-card rail is inside the map panel and uses a flat semantic region with a map key and accessible venue distinction`);
 ok(/pins\.length\s*>\s*0/.test(whereSrc),
   `${WHERE_PATH} still gates the nearby shelf on having real pins (never a thin shelf)`);
 
@@ -225,7 +230,12 @@ const PRE_FIX_WHERE_NEAR = `
   );
 `;
 ok(!nearbySeparatedFromVenue(PRE_FIX_WHERE_NEAR),
-  "RED-PROVE: the pre-fix layout (nearby cards nested inside the SAME .wfw-card, no disambiguating copy) fails nearbySeparatedFromVenue");
+  "RED-PROVE: the old bespoke nearby block (no semantic region, teal distinction, or standard IconicPlaceCard rail) fails nearbySeparatedFromVenue");
+
+ok(!nearbySeparatedFromVenue(whereSrc.replace('aria-label="Map key"', 'aria-label="Removed key"')),
+  "RED-PROVE: losing the map key fails the flat-rail contract");
+ok(!nearbySeparatedFromVenue(whereSrc.replace('.wfw-nearcard{', '.wfw-nearcard{border:1px solid teal;')),
+  "RED-PROVE: restoring the nested bordered box fails the flat-rail contract");
 
 // A guard whose positive checks would ALSO pass on the broken fixtures proves
 // nothing — so also prove the real, fixed source is distinguishable from the
@@ -243,4 +253,4 @@ if (fail.length) {
   for (const m of fail) console.error("  ✗ " + m);
   process.exit(1);
 }
-console.log(`check-event-hero-and-directions: OK — ${pass} assertions (one Get-directions button, no raw URL text, a hero that never renders as nothing, nearby recommendations structurally separated from the venue) — red-proved against the pre-fix page.`);
+console.log(`check-event-hero-and-directions: OK — ${pass} assertions (one Get-directions button, no raw URL text, a hero that never renders as nothing, nearby recommendations clearly distinguished inside the map panel) — red-proved against the pre-fix page.`);

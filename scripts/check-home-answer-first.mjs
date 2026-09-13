@@ -154,7 +154,7 @@ const iMenuUse = HOME.indexOf("{discoveryMenu}");
 // for the component body and is now handed to <DaypartRail eventsSlot>, where
 // it opens as the events tile's drop — which is the first time it rendered at
 // all. See scripts/check-events-rail-renders.mjs.
-const iEventsSlot = HOME.indexOf('const eventsRailSlot = (mode = "events") => {');
+const iEventsSlot = HOME.indexOf('const eventsRailSlot = (mode = "events", selectPosterEvents = null) => {');
 const iTopbar = HOME.indexOf('className="wf-topbar"');
 const iScrollArea = HOME.indexOf('className="wf-scrollarea"');
 
@@ -334,7 +334,7 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
     ["The 30-Minute Break", "Half the break dies deciding. The best quick, counter-serve food near you — already ranked."],
     ["What Should We Do Today?", "Ends the 'I don't know, you pick' spiral: real plans, ranked for right now."],
     ["Places You'd Never Find", "Loved by the few who've found them, missed by the big lists — and near you."],
-    ["Locals Know", "Not a listicle: creators who actually went, matched to places near you."],
+    ["Creators Pick", "Not a listicle: creators who actually went, matched to places near you."],
     ["Tonight's Move", "Plans that fit tonight's hours — not somebody's reheated weekend list."],
     ["Worth the Drive", "An hour in the car has to earn itself. These are the ones that do."],
     ["Events Near You", "Stop finding out the day after: concerts, shows and one-nighters near you."],

@@ -5,6 +5,7 @@ import { mergeHealedPlacePhotos } from "../lib/detailHero";
 import { RON_DUPRAT_TOP7, chefHookCard, chefPickPlaces } from "../lib/chefPicks";
 import { fallCardClass, fallShareLine } from "../lib/fallSkin.js";
 import { siteTodayStr } from "../lib/siteTime";
+import { activeSeasonalMark } from "../lib/seasonalBrand";
 import { lunchRevealCookieValue, lunchRevealCount, lunchRevealLimit } from "../lib/lunchReveal";
 import { intentRadiusMi, intentScopeLabel } from "../lib/momentIntents";
 import { MAP_DEFAULT_CATEGORY } from "../lib/mapExplorer";
@@ -69,6 +70,7 @@ import { cardAffiliateProvider } from "../lib/cardAffiliate";
 import ViatorCommerceLink from "./components/ViatorCommerceLink";
 import HomeAffiliateActivityRail from "./components/HomeAffiliateActivityRail";
 import { commerceHref } from "../lib/commerce";
+import { themeParkIntent } from "../lib/themeParks";
 // v4.86: every place search flows through the multi-source aggregator
 // (Google + Foursquare, merged + deduped) — same signature, bigger pool.
 import { searchPlaces } from "../lib/sources";
@@ -76,6 +78,7 @@ import { saveItem as saveMonetized, fetchSavedItems } from "../lib/savedItems";
 // v7.08 — the one writer that knows a cache from a preference, and the sweep
 // that reclaims the budget the caches had already taken. See lib/localStore.js.
 import { setLocal, sweepLocal } from "../lib/localStore";
+import { browsePosition, horizontalPositions, restoreBrowsePosition } from "../lib/restoreBrowsePosition";
 import { placeRouteBackPlan } from "../lib/railReaction";
 import { reconcileIds } from "../lib/syncReconcile";
 // v4.94: the ONE junk filter — composites and any non-aggregator pool call it too.
@@ -88,7 +91,8 @@ import * as Meals from "../lib/meals";
 import * as Radius from "../lib/radius";
 import { isTrueLodging } from "../lib/lodging";
 import * as Fam from "../lib/family";
-import { supabase } from "../lib/supabase";
+import { getSupabase } from "../lib/lazySupabase";
+let supabase = null;
 import { usePlaceProduct } from "../lib/placeProduct";
 // v8: heroRefFromPlaces went with the date-night and hidden-gem hero photo
 // effects — the rail uses owned artwork and the place cards carry their own
@@ -139,6 +143,9 @@ const loadIntro = () => import("./components/sheets/Intro");
 // below, so the chunk is already warm by the time a tap needs it.
 const loadThingsToDo = () => import("./components/ThingsToDoList");
 const ThingsToDoList = nextDynamic(loadThingsToDo, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
+const UnifiedBrowseCommerceRail = nextDynamic(() => import("./components/UnifiedBrowseCommerceRail"), { ssr: false });
+const TripConnections = nextDynamic(() => import("./components/TripConnections"), { ssr: false });
+const ThemeParkRail = nextDynamic(() => import("./components/ThemeParkRail"), { ssr: false });
 const SHEET_LOADERS = [loadHookDetail, loadAccount, loadMenu, loadAuth, loadDetail, loadIntro, loadSocialFind];
 const SCREEN_LOADERS = [loadSurprise, loadCoupons, loadSaved, loadItinerary, loadShared, loadEventsScreen, loadMap, loadExperience, loadThingsToDo, ...SHEET_LOADERS];
 const SurpriseScreen = nextDynamic(loadSurprise, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
@@ -182,10 +189,7 @@ import * as Culture from "../lib/culture";
 import * as WCC from "../lib/wc";
 import * as Gems from "../lib/gems";
 import * as Aff from "../lib/affiliates";
-import { DISPLAY_CHIPS, rankExperiences, experienceWayfindScore } from "../lib/experiencesData";
-import { chipCommerce, chipSearchQuery } from "../lib/browseCommerceMap";
-import { chipAffinityBonus } from "../lib/experienceConcepts";
-import { discountDepthBonus, timeOfDayBonus } from "../lib/experienceNowRank";
+import { DISPLAY_CHIPS, rankExperiences } from "../lib/experiencesData";
 import { safeUrl, openExternal as safeOpenExternal } from "../lib/links";
 import * as Hol from "../lib/holidays";
 import { locationPromoAllowed } from "../lib/promoLocation.js";
@@ -200,7 +204,7 @@ import { sponsorRailNear, partnerCollectionById, hydratePartnerCollection } from
 import { toDisplayScore, pickEligibleByScore, cardComplete, displayableAt } from "../lib/score";
 import { stampOwnerPick } from "../lib/ownerBump.js";
 import { frontPageEvents, bestFirst } from "../lib/frontEvents";
-import { NIGHT_OUT_MAX_MI, NIGHT_OUT_RAIL_DEFS, nightOutDistanceMi, nightOutEventRail } from "../lib/nightOutIntent.js";
+import { settleLoad } from "../lib/loadState.js";
 import { HOME_AFFILIATE_ACTIVITY_FETCH_LIMIT, HOME_AFFILIATE_ACTIVITY_RADIUS_MI, homeAffiliateActivities } from "../lib/homeAffiliateActivities";
 // July 2026 decomposition (wave 1): the homepage's ~520 lines of server-
 // rendered CSS live in their own shell file. They are still concatenated into
@@ -213,6 +217,7 @@ import { WF_LAYOUT_CSS, WF_SEARCH_CSS, WF_PLACE_CARD_CSS, WF_TASTE_CSS, WF_RAIL_
 // the bundle the card copy and nothing else.
 import DaypartRail from "./components/DaypartRail";
 import PlaceCardSkeleton from "./components/PlaceCardSkeleton";
+import { PLACE_CARD_HEIGHT_PX } from "../lib/placeCardStandard.js";
 import { WF_RAIL_MENU_CSS } from "./components/railMenuCss";
 import { RAILS } from "../lib/rails";
 // v8.3: the category tabs resolve their city segment through the SAME builder
@@ -265,7 +270,7 @@ import { canonicalShareUrl } from "../lib/site";
 import { askShareIntent } from "./components/shareIntentSheet";
 import { placeKinds } from "../lib/dateInvite";
 import { isDateRoom } from "../lib/dateRoom.js";
-import { isSeedCenter, cityLabel, landingSlugFromLoc, centerAgreesWithLabel, firstPaintRailOrigin } from "../lib/locationHonesty";
+import { isSeedCenter, cityLabel, landingSlugFromLoc, centerAgreesWithLabel, firstPaintRailOrigin, localityFromFormattedAddress, storedPinFresh } from "../lib/locationHonesty";
 
 const BUILD = "beta";
 
@@ -297,7 +302,7 @@ function _viatorCityParams(cityQ, center) {
 // and v8.x because check-version.mjs only asserts VERSION == BUILD_ID, not
 // that either moved — and the owner used the footer label to judge whether
 // production was stale. A version label that never changes is disinformation.
-const BUILD_ID = "v8.56.7";
+const BUILD_ID = "v8.56.16";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -2054,7 +2059,15 @@ function AreaInsight({ metro, cat, town, center, onFind, onLog = NOLOG }) {
         <div style={{ padding: "19px 20px 21px", borderTop: "1px solid rgba(255,255,255,.07)" }}>
           <div style={{ marginBottom: 11, color: "#7F8C9B", fontSize: 9.5, fontWeight: 900, letterSpacing: ".17em", textTransform: "uppercase" }}>What locals know</div>
           {visibleItems.map((x, i) => {
-            const book = x.viatorUrl ? Aff.viatorDirectUrl(x.viatorUrl) : null;
+            // 2026-09-10 (affiliate deep-link audit, owner P0): this was
+            // Aff.viatorDirectUrl(), which renders a LIVE monetized viator.com
+            // href straight into crawlable DOM — every click bypassed
+            // /api/viator/go, so there was no provider_redirect_started, no
+            // server record, and any JS-rendering crawler "clicked" it. Same
+            // destination and same attribution (the route re-applies
+            // withViatorTracking), but the handoff is ours and can fail closed.
+            // /culture/[metro] and /guides/[slug] already do exactly this.
+            const book = x.viatorUrl ? Aff.viatorProductGoUrl(x.viatorUrl, cTitle, "culture", "culture_local_guide") : null;
             const body = book ? <>{x.story} <a href={book} target="_blank" rel="noreferrer" onClick={(e) => { e.stopPropagation(); e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || book; try { onLog("culture_book", null, { metro, q: x.name }); } catch (er) {} openExternal(_live); }} style={{ color: "#59DDBB", fontWeight: 850, textDecoration: "none" }}>Book ↗</a></> : x.story;
             return featureRow(String(i + 1).padStart(2, "0"), x.name, body, "#FF9B4B", (e) => { e.stopPropagation(); try { onLog("insight_find", null, { metro, q: x.name }); } catch (er) {} onFind && onFind(x.query || x.name); }, "item-" + i);
           })}
@@ -2127,11 +2140,13 @@ function AuthWall({ label, onSignIn }) {
   );
 }
 
-// Branded loading indicator: the Wayfind pin, gently pulsing.
+// Shared loading indicator. Keep it neutral: a loading state is structure, not
+// a second brand impression competing with the header wordmark.
 function Loader({ label, size, pad, sub }) {
+  const blockSize = size || 26;
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 10, padding: pad || "10px 2px", color: C.muted, fontSize: 13 }}>
-      <div style={{ animation: "wfbob 1.1s ease-in-out infinite", display: "flex" }}><Critter size={size || 26} /></div>
+    <div role="status" aria-busy="true" style={{ display: "flex", alignItems: "center", gap: 10, padding: pad || "10px 2px", color: C.muted, fontSize: 13 }}>
+      <div className="wf-sk" aria-hidden="true" style={{ width: blockSize, height: blockSize, borderRadius: 7, flex: "0 0 auto" }} />
       {(label || sub) && (
         <span>
           {label}
@@ -3718,6 +3733,25 @@ function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage, hideLike,
 // reveals the live community tally.
 
 function PageInner({ initialEvents = null, localEditGuides = null, railMenu = null, initialPlaceId = null, initialPlaceAction = null }) {
+  const [supabaseReady, setSupabaseReady] = useState(false);
+  // PERF 2026-09-08: Supabase is not part of the homepage eager graph. Load it
+  // after hydration, then rerun only effects whose dependency lists were
+  // mechanically amended below because their callbacks actually read it.
+  useEffect(() => {
+    let active = true;
+    let retryTimer = null;
+    const loadSupabase = () => {
+      getSupabase().then((client) => {
+        if (!active) return;
+        supabase = client;
+        if (client) setSupabaseReady(true);
+      }).catch(() => {
+        if (active) retryTimer = setTimeout(loadSupabase, 1200);
+      });
+    };
+    loadSupabase();
+    return () => { active = false; if (retryTimer) clearTimeout(retryTimer); };
+  }, []);
   const [screen, setScreen] = useState("suggested");
   const [cat, setCat] = useState(MAP_DEFAULT_CATEGORY);
   const [wxOpen, setWxOpen] = useState(false); // header weather forecast wheel
@@ -4145,6 +4179,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // instead of the URL being unknown until a client fetch resolves ~11s in.
   // null => no server events (fail-soft) => skeleton, exactly as before.
   const [foryouEvents, setForyouEvents] = useState(initialEvents);
+  const [foryouEventsFailed, setForyouEventsFailed] = useState(false);
   const [libraryEvents, setLibraryEvents] = useState([]); // curated civic/library events for the local-community hero card
   const [shareCopied, setShareCopied] = useState(false);
   const [beachCond, setBeachCond] = useState(null);
@@ -4194,7 +4229,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     try {
       const raw = localStorage.getItem("wf_center");
       const c = raw ? JSON.parse(raw) : null;
-      if (c && c.manual && isFinite(c.lat) && isFinite(c.lng) && (!c.ts || Date.now() - c.ts < 6 * 3600 * 1000)) {
+      // v9.0.1 — storedPinFresh REQUIRES a timestamp. `!c.ts ||` trusted a
+      // record with no `ts` forever (location-integrity audit, 2026-09-08).
+      if (c && c.manual && storedPinFresh(c)) {
         // v8.46 — THE PAIRING LAW, ENFORCED AT THE DOOR. This is the record
         // that broke the owner's homepage (2026-08-23), read off his browser:
         //   { lat: 35.2619678, lng: -81.126481, loc: "Parrish, FL", manual: true }
@@ -4412,7 +4449,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       setMenuOrder(orderExploreMenu(new Date(), p ? p.utcOffsetMinutes : null));
     } catch (e) {}
   }, [suggested]);
-  const pickBrowse = (id) => { const nv = browseCat === id ? null : id; setMoodPick(nv); setBrowseCat(nv); if (nv) { setCat(nv); setSub("all"); setVibe("all"); } };
+  const pickBrowse = (id) => { const nv = browseCat === id ? null : id; if (!nv) { closeBrowse(); return; } captureBrowseReturn(); setMoodPick(nv); setBrowseCat(nv); if (nv) { setCat(nv); setSub("all"); setVibe("all"); } };
   const openCuisine = (label, fromPlace) => {
     if (!label) return;
     const ctx = condCtxFromNow(nowContext({ weather }));
@@ -4424,7 +4461,6 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // built from data already loaded. No new fetching, no new card systems.
   const intentCtx = () => condCtxFromNow(nowContext({ weather }));
   const intentPool = () => dedupePlaces([...(suggested || []), ...(places || []), ...(homeTodo || [])].filter(Boolean), true);
-  const openRainy = () => { const list = Ranking.rankByConditions(intentPool().filter((pp) => { try { return Ranking.venueLean(pp).lean === "indoor"; } catch { return false; } }), intentCtx()).slice(0, 10); setCuisineSheet({ title: "Rainy-day picks", sub: "Indoor spots that hold up, ranked for right now.", label: "rainy day", list }); };
   const [top10Open, setTop10Open] = useState(false);
   const [food10Open, setFood10Open] = useState(false);
   const [debugOn, setDebugOn] = useState(false);
@@ -4442,7 +4478,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       if (live && Array.isArray(data)) setPlacePosts(data);
     } catch (e) {} })();
     return () => { live = false; };
-  }, [detail && detail.id]);
+  }, [detail && detail.id, supabaseReady]);
   const [hookDetail, setHookDetail] = useState(null);
   const [viaTours, setViaTours] = useState({});
   // Sheet-local filter: the browse-style SortControl inside every themed list.
@@ -4616,6 +4652,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // the reader on a browse block that is not there.
   const openBrowse = (id) => {
     if (!id) return;
+    captureBrowseReturn();
     if (screen !== "suggested") {
       setScreen("suggested");
       try { if (SCREEN_PATH[screen]) window.history.pushState({ wf: "screen" }, "", "/"); } catch (e) {}
@@ -4635,7 +4672,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     const onVis = () => { try { if (document.visibilityState === "visible") supabase.auth.getSession(); } catch (e) {} };
     document.addEventListener("visibilitychange", onVis);
     return () => document.removeEventListener("visibilitychange", onVis);
-  }, []);
+  }, [supabaseReady]);
   useEffect(() => {
     try {
       if (!detail || detail._wfPhotosAdded || !detail.name) return;
@@ -4664,7 +4701,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // v6.55: same single-flight scan as loadOffers (fetchOffersOnce already
     // returns normalizeOfferRow-mapped, redeemable rows — the v6.17 shape).
     fetchOffersOnce().then((rows) => setCpnOffers(rows || []), () => {});
-  }, [screen]);
+  }, [screen, supabaseReady]);
   function clipCoupon(c) {
     if (!c || !c.id) return;
     const entry = { c, ts: Date.now() };
@@ -4880,7 +4917,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     })();
     return () => { dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, tasteVer]);
+  }, [user, tasteVer, supabaseReady]);
   function setConsent(v) { setPersonalize(v); try { setLocal("wf_personalize", v); } catch (e) {} if (v === "on") setTasteVer((n) => n + 1); }
   // v6.55: `val` may now be a single raw value OR an array of raw values —
   // the taste panel merges multiple raw Google tags onto one clean chip (see
@@ -4978,7 +5015,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     window.addEventListener("visibilitychange", revalidate);
     window.addEventListener("focus", revalidate);
     return () => { active = false; if (retryTimer) clearTimeout(retryTimer); window.removeEventListener("visibilitychange", revalidate); window.removeEventListener("focus", revalidate); if (sub && sub.subscription) sub.subscription.unsubscribe(); };
-  }, []);
+  }, [supabaseReady]);
 
   // v5.49: the single sign-in gate for every favorite-like persistence action
   // (save, like, dislike, hook-save, share-to-list, coupon-save, custom
@@ -5272,7 +5309,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       } catch {}
     })();
     return () => { cancelled = true; };
-  }, [user]);
+  }, [user, supabaseReady]);
 
   // "Worth the Drive?" feature
   const [detailContext, setDetailContext] = useState(null); // theme that opened the detail ("drive", "gem", etc.)
@@ -5333,7 +5370,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       if (!c || !c.id) return;
       svFolderUpsert("Coupons", { id: "coupon:" + c.id, name: (c.business ? c.business + " — " : "") + c.title, address: c.details || "", types: ["coupon"], rating: null, reviews: 0, lat: null, lng: null, _coupon: c });
     });
-  }, [user, savedCoupons]);
+  }, [user, savedCoupons, supabaseReady]);
   const [communityVotes, setCommunityVotes] = useState({});
   const [searchMode, setSearchMode] = useState(false);
   const [searchLabel, setSearchLabel] = useState("");
@@ -5851,29 +5888,18 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // zero here is the thing that cancelled it — see landingRef above. Stranding
   // is still impossible: a landing always ends (settled, abandoned to the reader,
   // or the 4s ceiling) and every path that does not land still resets.
-  useEffect(() => { try { if (scrollRef.current && !landingRef.current) scrollRef.current.scrollTo({ top: 0 }); } catch (e) {} setMapPreview(null); setEventPreview(null); setMapDrawer(false); }, [cat, sub, vibe, intent, searchRadius, screen, activeBadge]);
+  useEffect(() => { try { if (scrollRef.current && !landingRef.current && !posRestore.current) scrollRef.current.scrollTo({ top: 0 }); } catch (e) {} setMapPreview(null); setEventPreview(null); setMapDrawer(false); }, [cat, sub, vibe, intent, searchRadius, screen, activeBadge]);
   // v6.08 (PR-C): when a place detail closes (back), restore the list scroll
   // position captured on open. The list stays mounted behind the sheet so its
   // items already exist; a double rAF waits for the close re-render. Keyed by
   // the list identity so switching lists never cross-restores.
   useEffect(() => {
     if (detail != null) return;
-    // v8.23.4 — FALL BACK TO THE STORED COPY. v6.08 wrote wf_sc_<key> to
-    // sessionStorage next to this ref and nothing ever read it, so the write was
-    // dead the day it shipped: after any reload the ref is empty and the reader
-    // lost their row. Same key, so it still cannot cross-restore between lists.
     const key = screen + "|" + cat + "|" + sub + "|" + vibe;
-    let s = scrollRestore.current;
-    if ((!s || s.key !== key) && scrollRef.current) {
-      try {
-        const stored = sessionStorage.getItem("wf_sc_" + key);
-        if (stored != null && Number.isFinite(Number(stored))) s = { key, top: Number(stored) };
-      } catch (e) {}
-    }
+    const s = scrollRestore.current;
     if (!s || !scrollRef.current || s.key !== key) return;
-    const top = s.top;
     scrollRestore.current = null;
-    requestAnimationFrame(() => requestAnimationFrame(() => { try { if (scrollRef.current) scrollRef.current.scrollTop = top; } catch (e) {} }));
+    return restoreBrowsePosition(scrollRef.current, s);
   }, [detail]);
   // ══ v8.23.4 — DO NOT LOSE THE READER'S PLACE ═══════════════════════════
   //
@@ -5898,47 +5924,84 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // ago", not a preference. It must not resurrect a three-day-old tab state on
   // a fresh visit, and the 30-minute ceiling below is a second belt on that.
   const posRestore = useRef(null);
+  const cancelPositionRestore = useRef(null);
   const posRead = useRef(false);
-  useEffect(() => {
-    if (posRead.current) return;
-    posRead.current = true;
+  const browseReturn = useRef(null);
+  const activeEntryKey = useRef(null);
+  const positionWriter = useRef(null);
+  const writingPosition = useRef(false);
+  function captureBrowseReturn() {
+    if (!browseCat && scrollRef.current) browseReturn.current = browsePosition(scrollRef.current);
+  }
+  const [restoreVersion, setRestoreVersion] = useState(0);
+  function positionEntryKey() {
+    const h = window.history;
+    let key = h.state?.__wfPositionKey;
+    if (!key) {
+      key = Date.now().toString(36) + Math.random().toString(36).slice(2);
+      h.replaceState({ ...h.state, __wfPositionKey: key }, "");
+    }
+    activeEntryKey.current = key;
+    return key;
+  }
+  function readPosition() {
+    const key = positionEntryKey();
+    const raw = sessionStorage.getItem("wf_pos_entry_" + key) || (["/", "/v8"].includes(window.location.pathname) && !window.location.search ? sessionStorage.getItem("wf_pos") : null);
+    const p = JSON.parse(raw || "null");
+    if (!p || !p.ts || Date.now() - p.ts > 30 * 60000) {
+      sessionStorage.removeItem("wf_pos");
+      return null;
+    }
+    return p;
+  }
+  function applyPosition(p) {
+    if (!p) return false;
+    // Prepare storage before setters can remount a poster.
     try {
-      const raw = sessionStorage.getItem("wf_pos");
-      if (!raw) return;
-      const p = JSON.parse(raw);
-      if (!p || typeof p !== "object" || !p.ts || Date.now() - p.ts > 30 * 60000) {
-        sessionStorage.removeItem("wf_pos");
-        return;
-      }
-      if (p.screen) setScreen(p.screen);
-      if (p.cat) setCat(p.cat);
-      if (p.browseCat !== undefined) setBrowseCat(p.browseCat);
-      if (p.sub) setSub(p.sub);
-      if (p.vibe) setVibe(p.vibe);
-      posRestore.current = { top: Number(p.top) || 0, win: Number(p.win) || 0, at: Date.now() };
-    } catch (e) {}
+      if (p.poster) sessionStorage.setItem("wf_poster_position", JSON.stringify(p.poster));
+      else sessionStorage.removeItem("wf_poster_position");
+    } catch {}
+    posRestore.current = p;
+    browseReturn.current = p.browseReturn || null;
+    if (p.screen) setScreen(p.screen);
+    if (p.cat) setCat(p.cat);
+    if (p.browseCat !== undefined) setBrowseCat(p.browseCat);
+    if (p.sub) setSub(p.sub);
+    if (p.vibe) setVibe(p.vibe);
+    if (p.center && Number.isFinite(p.center.lat) && Number.isFinite(p.center.lng)) {
+      manualRef.current = true;
+      setCenter((prev) => prev?.lat === p.center.lat && prev?.lng === p.center.lng ? prev : p.center);
+      setLocName(p.locName || ""); setLocResolved(true);
+    }
+    if (p.searchMode && Array.isArray(p.searchPlaces)) setPlaces(p.searchPlaces);
+    for (const [key, setter] of Object.entries({ query: setQuery, intent: setIntent, sortBy: setSortBy,
+      searchRadius: setSearchRadius, quickFilter: setQuickFilter, searchMode: setSearchMode,
+      searchLabel: setSearchLabel, visibleCount: setVisibleCount, activeBadge: setActiveBadge,
+      moodPick: setMoodPick, eventCat: setEventCat, eventDate: setEventDate })) {
+      if (p[key] !== undefined) setter(p[key]);
+    }
+    window.dispatchEvent(new CustomEvent("wf:restore-browse", { detail: p }));
+    setRestoreVersion((v) => v + 1);
+    return true;
+  }
+  useEffect(() => {
+    if (posRead.current || initialPlaceId) return;
+    posRead.current = true;
+    try { applyPosition(readPosition()); } catch {}
   }, []);
-  // APPLIED AFTER THE STATE SETTLES, and that ordering is the whole trick: the
-  // effect above this block zeroes the scroll on every [cat, sub, vibe, screen,
-  // ...] change, which includes the ones the restore itself just made. So the
-  // position is re-applied on the render those setters produce, behind a double
-  // rAF, and only within four seconds of the read — long enough for the feed to
-  // mount, short enough that a later filter change is never hijacked.
   useEffect(() => {
     const r = posRestore.current;
-    if (!r) return undefined;
-    if (Date.now() - r.at > 4000) { posRestore.current = null; return undefined; }
-    let a = 0, b = 0;
-    a = requestAnimationFrame(() => {
-      b = requestAnimationFrame(() => {
-        try {
-          if (scrollRef.current && r.top) scrollRef.current.scrollTop = r.top;
-        } catch (e) {}
-        posRestore.current = null;
-      });
+    if (!r || !scrollRef.current) return undefined;
+    cancelPositionRestore.current?.();
+    const cancel = restoreBrowsePosition(scrollRef.current, r, () => {
+      if (posRestore.current === r) posRestore.current = null;
     });
-    return () => { cancelAnimationFrame(a); cancelAnimationFrame(b); };
-  }, [screen, cat, browseCat, sub, vibe]);
+    cancelPositionRestore.current = cancel;
+    return () => {
+      cancel();
+      if (cancelPositionRestore.current === cancel) cancelPositionRestore.current = null;
+    };
+  }, [screen, cat, browseCat, sub, vibe, restoreVersion]);
   // The writer. On every taxonomy change, on a throttled scroll, and — the one
   // that actually saves the Google Maps round trip — on pagehide, which fires
   // when the browser is leaving THIS document, including for an outbound link.
@@ -5950,36 +6013,47 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // resilience, it is a comment that lies. scripts/check-shell-scroll.mjs now
   // fails the build on any new window.scroll* in the shell.
   useEffect(() => {
-    const write = () => {
+    if (initialPlaceId) return undefined;
+    const write = (entryOverride) => {
+      if (writingPosition.current || posRestore.current || !scrollRef.current) return;
+      writingPosition.current = true;
       try {
-        sessionStorage.setItem("wf_pos", JSON.stringify({
-          screen, cat, browseCat, sub, vibe,
-          top: scrollRef.current ? scrollRef.current.scrollTop : 0,
-          ts: Date.now(),
-        }));
-      } catch (e) {}
+        const p = { screen, cat, browseCat, sub, vibe, ...browsePosition(scrollRef.current),
+          horizontal: horizontalPositions(scrollRef.current), center, locName, query, intent, sortBy,
+          searchRadius, quickFilter, searchMode, searchLabel, visibleCount, activeBadge, moodPick,
+          eventCat, eventDate, searchPlaces: searchMode ? places : undefined, browseReturn: browseReturn.current,
+          poster: JSON.parse(sessionStorage.getItem("wf_poster_position") || "null"), ts: Date.now() };
+        sessionStorage.setItem("wf_pos", JSON.stringify(p));
+        sessionStorage.setItem("wf_pos_entry_" + (typeof entryOverride === "string" ? entryOverride : positionEntryKey()), JSON.stringify(p));
+      } catch {} finally { writingPosition.current = false; }
     };
-    write();
-    let t = null;
-    const onScroll = () => { if (t) return; t = setTimeout(() => { t = null; write(); }, 400); };
-    const el = scrollRef.current;
-    try { if (el) el.addEventListener("scroll", onScroll, { passive: true }); } catch (e) {}
-    try {
-      window.addEventListener("scroll", onScroll, { passive: true });
-      window.addEventListener("pagehide", write);
-    } catch (e) {}
+    positionWriter.current = write;
+    const frame = requestAnimationFrame(() => write());
+    let timer;
+    const onScroll = () => { clearTimeout(timer); timer = setTimeout(write, 150); };
+    const capture = () => {
+      if (!browseCat && scrollRef.current) browseReturn.current = browsePosition(scrollRef.current);
+      write();
+    };
+    document.addEventListener("click", capture, true);
+    document.addEventListener("scroll", onScroll, { capture: true, passive: true });
+    window.addEventListener("pagehide", write);
     return () => {
-      if (t) clearTimeout(t);
-      try { if (el) el.removeEventListener("scroll", onScroll); } catch (e) {}
-      try {
-        window.removeEventListener("scroll", onScroll);
-        window.removeEventListener("pagehide", write);
-      } catch (e) {}
+      cancelAnimationFrame(frame); clearTimeout(timer);
+      document.removeEventListener("click", capture, true);
+      document.removeEventListener("scroll", onScroll, true);
+      window.removeEventListener("pagehide", write);
     };
-  }, [screen, cat, browseCat, sub, vibe]);
+  }, [screen, cat, browseCat, sub, vibe, center, locName, query, intent, sortBy, searchRadius,
+      quickFilter, searchMode, searchLabel, visibleCount, activeBadge, moodPick, eventCat, eventDate, restoreVersion, places]);
+  function closeBrowse() {
+    posRestore.current = browseReturn.current || { top: 0, horizontal: [] };
+    setBrowseCat(null); setMoodPick(null); setSub("all");
+    setRestoreVersion((v) => v + 1);
+  }
 
   // Reset the explore list back to 5 whenever a new result set loads or search mode flips.
-  useEffect(() => { setVisibleCount(5); }, [places, searchMode]);
+  useEffect(() => { if (!posRestore.current) setVisibleCount(5); }, [places, searchMode]);
   function pickSub(id) { setSub(id); setVibe("all"); try { logEvent("filter_changed", null, { cat, sub: id }); } catch (e) {} }
 
   // Signal functions — record engagement, drive personalised ranking, trigger sign-up.
@@ -6348,7 +6422,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     }
     try { const _aud = {}; experienceBadges(p, null, 99, _aud); logEvent("detail_open", p, { identity: _aud.identity || null, blocked: (_aud.blocked || []).length, ctx: typeof context === "string" ? context : null }); } catch (e) {}
     // v6.08 (PR-C): remember where we were in the list so back returns here, not to the top.
-    try { if (scrollRef.current) { const _k = screen + "|" + cat + "|" + sub + "|" + vibe; const _t = scrollRef.current.scrollTop; scrollRestore.current = { key: _k, top: _t }; sessionStorage.setItem("wf_sc_" + _k, String(_t)); } } catch (e) {}
+    try { if (scrollRef.current) { const _k = screen + "|" + cat + "|" + sub + "|" + vibe; const _t = scrollRef.current.scrollTop; scrollRestore.current = { key: _k, ...browsePosition(scrollRef.current) };  } } catch (e) {}
     setDetail(p);
     // /p/{id} and any card that skipped withMemberSignal still show the raw
     // score until this overlay lands. Same function as the list path.
@@ -6735,7 +6809,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       })();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [supabaseReady]);
 
   // Part 4 measurement: count one "session" per tab (share_rate denominator) and
   // fire "share_return" if a shared-card visitor is back within 7 days. Both are
@@ -6821,7 +6895,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           try {
             const raw = localStorage.getItem("wf_center");
             const saved = raw ? JSON.parse(raw) : null;
-            savedOk = !!(saved && isFinite(saved.lat) && isFinite(saved.lng) && (!saved.ts || Date.now() - saved.ts < 6 * 3600 * 1000));
+            // v9.0.1 — same rule as the manual hydration: no timestamp, no trust.
+            savedOk = storedPinFresh(saved);
             if (raw && !savedOk) localStorage.removeItem("wf_center");
             // v8.17 (owner: "make sure we get the user exact location as soon
             // as they land on the page") RECONCILED with the 2026-08-07
@@ -7021,7 +7096,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     }, 300);
     return () => { cancelled = true; clearTimeout(_debTimer); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cat, sub, vibe, center, searchRadius, searchMode, feedRetry]);
+  }, [cat, sub, vibe, center, searchRadius, searchMode, feedRetry, supabaseReady]);
 
   // Load events when on the Events screen or when the location changes.
   useEffect(() => {
@@ -7153,7 +7228,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // adoption (location refined < 3 km) can revive the very same run.
     return () => { _tok.dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, activeBadge, center]);
+  }, [screen, activeBadge, center, supabaseReady]);
 
   // v4.84 Viator as a real activity source. The freetext endpoint is queried
   // with the resolved METRO name (small towns like Parrish are not Viator
@@ -7203,8 +7278,12 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // v4.84: bookable activities on the Things to do browse too — Viator is a
   // source, not just a booking-link decorator. v6.34 (owner ask): the Family
   // browse gets the same rail.
+  const browseTourKey = [browseCat, locName, center?.lat, center?.lng].join("|");
   useEffect(() => {
-    if ((browseCat !== "attractions" && browseCat !== "family") || !center) { setBrowseTours(null); return; }
+    // Only All owns this broad city prefetch. A narrower submenu must let the
+    // rail issue its one chip-specific fallback when the cache is empty;
+    // treating the broad parent lane as owned there would suppress that call.
+    if ((browseCat !== "attractions" && browseCat !== "family") || (sub && sub !== "all") || !center) { setBrowseTours(null); return; }
     let cancelled = false;
     (async () => {
       try {
@@ -7214,13 +7293,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         const r = await fetch("/api/viator/tours?q=" + encodeURIComponent(cityQ) + "&count=20" + _viatorCityParams(cityQ, center));
         const d = await r.json();
         const items = rankExperiences((d && Array.isArray(d.items) ? d.items : [])
-          .filter((t) => t.rating != null && t.rating >= 4.5)).slice(0, 8);
-        if (!cancelled) setBrowseTours(items);
+          .filter((t) => t.rating != null && t.rating >= 4.5));
+        if (!cancelled) setBrowseTours({ key: browseTourKey, items });
       } catch (e) { if (!cancelled) setBrowseTours(null); }
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [browseCat, locName, center && center.lat]);
+  }, [browseCat, sub, locName, center && center.lat, center && center.lng]);
 
   // v6.14 — bookable Viator experiences for the Events tab's "Tours" chip
   // (the tab's default view). City-based, same verified-product source as
@@ -7425,7 +7504,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         // A new screen pushes a history entry; refining the same screen's filter
         // replaces in place (no dead Back step).
         if (window.location.pathname !== SCREEN_PATH[screen]) window.history.pushState({ wf: "screen" }, "", target);
-        else window.history.replaceState({ wf: "screen" }, "", target);
+        else window.history.replaceState({ ...window.history.state, wf: "screen" }, "", target);
       } else if (prev && SCREEN_PATH[prev] && PATH_SCREEN[window.location.pathname]) {
         // Left a standalone screen for the feed/detail -> restore "/".
         window.history.pushState({ wf: "screen" }, "", "/");
@@ -7450,6 +7529,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     const onPop = () => {
       try {
         const p = window.location.pathname;
+        if (activeEntryKey.current) positionWriter.current?.(activeEntryKey.current);
+        const key = window.history.state?.__wfPositionKey;
+        activeEntryKey.current = key;
+        if (key) {
+          const saved = JSON.parse(sessionStorage.getItem("wf_pos_entry_" + key) || "null");
+          if (saved && Date.now() - saved.ts <= 30 * 60000 && applyPosition(saved)) return;
+        }
         const scr = PATH_SCREEN[p];
         if (scr === "events") {
           const sp = new URLSearchParams(window.location.search);
@@ -7931,6 +8017,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // hides the strip and never blocks the picks.
   useEffect(() => {
     if (screen !== "suggested" || !center) return;
+    setForyouEventsFailed(false);
+    setForyouEvents(null);
     // #219 primer consume: an inline script in app/layout.js starts this exact
     // fetch BEFORE hydration, using the SAME wf_center -> DEFAULT_CENTER
     // resolution this client uses — so on the common path the response is
@@ -7945,20 +8033,21 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     let cancelled = false;
     (async () => {
       try {
-        const data = _primeOk
+        const settled = await settleLoad(async () => _primeOk
           ? await _prime.p
-          : await fetch("/api/events?lat=" + center.lat.toFixed(2) + "&lng=" + center.lng.toFixed(2) + "&radius=25&city=" + encodeURIComponent(locName || "")).then((r) => (r.ok ? r.json() : null)); // GET = CDN-cacheable (2dp — the server cache key's own granularity)
-        if (!data) { if (!cancelled) setForyouEvents([]); return; }
+          : await fetch("/api/events?lat=" + center.lat.toFixed(2) + "&lng=" + center.lng.toFixed(2) + "&radius=25&city=" + encodeURIComponent(locName || "")).then((r) => (r.ok ? r.json() : null))); // GET = CDN-cacheable (2dp — the server cache key's own granularity)
+        const data = settled.ok ? settled.data : null;
+        if (!Array.isArray(data?.events)) { if (!cancelled) { setForyouEvents([]); setForyouEventsFailed(true); } return; }
         const evs = ((data && data.events) || []).filter((e) => e && e.dest);
         if (!cancelled) {
           // v6.42 (owner, PERMANENT): the front page NEVER shows civic/community
           // programs — ticketed categories only (lib/frontEvents; locked by
           // scripts/test-front-events.mjs). They still live on the Events tab
-          // under "Local events". Depth 24 so the priority rail has inventory.
-          setForyouEvents(frontPageEvents(evs, eventBucket).usable.slice(0, 24));
+          // under "Local events". Keep the full pool for intent-specific rails.
+          setForyouEvents(frontPageEvents(evs, eventBucket).usable);
           setLibraryEvents(evs.filter((e) => e.civic).slice(0, 6));
         }
-      } catch { if (!cancelled) { setForyouEvents([]); setLibraryEvents([]); } }
+      } catch { if (!cancelled) { setForyouEvents([]); setForyouEventsFailed(true); setLibraryEvents([]); } }
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -7979,7 +8068,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail]);
+  }, [detail, supabaseReady]);
 
   function onQueryChange(v) {
     setQuery(v);
@@ -8099,7 +8188,21 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           // spending a geocode, and the honest answer to "which city is this?"
           // when we do not know is no city at all — locationHonesty prints
           // nothing rather than a guess or a "near you".
-          if (!centerAgreesWithLabel({ lat, lng }, locName)) setLocName("");
+          //
+          // v9.0.1 (location-integrity audit, 2026-09-08) — WE DO HAVE A CITY
+          // FOR THIS POINT, for free: Google's formattedAddress names it. The
+          // 40-mile pairing check above was sized for a Florida label on a
+          // North Carolina pin; inside one metro every covered town passes it
+          // (Parrish→Cortez is 18 miles), so tapping a Cortez restaurant from
+          // Parrish kept "Parrish" in the header while the map and the rails
+          // moved to Cortez — and the writer effect persisted that pair. The
+          // label now follows the coordinates in the same commit: the
+          // address's locality when it parses, otherwise the old rule (keep
+          // the label only if it still plausibly describes the point, else
+          // print no city). scripts/test-location-pairing-integrity.mjs.
+          const placeCity = localityFromFormattedAddress(place.formattedAddress);
+          if (placeCity) setLocName(placeCity);
+          else if (!centerAgreesWithLabel({ lat, lng }, locName)) setLocName("");
         }
         openDetail(placeObj);
       } catch {
@@ -8260,7 +8363,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       .then(({ data }) => { if (!dead) setGateStatus(typeof data === "string" ? data : null); }, () => { if (!dead) setGateStatus(null); });
     return () => { dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, center, user, gateBump]);
+  }, [screen, center, user, gateBump, supabaseReady]);
 
   // Auto-fill coverage for ANY uncovered location (owner: works for the user's
   // searched OR default location — no tap, signed in or not). When the gate says
@@ -8299,20 +8402,23 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     setSuggestions([]);
     // Check if it's a Wayfind experience keyword first (burgers, rooftop, live music…).
     const ql = q.toLowerCase();
-    const feel = feelingToMoment(ql);
-    if (feel) { setQuery(""); try { logEvent("feeling_search", null, { q: ql.slice(0, 40) }); } catch (e) {} openMoment(feel); return; }
-    if (ql.length >= 3) {
-      const expHit = Object.keys(EXPERIENCES).find((k) => {
-        const e = EXPERIENCES[k];
-        const lab = (e.label || "").toLowerCase();
-        // EXACT key/label match only — label-substring matching swallowed CITY names
-        // that appear inside experience labels: typing "Sarasota" matched the
-        // "Best of Sarasota" label, opened that sheet, and the app never
-        // recentered (the exact bug #361 fixed then still exhibited). A bare
-        // city must fall through to the area-first search below.
-        return k === ql || lab === ql || (e.keyword && e.keyword.toLowerCase().includes(ql));
-      });
-      if (expHit) { setQuery(""); openExperience(expHit); return; }
+    const parkIntent = themeParkIntent(q);
+    if (!parkIntent) {
+      const feel = feelingToMoment(ql);
+      if (feel) { setQuery(""); try { logEvent("feeling_search", null, { q: ql.slice(0, 40) }); } catch (e) {} openMoment(feel); return; }
+      if (ql.length >= 3) {
+        const expHit = Object.keys(EXPERIENCES).find((k) => {
+          const e = EXPERIENCES[k];
+          const lab = (e.label || "").toLowerCase();
+          // EXACT key/label match only — label-substring matching swallowed CITY names
+          // that appear inside experience labels: typing "Sarasota" matched the
+          // "Best of Sarasota" label, opened that sheet, and the app never
+          // recentered (the exact bug #361 fixed then still exhibited). A bare
+          // city must fall through to the area-first search below.
+          return k === ql || lab === ql || (e.keyword && e.keyword.toLowerCase().includes(ql));
+        });
+        if (expHit) { setQuery(""); openExperience(expHit); return; }
+      }
     }
     // v6.60 (owner, 2026-07-25) -- CITY INTENT WINS.
     //
@@ -8354,6 +8460,34 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       setQuery("");
     };
     try {
+      // Theme park intent is resolved from the same exact identity catalogue
+      // as the permanent rails. Exact searches open the verified park card;
+      // broad Disney, Universal, Orlando, or Florida searches open the scored
+      // park set. A temporarily unavailable owned inventory endpoint falls
+      // through to the standard search ladder below instead of dead-ending.
+      if (parkIntent) {
+        try {
+          const parkMode = /orlando/i.test(q) && parkIntent.kind === "broad" ? "orlando" : "flagship";
+          const response = await fetch(`/api/theme-parks?mode=${parkMode}&q=${encodeURIComponent(q)}`);
+          const body = response.ok ? await response.json() : null;
+          const parkRows = body && Array.isArray(body.items) ? body.items : [];
+          if (parkRows.length) {
+            setQuery("");
+            setSearchMode(true);
+            setLoading(false);
+            if (parkIntent.kind === "exact") {
+              openDetail(parkRows[0], "theme_park_search");
+            } else {
+              const title = parkIntent.kind === "operator"
+                ? `${parkIntent.operator === "disney" ? "Disney" : "Universal"} parks`
+                : /orlando/i.test(q) ? "Orlando's Biggest Parks" : "Florida's Biggest Parks";
+              setHookDetail({ id: "theme-parks-" + Date.now(), theme: "search", title, themeTitle: title, label: title, themeBody: "Verified park cards with one current ticket path, ranked by Wayfind Score.", emoji: "🎢", accent: C.accent, places: parkRows, sections: null });
+            }
+            try { logEvent("theme_park_search", parkRows[0], { q: q.slice(0, 80), kind: parkIntent.kind, results: parkRows.length }); } catch (error) {}
+            return;
+          }
+        } catch (error) {}
+      }
       // GUIDE PLACE-INTENT (fix for "guides → app converts 0%", 2026-08-07).
       // A guide's "Open in Wayfind" declares intent=place: the query names one
       // specific place, so the area-first rule below must NOT apply — that rule
@@ -8881,7 +9015,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     })();
     return () => { dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [_beachIds.join(",")]);
+  }, [_beachIds.join(","), supabaseReady]);
 
 
   const exploreList = (
@@ -9031,7 +9165,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // auth + password-recovery sheets
     authOpen, authMode, setAuthMode, isStandalone, signInWithProvider, authEmail, setAuthEmail, authPassword, setAuthPassword, passwordAuth, authSending, resetSending, sendPasswordReset, recoveryOpen, setRecoveryOpen, newPw, setNewPw, newPw2, setNewPw2, pwSaving, saveNewPassword, authReady,
     // detail sheet (G3)
-    detail, setDetail, detailExtra, setLightbox, reviewsOpen, setReviewsOpen, hoursOpen, setHoursOpen, venueEvents, venueEventsLoading, venueEventsOpen, setVenueEventsOpen, videos, videosLoading, beachCond, beachCondLoading, insight, insightLoading, insightFull, insightFullLoading, showMore, viaTours, debugOn, placeComments, setPlaceComments, commentType, setCommentType, placePosts, setPlacePosts, confirmDel, setConfirmDel, taInfo, insider, detailContext, myVotes, communityVotes, galleryRef, noteRef, scrollGallery, loadFullInsight, addReservation, handleVote, loadVenueEvents, placeShareUrl, FeaturedTag, curatedNote, curatedFor, wayfindNotes, betterAlternatives, similarPlaces, relatedPicks, placeKind, isBeach, beachSignals, weather,
+    detail, setDetail, detailExtra, setLightbox, reviewsOpen, setReviewsOpen, hoursOpen, setHoursOpen, venueEvents, venueEventsLoading, venueEventsOpen, setVenueEventsOpen, videos, videosLoading, beachCond, beachCondLoading, insight, insightLoading, insightFull, insightFullLoading, showMore, viaTours, debugOn, placeComments, setPlaceComments, commentType, setCommentType, placePosts, setPlacePosts, confirmDel, setConfirmDel, taInfo, insider, detailContext, myVotes, communityVotes, galleryRef, noteRef, scrollGallery, loadFullInsight, addReservation, handleVote, loadVenueEvents, placeShareUrl, FeaturedTag, curatedNote, curatedFor, wayfindNotes, betterAlternatives, similarPlaces, relatedPicks, placeKind, isBeach, beachSignals, weather, isSharedPlaceArrival: !!initialPlaceId,
     // social find sheet (v6.93) — the "bookshelf" of curated creator-video
     // places: the place+video the user tapped in from, every other nearby
     // find (for the "more near you" strip), and the region-availability list
@@ -9067,6 +9201,34 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     setNavShortcuts(false);
     if (id === "home") { openSuggested(); } else { setScreen(id); }
     try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0 }); window.scrollTo(0, 0); } catch (e) {}
+  };
+
+  // The wordmark is a deliberate fresh-home action. Back/Forward restores a
+  // reader's place; tapping the brand returns to the top-level poster shelf.
+  // Keep those contracts separate so position memory never turns the logo into
+  // a no-op at the footer or reopens a poster the reader meant to leave.
+  const returnHomeTop = () => {
+    cancelLanding();
+    cancelPositionRestore.current?.();
+    cancelPositionRestore.current = null;
+    posRestore.current = null;
+    browseReturn.current = null;
+    setActiveList(null); setSysFolder(null); setListMenu(null); setRenamingList(null);
+    setActiveTrip(null); setTripNoteEdit(null); setTripMoveFor(null); setMapListOverride(null);
+    setNavShortcuts(false);
+    try {
+      sessionStorage.removeItem("wf_poster_position");
+      const entryKey = positionEntryKey();
+      const saved = JSON.parse(sessionStorage.getItem("wf_pos_entry_" + entryKey) || sessionStorage.getItem("wf_pos") || "null");
+      if (saved && typeof saved === "object") {
+        const home = { ...saved, screen: "suggested", cat: "food", browseCat: null, browseReturn: null, sub: "all", vibe: "all", top: 0, anchor: null, horizontal: [], poster: null, ts: Date.now() };
+        sessionStorage.setItem("wf_pos", JSON.stringify(home));
+        sessionStorage.setItem("wf_pos_entry_" + entryKey, JSON.stringify(home));
+      }
+    } catch {}
+    try { window.dispatchEvent(new Event("wf:home")); } catch {}
+    openSuggested();
+    try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0, left: 0, behavior: "auto" }); } catch {}
   };
 
   // v8.2 — THE RAIL BAND, as one named expression, because it no longer renders
@@ -9121,14 +9283,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // CONTENT prop under scripts/test-first-screen.mjs's rule rather than a
   // callable read only inside the drop, alongside memberSignalsFor and
   // applyMemberSignal. Nothing here is allocated until the events tile opens.
-  const eventsRailSlot = (mode = "events") => {
+  // Specialty selectors travel with the lazy poster that needs them. Keeping
+  // this dependency out of home's eager imports protects first-load JS.
+  const eventsRailSlot = (mode = "events", selectPosterEvents = null) => {
     if (foryouEvents === null) {
-      if (mode === "night-out") return { pending: true, byRail: {} };
+      if (["night-out", "date-night", "summer-sports", "today-entertainment"].includes(mode)) return { pending: true, byRail: {} };
       return (
         <div className="wf-rail wf-rail-events" aria-hidden="true" role="status" aria-busy="true" style={{ minHeight: EV_RAIL_MIN_H, overflow: "hidden" }}>
-          {[0, 1].map((i) => (
-            <div key={i} className="wf-sk" style={{ width: "100%", height: EV_RAIL_MIN_H, borderRadius: 17, flexShrink: 0, opacity: 1 - i * 0.22 }} />
-          ))}
+          <PlaceCardSkeleton count={2} as="div" />
         </div>
       );
     }
@@ -9155,18 +9317,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         onCopied={() => showToast("Event link copied")}
       />
     );
-    if (mode === "night-out") {
-      const rows = Object.fromEntries(NIGHT_OUT_RAIL_DEFS.map((rail) => [rail.id, []]));
-      for (const event of shown) {
-        const railId = nightOutEventRail(event);
-        const distMi = nightOutDistanceMi(event, center || {});
-        if (railId && distMi != null && distMi <= NIGHT_OUT_MAX_MI) rows[railId].push(event);
-      }
+    if (["night-out", "date-night", "summer-sports", "today-entertainment"].includes(mode)) {
+      const rows = selectPosterEvents(fp.usable.filter((event) => eventSignals.disliked[event.id] !== true), { mode, center, bucketOf: eventBucket });
       return {
         pending: false,
-        byRail: Object.fromEntries(NIGHT_OUT_RAIL_DEFS.map((rail) => [
-          rail.id,
-          rows[rail.id].map((event, index) => renderEventCard(event, index + 1)),
+        failed: foryouEventsFailed,
+        byRail: Object.fromEntries(Object.entries(rows).map(([id, events]) => [
+          id, events.map((event, index) => renderEventCard(event, index + 1)),
         ])),
       };
     }
@@ -9257,6 +9414,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         // it clears wf_center and re-asks the device.
         locName={locName}
         onRecenter={recenterToMe}
+        onBrowseCreators={() => setSocialFind({ library: true })}
         // Coconut Grove sponsor tile — geo-gated (sponsorRailNear returns null
         // outside the 20mi gate), pinned to the front of the amazon rail, opens
         // the curated partner sheet on tap. Only when location has resolved.
@@ -9386,10 +9544,24 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             {/* THE LOGO (owner, 2026-07-22): the OFFICIAL asset, not a text lookalike.
                 Allowed here because the header background IS the logo's baked
                 #040810 — the one placement the brand rule sanctions in-app. */}
-            <div className="wf-wordmark" role="img" aria-label="wayfind" onClick={openSuggested}>
+            {/* v9 seasonal (lib/seasonalBrand.js): the mark is normally a
+                TWO-SLICE sprite (.wf-wordmark-text + .wf-wordmark-pin, see
+                WF_LAYOUT_CSS) because the normal asset has clean empty columns
+                to cut between the word and the pin. The Halloween asset does
+                NOT — the web physically connects pin to wordmark and the hat
+                spans both — so slicing it would cut the art. `.is-seasonal`
+                (added by app/components/css.js) hides the pin slice and gives
+                the text slice the whole image instead of a crop. Resolved
+                inline, same pattern as siteTodayStr() elsewhere in this file
+                (e.g. fallCardClass(..., siteTodayStr()) a few hundred lines
+                down): a plain function call at render time, not a hook — so
+                server and client agree on the same venue-local (ET) day
+                because both read the same wall-clock instant through
+                Intl/America-New-York, not the runtime's own default zone. */}
+            <button type="button" className={`wf-wordmark${activeSeasonalMark() ? " is-seasonal" : ""}`} aria-label="Wayfind home" onClick={returnHomeTop} style={{ padding: 0, border: 0, background: "transparent", color: "inherit", font: "inherit" }}>
               <span className="wf-wordmark-text" aria-hidden="true" />
               <span className="wf-wordmark-pin" aria-hidden="true" />
-            </div>
+            </button>
             {/* The location used to sit HERE, and could not fit. Measured on
                 production at 390px: the row is 362px, the wordmark sprite is a
                 fixed 154px, and the weather (71px) and Sign in (86px) are both
@@ -9400,6 +9572,15 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                 "Parrish, FL" is a SHORT name — "St. Petersburg, FL" needs 118px.
                 A variable-length city cannot share this row, so it gets its own
                 (see below) where any name fits. Locked by check-home-location. */}
+            {/* WIDTH SAFETY for the seasonal mark (v9, lib/seasonalBrand.js):
+                the fixed 154px above is the NORMAL two-slice sprite's total
+                footprint (117.4px text + 5px gap + 31.65px pin, mobile). The
+                Halloween mark is ONE slice at 147.4px total (see
+                app/components/css.js's `.is-seasonal` rule) — 6.6px NARROWER
+                than the 154px this comment already measured against weather
+                (71px) and Sign in (86px), both flex-shrink:0. So the seasonal
+                mark cannot re-open the clipping this comment describes; it
+                only ever gives the row back space. */}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
             {weather && (weather.feels != null || weather.temp != null) && (
@@ -10148,39 +10329,46 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                   opposite direction, which is the same defect
                   scripts/test-first-screen.mjs was written for.
 
-                  What survives is the honest zero-events fallback below: it
-                  was never the deck, and it offers something the rail cannot —
-                  an alternative intent when tonight is empty.
+                  AND THE ZERO-EVENTS FALLBACK IS GONE TOO (owner, 2026-09-09).
+                  It used to live here: a card reading "Nothing strong tonight
+                  nearby" over three intent chips (Date night / Rainy day /
+                  Hidden gems). The owner asked for it off the main page, and
+                  nothing is lost by it — Date night and Hidden gems are two of
+                  the fifteen cards in <DaypartRail> at the top of this column,
+                  and "it's raining (or too hot)" is a vibe chip in the picker
+                  (VIBES, `rainy`, which sets spec.indoorOnly). So the reader
+                  with an empty night still has those doors; what they no longer
+                  get is a card announcing the emptiness above them.
+
+                  scripts/test-first-screen.mjs asserted this block's presence
+                  for two releases and now asserts its ABSENCE, so it cannot
+                  drift back in unnoticed. `openRainy` went with it — that card
+                  was its only caller, and lib/categories.js's
+                  `{ id: "rainy", act: { type: "sheet", sheet: "rainy" } }` is
+                  not wired to anything (no reader of `act.sheet` exists), so
+                  keeping the helper would have left a function nothing could
+                  reach.
 
                   Every legacy *_hero_open event still fires from the rail
                   (lib/dayparts.js LEGACY_HERO_EVENT) for one release, so no
                   dashboard flatlines at cutover. */}
-              {!browseCat && Array.isArray(foryouEvents) && foryouEvents.length === 0 && (
-                <div style={{ marginBottom: 10, boxSizing: "border-box" }}>
-                  {/* v8: no minHeight here any more. EV_SECTION_MIN_H reserved
-                      248px for the promo deck this block used to sit above;
-                      with the deck gone that reserve is 248px of empty column —
-                      the same class of defect (a reserve that does not match
-                      what renders) that scripts/test-first-screen.mjs exists to
-                      catch, just pointing the other way. This block is a card
-                      and three chips, and it reserves itself. */}
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                    <div style={{ fontSize: 15, fontWeight: 800, color: C.text, display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name="ticket" size={17} color={C.accent} />Events near you</div>
-                  </div>
-                  <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: "12px 15px" }}>
-                    <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 10 }}>Nothing strong tonight nearby. Try one of these instead.</div>
-                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                      <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Date night", src: "events_empty" }); } catch (e) {} openExperience("romantic"); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.adim, border: `1px solid ${C.accent}`, color: C.accent, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Date night</button>
-                      <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Rainy day", src: "events_empty" }); } catch (e) {} openRainy(); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Rainy day</button>
-                      <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Hidden gems", src: "events_empty" }); } catch (e) {} openExperience("gem"); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Hidden gems</button>
-                    </div>
-                  </div>
-                </div>
-              )}
                       {!browseCat && <HomeAffiliateActivityRail
                         items={homeAffiliateItems}
                         contentId={cityNow}
                         onLog={(action, place, extra) => { try { logEvent(action, place, extra); } catch (e) {} }}
+                      />}
+                      {!browseCat && <ThemeParkRail
+                        mode="flagship"
+                        onOpenPlace={(place) => openDetail(place, "theme_park_rail")}
+                        isSaved={isSaved}
+                        isOnTrip={isOnTrip}
+                        liked={liked}
+                        disliked={disliked}
+                        onSave={(event, place) => { try { quickSaveFavorite(place); } catch (error) {} }}
+                        onItinerary={(event, place) => { try { addToItinerary(place); } catch (error) {} }}
+                        onLike={(event, place) => { try { toggleLike(event, place); } catch (error) {} }}
+                        onDislike={(event, place) => { try { toggleDislike(event, place); } catch (error) {} }}
+                        onShare={(place) => shareLink(place.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(place.id)), () => showToast("Link copied"), null, () => { try { addShared(place); giveawayMark(place.id); } catch (error) {} })}
                       />}
               {/* v6.97 — THE MISSING BRIDGE (owner's own note on the mockup). The
                   guides pull real traffic from Google every month and every reader
@@ -10208,7 +10396,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               {browseCat && (
                 <div ref={browseAnchorRef} style={{ marginBottom: 16, scrollMarginTop: 10 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
-                    <div onClick={() => { setBrowseCat(null); setMoodPick(null); setSub("all"); }} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px" }}>‹ Back</div>
+                    <div onClick={closeBrowse} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px" }}>‹ Back</div>
                     {browseCat !== "attractions" && <SortControl sortBy={sortBy} onSort={(k) => setSortBy(k)} mi={sliderMi} onMi={(m) => { autoRadiusRef.current = false; setSliderMi(m); const mm = Math.round(m * 1609.34); if (mm > (searchRadius || 0)) setSearchRadius(mm); }} where={locName ? locName.split(",")[0] : ""} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={dealsOnly} onDeals={setDealsOnly} />}
                   </div>
                   {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <AreaInsight onLog={logEvent} metro={_cm} cat={browseCat} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /> : null; })()}
@@ -10216,9 +10404,12 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                       list (wf_things_to_do) — the stacked Viator rail + Bookable
                       Experiences chips are gone from this page; tours interleave and
                       earn their rank. Family keeps its bookable rail. */}
-                  {browseCat === "family" && center && <UnifiedBrowseCommerceRail cat="family" sub="all" initialExperiences={browseTours} categories={["attractions"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
-                  {browseCat === "attractions" && center && <UnifiedBrowseCommerceRail cat="attractions" sub={sub} includeExperiences={!!(sub && sub !== "all")} categories={["attractions", "more"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
-                  {browseCat === "hotels" && center && view.length > 0 && <UnifiedBrowseCommerceRail cat="hotels" sub="all" categories={["stays"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
+                  {browseCat === "family" && <ThemeParkRail mode="family" onOpenPlace={(place) => openDetail(place, "theme_park_family")} isSaved={isSaved} isOnTrip={isOnTrip} liked={liked} disliked={disliked} onSave={(event, place) => quickSaveFavorite(place)} onItinerary={(event, place) => addToItinerary(place)} onLike={(event, place) => toggleLike(event, place)} onDislike={(event, place) => toggleDislike(event, place)} onShare={(place) => shareLink(place.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(place.id)), () => showToast("Link copied"))} />}
+                  {browseCat === "attractions" && (!sub || sub === "all" || sub === "themeparks") && <ThemeParkRail mode={Culture.resolveMetro(locName) === "orlando" ? "orlando" : "flagship"} onOpenPlace={(place) => openDetail(place, "theme_park_activities")} isSaved={isSaved} isOnTrip={isOnTrip} liked={liked} disliked={disliked} onSave={(event, place) => quickSaveFavorite(place)} onItinerary={(event, place) => addToItinerary(place)} onLike={(event, place) => toggleLike(event, place)} onDislike={(event, place) => toggleDislike(event, place)} onShare={(place) => shareLink(place.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(place.id)), () => showToast("Link copied"))} />}
+                  {browseCat === "family" && center && <UnifiedBrowseCommerceRail places={view} key={[browseCat, sub, center.lat, center.lng].join(":")} cat="family" sub={sub} initialExperiences={!sub || sub === "all" ? (browseTours?.key === browseTourKey ? browseTours.items : null) : undefined} categories={["attractions"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
+                  {browseCat === "attractions" && center && <UnifiedBrowseCommerceRail places={view} key={[browseCat, sub, center.lat, center.lng].join(":")} cat="attractions" sub={sub} initialExperiences={!sub || sub === "all" ? (browseTours?.key === browseTourKey ? browseTours.items : null) : undefined} categories={["attractions", "more"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
+                  {browseCat === "hotels" && center && view.length > 0 && <UnifiedBrowseCommerceRail places={view} key={[browseCat, sub, center.lat, center.lng].join(":")} cat="hotels" sub={sub} categories={["stays"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
+                  {browseCat === "hotels" && center && view.length > 0 && <TripConnections center={center} mode="attractions" onOpenPlace={openDetail} />}
                   {/* 2026-08-04 (owner: "I want every single Viator deeplink option showing up
                       on my sheets... if it's for food give me food tours... I want this done
                       everywhere") wired Food to the derived `food` concept in
@@ -10235,10 +10426,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                       copy of it. Nightlife/Shopping/Beach are unaffected: only Food declares
                       NO_TOUR_COMMERCE. Ranking is unchanged for every category that still
                       sells experiences: rankExperiences, highest score first. */}
-                  {browseCat === "food" && center && <UnifiedBrowseCommerceRail cat="food" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
-                  {browseCat === "nightlife" && center && <UnifiedBrowseCommerceRail cat="nightlife" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
-                  {browseCat === "shopping" && center && view.length > 0 && <UnifiedBrowseCommerceRail cat="shopping" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
-                  {browseCat === "beach" && center && <UnifiedBrowseCommerceRail cat="beach" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
+                  {browseCat === "food" && center && <UnifiedBrowseCommerceRail places={view} key={[browseCat, sub, center.lat, center.lng].join(":")} cat="food" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
+                  {browseCat === "nightlife" && center && <UnifiedBrowseCommerceRail places={view} key={[browseCat, sub, center.lat, center.lng].join(":")} cat="nightlife" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
+                  {browseCat === "shopping" && center && view.length > 0 && <UnifiedBrowseCommerceRail places={view} key={[browseCat, sub, center.lat, center.lng].join(":")} cat="shopping" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
+                  {browseCat === "beach" && center && <UnifiedBrowseCommerceRail places={view} key={[browseCat, sub, center.lat, center.lng].join(":")} cat="beach" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
                   {/* The two NATIONAL categories. They had no render path at all, so both
                       rows sat dark since 2026-07-22 despite being live attributed CJ links —
                       built, working, and earning nothing for want of a mount. Placed beside
@@ -10750,7 +10941,34 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               </>
             )}
             <div style={{ position: "absolute", bottom: "max(20px, calc(env(safe-area-inset-bottom) + 12px))", left: 0, right: 0, textAlign: "center", pointerEvents: "none" }}>
-              {(() => { const by = lightboxIndex >= 0 && detail && Array.isArray(detail.photoAttrs) ? (detail.photoAttrs[lightboxIndex] || "") : ""; return <div style={{ color: "rgba(255,255,255,.85)", fontSize: 11.5, fontWeight: 600, marginBottom: 3 }}>{by === "Wayfind" ? "Photo: Wayfind" : by ? "Photo: " + by + " · via Google" : "Photo via Google"}</div>; })()}
+              {(() => {
+                // #1188 — SOURCE-AWARE, not hardcoded. The old version said
+                // "· via Google" for every photo whose per-photo author string
+                // was empty — correct for an actual Google photo with no named
+                // author, but ALSO exactly the shape a NON-Google single-photo
+                // source leaves behind: app/api/outdoors/route.js sets a
+                // place-level detail.photoAttr ("NPS", "Recreation.gov") but
+                // never a per-photo detail.photoAttrs[] entry, so those cards'
+                // lightbox falsely credited Google. A free Wikimedia photo
+                // (lib/freePhoto.js) would leave the identical shape. The tell
+                // is the ARRAY itself, not one entry in it: Google's own
+                // normalize (lib/google.js) always populates photoAttrs with
+                // one slot per photo (even a "" slot for an unnamed Google
+                // author); a source that never populated the array at all is
+                // never Google, so this only claims Google when there is
+                // actual per-photo evidence for it.
+                // Kept as the literal `detail.photoAttrs[lightboxIndex]` shape
+                // (test-lightbox-paging.mjs asserts on exactly this text) —
+                // the per-photo lookup that keeps a paging viewer's credit on
+                // the photo actually on screen.
+                const by = lightboxIndex >= 0 && detail && Array.isArray(detail.photoAttrs) ? (detail.photoAttrs[lightboxIndex] || "") : "";
+                const singleSourceAttr = detail && Array.isArray(detail.photoAttrs) && detail.photoAttrs.length === 0 ? (detail.photoAttr || "") : "";
+                const label = by === "Wayfind" ? "Photo: Wayfind"
+                  : by ? "Photo: " + by + " · via Google"
+                  : singleSourceAttr ? "Photo: " + singleSourceAttr
+                  : "Photo via Google";
+                return <div style={{ color: "rgba(255,255,255,.85)", fontSize: 11.5, fontWeight: 600, marginBottom: 3 }}>{label}</div>;
+              })()}
               {canPage && <div aria-live="polite" style={{ color: "rgba(255,255,255,.92)", fontSize: 12.5, fontWeight: 700, marginBottom: 3 }}>{lightboxIndex + 1} / {total}</div>}
               <div style={{ color: "rgba(255,255,255,.6)", fontSize: 12 }}>{canPage ? "Swipe to browse · tap to close" : "Tap anywhere to close"}</div>
             </div>
@@ -10935,8 +11153,10 @@ function SwipeRow({ children, onDelete }) {
 // /api/experiences — a DB read, so the distance rungs reach 90/120mi with NO
 // per-mile Google Places cost (unlike the place-search radius, which stays 60mi
 // to protect against the Places bill). Ships DARK (renders null) until the
-// migration + cron populate the table. Every card href is pid-wrapped through
-// lib/affiliates.viatorDirectUrl, and the section carries the FTC commission
+// migration + cron populate the table. Every card href goes through our own
+// /api/viator/go via lib/affiliates.viatorProductGoUrl (2026-09-10 — it used to
+// be viatorDirectUrl, i.e. a live partner href in crawlable DOM), and the
+// section carries the FTC commission
 // disclosure proximate to the earning cards — test-experiences-v3 locks both.
 // Default 30mi = the user's home market only (honest "near you"); the rungs
 // widen EXPLICITLY (60→90→120 reaches Orlando from Sarasota). Every card also
@@ -11007,7 +11227,7 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
       {busy && !st.items.length ? (
         <div aria-busy="true" style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain" }}>
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="wf-skeleton" style={{ flex: "0 0 200px", height: 150, borderRadius: 12 }} aria-hidden="true" />
+            <div key={i} className="wf-sk" style={{ flex: "0 0 200px", height: 150, borderRadius: 12 }} aria-hidden="true" />
           ))}
         </div>
       ) : st.items.length === 0 ? (
@@ -11015,7 +11235,12 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 10 }}>
           {st.items.map((t) => {
-            const href = Aff.viatorDirectUrl(t.url);
+            // 2026-09-10 (affiliate deep-link audit, owner P0): was
+            // Aff.viatorDirectUrl(t.url) — a raw monetized partner href in the
+            // DOM. Routed through our own redirect for the same reasons as the
+            // culture rail above. Null still means UNATTRIBUTABLE, so the row
+            // suppression immediately below is unchanged.
+            const href = Aff.viatorProductGoUrl(t.url, t.city, cat, "exp_rail");
             // v6.79 (AGENTS.md §6b): null means UNATTRIBUTABLE, so suppress the row entirely. Rendering <a> with href={null} would be a dead link that looks clickable — worse than the untracked one it replaced.
             if (!href) return null;
             return (
@@ -11049,7 +11274,8 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
 // v6.56 (owner): the PERMANENT bookable-experiences rail on Things to do —
 // "All" shows top trending; each sub-menu shows experiences themed to it
 // (lib/experiencesData catalog keys). Every href is affiliate-wrapped via
-// viatorDirectUrl (the ONE tracking builder). Fails soft to no rail.
+// viatorProductGoUrl — our own /api/viator/go, which re-applies the ONE
+// tracking builder server-side. Fails soft to no rail.
 // 2026-08-02 — the chip -> inventory decision moved OUT of this file into
 // lib/browseCommerceMap.js, so a guard can import and CALL it instead of
 // regexing a literal out of a 9,500-line client component. See that file for
@@ -11066,204 +11292,7 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
 // One commerce rail per browse surface. It combines verified Viator inventory
 // and network deals before rendering, so provider boundaries never become
 // separate visual sections. Cards without real artwork fail closed.
-function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub, includeExperiences = true, initialExperiences, categories = [], lat, lng, onSave, onLog = NOLOG, city, region }) {
-  const plan = chipCommerce(browseCat, sub || "all");
-  const cat = plan.catalogParam;
-  const [experiences, setExperiences] = useState(() => Array.isArray(initialExperiences) ? initialExperiences : null);
-  const [deals, setDeals] = useState(null);
 
-  useEffect(() => {
-    if (Array.isArray(initialExperiences)) { setExperiences(initialExperiences); return; }
-    // 2026-09-07 — THE EAT-INTENT BOUNDARY (owner: wine tours and Riverwalk
-    // walking tours were rendering ABOVE the restaurant results under Food ->
-    // Dinner). `plan.noExperiences` (lib/browseCommerceMap.js NO_TOUR_COMMERCE)
-    // is checked BEFORE `cat`, not folded into it, because a null `cat` alone
-    // still falls through to the live Viator search below — the exact second
-    // path that can hand a thin market a generic tour just as easily as the
-    // table did. Food declares noExperiences, so this return fires before
-    // either the table read or the live search ever runs, for every sub-chip
-    // (Breakfast/Cafés/Lunch/Dinner/Quick bites included, not a two-item
-    // blocklist). See lib/browseCommerceMap.js for the measured repro and
-    // where the restaurant-specific-commerce line actually sits.
-    if (!includeExperiences || plan.noExperiences || !Number.isFinite(lat) || !Number.isFinite(lng)) { setExperiences([]); return; }
-    let dead = false;
-    const searchText = chipSearchQuery(browseCat, sub || "all", city);
-    const liveSearch = async () => {
-      // GATED ON `city`, deliberately. With no known city this must
-      // never fall back to Florida markets for an out-of-region visitor —
-      // that is the regression test-experiences-location exists to hold.
-      // `region` rides along for the same reason: the anti-foreign filter in
-      // /api/viator/tours returns 0 tours without it.
-      if (!city) return [];
-      try {
-        const live = await fetch("/api/viator/tours?q=" + encodeURIComponent(searchText) + "&region=" + encodeURIComponent(region || city) + "&lat=" + encodeURIComponent(lat) + "&lng=" + encodeURIComponent(lng) + "&intent=" + encodeURIComponent(sub || "all")).then((r) => (r.ok ? r.json() : null));
-        return rankExperiences(live && Array.isArray(live.items) ? live.items : []).slice(0, 12);
-      } catch (e) { return []; }
-    };
-    // cat === null means NOTHING in wf_experiences belongs under this chip.
-    // Going straight to search is the honest path; hitting the table would only
-    // ask a question whose only correct answer is "none".
-    if (cat === null) {
-      liveSearch().then((rows) => { if (!dead) setExperiences(rows); });
-      return () => { dead = true; };
-    }
-    const q = new URLSearchParams({ lat: String(lat), lng: String(lng), mi: "60", cat, limit: "12", page: "0" });
-    fetch("/api/experiences?" + q.toString()).then((r) => (r.ok ? r.json() : null), () => null).then(async (res) => {
-      if (dead) return;
-      let rows = rankExperiences(res && Array.isArray(res.items) ? res.items : []).slice(0, 12);
-      if (!rows.length) rows = await liveSearch();
-      setExperiences(rows);
-    });
-    return () => { dead = true; };
-  }, [initialExperiences, includeExperiences, cat, browseCat, sub, lat, lng, city, region]);
-
-  useEffect(() => {
-    // The deals lane never consulted `plan`. `categories` is a literal and `sub`
-    // was not even in the dep array, so every Activities chip fetched the same
-    // theme-park tickets and painted them under a heading naming that chip:
-    // "SPA & WELLNESS - BOOKABLE NEAR PARRISH" over LEGOLAND and Busch Gardens,
-    // on a live screenshot. The heading comment below already called this exact
-    // shape "a bug you can SEE". A chip that declares no bookable catalog now
-    // sells nothing here rather than the wrong thing under its own name.
-    const chipSellsNothing = !!(sub && sub !== "all" && plan.catalogParam === null);
-    // plan.noExperiences (Food, 2026-09-07) belt-and-suspenders: Food already
-    // passes categories=[] above, which alone short-circuits this effect, but
-    // a future call site that adds a `categories` prop for Food must not
-    // silently regain the deals lane on a category declared to sell nothing.
-    if (chipSellsNothing || plan.noExperiences || !categories.length || !Number.isFinite(lat) || !Number.isFinite(lng)) { setDeals([]); return; }
-    let dead = false;
-    const geo = "&lat=" + lat.toFixed(3) + "&lng=" + lng.toFixed(3);
-    Promise.all(categories.map((category) => fetch("/api/deals?category=" + encodeURIComponent(category) + geo).then((r) => (r.ok ? r.json() : null), () => null))).then((payloads) => {
-      if (dead) return;
-      const rows = [];
-      for (const payload of payloads) for (const rail of (payload && Array.isArray(payload.rails) ? payload.rails : [])) for (const deal of (Array.isArray(rail.items) ? rail.items : [])) rows.push(deal);
-      setDeals(rows);
-    });
-    return () => { dead = true; };
-  }, [categories.join("|"), lat, lng, sub, plan.catalogParam]);
-
-  // v6.90 — owner: "make sure they are displayed by rating and discount,
-  // point based on the activity time of today." Same small, capped, order-
-  // only bonuses as IntentPartnerPick.js's evidenceScore, kept in sync so the
-  // two mixed-provider rails behave consistently — see
-  // lib/experienceNowRank.js. Rating/quality10 stays the base term; unrated
-  // deals keep the exact -1 sentinel (sorts last, untouched by any bonus).
-  const nowHour = siteHourFloat();
-  const cards = useMemo(() => {
-    const rows = [];
-    for (const t of (Array.isArray(experiences) ? experiences : [])) {
-      if (!t?.image || !(t.code || t.product_code)) continue;
-      const offerId = t.code || t.product_code;
-      // THE WAYFIND SCORE, not a second opinion (owner: "they are not being
-      // displayed by highest to lowest score", 2026-08-05).
-      //
-      // rankExperiences() had already ordered these correctly — by
-      // experienceWayfindScore, the Bayesian blend that weights review DEPTH.
-      // This line then re-sorted them by `rating * 2 + log10(reviews)`, where
-      // reviews contribute at most 0.4, so rating dominates and the correct
-      // order was destroyed immediately after being computed. Measured:
-      //
-      //   4.7 with 2000 reviews  ->  Score 94, railBase 9.73  (shown 3rd)
-      //   5.0 with 3 reviews     ->  Score 79, railBase 10.06 (shown 1st)
-      //
-      // A 5.0 from three people outranked a 4.7 from two thousand. Divided by
-      // 10 so the 0-100 Score shares the 0-10 scale the deal rows and the
-      // capped bonuses already use — the bonuses stay proportionally what they
-      // were, and merit still decides the order.
-      const base = experienceWayfindScore(t) / 10;
-      // chipAffinityBonus is ORDER-ONLY and capped at 0.5 on the same ~0-10
-      // scale as `base`. It exists because every Food sub-chip draws from one
-      // pool of food tours — Viator sells no "dessert catalogue" — so Dessert
-      // used to render the identical list as Food/All. This lets a chocolate
-      // tour edge past an EQUALLY-rated generic food tour under Dessert without
-      // ever leapfrogging a clearly better one, which is what keeps the owner's
-      // "ranked from highest score" true.
-      rows.push({ key: `viator:${offerId}`, provider: "viator", merchant: "Viator", offerId, title: t.title, image: t.image, rating: Number(t.rating || 0), reviews: Number(t.reviews || 0), price: t.fromPrice ? `from $${Math.round(t.fromPrice)}` : "", duration: t.duration || "", score: base + timeOfDayBonus(String(t.title || ""), nowHour) + chipAffinityBonus(browseCat, sub || "all", t.title), kind: "experience" });
-    }
-    for (const d of (Array.isArray(deals) ? deals : [])) {
-      const image = d.image || (d.photoRef ? "/api/photo?ref=" + encodeURIComponent(d.photoRef) + "&w=600" : "");
-      if (!image || !d.id) continue;
-      const dBase = Number(d.quality10 || 0);
-      const discountText = d.discount || d.badge || "";
-      const dScore = dBase > 0 ? dBase + discountDepthBonus(discountText) + timeOfDayBonus(String(d.title || "") + " " + discountText, nowHour) : -1;
-      // ATTRIBUTION, not cosmetics. lib/dealsData.js shapes every row with
-      // surface:"deal_rail" baked into the href, because that is where deals
-      // were first served. Rendering that href here reported every browse-rail
-      // deal click as an intent-rail click, so the two surfaces could not be
-      // told apart in any revenue comparison. Same provider, same offer id,
-      // same redirect — only the surface tag differs, and it is now the tag of
-      // the rail that actually rendered it. Falls back to the server's href if
-      // the row somehow lacks a provider, so a re-tag can never lose the link.
-      const dealHref = commerceHref({ provider: d.provider, offerId: d.id, surface: "browse_partner_rail", contentId: sub || "all" }) || d.href;
-      // v8.22 (owner: "some of them have no wayfind score"): a deal matched to
-      // a scored place (quality10, the SAME number its rank already uses)
-      // now SHOWS that score; a national deal with no place keeps no chip —
-      // we never invent a score — and still sorts last.
-      rows.push({ key: `${d.provider || "deal"}:${d.id}`, provider: d.provider, merchant: d.providerLabel || "Verified partner", offerId: d.id, title: d.title, image, discount: discountText, score: dScore, quality10: dBase > 0 ? dBase : null, href: dealHref, kind: "deal" });
-    }
-    const seen = new Set();
-    return rows.filter((row) => { const name = String(row.title || "").toLowerCase(); if (seen.has(name)) return false; seen.add(name); return true; }).sort((a, b) => b.score - a.score);
-  }, [experiences, deals, nowHour, sub, browseCat]);
-
-  // v8.22 (owner, live screenshots: "the rail starts mid-way … starting at the
-  // cards with no score on all of the submenus"). ROOT CAUSE: the scroller
-  // <div> is the same DOM node across chip/submenu switches — React re-renders
-  // its children but never touches scrollLeft, so one right-swipe in any
-  // submenu leaves EVERY later submenu's rail opened mid-track. That reads as
-  // "unranked first" because unscored deals sort last (rightward). The rail
-  // must open at its own #1 whenever its content identity changes. GLOBAL
-  // RULE for horizontal rails whose content swaps under a persistent node;
-  // locked by scripts/check-rail-scroll-reset.mjs.
-  const laneRef = useRef(null);
-  const laneSig = (cards.length && cards[0].key) || "";
-  useEffect(() => { const el = laneRef.current; if (el) el.scrollLeft = 0; }, [browseCat, sub, laneSig]);
-
-  if (!cards.length) return null;
-  // The heading NAMES THE FILTER. It used to read "Bookable highlights near
-  // {city}" — byte-identical to IntentPartnerPick's heading on the intent
-  // pages, so two rails with different inventory, different ranking and
-  // different providers were indistinguishable to a user and to anyone reading
-  // a screenshot. Naming the active chip also makes a mismatch self-evident:
-  // "Spa & wellness — bookable near Sarasota" over a dolphin cruise is a bug
-  // you can SEE, where the old generic heading hid exactly that.
-  const chipLabel = (() => {
-    if (!sub || sub === "all") return null;
-    const hit = ((SUBFILTERS[browseCat] || SUBFILTERS.attractions) || []).find((x) => x && x.id === sub);
-    return hit ? hit.label : null;
-  })();
-  return (
-    <aside data-unified-browse-commerce-rail style={{ margin: "2px 0 14px" }}>
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
-        <span style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>{chipLabel ? `${chipLabel} — bookable near ${city || "you"}` : `Bookable near ${city || "you"}`}</span>
-        <span style={{ fontSize: 9.5, color: C.muted }}>Verified partners</span>
-      </div>
-      <div ref={laneRef} style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain", paddingBottom: 4, scrollSnapType: "x proximity" }}>
-        {cards.map((card) => {
-          const href = card.kind === "experience" ? commerceHref({ provider: "viator", offerId: card.offerId, surface: "browse_partner_rail", contentId: sub || "all" }) : card.href;
-          if (!href) return null;
-          return (
-            <a key={card.key} href={href} target="_blank" rel="sponsored nofollow noopener" onClick={(e) => { e.preventDefault(); const live = (e.currentTarget && e.currentTarget.href) || href; try { onLog("tickets_out", null, { kind: "unified_browse_rail", provider: card.provider, id: card.offerId }); } catch (er) {} openExternal(live); }} style={{ flex: "0 0 200px", scrollSnapAlign: "start", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none", color: "inherit" }}>
-              <div style={{ position: "relative", height: 86, overflow: "hidden", borderBottom: `1px solid ${C.border}` }}>
-                <img src={card.image} alt="" loading="lazy" onError={(e) => { const root = e.currentTarget.closest("a"); if (root) root.style.display = "none"; }} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-                <span style={{ position: "absolute", top: 7, right: 7, padding: "3px 7px", borderRadius: 999, background: "rgba(7,12,20,.82)", border: "1px solid rgba(255,255,255,.24)", color: "#fff", fontSize: 8.5, fontWeight: 800 }}>via {card.merchant}</span>
-              </div>
-              <div style={{ padding: "8px 10px" }}>
-                <div style={{ fontSize: 12.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{card.title}</div>
-                <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 4, flexWrap: "wrap" }}>
-                  {card.rating > 0 && card.reviews > 0 ? <PlaceScoreChip p={{ rating: card.rating, reviews: card.reviews }} size={12} />
-                    : card.quality10 != null ? <PlaceScoreChip p={{ governed_score: Math.round(card.quality10 * 10) }} size={12} /> : null}
-                  <span style={{ fontSize: 11, fontWeight: card.discount ? 800 : 500, color: card.discount ? "#7DD3A8" : C.muted }}>{card.discount || card.price}{card.duration ? ` · ${card.duration}` : ""}</span>
-                  <button aria-label={"Save " + card.title} onClick={(e) => { e.preventDefault(); e.stopPropagation(); try { onSave && onSave({ item_type: card.kind, item_id: card.offerId, item_title: card.title, item_image: card.image, item_url: href, provider: card.provider }); } catch (er) {} }} style={{ marginLeft: "auto", border: `1px solid ${C.border}`, background: "transparent", borderRadius: 999, color: C.light, fontSize: 12, padding: "3px 8px", cursor: "pointer" }}>♡</button>
-                </div>
-              </div>
-            </a>
-          );
-        })}
-      </div>
-      <div style={{ fontSize: 10, color: C.muted, marginTop: 7, lineHeight: 1.4 }}>Wayfind may earn a commission when you book through these links, at no extra cost to you. It never changes our scores or rankings.</div>
-    </aside>
-  );
-}
 
 
 // Undercover Tourist discount-ticket / theme-park-hotel deal rail (CJ, PID
@@ -11486,7 +11515,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
     ? { rank: cardRank, label: "Wayfind curator's pick", curator: true }
     : topPickAward({ category: pcat, rank: cardRank });
   return (
-    <div className={`wf-place-card${fallCardClass(p && p.id, siteTodayStr())}${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${isCuratorPick ? " is-curator-pick" : ""}${!(curatedHook || knownForHook || aiSummary) ? " is-no-take" : ""}`} style={{ position: "relative" }}>
+    <div data-wf-position-key={"place-" + p.id} className={`wf-place-card${fallCardClass(p && p.id, siteTodayStr())}${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${isCuratorPick ? " is-curator-pick" : ""}${!(curatedHook || knownForHook || aiSummary) ? " is-no-take" : ""}`} style={{ position: "relative" }}>
       <button type="button" className="wf-place-card-open" onClick={onDetail} aria-label={`Open ${p.name}`} style={{ position: "absolute", inset: 0, zIndex: 0, width: "100%", height: "100%", opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
       {/* v8.62 (owner, 2026-08-26, live): "top right hand corner of the card,
           not in front of the image." The score badge is a direct child of the
@@ -11692,7 +11721,7 @@ const wstat = { flexShrink: 0, whiteSpace: "nowrap", fontSize: 12, fontWeight: 7
 // anything. Both the skeleton and the live rail read these same constants —
 // that is the whole point; do not hardcode either number twice.
 const EV_HERO_H = 248; // Owner visual refinement: restore a taller, more cinematic hero while preserving the shared loading/live geometry.   // the featured hero <a> height
-const EV_RAIL_MIN_H = 245; // v7.03: measured on PRODUCTION at 390 and 1024 with the real webfonts loaded (243 / 245) — the first pass measured 236 in a harness with system fonts, which under-reserved by 7px. Same number .wf-rail-events pins in css.js.
+const EV_RAIL_MIN_H = PLACE_CARD_HEIGHT_PX; // Loading and loaded cards share the global geometry contract.
 // ALL THREE rail states (loading / empty / populated) reserve this same floor.
 // Measured 2026-07-21: without it, a sparse market where events resolve to []
 // collapsed the ~312px skeleton into a ~130px empty state and yanked the feed

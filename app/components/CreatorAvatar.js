@@ -66,7 +66,6 @@ const INSTAGRAM_AVATARS = {
   secretsoftampabay: "/creators/secretsoftampabay.jpg",
   influencetampa: "/creators/influencetampa.jpg",
   tampaterrencee: "/creators/tampaterrencee.jpg",
-  lifeinparrish: "/creators/lifeinparrish.jpg",
   // 2026-08-23 batch. THE CAPTURE IS NO LONGER A HAND STEP — and the v6.95 note
   // above is now only half true, so read it with this.
   //

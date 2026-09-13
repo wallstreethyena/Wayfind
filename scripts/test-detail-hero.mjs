@@ -12,6 +12,7 @@ const ok = (c, m) => { if (!c) fail(m); };
 
 const REAL_REF = "places/ChIJ1234567890abcdef/photos/AX1234567890abcdef";
 const REAL_PROXY = "/api/photo?ref=" + encodeURIComponent(REAL_REF) + "&w=640";
+const OWNED_PLACE_PROXY = "/api/photo?place=ChIJa7bjTAB_54gR-M-m-KIOCP0&w=640";
 const REAL_HTTPS = "https://lh3.googleusercontent.com/p/AF1QipRealPlacePhoto=w640";
 
 // real photos[] → hero
@@ -23,6 +24,7 @@ ok(hasRealPlacePhoto({ photos: [{ name: REAL_REF }] }) === true, "photos[] of Go
 ok(hasRealPlacePhoto({ photoRef: REAL_REF }) === true, "photoRef Google resource name → hero");
 ok(hasRealPlacePhoto({ photo_ref: REAL_REF }) === true, "photo_ref Google resource name → hero");
 ok(hasRealPlacePhoto({ photo: REAL_PROXY }) === true, "photo /api/photo?ref= with a real Google ref → hero");
+ok(hasRealPlacePhoto({ photo: OWNED_PLACE_PROXY }) === true, "owned inventory /api/photo?place= with an exact place id → hero");
 ok(hasRealPlacePhoto({ photo: REAL_HTTPS }) === true, "photo https Google image → hero");
 
 // missing / empty / branded-fallback-only → compact
@@ -34,6 +36,8 @@ ok(hasRealPlacePhoto({ photo: "" }) === false, "empty photo → compact");
 ok(hasRealPlacePhoto({ photo: null, photoRef: "", photos: [] }) === false, "all-empty photo fields → compact");
 ok(hasRealPlacePhoto({ photoRef: "not-a-google-photo" }) === false, "non-Google photoRef → compact");
 ok(hasRealPlacePhoto({ photo: "/api/photo?ref=bogus" }) === false, "photo proxy with an invalid ref → compact");
+ok(hasRealPlacePhoto({ photo: "/api/photo?place=bad%20id&w=640" }) === false, "place-photo proxy with an invalid place id → compact");
+ok(hasRealPlacePhoto({ photo: "/api/photo?w=640" }) === false, "photo proxy without a ref or place identity → compact");
 
 // Stock is scene-setting, never a photo of that named business.
 ok(hasRealPlacePhoto({ photo: "https://images.pexels.com/photos/123/sarasota-beach.jpg" }) === false,
@@ -94,6 +98,22 @@ const detailsRoute = readFileSync(new URL("../app/api/places/details/route.js", 
 ok(/detail:\s*"[^"]*photos/.test(detailsRoute),
   "the fixed rich-detail field mask asks for photos so a photoless list row can heal");
 
+// Owned place identities must open even when paid enrichment is unavailable.
+{
+  const routeBody = detailsRoute.replace(/^import .*;$/gm, "").replace(/export /g, "");
+  const compile = new Function("NextResponse", "gateShut", "spendAllow", "getInventoryIdentity", "process", "fetch", routeBody + "\nreturn POST;");
+  let paidCalls = 0;
+  const post = compile({ json: (body, options) => ({ body, status: options?.status || 200 }) },
+    () => true, async () => { paidCalls++; return false; },
+    async (id) => id === "ChIJowned" ? { place_id: id, name: "Owned family venue", lat: 27.3, lng: -82.5, signals: { rating: 4.7, reviews: 900 } } : null,
+    { env: { GOOGLE_MAPS_SERVER_KEY: "test-only" } }, async () => { paidCalls++; throw new Error("No paid calls allowed"); });
+  const owned = await post({ json: async () => ({ placeId: "ChIJowned", kind: "place" }) });
+  ok(owned.body.place?.id === "ChIJowned" && owned.body.source === "inventory", "owned card opens from inventory with spending gate shut");
+  const missing = await post({ json: async () => ({ placeId: "ChIJmissing", kind: "place" }) });
+  ok(!missing.body.place && missing.body.error === "gate shut", "missing identity still respects spending gate");
+  ok(paidCalls === 0, "owned identity and closed gate do not spend on Google");
+}
+
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 ok(/mergeHealedPlacePhotos\s*\(/.test(home),
   "openDetail merges healed photos onto the already-open sheet");
@@ -106,6 +126,15 @@ ok(/wf-place-card-monogram/.test(home),
   "list PlaceCard monogram markup is still present");
 ok(/cardInitials/.test(home) && /split\(\/\\s\+\/\)/.test(home),
   "list PlaceCard monogram initials logic is unchanged");
+
+// A /p/{id} arrival may keep the populated Home shell mounted for Back, but
+// an unrelated homepage poster must not be the visual backdrop of the shared
+// park. The exact place photo owns the arrival; the retained shell stays
+// hidden under an opaque neutral layer until the sheet closes.
+ok(/isSharedPlaceArrival:\s*!!initialPlaceId/.test(home),
+  "the shared-place route marks its initial detail presentation");
+ok(/isSharedPlaceArrival\s*\?\s*\{\s*\.\.\.sheetBg,\s*background:\s*["']#050608["']\s*\}\s*:\s*sheetBg/.test(detailSrc),
+  "shared place arrivals hide unrelated homepage posters behind an opaque neutral backdrop");
 
 if (failures) process.exit(1);
 console.log("test-detail-hero: OK — real photos[] / Google photoRef → hero; missing, empty, branded-fallback, and stock → compact; Detail no longer paints a 250px branded pin; heal-on-open asks for photos and fails closed");

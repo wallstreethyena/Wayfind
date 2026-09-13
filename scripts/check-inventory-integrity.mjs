@@ -34,6 +34,8 @@ if (!URL_ || !KEY) {
   process.exit(0);
 }
 
+import { PLACE_PARTNER_PICKS, RETIRED_VIATOR_PINS, pinServeability } from "../lib/placePartnerPicks.js";
+
 // Documented allowances. These are CEILINGS on known, triaged debt — not targets.
 // Lowering them as the debt is paid is the point; raising one requires a human to
 // look at why and say so here.
@@ -106,6 +108,100 @@ const miscat = rows.filter((r) => r.category === "beach" && ["tourist_attraction
 ok(miscat.length === 0,
   `${miscat.length} rows are category='beach' but typed as a broad parent — the provider's superset is overriding our own classification: ${miscat.slice(0, 5).map((r) => r.name).join(", ")}`);
 
+// 5. A STATIC PIN WHOSE PRODUCT LEFT THE CATALOGUE. This is the credentialed
+// half of scripts/check-pinned-offer-serveable.mjs, and it is the reason that
+// file's static ledger can be trusted.
+//
+// WHY (owner, 2026-09-10): "If a visible Book button sends a customer back to
+// Wayfind because its product disappeared, that is a live revenue and trust
+// defect... rather than discovering it after a customer clicks."
+//
+// lib/placePartnerPicks.js pins founder-verified Viator products onto place
+// cards by exact name. Nothing ever re-checked that those products still exist.
+// On 2026-09-09 an audit read wf_experiences and found no row for 16 of 35
+// pinned codes — every one of them still painted "Tickets · Viator", and every
+// click resolved offer-not-found and 302'd the customer home. That is a data
+// fault living in Supabase, invisible to 600 source-text guards, which is
+// exactly the class this file exists for.
+//
+// UNKNOWN IS NOT DEAD, and it matters more here than anywhere else, because
+// this check runs with real credentials against a live table. Three separate
+// non-answers are handled as non-answers rather than as deaths:
+//   - the catalogue read itself failing  -> hard error, never "all pins dead"
+//   - a row present with link_ok null    -> NOTE, never a failure
+//   - a retired code that came BACK      -> NOTE (a repair opportunity)
+// Only "no row at all" and "link_ok is explicitly false" are incidents.
+{
+  const pinned = PLACE_PARTNER_PICKS.filter((r) => r.provider === "viator");
+  const codes = [...new Set(pinned.map((r) => String(r.offerId).trim().toUpperCase()))];
+  const retired = [...new Set(RETIRED_VIATOR_PINS.map((r) => String(r.offerId).trim().toUpperCase()))];
+  // Positive control BEFORE any verdict: a query shape that silently matches
+  // nothing would report every pin as dead and read as a catastrophic finding.
+  // (This repo has already been bitten by that once — `metro = any(null)`
+  // returned 0 rows and looked like an empty table.)
+  ok(codes.length >= 15,
+    `pin sweep has a subject: ${codes.length} viator pins to verify — a near-empty list means placePartnerPicks lost its table, not that the catalogue is clean`);
+
+  const want = [...codes, ...retired];
+  // Product codes are alphanumeric by construction (lib/viatorDenylist
+  // PRODUCT_CODE_RE). Assert it rather than URL-encode around it: a code that
+  // is not alphanumeric is a corrupt pin, and quietly encoding it would send a
+  // malformed filter to PostgREST and get an answer nobody could interpret.
+  const malformed = want.filter((c) => !/^[A-Z0-9]+$/.test(c));
+  ok(malformed.length === 0,
+    `${malformed.length} pinned/retired product code(s) are not alphanumeric and cannot be used in a catalogue filter: ${malformed.join(", ")}`);
+  const catalogue = new Map();
+  let readOk = true;
+  for (let i = 0; i < want.length && malformed.length === 0; i += 80) {
+    const slice = want.slice(i, i + 80);
+    const inList = slice.join(",");
+    const r = await fetch(
+      `${URL_}/rest/v1/wf_experiences?select=product_code,link_ok,fail_count&product_code=in.(${inList})`,
+      { headers: { apikey: KEY, Authorization: `Bearer ${KEY}` } }
+    );
+    if (!r.ok) { readOk = false; console.error(`check-inventory-integrity: FAIL — catalogue read for the pin sweep returned Supabase ${r.status}. NOT reporting the pins as dead: a read failure is our failure, not the products'.`); bad++; checks++; break; }
+    for (const row of await r.json()) {
+      catalogue.set(String(row.product_code || "").trim().toUpperCase(), row);
+    }
+  }
+
+  if (readOk) {
+    // The control that separates "the catalogue is empty" from "the query is
+    // wrong": at least one pin we believe is live must come back.
+    const found = codes.filter((c) => catalogue.has(c));
+    ok(found.length > 0,
+      `positive control: the catalogue answered for at least one pinned code (${found.length}/${codes.length}). Zero means the query shape is wrong, not that every product died — do NOT retire anything on this result`);
+
+    if (found.length > 0) {
+      const absent = codes.filter((c) => !catalogue.has(c));
+      ok(absent.length === 0,
+        `${absent.length} pinned Viator product(s) have NO row in wf_experiences, so their place cards paint a Book button that resolves to offer-not-found and sends the customer back to our homepage: ${absent.join(", ")}. Fix by removing the placePick row and recording the code in RETIRED_VIATOR_PINS (lib/placePartnerPicks.js) — then research a replacement. Do NOT leave the pin up while you look.`);
+
+      const provenDead = codes.filter((c) => catalogue.get(c) && catalogue.get(c).link_ok === false);
+      ok(provenDead.length === 0,
+        `${provenDead.length} pinned Viator product(s) are in the catalogue but PROVEN dead by the link-health sweep (link_ok=false): ${provenDead.join(", ")}. /api/commerce/go already refuses these, so the button is painted and the click cannot complete — retire or repin them.`);
+
+      // NOTES, never failures. Each is a real signal and none of them is evidence
+      // that a product is gone.
+      const neverProbed = codes.filter((c) => catalogue.has(c) && catalogue.get(c).link_ok == null);
+      if (neverProbed.length) console.log(`check-inventory-integrity: NOTE — ${neverProbed.length} pinned product(s) have never been link-health probed (link_ok null): ${neverProbed.slice(0, 8).join(", ")}. Unknown is not dead; these still serve. app/api/cron/experiences-link-health is what resolves them.`);
+      const resurrected = retired.filter((c) => catalogue.has(c) && catalogue.get(c).link_ok !== false);
+      if (resurrected.length) console.log(`check-inventory-integrity: NOTE — ${resurrected.length} RETIRED code(s) are back in the catalogue and not dead: ${resurrected.slice(0, 8).join(", ")}. That is a re-pin OPPORTUNITY (revenue we are currently leaving on the table), not a defect — verify the product still names the place before restoring the pin.`);
+      // And the loop that proves the two halves agree: anything the credentialed
+      // sweep considers serveable must not be refused by the static gate, and
+      // vice versa, or the render path and the monitor are telling different
+      // stories about the same product.
+      for (const row of pinned) {
+        const c = String(row.offerId).trim().toUpperCase();
+        const liveHere = catalogue.has(c) && catalogue.get(c).link_ok !== false;
+        if (!liveHere) continue;
+        ok(pinServeability(row).serveable === true,
+          `${c} is alive in the catalogue but the static gate refuses it — the render path and this monitor disagree, so one of them is lying to the operator`);
+      }
+    }
+  }
+}
+
 // REPORTED, NOT FAILED: supply health. These are product problems, not regressions,
 // and a permanently-red guard is a guard people learn to ignore.
 const byMetro = new Map();
@@ -120,4 +216,4 @@ if (noPhoto.length) console.log(`check-inventory-integrity: NOTE — ${noPhoto.l
 if (seedOnly.length) console.log(`check-inventory-integrity: NOTE — ${seedOnly.length}/${byMetro.size} metros hold <=120 places, i.e. cold-start seed depth, not real coverage.`);
 
 if (bad) { console.error(`check-inventory-integrity: ${bad} failure(s)`); process.exit(1); }
-console.log(`check-inventory-integrity: OK — ${checks} assertions over ${rows.length} live rows, ${byMetro.size} metros`);
+console.log(`check-inventory-integrity: OK — ${checks} assertions over ${rows.length} live rows, ${byMetro.size} metros, and every founder-pinned Viator product verified present + not-proven-dead in wf_experiences (unknown counted as unknown, never as dead)`);

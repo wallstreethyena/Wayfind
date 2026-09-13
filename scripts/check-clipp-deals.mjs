@@ -270,8 +270,8 @@ ok(isDeadPixelForm(`https://www.anrdoezrs.net/links/${CJ_PID}/type/dlg/sid/x/?ur
 // empirically observed first hop for this advertiser (302 -> cj.dotomi.com).
 ok(affiliateForwards(302, "https://cj.dotomi.com/dj77birq8/ipu/787DA6FC/767CA9BD9/6/6/6") === true,
   "the observed Clipp first hop counts as forwarding");
-ok(destIsAlive(403) === true,
-  "clipp.com's Akamai 403 counts as ALIVE — every non-browser fetcher gets 403, so treating it as dead would quarantine every working Clipp link");
+ok(destIsAlive(403) === null,
+  "clipp.com's Akamai 403 is unknown, neither proven healthy nor a dead-link signal");
 
 /* ── 6. the trademark rule (partner welcome email) ───────────────────────── */
 // Never Clipp's name or domain in SEO keywords, domains or misspellings. On-card

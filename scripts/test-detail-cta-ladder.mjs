@@ -69,11 +69,10 @@ const noOffers = {};
 // 4. Hotel → Check rates when booking target exists.
 {
   const p = place({ types: ["lodging", "hotel"], id: "hotel_1" });
-  // bookingTargets returns a `tu` Stay22/Viator URL for hotels via lib/bookingResolve.
-  // Without env it may be null; we assert the type decision, not the href presence.
+  // A hotel with location must expose the tracked rates path on its detail sheet.
   const cta = resolveDetailCta({ detail: p, kind: "hotel", viaTours: noTours, locName: "Tampa, FL", offers: noOffers, openState: open });
-  ok(cta.type === DETAIL_CTA_TYPES.rates || cta.type === DETAIL_CTA_TYPES.directions,
-    "hotel → Check rates if resolver has a target, otherwise Directions");
+  ok(cta.type === DETAIL_CTA_TYPES.rates && cta.href.startsWith("/api/hotels/go?") && cta.provider === "stay22",
+    "hotel → Check rates through tracked Stay22 handoff");
 }
 
 // 5. Cafe / bakery → menu/pickup, not tickets.

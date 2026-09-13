@@ -168,7 +168,7 @@ ok(eventImage({ hero_image: null, place_id: null }) === "",
 
 // And the serving path must actually use the ladder, not a private copy of it.
 const fallRoute = readFileSync(new URL("../app/api/events/fall/route.js", import.meta.url), "utf8");
-ok(/import \{ cardImageSrc \}/.test(fallRoute) && /fallEventCardImageSrc/.test(fallRoute) && (fallRoute.match(/cardImageSrc\(/g) || []).length >= 1,
+ok(/import \{[^}]*cardImageSrc[^}]*\}/.test(fallRoute) && /fallEventCardImageSrc/.test(fallRoute) && (fallRoute.match(/cardImageSrc\(/g) || []).length >= 1,
   "app/api/events/fall builds events through the Fall identity gate and places through cardImageSrc — both end at the one owned-photo ladder");
 ok(!/"\/api\/photo\?place=" \+ encodeURIComponent/.test(fallRoute),
   "…and no hand-rolled /api/photo?place= string survives beside it");

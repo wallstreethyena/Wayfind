@@ -208,18 +208,18 @@ export function WayfindRailCard({ model }) {
         {lines.map((l, i) => (
           <div key={i} style={{ display: "flex", fontSize: size, fontWeight: 900,
             lineHeight: RAIL_CARD.lead, letterSpacing: -Math.round(size * 0.037 * 10) / 10,
-            color: accent.indexOf(i) >= 0 ? ORANGE_TEXT : WHITE }}>{l}</div>
+            color: accent.indexOf(i) >= 0 ? (m.accentColor || ORANGE_TEXT) : WHITE }}>{l}</div>
         ))}
       </div>
 
       <div style={{ position: "absolute", left: RAIL_CARD.colX + 2, top: RAIL_CARD.ruleY, width: 96, height: 8,
-        borderRadius: 999, display: "flex", backgroundColor: ORANGE }} />
+        borderRadius: 999, display: "flex", backgroundColor: m.accentColor || ORANGE }} />
 
       <div style={{ position: "absolute", left: RAIL_CARD.colX, top: RAIL_CARD.footY, display: "flex",
         fontSize: 23, fontWeight: 600, color: MUTED }}>{m.foot}</div>
 
       <div style={{ position: "absolute", left: RAIL_CARD.colX, top: RAIL_CARD.ctaY, display: "flex",
-        alignItems: "center", backgroundColor: ORANGE, borderRadius: 999, padding: "15px 30px" }}>
+        alignItems: "center", backgroundColor: m.accentColor || ORANGE, borderRadius: 999, padding: "15px 30px" }}>
         <div style={{ display: "flex", fontSize: 23, fontWeight: 900, color: "#0A0A0B", letterSpacing: 1.2 }}>{m.cta}</div>
       </div>
     </div>

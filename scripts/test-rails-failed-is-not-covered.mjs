@@ -29,8 +29,8 @@
  *      ("couldn't reach the ranking service", Try again), NOT on "uncovered"
  *      ("Wayfind isn't live here yet"); and the two composers fed by
  *      /api/rails (breakfast, eat) render nothing of their own until the rails
- *      request has actually landed, so "No nearby place clearly qualifies"
- *      can only ever be said about a payload that was ranked.
+ *      request has actually landed. A ranked healthy zero then produces no
+ *      rail shell, while a service failure remains in DaypartRail's retry UI.
  *
  * Red-proved on 2026-09-07 by (a) restoring the old `covered: true` return on
  * the degraded path, (b) deleting the isFailedRailsResponse read in apply(),
@@ -41,6 +41,8 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { emptyRailLive, liveFromRailsResponse, isFailedRailsResponse } from "../lib/locationHonesty.js";
+import { completeAnswersOnly } from "../lib/railFastCache.js";
+import { railRenderState, RAIL_RENDER_STATE } from "../lib/railVisibility.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(path.join(ROOT, p), "utf8");
@@ -92,8 +94,7 @@ const failIdx = applyBody.search(/isFailedRailsResponse\x28j\x29/);
 const coveredClientIdx = applyBody.search(/const covered = /);
 ok(failIdx !== -1 && coveredClientIdx !== -1 && failIdx < coveredClientIdx, "apply(): the failed check runs BEFORE the covered/uncovered decision");
 
-const fed = (RAIL.match(/const RAILS_FED_COMPOSERS = \[([^\]]*)\]/) || [])[1] || "";
-ok(/.breakfast./.test(fed) && /.eat./.test(fed), "RAILS_FED_COMPOSERS names breakfast and eat (the composers with no fetch of their own)");
+ok(/const RAILS_FED_COMPOSERS = SHARED_POOL_COMPOSER_RAILS/.test(RAIL), "RAILS_FED_COMPOSERS uses the shared source-paging identity list (the composers with no fetch of their own)");
 ok(/const composerWaiting = !!\x28selRail && RAILS_FED_COMPOSERS\.includes\x28selRail\.id\x29 && railLoad !== .live.\x29/.test(RAIL),
   "composerWaiting is true until the rails request has actually landed");
 ok(/\{selRail && selRail\.id === .breakfast. && !composerWaiting \? \x28\s*<BreakfastRails/.test(RAIL),
@@ -104,9 +105,13 @@ const chainSites = (RAIL.match(/selRail && \x28!railOwnsItsOwnAnswer \|\| compos
 ok(chainSites === 3, `the shared load chain (skeleton / thin / terminal) speaks for a waiting composer at all 3 sites (found ${chainSites})`);
 ok(!/selRail && !railOwnsItsOwnAnswer && isPending\x28railLoad\x29/.test(RAIL), "no leftover chain site that still excludes composers from the skeleton");
 
-/* ── 4. The composer's own copy is a claim, so its input must be ranked ──── */
+/* ── 4. Healthy empty is hidden; outages remain explicit ───────────────── */
 const BK = read("app/components/BreakfastRails.js");
-ok(/No nearby place clearly qualifies for this rail yet\./.test(BK), "positive control: BreakfastRails still carries the empty-rail sentence this guard exists to gate");
+ok(/visibleRails/.test(BK)
+  && railRenderState([]) === RAIL_RENDER_STATE.HIDDEN
+  && railRenderState([], { loading: true }) === RAIL_RENDER_STATE.LOADING
+  && railRenderState([], { error: true }) === RAIL_RENDER_STATE.ERROR,
+"Breakfast hides a healthy empty render plan while the shared policy keeps loading and outage states distinct");
 
 /* ── 5. "Use my current location" means NOW ─────────────────────────────── */
 // Same morning, same tap: PostHog recorded recenter_to_me hadFix:true, i.e.
@@ -130,14 +135,18 @@ const marker = "export async function GET(req) {";
 const routeBody = routeRaw.slice(routeRaw.indexOf(marker) + marker.length).trim().slice(0, -1);
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 const invokeGet = new AsyncFunction("deps", "req",
-  "const { NextResponse, LANDING_CITIES, DAYPART_IDS, nearestCity, geoCell, fastCachedRail, railMenuData, dedupeWire, windowRailData } = deps;\n" + routeBody);
-async function routeCase(value, throws = false, covered = true) {
+  "const { NextResponse, LANDING_CITIES, DAYPART_IDS, nearestCity, geoCell, completeAnswersOnly, fastCachedRail, railMenuData, dedupeWire, windowRailData } = deps;\n" + routeBody);
+let routeBuilds = 0;
+async function routeCase(value, throws = false, covered = true, cachedValue) {
   return invokeGet({
     NextResponse: { json: (body, options) => Response.json(body, options) },
     LANDING_CITIES: {}, DAYPART_IDS: ["morning"], nearestCity: () => covered ? "sarasota" : null,
     geoCell: (n) => n.toFixed(2),
-    railMenuData: async () => { if (throws) throw new Error("fixture database timeout"); return value; },
-    fastCachedRail: async (_key, loader) => ({ value: await loader(), state: "miss" }),
+    completeAnswersOnly,
+    railMenuData: async () => { routeBuilds++; if (throws) throw new Error("fixture database timeout"); return value; },
+    fastCachedRail: async (_key, loader, options) => cachedValue !== undefined && options.usable(cachedValue)
+      ? { value: cachedValue, state: "hit" }
+      : { value: await loader(), state: "miss" },
     dedupeWire: (v) => v, windowRailData: (v) => v,
   }, { nextUrl: new URL("https://fixture.invalid/api/rails?lat=27.34&lng=-82.53&band=morning") });
 }
@@ -148,8 +157,17 @@ for (const [value, throws] of [[null, false], [{ failed: true }, false], [null, 
   ok(body.failed === true && body.covered === false && body.data === null, "executed GET: outage has no invented coverage or inventory");
   ok(response.headers.get("cache-control") === "no-store", "executed GET: outage cannot enter CDN cache");
 }
-const successful = await routeCase({ failed: false, places: { breakfast: [{ id: "real" }] } });
+const healthyAnswer = { failed: false, degraded: false, complete: true, places: { breakfast: [{ id: "real" }] } };
+const successful = await routeCase(healthyAnswer);
 ok(successful.status === 200 && (await successful.json()).covered === true, "executed GET: completed inventory remains HTTP 200 and covered");
+routeBuilds = 0;
+const legacyCachedAnswer = { failed: false, places: { breakfast: [{ id: "legacy" }] } };
+const rebuilt = await routeCase(healthyAnswer, false, true, legacyCachedAnswer);
+const rebuiltBody = await rebuilt.json();
+ok(routeBuilds === 1 && rebuilt.headers.get("x-wayfind-fast-cache") === "miss",
+  "executed GET: a legacy seven-day entry without explicit complete/degraded status is rejected and rebuilt");
+ok(rebuiltBody.data?.places?.breakfast?.[0]?.id === "real",
+  "executed GET: the rejected legacy payload cannot leak into the delivered answer");
 const uncovered = await routeCase(null, false, false);
 ok(uncovered.status === 200 && !(await uncovered.json()).failed, "executed GET: a genuinely uncovered location stays distinct from an outage");
 

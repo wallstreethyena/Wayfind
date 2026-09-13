@@ -15,6 +15,7 @@ import {
   GULF_COAST_FALL_2026_PATCHES,
   GULF_COAST_FALL_2026_ROWS,
 } from "../lib/gulfCoastFall2026.js";
+import { supersededSarasotaIds, currentSarasotaSeed } from "./lib/sarasotaPublication.mjs";
 
 const args = process.argv.slice(2);
 const DRY = args.includes("--dry");
@@ -27,12 +28,14 @@ const allIds = new Set([
 ]);
 if (ONLY) {
   for (const id of ONLY) {
+    if (supersededSarasotaIds.has(id)) throw new Error(`Superseded ${id}: use ${currentSarasotaSeed}`);
     if (!allIds.has(id)) throw new Error(`Unknown --only event_id: ${id}`);
   }
 }
 
-const rows = GULF_COAST_FALL_2026_ROWS.filter((row) => !ONLY || ONLY.has(row.event_id));
-const patches = GULF_COAST_FALL_2026_PATCHES.filter((patch) => !ONLY || ONLY.has(patch.event_id));
+const rows = GULF_COAST_FALL_2026_ROWS.filter((row) => !supersededSarasotaIds.has(row.event_id) && (!ONLY || ONLY.has(row.event_id)));
+const patches = GULF_COAST_FALL_2026_PATCHES.filter((patch) => !supersededSarasotaIds.has(patch.event_id) && (!ONLY || ONLY.has(patch.event_id)));
+console.log(`Sarasota September 10 records are superseded; use ${currentSarasotaSeed}.`);
 
 function validate() {
   const errors = [];

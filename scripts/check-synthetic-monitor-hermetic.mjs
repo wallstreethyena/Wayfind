@@ -45,6 +45,20 @@ import os from "node:os";
 import assert from "node:assert/strict";
 
 import { SCENARIOS, REQUIRED_FLOWS, HOMEPAGE_CARD_BUDGET_MS } from "./lib/synthetic/scenarios.mjs";
+// The product decision itself. Imported so the approved poster list can be
+// checked against it rather than against a copy that drifts (see §0).
+import { RAILS } from "../lib/rails.js";
+import {
+  EXPECTED_VISIBLE_POSTER_IDS,
+  posterMenuDiff,
+  railWindowFromCapturedPayload,
+  rowsForRailWindow,
+  mergeCapturedRailWindows,
+  reconcileRenderedCardNames,
+  reconcileRenderedCards,
+  continuationUiSettled,
+  exactRenderedIdSet,
+} from "./lib/synthetic/menuPosterIntegrity.mjs";
 import {
   redactUrl,
   redactUrlsInText,
@@ -64,6 +78,72 @@ const ok = (c, m) => { if (c) pass++; else fails.push(m); };
 // scenarios.mjs already self-validates at import time (throws if malformed) —
 // reaching this line at all is itself a passing assertion. What follows adds
 // checks that module CANNOT make about itself: coverage and cross-entry shape.
+
+// ── 0. THE APPROVED POSTER LIST MUST MATCH THE RENDERER'S OWN PREDICATE ────
+// 2026-09-09. #1196 was a Cindy creator-page PR. Buried in it was a product
+// decision: "Lunch in My City" and "Worth the Drive" "should no longer be
+// promoted". Both gained `posterHidden: true` in lib/rails.js, DaypartRail
+// learned to honour the flag, and test-creator-pages gained assertions
+// REQUIRING them to stay hidden. menuPosterIntegrity's approved list was not
+// touched, so two guards asserted opposite things about the same two tiles.
+//
+// The synthetic monitor then failed on EVERY scheduled run from 2026-09-08
+// 18:25Z — and because the scenario stopped at the first failure, it masked a
+// real continuation bug sitting in the same scenario. A false failure does not
+// merely waste attention; it conceals a true one.
+//
+// This is the parity check that makes that impossible. The approved list stays
+// EXPLICIT (derived, it would happily expect 15 the day someone hides a tile
+// by accident — the exact failure it exists to catch), and this asserts it
+// equals DaypartRail's own visibility predicate over RAILS. Changing the
+// product decision without changing the monitored contract now fails the
+// build, in the same commit, instead of a day later in a monitor nobody reads.
+{
+  // Read the predicate out of the COMPONENT rather than restating it, so a
+  // change to what "visible" means cannot leave this guard checking the old
+  // rule while claiming parity with the new one.
+  const railSrc = readFileSync(path.resolve("./app/components/DaypartRail.js"), "utf8");
+  const PREDICATE_RX = /!r\.posterHidden\s*&&\s*!r\.artStale\s*&&\s*!r\.retiredInto/;
+  ok(PREDICATE_RX.test(railSrc),
+    "DaypartRail still filters the poster menu on !posterHidden && !artStale && !retiredInto — if this changed, the parity check below is comparing against a rule the app no longer uses");
+
+  const visibleFromRails = RAILS
+    .filter((r) => r && !r.posterHidden && !r.artStale && !r.retiredInto)
+    .map((r) => r.id);
+
+  const approved = [...EXPECTED_VISIBLE_POSTER_IDS].sort();
+  const rendered = [...visibleFromRails].sort();
+  const missingFromApproved = rendered.filter((id) => !approved.includes(id));
+  const staleInApproved = approved.filter((id) => !rendered.includes(id));
+
+  ok(missingFromApproved.length === 0 && staleInApproved.length === 0,
+    `EXPECTED_VISIBLE_POSTER_IDS must equal DaypartRail's visible set over RAILS. ` +
+    `Approved but no longer rendered: [${staleInApproved.join(", ") || "none"}] (a product decision landed without updating the monitored contract — this is the #1196 shape). ` +
+    `Rendered but not approved: [${missingFromApproved.join(", ") || "none"}] (a tile reached the homepage with no monitored owner).`);
+
+  // Self-tests: prove the comparison has teeth in BOTH directions, using
+  // fabricated sets rather than the real ones.
+  {
+    const cmp = (a, b) => ({
+      stale: a.filter((x) => !b.includes(x)),
+      unowned: b.filter((x) => !a.includes(x)),
+    });
+    const dropped = cmp(["a", "b", "c"], ["a", "b"]);
+    ok(dropped.stale.join(",") === "c" && dropped.unowned.length === 0,
+      "self-test: a tile hidden in RAILS but still approved is reported as STALE (the #1196 direction)");
+    const added = cmp(["a", "b"], ["a", "b", "d"]);
+    ok(added.unowned.join(",") === "d" && added.stale.length === 0,
+      "self-test: a tile rendered but not approved is reported as UNOWNED (a quietly-added tile)");
+    ok(cmp(["a", "b"], ["b", "a"]).stale.length === 0 && cmp(["a", "b"], ["b", "a"]).unowned.length === 0,
+      "self-test: ORDER is not a difference — the contract is a set, and the menu's order is DaypartRail's business");
+  }
+
+  // The four excluded records, named, so a future reader does not have to
+  // re-derive why the record count and the tile count differ.
+  const excluded = RAILS.filter((r) => r && (r.posterHidden || r.artStale || r.retiredInto)).map((r) => r.id).sort();
+  ok(excluded.join(",") === "chef,drive,events,lunchcity",
+    `exactly four RAILS records stay off the homepage menu — events (retiredInto Night Out), lunchcity and drive (posterHidden by #1196), and chef (posterHidden by the owner on 2026-09-10; the record and Ron's seven picks stay, only the tile comes off the track). Got: [${excluded.join(", ")}]. If this list changed, say so deliberately here and in menuPosterIntegrity's header.`);
+}
 
 ok(Array.isArray(SCENARIOS) && SCENARIOS.length > 0, "SCENARIOS is a non-empty array");
 ok(Array.isArray(REQUIRED_FLOWS) && REQUIRED_FLOWS.length >= 11,
@@ -134,6 +214,96 @@ for (const s of SCENARIOS) {
     "self-test: a comment that merely NAMES the sleep is correctly ignored");
   ok(/wf-place-card/.test(stripComments("const u = 'https://example.com/x'; el.querySelector('.wf-place-card');")),
     "self-test: stripping comments leaves a URL's // intact and does not eat the code after it");
+}
+
+// ── 1c. MENU + POSTER INTEGRITY: positive, negative, mutation controls ───
+// The scheduled browser scenario is the runtime proof. These small fabricated
+// payloads prove the exact decision functions it relies on are not a pleasant
+// report that always says green.
+{
+  const healthyMenu = posterMenuDiff(EXPECTED_VISIBLE_POSTER_IDS);
+  ok(healthyMenu.missingIds.length === 0 && healthyMenu.extraIds.length === 0 && healthyMenu.duplicateIds.length === 0,
+    "menu-poster positive control: all 18 expected poster ids are accepted exactly");
+
+  // Mutation red: remove the historical Breakfast tile from an otherwise
+  // healthy menu. If this predicate stopped checking the exact set, this would
+  // turn green while the homepage lost its morning entry point.
+  const breakfastRemoved = posterMenuDiff(EXPECTED_VISIBLE_POSTER_IDS.filter((id) => id !== "breakfast"));
+  ok(breakfastRemoved.missingIds.includes("breakfast"),
+    "menu-poster MUTATION RED: removing breakfast is detected as a missing visible poster id");
+  const duplicateMenu = posterMenuDiff([...EXPECTED_VISIBLE_POSTER_IDS, "eat"]);
+  ok(duplicateMenu.duplicateIds.includes("eat"),
+    "menu-poster negative control: a duplicated poster id is detected");
+  const extraMenu = posterMenuDiff([...EXPECTED_VISIBLE_POSTER_IDS, "unowned-poster"]);
+  ok(extraMenu.extraIds.includes("unowned-poster"),
+    "menu-poster negative control: an unapproved visible poster id is detected");
+
+  const completePayload = {
+    covered: true,
+    data: {
+      places: { breakfast: ["p1", "p2"] },
+      placeIndex: { p1: { id: "p1", name: "One" }, p2: { id: "p2", name: "Two" } },
+      railTotals: { breakfast: 2 },
+      railHasMore: { breakfast: false },
+    },
+  };
+  const complete = railWindowFromCapturedPayload(completePayload, "breakfast");
+  ok(complete.complete && !complete.truncated && !complete.trulyEmpty,
+    "menu-poster positive control: a fully returned non-empty rail is complete, not truncated");
+  const rows = rowsForRailWindow(complete);
+  ok(rows.rows.length === 2 && rows.missingRowIds.length === 0,
+    "menu-poster positive control: every returned id rehydrates from the same captured placeIndex");
+
+  const truncatedPayload = {
+    ...completePayload,
+    data: { ...completePayload.data, railTotals: { breakfast: 3 }, railHasMore: { breakfast: true } },
+  };
+  const truncated = railWindowFromCapturedPayload(truncatedPayload, "breakfast");
+  ok(truncated.truncated && !truncated.complete,
+    "menu-poster MUTATION RED: total=3 with only two returned ids is a hard truncated result, never a complete rail");
+  const finalPagePayload = {
+    ...completePayload,
+    data: {
+      places: { breakfast: ["p3"] },
+      placeIndex: { p3: { id: "p3", name: "Three" } },
+      railTotals: { breakfast: 3 },
+      railHasMore: { breakfast: false },
+      railPage: { railId: "breakfast", offset: 2, limit: 24 },
+    },
+  };
+  const mergedPages = mergeCapturedRailWindows([truncatedPayload, finalPagePayload], "breakfast");
+  ok(mergedPages.complete && mergedPages.ids.join(",") === "p1,p2,p3" && mergedPages.pageCount === 2,
+    "menu-poster positive control: initial compact page plus captured continuation merges to a complete ordered rail (card 13 class)");
+  const repeatedContinuation = mergeCapturedRailWindows([truncatedPayload, { ...finalPagePayload, data: { ...finalPagePayload.data, places: { breakfast: ["p2"] } } }], "breakfast");
+  ok(!repeatedContinuation.complete && repeatedContinuation.duplicateIds.includes("p2"),
+    "menu-poster MUTATION RED: a continuation that repeats an already returned id cannot look complete");
+  const missingIndex = rowsForRailWindow({ ...complete, ids: ["p1", "gone"] });
+  ok(missingIndex.missingRowIds.includes("gone"),
+    "menu-poster negative control: an id absent from placeIndex is detected rather than silently discarded");
+
+  const reconcileGood = reconcileRenderedCardNames(rows.rows, ["One", "Two"]);
+  ok(reconcileGood.missingIds.length === 0 && reconcileGood.extraIds.length === 0 && reconcileGood.unknownNames.length === 0,
+    "menu-poster positive control: rendered card names reconcile to the exact captured ids");
+  const reconcileBad = reconcileRenderedCardNames(rows.rows, ["One", "Not in response"]);
+  ok(reconcileBad.missingIds.includes("p2") && reconcileBad.unknownNames.includes("Not in response"),
+    "menu-poster negative control: a missing expected card and an extra rendered card both fail reconciliation");
+  const ambiguous = reconcileRenderedCardNames([{ id: "a", name: "Same" }, { id: "b", name: "Same" }], ["Same"]);
+  ok(ambiguous.ambiguousNames.includes("Same") && ambiguous.unknownNames.includes("Same"),
+    "menu-poster negative control: duplicate source names are unverifiable and fail loudly, never guessed into an id");
+  const exactDomIds = reconcileRenderedCards([{ id: "a", name: "Same Chain" }, { id: "b", name: "Same Chain" }], [{ id: "a", name: "Same Chain" }, { id: "b", name: "Same Chain" }]);
+  ok(exactDomIds.missingDomIds.length === 0 && exactDomIds.missingIds.length === 0 && exactDomIds.extraIds.length === 0,
+    "menu-poster positive control: exact DOM data-place-id reconciles duplicate business names without a false failure");
+  const wrongDomId = reconcileRenderedCards([{ id: "a", name: "One" }], [{ id: "wrong", name: "One" }]);
+  ok(wrongDomId.missingIds.includes("a") && wrongDomId.extraIds.includes("wrong"),
+    "menu-poster MUTATION RED: changing a rendered data-place-id is detected even when its title stays the same");
+  ok(!continuationUiSettled({ hasMore: true, buttonPresent: true, buttonDisabled: true, loadingLabel: true, visibleFailure: false }),
+    "menu-poster delayed-render control: a disabled Loading more button is not settled and cannot start another page click");
+  ok(continuationUiSettled({ hasMore: true, buttonPresent: true, buttonDisabled: false, loadingLabel: false, visibleFailure: false }),
+    "menu-poster delayed-render positive control: an enabled Show more button is a settled continuation state");
+  ok(exactRenderedIdSet(["p1", "p2", "p13"], ["p1", "p2", "p13"]),
+    "menu-poster delayed-render positive control: the final exact DOM set includes a thirteenth card");
+  ok(!exactRenderedIdSet(["p1", "p2", "p13"], ["p1", "p2"]),
+    "menu-poster MUTATION RED: a final DOM snapshot missing card 13 fails exact-set readiness");
 }
 
 // Negative control: prove the structural checks above can actually fail, not
@@ -242,6 +412,7 @@ const FAKE_PID = "P00998877";
         { name: "fixture assertion that fails", pass: false, expected: "something", actual: "something else" },
         { name: "fixture assertion that passes", pass: true, expected: 1, actual: 1 },
       ],
+      notes: [`menu probe https://partner.example.com/collect?token=${FAKE_SECRET}&pid=${FAKE_PID}`],
       // Realistic shape: Chromium's own console emits the full failing
       // request URL verbatim ("Failed to load resource: the server
       // responded with a status of 500 () https://...?token=..."), which is
@@ -285,6 +456,9 @@ const FAKE_PID = "P00998877";
     ok(Array.isArray(meta.consoleErrors) && meta.consoleErrors.length === 1, "meta.json carries the (redacted) console error");
     ok(!JSON.stringify(meta.consoleErrors).includes(FAKE_SECRET) && !JSON.stringify(meta.consoleErrors).includes(FAKE_PID),
       "meta.json's consoleErrors array specifically is free of the raw secret/PID — the fetch-failure-logged-to-console leak path");
+    ok(Array.isArray(meta.notes) && meta.notes.length === 1, "meta.json persists scenario notes alongside assertions so failed card reconciliation is diagnosable");
+    ok(!JSON.stringify(meta.notes).includes(FAKE_SECRET) && !JSON.stringify(meta.notes).includes(FAKE_PID),
+      "meta.json redacts URLs embedded in persisted scenario notes too");
 
     const reproPath = path.join(dir, "repro.sh");
     ok(files.includes(reproPath), "repro.sh is among the reported written files");

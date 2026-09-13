@@ -1,0 +1,2126 @@
+{
+  "audit": "wayfind-blog-editorial-census",
+  "auditedAt": "2026-09-09",
+  "scope": {
+    "guideRecords": 41,
+    "source": [
+      "lib/guides.js",
+      "lib/guidesSummer2026.js",
+      "lib/guidesGulfCoast2026.js",
+      "lib/guidesHalloween2026.js",
+      "lib/guidesFallOrlando2026.js"
+    ],
+    "noLiveVenueResearch": true,
+    "factualRechecks": "unchecked",
+    "productionBaseline": "/workspace/scratch/de82858a41ec/blog-audit/production-baseline.json (all 41 guide URLs HTTP 200, one H1, generic hero description present)"
+  },
+  "globalFindings": [
+    {
+      "id": "hero-copy-template",
+      "severity": "high",
+      "finding": "All 41 guide pages pass PremiumIntentHero the same title-derived description template; metadata descriptions vary, but visible hero copy is generic and does not answer guide intent.",
+      "evidence": "app/guides/[slug]/page.js PremiumIntentHero description prop",
+      "action": "Use guide-specific opening copy derived from g.intro/decision, capped to a concise above-fold answer."
+    },
+    {
+      "id": "hero-resolver-reuse",
+      "severity": "high",
+      "finding": "Only 3 guides have slug-owned hero art. The remaining 38 reuse broad category or neutral images; one route is misrouted by substring matching date inside dated.",
+      "evidence": "guideHero() and reuse counts in every row",
+      "action": "Resolve art by slug/brief, record rights and depicted subject, and replace generic or mismatched imagery."
+    },
+    {
+      "id": "hub-coverage",
+      "severity": "high",
+      "finding": "The /guides hub groups all records but renders only four hard-coded regions, so 16 of 41 guides are omitted from crawlable hub links.",
+      "evidence": "app/guides/page.js order array; omittedSlugs below",
+      "action": "Use data-driven region ordering and render every guide once."
+    },
+    {
+      "id": "authorship",
+      "severity": "high",
+      "finding": "Every guide visibly says Written by the Wayfind team, led by Gabriel Pereira and emits Gabriel Pereira as Article author JSON-LD. The repository does not establish a per-guide visit record or expanded biography.",
+      "evidence": "app/guides/[slug]/page.js metadata/body",
+      "action": "Use truthful author/methodology copy and date labels; treat visit and credential claims as unchecked."
+    },
+    {
+      "id": "sources",
+      "severity": "medium",
+      "finding": "Only the Halloween food and Fall Events data modules carry an explicit sources array. Other guides have no in-data source register, so claims need factual recheck before premium publication.",
+      "evidence": "sourceRegisterPresent in rows",
+      "action": "Add source/evidence records or mark each recommendation pending verification."
+    },
+    {
+      "id": "inline-visuals",
+      "severity": "medium",
+      "finding": "Only Orlando Halloween Food has pick-level inline visuals (23 editorial visualizations); the other 40 guides have no inline image evidence.",
+      "evidence": "inlineImages in every row",
+      "action": "Add relevant licensed/original inline art selectively, with alt text, credits, and disclosure where illustrative."
+    },
+    {
+      "id": "seasonal-summer",
+      "severity": "blocker",
+      "finding": "Ten summer-2026 guide modules carry an explicit 2026-08-30 sunset, already past audit date 2026-09-09.",
+      "evidence": "lib/guidesSummer2026.js comment and staleSeason rows",
+      "action": "Remove, redirect, or refresh all ten before treating portfolio as publish-ready."
+    },
+    {
+      "id": "count-integrity",
+      "severity": "low",
+      "finding": "All 19 title-count guides have matching pick counts; title years, acreage, and distance are excluded from count checks.",
+      "evidence": "titleCount/countMatches in rows",
+      "action": "Retain as a guard while changing titles or pick lists."
+    },
+    {
+      "id": "local-refs",
+      "severity": "low",
+      "finding": "All resolver and inline image paths referenced by the 41 guide records resolve under public/.",
+      "evidence": "localRefsMissing in rows",
+      "action": "Keep asset existence check in release QA; rights and visual relevance remain separate checks."
+    }
+  ],
+  "hubAudit": {
+    "guidesHub": {
+      "route": "/guides",
+      "type": "collection",
+      "sourceCount": 41,
+      "currentDisplayOrder": [
+        "Sarasota",
+        "Orlando",
+        "Tampa",
+        "St. Petersburg"
+      ],
+      "linkedCount": 25,
+      "omittedCount": 16,
+      "omittedSlugs": [
+        "swim-with-manatees-crystal-river",
+        "bioluminescence-kayak-tour-space-coast",
+        "florida-scalloping-crystal-river-homosassa",
+        "weeki-wachee-kayak-mermaids-guide",
+        "birthday-freebies-bradenton-sarasota",
+        "anna-maria-island-day-trip",
+        "de-soto-national-memorial-bradenton",
+        "robinson-preserve-bradenton",
+        "things-to-do-miami-summer-2026",
+        "things-to-do-fort-lauderdale-summer-2026",
+        "things-to-do-key-west-summer-2026",
+        "things-to-do-st-augustine-summer-2026",
+        "things-to-do-daytona-beach-summer-2026",
+        "things-to-do-panama-city-beach-summer-2026",
+        "things-to-do-naples-summer-2026",
+        "things-to-do-in-parrish-florida"
+      ],
+      "note": "The regions object receives all omitted regions, but JSX maps only the four-item order array."
+    },
+    "guideDetail": {
+      "route": "/guides/[slug]",
+      "type": "detail",
+      "count": 41,
+      "baseline": "all 41 URLs HTTP 200; all have one H1"
+    },
+    "culture": {
+      "route": "/culture/[metro]",
+      "type": "city-editorial-collection",
+      "count": 7,
+      "slugs": [
+        "orlando",
+        "tampa",
+        "miami",
+        "keys",
+        "boston",
+        "sarasota",
+        "hawaii"
+      ],
+      "note": "Distinct city culture pages, not entries in GUIDES; 3 have named heroes and 4 use neutral hero fallback. Article author is Organization Wayfind."
+    },
+    "floridaEventsHub": {
+      "route": "/florida-events",
+      "type": "curated-event-collection",
+      "source": "wf_events via lib/curatedEvents.js",
+      "note": "Dynamic collection; individual Event schema belongs on detail pages."
+    },
+    "floridaEventDetail": {
+      "route": "/florida-events/[slug]",
+      "type": "curated-event-detail",
+      "note": "Distinct from guide roundups; hero ladder is consented event photography, row hero_image, then monogram."
+    },
+    "townHubs": {
+      "route": "/florida/[town]",
+      "type": "destination-editorial-collection",
+      "count": 10,
+      "slugs": [
+        "parrish",
+        "bradenton",
+        "palmetto",
+        "ellenton",
+        "lakewood-ranch",
+        "anna-maria-island",
+        "cortez",
+        "longboat-key",
+        "siesta-key",
+        "venice"
+      ],
+      "note": "Distinct destination profiles with live ranked listings; not part of 41 guide records."
+    }
+  },
+  "topicRelations": [
+    {
+      "slug": "swim-with-manatees-crystal-river",
+      "cluster": "nature-coast-seasonal",
+      "relation": "adjacent",
+      "peers": [
+        "florida-scalloping-crystal-river-homosassa"
+      ],
+      "action": "Keep separate by winter manatee versus summer scallop intent; cross-link with season labels."
+    },
+    {
+      "slug": "florida-scalloping-crystal-river-homosassa",
+      "cluster": "nature-coast-seasonal",
+      "relation": "adjacent",
+      "peers": [
+        "swim-with-manatees-crystal-river"
+      ],
+      "action": "Keep separate by summer scallop versus winter manatee intent; recheck annual FWC dates."
+    },
+    {
+      "slug": "things-to-do-sarasota",
+      "cluster": "sarasota-broad-things",
+      "relation": "direct-overlap",
+      "peers": [
+        "things-to-do-in-sarasota-florida"
+      ],
+      "action": "Choose one canonical broad Sarasota guide; redirect, consolidate, or make one explicitly beyond-the-basics."
+    },
+    {
+      "slug": "things-to-do-in-sarasota-florida",
+      "cluster": "sarasota-broad-things",
+      "relation": "direct-overlap",
+      "peers": [
+        "things-to-do-sarasota"
+      ],
+      "action": "Choose one canonical broad Sarasota guide; redirect, consolidate, or make one explicitly beyond-the-basics."
+    },
+    {
+      "slug": "things-to-do-orlando-not-theme-parks",
+      "cluster": "orlando-broad-things",
+      "relation": "seasonal-overlap",
+      "peers": [
+        "things-to-do-orlando-summer-2026"
+      ],
+      "action": "Keep evergreen non-theme-park intent canonical; move seasonal openings into dated update sections."
+    },
+    {
+      "slug": "things-to-do-orlando-summer-2026",
+      "cluster": "orlando-broad-things",
+      "relation": "seasonal-overlap",
+      "peers": [
+        "things-to-do-orlando-not-theme-parks"
+      ],
+      "action": "Sunset/remove dated page after its window or clearly narrow the title and canonical."
+    },
+    {
+      "slug": "things-to-do-in-tampa-florida",
+      "cluster": "tampa-broad-things",
+      "relation": "seasonal-overlap",
+      "peers": [
+        "things-to-do-tampa-summer-2026"
+      ],
+      "action": "Keep evergreen Tampa guide canonical; move seasonal picks into a dated section or separate clearly seasonal intent."
+    },
+    {
+      "slug": "things-to-do-tampa-summer-2026",
+      "cluster": "tampa-broad-things",
+      "relation": "seasonal-overlap",
+      "peers": [
+        "things-to-do-in-tampa-florida"
+      ],
+      "action": "Sunset/remove dated page after its window or narrow its intent."
+    },
+    {
+      "slug": "fall-events-orlando-2026",
+      "cluster": "orlando-fall-2026",
+      "relation": "subset-overlap",
+      "peers": [
+        "orlando-halloween-food-2026",
+        "magical-dining-orlando-2026"
+      ],
+      "action": "Keep roundup as hub and link food/event subguides with distinct anchors; avoid repeating full lists."
+    },
+    {
+      "slug": "orlando-halloween-food-2026",
+      "cluster": "orlando-fall-2026",
+      "relation": "subset-overlap",
+      "peers": [
+        "fall-events-orlando-2026"
+      ],
+      "action": "Keep food-specific intent; link to roundup and do not duplicate event date prose."
+    },
+    {
+      "slug": "magical-dining-orlando-2026",
+      "cluster": "orlando-fall-2026",
+      "relation": "subset-overlap",
+      "peers": [
+        "fall-events-orlando-2026"
+      ],
+      "action": "Keep restaurant-program intent; link to roundup and maintain one source of program dates."
+    },
+    {
+      "slug": "gulf-coast-brunch-and-date-night",
+      "cluster": "sarasota-food",
+      "relation": "adjacent",
+      "peers": [
+        "st-armands-circle-restaurants",
+        "sarasota-half-price-dining"
+      ],
+      "action": "Differentiate by occasion and geography in titles, intros, and internal links."
+    },
+    {
+      "slug": "st-armands-circle-restaurants",
+      "cluster": "sarasota-food",
+      "relation": "adjacent",
+      "peers": [
+        "gulf-coast-brunch-and-date-night",
+        "sarasota-half-price-dining"
+      ],
+      "action": "Differentiate by St. Armands geography and restaurant selection."
+    },
+    {
+      "slug": "sarasota-half-price-dining",
+      "cluster": "sarasota-food",
+      "relation": "adjacent",
+      "peers": [
+        "gulf-coast-brunch-and-date-night",
+        "st-armands-circle-restaurants"
+      ],
+      "action": "Differentiate by certificate/deal intent and date validity."
+    }
+  ],
+  "visualResolverUsage": {
+    "/brand/opt/hero-1600.webp": 16,
+    "/cards/date-night-dining-hero.jpg": 7,
+    "/cards/beach-adobestock-216195684.jpeg": 6,
+    "/brand/orlando-night-wheel-portrait.jpg": 5,
+    "/brand/orlando-paddleboard-portrait.jpg": 4,
+    "/guides/things-to-do-in-sarasota-florida.jpg": 1,
+    "/guides/gulf-coast-brunch-and-date-night.jpg": 1,
+    "/guides/orlando-halloween-food-2026/hero.webp": 1
+  },
+  "overlap": {
+    "openPR": "PR1201",
+    "note": "PR1201 covers six body-layout/exact-place-resolution fixes. This audit records portfolio/editorial issues and does not change those body fixes."
+  },
+  "rows": [
+    {
+      "slug": "swim-with-manatees-crystal-river",
+      "region": "Crystal River",
+      "cluster": "nature-coast",
+      "updated": "2026-08-07",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/brand/opt/hero-1600.webp",
+        "resolver": "global-neutral",
+        "reuseCount": 16,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Global neutral fallback; no topic-specific subject."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": null,
+      "pickCount": 7,
+      "countMatches": null,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "nature-coast-seasonal",
+        "relation": "adjacent",
+        "peers": [
+          "florida-scalloping-crystal-river-homosassa"
+        ],
+        "action": "Keep separate by winter manatee versus summer scallop intent; cross-link with season labels."
+      },
+      "staleSeason": null,
+      "unsupportedTermsToRecheck": [
+        "best",
+        "only",
+        "largest",
+        "first",
+        "most",
+        "guaranteed"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": false,
+        "reason": "Region is omitted from current hard-coded display order even though GUIDES imports the record."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "bioluminescence-kayak-tour-space-coast",
+      "region": "Cocoa Beach",
+      "cluster": "nature-coast",
+      "updated": "2026-08-07",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/brand/orlando-paddleboard-portrait.jpg",
+        "resolver": "keyword:water",
+        "reuseCount": 4,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Keyword/category fallback; confirm the photograph depicts this guide rather than only its broad category."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": null,
+      "pickCount": 5,
+      "countMatches": null,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "bioluminescence-kayak-tour-space-coast",
+        "relation": "distinct-or-unclassified",
+        "peers": [],
+        "action": "No concrete duplicate found by local title/region inventory; factual intent review unchecked."
+      },
+      "staleSeason": null,
+      "unsupportedTermsToRecheck": [
+        "best",
+        "most"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": false,
+        "reason": "Region is omitted from current hard-coded display order even though GUIDES imports the record."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "florida-scalloping-crystal-river-homosassa",
+      "region": "Crystal River",
+      "cluster": "nature-coast",
+      "updated": "2026-08-07",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/brand/opt/hero-1600.webp",
+        "resolver": "global-neutral",
+        "reuseCount": 16,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Global neutral fallback; no topic-specific subject."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": null,
+      "pickCount": 5,
+      "countMatches": null,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "nature-coast-seasonal",
+        "relation": "adjacent",
+        "peers": [
+          "swim-with-manatees-crystal-river"
+        ],
+        "action": "Keep separate by summer scallop versus winter manatee intent; recheck annual FWC dates."
+      },
+      "staleSeason": null,
+      "unsupportedTermsToRecheck": [
+        "best",
+        "only",
+        "most"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": false,
+        "reason": "Region is omitted from current hard-coded display order even though GUIDES imports the record."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "weeki-wachee-kayak-mermaids-guide",
+      "region": "Weeki Wachee",
+      "cluster": "nature-coast",
+      "updated": "2026-08-07",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/brand/orlando-paddleboard-portrait.jpg",
+        "resolver": "keyword:water",
+        "reuseCount": 4,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Keyword/category fallback; confirm the photograph depicts this guide rather than only its broad category."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": null,
+      "pickCount": 5,
+      "countMatches": null,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "weeki-wachee-kayak-mermaids-guide",
+        "relation": "distinct-or-unclassified",
+        "peers": [],
+        "action": "No concrete duplicate found by local title/region inventory; factual intent review unchecked."
+      },
+      "staleSeason": null,
+      "unsupportedTermsToRecheck": [
+        "only",
+        "first"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": false,
+        "reason": "Region is omitted from current hard-coded display order even though GUIDES imports the record."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "winter-park-scenic-boat-tour",
+      "region": "Orlando",
+      "cluster": null,
+      "updated": "2026-07-07",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/brand/orlando-paddleboard-portrait.jpg",
+        "resolver": "keyword:water",
+        "reuseCount": 4,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Keyword/category fallback; confirm the photograph depicts this guide rather than only its broad category."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": null,
+      "pickCount": 3,
+      "countMatches": null,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "winter-park-scenic-boat-tour",
+        "relation": "distinct-or-unclassified",
+        "peers": [],
+        "action": "No concrete duplicate found by local title/region inventory; factual intent review unchecked."
+      },
+      "staleSeason": null,
+      "unsupportedTermsToRecheck": [
+        "best",
+        "only",
+        "oldest",
+        "famous",
+        "first",
+        "most"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": true,
+        "reason": "Region is in current hard-coded display order."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "siesta-key-drum-circle",
+      "region": "Sarasota",
+      "cluster": null,
+      "updated": "2026-07-07",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/cards/beach-adobestock-216195684.jpeg",
+        "resolver": "keyword:beach",
+        "reuseCount": 6,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Keyword/category fallback; confirm the photograph depicts this guide rather than only its broad category."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": null,
+      "pickCount": 3,
+      "countMatches": null,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "siesta-key-drum-circle",
+        "relation": "distinct-or-unclassified",
+        "peers": [],
+        "action": "No concrete duplicate found by local title/region inventory; factual intent review unchecked."
+      },
+      "staleSeason": null,
+      "unsupportedTermsToRecheck": [
+        "only",
+        "most"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": true,
+        "reason": "Region is in current hard-coded display order."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "pinecraft-sarasota-amish-village",
+      "region": "Sarasota",
+      "cluster": null,
+      "updated": "2026-07-07",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/cards/date-night-dining-hero.jpg",
+        "resolver": "keyword:dining",
+        "reuseCount": 7,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Keyword/category fallback; confirm the photograph depicts this guide rather than only its broad category."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": null,
+      "pickCount": 4,
+      "countMatches": null,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "pinecraft-sarasota-amish-village",
+        "relation": "distinct-or-unclassified",
+        "peers": [],
+        "action": "No concrete duplicate found by local title/region inventory; factual intent review unchecked."
+      },
+      "staleSeason": null,
+      "unsupportedTermsToRecheck": [
+        "best",
+        "famous",
+        "most"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": true,
+        "reason": "Region is in current hard-coded display order."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "siesta-key-vs-lido-key",
+      "region": "Sarasota",
+      "cluster": null,
+      "updated": "2026-07-07",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/cards/beach-adobestock-216195684.jpeg",
+        "resolver": "keyword:beach",
+        "reuseCount": 6,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Keyword/category fallback; confirm the photograph depicts this guide rather than only its broad category."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": null,
+      "pickCount": 3,
+      "countMatches": null,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "siesta-key-vs-lido-key",
+        "relation": "distinct-or-unclassified",
+        "peers": [],
+        "action": "No concrete duplicate found by local title/region inventory; factual intent review unchecked."
+      },
+      "staleSeason": null,
+      "unsupportedTermsToRecheck": [
+        "famous",
+        "first"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": true,
+        "reason": "Region is in current hard-coded display order."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "things-to-do-sarasota",
+      "region": "Sarasota",
+      "cluster": null,
+      "updated": "2026-07-07",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/cards/beach-adobestock-216195684.jpeg",
+        "resolver": "keyword:beach",
+        "reuseCount": 6,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Keyword/category fallback; confirm the photograph depicts this guide rather than only its broad category."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": 10,
+      "pickCount": 10,
+      "countMatches": true,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "sarasota-broad-things",
+        "relation": "direct-overlap",
+        "peers": [
+          "things-to-do-in-sarasota-florida"
+        ],
+        "action": "Choose one canonical broad Sarasota guide; redirect, consolidate, or make one explicitly beyond-the-basics."
+      },
+      "staleSeason": null,
+      "unsupportedTermsToRecheck": [
+        "best",
+        "largest",
+        "oldest",
+        "world",
+        "most"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": true,
+        "reason": "Region is in current hard-coded display order."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "best-cuban-sandwich-tampa",
+      "region": "Tampa",
+      "cluster": null,
+      "updated": "2026-07-07",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/cards/date-night-dining-hero.jpg",
+        "resolver": "keyword:dining",
+        "reuseCount": 7,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Keyword/category fallback; confirm the photograph depicts this guide rather than only its broad category."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": null,
+      "pickCount": 4,
+      "countMatches": null,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "best-cuban-sandwich-tampa",
+        "relation": "distinct-or-unclassified",
+        "peers": [],
+        "action": "No concrete duplicate found by local title/region inventory; factual intent review unchecked."
+      },
+      "staleSeason": null,
+      "unsupportedTermsToRecheck": [
+        "best",
+        "oldest",
+        "most"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": true,
+        "reason": "Region is in current hard-coded display order."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "st-armands-circle-restaurants",
+      "region": "Sarasota",
+      "cluster": "gulf-coast-food",
+      "updated": "2026-07-07",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/cards/date-night-dining-hero.jpg",
+        "resolver": "keyword:dining",
+        "reuseCount": 7,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Keyword/category fallback; confirm the photograph depicts this guide rather than only its broad category."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": 6,
+      "pickCount": 6,
+      "countMatches": true,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "sarasota-food",
+        "relation": "adjacent",
+        "peers": [
+          "gulf-coast-brunch-and-date-night",
+          "sarasota-half-price-dining"
+        ],
+        "action": "Differentiate by St. Armands geography and restaurant selection."
+      },
+      "staleSeason": null,
+      "unsupportedTermsToRecheck": [
+        "best"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": true,
+        "reason": "Region is in current hard-coded display order."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "best-restaurants-disney-springs",
+      "region": "Orlando",
+      "cluster": null,
+      "updated": "2026-07-07",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/cards/date-night-dining-hero.jpg",
+        "resolver": "keyword:dining",
+        "reuseCount": 7,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Keyword/category fallback; confirm the photograph depicts this guide rather than only its broad category."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": 7,
+      "pickCount": 7,
+      "countMatches": true,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "best-restaurants-disney-springs",
+        "relation": "distinct-or-unclassified",
+        "peers": [],
+        "action": "No concrete duplicate found by local title/region inventory; factual intent review unchecked."
+      },
+      "staleSeason": null,
+      "unsupportedTermsToRecheck": [
+        "best",
+        "only",
+        "most"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": true,
+        "reason": "Region is in current hard-coded display order."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "best-hotels-near-magic-kingdom",
+      "region": "Orlando",
+      "cluster": null,
+      "updated": "2026-07-07",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/brand/orlando-night-wheel-portrait.jpg",
+        "resolver": "region:orlando-fallback",
+        "reuseCount": 5,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Orlando night wheel is not a hotel or Magic Kingdom image."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": null,
+      "pickCount": 6,
+      "countMatches": null,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "best-hotels-near-magic-kingdom",
+        "relation": "distinct-or-unclassified",
+        "peers": [],
+        "action": "No concrete duplicate found by local title/region inventory; factual intent review unchecked."
+      },
+      "staleSeason": null,
+      "unsupportedTermsToRecheck": [
+        "best",
+        "only",
+        "most"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": true,
+        "reason": "Region is in current hard-coded display order."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "gatorland-vs-wild-florida",
+      "region": "Orlando",
+      "cluster": null,
+      "updated": "2026-07-07",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/brand/orlando-night-wheel-portrait.jpg",
+        "resolver": "region:orlando-fallback",
+        "reuseCount": 5,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Orlando night wheel does not depict either gator park."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": null,
+      "pickCount": 3,
+      "countMatches": null,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "gatorland-vs-wild-florida",
+        "relation": "distinct-or-unclassified",
+        "peers": [],
+        "action": "No concrete duplicate found by local title/region inventory; factual intent review unchecked."
+      },
+      "staleSeason": null,
+      "unsupportedTermsToRecheck": [
+        "best",
+        "world"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": true,
+        "reason": "Region is in current hard-coded display order."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "things-to-do-orlando-not-theme-parks",
+      "region": "Orlando",
+      "cluster": null,
+      "updated": "2026-07-07",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/brand/orlando-night-wheel-portrait.jpg",
+        "resolver": "region:orlando-fallback",
+        "reuseCount": 5,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Keyword/category fallback; confirm the photograph depicts this guide rather than only its broad category."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": 12,
+      "pickCount": 12,
+      "countMatches": true,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "orlando-broad-things",
+        "relation": "seasonal-overlap",
+        "peers": [
+          "things-to-do-orlando-summer-2026"
+        ],
+        "action": "Keep evergreen non-theme-park intent canonical; move seasonal openings into dated update sections."
+      },
+      "staleSeason": null,
+      "unsupportedTermsToRecheck": [
+        "best",
+        "only",
+        "biggest",
+        "first",
+        "most"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": true,
+        "reason": "Region is in current hard-coded display order."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "sarasota-half-price-dining",
+      "region": "Sarasota",
+      "cluster": null,
+      "updated": "2026-07-31",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/cards/date-night-dining-hero.jpg",
+        "resolver": "keyword:dining",
+        "reuseCount": 7,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Keyword/category fallback; confirm the photograph depicts this guide rather than only its broad category."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": null,
+      "pickCount": 4,
+      "countMatches": null,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "sarasota-food",
+        "relation": "adjacent",
+        "peers": [
+          "gulf-coast-brunch-and-date-night",
+          "st-armands-circle-restaurants"
+        ],
+        "action": "Differentiate by certificate/deal intent and date validity."
+      },
+      "staleSeason": null,
+      "unsupportedTermsToRecheck": [
+        "only",
+        "oldest",
+        "first",
+        "most",
+        "always"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": true,
+        "reason": "Region is in current hard-coded display order."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "orlando-in-the-rain",
+      "region": "Orlando",
+      "cluster": null,
+      "updated": "2026-07-31",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/brand/orlando-night-wheel-portrait.jpg",
+        "resolver": "region:orlando-fallback",
+        "reuseCount": 5,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Orlando night wheel does not convey indoor/rain intent."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": 9,
+      "pickCount": 9,
+      "countMatches": true,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "orlando-in-the-rain",
+        "relation": "distinct-or-unclassified",
+        "peers": [],
+        "action": "No concrete duplicate found by local title/region inventory; factual intent review unchecked."
+      },
+      "staleSeason": null,
+      "unsupportedTermsToRecheck": [
+        "best",
+        "only",
+        "first",
+        "most",
+        "perfect",
+        "never"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": true,
+        "reason": "Region is in current hard-coded display order."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "birthday-freebies-bradenton-sarasota",
+      "region": "Bradenton",
+      "cluster": null,
+      "updated": "2026-09-01",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/brand/opt/hero-1600.webp",
+        "resolver": "global-neutral",
+        "reuseCount": 16,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Global neutral fallback; no topic-specific subject."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": 26,
+      "pickCount": 26,
+      "countMatches": true,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "birthday-freebies-bradenton-sarasota",
+        "relation": "distinct-or-unclassified",
+        "peers": [],
+        "action": "No concrete duplicate found by local title/region inventory; factual intent review unchecked."
+      },
+      "staleSeason": null,
+      "unsupportedTermsToRecheck": [
+        "best",
+        "only",
+        "famous",
+        "first",
+        "most",
+        "always",
+        "never"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": false,
+        "reason": "Region is omitted from current hard-coded display order even though GUIDES imports the record."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "anna-maria-island-day-trip",
+      "region": "Bradenton",
+      "cluster": null,
+      "updated": "2026-07-10",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/cards/beach-adobestock-216195684.jpeg",
+        "resolver": "keyword:beach",
+        "reuseCount": 6,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Keyword/category fallback; confirm the photograph depicts this guide rather than only its broad category."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": null,
+      "pickCount": 3,
+      "countMatches": null,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "anna-maria-island-day-trip",
+        "relation": "distinct-or-unclassified",
+        "peers": [],
+        "action": "No concrete duplicate found by local title/region inventory; factual intent review unchecked."
+      },
+      "staleSeason": null,
+      "unsupportedTermsToRecheck": [
+        "best"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": false,
+        "reason": "Region is omitted from current hard-coded display order even though GUIDES imports the record."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "myakka-river-state-park-guide",
+      "region": "Sarasota",
+      "cluster": null,
+      "updated": "2026-07-10",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/brand/opt/hero-1600.webp",
+        "resolver": "global-neutral",
+        "reuseCount": 16,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Global neutral fallback; no topic-specific subject."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": null,
+      "pickCount": 3,
+      "countMatches": null,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "myakka-river-state-park-guide",
+        "relation": "distinct-or-unclassified",
+        "peers": [],
+        "action": "No concrete duplicate found by local title/region inventory; factual intent review unchecked."
+      },
+      "staleSeason": null,
+      "unsupportedTermsToRecheck": [
+        "best",
+        "largest",
+        "oldest",
+        "world",
+        "first"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": true,
+        "reason": "Region is in current hard-coded display order."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "ybor-city-tampa-guide",
+      "region": "Tampa",
+      "cluster": null,
+      "updated": "2026-07-10",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/brand/opt/hero-1600.webp",
+        "resolver": "global-neutral",
+        "reuseCount": 16,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Global neutral fallback; no topic-specific subject."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": null,
+      "pickCount": 3,
+      "countMatches": null,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "ybor-city-tampa-guide",
+        "relation": "distinct-or-unclassified",
+        "peers": [],
+        "action": "No concrete duplicate found by local title/region inventory; factual intent review unchecked."
+      },
+      "staleSeason": null,
+      "unsupportedTermsToRecheck": [
+        "best",
+        "only",
+        "oldest",
+        "famous",
+        "world"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": true,
+        "reason": "Region is in current hard-coded display order."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "tampa-riverwalk-guide",
+      "region": "Tampa",
+      "cluster": null,
+      "updated": "2026-07-10",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/brand/opt/hero-1600.webp",
+        "resolver": "global-neutral",
+        "reuseCount": 16,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Global neutral fallback; no topic-specific subject."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": null,
+      "pickCount": 3,
+      "countMatches": null,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "tampa-riverwalk-guide",
+        "relation": "distinct-or-unclassified",
+        "peers": [],
+        "action": "No concrete duplicate found by local title/region inventory; factual intent review unchecked."
+      },
+      "staleSeason": null,
+      "unsupportedTermsToRecheck": [
+        "best"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": true,
+        "reason": "Region is in current hard-coded display order."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "de-soto-national-memorial-bradenton",
+      "region": "Bradenton",
+      "cluster": null,
+      "updated": "2026-07-10",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/brand/opt/hero-1600.webp",
+        "resolver": "global-neutral",
+        "reuseCount": 16,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Global neutral fallback; no topic-specific subject."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": null,
+      "pickCount": 3,
+      "countMatches": null,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "de-soto-national-memorial-bradenton",
+        "relation": "distinct-or-unclassified",
+        "peers": [],
+        "action": "No concrete duplicate found by local title/region inventory; factual intent review unchecked."
+      },
+      "staleSeason": null,
+      "unsupportedTermsToRecheck": [
+        "best",
+        "first"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": false,
+        "reason": "Region is omitted from current hard-coded display order even though GUIDES imports the record."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "robinson-preserve-bradenton",
+      "region": "Bradenton",
+      "cluster": null,
+      "updated": "2026-07-10",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/brand/orlando-paddleboard-portrait.jpg",
+        "resolver": "keyword:water",
+        "reuseCount": 4,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Keyword/category fallback; confirm the photograph depicts this guide rather than only its broad category."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": null,
+      "pickCount": 3,
+      "countMatches": null,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "robinson-preserve-bradenton",
+        "relation": "distinct-or-unclassified",
+        "peers": [],
+        "action": "No concrete duplicate found by local title/region inventory; factual intent review unchecked."
+      },
+      "staleSeason": null,
+      "unsupportedTermsToRecheck": [
+        "best",
+        "first"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": false,
+        "reason": "Region is omitted from current hard-coded display order even though GUIDES imports the record."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "magical-dining-orlando-2026",
+      "region": "Orlando",
+      "cluster": null,
+      "updated": "2026-08-19",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/cards/date-night-dining-hero.jpg",
+        "resolver": "keyword:dining",
+        "reuseCount": 7,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Keyword/category fallback; confirm the photograph depicts this guide rather than only its broad category."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": null,
+      "pickCount": 10,
+      "countMatches": null,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "orlando-fall-2026",
+        "relation": "subset-overlap",
+        "peers": [
+          "fall-events-orlando-2026"
+        ],
+        "action": "Keep restaurant-program intent; link to roundup and maintain one source of program dates."
+      },
+      "staleSeason": null,
+      "unsupportedTermsToRecheck": [
+        "only",
+        "first"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": true,
+        "reason": "Region is in current hard-coded display order."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "things-to-do-orlando-summer-2026",
+      "region": "Orlando",
+      "cluster": null,
+      "updated": "2026-08-07",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/brand/orlando-night-wheel-portrait.jpg",
+        "resolver": "region:orlando-fallback",
+        "reuseCount": 5,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Keyword/category fallback; confirm the photograph depicts this guide rather than only its broad category."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": 10,
+      "pickCount": 10,
+      "countMatches": true,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "orlando-broad-things",
+        "relation": "seasonal-overlap",
+        "peers": [
+          "things-to-do-orlando-not-theme-parks"
+        ],
+        "action": "Sunset/remove dated page after its window or clearly narrow the title and canonical."
+      },
+      "staleSeason": {
+        "status": "stale-on-2026-09-09",
+        "sunset": "2026-08-30",
+        "action": "Remove or refresh the summer module; do not leave a post-sunset 2026 page indexable."
+      },
+      "unsupportedTermsToRecheck": [
+        "best",
+        "only",
+        "biggest",
+        "famous",
+        "world",
+        "first",
+        "most",
+        "greatest"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": true,
+        "reason": "Region is in current hard-coded display order."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "things-to-do-miami-summer-2026",
+      "region": "Miami",
+      "cluster": null,
+      "updated": "2026-08-07",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/brand/opt/hero-1600.webp",
+        "resolver": "global-neutral",
+        "reuseCount": 16,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Global neutral fallback; no topic-specific subject."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": 10,
+      "pickCount": 10,
+      "countMatches": true,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "things-to-do-miami-summer-2026",
+        "relation": "distinct-or-unclassified",
+        "peers": [],
+        "action": "No concrete duplicate found by local title/region inventory; factual intent review unchecked."
+      },
+      "staleSeason": {
+        "status": "stale-on-2026-09-09",
+        "sunset": "2026-08-30",
+        "action": "Remove or refresh the summer module; do not leave a post-sunset 2026 page indexable."
+      },
+      "unsupportedTermsToRecheck": [
+        "best",
+        "famous",
+        "world",
+        "first",
+        "most"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": false,
+        "reason": "Region is omitted from current hard-coded display order even though GUIDES imports the record."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "things-to-do-tampa-summer-2026",
+      "region": "Tampa",
+      "cluster": null,
+      "updated": "2026-08-07",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/brand/opt/hero-1600.webp",
+        "resolver": "global-neutral",
+        "reuseCount": 16,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Global neutral fallback; no topic-specific subject."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": 10,
+      "pickCount": 10,
+      "countMatches": true,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "tampa-broad-things",
+        "relation": "seasonal-overlap",
+        "peers": [
+          "things-to-do-in-tampa-florida"
+        ],
+        "action": "Sunset/remove dated page after its window or narrow its intent."
+      },
+      "staleSeason": {
+        "status": "stale-on-2026-09-09",
+        "sunset": "2026-08-30",
+        "action": "Remove or refresh the summer module; do not leave a post-sunset 2026 page indexable."
+      },
+      "unsupportedTermsToRecheck": [
+        "best",
+        "only",
+        "biggest",
+        "largest",
+        "oldest",
+        "most"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": true,
+        "reason": "Region is in current hard-coded display order."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "things-to-do-fort-lauderdale-summer-2026",
+      "region": "Fort Lauderdale",
+      "cluster": null,
+      "updated": "2026-08-07",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/brand/opt/hero-1600.webp",
+        "resolver": "global-neutral",
+        "reuseCount": 16,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Global neutral fallback; no topic-specific subject."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": 10,
+      "pickCount": 10,
+      "countMatches": true,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "things-to-do-fort-lauderdale-summer-2026",
+        "relation": "distinct-or-unclassified",
+        "peers": [],
+        "action": "No concrete duplicate found by local title/region inventory; factual intent review unchecked."
+      },
+      "staleSeason": {
+        "status": "stale-on-2026-09-09",
+        "sunset": "2026-08-30",
+        "action": "Remove or refresh the summer module; do not leave a post-sunset 2026 page indexable."
+      },
+      "unsupportedTermsToRecheck": [
+        "best",
+        "biggest",
+        "famous",
+        "world",
+        "first",
+        "most",
+        "guaranteed"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": false,
+        "reason": "Region is omitted from current hard-coded display order even though GUIDES imports the record."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "things-to-do-key-west-summer-2026",
+      "region": "Key West",
+      "cluster": null,
+      "updated": "2026-08-07",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/brand/opt/hero-1600.webp",
+        "resolver": "global-neutral",
+        "reuseCount": 16,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Global neutral fallback; no topic-specific subject."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": 10,
+      "pickCount": 10,
+      "countMatches": true,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "things-to-do-key-west-summer-2026",
+        "relation": "distinct-or-unclassified",
+        "peers": [],
+        "action": "No concrete duplicate found by local title/region inventory; factual intent review unchecked."
+      },
+      "staleSeason": {
+        "status": "stale-on-2026-09-09",
+        "sunset": "2026-08-30",
+        "action": "Remove or refresh the summer module; do not leave a post-sunset 2026 page indexable."
+      },
+      "unsupportedTermsToRecheck": [
+        "best",
+        "only",
+        "famous",
+        "first",
+        "most"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": false,
+        "reason": "Region is omitted from current hard-coded display order even though GUIDES imports the record."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "things-to-do-st-augustine-summer-2026",
+      "region": "St. Augustine",
+      "cluster": null,
+      "updated": "2026-08-07",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/brand/opt/hero-1600.webp",
+        "resolver": "global-neutral",
+        "reuseCount": 16,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Global neutral fallback; no topic-specific subject."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": 10,
+      "pickCount": 10,
+      "countMatches": true,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "things-to-do-st-augustine-summer-2026",
+        "relation": "distinct-or-unclassified",
+        "peers": [],
+        "action": "No concrete duplicate found by local title/region inventory; factual intent review unchecked."
+      },
+      "staleSeason": {
+        "status": "stale-on-2026-09-09",
+        "sunset": "2026-08-30",
+        "action": "Remove or refresh the summer module; do not leave a post-sunset 2026 page indexable."
+      },
+      "unsupportedTermsToRecheck": [
+        "best",
+        "oldest",
+        "famous",
+        "world",
+        "first",
+        "most"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": false,
+        "reason": "Region is omitted from current hard-coded display order even though GUIDES imports the record."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "things-to-do-daytona-beach-summer-2026",
+      "region": "Daytona Beach",
+      "cluster": null,
+      "updated": "2026-08-07",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/cards/beach-adobestock-216195684.jpeg",
+        "resolver": "keyword:beach",
+        "reuseCount": 6,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Reuses the same generic beach image as other cities; it is not Daytona-specific."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": 10,
+      "pickCount": 10,
+      "countMatches": true,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "things-to-do-daytona-beach-summer-2026",
+        "relation": "distinct-or-unclassified",
+        "peers": [],
+        "action": "No concrete duplicate found by local title/region inventory; factual intent review unchecked."
+      },
+      "staleSeason": {
+        "status": "stale-on-2026-09-09",
+        "sunset": "2026-08-30",
+        "action": "Remove or refresh the summer module; do not leave a post-sunset 2026 page indexable."
+      },
+      "unsupportedTermsToRecheck": [
+        "best",
+        "only",
+        "famous",
+        "world",
+        "most"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": false,
+        "reason": "Region is omitted from current hard-coded display order even though GUIDES imports the record."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "things-to-do-panama-city-beach-summer-2026",
+      "region": "Panama City Beach",
+      "cluster": null,
+      "updated": "2026-08-07",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/cards/beach-adobestock-216195684.jpeg",
+        "resolver": "keyword:beach",
+        "reuseCount": 6,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Reuses the same generic beach image as other cities; it is not Panama City Beach-specific."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": 10,
+      "pickCount": 10,
+      "countMatches": true,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "things-to-do-panama-city-beach-summer-2026",
+        "relation": "distinct-or-unclassified",
+        "peers": [],
+        "action": "No concrete duplicate found by local title/region inventory; factual intent review unchecked."
+      },
+      "staleSeason": {
+        "status": "stale-on-2026-09-09",
+        "sunset": "2026-08-30",
+        "action": "Remove or refresh the summer module; do not leave a post-sunset 2026 page indexable."
+      },
+      "unsupportedTermsToRecheck": [
+        "best",
+        "only",
+        "first",
+        "most",
+        "guaranteed"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": false,
+        "reason": "Region is omitted from current hard-coded display order even though GUIDES imports the record."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "things-to-do-st-petersburg-clearwater-summer-2026",
+      "region": "St. Petersburg",
+      "cluster": null,
+      "updated": "2026-08-26",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/brand/opt/hero-1600.webp",
+        "resolver": "global-neutral",
+        "reuseCount": 16,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Global neutral fallback; no topic-specific subject."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": 11,
+      "pickCount": 11,
+      "countMatches": true,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "things-to-do-st-petersburg-clearwater-summer-2026",
+        "relation": "distinct-or-unclassified",
+        "peers": [],
+        "action": "No concrete duplicate found by local title/region inventory; factual intent review unchecked."
+      },
+      "staleSeason": {
+        "status": "stale-on-2026-09-09",
+        "sunset": "2026-08-30",
+        "action": "Remove or refresh the summer module; do not leave a post-sunset 2026 page indexable."
+      },
+      "unsupportedTermsToRecheck": [
+        "best",
+        "only",
+        "largest",
+        "oldest",
+        "famous",
+        "world",
+        "first",
+        "most",
+        "perfect"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": true,
+        "reason": "Region is in current hard-coded display order."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "things-to-do-naples-summer-2026",
+      "region": "Naples",
+      "cluster": null,
+      "updated": "2026-08-07",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/brand/opt/hero-1600.webp",
+        "resolver": "global-neutral",
+        "reuseCount": 16,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Global neutral fallback; no topic-specific subject."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": 10,
+      "pickCount": 10,
+      "countMatches": true,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "things-to-do-naples-summer-2026",
+        "relation": "distinct-or-unclassified",
+        "peers": [],
+        "action": "No concrete duplicate found by local title/region inventory; factual intent review unchecked."
+      },
+      "staleSeason": {
+        "status": "stale-on-2026-09-09",
+        "sunset": "2026-08-30",
+        "action": "Remove or refresh the summer module; do not leave a post-sunset 2026 page indexable."
+      },
+      "unsupportedTermsToRecheck": [
+        "best",
+        "only",
+        "first",
+        "most"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": false,
+        "reason": "Region is omitted from current hard-coded display order even though GUIDES imports the record."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "things-to-do-in-parrish-florida",
+      "region": "Parrish",
+      "cluster": null,
+      "updated": "2026-08-13",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/brand/opt/hero-1600.webp",
+        "resolver": "global-neutral",
+        "reuseCount": 16,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Global neutral fallback; no topic-specific subject."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": 10,
+      "pickCount": 10,
+      "countMatches": true,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "things-to-do-in-parrish-florida",
+        "relation": "distinct-or-unclassified",
+        "peers": [],
+        "action": "No concrete duplicate found by local title/region inventory; factual intent review unchecked."
+      },
+      "staleSeason": null,
+      "unsupportedTermsToRecheck": [
+        "best",
+        "first",
+        "most",
+        "perfect",
+        "never"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": false,
+        "reason": "Region is omitted from current hard-coded display order even though GUIDES imports the record."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "things-to-do-in-sarasota-florida",
+      "region": "Sarasota",
+      "cluster": null,
+      "updated": "2026-08-13",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/guides/things-to-do-in-sarasota-florida.jpg",
+        "resolver": "slug-owned",
+        "reuseCount": 1,
+        "localRefBroken": false,
+        "severity": "pass",
+        "note": "Keyword/category fallback; confirm the photograph depicts this guide rather than only its broad category."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": 17,
+      "pickCount": 17,
+      "countMatches": true,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "sarasota-broad-things",
+        "relation": "direct-overlap",
+        "peers": [
+          "things-to-do-sarasota"
+        ],
+        "action": "Choose one canonical broad Sarasota guide; redirect, consolidate, or make one explicitly beyond-the-basics."
+      },
+      "staleSeason": null,
+      "unsupportedTermsToRecheck": [
+        "best",
+        "only",
+        "world",
+        "first",
+        "most",
+        "always",
+        "never"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": true,
+        "reason": "Region is in current hard-coded display order."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "things-to-do-in-tampa-florida",
+      "region": "Tampa",
+      "cluster": null,
+      "updated": "2026-08-26",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/brand/opt/hero-1600.webp",
+        "resolver": "global-neutral",
+        "reuseCount": 16,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "Global neutral fallback; no topic-specific subject."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": 22,
+      "pickCount": 22,
+      "countMatches": true,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "tampa-broad-things",
+        "relation": "seasonal-overlap",
+        "peers": [
+          "things-to-do-tampa-summer-2026"
+        ],
+        "action": "Keep evergreen Tampa guide canonical; move seasonal picks into a dated section or separate clearly seasonal intent."
+      },
+      "staleSeason": null,
+      "unsupportedTermsToRecheck": [
+        "best",
+        "only",
+        "largest",
+        "oldest",
+        "famous",
+        "world",
+        "first",
+        "most"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": true,
+        "reason": "Region is in current hard-coded display order."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "gulf-coast-brunch-and-date-night",
+      "region": "Sarasota",
+      "cluster": "gulf-coast-food",
+      "updated": "2026-08-19",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/guides/gulf-coast-brunch-and-date-night.jpg",
+        "resolver": "slug-owned",
+        "reuseCount": 1,
+        "localRefBroken": false,
+        "severity": "pass",
+        "note": "Keyword/category fallback; confirm the photograph depicts this guide rather than only its broad category."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": null,
+      "pickCount": 6,
+      "countMatches": null,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "sarasota-food",
+        "relation": "adjacent",
+        "peers": [
+          "st-armands-circle-restaurants",
+          "sarasota-half-price-dining"
+        ],
+        "action": "Differentiate by occasion and geography in titles, intros, and internal links."
+      },
+      "staleSeason": null,
+      "unsupportedTermsToRecheck": [
+        "only",
+        "oldest",
+        "famous",
+        "first",
+        "most",
+        "never"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": false,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": true,
+        "reason": "Region is in current hard-coded display order."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "orlando-halloween-food-2026",
+      "region": "Orlando",
+      "cluster": "orlando-fall-2026",
+      "updated": "2026-09-02",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/guides/orlando-halloween-food-2026/hero.webp",
+        "resolver": "slug-owned",
+        "reuseCount": 1,
+        "localRefBroken": false,
+        "severity": "pass",
+        "note": "Keyword/category fallback; confirm the photograph depicts this guide rather than only its broad category."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": null,
+      "pickCount": 23,
+      "countMatches": null,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "orlando-fall-2026",
+        "relation": "subset-overlap",
+        "peers": [
+          "fall-events-orlando-2026"
+        ],
+        "action": "Keep food-specific intent; link to roundup and do not duplicate event date prose."
+      },
+      "staleSeason": null,
+      "unsupportedTermsToRecheck": [
+        "best",
+        "only",
+        "first",
+        "most"
+      ],
+      "inlineImages": 23,
+      "inlineImageEvidence": "Editorial visualizations with explicit may-differ note; not official product photography.",
+      "sourceRegisterPresent": true,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": true,
+        "reason": "Region is in current hard-coded display order."
+      },
+      "localRefsMissing": []
+    },
+    {
+      "slug": "fall-events-orlando-2026",
+      "region": "Orlando",
+      "cluster": "orlando-fall-2026",
+      "updated": "2026-09-07",
+      "httpStatus": 200,
+      "hero": {
+        "asset": "/cards/date-night-dining-hero.jpg",
+        "resolver": "keyword:dining (false-positive date-to-dated)",
+        "reuseCount": 7,
+        "localRefBroken": false,
+        "severity": "needs-art-direction",
+        "note": "The date keyword branch matches \"dated\" and sends this event guide to dining art."
+      },
+      "repeatedHeroDescription": true,
+      "titleCount": null,
+      "pickCount": 18,
+      "countMatches": null,
+      "exactDescriptionDuplicate": false,
+      "topicAudit": {
+        "cluster": "orlando-fall-2026",
+        "relation": "subset-overlap",
+        "peers": [
+          "orlando-halloween-food-2026",
+          "magical-dining-orlando-2026"
+        ],
+        "action": "Keep roundup as hub and link food/event subguides with distinct anchors; avoid repeating full lists."
+      },
+      "staleSeason": null,
+      "unsupportedTermsToRecheck": [
+        "best",
+        "only",
+        "biggest",
+        "largest",
+        "famous",
+        "world",
+        "first",
+        "most"
+      ],
+      "inlineImages": 0,
+      "inlineImageEvidence": "No pick-level inline images or per-guide image evidence field.",
+      "sourceRegisterPresent": true,
+      "factualRecheck": "unchecked",
+      "hub": {
+        "linkedByCurrentGuidesHub": true,
+        "reason": "Region is in current hard-coded display order."
+      },
+      "localRefsMissing": []
+    }
+  ]
+}

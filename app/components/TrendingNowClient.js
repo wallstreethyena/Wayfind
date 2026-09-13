@@ -212,7 +212,7 @@ export default function TrendingNowClient() {
       footNote="Trending is measured from real popularity signals (search interest and cross-platform attention), never door counts or paid placement. The Wayfind Score stays the same for everyone."
     >
       {rows === null ? (
-        <div style={{ marginTop: 18 }}>{[0, 1, 2, 3].map((i) => <div key={i} className="wf-skeleton" style={{ height: 88, borderRadius: 14, marginBottom: 12, background: "#0B0E15" }} />)}</div>
+        <div style={{ marginTop: 18 }}>{[0, 1, 2, 3].map((i) => <div key={i} className="wf-sk" style={{ height: 88, borderRadius: 14, marginBottom: 12, background: "#0B0E15" }} />)}</div>
       ) : rows.length ? (
         <>
           <CollectionFilter sortBy={sortBy} onSort={setSortBy} radius={radius} onRadius={setRadius} city={loc.city} showPrice={false} />

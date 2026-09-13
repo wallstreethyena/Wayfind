@@ -48,7 +48,7 @@ ok(/maxWidth: 560/.test(g) && /margin: "12px auto 18px"/.test(g), "the card is w
 // v8.11: the onUnlocked wiring left with the render site; the re-check
 // machinery (gateBump in the effect deps) stays so a future placement gets
 // the disappears-once-covered behaviour back for free.
-ok(/\[screen, center, user, gateBump\]/.test(home), "the gate effect still re-checks on gateBump — the re-check machinery stays for a future placement");
+ok(/\[screen, center, user, gateBump, supabaseReady\]/.test(home), "the gate effect still re-checks on gateBump and when lazy Supabase becomes ready");
 
 console.log(`test-city-gate: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);

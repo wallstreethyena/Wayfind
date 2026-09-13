@@ -106,7 +106,7 @@ function resolveChromium() {
 }
 const launchOpts = resolveChromium();
 if (!launchOpts) {
-  console.log("test-drop-rail-parity: SKIPPED — no Chromium on this machine (build image); the parity contract is enforced on cloud dev and the Mac merge pipeline, both of which run it with a real browser");
+  console.log("test-drop-rail-parity: NOT RUN — Chromium is unavailable; no rendered parity claim was verified on this machine");
   process.exit(0);
 }
 const browser = await chromium.launch(launchOpts);

@@ -35,7 +35,12 @@ export async function GET(req) {
     // No bytes, no poster plate. The typographic card is a real card, not a
     // degraded one — it is what every other share surface on the site ships.
     if (!poster) return await shareCardResponse(railModel(rail), { cache: SHARE_CACHE.live });
-    return await shareCardResponse(railCardModel(rail, poster), { cache: SHARE_CACHE.live });
+    const model = railCardModel(rail, poster);
+    // Owner-approved Cindy portrait preview uses the same safe poster renderer.
+    if (rail.id === "cindy" && url.searchParams.get("creator") === "1") {
+      Object.assign(model, { lines: ["Cindy Selects", "Coffee. Bites.", "Little escapes."], size: 64, top: 180, accent: [1, 2], accentColor: "#edc9a3", tint: "linear-gradient(135deg,#542b31,#25191a)", foot: "Her reviewed places. Every original video.", cta: "EXPLORE THE COLLECTION" });
+    }
+    return await shareCardResponse(model, { cache: SHARE_CACHE.live });
   } catch (e) {
     return await shareCardResponse(defaultModel(), { cache: SHARE_CACHE.live });
   }

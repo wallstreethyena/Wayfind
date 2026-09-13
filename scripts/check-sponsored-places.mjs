@@ -155,9 +155,10 @@ if (rio) {
   ok(h.photo && (h.photo.startsWith("/partners/") || h.photo.startsWith("/api/photo?ref=")), "the photo is self-hosted or goes through Wayfind's own proxy");
   ok(!/googleapis\.com/.test(String(h.photo)) && !/key=/.test(String(h.photo)), "…and is never a keyed Google URL");
 }
-// The component may not carry a score of its own — it must ask PlaceScoreChip,
-// the same component every unpaid card uses.
-ok(/PlaceScoreChip/.test(CARD_CODE), "the card renders the shared PlaceScoreChip");
+// The component may not carry a score of its own. Delegation to the canonical
+// card also delegates to its shared WayfindScoreBadge implementation.
+ok(/import IconicPlaceCard from ["']\.\/IconicPlaceCard["']/.test(CARD_CODE) && /<IconicPlaceCard\b/.test(CARD_CODE),
+  "the sponsored surface delegates score and card chrome to IconicPlaceCard");
 ok(!/\b(?:score|wfScore|governed_score)\s*[:=]\s*\d/i.test(CARD_CODE), "the card hardcodes no score value");
 ok(!/wayfindScore\s*\(/.test(CARD_CODE), "the card does not compute a score of its own — hydrate owns that");
 
@@ -211,7 +212,8 @@ if (anchor) {
   ok(/aria-label="/.test(a), "the CTA has an accessible name that says where it goes");
 }
 // A reserved media box, so a paid card is never the thing that shifts the feed.
-ok(/aspect-ratio:\s*3\s*\/\s*2/.test(html) || /aspectRatio/.test(CARD_CODE), "the media box is reserved before the image lands");
+ok(/class="wf-place-card-media"/.test(html) && /class="wf-place-card"/.test(html),
+  "the shared fixed card/media boxes are present before the image lands");
 ok(/loading="lazy"/.test(html), "the sponsor photo is lazy — it must not compete with LCP");
 
 /* ── 6. HOW HOME.JS REACHES IT (the bundle wall) ────────────────────────────*/
@@ -306,16 +308,21 @@ ok(/does not buy a Wayfind Score|not buy a Wayfind Score/i.test(idxHtml), "…an
 
 /* ── 6c. THE PREMIUM CARD (v8.43.1) ────────────────────────────────────────
    "Premium" here is a set of decisions, not a mood, so each one is pinned. */
-ok(/linear-gradient\(90deg/.test(CARD_CODE), "the advertiser's colour appears as a single edge rule, not a background wash");
+const sharedCardCss = readFileSync(join(ROOT, "app/components/css.js"), "utf8").replace(/\s+/g, "");
+ok(/\.wf-place-card-attachment\{[^}]*border-top:3pxsolidvar\(--wf-place-card-accent/.test(sharedCardCss)
+    && /class="wf-place-card-attachment"[^>]*--wf-place-card-accent:#6D2E8E/.test(html),
+  "the advertiser's colour is supplied to the shared attachment's single edge rule");
 ok(html.includes("Google reviews"), "the review count is attributed to Google on the card");
-ok(/<h3[^>]*>Rio Body Wax<\/h3>/.test(html), "the business name is the card's heading element, not the ad copy");
+ok(/class="wf-place-card-name"[^>]*>Rio Body Wax<\/a>/.test(html),
+  "the business name is the canonical card title, not the ad copy");
 ok(html.includes('href="/partners/rio-body-wax-gastonia"'), "the card links into the partner page");
 ok(html.includes('href="tel:+17046712160"'), "the card offers the real phone number");
 ok(/google\.com\/maps/.test(html), "the card offers directions");
 // One filled action, and only one. A second filled button is how a paid unit
 // stops reading premium and starts reading like a banner.
-const filled = (html.match(/background:#6D2E8E/g) || []).length;
-ok(filled === 1, `exactly one filled brand button on the card, got ${filled}`);
+const filled = (html.match(/class="wf-place-card-attachment-primary"/g) || []).length;
+ok(filled === 1 && /\.wf-place-card-attachment-primary\{[^}]*background:var\(--wf-place-card-accent/.test(sharedCardCss),
+  `exactly one shared filled brand button renders on the card, got ${filled}`);
 
 
 /* ── 8. THE RAIL PLACEMENT (v8.69, owner 2026-08-26) ────────────────────────

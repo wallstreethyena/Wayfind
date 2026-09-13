@@ -8,7 +8,11 @@
 //   2. The breaker round-trips in-process: tripped -> open -> carries reason.
 //   3. classifyHealth escalates a "billing:"-noted dead run after ONE run,
 //      while generic failures still wait for DEAD_RUN_THRESHOLD.
-import { classifyProviderFailure, tripBreaker, breakerOpen } from "../lib/providerHealth.js";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
+import { execFileSync } from "node:child_process";
+import { classifyProviderFailure } from "../lib/providerHealth.js";
 import { classifyHealth, DEAD_RUN_THRESHOLD } from "../lib/jobPulse.js";
 
 let pass = 0;
@@ -25,15 +29,68 @@ ok(classifyProviderFailure(429, "Too many requests, please slow down") === null,
 ok(classifyProviderFailure(400, "max_tokens: invalid value") === null, "an ordinary 400 does not classify");
 ok(classifyProviderFailure(500, "overloaded") === null, "a 500 does not classify");
 
-// ── 2. Breaker round-trip (in-process memory tier of serverCache) ────────────
+// -- 2. Breaker round-trip, IN A CHILD WITH AN EXPLICIT MINIMAL ENV ---------
+// This used to trip a breaker named "test-provider" in THIS process.
+// lib/serverCache's cget/cset fall through to the shared wf_places_cache
+// whenever Supabase credentials are in scope -- which they are inside a
+// Vercel build -- so the "fixture" was one production row shared by every
+// process running the suite. Two observed consequences on 2026-09-09: this
+// guard left a live 30-minute breaker row behind on every build, and
+// check-editorial-coverage-pipeline's CLAUSE C (whose fixture was also fixed)
+// failed its "must start closed" precondition whenever two builds overlapped,
+// turning every preview deployment in the repo red.
+//
+// The round trip now runs in a child with `env: { NODE_ENV: "test" }`, the
+// shape scripts/check-dead-provider-parked.mjs already uses and
+// check-guard-hermeticity requires: no Supabase credentials reach the child,
+// serverCache stays on its in-memory tier, nothing shared is written, and no
+// process.env read in this parent decides a verdict.
+const REPO = fileURLToPath(new URL("..", import.meta.url));
 {
-  await tripBreaker("test-provider", "billing", "credit balance too low");
-  const open = await breakerOpen("test-provider");
-  ok(!!open, "a tripped breaker reads back open");
-  ok(open.kind === "billing", "the breaker carries the failure kind");
-  ok(/credit balance/.test(open.reason || ""), "…and the provider's reason, so the alert can say WHAT to fix");
-  const other = await breakerOpen("some-other-provider");
-  ok(!other, "an untripped provider reads closed — breakers are per-provider");
+  const probe = `
+import { breakerOpen, tripBreaker } from "${path.join(REPO, "lib/providerHealth.js")}";
+const out = {};
+out.closedBefore = await breakerOpen("test-provider");
+await tripBreaker("test-provider", "billing", "credit balance too low");
+out.open = await breakerOpen("test-provider");
+out.other = await breakerOpen("some-other-provider");
+console.log(JSON.stringify(out));
+`;
+  let R = {};
+  try {
+    const stdout = execFileSync(process.execPath, ["--input-type=module", "-e", probe], {
+      env: { NODE_ENV: "test" }, encoding: "utf8", timeout: 30000,
+    });
+    R = JSON.parse(String(stdout).trim().split("\n").pop());
+  } catch (e) {
+    fail("the breaker probe must run at all: " + String((e && e.message) || e).slice(0, 200));
+  }
+  ok(R.closedBefore === null, "precondition: with no Supabase env the fixture starts CLOSED -- it cannot inherit another run's state");
+  ok(!!R.open, "a tripped breaker reads back open");
+  ok(R.open.kind === "billing", "the breaker carries the failure kind");
+  ok(/credit balance/.test(R.open.reason || ""), "...and the provider's reason, so the alert can say WHAT to fix");
+  ok(!R.other, "an untripped provider reads closed -- breakers are per-provider");
+}
+
+// -- 2b. Both in-process breaker fixtures are isolated, by construction ------
+// The rule the incident reduces to: a guard that trips a breaker must not do
+// it in a process that can reach the shared cache. Asserted on the two files
+// that trip one, by name, reading their CODE with comments stripped.
+{
+  const dir = new URL("./", import.meta.url);
+  const stripComments = (src) => src.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ");
+  const ENV_LITERAL = /env:\s*\{\s*NODE_ENV:\s*"test"\s*\}/;
+  for (const file of ["test-provider-health.mjs", "check-editorial-coverage-pipeline.mjs"]) {
+    const code = stripComments(readFileSync(new URL(file, dir), "utf8"));
+    ok(ENV_LITERAL.test(code),
+      `${file}: its breaker round-trip must run in a child spawned with an explicit minimal env, in CODE -- inheriting this process's env puts the shared wf_places_cache back in reach and restores the 2026-09-09 race`);
+    ok(!/env:\s*process\.env/.test(code),
+      `${file}: the probe child must never inherit process.env`);
+  }
+  ok(!ENV_LITERAL.test(stripComments('// env: { NODE_ENV: "test" } in a comment only')),
+    "self-test: the literal named only in a comment does NOT satisfy the check");
+  ok(ENV_LITERAL.test(stripComments('execFileSync(x, y, { env: { NODE_ENV: "test" } });')),
+    "self-test: a real spawn IS detected after stripping (the check is not vacuously false)");
 }
 
 // ── 3. Escalation: billing pages after ONE dead run ──────────────────────────

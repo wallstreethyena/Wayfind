@@ -29,7 +29,7 @@ import { getInventoryIdentity } from "../../../../lib/inventoryIdentity.js";
 export const dynamic = "force-dynamic";
 
 const FIELDS = {
-  place: "id,location,displayName,formattedAddress,types,rating,userRatingCount,photos,priceLevel,regularOpeningHours,businessStatus",
+  place: "id,location,displayName,formattedAddress,types,primaryType,rating,userRatingCount,photos,priceLevel,regularOpeningHours,businessStatus",
   area: "location,formattedAddress,displayName",
   detail: "editorialSummary,reviews,regularOpeningHours,nationalPhoneNumber,websiteUri,photos",
 };
@@ -48,7 +48,10 @@ async function inventoryPlace(placeId) {
     location: { latitude: row.lat, longitude: row.lng },
     rating: typeof signals.rating === "number" ? signals.rating : null,
     userRatingCount: Number(signals.reviews) || 0,
-    types: row.category ? [row.category] : [],
+    types: Array.isArray(row.google_types) && row.google_types.length
+      ? row.google_types
+      : (row.primary_type ? [row.primary_type] : (row.category ? [row.category] : [])),
+    primaryType: row.primary_type || null,
     businessStatus: row.status || null,
     photos: [{ _directUri: `/api/photo?place=${encodeURIComponent(row.place_id)}&w=640` }],
   };
@@ -63,6 +66,12 @@ export async function POST(req) {
   const kind = FIELDS[body.kind] ? body.kind : "place";
   const sessionToken = typeof body.sessionToken === "string" ? body.sessionToken.slice(0, 100) : undefined;
   if (!PLACE_ID_RX.test(placeId)) return NextResponse.json({ error: "bad request" }, { status: 400 });
+  // Card navigation needs identity, not paid enrichment. Open owned places
+  // before the spending gate so a closed budget cannot strand /p links.
+  if (kind === "place") {
+    const owned = await inventoryPlace(placeId);
+    if (owned) return NextResponse.json({ place: owned, source: "inventory" });
+  }
   if (!serverKey) {
     const fallback = await inventoryPlace(placeId);
     return fallback

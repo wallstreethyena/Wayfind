@@ -150,3 +150,46 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node scripts/check-migration-reconciliation.mjs
+
+  # HEARTBEAT. 2026-09-09: every canary run failed for at least 36 hours and
+  # nothing said so. A workflow that fails inside GitHub writes no wf_job_pulse
+  # row, and lib/jobPulse.classifyHealth can only classify rows that exist — so
+  # both a failing canary and an absent one read as silence, which reads as
+  # health. Measured the same day: this workflow ran 10 times in 36 hours
+  # against a declared */30 (GitHub drops scheduled runs under load), so its
+  # absence needs to be detectable, not just its failure.
+  #
+  # `needs` every job and `if: always()` so this runs whatever they did, and
+  # the outcome is the AGGREGATE: success only when all five passed. Anything
+  # else — one red job, a cancellation, a skip — beats as a failure, because a
+  # canary that did not fully run must never look like one that passed.
+  heartbeat:
+    name: heartbeat
+    needs: [incident-delivery, routes, inventory, promote-metros, deploy-contract]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Record canary heartbeat
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          DELIVERY: ${{ needs.incident-delivery.result }}
+          ROUTES: ${{ needs.routes.result }}
+          INVENTORY: ${{ needs.inventory.result }}
+          METROS: ${{ needs.promote-metros.result }}
+          CONTRACT: ${{ needs.deploy-contract.result }}
+        run: |
+          FAILED=""
+          for pair in "incident-delivery:$DELIVERY" "routes:$ROUTES" "inventory:$INVENTORY" "promote-metros:$METROS" "deploy-contract:$CONTRACT"; do
+            name="${pair%%:*}"; result="${pair#*:}"
+            [ "$result" = "success" ] || FAILED="$FAILED $name=$result"
+          done
+          if [ -z "$FAILED" ]; then
+            node scripts/record-workflow-pulse.mjs --job=canary --outcome=success
+          else
+            node scripts/record-workflow-pulse.mjs --job=canary --outcome=failure --note="jobs not green:$FAILED"
+          fi

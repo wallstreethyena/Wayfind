@@ -98,8 +98,8 @@ function browseFromLibrary(cat, sub, n = BROWSE_INVENTORY_N) {
 // ── 1. Cafés: identity count === browse count ───────────────────────────────
 const cafeIdentity = identityRows("food", "cafes");
 const cafeBrowse = browseFromLibrary("food", "cafes");
-ok(cafeIdentity.length === 12 + 1,
-  `Cafés identity over the fixture is the 12 roasters + Keke's (cafe in types) — got ${cafeIdentity.length}`);
+ok(cafeIdentity.length === 12,
+  `Cafés identity over the fixture is the 12 roasters, never a breakfast-primary Keke's — got ${cafeIdentity.length}`);
 ok(cafeBrowse.length === cafeIdentity.length,
   `Cafés browse returns the identity count (${cafeIdentity.length}), not a top-N slice (got ${cafeBrowse.length})`);
 

@@ -67,7 +67,7 @@ ok(ranked.find((r) => r.id === "b").deduction >= 0.4, "the deduction is still ca
     "…while the SHARE card stays unversioned — that route is Cache-Control: immutable and must be the same bytes on every deploy");
 }
 ok(INTENT_PAGES["date-night"].card.art === "/cards/date-night-owner.png", "date-night share card uses the same owner poster");
-ok(INTENT_PAGES.family.art === "/cards/family-adobestock-794890098.jpeg", "family landing page matches its homepage hero card");
+ok(INTENT_PAGES.family.art === "/cards/family-day-solved-v2.webp", "family landing page uses the owner's polished family poster");
 const ic = readFileSync(new URL("../app/components/IntentPageClient.js", import.meta.url), "utf8");
 ok(ic.includes("ranked lower for the drive"), "penalized rows explain themselves");
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");

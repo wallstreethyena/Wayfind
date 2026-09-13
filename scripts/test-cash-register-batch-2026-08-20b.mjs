@@ -21,7 +21,7 @@
 import { readFileSync } from "node:fs";
 import { commerceHref } from "../lib/commerce.js";
 import { PARTNER_OFFER_REGISTRY, partnerOfferById } from "../lib/partnerOfferRegistry.js";
-import { PLACE_PARTNER_PICKS, placePartnerPick } from "../lib/placePartnerPicks.js";
+import { PLACE_PARTNER_PICKS, RETIRED_VIATOR_PINS, pinServeability, placePartnerPick } from "../lib/placePartnerPicks.js";
 import { PROVIDERS, resolveOffer } from "../lib/commerceProviders.js";
 import { SUMMER_UNIVERSE } from "../lib/summerUniverse.js";
 import { editorialFor } from "../lib/editorial.js";
@@ -74,6 +74,25 @@ const BATCH = [
 ];
 
 ok(BATCH.length === 5, `batch 2 table is the verified hops (got ${BATCH.length}) — an empty table makes every assertion below vacuous`);
+
+// ── 2026-09-10: FOUR OF THESE FIVE PRODUCTS ARE GONE ─────────────────────
+// The 2026-09-09 catalogue audit found no wf_experiences row for 386845P1,
+// 236733P1, 431125P5 or 5608638P1. Every "returns a pin / builds a hop"
+// assertion below was therefore certifying a Book button that resolved to
+// offer-not-found and bounced the customer back to our homepage.
+//
+// The H1 / pageNamesPlace assertions still run over the WHOLE table: those test
+// the naming probe, which is unaffected by whether the product is still sold,
+// and they are the record of what was verified on the live page. Only the
+// "this renders a paid CTA" assertions split.
+const RETIRED = new Set(RETIRED_VIATOR_PINS.map((r) => String(r.offerId).toUpperCase()));
+for (const row of BATCH) row.retired = RETIRED.has(String(row.sku).toUpperCase());
+const LIVE_BATCH = BATCH.filter((r) => !r.retired);
+const DEAD_BATCH = BATCH.filter((r) => r.retired);
+ok(LIVE_BATCH.length >= 1,
+  `at least one batch-2 pin is still live and fully asserted (got ${LIVE_BATCH.length}) — at zero, the paid-CTA assertions stop running entirely`);
+ok(DEAD_BATCH.length >= 1,
+  `the retired-pin branch is exercised (got ${DEAD_BATCH.length})`);
 
 ok(placePartnerPick({ name: "Shell Key Preserve" })?.offerId === SHELL_SKU,
   "Shell Key keeps 173028P1 — this batch did not steal the founder pin");
@@ -128,8 +147,14 @@ ok(placePartnerPick({ name: "Bridge Street Pier" }) === null
   "Bridge Street Pier stays empty");
 ok(placePartnerPick({ name: "John Pennekamp Coral Reef State Park" })?.offerId !== "5608638P1",
   "Huka Venice SKU is not pinned on the Keys reef park");
-ok(placePartnerPick({ name: "Keys Huka Dive" })?.offerId === "5608638P1",
-  "Keys Huka Dive is pinned to the Venice Huka product");
+// 5608638P1 is retired (absent from wf_experiences). The property defended
+// here — Keys Huka Dive never wears a Keys-reef SKU, and the Keys reef park
+// never wears the Venice Huka SKU — survives intact when the answer is null,
+// and the negative assertion just above still runs unchanged.
+ok(placePartnerPick({ name: "Keys Huka Dive" }) === null,
+  "Keys Huka Dive paints no Book CTA — 5608638P1 is retired, and it never acquires a substitute product");
+ok(pinServeability({ provider: "viator", offerId: "5608638P1" }).reason === "retired-absent-from-catalogue",
+  "…5608638P1 is refused for the recorded catalogue reason");
 ok(BATCH.find((r) => r.name === "Keys Huka Dive")?.destId === "276",
   "Keys Huka dest is Florida 276, not a Keys-reef destination");
 
@@ -141,6 +166,16 @@ for (const row of BATCH) {
     `a title that does not name ${row.name} is rejected — the H1 probe can fail`);
 
   const pick = placePartnerPick({ name: row.name });
+  if (row.retired) {
+    ok(pick === null, `${row.name}: no pin — ${row.sku} is absent from the catalogue and must not paint a Book button`);
+    ok(pinServeability({ provider: "viator", offerId: row.sku }).reason === "retired-absent-from-catalogue",
+      `${row.name}: ${row.sku} is refused for the recorded catalogue reason, not by silent deletion`);
+    ok(placePartnerPick({ name: row.name.toLowerCase() }) === null,
+      `${row.name}: containment is case-insensitive, exactly as the match is`);
+    ok(!PLACE_PARTNER_PICKS.some((r) => String(r.offerId).toUpperCase() === String(row.sku).toUpperCase()),
+      `${row.name}: ${row.sku} is not still pinned under some other alias`);
+    continue;
+  }
   ok(!!pick, `placePartnerPick({ name: "${row.name}" }) returns a pin`);
   ok(pick && pick.provider === "viator", `${row.name} is the viator provider (got ${pick && pick.provider})`);
   ok(pick && pick.offerId === row.sku, `${row.name} offerId is ${row.sku} (got ${pick && pick.offerId})`);
@@ -197,7 +232,18 @@ ok(PROVIDERS.viator.table === "wf_experiences" && PROVIDERS.viator.idColumn === 
 ok(typeof PROVIDERS.viator.resolve !== "function",
   "viator has no registry resolve that would need a pasted product URL");
 
-for (const row of BATCH) {
+// A retired code's production reality: the catalogue answers with no rows and
+// the redirect must fail closed rather than guess a destination.
+for (const row of DEAD_BATCH) {
+  const gone = await resolveOffer("viator", row.sku, {
+    env: () => ({ url: "https://wayfind-guard.invalid", key: "guard-key" }),
+    fetch: async () => ({ ok: true, json: async () => [] }),
+  });
+  ok(gone.error === "offer-not-found" && !gone.dest,
+    `${row.name}: an empty catalogue makes ${row.sku} fail closed (got ${gone.error || "a dest"})`);
+}
+
+for (const row of LIVE_BATCH) {
   const canonical = `https://www.viator.com/tours/Wayfind-Guard/d${row.destId}-${row.sku}`;
   let lookedUp = "";
   const resolved = await resolveOffer("viator", row.sku, {
@@ -252,8 +298,18 @@ function stripComments(src) {
 const placeSrc = stripComments(readFileSync(new URL("../lib/placePartnerPicks.js", import.meta.url), "utf8"));
 ok(!/https:\/\/www\.viator\.com/i.test(placeSrc),
   "lib/placePartnerPicks.js has no raw viator.com URL — cards store the opaque offer id");
-ok(/\b386845P1\b/.test(placeSrc) && /\b236733P1\b/.test(placeSrc) && /\b431125P5\b/.test(placeSrc) && /\b179637P1\b/.test(placeSrc) && /\b5608638P1\b/.test(placeSrc),
-  "positive control: batch 2 product codes are declared as placePick offer ids");
+// Positive control, re-pointed 2026-09-10. Four of the five codes it named are
+// retired, and they still appear in this file's source via RETIRED_VIATOR_PINS,
+// so the old form would have gone on passing while proving nothing. Asserted on
+// the placePick(...) DECLARATION, not a bare code substring, for the same reason.
+ok(/placePick\("179637P1"/.test(placeSrc),
+  "positive control: the surviving batch-2 product code is declared as a placePick(...) offer id");
+for (const row of DEAD_BATCH) {
+  ok(!new RegExp(`placePick\\(\\s*"${row.sku}"`).test(placeSrc),
+    `${row.sku} is no longer declared as a placePick(...) pin — the product is catalogue-absent`);
+  ok(RETIRED_VIATOR_PINS.some((r) => r.offerId === row.sku),
+    `${row.sku} is recorded in RETIRED_VIATOR_PINS, so the replacement worklist knows about it`);
+}
 ok(/\b173028P1\b/.test(placeSrc),
   "positive control: Shell Key product code is still declared");
 ok(!PLACE_PARTNER_PICKS.some((r) => String(r.offerId).toUpperCase() === "22211P1"),

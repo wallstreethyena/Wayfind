@@ -43,7 +43,12 @@ for (const t of TEMPLATES) {
   // Positional, not textual: find the media element's JSX block and require the
   // wordmark not to appear within it.
   const mediaIdx = src.indexOf(`${t.media}\`}`) >= 0 ? src.indexOf(`${t.media}\`}`) : src.indexOf(`"${t.media}"`);
-  const markIdx = src.indexOf("wayfind-wordmark");
+  // v9 (lib/seasonalBrand.js): the <img> no longer carries a literal
+  // "wayfind-wordmark" path — its src is now a resolver call
+  // (`src={seasonalWordmark.png}`) so the mark can go seasonal. Same
+  // positional anchor, re-pointed at the new syntactic marker rather than
+  // the retired literal.
+  const markIdx = src.indexOf("src={seasonalWordmark.png}");
   const chromeIdx = src.lastIndexOf(t.chrome, markIdx);
   ok(markIdx > 0, `${name}: renders the wordmark`);
   ok(chromeIdx > 0 && chromeIdx < markIdx,

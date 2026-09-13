@@ -21,6 +21,8 @@
 //  4. A SECOND CARD SHAPE. The rail renders the shared RailCard, like every
 //     other rail on the page.
 import { readFileSync } from "node:fs";
+import path from "node:path";
+import { loadComponent } from "./lib/jsxLoad.mjs";
 
 const bn = readFileSync("app/components/BestNearby.js", "utf8");
 const failures = [];
@@ -113,11 +115,25 @@ ok(/p\.creator_video \?/.test(code),
 // money may fill the chip row: creator video (score disclosure) and Deal.
 ok(!/experienceTags\(tagged/.test(code),
   "the top40 card passes NO experience-tag bubbles — Deal and creator-video only (v7.15)");
-ok(/\.wf-rail-top40 \.wf-place-card-highlights\{flex-wrap:wrap/.test(readFileSync("app/components/css.js", "utf8")),
-  "…and the tag row is allowed to wrap, so a full tag set is shown rather than clipped to one line");
+// Evaluate the exported stylesheet after template interpolation. Reading the
+// JavaScript source makes `${...}` braces look like the end of a CSS rule and
+// produced a false failure when the global contract moved to shared constants.
+const { WF_PLACE_CARD_CSS } = await loadComponent(path.resolve("app/components/css.js"), path.resolve("."));
+const highlightsRule = (String(WF_PLACE_CARD_CSS).match(/\.wf-place-card-highlights\{([^}]*)\}/) || ["", ""])[1];
+ok(/flex-wrap:\s*nowrap/.test(highlightsRule) && /overflow-x:\s*auto/.test(highlightsRule),
+  "…and the shared tag lane keeps the full tag set reachable by horizontal scroll rather than clipping it");
 
 // ── 4. VERIFIED OFFERS ONLY ─────────────────────────────────────────────────
-ok(/const partner = placePartnerPick\(p\)/.test(code), "the ticket CTA is gated on a resolved partner pick");
+// 2026-09-10: this pinned the literal `placePartnerPick(p)` and went red the
+// moment the call gained its live-quarantine argument — a guard that fires on
+// CORRECT code. Re-pointed to the invariant it was written for, and tightened
+// while we are here: the CTA must be gated on a resolved pick AND that pick
+// must be resolved against the live verdict, or this rail keeps painting a Book
+// button for a product that died until somebody ships a retirement.
+ok(/const partner = placePartnerPick\(\s*p\s*,\s*\w+\s*\)/.test(code),
+  "the ticket CTA is gated on a partner pick resolved WITH the live quarantine verdict");
+ok(/usePinQuarantine\s*\(\s*\)/.test(code),
+  "…and this file subscribes to that verdict itself rather than trusting a caller to have done it");
 ok(/cta=\{partner \?/.test(code), "…and renders nothing when there is no verified offer for that venue");
 ok(/commerceHref\(\{ provider: partner\.provider/.test(code), "the CTA href is built by commerceHref — our own tracked path, never a partner domain");
 ok(/emitCommerce\("commerce_cta_clicked"/.test(code), "the CTA is instrumented, so it cannot become an uninstrumented money surface");

@@ -288,8 +288,44 @@ const histDays = (n, devices = 40, extra = {}) => Array.from({ length: n }, (_, 
   }
   const audit = read("lib/envAudit.js");
   ok(/POSTHOG_PERSONAL_API_KEY/.test(audit) && /SENTRY_AUTH_TOKEN/.test(audit), "env: Command Center keys registered in envAudit OPTIONAL");
-  const srcFiles = ["lib/commandCenter/sources/posthog.js", "lib/commandCenter/sources/sentry.js", "lib/commandCenter/sources/travelpayouts.js", "lib/commandCenter/sources/vercel.js"];
-  for (const f of srcFiles) ok(/srcMissing\(/.test(read(f)), `source: ${f} has an explicit not-configured path`);
+
+  // Regression: the Health panel once queried raw web_vitals rows even though
+  // PostHog's project-level test-account filters were enabled by default. That
+  // made owner/internal sessions push desktop CLS from the real-user 0.086 to
+  // ~0.16 and raised a false red health alarm. Drive the real source with a
+  // fake PostHog Query API and inspect the issued request: this proves the
+  // filter is ACTIVE at runtime, not merely mentioned in source text.
+  const posthogPath = "lib/commandCenter/sources/posthog.js";
+  const posthogSource = read(posthogPath);
+  const { webVitalsField } = await import("../lib/commandCenter/sources/posthog.js");
+  let posthogBody = null;
+  const posthogProbe = await webVitalsField(
+    new Date("2026-09-01T00:00:00Z"),
+    new Date("2026-09-02T00:00:00Z"),
+    {
+      env: {
+        POSTHOG_PERSONAL_API_KEY: "test-query-key",
+        POSTHOG_PROJECT_ID: "507756",
+        POSTHOG_API_HOST: "https://posthog.invalid",
+      },
+      fetchImpl: async (_url, init = {}) => {
+        posthogBody = JSON.parse(init.body || "{}");
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({ columns: ["metric", "device", "samples", "p75"], results: [["CLS", "desktop", 30, 86]] }),
+          text: async () => "",
+        };
+      },
+    },
+  );
+  const posthogCwvFiltered = posthogProbe?.data?.[0]?.p75 === 0.086
+    && posthogBody?.query?.filters?.filterTestAccounts === true
+    && /\{filters\}/.test(posthogBody?.query?.query || "")
+    && (posthogSource.match(/\{filters\}/g) || []).length >= 2;
+
+  const srcFiles = [posthogPath, "lib/commandCenter/sources/sentry.js", "lib/commandCenter/sources/travelpayouts.js", "lib/commandCenter/sources/vercel.js"];
+  for (const f of srcFiles) ok(/srcMissing\(/.test(read(f)) && (f !== posthogPath || posthogCwvFiltered), `source: ${f} has an explicit not-configured path; PostHog CWV also applies the project's test-account filters at runtime`);
   // Alerts email cron: fail-closed auth, fail-soft capability, one shared gatherer.
   const cron = code(read("app/api/cron/cc-alerts/route.js"));
   ok(/CRON_SECRET/.test(cron) && /status:\s*401/.test(cron) && cron.indexOf("401") < cron.indexOf("RESEND_API_KEY"), "cron: cc-alerts is fail-closed on CRON_SECRET before any work");

@@ -38,7 +38,15 @@ const iconic = read("app/components/IconicPlaceCard.js");
 // 1) It is the ONE hero: it owns the <header>, the scrim, and the wordmark.
 ok(/<header style=\{\{ position: "relative", height/.test(hero), "CollectionHero owns the <header> element");
 ok(hero.includes("linear-gradient(180deg, rgba(4,8,16,.25) 0%, rgba(4,8,16,.55) 55%, #040810 100%)"), "CollectionHero keeps the scrim that lets white type sit on ANY photo — without it a bright hero image makes the headline unreadable");
-ok(hero.includes("/brand/wayfind-wordmark-transparent-v2.png"), "CollectionHero renders the official wordmark asset (brand rule: the PNG master, never a text lookalike)");
+// v9 (lib/seasonalBrand.js): the hardcoded path became a resolver call so the
+// mark can go seasonal (Halloween live now, auto-reverting Nov 1). The brand
+// invariant is unchanged — assert the resolver import (the ONLY source of an
+// "official asset" path, seasonal or not) is wired to the actual <img>, not a
+// hand-typed lookalike.
+ok(/import\s*\{[^}]*\bactiveSeasonalMark\b[^}]*\}\s*from\s*["'][^"']*seasonalBrand(?:\.js)?["']/.test(hero),
+  "CollectionHero imports the seasonal wordmark resolver (lib/seasonalBrand.js) rather than hardcoding a path");
+ok(/src=\{seasonalWordmark\.png\}/.test(hero),
+  "CollectionHero renders the official wordmark asset via the resolver's `.png` field (brand rule: the PNG master, never a text lookalike)");
 
 // 2) Hook-free. Server pages mount it; a hook here fails the production build,
 // not this check — so catch it here, cheaply, first.

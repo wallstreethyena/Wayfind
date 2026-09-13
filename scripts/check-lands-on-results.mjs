@@ -105,7 +105,7 @@ ok(/reveal:\s*true/.test(homeCode) && /probe:\s*firstBrowseCard/.test(homeCode),
   ok(/className=\{`wf-place-card\$\{/.test(read("app/components/IconicPlaceCard.js")) || /className=\{`wf-place-card\$\{/.test(homeCode),
      "no place card emits the `wf-place-card` class any more — the browse probe would resolve nothing and the reveal would never fire");
 }
-ok(/if\s*\(scrollRef\.current\s*&&\s*!landingRef\.current\)\s*scrollRef\.current\.scrollTo\(\{\s*top:\s*0/.test(homeCode),
+ok(/if\s*\(scrollRef\.current\s*&&\s*!landingRef\.current\s*&&\s*!posRestore\.current\)\s*scrollRef\.current\.scrollTo\(\{\s*top:\s*0/.test(homeCode),
    "app/home.js: the [cat, sub, vibe, ...] scroll reset must stand down while a landing is in flight — an unconditional top:0 there is what silently cancelled v8.11's jump-to-results");
 
 // The two nav handlers. onNavOpen is the tab (the 2026-08-23 report), onNavSub

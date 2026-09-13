@@ -22,8 +22,11 @@ import { C, sheetBg, sheet, SHEET_EASE, Grabber, Icon } from "../kit";
 import { PLATFORM, PLATFORM_RGB, creatorStats, allCreators, hasCreatorPage, creatorVideosFor, regionsWithFinds, spotsByCity, libraryStats } from "../../../lib/creatorVideos";
 import { captionFor } from "../../../lib/creatorCaptions";
 import CreatorAvatar from "../CreatorAvatar";
+import VideoFacade from "../VideoFacade";
+import CreatorPlaybackDetails from "../CreatorPlaybackDetails";
 import { creatorLabel, AFFILIATION_DISCLOSURE, REMOVAL_PROMPT, REMOVAL_CONTACT } from "../../../lib/creatorRights";
 import { summaryFor } from "../../../lib/creatorArchetypes";
+import { isEmbeddable } from "../../../lib/videoEmbed";
 
 // Mirrors app/home.js's own module-scope promOf() — a one-line fallback
 // (wfProm, else wfScore, else 0), duplicated here rather than imported
@@ -57,8 +60,29 @@ function profileUrlFor(platform, handle) {
 
 const seeAllBtn = { display: "inline-flex", alignItems: "center", gap: 4, background: "none", border: "none", padding: 0, color: C.accent, fontSize: 12.5, fontWeight: 800, cursor: "pointer" };
 
+const identityPart = (value) => String(value || "").normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+
+// A roundup post can belong to several places, so its URL is not a place
+// identity. Prefer an exact place id; name+city is the established fallback.
+function hydratedFindForSpot(spot, localFinds) {
+  return (localFinds || []).find((candidate) => {
+    if (!candidate || !candidate.place) return false;
+    if (spot.placeId) return candidate.place.id === spot.placeId;
+    return identityPart(candidate.place.name) === identityPart(spot.name)
+      && identityPart(candidate.place.city) === identityPart(spot.city);
+  }) || null;
+}
+
+function registryPreviewForSpot(spot) {
+  return {
+    place: { name: spot.name, city: spot.city || "", address: spot.address || null },
+    video: spot.video,
+    curatedSpot: spot,
+  };
+}
+
 export default function SocialFindSheet({ ctx }) {
-  const { socialFind, setSocialFind, screen, center, suggested, places, dedupePlaces, sheetDragStart, sheetDragMove, sheetDragEnd, logEvent, openDetail, openExternal, locName } = ctx;
+  const { socialFind, setSocialFind, screen, center, suggested, places, dedupePlaces, sheetDragStart, sheetDragMove, sheetDragEnd, logEvent, openDetail, locName } = ctx;
 
   // v9 (2026-09-02, WO9 bundle fix) — these four used to be precomputed in
   // app/home.js on every homepage render (four useMemo's touching
@@ -112,8 +136,8 @@ export default function SocialFindSheet({ ctx }) {
   // entry point from the consolidated hero card: every curated find, grouped
   // by city, nearest-first (spotsByCity — real coordinates, never a guessed
   // proximity). A spot opens straight into Mode A when it's already hydrated
-  // nearby (matched by video.url, same rule as the Library sheet below);
-  // otherwise it links straight to the real video.
+  // nearby (matched by exact place identity); otherwise it opens a registry-backed
+  // Wayfind preview with the verified venue facts and native post.
   if (socialFind.browse) {
     return (
       <BrowseSheet
@@ -125,10 +149,10 @@ export default function SocialFindSheet({ ctx }) {
         byCity={socialFindByCity || []}
         stats={socialFindStats}
         onOpenSpot={(spot) => {
-          const local = (videoHeroPlaces || []).find((o) => o.video.url === spot.video.url);
-          if (local) { setSocialFind({ place: local.place, video: local.video }); return; }
+          const local = hydratedFindForSpot(spot, videoHeroPlaces);
+          if (local) { setSocialFind({ place: local.place, video: spot.video }); return; }
           try { logEvent("creator_video", null, { platform: spot.video.platform, creator: spot.video.creator || "", src: "social_find_browse" }); } catch (e) {}
-          openExternal(spot.video.url);
+          setSocialFind(registryPreviewForSpot(spot));
         }}
         onSeeCreators={() => setSocialFind({ library: true })}
       />
@@ -138,11 +162,9 @@ export default function SocialFindSheet({ ctx }) {
   // Mode C: "this shelf needs to have all of the influencers in our app easy
   // to see, all organized nicely, in one page" (owner) — the full directory,
   // every renderable curated find grouped by creator. A spot opens straight
-  // into Mode A when it's already loaded nearby (matched by video.url — the
-  // one field guaranteed unique per entry); otherwise it just links out to
-  // the real video, since we don't have a real, hydrated place record (photo,
-  // id, hours…) for a spot outside the user's current area to open a place
-  // sheet with — never fabricate one.
+  // into Mode A when it's already loaded nearby (matched by exact place identity); otherwise it opens a
+  // registry-backed preview with only the verified name, city, address and
+  // native post. It never fabricates an id, rating, coordinates or hours.
   if (socialFind.library) {
     return (
       <LibrarySheet
@@ -153,17 +175,17 @@ export default function SocialFindSheet({ ctx }) {
         logEvent={logEvent}
         videoHeroPlaces={videoHeroPlaces}
         onOpenSpot={(spot) => {
-          const local = (videoHeroPlaces || []).find((o) => o.video.url === spot.video.url);
-          if (local) { setSocialFind({ place: local.place, video: local.video }); return; }
+          const local = hydratedFindForSpot(spot, videoHeroPlaces);
+          if (local) { setSocialFind({ place: local.place, video: spot.video }); return; }
           try { logEvent("creator_video", null, { platform: spot.platform, creator: spot.video.creator || "", src: "social_find_library" }); } catch (e) {}
-          openExternal(spot.video.url);
+          setSocialFind(registryPreviewForSpot(spot));
         }}
         onBrowse={() => setSocialFind({ browse: true })}
       />
     );
   }
 
-  const { place, video } = socialFind;
+  const { place, video, curatedSpot = null } = socialFind;
 
   // Mode B: "not in your region yet" — recommend where the library IS live.
   if (!place) {
@@ -204,9 +226,36 @@ export default function SocialFindSheet({ ctx }) {
   const glowRgb = PLATFORM_RGB[video.platform] || PLATFORM_RGB.tiktok;
   const photo = (place.photos && place.photos[0]) || place.photo || null;
   const handle = video.creator || null;
+  const instagramPost = video.platform === "instagram";
   const stats = creatorStats(handle);
   const otherSpots = stats.spots.filter((s) => s.name !== place.name);
-  const others = (videoHeroPlaces || []).filter((v) => v.place && v.place.id !== place.id).slice(0, 8);
+  const others = curatedSpot ? [] : (videoHeroPlaces || []).filter((v) => v.place && v.place.id !== place.id).slice(0, 8);
+  const creatorAttribution = <>
+    <a
+      href={video.url}
+      target="_blank"
+      rel="noopener"
+      onClick={() => { try { logEvent("creator_video", place, { platform: video.platform, creator: handle || "", src: "social_find_sheet" }); } catch (e) {} }}
+      aria-label={instagramPost
+        ? `View ${handle ? "@" + handle : "this creator"}'s Instagram post (opens in a new tab)`
+        : `Watch ${handle ? "@" + handle : "this creator"}'s video (opens in a new tab)`}
+      className="wf-social-glow"
+      style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none", background: `linear-gradient(160deg, ${plat.color}1f 0%, ${C.card} 60%)`, border: `1.5px solid ${plat.color}`, borderRadius: 14, padding: 14, marginBottom: 16, "--glow-rgb": glowRgb }}
+    >
+      <CreatorAvatar handle={handle} platform={video.platform} size={52} color={plat.color} />
+      <div style={{ minWidth: 0, flex: 1 }}>
+        <div style={{ fontSize: 15, fontWeight: 800, color: C.text }}>{handle ? "@" + handle : plat.label + " creator"}</div>
+        <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>{stats.count > 0 ? `Featured at ${stats.count} spot${stats.count === 1 ? "" : "s"} on Wayfind` : `On ${plat.label}`}</div>
+        <div style={{ fontSize: 12.5, fontWeight: 800, color: plat.color, marginTop: 6 }}>{instagramPost ? "View on Instagram ↗" : `Watch on ${plat.label} ↗`}</div>
+      </div>
+    </a>
+    {captionFor(video) && <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.55, marginBottom: 18 }}>{captionFor(video)}</div>}
+  </>;
+  const curatedDetails = <div style={{ paddingTop: 12 }}>
+    {(place.address || place.city) && <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, marginBottom: 12 }}>{place.address || place.city}</div>}
+    {curatedSpot && curatedSpot.key === "little-leopard-coffee-tottington" && <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.5, marginBottom: 12 }}>Mobile coffee caravan · published contact address; check the creator's post for current service locations.</div>}
+    {creatorAttribution}
+  </div>;
 
   return (
     <div style={sheetBg} onClick={close}>
@@ -228,28 +277,22 @@ export default function SocialFindSheet({ ctx }) {
         </div>
 
         <div style={{ padding: "16px 18px 26px" }}>
-          <a
-            href={video.url}
-            target="_blank"
-            rel="noopener"
-            onClick={() => { try { logEvent("creator_video", place, { platform: video.platform, creator: handle || "", src: "social_find_sheet" }); } catch (e) {} }}
-            aria-label={`Watch ${handle ? "@" + handle : "this creator"}'s video (opens in a new tab)`}
-            className="wf-social-glow"
-            style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none", background: `linear-gradient(160deg, ${plat.color}1f 0%, ${C.card} 60%)`, border: `1.5px solid ${plat.color}`, borderRadius: 14, padding: 14, marginBottom: 16, "--glow-rgb": glowRgb }}
-          >
-            <CreatorAvatar handle={handle} platform={video.platform} size={52} color={plat.color} />
-            <div style={{ minWidth: 0, flex: 1 }}>
-              <div style={{ fontSize: 15, fontWeight: 800, color: C.text }}>{handle ? "@" + handle : plat.label + " creator"}</div>
-              <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>{stats.count > 0 ? `Featured at ${stats.count} spot${stats.count === 1 ? "" : "s"} on Wayfind` : `On ${plat.label}`}</div>
-              <div style={{ fontSize: 12.5, fontWeight: 800, color: plat.color, marginTop: 6 }}>Watch on {plat.label} ↗</div>
+          {curatedSpot && (
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ display: "flex", justifyContent: "center" }}>
+                {isEmbeddable(video.platform, video.url) ? <CreatorPlaybackDetails style={{ width: "100%", maxWidth: 300 }} details={curatedDetails}>
+                  <VideoFacade platform={video.platform} url={video.url} label={`${handle ? "@" + handle : plat.label + " creator"} post about ${place.name}`} />
+                </CreatorPlaybackDetails> : curatedDetails}
+              </div>
             </div>
-          </a>
+          )}
+          {!curatedSpot && creatorAttribution}
 
-          {captionFor(video) && <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.55, marginBottom: 18 }}>{captionFor(video)}</div>}
-
-          <button onClick={() => { setSocialFind(null); openDetail(place, "social_find_sheet"); }} style={{ width: "100%", padding: "12px 0", borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 13.5, fontWeight: 800, cursor: "pointer", marginBottom: 22 }}>
-            View full place details ›
-          </button>
+          {!curatedSpot && (
+            <button onClick={() => { setSocialFind(null); openDetail(place, "social_find_sheet"); }} style={{ width: "100%", padding: "12px 0", borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 13.5, fontWeight: 800, cursor: "pointer", marginBottom: 22 }}>
+              View full place details ›
+            </button>
+          )}
 
           {others.length > 0 && (
             <div style={{ marginBottom: otherSpots.length > 0 ? 20 : 0 }}>
@@ -361,7 +404,7 @@ function LibrarySheet({ onClose, onDragStart, onDragMove, onDragEnd, onOpenSpot,
                     {c.spots.map((s) => {
                       const sp = PLATFORM[s.platform] || PLATFORM.tiktok;
                       return (
-                        <button key={s.key} onClick={() => onOpenSpot(s)} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 12px", borderRadius: 999, background: "rgba(255,255,255,.04)", border: `1px solid ${C.border}`, cursor: "pointer" }}>
+                        <button key={s.key + ":" + s.video.url} onClick={() => onOpenSpot(s)} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 12px", borderRadius: 999, background: "rgba(255,255,255,.04)", border: `1px solid ${C.border}`, cursor: "pointer" }}>
                           <span aria-hidden="true" style={{ flexShrink: 0, width: 6, height: 6, borderRadius: "50%", background: sp.color }} />
                           <span style={{ fontSize: 12, fontWeight: 700, color: C.text }}>{s.name}</span>
                           {s.city && <span style={{ fontSize: 10.5, color: C.muted }}>· {s.city}</span>}

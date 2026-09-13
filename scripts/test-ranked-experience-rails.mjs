@@ -29,6 +29,7 @@ const consumers = [
   ["app/components/TourStrip.js", /rankExperiences\(arr\.filter/],
   ["app/components/BookingCTA.js", /rankExperiences\(viaTours\[placeId\]\.items\)/],
   ["app/components/screens/Events.js", /rankExperiences\(eventsTours\)/],
+  ["app/components/UnifiedBrowseCommerceRail.js", /rankExperiences\(rows\)/],
   ["lib/experiencesServe.js", /rankExperiences\(view\.map\(rowToCard\)\)/],
 ];
 for (const [file, pattern] of consumers) {
@@ -37,8 +38,13 @@ for (const [file, pattern] of consumers) {
 }
 
 const home = read("app/home.js");
-ok((home.match(/rankExperiences\(/g) || []).length >= 5, "home bookable rails and their API fallbacks all use the shared ranker");
+const browseRail = read("app/components/UnifiedBrowseCommerceRail.js");
+ok(/nextDynamic\(\(\) => import\("\.\/components\/UnifiedBrowseCommerceRail"\)/.test(home) && /<UnifiedBrowseCommerceRail\b/.test(home),
+  "home lazily imports and mounts the extracted ranked Bookable rail");
+ok(/rankExperiences\(rows\)/.test(browseRail) && /experienceWayfindScore\(t\)/.test(browseRail),
+  "the extracted Bookable rail ranks merged inventory with the shared score before rendering");
 const bookableWindow = home.slice(home.indexOf("v4.84 Viator as a real activity source"), home.indexOf("// v4.62: real nearby teasers"));
 ok(!/\.sort\([^\n]*(sellingFast|sellingOut|reviews|rating)/.test(bookableWindow), "home has no competing inline bookable-rail sort");
+ok(!/\.sort\([^\n]*(sellingFast|sellingOut|reviews|rating)/.test(browseRail), "the extracted Bookable rail has no competing rating- or urgency-first sort");
 
 console.log(`test-ranked-experience-rails: OK — ${pass} assertions (all score-bearing bookable collections share visible-score order)`);

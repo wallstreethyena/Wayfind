@@ -8,6 +8,8 @@ import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
 import { originForCity } from "../../lib/locationHonesty.js";
 import { homeAffiliateActivities } from "../../lib/homeAffiliateActivities.js";
 import { composeSummerPickRails } from "../../lib/summerPicks.js";
+import { withSummerSportsRail } from "../../lib/summerSports.js";
+import { usePosterEvents } from "../components/usePosterEvents.js";
 
 const LOAD_TIMEOUT_MS = 10000;
 
@@ -22,6 +24,7 @@ export default function SummerPicksClient() {
   const [rails, setRails] = useState(null);
   const [failed, setFailed] = useState(false);
   const [retry, setRetry] = useState(0);
+  const eventSurface = usePosterEvents({ active: !!center, center, city, mode: "summer-sports" });
 
   useEffect(() => {
     if (center) return;
@@ -54,18 +57,23 @@ export default function SummerPicksClient() {
       // preloading every photo here made one slow image hold the entire page.
       const composed = composeSummerPickRails([...placeMap.values()], tours);
       const usable = composed.some((rail) => rail.cards.length > 0);
-      if (!usable) setFailed(true);
+      if (!usable && (!Array.isArray(summer?.places) || !Array.isArray(experiences?.items))) setFailed(true);
       else setRails(composed);
     });
     return () => { cancelled = true; };
   }, [key]);
 
   const headingCity = city || "Florida";
+  const sports = (eventSurface.byRail?.sports || []).map((event) => ({ ...event, kind: "event" }));
+  const eventRailAvailable = sports.length > 0 || eventSurface.pending || eventSurface.failed;
+  const displayRails = rails || eventRailAvailable
+    ? withSummerSportsRail(rails || [], sports, { pending: eventSurface.pending, failed: eventSurface.failed })
+    : null;
   return <RankedExperiencePage
     eyebrow="WAYFIND SUMMER PICKS"
     titleTop="Your best"
     titleBottom="Florida summer"
-    subtitle={`Ten ranked ways to handle heat, rain, school break and vacation mode around ${headingCity}. Real place photos, current Wayfind inventory and verified bookable activities only.`}
+    subtitle={`Ranked ways to handle heat, rain, school break and vacation mode around ${headingCity}. Real place photos, current Wayfind inventory, verified events and bookable activities only.`}
     heroImg="/cards/best-summer-ever.jpg"
     location={headingCity}
     imageKicker="BEST SUMMER EVER"
@@ -75,8 +83,9 @@ export default function SummerPicksClient() {
     topLeft={<a href="/" style={{ color: "#F97316", textDecoration: "none", fontWeight: 800 }}>← Wayfind</a>}
   >
     {!center ? <div style={{ padding: "18px", border: "1px solid rgba(255,255,255,.1)", borderRadius: 16, color: "#A8B0BE" }}>Open Summer Picks from the Wayfind homepage so your location can rank the rails.</div> : null}
-    {center && !rails && !failed ? <div role="status" aria-busy="true" aria-label="Ranking Florida summer picks">{[0, 1, 2].map((n) => <div key={n} className="wf-sk" style={{ height: 120, borderRadius: 16, marginBottom: 12 }} />)}</div> : null}
-    {failed ? <div style={{ color: "#A8B0BE" }}><p>Wayfind could not reach enough photo-verified summer inventory. This is a loading failure, not an empty Florida.</p><button type="button" onClick={() => setRetry((value) => value + 1)} style={{ border: "1px solid #F97316", borderRadius: 999, background: "#111827", color: "#F8FAFC", padding: "9px 14px", fontWeight: 800 }}>Try again</button></div> : null}
-    {rails ? <SummerPicksRails rails={rails} city={headingCity} /> : null}
+    {center && !rails && !failed && !sports.length ? <div role="status" aria-busy="true" aria-label="Ranking Florida summer picks">{[0, 1, 2].map((n) => <div key={n} className="wf-sk" style={{ height: 120, borderRadius: 16, marginBottom: 12 }} />)}</div> : null}
+    {center && !rails && !failed && sports.length ? <p role="status" aria-busy="true" style={{ color: "#A8B0BE" }}>Sports are ready. Still ranking the rest of your summer plans…</p> : null}
+    {failed ? <div style={{ color: "#A8B0BE" }}><p>{sports.length ? "Sports listings are available, but Wayfind could not reach enough photo-verified place and activity inventory." : "Wayfind could not reach enough photo-verified summer inventory. This is a loading failure, not an empty Florida."}</p><button type="button" onClick={() => setRetry((value) => value + 1)} style={{ border: "1px solid #F97316", borderRadius: 999, background: "#111827", color: "#F8FAFC", padding: "9px 14px", fontWeight: 800 }}>Try again</button></div> : null}
+    {displayRails ? <SummerPicksRails rails={displayRails} city={headingCity} /> : null}
   </RankedExperiencePage>;
 }

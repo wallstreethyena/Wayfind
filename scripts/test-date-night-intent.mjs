@@ -8,6 +8,9 @@
 import { readFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { loadComponent } from "./lib/jsxLoad.mjs";
 import {
   DATE_NIGHT_NEAR_MI,
   DATE_NIGHT_WIDEN_MI,
@@ -311,34 +314,43 @@ ok(nightOrder.includes("datenight"), "Date Night still exists in the night order
     "…inside the Exploding Trends rail container, so card width and the peek come from the design system, not an inline 300px guess");
   ok(/<RailNav[\s/>]/.test(rails) && /<RailDots[\s/>]/.test(rails),
     "…with the same there-is-more affordances that rail ships");
-  // v8.93.1 — AND EVERY RAIL STILL SAYS WHAT IT IS. The first pass at the
-  // Exploding Trends structure dropped the <h2> along with the old markup, and
-  // the owner's screenshot showed a Dinner rail with no word "Dinner" on it.
-  // RailNav's line is a COUNT, not a heading — "18 places for clubs" tells the
-  // reader how many and never what.
-  ok(/<h2[^>]*>\{rail\.title\}<\/h2>/.test(rails),
-    "every Date Night rail renders its own title — RailNav's count line is not a heading");
+  // v8.93.1 — AND EVERY RAIL STILL SAYS WHAT IT IS. RailHeading now owns the
+  // semantic h2 and conditional deck for every shelf, while RailNav remains a
+  // count/control. Render the real shared component so this proves user-facing
+  // markup rather than preserving an obsolete caller DOM shape.
+  const RailHeading = (await loadComponent(join(ROOT, "app/components/RailHeading.js"), ROOT)).default;
+  const renderedHeading = renderToStaticMarkup(createElement(RailHeading, {
+    title: "Dinner",
+    description: "Late tables with room to talk.",
+  }));
+  const renderedWithoutDeck = renderToStaticMarkup(createElement(RailHeading, { title: "Dinner" }));
+  ok(/<header class="wf-rail-heading">[\s\S]*<h2>Dinner<\/h2>/.test(renderedHeading),
+    "the real shared heading renders each rail title as an h2 — RailNav's count line is not a heading");
+  ok(/<p class="wf-rail-deck">Late tables with room to talk\.<\/p>/.test(renderedHeading),
+    "the real shared heading renders a supplied Date Night deck");
+  ok(!/wf-rail-deck/.test(renderedWithoutDeck),
+    "the real shared heading renders no empty deck when a rail has none");
+  ok(/import RailHeading from ["']\.\/RailHeading["']/.test(rails)
+      && /<RailHeading title=\{rail\.title\} description=\{rail\.deck\}/.test(rails),
+    "DateNightRails delegates its title and conditional deck to RailHeading");
   // v8.93.1 — AND EVERY RAIL EXPLAINS ITSELF. Owner, 2026-08-30: "on Exploding
   // Trends you have an explanation of what the rail is … Date Night does not.
   // I would like that everywhere multiple rails are showing." The deck is the
   // PROMISE, so the rules are asserted, not just its presence: every rail has
   // one, none repeats its own title, none states a number (RailNav owns the
   // count, and a number the rail cannot keep is the "20 trends" claim this
-  // release deleted), and each fits one line at 390px.
-  ok(/\{rail\.deck \? \(/.test(rails) && /\{rail\.deck\}<\/p>/.test(rails),
-    "the rails render the deck when there is one, and nothing when there is not");
-  ok(rails.indexOf("{rail.deck}") > rails.indexOf("{rail.title}") && rails.indexOf("{rail.deck}") < rails.indexOf("<RailNav"),
-    "…between the title and the count line, which is where Exploding Trends puts its dek");
+  // release deleted). Shared CSS now wraps readable copy rather than clipping
+  // it when a narrow viewport cannot hold the full line.
+  ok(/<RailHeading title=\{rail\.title\} description=\{rail\.deck\}>[\s\S]*?<RailNav[\s\S]*?<\/RailHeading>/.test(rails),
+    "the loaded rail keeps its title, conditional deck, and count controls in one shared heading");
   for (const def of DATE_NIGHT_RAIL_DEFS) {
     ok(typeof def.deck === "string" && def.deck.length > 20,
       `${def.id}: has a deck that says what the rail is for`);
-    ok(def.deck.length <= 78, `${def.id}: deck fits one line at 390px (${def.deck.length} chars)`);
+    ok(def.deck.length <= 78, `${def.id}: deck stays compact even when a narrow viewport wraps it (${def.deck.length} chars)`);
     ok(!new RegExp("\\b" + def.title.split(" ")[0] + "\\b", "i").test(def.deck),
       `${def.id}: the deck does not just repeat its own title`);
     ok(!/\d/.test(def.deck), `${def.id}: the deck states no number — RailNav owns the count`);
   }
-  ok(rails.indexOf("{rail.title}</h2>") < rails.indexOf("<RailNav"),
-    "…above the count line, not below it");
   ok(!/<IconicPlaceCard[\s/>]/.test(rails),
     "…and the old card is gone rather than left beside it — two card styles in one drop is the drift this file exists to stop");
   ok(/<RankedExperiencePage[\s/>]/.test(src), "the intent page keeps the existing RankedExperiencePage shell");
@@ -440,8 +452,9 @@ ok(nightOrder.includes("datenight"), "Date Night still exists in the night order
   // must not ALSO get the shared pool's. Date Night's drop ending in "nothing
   // near you clears this bar" underneath six full rails is the v8.82 empty-bar
   // screenshot arriving by a different road.
-  ok(/const railOwnsItsOwnAnswer = !!\(selRail && \(selRail\.id === "season" \|\| selRail\.id === "datenight" \|\| selRail\.id === "birthday" \|\| selRail\.id === "breakfast" \|\| selRail\.id === "break" \|\| selRail\.id === "eat" \|\| selRail\.id === "today" \|\| selRail\.id === "augtober" \|\| selRail\.id === "tonight"\)\)/.test(src),
-    "the drop knows Summer, Date Night, Birthday, Breakfast, Lunch Break, Actually Worth Eating, Today's Best Options, Augtober, and Night Out answer for themselves");
+  const ownedAnswer = src.match(/const railOwnsItsOwnAnswer =[^;]+/)?.[0] || "";
+  ok(["season", "datenight", "birthday", "family", "breakfast", "break", "eat", "today", "augtober", "tonight", "locals"].every((id) => ownedAnswer.includes(`selRail.id === "${id}"`)),
+    "the drop knows every composed collection, including Creator Picks, answers for itself");
   const branches = src.match(/\) : selRail && [^?]*\?/g) || [];
   ok(branches.length === 4, `the pool ternary chain is readable (positive control: ${branches.length} branches after the cards)`);
   // The CARDS branch stays open to Date Night on purpose: the pool below the
@@ -462,8 +475,9 @@ ok(nightOrder.includes("datenight"), "Date Night still exists in the night order
   // the events" — and both of those now exist as things that qualify.
   ok(branches.every((b) => /railOwnsItsOwnAnswer/.test(b)),
     "the pool does not speak for Date Night AT ALL — not its cards, not its empty copy");
-  ok(/selRail && selRail\.id === "datenight" && eventsSlot/.test(src),
-    "…and the dated events ride under the journey, from the SAME eventsSlot thunk the events tile renders");
+  const dateNightMount = src.match(/<DateNightRails[\s\S]*?\/>/)?.[0] || "";
+  ok(/eventsSlot=\{eventsSlot\}/.test(dateNightMount),
+    "…and DateNightRails receives the shared eventsSlot so concerts join Live Music instead of a separate generic tail");
 }
 
 // Poster art is not this PR

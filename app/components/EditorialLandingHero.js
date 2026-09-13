@@ -26,6 +26,8 @@
 // parts.js) and is NOT prefixed — the last rule below reaches into it, and that
 // selector is shared by every page using BackControl.
 
+import { activeSeasonalMark, NORMAL_MARK } from "../../lib/seasonalBrand";
+
 export function editorialHeroCss(prefix = "wf-beach-premium") {
   const P = prefix;
   return `
@@ -184,6 +186,9 @@ export default function EditorialLandingHero({
 }) {
   const P = prefix;
   const picks = Array.isArray(quickPicks) ? quickPicks : [];
+  // Seasonal wordmark (lib/seasonalBrand.js) — server-rendered by default
+  // (no "use client" here), so this resolves once per request/regeneration.
+  const seasonalWordmark = activeSeasonalMark() || NORMAL_MARK;
   return (
     <header className={`${P}-wrap`}>
       {/* Chrome bar, OUTSIDE the hero card. It has to live here rather than inside
@@ -200,7 +205,7 @@ export default function EditorialLandingHero({
           </a>
         )}
         <a className={`${P}-brand`} href={brandHref} aria-label="Wayfind home">
-          <img src="/brand/wayfind-wordmark-transparent-v2.png" alt="Wayfind" />
+          <img src={seasonalWordmark.png} alt="Wayfind" />
         </a>
       </div>
       <section className={`${P}-hero`} aria-labelledby={headlineId}>

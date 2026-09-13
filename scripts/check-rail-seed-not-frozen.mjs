@@ -114,15 +114,23 @@ ok(/usePagedRail\(/.test(rails),
 // rail with one card promises a choice and delivers one; the answer is a
 // compact treatment, and the thing to guard is that it is a PRESENTATION branch
 // and not a data one.
-ok(/count === 1 && eventCards\.length === 0 && items\.length === 1/.test(rails),
-  "the one-result branch no longer keys on a genuine single result — a rail with one card must not be rendered as a shelf");
+ok(/count === 1 && eventCards\.length === 0 && tourProducts\.length === 0 && items\.length === 1/.test(rails)
+  && /count === 1 && eventCards\.length === 0 && tourProducts\.length === 1 && items\.length === 0/.test(rails),
+  "the one-result branches no longer key on a genuine single place or product — a rail with one card must not be rendered as a shelf");
 ok(/Best match tonight/.test(rails),
   "the single-result treatment lost its label");
 ok(/the only place within 27 miles that clears this/.test(rails),
   "the single-result copy no longer says WHY there is one — 'best match' without that reads like a ranking, not a count");
-// The empty state must survive alongside it: zero and one are different answers.
-ok(/No verified event or venue within 27 miles/.test(rails) && /will not fill it with a look-alike/.test(rails),
-  "the honest empty state was replaced rather than joined — zero options and one option are different answers and both must be tellable");
+// Zero has three states: pending and failure stay visible, while a successful
+// empty rail is absent. Rendering ten empty explanations turns the answer into
+// a list of what Wayfind could not find; suppressing pending/failure would make
+// an outage look like that same healthy product state.
+ok(/!count && \(eventsPending \|\| toursPending\)/.test(rails) && /aria-busy="true"/.test(rails),
+  "an empty rail no longer preserves its pending state before deciding it is healthy-empty");
+ok(/!count && toursFailed/.test(rails) && /could not reach its cached night-tour inventory/.test(rails),
+  "a failed cached-tour read can masquerade as a healthy empty rail");
+ok(/if \(!count\) return null;/.test(rails),
+  "a healthy empty Night Out rail must return null rather than paint an empty shelf");
 // And nothing may pad. A second card can only come from the pool.
 ok(!/placeholder|filler|padTo|fillTo/i.test(rails),
   "NightOutRails gained something that looks like padding — a rail is never topped up to make a shelf");

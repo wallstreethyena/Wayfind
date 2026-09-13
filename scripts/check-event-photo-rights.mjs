@@ -79,7 +79,8 @@ const code = src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
 ok(/eventPhotos\(/.test(code), `${PAGE} must resolve photos through eventPhotos()`);
 ok(!/["'`]\/events\/[a-z0-9-]+\.(jpg|jpeg|png|webp)["'`]/i.test(code),
   `${PAGE} must not hardcode an /events/*.jpg path — that bypasses the consent gate entirely`);
-ok(/alt=\{[^}]*\.alt\}/.test(code), `${PAGE} renders the registry's alt text, never alt=""`);
+ok(/name=\{shots\.hero\.alt \|\| e\.event_name\}/.test(code) && /name=\{p\.alt \|\| e\.event_name\}/.test(code),
+  `${PAGE} passes every registry alt through EventPlacePhoto, with a non-empty event-name fallback`);
 // The credit must render wherever the strip does: attribution is what the
 // organiser gets out of this, and it is half of why the consent holds.
 ok(/shots\.credit/.test(code), `${PAGE} must render the photo credit alongside the photos`);
@@ -102,7 +103,7 @@ ok(/shots\.credit/.test(code), `${PAGE} must render the photo credit alongside t
   ok(ld.image[0].includes(EVENT_PHOTO_SETS[ids[0]].hero.src), "the owned hero leads the image list — it is the one we hold rights to");
 }
 
-/* ── 6b. THE PHOTO RAIL CANNOT STRETCH ──────────────────────────────────── */
+/* ── 6b. THE SHARED PHOTO RAIL CANNOT STRETCH ───────────────────────────── */
 // SHIPPED BROKEN 2026-08-26 and caught by the owner on the live page: the first
 // rail put `width` + `aspect-ratio` on the <img> itself inside a flex row. A
 // flex row's default `align-items: stretch` overrides an item's own computed
@@ -110,22 +111,35 @@ ok(/shots\.credit/.test(code), `${PAGE} must render the photo credit alongside t
 // something enormous to stretch to — four full-viewport-height slabs. A mock
 // built by hand looked right because the mock was not the page.
 //
-// The shape that cannot do this: an explicit px width AND height on a WRAPPER,
-// the img filling it with object-fit, and the row pinned to flex-start.
+// Both event routes now use EventDetailShell and EventExperienceStyles. The
+// shape that cannot stretch is shared: an explicit px width AND height on a
+// wrapper, the img filling it with object-fit, and the row pinned to flex-start.
 {
-  const strip = (code.match(/strip:\s*\{[\s\S]*?\},/) || [""])[0];
-  ok(/alignItems:\s*["']flex-start["']/.test(strip),
-    `${PAGE}: the photo rail must set alignItems:"flex-start" — a flex row stretches its children by default, which is exactly how this shipped as full-height slabs`);
-  const box = (code.match(/shotBox:\s*\{[\s\S]*?\},/) || [""])[0];
-  ok(/width:\s*\d+/.test(box) && /height:\s*\d+/.test(box),
-    `${PAGE}: each photo needs a wrapper with an explicit px width AND height — sizing the <img> itself is what broke`);
-  ok(/overflow:\s*["']hidden["']/.test(box), `${PAGE}: the photo wrapper must clip its image`);
-  const shot = (code.match(/\n\s*shot:\s*\{[\s\S]*?\},/) || [""])[0];
-  ok(!/aspectRatio/.test(shot), `${PAGE}: the <img> must not carry aspectRatio — the wrapper owns the box now`);
-  ok(/objectFit:\s*["']cover["']/.test(shot) && /width:\s*["']100%["']/.test(shot) && /height:\s*["']100%["']/.test(shot),
-    `${PAGE}: the <img> must simply fill its wrapper (100%/100% + object-fit: cover)`);
-  ok(!/<img[^>]*width=\{p\.w\}/.test(code),
-    `${PAGE}: no intrinsic width/height attributes on a rail photo — 853x1280 is what the row stretched to`);
+  const CSS_PATH = "app/components/EventExperienceStyles.js";
+  const SHELL_PATH = "app/components/EventDetailShell.js";
+  const PHOTO_PATH = "app/components/EventPlacePhoto.js";
+  const css = readFileSync(path.join(REPO, CSS_PATH), "utf8");
+  const shell = readFileSync(path.join(REPO, SHELL_PATH), "utf8");
+  const photo = readFileSync(path.join(REPO, PHOTO_PATH), "utf8");
+  const rule = (selector) => (css.match(new RegExp(selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\{[^}]*\\}")) || [""])[0];
+  const rail = rule(".wf-event-photo-rail");
+  const box = rule(".wf-event-photo");
+  const shot = rule(".wf-event-photo img");
+  ok(/display:flex/.test(rail) && /align-items:flex-start/.test(rail) && /overflow-x:auto/.test(rail),
+    `${CSS_PATH}: the shared rail must be a horizontal scroller pinned to align-items:flex-start`);
+  ok(/flex:0 0 252px/.test(box) && /width:252px/.test(box) && /height:448px/.test(box),
+    `${CSS_PATH}: base gallery wrappers have explicit 252x448 portrait geometry`);
+  ok(css.includes(".wf-event-hero .wf-event-photo{height:clamp(240px,42vw,440px)") && css.includes(".wf-event-hero .wf-event-photo:first-child{flex:0 0 100%;width:100%}"),
+    `${CSS_PATH}: the event hero fills its card with bounded height, without changing iconic place-card geometry`);
+  ok(/overflow:hidden/.test(box), `${CSS_PATH}: the shared photo wrapper must clip its image`);
+  ok(/width:100%/.test(shot) && /height:100%/.test(shot) && /object-fit:cover/.test(shot),
+    `${CSS_PATH}: the image fills its wrapper (100%/100% + object-fit:cover)`);
+  ok(css.includes(".wf-event-photo{flex-basis:216px;width:216px;height:384px}"),
+    `${CSS_PATH}: base mobile gallery wrappers have explicit 216x384 portrait geometry`);
+  ok(/className="wf-event-photo-rail"/.test(shell) && /\{media\}/.test(shell),
+    `${SHELL_PATH}: both event routes place supplied media inside the shared rail`);
+  ok(/<img[^>]*width="640"[^>]*height="640"/.test(photo),
+    `${PHOTO_PATH}: rendered images carry explicit dimensions while the shared wrapper controls display geometry`);
 }
 
 /* ── 7. THE SHARE CARD IS THE PHOTOGRAPH, and it resolves ───────────────── */

@@ -140,10 +140,12 @@ ok(mergedSkel.lat === 27.31 && mergedSkel.lng === -82.58, "skeleton lat/lng was 
 ok(mergedSkel.description && /Lido/i.test(mergedSkel.description), "cold-cache indexed path lost Atlas copy");
 ok(mergedSkel.rating === 4.6, "skeleton rating was dropped");
 
-const invRow = { place_id: LIDO, name: "Lido Beach", lat: 27.311, lng: -82.582, category: "beach", signals: { rating: 4.4, reviews: 890 }, status: "OPERATIONAL" };
+const invRow = { place_id: LIDO, name: "Lido Beach", lat: 27.311, lng: -82.582, category: "beach", primary_type: "beach", google_types: ["beach", "tourist_attraction"], signals: { rating: 4.4, reviews: 890 }, status: "OPERATIONAL" };
 const fromInv = inventoryToSkeleton(invRow);
 ok(fromInv && fromInv.lat === 27.311 && fromInv.lng === -82.582 && fromInv.signals.rating === 4.4,
   "inventoryToSkeleton dropped lat/lng/signals we already hold");
+ok(fromInv.primary_type === "beach" && fromInv.google_types.join(",") === "beach,tourist_attraction",
+  "inventoryToSkeleton dropped primary/type identity needed by card taxonomy");
 ok(inventoryToSkeleton({ place_id: LIDO }) == null, "inventory row without a name invented a skeleton");
 ok(inventoryToSkeleton(null) == null, "null inventory invented a skeleton");
 
@@ -268,6 +270,8 @@ ok(/FAIL-CLOSED/.test(read("scripts/ingest-atlas-place-allowlist.mjs")),
 const ident = code("lib/inventoryIdentity.js");
 ok(/wf_inventory/.test(ident) && /inventoryToSkeleton/.test(ident),
   "getInventoryIdentity no longer maps a wf_inventory row");
+ok(/primary_type,google_types/.test(ident),
+  "getInventoryIdentity no longer reads the stored primary/type identity needed by card taxonomy");
 ok(!/places\.googleapis|getPlaceDetails/.test(ident),
   "inventory identity path hits Places");
 

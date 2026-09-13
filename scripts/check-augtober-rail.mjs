@@ -146,7 +146,7 @@ const pagedRailHook = strip(readFileSync(path.join(ROOT, "app/components/usePage
 ok(/usePagedRail\(/.test(fallComponent), "fall's rails expand on demand through the shared usePagedRail hook, not a whole-blob refetch");
 ok(!/query\.set\("full", "1"\)/.test(fallComponent) && !/railScrollNeedsMore/.test(fallComponent),
   "the old scroll-triggered full=1 whole-blob loader is gone from fall, not merely unreachable");
-ok(/fetchJsonWithDeadline\(`\$\{endpoint\}\?\$\{q\.toString\(\)\}`\)/.test(pagedRailHook),
+ok(/fetchJsonWithDeadline\(`\$\{endpoint\}\?\$\{q\.toString\(\)\}`(?:,\s*[^)]*)?\)/.test(pagedRailHook),
   "…and each page usePagedRail fetches carries the same deadline helper, so expanding a rail can never surrender the browser deadline");
 ok(/result\.rails\.length !== 10/.test(fallComponent), "positive control: the complete ten-rail contract is required");
 ok(/when=\{isEvent \? card\.when : null\}/.test(fallComponent), "event cards wear the WHEN badge — an event never gets a fabricated score");

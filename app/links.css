@@ -1,0 +1,22 @@
+/* Shared text-link baseline, including editorial links supplied by content.
+   Zero specificity lets styled cards, navigation and buttons retain their
+   deliberate foregrounds (especially dark text on orange buttons). */
+:root {
+  --wf-link: #ff963f;
+  --wf-link-hover: #ffc394;
+}
+
+:where(a[href]) {
+  color: var(--wf-link);
+  text-decoration-line: underline;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.18em;
+  text-decoration-skip-ink: auto;
+}
+
+:where(a[href]:visited) { color: var(--wf-link); }
+:where(a[href]:hover) { color: var(--wf-link-hover); }
+:where(a[href]:focus-visible) {
+  outline: 2px solid var(--wf-link-hover);
+  outline-offset: 4px;
+}

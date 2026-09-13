@@ -9,6 +9,8 @@ import { TOWN_PROFILES } from "../../../lib/culture";
 import { TOWN_HUBS } from "../../../lib/cultureHubs";
 import { rankedFor, whyLine, LANDING_CITIES } from "../../../lib/landing";
 import { SITE_URL } from "../../../lib/site";
+import IconicPlaceCard from "../../components/IconicPlaceCard";
+import { WF_PLACE_CARD_CSS } from "../../components/css";
 
 export const revalidate = 86400;
 export const dynamicParams = false;
@@ -41,7 +43,6 @@ const S = {
   story: { fontSize: 13.5, color: "#C9D1D9", margin: "4px 0 8px" },
   open: { display: "inline-block", fontSize: 12.5, fontWeight: 800, color: "#CBD5E1", textDecoration: "none" },
   mistake: { fontSize: 13, color: "#E8B84B", margin: "6px 0 0" },
-  rowWhy: { fontSize: 13, color: "#8B949E", margin: "3px 0 0" },
   links: { fontSize: 14, color: "#C9D1D9", margin: "10px 0 0" },
   a: { color: "#CBD5E1", fontWeight: 700, textDecoration: "none" },
   disclosure: { fontSize: 12, color: "#8B949E", background: "#161B22", borderRadius: 10, padding: "10px 12px", margin: "22px 0 0" },
@@ -65,6 +66,7 @@ export default async function Page({ params }) {
   const nearby = Object.entries(TOWN_HUBS).filter(([k]) => k !== key);
   return (
     <main style={S.page}>
+      <style dangerouslySetInnerHTML={{ __html: WF_PLACE_CARD_CSS }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Wayfind", item: SITE_URL }, { "@type": "ListItem", position: 2, name: "Florida", item: SITE_URL + "/culture/sarasota" }, { "@type": "ListItem", position: 3, name: t.title, item: SITE_URL + "/florida/" + params.town }] }) }} />
       {topTen.length >= 3 ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "ItemList", name: `Top things to do in ${t.title}, Florida`, itemListElement: topTen.map((p, i) => ({ "@type": "ListItem", position: i + 1, item: { "@type": "LocalBusiness", name: p.name, ...(p.rating != null && p.reviews >= 15 ? { aggregateRating: { "@type": "AggregateRating", ratingValue: p.rating, reviewCount: p.reviews } } : {}) } })) }) }} /> : null}
       <div style={S.kicker}>Wayfind · Florida destinations</div>
@@ -76,16 +78,19 @@ export default async function Page({ params }) {
         <>
           <h2 style={S.h2}>The top-rated places right now</h2>
           <p style={S.p}>Ranked by rating and review volume with Wayfind&apos;s junk filter — no ads, no paid placement. Live hours and the full list are in the app.</p>
+          <ul className="wf-place-card-list" style={{ listStyle: "none", margin: 0, padding: 0 }}>
           {topTen.map((p, i) => {
             const why = whyLine(p, "spot");
             return (
-              <div key={p.id || i} style={S.card}>
-                <p style={S.name}>{i + 1}. {p.name}</p>
-                {why ? <p style={S.rowWhy}>{why}</p> : null}
-                <a style={S.open} href={appUrl(`${p.name} ${t.title} FL`)}>Open in Wayfind ›</a>
-              </div>
+              <li className="wf-place-card-slot" key={p.id || i}>
+                <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+                  <IconicPlaceCard place={{ ...p, cardCategory: "Florida pick" }} rank={i + 1}
+                    href={appUrl(`${p.name} ${t.title} FL`)} editorial={why || null} editorialTier="known" surface="florida_town" />
+                </ul>
+              </li>
             );
           })}
+          </ul>
         </>
       ) : null}
 

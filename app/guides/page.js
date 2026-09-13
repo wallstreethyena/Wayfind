@@ -1,9 +1,14 @@
+import ReturnToWayfind from "../components/ReturnToWayfind";
 // v4.18 — Guides hub. A browsable index so humans and crawlers reach every
 // guide from one internally linked page, strengthening the authority flow.
 import { GUIDES } from "../../lib/guides";
+import { guideHero } from "../../lib/guideHero";
+import { guideRegions } from "../../lib/guideIndex";
+import styles from "./guides.module.css";
 import { SITE_URL } from "../../lib/site";
 import { experienceGoUrl } from "../../lib/affiliates";
 import HubConversion from "../components/HubConversion";
+import GuidePhoto from "../components/GuidePhoto";
 
 const _ogGuides = SITE_URL + "/api/og?t=" + encodeURIComponent("Florida travel guides, written by a local");
 export const metadata = {
@@ -28,32 +33,53 @@ const S = {
 };
 
 export default function GuidesHub() {
-  const regions = {};
-  for (const [slug, g] of Object.entries(GUIDES)) {
-    const r = g.region || "Orlando";
-    (regions[r] = regions[r] || []).push({ slug, ...g });
-  }
-  const order = ["Sarasota", "Orlando", "Tampa", "St. Petersburg"];
+  const regions = guideRegions(GUIDES);
   return (
-    <main style={S.page}>
+    <div className={styles.page}>
       {/* v8.22 (owner, live /guides: "there is nothing on this page that makes
           it easy to go back to the main page"). This hub renders OUTSIDE the
           app shell — no nav, no logo — so a reader who landed here from search
           or a card had no visible door home. Same chip language the app's
           standalone screens use. */}
-      <a href="/" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 999, background: "#161B22", border: "1px solid #21262D", color: "#FF8A3D", fontSize: 13.5, fontWeight: 800, textDecoration: "none", marginBottom: 18 }}>‹ Back to Wayfind</a>
-      <div style={S.kicker}>Wayfind Guides</div>
-      <h1 style={S.h1}>Florida Travel Guides</h1>
-      <p style={S.sub}>Written like a local would tell you: what earns your time, what to order, and what to skip. Every guide links into the Wayfind app for live hours and directions.</p>
-      {order.filter((r) => regions[r]).map((r) => (
-        <section key={r}>
-          <div style={S.region}>{r}</div>
-          {regions[r].map((g) => (
-            <a key={g.slug} href={"/guides/" + g.slug} style={S.card}>
-              <p style={S.t}>{g.title}</p>
-              <p style={S.d}>{g.description}</p>
+      <ReturnToWayfind style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 999, background: "#161B22", border: "1px solid #21262D", color: "#FF8A3D", fontSize: 13.5, fontWeight: 800, textDecoration: "none", marginBottom: 18 }} />
+      <header className={styles.header}>
+        <p className={styles.eyebrow}>The Wayfind journal</p>
+        <h1>Florida guides.<br />Better days out.</h1>
+        <p className={styles.lead}>Florida travel guides for the way you want to spend your day. Find a beach, compare a night out, or plan a weekend around something worth going to.</p>
+        <nav className={styles.regions} aria-label="Browse guides by destination">
+          {regions.map(({ region }, i) => <a key={region} href={"#destination-" + i}>{region}</a>)}
+        </nav>
+      </header>
+      {regions.map(({ region, guides }, i) => (
+        <section key={region} id={"destination-" + i} className={styles.section}>
+          <div className={styles.sectionHead}>
+            <h2>{region}</h2><span>{guides.length} {guides.length === 1 ? "guide" : "guides"}</span>
+          </div>
+          <div className={styles.grid}>
+          {guides.map((g) => {
+            const art = guideHero(g.slug);
+            const hasImage = Boolean(art?.src);
+            const imageCaption = art?.cardCaption || art?.caption || null;
+            return <article key={g.slug} className={`${styles.card} ${hasImage ? "" : styles.cardWithoutMedia}`} data-guide-card={g.slug}><a href={"/guides/" + g.slug} className={styles.cardLink}>
+              {hasImage ? <div className={styles.image}><GuidePhoto src={art.src} alt={art.alt || ""} width={art.width || 1600} height={art.height || 1000} loading="lazy" decoding="async" fallbackClassName={styles.imageFallback} style={{ objectPosition: art.position || "center" }} /></div> : null}
+              <div className={styles.cardBody}>
+                <p className={styles.cardRegion}>{region}</p>
+                <h3>{g.title}</h3>
+                <p className={styles.description}>{g.description}</p>
+                <span className={styles.read}>Explore the guide <span aria-hidden="true">↗</span></span>
+              </div>
             </a>
-          ))}
+              {imageCaption || art?.credit || art?.license ? <div className={styles.imageNote}>
+                {imageCaption ? <p className={styles.cardCaption}>{imageCaption}{art.modificationNotice ? " Resized; display crop. Source license retained." : ""}</p> : null}
+                {art?.credit || art?.license ? <p className={styles.credit}>
+                  {art.credit ? <a href={art.source}>Image: {art.credit}</a> : null}
+                  {art.credit && art.license ? " · " : ""}
+                  {art.license ? <a href={art.licenseUrl || art.source}>{art.license}</a> : null}
+                </p> : null}
+              </div> : null}
+            </article>;
+          })}
+          </div>
         </section>
       ))}
       {/* The hub's one primary CTA. Orlando is not an arbitrary pick: it is the
@@ -80,6 +106,6 @@ export default function GuidesHub() {
         next={{ label: "Read the Orlando guide", href: "/guides/things-to-do-orlando-not-theme-parks" }}
       />
       <p style={S.foot}>Planning around a specific spot? <a href="/" style={S.link}>Open Wayfind</a> and search it, or start with what each city is known for: <a href="/culture/orlando" style={S.link}>Orlando</a>, <a href="/culture/sarasota" style={S.link}>Sarasota</a>, <a href="/culture/tampa" style={S.link}>Tampa</a>.</p>
-    </main>
+    </div>
   );
 }

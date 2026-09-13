@@ -66,9 +66,16 @@ git fetch origin
 gh pr list --state open        # or open github.com/wallstreethyena/Wayfind/pulls
 ```
 
-If an open PR already covers the task you were handed, **say so and stop.** Do not open a
-second one. Today two agents independently reconciled PR #393 and reached *opposite*
-conclusions about the same code. That is worse than either one working alone.
+If an open PR already covers the task you were handed, **inspect that work instead of
+stopping the task.** Do not create a duplicate implementation PR or overwrite another
+writer\'s branch. Read the exact current head, its diff and CI results, and verify whether
+it actually solves the user\'s problem. If the PR has merged, audit the merged commit,
+current main and the deployed version under §13. An existing PR or merge is evidence to
+inspect, not proof of correctness and not a reason to abandon the user\'s task.
+
+Keep overlapping implementation coordinated; perform read-only review or use an isolated
+worktree while another writer owns the branch. Report actionable findings with evidence
+and continue authorized verification or narrowly scoped follow-up work.
 
 ## 3. Branch from `origin/main`, and stay close to it
 
@@ -296,3 +303,66 @@ A wrong-city result is worse than no result. A mismatched CTA is worse than no C
   exists, fall back to Directions or hide the CTA — never render a null or wrong CTA.
 - If the data needed to make a correct CTA or location match is missing, the failure must be
   distinguishable from a legitimate empty state.
+
+
+## 13. Verify existing and merged work before declaring completion
+
+When a requested task overlaps an existing, merged or reportedly deployed change:
+
+1. Identify the PR, exact head or merge SHA, current main, and production deployment SHA.
+   Distinguish open, merged, deployed and verified; never infer one from another.
+2. Inspect the actual diff and relevant callers, including browser/server deadlines,
+   response completeness, photo identity, cache behavior and shared consumers as applicable.
+3. Read CI results for the exact revision. Run focused checks that exercise the original
+   failure and healthy controls. Reproduce suspected defects before reporting them as facts.
+   A green build or HTTP 200 alone does not prove complete, usable results.
+4. If deployed, run the narrow production checks that prove the user-facing behavior and
+   inspect relevant telemetry. If not deployed or access is unavailable, state the missing
+   verification explicitly; do not label the work complete.
+5. Preserve another writer's work. Do not create a competing implementation or replay an
+   already merged patch. Continue review and authorized verification; where a defect is
+   proven, prepare a focused follow-up on current main or coordinate the existing branch.
+   Existing authorization persists; honor §11 for outward actions not already authorized.
+6. Report what was verified, the exact revision, remaining defects or verification gaps,
+   and the next concrete action. “Already merged” is a starting point for this audit,
+   never a substitute for it.
+
+## 14. One place card standard across the entire site
+
+Owner instruction, 2026-09-12: all place cards on every page must use the same
+size, dimensions, and established look. This is a product rule, not a suggestion.
+
+- `lib/placeCardStandard.js` owns the sizing values. `WF_PLACE_CARD_CSS` in
+  `app/components/css.js` owns the card's geometry, typography, spacing, media,
+  frame, and controls. The standard card body is **268px high**. Its shared
+  responsive width is capped at **440px** and fits narrower containers.
+- Use the existing shared place card components and their supported slots.
+  This includes home/menu/poster results, event and place recommendations,
+  maps, favorites, itineraries, creator place picks, sponsored places, guides,
+  and city/category result pages. A new page is not a new design system.
+- New UI must compose the site's established navigation, rail headings,
+  cards, buttons, loading components, and design tokens. Reuse the existing
+  look and feel; a feature request does not authorize a different visual
+  language. A genuinely new visual pattern requires explicit owner direction.
+- Never introduce a local card height, width formula, media geometry, title
+  style, action sizing, or duplicate card renderer to make one surface fit.
+  Do not override the shared sizing variables in a route, wrapper, inline
+  style, or separate stylesheet. Fix a content-fit problem in the shared
+  contract while retaining visible, usable controls and truthful disclosures.
+- Wrappers may arrange cards using the shared rail, list, and slot classes.
+  Verified booking details and required disclosures may accompany the card;
+  they must not change its body dimensions. Existing seasonal treatments and
+  meaningful state badges do not authorize a new layout.
+- `scripts/check-place-card-standard.mjs` must run in the guard suite. New raw
+  card renderers require a registered real-render fixture in the same change.
+  Do not add exclusions, weaken a measurement, or bypass the required browser
+  check to ship a private design. Missing browser evidence is not a pass.
+- Verify achieved phone, tablet, and desktop widths, actual card dimensions,
+  style parity, and control containment. Reintroducing the historical 340px
+  event override must make the protection fail. Update all affected fixtures
+  whenever the shared contract changes.
+- Changing the sitewide visual standard itself requires the owner's explicit
+  design direction. Updating a feature alone does not grant that permission.
+
+See `docs/ui/place-card-standard.md` for the contract and
+`docs/ui/place-card-audit.md` for the surfaces audited when this rule was added.

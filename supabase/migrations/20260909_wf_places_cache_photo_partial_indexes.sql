@@ -1,0 +1,84 @@
+-- 20260909_wf_places_cache_photo_partial_indexes.sql
+-- The two photo views were timing out in production. This is the index that
+-- stops it. (2026-09-09)
+--
+-- WHAT BROKE, IN THE DATABASE'S OWN WORDS. The hourly at-risk drain
+-- (vercel.json: `/api/cron/place-photos?source=at-risk&limit=25`, `35 * * * *`)
+-- reported `place-photos: wf_photo_at_risk unavailable` with attempted=0 at
+-- 2026-09-09 19:35:19Z. PostgREST's log for that exact request:
+--
+--   127.0.0.1 - service_role "GET /wf_photo_at_risk?select=place_id,name,
+--     category,earliest_expiry&order=earliest_expiry.asc&limit=1000" 500
+--   {"code":"57014","message":"canceling statement due to statement timeout"}
+--
+-- `service_role` carries no rolconfig of its own, so it inherits
+-- `authenticator`'s `statement_timeout=8s`. The same URL returned 200 at
+-- 17:05, 17:06 and 14:35 and 500 at 17:04 and 19:35 — INTERMITTENT, which is
+-- the signature of a query whose cost is dominated by I/O that is sometimes
+-- warm in shared_buffers and sometimes not. It is not a permissions problem,
+-- not a schema-cache problem, and not a bad plan: it is too much I/O.
+--
+-- WHY IT WAS TOO MUCH I/O. Both photo views filter `wf_places_cache` by a
+-- key PREFIX and by `exp > now()`, and only `exp` was indexed. So Postgres
+-- range-scanned `wf_places_cache_exp_idx`, fetched the heap tuple for every
+-- unexpired row, and THEN threw most of them away:
+--
+--   Index Scan using wf_places_cache_exp_idx  (rows=10133)
+--     Index Cond: (exp > now())
+--     Filter: (k ~~ 'photo|places/%')
+--     Rows Removed by Filter: 35700          <-- 3.5x more discarded than kept
+--     Buffers: shared hit=41830
+--
+-- 41,830 buffer visits to keep 10,133 rows. `wf_places_cache` is 1,359 MB
+-- (the payloads are TOASTed out of line; the main heap is 7,022 pages), so a
+-- cold run of that scan is tens of thousands of heap accesses. Warm it
+-- measures 75 ms; that is precisely why this hid — the timeout only fires on
+-- the cold path, and a cron that runs hourly is often the cold path.
+--
+-- THE FIX: a partial, COVERING index per prefix. `(exp, k)` puts both the
+-- range key and the prefix source in the index, so the scan becomes an
+-- INDEX ONLY SCAN with `Heap Fetches: 0` — the 1,359 MB table is never
+-- touched at all, and the two `split_part()` derivations each view needs are
+-- computed from the indexed `k`.
+--
+-- MEASURED, before -> after (EXPLAIN ANALYZE, BUFFERS, same rows out):
+--
+--   the offending cache scan   41,830 -> 741 buffers   (56x, Heap Fetches: 0)
+--   wf_photo_at_risk (1000)    44,675 -> 3,586 buffers (12.5x, cost 10546->4508)
+--   wf_photo_coverage_census   44,710 -> 3,633 buffers (12.3x, cost 12089->5985)
+--
+-- WHY TWO INDEXES AND NOT ONE. `wf_photo_at_risk` filters
+-- `k LIKE 'photo|places/%'`; `wf_photo_coverage_census` filters the broader
+-- `k LIKE 'photo|%'`. A human reads the first as implying the second, and it
+-- does — but POSTGRES'S PREDICATE PROVER DOES NOT REASON ABOUT LIKE PATTERN
+-- SUBSUMPTION. Measured, not assumed: with only the broad
+-- `WHERE k LIKE 'photo|%'` index present, the census went index-only (741
+-- buffers) while wf_photo_at_risk REGRESSED to the old 41,818-buffer plan on
+-- `wf_places_cache_exp_idx`. A partial index is only used when its predicate
+-- matches the query's own qual, so each prefix gets its own index.
+--
+-- The two are 5,952 kB each — 0.9% of the table between them — and today they
+-- cover the same 10,133 rows (there are currently zero `photo|` keys that are
+-- not `photo|places/`). That overlap is DATA, not a contract: keeping both
+-- predicates verbatim means neither view silently loses its index the day a
+-- non-`places/` photo key appears. Do not "deduplicate" them.
+--
+-- IF EITHER VIEW'S WHERE CLAUSE EVER CHANGES, CHANGE ITS INDEX PREDICATE IN
+-- THE SAME COMMIT, and re-read the plan for `Index Only Scan` +
+-- `Heap Fetches: 0`. A partial index that no longer matches its query does
+-- not error — it is silently ignored, and the view goes back to timing out
+-- intermittently on the cold path, which is a week of `at-risk 0/0`-shaped
+-- pulses before anyone notices.
+--
+-- Applied to production 2026-09-09 with CREATE INDEX CONCURRENTLY (no write
+-- lock on a live table). Written here non-concurrently because migrations run
+-- inside a transaction and CONCURRENTLY cannot; `IF NOT EXISTS` makes this a
+-- no-op against the production database that already has them.
+
+create index if not exists wf_places_cache_photo_place_key_exp_idx
+  on public.wf_places_cache (exp, k)
+  where k like 'photo|places/%';
+
+create index if not exists wf_places_cache_photo_key_exp_idx
+  on public.wf_places_cache (exp, k)
+  where k like 'photo|%';

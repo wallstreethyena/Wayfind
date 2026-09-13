@@ -62,6 +62,8 @@ limit, and one REPEATABLE READ / READ ONLY transaction. It consumes all batches
 until exhaustion; the default 100,000-row ceiling fails rather than silently
 truncating. No stored procedure, external provider or write operation is invoked.
 The seven-day job window is bounded with an exclusive upper timestamp.
+Snapshot schema version 2 adds the pulse note required for domain interpretation;
+older snapshots fail the column/version contract instead of producing guessed outcomes.
 
 If a direct connection is unavailable, `sql/snapshot.sql` is a fixed read-only
 single-statement export for the existing authenticated database query tool or SQL
@@ -91,10 +93,18 @@ An empty complete dataset is allowed; an absent or partial dataset is an error.
 - **Usage:** reports recorded SKU grants and stored caps by month. Counters can
   include seeded usage and are not invoices. Stored caps may differ from the
   effective current spend policy. No price table or dollar savings is invented.
-- **Jobs:** reports each job's own attempted/succeeded/failed units, idle runs,
-  zero-output runs, and inconsistent counters. Jobs have different units; totals
-  across jobs are not a cost metric. Historical zero output is a review lead,
-  not proof that a provider is currently broken or that a paid call occurred.
+- **Jobs:** preserves each job's raw attempted/succeeded/failed pulse counters,
+  idle runs, zero pulse-succeeded runs, and inconsistent counters. Those counters have
+  producer-specific meanings and are not a shared success metric. For
+  `photo-repair`, `photo-monitor`, and `place-photos`, the report also parses the
+  producer's note into strict domain outcomes. Classification remains separate
+  from recovery; a monitor pulse failure can mean a newly emitted alert; valid
+  Commons rejections remain separate from worker errors. Missing, malformed, or
+  counter-inconsistent notes produce `unknown` fields rather than zero. Full
+  snapshot-window and latest-24-hour sections are labeled separately, and bound
+  work budgets appear as `PARTIAL`. Place-photo worklist pagination that reports
+  `PARTIAL` or `UNAVAILABLE` remains distinct from an ordinary observed worklist;
+  unrecognized completion text stays unknown.
 - **Duplicates:** compares records in the same known category within 150 meters
   using normalized names with symmetric similarity >= 0.92. Earth-centered
   neighboring cells handle grid edges, poles, and the date line. Candidates are
@@ -103,9 +113,11 @@ An empty complete dataset is allowed; an absent or partial dataset is an error.
   coordinates are outside scope. The comparison ceiling fails loudly.
 
 Each JSON report includes input counts, observation window, snapshot consistency,
-input SHA-256, tool version, all candidate IDs, and limitations. Reports exclude
-source names, coordinates, raw editorial text and credentials. Unknown costs and
-rates are JSON null, not zero. Coverage cells and IDs are escaped in Markdown.
+input SHA-256, tool version, all candidate IDs, and limitations. Job notes are
+required snapshot evidence but are not copied into reports; only validated domain
+fields are emitted. Reports exclude source names, coordinates, raw editorial text
+and credentials. Unknown costs, rates, and domain totals are JSON null, not zero.
+Coverage cells and IDs are escaped in Markdown.
 
 ## Scheduled workflow
 
@@ -146,8 +158,9 @@ uv build
 
 Tests include incomplete exports, duplicate IDs, wrong column schemas, invalid
 coordinates, unknown caps, zero denominators, inconsistent counters, idle jobs,
-false duplicate matches across geography/categories, date-line neighbors, pair
-caps, CLI output/no-overwrite, credential redaction and collector batch exhaustion.
+producer-specific photo outcomes, partial job runs, missing or malformed pulse
+notes, false duplicate matches across geography/categories, date-line neighbors,
+pair caps, CLI output/no-overwrite, credential redaction and collector exhaustion.
 All collection queries live in `wayfind_audit/snapshot.py`. When changing them,
 regenerate `sql/snapshot.sql` with `uv run python scripts/export_sql.py`; a test
 checks that the export remains synchronized. The SQL was verified against the

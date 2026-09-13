@@ -42,8 +42,8 @@ ok(/Math\.abs\(_prime\.lat - center\.lat\) < 5e-4/.test(home) && /Math\.abs\(_pr
 ok(/delete window\.__wfEvPrime/.test(home), "the primer must be consumed one-shot — a reused stale promise would serve old events after a location change");
 ok(/_primeOk\s*\n?\s*\? await _prime\.p\s*\n?\s*: await fetch\("\/api\/events\?lat=" \+ center\.lat\.toFixed\(2\)/.test(home),
   "a mismatched primer must fall through to a normal (GET, 2dp-rounded) fetch — the primer may only ever be a head start");
-ok(/if \(!data\) \{ if \(!cancelled\) setForyouEvents\(\[\]\); return; \}/.test(home),
-  "a null primed response must degrade to the honest empty rail, same as a failed fetch");
+ok(/if \(!Array\.isArray\(data\?\.events\)\) \{ if \(!cancelled\) \{ setForyouEvents\(\[\]\); setForyouEventsFailed\(true\); \} return; \}/.test(home),
+  "a null or malformed primed response must record source failure, never masquerade as healthy emptiness");
 
 // ---- 3. THE #218 SWAP MUST STAY DEAD -------------------------------------
 ok(/const initialEvents = null;/.test(page), "the SSR events seed is back on — that is the content swap the owner reported. The primer replaces it; both together repaint twice.");

@@ -57,10 +57,10 @@ ok(/discountDepthBonus\(/.test(partner) && /timeOfDayBonus\(/.test(partner), "In
 ok(/evidenceScore\(b\) - evidenceScore\(a\)/.test(partner), "the guarded evidence sort call itself is untouched");
 ok(/if \(base < 0\) return base;/.test(partner), "unrated inventory (no rating evidence) is excluded from both bonuses and still sorts last");
 
-const home = readFileSync(path.resolve("app/home.js"), "utf8");
-ok(/from "\.\.\/lib\/experienceNowRank"/.test(home), "home.js imports the shared now-rank helpers");
-ok(/sort\(\(a, b\) => b\.score - a\.score\)/.test(home), "UnifiedBrowseCommerceRail's guarded score sort call itself is untouched");
-ok(/dBase > 0 \? dBase \+ discountDepthBonus/.test(home), "UnifiedBrowseCommerceRail's deal score keeps the -1 unrated sentinel and only bonuses rated deals");
+const browseRail = readFileSync(path.resolve("app/components/UnifiedBrowseCommerceRail.js"), "utf8");
+ok(/from "\.\.\/\.\.\/lib\/experienceNowRank"/.test(browseRail), "the extracted browse rail imports the shared now-rank helpers");
+ok(/sort\(\(a, b\) => b\.score - a\.score \|\| \(b\.rankBonus \|\| 0\) - \(a\.rankBonus \|\| 0\)\)/.test(browseRail), "UnifiedBrowseCommerceRail keeps evidence score primary and applies the bounded now bonus only as a tie-break");
+ok(/dBase > 0 \? dBase \+ discountDepthBonus/.test(browseRail), "UnifiedBrowseCommerceRail's deal score keeps the -1 unrated sentinel and only bonuses rated deals");
 
 const rankExpSrc = readFileSync(path.resolve("lib/experiencesData.js"), "utf8");
 ok(!/experienceNowRank/.test(rankExpSrc), "rankExperiences itself is untouched — test-ranked-experience-rails.mjs's guarantee still holds unmodified");

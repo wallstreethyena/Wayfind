@@ -10,6 +10,7 @@
 import { pilotForPlace } from "../../../lib/beachPlanning";
 import { useEffect, useRef, useState } from "react";
 import ScoreExplanation from "../ScoreExplanation.js";
+import dynamic from "next/dynamic";
 import { safeUrl } from "../../../lib/links.js";
 import { C, sheetBg, sheet, SHEET_EASE, Grabber, directionsUrl, offerLabel, scoreLabel, stars, PlaceScoreChip, PriceBadge, TRENDING_POPULARITY_THRESHOLD } from "../kit";
 import { priceLevelOf } from "../../../lib/price";
@@ -34,6 +35,7 @@ import { withClickId, isEarningGoHref } from "../../../lib/hubConversion";
 import { funnelProps } from "../../../lib/funnel";
 import { useCommerceImpression } from "../useCommerceImpression";
 import { nearbyTourListAllowed, placePartnerPick } from "../../../lib/placePartnerPicks";
+import { usePinQuarantine } from "../../../lib/pinQuarantine";
 import { pairsWellWith } from "../../../lib/pairsWellWith";
 import { askShareIntent } from "../shareIntentSheet";
 import { placeKinds } from "../../../lib/dateInvite";
@@ -41,6 +43,12 @@ import { hasRealPlacePhoto, realPlacePhotoSrc } from "../../../lib/detailHero";
 import { editorialRequestQuery, carriedEditorial, hasSourcedEditorialFields } from "../../../lib/editorialLookup";
 import { whyWayfindPickedBody } from "../../../lib/insightWhy";
 import { isOwnerPick } from "../../../lib/ownerBump";
+import { ATTRACTION_DISCOVERY_IDS } from "../../../lib/tripAttractions.js";
+
+// This rail brings the full shared place card with it. Keep that code outside
+// the homepage's eager detail bundle and request it only for plausible hotel
+// or flagship-attraction details; the server still verifies the exact ID.
+const TripConnections = dynamic(() => import("../TripConnections"), { ssr: false, loading: () => null });
 
 // Community takes (v6.54, owner: "the review is capped on characters we
 // should be able to allow the user to have more characters and write it
@@ -404,7 +412,7 @@ function WhereToGoNextRow({ p, partner, reason, pairDistMi, openDetail, liveOpen
 }
 
 export default function DetailSheet({ ctx }) {
-  const { detail, setDetail, detailExtra, setLightbox, reviewsOpen, setReviewsOpen, hoursOpen, setHoursOpen, venueEvents, venueEventsLoading, venueEventsOpen, setVenueEventsOpen, videos, videosLoading, beachCond, beachCondLoading, insight, insightLoading, insightFull, insightFullLoading, showMore, viaTours, debugOn, placeComments, setPlaceComments, commentType, setCommentType, placePosts, setPlacePosts, confirmDel, setConfirmDel, taInfo, insider, detailContext, myVotes, communityVotes, galleryRef, noteRef, scrollGallery, loadFullInsight, addReservation, handleVote, loadVenueEvents, placeShareUrl, FeaturedTag, curatedNote, curatedFor, wayfindNotes, betterAlternatives, similarPlaces, relatedPicks, placeKind, isBeach, suggested, places, offers, locName, blurbs, blurbLine, liked, disliked, user, authReady, sheetDragStart, sheetDragMove, sheetDragEnd, quickSaveFavorite, isSaved, toggleLike, toggleDislike, addShared, giveawayMark, logEvent, openExternal, openCuisine, openExperience, openDetail, setAuthOpen, ticketUrl, formatEventDate, shareLink, showToast, dedupePlaces, primaryCategory, experienceBadges, Critter, FallbackImg, liveOpen, weather } = ctx;
+  const { detail, setDetail, detailExtra, setLightbox, reviewsOpen, setReviewsOpen, hoursOpen, setHoursOpen, venueEvents, venueEventsLoading, venueEventsOpen, setVenueEventsOpen, videos, videosLoading, beachCond, beachCondLoading, insight, insightLoading, insightFull, insightFullLoading, showMore, viaTours, debugOn, placeComments, setPlaceComments, commentType, setCommentType, placePosts, setPlacePosts, confirmDel, setConfirmDel, taInfo, insider, detailContext, myVotes, communityVotes, galleryRef, noteRef, scrollGallery, loadFullInsight, addReservation, handleVote, loadVenueEvents, placeShareUrl, FeaturedTag, curatedNote, curatedFor, wayfindNotes, betterAlternatives, similarPlaces, relatedPicks, placeKind, isBeach, suggested, places, offers, locName, blurbs, blurbLine, liked, disliked, user, authReady, sheetDragStart, sheetDragMove, sheetDragEnd, quickSaveFavorite, isSaved, toggleLike, toggleDislike, addShared, giveawayMark, logEvent, openExternal, openCuisine, openExperience, openDetail, setAuthOpen, ticketUrl, formatEventDate, shareLink, showToast, dedupePlaces, primaryCategory, experienceBadges, Critter, FallbackImg, liveOpen, weather, isSharedPlaceArrival } = ctx;
   const [lunchChallengeView, setLunchChallengeView] = useState(false);
   useEffect(() => {
     try {
@@ -481,7 +489,14 @@ export default function DetailSheet({ ctx }) {
 
   // v6.72 — detail-sheet CTA ladder (Kimi revenue lane). One primary action,
   // place-type-aware, with a live "go now / wait" verdict above it.
-  const primaryCta = resolveDetailCta({ detail, kind: placeKind(detail), viaTours, locName, offers, openState });
+  // LIVE QUARANTINE (2026-09-10). A pinned product that dies in the
+  // catalogue must stop painting a Book button without waiting for a
+  // deploy. The snapshot is always a usable catalog and quarantines
+  // nothing until the server has named a specific code dead, so passing
+  // it is unconditionally safe. Declared with the other top-level hooks,
+  // above every early return. See lib/pinQuarantine.js.
+  const pinQ = usePinQuarantine();
+  const primaryCta = resolveDetailCta({ detail, kind: placeKind(detail), viaTours, locName, offers, openState, catalog: pinQ });
   const verdict = detailVerdict({ detail, weather, openState });
   const ctaCategory = Dining.cuisineLabel(detail) || primaryCategory(detail) || placeKind(detail) || "";
   const ctaCity = locName ? locName.split(",")[0] : "";
@@ -733,7 +748,7 @@ export default function DetailSheet({ ctx }) {
   const heroSrc = realPlacePhotoSrc(detail);
 
   return (
-        <div style={sheetBg} onClick={() => window.history.back()}>
+        <div style={isSharedPlaceArrival ? { ...sheetBg, background: "#050608" } : sheetBg} onClick={() => window.history.back()}>
           <div style={{ ...sheet, overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => window.history.back())} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
             <Grabber />
             <div style={{ position: "relative" }}>
@@ -958,7 +973,15 @@ export default function DetailSheet({ ctx }) {
                     {cvs.map((v, i) => {
                       const p = PLATFORM[v.platform] || PLATFORM.tiktok;
                       const handle = v.creator ? "@" + v.creator : null;
-                      const headline = handle ? `Watch ${handle}'s visit to ${detail.name}` : `See ${detail.name} on ${p.label}`;
+                      // Instagram's /p/ URLs may be stills or carousels, so a
+                      // video-only label can promise media the native post does
+                      // not contain. Keep every Instagram association accurate;
+                      // reel URLs still open the same native post.
+                      const instagramPost = v.platform === "instagram";
+                      const headline = instagramPost
+                        ? (handle ? `View ${handle}'s post about ${detail.name}` : `View ${detail.name} on Instagram`)
+                        : (handle ? `Watch ${handle}'s visit to ${detail.name}` : `See ${detail.name} on ${p.label}`);
+                      const actionLabel = instagramPost ? "View on Instagram ↗" : "Watch Video ↗";
                       // v6.91 (owner): "add a glowing light to the back of those
                       // that matched the color of the box, make it a global
                       // rule so we don't have to keep adjusting manually." The
@@ -990,7 +1013,7 @@ export default function DetailSheet({ ctx }) {
                             <div style={{ fontSize: 14.5, fontWeight: 800, color: C.text, lineHeight: 1.25 }}>{headline}</div>
                             {captionFor(v) && <div style={{ fontSize: 12, color: C.muted, marginTop: 4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", lineHeight: 1.35 }}>{captionFor(v)}</div>}
                             <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 7 }}>
-                              <span style={{ fontSize: 12.5, fontWeight: 800, color: p.color }}>Watch Video ↗</span>
+                              <span style={{ fontSize: 12.5, fontWeight: 800, color: p.color }}>{actionLabel}</span>
                               {handle && <span style={{ fontSize: 11.5, color: C.muted }}>· by {handle}</span>}
                             </div>
                           </div>
@@ -1055,7 +1078,7 @@ export default function DetailSheet({ ctx }) {
               {!detail._event && (() => {
                 const nextPool = dedupePlaces([...(suggested || []), ...places]).filter((p) => p && p.id !== detail.id);
                 const picks = pairsWellWith(detail, nextPool, { max: 3, radiusMi: 8 })
-                  .map((pick) => ({ ...pick, partner: placePartnerPick(pick.p) }));
+                  .map((pick) => ({ ...pick, partner: placePartnerPick(pick.p, pinQ) }));
                 if (!picks.length) return null;
                 return (
                   <div style={{ marginBottom: 16 }} data-where-to-go-next>
@@ -1136,7 +1159,7 @@ export default function DetailSheet({ ctx }) {
                 </div>
               ); })()}
               <div style={{ marginBottom: 16 }}>
-              {!detail._event && nearbyTourListAllowed(detail) && ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"].includes(placeKind(detail)) && (() => {
+              {!detail._event && nearbyTourListAllowed(detail, pinQ) && ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"].includes(placeKind(detail)) && (() => {
                 const _hasNoteUrl = (() => { const _n = wayfindNotes(detail.name); return !!(_n && _n.some((x) => x && typeof x === "object" && x.url)); })();
                 return <BookingCTA variant="list" detail={detail} kind={placeKind(detail)} viaTours={viaTours} logEvent={logEvent} addReservation={addReservation} openExternal={openExternal} locName={locName} suppressFallback={_hasNoteUrl} placeId={detail.id} city={ctaCity} />;
               })()}
@@ -1543,6 +1566,9 @@ export default function DetailSheet({ ctx }) {
                 );
               })()}
               {/* v6.25: "More like this" — similar experience among loaded places, matched on shared traits. */}
+              {!detail._event && (ATTRACTION_DISCOVERY_IDS.includes(detail.id) || ["hotel", "entertainment", "wildlife", "museum"].includes(placeKind(detail))) ? (
+                <TripConnections place={detail} onOpenPlace={(place) => openDetail(place, "trip_connections")} />
+              ) : null}
               {!detail._event && (() => {
                 const simPool = dedupePlaces([...(suggested || []), ...places]);
                 const badgesOf = (x) => { try { return new Set(experienceBadges(x, null, 99).map((b) => b.key)); } catch (er) { return new Set(); } };

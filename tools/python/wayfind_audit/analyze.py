@@ -3,11 +3,14 @@
 import math
 import re
 import unicodedata
+from datetime import timedelta
 from difflib import SequenceMatcher
 
 import duckdb
 
-from .snapshot import AuditError, validate
+from .duplicate_reviews import distinct_review
+from .job_outcomes import summarize_job_outcomes
+from .snapshot import AuditError, timestamp, validate
 
 
 def normalize_name(name):
@@ -52,7 +55,7 @@ def audit(snapshot, max_pairs=100_000):
           hook_chars integer, why_chars integer, sourced_facts integer)""")
         db.execute("create table ledger (month varchar, sku varchar, used bigint, cap bigint)")
         db.execute("""create table jobs (id bigint, job varchar, ran_at varchar,
-          attempted bigint, succeeded bigint, failed bigint)""")
+          attempted bigint, succeeded bigint, failed bigint, note varchar)""")
         db.execute("BEGIN TRANSACTION")
         for table in ("places", "ledger", "jobs"):
             rows = snapshot["datasets"][table]["rows"]
@@ -116,21 +119,48 @@ def audit(snapshot, max_pairs=100_000):
             db,
             """select job, count(*) as runs,
           sum(attempted) as attempted, sum(succeeded) as succeeded, sum(failed) as failed,
-          count(*) filter(where attempted > 0 and succeeded = 0) as zero_output_runs,
-          count(*) filter(where attempted = 0) as idle_runs,
+          count(*) filter(where attempted > 0 and succeeded = 0) as zero_pulse_succeeded_runs,
+          count(*) filter(where attempted = 0 and succeeded = 0 and failed = 0) as idle_runs,
+          count(*) filter(where attempted = 0 and failed > 0) as zero_attempt_failure_runs,
           count(*) filter(where succeeded + failed <> attempted) as inconsistent_counter_runs,
           min(ran_at) as first_run, max(ran_at) as last_run
-          from jobs group by job order by zero_output_runs desc, job""",
+          from jobs group by job order by zero_pulse_succeeded_runs desc, job""",
         )
         for row in jobs:
-            row["success_pct"] = (
+            row["pulse_succeeded_pct"] = (
                 round(100 * row["succeeded"] / row["attempted"], 2)
                 if row["attempted"] and not row["inconsistent_counter_runs"]
                 else None
             )
+        recent_since = (timestamp(snapshot["until"]) - timedelta(hours=24)).isoformat()
+        recent_jobs = dict_rows(
+            db,
+            """select job, count(*) as runs,
+          sum(attempted) as attempted, sum(succeeded) as succeeded, sum(failed) as failed,
+          count(*) filter(where attempted > 0 and succeeded = 0) as zero_pulse_succeeded_runs,
+          count(*) filter(where attempted = 0 and succeeded = 0 and failed = 0) as idle_runs,
+          count(*) filter(where attempted = 0 and failed > 0) as zero_attempt_failure_runs
+          from jobs where cast(ran_at as timestamptz) >= cast('"""
+            + recent_since
+            + """' as timestamptz)
+          group by job order by job""",
+        )
         duplicate_result = duplicates(db, snapshot["datasets"]["places"]["rows"], max_pairs)
+        job_rows = snapshot["datasets"]["jobs"]["rows"]
+        full_outcomes = summarize_job_outcomes(
+            job_rows, snapshot["datasets"]["jobs"]["columns"], snapshot["since"], snapshot["until"]
+        )
+        effective_recent_since = max(
+            timestamp(snapshot["since"]), timestamp(recent_since)
+        ).isoformat()
+        recent_outcomes = summarize_job_outcomes(
+            job_rows,
+            snapshot["datasets"]["jobs"]["columns"],
+            effective_recent_since,
+            snapshot["until"],
+        )
         return {
-            "schema_version": 1,
+            "schema_version": 2,
             "source_kind": snapshot["source_kind"],
             "scope": snapshot["scope"],
             "captured_at": snapshot["captured_at"],
@@ -141,6 +171,12 @@ def audit(snapshot, max_pairs=100_000):
             "editorial_content_flags": content_flags,
             "ledger": ledger,
             "jobs": jobs,
+            "recent_jobs": recent_jobs,
+            "recent_since": effective_recent_since,
+            "job_outcomes": {
+                "full_window": full_outcomes,
+                "latest_24_hours": recent_outcomes,
+            },
             "duplicates": duplicate_result,
             "costs": {
                 "actual_usd": None,
@@ -151,7 +187,8 @@ def audit(snapshot, max_pairs=100_000):
                 "Coverage measures wf_inventory state and joined wf_editorial only. Owner/legacy editorial and per-rail predicates are not included.",
                 "Content lengths are a conservative SQL diagnostic; Unicode trim/UTF-16 boundary cases can differ from the JavaScript publisher.",
                 "Ledger cap is the stored cap, not proof of current effective policy, remaining free quota or paid cost.",
-                "Zero-output job runs are observations, not proof of wasted paid calls or current incidents.",
+                "Zero pulse-succeeded runs are producer-specific observations, not proof of absent domain work, wasted paid calls or current incidents.",
+                "Generic job counters have producer-specific meanings. Domain outcomes are reported only when a recognized note agrees with its counters; missing or malformed notes remain unknown.",
                 "Duplicate candidates require human review. Nearby same-name businesses may be distinct.",
                 "Fuzzy matching only compares named, located records in the same known category within 150 meters.",
                 "Raw snapshot content is local and subject to its source retention policy; reports contain IDs and aggregates, not source names or coordinates.",
@@ -213,6 +250,10 @@ def duplicates(db, rows, max_pairs):
             "Duplicate comparison ceiling reached; refusing a partial report. Increase --max-pairs or explicitly scope input."
         )
     out = []
+    inactive = []
+    reviewed = []
+    categories = {r[0]: r[5] for r in rows}
+    state = {r[0]: (r[6], r[7]) for r in rows}
     for left, right, a, b, distance in candidates:
         # Symmetric ratio avoids SequenceMatcher's argument-order sensitivity.
         ratio = min(
@@ -220,7 +261,22 @@ def duplicates(db, rows, max_pairs):
             SequenceMatcher(None, b, a, autojunk=False).ratio(),
         )
         if ratio >= 0.92:
-            out.append(
+            review = distinct_review(left, right, a, b, categories[left])
+            if review:
+                reviewed.append({"left_id": left, "right_id": right, **review})
+                continue
+            # Retain inactive pairs as evidence, but do not send deliberately
+            # excluded records back to the active duplicate review queue.
+            target = (
+                inactive
+                if any(
+                    state[x][1] is True
+                    or state[x][0] in ("EXCLUDED", "CLOSED_PERMANENTLY", "CLOSED_TEMPORARILY")
+                    for x in (left, right)
+                )
+                else out
+            )
+            target.append(
                 {
                     "left_id": left,
                     "right_id": right,
@@ -232,6 +288,8 @@ def duplicates(db, rows, max_pairs):
             )
     return {
         "candidate_pairs": out,
+        "inactive_pairs": inactive,
+        "reviewed_distinct_pairs": reviewed,
         "compared_pairs": len(candidates),
         "located_named_records": len(points),
         "skipped_records": missing,

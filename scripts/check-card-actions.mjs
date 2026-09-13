@@ -157,6 +157,14 @@ for (const dep of ["persistLike", "persistDislike", "persistSave"]) {
 ok(/useSyncExternalStore/.test(storeSrc), `${STORE}: cards must read one shared snapshot, not one subscription per card`);
 ok(/getServerSnapshot|SERVER_SNAPSHOT/.test(storeSrc), `${STORE}: needs a server snapshot, or every prerendered card hydrates against markup the server never sent`);
 ok(new RegExp("from \"" + "../../lib/cardActions" + "\"").test(cardSrc), `${CARD}: does not import the fallback store`);
+ok(/className="wf-place-card-share"[\s\S]{0,220}\[ACTION_ATTR\]: "share"[\s\S]{0,120}\[PLACE_ATTR\]: place\.id/.test(cardSrc),
+  `${CARD}: Share must expose its action and place to the pre-hydration capture script`);
+ok(/action === "share" && h\.share\) h\.share\(h\.place\)/.test(cardSrc),
+  `${CARD}: the action bridge must replay Share with the card's onShare(place) contract`);
+ok(/handlersRef\.current = \{[^}]*share: doShare[^}]*place/.test(cardSrc),
+  `${CARD}: the action bridge must receive the resolved Share handler, including the fallback store path`);
+ok(/const actionsLive[^\n]*onSave && onLike && onDislike && onShare/.test(cardSrc),
+  `${CARD}: the pre-hydration bridge cannot stand down until Share and the three state actions are all live`);
 
 // ---------------------------------------------------------------------------
 // 2. Which actions can fall back to a navigation is read off the card itself,

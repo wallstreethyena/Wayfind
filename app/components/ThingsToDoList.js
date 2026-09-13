@@ -238,9 +238,9 @@ export function Card({ r, first, rank, city, blurb, beachSignal, onOpenPlace, on
   // ViatorCommerceLink is the outer anchor. Set its inherited colour in
   // writing so a browser's default blue can never paint card copy when a CSS
   // chunk is late, missing, or reordered.
-  const style = { display: "block", width: "100%", textAlign: "left", textDecoration: "none", color: "#F8F5EE", padding: 0, border: 0, background: "transparent" };
+  const style = { display: "block", textAlign: "left", textDecoration: "none", color: "#F8F5EE", padding: 0, border: 0, background: "transparent" };
   return (
-    <ViatorCommerceLink t={r} city={city} surface="ttd_ranked_card" contentId={city} rank={rank} className="wf-ttd-focus" style={style} onClick={(e, clickId) => { try { onLog && onLog("ttd_book", { id: r.id, name: r.title }, { click_id: clickId }); } catch (er) {} }}>
+    <ViatorCommerceLink t={r} city={city} surface="ttd_ranked_card" contentId={city} rank={rank} className="wf-place-card-slot wf-ttd-focus" style={style} onClick={(e, clickId) => { try { onLog && onLog("ttd_book", { id: r.id, name: r.title }, { click_id: clickId }); } catch (er) {} }}>
       {body}
     </ViatorCommerceLink>
   );

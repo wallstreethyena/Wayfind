@@ -34,7 +34,7 @@ import { LANDING_CITIES } from "../../../lib/landing";
 import { railMenuData } from "../../../lib/railsData";
 import { DAYPART_IDS } from "../../../lib/dayparts";
 import { nearestCoveredCity, COVERAGE_MI } from "../../../lib/railCoverage";
-import { fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
+import { completeAnswersOnly, fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
 
 export const revalidate = 3600;
 // The platform's own ceiling, one layer outside railsData's 9s deadline and
@@ -107,11 +107,14 @@ export async function GET(req) {
     // Pools stay per-metro cached; distances, distance gates and the
     // creators pool re-origin on the visitor. The client snaps coordinates
     // to a coarse grid before asking, so the CDN cache keys stay countable.
-    const key = `menu:${slug}:${geoCell(la)}:${geoCell(ln)}:${band || "all"}`;
+    // Creator provenance is part of the answer schema; an older cached answer
+    // cannot recover it client-side. Version the answer, not the refresh clock.
+    const key = `menu:v2:${slug}:${geoCell(la)}:${geoCell(ln)}:${band || "all"}`;
+    const answerIsComplete = completeAnswersOnly((value) => value.complete === true && value.failed === false);
     const cached = await fastCachedRail(
       key,
       () => railMenuData(slug, { origin, requireOrigin: true, band }),
-      { name: "homepage-rails", usable: (value) => !!(value && value.failed !== true) },
+      { name: "homepage-rails", usable: answerIsComplete },
     );
     const data = cached.value;
     // A DEGRADED ANSWER MUST NOT BE CACHED AS THE TRUTH (v8.74). railMenuData
@@ -125,7 +128,7 @@ export async function GET(req) {
     // no-store on the degraded path means the very next request rebuilds, so
     // the cell self-heals instead of latching. The successful answer keeps the
     // hour it earned.
-    const degraded = !data || data.failed === true;
+    const degraded = !answerIsComplete(data);
     // A FAILED BUILD IS NOT A COVERED CITY (v9.0, owner's phone 2026-09-07
     // 09:19, "Showing Best Breakfast Picks near Cortez" over two empty rails
     // reading "No nearby place clearly qualifies for this rail yet").

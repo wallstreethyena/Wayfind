@@ -146,7 +146,7 @@ function leakSharedFallback() {
     const r = await resolvePlacePhoto({
       ref: p.photoRef, w: 640, gateShut: false, spendAllowed: false, serverKey: "test-key",
     }, deps);
-    ok(r.type === "empty",
+    ok(r.type === "miss" && !r.location,
       p.name + " is cache/inventory-only when the photo ledger is exhausted (got " + (r && r.reason) + ")");
   }
   ok(paidFetches === 0,
@@ -169,8 +169,8 @@ function leakSharedFallback() {
     cacheSet: async () => {},
     fetchOwnedUri: async () => { fail("gateShut must not call Google"); return null; },
   });
-  ok(shut.type === "empty",
-    "WAYFIND_GATE=shut still means zero Google photo calls on a cache/inventory miss");
+  ok(shut.type === "miss" && !shut.location && shut.reason === "gate-shut",
+    "WAYFIND_GATE=shut returns an honest owned-photo miss with zero Google calls");
 }
 
 // ── RENDER three Family house cards, then resolve each <img src>. ──
@@ -223,8 +223,13 @@ function leakSharedFallback() {
   const raw = read("app/api/photo/route.js");
   const code = strip(raw);
   ok(code.length > 200, "positive control: /api/photo route still has a body after comment-strip");
-  ok(/spendAllow\(\s*["']photos["']\s*\)/.test(code),
-    "/api/photo still spends only after spendAllow(\"photos\") — do not weaken the gate");
+  // 2026-09-09: the photos SKU is authorized through spendAllowPhotos() (free
+  // tier, or the owner's photo-only cap); it is still one atomic ledger grant
+  // per outbound request and still refuses when the gate is shut.
+  ok(/spendAllowPhotos\(\s*\)/.test(code),
+    "/api/photo still spends only after spendAllowPhotos() — do not weaken the gate");
+  ok(!/spendAllow\(\s*["']photos["']\s*\)/.test(code),
+    "/api/photo must not fall back to the generic spendAllow(\"photos\") path (it would ignore the photo-only ceiling)");
   ok(/gateShut\(\)/.test(code), "/api/photo still honors gateShut()");
   ok(/resolvePlacePhoto\(/.test(code),
     "/api/photo must CALL resolvePlacePhoto — a string mention is the substring trap");

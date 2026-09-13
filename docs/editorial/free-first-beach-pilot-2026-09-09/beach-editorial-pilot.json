@@ -1,0 +1,352 @@
+{
+  "schema_version": "owned-editorial-review-v1",
+  "researched_at": "2026-09-09T18:56:09.259341+00:00",
+  "scope_note": "Five source-grounded beach candidates; exact inventory identity, three database editorial slots, and deployed Atlas/legacy lookups checked before publication.",
+  "candidates": [
+    {
+      "place_id": "ChIJTfJKmoQRw4gRQN6jA1QanJA",
+      "name": "Cortez Beach",
+      "category": "beach",
+      "metro": "manatee-sarasota",
+      "primary_type": "beach",
+      "inventory_snapshot": {
+        "wf_editorial_present": false,
+        "inventory_editorial_present": false,
+        "inventory_editorial_card_present": false
+      },
+      "evidence": [
+        {
+          "source": "https://www.cityofbradentonbeach.com/189/Beaches",
+          "source_name": "City of Bradenton Beach — Beaches",
+          "source_class": "government",
+          "checked_at": "2026-09-09",
+          "supports": [
+            "The City of Bradenton Beach identifies Cortez Beach as a public Gulf beach managed by Manatee County.",
+            "Cortez Beach lies in the northern section of Bradenton Beach and has numerous beach access points.",
+            "Cortez uses several northern Bradenton Beach access points rather than one large park entrance."
+          ]
+        },
+        {
+          "source": "https://floridadep.gov/rcp/coastal-access-guide/content/manatee-county",
+          "source_name": "Florida Department of Environmental Protection — Manatee County coastal access guide",
+          "source_class": "government",
+          "checked_at": "2026-09-09",
+          "supports": [
+            "Florida DEP lists no amenities at Cortez Beach.",
+            "Cortez Beach provides Gulf sand without built-in beach amenities."
+          ]
+        }
+      ],
+      "editorial": {
+        "hook": "A walk-on Gulf beach with several access points and none of the full-service park setup.",
+        "why_here": "Cortez runs along the northern stretch of Bradenton Beach with several access points instead of one large park entrance. The draw is a simple Gulf shoreline without the built-in amenities that organize a full-service beach park, so bring what you need.",
+        "know_before": "Florida DEP lists no amenities here. Bring shade, water, food, and beach gear, and check current beach flags.",
+        "best_time": "Check current beach flags and conditions before entering the Gulf.",
+        "local_tip": "Use one of the northern Bradenton Beach access points rather than looking for a single full-service entrance.",
+        "citations": {
+          "hook": [
+            "https://www.cityofbradentonbeach.com/189/Beaches",
+            "https://floridadep.gov/rcp/coastal-access-guide/content/manatee-county"
+          ],
+          "why_here": [
+            "https://www.cityofbradentonbeach.com/189/Beaches",
+            "https://floridadep.gov/rcp/coastal-access-guide/content/manatee-county"
+          ],
+          "know_before": [
+            "https://floridadep.gov/rcp/coastal-access-guide/content/manatee-county"
+          ],
+          "best_time": [
+            "https://floridadep.gov/rcp/coastal-access-guide/content/manatee-county"
+          ],
+          "local_tip": [
+            "https://www.cityofbradentonbeach.com/189/Beaches"
+          ]
+        },
+        "facts": [
+          {
+            "claim": "Cortez Beach lies in the northern section of Bradenton Beach and has numerous beach access points.",
+            "source": "https://www.cityofbradentonbeach.com/189/Beaches"
+          },
+          {
+            "claim": "Florida DEP lists no amenities at Cortez Beach.",
+            "source": "https://floridadep.gov/rcp/coastal-access-guide/content/manatee-county"
+          }
+        ]
+      }
+    },
+    {
+      "place_id": "ChIJq_5Iq35qw4gR2LM5uI8pZ8A",
+      "name": "South Lido Key Beach Park on the Gulf",
+      "category": "beach",
+      "metro": "manatee-sarasota",
+      "primary_type": "beach",
+      "inventory_snapshot": {
+        "wf_editorial_present": false,
+        "inventory_editorial_present": false,
+        "inventory_editorial_card_present": false
+      },
+      "evidence": [
+        {
+          "source": "https://www.sarasotacountyparks.com/Home/Components/FacilityDirectory/FacilityDirectory/853/6738",
+          "source_name": "Sarasota County Parks — Ted Sperling Park at South Lido Beach",
+          "source_class": "government",
+          "checked_at": "2026-09-09",
+          "supports": [
+            "Sarasota County lists beach access, fishing, picnicking, a playground, restrooms, an unpaved trail, swimming, and wildlife viewing at Ted Sperling Park at South Lido Beach.",
+            "Sarasota County lists daily hours of 6 a.m. to 10 p.m. for Ted Sperling Park at South Lido Beach.",
+            "The county-listed restrooms, playground, fishing, picnic space, and unpaved trail support a longer park visit."
+          ]
+        },
+        {
+          "source": "https://www.visitsarasota.com/beaches-parks/south-lido-beach",
+          "source_name": "Visit Sarasota — South Lido Beach",
+          "source_class": "tourism_dmo",
+          "checked_at": "2026-09-09",
+          "supports": [
+            "Visit Sarasota describes South Lido Park as a 100-acre park influenced by the Gulf of Mexico, Big Sarasota Pass, Sarasota Bay, and Brushy Bayou.",
+            "Visit Sarasota describes a Gulf beach, plus birdwatching and canoeing near Brushy Bayou.",
+            "South Lido offers a Gulf beach as well as separate paddling and birdwatching options near Brushy Bayou."
+          ]
+        }
+      ],
+      "editorial": {
+        "hook": "A Gulf beach plus separate Brushy Bayou paddling and birdwatching, with restrooms and picnic space.",
+        "why_here": "South Lido puts several kinds of water day in one park: a Gulf beach, plus canoeing and birdwatching near Brushy Bayou. The county-listed playground, restrooms, fishing, picnic space, and unpaved trail make it practical to stay beyond one beach stop.",
+        "know_before": "Check posted conditions before entering the water; county amenities include restrooms and a playground.",
+        "best_time": "The county lists 6 a.m. to 10 p.m. hours; leave time for both beach and bayou activities.",
+        "local_tip": "Choose the Gulf beach for sand time or the Brushy Bayou area for paddling and birdwatching.",
+        "citations": {
+          "hook": [
+            "https://www.sarasotacountyparks.com/Home/Components/FacilityDirectory/FacilityDirectory/853/6738",
+            "https://www.visitsarasota.com/beaches-parks/south-lido-beach"
+          ],
+          "why_here": [
+            "https://www.sarasotacountyparks.com/Home/Components/FacilityDirectory/FacilityDirectory/853/6738",
+            "https://www.visitsarasota.com/beaches-parks/south-lido-beach"
+          ],
+          "know_before": [
+            "https://www.sarasotacountyparks.com/Home/Components/FacilityDirectory/FacilityDirectory/853/6738"
+          ],
+          "best_time": [
+            "https://www.sarasotacountyparks.com/Home/Components/FacilityDirectory/FacilityDirectory/853/6738"
+          ],
+          "local_tip": [
+            "https://www.sarasotacountyparks.com/Home/Components/FacilityDirectory/FacilityDirectory/853/6738",
+            "https://www.visitsarasota.com/beaches-parks/south-lido-beach"
+          ]
+        },
+        "facts": [
+          {
+            "claim": "Sarasota County lists beach access, fishing, picnicking, a playground, restrooms, an unpaved trail, swimming, and wildlife viewing at Ted Sperling Park at South Lido Beach.",
+            "source": "https://www.sarasotacountyparks.com/Home/Components/FacilityDirectory/FacilityDirectory/853/6738"
+          },
+          {
+            "claim": "Visit Sarasota describes a Gulf beach, plus birdwatching and canoeing near Brushy Bayou.",
+            "source": "https://www.visitsarasota.com/beaches-parks/south-lido-beach"
+          },
+          {
+            "claim": "Sarasota County lists daily hours of 6 a.m. to 10 p.m. for Ted Sperling Park at South Lido Beach.",
+            "source": "https://www.sarasotacountyparks.com/Home/Components/FacilityDirectory/FacilityDirectory/853/6738"
+          }
+        ]
+      }
+    },
+    {
+      "place_id": "ChIJ5eBzip5EkYgR3VtmSwco7tY",
+      "name": "Henderson Beach State Park",
+      "category": "beach",
+      "metro": "florida",
+      "primary_type": "state_park",
+      "inventory_snapshot": {
+        "wf_editorial_present": false,
+        "inventory_editorial_present": false,
+        "inventory_editorial_card_present": false
+      },
+      "evidence": [
+        {
+          "source": "https://www.destinfwb.com/listing/henderson-beach-state-park/82/",
+          "source_name": "Destin-Fort Walton Beach — Henderson Beach State Park",
+          "source_class": "tourism_dmo",
+          "checked_at": "2026-09-09",
+          "supports": [
+            "Destin-Fort Walton Beach describes Henderson Beach State Park as a 200-acre park with a winding nature trail through coastal scrub.",
+            "The destination page lists Gulf swimming, surf fishing, a mile-long paved road, and 60 campsites.",
+            "The destination page lists six picnic pavilions and a playground overlooking the Gulf of Mexico.",
+            "The destination page describes a three-quarter-mile pet-friendly trail through dunes and vegetation.",
+            "Henderson Beach combines Gulf shoreline time with a three-quarter-mile dune and vegetation trail."
+          ]
+        }
+      ],
+      "editorial": {
+        "hook": "A Gulf beach backed by a three-quarter-mile dune trail, with six picnic pavilions and a playground.",
+        "why_here": "Henderson Beach State Park adds a winding coastal-scrub trail to a Gulf beach day. The three-quarter-mile route passes through dunes and vegetation, while six picnic pavilions and a playground overlooking the Gulf of Mexico give families places to pause away from the shoreline.",
+        "know_before": "The trail is listed as pet-friendly; confirm current park rules before taking pets beyond it.",
+        "best_time": "Split the visit between Gulf shoreline time and the three-quarter-mile dune and vegetation trail.",
+        "local_tip": "Bring a picnic for one of six pavilions; the playground overlooks the Gulf of Mexico.",
+        "citations": {
+          "hook": [
+            "https://www.destinfwb.com/listing/henderson-beach-state-park/82/"
+          ],
+          "why_here": [
+            "https://www.destinfwb.com/listing/henderson-beach-state-park/82/"
+          ],
+          "know_before": [
+            "https://www.destinfwb.com/listing/henderson-beach-state-park/82/"
+          ],
+          "best_time": [
+            "https://www.destinfwb.com/listing/henderson-beach-state-park/82/"
+          ],
+          "local_tip": [
+            "https://www.destinfwb.com/listing/henderson-beach-state-park/82/"
+          ]
+        },
+        "facts": [
+          {
+            "claim": "Destin-Fort Walton Beach describes Henderson Beach State Park as a 200-acre park with a winding nature trail through coastal scrub.",
+            "source": "https://www.destinfwb.com/listing/henderson-beach-state-park/82/"
+          },
+          {
+            "claim": "The destination page lists six picnic pavilions and a playground overlooking the Gulf of Mexico.",
+            "source": "https://www.destinfwb.com/listing/henderson-beach-state-park/82/"
+          },
+          {
+            "claim": "The destination page describes a three-quarter-mile pet-friendly trail through dunes and vegetation.",
+            "source": "https://www.destinfwb.com/listing/henderson-beach-state-park/82/"
+          }
+        ]
+      }
+    },
+    {
+      "place_id": "ChIJEx4aA0E624gR1P35bwrUGMw",
+      "name": "Lighthouse Beach Park",
+      "category": "beach",
+      "metro": "florida",
+      "primary_type": "beach",
+      "inventory_snapshot": {
+        "wf_editorial_present": false,
+        "inventory_editorial_present": false,
+        "inventory_editorial_card_present": false
+      },
+      "evidence": [
+        {
+          "source": "https://www.mysanibel.com/543/Lighthouse-Beach-Park-Information",
+          "source_name": "City of Sanibel — Lighthouse Beach Park",
+          "source_class": "government",
+          "checked_at": "2026-09-09",
+          "supports": [
+            "The City of Sanibel identifies the Sanibel Island Lighthouse as a cast-iron structure first lit in 1884 and says it is not open for public tours.",
+            "The city describes a Gulf-side beach for swimming, sunbathing, and shelling.",
+            "The city describes bay-side kayaking and paddleboarding, with a fishing pier that is closed until further notice.",
+            "The city lists nature trails and a boardwalk through mangroves and along the shoreline.",
+            "The city says Lighthouse Beach Park is open 24 hours a day year-round.",
+            "Lighthouse Beach Park sits at the eastern tip of Sanibel Island."
+          ]
+        }
+      ],
+      "editorial": {
+        "hook": "A cast-iron 1884 lighthouse, Gulf-side shelling, and a mangrove boardwalk at Sanibel's eastern tip.",
+        "why_here": "Lighthouse Beach Park pairs the Sanibel Island Lighthouse with two waterfront experiences: swimming and shelling on the Gulf side, then kayaking or paddleboarding on the bay side. Nature trails and a boardwalk through the mangroves add another change of pace from the sand.",
+        "know_before": "The lighthouse is not open for tours, and the fishing pier is closed until further notice.",
+        "best_time": "Allow daylight for the mangrove boardwalk; the beach park itself is open 24 hours.",
+        "local_tip": "Choose the Gulf side for shelling or the bay side for kayaking and paddleboarding.",
+        "citations": {
+          "hook": [
+            "https://www.mysanibel.com/543/Lighthouse-Beach-Park-Information"
+          ],
+          "why_here": [
+            "https://www.mysanibel.com/543/Lighthouse-Beach-Park-Information"
+          ],
+          "know_before": [
+            "https://www.mysanibel.com/543/Lighthouse-Beach-Park-Information"
+          ],
+          "best_time": [
+            "https://www.mysanibel.com/543/Lighthouse-Beach-Park-Information"
+          ],
+          "local_tip": [
+            "https://www.mysanibel.com/543/Lighthouse-Beach-Park-Information"
+          ]
+        },
+        "facts": [
+          {
+            "claim": "The City of Sanibel identifies the Sanibel Island Lighthouse as a cast-iron structure first lit in 1884 and says it is not open for public tours.",
+            "source": "https://www.mysanibel.com/543/Lighthouse-Beach-Park-Information"
+          },
+          {
+            "claim": "The city lists nature trails and a boardwalk through mangroves and along the shoreline.",
+            "source": "https://www.mysanibel.com/543/Lighthouse-Beach-Park-Information"
+          },
+          {
+            "claim": "The city describes bay-side kayaking and paddleboarding, with a fishing pier that is closed until further notice.",
+            "source": "https://www.mysanibel.com/543/Lighthouse-Beach-Park-Information"
+          }
+        ]
+      }
+    },
+    {
+      "place_id": "ChIJEU6v8Zgz24gRNkuw0EtKDt8",
+      "name": "Bowman's Beach",
+      "category": "beach",
+      "metro": "florida",
+      "primary_type": "beach",
+      "inventory_snapshot": {
+        "wf_editorial_present": false,
+        "inventory_editorial_present": false,
+        "inventory_editorial_card_present": false
+      },
+      "evidence": [
+        {
+          "source": "https://www.mysanibel.com/546/Bowmans-Beach-Park-Information",
+          "source_name": "City of Sanibel — Bowman's Beach Park",
+          "source_class": "government",
+          "checked_at": "2026-09-09",
+          "supports": [
+            "The City of Sanibel describes a quarter-mile walk from parking to the shoreline over a footbridge crossing Clam Bayou.",
+            "The city lists restrooms, changing rooms, outside showers, picnic areas, a playground, shade pavilions, a fitness trail, and a kayak launch.",
+            "The city says Bowman's Beach Park is open 24 hours a day year-round and uses a mobile parking payment app.",
+            "The city describes shelling, kayaking, and birdwatching at Bowman's Beach Park.",
+            "The city says recovery work is ongoing and cautions visitors about possible buried debris along the shoreline and in the water.",
+            "Bowman's Beach sits beyond a quarter-mile footbridge approach rather than directly beside the parking area."
+          ]
+        }
+      ],
+      "editorial": {
+        "hook": "A quarter-mile footbridge approach over Clam Bayou, leading to shelling, trails, and a kayak launch.",
+        "why_here": "Bowman's Beach starts before the sand, with a quarter-mile walk from parking and a footbridge over Clam Bayou. Beyond it, the park combines a shelling beach with a kayak launch, fitness trail, playground, picnic areas, changing rooms, and outside showers for a full-day setup away from the lot.",
+        "know_before": "Recovery work is ongoing; the city warns that buried debris may remain along the shoreline and in the water.",
+        "best_time": "Use daylight for the footbridge approach and shoreline; the park itself is open 24 hours.",
+        "local_tip": "Plan for the quarter-mile walk from parking to sand, including the footbridge over Clam Bayou.",
+        "citations": {
+          "hook": [
+            "https://www.mysanibel.com/546/Bowmans-Beach-Park-Information"
+          ],
+          "why_here": [
+            "https://www.mysanibel.com/546/Bowmans-Beach-Park-Information"
+          ],
+          "know_before": [
+            "https://www.mysanibel.com/546/Bowmans-Beach-Park-Information"
+          ],
+          "best_time": [
+            "https://www.mysanibel.com/546/Bowmans-Beach-Park-Information"
+          ],
+          "local_tip": [
+            "https://www.mysanibel.com/546/Bowmans-Beach-Park-Information"
+          ]
+        },
+        "facts": [
+          {
+            "claim": "The City of Sanibel describes a quarter-mile walk from parking to the shoreline over a footbridge crossing Clam Bayou.",
+            "source": "https://www.mysanibel.com/546/Bowmans-Beach-Park-Information"
+          },
+          {
+            "claim": "The city lists restrooms, changing rooms, outside showers, picnic areas, a playground, shade pavilions, a fitness trail, and a kayak launch.",
+            "source": "https://www.mysanibel.com/546/Bowmans-Beach-Park-Information"
+          },
+          {
+            "claim": "The city says recovery work is ongoing and cautions visitors about possible buried debris along the shoreline and in the water.",
+            "source": "https://www.mysanibel.com/546/Bowmans-Beach-Park-Information"
+          }
+        ]
+      }
+    }
+  ]
+}
