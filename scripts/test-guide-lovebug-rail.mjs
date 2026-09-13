@@ -26,8 +26,9 @@ import {
   handoffEmitsStatewideNear,
 } from "../lib/guideHandoff.js";
 import { wayfindScore } from "../lib/wayfindScore.js";
-import { isEditorialGuide } from "../lib/guideEditorialMode.js";
-import { placePartnerPick } from "../lib/placePartnerPicks.js";
+import { GUIDE_COMMERCE_CHROME, guideCommerceChrome, isEditorialGuide } from "../lib/guideEditorialMode.js";
+import { PLACE_PARTNER_PICKS, placePartnerPick } from "../lib/placePartnerPicks.js";
+import { partnerOfferById } from "../lib/partnerOfferRegistry.js";
 import { commerceHref } from "../lib/commerce.js";
 import { guideIntent } from "../lib/guideCta.js";
 
@@ -45,6 +46,10 @@ const fetchSrc = page.slice(page.indexOf("async function inventoryPlacesByExactI
 
 ok(guide, "the lovebug guide is registered on current main");
 ok(guide.editorialMode !== true && isEditorialGuide(guide) === false, "the lovebug guide is a normal discovery page, not editorialMode");
+ok(guideCommerceChrome(guide) === GUIDE_COMMERCE_CHROME, "discovery-guide chrome stays on; editorialMode never gates this page");
+ok(/<GuideArticleHero[\s\n]/.test(page), "the page mounts GuideArticleHero, the same discovery-guide chrome");
+ok(!/editorialMode\s*:\s*true/.test(readFileSync(new URL("../lib/guidesFloridaLovebug.js", import.meta.url), "utf8")),
+  "the lovebug module never sets editorialMode");
 ok(!/2026/.test(SLUG), "the canonical slug stays evergreen");
 ok(Object.keys(GUIDES).filter((slug) => /lovebug/i.test(slug)).length === 1, "exactly one lovebug URL exists");
 ok(config && config.title === "SKIP THE SWARM", "rail title is the indoor alternative, not a live swarm claim");
@@ -181,10 +186,20 @@ const BOOKABLE = Object.freeze([
   { name: "The Dalí Museum", id: "ChIJyaCQzpHhwogRBdPcZI6UOyc", offerId: "tampa-date-dali-museum", provider: "tiqets" },
   { name: "SEA LIFE Orlando Aquarium", id: "ChIJmy7U4VJ-54gRi1LoS6wwFj0", offerId: "orlando-tonight-sealife", provider: "tiqets" },
 ]);
+ok(BOOKABLE.length === 3, "exactly three locked venues may carry Book/Tickets");
 for (const venue of BOOKABLE) {
+  const row = PLACE_PARTNER_PICKS.find((r) => r.offerId === venue.offerId);
+  ok(row && row.provider === venue.provider && row.placeIds.includes(venue.id),
+    `${venue.offerId} is the existing ${venue.provider} product pinned to the locked placeId — not a new SKU`);
+  const registry = partnerOfferById(venue.offerId, venue.provider);
+  ok(registry && /^https:\/\/www\.(tiqets|klook)\.com\//.test(registry.destination),
+    `${venue.offerId} still resolves to a verified ${venue.provider} destination on current main`);
   const pin = placePartnerPick({ id: venue.id, name: venue.name });
   ok(pin && pin.offerId === venue.offerId && pin.provider === venue.provider,
     `${venue.name} uses the existing verified ${venue.provider} deep link`);
+  const drifted = placePartnerPick({ id: venue.id, name: "Indoor venue" });
+  ok(drifted && drifted.offerId === venue.offerId,
+    `${venue.name} Book stays on the locked placeId when the display name drifts`);
   const href = commerceHref({ provider: pin.provider, offerId: pin.offerId, surface: "iconic_place_card", contentId: venue.id });
   ok(typeof href === "string" && href.startsWith("/api/commerce/go?"), `${venue.name} Book goes through /api/commerce/go`);
   ok(href.includes("offer=" + encodeURIComponent(venue.offerId)), `${venue.name} keeps its exact offer id`);
@@ -202,7 +217,25 @@ const NO_BOOK = Object.freeze([
 for (const venue of NO_BOOK) {
   ok(!placePartnerPick({ id: venue.id, name: venue.name }),
     `${venue.name} has no verified product, so Book/Tickets stays empty`);
+  ok(!placePartnerPick({ id: venue.id, name: "Indoor venue" }),
+    `${venue.name} does not invent a Book hop from a drifted name`);
 }
+
+ok(placePartnerPick({ name: "Museum of Illusions Chicago" })?.offerId === "chicago-hook-museum-of-illusions",
+  "Chicago MOI keeps its own existing pin and does not leak onto Orlando");
+ok(placePartnerPick({ name: "Museum of Illusions - New York" })?.offerId === "nyc-hook-museum-of-illusions",
+  "NYC MOI keeps its own existing pin and does not leak onto Orlando");
+ok(!placePartnerPick({ id: "ChIJc1x01Xl_54gR3yyWFYterI4", name: "Museum of Illusions" }),
+  "a bare Museum of Illusions name on the Orlando id does not inherit another city's ticket");
+
+const WONDERWORKS = "ChIJRdxzRk1-54gRJvqlZQbtpE4";
+ok(!declared.includes(WONDERWORKS), "WonderWorks stays off this rail even though a verified Tiqets hop exists on main");
+ok(placePartnerPick({ name: "WonderWorks Orlando" })?.offerId === "orlando-hook-wonderworks",
+  "WonderWorks already has a verified offer — this guide still does not add the venue or its Book hop");
+
+const lovebugSrc = readFileSync(new URL("../lib/guidesFloridaLovebug.js", import.meta.url), "utf8");
+ok(!/unsplash|stockPhoto|NEUTRAL_HERO|pexels/i.test(lovebugSrc), "the lovebug module does not add a second Unsplash or stock cache");
+ok(!/viator\.com|tiqets\.com|klook\.com/.test(lovebugSrc + pageCode), "guide copy and the page do not ship raw partner URLs");
 
 ok(!guideNearMarket({ region: "Florida" }), "statewide region does not become a near market");
 ok(guideNearMarket({ region: "Orlando" }) === "Orlando, FL", "city guides still pin near to that city");
