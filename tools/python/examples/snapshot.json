@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "source_kind": "fixture",
   "scope": "synthetic cases only",
   "captured_at": "2026-09-05T12:00:00+00:00",
@@ -136,16 +136,36 @@
         "ran_at",
         "attempted",
         "succeeded",
-        "failed"
+        "failed",
+        "note"
       ],
       "rows": [
         [
           1,
-          "test-job",
-          "2026-09-04T12:00:00+00:00",
-          5,
+          "photo-repair",
+          "2026-09-05T09:00:00+00:00",
+          475,
+          475,
+          0,
+          "photos: recovered=0 classified=475 blocked=0 released=0 failed=0 allowance=1061/2000 batches=19 — PARTIAL: stopped on its own 225s budget after 475/500 attempted"
+        ],
+        [
+          2,
+          "photo-monitor",
+          "2026-09-05T10:00:00+00:00",
+          500,
+          500,
+          0,
+          "photos: ongoing placeholder-rate 93% of 500 probes | open=475 (+0 this run) | key=photos:probe-no-spend:2026-09-05"
+        ],
+        [
           3,
-          2
+          "place-photos",
+          "2026-09-05T11:00:00+00:00",
+          25,
+          0,
+          25,
+          "place-photos: 0 active (0 vaulted), 25 rejected, 0 failed, 0 deferred"
         ]
       ]
     }
@@ -153,6 +173,6 @@
   "expected_counts": {
     "places": 5,
     "ledger": 1,
-    "jobs": 1
+    "jobs": 3
   }
 }

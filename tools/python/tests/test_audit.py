@@ -44,10 +44,10 @@ def sample(places=None):
     datasets = {
         "places": [place()] if places is None else places,
         "ledger": [["2026-09", "text_pro", 7, 10]],
-        "jobs": [[1, "test-job", "2026-09-04T12:00:00+00:00", 5, 3, 2]],
+        "jobs": [[1, "test-job", "2026-09-04T12:00:00+00:00", 5, 3, 2, None]],
     }
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "source_kind": "fixture",
         "scope": "synthetic cases only",
         "captured_at": "2026-09-05T12:00:00+00:00",
@@ -102,15 +102,15 @@ def test_zero_cap_and_inconsistent_counters():
     assert result["ledger"][0]["state"] == "above_recorded_cap"
     assert result["ledger"][0]["utilization_pct"] is None
     assert result["jobs"][0]["inconsistent_counter_runs"] == 1
-    assert result["jobs"][0]["success_pct"] is None
+    assert result["jobs"][0]["pulse_succeeded_pct"] is None
 
 
-def test_idle_is_not_zero_output_failure():
+def test_idle_is_not_zero_pulse_succeeded_failure():
     data = sample()
-    data["datasets"]["jobs"]["rows"][0][3:] = [0, 0, 0]
+    data["datasets"]["jobs"]["rows"][0][3:6] = [0, 0, 0]
     result = audit(data)["jobs"][0]
-    assert result["idle_runs"] == 1 and result["zero_output_runs"] == 0
-    assert result["success_pct"] is None
+    assert result["idle_runs"] == 1 and result["zero_pulse_succeeded_runs"] == 0
+    assert result["pulse_succeeded_pct"] is None
 
 
 @pytest.mark.parametrize(
@@ -124,7 +124,9 @@ def test_idle_is_not_zero_output_failure():
         lambda d: d["datasets"]["places"]["rows"][0].__setitem__(7, "false"),
         lambda d: d["datasets"]["ledger"]["rows"][0].__setitem__(2, -1),
         lambda d: d["datasets"]["jobs"]["rows"][0].__setitem__(2, "2027-01-01T00:00:00Z"),
+        lambda d: d["datasets"]["jobs"]["rows"][0].__setitem__(6, 12),
         lambda d: d.update(captured_at="2026-09-05"),
+        lambda d: d.update(schema_version=1),
         lambda d: d.update(source_kind="unknown"),
     ],
 )
@@ -200,6 +202,7 @@ def test_broken_export_cannot_create_report(tmp_path):
 
 def test_input_hash_and_no_source_names_in_report(tmp_path):
     data = sample([place(name="PRIVATE VENUE NAME")])
+    data["datasets"]["jobs"]["rows"][0][6] = "PRIVATE PULSE DETAIL"
     path = tmp_path / "input.json"
     path.write_text(json.dumps(data))
     loaded, digest = read_snapshot(path)
@@ -207,6 +210,8 @@ def test_input_hash_and_no_source_names_in_report(tmp_path):
     result["input_sha256"] = digest
     assert "PRIVATE VENUE NAME" not in json.dumps(result)
     assert "PRIVATE VENUE NAME" not in markdown(result)
+    assert "PRIVATE PULSE DETAIL" not in json.dumps(result)
+    assert "PRIVATE PULSE DETAIL" not in markdown(result)
 
 
 def test_missing_configuration_is_an_error(monkeypatch):
@@ -307,7 +312,7 @@ def test_spatial_join_matches_bruteforce():
 
 def test_failure_without_attempts_is_not_idle():
     data = sample()
-    data["datasets"]["jobs"]["rows"][0][3:] = [0, 0, 1]
+    data["datasets"]["jobs"]["rows"][0][3:6] = [0, 0, 1]
     result = audit(data)
     assert result["jobs"][0]["idle_runs"] == 0
     assert result["jobs"][0]["zero_attempt_failure_runs"] == 1
@@ -324,15 +329,15 @@ def test_excluded_duplicate_retained_outside_active_queue():
 def test_recent_jobs_excludes_old_failures_and_compares_timezones():
     data = sample()
     data["datasets"]["jobs"]["rows"] = [
-        [1, "helper", "2026-09-01T12:00:00Z", 5, 0, 5],
-        [2, "helper", "2026-09-05T07:00:00-04:00", 0, 0, 0],
+        [1, "helper", "2026-09-01T12:00:00Z", 5, 0, 5, None],
+        [2, "helper", "2026-09-05T07:00:00-04:00", 0, 0, 0, None],
     ]
     data["expected_counts"]["jobs"] = 2
     result = audit(data)
-    assert result["jobs"][0]["zero_output_runs"] == 1
+    assert result["jobs"][0]["zero_pulse_succeeded_runs"] == 1
     assert result["recent_jobs"][0]["runs"] == 1
     assert result["recent_jobs"][0]["idle_runs"] == 1
-    assert result["recent_jobs"][0]["zero_output_runs"] == 0
+    assert result["recent_jobs"][0]["zero_pulse_succeeded_runs"] == 0
 
 
 def test_distinct_restaurants_review_is_identity_scoped():
@@ -376,3 +381,195 @@ def test_ephesus_locations_review_is_symmetric_and_identity_scoped():
     assert [(p["left_id"], p["right_id"]) for p in result["reviewed_distinct_pairs"]] == [
         (first_id, second_id)
     ]
+
+
+def test_photo_repair_classification_is_not_reported_as_restoration_and_partial_is_explicit():
+    data = sample()
+    data["datasets"]["jobs"]["rows"] = [
+        [
+            1,
+            "photo-repair",
+            "2026-09-05T11:30:00Z",
+            475,
+            475,
+            0,
+            "photos: recovered=0 classified=475 blocked=0 released=0 failed=0 "
+            "allowance=1061/2000 batches=19 — PARTIAL: stopped on its own 225s budget "
+            "after 475/500 attempted",
+        ]
+    ]
+    report = audit(data)
+    outcome = report["job_outcomes"]["latest_24_hours"]["jobs"][0]
+    assert outcome["totals"]["recovered"] == 0
+    assert outcome["totals"]["classified"] == 475
+    assert outcome["partial_runs"] == 1
+    assert outcome["latest"]["outcome"]["attempted_limit"] == 500
+    assert outcome["latest"]["outcome"]["work_budget_seconds"] == 225
+    report["input_sha256"] = "0" * 64
+    assert "PARTIAL" in markdown(report)
+    assert "classified=475" in markdown(report)
+
+
+def test_photo_monitor_pulse_failure_is_alert_state_not_broken_image_count():
+    data = sample()
+    data["datasets"]["jobs"]["rows"] = [
+        [
+            1,
+            "photo-monitor",
+            "2026-09-05T10:00:00Z",
+            500,
+            0,
+            500,
+            "photos: placeholder-rate 93% of 500 probes | open=475 (+475 this run) "
+            "| key=photos:probe-no-spend:2026-09-05",
+        ],
+        [
+            2,
+            "photo-monitor",
+            "2026-09-05T11:00:00Z",
+            500,
+            500,
+            0,
+            "photos: ongoing placeholder-rate 93% of 500 probes | open=475 (+0 this run) "
+            "| key=photos:probe-no-spend:2026-09-05",
+        ],
+    ]
+    data["expected_counts"]["jobs"] = 2
+    outcome = audit(data)["job_outcomes"]["latest_24_hours"]["jobs"][0]
+    assert outcome["totals"]["new_alert_runs"] == 1
+    assert outcome["totals"]["deduplicated_alert_runs"] == 1
+    assert outcome["latest"]["outcome"] == {
+        "sampled": 500,
+        "reported_placeholder_rate_pct": 93,
+        "alert_state": "deduplicated_alert",
+    }
+
+
+def test_place_photo_rejections_are_not_worker_errors():
+    data = sample()
+    data["datasets"]["jobs"]["rows"] = [
+        [
+            1,
+            "place-photos",
+            "2026-09-05T11:00:00Z",
+            625,
+            22,
+            603,
+            "place-photos: 22 active (12 vaulted), 603 rejected, 0 failed, 0 deferred "
+            "(at-risk scanned 625)",
+        ]
+    ]
+    outcome = audit(data)["job_outcomes"]["full_window"]["jobs"][0]
+    assert outcome["totals"]["accepted"] == 22
+    assert outcome["totals"]["valid_rejections"] == 603
+    assert outcome["totals"]["worker_errors"] == 0
+
+
+@pytest.mark.parametrize("note", [None, "photos: recovered=bad", "unrelated summary"])
+def test_missing_or_malformed_domain_note_stays_unknown(note):
+    data = sample()
+    data["datasets"]["jobs"]["rows"] = [
+        [1, "photo-repair", "2026-09-05T11:00:00Z", 25, 25, 0, note]
+    ]
+    outcome = audit(data)["job_outcomes"]["full_window"]["jobs"][0]
+    assert outcome["interpreted_runs"] == 0
+    assert outcome["unknown_runs"] == 1
+    assert outcome["totals"] is None
+    assert outcome["partial_runs"] is None
+    assert outcome["latest"]["outcome"] is None
+
+
+def test_domain_outcomes_distinguish_full_window_from_latest_24_hours():
+    data = sample()
+    note = "place-photos: 0 active (0 vaulted), 25 rejected, 0 failed, 0 deferred"
+    data["datasets"]["jobs"]["rows"] = [
+        [1, "place-photos", "2026-09-03T11:00:00Z", 25, 0, 25, note],
+        [2, "place-photos", "2026-09-05T11:00:00Z", 25, 0, 25, note],
+    ]
+    data["expected_counts"]["jobs"] = 2
+    outcomes = audit(data)["job_outcomes"]
+    assert outcomes["full_window"]["jobs"][0]["runs"] == 2
+    assert outcomes["latest_24_hours"]["jobs"][0]["runs"] == 1
+    assert outcomes["full_window"]["window"] != outcomes["latest_24_hours"]["window"]
+
+
+def test_photo_monitor_rejects_impossible_reported_placeholder_rate():
+    data = sample()
+    data["datasets"]["jobs"]["rows"] = [
+        [
+            1,
+            "photo-monitor",
+            "2026-09-05T11:00:00Z",
+            500,
+            500,
+            0,
+            "photos: placeholder-rate 101% of 500 probes | key=photos:test:2026-09-05",
+        ]
+    ]
+    latest = audit(data)["job_outcomes"]["full_window"]["jobs"][0]["latest"]
+    assert latest["interpretation"] == "unknown"
+    assert latest["reason"] == "invalid_domain_value"
+    assert latest["outcome"] is None
+
+
+def test_place_photos_rejects_more_vaulted_than_accepted():
+    data = sample()
+    data["datasets"]["jobs"]["rows"] = [
+        [
+            1,
+            "place-photos",
+            "2026-09-05T11:00:00Z",
+            1,
+            1,
+            0,
+            "place-photos: 1 active (2 vaulted), 0 rejected, 0 failed, 0 deferred",
+        ]
+    ]
+    latest = audit(data)["job_outcomes"]["full_window"]["jobs"][0]["latest"]
+    assert latest["interpretation"] == "unknown"
+    assert latest["reason"] == "invalid_domain_value"
+
+
+@pytest.mark.parametrize(
+    ("worklist_text", "state", "partial"),
+    [
+        (
+            "at-risk PARTIAL (deadline reached while paging; 5/100)",
+            "partial",
+            True,
+        ),
+        (
+            "at-risk UNAVAILABLE after 100 scanned "
+            "(wf_photo_at_risk continuation read failed; partial page retained)",
+            "unavailable_after_partial_scan",
+            True,
+        ),
+        (
+            "at-risk UNAVAILABLE (wf_photo_at_risk read failed — general scan only)",
+            "unavailable",
+            None,
+        ),
+        ("at-risk PARTIAL (ambiguous producer text)", "unknown", None),
+    ],
+)
+def test_place_photos_worklist_completeness_uses_known_producer_strings(
+    worklist_text, state, partial
+):
+    data = sample()
+    data["datasets"]["jobs"]["rows"] = [
+        [
+            1,
+            "place-photos",
+            "2026-09-05T11:00:00Z",
+            25,
+            0,
+            25,
+            "place-photos: 0 active (0 vaulted), 25 rejected, 0 failed, 0 deferred "
+            f"({worklist_text}, replay 0/0, general scanned 25, 0 already covered)",
+        ]
+    ]
+    summary = audit(data)["job_outcomes"]["full_window"]["jobs"][0]
+    outcome = summary["latest"]["outcome"]
+    assert outcome["worklist_state"] == state
+    assert outcome["partial"] is partial
+    assert summary["partial_runs"] == (1 if partial is True else None)
