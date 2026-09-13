@@ -5,7 +5,8 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { loadComponent } from './lib/jsxLoad.mjs';
 import { governedWayfindScore } from '../lib/wayfindScore.js';
-import { stampGoverned, lawfulSort, governedScoreOf } from '../lib/lawfulOrder.js';
+import { wayfindScore } from '../lib/wayfindScore.js';
+import { stampGoverned, lawfulSort, governedScoreOf, attachOfficialScoreReceipt } from '../lib/lawfulOrder.js';
 import { stampOwnerPick } from '../lib/ownerBump.js';
 import { readableScoreReceipt } from '../lib/scoreExplanation.js';
 import { publishableVerdict, serveScoreVerdict } from '../lib/scoreVerdict.js';
@@ -114,7 +115,62 @@ const route = readFileSync('app/api/score-verdict/route.js','utf8');
 equal(route.includes('approvePlace(placeId,'),true);
 equal(route.includes('"no-store"'),true);
 const detail = readFileSync('app/components/sheets/Detail.js','utf8');
-equal(detail.includes('<ScoreExplanation place={detail} />'),true);
+equal(/<ScoreExplanation\s+place=\{detail\}\s*\/>/.test(detail),true);
+const home = readFileSync('app/home.js','utf8');
+equal(/setDetail\(\s*attachOfficialScoreReceipt\(\s*\{\s*\.\.\.p\s*\}\s*,\s*locName\s*\)\s*\)/.test(home),true);
+equal(/attachOfficialScoreReceipt\(\s*\{\s*\.\.\.cur,\s*wfScore:/.test(home),true);
+
+// Detail-sheet path: Owen's inventory signals (wf_inventory, not a Places fetch).
+// Deep-link / card-slim shapes copy a number without a receipt; the official
+// scorer must be able to produce one that matches the chip.
+const OWENS_ID = 'ChIJ5ab4TmtAw4gROiDA30SjNWY';
+const owensBase = wayfindScore(4.6, 4531);
+equal(owensBase, 92);
+const owensDeep = attachOfficialScoreReceipt({
+  id: OWENS_ID, name: "Owen's Fish Camp", rating: 4.6, reviews: 4531, wfScore: owensBase,
+});
+const owensReceipt = readableScoreReceipt(owensDeep);
+equal(owensReceipt != null, true);
+equal(owensReceipt.placeId, OWENS_ID);
+equal(owensReceipt.origin, 'reviews');
+equal(owensReceipt.start, 92);
+equal(owensReceipt.score, 92);
+equal(owensReceipt.steps, []);
+equal(owensDeep.governed_score, 92);
+const owensCard = attachOfficialScoreReceipt({
+  id: OWENS_ID, name: "Owen's Fish Camp", rating: 4.6, reviews: 4531,
+  wfScore: owensBase, governed_score: 92, distMi: 2, trending: false,
+});
+equal(readableScoreReceipt(owensCard)?.score, 92);
+equal(owensCard.governed_score, 92); // never replace the chip number
+const owensFar = attachOfficialScoreReceipt({
+  id: OWENS_ID, name: "Owen's Fish Camp", rating: 4.6, reviews: 4531, wfScore: owensBase, distMi: 18,
+});
+equal(readableScoreReceipt(owensFar)?.steps.map((s) => s.key), ['distance']);
+equal(readableScoreReceipt(owensFar)?.score, 90);
+const staleNumber = attachOfficialScoreReceipt({ id: OWENS_ID, governed_score: 92 });
+equal(readableScoreReceipt(staleNumber), null);
+equal(staleNumber.score_explanation, undefined);
+const mismatch = attachOfficialScoreReceipt({
+  id: OWENS_ID, name: "Owen's Fish Camp", rating: 4.6, reviews: 4531, wfScore: owensBase, governed_score: 91,
+});
+equal(readableScoreReceipt(mismatch), null);
+equal(mismatch.governed_score, 91);
+const leftover = attachOfficialScoreReceipt({
+  id: 'other-place',
+  governed_score: owensDeep.governed_score,
+  score_explanation: owensDeep.score_explanation,
+});
+equal(readableScoreReceipt(leftover), null);
+equal(leftover.score_explanation, undefined);
+const ranked = { id: 'ranked-row', wfScore: 90, governed_score: 90 };
+const rankedCopy = attachOfficialScoreReceipt(ranked);
+equal(ranked.score_explanation, undefined); // list row not mutated
+equal(readableScoreReceipt(rankedCopy)?.score, 90);
+
+equal(record.placeId, OWENS_ID);
+equal(record.sentences[0].text, 'For a casual seafood dinner with old Florida character, the Burns Court location is a strong fit: its own site describes local fish, Southern dishes and a backyard tire swing.');
+equal(record.sentences[1].text, 'It does not accept reservations and seats parties of up to eight, so choose another option if booking ahead or accommodating a larger group matters.');
 const component = await loadComponent(fileURLToPath(new URL('../app/components/ScoreExplanation.js',import.meta.url)),fileURLToPath(new URL('..',import.meta.url)));
 const render = place => renderToStaticMarkup(createElement(component.default,{place}));
 const html = render(owned);
@@ -126,4 +182,12 @@ equal(html.includes('The earlier breakdown of the starting score is unavailable.
 equal(render(stale).includes('The calculation breakdown for this score is unavailable.'),true);
 equal(render(raw).includes('using a review average adjusted for review count'),true);
 equal(render(null).includes('Why this score?'),true);
+const owensHtml = render(owensDeep);
+equal(owensHtml.includes('using a review average adjusted for review count'),true);
+equal(owensHtml.includes('9.2'),true);
+equal(owensHtml.includes('No additional ranking adjustments were applied.'),true);
+equal(owensHtml.includes('The calculation breakdown for this score is unavailable.'),false);
+equal(render(staleNumber).includes('The calculation breakdown for this score is unavailable.'),true);
+equal(render(leftover).includes('The calculation breakdown for this score is unavailable.'),true);
+equal(render(leftover).includes('9.2'),false);
 console.log(`test-score-explanation: ${checks} assertions passed, including altered-receipt and revoked-source red proofs`);
