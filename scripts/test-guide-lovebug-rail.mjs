@@ -45,8 +45,11 @@ ok(guide.editorialMode !== true && isEditorialGuide(guide) === false, "the loveb
 ok(!/2026/.test(SLUG), "the canonical slug stays evergreen");
 ok(Object.keys(GUIDES).filter((slug) => /lovebug/i.test(slug)).length === 1, "exactly one lovebug URL exists");
 ok(config && config.title === "SKIP THE SWARM", "rail title is the indoor alternative, not a live swarm claim");
-ok(!/lovebug free|lovebug-free|currently unaffected|live lovebug/i.test(JSON.stringify(guide) + JSON.stringify(config)),
-  "copy never claims a live lovebug-free status");
+const published = JSON.stringify(guide) + JSON.stringify(config);
+ok(!/lovebug[-\s]free|currently unaffected/i.test(published), "copy never calls venues lovebug free");
+ok(!/\blive lovebug (intensity|badge|signal|map|tracker)\b/i.test(published), "copy never claims live lovebug intensity");
+ok(/not currently a verified live lovebug feed/i.test(guide.picks.map((p) => p.blurb).join(" ")),
+  "the article says plainly that live intensity is not available");
 
 const declared = declaredGuideRailPlaceIds(config);
 ok(declared.length === 9, `rail declares the nine reviewed indoor IDs (got ${declared.length})`);
