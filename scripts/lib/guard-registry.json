@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 642,
-    "totalRegistryEntries": 643,
-    "guardsTxtLineCount": 641,
-    "guardsTxtReachedFileCount": 636,
-    "criticalCount": 77,
+    "totalOnDiskGuardFiles": 643,
+    "totalRegistryEntries": 644,
+    "guardsTxtLineCount": 642,
+    "guardsTxtReachedFileCount": 637,
+    "criticalCount": 78,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 430,
-      "RENDER": 71,
+      "RENDER": 72,
       "STRUCTURAL": 141,
       "OTHER": 1
     }
@@ -3797,7 +3797,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 123,
+      "assertionCount": 141,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -8633,6 +8633,33 @@
       "blastRadius": {
         "category": "revenue",
         "detail": "A false-positive 'live' program, or a duplicate CTA, either monetizes inventory that shouldn't be, or confuses the primary Viator CTA with a second, competing one."
+      },
+      "owner": "Revenue QA"
+    },
+    {
+      "file": "scripts/test-bookable-highlights-30.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 53,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-filename:bookable"
+      ],
+      "protects": "The existing Bookable highlights rail can render 30 qualified unique local affiliate cards when that many valid products exist, without dead links, missing art, duplicates, filler, or another city's inventory.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "A leftover 12-cap or an unscoped experiences read can hide verified local inventory or flood a guide with the wrong market's products."
       },
       "owner": "Revenue QA"
     },

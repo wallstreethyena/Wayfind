@@ -24,7 +24,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { loadComponent } from "./lib/jsxLoad.mjs";
 import { landingRailIntent, LANDING_RAIL_INTENT } from "../lib/railPlacement.js";
 import { guideRailIntent, GUIDE_RAIL_INTENT } from "../lib/railPlacement.js";
-import { resolvedIntentPartnerPicks } from "../lib/intentPartnerPicks.js";
+import { PARTNER_INVENTORY_CANDIDATE_COUNT, resolvedIntentPartnerPicks } from "../lib/intentPartnerPicks.js";
 
 let pass = 0;
 const fail = (m) => { console.error("test-partner-rail-render: FAIL — " + m); process.exit(1); };
@@ -68,7 +68,7 @@ for (const cat of Object.keys(LANDING_RAIL_INTENT)) {
   const row = LANDING_RAIL_INTENT[cat];
   ok(typeof row.why === "string" && row.why.length > 40, `landing "${cat}" states WHY it sells under this intent`);
   if (intent === null) continue;
-  const picks = resolvedIntentPartnerPicks("Orlando", intent, INVENTORY, 12);
+  const picks = resolvedIntentPartnerPicks("Orlando", intent, INVENTORY, PARTNER_INVENTORY_CANDIDATE_COUNT);
   ok(picks.length > 0, `landing "${cat}" -> intent "${intent}" resolves to at least one pick`);
 }
 for (const kind of Object.keys(GUIDE_RAIL_INTENT)) {
@@ -76,7 +76,7 @@ for (const kind of Object.keys(GUIDE_RAIL_INTENT)) {
   const row = GUIDE_RAIL_INTENT[kind];
   ok(typeof row.why === "string" && row.why.length > 40, `guide kind "${kind}" states WHY it sells under this intent`);
   if (intent === null) continue;
-  const picks = resolvedIntentPartnerPicks("Orlando", intent, INVENTORY, 12);
+  const picks = resolvedIntentPartnerPicks("Orlando", intent, INVENTORY, PARTNER_INVENTORY_CANDIDATE_COUNT);
   ok(picks.length > 0, `guide kind "${kind}" -> intent "${intent}" resolves to at least one pick`);
 }
 
