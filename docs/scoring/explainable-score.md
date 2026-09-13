@@ -45,10 +45,10 @@ rules. They are not a new permanent store of provider-derived scores.
   sheet includes this for places reached from cards and `/p/{id}` links.
 
 Pilot: Owen's Fish Camp, Burns Court. One official website checked on September
-6, 2026. This establishes venue facts, not independent critical consensus.
+13, 2026. This establishes venue facts, not independent critical consensus.
 The source policy covers only original factual editorial using that checked
 page; it does not license copied prose, reviews, or commercial redistribution.
-The pilot verdict expires September 13 and disappears pending another check.
+The pilot verdict expires September 20, 2026 at 22:22:12 UTC and disappears pending another check.
 No scheduled researcher, database migration, paid model call or backfill is
 included. No claim of reading every review or article is made.
 
@@ -132,3 +132,30 @@ review text. This work makes no blanket API-terms compliance claim.
   permission to push/open the draft PR under AGENTS.md section 11, beyond the
   user's instruction to proceed with the feature. No workaround was attempted.
   The changes remain local; no PR, merge or production release was performed.
+
+## Pilot evidence refresh: September 13, 2026
+
+- Rechecked https://owensfishcamp.com/ at 2026-09-13T22:22:12Z. The official
+  page still identifies Burns Court separately from Lakewood Ranch and supports
+  the existing local fish, Southern dishes, casual atmosphere, tire swing,
+  no-reservations and maximum-eight-person-party claims. No contrary evidence
+  appeared on the checked page. Both original sentences remain unchanged.
+- Coverage remains `venue_information`, using the same exact place ID and URL.
+  This is venue information, not independent review consensus or a firsthand visit.
+- Record review and source check dates advance together. Both evidence expiries
+  advance by the existing seven-day pilot interval, to 2026-09-20T22:22:12Z.
+  The existing narrow source policy remains unchanged and expires October 6;
+  this refresh adds no source, rights, copied content or expanded use.
+- The previous record expired at September 13 00:00 UTC. Until this refresh is
+  present, the existing read-time gate returns `needs_review`. At the renewed
+  expiry it must withhold the verdict again, without calling inventory approval.
+- Expiry tests use the refreshed review clock and test the exact expiry boundary,
+  source-only expiry and policy-only expiry separately. No scoring, ranking,
+  inventory refresh, cache or shuffle rule changes.
+- This evidence-only update does not satisfy the separate release gates. Keep
+  #1145 draft: current-main conflicts and required browser verification remain
+  outside this change. No production verification or release is claimed.
+
+Validation for this refresh: ran the 35 evidence assertions extracted from the
+updated test against the branch's unchanged scoreVerdict module; all passed.
+Full React/score suite, full registry, build and browser checks were not rerun.

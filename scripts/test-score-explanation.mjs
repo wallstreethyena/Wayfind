@@ -64,7 +64,7 @@ equal(JSON.stringify(raw),before); // never recompute/stamp a second time
 const records = JSON.parse(readFileSync('data/score-verdicts.json','utf8'));
 const policies = JSON.parse(readFileSync('data/score-verdict-policies.json','utf8'));
 // A fixed clock tests the record itself; expiry in production is enforced at read.
-const now = Date.parse('2026-09-06T12:00:00Z');
+const now = Date.parse('2026-09-13T22:22:12Z');
 const record = records[0];
 equal(!!publishableVerdict(record,policies,now),true);
 for (const edit of [
@@ -83,9 +83,23 @@ for (const edit of [
 const revoked = structuredClone(policies);
 revoked[record.sources[0].policyId].deriveFacts=false;
 equal(publishableVerdict(record,revoked,now),null);
-equal(publishableVerdict(record,policies,Date.parse('2026-09-14')),null);
+const expiry = Date.parse(record.expiresAt);
+equal(expiry - Date.parse(record.reviewedAt), 7 * 24 * 60 * 60 * 1000);
+equal(!!publishableVerdict(record,policies,expiry - 1),true);
+equal(publishableVerdict(record,policies,expiry),null);
+equal(publishableVerdict(record,policies,expiry + 1),null);
+const sourceExpired = structuredClone(record);
+sourceExpired.sources[0].expiresAt = record.reviewedAt;
+equal(publishableVerdict(sourceExpired,policies,now),null);
+const policyExpired = structuredClone(policies);
+policyExpired[record.sources[0].policyId].expiresAt = record.reviewedAt;
+equal(publishableVerdict(record,policyExpired,now),null);
 const calls=[];
 const args={records,policies,now,approve:async(id)=>{calls.push(id);return {ok:true};}};
+const expired = await serveScoreVerdict(record.placeId,{...args,now:expiry});
+equal(expired.body.state,'needs_review');
+equal(expired.body.verdict,undefined);
+equal(calls,[]); // stale evidence never reaches inventory approval
 const good = await serveScoreVerdict(record.placeId,args);
 equal(good.status,200);
 equal(calls,[record.placeId]);
