@@ -17,7 +17,9 @@ import { resolveGuideProduct, productCtaLabel } from "../../../lib/guideProductR
 import { bookingTargets } from "../../../lib/bookingResolve";
 import { guidePrimaryCta, guideContinue, guideIntent, paintGuideCta } from "../../../lib/guideCta";
 import GuideConversion from "./GuideConversion";
-import { GuideReadingNav, guidePickImage, GUIDE_EDITORIAL_CSS } from "./GuideEditorial";
+import { GuideFacts, GuideReadingNav, guidePickImage, GUIDE_EDITORIAL_CSS } from "./GuideEditorial";
+import { guideAppHandoffHref } from "../../../lib/guideHandoff";
+import { declaredGuideRailPlaceIds, guidePlaceRailConfig, resolveGuidePlaceRail } from "../../../lib/guidePlaceRails";
 import GuideDealCards from "./GuideDealCards";
 // v8.23 — the share control every guide was missing, and the resolver that
 // finally connects 39 guides to a 69-row deal registry they were never wired
@@ -289,6 +291,25 @@ async function inventoryPlace(pick, near) {
   return null;
 }
 
+async function inventoryPlacesByExactIds(placeIds) {
+  const ids = [...new Set((placeIds || []).map((id) => String(id || "").trim()).filter(Boolean))];
+  const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
+  const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
+  if (!ids.length || !url || !anon) return [];
+  try {
+    const filter = ids.map((id) => encodeURIComponent(id)).join(",");
+    const r = await guideFetch(
+      `${url}/rest/v1/wf_inventory?select=place_id,name,lat,lng,category,primary_type,google_types,signals,photo_ref,editorial,status&status=eq.OPERATIONAL&place_id=in.(${filter})&limit=${ids.length}`,
+      { headers: { apikey: anon, Authorization: "Bearer " + anon }, next: { revalidate: 3600 } }
+    );
+    if (!r.ok) return [];
+    const rows = await r.json();
+    return Array.isArray(rows) ? rows : [];
+  } catch (e) {
+    return [];
+  }
+}
+
 // One cached inventory read for the guide's live recommendation modules.
 // This deliberately avoids rankedFor(): its runtime cache uses `no-store`,
 // which makes a statically generated guide switch rendering modes only when
@@ -420,8 +441,7 @@ export default async function GuidePage({ params }) {
   // and open its detail sheet; `near` pins the search to the region so the
   // reader's physical location (or a POI word that doubles as a town name)
   // cannot hijack the handoff.
-  const nearCity = (g.region || "Orlando") + ", FL";
-  const appUrl = (name) => "/?q=" + encodeURIComponent(name) + "&intent=place&near=" + encodeURIComponent(nearCity);
+  const appUrl = (name, pick) => guideAppHandoffHref(name, g, pick);
 
   // ── the ONE primary CTA, resolved once, server-side ─────────────────────
   let primaryCta = guidePrimaryCta(g);
@@ -478,6 +498,9 @@ export default async function GuidePage({ params }) {
     ? { lat: LANDING_CITIES[regionSlugForGeo].lat, lng: LANDING_CITIES[regionSlugForGeo].lng }
     : null;
   const pickPlaces = await Promise.all((g.picks || []).map((p) => inventoryPlace(p, regionCoords)));
+  const railConfig = guidePlaceRailConfig(g.placeRail || params.slug);
+  const railInventory = railConfig ? await inventoryPlacesByExactIds(declaredGuideRailPlaceIds(railConfig)) : [];
+  const placeRail = resolveGuidePlaceRail(railConfig, railInventory);
   // DEDUPE (v8.14): two picks in one guide can legitimately resolve to the
   // same place (De Soto's trail + living-history picks are both the memorial).
   // The FIRST pick keeps the card; later duplicates keep their text block and
@@ -742,7 +765,7 @@ export default async function GuidePage({ params }) {
         category="Wayfind guide"
         region={g.region || "Florida"}
         title={g.title}
-        description={g.description}
+        description={g.dek || g.description}
         image={guideHero(params.slug)}
         // v8.23 — "Personalize these picks" is GONE, on the owner's call: "this
         // button makes no sense, a user clicked on it and it went back to the
@@ -780,7 +803,8 @@ export default async function GuidePage({ params }) {
         <strong style={{ color: "#F4DECB" }}>Summer 2026 edition</strong>
         <p style={{ margin: "6px 0 0" }}>This guide includes summer schedules and offers that may have ended. Check each venue before planning a visit, or <a href="/florida-events" style={{ color: "#FDBA74" }}>explore upcoming Florida events</a>.</p>
       </aside> : null}
-      <div style={S.meta}>By <a href="/about" style={{ color: "#CBD5E1", textDecoration: "none", fontWeight: 700 }}>Gabriel Pereira</a> · Updated {g.updated} · <a href="/how-wayfind-ranks" style={{ color: "#CBD5E1", textDecoration: "none", fontWeight: 700 }}>How we rank ›</a></div>
+      <div style={S.meta}>By <a href="/about" style={{ color: "#CBD5E1", textDecoration: "none", fontWeight: 700 }}>Gabriel Pereira</a> · {g.published ? <>Published {g.published} · </> : null}Updated {g.updated} · <a href="/how-wayfind-ranks" style={{ color: "#CBD5E1", textDecoration: "none", fontWeight: 700 }}>How we rank ›</a></div>
+      {g.authorBio ? <p style={{ ...S.p, fontSize: 13.5, color: "#94A3B8" }}>{g.authorBio}</p> : null}
       {/* §2 OPEN LOOP, above the fold. One honest line the body resolves — a
           reader who wants the answer scrolls. Every teaser is derived from that
           guide's own tips (lib/guides.js) and check-guide-teasers.mjs proves the
@@ -792,6 +816,7 @@ export default async function GuidePage({ params }) {
         </p>
       ) : null}
       <p className="wf-guide-intro" style={S.p}>{g.intro}</p>
+      <GuideFacts facts={g.facts} />
       {chrome.chooseQuickly && quickChoices.length ? (
         <section className="wf-guide-quick" aria-labelledby="guide-quick-title">
           <h2 id="guide-quick-title">Choose quickly</h2>
@@ -850,7 +875,7 @@ export default async function GuidePage({ params }) {
           {nowResult.mode === "gated" && nowResult.kept.length ? (
             <ol className="wf-guide-now-list">
               {nowResult.kept.slice(0, 5).map((pk, i) => (
-                <li key={i}><a href={appUrl(pk.appQuery || pk.name)}>{pk.name}</a></li>
+                <li key={i}><a href={appUrl(pk.appQuery || pk.name, pk)}>{pk.name}</a></li>
               ))}
             </ol>
           ) : null}
@@ -869,7 +894,7 @@ export default async function GuidePage({ params }) {
           </p>
           <ol className="wf-guide-now-list">
             {liveIndoor.map((p, i) => (
-              <li key={i}><a href={appUrl(p.name)}>{p.name}</a>{p.rating ? <span> — {p.rating}★</span> : null}</li>
+              <li key={i}><a href={appUrl(p.name, { placeId: p.id, near: g.region, city: g.region })}>{p.name}</a>{p.rating ? <span> — {p.rating}★</span> : null}</li>
             ))}
           </ol>
         </section>
@@ -925,10 +950,33 @@ export default async function GuidePage({ params }) {
               ) : null}
               <div className="wf-guide-actions">
                 {pick.placeId ? <a href={"/places/" + encodeURIComponent(pick.placeId)} style={{ ...S.btnGhost, marginLeft: 0 }}>Place page</a> : null}
-                {(pick.appQuery !== null) ? <a href={appUrl(pick.appQuery || pick.name)} style={{ ...S.btnGhost, marginLeft: 0 }}>Open in Wayfind</a> : null}
+                {(pick.appQuery !== null) ? <a href={appUrl(pick.appQuery || pick.name, pick)} style={{ ...S.btnGhost, marginLeft: 0 }}>Open in Wayfind</a> : null}
                 {pick.eventSlug ? <a href={"/florida-events/" + encodeURIComponent(pick.eventSlug)} style={{ ...S.btnGhost, marginLeft: 0 }}>Dates, tickets &amp; verdict</a> : null}
               </div>
             </div>
+            {placeRail.insertAfterPick === pick.name && placeRail.places.length ? (
+              <div className="wf-guide-place-rail" style={{ gridColumn: "1 / -1" }}>
+                <div className="wf-guide-place-rail-head">
+                  <p className="wf-guide-place-rail-kicker" id="guide-place-rail-title">{placeRail.title}</p>
+                  {placeRail.subtitle ? <p className="wf-guide-place-rail-sub">{placeRail.subtitle}</p> : null}
+                  {placeRail.secondary ? <p className="wf-guide-place-rail-secondary"><a href={placeRail.secondaryHref || "/"}>{placeRail.secondary}</a></p> : null}
+                </div>
+                {placeRail.markets.map((market) => (
+                  <div key={market.id}>
+                    <p className="wf-guide-place-rail-market">{market.label}</p>
+                    <ol className="wf8-pcrail">
+                      {market.places.map((place, ri) => (
+                        <li key={place.id} className="wf-place-card-slot">
+                          <ul className="wf-place-card-slot-list" style={{ listStyle: "none", margin: 0, padding: 0 }}>
+                            <GuidePlaceCard place={place} rank={ri + 1} editorial={placeCardHook(place, [place.editorial]) || null} />
+                          </ul>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </section>
         );
       })}
@@ -941,6 +989,7 @@ export default async function GuidePage({ params }) {
               <li key={i} style={{ marginBottom: 7 }}><a href={source.url} rel="nofollow noopener" style={S.footerLink}>{source.label}</a></li>
             ))}
           </ul>
+          {g.methodology ? <p style={S.p}>{g.methodology}</p> : null}
         </section>
       ) : null}
       {chrome.liveDeals && dealCards.length ? (
@@ -1008,7 +1057,7 @@ export default async function GuidePage({ params }) {
       </section>
       <GuideEmailCapture slug={params.slug} region={g.region || "Orlando"} />
       <p style={{ ...S.p, marginTop: 30 }}>
-        Planning the rest of your trip? <a href="/" style={S.footerLink}>Wayfind</a> ranks every restaurant, attraction, and hotel near you with live hours and honest scores, and our <a href={"/culture/" + (g.region === "Tampa" ? "tampa" : g.region === "Sarasota" ? "sarasota" : "orlando")} style={S.footerLink}>{g.region || "Orlando"} culture guide</a> covers what to eat, say, and never skip.
+        Planning the rest of your trip? <a href="/" style={S.footerLink}>Wayfind</a> ranks every restaurant, attraction, and hotel near you with live hours and honest scores{g.region === "Tampa" || g.region === "Sarasota" || g.region === "Orlando" ? <>{", "}and our <a href={"/culture/" + (g.region === "Tampa" ? "tampa" : g.region === "Sarasota" ? "sarasota" : "orlando")} style={S.footerLink}>{g.region} culture guide</a> covers what to eat, say, and never skip.</> : "."}
       </p>
       </article>
     </div>
