@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 642,
-    "totalRegistryEntries": 643,
-    "guardsTxtLineCount": 641,
-    "guardsTxtReachedFileCount": 636,
-    "criticalCount": 77,
+    "totalOnDiskGuardFiles": 643,
+    "totalRegistryEntries": 644,
+    "guardsTxtLineCount": 642,
+    "guardsTxtReachedFileCount": 637,
+    "criticalCount": 78,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 429,
+      "CALL": 430,
       "RENDER": 72,
       "STRUCTURAL": 141,
       "OTHER": 1
@@ -11248,6 +11248,33 @@
       "protects": null,
       "blastRadius": null,
       "owner": null
+    },
+    {
+      "file": "scripts/test-guide-lovebug-rail.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 89,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-import:../lib/commerce.js"
+      ],
+      "protects": "The Florida lovebug rail admits only locked exact placeIds, reports omit failures, never hides a card for a missing affiliate offer, never emits near=Florida, FL, and Book/Tickets only through existing /api/commerce/go hops.",
+      "blastRadius": {
+        "category": "trust",
+        "detail": "A name-matched satellite (Columbia Cafe, old Mote Laboratory, another city's Museum of Illusions or WonderWorks) or a search-as-Book hop would send a reader to the wrong place or an invented SKU. Coupling the place gate to an affiliate offer would hide Bishop/Mote/SAM when inventory is ready."
+      },
+      "owner": "Revenue QA"
     },
     {
       "file": "scripts/test-guide-park-ticket-cta.mjs",
