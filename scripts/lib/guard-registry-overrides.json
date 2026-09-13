@@ -344,6 +344,14 @@
     },
     "owner": "Revenue QA"
   },
+  "scripts/test-guide-lovebug-rail.mjs": {
+    "protects": "The Florida lovebug rail admits only the locked exact placeIds, never sibling or other-city rows, never near=Florida, FL, and Book/Tickets only through existing /api/commerce/go offers.",
+    "blastRadius": {
+      "category": "trust",
+      "detail": "A name-matched satellite (Columbia Cafe, old Mote Laboratory, another city's Museum of Illusions) or a search-as-Book hop would send a reader to the wrong place or an invented SKU."
+    },
+    "owner": "Revenue QA"
+  },
   "scripts/test-home-bookable.mjs": {
     "protects": "The home shell's rendered bookable-place surfaces stay correct across real render passes (renderToStaticMarkup over the actual component tree), not just a source-text approximation.",
     "blastRadius": {

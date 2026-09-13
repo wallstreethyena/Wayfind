@@ -27,6 +27,9 @@ import {
 } from "../lib/guideHandoff.js";
 import { wayfindScore } from "../lib/wayfindScore.js";
 import { isEditorialGuide } from "../lib/guideEditorialMode.js";
+import { placePartnerPick } from "../lib/placePartnerPicks.js";
+import { commerceHref } from "../lib/commerce.js";
+import { guideIntent } from "../lib/guideCta.js";
 
 let checks = 0;
 const ok = (value, message) => { assert.ok(value, message); checks++; };
@@ -51,11 +54,33 @@ ok(!/\blive lovebug (intensity|badge|signal|map|tracker)\b/i.test(published), "c
 ok(/not currently a verified live lovebug feed/i.test(guide.picks.map((p) => p.blurb).join(" ")),
   "the article says plainly that live intensity is not available");
 
+const LOCKED_INCLUDED = Object.freeze([
+  "ChIJr7ec9tEXw4gRwicCx3wfH2w", // Bishop Museum of Science and Nature
+  "ChIJx1DBNl1Aw4gR6Zi9XjSh7r4", // Sarasota Art Museum
+  "ChIJRyOEfAo5w4gR664aD_YYBLU", // Mote SEA
+  "ChIJCXAq5_DEwogRjTPE2xlsZtE", // Florida Aquarium
+  "ChIJJboiAY3EwogRJCLbox7T-70", // Tampa Bay History Center
+  "ChIJyaCQzpHhwogRBdPcZI6UOyc", // The Dalí Museum
+  "ChIJo2bql5B654gR_ITN9PGhBbU", // Orlando Science Center
+  "ChIJmy7U4VJ-54gRi1LoS6wwFj0", // SEA LIFE Orlando Aquarium
+  "ChIJc1x01Xl_54gR3yyWFYterI4", // Museum of Illusions Orlando
+]);
+const LOCKED_OMITTED = Object.freeze([
+  "ChIJRdxzRk1-54gRJvqlZQbtpE4", // WonderWorks Orlando — optional, unused
+]);
+const FORBIDDEN_SIBLINGS = Object.freeze([
+  "ChIJyz7ELojEwogRsjrgE32aIyE", // Columbia Cafe satellite of History Center
+  "ChIJrXZ3LLxqw4gRjYTBNBMgJnA", // old Mote Marine Laboratory, needs_review
+]);
+
 const declared = declaredGuideRailPlaceIds(config);
-ok(declared.length === 9, `rail declares the nine reviewed indoor IDs (got ${declared.length})`);
+assert.deepEqual(declared, LOCKED_INCLUDED, "rail placeIds are the exact inventory-lock set, in market order"); checks++;
 ok(new Set(declared).size === declared.length, "declared IDs are unique");
 ok(declared.every((id) => /^ChIJ[A-Za-z0-9_-]+$/.test(id)), "every rail identity is an exact Google placeId");
-ok(!declared.includes("ChIJRdxzRk1-54gRJvqlZQbtpE4"), "WonderWorks stays an unused replacement, not a second competing card");
+for (const id of LOCKED_OMITTED) ok(!declared.includes(id), `optional ${id} stays omitted`);
+for (const id of FORBIDDEN_SIBLINGS) {
+  ok(!declared.includes(id) && !railSrc.includes(id), `HARD FAIL: sibling/satellite ${id} must never enter the rail`);
+}
 
 function row(id, extras = {}) {
   return {
@@ -129,6 +154,54 @@ ok(gulf.length === 3, "Gulf Coast market has three declared IDs");
 {
   const thin = resolveGuidePlaceRail(config, [row(gulf[0].placeId, { rating: 4.8, reviews: 8, name: "Bishop" })]);
   ok(!thin.places.length, "a row without enough card data does not render");
+}
+
+{
+  const history = "ChIJJboiAY3EwogRJCLbox7T-70";
+  const cafe = "ChIJyz7ELojEwogRsjrgE32aIyE";
+  const oldMote = "ChIJrXZ3LLxqw4gRjYTBNBMgJnA";
+  const swapped = resolveGuidePlaceRail(config, [
+    row(cafe, { name: "Tampa Bay History Center", rating: 4.9, reviews: 8000 }),
+    row(history, { name: "Tampa Bay History Center", rating: 4.7, reviews: 2121 }),
+    row(oldMote, { name: "Mote Science Education Aquarium (SEA)", rating: 4.9, reviews: 9000 }),
+    row("ChIJRyOEfAo5w4gR664aD_YYBLU", { name: "Mote Science Education Aquarium (SEA)", rating: 4.5, reviews: 1643 }),
+  ]);
+  const ids = swapped.places.map((p) => p.id);
+  ok(ids.includes(history) && !ids.includes(cafe), "History Center keeps its locked ID; Columbia Cafe cannot enter");
+  ok(ids.includes("ChIJRyOEfAo5w4gR664aD_YYBLU") && !ids.includes(oldMote), "Mote SEA keeps the locked ID; the needs_review laboratory cannot enter");
+}
+
+ok(guideIntent(guide) === "none", "the lovebug guide does not invent a Book/Tickets primary CTA");
+ok(!(guide.picks || []).some((p) => p && (p.bookQuery || p.viatorUrl || p.hotel)), "picks carry no search-as-Book or invented SKU");
+ok(!/viator\.com|tiqets\.com|klook\.com|booking\.com/.test(JSON.stringify(guide) + railSrc),
+  "the lovebug guide ships no raw partner URLs");
+
+const BOOKABLE = Object.freeze([
+  { name: "The Florida Aquarium", id: "ChIJCXAq5_DEwogRjTPE2xlsZtE", offerId: "tampa-family-florida-aquarium", provider: "klook" },
+  { name: "The Dalí Museum", id: "ChIJyaCQzpHhwogRBdPcZI6UOyc", offerId: "tampa-date-dali-museum", provider: "tiqets" },
+  { name: "SEA LIFE Orlando Aquarium", id: "ChIJmy7U4VJ-54gRi1LoS6wwFj0", offerId: "orlando-tonight-sealife", provider: "tiqets" },
+]);
+for (const venue of BOOKABLE) {
+  const pin = placePartnerPick({ id: venue.id, name: venue.name });
+  ok(pin && pin.offerId === venue.offerId && pin.provider === venue.provider,
+    `${venue.name} uses the existing verified ${venue.provider} deep link`);
+  const href = commerceHref({ provider: pin.provider, offerId: pin.offerId, surface: "iconic_place_card", contentId: venue.id });
+  ok(typeof href === "string" && href.startsWith("/api/commerce/go?"), `${venue.name} Book goes through /api/commerce/go`);
+  ok(href.includes("offer=" + encodeURIComponent(venue.offerId)), `${venue.name} keeps its exact offer id`);
+  ok(!/tiqets\.com|klook\.com|viator\.com/.test(href), `${venue.name} does not expose a raw partner URL`);
+}
+
+const NO_BOOK = Object.freeze([
+  { name: "The Bishop Museum of Science and Nature", id: "ChIJr7ec9tEXw4gRwicCx3wfH2w" },
+  { name: "Sarasota Art Museum", id: "ChIJx1DBNl1Aw4gR6Zi9XjSh7r4" },
+  { name: "Mote Science Education Aquarium (SEA)", id: "ChIJRyOEfAo5w4gR664aD_YYBLU" },
+  { name: "Tampa Bay History Center", id: "ChIJJboiAY3EwogRJCLbox7T-70" },
+  { name: "Orlando Science Center", id: "ChIJo2bql5B654gR_ITN9PGhBbU" },
+  { name: "Museum of Illusions Orlando", id: "ChIJc1x01Xl_54gR3yyWFYterI4" },
+]);
+for (const venue of NO_BOOK) {
+  ok(!placePartnerPick({ id: venue.id, name: venue.name }),
+    `${venue.name} has no verified product, so Book/Tickets stays empty`);
 }
 
 ok(!guideNearMarket({ region: "Florida" }), "statewide region does not become a near market");

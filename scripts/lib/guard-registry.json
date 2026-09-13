@@ -31,7 +31,7 @@
     "totalRegistryEntries": 643,
     "guardsTxtLineCount": 641,
     "guardsTxtReachedFileCount": 636,
-    "criticalCount": 76,
+    "criticalCount": 77,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 430,
@@ -11227,7 +11227,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 48,
+      "assertionCount": 59,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -11238,11 +11238,16 @@
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
-      "critical": false,
-      "criticalReasons": [],
-      "protects": null,
-      "blastRadius": null,
-      "owner": null
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-import:../lib/commerce.js"
+      ],
+      "protects": "The Florida lovebug rail admits only the locked exact placeIds, never sibling or other-city rows, never near=Florida, FL, and Book/Tickets only through existing /api/commerce/go offers.",
+      "blastRadius": {
+        "category": "trust",
+        "detail": "A name-matched satellite (Columbia Cafe, old Mote Laboratory, another city's Museum of Illusions) or a search-as-Book hop would send a reader to the wrong place or an invented SKU."
+      },
+      "owner": "Revenue QA"
     },
     {
       "file": "scripts/test-guide-park-ticket-cta.mjs",
