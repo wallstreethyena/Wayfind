@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { GET as socialDiscoveryGET } from "../app/api/cron/social-discovery/route.js";
+import { classifyHealth } from "../lib/jobPulse.js";
 import {
   SOCIAL_SEARCH_DAILY_CEILING, boundedQueryCount, normalizeIndexedBatch, normalizeIndexedShort,
   inventoryMetrosForRegions, plannedSocialQueries, platformForSocialUrl,
@@ -145,6 +146,65 @@ assert.equal(routeCalls.filter((call) => call.endsWith("/search.json")).length, 
 const noAcquisitionCall = (calls) => calls.every((call) => !/wf_social_(discoveries|candidates)|wf_source_evidence|wf_inventory/.test(call));
 assert.equal(noAcquisitionCall(routeCalls), true, "authenticated proof returns before acquisition access");
 assert.equal(noAcquisitionCall([...routeCalls, "https://supabase.test/rest/v1/wf_social_discoveries"]), false, "positive control detects an acquisition write");
+
+// PARKED, NOT AN INCIDENT: a SerpAPI account that is no longer on the $0
+// plan must not record a dead run (attempted>0/failed>0, succeeded=0) —
+// that pages job-watch once a day for a query that will never run without
+// paying. It must record 0/0/0 with a note that classifyHealth files as
+// idle, never an incident, and the route must answer 200/ok/idle, not 503.
+let parkedPulse = null;
+let parkedCalls = [];
+globalThis.fetch = async (input, init) => {
+  const url = new URL(String(input));
+  parkedCalls.push(url.pathname);
+  if (url.pathname === "/account.json") return response({ account_status: "Active", plan_monthly_price: 50, total_searches_left: 8 });
+  if (url.pathname === "/rest/v1/wf_job_pulse") { parkedPulse = JSON.parse(init.body); return response({}, 201); }
+  throw new Error(`unexpected route for a parked social-discovery run: ${url.pathname}`);
+};
+const parkedResponse = await socialDiscoveryGET(new Request("https://wayfind.test/api/cron/social-discovery", { headers: { authorization: "Bearer source-proof-test-secret" } }));
+assert.equal(parkedResponse.status, 200, "a permanently parked provider must not read as a function error");
+const parkedBody = await parkedResponse.json();
+assert.equal(parkedBody.ok, true);
+assert.equal(parkedBody.idle, true);
+assert.equal(parkedBody.publication_enabled, false);
+assert.equal(parkedBody.free_calls, 0);
+assert.equal(parkedBody.paid_calls, 0);
+assert.equal(parkedBody.reason, "not_zero_cost_plan");
+assert.ok(parkedPulse, "recordPulse must still run on the parked path");
+assert.equal(parkedPulse.job, "social-discovery");
+assert.deepEqual([parkedPulse.attempted, parkedPulse.succeeded, parkedPulse.failed], [0, 0, 0],
+  "a permanently parked provider must not accumulate a dead-run streak in wf_job_health");
+assert.equal(parkedPulse.note, "parked_not_zero_cost_plan");
+assert.doesNotMatch(parkedPulse.note, /^(billing|quota):/i, "a parked note must not carry the prefix that escalates on the first run");
+assert.equal(parkedCalls.includes("/search.json"), false, "a parked not_zero_cost_plan run makes zero paid provider calls");
+const parkedHealth = classifyHealth([{
+  job: parkedPulse.job, attempted: parkedPulse.attempted, succeeded: parkedPulse.succeeded,
+  consecutive_zero: 0, last_note: parkedPulse.note,
+}]);
+assert.equal(parkedHealth.incidents.length, 0, "classifyHealth must not file the parked pulse as an incident");
+assert.equal(parkedHealth.idle.length, 1, "classifyHealth must file the parked 0/0/0 pulse as idle");
+assert.equal(classifyHealth([{
+  job: parkedPulse.job, attempted: 0, succeeded: 0, consecutive_zero: 1, last_note: parkedPulse.note,
+}]).incidents.length, 0, "the parked note itself must not escalate on the first counted-dead row");
+assert.equal(classifyHealth([{
+  job: parkedPulse.job, attempted: 0, succeeded: 0, consecutive_zero: 1, last_note: "quota: parked_not_zero_cost_plan",
+}]).incidents.length, 1, "positive control: the same row WITH a quota: prefix DOES escalate");
+
+let unconfiguredPulse = null;
+delete process.env.SERPAPI_KEY;
+globalThis.fetch = async (input, init) => {
+  const url = new URL(String(input));
+  if (url.pathname === "/rest/v1/wf_job_pulse") { unconfiguredPulse = JSON.parse(init.body); return response({}, 201); }
+  throw new Error(`unexpected route for an unconfigured social-discovery run: ${url.pathname}`);
+};
+const unconfiguredResponse = await socialDiscoveryGET(new Request("https://wayfind.test/api/cron/social-discovery", { headers: { authorization: "Bearer source-proof-test-secret" } }));
+assert.equal(unconfiguredResponse.status, 200);
+const unconfiguredBody = await unconfiguredResponse.json();
+assert.equal(unconfiguredBody.ok, true);
+assert.equal(unconfiguredBody.idle, true);
+assert.equal(unconfiguredBody.reason, "unconfigured");
+assert.deepEqual([unconfiguredPulse.attempted, unconfiguredPulse.succeeded, unconfiguredPulse.failed], [0, 0, 0]);
+assert.equal(unconfiguredPulse.note, "parked_unconfigured");
 globalThis.fetch = savedFetch;
 for (const [key, value] of [["CRON_SECRET", savedCronSecret], ["NEXT_PUBLIC_SUPABASE_URL", savedSupabaseUrl], ["SUPABASE_SERVICE_ROLE_KEY", savedServiceKey], ["SERPAPI_KEY", savedSerpKey]]) {
   if (value === undefined) delete process.env[key]; else process.env[key] = value;

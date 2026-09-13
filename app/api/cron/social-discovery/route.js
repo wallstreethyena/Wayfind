@@ -42,9 +42,20 @@ export async function GET(req) {
   const requested = boundedQueryCount(new URL(req.url).searchParams.get("queries") || 2);
   const free = await verifySerpFreeInventory(key, requested);
   if (!free.ok) {
-    await recordPulse("social-discovery", { attempted: 1, succeeded: 0, failed: 1, note: `configuration: ${free.reason}` });
-    return Response.json({ ok: false, configured: free.reason !== "unconfigured", reason: free.reason,
-      free_calls: 0, paid_calls: 0, publication_enabled: false }, { status: 503, headers });
+    // PARKED, NOT AN INCIDENT. "unconfigured" (no SERPAPI_KEY) and
+    // "not_zero_cost_plan" (the account exists but SerpAPI is no longer $0)
+    // are owner-decided states, not transient errors — the same class
+    // instagram-scout ships dark for. Recording attempted=1/failed=1 here
+    // pages job-watch once a day for a query that will never run without
+    // paying. attempted=0/succeeded=0/failed=0, with no billing:/quota:
+    // prefix, reads as IDLE under lib/jobPulse.classifyHealth. Transient
+    // check failures and insufficient_free_inventory stay real failures.
+    const parked = free.reason === "unconfigured" || free.reason === "not_zero_cost_plan";
+    await recordPulse("social-discovery", parked
+      ? { attempted: 0, succeeded: 0, failed: 0, note: `parked_${free.reason}` }
+      : { attempted: 1, succeeded: 0, failed: 1, note: `configuration: ${free.reason}` });
+    return Response.json({ ok: parked, idle: parked, configured: free.reason !== "unconfigured", reason: free.reason,
+      free_calls: 0, paid_calls: 0, publication_enabled: false }, { status: parked ? 200 : 503, headers });
   }
 
   const day = siteTodayStr(new Date());
