@@ -69,7 +69,7 @@ export const GUIDE_EDITORIAL_CSS = `
 .wf-guide-place-rail-secondary a{color:#fdba74;font-weight:700;text-decoration:none}
 .wf-guide-place-rail-market{margin:16px 0 8px;font-size:12px;letter-spacing:1.4px;font-weight:800;color:#94a3b8;text-transform:uppercase}
 .wf-guide-place-rail .wf8-pcrail{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 16px;-webkit-overflow-scrolling:touch}
-.wf-guide-place-rail .wf-place-card-slot{flex:0 0 var(--wf-place-card-width);scroll-snap-align:start;list-style:none}
+.wf-guide-place-rail .wf-place-card-slot{list-style:none}
 @media(max-width:760px){
  .wf-guide-editorial .wf-guide-article{padding-top:24px}
  .wf-guide-editorial .wf-guide-intro{font-size:20px!important;line-height:1.65!important}
