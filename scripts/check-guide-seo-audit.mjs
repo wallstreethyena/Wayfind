@@ -10,7 +10,7 @@ const ok = (value, message) => { assert.ok(value, message); checks++; };
 const audit = buildGuideSeoAudit();
 const stored = fs.readFileSync("docs/seo/guide-seo-audit-2026-09-10.json", "utf8");
 assert.equal(stored, JSON.stringify(audit, null, 2) + "\n", "stored audit must exactly match current guide data"); checks++;
-assert.equal(audit.pages.length, 41, "audit must include all 41 current guides"); checks++;
+assert.equal(audit.pages.length, 42, "audit must include all 42 current guides"); checks++;
 assert.deepEqual(audit.pages.map((p) => p.slug).sort(), Object.keys(GUIDES).sort()); checks++;
 
 const statuses = new Set(["pass", "fail", "unknown"]);
