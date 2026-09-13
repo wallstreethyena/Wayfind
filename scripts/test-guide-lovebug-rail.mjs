@@ -1,15 +1,18 @@
 #!/usr/bin/env node
 /**
- * test-guide-lovebug-rail — exact-ID indoor rail + statewide near pin.
+ * test-guide-lovebug-rail — exact-ID indoor rail + two-gate release lock.
+ *
+ * Place gate: exact placeId → OPERATIONAL inventory → real Wayfind card.
+ * Revenue gate: exact venue → verified partner offer → /api/commerce/go.
+ * The place gate does not require the revenue gate.
  *
  * Asserts the CALL, not a source substring:
  *   only declared exact place IDs can enter
- *   unresolved / non-OPERATIONAL / photo-less rows do not render
+ *   unresolved / non-OPERATIONAL / photo-less rows omit and report why
+ *   a missing affiliate offer never hides an inventory-ready card
+ *   a partner search result never becomes Book/Tickets
  *   cards stay ordered by governed Wayfind Score inside each market
- *   a missing venue photo is omitted, never replaced by generic stock
  *   a Florida-wide guide never emits near=Florida, FL
- *
- * Existing city-region handoffs keep `{region}, FL`.
  */
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -69,9 +72,7 @@ const LOCKED_INCLUDED = Object.freeze([
   "ChIJo2bql5B654gR_ITN9PGhBbU", // Orlando Science Center
   "ChIJmy7U4VJ-54gRi1LoS6wwFj0", // SEA LIFE Orlando Aquarium
   "ChIJc1x01Xl_54gR3yyWFYterI4", // Museum of Illusions Orlando
-]);
-const LOCKED_OMITTED = Object.freeze([
-  "ChIJRdxzRk1-54gRJvqlZQbtpE4", // WonderWorks Orlando — optional, unused
+  "ChIJRdxzRk1-54gRJvqlZQbtpE4", // WonderWorks Orlando
 ]);
 const FORBIDDEN_SIBLINGS = Object.freeze([
   "ChIJyz7ELojEwogRsjrgE32aIyE", // Columbia Cafe satellite of History Center
@@ -82,9 +83,16 @@ const declared = declaredGuideRailPlaceIds(config);
 assert.deepEqual(declared, LOCKED_INCLUDED, "rail placeIds are the exact inventory-lock set, in market order"); checks++;
 ok(new Set(declared).size === declared.length, "declared IDs are unique");
 ok(declared.every((id) => /^ChIJ[A-Za-z0-9_-]+$/.test(id)), "every rail identity is an exact Google placeId");
-for (const id of LOCKED_OMITTED) ok(!declared.includes(id), `optional ${id} stays omitted`);
+ok(declared.includes("ChIJRdxzRk1-54gRJvqlZQbtpE4"), "WonderWorks Orlando is declared on the rail");
 for (const id of FORBIDDEN_SIBLINGS) {
   ok(!declared.includes(id) && !railSrc.includes(id), `HARD FAIL: sibling/satellite ${id} must never enter the rail`);
+}
+ok(!/placePartnerPick|commerceHref|venueOffer|partnerOffer/.test(railSrc),
+  "the place gate does not consult affiliate offers");
+for (const item of config.markets.flatMap((m) => m.items)) {
+  ok(item.placeId && item.market && item.name, `${item.placeId} freezes identity only`);
+  ok(item.rating == null && item.reviews == null && item.governed_score == null && item.photo_ref == null && item.photoRef == null,
+    `${item.placeId} does not freeze ratings, reviews, scores, or photographs`);
 }
 
 function row(id, extras = {}) {
@@ -101,7 +109,10 @@ function row(id, extras = {}) {
 }
 
 const gulf = config.markets[0].items;
+const orlandoMarket = config.markets[2].items;
 ok(gulf.length === 3, "Gulf Coast market has three declared IDs");
+ok(orlandoMarket.length === 4 && orlandoMarket[3].placeId === "ChIJRdxzRk1-54gRJvqlZQbtpE4",
+  "Orlando market now includes WonderWorks as the fourth declared ID");
 
 {
   const inventory = [
@@ -127,16 +138,22 @@ ok(gulf.length === 3, "Gulf Coast market has three declared IDs");
 {
   const closed = resolveGuidePlaceRail(config, [row(gulf[0].placeId, { status: "CLOSED_TEMPORARILY", name: "Bishop" })]);
   ok(!closed.places.length && !closed.markets.length, "non-OPERATIONAL inventory does not render");
+  ok(closed.omitted.some((o) => o.placeId === gulf[0].placeId && o.reason === "not-operational"),
+    "a closed declared ID is reported as not-operational, not replaced");
 }
 
 {
   const missing = resolveGuidePlaceRail(config, []);
   ok(!missing.places.length, "unresolved inventory does not render a fallback venue");
+  ok(missing.omitted.length === declared.length && missing.omitted.every((o) => o.reason === "unresolved"),
+    "every unresolved declared ID is reported, never fuzzy-filled");
 }
 
 {
   const noPhoto = resolveGuidePlaceRail(config, [row(gulf[0].placeId, { photo_ref: null, name: "Bishop" })]);
   ok(!noPhoto.places.length, "a named venue without its own photo is omitted");
+  ok(noPhoto.omitted.some((o) => o.placeId === gulf[0].placeId && o.reason === "no-photo"),
+    "a photo-less declared ID is reported as no-photo");
 }
 
 {
@@ -185,8 +202,9 @@ const BOOKABLE = Object.freeze([
   { name: "The Florida Aquarium", id: "ChIJCXAq5_DEwogRjTPE2xlsZtE", offerId: "tampa-family-florida-aquarium", provider: "klook" },
   { name: "The Dalí Museum", id: "ChIJyaCQzpHhwogRBdPcZI6UOyc", offerId: "tampa-date-dali-museum", provider: "tiqets" },
   { name: "SEA LIFE Orlando Aquarium", id: "ChIJmy7U4VJ-54gRi1LoS6wwFj0", offerId: "orlando-tonight-sealife", provider: "tiqets" },
+  { name: "WonderWorks Orlando", id: "ChIJRdxzRk1-54gRJvqlZQbtpE4", offerId: "orlando-hook-wonderworks", provider: "tiqets" },
 ]);
-ok(BOOKABLE.length === 3, "exactly three locked venues may carry Book/Tickets");
+ok(BOOKABLE.length === 4, "exactly four locked venues may carry Book/Tickets");
 for (const venue of BOOKABLE) {
   const row = PLACE_PARTNER_PICKS.find((r) => r.offerId === venue.offerId);
   ok(row && row.provider === venue.provider && row.placeIds.includes(venue.id),
@@ -229,9 +247,33 @@ ok(!placePartnerPick({ id: "ChIJc1x01Xl_54gR3yyWFYterI4", name: "Museum of Illus
   "a bare Museum of Illusions name on the Orlando id does not inherit another city's ticket");
 
 const WONDERWORKS = "ChIJRdxzRk1-54gRJvqlZQbtpE4";
-ok(!declared.includes(WONDERWORKS), "WonderWorks stays off this rail even though a verified Tiqets hop exists on main");
-ok(placePartnerPick({ name: "WonderWorks Orlando" })?.offerId === "orlando-hook-wonderworks",
-  "WonderWorks already has a verified offer — this guide still does not add the venue or its Book hop");
+const wwPin = placePartnerPick({ id: WONDERWORKS, name: "WonderWorks Orlando" });
+ok(wwPin && wwPin.offerId === "orlando-hook-wonderworks", "WonderWorks Book uses the existing Orlando Tiqets hop");
+ok(wwPin.offerId !== "orlando-family-wonderworks-crayola", "WonderWorks Book is not the combo / search SKU");
+const wwHref = commerceHref({ provider: wwPin.provider, offerId: wwPin.offerId, surface: "iconic_place_card", contentId: WONDERWORKS });
+ok(wwHref.startsWith("/api/commerce/go?") && wwHref.includes("offer=" + encodeURIComponent("orlando-hook-wonderworks")),
+  "WonderWorks Book href is /api/commerce/go with offer=orlando-hook-wonderworks");
+const wwDest = partnerOfferById("orlando-hook-wonderworks", "tiqets");
+ok(wwDest && /wonderworks-orlando/.test(wwDest.destination) && !/panama|pigeon/i.test(wwDest.destination),
+  "WonderWorks destination is the Orlando product, not Panama City or Pigeon Forge");
+ok(!placePartnerPick({ id: "ChIJNOTORLANDOWWPANAMAxxxx", name: "WonderWorks Panama City" }),
+  "Panama City WonderWorks does not inherit the Orlando hop");
+ok(!placePartnerPick({ id: "ChIJNOTORLANDOWWPIGEONxxxx", name: "WonderWorks Pigeon Forge" }),
+  "Pigeon Forge WonderWorks does not inherit the Orlando hop");
+
+{
+  const noCtaReady = resolveGuidePlaceRail(config, NO_BOOK.map((venue) => row(venue.id, { name: venue.name })));
+  const renderedIds = noCtaReady.places.map((p) => p.id);
+  for (const venue of NO_BOOK) {
+    ok(renderedIds.includes(venue.id), `${venue.name} still renders when OPERATIONAL + photo + card-ready`);
+    ok(!placePartnerPick({ id: venue.id, name: venue.name }), `${venue.name} keeps an empty CTA`);
+  }
+  ok(!noCtaReady.omitted.some((o) => NO_BOOK.some((v) => v.id === o.placeId)),
+    "a missing affiliate offer does not drop an inventory-ready no-CTA card");
+}
+
+ok(/\[guide-place-rail\] omitted declared placeIds/.test(pageCode),
+  "the guide page reports omitted declared IDs instead of substituting");
 
 const lovebugSrc = readFileSync(new URL("../lib/guidesFloridaLovebug.js", import.meta.url), "utf8");
 ok(!/unsplash|stockPhoto|NEUTRAL_HERO|pexels/i.test(lovebugSrc), "the lovebug module does not add a second Unsplash or stock cache");

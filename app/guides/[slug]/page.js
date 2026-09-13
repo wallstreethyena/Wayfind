@@ -501,6 +501,9 @@ export default async function GuidePage({ params }) {
   const railConfig = guidePlaceRailConfig(g.placeRail || params.slug);
   const railInventory = railConfig ? await inventoryPlacesByExactIds(declaredGuideRailPlaceIds(railConfig)) : [];
   const placeRail = resolveGuidePlaceRail(railConfig, railInventory);
+  if (placeRail.omitted && placeRail.omitted.length) {
+    console.error("[guide-place-rail] omitted declared placeIds", params.slug, placeRail.omitted);
+  }
   // DEDUPE (v8.14): two picks in one guide can legitimately resolve to the
   // same place (De Soto's trail + living-history picks are both the memorial).
   // The FIRST pick keeps the card; later duplicates keep their text block and
