@@ -6424,6 +6424,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     try { const _aud = {}; experienceBadges(p, null, 99, _aud); logEvent("detail_open", p, { identity: _aud.identity || null, blocked: (_aud.blocked || []).length, ctx: typeof context === "string" ? context : null }); } catch (e) {}
     // v6.08 (PR-C): remember where we were in the list so back returns here, not to the top.
     try { if (scrollRef.current) { const _k = screen + "|" + cat + "|" + sub + "|" + vibe; const _t = scrollRef.current.scrollTop; scrollRestore.current = { key: _k, ...browsePosition(scrollRef.current) };  } } catch (e) {}
+    // First paint is still setDetail(p): test-detail-hero locks that so a
+    // photo-heal await cannot keep the sheet closed. Receipt attach is sync
+    // and batched with this setState; a throw still leaves the sheet open.
+    setDetail(p);
     setDetail(attachOfficialScoreReceipt({ ...p }, locName));
     // /p/{id} and any card that skipped withMemberSignal still show the raw
     // score until this overlay lands. Same function as the list path.
