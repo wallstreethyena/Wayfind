@@ -5,7 +5,8 @@
 
 import { readFileSync } from "node:fs";
 import { isAwinLive } from "../lib/awin.js";
-import { allIntentPartnerPicks, intentPartnerPick, intentPartnerPicks, inventoryPartnerPick, localPartnerQuery, mergePartnerInventory, normalizePartnerCity, partnerInventoryRequest, partnerRailInventory, resolvedIntentPartnerPick, resolvedIntentPartnerPicks } from "../lib/intentPartnerPicks.js";
+import { DESTS } from "../lib/experiencesData.js";
+import { allIntentPartnerPicks, canReadOwnedExperienceCache, intentPartnerPick, intentPartnerPicks, inventoryPartnerPick, localPartnerQuery, mergePartnerInventory, normalizePartnerCity, OWNED_EXPERIENCE_DEST_IDS, PARTNER_INVENTORY_CANDIDATE_COUNT, PARTNER_RAIL_RENDER_LIMIT, partnerInventoryFetchPlan, partnerInventoryRequest, partnerRailInventory, qualifyPartnerInventory, resolvedIntentPartnerPick, resolvedIntentPartnerPicks } from "../lib/intentPartnerPicks.js";
 import { PARTNER_OFFER_REGISTRY } from "../lib/partnerOfferRegistry.js";
 import { PLACE_PARTNER_PICKS, RETIRED_VIATOR_PINS, pinServeability, placePartnerPick } from "../lib/placePartnerPicks.js";
 import { PARTNER_DEAL_COUPONS } from "../lib/partnerDeals.js";
@@ -81,6 +82,35 @@ ok(localPartnerQuery("your town", "family") === null, "an unresolved location ne
 ok(partnerInventoryRequest("Parrish", "best-of")?.query === "Bradenton top attractions", "Parrish searches the nearest verified bookable market instead of a nationwide feed");
 ok(partnerInventoryRequest("Parrish", "best-of")?.region === "Sarasota Bradenton Parrish", "Parrish keeps positive local region evidence in the request");
 ok(partnerInventoryRequest("Parrish", "best-of")?.destId === "25738", "Parrish uses the verified Sarasota/Bradenton Viator destination id");
+ok(partnerInventoryRequest("Parrish", "best-of")?.searchCity === "Bradenton", "Parrish's owned-cache read is the nearest bookable market, not a nationwide dump");
+ok(partnerInventoryRequest("Siesta Key", "best-of")?.destId === "25738", "Siesta Key uses the verified Sarasota-market destination id");
+ok(partnerInventoryRequest("Longboat Key", "best-of")?.destId === "25738", "Longboat Key uses the verified Sarasota-market destination id");
+ok(partnerInventoryRequest("Anna Maria Island", "best-of")?.destId === "25738", "Anna Maria Island uses the verified Sarasota-market destination id");
+ok(normalizePartnerCity("Siesta Key") === "sarasota" && normalizePartnerCity("Longboat Key") === "sarasota",
+  "Siesta Key and Longboat Key share the Sarasota partner catalogue");
+ok(PARTNER_INVENTORY_CANDIDATE_COUNT >= 40 && PARTNER_INVENTORY_CANDIDATE_COUNT <= 50, "the shared fetch asks for a 40–50 candidate window");
+ok(PARTNER_RAIL_RENDER_LIMIT === 30, "the shared rail renders at most 30 qualified cards");
+ok(OWNED_EXPERIENCE_DEST_IDS.join(",") === DESTS.map((d) => d.destId).join(","),
+  "owned experience dest ids stay lockstep with experiencesData.DESTS");
+ok(canReadOwnedExperienceCache("25738") && !canReadOwnedExperienceCache("687"),
+  "only dests wf_experiences actually partitions by may hit /api/experiences");
+{
+  const sarasotaPlan = partnerInventoryFetchPlan("Sarasota", "best-of");
+  ok(sarasotaPlan?.experiencesUrl.includes("city=Sarasota") && sarasotaPlan.experiencesUrl.includes("limit=48"),
+    "Sarasota fetch plan reads owned wf_experiences at the candidate window");
+  ok(sarasotaPlan?.toursUrl.includes("destId=25738") && sarasotaPlan.toursUrl.includes("count=12"),
+    "Sarasota live search stays dest-scoped and does not enlarge the paid fanout when the cache can fill the rail");
+  const orlandoPlan = partnerInventoryFetchPlan("Orlando", "best-of");
+  ok(orlandoPlan?.toursUrl.includes("destId=663") && orlandoPlan.experiencesUrl.includes("city=Orlando") && !/25738|Sarasota/.test(orlandoPlan.toursUrl + orlandoPlan.experiencesUrl),
+    "Orlando fetch plan cannot request Sarasota inventory");
+  ok(partnerInventoryFetchPlan("Boise, ID", "family")?.experiencesUrl === null,
+    "an unseeded city never hits /api/experiences (that route would dump every Florida dest)");
+}
+ok(qualifyPartnerInventory([
+  { code: "1P1", title: "Live", image: "https://images.example.test/a.jpg", link_ok: true },
+  { code: "1P2", title: "Dead", image: "https://images.example.test/b.jpg", link_ok: false },
+  { code: "1P3", title: "No art", image: "" },
+]).map((row) => row.code).join(",") === "1P1", "qualifyPartnerInventory drops dead links and imageless rows");
 ok(partnerInventoryRequest("Boise, ID", "family")?.destId === null, "an unseeded city never borrows another market's destination id");
 ok(intentPartnerPick("Parrish", "best-of")?.offerId === "412732P1", "Parrish receives an exact Manatee County product rather than Sarasota's generic pilot pick");
 ok(intentPartnerPick("Parrish", "worth-the-drive")?.offerId === "tampa-boat-samboat" && intentPartnerPick("Parrish", "worth-the-drive")?.image,
@@ -174,7 +204,15 @@ ok(/railRef\.current/.test(partnerComponentSrc) && /rail\.scrollLeft = 0/.test(p
 ok(!/minHeight: 290|Bookable around \{city\}/.test(partnerComponentSrc), "the oversized standalone partner-card treatment is gone");
 ok(!/ViatorRail|partnerRailInventory|<CouponStrip/.test(intentPageSrc), "intent sheets render one unified commerce rail rather than adjacent affiliate or coupon rails");
 ok(/\/api\/deals\?category=/.test(partnerComponentSrc) && /couponsForIntent/.test(partnerComponentSrc), "the unified sheet rail mixes network offers and local coupons with bookable products");
-ok(/\/api\/viator\/curated\?/.test(intentPageSrc) && /mergePartnerInventory/.test(intentPageSrc), "intent sheets enrich exact curated products even when they fall outside the broad search window");
+ok(/fetchPartnerInventory\(/.test(intentPageSrc), "intent sheets use the shared inventory fetch rather than a parallel 12-cap copy");
+ok(/\/api\/viator\/curated\?/.test(readFileSync("lib/intentPartnerPicks.js", "utf8")) && /mergePartnerInventory/.test(readFileSync("lib/intentPartnerPicks.js", "utf8")),
+  "the shared fetch still enriches exact curated products even when they fall outside the broad search window");
+ok(/\/api\/experiences\?/.test(readFileSync("lib/intentPartnerPicks.js", "utf8")),
+  "owned dests read verified wf_experiences through /api/experiences");
+ok(/PARTNER_RAIL_RENDER_LIMIT/.test(partnerComponentSrc) && /slice\(0, PARTNER_RAIL_RENDER_LIMIT\)/.test(partnerComponentSrc),
+  "the rail caps rendered cards at the shared render limit after ranking");
+ok(/PARTNER_INVENTORY_CANDIDATE_COUNT/.test(partnerComponentSrc) && !/resolvedIntentPartnerPicks\([^)]*,\s*12\s*\)/.test(partnerComponentSrc),
+  "the rail asks for the candidate window; the 12-pick selector cap is gone");
 ok(/partner\/products\/\$\{encodeURIComponent\(code\)\}/.test(curatedRouteSrc) && !/productUrl|product_url/.test(curatedRouteSrc), "the server uses Viator's exact-product endpoint for presentation data and never returns a raw destination URL");
 
 const placeClientSrc = readFileSync("lib/placePartnerPicks.js", "utf8") + readFileSync("app/components/IconicPlaceCard.js", "utf8");

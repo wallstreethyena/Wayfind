@@ -26,7 +26,7 @@ import { editorialIntentHeader } from "../../lib/collectionHeader";
 // the other. Nothing here re-implements a block.
 import { PerfectRightNow, ScoreDisclosure } from "./ExperienceBlocks";
 import IntentPartnerPick from "./IntentPartnerPick";
-import { mergePartnerInventory, partnerInventoryRequest } from "../../lib/intentPartnerPicks";
+import { fetchPartnerInventory } from "../../lib/intentPartnerPicks";
 // v6.72: this component had ZERO weather references. Its header rendered
 // areaSeasonalContext(city, season) — season and place, never time, never
 // weather — while `h` chose a query set and touched nothing else. Both halves
@@ -482,23 +482,10 @@ export default function IntentPageClient({ intent }) {
     let dead = false;
     (async () => {
       try {
-        const request = partnerInventoryRequest(loc.offersCity || loc.city, intent);
-        if (!request) return; // no city, no honest query — skip rather than guess
-        const params = new URLSearchParams({ q: request.query, region: request.region, mode: "city", count: "12" });
-        if (request.destId) params.set("destId", request.destId);
-        const curatedParams = new URLSearchParams({ city: loc.offersCity || loc.city, intent });
-        // Exact-product enrichment is additive: a provider/cache outage must
-        // never erase the broad city rail that already loaded successfully.
-        const exactPromise = fetch("/api/viator/curated?" + curatedParams.toString())
-          .then((response) => response.ok ? response.json() : null)
-          .catch(() => null);
-        const r = await fetch("/api/viator/tours?" + params.toString());
-        const [j, exact] = await Promise.all([
-          r.ok ? r.json() : null,
-          exactPromise,
-        ]);
-        const items = (j && Array.isArray(j.items)) ? j.items : ((j && Array.isArray(j.tours)) ? j.tours : (Array.isArray(j) ? j : []));
-        const merged = mergePartnerInventory(items, exact && exact.items);
+        // Shared fetch: owned wf_experiences (when the dest is cached) + the
+        // city-mode live search + curated enrichment. The 12-item inline
+        // copy here was the cap that starved the rail of verified inventory.
+        const merged = await fetchPartnerInventory(loc.offersCity || loc.city, intent);
         if (!dead) setTours(merged.length ? merged : null);
       } catch (e) {}
     })();
