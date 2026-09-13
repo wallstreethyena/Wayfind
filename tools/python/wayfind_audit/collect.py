@@ -3,7 +3,7 @@
 import os
 from datetime import datetime, timedelta, timezone
 
-from .snapshot import COLUMNS, QUERIES, AuditError, validate
+from .snapshot import COLUMNS, QUERIES, SNAPSHOT_SCHEMA_VERSION, AuditError, validate
 
 
 def collect(days=7, max_rows=100_000):
@@ -19,7 +19,7 @@ def collect(days=7, max_rows=100_000):
     until = datetime.now(timezone.utc)
     since = until - timedelta(days=days)
     result = {
-        "schema_version": 1,
+        "schema_version": SNAPSHOT_SCHEMA_VERSION,
         "source_kind": "production",
         "scope": "all wf_inventory rows",
         "captured_at": until.isoformat(),
