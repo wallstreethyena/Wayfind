@@ -18,7 +18,6 @@ import {
   PLACE_CARD_LIST_MEDIA_MAX_PCT,
   PLACE_CARD_LIST_MEDIA_MIN_PCT,
   PLACE_CARD_LIST_MEDIA_PCT,
-  PLACE_CARD_LIST_RESERVE_PX,
   PLACE_CARD_MAX_WIDTH_PX,
   PLACE_CARD_PAGE_GUTTER_PX,
   PLACE_CARD_PHONE_PEEK,
@@ -198,9 +197,14 @@ ok(!/\.wf-place-card-list[^{]*\{[^}]*1\.08/.test(compactCss) && !/\.wf-place-car
   "1.08 phone peek is not declared on .wf-place-card-list — peek is rail-only");
 ok(/\.wf-rail[^{]*\{[^}]*--wf-place-card-width:min\(100%,440px,calc\(\(100vw/.test(compactCss) || compactCss.includes(`.wf-rail,.wf8-pcrail,.wf-rail .wf-place-card`),
   "horizontal rails still own the 1.08 peek width formula");
-ok(compactCss.includes(`--wf-place-card-list-reserve:${PLACE_CARD_LIST_RESERVE_PX}px`)
-  && /\.wf-place-card-list \.wf-place-card-sk/.test(String(WF_PLACE_CARD_CSS)),
-  "list skeletons reserve the stacked-card height on .wf-place-card-list only");
+{
+  const rootRule = (compactCss.match(/\.wf-place-card\{[^}]*--wf-card-h:[^}]*\}/) || [""])[0];
+  ok(/height:var\(--wf-card-h\)/.test(rootRule) && !/height:auto/.test(rootRule),
+    "the .wf-place-card root declares height:var(--wf-card-h) — height:auto is the #1313 collapse");
+}
+ok(!/PLACE_CARD_LIST_RESERVE_PX/.test(readFileSync(path.join(ROOT, "lib/placeCardStandard.js"), "utf8"))
+  && !compactCss.includes("--wf-place-card-list-reserve"),
+  "no 235px stacked-list height ladder — list skeleton, hydrated list, and rail share 268px");
 
 async function chromiumLaunchOptions() {
   let chromium = null;
@@ -368,10 +372,11 @@ if (!browserConfig) {
         const stacked = STACKED.has(card.adapter);
         const expectedWidth = stacked ? expectedListWidth : expectedRailWidth;
         if (stacked) {
-          ok(card.box.h > 80, `${width}px ${card.adapter}: stacked list has a real content height (got ${card.box.h})`);
+          ok(Math.abs(card.box.h - PLACE_CARD_HEIGHT_PX) <= 1, `${width}px ${card.adapter}: stacked list is the shared ${PLACE_CARD_HEIGHT_PX}px height (got ${card.box.h})`);
           if (card.media && card.box.w > 0) {
             const pct = 100 * card.media.w / card.box.w;
             ok(pct >= PLACE_CARD_LIST_MEDIA_MIN_PCT - 0.6 && pct <= PLACE_CARD_LIST_MEDIA_MAX_PCT + 0.6, `${width}px ${card.adapter}: stacked photo column is 32–38% of card width (got ${pct.toFixed(1)}%)`);
+            ok(Math.abs(card.media.h - card.box.h) <= 2.5, `${width}px ${card.adapter}: stacked photo column is the full card height minus the 1px border (got ${card.media.h})`);
           }
           if (expectedListWidth < PLACE_CARD_MAX_WIDTH_PX - 0.5) {
             ok(card.box.x <= PLACE_CARD_PAGE_GUTTER_PX + 1, `${width}px ${card.adapter}: stacked card shares the 13px left gutter (x=${card.box.x})`);
@@ -406,8 +411,7 @@ if (!browserConfig) {
       const reference = live.find((card) => card.adapter === "iconic");
       for (const card of live.filter((candidate) => candidate.adapter !== "things-to-do" || candidate.name)) {
         const stacked = STACKED.has(card.adapter);
-        if (!stacked) ok(card.root[0] === reference.root[0] && card.root[2] === reference.root[2], `${width}px ${card.adapter}: critical root height/radius match IconicPlaceCard`);
-        else ok(card.root[2] === reference.root[2], `${width}px ${card.adapter}: stacked list keeps the shared card radius`);
+        ok(card.root[0] === reference.root[0] && card.root[2] === reference.root[2], `${width}px ${card.adapter}: critical root height/radius match IconicPlaceCard`);
         if (card.content && reference.content) ok(JSON.stringify(card.content) === JSON.stringify(reference.content), `${width}px ${card.adapter}: content padding matches IconicPlaceCard`);
         if (card.name && reference.name) ok(JSON.stringify(card.name) === JSON.stringify(reference.name), `${width}px ${card.adapter}: title typography matches IconicPlaceCard`);
         if (!stacked && card.media && reference.media) ok(Math.abs(card.media.w - reference.media.w) <= .5, `${width}px ${card.adapter}: media width matches IconicPlaceCard`);
@@ -420,10 +424,21 @@ if (!browserConfig) {
       for (const card of live.filter((candidate) => !STACKED.has(candidate.adapter))) for (const key of ['save','like','dislike','share']) {
         ok(card.actionStyles[key] && JSON.stringify(card.actionStyles[key]) === JSON.stringify(reference.actionStyles[key]), `${width}px ${card.adapter}: ${key} height, font, padding and radius match the shared action`);
       }
+      const allStandardHeights = live.map((card) => card.box.h);
+      ok(allStandardHeights.length >= 2, `PROBE ${width}px: at least two standard cards were measured for height equality`);
+      const heightSpread = Math.max(...allStandardHeights) - Math.min(...allStandardHeights);
+      ok(allStandardHeights.every((h) => Math.abs(h - PLACE_CARD_HEIGHT_PX) <= 1),
+        `${width}px: every standard card is ${PLACE_CARD_HEIGHT_PX}±1px (got ${[...new Set(allStandardHeights.map((h) => h.toFixed(2)))].join(", ")})`);
+      ok(heightSpread <= 1, `${width}px: two standard cards must not differ in outer height (spread ${heightSpread.toFixed(2)}px)`);
       const skeletons = measured.adapters.find((adapter) => adapter.id === "skeleton")?.cards || [];
       for (const card of skeletons) {
-        ok(Math.abs(card.box.h - PLACE_CARD_HEIGHT_PX) <= .5, `${width}px skeleton: height matches the live rail card`);
+        ok(Math.abs(card.box.h - PLACE_CARD_HEIGHT_PX) <= 1, `${width}px skeleton: height matches the live 268px card`);
         ok(Math.abs(card.box.w - expectedRailWidth) <= 1, `${width}px skeleton: width matches the rail peek formula`);
+      }
+      const skeletonHeights = skeletons.map((card) => card.box.h);
+      if (skeletonHeights.length && allStandardHeights.length) {
+        const union = [...allStandardHeights, ...skeletonHeights];
+        ok(Math.max(...union) - Math.min(...union) <= 1, `${width}px: list/rail skeleton and hydrated cards share one 268px height`);
       }
       ok(measured.scrollWidth <= width + 1, `${width}px: fixture has no horizontal page overflow (scrollWidth ${measured.scrollWidth})`);
     }
