@@ -192,7 +192,13 @@ const compactCss = String(WF_PLACE_CARD_CSS).replace(/\s+/g, "");
 ok(compactCss.includes(`--wf-card-h:${PLACE_CARD_HEIGHT_PX}px`) && compactCss.includes(`height:var(--wf-card-h)`), "canonical CSS consumes the shared 268px height constant");
 ok(compactCss.includes(`max-width:${PLACE_CARD_MAX_WIDTH_PX}px`) || compactCss.includes(`${PLACE_CARD_MAX_WIDTH_PX}px`), "canonical CSS consumes the shared 440px width cap");
 ok(compactCss.includes(`${PLACE_CARD_PHONE_PEEK}`) && compactCss.includes(`${PLACE_CARD_PAGE_GUTTER_PX * 2}px`) && compactCss.includes(`${PLACE_CARD_GAP_PX}px`), "canonical CSS consumes the shared phone peek, page gutter, and gap constants");
-ok(compactCss.includes(`--wf-place-card-media:${PLACE_CARD_LIST_MEDIA_PCT}%`), "stacked lists consume the 36% photo-column constant");
+ok(compactCss.includes(`--wf-place-card-media:${PLACE_CARD_LIST_MEDIA_PCT}%`)
+  && !/--wf-place-card-media:(?:96|108)px/.test(compactCss)
+  && !/width:(?:96|108)px!important/.test(compactCss),
+  "every standard card consumes the shared 36% photo-column constant; 96px/108px rail media overrides are gone");
+ok(/\.wf-rail\{[^}]*scroll-snap-type:xproximity/.test(compactCss)
+  && compactCss.includes(".wf-rail .wf-place-card-highlights,.wf8-pcrail .wf-place-card-highlights{overflow:hidden"),
+  "place-card rails snap with proximity and clip highlight pills on coarse/touch");
 ok(!/\.wf-place-card-list[^{]*\{[^}]*1\.08/.test(compactCss) && !/\.wf-place-card-list,\.wf-rail/.test(compactCss) && !/\.wf-place-card-list,\.wf8-pcrail/.test(compactCss),
   "1.08 phone peek is not declared on .wf-place-card-list — peek is rail-only");
 ok(/\.wf-rail[^{]*\{[^}]*--wf-place-card-width:min\(100%,440px,calc\(\(100vw/.test(compactCss) || compactCss.includes(`.wf-rail,.wf8-pcrail,.wf-rail .wf-place-card`),
@@ -372,11 +378,13 @@ if (!browserConfig) {
       for (const card of live) {
         const stacked = STACKED.has(card.adapter);
         const expectedWidth = stacked ? expectedListWidth : expectedRailWidth;
+        if (card.media && card.box.w > 0) {
+          const pct = 100 * card.media.w / card.box.w;
+          ok(pct >= PLACE_CARD_LIST_MEDIA_MIN_PCT - 0.6 && pct <= PLACE_CARD_LIST_MEDIA_MAX_PCT + 0.6, `${width}px ${card.adapter}: photo column is 32–38% of card width (got ${pct.toFixed(1)}%)`);
+        }
         if (stacked) {
           ok(Math.abs(card.box.h - PLACE_CARD_HEIGHT_PX) <= 1, `${width}px ${card.adapter}: stacked list is the shared ${PLACE_CARD_HEIGHT_PX}px height (got ${card.box.h})`);
           if (card.media && card.box.w > 0) {
-            const pct = 100 * card.media.w / card.box.w;
-            ok(pct >= PLACE_CARD_LIST_MEDIA_MIN_PCT - 0.6 && pct <= PLACE_CARD_LIST_MEDIA_MAX_PCT + 0.6, `${width}px ${card.adapter}: stacked photo column is 32–38% of card width (got ${pct.toFixed(1)}%)`);
             ok(Math.abs(card.media.h - card.box.h) <= 2.5, `${width}px ${card.adapter}: stacked photo column is the full card height minus the 1px border (got ${card.media.h})`);
           }
           if (expectedListWidth < PLACE_CARD_MAX_WIDTH_PX - 0.5) {

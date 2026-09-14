@@ -12,8 +12,8 @@
  *      now paint the real <img class="wf8-tim"> (Tonight JPG is in the SSR
  *      document) — a PlaceCardSkeleton overlay on that image is the iPhone
  *      stuck-skeleton look. The drop still paints place-card skeletons
- *      while ranking. Rails and stacked Food lists are both 268px; stacked
- *      lists keep the 36% photo column. The skeleton must match that surface,
+ *      while ranking. Rails and stacked Food lists are both 268px and share
+ *      the 36% photo column. The skeleton must match that surface,
  *      not a 235px list ladder or a 96px bar.
  *
  * Ranking, scores, Atlas, affiliates, CSP, ads, and geolocation defaults are
@@ -170,8 +170,9 @@ const searchFixture = `<!doctype html><html><head><meta name="viewport" content=
   </div>
 </div>
 <div id="skels" style="padding:0 ${PLACE_CARD_PAGE_GUTTER_PX}px">
-  <div class="wf-rail" data-skel="rail">${skelHtml}</div>
+  <div class="wf-rail" data-skel="rail">${skelHtml}${liveHtml}</div>
   <div class="wf-place-card-list" data-skel="list">${skelHtml}${liveHtml}</div>
+  <div class="wf-rail" data-skel="rail-gestures"><article class="wf-place-card"><div class="wf-place-card-highlights"><span>Outdoor seating</span><span>Live music</span><span>Reservations</span></div></article></div>
 </div>
 </body></html>`;
 
@@ -215,10 +216,17 @@ const measured = await page.evaluate((official) => {
       layoutH: lb ? lb.height : 0,
     };
   };
+  const railEl = document.querySelector('[data-skel="rail"]');
+  const railHl = document.querySelector('[data-skel="rail-gestures"] .wf-place-card-highlights');
+  const listHl = document.querySelector('[data-skel="list"] .wf-place-card:not(.wf-place-card-sk) .wf-place-card-highlights');
   return {
     placeholder: input.getAttribute("placeholder"),
     inner, textW, fontSize: cs.fontSize, padL, iconShown,
     pageW: document.documentElement.scrollWidth, viewport: innerWidth,
+    railSnap: railEl ? getComputedStyle(railEl).scrollSnapType : "",
+    railHlOverflowX: railHl ? getComputedStyle(railHl).overflowX : "",
+    railHlTouch: railHl ? getComputedStyle(railHl).touchAction : "",
+    listHlOverflowX: listHl ? getComputedStyle(listHl).overflowX : "",
     rail: [...document.querySelectorAll('[data-skel="rail"] .wf-place-card-sk')].map(measure),
     list: [...document.querySelectorAll('[data-skel="list"] .wf-place-card-sk')].map(measure),
     live: [...document.querySelectorAll('[data-skel="list"] .wf-place-card:not(.wf-place-card-sk)')].map(measure),
@@ -236,12 +244,18 @@ ok(measured.pageW <= measured.viewport + 1, `no horizontal overflow at 390px (sc
 
 ok(measured.rail.length === 2 && measured.list.length === 2 && measured.live.length === 1,
   `PROBE: two rail skeletons, two list skeletons, and one live list card (got rail=${measured.rail.length} list=${measured.list.length} live=${measured.live.length})`);
+ok(/proximity/.test(measured.railSnap), `390 rail snap is proximity (got ${JSON.stringify(measured.railSnap)})`);
+ok(measured.railHlOverflowX === "hidden", `390 rail pills clip (overflow-x ${JSON.stringify(measured.railHlOverflowX)})`);
+ok(measured.railHlTouch !== "pan-x" && measured.railHlTouch !== "pan-x pan-y",
+  `390 rail pills do not take pan-x (got ${JSON.stringify(measured.railHlTouch)})`);
 const expectedPeek = (measured.viewport - PLACE_CARD_PAGE_GUTTER_PX * 2 - (PLACE_CARD_PHONE_PEEK - 1) * PLACE_CARD_GAP_PX) / PLACE_CARD_PHONE_PEEK;
 const expectedList = measured.viewport - PLACE_CARD_PAGE_GUTTER_PX * 2;
 for (const [i, c] of measured.rail.entries()) {
   ok(c.lineCount >= 3, `rail skeleton ${i}: ${c.lineCount} copy lines — a color slab has zero`);
   ok(c.actionCount >= 4, `rail skeleton ${i}: ${c.actionCount} action stubs — the live card's four-control row`);
-  ok(Math.abs(c.mediaW - 96) <= 2, `rail skeleton ${i}: media column is 96px (got ${c.mediaW.toFixed(1)})`);
+  const railPct = c.w > 0 ? 100 * c.mediaW / c.w : 0;
+  ok(railPct >= PLACE_CARD_LIST_MEDIA_MIN_PCT - 0.6 && railPct <= PLACE_CARD_LIST_MEDIA_MAX_PCT + 0.6,
+    `rail skeleton ${i}: media column is ~36% of rail card width (got ${railPct.toFixed(1)}% / ${c.mediaW.toFixed(1)}px)`);
   ok(Math.abs(c.h - PLACE_CARD_HEIGHT_PX) <= 0.5,
     `rail skeleton ${i}: height ${c.h.toFixed(0)}px matches the 268px rail card (a 96px bar is the old flash)`);
   ok(Math.abs(c.w - expectedPeek) <= 1, `rail skeleton ${i}: width follows the 1.08 peek (expected ${expectedPeek.toFixed(1)}, got ${c.w.toFixed(1)})`);
@@ -296,7 +310,9 @@ ok(wide.rail.length === 2 && wide.list.length === 2 && wide.live.length === 1, "
 for (const [i, c] of wide.rail.entries()) {
   ok(Math.abs(c.h - PLACE_CARD_HEIGHT_PX) <= 0.5, `440 rail skeleton ${i}: still 268px (got ${c.h.toFixed(0)})`);
   ok(Math.abs(c.w - widePeek) <= 1, `440 rail skeleton ${i}: still uses 1.08 peek (got ${c.w.toFixed(1)})`);
-  ok(Math.abs(c.mediaW - 96) <= 2, `440 rail skeleton ${i}: still 96px media (got ${c.mediaW.toFixed(1)})`);
+  const railPct = c.w > 0 ? 100 * c.mediaW / c.w : 0;
+  ok(railPct >= PLACE_CARD_LIST_MEDIA_MIN_PCT - 0.6 && railPct <= PLACE_CARD_LIST_MEDIA_MAX_PCT + 0.6,
+    `440 rail skeleton ${i}: media column is ~36% of rail card width (got ${railPct.toFixed(1)}% / ${c.mediaW.toFixed(1)}px)`);
 }
 const wideLive = wide.live[0];
 for (const [i, c] of wide.list.entries()) {
