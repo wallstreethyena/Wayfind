@@ -15,6 +15,10 @@ import { loadComponent } from "./lib/jsxLoad.mjs";
 import {
   PLACE_CARD_GAP_PX,
   PLACE_CARD_HEIGHT_PX,
+  PLACE_CARD_LIST_MEDIA_MAX_PCT,
+  PLACE_CARD_LIST_MEDIA_MIN_PCT,
+  PLACE_CARD_LIST_MEDIA_PCT,
+  PLACE_CARD_LIST_RESERVE_PX,
   PLACE_CARD_MAX_WIDTH_PX,
   PLACE_CARD_PAGE_GUTTER_PX,
   PLACE_CARD_PHONE_PEEK,
@@ -189,6 +193,14 @@ const compactCss = String(WF_PLACE_CARD_CSS).replace(/\s+/g, "");
 ok(compactCss.includes(`--wf-card-h:${PLACE_CARD_HEIGHT_PX}px`) && compactCss.includes(`height:var(--wf-card-h)`), "canonical CSS consumes the shared 268px height constant");
 ok(compactCss.includes(`max-width:${PLACE_CARD_MAX_WIDTH_PX}px`) || compactCss.includes(`${PLACE_CARD_MAX_WIDTH_PX}px`), "canonical CSS consumes the shared 440px width cap");
 ok(compactCss.includes(`${PLACE_CARD_PHONE_PEEK}`) && compactCss.includes(`${PLACE_CARD_PAGE_GUTTER_PX * 2}px`) && compactCss.includes(`${PLACE_CARD_GAP_PX}px`), "canonical CSS consumes the shared phone peek, page gutter, and gap constants");
+ok(compactCss.includes(`--wf-place-card-media:${PLACE_CARD_LIST_MEDIA_PCT}%`), "stacked lists consume the 36% photo-column constant");
+ok(!/\.wf-place-card-list[^{]*\{[^}]*1\.08/.test(compactCss) && !/\.wf-place-card-list,\.wf-rail/.test(compactCss) && !/\.wf-place-card-list,\.wf8-pcrail/.test(compactCss),
+  "1.08 phone peek is not declared on .wf-place-card-list — peek is rail-only");
+ok(/\.wf-rail[^{]*\{[^}]*--wf-place-card-width:min\(100%,440px,calc\(\(100vw/.test(compactCss) || compactCss.includes(`.wf-rail,.wf8-pcrail,.wf-rail .wf-place-card`),
+  "horizontal rails still own the 1.08 peek width formula");
+ok(compactCss.includes(`--wf-place-card-list-reserve:${PLACE_CARD_LIST_RESERVE_PX}px`)
+  && /\.wf-place-card-list \.wf-place-card-sk/.test(String(WF_PLACE_CARD_CSS)),
+  "list skeletons reserve the stacked-card height on .wf-place-card-list only");
 
 async function chromiumLaunchOptions() {
   let chromium = null;
@@ -305,7 +317,7 @@ if (!browserConfig) {
   <section data-adapter="event-stay-place-rail">${renderToStaticMarkup(stays)}</section>
   ${section("things-to-do", React.createElement(React.Fragment, null, thing, thing))}
   ${section("skeleton", React.createElement(PlaceCardSkeleton, { count: 2, as: "div" }))}
-  ${section("home-live-route", React.createElement(React.Fragment, null, homeCard, homeCard))}
+  ${section("home-live-route", React.createElement(React.Fragment, null, homeCard, homeCard), "wf-place-card-list")}
   ${section("sponsored", React.createElement(React.Fragment, null, sponsor, sponsor))}
   <section data-adapter="guide-list-slot"><ol class="wf-place-card-list"><li class="wf-place-card-slot"><ul class="wf-place-card-slot-list">${renderToStaticMarkup(React.createElement(GuidePlaceCard, { place: place("guide-a"), rank: 1, editorial: "A verified local favorite." }))}</ul></li><li class="wf-place-card-slot"><ul class="wf-place-card-slot-list">${renderToStaticMarkup(React.createElement(GuidePlaceCard, { place: place("guide-b"), rank: 2, editorial: "A verified local favorite." }))}</ul></li></ol></section>
   ${MUTATION ? '<style>.wf-event-place-rail .wf-place-card{--wf-card-h:340px}.wf-event-place-rail .wf-place-card-name{font-size:22px}</style>' : ""}
@@ -349,11 +361,27 @@ if (!browserConfig) {
       ok(measured.adapters.length === 9 && measured.adapters.every((adapter) => adapter.cards.length === 2), `PROBE ${width}px: all nine real adapter fixtures rendered two cards`);
       const live = measured.adapters.filter((adapter) => adapter.id !== "skeleton").flatMap((adapter) => adapter.cards.map((card) => ({ ...card, adapter: adapter.id })));
       ok(live.length === 16, `PROBE ${width}px: sixteen live component cards were measured (got ${live.length})`);
-      const expectedWidth = Math.min(PLACE_CARD_MAX_WIDTH_PX, (width - PLACE_CARD_PAGE_GUTTER_PX * 2 - (PLACE_CARD_PHONE_PEEK - 1) * PLACE_CARD_GAP_PX) / PLACE_CARD_PHONE_PEEK);
+      const STACKED = new Set(["home-live-route", "guide-list-slot"]);
+      const expectedRailWidth = Math.min(PLACE_CARD_MAX_WIDTH_PX, (width - PLACE_CARD_PAGE_GUTTER_PX * 2 - (PLACE_CARD_PHONE_PEEK - 1) * PLACE_CARD_GAP_PX) / PLACE_CARD_PHONE_PEEK);
+      const expectedListWidth = Math.min(PLACE_CARD_MAX_WIDTH_PX, width - PLACE_CARD_PAGE_GUTTER_PX * 2);
       for (const card of live) {
-        ok(Math.abs(card.box.h - PLACE_CARD_HEIGHT_PX) <= 0.5, `${width}px ${card.adapter}: computed height is ${PLACE_CARD_HEIGHT_PX}px (got ${card.box.h})${MUTATION && card.adapter.startsWith("event-") ? " — RENDER mutation caught" : ""}`);
+        const stacked = STACKED.has(card.adapter);
+        const expectedWidth = stacked ? expectedListWidth : expectedRailWidth;
+        if (stacked) {
+          ok(card.box.h > 80, `${width}px ${card.adapter}: stacked list has a real content height (got ${card.box.h})`);
+          if (card.media && card.box.w > 0) {
+            const pct = 100 * card.media.w / card.box.w;
+            ok(pct >= PLACE_CARD_LIST_MEDIA_MIN_PCT - 0.6 && pct <= PLACE_CARD_LIST_MEDIA_MAX_PCT + 0.6, `${width}px ${card.adapter}: stacked photo column is 32–38% of card width (got ${pct.toFixed(1)}%)`);
+          }
+          if (expectedListWidth < PLACE_CARD_MAX_WIDTH_PX - 0.5) {
+            ok(card.box.x <= PLACE_CARD_PAGE_GUTTER_PX + 1, `${width}px ${card.adapter}: stacked card shares the 13px left gutter (x=${card.box.x})`);
+            ok(width - card.box.right <= PLACE_CARD_PAGE_GUTTER_PX + 2, `${width}px ${card.adapter}: no peek dead-strip on the right (right gutter ${(width - card.box.right).toFixed(1)}px)`);
+          }
+        } else {
+          ok(Math.abs(card.box.h - PLACE_CARD_HEIGHT_PX) <= 0.5, `${width}px ${card.adapter}: computed height is ${PLACE_CARD_HEIGHT_PX}px (got ${card.box.h})${MUTATION && card.adapter.startsWith("event-") ? " — RENDER mutation caught" : ""}`);
+        }
         ok(card.box.w > 0 && card.box.w <= PLACE_CARD_MAX_WIDTH_PX + 0.5 && card.box.w <= width + 0.5, `${width}px ${card.adapter}: width is positive, capped, and clamped to its viewport (got ${card.box.w})`);
-        ok(Math.abs(card.box.w - expectedWidth) <= 1, `${width}px ${card.adapter}: computed width follows the one shared formula (expected ${expectedWidth.toFixed(2)}, got ${card.box.w})`);
+        ok(Math.abs(card.box.w - expectedWidth) <= 1, `${width}px ${card.adapter}: computed width follows the ${stacked ? "stacked-list fill" : "rail peek"} formula (expected ${expectedWidth.toFixed(2)}, got ${card.box.w})`);
         ok(card.scrollWidth <= card.box.w + 1, `${width}px ${card.adapter}: card content does not overflow horizontally`);
         if ((width === 320 || width === 360) && card.headingTextWidth != null) ok(card.headingTextWidth >= 120, `${width}px ${card.adapter}: title keeps at least 120px of readable line width (got ${card.headingTextWidth})`);
         if (card.score) {
@@ -377,23 +405,25 @@ if (!browserConfig) {
       }
       const reference = live.find((card) => card.adapter === "iconic");
       for (const card of live.filter((candidate) => candidate.adapter !== "things-to-do" || candidate.name)) {
-        ok(card.root[0] === reference.root[0] && card.root[2] === reference.root[2], `${width}px ${card.adapter}: critical root height/radius match IconicPlaceCard`);
+        const stacked = STACKED.has(card.adapter);
+        if (!stacked) ok(card.root[0] === reference.root[0] && card.root[2] === reference.root[2], `${width}px ${card.adapter}: critical root height/radius match IconicPlaceCard`);
+        else ok(card.root[2] === reference.root[2], `${width}px ${card.adapter}: stacked list keeps the shared card radius`);
         if (card.content && reference.content) ok(JSON.stringify(card.content) === JSON.stringify(reference.content), `${width}px ${card.adapter}: content padding matches IconicPlaceCard`);
         if (card.name && reference.name) ok(JSON.stringify(card.name) === JSON.stringify(reference.name), `${width}px ${card.adapter}: title typography matches IconicPlaceCard`);
-        if (card.media && reference.media) ok(Math.abs(card.media.w - reference.media.w) <= .5, `${width}px ${card.adapter}: media width matches IconicPlaceCard`);
-        if (card.actions && reference.actions) {
+        if (!stacked && card.media && reference.media) ok(Math.abs(card.media.w - reference.media.w) <= .5, `${width}px ${card.adapter}: media width matches IconicPlaceCard`);
+        if (!stacked && card.actions && reference.actions) {
           ok(card.actions[0] === reference.actions[0] && card.actions[3] === reference.actions[3], `${width}px ${card.adapter}: action display and spacing match IconicPlaceCard`);
           if (card.controls.length === reference.controls.length) ok(card.actions[1] === reference.actions[1], `${width}px ${card.adapter}: equal control counts use equal action tracks`);
           else ok(card.controls.length === 5 && card.hasBooking, `${width}px ${card.adapter}: the only extra action is the existing booking control`);
         }
       }
-      for (const card of live) for (const key of ['save','like','dislike','share']) {
+      for (const card of live.filter((candidate) => !STACKED.has(candidate.adapter))) for (const key of ['save','like','dislike','share']) {
         ok(card.actionStyles[key] && JSON.stringify(card.actionStyles[key]) === JSON.stringify(reference.actionStyles[key]), `${width}px ${card.adapter}: ${key} height, font, padding and radius match the shared action`);
       }
       const skeletons = measured.adapters.find((adapter) => adapter.id === "skeleton")?.cards || [];
       for (const card of skeletons) {
-        ok(Math.abs(card.box.h - PLACE_CARD_HEIGHT_PX) <= .5, `${width}px skeleton: height matches the live card`);
-        ok(Math.abs(card.box.w - expectedWidth) <= 1, `${width}px skeleton: width matches the shared formula`);
+        ok(Math.abs(card.box.h - PLACE_CARD_HEIGHT_PX) <= .5, `${width}px skeleton: height matches the live rail card`);
+        ok(Math.abs(card.box.w - expectedRailWidth) <= 1, `${width}px skeleton: width matches the rail peek formula`);
       }
       ok(measured.scrollWidth <= width + 1, `${width}px: fixture has no horizontal page overflow (scrollWidth ${measured.scrollWidth})`);
     }

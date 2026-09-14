@@ -9100,9 +9100,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           <span style={{ fontSize: 13 }}>We're adding great spots near you. Try another category, or search a bigger city nearby for the full list.</span>
         </div>
       )}
+      <div className="wf-place-card-list">
       {restView.slice(0, 3).map((p, i) => (
         <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} />
       ))}
+      </div>
       {restView.length > 3 && hookCards.length > 0 && (
         <HooksBanner hooks={hookCards} likedIds={hookLikes} totalLiked={hookLikes.size} onOpen={openHook} onLike={onHookHeart} allPlaces={[...(suggested || []), ...places].filter(Boolean)} isDesktop={isDesktop} />
       )}
@@ -9114,9 +9116,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           <div style={{ position: "fixed", bottom: "calc(84px + env(safe-area-inset-bottom))", right: 16, zIndex: 60, pointerEvents: "none", width: 62, height: 62, borderRadius: 16, background: "linear-gradient(135deg, #7C3AED, #4C1D95)", boxShadow: "0 10px 30px rgba(124,58,237,.55)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32, animation: "wfDiceSpin .7s linear infinite" }}>{homeDiceFace}</div>
         </>
       )}
+      <div className="wf-place-card-list">
       {restView.slice(3, visibleCount).map((p, i) => (
         <PlaceCard key={p.id} p={p} rank={i + 4} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} />
       ))}
+      </div>
       {!loading && restView.length > visibleCount && (
         <div style={{ padding: "2px 2px 10px" }}>
           <div style={{ height: 1, background: C.border, margin: "0 0 12px" }} />
@@ -10454,7 +10458,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                       skeletons so the feed visibly COMPLETES instead of a spinner over a
                       list that silently shrinks (Family 60->13 mid-render read as frozen). */}
                   {loading ? (
-                    <div style={{ marginTop: 2 }} aria-busy="true" aria-label="Finding the best spots">
+                    <div className="wf-place-card-list" style={{ marginTop: 2 }} aria-busy="true" aria-label="Finding the best spots">
                       <PlaceCardSkeleton count={5} as="div" />
                     </div>
                   ) : view.length === 0 ? (
@@ -10465,9 +10469,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                     </div>
                   ) : (
                     <>
+                      <div className="wf-place-card-list">
                       {view.map((p, i) => (
                         <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} />
                       ))}
+                      </div>
                       {/* End-of-feed honesty: name the count + the city so a short list reads
                           as complete, not broken. When sparse (<8) offer a real next step —
                           relax the sub-filter if one is on, else widen the search radius. */}
