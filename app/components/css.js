@@ -157,9 +157,9 @@ ${WF_SKELETON_CSS}
 .wf-place-card:hover{transform:translateY(-1px);border-color:rgba(159,177,203,.37)!important;box-shadow:0 18px 42px rgba(0,0,0,.34),inset 0 1px rgba(255,255,255,.05)}
 .wf-place-card:focus-visible{outline:2px solid rgba(249,115,22,.72);outline-offset:3px}
 .wf-place-card-layout{display:grid!important;grid-template-columns:minmax(0,var(--wf-place-card-media)) minmax(0,1fr);min-height:0;align-items:stretch}
-.wf-rail .wf-place-card-layout,.wf8-pcrail .wf-place-card-layout{grid-template-columns:var(--wf-place-card-media) minmax(0,1fr);min-height:176px}
+.wf-rail .wf-place-card-layout,.wf8-pcrail .wf-place-card-layout{grid-template-columns:minmax(0,var(--wf-place-card-media)) minmax(0,1fr);min-height:176px}
 .wf-place-card-layout>img,.wf-place-card-layout>.wf-place-card-media{position:relative;overflow:hidden;align-self:stretch;width:100%!important;height:100%!important;min-height:0!important}
-.wf-rail .wf-place-card-layout>img,.wf-rail .wf-place-card-layout>.wf-place-card-media,.wf8-pcrail .wf-place-card-layout>img,.wf8-pcrail .wf-place-card-layout>.wf-place-card-media{width:var(--wf-place-card-media)!important;height:100%!important;min-height:176px!important}
+.wf-rail .wf-place-card-layout>img,.wf-rail .wf-place-card-layout>.wf-place-card-media,.wf8-pcrail .wf-place-card-layout>img,.wf8-pcrail .wf-place-card-layout>.wf-place-card-media{width:100%!important;height:100%!important;min-height:176px!important}
 .wf-place-card-media>:first-child{display:block;width:100%!important;height:100%!important;min-height:100%!important;object-fit:cover}
 .wf-place-card.is-no-take .wf-place-card-layout{min-height:0}
 .wf-place-card-monogram{
@@ -590,7 +590,7 @@ ${WF_SKELETON_CSS}
   .wf-place-card-highlights>button{font-size:9px!important}
   .wf-rail-card-cta{min-height:30px!important}
   .wf-place-card-actions{--wf-act-h:34px;padding-top:4px}
-  .wf-sheet-card-actions{grid-template-columns:44px 26px 26px minmax(0,1fr);gap:4px!important}
+  .wf-sheet-card-actions{grid-template-columns:44px 26px 26px minmax(0,1fr);gap:3px!important}
   .wf-sheet-card-actions:has(.wf-place-card-book){grid-template-columns:44px 26px 26px minmax(0,1fr)}
   .wf-sheet-card-actions>.wf-place-card-like,.wf-sheet-card-actions>.wf-place-card-dislike{width:100%!important;min-width:0!important;flex:1 1 auto;padding-inline:0!important}
   .wf-sheet-card-actions>.wf-place-card-save,.wf-sheet-card-actions>.wf-place-card-share{padding-inline:4px!important}
