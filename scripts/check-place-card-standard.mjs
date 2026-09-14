@@ -197,7 +197,7 @@ ok(compactCss.includes(`--wf-place-card-media:${PLACE_CARD_LIST_MEDIA_PCT}%`)
   && !/width:(?:96|108)px!important/.test(compactCss),
   "every standard card consumes the shared 36% photo-column constant; 96px/108px rail media overrides are gone");
 ok(/\.wf-rail\{[^}]*scroll-snap-type:xproximity/.test(compactCss)
-  && compactCss.includes(".wf-rail .wf-place-card-highlights,.wf8-pcrail .wf-place-card-highlights{overflow:hidden"),
+  && compactCss.includes(".wf-rail.wf-place-card-highlights,.wf8-pcrail.wf-place-card-highlights{overflow:hidden"),
   "place-card rails snap with proximity and clip highlight pills on coarse/touch");
 ok(!/\.wf-place-card-list[^{]*\{[^}]*1\.08/.test(compactCss) && !/\.wf-place-card-list,\.wf-rail/.test(compactCss) && !/\.wf-place-card-list,\.wf8-pcrail/.test(compactCss),
   "1.08 phone peek is not declared on .wf-place-card-list — peek is rail-only");

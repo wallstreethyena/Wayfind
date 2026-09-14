@@ -244,7 +244,8 @@ ok(measured.pageW <= measured.viewport + 1, `no horizontal overflow at 390px (sc
 
 ok(measured.rail.length === 2 && measured.list.length === 2 && measured.live.length === 1,
   `PROBE: two rail skeletons, two list skeletons, and one live list card (got rail=${measured.rail.length} list=${measured.list.length} live=${measured.live.length})`);
-ok(/proximity/.test(measured.railSnap), `390 rail snap is proximity (got ${JSON.stringify(measured.railSnap)})`);
+ok((measured.railSnap === "x" || /proximity/.test(measured.railSnap)) && !/mandatory/.test(measured.railSnap),
+  `390 rail snap is proximity (Chrome serializes default strictness as "x"; got ${JSON.stringify(measured.railSnap)})`);
 ok(measured.railHlOverflowX === "hidden", `390 rail pills clip (overflow-x ${JSON.stringify(measured.railHlOverflowX)})`);
 ok(measured.railHlTouch !== "pan-x" && measured.railHlTouch !== "pan-x pan-y",
   `390 rail pills do not take pan-x (got ${JSON.stringify(measured.railHlTouch)})`);
