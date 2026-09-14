@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 643,
-    "totalRegistryEntries": 644,
-    "guardsTxtLineCount": 642,
-    "guardsTxtReachedFileCount": 637,
+    "totalOnDiskGuardFiles": 644,
+    "totalRegistryEntries": 645,
+    "guardsTxtLineCount": 643,
+    "guardsTxtReachedFileCount": 638,
     "criticalCount": 78,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 430,
-      "RENDER": 72,
+      "RENDER": 73,
       "STRUCTURAL": 141,
       "OTHER": 1
     }
@@ -5624,6 +5624,28 @@
       "owner": null
     },
     {
+      "file": "scripts/check-place-card-equal-height.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 37,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/check-place-card-navigation.mjs",
       "npmScript": null,
       "class": "STRUCTURAL",
@@ -5652,7 +5674,7 @@
       "npmScript": null,
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 67,
+      "assertionCount": 66,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -11426,7 +11448,7 @@
       "npmScript": null,
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 65,
+      "assertionCount": 63,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -13075,7 +13097,7 @@
       "npmScript": null,
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 35,
+      "assertionCount": 37,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

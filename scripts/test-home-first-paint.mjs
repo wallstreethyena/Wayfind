@@ -12,9 +12,9 @@
  *      now paint the real <img class="wf8-tim"> (Tonight JPG is in the SSR
  *      document) — a PlaceCardSkeleton overlay on that image is the iPhone
  *      stuck-skeleton look. The drop still paints place-card skeletons
- *      while ranking. Rails reserve 268px; stacked Food lists are content-
- *      height with a 36% photo column — the skeleton must match that surface,
- *      not a leftover global 268 lock or a 96px bar.
+ *      while ranking. Rails reserve 268px + peek + 96px media. Stacked Food
+ *      lists fill the 13px gutters with a 36% photo column — same 268px outer
+ *      height as the live card, never a 235/auto split or a 96px sliver.
  *
  * Ranking, scores, Atlas, affiliates, CSP, ads, and geolocation defaults are
  * not this file's job. toHookLine / isUsableCardHook are not imported.
@@ -100,16 +100,15 @@ const {
   PLACE_CARD_HEIGHT_PX,
   PLACE_CARD_LIST_MEDIA_MIN_PCT,
   PLACE_CARD_LIST_MEDIA_MAX_PCT,
-  PLACE_CARD_LIST_RESERVE_PX,
   PLACE_CARD_PAGE_GUTTER_PX,
   PLACE_CARD_PHONE_PEEK,
 } = await import("../lib/placeCardStandard.js");
 const React = (await import("react")).default;
 const { renderToStaticMarkup } = await import("react-dom/server");
 const { WF_LAYOUT_CSS, WF_SEARCH_CSS, WF_PLACE_CARD_CSS } = await loadComponent(path.join(ROOT, "app/components/css.js"), ROOT);
-ok(String(WF_PLACE_CARD_CSS).replace(/\s+/g, "").includes(`--wf-place-card-list-reserve:${PLACE_CARD_LIST_RESERVE_PX}px`)
-  && /\.wf-place-card-list \.wf-place-card-sk/.test(String(WF_PLACE_CARD_CSS)),
-  "list-skeleton reserve is declared on .wf-place-card-list .wf-place-card-sk — not a global 268 lock");
+ok(/\.wf-place-card\{[^}]*height:var\(--wf-card-h\)/.test(String(WF_PLACE_CARD_CSS).replace(/\s+/g, ""))
+  && !/\.wf-place-card\{[^}]*height:auto/.test(String(WF_PLACE_CARD_CSS).replace(/\s+/g, "")),
+  "list and rail cards share height:var(--wf-card-h) — no content-sized list reserve");
 const SkelMod = await loadComponent(path.join(ROOT, "app/components/PlaceCardSkeleton.js"), ROOT);
 const Skel = SkelMod.default;
 const skelHtml = renderToStaticMarkup(React.createElement(Skel, { count: 2, as: "div" }));
@@ -250,11 +249,8 @@ for (const [i, c] of measured.rail.entries()) {
 for (const [i, c] of measured.list.entries()) {
   ok(c.lineCount >= 3, `list skeleton ${i}: ${c.lineCount} copy lines — a color slab has zero`);
   ok(c.actionCount >= 4, `list skeleton ${i}: ${c.actionCount} action stubs — the live card's four-control row`);
-  ok(c.h >= 200, `list skeleton ${i}: height ${c.h.toFixed(0)}px — 178px is the under-reserve; a 96px bar is the old flash`);
-  ok(Math.abs(c.h - PLACE_CARD_LIST_RESERVE_PX) <= 2,
-    `list skeleton ${i}: reserved list height is ${PLACE_CARD_LIST_RESERVE_PX}px (got ${c.h.toFixed(0)}) — not the 268px rail lock`);
-  ok(c.h < PLACE_CARD_HEIGHT_PX - 0.5,
-    `list skeleton ${i}: ${c.h.toFixed(0)}px stays below the 268px rail lock`);
+  ok(Math.abs(c.h - PLACE_CARD_HEIGHT_PX) <= 0.5,
+    `list skeleton ${i}: height ${c.h.toFixed(0)}px matches the shared ${PLACE_CARD_HEIGHT_PX}px card (178/235 content-height is the regression)`);
   ok(Math.abs(c.w - expectedList) <= 1, `list skeleton ${i}: full list width, no 1.08 peek (expected ${expectedList.toFixed(1)}, got ${c.w.toFixed(1)})`);
   ok(Math.abs(c.x - PLACE_CARD_PAGE_GUTTER_PX) <= 1 && Math.abs(measured.viewport - c.right - PLACE_CARD_PAGE_GUTTER_PX) <= 2,
     `list skeleton ${i}: ~13px gutters, not a 40–44px peek strip (x=${c.x.toFixed(1)}, right gutter ${(measured.viewport - c.right).toFixed(1)})`);
@@ -269,8 +265,10 @@ ok(Math.abs(live.w - expectedList) <= 1, `live stacked card fills the list colum
 ok(Math.abs(live.x - PLACE_CARD_PAGE_GUTTER_PX) <= 1 && Math.abs(measured.viewport - live.right - PLACE_CARD_PAGE_GUTTER_PX) <= 2,
   `live stacked card shares the 13px gutters (right gutter ${(measured.viewport - live.right).toFixed(1)})`);
 for (const [i, c] of measured.list.entries()) {
-  ok(Math.abs(c.h - live.h) <= 16,
-    `390 list skeleton ${i} → live card jump is ${Math.abs(c.h - live.h).toFixed(1)}px (skel ${c.h.toFixed(0)} vs live ${live.h.toFixed(0)}) — 178→235 is the forbidden shift`);
+  ok(Math.abs(c.h - live.h) <= 1,
+    `390 list skeleton ${i} → live card jump is ${Math.abs(c.h - live.h).toFixed(1)}px (skel ${c.h.toFixed(0)} vs live ${live.h.toFixed(0)}) — CLS from content-height is forbidden`);
+  ok(Math.abs(live.h - PLACE_CARD_HEIGHT_PX) <= 0.5,
+    `390 live stacked card is the shared ${PLACE_CARD_HEIGHT_PX}px height (got ${live.h.toFixed(1)})`);
 }
 
 const page440 = await (await browser.newContext({ viewport: { width: 440, height: 844 }, deviceScaleFactor: 1 })).newPage();
@@ -303,18 +301,17 @@ for (const [i, c] of wide.rail.entries()) {
 }
 const wideLive = wide.live[0];
 for (const [i, c] of wide.list.entries()) {
-  ok(c.h >= 200, `440 list skeleton ${i}: ${c.h.toFixed(0)}px — 178px under-reserve is still forbidden`);
-  ok(Math.abs(c.h - PLACE_CARD_LIST_RESERVE_PX) <= 2, `440 list skeleton ${i}: keeps the ${PLACE_CARD_LIST_RESERVE_PX}px list reserve (got ${c.h.toFixed(0)})`);
-  ok(c.h < PLACE_CARD_HEIGHT_PX - 0.5, `440 list skeleton ${i}: not the 268px rail lock`);
+  ok(Math.abs(c.h - PLACE_CARD_HEIGHT_PX) <= 0.5, `440 list skeleton ${i}: shared ${PLACE_CARD_HEIGHT_PX}px height (got ${c.h.toFixed(0)})`);
   ok(Math.abs(c.w - wideList) <= 1, `440 list skeleton ${i}: full list width, no peek (got ${c.w.toFixed(1)})`);
   ok(Math.abs(440 - c.right - PLACE_CARD_PAGE_GUTTER_PX) <= 2, `440 list skeleton ${i}: ~13px right gutter, not 40–44px (got ${(440 - c.right).toFixed(1)})`);
   const pct = c.w > 0 ? 100 * c.mediaW / c.w : 0;
   ok(pct >= PLACE_CARD_LIST_MEDIA_MIN_PCT - 0.6 && pct <= PLACE_CARD_LIST_MEDIA_MAX_PCT + 0.6,
     `440 list skeleton ${i}: photo column is 32–38% (got ${pct.toFixed(1)}%)`);
-  const jump = c.h - wideLive.h;
-  ok(jump <= 32 && jump >= -16,
-    `440 list skeleton ${i} → live jump is ${jump.toFixed(1)}px (skel ${c.h.toFixed(0)} vs live ${wideLive.h.toFixed(0)}) — growth toward 235 is the forbidden shift`);
+  ok(Math.abs(c.h - wideLive.h) <= 1,
+    `440 list skeleton ${i} → live jump is ${Math.abs(c.h - wideLive.h).toFixed(1)}px (skel ${c.h.toFixed(0)} vs live ${wideLive.h.toFixed(0)}) — CLS from content-height is forbidden`);
+  ok(Math.abs(wideLive.h - PLACE_CARD_HEIGHT_PX) <= 0.5,
+    `440 live stacked card is the shared ${PLACE_CARD_HEIGHT_PX}px height (got ${wideLive.h.toFixed(1)})`);
 }
 await browser.close();
 
-console.log(`test-home-first-paint: OK — ${pass} assertions (official search string fits at measured ${innerWidth}px; rail 268 + list ${PLACE_CARD_LIST_RESERVE_PX} reserve at 390/440)`);
+console.log(`test-home-first-paint: OK — ${pass} assertions (official search string fits at measured ${innerWidth}px; rail + list share ${PLACE_CARD_HEIGHT_PX}px at 390/440)`);

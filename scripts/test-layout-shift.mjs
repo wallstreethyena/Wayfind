@@ -140,9 +140,9 @@ ok(!/minHeight|fit-content|height:\s*["']?auto/.test(affiliateComponent),
 {
   const { WF_PLACE_CARD_CSS } = await loadComponent(new URL("../app/components/css.js", import.meta.url).pathname, new URL("../", import.meta.url).pathname);
   const cssSrc = String(WF_PLACE_CARD_CSS).replace(/\s*\n\s*/g, "");
-  const rule = (cssSrc.match(/\.wf-place-card(?:,[^{]+)?\{[^}]*--wf-card-h[^}]*\}/) || [""])[0];
-  ok(rule.includes(`--wf-card-h:${PLACE_CARD_HEIGHT_PX}px`) && /height:var\(--wf-card-h\)/.test(cssSrc),
-    `.wf-place-card still owns the shared fixed ${PLACE_CARD_HEIGHT_PX}px height`);
+  const rule = (cssSrc.match(/\.wf-place-card\{[^}]*--wf-card-h[^}]*\}/) || [""])[0];
+  ok(rule.includes(`--wf-card-h:${PLACE_CARD_HEIGHT_PX}px`) && /height:var\(--wf-card-h\)/.test(rule) && !/height:auto/.test(rule),
+    `the base .wf-place-card rule owns the shared fixed ${PLACE_CARD_HEIGHT_PX}px height (not height:auto)`);
 }
 
 

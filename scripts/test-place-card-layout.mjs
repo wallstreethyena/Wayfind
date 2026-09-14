@@ -29,6 +29,7 @@ import { mkdtempSync, writeFileSync, rmSync, existsSync, readFileSync } from "no
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadComponent } from "./lib/jsxLoad.mjs";
+import { PLACE_CARD_HEIGHT_PX } from "../lib/placeCardStandard.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 let pass = 0, fail = 0;
@@ -161,6 +162,12 @@ await browser.close();
 
 ok(m.cards.length === variants.length, `positive control: ${variants.length} cards rendered and found (got ${m.cards.length})`);
 ok(m.pageScrollX <= m.viewport + 1, `no horizontal page overflow at 390px (scrollWidth ${m.pageScrollX})`);
+{
+  const heights = m.cards.map((c) => c.card.h);
+  const maxH = Math.max(...heights), minH = Math.min(...heights);
+  ok(maxH - minH <= 1, `every rendered place card shares one outer height (spread ${(maxH - minH).toFixed(2)}px; ${heights.map((h) => h.toFixed(1)).join("/")})`);
+  ok(heights.every((h) => Math.abs(h - PLACE_CARD_HEIGHT_PX) <= 1), `that shared height is the ${PLACE_CARD_HEIGHT_PX}px contract (got ${heights.map((h) => h.toFixed(1)).join("/")})`);
+}
 m.cards.forEach((c, ci) => {
   const tag = variants[ci] ? variants[ci].key : "card" + ci;
   const isRail = tag.startsWith("rail");

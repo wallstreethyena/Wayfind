@@ -11,14 +11,14 @@ accents, score placement, media strip, typography, and action controls.
 
 | Property | Standard |
 | --- | --- |
-| Card body height | Horizontal rails: 268px. Stacked lists: height follows content — no empty 268px box |
+| Card body height | 268px at every viewport, including stacked lists. Content never changes outer height |
 | Maximum card width | 440px |
 | Phone width | Stacked lists fill the column (`min(100%, 440px)`), same 13px gutters as the search box. The 1.08 peek is rail-only and must never inherit into `.wf-place-card-list` |
 | Phone photo | Stacked lists: 36% of card width (32–38% band). Rails: 96px (108px desktop) |
 | Narrow containers | Clamp to the available width using the shared rule |
 | Card gap | 10px |
 | Media, title, padding, score and actions | Existing shared IconicPlaceCard styles |
-| Loading reservation | Rails: 268px + peek + 96px media. Stacked-list skeletons: fill the column, 36% media, reserve 235px (live list height) — never a 178px squat or a global 268 lock |
+| Loading reservation | Same dimensions as the loaded card — 268px on rails and stacked lists |
 
 Responsive sizing belongs to the shared contract. A route must not choose a
 different card height, width formula, image layout, title font, or action size.
