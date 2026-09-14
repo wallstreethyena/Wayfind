@@ -164,6 +164,18 @@ ok(m.pageScrollX <= m.viewport + 1, `no horizontal page overflow at 390px (scrol
 m.cards.forEach((c, ci) => {
   const tag = variants[ci] ? variants[ci].key : "card" + ci;
   const isRail = tag.startsWith("rail");
+  // 2026-09-14 iPhone restore: stacked 390px cards fill the padded column
+  // (not the rail peek ~336px), the photo column is the full card height,
+  // and Save/Share/like stay tappable. These are the boxes Gabe photographed.
+  if (!isRail) {
+    ok(c.card.w >= 350 && c.card.w <= m.viewport + 0.5, `${tag}: stacked phone card fills the column without overflow (got ${c.card.w.toFixed(1)}px at ${m.viewport}px)`);
+    ok(m.viewport - (c.card.x + c.card.w) <= 16, `${tag}: no 40px peek gutter on the right (dead space ${(m.viewport - (c.card.x + c.card.w)).toFixed(1)}px)`);
+    if (c.media && c.card.w > 0) {
+      const pct = 100 * c.media.w / c.card.w;
+      ok(pct >= 32 && pct <= 38, `${tag}: photo column is 32–38% of card width (got ${pct.toFixed(1)}%)`);
+    }
+    for (const k of c.kids) ok(k.h >= 34 && k.w >= 26, `${tag}: ${k.cls} stays tappable on a 390px phone (got ${k.w.toFixed(1)}x${k.h.toFixed(1)})`);
+  }
   if (!isRail) ok(c.kids.length >= 4, `${tag}: positive control — action row has >=4 controls (got ${c.kids.length})`);
   // v8.62 — OWNER'S PLACEMENT, verbatim (2026-08-26, live): "the score goes
   // in the top right hand corner of the card, not in front of the image."

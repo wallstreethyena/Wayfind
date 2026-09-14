@@ -11,9 +11,10 @@ accents, score placement, media strip, typography, and action controls.
 
 | Property | Standard |
 | --- | --- |
-| Card body height | 268px at every viewport |
+| Card body height | Horizontal rails: 268px. Stacked lists: height follows content — no empty 268px box |
 | Maximum card width | 440px |
-| Phone width | Shared viewport formula with a 1.08-card peek and 13px outer gutter |
+| Phone width | Stacked lists fill the column (`min(100%, 440px)`), same 13px gutters as the search box. The 1.08 peek is rail-only and must never inherit into `.wf-place-card-list` |
+| Phone photo | Stacked lists: 36% of card width (32–38% band). Rails: 96px (108px desktop) |
 | Narrow containers | Clamp to the available width using the shared rule |
 | Card gap | 10px |
 | Media, title, padding, score and actions | Existing shared IconicPlaceCard styles |
