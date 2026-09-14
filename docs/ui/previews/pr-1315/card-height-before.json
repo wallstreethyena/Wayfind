@@ -1,0 +1,36 @@
+{
+  "note": "Measured on 94ff778 (#1313 live) before the equal-height repair. Stacked .wf-place-card height:auto.",
+  "390": {
+    "simple": 224.8,
+    "long-name": 251.39,
+    "creator-video": 265.97,
+    "instagram": 251.8,
+    "multi-tag": 217.8,
+    "missing-image": 162,
+    "commerce": 217.8,
+    "list-skeleton": 237,
+    "rail": 268
+  },
+  "320": {
+    "simple": 224.8,
+    "long-name": 251.39,
+    "creator-video": 265.97,
+    "instagram": 251.8,
+    "multi-tag": 234.59,
+    "missing-image": 162,
+    "commerce": 234.59,
+    "list-skeleton": 237,
+    "rail": 268
+  },
+  "440": {
+    "simple": 218.81,
+    "long-name": 229.72,
+    "creator-video": 259.98,
+    "instagram": 245.81,
+    "multi-tag": 229.72,
+    "missing-image": 162,
+    "commerce": 229.72,
+    "list-skeleton": 237,
+    "rail": 268
+  }
+}

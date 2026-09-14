@@ -1,0 +1,266 @@
+{
+  "320": {
+    "innerWidth": 320,
+    "scrollWidth": 320,
+    "pagePad": "13px",
+    "expectedH": 268,
+    "rows": [
+      {
+        "variant": "simple",
+        "h": 268,
+        "w": 294,
+        "x": 13,
+        "right": 307,
+        "mediaPct": 35.75,
+        "mediaH": 266,
+        "actionsY": 210
+      },
+      {
+        "variant": "creator-video",
+        "h": 268,
+        "w": 294,
+        "x": 13,
+        "right": 307,
+        "mediaPct": 35.75,
+        "mediaH": 266,
+        "actionsY": 210
+      },
+      {
+        "variant": "instagram",
+        "h": 268,
+        "w": 294,
+        "x": 13,
+        "right": 307,
+        "mediaPct": 35.75,
+        "mediaH": 266,
+        "actionsY": 210
+      },
+      {
+        "variant": "commerce",
+        "h": 268,
+        "w": 294,
+        "x": 13,
+        "right": 307,
+        "mediaPct": 35.75,
+        "mediaH": 266,
+        "actionsY": 210
+      },
+      {
+        "variant": "long-name",
+        "h": 268,
+        "w": 294,
+        "x": 13,
+        "right": 307,
+        "mediaPct": 35.75,
+        "mediaH": 266,
+        "actionsY": 210
+      },
+      {
+        "variant": "multi-tag",
+        "h": 268,
+        "w": 294,
+        "x": 13,
+        "right": 307,
+        "mediaPct": 35.75,
+        "mediaH": 266,
+        "actionsY": 210
+      },
+      {
+        "variant": "missing-image",
+        "h": 268,
+        "w": 294,
+        "x": 13,
+        "right": 307,
+        "mediaPct": 35.75,
+        "mediaH": 266,
+        "actionsY": 210
+      },
+      {
+        "variant": "skeleton",
+        "h": 268,
+        "w": 294,
+        "x": 13,
+        "right": 307,
+        "mediaPct": 35.75,
+        "mediaH": 266,
+        "actionsY": 213
+      }
+    ]
+  },
+  "390": {
+    "innerWidth": 390,
+    "scrollWidth": 390,
+    "pagePad": "13px",
+    "expectedH": 268,
+    "rows": [
+      {
+        "variant": "simple",
+        "h": 268,
+        "w": 364,
+        "x": 13,
+        "right": 377,
+        "mediaPct": 35.8,
+        "mediaH": 266,
+        "actionsY": 210
+      },
+      {
+        "variant": "creator-video",
+        "h": 268,
+        "w": 364,
+        "x": 13,
+        "right": 377,
+        "mediaPct": 35.8,
+        "mediaH": 266,
+        "actionsY": 210
+      },
+      {
+        "variant": "instagram",
+        "h": 268,
+        "w": 364,
+        "x": 13,
+        "right": 377,
+        "mediaPct": 35.8,
+        "mediaH": 266,
+        "actionsY": 210
+      },
+      {
+        "variant": "commerce",
+        "h": 268,
+        "w": 364,
+        "x": 13,
+        "right": 377,
+        "mediaPct": 35.8,
+        "mediaH": 266,
+        "actionsY": 210
+      },
+      {
+        "variant": "long-name",
+        "h": 268,
+        "w": 364,
+        "x": 13,
+        "right": 377,
+        "mediaPct": 35.8,
+        "mediaH": 266,
+        "actionsY": 210
+      },
+      {
+        "variant": "multi-tag",
+        "h": 268,
+        "w": 364,
+        "x": 13,
+        "right": 377,
+        "mediaPct": 35.8,
+        "mediaH": 266,
+        "actionsY": 210
+      },
+      {
+        "variant": "missing-image",
+        "h": 268,
+        "w": 364,
+        "x": 13,
+        "right": 377,
+        "mediaPct": 35.8,
+        "mediaH": 266,
+        "actionsY": 210
+      },
+      {
+        "variant": "skeleton",
+        "h": 268,
+        "w": 364,
+        "x": 13,
+        "right": 377,
+        "mediaPct": 35.8,
+        "mediaH": 266,
+        "actionsY": 213
+      }
+    ]
+  },
+  "440": {
+    "innerWidth": 440,
+    "scrollWidth": 440,
+    "pagePad": "13px",
+    "expectedH": 268,
+    "rows": [
+      {
+        "variant": "simple",
+        "h": 268,
+        "w": 414,
+        "x": 13,
+        "right": 427,
+        "mediaPct": 35.82,
+        "mediaH": 266,
+        "actionsY": 209
+      },
+      {
+        "variant": "creator-video",
+        "h": 268,
+        "w": 414,
+        "x": 13,
+        "right": 427,
+        "mediaPct": 35.82,
+        "mediaH": 266,
+        "actionsY": 209
+      },
+      {
+        "variant": "instagram",
+        "h": 268,
+        "w": 414,
+        "x": 13,
+        "right": 427,
+        "mediaPct": 35.82,
+        "mediaH": 266,
+        "actionsY": 209
+      },
+      {
+        "variant": "commerce",
+        "h": 268,
+        "w": 414,
+        "x": 13,
+        "right": 427,
+        "mediaPct": 35.82,
+        "mediaH": 266,
+        "actionsY": 209
+      },
+      {
+        "variant": "long-name",
+        "h": 268,
+        "w": 414,
+        "x": 13,
+        "right": 427,
+        "mediaPct": 35.82,
+        "mediaH": 266,
+        "actionsY": 209
+      },
+      {
+        "variant": "multi-tag",
+        "h": 268,
+        "w": 414,
+        "x": 13,
+        "right": 427,
+        "mediaPct": 35.82,
+        "mediaH": 266,
+        "actionsY": 209
+      },
+      {
+        "variant": "missing-image",
+        "h": 268,
+        "w": 414,
+        "x": 13,
+        "right": 427,
+        "mediaPct": 35.82,
+        "mediaH": 266,
+        "actionsY": 209
+      },
+      {
+        "variant": "skeleton",
+        "h": 268,
+        "w": 414,
+        "x": 13,
+        "right": 427,
+        "mediaPct": 35.82,
+        "mediaH": 266,
+        "actionsY": 212
+      }
+    ]
+  }
+}
