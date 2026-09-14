@@ -7,12 +7,14 @@
  *      visible text was "Search a place (" — overflow on the field, not a
  *      shorter official string. This file measures the placeholder against
  *      the input's content box at a real 390×844 viewport.
- *   2. Homepage rail flash. First paint used blank color slabs (a single
- *      rounded wf-sk / railTint rectangle) while rails hydrated. Poster tiles
+ *   2. Homepage card flash. First paint used blank color slabs (a single
+ *      rounded wf-sk / railTint rectangle) while cards hydrated. Poster tiles
  *      now paint the real <img class="wf8-tim"> (Tonight JPG is in the SSR
  *      document) — a PlaceCardSkeleton overlay on that image is the iPhone
  *      stuck-skeleton look. The drop still paints place-card skeletons
- *      while ranking.
+ *      while ranking. Rails reserve 268px; stacked Food lists are content-
+ *      height with a 36% photo column — the skeleton must match that surface,
+ *      not a leftover global 268 lock or a 96px bar.
  *
  * Ranking, scores, Atlas, affiliates, CSP, ads, and geolocation defaults are
  * not this file's job. toHookLine / isUsableCardHook are not imported.
@@ -88,9 +90,12 @@ ok(!/width:\s*"100%",\s*height:\s*INTENT_RAIL_CARD_H/.test(INTENT_CODE),
   "the IntentRail full-width wf-sk slab is gone — that was the colored block");
 ok(/<PlaceCardSkeleton count=\{5\} as="div" \/>/.test(HOME_CODE),
   "the browse-category loading state is five place-card skeletons, not 96px color bars");
+ok(/className="wf-place-card-list"[\s\S]{0,180}<PlaceCardSkeleton count=\{5\}/.test(HOME_CODE),
+  "browse-category skeletons mount inside .wf-place-card-list — list first-paint, not rail peek");
 
 /* ── 4. MEASURE at 390px when Chromium exists ──────────────────────────── */
 const { loadComponent } = await import("./lib/jsxLoad.mjs");
+const { PLACE_CARD_HEIGHT_PX, PLACE_CARD_LIST_MEDIA_MIN_PCT, PLACE_CARD_LIST_MEDIA_MAX_PCT } = await import("../lib/placeCardStandard.js");
 const React = (await import("react")).default;
 const { renderToStaticMarkup } = await import("react-dom/server");
 const { WF_LAYOUT_CSS, WF_SEARCH_CSS, WF_PLACE_CARD_CSS } = await loadComponent(path.join(ROOT, "app/components/css.js"), ROOT);
@@ -136,7 +141,10 @@ const searchFixture = `<!doctype html><html><head><meta name="viewport" content=
     <button class="wf-search-submit" aria-label="Search" style="flex-shrink:0;width:54px;height:48px;border:none">→</button>
   </div>
 </div>
-<div id="skels" style="padding:12px">${skelHtml}</div>
+<div id="skels" style="padding:12px">
+  <div class="wf-rail" data-skel="rail">${skelHtml}</div>
+  <div class="wf-place-card-list" data-skel="list">${skelHtml}</div>
+</div>
 </body></html>`;
 
 const tmp = mkdtempSync(path.join(ROOT, ".wf-firstpaint-"));
@@ -162,7 +170,7 @@ const measured = await page.evaluate((official) => {
   const textW = ctx.measureText(official).width;
   const icon = document.querySelector(".wf-search-icon");
   const iconShown = !!(icon && getComputedStyle(icon).display !== "none");
-  const cards = [...document.querySelectorAll(".wf-place-card-sk")].map((card) => {
+  const measure = (card) => {
     const layout = card.querySelector(".wf-place-card-layout");
     const media = card.querySelector(".wf-place-card-sk-media");
     const lines = card.querySelectorAll(".wf-place-card-sk-line");
@@ -171,19 +179,20 @@ const measured = await page.evaluate((official) => {
     const lb = layout ? layout.getBoundingClientRect() : null;
     const mb = media ? media.getBoundingClientRect() : null;
     return {
-      w: cb.width, h: cb.height,
+      w: cb.width, h: cb.height, x: cb.x, right: cb.right,
       cols: layout ? getComputedStyle(layout).gridTemplateColumns : "",
       mediaW: mb ? mb.width : 0,
       lineCount: lines.length,
       actionCount: actions.length,
       layoutH: lb ? lb.height : 0,
     };
-  });
+  };
   return {
     placeholder: input.getAttribute("placeholder"),
     inner, textW, fontSize: cs.fontSize, padL, iconShown,
     pageW: document.documentElement.scrollWidth, viewport: innerWidth,
-    cards,
+    rail: [...document.querySelectorAll('[data-skel="rail"] .wf-place-card-sk')].map(measure),
+    list: [...document.querySelectorAll('[data-skel="list"] .wf-place-card-sk')].map(measure),
   };
 }, PLACEHOLDER);
 await browser.close();
@@ -196,13 +205,27 @@ ok(measured.textW <= measured.inner + 0.5,
 ok(measured.iconShown === false, "at 390px the decorative search icon is not taking a gutter the official string needs");
 ok(measured.pageW <= measured.viewport + 1, `no horizontal overflow at 390px (scrollWidth ${measured.pageW})`);
 
-ok(measured.cards.length === 2, `PROBE: two rendered skeletons were found (got ${measured.cards.length})`);
-for (const [i, c] of measured.cards.entries()) {
-  ok(c.lineCount >= 3, `skeleton ${i}: ${c.lineCount} copy lines — a color slab has zero`);
-  ok(c.actionCount >= 4, `skeleton ${i}: ${c.actionCount} action stubs — the live card's four-control row`);
-  ok(c.mediaW >= 70, `skeleton ${i}: media column is ${c.mediaW.toFixed(0)}px — a slab has no media column`);
-  ok(c.h >= 200, `skeleton ${i}: height ${c.h.toFixed(0)}px — the live card is 268px, a 96px bar is the old flash`);
-  ok(/^\s*\d+(\.\d+)?px\s+\S+/.test(c.cols), `skeleton ${i}: layout is a two-track grid (got ${JSON.stringify(c.cols)})`);
+ok(measured.rail.length === 2 && measured.list.length === 2,
+  `PROBE: two rail and two list skeletons were found (got rail=${measured.rail.length} list=${measured.list.length})`);
+for (const [i, c] of measured.rail.entries()) {
+  ok(c.lineCount >= 3, `rail skeleton ${i}: ${c.lineCount} copy lines — a color slab has zero`);
+  ok(c.actionCount >= 4, `rail skeleton ${i}: ${c.actionCount} action stubs — the live card's four-control row`);
+  ok(c.mediaW >= 70, `rail skeleton ${i}: media column is ${c.mediaW.toFixed(0)}px — a slab has no media column`);
+  ok(Math.abs(c.h - PLACE_CARD_HEIGHT_PX) <= 0.5,
+    `rail skeleton ${i}: height ${c.h.toFixed(0)}px matches the 268px rail card (a 96px bar is the old flash)`);
+  ok(/^\s*\d+(\.\d+)?px\s+\S+/.test(c.cols), `rail skeleton ${i}: layout is a two-track grid (got ${JSON.stringify(c.cols)})`);
+}
+for (const [i, c] of measured.list.entries()) {
+  ok(c.lineCount >= 3, `list skeleton ${i}: ${c.lineCount} copy lines — a color slab has zero`);
+  ok(c.actionCount >= 4, `list skeleton ${i}: ${c.actionCount} action stubs — the live card's four-control row`);
+  ok(c.h >= 160 && c.h < PLACE_CARD_HEIGHT_PX - 0.5,
+    `list skeleton ${i}: content height ${c.h.toFixed(0)}px — not a 96px flash and not the 268px rail lock`);
+  ok(c.w >= 350 && measured.viewport - c.right <= 16,
+    `list skeleton ${i}: fills the column like the search box (w=${c.w.toFixed(1)}, right gutter ${(measured.viewport - c.right).toFixed(1)})`);
+  const pct = c.w > 0 ? 100 * c.mediaW / c.w : 0;
+  ok(pct >= PLACE_CARD_LIST_MEDIA_MIN_PCT - 0.6 && pct <= PLACE_CARD_LIST_MEDIA_MAX_PCT + 0.6,
+    `list skeleton ${i}: photo column is 32–38% of card width (got ${pct.toFixed(1)}%)`);
+  ok(/^\s*\S+\s+\S+/.test(c.cols), `list skeleton ${i}: layout is a two-track grid (got ${JSON.stringify(c.cols)})`);
 }
 
 console.log(`test-home-first-paint: OK — ${pass} assertions (official search string fits at measured ${innerWidth}px; first-paint skeleton is a place card, not a color slab)`);

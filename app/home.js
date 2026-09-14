@@ -10458,7 +10458,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                       skeletons so the feed visibly COMPLETES instead of a spinner over a
                       list that silently shrinks (Family 60->13 mid-render read as frozen). */}
                   {loading ? (
-                    <div style={{ marginTop: 2 }} aria-busy="true" aria-label="Finding the best spots">
+                    <div className="wf-place-card-list" style={{ marginTop: 2 }} aria-busy="true" aria-label="Finding the best spots">
                       <PlaceCardSkeleton count={5} as="div" />
                     </div>
                   ) : view.length === 0 ? (

@@ -18,7 +18,7 @@ accents, score placement, media strip, typography, and action controls.
 | Narrow containers | Clamp to the available width using the shared rule |
 | Card gap | 10px |
 | Media, title, padding, score and actions | Existing shared IconicPlaceCard styles |
-| Loading reservation | Same dimensions as the loaded card |
+| Loading reservation | Same surface as the loaded card: rails 268px + peek; stacked lists fill the column and size to content |
 
 Responsive sizing belongs to the shared contract. A route must not choose a
 different card height, width formula, image layout, title font, or action size.
