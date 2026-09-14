@@ -95,13 +95,41 @@ ok(/className="wf-place-card-list"[\s\S]{0,180}<PlaceCardSkeleton count=\{5\}/.t
 
 /* ── 4. MEASURE at 390px when Chromium exists ──────────────────────────── */
 const { loadComponent } = await import("./lib/jsxLoad.mjs");
-const { PLACE_CARD_HEIGHT_PX, PLACE_CARD_LIST_MEDIA_MIN_PCT, PLACE_CARD_LIST_MEDIA_MAX_PCT } = await import("../lib/placeCardStandard.js");
+const {
+  PLACE_CARD_GAP_PX,
+  PLACE_CARD_HEIGHT_PX,
+  PLACE_CARD_LIST_MEDIA_MIN_PCT,
+  PLACE_CARD_LIST_MEDIA_MAX_PCT,
+  PLACE_CARD_LIST_RESERVE_PX,
+  PLACE_CARD_PAGE_GUTTER_PX,
+  PLACE_CARD_PHONE_PEEK,
+} = await import("../lib/placeCardStandard.js");
 const React = (await import("react")).default;
 const { renderToStaticMarkup } = await import("react-dom/server");
 const { WF_LAYOUT_CSS, WF_SEARCH_CSS, WF_PLACE_CARD_CSS } = await loadComponent(path.join(ROOT, "app/components/css.js"), ROOT);
+ok(String(WF_PLACE_CARD_CSS).replace(/\s+/g, "").includes(`--wf-place-card-list-reserve:${PLACE_CARD_LIST_RESERVE_PX}px`)
+  && /\.wf-place-card-list \.wf-place-card-sk/.test(String(WF_PLACE_CARD_CSS)),
+  "list-skeleton reserve is declared on .wf-place-card-list .wf-place-card-sk — not a global 268 lock");
 const SkelMod = await loadComponent(path.join(ROOT, "app/components/PlaceCardSkeleton.js"), ROOT);
 const Skel = SkelMod.default;
 const skelHtml = renderToStaticMarkup(React.createElement(Skel, { count: 2, as: "div" }));
+const homeEntry = path.join(ROOT, "app/home.js");
+const HomeMod = await loadComponent(homeEntry, ROOT, { onGraph(graph) {
+  const compiled = graph.get(homeEntry);
+  writeFileSync(compiled, readFileSync(compiled, "utf8") + "\nexport { PlaceCard };\n");
+} });
+ok(typeof HomeMod.PlaceCard === "function", "PROBE: actual home PlaceCard compiled for the list hydrate jump");
+const livePlace = {
+  id: "first-paint-live", name: "Hashtag Café", rating: 4.8, reviews: 214,
+  priceLevel: "PRICE_LEVEL_MODERATE", types: ["cafe", "restaurant"], distMi: 1.4,
+  governed_score: 99, wfScore: 99, lat: 27.498, lng: -82.574,
+};
+const noop = () => {};
+const liveHtml = renderToStaticMarkup(React.createElement(HomeMod.PlaceCard, {
+  p: livePlace, rank: 1, saved: false, liked: false, disliked: false,
+  onDetail: noop, onSave: noop, onLike: noop, onDislike: noop, onShareCard: noop,
+  line: "A neighborhood cafe with a useful hook.", onBadge: noop, city: "Bradenton",
+}));
 ok(/wf-place-card-sk/.test(skelHtml) && /wf-place-card-layout/.test(skelHtml),
   "PROBE: PlaceCardSkeleton RENDERS the card layout (a missing export would have thrown or painted nothing)");
 ok((skelHtml.match(/wf-place-card-sk-line/g) || []).length >= 4,
@@ -141,9 +169,9 @@ const searchFixture = `<!doctype html><html><head><meta name="viewport" content=
     <button class="wf-search-submit" aria-label="Search" style="flex-shrink:0;width:54px;height:48px;border:none">→</button>
   </div>
 </div>
-<div id="skels" style="padding:12px">
+<div id="skels" style="padding:0 ${PLACE_CARD_PAGE_GUTTER_PX}px">
   <div class="wf-rail" data-skel="rail">${skelHtml}</div>
-  <div class="wf-place-card-list" data-skel="list">${skelHtml}</div>
+  <div class="wf-place-card-list" data-skel="list">${skelHtml}${liveHtml}</div>
 </div>
 </body></html>`;
 
@@ -193,9 +221,10 @@ const measured = await page.evaluate((official) => {
     pageW: document.documentElement.scrollWidth, viewport: innerWidth,
     rail: [...document.querySelectorAll('[data-skel="rail"] .wf-place-card-sk')].map(measure),
     list: [...document.querySelectorAll('[data-skel="list"] .wf-place-card-sk')].map(measure),
+    live: [...document.querySelectorAll('[data-skel="list"] .wf-place-card:not(.wf-place-card-sk)')].map(measure),
   };
 }, PLACEHOLDER);
-await browser.close();
+await page.close();
 
 ok(measured.placeholder === PLACEHOLDER, `measured input still has the official placeholder (got ${JSON.stringify(measured.placeholder)})`);
 ok(measured.inner > 0 && measured.textW > 0,
@@ -205,27 +234,87 @@ ok(measured.textW <= measured.inner + 0.5,
 ok(measured.iconShown === false, "at 390px the decorative search icon is not taking a gutter the official string needs");
 ok(measured.pageW <= measured.viewport + 1, `no horizontal overflow at 390px (scrollWidth ${measured.pageW})`);
 
-ok(measured.rail.length === 2 && measured.list.length === 2,
-  `PROBE: two rail and two list skeletons were found (got rail=${measured.rail.length} list=${measured.list.length})`);
+ok(measured.rail.length === 2 && measured.list.length === 2 && measured.live.length === 1,
+  `PROBE: two rail skeletons, two list skeletons, and one live list card (got rail=${measured.rail.length} list=${measured.list.length} live=${measured.live.length})`);
+const expectedPeek = (measured.viewport - PLACE_CARD_PAGE_GUTTER_PX * 2 - (PLACE_CARD_PHONE_PEEK - 1) * PLACE_CARD_GAP_PX) / PLACE_CARD_PHONE_PEEK;
+const expectedList = measured.viewport - PLACE_CARD_PAGE_GUTTER_PX * 2;
 for (const [i, c] of measured.rail.entries()) {
   ok(c.lineCount >= 3, `rail skeleton ${i}: ${c.lineCount} copy lines — a color slab has zero`);
   ok(c.actionCount >= 4, `rail skeleton ${i}: ${c.actionCount} action stubs — the live card's four-control row`);
-  ok(c.mediaW >= 70, `rail skeleton ${i}: media column is ${c.mediaW.toFixed(0)}px — a slab has no media column`);
+  ok(Math.abs(c.mediaW - 96) <= 2, `rail skeleton ${i}: media column is 96px (got ${c.mediaW.toFixed(1)})`);
   ok(Math.abs(c.h - PLACE_CARD_HEIGHT_PX) <= 0.5,
     `rail skeleton ${i}: height ${c.h.toFixed(0)}px matches the 268px rail card (a 96px bar is the old flash)`);
+  ok(Math.abs(c.w - expectedPeek) <= 1, `rail skeleton ${i}: width follows the 1.08 peek (expected ${expectedPeek.toFixed(1)}, got ${c.w.toFixed(1)})`);
   ok(/^\s*\d+(\.\d+)?px\s+\S+/.test(c.cols), `rail skeleton ${i}: layout is a two-track grid (got ${JSON.stringify(c.cols)})`);
 }
 for (const [i, c] of measured.list.entries()) {
   ok(c.lineCount >= 3, `list skeleton ${i}: ${c.lineCount} copy lines — a color slab has zero`);
   ok(c.actionCount >= 4, `list skeleton ${i}: ${c.actionCount} action stubs — the live card's four-control row`);
-  ok(c.h >= 160 && c.h < PLACE_CARD_HEIGHT_PX - 0.5,
-    `list skeleton ${i}: content height ${c.h.toFixed(0)}px — not a 96px flash and not the 268px rail lock`);
-  ok(c.w >= 350 && measured.viewport - c.right <= 16,
-    `list skeleton ${i}: fills the column like the search box (w=${c.w.toFixed(1)}, right gutter ${(measured.viewport - c.right).toFixed(1)})`);
+  ok(c.h >= 200, `list skeleton ${i}: height ${c.h.toFixed(0)}px — 178px is the under-reserve; a 96px bar is the old flash`);
+  ok(Math.abs(c.h - PLACE_CARD_LIST_RESERVE_PX) <= 2,
+    `list skeleton ${i}: reserved list height is ${PLACE_CARD_LIST_RESERVE_PX}px (got ${c.h.toFixed(0)}) — not the 268px rail lock`);
+  ok(c.h < PLACE_CARD_HEIGHT_PX - 0.5,
+    `list skeleton ${i}: ${c.h.toFixed(0)}px stays below the 268px rail lock`);
+  ok(Math.abs(c.w - expectedList) <= 1, `list skeleton ${i}: full list width, no 1.08 peek (expected ${expectedList.toFixed(1)}, got ${c.w.toFixed(1)})`);
+  ok(Math.abs(c.x - PLACE_CARD_PAGE_GUTTER_PX) <= 1 && Math.abs(measured.viewport - c.right - PLACE_CARD_PAGE_GUTTER_PX) <= 2,
+    `list skeleton ${i}: ~13px gutters, not a 40–44px peek strip (x=${c.x.toFixed(1)}, right gutter ${(measured.viewport - c.right).toFixed(1)})`);
   const pct = c.w > 0 ? 100 * c.mediaW / c.w : 0;
   ok(pct >= PLACE_CARD_LIST_MEDIA_MIN_PCT - 0.6 && pct <= PLACE_CARD_LIST_MEDIA_MAX_PCT + 0.6,
     `list skeleton ${i}: photo column is 32–38% of card width (got ${pct.toFixed(1)}%)`);
   ok(/^\s*\S+\s+\S+/.test(c.cols), `list skeleton ${i}: layout is a two-track grid (got ${JSON.stringify(c.cols)})`);
 }
+const live = measured.live[0];
+ok(live && live.h > 0, "PROBE: live stacked PlaceCard rendered for the hydrate-jump comparison");
+ok(Math.abs(live.w - expectedList) <= 1, `live stacked card fills the list column (got ${live.w.toFixed(1)})`);
+ok(Math.abs(live.x - PLACE_CARD_PAGE_GUTTER_PX) <= 1 && Math.abs(measured.viewport - live.right - PLACE_CARD_PAGE_GUTTER_PX) <= 2,
+  `live stacked card shares the 13px gutters (right gutter ${(measured.viewport - live.right).toFixed(1)})`);
+for (const [i, c] of measured.list.entries()) {
+  ok(Math.abs(c.h - live.h) <= 16,
+    `390 list skeleton ${i} → live card jump is ${Math.abs(c.h - live.h).toFixed(1)}px (skel ${c.h.toFixed(0)} vs live ${live.h.toFixed(0)}) — 178→235 is the forbidden shift`);
+}
 
-console.log(`test-home-first-paint: OK — ${pass} assertions (official search string fits at measured ${innerWidth}px; first-paint skeleton is a place card, not a color slab)`);
+const page440 = await (await browser.newContext({ viewport: { width: 440, height: 844 }, deviceScaleFactor: 1 })).newPage();
+await page440.goto("file://" + pagePath, { waitUntil: "load" });
+const wide = await page440.evaluate(() => {
+  const measure = (card) => {
+    const media = card.querySelector(".wf-place-card-sk-media,.wf-place-card-media");
+    const cb = card.getBoundingClientRect();
+    const mb = media ? media.getBoundingClientRect() : null;
+    return { w: cb.width, h: cb.height, x: cb.x, right: cb.right, mediaW: mb ? mb.width : 0 };
+  };
+  return {
+    innerWidth,
+    pageW: document.documentElement.scrollWidth,
+    rail: [...document.querySelectorAll('[data-skel="rail"] .wf-place-card-sk')].map(measure),
+    list: [...document.querySelectorAll('[data-skel="list"] .wf-place-card-sk')].map(measure),
+    live: [...document.querySelectorAll('[data-skel="list"] .wf-place-card:not(.wf-place-card-sk)')].map(measure),
+  };
+});
+await page440.close();
+ok(wide.innerWidth === 440, `PROBE: 440px viewport was measured (got ${wide.innerWidth})`);
+ok(wide.pageW <= 440 + 1, `no horizontal overflow at 440px (scrollWidth ${wide.pageW})`);
+const widePeek = (440 - PLACE_CARD_PAGE_GUTTER_PX * 2 - (PLACE_CARD_PHONE_PEEK - 1) * PLACE_CARD_GAP_PX) / PLACE_CARD_PHONE_PEEK;
+const wideList = 440 - PLACE_CARD_PAGE_GUTTER_PX * 2;
+ok(wide.rail.length === 2 && wide.list.length === 2 && wide.live.length === 1, "PROBE: 440px still rendered rail + list + live cards");
+for (const [i, c] of wide.rail.entries()) {
+  ok(Math.abs(c.h - PLACE_CARD_HEIGHT_PX) <= 0.5, `440 rail skeleton ${i}: still 268px (got ${c.h.toFixed(0)})`);
+  ok(Math.abs(c.w - widePeek) <= 1, `440 rail skeleton ${i}: still uses 1.08 peek (got ${c.w.toFixed(1)})`);
+  ok(Math.abs(c.mediaW - 96) <= 2, `440 rail skeleton ${i}: still 96px media (got ${c.mediaW.toFixed(1)})`);
+}
+const wideLive = wide.live[0];
+for (const [i, c] of wide.list.entries()) {
+  ok(c.h >= 200, `440 list skeleton ${i}: ${c.h.toFixed(0)}px — 178px under-reserve is still forbidden`);
+  ok(Math.abs(c.h - PLACE_CARD_LIST_RESERVE_PX) <= 2, `440 list skeleton ${i}: keeps the ${PLACE_CARD_LIST_RESERVE_PX}px list reserve (got ${c.h.toFixed(0)})`);
+  ok(c.h < PLACE_CARD_HEIGHT_PX - 0.5, `440 list skeleton ${i}: not the 268px rail lock`);
+  ok(Math.abs(c.w - wideList) <= 1, `440 list skeleton ${i}: full list width, no peek (got ${c.w.toFixed(1)})`);
+  ok(Math.abs(440 - c.right - PLACE_CARD_PAGE_GUTTER_PX) <= 2, `440 list skeleton ${i}: ~13px right gutter, not 40–44px (got ${(440 - c.right).toFixed(1)})`);
+  const pct = c.w > 0 ? 100 * c.mediaW / c.w : 0;
+  ok(pct >= PLACE_CARD_LIST_MEDIA_MIN_PCT - 0.6 && pct <= PLACE_CARD_LIST_MEDIA_MAX_PCT + 0.6,
+    `440 list skeleton ${i}: photo column is 32–38% (got ${pct.toFixed(1)}%)`);
+  const jump = c.h - wideLive.h;
+  ok(jump <= 32 && jump >= -16,
+    `440 list skeleton ${i} → live jump is ${jump.toFixed(1)}px (skel ${c.h.toFixed(0)} vs live ${wideLive.h.toFixed(0)}) — growth toward 235 is the forbidden shift`);
+}
+await browser.close();
+
+console.log(`test-home-first-paint: OK — ${pass} assertions (official search string fits at measured ${innerWidth}px; rail 268 + list ${PLACE_CARD_LIST_RESERVE_PX} reserve at 390/440)`);

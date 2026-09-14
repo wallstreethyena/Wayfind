@@ -18,6 +18,7 @@ import {
   PLACE_CARD_LIST_MEDIA_MAX_PCT,
   PLACE_CARD_LIST_MEDIA_MIN_PCT,
   PLACE_CARD_LIST_MEDIA_PCT,
+  PLACE_CARD_LIST_RESERVE_PX,
   PLACE_CARD_MAX_WIDTH_PX,
   PLACE_CARD_PAGE_GUTTER_PX,
   PLACE_CARD_PHONE_PEEK,
@@ -197,6 +198,9 @@ ok(!/\.wf-place-card-list[^{]*\{[^}]*1\.08/.test(compactCss) && !/\.wf-place-car
   "1.08 phone peek is not declared on .wf-place-card-list — peek is rail-only");
 ok(/\.wf-rail[^{]*\{[^}]*--wf-place-card-width:min\(100%,440px,calc\(\(100vw/.test(compactCss) || compactCss.includes(`.wf-rail,.wf8-pcrail,.wf-rail .wf-place-card`),
   "horizontal rails still own the 1.08 peek width formula");
+ok(compactCss.includes(`--wf-place-card-list-reserve:${PLACE_CARD_LIST_RESERVE_PX}px`)
+  && /\.wf-place-card-list \.wf-place-card-sk/.test(String(WF_PLACE_CARD_CSS)),
+  "list skeletons reserve the stacked-card height on .wf-place-card-list only");
 
 async function chromiumLaunchOptions() {
   let chromium = null;

@@ -4,9 +4,9 @@
 // THE DEFECT. Homepage rails (DaypartRail drop, intent rails, browse) used to
 // reserve space with a single rounded wf-sk / wf-skeleton rectangle. On a
 // phone that reads as an empty colored block while the ranked cards hydrate.
-// Rails reserve the 268px two-column card. Stacked lists are content-height
-// with a 36% photo column — this paints that same shape with shimmer bars
-// and no copy, never a 96px color slab.
+// Rails reserve the 268px two-column card. Stacked-list skeletons inherit
+// list width + 36% media and reserve 235px (live list height) so hydrate
+// does not jump 178→235. Never a 96px slab and never a global 268 lock.
 //
 // No invented card text. No ranking. toHookLine / isUsableCardHook are not
 // in this file — a skeleton must not invent a take.
