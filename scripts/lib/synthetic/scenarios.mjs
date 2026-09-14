@@ -17,8 +17,9 @@
 //       snippets only. This is enforced structurally by the hermetic guard
 //       reading each scenario's SOURCE for the string "search" (see below).
 //   ctx.note(text)        - non-assertion context, always recorded
-//   ctx.openPage({viewport}) -> Promise<Page> (Playwright), console/network
+//   ctx.openPage({viewport, origin}) -> Promise<Page> (Playwright), console/network
 //       failures auto-captured onto the evidence bundle by the runner.
+//       `origin` overrides the default Sarasota GPS pin (lat/lng/citySlug).
 //   ctx.fetchJson(pathOrUrl, opts) -> Promise<{status, ok, url, json, text}>
 //       Node fetch relative to baseUrl. Network failures (status>=400, or a
 //       thrown network error) are auto-recorded onto the evidence bundle.
@@ -26,7 +27,7 @@
 //
 // A scenario throwing is caught by the runner and recorded as one failing
 // assertion named "scenario did not throw" — it does not abort the run.
-import { STABLE_PLACE_ID, SARASOTA, ORLANDO } from "./fixtures.mjs";
+import { STABLE_PLACE_ID, SARASOTA, ORLANDO, PARRISH, RYANS_COFFEE_HOUSE } from "./fixtures.mjs";
 import {
   EXPECTED_VISIBLE_POSTER_IDS,
   posterMenuDiff,
@@ -36,6 +37,7 @@ import {
   composedRows,
   reconcileRenderedCards,
   exactRenderedIdSet,
+  railsRequestMatchesOrigin,
 } from "./menuPosterIntegrity.mjs";
 import { splitBreakfastRails } from "../../../lib/breakfastRails.js";
 import { composeWorthEatingRails } from "../../../lib/worthEatingRails.js";
@@ -130,7 +132,14 @@ async function toggledAfterClick(locator) {
 // visible rails.  This observer keeps the browser response as the source of
 // truth — it makes no second data request and therefore cannot compare a card
 // to a different cache generation.
-async function verifyComposedPoster({ ctx, page, payload, posterId, dataRailId, railPrefix, compose, componentSelectors }) {
+async function dismissBlockingChrome(page) {
+  const giveaway = page.getByRole("dialog", { name: "Wayfind giveaway" });
+  if (await giveaway.count()) {
+    await giveaway.getByRole("button", { name: "Close" }).click().catch(() => {});
+  }
+}
+
+async function verifyComposedPoster({ ctx, page, payload, posterId, dataRailId, railPrefix, compose, componentSelectors, origin = null, requiredIds = [] }) {
   const initialWindow = railWindowFromCapturedPayload(payload, dataRailId);
   ctx.ok(`${posterId}: paging metadata is present on the captured /api/rails response`, initialWindow.metadataPresent, "total + hasMore", {
     total: initialWindow.expectedCount, hasMore: initialWindow.hasMore,
@@ -139,6 +148,7 @@ async function verifyComposedPoster({ ctx, page, payload, posterId, dataRailId, 
     returned: initialWindow.returnedCount, total: initialWindow.expectedCount, hasMore: initialWindow.hasMore,
   });
 
+  await dismissBlockingChrome(page);
   const tile = page.locator(`.wf8-tile[data-id="${posterId}"] .wf8-tlink`).first();
   ctx.ok(`${posterId}: its poster remains an interactive tile`, await tile.count() === 1, "one tile link/button", await tile.count());
   if (await tile.count()) await tile.click();
@@ -171,13 +181,15 @@ async function verifyComposedPoster({ ctx, page, payload, posterId, dataRailId, 
     ctx.ok(`${posterId}: a real continuation control is available while paging metadata says more`, hasMoreButton, "Show more ranked places button", hasMoreButton ? "present" : "absent");
     if (!hasMoreButton) break;
     const expectedOffset = nextWindow.returnedCount;
+    await dismissBlockingChrome(page);
     const continuationResponse = page.waitForResponse((response) => {
       try {
         const url = new URL(response.url());
         return url.pathname === "/api/rails"
           && url.searchParams.get("v") === "2"
           && url.searchParams.get("rail") === dataRailId
-          && Number(url.searchParams.get("offset")) === expectedOffset;
+          && Number(url.searchParams.get("offset")) === expectedOffset
+          && (!origin || railsRequestMatchesOrigin(response.url(), origin));
       } catch { return false; }
     }, { timeout: 18000 }).catch(() => null);
     // Arm this BEFORE the click. A normal button immediately after
@@ -250,6 +262,9 @@ async function verifyComposedPoster({ ctx, page, payload, posterId, dataRailId, 
   ctx.ok(`${posterId}: every returned place id resolves in the merged same-browser placeIndex`, source.missingRowIds.length === 0, "0 missing indexed rows", source.missingRowIds);
   const expectedRows = composedRows(compose(source.rows));
   const expectedIds = expectedRows.map((row) => String(row?.id || "")).filter(Boolean);
+  for (const id of requiredIds) {
+    ctx.ok(`${posterId}: required place ${id} is in the composed source for this origin`, expectedIds.includes(id), id, expectedIds.includes(id) ? "present" : "missing");
+  }
   // Do not inspect a just-received response and call it rendered.  The React
   // merge happens asynchronously after response.json(); wait until the final
   // exact DOM identity set is present, or until a reader-visible error says why
@@ -438,14 +453,19 @@ export const SCENARIOS = [
     name: "All 18 homepage posters and their meal-card answers are intact",
     description: "The live menu exposes exactly its 18 approved poster ids, and Breakfast plus Actually Worth Eating render the exact cards from the same captured /api/rails response with truthful paging metadata.",
     async run(ctx) {
-      const page = await ctx.openPage({ viewport: { width: 1280, height: 900 } });
+      // Parrish is the first-paint seed (DEFAULT_CENTER) AND the metro Gabe
+      // reported from. Granting Sarasota GPS while capturing the first
+      // /api/rails produced a Parrish expected set vs a Sarasota DOM —
+      // Ryan's Coffee House (rank 3 on Parrish breakfast) landed in
+      // missingIds on run 34835432197. Capture only rails for THIS origin.
+      const origin = PARRISH;
+      const page = await ctx.openPage({ viewport: { width: 1280, height: 900 }, origin });
       // Register before navigation: a production cache hit can answer before
       // a post-goto listener is attached, and a monitor that misses its own
       // evidence source must fail rather than infer a result from the DOM.
       const railsResponse = page.waitForResponse((response) => {
         try {
-          const url = new URL(response.url());
-          return url.pathname === "/api/rails" && url.searchParams.get("v") === "2";
+          return railsRequestMatchesOrigin(response.url(), origin);
         } catch { return false; }
       }, { timeout: 20000 }).catch(() => null);
 
@@ -489,12 +509,15 @@ export const SCENARIOS = [
         posterId: "breakfast", dataRailId: "breakfast", railPrefix: "breakfast-",
         compose: splitBreakfastRails,
         componentSelectors: ['section[aria-label="Best Breakfast"]', 'section[aria-label="Best Cafés"]'],
+        origin,
+        requiredIds: [RYANS_COFFEE_HOUSE.placeId],
       });
       await verifyComposedPoster({
         ctx, page, payload,
         posterId: "eat", dataRailId: "eat", railPrefix: "worth-eating-",
         compose: composeWorthEatingRails,
         componentSelectors: ['section[aria-label="American & Contemporary"]', 'section[aria-label="Mexican & Latin American"]', 'section[aria-label="Italian & Pizza"]'],
+        origin,
       });
     },
   },
