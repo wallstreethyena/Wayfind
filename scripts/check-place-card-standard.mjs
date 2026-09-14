@@ -217,6 +217,7 @@ async function chromiumLaunchOptions() {
   } catch {}
   const cloud = "/opt/pw-browsers/chromium-1194/chrome-linux/chrome";
   if (existsSync(cloud)) return { chromium, options: { executablePath: cloud } };
+  if (existsSync("/usr/local/bin/google-chrome")) return { chromium, options: { executablePath: "/usr/local/bin/google-chrome" } };
   if (process.platform === "darwin") return { chromium, options: {} };
   return null;
 }

@@ -139,6 +139,7 @@ function resolveChromium() {
   try { const p = chromium.executablePath(); if (p && existsSync(p)) return {}; } catch (e) {}
   const cloud = "/opt/pw-browsers/chromium-1194/chrome-linux/chrome";
   if (existsSync(cloud)) return { executablePath: cloud };
+  if (existsSync("/usr/local/bin/google-chrome")) return { executablePath: "/usr/local/bin/google-chrome" };
   if (process.platform === "darwin") return {};
   return null;
 }
