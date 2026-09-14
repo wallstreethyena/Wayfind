@@ -1,0 +1,188 @@
+{
+  "capturedAt": "2026-09-14T16:24:04.087Z",
+  "contract": {
+    "height": 268,
+    "maxWidth": 440,
+    "peek": 1.08,
+    "gap": 10,
+    "gutter": 13
+  },
+  "viewports": {
+    "390": {
+      "innerWidth": 390,
+      "scrollWidth": 390,
+      "pageGutter": 13,
+      "expectedH": 268,
+      "list": [
+        {
+          "variant": "simple",
+          "h": 268,
+          "w": 364,
+          "x": 13,
+          "rightGutter": 13,
+          "mediaPct": 35.8,
+          "actionsY": 221,
+          "radius": 17,
+          "pad": "10px 10px 8px",
+          "namePx": 15,
+          "actH": 34
+        },
+        {
+          "variant": "creator",
+          "h": 268,
+          "w": 364,
+          "x": 13,
+          "rightGutter": 13,
+          "mediaPct": 35.8,
+          "actionsY": 221,
+          "radius": 17,
+          "pad": "10px 10px 8px",
+          "namePx": 15,
+          "actH": 34
+        },
+        {
+          "variant": "instagram",
+          "h": 268,
+          "w": 364,
+          "x": 13,
+          "rightGutter": 13,
+          "mediaPct": 35.8,
+          "actionsY": 221,
+          "radius": 17,
+          "pad": "10px 10px 8px",
+          "namePx": 15,
+          "actH": 34
+        },
+        {
+          "variant": "skeleton",
+          "h": 268,
+          "w": 364,
+          "x": 13,
+          "rightGutter": 13,
+          "mediaPct": 35.8,
+          "actionsY": 215,
+          "radius": 17,
+          "pad": "10px 10px 8px",
+          "namePx": null,
+          "actH": 44
+        }
+      ],
+      "rail": [
+        {
+          "variant": null,
+          "h": 268,
+          "w": 336.28,
+          "x": 0,
+          "rightGutter": 53.72,
+          "mediaPct": 28.55,
+          "actionsY": 221,
+          "radius": 17,
+          "pad": "10px 10px 8px",
+          "namePx": 15,
+          "actH": 34
+        },
+        {
+          "variant": null,
+          "h": 268,
+          "w": 336.28,
+          "x": 346.28,
+          "rightGutter": -292.56,
+          "mediaPct": 28.55,
+          "actionsY": 221,
+          "radius": 17,
+          "pad": "10px 10px 8px",
+          "namePx": 15,
+          "actH": 34
+        }
+      ]
+    },
+    "440": {
+      "innerWidth": 440,
+      "scrollWidth": 440,
+      "pageGutter": 13,
+      "expectedH": 268,
+      "list": [
+        {
+          "variant": "simple",
+          "h": 268,
+          "w": 414,
+          "x": 13,
+          "rightGutter": 13,
+          "mediaPct": 35.82,
+          "actionsY": 209,
+          "radius": 17,
+          "pad": "13px 13px 11px",
+          "namePx": 16,
+          "actH": 38
+        },
+        {
+          "variant": "creator",
+          "h": 268,
+          "w": 414,
+          "x": 13,
+          "rightGutter": 13,
+          "mediaPct": 35.82,
+          "actionsY": 209,
+          "radius": 17,
+          "pad": "13px 13px 11px",
+          "namePx": 16,
+          "actH": 38
+        },
+        {
+          "variant": "instagram",
+          "h": 268,
+          "w": 414,
+          "x": 13,
+          "rightGutter": 13,
+          "mediaPct": 35.82,
+          "actionsY": 209,
+          "radius": 17,
+          "pad": "13px 13px 11px",
+          "namePx": 16,
+          "actH": 38
+        },
+        {
+          "variant": "skeleton",
+          "h": 268,
+          "w": 414,
+          "x": 13,
+          "rightGutter": 13,
+          "mediaPct": 35.82,
+          "actionsY": 212,
+          "radius": 17,
+          "pad": "13px 13px 11px",
+          "namePx": null,
+          "actH": 44
+        }
+      ],
+      "rail": [
+        {
+          "variant": null,
+          "h": 268,
+          "w": 382.58,
+          "x": 0,
+          "rightGutter": 57.42,
+          "mediaPct": 25.09,
+          "actionsY": 209,
+          "radius": 17,
+          "pad": "13px 13px 11px",
+          "namePx": 16,
+          "actH": 38
+        },
+        {
+          "variant": null,
+          "h": 268,
+          "w": 382.58,
+          "x": 392.58,
+          "rightGutter": -335.16,
+          "mediaPct": 25.09,
+          "actionsY": 209,
+          "radius": 17,
+          "pad": "13px 13px 11px",
+          "namePx": 16,
+          "actH": 38
+        }
+      ]
+    }
+  }
+}

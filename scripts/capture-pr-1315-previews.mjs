@@ -28,11 +28,28 @@ const HomeMod = await loadComponent(homeEntry, ROOT, { onGraph(graph) {
 } });
 const HomePlaceCard = HomeMod.PlaceCard;
 const noop = () => {};
-const simple = { id: "eq-simple", name: "Hashtag Café", rating: 4.8, reviews: 214, types: ["cafe", "restaurant"], distMi: 1.4, governed_score: 99, wfScore: 99, lat: 27.498, lng: -82.574 };
-const cindy = { id: "ChIJEUEmzE1Bw4gRHHXe_oxJF7E", name: "Hashtag Café", city: "Sarasota", rating: 4.8, reviews: 214, types: ["cafe", "restaurant"], distMi: 1.4, governed_score: 99, wfScore: 99, lat: 27.498, lng: -82.574 };
-const ig = { id: "eq-ig", name: "Catrina's Tacos", city: "Tampa", rating: 4.7, reviews: 180, types: ["restaurant"], distMi: 2.2, governed_score: 91, wfScore: 91, lat: 27.96, lng: -82.48 };
+function photoData(kind) {
+  const fills = {
+    cafe: ["#2a1810", "#b86a32", "#f0c27a"],
+    taco: ["#3a140e", "#d35400", "#f6d08a"],
+    park: ["#10281c", "#2f6b45", "#9dcc7a"],
+    kayak: ["#0c2432", "#1c6f88", "#7fced0"],
+  };
+  const [a, b, c] = fills[kind];
+  return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="640" height="860" viewBox="0 0 640 860">
+      <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="${a}"/><stop offset=".52" stop-color="${b}"/><stop offset="1" stop-color="${c}"/>
+      </linearGradient></defs>
+      <rect width="640" height="860" fill="url(#g)"/>
+    </svg>`
+  );
+}
+const simple = { id: "eq-simple", name: "Hashtag Café", rating: 4.8, reviews: 214, types: ["cafe", "restaurant"], distMi: 1.4, governed_score: 99, wfScore: 99, lat: 27.498, lng: -82.574, photo: photoData("cafe") };
+const cindy = { id: "ChIJEUEmzE1Bw4gRHHXe_oxJF7E", name: "Hashtag Café", city: "Sarasota", rating: 4.8, reviews: 214, types: ["cafe", "restaurant"], distMi: 1.4, governed_score: 99, wfScore: 99, lat: 27.498, lng: -82.574, photo: photoData("cafe") };
+const ig = { id: "eq-ig", name: "Catrina's Tacos", city: "Tampa", rating: 4.7, reviews: 180, types: ["restaurant"], distMi: 2.2, governed_score: 91, wfScore: 91, lat: 27.96, lng: -82.48, photo: photoData("taco") };
 const missing = { id: "eq-miss", name: "Plain Diner", rating: 4.2, reviews: 40, types: ["restaurant"], distMi: 0.8, governed_score: 80, wfScore: 80, lat: 27.4, lng: -82.4 };
-const commerce = { id: "eq-book", name: "Robinson Preserve", rating: 4.8, reviews: 1141, types: ["park", "tourist_attraction"], distMi: 4.1, governed_score: 92, wfScore: 92, lat: 27.4, lng: -82.4 };
+const commerce = { id: "eq-book", name: "Robinson Preserve", rating: 4.8, reviews: 1141, types: ["park"], distMi: 4.1, governed_score: 92, wfScore: 92, lat: 27.4, lng: -82.4, photo: photoData("park") };
 const longName = { ...simple, id: "eq-long", name: "Sarasota Guided Mangrove Tunnel Kayak Tour at Robinson Preserve" };
 
 function stamp(key, markup) {
@@ -49,7 +66,11 @@ const cards = {
 };
 
 const listStack = ["simple", "creator", "instagram"].map((key) => stamp(key, cards[key])).join("\n");
-const fixture = `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>*{box-sizing:border-box}${WF_PLACE_CARD_CSS}</style></head>
+const fixture = `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>*{box-sizing:border-box}${WF_PLACE_CARD_CSS}
+/* Review-only: static markup has no React hydration, so FallbackImg never
+   flips loaded→visible. Force the real <img> to paint. */
+.wf-place-card-media img{opacity:1!important}
+</style></head>
 <body style="margin:0;background:#040810;color:#fff">
   <div id="stack" style="padding:16px ${PLACE_CARD_PAGE_GUTTER_PX}px 24px">
     <div class="wf-place-card-list" data-surface="list">${listStack}${stamp("skeleton", renderToStaticMarkup(React.createElement(Skel, { count: 1, as: "div" })))}</div>
@@ -64,8 +85,8 @@ const fixture = `<!doctype html><html><head><meta name="viewport" content="width
     <div class="wf-place-card-list">${stamp("commerce", cards.commerce)}</div>
   </div>
   <div id="rail" class="wf-rail" data-surface="rail" style="padding:16px ${PLACE_CARD_PAGE_GUTTER_PX}px 32px">
-    ${renderToStaticMarkup(React.createElement(RailCard, { title: "Clear Kayak Glass Bottom Guided Tour", score: 9.2, rank: 1, href: "/p/rail", photo: "", category: "Activities", distMi: 3.2 }))}
-    ${renderToStaticMarkup(React.createElement(RailCard, { title: "Next Card Peek", score: 8.4, rank: 2, href: "/p/rail-2", photo: "", category: "Food", distMi: 1.1 }))}
+    ${renderToStaticMarkup(React.createElement(RailCard, { title: "Clear Kayak Glass Bottom Guided Tour", score: 9.2, rank: 1, href: "/p/rail", photo: photoData("kayak"), category: "Activities", distMi: 3.2 }))}
+    ${renderToStaticMarkup(React.createElement(RailCard, { title: "Next Card Peek", score: 8.4, rank: 2, href: "/p/rail-2", photo: photoData("taco"), category: "Food", distMi: 1.1 }))}
   </div>
 </body></html>`;
 
@@ -105,6 +126,11 @@ try {
     if (width === 390) {
       await page.locator("#pair").screenshot({ path: path.join(OUT, "place-cards-390-simple-vs-creator.png") });
       await page.locator("#missing").screenshot({ path: path.join(OUT, "place-card-missing-image-390.png") });
+      await page.evaluate(() => {
+        const lane = document.querySelector("#commerce .wf-place-card-highlights");
+        const ticket = document.querySelector("#commerce .wf-ticket-pill");
+        if (lane && ticket) lane.scrollLeft = ticket.offsetLeft;
+      });
       await page.locator("#commerce").screenshot({ path: path.join(OUT, "place-card-commerce-390.png") });
       await page.locator("#rail").screenshot({ path: path.join(OUT, "place-cards-rail-peek-390.png") });
     }

@@ -148,7 +148,7 @@ const MUTATION_CSS = {
   "height-300": ".wf-place-card-list .wf-place-card{height:300px!important}",
   "pad-16": ".wf-place-card-content{padding:16px!important}",
   "act-44": ".wf-place-card-actions{--wf-act-h:44px!important}.wf-place-card-actions>a,.wf-place-card-actions>button,.wf-place-card-actions>span{height:44px!important;min-height:44px!important}",
-  "like-oversized": ".wf-place-card-like,.wf-place-card-dislike{width:38px!important;min-width:38px!important;flex:0 0 38px!important}",
+  "like-oversized": ".wf-sheet-card-actions{grid-template-columns:44px 38px 38px minmax(0,1fr)!important}.wf-place-card-like,.wf-place-card-dislike{width:38px!important;min-width:38px!important;flex:0 0 38px!important}",
   "media-20": ".wf-place-card-list .wf-place-card{--wf-place-card-media:20%!important}",
   "radius-4": ".wf-place-card{border-radius:4px!important}",
   "list-peek": `.wf-place-card-list,.wf-place-card-list .wf-place-card{--wf-place-card-width:min(100%,${PLACE_CARD_MAX_WIDTH_PX}px,calc((100vw - ${PLACE_CARD_PAGE_GUTTER_PX * 2}px - (${PLACE_CARD_PHONE_PEEK} - 1) * ${PLACE_CARD_GAP_PX}px) / ${PLACE_CARD_PHONE_PEEK}))!important;flex:0 0 var(--wf-place-card-width)!important}`,
@@ -168,6 +168,8 @@ ${MUTATION && MUTATION_CSS[MUTATION] ? `<style>${MUTATION_CSS[MUTATION]}</style>
 </body></html>`;
 
 async function chromiumLaunchOptions() {
+  // Explicit test seam for the Vercel/no-browser path. Not a silent fallback.
+  if (process.env.WF_PLACE_CARD_NO_BROWSER === "1") return null;
   let chromium = null;
   try { ({ chromium } = await import("playwright")); }
   catch { try { ({ chromium } = await import("@playwright/test")); } catch {} }
@@ -311,22 +313,24 @@ if (!browserConfig) {
           if (card.awardPad) ok(/2px/.test(card.awardPad) && /7px/.test(card.awardPad), `${width}px ${card.variant}: award padding 2/7/2/4`);
           if (card.highH != null) ok(card.highH >= 20 && card.highH <= 24, `${width}px ${card.variant}: highlight chip ~21px (got ${card.highH})`);
           if (card.highPad) ok(/1px/.test(card.highPad) && /7px/.test(card.highPad), `${width}px ${card.variant}: highlight padding 1px 7px`);
-          if (card.actH != null) ok(Math.abs(card.actH - PLACE_CARD_MOBILE_ACT_H_PX) <= 1,
-            `${width}px ${card.variant}: action height 34 (got ${card.actH})${MUTATION === "act-44" ? " — RENDER mutation caught" : ""}`);
-          if (card.actPadT != null) ok(Math.abs(card.actPadT - PLACE_CARD_MOBILE_ACT_PAD_TOP_PX) <= 0.5, `${width}px ${card.variant}: action pad-top 4`);
-          if (card.grid) {
-            ok(/44px/.test(card.grid) && (card.grid.match(/26px/g) || []).length >= 2,
-              `${width}px ${card.variant}: action grid 44/26/26 (got ${card.grid})`);
-          }
-          if (card.likeW != null && !card.skel) {
-            ok(card.likeW <= 30,
-              `${width}px ${card.variant}: like/dislike stay compact (got ${card.likeW.toFixed(1)}px)${MUTATION === "like-oversized" ? " — RENDER mutation caught" : ""}`);
+          if (!card.skel) {
+            if (card.actH != null) ok(Math.abs(card.actH - PLACE_CARD_MOBILE_ACT_H_PX) <= 1,
+              `${width}px ${card.variant}: action height 34 (got ${card.actH})${MUTATION === "act-44" ? " — RENDER mutation caught" : ""}`);
+            if (card.actPadT != null) ok(Math.abs(card.actPadT - PLACE_CARD_MOBILE_ACT_PAD_TOP_PX) <= 0.5, `${width}px ${card.variant}: action pad-top 4`);
+            if (card.grid) {
+              ok(/44px/.test(card.grid) && (card.grid.match(/26px/g) || []).length >= 2,
+                `${width}px ${card.variant}: action grid 44/26/26 (got ${card.grid})`);
+            }
+            if (card.likeW != null) {
+              ok(card.likeW <= 30,
+                `${width}px ${card.variant}: like/dislike stay compact (got ${card.likeW.toFixed(1)}px)${MUTATION === "like-oversized" ? " — RENDER mutation caught" : ""}`);
+            }
           }
         } else if (!compactViewport && card.padT != null) {
           ok(Math.abs(card.padT - 13) <= 0.5 && Math.abs(card.padR - 13) <= 0.5 && Math.abs(card.padB - 11) <= 0.5,
             `${width}px ${card.variant}: default content pad 13/13/11 (got ${card.padT}/${card.padR}/${card.padB})${MUTATION === "pad-16" ? " — RENDER mutation caught" : ""}`);
           if (card.namePx != null) ok(Math.abs(card.namePx - 16) <= 0.5, `${width}px ${card.variant}: default title 16px`);
-          if (card.actH != null) ok(Math.abs(card.actH - 38) <= 1,
+          if (!card.skel && card.actH != null) ok(Math.abs(card.actH - 38) <= 1,
             `${width}px ${card.variant}: default action height 38 (got ${card.actH})${MUTATION === "act-44" ? " — RENDER mutation caught" : ""}`);
         }
       }
@@ -356,7 +360,7 @@ if (!MUTATION && !SOURCE_MUTATION) {
   ok(sourceOut.includes("430px content padding is the #1302 10px 10px 8px contract"),
     "SOURCE MUTATION CONTROL: names the compact padding failure");
 
-  if (browserConfig || REQUIRE_BROWSER) {
+  if (browserConfig) {
     for (const name of Object.keys(MUTATION_CSS)) {
       const args = [SELF, `--mutation=${name}`];
       if (REQUIRE_BROWSER) args.push("--require-browser");

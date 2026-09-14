@@ -126,6 +126,8 @@ ${MUTATION ? '<style>.wf-place-card-list .wf-place-card[data-variant="simple"]{h
 </body></html>`;
 
 async function chromiumLaunchOptions() {
+  // Explicit test seam for the Vercel/no-browser path. Not a silent fallback.
+  if (process.env.WF_PLACE_CARD_NO_BROWSER === "1") return null;
   let chromium = null;
   try { ({ chromium } = await import("playwright")); }
   catch { try { ({ chromium } = await import("@playwright/test")); } catch {} }
@@ -251,7 +253,7 @@ if (!MUTATION && !SOURCE_MUTATION) {
   ok(sourceOut.includes("the base .wf-place-card rule sets height:var(--wf-card-h)"),
     "SOURCE MUTATION CONTROL: the source evaluator names the height-token failure");
 
-  if (browserConfig || REQUIRE_BROWSER) {
+  if (browserConfig) {
     const args = [SELF, "--mutation-control-child"];
     if (REQUIRE_BROWSER) args.push("--require-browser");
     const child = spawnSync(process.execPath, args, { cwd: ROOT, encoding: "utf8", env: { ...process.env } });

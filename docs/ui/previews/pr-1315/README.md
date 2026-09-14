@@ -29,6 +29,10 @@ orange accent, score, rank, pills.
 Orange debug overlays are **not** the review proof. Use these unlabeled
 shots first. Measurements are secondary.
 
+Photos in these fixtures are deterministic local stand-ins (no network
+Places images). They prove media column width and hierarchy. Live QA
+against production inventory is what shows venue photography.
+
 | File | What it proves |
 |---|---|
 | `place-cards-390.png` | ≥3 stacked cards at a real 390px viewport |
