@@ -836,6 +836,11 @@ async function likesAuthHeaders(sb) {
     return {};
   }
 }
+// Server-derived: /api/signals/likes sets sessionOwner when THIS signed-in
+// session is the founder. Never an email or UUID on the client. Once true,
+// toggleLike can stamp the god bump in the same click (card + open sheet)
+// instead of waiting for the like write + fresh refetch.
+let likesSessionOwner = false;
 async function fetchMemberSignals(sb, list, opts) {
   try {
     const ids = (list || []).map((p) => p && p.id).filter(Boolean).slice(0, 50);
@@ -863,6 +868,8 @@ async function fetchMemberSignals(sb, list, opts) {
       }
       for (const k in m) out[k] = { authors: Object.keys(m[k].seen).length, warnAuthors: Object.keys(m[k].warnSeen).length };
     }
+    if (lRes && lRes.sessionOwner === true) likesSessionOwner = true;
+    else if (lRes && lRes.sessionOwner === false) likesSessionOwner = false;
     const lc = lRes && lRes.counts ? lRes.counts : null;
     const lo = lRes && lRes.owner ? lRes.owner : null; // Curator Boost: which places the owner picked (display-only chip; the weight is already in the count)
     if (lc) for (const k in lc) { if (!out[k]) out[k] = { authors: 0, warnAuthors: 0 }; out[k].likes = lc[k]; if (lo && lo[k]) out[k].ownerPick = true; }
@@ -875,9 +882,10 @@ function withMemberSignal(list, sig) {
   // turned member likes into a tiny positive (~0.6-1.2 on the 0-100 scale) -> a red
   // "0.1/10" badge that also defeated the wfScore==null "Score pending" self-heal.
   // A null base stays null (Score pending self-heals from rating or shows pending).
-  // v8.90 — THE GOD BUMP LANDS HERE, and here ONLY. OWNER_BUMP=7 (+0.7 on
-  // the badge: 8.1 → 8.8). The spoken bump is that +0.7 only — do not also
-  // stack memberDelta's like-weight nudge (~+0.12) on an owner pick.
+  // v8.90 — THE GOD BUMP LANDS HERE, and here ONLY. Size is banded from
+  // the pre-bump shown score (≤8.0 → +1.5, 8.1–9.0 → +0.6, >9.0 → +0.2).
+  // The spoken bump is that band only — do not also stack memberDelta's
+  // like-weight nudge (~+0.12) on an owner pick.
   //
   // This function is the single choke point where the server's like
   // aggregate meets a place object — every ranked surface routes through
@@ -886,7 +894,7 @@ function withMemberSignal(list, sig) {
   // after fetchPlaceById so the sheet is not stuck on the raw score.
   //
   // `g.ownerPick` is SERVER-derived. The client never hardcodes an email or
-  // UUID. Null base stays null (B14 / no fake 0.7).
+  // UUID. Null base stays null (B14 / no fake bump).
   return (list || []).map((p) => {
     const g = p && sig[p.id];
     if (!g) return p;
@@ -6207,8 +6215,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     svFolderUpsert("Shared", p);
   }
   // After a like/unlike write LANDS, refetch the server's ownerPick (fresh=1)
-  // and stamp ownerPick AND wfScore on list cards and the open sheet
-  // (8.1 → 8.8). The client cannot mint: only the server owner map.
+  // and stamp ownerPick AND wfScore on list cards and the open sheet.
+  // The client cannot mint: only the server owner map (or sessionOwner,
+  // which the same route already computed for this session).
   function patchOwnerPick(placeId, ownerPick) {
     if (!placeId) return;
     const patch = (cur) => (cur || []).map((pl) => (pl && pl.id === placeId ? stampOwnerPick(pl, ownerPick) : pl));
@@ -6240,6 +6249,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     setLiked(nextLiked); setDisliked(nextDis);
     setLikedItems(nextLikedItems); setDislikedItems(nextDisItems);
     try { localStorage.setItem("wf_liked", JSON.stringify(nextLiked)); localStorage.setItem("wf_disliked", JSON.stringify(nextDis)); localStorage.setItem("wf_liked_items", JSON.stringify(nextLikedItems)); setLocal("wf_disliked_items", JSON.stringify(nextDisItems)); } catch {}
+    // Same-turn stamp: card + open detail sheet. sessionOwner is server-set
+    // on a prior likes fetch — no email/UUID on the client, no page refresh.
+    if (user && likesSessionOwner) patchOwnerPick(p.id, nowLiked);
     if (supabase && user) {
       if (wasLiked) {
         supabase.from("likes").delete().eq("user_id", user.id).eq("place_id", p.id).then(() => refreshOwnerPick(p.id), () => {});

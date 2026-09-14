@@ -13,7 +13,7 @@
 export const runtime = "nodejs";
 
 import { aggregateLikeSignals } from "../../../../lib/memberSignals.js";
-import { ownerUserIds } from "../../../../lib/ownerIdentity.js";
+import { ownerUserIds, isOwnerSession } from "../../../../lib/ownerIdentity.js";
 
 // Curator Boost: owner identity is SERVER-resolved — never a client flag.
 // Door 1: WF_OWNER_USER_ID vs likes.user_id.
@@ -92,9 +92,20 @@ export async function GET(req) {
   const ids = String(searchParams.get("ids") || "").split(",").map((x) => x.trim()).filter(Boolean).slice(0, 50);
   if (!ids.length) return Response.json({ counts: {}, owner: {} });
   const fresh = searchParams.get("fresh") === "1";
+  const hasAuth = /^Bearer\s+\S{20,}/i.test(String(req.headers.get("authorization") || ""));
   const ck = ids.slice().sort().join(",");
   const hit = mem.get(ck);
-  if (!fresh && hit && hit.exp > Date.now()) return Response.json({ counts: hit.counts, owner: hit.owner || {} }, { headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=600" } });
+  // sessionOwner is per-request and must never ride a public cache. Counts /
+  // owner stays on the 60s mem cache; the boolean is attached after.
+  if (!fresh && hit && hit.exp > Date.now()) {
+    const sessionUser = hasAuth ? await sessionUserFromRequest(s, req) : null;
+    const sessionOwner = isOwnerSession(sessionUser, OWNER_ID());
+    const body = { counts: hit.counts, owner: hit.owner || {} };
+    if (sessionOwner) body.sessionOwner = true;
+    return Response.json(body, {
+      headers: { "Cache-Control": (hasAuth || sessionOwner) ? "private, no-store" : "public, s-maxage=60, stale-while-revalidate=600" },
+    });
+  }
   const h = { apikey: s.key, Authorization: `Bearer ${s.key}` };
   const inList = "in.(" + ids.map((x) => '"' + x.replace(/"/g, "") + '"').join(",") + ")";
   try {
@@ -108,9 +119,14 @@ export async function GET(req) {
     const sessionUser = await sessionUserFromRequest(s, req);
     const emailByUserId = await emailsForUserIds(s, [...new Set(likeUserIds)]);
     const ownerIds = ownerUserIds(OWNER_ID(), sessionUser, emailByUserId, likeUserIds);
+    const sessionOwner = isOwnerSession(sessionUser, OWNER_ID());
     // The owner weight + curator picks are applied HERE, in the one aggregate.
     const { counts, owner } = aggregateLikeSignals(likeRows, deviceRows, ownerIds, OWNER_WEIGHT(), ids);
     if (!fresh) mem.set(ck, { counts, owner, exp: Date.now() + TTL });
-    return Response.json({ counts, owner }, { headers: { "Cache-Control": fresh ? "no-store" : "public, s-maxage=60, stale-while-revalidate=600" } });
+    const body = { counts, owner };
+    if (sessionOwner) body.sessionOwner = true;
+    return Response.json(body, {
+      headers: { "Cache-Control": (fresh || hasAuth || sessionOwner) ? "private, no-store" : "public, s-maxage=60, stale-while-revalidate=600" },
+    });
   } catch (e) { return Response.json({ counts: {}, owner: {} }); }
 }

@@ -27,20 +27,21 @@ ok(toDisplayScore(null) == null, "toDisplayScore(null) is null");
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 // v8.90 — RE-ANCHORED, and the invariant is now proven on BOTH layers instead
 // of matched as one line. withMemberSignal grew a second step: the member nudge
-// (`d`), then the owner's god bump (lib/ownerBump.js, +7 internal = +0.7 on the
-// badge). A null base has to survive both, because either one coercing null to
-// 0 produces the fake red "0.1/10" badge this whole file exists for — and the
-// bump is the more dangerous of the two, since it is a flat +7 rather than a
-// fractional nudge, i.e. a "0.7/10" on a place nobody has rated.
+// (`d`), then the owner's god bump (lib/ownerBump.js, banded from the pre-bump
+// shown score). A null base has to survive both, because either one coercing
+// null to 0 produces the fake red "0.1/10" badge this whole file exists for —
+// and the bump is the more dangerous of the two, since the low band is a flat
+// +15 rather than a fractional nudge, i.e. a "1.5/10" on a place nobody has
+// rated.
 ok(/const nudged = base != null \? \+\(\(base \+ d\)\.toFixed\(2\)\) : base;/.test(home),
   "withMemberSignal nudges only a non-null base (null stays null)");
 ok(/stampOwnerPick\([\s\S]{0,80}g\.ownerPick === true\)/.test(home),
   "…and the owner bump is applied to THAT value via stampOwnerPick, so it inherits the same null rule rather than re-deriving one");
 // EXECUTED, not read: the bump layer's own null behaviour.
 ok(withOwnerBump(null, true) === null,
-  "the god bump on a null base stays null — a flat +7 on an unrated place would be a 0.7/10 badge, which is the same defect as the 0.1/10 this file was written for");
-ok(withOwnerBump(82, true) === 89 && toDisplayScore(withOwnerBump(82, true)) === 8.9,
-  "…and on a real base it is exactly +0.7 on the badge");
+  "the god bump on a null base stays null — a flat +15 on an unrated place would be a 1.5/10 badge, which is the same defect as the 0.1/10 this file was written for");
+ok(withOwnerBump(82, true) === 88 && toDisplayScore(withOwnerBump(82, true)) === 8.8,
+  "…and on a real 8.2 base it is exactly +0.6 on the badge (mid band)");
 ok(!/wfScore: \+\(\(\(p\.wfScore \|\| 0\) \+ d\)/.test(home),
   "the old (p.wfScore || 0) coercion (red 0.1/10 source) is removed");
 

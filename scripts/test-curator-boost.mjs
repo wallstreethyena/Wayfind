@@ -105,7 +105,7 @@ for (const f of ["lib/memberSignals.js", "app/api/signals/likes/route.js"]) {
   const i = home.indexOf("function patchOwnerPick(");
   const pop = home.slice(i, i + 700);
   ok(/stampOwnerPick\(pl, ownerPick\)/.test(pop) && /stampOwnerPick\(cur, ownerPick\)/.test(pop),
-    "the like path stamps ownerPick AND wfScore (via stampOwnerPick) on list cards AND the open detail sheet — 8.1→8.8, then reconcile");
+    "the like path stamps ownerPick AND wfScore (via stampOwnerPick) on list cards AND the open detail sheet — 8.1→8.7, then reconcile");
   ok(/withMemberSignal\(\[p\], sig\)/.test(home) && /fetchPlaceById\(placeId\)/.test(home),
     "/p/{id} applies withMemberSignal after fetchPlaceById so the sheet is not stuck on the raw score");
 }
@@ -117,9 +117,9 @@ for (const f of ["lib/memberSignals.js", "app/api/signals/likes/route.js"]) {
 {
   const d = memberDelta({ likes: 50 });
   const stamped = stampOwnerPick({ wfScore: 81 }, true);
-  ok(toDisplayScore(stamped.wfScore) === 8.8, "EXECUTED: 8.1 → 8.8 on the badge");
-  ok(stamped.wfScore === 88 && stamped.wfScore !== 81 + d + 7,
-    "EXECUTED: the spoken bump is +0.7 only, not memberDelta's extra +0.12 stacked on OWNER_BUMP");
+  ok(toDisplayScore(stamped.wfScore) === 8.7, "EXECUTED: 8.1 → 8.7 on the badge");
+  ok(stamped.wfScore === 87 && stamped.wfScore !== 81 + d + 6,
+    "EXECUTED: the spoken bump is the mid-band +0.6 only, not memberDelta's extra +0.12 stacked on the band");
   const emptyEnv = ownerUserIds("", { id: "sid", email: "someone@else.com" }, {}, ["sid"]);
   ok(emptyEnv.length === 0, "EXECUTED: a non-founder session cannot mint ownerPick when env is empty");
   ok(/ownerUserIds\(/.test(read("app/api/signals/likes/route.js")),
@@ -129,4 +129,4 @@ for (const f of ["lib/memberSignals.js", "app/api/signals/likes/route.js"]) {
 // 9. fresh=1 is a cache flag only — it cannot influence the weight/owner (env-only).
 ok(/searchParams\.get\("fresh"\)/.test(read("app/api/signals/likes/route.js")), "the route honors the fresh cache-bust flag (owner id/weight stay env-only)");
 
-console.log(`test-curator-boost: OK — ${pass} assertions (owner weight 50 in ONE aggregate; visitor regression-proof; B14 holds; +1.2 capped; unlike resets; env UUID + server email door; no client identity; affiliate-isolated; tap updates wfScore 8.1→8.8 on sheet and cards)`);
+console.log(`test-curator-boost: OK — ${pass} assertions (owner weight 50 in ONE aggregate; visitor regression-proof; B14 holds; +1.2 capped; unlike resets; env UUID + server email door; no client identity; affiliate-isolated; tap updates wfScore 8.1→8.7 on sheet and cards)`);
