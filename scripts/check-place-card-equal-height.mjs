@@ -72,7 +72,7 @@ const cindy = { id: "ChIJEUEmzE1Bw4gRHHXe_oxJF7E", name: "Hashtag Café", city: 
 const ig = { id: "eq-ig", name: "Catrina's Tacos", city: "Tampa", rating: 4.7, reviews: 180, types: ["restaurant"], distMi: 2.2, governed_score: 91, wfScore: 91, lat: 27.96, lng: -82.48 };
 const tags = { id: "eq-tags", name: "Scenic Rooftop Museum Cafe", rating: 4.5, reviews: 120, types: ["museum", "cafe", "restaurant", "park"], distMi: 3.1, governed_score: 88, wfScore: 88, priceLevel: 2, lat: 27.4, lng: -82.4 };
 const missing = { id: "eq-miss", name: "Plain Diner", rating: 4.2, reviews: 40, types: ["restaurant"], distMi: 0.8, governed_score: 80, wfScore: 80, lat: 27.4, lng: -82.4 };
-const commerce = { id: "eq-book", name: "TreeUmph! Adventure Course", rating: 4.8, reviews: 1141, types: ["amusement_park", "tourist_attraction"], distMi: 14.1, governed_score: 92, wfScore: 92, lat: 27.4, lng: -82.4 };
+const commerce = { id: "eq-book", name: "Robinson Preserve", rating: 4.8, reviews: 1141, types: ["park", "tourist_attraction"], distMi: 4.1, governed_score: 92, wfScore: 92, lat: 27.4, lng: -82.4 };
 
 function stamp(key, markup) {
   const next = markup.replace(/class="wf-place-card/, `data-variant="${key}" class="wf-place-card`);
