@@ -1,0 +1,1100 @@
+{
+  "fails": [],
+  "standard": {
+    "height": 268,
+    "maxWidth": 440,
+    "gutter": 13
+  },
+  "viewports": {
+    "390": {
+      "innerWidth": 390,
+      "scrollWidth": 390,
+      "food": [
+        {
+          "name": "The Barnyard",
+          "x": 13,
+          "y": 119.6,
+          "w": 364,
+          "h": 268,
+          "right": 377,
+          "mediaW": 130.3,
+          "mediaH": 266,
+          "mediaPct": 35.8,
+          "leftGutter": 13,
+          "rightGutter": 13,
+          "actions": [
+            {
+              "cls": "wf-place-card-save",
+              "x": 154.3,
+              "y": 344.6,
+              "w": 44,
+              "h": 34,
+              "right": 198.3
+            },
+            {
+              "cls": "wf-place-card-like",
+              "x": 202.3,
+              "y": 344.6,
+              "w": 26,
+              "h": 34,
+              "right": 228.3
+            },
+            {
+              "cls": "wf-place-card-dislike",
+              "x": 232.3,
+              "y": 344.6,
+              "w": 26,
+              "h": 34,
+              "right": 258.3
+            },
+            {
+              "cls": "wf-place-card-share",
+              "x": 262.3,
+              "y": 344.6,
+              "w": 103.7,
+              "h": 34,
+              "right": 366
+            }
+          ]
+        },
+        {
+          "name": "S.O.B. Burgers",
+          "x": 13,
+          "y": 397.6,
+          "w": 364,
+          "h": 268,
+          "right": 377,
+          "mediaW": 130.3,
+          "mediaH": 266,
+          "mediaPct": 35.8,
+          "leftGutter": 13,
+          "rightGutter": 13,
+          "actions": [
+            {
+              "cls": "wf-place-card-save",
+              "x": 154.3,
+              "y": 622.6,
+              "w": 44,
+              "h": 34,
+              "right": 198.3
+            },
+            {
+              "cls": "wf-place-card-like",
+              "x": 202.3,
+              "y": 622.6,
+              "w": 26,
+              "h": 34,
+              "right": 228.3
+            },
+            {
+              "cls": "wf-place-card-dislike",
+              "x": 232.3,
+              "y": 622.6,
+              "w": 26,
+              "h": 34,
+              "right": 258.3
+            },
+            {
+              "cls": "wf-place-card-share",
+              "x": 262.3,
+              "y": 622.6,
+              "w": 103.7,
+              "h": 34,
+              "right": 366
+            }
+          ]
+        },
+        {
+          "name": "Cold Stone Creamery",
+          "x": 13,
+          "y": 675.6,
+          "w": 364,
+          "h": 268,
+          "right": 377,
+          "mediaW": 130.3,
+          "mediaH": 266,
+          "mediaPct": 35.8,
+          "leftGutter": 13,
+          "rightGutter": 13,
+          "actions": [
+            {
+              "cls": "wf-place-card-save",
+              "x": 154.3,
+              "y": 900.6,
+              "w": 44,
+              "h": 34,
+              "right": 198.3
+            },
+            {
+              "cls": "wf-place-card-like",
+              "x": 202.3,
+              "y": 900.6,
+              "w": 26,
+              "h": 34,
+              "right": 228.3
+            },
+            {
+              "cls": "wf-place-card-dislike",
+              "x": 232.3,
+              "y": 900.6,
+              "w": 26,
+              "h": 34,
+              "right": 258.3
+            },
+            {
+              "cls": "wf-place-card-share",
+              "x": 262.3,
+              "y": 900.6,
+              "w": 103.7,
+              "h": 34,
+              "right": 366
+            }
+          ]
+        },
+        {
+          "name": "Pomegranate Frozen Yogurt",
+          "x": 13,
+          "y": 953.6,
+          "w": 364,
+          "h": 268,
+          "right": 377,
+          "mediaW": 130.3,
+          "mediaH": 266,
+          "mediaPct": 35.8,
+          "leftGutter": 13,
+          "rightGutter": 13,
+          "actions": [
+            {
+              "cls": "wf-place-card-save",
+              "x": 154.3,
+              "y": 1178.6,
+              "w": 44,
+              "h": 34,
+              "right": 198.3
+            },
+            {
+              "cls": "wf-place-card-like",
+              "x": 202.3,
+              "y": 1178.6,
+              "w": 26,
+              "h": 34,
+              "right": 228.3
+            },
+            {
+              "cls": "wf-place-card-dislike",
+              "x": 232.3,
+              "y": 1178.6,
+              "w": 26,
+              "h": 34,
+              "right": 258.3
+            },
+            {
+              "cls": "wf-place-card-share",
+              "x": 262.3,
+              "y": 1178.6,
+              "w": 103.7,
+              "h": 34,
+              "right": 366
+            }
+          ]
+        },
+        {
+          "name": "Ryan's Coffee House",
+          "x": 13,
+          "y": 1231.6,
+          "w": 364,
+          "h": 268,
+          "right": 377,
+          "mediaW": 130.3,
+          "mediaH": 266,
+          "mediaPct": 35.8,
+          "leftGutter": 13,
+          "rightGutter": 13,
+          "actions": [
+            {
+              "cls": "wf-place-card-save",
+              "x": 154.3,
+              "y": 1456.6,
+              "w": 44,
+              "h": 34,
+              "right": 198.3
+            },
+            {
+              "cls": "wf-place-card-like",
+              "x": 202.3,
+              "y": 1456.6,
+              "w": 26,
+              "h": 34,
+              "right": 228.3
+            },
+            {
+              "cls": "wf-place-card-dislike",
+              "x": 232.3,
+              "y": 1456.6,
+              "w": 26,
+              "h": 34,
+              "right": 258.3
+            },
+            {
+              "cls": "wf-place-card-share",
+              "x": 262.3,
+              "y": 1456.6,
+              "w": 103.7,
+              "h": 34,
+              "right": 366
+            }
+          ]
+        },
+        {
+          "name": "Photoless Parrish Counter",
+          "x": 13,
+          "y": 1509.6,
+          "w": 364,
+          "h": 268,
+          "right": 377,
+          "mediaW": 130.3,
+          "mediaH": 266,
+          "mediaPct": 35.8,
+          "leftGutter": 13,
+          "rightGutter": 13,
+          "actions": [
+            {
+              "cls": "wf-place-card-save",
+              "x": 154.3,
+              "y": 1734.6,
+              "w": 44,
+              "h": 34,
+              "right": 198.3
+            },
+            {
+              "cls": "wf-place-card-like",
+              "x": 202.3,
+              "y": 1734.6,
+              "w": 26,
+              "h": 34,
+              "right": 228.3
+            },
+            {
+              "cls": "wf-place-card-dislike",
+              "x": 232.3,
+              "y": 1734.6,
+              "w": 26,
+              "h": 34,
+              "right": 258.3
+            },
+            {
+              "cls": "wf-place-card-share",
+              "x": 262.3,
+              "y": 1734.6,
+              "w": 103.7,
+              "h": 34,
+              "right": 366
+            }
+          ]
+        },
+        {
+          "name": "C & K Smokehouse BBQ",
+          "x": 13,
+          "y": 1787.6,
+          "w": 364,
+          "h": 268,
+          "right": 377,
+          "mediaW": 130.3,
+          "mediaH": 266,
+          "mediaPct": 35.8,
+          "leftGutter": 13,
+          "rightGutter": 13,
+          "actions": [
+            {
+              "cls": "wf-place-card-save",
+              "x": 154.3,
+              "y": 2012.6,
+              "w": 44,
+              "h": 34,
+              "right": 198.3
+            },
+            {
+              "cls": "wf-place-card-like",
+              "x": 202.3,
+              "y": 2012.6,
+              "w": 26,
+              "h": 34,
+              "right": 228.3
+            },
+            {
+              "cls": "wf-place-card-dislike",
+              "x": 232.3,
+              "y": 2012.6,
+              "w": 26,
+              "h": 34,
+              "right": 258.3
+            },
+            {
+              "cls": "wf-place-card-share",
+              "x": 262.3,
+              "y": 2012.6,
+              "w": 103.7,
+              "h": 34,
+              "right": 366
+            }
+          ]
+        }
+      ],
+      "skels": [
+        {
+          "x": 13,
+          "y": 2092.5,
+          "w": 364,
+          "h": 268,
+          "right": 377
+        },
+        {
+          "x": 13,
+          "y": 2370.5,
+          "w": 364,
+          "h": 268,
+          "right": 377
+        }
+      ],
+      "rails": [],
+      "gutter": 13,
+      "screenshot": "docs/ui/previews/pr-restore-268/parrish-food-390.png"
+    },
+    "440": {
+      "innerWidth": 440,
+      "scrollWidth": 440,
+      "food": [
+        {
+          "name": "The Barnyard",
+          "x": 13,
+          "y": 119.6,
+          "w": 414,
+          "h": 268,
+          "right": 427,
+          "mediaW": 148.3,
+          "mediaH": 266,
+          "mediaPct": 35.8,
+          "leftGutter": 13,
+          "rightGutter": 13,
+          "actions": [
+            {
+              "cls": "wf-place-card-save",
+              "x": 175.3,
+              "y": 337.6,
+              "w": 64,
+              "h": 38,
+              "right": 239.3
+            },
+            {
+              "cls": "wf-place-card-like",
+              "x": 245.3,
+              "y": 337.6,
+              "w": 42,
+              "h": 38,
+              "right": 287.3
+            },
+            {
+              "cls": "wf-place-card-dislike",
+              "x": 293.3,
+              "y": 337.6,
+              "w": 42,
+              "h": 38,
+              "right": 335.3
+            },
+            {
+              "cls": "wf-place-card-share",
+              "x": 341.3,
+              "y": 337.6,
+              "w": 76,
+              "h": 38,
+              "right": 417.3
+            }
+          ]
+        },
+        {
+          "name": "S.O.B. Burgers",
+          "x": 13,
+          "y": 397.6,
+          "w": 414,
+          "h": 268,
+          "right": 427,
+          "mediaW": 148.3,
+          "mediaH": 266,
+          "mediaPct": 35.8,
+          "leftGutter": 13,
+          "rightGutter": 13,
+          "actions": [
+            {
+              "cls": "wf-place-card-save",
+              "x": 175.3,
+              "y": 615.6,
+              "w": 64,
+              "h": 38,
+              "right": 239.3
+            },
+            {
+              "cls": "wf-place-card-like",
+              "x": 245.3,
+              "y": 615.6,
+              "w": 42,
+              "h": 38,
+              "right": 287.3
+            },
+            {
+              "cls": "wf-place-card-dislike",
+              "x": 293.3,
+              "y": 615.6,
+              "w": 42,
+              "h": 38,
+              "right": 335.3
+            },
+            {
+              "cls": "wf-place-card-share",
+              "x": 341.3,
+              "y": 615.6,
+              "w": 76,
+              "h": 38,
+              "right": 417.3
+            }
+          ]
+        },
+        {
+          "name": "Cold Stone Creamery",
+          "x": 13,
+          "y": 675.6,
+          "w": 414,
+          "h": 268,
+          "right": 427,
+          "mediaW": 148.3,
+          "mediaH": 266,
+          "mediaPct": 35.8,
+          "leftGutter": 13,
+          "rightGutter": 13,
+          "actions": [
+            {
+              "cls": "wf-place-card-save",
+              "x": 175.3,
+              "y": 893.6,
+              "w": 64,
+              "h": 38,
+              "right": 239.3
+            },
+            {
+              "cls": "wf-place-card-like",
+              "x": 245.3,
+              "y": 893.6,
+              "w": 42,
+              "h": 38,
+              "right": 287.3
+            },
+            {
+              "cls": "wf-place-card-dislike",
+              "x": 293.3,
+              "y": 893.6,
+              "w": 42,
+              "h": 38,
+              "right": 335.3
+            },
+            {
+              "cls": "wf-place-card-share",
+              "x": 341.3,
+              "y": 893.6,
+              "w": 76,
+              "h": 38,
+              "right": 417.3
+            }
+          ]
+        },
+        {
+          "name": "Pomegranate Frozen Yogurt",
+          "x": 13,
+          "y": 953.6,
+          "w": 414,
+          "h": 268,
+          "right": 427,
+          "mediaW": 148.3,
+          "mediaH": 266,
+          "mediaPct": 35.8,
+          "leftGutter": 13,
+          "rightGutter": 13,
+          "actions": [
+            {
+              "cls": "wf-place-card-save",
+              "x": 175.3,
+              "y": 1171.6,
+              "w": 64,
+              "h": 38,
+              "right": 239.3
+            },
+            {
+              "cls": "wf-place-card-like",
+              "x": 245.3,
+              "y": 1171.6,
+              "w": 42,
+              "h": 38,
+              "right": 287.3
+            },
+            {
+              "cls": "wf-place-card-dislike",
+              "x": 293.3,
+              "y": 1171.6,
+              "w": 42,
+              "h": 38,
+              "right": 335.3
+            },
+            {
+              "cls": "wf-place-card-share",
+              "x": 341.3,
+              "y": 1171.6,
+              "w": 76,
+              "h": 38,
+              "right": 417.3
+            }
+          ]
+        },
+        {
+          "name": "Ryan's Coffee House",
+          "x": 13,
+          "y": 1231.6,
+          "w": 414,
+          "h": 268,
+          "right": 427,
+          "mediaW": 148.3,
+          "mediaH": 266,
+          "mediaPct": 35.8,
+          "leftGutter": 13,
+          "rightGutter": 13,
+          "actions": [
+            {
+              "cls": "wf-place-card-save",
+              "x": 175.3,
+              "y": 1449.6,
+              "w": 64,
+              "h": 38,
+              "right": 239.3
+            },
+            {
+              "cls": "wf-place-card-like",
+              "x": 245.3,
+              "y": 1449.6,
+              "w": 42,
+              "h": 38,
+              "right": 287.3
+            },
+            {
+              "cls": "wf-place-card-dislike",
+              "x": 293.3,
+              "y": 1449.6,
+              "w": 42,
+              "h": 38,
+              "right": 335.3
+            },
+            {
+              "cls": "wf-place-card-share",
+              "x": 341.3,
+              "y": 1449.6,
+              "w": 76,
+              "h": 38,
+              "right": 417.3
+            }
+          ]
+        },
+        {
+          "name": "Photoless Parrish Counter",
+          "x": 13,
+          "y": 1509.6,
+          "w": 414,
+          "h": 268,
+          "right": 427,
+          "mediaW": 148.3,
+          "mediaH": 266,
+          "mediaPct": 35.8,
+          "leftGutter": 13,
+          "rightGutter": 13,
+          "actions": [
+            {
+              "cls": "wf-place-card-save",
+              "x": 175.3,
+              "y": 1727.6,
+              "w": 64,
+              "h": 38,
+              "right": 239.3
+            },
+            {
+              "cls": "wf-place-card-like",
+              "x": 245.3,
+              "y": 1727.6,
+              "w": 42,
+              "h": 38,
+              "right": 287.3
+            },
+            {
+              "cls": "wf-place-card-dislike",
+              "x": 293.3,
+              "y": 1727.6,
+              "w": 42,
+              "h": 38,
+              "right": 335.3
+            },
+            {
+              "cls": "wf-place-card-share",
+              "x": 341.3,
+              "y": 1727.6,
+              "w": 76,
+              "h": 38,
+              "right": 417.3
+            }
+          ]
+        },
+        {
+          "name": "C & K Smokehouse BBQ",
+          "x": 13,
+          "y": 1787.6,
+          "w": 414,
+          "h": 268,
+          "right": 427,
+          "mediaW": 148.3,
+          "mediaH": 266,
+          "mediaPct": 35.8,
+          "leftGutter": 13,
+          "rightGutter": 13,
+          "actions": [
+            {
+              "cls": "wf-place-card-save",
+              "x": 175.3,
+              "y": 2005.6,
+              "w": 64,
+              "h": 38,
+              "right": 239.3
+            },
+            {
+              "cls": "wf-place-card-like",
+              "x": 245.3,
+              "y": 2005.6,
+              "w": 42,
+              "h": 38,
+              "right": 287.3
+            },
+            {
+              "cls": "wf-place-card-dislike",
+              "x": 293.3,
+              "y": 2005.6,
+              "w": 42,
+              "h": 38,
+              "right": 335.3
+            },
+            {
+              "cls": "wf-place-card-share",
+              "x": 341.3,
+              "y": 2005.6,
+              "w": 76,
+              "h": 38,
+              "right": 417.3
+            }
+          ]
+        }
+      ],
+      "skels": [
+        {
+          "x": 13,
+          "y": 2092.5,
+          "w": 414,
+          "h": 268,
+          "right": 427
+        },
+        {
+          "x": 13,
+          "y": 2370.5,
+          "w": 414,
+          "h": 268,
+          "right": 427
+        }
+      ],
+      "rails": [],
+      "gutter": 13,
+      "screenshot": "docs/ui/previews/pr-restore-268/parrish-food-440.png"
+    },
+    "desktop": {
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "food": [
+        {
+          "name": "The Barnyard",
+          "x": 13,
+          "y": 400.2,
+          "w": 440,
+          "h": 268,
+          "right": 453,
+          "mediaW": 157.7,
+          "mediaH": 266,
+          "mediaPct": 35.8,
+          "leftGutter": 13,
+          "rightGutter": 987,
+          "actions": [
+            {
+              "cls": "wf-place-card-save",
+              "x": 184.7,
+              "y": 618.2,
+              "w": 72.1,
+              "h": 38,
+              "right": 256.8
+            },
+            {
+              "cls": "wf-place-card-like",
+              "x": 262.8,
+              "y": 618.2,
+              "w": 42,
+              "h": 38,
+              "right": 304.8
+            },
+            {
+              "cls": "wf-place-card-dislike",
+              "x": 310.8,
+              "y": 618.2,
+              "w": 42,
+              "h": 38,
+              "right": 352.8
+            },
+            {
+              "cls": "wf-place-card-share",
+              "x": 358.8,
+              "y": 618.2,
+              "w": 80.2,
+              "h": 38,
+              "right": 439
+            }
+          ]
+        },
+        {
+          "name": "S.O.B. Burgers",
+          "x": 13,
+          "y": 678.2,
+          "w": 440,
+          "h": 268,
+          "right": 453,
+          "mediaW": 157.7,
+          "mediaH": 266,
+          "mediaPct": 35.8,
+          "leftGutter": 13,
+          "rightGutter": 987,
+          "actions": [
+            {
+              "cls": "wf-place-card-save",
+              "x": 184.7,
+              "y": 896.2,
+              "w": 72.1,
+              "h": 38,
+              "right": 256.8
+            },
+            {
+              "cls": "wf-place-card-like",
+              "x": 262.8,
+              "y": 896.2,
+              "w": 42,
+              "h": 38,
+              "right": 304.8
+            },
+            {
+              "cls": "wf-place-card-dislike",
+              "x": 310.8,
+              "y": 896.2,
+              "w": 42,
+              "h": 38,
+              "right": 352.8
+            },
+            {
+              "cls": "wf-place-card-share",
+              "x": 358.8,
+              "y": 896.2,
+              "w": 80.2,
+              "h": 38,
+              "right": 439
+            }
+          ]
+        },
+        {
+          "name": "Cold Stone Creamery",
+          "x": 13,
+          "y": 956.2,
+          "w": 440,
+          "h": 268,
+          "right": 453,
+          "mediaW": 157.7,
+          "mediaH": 266,
+          "mediaPct": 35.8,
+          "leftGutter": 13,
+          "rightGutter": 987,
+          "actions": [
+            {
+              "cls": "wf-place-card-save",
+              "x": 184.7,
+              "y": 1174.2,
+              "w": 72.1,
+              "h": 38,
+              "right": 256.8
+            },
+            {
+              "cls": "wf-place-card-like",
+              "x": 262.8,
+              "y": 1174.2,
+              "w": 42,
+              "h": 38,
+              "right": 304.8
+            },
+            {
+              "cls": "wf-place-card-dislike",
+              "x": 310.8,
+              "y": 1174.2,
+              "w": 42,
+              "h": 38,
+              "right": 352.8
+            },
+            {
+              "cls": "wf-place-card-share",
+              "x": 358.8,
+              "y": 1174.2,
+              "w": 80.2,
+              "h": 38,
+              "right": 439
+            }
+          ]
+        },
+        {
+          "name": "Pomegranate Frozen Yogurt",
+          "x": 13,
+          "y": 1234.2,
+          "w": 440,
+          "h": 268,
+          "right": 453,
+          "mediaW": 157.7,
+          "mediaH": 266,
+          "mediaPct": 35.8,
+          "leftGutter": 13,
+          "rightGutter": 987,
+          "actions": [
+            {
+              "cls": "wf-place-card-save",
+              "x": 184.7,
+              "y": 1452.2,
+              "w": 72.1,
+              "h": 38,
+              "right": 256.8
+            },
+            {
+              "cls": "wf-place-card-like",
+              "x": 262.8,
+              "y": 1452.2,
+              "w": 42,
+              "h": 38,
+              "right": 304.8
+            },
+            {
+              "cls": "wf-place-card-dislike",
+              "x": 310.8,
+              "y": 1452.2,
+              "w": 42,
+              "h": 38,
+              "right": 352.8
+            },
+            {
+              "cls": "wf-place-card-share",
+              "x": 358.8,
+              "y": 1452.2,
+              "w": 80.2,
+              "h": 38,
+              "right": 439
+            }
+          ]
+        },
+        {
+          "name": "Ryan's Coffee House",
+          "x": 13,
+          "y": 1512.2,
+          "w": 440,
+          "h": 268,
+          "right": 453,
+          "mediaW": 157.7,
+          "mediaH": 266,
+          "mediaPct": 35.8,
+          "leftGutter": 13,
+          "rightGutter": 987,
+          "actions": [
+            {
+              "cls": "wf-place-card-save",
+              "x": 184.7,
+              "y": 1730.2,
+              "w": 72.1,
+              "h": 38,
+              "right": 256.8
+            },
+            {
+              "cls": "wf-place-card-like",
+              "x": 262.8,
+              "y": 1730.2,
+              "w": 42,
+              "h": 38,
+              "right": 304.8
+            },
+            {
+              "cls": "wf-place-card-dislike",
+              "x": 310.8,
+              "y": 1730.2,
+              "w": 42,
+              "h": 38,
+              "right": 352.8
+            },
+            {
+              "cls": "wf-place-card-share",
+              "x": 358.8,
+              "y": 1730.2,
+              "w": 80.2,
+              "h": 38,
+              "right": 439
+            }
+          ]
+        },
+        {
+          "name": "Photoless Parrish Counter",
+          "x": 13,
+          "y": 1790.2,
+          "w": 440,
+          "h": 268,
+          "right": 453,
+          "mediaW": 157.7,
+          "mediaH": 266,
+          "mediaPct": 35.8,
+          "leftGutter": 13,
+          "rightGutter": 987,
+          "actions": [
+            {
+              "cls": "wf-place-card-save",
+              "x": 184.7,
+              "y": 2008.2,
+              "w": 72.1,
+              "h": 38,
+              "right": 256.8
+            },
+            {
+              "cls": "wf-place-card-like",
+              "x": 262.8,
+              "y": 2008.2,
+              "w": 42,
+              "h": 38,
+              "right": 304.8
+            },
+            {
+              "cls": "wf-place-card-dislike",
+              "x": 310.8,
+              "y": 2008.2,
+              "w": 42,
+              "h": 38,
+              "right": 352.8
+            },
+            {
+              "cls": "wf-place-card-share",
+              "x": 358.8,
+              "y": 2008.2,
+              "w": 80.2,
+              "h": 38,
+              "right": 439
+            }
+          ]
+        },
+        {
+          "name": "C & K Smokehouse BBQ",
+          "x": 13,
+          "y": 2068.2,
+          "w": 440,
+          "h": 268,
+          "right": 453,
+          "mediaW": 157.7,
+          "mediaH": 266,
+          "mediaPct": 35.8,
+          "leftGutter": 13,
+          "rightGutter": 987,
+          "actions": [
+            {
+              "cls": "wf-place-card-save",
+              "x": 184.7,
+              "y": 2286.2,
+              "w": 72.1,
+              "h": 38,
+              "right": 256.8
+            },
+            {
+              "cls": "wf-place-card-like",
+              "x": 262.8,
+              "y": 2286.2,
+              "w": 42,
+              "h": 38,
+              "right": 304.8
+            },
+            {
+              "cls": "wf-place-card-dislike",
+              "x": 310.8,
+              "y": 2286.2,
+              "w": 42,
+              "h": 38,
+              "right": 352.8
+            },
+            {
+              "cls": "wf-place-card-share",
+              "x": 358.8,
+              "y": 2286.2,
+              "w": 80.2,
+              "h": 38,
+              "right": 439
+            }
+          ]
+        }
+      ],
+      "skels": [
+        {
+          "x": 13,
+          "y": 2373,
+          "w": 440,
+          "h": 268,
+          "right": 453
+        },
+        {
+          "x": 13,
+          "y": 2651,
+          "w": 440,
+          "h": 268,
+          "right": 453
+        }
+      ],
+      "rails": [
+        {
+          "name": "The Barnyard",
+          "x": 13,
+          "y": 110.2,
+          "w": 440,
+          "h": 268,
+          "right": 453,
+          "mediaW": 108
+        },
+        {
+          "name": "S.O.B. Burgers",
+          "x": 463,
+          "y": 110.2,
+          "w": 440,
+          "h": 268,
+          "right": 903,
+          "mediaW": 108
+        },
+        {
+          "name": "Cold Stone Creamery",
+          "x": 913,
+          "y": 110.2,
+          "w": 440,
+          "h": 268,
+          "right": 1353,
+          "mediaW": 108
+        }
+      ],
+      "gutter": 13,
+      "screenshot": "docs/ui/previews/pr-restore-268/parrish-food-desktop.png"
+    }
+  }
+}

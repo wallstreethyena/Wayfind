@@ -26,6 +26,7 @@ let launchOpts = null;
 if (chromium) {
   try { if (existsSync(chromium.executablePath())) launchOpts = {}; } catch {}
   if (!launchOpts && existsSync("/opt/pw-browsers/chromium-1194/chrome-linux/chrome")) launchOpts = { executablePath: "/opt/pw-browsers/chromium-1194/chrome-linux/chrome" };
+  if (!launchOpts && existsSync("/usr/local/bin/google-chrome")) launchOpts = { executablePath: "/usr/local/bin/google-chrome" };
   if (!launchOpts && process.platform === "darwin") launchOpts = {};
 }
 let browserMeasured = false;

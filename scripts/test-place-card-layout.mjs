@@ -106,6 +106,9 @@ function resolveChromium() {
   try { const p = chromium.executablePath(); if (p && existsSync(p)) return {}; } catch (e) {}
   const cloud = "/opt/pw-browsers/chromium-1194/chrome-linux/chrome";
   if (existsSync(cloud)) return { executablePath: cloud };
+  const local = "/home/ubuntu/.cache/ms-playwright/chromium-1228/chrome-linux64/chrome";
+  if (existsSync(local)) return { executablePath: local };
+  if (existsSync("/usr/local/bin/google-chrome")) return { executablePath: "/usr/local/bin/google-chrome" };
   if (process.platform === "darwin") return {}; // playwright's default resolution
   return null;
 }
@@ -168,13 +171,15 @@ m.cards.forEach((c, ci) => {
   // (not the rail peek ~336px), the photo column is the full card height,
   // and Save/Share/like stay tappable. These are the boxes Gabe photographed.
   if (!isRail) {
+    ok(Math.abs(c.card.h - 268) <= 0.5, `${tag}: stacked phone card is exactly 268px (got ${c.card.h.toFixed(1)}px)`);
     ok(c.card.w >= 350 && c.card.w <= m.viewport + 0.5, `${tag}: stacked phone card fills the column without overflow (got ${c.card.w.toFixed(1)}px at ${m.viewport}px)`);
     ok(m.viewport - (c.card.x + c.card.w) <= 16, `${tag}: no 40px peek gutter on the right (dead space ${(m.viewport - (c.card.x + c.card.w)).toFixed(1)}px)`);
     if (c.media && c.card.w > 0) {
       const pct = 100 * c.media.w / c.card.w;
       ok(pct >= 32 && pct <= 38, `${tag}: photo column is 32–38% of card width (got ${pct.toFixed(1)}%)`);
+      ok(Math.abs(c.media.h - c.card.h) <= 2.5, `${tag}: photo column is the full card height minus the 1px border (got ${c.media.h.toFixed(1)}px vs card ${c.card.h.toFixed(1)}px)`);
     }
-    for (const k of c.kids) ok(k.h >= 34 && k.w >= 26, `${tag}: ${k.cls} stays tappable on a 390px phone (got ${k.w.toFixed(1)}x${k.h.toFixed(1)})`);
+    for (const k of c.kids) ok(k.h >= 33 && k.h <= 35 && k.w >= 26, `${tag}: ${k.cls} stays compact #1302 (not 38px list buttons) on a 390px phone (got ${k.w.toFixed(1)}x${k.h.toFixed(1)})`);
   }
   if (!isRail) ok(c.kids.length >= 4, `${tag}: positive control — action row has >=4 controls (got ${c.kids.length})`);
   // v8.62 — OWNER'S PLACEMENT, verbatim (2026-08-26, live): "the score goes
@@ -292,6 +297,20 @@ for (const rel of SCORE_RENDERERS) {
   const badge = css.match(/\.wf-place-card-score \.wayfind-score-badge\{([^}]*)\}/);
   ok(!!badge && /var\(--wf-card-badge-w\)/.test(badge[1]),
     "the score badge in the slot is sized from --wf-card-badge-w");
+  ok(/\.wf-place-card-content\{padding:10px 10px 8px!important\}/.test(css),
+    "≤430px restores #1302 content padding 10px 10px 8px");
+  ok(/\.wf-place-card-name\{font-size:15px!important\}/.test(css),
+    "≤430px restores #1302 15px title");
+  ok(/\.wf-place-card-meta\{margin:3px 0 2px!important\}/.test(css),
+    "≤430px restores #1302 metadata margin");
+  ok(/\.wf-place-card-award\{min-height:22px;margin:0 0 2px;padding:2px 7px 2px 4px\}/.test(css),
+    "≤430px restores #1302 award chip");
+  ok(/\.wf-place-card-actions\{--wf-act-h:34px;padding-top:4px\}/.test(css),
+    "≤430px restores #1302 compact 34px actions");
+  ok(/grid-template-columns:44px 26px 26px minmax\(0,1fr\)/.test(css),
+    "≤430px restores #1302 44/26/26 action grid — not 38px list buttons");
+  ok((css.match(/padding:10px 10px 8px!important/g) || []).length === 1,
+    "the #1302 compact padding is declared once — count, not a leftover comment");
 }
 
 console.log(`\ntest-place-card-layout: ${fail ? "FAIL" : "OK"} — ${pass} layout assertions on real Chromium boxes at 390px, card CSS alone (the embed condition)`);
