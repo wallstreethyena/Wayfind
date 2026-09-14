@@ -8,7 +8,7 @@ import { governedWayfindScore } from '../lib/wayfindScore.js';
 import { wayfindScore } from '../lib/wayfindScore.js';
 import { stampGoverned, lawfulSort, governedScoreOf, attachOfficialScoreReceipt } from '../lib/lawfulOrder.js';
 import { stampOwnerPick } from '../lib/ownerBump.js';
-import { readableScoreReceipt } from '../lib/scoreExplanation.js';
+import { readableScoreReceipt, visibleScoreMath } from '../lib/scoreExplanation.js';
 import { publishableVerdict, serveScoreVerdict } from '../lib/scoreVerdict.js';
 
 let checks = 0;
@@ -136,6 +136,7 @@ equal(owensReceipt.origin, 'reviews');
 equal(owensReceipt.start, 92);
 equal(owensReceipt.score, 92);
 equal(owensReceipt.steps, []);
+equal(visibleScoreMath(owensDeep), null); // 9.2 → 9.2 is not an explanation
 equal(owensDeep.governed_score, 92);
 const owensCard = attachOfficialScoreReceipt({
   id: OWENS_ID, name: "Owen's Fish Camp", rating: 4.6, reviews: 4531,
@@ -148,6 +149,8 @@ const owensFar = attachOfficialScoreReceipt({
 });
 equal(readableScoreReceipt(owensFar)?.steps.map((s) => s.key), ['distance']);
 equal(readableScoreReceipt(owensFar)?.score, 90);
+equal(visibleScoreMath(owensFar)?.steps.map((s) => s.key), ['distance']);
+equal(visibleScoreMath(raw)?.steps.map((s) => s.key), ['distance','trending']);
 const staleNumber = attachOfficialScoreReceipt({ id: OWENS_ID, governed_score: 92 });
 equal(readableScoreReceipt(staleNumber), null);
 equal(staleNumber.score_explanation, undefined);
@@ -179,15 +182,25 @@ equal(html.includes('Wayfind curator recommendation'),true);
 equal(html.includes('+0.4'),true);
 equal(html.includes('+0.7'),false);
 equal(html.includes('The earlier breakdown of the starting score is unavailable.'),true);
-equal(render(stale).includes('The calculation breakdown for this score is unavailable.'),true);
+equal(render(stale).includes('Why this score?'),false);
+equal(render(stale).includes('No additional ranking adjustments were applied.'),false);
 equal(render(raw).includes('using a review average adjusted for review count'),true);
-equal(render(null).includes('Why this score?'),true);
+equal(render(raw).includes('More than 17 miles away'),true);
+equal(render(null).includes('Why this score?'),false);
 const owensHtml = render(owensDeep);
-equal(owensHtml.includes('using a review average adjusted for review count'),true);
-equal(owensHtml.includes('9.2'),true);
-equal(owensHtml.includes('No additional ranking adjustments were applied.'),true);
+equal(owensHtml.includes('Why this score?'),false);
+equal(owensHtml.includes('This score starts at'),false);
+equal(owensHtml.includes('Starting score'),false);
+equal(owensHtml.includes('No additional ranking adjustments were applied.'),false);
 equal(owensHtml.includes('The calculation breakdown for this score is unavailable.'),false);
-equal(render(staleNumber).includes('The calculation breakdown for this score is unavailable.'),true);
-equal(render(leftover).includes('The calculation breakdown for this score is unavailable.'),true);
+equal(owensHtml.includes('Sourced Wayfind take'),true);
+equal(/Wayfind(?:&#x27;|')s take/.test(owensHtml),true);
+const farHtml = render(owensFar);
+equal(farHtml.includes('Why this score?'),true);
+equal(farHtml.includes('More than 17 miles away'),true);
+equal(farHtml.includes('-0.2'),true);
+equal(farHtml.includes('No additional ranking adjustments were applied.'),false);
+equal(render(staleNumber).includes('Why this score?'),false);
+equal(render(leftover).includes('Why this score?'),false);
 equal(render(leftover).includes('9.2'),false);
 console.log(`test-score-explanation: ${checks} assertions passed, including altered-receipt and revoked-source red proofs`);
