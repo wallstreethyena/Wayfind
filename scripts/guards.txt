@@ -669,6 +669,9 @@ node scripts/check-one-main.mjs
 node scripts/check-place-card-css-contract.mjs
 node scripts/check-place-card-standard.mjs
 node scripts/check-place-card-equal-height.mjs
+# 2026-09-14 — visual language lock (padding, type, chips, actions, radius).
+# Dimensions alone let #1313 keep 268px while replacing the #1302 compact card.
+node scripts/check-place-card-visual-contract.mjs
 
 # v8.17 — no inline style may paint text in its own background color (the invisible landing score chip)
 node scripts/check-invisible-text.mjs

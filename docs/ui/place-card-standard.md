@@ -18,6 +18,8 @@ accents, score placement, media strip, typography, and action controls.
 | Narrow containers | Clamp to the available width using the shared rule |
 | Card gap | 10px |
 | Media, title, padding, score and actions | Existing shared IconicPlaceCard styles |
+| Card radius / frame | 17px radius, rgba(159,177,203,.25) border, #111824 layered background, 14px/36px shadow, orange top accent |
+| Compact hierarchy (`<=430px`) | Content pad 10/10/8, title 15px, meta 9.75px / 3px 0 2px, award 22px, highlights 21px, actions 34px / pad-top 4 / grid 44 26 26 1fr |
 | Loading reservation | Same dimensions as the loaded card — 268px on rails and stacked lists |
 
 Responsive sizing belongs to the shared contract. A route must not choose a
@@ -39,8 +41,19 @@ objects. They must not be used as substitutes for a place recommendation card.
 
 `scripts/check-place-card-standard.mjs` checks source ownership and registered
 renderers and measures real rendered components, including wrapper styles.
-The guard is connected to the normal build suite. GitHub's required check
-installs Chromium and requires browser evidence.
+`scripts/check-place-card-equal-height.mjs` locks one 268px body and aligned
+action rows. `scripts/check-place-card-visual-contract.mjs` locks the #1302
+compact language (padding, type, chips, actions, radius, gutters, 36% photo).
+The suite is connected to prebuild. GitHub merge CI installs Chromium and
+calls the equal-height and visual-contract guards with `--require-browser`.
+Vercel may run source-only when Chromium is absent; that must print
+`SOURCE CONTRACT PASSED — RENDERED CONTRACT NOT EXECUTED` and must not fail
+because a rendered mutation could not execute.
+
+Shared place-card appearance is founder-controlled. Changes to
+`lib/placeCardStandard.js`, `app/components/css.js`, the shared card
+renderers, or the visual-contract baselines require the `ui-owner-approved`
+PR label before merge (see `.github/workflows/ui-owner-approved.yml`).
 
 The rendered matrix covers achieved viewport widths of 320, 360, 390, 768, 900,
 1440, and 1920px. It checks dimensions, shared presentation, and usable

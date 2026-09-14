@@ -40,6 +40,18 @@ ok(/npx next build/.test(yml) || /npm run build/.test(yml),
 const ymlCode = stripHash(yml);
 ok(/run:\s*node scripts\/check-bundle\.mjs/.test(ymlCode),
   "guards.yml must RUN `node scripts/check-bundle.mjs` after the production build — a comment is not a call; npx next build alone is how #949 shipped green and Vercel died");
+ok(/npx playwright install --with-deps chromium/.test(ymlCode),
+  "guards.yml installs Chromium before the rendered place-card gates");
+ok(/check-place-card-equal-height\.mjs --require-browser/.test(ymlCode),
+  "guards.yml must call check-place-card-equal-height with --require-browser — absence of Chromium is a red merge, never a skipped green");
+ok(/check-place-card-visual-contract\.mjs --require-browser/.test(ymlCode),
+  "guards.yml must call check-place-card-visual-contract with --require-browser");
+ok(/check-place-card-standard\.mjs --require-browser/.test(ymlCode),
+  "guards.yml still requires the place-card standard browser gate — probe can see the file (positive control)");
+
+const ownerYml = read(".github/workflows/ui-owner-approved.yml");
+ok(/ui-owner-approved/.test(ownerYml) && /check-ui-owner-approved\.mjs/.test(stripHash(ownerYml)),
+  "ui-owner-approved.yml must RUN scripts/check-ui-owner-approved.mjs — a comment is not a founder-approval gate");
 
 const home = read("app/home.js");
 const events = read("app/components/screens/Events.js");

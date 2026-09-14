@@ -1,46 +1,97 @@
-# PR #1315 review pack — one 268px place-card height
+# PR #1315 review pack — restore the #1302 premium card
 
-Owner-gated repair of the #1313 `height:auto` regression. Screenshots and
-measurements live here so they survive the agent VM.
+Owner-gated restoration. **Stay draft. Do not merge until the founder
+approves the look.** Screenshots and measurements live here so CoS can
+fetch them without a Cursor login.
 
-## Screenshots
+Canonical premium design: PR #1302 / `45e486c6654fd0fdbaae8a2f8135ec11572cf423`  
+Production regression: PR #1313 / `94ff778698c940648fb00f65275fe99a00c915d5`  
+Repair branch: PR #1315
+
+## What this PR restores
+
+Keep #1313's geometry that was actually correct:
+
+- stacked lists fill the column (`min(100%, 440px)`)
+- 13px page gutters — no 40–44px dead strip on the right
+- 1.08 peek is rail-only
+- stacked photo ~36% (32–38%), not the 88/96px sliver
+- rails keep 96px mobile media
+- one 268px outer height; skeleton matches live cards
+
+Restore the #1302 compact hierarchy at `<=430px`: 10/10/8 content pad, 15px
+title, 9.75px meta, 22px award, 21px highlights, 34px action row, 44/26/26
+grid, compact like/dislike. Same radius, border, layered background, shadow,
+orange accent, score, rank, pills.
+
+## Screenshots (clean, full-size, real shared renderer)
+
+Orange debug overlays are **not** the review proof. Use these unlabeled
+shots first. Measurements are secondary.
 
 | File | What it proves |
 |---|---|
-| `place-cards-390.png` | ≥3 stacked cards at a real 390px viewport, each labeled 268px / ~35.8% photo |
+| `place-cards-390.png` | ≥3 stacked cards at a real 390px viewport |
 | `place-cards-440.png` | Same at 440px |
-| `place-cards-390-simple-vs-creator.png` | Simple card and creator-video card share 268px; Save/Like/Share align |
+| `place-cards-390-simple-vs-creator.png` | Simple card and creator-video card share 268px; actions align |
+| `place-card-missing-image-390.png` | Monogram / missing-image card does not collapse |
+| `place-card-commerce-390.png` | Ticket CTA stays inside the 268px body |
+| `place-cards-rail-peek-390.png` | Horizontal rail still uses the 1.08 peek |
 
 ## Measurements
 
 - `card-height-before.json` — #1313 live (`94ff778`), stacked cards `height:auto`. Heights split 162–266px.
-- `card-height-after.json` — this PR. Every live variant + skeleton is 268.00px at 320/390/440. 13px gutters. Photo 35.75–35.82%.
+- `card-height-after.json` — 268px lock after the first height-only pass.
+- `visual-contract-measured.json` — computed styles at 320/390/440 after the premium restore (gutters, media %, padding, type, actions, radius).
 
-Richest legitimate card on the old auto layout was 266px, so the shared token stays `PLACE_CARD_HEIGHT_PX = 268`.
+## Vercel failure — corrected diagnosis
 
-## Vercel preview diagnosis (head `e5c26acc`)
+The earlier note that Vercel failed to enqueue or authenticate was **wrong**.
+Founder checked the actual GitHub and Vercel evidence.
 
-GitHub Actions on the same SHA: **guards + `npx next build` + `check-bundle` GREEN**
-([run 34862255241](https://github.com/wallstreethyena/Wayfind/actions/runs/34862255241)).
-Bundle ratchet: `479.1KB gz / 498KB`, headroom 18.9KB.
-
-Vercel GitHub status on that SHA:
+The deploy failed inside `npm run prebuild` → `check-place-card-equal-height`:
 
 ```
-Deployment has failed — run this Vercel CLI command:
-npx vercel inspect dpl_2Ax8L2HqGQD8Fm7KSVwZpNADW1oT --logs
+check-place-card-equal-height: FAIL
+MUTATION CONTROL: a 300px simple-card override must fail this guard (got status 0)
+MUTATION CONTROL: rendered evaluator names unequal-height failure
+run-guards failed
 ```
 
-Inspect URL: https://vercel.com/wayfind2/wayfind/2Ax8L2HqGQD8Fm7KSVwZpNADW1oT
+Immediately before that, Vercel reports Chromium unavailable, so the
+equal-height test correctly runs **source only**. The bug was the harness:
+after source-only validation it still spawned `--mutation-control-child`
+and required `child.status !== 0` plus `RENDER mutation caught`. The child
+also has no Chromium, cannot run the rendered 300px mutation, and exits 0.
 
-What this environment could actually read:
+That is a test-harness defect, not a CSS defect and not a Vercel
+integration/auth/enqueue failure.
 
-- Vercel bot on #1315: `nextCommitStatus: FAILED`, `previewUrl: ""` (no URL minted).
-- Inspect page and the `*.vercel.app` log URL return **403** without Vercel team auth.
-- `npx vercel inspect … --logs` in this VM: `No existing credentials found. Starting login flow…` then waits on device OAuth. No deploy log body was returned.
-- First revision `ed660e80` (`dpl_7PkvoNKMXmV2J4pPVcezQpRU8UM4`) failed in the **same second** it was created — that is not a finished `next build` + `postbuild` (those take minutes). Characteristic of a Vercel Git integration / authorization / enqueue failure, not a compile error in this PR.
-- This PR did not change `vercel.json`, `package.json` `build`/`postbuild`, env, or Next config. Other open draft `cursor/*` PRs (e.g. #1314) preview successfully with the same `cursoragent@cursor.com` author.
+Fixed architecture:
 
-Docs-only head `ec0fde08` failed the same way: GitHub stayed `pending` / “Vercel is deploying your app” for ~2 minutes, then deployment `6440970386` / `dpl_AFY6dWGPFdLGJwPUwieijyw8ptPe` was **created already `failure`** at `2026-09-14T15:54:58Z` (status timestamp equals created_at). That is not a finished `next build`. Bot payload: `previewUrl: ""`, `nextCommitStatus: FAILED`. Sibling drafts #1313/#1314 on the same Vercel project minted `wayfind-git-cursor-…-wayfind2.vercel.app`.
+1. Source checks always run everywhere.
+2. Source-level mutation controls always run everywhere.
+3. Rendered equal-height checks run only when Chromium exists.
+4. Rendered 300px mutation control runs only when Chromium exists.
+5. `--require-browser` fails if Chromium is unavailable.
+6. GitHub merge CI calls this guard with `--require-browser`.
+7. Vercel may source-only when it has no browser, and must print
+   `SOURCE CONTRACT PASSED — RENDERED CONTRACT NOT EXECUTED`.
+8. GitHub remains the authoritative rendered merge gate. Absence of
+   Chromium is never a fake green merge.
 
-**Verdict:** no evidence this PR’s card-height patch broke `vercel.json` / `npm run build`. The exact Vercel build-log error line is **not available** without team auth (inspect 403; public API `missingToken`; CLI has no credentials). GitHub’s production build of the geometry SHA passed. Preview URL **does not exist**. Owner can open the inspect pages above while logged into the Wayfind2 team.
+## Release gates (all required — founder visual approval last)
+
+- GitHub rendered guard GREEN (`--require-browser`)
+- Vercel preview READY/GREEN
+- real 390px QA GREEN
+- real 440px QA GREEN
+- no horizontal scroll
+- all cards 268px
+- actions aligned
+- photo not a sliver
+- no right dead strip
+- premium visual contract restored
+- founder visual approval received (`ui-owner-approved`)
+
+Do not ship on “guards enough.” Stay draft until the founder signs off.

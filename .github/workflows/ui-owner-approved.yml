@@ -1,0 +1,28 @@
+# Founder visual-approval gate for the shared place card.
+#
+# The #1313 geometry fix replaced the #1302 compact premium language while
+# keeping 268px. Dimension guards stayed green. Appearance is now a merge
+# gate: if visual-contract files change, the PR must carry `ui-owner-approved`.
+#
+# This is NOT part of `npm run prebuild`. Vercel has no PR labels.
+name: ui-owner-approved
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled, ready_for_review]
+permissions:
+  contents: read
+  pull-requests: read
+jobs:
+  ui-owner-approved:
+    name: ui-owner-approved
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Require founder UI approval when the shared card changes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/check-ui-owner-approved.mjs

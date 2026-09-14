@@ -27,16 +27,16 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 644,
-    "totalRegistryEntries": 645,
-    "guardsTxtLineCount": 643,
-    "guardsTxtReachedFileCount": 638,
+    "totalOnDiskGuardFiles": 646,
+    "totalRegistryEntries": 647,
+    "guardsTxtLineCount": 644,
+    "guardsTxtReachedFileCount": 639,
     "criticalCount": 78,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 430,
-      "RENDER": 73,
-      "STRUCTURAL": 141,
+      "CALL": 431,
+      "RENDER": 75,
+      "STRUCTURAL": 140,
       "OTHER": 1
     }
   },
@@ -502,12 +502,11 @@
     {
       "file": "scripts/check-build-lifecycle.mjs",
       "npmScript": null,
-      "class": "STRUCTURAL",
+      "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 9,
+      "assertionCount": 14,
       "unprovenAbsenceCount": 2,
       "honestyViolations": [
-        "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines",
         "2 absence assertion(s) with no positive control in the same file (e.g. \"!/cultureHubs/.test(home) && !/cultureHubs/.test(events),\n  \"\")"
       ],
       "selfDocumentsRedProve": false,
@@ -5628,14 +5627,19 @@
       "npmScript": null,
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 37,
+      "assertionCount": 41,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
-        "githubWorkflows": []
+        "githubWorkflows": [
+          {
+            "file": ".github/workflows/guards.yml",
+            "blocking": true
+          }
+        ]
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
@@ -5675,6 +5679,33 @@
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
       "assertionCount": 66,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": [
+          {
+            "file": ".github/workflows/guards.yml",
+            "blocking": true
+          }
+        ]
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-place-card-visual-contract.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 65,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -7405,6 +7436,33 @@
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-ui-owner-approved.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 7,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": false,
+        "npmScripts": [],
+        "githubWorkflows": [
+          {
+            "file": ".github/workflows/ui-owner-approved.yml",
+            "blocking": true
+          }
+        ]
+      },
+      "gating": "blocks-ci-only",
+      "excludedReason": "GitHub PR gate only (.github/workflows/ui-owner-approved.yml). It reads pull-request labels and the PR file list. Wiring it into prebuild would turn every Vercel deploy of a card-CSS fix red until a human added the label — the opposite of the Vercel source-only contract. Founder visual approval is a merge gate, not a compile gate.",
       "critical": false,
       "criticalReasons": [],
       "protects": null,

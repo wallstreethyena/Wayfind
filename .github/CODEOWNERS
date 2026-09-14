@@ -7,3 +7,12 @@
 /scripts/test-cache-refresh.mjs   @wallstreethyena
 /lib/businessStatus.js            @wallstreethyena
 /lib/inventoryServe.js            @wallstreethyena
+# Shared place-card visual contract — founder-controlled. Agents may fix
+# implementation defects; they may not silently redefine the look.
+/lib/placeCardStandard.js                         @wallstreethyena
+/app/components/css.js                            @wallstreethyena
+/app/components/IconicPlaceCard.js                @wallstreethyena
+/app/components/RailCard.js                       @wallstreethyena
+/app/components/PlaceCardSkeleton.js              @wallstreethyena
+/scripts/check-place-card-visual-contract.mjs     @wallstreethyena
+/docs/ui/place-card-standard.md                   @wallstreethyena

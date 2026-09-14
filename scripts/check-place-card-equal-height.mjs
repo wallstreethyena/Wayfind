@@ -30,7 +30,9 @@ import {
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const SELF = fileURLToPath(import.meta.url);
+const REQUIRE_BROWSER = process.argv.includes("--require-browser");
 const MUTATION = process.argv.includes("--mutation-control-child");
+const SOURCE_MUTATION = process.argv.includes("--source-mutation-child");
 let pass = 0;
 const failures = [];
 const ok = (condition, message) => { pass++; if (!condition) failures.push(message); };
@@ -42,7 +44,10 @@ ok(!/PLACE_CARD_LIST_RESERVE|PLACE_CARD_LIST_HEIGHT|PLACE_CARD_CREATOR_HEIGHT|PL
   "no second height token exists beside PLACE_CARD_HEIGHT_PX");
 
 const { WF_PLACE_CARD_CSS } = await loadComponent(path.join(ROOT, "app/components/css.js"), ROOT);
-const compact = String(WF_PLACE_CARD_CSS).replace(/\s+/g, "");
+let compact = String(WF_PLACE_CARD_CSS).replace(/\s+/g, "");
+if (SOURCE_MUTATION) {
+  compact = compact.replace(/\.wf-place-card\{([^}]*?)height:var\(--wf-card-h\)/, ".wf-place-card{$1height:auto");
+}
 ok(/\.wf-place-card\{[^}]*height:var\(--wf-card-h\)/.test(compact),
   "the base .wf-place-card rule sets height:var(--wf-card-h) — a rail-only lock is not enough");
 ok(!/\.wf-place-card\{[^}]*height:auto/.test(compact),
@@ -53,6 +58,15 @@ ok(!/\.wf-place-card-list[^{]*\{[^}]*1\.08/.test(compact) && !/\.wf-place-card-l
   "1.08 peek is not declared on .wf-place-card-list");
 ok(compact.includes(`.wf-rail,.wf8-pcrail,.wf-rail .wf-place-card`) || /\.wf-rail[^{]*\{[^}]*--wf-place-card-width:min\(100%,440px,calc\(\(100vw/.test(compact),
   "horizontal rails still own the peek width formula");
+
+if (SOURCE_MUTATION) {
+  if (failures.length) {
+    console.error("check-place-card-equal-height: FAIL");
+    failures.forEach((failure) => console.error("  ✗ " + failure));
+    process.exit(1);
+  }
+  process.exit(0);
+}
 
 const Iconic = (await loadComponent(path.join(ROOT, "app/components/IconicPlaceCard.js"), ROOT)).default;
 const RailCard = (await loadComponent(path.join(ROOT, "app/components/RailCard.js"), ROOT)).default;
@@ -131,7 +145,8 @@ const browserConfig = await chromiumLaunchOptions();
 let rendered = false;
 const measuredByWidth = {};
 if (!browserConfig) {
-  console.log("  RENDERED CHECK NOT RUN — Chromium is unavailable; source assertions ran");
+  ok(!REQUIRE_BROWSER, "Chromium is REQUIRED for this invocation (--require-browser) but no executable is available");
+  if (!REQUIRE_BROWSER) console.log("  RENDERED CHECK NOT RUN — Chromium is unavailable; source assertions ran");
 } else {
   const tmp = mkdtempSync(path.join(ROOT, ".wf-card-eqh-"));
   const file = path.join(tmp, "fixture.html");
@@ -229,11 +244,25 @@ if (!browserConfig) {
   }
 }
 
-if (!MUTATION) {
-  const child = spawnSync(process.execPath, [SELF, "--mutation-control-child"], { cwd: ROOT, encoding: "utf8", env: { ...process.env } });
-  const out = `${child.stdout || ""}\n${child.stderr || ""}`;
-  ok(child.status !== 0, `MUTATION CONTROL: a 300px simple-card override must fail this guard (got status ${child.status})`);
-  ok(out.includes("RENDER mutation caught"), "MUTATION CONTROL: the rendered evaluator names the unequal-height failure");
+if (!MUTATION && !SOURCE_MUTATION) {
+  const sourceChild = spawnSync(process.execPath, [SELF, "--source-mutation-child"], { cwd: ROOT, encoding: "utf8", env: { ...process.env } });
+  const sourceOut = `${sourceChild.stdout || ""}\n${sourceChild.stderr || ""}`;
+  ok(sourceChild.status !== 0, `SOURCE MUTATION CONTROL: height:auto on the base .wf-place-card rule must fail this guard (got status ${sourceChild.status})`);
+  ok(sourceOut.includes("the base .wf-place-card rule sets height:var(--wf-card-h)"),
+    "SOURCE MUTATION CONTROL: the source evaluator names the height-token failure");
+
+  if (browserConfig || REQUIRE_BROWSER) {
+    const args = [SELF, "--mutation-control-child"];
+    if (REQUIRE_BROWSER) args.push("--require-browser");
+    const child = spawnSync(process.execPath, args, { cwd: ROOT, encoding: "utf8", env: { ...process.env } });
+    const out = `${child.stdout || ""}\n${child.stderr || ""}`;
+    ok(child.status !== 0, `MUTATION CONTROL: a 300px simple-card override must fail this guard (got status ${child.status})`);
+    ok(out.includes("RENDER mutation caught"), "MUTATION CONTROL: the rendered evaluator names the unequal-height failure");
+  }
+}
+
+if (REQUIRE_BROWSER && !rendered && !MUTATION && !SOURCE_MUTATION) {
+  ok(false, "Chromium is REQUIRED for this invocation (--require-browser) but the rendered contract did not execute");
 }
 
 if (failures.length) {
@@ -241,6 +270,9 @@ if (failures.length) {
   failures.forEach((failure) => console.error("  ✗ " + failure));
   process.exit(1);
 }
-console.log(rendered
-  ? `check-place-card-equal-height: OK — ${pass} assertions; seven live variants + skeleton share ${PLACE_CARD_HEIGHT_PX}px at 320/390/440; 300px mutation went red`
-  : `check-place-card-equal-height: OK (SOURCE ONLY) — ${pass} assertions; rendered checks were NOT RUN because Chromium is unavailable; 300px mutation still went red`);
+if (rendered) {
+  console.log(`check-place-card-equal-height: OK — ${pass} assertions; rendered contract executed; seven live variants + skeleton share ${PLACE_CARD_HEIGHT_PX}px at 320/390/440; 300px height mutation goes RED`);
+} else {
+  console.log("SOURCE CONTRACT PASSED — RENDERED CONTRACT NOT EXECUTED");
+  console.log(`check-place-card-equal-height: OK (SOURCE ONLY) — ${pass} assertions; Chromium is unavailable so rendered equal-height and the 300px mutation were not run`);
+}

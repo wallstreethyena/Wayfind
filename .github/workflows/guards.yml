@@ -52,6 +52,15 @@ jobs:
       - name: Required rendered place-card standard
         if: always()
         run: node scripts/check-place-card-standard.mjs --require-browser
+      # GitHub is the authoritative rendered gate. Vercel may source-only
+      # when Chromium is absent; these --require-browser invocations must
+      # NEVER treat a missing browser as a green merge.
+      - name: Required rendered place-card equal height
+        if: always()
+        run: node scripts/check-place-card-equal-height.mjs --require-browser
+      - name: Required rendered place-card visual contract
+        if: always()
+        run: node scripts/check-place-card-visual-contract.mjs --require-browser
       - name: Upload place-card geometry evidence
         if: always()
         uses: actions/upload-artifact@v4

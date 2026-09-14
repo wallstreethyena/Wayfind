@@ -5,8 +5,21 @@ import {
   PLACE_CARD_HEIGHT_PX,
   PLACE_CARD_LIST_MEDIA_PCT,
   PLACE_CARD_MAX_WIDTH_PX,
+  PLACE_CARD_MOBILE_ACT_H_PX,
+  PLACE_CARD_MOBILE_ACT_PAD_TOP_PX,
+  PLACE_CARD_MOBILE_ACTION_GAP_PX,
+  PLACE_CARD_MOBILE_ACTION_GRID,
+  PLACE_CARD_MOBILE_AWARD_MIN_H_PX,
+  PLACE_CARD_MOBILE_BP_PX,
+  PLACE_CARD_MOBILE_CONTENT_PAD,
+  PLACE_CARD_MOBILE_HIGHLIGHT_MIN_H_PX,
+  PLACE_CARD_MOBILE_HIGHLIGHT_PAD,
+  PLACE_CARD_MOBILE_META_MARGIN,
+  PLACE_CARD_MOBILE_META_PX,
+  PLACE_CARD_MOBILE_NAME_PX,
   PLACE_CARD_PAGE_GUTTER_PX,
   PLACE_CARD_PHONE_PEEK,
+  PLACE_CARD_RADIUS_PX,
 } from "../../lib/placeCardStandard.js";
 // app/components/css.js — the homepage's server-rendered CSS, lifted verbatim
 // out of app/home.js (July 2026 decomposition, wave 1).
@@ -134,7 +147,7 @@ ${WF_SKELETON_CSS}
   position:relative;
   margin-bottom:12px!important;
   overflow:hidden;
-  border-radius:17px!important;
+  border-radius:${PLACE_CARD_RADIUS_PX}px!important;
   border-width:1px;border-style:solid;
   border-color:rgba(159,177,203,.25)!important;
   background:linear-gradient(145deg,rgba(255,255,255,.035),transparent 36%),#111824!important;
@@ -576,28 +589,25 @@ ${WF_SKELETON_CSS}
 .wf-sheet-card-actions:not(:has(.wf-place-card-like)){grid-template-columns:minmax(64px,1fr) minmax(76px,1fr)}
 .wf-place-card.is-liked{border-color:rgba(76,224,179,.35)!important}
 .wf-place-card.is-disliked{border-color:rgba(248,113,113,.28)!important}
-@media(max-width:430px){
+@media(max-width:${PLACE_CARD_MOBILE_BP_PX}px){
   .wf-place-card-score~.wf-place-card-layout .wf-place-card-category{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .wf-place-card-score~.wf-place-card-layout .wf-place-card-name{width:calc(100% + var(--wf-card-badge-w) + 10px);margin-top:32px}
   .wf-place-card-score~.wf-place-card-layout .wf-place-card-heading:not(:has(>.wf-place-card-category)) .wf-place-card-name{margin-top:42px}
-  .wf-place-card-content{padding:12px 12px 10px!important}
-  .wf-place-card-name{font-size:15px!important}
-  .wf-place-card-meta>span{font-size:9.75px!important}
+  .wf-place-card-content{padding:${PLACE_CARD_MOBILE_CONTENT_PAD}!important}
+  .wf-place-card-name{font-size:${PLACE_CARD_MOBILE_NAME_PX}px!important}
+  .wf-place-card-meta{margin:${PLACE_CARD_MOBILE_META_MARGIN}!important}
+  .wf-place-card-meta>span{font-size:${PLACE_CARD_MOBILE_META_PX}px!important}
+  .wf-place-card-award{min-height:${PLACE_CARD_MOBILE_AWARD_MIN_H_PX}px;margin:0 0 2px;padding:2px 7px 2px 4px}
+  .wf-place-card-highlights{margin-bottom:2px!important}
+  .wf-place-card-highlights>button,.wf-place-card-highlights>span{min-height:${PLACE_CARD_MOBILE_HIGHLIGHT_MIN_H_PX}px;padding:${PLACE_CARD_MOBILE_HIGHLIGHT_PAD}!important}
   .wf-place-card-highlights>button{font-size:9px!important}
-  .wf-sheet-card-actions{grid-template-columns:minmax(52px,.9fr) 38px 38px minmax(64px,1fr);gap:5px!important}
-  .wf-sheet-card-actions:has(.wf-place-card-book){grid-template-columns:minmax(52px,.9fr) 38px 38px minmax(64px,1fr)}
-  .wf-sheet-card-actions>.wf-place-card-like,.wf-sheet-card-actions>.wf-place-card-dislike{width:38px!important;min-width:38px!important;flex:0 0 38px}
-  .wf-rail .wf-sheet-card-actions,.wf8-pcrail .wf-sheet-card-actions,.wf-rail .wf-sheet-card-actions:has(.wf-place-card-book),.wf8-pcrail .wf-sheet-card-actions:has(.wf-place-card-book){grid-template-columns:minmax(0,1fr) 26px 26px minmax(0,1fr);gap:3px!important}
-  .wf-rail .wf-sheet-card-actions>.wf-place-card-like,.wf-rail .wf-sheet-card-actions>.wf-place-card-dislike,.wf8-pcrail .wf-sheet-card-actions>.wf-place-card-like,.wf8-pcrail .wf-sheet-card-actions>.wf-place-card-dislike{width:100%!important;min-width:0!important;flex:1 1 auto}
-  .wf-rail .wf-sheet-card-actions>a,.wf-rail .wf-sheet-card-actions>button,.wf-rail .wf-sheet-card-actions>span,.wf8-pcrail .wf-sheet-card-actions>a,.wf8-pcrail .wf-sheet-card-actions>button,.wf8-pcrail .wf-sheet-card-actions>span{min-width:0!important;padding-inline:2px!important;font-size:9.5px!important;overflow:hidden}
-  .wf-rail .wf-place-card-meta,.wf8-pcrail .wf-place-card-meta{margin:3px 0 2px!important}
-  .wf-rail .wf-place-card-award,.wf8-pcrail .wf-place-card-award{min-height:22px;margin:0 0 2px;padding:2px 7px 2px 4px}
-  .wf-rail .wf-place-card-highlights,.wf8-pcrail .wf-place-card-highlights{margin-bottom:2px!important}
-  .wf-rail .wf-place-card-actions,.wf8-pcrail .wf-place-card-actions{--wf-act-h:34px;padding-top:4px}
-}
-@media(max-width:360px){
-  .wf-place-card-list .wf-sheet-card-actions,.wf-place-card-list .wf-sheet-card-actions:has(.wf-place-card-book){grid-template-columns:minmax(40px,.9fr) 30px 30px minmax(48px,1fr);gap:4px!important}
-  .wf-place-card-list .wf-sheet-card-actions>.wf-place-card-like,.wf-place-card-list .wf-sheet-card-actions>.wf-place-card-dislike{width:30px!important;min-width:30px!important;flex:0 0 30px}
+  .wf-rail-card-cta{min-height:30px!important}
+  .wf-place-card-actions{--wf-act-h:${PLACE_CARD_MOBILE_ACT_H_PX}px;padding-top:${PLACE_CARD_MOBILE_ACT_PAD_TOP_PX}px}
+  .wf-sheet-card-actions{grid-template-columns:${PLACE_CARD_MOBILE_ACTION_GRID};gap:${PLACE_CARD_MOBILE_ACTION_GAP_PX}px!important}
+  .wf-sheet-card-actions:has(.wf-place-card-book){grid-template-columns:${PLACE_CARD_MOBILE_ACTION_GRID}}
+  .wf-sheet-card-actions>.wf-place-card-like,.wf-sheet-card-actions>.wf-place-card-dislike{width:100%!important;min-width:0!important;flex:1 1 auto;padding-inline:0!important}
+  .wf-sheet-card-actions>.wf-place-card-save,.wf-sheet-card-actions>.wf-place-card-share{padding-inline:4px!important}
+  .wf-sheet-card-actions>a,.wf-sheet-card-actions>button,.wf-sheet-card-actions>span{min-width:0!important;padding-inline:4px!important;font-size:9.5px!important;overflow:hidden}
 }
 @media(min-width:${WF_DESKTOP_BP}px){
   .wf-rail .wf-place-card,.wf8-pcrail .wf-place-card{--wf-place-card-media:108px}
