@@ -54,6 +54,10 @@ const VIATOR_PLACE_PRODUCT_CODES = {
   "431125P5": "St. Johns River Cruise - Blue Spring State Park",
   "179637P1": "Little Toot Dolphin Adventure at Clearwater Beach",
   "5608638P1": "Shark Tooth Snorkeling Adventure and Huka Dive in Venice Florida",
+  // 2026-09-15 replacements for the two dead_confirmed pins (both in
+  // RETIRED_VIATOR_PINS, which drops their rows from this table below).
+  "169791P1": "Glass Bottom Kayak Eco Tour through Rainbow Springs",
+  "242020P5": "Tiki Boat - St. Pete Pier - The Only Authentic Floating Tiki Bar",
 };
 
 

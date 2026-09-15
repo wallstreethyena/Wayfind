@@ -1289,6 +1289,15 @@ node scripts/test-event-mobile-repair.mjs
 # and lib/photoCacheRecovery candidate widths to the same set.
 node scripts/test-photo-cache-width-reuse.mjs
 
+# 2026-09-15: a cached Google photo uri is a CLAIM. Keke's Breakfast Cafe
+# (Bradenton) 302'd from `cache` to an lh3 uri Google answered 403 for; 27% of
+# 10,133 cached rows were the same. A due hit is HEAD-probed (free, no grant),
+# a dead row is evicted and the ladder continues, unknown is not dead, and a
+# Google-hosted redirect is cached downstream for one day, never 30 immutable.
+# Red-proved by mutation. Locks lib/photoUriLiveness, placePhotoServe cacheLookup,
+# photoCacheRecovery selection.
+node scripts/check-photo-cache-liveness.mjs
+
 node scripts/test-inventory-batch-concurrency.mjs
 
 node scripts/test-event-apple-maps.mjs

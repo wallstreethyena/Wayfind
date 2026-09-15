@@ -4,8 +4,9 @@
 // THE DEFECT. Homepage rails (DaypartRail drop, intent rails, browse) used to
 // reserve space with a single rounded wf-sk / wf-skeleton rectangle. On a
 // phone that reads as an empty colored block while the ranked cards hydrate.
-// The live card is a 268px two-column layout (media + copy + action row);
-// this component paints that same geometry with shimmer bars and no copy.
+// Rails reserve the 268px two-column card. Stacked-list skeletons inherit
+// list width + 36% media and reserve 235px (live list height) so hydrate
+// does not jump 178→235. Never a 96px slab and never a global 268 lock.
 //
 // No invented card text. No ranking. toHookLine / isUsableCardHook are not
 // in this file — a skeleton must not invent a take.
@@ -25,6 +26,8 @@ export default function PlaceCardSkeleton({ count = 3, as = "li" }) {
           <div className="wf-sk wf-place-card-sk-line" style={{ width: "34%" }} />
           <div className="wf-sk wf-place-card-sk-line is-title" style={{ width: "78%" }} />
           <div className="wf-sk wf-place-card-sk-line" style={{ width: "56%" }} />
+          <div className="wf-sk wf-place-card-sk-line" style={{ width: "48%" }} />
+          <div className="wf-sk wf-place-card-sk-line" style={{ width: "70%" }} />
           <div className="wf-place-card-sk-actions">
             <div className="wf-sk" />
             <div className="wf-sk" />
