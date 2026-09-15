@@ -14,8 +14,7 @@ export const dynamic = "force-dynamic";
 import { fetchCuratedEvents, isTrusted, eventOutboundUrl } from "../../../../lib/curatedEvents.js";
 import { siteTodayStr } from "../../../../lib/siteTime.js";
 import { isFallTagged, fallEventLive, fallWhenLabel, fallScheduleChip, FALL_PLACE_IDS, FALL_PLACE_RAIL, FALL_EVENT_TICKET_DEALS } from "../../../../lib/fallPool.js";
-import { eventTicketCta } from "../../../../lib/eventTicketDeals.js";
-import { hasCjPid } from "../../../../lib/deals.js";
+import { eventTicketCta, isServableDeal } from "../../../../lib/eventTicketDeals.js";
 import { supabase } from "../../../../lib/supabase.js";
 import { wayfindScore } from "../../../../lib/wayfindScore.js";
 import { cardImageSrc, hasStoredPlacePhoto } from "../../../../lib/placePhoto.js";
@@ -92,8 +91,13 @@ export async function GET(request) {
       const sourceFailures = Number(!!placeResult.error) + Number(!!dealResult.error);
       if (placeResult.error) console.error("[api/events/fall] place inventory degraded", { message: String(placeResult.error.message || placeResult.error) });
 
+      // isServableDeal, NOT an inline `deal.link_ok &&`. The inline form shipped
+      // here and treated link_ok=null (unknown: UT 403s every bot probe) as
+      // dead, which dropped all 18 UT rows after PR #1200 and sent six days of
+      // Howl-O-Scream / HHN traffic to the organizer's site uncommissioned.
+      // Only link_ok === false is dead — lib/eventTicketDeals.js owns the rule.
       const byDealId = new Map((dealResult.data || [])
-        .filter((deal) => deal.active && deal.link_ok && hasCjPid(deal.affiliate_url))
+        .filter((deal) => isServableDeal(deal))
         .map((deal) => [deal.id, deal]));
       // The owner-supplied discovery registry is publish-ready source data,
       // not merely a seed script. Merge it at read time so a missed/lagging

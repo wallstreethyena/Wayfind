@@ -27,20 +27,48 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 644,
-    "totalRegistryEntries": 645,
-    "guardsTxtLineCount": 643,
-    "guardsTxtReachedFileCount": 638,
-    "criticalCount": 78,
+    "totalOnDiskGuardFiles": 645,
+    "totalRegistryEntries": 646,
+    "guardsTxtLineCount": 644,
+    "guardsTxtReachedFileCount": 639,
+    "criticalCount": 79,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 431,
+      "CALL": 432,
       "RENDER": 72,
       "STRUCTURAL": 141,
       "OTHER": 1
     }
   },
   "entries": [
+    {
+      "file": "scripts/check-affiliate-coverage.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 47,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-filename:affiliate",
+        "money-keyword-in-import:../lib/commerceProviders.js,../lib/affiliateLibrary.js"
+      ],
+      "protects": "A card whose event or venue matches the affiliate library never ships a raw organizer link by accident: link_ok=null (unknown, UT 403s every bot probe) is servable everywhere, the fall route uses the one shared isServableDeal predicate, no strict-truthy link_ok gate exists in app/ or lib/, /api/commerce/go refuses proven-dead UT rows, the library is internally consistent, and the nightly affiliate-coverage watch is scheduled and pulses succeeded=0 on any unmapped sellable event.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "2026-09-15: one inline `deal.link_ok &&` filter after PR #1200 dropped every Undercover Tourist ticket CTA on the Fall in Florida rails for six days (HHN, both Howl-O-Screams, Not-So-Scary, Spooktacular, Brick-or-Treat, Gatorland, EPCOT) while check-event-ticket-deals stayed green, because that guard executed the library and never the caller."
+      },
+      "owner": "Revenue QA"
+    },
     {
       "file": "scripts/check-affiliate-opportunity-refresh.mjs",
       "npmScript": null,
