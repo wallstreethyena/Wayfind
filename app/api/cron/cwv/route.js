@@ -10,6 +10,9 @@ export const maxDuration = 60;
 import { GUIDES } from "../../../../lib/guides";
 import { CULTURE } from "../../../../lib/cultureCorpus";
 import { SITE_URL } from "../../../../lib/site";
+import { recordPulse } from "../../../../lib/jobPulse.js";
+
+const JOB = "cwv";
 
 function pageList() {
   return [
@@ -27,7 +30,10 @@ export async function GET(req) {
   const auth = req.headers.get("authorization") || "";
   if (!secret || auth !== "Bearer " + secret) return new Response("unauthorized", { status: 401 });
   const KEY = (process.env["PAGESPEED_API_KEY"] || "").trim();
-  if (!KEY) return Response.json({ idle: true, reason: "no PAGESPEED_API_KEY" });
+  if (!KEY) {
+    try { await recordPulse(JOB, { attempted: 0, succeeded: 0, failed: 0, note: "healthy idle: no PAGESPEED_API_KEY" }); } catch (e) {}
+    return Response.json({ idle: true, reason: "no PAGESPEED_API_KEY" });
+  }
 
   const { searchParams } = new URL(req.url);
   const pages = pageList();
@@ -66,6 +72,7 @@ export async function GET(req) {
       let psiBody = "";
       try { psiBody = (await res.text()).slice(0, 1500); } catch (e) {}
       try { console.error(JSON.stringify({ tag: "cwv_cron", ok: false, stage: "psi_fetch", target, psiStatus: res.status, psiBody })); } catch (e) {}
+      try { await recordPulse(JOB, { attempted: 1, succeeded: 0, failed: 1, note: `unavailable: PageSpeed API HTTP ${res.status}`.slice(0, 200) }); } catch (e2) {}
       return Response.json({ ok: false, target, psiStatus: res.status, psiBody });
     }
     const data = await res.json();
@@ -106,9 +113,17 @@ export async function GET(req) {
       try { console.log(JSON.stringify({ tag: "cwv_cron", ok: true, stored: true, target, perf_score: row.perf_score, lcp_ms: row.lcp_ms })); } catch (e) {}
     }
     const alert = (row.lcp_ms != null && row.lcp_ms > 2500) || (row.cls != null && row.cls > 0.1) || (row.tbt_ms != null && row.tbt_ms > 300);
+    try {
+      await recordPulse(JOB, {
+        attempted: 1,
+        succeeded: stored ? 1 : 0,
+        note: stored ? null : `store failed: ${storeError}`.slice(0, 200),
+      });
+    } catch (e) {}
     return Response.json({ ok: true, ...row, stored, storeError, overThreshold: alert });
   } catch (e) {
     try { console.error(JSON.stringify({ tag: "cwv_cron", ok: false, stage: "exception", target, error: String(e && e.message || e).slice(0, 200) })); } catch (e2) {}
+    try { await recordPulse(JOB, { attempted: 1, succeeded: 0, failed: 1, note: `exception: ${String(e && e.message || e)}`.slice(0, 200) }); } catch (e3) {}
     return Response.json({ ok: false, target, error: String(e && e.message || e).slice(0, 120) });
   } finally {
     clearTimeout(timer);

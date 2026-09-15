@@ -46,13 +46,16 @@
 // scripts/check-guard-honesty.mjs's KNOWN_WEAK: routes that already have a
 // gap today are named below with a one-line reason so this guard can ship
 // green without either fixing 20 unrelated files in a PR about one cron, or
-// silently narrowing what it enforces. Three of the entries
-// (deals-health, events-link-health, experiences-link-health) are the exact
-// cousins of the verify-offers incident — same "Supabase-backed integrity
-// sweep that can go silent" shape — named explicitly in the fix's own scope
-// as tracked, NOT fixed here. The rest are legacy jobs that never adopted
-// the pulse contract at all, a separate and larger modernization this
-// change does not attempt. A KNOWN_UNPULSED entry that stops having any
+// silently narrowing what it enforces. deals-health is the exact cousin of
+// the verify-offers incident — same "Supabase-backed integrity sweep that
+// can go silent" shape — named explicitly in the fix's own scope as
+// tracked, NOT fixed here. (Its siblings events-link-health and
+// experiences-link-health were fixed for real: experiences-link-health at
+// the time of the verify-offers incident, and events-link-health, plus
+// audit-feeds/cc-alerts/cwv/experiences, on 2026-09-15 — see
+// job-pulse-coverage-2026-09-15 PR.) The rest are legacy jobs that never
+// adopted the pulse contract at all, a separate and larger modernization
+// this change does not attempt. A KNOWN_UNPULSED entry that stops having any
 // violation is reported as a WIN (fix it for real, or the scanner was
 // wrong) rather than silently passing forever — remove it when that
 // happens, the same discipline check-guard-honesty.mjs already documents.
@@ -237,15 +240,10 @@ function scheduledRouteFiles() {
 // ── grandfathered pre-existing gaps (dated, reasoned — see header) ─────────
 const KNOWN_UNPULSED = {
   "app/api/cron/deals-health/route.js": "2026-09-09, verify-offers pulse-visibility fix: same silent-success shape (jobCannotRun/jobFailed cover its error paths, but both success returns — the expiry-only early return and the final link-health return — never call recordPulse). Tracked, not fixed here.",
-  "app/api/cron/events-link-health/route.js": "2026-09-09, verify-offers pulse-visibility fix: zero recordPulse/jobFail reference in the whole file — the exact cousin of the pre-fix verify-offers gap (Supabase-backed link-health sweep). Tracked, not fixed here.",
   "app/api/cron/route.js": "Pre-existing: the daily owner-briefing route never adopted lib/jobPulse.js. Legacy, unrelated to the verify-offers incident.",
   "app/api/cron/atlas-build/route.js": "Pre-existing false positive of THIS scanner, verified by hand: its `pulse(opts)` local helper (route.js:341-344) wraps recordPulse(\"atlas-refresh\"|\"atlas-retry\"|\"atlas-build\", opts) under a name this scanner does not special-case — scripts/test-job-pulse.mjs already locks real pulse coverage for this route by name. A handful of early gate/selector-unreachable returns above that helper are a separate, smaller pre-existing gap.",
-  "app/api/cron/audit-feeds/route.js": "Pre-existing: never adopted lib/jobPulse.js. Legacy, unrelated to the verify-offers incident.",
   "app/api/cron/beach-water/route.js": "Pre-existing: never adopted lib/jobPulse.js. Legacy, unrelated to the verify-offers incident.",
   "app/api/cron/booking-audit/route.js": "Pre-existing: never adopted lib/jobPulse.js. Legacy, unrelated to the verify-offers incident.",
-  "app/api/cron/cc-alerts/route.js": "Pre-existing: never adopted lib/jobPulse.js. Legacy, unrelated to the verify-offers incident.",
-  "app/api/cron/cwv/route.js": "Pre-existing: never adopted lib/jobPulse.js. Legacy, unrelated to the verify-offers incident.",
-  "app/api/cron/experiences/route.js": "Pre-existing: never adopted lib/jobPulse.js. Legacy, unrelated to the verify-offers incident.",
   "app/api/cron/hero-images/route.js": "Pre-existing: never adopted lib/jobPulse.js. Legacy, unrelated to the verify-offers incident.",
   "app/api/cron/instagram-scout/route.js": "Pre-existing: reports via a local `json(body,status)` helper this scanner does not resolve to Response.json; several of its early service/health guard returns predate full pulse adoption.",
   "app/api/cron/inventory-refresh/route.js": "Pre-existing: one early feature-gate return (`{skipped:\"gate ...\"}`) predates pulse adoption; the job's real work paths already pulse.",
@@ -305,7 +303,7 @@ const KNOWN_UNPULSED = {
 // ── prove the scanner still finds the real, currently-open gaps ───────────
 // (so KNOWN_UNPULSED cannot rot into hiding a checker that stopped working)
 {
-  for (const rel of ["app/api/cron/deals-health/route.js", "app/api/cron/events-link-health/route.js"]) {
+  for (const rel of ["app/api/cron/deals-health/route.js"]) {
     const src = readFileSync(path.join(REPO, rel), "utf8");
     const res = analyzeRoute(src);
     ok(!res.error && res.violations.length > 0,

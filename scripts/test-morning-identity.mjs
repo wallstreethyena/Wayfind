@@ -5,6 +5,8 @@ import { placeAllowed } from "../lib/placeFilter.js";
 import { isMorningCandidate, morningDisplayIdentity } from "../lib/morningIdentity.js";
 import { splitBreakfastRails } from "../lib/breakfastRails.js";
 import { isBreakfastPlace } from "../lib/breakfast.js";
+import { isLunchPlace } from "../lib/mealPlace.js";
+import { RYANS_COFFEE_HOUSE } from "./lib/synthetic/fixtures.mjs";
 
 let total = 0;
 let failed = 0;
@@ -64,6 +66,12 @@ const bayshoreNutrition = { name: "BAYSHORE NUTRITION - Herbalife Nutrition Smoo
 const herbalifeCafe = { name: "Herbalife Nutrition Cafe", primaryType: "restaurant", types: ["cafe", "coffee_shop", "food"] };
 const mcdonaldsCoffee = { name: "McDonald's Coffee", primaryType: "restaurant", types: ["cafe", "coffee_shop", "food"] };
 const googleTypesCafe = { name: "Neutral GoogleTypes Room", googleTypes: ["cafe", "food"] };
+const ryansCoffeeHouse = {
+  id: RYANS_COFFEE_HOUSE.placeId,
+  name: RYANS_COFFEE_HOUSE.name,
+  primaryType: RYANS_COFFEE_HOUSE.primaryType,
+  types: ["coffee_shop", "cafe", "food"],
+};
 
 // Precision: a meal-first room cannot leak into either café alias, and a
 // coffee-forward room cannot leak into Best Breakfast.
@@ -73,6 +81,23 @@ ok(menu("cafes", keke) === false && menu("coffee", keke) === false, "Keke cannot
 ok(morningDisplayIdentity(coffeeShop) === "cafe", "coffee_shop primaryType resolves to café");
 ok(menu("breakfast", coffeeShop) === false, "pure coffee shop cannot pass Breakfast");
 ok(menu("cafes", coffeeShop) === true && menu("coffee", coffeeShop) === true, "pure coffee shop passes both café aliases");
+ok(ryansCoffeeHouse.id === "ChIJo_IdHf0lw4gRHDbQNKBRE84", "Ryan's locked placeId is the production listing");
+ok(morningDisplayIdentity(ryansCoffeeHouse) === "cafe", "Ryan's Coffee House is a café, not a breakfast restaurant");
+ok(menu("cafes", ryansCoffeeHouse) === true && menu("coffee", ryansCoffeeHouse) === true, "Food → Coffee / Cafés keep Ryan's Coffee House");
+ok(menu("breakfast", ryansCoffeeHouse) === false, "Food → Breakfast stays meal-first and does not swallow Ryan's");
+ok(isLunchPlace(ryansCoffeeHouse) === false, "coffee_shop is not lunch — Ryan's is not an eat/lunch card");
+ok(isBreakfastPlace(ryansCoffeeHouse) === true && isMorningCandidate(ryansCoffeeHouse) === true,
+  "Ryan's still qualifies for the breakfast poster pool (café rail)");
+{
+  const ryansPoster = splitBreakfastRails([
+    { ...ryansCoffeeHouse, rating: 4.9, reviews: 191 },
+    { ...keke, id: "keke", rating: 4.7, reviews: 500 },
+  ]);
+  ok(ryansPoster[1].places.some((place) => place.id === RYANS_COFFEE_HOUSE.placeId),
+    "splitBreakfastRails places Ryan's Coffee House on Best Cafés");
+  ok(!ryansPoster[0].places.some((place) => place.id === RYANS_COFFEE_HOUSE.placeId),
+    "splitBreakfastRails does not dump Ryan's onto Best Breakfast");
+}
 
 // Recall: bakery cafés are still useful coffee/morning results; meal-first
 // breakfast rooms still survive even when their name includes Café.

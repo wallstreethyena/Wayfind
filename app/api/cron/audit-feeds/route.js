@@ -14,6 +14,9 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 
 import { getBusinessFeeds, auditFeed } from "../../../../lib/businessFeeds.js";
+import { recordPulse } from "../../../../lib/jobPulse.js";
+
+const JOB = "audit-feeds";
 
 export async function GET(req) {
   // Same fail-closed guard as the other cron routes.
@@ -25,7 +28,10 @@ export async function GET(req) {
   }
 
   const feeds = getBusinessFeeds();
-  if (!feeds.length) return Response.json({ idle: true, reason: "no business feeds configured yet", feeds: 0 });
+  if (!feeds.length) {
+    try { await recordPulse(JOB, { attempted: 0, succeeded: 0, failed: 0, note: "healthy idle: no business feeds configured yet" }); } catch (e) {}
+    return Response.json({ idle: true, reason: "no business feeds configured yet", feeds: 0 });
+  }
 
   const now = new Date();
   const reports = await Promise.all(
@@ -47,5 +53,13 @@ export async function GET(req) {
   // Surface in the Vercel function logs where the owner watches trends.
   try { console.log(JSON.stringify({ tag: "business_feed_audit", ...summary })); } catch (e) {}
 
+  try {
+    await recordPulse(JOB, {
+      attempted: reports.length,
+      succeeded: summary.healthy,
+      failed: flagged.length,
+      note: flagged.length ? `${flagged.length} feed(s) flagged` : null,
+    });
+  } catch (e) {}
   return Response.json(summary, { status: 200 });
 }

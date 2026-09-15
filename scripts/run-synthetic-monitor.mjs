@@ -129,7 +129,7 @@ function buildCtx({ baseUrl, browser }) {
     setUrl(u) {
       lastUrl = u;
     },
-    async openPage({ viewport } = {}) {
+    async openPage({ viewport, origin } = {}) {
       if (!browser) throw new Error("Chromium is unavailable — cannot open a page (see the run's top-level SKIPPED note)");
       const vp = viewport || { width: 1280, height: 900 };
       lastViewport = vp;
@@ -140,15 +140,17 @@ function buildCtx({ baseUrl, browser }) {
       // rail selection non-deterministic and, worse, leaves the app waiting
       // on a permission resolution that can stall the render entirely. Real
       // users either grant location or the app falls back — this pins the
-      // monitor to the SAME real, first-class metro every other scenario in
-      // this file already uses (Sarasota, FL), so results are comparable
-      // across runs and the homepage renders the SAME populated surface a
-      // located reader would see, not whatever IP-geo the CI runner has.
+      // monitor to a real covered metro (Sarasota by default; a scenario may
+      // pass `origin` when first-paint DEFAULT_CENTER and the granted GPS
+      // must be the same city — see menu-poster-integrity / Parrish).
+      const loc = origin && Number.isFinite(Number(origin.lat)) && Number.isFinite(Number(origin.lng))
+        ? origin
+        : SARASOTA;
       const bctx = await browser.newContext({
         viewport: vp,
         deviceScaleFactor: 1,
         userAgent: "WayfindSyntheticMonitor/1.0 (+https://www.gowayfind.com)",
-        geolocation: { latitude: SARASOTA.lat, longitude: SARASOTA.lng },
+        geolocation: { latitude: loc.lat, longitude: loc.lng },
         permissions: ["geolocation"],
       });
       openedContexts.push(bctx);

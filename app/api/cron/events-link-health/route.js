@@ -18,10 +18,13 @@ import { sbEnv } from "../../../../lib/serverCache.js";
 import { probeAndClassify } from "../../../../lib/linkProbe.js";
 import { hostOfUrl, isBadVerdict } from "../../../../lib/linkQuarantine.js";
 import { siteTodayStr } from "../../../../lib/siteTime.js";
+import { recordPulse } from "../../../../lib/jobPulse.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
+
+const JOB = "events-link-health";
 
 // A single bad probe on a previously-good link is a strike, not a verdict:
 // two consecutive bad sweeps before a row goes dark — EXCEPT "hijacked",
@@ -44,7 +47,10 @@ export async function GET(req) {
     return new Response("unauthorized", { status: 401 });
   }
   const s = sbEnv();
-  if (!s) return Response.json({ ok: false, error: "no supabase service env" });
+  if (!s) {
+    try { await recordPulse(JOB, { attempted: 0, succeeded: 0, failed: 1, note: "cannot run: no supabase service env" }); } catch (e) {}
+    return Response.json({ ok: false, error: "no supabase service env" });
+  }
   const h = { apikey: s.key, Authorization: `Bearer ${s.key}`, "Content-Type": "application/json" };
 
   const limit = Math.min(Math.max(parseInt(sp.get("limit") || "120", 10) || 120, 1), 300);
@@ -58,10 +64,19 @@ export async function GET(req) {
   let rows;
   try {
     const r = await fetch(sel, { headers: h, cache: "no-store" });
-    if (!r.ok) return Response.json({ ok: false, error: `select-${r.status}` });
+    if (!r.ok) {
+      try { await recordPulse(JOB, { attempted: 0, succeeded: 0, failed: 1, note: `unavailable: wf_events read failed (HTTP ${r.status})`.slice(0, 200) }); } catch (e) {}
+      return Response.json({ ok: false, error: `select-${r.status}` });
+    }
     rows = await r.json();
-  } catch { return Response.json({ ok: false, error: "select-fetch-error" }); }
-  if (!Array.isArray(rows) || !rows.length) return Response.json({ ok: true, checked: 0 });
+  } catch {
+    try { await recordPulse(JOB, { attempted: 0, succeeded: 0, failed: 1, note: "unavailable: wf_events read did not complete" }); } catch (e) {}
+    return Response.json({ ok: false, error: "select-fetch-error" });
+  }
+  if (!Array.isArray(rows) || !rows.length) {
+    try { await recordPulse(JOB, { attempted: 0, succeeded: 0, failed: 0, note: "healthy idle: no events due for link checking" }); } catch (e) {}
+    return Response.json({ ok: true, checked: 0 });
+  }
 
   const results = await pool(rows.map((row) => async () => {
     const names = [row.event_name, row.venue].filter(Boolean);
@@ -127,5 +142,13 @@ export async function GET(req) {
     if (!r.ok) err = err || `broken-${r.status}`;
   }
 
+  try {
+    await recordPulse(JOB, {
+      attempted: rows.length,
+      succeeded: counts.alive + counts.bad + counts.strike,
+      failed: counts.unknown,
+      note: err ? `persistence error: ${err}`.slice(0, 200) : (counts.unknown ? `${counts.unknown} link probe(s) inconclusive` : null),
+    });
+  } catch (e) {}
   return Response.json({ ok: !err, error: err, checked: rows.length, ...counts, flagged }, { headers: { "Cache-Control": "no-store" } });
 }

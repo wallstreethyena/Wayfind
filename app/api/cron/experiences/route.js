@@ -10,6 +10,7 @@
 import { DESTS, CATEGORIES, productToRow } from "../../../../lib/experiencesData.js";
 import { sbEnv } from "../../../../lib/serverCache.js";
 import { credential } from "../../../../lib/envPlaceholder.js";
+import { recordPulse } from "../../../../lib/jobPulse.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -18,6 +19,7 @@ export const maxDuration = 60;
 const KEY = () => credential(process.env.VIATOR_API_KEY);
 const VH = () => ({ "exp-api-key": KEY(), "Accept": "application/json;version=2.0", "Accept-Language": "en-US", "Content-Type": "application/json" });
 const PER_CATEGORY = 50;
+const JOB = "experiences";
 
 async function searchDestTag(destId, tag) {
   const ctrl = new AbortController();
@@ -51,9 +53,15 @@ export async function GET(req) {
   if (!secret || (auth !== "Bearer " + secret && manual !== secret)) {
     return new Response("unauthorized", { status: 401 });
   }
-  if (!KEY()) return Response.json({ ok: false, error: "no VIATOR_API_KEY in runtime" });
+  if (!KEY()) {
+    try { await recordPulse(JOB, { attempted: 0, succeeded: 0, failed: 1, note: "cannot run: VIATOR_API_KEY missing" }); } catch (e) {}
+    return Response.json({ ok: false, error: "no VIATOR_API_KEY in runtime" });
+  }
   const s = sbEnv();
-  if (!s) return Response.json({ ok: false, error: "no supabase service env" });
+  if (!s) {
+    try { await recordPulse(JOB, { attempted: 0, succeeded: 0, failed: 1, note: "cannot run: no supabase service env" }); } catch (e) {}
+    return Response.json({ ok: false, error: "no supabase service env" });
+  }
 
   const jobs = [];
   for (const d of DESTS) for (const c of CATEGORIES) jobs.push({ d, c });
@@ -86,5 +94,12 @@ export async function GET(req) {
       if (r.ok) { upserted += chunk.length; } else { upErr = `upsert http ${r.status}: ${(await r.text()).slice(0, 160)}`; break; }
     }
   }
+  try {
+    await recordPulse(JOB, {
+      attempted: rows.length,
+      succeeded: upserted,
+      note: upErr ? `upsert failed: ${upErr}`.slice(0, 200) : (rows.length === 0 ? "healthy idle: no products returned from provider search" : null),
+    });
+  } catch (e) {}
   return Response.json({ ok: !upErr, products: rows.length, upserted, error: upErr, coverage }, { headers: { "Cache-Control": "no-store" } });
 }
