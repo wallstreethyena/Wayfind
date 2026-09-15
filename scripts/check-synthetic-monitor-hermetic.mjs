@@ -58,7 +58,14 @@ import {
   reconcileRenderedCards,
   continuationUiSettled,
   exactRenderedIdSet,
+  railsRequestMatchesOrigin,
 } from "./lib/synthetic/menuPosterIntegrity.mjs";
+import { PARRISH, SARASOTA, RYANS_COFFEE_HOUSE, snapRailCoord } from "./lib/synthetic/fixtures.mjs";
+import { DEFAULT_CENTER } from "../lib/locationHonesty.js";
+import { splitBreakfastRails } from "../lib/breakfastRails.js";
+import { isLunchPlace } from "../lib/mealPlace.js";
+import { placeAllowed } from "../lib/placeFilter.js";
+import { morningDisplayIdentity } from "../lib/morningIdentity.js";
 import {
   redactUrl,
   redactUrlsInText,
@@ -304,6 +311,45 @@ for (const s of SCENARIOS) {
     "menu-poster delayed-render positive control: the final exact DOM set includes a thirteenth card");
   ok(!exactRenderedIdSet(["p1", "p2", "p13"], ["p1", "p2"]),
     "menu-poster MUTATION RED: a final DOM snapshot missing card 13 fails exact-set readiness");
+
+  // 2026-09-14: first-paint DEFAULT_CENTER (Parrish) vs granted Sarasota GPS.
+  // The monitor must refuse to treat a seed-city /api/rails URL as the
+  // visitor-settled origin, or Ryan's Coffee House (Parrish rank 3) becomes
+  // a false missingId against a Sarasota DOM.
+  ok(Math.abs(PARRISH.lat - DEFAULT_CENTER.lat) < 1e-5 && Math.abs(PARRISH.lng - DEFAULT_CENTER.lng) < 1e-5,
+    "PARRISH fixture is the first-paint DEFAULT_CENTER — the seed the homepage fetches before GPS");
+  ok(RYANS_COFFEE_HOUSE.placeId === "ChIJo_IdHf0lw4gRHDbQNKBRE84"
+    && RYANS_COFFEE_HOUSE.primaryType === "coffee_shop",
+    "Ryan's locked identity is the production placeId + coffee_shop primary");
+  const parrishUrl = `https://www.gowayfind.com/api/rails?lat=${snapRailCoord(PARRISH.lat)}&lng=${snapRailCoord(PARRISH.lng)}&city=parrish&band=morning&v=2`;
+  const sarasotaUrl = `https://www.gowayfind.com/api/rails?lat=${snapRailCoord(SARASOTA.lat)}&lng=${snapRailCoord(SARASOTA.lng)}&city=sarasota&band=morning&v=2`;
+  ok(railsRequestMatchesOrigin(parrishUrl, PARRISH),
+    "menu-poster origin match: a Parrish first-paint URL is accepted for a Parrish visitor");
+  ok(!railsRequestMatchesOrigin(parrishUrl, SARASOTA),
+    "menu-poster MUTATION RED: a Parrish seed URL is rejected for a Sarasota visitor (the 2026-09-14 false missingIds)");
+  ok(railsRequestMatchesOrigin(sarasotaUrl, SARASOTA),
+    "menu-poster origin match: a Sarasota GPS refetch is accepted for a Sarasota visitor");
+  ok(!railsRequestMatchesOrigin(sarasotaUrl, PARRISH),
+    "menu-poster MUTATION RED: a Sarasota refetch is rejected for a Parrish visitor");
+  const ryansRow = {
+    id: RYANS_COFFEE_HOUSE.placeId,
+    name: RYANS_COFFEE_HOUSE.name,
+    primaryType: RYANS_COFFEE_HOUSE.primaryType,
+    types: ["coffee_shop", "cafe", "food"],
+    rating: 4.9,
+    reviews: 191,
+  };
+  const ryansPoster = splitBreakfastRails([ryansRow, { id: "keke", name: "Keke's Breakfast Cafe", primaryType: "breakfast_restaurant", types: ["breakfast_restaurant"], rating: 4.7, reviews: 500 }]);
+  ok(ryansPoster[1].places.some((place) => place.id === RYANS_COFFEE_HOUSE.placeId),
+    "Ryan's Coffee House composes onto Best Cafés, not Best Breakfast");
+  ok(!ryansPoster[0].places.some((place) => place.id === RYANS_COFFEE_HOUSE.placeId),
+    "Ryan's Coffee House is not forced onto the meal-first breakfast rail");
+  ok(isLunchPlace(ryansRow) === false,
+    "coffee_shop is not lunch — Ryan's stays off Actually Worth Eating / lunch");
+  ok(placeAllowed("food", "coffee", ryansRow) === true && placeAllowed("food", "breakfast", ryansRow) === false,
+    "Food → Coffee keeps Ryan's; Food → Breakfast stays meal-first");
+  ok(morningDisplayIdentity(ryansRow) === "cafe",
+    "morningDisplayIdentity classifies Ryan's as cafe");
 }
 
 // Negative control: prove the structural checks above can actually fail, not
