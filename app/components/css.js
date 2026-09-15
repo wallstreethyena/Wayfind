@@ -3,7 +3,7 @@ import { HALLOWEEN_MARK } from "../../lib/seasonalBrand";
 import {
   PLACE_CARD_GAP_PX,
   PLACE_CARD_HEIGHT_PX,
-  PLACE_CARD_LIST_MEDIA_PCT,
+  PLACE_CARD_MEDIA_PCT,
   PLACE_CARD_MAX_WIDTH_PX,
   PLACE_CARD_PAGE_GUTTER_PX,
   PLACE_CARD_PHONE_PEEK,
@@ -122,8 +122,8 @@ ${WF_SKELETON_CSS}
 .wf-place-card,.wf-place-card *,.wf-place-card *::before,.wf-place-card *::after{box-sizing:border-box}
 .wf-place-card,.wf-place-card-slot,.wf-place-card-list{--wf-place-card-width:min(100%,${PLACE_CARD_MAX_WIDTH_PX}px)}
 .wf-rail,.wf8-pcrail,.wf-rail .wf-place-card,.wf8-pcrail .wf-place-card,.wf-rail .wf-place-card-slot,.wf8-pcrail .wf-place-card-slot{--wf-place-card-width:min(100%,${PLACE_CARD_MAX_WIDTH_PX}px,calc((100vw - ${PLACE_CARD_PAGE_GUTTER_PX * 2}px - (${PLACE_CARD_PHONE_PEEK} - 1) * ${PLACE_CARD_GAP_PX}px) / ${PLACE_CARD_PHONE_PEEK}))}
-.wf-place-card{--wf-card-h:${PLACE_CARD_HEIGHT_PX}px;--wf-card-badge-w:104px;--wf-place-card-media:${PLACE_CARD_LIST_MEDIA_PCT}%;width:var(--wf-place-card-width);max-width:100%;min-width:0;flex:0 1 var(--wf-place-card-width);height:var(--wf-card-h);box-sizing:border-box;position:relative}
-.wf-rail .wf-place-card,.wf8-pcrail .wf-place-card{flex:0 0 var(--wf-place-card-width);height:var(--wf-card-h);--wf-place-card-media:96px}
+.wf-place-card{--wf-card-h:${PLACE_CARD_HEIGHT_PX}px;--wf-card-badge-w:104px;--wf-place-card-media:${PLACE_CARD_MEDIA_PCT}%;width:var(--wf-place-card-width);max-width:100%;min-width:0;flex:0 1 var(--wf-place-card-width);height:var(--wf-card-h);box-sizing:border-box;position:relative}
+.wf-rail .wf-place-card,.wf8-pcrail .wf-place-card{flex:0 0 var(--wf-place-card-width);height:var(--wf-card-h)}
 .wf-place-card-layout{height:100%;box-sizing:border-box}
 .wf-place-card-monogram{height:100%;box-sizing:border-box}
 .wf-place-card-content{display:flex;flex-direction:column;height:100%;box-sizing:border-box}
@@ -157,9 +157,9 @@ ${WF_SKELETON_CSS}
 .wf-place-card:hover{transform:translateY(-1px);border-color:rgba(159,177,203,.37)!important;box-shadow:0 18px 42px rgba(0,0,0,.34),inset 0 1px rgba(255,255,255,.05)}
 .wf-place-card:focus-visible{outline:2px solid rgba(249,115,22,.72);outline-offset:3px}
 .wf-place-card-layout{display:grid!important;grid-template-columns:minmax(0,var(--wf-place-card-media)) minmax(0,1fr);min-height:0;align-items:stretch}
-.wf-rail .wf-place-card-layout,.wf8-pcrail .wf-place-card-layout{grid-template-columns:var(--wf-place-card-media) minmax(0,1fr);min-height:176px}
+.wf-rail .wf-place-card-layout,.wf8-pcrail .wf-place-card-layout{grid-template-columns:minmax(0,var(--wf-place-card-media)) minmax(0,1fr);min-height:176px}
 .wf-place-card-layout>img,.wf-place-card-layout>.wf-place-card-media{position:relative;overflow:hidden;align-self:stretch;width:100%!important;height:100%!important;min-height:0!important}
-.wf-rail .wf-place-card-layout>img,.wf-rail .wf-place-card-layout>.wf-place-card-media,.wf8-pcrail .wf-place-card-layout>img,.wf8-pcrail .wf-place-card-layout>.wf-place-card-media{width:var(--wf-place-card-media)!important;height:100%!important;min-height:176px!important}
+.wf-rail .wf-place-card-layout>img,.wf-rail .wf-place-card-layout>.wf-place-card-media,.wf8-pcrail .wf-place-card-layout>img,.wf8-pcrail .wf-place-card-layout>.wf-place-card-media{width:100%!important;height:100%!important;min-height:176px!important}
 .wf-place-card-media>:first-child{display:block;width:100%!important;height:100%!important;min-height:100%!important;object-fit:cover}
 .wf-place-card.is-no-take .wf-place-card-layout{min-height:0}
 .wf-place-card-monogram{
@@ -212,8 +212,8 @@ ${WF_SKELETON_CSS}
 // credit. Bottom-right, opposite the rank chip: rank owns top-left, the score
 // badge (.wf-place-card-score) owns the card's top-right corner and sits
 // outside this media box entirely, so bottom-right is the one corner free on
-// every card. Small on purpose — the media column this sits in is only
-// 88-108px wide (see .wf-place-card-layout's --wf-place-card-media), nowhere
+// every card. Small on purpose — the media column this sits in is the
+// shared 36% contract (see .wf-place-card-layout's --wf-place-card-media), nowhere
 // near SponsoredPlaceCard's full 16:9 hero band, so a full text credit does
 // not fit. The chip's own translucent, blurred background is the legibility
 // scrim; the full "Photo: <credit>" line rides the title/aria-label instead
@@ -590,15 +590,13 @@ ${WF_SKELETON_CSS}
   .wf-place-card-highlights>button{font-size:9px!important}
   .wf-rail-card-cta{min-height:30px!important}
   .wf-place-card-actions{--wf-act-h:34px;padding-top:4px}
-  .wf-sheet-card-actions{grid-template-columns:44px 26px 26px minmax(0,1fr);gap:4px!important}
+  .wf-sheet-card-actions{grid-template-columns:44px 26px 26px minmax(0,1fr);gap:3px!important}
   .wf-sheet-card-actions:has(.wf-place-card-book){grid-template-columns:44px 26px 26px minmax(0,1fr)}
   .wf-sheet-card-actions>.wf-place-card-like,.wf-sheet-card-actions>.wf-place-card-dislike{width:100%!important;min-width:0!important;flex:1 1 auto;padding-inline:0!important}
   .wf-sheet-card-actions>.wf-place-card-save,.wf-sheet-card-actions>.wf-place-card-share{padding-inline:4px!important}
   .wf-sheet-card-actions>a,.wf-sheet-card-actions>button,.wf-sheet-card-actions>span{min-width:0!important;padding-inline:4px!important;font-size:9.5px!important;overflow:hidden}
 }
 @media(min-width:${WF_DESKTOP_BP}px){
-  .wf-rail .wf-place-card,.wf8-pcrail .wf-place-card{--wf-place-card-media:108px}
-  .wf-rail .wf-place-card-layout>img,.wf-rail .wf-place-card-layout>.wf-place-card-media,.wf8-pcrail .wf-place-card-layout>img,.wf8-pcrail .wf-place-card-layout>.wf-place-card-media{width:108px!important}
   .wf-place-card-name{font-size:17px!important}
 }
 
@@ -610,11 +608,22 @@ ${WF_SKELETON_CSS}
   overflow-y:hidden;
     overscroll-behavior-inline:contain;
   padding-bottom:4px;
-  scroll-snap-type:x mandatory;
+  scroll-snap-type:x proximity;
   -webkit-overflow-scrolling:touch;
   scrollbar-width:none;
 }
 .wf-rail::-webkit-scrollbar{display:none}
+` +
+// Mobile rail pills: clip, do not nest a horizontal scroller inside the rail.
+// Lists keep the existing overflow-x lane. touch-action:auto so a vertical
+// page scroll that starts on a card is not trapped.
+`
+@media (hover:none),(pointer:coarse){
+  .wf-rail .wf-place-card-highlights,.wf8-pcrail .wf-place-card-highlights{overflow:hidden;overflow-x:hidden;overflow-y:hidden;touch-action:auto;-webkit-overflow-scrolling:auto}
+}
+@media (max-width:430px){
+  .wf-rail .wf-place-card-highlights,.wf8-pcrail .wf-place-card-highlights{overflow:hidden;overflow-x:hidden;overflow-y:hidden;touch-action:auto;-webkit-overflow-scrolling:auto}
+}
 .wf-rail-solo{max-width:min(100%,${PLACE_CARD_MAX_WIDTH_PX}px);margin:0}
 .wf-rail>.wf-place-card,.wf-rail>.wf-rail-card,.wf8-pcrail>.wf-place-card,.wf8-pcrail>.wf-rail-card{
   margin-bottom:0!important;
