@@ -203,6 +203,7 @@ import { C, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useD
 import { sponsorRailNear, partnerCollectionById, hydratePartnerCollection } from "../lib/partnerCollections";
 import { toDisplayScore, pickEligibleByScore, cardComplete, displayableAt } from "../lib/score";
 import { stampOwnerPick } from "../lib/ownerBump.js";
+import { attachOfficialScoreReceipt } from "../lib/lawfulOrder.js";
 import { frontPageEvents, bestFirst } from "../lib/frontEvents";
 import { settleLoad } from "../lib/loadState.js";
 import { HOME_AFFILIATE_ACTIVITY_FETCH_LIMIT, HOME_AFFILIATE_ACTIVITY_RADIUS_MI, homeAffiliateActivities } from "../lib/homeAffiliateActivities";
@@ -6435,14 +6436,18 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     try { const _aud = {}; experienceBadges(p, null, 99, _aud); logEvent("detail_open", p, { identity: _aud.identity || null, blocked: (_aud.blocked || []).length, ctx: typeof context === "string" ? context : null }); } catch (e) {}
     // v6.08 (PR-C): remember where we were in the list so back returns here, not to the top.
     try { if (scrollRef.current) { const _k = screen + "|" + cat + "|" + sub + "|" + vibe; const _t = scrollRef.current.scrollTop; scrollRestore.current = { key: _k, ...browsePosition(scrollRef.current) };  } } catch (e) {}
+    // First paint is still setDetail(p): test-detail-hero locks that so a
+    // photo-heal await cannot keep the sheet closed. Receipt attach is sync
+    // and batched with this setState; a throw still leaves the sheet open.
     setDetail(p);
+    setDetail(attachOfficialScoreReceipt({ ...p }, locName));
     // /p/{id} and any card that skipped withMemberSignal still show the raw
     // score until this overlay lands. Same function as the list path.
     fetchMemberSignals(supabase, [p]).then((sig) => {
       if (!sig) return;
       const next = withMemberSignal([p], sig)[0];
       if (!next || next.id !== p.id) return;
-      setDetail((cur) => (cur && cur.id === p.id ? { ...cur, wfScore: next.wfScore, _members: next._members, _wfScoreRaw: next._wfScoreRaw } : cur));
+      setDetail((cur) => (cur && cur.id === p.id ? attachOfficialScoreReceipt({ ...cur, wfScore: next.wfScore, _members: next._members, _wfScoreRaw: next._wfScoreRaw }, locName) : cur));
       const patch = (cur) => (cur || []).map((pl) => (pl && pl.id === p.id ? { ...pl, wfScore: next.wfScore, _members: next._members, _wfScoreRaw: next._wfScoreRaw } : pl));
       setPlaces(patch);
       setExpPlaces(patch);

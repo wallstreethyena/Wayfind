@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 643,
-    "totalRegistryEntries": 644,
-    "guardsTxtLineCount": 642,
-    "guardsTxtReachedFileCount": 637,
+    "totalOnDiskGuardFiles": 644,
+    "totalRegistryEntries": 645,
+    "guardsTxtLineCount": 643,
+    "guardsTxtReachedFileCount": 638,
     "criticalCount": 78,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 430,
-      "RENDER": 72,
+      "RENDER": 73,
       "STRUCTURAL": 141,
       "OTHER": 1
     }
@@ -10068,7 +10068,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 47,
+      "assertionCount": 48,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -13922,6 +13922,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 44,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-score-explanation.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 92,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
