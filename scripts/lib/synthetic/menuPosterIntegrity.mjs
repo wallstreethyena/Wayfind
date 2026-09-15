@@ -1,6 +1,7 @@
 // scripts/lib/synthetic/menuPosterIntegrity.mjs — pure contracts for the
 // homepage poster menu synthetic.  Keep this free of browser/network code so
 // the hermetic monitor guard can red-prove its decisions.
+import { snapRailCoord } from "./fixtures.mjs";
 
 // RAILS currently declares 19 records.  FOUR never reach the homepage menu:
 // `events` is retired into Night Out (`retiredInto`), `lunchcity` / `drive`
@@ -34,6 +35,28 @@ export const EXPECTED_VISIBLE_POSTER_IDS = Object.freeze([
 
 const asId = (value) => value == null ? "" : String(value);
 const asName = (value) => String(value == null ? "" : value).trim();
+
+/**
+ * True when a captured /api/rails URL is the visitor-settled origin, not the
+ * first-paint DEFAULT_CENTER seed. 2026-09-14: menu-poster-integrity captured
+ * Parrish page-1 (Ryan's Coffee House at rank 3) then compared it to a
+ * Sarasota DOM after granted GPS moved the rails — missingIds included
+ * ChIJo_IdHf0lw4gRHDbQNKBRE84, totals flipped, hasMore never terminated.
+ */
+export function railsRequestMatchesOrigin(urlString, origin) {
+  if (!origin || !Number.isFinite(Number(origin.lat)) || !Number.isFinite(Number(origin.lng))) return false;
+  let url;
+  try { url = new URL(String(urlString || ""), "https://www.gowayfind.com"); } catch { return false; }
+  if (url.pathname !== "/api/rails" || url.searchParams.get("v") !== "2") return false;
+  const lat = Number(url.searchParams.get("lat"));
+  const lng = Number(url.searchParams.get("lng"));
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return false;
+  if (Math.abs(lat - snapRailCoord(origin.lat)) > 0.011 || Math.abs(lng - snapRailCoord(origin.lng)) > 0.011) return false;
+  const wantCity = String(origin.citySlug || origin.city || "").toLowerCase().split(",")[0].trim();
+  const gotCity = String(url.searchParams.get("city") || "").toLowerCase().trim();
+  if (wantCity && gotCity && gotCity !== wantCity) return false;
+  return true;
+}
 
 /** Compare the visible menu IDs with the one canonical monitored contract. */
 export function posterMenuDiff(visibleIds) {
