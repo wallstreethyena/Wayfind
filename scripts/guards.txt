@@ -1523,3 +1523,8 @@ node scripts/test-bookable-near-50.mjs
 # winner, visible-score order, standard cards, and no raw partner destinations.
 node scripts/test-theme-park-core.mjs
 node scripts/test-theme-park-surfaces.mjs
+
+# Curated tiles (today / experiences / food / nightlife / shopping / stays) read
+# the owned library when Google cannot be bought: cat wired, one-list collapse,
+# cat never in the paid request or cache key.
+node scripts/check-curated-library-fallback.mjs

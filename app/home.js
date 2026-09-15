@@ -196,6 +196,7 @@ import { locationPromoAllowed } from "../lib/promoLocation.js";
 import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
+import { INV_CAT_FOR_TILE, sameIdSet } from "../lib/curatedLibrary";
 import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/exploreMenu";
 // July 2026 decomposition (G0): design tokens and stateless helpers live in the
 // eager shared kit so extracted screens/sheets can import them without home.js.
@@ -4347,6 +4348,16 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // return nothing while the Places quota is exhausted (429). Only fall through
     // to a live search when the pool is too thin for this category.
     const _CAT_FOR = { food: "Food", nightlife: "Nightlife", shopping: "Shopping", stays: "Hotels", today: "Activities", experiences: "Activities" };
+    // 2026-09-15 — THE LIBRARY THE TILE NEVER ASKED FOR. Each slot search below
+    // used to go out with no category, so when the server could not buy a fresh
+    // Google answer (free text_pro budget spent on the 15th, gate shut, 429) it
+    // had no way to serve wf_inventory and returned []. "Best things to do
+    // today" rendered "Not enough data" while 40 owned attractions sat within
+    // 25 miles. This is the wf_inventory category each tile stands in for; the
+    // server reads it ONLY on the no-Google path (see /api/places/search
+    // gateBlocked / serveFromInventory), never in the paid request or its
+    // cache key. bestof spans three libraries and keeps its live-only path.
+    const _INV_CAT = INV_CAT_FOR_TILE;
     const _poolPicks = (() => {
       try {
         const pool = dedupePlaces([...(suggested || []), ...(places || []), ...(homeTodo || [])].filter(Boolean), true);
@@ -4390,7 +4401,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       } catch (e) {}
     }
     try {
-      const results = await Promise.all(c.slots.map((sl) => searchNearbyPlaces(sl.q, center).then((l) => (l || []).filter((p) => placeAllowed(null, null, p))).catch(() => []))); // v4.94: Top-10 pools route through the shared filter
+      const results = await Promise.all(c.slots.map((sl) => searchNearbyPlaces(sl.q, center, DEFAULT_RADIUS_MI, _INV_CAT[kind]).then((l) => (l || []).filter((p) => placeAllowed(null, null, p))).catch(() => []))); // v4.94: Top-10 pools route through the shared filter; 2026-09-15: carry the library category so a no-Google day serves owned inventory
       const used = new Set(); const out = []; const sections = [];
       const CHAIN_RX = /papa john|domino'?s|pizza hut|mcdonald|burger king|taco bell|wendy'?s|little caesar|kfc\b|dunkin|subway\b|checkers\b|hungry howie/i;
       // v4.61 PROTECTED (check-meals.mjs): a slot label is a promise. Every
@@ -4403,7 +4414,22 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       const mealOk = (label, pp) => skipMeals || Meals.mealEligible(label, pp);
       const rankFn = lens === "gems" ? GEMS_RANK : (c.rank || DEFAULT_RANK);
       const unionAll = dedupePlaces([].concat(...results.map((r) => r || [])), true);
-      c.slots.forEach((sl, ix) => {
+      // 2026-09-15 — ONE LIBRARY LIST, NO SLOT HEADERS. On the no-Google path the
+      // server answers every slot query from the same owned category, so all
+      // four "today" slots come back as the SAME ten rows. Dealing those rows
+      // out under "Theme parks" / "Shows & theater" would print a label over
+      // places that never matched it (v4.61: a slot label is a promise). When
+      // every slot returned the identical id set, render one merit-ranked list
+      // with no section headers instead. Live Google results differ per slot
+      // and take the labeled path below exactly as before.
+      const oneLibraryList = sameIdSet(results);
+      if (oneLibraryList) {
+        const totalN = c.slots.reduce((s, sl) => s + (sl.n || 0), 0);
+        const merged = unionAll.filter((pp) => pp && pp.id && !(kind === "nightlife" && CHAIN_RX.test(pp.name || ""))).sort(rankFn).slice(0, totalN);
+        merged.forEach((pp) => used.add(pp.id));
+        out.push(...merged);
+      }
+      if (!oneLibraryList) c.slots.forEach((sl, ix) => {
         const pool = dedupePlaces(results[ix] || [], true).filter((pp) => pp && pp.id && !used.has(pp.id) && !(kind === "nightlife" && CHAIN_RX.test(pp.name || "")) && mealOk(sl.label, pp));
         pool.sort(rankFn);
         let take = pool.slice(0, sl.n);
