@@ -201,6 +201,11 @@ export async function GET(req) {
     const dest = /^https?:\/\//i.test(result.location)
       ? result.location
       : new URL(result.location, req.url);
+    // LIVENESS (2026-09-15): the resolver's cacheControl is authoritative and,
+    // for a Google-hosted uri, is bounded to ONE day (lib/photoUriLiveness.js)
+    // because 27% of the 30-day `immutable` redirects the CDN was replaying
+    // pointed at photos Google now answers with 403. The 30-day fallback below
+    // is reached only for an inventory-owned photo, which keeps its contract.
     return NextResponse.redirect(dest, {
       status: 302,
       headers: {

@@ -168,7 +168,13 @@ function recoveryRow(ref, width, uri, exp) {
   eq(hit && hit.width, 640, "2b: recovery reports the source width 640");
   const ttl = Math.floor((FRESH_EXP_MS - NOW) / 1000);
   eq(hit && hit.ttlSeconds, ttl, "2b: recovery inherits the source row remaining TTL");
-  ok(hit && hit.cacheControl.includes(`max-age=${ttl}`), "2b: Cache-Control uses remaining TTL, not a fresh 30d clock");
+  // 2026-09-15 (liveness): the downstream header is the SMALLER of the remaining
+  // TTL and one day — a rented Google uri was measured dying inside a week, so a
+  // 10-day CDN replay of a recovered 302 is the same bug this row exists to stop.
+  // Still never a fresh 30-day clock, and never longer than the source row.
+  const bounded = Math.min(ttl, 86400);
+  ok(hit && hit.cacheControl.includes(`max-age=${bounded}`) && !/immutable/.test(hit.cacheControl),
+    "2b: Cache-Control is min(remaining TTL, 1 day) — never a fresh 30d clock, never immutable");
 }
 
 // ── 4. STALE 640 does not satisfy 800 ────────────────────────────────────
