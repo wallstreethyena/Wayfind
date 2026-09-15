@@ -19,8 +19,10 @@ import { gatherAlerts } from "../../../../lib/commandCenter/alertsRun.js";
 import { sbAdmin } from "../../../../lib/commandCenter/supabaseAdmin.js";
 import { SITE_URL } from "../../../../lib/site.js";
 import { resolveOverride } from "../../../../lib/envAudit.js";
+import { recordPulse } from "../../../../lib/jobPulse.js";
 
 const COOLDOWN_MS = { critical: 2 * 3600000, warn: 6 * 3600000 };
+const JOB = "cc-alerts";
 
 async function settingsGet(s, key) {
   // v6.71: an unguarded network exception here (fetch rejecting outright, not
@@ -93,7 +95,10 @@ export async function GET(req) {
 
   const resendKey = String(process.env.RESEND_API_KEY || "").trim();
   const to = resolveOverride("DIGEST_EMAIL").value;
-  if (!resendKey || !to) return Response.json({ idle: true, reason: "RESEND_API_KEY or DIGEST_EMAIL not set" });
+  if (!resendKey || !to) {
+    try { await recordPulse(JOB, { attempted: 0, succeeded: 0, failed: 0, note: "healthy idle: RESEND_API_KEY or DIGEST_EMAIL not set" }); } catch (e) {}
+    return Response.json({ idle: true, reason: "RESEND_API_KEY or DIGEST_EMAIL not set" });
+  }
 
   const now = new Date();
   // v6.71: gatherAlerts() ran unguarded -- any exception inside the rule
@@ -106,10 +111,14 @@ export async function GET(req) {
     ({ alerts } = await gatherAlerts(now));
   } catch (e) {
     try { console.error(JSON.stringify({ tag: "cc_alerts_cron", ok: false, stage: "gather_alerts", error: String(e && e.message || e).slice(0, 300) })); } catch (e2) {}
+    try { await recordPulse(JOB, { attempted: 0, succeeded: 0, failed: 1, note: `unavailable: gather_alerts failed: ${String(e && e.message || e)}`.slice(0, 200) }); } catch (e3) {}
     return Response.json({ ok: false, stage: "gather_alerts", error: String(e && e.message || e).slice(0, 200) }, { status: 500 });
   }
   const actionable = alerts.filter((a) => a.severity === "critical" || a.severity === "warn");
-  if (!actionable.length) return Response.json({ ok: true, alerts: 0, sent: false });
+  if (!actionable.length) {
+    try { await recordPulse(JOB, { attempted: 0, succeeded: 0, failed: 0, note: "healthy idle: no critical/warn alerts to send" }); } catch (e) {}
+    return Response.json({ ok: true, alerts: 0, sent: false });
+  }
 
   // Cooldown bookkeeping (fail-open: if settings are unreachable we still send).
   const s = sbAdmin();
@@ -119,7 +128,10 @@ export async function GET(req) {
     const last = Date.parse(sent[a.id] || 0) || 0;
     return now.getTime() - last > (COOLDOWN_MS[a.severity] || COOLDOWN_MS.warn);
   });
-  if (!due.length) return Response.json({ ok: true, alerts: actionable.length, sent: false, reason: "all in cooldown" });
+  if (!due.length) {
+    try { await recordPulse(JOB, { attempted: 0, succeeded: 0, failed: 0, note: `healthy idle: ${actionable.length} alert(s) already sent, in cooldown` }); } catch (e) {}
+    return Response.json({ ok: true, alerts: actionable.length, sent: false, reason: "all in cooldown" });
+  }
 
   const from = resolveOverride("WF_ALERT_FROM").value;
   const r = await fetch("https://api.resend.com/emails", {
@@ -155,5 +167,12 @@ export async function GET(req) {
     for (const [id, ts] of Object.entries(sent)) { if (now.getTime() - Date.parse(ts) > 7 * 86400000) delete sent[id]; }
     await settingsPut(s, "cc_alerts_sent", sent);
   }
+  try {
+    await recordPulse(JOB, {
+      attempted: due.length,
+      succeeded: ok ? due.length : 0,
+      note: ok ? null : `email send failed (status ${r ? r.status : "network_error"})`.slice(0, 200),
+    });
+  } catch (e) {}
   return Response.json({ ok, alerts: actionable.length, sent: ok ? due.length : 0, emailStatus: r ? r.status : "network_error" });
 }
