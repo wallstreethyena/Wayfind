@@ -926,5 +926,12 @@
     "reason": "Reviewed duplicate application of the canonical introspection RPC. Both September 8 bodies create the same stable SECURITY DEFINER function with pg_catalog search_path, hash the statement array, revoke PUBLIC/anon/authenticated execution and grant service_role. The second body differs by a trailing newline. Pin each exact ledger hash and map both to the canonical file; do not replay either migration.",
     "reviewed_by": "Wayfind owner-requested production reconciliation, 2026-09-08",
     "canonical_file": "20260907165437_wf_migration_ledger_hashes.sql"
+  },
+  {
+    "version": "20260910151318",
+    "name": "create_wf_blog_daily_runs",
+    "statements_sha256": "d21113fc74e340fbfcc4c79d6b0ac7db86bb5bee1a5d7ce5c0ba31542a4460f5",
+    "reason": "Production-only record applied 2026-09-10 15:13Z with no repo file; canary check-migration-reconciliation has flagged it as unreviewed since. Reviewed 2026-09-15 against live schema (wf_schema_objects + PostgREST definitions): creates public.wf_blog_daily_runs \u2014 the run ledger for the daily guide-post + Facebook distribution routine (pk run_date; article_mode/fb_status text with check constraints, both default 'pending'; slug, metro, category, intent, item_count, fb_scheduled_for, fb_window, fb_time_reason, caption, hook_type, tracked_url, fb_post_url, retries default 0, metrics jsonb, notes, created_at/updated_at default now()). No code in this repository reads or writes it; the writer is the cloud scheduled 'daily guide post' task. Table held 0 rows at review time, which is itself the evidence that the routine has never completed a run. Kept, not dropped: dropping a ledger is destructive and owner-only.",
+    "reviewed_by": "Claude, Wayfind audit 2026-09-15 (owner-requested full audit)"
   }
 ]
