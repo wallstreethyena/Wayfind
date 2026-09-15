@@ -36,7 +36,8 @@ const BATCH = [
   { name: "Caladesi Island State Park", sku: "308814P5", destId: "22457", rankKey: "caladesi_island", rank: 29, universe: "summer" },
   { name: "Honeymoon Island State Park", sku: "11779P1", destId: "22457", rankKey: "honeymoon_island", rank: 30, universe: "summer" },
   { name: "Weeki Wachee Springs State Park", sku: "288108P1", destId: "276", rankKey: "weeki_wachee", rank: 5, universe: "summer" },
-  { name: "Rainbow Springs State Park", sku: "343215P2", destId: "663", rankKey: "rainbow_springs", rank: 7, universe: "summer" },
+  { name: "Rainbow Springs State Park", sku: "169791P1", // 343215P2 retired 2026-09-15 (dead_confirmed)
+    destId: "663", rankKey: "rainbow_springs", rank: 7, universe: "summer" },
   { name: "Silver Springs State Park Glass Bottom Boat Tours", sku: "290298P1", destId: "663", rankKey: "silver_springs_boats", rank: 11, universe: "summer" },
   { name: "Bioluminescence Tours - Cocoa Beach", sku: "65756P5", destId: "25319", rankKey: "bio_kayak_cocoa", rank: 1, universe: "summer" },
   { name: "Everglades City Airboat Tours", sku: "431125P10", destId: "22381", rankKey: "everglades_airboat", rank: 54, universe: "summer" },
@@ -44,7 +45,8 @@ const BATCH = [
   { name: "Dry Tortugas National Park", sku: "17325KEYYAN", destId: "661", rankKey: "dry_tortugas", rank: 53, universe: "summer" },
   { name: "Three Sisters Springs", sku: "184792P17", destId: "22318", rankKey: "three_sisters", rank: 8, universe: "summer" },
   { name: "Wild Florida Adventure Park", sku: "5467P2", destId: "663", rankKey: "wild_florida_airboat", rank: 40, universe: "summer" },
-  { name: "St. Pete Pier", sku: "350214P1", destId: "5403", rankKey: "stpete_pier", rank: 21, universe: "birthday" },
+  { name: "St. Pete Pier", sku: "242020P5", // 350214P1 retired 2026-09-15 (dead_confirmed)
+    destId: "5403", rankKey: "stpete_pier", rank: 21, universe: "birthday" },
   { name: "Robbie's of Islamorada", sku: "17984P2", destId: "23474", rankKey: "robbies_islamorada", rank: 79, universe: "summer" },
   { name: "Ted Sperling Park Nature Trail", sku: "68831P1", destId: "25738" },
   { name: "BK Adventure", sku: "26315P9", destId: "25319", rankKey: "bk_adventure_bio", rank: 4, universe: "summer" },

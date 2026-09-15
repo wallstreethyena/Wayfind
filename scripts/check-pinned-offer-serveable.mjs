@@ -177,8 +177,18 @@ for (const r of RETIRED_VIATOR_PINS) {
   ok(pinServeability({ provider: "viator", offerId: r.offerId }).serveable === false,
     `${r.offerId} is refused by the gate even without a catalogue — the ledger is a lock, not a note`);
   for (const name of r.names) {
-    ok(placePartnerPick({ name }) === null,
-      `"${name}" paints no Book CTA — its product left the catalogue`);
+    // The ledger locks the CODE, not the name. A retired name may carry a
+    // DIFFERENT, freshly verified live product (2026-09-15: Rainbow Springs
+    // State Park 343215P2 → 169791P1, St. Pete Pier 350214P1 → 242020P5) —
+    // that is the "re-pin opportunity" #1238 named. What can never happen is
+    // the name resolving back to the retired code, by any alias.
+    const pick = placePartnerPick({ name });
+    ok(!pick || String(pick.offerId).toUpperCase() !== String(r.offerId).toUpperCase(),
+      `"${name}" never resolves to retired ${r.offerId} — either no Book CTA, or a different live product`);
+    if (pick) {
+      ok(pick.provider !== "viator" || !RETIRED_VIATOR_PINS.some((x) => String(x.offerId).toUpperCase() === String(pick.offerId).toUpperCase()),
+        `"${name}" re-pin ${pick.offerId} is not itself a retired code`);
+    }
   }
 }
 
