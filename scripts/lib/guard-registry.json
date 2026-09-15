@@ -5501,10 +5501,10 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 40,
-      "unprovenAbsenceCount": 2,
+      "assertionCount": 43,
+      "unprovenAbsenceCount": 1,
       "honestyViolations": [
-        "2 absence assertion(s) with no positive control in the same file (e.g. \"/max-age=86400/.test(r.cacheControl) && /s-maxage=86400/.test(r.cacheControl) &&\")"
+        "1 absence assertion(s) with no positive control in the same file (e.g. \"/max-age=86400/.test(best.cacheControl) && !/immutable/.test(best.cacheControl),\")"
       ],
       "selfDocumentsRedProve": false,
       "wiring": {

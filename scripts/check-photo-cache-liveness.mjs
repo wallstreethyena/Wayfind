@@ -32,7 +32,7 @@ import { copyFileSync, mkdtempSync, readFileSync, writeFileSync, mkdirSync } fro
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { resolvePlacePhoto, photoCacheKey } from "../lib/placePhotoServe.js";
+import { resolvePlacePhoto, photoCacheKey, redirectPhotoResult } from "../lib/placePhotoServe.js";
 import { selectLiveSamePlaceCachedPhoto } from "../lib/photoCacheRecovery.js";
 import {
   PHOTO_REDIRECT_TTL_SECONDS,
@@ -97,6 +97,14 @@ function harness({ uri = DEAD_URI, ageMs = 10 * DAY, vok = null, verdict = PHOTO
     `a Google-hosted redirect is cached downstream for one day, not 30 immutable (got ${r.cacheControl})`);
   ok(PHOTO_REDIRECT_TTL_SECONDS === 86400, "the downstream bound is one day");
   ok(googlePhotoRedirectCacheControl(30 * 86400) === "public, max-age=86400, s-maxage=86400", "a longer request is clamped to the bound");
+  // POSITIVE CONTROL for the `immutable` absence above: the same regex, the same
+  // producer, an inventory-owned (not rented) photo — which KEEPS the 30-day
+  // immutable contract. Proves the absence assertion can fail.
+  const owned = redirectPhotoResult("https://cdn.owned-venue.test/keke.jpg", "inventory");
+  ok(/immutable/.test(owned.cacheControl) && /max-age=2592000/.test(owned.cacheControl),
+    `positive control: an inventory-owned photo redirect still carries the 30-day immutable contract, so the immutable-absence checks in this file can fail (got ${owned.cacheControl})`);
+  ok(/immutable/.test(owned.cacheControl) !== /immutable/.test(r.cacheControl),
+    "the one-day bound applies ONLY to Google-hosted uris — owned and rented redirects get different headers from the same function");
 }
 
 // ── 3. unknown is not dead ────────────────────────────────────────────────
@@ -172,6 +180,14 @@ ok(photoUriValidationDue({ ageMs: 7 * 3600e3, vok: NOW - 1, now: NOW }) === fals
   ok(evicted.length === 1 && evicted[0] === rows[0].k, "recovery evicts the dead best by exact key");
   ok(probed.length === 2, "each candidate is probed once");
   ok(/max-age=86400/.test(best.cacheControl) && !/immutable/.test(best.cacheControl), `recovery Cache-Control is bounded to one day (got ${best.cacheControl})`);
+  // POSITIVE CONTROL: a row with LESS than a day left keeps its own shorter
+  // remaining lifetime — the bound is min(remaining, 1 day), not a flat day.
+  const short = await selectLiveSamePlaceCachedPhoto(
+    [{ k: `photo|places/${PLACE}/photos/SHORTLIVED|640`, v: { uri: LIVE_URI, vok: NOW }, exp: new Date(NOW + 3600 * 1000).toISOString(), wrote_at: new Date(NOW - 10 * DAY).toISOString() }],
+    { placeId: PLACE, width: 640, now: NOW, probeUri: async () => PHOTO_URI_ALIVE, evict: async () => {} },
+  );
+  ok(short && /max-age=3600\b/.test(short.cacheControl) && short.ttlSeconds === 3600,
+    `a row with an hour left is served with max-age=3600, not a day (got ${short && short.cacheControl})`);
   const all = await selectLiveSamePlaceCachedPhoto(rows, { placeId: PLACE, width: 640, now: NOW, probeUri: async () => PHOTO_URI_DEAD, evict: async () => {} });
   ok(all === null, "when every candidate is dead, recovery returns null (the free/Google rungs run next)");
   const unknown = await selectLiveSamePlaceCachedPhoto(rows, { placeId: PLACE, width: 640, now: NOW, probeUri: async () => PHOTO_URI_UNKNOWN, evict: async () => { fail.push("unknown must not evict in recovery"); } });
