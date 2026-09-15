@@ -22,6 +22,13 @@ const FRESH_TTL_MS = 30 * DAY;   // v6.09: 30 days = the Google ToS maximum for 
                                  // place content. Maximizing the fresh window minimizes
                                  // paid searchText refreshes (the July cost incident).
 const STALE_MAX_MS = 30 * DAY;   // ToS: never serve place content older than 30 days
+// NO-RE-BUY (2026-09-15). A Google answer with ZERO places for this exact
+// question is remembered for three days so the same question is not bought
+// again on every request. This is a NEW, short, negative clock; it does not
+// touch FRESH_TTL_MS / STALE_MAX_MS (30d), the 20–27d refresh jitter, or the
+// 21-day stock-photo clock. Three days, not thirty: an empty answer can be a
+// transient bias oddity, and a dead tile for a month is the wrong trade.
+const NEG_TTL_MS = 3 * DAY;
 const FIELD_MASK = [
   "places.id", "places.displayName", "places.location", "places.rating",
   "places.userRatingCount", "places.priceLevel", "places.priceRange",
@@ -247,10 +254,28 @@ async function handleSearch(params, origin) {
       if (fresh.due) pokeRefresh(origin, k, { q, lat, lng, radius, n });
       return NextResponse.json({ places: fv, cached: true, debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
     }
+    // NO-RE-BUY (2026-09-15) — ENRICH ON READ. A fresh row whose places are all
+    // lean means: we bought this exact question inside the window and owned
+    // none of the ids Google returned. Those ids were learned into
+    // wf_place_ids; the promotion drain may have enriched some into
+    // wf_inventory SINCE the row was written. Lay owned signals on now (one
+    // Supabase read, no Google) — the moment promotion lands, the cached row
+    // starts serving, with no grant.
+    if (freeMode && Array.isArray(fresh.v) && fresh.v.length && (await enrichFromInventory(fresh.v)) > 0) {
+      const fv2 = clean(fresh.v);
+      if (fv2.length) return NextResponse.json({ places: fv2, cached: true, source: "lean-cache-enriched", debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
+    }
     const owned = await ownedOr("inventory-poisoned-cache");
     if (owned) return owned;
-    // Nothing owned here either — fall through to the gated path and let it buy
-    // a fresh (now filtered) answer under the free-tier ledger.
+    // NO-RE-BUY (2026-09-15). This used to fall through to the gated path and
+    // "let it buy a fresh (now filtered) answer". Buying the same question again
+    // returns the same ids we still do not own, so it produced nothing — and
+    // it did so on EVERY request until the row was written or the month's
+    // ledger was gone. Measured: 4,800 September grants, 1,014 cache rows;
+    // the cap was reached on the 15th. A fresh row is the answer, even when
+    // the answer is honestly empty. The row expires on its own clock and the
+    // next request after that buys once.
+    return NextResponse.json({ places: [], cached: true, source: "no-rebuy", debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
   }
 
   const serveStale = async () => {
@@ -316,20 +341,29 @@ async function handleSearch(params, origin) {
     // costs nothing — the ids are still learned below, so tomorrow's promotion
     // pass can enrich them into inventory and bring them back with a Score.
     const served = freeMode ? places.filter(hasScoreSignal) : places;
+    // NO-RE-BUY (2026-09-15) — EVERY PAID ANSWER LEAVES A ROW. Before this,
+    // only `served.length` wrote the cache, so a free-mode answer we owned
+    // none of (or an empty Google answer) wrote nothing, and the next identical
+    // request bought it again. September: 4,800 grants, 1,014 rows. Three
+    // outcomes, three writes:
+    //   served rows        → the served set, 30-day clock (unchanged)
+    //   lean-only rows     → the lean set, 30-day clock. clean() on the way OUT
+    //                        still guarantees the client never sees a lean row
+    //                        (v8.48); the fresh-hit path enriches on read, so
+    //                        the row starts serving the day promotion lands.
+    //   zero places        → [], 3-day negative clock (NEG_TTL_MS)
+    // Ids are learned in every case — that is what feeds promotion.
+    if (served.length) await cset(k, served, FRESH_TTL_MS);
+    else if (places.length) await cset(k, places, FRESH_TTL_MS);
+    else await cset(k, [], NEG_TTL_MS);
+    if (places.length) await upsertPlaceIds(skeletons(places));
     // The whole page was unrenderable: fall back to OWNED inventory, which
     // carries its own rating/reviews, rather than serving a confidently empty
     // list. Same reader-first order the 429 path already uses.
     if (freeMode && !served.length && places.length) {
       const inv = params.cat ? await serveFromInventory(params.cat, lat, lng, radius, n, params.sub) : [];
-      if (inv.length) {
-        await upsertPlaceIds(skeletons(places));
-        return NextResponse.json({ places: inv, cached: false, source: "inventory-lean", debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
-      }
+      if (inv.length) return NextResponse.json({ places: inv, cached: false, source: "inventory-lean", debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
     }
-    // Cache the SERVED set (so a v1p hit can never replay unrenderable rows),
-    // but learn every id Google discovered — that is what feeds promotion.
-    if (served.length) await cset(k, served, FRESH_TTL_MS);
-    if (places.length) await upsertPlaceIds(skeletons(places));
     return NextResponse.json({ places: served, cached: false, debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
   } catch {
     const inv = params.cat ? await serveFromInventory(params.cat, lat, lng, radius, n, params.sub) : [];
