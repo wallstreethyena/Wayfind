@@ -1,3 +1,13 @@
+## v8.56.17 - The Hilton giveaway prompt now uses the owner's card design
+
+Owner-supplied design, 2026-09-15. The giveaway popup in `app/home.js` is rebuilt to match it: a resort photo hero (`public/brand/giveaway-hilton-orlando-hero.jpg`, cropped from the owner's artwork with its baked-in close button removed), a gold-rimmed dark card, the "WAYFIND GIVEAWAY" eyebrow, a two-line headline with "Hilton Orlando" in the gold gradient, a two-step "Share 3 → You're entered" strip and one full-width gold CTA, with "How it works" underneath.
+
+- **Mechanics unchanged.** Same timer, same once-a-day and 3-day snooze rules, same `wf_gw_pop` / `wf_gw26` keys, same focus trap (`gwPopDlgRef`), same rules sheet.
+- **The CTA follows state:** signed out reads "Sign in to enter" (or "Sign in to lock your entry" once they have shared); signed in reads "Find a place to share" / "Share N more to enter" and opens food results; entered reads "Keep exploring". The step strip shows "N of 3 shared" in progress and fills the check once entered.
+- **Copy says "by Oct 31", not the artwork's "by Nov 1".** The official rules close entries October 31, 11:59 pm ET and draw on or about November 1, so "by Nov 1" would promise a day that does not count.
+- New events: `giveaway_pop_signin`, `giveaway_pop_rules`. Existing `giveaway_pop` and `giveaway_pop_browse` unchanged. The old "Keep exploring" text link is gone; the close button, backdrop tap and Esc still dismiss with the snooze.
+- Close target is 44px, the dialog is labelled by its heading, and the card scrolls inside `100dvh` on short screens.
+
 ## v8.56.16 - The first real hourly drain returned 504 and wrote nothing at all
 
 v8.56.14 moved the at-risk photo drain to hourly and called it 600 decisions a day. The first scheduled run under that schedule, 2026-09-09 18:35Z, returned **504** and wrote **nothing** — no pulse, no decisions, no trace but a Vercel status code. The real rate was zero an hour, invisibly, while the schedule looked healthy.

@@ -303,7 +303,7 @@ function _viatorCityParams(cityQ, center) {
 // and v8.x because check-version.mjs only asserts VERSION == BUILD_ID, not
 // that either moved — and the owner used the footer label to judge whether
 // production was stale. A version label that never changes is disinformation.
-const BUILD_ID = "v8.56.16";
+const BUILD_ID = "v8.56.17";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -9679,7 +9679,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       <div className="wf-topbar" style={{ background: "#040810", borderBottom: `1px solid ${C.border}`, padding: screen === "map" ? "8px 12px" : "12px 14px", paddingTop: screen === "map" ? "max(8px, env(safe-area-inset-top))" : "max(12px, env(safe-area-inset-top))", flexShrink: 0, position: "relative", zIndex: 20 }}>
         {screen !== "map" && (
         <div className="wf-topbar-row" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 10 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 7, minWidth: 0 }}>
             {/* v6.54 (spec 4): code wordmark — the orange dot is the TITTLE of the
                 i (the PNG master bakes the pin after the d, which reads as a
                 period). The PNG stays
@@ -10742,42 +10742,61 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                     )}
                     {heroPlace && (<>
                       {/* "Best move right now" section removed (owner 2026-07-17). The giveaway / World Cup / holiday promo cards below are separate features and stay. */}
-                      {gwPop && (giveawayLive() || giveawaySoon()) && (
-                        <div onClick={() => gwPopClose("x")} style={{ position: "fixed", inset: 0, zIndex: 88, background: "rgba(0,0,0,.62)", backdropFilter: "blur(3px)", WebkitBackdropFilter: "blur(3px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 18 }}>
-                          <div ref={gwPopDlgRef} role="dialog" aria-modal="true" aria-label="Wayfind giveaway" tabIndex={-1} onClick={(e) => e.stopPropagation()} style={{ outline: "none", width: "100%", maxWidth: 400, borderRadius: 20, padding: "18px 17px 16px", background: "linear-gradient(135deg, #1B1405 0%, #2A1F08 60%, #1B1405 100%)", border: "1px solid rgba(232,184,75,.55)", boxShadow: "0 24px 60px rgba(0,0,0,.6)", position: "relative", overflow: "hidden" }}>
-                            <style dangerouslySetInnerHTML={{ __html: "@keyframes wfGold{0%,100%{opacity:.5}50%{opacity:1}}" }} />
-                            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: "#E8B84B", animation: "wfGold 2.8s ease-in-out infinite" }} />
-                            <button onClick={() => gwPopClose("x")} aria-label="Close" style={{ position: "absolute", top: 10, right: 10, width: 30, height: 30, borderRadius: "50%", background: "rgba(0,0,0,.4)", border: "1px solid rgba(232,184,75,.4)", color: "#F2D48A", fontSize: 15, fontWeight: 700, cursor: "pointer", lineHeight: 1 }}>×</button>
-                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, paddingRight: 34 }}>
-                              <span style={{ fontSize: 22, filter: "drop-shadow(0 0 8px rgba(232,184,75,.6))" }}>🏆</span>
-                              <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1px", color: "#F2D48A", textTransform: "uppercase" }}>Wayfind giveaway · Annual</span>
+                      {gwPop && (giveawayLive() || giveawaySoon()) && (() => {
+                        /* v8.56.17 — owner-supplied giveaway card (2026-09-15): photo
+                           hero, gold-rimmed dark card, two-step "Share 3 → You're
+                           entered" strip, one full-width CTA. The entry mechanics,
+                           snooze/once-a-day rules and analytics events are unchanged. */
+                        const gwGold = "linear-gradient(180deg, #FFD27A 0%, #F2A93B 100%)";
+                        const gwDone = gwCount >= 3;
+                        const gwShared = Math.min(gwCount, 3);
+                        const gwArrow = (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14" /><path d="M13 6l6 6-6 6" /></svg>);
+                        let gwCta;
+                        if (!giveawayLive()) gwCta = { label: "Opens July 4", disabled: true };
+                        else if (!user) gwCta = { label: gwCount > 0 ? "Sign in to lock your entry" : "Sign in to enter", go: () => { gwPopClose("cta"); setAuthOpen(true); try { logEvent("giveaway_pop_signin"); } catch (e) {} } };
+                        else if (gwDone) gwCta = { label: "Keep exploring", go: () => gwPopClose("entered") };
+                        else gwCta = { label: gwShared > 0 ? "Share " + (3 - gwShared) + " more to enter" : "Find a place to share", go: () => { gwPopClose("browse"); openBrowse("food"); try { logEvent("giveaway_pop_browse"); } catch (e) {} } };
+                        return (
+                        <div onClick={() => gwPopClose("x")} style={{ position: "fixed", inset: 0, zIndex: 88, background: "rgba(0,0,0,.66)", backdropFilter: "blur(3px)", WebkitBackdropFilter: "blur(3px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 18 }}>
+                          <div ref={gwPopDlgRef} role="dialog" aria-modal="true" aria-labelledby="wf-gw-title" tabIndex={-1} onClick={(e) => e.stopPropagation()} style={{ outline: "none", width: "100%", maxWidth: 400, maxHeight: "calc(100dvh - 36px)", overflowY: "auto", borderRadius: 26, background: "#141414", border: "2px solid #E9A53F", boxShadow: "0 24px 60px rgba(0,0,0,.6)", position: "relative" }}>
+                            <div style={{ position: "relative", aspectRatio: "980 / 550", background: "#1f2a22" }}>
+                              <img src="/brand/giveaway-hilton-orlando-hero.jpg" alt="Resort pool and palm trees at Hilton Orlando" width={980} height={550} decoding="async" style={{ display: "block", width: "100%", height: "100%", objectFit: "cover" }} />
+                              <div aria-hidden="true" style={{ position: "absolute", left: 0, right: 0, bottom: -1, height: "46%", background: "linear-gradient(180deg, rgba(20,20,20,0) 0%, rgba(20,20,20,.72) 58%, #141414 100%)" }} />
+                              <button onClick={() => gwPopClose("x")} aria-label="Close giveaway" style={{ position: "absolute", top: 10, right: 10, width: 44, height: 44, borderRadius: "50%", background: "rgba(14,14,14,.88)", border: "2px solid #E9A53F", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", padding: 0 }}>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" aria-hidden="true"><path d="M5 5l14 14" /><path d="M19 5L5 19" /></svg>
+                              </button>
                             </div>
-                            <div style={{ fontSize: 21, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.15, letterSpacing: "-0.3px" }}>Win a 3-night stay at Hilton Orlando</div>
-                            <div style={{ fontSize: 12.5, color: "#E8D5A4", marginTop: 6, lineHeight: 1.5 }}>Share any 3 places or lists from Wayfind. One winner, drawn Nov 1. That is the whole entry.</div>
-                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 13, flexWrap: "wrap" }}>
-                              {!giveawayLive() ? (
-                                <span style={{ display: "inline-flex", alignItems: "center", padding: "8px 14px", borderRadius: 999, background: "rgba(232,184,75,.14)", border: "1px solid rgba(232,184,75,.55)", color: "#F2D48A", fontSize: 12.5, fontWeight: 800 }}>Opens July 4</span>
-                              ) : user ? (
-                                <span style={{ display: "inline-flex", alignItems: "center", padding: "8px 14px", borderRadius: 999, background: gwCount >= 3 ? "#E8B84B" : "rgba(232,184,75,.14)", border: "1px solid rgba(232,184,75,.55)", color: gwCount >= 3 ? "#1B1405" : "#F2D48A", fontSize: 12.5, fontWeight: 800 }}>{gwCount >= 3 ? "You're entered ✓" : Math.min(gwCount, 3) + " of 3 shared"}</span>
-                              ) : (
-                                <button onClick={() => { gwPopClose("cta"); setAuthOpen(true); }} style={{ padding: "8px 14px", borderRadius: 999, background: "#E8B84B", border: "none", color: "#1B1405", fontSize: 12.5, fontWeight: 800, cursor: "pointer" }}>{gwCount > 0 ? "Sign in to lock your entry" : "Sign in to enter"}</button>
-                              )}
-                              {/* v8.41: openBrowse, not pickBrowse — this button
-                                  means "take me to food", and pickBrowse would
-                                  CLEAR the category for a reader who was already
-                                  browsing food when the prompt opened. It lands
-                                  on the results too, because the prompt covers
-                                  the screen and the reader has no idea where the
-                                  feed was underneath it. */}
-                              <button onClick={() => { gwPopClose("browse"); openBrowse("food"); try { logEvent("giveaway_pop_browse"); } catch (e) {} }} style={{ padding: "8px 14px", borderRadius: 999, background: "transparent", border: "1px solid rgba(232,184,75,.45)", color: "#F2D48A", fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Find a place to share ›</button>
-                            </div>
-                            <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 12 }}>
-                              <button onClick={() => setGwOpen(true)} style={{ padding: 0, background: "transparent", border: "none", color: "#B99B4E", fontSize: 11.5, fontWeight: 700, cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3 }}>How it works</button>
-                              <button onClick={() => gwPopClose("later")} style={{ padding: 0, background: "transparent", border: "none", color: "#B99B4E", fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>Keep exploring</button>
+                            <div style={{ position: "relative", marginTop: -30, padding: "0 20px 18px" }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: "2.6px", color: "#F2B24A", textTransform: "uppercase", whiteSpace: "nowrap" }}>Wayfind giveaway</span>
+                                <span aria-hidden="true" style={{ flex: "0 1 70px", height: 1.5, background: "#E9A53F", opacity: 0.85 }} />
+                              </div>
+                              <h2 id="wf-gw-title" style={{ margin: "8px 0 0", fontSize: "clamp(24px, 7.4vw, 29px)", fontWeight: 850, color: "#FFFFFF", lineHeight: 1.08, letterSpacing: "-0.6px" }}>
+                                Win a 3-night stay<br />at <span style={{ background: gwGold, WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent", WebkitTextFillColor: "transparent" }}>Hilton Orlando</span>
+                              </h2>
+                              <p style={{ margin: "8px 0 0", fontSize: 14, color: "#EDEDED", lineHeight: 1.4 }}>Share any 3 places or lists on Wayfind by Oct 31 to enter.</p>
+                              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6, marginTop: 14, padding: "12px clamp(10px, 3vw, 14px)", borderRadius: 14, border: "1px solid rgba(255,255,255,.14)", background: "rgba(255,255,255,.03)" }}>
+                                <span style={{ display: "flex", alignItems: "center", gap: 7, minWidth: 0 }}>
+                                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F2B24A" style={{ flexShrink: 0 }} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 11v8a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-8" /></svg>
+                                  <span style={{ fontSize: "clamp(12px, 3.5vw, 15px)", fontWeight: 800, color: "#fff", whiteSpace: "nowrap" }}>{user && gwShared > 0 && !gwDone ? gwShared + " of 3" : "Share 3"}</span>
+                                </span>
+                                <span aria-hidden="true" style={{ color: "#F2B24A", display: "flex", flexShrink: 0 }}>{gwArrow}</span>
+                                <span style={{ display: "flex", alignItems: "center", gap: 7, minWidth: 0 }}>
+                                  <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" style={{ flexShrink: 0 }}><circle cx="12" cy="12" r="10" fill={gwDone ? "#F2B24A" : "none"} stroke="#F2B24A" strokeWidth="1.8" /><path d="M7.8 12.3l2.8 2.8 5.6-5.8" fill="none" stroke={gwDone ? "#141414" : "#F2B24A"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                                  <span style={{ fontSize: "clamp(12px, 3.5vw, 15px)", fontWeight: 800, color: gwDone ? "#F2B24A" : "#fff", whiteSpace: "nowrap" }}>You're entered</span>
+                                </span>
+                              </div>
+                              <button onClick={gwCta.go} disabled={!!gwCta.disabled} style={{ marginTop: 12, width: "100%", minHeight: 52, padding: "12px 16px", borderRadius: 14, background: gwGold, border: "none", color: "#16110A", fontSize: 17, fontWeight: 850, cursor: gwCta.disabled ? "default" : "pointer", opacity: gwCta.disabled ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, boxShadow: "0 6px 18px rgba(242,169,59,.28)" }}>
+                                {gwCta.label}{!gwCta.disabled && gwArrow}
+                              </button>
+                              <div style={{ textAlign: "center", marginTop: 12 }}>
+                                <button onClick={() => { setGwOpen(true); try { logEvent("giveaway_pop_rules"); } catch (e) {} }} style={{ padding: "6px 8px", background: "transparent", border: "none", color: "#F2B24A", fontSize: 14, fontWeight: 700, cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3 }}>How it works</button>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      )}
+                        );
+                      })()}
                       {gwOpen && (
                         <div onClick={() => setGwOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(0,0,0,.6)", display: "flex", alignItems: "flex-end" }}>
                           <div ref={gwRulesDlgRef} role="dialog" aria-modal="true" aria-label="Giveaway official rules" tabIndex={-1} onClick={(e) => e.stopPropagation()} style={{ outline: "none", background: C.panel, borderRadius: "18px 18px 0 0", width: "100%", maxHeight: "82vh", overflowY: "auto", padding: "18px 18px calc(20px + env(safe-area-inset-bottom))" }}>
@@ -11138,7 +11157,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               <Grabber />
               <div className="wf-taste-body">
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 4 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 9, minWidth: 0 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 7, minWidth: 0 }}>
                     <span className="wf-taste-mark" aria-hidden="true">✦</span>
                     <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-.015em", color: C.text }}>Your taste</div>
                   </div>
