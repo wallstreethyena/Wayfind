@@ -122,6 +122,10 @@
       "schedule": "5 */3 * * *"
     },
     {
+      "path": "/api/cron/affiliate-coverage",
+      "schedule": "20 9 * * *"
+    },
+    {
       "path": "/api/cron/travelpayouts-attribution",
       "schedule": "20 7 * * *"
     },
