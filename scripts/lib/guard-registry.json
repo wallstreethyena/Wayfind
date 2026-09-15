@@ -5501,11 +5501,9 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 43,
-      "unprovenAbsenceCount": 1,
-      "honestyViolations": [
-        "1 absence assertion(s) with no positive control in the same file (e.g. \"/max-age=86400/.test(best.cacheControl) && !/immutable/.test(best.cacheControl),\")"
-      ],
+      "assertionCount": 44,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
       "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,

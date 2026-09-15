@@ -179,7 +179,8 @@ ok(photoUriValidationDue({ ageMs: 7 * 3600e3, vok: NOW - 1, now: NOW }) === fals
   ok(best && best.uri === LIVE_URI && best.ref === `places/${PLACE}/photos/NEXTLIVE`, "recovery returns the next LIVE candidate, not the dead best");
   ok(evicted.length === 1 && evicted[0] === rows[0].k, "recovery evicts the dead best by exact key");
   ok(probed.length === 2, "each candidate is probed once");
-  ok(/max-age=86400/.test(best.cacheControl) && !/immutable/.test(best.cacheControl), `recovery Cache-Control is bounded to one day (got ${best.cacheControl})`);
+  ok(/max-age=86400/.test(best.cacheControl), `recovery Cache-Control carries the one-day bound (got ${best.cacheControl})`);
+  ok(!/immutable/.test(best.cacheControl), `recovery Cache-Control is never immutable (got ${best.cacheControl})`);
   // POSITIVE CONTROL: a row with LESS than a day left keeps its own shorter
   // remaining lifetime — the bound is min(remaining, 1 day), not a flat day.
   const short = await selectLiveSamePlaceCachedPhoto(
