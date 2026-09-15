@@ -7,13 +7,17 @@ import { chipCommerce, chipSearchQuery } from "../../lib/browseCommerceMap";
 import { chipAffinityBonus } from "../../lib/experienceConcepts";
 import { discountDepthBonus, timeOfDayBonus } from "../../lib/experienceNowRank";
 import { siteHourFloat } from "../../lib/nowContext";
-import { commerceHref } from "../../lib/commerce";
+import { commerceHref, emitCommerce, mintClickId, rankBucket } from "../../lib/commerce";
 import { openExternal } from "../../lib/links";
 import { resolveBrowseExperienceRows, shouldLiveSearchFallback } from "../../lib/browseExperienceLanes";
 import { browseBookableMatches } from "../../lib/browseBookableMatch";
 import { placePartnerPick } from "../../lib/placePartnerPicks";
 import { usePinQuarantine } from "../../lib/pinQuarantine";
 const NOLOG = () => {};
+// Bumped when the disclosure WORDING below (near the end of the rail) changes,
+// so consent evidence ties to the exact text shown, not to "some disclosure
+// existed" — same convention as FoodTourRail.DISCLOSURE_VERSION.
+const RAIL_DISCLOSURE_VERSION = "browse-rail-v1";
 export const BOOKABLE_NEAR_LIMIT = 50;
 const RESERVE_LIMIT = 100;
 const REQUEST_MS = 15000;
@@ -149,7 +153,7 @@ export function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub,
       // same redirect — only the surface tag differs, and it is now the tag of
       // the rail that actually rendered it. Falls back to the server's href if
       // the row somehow lacks a provider, so a re-tag can never lose the link.
-      const dealHref = commerceHref({ provider: d.provider, offerId: d.id, surface: "browse_partner_rail", contentId: sub || "all" }) || d.href;
+      const dealHref = commerceHref({ provider: d.provider, offerId: d.id, surface: "browse_partner_rail", contentId: `${browseCat}:${sub || "all"}` }) || d.href;
       // v8.22 (owner: "some of them have no wayfind score"): a deal matched to
       // a scored place (quality10, the SAME number its rank already uses)
       // now SHOWS that score; a national deal with no place keeps no chip —
@@ -168,7 +172,7 @@ export function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub,
       if (!browseBookableMatches(d, browseCat, sub || "all", { kind: "deal" })) continue;
       const image = typeof place.photo === "string" ? place.photo : place.photo_url || place.photos?.[0]?._directUri || (place.photos?.[0]?.name ? "/api/photo?ref=" + encodeURIComponent(place.photos[0].name) + "&w=600" : "");
       if (!image) continue;
-      const href = commerceHref({ provider: pin.provider, offerId: pin.offerId, surface: "browse_partner_rail", contentId: sub || "all" });
+      const href = commerceHref({ provider: pin.provider, offerId: pin.offerId, surface: "browse_partner_rail", contentId: `${browseCat}:${sub || "all"}` });
       if (!href) continue;
       const quality10 = Number(place.rating) > 0 ? wayfindScore(place.rating, place.reviews || 0) / 10 : null;
       rows.push({ key: `${pin.provider}:${pin.offerId}`, provider: pin.provider, merchant: pin.merchant, offerId: pin.offerId, title: place.name, image, quality10, score: quality10 ?? -1, rankBonus: 0, href, kind: "deal" });
@@ -196,6 +200,45 @@ export function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub,
   const laneSig = (cards.length && cards[0].key) || "";
   useEffect(() => { const el = laneRef.current; if (el) el.scrollLeft = 0; }, [browseCat, sub, laneSig]);
 
+  // commerce_impression, once per offer per view — the IntentPartnerPick /
+  // FoodTourRail pattern. Every card in this rail is now a measurable funnel
+  // row tagged by category:sub (content_id below), so the owner can see which
+  // menu area actually pays instead of a flat, unreadable zero. `seenRef`
+  // survives re-renders but not a remount, and home.js remounts this component
+  // (key={[browseCat, sub, center.lat, center.lng].join(":")}) whenever the
+  // chip or submenu changes — so "once per view" naturally means once per
+  // category:sub, no manual reset required.
+  const seenRef = useRef(new Set());
+  useEffect(() => {
+    const root = laneRef.current;
+    if (!root || !cards.length || typeof IntersectionObserver === "undefined") return;
+    const byKey = new Map(cards.map((c) => [c.key, c]));
+    const io = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting || entry.intersectionRatio < 0.5) continue;
+        const key = entry.target.getAttribute("data-offer-id") || "";
+        const card = key ? byKey.get(key) : null;
+        if (!card || seenRef.current.has(key)) continue;
+        seenRef.current.add(key);
+        try {
+          emitCommerce("commerce_impression", {
+            surface: "browse_partner_rail",
+            content_id: `${browseCat}:${sub || "all"}`,
+            category: browseCat,
+            provider: card.provider,
+            merchant: card.merchant,
+            offer_id: card.offerId,
+            rank_bucket: rankBucket(Number(entry.target.getAttribute("data-rank"))),
+            disclosure_version: RAIL_DISCLOSURE_VERSION,
+          });
+        } catch {}
+        try { io.unobserve(entry.target); } catch {}
+      }
+    }, { threshold: [0.5] });
+    root.querySelectorAll("[data-offer-id]").forEach((el) => io.observe(el));
+    return () => { try { io.disconnect(); } catch {} };
+  }, [cards, browseCat, sub]);
+
   if (!cards.length) return error ? <div style={{ color: C.muted, fontSize: 12, marginBottom: 12 }}>Bookable options couldn’t load. <button type="button" onClick={() => setRetry((n) => n + 1)}>Retry</button></div> : null;
   // The heading NAMES THE FILTER. It used to read "Bookable highlights near
   // {city}" — byte-identical to IntentPartnerPick's heading on the intent
@@ -216,11 +259,32 @@ export function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub,
         <span style={{ fontSize: 9.5, color: C.muted }}>{cards.length} options · Verified partners</span>
       </div>
       <div ref={laneRef} style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain", paddingBottom: 4, scrollSnapType: "x proximity" }}>
-        {cards.map((card) => {
-          const href = card.kind === "experience" ? commerceHref({ provider: "viator", offerId: card.offerId, surface: "browse_partner_rail", contentId: sub || "all" }) : card.href;
+        {cards.map((card, index) => {
+          const href = card.kind === "experience" ? commerceHref({ provider: "viator", offerId: card.offerId, surface: "browse_partner_rail", contentId: `${browseCat}:${sub || "all"}` }) : card.href;
           if (!href) return null;
           return (
-            <a key={card.key} href={href} target="_blank" rel="sponsored nofollow noopener" onClick={(e) => { e.preventDefault(); const live = (e.currentTarget && e.currentTarget.href) || href; try { onLog("tickets_out", null, { kind: "unified_browse_rail", provider: card.provider, id: card.offerId }); } catch (er) {} openExternal(live); }} style={{ flex: "0 0 200px", scrollSnapAlign: "start", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none", color: "inherit" }}>
+            <a key={card.key} data-offer-id={card.key} data-rank={index + 1} href={href} target="_blank" rel="sponsored nofollow noopener" onClick={(e) => {
+              e.preventDefault();
+              const clickId = mintClickId();
+              const clickHref = commerceHref({ provider: card.provider, offerId: card.offerId, surface: "browse_partner_rail", contentId: `${browseCat}:${sub || "all"}`, clickId }) || href;
+              try { e.currentTarget.href = clickHref; } catch {}
+              try {
+                emitCommerce("commerce_cta_clicked", {
+                  surface: "browse_partner_rail",
+                  content_id: `${browseCat}:${sub || "all"}`,
+                  category: browseCat,
+                  provider: card.provider,
+                  merchant: card.merchant,
+                  offer_id: card.offerId,
+                  rank_bucket: rankBucket(index + 1),
+                  click_id: clickId,
+                  disclosure_version: RAIL_DISCLOSURE_VERSION,
+                });
+              } catch (er) {}
+              const live = (e.currentTarget && e.currentTarget.href) || clickHref;
+              try { onLog("tickets_out", null, { kind: "unified_browse_rail", provider: card.provider, id: card.offerId }); } catch (er) {}
+              openExternal(live);
+            }} style={{ flex: "0 0 200px", scrollSnapAlign: "start", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none", color: "inherit" }}>
               <div style={{ position: "relative", height: 86, overflow: "hidden", borderBottom: `1px solid ${C.border}` }}>
                 <img src={card.image} alt="" loading="lazy" onError={() => setFailedImages((old) => new Set([...old, card.image]))} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                 <span style={{ position: "absolute", top: 7, right: 7, padding: "3px 7px", borderRadius: 999, background: "rgba(7,12,20,.82)", border: "1px solid rgba(255,255,255,.24)", color: "#fff", fontSize: 8.5, fontWeight: 800 }}>via {card.merchant}</span>

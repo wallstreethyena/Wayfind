@@ -75,4 +75,45 @@ ok(/if \(!image \|\| !d\.id\) continue/.test(browseRail), "browse deal cards mus
 ok(/sort\(\(a, b\) => b\.score - a\.score \|\| \(b\.rankBonus \|\| 0\) - \(a\.rankBonus \|\| 0\)\)/.test(browseRail), "the mixed browse list must be strongest-first, using bounded relevance bonuses only as the tie-break");
 ok(/via \{card\.merchant\}/.test(browseRail), "browse cards must identify their provider on the image");
 
+// Lane D — every card in the menu-category rail becomes a measurable funnel
+// row tagged by category:sub. Strip comments before any position/presence
+// check (CLAUDE.md: "a guard that greps raw source fails on its own
+// explanatory comment").
+const stripComments = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
+const railStart = browseRail.indexOf("function UnifiedBrowseCommerceRail(");
+ok(railStart !== -1, "UnifiedBrowseCommerceRail exists in its extracted component module");
+const railEnd = browseRail.indexOf("\nfunction ", railStart + 10);
+const railBody = stripComments(railStart !== -1 ? browseRail.slice(railStart, railEnd === -1 ? undefined : railEnd) : "");
+// Positive control (CLAUDE.md §"assert the syntactic position"): prove the
+// slice actually captured the real component before trusting any assertion
+// scoped to it — an empty or wrong slice would make every check below vacuous.
+ok(railBody.includes("browse_partner_rail"), "positive control: the sliced+stripped rail body is the real browse rail component");
+
+ok(/emitCommerce\(\s*"commerce_impression"/.test(railBody),
+  "the browse rail emits commerce_impression inside its own function body (not a comment) — without it a card here cannot become a measurable funnel row");
+ok(/emitCommerce\(\s*"commerce_cta_clicked"/.test(railBody),
+  "the browse rail emits commerce_cta_clicked on click, ahead of the redirect");
+
+// Every commerceHref( call in the file must carry a category-qualified
+// content id. contentId: sub (or `sub || "all"`) collided every "all" submenu
+// across every category — sub alone cannot tell food:all from nightlife:all
+// apart. Counted, not merely detected once (CLAUDE.md: "a value that exists N
+// times → count it; includes cannot tell 1 from 2").
+const hrefCalls = (browseRail.match(/commerceHref\(/g) || []).length;
+const taggedCalls = (browseRail.match(/contentId:\s*`\$\{browseCat\}:/g) || []).length;
+ok(hrefCalls >= 3, `the browse rail calls commerceHref at least 3 times (got ${hrefCalls}) — fewer would mean a card lost its tracked redirect`);
+ok(taggedCalls >= 3, `at least 3 commerceHref calls carry a category-qualified content id (got ${taggedCalls})`);
+ok(hrefCalls === taggedCalls,
+  `every commerceHref( call carries contentId: \`\${browseCat}:...\` (commerceHref calls: ${hrefCalls}, category-tagged: ${taggedCalls}) — an untagged call collides "all" across every category`);
+ok(!/contentId:\s*sub\b/.test(stripComments(browseRail)),
+  'no commerceHref call is left keyed on the bare submenu id (contentId: sub / contentId: sub || "all") — that is exactly the cross-category collision this lane fixed');
+
+// Positive control: prove the bare-`sub` regex above actually catches the
+// shape it exists to catch, rather than merely being absent from today's file
+// by coincidence (CLAUDE.md: "an absence → prove the probe finds a known
+// positive first").
+const fixtureBadHref = 'const href = commerceHref({ provider: "viator", offerId: card.offerId, surface: "browse_partner_rail", contentId: sub || "all" });';
+ok(/contentId:\s*sub\b/.test(stripComments(fixtureBadHref)),
+  "positive control: a fixture reverting to contentId: sub is actually flagged by the bare-sub regex above");
+
 console.log(`check-unified-commerce-rail: OK — ${passed} assertions`);
