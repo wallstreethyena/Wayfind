@@ -1888,17 +1888,29 @@ function confidenceOf(reviews) {
 // This helper fills that column — pass `wf-place-card-photo`, never a 96×96
 // inline size (that was Image-1 compact chrome). Leave dimensions to css.js.
 function FallbackImg({ src, fallbackSrc, alt, style, className, icon, onClick }) {
-  const [bad, setBad] = useState(false);
-  const [loaded, setLoaded] = useState(false);
-  const [usingFallback, setUsingFallback] = useState(false);
-  useEffect(() => { setBad(false); setLoaded(false); setUsingFallback(false); }, [src, fallbackSrc]);
-  const activeSrc = usingFallback ? fallbackSrc : src;
-  const state = imageDisplayState({ src: activeSrc, errored: bad, loaded });
+  // Outcomes stay on the URL that emitted them. Changing only fallbackSrc
+  // must not hide an already-decoded primary (no second onLoad will fire).
+  const [outcomes, setOutcomes] = useState(() => new Map());
+  const imgRef = useRef(null);
+  const activeSrc = (!src || outcomes.get(src) === "error") && fallbackSrc && fallbackSrc !== src ? fallbackSrc : src;
+  const outcome = outcomes.get(activeSrc);
+  const state = imageDisplayState({ src: activeSrc, errored: outcome === "error", loaded: outcome === "loaded" });
+  const markOutcome = (url, value) => setOutcomes((previous) => {
+    if (previous.get(url) === value) return previous;
+    const next = new Map(previous);
+    next.set(url, value);
+    return next;
+  });
+  useEffect(() => {
+    const el = imgRef.current;
+    if (!el || state !== "skeleton") return;
+    if (el.complete) markOutcome(activeSrc, el.naturalWidth > 0 ? "loaded" : "error");
+  }, [activeSrc, state]);
   if (state === "fallback") return <BrandedImageFallback className={className} style={style} />;
   return (
     <div className={className} style={{ ...style, position: "relative", overflow: "hidden" }}>
       {state === "skeleton" && <div className="wf-skeleton" style={{ position: "absolute", inset: 0 }} aria-hidden="true" />}
-      <img decoding="async" src={activeSrc} alt={alt || ""} loading="lazy" draggable={false} onLoad={() => setLoaded(true)} onError={() => { if (!usingFallback && fallbackSrc && fallbackSrc !== src) { setUsingFallback(true); setLoaded(false); } else setBad(true); }} onClick={onClick} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", opacity: state === "image" ? 1 : 0, transition: "opacity 180ms ease" }} />
+      <img key={activeSrc} ref={imgRef} decoding="async" src={activeSrc} alt={alt || ""} loading="lazy" draggable={false} onLoad={() => markOutcome(activeSrc, "loaded")} onError={() => markOutcome(activeSrc, "error")} onClick={onClick} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", opacity: state === "image" ? 1 : 0, transition: "opacity 180ms ease" }} />
     </div>
   );
 }
