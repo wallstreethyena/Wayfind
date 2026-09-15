@@ -1515,3 +1515,8 @@ node scripts/test-theme-park-surfaces.mjs
 # the owned library when Google cannot be bought: cat wired, one-list collapse,
 # cat never in the paid request or cache key.
 node scripts/check-curated-library-fallback.mjs
+
+# A paid text search that produced nothing serveable (owned none / Google
+# empty) leaves a cache row and is NOT bought again on the next identical
+# request. Executes the route: 2 identical asks = 1 grant. Enrich-on-read.
+node scripts/check-search-no-rebuy.mjs
