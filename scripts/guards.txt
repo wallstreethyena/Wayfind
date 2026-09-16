@@ -1533,3 +1533,6 @@ node scripts/check-curated-library-fallback.mjs
 # empty) leaves a cache row and is NOT bought again on the next identical
 # request. Executes the route: 2 identical asks = 1 grant. Enrich-on-read.
 node scripts/check-search-no-rebuy.mjs
+node scripts/test-shared-photo-lifecycle.mjs
+
+node scripts/test-best-photo-selection.mjs
