@@ -78,17 +78,23 @@ for (const row of MENU_PARTNER_OFFERS) {
   seenPairs.add(pairKey);
 }
 
-// ── 2. every provider is LIVE (never a dark provider like wegotrip) ────────
+// ── 2. every provider is LIVE (a dark provider can never resolve) ──────────
 for (const row of MENU_PARTNER_OFFERS) {
   ok(row.provider in PROVIDERS, `${row.offerId}: provider "${row.provider}" is a live commerce.PROVIDERS entry (a dark provider can never resolve a redirect)`);
 }
 // positive control: prove PROVIDERS itself is non-trivial, so the check above
 // could actually fail on a row naming something outside it.
-ok(Object.keys(PROVIDERS).length >= 10 && !("wegotrip" in PROVIDERS), "positive control: PROVIDERS is the real, non-trivial registry and wegotrip is confirmed dark");
+ok(Object.keys(PROVIDERS).length >= 10, `positive control: PROVIDERS is the real, non-trivial registry (${Object.keys(PROVIDERS).length} entries)`);
+// LANE E (2026-09-16): wegotrip flipped from dark to live-but-gated. Assert
+// that BY CALL — resolve() is a function, and it is the resolve()
+// (isWegotripProductUrl-backed) shape, never a bare table lookup that would
+// trust every registry row's destination outright.
+ok("wegotrip" in PROVIDERS && typeof PROVIDERS.wegotrip.resolve === "function",
+  "PROVIDERS.wegotrip is live and resolve()-gated, not a table lookup — the four MENU_PARTNER_OFFERS rows below can actually redirect");
 
 // ── 3. every offer id resolves in the registry its provider actually reads
 //       from, executed via the real lookup functions ───────────────────────
-const REGISTRY_PROVIDERS = new Set(["tiqets", "klook", "awin_samboat", "awin_usghostadventures", "awin_rentcars", "awin_caesarsshows", "ticketnetwork", "gocity"]);
+const REGISTRY_PROVIDERS = new Set(["tiqets", "klook", "awin_samboat", "awin_usghostadventures", "awin_rentcars", "awin_caesarsshows", "ticketnetwork", "gocity", "wegotrip"]);
 const utAdmissionIds = new Set(
   AFFILIATE_MERCHANTS
     .filter((m) => m.admission && m.admission.provider === "undercover_tourist")
@@ -145,6 +151,22 @@ ok(!!frostScience && frostScience.fits.includes("attractions:museums"), "positiv
 ok(!museumsNearTampa.some((r) => r.offerId === "miami-hook-frost-science"), "Frost Science (Miami, ~200mi from Tampa) is EXCLUDED from the Tampa-centered query — the 60mi metro gate is real, not decorative");
 const museumsNearMiami = menuPartnerOffersFor("attractions", "museums", { lat: 25.7617, lng: -80.1918 });
 ok(museumsNearMiami.some((r) => r.offerId === "miami-hook-frost-science"), "…and the SAME row IS included from a Miami-centered query — confirms the exclusion above was geography, not a broken row");
+
+// LANE E (2026-09-16): the two Miami WeGoTrip tours are actually reachable
+// through the real menu-chip call, AND the row's provider/offerId resolves an
+// end-to-end redirect — not just present in the array, CALLED both ways.
+const MIAMI = { lat: 25.7617, lng: -80.1918 };
+const miamiTours = menuPartnerOffersFor("attractions", "tours", MIAMI);
+ok(miamiTours.some((r) => r.offerId === "miami-tour-art-deco-south-beach" && r.provider === "wegotrip"),
+  "attractions:tours near Miami includes the Art Deco South Beach WeGoTrip tour");
+ok(miamiTours.some((r) => r.offerId === "miami-tour-downtown-audio" && r.provider === "wegotrip"),
+  "attractions:tours near Miami includes the Downtown Audio WeGoTrip tour");
+const miamiLandmarks = menuPartnerOffersFor("attractions", "landmarks", MIAMI);
+ok(miamiLandmarks.some((r) => r.offerId === "miami-tour-art-deco-south-beach"), "attractions:landmarks near Miami also carries the Art Deco tour (dual fit)");
+const { resolveOffer } = await import("../lib/commerceProviders.js");
+const wgtResolved = await resolveOffer("wegotrip", "miami-tour-art-deco-south-beach");
+ok(!wgtResolved.error && /^https:\/\/tp\.media\/r\?/.test(wgtResolved.dest || ""),
+  `the wegotrip row placed above actually resolves through resolveOffer (got ${JSON.stringify(wgtResolved)})`);
 
 // nightlife:sports is entirely TicketNetwork stadium/arena inventory near Tampa.
 const sportsNearTampa = menuPartnerOffersFor("nightlife", "sports", TAMPA);

@@ -87,11 +87,45 @@ ok(!/\[/.test(FALLBACK),
   "the fallback is a concrete path, not one containing a dynamic [segment] that would never match literally");
 
 // ── 6. exact-inventory providers only ────────────────────────────────────
-ok(!PROVIDERS.wegotrip,
-  "WeGoTrip remains dark: it still has no verified exact local inventory registry");
 ok(!!PROVIDERS.klook && typeof PROVIDERS.klook.resolve === "function",
   "Klook is live only through the exact curated-offer resolver, never a generic search/homepage");
 ok(Object.keys(PROVIDERS).length >= 1, "at least one provider is live (an empty table would make the route pointless)");
+
+// ── WeGoTrip: live ONLY for the 4 hand-verified curated products ─────────
+// Lane E, 2026-09-16. Asserted by CALLING resolveOffer/isWegotripProductUrl,
+// never by grepping PROVIDERS.wegotrip for a string — CLAUDE.md, "assert on
+// the call, not on the string".
+ok(!!PROVIDERS.wegotrip && typeof PROVIDERS.wegotrip.resolve === "function",
+  "wegotrip is a live PROVIDERS entry with a resolve() gate, not a table lookup that trusts every row");
+const { isWegotripProductUrl } = await import("../lib/commerceProviders.js");
+const wgtGood = await resolveOffer("wegotrip", "miami-tour-downtown-audio");
+ok(!wgtGood.error && /^https:\/\/tp\.media\/r\?/.test(wgtGood.dest || ""),
+  `wegotrip resolves a real curated offer id to a tp.media deep link (got ${JSON.stringify(wgtGood)})`);
+let wgtDecoded = null;
+try { wgtDecoded = new URL(wgtGood.dest).searchParams.get("u"); } catch {}
+ok(wgtDecoded === "https://wegotrip.com/miami-d4164138/miami-downtown-audio-tour-p27109/",
+  `the tp.media u= param decodes to the exact wegotrip.com product URL (got ${wgtDecoded})`);
+const wgtMissing = await resolveOffer("wegotrip", "nope");
+ok(wgtMissing.error === "offer-not-found", `an unknown wegotrip offer id refuses (got ${JSON.stringify(wgtMissing)})`);
+// The registry-shaped attack: a row whose destination is a bare CITY page
+// (no product segment) must never resolve, proven by calling the exact
+// validator resolve() depends on — this is the runtime property, not a
+// comment promising it.
+ok(isWegotripProductUrl("https://wegotrip.com/miami-d4164138/south-beach-in-miami-exploring-american-rivieras-timeless-art-deco-charm-p3221/") === true,
+  "isWegotripProductUrl accepts a real, hand-verified product URL (red-proves the refusals below are not a blanket deny)");
+ok(isWegotripProductUrl("https://wegotrip.com/miami-d4164138/") === false,
+  "isWegotripProductUrl refuses a bare city page with no product segment — the exact shape the OLD dead WeGoTrip link used");
+ok(isWegotripProductUrl("https://wegotrip.com/") === false,
+  "isWegotripProductUrl refuses the bare homepage");
+ok(isWegotripProductUrl("https://wegotrip.com/miami-d4164138/some-tour-p123") === true,
+  "a product URL with no trailing slash is still accepted (trailing slash is not load-bearing)");
+ok(isWegotripProductUrl("https://evil.com/miami-d1/tour-p1/") === false,
+  "a non-wegotrip host is refused even with a product-shaped path");
+// PROVIDERS.wegotrip.resolve IS the function under test above (wgtGood/
+// wgtMissing called it end-to-end); this closes the loop by confirming it is
+// the same live-code gate, not a table lookup a poisoned row could bypass.
+ok(typeof PROVIDERS.wegotrip.resolve === "function" && PROVIDERS.wegotrip.requireTracking === true,
+  "PROVIDERS.wegotrip is resolve()-gated and requireTracking, same shape as every other curated provider — a poisoned destination or a failed tp.media wrap both fail closed");
 
 // ── the resolver reads with ANON, never the service role ─────────────────
 // Proven by running it with SUPABASE_SERVICE_ROLE_KEY deleted from the process:

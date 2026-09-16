@@ -11,7 +11,7 @@ import { PARTNER_OFFER_REGISTRY } from "../lib/partnerOfferRegistry.js";
 import { PLACE_PARTNER_PICKS, RETIRED_VIATOR_PINS, pinServeability, placePartnerPick } from "../lib/placePartnerPicks.js";
 import { PARTNER_DEAL_COUPONS } from "../lib/partnerDeals.js";
 import { UT_PLACE_DEAL_IDS } from "../lib/deals.js";
-import { PROVIDERS, resolveOffer } from "../lib/commerceProviders.js";
+import { isWegotripProductUrl, PROVIDERS, resolveOffer } from "../lib/commerceProviders.js";
 import { rankExperiences } from "../lib/experiencesData.js";
 import { cachedExperienceCard, viatorProductCard } from "../lib/viatorProductCard.js";
 
@@ -353,7 +353,13 @@ for (const deal of PARTNER_DEAL_COUPONS) {
 //    un-curated inventoryPartnerPick() fallback. It deliberately has NO
 //    registry row: a row here would shadow the live table lookup instead of
 //    proving it.
-const TP_FAMILY = new Set(["tiqets", "klook", "ticketnetwork", "gocity"]);
+// LANE E (2026-09-16): wegotrip joins the Travelpayouts family — same
+// PARTNER_OFFER_REGISTRY + tp.media wrapper shape as tiqets/klook/gocity, so
+// the shared validation branch below (registry row exists, dest is an
+// absolute non-homepage http(s) URL, resolveOffer reaches tp.media) applies
+// unchanged. It gets ONE extra check below (isWegotripProductUrl), since a
+// non-homepage path is not by itself proof of a real product page.
+const TP_FAMILY = new Set(["tiqets", "klook", "ticketnetwork", "gocity", "wegotrip"]);
 
 const ids = new Set();
 for (const p of picks) {
@@ -370,6 +376,9 @@ for (const p of picks) {
     try { dest = new URL(row?.destination || ""); } catch {}
     ok(!!dest && /^https?:$/.test(dest.protocol), `${p.offerId} has an absolute http(s) destination`);
     ok(!!dest && dest.pathname !== "/", `${p.offerId} is a specific product/venue path, not a provider homepage`);
+    if (p.provider === "wegotrip") {
+      ok(isWegotripProductUrl(row?.destination || ""), `${p.offerId} registry destination is an exact WeGoTrip PRODUCT page (city-page/homepage refused), called via isWegotripProductUrl`);
+    }
     const resolved = await resolveOffer(p.provider, p.offerId);
     if (p.provider === "ticketnetwork") {
       // 2026-08-11: ticketnetwork moved from the (never-lit) tp.media wrapper

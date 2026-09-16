@@ -24,7 +24,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { loadComponent } from "./lib/jsxLoad.mjs";
 import { landingRailIntent, LANDING_RAIL_INTENT } from "../lib/railPlacement.js";
 import { guideRailIntent, GUIDE_RAIL_INTENT } from "../lib/railPlacement.js";
-import { PARTNER_INVENTORY_CANDIDATE_COUNT, resolvedIntentPartnerPicks } from "../lib/intentPartnerPicks.js";
+import { INTENT_PARTNER_PICKS, INTENT_PARTNER_RAILS, PARTNER_INVENTORY_CANDIDATE_COUNT, resolvedIntentPartnerPicks } from "../lib/intentPartnerPicks.js";
 
 let pass = 0;
 const fail = (m) => { console.error("test-partner-rail-render: FAIL — " + m); process.exit(1); };
@@ -61,11 +61,18 @@ for (const [city, intent] of [["Orlando", "best-of"], ["Sarasota", "date-night"]
 // now carries a curated rail card (orlando-pass-gocity-explorer) with its own
 // verified, baked-in `image` that does not come from the `inventory` prop at
 // all, so it renders correctly REGARDLESS of what `inventory` supplies —
-// that is the point of a curated artPick, not a bug. hidden-gems still has
-// exactly one plain, imageless curated pick and no rail, so it stays a valid
-// probe for "no inventory art in, no card out".
+// that is the point of a curated artPick, not a bug.
+//
+// Orlando/hidden-gems is ALSO no longer the probe (Lane E, 2026-09-16): it now
+// carries its own curated rail card (orlando-tour-echoes-of-history, the newly
+// lit WeGoTrip tour) with its own baked-in image, same shape as best-of above.
+// Tampa/hidden-gems has exactly one plain, imageless curated pick and no rail
+// (verified by call, not assumed — see the positive control below), so it is
+// the probe now: "no inventory art in, no card out".
 const noImages = INVENTORY.map(({ image, ...rest }) => rest);
-const emptyHtml = render({ city: "Orlando", intent: "hidden-gems", inventory: noImages, lat: 28.5, lng: -81.4 });
+ok(!INTENT_PARTNER_PICKS.tampa?.["hidden-gems"]?.image && !(INTENT_PARTNER_RAILS.tampa?.["hidden-gems"]?.length),
+  "positive control: Tampa/hidden-gems has no baked-in image on its featured pick and no rail, so the negative control below is a real test of the inventory-image filter, not an artPick short-circuit");
+const emptyHtml = render({ city: "Tampa", intent: "hidden-gems", inventory: noImages, lat: 28.5, lng: -81.4 });
 ok(!emptyHtml.includes("data-offer-id="), "negative control: inventory with no images renders NO cards (this is the exact state the guide pages were in)");
 
 // ── 3. every declared placement resolves to picks the rail can show ───────
