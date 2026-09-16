@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 import { fetchCuratedEvents, isTrusted, eventOutboundUrl } from "../../../../lib/curatedEvents.js";
 import { siteTodayStr } from "../../../../lib/siteTime.js";
 import { isFallTagged, fallEventLive, fallWhenLabel, fallScheduleChip, FALL_PLACE_IDS, FALL_PLACE_RAIL, FALL_EVENT_TICKET_DEALS } from "../../../../lib/fallPool.js";
-import { eventTicketCta, isServableDeal } from "../../../../lib/eventTicketDeals.js";
+import { eventTicketDeal, eventTicketCta, isServableDeal } from "../../../../lib/eventTicketDeals.js";
 import { supabase } from "../../../../lib/supabase.js";
 import { wayfindScore } from "../../../../lib/wayfindScore.js";
 import { cardImageSrc, hasStoredPlacePhoto } from "../../../../lib/placePhoto.js";
@@ -121,13 +121,23 @@ export async function GET(request) {
       const events = eligibleRows
       .filter((e) => !FALL_SEASONAL_PLACE_IDS.has(e.event_id))
       .map((e) => {
-        const dealId = FALL_EVENT_TICKET_DEALS[e.event_id];
-        // liveDeal: undefined = no read attempted; null = the row failed the
-        // active/link_ok/PID gate (or the read degraded) -> no CTA. The CTA
-        // href is /api/commerce/go, never the raw affiliate URL (crawler
-        // clicks on a DOM-exposed CJ link are the account risk documented in
-        // lib/commerceProviders.js).
-        const ticket = dealId ? eventTicketCta(e.event_id, { surface: "fall_intent_rail", liveDeal: byDealId.get(dealId) || null }) : null;
+        // eventTicketDeal, NOT the FALL_EVENT_TICKET_DEALS int map, decides
+        // whether this event has a mapping: that map is UT-only (bulk wf_deals
+        // health fetch has no equivalent for Tiqets/Klook), so gating on it
+        // would silently drop a Tiqets-mapped event (e.g. zoo-boo-zoo-miami-
+        // 2026) from every fall rail card. liveDeal is looked up ONLY for an
+        // Undercover Tourist entry — a Tiqets/Klook offer resolves at redirect
+        // time from the static, hand-verified partnerOfferRegistry and carries
+        // no wf_deals row to gate on. The CTA href is always /api/commerce/go,
+        // never the raw affiliate URL (crawler clicks on a DOM-exposed CJ link
+        // are the account risk documented in lib/commerceProviders.js).
+        const ticketEntry = eventTicketDeal(e.event_id);
+        const ticket = ticketEntry
+          ? eventTicketCta(e.event_id, {
+              surface: "fall_intent_rail",
+              liveDeal: ticketEntry.provider === "undercover_tourist" ? (byDealId.get(ticketEntry.offerId) || null) : undefined,
+            })
+          : null;
         const inventory = inventoryById.get(e.place_id) || null;
         const hasImageProof = (!!e.hero_image && e.hero_image !== FALL_COLLECTION_POSTER) || !!inventory?.photo_ref;
         const image = hasImageProof ? fallEventCardImageSrc(e, 640, inventory) : null;

@@ -6,12 +6,12 @@
 import { readFileSync } from "node:fs";
 import { isAwinLive } from "../lib/awin.js";
 import { DESTS } from "../lib/experiencesData.js";
-import { allIntentPartnerPicks, canReadOwnedExperienceCache, intentPartnerPick, intentPartnerPicks, inventoryPartnerPick, localPartnerQuery, mergePartnerInventory, normalizePartnerCity, OWNED_EXPERIENCE_DEST_IDS, PARTNER_INVENTORY_CANDIDATE_COUNT, PARTNER_RAIL_RENDER_LIMIT, partnerInventoryFetchPlan, partnerInventoryRequest, partnerRailInventory, qualifyPartnerInventory, resolvedIntentPartnerPick, resolvedIntentPartnerPicks } from "../lib/intentPartnerPicks.js";
+import { allIntentPartnerPicks, canReadOwnedExperienceCache, INTENT_PARTNER_PICKS, intentPartnerPick, intentPartnerPicks, inventoryPartnerPick, localPartnerQuery, mergePartnerInventory, normalizePartnerCity, OWNED_EXPERIENCE_DEST_IDS, PARTNER_INVENTORY_CANDIDATE_COUNT, PARTNER_RAIL_RENDER_LIMIT, partnerInventoryFetchPlan, partnerInventoryRequest, partnerRailInventory, qualifyPartnerInventory, resolvedIntentPartnerPick, resolvedIntentPartnerPicks } from "../lib/intentPartnerPicks.js";
 import { PARTNER_OFFER_REGISTRY } from "../lib/partnerOfferRegistry.js";
 import { PLACE_PARTNER_PICKS, RETIRED_VIATOR_PINS, pinServeability, placePartnerPick } from "../lib/placePartnerPicks.js";
 import { PARTNER_DEAL_COUPONS } from "../lib/partnerDeals.js";
 import { UT_PLACE_DEAL_IDS } from "../lib/deals.js";
-import { PROVIDERS, resolveOffer } from "../lib/commerceProviders.js";
+import { isWegotripProductUrl, PROVIDERS, resolveOffer } from "../lib/commerceProviders.js";
 import { rankExperiences } from "../lib/experiencesData.js";
 import { cachedExperienceCard, viatorProductCard } from "../lib/viatorProductCard.js";
 
@@ -123,6 +123,18 @@ ok(intentPartnerPick("Orlando", "worth-the-drive")?.offerId === "orlando-drive-k
   "Orlando featured worth-the-drive stays Kennedy — Rentcars is a complement, not a replacement");
 ok(intentPartnerPicks("Orlando", "worth-the-drive").some((row) => row.offerId === "orlando-airport-rentcars"),
   "Orlando worth-the-drive rail adds airport car rental at MCO");
+// LANE C (2026-09-15) — every placeable dead partner offer earns an intent-page home.
+ok(intentPartnerPicks("Orlando", "worth-the-drive").some((row) => row.offerId === "orlando-best-gatorland-kennedy"),
+  "Orlando worth-the-drive rail adds the Gatorland + Kennedy combo");
+{
+  const orlandoBestOf = intentPartnerPicks("Orlando", "best-of");
+  ok(orlandoBestOf.length === 2 && new Set(orlandoBestOf.map((row) => row.offerId)).size === 2,
+    `Orlando best-of returns 2 distinct products (got ${orlandoBestOf.map((row) => row.offerId).join(",")})`);
+  ok(orlandoBestOf.some((row) => row.offerId === "orlando-best-gocity-pass") && orlandoBestOf.some((row) => row.offerId === "orlando-pass-gocity-explorer"),
+    "Orlando best-of keeps the All-Inclusive pass featured and adds the Explorer pass as the rail complement");
+}
+ok(intentPartnerPicks("Orlando", "budget").some((row) => row.offerId === "orlando-pass-gocity-essentials"),
+  "Orlando budget rail adds the cheaper Go City Essentials pass");
 ok(intentPartnerPick("Tampa", "tonight")?.offerId === "tampa-tonight-sunset-cruise",
   "Tampa featured tonight pick stays the sunset cruise");
 ok(intentPartnerPicks("Tampa", "tonight").some((row) => row.offerId === "tampa-ghost-usghostadventures"),
@@ -145,6 +157,19 @@ ok(intentPartnerPick("Miami", "worth-the-drive")?.offerId === "miami-boat-samboa
   "Miami worth-the-drive places the unused SamBoat registry row");
 ok(intentPartnerPick("Clearwater", "worth-the-drive")?.offerId === "clearwater-boat-samboat",
   "Clearwater worth-the-drive places the unused SamBoat registry row");
+// LANE C (2026-09-15) — every placeable dead partner offer earns an intent-page home.
+ok(intentPartnerPick("Clearwater", "family")?.offerId === "clearwater-hook-dolphin-cruise",
+  "Clearwater family features the dolphin cruise");
+ok(intentPartnerPick("St. Augustine", "best-of")?.offerId === "staugustine-hook-old-town-trolley",
+  "St. Augustine best-of features the Old Town Trolley");
+ok(intentPartnerPick("Miami", "best-of")?.offerId === "miami-pass-gocity-all-inclusive",
+  "Miami best-of features the Go City All-Inclusive pass");
+ok(intentPartnerPicks("Miami", "best-of").some((row) => row.offerId === "miami-pass-gocity-explorer"),
+  "Miami best-of rail adds the Go City Explorer pass");
+ok(intentPartnerPicks("Tampa", "best-of").some((row) => row.offerId === "tampa-hook-golf-cart-tour"),
+  "Tampa best-of rail adds the guided golf cart tour");
+ok(intentPartnerPicks("New York City", "best-of").some((row) => row.offerId === "nyc-best-city-cards"),
+  "New York best-of rail adds the city attraction-passes comparison");
 ok(intentPartnerPick("Las Vegas", "tonight")?.offerId === "vegas-shows-caesarsshows",
   "Las Vegas tonight features the verified Caesars shows listing");
 ok(!picks.some((row) => row.provider === "awin_caesarsshows" && row.city !== "las-vegas"),
@@ -328,7 +353,13 @@ for (const deal of PARTNER_DEAL_COUPONS) {
 //    un-curated inventoryPartnerPick() fallback. It deliberately has NO
 //    registry row: a row here would shadow the live table lookup instead of
 //    proving it.
-const TP_FAMILY = new Set(["tiqets", "klook", "ticketnetwork", "gocity"]);
+// LANE E (2026-09-16): wegotrip joins the Travelpayouts family — same
+// PARTNER_OFFER_REGISTRY + tp.media wrapper shape as tiqets/klook/gocity, so
+// the shared validation branch below (registry row exists, dest is an
+// absolute non-homepage http(s) URL, resolveOffer reaches tp.media) applies
+// unchanged. It gets ONE extra check below (isWegotripProductUrl), since a
+// non-homepage path is not by itself proof of a real product page.
+const TP_FAMILY = new Set(["tiqets", "klook", "ticketnetwork", "gocity", "wegotrip"]);
 
 const ids = new Set();
 for (const p of picks) {
@@ -345,6 +376,9 @@ for (const p of picks) {
     try { dest = new URL(row?.destination || ""); } catch {}
     ok(!!dest && /^https?:$/.test(dest.protocol), `${p.offerId} has an absolute http(s) destination`);
     ok(!!dest && dest.pathname !== "/", `${p.offerId} is a specific product/venue path, not a provider homepage`);
+    if (p.provider === "wegotrip") {
+      ok(isWegotripProductUrl(row?.destination || ""), `${p.offerId} registry destination is an exact WeGoTrip PRODUCT page (city-page/homepage refused), called via isWegotripProductUrl`);
+    }
     const resolved = await resolveOffer(p.provider, p.offerId);
     if (p.provider === "ticketnetwork") {
       // 2026-08-11: ticketnetwork moved from the (never-lit) tp.media wrapper
@@ -402,6 +436,38 @@ for (const p of picks) {
     }
   } else {
     ok(false, `${p.offerId} uses provider "${p.provider}", which this guard has no validation path for yet`);
+  }
+}
+
+// ── NO DUPLICATE KEYS in INTENT_PARTNER_PICKS ─────────────────────────────
+// A duplicated `intent:` key inside one city's Object.freeze({...}) is not a
+// syntax error — the second literal silently overwrites the first, and
+// `includes`/`some` on the parsed module can't tell 1 occurrence from 2 (see
+// CLAUDE.md's "count it" rule). So this counts SOURCE occurrences per city
+// and cross-checks that count against the RUNTIME object's key count: if a
+// city's source declares an intent twice, Object.keys() on the parsed module
+// comes back one short of the source scan, and that mismatch is the tell.
+{
+  const src = readFileSync("lib/intentPartnerPicks.js", "utf8");
+  const body = src.match(/export const INTENT_PARTNER_PICKS = Object\.freeze\(\{([\s\S]*?)\n\}\);/)?.[1] || "";
+  ok(body.length > 500, "INTENT_PARTNER_PICKS source block was found for the duplicate-key scan");
+  const cityRe = /^ {2}(?:"([\w-]+)"|([\w-]+)): Object\.freeze\(\{/gm;
+  const cityStarts = [];
+  for (let m; (m = cityRe.exec(body)); ) cityStarts.push({ city: m[1] || m[2], bodyStart: cityRe.lastIndex });
+  ok(cityStarts.length >= 8, `found city blocks to scan (got ${cityStarts.length})`);
+  for (let i = 0; i < cityStarts.length; i++) {
+    const { city, bodyStart } = cityStarts[i];
+    const block = body.slice(bodyStart, i + 1 < cityStarts.length ? cityStarts[i + 1].bodyStart : body.length);
+    const keyRe = /^ {4}(?:"([\w-]+)"|([\w-]+)):\s*(?:pick|artPick)\(/gm;
+    const keys = [];
+    for (let km; (km = keyRe.exec(block)); ) keys.push(km[1] || km[2]);
+    const distinctKeys = new Set(keys).size;
+    const runtimeKeys = Object.keys(INTENT_PARTNER_PICKS[city] || {}).length;
+    ok(keys.length > 0, `${city} has at least one intent key to scan`);
+    ok(distinctKeys === keys.length,
+      `INTENT_PARTNER_PICKS.${city} declares no duplicate intent key in source (found: ${keys.join(", ")})`);
+    ok(distinctKeys === runtimeKeys,
+      `INTENT_PARTNER_PICKS.${city} source key count (${distinctKeys}) agrees with the parsed runtime object (${runtimeKeys}) — a mismatch means a duplicate silently overwrote a sibling key`);
   }
 }
 

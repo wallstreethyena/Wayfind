@@ -55,18 +55,18 @@ export function coveragePulseRow(tally) {
   const ids = unmapped.map((c) => c.eventId).join(", ");
   const note = unmapped.length
     ? `leak: ${unmapped.length} sellable event(s) with no affiliate mapping — ${ids}`
-    : `clean: ${tally.mapped} mapped, ${tally.sellableNoPath} sellable-no-ut-path, ${tally.noPartner} no-partner`;
+    : `clean: ${tally.mapped} mapped, ${tally.decidedSeparatelyTicketed} decided-separately-ticketed, ${tally.noPartner} no-partner`;
   return { attempted: 1, succeeded: unmapped.length ? 0 : 1, failed: unmapped.length, note: note.slice(0, 200) };
 }
 
 /** Pure: tally every row by coverage state. */
 export function tallyCoverage(rows) {
-  const tally = { mapped: 0, unmapped: [], sellableNoPath: 0, noPartner: 0, noUrl: 0, sellableNoPathIds: [] };
+  const tally = { mapped: 0, unmapped: [], decidedSeparatelyTicketed: 0, noPartner: 0, noUrl: 0, decidedSeparatelyTicketedIds: [] };
   for (const row of Array.isArray(rows) ? rows : []) {
     const c = eventAffiliateCoverage(row);
     if (c.status === COVERAGE.MAPPED) tally.mapped++;
     else if (c.status === COVERAGE.UNMAPPED) tally.unmapped.push(c);
-    else if (c.status === COVERAGE.SELLABLE_NO_UT_PATH) { tally.sellableNoPath++; tally.sellableNoPathIds.push(c.eventId); }
+    else if (c.status === COVERAGE.DECIDED_SEPARATELY_TICKETED) { tally.decidedSeparatelyTicketed++; tally.decidedSeparatelyTicketedIds.push(c.eventId); }
     else if (c.status === COVERAGE.NO_PARTNER) tally.noPartner++;
     else tally.noUrl++;
   }
@@ -104,8 +104,8 @@ export async function GET(req) {
     today,
     scanned: rows.length,
     mapped: tally.mapped,
-    unmapped: tally.unmapped.map((c) => ({ event_id: c.eventId, merchant: c.merchant.key, url: c.url, admission_deal: c.merchant.admission.offerId })),
-    sellable_no_ut_path: tally.sellableNoPathIds,
+    unmapped: tally.unmapped.map((c) => ({ event_id: c.eventId, merchant: c.merchant.key, url: c.url, admission_provider: c.merchant.admission.provider, admission_offer_id: c.merchant.admission.offerId })),
+    decided_separately_ticketed: tally.decidedSeparatelyTicketedIds,
     no_partner: tally.noPartner,
     no_url: tally.noUrl,
     pulse: { ...pulseRow, recorded: pulsed },

@@ -656,11 +656,27 @@
     },
     "owner": "Revenue QA"
   },
+  "scripts/check-event-ticket-deals.mjs": {
+    "protects": "EVENT_TICKET_DEALS product integrity across every provider it names: a separately-ticketed night never maps to park admission, a non-UT (Tiqets/Klook) row resolves in the shared partner registry AND matches the merchant its own organizer URL actually belongs to, every href routes through /api/commerce/go for that entry's own provider (never a hardcoded Undercover Tourist constant), and the UT-only FALL_EVENT_TICKET_DEALS compatibility map never picks up a non-UT offer key.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "2026-09-15: nine merchants sell admission only through Tiqets/Klook, so an event confirmed included with admission there (Zoo Boo at Zoo Miami) had no way to carry a commissioned CTA at all — every surface silently rendered the organizer's own free link. A wrong non-UT mapping is the same trust bug as a wrong UT one: a separately-ticketed night wearing a park-admission commission."
+    },
+    "owner": "Revenue QA"
+  },
   "scripts/check-affiliate-coverage.mjs": {
     "protects": "A card whose event or venue matches the affiliate library never ships a raw organizer link by accident: link_ok=null (unknown, UT 403s every bot probe) is servable everywhere, the fall route uses the one shared isServableDeal predicate, no strict-truthy link_ok gate exists in app/ or lib/, /api/commerce/go refuses proven-dead UT rows, the library is internally consistent, and the nightly affiliate-coverage watch is scheduled and pulses succeeded=0 on any unmapped sellable event.",
     "blastRadius": {
       "category": "revenue",
       "detail": "2026-09-15: one inline `deal.link_ok &&` filter after PR #1200 dropped every Undercover Tourist ticket CTA on the Fall in Florida rails for six days (HHN, both Howl-O-Screams, Not-So-Scary, Spooktacular, Brick-or-Treat, Gatorland, EPCOT) while check-event-ticket-deals stayed green, because that guard executed the library and never the caller."
+    },
+    "owner": "Revenue QA"
+  },
+  "scripts/check-menu-partner-offers.mjs": {
+    "protects": "MENU_PARTNER_OFFERS (lib/menuPartnerOffers.js) — the metro-gated, category:sub-keyed source feeding UnifiedBrowseCommerceRail independent of loaded places — carries only rows whose provider is a live commerce.PROVIDERS entry and whose offer id actually resolves in the registry that provider reads from, never claims an empty-by-law chip (Food/Hotels/Shopping/Spa/Speakeasy/Karaoke), is never imported by a client component or app/home.js (the client must never receive a destination), and closes the affiliate-inventory audit's dead-registry-key list without any key left unaccounted for.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "A row naming a dark provider or an unresolvable offer id renders a Book button that 302s to /api/commerce/go and fails there every time (offer-not-found / unknown-provider) — a silent, per-click revenue leak invisible to next build and to check:jsx, the same shape the 2026-07-30 extraction incident (#486) and the 2026-09-15 affiliate-coverage leak both were: every check that only reads source as text stayed green while the caller was broken."
     },
     "owner": "Revenue QA"
   }

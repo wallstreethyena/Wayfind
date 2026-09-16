@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-15",
+  "generated": "2026-09-16",
   "generator": "scripts/lib/build-guard-registry.mjs",
   "derivation": "scripts/lib/deriveGuardRegistry.mjs",
   "schemaNotes": "Mechanically-derived fields (class/assertionCount/wiring/gating/critical/criticalReasons) are regenerated every run from scripts/guards.txt, package.json, .github/workflows/*.yml, ops/*.workflow.yml and scripts/lib/guardHonestyAnalysis.mjs — editing them by hand will be overwritten on the next `node scripts/lib/build-guard-registry.mjs`. Hand-authored fields (protects/blastRadius/owner) live in scripts/lib/guard-registry-overrides.json and are merged in; they are REQUIRED for every entry with critical:true and optional elsewhere. scripts/check-guard-registry.mjs (the CI guard) re-derives guards.txt wiring LIVE rather than trusting this file's cached `wiring.guardsTxt` — and since 2026-09-07 it also re-derives EVERY mechanically-derived field via scripts/lib/deriveGuardRegistry.mjs and fails when the committed snapshot disagrees, so a stale registry can no longer be merged unnoticed.",
@@ -27,16 +27,16 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 645,
-    "totalRegistryEntries": 646,
-    "guardsTxtLineCount": 644,
-    "guardsTxtReachedFileCount": 639,
-    "criticalCount": 79,
+    "totalOnDiskGuardFiles": 647,
+    "totalRegistryEntries": 648,
+    "guardsTxtLineCount": 646,
+    "guardsTxtReachedFileCount": 641,
+    "criticalCount": 81,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 432,
+      "CALL": 435,
       "RENDER": 72,
-      "STRUCTURAL": 141,
+      "STRUCTURAL": 140,
       "OTHER": 1
     }
   },
@@ -46,7 +46,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 47,
+      "assertionCount": 54,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,
@@ -1055,7 +1055,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 37,
+      "assertionCount": 52,
       "unprovenAbsenceCount": 2,
       "honestyViolations": [
         "2 absence assertion(s) with no positive control in the same file (e.g. \"!/\\[/.test(FALLBACK),\n  \"\")"
@@ -2573,7 +2573,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 36,
+      "assertionCount": 59,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -2584,11 +2584,16 @@
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
-      "critical": false,
-      "criticalReasons": [],
-      "protects": null,
-      "blastRadius": null,
-      "owner": null
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-import:../lib/commerceProviders.js,../lib/affiliateLibrary.js"
+      ],
+      "protects": "EVENT_TICKET_DEALS product integrity across every provider it names: a separately-ticketed night never maps to park admission, a non-UT (Tiqets/Klook) row resolves in the shared partner registry AND matches the merchant its own organizer URL actually belongs to, every href routes through /api/commerce/go for that entry's own provider (never a hardcoded Undercover Tourist constant), and the UT-only FALL_EVENT_TICKET_DEALS compatibility map never picks up a non-UT offer key.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "2026-09-15: nine merchants sell admission only through Tiqets/Klook, so an event confirmed included with admission there (Zoo Boo at Zoo Miami) had no way to carry a commissioned CTA at all — every surface silently rendered the organizer's own free link. A wrong non-UT mapping is the same trust bug as a wrong UT one: a separately-ticketed night wearing a park-admission commission."
+      },
+      "owner": "Revenue QA"
     },
     {
       "file": "scripts/check-event-where.mjs",
@@ -3825,7 +3830,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 141,
+      "assertionCount": 157,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -4702,6 +4707,33 @@
       "protects": null,
       "blastRadius": null,
       "owner": null
+    },
+    {
+      "file": "scripts/check-menu-partner-offers.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 71,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-import:../lib/commerceProviders.js,../lib/affiliateLibrary.js"
+      ],
+      "protects": "MENU_PARTNER_OFFERS (lib/menuPartnerOffers.js) — the metro-gated, category:sub-keyed source feeding UnifiedBrowseCommerceRail independent of loaded places — carries only rows whose provider is a live commerce.PROVIDERS entry and whose offer id actually resolves in the registry that provider reads from, never claims an empty-by-law chip (Food/Hotels/Shopping/Spa/Speakeasy/Karaoke), is never imported by a client component or app/home.js (the client must never receive a destination), and closes the affiliate-inventory audit's dead-registry-key list without any key left unaccounted for.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "A row naming a dark provider or an unresolvable offer id renders a Book button that 302s to /api/commerce/go and fails there every time (offer-not-found / unknown-provider) — a silent, per-click revenue leak invisible to next build and to check:jsx, the same shape the 2026-07-30 extraction incident (#486) and the 2026-09-15 affiliate-coverage leak both were: every check that only reads source as text stayed green while the caller was broken."
+      },
+      "owner": "Revenue QA"
     },
     {
       "file": "scripts/check-metered-matcher.mjs",
@@ -5756,6 +5788,28 @@
       "honestyViolations": [
         "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
       ],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-place-page-partner.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 16,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
       "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,
@@ -7466,15 +7520,12 @@
     {
       "file": "scripts/check-unified-commerce-rail.mjs",
       "npmScript": null,
-      "class": "STRUCTURAL",
+      "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 23,
-      "unprovenAbsenceCount": 1,
-      "honestyViolations": [
-        "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines",
-        "1 absence assertion(s) with no positive control in the same file (e.g. \"!/<CouponStrip\\b|<ViatorRail\\b/.test(intentPage), \"\")"
-      ],
-      "selfDocumentsRedProve": false,
+      "assertionCount": 49,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
@@ -12895,7 +12946,7 @@
       "npmScript": null,
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 14,
+      "assertionCount": 15,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

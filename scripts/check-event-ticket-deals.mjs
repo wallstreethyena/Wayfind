@@ -18,11 +18,15 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { EVENT_TICKET_DEALS, SEPARATELY_TICKETED, eventTicketDeal, eventTicketHref, eventTicketCta, UT_VIA } from "../lib/eventTicketDeals.js";
+import { EVENT_TICKET_DEALS, SEPARATELY_TICKETED, eventTicketDeal, eventTicketHref, eventTicketCta, UT_VIA, VIA_BY_PROVIDER } from "../lib/eventTicketDeals.js";
 import { UT_EVENT_DEAL_IDS, UT_PLACE_DEAL_IDS } from "../lib/deals.js";
 import { FALL_EVENT_TICKET_DEALS } from "../lib/fallPool.js";
 import { curatedToFeedEvent } from "../lib/curatedEvents.js";
 import { validateEvent, isCommerceGoUrl } from "../lib/eventsPipeline.js";
+import { PROVIDERS, resolveOffer } from "../lib/commerceProviders.js";
+import { partnerOfferById } from "../lib/partnerOfferRegistry.js";
+import { affiliateMerchantForUrl } from "../lib/affiliateLibrary.js";
+import { FALL_DISCOVERIES_2026 } from "../lib/fallDiscoveries2026.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(path.join(ROOT, p), "utf8");
@@ -32,14 +36,36 @@ const ok = (c, m) => { c ? pass++ : (fail++, console.log("  FAIL:", m)); };
 // ── 1. product integrity, executed ─────────────────────────────────────────
 const entries = Object.entries(EVENT_TICKET_DEALS);
 ok(entries.length >= 8, `registry holds the eight fall mappings (${entries.length})`);
-for (const [eventId, entry] of entries) {
+for (const [eventId, raw] of entries) {
   ok(/^[a-z0-9-]+-20\d\d$/.test(eventId), `${eventId} is a wf_events id`);
-  ok(Number.isInteger(entry.deal) && entry.deal > 0, `${eventId} points at a real wf_deals id`);
-  ok(entry.product === "event-ticket" || entry.product === "park-admission", `${eventId} names its product kind`);
-  if (entry.product === "event-ticket") {
-    ok(UT_EVENT_DEAL_IDS[String(entry.deal)] === eventId, `${eventId}: deal ${entry.deal} is pinned in UT_EVENT_DEAL_IDS as THIS event's own ticket`);
+  const norm = eventTicketDeal(eventId);
+  ok(norm.product === "event-ticket" || norm.product === "park-admission", `${eventId} names its product kind`);
+  ok(norm.provider in PROVIDERS, `${eventId}: provider ${norm.provider} is a live commerce provider`);
+  if (norm.provider === "undercover_tourist") {
+    ok(Number.isInteger(norm.offerId) && norm.offerId > 0, `${eventId} points at a real wf_deals id`);
+    ok(norm.deal === norm.offerId, `${eventId}: the legacy deal alias equals offerId for a UT row`);
+    if (norm.product === "event-ticket") {
+      ok(UT_EVENT_DEAL_IDS[String(norm.offerId)] === eventId, `${eventId}: deal ${norm.offerId} is pinned in UT_EVENT_DEAL_IDS as THIS event's own ticket`);
+    } else {
+      ok(!(String(norm.offerId) in UT_EVENT_DEAL_IDS), `${eventId}: a park-admission mapping does not borrow an event-ticket row`);
+    }
   } else {
-    ok(!(String(entry.deal) in UT_EVENT_DEAL_IDS), `${eventId}: a park-admission mapping does not borrow an event-ticket row`);
+    // Tiqets / Klook: the row must resolve in the shared registry under its
+    // OWN provider, name a real product, and match the merchant a reader
+    // would actually land on from this event's organizer URL — proven by
+    // CALLING affiliateMerchantForUrl on the discovery row's own URL, not by
+    // trusting the mapping's say-so.
+    ok(!("deal" in raw), `${eventId}: a non-UT row carries no numeric \`deal\` alias`);
+    ok(typeof norm.offerId === "string" && norm.offerId.length > 0, `${eventId}: offerId is a partnerOfferRegistry key`);
+    const reg = partnerOfferById(norm.offerId, norm.provider);
+    ok(reg, `${eventId}: offer "${norm.offerId}" resolves in PARTNER_OFFER_REGISTRY under provider "${norm.provider}"`);
+    const discoveryRow = FALL_DISCOVERIES_2026.find((r) => r.event_id === eventId);
+    const organizerUrl = discoveryRow && (discoveryRow.official_ticket_url || discoveryRow.official_event_url);
+    ok(organizerUrl, `${eventId}: a discovery row names the organizer URL this mapping is checked against`);
+    const merchant = organizerUrl ? affiliateMerchantForUrl(organizerUrl) : null;
+    ok(merchant && merchant.partners.some((p) => p.provider === norm.provider && p.offerId === norm.offerId),
+      `${eventId}: the organizer URL's merchant (${merchant && merchant.key}) actually lists ${norm.provider}/${norm.offerId} among its partners`);
+    ok(norm.product === "park-admission", `${eventId}: only park-admission is wired for a non-UT provider today`);
   }
 }
 for (const eventId of SEPARATELY_TICKETED) {
@@ -49,6 +75,10 @@ for (const eventId of SEPARATELY_TICKETED) {
 ok(SEPARATELY_TICKETED.includes("hhn-orlando-2026") && SEPARATELY_TICKETED.includes("howl-o-scream-tampa-2026") && SEPARATELY_TICKETED.includes("zootampa-creatures-2026"),
   "the separately-ticketed pin names HHN, Howl-O-Scream and ZooTampa's night event");
 ok(!("zootampa-creatures-2026" in EVENT_TICKET_DEALS), "ZooTampa Creatures of the Night has NO mapping — UT sells only day admission, which is the wrong product");
+ok(SEPARATELY_TICKETED.includes("roars-smores-snores-spooktacular-campout-zoo-miami-2026") && SEPARATELY_TICKETED.includes("zoo-miami-monster-masquerade-2026"),
+  "the two other Zoo Miami nights (own-ticket campout, ticketed masquerade) are pinned separately-ticketed, distinct from the included Zoo Boo");
+ok(!("roars-smores-snores-spooktacular-campout-zoo-miami-2026" in EVENT_TICKET_DEALS) && !("zoo-miami-monster-masquerade-2026" in EVENT_TICKET_DEALS),
+  "…and neither carries a park-admission mapping");
 // UT_EVENT_DEAL_IDS and UT_PLACE_DEAL_IDS are disjoint: an id is one product.
 ok(Object.keys(UT_EVENT_DEAL_IDS).every((id) => !(id in UT_PLACE_DEAL_IDS)), "an event-ticket deal id is never also a place-admission id");
 ok(Object.keys(UT_EVENT_DEAL_IDS).length === 4, "four hand-verified UT event-ticket rows (8, 19, 20, 21)");
@@ -65,8 +95,37 @@ const cta = eventTicketCta("mnsshp-2026", { surface: "florida_event_page" });
 ok(cta && cta.href.includes("offer=8") && cta.via === UT_VIA && /Tickets · Undercover Tourist/.test(cta.label) && cta.product === "event-ticket", "the CTA descriptor carries href, merchant, label and product");
 const parkCta = eventTicketCta("brick-or-treat-2026", { surface: "x" });
 ok(parkCta && /^Park tickets/.test(parkCta.label), "an included-with-admission event is labelled PARK tickets, so the reader knows what they are buying");
-ok(Object.entries(FALL_EVENT_TICKET_DEALS).every(([id, n]) => EVENT_TICKET_DEALS[id]?.deal === n) && Object.keys(FALL_EVENT_TICKET_DEALS).length === entries.length,
-  "the fall rail's compatibility map is DERIVED from the registry, not a second copy");
+const utEntries = entries.filter(([, raw]) => "deal" in raw);
+ok(Object.entries(FALL_EVENT_TICKET_DEALS).every(([id, n]) => EVENT_TICKET_DEALS[id]?.deal === n) && Object.keys(FALL_EVENT_TICKET_DEALS).length === utEntries.length,
+  "the fall rail's compatibility map is DERIVED from the UT rows of the registry only, not a second copy");
+ok(Object.values(FALL_EVENT_TICKET_DEALS).every((v) => Number.isInteger(v)), "every FALL_EVENT_TICKET_DEALS value is an int — a Tiqets/Klook offer key never leaks into the UT-only compatibility map");
+ok(!("zoo-boo-zoo-miami-2026" in FALL_EVENT_TICKET_DEALS), "the Tiqets-mapped Zoo Boo entry is absent from the UT-only compatibility map");
+
+// ── 2a. Tiqets/Klook rows, executed on the SAME calls as UT rows ───────────
+const zooBooDeal = eventTicketDeal("zoo-boo-zoo-miami-2026");
+ok(zooBooDeal && zooBooDeal.provider === "tiqets" && zooBooDeal.offerId === "miami-hook-zoo-miami" && zooBooDeal.product === "park-admission" && zooBooDeal.deal === undefined,
+  "eventTicketDeal normalizes the Tiqets row — provider, offerId, product, and NO numeric deal alias");
+ok(VIA_BY_PROVIDER.tiqets === "Tiqets" && VIA_BY_PROVIDER.klook === "Klook" && VIA_BY_PROVIDER.undercover_tourist === UT_VIA,
+  "VIA_BY_PROVIDER names every wired provider's merchant label");
+const zooBooHref = eventTicketHref("zoo-boo-zoo-miami-2026", { surface: "events_feed" });
+ok(zooBooHref === "/api/commerce/go?provider=tiqets&offer=miami-hook-zoo-miami&surface=events_feed&content=zoo-boo-zoo-miami-2026", `zoo-boo's href is the Tiqets commerce redirect (${zooBooHref})`);
+const zooBooCta = eventTicketCta("zoo-boo-zoo-miami-2026", { surface: "florida_event_page" });
+ok(zooBooCta && zooBooCta.provider === "tiqets" && zooBooCta.via === "Tiqets" && /^Park tickets · Tiqets/.test(zooBooCta.label), `Zoo Boo's CTA names Tiqets, not Undercover Tourist (via=${zooBooCta && zooBooCta.via})`);
+ok(zooBooCta && zooBooCta.offer_id === "miami-hook-zoo-miami" && zooBooCta.deal_id === undefined, "the CTA carries offer_id, never a fabricated numeric deal_id, for a non-UT provider");
+// liveDeal is a wf_deals concept; passing one for a Tiqets row must not gate it.
+ok(eventTicketCta("zoo-boo-zoo-miami-2026", { liveDeal: null })?.href === "/api/commerce/go?provider=tiqets&offer=miami-hook-zoo-miami&surface=event&content=zoo-boo-zoo-miami-2026",
+  "liveDeal (a UT-only gate) is ignored for a Tiqets row — passing null (which would kill a UT CTA) still resolves");
+ok(eventTicketCta("zootampa-creatures-2026") === null, "ZooTampa's separately-ticketed night event has no CTA at all (no mapping exists)");
+const zooBooFeed = curatedToFeedEvent({ event_id: "zoo-boo-zoo-miami-2026", slug: "zoo-boo-zoo-miami-2026", start_date: "2026-10-24", event_name: "Zoo Boo", official_event_url: "https://www.zoomiami.org/zoo-boo" });
+ok(zooBooFeed.url === "/api/commerce/go?provider=tiqets&offer=miami-hook-zoo-miami&surface=events_feed&content=zoo-boo-zoo-miami-2026", `curatedToFeedEvent's url for Zoo Boo is the Tiqets redirect (${zooBooFeed.url})`);
+ok(zooBooFeed.ticketVia === "Tiqets", "…and the feed names Tiqets as the merchant, not the hardcoded UT constant");
+
+// resolveOffer, CALLED — the destination this redirect actually reaches for
+// the Zoo Boo offer, not merely that the registry key exists.
+const zooBooDest = await resolveOffer("tiqets", "miami-hook-zoo-miami");
+ok(zooBooDest && typeof zooBooDest.dest === "string" && new URL(zooBooDest.dest).hostname === "tp.media",
+  `resolveOffer("tiqets", "miami-hook-zoo-miami") lands on tp.media (${zooBooDest && JSON.stringify(zooBooDest)})`);
+ok(zooBooDest && decodeURIComponent(zooBooDest.dest).includes("tiqets.com"), "…wrapping the tiqets.com destination in the tracked link");
 
 const feed = curatedToFeedEvent({ event_id: "howl-o-scream-tampa-2026", slug: "hos-tampa-2026", start_date: "2026-09-11", event_name: "Howl-O-Scream", official_event_url: "https://buschgardens.com/tampa/events/howl-o-scream/" });
 ok(feed.ticketed === true && feed.url.startsWith("/api/commerce/go?provider=undercover_tourist&offer=20"), "the Events feed row for Howl-O-Scream carries the commerce-go ticket URL and is ticketed");

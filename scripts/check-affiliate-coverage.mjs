@@ -45,7 +45,7 @@
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { EVENT_TICKET_DEALS, isServableDeal, eventTicketCta } from "../lib/eventTicketDeals.js";
+import { EVENT_TICKET_DEALS, isServableDeal, eventTicketCta, eventTicketDeal, SEPARATELY_TICKETED } from "../lib/eventTicketDeals.js";
 import { UT_EVENT_DEAL_IDS, CJ_PID } from "../lib/deals.js";
 import { PROVIDERS } from "../lib/commerceProviders.js";
 import { PARTNER_OFFER_REGISTRY } from "../lib/partnerOfferRegistry.js";
@@ -151,9 +151,16 @@ ok(new Set(MERCHANT_HOSTS).size === MERCHANT_HOSTS.length, "no host is claimed b
 for (const m of AFFILIATE_MERCHANTS) {
   ok(m.hosts.every((h) => /^[a-z0-9.-]+\.[a-z]{2,}$/.test(h) && !h.startsWith("www.")), `${m.key}: hosts are bare registrable hosts (${m.hosts.join(",")})`);
   if (m.admission) {
-    ok(m.admission.provider === "undercover_tourist" && Number.isInteger(m.admission.offerId), `${m.key}: admission is a UT wf_deals id`);
-    ok(!(String(m.admission.offerId) in UT_EVENT_DEAL_IDS), `${m.key}: admission row ${m.admission.offerId} is never an EVENT-ticket row`);
-    ok(m.partners.some((p) => p.provider === "undercover_tourist" && p.offerId === m.admission.offerId), `${m.key}: the admission row is listed among its partners`);
+    ok(m.admission.provider in PROVIDERS, `${m.key}: admission provider ${m.admission.provider} is a live commerce provider`);
+    if (m.admission.provider === "undercover_tourist") {
+      ok(Number.isInteger(m.admission.offerId), `${m.key}: UT admission is a wf_deals id`);
+      ok(!(String(m.admission.offerId) in UT_EVENT_DEAL_IDS), `${m.key}: admission row ${m.admission.offerId} is never an EVENT-ticket row`);
+    } else {
+      ok(typeof m.admission.offerId === "string" && m.admission.offerId.length > 0, `${m.key}: non-UT admission offerId is a partnerOfferRegistry key`);
+      const reg = PARTNER_OFFER_REGISTRY[m.admission.offerId];
+      ok(reg && reg.provider === m.admission.provider, `${m.key}: admission offer resolves in PARTNER_OFFER_REGISTRY under ${m.admission.provider}`);
+    }
+    ok(m.partners.some((p) => p.provider === m.admission.provider && p.offerId === m.admission.offerId), `${m.key}: the admission row is listed among its partners`);
   }
   for (const p of m.partners) {
     ok(p.provider in PROVIDERS, `${m.key}: partner provider ${p.provider} is a live commerce provider`);
@@ -163,13 +170,23 @@ for (const m of AFFILIATE_MERCHANTS) {
     }
   }
 }
-const admissionByDeal = new Map(AFFILIATE_MERCHANTS.filter((m) => m.admission).map((m) => [m.admission.offerId, m.key]));
-for (const [eventId, entry] of Object.entries(EVENT_TICKET_DEALS)) {
-  if (entry.product === "park-admission") ok(admissionByDeal.has(entry.deal), `${eventId}: park-admission deal ${entry.deal} is a library admission row (${admissionByDeal.get(entry.deal) || "MISSING"})`);
+// 2026-09-15: EVERY library merchant now carries an admission offer — the
+// whole point of generalizing `admission` beyond Undercover Tourist. This is
+// what makes SELLABLE_NO_UT_PATH retirable: there is no merchant left in the
+// library that is sellable but structurally cannot hold an admission row.
+ok(AFFILIATE_MERCHANTS.every((m) => !!m.admission), "every library merchant carries an admission offer (UT or Tiqets/Klook) — none is admission:null");
+const admissionByOffer = new Map(AFFILIATE_MERCHANTS.filter((m) => m.admission).map((m) => [`${m.admission.provider}:${m.admission.offerId}`, m.key]));
+for (const eventId of Object.keys(EVENT_TICKET_DEALS)) {
+  const norm = eventTicketDeal(eventId);
+  if (norm.product !== "park-admission") continue;
+  const key = `${norm.provider}:${norm.offerId}`;
+  ok(admissionByOffer.has(key), `${eventId}: park-admission offer ${key} is a library admission row (${admissionByOffer.get(key) || "MISSING"})`);
 }
 ok(EVENT_TICKET_DEALS["christmas-town-2026"]?.deal === 15 && EVENT_TICKET_DEALS["seaworld-orlando-christmas-2026"]?.deal === 7 && EVENT_TICKET_DEALS["legoland-fl-holidays-2026"]?.deal === 16,
   "the three organizer-confirmed included-with-admission holiday runs are mapped to their park's admission row");
 ok(!("jollywood-nights-2026" in EVENT_TICKET_DEALS) && !("mvmcp-2026" in EVENT_TICKET_DEALS), "separately-ticketed Disney holiday parties are NOT mapped to park admission (no UT event-ticket row exists yet)");
+ok(EVENT_TICKET_DEALS["zoo-boo-zoo-miami-2026"]?.provider === "tiqets" && EVENT_TICKET_DEALS["zoo-boo-zoo-miami-2026"]?.offerId === "miami-hook-zoo-miami",
+  "Zoo Boo — the first Tiqets-only merchant's included-with-admission event — is mapped to Tiqets' Zoo Miami offer, THE library's admission row for zoo-miami");
 
 // ── 6. coverage classifies correctly, executed ─────────────────────────────
 ok(affiliateMerchantForUrl("https://buschgardens.com/tampa/events/howl-o-scream/")?.key === "busch-gardens-tampa", "buschgardens.com/tampa → Busch Gardens Tampa Bay");
@@ -180,18 +197,28 @@ ok(affiliateMerchantForUrl("https://notlegoland.com/florida/") === null && affil
 const fx = [
   { event_id: "howl-o-scream-tampa-2026", official_event_url: "https://buschgardens.com/tampa/events/howl-o-scream/" },
   { event_id: "jollywood-nights-2026", official_ticket_url: "https://disneyworld.disney.go.com/events/jollywood-nights/purchase/" },
-  { event_id: "zootampa-christmas-wild-2026", official_event_url: "https://zootampa.org/events/christmas-in-the-wild/" },
+  // 2026-09-15: this fixture used to prove SELLABLE_NO_UT_PATH (ZooTampa was
+  // Tiqets-only, no admission row existed at all). Now that `admission`
+  // covers Tiqets too, ZooTampa's night event is exactly the case
+  // DECIDED_SEPARATELY_TICKETED exists for: a partner sells the park's
+  // admission, and a human has ALREADY ruled this specific event out of it
+  // (lib/eventTicketDeals.js SEPARATELY_TICKETED) — never a leak.
+  { event_id: "zootampa-creatures-2026", official_event_url: "https://zootampa.org/events/creatures-of-the-night/" },
   { event_id: "fantasy-fest-2026", official_event_url: "https://fantasyfest.com/" },
   { event_id: "no-url-2026" },
+  // The first Tiqets-only merchant with a real, working mapping.
+  { event_id: "zoo-boo-zoo-miami-2026", official_event_url: "https://www.zoomiami.org/zoo-boo" },
 ];
 const statuses = fx.map((e) => eventAffiliateCoverage(e).status);
 ok(statuses[0] === COVERAGE.MAPPED, "a mapped event → mapped");
 ok(statuses[1] === COVERAGE.UNMAPPED, "an unmapped event at a UT-sold merchant → unmapped (the leak state)");
-ok(statuses[2] === COVERAGE.SELLABLE_NO_UT_PATH, "a Tiqets-only merchant → sellable-no-ut-path (named, not hidden)");
+ok(statuses[2] === COVERAGE.DECIDED_SEPARATELY_TICKETED, "ZooTampa's own separately-ticketed night event → decided-separately-ticketed, NOT a leak, even though the merchant now sells admission via Tiqets");
 ok(statuses[3] === COVERAGE.NO_PARTNER && statuses[4] === COVERAGE.NO_URL, "a merchant nobody sells → no-partner; no URL → no-url");
+ok(statuses[5] === COVERAGE.MAPPED, "Zoo Boo, mapped to Tiqets' Zoo Miami admission offer → mapped");
 ok(eventAffiliateCoverage({ event_id: "wfc:howl-o-scream-tampa-2026", official_event_url: "https://buschgardens.com/tampa/" }).status === COVERAGE.MAPPED, "the feed's wfc: prefix resolves like the bare id");
+ok(!Object.values(COVERAGE).includes("sellable-no-ut-path"), "SELLABLE_NO_UT_PATH is fully retired from the COVERAGE enum");
 const leaks = unmappedSellableEvents(fx);
-ok(leaks.length === 1 && leaks[0].eventId === "jollywood-nights-2026" && leaks[0].merchant.admission.offerId === 5, "unmappedSellableEvents returns exactly the leak, naming the merchant's admission row");
+ok(leaks.length === 1 && leaks[0].eventId === "jollywood-nights-2026" && leaks[0].merchant.admission.offerId === 5, "unmappedSellableEvents returns exactly the leak, naming the merchant's admission row — ZooTampa's decided event does not count as one");
 
 // ── 7. the watch is wired, executed ────────────────────────────────────────
 ok(existsSync(path.join(ROOT, "app/api/cron/affiliate-coverage/route.js")), "app/api/cron/affiliate-coverage exists");
