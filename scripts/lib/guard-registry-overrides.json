@@ -536,6 +536,14 @@
     },
     "owner": "Revenue QA"
   },
+  "scripts/test-photo-spend-efficiency.mjs": {
+    "protects": "One paid Google photo call per photo: card requests at every width fold onto one canonical fetch and cache key, concurrent requests for the same ref singleflight onto one grant, a stale or HTTP-400 skip self-heal never spends a second grant on the follow URL for the same dead name, an owned-miss whose upstream can never change on retry is negative-cached for 24h, and spendAllowPhotos refuses to spend outside VERCEL_ENV=production unless explicitly overridden.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "A regression could silently multiply billed Place Photo Media/Details requests per unique photo (by width, by concurrent request, or by repeat request against a proven dead ref), or let a Preview deployment or local dev running with production env spend the production photos ledger."
+    },
+    "owner": "Revenue QA"
+  },
   "scripts/test-spend-bypass-regression.mjs": {
     "protects": "Every client-reachable Google spend path fails closed on missing or denied configuration, and no cache or inventory fallback can bypass the atomic ledger.",
     "blastRadius": {

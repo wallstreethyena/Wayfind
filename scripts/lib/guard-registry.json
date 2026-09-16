@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 657,
-    "totalRegistryEntries": 658,
-    "guardsTxtLineCount": 656,
-    "guardsTxtReachedFileCount": 651,
-    "criticalCount": 81,
+    "totalOnDiskGuardFiles": 658,
+    "totalRegistryEntries": 659,
+    "guardsTxtLineCount": 657,
+    "guardsTxtReachedFileCount": 652,
+    "criticalCount": 82,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 445,
+      "CALL": 446,
       "RENDER": 73,
       "STRUCTURAL": 139,
       "OTHER": 1
@@ -10781,7 +10781,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 21,
+      "assertionCount": 22,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -13122,7 +13122,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 80,
+      "assertionCount": 100,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -13233,11 +13233,39 @@
       "owner": null
     },
     {
+      "file": "scripts/test-photo-spend-efficiency.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 61,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-filename:spend",
+        "money-keyword-in-import:../lib/spendGate.js"
+      ],
+      "protects": "One paid Google photo call per photo: card requests at every width fold onto one canonical fetch and cache key, concurrent requests for the same ref singleflight onto one grant, a stale or HTTP-400 skip self-heal never spends a second grant on the follow URL for the same dead name, an owned-miss whose upstream can never change on retry is negative-cached for 24h, and spendAllowPhotos refuses to spend outside VERCEL_ENV=production unless explicitly overridden.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "A regression could silently multiply billed Place Photo Media/Details requests per unique photo (by width, by concurrent request, or by repeat request against a proven dead ref), or let a Preview deployment or local dev running with production env spend the production photos ledger."
+      },
+      "owner": "Revenue QA"
+    },
+    {
       "file": "scripts/test-photo-upstream-truth.mjs",
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 74,
+      "assertionCount": 75,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,
@@ -13303,7 +13331,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 91,
+      "assertionCount": 95,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
