@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 649,
-    "totalRegistryEntries": 650,
-    "guardsTxtLineCount": 648,
-    "guardsTxtReachedFileCount": 643,
+    "totalOnDiskGuardFiles": 652,
+    "totalRegistryEntries": 653,
+    "guardsTxtLineCount": 651,
+    "guardsTxtReachedFileCount": 646,
     "criticalCount": 81,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 437,
-      "RENDER": 72,
+      "CALL": 439,
+      "RENDER": 73,
       "STRUCTURAL": 140,
       "OTHER": 1
     }
@@ -8096,6 +8096,28 @@
       "owner": null
     },
     {
+      "file": "scripts/test-apple-explorer-map.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 39,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-atlas-build.mjs",
       "npmScript": null,
       "class": "STRUCTURAL",
@@ -12223,6 +12245,28 @@
       "owner": null
     },
     {
+      "file": "scripts/test-map-area-data.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 63,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-map-cost.mjs",
       "npmScript": null,
       "class": "STRUCTURAL",
@@ -12275,6 +12319,28 @@
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
       "assertionCount": 4,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-map-screen-render.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 12,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
