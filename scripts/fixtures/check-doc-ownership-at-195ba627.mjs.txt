@@ -21,28 +21,10 @@ const git = (...args) => {
     return { ok: false, out: "", error: String(error && (error.stderr || error.message) || error).trim() };
   }
 };
-// 2026-09-09: this guard reported SKIP on the hosted run that gates merge, because
-// actions/checkout used the default depth 1 and origin/main was unreadable. Run
-// 34390086158 on head b3cc9a48 printed "SKIP — confirmed shallow checkout does not
-// contain origin/main" and then "592/592 guards green"; PR #1197 merged an AGENTS.md
-// edit by a lane two minutes later. A guard that cannot reach its evidence must not
-// answer OK on the run that decides a merge.
-//
-// Vercel runs this same suite through `prebuild` on its own shallow clone, and a
-// Vercel build is not the merge gate, so it keeps the skip. GitHub Actions is the
-// required `guards` check, so there an unreadable base is a hard failure. The
-// companion change sets fetch-depth: 0, which means this branch should never be
-// reached again; it stays as the backstop for the day someone removes it.
-const IS_MERGE_GATE = process.env.GITHUB_ACTIONS === "true";
-
 const fail = (message) => {
   console.error(`check-doc-ownership: FAIL — ${message}`);
   process.exit(1);
 };
-
-const shallowFail = (detail) =>
-  fail(`ownership cannot be verified on the merge gate: ${detail}. ` +
-       "actions/checkout must set fetch-depth: 0 so origin/main and the merge base are readable.");
 
 const inside = git("rev-parse", "--is-inside-work-tree");
 if (!inside.ok || inside.out !== "true") {
@@ -61,7 +43,6 @@ if (!headResult.ok || !headResult.out) fail(`HEAD is not a readable commit (${he
 const upstreamResult = git("rev-parse", "--verify", "origin/main^{commit}");
 if (!upstreamResult.ok || !upstreamResult.out) {
   if (isShallow) {
-    if (IS_MERGE_GATE) shallowFail("shallow checkout does not contain origin/main");
     console.log("check-doc-ownership: SKIP — confirmed shallow checkout does not contain origin/main");
     process.exit(0);
   }
@@ -71,7 +52,6 @@ if (!upstreamResult.ok || !upstreamResult.out) {
 const baseResult = git("merge-base", "origin/main", "HEAD");
 if (!baseResult.ok || !baseResult.out) {
   if (isShallow) {
-    if (IS_MERGE_GATE) shallowFail("readable HEAD and origin/main histories are truncated before their merge base");
     console.log("check-doc-ownership: SKIP — readable HEAD and origin/main histories are truncated before their merge base");
     process.exit(0);
   }

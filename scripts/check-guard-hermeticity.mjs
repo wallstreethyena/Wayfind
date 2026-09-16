@@ -48,6 +48,8 @@ const ok = (c, m) => { if (c) pass++; else fails.push(m); };
 // Every exemption names a file and argues for itself. An exemption that stops
 // being true is itself a failure below, so this list cannot quietly rot.
 const EXEMPT = {
+  "check-doc-ownership.mjs":
+    "2026-09-09 incident: GitHub Actions run 34390086158 (head b3cc9a48) printed \"SKIP — confirmed shallow checkout does not contain origin/main\", the suite reported 592/592 green, and PR #1197 merged an AGENTS.md edit by a lane two minutes later. actions/checkout used the default depth 1, so the guard could not read the base it needs. GITHUB_ACTIONS is not the verdict — ownership still comes entirely from commit authors and changed paths. It selects STRICTNESS when the evidence is unreachable: on the run that decides a merge, an unreadable base is a failure; on a Vercel build, which runs this suite through prebuild on its own shallow clone and is not a merge gate, it stays a skip so a deploy cannot be blocked by clone depth. Answering differently in those two shells is the point, and both answers are proved hermetically in test-doc-ownership-shallow.mjs, which sets GITHUB_ACTIONS explicitly for child processes the way check-monetized-degrade.mjs does.",
   "check-job-watch-delivery.mjs":
     "Scheduled production canary: ambient Supabase credentials provide the connection, while persisted heartbeat freshness and outcome decide the verdict. Missing credentials fail, never skip. Hermetic prebuild coverage lives in test-job-watch-delivery.mjs.",
   "check-env.mjs":
