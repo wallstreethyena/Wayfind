@@ -206,13 +206,20 @@ export async function GET(req) {
     // because 27% of the 30-day `immutable` redirects the CDN was replaying
     // pointed at photos Google now answers with 403. The 30-day fallback below
     // is reached only for an inventory-owned photo, which keeps its contract.
+    const redirectHeaders = {
+      "Cache-Control": result.cacheControl || ("public, max-age=" + THIRTY_DAYS + ", s-maxage=" + THIRTY_DAYS + ", immutable"),
+      "x-wayfind-photo-result": result.reason || "redirect",
+      "x-wayfind-photo-probe": probe ? "1" : "0",
+    };
+    // UPSTREAM TRUTH (2026-09-16): only a result that actually reached Google
+    // carries a non-null `upstream` (the "google" redirect here; every other
+    // redirect reason — cache/inventory/inventory-ref-cache/same-place-cache/
+    // owned-free — is a free read and stays without the header). Never the
+    // key, ref, placeId, or any URL — just the class string.
+    if (result.upstream) redirectHeaders["x-wayfind-photo-upstream"] = result.upstream;
     return NextResponse.redirect(dest, {
       status: 302,
-      headers: {
-        "Cache-Control": result.cacheControl || ("public, max-age=" + THIRTY_DAYS + ", s-maxage=" + THIRTY_DAYS + ", immutable"),
-        "x-wayfind-photo-result": result.reason || "redirect",
-        "x-wayfind-photo-probe": probe ? "1" : "0",
-      },
+      headers: redirectHeaders,
     });
   }
 
@@ -283,15 +290,39 @@ export async function GET(req) {
   // with no free recovery available. 404, not a shared SVG: the card's own
   // <img> error path renders its title-specific monogram, and distinct refs
   // stay distinct finals.
+  //
+  // UPSTREAM TRUTH (2026-09-16). A Google-path miss (result.reason ===
+  // "owned-miss") always carries a non-null result.upstream now — quota/
+  // server/network/redirect/badjson/unowned/client, or a stale-heal-* class
+  // from the expired-ref self-heal. This is the fix for the production fact:
+  // a 404 owned-miss used to record NOTHING beyond the reason string when
+  // Google answered with anything outside {ok,400,403,404}. Never the key,
+  // ref, placeId, or any URL — just the class string and the probe's own
+  // already-public fields.
+  const missHeaders = {
+    "Cache-Control": "private, no-store",
+    "x-wayfind-photo-result": result.reason || "owned-miss",
+    "x-wayfind-photo-probe": probe ? "1" : "0",
+  };
+  if (result.upstream) missHeaders["x-wayfind-photo-upstream"] = result.upstream;
+  if (result.reason === "owned-miss") {
+    try {
+      console.log("photo-upstream-miss", {
+        upstream: result.upstream,
+        retried: !!result.retried,
+        w,
+        probe,
+        reason: result.reason,
+      });
+    } catch {
+      // A logging failure must never break the response path.
+    }
+  }
   return NextResponse.json(
     { error: "no photo" },
     {
       status: 404,
-      headers: {
-        "Cache-Control": "private, no-store",
-        "x-wayfind-photo-result": result.reason || "owned-miss",
-        "x-wayfind-photo-probe": probe ? "1" : "0",
-      },
+      headers: missHeaders,
     }
   );
 }

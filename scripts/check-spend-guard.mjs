@@ -155,7 +155,10 @@ if (!/spendAllow\("details_enterprise"\)/.test(read("lib/placeDetails.js"))) die
   // before every further Google call, not once per decision.
   const serve = read("lib/placePhotoServe.js").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
   const fetchFn = serve.slice(serve.indexOf("async function defaultFetchOwnedUri"), serve.indexOf("export async function resolvePlacePhoto"));
-  const mediaCalls = (fetchFn.match(/await fetch\(/g) || []).length;
+  // 2026-09-16: defaultFetchOwnedUri's raw fetch is now `fetchImpl` (an
+  // injectable parameter for scripts/test-photo-upstream-truth.mjs, default
+  // `= fetch`), so both spellings count as one outbound call site.
+  const mediaCalls = (fetchFn.match(/await fetch(?:Impl)?\(/g) || []).length;
   const grants = (fetchFn.match(/await grant\(/g) || []).length;
   if (mediaCalls < 3 || grants < mediaCalls) die(`placePhotoServe: ${mediaCalls} outbound Google calls but only ${grants} ledger grants in defaultFetchOwnedUri — one grant must precede every request.`);
   if (!/grant\("details_ids_only"\)/.test(fetchFn)) die("the expired-ref Place Details lookup runs without a details_ids_only grant.");

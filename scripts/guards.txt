@@ -1312,6 +1312,14 @@ node scripts/test-photo-cache-width-reuse.mjs
 # photoCacheRecovery selection.
 node scripts/check-photo-cache-liveness.mjs
 
+# 2026-09-16: a valid Google photo ref answered /api/photo 404 owned-miss
+# while spending one photos grant, reproduced three times in one day. The
+# self-heal only healed 400/403/404 — a 429/5xx/3xx/thrown-fetch/badjson miss
+# recorded NOTHING. classifyUpstream() is now the one mapping table (locked
+# case by case); server/network get one same-call retry, never quota/4xx; and
+# owned-miss is proven, then red-proved, to always carry a non-empty upstream.
+node scripts/test-photo-upstream-truth.mjs
+
 node scripts/test-inventory-batch-concurrency.mjs
 
 node scripts/test-event-apple-maps.mjs

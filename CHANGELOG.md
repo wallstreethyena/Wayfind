@@ -1,3 +1,7 @@
+## v8.56.19 - Google photo quota truth (placeholder, rewritten at end of work)
+
+PLACEHOLDER — replaced in step H with the final entry documenting the quota-override root cause, the refund/breaker/telemetry work, and what shipped.
+
 ## v8.56.18 - One place card everywhere, and no Directions button on any card
 
 Owner direction, 2026-09-16, with three screenshots: every place card must look like the horizontal rail card (Kids Empire Bradenton), with no Directions button. Tapping the card opens the detail page, and Directions lives there. This was first decided in v8.11 (2026-08-18) for IconicPlaceCard, but it kept coming back because eleven rails each passed their own `cta={{ label: "Directions ↗" }}` into `RailCard`.
