@@ -106,6 +106,21 @@ ok(sameIdSet(null) === false && sameIdSet([A, null]) === false, "defensive on ba
   ok(/useEffect\(\(\) => \{\s*if \(!center \|\| !_pendingCurated\.current\) return;\s*const p = _pendingCurated\.current; _pendingCurated\.current = null;\s*try \{ openCurated\(p\.kind, p\.opts\); \} catch \(e\) \{\}\s*\}, \[center\]\);/.test(HOME),
     "an effect keyed on center replays the parked ask exactly once");
   ok(/if \(!query \|\| !center\) return Promise\.resolve\(\[\]\);/.test(GOOGLE), "(the reason) searchNearbyPlaces with no center resolves [] without a request");
+  // 8. (2026-09-16, the actual mechanism) THE STALE CLOSURE. The ?exp= effect
+  //    is mount-once and called the FIRST render's openCurated, whose center is
+  //    null forever — so parking on `!center` alone never replayed (center was
+  //    already set and never changed again). The effect must read the CURRENT
+  //    render's functions through a ref that is refreshed every render.
+  //    tests/e2e/curated-deeplink.spec.js is the executed proof in a browser.
+  const expIx = HOME.indexOf('const k = sp.get("exp");');
+  const expBlock = HOME.slice(expIx, expIx + 1800);
+  ok(expIx > 0 && /const live = deepLinkRef\.current;/.test(expBlock), "the ?exp= handler reads openCurated/openHoliday/openExperience through deepLinkRef");
+  ok(!/[^.]\bopenCurated\(/.test(expBlock.replace(/live\.openCurated\(/g, "")), "…and never calls the mount-render openCurated directly");
+  ok(/deepLinkRef\.current = \{ openCurated, openHoliday, openExperience \};/.test(HOME), "deepLinkRef is refreshed on every render, after the functions are defined");
+  ok(HOME.indexOf("deepLinkRef.current = { openCurated") > HOME.indexOf("const openCurated = async"), "…and that refresh sits after openCurated's definition");
+  ok(/const deepLinkRef = useRef\(/.test(HOME) && HOME.indexOf("const deepLinkRef = useRef(") < expIx, "deepLinkRef is declared before the deep-link effect");
+  const e2e = readFileSync(new URL("../tests/e2e/curated-deeplink.spec.js", import.meta.url), "utf8");
+  ok(/exp=cur-today/.test(e2e) && /curated picks/.test(e2e) && /cat === "attractions"/.test(e2e), "the browser test asserts picks AND the library category on the wire");
 }
 
 // 5. cost invariant — cat stays OUT of the paid request and the cache key

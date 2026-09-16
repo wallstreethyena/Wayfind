@@ -3962,20 +3962,33 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   } catch (e) {} }, []);
   useEffect(() => { const h = (e) => { e.preventDefault(); setDeferredPrompt(e); }; window.addEventListener("beforeinstallprompt", h); return () => window.removeEventListener("beforeinstallprompt", h); }, []);
   const _expLinked = useRef(false);
+  // 2026-09-16: the deep-link effect below runs once; these are refreshed every
+  // render (see the assignment right after openCurated) so it never calls a
+  // first-render closure with a null center.
+  const deepLinkRef = useRef({ openCurated: () => {}, openHoliday: () => {}, openExperience: () => {} });
   useEffect(() => { try {
     if (_expLinked.current) return; _expLinked.current = true;
     const sp = new URLSearchParams(window.location.search);
     const k = sp.get("exp");
     // v5.7x: every retired ?exp= key from the old 13-tile menu still resolves
     // — the six-tile consolidation removed rows, never destinations.
+    // 2026-09-16 — THE STALE CLOSURE. This effect runs once, on mount, and
+    // used to call the openCurated / openHoliday of that FIRST render — whose
+    // `center` is null forever, whatever the app's real center became a few
+    // ms later. searchNearbyPlaces(q, null) resolves [] without a request, so
+    // /?exp=cur-today opened "0 curated picks / Not enough data" with zero
+    // /api/places/search calls, on every build, in every browser — the blank
+    // page in the owner's 2026-09-15 screenshot. Verified live after #1333.
+    // The ref below always holds the CURRENT render's functions.
     if (k) { setTimeout(() => { try {
-      if (k.indexOf("hol-") === 0) { openHoliday(k.slice(4)); }
-      else if (k.indexOf("cur-") === 0) { openCurated(k.slice(4)); }
-      else if (k === "gem") { openCurated("today", { lens: "gems" }); }
-      else if (k === "entertainment" || k === "shows" || k === "experiences" || k === "bestof") { openCurated("today"); }
-      else if (k === "stays") { openCurated("stays"); }
+      const live = deepLinkRef.current;
+      if (k.indexOf("hol-") === 0) { live.openHoliday(k.slice(4)); }
+      else if (k.indexOf("cur-") === 0) { live.openCurated(k.slice(4)); }
+      else if (k === "gem") { live.openCurated("today", { lens: "gems" }); }
+      else if (k === "entertainment" || k === "shows" || k === "experiences" || k === "bestof") { live.openCurated("today"); }
+      else if (k === "stays") { live.openCurated("stays"); }
       else if (k === "events") { setScreen("events"); }
-      else { openExperience(k); }
+      else { live.openExperience(k); }
     } catch (e) {} }, 400); sp.delete("exp"); const qs = sp.toString(); window.history.replaceState({}, "", window.location.pathname + (qs ? "?" + qs : "")); }
   } catch (e) {} }, []);
   // v8.23 — A SHARED RAIL CARD LANDS HERE. /r/<rail> unfurls with the card's
@@ -4550,6 +4563,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     const p = _pendingCurated.current; _pendingCurated.current = null;
     try { openCurated(p.kind, p.opts); } catch (e) {}
   }, [center]); // eslint-disable-line react-hooks/exhaustive-deps
+  // 2026-09-16: the deep-link effect (mount-once) reads these through the ref
+  // so it always gets THIS render's closures, never the first render's.
+  deepLinkRef.current = { openCurated, openHoliday, openExperience };
   // v5.84 (B-spec): the per-tile live-digest pipeline (tileData + /api/home/tiles
   // + lib/homeTiles computeTileSubline) was removed. It produced the unverifiable
   // sublines the spec forbids ("17 open right now", "4.9 stars", "6,109 reviews").
