@@ -93,7 +93,9 @@ export async function GET(req) {
   // PERMANENTLY-licensed Wikimedia photo of this same venue from
   // wf_place_photo; served only when same-place recovery has nothing, and
   // its 302 never took a photos-ledger grant) | spend-denied | gate-shut |
-  // probe-no-spend | owned-miss | unconfigured (404 JSON — #1182: a
+  // probe-no-spend | quota-open | negative-cached (2026-09-16 — this ref
+  // proved within the last 24h that it has no fetchable photo; the resolver
+  // refused before asking the ledger or Google) | owned-miss | unconfigured (404 JSON — #1182: a
   // catalogued ref is not the same thing as a genuinely photoless place, so
   // the card's own <img> error path renders a per-title monogram instead of
   // one shared branded SVG) | no-photo (302 to /wf-photo-fallback.svg,
@@ -254,7 +256,12 @@ export async function GET(req) {
   // resolver's own quota breaker refused the request before ever asking the
   // ledger or Google, because Google's daily photo quota is known-exhausted
   // until its own Pacific-midnight reset — same free, read-only recovery
-  // applies. In every case, serve only a fresh same-place cached photo if one
+  // applies. `negative-cached` (2026-09-16, spend efficiency) is the SAME
+  // shape again: this exact ref already proved, within the last 24h, that it
+  // has no fetchable photo — the resolver refused the request before asking
+  // the ledger or Google, and this same free recovery still gets a chance to
+  // serve a real photo of the venue instead of the branded compass. In every
+  // case, serve only a fresh same-place cached photo if one
   // exists — and, failing that, this exact place's FREE, PERMANENT photo if
   // wf_place_photo has one. Same-place Google recovery is tried FIRST: it is
   // a photo of the actual venue that Wayfind already paid for, so it
@@ -262,7 +269,7 @@ export async function GET(req) {
   // Google, and neither ever takes a photos-ledger grant — authorizeSpend
   // above already refused the grant on a free-photo hit before this block
   // runs, so this is just serving what was already decided.
-  if (result.type === "miss" && ["spend-denied", "gate-shut", "unconfigured", "probe-no-spend", "quota-open"].includes(result.reason)) {
+  if (result.type === "miss" && ["spend-denied", "gate-shut", "unconfigured", "probe-no-spend", "quota-open", "negative-cached"].includes(result.reason)) {
     const recovery = await getRecovery();
     if (recovery && recovery.uri) {
       return NextResponse.redirect(recovery.uri, {

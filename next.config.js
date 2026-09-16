@@ -38,7 +38,24 @@ const CSP_REPORT_ONLY = [
   // place photos. Only media.tacdn.com was allowlisted, so every card whose
   // photo came back on the media-cdn host rendered an empty frame — confirmed
   // live on 2026-07-28 via csp-report (directive img-src, page "/").
-  "img-src 'self' data: blob: https://vercel.live https://vercel.com https://*.googleapis.com https://*.gstatic.com https://lh3.googleusercontent.com https://*.ggpht.com https://s1.ticketm.net https://*.ticketm.net https://cache-graphicslib.viator.com https://media.tacdn.com https://media-cdn.tripadvisor.com https://tiles.openfreemap.org https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://www.google.com https://googleads.g.doubleclick.net https://cdn.apple-mapkit.com https://*.apple-mapkit.com",
+  //
+  // *.googleapis.com REMOVED (2026-09-16, spend efficiency audit). Searched
+  // app/ and lib/ for any code path that renders a googleapis.com URL as an
+  // image src: none exists. Every Google photo is served through
+  // lib/placePhotoServe.js's isOwnedPhotoUrl(), which explicitly REFUSES a
+  // places.googleapis.com/.../media URL as a final url ("the original
+  // referrer-drop leak" — see its own comment) — the only URLs that
+  // isOwnedPhotoUrl accepts are lh3.googleusercontent.com/*.ggpht.com
+  // (already allowlisted below) or an inventory-owned https url that is
+  // itself never googleapis.com. There is no interactive Google Maps JS SDK
+  // embed in this app (no maps.googleapis.com/maps/api/js script, no map
+  // tile requests) that would need googleapis.com for tile images either —
+  // the only other googleapis.com use in the codebase is the server-side
+  // Geocoding JSON call (app/api/geocode/route.js), which never touches
+  // img-src. Removing the directive shrinks the CSP surface with zero
+  // behavior change; lh3.googleusercontent.com and *.ggpht.com (the actual
+  // photo-serving hosts) are untouched.
+  "img-src 'self' data: blob: https://vercel.live https://vercel.com https://*.gstatic.com https://lh3.googleusercontent.com https://*.ggpht.com https://s1.ticketm.net https://*.ticketm.net https://cache-graphicslib.viator.com https://media.tacdn.com https://media-cdn.tripadvisor.com https://tiles.openfreemap.org https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://www.google.com https://googleads.g.doubleclick.net https://cdn.apple-mapkit.com https://*.apple-mapkit.com",
   // Sentry error beacons go to the project's ingest host (errors-only, no tunnel).
   // GA4 beacons to google-analytics.com and a region1.* shard; Ads conversions
   // beacon to google.com/pagead + googleads.g.doubleclick.net.
