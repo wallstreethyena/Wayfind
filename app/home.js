@@ -4401,11 +4401,25 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // them; the filter logic can return behind a future, fully-functional Filters
   // sheet if wanted. (The legacy family/budget EXPERIENCE tiles are separate and
   // untouched — see EXPERIENCES / REVENUE_EXP_KEYS, guarded by check-cards.)
+  // 2026-09-16: a curated ask that arrived before `center` existed (deep link,
+  // retired-tile alias, "best of {town}" search). Replayed once by the effect
+  // right after openCurated; never opens an empty sheet in the meantime.
+  const _pendingCurated = useRef(null);
   const openCurated = async (kind, opts = {}) => {
     // 2026-08-26 — the kind === "delivery" branch (the "Order In" tile ->
     // /order-in) is gone with Uber Eats (owner directive; the tile itself was
     // removed from lib/exploreMenu.js and the page deleted).
     const c = CURATED[kind]; if (!c) return;
+    // 2026-09-16 — NO CENTER, NO SHEET. The ?exp=cur-today deep link (and the
+    // retired-tile aliases, and the "best of {town}" search path) fires 400ms
+    // after mount, before `center` exists. searchNearbyPlaces() with no center
+    // resolves [] without a request, the feed pool is still empty, and the
+    // sheet opened as a permanent "0 curated picks / Not enough data" — no
+    // loading state, no retry, nothing for #1327's library fallback to even
+    // answer. Verified live on production after #1333: zero /api/places/search
+    // requests on that path. Park the ask; the effect below re-runs it the
+    // moment center lands.
+    if (!center) { _pendingCurated.current = { kind, opts }; return; }
     const lens = (kind === "bestof" || kind === "today") ? (opts && opts.lens === "gems" ? "gems" : "institutions") : null;
     try { logEvent("curated_open", null, { kind }); } catch (e) {}
     // v5.89: curate the tile from the ALREADY-LOADED feed pool FIRST — the same
@@ -4530,6 +4544,12 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       setHookDetail({ id: "cur-" + kind, key: "cur-" + kind, theme: "cur-" + kind, title: title2, themeTitle: title2, label: title2, take: body2, themeBody: body2, heroImage: c.heroImage || null, emoji: c.emoji, places: places2, sections: sections2, presetMi: thin ? _fitMi : c.presetMi, presetSort: c.presetSort, lens });
     } catch (e) { showToast("Could not load that list"); }
   };
+  // 2026-09-16: replay the one parked curated ask the moment center exists.
+  useEffect(() => {
+    if (!center || !_pendingCurated.current) return;
+    const p = _pendingCurated.current; _pendingCurated.current = null;
+    try { openCurated(p.kind, p.opts); } catch (e) {}
+  }, [center]); // eslint-disable-line react-hooks/exhaustive-deps
   // v5.84 (B-spec): the per-tile live-digest pipeline (tileData + /api/home/tiles
   // + lib/homeTiles computeTileSubline) was removed. It produced the unverifiable
   // sublines the spec forbids ("17 open right now", "4.9 stars", "6,109 reviews").

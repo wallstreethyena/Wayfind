@@ -91,6 +91,23 @@ ok(sameIdSet(null) === false && sameIdSet([A, null]) === false, "defensive on ba
   ok(/placeAllowed\(null, null, p\)\)\)\.then\(\(l\) => l\.filter\(\(p\) => tileAdmits\(kind, p\)\)\)/.test(HOME), "the fetched slot results apply tileAdmits AFTER the shared filter (check-gate's pattern stays intact)");
 }
 
+// 7. (2026-09-16) NO CENTER, NO SHEET. The ?exp=cur-today deep link fires
+//    before `center` exists; searchNearbyPlaces(q, null) resolves [] with no
+//    request and the sheet opened as a permanent empty state — verified live
+//    on production after #1333 (zero /api/places/search requests). The ask is
+//    parked and replayed once by an effect keyed on center.
+{
+  const open = HOME.slice(HOME.indexOf("const openCurated = async (kind, opts = {}) =>"));
+  const guardIx = open.indexOf("if (!center) { _pendingCurated.current = { kind, opts }; return; }");
+  const poolIx = open.indexOf("const _poolPicks = ");
+  const searchIx = open.indexOf("searchNearbyPlaces(sl.q, center");
+  ok(guardIx > 0 && guardIx < poolIx && guardIx < searchIx, "openCurated parks the ask when center is null, BEFORE the pool read and the slot searches");
+  ok(/const _pendingCurated = useRef\(null\);/.test(HOME), "one parked ask lives in a ref (no state churn, no double-open)");
+  ok(/useEffect\(\(\) => \{\s*if \(!center \|\| !_pendingCurated\.current\) return;\s*const p = _pendingCurated\.current; _pendingCurated\.current = null;\s*try \{ openCurated\(p\.kind, p\.opts\); \} catch \(e\) \{\}\s*\}, \[center\]\);/.test(HOME),
+    "an effect keyed on center replays the parked ask exactly once");
+  ok(/if \(!query \|\| !center\) return Promise\.resolve\(\[\]\);/.test(GOOGLE), "(the reason) searchNearbyPlaces with no center resolves [] without a request");
+}
+
 // 5. cost invariant — cat stays OUT of the paid request and the cache key
 const keyLine = ROUTE.match(/const k = \[[^\n]+\]\.join\("\|"\);/);
 ok(!!keyLine && !/\bcat\b/.test(keyLine[0]), "server cache key does not include cat (no cache split, no pollution)");
