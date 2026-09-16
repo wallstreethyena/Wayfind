@@ -1536,3 +1536,8 @@ node scripts/check-search-no-rebuy.mjs
 node scripts/test-shared-photo-lifecycle.mjs
 
 node scripts/test-best-photo-selection.mjs
+
+# Foursquare: an ok-empty answer is cached (3-day clock) instead of re-fetched
+# on every request; landing.js: a denied text_pro grant returns null and never
+# writes [] over a city page for 30 days. Both executed with mocked edges.
+node scripts/check-provider-empty-answers.mjs
