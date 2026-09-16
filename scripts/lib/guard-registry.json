@@ -31,7 +31,7 @@
     "totalRegistryEntries": 646,
     "guardsTxtLineCount": 644,
     "guardsTxtReachedFileCount": 639,
-    "criticalCount": 79,
+    "criticalCount": 80,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 432,
@@ -46,7 +46,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 47,
+      "assertionCount": 54,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,
@@ -2573,7 +2573,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 36,
+      "assertionCount": 59,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -2584,11 +2584,16 @@
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
-      "critical": false,
-      "criticalReasons": [],
-      "protects": null,
-      "blastRadius": null,
-      "owner": null
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-import:../lib/commerceProviders.js,../lib/affiliateLibrary.js"
+      ],
+      "protects": "EVENT_TICKET_DEALS product integrity across every provider it names: a separately-ticketed night never maps to park admission, a non-UT (Tiqets/Klook) row resolves in the shared partner registry AND matches the merchant its own organizer URL actually belongs to, every href routes through /api/commerce/go for that entry's own provider (never a hardcoded Undercover Tourist constant), and the UT-only FALL_EVENT_TICKET_DEALS compatibility map never picks up a non-UT offer key.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "2026-09-15: nine merchants sell admission only through Tiqets/Klook, so an event confirmed included with admission there (Zoo Boo at Zoo Miami) had no way to carry a commissioned CTA at all — every surface silently rendered the organizer's own free link. A wrong non-UT mapping is the same trust bug as a wrong UT one: a separately-ticketed night wearing a park-admission commission."
+      },
+      "owner": "Revenue QA"
     },
     {
       "file": "scripts/check-event-where.mjs",
