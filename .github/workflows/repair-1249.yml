@@ -1,0 +1,59 @@
+name: repair-pr-1249
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/repair-1249.yml'
+permissions:
+  contents: write
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Rebase and wire the missing guard
+        env:
+          TARGET_BRANCH: feat/graceful-outage-state-2026-09-10
+          EXPECTED_OLD_HEAD: 765f7dbba7516135a0d2d5eddc71042669829568
+        run: |
+          set -euo pipefail
+          git config user.name 'Wayfind release repair'
+          git config user.email 'noreply@github.com'
+          git fetch origin "$TARGET_BRANCH"
+          test "$(git rev-parse FETCH_HEAD)" = "$EXPECTED_OLD_HEAD"
+          git checkout -B candidate FETCH_HEAD
+          git rebase origin/main
+          grep -qxF 'node scripts/test-rail-failure.mjs' scripts/guards.txt || printf '%s\n' 'node scripts/test-rail-failure.mjs' >> scripts/guards.txt
+          node scripts/lib/build-guard-registry.mjs
+          git add scripts/guards.txt scripts/lib/guard-registry.json
+          git commit -m 'test: register graceful outage regression guard'
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: Dependency security audit
+        run: npm audit --audit-level=moderate
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Required rendered place-card standard
+        run: node scripts/check-place-card-standard.mjs --require-browser
+      - name: Guard suite
+        run: node scripts/run-guards.mjs
+      - name: Production build
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+        run: npx next build
+      - name: Homepage bundle ratchet
+        run: node scripts/check-bundle.mjs
+      - name: Publish exact tested branch
+        env:
+          TARGET_BRANCH: feat/graceful-outage-state-2026-09-10
+          EXPECTED_OLD_HEAD: 765f7dbba7516135a0d2d5eddc71042669829568
+        run: |
+          set -euo pipefail
+          git push origin HEAD:"$TARGET_BRANCH" --force-with-lease="refs/heads/$TARGET_BRANCH:$EXPECTED_OLD_HEAD"
