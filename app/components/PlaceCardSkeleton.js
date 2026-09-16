@@ -5,7 +5,7 @@
 // reserve space with a single rounded wf-sk / wf-skeleton rectangle. On a
 // phone that reads as an empty colored block while the ranked cards hydrate.
 // Rails reserve the 268px two-column card. Stacked-list skeletons inherit
-// list width + 36% media and reserve 235px (live list height) so hydrate
+// list width + the shared 96px media and reserve 268px (live card height) so hydrate
 // does not jump 178→235. Never a 96px slab and never a global 268 lock.
 //
 // No invented card text. No ranking. toHookLine / isUsableCardHook are not

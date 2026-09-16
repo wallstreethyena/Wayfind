@@ -98,8 +98,7 @@ const { loadComponent } = await import("./lib/jsxLoad.mjs");
 const {
   PLACE_CARD_GAP_PX,
   PLACE_CARD_HEIGHT_PX,
-  PLACE_CARD_LIST_MEDIA_MIN_PCT,
-  PLACE_CARD_LIST_MEDIA_MAX_PCT,
+  PLACE_CARD_MEDIA_PX,
   PLACE_CARD_PAGE_GUTTER_PX,
   PLACE_CARD_PHONE_PEEK,
 } = await import("../lib/placeCardStandard.js");
@@ -255,9 +254,8 @@ for (const [i, c] of measured.list.entries()) {
   ok(Math.abs(c.w - expectedList) <= 1, `list skeleton ${i}: full list width, no 1.08 peek (expected ${expectedList.toFixed(1)}, got ${c.w.toFixed(1)})`);
   ok(Math.abs(c.x - PLACE_CARD_PAGE_GUTTER_PX) <= 1 && Math.abs(measured.viewport - c.right - PLACE_CARD_PAGE_GUTTER_PX) <= 2,
     `list skeleton ${i}: ~13px gutters, not a 40–44px peek strip (x=${c.x.toFixed(1)}, right gutter ${(measured.viewport - c.right).toFixed(1)})`);
-  const pct = c.w > 0 ? 100 * c.mediaW / c.w : 0;
-  ok(pct >= PLACE_CARD_LIST_MEDIA_MIN_PCT - 0.6 && pct <= PLACE_CARD_LIST_MEDIA_MAX_PCT + 0.6,
-    `list skeleton ${i}: photo column is 32–38% of card width (got ${pct.toFixed(1)}%)`);
+  ok(Math.abs(c.mediaW - PLACE_CARD_MEDIA_PX) <= 2,
+    `list skeleton ${i}: photo column is the shared ${PLACE_CARD_MEDIA_PX}px rail column (got ${c.mediaW.toFixed(1)})`);
   ok(/^\s*\S+\s+\S+/.test(c.cols), `list skeleton ${i}: layout is a two-track grid (got ${JSON.stringify(c.cols)})`);
 }
 const live = measured.live[0];
@@ -303,9 +301,8 @@ for (const [i, c] of wide.list.entries()) {
   ok(Math.abs(c.h - PLACE_CARD_HEIGHT_PX) <= 1, `440 list skeleton ${i}: still 268px (got ${c.h.toFixed(0)})`);
   ok(Math.abs(c.w - wideList) <= 1, `440 list skeleton ${i}: full list width, no peek (got ${c.w.toFixed(1)})`);
   ok(Math.abs(440 - c.right - PLACE_CARD_PAGE_GUTTER_PX) <= 2, `440 list skeleton ${i}: ~13px right gutter, not 40–44px (got ${(440 - c.right).toFixed(1)})`);
-  const pct = c.w > 0 ? 100 * c.mediaW / c.w : 0;
-  ok(pct >= PLACE_CARD_LIST_MEDIA_MIN_PCT - 0.6 && pct <= PLACE_CARD_LIST_MEDIA_MAX_PCT + 0.6,
-    `440 list skeleton ${i}: photo column is 32–38% (got ${pct.toFixed(1)}%)`);
+  ok(Math.abs(c.mediaW - PLACE_CARD_MEDIA_PX) <= 2,
+    `440 list skeleton ${i}: photo column is the shared ${PLACE_CARD_MEDIA_PX}px column (got ${c.mediaW.toFixed(1)})`);
   ok(Math.abs(c.h - wideLive.h) <= 1 && Math.abs(wideLive.h - PLACE_CARD_HEIGHT_PX) <= 1,
     `440 list skeleton ${i} and live card are both 268px (skel ${c.h.toFixed(0)} vs live ${wideLive.h.toFixed(0)})`);
 }

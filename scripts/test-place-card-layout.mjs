@@ -171,8 +171,8 @@ m.cards.forEach((c, ci) => {
     ok(c.card.w >= 350 && c.card.w <= m.viewport + 0.5, `${tag}: stacked phone card fills the column without overflow (got ${c.card.w.toFixed(1)}px at ${m.viewport}px)`);
     ok(m.viewport - (c.card.x + c.card.w) <= 16, `${tag}: no 40px peek gutter on the right (dead space ${(m.viewport - (c.card.x + c.card.w)).toFixed(1)}px)`);
     if (c.media && c.card.w > 0) {
-      const pct = 100 * c.media.w / c.card.w;
-      ok(pct >= 32 && pct <= 38, `${tag}: photo column is 32–38% of card width (got ${pct.toFixed(1)}%)`);
+      // v8.56.18: one photo column for every card, the rail card's 96px.
+      ok(Math.abs(c.media.w - 96) <= 2, `${tag}: photo column is the shared 96px rail column (got ${c.media.w.toFixed(1)}px)`);
     }
     for (const k of c.kids) ok(k.h >= 34 && k.w >= 26, `${tag}: ${k.cls} stays tappable on a 390px phone (got ${k.w.toFixed(1)}x${k.h.toFixed(1)})`);
   }

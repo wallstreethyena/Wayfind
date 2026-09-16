@@ -15,10 +15,9 @@ import { loadComponent } from "./lib/jsxLoad.mjs";
 import {
   PLACE_CARD_GAP_PX,
   PLACE_CARD_HEIGHT_PX,
-  PLACE_CARD_LIST_MEDIA_MAX_PCT,
-  PLACE_CARD_LIST_MEDIA_MIN_PCT,
-  PLACE_CARD_LIST_MEDIA_PCT,
+  PLACE_CARD_LIST_FILL_BELOW_PX,
   PLACE_CARD_MAX_WIDTH_PX,
+  PLACE_CARD_MEDIA_PX,
   PLACE_CARD_PAGE_GUTTER_PX,
   PLACE_CARD_PHONE_PEEK,
 } from "../lib/placeCardStandard.js";
@@ -192,7 +191,7 @@ const compactCss = String(WF_PLACE_CARD_CSS).replace(/\s+/g, "");
 ok(compactCss.includes(`--wf-card-h:${PLACE_CARD_HEIGHT_PX}px`) && compactCss.includes(`height:var(--wf-card-h)`), "canonical CSS consumes the shared 268px height constant");
 ok(compactCss.includes(`max-width:${PLACE_CARD_MAX_WIDTH_PX}px`) || compactCss.includes(`${PLACE_CARD_MAX_WIDTH_PX}px`), "canonical CSS consumes the shared 440px width cap");
 ok(compactCss.includes(`${PLACE_CARD_PHONE_PEEK}`) && compactCss.includes(`${PLACE_CARD_PAGE_GUTTER_PX * 2}px`) && compactCss.includes(`${PLACE_CARD_GAP_PX}px`), "canonical CSS consumes the shared phone peek, page gutter, and gap constants");
-ok(compactCss.includes(`--wf-place-card-media:${PLACE_CARD_LIST_MEDIA_PCT}%`), "stacked lists consume the 36% photo-column constant");
+ok(compactCss.includes(`--wf-place-card-media:${PLACE_CARD_MEDIA_PX}px`) && !/--wf-place-card-media:\d+%/.test(compactCss), "every card (stacked and rail) consumes the one photo-column constant; no percentage column");
 ok(!/\.wf-place-card-list[^{]*\{[^}]*1\.08/.test(compactCss) && !/\.wf-place-card-list,\.wf-rail/.test(compactCss) && !/\.wf-place-card-list,\.wf8-pcrail/.test(compactCss),
   "1.08 phone peek is not declared on .wf-place-card-list — peek is rail-only");
 ok(/\.wf-rail[^{]*\{[^}]*--wf-place-card-width:min\(100%,440px,calc\(\(100vw/.test(compactCss) || compactCss.includes(`.wf-rail,.wf8-pcrail,.wf-rail .wf-place-card`),
@@ -368,25 +367,24 @@ if (!browserConfig) {
       ok(live.length === 16, `PROBE ${width}px: sixteen live component cards were measured (got ${live.length})`);
       const STACKED = new Set(["home-live-route", "guide-list-slot"]);
       const expectedRailWidth = Math.min(PLACE_CARD_MAX_WIDTH_PX, (width - PLACE_CARD_PAGE_GUTTER_PX * 2 - (PLACE_CARD_PHONE_PEEK - 1) * PLACE_CARD_GAP_PX) / PLACE_CARD_PHONE_PEEK);
-      const expectedListWidth = Math.min(PLACE_CARD_MAX_WIDTH_PX, width - PLACE_CARD_PAGE_GUTTER_PX * 2);
+      const listFills = width < PLACE_CARD_LIST_FILL_BELOW_PX;
+      const expectedListWidth = listFills ? width - PLACE_CARD_PAGE_GUTTER_PX * 2 : Math.min(PLACE_CARD_MAX_WIDTH_PX, width - PLACE_CARD_PAGE_GUTTER_PX * 2);
       for (const card of live) {
         const stacked = STACKED.has(card.adapter);
         const expectedWidth = stacked ? expectedListWidth : expectedRailWidth;
         if (stacked) {
           ok(Math.abs(card.box.h - PLACE_CARD_HEIGHT_PX) <= 1, `${width}px ${card.adapter}: stacked list is the shared ${PLACE_CARD_HEIGHT_PX}px height (got ${card.box.h})`);
           if (card.media && card.box.w > 0) {
-            const pct = 100 * card.media.w / card.box.w;
-            ok(pct >= PLACE_CARD_LIST_MEDIA_MIN_PCT - 0.6 && pct <= PLACE_CARD_LIST_MEDIA_MAX_PCT + 0.6, `${width}px ${card.adapter}: stacked photo column is 32–38% of card width (got ${pct.toFixed(1)}%)`);
             ok(Math.abs(card.media.h - card.box.h) <= 2.5, `${width}px ${card.adapter}: stacked photo column is the full card height minus the 1px border (got ${card.media.h})`);
           }
-          if (expectedListWidth < PLACE_CARD_MAX_WIDTH_PX - 0.5) {
+          if (listFills || expectedListWidth < PLACE_CARD_MAX_WIDTH_PX - 0.5) {
             ok(card.box.x <= PLACE_CARD_PAGE_GUTTER_PX + 1, `${width}px ${card.adapter}: stacked card shares the 13px left gutter (x=${card.box.x})`);
             ok(width - card.box.right <= PLACE_CARD_PAGE_GUTTER_PX + 2, `${width}px ${card.adapter}: no peek dead-strip on the right (right gutter ${(width - card.box.right).toFixed(1)}px)`);
           }
         } else {
           ok(Math.abs(card.box.h - PLACE_CARD_HEIGHT_PX) <= 0.5, `${width}px ${card.adapter}: computed height is ${PLACE_CARD_HEIGHT_PX}px (got ${card.box.h})${MUTATION && card.adapter.startsWith("event-") ? " — RENDER mutation caught" : ""}`);
         }
-        ok(card.box.w > 0 && card.box.w <= PLACE_CARD_MAX_WIDTH_PX + 0.5 && card.box.w <= width + 0.5, `${width}px ${card.adapter}: width is positive, capped, and clamped to its viewport (got ${card.box.w})`);
+        ok(card.box.w > 0 && (card.box.w <= PLACE_CARD_MAX_WIDTH_PX + 0.5 || (stacked && listFills)) && card.box.w <= width + 0.5, `${width}px ${card.adapter}: width is positive, capped, and clamped to its viewport (got ${card.box.w})`);
         ok(Math.abs(card.box.w - expectedWidth) <= 1, `${width}px ${card.adapter}: computed width follows the ${stacked ? "stacked-list fill" : "rail peek"} formula (expected ${expectedWidth.toFixed(2)}, got ${card.box.w})`);
         ok(card.scrollWidth <= card.box.w + 1, `${width}px ${card.adapter}: card content does not overflow horizontally`);
         if ((width === 320 || width === 360) && card.headingTextWidth != null) ok(card.headingTextWidth >= 120, `${width}px ${card.adapter}: title keeps at least 120px of readable line width (got ${card.headingTextWidth})`);
@@ -415,7 +413,7 @@ if (!browserConfig) {
         ok(card.root[0] === reference.root[0] && card.root[2] === reference.root[2], `${width}px ${card.adapter}: critical root height/radius match IconicPlaceCard`);
         if (card.content && reference.content) ok(JSON.stringify(card.content) === JSON.stringify(reference.content), `${width}px ${card.adapter}: content padding matches IconicPlaceCard`);
         if (card.name && reference.name) ok(JSON.stringify(card.name) === JSON.stringify(reference.name), `${width}px ${card.adapter}: title typography matches IconicPlaceCard`);
-        if (!stacked && card.media && reference.media) ok(Math.abs(card.media.w - reference.media.w) <= .5, `${width}px ${card.adapter}: media width matches IconicPlaceCard`);
+        if (card.media && reference.media) ok(Math.abs(card.media.w - reference.media.w) <= 1.5, `${width}px ${card.adapter}: photo column matches the rail card (${card.media.w} vs ${reference.media.w}) — one photo size everywhere`);
         if (!stacked && card.actions && reference.actions) {
           ok(card.actions[0] === reference.actions[0] && card.actions[3] === reference.actions[3], `${width}px ${card.adapter}: action display and spacing match IconicPlaceCard`);
           if (card.controls.length === reference.controls.length) ok(card.actions[1] === reference.actions[1], `${width}px ${card.adapter}: equal control counts use equal action tracks`);

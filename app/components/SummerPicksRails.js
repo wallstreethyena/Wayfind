@@ -57,7 +57,7 @@ export default function SummerPicksRails({ rails, city, onOpenPlace = null }) {
               take={card._summerWhy || card.editorial || card.hook || null} place={card} eagerMedia={rank <= 3}
               onOpen={onOpenPlace ? () => onOpenPlace(card) : undefined}
               ariaLabel={`Open ${card.name}`} href={`/p/${encodeURIComponent(card.id)}`}
-              cta={ctaHref ? { label: "Directions ↗", href: ctaHref, external: true } : null} />;
+              cta={null} />;
           })}
         </div>
         <RailDots railId={railId} count={rail.cards.length} />

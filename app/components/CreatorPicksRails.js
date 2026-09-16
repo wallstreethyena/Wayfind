@@ -72,7 +72,7 @@ export default function CreatorPicksRails({
               facts={facts}
               award={{ tone: "creator", icon: "🎬", label: `@${rail.handle}${platform ? ` on ${platform.label}` : ""}` }}
               take={toHookLine(place.editorial, place.name) || null}
-              cta={directions ? { label: "Directions ↗", href: directions, external: true } : null}
+              cta={null}
               ariaLabel={`Open ${place.name}`}
               onOpen={onOpenPlace ? () => onOpenPlace(place) : undefined}
               saved={isSaved ? !!isSaved(place.id) : undefined}

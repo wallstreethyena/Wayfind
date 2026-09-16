@@ -142,12 +142,7 @@ function TrendBlock({ trend, index, photoRefFor, onLog, onMeaningful, onOpenPlac
         award={!additional ? topPickAward({ category: coarseCat(place) || prettyType(p.primaryType || p.category) || "nearby", rank }) : null}
         chips={chips}
         take={p.editorialHook || null}
-        cta={directionHref ? {
-          label: "Directions ↗",
-          href: directionHref,
-          external: true,
-          onClick: () => onMeaningful("directions", place, { concept_key: trend.conceptKey, trend_position: index + 1, card_position: rank }),
-        } : null}
+        cta={null}
         ariaLabel={"Open " + p.name + " for " + trend.label}
         // v8.29.2 — the row itself, so an unwired caller still gets a working
         // thumb from lib/cardActions instead of a button that does nothing.

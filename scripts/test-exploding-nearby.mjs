@@ -363,8 +363,11 @@ ok(ui.includes("loadProvidedTrendList") && ui.includes("/api/trends/nearby") && 
 for (const event of [
   "exploding_section_impression", "trend_impression", "trend_expand", "primary_trend_card_click",
   "trend_horizontal_scroll", "additional_trend_place_click", "place_detail_view", "trend_card_save",
-  "trend_card_share", "directions", "time_to_first_meaningful_interaction", "interaction_within_12_seconds",
+  "trend_card_share", "time_to_first_meaningful_interaction", "interaction_within_12_seconds",
 ]) ok(ui.includes(`"${event}"`), `the UI emits ${event}`);
+// v8.56.18 (owner, 2026-09-16): the card face carries no Directions button, so
+// the rail no longer emits a card-level "directions" event; the detail page owns it.
+ok(!/label:\s*"Directions/.test(ui), "the exploding rail card carries no Directions CTA");
 ok(ui.includes("<RailCard") && ui.includes("wf-exploding-primary") && ui.includes("wf-rail-exploding"),
   "the primary vertical answers and optional horizontal rail reuse Wayfind's real place card");
 ok(!/trending place|this place is exploding/i.test(ui), "the UI never converts a topic claim into a place-level claim");

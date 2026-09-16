@@ -3,8 +3,10 @@ import { HALLOWEEN_MARK } from "../../lib/seasonalBrand";
 import {
   PLACE_CARD_GAP_PX,
   PLACE_CARD_HEIGHT_PX,
-  PLACE_CARD_LIST_MEDIA_PCT,
+  PLACE_CARD_LIST_FILL_BELOW_PX,
   PLACE_CARD_MAX_WIDTH_PX,
+  PLACE_CARD_MEDIA_DESKTOP_PX,
+  PLACE_CARD_MEDIA_PX,
   PLACE_CARD_PAGE_GUTTER_PX,
   PLACE_CARD_PHONE_PEEK,
 } from "../../lib/placeCardStandard.js";
@@ -121,9 +123,10 @@ ${WF_SKELETON_CSS}
 
 .wf-place-card,.wf-place-card *,.wf-place-card *::before,.wf-place-card *::after{box-sizing:border-box}
 .wf-place-card,.wf-place-card-slot,.wf-place-card-list{--wf-place-card-width:min(100%,${PLACE_CARD_MAX_WIDTH_PX}px)}
+@media(max-width:${PLACE_CARD_LIST_FILL_BELOW_PX - 1}px){.wf-place-card-list,.wf-place-card-list .wf-place-card,.wf-place-card-list .wf-place-card-slot{--wf-place-card-width:100%}}
 .wf-rail,.wf8-pcrail,.wf-rail .wf-place-card,.wf8-pcrail .wf-place-card,.wf-rail .wf-place-card-slot,.wf8-pcrail .wf-place-card-slot{--wf-place-card-width:min(100%,${PLACE_CARD_MAX_WIDTH_PX}px,calc((100vw - ${PLACE_CARD_PAGE_GUTTER_PX * 2}px - (${PLACE_CARD_PHONE_PEEK} - 1) * ${PLACE_CARD_GAP_PX}px) / ${PLACE_CARD_PHONE_PEEK}))}
-.wf-place-card{--wf-card-h:${PLACE_CARD_HEIGHT_PX}px;--wf-card-badge-w:104px;--wf-place-card-media:${PLACE_CARD_LIST_MEDIA_PCT}%;width:var(--wf-place-card-width);max-width:100%;min-width:0;flex:0 1 var(--wf-place-card-width);height:var(--wf-card-h);box-sizing:border-box;position:relative}
-.wf-rail .wf-place-card,.wf8-pcrail .wf-place-card{flex:0 0 var(--wf-place-card-width);height:var(--wf-card-h);--wf-place-card-media:96px}
+.wf-place-card{--wf-card-h:${PLACE_CARD_HEIGHT_PX}px;--wf-card-badge-w:104px;--wf-place-card-media:${PLACE_CARD_MEDIA_PX}px;width:var(--wf-place-card-width);max-width:100%;min-width:0;flex:0 1 var(--wf-place-card-width);height:var(--wf-card-h);box-sizing:border-box;position:relative}
+.wf-rail .wf-place-card,.wf8-pcrail .wf-place-card{flex:0 0 var(--wf-place-card-width);height:var(--wf-card-h);--wf-place-card-media:${PLACE_CARD_MEDIA_PX}px}
 .wf-place-card-layout{height:100%;box-sizing:border-box}
 .wf-place-card-monogram{height:100%;box-sizing:border-box}
 .wf-place-card-content{display:flex;flex-direction:column;height:100%;box-sizing:border-box}
@@ -597,8 +600,8 @@ ${WF_SKELETON_CSS}
   .wf-sheet-card-actions>a,.wf-sheet-card-actions>button,.wf-sheet-card-actions>span{min-width:0!important;padding-inline:4px!important;font-size:9.5px!important;overflow:hidden}
 }
 @media(min-width:${WF_DESKTOP_BP}px){
-  .wf-rail .wf-place-card,.wf8-pcrail .wf-place-card{--wf-place-card-media:108px}
-  .wf-rail .wf-place-card-layout>img,.wf-rail .wf-place-card-layout>.wf-place-card-media,.wf8-pcrail .wf-place-card-layout>img,.wf8-pcrail .wf-place-card-layout>.wf-place-card-media{width:108px!important}
+  .wf-place-card,.wf-rail .wf-place-card,.wf8-pcrail .wf-place-card{--wf-place-card-media:${PLACE_CARD_MEDIA_DESKTOP_PX}px}
+  .wf-rail .wf-place-card-layout>img,.wf-rail .wf-place-card-layout>.wf-place-card-media,.wf8-pcrail .wf-place-card-layout>img,.wf8-pcrail .wf-place-card-layout>.wf-place-card-media{width:${PLACE_CARD_MEDIA_DESKTOP_PX}px!important}
   .wf-place-card-name{font-size:17px!important}
 }
 

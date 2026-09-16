@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 654,
-    "totalRegistryEntries": 655,
-    "guardsTxtLineCount": 653,
-    "guardsTxtReachedFileCount": 648,
+    "totalOnDiskGuardFiles": 655,
+    "totalRegistryEntries": 656,
+    "guardsTxtLineCount": 654,
+    "guardsTxtReachedFileCount": 649,
     "criticalCount": 81,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 443,
-      "RENDER": 72,
+      "RENDER": 73,
       "STRUCTURAL": 139,
       "OTHER": 1
     }
@@ -5752,11 +5752,33 @@
       "owner": null
     },
     {
+      "file": "scripts/check-place-card-no-directions.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 9,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/check-place-card-standard.mjs",
       "npmScript": null,
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 72,
+      "assertionCount": 71,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -11124,7 +11146,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 102,
+      "assertionCount": 103,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

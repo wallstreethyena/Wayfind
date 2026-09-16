@@ -1,3 +1,14 @@
+## v8.56.18 - One place card everywhere, and no Directions button on any card
+
+Owner direction, 2026-09-16, with three screenshots: every place card must look like the horizontal rail card (Kids Empire Bradenton), with no Directions button. Tapping the card opens the detail page, and Directions lives there. This was first decided in v8.11 (2026-08-18) for IconicPlaceCard, but it kept coming back because eleven rails each passed their own `cta={{ label: "Directions ↗" }}` into `RailCard`.
+
+- **Directions removed from every rail card:** Night Out, Worth Eating, Lunch Break, Summer Picks, Date Night, Today, Creator Picks, Breakfast, Birthday, Exploding Near You and the place cards in the Fall rails. Fall event cards keep their ticket button; booking and affiliate buttons are untouched.
+- **Protected at the component, not only at the callers.** `RailCard` now drops any CTA labelled Directions, or any CTA that points at Google Maps or Apple Maps under another label (`isDirectionsCta`). A new rail that passes one gets the standard card, not a different one.
+- **One photo size.** The stacked home and Food lists used a 36% photo column, so their photo was far bigger than the rail card's. Every card now uses the same 96px column (108px on desktop) from `lib/placeCardStandard.js`.
+- **Stacked lists fill the phone.** Below 900px a stacked list card fills its column instead of stopping at the 440px cap, which left an empty strip on the right while the rail above filled the screen.
+- **New guard `check-place-card-no-directions`:** fails if any card-rendering file builds a Directions CTA, proves `RailCard` drops a labelled or relabelled maps CTA, proves a real booking CTA still renders, and checks the four standard actions. It goes red when the old NightOutRails code is restored. `check-place-card-standard` and `test-home-first-paint` now assert the single photo column and the full-width phone list.
+- **Unchanged on purpose:** the Fall seasonal skin, the detail sheet's Directions button, and the "Directions" link inside the paid sponsor attachment under a sponsored card (a sponsor contract surface, not the card face).
+
 ## v8.56.17 - The Hilton giveaway prompt now uses the owner's card design
 
 Owner-supplied design, 2026-09-15. The giveaway popup in `app/home.js` is rebuilt to match it: a resort photo hero (`public/brand/giveaway-hilton-orlando-hero.jpg`, cropped from the owner's artwork with its baked-in close button removed), a gold-rimmed dark card, the "WAYFIND GIVEAWAY" eyebrow, a two-line headline with "Hilton Orlando" in the gold gradient, a two-step "Share 3 → You're entered" strip and one full-width gold CTA, with "How it works" underneath.
