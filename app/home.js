@@ -196,7 +196,7 @@ import { locationPromoAllowed } from "../lib/promoLocation.js";
 import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
-import { INV_CAT_FOR_TILE, sameIdSet } from "../lib/curatedLibrary";
+import { INV_CAT_FOR_TILE, sameIdSet, tileAdmits } from "../lib/curatedLibrary";
 import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/exploreMenu";
 // July 2026 decomposition (G0): design tokens and stateless helpers live in the
 // eager shared kit so extracted screens/sheets can import them without home.js.
@@ -4428,7 +4428,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         const pool = dedupePlaces([...(suggested || []), ...(places || []), ...(homeTodo || [])].filter(Boolean), true);
         const wantCat = _CAT_FOR[kind];
         const inCat = (p) => { if (kind === "bestof") return true; const cc = Ranking.coarseCat(p) || primaryCategory(p); return cc === wantCat; };
-        const picks = pool.filter((p) => p && p.id && p.lat != null && inCat(p));
+        const picks = pool.filter((p) => p && p.id && p.lat != null && inCat(p) && tileAdmits(kind, p)); // 2026-09-16: today/experiences ask "what to go and DO" — lib/outing.js answers, unchanged
         if (!picks.length) return [];
         const condCtx = condCtxFromNow(nowContext({ weather }));
         const boostBase = (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, zeroIsUnrated: false, featured: featuredBoost(p), evidence: hasCreatorVideoAt(p) ? CREATOR_VIDEO_BONUS : 0, trend: p.trending ? TRENDING_BONUS : 0 }); // B13: merit base = wfScore + boosts applied ONCE and uniformly. NOT p._ps, which already bakes in these same boosts (+ affinity/distance/curated) -> using it here double-counted featured/community/video AND compared personalized _ps items against raw-wfScore items in one comparator.
@@ -4466,7 +4466,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       } catch (e) {}
     }
     try {
-      const results = await Promise.all(c.slots.map((sl) => searchNearbyPlaces(sl.q, center, DEFAULT_RADIUS_MI, _INV_CAT[kind]).then((l) => (l || []).filter((p) => placeAllowed(null, null, p))).catch(() => []))); // v4.94: Top-10 pools route through the shared filter; 2026-09-15: carry the library category so a no-Google day serves owned inventory
+      const results = await Promise.all(c.slots.map((sl) => searchNearbyPlaces(sl.q, center, DEFAULT_RADIUS_MI, _INV_CAT[kind]).then((l) => (l || []).filter((p) => placeAllowed(null, null, p))).then((l) => l.filter((p) => tileAdmits(kind, p))).catch(() => []))); // v4.94: Top-10 pools route through the shared filter; 2026-09-15: carry the library category so a no-Google day serves owned inventory
       const used = new Set(); const out = []; const sections = [];
       const CHAIN_RX = /papa john|domino'?s|pizza hut|mcdonald|burger king|taco bell|wendy'?s|little caesar|kfc\b|dunkin|subway\b|checkers\b|hungry howie/i;
       // v4.61 PROTECTED (check-meals.mjs): a slot label is a promise. Every
