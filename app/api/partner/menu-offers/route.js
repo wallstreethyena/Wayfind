@@ -12,7 +12,7 @@
 //
 // NO DESTINATION URLS LEAVE THIS ROUTE. Every row here is a
 // { provider, id, title, image, quality10, providerLabel, subcategory,
-// merchant } tuple — never partnerOfferRegistry's `destination`. The browser
+// venue, distMi } tuple — never partnerOfferRegistry's `destination`. The browser
 // only ever gets an offer id; commerceHref()/`/api/commerce/go` is what turns
 // that id into a redirect, server-side, at click time (lib/commerceProviders.js).
 //
@@ -103,7 +103,11 @@ export async function GET(request) {
           quality10,
           providerLabel: providerLabel(row.provider),
           subcategory: key,
-          merchant: row.merchant,
+          // The place the ticket admits you to. NOT the seller: the seller is
+          // `providerLabel` above, and it is what the rail's "via …" badge and
+          // the commerce_* events must carry (2026-09-16 live check: the badge
+          // read "via The Dalí Museum" when this field was named `merchant`).
+          venue: row.venue,
           // Lane F, 2026-09-16 — the caller's UnifiedBrowseCommerceRail uses
           // this to order RESERVED (unscored) menu rows by distance; never a
           // ranking signal for scored rows. See lib/menuReserveSlots.js.

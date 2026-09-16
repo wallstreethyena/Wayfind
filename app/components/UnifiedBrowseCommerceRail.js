@@ -240,7 +240,12 @@ export function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub,
       // reserved-slot candidate (lib/menuReserveSlots.js) — never provider,
       // never merchant. `distMi` (from menuPartnerOffersFor via this route) is
       // the one fact available to order unscored rows among themselves.
-      rows.push({ key: `${m.provider}:${m.id}`, provider: m.provider, merchant: m.merchant || m.providerLabel || "Verified partner", offerId: m.id, title: m.title, image: m.image, quality10, score: quality10 ?? -1, rankBonus: 0, href, kind: "deal", source: "menu", distMi: Number.isFinite(m.distMi) ? m.distMi : null });
+      // `merchant` is the SELLER, exactly as the Viator/deals/pin loops above
+      // define it — it prints as the card's "via …" badge and rides in every
+      // commerce_impression / commerce_cta_clicked payload. The route's `venue`
+      // (MOSI, Amalie Arena) is the place, already the card title; it must
+      // never land here (2026-09-16 live check: "via The Dalí Museum").
+      rows.push({ key: `${m.provider}:${m.id}`, provider: m.provider, merchant: m.providerLabel || "Verified partner", offerId: m.id, title: m.title, image: m.image, quality10, score: quality10 ?? -1, rankBonus: 0, href, kind: "deal", source: "menu", distMi: Number.isFinite(m.distMi) ? m.distMi : null });
     }
     const seen = new Set();
     const seenOffers = new Set();

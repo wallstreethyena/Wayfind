@@ -58,7 +58,7 @@ const ok = (c, m) => { c ? pass++ : (fail++, console.log("  FAIL:", m)); };
 // ── 1. shape, frozen, unique ────────────────────────────────────────────────
 ok(Array.isArray(MENU_PARTNER_OFFERS) && MENU_PARTNER_OFFERS.length > 0, `MENU_PARTNER_OFFERS is a non-empty array (${MENU_PARTNER_OFFERS.length} rows)`);
 ok(Object.isFrozen(MENU_PARTNER_OFFERS), "MENU_PARTNER_OFFERS is frozen");
-const EXPECTED_KEYS = ["offerId", "provider", "merchant", "title", "placeId", "lat", "lng", "image", "market", "fits"].sort();
+const EXPECTED_KEYS = ["offerId", "provider", "venue", "title", "placeId", "lat", "lng", "image", "market", "fits"].sort();
 const seenPairs = new Set();
 for (const row of MENU_PARTNER_OFFERS) {
   const label = `${row && row.provider}:${row && row.offerId}`;
@@ -67,7 +67,11 @@ for (const row of MENU_PARTNER_OFFERS) {
   ok(JSON.stringify(Object.keys(row).sort()) === JSON.stringify(EXPECTED_KEYS), `${label}: row carries exactly the documented fields, no destination/url field (got ${Object.keys(row).sort().join(",")})`);
   ok(typeof row.offerId === "string" && row.offerId.length > 0, `${label}: offerId is a non-empty string`);
   ok(typeof row.provider === "string" && row.provider.length > 0, `${label}: provider is a non-empty string`);
-  ok(typeof row.merchant === "string" && row.merchant.length > 0, `${label}: merchant is a non-empty string`);
+  ok(typeof row.venue === "string" && row.venue.length > 0, `${label}: venue is a non-empty string`);
+  // The seller is `provider`, never a free-text field on the row: a row that
+  // carried `merchant` (the repo-wide word for the SELLER) holding the venue
+  // name is exactly how the live badge read "via The Dalí Museum".
+  ok(!("merchant" in row), `${label}: row has no \`merchant\` field — the seller is \`provider\`, the place is \`venue\``);
   ok(typeof row.title === "string" && row.title.length > 0, `${label}: title is a non-empty string`);
   ok(row.placeId === null || (typeof row.placeId === "string" && row.placeId.length > 0), `${label}: placeId is null or a non-empty string`);
   ok(Number.isFinite(row.lat) && row.lat >= -90 && row.lat <= 90, `${label}: lat is a finite latitude (${row.lat})`);
@@ -325,6 +329,44 @@ ok(!/from\s*["'][^"']*partnerOfferRegistry\.js["']/.test(routeSrc), "the route d
 // self-test: prove the comment-strip actually matters (the route's own prose
 // would otherwise fail this exact assertion).
 ok(/\bdestination\b/.test(routeSrc) && !/\.destination\b/.test(routeCode), "self-test: the route's header prose DOES say \"destination\" (proving the naive word-match would have false-failed) while the CODE never reads .destination");
+
+// ── 9. EXECUTE the route: the seller label is what leaves it, the venue is
+// named as the venue, and `merchant` never leaves it at all. 2026-09-16 live
+// check on production: the Activities → Museums rail badge read
+// "via The Dalí Museum" and "via Ed Smith Stadium" — the row's venue name had
+// travelled out under the key `merchant`, which UnifiedBrowseCommerceRail
+// (correctly) prints as the seller. A regex over the route could not have
+// caught the mislabel; calling GET with a real Request does.
+const { GET: menuOffersGET } = await import("../app/api/partner/menu-offers/route.js");
+const routeItems = async (cat, sub, ll) => {
+  const res = await menuOffersGET(new Request(`http://wayfind.test/api/partner/menu-offers?cat=${cat}&sub=${sub}&lat=${ll.lat}&lng=${ll.lng}`));
+  ok(res && res.status === 200, `route GET ${cat}:${sub} answers 200 (got ${res && res.status})`);
+  const body = await res.json();
+  ok(body && Array.isArray(body.items), `route GET ${cat}:${sub} returns { items: [] }-shaped JSON`);
+  return body.items || [];
+};
+const { providerLabel: labelOf } = await import("../lib/providerLabels.js");
+const liveMuseums = await routeItems("attractions", "museums", TAMPA);
+ok(liveMuseums.length > 0, `positive control: the EXECUTED route returns rows for attractions:museums near Tampa (${liveMuseums.length})`);
+const liveMosi = liveMuseums.find((i) => i.id === "tampa-hook-mosi");
+ok(!!liveMosi, "the executed route carries MOSI for museums near Tampa");
+ok(liveMosi && liveMosi.providerLabel === "Tiqets" && liveMosi.providerLabel === labelOf("tiqets"), `MOSI leaves the route with providerLabel "Tiqets" — the SELLER, from lib/providerLabels.js (got ${liveMosi && liveMosi.providerLabel})`);
+ok(liveMosi && liveMosi.venue === "MOSI (Museum of Science & Industry)", `MOSI leaves the route with venue = the place name (got ${liveMosi && liveMosi.venue})`);
+ok(liveMuseums.every((i) => !("merchant" in i)), 'no item leaving the route carries a `merchant` key — the rail derives the badge from providerLabel, so a venue name can never be printed as "via …"');
+ok(liveMuseums.every((i) => typeof i.providerLabel === "string" && i.providerLabel.length > 0 && i.providerLabel !== i.venue), "every executed row's providerLabel is a non-empty seller name and never equals its venue");
+ok(liveMuseums.every((i) => !("destination" in i) && !/^https?:/.test(String(i.id))), "no executed row leaks a destination URL or a URL-shaped id");
+const liveFood = await routeItems("food", "dinner", TAMPA);
+ok(liveFood.length === 0, `the executed route returns [] for the empty-by-law food:dinner chip (got ${liveFood.length})`);
+
+// The rail must build its badge from providerLabel for menu rows, exactly like
+// the deals loop does — asserted on the menu-row construction line itself,
+// not anywhere in the file (the deals loop has always done this; matching it
+// would pass with the menu loop still wrong).
+const railSrc = read("app/components/UnifiedBrowseCommerceRail.js");
+const menuRowLine = (railSrc.match(/rows\.push\(\{[^\n]*source:\s*"menu"[^\n]*\}\);/) || [""])[0];
+ok(menuRowLine.length > 0, "found the menu-row construction in UnifiedBrowseCommerceRail (the rows.push carrying source: \"menu\")");
+ok(/merchant:\s*m\.providerLabel\b/.test(menuRowLine), 'the menu row\'s `merchant` (the "via …" badge + commerce_* payload field) is built from m.providerLabel — the seller');
+ok(!/m\.merchant\b/.test(menuRowLine) && !/m\.venue\b/.test(menuRowLine), "the menu row never reads m.merchant or m.venue into the badge/payload");
 
 console.log(fail
   ? `check-menu-partner-offers: FAIL — ${fail} failed, ${pass} passed`
