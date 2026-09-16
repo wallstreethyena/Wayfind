@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 649,
-    "totalRegistryEntries": 650,
-    "guardsTxtLineCount": 648,
-    "guardsTxtReachedFileCount": 643,
+    "totalOnDiskGuardFiles": 651,
+    "totalRegistryEntries": 652,
+    "guardsTxtLineCount": 650,
+    "guardsTxtReachedFileCount": 645,
     "criticalCount": 81,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 437,
+      "CALL": 439,
       "RENDER": 72,
       "STRUCTURAL": 140,
       "OTHER": 1
@@ -1757,6 +1757,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 61,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-curated-library-fallback.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 17,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -6797,6 +6819,28 @@
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-search-no-rebuy.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 15,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
