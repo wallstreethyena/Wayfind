@@ -22,7 +22,7 @@
 //   5. COST INVARIANT: `cat` never reaches the Google request body or the
 //      server cache key. Zero new spend, zero cache pollution.
 import { readFileSync } from "node:fs";
-import { INV_CAT_FOR_TILE, sameIdSet } from "../lib/curatedLibrary.js";
+import { INV_CAT_FOR_TILE, sameIdSet, tileAdmits, OUTING_TILES } from "../lib/curatedLibrary.js";
 
 let pass = 0;
 const fail = [];
@@ -71,6 +71,25 @@ ok(sameIdSet([A, B, A, A]) === false, "one slot differs -> labeled slots as befo
 ok(sameIdSet([A]) === false, "a single slot never collapses (nothing to collapse)");
 ok(sameIdSet([[], [], []]) === false, "all-empty is not a library answer (honest empty state stays)");
 ok(sameIdSet(null) === false && sameIdSet([A, null]) === false, "defensive on bad input");
+
+// 6. executed (2026-09-16): the two "what to go and DO" tiles apply the
+//    existing outing rule; the other tiles do not. The rows that opened the
+//    live tile the day the fallback shipped are the fixture.
+{
+  const medSpa = { id: "m", name: "Elite Medical Spa of Parrish", primaryType: "spa", rating: 4.9 };
+  const wedding = { id: "w", name: "Bakers Ranch Wedding Venue", primaryType: "wedding_venue", rating: 4.9 };
+  const massage = { id: "x", name: "MassageLuXe Parrish", primaryType: "massage", rating: 4.8 };
+  const gym = { id: "g", name: "Crunch Fitness - Parrish", primaryType: "gym", rating: 4.8 };
+  const escape = { id: "e", name: "Premier Escape Adventures", primaryType: "amusement_center", rating: 4.9 };
+  const park = { id: "p", name: "Parrish Community Park", primaryType: "park", rating: 4.6 };
+  const resortSpa = { id: "r", name: "The Spa at The Resort at Longboat Key Club", primaryType: "tourist_attraction", rating: 4.8 };
+  ok(OUTING_TILES.has("today") && OUTING_TILES.has("experiences") && OUTING_TILES.size === 2, "exactly the two outing tiles are governed");
+  for (const p of [medSpa, wedding, massage, gym, resortSpa]) ok(!tileAdmits("today", p), `today refuses ${p.name}`);
+  for (const p of [escape, park]) ok(tileAdmits("today", p) && tileAdmits("experiences", p), `today/experiences admit ${p.name}`);
+  for (const k of ["food", "nightlife", "shopping", "stays", "bestof"]) ok(tileAdmits(k, medSpa), `${k} is not an outing question and is untouched`);
+  ok(/inCat\(p\) && tileAdmits\(kind, p\)/.test(HOME), "the on-screen pool picks apply tileAdmits");
+  ok(/placeAllowed\(null, null, p\)\)\)\.then\(\(l\) => l\.filter\(\(p\) => tileAdmits\(kind, p\)\)\)/.test(HOME), "the fetched slot results apply tileAdmits AFTER the shared filter (check-gate's pattern stays intact)");
+}
 
 // 5. cost invariant — cat stays OUT of the paid request and the cache key
 const keyLine = ROUTE.match(/const k = \[[^\n]+\]\.join\("\|"\);/);
