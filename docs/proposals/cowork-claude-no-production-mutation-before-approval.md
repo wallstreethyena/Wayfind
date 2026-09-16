@@ -43,8 +43,11 @@ A fourth failure was found while filing this proposal, and it did take that rout
 required `guards` check reported 592/592 green on PR #1197 while `check-doc-ownership`
 printed `SKIP — confirmed shallow checkout does not contain origin/main`, because
 `actions/checkout` used the default depth 1. #1197 merged an `AGENTS.md` edit by a lane two
-minutes later. #1228 repairs that: `fetch-depth: 0`, both shallow escapes fail closed on the
-merge gate, and a regression test that red-proves the pre-fix source passing the same shape.
+minutes later. #1228 repaired that and merged on 2026-09-16 as `9f16f795`: `fetch-depth: 0`,
+both shallow escapes fail closed on the merge gate, and a regression test that red-proves the
+pre-fix source passing the same shape. The first hosted run after the repair printed
+`check-doc-ownership: OK — 3 commit(s), no owner-only files touched by a lane` where it had
+printed `SKIP` for the preceding week.
 
 ## The rules, verbatim, ready to paste
 
@@ -100,6 +103,13 @@ have stopped a migration applied before its PR existed. Each incident walked thr
 the other rule leaves open.
 
 **Neither rule is mechanically enforced yet.** `check-doc-ownership` protects the rules file,
-and #1228 repairs the CI hole that let it answer SKIP. Nothing yet detects a Vercel
-environment change or an `apply_migration` call made without approval. Adoption is the whole
-control today, which is the honest state of it.
+and #1228 closed the CI hole that let it answer SKIP, so the file is now genuinely protected
+on the run that decides a merge. Nothing yet detects a Vercel environment change or an
+`apply_migration` call made without approval. Adoption is the whole control for those two,
+which is the honest state of it as of 2026-09-16.
+
+**Related, and now closed.** A third door was found on 2026-09-10: `scripts/safe-force-push.sh`,
+the sanctioned helper added by #1238 to stop one lane overwriting another, reported `OK` while
+destroying a lane's commit whenever its fetch failed. It was red-proved and repaired in #1243,
+merged 2026-09-16 as `612f1112`. That failure is now mechanically prevented and regression
+tested, unlike the two rules above.
