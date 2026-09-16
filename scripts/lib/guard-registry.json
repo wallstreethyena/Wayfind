@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 653,
-    "totalRegistryEntries": 654,
-    "guardsTxtLineCount": 652,
-    "guardsTxtReachedFileCount": 647,
+    "totalOnDiskGuardFiles": 654,
+    "totalRegistryEntries": 655,
+    "guardsTxtLineCount": 653,
+    "guardsTxtReachedFileCount": 648,
     "criticalCount": 81,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 442,
+      "CALL": 443,
       "RENDER": 72,
       "STRUCTURAL": 139,
       "OTHER": 1
@@ -6087,6 +6087,28 @@
         "detail": "Top-20 finding #7: the metered-call gate check is a CALL guard with 2 unproven absence checks (no fixture proving the regex can catch an ungated call)."
       },
       "owner": "Revenue QA"
+    },
+    {
+      "file": "scripts/check-provider-empty-answers.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 13,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
     },
     {
       "file": "scripts/check-provider-health-says-why.mjs",

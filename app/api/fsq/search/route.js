@@ -28,6 +28,7 @@ const getKey = () => ((process.env["FOURSQUARE_API_KEY"] || "").trim());
 // Google 429s AND survives its own rate cap. (Foursquare's terms permit caching;
 // this 30-day window is a conservative default, not a Google-style hard cap.)
 const FSQ_TTL_MS = 30 * DAY;
+const FSQ_NEG_TTL_MS = 3 * DAY; // an ok-empty answer; short on purpose, see the write below
 
 const FIELDS = "fsq_id,name,geocodes,location,categories,distance,rating,stats,price,hours,photos";
 // A diagnostic must never be cacheable anywhere: not the CDN, not a proxy, not
@@ -162,7 +163,14 @@ export async function GET(req) {
     const res = await fsqSearch(params, KEY, { fields: FIELDS });
     if (!res.ok) return await serveStale();
     const places = res.results.map(normalize).filter(Boolean);
+    // NO-RE-BUY (2026-09-16), same defect the Google text search had (#1327):
+    // an honest EMPTY answer wrote nothing, so the same question hit Foursquare
+    // again on every request. A genuine ok-empty is remembered for three days
+    // under its own short clock; the 30-day FSQ_TTL_MS for real rows is
+    // unchanged, and an exhausted chain (ok:false) still takes the stale path
+    // above and writes nothing.
     if (places.length) await cset(ck, places, FSQ_TTL_MS);
+    else await cset(ck, [], FSQ_NEG_TTL_MS);
     return Response.json({ places, cached: false }, { headers: EDGE });
   } catch (e) {
     return await serveStale();
