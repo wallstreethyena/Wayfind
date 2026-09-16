@@ -20,6 +20,15 @@
 // production holds that key; this script only ever calls production's own
 // /api/photo endpoint, exactly like a real browser would.
 //
+// QUOTA TRUTH (2026-09-16): a row that comes back quota/key-denied/server is
+// refunded to the ledger by lib/placePhotoServe.js itself (defaultFetchOwnedUri)
+// before this script ever sees the response — this script only OBSERVES the
+// spend, it does not do the refunding. When CRON_SECRET is set alongside the
+// Supabase env, this script also reads app/api/health/photos' photoAllowance
+// block once before and once after the batch, so the same terminal shows the
+// ledger's used/remaining count moving (or not, on a refunded row) next to the
+// per-request classification.
+//
 // USAGE
 //   node scripts/photo-upstream-probe.mjs            # n=1 (default)
 //   node scripts/photo-upstream-probe.mjs --n=3       # up to 5
@@ -33,7 +42,27 @@ const opt = (name, dflt) => {
   return hit ? hit.slice(pref.length) : dflt;
 };
 const BASE_URL = String(opt("base-url", "https://www.gowayfind.com")).replace(/\/+$/, "");
-const N = Math.max(1, Math.min(5, parseInt(opt("n", "1"), 10) || 1));
+const rawN = parseInt(opt("n", "1"), 10);
+if (Number.isFinite(rawN) && rawN > 5) {
+  console.error(`photo-upstream-probe: --n=${rawN} refused — this script spends a real Google-photo ledger grant per row, and 5 is the hard ceiling. Run it again with --n=5 or lower.`);
+  process.exit(2);
+}
+const N = Math.max(1, Math.min(5, Number.isFinite(rawN) ? rawN : 1));
+const CRON_SECRET = process.env.CRON_SECRET || "";
+
+async function readPhotoAllowance() {
+  if (!CRON_SECRET) return null;
+  try {
+    const r = await fetch(BASE_URL + "/api/health/photos", { headers: { authorization: "Bearer " + CRON_SECRET }, cache: "no-store" });
+    if (!r.ok) return null;
+    const d = await r.json();
+    return d && d.photoAllowance ? d.photoAllowance : null;
+  } catch { return null; }
+}
+function printAllowance(label, a) {
+  if (!a) { console.log(`photoAllowance (${label}): (unavailable — set CRON_SECRET to see it)`); return; }
+  console.log(`photoAllowance (${label}): month=${a.month} used=${a.used} cap=${a.cap} remaining=${a.remaining} breaker.open=${a.breaker && a.breaker.open} today=${JSON.stringify(a.today)}`);
+}
 
 const url = String(process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || "").replace(/\/+$/, "");
 const key = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
@@ -97,7 +126,10 @@ async function probeOne(ref) {
   }
 }
 
-console.error(`photo-upstream-probe: WARNING — about to spend up to ${N} real photos-ledger grant(s) against ${BASE_URL}`);
+console.error(`photo-upstream-probe: WARNING — every row below spends one real photos-ledger grant against ${BASE_URL} (n=${N}); a quota/key-denied/server outcome is refunded automatically, ok/stale/network/redirect rows are not`);
+
+const allowanceBefore = await readPhotoAllowance();
+printAllowance("before", allowanceBefore);
 
 let candidates;
 try {
@@ -121,4 +153,8 @@ for (const ref of candidates) {
   if (row.error) failures++;
   console.log(`${ref} | ${row.status} | ${row.result} | ${row.upstream} | ${row.ms}ms${row.error ? " | ERROR: " + row.error : ""}`);
 }
+
+const allowanceAfter = await readPhotoAllowance();
+printAllowance("after", allowanceAfter);
+
 process.exit(failures === candidates.length ? 1 : 0);

@@ -15,6 +15,7 @@ import { NextResponse } from "next/server";
 import { FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef, resolvePlacePhoto } from "../../../lib/placePhotoServe";
 import { findSamePlaceCachedPhoto } from "../../../lib/photoCacheRecovery";
 import { findFreePhoto } from "../../../lib/freePhoto";
+import { recordPhotoOutcome } from "../../../lib/photoOutcomes";
 
 export const dynamic = "force-dynamic";
 
@@ -190,6 +191,29 @@ export async function GET(req) {
     serverKey: process.env.GOOGLE_MAPS_SERVER_KEY || "",
   });
 
+  // QUOTA TRUTH (2026-09-16) — TELEMETRY. Fail-soft, bounded (400ms,
+  // lib/photoOutcomes.js), never for a probe (a probe never spends, so it is
+  // not a real outcome to count). Recorded once per request, immediately —
+  // before any downstream recovery/free-photo serving decision, because the
+  // CLASSIFICATION is the fact being counted, not how the response ends up
+  // served. Every Google-path result class (ok/quota/key-denied/server/
+  // network/redirect/badjson/unowned/stale/client/stale-heal-*) and
+  // quota-open both live in result.upstream already; a ledger denial
+  // (`spend-denied` — the LEDGER, not Google, said no) is recorded as
+  // "ledger-denied" since it never carries an upstream class of its own.
+  // Every other reason (cache/inventory/gate-shut/unconfigured/
+  // probe-no-spend/no-photo) is a free read with nothing Google-side to
+  // count, and correctly records nothing here.
+  if (!probe) {
+    const outcomeClass = result.reason === "spend-denied" ? "ledger-denied" : result.upstream;
+    if (outcomeClass) {
+      try { await recordPhotoOutcome(outcomeClass); } catch { /* recordPhotoOutcome never throws; defensive anyway */ }
+    }
+    if (Number.isFinite(result.refunded) && result.refunded > 0) {
+      try { await recordPhotoOutcome("refunded"); } catch { /* same */ }
+    }
+  }
+
   if (result.type === "redirect" && result.location) {
     // "google" is the ONLY redirect reason that means a real ledger grant was
     // just taken (lib/placePhotoServe.js's other redirect reasons — cache,
@@ -226,15 +250,19 @@ export async function GET(req) {
   // `gate-shut`, `unconfigured` and `probe-no-spend` stop before authorizeSpend
   // runs (or, for a probe, never reach it at all). A budget denial with a
   // recovery hit returns `spend-denied` because the wrapper above deliberately
-  // refused the grant. In every case, serve only a fresh same-place cached
-  // photo if one exists — and, failing that, this exact place's FREE,
-  // PERMANENT photo if wf_place_photo has one. Same-place Google recovery is
-  // tried FIRST: it is a photo of the actual venue that Wayfind already paid
-  // for, so it outranks a substitute even a free one. Neither read ever
-  // writes or calls Google, and neither ever takes a photos-ledger grant —
-  // authorizeSpend above already refused the grant on a free-photo hit before
-  // this block runs, so this is just serving what was already decided.
-  if (result.type === "miss" && ["spend-denied", "gate-shut", "unconfigured", "probe-no-spend"].includes(result.reason)) {
+  // refused the grant. `quota-open` (2026-09-16) is the SAME shape: the
+  // resolver's own quota breaker refused the request before ever asking the
+  // ledger or Google, because Google's daily photo quota is known-exhausted
+  // until its own Pacific-midnight reset — same free, read-only recovery
+  // applies. In every case, serve only a fresh same-place cached photo if one
+  // exists — and, failing that, this exact place's FREE, PERMANENT photo if
+  // wf_place_photo has one. Same-place Google recovery is tried FIRST: it is
+  // a photo of the actual venue that Wayfind already paid for, so it
+  // outranks a substitute even a free one. Neither read ever writes or calls
+  // Google, and neither ever takes a photos-ledger grant — authorizeSpend
+  // above already refused the grant on a free-photo hit before this block
+  // runs, so this is just serving what was already decided.
+  if (result.type === "miss" && ["spend-denied", "gate-shut", "unconfigured", "probe-no-spend", "quota-open"].includes(result.reason)) {
     const recovery = await getRecovery();
     if (recovery && recovery.uri) {
       return NextResponse.redirect(recovery.uri, {

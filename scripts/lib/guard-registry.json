@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 656,
-    "totalRegistryEntries": 657,
-    "guardsTxtLineCount": 655,
-    "guardsTxtReachedFileCount": 650,
+    "totalOnDiskGuardFiles": 657,
+    "totalRegistryEntries": 658,
+    "guardsTxtLineCount": 656,
+    "guardsTxtReachedFileCount": 651,
     "criticalCount": 81,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 444,
+      "CALL": 445,
       "RENDER": 73,
       "STRUCTURAL": 139,
       "OTHER": 1
@@ -13172,6 +13172,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 6,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-photo-quota-truth.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 104,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

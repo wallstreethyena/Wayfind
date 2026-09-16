@@ -1320,6 +1320,16 @@ node scripts/check-photo-cache-liveness.mjs
 # owned-miss is proven, then red-proved, to always carry a non-empty upstream.
 node scripts/test-photo-upstream-truth.mjs
 
+# 2026-09-16: Google Cloud console verified — GetPhotoMediaRequest per day
+# carries a MANUAL OVERRIDE of 32 (default 175,000), usage already 34/32.
+# Wayfind's own photos ledger counted every REFUSED attempt as spent (Sept:
+# 1,170 vs ~32/day actually served). quota/key-denied/server outcomes are now
+# refunded to the ledger, the expired-ref self-heal never runs on a
+# quota/key-denied/server rejection (only stale/client-400), and a daily
+# breaker stops asking Google at all once a quota outcome is seen, until
+# Google's own Pacific-midnight reset. Red-proved.
+node scripts/test-photo-quota-truth.mjs
+
 node scripts/test-inventory-batch-concurrency.mjs
 
 node scripts/test-event-apple-maps.mjs

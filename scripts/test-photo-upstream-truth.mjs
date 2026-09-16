@@ -38,9 +38,14 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
 const eq = (actual, expected, m) => ok(actual === expected, `${m} (got ${JSON.stringify(actual)}, expected ${JSON.stringify(expected)})`);
 
 /* ── 1. classifyUpstream — THE MAPPING TABLE, ASSERTED DIRECTLY ─────────── */
-// Every row the production incident named, plus the heal-set 4xx values
-// (400/403/404), which classify as "client" from this pure function alone —
-// resolvePlacePhoto's caller decides to heal on those, not this table.
+// QUOTA TRUTH (2026-09-16): classifyUpstream now also reads Google's own
+// error-body `status` enum. A bare 403/404 (no parsable body — every case
+// below with no `googleStatus`) classifies as key-denied/stale respectively;
+// scripts/test-photo-quota-truth.mjs (registered right after this guard)
+// covers every googleStatus-driven row (RESOURCE_EXHAUSTED, PERMISSION_DENIED,
+// UNAVAILABLE, INTERNAL, NOT_FOUND, INVALID_ARGUMENT) and the heal-eligibility
+// split this table does not itself decide (that's the CALLER's job, in
+// defaultFetchOwnedUri — see this file's own end-to-end scenarios below).
 const TABLE = [
   [{ status: 429 }, "quota"],
   [{ status: 500 }, "server"],
@@ -55,8 +60,8 @@ const TABLE = [
   [{ status: 200, ok: true, json: true, owned: false }, "unowned"],
   [{ status: 200, ok: true, json: true, owned: true }, "ok"],
   [{ status: 400, ok: false }, "client"],
-  [{ status: 403, ok: false }, "client"],
-  [{ status: 404, ok: false }, "client"],
+  [{ status: 403, ok: false }, "key-denied"], // 2026-09-16: bare 403 (no parsable body) is key-denied, not client
+  [{ status: 404, ok: false }, "stale"],      // 2026-09-16: 404 is stale (heal-eligible), not client
   [{ status: 401, ok: false }, "client"],
   [{ status: 410, ok: false }, "client"],
   [{ denied: true }, "denied"],
@@ -65,19 +70,19 @@ const TABLE = [
 for (const [input, expected] of TABLE) {
   eq(classifyUpstream(input), expected, `classifyUpstream(${JSON.stringify(input)})`);
 }
-const ALLOWED_CLASSES = new Set(["ok", "denied", "quota", "server", "network", "redirect", "badjson", "unowned", "client"]);
+const ALLOWED_CLASSES = new Set(["ok", "denied", "quota", "key-denied", "server", "network", "redirect", "badjson", "unowned", "stale", "client"]);
 for (const [input] of TABLE) ok(ALLOWED_CLASSES.has(classifyUpstream(input)), `classifyUpstream(${JSON.stringify(input)}) must return one of the documented classes`);
 
 /* ── 2. normalizeFetchOwnedResult — legacy compatibility ─────────────────── */
 eq(JSON.stringify(normalizeFetchOwnedResult("https://lh3.googleusercontent.com/x")),
-  JSON.stringify({ uri: "https://lh3.googleusercontent.com/x", upstream: "ok", retried: false }),
+  JSON.stringify({ uri: "https://lh3.googleusercontent.com/x", upstream: "ok", retried: false, refunded: 0 }),
   "a legacy string-returning deps.fetchOwnedUri wraps to upstream:ok");
 eq(JSON.stringify(normalizeFetchOwnedResult(null)),
-  JSON.stringify({ uri: null, upstream: "legacy-miss", retried: false }),
+  JSON.stringify({ uri: null, upstream: "legacy-miss", retried: false, refunded: 0 }),
   "a legacy null-returning deps.fetchOwnedUri wraps to upstream:legacy-miss");
 eq(JSON.stringify(normalizeFetchOwnedResult({ uri: "https://lh3.googleusercontent.com/y", upstream: "ok", retried: true })),
-  JSON.stringify({ uri: "https://lh3.googleusercontent.com/y", upstream: "ok", retried: true }),
-  "the real {uri,upstream,retried} shape passes through unchanged");
+  JSON.stringify({ uri: "https://lh3.googleusercontent.com/y", upstream: "ok", retried: true, refunded: 0 }),
+  "the real {uri,upstream,retried,refunded} shape passes through unchanged");
 
 /* ── 3. end-to-end: resolvePlacePhoto + the real defaultFetchOwnedUri ────── */
 const PLACE = "ChIJUpstreamTruthTest0001";
@@ -130,7 +135,18 @@ function googleStub(script) {
   return { fn, calls };
 }
 
-const DEPS_BASE = { cacheGet: async () => null, cacheSet: async () => {}, inventoryGet: async () => null, retryDelayMs: 0 };
+// QUOTA TRUTH (2026-09-16): this guard tests classification/retry/heal ONLY.
+// The breaker and refund are a SEPARATE feature with their own dedicated
+// guard (scripts/test-photo-quota-truth.mjs) — breakerOpen/tripBreaker/refund
+// are stubbed to no-ops here so a 429 scenario below (which now legitimately
+// classifies "quota" and would otherwise trip the REAL, process-global
+// lib/providerHealth.js breaker) can never leak state into a LATER scenario
+// in this same file, and so no scenario here depends on network reachability
+// for a refund call.
+const DEPS_BASE = {
+  cacheGet: async () => null, cacheSet: async () => {}, inventoryGet: async () => null, retryDelayMs: 0,
+  breakerOpen: async () => null, tripBreaker: async () => true, refund: async () => true,
+};
 async function run(script, authorizeSpend) {
   const stub = googleStub(script);
   const input = { ref: OLD_REF, w: 640, serverKey: "server-key-test" };
