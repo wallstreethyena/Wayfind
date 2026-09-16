@@ -1,24 +1,80 @@
-name: export-current-main
+name: repair-pr-1327
 on:
   pull_request:
     paths:
       - '.github/workflows/export-current-main.yml'
 permissions:
-  contents: read
+  contents: write
 jobs:
-  export:
+  repair:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
-      - name: Package repository snapshot
-        run: |
-          tar --exclude=.git -czf /tmp/wayfind-repo.tgz .
-      - name: Upload repository snapshot
-        uses: actions/upload-artifact@v4
+      - uses: actions/setup-node@v4
         with:
-          name: wayfind-repo-${{ github.sha }}
-          path: /tmp/wayfind-repo.tgz
-          if-no-files-found: error
-          retention-days: 1
+          node-version: 22
+          cache: npm
+      - name: Rebuild PR 1327 on current main
+        env:
+          TARGET_BRANCH: fix/search-no-rebuy-2026-09-15
+          EXPECTED_OLD_HEAD: b3fd8ec78d5deaf2f3a866671622cce9694a8dfb
+        run: |
+          set -euo pipefail
+          git config user.name 'Wayfind release repair'
+          git config user.email 'noreply@github.com'
+          git fetch origin "$TARGET_BRANCH"
+          actual="$(git rev-parse FETCH_HEAD)"
+          test "$actual" = "$EXPECTED_OLD_HEAD"
+
+          resolve_generated_only() {
+            set +e
+            git cherry-pick "$1"
+            rc=$?
+            set -e
+            if [ "$rc" -eq 0 ]; then return 0; fi
+            unmerged="$(git diff --name-only --diff-filter=U)"
+            test -n "$unmerged"
+            bad="$(printf '%s\n' "$unmerged" | grep -v -E '^(scripts/lib/guard-registry\.json)$' || true)"
+            if [ -n "$bad" ]; then
+              echo 'Refusing to auto-resolve real conflicts:'
+              printf '%s\n' "$bad"
+              exit 1
+            fi
+            git checkout --ours scripts/lib/guard-registry.json
+            git add scripts/lib/guard-registry.json
+            GIT_EDITOR=true git cherry-pick --continue
+          }
+
+          resolve_generated_only 5f9b9c71bb4b4db71de35d479aa9908a174ec046
+          resolve_generated_only b3fd8ec78d5deaf2f3a866671622cce9694a8dfb
+          node scripts/lib/build-guard-registry.mjs
+          git add scripts/lib/guard-registry.json
+          if ! git diff --cached --quiet; then git commit -m 'chore: regenerate guard registry on current main'; fi
+
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: Dependency security audit
+        run: npm audit --audit-level=moderate
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Required rendered place-card standard
+        run: node scripts/check-place-card-standard.mjs --require-browser
+      - name: Guard suite
+        run: node scripts/run-guards.mjs
+      - name: Production build
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+        run: npx next build
+      - name: Homepage bundle ratchet
+        run: node scripts/check-bundle.mjs
+      - name: Publish exact tested branch
+        env:
+          TARGET_BRANCH: fix/search-no-rebuy-2026-09-15
+          EXPECTED_OLD_HEAD: b3fd8ec78d5deaf2f3a866671622cce9694a8dfb
+        run: |
+          set -euo pipefail
+          git push origin HEAD:"$TARGET_BRANCH" --force-with-lease="refs/heads/$TARGET_BRANCH:$EXPECTED_OLD_HEAD"
