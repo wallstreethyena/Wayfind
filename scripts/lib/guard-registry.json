@@ -34,9 +34,9 @@
     "criticalCount": 81,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 441,
+      "CALL": 442,
       "RENDER": 72,
-      "STRUCTURAL": 140,
+      "STRUCTURAL": 139,
       "OTHER": 1
     }
   },
@@ -8142,14 +8142,14 @@
     {
       "file": "scripts/test-atlas-build.mjs",
       "npmScript": null,
-      "class": "STRUCTURAL",
+      "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 29,
-      "unprovenAbsenceCount": 0,
+      "assertionCount": 41,
+      "unprovenAbsenceCount": 5,
       "honestyViolations": [
-        "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
+        "5 absence assertion(s) with no positive control in the same file (e.g. \"/if \\(!secret \\|\\| \\(auth !== \"Bearer \" \\+ secret/.test(r), \"\")"
       ],
-      "selfDocumentsRedProve": false,
+      "selfDocumentsRedProve": true,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
