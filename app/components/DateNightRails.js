@@ -133,7 +133,7 @@ function DateNightRailSection({ rail, lat, lng, city, hour, eventCards = [], eve
               award={topPickAward({ category: coarseCat(p) || type || "date night", rank })}
               chips={chips}
               take={toHookLine(p.editorial, p.name) || null}
-              cta={href ? { label: "Directions ↗", href, external: true } : null}
+              cta={null}
               ariaLabel={"Open " + p.name}
               onOpen={onOpenPlace ? () => onOpenPlace(p) : undefined}
               saved={isSaved ? !!isSaved(p.id) : undefined}

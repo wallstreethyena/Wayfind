@@ -113,7 +113,7 @@ function NightOutRailSection({
             Number.isFinite(soloItem.distMi) ? soloItem.distMi + " mi" : null,
           ].filter(Boolean)}
           take={toHookLine(soloItem.editorial, soloItem.name) || null}
-          cta={href ? { label: "Directions ↗", href, external: true } : null}
+          cta={null}
           ariaLabel={`Open ${soloItem.name}`}
           onOpen={onOpenPlace ? () => onOpenPlace(soloItem) : undefined}
           saved={isSaved ? !!isSaved(soloItem.id) : undefined}
@@ -156,7 +156,7 @@ function NightOutRailSection({
             title={place.name} eyebrow={type} rank={rank}
             score={toDisplayScore(wayfindScore(place.rating, place.reviews))}
             facts={facts} take={toHookLine(place.editorial, place.name) || null}
-            cta={href ? { label: "Directions ↗", href, external: true } : null}
+            cta={null}
             ariaLabel={`Open ${place.name}`}
             onOpen={onOpenPlace ? () => onOpenPlace(place) : undefined}
             saved={isSaved ? !!isSaved(place.id) : undefined}

@@ -94,7 +94,7 @@ function BirthdayRailSection({ rail, lat, lng, city, onOpenPlace, isSaved, liked
                   award={topPickAward({ category: reward ? "birthday gift" : type, rank })}
                   chips={chips}
                   take={reward ? "Free: " + reward.gift + ". How: " + (reward.claim || reward.requirement) + "." : (toHookLine(place.editorial, place.name) || null)}
-                  cta={directions ? { label: "Directions ↗", href: directions, external: true } : null}
+                  cta={null}
                   ariaLabel={"Open " + place.name}
                   onOpen={onOpenPlace ? () => onOpenPlace(place) : undefined}
                   saved={isSaved ? !!isSaved(place.id) : undefined}

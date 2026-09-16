@@ -37,7 +37,7 @@ export default function WorthEatingRails({ places = [], city = "", hasMore = fal
                 score={toDisplayScore(wayfindScore(place.rating, place.reviews))} facts={facts}
                 award={topPickAward({ category: rail.title.toLowerCase(), rank })}
                 take={toHookLine(place.editorial, place.name) || null}
-                cta={directions ? { label: "Directions ↗", href: directions, external: true } : null}
+                cta={null}
                 ariaLabel={"Open " + place.name} onOpen={onOpenPlace ? () => onOpenPlace(place) : undefined}
                 saved={isSaved ? !!isSaved(place.id) : undefined}
                 liked={isLiked ? !!isLiked(place.id) : liked ? !!liked[place.id] : undefined}

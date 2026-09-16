@@ -92,7 +92,7 @@ function TodayRailSection({ rail, lat, lng, city, onOpenPlace, isSaved, liked, d
             score={toDisplayScore(wayfindScore(place.rating, place.reviews))} facts={facts} chips={chips}
             award={topPickAward({ category: rail.title.toLowerCase(), rank })}
             take={place.water && beachDecisionReason(place.water) ? beachDecisionReason(place.water) : (toHookLine(place.editorial, place.name) || null)}
-            cta={directions ? { label: "Directions ↗", href: directions, external: true } : null}
+            cta={null}
             ariaLabel={"Open " + place.name} onOpen={onOpenPlace ? () => onOpenPlace(place) : undefined}
             saved={isSaved ? !!isSaved(place.id) : undefined}
             liked={isLiked ? !!isLiked(place.id) : liked ? !!liked[place.id] : undefined}

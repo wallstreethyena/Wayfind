@@ -51,7 +51,7 @@ export default function BreakfastRails({ places = [], city = "", hasMore = false
                     facts={facts}
                     award={topPickAward({ category: rail.id === "breakfast-cafes" ? "café" : "breakfast", rank })}
                     take={toHookLine(place.editorial, place.name) || null}
-                    cta={directionsUrl(place) ? { label: "Directions ↗", href: directionsUrl(place), external: true } : null}
+                    cta={null}
                     ariaLabel={"Open " + place.name}
                     onOpen={onOpenPlace ? () => onOpenPlace(place) : undefined}
                     saved={isSaved ? !!isSaved(place.id) : undefined}

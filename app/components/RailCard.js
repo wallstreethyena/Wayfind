@@ -108,6 +108,16 @@ export function RailWhenBadge({ label, value, tone = "later" }) {
   );
 }
 
+// A Directions CTA is recognised by its label or by a maps destination, so a
+// relabelled "Get there ↗" pointing at Google/Apple Maps is caught too.
+export function isDirectionsCta(cta) {
+  if (!cta) return false;
+  const label = String(cta.label || "");
+  const href = String(cta.href || "");
+  return /\bdirections?\b/i.test(label)
+    || /^https?:\/\/(?:www\.)?(?:google\.[a-z.]+\/maps|maps\.google\.|maps\.apple\.com)/i.test(href);
+}
+
 const initialsOf = (name) => String(name || "WF").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
 
 // THE "THERE IS MORE" ROW (owner, 2026-08-08: "use a sign above the card to let
@@ -307,6 +317,12 @@ export default function RailCard({
   // common case (every card that is NOT the sentinel passes nothing).
   domRef = null,
 }) {
+  // PLACE CARD STANDARD (owner, 2026-09-16): a card never carries a
+  // Directions button. Tapping the card opens the detail page, and Directions
+  // lives there. Enforced HERE, at the one component every rail renders, so a
+  // new rail that passes a Directions CTA gets no button instead of a card
+  // that looks different. scripts/check-place-card-no-directions.mjs pins it.
+  if (isDirectionsCta(cta)) cta = null;
   // 2026-09-02 (hijacked-domain incident): an external CTA renders ONLY when
   // lib/links.safeUrl accepts its href — malformed, junk, or quarantined
   // destinations drop the button instead of shipping a bad link. An internal

@@ -104,7 +104,7 @@ function FallRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, fallSkin,
             card.accessNote ? { key: "access", icon: "✓", label: "Check access", title: card.accessNote } : null,
             card.sourceUrl ? { key: "proof", icon: "↗", label: "Proof source", title: "Open the official source", onClick: () => window.open(card.sourceUrl, "_blank", "noopener,noreferrer") } : null,
           ].filter(Boolean) : [];
-          const cta = isEvent ? eventCta(card, onTrack) : (() => { const href = directionsUrl(place); return href ? { label: "Directions ↗", href, external: true } : null; })();
+          const cta = isEvent ? eventCta(card, onTrack) : null;
           const openEventVenue = isEvent && card.place_id && onOpenPlace
             ? () => onOpenPlace({ id: card.place_id, name: card.venue || card.name, lat: card.lat, lng: card.lng, types: [], hook: card.hook })
             : null;
