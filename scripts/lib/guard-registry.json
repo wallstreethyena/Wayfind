@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 646,
-    "totalRegistryEntries": 647,
-    "guardsTxtLineCount": 645,
-    "guardsTxtReachedFileCount": 640,
-    "criticalCount": 80,
+    "totalOnDiskGuardFiles": 647,
+    "totalRegistryEntries": 648,
+    "guardsTxtLineCount": 646,
+    "guardsTxtReachedFileCount": 641,
+    "criticalCount": 81,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 433,
+      "CALL": 434,
       "RENDER": 72,
       "STRUCTURAL": 141,
       "OTHER": 1
@@ -4707,6 +4707,33 @@
       "protects": null,
       "blastRadius": null,
       "owner": null
+    },
+    {
+      "file": "scripts/check-menu-partner-offers.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 50,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-import:../lib/commerceProviders.js,../lib/affiliateLibrary.js"
+      ],
+      "protects": "MENU_PARTNER_OFFERS (lib/menuPartnerOffers.js) — the metro-gated, category:sub-keyed source feeding UnifiedBrowseCommerceRail independent of loaded places — carries only rows whose provider is a live commerce.PROVIDERS entry and whose offer id actually resolves in the registry that provider reads from, never claims an empty-by-law chip (Food/Hotels/Shopping/Spa/Speakeasy/Karaoke), is never imported by a client component or app/home.js (the client must never receive a destination), and closes the affiliate-inventory audit's dead-registry-key list without any key left unaccounted for.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "A row naming a dark provider or an unresolvable offer id renders a Book button that 302s to /api/commerce/go and fails there every time (offer-not-found / unknown-provider) — a silent, per-click revenue leak invisible to next build and to check:jsx, the same shape the 2026-07-30 extraction incident (#486) and the 2026-09-15 affiliate-coverage leak both were: every check that only reads source as text stayed green while the caller was broken."
+      },
+      "owner": "Revenue QA"
     },
     {
       "file": "scripts/check-metered-matcher.mjs",

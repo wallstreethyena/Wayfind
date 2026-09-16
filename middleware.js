@@ -92,6 +92,13 @@ export const config = {
     // app/home.js) reading wf_deals_ranked via the service role. ANTI-SCRAPING,
     // not a cost gate — keeps the affiliate deal catalog from being harvested.
     "/api/deals",
+    // Lane B menu-partner rail: /api/partner/menu-offers is a same-origin XHR
+    // (UnifiedBrowseCommerceRail in app/components/UnifiedBrowseCommerceRail.js)
+    // reading the static, hand-verified MENU_PARTNER_OFFERS registry (no
+    // metered upstream, no DB write — a read-only wf_inventory join at most).
+    // ANTI-SCRAPING, same rule as /api/deals and /api/experiences right above:
+    // this keeps the curated partner catalogue from being harvested off-origin.
+    "/api/partner/menu-offers",
     // City unlock: /api/city/unlock is a same-origin POST that queues an
     // uncovered city for population (writes wf_city_requests). Same-origin
     // guarded so the demand/pull queue can't be poked cross-origin.

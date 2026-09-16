@@ -32,6 +32,7 @@ export function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub,
   const [retry, setRetry] = useState(0);
   const pinQ = usePinQuarantine();
   const [deals, setDeals] = useState(null);
+  const [menuOffers, setMenuOffers] = useState(null);
 
   useEffect(() => {
     // Reuse #1272's independent source merge: an empty parent is not done.
@@ -99,6 +100,35 @@ export function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub,
     }).catch(() => { if (!dead) setError(true); }).finally(() => clearTimeout(timer));
     return () => { dead = true; clearTimeout(timer); controller.abort(); };
   }, [categories.join("|"), lat, lng, sub, plan.catalogParam, plan.noExperiences, browseCat, retry]);
+
+  // Lane B — the metro-gated MENU_PARTNER_OFFERS rail (lib/menuPartnerOffers.js
+  // via /api/partner/menu-offers). UNLIKE the `places` pin loop below, this does
+  // NOT depend on `places`, `categories` or `deals` being populated first — it
+  // is keyed only on browseCat:sub and the map center, so a Tiqets museum
+  // ticket or a TicketNetwork stadium shows under its browse chip whether or
+  // not a place card for that exact venue has loaded nearby. `plan.noExperiences`
+  // (Food, 2026-09-07 reversal) skips the fetch entirely — Food gets NO
+  // partner rail of any kind, not merely an empty one — and the route itself
+  // returns `{ items: [] }` immediately for every other empty-by-law chip
+  // (Hotels/Shopping/Spa/Speakeasy/Karaoke), so no second copy of that rule
+  // lives here.
+  useEffect(() => {
+    if (plan.noExperiences || !Number.isFinite(lat) || !Number.isFinite(lng)) { setMenuOffers([]); return; }
+    let dead = false;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), REQUEST_MS);
+    (async () => {
+      try {
+        const q = new URLSearchParams({ cat: browseCat, sub: sub || "all", lat: String(lat), lng: String(lng) });
+        const response = await fetch("/api/partner/menu-offers?" + q.toString(), { signal: controller.signal });
+        if (!response.ok) throw new Error("Menu partner offers unavailable");
+        const data = await response.json();
+        if (!dead) setMenuOffers(Array.isArray(data?.items) ? data.items : []);
+      } catch { if (!dead) setMenuOffers([]); }
+      finally { clearTimeout(timer); }
+    })();
+    return () => { dead = true; clearTimeout(timer); controller.abort(); };
+  }, [browseCat, sub, lat, lng, plan.noExperiences]);
 
   // v6.90 — owner: "make sure they are displayed by rating and discount,
   // point based on the activity time of today." Same small, capped, order-
@@ -177,6 +207,28 @@ export function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub,
       const quality10 = Number(place.rating) > 0 ? wayfindScore(place.rating, place.reviews || 0) / 10 : null;
       rows.push({ key: `${pin.provider}:${pin.offerId}`, provider: pin.provider, merchant: pin.merchant, offerId: pin.offerId, title: place.name, image, quality10, score: quality10 ?? -1, rankBonus: 0, href, kind: "deal" });
     }
+    // Lane B — MENU_PARTNER_OFFERS, independent of `places`/`deals`/`categories`
+    // (see the fetch effect above). Same key shape (`${provider}:${offerId}`)
+    // as the pin loop just above, so the dedup pass below folds a row this
+    // rail already surfaced via a loaded place into one card rather than two.
+    for (const m of (Array.isArray(menuOffers) ? menuOffers : [])) {
+      if (!m?.image || !m.id || !m.provider) continue;
+      // No browseBookableMatches() re-check here, deliberately: unlike the
+      // Viator `experiences` and UT `deals` loops above (whose rows are fetched
+      // BROADLY and re-classified client-side against free text), the server
+      // already scoped this row to the exact `${browseCat}:${sub}` chip via
+      // MENU_PARTNER_OFFERS' hand-declared `fits` — see lib/menuPartnerOffers.js
+      // and app/api/partner/menu-offers/route.js. `m.subcategory` (the same
+      // `cat:sub` key) is asserted below only as a sanity check that the row
+      // answers the chip the client is actually rendering, not re-classified.
+      if (m.subcategory !== `${browseCat}:${sub || "all"}`) continue;
+      const href = commerceHref({ provider: m.provider, offerId: m.id, surface: "browse_partner_rail", contentId: `${browseCat}:${sub || "all"}` });
+      if (!href) continue;
+      // -1, NEVER 0 or invented: the same "no rating never becomes a fake
+      // number" sentinel the deals loop and the pin loop both use above.
+      const quality10 = Number.isFinite(m.quality10) && m.quality10 >= 0 ? m.quality10 : null;
+      rows.push({ key: `${m.provider}:${m.id}`, provider: m.provider, merchant: m.merchant || m.providerLabel || "Verified partner", offerId: m.id, title: m.title, image: m.image, quality10, score: quality10 ?? -1, rankBonus: 0, href, kind: "deal" });
+    }
     const seen = new Set();
     const seenOffers = new Set();
     return rows.filter((row) => {
@@ -185,7 +237,7 @@ export function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub,
       if (seen.has(name) || seenOffers.has(row.key)) return false;
       seen.add(name); seenOffers.add(row.key); return true;
     }).sort((a, b) => b.score - a.score || (b.rankBonus || 0) - (a.rankBonus || 0)).slice(0, BOOKABLE_NEAR_LIMIT);
-  }, [experiences, deals, places, pinQ, failedImages, nowHour, sub, browseCat, lat, lng]);
+  }, [experiences, deals, menuOffers, places, pinQ, failedImages, nowHour, sub, browseCat, lat, lng]);
 
   // v8.22 (owner, live screenshots: "the rail starts mid-way … starting at the
   // cards with no score on all of the submenus"). ROOT CAUSE: the scroller
