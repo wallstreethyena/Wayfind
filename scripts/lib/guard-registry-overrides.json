@@ -656,6 +656,14 @@
     },
     "owner": "Revenue QA"
   },
+  "scripts/check-event-ticket-deals.mjs": {
+    "protects": "EVENT_TICKET_DEALS product integrity across every provider it names: a separately-ticketed night never maps to park admission, a non-UT (Tiqets/Klook) row resolves in the shared partner registry AND matches the merchant its own organizer URL actually belongs to, every href routes through /api/commerce/go for that entry's own provider (never a hardcoded Undercover Tourist constant), and the UT-only FALL_EVENT_TICKET_DEALS compatibility map never picks up a non-UT offer key.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "2026-09-15: nine merchants sell admission only through Tiqets/Klook, so an event confirmed included with admission there (Zoo Boo at Zoo Miami) had no way to carry a commissioned CTA at all — every surface silently rendered the organizer's own free link. A wrong non-UT mapping is the same trust bug as a wrong UT one: a separately-ticketed night wearing a park-admission commission."
+    },
+    "owner": "Revenue QA"
+  },
   "scripts/check-affiliate-coverage.mjs": {
     "protects": "A card whose event or venue matches the affiliate library never ships a raw organizer link by accident: link_ok=null (unknown, UT 403s every bot probe) is servable everywhere, the fall route uses the one shared isServableDeal predicate, no strict-truthy link_ok gate exists in app/ or lib/, /api/commerce/go refuses proven-dead UT rows, the library is internally consistent, and the nightly affiliate-coverage watch is scheduled and pulses succeeded=0 on any unmapped sellable event.",
     "blastRadius": {

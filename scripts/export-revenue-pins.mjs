@@ -18,7 +18,10 @@ for (const row of data.datasets.places) {
 }
 for (const row of data.datasets.events) {
   const pick = eventTicketDeal(row.event_id);
-  if (pick) pins.push({ entity_type: 'event', entity_id: row.event_id, provider: 'undercover_tourist', offer_id: String(pick.deal), product_type: pick.product });
+  // provider/offer_id come from the normalized entry, not a hardcoded UT
+  // constant: a Tiqets/Klook event-ticket mapping (lib/eventTicketDeals.js,
+  // e.g. zoo-boo-zoo-miami-2026) must be pinned under ITS OWN provider.
+  if (pick) pins.push({ entity_type: 'event', entity_id: row.event_id, provider: pick.provider, offer_id: String(pick.offerId), product_type: pick.product });
 }
 // 2026-09-15: the same census also names the LEAK state — a wf_events row at a
 // merchant a partner already sells, with no mapping in lib/eventTicketDeals.js
@@ -27,7 +30,8 @@ for (const row of data.datasets.events) {
 // the one that emails. Listed here so the revenue report carries the gap.
 const gaps = unmappedSellableEvents(data.datasets.events).map((c) => ({
   entity_type: 'event', entity_id: c.eventId, merchant: c.merchant.key, url: c.url,
-  admission_offer_id: String(c.merchant.admission.offerId), state: 'unmapped_sellable_event',
+  admission_provider: c.merchant.admission.provider, admission_offer_id: String(c.merchant.admission.offerId),
+  state: 'unmapped_sellable_event',
 }));
 writeFileSync(output, JSON.stringify({ snapshot_sha256: createHash('sha256').update(raw).digest('hex'),
   source_sha: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(), pins, gaps }, null, 2), { flag: 'wx' });

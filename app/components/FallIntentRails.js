@@ -48,13 +48,17 @@ function eventCta(card, onTrack) {
     // id, refuses crawlers, and applies the CJ deep link server-side.
     label: card.ticket.label || `Tickets · ${card.ticket.via} ↗`, href: card.ticket.href, external: true, sponsored: true,
     onClick: (event) => {
-      try { onTrack?.("tickets_out", { kind: "fall_intent_rail", id: card.id, name: card.name, deal: card.ticket.deal_id }); } catch {}
+      // offerId: deal_id (a wf_deals int) for Undercover Tourist, offer_id (a
+      // partnerOfferRegistry key) for Tiqets/Klook — eventTicketCta sets
+      // exactly one of the two depending on card.ticket.provider, never both.
+      const offerId = card.ticket.offer_id ?? card.ticket.deal_id;
+      try { onTrack?.("tickets_out", { kind: "fall_intent_rail", id: card.id, name: card.name, deal: offerId }); } catch {}
       import("../../lib/commerce.js").then(({ commerceHref, emitCommerce, mintClickId }) => {
         try {
           const clickId = mintClickId();
-          const live = commerceHref({ provider: card.ticket.provider || "undercover_tourist", offerId: card.ticket.deal_id, surface: "fall_intent_rail", contentId: card.id, clickId });
+          const live = commerceHref({ provider: card.ticket.provider || "undercover_tourist", offerId, surface: "fall_intent_rail", contentId: card.id, clickId });
           if (live && event && event.currentTarget) event.currentTarget.href = live;
-          emitCommerce("commerce_cta_clicked", { surface: "fall_intent_rail", content_id: card.id, provider: card.ticket.provider || "undercover_tourist", merchant: card.ticket.via, offer_id: String(card.ticket.deal_id), click_id: clickId, disclosure_version: "fall-intent-v2" });
+          emitCommerce("commerce_cta_clicked", { surface: "fall_intent_rail", content_id: card.id, provider: card.ticket.provider || "undercover_tourist", merchant: card.ticket.via, offer_id: String(offerId), click_id: clickId, disclosure_version: "fall-intent-v2" });
         } catch {}
       }).catch(() => {});
     },
