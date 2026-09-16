@@ -437,6 +437,13 @@ node scripts/test-intent-header-clarity.mjs
 node scripts/test-rail-like-stays.mjs
 node scripts/check-viator-redirect-layer.mjs
 node scripts/check-intent-partner-picks.mjs
+# 2026-09-15 (Lane C) — every registered partner offer earns an intent-page or
+# place-page home. Locks placePagePartner() (lib/placeData.js, /places/[id]'s
+# only path to a bookable partner) and resolveDetailCta rung 3 (the
+# venue-offer null-url bug: bookItTarget's exact-product rung returns
+# url:null by design, and tpDeepLink required one, so a VENUE_OFFERS row
+# like nyc-budget-911-memorial could never surface there).
+node scripts/check-place-page-partner.mjs
 # 2026-09-10 — a visible Book button must have a product behind it. 16 of 35
 # pinned Viator codes had no wf_experiences row; each painted a CTA that 302'd
 # the customer home. Feeds a fabricated code through a real copy of the module.
