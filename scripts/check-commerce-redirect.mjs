@@ -127,6 +127,28 @@ ok(isWegotripProductUrl("https://evil.com/miami-d1/tour-p1/") === false,
 ok(typeof PROVIDERS.wegotrip.resolve === "function" && PROVIDERS.wegotrip.requireTracking === true,
   "PROVIDERS.wegotrip is resolve()-gated and requireTracking, same shape as every other curated provider — a poisoned destination or a failed tp.media wrap both fail closed");
 
+// Lane F, 2026-09-16. Everything above calls resolveOffer()/isWegotripProductUrl
+// in isolation — resolveOffer only ever hands the registry's own (always
+// product-shaped) rows to resolve(), and isWegotripProductUrl is tested with
+// bare strings, never through resolve()'s own code path. So a mutation that
+// deleted the gate FROM INSIDE resolve() (leaving isWegotripProductUrl itself
+// intact and exported) would have left every assertion above green. Close that
+// hole by calling PROVIDERS.wegotrip's exported `wegotripDestination` helper —
+// the exact function resolve() is built from (lib/commerceProviders.js) — with
+// fabricated registry-row-shaped objects, never a raw string.
+const { wegotripDestination } = await import("../lib/commerceProviders.js");
+ok(wegotripDestination({ destination: "https://wegotrip.com/miami-d4164138/" }) === null,
+  "wegotripDestination refuses a bare city page with no product segment — the exact shape the OLD dead WeGoTrip link used, called through the SAME function resolve() runs");
+ok(wegotripDestination({ destination: "https://wegotrip.com/" }) === null,
+  "wegotripDestination refuses the bare homepage");
+ok(wegotripDestination(null) === null, "wegotripDestination refuses a missing row rather than throwing");
+ok(wegotripDestination({}) === null, "wegotripDestination refuses a row with no destination field");
+const { partnerOfferById } = await import("../lib/partnerOfferRegistry.js");
+const wgtRealRow = partnerOfferById("miami-tour-downtown-audio", "wegotrip");
+ok(!!wgtRealRow, "positive control: the real wegotrip registry row used below actually exists");
+ok(wegotripDestination(wgtRealRow) === wgtRealRow.destination && wgtRealRow.destination === "https://wegotrip.com/miami-d4164138/miami-downtown-audio-tour-p27109/",
+  `wegotripDestination resolves a real, hand-verified product row to its own destination URL (got ${wegotripDestination(wgtRealRow)})`);
+
 // ── the resolver reads with ANON, never the service role ─────────────────
 // Proven by running it with SUPABASE_SERVICE_ROLE_KEY deleted from the process:
 // the service-role key is still a legacy JWT and legacy keys 401 on every call

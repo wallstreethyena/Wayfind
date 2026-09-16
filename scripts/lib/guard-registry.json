@@ -34,9 +34,9 @@
     "criticalCount": 81,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 434,
+      "CALL": 435,
       "RENDER": 72,
-      "STRUCTURAL": 141,
+      "STRUCTURAL": 140,
       "OTHER": 1
     }
   },
@@ -1055,7 +1055,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 46,
+      "assertionCount": 52,
       "unprovenAbsenceCount": 2,
       "honestyViolations": [
         "2 absence assertion(s) with no positive control in the same file (e.g. \"!/\\[/.test(FALLBACK),\n  \"\")"
@@ -4713,7 +4713,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 55,
+      "assertionCount": 71,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,
@@ -7520,14 +7520,12 @@
     {
       "file": "scripts/check-unified-commerce-rail.mjs",
       "npmScript": null,
-      "class": "STRUCTURAL",
+      "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 32,
+      "assertionCount": 49,
       "unprovenAbsenceCount": 0,
-      "honestyViolations": [
-        "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
-      ],
-      "selfDocumentsRedProve": false,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],

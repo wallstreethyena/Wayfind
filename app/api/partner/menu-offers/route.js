@@ -104,6 +104,10 @@ export async function GET(request) {
           providerLabel: providerLabel(row.provider),
           subcategory: key,
           merchant: row.merchant,
+          // Lane F, 2026-09-16 — the caller's UnifiedBrowseCommerceRail uses
+          // this to order RESERVED (unscored) menu rows by distance; never a
+          // ranking signal for scored rows. See lib/menuReserveSlots.js.
+          distMi: Number.isFinite(row.distMi) ? row.distMi : null,
         };
       })
       .filter(Boolean);

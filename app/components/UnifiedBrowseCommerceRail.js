@@ -13,6 +13,7 @@ import { resolveBrowseExperienceRows, shouldLiveSearchFallback } from "../../lib
 import { browseBookableMatches } from "../../lib/browseBookableMatch";
 import { placePartnerPick } from "../../lib/placePartnerPicks";
 import { usePinQuarantine } from "../../lib/pinQuarantine";
+import { interleaveReserved } from "../../lib/menuReserveSlots";
 const NOLOG = () => {};
 // Bumped when the disclosure WORDING below (near the end of the rail) changes,
 // so consent evidence ties to the exact text shown, not to "some disclosure
@@ -20,6 +21,14 @@ const NOLOG = () => {};
 const RAIL_DISCLOSURE_VERSION = "browse-rail-v1";
 export const BOOKABLE_NEAR_LIMIT = 50;
 const RESERVE_LIMIT = 100;
+// Lane F, 2026-09-16 — see lib/menuReserveSlots.js for the full rationale.
+// MENU_RESERVE is BOTH the number of unscored menu rows guaranteed a slot in
+// the visible window AND the size of the untouched top-of-list head before
+// reservation starts (so the #1 result is never displaced). Reservation is by
+// SOURCE (verified registry inventory with no Wayfind score yet), never by
+// provider or payout.
+const MENU_RESERVE = 6;
+const MENU_RESERVE_CADENCE = 4;
 const REQUEST_MS = 15000;
 const eligibleExperiences = (rows, cat, sub) => (Array.isArray(rows) ? rows : []).filter((row) => row?.image && row.link_ok !== false && (row.code || row.product_code) && browseBookableMatches(row, cat, sub));
 
@@ -227,16 +236,27 @@ export function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub,
       // -1, NEVER 0 or invented: the same "no rating never becomes a fake
       // number" sentinel the deals loop and the pin loop both use above.
       const quality10 = Number.isFinite(m.quality10) && m.quality10 >= 0 ? m.quality10 : null;
-      rows.push({ key: `${m.provider}:${m.id}`, provider: m.provider, merchant: m.merchant || m.providerLabel || "Verified partner", offerId: m.id, title: m.title, image: m.image, quality10, score: quality10 ?? -1, rankBonus: 0, href, kind: "deal" });
+      // `source: "menu"` is the ONLY signal interleaveReserved() uses to find a
+      // reserved-slot candidate (lib/menuReserveSlots.js) — never provider,
+      // never merchant. `distMi` (from menuPartnerOffersFor via this route) is
+      // the one fact available to order unscored rows among themselves.
+      rows.push({ key: `${m.provider}:${m.id}`, provider: m.provider, merchant: m.merchant || m.providerLabel || "Verified partner", offerId: m.id, title: m.title, image: m.image, quality10, score: quality10 ?? -1, rankBonus: 0, href, kind: "deal", source: "menu", distMi: Number.isFinite(m.distMi) ? m.distMi : null });
     }
     const seen = new Set();
     const seenOffers = new Set();
-    return rows.filter((row) => {
+    const sorted = rows.filter((row) => {
       if (failedImages.has(row.image)) return false;
       const name = String(row.title || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
       if (seen.has(name) || seenOffers.has(row.key)) return false;
       seen.add(name); seenOffers.add(row.key); return true;
-    }).sort((a, b) => b.score - a.score || (b.rankBonus || 0) - (a.rankBonus || 0)).slice(0, BOOKABLE_NEAR_LIMIT);
+    }).sort((a, b) => b.score - a.score || (b.rankBonus || 0) - (a.rankBonus || 0));
+    // Every menu row (source: "menu") sorts last by construction — score -1,
+    // never invented — so on a busy chip BOOKABLE_NEAR_LIMIT would cut them
+    // entirely. interleaveReserved() guarantees up to MENU_RESERVE of them
+    // ride along in the visible window, ordered by distance, WITHOUT
+    // reordering a single scored row or ranking anything by commission — see
+    // lib/menuReserveSlots.js. This runs strictly after the score sort above.
+    return interleaveReserved(sorted, MENU_RESERVE, MENU_RESERVE_CADENCE).slice(0, BOOKABLE_NEAR_LIMIT);
   }, [experiences, deals, menuOffers, places, pinQ, failedImages, nowHour, sub, browseCat, lat, lng]);
 
   // v8.22 (owner, live screenshots: "the rail starts mid-way … starting at the

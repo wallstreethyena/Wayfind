@@ -47,6 +47,7 @@ import { PARTNER_OFFER_REGISTRY, partnerOfferById } from "../lib/partnerOfferReg
 import { cityPassOfferById } from "../lib/cityPassOffers.js";
 import { AFFILIATE_MERCHANTS } from "../lib/affiliateLibrary.js";
 import { CHIP_COMMERCE } from "../lib/browseCommerceMap.js";
+import { UT_PLACE_DEAL_IDS, UT_EVENT_DEAL_IDS } from "../lib/deals.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(path.join(ROOT, p), "utf8");
@@ -182,6 +183,56 @@ for (const r of allNear) { const k = `${r.provider}:${r.offerId}`; if (dedupeChe
 ok(allNear.length > 20, `positive control: a 20,000mi-radius attractions:all query returns a large set (${allNear.length}) worth deduping`);
 ok(dupesFound === 0, "menuPartnerOffersFor never returns a duplicate provider:offerId pair, even across a catalogue-spanning radius");
 
+// R1 (2026-09-16 audit): every row menuPartnerOffersFor returns must carry a
+// distMi computed from the SAME haversine call that gates inclusion — this is
+// what UnifiedBrowseCommerceRail's interleaveReserved() (lib/menuReserveSlots.js)
+// sorts its reserved slots by. Asserted by CALL, and cross-checked against an
+// independent haversine so a wrong unit (meters vs miles) cannot slip through.
+const mosiRow = museumsNearTampa.find((r) => r.offerId === "tampa-hook-mosi");
+ok(!!mosiRow && Number.isFinite(mosiRow.distMi) && mosiRow.distMi >= 0, `every menuPartnerOffersFor row carries a finite, non-negative distMi (tampa-hook-mosi: ${mosiRow && mosiRow.distMi})`);
+ok(mosiRow.distMi < 1, `positive control: MOSI is in Tampa and the query center IS Tampa, so distMi should read effectively 0mi (got ${mosiRow.distMi})`);
+const frostFromMiami = museumsNearMiami.find((r) => r.offerId === "miami-hook-frost-science");
+ok(!!frostFromMiami && frostFromMiami.distMi < 1, "the Miami-centered query's own distMi for Frost Science is also effectively 0mi (same center-on-venue shape as the Tampa control)");
+
+// R2 (2026-09-16 audit): 8 Undercover Tourist rows ("X (Undercover Tourist)")
+// duplicated the Tiqets/Klook row for the SAME park a few lines above them —
+// removed because Wayfind already serves UT park tickets in this rail via the
+// independent deals lane. Assert they are GONE from MENU_PARTNER_OFFERS and
+// individually accounted for in DELIBERATELY_UNPLACED with the stated reason
+// — not merely absent (which a typo could also produce).
+const REMOVED_UT_DUP_IDS = ["6", "7", "13", "14", "15", "16", "17", "18"];
+for (const id of REMOVED_UT_DUP_IDS) {
+  ok(!MENU_PARTNER_OFFERS.some((r) => r.provider === "undercover_tourist" && r.offerId === id),
+    `undercover_tourist offer "${id}" (a duplicate of an already-placed Tiqets/Klook row) is NOT in MENU_PARTNER_OFFERS`);
+  ok(DELIBERATELY_UNPLACED[id] === "served by the deals lane (wf_deals via /api/deals) in the same rail",
+    `DELIBERATELY_UNPLACED["${id}"] carries the exact "served by the deals lane" reason (got ${JSON.stringify(DELIBERATELY_UNPLACED[id])})`);
+}
+// The map's UT-id acceptance itself must stay wired — a real UT admission id
+// (17, Kennedy Space Center — one of the 8 removed above) still validates
+// through the same undercover_tourist branch section 3 exercises, proving
+// removal from MENU_PARTNER_OFFERS didn't also break the acceptance path.
+ok(utAdmissionIds.has("17"), "positive control: the UT-id acceptance set still recognizes a real admission id after the 8 duplicate rows were removed");
+
+// F3 (2026-09-16 audit): 4 PARTNER_OFFER_REGISTRY rows previously sat in
+// DELIBERATELY_UNPLACED on a false "no distinct product image exists" claim
+// — lib/intentPartnerPicks.js already ships a verified, product-specific
+// image for each. Moved into MENU_PARTNER_OFFERS; assert they are actually
+// there, resolve, and are reachable through the real menu-chip call.
+for (const id of ["orlando-pass-gocity-essentials", "orlando-pass-gocity-explorer", "miami-pass-gocity-explorer", "orlando-best-gatorland-kennedy"]) {
+  ok(!Object.prototype.hasOwnProperty.call(DELIBERATELY_UNPLACED, id), `${id}: no longer in DELIBERATELY_UNPLACED (moved into MENU_PARTNER_OFFERS)`);
+  const row = MENU_PARTNER_OFFERS.find((r) => r.offerId === id);
+  ok(!!row, `${id}: is now a MENU_PARTNER_OFFERS row`);
+  ok(!!row && !!partnerOfferById(row.offerId, row.provider), `${id}: resolves in PARTNER_OFFER_REGISTRY under provider "${row && row.provider}" (partnerOfferById call)`);
+}
+const orlandoAttractionsAll = menuPartnerOffersFor("attractions", "all", { lat: 28.5383, lng: -81.3792 });
+ok(orlandoAttractionsAll.some((r) => r.offerId === "orlando-pass-gocity-essentials"), "attractions:all near Orlando includes the Go City Essentials pass through the real menu-chip call");
+ok(orlandoAttractionsAll.some((r) => r.offerId === "orlando-pass-gocity-explorer"), "attractions:all near Orlando includes the Go City Explorer pass");
+ok(orlandoAttractionsAll.some((r) => r.offerId === "orlando-best-gatorland-kennedy"), "attractions:all near Orlando includes the Gatorland + Kennedy Space Center combo");
+const orlandoFamilyAll = menuPartnerOffersFor("family", "all", { lat: 28.5383, lng: -81.3792 });
+ok(orlandoFamilyAll.some((r) => r.offerId === "orlando-best-gatorland-kennedy"), "family:all near Orlando ALSO includes the Gatorland + Kennedy Space Center combo (placed on both chips)");
+const miamiAttractionsAll = menuPartnerOffersFor("attractions", "all", { lat: 25.7617, lng: -80.1918 });
+ok(miamiAttractionsAll.some((r) => r.offerId === "miami-pass-gocity-explorer"), "attractions:all near Miami includes the Go City Miami Explorer pass");
+
 // ── 6. dead-inventory closure ───────────────────────────────────────────────
 // Every PARTNER_OFFER_REGISTRY key must be referenced by an existing surface,
 // by MENU_PARTNER_OFFERS, or be named in DELIBERATELY_UNPLACED with a reason.
@@ -211,6 +262,21 @@ const unplacedIds = new Set(Object.keys(DELIBERATELY_UNPLACED));
 ok(unplacedIds.size > 0, "DELIBERATELY_UNPLACED names at least one id (positive control that this map is populated, not vestigial)");
 for (const key of unplacedIds) ok(!placedIds.has(key), `${key}: not BOTH placed in MENU_PARTNER_OFFERS and listed in DELIBERATELY_UNPLACED (mutually exclusive)`);
 for (const [key, reason] of Object.entries(DELIBERATELY_UNPLACED)) ok(typeof reason === "string" && reason.length >= 10, `DELIBERATELY_UNPLACED["${key}"] carries a real reason, not a placeholder`);
+
+// F3 (2026-09-16 audit): the module header used to claim "every id here is a
+// PARTNER_OFFER_REGISTRY key" — false, several are Undercover Tourist
+// admission/event ids (small integers-as-strings from AFFILIATE_MERCHANTS'
+// admission mapping or lib/deals.js's UT id tables, never a
+// PARTNER_OFFER_REGISTRY key). Assert the CORRECTED claim instead: every
+// DELIBERATELY_UNPLACED key is a real PARTNER_OFFER_REGISTRY key OR a real UT
+// id, never neither — which is exactly what an invented/typo'd key would be.
+const utNumericIds = new Set([...Object.keys(UT_PLACE_DEAL_IDS), ...Object.keys(UT_EVENT_DEAL_IDS), ...utAdmissionIds]);
+ok(utNumericIds.size >= 6, `positive control: the combined UT id set (UT_PLACE_DEAL_IDS + UT_EVENT_DEAL_IDS + AFFILIATE_MERCHANTS admissions) is non-trivial (${utNumericIds.size} ids)`);
+for (const key of Object.keys(DELIBERATELY_UNPLACED)) {
+  const isRegistryKey = Object.prototype.hasOwnProperty.call(PARTNER_OFFER_REGISTRY, key);
+  const isUtId = utNumericIds.has(key);
+  ok(isRegistryKey || isUtId, `DELIBERATELY_UNPLACED["${key}"]: is a real PARTNER_OFFER_REGISTRY key or a real UT admission/event id (got neither — an invented key would only ever be caught here)`);
+}
 
 const registryKeys = Object.keys(PARTNER_OFFER_REGISTRY);
 ok(registryKeys.length >= 100, `positive control: PARTNER_OFFER_REGISTRY is the real, large registry (${registryKeys.length} keys)`);
