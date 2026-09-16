@@ -56,8 +56,16 @@ for (const [city, intent] of [["Orlando", "best-of"], ["Sarasota", "date-night"]
 // ── 2. THE BUG: images missing means nothing renders ──────────────────────
 // This is the negative control AND the regression. If this ever renders cards,
 // the filter that protects us from imageless junk has gone.
+//
+// Orlando/best-of is deliberately NOT the probe here (Lane C, 2026-09-15): it
+// now carries a curated rail card (orlando-pass-gocity-explorer) with its own
+// verified, baked-in `image` that does not come from the `inventory` prop at
+// all, so it renders correctly REGARDLESS of what `inventory` supplies —
+// that is the point of a curated artPick, not a bug. hidden-gems still has
+// exactly one plain, imageless curated pick and no rail, so it stays a valid
+// probe for "no inventory art in, no card out".
 const noImages = INVENTORY.map(({ image, ...rest }) => rest);
-const emptyHtml = render({ city: "Orlando", intent: "best-of", inventory: noImages, lat: 28.5, lng: -81.4 });
+const emptyHtml = render({ city: "Orlando", intent: "hidden-gems", inventory: noImages, lat: 28.5, lng: -81.4 });
 ok(!emptyHtml.includes("data-offer-id="), "negative control: inventory with no images renders NO cards (this is the exact state the guide pages were in)");
 
 // ── 3. every declared placement resolves to picks the rail can show ───────
