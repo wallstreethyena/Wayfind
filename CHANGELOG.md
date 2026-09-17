@@ -1,3 +1,12 @@
+## v8.56.29: EPCOT and every place card serve the vaulted photo, not a Commons hotlink
+
+A live check found EPCOT in Florida's Biggest Parks loading a 1,280 px, 367 KB image straight from Wikimedia Commons. Its `wf_inventory.signals.photo_url` held that Commons rendition, and both the theme park rail and `/api/photo`'s inventory lane served it directly, so the resized copy in the `place-photos` vault was never used.
+
+- **Policy.** New `isFreeSourceHotlink()` in `lib/imageHostPolicy.js` (upload.wikimedia.org, commons.wikimedia.org).
+- **Readers.** `isPlaceOwnedPhotoUrl` and `/api/photo`'s inventory lane skip such URLs, and the theme park rail routes the card through `/api/photo` (by ref, or `?place=` when there is none). There the free lane serves the vault copy and refuses Google spend while a free photo exists. The free lane's own unvaulted rendition fallback is unchanged. The original URL stays on the row for provenance.
+- **Warm coverage.** The first v8.56.28 run (08:25 UTC) filled 32 cards, up from 4, but saw only 541 cards because endpoint collection shared the 650 ms probe gate. Collection now uses its own gate at 80% of that spacing (520 ms, at most about 115 starts a minute, under the middleware's 120-per-minute per-IP limit), and the quarter-hour rotation covers the remaining surfaces on the next run.
+- **Test.** New `test-free-source-hotlink` (22 assertions) covers host policy, readers, resolver, the EPCOT rail card (never admitted without an image source) and a mutation red-proof.
+
 ## v8.56.28: the photo repair cron keeps up with the backlog
 
 The 07:14 UTC `photo-warm` run filled only 14 cards and left 758 unchecked, stopping at its collection deadline. Three causes, three fixes:

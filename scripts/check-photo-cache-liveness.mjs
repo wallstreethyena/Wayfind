@@ -228,7 +228,7 @@ for (const s of [0, 301, 302, 429, 500, 502, 503, undefined]) ok(classifyPhotoUr
   // 2026-09-16: placePhotoServe.js also imports spendGate.js (refundToLedger)
   // and providerHealth.js (the quota breaker) — both must be copied too, or
   // the mutated module fails to load with ERR_MODULE_NOT_FOUND.
-  for (const f of ["placePhoto.js", "curatedPhotoRefs.js", "photoCacheRecovery.js", "photoUriLiveness.js", "serverCache.js", "spendGate.js", "providerHealth.js", "envAudit.js"]) {
+  for (const f of ["placePhoto.js", "curatedPhotoRefs.js", "photoCacheRecovery.js", "photoUriLiveness.js", "serverCache.js", "spendGate.js", "providerHealth.js", "envAudit.js", "imageHostPolicy.js"]) {
     try { copyFileSync(join(root, "lib", f), join(tmp, "lib", f)); } catch { /* optional dependency of the copy */ }
   }
   const src = readFileSync(join(root, "lib", "placePhotoServe.js"), "utf8");

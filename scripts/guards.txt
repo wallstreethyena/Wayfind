@@ -1516,6 +1516,7 @@ node scripts/test-photo-vault-wiring.mjs
 # app/api/cron/place-photos/route.js) changes nothing for a caller that does
 # not opt in. 4 red-proofs confirm every one of these is load-bearing.
 node scripts/test-photo-vault-rendition.mjs
+node scripts/test-free-source-hotlink.mjs
 
 # 2026-09-17 the WRONG-PLACE MATCH fix: production had 23 named ACTIVE free
 # photos that were clearly another place, another city, or not a picture of
