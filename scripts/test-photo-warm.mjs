@@ -36,7 +36,7 @@ const fail = [];
 const ok = (cond, msg) => { if (cond) pass++; else fail.push(msg); };
 const eq = (a, b, msg) => ok(a === b, `${msg} (expected ${JSON.stringify(b)}, got ${JSON.stringify(a)})`);
 
-const { runPhotoWarm, DEFAULT_PHOTO_WARM_MAX, SERVED_RESULTS, PAUSE_REASONS } = await import("../lib/photoWarm.js");
+const { runPhotoWarm, DEFAULT_PHOTO_WARM_MAX, SERVED_RESULTS, PAUSE_REASONS, chunkKeysForUrl, WARM_CHECK_URL_BUDGET } = await import("../lib/photoWarm.js");
 
 // ── fixtures ────────────────────────────────────────────────────────────
 const ORIGIN = "https://www.gowayfind.com";
@@ -307,6 +307,50 @@ for (const pauseReason of ["quota-open", "spend-denied", "gate-shut", "unconfigu
   photoCalls.length = 0;
   await runPhotoWarm({ origin: "https://site.test", surfaces: [surface], cities: [], fetchImpl, cachedServed: async () => new Set(), max: 10 });
   ok(photoCalls.some((c) => c.u.includes("ChIJWarmBatchAAAAAA")), "(i) red-proof: without the batch read the cached place IS requested, so the zero above is load-bearing");
+}
+
+// (j) THE DEFAULT BATCHED CHECK REALLY WORKS WITH REAL-LENGTH GOOGLE NAMES.
+// 2026-09-17 production: chunks of 150 ~700-char names built a >100 KB URL,
+// every read was refused, and the run settled nothing. Exercise the REAL
+// default path (lib/serverCache.js cgetMany) against a trapped PostgREST.
+{
+  const longRef = (i) => `places/ChIJLongRef${String(i).padStart(6, "0")}/photos/` + "A".repeat(680) + i;
+  const refs = Array.from({ length: 60 }, (_, i) => longRef(i));
+  const chunks = chunkKeysForUrl(refs.map((r) => "photo|" + r + "|640"));
+  ok(chunks.length > 1, `(j) 60 real-length names are split into several chunks (got ${chunks.length})`);
+  ok(chunks.every((c) => encodeURIComponent(c.map((k) => '"' + k + '"').join(",")).length <= WARM_CHECK_URL_BUDGET + 50), "(j) every chunk's encoded in-list stays inside the URL budget");
+  const saved = { fetch: globalThis.fetch, url: process.env.SUPABASE_URL, key: process.env.SUPABASE_SERVICE_ROLE_KEY };
+  process.env.SUPABASE_URL = "https://proj.supabase.co";
+  process.env.SUPABASE_SERVICE_ROLE_KEY = "k";
+  const urlLens = [];
+  const cachedEven = new Set(refs.filter((_, i) => i % 2 === 0));
+  globalThis.fetch = async (url) => {
+    const u = String(url);
+    if (u.includes("/rest/v1/wf_places_cache")) {
+      urlLens.push(u.length);
+      if (u.length > 16000) return new Response("URI too long", { status: 414 });
+      const m = decodeURIComponent(u.split("k=in.(")[1].split(")&select")[0]);
+      const keys = m.split('","').map((x) => x.replace(/^"|"$/g, ""));
+      const rows = keys.filter((k) => cachedEven.has(k.slice(6, -4))).map((k) => ({ k, v: { uri: "https://lh3.googleusercontent.com/x" }, exp: new Date(Date.now() + 864e5).toISOString(), wrote_at: new Date().toISOString() }));
+      return new Response(JSON.stringify(rows), { status: 200, headers: { "content-type": "application/json" } });
+    }
+    const probe = /\/api\/photo/.test(u);
+    return { ok: !probe, status: probe ? 404 : 200, text: async () => "{}", headers: { get: (h) => (h === "x-wayfind-photo-result" ? "probe-no-spend" : null) } };
+  };
+  try {
+    const surface = { id: "t-long", perCity: false, components: [], endpoints: [{ path: "/api/t-long", extract: () => refs.map((r, i) => ({ placeId: "ChIJLongRef" + i, photoRef: r })) }] };
+    const res = await runPhotoWarm({ origin: "https://site.test", surfaces: [surface], cities: [], max: 0 });
+    ok(urlLens.length > 1 && urlLens.every((n) => n <= 16000), `(j) every PostgREST read stays under the gateway limit (lengths ${Math.max(...urlLens)})`);
+    eq(res.alreadyServed, 30, "(j) the 30 cached names are settled by the default batched read");
+  } finally {
+    globalThis.fetch = saved.fetch;
+    if (saved.url === undefined) delete process.env.SUPABASE_URL; else process.env.SUPABASE_URL = saved.url;
+    if (saved.key === undefined) delete process.env.SUPABASE_SERVICE_ROLE_KEY; else process.env.SUPABASE_SERVICE_ROLE_KEY = saved.key;
+  }
+  // red-proof: one giant chunk (the shipped bug) is refused and settles nothing
+  const giant = chunkKeysForUrl(refs.map((r) => "photo|" + r + "|640"), 10 ** 9);
+  eq(giant.length, 1, "(j) red-proof setup: an unbounded budget yields one giant chunk");
+  ok(encodeURIComponent(giant[0].map((k) => '"' + k + '"').join(",")).length > 16000, "(j) red-proof: that single chunk is over the gateway limit, which is exactly the production failure");
 }
 
 if (fail.length) {
