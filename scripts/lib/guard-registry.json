@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 667,
-    "totalRegistryEntries": 668,
-    "guardsTxtLineCount": 666,
-    "guardsTxtReachedFileCount": 661,
+    "totalOnDiskGuardFiles": 668,
+    "totalRegistryEntries": 669,
+    "guardsTxtLineCount": 667,
+    "guardsTxtReachedFileCount": 662,
     "criticalCount": 82,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 455,
+      "CALL": 456,
       "RENDER": 73,
       "STRUCTURAL": 139,
       "OTHER": 1
@@ -13277,6 +13277,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 100,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-photo-liveness-sweep.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 13,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

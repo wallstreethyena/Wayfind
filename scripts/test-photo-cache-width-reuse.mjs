@@ -38,6 +38,7 @@ import {
   selectSamePlaceCachedPhoto,
 } from "../lib/photoCacheRecovery.js";
 
+import { PHOTO_REDIRECT_TTL_SECONDS } from "../lib/photoUriLiveness.js";
 let failures = 0;
 const ok = (condition, message) => {
   if (condition) return;
@@ -201,9 +202,10 @@ function recoveryRow(ref, width, uri, exp) {
   // TTL and one day — a rented Google uri was measured dying inside a week, so a
   // 10-day CDN replay of a recovered 302 is the same bug this row exists to stop.
   // Still never a fresh 30-day clock, and never longer than the source row.
-  const bounded = Math.min(ttl, 86400);
+  // v8.56.34: the bound is PHOTO_REDIRECT_TTL_SECONDS (three hours).
+  const bounded = Math.min(ttl, PHOTO_REDIRECT_TTL_SECONDS);
   ok(hit && hit.cacheControl.includes(`max-age=${bounded}`) && !/immutable/.test(hit.cacheControl),
-    "2b: Cache-Control is min(remaining TTL, 1 day) — never a fresh 30d clock, never immutable");
+    "2b: Cache-Control is min(remaining TTL, the redirect bound) — never a fresh 30d clock, never immutable");
 }
 
 // ── 4. STALE 640 does not satisfy 800 ────────────────────────────────────

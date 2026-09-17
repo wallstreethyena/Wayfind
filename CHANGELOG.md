@@ -1,3 +1,14 @@
+## v8.56.34: dead cached Google photo links are found and removed before a reader sees a blank
+
+A real-browser check found Universal Orlando Resort blank in Florida's Biggest Parks. `/api/photo` answered 302 "cache" to a Google photo link that Google now refuses with 403. Opening all 1,993 image links the site served that morning found 55 dead (79 cache rows). Their median age was 21 hours, and some had passed validation only 7 hours earlier. The coverage crawl had counted them as real because it never opened the image. The 79 rows were deleted in production on 2026-09-17, and Universal now serves a real photo.
+
+- **Sweep.** New `lib/photoLivenessSweep.js`, run first by the `photo-warm` cron every 15 minutes for up to 45 seconds and 300 rows. It checks cached Google photo links, least recently validated first, with a HEAD request to the photo host (not a billable Places call).
+  - A dead link's row is deleted, so the same run can refill it through the normal gated path.
+  - A live link has its validation time updated in place, without restarting the 30-day clock.
+  - The pulse note starts with `live <checked>/<dead> dead`.
+- **Request path.** Revalidation now happens after 1 hour instead of 6, and every 3 hours instead of 24. A Google photo redirect is cached downstream for 3 hours instead of 1 day. The warm "served" marker lasts 2 hours instead of 12.
+- **Tests.** New `test-photo-liveness-sweep` (13 assertions). `check-photo-cache-liveness` now requires the 3-hour bound.
+
 ## v8.56.33: hotel cards join the photo audit and the repair cron
 
 `lib/photoSurfaces.js` registers a crawlable `hotel-stays` surface covering Stay Tonight (`/api/hotels`) and Stay Near the Action (`/api/trip-connections?mode=stays`). The new `hotelCardsForAudit()` counts every hotel card, including owned hotels with no Google place id and no photo, which show the branded fallback by design and are now reported as unsourceable instead of silently skipped. `photo-warm` uses the same card key.
