@@ -435,6 +435,32 @@ const FAKE_DEPS = { breakerOpen: async () => null, tripBreaker: async () => true
     "RED-PROOF 3: dropping the width fold changes the verdict — this guard's own case 1 (one grant across 240/400/800) would fail under it");
 }
 
+/* hermetic breaker: a fake upstream never reads production's breaker */
+// 2026-09-17: the v8.56.20 Vercel preview build ran this suite with the
+// production Supabase env present while the real google-photos-quota breaker
+// was still open, and check-no-imageless-card failed on a quota-open that had
+// nothing to do with the code under test. The breaker below is tripped in THIS
+// process's memory (no Supabase env here), reproducing that exact state.
+{
+  const { tripBreaker, breakerOpen, resetBreaker } = await import("../lib/providerHealth.js");
+  await tripBreaker("google-photos-quota", "quota", "hermetic-breaker control", 60 * 60 * 1000);
+  ok(!!(await breakerOpen("google-photos-quota")), "hermetic control: the in-process breaker really is open for this case");
+  let fetches = 0;
+  const faked = await resolvePlacePhoto({ ref: "places/ChIJHermeticPlace/photos/HERMETICREF", w: 640, spendAllowed: true, serverKey: "test-key" }, {
+    cacheGet: async () => null, cacheSet: async () => {}, inventoryGet: async () => null,
+    fetchOwnedUri: async () => { fetches++; return "https://lh3.googleusercontent.com/place-photos/hermetic"; },
+  });
+  eq(faked.type, "redirect", "HERMETIC: a caller with an injected fake Google is not blocked by the live breaker");
+  eq(fetches, 1, "HERMETIC: the injected fake Google was actually called once");
+  let grants = 0;
+  const real = await resolvePlacePhoto({ ref: "places/ChIJHermeticPlace/photos/HERMETICREF", w: 640, serverKey: "test-key", authorizeSpend: async () => { grants++; return true; } }, {
+    cacheGet: async () => null, cacheSet: async () => {}, inventoryGet: async () => null,
+  });
+  eq(real.reason, "quota-open", "CONTROL: the production shape (no injected fetcher) still honours an open breaker");
+  eq(grants, 0, "CONTROL: an open breaker still asks the ledger for zero grants");
+  await resetBreaker("google-photos-quota");
+}
+
 /* ── wiring proof — the guard is actually registered and actually run ────── */
 {
   const guardsTxt = readFileSync(new URL("../scripts/guards.txt", import.meta.url), "utf8");
