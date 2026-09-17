@@ -1,3 +1,14 @@
+## v8.56.21 - Ask Google for the current photo name first, then pay once
+
+The first five visible empty cards filled after v8.56.20 shipped all carried expired stored photo names. Each one paid a billed dead-name media call, then a Place Details lookup, then the real media call: two billed Place Details Photos events per picture (ledger +10 for 5 photos). With about 2,959 visible cards still empty, that would have doubled the repair cost and overrun the monthly cap.
+
+- **Fresh name first.** `/api/photo` now passes `freshFirst: true`. For a cold miss, the resolver first asks Place Details for the place's current photo name (`fields=photos`, billed as Place Details Essentials (IDs Only), listed by Google with unlimited free usage on 2026-09-17), then makes exactly one media call on that name. The stored name is never tried first.
+- **No photo means no paid call.** If Google reports the place has no photo, no media call runs, the resolver's photos grant is refunded (it was never billed), and the ref is negative-cached for 24 hours (`fresh-nophoto`).
+- **Fallback.** If the lookup itself fails, the stored name is tried once and the stored-name heal does not repeat the lookup. A quota rejection on the fresh name (`fresh-failed:quota`) trips the daily breaker like any other quota answer.
+- **Unused grants.** `defaultFetchOwnedUri` now refunds a photos grant the resolver took but no media call used.
+- **Scope.** The flag is opt-in, so direct resolver callers and every existing hermetic guard keep the stored-name order. Both Place Details requests share one URL builder, so `test-photo-upstream-truth` still counts three endpoint literals.
+- **Tests.** `test-photo-spend-efficiency.mjs` gains case 6 (fresh found, no photo with refund and negative cache, lookup failure fallback without a repeat lookup, quota trip, a no-flag control, and a route wiring check), for 85 assertions. Disabling the flag or the unused-grant refund turns it red. 654/654 guards green.
+
 ## v8.56.20 - One photo, one paid call, no matter how many widths asked for it
 
 Google Cloud metrics, checked 2026-09-16: every billed photo call traces to `defaultFetchOwnedUri` inside `lib/placePhotoServe.js`, one ledger grant per outbound request. With v8.56.19's classifier now telling billed and non billed apart correctly, the next question was how many of the billed calls were actually necessary. Five sources of waste were still spending real money on photos Wayfind had already paid for once.
