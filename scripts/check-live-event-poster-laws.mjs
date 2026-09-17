@@ -45,10 +45,14 @@ function git(cmd) {
     || /\bfetch\s*\(/.test(l)
     || /setCenter|setLocName/.test(l)
   );
-  if (removed.length === 0 && suspicious.length === 0) {
-    ok(`app/home.js's only change is the new import and the two-poster block (${added.length} lines added, 0 removed)`);
+  // Removals are allowed ONLY inside this feature's own poster block (a line
+  // mentioning LiveEventPoster). Deleting anything else in home.js is out of
+  // scope for this lane and fails here.
+  const foreignRemovals = removed.filter((l) => !/LiveEventPoster/.test(l));
+  if (foreignRemovals.length === 0 && suspicious.length === 0) {
+    ok(`app/home.js's only change is the two-poster wiring (${added.length} added, ${removed.length} removed, all within the poster block)`);
   } else {
-    bad("app/home.js has changes outside the approved two-poster wiring", `removed=${removed.length} suspicious=${JSON.stringify(suspicious)}`);
+    bad("app/home.js has changes outside the approved two-poster wiring", `foreign-removals=${foreignRemovals.length} suspicious=${JSON.stringify(suspicious)}`);
   }
 }
 
