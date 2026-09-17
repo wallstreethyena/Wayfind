@@ -1498,6 +1498,42 @@ node scripts/test-photo-vault.mjs
 # runBackfill/recordPulse/jobCannotRun/jobFailed swapped for doubles.
 node scripts/test-photo-vault-wiring.mjs
 
+# 2026-09-17 the OVERSIZED-COMMONS-ORIGINAL fix: 13 active wf_place_photo
+# rows sat with storage_path NULL, every one a Commons ORIGINAL 3,000-9,000px
+# wide (Spaceship Earth, EPCOT at 6240px) -- past the vault's MAX_BYTES or
+# DOWNLOAD_TIMEOUT_MS, hotlinking a multi-megabyte original to a phone
+# instead of ever getting vaulted. Proves lib/photoVault.js#commonsRenditionUrl's
+# URL-rewrite table (jpg/png/svg/tif/already-thumb/non-Commons/unsure
+# extension), that storePhotoPermanently downloads the 1280px rendition
+# instead of the raw original for an unknown or known-oversized Commons
+# original and retries once with the rendition when the original comes back
+# too_large or times out, that a small (<=1600px) original still downloads
+# unchanged (control), that lib/freePhoto.js#selectFreePhotoRow never
+# returns a >1600px Commons original to a browser, that isOwnedPhotoUrl
+# already accepts both an original and a rendition url, and that the cron's
+# new bounded re-attempt of ACTIVE rows still missing a vault copy
+# (lib/placePhotoBackfill.js's `revaultLimit`, wired from
+# app/api/cron/place-photos/route.js) changes nothing for a caller that does
+# not opt in. 4 red-proofs confirm every one of these is load-bearing.
+node scripts/test-photo-vault-rendition.mjs
+
+# 2026-09-17 the WRONG-PLACE MATCH fix: production had 23 named ACTIVE free
+# photos that were clearly another place, another city, or not a picture of
+# the place at all (a road shield, a zoo road sign, a person's category, a
+# different country's landmark of the same generic name) -- all hand-
+# rejected in the database. Proves lib/commonsPhotos.js#verifyCommonsFileIdentity
+# and findCommonsPhoto reject every one of those 23 audited false positives,
+# that every audited CORRECT match (Epcot, Siesta Key Beach, Caspersen
+# Beach, Ringling Museum, and Busch Gardens Tampa Bay -- accepted ONLY via
+# its own Wikipedia lead-image path, never Commons-direct) still accepts,
+# that a place is never penalised for its own name appearing in a
+# conflicting-location or venue-type check, and that a non-place Wikipedia
+# lead image (a shield/logo/map/portrait) falls through to Commons-direct
+# instead of being trusted blindly. 3 red-proofs confirm the hay-narrowing,
+# the wrong-entity guard at both accept points, and the tightened short-
+# brand geo radius are all load-bearing.
+node scripts/test-commons-identity.mjs
+
 node scripts/test-beach-alert-recovery.mjs
 
 node scripts/test-editorial-retry-content.mjs
