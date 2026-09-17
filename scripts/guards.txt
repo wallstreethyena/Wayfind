@@ -1611,3 +1611,21 @@ node scripts/test-best-photo-selection.mjs
 # on every request; landing.js: a denied text_pro grant returns null and never
 # writes [] over a city page for 30 days. Both executed with mocked edges.
 node scripts/check-provider-empty-answers.mjs
+
+# 2026-09-17: the EPCOT hole. A one-off photo-coverage audit only ever crawled
+# /api/rails and missed app/api/theme-parks entirely. lib/photoSurfaces.js is
+# now the canonical list of every place-photo surface; this guard fails the
+# build the day a new photo-rendering app/ file ships without a registry
+# entry, and red-proves that removing theme-parks from the registry itself
+# fails (reproducing the exact hole this exists to close).
+node scripts/check-photo-surface-registry.mjs
+
+# The self-healing photo-warm cron (app/api/cron/photo-warm): empty visible
+# places get exactly one real /api/photo request each, an already-served place
+# gets zero, the run stops at the first quota-open/spend-denied/gate-shut/
+# unconfigured reason, PHOTO_WARM_MAX bounds paid attempts, non-production
+# makes zero requests, a place on several surfaces/cities is asked once, the
+# probe header is never sent on the real request and always sent on the
+# check, auth is fail-closed, and vercel.json schedules it. Hermetic: fetch
+# and the clock are both injected.
+node scripts/test-photo-warm.mjs
