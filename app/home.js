@@ -10309,10 +10309,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                 delay the rail. */}
             <div className="wf-fullbleed" style={{ display: "flex", gap: 10, padding: "0 16px 12px", overflowX: "auto", overscrollBehaviorX: "contain" }}>
               <div style={{ flex: "1 1 0", minWidth: 150, maxWidth: 220 }}>
-                <LiveEventPoster type="sports" center={center} city={locName} />
+                <LiveEventPoster type="sports" center={railCenter || center} city={locName} />
               </div>
               <div style={{ flex: "1 1 0", minWidth: 150, maxWidth: 220 }}>
-                <LiveEventPoster type="concerts" center={center} city={locName} />
+                <LiveEventPoster type="concerts" center={railCenter || center} city={locName} />
               </div>
             </div>
             {railMenuBand}
