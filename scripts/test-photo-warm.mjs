@@ -443,6 +443,11 @@ for (const pauseReason of ["quota-open", "spend-denied", "gate-shut", "unconfigu
   ok(peak > 1 && peak <= warmMod.WARM_COLLECT_CONCURRENCY, `(l) endpoints are fetched concurrently within the cap (peak ${peak})`);
   const serial = await runPhotoWarm({ origin: ORIGIN, fetchImpl, surfaces, cities: [null], offsetHour: 0, max: 10, cachedServed: async () => new Set(), collectConcurrency: 1 });
   eq(JSON.stringify(serial), JSON.stringify(res), "(l) parallel and serial collection give identical results");
+  // The collection gate spaces endpoint starts (80% of paceMs by default).
+  const t0 = Date.now();
+  await runPhotoWarm({ origin: ORIGIN, fetchImpl, surfaces: surfaces.slice(0, 4), cities: [null], offsetHour: 0, max: 10, cachedServed: async () => new Set(), paceMs: 100 });
+  const spent = Date.now() - t0;
+  ok(spent >= 220 && spent < 1500, `(l) four endpoint starts are spaced ~80 ms apart under paceMs=100 (took ${spent} ms)`);
 }
 
 if (fail.length) {

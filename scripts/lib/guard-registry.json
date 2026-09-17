@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 665,
-    "totalRegistryEntries": 666,
-    "guardsTxtLineCount": 664,
-    "guardsTxtReachedFileCount": 659,
+    "totalOnDiskGuardFiles": 666,
+    "totalRegistryEntries": 667,
+    "guardsTxtLineCount": 665,
+    "guardsTxtReachedFileCount": 660,
     "criticalCount": 82,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 453,
+      "CALL": 454,
       "RENDER": 73,
       "STRUCTURAL": 139,
       "OTHER": 1
@@ -11505,6 +11505,28 @@
       "owner": "Revenue QA"
     },
     {
+      "file": "scripts/test-free-source-hotlink.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 24,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-front-events.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -13463,7 +13485,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 71,
+      "assertionCount": 72,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
