@@ -205,7 +205,16 @@ for (const pauseReason of ["quota-open", "spend-denied", "gate-shut", "unconfigu
   const savedEnv = process.env.VERCEL_ENV;
   const savedMax = process.env.PHOTO_WARM_MAX;
   let calls = 0;
-  globalThis.fetch = async (...a) => { calls++; throw new Error("RED-PROOF TRIPPED: photo-warm made a network call outside production: " + a[0]); };
+  // The job's own pulse row (lib/jobPulse.js, a Supabase PostgREST write) is
+  // bookkeeping, not warm work, and it IS made when Supabase env is present,
+  // as it is on the Vercel build that runs this suite (2026-09-17: the first
+  // preview build of this guard failed here for exactly that reason). Only a
+  // request to the site itself (an endpoint or /api/photo) counts, and trips.
+  globalThis.fetch = async (...a) => {
+    if (/\/rest\/v1\//.test(String(a[0]))) return new Response("[]", { status: 201, headers: { "content-type": "application/json" } });
+    calls++;
+    throw new Error("RED-PROOF TRIPPED: photo-warm made a network call outside production: " + a[0]);
+  };
   process.env.CRON_SECRET = "test-secret";
   process.env.VERCEL_ENV = "preview";
   delete process.env.PHOTO_WARM_MAX;
