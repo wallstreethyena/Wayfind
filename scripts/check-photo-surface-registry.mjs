@@ -23,7 +23,7 @@
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { PHOTO_SURFACES } from "../lib/photoSurfaces.js";
+import { PHOTO_SURFACES, extractPlaces, extractPlacesFromHtml, photoRequestFor } from "../lib/photoSurfaces.js";
 
 const REPO = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const APP_DIR = path.join(REPO, "app");
@@ -141,6 +141,35 @@ for (const rel of Object.keys(EXEMPT)) {
   ok(candidateRels.has(themeParkFile), `red-proof precondition failed: ${themeParkFile} is no longer detected as a photo-rendering file — this guard's red-proof has lost its subject`);
   ok(!stillRegistered.has(themeParkFile) && !EXEMPT[themeParkFile],
     `red-proof failed: removing the "theme-parks" surface from PHOTO_SURFACES must leave ${themeParkFile} unregistered and unexempt (reproducing the EPCOT hole) — it is somehow still covered by another surface, which means this red-proof cannot prove the guard bites`);
+}
+
+// ── EXTRACTION HONESTY (2026-09-17, production-measured) ──────────────────
+// A rail SECTION HEADER is not a place card, and an RSC-escaped URL must not
+// leak "\u0026w=640" into a place id. Both produced false "unsourceable"
+// cards in the first live runs (1,590 headers; 35 on /florida-events).
+{
+  const REAL = "places/ChIJRegistryFixture01/photos/AAA";
+  const json = { places: { birthday: [{ id: "upscale", name: "Upscale Birthday Dinner", places: [
+    { placeId: "ChIJRegistryFixture01", name: "Real Place", photoRef: REAL },
+    { id: "ChIJRegistryFixture02", name: "Id-only Place" },
+    { id: "evt-1", title: "An event card", image: "https://cdn.example/event.jpg" },
+  ] }] } };
+  const got = extractPlaces(json);
+  ok(!got.some((p) => p.placeId === "upscale"), "extraction: a section header ({id:'upscale', name, places}) is never counted as a place card");
+  ok(got.some((p) => p.placeId === "ChIJRegistryFixture01" && p.photoRef === REAL), "extraction: a real place with a photoRef is kept (positive control)");
+  ok(got.some((p) => p.placeId === "ChIJRegistryFixture02"), "extraction: a named object with a real Google place id is kept even without a photo field");
+  ok(got.some((p) => p.photo === "https://cdn.example/event.jpg"), "extraction: a named card with its own image URL is kept as a direct-image card");
+  ok(got.every((p) => photoRequestFor(p, 640)), "extraction: every extracted card has a photo request (nothing false-unsourceable)");
+  const html = 'a "/api/photo?place=ChIJdd8VlMN-54gRoaU0d_zYhfk\\u0026w=640" b /api/photo?ref=places%2FChIJRegistryFixture01%2Fphotos%2FAAA\\u0026w=640';
+  const fromHtml = extractPlacesFromHtml(html);
+  ok(fromHtml.length === 2 && fromHtml.every((p) => photoRequestFor(p, 640)), `extraction: RSC-escaped URLs yield clean ids with a photo request (got ${JSON.stringify(fromHtml)})`);
+  ok(fromHtml.some((p) => p.placeId === "ChIJdd8VlMN-54gRoaU0d_zYhfk"), "extraction: the escaped tail is not part of the place id");
+  // red-proofs: the old heuristics, re-implemented inline, fail the same fixtures
+  const oldLooksLikePlace = (n) => !!(n && typeof n === "object" && !Array.isArray(n) && (n.placeId || n.place_id || n.id) && String(n.placeId || n.place_id || n.id).length >= 6 && (n.name || n.title));
+  ok(oldLooksLikePlace({ id: "upscale", name: "Upscale Birthday Dinner" }), "red-proof: the old heuristic DID treat the header as a place, so the check above is load-bearing");
+  const OLD_RX = /\/api\/photo\?(?:[^"'&\s]*&)*(ref|place)=([^"'&\s)]+)/g;
+  const oldIds = [...html.matchAll(OLD_RX)].map((m) => m[2]);
+  ok(oldIds.some((v) => v.includes("\\u0026")), "red-proof: the old regex DID capture the escaped tail, so the regex fix is load-bearing");
 }
 
 if (failures.length) {
