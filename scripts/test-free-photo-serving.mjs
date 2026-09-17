@@ -217,7 +217,7 @@ globalThis.__wfFreePhotoTest = {
 };
 
 const savedFetch = globalThis.fetch;
-const savedEnv = { WAYFIND_GATE: process.env.WAYFIND_GATE, SUPABASE_URL: process.env.SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY, WAYFIND_PHOTOS_PAID: process.env.WAYFIND_PHOTOS_PAID, GOOGLE_PHOTOS_MONTH_CAP: process.env.GOOGLE_PHOTOS_MONTH_CAP, GOOGLE_MAPS_SERVER_KEY: process.env.GOOGLE_MAPS_SERVER_KEY };
+const savedEnv = { WAYFIND_GATE: process.env.WAYFIND_GATE, SUPABASE_URL: process.env.SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY, WAYFIND_PHOTOS_PAID: process.env.WAYFIND_PHOTOS_PAID, GOOGLE_PHOTOS_MONTH_CAP: process.env.GOOGLE_PHOTOS_MONTH_CAP, GOOGLE_MAPS_SERVER_KEY: process.env.GOOGLE_MAPS_SERVER_KEY, VERCEL_ENV: process.env.VERCEL_ENV };
 function restoreEnv() {
   for (const [k, v] of Object.entries(savedEnv)) { if (v == null) delete process.env[k]; else process.env[k] = v; }
 }
@@ -236,6 +236,14 @@ process.env.WAYFIND_GATE = "free";
 process.env.SUPABASE_URL = SUPABASE_URL_FIXTURE;
 process.env.SUPABASE_SERVICE_ROLE_KEY = "test-service-role-key";
 process.env.GOOGLE_MAPS_SERVER_KEY = "test-google-server-key";
+// 2026-09-16 (spend efficiency): spendAllowPhotos() now refuses outright
+// outside production (see lib/spendGate.js) unless
+// WAYFIND_ALLOW_NONPROD_PHOTO_SPEND=1. This file drives the REAL
+// spendAllow/spendAllowPhotos through route.js's authorizer closure and
+// counts real ledger calls (see the module comment above) — without this,
+// every scenario here would see zero ledger calls for the wrong reason,
+// masking the actual invariant under test.
+process.env.VERCEL_ENV = "production";
 delete process.env.WAYFIND_PHOTOS_PAID;
 delete process.env.GOOGLE_PHOTOS_MONTH_CAP;
 

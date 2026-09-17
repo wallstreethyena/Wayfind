@@ -25,6 +25,14 @@
 // stub) and deps.authorizeSpend / an authorizer double — same shape as
 // scripts/test-photos-paid-cap.mjs's Law 2 harness — with deps.retryDelayMs:0
 // so the one real retry never sleeps. No process.env read decides a verdict.
+//
+// SPEND EFFICIENCY (2026-09-16, scripts/test-photo-spend-efficiency.mjs):
+// tryName's follow attempt now runs ONLY when skipCls === "unowned" — a
+// `stale` (404) or `client` (exactly HTTP 400) skip goes straight to the
+// heal check instead, because Google's follow URL for the SAME expired name
+// answers the SAME 404/400 every time. Cases G through L below (the
+// stale/400 heal scenarios) no longer script a `follow` step at all — see
+// each case's own comment.
 import { readFileSync } from "node:fs";
 import {
   classifyUpstream,
@@ -218,8 +226,9 @@ for (const status of [500, 502, 503]) {
   missResults.push(result);
 }
 
-// F. 2xx, valid JSON, but photoUri is not owned — unowned. Existing
-// behaviour still tries follow; follow also comes back unowned.
+// F. 2xx, valid JSON, but photoUri is not owned — unowned. This is the ONLY
+// skipCls that still follows (2026-09-16: stale/client-400 no longer do —
+// see G/H/I/J/K/L above); follow also comes back unowned here.
 {
   const auth = authorizer({ photos: 99, details_ids_only: 99 });
   const { calls, result } = await run({
@@ -234,31 +243,40 @@ for (const status of [500, 502, 503]) {
 }
 
 // G. 400 → heal attempted → Details grant refused — stale-heal-denied.
+// SPEND EFFICIENCY (2026-09-16): follow now runs ONLY when skipCls ===
+// "unowned" — a `client` (400) skip goes straight to healEligible, no
+// second media grant. No `follow` step is scripted below: if a regression
+// reintroduced the follow call, googleStub itself would throw ("no scripted
+// follow response left"), failing this guard.
 {
   const auth = authorizer({ photos: 99, details_ids_only: 0 });
-  const { calls, result } = await run({ skip: [{ status: 400 }], follow: [{ status: 400 }] }, auth);
-  eq(calls.join(","), "skip,follow", "G(400-heal-denied): stops before Details");
+  const { calls, result } = await run({ skip: [{ status: 400 }] }, auth);
+  eq(calls.join(","), "skip", "G(400-heal-denied): no follow call — straight to heal");
   eq(result.upstream, "stale-heal-denied", "G(400-heal-denied): classified stale-heal-denied");
+  eq(auth.asked("photos"), 1, "G(400-heal-denied): only the resolver's own top-level ask — no second (follow) photos grant was even asked");
   eq(auth.asked("details_ids_only"), 1, "G(400-heal-denied): Details asked once and refused");
   eq(auth.granted("details_ids_only"), 0, "G(400-heal-denied): and refused");
   missResults.push(result);
 }
 
 // H. 404 → heal → Details returns a fresh name → healed fetch succeeds.
+// SPEND EFFICIENCY (2026-09-16): `stale` also no longer follows — the skip
+// 404 goes straight to heal, so this is now TWO media requests total (the
+// original skip + the healed skip), not three.
 {
   const auth = authorizer({ photos: 99, details_ids_only: 99 });
   const { calls, result } = await run({
-    skip: [{ status: 404 }], follow: [{ status: 404 }],
+    skip: [{ status: 404 }],
     details: [{ status: 200, body: { photos: [{ name: NEW_REF }] } }],
     healedSkip: [{ status: 200, body: { photoUri: OWNED } }],
   }, auth);
-  eq(calls.join(","), "skip,follow,details,healedSkip", "H(404-heal-ok): full heal path");
+  eq(calls.join(","), "skip,details,healedSkip", "H(404-heal-ok): full heal path, no follow call");
   eq(result.type, "redirect", "H(404-heal-ok): a healed success is a redirect, not a miss");
   eq(result.reason, "google", "H(404-heal-ok): reason is google");
   eq(result.location, OWNED, "H(404-heal-ok): the healed uri is served");
   eq(result.upstream, "ok", "H(404-heal-ok): classified ok");
   eq(result.retried, false, "H(404-heal-ok): no transient failure, no retry");
-  eq(auth.granted("photos"), 3, "H(404-heal-ok): three photo media grants (skip pre-check, follow, healedSkip)");
+  eq(auth.granted("photos"), 2, "H(404-heal-ok): two photo media grants (skip pre-check + healedSkip — no follow)");
   eq(auth.granted("details_ids_only"), 1, "H(404-heal-ok): one Details grant");
 }
 
@@ -266,10 +284,10 @@ for (const status of [500, 502, 503]) {
 {
   const auth = authorizer({ photos: 99, details_ids_only: 99 });
   const { calls, result } = await run({
-    skip: [{ status: 404 }], follow: [{ status: 404 }],
+    skip: [{ status: 404 }],
     details: [{ status: 200, body: { photos: [{ name: OLD_REF }] } }],
   }, auth);
-  eq(calls.join(","), "skip,follow,details", "I(404-heal-same): no healed request when Details offers nothing new");
+  eq(calls.join(","), "skip,details", "I(404-heal-same): no follow, no healed request when Details offers nothing new");
   eq(result.upstream, "stale-heal-same", "I(404-heal-same): classified stale-heal-same");
   missResults.push(result);
 }
@@ -278,10 +296,10 @@ for (const status of [500, 502, 503]) {
 {
   const auth = authorizer({ photos: 99, details_ids_only: 99 });
   const { calls, result } = await run({
-    skip: [{ status: 404 }], follow: [{ status: 404 }],
+    skip: [{ status: 404 }],
     details: [{ status: 200, body: { photos: [] } }],
   }, auth);
-  eq(calls.join(","), "skip,follow,details", "J(404-heal-nophoto): Details fetched, no fresh name");
+  eq(calls.join(","), "skip,details", "J(404-heal-nophoto): Details fetched, no fresh name, no follow");
   eq(result.upstream, "stale-heal-nophoto", "J(404-heal-nophoto): classified stale-heal-nophoto");
   missResults.push(result);
 }
@@ -290,10 +308,10 @@ for (const status of [500, 502, 503]) {
 {
   const auth = authorizer({ photos: 99, details_ids_only: 99 });
   const { calls, result } = await run({
-    skip: [{ status: 404 }], follow: [{ status: 404 }],
+    skip: [{ status: 404 }],
     details: [{ status: 500 }],
   }, auth);
-  eq(calls.join(","), "skip,follow,details", "K(404-heal-http): Details fetched but answered non-2xx");
+  eq(calls.join(","), "skip,details", "K(404-heal-http): Details fetched but answered non-2xx, no follow");
   eq(result.upstream, "stale-heal-http", "K(404-heal-http): classified stale-heal-http");
   missResults.push(result);
 }
@@ -303,11 +321,11 @@ for (const status of [500, 502, 503]) {
 {
   const auth = authorizer({ photos: 99, details_ids_only: 99 });
   const { calls, result } = await run({
-    skip: [{ status: 404 }], follow: [{ status: 404 }],
+    skip: [{ status: 404 }],
     details: [{ status: 200, body: { photos: [{ name: NEW_REF }] } }],
     healedSkip: [{ status: 429 }],
   }, auth);
-  eq(calls.join(","), "skip,follow,details,healedSkip", "L(heal-failed): the healed name's own media call ran");
+  eq(calls.join(","), "skip,details,healedSkip", "L(heal-failed): the healed name's own media call ran, no follow beforehand");
   eq(result.upstream, "stale-heal-failed:quota", "L(heal-failed): subclass is carried in the string");
   missResults.push(result);
 }

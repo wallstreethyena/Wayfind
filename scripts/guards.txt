@@ -1330,6 +1330,21 @@ node scripts/test-photo-upstream-truth.mjs
 # Google's own Pacific-midnight reset. Red-proved.
 node scripts/test-photo-quota-truth.mjs
 
+# 2026-09-16: Google Cloud metrics traced every billed photo call to
+# defaultFetchOwnedUri, one ledger grant per outbound request, and found
+# cards asking the SAME photo at eight different widths, each its own cache
+# key and cold fetch; a stale/400 self-heal spending a second grant on the
+# follow URL for the very name that just failed; concurrent requests for one
+# ref each taking their own grant; and a ref whose heal found no photo, or
+# ended unowned/badjson, re-spending on every repeat request forever. Fetch
+# width is now canonicalized (canonicalPhotoWidth), tryName only follows on
+# unowned, resolvePlacePhoto singleflights concurrent callers of the same
+# ref+width, and an owned-miss whose upstream can never change on retry is
+# negative-cached for 24h. spendAllowPhotos also now refuses to spend outside
+# VERCEL_ENV=production unless explicitly overridden, so a Preview deploy or
+# local dev with production env cannot spend the production ledger. Red-proved.
+node scripts/test-photo-spend-efficiency.mjs
+
 node scripts/test-inventory-batch-concurrency.mjs
 
 node scripts/test-event-apple-maps.mjs

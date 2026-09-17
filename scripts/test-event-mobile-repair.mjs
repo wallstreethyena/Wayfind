@@ -17,7 +17,13 @@ assert.equal((await resolvePlacePhoto(input, deps)).location, uri);
 assert.deepEqual(reads, [photoCacheKey(ref, 220), photoCacheKey(ref, 640)]);
 assert.equal(ledger, 0); assert.equal(upstream, 0); assert.equal(writes, 0);
 assert.equal((await resolvePlacePhoto({ ...input, gateShut: true }, deps)).location, uri);
-assert.equal((await resolvePlacePhoto({ ...input, w: 1200, gateShut: true }, deps)).type, "miss");
+// SPEND EFFICIENCY (2026-09-16): a hero (w>800) now also harvests the
+// 800/720/640 fallback widths (photoCacheCandidateWidths) instead of only
+// ever matching its own exact size, so this same width-640 fixture is a free
+// hit for a 1200 hero too — proven positive here, and proven still a genuine
+// miss below when NOTHING at all is cached for it.
+assert.equal((await resolvePlacePhoto({ ...input, w: 1200, gateShut: true }, deps)).location, uri);
+assert.equal((await resolvePlacePhoto({ ...input, w: 1200, gateShut: true }, { ...deps, cacheGet: async () => null })).type, "miss");
 assert.equal((await resolvePlacePhoto(input, { ...deps, cacheGet: async () => null })).type, "miss");
 assert.equal(ledger, 1); assert.equal(upstream, 0);
 await resolvePlacePhoto({ ...input, gateShut: true }, { ...deps, cacheGet: async () => null });

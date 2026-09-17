@@ -26,7 +26,7 @@ const ok = (condition, message) => {
 };
 const eq = (actual, expected, message) => ok(actual === expected, `${message} (got ${JSON.stringify(actual)}, expected ${JSON.stringify(expected)})`);
 
-const ENV_KEYS = ["WAYFIND_GATE", "WAYFIND_PHOTOS_PAID", "GOOGLE_PHOTOS_MONTH_CAP", "SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "GOOGLE_GEOCODING_MONTH_CAP", "GOOGLE_TEXT_ENTERPRISE_MONTH_CAP", "AUTOCOMPLETE_MONTH_CAP"];
+const ENV_KEYS = ["WAYFIND_GATE", "WAYFIND_PHOTOS_PAID", "GOOGLE_PHOTOS_MONTH_CAP", "SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "GOOGLE_GEOCODING_MONTH_CAP", "GOOGLE_TEXT_ENTERPRISE_MONTH_CAP", "AUTOCOMPLETE_MONTH_CAP", "VERCEL_ENV", "WAYFIND_ALLOW_NONPROD_PHOTO_SPEND"];
 // Hermetic: the shell's environment is never consulted. Every scenario deletes
 // all relevant keys and sets exactly the values it asserts against, so the
 // verdict is identical in a clean terminal and one with .env sourced.
@@ -73,8 +73,16 @@ async function askEverything() {
 }
 
 // ── Law 1: the switch moves the photos ceiling and nothing else ───────────
+// VERCEL_ENV: "production" is part of `base` throughout this section (2026-
+// 09-16, spend efficiency) — spendAllowPhotos() now refuses outright outside
+// production unless WAYFIND_ALLOW_NONPROD_PHOTO_SPEND=1 (see lib/spendGate.js
+// and scripts/test-photo-spend-efficiency.mjs, which locks THAT rule on its
+// own). This file's subject is the photo-only paid CEILING, a separate
+// question, so every scenario here runs as if it were already production —
+// never weakening the nonprod rule, just not letting it mask this file's own
+// assertions.
 try {
-  const base = { WAYFIND_GATE: "free", SUPABASE_URL: LEDGER.url, SUPABASE_SERVICE_ROLE_KEY: LEDGER.key };
+  const base = { WAYFIND_GATE: "free", SUPABASE_URL: LEDGER.url, SUPABASE_SERVICE_ROLE_KEY: LEDGER.key, VERCEL_ENV: "production" };
 
   // Switch off: exactly the pre-existing behaviour.
   setEnv(base);
@@ -176,6 +184,9 @@ const PLACE = "ChIJPhotosPaidCapTest001";
 const OLD_REF = `places/${PLACE}/photos/OLDNAME_expired`;
 const NEW_REF = `places/${PLACE}/photos/NEWNAME_current`;
 const OWNED = "https://lh3.googleusercontent.com/p/AF1QipPhotosPaidCap=s640-k-no";
+// Not owned (fails isOwnedPhotoUrl: no https googleusercontent host) — the
+// ONE skipCls that still follows after 2026-09-16 (spend efficiency).
+const UNOWNED = "http://not-owned.example/pic.jpg";
 const res = (status, extra = {}) => ({ ok: status >= 200 && status < 300, status, url: extra.url || "", json: async () => extra.body || {} });
 
 // `plan` describes what Google answers for each request kind. Every request
@@ -244,78 +255,108 @@ try {
     invariant("A", requests, auth);
   }
 
-  // B. Skip 404 then follow succeeds: two requests, two grants.
+  // B. Skip UNOWNED 2xx then follow succeeds: two requests, two grants.
+  // SPEND EFFICIENCY (2026-09-16): unowned is now the ONLY skipCls that still
+  // follows — a stale (404) skip goes straight to heal, never a follow (see
+  // scripts/test-photo-upstream-truth.mjs and scripts/test-photo-spend-
+  // efficiency.mjs, which own that rule; this file's subject is the photo-
+  // only paid CEILING, so this scenario just needs A surviving follow path).
   {
     const auth = authorizer({ photos: 99, details_ids_only: 99 });
-    const { requests, result } = await run({ skip: { status: 404 }, follow: { status: 200, url: OWNED } }, auth);
-    eq(requests.join(","), "skip,follow", "B: skip then follow");
+    const { requests, result } = await run({ skip: { status: 200, body: { photoUri: UNOWNED } }, follow: { status: 200, url: OWNED } }, auth);
+    eq(requests.join(","), "skip,follow", "B: skip (unowned) then follow");
     eq(auth.granted("photos"), 2, "B: the follow request took its own grant");
     eq(result.type, "redirect", "B: redirect");
     invariant("B", requests, auth);
   }
 
-  // C. Expired ref self-heals: skip, follow, Details, healed skip = 3 photo grants + 1 details grant.
+  // C. Expired ref self-heals: skip, Details, healed skip = 2 photo grants +
+  // 1 details grant. No follow — a stale skip never follows.
   {
     const auth = authorizer({ photos: 99, details_ids_only: 99 });
     const { requests, result } = await run({
-      skip: { status: 404 }, follow: { status: 404 }, details: DETAILS_FRESH,
+      skip: { status: 404 }, details: DETAILS_FRESH,
       healedSkip: { status: 200, body: { photoUri: OWNED } },
     }, auth);
-    eq(requests.join(","), "skip,follow,details,healedSkip", "C: full heal path");
-    eq(auth.granted("photos"), 3, "C: three photo media grants");
+    eq(requests.join(","), "skip,details,healedSkip", "C: full heal path, no follow call");
+    eq(auth.granted("photos"), 2, "C: two photo media grants (resolver's own + healedSkip)");
     eq(auth.granted("details_ids_only"), 1, "C: one Details grant (positive control for the SKU)");
     eq(result.type, "redirect", "C: healed redirect");
     invariant("C", requests, auth);
   }
 
-  // D. Worst case: five outbound requests, five grants (4 photos + 1 details).
+  // D. Worst case that still redirects: skip stale (no follow) -> Details ->
+  // the healed name comes back UNOWNED (which DOES follow) -> healed follow
+  // succeeds. Four outbound requests, three photo grants + one details grant
+  // — down from five requests / four photo grants under the old
+  // follow-on-stale rule.
   {
     const auth = authorizer({ photos: 99, details_ids_only: 99 });
     const { requests, result } = await run({
-      skip: { status: 404 }, follow: { status: 404 }, details: DETAILS_FRESH,
-      healedSkip: { status: 404 }, healedFollow: { status: 200, url: OWNED },
+      skip: { status: 404 }, details: DETAILS_FRESH,
+      healedSkip: { status: 200, body: { photoUri: UNOWNED } }, healedFollow: { status: 200, url: OWNED },
     }, auth);
-    eq(requests.join(","), "skip,follow,details,healedSkip,healedFollow", "D: longest path");
-    eq(auth.granted("photos"), 4, "D: four photo media grants for four media requests");
+    eq(requests.join(","), "skip,details,healedSkip,healedFollow", "D: longest redirecting path, no initial follow");
+    eq(auth.granted("photos"), 3, "D: three photo media grants (resolver's own + healedSkip + healedFollow)");
     eq(auth.granted("details_ids_only"), 1, "D: one Details grant");
     eq(result.type, "redirect", "D: redirect");
     invariant("D", requests, auth);
   }
 
-  // E. Budget has exactly one event left: the skip 404 may NOT be followed.
+  // D2 (spend efficiency positive control). Both the original name AND the
+  // healed name are stale: the resolver does NOT recurse into a second heal,
+  // and never asks for a follow grant at either level. Three requests total,
+  // two photo grants, an honest miss — strictly cheaper than the old
+  // five-request worst case.
+  {
+    const auth = authorizer({ photos: 99, details_ids_only: 99 });
+    const { requests, result } = await run({
+      skip: { status: 404 }, details: DETAILS_FRESH,
+      healedSkip: { status: 404 },
+    }, auth);
+    eq(requests.join(","), "skip,details,healedSkip", "D2: three requests, no follow ever, no re-heal");
+    eq(auth.granted("photos"), 2, "D2: two photo grants only");
+    eq(result.type, "miss", "D2: an honest miss");
+    eq(result.upstream, "stale-heal-failed:stale", "D2: the healed name's own stale is carried in the class");
+    invariant("D2", requests, auth);
+  }
+
+  // E. Budget has exactly one event left: an UNOWNED skip may NOT be followed.
   {
     const auth = authorizer({ photos: 1, details_ids_only: 99 });
-    const { requests, result } = await run({ skip: { status: 404 }, follow: { status: 200, url: OWNED }, details: DETAILS_FRESH }, auth);
+    const { requests, result } = await run({ skip: { status: 200, body: { photoUri: UNOWNED } }, follow: { status: 200, url: OWNED } }, auth);
     eq(requests.join(","), "skip", "E: exactly one outbound request after the second grant is refused");
     eq(auth.asked("photos"), 2, "E: the follow request asked for a grant");
     eq(auth.granted("photos"), 1, "E: only the first was granted");
-    eq(auth.asked("details_ids_only"), 0, "E: a denied media grant never falls through to Details");
+    eq(auth.asked("details_ids_only"), 0, "E: an unowned skip never falls through to Details (unowned does not heal)");
     eq(result.type, "miss", "E: honest miss");
     eq(result.reason, "owned-miss", "E: owned-miss reason");
     invariant("E", requests, auth);
   }
 
-  // F. Details grant refused: no Details request, no healed attempts.
+  // F. Details grant refused: no Details request reaches Google, no follow,
+  // no healed attempts.
   {
     const auth = authorizer({ photos: 99, details_ids_only: 0 });
-    const { requests, result } = await run({ skip: { status: 404 }, follow: { status: 404 }, details: DETAILS_FRESH, healedSkip: { status: 200, body: { photoUri: OWNED } } }, auth);
-    eq(requests.join(","), "skip,follow", "F: stops before Details");
+    const { requests, result } = await run({ skip: { status: 404 } }, auth);
+    eq(requests.join(","), "skip", "F: stops before Details — no follow call either");
     eq(auth.asked("details_ids_only"), 1, "F: Details asked once and refused");
-    eq(auth.granted("photos"), 2, "F: two media grants only");
+    eq(auth.granted("photos"), 1, "F: exactly the resolver's own grant, no follow grant");
     eq(result.type, "miss", "F: miss");
     invariant("F", requests, auth);
   }
 
-  // G. Budget runs out mid-heal: the healed follow is refused.
+  // G. Budget runs out mid-heal: the healed name comes back unowned, and the
+  // healed follow's OWN grant is refused.
   {
-    const auth = authorizer({ photos: 3, details_ids_only: 1 });
+    const auth = authorizer({ photos: 2, details_ids_only: 1 });
     const { requests, result } = await run({
-      skip: { status: 404 }, follow: { status: 404 }, details: DETAILS_FRESH,
-      healedSkip: { status: 404 }, healedFollow: { status: 200, url: OWNED },
+      skip: { status: 404 }, details: DETAILS_FRESH,
+      healedSkip: { status: 200, body: { photoUri: UNOWNED } }, healedFollow: { status: 200, url: OWNED },
     }, auth);
-    eq(requests.join(","), "skip,follow,details,healedSkip", "G: healed follow never sent");
-    eq(auth.asked("photos"), 4, "G: fourth media grant was asked");
-    eq(auth.granted("photos"), 3, "G: and refused");
+    eq(requests.join(","), "skip,details,healedSkip", "G: healed follow never sent — its own grant was refused");
+    eq(auth.asked("photos"), 3, "G: the healed-follow grant was asked");
+    eq(auth.granted("photos"), 2, "G: and refused (resolver's own + healedSkip granted, healed follow denied)");
     eq(result.type, "miss", "G: miss");
     invariant("G", requests, auth);
   }
@@ -323,8 +364,8 @@ try {
   // H. A boolean caller (no authorizer function) gets ONE request, never a fan-out.
   {
     const { requests, result } = await run({ skip: { status: 404 }, follow: { status: 200, url: OWNED }, details: DETAILS_FRESH }, null, { spendAllowed: true });
-    eq(requests.join(","), "skip", "H: boolean spendAllowed covers exactly one request");
-    eq(result.type, "miss", "H: miss rather than an unmetered follow");
+    eq(requests.join(","), "skip", "H: boolean spendAllowed covers exactly one request (a stale skip never even attempts a follow)");
+    eq(result.type, "miss", "H: miss rather than an unmetered heal");
   }
   {
     const { requests, result } = await run({ skip: { status: 200, body: { photoUri: OWNED } } }, null, { spendAllowed: true });
@@ -332,12 +373,17 @@ try {
     eq(result.type, "redirect", "H2: redirect");
   }
 
-  // I. An authorizer that throws is a denial, not a free pass.
+  // I. An authorizer that throws is a denial, not a free pass. A stale skip
+  // never asks for a follow grant, so the throwing authorizer's SECOND real
+  // call (the first was the resolver's own top-level ask) is now the
+  // Details/heal grant, not a follow grant — and the exception there stops
+  // the fan-out before the Details request is even sent (the grant call
+  // itself throws, caught as a denial, before fetchImpl runs).
   {
     let calls = 0;
     const throwing = async () => { calls++; if (calls === 1) return true; throw new Error("ledger exploded"); };
-    const { requests, result } = await run({ skip: { status: 404 }, follow: { status: 200, url: OWNED }, details: DETAILS_FRESH }, throwing);
-    eq(requests.join(","), "skip", "I: exception on the second grant stops the fan-out");
+    const { requests, result } = await run({ skip: { status: 404 }, details: DETAILS_FRESH }, throwing);
+    eq(requests.join(","), "skip", "I: exception on the Details/heal grant stops the fan-out before any Details request");
     eq(result.type, "miss", "I: miss");
   }
 
@@ -351,12 +397,13 @@ try {
     invariant("J", requests, auth);
   }
 
-  // K. Details returns the same expired name: no healed attempt, no wasted grant.
+  // K. Details returns the same expired name: no healed attempt, no wasted
+  // grant, and no follow at any point.
   {
     const auth = authorizer({ photos: 99, details_ids_only: 99 });
-    const { requests, result } = await run({ skip: { status: 404 }, follow: { status: 404 }, details: { status: 200, body: { photos: [{ name: OLD_REF }] } } }, auth);
-    eq(requests.join(","), "skip,follow,details", "K: no healed request when Details offers nothing new");
-    eq(auth.granted("photos"), 2, "K: two media grants");
+    const { requests, result } = await run({ skip: { status: 404 }, details: { status: 200, body: { photos: [{ name: OLD_REF }] } } }, auth);
+    eq(requests.join(","), "skip,details", "K: no follow, no healed request when Details offers nothing new");
+    eq(auth.granted("photos"), 1, "K: one media grant only (the resolver's own)");
     eq(result.type, "miss", "K: miss");
     invariant("K", requests, auth);
   }

@@ -209,13 +209,17 @@ const missResults = [];
 }
 
 // P2. 404 NOT_FOUND -> stale -> heal runs with exactly one details grant, 0 refunds.
+// SPEND EFFICIENCY (2026-09-16): `stale` no longer follows (see
+// scripts/test-photo-upstream-truth.mjs and scripts/test-photo-spend-
+// efficiency.mjs) — the skip 404 goes straight to heal, so no `follow` step
+// is scripted here at all.
 {
   const { calls, result, auth, refund } = await run({
-    skip: [{ status: 404, googleStatus: "NOT_FOUND" }], follow: [{ status: 404, googleStatus: "NOT_FOUND" }],
+    skip: [{ status: 404, googleStatus: "NOT_FOUND" }],
     details: [{ status: 200, body: { photos: [{ name: NEW_REF }] } }],
     healedSkip: [{ status: 200, body: { photoUri: OWNED } }],
   });
-  eq(calls.join(","), "skip,follow,details,healedSkip", "P2(404-stale-heal): full heal path runs");
+  eq(calls.join(","), "skip,details,healedSkip", "P2(404-stale-heal): full heal path runs, no follow call");
   eq(result.type, "redirect", "P2(404-stale-heal): the heal recovers a redirect");
   eq(result.upstream, "ok", "P2(404-stale-heal): classified ok after heal");
   eq(auth.granted("details_ids_only"), 1, "P2(404-stale-heal): exactly one details grant");
@@ -380,8 +384,8 @@ const missResults = [];
   // A `stale` result never refunds.
   {
     const { result } = await run({
-      skip: [{ status: 404, googleStatus: "NOT_FOUND" }], follow: [{ status: 404, googleStatus: "NOT_FOUND" }],
-      details: [{ status: 200, body: { photos: [] } }], // stale-heal-nophoto: still classed under the stale family, never refunded
+      skip: [{ status: 404, googleStatus: "NOT_FOUND" }],
+      details: [{ status: 200, body: { photos: [] } }], // stale-heal-nophoto: still classed under the stale family, never refunded; no follow call
     });
     eq(result.upstream, "stale-heal-nophoto", "invariant setup: a stale-heal-* outcome");
     eq(result.refunded, 0, "INVARIANT: a stale result (billed, per Google's table) never refunds");
