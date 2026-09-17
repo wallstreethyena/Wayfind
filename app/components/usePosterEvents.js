@@ -33,7 +33,9 @@ export function usePosterEvents({ active = true, center = null, city = "", mode,
   useEffect(() => {
     if (!key) return;
     let cancelled = false;
-    const query = new URLSearchParams({ lat: lat.toFixed(2), lng: lng.toFixed(2), radius: "27" });
+    // 25mi, owner-set 2026-09-17: the poster shows what is genuinely near the
+    // reader's active location, not a metro-wide sweep.
+    const query = new URLSearchParams({ lat: lat.toFixed(2), lng: lng.toFixed(2), radius: "25" });
     if (city) query.set("city", city);
     fetchJsonWithDeadline(`/api/events?${query}`, { timeoutMs: 10000 })
       .then((payload) => {
