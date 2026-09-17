@@ -93,10 +93,11 @@ function harness({ uri = DEAD_URI, ageMs = 10 * DAY, vok = null, verdict = PHOTO
     "an alive hit is re-stamped {uri, vok: now}");
   ok(h.state.sets.length === 1 && h.state.sets[0].ttl === 30 * DAY - 10 * DAY,
     `the re-stamp carries the REMAINING lifetime (30d − age), never a fresh 30-day clock (got ${h.state.sets[0] && h.state.sets[0].ttl})`);
-  ok(/max-age=86400/.test(r.cacheControl) && /s-maxage=86400/.test(r.cacheControl) && !/immutable/.test(r.cacheControl),
-    `a Google-hosted redirect is cached downstream for one day, not 30 immutable (got ${r.cacheControl})`);
-  ok(PHOTO_REDIRECT_TTL_SECONDS === 86400, "the downstream bound is one day");
-  ok(googlePhotoRedirectCacheControl(30 * 86400) === "public, max-age=86400, s-maxage=86400", "a longer request is clamped to the bound");
+  // v8.56.34: the bound is three hours (links were found dead within a day).
+  ok(/max-age=10800/.test(r.cacheControl) && /s-maxage=10800/.test(r.cacheControl) && !/immutable/.test(r.cacheControl),
+    `a Google-hosted redirect is cached downstream for three hours, not 30 immutable (got ${r.cacheControl})`);
+  ok(PHOTO_REDIRECT_TTL_SECONDS === 10800, "the downstream bound is three hours");
+  ok(googlePhotoRedirectCacheControl(30 * 86400) === "public, max-age=10800, s-maxage=10800", "a longer request is clamped to the bound");
   // POSITIVE CONTROL for the `immutable` absence above: the same regex, the same
   // producer, an inventory-owned (not rented) photo — which KEEPS the 30-day
   // immutable contract. Proves the absence assertion can fail.
@@ -179,7 +180,7 @@ ok(photoUriValidationDue({ ageMs: 7 * 3600e3, vok: NOW - 1, now: NOW }) === fals
   ok(best && best.uri === LIVE_URI && best.ref === `places/${PLACE}/photos/NEXTLIVE`, "recovery returns the next LIVE candidate, not the dead best");
   ok(evicted.length === 1 && evicted[0] === rows[0].k, "recovery evicts the dead best by exact key");
   ok(probed.length === 2, "each candidate is probed once");
-  ok(/max-age=86400/.test(best.cacheControl), `recovery Cache-Control carries the one-day bound (got ${best.cacheControl})`);
+  ok(/max-age=10800/.test(best.cacheControl), `recovery Cache-Control carries the three-hour bound (got ${best.cacheControl})`);
   ok(!/immutable/.test(best.cacheControl), `recovery Cache-Control is never immutable (got ${best.cacheControl})`);
   // POSITIVE CONTROL: a row with LESS than a day left keeps its own shorter
   // remaining lifetime — the bound is min(remaining, 1 day), not a flat day.
@@ -257,4 +258,4 @@ if (fail.length) {
   for (const m of fail) console.error("  ✗ " + m);
   process.exit(1);
 }
-console.log(`check-photo-cache-liveness: OK — ${pass} assertions; a dead cached Google photo uri is evicted, never served; unknown is not dead; downstream cache bounded to one day`);
+console.log(`check-photo-cache-liveness: OK — ${pass} assertions; a dead cached Google photo uri is evicted, never served; unknown is not dead; downstream cache bounded to three hours`);

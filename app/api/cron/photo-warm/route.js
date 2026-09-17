@@ -41,8 +41,10 @@ export const dynamic = "force-dynamic";
 // land before Vercel's silent kill.
 export const maxDuration = 300;
 const WORK_BUDGET_MS = 270_000;
+const SWEEP_BUDGET_MS = 45_000;
 
 import { runPhotoWarm, DEFAULT_PHOTO_WARM_MAX } from "../../../../lib/photoWarm";
+import { runPhotoLivenessSweep } from "../../../../lib/photoLivenessSweep";
 import { sameOriginHeaders } from "../../../../lib/photoSurfaces";
 import { recordPulse } from "../../../../lib/jobPulse";
 import { SITE_URL } from "../../../../lib/site";
@@ -68,17 +70,25 @@ export async function GET(req) {
   const origin = SITE_URL;
   const max = Math.max(1, Math.min(2000, Number(process.env.PHOTO_WARM_MAX) || DEFAULT_PHOTO_WARM_MAX));
 
+  // DEAD-LINK SWEEP FIRST (v8.56.34): evict cached Google photo links the
+  // host now refuses, so this same run's probes see those cards as missing
+  // and refill them through the normal gated path. Bounded to 45 seconds.
+  let sweep = null;
+  try {
+    sweep = await runPhotoLivenessSweep({ deadlineAt: startedAt + SWEEP_BUDGET_MS });
+  } catch { sweep = null; }
+
   let result;
   try {
     result = await runPhotoWarm({
       origin,
       max,
-      startedAt,
+      startedAt: Date.now(),
       // A round-robin rotation index, one step per quarter-hour run (the cron's
       // own cadence), over which surface/city starts a run. Not a daypart.
       offsetHour: Math.floor(startedAt / 900_000),
       endpointHeaders: sameOriginHeaders(origin),
-      workBudgetMs: WORK_BUDGET_MS,
+      workBudgetMs: Math.max(60_000, WORK_BUDGET_MS - (Date.now() - startedAt)),
       paceMs: 650, // under lib/apiGuard.js 120 req/min per IP, with headroom
     });
   } catch (e) {
@@ -90,7 +100,7 @@ export async function GET(req) {
     : result.stopReason
       ? `ok (${result.stopReason})`
       : "ok";
-  const note = `warm: visible=${result.visible} served=${result.alreadyServed} filled=${result.filled} free=${result.free} empty=${result.empty} known=${result.knownEmpty} unchecked=${result.unchecked} ${statusBit}`.slice(0, 200);
+  const note = `${sweep ? `live ${sweep.checked}/${sweep.dead} dead; ` : ""}warm: visible=${result.visible} served=${result.alreadyServed} filled=${result.filled} free=${result.free} empty=${result.empty} known=${result.knownEmpty} unchecked=${result.unchecked} ${statusBit}`.slice(0, 200);
 
   await recordPulse("photo-warm", {
     attempted: result.attempted,
@@ -98,5 +108,5 @@ export async function GET(req) {
     note,
   });
 
-  return Response.json({ ok: true, ...result });
+  return Response.json({ ok: true, ...result, sweep });
 }
