@@ -95,11 +95,17 @@ function git(cmd) {
   } else {
     bad("sharp imported outside a server-only file", bad_ones.join(", "));
   }
+  // An IMPORT, not a mention. A client component may name posterImageFit.js
+  // in a comment explaining where the fitting happens (DaypartRail.js does);
+  // what must never happen is a client bundle actually pulling it in, because
+  // it imports sharp.
   const clientFiles = globSync("app/components/**/*.js", { cwd: root });
   const leaks = [];
   for (const f of clientFiles) {
     const text = readFileSync(f, "utf8");
-    if (/^"use client"/.test(text) && /posterImageFit\.js/.test(text)) leaks.push(f);
+    if (!/^"use client"/.test(text)) continue;
+    const code = text.split("\n").filter((l) => !l.trim().startsWith("//") && !l.trim().startsWith("*") && !l.trim().startsWith("/*")).join("\n");
+    if (/(?:import[^;]*from\s*["'][^"']*posterImageFit\.js["']|require\(\s*["'][^"']*posterImageFit\.js["']\s*\))/.test(code)) leaks.push(f);
   }
   if (leaks.length) bad("a client component imports lib/posterImageFit.js directly", leaks.join(", "));
 }
