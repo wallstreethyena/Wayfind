@@ -74,6 +74,8 @@ function walk(dir, out) {
 // argues for itself in one line — the same discipline
 // scripts/check-guard-hermeticity.mjs's EXEMPT list documents. ──────────────
 const EXEMPT = {
+  "app/api/live-poster/route.js":
+    "live event poster image engine: it fetches an EVENT's own artwork server-side so lib/posterImageFit.js can inspect the pixels and crop them to the 9:16 tile. It names /api/photo only because a Wayfind CURATED event stores a relative image URL of that shape, which this route must resolve against its own origin before fetching. It renders no card and paints no place photo; the tile it feeds is a synthetic rail tile whose art is the event's image, not a place-photo surface.",
   "app/api/image-score/route.js":
     "internal vision-scoring backend: it fetches its OWN /api/photo?ref= server-side to hand a candidate photo's bytes to a vision model and grade them — it never renders a card or serves a response a browser paints. The surface it scores (the card that eventually shows the winning photo) is covered by that card's own registry entry.",
 };
