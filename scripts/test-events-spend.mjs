@@ -57,19 +57,34 @@ async function routeWith({ cacheValue = null, spendAllowed = false }) {
 }
 
 try {
-  // An absent cap is an off switch before even the ledger call.  A configured
-  // cap with no ledger also fails closed, and neither condition reaches a
-  // provider HTTP endpoint.
+  // 2026-09-17 CONTRACT CHANGE (owner-directed). This block used to assert
+  // that a MISSING cap disabled the provider: `eventProviderCap === null`.
+  // That is the exact behaviour that silently killed the Ticketmaster feed
+  // for 82 days with a valid key in Vercel, so it is no longer the contract.
+  // A missing env var now resolves the provider's built-in default ceiling.
+  //
+  // What did NOT change, and is still asserted below: a provider request
+  // without a working ledger FAILS CLOSED and performs zero network calls.
+  // The bound is still real; it just can no longer be zero by accident.
   delete process.env.EVENT_TICKETMASTER_MONTH_CAP;
   delete process.env.SUPABASE_URL;
   delete process.env.SUPABASE_SERVICE_ROLE_KEY;
   process.env.WAYFIND_GATE = "open";
   let httpCalls = 0;
   globalThis.fetch = async () => { httpCalls++; throw new Error("network must not run"); };
-  assert.equal(eventProviderCap("ticketmaster"), null, "missing Ticketmaster cap is disabled");
-  assert.equal(await eventProviderSpendAllow("ticketmaster"), false, "missing cap fails closed");
-  assert.equal(httpCalls, 0, "missing cap performs zero network requests");
+  const defaultCap = eventProviderCap("ticketmaster");
+  assert.ok(Number.isSafeInteger(defaultCap) && defaultCap > 0, "a missing cap resolves the built-in default, never null");
+  assert.equal(await eventProviderSpendAllow("ticketmaster"), false, "no ledger still fails closed even with a default cap");
+  assert.equal(httpCalls, 0, "a failed grant performs zero network requests");
+
+  // WAYFIND_GATE is the GOOGLE PLACES switch and must not reach these
+  // providers at all: shutting Google must never take the events feed down.
+  process.env.WAYFIND_GATE = "shut";
+  assert.ok(eventProviderCap("ticketmaster") > 0, "the Google kill switch does not erase an event provider's ceiling");
+  process.env.WAYFIND_GATE = "open";
+
   process.env.EVENT_TICKETMASTER_MONTH_CAP = "5";
+  assert.equal(eventProviderCap("ticketmaster"), 5, "an explicit operator cap still overrides the default");
   assert.equal(await eventProviderSpendAllow("ticketmaster"), false, "unavailable ledger fails closed");
   assert.equal(httpCalls, 0, "unavailable ledger performs zero provider requests");
 
