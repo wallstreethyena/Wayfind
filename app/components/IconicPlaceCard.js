@@ -229,7 +229,7 @@ const compactCount = (n) => Number(n) >= 1000
 // through it. Same definitions, same order, no duplicated string-building.
 const photoUrl = (p) => {
   const ref = p && (p.photoRef || p.photo_ref);
-  if (hasPlacePhotoRef(ref)) return "/api/photo?ref=" + encodeURIComponent(ref) + "&w=640";
+  if (hasPlacePhotoRef(ref)) return "/api/photo?ref=" + encodeURIComponent(ref) + "&g=2&w=640";
   if (p && typeof p.photo === "string" && p.photo) return p.photo;
   return ownedPlacePhotoSrc(p && (p.place_id || p.id), 640) || null;
 };

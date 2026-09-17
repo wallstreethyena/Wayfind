@@ -55,7 +55,7 @@ ok(cardImageSrc({ photo_url: "/owned.jpg" }) === "/owned.jpg",
   "rung 1: an owned photo URL on the row wins");
 ok(cardImageSrc({ id: ID, photoRef: `places/${ID}/photos/AB123456` }).startsWith("/api/photo?ref="),
   "rung 2: the row's own Google ref is proxied");
-ok(cardImageSrc({ place_id: ID }) === `/api/photo?place=${ID}&w=640`,
+ok(cardImageSrc({ place_id: ID }) === `/api/photo?place=${ID}&g=2&w=640`,
   "rung 3: a bare place id still yields a picture — this is the rung that makes a blank card impossible");
 ok(cardImageSrc({ name: "no id at all" }) === "",
   "rung 4: a row with no identity yields empty, so a renderer can show branded art (empty is a fact, not a hole)");

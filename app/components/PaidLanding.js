@@ -259,7 +259,7 @@ function Photo({ place, width = 900, eager = false }) {
       : PHOTO_FALLBACKS[[...photoKey].reduce((sum, char) => sum + char.charCodeAt(0), 0) % PHOTO_FALLBACKS.length];
   if (curatedPhoto) return <img src={curatedPhoto} alt="" loading={eager ? "eager" : "lazy"} />;
   return place?.photoRef ? (
-    <img src={`/api/photo?ref=${encodeURIComponent(place.photoRef)}&w=${width}`} alt="" loading={eager ? "eager" : "lazy"} onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = fallback; }} />
+    <img src={`/api/photo?ref=${encodeURIComponent(place.photoRef)}&g=2&w=${width}`} alt="" loading={eager ? "eager" : "lazy"} onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = fallback; }} />
   ) : <img src={fallback} alt="" loading={eager ? "eager" : "lazy"} />;
 }
 

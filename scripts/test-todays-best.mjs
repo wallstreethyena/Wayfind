@@ -26,7 +26,7 @@ const dd = dedupeBrands([
 ]);
 ok(dd.length === 2 && dd[1].name === "Coquina Beach", "same-brand branches collapse to the best-ranked one");
 
-ok(tbPhotoUrl("places/ChIJa/photos/AWx1") === "/api/photo?ref=" + encodeURIComponent("places/ChIJa/photos/AWx1") + "&w=240", "valid ref -> proxied URL");
+ok(tbPhotoUrl("places/ChIJa/photos/AWx1") === "/api/photo?ref=" + encodeURIComponent("places/ChIJa/photos/AWx1") + "&g=2&w=240", "valid ref -> proxied URL");
 ok(tbPhotoUrl("https://evil.example/x.jpg") === null && tbPhotoUrl("") === null, "non-resource refs refused");
 
 // source contract

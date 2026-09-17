@@ -32,7 +32,7 @@ export default function BreakfastRails({ places = [], city = "", hasMore = false
                 {rail.places.map((place, index) => {
                   const rank = index + 1;
                   const photo = place.photo || place.photoUrl || (place.photoRef || place.photo_ref
-                    ? "/api/photo?ref=" + encodeURIComponent(place.photoRef || place.photo_ref) + "&w=640"
+                    ? "/api/photo?ref=" + encodeURIComponent(place.photoRef || place.photo_ref) + "&g=2&w=640"
                     : null);
                   const facts = [
                     place.reviews ? compact(place.reviews) + " reviews" : null,

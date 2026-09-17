@@ -26,9 +26,9 @@ const REF_RX = PHOTO_REF_RX;
 
 const THIRTY_DAYS = 60 * 60 * 24 * 30;
 // wf_place_photo rows are FREE and PERMANENT (Wayfind is licensed to keep
-// them indefinitely) — unlike a Google photo, which is a 30-day rental, so
-// this URL earns a cache lifetime the rented ones never get.
-const ONE_YEAR = 60 * 60 * 24 * 365;
+// them indefinitely), but the REDIRECT to them is not permanent: which copy
+// the lane picks can change (rendition, vault, wrong-place rejection).
+const FREE_REDIRECT_TTL = 60 * 60 * 24; // owned-free redirects revalidate daily (see the free rung below)
 
 // v8.19 — ?place=<placeId> mode: the CURRENT first photo of a place, no
 // stored ref needed. Deal cards key their artwork on the venue's placeId
@@ -308,8 +308,14 @@ export async function GET(req) {
     return NextResponse.redirect(free.url, {
       status: 302,
       headers: {
-        // Permanent, unlike a rented Google photo — a full year, not 30 days.
-        "Cache-Control": "public, max-age=" + ONE_YEAR + ", s-maxage=" + ONE_YEAR + ", immutable",
+        // ONE DAY, never `immutable` (2026-09-17). This was a year, immutable,
+        // and a browser that saw the redirect while the lane still pointed at
+        // a 16 MB Commons original (EPCOT) or at a Commons photo later
+        // rejected as the wrong place kept it for a year: no server fix could
+        // reach it. The free lane's answer can change (rendition, vaulting,
+        // rejection), so it revalidates daily like a Google redirect. The
+        // vault bytes behind the redirect stay cacheable on their own.
+        "Cache-Control": "public, max-age=" + FREE_REDIRECT_TTL + ", s-maxage=" + FREE_REDIRECT_TTL,
         "x-wayfind-photo-result": "owned-free",
         "x-wayfind-photo-probe": probe ? "1" : "0",
       },

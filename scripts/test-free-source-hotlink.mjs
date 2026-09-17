@@ -86,7 +86,7 @@ for (const [label, rows] of [["with ref", [epcot({ photo_url: COMMONS }, REF)]],
   ok(typeof photo === "string" && photo.startsWith("/api/photo?"), `D (${label}): EPCOT renders through /api/photo (got ${photo})`);
   ok(!/wikimedia/.test(JSON.stringify(out)), `D (${label}): no Commons URL reaches the card`);
 }
-ok(themeParkRows([epcot({ photo_url: COMMONS }, null)], "flagship")[0]?.photo === `/api/photo?place=${PID}&w=640`, "D3: a place-only EPCOT uses the ?place= vault path");
+ok(themeParkRows([epcot({ photo_url: COMMONS }, null)], "flagship")[0]?.photo === `/api/photo?place=${PID}&g=2&w=640`, "D3: a place-only EPCOT uses the ?place= vault path");
 ok(themeParkRows([epcot({ photo_url: VAULT }, REF)], "flagship")[0]?.photo === VAULT, "D4: an owned vault URL still renders directly (control)");
 ok(themeParkRows([epcot({}, null)], "flagship").length === 0, "D5: an EPCOT row with no image source at all is never admitted blank");
 
@@ -104,6 +104,23 @@ try {
   ok(/wikimedia/.test(JSON.stringify(mRes || {})), "E: without the skip the resolver redirects to Commons, so C1 is load-bearing");
 } finally {
   try { unlinkSync(tmp); } catch { /* cleanup */ }
+}
+
+// F — CACHE GENERATION (v8.56.30). Year-long immutable owned-free redirects
+// pinned stale images in browsers; every card URL builder carries g=2 so
+// browsers fetch a fresh redirect. A builder without it fails here.
+{
+  const { cardImageSrc } = await import("../lib/placePhoto.js");
+  ok(/[?&]g=2&w=640$/.test(cardImageSrc({ place_id: PID, photo_ref: REF })), "F1: cardImageSrc carries the cache generation");
+  ok(/[?&]g=2&/.test(themeParkRows([epcot({ photo_url: COMMONS }, REF)], "flagship")[0]?.photo || ""), "F2: the theme park card carries the cache generation");
+  const { execSync } = await import("node:child_process");
+  const root = new URL("..", import.meta.url).pathname;
+  const hits = execSync("grep -rn --include=*.js '/api/photo?' app lib || true", { cwd: root, encoding: "utf8" }).split("\n");
+  const EXEMPT = /^(lib\/photoSurfaces\.js|app\/api\/image-score\/route\.js):/; // audit/warm helper; server-side scorer (no browser cache)
+  const offenders = hits.filter((l) => l && !EXEMPT.test(l) && !/^[^:]+:\d+:\s*(\/\/|\*)/.test(l)
+    && /\/api\/photo\?(ref|place)=/.test(l) && /&w=/.test(l) && !/&g=2&w=/.test(l));
+  ok(offenders.length === 0, `F3: every card photo URL builder carries g=2 (offenders: ${offenders.slice(0, 5).join(" | ")})`);
+  ok(/&g=2&w=/.test("/api/photo?ref=x&g=2&w=640") && !/&g=2&w=/.test("/api/photo?ref=x&w=640"), "F4: positive control for the builder scan");
 }
 
 if (fail.length) {

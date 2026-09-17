@@ -93,7 +93,7 @@ export async function GET(request) {
         // or a confirmed wf_inventory photo_ref. A row with neither is dropped
         // here rather than rendered with no picture — see lib/menuPartnerOffers.js
         // for how every currently-placed row already satisfies this honestly.
-        const image = row.image || (inv?.photo_ref ? "/api/photo?ref=" + encodeURIComponent(inv.photo_ref) + "&w=600" : null);
+        const image = row.image || (inv?.photo_ref ? "/api/photo?ref=" + encodeURIComponent(inv.photo_ref) + "&g=2&w=600" : null);
         if (!image) return null;
         return {
           provider: row.provider,

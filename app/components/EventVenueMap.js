@@ -26,7 +26,7 @@ const CSS = `
 @media (max-width:700px){.wfev-legend{display:none}}
 `;
 
-const thumb = (p) => p.photo || (p.photoRef ? "/api/photo?ref=" + encodeURIComponent(p.photoRef) + "&w=640" : "/api/photo?place=" + encodeURIComponent(p.id) + "&w=640");
+const thumb = (p) => p.photo || (p.photoRef ? "/api/photo?ref=" + encodeURIComponent(p.photoRef) + "&g=2&w=640" : "/api/photo?place=" + encodeURIComponent(p.id) + "&g=2&w=640");
 
 export default function EventVenueMap({ venue, picks = [], onSelect, onMapReady }) {
   const hostRef = useRef(null);

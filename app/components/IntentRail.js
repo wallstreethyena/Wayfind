@@ -131,7 +131,7 @@ const POOL = new Map();
 const poolKey = (intent, lat, lng, bucket, gate) =>
   intent + "|" + lat.toFixed(2) + "," + lng.toFixed(2) + "|" + bucket + "|" + (gate ? "out" : "in");
 
-const photoUrl = (r) => (r && r.photoRef ? "/api/photo?ref=" + encodeURIComponent(r.photoRef) + "&w=480" : null);
+const photoUrl = (r) => (r && r.photoRef ? "/api/photo?ref=" + encodeURIComponent(r.photoRef) + "&g=2&w=480" : null);
 const compactReviews = (n) => (Number(n) >= 1000 ? Math.round(Number(n) / 100) / 10 + "k" : String(Number(n) || 0));
 const milesLabel = (d) => (Number.isFinite(d) ? (d < 10 ? d.toFixed(1) : Math.round(d)) + " mi" : null);
 // Same shape businessStatus reads on every other surface; toRow already carries

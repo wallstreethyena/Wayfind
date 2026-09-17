@@ -130,7 +130,7 @@ export default function ExploreBridge({ city, picks, entryPage, pageType }) {
               style={S.card}
             >
               {p.photoRef ? (
-                <img src={"/api/photo?ref=" + encodeURIComponent(p.photoRef) + "&w=240"} alt="" loading="lazy" width="82" height="82" style={{ width: 82, minHeight: 82, objectFit: "cover", display: "block", flex: "0 0 82px", background: "#161B22" }} />
+                <img src={"/api/photo?ref=" + encodeURIComponent(p.photoRef) + "&g=2&w=240"} alt="" loading="lazy" width="82" height="82" style={{ width: 82, minHeight: 82, objectFit: "cover", display: "block", flex: "0 0 82px", background: "#161B22" }} />
               ) : (
                 <div aria-hidden="true" style={{ width: 82, flex: "0 0 82px", background: "linear-gradient(135deg,#1b2735,#2c3e50)" }} />
               )}
