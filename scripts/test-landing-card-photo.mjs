@@ -59,7 +59,7 @@ ok(isPlaceOwnedPhotoUrl(PEXELS) === false,
   "a Pexels URL is never a place-owned photo");
 
 ok(landingCardPhotoSrc({ id: PANGEA, name: "Pangea Alchemy Lab", photoRef: PANGEA_REF })
-    === "/api/photo?ref=" + encodeURIComponent(PANGEA_REF) + "&w=1200",
+    === "/api/photo?ref=" + encodeURIComponent(PANGEA_REF) + "&g=2&w=1200",
   "Pangea with its own photo_ref emits /api/photo for THAT ref");
 ok(landingCardPhotoSrc({ id: PANGEA, name: "Pangea Alchemy Lab", photoRef: SHAMROCK_REF }) === "",
   "Pangea + Shamrock City photo_ref is empty — never the oval pub sign");

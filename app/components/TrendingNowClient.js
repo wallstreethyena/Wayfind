@@ -148,8 +148,8 @@ export default function TrendingNowClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const heroImg = passedRef ? "/api/photo?ref=" + encodeURIComponent(passedRef) + "&w=800"
-    : (rows && rows[0] && rows[0].photo_ref ? "/api/photo?ref=" + encodeURIComponent(rows[0].photo_ref) + "&w=800" : null);
+  const heroImg = passedRef ? "/api/photo?ref=" + encodeURIComponent(passedRef) + "&g=2&w=800"
+    : (rows && rows[0] && rows[0].photo_ref ? "/api/photo?ref=" + encodeURIComponent(rows[0].photo_ref) + "&g=2&w=800" : null);
 
   const share = async () => {
     // Canonical origin — see lib/site.canonicalShareUrl.

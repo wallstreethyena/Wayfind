@@ -178,7 +178,7 @@ export function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub,
       rows.push({ key: `viator:${offerId}`, provider: "viator", merchant: "Viator", offerId, title: t.title, image: t.image, rating: Number(t.rating || 0), reviews: Number(t.reviews || 0), price: t.fromPrice ? `from $${Math.round(t.fromPrice)}` : "", duration: t.duration || "", score: base, rankBonus: timeOfDayBonus(String(t.title || ""), nowHour) + chipAffinityBonus(browseCat, sub || "all", t.title), kind: "experience" });
     }
     for (const d of (Array.isArray(deals) ? deals : [])) {
-      const image = d.image || (d.photoRef ? "/api/photo?ref=" + encodeURIComponent(d.photoRef) + "&w=600" : "");
+      const image = d.image || (d.photoRef ? "/api/photo?ref=" + encodeURIComponent(d.photoRef) + "&g=2&w=600" : "");
       if (!image || !d.id) continue;
       if (!browseBookableMatches(d, browseCat, sub || "all", { kind: "deal" })) continue;
       const dBase = Number(d.quality10 || 0);
@@ -209,7 +209,7 @@ export function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub,
       const types = [place.primaryType, ...(place.types || [])].join(" ");
       const d = { title: place.name, subcategory: /museum|art_gallery/.test(types) ? "museum" : "theme_parks" };
       if (!browseBookableMatches(d, browseCat, sub || "all", { kind: "deal" })) continue;
-      const image = typeof place.photo === "string" ? place.photo : place.photo_url || place.photos?.[0]?._directUri || (place.photos?.[0]?.name ? "/api/photo?ref=" + encodeURIComponent(place.photos[0].name) + "&w=600" : "");
+      const image = typeof place.photo === "string" ? place.photo : place.photo_url || place.photos?.[0]?._directUri || (place.photos?.[0]?.name ? "/api/photo?ref=" + encodeURIComponent(place.photos[0].name) + "&g=2&w=600" : "");
       if (!image) continue;
       const href = commerceHref({ provider: pin.provider, offerId: pin.offerId, surface: "browse_partner_rail", contentId: `${browseCat}:${sub || "all"}` });
       if (!href) continue;

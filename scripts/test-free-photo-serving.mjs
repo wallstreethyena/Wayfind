@@ -384,8 +384,10 @@ async function run() {
     eq(res.headers.get("x-wayfind-photo-result"), "owned-free", "B2: the result is labelled owned-free");
     eq(res.headers.get("location"), (await HAS_FREE()).url, "B2: the redirect target is the free photo's own url");
     const cc = res.headers.get("cache-control") || "";
-    ok(cc.includes("max-age=31536000"), "B2: owned-free gets a full YEAR of cache — permanent, unlike a rented Google photo");
-    ok(cc.includes("immutable"), "B2: owned-free is cached immutable");
+    // 2026-09-17: a year-long immutable redirect pinned a 16 MB Commons
+    // original (EPCOT) and wrong-place Commons photos in browsers for a year.
+    ok(cc.includes("max-age=86400") && cc.includes("s-maxage=86400"), `B2: owned-free redirects revalidate daily (got ${cc})`);
+    ok(!/immutable/.test(cc) && /immutable/.test("public, max-age=1, immutable"), `B2: owned-free is never cached immutable (positive control: the pattern matches an immutable header) (got ${cc})`);
     eq(res.headers.get("x-wayfind-photo-probe"), "0", "B2: a real (non-probe) reader is marked as such");
   }
 

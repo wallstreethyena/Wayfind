@@ -53,7 +53,7 @@ async function inventoryPlace(placeId) {
       : (row.primary_type ? [row.primary_type] : (row.category ? [row.category] : [])),
     primaryType: row.primary_type || null,
     businessStatus: row.status || null,
-    photos: [{ _directUri: `/api/photo?place=${encodeURIComponent(row.place_id)}&w=640` }],
+    photos: [{ _directUri: `/api/photo?place=${encodeURIComponent(row.place_id)}&g=2&w=640` }],
   };
 }
 

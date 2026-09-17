@@ -67,7 +67,7 @@ function BirthdayRailSection({ rail, lat, lng, city, onOpenPlace, isSaved, liked
               const reward = place._birthdayReward || null;
               const type = prettyType(place.primaryType || place.category);
               const photo = place.photo || (place.photoRef
-                ? "/api/photo?ref=" + encodeURIComponent(place.photoRef) + "&w=640"
+                ? "/api/photo?ref=" + encodeURIComponent(place.photoRef) + "&g=2&w=640"
                 : null);
               const facts = [
                 place.reviews ? compact(place.reviews) + " reviews" : null,

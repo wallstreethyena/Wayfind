@@ -24,7 +24,7 @@ const DEAL_CATEGORIES = Object.freeze({
   "best-of": ["attractions", "more"],
 });
 
-const dealImage = (deal) => deal?.image || (deal?.photoRef ? `/api/photo?ref=${encodeURIComponent(deal.photoRef)}&w=600` : "");
+const dealImage = (deal) => deal?.image || (deal?.photoRef ? `/api/photo?ref=${encodeURIComponent(deal.photoRef)}&g=2&w=600` : "");
 // v6.90 — owner: "make sure they are displayed by rating and discount, point
 // based on the activity time of today — something great that is not the best
 // time of the day should show lower in ranking." Rating/quality stays the

@@ -221,7 +221,7 @@ export async function POST(request) {
     if (!allowance?.allowed) return json({ error: "limit", allowance }, 429, "no-store");
     let place = available[Math.floor(Math.random() * available.length)];
     const dishImageUrl = dishImages.get(place.id) || null;
-    const restaurantPhoto = place.photo || (place.photoRef ? "/api/photo?ref=" + encodeURIComponent(place.photoRef) + "&w=800" : null);
+    const restaurantPhoto = place.photo || (place.photoRef ? "/api/photo?ref=" + encodeURIComponent(place.photoRef) + "&g=2&w=800" : null);
     if (dishImageUrl) {
       place = { ...place, photo: dishImageUrl, restaurantPhoto, imageKind: "must_try" };
     } else {

@@ -102,7 +102,7 @@ export function creatorSearchPlace(first, fallbackName = "") {
   return {
     id: first.id || first.place_id || null,
     name,
-    photo: ref && REF_RX.test(ref) ? "/api/photo?ref=" + encodeURIComponent(ref) + "&w=280" : "",
+    photo: ref && REF_RX.test(ref) ? "/api/photo?ref=" + encodeURIComponent(ref) + "&g=2&w=280" : "",
     types: Array.isArray(first.types) ? first.types : (Array.isArray(first.google_types) ? first.google_types : []),
     rating: signals.rating != null && Number.isFinite(Number(signals.rating)) ? Number(signals.rating) : (first.rating != null && Number.isFinite(Number(first.rating)) ? Number(first.rating) : null),
     reviews: signals.reviews != null && Number.isFinite(Number(signals.reviews)) ? Number(signals.reviews) : (first.userRatingCount != null && Number.isFinite(Number(first.userRatingCount)) ? Number(first.userRatingCount) : Number(first.reviews) || 0),

@@ -1,3 +1,11 @@
+## v8.56.30: stale photo redirects stop living in browsers for a year
+
+A real-browser check of the home page after v8.56.29 showed EPCOT still rendering a 6240×4160, 16 MB image, served from the browser's own cache with 0 bytes transferred. The live `/api/photo` answer was already the 640 px vault copy. The cause: `owned-free` redirects were sent with `max-age` of one year and `immutable`, so a browser that saw the free lane point at a giant Commons original, or at a Commons photo later rejected as the wrong place (39 rows), kept that answer for a year.
+
+- **Redirect lifetime.** `owned-free` redirects now revalidate daily (`max-age=86400, s-maxage=86400`, no `immutable`), like Google redirects.
+- **Cache generation.** Every card photo URL builder (41 lines in 32 files) adds `g=2`, so browsers request a fresh redirect instead of the pinned one. `/api/photo` ignores the parameter. The audit and warm helper and the server-side image scorer are exempt.
+- **Test.** `test-free-source-hotlink` section F fails on any card builder without `g=2`, with a positive control. `test-free-photo-serving` B2 now requires the daily, non-immutable header.
+
 ## v8.56.29: EPCOT and every place card serve the vaulted photo, not a Commons hotlink
 
 A live check found EPCOT in Florida's Biggest Parks loading a 1,280 px, 367 KB image straight from Wikimedia Commons. Its `wf_inventory.signals.photo_url` held that Commons rendition, and both the theme park rail and `/api/photo`'s inventory lane served it directly, so the resized copy in the `place-photos` vault was never used.
