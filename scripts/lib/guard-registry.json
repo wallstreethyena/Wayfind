@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 669,
-    "totalRegistryEntries": 670,
-    "guardsTxtLineCount": 668,
-    "guardsTxtReachedFileCount": 663,
+    "totalOnDiskGuardFiles": 670,
+    "totalRegistryEntries": 671,
+    "guardsTxtLineCount": 669,
+    "guardsTxtReachedFileCount": 664,
     "criticalCount": 83,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 457,
+      "CALL": 458,
       "RENDER": 73,
       "STRUCTURAL": 139,
       "OTHER": 1
@@ -2574,6 +2574,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 44,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-event-providers-not-google-gated.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 9,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -11096,7 +11118,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 18,
+      "assertionCount": 20,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
