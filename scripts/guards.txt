@@ -1517,6 +1517,7 @@ node scripts/test-photo-vault-wiring.mjs
 # not opt in. 4 red-proofs confirm every one of these is load-bearing.
 node scripts/test-photo-vault-rendition.mjs
 node scripts/test-free-source-hotlink.mjs
+node scripts/test-hotel-image-resolver.mjs
 
 # 2026-09-17 the WRONG-PLACE MATCH fix: production had 23 named ACTIVE free
 # photos that were clearly another place, another city, or not a picture of
