@@ -57,6 +57,15 @@ export const maxDuration = 300;
 // possibly mid-Commons-download, plus their upserts and the pulse write.
 const WORK_BUDGET_MS = 255_000;
 
+// 2026-09-17 (oversized-original fix, retry pass). A small, bounded page of
+// ACTIVE rows already missing a vault copy is re-attempted every run,
+// IN ADDITION TO the ordinary candidate work above — see
+// lib/placePhotoBackfill.js's fetchUnvaultedActiveRows for why this exists
+// (13 production rows sat at storage_path=null forever with nothing ever
+// revisiting them). Bounded small on purpose: same read+download+upload cost
+// as a fresh candidate, so it cannot meaningfully eat into WORK_BUDGET_MS.
+const REVAULT_LIMIT = 10;
+
 import { runBackfill, describeAtRisk, describeReplay } from "../../../../lib/placePhotoBackfill";
 import { recordPulse, isDeterministicFailureNote } from "../../../../lib/jobPulse";
 import { jobCannotRun, jobFailed } from "../../../../lib/jobFail";
@@ -79,7 +88,14 @@ export async function GET(req) {
 
   let result;
   try {
-    result = await runBackfill({ limit, scanLimit, source, deadlineAt: startedAt + WORK_BUDGET_MS, sbEnv: { url: /^https?:\/\//i.test(url) ? url : "https://" + url, key: svc } });
+    result = await runBackfill({
+      limit,
+      scanLimit,
+      source,
+      deadlineAt: startedAt + WORK_BUDGET_MS,
+      sbEnv: { url: /^https?:\/\//i.test(url) ? url : "https://" + url, key: svc },
+      revaultLimit: REVAULT_LIMIT,
+    });
   } catch (e) {
     return jobFailed("place-photos", "worker threw: " + (e && e.message ? e.message : String(e)));
   }
@@ -99,7 +115,7 @@ export async function GET(req) {
     ? `place-photos: table unavailable (${result.tableStatus != null ? result.tableStatus : "error"})`
     : result.note
       ? (isDeterministicFailureNote(result.note) ? result.note : `place-photos: ${result.note}`)
-      : `place-photos: ${result.active} active (${result.vaulted || 0} vaulted), ${result.rejected} rejected, ${result.failed} failed, ${result.deferred || 0} deferred${result.partial ? ` — PARTIAL: stopped on its own ${Math.round(WORK_BUDGET_MS / 1000)}s budget with ${result.deadlineStopped} candidate(s) unstarted` : ""} (${describeAtRisk({ ...result, source })}, ${describeReplay({ ...result, source })}, general scanned ${result.scanned}, ${result.alreadyCovered} already covered)`;
+      : `place-photos: ${result.active} active (${result.vaulted || 0} vaulted), ${result.rejected} rejected, ${result.failed} failed, ${result.deferred || 0} deferred${result.partial ? ` — PARTIAL: stopped on its own ${Math.round(WORK_BUDGET_MS / 1000)}s budget with ${result.deadlineStopped} candidate(s) unstarted` : ""} (${describeAtRisk({ ...result, source })}, ${describeReplay({ ...result, source })}, general scanned ${result.scanned}, ${result.alreadyCovered} already covered, revault ${result.revaulted || 0}/${result.revaultAttempted || 0})`;
 
   if (!result.tableUnavailable && result.attempted > 0 && result.failed === result.attempted) {
     return jobFailed("place-photos", note, { attempted: result.attempted, succeeded: 0 });
@@ -130,5 +146,8 @@ export async function GET(req) {
     replayStatus: result.replayStatus != null ? result.replayStatus : null,
     alreadyCovered: result.alreadyCovered || 0,
     tableUnavailable: !!result.tableUnavailable,
+    revaultAttempted: result.revaultAttempted || 0,
+    revaulted: result.revaulted || 0,
+    revaultFailed: result.revaultFailed || 0,
   });
 }

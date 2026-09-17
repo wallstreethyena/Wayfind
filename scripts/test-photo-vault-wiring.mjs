@@ -88,6 +88,13 @@ const eq = (actual, expected, message) =>
   const PLACE_ID = "ChIJvaultwiring1234567";
   const BASE_ROW = {
     image_url: "https://upload.wikimedia.org/wikipedia/commons/a/ab/Origin.jpg",
+    // width: 800 (<= the 1600px oversized-original threshold, 2026-09-17) —
+    // this section is testing vault-url-vs-origin-url selection, not the
+    // rendition behaviour a KNOWN-oversized or unknown-width original now
+    // gets (that is scripts/test-photo-vault-rendition.mjs's job); keeping
+    // this row small and known keeps A3/A4's "falls back to image_url"
+    // assertion meaning exactly what it always meant.
+    width: 800,
     license: "CC BY-SA 4.0",
     attribution_text: "Jane Q. Photographer",
     attribution_url: "https://commons.wikimedia.org/wiki/File:Origin.jpg",
