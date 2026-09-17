@@ -542,6 +542,40 @@ console.log("test-photo-vault-rendition: Section H OK — the cron's bounded re-
 }
 console.log("test-photo-vault-rendition: Section I OK — red-proof confirms the revaultLimit gate is load-bearing, not an accident of the H1 fixture");
 
+// ── Section K: a vaulted copy is SERVED resized, never at full weight ─────
+// 2026-09-17 production audit: 109 of 159 vault copies were over 1 MB (max
+// 14.7 MB). The served URL must go through the storage resizer at a
+// canonical card width, while the plain object URL stays for width-less callers.
+{
+  const SB = "https://proj.supabase.co";
+  const PATH = "ChIJFixtureVault01/abc123.jpg";
+  const plain = vaultPublicUrl(PATH, SB);
+  eq(plain, `${SB}/storage/v1/object/public/place-photos/${PATH}`, "K: no width keeps the plain object URL (provenance/admin callers unchanged)");
+  const r640 = vaultPublicUrl(PATH, SB, { width: 400 });
+  eq(r640, `${SB}/storage/v1/render/image/public/place-photos/${PATH}?width=640&quality=75`, "K: a 400px card is served through the resizer at the canonical 640");
+  eq(vaultPublicUrl(PATH, SB, { width: 800 }), r640, "K: an 800px card shares the 640 variant");
+  eq(vaultPublicUrl(PATH, SB, { width: 1200 }), `${SB}/storage/v1/render/image/public/place-photos/${PATH}?width=1280&quality=75`, "K: a hero uses the 1280 variant, never the original");
+  ok(isOwnedPhotoUrl(r640), "K: the resized vault URL is accepted as an owned photo URL");
+  const heavyRow = { image_url: "https://upload.wikimedia.org/wikipedia/commons/7/73/Spaceship_Earth%2C_EPCOT.jpg", width: 6240, storage_path: PATH, bytes: 14683932, license: "cc-by-sa-4.0", attribution_text: "Fixture", attribution_url: "https://commons.wikimedia.org/wiki/File:Fixture.jpg", source: "wikimedia" };
+  const served = selectFreePhotoRow(heavyRow, { supabaseUrl: SB, vaultPublicUrl, renditionUrl: commonsRenditionUrl, width: 640 });
+  ok(served && /\/storage\/v1\/render\/image\/public\//.test(served.url) && /width=640/.test(served.url), `K: EPCOT-shaped 14.7 MB vault row is served resized (got ${served && served.url})`);
+  const src = readFileSync(new URL("../lib/freePhoto.js", import.meta.url), "utf8");
+  const mutated = src.replace("width: width == null ? 640 : width", "width: undefined");
+  ok(mutated !== src, "K red-proof: the mutation site exists in lib/freePhoto.js");
+  const tmp = join(mkdtempSync(join(tmpdir(), "wf-vault-serve-mut-")), "freePhoto.mjs");
+  writeFileSync(tmp, mutated.replace(/from "\.\//g, `from "${pathToFileURL(join(fileURLToPath(new URL("../lib/", import.meta.url)))).href}/`));
+  let M;
+  try { M = await import(pathToFileURL(tmp).href + `?t=${Date.now()}`); } finally { try { unlinkSync(tmp); } catch { /* cleanup */ } }
+  const rows = [heavyRow];
+  const fakeFetch = async () => ({ ok: true, json: async () => rows });
+  const env = { SUPABASE_URL: SB, SUPABASE_SERVICE_ROLE_KEY: "k" };
+  const real = await (await import("../lib/freePhoto.js")).findFreePhoto({ placeId: "ChIJFixtureVault01", width: 400 }, { fetchImpl: fakeFetch, env, vaultPublicUrl, renditionUrl: commonsRenditionUrl });
+  ok(real && /render\/image/.test(real.url), `K: findFreePhoto serves the resized vault URL (got ${real && real.url})`);
+  const broken = await M.findFreePhoto({ placeId: "ChIJFixtureVault01", width: 400 }, { fetchImpl: fakeFetch, env, vaultPublicUrl, renditionUrl: commonsRenditionUrl });
+  ok(broken && !/render\/image/.test(broken.url), "K red-proof: dropping the width plumbing serves the full-weight object URL, so this section is load-bearing");
+}
+console.log("test-photo-vault-rendition: Section K OK — vaulted copies are served through the resizer at 640/1280, never at original weight");
+
 if (failures) {
   console.error(`test-photo-vault-rendition: ${failures} FAILURE(S)`);
   process.exit(1);
