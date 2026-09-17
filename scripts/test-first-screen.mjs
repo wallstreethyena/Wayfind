@@ -182,10 +182,24 @@ ok(/const railMenuBand = railMenu \? \(/.test(code),
     // of a callable — it stops belonging on this list, and
     // scripts/check-events-rail-renders.mjs asserts the `{eventsSlot()}` call
     // shape so that change cannot be silent.
+    // `livePosters` (2026-09-17) belongs on this list for the same reason
+    // `sponsor` and `sponsorCard` do, and only for that reason: it is a
+    // SYNTHETIC TILE LIST, not rail content. It defaults to [] and app/home.js
+    // hands it an empty array on the first render, so the track paints its
+    // server-data tiles with nothing withheld and nothing awaited. The two
+    // live event tiles are APPENDED later, if and only if a real event near
+    // the reader survives the image-fit chain; when they never arrive the rail
+    // is byte-identical to before.
+    //
+    // THE MOMENT IT GATES ANYTHING — if a tile list is ever awaited before the
+    // track renders, or the rail returns null/holds a skeleton while waiting
+    // for it — it stops belonging here, because that is precisely the
+    // 6.4-second regression this file exists to prevent.
     const NON_CONTENT = new Set([
       "center", "sponsor", "sponsorCard", "isSaved", "isOnTrip", "initialRail",
       "liked", "disliked", "isLiked", "isDisliked",
       "memberSignalsFor", "applyMemberSignal", "locName", "eventsSlot",
+      "livePosters",
     ]);
     if (NON_CONTENT.has(name) || /^on[A-Z]/.test(name)) continue;
     ok(/^railMenu\.\w+$/.test(value) || value === "RAILS",
@@ -193,6 +207,11 @@ ok(/const railMenuBand = railMenu \? \(/.test(code),
   }
   const rail = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
   ok(/center = null,/.test(rail), "center must default to null — the rail has to paint before geolocation resolves");
+  // The premise of the `livePosters` exemption above, asserted rather than
+  // trusted: it must default to an empty array, and the track must never be
+  // gated on it (no early return, no await, no skeleton keyed to it).
+  ok(/livePosters = \[\],/.test(rail), "livePosters must default to [] — the track paints with zero live tiles");
+  ok(!/if\s*\(\s*!?\s*livePosters[^)]*\)\s*return/.test(rail), "the rail must never return early on livePosters — that would gate first paint on a fetch");
   // The premise of the exemption above, asserted rather than assumed: the
   // drop is lazily imported and not server-rendered, so a handler passed to
   // it cannot be on the first-paint path.

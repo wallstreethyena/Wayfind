@@ -217,7 +217,7 @@ import { WF_LAYOUT_CSS, WF_SEARCH_CSS, WF_PLACE_CARD_CSS, WF_TASTE_CSS, WF_RAIL_
 // the selection logic and never leaves the server), so importing it here costs
 // the bundle the card copy and nothing else.
 import DaypartRail from "./components/DaypartRail";
-import LiveEventPoster from "./components/LiveEventPoster";
+import { useLivePosterTiles } from "./components/useLivePosterTiles";
 import PlaceCardSkeleton from "./components/PlaceCardSkeleton";
 import { PLACE_CARD_HEIGHT_PX } from "../lib/placeCardStandard.js";
 import { WF_RAIL_MENU_CSS } from "./components/railMenuCss";
@@ -9538,10 +9538,17 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     stored: inlineRail.stored,
   });
 
+  // Live event poster tiles (Sporting Events, Concerts). They ride the
+  // ordinary poster rail below at the same size as every other poster, and
+  // read ONLY the canonical active location that the location selector
+  // drives -- no separate location state, no independent geolocation.
+  const livePosterTiles = useLivePosterTiles({ center: railCenter || center, city: locName });
+
   const railMenuBand = railMenu ? (
     <div className="wf-fullbleed">
       <DaypartRail
         rails={RAILS}
+        livePosters={livePosterTiles}
         places={railMenu.places}
         thin={railMenu.thin}
         guides={railMenu.guides}
@@ -10291,36 +10298,6 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
 
                 Still the FIRST thing in the feed, so the rail leads the page
                 exactly as it did in v8 — see check-home-answer-first. */}
-            {/* Live event posters (owner spec, 2026-09-16): Sporting Events
-                and Concerts, both driven ONLY by the canonical location state
-                (center + locName) that also drives the location selector and
-                every existing event rail -- no separate location state, no
-                independent geolocation. See app/components/LiveEventPoster.js.
-
-                Deliberately a SIBLING of railMenuBand, not nested inside it:
-                test-first-screen.mjs scans everything between
-                `const railMenuBand = railMenu ? (` and `) : null;` and treats
-                every name={value} pair found there as a <DaypartRail> prop,
-                so a wrapper div's own style attribute inside that block reads
-                as a rail prop and trips the first-paint guard. Sitting
-                outside the block keeps that guard's invariant exact AND keeps
-                these posters off the rail's first-paint path entirely: each
-                renders null until its own event pool resolves, so neither can
-                delay the rail. */}
-            <div className="wf-fullbleed" style={{ flex: "0 0 auto", display: "flex", alignItems: "flex-start", gap: 10, padding: "0 16px 12px", overflowX: "auto", overscrollBehaviorX: "contain" }}>
-              {/* Definite width, NOT flex:1 1 0. Verified on production: with a
-                  flex-basis of 0 the slot never gets a definite width, so the
-                  poster's aspect-ratio cannot resolve to a height, the flex
-                  row collapses to its 12px padding, and a rendered 391px
-                  poster is clipped to a sliver. A fixed width lets
-                  aspect-ratio do its job. */}
-              <div style={{ flex: "0 0 auto", width: 184 }}>
-                <LiveEventPoster type="sports" center={railCenter || center} city={locName} />
-              </div>
-              <div style={{ flex: "0 0 auto", width: 184 }}>
-                <LiveEventPoster type="concerts" center={railCenter || center} city={locName} />
-              </div>
-            </div>
             {railMenuBand}
             <div className="wf-cols">
               <div className="wf-col-main">
