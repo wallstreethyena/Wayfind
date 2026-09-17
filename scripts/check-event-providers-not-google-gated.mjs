@@ -10,6 +10,7 @@
 // block that still looked green.
 
 import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 
 const fail = [];
 const ok = (m) => console.log(`  OK  ${m}`);
@@ -39,19 +40,24 @@ if (/gateMode\s*\(/.test(code)) {
 }
 
 // 3. eventProviderCap must never return null/0 for a KNOWN provider, which is
-// the exact shape of the 82-day silent failure. Proven by running it with the
-// env deliberately cleared.
+// the exact shape of the 82-day silent failure. Proven in a CHILD PROCESS with
+// a deliberately empty env, so this guard's verdict never depends on whatever
+// the ambient shell happens to have exported (check-guard-hermeticity).
 {
-  const mod = await import("../lib/eventProviderSpend.js");
-  const cleared = [];
-  for (const id of mod.EVENT_PROVIDER_IDS) {
-    const envName = "EVENT_" + id.toUpperCase() + "_MONTH_CAP";
-    if (process.env[envName]) { cleared.push([envName, process.env[envName]]); delete process.env[envName]; }
-  }
-  const broken = mod.EVENT_PROVIDER_IDS.filter((id) => !(mod.eventProviderCap(id) > 0));
-  for (const [k, v] of cleared) process.env[k] = v;
-  if (broken.length) bad("eventProviderCap returns nothing for a known provider with no env var set", broken.join(", "));
-  else ok("with every EVENT_*_MONTH_CAP unset, every provider still resolves a usable ceiling");
+  const probe = `
+    import { eventProviderCap, EVENT_PROVIDER_IDS } from "./lib/eventProviderSpend.js";
+    const broken = EVENT_PROVIDER_IDS.filter((id) => !(eventProviderCap(id) > 0));
+    process.stdout.write(JSON.stringify({ total: EVENT_PROVIDER_IDS.length, broken }));
+  `;
+  // env is set EXPLICITLY and completely, never inherited or sampled from the
+  // ambient shell, so this verdict is identical in a bare terminal and in one
+  // with .env.production.local sourced.
+  const out = execFileSync(process.execPath, ["--input-type=module", "-e", probe], {
+    cwd: process.cwd(), env: { PATH: "/usr/bin:/bin" }, encoding: "utf8",
+  });
+  const res = JSON.parse(out);
+  if (res.broken.length) bad("eventProviderCap returns nothing for a known provider with no env var set", res.broken.join(", "));
+  else ok(`with a deliberately EMPTY environment, all ${res.total} providers still resolve a usable ceiling`);
 }
 
 // 4. The ledger grant must REMAIN. This guard is about not-fail-closed, not
