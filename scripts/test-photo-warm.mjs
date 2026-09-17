@@ -425,6 +425,21 @@ for (const pauseReason of ["quota-open", "spend-denied", "gate-shut", "unconfigu
   eq(writes.length, 0, "(k2) a paused place is not marked, so it is retried after the reset");
 }
 
+// ── (m) rotation stride: consecutive runs start far apart and cover everything ─
+{
+  const seenFirst = [];
+  const surfaces = Array.from({ length: 12 }, (_, i) => fakeSurface("r" + i, null, { endpointPath: "/api/rot" + i }));
+  for (let run = 0; run < warmMod.WARM_ROTATION_RUNS; run++) {
+    const order = [];
+    const fetchImpl = async (url) => { order.push(Number(/\/api\/rot(\d+)/.exec(url)[1])); return jsonResponse({ places: [] }); };
+    await runPhotoWarm({ origin: ORIGIN, fetchImpl, surfaces, cities: [null], offsetHour: run, max: 0, cachedServed: async () => new Set(), collectConcurrency: 1 });
+    seenFirst.push(order[0]);
+  }
+  eq(JSON.stringify(seenFirst), JSON.stringify([0, 2, 4, 6, 8, 10]), "(m) each run starts a sixth of the unit list further on (12 units -> stride 2)");
+  const covered = new Set(seenFirst.flatMap((f) => [f, f + 1]));
+  eq(covered.size, 12, "(m) six runs that each read two units cover all twelve");
+}
+
 // ── (l) collection runs endpoints in parallel, results stay deterministic ─
 {
   let inFlight = 0, peak = 0;
