@@ -97,6 +97,26 @@ async function fromTicketmaster(lat, lng, radius, keyword) {
         const THUMB_MIN_W = 320;
         thumb = (wide.find((i) => (i.width || 0) >= THUMB_MIN_W) || wide[0] || null)?.url || img;
       }
+      // 2026-09-16 (lib/eventPoster.js, the live-poster image engine): TM
+      // ships 16_9, 3_2 and 4_3 variants of the SAME photo in this exact
+      // payload -- nothing new fetched, nothing new requested. The poster
+      // engine's crop-reject/retry chain needs more than the single `img`
+      // pick above, since 3_2/4_3 are taller relative to width and are
+      // sometimes the only variant that can pass a clean 9:16 attention
+      // crop. Purely additive: `img`/`thumb` above are computed exactly as
+      // before and every existing reader of event.image/event.thumb is
+      // unaffected. Capped and deduped so a payload with many sizes per
+      // ratio doesn't bloat the response.
+      let imageVariants = [];
+      if (Array.isArray(e.images) && e.images.length) {
+        const KEEP_RATIOS = new Set(["16_9", "3_2", "4_3"]);
+        const byUrl = new Map();
+        for (const i of e.images) {
+          if (!i || !i.url || !KEEP_RATIOS.has(i.ratio)) continue;
+          if (!byUrl.has(i.url)) byUrl.set(i.url, { url: i.url, ratio: i.ratio, width: i.width || 0, height: i.height || 0 });
+        }
+        imageVariants = Array.from(byUrl.values()).slice(0, 8);
+      }
       const cls = Array.isArray(e.classifications) && e.classifications[0] ? e.classifications[0] : null;
       const seg = cls && cls.segment ? cls.segment.name : "";
       const genre = cls && cls.genre ? cls.genre.name : "";
@@ -117,7 +137,7 @@ async function fromTicketmaster(lat, lng, radius, keyword) {
         venue: venue ? venue.name || "" : "", city: venue && venue.city ? venue.city.name || "" : "",
         lat: vloc && vloc.latitude != null ? Number(vloc.latitude) : null,
         lng: vloc && vloc.longitude != null ? Number(vloc.longitude) : null,
-        segment: seg, genre, image: img, thumb: thumb || img, price, url: e.url || "", ticketed: true, source: "Ticketmaster",
+        segment: seg, genre, image: img, thumb: thumb || img, imageVariants, price, url: e.url || "", ticketed: true, source: "Ticketmaster",
         // Phase 1: cancelled/postponed events used to flow into cards
         // unchecked -- the pipeline now excludes on this field.
         status: e.dates && e.dates.status && e.dates.status.code ? e.dates.status.code : "",
