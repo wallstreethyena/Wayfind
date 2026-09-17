@@ -217,6 +217,7 @@ import { WF_LAYOUT_CSS, WF_SEARCH_CSS, WF_PLACE_CARD_CSS, WF_TASTE_CSS, WF_RAIL_
 // the selection logic and never leaves the server), so importing it here costs
 // the bundle the card copy and nothing else.
 import DaypartRail from "./components/DaypartRail";
+import LiveEventPoster from "./components/LiveEventPoster";
 import PlaceCardSkeleton from "./components/PlaceCardSkeleton";
 import { PLACE_CARD_HEIGHT_PX } from "../lib/placeCardStandard.js";
 import { WF_RAIL_MENU_CSS } from "./components/railMenuCss";
@@ -10290,6 +10291,30 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
 
                 Still the FIRST thing in the feed, so the rail leads the page
                 exactly as it did in v8 — see check-home-answer-first. */}
+            {/* Live event posters (owner spec, 2026-09-16): Sporting Events
+                and Concerts, both driven ONLY by the canonical location state
+                (center + locName) that also drives the location selector and
+                every existing event rail -- no separate location state, no
+                independent geolocation. See app/components/LiveEventPoster.js.
+
+                Deliberately a SIBLING of railMenuBand, not nested inside it:
+                test-first-screen.mjs scans everything between
+                `const railMenuBand = railMenu ? (` and `) : null;` and treats
+                every name={value} pair found there as a <DaypartRail> prop,
+                so a wrapper div's own style attribute inside that block reads
+                as a rail prop and trips the first-paint guard. Sitting
+                outside the block keeps that guard's invariant exact AND keeps
+                these posters off the rail's first-paint path entirely: each
+                renders null until its own event pool resolves, so neither can
+                delay the rail. */}
+            <div className="wf-fullbleed" style={{ display: "flex", gap: 10, padding: "0 16px 12px", overflowX: "auto" }}>
+              <div style={{ flex: "1 1 0", minWidth: 150, maxWidth: 220 }}>
+                <LiveEventPoster type="sports" center={center} city={locName} />
+              </div>
+              <div style={{ flex: "1 1 0", minWidth: 150, maxWidth: 220 }}>
+                <LiveEventPoster type="concerts" center={center} city={locName} />
+              </div>
+            </div>
             {railMenuBand}
             <div className="wf-cols">
               <div className="wf-col-main">
