@@ -159,6 +159,9 @@ export async function GET(req) {
     ref,
     place,
     w,
+    // Ask Google for the place's CURRENT photo name (free IDs-only lookup)
+    // before the one billed media call. See lib/placePhotoServe.js.
+    freshFirst: true,
     gateShut: shut,
     probe,
     // Ask the ledger only after resolvePlacePhoto has missed both the exact
