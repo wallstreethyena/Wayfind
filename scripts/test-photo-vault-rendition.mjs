@@ -552,10 +552,11 @@ console.log("test-photo-vault-rendition: Section I OK — red-proof confirms the
   const plain = vaultPublicUrl(PATH, SB);
   eq(plain, `${SB}/storage/v1/object/public/place-photos/${PATH}`, "K: no width keeps the plain object URL (provenance/admin callers unchanged)");
   const r640 = vaultPublicUrl(PATH, SB, { width: 400 });
-  eq(r640, `${SB}/storage/v1/render/image/public/place-photos/${PATH}?width=640&quality=75`, "K: a 400px card is served through the resizer at the canonical 640");
+  eq(r640, `${SB}/storage/v1/render/image/public/place-photos/${PATH}?width=640&resize=contain&quality=75`, "K: a 400px card is served through the resizer at the canonical 640");
   eq(vaultPublicUrl(PATH, SB, { width: 800 }), r640, "K: an 800px card shares the 640 variant");
-  eq(vaultPublicUrl(PATH, SB, { width: 1200 }), `${SB}/storage/v1/render/image/public/place-photos/${PATH}?width=1280&quality=75`, "K: a hero uses the 1280 variant, never the original");
+  eq(vaultPublicUrl(PATH, SB, { width: 1200 }), `${SB}/storage/v1/render/image/public/place-photos/${PATH}?width=1280&resize=contain&quality=75`, "K: a hero uses the 1280 variant, never the original");
   ok(isOwnedPhotoUrl(r640), "K: the resized vault URL is accepted as an owned photo URL");
+  ok(/[?&]resize=contain(&|$)/.test(r640) && /[?&]resize=contain(&|$)/.test(vaultPublicUrl(PATH, SB, { width: 1200 })), "K: every resized URL says resize=contain (the default cover mode crops to the original height: 5184x3456 came back 640x3456)");
   const heavyRow = { image_url: "https://upload.wikimedia.org/wikipedia/commons/7/73/Spaceship_Earth%2C_EPCOT.jpg", width: 6240, storage_path: PATH, bytes: 14683932, license: "cc-by-sa-4.0", attribution_text: "Fixture", attribution_url: "https://commons.wikimedia.org/wiki/File:Fixture.jpg", source: "wikimedia" };
   const served = selectFreePhotoRow(heavyRow, { supabaseUrl: SB, vaultPublicUrl, renditionUrl: commonsRenditionUrl, width: 640 });
   ok(served && /\/storage\/v1\/render\/image\/public\//.test(served.url) && /width=640/.test(served.url), `K: EPCOT-shaped 14.7 MB vault row is served resized (got ${served && served.url})`);

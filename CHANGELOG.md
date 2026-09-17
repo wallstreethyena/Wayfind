@@ -1,3 +1,10 @@
+## v8.56.25: resized vault photos keep their shape
+
+The vault resizer (v8.56.23) called Supabase Storage image transformation with only a width. That endpoint defaults to `cover`, which keeps the original height and returns a centre crop. Measured live: a 5,184×3,456 vault copy came back 640×3,456, and EPCOT's 1,280×853 came back 640×853.
+
+- **Fix.** Every resized URL now adds `resize=contain`, which scales proportionally (the same photo comes back 640×427).
+- **Test.** `test-photo-vault-rendition` section K requires `resize=contain` on every resized URL, and fails when it is removed.
+
 ## v8.56.24: photo-warm's cache check actually reads the cache
 
 The first production run of `/api/cron/photo-warm` (05:13 UTC) paused correctly on the open daily quota breaker. But it reported 2,033 of 2,107 visible places as empty when most were served. Each Google photo name is about 700 characters, and the batched cache check sent 150 of them in one PostgREST `in.(...)` URL (over 100 KB). Every read was refused, and the check silently settled nothing.
