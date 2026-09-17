@@ -377,6 +377,14 @@ import { guideRailIntent } from "../../../lib/railPlacement";
 import { LANDING_CITIES } from "../../../lib/landing";
 import { isSsgBuild, guideFetch } from "../../../lib/landingInventory";
 import { guideArticleImage, guideContextLinks, guideImageMetadata, guideQuickChoices } from "../../../lib/guideSeo";
+// Event guides reuse the ONE event "where" block (map, route, numbered nearby
+// picks) that /florida-events/[slug] renders, fed by the same curated row and
+// the same cached pairings, so a guide can never draw a second map rule.
+import EventWhere from "../../components/EventWhere";
+import { fetchCuratedEventBySlug, eventWebsiteUrl } from "../../../lib/curatedEvents";
+import { cachedEventPairings } from "../../../lib/eventPairingsCache";
+import { pairingHref } from "../../../lib/eventPairings";
+import { addressLine, appleDirectionsUrl } from "../../../lib/placeWhere";
 
 // 15 minutes. Long enough that the weather fetch is nearly free, short enough
 // that "97° right now" is never a lie. A guide whose live block is stale is
@@ -501,6 +509,29 @@ export default async function GuidePage({ params }) {
   const railConfig = guidePlaceRailConfig(g.placeRail || params.slug);
   const railInventory = railConfig ? await inventoryPlacesByExactIds(declaredGuideRailPlaceIds(railConfig)) : [];
   const placeRail = resolveGuidePlaceRail(railConfig, railInventory);
+  // Event map: only for a guide that names a curated event slug. A failed read
+  // or a missing/undisplayable row renders no map (the article still stands),
+  // and the pairings keep their own "unavailable" contract.
+  let eventMap = null;
+  if (g.eventMap) {
+    try {
+      const ev = await fetchCuratedEventBySlug(g.eventMap);
+      if (ev) {
+        const pr = await cachedEventPairings(ev);
+        eventMap = {
+          venue: ev.venue || ev.event_name,
+          address: addressLine(ev),
+          directionsHref: appleDirectionsUrl(ev),
+          website: eventWebsiteUrl(ev) || null,
+          lat: ev.lat == null || ev.lat === "" ? NaN : Number(ev.lat),
+          lng: ev.lng == null || ev.lng === "" ? NaN : Number(ev.lng),
+          picks: (pr.places || []).map((p) => ({ ...p, href: pairingHref(p) })),
+        };
+      }
+    } catch (err) {
+      console.error("[guide-event-map] unavailable", params.slug, g.eventMap, err && err.message);
+    }
+  }
   if (placeRail.omitted && placeRail.omitted.length) {
     console.error("[guide-place-rail] omitted declared placeIds", params.slug, placeRail.omitted);
   }
@@ -820,6 +851,11 @@ export default async function GuidePage({ params }) {
       ) : null}
       <p className="wf-guide-intro" style={S.p}>{g.intro}</p>
       <GuideFacts facts={g.facts} />
+      {eventMap ? (
+        <div className="wf-guide-event-map">
+          <EventWhere {...eventMap} />
+        </div>
+      ) : null}
       {chrome.chooseQuickly && quickChoices.length ? (
         <section className="wf-guide-quick" aria-labelledby="guide-quick-title">
           <h2 id="guide-quick-title">Choose quickly</h2>
