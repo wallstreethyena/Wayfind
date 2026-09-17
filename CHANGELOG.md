@@ -1,3 +1,12 @@
+## v8.56.28: the photo repair cron keeps up with the backlog
+
+The 07:14 UTC `photo-warm` run filled only 14 cards and left 758 unchecked, stopping at its collection deadline. Three causes, three fixes:
+
+- **Parallel collection.** Surface endpoints were fetched one at a time. They now run four at a time behind one shared start-spacing gate (650 ms), which keeps every self-request under `lib/apiGuard.js`'s 120-per-minute window. Results are merged in the rotated job order, so counts are identical to a serial run.
+- **Warm markers.** Only fresh `photo|<ref>|640` rows were settled in bulk, so cards served by same-place recovery, the free licensed lane or place-only discovery were re-probed every run. A short hashed marker (`photowarm|ok|<sha1>`, 12 hours) now records a served card, and `photowarm|miss|<sha1>` (6 hours) records a definitive `no-photo`, `negative-cached` or `owned-miss` answer. Both are batch-read before any probe. Pauses and transient failures are never marked, so those places retry. Markers only skip warm work; they never change what a user sees.
+- **Cadence.** The cron runs at :10, :25, :40 and :55, and the starting surface rotates every quarter hour. The note now reports `known=` (settled blanks).
+- **Test.** `test-photo-warm` (82 assertions) adds cases k, k2 and l, with red-proofs. Every older case runs with stubbed markers so no build can write to a real cache table.
+
 ## v8.56.27: place-only cards find their photo, and partner cards never show a broken image
 
 A full production verification (06:41 to 07:20 UTC) checked 9,984 cards across 19 surfaces: 8,606 real images, 1,366 placeholders and 12 failed images. Two of those groups are closed here.
