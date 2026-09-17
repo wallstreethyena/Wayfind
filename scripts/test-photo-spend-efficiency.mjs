@@ -48,6 +48,7 @@ import { canonicalPhotoWidth } from "../lib/photoCacheRecovery.js";
 import {
   NEGATIVE_CACHEABLE_UPSTREAM,
   photoNegativeKey,
+  placeDiscoveryRef,
   resolvePlacePhoto,
 } from "../lib/placePhotoServe.js";
 import { spendAllowPhotos } from "../lib/spendGate.js";
@@ -503,6 +504,75 @@ const FAKE_DEPS = { breakerOpen: async () => null, tripBreaker: async () => true
   {
     const route = readFileSync(new URL("../app/api/photo/route.js", import.meta.url), "utf8");
     ok(/freshFirst:\s*true/.test(route), "6f: app/api/photo/route.js passes freshFirst: true to the resolver");
+  }
+}
+
+
+/* 7. PLACE-ONLY DISCOVERY: a `?place=` card with no stored photo name asks Google, through the same gate */
+// 2026-09-17: 211 visible place-only cards resolved to "no-photo" without ever asking Google.
+{
+  const PLACE = "ChIJSpendEfficiencyPlaceOnly01";
+  const FRESH = `places/${PLACE}/photos/DISCOVEREDNAME`;
+  const OWNED = "https://lh3.googleusercontent.com/p/place-only-owned";
+  const noInv = { ...FAKE_DEPS, inventoryGet: async () => null };
+  // 7a: probe reports an honest miss that needs work (not "no-photo") and spends nothing
+  {
+    const auth = authorizer({ photos: 99, details_ids_only: 99 });
+    let calls = 0;
+    const r = await resolvePlacePhoto({ place: PLACE, w: 640, serverKey: "k", authorizeSpend: auth, probe: true, discoverPlace: true, freshFirst: true }, { ...noInv, cacheGet: async () => null, cacheSet: async () => {}, fetchImpl: async () => { calls++; throw new Error("probe must not fetch"); } });
+    eq(r.reason, "probe-no-spend", "7a: a place-only card with no stored name is a probe-no-spend miss, not no-photo");
+    eq(calls + auth.asked(), 0, "7a: the probe asks for nothing");
+  }
+  // 7b: real request: free lookup, then ONE media call on the discovered name; cached under the discovery key
+  {
+    const auth = authorizer({ photos: 99, details_ids_only: 99 });
+    const cache = memCache();
+    const stub = googleStub({ details: [{ status: 200, body: { photos: [{ name: FRESH }] } }], healedSkip: [{ status: 200, body: { photoUri: OWNED } }] }, "DISCOVEREDNAME");
+    const deps = { ...noInv, cacheGet: cache.cacheGet, cacheSet: cache.cacheSet, fetchImpl: stub.fn };
+    const r = await resolvePlacePhoto({ place: PLACE, w: 640, serverKey: "k", authorizeSpend: auth, discoverPlace: true, freshFirst: true }, deps);
+    eq(stub.calls.join(","), "details,healedSkip", "7b: one free lookup, then one media call on the discovered name");
+    eq(r.type, "redirect", "7b: served");
+    eq(auth.granted("photos"), 1, "7b: exactly one photos grant");
+    ok([...cache.store.keys()].some((k) => k.includes(placeDiscoveryRef(PLACE))), "7b: the result is cached under the place's discovery key");
+    const again = await resolvePlacePhoto({ place: PLACE, w: 400, serverKey: "k", authorizeSpend: auth, discoverPlace: true, freshFirst: true }, deps);
+    eq(again.reason, "cache", "7b: the next request (any card width) is a free cache hit");
+    eq(stub.calls.length, 2, "7b: and makes no further Google calls");
+  }
+  // 7c: Google has no photo for the place -> no media call, grant refunded, negative-cached
+  {
+    const auth = authorizer({ photos: 99, details_ids_only: 99 });
+    const cache = memCache();
+    const refunds = [];
+    const stub = googleStub({ details: [{ status: 200, body: {} }] });
+    const r = await resolvePlacePhoto({ place: PLACE, w: 640, serverKey: "k", authorizeSpend: auth, discoverPlace: true, freshFirst: true }, { ...noInv, cacheGet: cache.cacheGet, cacheSet: cache.cacheSet, fetchImpl: stub.fn, refund: async (sku, n) => { refunds.push(sku + ":" + n); return true; } });
+    eq(stub.calls.join(","), "details", "7c: no media call when the place has no photo");
+    eq(r.upstream, "fresh-nophoto", "7c: classified fresh-nophoto");
+    ok(refunds.includes("photos:1"), "7c: the unused photos grant is refunded");
+    ok(cache.store.has(photoNegativeKey(placeDiscoveryRef(PLACE))), "7c: negative-cached, so repeat views do not re-ask");
+  }
+  // 7d: the lookup fails -> the pseudo name is NEVER sent to the media endpoint
+  {
+    const auth = authorizer({ photos: 99, details_ids_only: 99 });
+    const refunds = [];
+    const stub = googleStub({ details: [{ status: 503 }] });
+    const r = await resolvePlacePhoto({ place: PLACE, w: 640, serverKey: "k", authorizeSpend: auth, discoverPlace: true, freshFirst: true }, { ...noInv, cacheGet: async () => null, cacheSet: async () => {}, fetchImpl: stub.fn, refund: async (sku, n) => { refunds.push(sku + ":" + n); return true; } });
+    eq(stub.calls.join(","), "details", "7d: a failed lookup never sends the discovery pseudo-name to the media endpoint");
+    eq(r.upstream, "place-lookup-failed", "7d: classified place-lookup-failed (transient, not negative-cached)");
+    ok(refunds.includes("photos:1"), "7d: the unused photos grant is refunded");
+  }
+  // 7e: CONTROL: without the flag the place-only request stays an honest no-photo, and nothing is asked
+  {
+    const auth = authorizer({ photos: 99, details_ids_only: 99 });
+    const r = await resolvePlacePhoto({ place: PLACE, w: 640, serverKey: "k", authorizeSpend: auth }, { ...noInv, cacheGet: async () => null, cacheSet: async () => {}, fetchImpl: async () => { throw new Error("no fetch without the flag"); } });
+    eq(r.reason, "no-photo", "7e: control: no flag keeps no-photo");
+    eq(auth.asked(), 0, "7e: control: no grant asked");
+  }
+  // 7f: the route opts in, and the red-proof: removing the placeOnly stop sends the pseudo-name to Google
+  {
+    const route = readFileSync(new URL("../app/api/photo/route.js", import.meta.url), "utf8");
+    ok(/discoverPlace:\s*true/.test(route), "7f: app/api/photo/route.js passes discoverPlace: true");
+    const src = readFileSync(new URL("../lib/placePhotoServe.js", import.meta.url), "utf8");
+    ok(/if \(opts && opts\.placeOnly\) \{\s*return flush/.test(src), "7f red-proof anchor: the placeOnly stop exists before the stored-name attempt (7d proves by call log that removing it would call the media endpoint with the pseudo-name)");
   }
 }
 
