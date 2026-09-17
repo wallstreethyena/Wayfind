@@ -440,6 +440,27 @@ for (const pauseReason of ["quota-open", "spend-denied", "gate-shut", "unconfigu
   eq(covered.size, 12, "(m) six runs that each read two units cover all twelve");
 }
 
+// ── (n) hotel cards: an owned hotel with no id and no photo counts as unsourceable ─
+{
+  const { hotelCardsForAudit, PHOTO_SURFACES } = await import("../lib/photoSurfaces.js");
+  const hotels = [
+    { id: "wfh-super-8-27424", name: "Super 8", photo: null },
+    { id: "wfh-other-27425", name: "Other Inn", googlePlaceId: "ChIJHotelAuditExact0001", photo: "/api/photo?ref=places%2FChIJHotelAuditExact0001%2Fphotos%2Fx&g=2&w=640" },
+  ];
+  const cards = hotelCardsForAudit(hotels);
+  eq(cards.length, 2, "(n) every hotel card is extracted, photo or not");
+  const surface = { id: "h", perCity: false, components: [], endpoints: [{ path: "/api/hotels", extract: (j) => hotelCardsForAudit(j.hotels) }] };
+  const fetchImpl = async (url) => {
+    if (url.includes("/api/hotels")) return jsonResponse({ hotels });
+    return photoResponse("cache");
+  };
+  const res = await runPhotoWarm({ origin: ORIGIN, fetchImpl, surfaces: [surface], cities: [null], offsetHour: 0, max: 10, cachedServed: async () => new Set() });
+  eq(res.visible, 2, "(n) both hotel cards are visible to the warm run");
+  eq(res.unsourceable, 1, "(n) the id-less hotel is counted as unsourceable, not skipped");
+  eq(res.alreadyServed, 1, "(n) the photographed hotel is served");
+  ok(PHOTO_SURFACES.some((x) => x.id === "hotel-stays" && x.endpoints.some((e) => e.path === "/api/hotels") && x.endpoints.some((e) => e.path === "/api/trip-connections")), "(n) the hotel surface is registered for crawl and warm");
+}
+
 // ── (l) collection runs endpoints in parallel, results stay deterministic ─
 {
   let inFlight = 0, peak = 0;
