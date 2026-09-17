@@ -1,3 +1,11 @@
+## v8.56.26: the photo surface registry counts place cards, not section headers
+
+The first live `photo-warm` run reported 379 unsourceable cards, and a full extraction of every registered surface found 1,590 of 11,675 "cards" with no photo field. None were blank place cards:
+
+- **Section headers.** Rail section headers (`{id:"upscale", name:"Upscale Birthday Dinner", places:[...]}`) were counted as places. `looksLikePlace` now requires a name plus either a real Google place id or a card photo field.
+- **Escaped URLs.** React Server Components payloads carry card URLs JSON-escaped (`\u0026w=640`), and the HTML scan captured that tail into the place id, which accounts for the 35 false cards on `/florida-events`. The scan now stops at a backslash.
+- **Test.** `check-photo-surface-registry` covers both, with red-proofs that re-run the old heuristics.
+
 ## v8.56.25: resized vault photos keep their shape
 
 The vault resizer (v8.56.23) called Supabase Storage image transformation with only a width. That endpoint defaults to `cover`, which keeps the original height and returns a centre crop. Measured live: a 5,184×3,456 vault copy came back 640×3,456, and EPCOT's 1,280×853 came back 640×853.
