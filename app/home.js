@@ -10307,7 +10307,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                 these posters off the rail's first-paint path entirely: each
                 renders null until its own event pool resolves, so neither can
                 delay the rail. */}
-            <div className="wf-fullbleed" style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "0 16px 12px", overflowX: "auto", overscrollBehaviorX: "contain" }}>
+            <div className="wf-fullbleed" style={{ flex: "0 0 auto", display: "flex", alignItems: "flex-start", gap: 10, padding: "0 16px 12px", overflowX: "auto", overscrollBehaviorX: "contain" }}>
               {/* Definite width, NOT flex:1 1 0. Verified on production: with a
                   flex-basis of 0 the slot never gets a definite width, so the
                   poster's aspect-ratio cannot resolve to a height, the flex
