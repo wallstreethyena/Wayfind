@@ -1,3 +1,9 @@
+## v8.56.33: hotel cards join the photo audit and the repair cron
+
+`lib/photoSurfaces.js` registers a crawlable `hotel-stays` surface covering Stay Tonight (`/api/hotels`) and Stay Near the Action (`/api/trip-connections?mode=stays`). The new `hotelCardsForAudit()` counts every hotel card, including owned hotels with no Google place id and no photo, which show the branded fallback by design and are now reported as unsourceable instead of silently skipped. `photo-warm` uses the same card key.
+
+- **Test.** `test-photo-warm` case n (90 assertions in total).
+
 ## v8.56.32: the photo repair cron reaches every surface
 
 The 09:27 and 09:42 UTC `photo-warm` runs saw about 620 cards, all already served, while the 09:30 crawl still found 389 blank places, mostly on Date Night (268 cards) and Today Discovery (336 cards). A run reads roughly a quarter of the 360 work units before its collection budget ends, and the starting unit moved by only one per run, so every run re-read the same head of the list. Each run now starts a sixth of the list further on, so the whole list is covered about every six runs (90 minutes).
