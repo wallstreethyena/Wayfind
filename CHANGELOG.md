@@ -1,3 +1,11 @@
+## v8.56.24: photo-warm's cache check actually reads the cache
+
+The first production run of `/api/cron/photo-warm` (05:13 UTC) paused correctly on the open daily quota breaker. But it reported 2,033 of 2,107 visible places as empty when most were served. Each Google photo name is about 700 characters, and the batched cache check sent 150 of them in one PostgREST `in.(...)` URL (over 100 KB). Every read was refused, and the check silently settled nothing.
+
+- **URL-sized batches.** `chunkKeysForUrl` now sizes batches by encoded URL length (6,000 characters) instead of key count, and runs 6 reads in parallel.
+- **Honest pulse note.** The note now reports `served`, `filled`, `free`, `empty` (attempted and still empty, plus unsourceable) and `unchecked` (not reached before a pause or the time budget), so a paused run no longer reads as thousands of empty cards.
+- **Test.** `test-photo-warm.mjs` case (j) runs the real default path (`lib/serverCache.js` cgetMany) against a trapped PostgREST with real-length names. It has a red-proof: the unbounded budget that shipped fails it.
+
 ## v8.56.23: Oversized Commons originals no longer hotlink to phones, and 23 wrong place photo matches are corrected
 
 Two separate audits of the free permanent photo lane, both closed in one release.

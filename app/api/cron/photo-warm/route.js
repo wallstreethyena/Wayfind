@@ -88,7 +88,7 @@ export async function GET(req) {
     : result.stopReason
       ? `ok (${result.stopReason})`
       : "ok";
-  const note = `warm: visible=${result.visible} empty=${result.empty} filled=${result.filled} free=${result.free} ${statusBit}`.slice(0, 200);
+  const note = `warm: visible=${result.visible} served=${result.alreadyServed} filled=${result.filled} free=${result.free} empty=${result.empty} unchecked=${result.unchecked} ${statusBit}`.slice(0, 200);
 
   await recordPulse("photo-warm", {
     attempted: result.attempted,
