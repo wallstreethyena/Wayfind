@@ -273,6 +273,33 @@ for (const pauseReason of ["quota-open", "spend-denied", "gate-shut", "unconfigu
     "sanity: PAUSE_REASONS matches the documented pause contract exactly");
 }
 
+// (i) BATCHED PRE-CHECK: a place whose canonical cache row is fresh costs zero HTTP photo requests.
+{
+  const REF_A = "places/ChIJWarmBatchAAAAAA/photos/AAA";
+  const REF_B = "places/ChIJWarmBatchBBBBBB/photos/BBB";
+  const surface = { id: "t-batch", perCity: false, components: [], endpoints: [{ path: "/api/t-batch", extract: () => [
+    { placeId: "ChIJWarmBatchAAAAAA", photoRef: REF_A }, { placeId: "ChIJWarmBatchBBBBBB", photoRef: REF_B },
+    { placeId: "ChIJWarmBatchDirect", photo: "https://cdn.example/owned.jpg" },
+  ] }] };
+  const photoCalls = [];
+  const fetchImpl = async (url, opts = {}) => {
+    const u = String(url);
+    if (u.includes("/api/t-batch")) return { ok: true, status: 200, text: async () => "{}", headers: { get: () => null } };
+    photoCalls.push({ u, probe: !!(opts.headers && opts.headers["x-wayfind-photo-probe"]) });
+    return { ok: false, status: 404, headers: { get: (k) => (k === "x-wayfind-photo-result" ? (opts.headers && opts.headers["x-wayfind-photo-probe"] ? "probe-no-spend" : "google") : null) } };
+  };
+  const res = await runPhotoWarm({ origin: "https://site.test", surfaces: [surface], cities: [], fetchImpl, cachedServed: async (refs) => new Set(refs.filter((r) => r === REF_A)), max: 10 });
+  eq(photoCalls.filter((c) => c.u.includes("ChIJWarmBatchAAAAAA")).length, 0, "(i) a cached place is settled by the batch read with ZERO photo requests");
+  eq(photoCalls.filter((c) => c.u.includes("ChIJWarmBatchBBBBBB")).length, 2, "(i) an uncached place gets one probe and one real request");
+  eq(photoCalls.filter((c) => c.u.includes("cdn.example")).length, 0, "(i) a card with a direct owned URL is never requested");
+  eq(res.alreadyServed, 2, "(i) cached + direct-owned both count as already served");
+  eq(res.filled, 1, "(i) the one true miss is filled");
+  // red-proof: a cachedServed that settles nothing forces a request for the cached place
+  photoCalls.length = 0;
+  await runPhotoWarm({ origin: "https://site.test", surfaces: [surface], cities: [], fetchImpl, cachedServed: async () => new Set(), max: 10 });
+  ok(photoCalls.some((c) => c.u.includes("ChIJWarmBatchAAAAAA")), "(i) red-proof: without the batch read the cached place IS requested, so the zero above is load-bearing");
+}
+
 if (fail.length) {
   console.error(`test-photo-warm: ${pass} passed, ${fail.length} FAILED`);
   for (const f of fail) console.error("  ✗ " + f);

@@ -61,7 +61,10 @@ export async function GET(req) {
   }
 
   const startedAt = Date.now();
-  const origin = new URL(req.url).origin;
+  // The canonical public site, not the per-deployment URL the cron request
+  // arrives on (a *.vercel.app deployment host can sit behind deployment
+  // protection). Override with PHOTO_WARM_ORIGIN for a staging project.
+  const origin = (process.env.PHOTO_WARM_ORIGIN || "https://www.gowayfind.com").replace(/\/+$/, "");
   const max = Math.max(1, Math.min(2000, Number(process.env.PHOTO_WARM_MAX) || DEFAULT_PHOTO_WARM_MAX));
 
   let result;
@@ -73,6 +76,7 @@ export async function GET(req) {
       offsetHour: new Date().getUTCHours(), // one-clock-ok: a round-robin rotation index over which surface/city starts a run, not a daypart bucketing
       endpointHeaders: sameOriginHeaders(origin),
       workBudgetMs: WORK_BUDGET_MS,
+      paceMs: 650, // under lib/apiGuard.js 120 req/min per IP, with headroom
     });
   } catch (e) {
     return jobFailed("photo-warm", "worker threw: " + (e && e.message ? e.message : String(e)));
