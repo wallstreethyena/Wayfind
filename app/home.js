@@ -10307,7 +10307,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                 these posters off the rail's first-paint path entirely: each
                 renders null until its own event pool resolves, so neither can
                 delay the rail. */}
-            <div className="wf-fullbleed" style={{ display: "flex", gap: 10, padding: "0 16px 12px", overflowX: "auto" }}>
+            <div className="wf-fullbleed" style={{ display: "flex", gap: 10, padding: "0 16px 12px", overflowX: "auto", overscrollBehaviorX: "contain" }}>
               <div style={{ flex: "1 1 0", minWidth: 150, maxWidth: 220 }}>
                 <LiveEventPoster type="sports" center={center} city={locName} />
               </div>
