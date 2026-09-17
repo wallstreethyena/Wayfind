@@ -1,3 +1,14 @@
+## v8.56.22 - Red Bull Dance Your Style Tampa weekend guide, with the event map inside the article
+
+Owner request, 2026-09-16: a blog guide for the Red Bull Dance Your Style USA National Final in Tampa (Sat Sept 19, Tampa Convention Center) on the new guide standard, with Unsplash photography, SEO for a trending search, the event map with nearby recommendations like the events page, and place card rails around the venues.
+
+- **New dated guide** `/guides/red-bull-dance-your-style-tampa-2026` (`lib/guidesRedBullTampa2026.js`): facts box, six sections (Saturday final, Friday Battle Day at The RITZ Ybor, the crowd vote format, the Top 16, Florida's stake, eat and drink), FAQ, and a sources list. Every fact was checked 2026-09-16 against the City of Tampa, both Eventbrite listings, The RITZ Ybor, Creative Loafing Tampa, Visit Tampa Bay and Red Bull. Keep the URL permanently; expire promotion after the event.
+- **Event map inside a guide.** A guide can now name a curated event (`eventMap: <wf_events slug>`); the article renders the same shared `<EventWhere>` block `/florida-events/[slug]` uses (Apple map, route, numbered nearby picks) from the same `fetchCuratedEventBySlug` row and `cachedEventPairings`. A failed read or missing row renders no map and logs `[guide-event-map]`; the article never fails. Only this guide opts in.
+- **Place rail** `red-bull-dance-your-style-tampa-2026` in `lib/guidePlaceRails.js`: five exact place IDs near the Convention Center and four in Ybor City, through the existing exact-ID, operational, photo-gated resolver.
+- **Hero photo**: `public/guides/unsplash/dance-battle-ilja-tulit.webp` (Ilja Tulit, Unsplash License, free download, 1600x1068), labeled illustrative; recorded in `lib/guideHero.js` and `public/guides/CREDITS.md`.
+- Related links, three quick choices, guide counts 43 to 44, and the regenerated SEO audit.
+- The two nights already exist as curated `wf_events` rows published 2026-09-16 (`red-bull-dys-national-final-usa-2026`, `red-bull-dys-battle-day-tampa-2026`).
+
 ## v8.56.21 - Ask Google for the current photo name first, then pay once
 
 The first five visible empty cards filled after v8.56.20 shipped all carried expired stored photo names. Each one paid a billed dead-name media call, then a Place Details lookup, then the real media call: two billed Place Details Photos events per picture (ledger +10 for 5 photos). With about 2,959 visible cards still empty, that would have doubled the repair cost and overrun the monthly cap.
