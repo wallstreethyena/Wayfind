@@ -1,3 +1,16 @@
+## v8.56.27: place-only cards find their photo, and partner cards never show a broken image
+
+A full production verification (06:41 to 07:20 UTC) checked 9,984 cards across 19 surfaces: 8,606 real images, 1,366 placeholders and 12 failed images. Two of those groups are closed here.
+
+- **Place-only discovery.** 211 unique places were served as `/api/photo?place=<id>` with no stored photo name (most are not in `wf_inventory`), and every one resolved to `no-photo` without asking Google. `/api/photo` now passes `discoverPlace: true`. Such a request takes the ordinary gated path under a fixed discovery key (`places/<id>/photos/wfplacediscovery`): cache, probe, breaker, negative cache, one ledger grant, the free IDs-only lookup, then one media call on the name Google returns.
+  - If the place has no photo, no media call runs, the grant is refunded and the key is negative-cached.
+  - If the lookup fails, the discovery key is never sent to the media endpoint.
+  - Test: `test-photo-spend-efficiency` case 7 (104 assertions). It fails when the stop is removed.
+- **Broken partner images.**
+  - **Blocked host.** `assets.usghostadventures.com` answers a gowayfind.com Referer with 403, so the Tampa Ghost Tour card rendered a broken image on 12 menu surfaces, and so would the St. Augustine and Key West ghost tour picks. The host is listed in the new client-safe `lib/imageHostPolicy.js`. The three menu offers move to `DELIBERATELY_UNPLACED`, and the intent pick accessors skip refused-host picks while keeping the data for when a licensed creative arrives. The referer is never stripped to get around the partner's hotlink protection.
+  - **Oversized renditions.** Eight Commons renditions served to partner cards were 3,840 px wide and are now 1,280 px.
+  - **Test.** `check-photo-surface-registry` covers both, with controls and red-proofs.
+
 ## v8.56.26: the photo surface registry counts place cards, not section headers
 
 The first live `photo-warm` run reported 379 unsourceable cards, and a full extraction of every registered surface found 1,590 of 11,675 "cards" with no photo field. None were blank place cards:

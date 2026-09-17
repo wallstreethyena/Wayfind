@@ -24,6 +24,9 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { PHOTO_SURFACES, extractPlaces, extractPlacesFromHtml, photoRequestFor } from "../lib/photoSurfaces.js";
+import { MENU_PARTNER_OFFERS, HOTLINK_REFUSED_IMAGE_HOSTS } from "../lib/menuPartnerOffers.js";
+import { INTENT_PARTNER_PICKS, INTENT_PARTNER_RAILS, intentPartnerPicks, intentPartnerPick } from "../lib/intentPartnerPicks.js";
+import { isHotlinkRefusedImage } from "../lib/imageHostPolicy.js";
 
 const REPO = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const APP_DIR = path.join(REPO, "app");
@@ -170,6 +173,30 @@ for (const rel of Object.keys(EXEMPT)) {
   const OLD_RX = /\/api\/photo\?(?:[^"'&\s]*&)*(ref|place)=([^"'&\s)]+)/g;
   const oldIds = [...html.matchAll(OLD_RX)].map((m) => m[2]);
   ok(oldIds.some((v) => v.includes("\\u0026")), "red-proof: the old regex DID capture the escaped tail, so the regex fix is load-bearing");
+}
+
+// ── NO BROKEN PARTNER IMAGES (2026-09-17) ─────────────────────────────────
+{
+  const refused = new Set(HOTLINK_REFUSED_IMAGE_HOSTS);
+  const bad = MENU_PARTNER_OFFERS.filter((o) => { try { return refused.has(new URL(o.image).hostname); } catch { return false; } });
+  ok(bad.length === 0, `partner offers: no placed offer uses an image host that refuses a gowayfind.com referer (found ${bad.map((o) => o.offerId).join(", ")})`);
+  const heavy = MENU_PARTNER_OFFERS.filter((o) => /\/(\d{4,})px-/.test(String(o.image)) && Number(String(o.image).match(/\/(\d{4,})px-/)[1]) > 1600);
+  ok(heavy.length === 0, `partner offers: no Commons rendition wider than 1600px is served to a card (found ${heavy.map((o) => o.offerId).join(", ")})`);
+  ok(!refused.has("upload.wikimedia.org") && refused.size > 0, "partner offers: the refused-host list is non-empty and never names a host cards legitimately use (control)");
+  // Intent picks: the ACCESSORS never hand a card a refused-host image, while the data keeps them.
+  const cityOf = { "st-augustine": "St. Augustine", "key-west": "Key West", tampa: "Tampa", orlando: "Orlando", clearwater: "Clearwater" };
+  let served = 0, refusedInData = 0;
+  for (const [cityKey, byIntent] of Object.entries({ ...INTENT_PARTNER_PICKS, ...INTENT_PARTNER_RAILS })) {
+    for (const intent of Object.keys(byIntent || {})) {
+      const city = cityOf[cityKey] || cityKey.replace(/-/g, " ");
+      for (const p of intentPartnerPicks(city, intent)) { served++; ok(!isHotlinkRefusedImage(p.image), `intent picks: ${cityKey}/${intent} never serves a refused-host image (${p.offerId})`); }
+      const one = intentPartnerPick(city, intent);
+      ok(!one || !isHotlinkRefusedImage(one.image), `intent pick: ${cityKey}/${intent} featured pick never has a refused-host image`);
+    }
+  }
+  for (const byIntent of Object.values(INTENT_PARTNER_PICKS)) for (const p of Object.values(byIntent || {})) if (p && isHotlinkRefusedImage(p.image)) refusedInData++;
+  ok(served > 10, `intent picks: the accessors still serve the rest of the catalogue (control, served ${served})`);
+  ok(refusedInData > 0, "intent picks red-proof: the raw data DOES contain refused-host images, so the accessor filter is what keeps them off cards");
 }
 
 if (failures.length) {

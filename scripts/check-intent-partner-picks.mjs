@@ -6,7 +6,7 @@
 import { readFileSync } from "node:fs";
 import { isAwinLive } from "../lib/awin.js";
 import { DESTS } from "../lib/experiencesData.js";
-import { allIntentPartnerPicks, canReadOwnedExperienceCache, INTENT_PARTNER_PICKS, intentPartnerPick, intentPartnerPicks, inventoryPartnerPick, localPartnerQuery, mergePartnerInventory, normalizePartnerCity, OWNED_EXPERIENCE_DEST_IDS, PARTNER_INVENTORY_CANDIDATE_COUNT, PARTNER_RAIL_RENDER_LIMIT, partnerInventoryFetchPlan, partnerInventoryRequest, partnerRailInventory, qualifyPartnerInventory, resolvedIntentPartnerPick, resolvedIntentPartnerPicks } from "../lib/intentPartnerPicks.js";
+import { allIntentPartnerPicks, canReadOwnedExperienceCache, INTENT_PARTNER_PICKS, INTENT_PARTNER_RAILS, intentPartnerPick, intentPartnerPicks, inventoryPartnerPick, localPartnerQuery, mergePartnerInventory, normalizePartnerCity, OWNED_EXPERIENCE_DEST_IDS, PARTNER_INVENTORY_CANDIDATE_COUNT, PARTNER_RAIL_RENDER_LIMIT, partnerInventoryFetchPlan, partnerInventoryRequest, partnerRailInventory, qualifyPartnerInventory, resolvedIntentPartnerPick, resolvedIntentPartnerPicks } from "../lib/intentPartnerPicks.js";
 import { PARTNER_OFFER_REGISTRY } from "../lib/partnerOfferRegistry.js";
 import { PLACE_PARTNER_PICKS, RETIRED_VIATOR_PINS, pinServeability, placePartnerPick } from "../lib/placePartnerPicks.js";
 import { PARTNER_DEAL_COUPONS } from "../lib/partnerDeals.js";
@@ -137,8 +137,14 @@ ok(intentPartnerPicks("Orlando", "budget").some((row) => row.offerId === "orland
   "Orlando budget rail adds the cheaper Go City Essentials pass");
 ok(intentPartnerPick("Tampa", "tonight")?.offerId === "tampa-tonight-sunset-cruise",
   "Tampa featured tonight pick stays the sunset cruise");
-ok(intentPartnerPicks("Tampa", "tonight").some((row) => row.offerId === "tampa-ghost-usghostadventures"),
-  "Tampa tonight rail adds Ghost as an extra pick");
+// 2026-09-17: the US Ghost Adventures creatives live on a host that refuses a
+// gowayfind.com Referer (403, lib/imageHostPolicy.js), so these picks rendered
+// broken images. They stay in the catalogue but are not served until a
+// licensed creative replaces the image.
+ok(!intentPartnerPicks("Tampa", "tonight").some((row) => row.offerId === "tampa-ghost-usghostadventures"),
+  "Tampa tonight rail does not serve the ghost tour while its image host refuses Wayfind pages");
+ok(INTENT_PARTNER_RAILS.tampa.tonight.some((row) => row.offerId === "tampa-ghost-usghostadventures"),
+  "Tampa tonight rail still carries the ghost tour in its catalogue data");
 ok(intentPartnerPick("Tampa", "worth-the-drive")?.offerId === "tampa-drive-clearwater-aquarium",
   "Tampa featured worth-the-drive stays Clearwater Marine Aquarium");
 ok(intentPartnerPicks("Tampa", "worth-the-drive").some((row) => row.offerId === "tampa-airport-rentcars"),
@@ -147,10 +153,10 @@ ok(intentPartnerPick("Sarasota", "worth-the-drive")?.offerId === "sarasota-drive
   "Sarasota featured worth-the-drive stays the Dalí");
 ok(intentPartnerPicks("Sarasota", "worth-the-drive").some((row) => row.offerId === "sarasota-airport-rentcars"),
   "Sarasota worth-the-drive rail adds airport car rental at SRQ");
-ok(intentPartnerPick("St. Augustine", "tonight")?.offerId === "staug-ghost-usghostadventures",
-  "St. Augustine tonight features the verified ghost tour");
-ok(intentPartnerPick("Key West", "tonight")?.offerId === "keywest-ghost-usghostadventures",
-  "Key West tonight features the verified ghost tour");
+ok(intentPartnerPick("St. Augustine", "tonight") === null && INTENT_PARTNER_PICKS["st-augustine"].tonight.offerId === "staug-ghost-usghostadventures",
+  "St. Augustine tonight keeps the verified ghost tour in data but does not serve its refused-host image");
+ok(intentPartnerPick("Key West", "tonight") === null && INTENT_PARTNER_PICKS["key-west"].tonight.offerId === "keywest-ghost-usghostadventures",
+  "Key West tonight keeps the verified ghost tour in data but does not serve its refused-host image");
 ok(intentPartnerPick("Key West", "worth-the-drive")?.offerId === "keywest-boat-samboat",
   "Key West worth-the-drive places the unused SamBoat registry row");
 ok(intentPartnerPick("Miami", "worth-the-drive")?.offerId === "miami-boat-samboat",
