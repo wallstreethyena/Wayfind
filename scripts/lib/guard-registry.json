@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 668,
-    "totalRegistryEntries": 669,
-    "guardsTxtLineCount": 667,
-    "guardsTxtReachedFileCount": 662,
-    "criticalCount": 82,
+    "totalOnDiskGuardFiles": 669,
+    "totalRegistryEntries": 670,
+    "guardsTxtLineCount": 668,
+    "guardsTxtReachedFileCount": 663,
+    "criticalCount": 83,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 456,
+      "CALL": 457,
       "RENDER": 73,
       "STRUCTURAL": 139,
       "OTHER": 1
@@ -3012,6 +3012,33 @@
         "detail": "Top-20 finding #14: regex-only, undeclared — a wrong-city badge is a visible, owner-embarrassing trust defect on exactly the surfaces meant to showcase curation quality."
       },
       "owner": "Qwen (Engineering)"
+    },
+    {
+      "file": "scripts/check-go-florida-landing.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 56,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-import:../lib/commerce.js,../lib/affiliates.js"
+      ],
+      "protects": "The /go/florida paid Google Ads landing page: every commerce link (theme park tickets, nature/outdoors offers, TicketNetwork shows, curated Viator search intents, Halloween event ticket CTAs) is a real call through commerceHref/experienceGoUrl/eventTicketCta carrying surface=paid_florida and resolving to this site's own /api/*/go path, every rendered offer is Florida-market-only (no Gurnee/Chicago/New York row can leak in), every rendered guide slug is a real, live GUIDES entry, and the page stays noindex with visible copy that carries no dash and no raw partner domain.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "This route exists to spend Google Ads budget against. A wrong surface tag on a commerce link makes that spend unattributable in PostHog (the exact class of gap CLAUDE.md's 2026-08-25 revenue audit rule 4 describes); a non-Florida offer or a dash/partner-domain leak in visible copy is a Google Ads policy risk on a live campaign, not a cosmetic bug."
+      },
+      "owner": "Revenue QA"
     },
     {
       "file": "scripts/check-guard-hermeticity.mjs",

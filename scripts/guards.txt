@@ -1635,3 +1635,9 @@ node scripts/test-photo-warm.mjs
 node scripts/test-event-poster.mjs
 node scripts/check-live-event-poster-laws.mjs
 node scripts/test-live-event-posters-location.mjs
+
+# /go/florida (paid Florida Google Ads landing): noindex, no dash in visible
+# copy, no raw partner domain in source, every commerce link carries
+# surface=paid_florida, Florida-market-only offers, "florida" reserved in
+# lib/goShortlinks.js. See the script header for the full assertion list.
+node scripts/check-go-florida-landing.mjs
