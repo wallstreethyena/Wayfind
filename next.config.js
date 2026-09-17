@@ -55,7 +55,7 @@ const CSP_REPORT_ONLY = [
   // img-src. Removing the directive shrinks the CSP surface with zero
   // behavior change; lh3.googleusercontent.com and *.ggpht.com (the actual
   // photo-serving hosts) are untouched.
-  "img-src 'self' data: blob: https://vercel.live https://vercel.com https://*.gstatic.com https://lh3.googleusercontent.com https://*.ggpht.com https://s1.ticketm.net https://*.ticketm.net https://cache-graphicslib.viator.com https://media.tacdn.com https://media-cdn.tripadvisor.com https://tiles.openfreemap.org https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://www.google.com https://googleads.g.doubleclick.net https://cdn.apple-mapkit.com https://*.apple-mapkit.com",
+  "img-src 'self' data: blob: https://vercel.live https://vercel.com https://*.gstatic.com https://upload.wikimedia.org https://*.supabase.co https://lh3.googleusercontent.com https://*.ggpht.com https://s1.ticketm.net https://*.ticketm.net https://cache-graphicslib.viator.com https://media.tacdn.com https://media-cdn.tripadvisor.com https://tiles.openfreemap.org https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://www.google.com https://googleads.g.doubleclick.net https://cdn.apple-mapkit.com https://*.apple-mapkit.com",
   // Sentry error beacons go to the project's ingest host (errors-only, no tunnel).
   // GA4 beacons to google-analytics.com and a region1.* shard; Ads conversions
   // beacon to google.com/pagead + googleads.g.doubleclick.net.

@@ -105,7 +105,16 @@ function makeFetch({ existingRow = null, download = imageResponse(), rowReadOk =
       calls.push({ kind: "upload", url: u, headers: init.headers, bodyLength: init.body ? init.body.length : 0 });
       return uploadOk ? jsonResponse(200, { Key: u }) : jsonResponse(500, {});
     }
-    if (u === SOURCE_URL || u === GOOGLE_HOSTED_URL) {
+    // 2026-09-17 (oversized-rendition feature): storePhotoPermanently may
+    // now retry a too_large/timed-out ORIGINAL download once against its own
+    // Commons /thumb/ rendition URL (see lib/photoVault.js's
+    // commonsRenditionUrl), or prefer that rendition up front when no width
+    // is given. Every scenario in THIS file uses the same `download` fixture
+    // for whichever of those URLs the code actually calls — the rendition-
+    // specific behaviour itself (which URL is called, and when) is
+    // scripts/test-photo-vault-rendition.mjs's job.
+    const isCommonsRendition = /^https:\/\/upload\.wikimedia\.org\/wikipedia\/commons\/thumb\//.test(u);
+    if (u === SOURCE_URL || u === GOOGLE_HOSTED_URL || isCommonsRendition) {
       calls.push({ kind: "download", url: u, headers: init.headers });
       return download;
     }
@@ -215,8 +224,13 @@ async function run() {
   {
     const existingRow = { place_id: PLACE_ID, storage_path: null, bytes: null, content_type: null };
     const { fetchImpl, calls, patchBodies, kindCalls } = makeFetch({ existingRow });
+    // width:1024 (2026-09-17, oversized-rendition feature) — a known width
+    // under the 1600px rendition threshold, so this generic happy-path test
+    // stays on the ORIGINAL-download path it always exercised. The
+    // rendition-preference behaviour itself is scripts/test-photo-vault-
+    // rendition.mjs's job, not this file's.
     const r = await storePhotoPermanently(
-      { placeId: PLACE_ID, sourceUrl: SOURCE_URL, source: "wikimedia", license: "cc-by-sa-4.0" },
+      { placeId: PLACE_ID, sourceUrl: SOURCE_URL, source: "wikimedia", license: "cc-by-sa-4.0", width: 1024 },
       { fetch: fetchImpl, env: ENV }
     );
 
@@ -266,7 +280,7 @@ async function run() {
       existingRow: { place_id: PLACE_ID, storage_path: null, bytes: null, content_type: null },
       download: imageResponse({ contentType: "text/html" }),
     });
-    const r = await storePhotoPermanently({ placeId: PLACE_ID, sourceUrl: SOURCE_URL, source: "wikimedia", license: "cc0" }, { fetch: fetchImpl, env: ENV });
+    const r = await storePhotoPermanently({ placeId: PLACE_ID, sourceUrl: SOURCE_URL, source: "wikimedia", license: "cc0", width: 1024 }, { fetch: fetchImpl, env: ENV });
     eq(r, { stored: false, reason: "not_an_image" }, "E1: a non-image content-type is refused");
     eq(kindCalls("upload").length, 0, "E1: …never uploaded");
   }
@@ -277,7 +291,12 @@ async function run() {
       existingRow: { place_id: PLACE_ID, storage_path: null, bytes: null, content_type: null },
       download: imageResponse({ contentType: "image/jpeg", bodyText: oversized }),
     });
-    const r = await storePhotoPermanently({ placeId: PLACE_ID, sourceUrl: SOURCE_URL, source: "wikimedia", license: "cc0" }, { fetch: fetchImpl, env: ENV });
+    // width:1024 keeps this a control on MAX_BYTES ALONE (never uploaded,
+    // regardless of source shape) — the "falls back to the 1280 rendition on
+    // a too_large ORIGINAL" behaviour has its own dedicated coverage in
+    // scripts/test-photo-vault-rendition.mjs, including a control where the
+    // rendition itself is also oversized and the store is still refused.
+    const r = await storePhotoPermanently({ placeId: PLACE_ID, sourceUrl: SOURCE_URL, source: "wikimedia", license: "cc0", width: 1024 }, { fetch: fetchImpl, env: ENV });
     eq(r, { stored: false, reason: "too_large" }, `E2: a body over MAX_BYTES (${MAX_BYTES}) is refused`);
     eq(kindCalls("upload").length, 0, "E2: …never uploaded");
   }

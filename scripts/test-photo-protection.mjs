@@ -251,6 +251,15 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
     // either file turns this case red.
     "lib/placePhotoBackfill.js",
     "lib/commonsPhotos.js",
+    // 2026-09-17: the photo-coverage crawl + the self-healing warm cron both
+    // touch every place-photo surface in lib/photoSurfaces.js and both must
+    // stay exactly as spend-free as the monitor/repair lane above — neither
+    // decides whether a photo may be bought, they only ask THIS SITE'S OWN
+    // gated /api/photo route the way a real card already does.
+    "scripts/photo-coverage-crawl.mjs",
+    "lib/photoWarm.js",
+    "app/api/cron/photo-warm/route.js",
+    "lib/photoSurfaces.js",
   ]) {
     const raw = readFileSync(new URL("../" + rel, import.meta.url), "utf8");
     ok(!NO_SPEND_RX.test(stripComments(raw)), `case 5: ${rel} must never import lib/spendGate.js or contain the literal string "places.googleapis.com" outside a comment — this is a structural check, not proof the file cannot spend, but a match here is an immediate, certain fail`);
