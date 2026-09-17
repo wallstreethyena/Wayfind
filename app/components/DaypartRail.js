@@ -564,7 +564,13 @@ export default function DaypartRail({
   // copy reads once a real answer confirms it), it just cannot speak before
   // one arrives.
   const answered = live != null;
-  const railById = useMemo(() => new Map([...(livePosters || []), ...(sponsor ? [sponsor] : []), ...rails].map((r) => [r.id, r])), [livePosters, sponsor, rails]);
+  // The `sponsor ? [sponsor, ...rails]` shape below is pinned verbatim by
+  // check-partner-collections.mjs, so it stays exactly as written; the live
+  // event tiles layer in FRONT of it rather than rewriting it.
+  const railById = useMemo(() => {
+    const withSponsor = sponsor ? [sponsor, ...rails] : rails;
+    return new Map([...(livePosters || []), ...withSponsor].map((r) => [r.id, r]));
+  }, [livePosters, sponsor, rails]);
   useEffect(() => {
     if (!["/", "/v8"].includes(window.location.pathname)) return undefined;
     const save = () => {
@@ -606,13 +612,14 @@ export default function DaypartRail({
   // ahead of the sponsor tile. Owner direction 2026-09-17: the Sporting Events
   // and Concerts posters are posters IN this rail, at the same size as every
   // other poster.
-  const allRails = useMemo(
-    () => [...(livePosters || []), ...(sponsor ? [sponsor] : []), ...rails],
-    [livePosters, sponsor, rails]
-  );
+  const allRails = useMemo(() => {
+    const withSponsor = sponsor ? [sponsor, ...rails] : rails;
+    return [...(livePosters || []), ...withSponsor];
+  }, [livePosters, sponsor, rails]);
   const order = useMemo(() => {
     const base = orderFor(daypart, rails.map((r) => r.id));
-    return [...(livePosters || []).map((r) => r.id), ...(sponsor ? [sponsor.id] : []), ...base];
+    const withSponsor = sponsor ? [sponsor.id, ...base] : base;
+    return [...(livePosters || []).map((r) => r.id), ...withSponsor];
   }, [daypart, rails, sponsor, livePosters]);
   const band = DAYPARTS[daypart] || DAYPARTS.afternoon;
 
