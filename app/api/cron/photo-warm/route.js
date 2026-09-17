@@ -45,6 +45,7 @@ const WORK_BUDGET_MS = 270_000;
 import { runPhotoWarm, DEFAULT_PHOTO_WARM_MAX } from "../../../../lib/photoWarm";
 import { sameOriginHeaders } from "../../../../lib/photoSurfaces";
 import { recordPulse } from "../../../../lib/jobPulse";
+import { SITE_URL } from "../../../../lib/site";
 import { jobFailed } from "../../../../lib/jobFail";
 
 export async function GET(req) {
@@ -63,8 +64,8 @@ export async function GET(req) {
   const startedAt = Date.now();
   // The canonical public site, not the per-deployment URL the cron request
   // arrives on (a *.vercel.app deployment host can sit behind deployment
-  // protection). Override with PHOTO_WARM_ORIGIN for a staging project.
-  const origin = (process.env.PHOTO_WARM_ORIGIN || "https://www.gowayfind.com").replace(/\/+$/, "");
+  // protection). SITE_URL is lib/site.js's one canonical site constant.
+  const origin = SITE_URL;
   const max = Math.max(1, Math.min(2000, Number(process.env.PHOTO_WARM_MAX) || DEFAULT_PHOTO_WARM_MAX));
 
   let result;
