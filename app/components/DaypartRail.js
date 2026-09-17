@@ -405,6 +405,10 @@ export default function DaypartRail({
   // `sponsor` is the synthetic rail object itself (already geo-gated by home.js,
   // or null); `onOpenPartner` is the callback its tile fires.
   sponsor = null,
+  // Synthetic live-event poster tiles (Sporting Events, Concerts), already
+  // built and image-fitted by the caller, or an empty array. See
+  // app/components/useLivePosterTiles.js.
+  livePosters = [],
   onOpenPartner = null,
   // v8.23 — SHARE. The tile hands an intent up rather than opening a sheet
   // itself, because app/home.js already owns the hard part: on iOS a clipboard
@@ -560,7 +564,7 @@ export default function DaypartRail({
   // copy reads once a real answer confirms it), it just cannot speak before
   // one arrives.
   const answered = live != null;
-  const railById = useMemo(() => new Map((sponsor ? [sponsor, ...rails] : rails).map((r) => [r.id, r])), [sponsor, rails]);
+  const railById = useMemo(() => new Map([...(livePosters || []), ...(sponsor ? [sponsor] : []), ...rails].map((r) => [r.id, r])), [livePosters, sponsor, rails]);
   useEffect(() => {
     if (!["/", "/v8"].includes(window.location.pathname)) return undefined;
     const save = () => {
@@ -596,11 +600,20 @@ export default function DaypartRail({
   // reader's location, or null. It is NOT added to lib/rails.js RAILS, so the
   // canonical 15-rail identity/route/rotation guards are untouched; it just
   // rides the same tile markup and pins to the FRONT ("Top Sponsor").
-  const allRails = useMemo(() => (sponsor ? [sponsor, ...rails] : rails), [sponsor, rails]);
+  // LIVE EVENT POSTERS ride the same synthetic-rail mechanism as `sponsor`
+  // (never added to lib/rails.js RAILS, so the canonical rail identity, route
+  // and rotation guards stay untouched) and pin to the FRONT of the track,
+  // ahead of the sponsor tile. Owner direction 2026-09-17: the Sporting Events
+  // and Concerts posters are posters IN this rail, at the same size as every
+  // other poster.
+  const allRails = useMemo(
+    () => [...(livePosters || []), ...(sponsor ? [sponsor] : []), ...rails],
+    [livePosters, sponsor, rails]
+  );
   const order = useMemo(() => {
     const base = orderFor(daypart, rails.map((r) => r.id));
-    return sponsor ? [sponsor.id, ...base] : base;
-  }, [daypart, rails, sponsor]);
+    return [...(livePosters || []).map((r) => r.id), ...(sponsor ? [sponsor.id] : []), ...base];
+  }, [daypart, rails, sponsor, livePosters]);
   const band = DAYPARTS[daypart] || DAYPARTS.afternoon;
 
   // Re-rank when the reader is meaningfully somewhere else. The threshold is
@@ -1589,7 +1602,29 @@ export default function DaypartRail({
                 const eager = i < 2;
                 const tileClass = `wf8-tile${selected === id ? " is-sel" : ""}${artReady[id] ? " is-art-ready" : ""}`;
                 const artBox = railArtSize(id);
-                const art = (
+                // A LIVE EVENT TILE carries a remote, per-reader poster image
+                // (a Ticketmaster event photo cropped to this exact box by
+                // lib/posterImageFit.js) instead of one of the local
+                // public/cards-v8 art files. It is otherwise an ordinary tile:
+                // same .wf8-tile box, same reserved artBox, same track, same
+                // snap point, same selection behaviour. Owner direction
+                // 2026-09-17: these belong IN the poster rail at the same size
+                // as every other poster, not in a separate row above it.
+                const art = r.livePosterSrc ? (
+                    <img
+                      className="wf8-tim"
+                      src={r.livePosterSrc}
+                      alt={r.title}
+                      width={artBox.width}
+                      height={artBox.height}
+                      decoding="async"
+                      loading={eager ? "eager" : "lazy"}
+                      fetchPriority={eager ? "high" : "low"}
+                      ref={bindTilePoster(id)}
+                      onLoad={() => markArtReady(id)}
+                      onError={() => markArtReady(id)}
+                    />
+                ) : (
                     <>
                     <picture>
                       <source type="image/avif" srcSet={railArtSrcSet(base, "avif")} sizes={RAIL_ART_SIZES} />
