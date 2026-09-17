@@ -38,9 +38,11 @@ if (!/immutable/.test(route) || !recovery.includes("GOOGLE_USER_CONTENT_RX") || 
 // media URL to the browser.
 const google = readFileSync(new URL("../lib/google.js", import.meta.url), "utf8");
 const hotels = readFileSync(new URL("../lib/hotels.js", import.meta.url), "utf8");
+// v8.56.31: hotel cards build their photo through lib/hotelImage.js.
+const hotelImage = readFileSync(new URL("../lib/hotelImage.js", import.meta.url), "utf8");
 if (!google.includes("/api/photo?ref=") || !google.includes("photoProxyURL")) fail("lib/google.js no longer builds photo URLs through /api/photo");
-if (!hotels.includes("/api/photo?ref=")) fail("lib/hotels.js no longer builds photo URLs through /api/photo");
-for (const [f, s] of [["lib/google.js", google], ["lib/hotels.js", hotels]]) {
+if (!hotels.includes("hotelCardImageSrc(") || !hotelImage.includes("/api/photo?ref=") || !hotelImage.includes("ownedPlacePhotoSrc(")) fail("hotel cards no longer build photo URLs through /api/photo (lib/hotels.js -> lib/hotelImage.js)");
+for (const [f, s] of [["lib/google.js", google], ["lib/hotels.js", hotels], ["lib/hotelImage.js", hotelImage]]) {
   if (/googleapis\.com\/v1\/[^"']*\/media[^"']*key=/.test(s)) fail(`${f} still builds a keyed googleapis media URL for the browser — route it through /api/photo`);
 }
 

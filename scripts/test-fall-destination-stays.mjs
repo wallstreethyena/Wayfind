@@ -57,13 +57,13 @@ const strictFailure = await completeEventStays(orlando, {
 assert.deepEqual(strictFailure, { places: [], unavailable: true }, "strict poster mode exposes a partial-source failure instead of rendering an incomplete top list");
 
 const poolRow = {
-  place_id: "inventory-orlando", name: "Inventory Orlando Hotel", lat: 28.48, lng: -81.47,
+  place_id: "ChIJInventoryOrlando001", name: "Inventory Orlando Hotel", lat: 28.48, lng: -81.47,
   category: "hotels", primary_type: "hotel", google_types: ["hotel", "lodging"], status: "OPERATIONAL", excluded: false, metro: "orlando",
   signals: { rating: 4.9, reviews: 2500 }, editorial: "A verified inventory stay.",
 };
 let poolReadUrl = "";
 const inventoryFetch = async (url) => {
-  if (String(url).includes("select=place_id,photo_ref")) return Response.json([{ place_id: poolRow.place_id, photo_ref: "places/inventory-orlando/photos/hero" }]);
+  if (String(url).includes("select=place_id,photo_ref")) return Response.json([{ place_id: poolRow.place_id, photo_ref: "places/ChIJInventoryOrlando001/photos/hero" }]);
   poolReadUrl = String(url);
   return Response.json([poolRow]);
 };

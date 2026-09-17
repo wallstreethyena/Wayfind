@@ -1,3 +1,13 @@
+## v8.56.31: one exact-property image resolver for every hotel card
+
+New `lib/hotelImage.js`, used by Stay Tonight (`lib/hotels.js`) and by Event Stays and Destination Stays (`lib/eventStays.js`, which also feeds the stays mode of `/api/trip-connections`).
+
+- **Identity first.** A card gets a photo only when it names its property by a Google place id. There is no name guessing: an owned slug with no id gets the branded fallback, even when it has a photo reference.
+- **Partner images.** Only providers in `HOTEL_IMAGE_PROVIDERS` count, and only when their media terms allow independent use, a written terms reference exists, the image names the same place id, carries attribution, uses https and is not stock, a refused host or a Commons hotlink. The widest image wins, whichever partner gets the click, and vaulting needs the provider's `vaultAllowed`. The registry ships empty: Stay22, the Vrbo template and the retired Booking.com link are search redirects with no property media, and Travelpayouts retired Hotellook.
+- **Fallbacks.** Next come the owned or licensed copy, then the property's own Google photo reference (a reference naming another hotel is refused), then `/api/photo?place=<id>`, which serves the vault first and spends only through the ledger gate. Anything else gets the branded fallback.
+- **Tests.** New `test-hotel-image-resolver` (22 assertions) covers identity, the terms gate, exact property matching, width choice, refused hosts, fallbacks and wiring. `test-event-stays` adds a check that another property's reference is refused.
+- **Measured.** Of 452 owned hotels, 77 have a place-bound photo reference and 375 have no Google place id, so they keep the branded fallback. Only 3 of those 375 match an inventory hotel exactly by name within 150 m.
+
 ## v8.56.30: stale photo redirects stop living in browsers for a year
 
 A real-browser check of the home page after v8.56.29 showed EPCOT still rendering a 6240×4160, 16 MB image, served from the browser's own cache with 0 bytes transferred. The live `/api/photo` answer was already the 640 px vault copy. The cause: `owned-free` redirects were sent with `max-age` of one year and `immutable`, so a browser that saw the free lane point at a giant Commons original, or at a Commons photo later rejected as the wrong place (39 rows), kept that answer for a year.

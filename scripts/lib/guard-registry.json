@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 666,
-    "totalRegistryEntries": 667,
-    "guardsTxtLineCount": 665,
-    "guardsTxtReachedFileCount": 660,
+    "totalOnDiskGuardFiles": 667,
+    "totalRegistryEntries": 668,
+    "guardsTxtLineCount": 666,
+    "guardsTxtReachedFileCount": 661,
     "criticalCount": 82,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 454,
+      "CALL": 455,
       "RENDER": 73,
       "STRUCTURAL": 139,
       "OTHER": 1
@@ -10979,7 +10979,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 35,
+      "assertionCount": 36,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -11792,6 +11792,28 @@
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
       "assertionCount": 27,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-hotel-image-resolver.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 20,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
