@@ -36,7 +36,15 @@ const fail = [];
 const ok = (cond, msg) => { if (cond) pass++; else fail.push(msg); };
 const eq = (a, b, msg) => ok(a === b, `${msg} (expected ${JSON.stringify(b)}, got ${JSON.stringify(a)})`);
 
-const { runPhotoWarm, DEFAULT_PHOTO_WARM_MAX, SERVED_RESULTS, PAUSE_REASONS, chunkKeysForUrl, WARM_CHECK_URL_BUDGET } = await import("../lib/photoWarm.js");
+const warmMod = await import("../lib/photoWarm.js");
+const { DEFAULT_PHOTO_WARM_MAX, SERVED_RESULTS, PAUSE_REASONS, chunkKeysForUrl, WARM_CHECK_URL_BUDGET, warmMarkerKey, DEFINITIVE_EMPTY } = warmMod;
+// Hermetic by default: marker reads/writes are stubbed so no case can touch a
+// real cache table even when a Vercel build has production Supabase env set.
+// Cases that test markers pass their own stubs; case (j) exercises the real
+// batched read through its own trapped fetch.
+const NO_MARKS = async () => ({ ok: new Set(), miss: new Set() });
+const NO_WRITE = async () => {};
+const runPhotoWarm = (o) => warmMod.runPhotoWarm({ readMarkers: NO_MARKS, writeMarker: NO_WRITE, ...o });
 
 // ── fixtures ────────────────────────────────────────────────────────────
 const ORIGIN = "https://www.gowayfind.com";
@@ -269,7 +277,10 @@ for (const pauseReason of ["quota-open", "spend-denied", "gate-shut", "unconfigu
   const crons = Array.isArray(vercel.crons) ? vercel.crons : [];
   const entry = crons.find((c) => c.path === "/api/cron/photo-warm");
   ok(!!entry, "case h: vercel.json schedules /api/cron/photo-warm");
-  ok(entry && /^\d+ \* \* \* \*$/.test(entry.schedule), `case h: photo-warm runs hourly (got schedule=${entry && entry.schedule})`);
+  const mins = entry ? String(entry.schedule).split(" ")[0].split(",") : [];
+  ok(entry && /^[\d,]+ \* \* \* \*$/.test(entry.schedule) && mins.length >= 4, `case h: photo-warm runs at least four times an hour (got schedule=${entry && entry.schedule})`);
+  const routeSrcH = readFileSync(path.join(REPO, "app/api/cron/photo-warm/route.js"), "utf8");
+  ok(/offsetHour: Math\.floor\(startedAt \/ 900_000\)/.test(routeSrcH), "case h: the route rotates its starting surface per quarter hour, not per hour");
 }
 
 // ── sanity: PAUSE_REASONS and SERVED_RESULTS match the documented contract
@@ -351,6 +362,87 @@ for (const pauseReason of ["quota-open", "spend-denied", "gate-shut", "unconfigu
   const giant = chunkKeysForUrl(refs.map((r) => "photo|" + r + "|640"), 10 ** 9);
   eq(giant.length, 1, "(j) red-proof setup: an unbounded budget yields one giant chunk");
   ok(encodeURIComponent(giant[0].map((k) => '"' + k + '"').join(",")).length > 16000, "(j) red-proof: that single chunk is over the gateway limit, which is exactly the production failure");
+}
+
+// ── (k) warm markers: served and settled-empty cards are skipped next run ─
+{
+  const pOk = place("ChIJmarkOk00000000000001", "places/ChIJmarkOk00000000000001/photos/x");
+  const pMiss = place("ChIJmarkMiss000000000002", "places/ChIJmarkMiss000000000002/photos/x");
+  const pNew = place("ChIJmarkNew0000000000003", "places/ChIJmarkNew0000000000003/photos/x");
+  const pSame = place("ChIJmarkSame000000000004", "places/ChIJmarkSame000000000004/photos/x");
+  const pGone = place("ChIJmarkGone000000000005", "places/ChIJmarkGone000000000005/photos/x");
+  const pFlaky = place("ChIJmarkFlky000000000006", "places/ChIJmarkFlky000000000006/photos/x");
+  const { fetchImpl, calls } = makeFetch({
+    endpoints: { "/api/fake": { places: [pOk, pMiss, pNew, pSame, pGone, pFlaky] } },
+    photoPlan: {
+      // pOk and pMiss have NO plan: any request for them throws (the red-proof).
+      [pNew.photoRef]: { check: "owned-miss", real: "google" },
+      [pSame.photoRef]: { check: "same-place-cache" },
+      [pGone.photoRef]: { check: "owned-miss", real: "no-photo" },
+      [pFlaky.photoRef]: { check: "owned-miss", real: "upstream-error" },
+    },
+  });
+  const pathOf = (pl) => calls.find((c) => c.url.includes(encodeURIComponent(pl.photoRef)))?.url.slice(ORIGIN.length);
+  const writes = [];
+  const readMarkers = async (paths) => ({
+    ok: new Set(paths.filter((x) => x.includes(encodeURIComponent(pOk.photoRef)))),
+    miss: new Set(paths.filter((x) => x.includes(encodeURIComponent(pMiss.photoRef)))),
+  });
+  const res = await warmMod.runPhotoWarm({ origin: ORIGIN, fetchImpl, surfaces: [fakeSurface("s", null)], cities: [null], offsetHour: 0, max: 10, cachedServed: async () => new Set(), readMarkers, writeMarker: async (kind, p) => { writes.push([kind, p]); } });
+  eq(res.visible, 6, "(k) six visible places");
+  eq(res.alreadyServed, 2, "(k) the ok-marked card and the probe-served card count as served");
+  eq(res.knownEmpty, 1, "(k) the miss-marked card is counted as a known blank, not re-requested");
+  eq(res.attempted, 3, "(k) only the three unmarked, unserved cards get a real request");
+  eq(res.filled, 1, "(k) one real Google fill");
+  eq(res.unchecked, 0, "(k) nothing is left unchecked");
+  eq(res.empty, 3, "(k) empty = the settled blank + the two real misses");
+  const w = (kind, pl) => writes.some(([k, p]) => k === kind && p === pathOf(pl));
+  ok(w("ok", pSame), "(k) a probe-served card writes an ok marker");
+  ok(w("ok", pNew), "(k) a real fill writes an ok marker");
+  ok(w("miss", pGone), "(k) a definitive no-photo writes a miss marker");
+  ok(!writes.some(([, p]) => p === pathOf(pFlaky)), "(k) a transient failure writes NO marker, so the next run retries it");
+  eq(writes.length, 3, "(k) exactly three marker writes");
+  ok(DEFINITIVE_EMPTY.has("no-photo") && !DEFINITIVE_EMPTY.has("quota-open") && !DEFINITIVE_EMPTY.has("spend-denied"), "(k) a pause is never treated as a settled blank");
+  const k1 = warmMarkerKey("ok", "/api/photo?ref=" + "x".repeat(700));
+  ok(k1.length < 50 && k1 === warmMarkerKey("ok", "/api/photo?ref=" + "x".repeat(700)) && k1 !== warmMarkerKey("miss", "/api/photo?ref=" + "x".repeat(700)), "(k) marker keys are short, stable, and kind-specific");
+  // red-proof: without markers the ok-marked card IS requested (and the fixture throws).
+  const before = calls.length;
+  await runPhotoWarm({ origin: ORIGIN, fetchImpl, surfaces: [fakeSurface("s", null)], cities: [null], offsetHour: 0, max: 10, cachedServed: async () => new Set() });
+  const again = calls.slice(before);
+  ok(again.some((c) => c.url.includes(encodeURIComponent(pOk.photoRef))) && again.some((c) => c.url.includes(encodeURIComponent(pMiss.photoRef))),
+    "(k) red-proof: with no markers the marked cards are requested again, so the skip above is load-bearing");
+  eq(calls.slice(0, before).filter((c) => c.url.includes(encodeURIComponent(pOk.photoRef)) || c.url.includes(encodeURIComponent(pMiss.photoRef))).length, 0,
+    "(k) with markers, the marked cards got zero photo requests");
+}
+
+// ── (k2) a paused run writes no markers ───────────────────────────────────
+{
+  const p = place("ChIJmarkPause00000000001", "places/ChIJmarkPause00000000001/photos/x");
+  const { fetchImpl } = makeFetch({ endpoints: { "/api/fake": { places: [p] } }, photoPlan: { [p.photoRef]: { check: "owned-miss", real: "quota-open" } } });
+  const writes = [];
+  const res = await warmMod.runPhotoWarm({ origin: ORIGIN, fetchImpl, surfaces: [fakeSurface("s", null)], cities: [null], offsetHour: 0, max: 10, cachedServed: async () => new Set(), readMarkers: NO_MARKS, writeMarker: async (k, x) => { writes.push(k); } });
+  eq(res.paused, true, "(k2) the quota pause still stops the run");
+  eq(writes.length, 0, "(k2) a paused place is not marked, so it is retried after the reset");
+}
+
+// ── (l) collection runs endpoints in parallel, results stay deterministic ─
+{
+  let inFlight = 0, peak = 0;
+  const surfaces = Array.from({ length: 8 }, (_, i) => fakeSurface("p" + i, null, { endpointPath: "/api/par" + i }));
+  const fetchImpl = async (url) => {
+    const m = /\/api\/par(\d+)/.exec(url);
+    if (!m) throw new Error("(l) unexpected photo request " + url);
+    inFlight++; peak = Math.max(peak, inFlight);
+    await new Promise((r) => setTimeout(r, 20));
+    inFlight--;
+    const i = Number(m[1]);
+    return jsonResponse({ places: [{ placeId: "ChIJParallel" + i, photoRef: null, photo: "https://cdn.example/" + i + ".jpg", name: "P" + i }] });
+  };
+  const res = await runPhotoWarm({ origin: ORIGIN, fetchImpl, surfaces, cities: [null], offsetHour: 0, max: 10, cachedServed: async () => new Set() });
+  eq(res.visible, 8, "(l) every endpoint's place is collected");
+  ok(peak > 1 && peak <= warmMod.WARM_COLLECT_CONCURRENCY, `(l) endpoints are fetched concurrently within the cap (peak ${peak})`);
+  const serial = await runPhotoWarm({ origin: ORIGIN, fetchImpl, surfaces, cities: [null], offsetHour: 0, max: 10, cachedServed: async () => new Set(), collectConcurrency: 1 });
+  eq(JSON.stringify(serial), JSON.stringify(res), "(l) parallel and serial collection give identical results");
 }
 
 if (fail.length) {
