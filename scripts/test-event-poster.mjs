@@ -8,6 +8,7 @@
 // process -- no network, no real Ticketmaster call, fully reproducible.
 
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import sharp from "sharp";
 import {
   attemptAttentionCrop, blurredExtend, fitPosterImage, isPlaceholderTmUrl, POSTER_RATIO,
@@ -108,22 +109,26 @@ function check(label, fn) { n++; return fn(); }
   assert.ok(res.survivalRatio >= 0.70, `survivalRatio ${res.survivalRatio} should clear the 0.70 floor`);
 }
 
-// --- 2. split subjects get rejected as subject_cut ----------------------
+// --- 2. split subjects now FILL the tile (owner, 2026-09-17: no
+// blurred-extend, "fit as much as you can, if you cant than it is what it
+// is"). The crop still AIMS at the densest region, it just no longer refuses
+// the shot when the 9:16 geometry costs it part of the frame.
 {
   n++;
   const png = await fixtureSplitSubjects();
   const res = await attemptAttentionCrop(png, { ratio: POSTER_RATIO });
-  assert.equal(res.ok, false, "a subject split across both edges must be rejected, not silently shipped");
-  assert.equal(res.reason, "subject_cut");
+  assert.equal(res.ok, true, "a wide split composition must still fill the tile rather than letterbox");
+  assert.equal(res.strategy, "attention");
+  assert.ok(res.survivalRatio < 0.7, `survivalRatio ${res.survivalRatio} is reported for observability even when low`);
 }
 
-// --- 3. banner text gets rejected distinctly from subject_cut -----------
+// --- 3. a chopped text band no longer rejects either -- same owner
+// decision. Legibility of a headline is not worth a letterboxed poster.
 {
   n++;
   const png = await fixtureBannerText();
   const res = await attemptAttentionCrop(png, { ratio: POSTER_RATIO });
-  assert.equal(res.ok, false, "a chopped text band must be rejected");
-  assert.equal(res.reason, "banner_text", "must be distinguishable from subject_cut, not lumped together");
+  assert.equal(res.ok, true, "a text band must not force a fallback; the tile fills");
 }
 
 // --- 4. too-small-after-crop is rejected before any pixel analysis ------
@@ -144,44 +149,41 @@ function check(label, fn) { n++; return fn(); }
   assert.equal(res.reason, "bad_exposure");
 }
 
-// --- 6. the reject/retry chain: bad candidate[0] -> good candidate[1] ----
+// --- 6. the reject/retry chain still works on the rejections that REMAIN
+// (a candidate too small to render sharp falls through to a usable one).
 {
   n++;
-  const bad = await fixtureSplitSubjects();
+  const tiny = await fixtureTooSmall();
   const good = await fixtureCleanSubject();
-  const fetcher = async (url) => (url === "bad" ? bad : url === "good" ? good : null);
-  const res = await fitPosterImage([{ url: "bad" }, { url: "good" }], { fetchImage: fetcher });
+  const fetcher = async (url) => (url === "tiny" ? tiny : url === "good" ? good : null);
+  const res = await fitPosterImage([{ url: "tiny" }, { url: "good" }], { fetchImage: fetcher });
   assert.equal(res.ok, true, "the chain must fall through to the second variant");
   assert.equal(res.strategy, "attention");
   assert.equal(res.sourceUrl, "good", "the ACCEPTED image must be the second candidate, not the rejected first one");
-  assert.equal(res.attempts.length, 2, "both attempts are recorded (one rejection, one acceptance)");
-  assert.equal(res.attempts[0].reason, "subject_cut");
+  assert.equal(res.attempts[0].reason, "too_small_after_crop");
 }
 
-// --- 7. every candidate rejected -> blurred-extend of the FIRST candidate,
-//        never a substitute image from anywhere else ---------------------
+// --- 7. NO BLURRED-EXTEND. When nothing can be cropped to fill, the chain
+// returns ok:false so the CALLER walks to the next event, instead of
+// letterboxing this event's photo inside blurry filler.
 {
   n++;
-  const bad = await fixtureSplitSubjects();
-  const alsoBad = await fixtureBannerText();
-  const fetcher = async (url) => (url === "bad1" ? bad : url === "bad2" ? alsoBad : null);
-  const res = await fitPosterImage([{ url: "bad1" }, { url: "bad2" }], { fetchImage: fetcher });
-  assert.equal(res.ok, true, "when every crop attempt fails, blurred-extend must still succeed on the real image");
-  assert.equal(res.strategy, "blurred-extend");
-  assert.equal(res.sourceUrl, "bad1", "blurred-extend must use the FIRST (primary) candidate of THIS event, never a substitute");
-  assert.ok(res.buffer && res.buffer.length > 0);
+  const tiny = await fixtureTooSmall();
+  const fetcher = async () => tiny;
+  const res = await fitPosterImage([{ url: "tiny1" }, { url: "tiny2" }], { fetchImage: fetcher });
+  assert.equal(res.ok, false, "an unusable candidate set must fail closed, never blurred-extend");
+  assert.equal(res.reason, "all_candidates_rejected");
+  assert.ok(!res.strategy, "no strategy is returned when nothing filled");
 }
 
-// --- 8. blurredExtend never invents new scenery: output dims match ratio,
-//        input pixel content is still present (not replaced) -------------
+// --- 8. blurredExtend is no longer part of the chain at all. It stays
+// exported (harmless, and another surface may want a contained fit later),
+// but fitPosterImage must never reach for it.
 {
   n++;
-  const src = await fixtureCleanSubject();
-  const ext = await blurredExtend(src, { ratio: POSTER_RATIO, outWidth: 380 });
-  assert.equal(ext.ok, true);
-  const meta = await sharp(ext.buffer).metadata();
-  const outRatio = meta.width / meta.height;
-  assert.ok(Math.abs(outRatio - POSTER_RATIO) < 0.01, `extended image ratio ${outRatio} must match the 9:16 tile`);
+  const fitSrc = readFileSync(new URL("../lib/posterImageFit.js", import.meta.url), "utf8");
+  const chain = fitSrc.slice(fitSrc.indexOf("export async function fitPosterImage"));
+  assert.ok(!/blurredExtend\s*\(/.test(chain), "fitPosterImage must not call blurredExtend");
 }
 
 // --- 9. a Ticketmaster classification placeholder (/dam/c/) is skipped
