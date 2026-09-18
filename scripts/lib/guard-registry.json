@@ -34,9 +34,9 @@
     "criticalCount": 83,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 460,
+      "CALL": 461,
       "RENDER": 73,
-      "STRUCTURAL": 140,
+      "STRUCTURAL": 139,
       "OTHER": 1
     }
   },
@@ -2919,13 +2919,11 @@
     {
       "file": "scripts/check-florida-festivals-import.mjs",
       "npmScript": null,
-      "class": "STRUCTURAL",
+      "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 23,
+      "assertionCount": 33,
       "unprovenAbsenceCount": 0,
-      "honestyViolations": [
-        "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
-      ],
+      "honestyViolations": [],
       "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,

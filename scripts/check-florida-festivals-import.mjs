@@ -11,7 +11,9 @@
 //      ledger can never claim a row nobody verified.
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync, existsSync } from "node:fs";
-import { rowProblems, batchProblems, festivalSlug, normName, leadKey } from "./festivals/festivalRows.mjs";
+process.env.WF_SUPPRESS_ANALYTICS = "1";
+import { rowProblems, batchProblems, festivalSlug, normName, leadKey, dbRow } from "./festivals/festivalRows.mjs";
+import { isEligible, isFloridaEvent, isTrusted } from "../lib/curatedEvents.js";
 
 let n = 0;
 const check = (label, fn) => { fn(); n++; console.log(`  OK  ${label}`); };
@@ -74,6 +76,28 @@ check("every published id traces back to a verified row", () => {
   const ledger = "scripts/festivals/published.json";
   const ids = existsSync(ledger) ? JSON.parse(readFileSync(ledger, "utf8")) : [];
   for (const id of ids) assert.ok(verifiedIds.has(id), `published.json names ${id} but no verified batch publishes it`);
+});
+
+const NOW = new Date("2026-09-18T15:00:00Z");
+check("a publishable row passes the site's own curated-event gates (positive control)", () => {
+  const row = dbRow(good);
+  assert.equal(isTrusted(row), true);
+  assert.equal(isFloridaEvent(row), true);
+  assert.equal(isEligible(row, { now: NOW }), true);
+});
+check("the site gates still refuse what the contract refuses (negative controls)", () => {
+  assert.equal(isEligible({ ...dbRow(good), card_hook: "" }, { now: NOW }), false);
+  assert.equal(isFloridaEvent({ ...dbRow(good), state: "GA" }), false);
+  assert.equal(isEligible({ ...dbRow(good), end_date: "2026-09-01", start_date: "2026-09-01" }, { now: NOW }), false);
+});
+check("every committed publish row that is not over would render on the site", () => {
+  for (const f of files) {
+    for (const r of JSON.parse(readFileSync(`${vdir}/${f}`, "utf8")).publish) {
+      const row = dbRow(r);
+      if (row.end_date < "2026-09-18") continue;
+      assert.equal(isTrusted(row) && isFloridaEvent(row), true, `${f}: ${r.event_id} would be hidden by lib/curatedEvents.js`);
+    }
+  }
 });
 
 console.log(`check-florida-festivals-import: ${n} checks passed`);
