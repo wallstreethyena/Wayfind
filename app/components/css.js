@@ -613,11 +613,17 @@ ${WF_SKELETON_CSS}
   overflow-y:hidden;
     overscroll-behavior-inline:contain;
   padding-bottom:4px;
-  scroll-snap-type:x mandatory;
+  scroll-snap-type:x proximity;
   -webkit-overflow-scrolling:touch;
   scrollbar-width:none;
 }
 .wf-rail::-webkit-scrollbar{display:none}
+@media (hover:none),(pointer:coarse){
+  .wf-rail .wf-place-card-highlights,.wf8-pcrail .wf-place-card-highlights{overflow:hidden;overflow-x:hidden;overflow-y:hidden;touch-action:auto;-webkit-overflow-scrolling:auto}
+}
+@media (max-width:430px){
+  .wf-rail .wf-place-card-highlights,.wf8-pcrail .wf-place-card-highlights{overflow:hidden;overflow-x:hidden;overflow-y:hidden;touch-action:auto;-webkit-overflow-scrolling:auto}
+}
 .wf-rail-solo{max-width:min(100%,${PLACE_CARD_MAX_WIDTH_PX}px);margin:0}
 .wf-rail>.wf-place-card,.wf-rail>.wf-rail-card,.wf8-pcrail>.wf-place-card,.wf8-pcrail>.wf-rail-card{
   margin-bottom:0!important;
