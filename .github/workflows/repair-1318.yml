@@ -1,0 +1,88 @@
+name: repair-pr-1318
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/repair-1318.yml'
+permissions:
+  contents: write
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Rebase and preserve rail text width
+        env:
+          TARGET_BRANCH: cursor/card-36-media-proximity-e57e
+          EXPECTED_OLD_HEAD: 17ec8975e7c80eb7c0e7ad1aad399ce4e2ecf3b3
+        run: |
+          set -euo pipefail
+          git config user.name 'Wayfind release repair'
+          git config user.email 'noreply@github.com'
+          git fetch origin "$TARGET_BRANCH"
+          test "$(git rev-parse FETCH_HEAD)" = "$EXPECTED_OLD_HEAD"
+          git checkout -B candidate FETCH_HEAD
+          set +e
+          git rebase origin/main
+          rc=$?
+          set -e
+          while [ "$rc" -ne 0 ]; do
+            unmerged="$(git diff --name-only --diff-filter=U)"
+            test -n "$unmerged"
+            bad="$(printf '%s\n' "$unmerged" | grep -v -E '^(scripts/lib/guard-registry\.json)$' || true)"
+            if [ -n "$bad" ]; then printf '%s\n' "$bad"; exit 1; fi
+            git checkout --ours scripts/lib/guard-registry.json
+            git add scripts/lib/guard-registry.json
+            set +e; GIT_EDITOR=true git rebase --continue; rc=$?; set -e
+          done
+
+          # Restore current-main card geometry and its proven title-width contract.
+          git checkout origin/main -- lib/placeCardStandard.js scripts/check-place-card-standard.mjs scripts/test-home-first-paint.mjs app/components/css.js
+
+          # Reapply only the safe interaction improvements from #1318.
+          node <<'NODE'
+          const fs = require('fs');
+          const p = 'app/components/css.js';
+          let s = fs.readFileSync(p, 'utf8');
+          if (!s.includes('scroll-snap-type:x mandatory;')) throw new Error('rail snap anchor changed');
+          s = s.replace('scroll-snap-type:x mandatory;', 'scroll-snap-type:x proximity;');
+          const anchor = '.wf-rail::-webkit-scrollbar{display:none}';
+          if (!s.includes(anchor)) throw new Error('rail scrollbar anchor changed');
+          const touch = `${anchor}\n@media (hover:none),(pointer:coarse){\n  .wf-rail .wf-place-card-highlights,.wf8-pcrail .wf-place-card-highlights{overflow:hidden;overflow-x:hidden;overflow-y:hidden;touch-action:auto;-webkit-overflow-scrolling:auto}\n}\n@media (max-width:430px){\n  .wf-rail .wf-place-card-highlights,.wf8-pcrail .wf-place-card-highlights{overflow:hidden;overflow-x:hidden;overflow-y:hidden;touch-action:auto;-webkit-overflow-scrolling:auto}\n}`;
+          s = s.replace(anchor, touch);
+          fs.writeFileSync(p, s);
+          NODE
+
+          node scripts/lib/build-guard-registry.mjs
+          git add app/components/css.js lib/placeCardStandard.js scripts/check-place-card-standard.mjs scripts/test-home-first-paint.mjs scripts/lib/guard-registry.json
+          git commit -m 'fix: keep rail titles readable while using proximity snap'
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: Dependency security audit
+        run: npm audit --audit-level=moderate
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Required rendered place-card standard
+        run: node scripts/check-place-card-standard.mjs --require-browser
+      - name: Guard suite
+        run: node scripts/run-guards.mjs
+      - name: Production build
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+        run: npx next build
+      - name: Homepage bundle ratchet
+        run: node scripts/check-bundle.mjs
+      - name: Publish exact tested branch
+        env:
+          TARGET_BRANCH: cursor/card-36-media-proximity-e57e
+          EXPECTED_OLD_HEAD: 17ec8975e7c80eb7c0e7ad1aad399ce4e2ecf3b3
+        run: |
+          set -euo pipefail
+          git push origin HEAD:"$TARGET_BRANCH" --force-with-lease="refs/heads/$TARGET_BRANCH:$EXPECTED_OLD_HEAD"

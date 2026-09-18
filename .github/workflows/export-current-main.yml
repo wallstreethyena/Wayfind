@@ -1,0 +1,101 @@
+name: validate-mechanical-prs
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/export-current-main.yml'
+permissions:
+  contents: write
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - pr: '1248'
+            branch: fix/beach-build-deadlines-2026-09-10
+            old_head: b5511a36b36bd2c4f498994b92dcd93709bb9cad
+          - pr: '1249'
+            branch: feat/graceful-outage-state-2026-09-10
+            old_head: 765f7dbba7516135a0d2d5eddc71042669829568
+          - pr: '1263'
+            branch: perf/all-poster-speed
+            old_head: 77d9c4c8092d00bc697e5de30ea25198cce09b2c
+          - pr: '1268'
+            branch: feat/apple-map-all-categories
+            old_head: 7b841ed3f1be546a50873897503032772326e180
+          - pr: '1274'
+            branch: fix/event-creator-cover-recovery
+            old_head: b9c65fae2d0229d358f4b170f445cb11b5546861
+          - pr: '1318'
+            branch: cursor/card-36-media-proximity-e57e
+            old_head: 17ec8975e7c80eb7c0e7ad1aad399ce4e2ecf3b3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Rebase with generated-only conflict policy
+        env:
+          TARGET_BRANCH: ${{ matrix.branch }}
+          EXPECTED_OLD_HEAD: ${{ matrix.old_head }}
+          PR_NUMBER: ${{ matrix.pr }}
+        run: |
+          set -euo pipefail
+          git config user.name 'Wayfind release repair'
+          git config user.email 'noreply@github.com'
+          git fetch origin "$TARGET_BRANCH"
+          actual="$(git rev-parse FETCH_HEAD)"
+          test "$actual" = "$EXPECTED_OLD_HEAD"
+          git checkout -B candidate FETCH_HEAD
+          set +e
+          git rebase origin/main
+          rc=$?
+          set -e
+          while [ "$rc" -ne 0 ]; do
+            unmerged="$(git diff --name-only --diff-filter=U)"
+            test -n "$unmerged"
+            bad="$(printf '%s\n' "$unmerged" | grep -v -E '^(scripts/lib/guard-registry\.json)$' || true)"
+            if [ -n "$bad" ]; then
+              echo "PR #$PR_NUMBER: refusing real conflicts"
+              printf '%s\n' "$bad"
+              exit 1
+            fi
+            git checkout --ours scripts/lib/guard-registry.json
+            git add scripts/lib/guard-registry.json
+            set +e
+            GIT_EDITOR=true git rebase --continue
+            rc=$?
+            set -e
+          done
+          node scripts/lib/build-guard-registry.mjs
+          git add scripts/lib/guard-registry.json
+          if ! git diff --cached --quiet; then git commit -m 'chore: regenerate guard registry on current main'; fi
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: Dependency security audit
+        run: npm audit --audit-level=moderate
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Required rendered place-card standard
+        run: node scripts/check-place-card-standard.mjs --require-browser
+      - name: Guard suite
+        run: node scripts/run-guards.mjs
+      - name: Production build
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+        run: npx next build
+      - name: Homepage bundle ratchet
+        run: node scripts/check-bundle.mjs
+      - name: Publish exact tested branch
+        env:
+          TARGET_BRANCH: ${{ matrix.branch }}
+          EXPECTED_OLD_HEAD: ${{ matrix.old_head }}
+        run: |
+          set -euo pipefail
+          git push origin HEAD:"$TARGET_BRANCH" --force-with-lease="refs/heads/$TARGET_BRANCH:$EXPECTED_OLD_HEAD"
