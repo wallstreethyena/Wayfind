@@ -1,0 +1,226 @@
+{
+  "batch": 25,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Fantasy Lights Festival III",
+      "city": "Palm Coast",
+      "start_date": "2026-12-07",
+      "end_date": "2026-12-13",
+      "date_text": "12/7-12/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.flaglerrotary.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Holiday Lights in Largo Central Park III",
+      "city": "Largo",
+      "start_date": "2026-12-07",
+      "end_date": "2026-12-13",
+      "date_text": "12/7-12/13",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.playlargo.com/special_events_detail_T40_R38.php",
+      "notes": ""
+    },
+    {
+      "event_name": "Holiday Lights in the Gardens III",
+      "city": "Largo",
+      "start_date": "2026-12-07",
+      "end_date": "2026-12-13",
+      "date_text": "12/7-12/13",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://flbgfoundation.org/events",
+      "notes": ""
+    },
+    {
+      "event_name": "Johnsonville Night Lights in the Garden III",
+      "city": "Naples",
+      "start_date": "2026-12-07",
+      "end_date": "2026-12-13",
+      "date_text": "12/7-12/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.naplesgarden.org/events/johnsonville-night-lights-in-the-garden/2025-11-28/",
+      "notes": ""
+    },
+    {
+      "event_name": "Magic of Lights at Daytona International Speedway IV",
+      "city": "Daytona Beach",
+      "start_date": "2026-12-07",
+      "end_date": "2026-12-13",
+      "date_text": "12/7-12/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://magicoflights.com/events/daytona/",
+      "notes": ""
+    },
+    {
+      "event_name": "Stephen Foster Folk Culture Center State Park Festival of Lights II",
+      "city": "White Springs",
+      "start_date": "2026-12-07",
+      "end_date": "2026-12-13",
+      "date_text": "12/7-12/13",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://stephenfostercso.org/event-6729538",
+      "notes": ""
+    },
+    {
+      "event_name": "Suwannee Lights III",
+      "city": "Live Oak",
+      "start_date": "2026-12-07",
+      "end_date": "2026-12-13",
+      "date_text": "12/7-12/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://suwanneelights.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Tampa Bay’s Festival of Lights and Santa’s Village III",
+      "city": "Dover",
+      "start_date": "2026-12-07",
+      "end_date": "2026-12-13",
+      "date_text": "12/7-12/13",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.hillsboroughcountyfair.com/p/events/httpswwwhillsboroughcountyfaircompsub-pages",
+      "notes": ""
+    },
+    {
+      "event_name": "Totally Lit! A Hanukkah Celebration!",
+      "city": "Jacksonville",
+      "start_date": "2026-12-07",
+      "end_date": "2026-12-07",
+      "date_text": "12/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/871039881078595",
+      "notes": ""
+    },
+    {
+      "event_name": "Night Garden VI",
+      "city": "Coral Gables",
+      "start_date": "2026-12-09",
+      "end_date": "2026-12-13",
+      "date_text": "12/9-12/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://thenightgarden.co/miami/",
+      "notes": ""
+    },
+    {
+      "event_name": "Blessed Trinity Parish Festival",
+      "city": "Virginia Gardens",
+      "start_date": "2026-12-10",
+      "end_date": "2026-12-13",
+      "date_text": "12/10-12/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/BlessedTrinityChurch",
+      "notes": ""
+    },
+    {
+      "event_name": "Dickens on Centre",
+      "city": "Fernandina Beach",
+      "start_date": "2026-12-10",
+      "end_date": "2026-12-13",
+      "date_text": "12/10-12/13",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.ameliaisland.com/festivals-events/dickens-on-centre/",
+      "notes": ""
+    },
+    {
+      "event_name": "Glowing Gardens at Jacksonville Arboretum and Botanical Gardens III",
+      "city": "Jacksonville",
+      "start_date": "2026-12-10",
+      "end_date": "2026-12-13",
+      "date_text": "12/10-12/13",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://jacksonvillearboretum.org/events/glowing-gardens?gad_source=1&gclid=Cj0KCQjwvpy5BhDTARIsAHSilymYwMn7jMDUhXwsybZ5PLW7c73hAqrbYtW-JjkV1-J0dRStYFI9EIQaApKsEALw_wcB",
+      "notes": ""
+    },
+    {
+      "event_name": "Palm Beach Food and Wine Festival",
+      "city": "Palm Beach",
+      "start_date": "2026-12-10",
+      "end_date": "2026-12-13",
+      "date_text": "12/10-12/13",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.pbfoodwinefest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Pinecrest Gardens Night of Lights II",
+      "city": "Pinecrest",
+      "start_date": "2026-12-10",
+      "end_date": "2026-12-13",
+      "date_text": "12/10-12/13",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.pinecrestgardens.org/Arts-Events/Festivals-Special-Events/Night-of-Lights",
+      "notes": ""
+    },
+    {
+      "event_name": "The Central Florida Zoo and Botanical Gardens Asian Lantern Festival V",
+      "city": "Sanford",
+      "start_date": "2026-12-10",
+      "end_date": "2026-12-13",
+      "date_text": "12/10-12/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.centralfloridazoo.org/lanterns/",
+      "notes": ""
+    },
+    {
+      "event_name": "The Wonderland of Lights II",
+      "city": "Auburndale",
+      "start_date": "2026-12-10",
+      "end_date": "2026-12-13",
+      "date_text": "12/10-12/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.thewonderlandoflights.com/auburndale-florida",
+      "notes": ""
+    },
+    {
+      "event_name": "An Old Fashioned Country Christmas at Raprager Family Farm II",
+      "city": "Odessa",
+      "start_date": "2026-12-11",
+      "end_date": "2026-12-13",
+      "date_text": "12/11-12/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://rapragerfarm.com/christmas",
+      "notes": ""
+    },
+    {
+      "event_name": "Christmas Asian Mega Night Food and Winter Market",
+      "city": "St. Petersburg",
+      "start_date": "2026-12-11",
+      "end_date": "2026-12-13",
+      "date_text": "12/11-12/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/699993429836619",
+      "notes": ""
+    },
+    {
+      "event_name": "Christmas in the Wild III",
+      "city": "Tampa",
+      "start_date": "2026-12-11",
+      "end_date": "2026-12-13",
+      "date_text": "12/11-12/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://zootampa.org/christmas-in-the-wild/",
+      "notes": ""
+    }
+  ]
+}

@@ -1,0 +1,226 @@
+{
+  "batch": 27,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Holiday Fantasy of Lights V",
+      "city": "Coconut Creek",
+      "start_date": "2026-12-14",
+      "end_date": "2026-12-20",
+      "date_text": "12/14-12/20*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://holidaylightsdrivethru.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Holiday Lights in Largo Central Park IV",
+      "city": "Largo",
+      "start_date": "2026-12-14",
+      "end_date": "2026-12-20",
+      "date_text": "12/14-12/20",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.playlargo.com/special_events_detail_T40_R38.php",
+      "notes": ""
+    },
+    {
+      "event_name": "Holiday Lights in the Gardens IV",
+      "city": "Largo",
+      "start_date": "2026-12-14",
+      "end_date": "2026-12-20",
+      "date_text": "12/14-12/20",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://flbgfoundation.org/events",
+      "notes": ""
+    },
+    {
+      "event_name": "Johnsonville Night Lights in the Garden IV",
+      "city": "Naples",
+      "start_date": "2026-12-14",
+      "end_date": "2026-12-20",
+      "date_text": "12/14-12/20*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.naplesgarden.org/events/johnsonville-night-lights-in-the-garden/2025-11-28/",
+      "notes": ""
+    },
+    {
+      "event_name": "Magic of Lights at Daytona International Speedway V",
+      "city": "Daytona Beach",
+      "start_date": "2026-12-14",
+      "end_date": "2026-12-20",
+      "date_text": "12/14-12/20*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://magicoflights.com/events/daytona/",
+      "notes": ""
+    },
+    {
+      "event_name": "Night Garden VII",
+      "city": "Coral Gables",
+      "start_date": "2026-12-14",
+      "end_date": "2026-12-20",
+      "date_text": "12/14-12/20*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://thenightgarden.co/miami/",
+      "notes": ""
+    },
+    {
+      "event_name": "Stephen Foster Folk Culture Center State Park Festival of Lights III",
+      "city": "White Springs",
+      "start_date": "2026-12-14",
+      "end_date": "2026-12-20",
+      "date_text": "12/14-12/20",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://stephenfostercso.org/event-6729538",
+      "notes": ""
+    },
+    {
+      "event_name": "Suwannee Lights IV",
+      "city": "Live Oak",
+      "start_date": "2026-12-14",
+      "end_date": "2026-12-20",
+      "date_text": "12/14-12/20*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://suwanneelights.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Tampa Bay’s Festival of Lights and Santa’s Village IV",
+      "city": "Dover",
+      "start_date": "2026-12-14",
+      "end_date": "2026-12-20",
+      "date_text": "12/14-12/20",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.hillsboroughcountyfair.com/p/events/httpswwwhillsboroughcountyfaircompsub-pages",
+      "notes": ""
+    },
+    {
+      "event_name": "The Central Florida Zoo and Botanical Gardens Asian Lantern Festival VI",
+      "city": "Sanford",
+      "start_date": "2026-12-14",
+      "end_date": "2026-12-20",
+      "date_text": "12/14-12/20*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.centralfloridazoo.org/lanterns/",
+      "notes": ""
+    },
+    {
+      "event_name": "Glowing Gardens at Jacksonville Arboretum and Botanical Gardens IV",
+      "city": "Jacksonville",
+      "start_date": "2026-12-17",
+      "end_date": "2026-12-20",
+      "date_text": "12/17-12/20",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://jacksonvillearboretum.org/events/glowing-gardens?gad_source=1&gclid=Cj0KCQjwvpy5BhDTARIsAHSilymYwMn7jMDUhXwsybZ5PLW7c73hAqrbYtW-JjkV1-J0dRStYFI9EIQaApKsEALw_wcB",
+      "notes": ""
+    },
+    {
+      "event_name": "Pinecrest Gardens Night of Lights III",
+      "city": "Pinecrest",
+      "start_date": "2026-12-17",
+      "end_date": "2026-12-20",
+      "date_text": "12/17-12/20",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.pinecrestgardens.org/Arts-Events/Festivals-Special-Events/Night-of-Lights",
+      "notes": ""
+    },
+    {
+      "event_name": "The Wonderland of Lights III",
+      "city": "Auburndale",
+      "start_date": "2026-12-17",
+      "end_date": "2026-12-20",
+      "date_text": "12/17-12/20*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.thewonderlandoflights.com/auburndale-florida",
+      "notes": ""
+    },
+    {
+      "event_name": "An Old Fashioned Country Christmas at Raprager Family Farm III",
+      "city": "Odessa",
+      "start_date": "2026-12-18",
+      "end_date": "2026-12-20",
+      "date_text": "12/18-12/20*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://rapragerfarm.com/christmas",
+      "notes": ""
+    },
+    {
+      "event_name": "Christmas in the Wild IV",
+      "city": "Tampa",
+      "start_date": "2026-12-18",
+      "end_date": "2026-12-20",
+      "date_text": "12/18-12/20*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://zootampa.org/christmas-in-the-wild/",
+      "notes": ""
+    },
+    {
+      "event_name": "Taste of the North Food and Music Festival",
+      "city": "St. Petersburg",
+      "start_date": "2026-12-18",
+      "end_date": "2026-12-19",
+      "date_text": "12/18-12/19*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/601185042925011/",
+      "notes": ""
+    },
+    {
+      "event_name": "Florida Hmong New Year",
+      "city": "Largo",
+      "start_date": "2026-12-19",
+      "end_date": "2026-12-19",
+      "date_text": "12/19*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://asiatrend.org/event/florida-hmong-new-year/",
+      "notes": ""
+    },
+    {
+      "event_name": "Howey Artisan Market at Mission Resort and Club IX",
+      "city": "Howey in the Hills",
+      "start_date": "2026-12-19",
+      "end_date": "2026-12-19",
+      "date_text": "12/19",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1618016786356990/1618017986356870/?acontext=%7B%22event_action_history%22%3A[%7B%22extra_data%22%3A%22%22%2C%22mechanism%22%3A%22unknown%22%2C%22surface%22%3A%22user_timeline%22%7D%2C%7B%22extra_data%22%3A%22%22%2C%22mechanism%22%3A%22surface%22%2C%22surface%22%3A%22permalink%22%7D%2C%7B%22extra_data%22%3A%22%22%2C%22mechanism%22%3A%22surface%22%2C%22surface%22%3A%22permalink%22%7D]%2C%22ref_notif_type%22%3Anull%7D",
+      "notes": ""
+    },
+    {
+      "event_name": "Navarre Christmas Market",
+      "city": "Navarre",
+      "start_date": "2026-12-19",
+      "end_date": "2026-12-19",
+      "date_text": "12/19",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://apexshowsandevents.com/12%2F19-navarre-holiday",
+      "notes": ""
+    },
+    {
+      "event_name": "Palm Bay Family Christmas Extravaganza",
+      "city": "Palm Bay",
+      "start_date": "2026-12-19",
+      "end_date": "2026-12-19",
+      "date_text": "12/19*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/687182004433204",
+      "notes": ""
+    }
+  ]
+}

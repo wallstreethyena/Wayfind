@@ -1,0 +1,226 @@
+{
+  "batch": 42,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Florida Bohemian Festival",
+      "city": "Palm Coast",
+      "start_date": "2027-02-27",
+      "end_date": "2027-02-28",
+      "date_text": "2/27-2/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.visitstaugustine.com/event/florida-bohemian-festival",
+      "notes": ""
+    },
+    {
+      "event_name": "Florida Renaissance Festival and Craft Village IV",
+      "city": "Deerfield Beach",
+      "start_date": "2027-02-27",
+      "end_date": "2027-02-28",
+      "date_text": "2/27-2/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.ren-fest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Fuel Fest",
+      "city": "West Palm Beach",
+      "start_date": "2027-02-27",
+      "end_date": "2027-02-27",
+      "date_text": "2/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://fuelfest.com/south-florida",
+      "notes": ""
+    },
+    {
+      "event_name": "Gasparilla Festival of the Arts",
+      "city": "Tampa",
+      "start_date": "2027-02-27",
+      "end_date": "2027-02-28",
+      "date_text": "2/27-2/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://gasparillaarts.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Howey Artisan Market at Mission Resort and Club II",
+      "city": "Howey in the Hills",
+      "start_date": "2027-02-27",
+      "end_date": "2027-02-27",
+      "date_text": "2/27",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1618016786356990/1618018003023535/?acontext=%7B%22event_action_history%22%3A[%7B%22extra_data%22%3A%22%22%2C%22mechanism%22%3A%22surface%22%2C%22surface%22%3A%22permalink%22%7D%2C%7B%22extra_data%22%3A%22%22%2C%22mechanism%22%3A%22surface%22%2C%22surface%22%3A%22permalink%22%7D%2C%7B%22extra_data%22%3A%22%22%2C%22mechanism%22%3A%22surface%22%2C%22surface%22%3A%22permalink%22%7D]%2C%22ref_notif_type%22%3Anull%7D",
+      "notes": ""
+    },
+    {
+      "event_name": "Lake Wales Arts Festival",
+      "city": "Lake Wales",
+      "start_date": "2027-02-27",
+      "end_date": "2027-02-28",
+      "date_text": "2/27-2/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.lakewalesartscouncil.org/buy-tickets?pg=selectevent&eid=143551&edid=0",
+      "notes": ""
+    },
+    {
+      "event_name": "Live Oak Strawberry Fest",
+      "city": "Live Oak",
+      "start_date": "2027-02-27",
+      "end_date": "2027-02-28",
+      "date_text": "2/27-2/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.liveoakfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Mermaids and Pirates and Seafood, Oh My!",
+      "city": "New Smyrna Beach",
+      "start_date": "2027-02-27",
+      "end_date": "2027-02-27",
+      "date_text": "2/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://pyracy.com/events/event/643-5th-annual-mermaids-pirates-seafood-oh-my-newsmyrna-fl/",
+      "notes": ""
+    },
+    {
+      "event_name": "Mexico Beach Gumbo and Brunswick Stew Cook-off",
+      "city": "Mexico Beach",
+      "start_date": "2027-02-27",
+      "end_date": "2027-02-27",
+      "date_text": "2/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://mexicobeach.com/event/gumbo-cook-off/",
+      "notes": ""
+    },
+    {
+      "event_name": "Northeast Florida Scottish Highland Games",
+      "city": "Green Cove Springs",
+      "start_date": "2027-02-27",
+      "end_date": "2027-02-27",
+      "date_text": "2/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://neflgames.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Paulie Palooza Music Festival",
+      "city": "Zephyrhills",
+      "start_date": "2027-02-27",
+      "end_date": "2027-02-27",
+      "date_text": "2/27",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://app.betterunite.com/gulfsidehospice-pauliepalooza2026",
+      "notes": ""
+    },
+    {
+      "event_name": "Princess Place Preserve Pow Wow/Flagler County Native American Festival",
+      "city": "Palm Coast",
+      "start_date": "2027-02-27",
+      "end_date": "2027-02-28",
+      "date_text": "2/27-2/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/photo/?fbid=1475806397885374&set=a.460026106130080",
+      "notes": ""
+    },
+    {
+      "event_name": "Sausage Fest",
+      "city": "Pinellas Park",
+      "start_date": "2027-02-27",
+      "end_date": "2027-02-27",
+      "date_text": "2/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://germantampa.com/sausagefest/",
+      "notes": ""
+    },
+    {
+      "event_name": "Shrimp and Grits Festival",
+      "city": "Destin",
+      "start_date": "2027-02-27",
+      "end_date": "2027-02-27",
+      "date_text": "2/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/shrimpandgritsdestin",
+      "notes": ""
+    },
+    {
+      "event_name": "Tampa Taco Fest",
+      "city": "Tampa",
+      "start_date": "2027-02-27",
+      "end_date": "2027-02-27",
+      "date_text": "2/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://813tacofest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "The Gulf Coast Renaissance Faire I",
+      "city": "Milton",
+      "start_date": "2027-02-27",
+      "end_date": "2027-02-28",
+      "date_text": "2/27-2/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://gcrf.us/",
+      "notes": ""
+    },
+    {
+      "event_name": "Umatilla Chili and BBQ Cook-off",
+      "city": "Umatilla",
+      "start_date": "2027-02-27",
+      "end_date": "2027-02-27",
+      "date_text": "2/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://allevents.in/umatilla/9th-annual-chili-and-bbq-cookoff-throwdown/200027741996748#",
+      "notes": ""
+    },
+    {
+      "event_name": "World of Nations Celebration",
+      "city": "Jacksonville",
+      "start_date": "2027-02-27",
+      "end_date": "2027-02-28",
+      "date_text": "2/27-2/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://events.jacksonville.gov/special-events/world-of-nations-celebration",
+      "notes": ""
+    },
+    {
+      "event_name": "WuffStock Festival",
+      "city": "Lake City",
+      "start_date": "2027-02-27",
+      "end_date": "2027-02-27",
+      "date_text": "2/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.covenantpettrust.org/events",
+      "notes": ""
+    },
+    {
+      "event_name": "Field Day Music Festival",
+      "city": "Tallahassee",
+      "start_date": "2027-02-28",
+      "end_date": "2027-02-28",
+      "date_text": "2/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.fielddaytallahassee.com/",
+      "notes": ""
+    }
+  ]
+}

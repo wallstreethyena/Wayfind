@@ -1,0 +1,226 @@
+{
+  "batch": 13,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Electric Daisy Carnival",
+      "city": "Orlando",
+      "start_date": "2026-11-06",
+      "end_date": "2026-11-08",
+      "date_text": "11/6-11/8",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://orlando.electricdaisycarnival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Festival of the Skeletons",
+      "city": "Bradenton",
+      "start_date": "2026-11-06",
+      "end_date": "2026-11-07",
+      "date_text": "11/6-11/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/villageofthearts",
+      "notes": ""
+    },
+    {
+      "event_name": "Florida Seafood Festival",
+      "city": "Apalachicola",
+      "start_date": "2026-11-06",
+      "end_date": "2026-11-07",
+      "date_text": "11/6-11/7",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.floridaseafoodfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Galbani Feast of Little Italy",
+      "city": "Jupiter",
+      "start_date": "2026-11-06",
+      "end_date": "2026-11-08",
+      "date_text": "11/6-11/8",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/feastoflittleitaly/",
+      "notes": ""
+    },
+    {
+      "event_name": "Great Gulfcoast Arts Festival",
+      "city": "Pensacola",
+      "start_date": "2026-11-06",
+      "end_date": "2026-11-08",
+      "date_text": "11/6-11/8",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.ggaf.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Greek Fest Orlando",
+      "city": "Orlando",
+      "start_date": "2026-11-06",
+      "end_date": "2026-11-08",
+      "date_text": "11/6-11/8*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.orlandogreekfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Historic Lincolnville Festival",
+      "city": "St. Augustine",
+      "start_date": "2026-11-06",
+      "end_date": "2026-11-08",
+      "date_text": "11/6-11/8*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/LHPRS",
+      "notes": ""
+    },
+    {
+      "event_name": "Night Garden I",
+      "city": "Coral Gables",
+      "start_date": "2026-11-06",
+      "end_date": "2026-11-07",
+      "date_text": "11/6-11/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://feverup.com/m/491532?utm_content=780244245804&utm_medium=sc_brand&utm_campaign=491506_mia&gad_campaignid=23173787680&gclid=CjwKCAjw04HIBhB8EiwA8jGNbXHoEt-s_uMH1wqBzn5wxPtOGkhhTponDbM_VZF5qwpKCm7cQoK0QRoCpcwQAvD_BwE&gbraid=0AAAAADGO9U_IEXlWA6nbQsNUGagujcODy&utm_term=night%20garden%20miami_p&gad_source=1&utm_source=google",
+      "notes": ""
+    },
+    {
+      "event_name": "North Miami Greek Festival",
+      "city": "North Miami",
+      "start_date": "2026-11-06",
+      "end_date": "2026-11-08",
+      "date_text": "11/6-11/8",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://northmiamigreekfestival.com",
+      "notes": ""
+    },
+    {
+      "event_name": "Phantasmagoria",
+      "city": "Brooksville",
+      "start_date": "2026-11-06",
+      "end_date": "2026-11-08",
+      "date_text": "11/6-11/8",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.foxfamjam.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Tampa Greek Festival",
+      "city": "Tampa",
+      "start_date": "2026-11-06",
+      "end_date": "2026-11-07",
+      "date_text": "11/6-11/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://tampagreekfestival.com",
+      "notes": ""
+    },
+    {
+      "event_name": "Thunderbird Inter-Tribal Powwow",
+      "city": "Niceville",
+      "start_date": "2026-11-06",
+      "end_date": "2026-11-08",
+      "date_text": "11/6-11/8",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.thunderbirdpowwow.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Armory Art Center’s Art + Craft + Design Creative Market",
+      "city": "West Palm Beach",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-08",
+      "date_text": "11/7-11/8*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://armoryart.org/event/armory-art-center-art-craft-design-creative-market-2/",
+      "notes": ""
+    },
+    {
+      "event_name": "Avalon Park Autumn Artisan Market and Family Fest",
+      "city": "Orlando",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-07",
+      "date_text": "11/7",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://avalonparkorlando.com/play/event-calendar/#!",
+      "notes": ""
+    },
+    {
+      "event_name": "Badass Beer Fest",
+      "city": "Oldsmar",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-07",
+      "date_text": "11/7",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.eventbrite.com/e/badass-beer-fest-26-tickets-1983556339407?aff=erelexpmlt",
+      "notes": ""
+    },
+    {
+      "event_name": "Barberville Pioneer Settlement Fall Country Jamboree",
+      "city": "Barberville",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-08",
+      "date_text": "11/7-11/8",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.pioneersettlement.org",
+      "notes": ""
+    },
+    {
+      "event_name": "Bark and Brew",
+      "city": "Oviedo",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-07",
+      "date_text": "11/7",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/27558412563833245",
+      "notes": ""
+    },
+    {
+      "event_name": "Boca Raton Fine Art Show II",
+      "city": "Boca Raton",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-08",
+      "date_text": "11/7-11/8",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://hotworks.org/events-hot-works/",
+      "notes": ""
+    },
+    {
+      "event_name": "Brandon Seafood Festival",
+      "city": "Brandon",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-07",
+      "date_text": "11/7",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "http://brandon86rotary.com/brandonseafoodfestival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Camelot Days Medieval Festival I",
+      "city": "Hollywood",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-08",
+      "date_text": "11/7-11/8*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://camelotdays.com/",
+      "notes": ""
+    }
+  ]
+}

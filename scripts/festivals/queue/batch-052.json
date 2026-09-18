@@ -1,0 +1,226 @@
+{
+  "batch": 52,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Gamble Rogers Music Festival",
+      "city": "St. Augustine",
+      "start_date": "2027-04-09",
+      "end_date": "2027-04-11",
+      "date_text": "4/9-4/11*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/gamblerogersfest",
+      "notes": ""
+    },
+    {
+      "event_name": "Gasparilla Music Festival",
+      "city": "Tampa",
+      "start_date": "2027-04-09",
+      "end_date": "2027-04-11",
+      "date_text": "4/9-4/11*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://gasparillamusic.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Oldsmar Days and Nights",
+      "city": "Oldsmar",
+      "start_date": "2027-04-09",
+      "end_date": "2027-04-11",
+      "date_text": "4/9-4/11*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://business.utbchamber.com/community-calendar/Details/oldsmar-days-nights-1458442?sourceTypeId=Hub",
+      "notes": ""
+    },
+    {
+      "event_name": "PhilFest",
+      "city": "Tampa",
+      "start_date": "2027-04-09",
+      "end_date": "2027-04-11",
+      "date_text": "4/9-4/11*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/pcfitampa",
+      "notes": ""
+    },
+    {
+      "event_name": "Springing the Blues",
+      "city": "Jacksonville Beach",
+      "start_date": "2027-04-09",
+      "end_date": "2027-04-11",
+      "date_text": "4/9-4/11*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/springingtheblues/",
+      "notes": ""
+    },
+    {
+      "event_name": "Tampa Bay Blues Festival",
+      "city": "Tampa",
+      "start_date": "2027-04-09",
+      "end_date": "2027-04-11",
+      "date_text": "4/9-4/11*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.tampabaybluesfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Tampa Bay Rodeo and Family Festival",
+      "city": "Dover",
+      "start_date": "2027-04-09",
+      "end_date": "2027-04-10",
+      "date_text": "4/9-4/10*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://tamparodeo.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Tortuga Music Festival",
+      "city": "Fort Lauderdale",
+      "start_date": "2027-04-09",
+      "end_date": "2027-04-11",
+      "date_text": "4/9-4/11*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.tortugamusicfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Vintage Market Days of Metro Tampa: Bloom",
+      "city": "Tampa",
+      "start_date": "2027-04-09",
+      "end_date": "2027-04-11",
+      "date_text": "4/9-4/11*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://vintagemarketdays.com/market/metro-tampa/",
+      "notes": ""
+    },
+    {
+      "event_name": "Absolutely Avalon",
+      "city": "Orlando",
+      "start_date": "2027-04-10",
+      "end_date": "2027-04-10",
+      "date_text": "4/10*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.avalonparkorlando.com/play/community-festivals/absolutely-avalon/",
+      "notes": ""
+    },
+    {
+      "event_name": "American Legion Catfish Festival",
+      "city": "Branford",
+      "start_date": "2027-04-10",
+      "end_date": "2027-04-10",
+      "date_text": "4/10*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.alcff.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Blueberry Fest at Wickham Park",
+      "city": "Melbourne",
+      "start_date": "2027-04-10",
+      "end_date": "2027-04-11",
+      "date_text": "4/10-4/11*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.melbourne-fest.com/Blueberry-Fest-Home.php",
+      "notes": ""
+    },
+    {
+      "event_name": "Bunnell History Day",
+      "city": "Bunnell",
+      "start_date": "2027-04-10",
+      "end_date": "2027-04-10",
+      "date_text": "4/10*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://flaglercountyhistoricalsociety.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Cajun Crawfish and Music Festival",
+      "city": "Jupiter",
+      "start_date": "2027-04-10",
+      "end_date": "2027-04-11",
+      "date_text": "4/10-4/11*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/cajuncrawfishandmusicfestival",
+      "notes": ""
+    },
+    {
+      "event_name": "Chautauqua Winery’s Spring Fling",
+      "city": "DeFuniak Springs",
+      "start_date": "2027-04-10",
+      "end_date": "2027-04-10",
+      "date_text": "4/10*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://chautauquawinery.com/spring-fling-2026",
+      "notes": ""
+    },
+    {
+      "event_name": "Davie Jazz Festival",
+      "city": "Davie",
+      "start_date": "2027-04-10",
+      "end_date": "2027-04-10",
+      "date_text": "4/10*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.davie-fl.gov/1777/Davie-Jazz-Festival",
+      "notes": ""
+    },
+    {
+      "event_name": "Dunedin Highland Games and Festival",
+      "city": "Dunedin",
+      "start_date": "2027-04-10",
+      "end_date": "2027-04-10",
+      "date_text": "4/10*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/DunedinHighlandGames",
+      "notes": ""
+    },
+    {
+      "event_name": "Dunnellon Boomtown Days Festival",
+      "city": "Dunnellon",
+      "start_date": "2027-04-10",
+      "end_date": "2027-04-10",
+      "date_text": "4/10*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://dunnellonchamber.com/event/2026-dunnellon-boomtown-days-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Florida Groves Music Festival",
+      "city": "Orlando",
+      "start_date": "2027-04-10",
+      "end_date": "2027-04-11",
+      "date_text": "4/10-4/11*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://floridagroves.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Fort Myers Fine Art Show",
+      "city": "Fort Myers",
+      "start_date": "2027-04-10",
+      "end_date": "2027-04-11",
+      "date_text": "4/10-4/11*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://hotworks.org/events-hot-works/",
+      "notes": ""
+    }
+  ]
+}

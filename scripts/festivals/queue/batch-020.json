@@ -1,0 +1,226 @@
+{
+  "batch": 20,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Grilled Cheese Festival at CoolToday Park",
+      "city": "Venice",
+      "start_date": "2026-11-21",
+      "end_date": "2026-11-21",
+      "date_text": "11/21",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://cooltodaypark.com/events/5th-annual-grilled-cheese-festival-presented-by-latham/",
+      "notes": ""
+    },
+    {
+      "event_name": "Haven Holiday Market",
+      "city": "Winter Haven",
+      "start_date": "2026-11-21",
+      "end_date": "2026-11-21",
+      "date_text": "11/21",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.centralfloridaeventvendors.com/haven-holiday-market/",
+      "notes": ""
+    },
+    {
+      "event_name": "Holiday Fantasy of Lights I",
+      "city": "Coconut Creek",
+      "start_date": "2026-11-21",
+      "end_date": "2026-11-22",
+      "date_text": "11/21-11/22*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://holidaylightsdrivethru.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Light Up Mount Dora",
+      "city": "Mount Dora",
+      "start_date": "2026-11-21",
+      "end_date": "2026-11-21",
+      "date_text": "11/21",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.mountdora.gov/Calendar.aspx?EID=19145&month=7&year=2026&day=17&calType=0",
+      "notes": ""
+    },
+    {
+      "event_name": "Light Up Ocala",
+      "city": "Ocala",
+      "start_date": "2026-11-21",
+      "end_date": "2026-11-21",
+      "date_text": "11/21",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.ocalafl.org/government/city-departments-i-z/recreation-parks/events/light-up-ocala",
+      "notes": ""
+    },
+    {
+      "event_name": "Longwood Arts and Crafts Festival",
+      "city": "Longwood",
+      "start_date": "2026-11-21",
+      "end_date": "2026-11-22",
+      "date_text": "11/21-11/22",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://longwoodfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Ormond Beach Riverfest",
+      "city": "Ormond Beach",
+      "start_date": "2026-11-21",
+      "end_date": "2026-11-22",
+      "date_text": "11/21-11/22",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1647212583158956",
+      "notes": ""
+    },
+    {
+      "event_name": "Riverside WineFest",
+      "city": "Jacksonville",
+      "start_date": "2026-11-21",
+      "end_date": "2026-11-21",
+      "date_text": "11/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/RSLJAX",
+      "notes": ""
+    },
+    {
+      "event_name": "Sarasota Medieval Fair III",
+      "city": "Myakka City",
+      "start_date": "2026-11-21",
+      "end_date": "2026-11-22",
+      "date_text": "11/21-11/22",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.sarasotamedievalfair.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Sugar Cane Festival",
+      "city": "White Springs",
+      "start_date": "2026-11-21",
+      "end_date": "2026-11-21",
+      "date_text": "11/21",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/GLSStatePark/posts/the-annual-sugar-cane-festival-is-november-21-2026-if-you-are-interested-in-bein/1413544667488916/",
+      "notes": ""
+    },
+    {
+      "event_name": "USA Today Wine and Food Festival: West Palm Beach",
+      "city": "West Palm Beach",
+      "start_date": "2026-11-21",
+      "end_date": "2026-11-21",
+      "date_text": "11/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://wineandfood.usatoday.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Yankeetown Art, Craft and Seafood Festival",
+      "city": "Yankeetown",
+      "start_date": "2026-11-21",
+      "end_date": "2026-11-22",
+      "date_text": "11/21-11/22",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://yankeetownseafoodfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Winterfest Family Fun Day",
+      "city": "Fort Lauderdale",
+      "start_date": "2026-11-22",
+      "end_date": "2026-11-22",
+      "date_text": "11/22",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://winterfestparade.com/events/family-fun-day",
+      "notes": ""
+    },
+    {
+      "event_name": "Enchant Christmas II",
+      "city": "St. Petersburg",
+      "start_date": "2026-11-23",
+      "end_date": "2026-11-29",
+      "date_text": "11/23-11/29",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.enchantchristmas.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Holiday Fantasy of Lights II",
+      "city": "Coconut Creek",
+      "start_date": "2026-11-23",
+      "end_date": "2026-11-29",
+      "date_text": "11/23-11/29*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://holidaylightsdrivethru.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Magic of Lights at Daytona International Speedway II",
+      "city": "Daytona Beach",
+      "start_date": "2026-11-23",
+      "end_date": "2026-11-29",
+      "date_text": "11/23-11/29*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://magicoflights.com/events/daytona/",
+      "notes": ""
+    },
+    {
+      "event_name": "The Central Florida Zoo and Botanical Gardens Asian Lantern Festival III",
+      "city": "Sanford",
+      "start_date": "2026-11-23",
+      "end_date": "2026-11-29",
+      "date_text": "11/23-11/29* (Closed 11/26)",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.centralfloridazoo.org/lanterns/",
+      "notes": ""
+    },
+    {
+      "event_name": "Night Garden IV",
+      "city": "Coral Gables",
+      "start_date": "2026-11-25",
+      "end_date": "2026-11-29",
+      "date_text": "11/25-11/29* (Closed 11/26)",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://thenightgarden.co/miami/",
+      "notes": ""
+    },
+    {
+      "event_name": "Holiday Lights in Largo Central Park I",
+      "city": "Largo",
+      "start_date": "2026-11-26",
+      "end_date": "2026-11-29",
+      "date_text": "11/26-11/29",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.playlargo.com/special_events_detail_T40_R38.php",
+      "notes": ""
+    },
+    {
+      "event_name": "Tampa Bay’s Festival of Lights and Santa’s Village I",
+      "city": "Dover",
+      "start_date": "2026-11-26",
+      "end_date": "2026-11-29",
+      "date_text": "11/26-11/29",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.hillsboroughcountyfair.com/p/events/httpswwwhillsboroughcountyfaircompsub-pages",
+      "notes": ""
+    }
+  ]
+}

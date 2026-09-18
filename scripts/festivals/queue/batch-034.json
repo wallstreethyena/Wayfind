@@ -1,0 +1,226 @@
+{
+  "batch": 34,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "St. Vincent Ferrer Parish Festival",
+      "city": "Delray Beach",
+      "start_date": "2027-01-29",
+      "end_date": "2027-01-31",
+      "date_text": "1/29-1/31*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/stvincentferrerdelray",
+      "notes": ""
+    },
+    {
+      "event_name": "Big Bend Brew Fest",
+      "city": "Perry",
+      "start_date": "2027-01-30",
+      "end_date": "2027-01-30",
+      "date_text": "1/30*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/BigBendBrewfest/",
+      "notes": ""
+    },
+    {
+      "event_name": "Brevard Renaissance Fair III",
+      "city": "Melbourne",
+      "start_date": "2027-01-30",
+      "end_date": "2027-01-31",
+      "date_text": "1/30-1/31*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://brevardrenaissancefair.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Buckhead Ridge Catfish Festival",
+      "city": "Buckhead Ridge",
+      "start_date": "2027-01-30",
+      "end_date": "2027-01-30",
+      "date_text": "1/30*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://voteglades.gov/event/buckhead-ridge-catfish-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Celebrate Lunar",
+      "city": "Orlando",
+      "start_date": "2027-01-30",
+      "end_date": "2027-01-30",
+      "date_text": "1/30*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://asiatrend.org/event/celebrate-lunar-2/",
+      "notes": ""
+    },
+    {
+      "event_name": "Charlotte Harbor Chili, Beer and Music Festival",
+      "city": "Punta Gorda",
+      "start_date": "2027-01-30",
+      "end_date": "2027-01-30",
+      "date_text": "1/30*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/charlottechilifest/",
+      "notes": ""
+    },
+    {
+      "event_name": "Florida’s Citrus Festival",
+      "city": "Winter Haven",
+      "start_date": "2027-01-30",
+      "end_date": "2027-01-30",
+      "date_text": "1/30*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.destroyermediaandmarketing.com/floridascitrusfestival",
+      "notes": ""
+    },
+    {
+      "event_name": "Howey Artisan Market at Mission Resort and Club I",
+      "city": "Howey in the Hills",
+      "start_date": "2027-01-30",
+      "end_date": "2027-01-30",
+      "date_text": "1/30",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1618016786356990/1618018006356868/?acontext=%7B%22event_action_history%22%3A[%7B%22extra_data%22%3A%22%22%2C%22mechanism%22%3A%22surface%22%2C%22surface%22%3A%22permalink%22%7D%2C%7B%22extra_data%22%3A%22%22%2C%22mechanism%22%3A%22surface%22%2C%22surface%22%3A%22permalink%22%7D%2C%7B%22extra_data%22%3A%22%22%2C%22mechanism%22%3A%22surface%22%2C%22surface%22%3A%22permalink%22%7D]%2C%22ref_notif_type%22%3Anull%7D",
+      "notes": ""
+    },
+    {
+      "event_name": "Kumquat Festival",
+      "city": "Dade City",
+      "start_date": "2027-01-30",
+      "end_date": "2027-01-30",
+      "date_text": "1/30*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.dadecitychamber.org/annual-kumquat-festivalr",
+      "notes": ""
+    },
+    {
+      "event_name": "Milton Mardi Gras Parade and Afterparty",
+      "city": "Milton",
+      "start_date": "2027-01-30",
+      "end_date": "2027-01-30",
+      "date_text": "1/30*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1540240787129226/",
+      "notes": ""
+    },
+    {
+      "event_name": "Mount Dora Arts Festival",
+      "city": "Mount Dora",
+      "start_date": "2027-01-30",
+      "end_date": "2027-01-31",
+      "date_text": "1/30-1/31*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://mountdoraart.com/mount-dora-arts-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Oakland Heritage Day",
+      "city": "Oakland",
+      "start_date": "2027-01-30",
+      "end_date": "2027-01-30",
+      "date_text": "1/30*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/s/oakland-heritage-day-2026/1936972820420565/",
+      "notes": ""
+    },
+    {
+      "event_name": "Sarasota Fine Art Show I",
+      "city": "Sarasota",
+      "start_date": "2027-01-30",
+      "end_date": "2027-01-31",
+      "date_text": "1/30-1/31*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://hotworks.org/events-hot-works/",
+      "notes": ""
+    },
+    {
+      "event_name": "Seminole Hard Rock Gasparilla Pirate Fest",
+      "city": "Tampa",
+      "start_date": "2027-01-30",
+      "end_date": "2027-01-30",
+      "date_text": "1/30*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://gasparillapiratefest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Suncoast Scots Highland Games and Celtic Festival",
+      "city": "Sarasota",
+      "start_date": "2027-01-30",
+      "end_date": "2027-01-30",
+      "date_text": "1/30*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.suncoastscots.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Taste of Ave",
+      "city": "Ave Maria",
+      "start_date": "2027-01-30",
+      "end_date": "2027-01-30",
+      "date_text": "1/30*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1515784742769153",
+      "notes": ""
+    },
+    {
+      "event_name": "Wekiva Island Otter Fest: A Celebration of Craft Beer and Wine",
+      "city": "Longwood",
+      "start_date": "2027-01-30",
+      "end_date": "2027-01-30",
+      "date_text": "1/30*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://wekivaisland.com/event/otter-fest-a-celebration-of-beer-wine/",
+      "notes": ""
+    },
+    {
+      "event_name": "East West Music and Dance Festival",
+      "city": "Tampa",
+      "start_date": "2027-01-31",
+      "end_date": "2027-01-31",
+      "date_text": "1/31*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.shrutifoundationtampa.org/eastwestmusicanddancefestival",
+      "notes": ""
+    },
+    {
+      "event_name": "Big Cypress Indigenous Arts and Music Festival",
+      "city": "Clewiston",
+      "start_date": "2027-02-04",
+      "end_date": "2027-02-06",
+      "date_text": "2/4-2/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://indigenousamf.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Farm to Grass MamaLinda Music Festival",
+      "city": "Fort Pierce",
+      "start_date": "2027-02-04",
+      "end_date": "2027-02-08",
+      "date_text": "2/4-2/8*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/2651-minute-maid-rd-fort-pierce-fl-united-states-florida-34945/mamalinda-music-fest-2026-farm-to-grass/558489350206803/",
+      "notes": ""
+    }
+  ]
+}

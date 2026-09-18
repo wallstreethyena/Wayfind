@@ -1,0 +1,226 @@
+{
+  "batch": 54,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Sacred Heart Spring Festival",
+      "city": "Pinellas Park",
+      "start_date": "2027-04-14",
+      "end_date": "2027-04-18",
+      "date_text": "4/14-4/18*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.sacredheartfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "New Smyrna Beach Food Festival",
+      "city": "New Smyrna Beach",
+      "start_date": "2027-04-15",
+      "end_date": "2027-04-15",
+      "date_text": "4/15*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://flaglerave.com/event/new-smyrna-beach-food-festival-3/",
+      "notes": ""
+    },
+    {
+      "event_name": "Resonate Suwannee",
+      "city": "Live Oak",
+      "start_date": "2027-04-15",
+      "end_date": "2027-04-17",
+      "date_text": "4/15-4/17*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/Resonatesuwannee",
+      "notes": ""
+    },
+    {
+      "event_name": "Sandestin Wine Festival",
+      "city": "Miramar Beach",
+      "start_date": "2027-04-15",
+      "end_date": "2027-04-18",
+      "date_text": "4/15-4/18*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.sandestinwinefestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Breakaway Festival",
+      "city": "Tampa",
+      "start_date": "2027-04-16",
+      "end_date": "2027-04-17",
+      "date_text": "4/16-4/17*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.breakawayfestival.com",
+      "notes": ""
+    },
+    {
+      "event_name": "Grant BBQ Fest",
+      "city": "Grant-Valkaria",
+      "start_date": "2027-04-16",
+      "end_date": "2027-04-18",
+      "date_text": "4/16-4/18*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://grantbbqfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Punta Gorda Seafood and Music Festival",
+      "city": "Punta Gorda",
+      "start_date": "2027-04-16",
+      "end_date": "2027-04-18",
+      "date_text": "4/16-4/18*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.paragonfestivals.com/festival/punta-gorda-seafood-music-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Rock and Roll Revival",
+      "city": "Brooksville",
+      "start_date": "2027-04-16",
+      "end_date": "2027-04-18",
+      "date_text": "4/16-4/18*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://rocknrollrevival.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Taste of Oakland Park",
+      "city": "Oakland Park",
+      "start_date": "2027-04-16",
+      "end_date": "2027-04-16",
+      "date_text": "4/16*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.oaklandparkfl.gov/535/Taste-of-Oakland-Park",
+      "notes": ""
+    },
+    {
+      "event_name": "863 Art Fest",
+      "city": "Winter Haven",
+      "start_date": "2027-04-17",
+      "end_date": "2027-04-17",
+      "date_text": "4/17*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.centralfloridaeventvendors.com/863-local-art-fest/",
+      "notes": ""
+    },
+    {
+      "event_name": "Black Gold Jubilee",
+      "city": "Belle Glade",
+      "start_date": "2027-04-17",
+      "end_date": "2027-04-17",
+      "date_text": "4/17*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://blackgoldjubilee.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Blues and BBQ",
+      "city": "Tampa",
+      "start_date": "2027-04-17",
+      "end_date": "2027-04-17",
+      "date_text": "4/17*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1259322225607232/",
+      "notes": ""
+    },
+    {
+      "event_name": "Chain of Parks Art Festival",
+      "city": "Tallahassee",
+      "start_date": "2027-04-17",
+      "end_date": "2027-04-18",
+      "date_text": "4/17-4/18*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://chainofparks.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Clermont Arts and Jazz Festival",
+      "city": "Clermont",
+      "start_date": "2027-04-17",
+      "end_date": "2027-04-18",
+      "date_text": "4/17-4/18*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.clermontfl.gov/254/Events",
+      "notes": ""
+    },
+    {
+      "event_name": "Down Home Days Festival",
+      "city": "Madison",
+      "start_date": "2027-04-17",
+      "end_date": "2027-04-17",
+      "date_text": "4/17*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.madisondownhomedays.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Earth Day Pensacola Festival",
+      "city": "Pensacola",
+      "start_date": "2027-04-17",
+      "end_date": "2027-04-17",
+      "date_text": "4/17*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://earthdaypensacola.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Keel Farms Tampa Bay Blueberry Festival III",
+      "city": "Plant City",
+      "start_date": "2027-04-17",
+      "end_date": "2027-04-18",
+      "date_text": "4/17-4/18*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.keelfarms.com/festivals",
+      "notes": ""
+    },
+    {
+      "event_name": "Land O’ Lakes Seafood Festival",
+      "city": "Land O’Lakes",
+      "start_date": "2027-04-17",
+      "end_date": "2027-04-17",
+      "date_text": "4/17*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://floridapenguinproductions.com/upcoming-events-list",
+      "notes": ""
+    },
+    {
+      "event_name": "Middleburg Spring Festival",
+      "city": "Middleburg",
+      "start_date": "2027-04-17",
+      "end_date": "2027-04-17",
+      "date_text": "4/17*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://exploreclay.com/event/2026-annual-middleburg-spring-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Naples Pride Fest",
+      "city": "Naples",
+      "start_date": "2027-04-17",
+      "end_date": "2027-04-17",
+      "date_text": "4/17*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.naplespride.org/pridefest-2026",
+      "notes": ""
+    }
+  ]
+}

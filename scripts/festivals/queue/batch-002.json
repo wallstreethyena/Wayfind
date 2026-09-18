@@ -1,0 +1,226 @@
+{
+  "batch": 2,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Leesburg Fiesta en la Plaza",
+      "city": "Leesburg",
+      "start_date": "2026-09-25",
+      "end_date": "2026-09-25",
+      "date_text": "9/25",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1744896233619604",
+      "notes": ""
+    },
+    {
+      "event_name": "Main Street Marianna Fall Festival",
+      "city": "Marianna",
+      "start_date": "2026-09-25",
+      "end_date": "2026-09-25",
+      "date_text": "9/25",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/2347117706049657/",
+      "notes": ""
+    },
+    {
+      "event_name": "Oktoberfest at Bluewater Bay",
+      "city": "Niceville",
+      "start_date": "2026-09-25",
+      "end_date": "2026-09-26",
+      "date_text": "9/25-9/26",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.midbayrotaryclub.org/events",
+      "notes": ""
+    },
+    {
+      "event_name": "Pensacola Seafood Festival",
+      "city": "Pensacola",
+      "start_date": "2026-09-25",
+      "end_date": "2026-09-27",
+      "date_text": "9/25-9/27",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.pensacolaseafoodfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Raprager Family Farm’s Fall Festival II",
+      "city": "Odessa",
+      "start_date": "2026-09-25",
+      "end_date": "2026-09-27",
+      "date_text": "9/25-9/27",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://rapragerfarm.com/fall-festival",
+      "notes": ""
+    },
+    {
+      "event_name": "Smokin’ in the Pines BBQ Festival",
+      "city": "Perry",
+      "start_date": "2026-09-25",
+      "end_date": "2026-09-26",
+      "date_text": "9/25-9/26",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.smokininthepinesbbq.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Traditional German American Friendship Society of Pinellas Oktoberfest I",
+      "city": "Pinellas Park",
+      "start_date": "2026-09-25",
+      "end_date": "2026-09-26",
+      "date_text": "9/25-9/26",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/GermanTampa",
+      "notes": ""
+    },
+    {
+      "event_name": "Bartow Fall Fest",
+      "city": "Bartow",
+      "start_date": "2026-09-26",
+      "end_date": "2026-09-26",
+      "date_text": "9/26",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://mainstreetbartowfl.com/event-calendar",
+      "notes": ""
+    },
+    {
+      "event_name": "Bedner’s Fall Festival I",
+      "city": "Boynton Beach",
+      "start_date": "2026-09-26",
+      "end_date": "2026-09-27",
+      "date_text": "9/26-9/27",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://bedners.com/fall-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Experience Asia Festival",
+      "city": "Tallahassee",
+      "start_date": "2026-09-26",
+      "end_date": "2026-09-26",
+      "date_text": "9/26",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://asiantlh.org/events/2026-EA",
+      "notes": ""
+    },
+    {
+      "event_name": "Fall Festival at Amber Brooke Farms II",
+      "city": "Williston",
+      "start_date": "2026-09-26",
+      "end_date": "2026-09-27",
+      "date_text": "9/26-9/27",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://amberbrookefarms.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "German American Society Oktoberfest I",
+      "city": "Hollywood",
+      "start_date": "2026-09-26",
+      "end_date": "2026-09-26",
+      "date_text": "9/26",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.germanamericanclubhollywood.org",
+      "notes": ""
+    },
+    {
+      "event_name": "Howey Artisan Market at Mission Resort and Club VI",
+      "city": "Howey in the Hills",
+      "start_date": "2026-09-26",
+      "end_date": "2026-09-26",
+      "date_text": "9/26",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1618016786356990/1618018013023534/",
+      "notes": ""
+    },
+    {
+      "event_name": "International Food and Drink Festival",
+      "city": "Orlando",
+      "start_date": "2026-09-26",
+      "end_date": "2026-09-26",
+      "date_text": "9/26",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.instagram.com/internationalfoodanddrinkfest/",
+      "notes": ""
+    },
+    {
+      "event_name": "Lake Nona Oktoberfest",
+      "city": "Orlando",
+      "start_date": "2026-09-26",
+      "end_date": "2026-09-26",
+      "date_text": "9/26",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.eventbrite.com/e/lake-nona-oktoberfest-2026-stein-hoisting-competition-tickets-1994830603033",
+      "notes": ""
+    },
+    {
+      "event_name": "Largo Evening Market VII",
+      "city": "Largo",
+      "start_date": "2026-09-26",
+      "end_date": "2026-09-26",
+      "date_text": "9/26",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.playlargo.com/special_events_detail_T40_R81.php",
+      "notes": ""
+    },
+    {
+      "event_name": "Mayhem Ranch Fall Festival I",
+      "city": "Morriston",
+      "start_date": "2026-09-26",
+      "end_date": "2026-09-27",
+      "date_text": "9/26-9/27",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://mayhemranchfla.com/event/mayhem-ranch-fall-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Moon Over Avalon Night Market",
+      "city": "Orlando",
+      "start_date": "2026-09-26",
+      "end_date": "2026-09-26",
+      "date_text": "9/26",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/Orlando.Moon.Festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Mount Dora Viva La Frida",
+      "city": "Mount Dora",
+      "start_date": "2026-09-26",
+      "end_date": "2026-09-26",
+      "date_text": "9/26",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://mountdoraart.com/mount-dora-viva-la-frida-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Panacea Blue Crab Festival",
+      "city": "Panacea",
+      "start_date": "2026-09-26",
+      "end_date": "2026-09-26",
+      "date_text": "9/26",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.visitpanacea.org/blue-crab-festival",
+      "notes": ""
+    }
+  ]
+}

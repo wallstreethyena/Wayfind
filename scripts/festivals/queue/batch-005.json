@@ -1,0 +1,226 @@
+{
+  "batch": 5,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Serb Fest",
+      "city": "Longwood",
+      "start_date": "2026-10-09",
+      "end_date": "2026-10-11",
+      "date_text": "10/9-10/11",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/StPetka/",
+      "notes": ""
+    },
+    {
+      "event_name": "Bedner’s Fall Festival III",
+      "city": "Boynton Beach",
+      "start_date": "2026-10-10",
+      "end_date": "2026-10-11",
+      "date_text": "10/10-10/11",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://bedners.com/fall-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Celtoberfest",
+      "city": "Sarasota",
+      "start_date": "2026-10-10",
+      "end_date": "2026-10-10",
+      "date_text": "10/10",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/newworldceltssarasota/",
+      "notes": ""
+    },
+    {
+      "event_name": "Cowtown BBQ and Country Music Fest",
+      "city": "Arcadia",
+      "start_date": "2026-10-10",
+      "end_date": "2026-10-10",
+      "date_text": "10/10",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.eventbrite.com/e/cowtown-bbq-country-music-fest-tickets-1989967865454?aff=erelexpmlt",
+      "notes": ""
+    },
+    {
+      "event_name": "Crystal River Scarecrow Fest",
+      "city": "Crystal River",
+      "start_date": "2026-10-10",
+      "end_date": "2026-10-10",
+      "date_text": "10/10",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.discovercrystalriverfl.com",
+      "notes": ""
+    },
+    {
+      "event_name": "Dakin Dairy Farms Harvest Festival I",
+      "city": "Myakka City",
+      "start_date": "2026-10-10",
+      "end_date": "2026-10-11",
+      "date_text": "10/10-10/11",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://dakindairyfarms.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Deerfield Beach Fall Festival",
+      "city": "Deerfield Beach",
+      "start_date": "2026-10-10",
+      "end_date": "2026-10-10",
+      "date_text": "10/10",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.deerfield-beach.com/1407/Fall-Festival",
+      "notes": ""
+    },
+    {
+      "event_name": "Fishermen’s Village International Culture Fest",
+      "city": "Punta Gorda",
+      "start_date": "2026-10-10",
+      "end_date": "2026-10-10",
+      "date_text": "10/10",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.fishermensvillage.com/events",
+      "notes": ""
+    },
+    {
+      "event_name": "Flamingo Gardens Harvest Festival II",
+      "city": "Davie",
+      "start_date": "2026-10-10",
+      "end_date": "2026-10-11",
+      "date_text": "10/10-10/11",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://flamingogardens.org/events/",
+      "notes": ""
+    },
+    {
+      "event_name": "Forgotten Music Festival",
+      "city": "Port St. Joe",
+      "start_date": "2026-10-10",
+      "end_date": "2026-10-11",
+      "date_text": "10/10-10/11",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/ForgottenMusicFestival",
+      "notes": ""
+    },
+    {
+      "event_name": "Fruitville Grove Pumpkin Festival II",
+      "city": "Sarasota",
+      "start_date": "2026-10-10",
+      "end_date": "2026-10-11",
+      "date_text": "10/10-10/11",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://fruitvillegrovefarm.com/festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "German American Society Oktoberfest II",
+      "city": "Hollywood",
+      "start_date": "2026-10-10",
+      "end_date": "2026-10-10",
+      "date_text": "10/10",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.germanamericanclubhollywood.org",
+      "notes": ""
+    },
+    {
+      "event_name": "HorsePower For Kids Fall Festival II",
+      "city": "Tampa",
+      "start_date": "2026-10-10",
+      "end_date": "2026-10-11",
+      "date_text": "10/10-10/11",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/HorsePowerforKids/events",
+      "notes": ""
+    },
+    {
+      "event_name": "Hunsader Farms Pumpkin Festival I",
+      "city": "Bradenton",
+      "start_date": "2026-10-10",
+      "end_date": "2026-10-11",
+      "date_text": "10/10-10/11",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.hunsaderfarms.com/pumpkin-festival",
+      "notes": ""
+    },
+    {
+      "event_name": "Lumberjack Festival",
+      "city": "Milton",
+      "start_date": "2026-10-10",
+      "end_date": "2026-10-10",
+      "date_text": "10/10*",
+      "source_says_unconfirmed": true,
+      "lead_status": "needs_verification",
+      "organizer_url_hint": "https://www.facebook.com/events/5988-highway-90-milton-fl-32583-1713-united-states/lumberjack-festival-2025/646850058142977/",
+      "notes": "?"
+    },
+    {
+      "event_name": "Mayhem Ranch Fall Festival III",
+      "city": "Morriston",
+      "start_date": "2026-10-10",
+      "end_date": "2026-10-11",
+      "date_text": "10/10-10/11",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://mayhemranchfla.com/event/mayhem-ranch-fall-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Miami Carnival J’ouvert",
+      "city": "Lauderhill",
+      "start_date": "2026-10-10",
+      "end_date": "2026-10-10",
+      "date_text": "10/10",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://miamicarnival.org/events/",
+      "notes": ""
+    },
+    {
+      "event_name": "North Central Florida Rocktoberfest",
+      "city": "Williston",
+      "start_date": "2026-10-10",
+      "end_date": "2026-10-10",
+      "date_text": "10/10",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/809436608593259",
+      "notes": ""
+    },
+    {
+      "event_name": "Oktoberfest at Tioga",
+      "city": "Newberry",
+      "start_date": "2026-10-10",
+      "end_date": "2026-10-10",
+      "date_text": "10/10*",
+      "source_says_unconfirmed": true,
+      "lead_status": "needs_verification",
+      "organizer_url_hint": "https://www.facebook.com/events/1651608048859624",
+      "notes": "?"
+    },
+    {
+      "event_name": "Oktoberfest Indian Rocks Beach",
+      "city": "Indian Rocks Beach",
+      "start_date": "2026-10-10",
+      "end_date": "2026-10-10",
+      "date_text": "10/10",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/oktoberfestIRB/",
+      "notes": ""
+    }
+  ]
+}

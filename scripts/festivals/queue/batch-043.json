@@ -1,0 +1,226 @@
+{
+  "batch": 43,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Orlando Holi Festival",
+      "city": "Orlando",
+      "start_date": "2027-02-28",
+      "end_date": "2027-02-28",
+      "date_text": "2/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.premiertickets.co/event/orlando-holi-festival-2026/?fbclid=IwY2xjawQANSdleHRuA2FlbQIxMABicmlkETJLWUROMzVsVzIyWGI1WTZKc3J0YwZhcHBfaWQQMjIyMDM5MTc4ODIwMDg5MgABHlABoiSxT96f54dMw6qqRqZJBLO2E-UGd0oLTIPgSmFT0qBPCunX3PGTOvGo_aem_IFhknnNtEahRybg6girETg",
+      "notes": ""
+    },
+    {
+      "event_name": "Daytona Beach Bike Week II",
+      "city": "Daytona Beach",
+      "start_date": "2027-03-01",
+      "end_date": "2027-03-07",
+      "date_text": "3/1-3/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.officialbikeweek.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Festival of the Arts Boca II",
+      "city": "Boca Raton",
+      "start_date": "2027-03-01",
+      "end_date": "2027-03-07",
+      "date_text": "3/1-3/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://festivalboca.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Florida Strawberry Festival II",
+      "city": "Plant City",
+      "start_date": "2027-03-01",
+      "end_date": "2027-03-07",
+      "date_text": "3/1-3/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.flstrawberryfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Little Flower Carnival",
+      "city": "Hollywood",
+      "start_date": "2027-03-04",
+      "end_date": "2027-03-07",
+      "date_text": "3/4-3/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/littleflowerhollywood",
+      "notes": ""
+    },
+    {
+      "event_name": "St. Petersburg International Folk Fair (SPIFF)",
+      "city": "St. Petersburg",
+      "start_date": "2027-03-04",
+      "end_date": "2027-03-06",
+      "date_text": "3/4-3/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.spiffs.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Babcock Ranch Reggae Festival",
+      "city": "Punta Gorda",
+      "start_date": "2027-03-05",
+      "end_date": "2027-03-07",
+      "date_text": "3/5-3/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.paragonfestivals.com/festival/babcock-ranch-reggae-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Chalo Nitka Festival and Rodeo",
+      "city": "Moore Haven",
+      "start_date": "2027-03-05",
+      "end_date": "2027-03-06",
+      "date_text": "3/5-3/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://chalonitkafestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Dream Asia Food Fest",
+      "city": "Tampa",
+      "start_date": "2027-03-05",
+      "end_date": "2027-03-07",
+      "date_text": "3/5-3/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.dreamasiafest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Flluxe Arts Festival",
+      "city": "Panama City",
+      "start_date": "2027-03-05",
+      "end_date": "2027-03-06",
+      "date_text": "3/5-3/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://destinationpanamacity.com/annual-event/flluxe-arts-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Italian Food Festival",
+      "city": "Vero Beach",
+      "start_date": "2027-03-05",
+      "end_date": "2027-03-07",
+      "date_text": "3/5-3/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://italianamericanvero.com/event/italian-food-festival-2026/",
+      "notes": ""
+    },
+    {
+      "event_name": "Panama City Beach Scottish Festival",
+      "city": "Panama City Beach",
+      "start_date": "2027-03-05",
+      "end_date": "2027-03-06",
+      "date_text": "3/5-3/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.pcbscottishfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Thundering Spirit Family Pow Wow",
+      "city": "Mount Dora",
+      "start_date": "2027-03-05",
+      "end_date": "2027-03-07",
+      "date_text": "3/5-3/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://thunderingspiritfamily.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Amber Brooke Farm Strawberry Festival: Eustis II",
+      "city": "Eustis",
+      "start_date": "2027-03-06",
+      "end_date": "2027-03-07",
+      "date_text": "3/6-3/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://amberbrookefarms.com/annual-strawberry-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Bay Area Renaissance Festival IV",
+      "city": "Dade City",
+      "start_date": "2027-03-06",
+      "end_date": "2027-03-07",
+      "date_text": "3/6-3/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.bayarearenfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Clay County Strawberry Fest",
+      "city": "Green Cove Springs",
+      "start_date": "2027-03-06",
+      "end_date": "2027-03-07",
+      "date_text": "3/6-3/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/ClayCountyStrawberryFest",
+      "notes": ""
+    },
+    {
+      "event_name": "Cocoa Village Art and Craft Fair I",
+      "city": "Cocoa",
+      "start_date": "2027-03-06",
+      "end_date": "2027-03-07",
+      "date_text": "3/6-3/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://visitcocoavillage.com/events/art-craft-fairs",
+      "notes": ""
+    },
+    {
+      "event_name": "Cracker Cowboy Day",
+      "city": "Dade City",
+      "start_date": "2027-03-06",
+      "end_date": "2027-03-06",
+      "date_text": "3/6",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.pioneerfloridamuseum.org/index.php?option=com_content&view=article&id=152&Itemid=74",
+      "notes": ""
+    },
+    {
+      "event_name": "Dunedin Seafood and Music Festival",
+      "city": "Dunedin",
+      "start_date": "2027-03-06",
+      "end_date": "2027-03-06",
+      "date_text": "3/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/DunedinSeafoodFestival",
+      "notes": ""
+    },
+    {
+      "event_name": "Festival Dor De Moldova",
+      "city": "Casselberry",
+      "start_date": "2027-03-06",
+      "end_date": "2027-03-06",
+      "date_text": "3/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/profile.php?id=100088530885990",
+      "notes": ""
+    }
+  ]
+}

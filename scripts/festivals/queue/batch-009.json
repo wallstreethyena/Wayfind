@@ -1,0 +1,226 @@
+{
+  "batch": 9,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Fantasy Fest II",
+      "city": "Key West",
+      "start_date": "2026-10-19",
+      "end_date": "2026-10-25",
+      "date_text": "10/19-10/25",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.fantasyfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "South Beach Seafood Festival",
+      "city": "Miami Beach",
+      "start_date": "2026-10-21",
+      "end_date": "2026-10-24",
+      "date_text": "10/21-10/24",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://sobeseafoodfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Thunder Beach Autumn Rally",
+      "city": "Panama City Beach",
+      "start_date": "2026-10-21",
+      "end_date": "2026-10-25",
+      "date_text": "10/21-10/25",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://thunderbeachproductions.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Suwannee Hulaween",
+      "city": "Live Oak",
+      "start_date": "2026-10-22",
+      "end_date": "2026-10-25",
+      "date_text": "10/22-10/25",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://suwanneehulaween.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Cape Coral Oktoberfest II",
+      "city": "Cape Coral",
+      "start_date": "2026-10-23",
+      "end_date": "2026-10-25",
+      "date_text": "10/23-10/25",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.capecoraloktoberfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Clearwater GreekFest",
+      "city": "Clearwater",
+      "start_date": "2026-10-23",
+      "end_date": "2026-10-25",
+      "date_text": "10/23-10/25",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/ClearwaterGreekFest/",
+      "notes": ""
+    },
+    {
+      "event_name": "Fall Festival at Amber Brooke Farms VI",
+      "city": "Williston",
+      "start_date": "2026-10-23",
+      "end_date": "2026-10-25",
+      "date_text": "10/23-10/25",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://amberbrookefarms.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "John’s Pass Seafood Festival",
+      "city": "Madeira Beach",
+      "start_date": "2026-10-23",
+      "end_date": "2026-10-25",
+      "date_text": "10/23-10/25",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://pinellasbeacheschamber.org/event/johns-pass-seafood-festival-4/",
+      "notes": ""
+    },
+    {
+      "event_name": "Raprager Family Farm’s Fall Festival VI",
+      "city": "Odessa",
+      "start_date": "2026-10-23",
+      "end_date": "2026-10-25",
+      "date_text": "10/23-10/25",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://rapragerfarm.com/fall-festival",
+      "notes": ""
+    },
+    {
+      "event_name": "St. Benedict Blues Festival",
+      "city": "Green Cove Springs",
+      "start_date": "2026-10-23",
+      "end_date": "2026-10-25",
+      "date_text": "10/23-10/25",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/StBenedicttheMoorBluesFest",
+      "notes": ""
+    },
+    {
+      "event_name": "St. Luke Annual Festival",
+      "city": "Middleburg",
+      "start_date": "2026-10-23",
+      "end_date": "2026-10-25",
+      "date_text": "10/23-10/25",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://stlukesparish.org/st-luke-annual-festival",
+      "notes": ""
+    },
+    {
+      "event_name": "Stone Crab Festival",
+      "city": "Naples",
+      "start_date": "2026-10-23",
+      "end_date": "2026-10-25",
+      "date_text": "10/23-10/25",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.stonecrabfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Tallahassee Greek Food Festival",
+      "city": "Tallahassee",
+      "start_date": "2026-10-23",
+      "end_date": "2026-10-24",
+      "date_text": "10/23-10/24",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://tallahasseegreekfoodfest.blog/",
+      "notes": ""
+    },
+    {
+      "event_name": "The Fest",
+      "city": "Gainesville",
+      "start_date": "2026-10-23",
+      "end_date": "2026-10-25",
+      "date_text": "10/23-10/25",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://thefestfl.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Bedner’s Fall Festival V",
+      "city": "Boynton Beach",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-25",
+      "date_text": "10/24-10/25",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://bedners.com/fall-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Brazilian Festival",
+      "city": "Deerfield Beach",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-24",
+      "date_text": "10/24",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://brazilianfestival.org/southflorida/",
+      "notes": ""
+    },
+    {
+      "event_name": "Caribbean Culture Fest",
+      "city": "North Miami",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-24",
+      "date_text": "10/24",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/caribbeanculturefest/",
+      "notes": ""
+    },
+    {
+      "event_name": "Central Florida Veg Fest",
+      "city": "Orlando",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-24",
+      "date_text": "10/24",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.cfvegfest.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Chautauqua Winery’s Harvest Festival",
+      "city": "DeFuniak Springs",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-24",
+      "date_text": "10/24",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://chautauquawinery.com/harvest-festival-2026",
+      "notes": ""
+    },
+    {
+      "event_name": "Dakin Dairy Farms Harvest Festival III",
+      "city": "Myakka City",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-25",
+      "date_text": "10/24-10/25",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://dakindairyfarms.com/",
+      "notes": ""
+    }
+  ]
+}

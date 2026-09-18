@@ -1,0 +1,226 @@
+{
+  "batch": 32,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Coquina Beach Seafood and Music Festival",
+      "city": "Bradenton Beach",
+      "start_date": "2027-01-22",
+      "end_date": "2027-01-24",
+      "date_text": "1/22-1/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.paragonfestivals.com/festival/coquina-beach-party-seafood-music-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Hollywood Greek Festival",
+      "city": "Hollywood",
+      "start_date": "2027-01-22",
+      "end_date": "2027-01-24",
+      "date_text": "1/22-1/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.stgeorgehollywood.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Images: A Festival of the Arts",
+      "city": "New Smyrna Beach",
+      "start_date": "2027-01-22",
+      "end_date": "2027-01-24",
+      "date_text": "1/22-1/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://imagesartfestival.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Lakeland PigFest",
+      "city": "Lakeland",
+      "start_date": "2027-01-22",
+      "end_date": "2027-01-23",
+      "date_text": "1/22-1/23",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://lakelandpigfest.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Mega Night Market",
+      "city": "St. Petersburg",
+      "start_date": "2027-01-22",
+      "end_date": "2027-01-24",
+      "date_text": "1/22-1/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/FridayNightStreetMarket",
+      "notes": ""
+    },
+    {
+      "event_name": "Rock the Universe Christian Music Festival",
+      "city": "Orlando",
+      "start_date": "2027-01-22",
+      "end_date": "2027-01-23",
+      "date_text": "1/22-1/23*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.universalorlando.com/web/en/us/things-to-do/events/rock-the-universe",
+      "notes": ""
+    },
+    {
+      "event_name": "St. George Cathedral Mediterranean Festival",
+      "city": "Coral Gables",
+      "start_date": "2027-01-22",
+      "end_date": "2027-01-24",
+      "date_text": "1/22-1/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/StGMiami",
+      "notes": ""
+    },
+    {
+      "event_name": "St. Mary Magdalen Winter Fest",
+      "city": "Altamonte Springs",
+      "start_date": "2027-01-22",
+      "end_date": "2027-01-23",
+      "date_text": "1/22-1/23*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.stmarymagdalen.org/ParishInfo/SMMFestival/SMMFestival.htm",
+      "notes": ""
+    },
+    {
+      "event_name": "A Festival of Chocolate at Fairchild Tropical Botanic Garden",
+      "city": "Coral Gables",
+      "start_date": "2027-01-23",
+      "end_date": "2027-01-24",
+      "date_text": "1/23-1/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://fairchildgarden.org/events/a-festival-of-chocolate/",
+      "notes": ""
+    },
+    {
+      "event_name": "Boca Raton Beer Wine and Spirits Fest",
+      "city": "Boca Raton",
+      "start_date": "2027-01-23",
+      "end_date": "2027-01-23",
+      "date_text": "1/23*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/828177403063659/?acontext=%7B%22event_action_history%22%3A[%7B%22mechanism%22%3A%22attachment%22%2C%22surface%22%3A%22newsfeed%22%7D]%2C%22ref_notif_type%22%3Anull%7D",
+      "notes": ""
+    },
+    {
+      "event_name": "Boca Raton Fine Art Show I",
+      "city": "Boca Raton",
+      "start_date": "2027-01-23",
+      "end_date": "2027-01-24",
+      "date_text": "1/23-1/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://hotworks.org/events-hot-works/",
+      "notes": ""
+    },
+    {
+      "event_name": "Brevard Renaissance Fair II",
+      "city": "Melbourne",
+      "start_date": "2027-01-23",
+      "end_date": "2027-01-24",
+      "date_text": "1/23-1/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://brevardrenaissancefair.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Caloosahatchee Celtic Festival",
+      "city": "Fort Myers",
+      "start_date": "2027-01-23",
+      "end_date": "2027-01-24",
+      "date_text": "1/23-1/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.cityftmyers.com/2123/Celtic-Festival",
+      "notes": ""
+    },
+    {
+      "event_name": "Englewood Beer Fest",
+      "city": "Englewood",
+      "start_date": "2027-01-23",
+      "end_date": "2027-01-23",
+      "date_text": "1/23*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/englewoodsunset",
+      "notes": ""
+    },
+    {
+      "event_name": "Fire In The Park Chili Cook Off For A CURE",
+      "city": "Avalon Park",
+      "start_date": "2027-01-23",
+      "end_date": "2027-01-23",
+      "date_text": "1/23*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/697869683340596",
+      "notes": ""
+    },
+    {
+      "event_name": "GrasFest",
+      "city": "DeFuniak Springs",
+      "start_date": "2027-01-23",
+      "end_date": "2027-01-23",
+      "date_text": "1/23*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://krewedeyak.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Hoggetowne Medieval Faire",
+      "city": "Gainesville",
+      "start_date": "2027-01-23",
+      "end_date": "2027-01-24",
+      "date_text": "1/23-1/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.hoggetownemedfaire.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Jelly Music and Art Festival",
+      "city": "Fort Lauderdale",
+      "start_date": "2027-01-23",
+      "end_date": "2027-01-23",
+      "date_text": "1/23*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.universe.com/events/jelly-festival-tickets-ZH183T?direct=true",
+      "notes": ""
+    },
+    {
+      "event_name": "Jensen Beach Fine Art and Craft Show",
+      "city": "Jensen Beach",
+      "start_date": "2027-01-23",
+      "end_date": "2027-01-24",
+      "date_text": "1/23-1/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/8446475915460216",
+      "notes": ""
+    },
+    {
+      "event_name": "Manatee Festival",
+      "city": "Orange City",
+      "start_date": "2027-01-23",
+      "end_date": "2027-01-24",
+      "date_text": "1/23-1/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.themanateefestival.com/",
+      "notes": ""
+    }
+  ]
+}

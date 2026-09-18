@@ -1,0 +1,226 @@
+{
+  "batch": 67,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "PrideFête Festival",
+      "city": "Wilton Manors",
+      "start_date": "2027-08-07",
+      "end_date": "2027-08-07",
+      "date_text": "8/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://hotspots.lgbt/pridefete2026/",
+      "notes": ""
+    },
+    {
+      "event_name": "Reggae on the Rock",
+      "city": "Daytona Beach",
+      "start_date": "2027-08-07",
+      "end_date": "2027-08-07",
+      "date_text": "8/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://reggaeattherock.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Tallahassee Beer Festival",
+      "city": "Tallahassee",
+      "start_date": "2027-08-07",
+      "end_date": "2027-08-07",
+      "date_text": "8/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/TLHBeerFest/",
+      "notes": ""
+    },
+    {
+      "event_name": "Sanford Food Truck Fiesta VIII",
+      "city": "Sanford",
+      "start_date": "2027-08-08",
+      "end_date": "2027-08-08",
+      "date_text": "8/8*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://sanfordfl.gov/event-calendar/",
+      "notes": ""
+    },
+    {
+      "event_name": "Marcus Garvey Music Fest",
+      "city": "Clermont",
+      "start_date": "2027-08-14",
+      "end_date": "2027-08-14",
+      "date_text": "8/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.instagram.com/marcus_garvey_music_fest/",
+      "notes": ""
+    },
+    {
+      "event_name": "Obon Weekend at the Morikami Museum and Japanese Gardens",
+      "city": "Delray Beach",
+      "start_date": "2027-08-14",
+      "end_date": "2027-08-15",
+      "date_text": "8/14-8/15*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://morikami.org/event/obon-weekend/",
+      "notes": ""
+    },
+    {
+      "event_name": "Tarpon Springs Hippie Fest",
+      "city": "Tarpon Springs",
+      "start_date": "2027-08-14",
+      "end_date": "2027-08-14",
+      "date_text": "8/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://tarponspringsmerchantassociation.com/tarpon-springs-events-calendar/tarpon-springs-hippie-fest/",
+      "notes": ""
+    },
+    {
+      "event_name": "Mega Asian Food and Music Festival on the Water",
+      "city": "Clearwater",
+      "start_date": "2027-08-20",
+      "end_date": "2027-08-22",
+      "date_text": "8/20-8/22*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1064106103229809/",
+      "notes": ""
+    },
+    {
+      "event_name": "Beertopia Beer and Food Festival",
+      "city": "Palmetto",
+      "start_date": "2027-08-21",
+      "end_date": "2027-08-21",
+      "date_text": "8/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://desotohq.com/beertopia/",
+      "notes": ""
+    },
+    {
+      "event_name": "Jacksonville Caribbean Carnival",
+      "city": "Jacksonville",
+      "start_date": "2027-08-21",
+      "end_date": "2027-08-21",
+      "date_text": "8/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/jaxcarnival",
+      "notes": ""
+    },
+    {
+      "event_name": "Largo Evening Market VI",
+      "city": "Largo",
+      "start_date": "2027-08-21",
+      "end_date": "2027-08-21",
+      "date_text": "8/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.playlargo.com/special_events_detail_T40_R81.php",
+      "notes": ""
+    },
+    {
+      "event_name": "National Dog Day Festival",
+      "city": "Neptune Beach",
+      "start_date": "2027-08-21",
+      "end_date": "2027-08-21",
+      "date_text": "8/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/2844950702375242",
+      "notes": ""
+    },
+    {
+      "event_name": "The Magik and Mythk Festival",
+      "city": "Kissimmee",
+      "start_date": "2027-08-21",
+      "end_date": "2027-08-21",
+      "date_text": "8/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/3888713784765364/?post_id=4014018738901534&acontext=%7B%22event_action_history%22%3A[%7B%22surface%22%3A%22external_search_engine%22%7D%2C%7B%22mechanism%22%3A%22footer_attachment%22%2C%22surface%22%3A%22newsfeed%22%7D]%2C%22ref_notif_type%22%3Anull%7D",
+      "notes": ""
+    },
+    {
+      "event_name": "Jacksonville Ukrainian Festival",
+      "city": "Jacksonville",
+      "start_date": "2027-08-22",
+      "end_date": "2027-08-22",
+      "date_text": "8/22*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/profile.php?id=61577170035404",
+      "notes": ""
+    },
+    {
+      "event_name": "Rock the Country",
+      "city": "Ocala",
+      "start_date": "2027-08-27",
+      "end_date": "2027-08-28",
+      "date_text": "8/27-8/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://rockthecountry.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Rock the Park Music and Arts Festival",
+      "city": "Port Orange",
+      "start_date": "2027-08-28",
+      "end_date": "2027-08-28",
+      "date_text": "8/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/729661322952513",
+      "notes": ""
+    },
+    {
+      "event_name": "Key West Womenfest",
+      "city": "Key West",
+      "start_date": "2027-09-01",
+      "end_date": "2027-09-05",
+      "date_text": "9/1-9/5*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://gaykeywestfl.com/womenfest/",
+      "notes": ""
+    },
+    {
+      "event_name": "Fins Up on the Forgotten Coast Music Festival",
+      "city": "Apalachicola",
+      "start_date": "2027-09-03",
+      "end_date": "2027-09-05",
+      "date_text": "9/3-9/5*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://trinityis.quickbase.com/nav/app/bqaqzfd77/action/showpage?pageid=7",
+      "notes": ""
+    },
+    {
+      "event_name": "Florida Scallop, Music and Arts Festival",
+      "city": "Port St. Joe",
+      "start_date": "2027-09-04",
+      "end_date": "2027-09-05",
+      "date_text": "9/4-9/5*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/FLAScallopFestival/",
+      "notes": ""
+    },
+    {
+      "event_name": "GeckoFest",
+      "city": "Gulfport",
+      "start_date": "2027-09-04",
+      "end_date": "2027-09-04",
+      "date_text": "9/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://visitgulfportflorida.com/event/gecko-fest/",
+      "notes": ""
+    }
+  ]
+}

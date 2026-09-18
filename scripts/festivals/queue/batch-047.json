@@ -1,0 +1,226 @@
+{
+  "batch": 47,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Strawberry Fest at Wickham Park",
+      "city": "Melbourne",
+      "start_date": "2027-03-13",
+      "end_date": "2027-03-14",
+      "date_text": "3/13-3/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.melbourne-fest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Sun Drop Festival",
+      "city": "Daytona Beach",
+      "start_date": "2027-03-13",
+      "end_date": "2027-03-13",
+      "date_text": "3/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.eventbrite.com/e/sun-drop-festival-tickets-1980032617861?aff=erelexpmlt",
+      "notes": ""
+    },
+    {
+      "event_name": "Suncreek Brewery Irish Fest",
+      "city": "Clermont",
+      "start_date": "2027-03-13",
+      "end_date": "2027-03-14",
+      "date_text": "3/13-3/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1417026720157375/?acontext=%7B%22event_action_history%22%3A[%7B%22mechanism%22%3A%22attachment%22%2C%22surface%22%3A%22newsfeed%22%7D]%2C%22ref_notif_type%22%3Anull%7D",
+      "notes": ""
+    },
+    {
+      "event_name": "Calle Ocho Music Festival",
+      "city": "Miami",
+      "start_date": "2027-03-14",
+      "end_date": "2027-03-14",
+      "date_text": "3/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://carnavalmiami.com/events/calle-ocho/",
+      "notes": ""
+    },
+    {
+      "event_name": "Destin Mac and Cheese Festival",
+      "city": "Destin",
+      "start_date": "2027-03-14",
+      "end_date": "2027-03-14",
+      "date_text": "3/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/destin-commons/8th-annual-mac-cheese-festival/2031004891027699/",
+      "notes": ""
+    },
+    {
+      "event_name": "Sarasota County Fair II",
+      "city": "Sarasota",
+      "start_date": "2027-03-15",
+      "end_date": "2027-03-21",
+      "date_text": "3/15-3/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.sarasotafair.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "St. Patrick’s Day Festival at Spanish Springs Town Square",
+      "city": "The Villages",
+      "start_date": "2027-03-16",
+      "end_date": "2027-03-16",
+      "date_text": "3/16*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.thevillagesentertainment.com/special-events/st-patricks-day-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Okeechobee Music and Arts Festival",
+      "city": "Okeechobee",
+      "start_date": "2027-03-18",
+      "end_date": "2027-03-21",
+      "date_text": "3/18-3/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.okeechobeefest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Suwannee Spring Reunion",
+      "city": "Live Oak",
+      "start_date": "2027-03-18",
+      "end_date": "2027-03-21",
+      "date_text": "3/18-3/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://suwanneespringreunion.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Chasco Fiesta I",
+      "city": "New Port Richey",
+      "start_date": "2027-03-19",
+      "end_date": "2027-03-21",
+      "date_text": "3/19-3/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://chascofiesta.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "St. Petersburg Bayfest",
+      "city": "St. Petersburg",
+      "start_date": "2027-03-19",
+      "end_date": "2027-03-21",
+      "date_text": "3/19-3/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.paragonfestivals.com/festival/st-petersburg-bayfest/",
+      "notes": ""
+    },
+    {
+      "event_name": "The Winter Park Sidewalk Art Festival",
+      "city": "Winter Park",
+      "start_date": "2027-03-19",
+      "end_date": "2027-03-21",
+      "date_text": "3/19-3/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.wpsaf.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Asian Glow Fest Spring Lanterns Festival",
+      "city": "Dade City",
+      "start_date": "2027-03-20",
+      "end_date": "2027-03-21",
+      "date_text": "3/20-3/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.eventbrite.com/e/asian-glow-fest-spring-lanterns-festival-2026-lights-food-music-magic-tickets-1962734839741",
+      "notes": ""
+    },
+    {
+      "event_name": "Bay Area Renaissance Festival VI",
+      "city": "Dade City",
+      "start_date": "2027-03-20",
+      "end_date": "2027-03-21",
+      "date_text": "3/20-3/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.bayarearenfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Blues on Rein",
+      "city": "Port St. Joe",
+      "start_date": "2027-03-20",
+      "end_date": "2027-03-20",
+      "date_text": "3/20*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/BluesOnReid/",
+      "notes": ""
+    },
+    {
+      "event_name": "Down Home Street Festival",
+      "city": "Bonifay",
+      "start_date": "2027-03-20",
+      "end_date": "2027-03-20",
+      "date_text": "3/20*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.downhomestreetfestival.com",
+      "notes": ""
+    },
+    {
+      "event_name": "Earthday Birthday Music Festival",
+      "city": "Orlando",
+      "start_date": "2027-03-20",
+      "end_date": "2027-03-20",
+      "date_text": "3/20*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/earthdaybirthday/",
+      "notes": ""
+    },
+    {
+      "event_name": "Empress Menen’s Earthstrong Celebration",
+      "city": "Clermont",
+      "start_date": "2027-03-20",
+      "end_date": "2027-03-20",
+      "date_text": "3/20*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.eventbrite.com/e/empress-menens-earthstrong-celebration-tickets-1983050873545?aff=ebdsoporgprofile",
+      "notes": ""
+    },
+    {
+      "event_name": "Florida Renaissance Festival and Craft Village VI",
+      "city": "Deerfield Beach",
+      "start_date": "2027-03-20",
+      "end_date": "2027-03-21",
+      "date_text": "3/20-3/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.ren-fest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Japanese Food and Culture Day Festival",
+      "city": "Gulf Breeze",
+      "start_date": "2027-03-20",
+      "end_date": "2027-03-20",
+      "date_text": "3/20*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/st-sylvester-catholic-church/japanese-food-and-culture-day/2022856561900354/",
+      "notes": ""
+    }
+  ]
+}

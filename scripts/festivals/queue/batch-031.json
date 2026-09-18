@@ -1,0 +1,226 @@
+{
+  "batch": 31,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Tampa Bay Rodeo’s Bull Bash Country Music Festival",
+      "city": "Dover",
+      "start_date": "2027-01-15",
+      "end_date": "2027-01-16",
+      "date_text": "1/15-1/16*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://tamparodeo.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Apalachicola Oyster Festival",
+      "city": "Apalachicola",
+      "start_date": "2027-01-16",
+      "end_date": "2027-01-16",
+      "date_text": "1/16*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/profile.php?id=61554801925184&ref=embed_page",
+      "notes": ""
+    },
+    {
+      "event_name": "Beaux Arts Festival of Art",
+      "city": "Coral Gables",
+      "start_date": "2027-01-16",
+      "end_date": "2027-01-17",
+      "date_text": "1/16-1/17*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/BeauxArtsFestival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Brevard Renaissance Fair I",
+      "city": "Melbourne",
+      "start_date": "2027-01-16",
+      "end_date": "2027-01-18",
+      "date_text": "1/16-1/18*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://brevardrenaissancefair.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Central Florida Scottish Highland Games",
+      "city": "Winter Springs",
+      "start_date": "2027-01-16",
+      "end_date": "2027-01-17",
+      "date_text": "1/16-1/17*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/centralfloridascottishhighlandgames",
+      "notes": ""
+    },
+    {
+      "event_name": "Deland Craft Beer Festival",
+      "city": "Deland",
+      "start_date": "2027-01-16",
+      "end_date": "2027-01-16",
+      "date_text": "1/16*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://mainstreetdeland.org/events-list/deland-craft-festival-2026",
+      "notes": ""
+    },
+    {
+      "event_name": "Firefighter Charity Chili Cook Off",
+      "city": "Leesburg",
+      "start_date": "2027-01-16",
+      "end_date": "2027-01-16",
+      "date_text": "1/16*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/FirefighterCharity",
+      "notes": ""
+    },
+    {
+      "event_name": "Florida Manatee Festival",
+      "city": "Crystal River",
+      "start_date": "2027-01-16",
+      "end_date": "2027-01-17",
+      "date_text": "1/16-1/17*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.gomanateefest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Lakeport Sour Orange Festival",
+      "city": "Lakeport",
+      "start_date": "2027-01-16",
+      "end_date": "2027-01-16",
+      "date_text": "1/16*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/sourorangefestival",
+      "notes": ""
+    },
+    {
+      "event_name": "Pups and Pints",
+      "city": "Celebration",
+      "start_date": "2027-01-16",
+      "end_date": "2027-01-16",
+      "date_text": "1/16*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://celebration.fl.us/celebrations-pups-pints/",
+      "notes": ""
+    },
+    {
+      "event_name": "Soulfest",
+      "city": "Leesburg",
+      "start_date": "2027-01-16",
+      "end_date": "2027-01-16",
+      "date_text": "1/16*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.zeffy.com/en-US/ticketing/soul-fest-2025-vendor-form",
+      "notes": ""
+    },
+    {
+      "event_name": "St. Pete Tacos and Tequila Festival",
+      "city": "St. Petersburg",
+      "start_date": "2027-01-16",
+      "end_date": "2027-01-17",
+      "date_text": "1/16-1/17*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/2067104744095442",
+      "notes": ""
+    },
+    {
+      "event_name": "Venezia Renaissance Faire II",
+      "city": "Bonita Springs",
+      "start_date": "2027-01-16",
+      "end_date": "2027-01-17",
+      "date_text": "1/16-1/17*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://veneziarenaissancefaire.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Venice-Nokomis Rotary Fine Arts and Crafts Festival",
+      "city": "Venice",
+      "start_date": "2027-01-16",
+      "end_date": "2027-01-17",
+      "date_text": "1/16-1/17",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.venicenokomisrotary.org/art-fest",
+      "notes": ""
+    },
+    {
+      "event_name": "Swamp Buggy Races! Winter Classic",
+      "city": "Naples",
+      "start_date": "2027-01-17",
+      "end_date": "2027-01-17",
+      "date_text": "1/17*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.swampbuggy.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Lauderdale Food and Wine Festival",
+      "city": "Fort Lauderdale",
+      "start_date": "2027-01-18",
+      "end_date": "2027-01-24",
+      "date_text": "1/18-1/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://vlfoodwine.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Martin Luther King Festival",
+      "city": "Lynn Haven",
+      "start_date": "2027-01-18",
+      "end_date": "2027-01-18",
+      "date_text": "1/18*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.cityoflynnhaven.com/Calendar.aspx?EID=1162&month=12&year=2025&day=1&calType=0",
+      "notes": ""
+    },
+    {
+      "event_name": "Butts and Clucks Cook-Off on the Bay",
+      "city": "Apalachicola",
+      "start_date": "2027-01-21",
+      "end_date": "2027-01-23",
+      "date_text": "1/21-1/23*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.apalachicolabay.org/butts-and-clucks/",
+      "notes": ""
+    },
+    {
+      "event_name": "Florida Storytelling Festival",
+      "city": "Mount Dora",
+      "start_date": "2027-01-21",
+      "end_date": "2027-01-24",
+      "date_text": "1/21-1/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/flstorytelling",
+      "notes": ""
+    },
+    {
+      "event_name": "Forks and Corks Food and Wine Festival",
+      "city": "Sarasota",
+      "start_date": "2027-01-21",
+      "end_date": "2027-01-24",
+      "date_text": "1/21-1/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.eatlikealocal.com/forksandcorks",
+      "notes": ""
+    }
+  ]
+}

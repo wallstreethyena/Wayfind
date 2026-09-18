@@ -1,0 +1,226 @@
+{
+  "batch": 3,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Port St. Lucie Bacon and BBQ Festival",
+      "city": "Vero Beach",
+      "start_date": "2026-09-26",
+      "end_date": "2026-09-27",
+      "date_text": "9/26-9/27",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.pottcevents.com/treasure-coast-bacon-fest.html",
+      "notes": ""
+    },
+    {
+      "event_name": "Space Coast Pride Festival",
+      "city": "Melbourne",
+      "start_date": "2026-09-26",
+      "end_date": "2026-09-26",
+      "date_text": "9/26",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://spacecoastpride.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Fall Festival at Amber Brooke Farms III",
+      "city": "Williston",
+      "start_date": "2026-10-02",
+      "end_date": "2026-10-04",
+      "date_text": "10/2-10/4",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://amberbrookefarms.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Millennial Brewing Co. Oktoberfest",
+      "city": "Fort Myers",
+      "start_date": "2026-10-02",
+      "end_date": "2026-10-04",
+      "date_text": "10/2-10/4",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/838491861953733/",
+      "notes": ""
+    },
+    {
+      "event_name": "Oakland Park Oktoberfest",
+      "city": "Oakland Park",
+      "start_date": "2026-10-02",
+      "end_date": "2026-10-04",
+      "date_text": "10/2-10/4",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.oaklandparkfl.gov/228/Oktoberfest",
+      "notes": ""
+    },
+    {
+      "event_name": "Raprager Family Farm’s Fall Festival III",
+      "city": "Odessa",
+      "start_date": "2026-10-02",
+      "end_date": "2026-10-04",
+      "date_text": "10/2-10/4",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://rapragerfarm.com/fall-festival",
+      "notes": ""
+    },
+    {
+      "event_name": "Royal Palm Beach Rock-N Fall Fest",
+      "city": "Royal Palm Beach",
+      "start_date": "2026-10-02",
+      "end_date": "2026-10-03",
+      "date_text": "10/2-10/3",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.pottcevents.com/rpb-fall-fest.html",
+      "notes": ""
+    },
+    {
+      "event_name": "Traditional German American Friendship Society of Pinellas Oktoberfest II",
+      "city": "Pinellas Park",
+      "start_date": "2026-10-02",
+      "end_date": "2026-10-03",
+      "date_text": "10/2-10/3",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/GermanTampa",
+      "notes": ""
+    },
+    {
+      "event_name": "Arts and Crafts Festival at Brownwood Paddock Square: Fall",
+      "city": "The Villages",
+      "start_date": "2026-10-03",
+      "end_date": "2026-10-04",
+      "date_text": "10/3-10/4",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.thevillagesentertainment.com/festivals-and-special-events/brownwood-arts-crafts-festival-2/",
+      "notes": ""
+    },
+    {
+      "event_name": "Bedner’s Fall Festival II",
+      "city": "Boynton Beach",
+      "start_date": "2026-10-03",
+      "end_date": "2026-10-04",
+      "date_text": "10/3-10/4",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://bedners.com/fall-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Central Florida Peanut Festival",
+      "city": "Williston",
+      "start_date": "2026-10-03",
+      "end_date": "2026-10-03",
+      "date_text": "10/3",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/profile.php?id=100069017546457",
+      "notes": ""
+    },
+    {
+      "event_name": "Depot Days Festival",
+      "city": "Milton",
+      "start_date": "2026-10-03",
+      "end_date": "2026-10-03",
+      "date_text": "10/3",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/profile.php?id=100057149273591",
+      "notes": ""
+    },
+    {
+      "event_name": "Dog Daze",
+      "city": "Fort Walton Beach",
+      "start_date": "2026-10-03",
+      "end_date": "2026-10-03",
+      "date_text": "10/3",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/DogDazeFWB",
+      "notes": ""
+    },
+    {
+      "event_name": "Fall Festival at Plato Academy",
+      "city": "St. Petersburg",
+      "start_date": "2026-10-03",
+      "end_date": "2026-10-03",
+      "date_text": "10/3",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://platoacademy.net/event/fall-festival-2026/",
+      "notes": ""
+    },
+    {
+      "event_name": "Flamingo Gardens Harvest Festival I",
+      "city": "Davie",
+      "start_date": "2026-10-03",
+      "end_date": "2026-10-04",
+      "date_text": "10/3-10/4",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://flamingogardens.org/events/",
+      "notes": ""
+    },
+    {
+      "event_name": "Fruitville Grove Pumpkin Festival I",
+      "city": "Sarasota",
+      "start_date": "2026-10-03",
+      "end_date": "2026-10-04",
+      "date_text": "10/3-10/4",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://fruitvillegrovefarm.com/festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Gainesville Pride Festival",
+      "city": "Gainesville",
+      "start_date": "2026-10-03",
+      "end_date": "2026-10-03",
+      "date_text": "10/3",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/PrideCommunityCenter",
+      "notes": ""
+    },
+    {
+      "event_name": "Green Cove Springs Soul Food and Music Festival",
+      "city": "Green Cove Springs",
+      "start_date": "2026-10-03",
+      "end_date": "2026-10-03",
+      "date_text": "10/3",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://carimenia.wixsite.com/mysite",
+      "notes": ""
+    },
+    {
+      "event_name": "HorsePower For Kids Fall Festival I",
+      "city": "Tampa",
+      "start_date": "2026-10-03",
+      "end_date": "2026-10-04",
+      "date_text": "10/3-10/4",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/HorsePowerforKids/events",
+      "notes": ""
+    },
+    {
+      "event_name": "Island Hop Craft Beer Festival",
+      "city": "Fernandina Beach",
+      "start_date": "2026-10-03",
+      "end_date": "2026-10-03",
+      "date_text": "10/3",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.fernandinamainstreet.com/all-events-1/island-hop-craft-beer-fest",
+      "notes": ""
+    }
+  ]
+}

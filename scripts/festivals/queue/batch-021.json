@@ -1,0 +1,226 @@
+{
+  "batch": 21,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Thanksgiving Bluegrass Festival",
+      "city": "Brooksville",
+      "start_date": "2026-11-26",
+      "end_date": "2026-11-28",
+      "date_text": "11/26-11/28",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://evansmediasource.com/events/2026-thanksgiving-bluegrass-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Christmas in the Wild I",
+      "city": "Tampa",
+      "start_date": "2026-11-27",
+      "end_date": "2026-11-29",
+      "date_text": "11/27-11/29*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://zootampa.org/christmas-in-the-wild/",
+      "notes": ""
+    },
+    {
+      "event_name": "Christmas Made in the South",
+      "city": "Jacksonville",
+      "start_date": "2026-11-27",
+      "end_date": "2026-11-29",
+      "date_text": "11/27-11/29",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://madeinthesouthshows.com/festivals",
+      "notes": ""
+    },
+    {
+      "event_name": "Dazzling Nights Orlando I",
+      "city": "Orlando",
+      "start_date": "2026-11-27",
+      "end_date": "2026-11-29",
+      "date_text": "11/27-11/29*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.dazzlingorlando.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Drive Thru Light Show II",
+      "city": "West Palm Beach",
+      "start_date": "2026-11-27",
+      "end_date": "2026-11-29",
+      "date_text": "11/27-11/29*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/lights4hope",
+      "notes": ""
+    },
+    {
+      "event_name": "Edison and Ford Holiday Nights Celebration I",
+      "city": "Fort Myers",
+      "start_date": "2026-11-27",
+      "end_date": "2026-11-29",
+      "date_text": "11/27-11/29*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.edisonfordwinterestates.org/events/annual-historic-holiday-nights-celebration/",
+      "notes": ""
+    },
+    {
+      "event_name": "Glowing Gardens at Jacksonville Arboretum and Botanical Gardens I",
+      "city": "Jacksonville",
+      "start_date": "2026-11-27",
+      "end_date": "2026-11-29",
+      "date_text": "11/27-11/29",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://jacksonvillearboretum.org/events/glowing-gardens?gad_source=1&gclid=Cj0KCQjwvpy5BhDTARIsAHSilymYwMn7jMDUhXwsybZ5PLW7c73hAqrbYtW-JjkV1-J0dRStYFI9EIQaApKsEALw_wcB",
+      "notes": ""
+    },
+    {
+      "event_name": "Holiday Lights in the Gardens I",
+      "city": "Largo",
+      "start_date": "2026-11-27",
+      "end_date": "2026-11-29",
+      "date_text": "11/27-11/29",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://flbgfoundation.org/events",
+      "notes": ""
+    },
+    {
+      "event_name": "Johnsonville Night Lights in the Garden I",
+      "city": "Naples",
+      "start_date": "2026-11-27",
+      "end_date": "2026-11-29",
+      "date_text": "11/27-11/29",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.naplesgarden.org/events/johnsonville-night-lights-in-the-garden/2025-11-28/",
+      "notes": ""
+    },
+    {
+      "event_name": "Light-Up Eustis",
+      "city": "Eustis",
+      "start_date": "2026-11-27",
+      "end_date": "2026-11-27",
+      "date_text": "11/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.eustis.org/Residents/Events/2025-Light-Up-Eustis",
+      "notes": ""
+    },
+    {
+      "event_name": "Suwannee Lights I",
+      "city": "Live Oak",
+      "start_date": "2026-11-27",
+      "end_date": "2026-11-29",
+      "date_text": "11/27-11/29*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://suwanneelights.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Brownwood Tree Lighting Festival",
+      "city": "The Villages",
+      "start_date": "2026-11-28",
+      "end_date": "2026-11-28",
+      "date_text": "11/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.thevillagesentertainment.com/festivals-and-special-events/brownwood-tree-lighting-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Fantasy Lights Festival I",
+      "city": "Palm Coast",
+      "start_date": "2026-11-28",
+      "end_date": "2026-11-29",
+      "date_text": "11/28-11/29*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.flaglerrotary.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Fusionfest",
+      "city": "Orlando",
+      "start_date": "2026-11-28",
+      "end_date": "2026-11-29",
+      "date_text": "11/28-11/29*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://fusionfest.org/annual-festival-2025/",
+      "notes": ""
+    },
+    {
+      "event_name": "Howey Artisan Market at Mission Resort and Club VIII",
+      "city": "Howey in the Hills",
+      "start_date": "2026-11-28",
+      "end_date": "2026-11-28",
+      "date_text": "11/28",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1618016786356990/1618018009690201/?acontext=%7B%22event_action_history%22%3A[%7B%22surface%22%3A%22user_timeline%22%7D%2C%7B%22mechanism%22%3A%22surface%22%2C%22surface%22%3A%22permalink%22%7D]%2C%22ref_notif_type%22%3Anull%7D",
+      "notes": ""
+    },
+    {
+      "event_name": "Inverness Olde Fashioned Christmas",
+      "city": "Inverness",
+      "start_date": "2026-11-28",
+      "end_date": "2026-11-28",
+      "date_text": "11/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.downtowninvernessrotary.org/olde-fashioned-christmas-tree-lighting",
+      "notes": ""
+    },
+    {
+      "event_name": "Old Florida Holiday and Winter Market",
+      "city": "Santa Rosa Beach",
+      "start_date": "2026-11-28",
+      "end_date": "2026-11-28",
+      "date_text": "11/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/WaterColorOldFloridaHoliday/",
+      "notes": ""
+    },
+    {
+      "event_name": "Ozello Arts, Crafts and Blue Crab Festival",
+      "city": "Crystal River",
+      "start_date": "2026-11-28",
+      "end_date": "2026-11-28",
+      "date_text": "11/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/2613512208981368/?acontext=%7B%22action_history%22%3A%22null%22%7D&ref_source=newsfeed&ref_mechanism=feed_attachment",
+      "notes": ""
+    },
+    {
+      "event_name": "Sarasota Medieval Fair IV",
+      "city": "Myakka City",
+      "start_date": "2026-11-28",
+      "end_date": "2026-11-29",
+      "date_text": "11/28-11/29",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.sarasotamedievalfair.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Shopapalooza Festival",
+      "city": "St. Petersburg",
+      "start_date": "2026-11-28",
+      "end_date": "2026-11-29",
+      "date_text": "11/28-11/29",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.shopapaloozafestival.com/",
+      "notes": ""
+    }
+  ]
+}

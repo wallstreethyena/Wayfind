@@ -1,0 +1,226 @@
+{
+  "batch": 41,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Pensacola Chocolate and Cheese Fest",
+      "city": "Pensacola",
+      "start_date": "2027-02-21",
+      "end_date": "2027-02-21",
+      "date_text": "2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/658496026748503",
+      "notes": ""
+    },
+    {
+      "event_name": "Riverside Craft Beer Festival",
+      "city": "Jacksonville",
+      "start_date": "2027-02-21",
+      "end_date": "2027-02-21",
+      "date_text": "2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.riversidecraftbeerfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Tampa Bay Jewish Food Festival",
+      "city": "Clearwater",
+      "start_date": "2027-02-21",
+      "end_date": "2027-02-21",
+      "date_text": "2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.tbiclearwater.org/FoodFest/home",
+      "notes": ""
+    },
+    {
+      "event_name": "Georgefest II",
+      "city": "Eustis",
+      "start_date": "2027-02-22",
+      "end_date": "2027-02-27",
+      "date_text": "2/22-2/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.eustis.org/Residents/Georgefest",
+      "notes": ""
+    },
+    {
+      "event_name": "Florida Strawberry Festival I",
+      "city": "Plant City",
+      "start_date": "2027-02-25",
+      "end_date": "2027-02-28",
+      "date_text": "2/25-2/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.flstrawberryfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Country Jam Fest",
+      "city": "Punta Gorda",
+      "start_date": "2027-02-26",
+      "end_date": "2027-02-26",
+      "date_text": "2/26",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.eventbrite.com/e/country-jam-fest-harborside-tickets-1996445046878",
+      "notes": ""
+    },
+    {
+      "event_name": "Daytona Beach Bike Week I",
+      "city": "Daytona Beach",
+      "start_date": "2027-02-26",
+      "end_date": "2027-02-28",
+      "date_text": "2/26-2/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.officialbikeweek.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Englewood Seafood and Music Festival",
+      "city": "Englewood",
+      "start_date": "2027-02-26",
+      "end_date": "2027-02-28",
+      "date_text": "2/26-2/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.paragonfestivals.com/festival/englewood-seafood-music-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Festival of the Arts Boca I",
+      "city": "Boca Raton",
+      "start_date": "2027-02-26",
+      "end_date": "2027-02-28",
+      "date_text": "2/26-2/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://festivalboca.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Miami’s Original Greek Festival at Saint Sophia Greek Orthodox Cathedral",
+      "city": "Miami",
+      "start_date": "2027-02-26",
+      "end_date": "2027-02-28",
+      "date_text": "2/26-2/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/StSophiaGOC/",
+      "notes": ""
+    },
+    {
+      "event_name": "Afro Carib Festival",
+      "city": "Miramar",
+      "start_date": "2027-02-27",
+      "end_date": "2027-02-27",
+      "date_text": "2/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.afrocaribfestmiramar.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Amber Brooke Farm Strawberry Festival: Eustis I",
+      "city": "Eustis",
+      "start_date": "2027-02-27",
+      "end_date": "2027-02-28",
+      "date_text": "2/27-2/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://amberbrookefarms.com/annual-strawberry-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Amber Brooke Farm Strawberry Festival: Mount Dora III",
+      "city": "Mount Dora",
+      "start_date": "2027-02-27",
+      "end_date": "2027-02-28",
+      "date_text": "2/27-2/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://amberbrookefarms.com/annual-strawberry-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Anna Maria Island Springfest",
+      "city": "Holmes Beach",
+      "start_date": "2027-02-27",
+      "end_date": "2027-02-28",
+      "date_text": "2/27-2/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://annamariaislandchamber.org/event/the-invitational-at-holmes-beach-springfest-art-craft-show-feb-28-march-1/",
+      "notes": ""
+    },
+    {
+      "event_name": "Avalon Spring Fest: Lunar New Year Festival",
+      "city": "Orlando",
+      "start_date": "2027-02-27",
+      "end_date": "2027-02-27",
+      "date_text": "2/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://asiatrend.org/event/4th-annual-avalon-springfest-2026-lunar-new-year-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Bay Area Renaissance Festival III",
+      "city": "Dade City",
+      "start_date": "2027-02-27",
+      "end_date": "2027-02-28",
+      "date_text": "2/27-2/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.bayarearenfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Clearwater Sea-Blues Festival",
+      "city": "Clearwater",
+      "start_date": "2027-02-27",
+      "end_date": "2027-02-28",
+      "date_text": "2/27-2/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/clearwaterseablues",
+      "notes": ""
+    },
+    {
+      "event_name": "Coconut Creek Butterfly Festival",
+      "city": "Coconut Creek",
+      "start_date": "2027-02-27",
+      "end_date": "2027-02-27",
+      "date_text": "2/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/sabal-pines-park/coconut-creek-butterfly-festival/785253137730340/",
+      "notes": ""
+    },
+    {
+      "event_name": "Delray Beach Garlic Fest",
+      "city": "Delray Beach",
+      "start_date": "2027-02-27",
+      "end_date": "2027-02-28",
+      "date_text": "2/27-2/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/GarlicFestFL",
+      "notes": ""
+    },
+    {
+      "event_name": "Florida ASL Festival",
+      "city": "West Palm Beach",
+      "start_date": "2027-02-27",
+      "end_date": "2027-02-27",
+      "date_text": "2/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://floridaasl.com/",
+      "notes": ""
+    }
+  ]
+}

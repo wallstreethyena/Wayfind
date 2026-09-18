@@ -1,0 +1,226 @@
+{
+  "batch": 58,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "ArtsQuest Fine Arts Festival",
+      "city": "Miramar Beach",
+      "start_date": "2027-05-01",
+      "end_date": "2027-05-02",
+      "date_text": "5/1-5/2*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.culturalartsalliance.com/arts-quest",
+      "notes": ""
+    },
+    {
+      "event_name": "Belleview Founder’s Day Celebration",
+      "city": "Belleview",
+      "start_date": "2027-05-01",
+      "end_date": "2027-05-01",
+      "date_text": "5/1*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.belleviewfl.org/172/Local-Events",
+      "notes": ""
+    },
+    {
+      "event_name": "Cedar Lakes Woods and Gardens Spring Festival",
+      "city": "Williston",
+      "start_date": "2027-05-01",
+      "end_date": "2027-05-02",
+      "date_text": "5/1-5/2*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://cedarlakeswoodsandgarden.com/upcoming-events",
+      "notes": ""
+    },
+    {
+      "event_name": "Fort Myers Blueberry Festival",
+      "city": "Fort Myers",
+      "start_date": "2027-05-01",
+      "end_date": "2027-05-02",
+      "date_text": "5/1-5/2*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.ftmyersfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Havana Reggae Fest",
+      "city": "Quincy",
+      "start_date": "2027-05-01",
+      "end_date": "2027-05-01",
+      "date_text": "5/1*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/HavanaReggaeFestival",
+      "notes": ""
+    },
+    {
+      "event_name": "Hero Fest",
+      "city": "Palm Harbor",
+      "start_date": "2027-05-01",
+      "end_date": "2027-05-01",
+      "date_text": "5/1*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://herofestfl.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Island Grove Blueberry Festival",
+      "city": "Island Grove",
+      "start_date": "2027-05-01",
+      "end_date": "2027-05-01",
+      "date_text": "5/1*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/IGBlueberryFest",
+      "notes": ""
+    },
+    {
+      "event_name": "Longwood Luau",
+      "city": "Longwood",
+      "start_date": "2027-05-01",
+      "end_date": "2027-05-01",
+      "date_text": "5/1*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1362705195656573",
+      "notes": ""
+    },
+    {
+      "event_name": "Manatee Taco Fest",
+      "city": "Palmetto",
+      "start_date": "2027-05-01",
+      "end_date": "2027-05-01",
+      "date_text": "5/1*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.eventbrite.com/e/manatees-5th-annual-taco-fest-tickets-1799625150269?aff=ebdsoporgprofile",
+      "notes": ""
+    },
+    {
+      "event_name": "Mount Dora Taste and Craft Beer Fest",
+      "city": "Mount Dora",
+      "start_date": "2027-05-01",
+      "end_date": "2027-05-01",
+      "date_text": "5/1*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.mountdora.com/mountdoramajoreventsandfestivals",
+      "notes": ""
+    },
+    {
+      "event_name": "Ocean Brews and Blues Beer Fest",
+      "city": "Deerfield Beach",
+      "start_date": "2027-05-01",
+      "end_date": "2027-05-01",
+      "date_text": "5/1*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.deerfield-beach.com/1601/Ocean-Brews-Blues",
+      "notes": ""
+    },
+    {
+      "event_name": "Pinellas Pepper Fest",
+      "city": "Pinellas Park",
+      "start_date": "2027-05-01",
+      "end_date": "2027-05-02",
+      "date_text": "5/1-5/2*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/PinellasPepperFest/",
+      "notes": ""
+    },
+    {
+      "event_name": "Punk in the Park: Orlando",
+      "city": "Orlando",
+      "start_date": "2027-05-01",
+      "end_date": "2027-05-01",
+      "date_text": "5/1*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.punkinthepark.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "St. Augustine Craft Brewers’ Festival",
+      "city": "St. Augustine",
+      "start_date": "2027-05-01",
+      "end_date": "2027-05-01",
+      "date_text": "5/1*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.floridashistoriccoast.com/events/annual/st-augustine-craft-brewers-fest/",
+      "notes": ""
+    },
+    {
+      "event_name": "SWFL Mexican Food Showdown",
+      "city": "Fort Myers",
+      "start_date": "2027-05-01",
+      "end_date": "2027-05-01",
+      "date_text": "5/1*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/851919754117755/",
+      "notes": ""
+    },
+    {
+      "event_name": "Treasure Coast Country Music Fest",
+      "city": "Vero Beach",
+      "start_date": "2027-05-01",
+      "end_date": "2027-05-02",
+      "date_text": "5/1-5/2*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://treasurecoastcountryfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Wildflower Festival and Plant Sale",
+      "city": "Live Oak",
+      "start_date": "2027-05-01",
+      "end_date": "2027-05-01",
+      "date_text": "5/1*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/SuwanneeFestivals",
+      "notes": ""
+    },
+    {
+      "event_name": "Sanford Food Truck Fiesta V",
+      "city": "Sanford",
+      "start_date": "2027-05-02",
+      "end_date": "2027-05-02",
+      "date_text": "5/2*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://sanfordfl.gov/event-calendar/",
+      "notes": ""
+    },
+    {
+      "event_name": "St. Augustine Food and Wine Festival",
+      "city": "St. Augustine",
+      "start_date": "2027-05-05",
+      "end_date": "2027-05-09",
+      "date_text": "5/5-5/9*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://staugustinefoodandwinefestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Sunshine Get Down Music and Art Festival",
+      "city": "Brooksville",
+      "start_date": "2027-05-06",
+      "end_date": "2027-05-09",
+      "date_text": "5/6-5/9",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://sunshinehootenanny.com/",
+      "notes": ""
+    }
+  ]
+}

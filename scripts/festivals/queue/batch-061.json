@@ -1,0 +1,226 @@
+{
+  "batch": 61,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Red, White and Bloom Market",
+      "city": "Dover",
+      "start_date": "2027-05-22",
+      "end_date": "2027-05-22",
+      "date_text": "5/22*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://constellationeventsllc.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Tampa Bay Barbecue Festival and Competition",
+      "city": "St. Petersburg",
+      "start_date": "2027-05-22",
+      "end_date": "2027-05-23",
+      "date_text": "5/22-5/23*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.tampabaybarbecue.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Forgotten Coast Sea Turtle Festival",
+      "city": "Port St. Joe",
+      "start_date": "2027-05-23",
+      "end_date": "2027-05-23",
+      "date_text": "5/23*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/GulfTurtle",
+      "notes": ""
+    },
+    {
+      "event_name": "Green Cove Springs Memorial Day RiverFest",
+      "city": "Green Cove Springs",
+      "start_date": "2027-05-24",
+      "end_date": "2027-05-24",
+      "date_text": "5/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.greencovesprings.com/290/Green-Cove-Springs-Riverfest",
+      "notes": ""
+    },
+    {
+      "event_name": "Myakka River Blues Festival",
+      "city": "Venice",
+      "start_date": "2027-05-24",
+      "end_date": "2027-05-24",
+      "date_text": "5/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/myakkariverbluesfest",
+      "notes": ""
+    },
+    {
+      "event_name": "Gulf Coast Jam",
+      "city": "Panama City Beach",
+      "start_date": "2027-05-27",
+      "end_date": "2027-05-30",
+      "date_text": "5/27-5/30*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://gulfcoastjam.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "New Smyrna Beach Jazz Festival",
+      "city": "New Smyrna Beach",
+      "start_date": "2027-05-28",
+      "end_date": "2027-05-30",
+      "date_text": "5/28-5/30*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://nsbjazzfest.com",
+      "notes": ""
+    },
+    {
+      "event_name": "St. Pete Pride Street Fair",
+      "city": "St. Petersburg",
+      "start_date": "2027-05-28",
+      "end_date": "2027-05-28",
+      "date_text": "5/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.stpetepride.org/2026-events",
+      "notes": ""
+    },
+    {
+      "event_name": "Howey Artisan Market at Mission Resort and Club V",
+      "city": "Howey in the Hills",
+      "start_date": "2027-05-29",
+      "end_date": "2027-05-29",
+      "date_text": "5/29",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1618016786356990/1618017999690202/?acontext=%7B%22event_action_history%22%3A[%7B%22extra_data%22%3A%22%22%2C%22mechanism%22%3A%22surface%22%2C%22surface%22%3A%22permalink%22%7D%2C%7B%22extra_data%22%3A%22%22%2C%22mechanism%22%3A%22surface%22%2C%22surface%22%3A%22permalink%22%7D%2C%7B%22extra_data%22%3A%22%22%2C%22mechanism%22%3A%22surface%22%2C%22surface%22%3A%22permalink%22%7D]%2C%22ref_notif_type%22%3Anull%7D",
+      "notes": ""
+    },
+    {
+      "event_name": "PrideFest Kissimmee",
+      "city": "Kissimmee",
+      "start_date": "2027-05-29",
+      "end_date": "2027-05-29",
+      "date_text": "5/29*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.kissimmee.gov/Parks-Recreation-Events/Events-Festivals/Pridefest-Kissimmee",
+      "notes": ""
+    },
+    {
+      "event_name": "Girls in Wonderland",
+      "city": "Orlando",
+      "start_date": "2027-06-03",
+      "end_date": "2027-06-07",
+      "date_text": "6/3-6/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.girlsinwonderland.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "The Hukilau",
+      "city": "Fort Lauderdale",
+      "start_date": "2027-06-03",
+      "end_date": "2027-06-06",
+      "date_text": "6/3-6/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/groups/202314416492064/",
+      "notes": ""
+    },
+    {
+      "event_name": "Oakland Park Pride",
+      "city": "Oakland",
+      "start_date": "2027-06-04",
+      "end_date": "2027-06-04",
+      "date_text": "6/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.oaklandparkfl.gov/750/Oakland-Park-Pride",
+      "notes": ""
+    },
+    {
+      "event_name": "Caribbean Jerk Festival",
+      "city": "Clermont",
+      "start_date": "2027-06-05",
+      "end_date": "2027-06-05",
+      "date_text": "6/5*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/CAALC123",
+      "notes": ""
+    },
+    {
+      "event_name": "Chiefland Watermelon Festival",
+      "city": "Chiefland",
+      "start_date": "2027-06-05",
+      "end_date": "2027-06-05",
+      "date_text": "6/5*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://chieflandwomansclub.org/watermelon-festival",
+      "notes": ""
+    },
+    {
+      "event_name": "Fernandina Beach Pride Parade and Festival",
+      "city": "Fernandina Beach",
+      "start_date": "2027-06-05",
+      "end_date": "2027-06-05",
+      "date_text": "6/5*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.fernandinabeachpride.com/events/2026-fernandina-beach-pride-festival-parade",
+      "notes": ""
+    },
+    {
+      "event_name": "Key West Pride Street Fair",
+      "city": "Key West",
+      "start_date": "2027-06-05",
+      "end_date": "2027-06-05",
+      "date_text": "6/5*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/keywestpride",
+      "notes": ""
+    },
+    {
+      "event_name": "Philippine Summer Festival",
+      "city": "West Palm Beach",
+      "start_date": "2027-06-05",
+      "end_date": "2027-06-05",
+      "date_text": "6/5*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1521146466009225/?acontext=%7B%22event_action_history%22%3A[%7B%22mechanism%22%3A%22surface%22%2C%22surface%22%3A%22groups_highlight_units%22%7D]%2C%22ref_notif_type%22%3Anull%7D",
+      "notes": ""
+    },
+    {
+      "event_name": "Pineapple Festival",
+      "city": "Orlando",
+      "start_date": "2027-06-05",
+      "end_date": "2027-06-05",
+      "date_text": "6/5*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.eventeny.com/events/pineapple-festival-30129/?srsltid=AfmBOooJvfak6b7Xe84tVm5X2ScmVnWAZV_Vb-3JVEuxeTSHWXB9SgQ_",
+      "notes": ""
+    },
+    {
+      "event_name": "Silver Pride",
+      "city": "Sarasota",
+      "start_date": "2027-06-05",
+      "end_date": "2027-06-05",
+      "date_text": "6/5*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/SarasotaPride",
+      "notes": ""
+    }
+  ]
+}

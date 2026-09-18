@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 672,
-    "totalRegistryEntries": 673,
-    "guardsTxtLineCount": 671,
-    "guardsTxtReachedFileCount": 666,
+    "totalOnDiskGuardFiles": 673,
+    "totalRegistryEntries": 674,
+    "guardsTxtLineCount": 672,
+    "guardsTxtReachedFileCount": 667,
     "criticalCount": 83,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 460,
+      "CALL": 461,
       "RENDER": 73,
       "STRUCTURAL": 139,
       "OTHER": 1
@@ -2900,6 +2900,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 37,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-florida-festivals-import.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 33,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

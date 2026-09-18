@@ -1,0 +1,226 @@
+{
+  "batch": 38,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Cortez Commercial Fishing Festival",
+      "city": "Cortez",
+      "start_date": "2027-02-13",
+      "end_date": "2027-02-14",
+      "date_text": "2/13-2/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.cortezvillagehistoricalsociety.org/events/commercial-fishing-festival",
+      "notes": ""
+    },
+    {
+      "event_name": "Deerfield Beach Pioneer Days",
+      "city": "Deerfield Beach",
+      "start_date": "2027-02-13",
+      "end_date": "2027-02-14",
+      "date_text": "2/13-2/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.deerfield-beach.com/1179/Pioneer-Days",
+      "notes": ""
+    },
+    {
+      "event_name": "Edison Ford Spring Garden Festival",
+      "city": "Fort Myers",
+      "start_date": "2027-02-13",
+      "end_date": "2027-02-14",
+      "date_text": "2/13-2/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.edisonfordwinterestates.org/events/garden-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Florida Craft Brew and Wingfest",
+      "city": "Vero Beach",
+      "start_date": "2027-02-13",
+      "end_date": "2027-02-13",
+      "date_text": "2/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.floridacraftbrewandwingfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Florida Keys Seafood Festival",
+      "city": "Key West",
+      "start_date": "2027-02-13",
+      "end_date": "2027-02-14",
+      "date_text": "2/13-2/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://floridakeysseafoodfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Florida Renaissance Festival and Craft Village II",
+      "city": "Deerfield Beach",
+      "start_date": "2027-02-13",
+      "end_date": "2027-02-14",
+      "date_text": "2/13-2/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.ren-fest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Gulfport Fine Arts Festival",
+      "city": "Gulfport",
+      "start_date": "2027-02-13",
+      "end_date": "2027-02-14",
+      "date_text": "2/13-2/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/2040452803162403/",
+      "notes": ""
+    },
+    {
+      "event_name": "L.B. Brown Heritage Festival",
+      "city": "Bartow",
+      "start_date": "2027-02-13",
+      "end_date": "2027-02-14",
+      "date_text": "2/13-2/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.lbbrown.com/schedule-of-activities.html",
+      "notes": ""
+    },
+    {
+      "event_name": "Lemon Bay Cracker Fair",
+      "city": "Englewood",
+      "start_date": "2027-02-13",
+      "end_date": "2027-02-13",
+      "date_text": "2/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://lemonbayhistory.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Localtopia",
+      "city": "St. Petersburg",
+      "start_date": "2027-02-13",
+      "end_date": "2027-02-13",
+      "date_text": "2/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://localtopia.keepsaintpetersburglocal.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Mulberry Founders’ Day",
+      "city": "Mulberry",
+      "start_date": "2027-02-13",
+      "end_date": "2027-02-13",
+      "date_text": "2/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/cityofmulberryfl/",
+      "notes": ""
+    },
+    {
+      "event_name": "Mutt Strutt (Edison Festival of Lights)",
+      "city": "Fort Myers",
+      "start_date": "2027-02-13",
+      "end_date": "2027-02-13",
+      "date_text": "2/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://edisonfestival.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Sanibel-Captiva Rotary Club Arts and Crafts Festival",
+      "city": "Sanibel Island",
+      "start_date": "2027-02-13",
+      "end_date": "2027-02-14",
+      "date_text": "2/13-2/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.sanibelartfair.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Tampa Bay Collard Green Festival",
+      "city": "St. Petersburg",
+      "start_date": "2027-02-13",
+      "end_date": "2027-02-13",
+      "date_text": "2/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/TampaBayCGF/",
+      "notes": ""
+    },
+    {
+      "event_name": "Blossom, Brew and BBQ",
+      "city": "Gainesville",
+      "start_date": "2027-02-14",
+      "end_date": "2027-02-14",
+      "date_text": "2/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1211914440900998",
+      "notes": ""
+    },
+    {
+      "event_name": "Pensacola Mardi Gras Fat Tuesday Priscus Celebration",
+      "city": "Pensacola",
+      "start_date": "2027-02-16",
+      "end_date": "2027-02-16",
+      "date_text": "2/16*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://pensacolamardigras.com/fat-tuesday-celebration/",
+      "notes": ""
+    },
+    {
+      "event_name": "Taste of Oakland Park",
+      "city": "Oakland Park",
+      "start_date": "2027-02-16",
+      "end_date": "2027-02-16",
+      "date_text": "2/16*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.oaklandparkfl.gov/535/Taste-of-Oakland-Park",
+      "notes": ""
+    },
+    {
+      "event_name": "30A Wine Festival",
+      "city": "Alys Beach",
+      "start_date": "2027-02-17",
+      "end_date": "2027-02-21",
+      "date_text": "2/17-2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://30awinefestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Whippersnap Music and Arts Festival",
+      "city": "Brooksville",
+      "start_date": "2027-02-17",
+      "end_date": "2027-02-20",
+      "date_text": "2/17-2/20*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.whippersnapfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "South Beach Wine and Food Festival",
+      "city": "Miami Beach",
+      "start_date": "2027-02-18",
+      "end_date": "2027-02-21",
+      "date_text": "2/18-2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://corporate.sobewff.org/",
+      "notes": ""
+    }
+  ]
+}

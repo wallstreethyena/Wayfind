@@ -1,0 +1,226 @@
+{
+  "batch": 4,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Mayhem Ranch Fall Festival II",
+      "city": "Morriston",
+      "start_date": "2026-10-03",
+      "end_date": "2026-10-04",
+      "date_text": "10/3-10/4",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://mayhemranchfla.com/event/mayhem-ranch-fall-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Mulberry Hispanic Heritage Festival",
+      "city": "Mulberry",
+      "start_date": "2026-10-03",
+      "end_date": "2026-10-03",
+      "date_text": "10/3",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://cityofmulberryfl.org/city-programs/",
+      "notes": ""
+    },
+    {
+      "event_name": "Orlando’s Original Oktoberfest I",
+      "city": "Casselberry",
+      "start_date": "2026-10-03",
+      "end_date": "2026-10-03",
+      "date_text": "10/3",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.orlandogermanclub.com/events/",
+      "notes": ""
+    },
+    {
+      "event_name": "Piertoberfest",
+      "city": "St. Petersburg",
+      "start_date": "2026-10-03",
+      "end_date": "2026-10-03",
+      "date_text": "10/3",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/2946600862339864/",
+      "notes": ""
+    },
+    {
+      "event_name": "Rise of the Pyrate Republic",
+      "city": "Sebastian",
+      "start_date": "2026-10-03",
+      "end_date": "2026-10-03",
+      "date_text": "10/3",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/barefoot-blvd-sebastian-fl-32976-united-states/the-rise-of-the-pyrate-republic/26843550675246933/",
+      "notes": ""
+    },
+    {
+      "event_name": "St. Joe Fall Festival",
+      "city": "Dade City",
+      "start_date": "2026-10-03",
+      "end_date": "2026-10-03",
+      "date_text": "10/3",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1024122760034948/?rdid=ZVFJm54lHu9gWBds&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F196ovWr1F2%2F",
+      "notes": ""
+    },
+    {
+      "event_name": "Taste of Latino: St. Augustine",
+      "city": "St. Augustine",
+      "start_date": "2026-10-04",
+      "end_date": "2026-10-04",
+      "date_text": "10/4",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1276599440951372",
+      "notes": ""
+    },
+    {
+      "event_name": "Suwannee Roots Revival",
+      "city": "Live Oak",
+      "start_date": "2026-10-08",
+      "end_date": "2026-10-11",
+      "date_text": "10/8-10/11",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.suwanneerootsrevival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "239 Punk Ska Reggae Fest",
+      "city": "Cape Coral",
+      "start_date": "2026-10-09",
+      "end_date": "2026-10-10",
+      "date_text": "10/9-10/10",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/239punkskafest",
+      "notes": ""
+    },
+    {
+      "event_name": "A Night of the Mystic Arts",
+      "city": "Casselberry",
+      "start_date": "2026-10-09",
+      "end_date": "2026-10-09",
+      "date_text": "10/9",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://historiccasselberry.com/night-of-the-mystic-arts",
+      "notes": ""
+    },
+    {
+      "event_name": "Avalon Park Oktoberfest",
+      "city": "Orlando",
+      "start_date": "2026-10-09",
+      "end_date": "2026-10-10",
+      "date_text": "10/9-10/10",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://avalonparkorlando.com/festivals/",
+      "notes": ""
+    },
+    {
+      "event_name": "Baytowne Wharf Beer Festival at Sandestin",
+      "city": "Miramar Beach",
+      "start_date": "2026-10-09",
+      "end_date": "2026-10-10",
+      "date_text": "10/9-10/10",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.baytownebeerfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Buona Fortuna Festa Italiana",
+      "city": "Pensacola",
+      "start_date": "2026-10-09",
+      "end_date": "2026-10-10",
+      "date_text": "10/9-10/10",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/sonsofitalybuonafortuna",
+      "notes": ""
+    },
+    {
+      "event_name": "Cotee River Bike Fest",
+      "city": "New Port Richey",
+      "start_date": "2026-10-09",
+      "end_date": "2026-10-11",
+      "date_text": "10/9-10/11",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/coteeriverbikefest/",
+      "notes": ""
+    },
+    {
+      "event_name": "Fall Festival at Amber Brooke Farms IV",
+      "city": "Williston",
+      "start_date": "2026-10-09",
+      "end_date": "2026-10-12",
+      "date_text": "10/9-10/12",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://amberbrookefarms.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Oktoberfest Miami I",
+      "city": "Miami",
+      "start_date": "2026-10-09",
+      "end_date": "2026-10-11",
+      "date_text": "10/9-10/11",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.eventbrite.com/e/oktoberfest-miami-2026-the-biggest-german-beer-festival-tickets-1994591970276",
+      "notes": ""
+    },
+    {
+      "event_name": "Oktoberfest of the Palm Beaches I",
+      "city": "Lake Worth Beach",
+      "start_date": "2026-10-09",
+      "end_date": "2026-10-11",
+      "date_text": "10/9-10/11",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://americangermanclub.org/signature-events/oktoberfest/",
+      "notes": ""
+    },
+    {
+      "event_name": "Oktoberfest Tampa",
+      "city": "Tampa",
+      "start_date": "2026-10-09",
+      "end_date": "2026-10-11",
+      "date_text": "10/9-10/11",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.oktoberfesttampa.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Pirates of the High Seas Fest",
+      "city": "Panama City Beach",
+      "start_date": "2026-10-09",
+      "end_date": "2026-10-11",
+      "date_text": "10/9-10/11",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.visitpanamacitybeach.com/pirates-of-the-high-seas/",
+      "notes": ""
+    },
+    {
+      "event_name": "Raprager Family Farm’s Fall Festival IV",
+      "city": "Odessa",
+      "start_date": "2026-10-09",
+      "end_date": "2026-10-11",
+      "date_text": "10/9-10/11",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://rapragerfarm.com/fall-festival",
+      "notes": ""
+    }
+  ]
+}

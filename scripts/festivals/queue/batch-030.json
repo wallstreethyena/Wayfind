@@ -1,0 +1,226 @@
+{
+  "batch": 30,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Riverwalk Stone Crab and Seafood Festival",
+      "city": "Fort Lauderdale",
+      "start_date": "2027-01-02",
+      "end_date": "2027-01-02",
+      "date_text": "1/2*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/819212117191717",
+      "notes": ""
+    },
+    {
+      "event_name": "The Central Florida Zoo and Botanical Gardens Asian Lantern Festival IX",
+      "city": "Sanford",
+      "start_date": "2027-01-06",
+      "end_date": "2027-01-10",
+      "date_text": "1/6-1/10*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.centralfloridazoo.org/lanterns/",
+      "notes": ""
+    },
+    {
+      "event_name": "Night Garden IX",
+      "city": "Coral Gables",
+      "start_date": "2027-01-07",
+      "end_date": "2027-01-10",
+      "date_text": "1/7-1/10*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://thenightgarden.co/miami/",
+      "notes": ""
+    },
+    {
+      "event_name": "Everglades Roots Festival",
+      "city": "Ochopee",
+      "start_date": "2027-01-08",
+      "end_date": "2027-01-10",
+      "date_text": "1/8-1/10*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.evergladesrootsfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Cape Coral Art Festival and Market Place",
+      "city": "Cape Coral",
+      "start_date": "2027-01-09",
+      "end_date": "2027-01-10",
+      "date_text": "1/9-1/10*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/capecoralfestival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Fiesta de Pueblo",
+      "city": "Greenacres",
+      "start_date": "2027-01-09",
+      "end_date": "2027-01-09",
+      "date_text": "1/9*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://fiestadepueblo.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Florida Keys Celtic Festival",
+      "city": "Marathon Key",
+      "start_date": "2027-01-09",
+      "end_date": "2027-01-10",
+      "date_text": "1/9-1/10",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://floridakeyscelticfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Gainesville Folk Festival",
+      "city": "Gainesville",
+      "start_date": "2027-01-09",
+      "end_date": "2027-01-10",
+      "date_text": "1/9-1/10*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/869305112195567/",
+      "notes": ""
+    },
+    {
+      "event_name": "Raising Cane and Moonshine Festival",
+      "city": "Dade City",
+      "start_date": "2027-01-09",
+      "end_date": "2027-01-09",
+      "date_text": "1/9",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/4172481173011642/",
+      "notes": ""
+    },
+    {
+      "event_name": "Riverwalk Stone Crab and Seafood Festival",
+      "city": "Fort Lauderdale",
+      "start_date": "2027-01-09",
+      "end_date": "2027-01-09",
+      "date_text": "1/9",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/819212117191717",
+      "notes": ""
+    },
+    {
+      "event_name": "Tampa Oyster Fest",
+      "city": "Tampa",
+      "start_date": "2027-01-09",
+      "end_date": "2027-01-09",
+      "date_text": "1/9*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://tampaoysterfest.com",
+      "notes": ""
+    },
+    {
+      "event_name": "Venezia Renaissance Faire I",
+      "city": "Bonita Springs",
+      "start_date": "2027-01-09",
+      "end_date": "2027-01-10",
+      "date_text": "1/9-1/10*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://veneziarenaissancefaire.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Winter Jam: Tampa",
+      "city": "Tampa",
+      "start_date": "2027-01-09",
+      "end_date": "2027-01-09",
+      "date_text": "1/9*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://jamtour.com/01-10-tampa.html",
+      "notes": ""
+    },
+    {
+      "event_name": "Sanford Food Truck Fiesta I",
+      "city": "Sanford",
+      "start_date": "2027-01-10",
+      "end_date": "2027-01-10",
+      "date_text": "1/10*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://sanfordfl.gov/event-calendar/",
+      "notes": ""
+    },
+    {
+      "event_name": "Winter Jam: Jacksonville",
+      "city": "Jacksonville",
+      "start_date": "2027-01-10",
+      "end_date": "2027-01-10",
+      "date_text": "1/10*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://jamtour.com/01-11-jacksonville.html",
+      "notes": ""
+    },
+    {
+      "event_name": "The Central Florida Zoo and Botanical Gardens Asian Lantern Festival X",
+      "city": "Sanford",
+      "start_date": "2027-01-13",
+      "end_date": "2027-01-17",
+      "date_text": "1/13-1/17*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.centralfloridazoo.org/lanterns/",
+      "notes": ""
+    },
+    {
+      "event_name": "Fellsmere Frog Leg Festival",
+      "city": "Fellsmere",
+      "start_date": "2027-01-14",
+      "end_date": "2027-01-17",
+      "date_text": "1/14-1/17*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.froglegfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Yeehaw Music Festival",
+      "city": "Okeechobee",
+      "start_date": "2027-01-14",
+      "end_date": "2027-01-16",
+      "date_text": "1/14-1/16*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://evansmediasource.com/events/2026-yee-haw-music-fest/",
+      "notes": ""
+    },
+    {
+      "event_name": "30A Songwriters Festival",
+      "city": "Santa Rosa Beach",
+      "start_date": "2027-01-15",
+      "end_date": "2027-01-18",
+      "date_text": "1/15-1/18*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://30asongwritersfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Punta Gorda Seafood and Music Festival",
+      "city": "Punta Gorda",
+      "start_date": "2027-01-15",
+      "end_date": "2027-01-17",
+      "date_text": "1/15-1/17*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.paragonfestivals.com/festival/punta-gorda-seafood-music-festival/",
+      "notes": ""
+    }
+  ]
+}

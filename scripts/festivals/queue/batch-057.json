@@ -1,0 +1,226 @@
+{
+  "batch": 57,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "MHS Beats and Eats Jazz Festival",
+      "city": "Milton",
+      "start_date": "2027-04-24",
+      "end_date": "2027-04-24",
+      "date_text": "4/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.miltonfl.org/Calendar.aspx?EID=9780&month=4&year=2026&day=7&calType=0",
+      "notes": ""
+    },
+    {
+      "event_name": "Mount Dora Blueberry Festival",
+      "city": "Mount Dora",
+      "start_date": "2027-04-24",
+      "end_date": "2027-04-25",
+      "date_text": "4/24-4/25*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.mountdorablueberryfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "New Port Richey Greek Festival",
+      "city": "New Port Richey",
+      "start_date": "2027-04-24",
+      "end_date": "2027-04-24",
+      "date_text": "4/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.eventbrite.com/e/greek-festival-tickets-1983620484266?aff=erelexpmlt",
+      "notes": ""
+    },
+    {
+      "event_name": "North Florida Wildflower Festival",
+      "city": "Blountstown",
+      "start_date": "2027-04-24",
+      "end_date": "2027-04-24",
+      "date_text": "4/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/NFLWildflowerFest/",
+      "notes": ""
+    },
+    {
+      "event_name": "Orlando Boozy Crawfish Festival",
+      "city": "Orlando",
+      "start_date": "2027-04-24",
+      "end_date": "2027-04-24",
+      "date_text": "4/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.eventbrite.com/e/orlando-boozy-crawfish-festival-tickets-1976652493819",
+      "notes": ""
+    },
+    {
+      "event_name": "Orlando Pickle Festival",
+      "city": "Orlando",
+      "start_date": "2027-04-24",
+      "end_date": "2027-04-24",
+      "date_text": "4/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.eventbrite.com/e/orlando-pickle-fest-2026-tickets-1980123971101",
+      "notes": ""
+    },
+    {
+      "event_name": "Roscolusa Songwriters Festival",
+      "city": "Ponte Vedra Beach",
+      "start_date": "2027-04-24",
+      "end_date": "2027-04-24",
+      "date_text": "4/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.roscolusa.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Rotary Watermelon Festival",
+      "city": "Zolfo Springs",
+      "start_date": "2027-04-24",
+      "end_date": "2027-04-24",
+      "date_text": "4/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1411989446993136",
+      "notes": ""
+    },
+    {
+      "event_name": "St. Johns River Festival of the Arts",
+      "city": "Sanford",
+      "start_date": "2027-04-24",
+      "end_date": "2027-04-25",
+      "date_text": "4/24-4/25*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://stjohnsriverartfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Tampa Bay Black Heritage Music Festival",
+      "city": "Tampa",
+      "start_date": "2027-04-24",
+      "end_date": "2027-04-25",
+      "date_text": "4/24-4/25*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://tampablackheritage.org/musicfest2026/",
+      "notes": ""
+    },
+    {
+      "event_name": "Tarpon Springs Book Festival",
+      "city": "Tarpon Springs",
+      "start_date": "2027-04-24",
+      "end_date": "2027-04-24",
+      "date_text": "4/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://tarponspringsmerchantassociation.com/tarpon-springs-events-calendar/tarpon-springs-book-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Sweet Corn Fiesta",
+      "city": "West Palm Beach",
+      "start_date": "2027-04-25",
+      "end_date": "2027-04-25",
+      "date_text": "4/25*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/SweetCornFiesta",
+      "notes": ""
+    },
+    {
+      "event_name": "Key West Songwriters Festival",
+      "city": "Key West",
+      "start_date": "2027-04-28",
+      "end_date": "2027-05-02",
+      "date_text": "4/28-5/2*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://keywestsongwritersfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Thunder Beach Spring Rally",
+      "city": "Panama City Beach",
+      "start_date": "2027-04-28",
+      "end_date": "2027-05-02",
+      "date_text": "4/28-5/2*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.thunderbeachproductions.com",
+      "notes": ""
+    },
+    {
+      "event_name": "C-Key Tiki Fest",
+      "city": "Cedar Key",
+      "start_date": "2027-04-30",
+      "end_date": "2027-05-02",
+      "date_text": "4/30-5/2*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://ckeytiki.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Hibiscus Festival",
+      "city": "Punta Gorda",
+      "start_date": "2027-04-30",
+      "end_date": "2027-05-02",
+      "date_text": "4/30-5/2*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://thehibiscusfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Isle of Eight Flags Shrimp Festival",
+      "city": "Fernandina Beach",
+      "start_date": "2027-04-30",
+      "end_date": "2027-05-02",
+      "date_text": "4/30-5/2*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.shrimpfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Lotus Gathering",
+      "city": "Umatilla",
+      "start_date": "2027-04-30",
+      "end_date": "2027-05-03",
+      "date_text": "4/30-5/3*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.lotusgathering.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Tampa Riverfest",
+      "city": "Tampa",
+      "start_date": "2027-04-30",
+      "end_date": "2027-05-01",
+      "date_text": "4/30-5/1*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://thetampariverwalk.com/events/riverfest.html",
+      "notes": ""
+    },
+    {
+      "event_name": "7 Rivers Water Festival",
+      "city": "Winter Haven",
+      "start_date": "2027-05-01",
+      "end_date": "2027-05-01",
+      "date_text": "5/1*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1295206189323167/",
+      "notes": ""
+    }
+  ]
+}

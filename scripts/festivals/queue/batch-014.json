@@ -1,0 +1,226 @@
+{
+  "batch": 14,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Central Florida Fall EGGfest",
+      "city": "Longwood",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-07",
+      "date_text": "11/7",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://centralfloridafalleggfest.com",
+      "notes": ""
+    },
+    {
+      "event_name": "Collard Festival",
+      "city": "Ponce de Leon",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-07",
+      "date_text": "11/7",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/profile.php?id=100064045955087",
+      "notes": ""
+    },
+    {
+      "event_name": "Cows ‘n Cabs",
+      "city": "Winter Park",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-07",
+      "date_text": "11/7",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.cowsncabs.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "DeLand Original Music Festival",
+      "city": "DeLand",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-07",
+      "date_text": "11/7",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "http://ssa.cc/deland.htm",
+      "notes": ""
+    },
+    {
+      "event_name": "Downtown Melbourne Food and Wine Festival",
+      "city": "Melbourne",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-07",
+      "date_text": "11/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://foodandwine.downtownmelbourne.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Eggs on the Beach",
+      "city": "Miramar Beach",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-07",
+      "date_text": "11/7",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://biggreenegg.com/products/eggs-on-the-beach-1",
+      "notes": ""
+    },
+    {
+      "event_name": "Fall Festival at Amber Brooke Farms VIII",
+      "city": "Williston",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-08",
+      "date_text": "11/7-11/8",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://amberbrookefarms.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Fall Fiesta in the Park",
+      "city": "Orlando",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-08",
+      "date_text": "11/7-11/8",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.fiestainthepark.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Fall Navarre Market",
+      "city": "Navarre",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-07",
+      "date_text": "11/7",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://apexshowsandevents.com/11%2F7-fall-navarre-market",
+      "notes": ""
+    },
+    {
+      "event_name": "Florida CannFest",
+      "city": "Mount Dora",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-07",
+      "date_text": "11/7",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "http://floridacannafest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Fort Lauderdale Downtown Day of the Dead",
+      "city": "Fort Lauderdale",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-07",
+      "date_text": "11/7",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1966584890727082/",
+      "notes": ""
+    },
+    {
+      "event_name": "Give Thanks Festival",
+      "city": "Williston",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-07",
+      "date_text": "11/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/989019399716851",
+      "notes": ""
+    },
+    {
+      "event_name": "Halifax Art Festival",
+      "city": "Daytona Beach",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-08",
+      "date_text": "11/7-11/8",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://halifaxartfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Highland Arts League Arts and Crafts Festival",
+      "city": "Sebring",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-07",
+      "date_text": "11/7",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.highlandsartleague.org/arts-and-crafts-festival-2024",
+      "notes": ""
+    },
+    {
+      "event_name": "Jacksonville Porchfest",
+      "city": "Jacksonville",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-07",
+      "date_text": "11/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.jacksonvilleporchfest.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Jazzoo at the Brevard Zoo",
+      "city": "Melbourne",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-07",
+      "date_text": "11/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://brevardzoo.org/special-events/",
+      "notes": ""
+    },
+    {
+      "event_name": "Kirby Family Farm’s Six Gun Territory: Wild West Weekend and Reunion",
+      "city": "Williston",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-08",
+      "date_text": "11/7-11/8",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.kirbyfarm.com/six-gun-territory-wild-west-weekend",
+      "notes": ""
+    },
+    {
+      "event_name": "Lake Hernando Dragon Boat Festival",
+      "city": "Hernando",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-07",
+      "date_text": "11/7",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/LakeHernandoDragonBoatFestival",
+      "notes": ""
+    },
+    {
+      "event_name": "Lake Sumter Landing Arts and Crafts Festival I",
+      "city": "The Villages",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-08",
+      "date_text": "11/7-11/8",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.thevillagesentertainment.com/festivals-and-special-events/lake-sumter-landing-arts-crafts-festival-2/",
+      "notes": ""
+    },
+    {
+      "event_name": "Mayhem Ranch Fall Festival VII",
+      "city": "Morriston",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-08",
+      "date_text": "11/7-11/8",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://mayhemranchfla.com/event/mayhem-ranch-fall-festival/",
+      "notes": ""
+    }
+  ]
+}

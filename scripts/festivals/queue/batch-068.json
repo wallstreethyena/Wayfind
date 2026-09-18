@@ -1,0 +1,226 @@
+{
+  "batch": 68,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Key West BrewFest Grand Tasting",
+      "city": "Key West",
+      "start_date": "2027-09-04",
+      "end_date": "2027-09-04",
+      "date_text": "9/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/keywestbrewfest/",
+      "notes": ""
+    },
+    {
+      "event_name": "South Florida Tacos and Treats Festival",
+      "city": "North Fort Myers",
+      "start_date": "2027-09-04",
+      "end_date": "2027-09-04",
+      "date_text": "9/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1527487902279294",
+      "notes": ""
+    },
+    {
+      "event_name": "Okeechobee Labor Day in the Park",
+      "city": "Okeechobee",
+      "start_date": "2027-09-06",
+      "end_date": "2027-09-06",
+      "date_text": "9/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://okeechobeemainstreet.org/labor-day-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Emerald Coast Beer Festival",
+      "city": "Pensacola",
+      "start_date": "2027-09-10",
+      "end_date": "2027-09-10",
+      "date_text": "9/10*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://emeraldcoastbeerfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Florida Fin Fest",
+      "city": "Jacksonville",
+      "start_date": "2027-09-10",
+      "end_date": "2027-09-11",
+      "date_text": "9/10-9/11*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/flfinfest",
+      "notes": ""
+    },
+    {
+      "event_name": "I Like it HOT! Festival",
+      "city": "Largo",
+      "start_date": "2027-09-11",
+      "end_date": "2027-09-12",
+      "date_text": "9/11-9/12*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/ILikeItHotFestival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Sopchoppy Depot Days Festival",
+      "city": "Sopchoppy",
+      "start_date": "2027-09-11",
+      "end_date": "2027-09-11",
+      "date_text": "9/11*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1649490562853599/",
+      "notes": ""
+    },
+    {
+      "event_name": "Sanford Food Truck Fiesta IX",
+      "city": "Sanford",
+      "start_date": "2027-09-12",
+      "end_date": "2027-09-12",
+      "date_text": "9/12*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://sanfordfl.gov/event-calendar/",
+      "notes": ""
+    },
+    {
+      "event_name": "Taste the Caribbean Festival",
+      "city": "Coral Gables",
+      "start_date": "2027-09-12",
+      "end_date": "2027-09-12",
+      "date_text": "9/12*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.miamiandbeaches.com/event/taste-the-caribbean-festival/38074",
+      "notes": ""
+    },
+    {
+      "event_name": "Everybody’s Favorite Barbecue and Hot Sauce Festival: Jacksonville",
+      "city": "Jacksonville",
+      "start_date": "2027-09-17",
+      "end_date": "2027-09-19",
+      "date_text": "9/17-9/19*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://everybodysfavoritefestival.com/cities/",
+      "notes": ""
+    },
+    {
+      "event_name": "Gulf Coast Jazz Festival: Fall Edition",
+      "city": "Pensacola",
+      "start_date": "2027-09-17",
+      "end_date": "2027-09-19",
+      "date_text": "9/17-9/19*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.gulfcoastsummerfestjazzedition.com/event-information",
+      "notes": ""
+    },
+    {
+      "event_name": "Mega Night Market Mid Autumn Moon Festival",
+      "city": "Tampa",
+      "start_date": "2027-09-17",
+      "end_date": "2027-09-19",
+      "date_text": "9/17-9/19*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1284259827148018/",
+      "notes": ""
+    },
+    {
+      "event_name": "Oakland Park Latin Fest",
+      "city": "Oakland Park",
+      "start_date": "2027-09-17",
+      "end_date": "2027-09-17",
+      "date_text": "9/17*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.oaklandparkfl.gov/601/Latin-Fest",
+      "notes": ""
+    },
+    {
+      "event_name": "Raprager Family Farm’s Fall Festival I",
+      "city": "Odessa",
+      "start_date": "2027-09-17",
+      "end_date": "2027-09-19",
+      "date_text": "9/17-9/19*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://rapragerfarm.com/fall-festival",
+      "notes": ""
+    },
+    {
+      "event_name": "South Gulf Coast Florida Vintage Market Days",
+      "city": "Fort Myers",
+      "start_date": "2027-09-17",
+      "end_date": "2027-09-19",
+      "date_text": "9/17-9/19*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://vintagemarketdays.com/market/south-gulf-coast-florida/",
+      "notes": ""
+    },
+    {
+      "event_name": "Wicked Barley’s Oktoberfest",
+      "city": "Jacksonville",
+      "start_date": "2027-09-17",
+      "end_date": "2027-09-19",
+      "date_text": "9/17-9/19*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/2162612230981479",
+      "notes": ""
+    },
+    {
+      "event_name": "Clermont Sips and Salsa",
+      "city": "Clermont",
+      "start_date": "2027-09-18",
+      "end_date": "2027-09-18",
+      "date_text": "9/18*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.clermontfl.gov/254/Events",
+      "notes": ""
+    },
+    {
+      "event_name": "Deviant Wolfe Oktoberfest",
+      "city": "Sanford",
+      "start_date": "2027-09-18",
+      "end_date": "2027-09-18",
+      "date_text": "9/18*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/873075262293069",
+      "notes": ""
+    },
+    {
+      "event_name": "DogFest Winter Park",
+      "city": "Winter Park",
+      "start_date": "2027-09-18",
+      "end_date": "2027-09-18",
+      "date_text": "9/18*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1605553004206747/",
+      "notes": ""
+    },
+    {
+      "event_name": "Fabulous 50’s Festival",
+      "city": "Newberry",
+      "start_date": "2027-09-18",
+      "end_date": "2027-09-18",
+      "date_text": "9/18*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/2002639217252905/",
+      "notes": ""
+    }
+  ]
+}

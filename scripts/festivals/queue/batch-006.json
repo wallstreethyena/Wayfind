@@ -1,0 +1,226 @@
+{
+  "batch": 6,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Orlando Fire and Flavor Festival",
+      "city": "Orlando",
+      "start_date": "2026-10-10",
+      "end_date": "2026-10-11",
+      "date_text": "10/10-10/11",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/2085549756179485/",
+      "notes": ""
+    },
+    {
+      "event_name": "Orlando Latino Fest",
+      "city": "Orlando",
+      "start_date": "2026-10-10",
+      "end_date": "2026-10-10",
+      "date_text": "10/10",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://latinofestusa.com/orlandolatinofest/",
+      "notes": ""
+    },
+    {
+      "event_name": "Ormond Beer Beach Festival",
+      "city": "Ormond Beach",
+      "start_date": "2026-10-10",
+      "end_date": "2026-10-10",
+      "date_text": "10/10",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://ormondbeachbeerfestival.com",
+      "notes": ""
+    },
+    {
+      "event_name": "Pioneer Florida Museum and Village Scarecrow Festival",
+      "city": "Dade City",
+      "start_date": "2026-10-10",
+      "end_date": "2026-10-10",
+      "date_text": "10/10",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1026333513248735",
+      "notes": ""
+    },
+    {
+      "event_name": "ROCKtoberfest",
+      "city": "Sarasota",
+      "start_date": "2026-10-10",
+      "end_date": "2026-10-10",
+      "date_text": "10/10",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://destinationdowntownsarasota.com/rocktoberfest/",
+      "notes": ""
+    },
+    {
+      "event_name": "Sanford Street Fest",
+      "city": "Sanford",
+      "start_date": "2026-10-10",
+      "end_date": "2026-10-10",
+      "date_text": "10/10",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.sanfordstreetfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "St. Augustine Greek Fest",
+      "city": "St. Augustine",
+      "start_date": "2026-10-10",
+      "end_date": "2026-10-11",
+      "date_text": "10/10-10/11",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.staugustinegreekfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "St. Pete Pier Fall Festival",
+      "city": "St. Petersburg",
+      "start_date": "2026-10-10",
+      "end_date": "2026-10-11",
+      "date_text": "10/10-10/11",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1107335341643454",
+      "notes": ""
+    },
+    {
+      "event_name": "Taste of the Beach",
+      "city": "Pensacola Beach",
+      "start_date": "2026-10-10",
+      "end_date": "2026-10-10",
+      "date_text": "10/10",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.pensacolabeachchamber.com/event-detail/p3Q|VCOYs0ojtq450igETQ2/taste-of-the-beach-festival",
+      "notes": ""
+    },
+    {
+      "event_name": "The Heart and Soul Music Festival",
+      "city": "Apopka",
+      "start_date": "2026-10-10",
+      "end_date": "2026-10-10",
+      "date_text": "10/10",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/HeartandSoulMusicFestival",
+      "notes": ""
+    },
+    {
+      "event_name": "Black Willow Fall Festival",
+      "city": "Mims",
+      "start_date": "2026-10-11",
+      "end_date": "2026-10-11",
+      "date_text": "10/11*",
+      "source_says_unconfirmed": true,
+      "lead_status": "needs_verification",
+      "organizer_url_hint": "https://www.facebook.com/blackwillowranchvenue",
+      "notes": "?"
+    },
+    {
+      "event_name": "Flora-Bama Oktoberfest",
+      "city": "Perdido Key",
+      "start_date": "2026-10-11",
+      "end_date": "2026-10-11",
+      "date_text": "10/11",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.florabama.com/oktoberfest",
+      "notes": ""
+    },
+    {
+      "event_name": "Sanford Food Truck Fiesta X",
+      "city": "Sanford",
+      "start_date": "2026-10-11",
+      "end_date": "2026-10-11",
+      "date_text": "10/11",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://sanfordfl.gov/event-calendar/",
+      "notes": ""
+    },
+    {
+      "event_name": "Sacred Heart Fall Festival",
+      "city": "Pinellas Park",
+      "start_date": "2026-10-14",
+      "end_date": "2026-10-18",
+      "date_text": "10/14-10/18",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/profile.php?id=100057483938586",
+      "notes": ""
+    },
+    {
+      "event_name": "Biketoberfest",
+      "city": "Daytona Beach",
+      "start_date": "2026-10-15",
+      "end_date": "2026-10-18",
+      "date_text": "10/15-10/18",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.daytonabeach.com/biketoberfest/",
+      "notes": ""
+    },
+    {
+      "event_name": "Blast on the Bay",
+      "city": "Port St. Joe",
+      "start_date": "2026-10-15",
+      "end_date": "2026-10-18",
+      "date_text": "10/15-10/18",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://blastonthebay.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Clearwater Jazz Holiday",
+      "city": "Clearwater",
+      "start_date": "2026-10-15",
+      "end_date": "2026-10-18",
+      "date_text": "10/15-10/18",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.clearwaterjazz.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Oktoberfest at Fort Myers Brewing Company",
+      "city": "Fort Myers",
+      "start_date": "2026-10-15",
+      "end_date": "2026-10-18",
+      "date_text": "10/15-10/18",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1403069331959938",
+      "notes": ""
+    },
+    {
+      "event_name": "Our Lady of Lourdes Fall Festival",
+      "city": "Dunedin",
+      "start_date": "2026-10-15",
+      "end_date": "2026-10-18",
+      "date_text": "10/15-10/18",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://ollfallfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Beaches Oktoberfest",
+      "city": "Jacksonville Beach",
+      "start_date": "2026-10-16",
+      "end_date": "2026-10-17",
+      "date_text": "10/16-10/17",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.beachesoktoberfest.com/",
+      "notes": ""
+    }
+  ]
+}

@@ -1,0 +1,226 @@
+{
+  "batch": 60,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Billy Bowlegs Pirate Festival",
+      "city": "Fort Walton Beach",
+      "start_date": "2027-05-14",
+      "end_date": "2027-05-15",
+      "date_text": "5/14-5/15*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/BillyBowlegsPirateFestival",
+      "notes": ""
+    },
+    {
+      "event_name": "Digital Graffiti Festival",
+      "city": "Alys Beach",
+      "start_date": "2027-05-14",
+      "end_date": "2027-05-15",
+      "date_text": "5/14-5/15*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://digitalgraffiti.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Lionfish Festival",
+      "city": "Destin",
+      "start_date": "2027-05-14",
+      "end_date": "2027-05-15",
+      "date_text": "5/14-5/15*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://emeraldcoastopen.com/lionfish-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "OCC Invitational Bike Show",
+      "city": "Clearwater",
+      "start_date": "2027-05-14",
+      "end_date": "2027-05-16",
+      "date_text": "5/14-5/16*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.occroadhouse.com/invitational-bike-show",
+      "notes": ""
+    },
+    {
+      "event_name": "Fishermen’s Village Celtic Fest",
+      "city": "Punta Gorda",
+      "start_date": "2027-05-15",
+      "end_date": "2027-05-15",
+      "date_text": "5/15*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.fishermensvillage.com/events",
+      "notes": ""
+    },
+    {
+      "event_name": "Haitian Compas Festival",
+      "city": "Miami",
+      "start_date": "2027-05-15",
+      "end_date": "2027-05-15",
+      "date_text": "5/15*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/Haitiancompasfest",
+      "notes": ""
+    },
+    {
+      "event_name": "Makin’ Bacon Festival",
+      "city": "Williston",
+      "start_date": "2027-05-15",
+      "end_date": "2027-05-15",
+      "date_text": "5/15*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/676250995423130/",
+      "notes": ""
+    },
+    {
+      "event_name": "Newberry Watermelon Festival",
+      "city": "Newberry",
+      "start_date": "2027-05-15",
+      "end_date": "2027-05-15",
+      "date_text": "5/15*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://newberrywatermelonfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Pensacola Pickles and Wings Festival",
+      "city": "Pensacola",
+      "start_date": "2027-05-15",
+      "end_date": "2027-05-15",
+      "date_text": "5/15*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.pensacolafest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Tupelo Honey Festival",
+      "city": "Wewahitchka",
+      "start_date": "2027-05-15",
+      "end_date": "2027-05-15",
+      "date_text": "5/15*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.tupelohoneyfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Wild Amelia Nature Festival",
+      "city": "Fernandina Beach",
+      "start_date": "2027-05-15",
+      "end_date": "2027-05-15",
+      "date_text": "5/15*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://keepnassaubeautiful.org/events/event/wild-amelia-nature-festival-ecoexpo-2/",
+      "notes": ""
+    },
+    {
+      "event_name": "Asian Cultural Festival",
+      "city": "Ocoee",
+      "start_date": "2027-05-16",
+      "end_date": "2027-05-16",
+      "date_text": "5/16*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.aahc-cf.org/asian-cultural-festival.html",
+      "notes": ""
+    },
+    {
+      "event_name": "Jacksonville Jazz Festival",
+      "city": "Jacksonville",
+      "start_date": "2027-05-20",
+      "end_date": "2027-05-23",
+      "date_text": "5/20-5/23*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1623399108649700/?post_id=1638345053821772&acontext=%7B%22event_action_history%22%3A[%7B%22surface%22%3A%22external_search_engine%22%7D%2C%7B%22mechanism%22%3A%22footer_attachment%22%2C%22surface%22%3A%22newsfeed%22%7D]%2C%22ref_notif_type%22%3Anull%7D",
+      "notes": ""
+    },
+    {
+      "event_name": "Blue Crab Festival",
+      "city": "Palatka",
+      "start_date": "2027-05-21",
+      "end_date": "2027-05-23",
+      "date_text": "5/21-5/23*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/bluecrabfestivalpalatka",
+      "notes": ""
+    },
+    {
+      "event_name": "Florida Folk Festival",
+      "city": "White Springs",
+      "start_date": "2027-05-21",
+      "end_date": "2027-05-23",
+      "date_text": "5/21-5/23*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.floridastateparks.org/FloridaFolkFestival",
+      "notes": ""
+    },
+    {
+      "event_name": "HAAPI Asian Festival",
+      "city": "St. Petersburg",
+      "start_date": "2027-05-21",
+      "end_date": "2027-05-23",
+      "date_text": "5/21-5/23*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.eventbrite.com/e/haapi-festival-tickets-1984020409453",
+      "notes": ""
+    },
+    {
+      "event_name": "Boca H2O Music Festival",
+      "city": "Fort Myers",
+      "start_date": "2027-05-22",
+      "end_date": "2027-05-22",
+      "date_text": "5/22*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/3647042992102337",
+      "notes": ""
+    },
+    {
+      "event_name": "Clermont Reggae Festival",
+      "city": "Clermont",
+      "start_date": "2027-05-22",
+      "end_date": "2027-05-22",
+      "date_text": "5/22*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.eventbrite.com/e/2026-clermont-reggae-festival-tickets-1980151714081?aff=ebdsoporgprofile",
+      "notes": ""
+    },
+    {
+      "event_name": "Hurricane Party",
+      "city": "Sanford",
+      "start_date": "2027-05-22",
+      "end_date": "2027-05-22",
+      "date_text": "5/22*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/WestEndHurricaneParty/",
+      "notes": ""
+    },
+    {
+      "event_name": "Largo Evening Market III",
+      "city": "Largo",
+      "start_date": "2027-05-22",
+      "end_date": "2027-05-22",
+      "date_text": "5/22*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.playlargo.com/special_events_detail_T40_R81.php",
+      "notes": ""
+    }
+  ]
+}

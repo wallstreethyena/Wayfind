@@ -1,0 +1,226 @@
+{
+  "batch": 17,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "“Let it Grow” Garden Festival and Plant Sale",
+      "city": "Sebring",
+      "start_date": "2026-11-14",
+      "end_date": "2026-11-14",
+      "date_text": "11/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.eventbrite.com/e/let-it-grow-garden-festival-and-plant-sale-2025-tickets-1297344585579?aff=erelexpmlt",
+      "notes": ""
+    },
+    {
+      "event_name": "Americana Classic Car, Truck and Bike Show",
+      "city": "Williston",
+      "start_date": "2026-11-14",
+      "end_date": "2026-11-14",
+      "date_text": "11/14",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/2842958462720726",
+      "notes": ""
+    },
+    {
+      "event_name": "Boys and Girls Clubs of St. Lucie County’s Chili Cook-Off",
+      "city": "Port St. Lucie",
+      "start_date": "2026-11-14",
+      "end_date": "2026-11-14",
+      "date_text": "11/14",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://bgcofslc.org/events-bgc/chili-cook-off/",
+      "notes": ""
+    },
+    {
+      "event_name": "Brew and Barbecue in James Weldon Johnson Park",
+      "city": "Jacksonville",
+      "start_date": "2026-11-14",
+      "end_date": "2026-11-14",
+      "date_text": "11/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/858965532230858",
+      "notes": ""
+    },
+    {
+      "event_name": "Brooksville Blues Revival Festival",
+      "city": "Brooksville",
+      "start_date": "2026-11-14",
+      "end_date": "2026-11-14",
+      "date_text": "11/14",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/4582112735356805",
+      "notes": ""
+    },
+    {
+      "event_name": "Camelot Days Medieval Festival II",
+      "city": "Hollywood",
+      "start_date": "2026-11-14",
+      "end_date": "2026-11-15",
+      "date_text": "11/14-11/15*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://camelotdays.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Fall Festival at Amber Brooke Farms IX",
+      "city": "Williston",
+      "start_date": "2026-11-14",
+      "end_date": "2026-11-15",
+      "date_text": "11/14-11/15",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://amberbrookefarms.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Great Day in the Country Arts and Crafts Festival",
+      "city": "Oviedo",
+      "start_date": "2026-11-14",
+      "end_date": "2026-11-15",
+      "date_text": "11/14-11/15",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.greatdayoviedo.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Holiday Shopping Fair at South Florida Fairgrounds",
+      "city": "West Palm Beach",
+      "start_date": "2026-11-14",
+      "end_date": "2026-11-15",
+      "date_text": "11/14-11/15",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.pottcevents.com/holiday-shopping-fair-at-south-florida-fairgrounds.html",
+      "notes": ""
+    },
+    {
+      "event_name": "Homosassa Arts, Crafts and Seafood Festival",
+      "city": "Homosassa",
+      "start_date": "2026-11-14",
+      "end_date": "2026-11-15",
+      "date_text": "11/14-11/15",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://homosassaseafoodfestival.org/50th-anniversary-homosassa-arts-crafts-seafood-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Honey Bee Festival and Craft Fair",
+      "city": "Bartow",
+      "start_date": "2026-11-14",
+      "end_date": "2026-11-14",
+      "date_text": "11/14",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://mainstreetbartowfl.com/event-calendar",
+      "notes": ""
+    },
+    {
+      "event_name": "Mayhem Ranch Rodeo Fest",
+      "city": "Morriston",
+      "start_date": "2026-11-14",
+      "end_date": "2026-11-15",
+      "date_text": "11/14-11/15*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1970302597074308",
+      "notes": ""
+    },
+    {
+      "event_name": "MSCA Holiday Market",
+      "city": "Crestview",
+      "start_date": "2026-11-14",
+      "end_date": "2026-11-14",
+      "date_text": "11/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://historicdowntowncrestview.org/events/",
+      "notes": ""
+    },
+    {
+      "event_name": "New Faith Fall Festival Community Day",
+      "city": "St. Petersburg",
+      "start_date": "2026-11-14",
+      "end_date": "2026-11-14",
+      "date_text": "11/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.eventbrite.com/e/new-faith-fall-festival-community-day-registration-1623671187229",
+      "notes": ""
+    },
+    {
+      "event_name": "Newberry Main Street Fall Festival",
+      "city": "Newberry",
+      "start_date": "2026-11-14",
+      "end_date": "2026-11-14",
+      "date_text": "11/14",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/901195409258817/",
+      "notes": ""
+    },
+    {
+      "event_name": "Original Florida Key Lime Pie Festival",
+      "city": "St. Augustine",
+      "start_date": "2026-11-14",
+      "end_date": "2026-11-14",
+      "date_text": "11/14",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://flkeylimepies.com/florida-key-lime-pie-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Orlando Beer Festival",
+      "city": "Orlando",
+      "start_date": "2026-11-14",
+      "end_date": "2026-11-14",
+      "date_text": "11/14",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.orlandobeerfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Orlando Museum of Art’s Festival of Trees I",
+      "city": "Orlando",
+      "start_date": "2026-11-14",
+      "end_date": "2026-11-15",
+      "date_text": "11/14-11/15",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://councilof101.org/pages/festival-of-trees-orlando",
+      "notes": ""
+    },
+    {
+      "event_name": "Pensacola Fall Food Truck Fest",
+      "city": "Pensacola",
+      "start_date": "2026-11-14",
+      "end_date": "2026-11-14",
+      "date_text": "11/14",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/2335446550308796/",
+      "notes": ""
+    },
+    {
+      "event_name": "PeruFest USA",
+      "city": "Miami",
+      "start_date": "2026-11-14",
+      "end_date": "2026-11-15",
+      "date_text": "11/14-11/15",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/PeruFestUSA",
+      "notes": ""
+    }
+  ]
+}
