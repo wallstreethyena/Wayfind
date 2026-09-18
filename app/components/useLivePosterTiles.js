@@ -28,44 +28,55 @@ import { LIVE_POSTER_TYPE_CONFIG } from "../../lib/liveEventPosterTypes.js";
 function useOneLivePoster(type, center, city) {
   const config = LIVE_POSTER_TYPE_CONFIG[type];
   const { byRail, pending } = usePosterEvents({ active: !!config, center, city, mode: config?.mode });
-  const event = config ? byRail?.[config.bucketKey]?.[0] || null : null;
+  // The ranked bucket, not just its top event. A poster must show artwork OF
+  // the event it links to, and the top-ranked event does not always have any:
+  // a Wayfind curated event carries a photo of its VENUE, which produced a
+  // playground photo as the Concerts poster. When the top event has no usable
+  // event artwork the poster walks DOWN the same ranking rather than giving
+  // up, so the reader still gets the most relevant event that can be shown
+  // honestly. The walk is bounded so a thin market cannot cost many requests.
+  const MAX_CANDIDATE_EVENTS = 6;
+  const candidates = (config ? byRail?.[config.bucketKey] || [] : []).slice(0, MAX_CANDIDATE_EVENTS);
+  const candidateKey = candidates.map((e) => e.id).join(",");
   const [tile, setTile] = useState(null);
 
   useEffect(() => {
-    if (!event) { setTile(null); return undefined; }
+    if (!candidates.length) { setTile(null); return undefined; }
     let cancelled = false;
-    fetch("/api/live-poster", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ event }),
-    })
-      .then((r) => r.json())
-      .then((data) => {
+    (async () => {
+      for (const event of candidates) {
         if (cancelled) return;
-        if (!data || !data.ok || !data.dataUrl) { setTile(null); return; }
+        let data = null;
+        try {
+          const r = await fetch("/api/live-poster", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ event }),
+          });
+          data = await r.json();
+        } catch {
+          data = null;
+        }
+        if (cancelled) return;
+        if (!data || !data.ok || !data.dataUrl) continue; // no usable art: next event down the ranking
         const e = data.event || {};
         setTile({
-          // `live-` ids never collide with lib/rails.js RAILS.
           id: `live-${type}`,
           title: e.name || config.label,
           short: [e.venue || e.city, e.date].filter(Boolean).join(" · "),
           href: e.dest || null,
-          // The marker DaypartRail keys on to render remote poster art
-          // instead of a local public/cards-v8 file.
           livePosterSrc: data.dataUrl,
           livePosterType: type,
           livePosterEventId: e.id || null,
           livePosterStrategy: data.strategy || null,
-          // A live event tile is not a curated list with a share route, and
-          // it is not a paid sponsor unit either. `sponsor: true` is what
-          // DaypartRail already checks to suppress the share control, which
-          // is the correct behaviour here for the same reason.
           sponsor: true,
         });
-      })
-      .catch(() => { if (!cancelled) setTile(null); });
+        return;
+      }
+      if (!cancelled) setTile(null); // nothing in this bucket can be shown honestly
+    })();
     return () => { cancelled = true; };
-  }, [event && event.id, type]);
+  }, [candidateKey, type]);
 
   return pending ? null : tile;
 }
