@@ -69,6 +69,16 @@ function useOneLivePoster(type, center, city) {
           livePosterType: type,
           livePosterEventId: e.id || null,
           livePosterStrategy: data.strategy || null,
+          // A LIVE EVENT POSTER'S ANSWER IS THE EVENT'S OWN PAGE, so it uses
+          // the rail's existing `opensPage` opt-in and navigates on click
+          // instead of opening the in-rail drop. Without this the tile opened
+          // a drop of nearby PLACES, which for a reader in a town Wayfind has
+          // not ranked yet read as "Showing Tampa Bay Rays vs. Boston Red Sox
+          // near Parrish -- Wayfind isn't live in Parrish yet": a poster that
+          // advertises a specific game and then answers with an empty list
+          // about somewhere else. The drop is right for a category tile and
+          // wrong for a single dated event.
+          opensPage: true,
           sponsor: true,
         });
         return;
