@@ -1643,3 +1643,9 @@ node scripts/test-live-event-posters-location.mjs
 node scripts/check-go-florida-landing.mjs
 node scripts/check-event-providers-not-google-gated.mjs
 node scripts/test-poster-accepts-healthy-art.mjs
+
+# Owner poster art (2026-09-18): a baseball game on the Sporting Events
+# poster shows Wayfind's own "Catch a Game" art (lib/livePosterArt.js). Only
+# the tile picture changes; event, label and tap destination are unchanged.
+# Other sports and concerts keep their Ticketmaster art; art files are 9:16.
+node scripts/test-live-poster-art.mjs

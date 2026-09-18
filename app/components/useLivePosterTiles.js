@@ -18,6 +18,34 @@
 import { useEffect, useState } from "react";
 import { usePosterEvents } from "./usePosterEvents.js";
 import { LIVE_POSTER_TYPE_CONFIG } from "../../lib/liveEventPosterTypes.js";
+import { livePosterArtFor } from "../../lib/livePosterArt.js";
+
+// The synthetic rail object DaypartRail renders. `e` is the event exactly as
+// the pipeline produced it (or lib/eventPoster.js's verbatim passthrough of
+// it); `src` is the tile picture, which is the only thing that varies.
+function tileFor(type, config, e, src, strategy) {
+  return {
+    id: `live-${type}`,
+    title: e.name || config.label,
+    short: [e.venue || e.city, e.date].filter(Boolean).join(" · "),
+    href: e.dest || null,
+    livePosterSrc: src,
+    livePosterType: type,
+    livePosterEventId: e.id || null,
+    livePosterStrategy: strategy,
+    // A LIVE EVENT POSTER'S ANSWER IS THE EVENT'S OWN PAGE, so it uses
+    // the rail's existing `opensPage` opt-in and navigates on click
+    // instead of opening the in-rail drop. Without this the tile opened
+    // a drop of nearby PLACES, which for a reader in a town Wayfind has
+    // not ranked yet read as "Showing Tampa Bay Rays vs. Boston Red Sox
+    // near Parrish -- Wayfind isn't live in Parrish yet": a poster that
+    // advertises a specific game and then answers with an empty list
+    // about somewhere else. The drop is right for a category tile and
+    // wrong for a single dated event.
+    opensPage: true,
+    sponsor: true,
+  };
+}
 
 // One tile's worth of work: pick this bucket's top event, ask
 // /api/live-poster to fit its real Ticketmaster artwork to the tile box, and
@@ -46,6 +74,17 @@ function useOneLivePoster(type, center, city) {
     (async () => {
       for (const event of candidates) {
         if (cancelled) return;
+        // OWNER POSTER ART (lib/livePosterArt.js, 2026-09-18): a baseball game
+        // shows Wayfind's own artwork on the tile. Only the picture changes --
+        // the event, its label and its destination are the same fields the
+        // fitted-art path below uses, and the same eligibility rule applies
+        // (lib/eventPoster.js: no dest or no name, no poster). No fetch here.
+        const ownerArt = livePosterArtFor(type, event);
+        if (ownerArt) {
+          if (!event.dest || !event.name) continue;
+          setTile(tileFor(type, config, event, ownerArt, "owner-art"));
+          return;
+        }
         let data = null;
         try {
           const r = await fetch("/api/live-poster", {
@@ -59,28 +98,7 @@ function useOneLivePoster(type, center, city) {
         }
         if (cancelled) return;
         if (!data || !data.ok || !data.dataUrl) continue; // no usable art: next event down the ranking
-        const e = data.event || {};
-        setTile({
-          id: `live-${type}`,
-          title: e.name || config.label,
-          short: [e.venue || e.city, e.date].filter(Boolean).join(" · "),
-          href: e.dest || null,
-          livePosterSrc: data.dataUrl,
-          livePosterType: type,
-          livePosterEventId: e.id || null,
-          livePosterStrategy: data.strategy || null,
-          // A LIVE EVENT POSTER'S ANSWER IS THE EVENT'S OWN PAGE, so it uses
-          // the rail's existing `opensPage` opt-in and navigates on click
-          // instead of opening the in-rail drop. Without this the tile opened
-          // a drop of nearby PLACES, which for a reader in a town Wayfind has
-          // not ranked yet read as "Showing Tampa Bay Rays vs. Boston Red Sox
-          // near Parrish -- Wayfind isn't live in Parrish yet": a poster that
-          // advertises a specific game and then answers with an empty list
-          // about somewhere else. The drop is right for a category tile and
-          // wrong for a single dated event.
-          opensPage: true,
-          sponsor: true,
-        });
+        setTile(tileFor(type, config, data.event || {}, data.dataUrl, data.strategy || null));
         return;
       }
       if (!cancelled) setTile(null); // nothing in this bucket can be shown honestly

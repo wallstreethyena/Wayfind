@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 671,
-    "totalRegistryEntries": 672,
-    "guardsTxtLineCount": 670,
-    "guardsTxtReachedFileCount": 665,
+    "totalOnDiskGuardFiles": 672,
+    "totalRegistryEntries": 673,
+    "guardsTxtLineCount": 671,
+    "guardsTxtReachedFileCount": 666,
     "criticalCount": 83,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 459,
+      "CALL": 460,
       "RENDER": 73,
       "STRUCTURAL": 139,
       "OTHER": 1
@@ -12429,6 +12429,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 25,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-live-poster-art.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 34,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
