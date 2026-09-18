@@ -619,7 +619,25 @@ export default function DaypartRail({
   const order = useMemo(() => {
     const base = orderFor(daypart, rails.map((r) => r.id));
     const withSponsor = sponsor ? [sponsor.id, ...base] : base;
-    return [...(livePosters || []).map((r) => r.id), ...withSponsor];
+    // WHERE THE LIVE POSTERS SIT (owner, 2026-09-17). Two reasons they are
+    // NOT first:
+    //
+    //   1. The seasonal poster owns first position while it is in season.
+    //      "the fall poster is a special seasonal poster so I need to make
+    //      sure that is the first one before it goes away." Its tile is
+    //      already first in the daypart order, so it keeps that slot.
+    //   2. A live poster's art is fetched and cropped per reader, so it
+    //      cannot be in the SSR document the way a local card is. Landing
+    //      it off the first screen means the reader never watches it arrive
+    //      — "if we cannot increase the speed then place it in like the 4th
+    //      position so it gives time to load without the user seeing it."
+    //
+    // Position 4 onward, so the first three tiles are all server-rendered
+    // art and the posters fill in while they are still off to the right.
+    const live = (livePosters || []).map((r) => r.id);
+    if (!live.length) return withSponsor;
+    const AT = 3;
+    return [...withSponsor.slice(0, AT), ...live, ...withSponsor.slice(AT)];
   }, [daypart, rails, sponsor, livePosters]);
   const band = DAYPARTS[daypart] || DAYPARTS.afternoon;
 
