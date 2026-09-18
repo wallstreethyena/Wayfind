@@ -1,0 +1,226 @@
+{
+  "batch": 33,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Pickle and Jam-Boree Festival",
+      "city": "Port Orange",
+      "start_date": "2027-01-23",
+      "end_date": "2027-01-23",
+      "date_text": "1/23*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/photo/?fbid=25769469245998090&set=pcb.3808975809405392",
+      "notes": ""
+    },
+    {
+      "event_name": "Pinellas Taco Fest",
+      "city": "Pinellas Park",
+      "start_date": "2027-01-23",
+      "end_date": "2027-01-24",
+      "date_text": "1/23-1/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/pinellastacofest",
+      "notes": ""
+    },
+    {
+      "event_name": "Port St. Lucie Seafood Festival",
+      "city": "Port St. Lucie",
+      "start_date": "2027-01-23",
+      "end_date": "2027-01-24",
+      "date_text": "1/23-1/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.portsaintlucieseafoodfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Science on Tap: Outdoor Beer Festival",
+      "city": "Orlando",
+      "start_date": "2027-01-23",
+      "end_date": "2027-01-23",
+      "date_text": "1/23*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.osc.org/visit/events/science-on-tap/",
+      "notes": ""
+    },
+    {
+      "event_name": "Sunshine State Steak Cook-Off",
+      "city": "Ave Maria",
+      "start_date": "2027-01-23",
+      "end_date": "2027-01-23",
+      "date_text": "1/23*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/sunshinestatesteakcookoff/?locale=ms_MY",
+      "notes": ""
+    },
+    {
+      "event_name": "Woop Woop Beer Fest",
+      "city": "Coral Gables",
+      "start_date": "2027-01-23",
+      "end_date": "2027-01-23",
+      "date_text": "1/23*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.bay13brewery.com/woopwoop",
+      "notes": ""
+    },
+    {
+      "event_name": "Key West Food and Wine Festival",
+      "city": "Key West",
+      "start_date": "2027-01-27",
+      "end_date": "2027-01-31",
+      "date_text": "1/27-1/31*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://keywestfoodandwinefestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Fort Lauderdale Greek Festival",
+      "city": "Fort Lauderdale",
+      "start_date": "2027-01-28",
+      "end_date": "2027-01-31",
+      "date_text": "1/28-1/31*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://fortlauderdalegreekfestival.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "St. Mark Greek Festival",
+      "city": "Boca Raton",
+      "start_date": "2027-01-28",
+      "end_date": "2027-01-31",
+      "date_text": "1/28-1/31*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/GreekFestivalBoca",
+      "notes": ""
+    },
+    {
+      "event_name": "The Amelia Island Festival of Stories and Songs",
+      "city": "Fernandina Beach",
+      "start_date": "2027-01-28",
+      "end_date": "2027-01-31",
+      "date_text": "1/28-1/31*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://storyandsongarts.org/festival",
+      "notes": ""
+    },
+    {
+      "event_name": "Fort Myers Seafood and Music Festival",
+      "city": "Fort Myers",
+      "start_date": "2027-01-29",
+      "end_date": "2027-01-31",
+      "date_text": "1/29-1/31*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.paragonfestivals.com/festival/fort-myers-seafood-music-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Goodland Mullet Festival",
+      "city": "Goodland",
+      "start_date": "2027-01-29",
+      "end_date": "2027-01-31",
+      "date_text": "1/29-1/31*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.stansidlehourgoodland.com/events",
+      "notes": ""
+    },
+    {
+      "event_name": "Jacksonville Villain Arts Tattoo Festival",
+      "city": "Jacksonville",
+      "start_date": "2027-01-29",
+      "end_date": "2027-01-31",
+      "date_text": "1/29-1/31*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://villainarts.com/shows/jacksonville-fl/",
+      "notes": ""
+    },
+    {
+      "event_name": "Naples Winter Wine Festival",
+      "city": "Naples",
+      "start_date": "2027-01-29",
+      "end_date": "2027-01-31",
+      "date_text": "1/29-1/31*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.napleswinefestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Our Lady of Lebanon Lebanese Festival",
+      "city": "Miami",
+      "start_date": "2027-01-29",
+      "end_date": "2027-01-31",
+      "date_text": "1/29-1/31*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/photo/?fbid=1233733938802505&set=pb.100064977300521.-2207520000",
+      "notes": ""
+    },
+    {
+      "event_name": "Seminole Tribal Fair and Pow Wow",
+      "city": "Hollywood",
+      "start_date": "2027-01-29",
+      "end_date": "2027-01-31",
+      "date_text": "1/29-1/31*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://semtribefair.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "South Florida Folk and Acoustic Music Festival",
+      "city": "Davie",
+      "start_date": "2027-01-29",
+      "end_date": "2027-01-31",
+      "date_text": "1/29-1/31*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/BrowardFolkClub",
+      "notes": ""
+    },
+    {
+      "event_name": "Spirit of the Buffalo Pow Wow I",
+      "city": "Auburndale",
+      "start_date": "2027-01-29",
+      "end_date": "2027-01-31",
+      "date_text": "1/29-1/31*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.spiritofthebuffalopowwow.com",
+      "notes": ""
+    },
+    {
+      "event_name": "St. George’s Winter Carnival",
+      "city": "New Port Richey",
+      "start_date": "2027-01-29",
+      "end_date": "2027-01-31",
+      "date_text": "1/29-1/31*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/NPRGreekFest",
+      "notes": ""
+    },
+    {
+      "event_name": "St. Katherine Greek Fest",
+      "city": "Naples",
+      "start_date": "2027-01-29",
+      "end_date": "2027-01-31",
+      "date_text": "1/29-1/31*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.stkatherinenaples.org/",
+      "notes": ""
+    }
+  ]
+}

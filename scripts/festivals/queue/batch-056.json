@@ -1,0 +1,226 @@
+{
+  "batch": 56,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Pensacola Crawfish Festival",
+      "city": "Pensacola",
+      "start_date": "2027-04-23",
+      "end_date": "2027-04-25",
+      "date_text": "4/23-4/25*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.fiestapensacola.org/crawfish-festival",
+      "notes": ""
+    },
+    {
+      "event_name": "Southern Grand Slam Music Festival",
+      "city": "Port Charlotte",
+      "start_date": "2027-04-23",
+      "end_date": "2027-04-24",
+      "date_text": "4/23-4/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/3277040105928599/",
+      "notes": ""
+    },
+    {
+      "event_name": "Word of South Festival",
+      "city": "Tallahassee",
+      "start_date": "2027-04-23",
+      "end_date": "2027-04-25",
+      "date_text": "4/23-4/25*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://wordofsouthfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Apopka Art and Foliage Festival",
+      "city": "Apopka",
+      "start_date": "2027-04-24",
+      "end_date": "2027-04-25",
+      "date_text": "4/24-4/25*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.apopkaartandfoliagefestival.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Beltane in the Park",
+      "city": "Fort Pierce",
+      "start_date": "2027-04-24",
+      "end_date": "2027-04-24",
+      "date_text": "4/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://pslwitchesandpagans.org/beltane-in-the-park-2025",
+      "notes": ""
+    },
+    {
+      "event_name": "Bostwick Blueberry Festival",
+      "city": "Bostwick",
+      "start_date": "2027-04-24",
+      "end_date": "2027-04-24",
+      "date_text": "4/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.bostwickblueberryfestival.net/",
+      "notes": ""
+    },
+    {
+      "event_name": "Brooksville Blueberry Festival",
+      "city": "Brooksville",
+      "start_date": "2027-04-24",
+      "end_date": "2027-04-25",
+      "date_text": "4/24-4/25*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://brooksvilleblueberryfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Cabbage, Potato and Bacon Festival",
+      "city": "Hastings",
+      "start_date": "2027-04-24",
+      "end_date": "2027-04-25",
+      "date_text": "4/24-4/25*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.visitstaugustine.com/event/cabbage-potato-and-bacon-festival",
+      "notes": ""
+    },
+    {
+      "event_name": "Carrabelle Riverfront Festival",
+      "city": "Carrabelle",
+      "start_date": "2027-04-24",
+      "end_date": "2027-04-24",
+      "date_text": "4/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.carrabelle.org/business/carrabelle-riverfront-festival",
+      "notes": ""
+    },
+    {
+      "event_name": "Central Florida Earth Day",
+      "city": "Orlando",
+      "start_date": "2027-04-24",
+      "end_date": "2027-04-24",
+      "date_text": "4/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.cfearthday.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Daytona Crab and Seafood Festival",
+      "city": "Daytona Beach",
+      "start_date": "2027-04-24",
+      "end_date": "2027-04-24",
+      "date_text": "4/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/CrabAndSeafoodFestivalVolusia",
+      "notes": ""
+    },
+    {
+      "event_name": "EcoFest Earth Day Tampa Bay",
+      "city": "Tampa",
+      "start_date": "2027-04-24",
+      "end_date": "2027-04-24",
+      "date_text": "4/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://learninggate.org/ecofest",
+      "notes": ""
+    },
+    {
+      "event_name": "Florida Puerto Rican Parade and Festival",
+      "city": "Orlando",
+      "start_date": "2027-04-24",
+      "end_date": "2027-04-24",
+      "date_text": "4/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://floridapuertoricanparade.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Forbidden Kingdom Festival",
+      "city": "Orlando",
+      "start_date": "2027-04-24",
+      "end_date": "2027-04-25",
+      "date_text": "4/24-4/25*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.forbiddenkingdomfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "High Springs Pioneer Days Festival",
+      "city": "High Springs",
+      "start_date": "2027-04-24",
+      "end_date": "2027-04-25",
+      "date_text": "4/24-4/25*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://highsprings.com/pioneer-days-2026/",
+      "notes": ""
+    },
+    {
+      "event_name": "Historic White Springs Antique and Collectibles Festival",
+      "city": "White Springs",
+      "start_date": "2027-04-24",
+      "end_date": "2027-04-24",
+      "date_text": "4/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/profile.php?id=61585984472858",
+      "notes": ""
+    },
+    {
+      "event_name": "Howey Artisan Market at Mission Resort and Club IV",
+      "city": "Howey in the Hills",
+      "start_date": "2027-04-24",
+      "end_date": "2027-04-24",
+      "date_text": "4/24",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1618016786356990/1618017989690203/?acontext=%7B%22event_action_history%22%3A[%7B%22extra_data%22%3A%22%22%2C%22mechanism%22%3A%22surface%22%2C%22surface%22%3A%22permalink%22%7D%2C%7B%22extra_data%22%3A%22%22%2C%22mechanism%22%3A%22surface%22%2C%22surface%22%3A%22permalink%22%7D%2C%7B%22extra_data%22%3A%22%22%2C%22mechanism%22%3A%22surface%22%2C%22surface%22%3A%22permalink%22%7D]%2C%22ref_notif_type%22%3Anull%7D",
+      "notes": ""
+    },
+    {
+      "event_name": "Keel Farms Tampa Bay Blueberry Festival IV",
+      "city": "Plant City",
+      "start_date": "2027-04-24",
+      "end_date": "2027-04-25",
+      "date_text": "4/24-4/25*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.keelfarms.com/festivals",
+      "notes": ""
+    },
+    {
+      "event_name": "Largo Evening Market II",
+      "city": "Largo",
+      "start_date": "2027-04-24",
+      "end_date": "2027-04-24",
+      "date_text": "4/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.playlargo.com/special_events_detail_T40_R81.php",
+      "notes": ""
+    },
+    {
+      "event_name": "Melbourne Art Festival",
+      "city": "Melbourne",
+      "start_date": "2027-04-24",
+      "end_date": "2027-04-25",
+      "date_text": "4/24-4/25*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.melbournearts.org/",
+      "notes": ""
+    }
+  ]
+}

@@ -1,0 +1,226 @@
+{
+  "batch": 66,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Royal Palm Beach July 4th Celebration",
+      "city": "Royal Palm Beach",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.pottcevents.com/RPB-4-of-July-Celebration.html",
+      "notes": ""
+    },
+    {
+      "event_name": "Safety Harbor 4th of July Celebration",
+      "city": "Safety Harbor",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://cityofsafetyharbor.com/Calendar.aspx?EID=22146&month=3&year=2026&day=25&calType=0",
+      "notes": ""
+    },
+    {
+      "event_name": "Sopchoppy 4th of July Celebration",
+      "city": "Sopchoppy",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/myron-b-hodge-sopchoppy-city-park/sopchoppy-4th-of-july-celebration/1415386900367877/",
+      "notes": ""
+    },
+    {
+      "event_name": "St. Cloud Area 4th of July Celebration",
+      "city": "St. Cloud",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/965107826132396",
+      "notes": ""
+    },
+    {
+      "event_name": "Star Spangled Bonita 4th of July Celebration",
+      "city": "Bonita Springs",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.cityofbonitasprings.org/cms/One.aspx?portalId=11726542&pageId=13788726",
+      "notes": ""
+    },
+    {
+      "event_name": "Star Spangled Sanford",
+      "city": "Sanford",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://sanfordfl.gov/event-calendar/",
+      "notes": ""
+    },
+    {
+      "event_name": "Tavares July 4th Celebration",
+      "city": "Tavares",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.tavaresfl.gov/1313/July-4th-Celebration",
+      "notes": ""
+    },
+    {
+      "event_name": "The Fourth at the St. Pete Pier",
+      "city": "St. Petersburg",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.visitstpeteclearwater.com/event/fourth-st-pete-pier/45251",
+      "notes": ""
+    },
+    {
+      "event_name": "Thunder on the Ridge",
+      "city": "Haines City",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://hainescity.com/Calendar.aspx?EID=6654&month=3&year=2026&day=25&calType=0",
+      "notes": ""
+    },
+    {
+      "event_name": "United Flagler 4th",
+      "city": "Palm Coast",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.palmcoast.gov/Events/Home/Details?slug=unitedflagler4th",
+      "notes": ""
+    },
+    {
+      "event_name": "Swamp Stomp Music Festival",
+      "city": "Tallahassee",
+      "start_date": "2027-07-10",
+      "end_date": "2027-07-10",
+      "date_text": "7/10*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/tallahasseemuseum",
+      "notes": ""
+    },
+    {
+      "event_name": "Sanford Food Truck Fiesta VII",
+      "city": "Sanford",
+      "start_date": "2027-07-11",
+      "end_date": "2027-07-11",
+      "date_text": "7/11*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://sanfordfl.gov/event-calendar/",
+      "notes": ""
+    },
+    {
+      "event_name": "Summer Asian Food and Music Festival",
+      "city": "Tampa",
+      "start_date": "2027-07-11",
+      "end_date": "2027-07-11",
+      "date_text": "7/11*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/968409852769500/",
+      "notes": ""
+    },
+    {
+      "event_name": "Asian Mega Night Market Food and Music Festival on the Tampa Riverfront",
+      "city": "Tampa",
+      "start_date": "2027-07-16",
+      "end_date": "2027-07-18",
+      "date_text": "7/16-7/18*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1707036090434591/",
+      "notes": ""
+    },
+    {
+      "event_name": "Lake Placid Caladium Festival",
+      "city": "Lake Placid",
+      "start_date": "2027-07-23",
+      "end_date": "2027-07-25",
+      "date_text": "7/23-7/25*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.caladiumfestival.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Largo Evening Market V",
+      "city": "Largo",
+      "start_date": "2027-07-24",
+      "end_date": "2027-07-24",
+      "date_text": "7/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.playlargo.com/special_events_detail_T40_R81.php",
+      "notes": ""
+    },
+    {
+      "event_name": "Street Fair (Hemingway Days)",
+      "city": "Key West",
+      "start_date": "2027-07-24",
+      "end_date": "2027-07-24",
+      "date_text": "7/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://keywestlookalikes.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Fishermen’s Village TikiFest",
+      "city": "Punta Gorda",
+      "start_date": "2027-07-31",
+      "end_date": "2027-07-31",
+      "date_text": "7/31*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.fishermensvillage.com/events",
+      "notes": ""
+    },
+    {
+      "event_name": "Wausau Possum Festival",
+      "city": "Wausau",
+      "start_date": "2027-07-31",
+      "end_date": "2027-07-31",
+      "date_text": "7/31*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://visitwcfla.com/events/wausau-possum-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Key West Lobsterfest",
+      "city": "Key West",
+      "start_date": "2027-08-04",
+      "end_date": "2027-08-08",
+      "date_text": "8/4-8/8*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://keywestlobsterfest.com/",
+      "notes": ""
+    }
+  ]
+}

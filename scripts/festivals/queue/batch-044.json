@@ -1,0 +1,226 @@
+{
+  "batch": 44,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Festival Latino Downtown Ocala",
+      "city": "Ocala",
+      "start_date": "2027-03-06",
+      "end_date": "2027-03-06",
+      "date_text": "3/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/latinfestivalocala/",
+      "notes": ""
+    },
+    {
+      "event_name": "Floral City Strawberry Festival",
+      "city": "Floral City",
+      "start_date": "2027-03-06",
+      "end_date": "2027-03-07",
+      "date_text": "3/6-3/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.gostrawberryfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Florida Brewers Guild Craft Beer Festival",
+      "city": "Tampa",
+      "start_date": "2027-03-06",
+      "end_date": "2027-03-06",
+      "date_text": "3/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://floridabrewers.org/events",
+      "notes": ""
+    },
+    {
+      "event_name": "Florida Renaissance Festival and Craft Village V",
+      "city": "Deerfield Beach",
+      "start_date": "2027-03-06",
+      "end_date": "2027-03-07",
+      "date_text": "3/6-3/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.ren-fest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Fort Myers Beach Lions Club Shrimp Festival",
+      "city": "Fort Myers Beach",
+      "start_date": "2027-03-06",
+      "end_date": "2027-03-07",
+      "date_text": "3/6-3/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://fortmyersbeachshrimpfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Grant Seafood Festival",
+      "city": "Grant-Valkaria",
+      "start_date": "2027-03-06",
+      "end_date": "2027-03-07",
+      "date_text": "3/6-3/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.grantseafoodfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Habitat Ocala Strawberry Festival",
+      "city": "Ocala",
+      "start_date": "2027-03-06",
+      "end_date": "2027-03-06",
+      "date_text": "3/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/HfHMCStrawberryFestival",
+      "notes": ""
+    },
+    {
+      "event_name": "Jazz in the Gardens Music Fest",
+      "city": "Miami Gardens",
+      "start_date": "2027-03-06",
+      "end_date": "2027-03-07",
+      "date_text": "3/6-3/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://jazzinthegardens.com/jitg-music-fest/",
+      "notes": ""
+    },
+    {
+      "event_name": "Lake Alfred Heritage Festival",
+      "city": "Lake Alfred",
+      "start_date": "2027-03-06",
+      "end_date": "2027-03-06",
+      "date_text": "3/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/863987156450640",
+      "notes": ""
+    },
+    {
+      "event_name": "Lake Mary",
+      "city": "Heathrow Festival of the Arts",
+      "start_date": "2027-03-06",
+      "end_date": "2027-03-07",
+      "date_text": "3/6-3/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": null,
+      "notes": "Lake Mary"
+    },
+    {
+      "event_name": "Lakewood Ranch Irish Celtic Festival",
+      "city": "Lakewood Ranch",
+      "start_date": "2027-03-06",
+      "end_date": "2027-03-06",
+      "date_text": "3/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://lakewoodranch.com/event/irish-celtic-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Longwood Strawberry Fest",
+      "city": "Longwood",
+      "start_date": "2027-03-06",
+      "end_date": "2027-03-06",
+      "date_text": "3/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1615206326138366/",
+      "notes": ""
+    },
+    {
+      "event_name": "Naples Craft Beer Festival",
+      "city": "Naples",
+      "start_date": "2027-03-06",
+      "end_date": "2027-03-06",
+      "date_text": "3/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/naplescraftbeerfestival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Palm Bay Multicultural Festival",
+      "city": "Palm Bay",
+      "start_date": "2027-03-06",
+      "end_date": "2027-03-06",
+      "date_text": "3/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1537481894141014",
+      "notes": ""
+    },
+    {
+      "event_name": "Palm Coast-Flagler Regional Chamber of Commerce SpringFest",
+      "city": "Palm Coast",
+      "start_date": "2027-03-06",
+      "end_date": "2027-03-06",
+      "date_text": "3/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1666736937632543/",
+      "notes": ""
+    },
+    {
+      "event_name": "Parrish Florida Chili Cookoff",
+      "city": "Parrish",
+      "start_date": "2027-03-06",
+      "end_date": "2027-03-06",
+      "date_text": "3/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://parrishcivicassociation.com/parrish-heritage-day-parade-and-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Pride Cape Coral",
+      "city": "Cape Coral",
+      "start_date": "2027-03-06",
+      "end_date": "2027-03-06",
+      "date_text": "3/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/PRIDECapeCoral/",
+      "notes": ""
+    },
+    {
+      "event_name": "Rotary Club of Homestead Stone Crab and Seafood Festival",
+      "city": "Homestead",
+      "start_date": "2027-03-06",
+      "end_date": "2027-03-07",
+      "date_text": "3/6-3/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/HomesteadSeafoodFestival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Spring Navarre Market",
+      "city": "Navarre",
+      "start_date": "2027-03-06",
+      "end_date": "2027-03-06",
+      "date_text": "3/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://navarrebeach.com/event/spring-navarre-market-2/",
+      "notes": ""
+    },
+    {
+      "event_name": "Tallahassee Pride in the Park",
+      "city": "Tallahassee",
+      "start_date": "2027-03-06",
+      "end_date": "2027-03-06",
+      "date_text": "3/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1313718170483758/",
+      "notes": ""
+    }
+  ]
+}

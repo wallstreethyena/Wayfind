@@ -1649,3 +1649,10 @@ node scripts/test-poster-accepts-healthy-art.mjs
 # the tile picture changes; event, label and tap destination are unchanged.
 # Other sports and concerts keep their Ticketmaster art; art files are 9:16.
 node scripts/test-live-poster-art.mjs
+
+# Florida festivals import (2026-09-18, docs/FLORIDA_FESTIVALS_IMPORT.md): the
+# publishable-row contract refuses aggregator sources, missing/out-of-Florida
+# coordinates, long dashes in public copy, forbidden columns and future
+# verification stamps; every committed verified batch accounts for every lead;
+# published.json names only verified rows. Hermetic.
+node scripts/check-florida-festivals-import.mjs

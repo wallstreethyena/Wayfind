@@ -1,0 +1,226 @@
+{
+  "batch": 23,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Art Basel",
+      "city": "Miami Beach",
+      "start_date": "2026-12-04",
+      "end_date": "2026-12-06",
+      "date_text": "12/4-12/6",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.artbasel.com/miami-beach",
+      "notes": ""
+    },
+    {
+      "event_name": "Christmas in the Wild II",
+      "city": "Tampa",
+      "start_date": "2026-12-04",
+      "end_date": "2026-12-05",
+      "date_text": "12/4-12/5*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://zootampa.org/christmas-in-the-wild/",
+      "notes": ""
+    },
+    {
+      "event_name": "Drive Thru Light Show III",
+      "city": "West Palm Beach",
+      "start_date": "2026-12-04",
+      "end_date": "2026-12-06",
+      "date_text": "12/4-12/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/lights4hope",
+      "notes": ""
+    },
+    {
+      "event_name": "Islamorada Holiday Festival",
+      "city": "Islamorada",
+      "start_date": "2026-12-04",
+      "end_date": "2026-12-04",
+      "date_text": "12/4",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://islamoradachamber.com/holiday-fest/",
+      "notes": ""
+    },
+    {
+      "event_name": "Orlando Tree Lighting Celebration",
+      "city": "Orlando",
+      "start_date": "2026-12-04",
+      "end_date": "2026-12-04",
+      "date_text": "12/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.orlando.gov/Events/2025-Tree-Lighting-Celebration",
+      "notes": ""
+    },
+    {
+      "event_name": "Pinecrest Gardens Night of Lights I",
+      "city": "Pinecrest",
+      "start_date": "2026-12-04",
+      "end_date": "2026-12-06",
+      "date_text": "12/4-12/6",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.pinecrestgardens.org/Arts-Events/Festivals-Special-Events/Night-of-Lights",
+      "notes": ""
+    },
+    {
+      "event_name": "Stephen Foster Folk Culture Center State Park Festival of Lights I",
+      "city": "White Springs",
+      "start_date": "2026-12-04",
+      "end_date": "2026-12-06",
+      "date_text": "12/4-12/6",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://stephenfostercso.org/event-6729538",
+      "notes": ""
+    },
+    {
+      "event_name": "There’s Snow Place Like Tarpon Springs",
+      "city": "Tarpon Springs",
+      "start_date": "2026-12-04",
+      "end_date": "2026-12-04",
+      "date_text": "12/4",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://tarponspringsmerchantassociation.com/events/snow-place-like-tarpon-springs-and-boat-parade-december-2026/",
+      "notes": ""
+    },
+    {
+      "event_name": "Wellington Winterfest",
+      "city": "Wellington",
+      "start_date": "2026-12-04",
+      "end_date": "2026-12-04",
+      "date_text": "12/4",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/winterfestwellington2025/",
+      "notes": ""
+    },
+    {
+      "event_name": "Winter in Paradise",
+      "city": "West Palm Beach",
+      "start_date": "2026-12-04",
+      "end_date": "2026-12-04",
+      "date_text": "12/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.wpb.org/Residents/Community-Events/Events/Winter-in-Paradise",
+      "notes": ""
+    },
+    {
+      "event_name": "Avalon Aglow",
+      "city": "Orlando",
+      "start_date": "2026-12-05",
+      "end_date": "2026-12-05",
+      "date_text": "12/5",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://avalonparkorlando.com/play/community-festivals/avalon-aglow/",
+      "notes": ""
+    },
+    {
+      "event_name": "Christmas in Panacea Celebration",
+      "city": "Panacea",
+      "start_date": "2026-12-05",
+      "end_date": "2026-12-05",
+      "date_text": "12/5*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/christmasinpanacea",
+      "notes": ""
+    },
+    {
+      "event_name": "Christmas in the Park",
+      "city": "Navarre",
+      "start_date": "2026-12-05",
+      "end_date": "2026-12-05",
+      "date_text": "12/5*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://business.navarrechamber.com/events/details/31st-annual-christmas-in-the-park-merry-market-31364?calendarMonth=2025-12-01",
+      "notes": ""
+    },
+    {
+      "event_name": "Christmas on Walnut Street",
+      "city": "Green Cove Springs",
+      "start_date": "2026-12-05",
+      "end_date": "2026-12-05",
+      "date_text": "12/5",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.greencovesprings.com/285/Christmas-on-Walnut-Street",
+      "notes": ""
+    },
+    {
+      "event_name": "Cocoa Village Art and Craft Fair IV",
+      "city": "Cocoa",
+      "start_date": "2026-12-05",
+      "end_date": "2026-12-06",
+      "date_text": "12/5-12/6",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://visitcocoavillage.com/events/art-craft-fairs",
+      "notes": ""
+    },
+    {
+      "event_name": "Craft Brew Hullabaloo",
+      "city": "Sebastian",
+      "start_date": "2026-12-05",
+      "end_date": "2026-12-05",
+      "date_text": "12/5*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": null,
+      "notes": ""
+    },
+    {
+      "event_name": "Downtown Pensacola Holiday Market",
+      "city": "Pensacola",
+      "start_date": "2026-12-05",
+      "end_date": "2026-12-05",
+      "date_text": "12/5",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://apexshowsandevents.com/12%2F5-pensacola-holiday",
+      "notes": ""
+    },
+    {
+      "event_name": "Festival at Fort King",
+      "city": "Ocala",
+      "start_date": "2026-12-05",
+      "end_date": "2026-12-06",
+      "date_text": "12/5-12/6",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.ocalafl.org/government/city-departments-i-z/recreation-parks/fort-king-national-historic-landmark/festival-at-fort-king",
+      "notes": ""
+    },
+    {
+      "event_name": "Gullah Geechee Heritage Festival",
+      "city": "Elkton",
+      "start_date": "2026-12-05",
+      "end_date": "2026-12-05",
+      "date_text": "12/5",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.gullahgeecheefestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Hawthorne Christmas Festival and Parade",
+      "city": "Hawthorne",
+      "start_date": "2026-12-05",
+      "end_date": "2026-12-05",
+      "date_text": "12/5*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/HawthorneAreaCommunityFoundation",
+      "notes": ""
+    }
+  ]
+}

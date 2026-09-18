@@ -1,0 +1,226 @@
+{
+  "batch": 53,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Fort Pierce Oyster and Sea Fest",
+      "city": "Fort Pierce",
+      "start_date": "2027-04-10",
+      "end_date": "2027-04-11",
+      "date_text": "4/10-4/11*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.pottcevents.com/fort-pierce-oyster-and-sea-fest.html",
+      "notes": ""
+    },
+    {
+      "event_name": "Keel Farms Tampa Bay Blueberry Festival II",
+      "city": "Plant City",
+      "start_date": "2027-04-10",
+      "end_date": "2027-04-11",
+      "date_text": "4/10-4/11*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.keelfarms.com/festivals",
+      "notes": ""
+    },
+    {
+      "event_name": "Kidsfest",
+      "city": "Tallahassee",
+      "start_date": "2027-04-10",
+      "end_date": "2027-04-10",
+      "date_text": "4/10*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://kidsincorporated.org/events/",
+      "notes": ""
+    },
+    {
+      "event_name": "Love Your Mother Earth Day Festival",
+      "city": "Sanford",
+      "start_date": "2027-04-10",
+      "end_date": "2027-04-10",
+      "date_text": "4/10*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1474246414268848/",
+      "notes": ""
+    },
+    {
+      "event_name": "Marion County Farmland Preservation Festival",
+      "city": "Micanopy",
+      "start_date": "2027-04-10",
+      "end_date": "2027-04-10",
+      "date_text": "4/10*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/FarmlandFestival.org",
+      "notes": ""
+    },
+    {
+      "event_name": "Miami Beach Pride Festival",
+      "city": "Miami Beach",
+      "start_date": "2027-04-10",
+      "end_date": "2027-04-11",
+      "date_text": "4/10-4/11*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://miamibeachpride.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Newberry Main Street Spring Festival",
+      "city": "Newberry",
+      "start_date": "2027-04-10",
+      "end_date": "2027-04-10",
+      "date_text": "4/10*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/679306201548864/",
+      "notes": ""
+    },
+    {
+      "event_name": "Old Florida Celebration of the Arts",
+      "city": "Cedar Key",
+      "start_date": "2027-04-10",
+      "end_date": "2027-04-11",
+      "date_text": "4/10-4/11*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.cedarkeyartsfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Santa Fe College Spring Arts Festival",
+      "city": "Gainesville",
+      "start_date": "2027-04-10",
+      "end_date": "2027-04-11",
+      "date_text": "4/10-4/11*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.sfcollege.edu/spring-arts/",
+      "notes": ""
+    },
+    {
+      "event_name": "Santa Fe Springs Celebration",
+      "city": "High Springs",
+      "start_date": "2027-04-10",
+      "end_date": "2027-04-10",
+      "date_text": "4/10*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/776371278634967/",
+      "notes": ""
+    },
+    {
+      "event_name": "Sebring Soda Fest",
+      "city": "Sebring",
+      "start_date": "2027-04-10",
+      "end_date": "2027-04-11",
+      "date_text": "4/10-4/11*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.sebringsodafest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Tallahassee Jazz and Blues Festival",
+      "city": "Tallahassee",
+      "start_date": "2027-04-10",
+      "end_date": "2027-04-11",
+      "date_text": "4/10-4/11*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/889143177243847/",
+      "notes": ""
+    },
+    {
+      "event_name": "The Fuzzy Pineapple Fairy Festival",
+      "city": "Tallahassee",
+      "start_date": "2027-04-10",
+      "end_date": "2027-04-10",
+      "date_text": "4/10*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1558015485203166/",
+      "notes": ""
+    },
+    {
+      "event_name": "Treasure Coast Craft Spirits Festival",
+      "city": "Vero Beach",
+      "start_date": "2027-04-10",
+      "end_date": "2027-04-10",
+      "date_text": "4/10*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://treasurecoastspiritsfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Venice Sharks Tooth Festival",
+      "city": "Venice",
+      "start_date": "2027-04-10",
+      "end_date": "2027-04-11",
+      "date_text": "4/10-4/11*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.visitvenicefl.org/event/venice-sharks-tooth-festival-2026/",
+      "notes": ""
+    },
+    {
+      "event_name": "Worm Gruntin’ Festival",
+      "city": "Sopchoppy",
+      "start_date": "2027-04-10",
+      "end_date": "2027-04-10",
+      "date_text": "4/10*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.wormgruntinfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Jewish Heritage Festival",
+      "city": "Ormond Beach",
+      "start_date": "2027-04-11",
+      "end_date": "2027-04-11",
+      "date_text": "4/11*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://jewishheritagefestival.com/welcome/",
+      "notes": ""
+    },
+    {
+      "event_name": "Sanford Food Truck Fiesta IV",
+      "city": "Sanford",
+      "start_date": "2027-04-11",
+      "end_date": "2027-04-11",
+      "date_text": "4/11*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://sanfordfl.gov/event-calendar/",
+      "notes": ""
+    },
+    {
+      "event_name": "Taste of St. Augustine",
+      "city": "St. Augustine",
+      "start_date": "2027-04-11",
+      "end_date": "2027-04-11",
+      "date_text": "4/11*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.epicbh.org/taste-of-st-augustine/",
+      "notes": ""
+    },
+    {
+      "event_name": "Bern’s Winefest",
+      "city": "Tampa",
+      "start_date": "2027-04-12",
+      "end_date": "2027-04-18",
+      "date_text": "4/12-4/18*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://bernswinefest.com/",
+      "notes": ""
+    }
+  ]
+}

@@ -1,0 +1,226 @@
+{
+  "batch": 24,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Light Up Rockledge",
+      "city": "Rockledge",
+      "start_date": "2026-12-05",
+      "end_date": "2026-12-05",
+      "date_text": "12/5*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1498430964525218/?acontext=%7B%22event_action_history%22%3A[%7B%22mechanism%22%3A%22surface%22%2C%22surface%22%3A%22groups_highlight_units%22%7D]%2C%22ref_notif_type%22%3Anull%7D",
+      "notes": ""
+    },
+    {
+      "event_name": "Light Up the Holidays",
+      "city": "Altamonte Springs",
+      "start_date": "2026-12-05",
+      "end_date": "2026-12-05",
+      "date_text": "12/5*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.altamonte.org/788/Light-Up-the-Holidays",
+      "notes": ""
+    },
+    {
+      "event_name": "Light Up Tioga",
+      "city": "Newberry",
+      "start_date": "2026-12-05",
+      "end_date": "2026-12-05",
+      "date_text": "12/5",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/739294969249718/",
+      "notes": ""
+    },
+    {
+      "event_name": "Maitland Season of Light",
+      "city": "Maitland",
+      "start_date": "2026-12-05",
+      "end_date": "2026-12-05",
+      "date_text": "12/5",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://maitland.recdesk.com/Community/Program/Detail?programId=2218",
+      "notes": ""
+    },
+    {
+      "event_name": "Ocean Way Holiday",
+      "city": "Deerfield Beach",
+      "start_date": "2026-12-05",
+      "end_date": "2026-12-05",
+      "date_text": "12/5*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.deerfield-beach.com/1298/Ocean-Way-Holiday",
+      "notes": ""
+    },
+    {
+      "event_name": "Palatka PorchFest",
+      "city": "Palatka",
+      "start_date": "2026-12-05",
+      "end_date": "2026-12-05",
+      "date_text": "12/5*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://palatkaporchfest.com",
+      "notes": ""
+    },
+    {
+      "event_name": "Palm Beach Gardens Tis the Gardens Tree Lighting",
+      "city": "Palm Beach Gardens",
+      "start_date": "2026-12-05",
+      "end_date": "2026-12-05",
+      "date_text": "12/5*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.pbgfl.com/747/Tree-Lighting-Concert",
+      "notes": ""
+    },
+    {
+      "event_name": "Pioneer Christmas and Vintage Market",
+      "city": "Dade City",
+      "start_date": "2026-12-05",
+      "end_date": "2026-12-05",
+      "date_text": "12/5*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.pioneerfloridamuseum.org/index.php?option=com_content&view=article&id=152&Itemid=74",
+      "notes": ""
+    },
+    {
+      "event_name": "Royal Palm Beach Winter Fest",
+      "city": "Royal Palm Beach",
+      "start_date": "2026-12-05",
+      "end_date": "2026-12-05",
+      "date_text": "12/5",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.pottcevents.com/rpb-winter-fest.html",
+      "notes": ""
+    },
+    {
+      "event_name": "Santa Drop at the Flora-Bama",
+      "city": "Pensacola",
+      "start_date": "2026-12-05",
+      "end_date": "2026-12-05",
+      "date_text": "12/5",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.florabama.com/santa-drop",
+      "notes": ""
+    },
+    {
+      "event_name": "Sarasota Medieval Fair V",
+      "city": "Myakka City",
+      "start_date": "2026-12-05",
+      "end_date": "2026-12-06",
+      "date_text": "12/5-12/6",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.sarasotamedievalfair.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "St. Cloud Holiday Festival",
+      "city": "St. Cloud",
+      "start_date": "2026-12-05",
+      "end_date": "2026-12-06",
+      "date_text": "12/5-12/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/SaintCloudHolidayFestival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Tampa’s Santa Fest and Tree Lighting",
+      "city": "Tampa",
+      "start_date": "2026-12-05",
+      "end_date": "2026-12-05",
+      "date_text": "12/5",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/2168573517252888",
+      "notes": ""
+    },
+    {
+      "event_name": "West Palm Beach Beer, Wine and Spirits Festival",
+      "city": "West Palm Beach",
+      "start_date": "2026-12-05",
+      "end_date": "2026-12-05",
+      "date_text": "12/5*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1069538358338506",
+      "notes": ""
+    },
+    {
+      "event_name": "Zephyrhills Festival of Lights",
+      "city": "Zephyrhills",
+      "start_date": "2026-12-05",
+      "end_date": "2026-12-05",
+      "date_text": "12/5",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://mainstreetzephyrhills.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Sights and Sounds on 2nd Street Festival and Parade",
+      "city": "Fort Pierce",
+      "start_date": "2026-12-06",
+      "end_date": "2026-12-06",
+      "date_text": "12/6",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://mainstreetfortpierce.org/local-events-calendar/sights-sounds-on-second-christmas-parade-2026",
+      "notes": ""
+    },
+    {
+      "event_name": "Ybor City Cigar Festival",
+      "city": "Tampa",
+      "start_date": "2026-12-06",
+      "end_date": "2026-12-06",
+      "date_text": "12/6",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.yborcigarfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Dazzling Nights Orlando III",
+      "city": "Orlando",
+      "start_date": "2026-12-07",
+      "end_date": "2026-12-13",
+      "date_text": "12/7-12/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.dazzlingorlando.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Edison and Ford Holiday Nights Celebration III",
+      "city": "Fort Myers",
+      "start_date": "2026-12-07",
+      "end_date": "2026-12-13",
+      "date_text": "12/7-12/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.edisonfordwinterestates.org/events/annual-historic-holiday-nights-celebration/",
+      "notes": ""
+    },
+    {
+      "event_name": "Enchant Christmas IV",
+      "city": "St. Petersburg",
+      "start_date": "2026-12-07",
+      "end_date": "2026-12-13",
+      "date_text": "12/7-12/13",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.enchantchristmas.com/",
+      "notes": ""
+    }
+  ]
+}

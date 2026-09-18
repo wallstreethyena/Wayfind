@@ -1,0 +1,226 @@
+{
+  "batch": 50,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Jupiter Farms Residents Spring Family Music Fest",
+      "city": "Jupiter",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-27",
+      "date_text": "3/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/JupiterFarmsMusicFestival",
+      "notes": ""
+    },
+    {
+      "event_name": "Largo Evening Market I",
+      "city": "Largo",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-27",
+      "date_text": "3/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.playlargo.com/special_events_detail_T40_R81.php",
+      "notes": ""
+    },
+    {
+      "event_name": "Main Street Zephyrhills Founders Day Music Festival and Fish Fry",
+      "city": "Zephyrhills",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-27",
+      "date_text": "3/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/2030373280847886",
+      "notes": ""
+    },
+    {
+      "event_name": "Mainsail Art Festival",
+      "city": "St. Petersburg",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-28",
+      "date_text": "3/27-3/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.mainsailart.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Margarita and Taco Festival",
+      "city": "Ave Maria",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-27",
+      "date_text": "3/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/634231172804565/",
+      "notes": ""
+    },
+    {
+      "event_name": "Palm Beach Pride",
+      "city": "Lake Worth",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-28",
+      "date_text": "3/27-3/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://compasslgbtq.com/palmbeachpride/",
+      "notes": ""
+    },
+    {
+      "event_name": "Pints n’ Paws Craft Beer Festival",
+      "city": "Sanford",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-27",
+      "date_text": "3/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/pintsnpaws/",
+      "notes": ""
+    },
+    {
+      "event_name": "Port Saint Lucie Strawberry Fest",
+      "city": "Port St. Lucie",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-28",
+      "date_text": "3/27-3/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.portstluciefest.com",
+      "notes": ""
+    },
+    {
+      "event_name": "Pride of Tampa Festival",
+      "city": "Tampa",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-27",
+      "date_text": "3/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/3302949639884086",
+      "notes": ""
+    },
+    {
+      "event_name": "Railroad Day Festival",
+      "city": "Callahan",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-27",
+      "date_text": "3/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/831978599364928",
+      "notes": ""
+    },
+    {
+      "event_name": "Scottish-Celtic Music Festival",
+      "city": "Davie",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-27",
+      "date_text": "3/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://sassf.org/Music-Festival",
+      "notes": ""
+    },
+    {
+      "event_name": "Spring Fling and BBQ",
+      "city": "Bartow",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-27",
+      "date_text": "3/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://mainstreetbartowfl.com/event-calendar",
+      "notes": ""
+    },
+    {
+      "event_name": "Spring Fling Car Show",
+      "city": "White Springs",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-27",
+      "date_text": "3/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.suwanneehardware.com/2025-spring-festival",
+      "notes": ""
+    },
+    {
+      "event_name": "Suwannee Valley Quilt",
+      "city": "Trenton",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-27",
+      "date_text": "3/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/SuwanneValleyQuiltFestival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Tampa Asian Pacific Islander Cultural Festival",
+      "city": "Tampa",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-27",
+      "date_text": "3/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.tampa.gov/asianpacificfestival",
+      "notes": ""
+    },
+    {
+      "event_name": "Tampa Pride",
+      "city": "Tampa",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-27",
+      "date_text": "3/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/OfficialTampaPride/",
+      "notes": ""
+    },
+    {
+      "event_name": "Triple B BBQ Cook-Off",
+      "city": "Crestview",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-27",
+      "date_text": "3/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/crestview-fl-united-states-florida-32536/2026-triple-b-bbq-festival-competition/725125866507508/",
+      "notes": ""
+    },
+    {
+      "event_name": "Uncorked: Tampa Wine Festival",
+      "city": "Tampa",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-27",
+      "date_text": "3/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1932443150668769",
+      "notes": ""
+    },
+    {
+      "event_name": "ZooBrews",
+      "city": "Tampa",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-27",
+      "date_text": "3/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://zootampa.org/zoobrews/",
+      "notes": ""
+    },
+    {
+      "event_name": "FORD International Cuban Sandwich Festival: Tampa",
+      "city": "Tampa",
+      "start_date": "2027-03-28",
+      "end_date": "2027-03-28",
+      "date_text": "3/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.cubansandwichfestival.com/2026-cuban-sandwich-festival.html",
+      "notes": ""
+    }
+  ]
+}

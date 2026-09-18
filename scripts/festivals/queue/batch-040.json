@@ -1,0 +1,226 @@
+{
+  "batch": 40,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Community First Seawalk Music Festival",
+      "city": "Jacksonville Beach",
+      "start_date": "2027-02-20",
+      "end_date": "2027-02-21",
+      "date_text": "2/20-2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.communityfirstseawalkmusicfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Crafts on the River (Edison Festival of Light)",
+      "city": "Fort Myers",
+      "start_date": "2027-02-20",
+      "end_date": "2027-02-21",
+      "date_text": "2/20-2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://edisonfestival.org",
+      "notes": ""
+    },
+    {
+      "event_name": "Enterprise Chili Cook Off",
+      "city": "Deltona",
+      "start_date": "2027-02-20",
+      "end_date": "2027-02-20",
+      "date_text": "2/20*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.oldenterprise.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Fiesta Day",
+      "city": "Tampa",
+      "start_date": "2027-02-20",
+      "end_date": "2027-02-20",
+      "date_text": "2/20*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://members.ybor.org/events/details/79th-fiesta-day-2026-4418",
+      "notes": ""
+    },
+    {
+      "event_name": "Florida Renaissance Festival and Craft Village III",
+      "city": "Deerfield Beach",
+      "start_date": "2027-02-20",
+      "end_date": "2027-02-21",
+      "date_text": "2/20-2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.ren-fest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Georgefest I",
+      "city": "Eustis",
+      "start_date": "2027-02-20",
+      "end_date": "2027-02-21",
+      "date_text": "2/20-2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.eustis.org/Residents/Georgefest",
+      "notes": ""
+    },
+    {
+      "event_name": "Jupiter Seafood Festival",
+      "city": "Jupiter",
+      "start_date": "2027-02-20",
+      "end_date": "2027-02-21",
+      "date_text": "2/20-2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.jupiterseafoodfestival.net/",
+      "notes": ""
+    },
+    {
+      "event_name": "Keel Farms Strawberry Bash",
+      "city": "Plant City",
+      "start_date": "2027-02-20",
+      "end_date": "2027-02-21",
+      "date_text": "2/20-2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.keelfarms.com/festivals",
+      "notes": ""
+    },
+    {
+      "event_name": "Key Lime Pie Festival",
+      "city": "Viera",
+      "start_date": "2027-02-20",
+      "end_date": "2027-02-21",
+      "date_text": "2/20-2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.spacecoastkeylimepiefestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Lake Worth Street Painting Festival",
+      "city": "Lake Worth",
+      "start_date": "2027-02-20",
+      "end_date": "2027-02-21",
+      "date_text": "2/20-2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://spf.lakeworthbeachfl.gov/",
+      "notes": ""
+    },
+    {
+      "event_name": "Palm Coast Strawberry Fest",
+      "city": "Palm Coast",
+      "start_date": "2027-02-20",
+      "end_date": "2027-02-21",
+      "date_text": "2/20-2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/StrawberryFestPalmCoast",
+      "notes": ""
+    },
+    {
+      "event_name": "Pine Castle Pioneer Days",
+      "city": "Orlando",
+      "start_date": "2027-02-20",
+      "end_date": "2027-02-21",
+      "date_text": "2/20-2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.pinecastlepioneerdays.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Riverwalk Chili Cook Off",
+      "city": "Fort Lauderdale",
+      "start_date": "2027-02-20",
+      "end_date": "2027-02-20",
+      "date_text": "2/20*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.goriverwalk.com/events/riverwalk-chili-cook-off",
+      "notes": ""
+    },
+    {
+      "event_name": "Safety Harbor Art and Seafood on the Waterfront",
+      "city": "Safety Harbor",
+      "start_date": "2027-02-20",
+      "end_date": "2027-02-21",
+      "date_text": "2/20-2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.safetyharborchamber.com/art-and-seafood",
+      "notes": ""
+    },
+    {
+      "event_name": "Sanford Porchfest",
+      "city": "Sanford",
+      "start_date": "2027-02-20",
+      "end_date": "2027-02-20",
+      "date_text": "2/20*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/SanfordPorchfest",
+      "notes": ""
+    },
+    {
+      "event_name": "SunWest Crab and Shrimp Festival",
+      "city": "Hudson",
+      "start_date": "2027-02-20",
+      "end_date": "2027-02-21",
+      "date_text": "2/20-2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/SunwestCrabandShrimpFestival",
+      "notes": ""
+    },
+    {
+      "event_name": "Swamp Cabbage Festival",
+      "city": "LaBelle",
+      "start_date": "2027-02-20",
+      "end_date": "2027-02-21",
+      "date_text": "2/20-2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.labelleswampcabbagefestival.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "SyFy",
+      "city": "Bartow",
+      "start_date": "2027-02-20",
+      "end_date": "2027-02-20",
+      "date_text": "2/20*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/syfybartow/",
+      "notes": ""
+    },
+    {
+      "event_name": "Turtle Fest",
+      "city": "Juno Beach",
+      "start_date": "2027-02-20",
+      "end_date": "2027-02-21",
+      "date_text": "2/20-2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://marinelife.org/turtlefest/",
+      "notes": ""
+    },
+    {
+      "event_name": "Central Florida Dragon Parade and Lunar New Year Festival",
+      "city": "Orlando",
+      "start_date": "2027-02-21",
+      "end_date": "2027-02-21",
+      "date_text": "2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://asiatrend.org/event/14th-annual-central-florida-dragon-parade-lunar-new-year-2026/",
+      "notes": ""
+    }
+  ]
+}

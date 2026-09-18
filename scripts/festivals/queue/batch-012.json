@@ -1,0 +1,226 @@
+{
+  "batch": 12,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Crestview Fall Festival",
+      "city": "Crestview",
+      "start_date": "2026-10-31",
+      "end_date": "2026-10-31",
+      "date_text": "10/31",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1709211597058664",
+      "notes": ""
+    },
+    {
+      "event_name": "Downtown Clermont Harvest Festival",
+      "city": "Clermont",
+      "start_date": "2026-10-31",
+      "end_date": "2026-10-31",
+      "date_text": "10/31",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.clermontdowntown.com/events/2025-clermont-harvest-festival-cb6sc",
+      "notes": ""
+    },
+    {
+      "event_name": "Edison and Ford Winter Estates Fall Festival",
+      "city": "Fort Myers",
+      "start_date": "2026-10-31",
+      "end_date": "2026-10-31",
+      "date_text": "10/31",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1646687330455813",
+      "notes": ""
+    },
+    {
+      "event_name": "Fall Festival at the Rock of Central Florida",
+      "city": "Sanford",
+      "start_date": "2026-10-31",
+      "end_date": "2026-10-31",
+      "date_text": "10/31",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://wearetherockofcf.org/event/r9gqpnk/fall-festival",
+      "notes": ""
+    },
+    {
+      "event_name": "First Baptist Church Fall Festival",
+      "city": "New Port Richey",
+      "start_date": "2026-10-31",
+      "end_date": "2026-10-31",
+      "date_text": "10/31*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1848256449062185",
+      "notes": ""
+    },
+    {
+      "event_name": "Fruitville Grove Pumpkin Festival V",
+      "city": "Sarasota",
+      "start_date": "2026-10-31",
+      "end_date": "2026-11-01",
+      "date_text": "10/31-11/1",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://fruitvillegrovefarm.com/festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "HorsePower For Kids Fall Festival V",
+      "city": "Tampa",
+      "start_date": "2026-10-31",
+      "end_date": "2026-11-01",
+      "date_text": "10/31-11/1",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/HorsePowerforKids/events",
+      "notes": ""
+    },
+    {
+      "event_name": "Howey Artisan Market at Mission Resort and Club VII",
+      "city": "Howey in the Hills",
+      "start_date": "2026-10-31",
+      "end_date": "2026-10-31",
+      "date_text": "10/31",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1618016786356990/1618018013023534/",
+      "notes": ""
+    },
+    {
+      "event_name": "India Festival Tampa",
+      "city": "Tampa",
+      "start_date": "2026-10-31",
+      "end_date": "2026-10-31",
+      "date_text": "10/31",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://indiafesttampa.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "LagoonFest",
+      "city": "Lake Worth",
+      "start_date": "2026-10-31",
+      "end_date": "2026-10-31",
+      "date_text": "10/31",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.thepalmbeaches.com/lagoonfest",
+      "notes": ""
+    },
+    {
+      "event_name": "Mayhem Ranch Fall Festival VI",
+      "city": "Morriston",
+      "start_date": "2026-10-31",
+      "end_date": "2026-11-01",
+      "date_text": "10/31-11/1",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://mayhemranchfla.com/event/mayhem-ranch-fall-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Micanopy Fall Festival",
+      "city": "Micanopy",
+      "start_date": "2026-10-31",
+      "end_date": "2026-11-01",
+      "date_text": "10/31-11/1",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://micanopyfallfestival.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Safety Harbor Wine Festival",
+      "city": "Safety Harbor",
+      "start_date": "2026-10-31",
+      "end_date": "2026-10-31",
+      "date_text": "10/31*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.cityofsafetyharbor.com/Calendar.aspx?EID=22346&month=4&year=2025&day=22&calType=0",
+      "notes": ""
+    },
+    {
+      "event_name": "Sunland Fall Festival",
+      "city": "Marianna",
+      "start_date": "2026-10-31",
+      "end_date": "2026-10-31",
+      "date_text": "10/31",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1507492358066244/",
+      "notes": ""
+    },
+    {
+      "event_name": "Foo Foo Festival II",
+      "city": "Pensacola",
+      "start_date": "2026-11-02",
+      "end_date": "2026-11-09",
+      "date_text": "11/2-11/9",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.foofoofest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Hillborough County Fair I",
+      "city": "Dover",
+      "start_date": "2026-11-05",
+      "end_date": "2026-11-08",
+      "date_text": "11/5-11/8",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.hillsboroughcountyfair.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "St. Jude Fall Festival",
+      "city": "Boca Raton",
+      "start_date": "2026-11-05",
+      "end_date": "2026-11-08",
+      "date_text": "11/5-11/8*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://stjudeboca.ticketspice.com/st-jude-2025-fall-festival",
+      "notes": ""
+    },
+    {
+      "event_name": "The Seaside Seeing Red Wine Festival",
+      "city": "Sebring",
+      "start_date": "2026-11-05",
+      "end_date": "2026-11-08",
+      "date_text": "11/5-11/8",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://seasideseeingred.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "American Indigenous Arts Celebration",
+      "city": "Clewiston",
+      "start_date": "2026-11-06",
+      "end_date": "2026-11-07",
+      "date_text": "11/6-11/7",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.ahtahthiki.com/aiac/",
+      "notes": ""
+    },
+    {
+      "event_name": "Annunciation Fall Festival",
+      "city": "Altamonte Springs",
+      "start_date": "2026-11-06",
+      "end_date": "2026-11-07",
+      "date_text": "11/6-11/7",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://annunciationorlando.org/fallfestival/",
+      "notes": ""
+    }
+  ]
+}

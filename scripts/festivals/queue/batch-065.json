@@ -1,0 +1,226 @@
+{
+  "batch": 65,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Crestview 4th of July Celebration",
+      "city": "Crestview",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/profile.php?id=61552670184473",
+      "notes": ""
+    },
+    {
+      "event_name": "Deerfield Beach 4th of July Celebration",
+      "city": "Deerfield Beach",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.deerfield-beach.com/1178/4th-of-July-Celebration",
+      "notes": ""
+    },
+    {
+      "event_name": "Delray Beach 4th of July Celebration",
+      "city": "Delray Beach",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.delraybeachfl.gov/our-city/things-to-do/4th-of-july",
+      "notes": ""
+    },
+    {
+      "event_name": "Fire on the Water",
+      "city": "Daytona Beach",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://roguewaveevents.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Fireworks at the Fountain",
+      "city": "Orlando",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.orlando.gov/Events/Fireworks-at-the-Fountain-2026",
+      "notes": ""
+    },
+    {
+      "event_name": "Fourth of July Celebration at Avalon Park",
+      "city": "Orlando",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1215713053832046/",
+      "notes": ""
+    },
+    {
+      "event_name": "Fourth-FEST and Fireworks",
+      "city": "Punta Gorda",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/puntagordafireworks/",
+      "notes": ""
+    },
+    {
+      "event_name": "Geneva 4th of July Parade and Festival",
+      "city": "Geneva",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/groups/5390313304324584",
+      "notes": ""
+    },
+    {
+      "event_name": "Largo 4th of July Celebration",
+      "city": "Largo",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.playlargo.com/special_events_detail_T40_R90.php",
+      "notes": ""
+    },
+    {
+      "event_name": "Leesburg 4th of July Star Spangled Spectacular",
+      "city": "Leesburg",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.leesburgflorida.gov/activities/recreation/star_spangled_spectacular.php",
+      "notes": ""
+    },
+    {
+      "event_name": "Let Freedom Ring 4th of July Celebration",
+      "city": "LaBelle",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/barron-park-labelle/let-freedom-ring-4th-of-july-celebration/1743135703727227/",
+      "notes": ""
+    },
+    {
+      "event_name": "Liberty by the Bay",
+      "city": "Tampa",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.tampa.gov/libertybythebay",
+      "notes": ""
+    },
+    {
+      "event_name": "Monumental 4th of July Celebration",
+      "city": "Kissimmee",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.kissimmee.gov/Parks-Recreation-Events/Events-Festivals/Monumental-Fourth-of-July",
+      "notes": ""
+    },
+    {
+      "event_name": "Ocala Fourth in the Park",
+      "city": "Ocala",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.ocalamarion.com/events/celebrate-america-250/",
+      "notes": ""
+    },
+    {
+      "event_name": "Oviedo July 4th and 250th Independence Fireworks Show",
+      "city": "Oviedo",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.eventbrite.com/e/oviedos-july-4th-250th-independence-fireworks-show-tickets-1986459696426?aff=ebdsoporgprofile",
+      "notes": ""
+    },
+    {
+      "event_name": "Palmetto Fourth Fest",
+      "city": "Palmetto Bay",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/groups/parrishnetwork/posts/2753000305085510/",
+      "notes": ""
+    },
+    {
+      "event_name": "Pasco Fun Fest",
+      "city": "New Port Richey",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://pascofunfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Port Orange 4th of July Spectacular",
+      "city": "Port Orange",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/PortOrangeParks",
+      "notes": ""
+    },
+    {
+      "event_name": "Red, White and Blue with a Waterfront View",
+      "city": "Boynton Beach",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.boynton-beach.org/658/4th-of-July-Celebration",
+      "notes": ""
+    },
+    {
+      "event_name": "Rockledge Independence Day Picnic",
+      "city": "Rockledge",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/3471419639707434",
+      "notes": ""
+    }
+  ]
+}

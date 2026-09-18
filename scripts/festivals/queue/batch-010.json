@@ -1,0 +1,226 @@
+{
+  "batch": 10,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Fine Craft and Arts Festival",
+      "city": "Monticello",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-24",
+      "date_text": "10/24",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/jeffersonartsgallery.jag",
+      "notes": ""
+    },
+    {
+      "event_name": "Flamingo Gardens Harvest Festival IV",
+      "city": "Davie",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-25",
+      "date_text": "10/24-10/25",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://flamingogardens.org/events/",
+      "notes": ""
+    },
+    {
+      "event_name": "Florida Bat Fest",
+      "city": "Gainesville",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-24",
+      "date_text": "10/24",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.lubee.org/flbatfestival",
+      "notes": ""
+    },
+    {
+      "event_name": "Florida Forest Festival",
+      "city": "Perry",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-24",
+      "date_text": "10/24",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/FloridaForestFestival",
+      "notes": ""
+    },
+    {
+      "event_name": "Fruitville Grove Pumpkin Festival IV",
+      "city": "Sarasota",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-25",
+      "date_text": "10/24-10/25",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://fruitvillegrovefarm.com/festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "German American Society Oktoberfest III",
+      "city": "Hollywood",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-24",
+      "date_text": "10/24",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.germanamericanclubhollywood.org",
+      "notes": ""
+    },
+    {
+      "event_name": "GHOULapalooza",
+      "city": "Daytona Beach",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-24",
+      "date_text": "10/24",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://roguewaveevents.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Gulfcoast Pride Festival",
+      "city": "Sarasota",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-24",
+      "date_text": "10/24",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/SarasotaPride",
+      "notes": ""
+    },
+    {
+      "event_name": "HorsePower For Kids Fall Festival IV",
+      "city": "Tampa",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-25",
+      "date_text": "10/24-10/25",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/HorsePowerforKids/events",
+      "notes": ""
+    },
+    {
+      "event_name": "Hunsader Farms Pumpkin Festival III",
+      "city": "Bradenton",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-25",
+      "date_text": "10/24-10/25",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.hunsaderfarms.com/pumpkin-festival",
+      "notes": ""
+    },
+    {
+      "event_name": "Jupiter Farms Residents Fall Family Music Fest",
+      "city": "Jupiter",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-24",
+      "date_text": "10/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "needs_verification",
+      "organizer_url_hint": "https://www.facebook.com/JupiterFarmsMusicFestival/",
+      "notes": "?"
+    },
+    {
+      "event_name": "Lake Wales History Museum’s Pioneer Days Festival",
+      "city": "Lake Wales",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-25",
+      "date_text": "10/24-10/25",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.lakewaleshistory.org/pioneerdays",
+      "notes": ""
+    },
+    {
+      "event_name": "Main Street Zephyrhills Halloween Howl",
+      "city": "Zephyrhills",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-24",
+      "date_text": "10/24",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.mainstreetzephyrhillsevents.org/event-details/msz-halloween-howl-2026",
+      "notes": ""
+    },
+    {
+      "event_name": "Margate Fall Festival",
+      "city": "Margate",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-24",
+      "date_text": "10/24",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.margatefl.com/522/Fall-Festival",
+      "notes": ""
+    },
+    {
+      "event_name": "Mayhem Ranch Fall Festival V",
+      "city": "Morriston",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-25",
+      "date_text": "10/24-10/25",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://mayhemranchfla.com/event/mayhem-ranch-fall-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "MKAF Festival of the Arts",
+      "city": "Destin",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-25",
+      "date_text": "10/24-10/25",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://mkaf.org/festival-of-arts/",
+      "notes": ""
+    },
+    {
+      "event_name": "Mount Dora Craft Fair",
+      "city": "Mount Dora",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-25",
+      "date_text": "10/24-10/25",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://mtdoracraftfair.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Mulberry Harvest Festival",
+      "city": "Mulberry",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-24",
+      "date_text": "10/24",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.cityofmulberryfl.org/city-programs",
+      "notes": ""
+    },
+    {
+      "event_name": "Naples Fine Art Show II",
+      "city": "Naples",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-25",
+      "date_text": "10/24-10/25",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://hotworks.org/events-hot-works/",
+      "notes": ""
+    },
+    {
+      "event_name": "Ocala Fine Arts Festival",
+      "city": "Ocala",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-25",
+      "date_text": "10/24-10/25",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://fafo.org/festival",
+      "notes": ""
+    }
+  ]
+}

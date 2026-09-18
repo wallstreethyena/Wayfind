@@ -1,0 +1,226 @@
+{
+  "batch": 49,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Ultra Music Festival",
+      "city": "Miami",
+      "start_date": "2027-03-26",
+      "end_date": "2027-03-28",
+      "date_text": "3/26-3/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://ultramusicfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "UpTown Art Expo",
+      "city": "Altamonte Springs",
+      "start_date": "2027-03-26",
+      "end_date": "2027-03-28",
+      "date_text": "3/26-3/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.uptownartexpo.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Art in the Park",
+      "city": "Jacksonville",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-27",
+      "date_text": "3/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/Art-In-the-Park-Moore-Haven-1480830795557628/",
+      "notes": ""
+    },
+    {
+      "event_name": "Barberville Pioneer Settlement Spring Frolic",
+      "city": "Barberville",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-28",
+      "date_text": "3/27-3/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.pioneersettlement.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Bay Area Renaissance Festival VII",
+      "city": "Dade City",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-28",
+      "date_text": "3/27-3/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.bayarearenfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Bluegrass and Blueberry Festival",
+      "city": "Avon Park",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-27",
+      "date_text": "3/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://rotaryclubofavonpark.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Bradford County Strawberry Festival",
+      "city": "Starke",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-28",
+      "date_text": "3/27-3/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.bradfordcountystrawberryfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Celebration Among the Oaks",
+      "city": "Oakland",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-27",
+      "date_text": "3/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.oaklandfl.gov/m/newsflash/home/detail/606",
+      "notes": ""
+    },
+    {
+      "event_name": "DeLand Outdoor Art Festival",
+      "city": "DeLand",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-28",
+      "date_text": "3/27-3/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.delandoutdoorartfest.com/index.htm",
+      "notes": ""
+    },
+    {
+      "event_name": "Florida Renaissance Festival and Craft Village VII",
+      "city": "Deerfield Beach",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-28",
+      "date_text": "3/27-3/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.ren-fest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Florida Wildflower and Garden Festival",
+      "city": "DeLand",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-27",
+      "date_text": "3/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://mainstreetdeland.org/event-package-and-tickets/p/2026-fl-wildflower-vendors",
+      "notes": ""
+    },
+    {
+      "event_name": "Food from the Soul",
+      "city": "Tampa",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-27",
+      "date_text": "3/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://foodfromthesoulfestival.com",
+      "notes": ""
+    },
+    {
+      "event_name": "Fort Lauderdale Beer Wine and Spirits Fest",
+      "city": "Fort Lauderdale",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-27",
+      "date_text": "3/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.beerwinespiritsfest.com/fl-fest",
+      "notes": ""
+    },
+    {
+      "event_name": "German American Society German Fest",
+      "city": "Hollywood",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-27",
+      "date_text": "3/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.germanamericanclubhollywood.org",
+      "notes": ""
+    },
+    {
+      "event_name": "Groveland Founders Day Celebration",
+      "city": "Groveland",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-27",
+      "date_text": "3/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://groveland-fl.gov/35/Events-and-Programs",
+      "notes": ""
+    },
+    {
+      "event_name": "Hogtown Craft Beer Festival",
+      "city": "Gainesville",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-27",
+      "date_text": "3/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.hogtownbeerfest.com/beerfest/",
+      "notes": ""
+    },
+    {
+      "event_name": "HorsePower for Kids Spring Fest I",
+      "city": "Tampa",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-28",
+      "date_text": "3/27-3/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.horsepowerforkids.com/upcoming-events",
+      "notes": ""
+    },
+    {
+      "event_name": "Howey Artisan Market at Mission Resort and Club III",
+      "city": "Howey in the Hills",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-27",
+      "date_text": "3/27",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1618016786356990/1618017996356869/?acontext=%7B%22event_action_history%22%3A[%7B%22extra_data%22%3A%22%22%2C%22mechanism%22%3A%22surface%22%2C%22surface%22%3A%22permalink%22%7D%2C%7B%22extra_data%22%3A%22%22%2C%22mechanism%22%3A%22surface%22%2C%22surface%22%3A%22permalink%22%7D%2C%7B%22extra_data%22%3A%22%22%2C%22mechanism%22%3A%22surface%22%2C%22surface%22%3A%22permalink%22%7D]%2C%22ref_notif_type%22%3Anull%7D",
+      "notes": ""
+    },
+    {
+      "event_name": "Islamorada Island Fest",
+      "city": "Islamorada",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-28",
+      "date_text": "3/27-3/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://islamoradachamber.com/island-fest/",
+      "notes": ""
+    },
+    {
+      "event_name": "Jelly Bean Fling Spring Festival",
+      "city": "Dade City",
+      "start_date": "2027-03-27",
+      "end_date": "2027-03-27",
+      "date_text": "3/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.pioneerfloridamuseum.org/index.php?option=com_content&view=article&id=152&Itemid=74",
+      "notes": ""
+    }
+  ]
+}

@@ -1,0 +1,226 @@
+{
+  "batch": 64,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "The Big Bang: Lady Lake’s Independence Day Celebration",
+      "city": "Lady Lake",
+      "start_date": "2027-06-26",
+      "end_date": "2027-06-26",
+      "date_text": "6/26*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.ladylakefl.gov/Calendar.aspx?EID=1610",
+      "notes": ""
+    },
+    {
+      "event_name": "Key Lime Festival",
+      "city": "Key West",
+      "start_date": "2027-06-30",
+      "end_date": "2027-07-04",
+      "date_text": "6/30-7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://keylimefestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Key West Mermaid Festival",
+      "city": "Key West",
+      "start_date": "2027-07-01",
+      "end_date": "2027-07-04",
+      "date_text": "7/1-7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/KeyWestMermaidFestival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Bushnell Freedom Fest",
+      "city": "Bushnell",
+      "start_date": "2027-07-02",
+      "end_date": "2027-07-02",
+      "date_text": "7/2*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/profile.php?id=100057516375461",
+      "notes": ""
+    },
+    {
+      "event_name": "Apalachicola Waterfront July 3rd Celebration",
+      "city": "Apalachicola",
+      "start_date": "2027-07-03",
+      "end_date": "2027-07-03",
+      "date_text": "7/3*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.apalachicolabay.org/event/apalachicola-july-3rd-waterfront-celebration/",
+      "notes": ""
+    },
+    {
+      "event_name": "Clearwater Celebrates America",
+      "city": "Clearwater",
+      "start_date": "2027-07-03",
+      "end_date": "2027-07-03",
+      "date_text": "7/3*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.myclearwater.com/Events-and-Meetings/Clearwater-Celebrates-America",
+      "notes": ""
+    },
+    {
+      "event_name": "Freedom on the Waterfront",
+      "city": "Mount Dora",
+      "start_date": "2027-07-03",
+      "end_date": "2027-07-03",
+      "date_text": "7/3*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.mountdora.com/mountdoramajoreventsandfestivals",
+      "notes": ""
+    },
+    {
+      "event_name": "Lower Keys Rotary’s Independence Day Celebration",
+      "city": "Big Pine Key",
+      "start_date": "2027-07-03",
+      "end_date": "2027-07-03",
+      "date_text": "7/3*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1386246189928652",
+      "notes": ""
+    },
+    {
+      "event_name": "Red Hot and Boom",
+      "city": "Altamonte Springs",
+      "start_date": "2027-07-03",
+      "end_date": "2027-07-03",
+      "date_text": "7/3*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.altamonte.org/701/Red-Hot-Boom",
+      "notes": ""
+    },
+    {
+      "event_name": "Star-Spangled Food Truck Festival",
+      "city": "Destin",
+      "start_date": "2027-07-03",
+      "end_date": "2027-07-03",
+      "date_text": "7/3*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://destincommons.com/happenings-events/star-spangled-food-truck-festival-2026/",
+      "notes": ""
+    },
+    {
+      "event_name": "Wildwood Happy Birthday America",
+      "city": "Wildwood",
+      "start_date": "2027-07-03",
+      "end_date": "2027-07-03",
+      "date_text": "7/3*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.wildwood-fl.gov/parksrec/page/happy-birthday-america-2",
+      "notes": ""
+    },
+    {
+      "event_name": "4th of July at Altos del Mar Park",
+      "city": "Miami Beach",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://events.miamibeachfl.gov/event/4th-of-july-music-performance-and-roller-disco/",
+      "notes": ""
+    },
+    {
+      "event_name": "All American Celebration at Lake Sumter Landing",
+      "city": "The Villages",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.thevillagesentertainment.com/special-events/all-american-celebration/",
+      "notes": ""
+    },
+    {
+      "event_name": "American Pride 4th of July",
+      "city": "Orange Park",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.moosehaven.org/american-pride-4th-of-july/",
+      "notes": ""
+    },
+    {
+      "event_name": "Apopka’s July 4th Celebration",
+      "city": "Apopka",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.apopka.gov/908/July-Fourth-Celebration",
+      "notes": ""
+    },
+    {
+      "event_name": "Cape Coral Red, White and Boom!",
+      "city": "Cape Coral",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.capeboom.com/home",
+      "notes": ""
+    },
+    {
+      "event_name": "Celebrate America",
+      "city": "Tallahassee",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://talgov.com/parks/july4.aspx",
+      "notes": ""
+    },
+    {
+      "event_name": "Celebration’s Star Spangled Spectacular",
+      "city": "Celebration",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://celebrationtowncenter.com/event/celebrations-star-spangled-spectacular/",
+      "notes": ""
+    },
+    {
+      "event_name": "Clearwater Celebrates America",
+      "city": "Clearwater",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.myclearwater.com/Events-and-Meetings/Clearwater-Celebrates-America",
+      "notes": ""
+    },
+    {
+      "event_name": "Clermont 4th of July Red, White and Boom!",
+      "city": "Clermont",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "date_text": "7/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.clermontfl.gov/254/Events",
+      "notes": ""
+    }
+  ]
+}

@@ -1,0 +1,226 @@
+{
+  "batch": 46,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Barefoot Mailman Family Beach Day",
+      "city": "Lantana",
+      "start_date": "2027-03-13",
+      "end_date": "2027-03-13",
+      "date_text": "3/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.lantana.org/240/Enjoy-Lantana-Events",
+      "notes": ""
+    },
+    {
+      "event_name": "Bay Area Renaissance Festival V",
+      "city": "Dade City",
+      "start_date": "2027-03-13",
+      "end_date": "2027-03-14",
+      "date_text": "3/13-3/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.bayarearenfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Brew Miami: Beats, Bites and Brews",
+      "city": "Miami",
+      "start_date": "2027-03-13",
+      "end_date": "2027-03-13",
+      "date_text": "3/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.eventbrite.com/e/brew-miami-2026-tickets-1708588497189?aff=oddtdtcreator&utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAZXh0bgNhZW0CMTEAc3J0YwZhcHBfaWQMMjU2MjgxMDQwNTU4AAGnxdFjB1QnnYaCkgVGdPKArsxldGjYZrxRfwump0HbZHzX3CT7RmCX5mMOCtI_aem_3tKnHgaTiGmOgw7FcZrWyg",
+      "notes": ""
+    },
+    {
+      "event_name": "Dania Beach Wine and Seafood Festival",
+      "city": "Dania Beach",
+      "start_date": "2027-03-13",
+      "end_date": "2027-03-13",
+      "date_text": "3/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://daniabeachwineandseafoodfest.com",
+      "notes": ""
+    },
+    {
+      "event_name": "Florida Renaissance Festival and Craft Village VI",
+      "city": "Deerfield Beach",
+      "start_date": "2027-03-13",
+      "end_date": "2027-03-14",
+      "date_text": "3/13-3/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.ren-fest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Hutchinson Island Seafood Festival",
+      "city": "Fort Pierce",
+      "start_date": "2027-03-13",
+      "end_date": "2027-03-14",
+      "date_text": "3/13-3/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://treasurecoastseafoodfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Island Fest: Mullet Toss and Seafood Festival",
+      "city": "Pine Island",
+      "start_date": "2027-03-13",
+      "end_date": "2027-03-13",
+      "date_text": "3/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://pineislandchamber.org/chamber-events/annual-events/islandfest/",
+      "notes": ""
+    },
+    {
+      "event_name": "Land O’ Lakes Seafood Festival",
+      "city": "Land O’ Lakes",
+      "start_date": "2027-03-13",
+      "end_date": "2027-03-13",
+      "date_text": "3/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://floridapenguinproductions.com/upcoming-events-list",
+      "notes": ""
+    },
+    {
+      "event_name": "Mulberry Chili Cook-Off",
+      "city": "Mulberry",
+      "start_date": "2027-03-13",
+      "end_date": "2027-03-13",
+      "date_text": "3/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.cityofmulberryfl.org/city-programs/page/mulberry-chili-cook-0",
+      "notes": ""
+    },
+    {
+      "event_name": "Naples Fine Art Show I",
+      "city": "Naples",
+      "start_date": "2027-03-13",
+      "end_date": "2027-03-14",
+      "date_text": "3/13-3/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://hotworks.org/events-hot-works/",
+      "notes": ""
+    },
+    {
+      "event_name": "Original Marathon Seafood Festival",
+      "city": "Marathon",
+      "start_date": "2027-03-13",
+      "end_date": "2027-03-14",
+      "date_text": "3/13-3/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://marathonseafoodfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Oviedo St. Patrick’s Day Festival at Center Lake Park",
+      "city": "Oviedo",
+      "start_date": "2027-03-13",
+      "end_date": "2027-03-13",
+      "date_text": "3/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1460211745675095",
+      "notes": ""
+    },
+    {
+      "event_name": "River O’Green Fest",
+      "city": "Tampa",
+      "start_date": "2027-03-13",
+      "end_date": "2027-03-13",
+      "date_text": "3/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.tampasdowntown.com/events/river-ogreen/",
+      "notes": ""
+    },
+    {
+      "event_name": "Royal Palm Beach Seafood Festival",
+      "city": "Royal Palm Beach",
+      "start_date": "2027-03-13",
+      "end_date": "2027-03-14",
+      "date_text": "3/13-3/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.pottcevents.com/royal-palm-beach-seafood-festival.html",
+      "notes": ""
+    },
+    {
+      "event_name": "Shamrock Festival",
+      "city": "Ave Maria",
+      "start_date": "2027-03-13",
+      "end_date": "2027-03-13",
+      "date_text": "3/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1796533344293057/",
+      "notes": ""
+    },
+    {
+      "event_name": "ShrimpaPalooza",
+      "city": "Homosassa",
+      "start_date": "2027-03-13",
+      "end_date": "2027-03-13",
+      "date_text": "3/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/HSRotaryClub",
+      "notes": ""
+    },
+    {
+      "event_name": "Speckled Perch Festival and Parade",
+      "city": "Okeechobee",
+      "start_date": "2027-03-13",
+      "end_date": "2027-03-14",
+      "date_text": "3/13-3/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://okeechobeemainstreet.org/speckled-perch-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "St. Augustine Celtic Music and Heritage Festival",
+      "city": "St. Augustine",
+      "start_date": "2027-03-13",
+      "end_date": "2027-03-14",
+      "date_text": "3/13-3/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.celticstaugustine.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "St. Patrick’s Day Festival at the MIDFLORIDA Event Center",
+      "city": "Port Saint Lucie",
+      "start_date": "2027-03-13",
+      "end_date": "2027-03-13",
+      "date_text": "3/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.midfloridaeventcenter.com/Events/PSL-Irish-Festival",
+      "notes": ""
+    },
+    {
+      "event_name": "St. Patrick’s Day Parade and Festival",
+      "city": "Delray Beach",
+      "start_date": "2027-03-13",
+      "end_date": "2027-03-13",
+      "date_text": "3/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://stpatsdelray.com/",
+      "notes": ""
+    }
+  ]
+}

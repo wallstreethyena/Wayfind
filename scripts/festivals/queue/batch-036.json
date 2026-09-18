@@ -1,0 +1,226 @@
+{
+  "batch": 36,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Granada Grand Festival of the Arts",
+      "city": "Ormond Beach",
+      "start_date": "2027-02-06",
+      "end_date": "2027-02-06",
+      "date_text": "2/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/848606951129301",
+      "notes": ""
+    },
+    {
+      "event_name": "Honey and Arts Festival",
+      "city": "Lealman",
+      "start_date": "2027-02-06",
+      "end_date": "2027-02-06",
+      "date_text": "2/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://lealmanexchange.org/honey-and-arts-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "India Day",
+      "city": "Orlando",
+      "start_date": "2027-02-06",
+      "end_date": "2027-02-06",
+      "date_text": "2/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://asiatrend.org/event/13th-annual-iacc-india-day-2026/",
+      "notes": ""
+    },
+    {
+      "event_name": "Love is Love Fest",
+      "city": "DeLand",
+      "start_date": "2027-02-06",
+      "end_date": "2027-02-06",
+      "date_text": "2/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.volusiapride.org/love-is-love-pride-fest",
+      "notes": ""
+    },
+    {
+      "event_name": "Newberry Blues and BBQ Festival",
+      "city": "Newberry",
+      "start_date": "2027-02-06",
+      "end_date": "2027-02-06",
+      "date_text": "2/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1527666668551644/",
+      "notes": ""
+    },
+    {
+      "event_name": "Ortona Cane Grinding Festival",
+      "city": "Moore Haven",
+      "start_date": "2027-02-06",
+      "end_date": "2027-02-06",
+      "date_text": "2/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://voteglades.gov/event/ortona-cane-grinding-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Panama City Beach Food Truck and Craft Beer Festival",
+      "city": "Panama City Beach",
+      "start_date": "2027-02-06",
+      "end_date": "2027-02-07",
+      "date_text": "2/6-2/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.eventbrite.com/e/9th-panama-city-beach-food-truck-craft-beer-festival-tickets-1975137755195",
+      "notes": ""
+    },
+    {
+      "event_name": "Pigz in Z’Hills BBQ and Blues Festival",
+      "city": "Zephyrhills",
+      "start_date": "2027-02-06",
+      "end_date": "2027-02-06",
+      "date_text": "2/6",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.eastpascochamber.org/pigz-in-zhills-bbq-blues-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Saint George Island ShrimpFest",
+      "city": "Eastpoint",
+      "start_date": "2027-02-06",
+      "end_date": "2027-02-06",
+      "date_text": "2/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.sgishrimpfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Soul Beach Food Festival",
+      "city": "Miami Beach",
+      "start_date": "2027-02-06",
+      "end_date": "2027-02-06",
+      "date_text": "2/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.eventbrite.com/e/10th-annual-soul-beach-food-festival-tickets-1849321563579",
+      "notes": ""
+    },
+    {
+      "event_name": "St. Petersburg Beer Wine and Spirits Fest",
+      "city": "St. Petersburg",
+      "start_date": "2027-02-06",
+      "end_date": "2027-02-06",
+      "date_text": "2/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/873925741981507/",
+      "notes": ""
+    },
+    {
+      "event_name": "Tamarac Multi Cultural Festival",
+      "city": "Tamarac",
+      "start_date": "2027-02-06",
+      "end_date": "2027-02-06",
+      "date_text": "2/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.tamarac.org/SpecialEvents",
+      "notes": ""
+    },
+    {
+      "event_name": "Tampa Bay/St. Pete Whiskey Riot",
+      "city": "St. Petersburg",
+      "start_date": "2027-02-06",
+      "end_date": "2027-02-06",
+      "date_text": "2/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://whiskeyriot.com/tampa-bay-fl",
+      "notes": ""
+    },
+    {
+      "event_name": "Taste of Okeechobee",
+      "city": "Okeechobee",
+      "start_date": "2027-02-06",
+      "end_date": "2027-02-06",
+      "date_text": "2/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://okeechobeemainstreet.org/event/taste-of-okeechobee/",
+      "notes": ""
+    },
+    {
+      "event_name": "The Fuzzy Pineapple Dessert Festival",
+      "city": "Tallahassee",
+      "start_date": "2027-02-06",
+      "end_date": "2027-02-06",
+      "date_text": "2/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/651337774613428/",
+      "notes": ""
+    },
+    {
+      "event_name": "West Palm Beach Fine Art Show I",
+      "city": "West Palm Beach",
+      "start_date": "2027-02-06",
+      "end_date": "2027-02-07",
+      "date_text": "2/6-2/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://hotworks.org/events-hot-works/",
+      "notes": ""
+    },
+    {
+      "event_name": "Sanford Food Truck Fiesta II",
+      "city": "Sanford",
+      "start_date": "2027-02-07",
+      "end_date": "2027-02-07",
+      "date_text": "2/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://sanfordfl.gov/event-calendar/",
+      "notes": ""
+    },
+    {
+      "event_name": "Palatka Bluegrass Festival",
+      "city": "Palatka",
+      "start_date": "2027-02-11",
+      "end_date": "2027-02-13",
+      "date_text": "2/11-2/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://evansmediasource.com/events/2026-palatka-bluegrass-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Babcock Ranch Seafood and Music Festival",
+      "city": "Punta Gorda",
+      "start_date": "2027-02-12",
+      "end_date": "2027-02-14",
+      "date_text": "2/12-2/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.paragonfestivals.com/festival/babcock-ranch-seafood-music-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Everglades Seafood Festival",
+      "city": "Everglades City",
+      "start_date": "2027-02-12",
+      "end_date": "2027-02-14",
+      "date_text": "2/12-2/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.evergladesseafoodfestival.org/",
+      "notes": ""
+    }
+  ]
+}

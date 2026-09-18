@@ -1,0 +1,226 @@
+{
+  "batch": 35,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Bonita Springs Seafood and Music Festival",
+      "city": "Bonita Springs",
+      "start_date": "2027-02-05",
+      "end_date": "2027-02-07",
+      "date_text": "2/5-2/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.paragonfestivals.com/festival/bonita-springs-seafood-music-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Everglades Bluegrass Festival",
+      "city": "North Miami Beach",
+      "start_date": "2027-02-05",
+      "end_date": "2027-02-07",
+      "date_text": "2/5-2/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/DobroFiddle",
+      "notes": ""
+    },
+    {
+      "event_name": "Orlando Whiskey Festival",
+      "city": "Orlando",
+      "start_date": "2027-02-05",
+      "end_date": "2027-02-05",
+      "date_text": "2/5*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.whiskeynbizz.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Soul Fest",
+      "city": "Oakland Park",
+      "start_date": "2027-02-05",
+      "end_date": "2027-02-05",
+      "date_text": "2/5*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.oaklandparkfl.gov/590/Soul-Fest",
+      "notes": ""
+    },
+    {
+      "event_name": "Spirit of the Buffalo Pow Wow II",
+      "city": "Auburndale",
+      "start_date": "2027-02-05",
+      "end_date": "2027-02-07",
+      "date_text": "2/5-2/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.spiritofthebuffalopowwow.com",
+      "notes": ""
+    },
+    {
+      "event_name": "St. Andrews Mardi Gras Festival",
+      "city": "Panama City",
+      "start_date": "2027-02-05",
+      "end_date": "2027-02-06",
+      "date_text": "2/5-2/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://standrewsmardigras.com/festival-info/",
+      "notes": ""
+    },
+    {
+      "event_name": "ArtFest Fort Myers",
+      "city": "Fort Myers",
+      "start_date": "2027-02-06",
+      "end_date": "2027-02-07",
+      "date_text": "2/6-2/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://artfestfortmyers.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "ArtsFest",
+      "city": "Stuart",
+      "start_date": "2027-02-06",
+      "end_date": "2027-02-07",
+      "date_text": "2/6-2/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.martinarts.org/programs-events/artsfest/",
+      "notes": ""
+    },
+    {
+      "event_name": "Bacon Burger and Beer Festival",
+      "city": "Fort Pierce",
+      "start_date": "2027-02-06",
+      "end_date": "2027-02-07",
+      "date_text": "2/6-2/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.eventbrite.com/e/4th-annual-2026-bacon-burger-and-beer-festival-tickets-1977607542395?aff=ebdsoporgprofile",
+      "notes": ""
+    },
+    {
+      "event_name": "Big Orange Day",
+      "city": "Umatilla",
+      "start_date": "2027-02-06",
+      "end_date": "2027-02-06",
+      "date_text": "2/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1381462290070497/",
+      "notes": ""
+    },
+    {
+      "event_name": "Biz Art in the Park",
+      "city": "North Lauderdale",
+      "start_date": "2027-02-06",
+      "end_date": "2027-02-06",
+      "date_text": "2/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.eventbrite.com/e/biz-art-in-the-park-tickets-1510979493339",
+      "notes": ""
+    },
+    {
+      "event_name": "Brooksville Tangerine Festival",
+      "city": "Brooksville",
+      "start_date": "2027-02-06",
+      "end_date": "2027-02-06",
+      "date_text": "2/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.welovebvl.org/events/tangerine-festival",
+      "notes": ""
+    },
+    {
+      "event_name": "Central Florida Chili Cookoff",
+      "city": "Orlando",
+      "start_date": "2027-02-06",
+      "end_date": "2027-02-06",
+      "date_text": "2/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.legacyeventsfored.org/central-florida-chili-cookoff",
+      "notes": ""
+    },
+    {
+      "event_name": "Central Florida Tet Festival",
+      "city": "Orlando",
+      "start_date": "2027-02-06",
+      "end_date": "2027-02-07",
+      "date_text": "2/6-2/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://asiatrend.org/event/33th-anniversary-central-florida-tet-festival-2026/",
+      "notes": ""
+    },
+    {
+      "event_name": "Cocoa Village Brewer’s Bash",
+      "city": "Cocoa",
+      "start_date": "2027-02-06",
+      "end_date": "2027-02-06",
+      "date_text": "2/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://visitcocoavillage.com/event/7th-annual-cocoa-village-brewers-bash%ef%b8%8f",
+      "notes": ""
+    },
+    {
+      "event_name": "Coral Isles Church Winter Festival",
+      "city": "Tavernier",
+      "start_date": "2027-02-06",
+      "end_date": "2027-02-06",
+      "date_text": "2/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.coralisleschurch.org/winterfestival",
+      "notes": ""
+    },
+    {
+      "event_name": "Creekside Music and Arts Festival",
+      "city": "Palm Coast",
+      "start_date": "2027-02-06",
+      "end_date": "2027-02-07",
+      "date_text": "2/6-2/7",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/CreeksideFestival",
+      "notes": ""
+    },
+    {
+      "event_name": "Farm Festival and Quilt Show",
+      "city": "Dade City",
+      "start_date": "2027-02-06",
+      "end_date": "2027-02-06",
+      "date_text": "2/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.pioneerfloridamuseum.org/index.php?option=com_content&view=article&id=152&Itemid=74",
+      "notes": ""
+    },
+    {
+      "event_name": "Florida Renaissance Festival and Craft Village I",
+      "city": "Deerfield Beach",
+      "start_date": "2027-02-06",
+      "end_date": "2027-02-07",
+      "date_text": "2/6-2/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.ren-fest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Gardenfest!",
+      "city": "Vero Beach",
+      "start_date": "2027-02-06",
+      "end_date": "2027-02-07",
+      "date_text": "2/6-2/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.gardenclubofirc.org/gardenfest/overview/",
+      "notes": ""
+    }
+  ]
+}

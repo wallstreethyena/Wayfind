@@ -1,0 +1,226 @@
+{
+  "batch": 39,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Venice Italian Feast and Carnival",
+      "city": "Venice",
+      "start_date": "2027-02-18",
+      "end_date": "2027-02-21",
+      "date_text": "2/18-2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://italianamericanclubofvenice.com/feast/",
+      "notes": ""
+    },
+    {
+      "event_name": "Bradenton Area River Regatta",
+      "city": "Bradenton",
+      "start_date": "2027-02-19",
+      "end_date": "2027-02-20",
+      "date_text": "2/19-2/20*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://bradentonarearegatta.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Cathedral Festival",
+      "city": "St. Augustine",
+      "start_date": "2027-02-19",
+      "end_date": "2027-02-21",
+      "date_text": "2/19-2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.visitstaugustine.com/event/cathedral-festival",
+      "notes": ""
+    },
+    {
+      "event_name": "Fort Myers Greek Festival",
+      "city": "Fort Myers",
+      "start_date": "2027-02-19",
+      "end_date": "2027-02-21",
+      "date_text": "2/19-2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://greekfestfortmyers.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Fort Pierce Greek Festival",
+      "city": "Fort Pierce",
+      "start_date": "2027-02-19",
+      "end_date": "2027-02-21",
+      "date_text": "2/19-2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://stnicholasfp.com/festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Glendi: St. Barbara Greek Festival",
+      "city": "Sarasota",
+      "start_date": "2027-02-19",
+      "end_date": "2027-02-21",
+      "date_text": "2/19-2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://stbarbarafestival.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Mount Dora Scottish Highland Festival",
+      "city": "Mount Dora",
+      "start_date": "2027-02-19",
+      "end_date": "2027-02-21",
+      "date_text": "2/19-2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://ci.mount-dora.fl.us/1291/Scottish-Highland-Festival",
+      "notes": ""
+    },
+    {
+      "event_name": "Ribs on the Ridge",
+      "city": "Haines City",
+      "start_date": "2027-02-19",
+      "end_date": "2027-02-20",
+      "date_text": "2/19-2/20*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.hainescity.com/191/Ribs-on-the-Ridge",
+      "notes": ""
+    },
+    {
+      "event_name": "St. Katherine Greek Festival",
+      "city": "Melbourne",
+      "start_date": "2027-02-19",
+      "end_date": "2027-02-21",
+      "date_text": "2/19-2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.greekfestivalmlb.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "St. Petersburg Seafood and Music Festival",
+      "city": "St. Petersburg",
+      "start_date": "2027-02-19",
+      "end_date": "2027-02-21",
+      "date_text": "2/19-2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.paragonfestivals.com/festival/st-petersburg-seafood-music-festival-2/",
+      "notes": ""
+    },
+    {
+      "event_name": "Strawberry Festival at Brownwood Paddock Square",
+      "city": "The Villages",
+      "start_date": "2027-02-19",
+      "end_date": "2027-02-21",
+      "date_text": "2/19-2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.thevillagesentertainment.com/special-events/2026-strawberry-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "The Sandestin Gumbo Festival",
+      "city": "Miramar Beach",
+      "start_date": "2027-02-19",
+      "end_date": "2027-02-20",
+      "date_text": "2/19-2/20*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.sandestingumbofestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Thunder on the Beach Powwow and Native American Experience",
+      "city": "Vero Beach",
+      "start_date": "2027-02-19",
+      "end_date": "2027-02-21",
+      "date_text": "2/19-2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/thunderonthebeach",
+      "notes": ""
+    },
+    {
+      "event_name": "West Fest",
+      "city": "Royal Palm Beach",
+      "start_date": "2027-02-19",
+      "end_date": "2027-02-21",
+      "date_text": "2/19-2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.pottcevents.com/rpb-west-fest.html",
+      "notes": ""
+    },
+    {
+      "event_name": "Amber Brooke Farm Strawberry Festival: Mount Dora II",
+      "city": "Mount Dora",
+      "start_date": "2027-02-20",
+      "end_date": "2027-02-21",
+      "date_text": "2/20-2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://amberbrookefarms.com/annual-strawberry-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Bay Area Renaissance Festival II",
+      "city": "Dade City",
+      "start_date": "2027-02-20",
+      "end_date": "2027-02-21",
+      "date_text": "2/20-2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.bayarearenfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Blues-BQ",
+      "city": "Leesburg",
+      "start_date": "2027-02-20",
+      "end_date": "2027-02-20",
+      "date_text": "2/20*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.leesburgflorida.gov/activities/recreation/special_events.php",
+      "notes": ""
+    },
+    {
+      "event_name": "Bonita Brew Fest",
+      "city": "Bonita Springs",
+      "start_date": "2027-02-20",
+      "end_date": "2027-02-20",
+      "date_text": "2/20*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://bonitabrewfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Brevard Renaissance Fair IV",
+      "city": "Melbourne",
+      "start_date": "2027-02-20",
+      "end_date": "2027-02-21",
+      "date_text": "2/20-2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://brevardrenaissancefair.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Brews Around the Zoo",
+      "city": "Sanford",
+      "start_date": "2027-02-20",
+      "end_date": "2027-02-21",
+      "date_text": "2/20-2/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.centralfloridazoo.org/event/brews/",
+      "notes": ""
+    }
+  ]
+}

@@ -1,0 +1,226 @@
+{
+  "batch": 26,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Drive Thru Light Show IV",
+      "city": "West Palm Beach",
+      "start_date": "2026-12-11",
+      "end_date": "2026-12-13",
+      "date_text": "12/11-12/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/lights4hope",
+      "notes": ""
+    },
+    {
+      "event_name": "Orlando Korea Festival",
+      "city": "Orlando",
+      "start_date": "2026-12-11",
+      "end_date": "2026-12-12",
+      "date_text": "12/11-12/12",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.okccenter.com/korea-festival",
+      "notes": ""
+    },
+    {
+      "event_name": "American German Club Christkindlmarkt",
+      "city": "Lake Worth",
+      "start_date": "2026-12-12",
+      "end_date": "2026-12-13",
+      "date_text": "12/12-12/13",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://americangermanclub.org/signature-events/christkindlmarkt/",
+      "notes": ""
+    },
+    {
+      "event_name": "Boca Raton Fine Art Show III",
+      "city": "Boca Raton",
+      "start_date": "2026-12-12",
+      "end_date": "2026-12-13",
+      "date_text": "12/12-12/13",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://hotworks.org/events-hot-works/",
+      "notes": ""
+    },
+    {
+      "event_name": "Chiefland Christmas Festival",
+      "city": "Chiefland",
+      "start_date": "2026-12-12",
+      "end_date": "2026-12-12",
+      "date_text": "12/12*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.chieflandchamber.com/events.php",
+      "notes": ""
+    },
+    {
+      "event_name": "Christmas in Sopchoppy",
+      "city": "Sopchoppy",
+      "start_date": "2026-12-12",
+      "end_date": "2026-12-12",
+      "date_text": "12/12",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1318613470120319/",
+      "notes": ""
+    },
+    {
+      "event_name": "iL Mercato Christmas Bazaar",
+      "city": "Port St. Lucie",
+      "start_date": "2026-12-12",
+      "end_date": "2026-12-12",
+      "date_text": "12/12",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/2068938833712948",
+      "notes": ""
+    },
+    {
+      "event_name": "Lake Sumter Landing Arts and Crafts Festival",
+      "city": "The Villages",
+      "start_date": "2026-12-12",
+      "end_date": "2026-12-13",
+      "date_text": "12/12-12/13",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.thevillagesentertainment.com/festivals-and-special-events/lake-sumter-landing-arts-crafts-festival-3/",
+      "notes": ""
+    },
+    {
+      "event_name": "Leesburg Christmas Festival and Parade",
+      "city": "Leesburg",
+      "start_date": "2026-12-12",
+      "end_date": "2026-12-12",
+      "date_text": "12/12",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1675862620315899/",
+      "notes": ""
+    },
+    {
+      "event_name": "Milton’s Holiday Market",
+      "city": "Milton",
+      "start_date": "2026-12-12",
+      "end_date": "2026-12-12",
+      "date_text": "12/12",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://apexshowsandevents.com/12%2F12-milton-holiday",
+      "notes": ""
+    },
+    {
+      "event_name": "Mistletoe Market",
+      "city": "Bartow",
+      "start_date": "2026-12-12",
+      "end_date": "2026-12-12",
+      "date_text": "12/12",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://mainstreetbartowfl.com/event-calendar",
+      "notes": ""
+    },
+    {
+      "event_name": "Okeechobee Main Street Christmas Festival",
+      "city": "Okeechobee",
+      "start_date": "2026-12-12",
+      "end_date": "2026-12-12",
+      "date_text": "12/12",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://okeechobeemainstreet.org/christmas-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Treasure Coast Wine and Ale Trail Festival",
+      "city": "Fort Pierce",
+      "start_date": "2026-12-12",
+      "end_date": "2026-12-12",
+      "date_text": "12/12*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.bigtickets.com/events/summer-crush-vineyard-and-winery/12132025/",
+      "notes": ""
+    },
+    {
+      "event_name": "A Taste of Chanukah",
+      "city": "Sarasota",
+      "start_date": "2026-12-13",
+      "end_date": "2026-12-13",
+      "date_text": "12/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.atasteofchanukah.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Sanford Food Truck Fiesta XII",
+      "city": "Sanford",
+      "start_date": "2026-12-13",
+      "end_date": "2026-12-13",
+      "date_text": "12/13",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://sanfordfl.gov/events/2025-sanford-food-truck-fiesta/?occurrence=2026-12-13&time=1797166800",
+      "notes": ""
+    },
+    {
+      "event_name": "Dazzling Nights Orlando IV",
+      "city": "Orlando",
+      "start_date": "2026-12-14",
+      "end_date": "2026-12-20",
+      "date_text": "12/14-12/20*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.dazzlingorlando.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Drive Thru Light Show V",
+      "city": "West Palm Beach",
+      "start_date": "2026-12-14",
+      "end_date": "2026-12-20",
+      "date_text": "12/14-12/20*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/lights4hope",
+      "notes": ""
+    },
+    {
+      "event_name": "Edison and Ford Holiday Nights Celebration IV",
+      "city": "Fort Myers",
+      "start_date": "2026-12-14",
+      "end_date": "2026-12-20",
+      "date_text": "12/14-12/20*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.edisonfordwinterestates.org/events/annual-historic-holiday-nights-celebration/",
+      "notes": ""
+    },
+    {
+      "event_name": "Enchant Christmas V",
+      "city": "St. Petersburg",
+      "start_date": "2026-12-14",
+      "end_date": "2026-12-20",
+      "date_text": "12/14-12/20",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.enchantchristmas.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Fantasy Lights Festival IV",
+      "city": "Palm Coast",
+      "start_date": "2026-12-14",
+      "end_date": "2026-12-20",
+      "date_text": "12/14-12/20*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.flaglerrotary.org/",
+      "notes": ""
+    }
+  ]
+}

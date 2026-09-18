@@ -1,0 +1,226 @@
+{
+  "batch": 48,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Kanapaha Botanical Gardens Spring Garden Festival",
+      "city": "Gainesville",
+      "start_date": "2027-03-20",
+      "end_date": "2027-03-21",
+      "date_text": "3/20-3/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1177297584326542",
+      "notes": ""
+    },
+    {
+      "event_name": "Key Largo Seafood Music and Art Festival",
+      "city": "Key Largo",
+      "start_date": "2027-03-20",
+      "end_date": "2027-03-21",
+      "date_text": "3/20-3/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.festivalandevent.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Kowtown Festival",
+      "city": "Kissimmee",
+      "start_date": "2027-03-20",
+      "end_date": "2027-03-20",
+      "date_text": "3/20*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.kissimmee.gov/Parks-Recreation-Events/Events-Festivals/Kowtown-Festival",
+      "notes": ""
+    },
+    {
+      "event_name": "Lake Helen Strawberry Fest",
+      "city": "Lake Helen",
+      "start_date": "2027-03-20",
+      "end_date": "2027-03-21",
+      "date_text": "3/20-3/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.lakehelenfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Naples Downtown Art Fair",
+      "city": "Naples",
+      "start_date": "2027-03-20",
+      "end_date": "2027-03-21",
+      "date_text": "3/20-3/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1105401444808463",
+      "notes": ""
+    },
+    {
+      "event_name": "Orange-A-Fair",
+      "city": "Citra",
+      "start_date": "2027-03-20",
+      "end_date": "2027-03-20",
+      "date_text": "3/20",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.citraimprovementsociety.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Panacea Beer and Oyster Festival",
+      "city": "Panacea",
+      "start_date": "2027-03-20",
+      "end_date": "2027-03-20",
+      "date_text": "3/20*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.visitpanacea.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Safety Harbor Bloom N Chalkfest",
+      "city": "Safety Harbor",
+      "start_date": "2027-03-20",
+      "end_date": "2027-03-21",
+      "date_text": "3/20-3/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.bloomnchalkfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Sarasota Fine Art Show II",
+      "city": "Sarasota",
+      "start_date": "2027-03-20",
+      "end_date": "2027-03-21",
+      "date_text": "3/20-3/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://hotworks.org/events-hot-works/",
+      "notes": ""
+    },
+    {
+      "event_name": "Sebastian ShrimpFest",
+      "city": "Sebastian",
+      "start_date": "2027-03-20",
+      "end_date": "2027-03-21",
+      "date_text": "3/20-3/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://shrimpfestfl.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Small Town Boots and Brews Country Music Festival",
+      "city": "Englewood",
+      "start_date": "2027-03-20",
+      "end_date": "2027-03-20",
+      "date_text": "3/20*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://englewoodfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "St. Augustine Lions Seafood Festival",
+      "city": "St. Augustine",
+      "start_date": "2027-03-20",
+      "end_date": "2027-03-21",
+      "date_text": "3/20-3/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/staugustinelionsfestival",
+      "notes": ""
+    },
+    {
+      "event_name": "The Miami Seafood Festival",
+      "city": "Homestead",
+      "start_date": "2027-03-20",
+      "end_date": "2027-03-21",
+      "date_text": "3/20-3/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.miamidade.gov/fruitandspicepark/eventDetail.page?id=307",
+      "notes": ""
+    },
+    {
+      "event_name": "Chasco Fiesta II",
+      "city": "New Port Richey",
+      "start_date": "2027-03-22",
+      "end_date": "2027-03-27",
+      "date_text": "3/22-3/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://chascofiesta.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "EMS Spring Bluegrass Fest",
+      "city": "Brooksville",
+      "start_date": "2027-03-25",
+      "end_date": "2027-03-27",
+      "date_text": "3/25-3/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://evansmediasource.com/events/2026-spring-bluegrass-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "FIHA Powwow",
+      "city": "Fort Pierce",
+      "start_date": "2027-03-26",
+      "end_date": "2027-03-28",
+      "date_text": "3/26-3/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/FIHApowwow",
+      "notes": ""
+    },
+    {
+      "event_name": "Pier 60 Sugar Sand Festival I",
+      "city": "Clearwater",
+      "start_date": "2027-03-26",
+      "end_date": "2027-03-28",
+      "date_text": "3/26-3/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.sugarsandfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Sarasota Reggae and Food Festival",
+      "city": "Sarasota",
+      "start_date": "2027-03-26",
+      "end_date": "2027-03-28",
+      "date_text": "3/26-3/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.paragonfestivals.com/festival/sarasota-reggae-and-food-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Springtime Tallahassee",
+      "city": "Tallahassee",
+      "start_date": "2027-03-26",
+      "end_date": "2027-03-27",
+      "date_text": "3/26-3/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.springtimetallahassee.com/kleman-plaza-music-festival-with-beer-garden/",
+      "notes": ""
+    },
+    {
+      "event_name": "Sunnyland Antique Boat Festival",
+      "city": "Tavares",
+      "start_date": "2027-03-26",
+      "end_date": "2027-03-28",
+      "date_text": "3/26-3/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://acbs-sunnyland.org/show-attendees/",
+      "notes": ""
+    }
+  ]
+}

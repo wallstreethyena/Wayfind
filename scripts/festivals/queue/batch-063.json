@@ -1,0 +1,226 @@
+{
+  "batch": 63,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Juneteenth Arts Festival",
+      "city": "Sarasota",
+      "start_date": "2027-06-19",
+      "end_date": "2027-06-19",
+      "date_text": "6/19*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://westcoastblacktheatre.org/performances/juneteenth-arts-festival",
+      "notes": ""
+    },
+    {
+      "event_name": "Midsummer Fair",
+      "city": "Fort Walton Beach",
+      "start_date": "2027-06-19",
+      "end_date": "2027-06-19",
+      "date_text": "6/19*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/2968308300041351",
+      "notes": ""
+    },
+    {
+      "event_name": "Mount Dora Juneteenth Festival",
+      "city": "Mount Dora",
+      "start_date": "2027-06-19",
+      "end_date": "2027-06-19",
+      "date_text": "6/19*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://mountdora.gov/Calendar.aspx?EID=18591&month=3&year=2026&day=6&calType=0",
+      "notes": ""
+    },
+    {
+      "event_name": "Redland Summer Fruit Festival",
+      "city": "Homestead",
+      "start_date": "2027-06-19",
+      "end_date": "2027-06-20",
+      "date_text": "6/19-6/20*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.miamidade.gov/fruitandspicepark/eventDetail.page?id=270",
+      "notes": ""
+    },
+    {
+      "event_name": "Stonewall Pride Parade and Street Festival",
+      "city": "Wilton Manors",
+      "start_date": "2027-06-19",
+      "end_date": "2027-06-19",
+      "date_text": "6/19*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.stonewallpride.lgbt/",
+      "notes": ""
+    },
+    {
+      "event_name": "Tamarac Juneteenth Block Party",
+      "city": "Tamarac",
+      "start_date": "2027-06-19",
+      "end_date": "2027-06-19",
+      "date_text": "6/19*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.tamarac.org/SpecialEvents",
+      "notes": ""
+    },
+    {
+      "event_name": "Tampa Bay Juneteenth Festival",
+      "city": "Tampa",
+      "start_date": "2027-06-19",
+      "end_date": "2027-06-19",
+      "date_text": "6/19*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.eventbrite.com/e/tampa-bay-juneteenth-festival-tickets-1468296256629?aff=ebdsoporgprofile",
+      "notes": ""
+    },
+    {
+      "event_name": "The Central Florida Juneteenth Celebration",
+      "city": "Maitland",
+      "start_date": "2027-06-19",
+      "end_date": "2027-06-19",
+      "date_text": "6/19*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://letscelebratejuneteenth.com",
+      "notes": ""
+    },
+    {
+      "event_name": "Winter Haven Juneteenth Celebration",
+      "city": "Winter Haven",
+      "start_date": "2027-06-19",
+      "end_date": "2027-06-19",
+      "date_text": "6/19*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/2127452774737322",
+      "notes": ""
+    },
+    {
+      "event_name": "Juneteenth: Unity x Black Excellence Festival",
+      "city": "West Palm Beach",
+      "start_date": "2027-06-20",
+      "end_date": "2027-06-20",
+      "date_text": "6/20*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/JuneteenthPBC",
+      "notes": ""
+    },
+    {
+      "event_name": "Mega Night Market: Asian Summer Night Market",
+      "city": "St. Petersburg",
+      "start_date": "2027-06-25",
+      "end_date": "2027-06-27",
+      "date_text": "6/25-6/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/4290446451270176/",
+      "notes": ""
+    },
+    {
+      "event_name": "Panhandle Watermelon Festival",
+      "city": "Chipley",
+      "start_date": "2027-06-25",
+      "end_date": "2027-06-26",
+      "date_text": "6/25-6/26*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.panhandlewatermelon.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Florida Mango Festival",
+      "city": "West Palm Beach",
+      "start_date": "2027-06-26",
+      "end_date": "2027-06-26",
+      "date_text": "6/26*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://floridamangofestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Groove Fest",
+      "city": "Panama City",
+      "start_date": "2027-06-26",
+      "end_date": "2027-06-26",
+      "date_text": "6/26*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/profile.php?id=61556399979615",
+      "notes": ""
+    },
+    {
+      "event_name": "Keel Farms Tampa Bay Watermelon Weekend",
+      "city": "Plant City",
+      "start_date": "2027-06-26",
+      "end_date": "2027-06-27",
+      "date_text": "6/26-6/27*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.keelfarms.com/festivals",
+      "notes": ""
+    },
+    {
+      "event_name": "Largo Evening Market IV",
+      "city": "Largo",
+      "start_date": "2027-06-26",
+      "end_date": "2027-06-26",
+      "date_text": "6/26*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.playlargo.com/special_events_detail_T40_R81.php",
+      "notes": ""
+    },
+    {
+      "event_name": "Mac and Cheese Showdown",
+      "city": "Fort Myers",
+      "start_date": "2027-06-26",
+      "end_date": "2027-06-26",
+      "date_text": "6/26*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/2661569220850436/",
+      "notes": ""
+    },
+    {
+      "event_name": "Mango Fest",
+      "city": "Key West",
+      "start_date": "2027-06-26",
+      "end_date": "2027-06-26",
+      "date_text": "6/26*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://mangofestkeywest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Rock, Freedom and Fireworks",
+      "city": "Longwood",
+      "start_date": "2027-06-26",
+      "end_date": "2027-06-26",
+      "date_text": "6/26*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.longwoodfl.org/Calendar.aspx?EID=4571&month=12&year=2025&day=17&calType=0",
+      "notes": ""
+    },
+    {
+      "event_name": "St. Pete Pride Parade and Festival",
+      "city": "St. Petersburg",
+      "start_date": "2027-06-26",
+      "end_date": "2027-06-26",
+      "date_text": "6/26*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.stpetepride.org/2026-events",
+      "notes": ""
+    }
+  ]
+}

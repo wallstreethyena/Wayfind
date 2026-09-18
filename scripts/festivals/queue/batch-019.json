@@ -1,0 +1,226 @@
+{
+  "batch": 19,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "St. Pete Beach BikeFest",
+      "city": "St. Pete Beach",
+      "start_date": "2026-11-19",
+      "end_date": "2026-11-22",
+      "date_text": "11/19-11/22",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.stpetebeachbikefest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "The Central Florida Zoo and Botanical Gardens Asian Lantern Festival II",
+      "city": "Sanford",
+      "start_date": "2026-11-19",
+      "end_date": "2026-11-22",
+      "date_text": "11/19-11/22*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.centralfloridazoo.org/lanterns/",
+      "notes": ""
+    },
+    {
+      "event_name": "Cornucopia Music Fest",
+      "city": "Brooksville",
+      "start_date": "2026-11-20",
+      "end_date": "2026-11-22",
+      "date_text": "11/20-11/22",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://evansmediasource.com/events/cornucopia-music-fest/",
+      "notes": ""
+    },
+    {
+      "event_name": "Drive Thru Light Show I",
+      "city": "West Palm Beach",
+      "start_date": "2026-11-20",
+      "end_date": "2026-11-22",
+      "date_text": "11/20-11/22*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/lights4hope",
+      "notes": ""
+    },
+    {
+      "event_name": "Enchant Christmas I",
+      "city": "St. Petersburg",
+      "start_date": "2026-11-20",
+      "end_date": "2026-11-22",
+      "date_text": "11/20-11/22",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.enchantchristmas.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Magic of Lights at Daytona International Speedway I",
+      "city": "Daytona Beach",
+      "start_date": "2026-11-20",
+      "end_date": "2026-11-22",
+      "date_text": "11/20-11/22*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://magicoflights.com/events/daytona/",
+      "notes": ""
+    },
+    {
+      "event_name": "Tampa Villain Arts Tattoo Festival",
+      "city": "Tampa",
+      "start_date": "2026-11-20",
+      "end_date": "2026-11-22",
+      "date_text": "11/20-11/22",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://villainarts.com/shows/tampa-fl/",
+      "notes": ""
+    },
+    {
+      "event_name": "Asian Food Music and Cultural Festival",
+      "city": "Kissimmee",
+      "start_date": "2026-11-21",
+      "end_date": "2026-11-22",
+      "date_text": "11/21-11/22*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://asiatrend.org/event/6th-annual-asian-food-music-and-cultural-festival-orlando/",
+      "notes": ""
+    },
+    {
+      "event_name": "Autumn Garden Festival",
+      "city": "Fort Myers",
+      "start_date": "2026-11-21",
+      "end_date": "2026-11-22",
+      "date_text": "11/21-11/22",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.edisonfordwinterestates.org/events/garden-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Baker Heritage Day Festival",
+      "city": "Baker",
+      "start_date": "2026-11-21",
+      "end_date": "2026-11-21",
+      "date_text": "11/21",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/BakerBlockMuseum",
+      "notes": ""
+    },
+    {
+      "event_name": "Boca Raton Wine and Food Festival",
+      "city": "Boca Raton",
+      "start_date": "2026-11-21",
+      "end_date": "2026-11-21",
+      "date_text": "11/21",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/BocaRatonWineandFoodFestival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Bradley’s Country Store Old Fashioned Fun Day",
+      "city": "Tallahassee",
+      "start_date": "2026-11-21",
+      "end_date": "2026-11-21",
+      "date_text": "11/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.bradleysfunday.com/event-details/54th-annual-fun-day",
+      "notes": ""
+    },
+    {
+      "event_name": "Camelot Days Medieval Festival III",
+      "city": "Hollywood",
+      "start_date": "2026-11-21",
+      "end_date": "2026-11-22",
+      "date_text": "11/21-11/22*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://camelotdays.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Creek Festival",
+      "city": "Milton",
+      "start_date": "2026-11-21",
+      "end_date": "2026-11-22",
+      "date_text": "11/21-11/22",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/santarosacreekband",
+      "notes": ""
+    },
+    {
+      "event_name": "DeLand Fall Festival of the Arts",
+      "city": "DeLand",
+      "start_date": "2026-11-21",
+      "end_date": "2026-11-22",
+      "date_text": "11/21-11/22",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://fallfestivaloftheartsdeland.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Dunedin Celtic Music",
+      "city": "Dunedin",
+      "start_date": "2026-11-21",
+      "end_date": "2026-11-21",
+      "date_text": "11/21",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.dunedincelticmusicfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Fall Festival at Amber Brooke Farms X",
+      "city": "Williston",
+      "start_date": "2026-11-21",
+      "end_date": "2026-11-22",
+      "date_text": "11/21-11/22",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://amberbrookefarms.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Florida Tiny House Festival",
+      "city": "Palm Coast",
+      "start_date": "2026-11-21",
+      "end_date": "2026-11-22",
+      "date_text": "11/21-11/22*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/unitedtinyhouse",
+      "notes": ""
+    },
+    {
+      "event_name": "Fort Lauderdale Water Lantern Festival",
+      "city": "Fort Lauderdale",
+      "start_date": "2026-11-21",
+      "end_date": "2026-11-21",
+      "date_text": "11/21*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/2607875019561935",
+      "notes": ""
+    },
+    {
+      "event_name": "Goldenfest",
+      "city": "Fort Myers",
+      "start_date": "2026-11-21",
+      "end_date": "2026-11-21",
+      "date_text": "11/21",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://grrswf.org/goldenfest",
+      "notes": ""
+    }
+  ]
+}

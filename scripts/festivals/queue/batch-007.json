@@ -1,0 +1,226 @@
+{
+  "batch": 7,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Camping with the Blues",
+      "city": "Brooksville",
+      "start_date": "2026-10-16",
+      "end_date": "2026-10-18",
+      "date_text": "10/16-10/18",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.campingwiththeblues.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Cape Coral Oktoberfest I",
+      "city": "Cape Coral",
+      "start_date": "2026-10-16",
+      "end_date": "2026-10-18",
+      "date_text": "10/16-10/18",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.capecoraloktoberfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Celebration Rocktoberfest",
+      "city": "Celebration",
+      "start_date": "2026-10-16",
+      "end_date": "2026-10-17",
+      "date_text": "10/16-10/17",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://celebrationtowncenter.com/upcoming-events/",
+      "notes": ""
+    },
+    {
+      "event_name": "Fall Festival at Amber Brooke Farms V",
+      "city": "Williston",
+      "start_date": "2026-10-16",
+      "end_date": "2026-10-18",
+      "date_text": "10/16-10/18",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://amberbrookefarms.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Fantasy Fest I",
+      "city": "Key West",
+      "start_date": "2026-10-16",
+      "end_date": "2026-10-18",
+      "date_text": "10/16-10/18",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.fantasyfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "III Points",
+      "city": "Miami",
+      "start_date": "2026-10-16",
+      "end_date": "2026-10-17",
+      "date_text": "10/16-10/17",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.miamiandbeaches.com/event/iii-points-festival/11099",
+      "notes": ""
+    },
+    {
+      "event_name": "Key West Goombay Festival",
+      "city": "Key West",
+      "start_date": "2026-10-16",
+      "end_date": "2026-10-17",
+      "date_text": "10/16-10/17",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/keywestgoombay2018/",
+      "notes": ""
+    },
+    {
+      "event_name": "Oktoberfest Miami II",
+      "city": "Miami",
+      "start_date": "2026-10-16",
+      "end_date": "2026-10-18",
+      "date_text": "10/16-10/18",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.eventbrite.com/e/oktoberfest-miami-2026-the-biggest-german-beer-festival-tickets-1994591970276",
+      "notes": ""
+    },
+    {
+      "event_name": "Oktoberfest of the Palm Beaches II",
+      "city": "Lake Worth Beach",
+      "start_date": "2026-10-16",
+      "end_date": "2026-10-18",
+      "date_text": "10/16-10/18",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://americangermanclub.org/signature-events/oktoberfest/",
+      "notes": ""
+    },
+    {
+      "event_name": "Panama City Beach Oktoberfest",
+      "city": "Panama City Beach",
+      "start_date": "2026-10-16",
+      "end_date": "2026-10-18",
+      "date_text": "10/16-10/18",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://pcboktoberfest.com",
+      "notes": ""
+    },
+    {
+      "event_name": "Pinoy OktoberFest",
+      "city": "Orlando",
+      "start_date": "2026-10-16",
+      "end_date": "2026-10-17",
+      "date_text": "10/16-10/17*",
+      "source_says_unconfirmed": true,
+      "lead_status": "needs_verification",
+      "organizer_url_hint": "https://asiatrend.org/event/pinoy-oktoberfest-in-orlando/",
+      "notes": "?"
+    },
+    {
+      "event_name": "Raprager Family Farm’s Fall Festival V",
+      "city": "Odessa",
+      "start_date": "2026-10-16",
+      "end_date": "2026-10-18",
+      "date_text": "10/16-10/18",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://rapragerfarm.com/fall-festival",
+      "notes": ""
+    },
+    {
+      "event_name": "Saints Markella and Demetrios Greek Festival",
+      "city": "Mary Esther",
+      "start_date": "2026-10-16",
+      "end_date": "2026-10-18",
+      "date_text": "10/16-10/18",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.greekfestfwb.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Upper Tampa Bay Oktoberfest",
+      "city": "Tampa",
+      "start_date": "2026-10-16",
+      "end_date": "2026-10-18",
+      "date_text": "10/16-10/18",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://business.utbchamber.com/community-calendar/Details/upper-tampa-bay-oktoberfest-2026-1728396?sourceTypeId=Hub",
+      "notes": ""
+    },
+    {
+      "event_name": "Vintage Market Days of Metro Tampa",
+      "city": "Plant City",
+      "start_date": "2026-10-16",
+      "end_date": "2026-10-18",
+      "date_text": "10/16-10/18",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://vintagemarketdays.com/market/metro-tampa/",
+      "notes": ""
+    },
+    {
+      "event_name": "BBQ from the Hart",
+      "city": "Bell",
+      "start_date": "2026-10-17",
+      "end_date": "2026-10-17",
+      "date_text": "10/17",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://bbqfromthehart.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Bedner’s Fall Festival IV",
+      "city": "Boynton Beach",
+      "start_date": "2026-10-17",
+      "end_date": "2026-10-18",
+      "date_text": "10/17-10/18",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://bedners.com/fall-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Big Mama’s Collard Greens Fest",
+      "city": "Sarasota",
+      "start_date": "2026-10-17",
+      "end_date": "2026-10-17",
+      "date_text": "10/17",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1304114401476495",
+      "notes": ""
+    },
+    {
+      "event_name": "Bushnell Fall Festival",
+      "city": "Bushnell",
+      "start_date": "2026-10-17",
+      "end_date": "2026-10-17",
+      "date_text": "10/17",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/profile.php?id=100057516375461",
+      "notes": ""
+    },
+    {
+      "event_name": "Cedar Key Seafood Festival",
+      "city": "Cedar Key",
+      "start_date": "2026-10-17",
+      "end_date": "2026-10-17",
+      "date_text": "10/17",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.cedarkey.org/events/",
+      "notes": ""
+    }
+  ]
+}

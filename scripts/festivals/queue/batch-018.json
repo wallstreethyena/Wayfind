@@ -1,0 +1,226 @@
+{
+  "batch": 18,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Port St. Lucie American Little League Fall Festival",
+      "city": "Port St. Lucie",
+      "start_date": "2026-11-14",
+      "end_date": "2026-11-14",
+      "date_text": "11/14",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1770437563989457",
+      "notes": ""
+    },
+    {
+      "event_name": "Riverwalk International Food Festival",
+      "city": "Fort Lauderdale",
+      "start_date": "2026-11-14",
+      "end_date": "2026-11-14",
+      "date_text": "11/14",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/4338989579694820/",
+      "notes": ""
+    },
+    {
+      "event_name": "Rocky Water Brew Fest",
+      "city": "Melbourne",
+      "start_date": "2026-11-14",
+      "end_date": "2026-11-14",
+      "date_text": "11/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://rockywaterbrewfest.com/event-info/",
+      "notes": ""
+    },
+    {
+      "event_name": "Ruskin Seafood and Arts Festival",
+      "city": "Ruskin",
+      "start_date": "2026-11-14",
+      "end_date": "2026-11-15",
+      "date_text": "11/14-11/15",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/profile.php?id=100094433539012",
+      "notes": ""
+    },
+    {
+      "event_name": "Sarasota Medieval Fair II",
+      "city": "Myakka City",
+      "start_date": "2026-11-14",
+      "end_date": "2026-11-15",
+      "date_text": "11/14-11/15",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.sarasotamedievalfair.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Southwest Florida Pickle Festival",
+      "city": "North Fort Myers",
+      "start_date": "2026-11-14",
+      "end_date": "2026-11-14",
+      "date_text": "11/14",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1714196689606204/",
+      "notes": ""
+    },
+    {
+      "event_name": "Temple Terrace Arts and Crafts Festival",
+      "city": "Tampa",
+      "start_date": "2026-11-14",
+      "end_date": "2026-11-15",
+      "date_text": "11/14-11/15",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.templeterraceartscouncil.org/arts-crafts-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "The Downtown Festival and Art Show",
+      "city": "Gainesville",
+      "start_date": "2026-11-14",
+      "end_date": "2026-11-15",
+      "date_text": "11/14-11/15",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.gainesvilledowntownartfest.net/",
+      "notes": ""
+    },
+    {
+      "event_name": "USA Today Wine and Food Festival: Naples",
+      "city": "Naples",
+      "start_date": "2026-11-14",
+      "end_date": "2026-11-14",
+      "date_text": "11/14",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://wineandfood.usatoday.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Viva Brevard Festival",
+      "city": "Palm Bay",
+      "start_date": "2026-11-14",
+      "end_date": "2026-11-14",
+      "date_text": "11/14",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/vivabrevard/",
+      "notes": ""
+    },
+    {
+      "event_name": "Winter Park Autumn Art Festival",
+      "city": "Winter Park",
+      "start_date": "2026-11-14",
+      "end_date": "2026-11-15",
+      "date_text": "11/14-11/15",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.winterpark.org/aaf-home-page/",
+      "notes": ""
+    },
+    {
+      "event_name": "Alachua Main Street Harvest Festival",
+      "city": "Alachua",
+      "start_date": "2026-11-15",
+      "end_date": "2026-11-15",
+      "date_text": "11/15",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://alachuabusiness.com/event/alachua-main-street-harvest-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Miami Book Fair I",
+      "city": "Miami",
+      "start_date": "2026-11-15",
+      "end_date": "2026-11-15",
+      "date_text": "11/15",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.miamibookfair.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Miami Food Festival",
+      "city": "Miami",
+      "start_date": "2026-11-15",
+      "end_date": "2026-11-15",
+      "date_text": "11/15",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/822134564178029",
+      "notes": ""
+    },
+    {
+      "event_name": "Miami Book Fair II",
+      "city": "Miami",
+      "start_date": "2026-11-16",
+      "end_date": "2026-11-22",
+      "date_text": "11/16-11/22",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.miamibookfair.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Orlando Museum of Art’s Festival of Trees II",
+      "city": "Orlando",
+      "start_date": "2026-11-16",
+      "end_date": "2026-11-22",
+      "date_text": "11/16-11/22",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://councilof101.org/pages/festival-of-trees-orlando",
+      "notes": ""
+    },
+    {
+      "event_name": "Taste of the Island",
+      "city": "Wilton Manors",
+      "start_date": "2026-11-16",
+      "end_date": "2026-11-16",
+      "date_text": "11/16*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/tasteoftheisland",
+      "notes": ""
+    },
+    {
+      "event_name": "American Sand Sculpting Championship",
+      "city": "Fort Myers Beach",
+      "start_date": "2026-11-19",
+      "end_date": "2026-11-22",
+      "date_text": "11/19-11/22",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/AmericanSandSculpting/",
+      "notes": ""
+    },
+    {
+      "event_name": "Night Garden III",
+      "city": "Coral Gables",
+      "start_date": "2026-11-19",
+      "end_date": "2026-11-22",
+      "date_text": "11/19-11/22*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://thenightgarden.co/miami/",
+      "notes": ""
+    },
+    {
+      "event_name": "Novemberfest",
+      "city": "Brandon",
+      "start_date": "2026-11-19",
+      "end_date": "2026-11-22",
+      "date_text": "11/19-11/22",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://events.dudesolutions.com/nativitycatholicchurch/event/novemberfest-4/",
+      "notes": ""
+    }
+  ]
+}

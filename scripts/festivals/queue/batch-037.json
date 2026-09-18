@@ -1,0 +1,226 @@
+{
+  "batch": 37,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Jane Austen Fest",
+      "city": "Mount Dora",
+      "start_date": "2027-02-12",
+      "end_date": "2027-02-14",
+      "date_text": "2/12-2/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://janeaustenfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Millennial Asian Street Food Festival",
+      "city": "Fort Myers",
+      "start_date": "2027-02-12",
+      "end_date": "2027-02-12",
+      "date_text": "2/12*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/3176785355853787/",
+      "notes": ""
+    },
+    {
+      "event_name": "Olustee Festival",
+      "city": "Lake City",
+      "start_date": "2027-02-12",
+      "end_date": "2027-02-13",
+      "date_text": "2/12-2/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://olusteefestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Port St. Lucie Taste of Little Italy Italian Festival",
+      "city": "Port St. Lucie",
+      "start_date": "2027-02-12",
+      "end_date": "2027-02-14",
+      "date_text": "2/12-2/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/thetasteoflittleitaly/",
+      "notes": ""
+    },
+    {
+      "event_name": "Reenactment of the Battle of Olustee",
+      "city": "Lake City",
+      "start_date": "2027-02-12",
+      "end_date": "2027-02-14",
+      "date_text": "2/12-2/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://battleofolustee.org/reenactment.html",
+      "notes": ""
+    },
+    {
+      "event_name": "St. Catherine’s Greek Festival",
+      "city": "West Palm Beach",
+      "start_date": "2027-02-12",
+      "end_date": "2027-02-14",
+      "date_text": "2/12-2/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://greekfestwpb.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "St. Pete’s Super Greek Festival",
+      "city": "St. Petersburg",
+      "start_date": "2027-02-12",
+      "end_date": "2027-02-14",
+      "date_text": "2/12-2/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/830167543261436",
+      "notes": ""
+    },
+    {
+      "event_name": "St. Sophia Greek Festival",
+      "city": "Winter Haven",
+      "start_date": "2027-02-12",
+      "end_date": "2027-02-14",
+      "date_text": "2/12-2/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/StSophiaWinterHaven",
+      "notes": ""
+    },
+    {
+      "event_name": "Steinhatchee Fiddler Crab Festival",
+      "city": "Steinhatchee",
+      "start_date": "2027-02-12",
+      "end_date": "2027-02-14",
+      "date_text": "2/12-2/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://steinhatcheechamber.com/fiddler-crab-festival",
+      "notes": ""
+    },
+    {
+      "event_name": "Tampa Beer, Bourbon and BBQ Festival",
+      "city": "Tampa",
+      "start_date": "2027-02-12",
+      "end_date": "2027-02-13",
+      "date_text": "2/12-2/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://tampa.beerandbourbon.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Winefest",
+      "city": "Clemont",
+      "start_date": "2027-02-12",
+      "end_date": "2027-02-14",
+      "date_text": "2/12-2/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/s/winefest-xxxi/2032591794251157/",
+      "notes": ""
+    },
+    {
+      "event_name": "321: Food Fest and Craft Fair",
+      "city": "Melbourne",
+      "start_date": "2027-02-13",
+      "end_date": "2027-02-14",
+      "date_text": "2/13-2/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.321foodfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Amber Brooke Farm Strawberry Festival: Mount Dora I",
+      "city": "Mount Dora",
+      "start_date": "2027-02-13",
+      "end_date": "2027-02-14",
+      "date_text": "2/13-2/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://amberbrookefarms.com/annual-strawberry-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Art in the Park",
+      "city": "Moore Haven",
+      "start_date": "2027-02-13",
+      "end_date": "2027-02-13",
+      "date_text": "2/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/Art-In-the-Park-Moore-Haven-1480830795557628/",
+      "notes": ""
+    },
+    {
+      "event_name": "Artigras Fine Arts Festival",
+      "city": "Jupiter",
+      "start_date": "2027-02-13",
+      "end_date": "2027-02-14",
+      "date_text": "2/13-2/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.artigras.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Bacon and Bourbon Fest",
+      "city": "Wellington",
+      "start_date": "2027-02-13",
+      "end_date": "2027-02-14",
+      "date_text": "2/13-2/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://baconbourbonfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Bay Area Renaissance Festival I",
+      "city": "Dade City",
+      "start_date": "2027-02-13",
+      "end_date": "2027-02-14",
+      "date_text": "2/13-2/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.bayarearenfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Blues, Brews and BBQ Festival",
+      "city": "Ave Maria",
+      "start_date": "2027-02-13",
+      "end_date": "2027-02-13",
+      "date_text": "2/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1539052730589795/",
+      "notes": ""
+    },
+    {
+      "event_name": "Brevard Renaissance Fair III",
+      "city": "Melbourne",
+      "start_date": "2027-02-13",
+      "end_date": "2027-02-14",
+      "date_text": "2/13-2/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://brevardrenaissancefair.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Coconut Grove Arts Festival",
+      "city": "Miami",
+      "start_date": "2027-02-13",
+      "end_date": "2027-02-15",
+      "date_text": "2/13-2/15*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.miamiandbeaches.com/event/coconut-grove-arts-festival/58",
+      "notes": ""
+    }
+  ]
+}

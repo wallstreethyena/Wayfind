@@ -1,0 +1,226 @@
+{
+  "batch": 11,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Orlando’s Original Oktoberfest II",
+      "city": "Casselberry",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-24",
+      "date_text": "10/24",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.orlandogermanclub.com/events/",
+      "notes": ""
+    },
+    {
+      "event_name": "Palm Bay Fall Fest",
+      "city": "Palm Bay",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-24",
+      "date_text": "10/24",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.palmbayfl.gov/Home/Components/Calendar/Event/18565/19?curm=10&cury=2025",
+      "notes": ""
+    },
+    {
+      "event_name": "Palm Beach Gardens Fall Festival",
+      "city": "Palm Beach Gardens",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-24",
+      "date_text": "10/24",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.pbgfl.com/743/Fall-Festival",
+      "notes": ""
+    },
+    {
+      "event_name": "Pioneer Heritage Day",
+      "city": "Plant City",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-24",
+      "date_text": "10/24",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1914-plant-city-high-school-community-center-605-n-collins-st-plant-city-fl-unit/49th-annual-pioneer-day-plant-city/1785684302782885/",
+      "notes": ""
+    },
+    {
+      "event_name": "Pioneers and Beers",
+      "city": "Dade City",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-24",
+      "date_text": "10/24",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1336416895117165",
+      "notes": ""
+    },
+    {
+      "event_name": "Puerto Rican Day Parade and Multicultural Festival",
+      "city": "Palm Bay",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-24",
+      "date_text": "10/24",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/UTBUnitedThirdBridgeInc",
+      "notes": ""
+    },
+    {
+      "event_name": "Romanian Fall Festival",
+      "city": "Jacksonville",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-25",
+      "date_text": "10/24-10/25",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/photo/?fbid=2197434047852178&set=a.117794255816178",
+      "notes": ""
+    },
+    {
+      "event_name": "St. Marks Crafts and Drafts Brewfest",
+      "city": "St. Marks",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-24",
+      "date_text": "10/24",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/profile.php?id=100090818422416",
+      "notes": ""
+    },
+    {
+      "event_name": "St. Mary Fall Festival",
+      "city": "Rockledge",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-24",
+      "date_text": "10/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/StMarySchoolRockledge",
+      "notes": ""
+    },
+    {
+      "event_name": "Wesley Chapel Fall Festival",
+      "city": "Lutz",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-25",
+      "date_text": "10/24-10/25",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://floridapenguinproductions.com/upcoming-events-list",
+      "notes": ""
+    },
+    {
+      "event_name": "Fiesta Calle Orange",
+      "city": "Orlando",
+      "start_date": "2026-10-25",
+      "end_date": "2026-10-25",
+      "date_text": "10/25",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/profile.php?id=61559042842102",
+      "notes": ""
+    },
+    {
+      "event_name": "Hometown Halloween",
+      "city": "The Villages",
+      "start_date": "2026-10-25",
+      "end_date": "2026-10-25",
+      "date_text": "10/25*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/4214200935465054/?acontext=%7B%22action_history%22%3A%22null%22%7D&ref_source=newsfeed&ref_mechanism=feed_attachment&_rdr",
+      "notes": ""
+    },
+    {
+      "event_name": "Foo Foo Festival I",
+      "city": "Pensacola",
+      "start_date": "2026-10-29",
+      "end_date": "2026-11-01",
+      "date_text": "10/29-11/1",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.foofoofest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Sarasota Fall Festival and Carnival at The Mall at UTC",
+      "city": "Sarasota",
+      "start_date": "2026-10-29",
+      "end_date": "2026-11-01",
+      "date_text": "10/29-11/1",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1047552924852140",
+      "notes": ""
+    },
+    {
+      "event_name": "Cedar Key Pirate Invasion",
+      "city": "Cedar Key",
+      "start_date": "2026-10-30",
+      "end_date": "2026-11-01",
+      "date_text": "10/30-11/1",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/CedarKeyPirateInvasion/",
+      "notes": ""
+    },
+    {
+      "event_name": "Fall Festival at Amber Brooke Farms VII",
+      "city": "Williston",
+      "start_date": "2026-10-30",
+      "end_date": "2026-11-01",
+      "date_text": "10/30-11/1",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://amberbrookefarms.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Haunted Fest",
+      "city": "St. Petersburg",
+      "start_date": "2026-10-30",
+      "end_date": "2026-10-31",
+      "date_text": "10/30-10/31",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.breakawayfestival.com/haunted-fest-2026",
+      "notes": ""
+    },
+    {
+      "event_name": "Bedner’s Fall Festival VI",
+      "city": "Boynton Beach",
+      "start_date": "2026-10-31",
+      "end_date": "2026-11-01",
+      "date_text": "10/31-11/1",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://bedners.com/fall-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Boynton Beach Pirate Fest",
+      "city": "Boynton Beach",
+      "start_date": "2026-10-31",
+      "end_date": "2026-11-01",
+      "date_text": "10/31-11/1",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.boynton-beach.org/657/Pirate-Fest",
+      "notes": ""
+    },
+    {
+      "event_name": "Campbellton’s Fall Festival",
+      "city": "Graceville",
+      "start_date": "2026-10-31",
+      "end_date": "2026-10-31",
+      "date_text": "10/31",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1805863914165604/",
+      "notes": ""
+    }
+  ]
+}

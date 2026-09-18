@@ -1,0 +1,226 @@
+{
+  "batch": 45,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Tampa Fine Art Show",
+      "city": "Tampa",
+      "start_date": "2027-03-06",
+      "end_date": "2027-03-07",
+      "date_text": "3/6-3/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://hotworks.org/events-hot-works/",
+      "notes": ""
+    },
+    {
+      "event_name": "Taste of Oviedo",
+      "city": "Oviedo",
+      "start_date": "2027-03-06",
+      "end_date": "2027-03-06",
+      "date_text": "3/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.owsrcc.org/tasteofoviedo",
+      "notes": ""
+    },
+    {
+      "event_name": "The Gulf Coast Renaissance Faire II",
+      "city": "Milton",
+      "start_date": "2027-03-06",
+      "end_date": "2027-03-07",
+      "date_text": "3/6-3/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://gcrf.us/",
+      "notes": ""
+    },
+    {
+      "event_name": "Umatilla Chili and BBQ Cook-off",
+      "city": "Umatilla",
+      "start_date": "2027-03-06",
+      "end_date": "2027-03-06",
+      "date_text": "3/6*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://allevents.in/umatilla/9th-annual-chili-and-bbq-cookoff-throwdown/200027741996748#",
+      "notes": ""
+    },
+    {
+      "event_name": "Honey Bee and Wine Fest at Whispering Oaks Winery",
+      "city": "Oxford",
+      "start_date": "2027-03-07",
+      "end_date": "2027-03-07",
+      "date_text": "3/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/925356276599867",
+      "notes": ""
+    },
+    {
+      "event_name": "Sanford Food Truck Fiesta III",
+      "city": "Sanford",
+      "start_date": "2027-03-07",
+      "end_date": "2027-03-07",
+      "date_text": "3/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://sanfordfl.gov/event-calendar/",
+      "notes": ""
+    },
+    {
+      "event_name": "Spring into Fun Community Event",
+      "city": "Ponte Vedra Beach",
+      "start_date": "2027-03-07",
+      "end_date": "2027-03-07",
+      "date_text": "3/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.eventbrite.com/e/2nd-annual-spring-into-fun-tickets-1138371753559",
+      "notes": ""
+    },
+    {
+      "event_name": "Taste of Punta Gorda",
+      "city": "Punta Gorda",
+      "start_date": "2027-03-07",
+      "end_date": "2027-03-07",
+      "date_text": "3/7",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://tasteofpuntagorda.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Emerald Coast Cruizin’ Car Show: Spring",
+      "city": "Panama City Beach",
+      "start_date": "2027-03-11",
+      "end_date": "2027-03-13",
+      "date_text": "3/11-3/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.eventbrite.com/e/emerald-coast-cruizin-spring-2026-tickets-1967850318275",
+      "notes": ""
+    },
+    {
+      "event_name": "Florideah Swampfest",
+      "city": "Wildwood",
+      "start_date": "2027-03-11",
+      "end_date": "2027-03-13",
+      "date_text": "3/11-3/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.florideahswampfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Reggae Rise Up",
+      "city": "St. Petersburg",
+      "start_date": "2027-03-11",
+      "end_date": "2027-03-14",
+      "date_text": "3/11-3/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://reggaeriseup.com/florida/",
+      "notes": ""
+    },
+    {
+      "event_name": "Clewiston Sugar Festival",
+      "city": "Clewiston",
+      "start_date": "2027-03-12",
+      "end_date": "2027-03-13",
+      "date_text": "3/12-3/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.clewistonsugarfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Crooked Can Celtic Festival",
+      "city": "Winter Garden",
+      "start_date": "2027-03-12",
+      "end_date": "2027-03-14",
+      "date_text": "3/12-3/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.instagram.com/p/DUv1YqnEdfI/",
+      "notes": ""
+    },
+    {
+      "event_name": "Gainesville Guitar Festival",
+      "city": "Gainesville",
+      "start_date": "2027-03-12",
+      "end_date": "2027-03-13",
+      "date_text": "3/12-3/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/853122740453287/",
+      "notes": ""
+    },
+    {
+      "event_name": "Groundup Music Festival",
+      "city": "Miami Beach",
+      "start_date": "2027-03-12",
+      "end_date": "2027-03-14",
+      "date_text": "3/12-3/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/GroundUpFest",
+      "notes": ""
+    },
+    {
+      "event_name": "Manatee County Seafood and Music Festival",
+      "city": "Bradenton",
+      "start_date": "2027-03-12",
+      "end_date": "2027-03-14",
+      "date_text": "3/12-3/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.paragonfestivals.com/festival/manatee-county-seafood-music-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Sarasota County Fair I",
+      "city": "Sarasota",
+      "start_date": "2027-03-12",
+      "end_date": "2027-03-14",
+      "date_text": "3/12-3/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.sarasotafair.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Shamrockin’ Fest",
+      "city": "Leesburg",
+      "start_date": "2027-03-12",
+      "end_date": "2027-03-13",
+      "date_text": "3/12-3/13*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.shamrockinfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Will McLean Music Festival",
+      "city": "Brooksville",
+      "start_date": "2027-03-12",
+      "end_date": "2027-03-14",
+      "date_text": "3/12-3/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.willmclean.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Amber Brooke Farm Strawberry Festival: Eustis III",
+      "city": "Eustis",
+      "start_date": "2027-03-13",
+      "end_date": "2027-03-14",
+      "date_text": "3/13-3/14*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://amberbrookefarms.com/annual-strawberry-festival/",
+      "notes": ""
+    }
+  ]
+}

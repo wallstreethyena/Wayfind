@@ -1,0 +1,127 @@
+{
+  "batch": 70,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "German American Society Oktoberfest I",
+      "city": "Hollywood",
+      "start_date": "2027-09-25",
+      "end_date": "2027-09-25",
+      "date_text": "9/25*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.germanamericanclubhollywood.org",
+      "notes": ""
+    },
+    {
+      "event_name": "Howey Artisan Market at Mission Resort and Club VI",
+      "city": "Howey in the Hills",
+      "start_date": "2027-09-25",
+      "end_date": "2027-09-25",
+      "date_text": "9/25*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1618016786356990/1618018013023534/",
+      "notes": ""
+    },
+    {
+      "event_name": "International Food and Drink Festival",
+      "city": "Orlando",
+      "start_date": "2027-09-25",
+      "end_date": "2027-09-25",
+      "date_text": "9/25*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.instagram.com/internationalfoodanddrinkfest/",
+      "notes": ""
+    },
+    {
+      "event_name": "Lake Nona Oktoberfest",
+      "city": "Orlando",
+      "start_date": "2027-09-25",
+      "end_date": "2027-09-25",
+      "date_text": "9/25*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.eventbrite.com/e/lake-nona-oktoberfest-2026-stein-hoisting-competition-tickets-1994830603033",
+      "notes": ""
+    },
+    {
+      "event_name": "Largo Evening Market VII",
+      "city": "Largo",
+      "start_date": "2027-09-25",
+      "end_date": "2027-09-25",
+      "date_text": "9/25*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.playlargo.com/special_events_detail_T40_R81.php",
+      "notes": ""
+    },
+    {
+      "event_name": "Mayhem Ranch Fall Festival I",
+      "city": "Morriston",
+      "start_date": "2027-09-25",
+      "end_date": "2027-09-26",
+      "date_text": "9/25-9/26*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://mayhemranchfla.com/event/mayhem-ranch-fall-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Moon Over Avalon Night Market",
+      "city": "Orlando",
+      "start_date": "2027-09-25",
+      "end_date": "2027-09-25",
+      "date_text": "9/25*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/Orlando.Moon.Festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Mount Dora Viva La Frida",
+      "city": "Mount Dora",
+      "start_date": "2027-09-25",
+      "end_date": "2027-09-25",
+      "date_text": "9/25*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://mountdoraart.com/mount-dora-viva-la-frida-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Panacea Blue Crab Festival",
+      "city": "Panacea",
+      "start_date": "2027-09-25",
+      "end_date": "2027-09-25",
+      "date_text": "9/25*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.visitpanacea.org/blue-crab-festival",
+      "notes": ""
+    },
+    {
+      "event_name": "Port St. Lucie Bacon and BBQ Festival",
+      "city": "Vero Beach",
+      "start_date": "2027-09-25",
+      "end_date": "2027-09-26",
+      "date_text": "9/25-9/26*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.pottcevents.com/treasure-coast-bacon-fest.html",
+      "notes": ""
+    },
+    {
+      "event_name": "Space Coast Pride Festival",
+      "city": "Melbourne",
+      "start_date": "2027-09-25",
+      "end_date": "2027-09-25",
+      "date_text": "9/25*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://spacecoastpride.org/",
+      "notes": ""
+    }
+  ]
+}

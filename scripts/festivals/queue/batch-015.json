@@ -1,0 +1,226 @@
+{
+  "batch": 15,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Night Moves Music Fest",
+      "city": "Pensacola",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-07",
+      "date_text": "11/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://nightmovesfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "North Miami BrewFest",
+      "city": "North Miami",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-07",
+      "date_text": "11/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/NomiBrewfest",
+      "notes": ""
+    },
+    {
+      "event_name": "Ocali Country Days Festival",
+      "city": "Ocala",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-08",
+      "date_text": "11/7-11/8",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://silverrivermuseum.com/ocali-country-days-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Orlando Water Lantern Festival",
+      "city": "Orlando",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-07",
+      "date_text": "11/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1074423594441027/",
+      "notes": ""
+    },
+    {
+      "event_name": "Rainbow Lakes Fall Craft Festival",
+      "city": "Dunnellon",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-07",
+      "date_text": "11/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1152915113085126",
+      "notes": ""
+    },
+    {
+      "event_name": "Right Whale Festival",
+      "city": "Fernandina Beach",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-08",
+      "date_text": "11/7-11/8",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.rightwhalefestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Sarasota Hungarian Festival/Sarasotai Magyar Fesztival",
+      "city": "Sarasota",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-08",
+      "date_text": "11/7-11/8",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://sarasotamagyarfesztival.com",
+      "notes": ""
+    },
+    {
+      "event_name": "Sarasota Medieval Fair I",
+      "city": "Myakka City",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-08",
+      "date_text": "11/7-11/8",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.sarasotamedievalfair.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "SAVOR St. Pete Food and Wine Festival",
+      "city": "St. Petersburg",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-08",
+      "date_text": "11/7-11/8",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://savortheburg.com",
+      "notes": ""
+    },
+    {
+      "event_name": "Stone Crab Jam",
+      "city": "Crystal River",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-07",
+      "date_text": "11/7",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.stonecrabjam.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Suncoast Largest Food Truck Festival",
+      "city": "Sarasota",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-07",
+      "date_text": "11/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1055468513382898",
+      "notes": ""
+    },
+    {
+      "event_name": "Tarpon Springs Seafood Festival",
+      "city": "Tarpon Springs",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-08",
+      "date_text": "11/7-11/8",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://tarponspringsmerchantassociation.com/tarpon-springs-events-calendar/tarpon-springs-seafood-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "The Fuzzy Pineapple Food Festival",
+      "city": "Tallahassee",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-07",
+      "date_text": "11/7*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1456745325636126",
+      "notes": ""
+    },
+    {
+      "event_name": "Treasure Coast Brew Fest",
+      "city": "Port St. Lucie",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-07",
+      "date_text": "11/7",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.tcbrewfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Treasure Coast Caribbean Food and Music Festival (Carifest)",
+      "city": "Port St. Lucie",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-07",
+      "date_text": "11/7",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.cacgpsl.org/carifest",
+      "notes": ""
+    },
+    {
+      "event_name": "Treasure Coast Seafood Festival: Fall",
+      "city": "Vero Beach",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-08",
+      "date_text": "11/7-11/8",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://treasurecoastseafoodfest.com",
+      "notes": ""
+    },
+    {
+      "event_name": "Casselberry Food and Wine Festival",
+      "city": "Casselberry",
+      "start_date": "2026-11-08",
+      "end_date": "2026-11-08",
+      "date_text": "11/8",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.eventbrite.com/e/casselberrys-16th-annual-food-and-wine-festival-tickets-1989833735267",
+      "notes": ""
+    },
+    {
+      "event_name": "Flutterby Arts Festival",
+      "city": "Panama City Beach",
+      "start_date": "2026-11-08",
+      "end_date": "2026-11-08",
+      "date_text": "11/8",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.culturalartsalliance.com/flutterby-arts-festival",
+      "notes": ""
+    },
+    {
+      "event_name": "Grace Jamaican Jerk Festival",
+      "city": "Miramar",
+      "start_date": "2026-11-08",
+      "end_date": "2026-11-08",
+      "date_text": "11/8",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://jerkfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Orlando Japan Festival",
+      "city": "Kissimmee",
+      "start_date": "2026-11-08",
+      "end_date": "2026-11-08",
+      "date_text": "11/8",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://jorlando.org/orlando-japan-festival/",
+      "notes": ""
+    }
+  ]
+}

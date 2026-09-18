@@ -1,0 +1,226 @@
+{
+  "batch": 55,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Ormond Beach Celtic Festival",
+      "city": "Ormond Beach",
+      "start_date": "2027-04-17",
+      "end_date": "2027-04-18",
+      "date_text": "4/17-4/18*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/OrmondBeachCelticFestival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Sarasota International Dragon Boat Festival",
+      "city": "Sarasota",
+      "start_date": "2027-04-17",
+      "end_date": "2027-04-17",
+      "date_text": "4/17*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://gwndragonboat.com/festivals/sarasota-international-dragon-boat-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Savor SoFlo Festival",
+      "city": "Hollywood",
+      "start_date": "2027-04-17",
+      "end_date": "2027-04-18",
+      "date_text": "4/17-4/18*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://savorsoflo.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Sea Turtle Festival",
+      "city": "Fernandina Beach",
+      "start_date": "2027-04-17",
+      "end_date": "2027-04-17",
+      "date_text": "4/17*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/32-n-fletcher-ave-fernandina-beach-fl-32034-2107-united-states/3rd-annual-sea-turtle-festival-2026/2927627960765098/",
+      "notes": ""
+    },
+    {
+      "event_name": "Songkran the Water Festival: Lao New Year Festival",
+      "city": "Sanford",
+      "start_date": "2027-04-17",
+      "end_date": "2027-04-18",
+      "date_text": "4/17-4/18*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1213707000726883/?acontext=%7B%22event_action_history%22%3A[%7B%22surface%22%3A%22external_search_engine%22%7D%2C%7B%22mechanism%22%3A%22attachment%22%2C%22surface%22%3A%22newsfeed%22%7D]%2C%22ref_notif_type%22%3Anull%7D",
+      "notes": ""
+    },
+    {
+      "event_name": "Spring Break Reggae Fest",
+      "city": "Ormond Beach",
+      "start_date": "2027-04-17",
+      "end_date": "2027-04-17",
+      "date_text": "4/17*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/profile.php?id=100090429250543",
+      "notes": ""
+    },
+    {
+      "event_name": "St. George Island Brewfest",
+      "city": "St. George Island",
+      "start_date": "2027-04-17",
+      "end_date": "2027-04-17",
+      "date_text": "4/17*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.sgibrewfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Tampa Bay Caribbean Festival",
+      "city": "Tampa",
+      "start_date": "2027-04-17",
+      "end_date": "2027-04-18",
+      "date_text": "4/17-4/18*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.tampabaycaribbeancarnival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Tampa Bay Empanada Festival",
+      "city": "Tampa",
+      "start_date": "2027-04-17",
+      "end_date": "2027-04-18",
+      "date_text": "4/17-4/18*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/882091461007887/",
+      "notes": ""
+    },
+    {
+      "event_name": "Jax Veg Fest",
+      "city": "Jacksonville",
+      "start_date": "2027-04-18",
+      "end_date": "2027-04-18",
+      "date_text": "4/18*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/jaxvegfest/",
+      "notes": ""
+    },
+    {
+      "event_name": "Seabreeze Jazz Festival",
+      "city": "Panama City Beach",
+      "start_date": "2027-04-21",
+      "end_date": "2027-04-25",
+      "date_text": "4/21-4/25*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://seabreezejazzfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Florida Keys Lionfish Derby and Festival",
+      "city": "Islamorada",
+      "start_date": "2027-04-22",
+      "end_date": "2027-04-25",
+      "date_text": "4/22-4/25*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.reef.org/derby",
+      "notes": ""
+    },
+    {
+      "event_name": "Hernando De Soto Historical Society Heritage Festival",
+      "city": "Bradenton",
+      "start_date": "2027-04-22",
+      "end_date": "2027-04-25",
+      "date_text": "4/22-4/25*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://desotohq.com/festival-hosting-information/",
+      "notes": ""
+    },
+    {
+      "event_name": "South Walton Beaches Wine and Food Festival",
+      "city": "Miramar Beach",
+      "start_date": "2027-04-22",
+      "end_date": "2027-04-25",
+      "date_text": "4/22-4/25*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://sowalwine.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Flora-Bama Interstate Mullet Toss",
+      "city": "Perdido Key/Gulf Coast, AL",
+      "start_date": "2027-04-23",
+      "end_date": "2027-04-25",
+      "date_text": "4/23-4/25*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.florabama.com/mullet-toss",
+      "notes": ""
+    },
+    {
+      "event_name": "Gone Country at the Ranch",
+      "city": "Brooksville",
+      "start_date": "2027-04-23",
+      "end_date": "2027-04-24",
+      "date_text": "4/23-4/24*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://ranchgonecountry.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Las Olas Wine and Food Festival",
+      "city": "Fort Lauderdale",
+      "start_date": "2027-04-23",
+      "end_date": "2027-04-23",
+      "date_text": "4/23*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://lasolaswff.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Leesburg Bikefest/Gator Bike Rally",
+      "city": "Leesburg",
+      "start_date": "2027-04-23",
+      "end_date": "2027-04-25",
+      "date_text": "4/23-4/25*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://leesburgbikefest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Moon Crush Music Festival",
+      "city": "Miramar Beach",
+      "start_date": "2027-04-23",
+      "end_date": "2027-04-25",
+      "date_text": "4/23-4/25",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.instagram.com/mooncrushlive",
+      "notes": ""
+    },
+    {
+      "event_name": "Ocala/Belleview Greek Festival at St. Mark’s",
+      "city": "Ocala/Belleview",
+      "start_date": "2027-04-23",
+      "end_date": "2027-04-25",
+      "date_text": "4/23-4/25*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/profile.php?id=100064506831778",
+      "notes": ""
+    }
+  ]
+}

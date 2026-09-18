@@ -1,0 +1,226 @@
+{
+  "batch": 8,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "Cocoa Village Art and Craft Fair III",
+      "city": "Cocoa",
+      "start_date": "2026-10-17",
+      "end_date": "2026-10-18",
+      "date_text": "10/17-10/18",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://visitcocoavillage.com/events/art-craft-fairs",
+      "notes": ""
+    },
+    {
+      "event_name": "Dakin Dairy Farms Harvest Festival II",
+      "city": "Myakka City",
+      "start_date": "2026-10-17",
+      "end_date": "2026-10-18",
+      "date_text": "10/17-10/18",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://dakindairyfarms.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Delaney Baptist Church Fall Festival",
+      "city": "Orlando",
+      "start_date": "2026-10-17",
+      "end_date": "2026-10-17",
+      "date_text": "10/17",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.delaneychurch.com/events/",
+      "notes": ""
+    },
+    {
+      "event_name": "Flamingo Gardens Harvest Festival III",
+      "city": "Davie",
+      "start_date": "2026-10-17",
+      "end_date": "2026-10-18",
+      "date_text": "10/17-10/18",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://flamingogardens.org/events/",
+      "notes": ""
+    },
+    {
+      "event_name": "Fruitville Grove Pumpkin Festival III",
+      "city": "Sarasota",
+      "start_date": "2026-10-17",
+      "end_date": "2026-10-18",
+      "date_text": "10/17-10/18",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://fruitvillegrovefarm.com/festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Good Folk Fest",
+      "city": "St. Petersburg",
+      "start_date": "2026-10-17",
+      "end_date": "2026-10-17",
+      "date_text": "10/17",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.creativeclay.org/good-folk-fest",
+      "notes": ""
+    },
+    {
+      "event_name": "HorsePower For Kids Fall Festival III",
+      "city": "Tampa",
+      "start_date": "2026-10-17",
+      "end_date": "2026-10-18",
+      "date_text": "10/17-10/18",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/HorsePowerforKids/events",
+      "notes": ""
+    },
+    {
+      "event_name": "Hunsader Farms Pumpkin Festival II",
+      "city": "Bradenton",
+      "start_date": "2026-10-17",
+      "end_date": "2026-10-18",
+      "date_text": "10/17-10/18",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.hunsaderfarms.com/pumpkin-festival",
+      "notes": ""
+    },
+    {
+      "event_name": "Mayhem Ranch Fall Festival IV",
+      "city": "Morriston",
+      "start_date": "2026-10-17",
+      "end_date": "2026-10-18",
+      "date_text": "10/17-10/18",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://mayhemranchfla.com/event/mayhem-ranch-fall-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "McIntosh 1890 Festival",
+      "city": "McIntosh",
+      "start_date": "2026-10-17",
+      "end_date": "2026-10-17",
+      "date_text": "10/17",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.mcintosh-1890s-festival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "MTI Country Fest",
+      "city": "Melbourne",
+      "start_date": "2026-10-17",
+      "end_date": "2026-10-18",
+      "date_text": "10/17-10/18",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://vieracountryfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Orange Park Fall Festival",
+      "city": "Orange Park",
+      "start_date": "2026-10-17",
+      "end_date": "2026-10-18",
+      "date_text": "10/17-10/18",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://opfallfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Orlando International Dragon Boat Festival",
+      "city": "Orlando",
+      "start_date": "2026-10-17",
+      "end_date": "2026-10-17",
+      "date_text": "10/17",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://gwndragonboat.com/festivals/orlando-international-dragon-boat-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Reggae and Food Festival",
+      "city": "Palm Bay",
+      "start_date": "2026-10-17",
+      "end_date": "2026-10-17",
+      "date_text": "10/17",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.kingtappamusic.com/reggae-food-music-festival",
+      "notes": ""
+    },
+    {
+      "event_name": "Sarasota Water Lantern Festival",
+      "city": "Sarasota",
+      "start_date": "2026-10-17",
+      "end_date": "2026-10-17",
+      "date_text": "10/17",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.waterlanternfestival.com/events/sarasota",
+      "notes": ""
+    },
+    {
+      "event_name": "Smokin’ in the Square BBQ Cookoff",
+      "city": "Gulf Breeze",
+      "start_date": "2026-10-17",
+      "end_date": "2026-10-17",
+      "date_text": "10/17",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.smokininthesquare.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Tampa Pig Jig",
+      "city": "Tampa",
+      "start_date": "2026-10-17",
+      "end_date": "2026-10-17",
+      "date_text": "10/17",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.tampapigjig.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Viera Harvest Festival",
+      "city": "Viera",
+      "start_date": "2026-10-17",
+      "end_date": "2026-10-17",
+      "date_text": "10/17*",
+      "source_says_unconfirmed": true,
+      "lead_status": "needs_verification",
+      "organizer_url_hint": "https://viera.com/events/viera-harvest-festival-2/",
+      "notes": "?"
+    },
+    {
+      "event_name": "Wellington’s Fall Festival",
+      "city": "Wellington",
+      "start_date": "2026-10-17",
+      "end_date": "2026-10-17",
+      "date_text": "10/17",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.wellingtonfl.gov/660/Fall-Festival",
+      "notes": ""
+    },
+    {
+      "event_name": "Taste of Ormond",
+      "city": "Ormond Beach",
+      "start_date": "2026-10-18",
+      "end_date": "2026-10-18",
+      "date_text": "10/18",
+      "source_says_unconfirmed": false,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/1936104623692173",
+      "notes": ""
+    }
+  ]
+}

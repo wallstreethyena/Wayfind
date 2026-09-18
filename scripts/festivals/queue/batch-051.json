@@ -1,0 +1,226 @@
+{
+  "batch": 51,
+  "created_from": "scripts/festivals/florida_festivals.csv",
+  "leads": [
+    {
+      "event_name": "St. Ambrose Spring Fair",
+      "city": "Elkton",
+      "start_date": "2027-03-28",
+      "end_date": "2027-03-28",
+      "date_text": "3/28*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.floridashistoriccoast.com/events/st-ambrose-spring-fair/",
+      "notes": ""
+    },
+    {
+      "event_name": "Pier 60 Sugar Sand Festival II",
+      "city": "Clearwater",
+      "start_date": "2027-03-29",
+      "end_date": "2027-04-04",
+      "date_text": "3/29-4/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.sugarsandfestival.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "UNwineD",
+      "city": "Panama City Beach",
+      "start_date": "2027-04-02",
+      "end_date": "2027-04-03",
+      "date_text": "4/2-4/3*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.visitpanamacitybeach.com/unwined/",
+      "notes": ""
+    },
+    {
+      "event_name": "Afro Roots Fest: Islamorada",
+      "city": "Islamorada",
+      "start_date": "2027-04-03",
+      "end_date": "2027-04-03",
+      "date_text": "4/3*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/afrorootsfest",
+      "notes": ""
+    },
+    {
+      "event_name": "Arts and Crafts Festival at Brownwood Paddock Square: Spring",
+      "city": "The Villages",
+      "start_date": "2027-04-03",
+      "end_date": "2027-04-04",
+      "date_text": "4/3-4/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.thevillagesentertainment.com/festivals-and-special-events/brownwood-arts-crafts-festival/",
+      "notes": ""
+    },
+    {
+      "event_name": "Brick City Beer and Wine Festival",
+      "city": "Ocala",
+      "start_date": "2027-04-03",
+      "end_date": "2027-04-03",
+      "date_text": "4/3*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.brickcitybeerandwinefest.com",
+      "notes": ""
+    },
+    {
+      "event_name": "Bunnell Italian Festival",
+      "city": "Bunnell",
+      "start_date": "2027-04-03",
+      "end_date": "2027-04-03",
+      "date_text": "4/3*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://flcfv.org/italian-festival",
+      "notes": ""
+    },
+    {
+      "event_name": "Fiesta in the Park",
+      "city": "Orlando",
+      "start_date": "2027-04-03",
+      "end_date": "2027-04-04",
+      "date_text": "4/3-4/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.fiestainthepark.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "HorsePower for Kids Spring Fest II",
+      "city": "Tampa",
+      "start_date": "2027-04-03",
+      "end_date": "2027-04-03",
+      "date_text": "4/3*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.horsepowerforkids.com/upcoming-events",
+      "notes": ""
+    },
+    {
+      "event_name": "Keel Farms Tampa Bay Blueberry Festival I",
+      "city": "Plant City",
+      "start_date": "2027-04-03",
+      "end_date": "2027-04-04",
+      "date_text": "4/3-4/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.keelfarms.com/festivals",
+      "notes": ""
+    },
+    {
+      "event_name": "Mandarin Art Festival",
+      "city": "Jacksonville",
+      "start_date": "2027-04-03",
+      "end_date": "2027-04-04",
+      "date_text": "4/3-4/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://www.mandarinartfestival.org/",
+      "notes": ""
+    },
+    {
+      "event_name": "Muse Honey Festival",
+      "city": "LaBelle",
+      "start_date": "2027-04-03",
+      "end_date": "2027-04-03",
+      "date_text": "4/3*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/MCAGlades",
+      "notes": ""
+    },
+    {
+      "event_name": "St. Johns Catfish Festival",
+      "city": "Crescent City",
+      "start_date": "2027-04-03",
+      "end_date": "2027-04-03",
+      "date_text": "4/3*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://stjohnscatfishfest.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Water Lantern Festival: Tampa Bay Area",
+      "city": "Hudson",
+      "start_date": "2027-04-03",
+      "end_date": "2027-04-03",
+      "date_text": "4/3*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.waterlanternfestival.com/events/tampa",
+      "notes": ""
+    },
+    {
+      "event_name": "Williston Spring Fest",
+      "city": "Williston",
+      "start_date": "2027-04-03",
+      "end_date": "2027-04-03",
+      "date_text": "4/3*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.facebook.com/events/879032131253537",
+      "notes": ""
+    },
+    {
+      "event_name": "East Coast Dog Surfing Festival",
+      "city": "Cocoa Beach",
+      "start_date": "2027-04-04",
+      "end_date": "2027-04-04",
+      "date_text": "4/4*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://brevardhumanesociety.org/event/east-coast-dog-surfing-festival/?mc_id=137",
+      "notes": ""
+    },
+    {
+      "event_name": "Pier 60 Sugar Sand Festival III",
+      "city": "Clearwater",
+      "start_date": "2027-04-05",
+      "end_date": "2027-04-11",
+      "date_text": "4/5-4/11*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": null,
+      "notes": ""
+    },
+    {
+      "event_name": "Ferdinanda Beach Songwriters Festival",
+      "city": "Amelia Island",
+      "start_date": "2027-04-08",
+      "end_date": "2027-04-10",
+      "date_text": "4/8-4/10*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.fernandinasongwriterfestival.com",
+      "notes": ""
+    },
+    {
+      "event_name": "Delray Affair",
+      "city": "Delray Beach",
+      "start_date": "2027-04-09",
+      "end_date": "2027-04-11",
+      "date_text": "4/9-4/11*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "http://delrayaffair.com/",
+      "notes": ""
+    },
+    {
+      "event_name": "Fox Fam Jam",
+      "city": "Brooksville",
+      "start_date": "2027-04-09",
+      "end_date": "2027-04-11",
+      "date_text": "4/9-4/11*",
+      "source_says_unconfirmed": true,
+      "lead_status": "active",
+      "organizer_url_hint": "https://www.foxfamjam.com/",
+      "notes": ""
+    }
+  ]
+}
