@@ -1642,3 +1642,4 @@ node scripts/test-live-event-posters-location.mjs
 # lib/goShortlinks.js. See the script header for the full assertion list.
 node scripts/check-go-florida-landing.mjs
 node scripts/check-event-providers-not-google-gated.mjs
+node scripts/test-poster-accepts-healthy-art.mjs
