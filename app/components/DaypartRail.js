@@ -219,7 +219,7 @@ export const PHOTO_WINDOW_STEP = 8;
 // module so the tile never builds a link string of its own, and so a share
 // created on a dev server or a preview deploy still carries the production host
 // (lib/site.js canonicalShareUrl — the "it previewed as localhost" bug).
-import { railShareIntent } from "../../lib/railShare.js";
+import { railShareIntent, railSharePath } from "../../lib/railShare.js";
 // v8.41 — the ONE landing, shared with the nav tabs in app/home.js. See the
 // effect below and lib/landOnResults.js for why it stopped being local code.
 import { landOnResults } from "../../lib/lazyLandOnResults.js";
@@ -1616,14 +1616,26 @@ export default function DaypartRail({
                 if (r.artStale || r.retiredInto) return null;
                 const base = railArt(r, shown.region);
                 const railDest = railHref(r, shown.region, shown.citySlug);
-                const href = id === "datenight" || id === "season" || id === "family"
+                // These four posters own qualified in-place answers, while
+                // their registry hrefs are broad category fallbacks. A normal
+                // tap is intercepted below and opens the composer either way;
+                // the real href is for modified clicks, open-in-new-tab,
+                // crawlers and no-JS readers. Send those paths through the
+                // existing rail doorway so "Best Breakfast Picks" cannot
+                // become every restaurant, and Birthday / Creators Pick cannot
+                // become every thing to do. /r/<id> returns to /?rail=<id>,
+                // where this same drop re-ranks from the new reader's location.
+                const intentDoorway = ["breakfast", "break", "birthday", "locals"].includes(id)
+                  ? railSharePath(id)
+                  : null;
+                const href = intentDoorway || (id === "datenight" || id === "season" || id === "family"
                   ? dateNightIntentHref({
                     href: railDest || (id === "family" ? "/family" : id === "season" ? "/summer-picks" : "/date-night"),
                     cityLabel: shown.cityLabel || cityLabel,
                     lat: (center && Number.isFinite(center.lat) ? center.lat : lat),
                     lng: (center && Number.isFinite(center.lng) ? center.lng : lng),
                   })
-                  : railDest;
+                  : railDest);
                 const eager = i < 2;
                 const tileClass = `wf8-tile${selected === id ? " is-sel" : ""}${artReady[id] ? " is-art-ready" : ""}`;
                 const artBox = railArtSize(id);

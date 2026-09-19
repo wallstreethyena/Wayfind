@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { THEME_PARKS, themeParkForPlace, themeParkIntent, themeParkHeading, orderThemeParks } from "../lib/themeParks.js";
+import { THEME_PARKS, themeParkForPlace, themeParkIntent, themeParkHeading, orderThemeParks, filterFamilyThemeParks } from "../lib/themeParks.js";
 import { themeParkRows, loadThemeParks } from "../lib/themeParksServer.js";
 import { placePartnerPick } from "../lib/placePartnerPicks.js";
 
@@ -70,3 +70,20 @@ ownedOnly.signals.photo_url = "/owned-gatorland.jpg";
 assert.equal(themeParkRows([ownedOnly])[0].photo, "/owned-gatorland.jpg", "owned URLs come from the real signals field");
 
 console.log(`test-theme-park-core: OK — ${THEME_PARKS.length} exact park identities, owned inventory only, one winner, score order, standard card`);
+
+// Family parks must obey the same planning constraints as adjacent family rails.
+const familyParks = [
+  { name: "EPCOT", id: "unknown-epcot", lat: 28.37, lng: -81.55, primaryType: "amusement_park" },
+  { name: "Near Park", id: "unknown-near", lat: 27.59, lng: -82.43, primaryType: "amusement_park" },
+];
+const familyContext = { lat: 27.5875, lng: -82.4251, radiusMi: 25, ready: true };
+assert.deepEqual(filterFamilyThemeParks(familyParks, familyContext).map(p => p.name), ["Near Park"], "Parrish 25 miles excludes Orlando");
+assert.deepEqual(filterFamilyThemeParks(familyParks, { ...familyContext, indoorOnly: true }), [], "outdoor parks do not bypass unsafe-weather gate");
+assert.deepEqual(filterFamilyThemeParks(familyParks, { ...familyContext, filters: { ages: "toddler" } }), [], "missing published age evidence does not match");
+assert.deepEqual(filterFamilyThemeParks(familyParks, { ...familyContext, ready: false }), [], "weather must settle before family parks appear");
+assert.deepEqual(filterFamilyThemeParks(familyParks, { ...familyContext, paused: true }), [], "preserved conflicting weather choice pauses parks");
+assert.deepEqual(filterFamilyThemeParks(familyParks, { ...familyContext, lat: null }), [], "missing origin never broadens to statewide");
+assert.equal(filterFamilyThemeParks(familyParks, null), familyParks, "homepage statewide collection is unchanged");
+assert.match(component, /filterFamilyThemeParks\(loaded\.filter/, "rendered park rows use actual family gate");
+const familyPage = fs.readFileSync(new URL("../app/components/FamilyDayPage.js", import.meta.url), "utf8");
+assert.match(familyPage, /familyContext=\{\{ lat: loc.lat, lng: loc.lng, radiusMi, filters, indoorOnly, ready: weatherSettled && !!moment, paused: weatherPaused \}\}/, "Family passes current filters and weather to park rail");

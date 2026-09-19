@@ -56,3 +56,6 @@ assert.match(commerce, /"attractions:themeparks": C\(\["theme"\], \["family"\], 
   "the Theme Parks chip has its own commerce contract");
 
 console.log("test-theme-park-surfaces: OK — Home, Family, Activities, Orlando, and exact search are wired to the verified park system");
+
+assert.match(home, /browseCat === "family" && <ThemeParkRail mode="family" familyContext=\{\{ lat: center\?\.lat, lng: center\?\.lng, radiusMi: sliderMi, ready: !!center \}\}/,
+  "Family category browser cannot bypass the active location and distance");

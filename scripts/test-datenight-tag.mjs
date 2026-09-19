@@ -18,6 +18,14 @@ const ok = (c, m) => { if (!c) { console.error("  FAIL: " + m); fails++; } };
 const mod = await loadComponent(path.join(ROOT, "app/components/IconicPlaceCard.js"), ROOT);
 const tags = (p) => mod.experienceTags(p, 4).map((t) => t.key);
 
+// Rooftop evidence: a brand containing skyline is not a rooftop venue.
+ok(!tags({ name: "Skyline Chili", types: ["restaurant"] }).includes("rooftop"), "Skyline Chili is not a rooftop");
+for (const name of ["Rooftop Lounge", "Roof Top Bar", "Harbor Sky Bar", "Roof Deck Kitchen"]) {
+  ok(tags({ name, types: ["bar"] }).includes("rooftop"), `${name} retains explicit rooftop evidence`);
+}
+
+ok(readFileSync(path.join(ROOT, "app/home.js"), "utf8").includes('Tags.hasRooftopName(p.name)'), "browse cards use the same rooftop evidence rule");
+
 // positives
 ok(tags({ name: "Sunset Chophouse", types: ["restaurant"], rating: 4.7, reviews: 900, priceLevel: 3 }).includes("datenight"),
   "a $$$ 4.7 restaurant wears Date night");
@@ -49,4 +57,4 @@ ok(!T.filterAllowed(T.resolveIdentity(["amusement_park"], false), ["datenight"])
   "tags.js: themePark identity refuses datenight");
 
 if (fails) { console.error(`test-datenight-tag: ${fails} FAILED`); process.exit(1); }
-console.log("test-datenight-tag: OK — 10 assertions EXECUTED (3 positives, 4 negative controls, deep-link + identity gates)");
+console.log("test-datenight-tag: OK — date-night identity and rooftop evidence assertions executed");

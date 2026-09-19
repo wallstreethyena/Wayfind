@@ -6,7 +6,7 @@
 import { readFileSync } from "node:fs";
 import { isAwinLive } from "../lib/awin.js";
 import { DESTS } from "../lib/experiencesData.js";
-import { allIntentPartnerPicks, canReadOwnedExperienceCache, INTENT_PARTNER_PICKS, INTENT_PARTNER_RAILS, intentPartnerPick, intentPartnerPicks, inventoryPartnerPick, localPartnerQuery, mergePartnerInventory, normalizePartnerCity, OWNED_EXPERIENCE_DEST_IDS, PARTNER_INVENTORY_CANDIDATE_COUNT, PARTNER_RAIL_RENDER_LIMIT, partnerInventoryFetchPlan, partnerInventoryRequest, partnerRailInventory, qualifyPartnerInventory, resolvedIntentPartnerPick, resolvedIntentPartnerPicks } from "../lib/intentPartnerPicks.js";
+import { allIntentPartnerPicks, canReadOwnedExperienceCache, fetchPartnerInventory, INTENT_PARTNER_PICKS, INTENT_PARTNER_RAILS, intentPartnerPick, intentPartnerPicks, inventoryPartnerPick, localPartnerQuery, mergePartnerInventory, normalizePartnerCity, OWNED_EXPERIENCE_DEST_IDS, PARTNER_INVENTORY_CANDIDATE_COUNT, PARTNER_RAIL_RENDER_LIMIT, partnerInventoryEligibleForIntent, partnerInventoryFetchPlan, partnerInventoryRequest, partnerRailInventory, qualifyPartnerInventory, resolvedIntentPartnerPick, resolvedIntentPartnerPicks } from "../lib/intentPartnerPicks.js";
 import { PARTNER_OFFER_REGISTRY } from "../lib/partnerOfferRegistry.js";
 import { PLACE_PARTNER_PICKS, RETIRED_VIATOR_PINS, pinServeability, placePartnerPick } from "../lib/placePartnerPicks.js";
 import { PARTNER_DEAL_COUPONS } from "../lib/partnerDeals.js";
@@ -82,6 +82,7 @@ ok(normalizePartnerCity("Vegas") === "las-vegas", "Vegas aliases only to the Las
 ok(intentPartnerPick("Boise", "family") === null, "an unverified city renders no partner pick rather than a generic homepage");
 ok(intentPartnerPick("Orlando", "unknown") === null, "an unverified intent renders no partner pick");
 ok(localPartnerQuery("Boise, ID", "family") === "Boise family experience", "an uncurated US city produces an intent-specific local inventory query");
+ok(localPartnerQuery("Parrish", "food") === "Bradenton food tour culinary tasting cooking class", "restaurant placement asks the verified market for food-led inventory");
 ok(localPartnerQuery("your town", "family") === null, "an unresolved location never generates a nationwide guess");
 ok(partnerInventoryRequest("Parrish", "best-of")?.query === "Bradenton top attractions", "Parrish searches the nearest verified bookable market instead of a nationwide feed");
 ok(partnerInventoryRequest("Parrish", "best-of")?.region === "Sarasota Bradenton Parrish", "Parrish keeps positive local region evidence in the request");
@@ -115,6 +116,47 @@ ok(qualifyPartnerInventory([
   { code: "1P2", title: "Dead", image: "https://images.example.test/b.jpg", link_ok: false },
   { code: "1P3", title: "No art", image: "" },
 ]).map((row) => row.code).join(",") === "1P1", "qualifyPartnerInventory drops dead links and imageless rows");
+{
+  const cached = [
+    { code: "KAYAK", title: "Clear Kayak Ecotour at Robinson Preserve", image: "https://images.example.test/kayak.jpg" },
+    { code: "LUNCH-KAYAK", title: "Mangrove Kayak Tour with Picnic Lunch", image: "https://images.example.test/lunch-kayak.jpg" },
+    { code: "FOOD", title: "Downtown Bradenton Walking Food Tour", image: "https://images.example.test/food.jpg" },
+    { code: "CLASS", title: "Fresh Pasta Workshop", image: "https://images.example.test/class.jpg", categories: ["cooking_class"] },
+    { code: "SARASOTA-FOOD", title: "Taste of Downtown Sarasota : Local Food, History & Culture Tour", image: "https://images.example.test/sarasota-food.jpg" },
+    { code: "FOOD-WINE", title: "Historic District Walk", image: "https://images.example.test/food-wine.jpg", categories: ["Food & Wine"] },
+  ];
+  ok(!partnerInventoryEligibleForIntent(cached[0], "food") && !partnerInventoryEligibleForIntent(cached[1], "food"),
+    "restaurant eligibility rejects kayaks, including an activity that merely includes lunch");
+  ok(partnerInventoryEligibleForIntent(cached[2], "food") && partnerInventoryEligibleForIntent(cached[3], "food")
+      && partnerInventoryEligibleForIntent(cached[4], "food") && partnerInventoryEligibleForIntent(cached[5], "food")
+      && partnerInventoryEligibleForIntent({ title: "Old Town Walk", categories: ["Food & Drink"] }, "food"),
+    "restaurant eligibility admits food tours with intervening subjects plus cooking-class, Food & Wine, and Food & Drink taxonomy");
+  ok(partnerInventoryEligibleForIntent(cached[0], "date-night"),
+    "the restaurant-only gate does not remove valid activity inventory from the date-night sheet");
+  const foodRail = resolvedIntentPartnerPicks("Parrish", "food", cached, 10);
+  ok(foodRail.map((row) => row.offerId).join(",") === "FOOD,CLASS,SARASOTA-FOOD,FOOD-WINE",
+    `an unfiltered owned-cache payload becomes a food-only restaurant rail (got ${foodRail.map((row) => row.offerId).join(",")})`);
+  ok(foodRail.every((row) => row.eyebrow === "A local food experience worth booking"),
+    "restaurant cards use food-specific copy rather than calling every activity a local date");
+}
+{
+  const calls = [];
+  const rows = await fetchPartnerInventory("Parrish", "food", {
+    fetch: async (url) => {
+      calls.push(url);
+      if (url.startsWith("/api/experiences?")) return { ok: true, json: async () => ({ items: [
+        { code: "CACHE-KAYAK", title: "Clear Kayak Ecotour", image: "https://images.example.test/cache-kayak.jpg" },
+        { code: "CACHE-FOOD", title: "Sarasota Walking Food Tour", image: "https://images.example.test/cache-food.jpg" },
+      ] }) };
+      if (url.startsWith("/api/viator/tours?")) return { ok: true, json: async () => ({ items: [
+        { code: "LIVE-WINE", title: "Local Wine Tasting", image: "https://images.example.test/live-wine.jpg" },
+      ] }) };
+      return { ok: true, json: async () => ({ items: [] }) };
+    },
+  });
+  ok(calls.some((url) => url.startsWith("/api/experiences?")) && rows.map((row) => row.code).join(",") === "CACHE-FOOD,LIVE-WINE",
+    `the shared fetch filters the unfiltered owned cache and live fill before serving restaurant inventory (got ${rows.map((row) => row.code).join(",")})`);
+}
 ok(partnerInventoryRequest("Boise, ID", "family")?.destId === null, "an unseeded city never borrows another market's destination id");
 ok(intentPartnerPick("Parrish", "best-of")?.offerId === "412732P1", "Parrish receives an exact Manatee County product rather than Sarasota's generic pilot pick");
 ok(intentPartnerPick("Parrish", "worth-the-drive")?.offerId === "tampa-boat-samboat" && intentPartnerPick("Parrish", "worth-the-drive")?.image,
