@@ -53,7 +53,8 @@ const view = readFileSync(at("app/components/MapView.js"), "utf8");
 // place we recommend must never share a visual vocabulary. One unranked glyph
 // vs a ranked teardrop sprite. That invariant is asserted below and is now
 // stronger than it was, because an emoji cannot be mistaken for our own sprite.
-ok(/\\u\{1F4CD\}|📍/.test(view), "the map does not render the pin emoji for the user's location (v8.23.3, owner's second ask)");
+// 2026-09-19 owner supersedes emoji: reference blue ring pin identifies location.
+ok(view.includes('label === "Your location" ? "location" : "other"'), "location and search center must remain distinct within the shared teardrop standard");
 ok(!/\/brand\/wayfind-pin-neon\.svg/.test(view), "the neon brand pin is back on the map — v8.23.3 replaced it with the emoji");
 // anchor:"bottom" is what puts the TIP on the true coordinate.
 ok(/anchor: "bottom" \}\)\.setLngLat\(\[origin\.lng, origin\.lat\]/.test(view),
@@ -75,4 +76,4 @@ ok(!/wayfind-pin(-neon)?\.svg[\s\S]{0,400}wf-place/.test(view), "the brand pin l
 ok(view.length > 3000, "MapView did not load — every assertion above would pass vacuously");
 
 if (bad) { console.error(`\ncheck-brand-pin: FAIL — ${bad}/${n} assertions`); process.exit(1); }
-console.log(`check-brand-pin: OK — ${n} assertions (four vectors out of _to_delete/ and in the README; the user renders as the pin emoji, tip-anchored, glow-pulsed, reduced-motion safe; places stay filled ranked circles)`);
+console.log(`check-brand-pin: OK — ${n} assertions (four vectors out of _to_delete/ and in the README; the user has a distinct shared location pin, tip-anchored, reduced-motion safe; places stay category pin sprites)`);

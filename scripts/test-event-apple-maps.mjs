@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { mapPinUrl } from "../lib/mapPinStandard.js";
 // Runtime contract for the event-only MapKit JS session. The fake SDK mirrors
 // MapKit JS 6's promise-returning service calls, so cancellation, stale
 // responses, timeout handling, and teardown are exercised rather than inferred.
@@ -34,7 +35,7 @@ class FakeSearch {
   search(query) { return new Promise((resolve, reject) => searches.push({ query, resolve, reject, search: this })); }
   cancel(request) { this.cancelledRequest = request; }
 }
-const fakeKit = { Map: FakeMap, Coordinate: FakeCoordinate, MarkerAnnotation: FakeAnnotation, Directions: FakeDirections, Search: FakeSearch, Style: class Style { constructor(options) { Object.assign(this, options); } }, Padding: FakePadding };
+const fakeKit = { Map: FakeMap, Coordinate: FakeCoordinate, ImageAnnotation: FakeAnnotation, Directions: FakeDirections, Search: FakeSearch, Style: class Style { constructor(options) { Object.assign(this, options); } }, Padding: FakePadding };
 let pass = 0;
 const check = (condition, message) => { assert.ok(condition, message); pass += 1; };
 
@@ -57,11 +58,11 @@ const merged = mergeEventMapPlaces([
 check(stays.length === 1 && stays[0].id === "7" && stays[0].href === "/p/7" && stays[0].mapRank === 1, "hotel pins preserve the exact rendered card identity, href and order while deduping provider ID types");
 check(merged.length === 2 && merged[0].id === "food" && merged[1].id === "7" && merged[1].href === "/p/7", "nearby and stay pins have one identity each, with the exact stay card winning an overlap");
 check(eventMapFamily(merged[0]) === "food" && eventMapFamily({ cat: "Night out" }) === "drinks" && eventMapFamily({ cat: "To do" }) === "culture" && eventMapFamily(stays[0]) === "stay", "event category filters classify the same nearby and stay rows the map draws");
-check(eventMapGlyph(stays[0]) === EVENT_MAP_FAMILY.stay.icon && EVENT_MAP_FAMILY.stay.color === "#0284C7" && EVENT_MAP_FAMILY.food.color === "#F97316" && EVENT_MAP_FAMILY.cafe.color === "#B45309", "event pin presentation matches the blue-bed, orange-food and brown-coffee reference families");
+check(eventMapGlyph(stays[0]) === EVENT_MAP_FAMILY.stay.icon && EVENT_MAP_FAMILY.stay.color === "#058ADB" && EVENT_MAP_FAMILY.food.color === "#F97316" && EVENT_MAP_FAMILY.cafe.color === "#A66A3F", "event pin presentation matches the blue-bed, orange-food and brown-coffee reference families");
 
 let selected = null; const errors = [];
 const controller = createAppleMapController({ mapkit: fakeKit, container: {}, venue, picks: [{ id: "pick-1", name: "Nearby", lat: 27.31, lng: -82.49, cat: "Restaurant" }], onSelect: (id) => { selected = id; }, onError: (message) => errors.push(message) });
-check(controller.map.annotations.length === 2 && controller.map.annotations[0].glyphText === EVENT_MAP_FAMILY.food.icon && controller.map.annotations[0].glyphColor === "#FFFFFF" && controller.map.annotations[0].color === EVENT_MAP_FAMILY.food.color && controller.map.annotations[1].glyphText === "★", "venue star and a white-on-orange food pictogram share one native Apple map");
+check(controller.map.annotations.length === 2 && controller.map.annotations[0].image[1] === mapPinUrl("food") && !controller.map.annotations[0].anchorOffset && controller.map.annotations[1].image[1] === mapPinUrl("event"), "venue star and a white-on-orange food pictogram share one native Apple map");
 controller.map.listener.fn({ annotation: controller.map.annotations[0] });
 check(selected === "pick-1", "nearby annotation selection reaches the UI callback");
 
@@ -82,8 +83,8 @@ controller.setPicks([
   { id: "coffee", name: "Coffee", lat: 27.32, lng: -82.48, primaryType: "coffee_shop" },
 ]);
 const streamedStay = controller.map.annotations.find((annotation) => annotation.__wayfindId === "22");
-check(controller.map.annotations.length === 3 && controller.map.annotations.some((annotation) => annotation.glyphText === "★") && !controller.map.annotations.some((annotation) => annotation.__wayfindId === "pick-1"), "setPicks replaces only place annotations, dedupes streamed IDs, and retains the venue");
-check(streamedStay?.glyphText === EVENT_MAP_FAMILY.stay.icon && streamedStay?.glyphColor === "#FFFFFF" && streamedStay?.color === EVENT_MAP_FAMILY.stay.color, "a streamed hotel renders as the reference white-on-blue bed pin");
+check(controller.map.annotations.length === 3 && controller.map.annotations.some((annotation) => annotation.image[1] === mapPinUrl("event")) && !controller.map.annotations.some((annotation) => annotation.__wayfindId === "pick-1"), "setPicks replaces only place annotations, dedupes streamed IDs, and retains the venue");
+check(streamedStay?.image[1] === mapPinUrl("stay") && decodeURIComponent(streamedStay.image[1]).includes('width="34" height="46"'), "a streamed hotel renders as the reference white-on-blue bed pin");
 check(controller.map.overlays[0] === routeOverlay && controller.map.showCalls === routeFitCalls, "streamed hotel pins preserve the active route overlay and do not reset its fitted camera");
 controller.map.listener.fn({ annotation: streamedStay });
 check(selected === "22", "selection follows the normalized identity of a streamed pin");

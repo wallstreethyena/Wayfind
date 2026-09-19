@@ -1,8 +1,11 @@
 "use client";
+import { paintMapPin, mapPinSvg, pinCategory } from "../../lib/mapPinStandard.js";
+import MapCategoryPin from "./MapCategoryPin.js";
+import { eventMapFamily } from "../../lib/eventMapPlaces.js";
 
 import { useEffect, useRef, useState } from "react";
 import { LngLatBounds, Map as MapLibreMap, Marker, NavigationControl, setWorkerUrl } from "maplibre-gl";
-import { pinGlyphFor, pinImageKey, pinColorFor } from "../../lib/mapPinGlyph.js";
+import { pinImageKey } from "../../lib/mapPinGlyph.js";
 import { areaMoved, distanceRingData, MAP_RING_MILES } from "../../lib/mapExplorer";
 import { safeRemoveMap } from "../../lib/mapTeardown";
 
@@ -76,32 +79,6 @@ function MapFallback({ count, onRetry }) {
   </div>;
 }
 
-// v6.94 (owner: "we do not have the pin we used to") — the MapLibre rewrite
-// ("design release 01") dropped the actual pin SHAPES this app used with
-// real Google Maps and replaced both with plain flat circles. Recovered
-// verbatim from git history (commit 989e2d6, the original MapView.js) rather
-// than redrawn from memory — same teardrop paths, same face detail on the
-// origin pin, same purple event pin. Ranked PLACE pins are deliberately left
-// as the existing native MapLibre circle+label layers below (not converted
-// to teardrop DOM markers) — those were ALSO plain circles in the original
-// Google Maps version (see medalColor()), so there is no regression there,
-// and keeping them as one cheap vector layer instead of N DOM markers is
-// what keeps the map fast to load with many places on screen.
-// Color-parameterized (unlike the original, which only ever rendered orange
-// for a real device GPS fix): current MapView also falls back to this same
-// pin for the SEARCH CENTER when no device location is known, and that is a
-// meaningfully different claim ("this is roughly where we're searching", not
-// "this is you") — worth keeping visually distinct rather than collapsing
-// both into one hardcoded color.
-const WF_EVENT_PIN_SVG =
-  "<svg xmlns='http://www.w3.org/2000/svg' width='26' height='34' viewBox='0 0 26 34'>" +
-  "<path d='M13 1 C7 1 2.3 5.5 2.3 11.5 C2.3 19 13 32 13 32 C13 32 23.7 19 23.7 11.5 C23.7 5.5 19 1 13 1 Z' fill='#A78BFA' stroke='#0D1117' stroke-width='1.3'/>" +
-  "<circle cx='13' cy='11.5' r='4.4' fill='#0D1117'/>" +
-  "</svg>";
-
-// The pulse lives on the GLOW, not the pin: scaling the mark itself would move
-// its tip off the coordinate every frame. Injected once, and disabled entirely
-// under prefers-reduced-motion.
 function ensureOriginPinCss() {
   if (typeof document === "undefined" || document.getElementById("wf-origin-pin-css")) return;
   const st = document.createElement("style");
@@ -154,59 +131,14 @@ const PIN_DPR = (() => {
     return Math.max(2, Math.min(3, Math.ceil(d || 2)));
   } catch (e) { return 2; }
 })();
-// v8.85 (owner, 2026-08-28, on a Food/Dinner map showing thirteen identical
-// orange teardrops): "show me number top 5 choices and make the places have an
-// icon representing its categories".
-//
-// The head of the pin was a white dot, so every result looked like every other
-// result — while the map already HELD the rank (a feature property, used only
-// to size pin #1) and the place's primary type. Both were being thrown away at
-// the last step. lib/mapPinGlyph.js decides WHAT goes in the head; this
-// function only draws it.
-//
-// The white disc stays and the mark sits inside it. Painting a glyph straight
-// onto the coloured teardrop fails twice: an emoji is full-colour, so it
-// fights the pin's own fill, and a dark numeral on a mid-orange body is under
-// 3:1 contrast at 28px. A white disc is one shape that fixes both, and it is
-// what the pin already drew.
+// Shared geometry and white category symbols also power Apple maps and legends.
 function drawPinImageData(color, { selected = false, glyph = null, kind = "glyph" } = {}) {
   const W = PIN_W * PIN_DPR, H = PIN_H * PIN_DPR;
   const canvas = document.createElement("canvas");
   canvas.width = W; canvas.height = H;
   const g = canvas.getContext("2d");
   g.scale(PIN_DPR, PIN_DPR);
-  // Teardrop: head circle r=12.2 centred at (17,15.2), tip at (17,44).
-  // Same silhouette as v8.85, scaled 34/28 so nothing about the shape or the
-  // shadow changes — only the room inside the head.
-  const path = new Path2D("M17 44 C 11.2 33.4 4.8 26.1 4.8 15.2 A 12.2 12.2 0 1 1 29.2 15.2 C 29.2 26.1 22.8 33.4 17 44 Z");
-  g.shadowColor = "rgba(15,23,35,.38)"; g.shadowBlur = 3.5; g.shadowOffsetY = 1.5;
-  g.fillStyle = selected ? "#F97316" : color;
-  g.fill(path);
-  g.shadowColor = "transparent";
-  g.lineWidth = selected ? 2.4 : 2;
-  g.strokeStyle = "#FFFFFF";
-  g.stroke(path);
-  // The head disc grows to hold a mark; with no mark it is the original dot,
-  // so a pin that cannot be labelled looks exactly as it always did.
-  const r = glyph ? (selected ? 9.6 : 9.2) : (selected ? 5.6 : 4.8);
-  g.beginPath(); g.arc(17, 15.2, r, 0, Math.PI * 2);
-  g.fillStyle = "#FFFFFF"; g.fill();
-  if (glyph) {
-    g.textAlign = "center";
-    g.textBaseline = "middle";
-    if (kind === "rank") {
-      // A numeral is drawn, not typed with an emoji font: at this size the
-      // system UI face is far more legible, and #0B0F14 on white is the same
-      // ink the cluster count already uses.
-      g.font = "800 13px -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif";
-      g.fillStyle = "#0B0F14";
-      g.fillText(String(glyph), 17, 15.9);
-    } else {
-      // Emoji sit high in their em box, so the baseline nudge is empirical.
-      g.font = "14px -apple-system,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif";
-      g.fillText(String(glyph), 17, 16.0);
-    }
-  }
+  paintMapPin(g, glyph || "other", selected);
   return g.getImageData(0, 0, W, H);
 }
 function ensurePinImage(map, key, color, opts) {
@@ -222,65 +154,14 @@ function markerNode({ label, color, kind, selected }) {
   el.tabIndex = 0;
   el.setAttribute("aria-label", label);
   if (kind === "origin" || kind === "event") {
-    // TICKET 4b — THE USER IS THE WAYFIND PIN.
-    //
-    // It was drawn as a generic pin in the same visual language as places, so
-    // the user's own position read as a search result. Now it is the brand mark
-    // itself (public/brand/wayfind-pin.svg — 32x36, gradient, transparent
-    // centre, no glow halo baked in).
-    //
-    // OUTLINE PIN = YOU. FILLED CIRCLE WITH A RANK = SOMEWHERE WE RECOMMEND.
-    // The two vocabularies must never converge; that is the whole point.
-    //
-    // anchor:"bottom" on the Marker puts the element's BOTTOM EDGE on the
-    // coordinate, so the pin's tip lands on the true position rather than its
-    // centre — verified against a known lat/lng, not by eye.
-    if (kind === "origin") {
-      // v8.23.3 — THE EMOJI, AT LAST, AND ON THE OWNER'S SECOND ASK.
-      //
-      // v7.16 recorded the request in these exact words — "can the location be
-      // more precise perhaps just a pin icon LIKE THE EMOJI because the circle
-      // covers too much" — and what shipped was a brand-drawn pin, then a neon
-      // variant in v7.19. Owner, 2026-08-19, on the live map: "can we make the
-      // current location the pin emoji". Third time asked, second time as an
-      // explicit instruction; it is the emoji now.
-      //
-      // WHAT MUST SURVIVE THE SWAP, and does:
-      //   · THE TIP ON THE COORDINATE. The Marker is anchor:"bottom", so the
-      //     element's bottom edge sits on the true lat/lng. U+1F4CD points down
-      //     from its own baseline, so its point lands where the SVG's did.
-      //   · THE TWO VOCABULARIES STAY APART. "You" is a single unranked glyph;
-      //     a recommendation is a teardrop sprite carrying a rank. They must
-      //     never converge (check-brand-pin), and an emoji diverges further
-      //     from a ranked sprite than the brand pin ever did.
-      //   · THE PULSE STAYS ON THE GLOW, not the mark. Scaling the glyph would
-      //     walk its tip off the coordinate every frame; .wf-origin-pin:before
-      //     animates opacity only, and reduced-motion still kills it.
-      //
-      // font-size drives the box: 26px of glyph in a 30x34 element, centred, so
-      // the halo behind it stays concentric on every platform's rendering.
-      el.style.cssText = "width:30px;height:34px;cursor:pointer;position:relative;";
-      el.innerHTML =
-        // Ground shadow, so it sits ON the map instead of floating above it.
-        '<span aria-hidden="true" style="position:absolute;left:50%;bottom:-2px;transform:translateX(-50%);width:15px;height:5px;border-radius:50%;background:rgba(15,23,35,.34);filter:blur(1.5px)"></span>' +
-        '<span aria-hidden="true" class="wf-origin-pin" style="display:block;position:relative;width:30px;height:34px;line-height:34px;text-align:center;font-size:26px;' +
-        'font-family:\'Apple Color Emoji\',\'Segoe UI Emoji\',\'Noto Color Emoji\',sans-serif;' +
-        'filter:drop-shadow(0 0 5px rgba(252,95,6,.75)) drop-shadow(0 2px 3px rgba(15,23,35,.35))">\u{1F4CD}</span>';
-      return el;
-    }
-    const w = 26, h = 34;
-    el.style.cssText = "width:" + w + "px;height:" + h + "px;cursor:pointer;filter:drop-shadow(0 4px 8px rgba(0,0,0,.4));" + (selected ? "filter:drop-shadow(0 4px 8px rgba(0,0,0,.4)) drop-shadow(0 0 0 3px rgba(255,255,255,.35));" : "");
-    el.innerHTML = WF_EVENT_PIN_SVG;   // origin returned above; only events reach here
+    el.style.cssText = "width:34px;height:46px;cursor:pointer;position:relative;";
+    el.className = kind === "origin" ? "wf-origin-pin" : "wf-event-pin";
+    el.innerHTML = mapPinSvg(kind === "origin" ? (label === "Your location" ? "location" : "other") : "shows");
     return el;
   }
-  el.style.cssText = [
-    "width:34px", "height:34px", "border-radius:50%", "border:2px solid rgba(255,255,255,.96)",
-    "background:" + color,
-    "box-shadow:0 5px 14px rgba(0,0,0,.34),0 0 " + (selected ? "4px" : "2px") + " rgba(255,255,255,.2)",
-    "color:#fff;font:800 12px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif",
-    "display:grid;place-items:center;padding:0;cursor:pointer",
-  ].join(";");
-  el.textContent = label.replace(/^\D*(\d+).*$/, "$1");
+
+  el.style.cssText = "width:34px;height:46px;cursor:pointer;";
+  el.innerHTML = mapPinSvg("other", { selected: !!selected });
   return el;
 }
 
@@ -318,35 +199,15 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     const placeFeatures = [];
     placesByIdRef.current = new Map();
     ranked.forEach((place, index) => {
-      // v8.89 — THE COLOUR IS A FACT ABOUT THE PLACE, NOT ABOUT THE FILTER.
-      //
-      // This used to be `{food:…, nightlife:…}[category]` — one colour for the
-      // whole VIEW. On the Food map every pin came out the same orange, so the
-      // only channel that is actually legible at pin size was spent restating
-      // the filter the reader had just chosen themselves. That is the owner's
-      // "I need the icon to be distinguished between food, bars, hotels":
-      // a steakhouse, a coffee shop and a beach bar were identical dots.
-      //
-      // pinColorFor reads the place's own primary type (lib/mapPinGlyph.js),
-      // so a Food map now separates into restaurants, cafés and bars at a
-      // glance, before any glyph is resolved.
-      //
-      // TWO OVERRIDES SURVIVE, and both outrank the family because both are
-      // about whether the pin is worth walking to at all:
-      //   · CLOSED is slate. "Shut right now" beats "is a taco place".
-      //   · #1 is the gold pin. The top pick has been gold since v7.16 and the
-      //     numeral inside it says the same thing twice, deliberately.
-      const color = place.openNow === false ? "#64748B"
-        : index === 0 ? "#FBBF24"
-        : pinColorFor(place, category);
+      const family = eventMapFamily(place, category);
+      const color = pinCategory(family).color;
       const id = String(place.id || `map-place-${index}`);
       placesByIdRef.current.set(id, place);
       const rank = index + 1;
       const sel = selectedId != null && String(id) === String(selectedId) ? 1 : 0;
-      // v8.85 — the top five carry their POSITION, everything else carries its
-      // CATEGORY. lib/mapPinGlyph.js owns that rule; this only asks it.
-      const mark = pinGlyphFor(place, rank, category);
-      const img = pinImageKey(sel ? "#F97316" : color, mark.text, !!sel);
+      // Every rank retains its category. Selection changes size, never category color.
+      const mark = { text: family, kind: "category" };
+      const img = pinImageKey(color, mark.text, !!sel);
       placeFeatures.push({ type: "Feature", properties: {
         id, rank, color, img, name: place.name || "Place",
         // Carried so the pin can be described to a screen reader and so a
@@ -363,7 +224,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     // written (never N DOM markers).
     for (const f of placeFeatures) {
       const p = f.properties;
-      ensurePinImage(map, p.img, p.sel ? "#F97316" : p.color, { selected: !!p.sel, glyph: p.mark, kind: p.markKind });
+      ensurePinImage(map, p.img, p.color, { selected: !!p.sel, glyph: p.mark, kind: p.markKind });
     }
     const placeSource = map.getSource("wf-places");
     if (placeSource) placeSource.setData({ type: "FeatureCollection", features: placeFeatures });
@@ -640,6 +501,10 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
         filter pass EVERY FRAME, and iOS commonly rasterizes filtered layers
         below device pixel ratio — which softened every pin as well as costing
         the frame budget. The 4% contrast lift is not worth either. */}
+    {((places || []).length > 0 || (events || []).length > 0) && <div aria-label="Map category legend" style={{ position: "absolute", top: 10, left: 10, right: 54, zIndex: 2, display: "flex", gap: 12, overflowX: "auto", overscrollBehaviorX: "contain", padding: "6px 10px", borderRadius: 12, background: "rgba(10,15,23,.88)", color: "#fff", fontSize: 12 }}>
+      {[...new Set((places || []).filter(p => p && p.lat != null && p.lng != null).slice(0, 60).map(p => eventMapFamily(p, category)))].map(family => <span key={family} style={{ display: "inline-flex", alignItems: "center", gap: 5, whiteSpace: "nowrap" }}><MapCategoryPin family={family} height={28} />{pinCategory(family).label}</span>)}
+      {(events || []).length > 0 && <span style={{ display: "inline-flex", alignItems: "center", gap: 5, whiteSpace: "nowrap" }}><MapCategoryPin family="shows" height={28} />Events</span>}
+    </div>}
     <div ref={containerRef} style={{ position: "absolute", inset: 0 }} />
     <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", border: "1px solid rgba(15,23,42,.08)", boxShadow: "inset 0 1px 0 rgba(255,255,255,.4)" }} />
   </div>;
