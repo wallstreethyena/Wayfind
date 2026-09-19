@@ -82,6 +82,25 @@ export const metadata = {
   // indexable Florida hub; this route stays out of the index entirely.
   robots: { index: false, follow: true },
   alternates: { canonical: SITE_URL + "/florida-events" },
+  openGraph: {
+    title: 'Your next “how did you find this?” | Wayfind',
+    description: "Discover Florida places worth the detour.",
+    url: SITE_URL + "/go/florida",
+    siteName: "Wayfind",
+    type: "website",
+    images: [{
+      url: SITE_URL + "/og/florida-discovery-wayfind-v2.png",
+      width: 1732,
+      height: 908,
+      alt: "Wayfind: Your next how did you find this? Discover Florida places worth the detour.",
+    }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: 'Your next “how did you find this?” | Wayfind',
+    description: "Discover Florida places worth the detour.",
+    images: [SITE_URL + "/og/florida-discovery-wayfind-v2.png"],
+  },
 };
 
 // The curated-events read, cached the SAME way app/florida-events/page.js
