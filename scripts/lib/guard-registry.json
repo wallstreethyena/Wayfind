@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 674,
-    "totalRegistryEntries": 675,
-    "guardsTxtLineCount": 673,
-    "guardsTxtReachedFileCount": 668,
+    "totalOnDiskGuardFiles": 675,
+    "totalRegistryEntries": 676,
+    "guardsTxtLineCount": 674,
+    "guardsTxtReachedFileCount": 669,
     "criticalCount": 83,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 460,
+      "CALL": 461,
       "RENDER": 75,
       "STRUCTURAL": 139,
       "OTHER": 1
@@ -9208,6 +9208,28 @@
       "owner": null
     },
     {
+      "file": "scripts/test-browser-analytics.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 40,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-business-status.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -9762,7 +9784,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 84,
+      "assertionCount": 122,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
