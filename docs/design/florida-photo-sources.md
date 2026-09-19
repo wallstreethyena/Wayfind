@@ -44,3 +44,7 @@ The current five general Florida tour-search cards still use the documented fall
 ## Local preview event connection
 
 The isolated preview uses placeholder database credentials by repository policy. Set `WAYFIND_PREVIEW_PUBLIC_EVENTS=1` when starting the local preview to read the site's public `/api/events/fall` feed. This mode is disabled on Vercel. Rows are deduplicated and still pass the existing Florida, verified-date and affiliate-ticket gates. Production retains its direct database reader. No event records or credentials are copied or changed. An unavailable public feed retains the honest unavailable state.
+
+## Seasonal event-card images
+
+Event cards now render photographs rather than text-only layouts. EPCOT uses Nicholas Fuentes' 6000 × 3376 photograph (https://unsplash.com/photos/pkftLOCU97U); Universal Orlando uses Sean Nyatsine's 4898 × 3265 photograph (https://unsplash.com/photos/yMEC6NDLLoI). Both source pages identify free use under the Unsplash License, and both originals were visually reviewed. These show the venues, not the named 2026 events, as labeled on the cards. Mickey's card uses the already-reviewed Nik Goodner Disney fall display. SeaWorld, LEGOLAND and Busch Gardens use their existing Tiqets partner photographs, labeled as park context rather than event documentation. Ticket destinations are unchanged.

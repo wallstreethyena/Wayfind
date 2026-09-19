@@ -256,11 +256,27 @@ function BoatRentalChoices({ offers }) {
 }
 
 function EventCard({ event, cta }) {
-  return <article className={styles.guideCard}>
+  const parkByEvent = {
+    "howl-o-scream-tampa-2026": "Busch Gardens Tampa Bay",
+    "howl-o-scream-seaworld-2026": "SeaWorld Orlando",
+    "seaworld-spooktacular-2026": "SeaWorld Orlando",
+    "brick-or-treat-2026": "LEGOLAND Florida Resort",
+  };
+  const park = THEME_PARK_OFFERS.find((offer) => offer.title === parkByEvent[event.event_id]);
+  const art = event.event_id === "epcot-food-wine-2026"
+    ? { src: "/florida-photos/epcot-nicholas-fuentes.jpg", width:6000, height:3376, alt:"Spaceship Earth at EPCOT", caption:"EPCOT · Nicholas Fuentes / Unsplash. Festival not pictured." }
+    : event.event_id === "hhn-orlando-2026"
+      ? { src:"/florida-photos/universal-sean-nyatsine.jpg", width:4898, height:3265, alt:"Universal globe at Universal Studios Plaza in Orlando", caption:"Universal Orlando · Sean Nyatsine / Unsplash. Event not pictured." }
+      : park ? null : guideHero("fall-events-orlando-2026");
+  return <article className={`${styles.guideCard} ${styles.photoGuideCard}`}>
+    {park ? <OfferImage offer={park} /> : <div className={styles.media}><LicensedPhoto {...art} sizes="(max-width:700px) 100vw, 400px" className={styles.offerImage} /></div>}
+    <div className={styles.cardBody}>
     <p className={styles.meta}>{dateRangeLabel(event)} · {event.city}</p>
     <h3>{event.event_name}</h3>
     {event.card_hook ? <p>{event.card_hook}</p> : null}
+    <p className={styles.imageCaption}>{park ? "Park photograph via Tiqets. Seasonal event not pictured." : art.caption} {art?.source ? <PhotoCredit art={art} /> : null}</p>
     <a className={styles.textLink} href={cta.href} rel="sponsored noopener" target="_blank">{cta.label}<span className={styles.srOnly}> for {event.event_name}, opens a new tab</span></a>
+    </div>
   </article>;
 }
 
