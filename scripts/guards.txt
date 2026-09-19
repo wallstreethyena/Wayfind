@@ -1656,3 +1656,6 @@ node scripts/test-live-poster-art.mjs
 # verification stamps; every committed verified batch accounts for every lead;
 # published.json names only verified rows. Hermetic.
 node scripts/check-florida-festivals-import.mjs
+
+# Shared category teardrops: real legend render and browser sprite geometry.
+node scripts/test-map-pin-standard.mjs

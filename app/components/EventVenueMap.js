@@ -1,4 +1,5 @@
 "use client";
+import MapCategoryPin from "./MapCategoryPin.js";
 
 // Event-only Apple Maps surface. The route overlay is added by the same
 // MapKit session as the venue and nearby annotations; EventDrivingRoute owns
@@ -95,12 +96,12 @@ export default function EventVenueMap({ venue, picks = [], onSelect, onMapReady 
     <div className="wfev-grid">
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
       {pins.length ? <div className="wfev-cats" aria-label="Map categories">
-        <button type="button" className="wfev-cat" aria-pressed={active === null} onClick={() => { setActive(null); setSel(null); }}><i aria-hidden="true">⌖</i><span>All places</span><b>{pins.length}</b></button>
-        {groups.map((group) => <button key={group.family} type="button" className="wfev-cat" aria-pressed={active === group.family} onClick={() => { setActive(active === group.family ? null : group.family); setSel(null); }}><i aria-hidden="true">{group.icon}</i><span>{group.label}</span><b>{group.count}</b></button>)}
+        <button type="button" className="wfev-cat" aria-pressed={active === null} onClick={() => { setActive(null); setSel(null); }}><MapCategoryPin /><span>All places</span><b>{pins.length}</b></button>
+        {groups.map((group) => <button key={group.family} type="button" className="wfev-cat" aria-pressed={active === group.family} onClick={() => { setActive(active === group.family ? null : group.family); setSel(null); }}><MapCategoryPin family={group.family} /><span>{group.label}</span><b>{group.count}</b></button>)}
       </div> : null}
       <div className="wfev wfev-h" aria-label={`Apple map of ${venue.name}`}>
         <div ref={hostRef} className="wfev-canvas" />
-        {ready && shown.length > 0 && !selected ? <div className="wfev-legend" aria-hidden="true"><span><em style={{ background: ACCENT }} />Event</span><span>{shown.length} {active ? (EVENT_MAP_FAMILY[active]?.label || "places") : "places"}</span></div> : null}
+        {ready && shown.length > 0 && !selected ? <div className="wfev-legend" aria-hidden="true"><span><MapCategoryPin family="event" height={24} />Event</span><span>{shown.length} {active ? (EVENT_MAP_FAMILY[active]?.label || "places") : "places"}</span></div> : null}
         {selected ? <div className="wfev-card" role="region" aria-label={selected.name}>
           <img src={thumb(selected)} alt="" loading="lazy" /><span style={{ minWidth: 0, flex: 1 }}><b>{selected.name}</b><small>{Number.isFinite(selected.wfScore) ? <u>{(selected.wfScore / 10).toFixed(1)}</u> : null}{selected.cat || "Nearby"}{selected.distMi != null ? ` · ${selected.distMi.toFixed(1)} mi from the venue` : ""}</small></span>
           <a className="wfev-go" href={selected.href}>Open</a><button type="button" className="wfev-x" aria-label="Close" onClick={() => setSel(null)}>×</button>

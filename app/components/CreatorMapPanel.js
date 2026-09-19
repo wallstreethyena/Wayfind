@@ -1,24 +1,15 @@
 "use client";
+import { PIN_CATEGORIES } from "../../lib/mapPinStandard.js";
+import MapCategoryPin from "./MapCategoryPin.js";
 
 // Categories and Apple pins share the inventory classification. All places is the default.
 import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { pinFamily } from "../../lib/mapPinGlyph.js";
+import { eventMapFamily } from "../../lib/eventMapPlaces.js";
 
 const CreatorAppleMap = dynamic(() => import("./CreatorAppleMap"), { ssr: false });
 
-const FAMILY_LABEL = {
-  cafe: "Coffee & cafés",
-  food: "Food",
-  drinks: "Drinks",
-  shows: "Shows",
-  outdoors: "Outdoors",
-  water: "On the water",
-  culture: "Culture",
-  stay: "Stays",
-  shop: "Shopping",
-  other: "Everything else",
-};
+const FAMILY_LABEL = Object.fromEntries(Object.entries(PIN_CATEGORIES).map(([key, value]) => [key, value.label]));
 
 // No /* */ inside the template below — that is the lesson check-css-comment-bytes
 // was written for (prose inside a template literal is not minified and ships to
@@ -57,7 +48,7 @@ export default function CreatorMapPanel({ handle, places = [], intro = "" }) {
 
   // Total over garbage, same rule lib/mapPinGlyph.js follows: an unclassifiable
   // place lands in one honest bucket rather than throwing inside a render.
-  const famOf = (p) => { try { return pinFamily(p) || "other"; } catch (e) { return "other"; } };
+  const famOf = (p) => { try { return eventMapFamily(p) || "other"; } catch (e) { return "other"; } };
 
   // Counts are computed from the SAME rows the map draws, never from the
   // curated list — so the number beside a category is the number of pins the
@@ -98,7 +89,7 @@ export default function CreatorMapPanel({ handle, places = [], intro = "" }) {
       <div className="wfcm-grid">
         <div className="wfcm-side">
           <button type="button" className="wfcm-row" aria-pressed={active === null} onClick={() => { setActive(null); setSelectedId(null); }}>
-            <span>All places</span><b>{rows.length}</b>
+            <MapCategoryPin /><span>All places</span><b>{rows.length}</b>
           </button>
           {groups.map((g) => (
             <button
@@ -108,7 +99,7 @@ export default function CreatorMapPanel({ handle, places = [], intro = "" }) {
               aria-pressed={active === g.fam}
               onClick={() => { setActive(active === g.fam ? null : g.fam); setSelectedId(null); }}
             >
-              <i aria-hidden="true" style={{ fontStyle: "normal" }}>{({ cafe: "☕", food: "🍽", drinks: "🍸", culture: "🏛", outdoors: "🌳", water: "🌊", shop: "🛍", stay: "🛏", shows: "🎭" })[g.fam] || "📍"}</i><span>{g.label}</span><b>{g.n}</b>
+              <MapCategoryPin family={g.fam} /><span>{g.label}</span><b>{g.n}</b>
             </button>
           ))}
         </div>
