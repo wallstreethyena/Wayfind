@@ -98,6 +98,22 @@ export async function GET(req) {
   if (!provider || !offerId) return fail("missing-provider-or-offer");
   if (!PROVIDERS[provider]) return fail("unknown-provider");
 
+  // The explicitly enabled local preview reads the public production catalog.
+  // Resolve its offer IDs against that same source, not placeholder local DB
+  // credentials. Keep the destination fixed to our own tracked resolver.
+  if (process.env.WAYFIND_PREVIEW_PUBLIC_EVENTS === "1" && !process.env.VERCEL) {
+    const previewDestination = new URL("https://www.gowayfind.com/api/commerce/go");
+    for (const [key, value] of Object.entries({ provider, offer: offerId, surface, content: contentId, click_id: clickId })) {
+      if (value) previewDestination.searchParams.set(key, value);
+    }
+    return new Response(null, { status: 302, headers: {
+      Location: previewDestination.toString(),
+      "Cache-Control": "no-store, max-age=0",
+      "Referrer-Policy": "no-referrer",
+    } });
+  }
+
+
   // The surface rides along as the provider's tracking sub-id, where the
   // network supports one (CityPASS/CJ today; every other provider ignores it).
   // It can only change an attribution tag on a link we were already going to
