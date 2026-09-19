@@ -75,7 +75,7 @@ function domainViolations(rawSrc) {
   // hero strings), so the red-prove exercises the same file and the same
   // stripComments() the real checks below use — not a hand-typed stand-in.
   const emDash = String.fromCharCode(0x2014);
-  const bad1 = rawData.replace("A little less searching. A lot more Florida.", "A little less searching " + emDash + " a lot more Florida.");
+  const bad1 = rawData.replace("Less searching. More Florida.", "Less searching " + emDash + " more Florida.");
   const bad2 = rawData.replace("Find my Florida outing", "Find my - Florida outing");
   ok(bad1 !== rawData, "self-test setup: the em-dash mutation target string exists in lib/paidFloridaLanding.js");
   ok(bad2 !== rawData, "self-test setup: the \" - \" mutation target string exists in lib/paidFloridaLanding.js");

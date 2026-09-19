@@ -142,7 +142,7 @@ async function loadHalloweenEvents() {
   }
 }
 
-const HERO_ART = guideHero("weeki-wachee-kayak-mermaids-guide");
+const HERO_ART = guideHero("things-to-do-key-west-summer-2026");
 const COAST_ART = guideHero("siesta-key-vs-lido-key");
 
 function PhotoCredit({ art }) {
@@ -306,6 +306,10 @@ export default async function GoFloridaPage({ searchParams }) {
   const order = orderedSections(focus);
   const mark = activeSeasonalMark() || NORMAL_MARK;
   return <main id="go-florida" className={styles.page}>
+    <div className={styles.opening}>
+      <div className={styles.heroBackdrop}>
+        <GuidePhoto src={HERO_ART.src} alt={HERO_ART.alt} width={HERO_ART.width} height={HERO_ART.height} loading="eager" fetchpriority="high" className={styles.heroPhoto} fallbackClassName={styles.heroFallback} fallbackText="" />
+      </div>
     <header className={styles.header}>
       <a href="/" aria-label="Wayfind home"><img className={styles.wordmark} src={mark.png} alt="Wayfind" width={mark.width} height={mark.height} /></a>
       <nav aria-label="Florida navigation"><a href="#hot">Guides</a><a href="#halloween">Events</a><a href="#shows">Nights out</a><a className={styles.headerAction} href="/">Find an outing <span aria-hidden="true">↗</span></a></nav>
@@ -313,18 +317,14 @@ export default async function GoFloridaPage({ searchParams }) {
     <div className={styles.hero}>
       <div className={styles.heroCopy}>
         <p className={styles.eyebrow}>{HERO.kicker}</p>
-        <h1>{HERO.h1}</h1>
+        <h1>Less searching.<br />More <em>Florida.</em></h1>
         <p className={styles.heroSub}>{HERO.sub}</p>
         <div className={styles.heroActions}><a className={styles.primary} href={HERO.primaryHref}>{HERO.primaryLabel} <span aria-hidden="true">↗</span></a><a className={styles.textLink} href={HERO.secondaryHref}>{HERO.secondaryLabel} <span aria-hidden="true">↓</span></a></div>
         <p className={styles.disclosure}>{DISCLOSURE}</p>
       </div>
-      <figure className={styles.heroFigure}>
-        <div className={styles.heroMedia}>
-          <GuidePhoto src={HERO_ART.src} alt={HERO_ART.alt} width={HERO_ART.width} height={HERO_ART.height} loading="eager" fetchpriority="high" className={styles.heroPhoto} fallbackClassName={styles.heroFallback} fallbackText="Find your Florida" />
-          <a className={styles.photoStory} href="/guides/weeki-wachee-kayak-mermaids-guide"><span>Worth the detour</span><strong>Clear water. A different pace.</strong><span>Explore Weeki Wachee <span aria-hidden="true">↗</span></span></a>
-        </div>
-        <figcaption>Weeki Wachee River, Florida. <PhotoCredit art={HERO_ART} /></figcaption>
-      </figure>
+      <a className={styles.destination} href="/guides/things-to-do-key-west-summer-2026"><span className={styles.destinationMarker} aria-hidden="true">↗</span><span><small>THE FLORIDA KEYS</small><strong>A slower kind of escape.</strong><span>Discover Key West</span></span></a>
+    </div>
+    <div className={styles.heroFoot}><span>GOOD DAYS START WITH A LITTLE LOCAL KNOWLEDGE</span><span>Key West, Florida. <PhotoCredit art={HERO_ART} /></span></div>
     </div>
     <nav className={styles.interests} aria-label="Explore Florida by interest">{INTEREST_LINKS.map((link) => <a key={link.href} href={link.href}><strong>{link.label}</strong><span>{link.detail}</span></a>)}</nav>
     <div className={styles.content}>{order.map((key) => { const Section = SECTION_RENDERERS[key]; return Section ? <Section key={key} /> : null; })}</div>
