@@ -501,7 +501,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
         filter pass EVERY FRAME, and iOS commonly rasterizes filtered layers
         below device pixel ratio — which softened every pin as well as costing
         the frame budget. The 4% contrast lift is not worth either. */}
-    {((places || []).length > 0 || (events || []).length > 0) && <div aria-label="Map category legend" style={{ position: "absolute", top: 10, left: 10, right: 54, zIndex: 2, display: "flex", gap: 12, overflowX: "auto", padding: "6px 10px", borderRadius: 12, background: "rgba(10,15,23,.88)", color: "#fff", fontSize: 12 }}>
+    {((places || []).length > 0 || (events || []).length > 0) && <div aria-label="Map category legend" style={{ position: "absolute", top: 10, left: 10, right: 54, zIndex: 2, display: "flex", gap: 12, overflowX: "auto", overscrollBehaviorX: "contain", padding: "6px 10px", borderRadius: 12, background: "rgba(10,15,23,.88)", color: "#fff", fontSize: 12 }}>
       {[...new Set((places || []).filter(p => p && p.lat != null && p.lng != null).slice(0, 60).map(p => eventMapFamily(p, category)))].map(family => <span key={family} style={{ display: "inline-flex", alignItems: "center", gap: 5, whiteSpace: "nowrap" }}><MapCategoryPin family={family} height={28} />{pinCategory(family).label}</span>)}
       {(events || []).length > 0 && <span style={{ display: "inline-flex", alignItems: "center", gap: 5, whiteSpace: "nowrap" }}><MapCategoryPin family="shows" height={28} />Events</span>}
     </div>}

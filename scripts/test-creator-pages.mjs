@@ -207,7 +207,6 @@ ok(creatorMetadata("someone-with-no-page").robots.index === false, "a handle wit
   const mapkit = {
     Map: class { addAnnotations(a) { drawn = a; } showItems(a) { fitted = a; } addEventListener(t, fn) { listener = fn; } removeEventListener() {} destroy() { destroyed = true; } },
     Coordinate: class { constructor(lat, lng) { this.latitude = lat; this.longitude = lng; } },
-    Size: class { constructor(w,h) { this.width=w; this.height=h; } }, DOMPoint: class { constructor(x,y) { this.x=x; this.y=y; } },
     ImageAnnotation: class { constructor(c, o) { this.coordinate = c; Object.assign(this, o); } },
     Padding: class {},
   };

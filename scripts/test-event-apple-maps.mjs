@@ -35,7 +35,7 @@ class FakeSearch {
   search(query) { return new Promise((resolve, reject) => searches.push({ query, resolve, reject, search: this })); }
   cancel(request) { this.cancelledRequest = request; }
 }
-const fakeKit = { Map: FakeMap, Coordinate: FakeCoordinate, ImageAnnotation: FakeAnnotation, Size: class { constructor(width, height) { Object.assign(this, {width, height}); } }, DOMPoint: class { constructor(x, y) { Object.assign(this, {x, y}); } }, Directions: FakeDirections, Search: FakeSearch, Style: class Style { constructor(options) { Object.assign(this, options); } }, Padding: FakePadding };
+const fakeKit = { Map: FakeMap, Coordinate: FakeCoordinate, ImageAnnotation: FakeAnnotation, Directions: FakeDirections, Search: FakeSearch, Style: class Style { constructor(options) { Object.assign(this, options); } }, Padding: FakePadding };
 let pass = 0;
 const check = (condition, message) => { assert.ok(condition, message); pass += 1; };
 
