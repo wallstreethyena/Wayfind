@@ -125,7 +125,19 @@ const fetchLandingEvents = unstable_cache(
 
 async function loadHalloweenEvents() {
   try {
-    const rows = await fetchLandingEvents();
+    // Explicit local preview mode uses the site's public, read-only fall feed.
+    // Production continues to read its own database; never proxy back to itself.
+    const publicPreview = process.env.WAYFIND_PREVIEW_PUBLIC_EVENTS === "1" && !process.env.VERCEL;
+    let rows;
+    if (publicPreview) {
+      const response = await fetch("https://www.gowayfind.com/api/events/fall?lat=28.5383&lng=-81.3792&full=1", { cache: "no-store", signal: AbortSignal.timeout(8000) });
+      if (!response.ok) throw new Error("Public preview event feed unavailable");
+      const feed = await response.json();
+      if (!Array.isArray(feed.rails)) throw new Error("Invalid public preview event feed");
+      rows = [...new Map(feed.rails.flatMap((rail) => rail.cards || []).filter((event) => event.event_id).map((event) => [event.event_id, event])).values()];
+    } else {
+      rows = await fetchLandingEvents();
+    }
     const now = new Date();
     const items = (Array.isArray(rows) ? rows : [])
       .filter(isFloridaEvent)

@@ -40,3 +40,7 @@ For bookable Viator experiences, first request the matching product's official i
 Use verified destination photography or licensed stock/Unsplash as a clearly labeled fallback when matching affiliate imagery is unavailable. Editorial destination heroes can continue to use the owner's licensed stock. A general tour-search card does not identify one operator: use a clearly labeled example only if its source/product is identified, or retain the current illustration until the card is matched to a verified product. Do not silently imply that a photographed boat or tour is what every search result offers.
 
 The current five general Florida tour-search cards still use the documented fallback images above. This sourcing preference does not claim that those images have been replaced by Viator photos. Existing Viator product cards already fetch provider images via the affiliate integration; the landing search cards do not yet identify exact Viator product codes.
+
+## Local preview event connection
+
+The isolated preview uses placeholder database credentials by repository policy. Set `WAYFIND_PREVIEW_PUBLIC_EVENTS=1` when starting the local preview to read the site's public `/api/events/fall` feed. This mode is disabled on Vercel. Rows are deduplicated and still pass the existing Florida, verified-date and affiliate-ticket gates. Production retains its direct database reader. No event records or credentials are copied or changed. An unavailable public feed retains the honest unavailable state.
