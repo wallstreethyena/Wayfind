@@ -218,7 +218,7 @@ ok(creatorMetadata("someone-with-no-page").robots.index === false, "a handle wit
     { id: "missing", lat: null, lng: null },
   ], onSelect: id => { selected = id; } });
   ok(drawn.length === 2 && fitted.length === 2, "all valid reviewed places fit, with no fabricated center pin");
-  ok(drawn[0].url[1] !== drawn[1].url[1], "cafe and park have representative distinct glyphs");
+  ok(drawn[0].image[1] !== drawn[1].image[1], "cafe and park have representative distinct glyphs");
   listener({ annotation: drawn[0] });
   ok(selected === "cafe", "pin selection resolves the real place ID");
   controller.destroy(); ok(destroyed, "map is destroyed when filters change or page unmounts");

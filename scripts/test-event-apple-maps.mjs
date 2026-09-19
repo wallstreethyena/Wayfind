@@ -62,7 +62,7 @@ check(eventMapGlyph(stays[0]) === EVENT_MAP_FAMILY.stay.icon && EVENT_MAP_FAMILY
 
 let selected = null; const errors = [];
 const controller = createAppleMapController({ mapkit: fakeKit, container: {}, venue, picks: [{ id: "pick-1", name: "Nearby", lat: 27.31, lng: -82.49, cat: "Restaurant" }], onSelect: (id) => { selected = id; }, onError: (message) => errors.push(message) });
-check(controller.map.annotations.length === 2 && controller.map.annotations[0].url[1] === mapPinUrl("food") && controller.map.annotations[0].anchorOffset.y === -23 && controller.map.annotations[1].url[1] === mapPinUrl("event"), "venue star and a white-on-orange food pictogram share one native Apple map");
+check(controller.map.annotations.length === 2 && controller.map.annotations[0].image[1] === mapPinUrl("food") && !controller.map.annotations[0].anchorOffset && controller.map.annotations[1].image[1] === mapPinUrl("event"), "venue star and a white-on-orange food pictogram share one native Apple map");
 controller.map.listener.fn({ annotation: controller.map.annotations[0] });
 check(selected === "pick-1", "nearby annotation selection reaches the UI callback");
 
@@ -83,8 +83,8 @@ controller.setPicks([
   { id: "coffee", name: "Coffee", lat: 27.32, lng: -82.48, primaryType: "coffee_shop" },
 ]);
 const streamedStay = controller.map.annotations.find((annotation) => annotation.__wayfindId === "22");
-check(controller.map.annotations.length === 3 && controller.map.annotations.some((annotation) => annotation.url[1] === mapPinUrl("event")) && !controller.map.annotations.some((annotation) => annotation.__wayfindId === "pick-1"), "setPicks replaces only place annotations, dedupes streamed IDs, and retains the venue");
-check(streamedStay?.url[1] === mapPinUrl("stay") && streamedStay?.size.width === 34 && streamedStay?.size.height === 46, "a streamed hotel renders as the reference white-on-blue bed pin");
+check(controller.map.annotations.length === 3 && controller.map.annotations.some((annotation) => annotation.image[1] === mapPinUrl("event")) && !controller.map.annotations.some((annotation) => annotation.__wayfindId === "pick-1"), "setPicks replaces only place annotations, dedupes streamed IDs, and retains the venue");
+check(streamedStay?.image[1] === mapPinUrl("stay") && decodeURIComponent(streamedStay.image[1]).includes('width="34" height="46"'), "a streamed hotel renders as the reference white-on-blue bed pin");
 check(controller.map.overlays[0] === routeOverlay && controller.map.showCalls === routeFitCalls, "streamed hotel pins preserve the active route overlay and do not reset its fitted camera");
 controller.map.listener.fn({ annotation: streamedStay });
 check(selected === "22", "selection follows the normalized identity of a streamed pin");
