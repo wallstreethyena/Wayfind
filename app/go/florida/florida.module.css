@@ -128,3 +128,7 @@
 @media(max-width:700px) { .rentalChoices { display:block; } }
 
 .cardBody > .textLink { margin-top:auto; align-self:flex-start; }
+
+.guideCard.photoGuideCard { padding:0; overflow:hidden; }
+.photoGuideCard .cardBody > p:not(.meta):not(.imageCaption) { font-size:13px; color:var(--fl-muted); margin:0 0 18px; }
+.photoGuideCard .imageCaption { margin:0 0 18px; }

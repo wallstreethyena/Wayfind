@@ -174,11 +174,19 @@ function SectionHead({ eyebrow, title, intro }) {
 
 function GuideCard({ slug, title, blurb, rank }) {
   if (!GUIDES[slug]) return null;
-  return <article className={styles.guideCard}>
+  const reviewedArt = guideHero(slug);
+  const art = reviewedArt.src ? reviewedArt : slug === "siesta-key-drum-circle"
+    ? { ...EXPERIENCE_PHOTOS["siesta-key-sunset-cruise"], caption: "Sarasota shoreline · Nathan Mullet / Unsplash. Drum circle not pictured." }
+    : { ...SPRINGS_PHOTO, caption: "Daytime kayaking illustration. Bioluminescence not pictured." };
+  return <article className={`${styles.guideCard} ${styles.photoGuideCard}`}>
+    <div className={styles.media}><LicensedPhoto {...art} sizes="(max-width:700px) 100vw, 400px" className={styles.offerImage} /></div>
+    <div className={styles.cardBody}>
     {rank ? <span className={styles.rank} aria-label={"Reader rank " + rank}>{String(rank).padStart(2, "0")}</span> : <span className={styles.editorialLabel}>The local guide</span>}
     <h3><a href={"/guides/" + slug}>{title}</a></h3>
     <p>{blurb}</p>
+    <p className={styles.imageCaption}>{art.cardCaption || art.caption} {art.source ? <PhotoCredit art={art} /> : null}</p>
     <a className={styles.textLink} href={"/guides/" + slug}>Read the guide <span aria-hidden="true">↗</span></a>
+    </div>
   </article>;
 }
 

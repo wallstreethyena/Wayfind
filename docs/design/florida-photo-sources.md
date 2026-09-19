@@ -32,3 +32,11 @@ Full-size inputs feed Next Image at quality 85 with responsive sizes. The source
 ## Remaining editorial limitation
 
 No verified, free Unsplash photograph of actual Titusville bioluminescence was found. The tour card uses an explicitly labeled daytime kayaking illustration. Replace it with licensed documentary night-tour photography when available; do not manufacture glowing water.
+
+## Owner sourcing preference: Viator first
+
+For bookable Viator experiences, first request the matching product's official imagery through the existing affiliate integration (`/api/viator/curated`, backed by the verified product cache and Viator's official product endpoint). Prefer an appropriate high-resolution supplier variant and retain product identity and source records. Do not scrape arbitrary listing photos or reuse one operator's photo for a different operator.
+
+Use verified destination photography or licensed stock/Unsplash as a clearly labeled fallback when matching affiliate imagery is unavailable. Editorial destination heroes can continue to use the owner's licensed stock. A general tour-search card does not identify one operator: use a clearly labeled example only if its source/product is identified, or retain the current illustration until the card is matched to a verified product. Do not silently imply that a photographed boat or tour is what every search result offers.
+
+The current five general Florida tour-search cards still use the documented fallback images above. This sourcing preference does not claim that those images have been replaced by Viator photos. Existing Viator product cards already fetch provider images via the affiliate integration; the landing search cards do not yet identify exact Viator product codes.
