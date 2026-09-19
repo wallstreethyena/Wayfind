@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-18",
+  "generated": "2026-09-19",
   "generator": "scripts/lib/build-guard-registry.mjs",
   "derivation": "scripts/lib/deriveGuardRegistry.mjs",
   "schemaNotes": "Mechanically-derived fields (class/assertionCount/wiring/gating/critical/criticalReasons) are regenerated every run from scripts/guards.txt, package.json, .github/workflows/*.yml, ops/*.workflow.yml and scripts/lib/guardHonestyAnalysis.mjs — editing them by hand will be overwritten on the next `node scripts/lib/build-guard-registry.mjs`. Hand-authored fields (protects/blastRadius/owner) live in scripts/lib/guard-registry-overrides.json and are merged in; they are REQUIRED for every entry with critical:true and optional elsewhere. scripts/check-guard-registry.mjs (the CI guard) re-derives guards.txt wiring LIVE rather than trusting this file's cached `wiring.guardsTxt` — and since 2026-09-07 it also re-derives EVERY mechanically-derived field via scripts/lib/deriveGuardRegistry.mjs and fails when the committed snapshot disagrees, so a stale registry can no longer be merged unnoticed.",
@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 673,
-    "totalRegistryEntries": 674,
-    "guardsTxtLineCount": 672,
-    "guardsTxtReachedFileCount": 667,
+    "totalOnDiskGuardFiles": 674,
+    "totalRegistryEntries": 675,
+    "guardsTxtLineCount": 673,
+    "guardsTxtReachedFileCount": 668,
     "criticalCount": 83,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 461,
-      "RENDER": 73,
+      "RENDER": 74,
       "STRUCTURAL": 139,
       "OTHER": 1
     }
@@ -12610,6 +12610,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 34,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-map-pin-standard.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 5,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

@@ -199,7 +199,7 @@ ok(creatorMetadata("someone-with-no-page").robots.index === false, "a handle wit
   ok(html.includes("cindy-selects-portrait-760.jpg"), "Cindy hero uses the supplied portrait");
   ok(html.includes('aria-label="Bradenton videos"'), "city videos render in a labeled horizontal rail");
   ok(html.includes('/api/photo?place='), "video covers request the actual place photo");
-  ok(/aria-pressed="true"[^>]*><span>All places/.test(html), "All places is selected on initial render");
+  ok(/aria-pressed="true"[^>]*><img[^>]*><span>All places/.test(html), "All places is selected on initial render");
   const { createCreatorAppleMap, creatorMapGlyph } = await import("../lib/creatorAppleMap.js");
   ok(html.includes("Cindy Selects · Video guide"), "creator portrait fallback identifies itself as a video guide, never a venue photo");
   ok(creatorMapGlyph({ primary_type: "unknown", category: "food" }) !== "•", "an unknown food subtype uses a food symbol, not a generic dot");
@@ -207,7 +207,8 @@ ok(creatorMetadata("someone-with-no-page").robots.index === false, "a handle wit
   const mapkit = {
     Map: class { addAnnotations(a) { drawn = a; } showItems(a) { fitted = a; } addEventListener(t, fn) { listener = fn; } removeEventListener() {} destroy() { destroyed = true; } },
     Coordinate: class { constructor(lat, lng) { this.latitude = lat; this.longitude = lng; } },
-    MarkerAnnotation: class { constructor(c, o) { this.coordinate = c; Object.assign(this, o); } },
+    Size: class { constructor(w,h) { this.width=w; this.height=h; } }, DOMPoint: class { constructor(x,y) { this.x=x; this.y=y; } },
+    ImageAnnotation: class { constructor(c, o) { this.coordinate = c; Object.assign(this, o); } },
     Padding: class {},
   };
   let selected;
@@ -217,7 +218,7 @@ ok(creatorMetadata("someone-with-no-page").robots.index === false, "a handle wit
     { id: "missing", lat: null, lng: null },
   ], onSelect: id => { selected = id; } });
   ok(drawn.length === 2 && fitted.length === 2, "all valid reviewed places fit, with no fabricated center pin");
-  ok(drawn[0].glyphText !== drawn[1].glyphText, "cafe and park have representative distinct glyphs");
+  ok(drawn[0].url[1] !== drawn[1].url[1], "cafe and park have representative distinct glyphs");
   listener({ annotation: drawn[0] });
   ok(selected === "cafe", "pin selection resolves the real place ID");
   controller.destroy(); ok(destroyed, "map is destroyed when filters change or page unmounts");

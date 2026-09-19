@@ -162,9 +162,9 @@ ok(pinGlyphFor(pizza, 0, "food").kind === "glyph" && pinGlyphFor(pizza, -3, "foo
   // literal list so adding a fourth export does not go red for no reason, while
   // a MapView that stopped importing any of the three still does.
   ok(/import \{[^}]*\} from "\.\.\/\.\.\/lib\/mapPinGlyph\.js"/.test(mv)
-    && /\bpinGlyphFor\b/.test(mv) && /\bpinImageKey\b/.test(mv) && /\bpinColorFor\b/.test(mv),
+    && /\bpinImageKey\b/.test(mv) && /\bpaintMapPin\b/.test(mv),
     "weaker check (source): MapView imports the rule rather than restating it");
-  ok(/pinColorFor\(place, category\)/.test(mv),
+  ok(/eventMapFamily\(place, category\)/.test(mv),
     "…and the PIN's colour is resolved per PLACE — one orange for every pin on the Food map is what made a steakhouse, a cafe and a beach bar identical");
   ok(!/const categoryColor =/.test(mv),
     "…and the per-VIEW pin table it replaced is gone, not merely bypassed");
@@ -174,8 +174,8 @@ ok(pinGlyphFor(pizza, 0, "food").kind === "glyph" && pinGlyphFor(pizza, -3, "foo
   // and so this guard is scoped to the pin rather than to the word "colour".
   ok(/const clusterColor = \{ food:/.test(mv),
     "…while the CLUSTER ring keeps the view's colour, which is the one place a per-view colour is the true statement");
-  ok(/pinGlyphFor\(place, rank, category\)/.test(mv),
-    "weaker check (source): MapView CALLS pinGlyphFor with the place, its rank and the view's category");
+  ok(/text: family, kind: "category"/.test(mv),
+    "weaker check (source): 2026-09-19 owner reference: every pin carries its category, including the top five");
   ok(/"icon-image": \["get", "img"\]/.test(mv),
     "weaker check (source): the sprite is resolved per feature — a `concat` of an emoji into an image id is not something to rely on");
   ok(/glyph: p\.mark, kind: p\.markKind/.test(mv),
