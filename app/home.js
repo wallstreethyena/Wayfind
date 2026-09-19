@@ -24,6 +24,7 @@ import { cuisineMetroFor } from "../lib/cuisine";
 // v6.15: the ONE shared place classifier (labels + the junk gate now agree).
 import { primaryCategory, catOfType } from "../lib/placeCategory";
 import { deviceId } from "../lib/deviceId";
+import { analyticsSuppressionReason } from "../lib/browserAnalytics";
 import { markIntroSeen } from "../lib/introGate";
 import { isNative, nativeAppleCredential, nativeOAuthSignIn, nativeShare } from "../lib/native";
 import { noteHighPointAndMaybeAsk } from "../lib/appRating";
@@ -1080,9 +1081,18 @@ function originUrl(path) {
 // Injected-telemetry default. Named, not an inline arrow: one copy instead of
 // four, and no parenthesis inside a signature that guards match on.
 const NOLOG = () => {};
+function skipOwnerOrBotAnalytics(user) {
+  if (typeof window === "undefined") return false;
+  try {
+    return !!(window.__WF_ANALYTICS_SUPPRESSED || analyticsSuppressionReason({
+      storage: window.localStorage, user,
+      userAgent: window.navigator.userAgent, webdriver: window.navigator.webdriver,
+    }));
+  } catch { return false; }
+}
 function logEventAnon(action, place, extra) {
   try {
-    if (!supabase) return;
+    if (!supabase || skipOwnerOrBotAnalytics()) return;
     supabase.from("events").insert({
       action,
       place_id: (place && place.id) || null,
@@ -4110,6 +4120,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
   const [detail, setDetail] = useState(null);
+  useEffect(() => {
+    // The app changes screens inside one route. Sync after the DOM surface
+    // marker changes, so the next timer tick cannot charge the old screen.
+    try { window.__WF_PAGE_TRACKER?.sync(); } catch {}
+  }, [screen, !!detail]);
   // v6.93 — Social Media Find sheet: { place, video } for a specific find, or
   // { place: null } to open in "not in your region yet" recommendation mode
   // (see socialFindRegions above / SocialFind.js).
@@ -5131,6 +5146,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       // always applies; the ONLY event allowed to clear one is SIGNED_OUT.
       if (session && session.user) setUser(session.user);
       else if (_event === "SIGNED_OUT") setUser(null);
+      try { if (session && session.user && typeof window !== "undefined" && window.__WF_NOTE_AUTH_USER) window.__WF_NOTE_AUTH_USER(session.user); } catch (e) {}
       try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture("auth_event", { event: _event, hasSession: !!(session && session.user) }); } catch (e) {}
       try { if (session && session.user && typeof window !== "undefined" && window.posthog) window.posthog.identify(session.user.id); } catch (e) {}
       try { const _k = "wf_authlog"; const _a = JSON.parse(localStorage.getItem(_k) || "[]"); _a.push({ t: new Date().toISOString().slice(5, 19), e: _event, s: !!(session && session.user) }); localStorage.setItem(_k, JSON.stringify(_a.slice(-12))); } catch (e) {}
@@ -6299,6 +6315,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   useEffect(() => { try { logEvent("screen_view", null, { screen }); } catch (e) {} }, [screen]);
   function logEvent(action, place, extra) {
     try { if (place && place.type) tasteBump(place); } catch (e) {}
+    if (skipOwnerOrBotAnalytics(user)) return;
     const _exp = (() => { try { return experimentProps(); } catch (e) { return {}; } })();
     try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture(action, Object.assign({ place_id: (place && place.id) || (extra && extra.place_id) || null, place_name: (place && place.name) || null }, extra || {}, _exp)); } catch (e0) {}
     // Mirror to GA4 / Google Ads. One product action => one PostHog event (above)
@@ -10124,7 +10141,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           gets a desktop-only padding-bottom bump in css.js rather than
           raising the flat mobile value, which would add dead space on phones
           that don't need it. */}
-      <div ref={scrollRef} className="wf-scrollarea" style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overscrollBehavior: "contain", overflowY: screen === "map" ? "hidden" : "auto", padding: screen === "map" ? 0 : "7px 12px calc(28px + env(safe-area-inset-bottom))" }}>
+      <div ref={scrollRef} className="wf-scrollarea" data-analytics-page={screen} data-analytics-overlay={detail ? "place" : undefined} style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overscrollBehavior: "contain", overflowY: screen === "map" ? "hidden" : "auto", padding: screen === "map" ? 0 : "7px 12px calc(28px + env(safe-area-inset-bottom))" }}>
         <>
             {screen === "explore" && <div className="wf-explore">{exploreList}</div>}
             <MapErrorBoundary>{screen === "map" && <MapScreen ctx={ctx} />}</MapErrorBoundary>

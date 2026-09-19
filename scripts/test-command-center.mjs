@@ -20,6 +20,7 @@ import { computeAlerts, MIN_BASELINE_DAYS } from "../lib/commandCenter/alerts.js
 import { srcMissing, srcOk, srcError, jsonNoStore } from "../lib/commandCenter/respond.js";
 import { memTTL } from "../lib/commandCenter/cache.js";
 import { OUT_ACTIONS, ENGAGE_ACTIONS, BROWSE_ACTIONS, EVENT_MAP, KPI_DEFS } from "../lib/commandCenter/eventMap.js";
+import { buildVisitorReport } from "../lib/commandCenter/visitorReport.js";
 
 let failures = 0;
 const fail = (m) => { console.error("test-command-center: FAIL — " + m); failures++; };
@@ -126,6 +127,53 @@ const fetchOwner = (id, status = 200) => async () => ({ ok: status === 200, stat
   const res = jsonNoStore({ ok: true });
   ok(res.headers.get("cache-control").includes("no-store"), "respond: owner data is never cached");
   ok(res.headers.get("x-robots-tag").includes("noindex"), "respond: API responses are noindexed");
+}
+{
+  const at = (event, session_id, visit_id, timestamp, extra = {}) => ({ event, session_id, visit_id, timestamp, page_path: "/", ...extra });
+  const report = buildVisitorReport([
+    at("page_visit", "s1", "v1", "2026-09-01T10:00:00Z"),
+    at("attention_sample", "s1", "v1", "2026-09-01T10:00:05Z", { active_ms: 5000, document_bucket: "top", viewport_bucket: "phone" }),
+    at("element_click", "s1", "v1", "2026-09-01T10:00:10Z", { element_type: "link", element_label: "Map", destination_type: "internal", destination_path: "/map" }),
+    at("page_exit", "s1", "v1", "2026-09-01T10:00:12Z", { active_ms: 10000, max_scroll_pct: 35, reason: "route_change" }),
+    at("page_visit", "s1", "v2", "2026-09-01T10:00:13Z", { page_path: "/map" }),
+    at("page_exit", "s1", "v2", "2026-09-01T10:00:20Z", { page_path: "/map", active_ms: 6000, max_scroll_pct: 20, reason: "hidden" }),
+    at("page_visit", "s2", "v3", "2026-09-01T11:00:00Z", { page_path: "/deals" }),
+    at("element_click", "s2", "v3", "2026-09-01T11:00:04Z", { page_path: "/deals", element_type: "button", element_label: "Book", destination_type: "external", outbound_domain: "partner.test" }),
+    at("page_exit", "s2", "v3", "2026-09-01T11:00:05Z", { page_path: "/deals", active_ms: 4000, max_scroll_pct: 50, reason: "pagehide" }),
+  ]);
+  ok(report.coverage.status === "measured", "visitor report: all core events present -> measured coverage");
+  ok(report.journeys.some((row) => row.label === "/ → /map" && row.visits === 1), "visitor report: page visits become an ordered aggregate journey without exposing session ids");
+  ok(report.pageAttention.some((row) => row.page_path === "/" && row.active_s_avg === 10), "visitor report: page-exit active_ms becomes measured active seconds");
+  ok(report.lastClicks.some((row) => row.element_label === "Book" && row.visits === 1), "visitor report: last click is grouped without visit ids");
+  ok(report.exits.some((row) => row.page_path === "/deals" && row.classification === "external_click_before_exit"), "visitor report: a generic external click is not mislabeled as a booking/partner outcome");
+  ok(report.exits.some((row) => row.page_path === "/map" && row.classification === "unobserved_exit" && /unknown/i.test(row.reason)), "visitor report: no click stays unknown, never abandonment");
+  ok(report.heatmap[0]?.active_s === 5 && report.heatmap[0]?.document_bucket === "top", "visitor report: incremental attention samples sum into the heatmap");
+  ok(!JSON.stringify(report).includes('"s1"') && !JSON.stringify(report).includes('"v1"'), "visitor report: raw session and visit identifiers never serialize");
+  ok(buildVisitorReport([]).coverage.status === "unavailable", "visitor report: absent instrumentation is unavailable, not a measured zero");
+  const diagnostic = buildVisitorReport([], { diagnostics: [
+    { event: "places_none", page_path: "/explore", occurrences: 4, visitors: 3 },
+    { event: "primary_cta_null", page_path: "/place/free-park", occurrences: 3, visitors: 2 },
+    { event: "$rageclick", page_path: "/map", occurrences: 2, visitors: 2 },
+    { event: "rail_retry", page_path: "/", occurrences: 1, visitors: 1 },
+  ] });
+  ok(diagnostic.findings.some((row) => row.kind === "opportunity" && row.value === 4 && /no useful result/.test(row.title)), "visitor report: existing empty-result events produce a data-supported opportunity with sample size");
+  ok(diagnostic.coverage.status === "partial", "visitor report: diagnostics remain visible while new visit-story instrumentation is not yet populated");
+  ok(diagnostic.findings.some((row) => row.id.startsWith("diagnostic:primary_cta_null") && row.kind === "opportunity" && /Directions can be the correct action/.test(row.evidence)), "visitor report: missing monetizable CTA is an inventory opportunity, not a broken-link claim");
+  ok(diagnostic.findings.some((row) => row.id.startsWith("diagnostic:rageclick") && row.kind === "clue"), "visitor report: repeated clicks are a clue until the control is verified broken");
+  ok(diagnostic.findings.some((row) => row.id.startsWith("diagnostic:rail_retry") && row.kind === "clue"), "visitor report: a manual rail retry is a clue, not proof of a loading failure");
+  const labelRows = [
+    at("page_visit", "s3", "v4", "2026-09-01T12:00:00Z", { page_path: "/p/ChIJopaque" }),
+    ...Array.from({ length: 5 }, (_, i) => at("attention_sample", "s3", "v4", `2026-09-01T12:00:0${i + 1}Z`, { page_path: "/p/ChIJopaque", active_ms: 1000, document_bucket: "4", viewport_bucket: "phone" })),
+  ];
+  const labels = buildVisitorReport(labelRows);
+  ok(labels.findings.some((row) => /Place page/.test(row.title) && /40–50% down the page/.test(row.evidence)), "visitor report: opaque place ids become 'Place page' and decile 4 becomes the 40–50% depth band");
+
+  const staleClick = buildVisitorReport([
+    at("page_visit", "s4", "v5", "2026-09-01T13:00:00Z", { page_path: "/map" }),
+    at("element_click", "s4", "v5", "2026-09-01T13:00:01Z", { page_path: "/map", destination_type: "internal", destination_path: "/saved" }),
+    at("page_exit", "s4", "v5", "2026-09-01T13:02:00Z", { page_path: "/map", active_ms: 60000, reason: "pagehide" }),
+  ]);
+  ok(staleClick.exits[0]?.classification === "unobserved_exit", "visitor report: an old click cannot claim what caused a later page end");
 }
 {
   // cache: stale-on-error + inflight dedupe
@@ -297,7 +345,8 @@ const histDays = (n, devices = 40, extra = {}) => Array.from({ length: n }, (_, 
   // filter is ACTIVE at runtime, not merely mentioned in source text.
   const posthogPath = "lib/commandCenter/sources/posthog.js";
   const posthogSource = read(posthogPath);
-  const { webVitalsField } = await import("../lib/commandCenter/sources/posthog.js");
+  const posthogModule = await import("../lib/commandCenter/sources/posthog.js");
+  const { webVitalsField, visitorStory } = posthogModule;
   let posthogBody = null;
   const posthogProbe = await webVitalsField(
     new Date("2026-09-01T00:00:00Z"),
@@ -317,15 +366,65 @@ const histDays = (n, devices = 40, extra = {}) => Array.from({ length: n }, (_, 
           text: async () => "",
         };
       },
+      excludedUserIds: ["uuid-owner", "uuid-staff"],
     },
   );
   const posthogCwvFiltered = posthogProbe?.data?.[0]?.p75 === 0.086
     && posthogBody?.query?.filters?.filterTestAccounts === true
     && /\{filters\}/.test(posthogBody?.query?.query || "")
-    && (posthogSource.match(/\{filters\}/g) || []).length >= 2;
+    && /properties\.\$virt_is_bot/.test(posthogBody?.query?.query || "")
+    && /person_distinct_ids/.test(posthogBody?.query?.query || "")
+    && /uuid-owner/.test(posthogBody?.query?.query || "")
+    && (posthogSource.match(/REAL_EVENTS/g) || []).length >= 10;
+
+  const visitorQueries = [];
+  const visitorProbe = await visitorStory(
+    new Date("2026-09-01T00:00:00Z"), new Date("2026-09-02T00:00:00Z"), {
+      env: { POSTHOG_PERSONAL_API_KEY: "test-query-key", POSTHOG_PROJECT_ID: "507756", POSTHOG_API_HOST: "https://posthog.invalid" },
+      excludedUserIds: ["uuid-owner"],
+      fetchImpl: async (_url, init = {}) => {
+        visitorQueries.push(JSON.parse(init.body || "{}").query?.query || "");
+        return { ok: true, status: 200, json: async () => ({ columns: ["event", "timestamp", "session_id", "visit_id", "page_path"], results: [["page_visit", "2026-09-01T12:00:00Z", "private-session", "private-visit", "/"]] }), text: async () => "" };
+      },
+    });
+  ok(visitorProbe.visitorReport?.journeys?.[0]?.visits === 1, "visitor source: visitorStory returns the aggregate report contract");
+  ok(!JSON.stringify(visitorProbe).includes("private-session") && !JSON.stringify(visitorProbe).includes("private-visit"), "visitor source: visitorStory never returns correlation ids");
+  const visitorQuery = visitorQueries.find((query) => /page_active_time/.test(query)) || "";
+  const diagnosticQuery = visitorQueries.find((query) => /places_none/.test(query)) || "";
+  ok(/LIMIT 50001/.test(visitorQuery) && /\$virt_is_bot/.test(visitorQuery), "visitor source: report query is bounded and bot-filtered at runtime");
+  ok(/provider_redirect_failed/.test(diagnosticQuery) && /Unknown page/.test(diagnosticQuery), "visitor source: diagnostics use verified event names and preserve missing paths as unknown");
+
+  const allQueries = [];
+  const allOpts = {
+    env: { POSTHOG_PERSONAL_API_KEY: "test-query-key", POSTHOG_PROJECT_ID: "507756", POSTHOG_API_HOST: "https://posthog.invalid" },
+    excludedUserIds: ["uuid-owner", "uuid-staff"],
+    fetchImpl: async (_url, init = {}) => {
+      allQueries.push(JSON.parse(init.body || "{}"));
+      return { ok: true, status: 200, json: async () => ({ columns: [], results: [] }), text: async () => "" };
+    },
+  };
+  const qFrom = new Date("2026-10-03T00:00:00Z");
+  const qTo = new Date("2026-10-04T00:00:00Z");
+  await Promise.all([
+    posthogModule.overviewCounts(qFrom, qTo, allOpts), posthogModule.dailyTraffic(qFrom, qTo, allOpts),
+    posthogModule.channels(qFrom, qTo, allOpts), posthogModule.referrers(qFrom, qTo, allOpts), posthogModule.utms(qFrom, qTo, allOpts),
+    posthogModule.entryExit(qFrom, qTo, allOpts), posthogModule.topPages(qFrom, qTo, allOpts), posthogModule.devices(qFrom, qTo, allOpts),
+    posthogModule.viewports(qFrom, qTo, allOpts), posthogModule.geo(qFrom, qTo, allOpts), posthogModule.newVsReturning(qFrom, qTo, allOpts),
+    posthogModule.webVitalsByRoute(qFrom, qTo, allOpts), posthogModule.errorsDaily(qFrom, qTo, allOpts),
+    posthogModule.revenueHeartbeatCounts(qFrom, qTo, allOpts), posthogModule.revenueHeartbeatDaily(qFrom, qTo, allOpts),
+    posthogModule.liveByMinute(allOpts), posthogModule.liveNow(allOpts), posthogModule.errorCount24h(allOpts), posthogModule.boundaryErrorsByBuild(allOpts),
+  ]);
+  ok(allQueries.length === 19, `posthog scope: all 19 query helpers executed against the fake Query API (got ${allQueries.length})`);
+  ok(allQueries.every((body) => body.query?.filters?.filterTestAccounts === true && /\$virt_is_bot/.test(body.query?.query || "") && /person_distinct_ids/.test(body.query?.query || "")), "posthog scope: every query applies project test filters plus bot/internal/linked-account exclusion at runtime");
+  ok(allQueries.filter((body) => /FROM sessions/.test(body.query?.query || "")).every((body) => /\{filters\}/.test(body.query?.query || "")), "posthog scope: session helpers apply PostHog's project test-account predicate inside their bounded eligible-event subquery");
+  const exclusionFailure = await posthogModule.overviewCounts(new Date("2026-11-01T00:00:00Z"), new Date("2026-11-02T00:00:00Z"), {
+    env: { POSTHOG_PERSONAL_API_KEY: "test-query-key", POSTHOG_PROJECT_ID: "507756", POSTHOG_API_HOST: "https://posthog.invalid" },
+    fetchImpl: async () => { throw new Error("PostHog must not run without exclusions"); },
+  });
+  ok(exclusionFailure.data === null && exclusionFailure.source?.reason === "error" && /supabase_not_configured/.test(exclusionFailure.source?.note || ""), "posthog scope: unavailable exclusion source fails closed instead of reporting contaminated traffic");
 
   const srcFiles = [posthogPath, "lib/commandCenter/sources/sentry.js", "lib/commandCenter/sources/travelpayouts.js", "lib/commandCenter/sources/vercel.js"];
-  for (const f of srcFiles) ok(/srcMissing\(/.test(read(f)) && (f !== posthogPath || posthogCwvFiltered), `source: ${f} has an explicit not-configured path; PostHog CWV also applies the project's test-account filters at runtime`);
+  for (const f of srcFiles) ok(/srcMissing\(/.test(read(f)) && (f !== posthogPath || posthogCwvFiltered), `source: ${f} has an explicit not-configured path; every PostHog query also applies project, bot, internal-person, and server-listed account exclusions`);
   // Alerts email cron: fail-closed auth, fail-soft capability, one shared gatherer.
   const cron = code(read("app/api/cron/cc-alerts/route.js"));
   ok(/CRON_SECRET/.test(cron) && /status:\s*401/.test(cron) && cron.indexOf("401") < cron.indexOf("RESEND_API_KEY"), "cron: cc-alerts is fail-closed on CRON_SECRET before any work");

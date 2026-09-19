@@ -309,6 +309,7 @@ export async function GET(req, ctx) {
     switch (panel) {
       case "overview": data = await overview(now, range, comps); break;
       case "traffic": data = await traffic(range); break;
+      case "visitor-story": data = await ph.visitorStory(range.from, range.to); break;
       case "journey": data = await journey(range); break;
       case "places": data = await places(range); break;
       case "retention": data = await retention(range, now); break;

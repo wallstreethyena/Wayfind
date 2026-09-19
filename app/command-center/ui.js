@@ -17,9 +17,11 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase, hasSupabase } from "../../lib/supabase";
+import { markInternalBrowser } from "../../lib/browserAnalytics";
 import { activeSeasonalMark, NORMAL_MARK } from "../../lib/seasonalBrand";
 import { C, TYPE, RADII, MOTION } from "../components/kit";
 import styles from "./command-center.module.css";
+import VisitorReport from "./VisitorReport";
 import {
   CAT, STATUS, Delta, DefTip, SourceBadge, NotConnected, Frame, DataTable, EmptyNote,
   StatTile, Sparkline, LineChart, Columns, StackedColumns, HBarList, Funnel, CohortGrid, StatusPill,
@@ -46,17 +48,17 @@ const groupForHash = (hash) => {
 
 // ── data plumbing ───────────────────────────────────────────────────────────
 function useAuthState() {
-  const [state, setState] = useState({ status: "loading", token: null, email: null });
+  const [state, setState] = useState({ status: "loading", token: null, email: null, user: null });
   useEffect(() => {
     let dead = false;
     async function init() {
       const secret = typeof sessionStorage !== "undefined" ? sessionStorage.getItem("wf_cc_key") : null;
-      if (!hasSupabase) { setState({ status: secret ? "ready" : "nosupabase", token: null, email: null, secret }); return; }
+      if (!hasSupabase) { setState({ status: secret ? "ready" : "nosupabase", token: null, email: null, user: null, secret }); return; }
       const { data } = await supabase.auth.getSession();
       const sess = data && data.session;
-      if (!dead) setState({ status: sess || secret ? "ready" : "signedout", token: sess ? sess.access_token : null, email: sess && sess.user ? sess.user.email : null, secret });
+      if (!dead) setState({ status: sess || secret ? "ready" : "signedout", token: sess ? sess.access_token : null, email: sess && sess.user ? sess.user.email : null, user: sess && sess.user ? sess.user : null, secret });
       const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
-        if (!dead) setState((prev) => ({ ...prev, status: s || prev.secret ? "ready" : "signedout", token: s ? s.access_token : null, email: s && s.user ? s.user.email : null }));
+        if (!dead) setState((prev) => ({ ...prev, status: s || prev.secret ? "ready" : "signedout", token: s ? s.access_token : null, email: s && s.user ? s.user.email : null, user: s && s.user ? s.user : null }));
       });
       return () => { try { sub.subscription.unsubscribe(); } catch {} };
     }
@@ -644,7 +646,7 @@ function JourneySection({ auth, range }) {
   // HOOKS RULE: no hooks below the error guard (see TrafficSection).
   const p = usePanel("journey", auth, range);
   const d = dget(p.data, "data", null);
-  if (p.error) return <Section id="journey" title="User journey & engagement"><PanelError {...p} reload={p.reload} /></Section>;
+  if (p.error) return <Section id="journey-details" title="Action details"><PanelError {...p} reload={p.reload} /></Section>;
   const rates = dget(d, "rates.data", {}) || {};
   const den = rates.denominators || {};
   const tta = dget(d, "timeToAction.data", null);
@@ -652,8 +654,8 @@ function JourneySection({ auth, range }) {
   const discDaily = dget(d, "dailyDiscovery.data", null) || [];
   const fmtSecs = (s) => s == null ? "–" : Number(s) >= 90 ? Math.round(s / 6) / 10 + "m" : Math.round(s) + "s";
   return (
-    <Section id="journey" title="User journey & engagement" loading={p.loading && !p.data}
-      sub="The real Wayfind journey from first-party events (distinct devices per step; a device can enter mid-funnel).">
+    <Section id="journey-details" title="Action details" loading={p.loading && !p.data}
+      sub="Funnels, rates, searches, screens, categories, and catalog checks from first-party events.">
       <Two>
         <Card>
           <Frame title="Journey funnel" def="Distinct devices reaching each stage within the window: visit → browse/search → open a place → engage → partner click. Steps are computed per stage (not strictly ordered per user)."
@@ -729,6 +731,20 @@ function JourneySection({ auth, range }) {
           </Frame>
         </Card>
       </Two>
+    </Section>
+  );
+}
+
+function VisitorStorySection({ auth, range }) {
+  const p = usePanel("visitor-story", auth, range);
+  const visitorReport = dget(p.data, "data.visitorReport", null);
+  const report = visitorReport ? { ...visitorReport, source: dget(p.data, "data.source", visitorReport.source) } : null;
+  if (p.error) return <Section id="journey" title="What visitors did"><PanelError {...p} reload={p.reload} /></Section>;
+  if (p.loading && !p.data) return <Section id="journey" title="What visitors did" loading><div className={styles.storyUnavailable}>Loading the measured visit story…</div></Section>;
+  return (
+    <Section id="journey" title="What visitors did" loading={p.loading && !p.data}
+      sub="See where people went, what they did, and where we last saw them.">
+      <VisitorReport report={report} />
     </Section>
   );
 }
@@ -1129,6 +1145,23 @@ export default function CommandCenter() {
   // Gate probe: ask the server who we are (403 => signed in but not owner).
   const meta = usePanel("meta", auth, { key: "today" }, { enabled: auth.status === "ready" });
   useEffect(() => {
+    if (auth.status !== "ready" || meta.status !== 200 || !dget(meta.data, "ok", false)) return;
+    try {
+      const noted = auth.user && window.__WF_NOTE_AUTH_USER
+        ? window.__WF_NOTE_AUTH_USER(auth.user)
+        : false;
+      if (noted) return;
+      // A successfully authorized access-key session is owner traffic too.
+      // Persist the browser mark only after the server has accepted /meta;
+      // merely opening the locked page must never suppress a real visitor.
+      markInternalBrowser(window.localStorage);
+      window.__WF_ANALYTICS_SUPPRESSED = "internal";
+      if (window.__WF_PAGE_TRACKER) window.__WF_PAGE_TRACKER.stop({ emitExit: false });
+      try { if (window.posthog) window.posthog.opt_out_capturing(); } catch (e) {}
+      try { delete window.posthog; } catch (e) { window.posthog = undefined; }
+    } catch (e) {}
+  }, [auth.status, auth.user, meta.status, meta.data]);
+  useEffect(() => {
     const readHash = () => setActiveGroup(groupForHash(window.location.hash));
     readHash();
     window.addEventListener("hashchange", readHash);
@@ -1187,9 +1220,18 @@ export default function CommandCenter() {
         {activeGroup === "visitors" ? (
           <>
             <GroupHeading group={group} />
-            <TrafficSection auth={auth} range={range} />
-            <JourneySection auth={auth} range={range} />
-            <RetentionSection auth={auth} range={range} />
+            <VisitorStorySection auth={auth} range={range} />
+            <details className={`${styles.detailDisclosure} ${styles.visitorDetails}`}>
+              <summary>
+                <span>See all visitor details</span>
+                <small>Traffic, action funnels, searches, devices, daily totals, and return visits</small>
+              </summary>
+              <div className={styles.detailDisclosureBody}>
+                <TrafficSection auth={auth} range={range} />
+                <JourneySection auth={auth} range={range} />
+                <RetentionSection auth={auth} range={range} />
+              </div>
+            </details>
           </>
         ) : null}
         {activeGroup === "commerce" ? (
