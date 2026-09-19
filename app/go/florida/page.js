@@ -21,6 +21,7 @@
 // built by commerceHref() / eventTicketCta() / experienceGoUrl(), each of
 // which returns an /api/*/go path on this origin — the destination is
 // resolved server-side, at click time, by the route the link points at.
+import ExperienceCatalog from "./ExperienceCatalog";
 import LicensedPhoto from "../../components/LicensedPhoto";
 import { SPRINGS_PHOTO, EXPERIENCE_PHOTOS } from "../../../lib/floridaPhotography";
 import styles from "./florida.module.css";
@@ -358,7 +359,7 @@ export default async function GoFloridaPage({ searchParams }) {
       </div>
     <header className={styles.header}>
       <a href="/" aria-label="Wayfind home"><img className={styles.wordmark} src={mark.png} alt="Wayfind" width={mark.width} height={mark.height} /></a>
-      <nav aria-label="Florida navigation"><a href="#hot">Guides</a><a href="#halloween">Events</a><a href="#shows">Nights out</a><a className={styles.headerAction} href="/">Find an outing <span aria-hidden="true">↗</span></a></nav>
+      <nav aria-label="Florida navigation"><a href="#experiences">Activities</a><a href="#hot">Guides</a><a href="#halloween">Events</a><a href="#shows">Nights out</a><a className={styles.headerAction} href="/">Find an outing <span aria-hidden="true">↗</span></a></nav>
     </header>
     <div className={styles.hero}>
       <div className={styles.heroCopy}>
@@ -373,7 +374,7 @@ export default async function GoFloridaPage({ searchParams }) {
     <div className={styles.heroFoot}><span>GOOD DAYS START WITH A LITTLE LOCAL KNOWLEDGE</span><span>{SPRINGS_PHOTO.caption}</span></div>
     </div>
     <nav className={styles.interests} aria-label="Explore Florida by interest">{INTEREST_LINKS.map((link) => <a key={link.href} href={link.href}><strong>{link.label}</strong><span>{link.detail}</span></a>)}</nav>
-    <div className={styles.content}>{order.map((key) => { const Section = SECTION_RENDERERS[key]; return Section ? <Section key={key} /> : null; })}</div>
+    <div className={styles.content}><ExperienceCatalog />{order.map((key) => { const Section = SECTION_RENDERERS[key]; return Section ? <Section key={key} /> : null; })}</div>
     <footer className={styles.footer}>
       <div className={styles.trust}><div><p className={styles.eyebrow}>Know before you go</p><h2>A little local knowledge goes a long way.</h2></div><div><p>Guides for the details that matter. Booking options when you are ready. Clear labels so you know where every link takes you.</p><p>{DISCLOSURE}</p><a href="/editorial-policy">Our editorial approach ↗</a></div></div>
       <nav className={styles.footerLinks} aria-label="More from Wayfind">{FOOTER_LINKS.map((link) => <a key={link.href} href={link.href}>{link.label}</a>)}</nav>
