@@ -88,6 +88,16 @@ if (typeof cardImage === "function") {
   ok(false, "lib/dealCardImage does not export cardImage — image resolution is untestable");
 }
 
+// The three reported misleading offer thumbnails need distinct, honest illustrations.
+const { dealIllustration } = await import("../lib/dealCardImage.js");
+const reportedMerchants = ["Bananas' Axe Cabana", "Pokemoto - Dr. Phillips", "QDOBA - Apopka Vineland"];
+const illustrations = reportedMerchants.map((business) => dealIllustration({ business }));
+ok(illustrations.every((art) => art && existsSync(new URL("../public" + art.src, import.meta.url))), "reported merchant illustrations exist");
+ok(new Set(illustrations.map((art) => art?.src)).size === 3, "reported merchant illustrations are distinct");
+ok(illustrations.every((art) => /not the|not the restaurant/i.test(art.alt)), "stock imagery never claims to depict the actual venue or menu");
+ok(dealIllustration({ business: "Different restaurant" }) === null, "merchant-specific images do not spill into unrelated offers");
+ok(cardCode.includes("Illustrative photo"), "illustrative status is visibly rendered, not only in alt text");
+
 // Tracking. Four events, each fired at most once, and the click/outbound pair kept separate.
 for (const ev of ["guide_impression", "deal_card_impression", "deal_card_clicked", "deal_card_outbound"]) {
   ok(new RegExp(`track\\(\\s*"${ev}"`).test(cardCode), `event "${ev}" is not emitted`);

@@ -28,6 +28,10 @@ import {
   VIATOR_SEARCH_INTENTS,
   FLORIDA_MARKETS,
   cleanOfferTitle,
+  landingOfferImage,
+  offerContext,
+  INTEREST_LINKS,
+  HOT_SNAPSHOT_LABEL,
 } from "../lib/paidFloridaLanding.js";
 
 let pass = 0;
@@ -71,8 +75,8 @@ function domainViolations(rawSrc) {
   // hero strings), so the red-prove exercises the same file and the same
   // stripComments() the real checks below use — not a hand-typed stand-in.
   const emDash = String.fromCharCode(0x2014);
-  const bad1 = rawData.replace("Stop scrolling reviews. Pick a place and go.", "Stop scrolling reviews " + emDash + " pick a place.");
-  const bad2 = rawData.replace("Open Wayfind", "Open - Wayfind");
+  const bad1 = rawData.replace("Less searching. More Florida.", "Less searching " + emDash + " more Florida.");
+  const bad2 = rawData.replace("Find my Florida outing", "Find my - Florida outing");
   ok(bad1 !== rawData, "self-test setup: the em-dash mutation target string exists in lib/paidFloridaLanding.js");
   ok(bad2 !== rawData, "self-test setup: the \" - \" mutation target string exists in lib/paidFloridaLanding.js");
   ok(dashViolations(stripComments(bad1)), "self-test: an injected em dash in real copy is caught by the dash check (red-prove)");
@@ -109,7 +113,7 @@ ok(!/Directions/.test(rawPage), 'no "Directions" text anywhere on the page (no p
 // sentence (CLAUDE.md: "a guard that reads raw source fails on its own
 // explanatory comment"). The directive itself, if present, would survive
 // comment-stripping (it is a real statement, not a comment).
-ok(!/["']use client["']/.test(stripComments(rawPage)) && !/["']use client["']/.test(stripComments(rawData)), "neither file declares \"use client\" — this route ships zero new client JS");
+ok(!/["']use client["']/.test(stripComments(rawPage)) && !/["']use client["']/.test(stripComments(rawData)), "neither file declares \"use client\" — the page and data remain server modules");
 
 // ── 5. every commerce link goes through the ONE surface constant, never a
 // hand-typed copy of it (a copy can drift; the constant cannot).
@@ -214,13 +218,29 @@ ok(resolveGoSlug("florida").kind === "not-found", 'resolveGoSlug("florida") is s
 })();
 
 // ── 12. rel="sponsored noopener" target="_blank" on every commerce card
-// template (OfferCard, SearchIntentCard, EventCard) — 3 template sites.
+// template (OfferCard, SearchIntentCard, EventCard, BoatRentalChoices) — 4 template sites.
 const sponsoredCount = (rawPage.match(/rel="sponsored noopener"\s+target="_blank"/g) || []).length;
-ok(sponsoredCount === 3, `exactly 3 commerce-link templates carry rel="sponsored noopener" target="_blank" (OfferCard, SearchIntentCard, EventCard) — found ${sponsoredCount}`);
+ok(sponsoredCount === 4, `exactly 4 commerce-link templates carry rel="sponsored noopener" target="_blank" (OfferCard, SearchIntentCard, EventCard, BoatRentalChoices) — found ${sponsoredCount}`);
 
 // ── 13. the sitewide experience-CTA copy is used verbatim, and only there
 ok(rawData.includes('AVAILABILITY_CTA_LABEL = "See availability ↗"'), 'AVAILABILITY_CTA_LABEL is exactly "See availability ↗"');
 ok(rawData.includes('DISCLOSURE = "We earn commission on bookings. Rankings are never sold."'), "DISCLOSURE is the exact required sentence");
+
+// Image transforms must remain bounded without breaking signed partner assets.
+const unsignedImage = "https://images.imgix.net/venue.jpg?q=70";
+const transformed = new URL(landingOfferImage(unsignedImage));
+ok(transformed.searchParams.get("w") === "960" && transformed.searchParams.get("h") === "600", "unsigned CDN images request a bounded 960 by 600 crop");
+const signedImage = unsignedImage + "&s=verified-signature";
+ok(landingOfferImage(signedImage) === signedImage, "signed URLs remain byte-identical");
+ok(landingOfferImage("https://example.org/photo.jpg") === "https://example.org/photo.jpg", "other image hosts are not rewritten");
+ok(landingOfferImage(null) === null && landingOfferImage("not a URL") === null, "missing and malformed images produce an explicit fallback");
+ok(HOT_SNAPSHOT_LABEL.includes("September 17, 2026") && HOT_SNAPSHOT_LABEL.includes("30 days"), "the readership claim identifies its actual snapshot and window");
+for (const link of INTEREST_LINKS) {
+  ok(rawPage.includes(`id="${link.href.slice(1)}"`), `${link.label}: interest shortcut has a real section target`);
+}
+for (const offer of [...THEME_PARK_OFFERS, ...NATURE_OFFERS, ...SHOW_OFFERS]) {
+  ok(typeof offerContext(offer) === "string" && offerContext(offer).length > 30, `${offer.offerId}: recommendation carries reader-facing context`);
+}
 
 if (fail.length) {
   console.error(`check-go-florida-landing: FAIL — ${fail.length}/${pass + fail.length} assertions failed:\n`);

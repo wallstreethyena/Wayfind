@@ -597,6 +597,7 @@ ${WF_SKELETON_CSS}
   .wf-sheet-card-actions:has(.wf-place-card-book){grid-template-columns:44px 26px 26px minmax(0,1fr)}
   .wf-sheet-card-actions>.wf-place-card-like,.wf-sheet-card-actions>.wf-place-card-dislike{width:100%!important;min-width:0!important;flex:1 1 auto;padding-inline:0!important}
   .wf-sheet-card-actions>.wf-place-card-save,.wf-sheet-card-actions>.wf-place-card-share{padding-inline:4px!important}
+  .wf-sheet-card-actions>.wf-place-card-share{padding-inline:1px!important}
   .wf-sheet-card-actions>a,.wf-sheet-card-actions>button,.wf-sheet-card-actions>span{min-width:0!important;padding-inline:4px!important;font-size:9.5px!important;overflow:hidden}
 }
 @media(min-width:${WF_DESKTOP_BP}px){

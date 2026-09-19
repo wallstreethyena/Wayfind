@@ -25,7 +25,8 @@ import { useEffect, useRef } from "react";
 import { track } from "../../../lib/track";
 // Image resolution lives in lib so a guard can import it and check every branch
 // against the real filesystem — see lib/dealCardImage.js.
-import { cardImage } from "../../../lib/dealCardImage";
+import LicensedPhoto from "../../components/LicensedPhoto";
+import { cardImage, dealIllustration } from "../../../lib/dealCardImage";
 
 export default function GuideDealCards({ slug, region, deals }) {
   const blockRef = useRef(null);
@@ -92,13 +93,14 @@ export default function GuideDealCards({ slug, region, deals }) {
                 } catch (err) {}
               }}
             >
-              <img className="wf-gd-img" src={cardImage(d)} alt="" loading="lazy" width="96" height="96" />
+              <LicensedPhoto className="wf-gd-img" src={cardImage(d)} alt={dealIllustration(d)?.alt || "Offer illustration"} width={96} height={96} sizes="96px" />
               <div className="wf-gd-body">
                 <div className="wf-gd-top">
                   <span className="wf-gd-title">{d.title}</span>
                   {d.badge ? <span className="wf-gd-badge">{d.badge}</span> : null}
                 </div>
                 <div className="wf-gd-merchant">{d.business}</div>
+                {dealIllustration(d) ? <small style={{ color: "#A9B7C6", display: "block", fontSize: 10 }}>Illustrative photo · {dealIllustration(d).credit}</small> : null}
                 <p className="wf-gd-details">{d.details}</p>
                 <div className="wf-gd-foot">
                   <span className="wf-gd-loc">{d.area}</span>

@@ -88,6 +88,7 @@ export const config = {
     // Supabase read); full same-origin guard keeps the affiliate catalog from
     // being harvested off our origin.
     "/api/experiences",
+    "/api/florida-experiences",
     // UT deal rails: /api/deals is a same-origin XHR (the UTDealsRail in
     // app/home.js) reading wf_deals_ranked via the service role. ANTI-SCRAPING,
     // not a cost gate — keeps the affiliate deal catalog from being harvested.

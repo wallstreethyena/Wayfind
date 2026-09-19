@@ -1,0 +1,9 @@
+# Florida experience catalog
+
+The landing now exposes the cached Viator inventory rather than a small featured selection. The initial read on September 19, 2026 returned 602 products across Orlando, Tampa, St. Petersburg, Clearwater and Sarasota. This is not Viator's entire Florida catalog. Miami, the Keys and other destinations are accessible through the tracked statewide Viator search; they are not claimed as imported inventory.
+
+The menu reuses Wayfind's shared vector map pins, with category counts from the same market pool as the results. Counts overlap because a product can belong to multiple categories. City or category changes reset pagination, cancel stale requests and show an explicit loading state. Empty results and unavailable feeds are distinct. Each page contains up to 24 experiences, with previous/next controls and a total-page count. Cards use supplier photos, real ratings/review counts, duration, and existing tracked commerce redirects. No prices or invented popularity claims are introduced.
+
+Production uses a bounded complete database read through the existing experiences service, rather than the old 2,000-row query ceiling. It throws if completeness cannot be established. The new endpoint validates category/city/page, removes raw provider URLs and uses the existing same-origin API guard. Explicit local preview mode reads the current production experiences endpoint, whose current 602-record five-market result is below its legacy ceiling. The production site is unchanged until this branch is approved and deployed.
+
+Verified: production build, JSX, 263 landing assertions, 351 experience filter assertions, map-pin standard tests, invalid input checks; browser verified 602 catalog, 124 kayaking results, different page-two items, 51 Orlando kayaking results and a 390px viewport without horizontal overflow. The full guard suite still has the previously reproduced shared place-card Share-label clipping failures.
