@@ -12631,14 +12631,19 @@
       "npmScript": null,
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 5,
+      "assertionCount": 8,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
-        "githubWorkflows": []
+        "githubWorkflows": [
+          {
+            "file": ".github/workflows/guards.yml",
+            "blocking": true
+          }
+        ]
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,

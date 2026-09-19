@@ -65,6 +65,8 @@ jobs:
           path: artifacts/place-card-standard/
           if-no-files-found: error
           retention-days: 14
+      - name: Required rendered map pin standard
+        run: node scripts/test-map-pin-standard.mjs --require-browser
       - name: Guard suite (all of scripts/guards.txt)
         run: node scripts/run-guards.mjs
       - name: Production build
