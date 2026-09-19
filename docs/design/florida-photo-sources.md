@@ -48,3 +48,5 @@ The isolated preview uses placeholder database credentials by repository policy.
 ## Seasonal event-card images
 
 Event cards now render photographs rather than text-only layouts. EPCOT uses Nicholas Fuentes' 6000 × 3376 photograph (https://unsplash.com/photos/pkftLOCU97U); Universal Orlando uses Sean Nyatsine's 4898 × 3265 photograph (https://unsplash.com/photos/yMEC6NDLLoI). Both source pages identify free use under the Unsplash License, and both originals were visually reviewed. These show the venues, not the named 2026 events, as labeled on the cards. Mickey's card uses the already-reviewed Nik Goodner Disney fall display. SeaWorld, LEGOLAND and Busch Gardens use their existing Tiqets partner photographs, labeled as park context rather than event documentation. Ticket destinations are unchanged.
+
+The consolidated boat-rental section now includes SamBoat's existing supplier photograph, displayed once beside the four departure-city links. The caption identifies SamBoat and explains that boats and locations vary. All four tracked booking links remain unchanged.
