@@ -87,30 +87,20 @@ const ALLOWED_THIRD_PARTY = [
   "wikipedia.org",
 ];
 
-// User-generated / aggregated rather than primary. GRANDFATHERED: shipped cards
-// already cite these and this branch is code-only (content is a separate pass).
-// Named here so the debt is visible and counted rather than silently permitted.
-const GRANDFATHERED_UGC = ["yelp.com", "tripadvisor.com", "toasttab.com", "facebook.com"];
-
-// Single-venue commercial sites cited by a DIFFERENT card, where that venue is
-// not itself in the vetted set. Found by this guard's positive assertion on its
-// first run against shipped data. Grandfathered for the same reason as the UGC
-// list — code-only branch — and listed individually so each is reviewable.
-// (sharkysonthepier.com was flagged too but needed no entry: Sharky's On the
-// Pier IS a vetted card, so the "official site of any vetted venue" rule below
-// covers it. That is the difference between a rule and three more hostnames.)
-const GRANDFATHERED_UNVETTED = ["lidoislandgrill.com", "mayaspeaktiki.com"];
-
-// RATCHET. Both grandfather lists are frozen at exactly these entries. They may
-// SHRINK — removing a host once its card is re-sourced is the goal — but never
-// grow. A grandfather list with no pressure on it silently becomes the policy,
-// which is how "temporary debt" turns permanent. Adding an entry fails the
-// build and forces the conversation instead of quietly widening what is allowed.
-// Drive both to zero: see the tracking issue.
-const RATCHET = {
-  GRANDFATHERED_UGC: ["facebook.com", "toasttab.com", "tripadvisor.com", "yelp.com"],
-  GRANDFATHERED_UNVETTED: ["lidoislandgrill.com", "mayaspeaktiki.com"],
-};
+// A card may use its own official site as editorial evidence. Citing a different
+// venue's site requires a reviewed card -> domain pairing here. This keeps
+// legitimate first-party evidence without letting the card inventory expand its
+// own content-source allowlist. #405's founding case is the city fishing-pier
+// card citing its on-site restaurant for the factual "Sharky's sits at the foot"
+// detail. Link targets (`officialWebsite`) are validated separately below.
+const EXPLICIT_CROSS_CARD_SOURCES = new Map([
+  // Venice Fishing Pier: its editorial says Sharky's sits at the foot; the
+  // cited restaurant page is the first-party evidence for that on-site detail.
+  ["ChIJnXtixd5bw4gRrKDqLZC8Dlk", new Set(["sharkysonthepier.com"])],
+  // Sharky's On the Pier: its history names the sibling Fins opening next door;
+  // the cited Fins about page is the first-party evidence for that relationship.
+  ["ChIJnXtixd5bw4gRxq8VhqIqo3I", new Set(["finsatsharkys.com"])],
+]);
 
 // ── hostname handling ─────────────────────────────────────────────────────
 /** Parse a candidate source to a normalised hostname, or null if not an http(s) URL. */
@@ -145,7 +135,7 @@ export function isDisneyHost(host) {
  * one read instead of a bisect.
  * @returns {{ok: boolean, rule: string}}
  */
-export function explainSource(host, officialWebsiteHost, vettedVenueHosts) {
+export function explainSource(host, officialWebsiteHost, crossCardSourceHosts) {
   if (!host) return { ok: false, rule: "unparseable-source" };
   if (DISNEY_PROPERTIES.some((d) => under(host, d))) {
     return { ok: false, rule: `disney-property-suffix (${DISNEY_PROPERTIES.find((d) => under(host, d))})` };
@@ -157,33 +147,58 @@ export function explainSource(host, officialWebsiteHost, vettedVenueHosts) {
   if (officialWebsiteHost && reg(host) === reg(officialWebsiteHost)) {
     return { ok: true, rule: "card-own-official-site" };
   }
-  if (vettedVenueHosts && vettedVenueHosts.has(reg(host))) {
-    return { ok: true, rule: "official-site-of-a-vetted-venue" };
+  if (crossCardSourceHosts && crossCardSourceHosts.has(reg(host))) {
+    return { ok: true, rule: "explicit-cross-card-source" };
   }
   const t = ALLOWED_THIRD_PARTY.find((d) => under(host, d));
   if (t) return { ok: true, rule: `allowed-third-party (${t})` };
-  const u = GRANDFATHERED_UGC.find((d) => under(host, d));
-  if (u) return { ok: true, rule: `grandfathered-ugc (${u}) — pending replacement` };
-  const v = GRANDFATHERED_UNVETTED.find((d) => under(host, d));
-  if (v) return { ok: true, rule: `grandfathered-unvetted (${v}) — pending replacement` };
   return { ok: false, rule: "not-in-any-permitted-set" };
 }
 
 /** Affirmatively permitted, given the card that cites it. */
-export function isPermittedSource(host, officialWebsiteHost, vettedVenueHosts) {
+export function isPermittedSource(host, officialWebsiteHost, crossCardSourceHosts) {
   if (!host) return false;
   if (isDisneyHost(host)) return false;                       // §7 outranks everything
   if (GOOGLE_SOURCES.some((d) => under(host, d))) return true;
   if (officialWebsiteHost && reg(host) === reg(officialWebsiteHost)) return true;
-  // The official site of ANY venue already in the vetted card set. A neighbouring
-  // business describing a shared location (Sharky's On the Pier on the Venice
-  // Fishing Pier card) is first-party content from a venue we have already
-  // vetted — permitting it is a rule, not an exception per hostname.
-  if (vettedVenueHosts && vettedVenueHosts.has(reg(host))) return true;
+  if (crossCardSourceHosts && crossCardSourceHosts.has(reg(host))) return true;
   if (ALLOWED_THIRD_PARTY.some((d) => under(host, d))) return true;
-  if (GRANDFATHERED_UGC.some((d) => under(host, d))) return true;
-  if (GRANDFATHERED_UNVETTED.some((d) => under(host, d))) return true;
   return false;
+}
+
+function auditEditorialRows(rows, rel, onPermit = () => {}) {
+  let accepted = 0;
+  const found = [];
+  for (const row of rows) {
+    if (!row || typeof row !== "object") continue;
+    const refs = [
+      ...(Array.isArray(row.sourceUrls) ? row.sourceUrls : []),
+      ...(Array.isArray(row.source_urls) ? row.source_urls : []),
+      ...(Array.isArray(row.facts) ? row.facts.map((f) => f && f.source).filter(Boolean) : []),
+    ];
+    // `officialWebsite` is a link target. It remains valid first-party context
+    // for this row's own sources, but never authorizes a sibling row. Existing
+    // Disney publication restrictions are preserved here.
+    if (row.officialWebsite) {
+      const owh = hostOf(row.officialWebsite);
+      if (owh === null) found.push(`${rel}: "${row.name || row.placeId || "?"}" has an unparseable officialWebsite`);
+      else if (isDisneyHost(owh)) found.push(`${rel}: "${row.name || row.placeId || "?"}" publishes a Disney officialWebsite — ${owh}\n      blocked by: ${explainSource(owh, null, null).rule}  (AGENTS.md §7)`);
+    }
+    if (!refs.length) continue;
+    const owHost = row.officialWebsite ? hostOf(row.officialWebsite) : null;
+    const who = row.name || row.placeId || "?";
+    const crossCardSourceHosts = EXPLICIT_CROSS_CARD_SOURCES.get(row.placeId);
+    for (const ref of refs) {
+      const h = hostOf(ref);
+      if (h === null) { found.push(`${rel}: "${who}" has an unparseable source (${String(ref).slice(0, 80)})`); continue; }
+      const verdict = explainSource(h, owHost, crossCardSourceHosts);
+      if (isDisneyHost(h)) { found.push(`${rel}: "${who}" is sourced from a Disney property — ${h}\n      blocked by: ${verdict.rule}  (AGENTS.md §7)`); continue; }
+      if (!verdict.ok) { found.push(`${rel}: "${who}" cites an unvetted source — ${h}\n      blocked by: ${verdict.rule}  (record a reviewed card -> domain pairing; reserve ALLOWED_THIRD_PARTY for shared publishers)`); continue; }
+      onPermit(verdict, h, who);
+      accepted++;
+    }
+  }
+  return { accepted, problems: found };
 }
 
 // ── scan ──────────────────────────────────────────────────────────────────
@@ -200,77 +215,23 @@ function walk(dir, acc = []) {
 }
 
 // --verbose prints the deciding rule for every PERMITTED source too, not just
-// blocks. That is what lets the grandfathered inventory regenerate itself: run
-// `node scripts/check-no-disney-sources.mjs --verbose | grep grandfathered`
-// instead of maintaining a hand-built list that goes stale the moment someone
-// adds a card. #407 closes when that output is empty.
+// blocks, so reviewers can audit why each editorial reference is accepted.
 const VERBOSE = process.argv.includes("--verbose") || process.argv.includes("-v");
-let pass = 0, ugcRefs = 0, grandfatheredRefs = 0;
+let pass = 0;
 const permits = [];
 const problems = [];
 const files = walk(ROOT);
-
-// Pass 1 — every venue we have already vetted, by registrable domain of its
-// officialWebsite. Pass 2 treats these as first-party.
-const VETTED_VENUE_HOSTS = new Set();
-for (const p of files.filter((f) => f.endsWith(".json"))) {
-  if (DESCRIBES_RULE.has(relative(ROOT, p))) continue;
-  let data;
-  try { data = JSON.parse(readFileSync(p, "utf8")); } catch { continue; }
-  for (const row of (Array.isArray(data) ? data : [data])) {
-    const h = row && row.officialWebsite ? hostOf(row.officialWebsite) : null;
-    if (h) VETTED_VENUE_HOSTS.add(reg(h));
-  }
-}
 
 for (const p of files.filter((f) => f.endsWith(".json"))) {
   const rel = relative(ROOT, p);
   if (DESCRIBES_RULE.has(rel)) continue;
   let data;
   try { data = JSON.parse(readFileSync(p, "utf8")); } catch { continue; }
-  for (const row of (Array.isArray(data) ? data : [data])) {
-    if (!row || typeof row !== "object") continue;
-    const refs = [
-      ...(Array.isArray(row.sourceUrls) ? row.sourceUrls : []),
-      ...(Array.isArray(row.source_urls) ? row.source_urls : []),
-      ...(Array.isArray(row.facts) ? row.facts.map((f) => f && f.source).filter(Boolean) : []),
-    ];
-    // officialWebsite is PUBLISHED, so it is as much a §7 surface as a source.
-    // It was previously read only as context (to build VETTED_VENUE_HOSTS) and
-    // never validated as a value — a card carrying
-    // officialWebsite: "https://www.disneysprings.com/..." shipped green.
-    // Proven by injection on 2026-07-29. Disney Springs is a Disney-owned
-    // district full of venues that are NOT Disney-operated (House of Blues is
-    // Live Nation, The Edison and Paradiso 37 are independent, Splitsville is
-    // independent) so this is checked PER VENUE against the resolved host,
-    // never by blanket-omitting a district.
-    if (row.officialWebsite) {
-      const owh = hostOf(row.officialWebsite);
-      if (owh === null) problems.push(`${rel}: "${row.name || row.placeId || "?"}" has an unparseable officialWebsite`);
-      else if (isDisneyHost(owh)) problems.push(`${rel}: "${row.name || row.placeId || "?"}" publishes a Disney officialWebsite — ${owh}\n      blocked by: ${explainSource(owh, null, null).rule}  (AGENTS.md §7)`);
-    }
-    if (!refs.length) continue;
-    const owHost = row.officialWebsite ? hostOf(row.officialWebsite) : null;
-    const who = row.name || row.placeId || "?";
-    for (const ref of refs) {
-      const h = hostOf(ref);
-      if (h === null) { problems.push(`${rel}: "${who}" has an unparseable source (${String(ref).slice(0, 80)})`); continue; }
-      const verdict = explainSource(h, owHost, VETTED_VENUE_HOSTS);
-      if (isDisneyHost(h)) { problems.push(`${rel}: "${who}" is sourced from a Disney property — ${h}\n      blocked by: ${verdict.rule}  (AGENTS.md §7)`); continue; }
-      if (!verdict.ok) { problems.push(`${rel}: "${who}" cites an unvetted source — ${h}\n      blocked by: ${verdict.rule}  (add to ALLOWED_THIRD_PARTY only after vetting)`); continue; }
-      // Count by the DECIDING rule, not by list membership. These disagreed:
-      // Green Turtle Shell & Gift Shop's officialWebsite IS its facebook page —
-      // its only web presence — so that ref is permitted as the card's own
-      // official site, not as grandfathered UGC. Counting membership reported
-      // 4 UGC refs while the inventory showed 3, and the inventory was right.
-      // A number that disagrees with the list it summarises is worse than no
-      // number: #407 is scoped off this count.
-      if (verdict.rule.startsWith("grandfathered-ugc")) ugcRefs++;
-      if (verdict.rule.startsWith("grandfathered-unvetted")) grandfatheredRefs++;
-      if (VERBOSE) permits.push(`  permitted by ${verdict.rule.padEnd(46)} ${h.padEnd(30)} "${who}"`);
-      pass++;
-    }
-  }
+  const audited = auditEditorialRows(Array.isArray(data) ? data : [data], rel, (verdict, h, who) => {
+    if (VERBOSE) permits.push(`  permitted by ${verdict.rule.padEnd(46)} ${h.padEnd(30)} "${who}"`);
+  });
+  problems.push(...audited.problems);
+  pass += audited.accepted;
 }
 
 // Code that REQUESTS a Disney property. A hyperlink handed to the user is fine.
@@ -289,25 +250,6 @@ for (const p of files.filter((f) => /\.(js|mjs|jsx|ts|tsx)$/.test(f))) {
   }
 }
 pass++;
-
-// ── ratchet: the grandfather lists may shrink, never grow ─────────────────
-{
-  const sorted = (a) => [...a].sort().join(",");
-  for (const [name, frozen] of Object.entries(RATCHET)) {
-    const live = name === "GRANDFATHERED_UGC" ? GRANDFATHERED_UGC : GRANDFATHERED_UNVETTED;
-    const added = live.filter((h) => !frozen.includes(h));
-    if (added.length) {
-      console.error(`check-no-disney-sources: FAIL — ${name} grew: ${added.join(", ")}`);
-      console.error("  Grandfather lists are a ratchet. They may shrink as cards are re-sourced,");
-      console.error("  never grow. Re-source the card, or make the case for ALLOWED_THIRD_PARTY.");
-      process.exit(1);
-    }
-    // Shrinking is the goal — allowed, and worth saying out loud.
-    const removed = frozen.filter((h) => !live.includes(h));
-    if (removed.length) console.log(`check-no-disney-sources: ${name} shrank by ${removed.length} (${removed.join(", ")}) — update RATCHET to lock it in.`);
-    if (sorted(live) === sorted(frozen)) pass++;
-  }
-}
 
 // ── self-test: prove the RULE, not the list ───────────────────────────────
 // None of these is a literal entry in DISNEY_PROPERTIES. If any passes, this
@@ -337,7 +279,7 @@ pass++;
     ["https://www.nps.gov/foo", null],                       // vetted third party
   ];
   for (const [url, ow] of MUST_PASS) {
-    if (!isPermittedSource(hostOf(url), ow, VETTED_VENUE_HOSTS)) {
+    if (!isPermittedSource(hostOf(url), ow, new Set())) {
       console.error(`check-no-disney-sources: FAIL — self-test: ${url} should be permitted but was rejected`);
       process.exit(1);
     }
@@ -345,7 +287,7 @@ pass++;
   }
 
   // An unvetted fourth party must fail even though it is not Disney.
-  if (isPermittedSource(hostOf("https://random-blog.example/post"), "seaworld.com", VETTED_VENUE_HOSTS)) {
+  if (isPermittedSource(hostOf("https://random-blog.example/post"), "seaworld.com", new Set())) {
     console.error("check-no-disney-sources: FAIL — self-test: an unvetted fourth-party source was permitted");
     process.exit(1);
   }
@@ -358,7 +300,6 @@ pass++;
     ["https://random-blog.example/x", "not-in-any-permitted-set"],
     ["https://places.googleapis.com/x", "google-source"],
     ["https://www.nps.gov/x", "allowed-third-party"],
-    ["https://www.yelp.com/biz/x", "grandfathered-ugc"],
   ];
   for (const [url, expect] of REASONS) {
     const r = explainSource(hostOf(url), null, new Set());
@@ -368,6 +309,44 @@ pass++;
     }
     pass++;
   }
+
+  // #405's exact scope: a card's own official host remains valid evidence, but
+  // adding that officialWebsite to another inventory row must not grant
+  // transitive content-source permission. This fixture goes through the same
+  // row auditor as repository data; restoring the old global vetted-host set
+  // makes its second row falsely pass and turns this test red.
+  const sharkys = hostOf("https://www.sharkysonthepier.com/");
+  const transitiveFixture = auditEditorialRows([
+    {
+      placeId: "fixture-official-owner",
+      name: "Fixture Official Owner",
+      officialWebsite: "https://unvetted-venue.example/",
+      sourceUrls: ["https://unvetted-venue.example/about"],
+    },
+    {
+      placeId: "fixture-different-card",
+      name: "Fixture Different Card",
+      officialWebsite: "https://different-card.example/",
+      sourceUrls: ["https://unvetted-venue.example/about"],
+    },
+  ], "fixture/transitive-vetted-host.json");
+  if (transitiveFixture.accepted !== 1 || transitiveFixture.problems.length !== 1 ||
+      !transitiveFixture.problems[0].includes('"Fixture Different Card" cites an unvetted source')) {
+    console.error("check-no-disney-sources: FAIL — self-test: inventory membership granted transitive content-source permission");
+    process.exit(1);
+  }
+  pass++;
+  const pierSources = EXPLICIT_CROSS_CARD_SOURCES.get("ChIJnXtixd5bw4gRrKDqLZC8Dlk");
+  if (!isPermittedSource(sharkys, "venicegov.com", pierSources)) {
+    console.error("check-no-disney-sources: FAIL — self-test: the reviewed Sharky's / Venice Fishing Pier source pairing was rejected");
+    process.exit(1);
+  }
+  pass++;
+  if (!isPermittedSource(sharkys, sharkys, new Set())) {
+    console.error("check-no-disney-sources: FAIL — self-test: a card's own official site was rejected as content evidence");
+    process.exit(1);
+  }
+  pass++;
 
   // A curated outbound link is not a request.
   const LINK = `{ text: "check the calendar", url: "https://disneyworld.disney.go.com/calendars/", label: "Park schedule" }`;
@@ -389,9 +368,7 @@ if (problems.length) {
 }
 
 if (VERBOSE) {
-  // Grandfathered first — that is the list anyone running this wants to see.
-  const rank = (l) => (l.includes("grandfathered") ? 0 : 1);
-  permits.sort((a, b) => rank(a) - rank(b) || a.localeCompare(b));
+  permits.sort((a, b) => a.localeCompare(b));
   for (const line of permits) console.log(line);
   console.log("");
 }
@@ -399,5 +376,5 @@ if (VERBOSE) {
 console.log(
   `check-no-disney-sources: OK — ${pass} checks, ${files.length} files scanned ` +
   `(entity rule: token + property suffix; every source affirmatively permitted; ` +
-  `${ugcRefs} UGC + ${grandfatheredRefs} unvetted-venue refs grandfathered, pending the content pass)`
+  `cross-card venue sources require an explicit pairing)`
 );

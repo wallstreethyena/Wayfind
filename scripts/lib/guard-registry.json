@@ -34,8 +34,8 @@
     "criticalCount": 83,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 461,
-      "RENDER": 74,
+      "CALL": 460,
+      "RENDER": 75,
       "STRUCTURAL": 139,
       "OTHER": 1
     }
@@ -5140,7 +5140,7 @@
       "npmScript": null,
       "class": "STRUCTURAL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 10,
+      "assertionCount": 6,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [
         "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
@@ -12268,9 +12268,9 @@
     {
       "file": "scripts/test-landing-inventory-ssg.mjs",
       "npmScript": null,
-      "class": "CALL",
+      "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 64,
+      "assertionCount": 73,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,
