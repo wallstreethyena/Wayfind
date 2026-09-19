@@ -6,6 +6,7 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { RAILS } from "../lib/rails.js";
+import { railSharePath } from "../lib/railShare.js";
 
 const ROOT = new URL("..", import.meta.url);
 const read = (path) => readFileSync(new URL(path, ROOT), "utf8");
@@ -23,6 +24,20 @@ ok(/if \(_r && _r\.opensPage\) return;[\s\S]+?e\.preventDefault\(\);/.test(daypa
 "page-opening posters no longer preserve native anchor navigation");
 ok(/if \(selected === id\) close\(\); else open\(id, "rail"\);/.test(daypart),
 "in-place posters no longer open their shared drop");
+
+// These posters have a qualified composer but only a broad category page in
+// their registry href. The anchor is the browser's fallback for modified
+// clicks, no-JS and open-in-new-tab, so it must preserve the poster identity
+// through the existing /r/<id> doorway. A plain click still reaches tileClick
+// above and opens the same in-place drop.
+const intentDoorwayIds = ["breakfast", "break", "birthday", "locals"];
+ok(/\["breakfast", "break", "birthday", "locals"\]\.includes\(id\)[\s\S]+?railSharePath\(id\)/.test(daypart),
+  "qualified poster anchors no longer use the exact-rail doorway");
+ok(/const href = intentDoorway \|\|/.test(daypart),
+  "the exact-rail doorway no longer wins over the broad category fallback");
+for (const id of intentDoorwayIds) {
+  ok(railSharePath(id) === `/r/${id}`, `${id}: exact-rail doorway is not /r/${id}`);
+}
 
 for (const rail of visible) {
   if (rail.opensPage) {

@@ -4,11 +4,11 @@ import RailHeading from "./RailHeading";
 import { RailDots, RailNav } from "./RailCard";
 import IconicPlaceCard from "./IconicPlaceCard";
 import { WF_PLACE_CARD_CSS } from "./css.js";
-import { themeParkHeading, themeParkForPlace, orderThemeParks } from "../../lib/themeParks.js";
+import { themeParkHeading, themeParkForPlace, orderThemeParks, filterFamilyThemeParks } from "../../lib/themeParks.js";
 import { placePartnerPick } from "../../lib/placePartnerPicks.js";
 import { usePinQuarantine } from "../../lib/pinQuarantine.js";
 
-export default function ThemeParkRail({ mode = "flagship", query = "", items = null, onOpenPlace,
+export default function ThemeParkRail({ mode = "flagship", query = "", items = null, familyContext = null, onOpenPlace,
   isSaved, isOnTrip, isLiked, isDisliked, liked, disliked,
   onSave, onItinerary, onLike, onDislike, onShare, onBadge }) {
   const [loaded, setLoaded] = useState(Array.isArray(items) ? items : []);
@@ -21,7 +21,7 @@ export default function ThemeParkRail({ mode = "flagship", query = "", items = n
       .then((body) => setLoaded(Array.isArray(body.items) ? body.items : []), () => setLoaded([]));
     return () => controller.abort();
   }, [mode, query, items]);
-  const rows = orderThemeParks(loaded.filter((place) => themeParkForPlace(place) && placePartnerPick(place, pinQ)));
+  const rows = orderThemeParks(filterFamilyThemeParks(loaded.filter((place) => themeParkForPlace(place) && placePartnerPick(place, pinQ)), familyContext));
   if (!rows.length) return null;
   const heading = themeParkHeading(mode);
   const railId = `theme-parks-${mode}`;

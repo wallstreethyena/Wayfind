@@ -156,7 +156,7 @@ export function experienceTags(place, max) {
   if (rating >= 4.2 && priceNum != null && priceNum <= 2) q.add("value");
 
   if (!noWater && said(["waterfront", "riverfront", "riverwalk", "on the river", "bayfront", "beachfront", "lakefront", "wharf", "dockside", "boathouse", "on the bay", "on the water"])) q.add("waterfront");
-  if (said(["rooftop", "roof top", "sky bar", "skybar", "skyline"])) q.add("rooftop");
+  if (Tags.hasRooftopName(place.name)) q.add("rooftop");
   if (said(["romantic", "date night", "intimate", "candlelit", "special occasion"])) q.add("romantic");
   // v8.24 — date night, same evidence class as the datenight rail
   // (lib/railSelect.js): a real restaurant whose price tier or name says

@@ -384,7 +384,7 @@ export default function FamilyDayPage({ embedded = false, center = null, city = 
       ` }} />
       {!embedded ? <FamilyFilters filters={filters} onChange={changeFilter} radiusMi={radiusMi} onRadius={setRadiusMi} /> : null}
       {outdoorGateClosed ? <p className="wf-family-weather">Outdoor picks are paused because {moment.gateWhy || "current weather is not a safe fit"}. {weatherPaused ? "Your weather choice is preserved; choose Indoors or clear it to continue." : "The rails are using verified indoor evidence."}</p> : null}
-      <ThemeParkRail mode="family" onOpenPlace={onOpenPlace} {...cardActions} />
+      <ThemeParkRail mode="family" familyContext={{ lat: loc.lat, lng: loc.lng, radiusMi, filters, indoorOnly, ready: weatherSettled && !!moment, paused: weatherPaused }} onOpenPlace={onOpenPlace} {...cardActions} />
       {!hasPoint ? <div className="wf-family-message"><p>This page needs a location before it can rank nearby family picks. Open the Family Day poster after choosing a location.</p></div> : (
         <>
           {FAMILY_DAY_RAILS.map((rail) => <FamilyRail key={rail.id} rail={rail} loc={loc} radiusMi={radiusMi} filters={filters} indoorOnly={indoorOnly} weatherSettled={weatherSettled && !!moment} weatherPaused={weatherPaused} retryAll={retryAll} onOpenPlace={onOpenPlace} cardActions={cardActions} />)}

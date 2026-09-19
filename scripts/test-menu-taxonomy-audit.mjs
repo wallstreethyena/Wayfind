@@ -81,4 +81,34 @@ for (const [pt, name] of [
   ok(c && c.section === "Food", `D: ${pt} ("${name}") classifies as Food, not Shopping (got ${c && c.section})`);
 }
 
-console.log(`test-menu-taxonomy-audit: OK — ${pass} assertions (family-activity anchor, attractions crossVeto, worship exclude, shop-primaryType food branch)`);
+// ── E: broad category identity must beat incidental tags / name words ───────
+// Real wf_inventory shapes from data/atlas/fixtures-real-types.json.
+ok(placeAllowed("food", "all", mk("Island Discount Tackle",
+  ["fishing_charter", "marina", "sporting_goods_store", "store"], "store")) === false,
+  "E: a tackle store does not become a restaurant because fishing contains the loose food token fish");
+ok(placeAllowed("food", "all", mk("Royal Palm Marina",
+  ["marina", "bar_and_grill", "bar", "restaurant", "food"], "marina")) === false,
+  "E: a marina does not become a restaurant because it has an incidental grill");
+ok(placeAllowed("family", "all", mk("Island Sun Inn & Suites - Historic Venice & Beach Getaway",
+  ["hotel", "lodging"], "hotel")) === false,
+  "E: a hotel does not become a Family activity because Beach appears in its name");
+ok(placeAllowed("family", "all", mk("Venice Beach Villas",
+  ["hotel", "lodging"], "hotel")) === false,
+  "E: beach-named lodging stays out of the Family activity category");
+ok(placeAllowed("nightlife", "all", mk("Seasons 52",
+  ["steak_house", "wine_bar", "vegan_restaurant", "vegetarian_restaurant", "fine_dining_restaurant", "seafood_restaurant", "bar", "american_restaurant", "restaurant"], "american_restaurant")) === false,
+  "E: a dining-first restaurant with a wine-bar amenity is not Night out");
+
+// Positive controls: the new cross-category vetoes must preserve genuine dual
+// identities instead of making each broad category mutually exclusive.
+ok(placeAllowed("food", "all", mk("The End Zone Sports Grille",
+  ["sports_bar", "bar", "restaurant", "food"], "sports_bar")) === true,
+  "E control: a sports-bar primary with a kitchen remains Food");
+ok(placeAllowed("nightlife", "all", mk("House of Blues",
+  ["american_restaurant", "live_music_venue", "event_venue", "bar", "restaurant"], "american_restaurant")) === true,
+  "E control: an explicit live-music venue remains Night out even when Google calls it a restaurant");
+ok(placeAllowed("family", "all", mk("City Zoo",
+  ["zoo", "tourist_attraction"], "zoo")) === true,
+  "E control: a real family destination remains admitted");
+
+console.log(`test-menu-taxonomy-audit: OK — ${pass} assertions (family-activity anchor, attractions crossVeto, worship exclude, shop-primaryType food branch, broad-category identity)`);

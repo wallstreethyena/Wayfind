@@ -40,6 +40,7 @@ ok(typeof Rail === "function", "IntentPartnerPick compiles and exports a compone
 const INVENTORY = [
   { code: "5560271P1", title: "Manatee watching with guaranteed sighting", image: "https://media.viator.com/a.jpg", rating: 5, reviews: 120, fromPrice: 16 },
   { code: "292464P2", title: "Clear Kayak LED Night Glass Bottom Tour", image: "https://media.viator.com/b.jpg", rating: 4.7, reviews: 340, fromPrice: 59 },
+  { code: "FOOD1P1", title: "Downtown Walking Food Tour", image: "https://media.viator.com/food.jpg", rating: 4.9, reviews: 180, fromPrice: 79 },
 ];
 
 const render = (props) => renderToStaticMarkup(createElement(Rail, props));
@@ -74,6 +75,17 @@ ok(!INTENT_PARTNER_PICKS.tampa?.["hidden-gems"]?.image && !(INTENT_PARTNER_RAILS
   "positive control: Tampa/hidden-gems has no baked-in image on its featured pick and no rail, so the negative control below is a real test of the inventory-image filter, not an artPick short-circuit");
 const emptyHtml = render({ city: "Tampa", intent: "hidden-gems", inventory: noImages, lat: 28.5, lng: -81.4 });
 ok(!emptyHtml.includes("data-offer-id="), "negative control: inventory with no images renders NO cards (this is the exact state the guide pages were in)");
+
+// Restaurant pages have their own food-only intent. The same unfiltered cache
+// payload may carry kayaks for valid activity surfaces; those rows must not be
+// relabelled as a date and shown above a restaurant ranking.
+const restaurantHtml = render({ city: "Parrish", intent: landingRailIntent("restaurants"), inventory: INVENTORY, lat: 27.58, lng: -82.43 });
+ok(landingRailIntent("restaurants") === "food" && guideRailIntent("restaurant") === "food",
+  "restaurant landings and guides declare the narrow food intent rather than sharing date-night");
+ok(restaurantHtml.includes('data-offer-id="FOOD1P1"') && !restaurantHtml.includes('data-offer-id="292464P2"') && !restaurantHtml.includes('data-offer-id="5560271P1"'),
+  "rendered restaurant rail keeps the food tour and rejects kayak/manatee activity inventory");
+ok(restaurantHtml.includes("A local food experience worth booking") && !restaurantHtml.includes("A local date worth booking"),
+  "rendered restaurant rail describes food honestly instead of labelling arbitrary inventory as a date");
 
 // ── 3. every declared placement resolves to picks the rail can show ───────
 // Static-only: proves the intent each new call site passes is one the registry

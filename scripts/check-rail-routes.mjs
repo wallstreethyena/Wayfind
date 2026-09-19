@@ -15,6 +15,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { RAILS, railArt, railArtSrcSet, railArtFallback, RAIL_TINT } from "../lib/rails.js";
 import { DAYPARTS, DAYPART_IDS, railHref, orderFor } from "../lib/dayparts.js";
+import { railSharePath } from "../lib/railShare.js";
 import { RAIL_SELECT } from "../lib/railSelect.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -63,6 +64,7 @@ function routeExists(urlPath) {
 }
 
 const REGIONS = ["orlando", "fl", "other"];
+const INTENT_DOORWAY_RAILS = ["breakfast", "break", "birthday", "locals"];
 
 // 0. RAILS crosses the server/client boundary as a prop. A function anywhere in
 //    it throws at render — "Functions cannot be passed directly to Client
@@ -121,6 +123,13 @@ for (const r of RAILS) {
 }
 
 // 3. Destinations: the route exists AND the segment is a value it accepts.
+// Qualified poster anchors use the share doorway so alternate activation keeps
+// the poster intent instead of widening to all restaurants / things to do.
+for (const id of INTENT_DOORWAY_RAILS) {
+  const href = railSharePath(id);
+  if (href !== `/r/${id}`) bad(`${id}: poster doorway drifted to ${href}`);
+  if (!routeExists(href)) bad(`${id} -> ${href}: exact poster doorway has no route`);
+}
 for (const r of RAILS) {
   for (const region of REGIONS) {
     for (const city of [undefined, "parrish", "orlando", "tampa"]) {
