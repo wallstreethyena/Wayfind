@@ -34,7 +34,7 @@ const RANGES = [
   ["month", "This month"], ["last_month", "Last month"], ["custom", "Custom"],
 ];
 const GROUPS = [
-  { id: "today", label: "Today & business", short: "Today", sections: ["briefing", "alerts", "overview"], description: "The few facts that matter most right now, followed by the complete business picture." },
+  { id: "today", label: "Briefing & metrics", short: "Briefing", sections: ["briefing", "alerts", "overview"], description: "The fixed previous-day report, live current-day alerts, and metrics for the selected date range." },
   { id: "visitors", label: "Visitors", short: "Visitors", sections: ["traffic", "journey", "retention"], description: "How people find Wayfind, what they do next, and whether they come back." },
   { id: "commerce", label: "Places & tickets", short: "Places", sections: ["places"], description: "Which places people open, save, share, and choose for tickets or booking." },
   { id: "reliability", label: "Reliability", short: "Health", sections: ["health"], description: "Whether Wayfind is working quickly and reliably for visitors." },
@@ -208,8 +208,9 @@ function LockScreen({ auth, setAuth, denied, notConfigured }) {
 
 // ── sections ────────────────────────────────────────────────────────────────
 function OwnerBriefing({ auth }) {
-  // The briefing is deliberately fixed: yesterday's ET business results plus
-  // health checked now. The global range controls the detailed panels below.
+  // The briefing is deliberately fixed: the previous complete ET business day
+  // plus health checked when the report was generated. The metrics range does
+  // not change this daily-report artifact.
   const p = usePanel("briefing", auth, { key: "today" }, { refreshMs: 60000 });
   const d = dget(p.data, "data", null);
   const toItem = (item, status, prefix, index) => typeof item === "string"
@@ -226,7 +227,9 @@ function OwnerBriefing({ auth }) {
   const dateKey = dget(d, "dateKey", null);
   const periodLabel = dget(d, "period.label", null);
   const overallStatus = String(dget(d, "summary.status", null) || dget(d, "status", "unknown")).toLowerCase();
-  const statusLabel = { healthy: "Working well", attention: "Needs attention", limited: "Limited data", good: "Working well", warn: "Needs attention", unknown: "Not enough data", routine: "Routine" }[overallStatus] || "Update";
+  // summary.status="healthy" means the report completed its checks; it is not
+  // a claim that every current/live signal is healthy.
+  const statusLabel = { healthy: "Report complete", attention: "Needs attention", limited: "Limited data", good: "Report checked", warn: "Needs attention", unknown: "Not enough data", routine: "Report checked" }[overallStatus] || "Report update";
   const generatedDate = generatedAt ? new Date(generatedAt) : null;
   const generatedLabel = generatedDate && !Number.isNaN(generatedDate.getTime())
     ? generatedDate.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
@@ -244,10 +247,10 @@ function OwnerBriefing({ auth }) {
     <section id="briefing" aria-labelledby="briefing-h" className={styles.briefing} style={{ opacity: p.loading && !p.data ? 0.6 : 1 }}>
       <div className={styles.briefingTopline}>
         <div>
-          <span className={styles.eyebrow}>Owner briefing</span>
+          <span className={styles.eyebrow}>Fixed previous-day briefing</span>
           <h1 id="briefing-h" className={styles.briefingTitle}>{headline || "What needs your attention"}</h1>
           {summaryDetail ? <p className={styles.briefingSummary}>{String(summaryDetail)}</p> : null}
-          <p className={styles.briefingCoverage}>{periodLabel || "Yesterday"}{dateKey ? ` · ${dateKey}` : ""} business results · site health checked now</p>
+          <p className={styles.briefingCoverage}>{periodLabel || "Previous day"}{dateKey ? ` · ${dateKey}` : ""} business results · health checked when this report was generated · unaffected by the metrics date range</p>
         </div>
         <div className={styles.briefingMeta}>
           <span className={`${styles.overallStatus} ${styles[`briefing_${overallStatus}`] || ""}`}>{statusLabel}</span>
@@ -282,7 +285,7 @@ function OwnerBriefing({ auth }) {
       )}
       {workingWell.length ? (
         <div className={styles.workingWell}>
-          <span className={styles.workingWellTitle}>Working well</span>
+          <span className={styles.workingWellTitle}>Verified in this report</span>
           <ul>{workingWell.map((item, index) => <li key={`${String(item)}-${index}`}>{String(item)}</li>)}</ul>
         </div>
       ) : null}
@@ -291,16 +294,16 @@ function OwnerBriefing({ auth }) {
   );
 }
 
-function AlertsSection({ auth, range }) {
+function AlertsSection({ auth }) {
   const p = usePanel("alerts", auth, { key: "today" }, { refreshMs: 120000 });
   const alerts = dget(p.data, "data.alerts", []);
-  if (p.error) return <Section id="alerts" title="Alerts"><PanelError {...p} reload={p.reload} /></Section>;
+  if (p.error) return <Section id="alerts" title="Live alerts · today"><PanelError {...p} reload={p.reload} /></Section>;
   return (
-    <Section id="alerts" title="Alerts" loading={p.loading && !p.data}
-      sub={dget(p.data, "data.baselineNote", "")}>
+    <Section id="alerts" title="Live alerts · today" loading={p.loading && !p.data}
+      sub={`Current-day signals, unaffected by the metrics date range. ${dget(p.data, "data.baselineNote", "")}`.trim()}>
       {alerts.length === 0 && p.data ? (
         <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: C.light }}>
-          <span aria-hidden="true" style={{ color: STATUS.good, fontWeight: 800 }}>✓</span> No active alerts — all monitored baselines are within range.
+          <span aria-hidden="true" style={{ color: STATUS.good, fontWeight: 800 }}>✓</span> No alerts triggered by the available data.
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -433,8 +436,8 @@ function OverviewSection({ auth, range }) {
   const healthOk = dget(d, "health.ok", null);
 
   return (
-    <Section id="overview" title="Executive overview" loading={p.loading && !p.data}
-      sub={`Window: ${dget(p.data, "range.label", "Today")} · comparisons use equivalent elapsed time (ET days).`}>
+    <Section id="overview" title="Metrics overview" loading={p.loading && !p.data}
+      sub={`Selected metrics window: ${dget(p.data, "range.label", "Today")} · comparisons use equivalent elapsed time (ET days).`}>
       <Grid min={185}>
         <StatTile hero label="Live now" def={defs.live_now}
           value={fmtNum(dget(d, "live.firstParty.devices"))}
@@ -473,7 +476,7 @@ function OverviewSection({ auth, range }) {
           source={err && err.source} />
         <StatTile label="Site health" def="Live self-check from the server to production (homepage + key APIs)."
           value={healthOk === true ? "✓ OK" : healthOk === false ? "✕ FAIL" : "…"}
-          sub={healthOk === false ? (dget(d, "health.failing", []) || []).join(", ") : "all checks passing"}
+          sub={healthOk === true ? "all checks passing" : healthOk === false ? (dget(d, "health.failing", []) || []).join(", ") : "health status unavailable"}
           source={dget(d, "health.source")} />
       </Grid>
     </Section>
@@ -1085,11 +1088,12 @@ function SourcesFooter({ auth }) {
 function RangeControls({ rangeKey, setRangeKey, custom, setCustom }) {
   return (
     <div className={styles.rangeControls}>
-      <label className={styles.mobileRangeLabel} htmlFor="cc-range">Date range</label>
+      <label className={styles.mobileRangeLabel} htmlFor="cc-range">Metrics date range</label>
       <select id="cc-range" className={styles.mobileRange} value={rangeKey} onChange={(event) => setRangeKey(event.target.value)}>
         {RANGES.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
       </select>
-      <div className={styles.desktopRanges} aria-label="Date range">
+      <div className={styles.desktopRanges} aria-label="Metrics date range">
+        <span style={{ alignSelf: "center", color: C.muted, fontSize: 10, fontWeight: 750, letterSpacing: "0.06em", textTransform: "uppercase" }}>Metrics</span>
         {RANGES.map(([key, label]) => (
           <button key={key} type="button" onClick={() => setRangeKey(key)} aria-pressed={rangeKey === key}
             className={rangeKey === key ? styles.rangeSelected : styles.rangeButton}>{label}</button>
@@ -1206,14 +1210,14 @@ export default function CommandCenter() {
           <RangeControls rangeKey={rangeKey} setRangeKey={setRangeKey} custom={custom} setCustom={setCustom} />
         </div>
         <GroupNav activeGroup={activeGroup} setActiveGroup={setActiveGroup} />
-        <div className={styles.sessionLine}>{auth.email ? `Signed in as ${auth.email}` : "Access-key mode"} · panels refresh while visible · dates use Eastern Time</div>
+        <div className={styles.sessionLine}>{auth.email ? `Signed in as ${auth.email}` : "Access-key mode"} · date range filters metrics only; the previous-day briefing and live alerts stay fixed · dates use Eastern Time</div>
       </header>
 
       <div id={group.id} className={styles.main}>
         {activeGroup === "today" ? (
           <>
             <OwnerBriefing auth={auth} />
-            <AlertsSection auth={auth} range={range} />
+            <AlertsSection auth={auth} />
             <OverviewSection auth={auth} range={range} />
           </>
         ) : null}

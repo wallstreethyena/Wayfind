@@ -16,6 +16,7 @@
 import { readFileSync } from "node:fs";
 import { requireOwner } from "../lib/commandCenter/auth.js";
 import { rangeFor, comparisonsFor, delta, dayList, dayStr, zonedDayStart, zonedParts } from "../lib/commandCenter/time.js";
+import { buildAlertsReport } from "../lib/commandCenter/alertsRun.js";
 import { computeAlerts, MIN_BASELINE_DAYS } from "../lib/commandCenter/alerts.js";
 import { srcMissing, srcOk, srcError, jsonNoStore } from "../lib/commandCenter/respond.js";
 import { memTTL } from "../lib/commandCenter/cache.js";
@@ -25,6 +26,30 @@ import { buildVisitorReport } from "../lib/commandCenter/visitorReport.js";
 let failures = 0;
 const fail = (m) => { console.error("test-command-center: FAIL — " + m); failures++; };
 const ok = (c, m) => { if (!c) fail(m); };
+
+// Alert assembly must preserve an unavailable source through to the rules.
+{
+  const good = (data) => ({ source: srcOk("fixture"), data });
+  const missing = { source: srcError("First party", "offline"), data: null };
+  const fixture = {
+    fractionOfDay: 0.75,
+    dailyHist: good(Array.from({ length: 14 }, (_, i) => ({ day: `2026-09-${String(i + 1).padStart(2, "0")}`, devices: 110, out_clicks: 10 }))),
+    todayK: good({ active_devices: 39, sessions: 40, out_clicks: 0 }),
+    signupHist: good(Array.from({ length: 14 }, (_, i) => ({ day: `2026-09-${String(i + 1).padStart(2, "0")}`, signups: 10 }))),
+    signupToday: good([{ signups: 0 }]),
+    ...Object.fromEntries(["cwvField", "lab", "err24", "boundary1h", "sentry", "syn", "deploys", "tpToday", "freshness"].map((key) => [key, good(null)])),
+  };
+  const has = (report, id) => report.alerts.some((a) => a.id === id);
+  const measured = buildAlertsReport(fixture);
+  ok(has(measured, "traffic_drop") && has(measured, "signup_drop"), "alerts assembly: genuine measured drops still warn");
+  const trackingGap = buildAlertsReport({ ...fixture, todayK: good({ active_devices: 39, sessions: 0, out_clicks: 0 }) });
+  ok(/Check visit tracking/.test(trackingGap.alerts.find((a) => a.id === "traffic_drop")?.detail || ""), "alerts assembly: a session gap qualifies the recorded-device decline rather than claiming actual audience loss");
+  const unavailable = buildAlertsReport({ ...fixture, todayK: missing, signupToday: missing });
+  ok(!has(unavailable, "traffic_drop") && !has(unavailable, "out_clicks_drop") && !has(unavailable, "signup_drop"), "alerts assembly: failed current sources never become zero-count drops");
+  ok(unavailable.sources.some((source) => source.connected === false), "alerts assembly: missing sources remain visible");
+  const missingHistory = buildAlertsReport({ ...fixture, dailyHist: missing, signupHist: missing });
+  ok(!has(missingHistory, "traffic_drop") && !has(missingHistory, "signup_drop"), "alerts assembly: missing baseline sources cannot establish a drop");
+}
 
 // ── 1. AUTH ────────────────────────────────────────────────────────────────
 const mkReq = (headers = {}) => ({ headers: { get: (k) => headers[k.toLowerCase()] ?? null } });
@@ -304,6 +329,13 @@ const histDays = (n, devices = 40, extra = {}) => Array.from({ length: n }, (_, 
     ok(!/SERVICE_ROLE|PERSONAL_API_KEY|AUTH_TOKEN|ACCESS_TOKEN/.test(src), `client: ${name} references no server secrets`);
   }
   ok(/robots:\s*\{\s*index:\s*false/.test(page), "page: /command-center is noindexed");
+  ok(/Briefing & metrics/.test(ui) && /Fixed previous-day briefing/.test(ui) && /unaffected by the metrics date range/.test(ui), "ui: fixed previous-day briefing is explicitly separate from the selected metrics window");
+  ok(/healthy:\s*"Report complete"/.test(ui) && !/healthy:\s*"Working well"/.test(ui), "ui: a healthy briefing status means report complete, not a claim that live signals are working well");
+  ok(/Live alerts · today/.test(ui) && /Current-day signals, unaffected by the metrics date range/.test(ui), "ui: live current-day alerts are explicitly separate from the fixed briefing and selected metrics window");
+  ok(/Metrics date range/.test(ui) && /Selected metrics window:/.test(ui), "ui: date controls and overview identify their scope as metrics only");
+  ok(/Verified in this report/.test(ui) && /No alerts triggered by the available data/.test(ui), "ui: mixed-period report confirmations and underpowered alert inputs do not overclaim current health");
+  ok(!/No active alerts[^\n]*all monitored baselines are within range/.test(ui), "ui: no-alert state does not claim every baseline was eligible and healthy");
+  ok(/healthOk === true \? "all checks passing"[^\n]*"health status unavailable"/.test(ui), "ui: missing live health status is unavailable, never all checks passing");
   // React hooks rule (regression: unlock crashed with "Rendered fewer hooks
   // than expected"): inside every component function of ui.js, NO hook call
   // (useX / usePanel) may appear after a `return` statement — an early
