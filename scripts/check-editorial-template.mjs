@@ -94,6 +94,9 @@ const files = [];
   try { entries = readdirSync(d, { withFileTypes: true }); } catch { return; }
   for (const e of entries) {
     if (SKIP.has(e.name)) continue;
+    // jsxLoad emits compiled source copies in ignored root-only temp folders.
+    // They are build output, like .next; nested source folders still count.
+    if (d === path.resolve(".") && e.isDirectory() && e.name.startsWith(".wf-jsx-")) continue;
     const p = path.join(d, e.name);
     if (e.isDirectory()) walk(p);
     else if (/\.(js|mjs|css)$/.test(e.name)) files.push(p);
