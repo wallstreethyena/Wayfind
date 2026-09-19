@@ -2,6 +2,9 @@
 import { useEffect, useState } from 'react';
 import MapCategoryPin from '../../components/MapCategoryPin';
 import GuidePhoto from '../../components/GuidePhoto';
+import { WayfindScoreBadge } from '../../components/kit';
+import { experienceWayfindScore } from '../../../lib/experiencesData';
+import { toDisplayScore } from '../../../lib/score';
 import { FLORIDA_CATALOG_CATEGORIES as categories, FLORIDA_CATALOG_CITIES as cities } from '../../../lib/floridaCatalog';
 import { commerceHref } from '../../../lib/commerce';
 import { experienceGoUrl } from '../../../lib/affiliates';
@@ -35,11 +38,12 @@ export default function ExperienceCatalog() {
       <a href="#halloween"><MapCategoryPin family="shows" height={38}/><span>Shows & events</span></a>
     </div>
     <p className={styles.note}>Listed destinations: Orlando, Tampa, St. Petersburg, Clearwater and Sarasota. For Miami, the Keys and other Florida destinations, use the statewide Viator search. Category counts can overlap.</p>
+    <p className={styles.note}>Ranked by Wayfind Score, using rating strength and review depth. <a href="/how-wayfind-ranks">How Wayfind scores experiences ↗</a></p>
     <div aria-live="polite" aria-atomic="true" className={styles.catalogStatus}>{loading ? 'Loading experiences…' : error ? 'The experience catalog is temporarily unavailable.' : `${data?.total || 0} experiences${city ? ' in '+city : ' across listed destinations'}${data?.total ? ' · Page '+(page+1)+' of '+Math.ceil(data.total/24) : ''}`}</div>
     {error ? <button className={styles.catalogButton} onClick={()=>setRetry(v=>v+1)}>Try again</button> : !loading && data?.items?.length ? <div className={styles.grid}>{data.items.map(item=><article key={item.code} className={styles.offerCard}>
       <div className={styles.media}><GuidePhoto src={item.image} alt={item.title} width={640} height={400} loading="lazy" className={styles.offerImage} fallbackClassName={styles.photoFallback} fallbackText="Photo unavailable"/></div>
       <div className={styles.cardBody}><p className={styles.meta}>{item.city}{item.duration ? ' · '+item.duration : ''}</p><h3>{item.title}</h3>
-      {item.rating>0 && item.reviews>0 ? <p className={styles.catalogRating}>★ {item.rating.toFixed(1)} <span>({item.reviews.toLocaleString()} Viator reviews)</span></p> : null}
+      <div className={styles.catalogRating}>{toDisplayScore(experienceWayfindScore(item)) != null ? <WayfindScoreBadge score={toDisplayScore(experienceWayfindScore(item))} staticRoot /> : <span aria-label="Wayfind Score pending">Score pending</span>}{item.reviews>0 ? <span>{item.reviews.toLocaleString()} Viator reviews</span> : null}</div>
       <div className={styles.catalogTags}>{(item.chips||[]).map(c=><span key={c.key}>{c.label}</span>)}</div>
       <div className={styles.cardActionRow}><a className={styles.cardAction} rel="sponsored noopener" target="_blank" href={commerceHref({provider:'viator',offerId:item.code,surface:'paid_florida',contentId:'florida-catalog-'+item.code})}>See availability ↗<span className={styles.srOnly}> for {item.title}, opens a new tab</span></a><span className={styles.seller}>via Viator</span></div>
       </div></article>)}</div> : !loading && !error ? <p>No listed experiences match this category in this destination. Choose another category or search Viator statewide.</p> : null}

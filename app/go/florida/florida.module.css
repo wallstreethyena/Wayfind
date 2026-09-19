@@ -154,3 +154,5 @@
 .catalogButton { background:#17222d; border:1px solid var(--fl-line); border-radius:8px; padding:12px 18px; color:#f5f2e9; font:inherit; cursor:pointer; }.catalogButton:disabled { opacity:.35; cursor:default; }
 .pinMenu button:focus-visible,.catalogButton:focus-visible,.catalogControls select:focus-visible { outline:2px solid #ff8938; outline-offset:3px; }
 @media(max-width:700px) { .catalogControls label { flex-direction:column; align-items:flex-start; }.catalogPages { gap:10px; }.catalogButton { padding:10px; } }
+
+.catalogRating { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
