@@ -11,7 +11,7 @@
 // Asserted by CALLING the helpers (CLAUDE.md: the call, not the string).
 // A regex over landing.js would pass while rankedFor still POSTed searchText.
 
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync, rmSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -20,10 +20,12 @@ import {
   landingInvSpec,
   invPlaceToLanding,
   landingIdentityOk,
+  nightlifeLandingEligible,
   fetchLandingInventory,
 } from "../lib/landingInventory.js";
 import { chipIdentity, isSitOnSandPlace } from "../lib/chipIdentity.js";
 import { wayfindScore } from "../lib/wayfindScore.js";
+import { loadComponent } from "./lib/jsxLoad.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 let pass = 0;
@@ -84,6 +86,47 @@ ok(landingIdentityOk("restaurants", columbia, chipIdentity) === true,
   "Columbia is a restaurant when it is in inventory");
 ok(landingIdentityOk("things-to-do", water, chipIdentity) === true,
   "CONTROL: watersports may appear on TTD as an attraction — identity does not invent a beach");
+
+// Nightlife has stricter identity than the broad chip inventory query. A bar
+// amenity on a restaurant is not its identity; a live-music room remains valid
+// even when Google calls the room a restaurant first.
+{
+  const rows = [
+    { id: "bar", name: "Primary Cocktail Bar", rating: 4.7, reviews: 600, primaryType: "cocktail_bar", types: ["cocktail_bar", "bar"] },
+    { id: "music", name: "Restaurant-Typed Music Hall", rating: 4.6, reviews: 7000, primaryType: "american_restaurant", types: ["american_restaurant", "live_music_venue", "event_venue", "bar"] },
+    { id: "olive", name: "Restaurant Wine Amenity", rating: 4.8, reviews: 12000, primaryType: "italian_restaurant", types: ["restaurant", "italian_restaurant", "wine_bar"] },
+    { id: "thin", name: "Thirty Review Speakeasy", rating: 5, reviews: 30, primaryType: "cocktail_bar", types: ["cocktail_bar"] },
+    { id: "closed", name: "Closed Club", rating: 4.9, reviews: 900, status: "CLOSED_PERMANENTLY", primaryType: "night_club", types: ["night_club"] },
+  ];
+  const ids = nightlifeLandingEligible(rows).map((p) => p.id);
+  ok(ids.includes("bar"), "nightlife inventory keeps an authentic primary bar");
+  ok(ids.includes("music"), "nightlife inventory keeps a restaurant-primary live-music room");
+  ok(!ids.includes("olive"), "nightlife inventory rejects a restaurant's wine-bar amenity");
+  ok(!ids.includes("thin"), "nightlife inventory enforces the market-relative review floor");
+  ok(!ids.includes("closed"), "nightlife inventory rejects a non-operational venue");
+
+  const compiledBefore = new Set(readdirSync(ROOT).filter((name) => name.startsWith(".wf-jsx-")));
+  let ranked;
+  try {
+    const landing = await loadComponent(join(ROOT, "lib/landing.js"), ROOT);
+    ranked = await landing.rankedForCenter("nightlife", {
+      name: "Test City", state: "FL", lat: 27.95, lng: -82.46,
+    }, { inventoryRows: rows, inventoryOnly: true });
+  } finally {
+    for (const name of readdirSync(ROOT).filter((entry) => entry.startsWith(".wf-jsx-") && !compiledBefore.has(entry))) {
+      rmSync(join(ROOT, name), { recursive: true, force: true });
+    }
+  }
+  const rankedIds = ranked.map((p) => p.id);
+  ok(rankedIds.includes("bar") && rankedIds.includes("music"),
+    "rankedForCenter keeps both primary bars and restaurant-primary live-music rooms");
+  ok(!rankedIds.includes("olive") && !rankedIds.includes("thin") && !rankedIds.includes("closed"),
+    "rankedForCenter applies strict nightlife eligibility to owned inventory");
+  ok(ranked.every((p) => Number.isFinite(p.governed_score)),
+    "nightlife inventory still receives the landing ranker's governed score stamp");
+  ok(ranked.every((p, i) => i === 0 || ranked[i - 1].governed_score >= p.governed_score),
+    "nightlife inventory remains ordered by the landing ranker's governed score");
+}
 
 // ── 3. Destination-worth ranking, EXECUTED (Wayfind Score, never payout) ──
 {
