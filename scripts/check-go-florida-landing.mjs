@@ -218,9 +218,9 @@ ok(resolveGoSlug("florida").kind === "not-found", 'resolveGoSlug("florida") is s
 })();
 
 // ── 12. rel="sponsored noopener" target="_blank" on every commerce card
-// template (OfferCard, SearchIntentCard, EventCard) — 3 template sites.
+// template (OfferCard, SearchIntentCard, EventCard, BoatRentalChoices) — 4 template sites.
 const sponsoredCount = (rawPage.match(/rel="sponsored noopener"\s+target="_blank"/g) || []).length;
-ok(sponsoredCount === 3, `exactly 3 commerce-link templates carry rel="sponsored noopener" target="_blank" (OfferCard, SearchIntentCard, EventCard) — found ${sponsoredCount}`);
+ok(sponsoredCount === 4, `exactly 4 commerce-link templates carry rel="sponsored noopener" target="_blank" (OfferCard, SearchIntentCard, EventCard, BoatRentalChoices) — found ${sponsoredCount}`);
 
 // ── 13. the sitewide experience-CTA copy is used verbatim, and only there
 ok(rawData.includes('AVAILABILITY_CTA_LABEL = "See availability ↗"'), 'AVAILABILITY_CTA_LABEL is exactly "See availability ↗"');

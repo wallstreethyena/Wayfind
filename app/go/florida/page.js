@@ -21,6 +21,8 @@
 // built by commerceHref() / eventTicketCta() / experienceGoUrl(), each of
 // which returns an /api/*/go path on this origin — the destination is
 // resolved server-side, at click time, by the route the link points at.
+import LicensedPhoto from "../../components/LicensedPhoto";
+import { SPRINGS_PHOTO, EXPERIENCE_PHOTOS } from "../../../lib/floridaPhotography";
 import styles from "./florida.module.css";
 import GuidePhoto from "../../components/GuidePhoto";
 import { guideHero } from "../../../lib/guideHero";
@@ -142,7 +144,6 @@ async function loadHalloweenEvents() {
   }
 }
 
-const HERO_ART = guideHero("things-to-do-key-west-summer-2026");
 const COAST_ART = guideHero("siesta-key-vs-lido-key");
 
 function PhotoCredit({ art }) {
@@ -217,13 +218,21 @@ function OfferCard({ offer, ctaLabel, contentPrefix }) {
 
 function SearchIntentCard({ item }) {
   const href = experienceGoUrl(item.query, item.city, item.kind, null, { surface: SURFACE, contentId: "florida-nature-" + item.id });
+  const art = item.id === "manatee-crystal-river" ? { ...guideHero("swim-with-manatees-crystal-river"), caption: "Crystal River manatees · David Hinkel / USFWS · CC BY 2.0. Tour not pictured." } : EXPERIENCE_PHOTOS[item.id];
   if (!href) return null;
-  return <article className={styles.guideCard}>
-    <p className={styles.meta}>{item.city}</p>
-    <h3>{item.title}</h3><p>{item.blurb}</p>
-    <span className={styles.editorialLabel}>Compare tour options</span>
-    <a className={styles.textLink} href={href} rel="sponsored noopener" target="_blank">{AVAILABILITY_CTA_LABEL}<span className={styles.srOnly}> for {item.title}, opens a new tab</span></a>
+  return <article className={styles.offerCard}>
+    <div className={styles.media}><LicensedPhoto {...art} sizes="(max-width:700px) 100vw, 400px" className={styles.offerImage} /></div>
+    <div className={styles.cardBody}><p className={styles.meta}>{item.city}</p><h3>{item.title}</h3><p className={styles.cardBlurb}>{item.blurb}</p>
+      <p className={styles.imageCaption}>{art.caption}{art.source ? <> <PhotoCredit art={art} /></> : null}</p>
+      <span className={styles.editorialLabel}>Compare tour options</span>
+      <a className={styles.textLink} href={href} rel="sponsored noopener" target="_blank">{AVAILABILITY_CTA_LABEL}<span className={styles.srOnly}> for {item.title}, opens a new tab</span></a>
+    </div>
   </article>;
+}
+
+function BoatRentalChoices({ offers }) {
+  if (!offers.length) return null;
+  return <aside className={styles.rentalChoices}><div><p className={styles.eyebrow}>Choose your departure city</p><h3>Rent a boat for your own kind of day</h3><p>Compare local boats, captained trips and rental requirements with SamBoat.</p></div><nav aria-label="Boat rental cities">{offers.map((offer) => <a key={offer.offerId} className={styles.textLink} href={commerceHref({ provider: offer.provider, offerId: offer.offerId, surface: SURFACE, contentId: "florida-nature-" + offer.offerId })} rel="sponsored noopener" target="_blank">{offer.market} ↗<span className={styles.srOnly}> boat rentals, opens a new tab</span></a>)}</nav></aside>;
 }
 
 function EventCard({ event, cta }) {
@@ -264,9 +273,10 @@ function NatureSection() {
   return <section id="nature" className={styles.section}>
     <SectionHead eyebrow="Take the scenic route" title={NATURE_HEADING} intro={NATURE_INTRO} />
     <Collection label="outdoor experiences">{[
-      ...NATURE_OFFERS.map((o) => <OfferCard key={o.offerId} offer={o} ctaLabel={AVAILABILITY_CTA_LABEL} contentPrefix="florida-nature" />),
       ...VIATOR_SEARCH_INTENTS.map((item) => <SearchIntentCard key={item.id} item={item} />),
+      ...NATURE_OFFERS.filter((o) => o.provider !== "awin_samboat").map((o) => <OfferCard key={o.offerId} offer={o} ctaLabel={AVAILABILITY_CTA_LABEL} contentPrefix="florida-nature" />),
     ]}</Collection>
+    <BoatRentalChoices offers={NATURE_OFFERS.filter((o) => o.provider === "awin_samboat")} />
   </section>;
 }
 
@@ -308,7 +318,7 @@ export default async function GoFloridaPage({ searchParams }) {
   return <main id="go-florida" className={styles.page}>
     <div className={styles.opening}>
       <div className={styles.heroBackdrop}>
-        <GuidePhoto src={HERO_ART.src} alt={HERO_ART.alt} width={HERO_ART.width} height={HERO_ART.height} loading="eager" fetchpriority="high" className={styles.heroPhoto} fallbackClassName={styles.heroFallback} fallbackText="" />
+        <LicensedPhoto {...SPRINGS_PHOTO} sizes="100vw" priority className={styles.heroPhoto} />
       </div>
     <header className={styles.header}>
       <a href="/" aria-label="Wayfind home"><img className={styles.wordmark} src={mark.png} alt="Wayfind" width={mark.width} height={mark.height} /></a>
@@ -322,9 +332,9 @@ export default async function GoFloridaPage({ searchParams }) {
         <div className={styles.heroActions}><a className={styles.primary} href={HERO.primaryHref}>{HERO.primaryLabel} <span aria-hidden="true">↗</span></a><a className={styles.textLink} href={HERO.secondaryHref}>{HERO.secondaryLabel} <span aria-hidden="true">↓</span></a></div>
         <p className={styles.disclosure}>{DISCLOSURE}</p>
       </div>
-      <a className={styles.destination} href="/guides/things-to-do-key-west-summer-2026"><span className={styles.destinationMarker} aria-hidden="true">↗</span><span><small>THE FLORIDA KEYS</small><strong>A slower kind of escape.</strong><span>Discover Key West</span></span></a>
+      <a className={styles.destination} href="#nature"><span className={styles.destinationMarker} aria-hidden="true">↗</span><span><small>TAKE THE SCENIC ROUTE</small><strong>A slower kind of escape.</strong><span>Explore the water</span></span></a>
     </div>
-    <div className={styles.heroFoot}><span>GOOD DAYS START WITH A LITTLE LOCAL KNOWLEDGE</span><span>Key West, Florida. <PhotoCredit art={HERO_ART} /></span></div>
+    <div className={styles.heroFoot}><span>GOOD DAYS START WITH A LITTLE LOCAL KNOWLEDGE</span><span>{SPRINGS_PHOTO.caption}</span></div>
     </div>
     <nav className={styles.interests} aria-label="Explore Florida by interest">{INTEREST_LINKS.map((link) => <a key={link.href} href={link.href}><strong>{link.label}</strong><span>{link.detail}</span></a>)}</nav>
     <div className={styles.content}>{order.map((key) => { const Section = SECTION_RENDERERS[key]; return Section ? <Section key={key} /> : null; })}</div>

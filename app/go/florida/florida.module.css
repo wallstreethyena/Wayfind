@@ -119,3 +119,12 @@
 .heroFoot>span:first-child { letter-spacing:.15em; }
 @media(max-width:1100px) { .hero { gap:20px; } .destination { max-width:250px; padding-left:16px; } .destinationMarker { display:none; } .hero h1 { font-size:clamp(64px,8vw,88px); } }
 @media(max-width:700px) { .opening { min-height:0; } .header { min-height:82px; } .heroBackdrop::after { background:linear-gradient(90deg,rgba(4,16,20,.77),rgba(4,16,20,.35)),linear-gradient(0deg,#0a1018,transparent 65%); } .heroPhoto { object-position:60% 50%; } .hero { min-height:0; display:block; padding-block:58px 24px; } .hero h1 { font-size:clamp(47px,10.5vw,70px); line-height:1.06; } .hero .eyebrow { font-size:9px; letter-spacing:.16em; } .heroSub { font-size:14px; max-width:400px; } .heroActions { gap:10px 18px; } .destination { margin:34px 0 0; padding:16px 0 16px 18px; max-width:none; } .destinationMarker { display:grid; } .destination strong { font-size:22px; } .heroFoot { width:calc(100% - 32px); display:block; padding-top:0; font-size:9px; } .heroFoot>span:first-child { display:none; } }
+
+.imageCaption { color:var(--fl-muted); font-size:10px; line-height:1.5; margin:0 0 14px; }
+.rentalChoices { border-block:1px solid var(--fl-line); margin-top:32px; padding:28px 0; display:flex; justify-content:space-between; gap:24px; }
+.rentalChoices h3 { font-family:var(--wf-display); font-size:26px; margin:0; font-weight:500; }
+.rentalChoices p:not(.eyebrow) { font-size:12px; color:var(--fl-muted); }
+.rentalChoices nav { display:flex; flex-wrap:wrap; align-content:center; gap:10px 24px; }
+@media(max-width:700px) { .rentalChoices { display:block; } }
+
+.cardBody > .textLink { margin-top:auto; align-self:flex-start; }
