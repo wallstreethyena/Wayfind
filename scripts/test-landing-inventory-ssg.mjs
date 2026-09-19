@@ -11,7 +11,7 @@
 // Asserted by CALLING the helpers (CLAUDE.md: the call, not the string).
 // A regex over landing.js would pass while rankedFor still POSTed searchText.
 
-import { readFileSync, readdirSync, rmSync } from "node:fs";
+import { readFileSync, rmSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -105,17 +105,20 @@ ok(landingIdentityOk("things-to-do", water, chipIdentity) === true,
   ok(!ids.includes("thin"), "nightlife inventory enforces the market-relative review floor");
   ok(!ids.includes("closed"), "nightlife inventory rejects a non-operational venue");
 
-  const compiledBefore = new Set(readdirSync(ROOT).filter((name) => name.startsWith(".wf-jsx-")));
+  let compiledDir = null;
   let ranked;
   try {
-    const landing = await loadComponent(join(ROOT, "lib/landing.js"), ROOT);
+    const landing = await loadComponent(join(ROOT, "lib/landing.js"), ROOT, {
+      onGraph(graph) {
+        const emitted = graph.values().next().value;
+        if (emitted) compiledDir = dirname(emitted);
+      },
+    });
     ranked = await landing.rankedForCenter("nightlife", {
       name: "Test City", state: "FL", lat: 27.95, lng: -82.46,
     }, { inventoryRows: rows, inventoryOnly: true });
   } finally {
-    for (const name of readdirSync(ROOT).filter((entry) => entry.startsWith(".wf-jsx-") && !compiledBefore.has(entry))) {
-      rmSync(join(ROOT, name), { recursive: true, force: true });
-    }
+    if (compiledDir) rmSync(compiledDir, { recursive: true, force: true });
   }
   const rankedIds = ranked.map((p) => p.id);
   ok(rankedIds.includes("bar") && rankedIds.includes("music"),
