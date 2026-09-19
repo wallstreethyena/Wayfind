@@ -65,5 +65,8 @@ export default function FooterVeil({ children }) {
       for (const k of Object.keys(VEIL)) el.style[k] = "";
     }
   }, [pathname]);
+  // The paid Florida page supplies its own compact footer, including legal links.
+  // usePathname is available during SSR, so no second footer flashes on hydration.
+  if (pathname === "/go/florida") return null;
   return <div ref={ref}>{children}</div>;
 }

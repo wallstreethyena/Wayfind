@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 function PhotoForSource({
   src,
@@ -17,6 +17,11 @@ function PhotoForSource({
   style,
 }) {
   const [failed, setFailed] = useState(false);
+  // A server-rendered image can fail before hydration installs onError.
+  // Inspect the achieved image state when React attaches, too.
+  const imageRef = useCallback((image) => {
+    if (image?.complete && image.naturalWidth === 0) setFailed(true);
+  }, []);
 
   if (!src || failed) {
     return (
@@ -38,6 +43,7 @@ function PhotoForSource({
 
   return (
     <img
+      ref={imageRef}
       className={className}
       src={src}
       alt={alt}
@@ -45,7 +51,7 @@ function PhotoForSource({
       height={height}
       sizes={sizes}
       loading={loading}
-      fetchpriority={fetchpriority}
+      fetchPriority={fetchpriority}
       decoding={decoding}
       style={style}
       onLoad={handleLoad}

@@ -104,12 +104,20 @@ vm.runInNewContext(photoCode, { module: photoModule, exports: photoModule.export
 let photoFailed = false;
 const callbackModule = { exports: {} };
 vm.runInNewContext(photoCode, { module: callbackModule, exports: callbackModule.exports,
-  require: name => name === 'react' ? { useState: () => [photoFailed, value => { photoFailed = value; }] } : require(name)
+  require: name => name === 'react' ? { useState: () => [photoFailed, value => { photoFailed = value; }], useCallback: callback => callback } : require(name)
 }, { filename: photoFile });
 const photoProps = { src: '/guides/test.webp', width: 1600, height: 1000 };
 const wrapper = callbackModule.exports.default(photoProps);
 let photoTree = wrapper.type(wrapper.props);
 ok(photoTree.type === 'img', 'photo first render requests its explicit source');
+photoTree.ref({ complete: false, naturalWidth: 0 });
+ok(!photoFailed, 'pending image is not prematurely marked failed');
+photoTree.ref({ complete: true, naturalWidth: 1600 });
+ok(!photoFailed, 'an already loaded image survives hydration');
+photoTree.ref({ complete: true, naturalWidth: 0 });
+ok(photoFailed, 'failure before hydration is recovered when the image ref attaches');
+photoFailed = false;
+
 photoTree.props.onError();
 photoTree = wrapper.type(wrapper.props);
 ok(photoTree.type === 'div' && !photoTree.props.src && photoTree.props['data-guide-photo-fallback'] !== undefined, 'load failure ends in neutral content without a fallback request');
