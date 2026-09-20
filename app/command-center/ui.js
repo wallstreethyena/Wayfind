@@ -38,7 +38,7 @@ const GROUPS = [
   { id: "visitors", label: "Visitors", short: "Visitors", sections: ["traffic", "journey", "retention"], description: "How people find Wayfind, what they do next, and whether they come back." },
   { id: "commerce", label: "Places & tickets", short: "Places", sections: ["places"], description: "Which places people open, save, share, and choose for tickets or booking." },
   { id: "reliability", label: "Reliability", short: "Health", sections: ["health"], description: "Whether Wayfind is working quickly and reliably for visitors." },
-  { id: "details", label: "Details", short: "Details", sections: ["intelligence", "ops", "sources"], description: "Research leads, releases, and the exact definitions behind every number." },
+  { id: "details", label: "Details", short: "Details", sections: ["intelligence", "feedback", "ops", "sources"], description: "Research leads, the saved team inbox, releases, and the exact definitions behind every number." },
 ];
 const SECTION_GROUP = Object.fromEntries(GROUPS.flatMap((group) => group.sections.map((id) => [id, group.id])));
 const groupForHash = (hash) => {
@@ -411,6 +411,45 @@ function IntelligenceSection({ auth }) {
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           {excluded.map((item) => <span key={item.phrase} title={item.reason} style={{ border: `1px solid ${C.border}`, borderRadius: 99, padding: "5px 9px", color: C.light, fontSize: 11 }}>{item.phrase}</span>)}
         </div>
+      </Card>
+    </Section>
+  );
+}
+
+function FeedbackSection({ auth }) {
+  const p = usePanel("feedback", auth, { key: "today" });
+  const inbox = dget(p.data, "data.inbox.data", null);
+  const source = dget(p.data, "data.inbox.source", null);
+  const rows = inbox && Array.isArray(inbox.rows) ? inbox.rows : [];
+  const stamp = (value) => {
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? "Unknown time" : date.toLocaleString([], { dateStyle: "medium", timeStyle: "short" });
+  };
+  if (p.error) return <Section id="feedback" title="Team feedback inbox"><PanelError {...p} reload={p.reload} /></Section>;
+  return (
+    <Section id="feedback" title="Team feedback inbox" loading={p.loading && !p.data}
+      sub="The latest 50 saved messages. This view is read-only: saved feedback is the source of truth, while email notifications are secondary.">
+      <Card>
+        {source && source.connected === false ? <NotConnected source={source} compact /> : rows.length ? (
+          <div role="list" style={{ display: "grid", gap: 10 }}>
+            {rows.map((row, index) => (
+              <article key={`${row.created_at || "unknown"}-${index}`} role="listitem" style={{ border: `1px solid ${C.border}`, borderRadius: RADII.control, padding: "11px 12px", overflowWrap: "anywhere" }}>
+                <div style={{ display: "flex", gap: 7, alignItems: "center", flexWrap: "wrap", fontSize: 11, marginBottom: 7 }}>
+                  <StatusPill ok={row.handled ? true : null} label={row.handled ? "Handled" : "Needs review"} detail={row.handled ? "Already marked handled" : "Not yet marked handled"} />
+                  <span style={{ color: row.kind === "recommendation" ? C.accent : C.light, fontWeight: 800 }}>{row.kind === "recommendation" ? "Recommendation" : "Feedback"}</span>
+                  {row.sentiment ? <span style={{ color: C.muted }}>Sentiment: {row.sentiment === "up" ? "Positive" : "Negative"}</span> : null}
+                  <span style={{ color: C.muted, marginLeft: "auto" }}>{stamp(row.created_at)}</span>
+                </div>
+                <p style={{ margin: 0, color: C.text, fontSize: 13, lineHeight: 1.5, whiteSpace: "pre-wrap" }}>{row.message}</p>
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap", color: C.muted, fontSize: 11, marginTop: 8 }}>
+                  <span>Path: {row.path || "—"}</span>
+                  <span>Place: {row.place || "—"}</span>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : <EmptyNote>No saved feedback messages yet.</EmptyNote>}
+        {source ? <div style={{ marginTop: 8 }}><SourceBadge source={source} /></div> : null}
       </Card>
     </Section>
   );
@@ -1254,6 +1293,7 @@ export default function CommandCenter() {
           <>
             <GroupHeading group={group} />
             <IntelligenceSection auth={auth} />
+            <FeedbackSection auth={auth} />
             <OpsSection auth={auth} />
             <SourcesFooter auth={auth} />
           </>

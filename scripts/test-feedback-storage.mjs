@@ -9,7 +9,7 @@ let strSource;
 for(const node of ast.statements)if(ts.isVariableStatement(node))for(const d of node.declarationList.declarations)if(d.name.getText(ast)==='str')strSource=d.initializer.getText(ast);
 for(const node of ast.statements)if(ts.isFunctionDeclaration(node))fns.set(node.name.text,node.getText(ast).replace(/^export /,''));
 function harness({configured=true,blocked=false,response={ok:true},reject=false}={}){
- const state={calls:[]}; const ctx={sb:()=>configured?{url:'https://test.supabase.co',key:'fixture-only'}:null,limited:()=>blocked,
+ const state={calls:[],notifications:[]}; const ctx={waitUntil:(p)=>p,randomUUID:()=>"fixture-id",notifyFeedback:async(row,id)=>{state.notifications.push({row,id});},sb:()=>configured?{url:'https://test.supabase.co',key:'fixture-only'}:null,limited:()=>blocked,
  console:{error(){}},fetch:async(url,init)=>{state.calls.push({url,init});if(reject)throw new Error('down');return {...response,text:async()=>''};}};
  for(const name of ['str','POST']){
    if(name==='str')ctx.str=new Function(`return (${strSource});`)();
@@ -20,12 +20,12 @@ function harness({configured=true,blocked=false,response={ok:true},reject=false}
 const request=(body)=>new Request('https://wayfind.test/api/feedback',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
 {
  const {ctx,state}=harness();const res=await ctx.POST(request({message:'Place recommendation: Known Cafe\n\nGreat local coffee.',place:'Known Cafe, Orlando',loc:'Orlando',path:'/search',ignored:'no'}));
- assert.equal(res.status,200);assert.deepEqual(await res.json(),{ok:true,stored:true});
+ assert.equal(state.notifications.length,1);assert.equal(res.status,200);assert.deepEqual(await res.json(),{ok:true,stored:true});
  const body=JSON.parse(state.calls[0].init.body);assert.equal(body.place,'Known Cafe, Orlando');assert.equal(body.path,'/search');assert.equal(body.ignored,undefined);assert(state.calls[0].init.signal);assert.equal(state.calls[0].init.cache,'no-store');
 }
 for(const [options,status] of [[{configured:false},503],[{blocked:true},429],[{response:{ok:false}},503],[{reject:true},503]]){
- const {ctx}=harness(options);const res=await ctx.POST(request({message:'Please review this place.'}));const body=await res.json();
- assert.equal(res.status,status);assert.equal(body.ok,false);assert.equal(body.stored,false,'never acknowledge a message that was not saved');
+ const {ctx,state}=harness(options);const res=await ctx.POST(request({message:'Please review this place.'}));const body=await res.json();
+ assert.equal(res.status,status);assert.equal(body.ok,false);assert.equal(state.notifications.length,0,'never email unsaved feedback');assert.equal(body.stored,false,'never acknowledge a message that was not saved');
 }
 {
  const {ctx,state}=harness();assert.equal((await ctx.POST(request({message:'   '}))).status,400);assert.equal(state.calls.length,0);

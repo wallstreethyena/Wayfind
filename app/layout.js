@@ -1,4 +1,6 @@
 import Script from "next/script";
+import { Suspense } from "react";
+import SiteFeedback from "./components/SiteFeedback";
 import DocumentPosition from "./components/DocumentPosition";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "./links.css";
@@ -290,6 +292,7 @@ export default function RootLayout({ children }) {
             document scroll that drags the app under the browser chrome. */}
         <DocumentPosition />
         <main id="wf-main" style={{ minHeight: "100dvh" }}>{children}</main>
+        <Suspense fallback={null}><SiteFeedback /></Suspense>
         {/* v4.55 PROTECTED (check-seo.mjs): server-rendered SEO layer. A real
             H1, description, and crawlable links to guides, cities, and legal
             pages, rendered below the app so the visual design is untouched. */}

@@ -32,8 +32,8 @@ const CREATOR_BODY =
 
 const link = { color: C.muted, textDecoration: "none", fontSize: 12, fontWeight: 700 };
 
-export default function CommunityFooter({ path = "/", loc = "", build = "", userId = null, compact = false, initialPlace = "", recommendation = false } = {}) {
-  const [open, setOpen] = useState(false);
+export default function CommunityFooter({ path = "/", loc = "", build = "", userId = null, compact = false, initialPlace = "", recommendation = false, initialOpen = false, hideTrigger = false, onClose = null } = {}) {
+  const [open, setOpen] = useState(initialOpen);
   const [msg, setMsg] = useState("");
   const [place, setPlace] = useState(() => String(initialPlace || "").slice(0, 200));
   const [sentiment, setSentiment] = useState(null);
@@ -65,6 +65,7 @@ export default function CommunityFooter({ path = "/", loc = "", build = "", user
       setPlace(String(initialPlace || "").slice(0, 200));
     }
     triggerRef.current?.focus();
+    if (typeof onClose === "function") onClose();
   }
 
   async function send() {
@@ -116,7 +117,7 @@ export default function CommunityFooter({ path = "/", loc = "", build = "", user
 
   return (
     <div style={{ maxWidth: compact ? 520 : 340, margin: compact ? 0 : "0 auto" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: compact ? "flex-start" : "center", gap: 14, flexWrap: "wrap", marginBottom: compact ? 0 : 10 }}>
+      {!hideTrigger && <div style={{ display: "flex", alignItems: "center", justifyContent: compact ? "flex-start" : "center", gap: 14, flexWrap: "wrap", marginBottom: compact ? 0 : 10 }}>
         {!compact && <>
           <a href={WAYFIND_INSTAGRAM} target="_blank" rel="noopener noreferrer" aria-label="Wayfind on Instagram" style={{ ...link, display: "inline-flex", alignItems: "center", gap: 6 }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.muted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -139,7 +140,7 @@ export default function CommunityFooter({ path = "/", loc = "", build = "", user
         >
           {recommendation ? "Recommend this place" : compact ? "Feedback" : "Send feedback"}
         </button>
-      </div>
+      </div>}
 
       {!compact && <>
         <a href={mailHref} style={{ display: "block", textAlign: "center", fontSize: 11.5, color: C.muted, textDecoration: "none", lineHeight: 1.5, marginBottom: 4 }}>
@@ -189,7 +190,7 @@ export default function CommunityFooter({ path = "/", loc = "", build = "", user
               />
               {state === "error" && <p id={id + "-error"} role="alert" style={{ fontSize: 12, color: C.red, lineHeight: 1.5, margin: "8px 0 0" }}>{error}</p>}
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginTop: 10 }}>
-                <span style={{ fontSize: 10.5, color: C.muted }}>Goes straight to the team. No email needed.</span>
+                <span style={{ fontSize: 10.5, color: C.muted }}>Shared with the Wayfind team. No email required.</span>
                 <button type="submit" disabled={!canSend} style={{ padding: "8px 16px", borderRadius: 999, border: "none", fontSize: 12.5, fontWeight: 800, cursor: canSend ? "pointer" : "default", color: "#0D1117", background: canSend ? C.accent : C.border, opacity: state === "sending" ? 0.7 : 1 }}>
                   {state === "sending" ? "Sending…" : "Send"}
                 </button>

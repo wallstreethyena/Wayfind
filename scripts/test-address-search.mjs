@@ -23,7 +23,7 @@ function harness(query, response = {status:'ok',places:[row()]}) {
     setTimeout, clearTimeout,
     query, center:{lat:28.54,lng:-81.38}, deviceLoc:{lat:25.76,lng:-80.19}, locName:'Orlando, FL', screen:'suggested',
     manualRef:{current:true}, debounceRef:{current:null}, suggestionRequestRef:{current:0},
-    mainSearchAbortRef:{current:null}, mainSearchAttemptRef:{current:null}, detailOpenRequestRef:{current:0},
+    searchInputRef:{current:{focus(){state.inputFocused=true;}}}, mainSearchAbortRef:{current:null}, mainSearchAttemptRef:{current:null}, detailOpenRequestRef:{current:0},
     localCitySuggestions, createSearchAttempt, themeParkIntent, localityFromFormattedAddress, centerAgreesWithLabel,
     geocodeCity: async q => knownCityGeocode(q), feelingToMoment:()=>null,
     EXPERIENCES:{ pizza:{label:'Pizza',keyword:'pizza'}, coffee:{label:'Coffee',keyword:'coffee shop'}, citytrap:{label:'Best of Sarasota',keyword:'Sarasota highlights'} },
@@ -47,7 +47,7 @@ function harness(query, response = {status:'ok',places:[row()]}) {
       };
     },
   });
-  for (const name of ['cancelMainSearch','onQueryChange','mainSearchJson','ownedSearch','searchFailureMessage','fetchSuggestions','closeSearchLayers','goToSearchCity','openSearchPlace','pickSuggestion','submitSearch']) {
+  for (const name of ['cancelMainSearch','clearSearch','onQueryChange','mainSearchJson','ownedSearch','searchFailureMessage','fetchSuggestions','closeSearchLayers','goToSearchCity','openSearchPlace','pickSuggestion','submitSearch']) {
     assert(functions.has(name), `${name} exists`);
     target[name]=new Function('ctx', `with(ctx) { return (${functions.get(name)}); }`)(ctx);
   }
@@ -99,14 +99,14 @@ for(const query of ['Orlando','Sarasota','Sarasota, Florida']) {
 }
 for(const response of [{status:'empty',places:[]},{status:'unavailable',places:[],reason:'source_unavailable'},null,{status:'ok',places:[{}]}]) {
  const {ctx,state}=harness('Missing Cafe',response); await ctx.submitSearch();
- assert.match(state.searchFeedback,/No matching|temporarily unavailable/i);
+ assert.match(state.searchFeedback,/Not on our curated list|Search hit a snag/i);
  assert.equal(state.searchMissing,response?.status==='empty');
  assert.equal(state.query,'Missing Cafe'); assert.equal(state.searchRecovery,true); assert.equal(state.searchBusy,false);
  oneOutcome(state);
 }
 {
  const {ctx,state}=harness('Missing Cafe'); ctx.fetch=async()=>({ok:false,status:503}); await ctx.submitSearch();
- assert.match(state.searchFeedback,/temporarily unavailable/i); oneOutcome(state,'unavailable');
+ assert.match(state.searchFeedback,/Search hit a snag/i); oneOutcome(state,'unavailable');
 }
 {
  const {ctx,state}=harness(''); await ctx.submitSearch();
@@ -139,7 +139,7 @@ for (const [query,kind,value] of [['Coffee shop','experience','coffee'],['Pizza'
 {
  const {ctx,state}=harness('Orlando, California',{status:'unavailable',reason:'unsupported_location',places:[]});
  await ctx.submitSearch(); assert.equal(state.cityTransition,null); assert.equal(state.detail.id,'old');
- assert.match(state.searchFeedback,/location yet/i); oneOutcome(state,'unavailable');
+ assert.match(state.searchFeedback,/not in that city yet/i); oneOutcome(state,'unavailable');
 }
 {
  const {ctx,state}=harness('Timed out Cafe'); let timeout;
@@ -148,7 +148,7 @@ for (const [query,kind,value] of [['Coffee shop','experience','coffee'],['Pizza'
  const pending=ctx.submitSearch(); for(let i=0;i<30&&!timeout;i++)await Promise.resolve();
  assert(timeout,'deadline is armed'); timeout(); await pending;
  assert.equal(state.searchBusy,false); assert.equal(state.query,'Timed out Cafe');
- assert.match(state.searchFeedback,/temporarily unavailable/i); oneOutcome(state,'unavailable');
+ assert.match(state.searchFeedback,/Search hit a snag/i); oneOutcome(state,'unavailable');
 }
 {
  const {ctx,state}=harness('Known Cafe'); await ctx.submitSearch('Known Cafe',{placeIntent:true,near:'Key West'});
@@ -194,3 +194,21 @@ assert(source.includes('aria-busy={searchBusy}'),'search announces loading');
 assert(source.includes('prefers-reduced-motion') || readFileSync(new URL('../app/components/css.js',import.meta.url),'utf8').includes('prefers-reduced-motion'),'motion respects preference');
 assert(readFileSync(new URL('../middleware.js',import.meta.url),'utf8').includes('"/api/search"'),'free database route keeps full origin guard');
 console.log('test-address-search: OK — real handlers: exact/ambiguous/address/city/override/empty/unavailable/stale, outcome linkage and privacy');
+
+{
+ const {ctx,state}=harness('Missing Cafe',{status:'empty',places:[]}); await ctx.submitSearch();
+ assert.equal(state.searchMissing,true); ctx.clearSearch();
+ assert.equal(state.query,''); assert.equal(state.searchFeedback,''); assert.equal(state.searchRecovery,false);
+ assert.equal(state.searchMissing,false); assert.equal(state.suggestions.length,0); assert.equal(state.sugIdx,-1);
+ assert.equal(state.searchBusy,false); assert.equal(state.inputFocused,true);
+}
+{
+ const {ctx,state}=harness('Slow Cafe'); let finish;
+ ctx.fetch=()=>new Promise(resolve=>finish=resolve);
+ const pending=ctx.submitSearch();
+ for(let i=0;i<30&&!finish;i++)await Promise.resolve();
+ assert(finish,"request began before clear"); ctx.clearSearch();
+ finish({ok:true,json:async()=>({status:'ok',places:[row()]})}); await pending;
+ assert.equal(state.query,''); assert.equal(state.detail.id,'old','clearing suppresses a late result');
+ assert.equal(state.suggestions.length,0); assert.equal(state.searchFeedback,'');
+}

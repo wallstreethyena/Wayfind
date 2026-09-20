@@ -4732,6 +4732,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   const debounceRef = useRef(null);
   const suggestionRequestRef = useRef(0);
   const mainSearchAbortRef = useRef(null);
+  const searchInputRef = useRef(null);
   const mainSearchAttemptRef = useRef(null);
   useEffect(() => () => {
     suggestionRequestRef.current++;
@@ -8296,6 +8297,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     debounceRef.current = setTimeout(() => fetchSuggestions(v.trim()), 250);
   }
 
+  function clearSearch() {
+    onQueryChange("");
+    setSugIdx(-1);
+    setScopeOpen(false);
+    searchInputRef.current?.focus();
+  }
+
   // Main search reads only the existing Wayfind library. This deadline and
   // generation check apply to both typing and submission, with no paid retry.
   async function mainSearchJson(url) {
@@ -8332,9 +8340,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   }
 
   function searchFailureMessage(result) {
-    if (result?.reason === "unsupported_location") return "Wayfind does not have place search for that location yet. Try a covered city or open this search in Maps.";
-    if (result?.status === "empty") return "No matching place in Wayfind yet. We haven’t confirmed that it meets our standards. Think we’ve missed a great spot? Recommend it below. We’d love to review it and reconsider.";
-    return "Place search is temporarily unavailable. Please try again. You can still choose a city or open this search in Maps.";
+    if (result?.reason === "unsupported_location") return "We’re not in that city yet. Try another, or take a look in Maps.";
+    if (result?.status === "empty") return "Not on our curated list. Yet. Know something we should? Recommend it.";
+    return "Search hit a snag. Give it another go, or try Maps.";
   }
 
   async function fetchSuggestions(q) {
@@ -10021,6 +10029,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                 navigation (Down/Up move the highlight, Enter selects it,
                 Escape closes without selecting). */}
             <input
+              ref={searchInputRef}
               value={query}
               onChange={(e) => { onQueryChange(e.target.value); setSugIdx(-1); }}
               onKeyDown={(e) => {
@@ -10047,8 +10056,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               role="combobox" aria-expanded={suggestions.length > 0} aria-controls="wf-suggestions" aria-autocomplete="list"
               aria-activedescendant={sugIdx >= 0 ? `wf-sug-${sugIdx}` : undefined}
               aria-label="Search a place or city" placeholder="Search a place or city" aria-describedby="wf-search-help"
-              className="wf-search-input" style={{ width: "100%", boxSizing: "border-box", height: 48, padding: "0 14px 0 38px", background: C.card, border: `1.5px solid ${C.border}`, borderRight: "none", borderRadius: "14px 0 0 14px", color: C.text, fontSize: 16, outline: "none" }}
+              className="wf-search-input" style={{ width: "100%", boxSizing: "border-box", height: 48, padding: "0 46px 0 38px", background: C.card, border: `1.5px solid ${C.border}`, borderRight: "none", borderRadius: "14px 0 0 14px", color: C.text, fontSize: 16, outline: "none" }}
             />
+            {!!query && <button type="button" className="wf-search-clear" aria-label="Clear search" title="Clear search" onMouseDown={(e) => e.preventDefault()} onClick={clearSearch}>×</button>}
             {suggestions.length > 0 && (
               <ul id="wf-suggestions" role="listbox" aria-label="Search suggestions" style={{ listStyle: "none", margin: 0, padding: 0, position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, maxHeight: "min(55vh, 360px)", overflowY: "auto", boxShadow: "0 10px 30px rgba(0,0,0,.5)", zIndex: 80 }}>
                 {suggestions.map((s, i) => (
@@ -10097,7 +10107,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         </div>
         )}
         {(screen !== "map" || mapSearchOpen) && <div id="wf-search-help" className="wf-search-help">Search places, cities, or street addresses in Wayfind. Try “Orlando”, “coffee shop”, or a full place name and city.</div>}
-        {searchBusy && <div className="wf-search-feedback" role="status" aria-live="polite">Searching Wayfind…</div>}
+        {searchBusy && <div className="wf-search-feedback wf-search-loading" role="status" aria-live="polite"><span>Searching Wayfind<span className="wf-search-dots" aria-hidden="true"><i /><i /><i /></span></span><span className="wf-search-track" aria-hidden="true"><span /></span></div>}
         {searchFeedback && !searchBusy && <div className="wf-search-feedback" role="status" aria-live="polite">{searchFeedback}</div>}
         {searchRecovery && query.trim() && !searchBusy && <div className="wf-search-recovery">
           <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => submitSearch(query, searchRecoveryNear ? { placeIntent: true, near: searchRecoveryNear } : undefined)}>Try again</button>
@@ -10106,9 +10116,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         {searchMissing && searchRecovery && query.trim() && !searchBusy && <div style={{ marginTop: 10 }}>
           <CommunityFooter key={query + searchRecoveryNear} compact recommendation initialPlace={[query.trim(), searchRecoveryNear].filter(Boolean).join(", ")} path="/search" loc={locName || ""} build={BUILD_ID} userId={user?.id || null} />
         </div>}
-        {(screen !== "map" || mapSearchOpen) && <div style={{ marginTop: 6 }}>
-          <CommunityFooter compact path="/" loc={locName || ""} build={BUILD_ID} userId={user?.id || null} />
-        </div>}
+        <div style={{ marginTop: 6 }}>
+          <CommunityFooter key={screen} compact path={screen === "suggested" ? "/" : "/" + screen} loc={locName || ""} build={BUILD_ID} userId={user?.id || null} />
+        </div>
         {cityTransition && <div key={cityTransition.id} className="wf-city-transition" role="status" aria-live="polite"><span aria-hidden="true">✓</span> {cityTransition.text}</div>}
         {/* v8.2 ROW C — THE DESTINATIONS, AT THE TOP (public/lab/menu.html
             `.dests`). The same six targets the bottom bar has always carried,

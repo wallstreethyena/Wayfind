@@ -293,6 +293,14 @@ async function briefing(now) {
   return gatherOwnerBriefing(now, { timeoutMs: 9000 });
 }
 
+async function feedbackPanel() {
+  const inbox = await fp.feedbackInbox(50);
+  return {
+    inbox,
+    note: "The latest 50 saved messages are shown. This inbox is read-only: saved feedback is the source of truth, while email notifications are secondary.",
+  };
+}
+
 export async function GET(req, ctx) {
   const auth = await requireOwner(req);
   if (!auth.ok) return jsonNoStore(auth.body, auth.status);
@@ -318,6 +326,7 @@ export async function GET(req, ctx) {
       case "alerts": data = await alertsPanel(now); break;
       case "intelligence": data = intelligence(now); break;
       case "briefing": data = await briefing(now); break;
+      case "feedback": data = await feedbackPanel(); break;
       case "meta": data = { eventMap: EVENT_MAP, definitions: KPI_DEFS, authMode: auth.mode }; break;
       default: return jsonNoStore({ ok: false, reason: "unknown_panel" }, 404);
     }

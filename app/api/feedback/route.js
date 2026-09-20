@@ -1,12 +1,10 @@
-// app/api/feedback/route.js — user feedback -> the DATABASE, never an inbox.
-//
-// OWNER DIRECTIVE (2026-08-22): a feedback control that does NOT go to email —
-// something the team reads later in one place. This writes to public.wf_feedback
-// with the service role. There is deliberately NO mail send here: adding one
-// would reintroduce exactly the thing the owner ruled out. scripts/
-// check-community-footer.mjs fails the build if this route ever imports a mailer
-// or references a mailto/RESEND path.
-//
+// Feedback is stored first. Owner update 2026-09-19: notify info@gowayfind.com
+// as well as keeping the protected team inbox. Notification failure must never
+// turn a saved note into a retry/duplicate submission.
+import { waitUntil } from "@vercel/functions";
+import { randomUUID } from "node:crypto";
+import { notifyFeedback } from "../../../lib/feedbackNotification.js";
+
 // Untrusted input, treated as such: the message is length-capped and stored as
 // data (never interpolated into anything executable), the fields the client may
 // set are an allow-list, and everything identifying (build, ua, user location)
@@ -72,6 +70,7 @@ export async function POST(req) {
       console.error(`[feedback] insert ${r.status}: ${(await r.text()).slice(0, 160)}`);
       return Response.json({ ok: false, stored: false, error: "storage_unavailable" }, { status: 503 });
     }
+    try { waitUntil(notifyFeedback(row, randomUUID())); } catch { console.error("[feedback] notification scheduling failed; note remains stored"); }
     return Response.json({ ok: true, stored: true }, { status: 200, headers: { "cache-control": "no-store" } });
   } catch (e) {
     console.error(`[feedback] insert failed: ${String(e && e.message).slice(0, 160)}`);
