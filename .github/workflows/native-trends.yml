@@ -5,6 +5,7 @@ on:
     paths:
       - 'lib/trendSources/native*.js'
       - 'scripts/native-trends*'
+      - 'scripts/check-trend-sources.mjs'
       - 'app/api/cron/trend-signals/**'
       - 'app/api/cron/trend-maintenance/**'
       - '.github/workflows/native-trends.yml'
@@ -28,6 +29,17 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
+      - name: Verify coverage with the repository's actual analyzer
+        run: |
+          git rev-parse HEAD
+          git hash-object scripts/check-guard-honesty.mjs scripts/lib/guardHonestyAnalysis.mjs scripts/check-trend-sources.mjs
+          node --input-type=module <<'NODE'
+          import path from 'node:path';
+          import { analyzeGuardFile } from './scripts/lib/guardHonestyAnalysis.mjs';
+          const result = analyzeGuardFile(path.resolve('scripts/check-trend-sources.mjs'));
+          console.log(JSON.stringify({isClean:result.isClean,canExecute:result.canExecute,hasLibAppImport:result.hasLibAppImport,violations:result.violations},null,2));
+          if (!result.isClean) process.exit(1);
+          NODE
       - name: Isolated native tests and real production bindings
         run: node scripts/native-trends.spec.mjs && node scripts/native-trends.integration.mjs
   collect:
