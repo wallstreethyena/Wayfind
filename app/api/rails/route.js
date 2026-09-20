@@ -109,7 +109,7 @@ export async function GET(req) {
     // to a coarse grid before asking, so the CDN cache keys stay countable.
     // Creator provenance is part of the answer schema; an older cached answer
     // cannot recover it client-side. Version the answer, not the refresh clock.
-    const key = `menu:v2:${slug}:${geoCell(la)}:${geoCell(ln)}:${band || "all"}`;
+    const key = `menu:v3:${slug}:${geoCell(la)}:${geoCell(ln)}:${band || "all"}`;
     const answerIsComplete = completeAnswersOnly((value) => value.complete === true && value.failed === false);
     const cached = await fastCachedRail(
       key,
