@@ -1,83 +1,92 @@
 # Wayfind native trend research v1
 
-Owner-authorized first release: self-generated research, not a paid-provider clone.
-The existing daily `/api/cron/trend-signals` schedule remains in `vercel.json`.
-It now creates its own private snapshots without an Exploding Topics CSV.
+Self-generated private research, not a paid-provider clone. The existing daily
+`/api/cron/trend-signals` schedule is unchanged. It creates native snapshots
+without a manually imported Exploding Topics CSV.
 
-## Inputs and limits
+## Sources and honest limits
 
-* Google Trending Now US RSS. Controlled concept aliases only; real publication
-  timestamps; at most 48 hours old. Bucketed traffic is a level, NOT a growth rate.
-* Wikipedia: Pickleball, Matcha, Food hall, Pilates, Ramen and Sauna. Six broad
-  research proxies, not proof of a specific venue's offerings or local demand.
-  Fourteen complete daily pageview observations, two days of publication lag,
-  two equal seven-day windows, minimum 100 views in each window for growth.
-  Requests are spaced one second apart; a 403/429 stops the remaining requests.
-* First-party activity: distinct confirmed accounts per known venue and window.
-  Scope is the existing APPROVED_METROS registry. Owners/internal users and known
-  internal devices, anonymous/unconfirmed users, flagged bots/tests/previews are
-  excluded. This is NOT all visitor traffic or a measurement of local residents.
-  Only fresh, operational, reviewed Florida inventory is eligible for research.
-  At least five distinct accounts in both windows are required for a growth rate.
-  Missing metadata is not evidence that every bot has been identified.
+Google Trending Now US RSS uses the existing controlled aliases and actual
+publication timestamps. Items older than 48 hours are excluded. Bucketed traffic
+is a level, not a measured growth rate and not city-level demand.
 
-All public requests are keyless and host-pinned. No provider subscriptions,
-Places searches, proxy services, model calls or billing setup are added. Existing
-hosting/database resources are used; their plan capacity is not unlimited.
-Each request times out after at most five seconds; the run has a 50-second
-transport deadline. A capped source is explicitly degraded, not a complete sample.
+Wikipedia checks six explicit proxies: Pickleball, Matcha, Food hall, Pilates,
+Ramen and Sauna. Each requires 14 complete daily records, with two days of
+publication lag, comparing equal seven-day windows. At least 100 views in each
+window are required for a growth percentage. These are global English-language
+article views, not proof of a Florida venue's offerings or local popularity.
+Requests are spaced one second apart; a 403 or 429 stops remaining requests.
 
-## Persistence and scoring
+First-party research compares distinct confirmed accounts interacting with a
+known venue. It excludes anonymous/unconfirmed accounts, owners/internal users,
+known internal devices, and flagged tests/bots/previews. The existing approved
+metro registry, fresh operational Florida inventory and review gates are reused.
+At least five distinct accounts in both windows are required for a growth rate.
+This limited sample is not all traffic, visitor residency, or proof that every
+bot has been identified. Raw identifiers and account details are not persisted.
 
-The existing `trendMomentumScore`, configuration and taxonomy are reused.
-Native records use `source_mode=wayfind_native_v1` in `wf_trend_snapshots` and
-`wf_trend_topics`. No new tables, migrations or public grants are required.
-Every native topic is `eligible=false`: research does not publish, change venue
-scores, create place matches, reorder rails or trigger metered discovery.
-Provider evidence and counts remain private; raw account identifiers, emails,
-raw search text and credentials are not persisted in research records.
+## Scoring and persistence
 
-The evidence gate caps level-only, flat or falling data below Getting noticed.
-A single measured growing source cannot become On the rise or Taking off.
-Missing histories and tiny/zero baselines never manufacture percentage growth.
-Source geography remains attached. National search and global article readership
-are not relabeled as a city trend.
+Reuse the existing Trend Momentum Score, active configuration and taxonomy.
+Use `source_mode=wayfind_native_v1` in `wf_trend_snapshots` and `wf_trend_topics`.
+No schema or access-policy changes are introduced. Every native topic is
+`eligible=false`: no public publication, venue scores, place matches, ranking
+boosts, rail changes, metered discovery or booking modifications.
 
-Snapshots are content-addressed by source facts/configuration/day, not the moving
-freshness clock. Validating snapshots are finalized only after topic read-back.
-A failed write stays failed. Repeated identical evidence is reused; a five-minute
-expired write lease can be reclaimed by compare-and-swap. Research observations
-expire after three days. Existing place refresh and photo clocks are untouched.
-`trend-maintenance` checks the native collector; explicitly configured legacy CSV
-installations retain the original maintenance implementation until a native
-snapshot exists. That legacy file is copied byte-for-byte, not rewritten.
+Level-only, flat, falling or insufficient-history evidence is capped below
+Getting noticed. One measured growing source cannot produce On the rise or
+Taking off. Multiple keywords from one provider count as one source. Zero/tiny
+baselines never produce infinite growth. Source geography stays explicit.
 
-## Operations and acceptance
+Snapshots hash source facts, score configuration and UTC day, not a moving
+freshness factor. A validating snapshot finalizes only after topic keys/counts
+are read back. Failed writes remain failed. Repeated identical evidence reuses
+the snapshot; abandoned write leases use compare-and-swap recovery. Topics have
+a three-day expires_at. Existing place refresh and photo clocks are untouched.
 
-Use the owner-only **Native trends collection** workflow on main to run the same
-engine once with the repository's existing database secrets. It prints aggregate
-source outcomes and snapshot ID, never keys. Missing credentials are a red run.
-This operator run is not represented as a Vercel cron invocation. Daily collection
-is performed by the existing authenticated Vercel schedule. Unauthorized requests
-must return 401 without touching a data source.
+Private API requests carry credentials only in headers to the configured
+Supabase origin. Public requests are keyless and host-pinned. Requests have
+five-second limits, a 50-second transport deadline and payload caps. Capped
+sources are reported as degraded, never as complete samples. No subscriptions,
+Places searches, model calls, proxy services or billing setup are added. Existing
+hosting/database capacity is used and is not claimed to be unlimited.
 
-The registered `check-trend-sources` guard runs the native pure/fault tests, then
-production binding tests, then every unchanged assertion in the original source
-contract. Full repository guards and Vercel builds remain release gates.
+`trend-maintenance` checks native collection freshness. The original CSV handler
+is preserved in `legacy.js` for an explicitly configured CSV installation until
+a native snapshot exists. Production had no native or imported trend data when
+this release was prepared.
 
-After release verify: exact merged/deployed revision; collector source outcomes;
-real non-synthetic native rows; topic count/readback; eligible=false for every row;
-no credential/user identifiers in raw evidence; repeat-run deduplication. A ready
-build alone is not proof of a successful collection.
+## Verification and operations
 
-## Not part of v1
+`check-trend-sources.mjs` keeps all its original assertions and token-fixture
+lifecycle in the registered file. Native fault/privacy/authentication tests and
+real production-binding tests execute before that original contract. No guard
+exemption or assertion is removed. The new workflow also runs this focused
+contract on relevant pull requests without any database credentials. Full repo
+guards and the Vercel build remain mandatory release gates.
 
-Google BigQuery DMA authentication, GDELT, unrestricted keyword discovery, public
-trend dashboards, place boosts, publishing and revenue attribution are not wired.
-The private dataset can support a later reviewed interface. Do not advertise a
-local trend, predictor, paid-provider equivalent or complete source coverage.
+The Native trends collection workflow runs on relevant main-branch releases,
+or by owner-only manual dispatch on main, using existing repository database
+secrets. It executes the same runtime as the Vercel cron and immediately proves
+that replaying identical real evidence reuses its snapshot. It prints only
+aggregate source outcomes and snapshot ID. Missing credentials fail loudly.
+This release/operator execution is not a claim that the Vercel cron has run.
+The existing Vercel schedule performs daily collection with CRON_SECRET auth.
 
-Primary source documentation:
+After release verify the exact merged/deployed revision, real source outcomes,
+non-synthetic native rows, eligible=false, absence of raw user identifiers,
+source geography, source-count ceilings and repeat-run deduplication. A ready
+build alone does not prove that the collector ran.
+
+## Not included in v1
+
+BigQuery DMA authentication, GDELT, unrestricted topic discovery, public trend
+dashboards, venue boosts, publishing and revenue attribution are not wired.
+This is a bounded private research foundation, not a local trend predictor or a
+feature-equivalent replacement for Exploding Topics.
+
+## Primary source documentation
+
 https://support.google.com/trends/answer/3076011
 https://doc.wikimedia.org/generated-data-platform/aqs/analytics-api/reference/page-views.html
 https://supabase.com/docs/reference/javascript/auth-admin-listusers

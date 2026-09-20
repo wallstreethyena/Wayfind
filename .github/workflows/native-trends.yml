@@ -1,6 +1,16 @@
 name: Native trends collection
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'lib/trendSources/**'
+      - 'lib/trendScore.js'
+      - 'lib/trendTaxonomy.js'
+      - 'app/api/cron/trend-signals/**'
+      - 'app/api/cron/trend-maintenance/**'
+      - 'scripts/native-trends*'
+      - 'scripts/check-trend-sources.mjs'
+      - '.github/workflows/native-trends.yml'
   push:
     branches: [main]
     paths:
@@ -10,9 +20,19 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: native-trends-manual
+  group: native-trends-${{ github.ref }}
   cancel-in-progress: false
 jobs:
+  verify:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Native and original source contracts without credentials
+        run: node scripts/check-trend-sources.mjs
   collect:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
