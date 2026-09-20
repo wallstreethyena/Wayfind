@@ -125,7 +125,7 @@ export default function HookDetailSheet({ ctx }) {
             {/* Scrollable editorial list */}
             <div style={{ flexShrink: 0, padding: premiumImagePage ? "0 16px calc(30px + env(safe-area-inset-bottom))" : "14px 16px calc(24px + env(safe-area-inset-bottom))", marginTop: premiumImagePage ? -54 : 0, width: "100%", maxWidth: isDesktop ? 920 : "none", boxSizing: "border-box", position: "relative", zIndex: 2 }}>
               <div data-hook-feedback style={{ margin: premiumImagePage ? "0 2px 12px" : "0 2px 10px" }}>
-                <CommunityFooter compact path={discoverFeedbackPath(theme)} loc={locName || ""} build={BUILD_ID || ""} userId={user?.id || null} />
+                <CommunityFooter key={discoverFeedbackPath(theme)} compact path={discoverFeedbackPath(theme)} loc={locName || ""} build={BUILD_ID || ""} userId={user?.id || null} />
               </div>
               {sheetLoading && <Loader label="Finding the best picks" pad="28px 0" />}
               {/* GROVE 33 (2026-08-25): the partner's own program, labeled as

@@ -874,7 +874,7 @@ export default function DetailSheet({ ctx }) {
               )}
 
               <div data-detail-feedback style={{ margin: "0 2px 10px" }}>
-                <CommunityFooter compact path={detailFeedbackPath(detail)} loc={locName || ""} build={BUILD_ID || ""} userId={user?.id || null} />
+                <CommunityFooter key={detailFeedbackPath(detail)} compact path={detailFeedbackPath(detail)} loc={locName || ""} build={BUILD_ID || ""} userId={user?.id || null} />
               </div>
 
               {/* Premium action dock (v6.72): verdict pill + Add to plan + primary CTA ladder. */}
