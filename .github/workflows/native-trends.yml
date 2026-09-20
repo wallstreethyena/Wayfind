@@ -1,6 +1,13 @@
 name: Native trends collection
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'lib/trendSources/native*.js'
+      - 'scripts/native-trends*'
+      - 'app/api/cron/trend-signals/**'
+      - 'app/api/cron/trend-maintenance/**'
+      - '.github/workflows/native-trends.yml'
   push:
     branches: [main]
     paths:
@@ -10,9 +17,19 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: native-trends-collection
+  group: native-trends-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: false
 jobs:
+  verify:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Isolated native tests and real production bindings
+        run: node scripts/native-trends.spec.mjs && node scripts/native-trends.integration.mjs
   collect:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
