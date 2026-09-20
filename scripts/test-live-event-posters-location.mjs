@@ -12,9 +12,12 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { posterEventsKey, isSettledCurrent } from "../app/components/usePosterEvents.js";
 import {
-  currentLivePosterTile, livePosterCandidateKey, livePosterCandidates, mayHaveUsableLivePosterArt,
-  LIVE_POSTER_REQUEST_TIMEOUT_MS, LIVE_POSTER_MAX_ATTEMPTS, LIVE_POSTER_MAX_RANKED_SCAN,
+  currentLivePosterTile, livePosterCandidateKey, LIVE_POSTER_REQUEST_TIMEOUT_MS,
 } from "../app/components/useLivePosterTiles.js";
+import {
+  livePosterCandidates, mayHaveUsableLivePosterArt,
+  LIVE_POSTER_MAX_ATTEMPTS, LIVE_POSTER_MAX_RANKED_SCAN,
+} from "../lib/livePosterSelection.js";
 import { selectPosterEvents, posterEventBucket } from "../lib/posterEvents.js";
 import { LIVE_POSTER_TYPE_CONFIG } from "../lib/liveEventPosterTypes.js";
 import {
@@ -239,6 +242,12 @@ check(() => {
   assert.equal(livePosterSourceCanPossiblyFit({ url: "https://img.example/large.jpg", width: 2048, height: 1152 }), true);
   assert.equal(livePosterSourceCanPossiblyFit({ url: "https://img.example/small.jpg", width: 1024, height: 576 }), false);
   assert.equal(eventMayHaveUsableProviderArt({ image: "https://s1.ticketm.net/dam/c/generic.jpg" }), false);
+  assert.equal(eventMayHaveUsableProviderArt({ image: "https://img.example/provider-no-metadata.jpg" }), true, "provider art with unknown dimensions must reach authoritative byte inspection");
+  assert.equal(eventMayHaveUsableProviderArt({}), false, "an event with no image path must remain definitively unavailable");
+  assert.equal(eventMayHaveUsableProviderArt({
+    image: "https://img.example/known-small.jpg",
+    imageVariants: [{ url: "https://img.example/known-small.jpg", width: 1024, height: 576 }],
+  }), false, "a duplicate dimensionless image field must not override its known undersized variant");
 });
 
 // --- 17. A tile belongs to the complete candidate identity that produced it.

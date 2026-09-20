@@ -19,46 +19,18 @@ import { useEffect, useState } from "react";
 import { usePosterEvents } from "./usePosterEvents.js";
 import { LIVE_POSTER_TYPE_CONFIG } from "../../lib/liveEventPosterTypes.js";
 import { livePosterArtFor } from "../../lib/livePosterArt.js";
-import { eventMayHaveUsableProviderArt } from "../../lib/livePosterCandidate.js";
 import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
 
 export const LIVE_POSTER_REQUEST_TIMEOUT_MS = 10000;
-// Expensive work is the server-side image download/decode/crop, so keep that
-// budget at six. The ranked scan itself is in-memory browser data: look farther
-// only to skip candidates whose URLs/dimensions prove they can never pass the
-// server's existing honesty and 640px crop gates. Four attempt budgets is a
-// finite ceiling, not an ever-growing retry loop.
-export const LIVE_POSTER_MAX_ATTEMPTS = 6;
-export const LIVE_POSTER_MAX_RANKED_SCAN = 24;
-
-/** Browser-safe prefilter only. False means the event is definitively unable
- * to pass the existing server gates; true still requires /api/live-poster. */
-export function mayHaveUsableLivePosterArt(type, event) {
-  if (!event?.dest || !event?.name) return false;
-  if (livePosterArtFor(type, event)) return true;
-  return eventMayHaveUsableProviderArt(event);
-}
-
-/** Preserve ranked order while spending at most six image-processing POSTs. */
-export function livePosterCandidates(type, rankedEvents) {
-  return (Array.isArray(rankedEvents) ? rankedEvents : [])
-    .slice(0, LIVE_POSTER_MAX_RANKED_SCAN)
-    .filter((event) => mayHaveUsableLivePosterArt(type, event))
-    .slice(0, LIVE_POSTER_MAX_ATTEMPTS);
-}
 
 // An event id alone does not identify the poster request. Providers can repair
 // an image, destination, date or label while keeping the same id; key those
 // fields so a refreshed event cannot resurrect the previous tile's art/link.
 export function livePosterCandidateKey(candidates) {
-  return JSON.stringify((Array.isArray(candidates) ? candidates : []).map((event) => [
-    event?.id || "", event?.name || "", event?.dest || "", event?.date || "",
-    event?.venue || "", event?.city || "", event?.image || "", event?.thumb || "",
-    event?.segment || "", event?.genre || "", event?.subGenre || "", event?.source || "",
-    (Array.isArray(event?.imageVariants) ? event.imageVariants : []).map((variant) => [
-      variant?.url || "", variant?.ratio || "", variant?.width || 0, variant?.height || 0,
-    ]),
-  ]));
+  // These are JSON API records. Keying their full bounded list is both smaller
+  // client code and stricter than maintaining a second projection of fields:
+  // every art, identity, classification or destination repair invalidates it.
+  return JSON.stringify(candidates || []);
 }
 
 // Artwork resolves after the event feed. Keep the key beside the tile so the
@@ -113,14 +85,26 @@ function useOneLivePoster(type, center, city) {
   // up, so the reader still gets the most relevant event that can be shown
   // honestly. Definitive venue/stock/undersized failures do not consume one of
   // the six expensive server attempts; the raw ranked scan remains finite.
-  const candidates = livePosterCandidates(type, config ? byRail?.[config.bucketKey] || [] : []);
-  const candidateKey = livePosterCandidateKey(candidates);
+  // Bound the identity immediately, then load the definitive no-art prefilter
+  // only when this bucket actually has events. The selector keeps the same
+  // ranked top-24 scan and six expensive attempts.
+  const rankedEvents = (config ? byRail?.[config.bucketKey] || [] : []).slice(0, 24);
+  const candidateKey = livePosterCandidateKey(rankedEvents);
   const [tile, setTile] = useState(null);
 
   useEffect(() => {
-    if (!candidates.length) { setTile(null); return undefined; }
+    if (!rankedEvents.length) { setTile(null); return undefined; }
     let cancelled = false;
     (async () => {
+      let candidates;
+      try {
+        const selection = await import("../../lib/livePosterSelection.js");
+        candidates = selection.livePosterCandidates(type, rankedEvents);
+      } catch {
+        if (!cancelled) setTile(null);
+        return;
+      }
+      if (cancelled) return;
       for (const event of candidates) {
         if (cancelled) return;
         // OWNER POSTER ART (lib/livePosterArt.js, 2026-09-18): a baseball game
