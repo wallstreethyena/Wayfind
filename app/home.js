@@ -10058,7 +10058,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               onBlur={(e) => { if (e.relatedTarget?.closest(".wf-search-row")) return; setTimeout(() => { setSuggestions([]); setSugIdx(-1); }, 150); if (screen === "map") setTimeout(() => setMapSearchOpen(false), 220); }}
               role="combobox" aria-expanded={suggestions.length > 0} aria-controls="wf-suggestions" aria-autocomplete="list"
               aria-activedescendant={sugIdx >= 0 ? `wf-sug-${sugIdx}` : undefined}
-              aria-label="Search a place or city" placeholder="Search a place or city" aria-describedby="wf-search-help"
+              aria-label="Search a place or city" placeholder="Search a place or city"
               className="wf-search-input" style={{ width: "100%", boxSizing: "border-box", height: 48, padding: "0 46px 0 38px", background: C.card, border: `1.5px solid ${C.border}`, borderRight: "none", borderRadius: "14px 0 0 14px", color: C.text, fontSize: 16, outline: "none" }}
             />
             {!!query && <button type="button" className="wf-search-clear" aria-label="Clear search" title="Clear search" onMouseDown={(e) => e.preventDefault()} onClick={clearSearch}>×</button>}
@@ -10109,7 +10109,6 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               sheet on demand, forever, and must never consult introSeen(). */}
         </div>
         )}
-        {(screen !== "map" || mapSearchOpen) && <div id="wf-search-help" className="wf-search-help">Search places, cities, or street addresses in Wayfind. Try “Orlando”, “coffee shop”, or a full place name and city.</div>}
         {searchBusy && <div className="wf-search-feedback wf-search-loading" role="status" aria-live="polite"><span>Searching Wayfind<span className="wf-search-dots" aria-hidden="true"><i /><i /><i /></span></span><span className="wf-search-track" aria-hidden="true"><span /></span></div>}
         {searchFeedback && !searchBusy && <div className="wf-search-feedback" role="status" aria-live="polite">{searchFeedback}</div>}
         {searchRecovery && query.trim() && !searchBusy && <div className="wf-search-recovery">
