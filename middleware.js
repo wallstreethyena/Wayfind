@@ -27,6 +27,10 @@ import { guardPaidRoute, isOperatorDiagnostic } from "./lib/apiGuard";
 // rather than risk breaking the event detail pages.
 export const config = {
   matcher: [
+    // Free owned-library search: protect database reads from cross-site scraping.
+    "/api/search",
+    // In-app feedback and recommendations write to the existing review inbox.
+    "/api/feedback",
     "/api/places/search",
     // Search box autocomplete + suggestion-detail proxies (2026-07-25 audit):
     // these used to be direct client->Google calls via the Maps JS library —

@@ -1,6 +1,7 @@
 "use client";
 import { Component, useEffect, useMemo, useRef, useState } from "react";
-import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, distMeters, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces, wayfindScore } from "../lib/google";
+import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, distMeters, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces, normalizeSearchPlace, wayfindScore } from "../lib/google";
+import { localCitySuggestions, createSearchAttempt } from "../lib/searchExperience.js";
 import { mergeHealedPlacePhotos } from "../lib/detailHero";
 import { RON_DUPRAT_TOP7, chefHookCard, chefPickPlaces } from "../lib/chefPicks";
 import { fallCardClass, fallShareLine } from "../lib/fallSkin.js";
@@ -218,7 +219,9 @@ import { WF_LAYOUT_CSS, WF_SEARCH_CSS, WF_PLACE_CARD_CSS, WF_TASTE_CSS, WF_RAIL_
 // v8 — the rail menu. lib/rails.js is metadata only (lib/railSelect.js holds
 // the selection logic and never leaves the server), so importing it here costs
 // the bundle the card copy and nothing else.
-import DaypartRail from "./components/DaypartRail";
+// Preserve server-rendered discovery content while shipping its large client
+// renderer as a separate chunk from search and the application shell.
+const DaypartRail = nextDynamic(() => import("./components/DaypartRail"));
 import { useLivePosterTiles } from "./components/useLivePosterTiles";
 import PlaceCardSkeleton from "./components/PlaceCardSkeleton";
 import { PLACE_CARD_HEIGHT_PX } from "../lib/placeCardStandard.js";
@@ -4116,11 +4119,24 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   const cityFix = cityFixM;
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
+  const [searchFeedback, setSearchFeedback] = useState("");
+  const [searchBusy, setSearchBusy] = useState(false);
+  const [searchRecovery, setSearchRecovery] = useState(false);
+  const [searchMissing, setSearchMissing] = useState(false);
+  const [searchRecoveryNear, setSearchRecoveryNear] = useState("");
+  const [cityTransition, setCityTransition] = useState(null);
+  useEffect(() => {
+    if (!cityTransition) return;
+    const timer = setTimeout(() => setCityTransition(null), 5000);
+    return () => clearTimeout(timer);
+  }, [cityTransition]);
   const [sugIdx, setSugIdx] = useState(-1); // v5.63 (audit P4): keyboard-highlighted suggestion, -1 = none
   const [places, setPlaces] = useState([]);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
   const [detail, setDetail] = useState(null);
+  const detailOpenRequestRef = useRef(0);
+  useEffect(() => { if (!detail) detailOpenRequestRef.current++; }, [detail]);
   useEffect(() => {
     // The app changes screens inside one route. Sync after the DOM surface
     // marker changes, so the next timer tick cannot charge the old screen.
@@ -4644,7 +4660,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // list they're currently looking at; it's stored pending review — never
   // auto-added (see submitPlaceSuggestion + supabase/place-suggestions.sql).
   // Local UI state only, deliberately separate from the main search box's
-  // query/suggestions/tokenRef so the two surfaces never clobber each other.
+  // query/suggestions so the two surfaces never clobber each other.
   const [sugOpen, setSugOpen] = useState(false);
   const [sugQuery, setSugQuery] = useState("");
   const [sugSuggestions, setSugSuggestions] = useState([]);
@@ -4717,7 +4733,16 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     else if (type === "explore") setScreen("explore");
   }
   const debounceRef = useRef(null);
-  const tokenRef = useRef(null);
+  const suggestionRequestRef = useRef(0);
+  const mainSearchAbortRef = useRef(null);
+  const searchInputRef = useRef(null);
+  const mainSearchAttemptRef = useRef(null);
+  useEffect(() => () => {
+    suggestionRequestRef.current++;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    mainSearchAbortRef.current?.abort();
+    mainSearchAttemptRef.current?.finish("superseded", { reason: "page_closed" });
+  }, []);
   const sugDebounceRef = useRef(null);
   const sugTokenRef = useRef(null);
   const insightCache = useRef({});
@@ -6572,11 +6597,12 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
 
   // Open a place: pull deep data (cached), then run the AI grounded in it.
   async function openDetail(p, context) {
+    const detailRequest = ++detailOpenRequestRef.current;
     try { sessionStorage.setItem("wf_value_seen", "1"); } catch (e) {} // v5.37: opening a place = value delivered
     // v4.86: a Foursquare-sourced place upgrades to its Google twin on open
     // when one exists (reviews, hours, photos come along); otherwise it
     // renders honestly from the Foursquare data it arrived with.
-    if (p && typeof p.id === "string" && /^(fsq|osm|ridb):/.test(p.id)) {
+    if (p && !p._ownedSearchOnly && typeof p.id === "string" && /^(fsq|osm|ridb):/.test(p.id)) {
       try {
         const up = await findPlace(p.name, { lat: p.lat, lng: p.lng });
         if (up && up.id && up.lat != null) {
@@ -6585,7 +6611,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         }
       } catch (e) {}
     }
-    try { const _aud = {}; experienceBadges(p, null, 99, _aud); logEvent("detail_open", p, { identity: _aud.identity || null, blocked: (_aud.blocked || []).length, ctx: typeof context === "string" ? context : null }); } catch (e) {}
+    if (detailRequest !== detailOpenRequestRef.current) return;
+    try { const _aud = {}; experienceBadges(p, null, 99, _aud); logEvent("detail_open", p, { identity: _aud.identity || null, blocked: (_aud.blocked || []).length, ctx: typeof context === "string" ? context : null, ...(p?._searchId ? { search_id: p._searchId } : {}) }); } catch (e) {}
     // v6.08 (PR-C): remember where we were in the list so back returns here, not to the top.
     try { if (scrollRef.current) { const _k = screen + "|" + cat + "|" + sub + "|" + vibe; const _t = scrollRef.current.scrollTop; scrollRestore.current = { key: _k, ...browsePosition(scrollRef.current) };  } } catch (e) {}
     setDetail(p);
@@ -6620,7 +6647,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     let extra = detailCache.current[p.id];
     if (extra === undefined) {
       setDetailExtra(null);
-      extra = await fetchPlaceDetail(p.id);
+      // Free search must remain free through opening its result. Reuse known
+      // detail data, but a cache miss never starts paid enrichment here.
+      extra = p._ownedSearchOnly
+        ? { ok: false, editorial: null, reviews: [], hours: null, phone: null, website: null, _resolved: true, reason: "not_in_library" }
+        : await fetchPlaceDetail(p.id);
       // v6.31: never cache a bare null — that leaves the sheet stuck on
       // "Loading hours…" forever (null reads as "still fetching"). A resolved
       // sentinel settles the sheet into "Hours not listed" (or the search-time
@@ -6634,6 +6665,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       // retries.
       if (extra.ok) detailCache.current[p.id] = extra;
     }
+    if (detailRequest !== detailOpenRequestRef.current) return;
     setDetailExtra(extra);
     if (extra && extra.ok) {
       setDetail((cur) => {
@@ -6839,9 +6871,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     } finally { need.forEach((p) => blurbsInFlight.current.delete(p.id)); }
   }
   async function loadInsight(p, extra) {
+    const detailRequest = detailOpenRequestRef.current;
     if (insightCache.current[p.id]) { setInsight(insightCache.current[p.id]); setInsightLoading(false); return; }
     const cached = getCachedInsight(p.id);
     if (cached) { insightCache.current[p.id] = cached; setInsight(cached); setInsightLoading(false); return; }
+    if (p._ownedSearchOnly) { setInsight({ unavailable: true, reason: "not_in_library" }); setInsightLoading(false); return; }
     setInsight(null);
     setInsightLoading(true);
     try {
@@ -6868,20 +6902,22 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       const detailFailed = !!(extra && extra.ok === false);
       if (!detailFailed) insightCache.current[p.id] = data;
       if (data && !data.error && !data.unavailable && !detailFailed) setCachedInsight(p.id, data);
-      setInsight(data);
+      if (detailRequest === detailOpenRequestRef.current) setInsight(data);
     } catch {
-      setInsight({ error: true });
+      if (detailRequest === detailOpenRequestRef.current) setInsight({ error: true });
     } finally {
-      setInsightLoading(false);
+      if (detailRequest === detailOpenRequestRef.current) setInsightLoading(false);
     }
   }
   // The heavier insight (themes, more tips, must-try). Only ever runs when the
   // user expands a place, so most opens never pay for it. Cached 30 days.
   async function loadFullInsight(p, extra) {
     if (!p) return;
+    const detailRequest = detailOpenRequestRef.current;
     if (insightFullCache.current[p.id]) { setInsightFull(insightFullCache.current[p.id]); return; }
     const cached = getCachedInsight(p.id + "::full");
     if (cached) { insightFullCache.current[p.id] = cached; setInsightFull(cached); return; }
+    if (p._ownedSearchOnly) { setInsightFull({ unavailable: true, reason: "not_in_library" }); setInsightFullLoading(false); return; }
     setInsightFullLoading(true);
     try {
       const res = await fetch("/api/insight", {
@@ -6902,11 +6938,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       const detailFailedFull = !!(extra && extra.ok === false);
       if (!detailFailedFull) insightFullCache.current[p.id] = data;
       if (data && !data.error && !data.unavailable && !detailFailedFull) setCachedInsight(p.id + "::full", data);
-      setInsightFull(data);
+      if (detailRequest === detailOpenRequestRef.current) setInsightFull(data);
     } catch {
-      setInsightFull({ error: true });
+      if (detailRequest === detailOpenRequestRef.current) setInsightFull({ error: true });
     } finally {
-      setInsightFullLoading(false);
+      if (detailRequest === detailOpenRequestRef.current) setInsightFullLoading(false);
     }
   }
 
@@ -8241,41 +8277,97 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detail, supabaseReady]);
 
-  function onQueryChange(v) {
-    setQuery(v);
+  function cancelMainSearch() {
+    const request = ++suggestionRequestRef.current;
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    if (!v || v.trim().length < 3) { setSuggestions([]); return; }
+    mainSearchAbortRef.current?.abort();
+    mainSearchAttemptRef.current?.finish("superseded", { reason: "new_query" });
+    mainSearchAttemptRef.current = null;
+    setSearchBusy(false);
+    return request;
+  }
+
+  function onQueryChange(v) {
+    cancelMainSearch();
+    setSearchFeedback("");
+    setSearchRecovery(false);
+    setSearchMissing(false);
+    setSearchRecoveryNear("");
+    setCityTransition(null);
+    setQuery(v);
+    setSuggestions(localCitySuggestions(v));
+    if (!v || v.trim().length < 2) return;
     debounceRef.current = setTimeout(() => fetchSuggestions(v.trim()), 250);
   }
 
-  // v6.60 (2026-07-25 cost/scraping audit): the search box used to call Google
-  // DIRECTLY from the browser via the Maps JS library — the one metered Places
-  // surface that never passed through middleware.js/apiGuard.js (no same-origin
-  // check, no per-IP rate limit), unlike every other paid Places proxy in this
-  // app. fetchSuggestions and pickSuggestion now go through guarded server
-  // routes (/api/places/autocomplete, /api/places/details). A server denial is
-  // final: the browser never retries the same paid request with its public key.
-  async function fetchSuggestions(q) {
-    if (typeof tokenRef.current !== "string") {
-      tokenRef.current = (typeof crypto !== "undefined" && crypto.randomUUID)
-        ? crypto.randomUUID()
-        : (Math.random().toString(36).slice(2) + Date.now().toString(36));
-    }
+  function clearSearch() {
+    onQueryChange("");
+    setSugIdx(-1);
+    setScopeOpen(false);
+    searchInputRef.current?.focus({ preventScroll: true });
+  }
+
+  // Main search reads only the existing Wayfind library. This deadline and
+  // generation check apply to both typing and submission, with no paid retry.
+  async function mainSearchJson(url) {
+    mainSearchAbortRef.current?.abort();
+    const controller = new AbortController();
+    mainSearchAbortRef.current = controller;
+    const timer = setTimeout(() => controller.abort(), 10000);
     try {
-      const r = await fetch("/api/places/autocomplete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          input: q,
-          sessionToken: tokenRef.current,
-          ...(center ? { lat: center.lat, lng: center.lng } : {}),
-        }),
-      });
-      if (!r.ok) { setSuggestions([]); return; }
-      const data = await r.json();
-      setSuggestions((data.suggestions || []).slice(0, 6));
+      const response = await fetch(url, { signal: controller.signal, cache: "no-store" });
+      if (!response.ok) throw new Error("search_unavailable");
+      return await response.json();
+    } finally {
+      clearTimeout(timer);
+      if (mainSearchAbortRef.current === controller) mainSearchAbortRef.current = null;
+    }
+  }
+
+  async function ownedSearch(q, searchCenter) {
+    const params = new URLSearchParams({ q });
+    if (searchCenter && Number.isFinite(searchCenter.lat) && Number.isFinite(searchCenter.lng)) {
+      params.set("lat", String(searchCenter.lat));
+      params.set("lng", String(searchCenter.lng));
+    }
+    const data = await mainSearchJson("/api/search?" + params.toString());
+    if (!data || !["ok", "empty", "unavailable"].includes(data.status) || !Array.isArray(data.places)) throw new Error("invalid_search_response");
+    const matches = data.places.map((row) => {
+      const place = normalizeSearchPlace(row);
+      if (!place) return null;
+      const distance = Number.isFinite(place._searchDistanceMi) ? `${place._searchDistanceMi.toFixed(1)} mi from search area` : "Place in Wayfind";
+      return { kind: "place", placeId: place.id, text: place.name, secondary: place.address || distance, place, exactMatch: row.exactMatch === true };
+    }).filter(Boolean);
+    if (data.status === "ok" && !matches.length) throw new Error("invalid_search_response");
+    return { ...data, matches };
+  }
+
+  function searchFailureMessage(result) {
+    if (result?.reason === "unsupported_location") return "We’re not in that city yet. Try another, or take a look in Maps.";
+    if (result?.status === "empty") return "Not on our curated list. Yet. Know something we should? Recommend it.";
+    return "Search hit a snag. Give it another go, or try Maps.";
+  }
+
+  async function fetchSuggestions(q) {
+    const request = ++suggestionRequestRef.current;
+    const cities = localCitySuggestions(q);
+    setSearchBusy(true);
+    try {
+      const result = await ownedSearch(q, center);
+      if (request !== suggestionRequestRef.current) return;
+      setSuggestions([...cities, ...result.matches].slice(0, 8));
+      setSugIdx(-1);
+      setSearchFeedback(result.status === "ok" || cities.length ? "" : searchFailureMessage(result));
+      setSearchRecovery(result.status !== "ok" && !cities.length);
+      setSearchMissing(result.status === "empty" && !cities.length);
     } catch {
-      setSuggestions([]);
+      if (request !== suggestionRequestRef.current) return;
+      setSuggestions(cities);
+      setSearchFeedback(cities.length ? "" : searchFailureMessage(null));
+      setSearchRecovery(!cities.length);
+      setSearchMissing(false);
+    } finally {
+      if (request === suggestionRequestRef.current) setSearchBusy(false);
     }
   }
 
@@ -8303,108 +8395,70 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     return data.place;
   }
 
-  async function pickSuggestion(item) {
-    setSuggestions([]);
-    setQuery("");
-    const sessionToken = tokenRef.current;
-    tokenRef.current = null;
+  function closeSearchLayers() {
+    detailOpenRequestRef.current++;
+    setDetail(null);
+    setHookDetail(null);
+    setMenuSheet(null);
+  }
 
-    if (item.kind === "place") {
-      // Route straight to the place's detail sheet.
-      setLoading(true);
-      try {
-        const place = await resolvePlaceDetails(item.placeId, "place", sessionToken);
-        const photoList = (place.photos || []).slice(0, 6).map(photoUrlFor).filter(Boolean);
-        const photoUrl = photoList[0] || null;
-        const PRICE_LEVELS = ["FREE", "INEXPENSIVE", "MODERATE", "EXPENSIVE", "VERY_EXPENSIVE"];
-        const priceNum = place.priceLevel != null
-          ? (typeof place.priceLevel === "number" ? place.priceLevel : PRICE_LEVELS.indexOf(String(place.priceLevel)))
-          : null;
-        const loc = place.location || {};
-        const lat = typeof loc.lat === "number" ? loc.lat : loc.latitude;
-        const lng = typeof loc.lng === "number" ? loc.lng : loc.longitude;
-        const isOpenNow = typeof place.regularOpeningHours?.openNow === "boolean" ? place.regularOpeningHours.openNow : (place.regularOpeningHours?.openNow ?? null);
-        const placeObj = {
-          id: place.id,
-          name: (place.displayName?.text || place.displayName || item.text).split(",")[0].trim(),
-          lat,
-          lng,
-          address: place.formattedAddress || "",
-          type: (place.types || [])[0] || "",
-          types: place.types || [],
-          rating: place.rating || null,
-          reviews: place.userRatingCount || 0,
-          priceNum: priceNum >= 0 ? priceNum : null,
-          price: priceNum > 0 ? "$".repeat(priceNum) : null,
-          photo: photoUrl,
-          photos: photoList,
-          openNow: isOpenNow,
-          // v6.34: isOpen() is live at THIS instant — stamp it so businessStatus
-          // may trust it inside the snapshot freshness window.
-          hoursAsOf: isOpenNow != null ? Date.now() : null,
-          mapsUrl: `https://www.google.com/maps/search/?api=1&query_place_id=${place.id}`,
-          labels: [],
-          wfScore: null,
-        };
-        // Recenter explore list to this place's area for the "similar spots" context.
-        if (typeof lat === "number" && typeof lng === "number") {
-          setCenter({ lat, lng });
-          setLocResolved(true);
-          manualRef.current = true;
-          // v8.46 — this moves the RANKING to a business the reader tapped and
-          // never touched the label. Inside the same town that is harmless (the
-          // pairing law holds it). Tap a place in another city from the
-          // autosuggest and the chrome kept printing the old town over the new
-          // town's results. We do not have a city name for this point without
-          // spending a geocode, and the honest answer to "which city is this?"
-          // when we do not know is no city at all — locationHonesty prints
-          // nothing rather than a guess or a "near you".
-          //
-          // v9.0.1 (location-integrity audit, 2026-09-08) — WE DO HAVE A CITY
-          // FOR THIS POINT, for free: Google's formattedAddress names it. The
-          // 40-mile pairing check above was sized for a Florida label on a
-          // North Carolina pin; inside one metro every covered town passes it
-          // (Parrish→Cortez is 18 miles), so tapping a Cortez restaurant from
-          // Parrish kept "Parrish" in the header while the map and the rails
-          // moved to Cortez — and the writer effect persisted that pair. The
-          // label now follows the coordinates in the same commit: the
-          // address's locality when it parses, otherwise the old rule (keep
-          // the label only if it still plausibly describes the point, else
-          // print no city). scripts/test-location-pairing-integrity.mjs.
-          const placeCity = localityFromFormattedAddress(place.formattedAddress);
-          if (placeCity) setLocName(placeCity);
-          else if (!centerAgreesWithLabel({ lat, lng }, locName)) setLocName("");
-        }
-        openDetail(placeObj);
-      } catch {
-        showToast("Could not load this place");
-      } finally {
-        setLoading(false);
-      }
-      return;
-    }
-
-    // Area / city — recenter and reload the explore feed.
-    setLoading(true);
+  function goToSearchCity(g, attempt) {
     manualRef.current = true;
+    setCenter(g);
+    setLocResolved(true);
+    const name = g.name.split(",").slice(0, 2).join(",").trim();
+    setLocName(name);
+    setMapFocus({ lat: g.lat, lng: g.lng, ts: Date.now() });
+    setSearchMode(false);
+    setSearchLabel("");
+    setQuery("");
+    setSuggestions([]);
+    setSearchFeedback("");
+    setSearchRecovery(false);
+    setSearchMissing(false);
+    closeSearchLayers();
+    setScopeOpen(false);
+    if (screen !== "map") setScreen("suggested");
+    setCityTransition({ id: attempt.id, text: "Now exploring " + name });
+    attempt.finish("city_changed", { status: "ok", count: 1, city: name, result_source: "owned-city" });
+  }
+
+  function openSearchPlace(place, attempt, context = "search", nearGeo = null) {
+    if (!place || !place.id || !Number.isFinite(place.lat) || !Number.isFinite(place.lng)) throw new Error("invalid_search_place");
+    manualRef.current = true;
+    setCenter({ lat: place.lat, lng: place.lng });
+    setLocResolved(true);
+    const placeCity = localityFromFormattedAddress(place.address);
+    if (placeCity) setLocName(placeCity);
+    else if (nearGeo && centerAgreesWithLabel(place, nearGeo.name)) setLocName(nearGeo.name.split(",").slice(0, 2).join(",").trim());
+    else if (!centerAgreesWithLabel(place, locName)) setLocName("");
+    setQuery("");
+    setSuggestions([]);
+    setSearchFeedback("");
+    setSearchRecovery(false);
+    setSearchMissing(false);
+    setCityTransition(null);
+    setHookDetail(null);
+    setSearchMode(true);
+    openDetail({ ...place, _searchId: attempt.id, _ownedSearchOnly: true }, context);
+    attempt.finish("place_opened", { status: "ok", count: 1, place_id: place.id, result_source: context === "theme_park_search" ? "owned-theme-parks" : "owned-inventory" });
+  }
+
+  function pickSuggestion(item) {
+    cancelMainSearch();
+    const attempt = item._searchAttempt || createSearchAttempt(logEvent, query || item.text, { source: "suggestion" });
+    mainSearchAttemptRef.current = attempt;
+    setSugIdx(-1);
     try {
-      const place = await resolvePlaceDetails(item.placeId, "area", sessionToken);
-      const loc = place.location || {};
-      const lat = typeof loc.lat === "number" ? loc.lat : loc.latitude;
-      const lng = typeof loc.lng === "number" ? loc.lng : loc.longitude;
-      if (typeof lat === "number" && typeof lng === "number") {
-        setCenter({ lat, lng });
-        setLocResolved(true);
-        const fa = place.formattedAddress || (place.displayName && (place.displayName.text || place.displayName)) || item.text;
-        setLocName(String(fa).split(",").slice(0, 2).join(",").trim());
-      }
+      if (item.kind === "area" && item.city) goToSearchCity(item.city, attempt);
+      else if (item.kind === "place" && item.place) openSearchPlace(item.place, attempt, item.context || "search");
+      else throw new Error("invalid_search_selection");
     } catch {
-      try {
-        const c = await geocodeCity(item.text);
-        if (c) { setCenter(c); setLocResolved(true); setLocName(c.name.split(",").slice(0, 2).join(",").trim()); }
-      } catch {}
+      setSearchFeedback("Could not open that result. Please search again.");
+      setSearchRecovery(true);
+      attempt.finish("unavailable", { status: "unavailable", reason: "invalid_selection", count: 0 });
     } finally {
-      setLoading(false);
+      setSearchBusy(false);
     }
   }
 
@@ -8567,173 +8621,156 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
 
 
   async function submitSearch(qOverride, opts) {
-    try { logEvent("search", null, { q: String(query || "").slice(0, 80) }); } catch (e) {}
     const q = (typeof qOverride === "string" ? qOverride : query).trim();
-    if (!q) { openSurprise(); return; }
+    const options = opts && typeof opts === "object" ? opts : {};
+    const submittedRequest = cancelMainSearch();
+    const attempt = createSearchAttempt(logEvent, q, { source: options.placeIntent ? "guide" : "search_box" });
+    mainSearchAttemptRef.current = attempt;
+    setQuery(q);
+    setSearchFeedback("");
+    setSearchRecovery(false);
+    setSearchMissing(false);
+    const guideNear = options.placeIntent && typeof options.near === "string" ? options.near.trim().slice(0, 160) : "";
+    setSearchRecoveryNear(guideNear);
+    setCityTransition(null);
     setSuggestions([]);
-    // Check if it's a Wayfind experience keyword first (burgers, rooftop, live music…).
-    const ql = q.toLowerCase();
-    const parkIntent = themeParkIntent(q);
-    if (!parkIntent) {
-      const feel = feelingToMoment(ql);
-      if (feel) { setQuery(""); try { logEvent("feeling_search", null, { q: ql.slice(0, 40) }); } catch (e) {} openMoment(feel); return; }
-      if (ql.length >= 3) {
+    setSugIdx(-1);
+    setSearchBusy(true);
+    const current = () => submittedRequest === suggestionRequestRef.current;
+    const userPickedLocation = manualRef.current;
+    const searchCenter = (userPickedLocation && center)
+      ? { lat: center.lat, lng: center.lng }
+      : deviceLoc ? { lat: deviceLoc.lat, lng: deviceLoc.lng }
+      : center ? { lat: center.lat, lng: center.lng } : null;
+    const collapse = (x) => [x, x.replace(/(.)\1{2,}/g, "$1$1"), x.replace(/(.)\1{1,}/g, "$1")];
+    const geoTry = async (name) => { for (const v of collapse(name)) { const g = await geocodeCity(v); if (g) return g; } return null; };
+    const goTo = (g) => goToSearchCity(g, attempt);
+    try {
+      if (!q) {
+        setSearchFeedback("Type a place, city, or street address to search.");
+        attempt.finish("empty", { status: "empty", count: 0, reason: "empty_query" });
+        return;
+      }
+      const nearGeo = guideNear ? await geoTry(guideNear) : null;
+      if (!current()) return;
+      if (guideNear && !nearGeo) {
+        setSearchFeedback(searchFailureMessage({ reason: "unsupported_location" }));
+        setSearchRecovery(true);
+        attempt.finish("unavailable", { status: "unavailable", count: 0, reason: "unsupported_location", result_source: "owned-inventory" });
+        return;
+      }
+      // Exact owned cities always win over venue names and discovery shortcuts.
+      const area = await geoTry(q);
+      if (!current()) return;
+      if (area && area.isArea) { goTo(area); return; }
+      const ql = q.toLowerCase();
+      const parkIntent = themeParkIntent(q);
+      if (!options.placeIntent && !parkIntent) {
+        const category = /^(restaurants?|restaurantes?|food)$/.test(ql) ? "food" : /^(hotels?|stays?)$/.test(ql) ? "hotels" : null;
+        if (category) {
+          closeSearchLayers();
+          setQuery("");
+          pickCat(category);
+          attempt.finish("category_opened", { status: "opened", category });
+          return;
+        }
         const expHit = Object.keys(EXPERIENCES).find((k) => {
           const e = EXPERIENCES[k];
           const lab = (e.label || "").toLowerCase();
-          // EXACT key/label match only — label-substring matching swallowed CITY names
-          // that appear inside experience labels: typing "Sarasota" matched the
-          // "Best of Sarasota" label, opened that sheet, and the app never
-          // recentered (the exact bug #361 fixed then still exhibited). A bare
-          // city must fall through to the area-first search below.
-          return k === ql || lab === ql || (e.keyword && e.keyword.toLowerCase().includes(ql));
+          return k === ql || lab === ql || (e.keyword && e.keyword.toLowerCase() === ql);
         });
-        if (expHit) { setQuery(""); openExperience(expHit); return; }
+        if (expHit) {
+          closeSearchLayers();
+          setQuery("");
+          openExperience(expHit);
+          attempt.finish("exploration_opened", { status: "opened", experience: expHit });
+          return;
+        }
+        // Only explicit mood language is a shortcut. Venue names such as
+        // Rainforest Cafe must not be swallowed by the old /rain/ substring.
+        const moodQuery = /^(?:i(?:['’]m| am| have|['’]ve)|with (?:my |the )?kids|on a date|showing (?:someone|visitors|friends) around)\b/.test(ql)
+          || /^(?:bored|nothing to do|relax|unwind|chill|need a break|peaceful|quiet time|family day|family time|family fun|date night|rain|rainy|raining|too hot|indoor day|indoor ideas|unforgettable|somewhere new|locals only|visitors in town|tourist for a day)$/.test(ql);
+        const feel = moodQuery ? feelingToMoment(ql) : null;
+        if (feel) {
+          closeSearchLayers();
+          setQuery("");
+          openMoment(feel);
+          attempt.finish("exploration_opened", { status: "opened", experience: feel.join(",") });
+          return;
+        }
       }
-    }
-    // v6.60 (owner, 2026-07-25) -- CITY INTENT WINS.
-    //
-    // This function used to run a 20-mile nearby-BUSINESS search FIRST and
-    // `return` on any hit. Typing a nearby city therefore matched businesses
-    // that merely contain the word ("Sarasota" from Parrish -> Sarasota
-    // Memorial, Sarasota Bradenton Airport...), opened a "Results for X"
-    // sheet, and NEVER recentered -- the feed stayed on the old city. That is
-    // the "I searched and the cards stayed on Parrish" bug.
-    //
-    // Order is now: (1) a query that geocodes to a real AREA recenters the app,
-    // always; (2) otherwise a nearby-business search (McDonald's, a venue
-    // name); (3) otherwise a non-area geocode (a street address) still
-    // recenters rather than dead-ending. A city can no longer lose to a
-    // business that happens to share its name.
-    const userPickedLocation = manualRef.current;
-    setLoading(true);
-    manualRef.current = true;
-    // Prefer the location the USER CHOSE. Raw device GPS used to win here, so
-    // after navigating to another city a second search silently snapped the
-    // bias back to wherever the user physically was.
-    const searchCenter = (userPickedLocation && center)
-      ? { lat: center.lat, lng: center.lng }
-      : deviceLoc
-        ? { lat: deviceLoc.lat, lng: deviceLoc.lng }
-        : center ? { lat: center.lat, lng: center.lng } : null;
-    // v4.62: "best of {city}" opens the Best-of sheet for that city, and
-    // repeated-letter typos ("paaarrish") collapse before we give up. A
-    // user asking for a city must never hit a dead end over a prefix or a
-    // held-down key.
-    const collapse = (x) => [x, x.replace(/(.)\1{2,}/g, "$1$1"), x.replace(/(.)\1{1,}/g, "$1")];
-    const geoTry = async (name) => { for (const v of collapse(name)) { try { const g = await geocodeCity(v); if (g) return g; } catch (e) {} } return null; };
-    const goTo = (g) => {
-      setCenter(g);
-      setLocResolved(true);
-      setLocName(g.name.split(",").slice(0, 2).join(",").trim());
-      setSearchMode(false);
-      setSearchLabel("");
-      setQuery("");
-    };
-    try {
-      // Theme park intent is resolved from the same exact identity catalogue
-      // as the permanent rails. Exact searches open the verified park card;
-      // broad Disney, Universal, Orlando, or Florida searches open the scored
-      // park set. A temporarily unavailable owned inventory endpoint falls
-      // through to the standard search ladder below instead of dead-ending.
+      const bo = q.match(/^\s*(?:the\s+)?best\s+of\s+(.{2,40})$/i);
+      if (bo && !options.placeIntent) {
+        const g = await geoTry(bo[1].trim());
+        if (!current()) return;
+        if (g) {
+          goTo(g);
+          setTimeout(() => { if (current()) openCurated("today"); }, 60);
+          return;
+        }
+      }
+      let parkUnavailable = false;
       if (parkIntent) {
         try {
           const parkMode = /orlando/i.test(q) && parkIntent.kind === "broad" ? "orlando" : "flagship";
-          const response = await fetch(`/api/theme-parks?mode=${parkMode}&q=${encodeURIComponent(q)}`);
-          const body = response.ok ? await response.json() : null;
-          const parkRows = body && Array.isArray(body.items) ? body.items : [];
+          const body = await mainSearchJson(`/api/theme-parks?mode=${parkMode}&q=${encodeURIComponent(q)}`);
+          if (!current()) return;
+          const parkRows = Array.isArray(body?.items) ? body.items.filter((p) => p?.id && Number.isFinite(p.lat) && Number.isFinite(p.lng)) : [];
           if (parkRows.length) {
-            setQuery("");
-            setSearchMode(true);
-            setLoading(false);
-            if (parkIntent.kind === "exact") {
-              openDetail(parkRows[0], "theme_park_search");
+            if (parkIntent.kind === "exact" && parkRows.length === 1) {
+              openSearchPlace(parkRows[0], attempt, "theme_park_search");
+            } else if (parkIntent.kind === "exact") {
+              setSuggestions(parkRows.map((place) => ({ kind: "place", placeId: place.id, text: place.name, secondary: place.address || "Theme park", place, context: "theme_park_search", _searchAttempt: attempt })));
+              setSearchFeedback("Choose the place you meant below.");
+              attempt.finish("choices_shown", { status: "ok", count: parkRows.length, result_source: "owned-theme-parks" });
             } else {
               const title = parkIntent.kind === "operator"
                 ? `${parkIntent.operator === "disney" ? "Disney" : "Universal"} parks`
                 : /orlando/i.test(q) ? "Orlando's Biggest Parks" : "Florida's Biggest Parks";
-              setHookDetail({ id: "theme-parks-" + Date.now(), theme: "search", title, themeTitle: title, label: title, themeBody: "Verified park cards with one current ticket path, ranked by Wayfind Score.", emoji: "🎢", accent: C.accent, places: parkRows, sections: null });
+              closeSearchLayers();
+              setQuery("");
+              setSearchMode(true);
+              setHookDetail({ id: "theme-parks-" + attempt.id, theme: "search", title, themeTitle: title, label: title, themeBody: "Verified park cards with one current ticket path, ranked by Wayfind Score.", emoji: "🎢", accent: C.accent, places: parkRows.map((place) => ({ ...place, _searchId: attempt.id, _ownedSearchOnly: true })), sections: null });
+              attempt.finish("results_shown", { status: "ok", count: parkRows.length, result_source: "owned-theme-parks" });
             }
-            try { logEvent("theme_park_search", parkRows[0], { q: q.slice(0, 80), kind: parkIntent.kind, results: parkRows.length }); } catch (error) {}
             return;
           }
-        } catch (error) {}
-      }
-      // GUIDE PLACE-INTENT (fix for "guides → app converts 0%", 2026-08-07).
-      // A guide's "Open in Wayfind" declares intent=place: the query names one
-      // specific place, so the area-first rule below must NOT apply — that rule
-      // is what geocoded "Airboat the Everglades headwaters" to Everglades
-      // City and dumped the reader on a generic recentered feed. Resolution
-      // order here is deliberately inverted: POI search near the guide's own
-      // region first, area handling only as the fallback. A query our own
-      // guide data marks as an area (", FL" suffix) skips this and recenters
-      // like any city search — that IS its intent.
-      if (opts && opts.placeIntent && !/,\s*(fl|florida)\s*$/i.test(q)) {
-        const nearGeo = opts.near ? await geoTry(opts.near) : null;
-        const pinned = nearGeo ? { lat: nearGeo.lat, lng: nearGeo.lng } : searchCenter;
-        if (pinned) {
-          const hits = await searchNearbyPlaces(q, pinned, (opts && opts.miles) || 45);
-          if (hits && hits.length > 0) {
-            const sorted = hits.slice().sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12));
-            setQuery("");
-            // Recenter to the guide's region so the feed BEHIND the sheet
-            // matches what the reader was just reading about — not their GPS.
-            if (nearGeo && nearGeo.isArea) goTo(nearGeo);
-            setSearchMode(true);
-            setLoading(false);
-            openDetail(sorted[0]);
-            // Arrival-side proof the bridge works — click-side events on the
-            // static guide page die with the unload; this one cannot.
-            try { logEvent("guide_place_open", sorted[0], { q: q.slice(0, 80), matched: (sorted[0].name || "").slice(0, 80), near: (opts.near || "").slice(0, 40) }); } catch (e) {}
-            return;
-          }
-        }
-        // No POI matched — fall through to the standard ladder rather than
-        // dead-ending the deep link.
-      }
-      const bo = q.match(/^\s*(?:the\s+)?best\s+of\s+(.{2,40})$/i);
-      if (bo) {
-        const g = await geoTry(bo[1].trim());
-        if (g) {
-          goTo(g);
-          setLoading(false);
-          setTimeout(() => { try { openCurated("today"); } catch (e) {} }, 60);
-          return;
+          parkUnavailable = !!body?.unavailable || !!body?.error;
+        } catch {
+          if (!current()) return;
+          parkUnavailable = true;
         }
       }
-
-      // (1) CITY / AREA -- always wins, always recenters, always reloads the feed.
-      const area = await geoTry(q);
-      if (area && area.isArea) { goTo(area); return; }
-
-      // (2) NEARBY BUSINESS / CHAIN -- McDonald's, a specific restaurant, a venue.
-      if (searchCenter) {
-        const nearby = await searchNearbyPlaces(q, searchCenter, (opts && opts.miles) || 20);
-        if (nearby && nearby.length > 0) {
-          setQuery("");
-          if (nearby.length === 1) {
-            // Single match -- open detail directly
-            setSearchMode(true);
-            setLoading(false);
-            openDetail(nearby[0]);
-          } else {
-            // v4.63: multiple matches open in the modern themed sheet -- the
-            // legacy explore screen is retired as a search destination.
-            const sorted = nearby.slice().sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12));
-            setLoading(false);
-            setHookDetail({ id: "search-" + Date.now(), theme: "search", title: `Results for "${q}"`, themeTitle: `Results for "${q}"`, label: q, themeBody: "The closest matches near " + (locName ? locName.split(",")[0] : "this area") + ", ranked for right now.", emoji: "\uD83D\uDD0E", accent: C.accent, places: sorted, sections: null });
-            try { window.scrollTo(0, 0); } catch (e) {}
-          }
-          return;
-        }
+      if (!current()) return;
+      const result = await ownedSearch(q, nearGeo || searchCenter);
+      if (!current()) return;
+      // Exact identity, not merely one fuzzy result, grants automatic opening.
+      const exact = result.matches.filter((item) => item.exactMatch);
+      if (result.status === "ok" && result.matches.length === 1 && exact.length === 1) {
+        openSearchPlace(exact[0].place, attempt, options.placeIntent ? "guide_place_search" : "search", nearGeo);
+        if (options.placeIntent) logEvent("guide_place_open", exact[0].place, { q: attempt.meta.q, search_id: attempt.id });
+        return;
       }
-
-      // (3) A non-area geocode (street address, landmark) still beats a dead end.
-      if (area) { goTo(area); return; }
-      setErr("Nothing found. Try a restaurant name, chain, or city.");
+      const choices = [...localCitySuggestions(q), ...result.matches].slice(0, 8);
+      if (choices.length) {
+        setSuggestions(choices.map((item) => ({ ...item, _searchAttempt: attempt })));
+        setSearchFeedback("Choose the place or city you meant below.");
+        attempt.finish("choices_shown", { status: "ok", count: choices.length, result_source: "owned-library" });
+        return;
+      }
+      const outcome = result.status === "unavailable" || parkUnavailable ? "unavailable" : "empty";
+      setSearchMissing(outcome === "empty");
+      setSearchFeedback(searchFailureMessage(outcome === "unavailable" ? { ...result, status: "unavailable" } : result));
+      setSearchRecovery(true);
+      attempt.finish(outcome, { status: outcome, count: 0, reason: parkUnavailable ? "source_unavailable" : (result.reason || "not_in_library"), result_source: "owned-inventory" });
     } catch {
-      setErr("Search failed. Try again.");
-    } finally { setLoading(false); }
+      if (!current()) return;
+      setSearchFeedback(searchFailureMessage(null));
+      setSearchRecovery(true);
+      attempt.finish("unavailable", { status: "unavailable", count: 0, reason: "request_failed", result_source: "owned-inventory" });
+    } finally {
+      if (current()) setSearchBusy(false);
+    }
   }
 
   function saveToList(listId) {
@@ -9923,7 +9960,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             suggestions dropdown raised the search row's stacking context.
             Same mechanism, both dropdowns. */}
         {(screen !== "map" || mapSearchOpen) && (
-        <div className={"wf-search-row has-scope" + (suggestions.length || scopeOpen ? " is-suggesting" : "")} style={{ display: "flex", gap: 0, position: "relative", zIndex: suggestions.length || scopeOpen ? 40 : undefined }}>
+        <div className={"wf-search-row has-scope" + (suggestions.length || scopeOpen ? " is-suggesting" : "")} aria-busy={searchBusy} style={{ display: "flex", gap: 0, position: "relative", zIndex: suggestions.length || scopeOpen ? 40 : undefined }}>
           {/* v8.14 — THE LOCATION CONTROL (owner, 2026-08-18: "instead of
               those categories there, which is weird, I want that place to show
               the previous location and to house the current-location feature
@@ -9995,12 +10032,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                 navigation (Down/Up move the highlight, Enter selects it,
                 Escape closes without selecting). */}
             <input
+              ref={searchInputRef}
               value={query}
               onChange={(e) => { onQueryChange(e.target.value); setSugIdx(-1); }}
               onKeyDown={(e) => {
                 if (e.key === "ArrowDown" && suggestions.length) { e.preventDefault(); setSugIdx((i) => (i + 1) % suggestions.length); }
                 else if (e.key === "ArrowUp" && suggestions.length) { e.preventDefault(); setSugIdx((i) => (i <= 0 ? suggestions.length - 1 : i - 1)); }
-                else if (e.key === "Escape") { if (suggestions.length) { e.preventDefault(); setSuggestions([]); setSugIdx(-1); } }
+                else if (e.key === "Escape") { if (suggestions.length || searchBusy) { e.preventDefault(); cancelMainSearch(); setSuggestions([]); setSugIdx(-1); setSearchFeedback(""); } }
                 else if (e.key === "Enter") {
                   // v6.60 (owner, 2026-07-25): Enter used to auto-pick
                   // suggestions[0] whenever the dropdown was open, even though
@@ -10017,14 +10055,15 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                   else submitSearch();
                 }
               }}
-              onBlur={() => { setTimeout(() => { setSuggestions([]); setSugIdx(-1); }, 150); if (screen === "map") setTimeout(() => setMapSearchOpen(false), 220); }}
+              onBlur={(e) => { if (e.relatedTarget?.closest(".wf-search-row")) return; setTimeout(() => { setSuggestions([]); setSugIdx(-1); }, 150); if (screen === "map") setTimeout(() => setMapSearchOpen(false), 220); }}
               role="combobox" aria-expanded={suggestions.length > 0} aria-controls="wf-suggestions" aria-autocomplete="list"
               aria-activedescendant={sugIdx >= 0 ? `wf-sug-${sugIdx}` : undefined}
-              aria-label="Search a place or city" placeholder="Search a place or city"
-              className="wf-search-input" style={{ width: "100%", boxSizing: "border-box", height: 48, padding: "0 14px 0 38px", background: C.card, border: `1.5px solid ${C.border}`, borderRight: "none", borderRadius: "14px 0 0 14px", color: C.text, fontSize: 16, outline: "none" }}
+              aria-label="Search a place or city" placeholder="Search a place or city" aria-describedby="wf-search-help"
+              className="wf-search-input" style={{ width: "100%", boxSizing: "border-box", height: 48, padding: "0 46px 0 38px", background: C.card, border: `1.5px solid ${C.border}`, borderRight: "none", borderRadius: "14px 0 0 14px", color: C.text, fontSize: 16, outline: "none" }}
             />
+            {!!query && <button type="button" className="wf-search-clear" aria-label="Clear search" title="Clear search" onMouseDown={(e) => e.preventDefault()} onClick={clearSearch}>×</button>}
             {suggestions.length > 0 && (
-              <ul id="wf-suggestions" role="listbox" aria-label="Search suggestions" style={{ listStyle: "none", margin: 0, padding: 0, position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", boxShadow: "0 10px 30px rgba(0,0,0,.5)", zIndex: 80 }}>
+              <ul id="wf-suggestions" role="listbox" aria-label="Search suggestions" style={{ listStyle: "none", margin: 0, padding: 0, position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, maxHeight: "min(55vh, 360px)", overflowY: "auto", boxShadow: "0 10px 30px rgba(0,0,0,.5)", zIndex: 80 }}>
                 {suggestions.map((s, i) => (
                   <li
                     key={i}
@@ -10038,7 +10077,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                     <span style={{ color: s.kind === "place" ? C.accent : C.muted, fontSize: 16 }}>{s.kind === "place" ? iconForPlace({ name: s.text, types: s.types || [] }) : "📍"}</span>
                     <div style={{ minWidth: 0 }}>
                       <div style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{s.text}</div>
-                      {s.kind === "place" && <div style={{ fontSize: 11, color: C.muted, marginTop: 1 }}>Go to this place</div>}
+                      <div style={{ fontSize: 11, color: C.muted, marginTop: 2, lineHeight: 1.4 }}>{s.kind === "place" ? s.secondary : "Explore this city"}</div>
                     </div>
                   </li>
                 ))}
@@ -10047,7 +10086,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             {/* Live region: announce the highlighted suggestion to screen readers. */}
             <div aria-live="polite" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)" }}>{sugIdx >= 0 && suggestions[sugIdx] ? `${suggestions[sugIdx].text}, ${sugIdx + 1} of ${suggestions.length}` : ""}</div>
           </div>
-          <button className="wf-search-submit" onClick={submitSearch} aria-label="Search" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 54, height: 48, background: C.accent, border: "none", borderRadius: "0 14px 14px 0", color: "#0D1117", fontSize: 22, fontWeight: 800, cursor: "pointer" }}>→</button>
+          <button type="button" className="wf-search-submit" onMouseDown={(e) => e.preventDefault()} onClick={submitSearch} aria-label="Search" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 54, height: 48, background: C.accent, border: "none", borderRadius: "0 14px 14px 0", color: "#0D1117", fontSize: 22, fontWeight: 800, cursor: "pointer" }}>{searchBusy ? <span className="wf-search-spinner" aria-hidden="true" /> : "→"}</button>
           {/* v5.7x: "Take a chance" moved off the home-menu list and onto an
               icon button beside search — same visual weight as the sparkle
               "Find my vibe" button in the header. */}
@@ -10070,6 +10109,20 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               sheet on demand, forever, and must never consult introSeen(). */}
         </div>
         )}
+        {(screen !== "map" || mapSearchOpen) && <div id="wf-search-help" className="wf-search-help">Search places, cities, or street addresses in Wayfind. Try “Orlando”, “coffee shop”, or a full place name and city.</div>}
+        {searchBusy && <div className="wf-search-feedback wf-search-loading" role="status" aria-live="polite"><span>Searching Wayfind<span className="wf-search-dots" aria-hidden="true"><i /><i /><i /></span></span><span className="wf-search-track" aria-hidden="true"><span /></span></div>}
+        {searchFeedback && !searchBusy && <div className="wf-search-feedback" role="status" aria-live="polite">{searchFeedback}</div>}
+        {searchRecovery && query.trim() && !searchBusy && <div className="wf-search-recovery">
+          <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => submitSearch(query, searchRecoveryNear ? { placeIntent: true, near: searchRecoveryNear } : undefined)}>Try again</button>
+          <a href={"https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent([query.trim(), searchRecoveryNear].filter(Boolean).join(", "))} target="_blank" rel="noopener noreferrer">Open in Maps ↗</a>
+        </div>}
+        {searchMissing && searchRecovery && query.trim() && !searchBusy && <div style={{ marginTop: 10 }}>
+          <CommunityFooter key={query + searchRecoveryNear} compact recommendation initialPlace={[query.trim(), searchRecoveryNear].filter(Boolean).join(", ")} path="/search" loc={locName || ""} build={BUILD_ID} userId={user?.id || null} />
+        </div>}
+        <div style={{ marginTop: 6 }}>
+          <CommunityFooter key={screen} compact path={screen === "suggested" ? "/" : "/" + screen} loc={locName || ""} build={BUILD_ID} userId={user?.id || null} />
+        </div>
+        {cityTransition && <div key={cityTransition.id} className="wf-city-transition" role="status" aria-live="polite"><span aria-hidden="true">✓</span> {cityTransition.text}</div>}
         {/* v8.2 ROW C — THE DESTINATIONS, AT THE TOP (public/lab/menu.html
             `.dests`). The same six targets the bottom bar has always carried,
             mapped from the one WF_DESTINATIONS list so the two bars cannot

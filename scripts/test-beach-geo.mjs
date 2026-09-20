@@ -220,9 +220,14 @@ ok(/const \[center, setCenter\] = useState\((null|DEFAULT_CENTER)\)/.test(home),
   // picking a suggestion, submitting a freetext search that geocodes, and
   // jumping to a featured area. If any one of them stopped writing center, the
   // hero would keep showing beaches from wherever the user physically is.
-  const pick = home.indexOf("async function pickSuggestion(item)");
+  const pick = home.indexOf("function pickSuggestion(item)");
   ok(pick > 0, "pickSuggestion is still the search-suggestion handler");
-  ok(/setCenter\(/.test(home.slice(pick, pick + 4000)), "picking a search suggestion writes `center`, so a searched city is subject to the same rule as a located one");
+  const pickBody = home.slice(pick, home.indexOf("function searchMapArea", pick));
+  ok(/goToSearchCity\(item.city, attempt\)/.test(pickBody) && /openSearchPlace\(item.place, attempt/.test(pickBody), "suggestion selection routes through the city and place center helpers");
+  for (const name of ["goToSearchCity", "openSearchPlace"]) {
+    const start = home.indexOf("function " + name + "(");
+    ok(start > 0 && /setCenter\(/.test(home.slice(start, start + 400)), name + " writes the shared center used by beach geography");
+  }
 }
 
 // ── the cost constraint, asserted ───────────────────────────────────────────

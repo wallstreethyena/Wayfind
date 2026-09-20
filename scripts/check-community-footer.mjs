@@ -61,11 +61,12 @@ ok(comp.includes('fetch("/api/feedback"'), "feedback must POST to /api/feedback"
 const sendBody = comp.slice(comp.indexOf("async function send"), comp.indexOf("const mailHref"));
 ok(sendBody && !/mailto:/.test(sendBody), "the feedback send() must never build a mailto - feedback does not go to email");
 
-// == 3. The route writes to the DB and never emails ==
+// == 3. Owner update 2026-09-19: store first, then notify the team ==
 ok(/wf_feedback/.test(route), "the feedback route must insert into wf_feedback");
 ok(/service|SERVICE_ROLE_KEY/i.test(route), "the feedback route must use the service role to write");
-ok(!/mailto:|nodemailer|resend|sendgrid|RESEND_API_KEY|smtp/i.test(routeCode),
-  "the feedback route must NOT send email - the owner asked for feedback that does NOT go to an inbox");
+ok(!/mailto:/.test(routeCode), "feedback stays an in-app submission, never a mailto");
+ok(routeCode.includes("notifyFeedback(row"), "saved feedback must schedule the owner-requested team notification");
+ok(read("lib/feedbackNotification.js").includes('"info@gowayfind.com"'), "notifications must use the owner-approved team address");
 ok(route.includes("2000"), "the feedback route must cap message length (untrusted input)");
 ok(/cache: "no-store"/.test(route), 'the feedback insert must be cache:"no-store" (mutating fetch) - see check-cron-post-nostore doctrine');
 
@@ -74,7 +75,7 @@ ok(/const CommunityFooter\s*=\s*nextDynamic\(\(\)\s*=>\s*import\("\.\/components
 ok(/<CommunityFooter\b/.test(home), "app/home.js must render <CommunityFooter/>");
 // It must sit in the centered in-app footer block (next to Privacy/Terms), not
 // bolted onto the left nav. Assert proximity to the Privacy link.
-const mountAt = home.indexOf("<CommunityFooter");
+const mountAt = home.indexOf('<CommunityFooter path="/" loc=');
 const privacyAt = home.indexOf('href="/privacy"');
 ok(mountAt > -1 && privacyAt > -1 && Math.abs(privacyAt - mountAt) < 1200,
   "CommunityFooter must live in the in-app footer block beside Privacy/Terms, not elsewhere");
@@ -88,4 +89,4 @@ ok(mountAt > -1 && privacyAt > -1 && Math.abs(privacyAt - mountAt) < 1200,
 }
 
 if (fails) { console.error(`check-community-footer: ${fails} failure(s)`); process.exit(1); }
-console.log("check-community-footer: OK - Instagram surfaced, creators email, feedback goes to wf_feedback (never email), mounted in the home footer");
+console.log("check-community-footer: OK - Instagram surfaced, creators email, feedback saved to wf_feedback with owner-approved team notification, mounted in the home footer");

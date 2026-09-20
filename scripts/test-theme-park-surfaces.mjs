@@ -36,12 +36,12 @@ assert.match(home, /Culture\.resolveMetro\(locName\) === "orlando" \? "orlando" 
   "Orlando uses its dedicated park mode while other cities keep the honest Florida label");
 
 const intentIndex = home.indexOf("const parkIntent = themeParkIntent(q)");
-const areaIndex = home.indexOf("const area = await geoTry(q)", intentIndex);
+const areaIndex = home.indexOf("const result = await ownedSearch(q, nearGeo || searchCenter)", intentIndex);
 assert.ok(intentIndex > 0 && areaIndex > intentIndex,
-  "theme park intent resolves before the generic area and nearby search ladder");
-assert.match(home, /parkIntent\.kind === "exact"[\s\S]{0,180}openDetail\(parkRows\[0\], "theme_park_search"\)/,
+  "theme park intent resolves before the generic owned-place search");
+assert.match(home, /parkIntent\.kind === "exact"[\s\S]{0,180}openSearchPlace\(parkRows\[0\], attempt, "theme_park_search"\)/,
   "an exact park search opens that verified place card directly");
-assert.match(home, /parkIntent\.kind === "operator"[\s\S]{0,500}places: parkRows/,
+assert.match(home, /parkIntent\.kind === "operator"[\s\S]{0,850}places: parkRows/,
   "Disney, Universal, and broad park searches open the verified scored set");
 
 assert.ok(family.indexOf('<ThemeParkRail mode="family"') < family.indexOf("FAMILY_DAY_RAILS.map"),
