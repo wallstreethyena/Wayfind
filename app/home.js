@@ -8301,7 +8301,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     onQueryChange("");
     setSugIdx(-1);
     setScopeOpen(false);
-    searchInputRef.current?.focus();
+    searchInputRef.current?.focus({ preventScroll: true });
   }
 
   // Main search reads only the existing Wayfind library. This deadline and
