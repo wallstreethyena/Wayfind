@@ -11,6 +11,7 @@
 // in #441 (VALUE_OVERRIDES). This is layer 4, and these assertions are what stop
 // it regressing.
 import { readFileSync } from "fs";
+import { execFileSync } from "node:child_process";
 import { classifyHealth, incidentLine, DEAD_RUN_THRESHOLD, isDeterministicFailureNote } from "../lib/jobPulse.js";
 import { pulseFor } from "./record-workflow-pulse.mjs";
 
@@ -18,6 +19,35 @@ let pass = 0;
 const fail = (m) => { console.error("test-job-pulse: FAIL — " + m); process.exit(1); };
 const ok = (c, m) => { if (!c) fail(m); pass++; };
 const read = (p) => readFileSync(new URL("../" + p, import.meta.url), "utf8");
+
+// The detailed reader preserves operational provenance while the long-standing
+// jobHealth() API remains fail-soft for existing product callers.
+{
+  const moduleUrl = JSON.stringify(new URL("../lib/jobPulse.js", import.meta.url).href);
+  const child = `
+    const { jobHealth, jobHealthDetailed } = await import(${moduleUrl});
+    globalThis.fetch = async () => ({ ok: false, status: 503, text: async () => "fixture unavailable" });
+    const detailed = await jobHealthDetailed(48);
+    const compatible = await jobHealth(48);
+    globalThis.fetch = async () => ({ ok: true, status: 200, json: async () => [] });
+    const empty = await jobHealthDetailed(48);
+    globalThis.fetch = async () => ({ ok: true, status: 200, json: async () => { throw new SyntaxError("fixture invalid JSON"); } });
+    const invalidJson = await jobHealthDetailed(48);
+    console.log(JSON.stringify({ detailed, compatible, empty, invalidJson }));
+  `;
+  const result = JSON.parse(execFileSync(process.execPath, ["--input-type=module", "-e", child], {
+    encoding: "utf8",
+    env: {
+      NODE_ENV: "test",
+      SUPABASE_URL: "https://fixture.supabase.example",
+      SUPABASE_SERVICE_ROLE_KEY: "fixture-service-key",
+    },
+  }).trim());
+  ok(!result.detailed.ok && result.detailed.status === 503 && /fixture unavailable/.test(result.detailed.error), "detailed health reads retain HTTP failure provenance");
+  ok(Array.isArray(result.compatible) && result.compatible.length === 0, "jobHealth compatibility wrapper remains fail-soft [] on read failure");
+  ok(result.empty.ok && result.empty.rows.length === 0, "a confirmed empty health result stays distinct from a failed read");
+  ok(!result.invalidJson.ok && result.invalidJson.status === 200 && result.invalidJson.indeterminate === false && /invalid health JSON.*fixture invalid JSON/.test(result.invalidJson.error), "HTTP 200 with invalid JSON is a definite parse failure, not an unknown transport outcome");
+}
 
 // ── the three states, and the one that matters most is IDLE ───────────────
 // A self-terminating job legitimately has nothing to do. If idle read as
@@ -103,10 +133,10 @@ ok(classifyHealth([]).incidents.length === 0 && classifyHealth(null).incidents.l
 // ── an empty table is not a clean bill of health ──────────────────────────
 {
   const route = read("app/api/cron/job-watch/route.js");
-  ok(/no pulse rows in window/.test(route),
+  ok(/no pulse rows in.*window/.test(route),
     "zero pulse rows is reported as 'nothing is reporting', NOT as 'no incidents' — conflating them is the exact mistake this route exists to stop");
   ok(/unauthorized/.test(route) && /CRON_SECRET/.test(route), "the route is CRON_SECRET-gated, fail-closed");
-  ok(/RESEND_API_KEY or DIGEST_EMAIL not set/.test(route),
+  ok(/!resendKey.*RESEND_API_KEY/.test(route) && /!to.*DIGEST_EMAIL/.test(route),
     "a send it could not make is REPORTED — a silent no-send would reproduce the failure mode this route watches for");
 }
 

@@ -9,6 +9,7 @@
 //     root instrumentation.js convention without the removed experimental flag.
 //   - check-bundle.mjs enforces the post-Next-15 498KB measured ratchet.
 import { readFileSync, existsSync } from "fs";
+import { baseSentryOptions, shouldDropBrowserNoise } from "../lib/sentryShared.js";
 
 let pass = 0;
 const fail = (m) => { console.error("test-sentry-lazy: FAIL — " + m); process.exit(1); };
@@ -80,5 +81,41 @@ ok(!denies("app:///_next/static/chunks/2420.53868fe9fbfd9bd3.js"),
 const ignoreBlock = (shared.match(/export const IGNORE_ERRORS = \[([\s\S]*?)\];/) || [])[1] || "";
 ok(!/InvalidNodeTypeError/.test(ignoreBlock),
   "the filter is by URL, not by message — InvalidNodeTypeError must NOT be in IGNORE_ERRORS, or the same error from our own code would be silenced too");
+
+// 8. Browser-host failures are dropped only by their proven signatures. The
+// Android bridge message alone is insufficient, server errors are untouched,
+// and application/framework DOM failures remain actionable.
+const androidEvent = {
+  exception: { values: [{ value: "Error invoking postMessage: Java object is gone", stacktrace: { frames: [
+    { filename: "app://navigation_performance_logger_android", function: "sendDataToNative" },
+    { filename: "app://navigation_performance_logger_android", function: "sendBeforeUnloadMessage" },
+  ] } }] },
+};
+const tabGone = { message: "Invalid call to runtime.sendMessage(). Tab not found." };
+ok(shouldDropBrowserNoise(androidEvent, null, true), "the exact Android host-bridge signature is browser noise");
+ok(shouldDropBrowserNoise({ message: "Error: Invalid call to runtime.sendMessage(). Tab not found." }, null, true), "the manually wrapped exact extension error is browser noise");
+ok(shouldDropBrowserNoise(tabGone, null, true), "the native exact extension error is browser noise");
+ok(!shouldDropBrowserNoise(androidEvent, null, false) && !shouldDropBrowserNoise(tabGone, null, false), "shared server options never suppress matching server exceptions");
+ok(!shouldDropBrowserNoise({ ...androidEvent, exception: { values: [{ value: "Error invoking postMessage: Java object is gone", stacktrace: { frames: [
+  { filename: "app:///_next/static/chunks/application.js", function: "sendDataToNative" },
+  { filename: "app:///_next/static/chunks/application.js", function: "sendBeforeUnloadMessage" },
+] } }] } }, null, true), "the Android message from a different app stack still reports");
+ok(!shouldDropBrowserNoise({ message: "Invalid call to runtime.sendMessage(). Different failure." }, null, true), "near-match extension failures still report");
+ok(!shouldDropBrowserNoise({ message: "Cannot read properties of null (reading 'parentNode')" }, null, true), "parentNode failures are never blanket-filtered");
+ok(!shouldDropBrowserNoise({ message: "TypeError: application failed" }, null, true), "ordinary application TypeErrors still report");
+const browserOptions = baseSentryOptions("test-dsn");
+ok(browserOptions.beforeSend(androidEvent, null) === androidEvent, "the shared beforeSend remains inactive in this server-side test runtime");
+const priorWindow = globalThis.window;
+globalThis.window = {};
+try {
+  ok(browserOptions.beforeSend(androidEvent, null) === null, "browser beforeSend drops the exact Android host-bridge event");
+  ok(browserOptions.beforeSend(tabGone, null) === null, "browser beforeSend drops the exact extension event");
+  const parentNodeEvent = { message: "Cannot read properties of null (reading 'parentNode')" };
+  ok(browserOptions.beforeSend(parentNodeEvent, null) === parentNodeEvent, "browser beforeSend preserves an application parentNode failure");
+} finally {
+  if (priorWindow === undefined) delete globalThis.window;
+  else globalThis.window = priorWindow;
+}
+ok(/shouldDropBrowserNoise\(item, null, true\)/.test(sc), "early-buffer replay applies the same narrow browser-noise predicate before manual capture");
 
 console.log(`test-sentry-lazy: OK — ${pass} assertions (lazy client, ceiling protected, server/edge instrumented, CSP allowlisted, third-party frames denied)`);
