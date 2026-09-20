@@ -18,6 +18,7 @@ import { RAIL_PAGE_SIZE } from "../../lib/railPage.js";
 import { usePagedRail } from "./usePagedRail.js";
 import { railRenderState, RAIL_RENDER_STATE } from "../../lib/railVisibility.js";
 import DestinationStays from "./DestinationStays.js";
+import { partnerTicketLabel } from "../../lib/partnerCopy.js";
 
 const COLORS = { text: "#FFF7ED", muted: "#A99FA8" };
 export const FALL_LOAD_TIMEOUT_MS = 10000;
@@ -46,7 +47,7 @@ function eventCta(card, onTrack) {
   if (card.ticket?.href) return {
     // /api/commerce/go, never the partner URL: the redirect mints the click
     // id, refuses crawlers, and applies the CJ deep link server-side.
-    label: card.ticket.label || `Tickets · ${card.ticket.via} ↗`, href: card.ticket.href, external: true, sponsored: true,
+    label: partnerTicketLabel(card.ticket.via, { product: card.ticket.product }), href: card.ticket.href, external: true, sponsored: true,
     onClick: (event) => {
       // offerId: deal_id (a wf_deals int) for Undercover Tourist, offer_id (a
       // partnerOfferRegistry key) for Tiqets/Klook — eventTicketCta sets

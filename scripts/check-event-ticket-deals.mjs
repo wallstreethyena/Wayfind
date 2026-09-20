@@ -27,6 +27,7 @@ import { PROVIDERS, resolveOffer } from "../lib/commerceProviders.js";
 import { partnerOfferById } from "../lib/partnerOfferRegistry.js";
 import { affiliateMerchantForUrl } from "../lib/affiliateLibrary.js";
 import { FALL_DISCOVERIES_2026 } from "../lib/fallDiscoveries2026.js";
+import { partnerTicketLabel } from "../lib/partnerCopy.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(path.join(ROOT, p), "utf8");
@@ -92,9 +93,16 @@ const href = eventTicketHref("hhn-orlando-2026", { surface: "fall_intent_rail" }
 ok(href === "/api/commerce/go?provider=undercover_tourist&offer=19&surface=fall_intent_rail&content=hhn-orlando-2026", `the href is the commerce redirect for THAT deal (${href})`);
 ok(isCommerceGoUrl(href), "and the pipeline recognises it as a commerce-go URL");
 const cta = eventTicketCta("mnsshp-2026", { surface: "florida_event_page" });
-ok(cta && cta.href.includes("offer=8") && cta.via === UT_VIA && /Tickets · Undercover Tourist/.test(cta.label) && cta.product === "event-ticket", "the CTA descriptor carries href, merchant, label and product");
+ok(cta && cta.href.includes("offer=8") && cta.via === UT_VIA && cta.label === partnerTicketLabel(UT_VIA, { product: "event-ticket" }) && cta.product === "event-ticket", "the CTA descriptor carries href, actual merchant, Wayfind-led event label and product");
 const parkCta = eventTicketCta("brick-or-treat-2026", { surface: "x" });
-ok(parkCta && /^Park tickets/.test(parkCta.label), "an included-with-admission event is labelled PARK tickets, so the reader knows what they are buying");
+ok(parkCta && parkCta.label === partnerTicketLabel(UT_VIA, { product: "park-admission" }), "an included-with-admission event is labelled Wayfind-led PARK tickets, so the reader knows what they are buying");
+for (const [provider, merchant] of Object.entries(VIA_BY_PROVIDER)) {
+  for (const product of ["event-ticket", "park-admission"]) {
+    const label = partnerTicketLabel(merchant, { product });
+    ok(label === `Wayfind pick · ${product === "park-admission" ? "Park tickets" : "Tickets"} at ${merchant} ↗`, `${provider}/${product}: shared label names the real seller and product`);
+    ok(!/best|discount|special|lowest|cheapest|exclusive/i.test(label), `${provider}/${product}: label makes no unsupported price or exclusivity claim`);
+  }
+}
 const utEntries = entries.filter(([, raw]) => "deal" in raw);
 ok(Object.entries(FALL_EVENT_TICKET_DEALS).every(([id, n]) => EVENT_TICKET_DEALS[id]?.deal === n) && Object.keys(FALL_EVENT_TICKET_DEALS).length === utEntries.length,
   "the fall rail's compatibility map is DERIVED from the UT rows of the registry only, not a second copy");
@@ -110,7 +118,7 @@ ok(VIA_BY_PROVIDER.tiqets === "Tiqets" && VIA_BY_PROVIDER.klook === "Klook" && V
 const zooBooHref = eventTicketHref("zoo-boo-zoo-miami-2026", { surface: "events_feed" });
 ok(zooBooHref === "/api/commerce/go?provider=tiqets&offer=miami-hook-zoo-miami&surface=events_feed&content=zoo-boo-zoo-miami-2026", `zoo-boo's href is the Tiqets commerce redirect (${zooBooHref})`);
 const zooBooCta = eventTicketCta("zoo-boo-zoo-miami-2026", { surface: "florida_event_page" });
-ok(zooBooCta && zooBooCta.provider === "tiqets" && zooBooCta.via === "Tiqets" && /^Park tickets · Tiqets/.test(zooBooCta.label), `Zoo Boo's CTA names Tiqets, not Undercover Tourist (via=${zooBooCta && zooBooCta.via})`);
+ok(zooBooCta && zooBooCta.provider === "tiqets" && zooBooCta.via === "Tiqets" && zooBooCta.label === partnerTicketLabel("Tiqets", { product: "park-admission" }), `Zoo Boo's CTA names Tiqets, not Undercover Tourist (via=${zooBooCta && zooBooCta.via})`);
 ok(zooBooCta && zooBooCta.offer_id === "miami-hook-zoo-miami" && zooBooCta.deal_id === undefined, "the CTA carries offer_id, never a fabricated numeric deal_id, for a non-UT provider");
 // liveDeal is a wf_deals concept; passing one for a Tiqets row must not gate it.
 ok(eventTicketCta("zoo-boo-zoo-miami-2026", { liveDeal: null })?.href === "/api/commerce/go?provider=tiqets&offer=miami-hook-zoo-miami&surface=event&content=zoo-boo-zoo-miami-2026",
@@ -118,7 +126,7 @@ ok(eventTicketCta("zoo-boo-zoo-miami-2026", { liveDeal: null })?.href === "/api/
 ok(eventTicketCta("zootampa-creatures-2026") === null, "ZooTampa's separately-ticketed night event has no CTA at all (no mapping exists)");
 const zooBooFeed = curatedToFeedEvent({ event_id: "zoo-boo-zoo-miami-2026", slug: "zoo-boo-zoo-miami-2026", start_date: "2026-10-24", event_name: "Zoo Boo", official_event_url: "https://www.zoomiami.org/zoo-boo" });
 ok(zooBooFeed.url === "/api/commerce/go?provider=tiqets&offer=miami-hook-zoo-miami&surface=events_feed&content=zoo-boo-zoo-miami-2026", `curatedToFeedEvent's url for Zoo Boo is the Tiqets redirect (${zooBooFeed.url})`);
-ok(zooBooFeed.ticketVia === "Tiqets", "…and the feed names Tiqets as the merchant, not the hardcoded UT constant");
+ok(zooBooFeed.ticketVia === "Tiqets" && zooBooFeed.ticketProduct === "park-admission", "…and the feed names Tiqets as the merchant and preserves the park-admission product");
 
 // resolveOffer, CALLED — the destination this redirect actually reaches for
 // the Zoo Boo offer, not merely that the registry key exists.
@@ -129,9 +137,9 @@ ok(zooBooDest && decodeURIComponent(zooBooDest.dest).includes("tiqets.com"), "�
 
 const feed = curatedToFeedEvent({ event_id: "howl-o-scream-tampa-2026", slug: "hos-tampa-2026", start_date: "2026-09-11", event_name: "Howl-O-Scream", official_event_url: "https://buschgardens.com/tampa/events/howl-o-scream/" });
 ok(feed.ticketed === true && feed.url.startsWith("/api/commerce/go?provider=undercover_tourist&offer=20"), "the Events feed row for Howl-O-Scream carries the commerce-go ticket URL and is ticketed");
-ok(feed.officialUrl === "https://buschgardens.com/tampa/events/howl-o-scream/" && feed.ticketVia === UT_VIA, "the official page survives as officialUrl; the merchant is named");
+ok(feed.officialUrl === "https://buschgardens.com/tampa/events/howl-o-scream/" && feed.ticketVia === UT_VIA && feed.ticketProduct === "event-ticket", "the official page survives as officialUrl; the merchant and event-ticket product are named");
 const plain = curatedToFeedEvent({ event_id: "fantasy-fest-2026", slug: "ff", start_date: "2026-10-16", event_name: "Fantasy Fest", official_event_url: "https://fantasyfest.com/" });
-ok(plain.url === "https://fantasyfest.com/" && plain.ticketVia === "" && plain.ticketed === undefined, "an unmapped event keeps its official URL and no ticket claim");
+ok(plain.url === "https://fantasyfest.com/" && plain.ticketVia === "" && plain.ticketProduct === "" && plain.ticketed === undefined, "an unmapped event keeps its official URL and no ticket claim");
 
 // ── 3. the pipeline admits the shape, executed ─────────────────────────────
 ok(validateEvent({ name: "HHN", date: "2026-10-01", url: feed.url }).ok === true, "validateEvent accepts a commerce-go ticket URL");

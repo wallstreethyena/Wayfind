@@ -1675,3 +1675,4 @@ node scripts/test-feedback-storage.mjs
 node scripts/test-site-feedback.mjs
 
 node scripts/test-feedback-notification.mjs
+node scripts/test-florida-catalog-location.mjs
