@@ -3195,12 +3195,7 @@
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
-        "githubWorkflows": [
-          {
-            "file": ".github/workflows/remove-search-help-prep.yml",
-            "blocking": true
-          }
-        ]
+        "githubWorkflows": []
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
@@ -9642,12 +9637,7 @@
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
-        "githubWorkflows": [
-          {
-            "file": ".github/workflows/remove-search-help-prep.yml",
-            "blocking": true
-          }
-        ]
+        "githubWorkflows": []
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
@@ -12065,12 +12055,7 @@
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
-        "githubWorkflows": [
-          {
-            "file": ".github/workflows/remove-search-help-prep.yml",
-            "blocking": true
-          }
-        ]
+        "githubWorkflows": []
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
@@ -14884,12 +14869,7 @@
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
-        "githubWorkflows": [
-          {
-            "file": ".github/workflows/remove-search-help-prep.yml",
-            "blocking": true
-          }
-        ]
+        "githubWorkflows": []
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
