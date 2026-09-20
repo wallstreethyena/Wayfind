@@ -4115,6 +4115,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   const cityFix = cityFixM;
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
+  const [searchFeedback, setSearchFeedback] = useState("");
   const [sugIdx, setSugIdx] = useState(-1); // v5.63 (audit P4): keyboard-highlighted suggestion, -1 = none
   const [places, setPlaces] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -4717,6 +4718,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   }
   const debounceRef = useRef(null);
   const tokenRef = useRef(null);
+  const suggestionRequestRef = useRef(0);
   const sugDebounceRef = useRef(null);
   const sugTokenRef = useRef(null);
   const insightCache = useRef({});
@@ -8241,7 +8243,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   }, [detail, supabaseReady]);
 
   function onQueryChange(v) {
+    suggestionRequestRef.current++;
+    setSearchFeedback("");
     setQuery(v);
+    setSuggestions([]);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     if (!v || v.trim().length < 3) { setSuggestions([]); return; }
     debounceRef.current = setTimeout(() => fetchSuggestions(v.trim()), 250);
@@ -8254,7 +8259,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // app. fetchSuggestions and pickSuggestion now go through guarded server
   // routes (/api/places/autocomplete, /api/places/details). A server denial is
   // final: the browser never retries the same paid request with its public key.
-  async function fetchSuggestions(q) {
+  async function fetchSuggestions(q, { submitted = false } = {}) {
+    const request = ++suggestionRequestRef.current;
+    if (submitted) setSearchFeedback("Searching…");
     if (typeof tokenRef.current !== "string") {
       tokenRef.current = (typeof crypto !== "undefined" && crypto.randomUUID)
         ? crypto.randomUUID()
@@ -8263,6 +8270,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     try {
       const r = await fetch("/api/places/autocomplete", {
         method: "POST",
+        signal: AbortSignal.timeout(10000),
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           input: q,
@@ -8270,11 +8278,20 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           ...(center ? { lat: center.lat, lng: center.lng } : {}),
         }),
       });
-      if (!r.ok) { setSuggestions([]); return; }
+      if (!r.ok) throw new Error("Search lookup unavailable");
       const data = await r.json();
-      setSuggestions((data.suggestions || []).slice(0, 6));
+      if (!Array.isArray(data.suggestions)) throw new Error("Invalid search response");
+      if (request !== suggestionRequestRef.current) return;
+      const matches = data.suggestions.filter((item) => item && item.placeId && item.text).slice(0, 6);
+      setSuggestions(matches);
+      setSugIdx(-1);
+      if (submitted) setSearchFeedback(matches.length
+        ? ""
+        : "No matching address or place found. Try adding the city or ZIP code.");
     } catch {
+      if (request !== suggestionRequestRef.current) return;
       setSuggestions([]);
+      if (submitted) setSearchFeedback("Search is temporarily unavailable. Please try again.");
     }
   }
 
@@ -8303,6 +8320,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   }
 
   async function pickSuggestion(item) {
+    suggestionRequestRef.current++;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    setSearchFeedback("");
     setSuggestions([]);
     setQuery("");
     const sessionToken = tokenRef.current;
@@ -8401,7 +8421,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       try {
         const c = await geocodeCity(item.text);
         if (c) { setCenter(c); setLocResolved(true); setLocName(c.name.split(",").slice(0, 2).join(",").trim()); }
-      } catch {}
+        else setSearchFeedback("Could not load this location. Please search again.");
+      } catch { setSearchFeedback("Could not load this location. Please search again."); }
     } finally {
       setLoading(false);
     }
@@ -8569,6 +8590,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     try { logEvent("search", null, { q: String(query || "").slice(0, 80) }); } catch (e) {}
     const q = (typeof qOverride === "string" ? qOverride : query).trim();
     if (!q) { openSurprise(); return; }
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    const submittedRequest = ++suggestionRequestRef.current;
+    setSearchFeedback("");
     setSuggestions([]);
     // Check if it's a Wayfind experience keyword first (burgers, rooftop, live music…).
     const ql = q.toLowerCase();
@@ -8703,11 +8727,20 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
 
       // (1) CITY / AREA -- always wins, always recenters, always reloads the feed.
       const area = await geoTry(q);
+      if (submittedRequest !== suggestionRequestRef.current) return;
       if (area && area.isArea) { goTo(area); return; }
+
+      // Street addresses need the guarded address lookup, not a scored-business
+      // search. Present matches for an explicit choice; never guess the first one.
+      if (/^\d+[a-z]?(?:[-/]\d+)?\s+\S+/i.test(q)) {
+        await fetchSuggestions(q, { submitted: true });
+        return;
+      }
 
       // (2) NEARBY BUSINESS / CHAIN -- McDonald's, a specific restaurant, a venue.
       if (searchCenter) {
         const nearby = await searchNearbyPlaces(q, searchCenter, (opts && opts.miles) || 20);
+        if (submittedRequest !== suggestionRequestRef.current) return;
         if (nearby && nearby.length > 0) {
           setQuery("");
           if (nearby.length === 1) {
@@ -8729,9 +8762,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
 
       // (3) A non-area geocode (street address, landmark) still beats a dead end.
       if (area) { goTo(area); return; }
-      setErr("Nothing found. Try a restaurant name, chain, or city.");
+      await fetchSuggestions(q, { submitted: true });
     } catch {
-      setErr("Search failed. Try again.");
+      setSearchFeedback("Search failed. Please try again.");
     } finally { setLoading(false); }
   }
 
@@ -10069,6 +10102,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               sheet on demand, forever, and must never consult introSeen(). */}
         </div>
         )}
+        {searchFeedback && !suggestions.length && <div role="status" aria-live="polite" style={{ color: C.light, padding: "8px 12px", fontSize: 13 }}>{searchFeedback}</div>}
         {/* v8.2 ROW C — THE DESTINATIONS, AT THE TOP (public/lab/menu.html
             `.dests`). The same six targets the bottom bar has always carried,
             mapped from the one WF_DESTINATIONS list so the two bars cannot
