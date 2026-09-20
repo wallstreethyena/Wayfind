@@ -74,7 +74,7 @@ ok(/const CommunityFooter\s*=\s*nextDynamic\(\(\)\s*=>\s*import\("\.\/components
 ok(/<CommunityFooter\b/.test(home), "app/home.js must render <CommunityFooter/>");
 // It must sit in the centered in-app footer block (next to Privacy/Terms), not
 // bolted onto the left nav. Assert proximity to the Privacy link.
-const mountAt = home.indexOf("<CommunityFooter");
+const mountAt = home.indexOf('<CommunityFooter path="/" loc=');
 const privacyAt = home.indexOf('href="/privacy"');
 ok(mountAt > -1 && privacyAt > -1 && Math.abs(privacyAt - mountAt) < 1200,
   "CommunityFooter must live in the in-app footer block beside Privacy/Terms, not elsewhere");

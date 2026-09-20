@@ -100,6 +100,7 @@ for(const query of ['Orlando','Sarasota','Sarasota, Florida']) {
 for(const response of [{status:'empty',places:[]},{status:'unavailable',places:[],reason:'source_unavailable'},null,{status:'ok',places:[{}]}]) {
  const {ctx,state}=harness('Missing Cafe',response); await ctx.submitSearch();
  assert.match(state.searchFeedback,/No matching|temporarily unavailable/i);
+ assert.equal(state.searchMissing,response?.status==='empty');
  assert.equal(state.query,'Missing Cafe'); assert.equal(state.searchRecovery,true); assert.equal(state.searchBusy,false);
  oneOutcome(state);
 }

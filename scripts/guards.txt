@@ -1666,3 +1666,7 @@ node scripts/test-address-search.mjs
 node scripts/test-direct-search.mjs
 
 node scripts/test-search-experience.mjs
+
+node scripts/test-community-feedback.mjs
+
+node scripts/test-feedback-storage.mjs

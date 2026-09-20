@@ -4119,6 +4119,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   const [searchFeedback, setSearchFeedback] = useState("");
   const [searchBusy, setSearchBusy] = useState(false);
   const [searchRecovery, setSearchRecovery] = useState(false);
+  const [searchMissing, setSearchMissing] = useState(false);
   const [searchRecoveryNear, setSearchRecoveryNear] = useState("");
   const [cityTransition, setCityTransition] = useState(null);
   useEffect(() => {
@@ -8286,6 +8287,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     cancelMainSearch();
     setSearchFeedback("");
     setSearchRecovery(false);
+    setSearchMissing(false);
     setSearchRecoveryNear("");
     setCityTransition(null);
     setQuery(v);
@@ -8331,7 +8333,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
 
   function searchFailureMessage(result) {
     if (result?.reason === "unsupported_location") return "Wayfind does not have place search for that location yet. Try a covered city or open this search in Maps.";
-    if (result?.status === "empty") return "No matching place in Wayfind yet. Try the full place name and city, or open this search in Maps.";
+    if (result?.status === "empty") return "No matching place in Wayfind yet. We haven’t confirmed that it meets our standards. Think we’ve missed a great spot? Recommend it below. We’d love to review it and reconsider.";
     return "Place search is temporarily unavailable. Please try again. You can still choose a city or open this search in Maps.";
   }
 
@@ -8346,11 +8348,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       setSugIdx(-1);
       setSearchFeedback(result.status === "ok" || cities.length ? "" : searchFailureMessage(result));
       setSearchRecovery(result.status !== "ok" && !cities.length);
+      setSearchMissing(result.status === "empty" && !cities.length);
     } catch {
       if (request !== suggestionRequestRef.current) return;
       setSuggestions(cities);
       setSearchFeedback(cities.length ? "" : searchFailureMessage(null));
       setSearchRecovery(!cities.length);
+      setSearchMissing(false);
     } finally {
       if (request === suggestionRequestRef.current) setSearchBusy(false);
     }
@@ -8400,6 +8404,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     setSuggestions([]);
     setSearchFeedback("");
     setSearchRecovery(false);
+    setSearchMissing(false);
     closeSearchLayers();
     setScopeOpen(false);
     if (screen !== "map") setScreen("suggested");
@@ -8420,6 +8425,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     setSuggestions([]);
     setSearchFeedback("");
     setSearchRecovery(false);
+    setSearchMissing(false);
     setCityTransition(null);
     setHookDetail(null);
     setSearchMode(true);
@@ -8612,6 +8618,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     setQuery(q);
     setSearchFeedback("");
     setSearchRecovery(false);
+    setSearchMissing(false);
     const guideNear = options.placeIntent && typeof options.near === "string" ? options.near.trim().slice(0, 160) : "";
     setSearchRecoveryNear(guideNear);
     setCityTransition(null);
@@ -8741,6 +8748,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         return;
       }
       const outcome = result.status === "unavailable" || parkUnavailable ? "unavailable" : "empty";
+      setSearchMissing(outcome === "empty");
       setSearchFeedback(searchFailureMessage(outcome === "unavailable" ? { ...result, status: "unavailable" } : result));
       setSearchRecovery(true);
       attempt.finish(outcome, { status: outcome, count: 0, reason: parkUnavailable ? "source_unavailable" : (result.reason || "not_in_library"), result_source: "owned-inventory" });
@@ -10094,6 +10102,12 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         {searchRecovery && query.trim() && !searchBusy && <div className="wf-search-recovery">
           <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => submitSearch(query, searchRecoveryNear ? { placeIntent: true, near: searchRecoveryNear } : undefined)}>Try again</button>
           <a href={"https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent([query.trim(), searchRecoveryNear].filter(Boolean).join(", "))} target="_blank" rel="noopener noreferrer">Open in Maps ↗</a>
+        </div>}
+        {searchMissing && searchRecovery && query.trim() && !searchBusy && <div style={{ marginTop: 10 }}>
+          <CommunityFooter key={query + searchRecoveryNear} compact recommendation initialPlace={[query.trim(), searchRecoveryNear].filter(Boolean).join(", ")} path="/search" loc={locName || ""} build={BUILD_ID} userId={user?.id || null} />
+        </div>}
+        {(screen !== "map" || mapSearchOpen) && <div style={{ marginTop: 6 }}>
+          <CommunityFooter compact path="/" loc={locName || ""} build={BUILD_ID} userId={user?.id || null} />
         </div>}
         {cityTransition && <div key={cityTransition.id} className="wf-city-transition" role="status" aria-live="polite"><span aria-hidden="true">✓</span> {cityTransition.text}</div>}
         {/* v8.2 ROW C — THE DESTINATIONS, AT THE TOP (public/lab/menu.html

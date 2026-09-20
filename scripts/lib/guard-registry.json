@@ -27,16 +27,16 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 678,
-    "totalRegistryEntries": 679,
-    "guardsTxtLineCount": 677,
-    "guardsTxtReachedFileCount": 672,
+    "totalOnDiskGuardFiles": 680,
+    "totalRegistryEntries": 681,
+    "guardsTxtLineCount": 679,
+    "guardsTxtReachedFileCount": 674,
     "criticalCount": 83,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 464,
       "RENDER": 75,
-      "STRUCTURAL": 139,
+      "STRUCTURAL": 141,
       "OTHER": 1
     }
   },
@@ -8179,7 +8179,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 67,
+      "assertionCount": 68,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -9892,6 +9892,30 @@
       "owner": null
     },
     {
+      "file": "scripts/test-community-feedback.mjs",
+      "npmScript": null,
+      "class": "STRUCTURAL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 24,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [
+        "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
+      ],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-composition-render.mjs",
       "npmScript": null,
       "class": "RENDER",
@@ -11532,6 +11556,30 @@
       "assertionCount": 59,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-feedback-storage.mjs",
+      "npmScript": null,
+      "class": "STRUCTURAL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 15,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [
+        "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
+      ],
       "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,
