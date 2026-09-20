@@ -5,7 +5,7 @@ import {
   FALL_INTENT_RAIL_DEFS, FALL_MIN_RESULTS, FALL_NEAR_MI, FALL_RAIL_RADIUS_MI, fallEventRail, fallPhase,
   fallRailOrder, composeFallIntentRails,
 } from "../lib/fallIntentRails.js";
-import { FALL_OFFERING_SOURCES, FALL_PLACE_IDS, FALL_PLACE_RAIL } from "../lib/fallPool.js";
+import { FALL_OFFERING_SOURCES, FALL_PLACE_IDS, FALL_PLACE_RAIL, FALL_REJECTED_IDS, fallPlaceEvidenceCurrent } from "../lib/fallPool.js";
 import { fallCardClass } from "../lib/fallSkin.js";
 import { hasStoredPlacePhoto } from "../lib/placePhoto.js";
 import { FALL_DISCOVERIES_2026, FALL_DISCOVERY_RAIL, FALL_SEASONAL_PLACE_IDS } from "../lib/fallDiscoveries2026.js";
@@ -157,6 +157,12 @@ const capAnswer = composeFallIntentRails([], capPlaces, capOrigin);
 ok(capAnswer.rails.flatMap((rail) => rail.cards.map((card) => card.id)).join("|") === "park-inside", "a park just inside 150 miles qualifies; a park beyond 150 miles and every other distant seasonal intent remain excluded");
 
 ok(Object.keys(FALL_PLACE_IDS).sort().join("|") === Object.keys(FALL_PLACE_RAIL).sort().join("|"), "every vetted fall place has exactly one primary intent assignment");
+ok(Object.keys(FALL_PLACE_IDS).every((id) => fallPlaceEvidenceCurrent(id, "2026-09-20")),
+  "every static fall place has current evidence before composition can serve it");
+for (const held of ["ChIJTzoiienhwogRbPa3GpuvBQU", "ChIJ11hsiYXEwogRjDBv39F04J8", "ChIJB2B8mYzHwogRkZIDCDARWww"]) {
+  ok(FALL_REJECTED_IDS.includes(held) && !FALL_PLACE_IDS[held] && !FALL_PLACE_RAIL[held],
+    `unproven 2026 place ${held.slice(0, 12)}… is held out of the fall collection`);
+}
 ok(Object.values(FALL_PLACE_RAIL).every((rail) => expected.includes(rail)), "every fall place assignment targets an approved rail");
 const solId = "ChIJ9ZpMS-7jwogRWChZqTQG66g";
 const fallPlaceIds = Object.keys(FALL_PLACE_IDS);
