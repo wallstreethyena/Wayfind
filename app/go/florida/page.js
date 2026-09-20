@@ -22,8 +22,10 @@
 // which returns an /api/*/go path on this origin — the destination is
 // resolved server-side, at click time, by the route the link points at.
 import ExperienceCatalog from "./ExperienceCatalog";
+import React from "react";
+import FloridaSections from "./FloridaSections";
 import LicensedPhoto from "../../components/LicensedPhoto";
-import { SPRINGS_PHOTO, EXPERIENCE_PHOTOS } from "../../../lib/floridaPhotography";
+import { SPRINGS_PHOTO, EXPERIENCE_PHOTOS, FLORIDA_EVENT_PHOTOS, FLORIDA_PARK_PHOTOS } from "../../../lib/floridaPhotography";
 import styles from "./florida.module.css";
 import GuidePhoto from "../../components/GuidePhoto";
 import { guideHero } from "../../../lib/guideHero";
@@ -145,8 +147,7 @@ async function loadHalloweenEvents() {
       .filter((e) => isEligible(e, { now }))
       .map((e) => ({ event: e, cta: eventTicketCta(e.event_id, { surface: SURFACE }) }))
       .filter((x) => Boolean(x.cta))
-      .sort((a, b) => String(a.event.start_date || "").localeCompare(String(b.event.start_date || "")))
-      .slice(0, 6);
+      .sort((a, b) => String(a.event.start_date || "").localeCompare(String(b.event.start_date || "")));
     return { ok: true, items };
   } catch (err) {
     // A failed curated-events read must not take the whole landing page
@@ -166,7 +167,7 @@ function PhotoCredit({ art }) {
   </span>;
 }
 
-function Collection({ children, label, preview = 3 }) {
+function Collection({ children, label, preview = 5 }) {
   const items = Array.isArray(children) ? children.filter(Boolean) : [children];
   return <>
     <div className={styles.grid}>{items.slice(0, preview)}</div>
@@ -177,11 +178,11 @@ function Collection({ children, label, preview = 3 }) {
   </>;
 }
 
-function SectionHead({ eyebrow, title, intro }) {
+function SectionHead({ eyebrow, title, intro, titleNote }) {
   return <div className={styles.sectionHead}>
-    <p className={styles.eyebrow}>{eyebrow}</p>
-    <h2>{title}</h2>
-    <p className={styles.intro}>{intro}</p>
+    {eyebrow ? <p className={styles.eyebrow}>{eyebrow}</p> : null}
+    <h2 title={titleNote}>{title}</h2>
+    {intro ? <p className={styles.intro}>{intro}</p> : null}
   </div>;
 }
 
@@ -192,12 +193,11 @@ function GuideCard({ slug, title, blurb, rank }) {
     ? { ...EXPERIENCE_PHOTOS["siesta-key-sunset-cruise"], caption: "Sarasota shoreline · Nathan Mullet / Unsplash. Drum circle not pictured." }
     : { ...SPRINGS_PHOTO, caption: "Daytime kayaking illustration. Bioluminescence not pictured." };
   return <article className={`${styles.guideCard} ${styles.photoGuideCard}`}>
-    <div className={styles.media}><LicensedPhoto {...art} sizes="(max-width:700px) 100vw, 400px" className={styles.offerImage} /></div>
+    <div className={styles.media}><LicensedPhoto {...art} sizes="(max-width:700px) 100vw, 400px" className={styles.offerImage} /><div className={styles.photoCaption}>{art.cardCaption || art.caption} {art.source ? <PhotoCredit art={art} /> : null}</div></div>
     <div className={styles.cardBody}>
     {rank ? <span className={styles.rank} aria-label={"Reader rank " + rank}>{String(rank).padStart(2, "0")}</span> : <span className={styles.editorialLabel}>The local guide</span>}
     <h3><a href={"/guides/" + slug}>{title}</a></h3>
     <p>{blurb}</p>
-    <p className={styles.imageCaption}>{art.cardCaption || art.caption} {art.source ? <PhotoCredit art={art} /> : null}</p>
     <a className={styles.textLink} href={"/guides/" + slug}>Read the guide <span aria-hidden="true">↗</span></a>
     </div>
   </article>;
@@ -207,16 +207,18 @@ function GuideGrid({ items, ranked = false }) {
   return <Collection label="guides">{liveGuides(items).map((g, i) => <GuideCard key={g.slug} {...g} rank={ranked ? i + 1 : null} />)}</Collection>;
 }
 
-function OfferImage({ offer }) {
+function OfferImage({ offer, caption }) {
+  const selectedPhoto = FLORIDA_PARK_PHOTOS[offer.offerId];
   // Brand marks stay identifiable as marks, rather than pretending to be venue photos.
   const isLogo = /logo|LECOM_Park\.PNG/i.test(offer.image || "");
-  const src = isHotlinkRefusedImage(offer.image) ? null : landingOfferImage(offer.image);
+  const src = selectedPhoto?.src || (isHotlinkRefusedImage(offer.image) ? null : landingOfferImage(offer.image));
   return <div className={styles.media}>
-    <GuidePhoto src={src} alt={isLogo ? offer.title + " logo" : offer.title}
+    <GuidePhoto src={src} alt={selectedPhoto?.alt || (isLogo ? offer.title + " logo" : offer.title)}
       loading="lazy" width={640} height={400}
       className={isLogo ? styles.logoImage : styles.offerImage}
       fallbackClassName={styles.photoFallback} fallbackText={offer.title + " · " + offer.market} />
     {isLogo ? <span className={styles.mediaLabel}>Venue identity</span> : null}
+    {caption ? <div className={styles.photoCaption}>{caption}</div> : null}
   </div>;
 }
 
@@ -242,9 +244,8 @@ function SearchIntentCard({ item }) {
   const art = item.id === "manatee-crystal-river" ? { ...guideHero("swim-with-manatees-crystal-river"), caption: "Crystal River manatees · David Hinkel / USFWS · CC BY 2.0. Tour not pictured." } : EXPERIENCE_PHOTOS[item.id];
   if (!href) return null;
   return <article className={styles.offerCard}>
-    <div className={styles.media}><LicensedPhoto {...art} sizes="(max-width:700px) 100vw, 400px" className={styles.offerImage} /></div>
+    <div className={styles.media}><LicensedPhoto {...art} sizes="(max-width:700px) 100vw, 400px" className={styles.offerImage} /><div className={styles.photoCaption}>{art.caption} {art.source ? <PhotoCredit art={art} /> : null}</div></div>
     <div className={styles.cardBody}><p className={styles.meta}>{item.city}</p><h3>{item.title}</h3><p className={styles.cardBlurb}>{item.blurb}</p>
-      <p className={styles.imageCaption}>{art.caption}{art.source ? <> <PhotoCredit art={art} /></> : null}</p>
       <span className={styles.editorialLabel}>Compare tour options</span>
       <a className={styles.textLink} href={href} rel="sponsored noopener" target="_blank">{AVAILABILITY_CTA_LABEL}<span className={styles.srOnly}> for {item.title}, opens a new tab</span></a>
     </div>
@@ -257,6 +258,7 @@ function BoatRentalChoices({ offers }) {
 }
 
 function EventCard({ event, cta }) {
+  const selectedPhoto = FLORIDA_EVENT_PHOTOS[event.event_id];
   const parkByEvent = {
     "howl-o-scream-tampa-2026": "Busch Gardens Tampa Bay",
     "howl-o-scream-seaworld-2026": "SeaWorld Orlando",
@@ -270,12 +272,11 @@ function EventCard({ event, cta }) {
       ? { src:"/florida-photos/universal-sean-nyatsine.jpg", width:4898, height:3265, alt:"Universal globe at Universal Studios Plaza in Orlando", caption:"Universal Orlando · Sean Nyatsine / Unsplash. Event not pictured." }
       : park ? null : guideHero("fall-events-orlando-2026");
   return <article className={`${styles.guideCard} ${styles.photoGuideCard}`}>
-    {park ? <OfferImage offer={park} /> : <div className={styles.media}><LicensedPhoto {...art} sizes="(max-width:700px) 100vw, 400px" className={styles.offerImage} /></div>}
+    {selectedPhoto ? <div className={styles.media}><LicensedPhoto {...selectedPhoto} sizes="(max-width:700px) 100vw, 400px" className={styles.offerImage} /></div> : park ? <OfferImage offer={park} caption="Park photograph via Tiqets. Seasonal event not pictured." /> : <div className={styles.media}><LicensedPhoto {...art} sizes="(max-width:700px) 100vw, 400px" className={styles.offerImage} /><div className={styles.photoCaption}>{art.caption} {art.source ? <PhotoCredit art={art} /> : null}</div></div>}
     <div className={styles.cardBody}>
     <p className={styles.meta}>{dateRangeLabel(event)} · {event.city}</p>
     <h3>{event.event_name}</h3>
     {event.card_hook ? <p>{event.card_hook}</p> : null}
-    <p className={styles.imageCaption}>{park ? "Park photograph via Tiqets. Seasonal event not pictured." : art.caption} {art?.source ? <PhotoCredit art={art} /> : null}</p>
     <a className={styles.textLink} href={cta.href} rel="sponsored noopener" target="_blank">{cta.label}<span className={styles.srOnly}> for {event.event_name}, opens a new tab</span></a>
     </div>
   </article>;
@@ -283,9 +284,8 @@ function EventCard({ event, cta }) {
 
 function HotSection() {
   return <section id="hot" className={styles.section}>
-    <SectionHead eyebrow="A good place to begin" title={HOT_SNAPSHOT_HEADING} intro={HOT_SNAPSHOT_LABEL} />
+    <SectionHead title={HOT_SNAPSHOT_HEADING} titleNote={HOT_SNAPSHOT_LABEL} />
     <GuideGrid items={HOT_GUIDES} ranked />
-    <p className={styles.note}>Ordered by unique guide visitors in a dated readership snapshot. Not a live ranking or paid placement. <a href="/how-wayfind-ranks">How Wayfind ranks</a></p>
   </section>;
 }
 
@@ -373,8 +373,10 @@ export default async function GoFloridaPage({ searchParams }) {
     </div>
     <div className={styles.heroFoot}><span>GOOD DAYS START WITH A LITTLE LOCAL KNOWLEDGE</span><span>{SPRINGS_PHOTO.caption}</span></div>
     </div>
-    <nav className={styles.interests} aria-label="Explore Florida by interest">{INTEREST_LINKS.map((link) => <a key={link.href} href={link.href}><strong>{link.label}</strong><span>{link.detail}</span></a>)}</nav>
-    <div className={styles.content}><ExperienceCatalog />{order.map((key) => { const Section = SECTION_RENDERERS[key]; return Section ? <Section key={key} /> : null; })}</div>
+    <FloridaSections sections={[
+      { id: 'experiences', label: 'Top experiences', title: 'Top experiences', content: <ExperienceCatalog /> },
+      ...order.map(key => ({ id: key, title: ({ hot: HOT_SNAPSHOT_HEADING, halloween: HALLOWEEN_HEADING, orlando: ORLANDO_HEADING, nature: NATURE_HEADING, shows: SHOWS_HEADING, stays: STAYS_HEADING, 'gulf-coast': GULF_COAST_HEADING })[key], label: ({ hot: 'Popular guides', halloween: 'Fall events', orlando: 'Park tickets', nature: 'On the water', shows: 'Nights out', stays: 'Stays', 'gulf-coast': 'Gulf Coast' })[key], content: SECTION_RENDERERS[key] ? React.createElement(SECTION_RENDERERS[key]) : null })),
+    ]} />
     <footer className={styles.footer}>
       <div className={styles.trust}><div><p className={styles.eyebrow}>Know before you go</p><h2>A little local knowledge goes a long way.</h2></div><div><p>Guides for the details that matter. Booking options when you are ready. Clear labels so you know where every link takes you.</p><p>{DISCLOSURE}</p><a href="/editorial-policy">Our editorial approach ↗</a></div></div>
       <nav className={styles.footerLinks} aria-label="More from Wayfind">{FOOTER_LINKS.map((link) => <a key={link.href} href={link.href}>{link.label}</a>)}</nav>

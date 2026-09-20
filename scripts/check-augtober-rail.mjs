@@ -155,7 +155,7 @@ ok(/external: true/.test(fallComponent) && /rel: cta\.sponsored \? "sponsored no
 // monetized cards: paid CTA first, disclosed, sponsored rel on the PAID link only
 ok(/card\.ticket\?\.href/.test(fallComponent) && /sponsored: true/.test(fallComponent),
   "a monetized card links the health-checked UT deal FIRST, with rel sponsored");
-ok(/Tickets · \$\{card\.ticket\.via\}/.test(fallComponent), "the paid card DISCLOSES its partner on the CTA (FTC line)");
+ok(/partnerTicketLabel\(card\.ticket\.via[\s\S]*card\.ticket\.product/.test(fallComponent), "the paid card uses the shared Wayfind-led label with the actual partner and product (FTC line)");
 ok(/onTrack\?\.\("tickets_out", \{ kind: "fall_intent_rail"/.test(fallComponent), "a paid click emits tickets_out — revenue that cannot be measured cannot be protected");
 ok(/event\.url \|\| event\.place_id/.test(strip(readFileSync(path.join(ROOT, "app/api/events/fall/route.js"), "utf8"))), "an event with no link and no venue never renders — a dead card is worse than one fewer card");
 ok(/eventFranchiseKey\(name\)/.test(fallIntent) && /itemDistance\(a, ctx\)/.test(fallIntent),

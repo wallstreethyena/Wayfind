@@ -21,6 +21,7 @@ import { TP_PROGRAMS, isTpProgramLive } from "../lib/travelpayouts.js";
 import { bookItTarget } from "../lib/monetize.js";
 import { placePartnerPick } from "../lib/placePartnerPicks.js";
 import { resolveDetailCta } from "../lib/detailCta.js";
+import { partnerTicketLabel } from "../lib/partnerCopy.js";
 
 let pass = 0;
 const fail = (m) => { console.error("test-book-it-venues: FAIL — " + m); process.exit(1); };
@@ -121,7 +122,7 @@ for (const [name, city, offerId, productId] of klookCases) {
   for (const [surface, target] of [["card", pin], ["primary", primary], ["Book-it", secondary]]) {
     ok(target?.provider === "klook" && target.offerId === offerId, `${name}: ${surface} selects the same exact Klook product`);
   }
-  ok(primary.label === "Tickets · Klook", `${name}: primary names the actual seller`);
+  ok(primary.label === partnerTicketLabel("Klook", { arrow: false }), `${name}: primary uses the shared Wayfind-led label and names the actual seller`);
   const go = new URL(primary.href, "https://www.gowayfind.com");
   ok(go.pathname === "/api/commerce/go" && go.searchParams.get("offer") === offerId,
     `${name}: primary uses the internal tracked redirect`);
