@@ -17,7 +17,11 @@ ok(new Set(candidates.map((row) => row.offer_id)).size === 118, "candidate offer
 ok(candidates.every((row) => ["tiqets", "klook", "gocity"].includes(row.provider)), "only approved providers are selected");
 ok(candidates.every((row) => row.marker === "750791" && row.trs === "550160"), "every candidate uses the exact account marker and traffic source");
 
-for (const value of ["https://tp.st/A_b-9", "https://tiqets.tp.st/abc123"]) ok(validTpShortUrl(value), `${value} is accepted`);
+for (const value of [
+  "https://tp.st/A_b-9",
+  "https://tiqets.tp.st/abc123",
+  "https://yesim.tp.st/kn3kv29H?erid=2VtzqwiKLkx",
+]) ok(validTpShortUrl(value), `${value} is accepted`);
 for (const value of [
   "http://tp.st/abc", "https://evil.com/abc", "https://a.b.tp.st/abc",
   "https://tp.st/a/b", "https://tp.st/abc?q=1", "https://u:p@tp.st/abc",
@@ -42,7 +46,7 @@ const fetchImpl = async (url, init = {}) => {
         marker: body.marker,
         trs: body.trs,
         shorten: true,
-        links: body.links.map(({ url }, index) => ({ url, code: "success", partner_url: `https://yandex.tp.st/NHifzZw${index}` })),
+        links: body.links.map(({ url }, index) => ({ url, code: "success", partner_url: `https://yandex.tp.st/NHifzZw${index}?erid=fixture_${index}` })),
       },
     });
   }
@@ -118,8 +122,37 @@ const failedCodeFetch = async (url, init = {}) => {
   return response(201, null);
 };
 const failedCode = await provisionTpLinks({ env, sb, fetchImpl: failedCodeFetch, now: rotationZero });
-ok(failedCode.failed === failedCode.attempted, "a non-success per-link result rejects the batch");
-ok(!failedCodeWrite, "a failed per-link result is never stored");
+ok(failedCode.failed === failedCode.attempted, "an all-failed provider result rejects the batch");
+ok(failedCode.reason === "provider:provider-link-failed", "provider failure reason is preserved without leaking response bodies");
+ok(!failedCodeWrite, "an all-failed provider result is never stored");
+
+let mixedStored = [];
+const mixedFetch = async (url, init = {}) => {
+  if (url.includes("/rest/v1/wf_tp_links?") && (!init.method || init.method === "GET")) return response(200, []);
+  if (url.includes("api.travelpayouts.com")) {
+    const body = JSON.parse(init.body);
+    return response(200, {
+      code: "success",
+      result: {
+        marker: body.marker,
+        trs: body.trs,
+        shorten: true,
+        links: body.links.map(({ url }, index) => index === 0
+          ? { url, code: "success", partner_url: "https://tiqets.tp.st/mixed_ok?erid=fixture" }
+          : { url, code: "error", message: "You are not subscribed to this campaign" }),
+      },
+    });
+  }
+  if (url.includes("/rest/v1/wf_tp_links?") && init.method === "POST") {
+    mixedStored = JSON.parse(init.body);
+    return response(201, null);
+  }
+  throw new Error(`unexpected fetch ${url}`);
+};
+const mixed = await provisionTpLinks({ env, sb, fetchImpl: mixedFetch, now: rotationZero });
+ok(mixed.succeeded > 0 && mixed.failed > 0, "one failed provider destination does not discard successful mappings");
+ok(mixed.reason === "provider:not-subscribed", "known per-link provider failure is classified safely");
+ok(mixedStored.length === mixed.succeeded && mixedStored.every((row) => validTpShortUrl(row.short_url)), "only successful validated mappings are stored from a mixed batch");
 
 await provisionTpLinks({ env: {}, sb, fetchImpl }).then(
   () => ok(false, "missing token must fail"),
