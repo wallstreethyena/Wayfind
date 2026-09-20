@@ -51,10 +51,11 @@ sources are reported as degraded, never as complete samples. No subscriptions,
 Places searches, model calls, proxy services or billing setup are added. Existing
 hosting/database capacity is used and is not claimed to be unlimited.
 
-`trend-maintenance` checks native collection freshness. The original CSV handler
-is preserved in `legacy.js` for an explicitly configured CSV installation until
-a native snapshot exists. Production had no native or imported trend data when
-this release was prepared.
+`trend-maintenance` checks native collection freshness when no CSV cadence is
+configured. An explicitly configured CSV installation keeps its original cadence,
+spending validation, expiry and disabled discovery behavior in the same handler.
+Its snapshot selector excludes native rows, so private research cannot displace
+a licensed import. Production had no native or imported trend data when prepared.
 
 ## Verification and operations
 
@@ -62,8 +63,8 @@ this release was prepared.
 lifecycle in the registered file. Native fault/privacy/authentication tests and
 real production-binding tests execute before that original contract. No guard
 exemption or assertion is removed. The new workflow also runs this focused
-contract on relevant pull requests without any database credentials. Full repo
-guards and the Vercel build remain mandatory release gates.
+contract plus trend-integrity checks on relevant pull requests without database
+credentials. Full repo guards and the Vercel build remain release gates.
 
 The Native trends collection workflow runs on relevant main-branch releases,
 or by owner-only manual dispatch on main, using existing repository database

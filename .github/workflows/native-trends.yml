@@ -32,7 +32,9 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
       - name: Native and original source contracts without credentials
-        run: node scripts/check-trend-sources.mjs
+        run: |
+          node scripts/check-trend-sources.mjs
+          node scripts/check-trend-integrity.mjs
   collect:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
