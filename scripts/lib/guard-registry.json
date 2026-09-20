@@ -7592,7 +7592,12 @@
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
-        "githubWorkflows": []
+        "githubWorkflows": [
+          {
+            "file": ".github/workflows/native-trends.yml",
+            "blocking": true
+          }
+        ]
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
@@ -7684,7 +7689,12 @@
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
-        "githubWorkflows": []
+        "githubWorkflows": [
+          {
+            "file": ".github/workflows/native-trends.yml",
+            "blocking": true
+          }
+        ]
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
