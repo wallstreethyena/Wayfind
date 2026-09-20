@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from "react";
 import { emitCommerce, mintClickId, placePageBookHref, commerceHref } from "../../lib/commerce";
 import { withClickId } from "../../lib/hubConversion";
 import { usePinQuarantine } from "../../lib/pinQuarantine";
+import { partnerTicketLabel } from "../../lib/partnerCopy";
 
 export default function PlacePageBookLink({ provider, offerId, contentId, merchant, style }) {
   const clickId = useRef(null);
@@ -51,7 +52,7 @@ export default function PlacePageBookLink({ provider, offerId, contentId, mercha
       }}
       style={style}
     >
-      Tickets · {merchant} ↗
+      {partnerTicketLabel(merchant)}
     </a>
   );
 }

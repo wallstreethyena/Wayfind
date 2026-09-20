@@ -69,6 +69,7 @@ import { toHookLine } from "../../lib/editorialHook.js";
 import useEditorialHooks from "./useEditorialHooks";
 import useMissingPlacePhotos from "./useMissingPlacePhotos";
 import { recommendationIds, uniqueRecommendations } from "../../lib/recommendationDedupe.js";
+import { partnerTicketLabel } from "../../lib/partnerCopy.js";
 
 // Owner: "a little lighter, almost black" — one step off the page's #040810.
 const CARD_BG = "#0B0E15";
@@ -1107,7 +1108,7 @@ export default function BestNearby({
                     award={topPickAward({ category: coarseCat(tagged) || prettyType(p.primary_type), rank: i + 1 })}
                     chips={chips}
                     cta={partner ? {
-                      label: "🎟️ Tickets via " + partner.merchant + " ↗",
+                      label: partnerTicketLabel(partner.merchant),
                       href: commerceHref({ provider: partner.provider, offerId: partner.offerId, surface: "top40_rail", contentId: p.place_id }),
                       external: true,
                       onClick: (e) => {

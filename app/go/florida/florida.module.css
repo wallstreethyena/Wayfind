@@ -174,3 +174,12 @@
 @media(max-width:700px) { .catalogControls { align-items:flex-start; }.catalogControls label { flex:1 0 100%; flex-direction:column; align-items:flex-start; }.catalogControls select { width:100%; }.catalogButton { padding:10px; } }
 
 .catalogRating { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+
+/* Compact mobile section shortcuts, with the next item peeking into view. */
+@media(max-width:700px) {
+  .interests { display:flex; gap:8px; overflow-x:auto; padding:12px 0; border-block:1px solid var(--fl-line); scrollbar-width:thin; scroll-snap-type:x proximity; }
+  .interests a:nth-child(n) { flex:0 0 auto; display:flex; flex-direction:row; align-items:center; justify-content:center; min-height:44px; padding:10px 16px; border:1px solid var(--fl-line); border-radius:999px; background:#101923; scroll-snap-align:start; }
+  .interests strong { font-size:12px; white-space:nowrap; }
+  .interests span { display:none; }
+  .interests a:hover,.interests a:focus-visible { background:#30231d; border-color:var(--fl-orange); text-decoration:none; }
+}

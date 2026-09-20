@@ -56,6 +56,7 @@ import PlaceCardSkeleton from "./PlaceCardSkeleton";
 import { topPickAward } from "../../lib/topPickAward";
 import { settleLoad } from "../../lib/loadState.js";
 import { PLACE_CARD_HEIGHT_PX } from "../../lib/placeCardStandard.js";
+import { partnerTicketLabel } from "../../lib/partnerCopy.js";
 // v8.57 — THIS RAIL PAINTS A SKELETON, SO IT MUST REACH A DECISION.
 // The try/catch/finally below is intact and still does the work. What it could
 // NOT do is see a fetch that neither resolves nor rejects: every await stays
@@ -548,7 +549,7 @@ export default function IntentRailBody({
                   chips={chips}
                   take={toHookLine(hooks[r.id], r.name)}
                   cta={partner ? {
-                    label: "🎟️ Tickets via " + partner.merchant + " ↗",
+                    label: partnerTicketLabel(partner.merchant),
                     href: commerceHref({ provider: partner.provider, offerId: partner.offerId, surface: "intent_rail", contentId: r.id }),
                     external: true,
                     onClick: (e) => {

@@ -43,7 +43,7 @@ ok(/score=\{toDisplayScore\(experienceWayfindScore\(t\)\)\}/.test(rail), "every 
 // ── v6.94: browse first, then book ─────────────────────────────────────────
 ok(/for \(let i = 0; i < 8; i\+\+\)/.test(src), "the date chooser stays focused on the immediate eight-day window");
 ok(src.indexOf("Choose a day") < src.indexOf('ViatorRail title="Bookable experiences near you"'), "date navigation appears before affiliate inventory");
-ok(/const actionLabel = e\.ticketVia \? "Tickets · " \+ e\.ticketVia : e\.ticketed \? "Get tickets"/.test(src), "ticketed event cards expose a clear Get tickets action (naming the merchant when an affiliate sells it)");
+ok(/const actionLabel = e\.ticketVia \? partnerTicketLabel\(e\.ticketVia, \{ product: e\.ticketProduct(?:, arrow: false)? \}\) : e\.ticketed \? "Get tickets"/.test(src), "ticketed event cards use the shared Wayfind-led label (naming the actual merchant and product when an affiliate sells it)");
 ok(/sponsored: !!e\.ticketVia/.test(src), "an affiliate-sold ticket link is marked sponsored");
 ok(/provider: e\.source \|\| null/.test(src), "event actions keep their source identity for saved-card persistence");
 
