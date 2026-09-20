@@ -1660,3 +1660,4 @@ node scripts/check-florida-festivals-import.mjs
 
 # Shared category teardrops: real legend render and browser sprite geometry.
 node scripts/test-map-pin-standard.mjs
+node scripts/test-florida-catalog-location.mjs

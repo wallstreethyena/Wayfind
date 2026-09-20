@@ -166,7 +166,7 @@ function PhotoCredit({ art }) {
   </span>;
 }
 
-function Collection({ children, label, preview = 3 }) {
+function Collection({ children, label, preview = 5 }) {
   const items = Array.isArray(children) ? children.filter(Boolean) : [children];
   return <>
     <div className={styles.grid}>{items.slice(0, preview)}</div>

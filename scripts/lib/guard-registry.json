@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 675,
-    "totalRegistryEntries": 676,
-    "guardsTxtLineCount": 674,
-    "guardsTxtReachedFileCount": 669,
+    "totalOnDiskGuardFiles": 676,
+    "totalRegistryEntries": 677,
+    "guardsTxtLineCount": 675,
+    "guardsTxtReachedFileCount": 670,
     "criticalCount": 83,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 461,
+      "CALL": 462,
       "RENDER": 75,
       "STRUCTURAL": 139,
       "OTHER": 1
@@ -11508,6 +11508,28 @@
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
       "assertionCount": 61,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-florida-catalog-location.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 31,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
