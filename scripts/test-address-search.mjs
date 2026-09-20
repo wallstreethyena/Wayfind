@@ -180,6 +180,15 @@ for (const [query,kind,value] of [['Coffee shop','experience','coffee'],['Pizza'
    assert.equal(state.calls.length,before,name+' uses only already-owned insight for this search');
  }
 }
+for (const [query,outcome] of [['EPCOT','place_opened'],['Disney parks','results_shown']]) {
+ const park={id:'verified-park',name:'EPCOT',lat:28.3747,lng:-81.5494};
+ const {ctx,state}=harness(query,{items:[park]}); await ctx.submitSearch();
+ assert.equal(state.calls.length,1); assert.match(state.calls[0].url,/^\/api\/theme-parks\?/);
+ oneOutcome(state,outcome);
+ assert.equal(outcomes(state)[0].result_source,'owned-theme-parks');
+ if(outcome==='place_opened') assert.equal(state.detail.id,park.id);
+ else assert.equal(state.hookDetail.places[0].id,park.id);
+}
 assert(source.includes('aria-busy={searchBusy}'),'search announces loading');
 assert(source.includes('prefers-reduced-motion') || readFileSync(new URL('../app/components/css.js',import.meta.url),'utf8').includes('prefers-reduced-motion'),'motion respects preference');
 assert(readFileSync(new URL('../middleware.js',import.meta.url),'utf8').includes('"/api/search"'),'free database route keeps full origin guard');
