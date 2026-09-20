@@ -3195,7 +3195,12 @@
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
-        "githubWorkflows": []
+        "githubWorkflows": [
+          {
+            "file": ".github/workflows/remove-search-help-prep.yml",
+            "blocking": true
+          }
+        ]
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
@@ -9637,7 +9642,12 @@
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
-        "githubWorkflows": []
+        "githubWorkflows": [
+          {
+            "file": ".github/workflows/remove-search-help-prep.yml",
+            "blocking": true
+          }
+        ]
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
@@ -12055,7 +12065,12 @@
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
-        "githubWorkflows": []
+        "githubWorkflows": [
+          {
+            "file": ".github/workflows/remove-search-help-prep.yml",
+            "blocking": true
+          }
+        ]
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
@@ -14862,14 +14877,19 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 42,
+      "assertionCount": 49,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
-        "githubWorkflows": []
+        "githubWorkflows": [
+          {
+            "file": ".github/workflows/remove-search-help-prep.yml",
+            "blocking": true
+          }
+        ]
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
