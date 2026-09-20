@@ -18,33 +18,23 @@
 import { useEffect, useState } from "react";
 import { usePosterEvents } from "./usePosterEvents.js";
 import { LIVE_POSTER_TYPE_CONFIG } from "../../lib/liveEventPosterTypes.js";
-import { livePosterArtFor } from "../../lib/livePosterArt.js";
 
-// The synthetic rail object DaypartRail renders. `e` is the event exactly as
-// the pipeline produced it (or lib/eventPoster.js's verbatim passthrough of
-// it); `src` is the tile picture, which is the only thing that varies.
-function tileFor(type, config, e, src, strategy) {
-  return {
-    id: `live-${type}`,
-    title: e.name || config.label,
-    short: [e.venue || e.city, e.date].filter(Boolean).join(" · "),
-    href: e.dest || null,
-    livePosterSrc: src,
-    livePosterType: type,
-    livePosterEventId: e.id || null,
-    livePosterStrategy: strategy,
-    // A LIVE EVENT POSTER'S ANSWER IS THE EVENT'S OWN PAGE, so it uses
-    // the rail's existing `opensPage` opt-in and navigates on click
-    // instead of opening the in-rail drop. Without this the tile opened
-    // a drop of nearby PLACES, which for a reader in a town Wayfind has
-    // not ranked yet read as "Showing Tampa Bay Rays vs. Boston Red Sox
-    // near Parrish -- Wayfind isn't live in Parrish yet": a poster that
-    // advertises a specific game and then answers with an empty list
-    // about somewhere else. The drop is right for a category tile and
-    // wrong for a single dated event.
-    opensPage: true,
-    sponsor: true,
-  };
+// An event id alone does not identify the poster request. Providers can repair
+// an image, destination, date or label while keeping the same id; key those
+// fields so a refreshed event cannot resurrect the previous tile's art/link.
+export function livePosterCandidateKey(candidates) {
+  // These are JSON API records. Keying their full bounded list is both smaller
+  // client code and stricter than maintaining a second projection of fields:
+  // every art, identity, classification or destination repair invalidates it.
+  return JSON.stringify(candidates || []);
+}
+
+// Artwork resolves after the event feed. Keep the key beside the tile so the
+// render that first receives a new feed cannot briefly reveal the previous
+// city's tile while this feed's artwork request is still in flight.
+export function currentLivePosterTile(tileState, candidateKey, pending) {
+  if (pending || !tileState || tileState.candidateKey !== candidateKey) return null;
+  return tileState.tile || null;
 }
 
 // One tile's worth of work: pick this bucket's top event, ask
@@ -62,51 +52,31 @@ function useOneLivePoster(type, center, city) {
   // playground photo as the Concerts poster. When the top event has no usable
   // event artwork the poster walks DOWN the same ranking rather than giving
   // up, so the reader still gets the most relevant event that can be shown
-  // honestly. The walk is bounded so a thin market cannot cost many requests.
-  const MAX_CANDIDATE_EVENTS = 6;
-  const candidates = (config ? byRail?.[config.bucketKey] || [] : []).slice(0, MAX_CANDIDATE_EVENTS);
-  const candidateKey = candidates.map((e) => e.id).join(",");
+  // honestly. Definitive venue/stock/undersized failures do not consume one of
+  // the six expensive server attempts; the raw ranked scan remains finite.
+  // Bound the identity immediately, then load the definitive no-art prefilter
+  // only when this bucket actually has events. The selector keeps the same
+  // ranked top-24 scan and six expensive attempts.
+  const rankedEvents = (config ? byRail?.[config.bucketKey] || [] : []).slice(0, 24);
+  const candidateKey = livePosterCandidateKey(rankedEvents);
   const [tile, setTile] = useState(null);
 
   useEffect(() => {
-    if (!candidates.length) { setTile(null); return undefined; }
+    if (!rankedEvents.length) { setTile(null); return undefined; }
     let cancelled = false;
     (async () => {
-      for (const event of candidates) {
-        if (cancelled) return;
-        // OWNER POSTER ART (lib/livePosterArt.js, 2026-09-18): a baseball game
-        // shows Wayfind's own artwork on the tile. Only the picture changes --
-        // the event, its label and its destination are the same fields the
-        // fitted-art path below uses, and the same eligibility rule applies
-        // (lib/eventPoster.js: no dest or no name, no poster). No fetch here.
-        const ownerArt = livePosterArtFor(type, event);
-        if (ownerArt) {
-          if (!event.dest || !event.name) continue;
-          setTile(tileFor(type, config, event, ownerArt, "owner-art"));
-          return;
-        }
-        let data = null;
-        try {
-          const r = await fetch("/api/live-poster", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ event }),
-          });
-          data = await r.json();
-        } catch {
-          data = null;
-        }
-        if (cancelled) return;
-        if (!data || !data.ok || !data.dataUrl) continue; // no usable art: next event down the ranking
-        setTile(tileFor(type, config, data.event || {}, data.dataUrl, data.strategy || null));
-        return;
+      try {
+        const selection = await import("../../lib/livePosterSelection.js");
+        const nextTile = await selection.resolveLivePosterTile(type, config, rankedEvents, () => cancelled);
+        if (!cancelled) setTile(nextTile ? { candidateKey, tile: nextTile } : null);
+      } catch {
+        if (!cancelled) setTile(null);
       }
-      if (!cancelled) setTile(null); // nothing in this bucket can be shown honestly
     })();
     return () => { cancelled = true; };
   }, [candidateKey, type]);
 
-  return pending ? null : tile;
+  return currentLivePosterTile(tile, candidateKey, pending);
 }
 
 /**

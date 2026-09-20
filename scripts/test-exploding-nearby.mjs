@@ -5,7 +5,7 @@
 import { readFileSync } from "node:fs";
 import { EXPLODING_NEARBY_UNIVERSE, EXPLODING_NEARBY_KEYS, CONCEPTS } from "../lib/trendTaxonomy.js";
 import { governedTrendPlace, hasSpecificTrendEvidence, matchAvailabilityAllows, selectExplodingNearby } from "../lib/explodingNearby.js";
-import { explodingMetroFor, explodingUiStatus, serveExplodingNearby, UNAVAILABLE_COPY, OWNER_LIST_EXPLANATION } from "../lib/explodingNearbyServe.js";
+import { explodingMetroFor, explodingUiErrorCopy, explodingUiStatus, serveExplodingNearby, shouldPaintExplodingEmpty, UNAVAILABLE_COPY, PARTIAL_UNAVAILABLE_COPY, OWNER_LIST_EXPLANATION } from "../lib/explodingNearbyServe.js";
 import { TrendConfigError } from "../lib/trendRights.js";
 import { matchConcept, MATCH_CODES } from "../lib/trendMatch.js";
 import { TREND_EVENTS, SUCCESS_METRICS } from "../lib/trendTelemetry.js";
@@ -330,12 +330,12 @@ const getRoute = route.slice(route.indexOf("export async function GET"));
 // the list could run, and owner-basis matches set public_explanation:null
 // so selectExplodingNearby dropped them. The law moved into
 // serveExplodingNearby (executed below). What is pinned now:
-//   1. GET calls serveExplodingNearby — it does not catch-and-503;
+//   1. GET calls serveExplodingNearby — it does not fail before the floor;
 //   2. snapshot cadence is still validated BEFORE private trend tables;
 //   3. owner basis still runs matchTopicToInventory;
 //   4. a stale snapshot is still refused loudly;
 //   5. owner-list matches carry a controlled explanation (not a stat).
-ok(/serveExplodingNearby\s*\(/.test(getRoute), "GET delegates to serveExplodingNearby so a 502/503 catch cannot return as the happy path");
+ok(/serveExplodingNearby\s*\(/.test(getRoute), "GET delegates to serveExplodingNearby so configuration failure cannot bypass the owner floor");
 ok(serve.indexOf("const cadence = importCadence()") > -1 && serve.indexOf("const cadence = importCadence()") < serve.indexOf("wf_trend_snapshots"), "the snapshot basis validates freshness configuration before its private trend tables are read");
 ok(/matchTopicToInventory\(t\.key, inventory, \{ metro \}\)/.test(serve), "the owner basis runs the SAME evidence-gated matcher — nothing serves without proof");
 ok(/ownerTopics\(/.test(serve) && /EXPLODING_NEARBY_UNIVERSE/.test(serve), "owner-basis topics come from the owner's licensed universe, in his rank order");
@@ -352,14 +352,49 @@ const cfgMiss = await serveExplodingNearby({
   lat: 27.5859, lng: -82.4254,
   readRows: async () => { throw new TrendConfigError("SUPABASE_URL", "is not set"); },
 });
-ok(cfgMiss.httpStatus === 200 && cfgMiss.status === "no_verified_inventory",
-  "a missing secret fail-softs to honest empty, never 503");
+ok(cfgMiss.httpStatus === 503 && cfgMiss.status === "trend_configuration_error" && /SUPABASE_URL/.test(cfgMiss.error),
+  "a missing secret fails loudly and names its configuration instead of impersonating empty inventory");
 ok(explodingUiStatus({ status: "trend_data_error", error: UNAVAILABLE_COPY, trends: [] }).status === "no_verified_inventory",
-  "the rail remaps a 502-shaped body to honest empty while the owner list exists");
+  "a primary-walk error defers to the owner floor while that fallback remains untried");
+const exhaustedFloor = explodingUiStatus({
+  status: "trend_data_error", error: UNAVAILABLE_COPY, trends: [], ownerFloorFailed: true,
+});
+ok(exhaustedFloor.status === "trend_data_error" && exhaustedFloor.error === UNAVAILABLE_COPY,
+  "a failed Google walk stays an error after the owner-floor request also fails");
+for (const status of ["no_verified_inventory", "ok"]) {
+  const failedHttp = explodingUiStatus({ status, trends: [], ownerFloorFailed: true });
+  ok(failedHttp.status === "trend_data_error" && failedHttp.error === UNAVAILABLE_COPY,
+    `a failed owner-floor HTTP response cannot paint its ${status} body as success`);
+}
+ok(explodingUiStatus({ status: "no_verified_inventory", trends: [] }).status === "no_verified_inventory",
+  "a successful owner-floor response can still report an honest verified-inventory empty");
+ok(shouldPaintExplodingEmpty({ status: "no_verified_inventory", hasRankedFallback: false }) === true,
+  "the specialized trend module keeps genuine empty copy when the parent drop has no ranked cards");
+ok(shouldPaintExplodingEmpty({ status: "no_verified_inventory", hasRankedFallback: true }) === false,
+  "the specialized trend module suppresses contradictory empty copy when ranked fallback cards are visible");
+ok(shouldPaintExplodingEmpty({ status: "trend_data_error", hasRankedFallback: true }) === false,
+  "ranked fallback cards do not convert or consume a genuine trend error state");
+ok(explodingUiErrorCopy({ error: "rate limited", ownerFloorFailed: true, hasRankedFallback: true }) === PARTIAL_UNAVAILABLE_COPY,
+  "a failed optional trend module uses contextual reader copy while ranked cards remain available");
+ok(explodingUiErrorCopy({ error: "SUPABASE_SERVICE_ROLE_KEY is not set", ownerFloorFailed: true }) === UNAVAILABLE_COPY,
+  "provider and configuration details stay out of reader copy when no ranked fallback is available");
 
 const ui = read("app/components/ExplodingNearby.js");
 ok(ui.includes("loadProvidedTrendList") && ui.includes("/api/trends/nearby") && ui.includes("explodingUiStatus"),
-  "the homepage walks the supplied list first, then the owner-list nearby floor; 502/503 is not the paint path");
+  "the homepage walks the supplied list first, then consults the owner-list nearby floor before painting an error");
+ok(ui.includes("explodingUiErrorCopy") && ui.includes("{errorCopy}"),
+  "the reader-facing alert uses normalized copy rather than the raw owner-floor response error");
+ok(/if \(!r\.ok\) return \{ ok: false, body \}/.test(ui) && /ownerFloorFailed:\s*result\.ownerFloorFailed/.test(ui),
+  "the homepage distinguishes a failed owner-floor HTTP response through the final paint from a successful empty response");
+ok(/const floor = await ownerFloor\(\);\s*if \(ctrl\.signal\.aborted\) return;\s*if \(floor\.ok\)/.test(ui),
+  "the owner-floor success tail rechecks cancellation before a prior location can publish stale results");
+ok(/let primaryAccepting = true;[\s\S]*onPartial: \(body\) => \{\s*if \(!primaryAccepting \|\| ctrl\.signal\.aborted\) return;[\s\S]*\.then\(async \(settled\) => \{\s*primaryAccepting = false;/.test(ui),
+  "the bounded primary walk closes its partial-result gate before processing a terminal decision");
+ok(/\.catch\(\(\) => \{\s*primaryAccepting = false;\s*if \(ctrl\.signal\.aborted\) return;/.test(ui),
+  "the terminal catch cannot update state after unmount or a location change");
+const daypart = read("app/components/DaypartRail.js");
+ok(/<ExplodingNearby[\s\S]{0,120}hasRankedFallback=\{dropList\.length > 0\}/.test(daypart),
+  "the Trending parent tells its specialized module when the ranked place rail is visibly populated");
 for (const event of [
   "exploding_section_impression", "trend_impression", "trend_expand", "primary_trend_card_click",
   "trend_horizontal_scroll", "additional_trend_place_click", "place_detail_view", "trend_card_save",

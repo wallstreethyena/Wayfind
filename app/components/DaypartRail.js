@@ -1981,6 +1981,7 @@ export default function DaypartRail({
           {selRail && selRail.id === "trending" ? (
             <ExplodingNearby
               active
+              hasRankedFallback={dropList.length > 0}
               center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
               city={shown.cityLabel || ""}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}

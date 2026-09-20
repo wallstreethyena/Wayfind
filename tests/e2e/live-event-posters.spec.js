@@ -35,11 +35,13 @@ const CITIES = {
 function eventFixture(city, kind) {
   const c = CITIES[city];
   const base = kind === "sports" ? c.sports : c.music;
+  const image = `https://s1.ticketm.net/dam/a/${base.id}/event_TABLET_LANDSCAPE_LARGE_16_9.jpg`;
   return {
     id: base.id, name: base.name, date: D1, time: "19:00", venue: base.venue,
     city: c.label.split(",")[0], lat: c.lat, lng: c.lng,
     segment: kind === "sports" ? "Sports" : "Music", genre: kind === "sports" ? "Baseball" : "Rock",
-    image: null, price: "$20", url: `https://www.ticketmaster.com/event/${base.id}`,
+    image, imageVariants: [{ url: image, ratio: "16_9", width: 2048, height: 1152 }],
+    price: "$20", url: `https://www.ticketmaster.com/event/${base.id}`,
     ticketed: true, source: "Ticketmaster",
     dest: `https://www.ticketmaster.com/event/${base.id}`, destKind: "ticket",
   };
@@ -120,6 +122,19 @@ async function pickCityFromSearch(page, city) {
   await option.click();
 }
 
+// Live posters now ride the ordinary DaypartRail track as synthetic rails.
+// Their stable rendered identity is the rail tile's data-id; the deleted
+// standalone LiveEventPoster component's data-live-poster-* attributes no
+// longer exist. Read the real link inside the tile so these checks also prove
+// the visible event and tap destination changed with the active location.
+function livePoster(page, type) {
+  return page.locator(`[data-id="live-${type}"]`);
+}
+
+function livePosterLink(page, type) {
+  return livePoster(page, type).locator("a.wf8-tlink");
+}
+
 test.describe("live event posters follow Wayfind's one canonical location", () => {
   test("Bradenton location produces Bradenton-scoped Sports and Concerts posters", async ({ page }) => {
     const seen = [];
@@ -128,12 +143,14 @@ test.describe("live event posters follow Wayfind's one canonical location", () =
     await routeLivePoster(page);
     await page.goto("/");
 
-    const sportsPoster = page.locator('[data-live-poster-type="sports"]');
-    const concertsPoster = page.locator('[data-live-poster-type="concerts"]');
+    const sportsPoster = livePoster(page, "sports");
+    const concertsPoster = livePoster(page, "concerts");
     await expect(sportsPoster).toBeVisible({ timeout: 15_000 });
     await expect(concertsPoster).toBeVisible({ timeout: 15_000 });
-    await expect(sportsPoster).toHaveAttribute("data-live-poster-event-id", "s_brd");
-    await expect(concertsPoster).toHaveAttribute("data-live-poster-event-id", "m_brd");
+    await expect(livePosterLink(page, "sports")).toHaveAttribute("href", eventFixture("bradenton", "sports").dest);
+    await expect(livePosterLink(page, "sports")).toHaveAttribute("aria-label", new RegExp(CITIES.bradenton.sports.name));
+    await expect(livePosterLink(page, "concerts")).toHaveAttribute("href", eventFixture("bradenton", "music").dest);
+    await expect(livePosterLink(page, "concerts")).toHaveAttribute("aria-label", new RegExp(CITIES.bradenton.music.name));
 
     // Prove the coordinates actually sent match the location shown in the
     // selector, not just that something rendered.
@@ -160,8 +177,8 @@ test.describe("live event posters follow Wayfind's one canonical location", () =
     await routePlacesSearchTo(page, "tampa");
     await page.goto("/");
 
-    const sportsPoster = page.locator('[data-live-poster-type="sports"]');
-    await expect(sportsPoster).toHaveAttribute("data-live-poster-event-id", "s_brd", { timeout: 15_000 });
+    const sportsPoster = livePoster(page, "sports");
+    await expect(livePosterLink(page, "sports")).toHaveAttribute("href", eventFixture("bradenton", "sports").dest, { timeout: 15_000 });
     const pathBefore = new URL(page.url()).pathname;
 
     currentCity = "tampa";
@@ -169,9 +186,11 @@ test.describe("live event posters follow Wayfind's one canonical location", () =
 
     // Same document -- proves this was a live state change, not a reload.
     expect(new URL(page.url()).pathname).toBe(pathBefore);
-    const concertsPoster = page.locator('[data-live-poster-type="concerts"]');
-    await expect(sportsPoster).toHaveAttribute("data-live-poster-event-id", "s_tpa", { timeout: 15_000 });
-    await expect(concertsPoster).toHaveAttribute("data-live-poster-event-id", "m_tpa", { timeout: 15_000 });
+    const concertsPoster = livePoster(page, "concerts");
+    await expect(livePosterLink(page, "sports")).toHaveAttribute("href", eventFixture("tampa", "sports").dest, { timeout: 15_000 });
+    await expect(livePosterLink(page, "sports")).toHaveAttribute("aria-label", new RegExp(CITIES.tampa.sports.name));
+    await expect(livePosterLink(page, "concerts")).toHaveAttribute("href", eventFixture("tampa", "music").dest, { timeout: 15_000 });
+    await expect(concertsPoster).toBeVisible();
     const tampaReq = seen.filter((r) => r.city === "tampa").pop();
     expect(Number(tampaReq.lat)).toBeCloseTo(CITIES.tampa.lat, 1);
     expect(Number(tampaReq.lng)).toBeCloseTo(CITIES.tampa.lng, 1);
@@ -190,15 +209,17 @@ test.describe("live event posters follow Wayfind's one canonical location", () =
     await routePlacesSearchTo(page, "orlando");
     await page.goto("/");
 
-    const sportsPoster = page.locator('[data-live-poster-type="sports"]');
-    const concertsPoster = page.locator('[data-live-poster-type="concerts"]');
-    await expect(sportsPoster).toHaveAttribute("data-live-poster-event-id", "s_tpa", { timeout: 15_000 });
+    const sportsPoster = livePoster(page, "sports");
+    const concertsPoster = livePoster(page, "concerts");
+    await expect(livePosterLink(page, "sports")).toHaveAttribute("href", eventFixture("tampa", "sports").dest, { timeout: 15_000 });
 
     currentCity = "orlando";
     await pickCityFromSearch(page, "orlando");
 
-    await expect(sportsPoster).toHaveAttribute("data-live-poster-event-id", "s_orl", { timeout: 15_000 });
-    await expect(concertsPoster).toHaveAttribute("data-live-poster-event-id", "m_orl", { timeout: 15_000 });
+    await expect(livePosterLink(page, "sports")).toHaveAttribute("href", eventFixture("orlando", "sports").dest, { timeout: 15_000 });
+    await expect(livePosterLink(page, "concerts")).toHaveAttribute("href", eventFixture("orlando", "music").dest, { timeout: 15_000 });
+    await expect(sportsPoster).toBeVisible();
+    await expect(concertsPoster).toBeVisible();
   });
 
   // The exact race from the spec: "Bradenton request starts, user changes to
@@ -228,13 +249,14 @@ test.describe("live event posters follow Wayfind's one canonical location", () =
     // Switch to Tampa WHILE the slow Bradenton request is still pending.
     await pickCityFromSearch(page, "tampa");
 
-    const sportsPoster = page.locator('[data-live-poster-type="sports"]');
-    await expect(sportsPoster).toHaveAttribute("data-live-poster-event-id", "s_tpa", { timeout: 15_000 });
+    const sportsPoster = livePoster(page, "sports");
+    await expect(livePosterLink(page, "sports")).toHaveAttribute("href", eventFixture("tampa", "sports").dest, { timeout: 15_000 });
 
     // Wait out the slow Bradenton response's full delay, then confirm it did
     // NOT win the race and silently replace Tampa.
     await page.waitForTimeout(2000);
-    await expect(sportsPoster).toHaveAttribute("data-live-poster-event-id", "s_tpa");
+    await expect(livePosterLink(page, "sports")).toHaveAttribute("href", eventFixture("tampa", "sports").dest);
+    await expect(sportsPoster).toBeVisible();
   });
 
   test("an empty Sports result does not hide Concerts, and vice versa", async ({ page }) => {
@@ -246,7 +268,8 @@ test.describe("live event posters follow Wayfind's one canonical location", () =
     await routeLivePoster(page);
     await page.goto("/");
 
-    await expect(page.locator('[data-live-poster-type="sports"]')).toHaveCount(0, { timeout: 15_000 });
-    await expect(page.locator('[data-live-poster-type="concerts"]')).toBeVisible({ timeout: 15_000 });
+    await expect(livePoster(page, "sports")).toHaveCount(0, { timeout: 15_000 });
+    await expect(livePoster(page, "concerts")).toBeVisible({ timeout: 15_000 });
+    await expect(livePosterLink(page, "concerts")).toHaveAttribute("href", eventFixture("bradenton", "music").dest);
   });
 });

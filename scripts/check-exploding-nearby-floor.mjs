@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * check-exploding-nearby-floor — Parrish cannot paint
- * "Trend recommendations are temporarily unavailable." while the owner
- * list still exists.
+ * check-exploding-nearby-floor — Parrish consults the owner-list floor before
+ * painting an error, while configuration/read failures remain distinguishable
+ * from a successful inventory read with no matches.
  *
  * THE LIVE FAIL (owner, 2026-08-25, Food home, Parrish):
  *   Section title: "Showing Exploding Trends Near You near Parrish"
@@ -12,9 +12,10 @@
  *
  * Two cooperating defects, both executed here rather than grepped:
  *
- *   1. /api/trends/nearby 502/503'd before the owner list could run.
- *      serverEnv() threw TrendConfigError; any later inventory/metro/match
- *      throw became trend_data_error. Both returned that sentence.
+ *   1. /api/trends/nearby 502/503'd before the owner list could run. The fix
+ *      moved configuration failure inside serveExplodingNearby so the floor
+ *      gets a chance. If that same failure prevents the floor inventory read,
+ *      AGENTS §5 requires a loud operator error rather than a plausible empty.
  *
  *   2. ExplodingNearby treated 502/503 / a thrown Google walk as the happy
  *      path for that sentence. The owner-list floor never got a chance.
@@ -69,38 +70,26 @@ ok(metroLaw(explodingMetroFor), "the metro law holds for every Parrish/Bradenton
 ok(!metroLaw(() => null), "red-prove: a metroFor that misses Parrish fails the law");
 ok(!metroLaw(() => "tampa"), "red-prove: mapping Parrish to tampa fails the law");
 
-// ── 2. Owner-list floor, EXECUTED against a missing/invalid config. ──
+// ── 2. Owner-list floor, EXECUTED against failure and verified empty. ──
 const PARRISH_PIN = PARRISH[0];
 ok(ownerListExists(EXPLODING_NEARBY_UNIVERSE), "positive control: the owner list is in the repo");
 ok(UNAVAILABLE_COPY === "Trend recommendations are temporarily unavailable.",
   "the unavailable sentence is the one the owner photographed");
-
-function isFailSoft(res) {
-  if (!res) return false;
-  if (res.httpStatus >= 500) return false;
-  if (res.status === "trend_configuration_error" || res.status === "trend_data_error") return false;
-  if (String(res.error || "") === UNAVAILABLE_COPY) return false;
-  return res.status === "no_verified_inventory" || res.status === "ok";
-}
 
 const configMiss = await serveExplodingNearby({
   lat: PARRISH_PIN.lat, lng: PARRISH_PIN.lng,
   readRows: async () => { throw new TrendConfigError("SUPABASE_URL", "is not set for the Exploding Near You server read"); },
 });
 ok(configMiss.metro === "manatee-sarasota", "config-miss path still resolved Parrish to manatee-sarasota");
-ok(isFailSoft(configMiss),
-  `missing SUPABASE_URL fail-softs (got http ${configMiss.httpStatus} status=${configMiss.status} error=${configMiss.error})`);
-ok(configMiss.status === "no_verified_inventory" && configMiss.httpStatus === 200,
-  "missing config is honest empty, never 503 trend_configuration_error");
+ok(configMiss.status === "trend_configuration_error" && configMiss.httpStatus === 503 && /SUPABASE_URL/.test(configMiss.error),
+  "missing config is a loud 503 that names the absent variable, never plausible empty inventory");
 
 const storeFail = await serveExplodingNearby({
   lat: PARRISH_PIN.lat, lng: PARRISH_PIN.lng,
   readRows: async () => { throw new Error("trend store read failed (502)"); },
 });
-ok(isFailSoft(storeFail),
-  `a thrown inventory read fail-softs (got http ${storeFail.httpStatus} status=${storeFail.status})`);
-ok(storeFail.status === "no_verified_inventory" && storeFail.httpStatus === 200,
-  "a dead store is honest empty, never 502 trend_data_error");
+ok(storeFail.status === "trend_data_error" && storeFail.httpStatus === 503 && storeFail.error === UNAVAILABLE_COPY,
+  "a dead inventory store is a loud 503, never plausible empty inventory");
 
 const emptyInv = await serveExplodingNearby({
   lat: PARRISH_PIN.lat, lng: PARRISH_PIN.lng,
@@ -143,11 +132,6 @@ ok(Array.isArray(floorCards.trends) && floorCards.trends.some((t) => t.conceptKe
   "Parrish owner-list floor surfaces smash burgers from verified inventory — not the unavailable sentence");
 ok(floorCards.metro === "manatee-sarasota", "the successful floor names metro manatee-sarasota");
 
-ok(!isFailSoft({ httpStatus: 503, status: "trend_configuration_error", error: UNAVAILABLE_COPY }),
-  "red-prove: a 503 with the unavailable sentence fails the floor law");
-ok(!isFailSoft({ httpStatus: 502, status: "trend_data_error", error: UNAVAILABLE_COPY }),
-  "red-prove: a 502 with the unavailable sentence fails the floor law");
-
 const noUniverse = await serveExplodingNearby({
   lat: PARRISH_PIN.lat, lng: PARRISH_PIN.lng,
   readRows: async () => { throw new TrendConfigError("SUPABASE_URL", "is not set"); },
@@ -156,8 +140,8 @@ const noUniverse = await serveExplodingNearby({
 ok(noUniverse.httpStatus >= 500 && noUniverse.error === UNAVAILABLE_COPY,
   "unavailable is lawful only when the owner list itself is gone");
 
-// ── 3. UI paint law, EXECUTED. 502/503 is not the happy path. ──
-function unavailableUnreachable(fn, universe) {
+// ── 3. UI paint law, EXECUTED. Primary failure must try the floor first. ──
+function primaryErrorDefersToFloor(fn, universe) {
   const samples = [
     { status: "trend_data_error", error: UNAVAILABLE_COPY, trends: [] },
     { status: "trend_configuration_error", error: UNAVAILABLE_COPY, trends: [] },
@@ -172,10 +156,17 @@ function unavailableUnreachable(fn, universe) {
   });
 }
 
-ok(unavailableUnreachable(explodingUiStatus, EXPLODING_NEARBY_UNIVERSE),
-  "ExplodingNearby cannot paint the unavailable sentence while owner-list topics exist");
-ok(!unavailableUnreachable(explodingUiStatus, []),
-  "red-prove: with the owner list gone, the unavailable sentence is reachable");
+ok(primaryErrorDefersToFloor(explodingUiStatus, EXPLODING_NEARBY_UNIVERSE),
+  "ExplodingNearby defers a primary error while the owner floor remains untried");
+ok(!primaryErrorDefersToFloor(explodingUiStatus, []),
+  "red-prove: with no owner floor to try, the primary error remains reachable");
+const exhaustedFloor = explodingUiStatus({
+  status: "trend_data_error", error: UNAVAILABLE_COPY, trends: [], ownerFloorFailed: true,
+});
+ok(exhaustedFloor.status === "trend_data_error" && exhaustedFloor.error === UNAVAILABLE_COPY,
+  "an attempted, failed owner floor remains an actionable error rather than plausible empty inventory");
+ok(explodingUiStatus({ status: "no_verified_inventory", trends: [], ownerFloorFailed: true }).status === "trend_data_error",
+  "a non-2xx owner-floor response cannot smuggle an empty-shaped body into the product-empty state");
 ok(explodingUiStatus({ status: "ok", trends: [{ conceptKey: "smash_burgers", matches: [{ id: "x" }] }] }).status === "ok",
   "a real card list still paints as ok");
 ok(explodingUiStatus({ status: "unsupported_location", trends: [] }).status === "unsupported_location",
@@ -196,7 +187,7 @@ ok(!/status:\s*["']trend_data_error["']/.test(route),
   "the route no longer returns trend_data_error (that 502 was the live sentence)");
 
 const ui = strip(read("app/components/ExplodingNearby.js"));
-ok(/explodingUiStatus\s*\(/.test(ui), "ExplodingNearby calls explodingUiStatus — 502/503 is not a JSX happy path");
+ok(/explodingUiStatus\s*\(/.test(ui), "ExplodingNearby calls explodingUiStatus for both primary and owner-floor outcomes");
 ok(/needsOwnerFloor\s*\(/.test(ui) && /\/api\/trends\/nearby/.test(ui),
   "a failed Google walk fetches the owner-list nearby floor");
 ok((ui.match(/UNAVAILABLE_COPY/g) || []).length >= 1,
@@ -209,4 +200,4 @@ ok(typeof OWNER_LIST_EXPLANATION === "string" && OWNER_LIST_EXPLANATION.length >
 ok(!/650%|1,040%|search(?:es)? up/i.test(OWNER_LIST_EXPLANATION),
   "the owner-list explanation does not invent provider momentum or a search-data stat");
 
-console.log(`check-exploding-nearby-floor: OK — ${pass} assertions (Parrish/Bradenton metro, config/store fail-soft, 502/503 is not the UI happy path, red-proved)`);
+console.log(`check-exploding-nearby-floor: OK — ${pass} assertions (Parrish/Bradenton metro, readable owner-list floor, loud config/store failure, red-proved)`);
