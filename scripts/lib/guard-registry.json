@@ -34,8 +34,8 @@
     "criticalCount": 83,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 467,
-      "RENDER": 77,
+      "CALL": 466,
+      "RENDER": 78,
       "STRUCTURAL": 139,
       "OTHER": 1
     }
@@ -9782,9 +9782,9 @@
     {
       "file": "scripts/test-command-center-feedback.mjs",
       "npmScript": null,
-      "class": "CALL",
+      "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 18,
+      "assertionCount": 21,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

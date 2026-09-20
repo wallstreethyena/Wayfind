@@ -2,6 +2,9 @@
 // Proves the owner panel receives a bounded, deliberately narrow read model
 // and that untrusted saved text stays ordinary rendered text.
 
+import React from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import ts from "typescript";
 import { readFileSync } from "node:fs";
 import { feedbackInbox } from "../lib/commandCenter/sources/firstParty.js";
 
@@ -71,6 +74,21 @@ ok(ui.includes('usePanel("feedback", auth') && ui.includes('id="feedback"'), "fe
 ok(ui.includes("{row.message}</p>") && !ui.includes("dangerouslySetInnerHTML"), "feedback panel: saved text is rendered as text, never executable HTML");
 ok(ui.includes('row.handled ? "Handled" : "Needs review"') && ui.includes("latest 50 saved messages"), "feedback panel: handled state and visible limit are explicit");
 ok(ui.includes("saved feedback is the source of truth, while email notifications are secondary"), "feedback panel: email is labeled secondary to saved feedback");
+
+// Render the actual inbox section with only its fetch hook and shared visual
+// wrappers replaced. Stored text must survive as text, never an HTML element.
+const tree = ts.createSourceFile('ui.jsx', ui, ts.ScriptTarget.Latest, true, ts.ScriptKind.JSX);
+const section = tree.statements.find(n => ts.isFunctionDeclaration(n) && n.name?.text === 'FeedbackSection');
+const compiled = ts.transpileModule(section.getText(tree), {compilerOptions:{jsx:ts.JsxEmit.React,target:ts.ScriptTarget.ES2022}}).outputText;
+const wrapper = ({children}) => React.createElement('div',null,children);
+const context = {React, usePanel:()=>({data:{data:{inbox:report}}}), dget:(o,p,f)=>p.split('.').reduce((v,k)=>v?.[k],o)??f,
+ Section:wrapper,Card:wrapper,PanelError:wrapper,NotConnected:wrapper,EmptyNote:wrapper,SourceBadge:wrapper,
+ StatusPill:({label})=>React.createElement('span',null,label),C:{},RADII:{}};
+const Inbox = new Function('context', `with(context){${compiled}; return FeedbackSection;}`)(context);
+const html = renderToStaticMarkup(React.createElement(Inbox,{auth:{}}));
+ok(html.includes('Recommendation') && html.includes('Harbor Cafe'), 'real inbox render shows recommendation context');
+ok(html.includes('Needs review') && html.includes('Handled'), 'real inbox render shows review status');
+ok(html.includes('&lt;img') && !html.includes('<img'), 'real inbox render escapes malicious note text');
 
 if (failures) process.exit(1);
 console.log("test-command-center-feedback: OK");

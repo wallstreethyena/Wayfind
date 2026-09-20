@@ -66,7 +66,7 @@ function FeedbackControl({ pathname }) {
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [open]);
   return <>
-    <style>{CSS}</style>
+    <style dangerouslySetInnerHTML={{ __html: CSS }} />
     <button ref={triggerRef} type="button" className="wf-site-feedback-trigger" aria-expanded={open} aria-controls={panelId} onClick={() => open ? closeFeedback() : setOpen(true)} style={open ? { visibility: "hidden" } : undefined}>Feedback</button>
     {open && <SiteFeedbackPanel pathname={pathname} panelId={panelId} onClose={closeFeedback} />}
   </>;
