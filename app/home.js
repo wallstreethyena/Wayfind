@@ -38,7 +38,7 @@ import { eventWhenLabel } from "../lib/eventTime";
 import { editorialLine } from "../lib/editorialHook";
 import { topPickAward } from "../lib/topPickAward";
 import { eventCategoryArt } from "../lib/eventCategoryArt";
-import { markSessionStart, markShareOpen, checkShareReturn } from "../lib/shareMetrics";
+import { startSessionRecording, markShareOpen, checkShareReturn } from "../lib/shareMetrics";
 import { priceWord } from "../lib/price";
 // v6.51 PERF: defers decorative hero-photo fetches off the critical path.
 // v8: onIdle's last callers were the two decorative hero photo fetches, which
@@ -6311,8 +6311,15 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     }).catch(() => {});
   }, []);
   useEffect(() => { try { window.__WF_CTX = { signedIn: !!user, locPermission: deviceLoc ? "granted" : locApprox ? "ip-fallback" : "pending" }; } catch (e) {} }, [user, deviceLoc, locApprox]);
-  // Screen views: this app switches screens via state, not URLs, so PostHog page autocapture misses them.
-  useEffect(() => { try { logEvent("screen_view", null, { screen }); } catch (e) {} }, [screen]);
+  // Screen views: this app switches screens via state, not URLs, so PostHog
+  // page autocapture misses them. Wait for the lazy first-party writer and
+  // emit to every sink once; firing on mount and replaying at readiness would
+  // repair Supabase by double-counting the same view in PostHog and Google.
+  useEffect(() => {
+    if (!supabaseReady) return;
+    try { logEvent("screen_view", null, { screen }); } catch (e) {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen, supabaseReady]);
   function logEvent(action, place, extra) {
     try { if (place && place.type) tasteBump(place); } catch (e) {}
     if (skipOwnerOrBotAnalytics(user)) return;
@@ -6332,7 +6339,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // Strictly additive: no existing event name, payload, or history changes.
     try { noteSessionProgress(action, Object.assign({}, extra || {}, attributionParams(), _exp)); } catch (e2) {}
     try {
-      if (!supabase) return;
+      if (!supabase) return false;
       const row = {
         action,
         place_id: (place && place.id) || (extra && extra.place_id) || null,
@@ -6341,8 +6348,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         user_id: user ? user.id : null,
         meta: extra || null,
       };
-      supabase.from("events").insert(row).then(() => {}, () => {});
-    } catch (e) {}
+      return supabase.from("events").insert(row).then(({ error }) => !error, () => false);
+    } catch (e) { return false; }
   }
   // Auto folders (Liked / Disliked / Shared). Saved on the server for signed-in users via saved_places reserved names; likes also use the existing likes table.
   function svFolderUpsert(listName, p) {
@@ -6969,12 +6976,18 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   }, [supabaseReady]);
 
   // Part 4 measurement: count one "session" per tab (share_rate denominator) and
-  // fire "share_return" if a shared-card visitor is back within 7 days. Both are
-  // guarded/no-op-safe; `share` and `share_open` are already logged elsewhere.
+  // fire "share_return" if a shared-card visitor is back within 7 days. Wait for
+  // the lazy Supabase client: running this only on mount used to mark wf_sess
+  // before logEvent had a client, suppressing every retry and reporting zero
+  // sessions beside real active devices. A rejected insert gets two bounded
+  // retries; markSessionStart writes the duplicate guard only after success.
   useEffect(() => {
-    try { markSessionStart(logEvent); checkShareReturn(logEvent); } catch (e) {}
+    if (!supabaseReady) return;
+    const stopSessionRecording = startSessionRecording(true, logEvent);
+    try { checkShareReturn(logEvent); } catch (e) {}
+    return stopSessionRecording;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [supabaseReady]);
   const listsHydrated = useRef(false);
   useEffect(() => {
     // Skip the first run so default empty lists never overwrite real saved data

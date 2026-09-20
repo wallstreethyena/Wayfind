@@ -26,6 +26,18 @@ ok(report.cards.every((card) => card.status === "routine"), "healthy routine rev
 ok(report.metrics.affiliate.confirmedBookings === 2 && report.metrics.affiliate.paidEarningsUsd === 14.5, "provider-confirmed bookings and paid earnings are reported");
 ok(report.workingWell.some((line) => /browsers and devices/.test(line)) && report.workingWell.some((line) => /paid earnings/.test(line)), "positive measured results appear in Working well");
 
+// Reproduce the owner's screenshot: active browsers cannot certify healthy
+// visit tracking when the visit counter reports zero.
+const visitGap = normalResults();
+visitGap.kpis.data = { active_devices: 43, sessions: 0, detail_opens: 18, saves: 0, shares: 0, directions: 0, out_clicks: 0 };
+const gapReport = buildOwnerBriefing({ now, results: visitGap });
+ok(gapReport.summary.status === "attention" && gapReport.cards[0].id === "traffic-session-gap", "active browsers with zero recorded visits prioritize the tracking gap");
+ok(gapReport.cards.length === 3 && !gapReport.cards.some((card) => card.id === "routine-traffic"), "tracking repair replaces the misleading audience-quality recommendation");
+ok(gapReport.metrics.traffic.sessions === 0 && !gapReport.workingWell.some((line) => /0 visits/.test(line)), "do not invent visits or praise inconsistent traffic");
+const emptyTraffic = normalResults();
+emptyTraffic.kpis.data = { active_devices: 0, sessions: 0, detail_opens: 0, saves: 0, shares: 0, directions: 0, out_clicks: 0 };
+ok(!buildOwnerBriefing({ now, results: emptyTraffic }).needsChanges.some((card) => card.id === "traffic-session-gap"), "a measured empty traffic window is not a visit tracking defect");
+
 const nullResults = normalResults();
 nullResults.kpis.data.active_devices = null;
 nullResults.kpis.data.shares = null;
