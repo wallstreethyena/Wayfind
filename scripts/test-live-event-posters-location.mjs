@@ -204,37 +204,40 @@ check(() => {
 // venue/stock URLs, provider placeholder art, or variants whose declared
 // dimensions cannot retain the server's 640px minimum after a 9:16 crop.
 check(() => {
-  const venue = (id) => makeEvent({ id, segment: "Music", image: `/api/photo?place=${id}&w=800` });
-  const placeholder = (id) => makeEvent({ id, segment: "Music", image: `https://s1.ticketm.net/dam/c/${id}/generic.jpg` });
-  const tooSmall = (id) => makeEvent({ id, segment: "Music", image: `https://s1.ticketm.net/dam/a/${id}/small.jpg`, imageVariants: [
+  const venue = (id) => makeEvent({ id, segment: "Sports", genre: "Football", image: `/api/photo?place=${id}&w=800` });
+  const placeholder = (id) => makeEvent({ id, segment: "Sports", genre: "Football", image: `https://s1.ticketm.net/dam/c/${id}/generic.jpg` });
+  const tooSmall = (id) => makeEvent({ id, segment: "Sports", genre: "Football", image: `https://s1.ticketm.net/dam/a/${id}/small.jpg`, imageVariants: [
     { url: `https://s1.ticketm.net/dam/a/${id}/small.jpg`, width: 1024, height: 576, ratio: "16_9" },
   ] });
-  const valid7 = makeEvent({ id: "valid7", name: "Rank Seven Concert", segment: "Music", image: "https://s1.ticketm.net/dam/a/valid7/large.jpg", imageVariants: [
+  const valid7 = makeEvent({ id: "valid7", name: "Rank Seven Sport", segment: "Sports", genre: "Soccer", image: "https://s1.ticketm.net/dam/a/valid7/large.jpg", imageVariants: [
     { url: "https://s1.ticketm.net/dam/a/valid7/large.jpg", width: 2048, height: 1152, ratio: "16_9" },
   ] });
   const ranked = [venue("v1"), placeholder("p2"), tooSmall("s3"), venue("v4"), placeholder("p5"), tooSmall("s6"), valid7];
   assert.equal(LIVE_POSTER_MAX_ATTEMPTS, 6, "the expensive image-processing budget must remain six");
   assert.equal(LIVE_POSTER_MAX_RANKED_SCAN, 24, "the cheap ranked scan must remain explicitly bounded");
-  assert.deepEqual(livePosterCandidates("concerts", ranked).map((e) => e.id), ["valid7"], "a valid rank 7 must survive six proven no-art leaders without weakening any art gate");
+  assert.deepEqual(livePosterCandidates("sports", ranked).map((e) => e.id), ["valid7"], "a valid rank 7 must survive six proven no-art leaders without weakening any art gate");
 });
 
 // --- 14. A genuinely unavailable bucket remains unavailable; the prefilter
 // does not invent a candidate merely to force a tile.
 check(() => {
   const unavailable = Array.from({ length: 30 }, (_, i) => makeEvent({
-    id: `bad-${i}`, segment: "Music", image: `https://s1.ticketm.net/dam/c/${i}/generic.jpg`,
+    id: `bad-${i}`, segment: "Sports", genre: "Football", image: `https://s1.ticketm.net/dam/c/${i}/generic.jpg`,
   }));
-  assert.deepEqual(livePosterCandidates("concerts", unavailable), [], "all unavailable artwork must still fail closed across the entire bounded raw scan");
+  assert.deepEqual(livePosterCandidates("sports", unavailable), [], "all unavailable artwork must still fail closed across the entire bounded raw scan");
 });
 
-// --- 15. Owner-supplied baseball art remains first-class even when the event
-// has no provider image. This protects the Sporting Events tile's established
-// Catch a Game treatment while the prefilter is tightened.
+// --- 15. Owner-supplied baseball and concert art remain first-class even
+// without provider images, while the two buckets stay isolated.
 check(() => {
   const baseball = makeEvent({ id: "baseball", name: "Orlando Baseball", segment: "Sports", genre: "Baseball", image: null, thumb: null, imageVariants: [] });
+  const concert = makeEvent({ id: "concert", name: "Orlando Live", segment: "Music", genre: "Rock", image: null, thumb: null, imageVariants: [] });
   assert.equal(mayHaveUsableLivePosterArt("sports", baseball), true, "owner baseball art must bypass provider-image prefiltering");
   assert.deepEqual(livePosterCandidates("sports", [baseball]).map((e) => e.id), ["baseball"], "owner baseball event must remain selected in ranked order");
   assert.equal(mayHaveUsableLivePosterArt("concerts", baseball), false, "owner baseball art must never leak into Concerts");
+  assert.equal(mayHaveUsableLivePosterArt("concerts", concert), true, "owner concert art must bypass provider-image prefiltering");
+  assert.deepEqual(livePosterCandidates("concerts", [concert]).map((e) => e.id), ["concert"], "owner concert event must remain selected in ranked order");
+  assert.equal(mayHaveUsableLivePosterArt("sports", concert), false, "owner concert art must never leak into Sporting Events");
 });
 
 // --- 16. The cheap browser prefilter and authoritative server import the same
@@ -277,6 +280,7 @@ n++;
 const realFetch = globalThis.fetch;
 try {
   const ownerEvent = makeEvent({ id: "owner-worker", name: "Orlando Baseball", segment: "Sports", genre: "Baseball", image: null });
+  const ownerConcert = makeEvent({ id: "owner-concert", name: "Orlando Live Tonight", segment: "Music", genre: "Rock", image: null });
   let fetches = 0;
   globalThis.fetch = async () => { fetches++; throw new Error("owner art must not fetch"); };
   const ownerTile = await resolveLivePosterTile("sports", LIVE_POSTER_TYPE_CONFIG.sports, [ownerEvent]);
@@ -284,17 +288,32 @@ try {
   assert.equal(ownerTile?.title, ownerEvent.name);
   assert.equal(ownerTile?.livePosterEventId, ownerEvent.id);
   assert.equal(ownerTile?.livePosterStrategy, "owner-art");
-  assert.equal(fetches, 0, "owner art must resolve without a fitted-art request");
+  const concertTile = await resolveLivePosterTile("concerts", LIVE_POSTER_TYPE_CONFIG.concerts, [ownerConcert]);
+  assert.equal(concertTile?.href, ownerConcert.dest);
+  assert.equal(concertTile?.title, ownerConcert.name);
+  assert.equal(concertTile?.livePosterEventId, ownerConcert.id);
+  assert.equal(concertTile?.livePosterStrategy, "owner-art");
+  assert.equal(fetches, 0, "baseball and concert owner art must resolve without fitted-art requests");
 
-  const first = makeEvent({ id: "fit-first", segment: "Music", image: "https://img.example/first.jpg" });
-  const second = makeEvent({ id: "fit-second", name: "Second Honest Concert", segment: "Music", image: "https://img.example/second.jpg" });
+  const invalidDest = { ...ownerConcert, id: "missing-dest", dest: "" };
+  const invalidName = { ...ownerConcert, id: "missing-name", name: "" };
+  assert.equal(await resolveLivePosterTile("concerts", LIVE_POSTER_TYPE_CONFIG.concerts, [invalidDest, invalidName]), null, "owner art must not create a tile without event identity and destination");
+  assert.equal(fetches, 0, "invalid owner-art events must fail before any fitted-art request");
+
+  const laterConcert = { ...ownerConcert, id: "owner-concert-2", name: "Later Ranked Concert", dest: "/events/orlando/later" };
+  const rankedTile = await resolveLivePosterTile("concerts", LIVE_POSTER_TYPE_CONFIG.concerts, [ownerConcert, laterConcert]);
+  assert.equal(rankedTile?.livePosterEventId, ownerConcert.id, "owner concert art must preserve event ranking");
+  assert.equal(rankedTile?.href, ownerConcert.dest, "owner concert art must preserve the winning event destination");
+
+  const first = makeEvent({ id: "fit-first", segment: "Sports", genre: "Football", image: "https://img.example/first.jpg" });
+  const second = makeEvent({ id: "fit-second", name: "Second Honest Sport", segment: "Sports", genre: "Soccer", image: "https://img.example/second.jpg" });
   const payloads = [
     { ok: false },
     { ok: true, dataUrl: "data:image/webp;base64,good", event: second, strategy: "attention" },
   ];
   fetches = 0;
   globalThis.fetch = async () => ({ ok: true, status: 200, json: async () => payloads[fetches++] });
-  const fittedTile = await resolveLivePosterTile("concerts", LIVE_POSTER_TYPE_CONFIG.concerts, [first, second]);
+  const fittedTile = await resolveLivePosterTile("sports", LIVE_POSTER_TYPE_CONFIG.sports, [first, second]);
   assert.equal(fetches, 2, "one rejected fit must advance exactly once to the next ranked candidate");
   assert.equal(fittedTile?.livePosterEventId, second.id);
   assert.equal(fittedTile?.href, second.dest);
@@ -307,7 +326,7 @@ try {
     fetches++;
     return new Promise((resolve) => { releaseFirst = () => resolve({ ok: true, status: 200, json: async () => ({ ok: false }) }); });
   };
-  const pendingTile = resolveLivePosterTile("concerts", LIVE_POSTER_TYPE_CONFIG.concerts, [first, second], () => stale);
+  const pendingTile = resolveLivePosterTile("sports", LIVE_POSTER_TYPE_CONFIG.sports, [first, second], () => stale);
   await new Promise((resolve) => setTimeout(resolve, 0));
   stale = true;
   releaseFirst();
@@ -316,7 +335,7 @@ try {
 
   fetches = 0;
   globalThis.fetch = async () => { fetches++; throw new Error("cancelled work must not fetch"); };
-  assert.equal(await resolveLivePosterTile("concerts", LIVE_POSTER_TYPE_CONFIG.concerts, [first], () => true), null);
+  assert.equal(await resolveLivePosterTile("sports", LIVE_POSTER_TYPE_CONFIG.sports, [first], () => true), null);
   assert.equal(fetches, 0, "cancellation before the first candidate must issue no POST");
 } finally {
   globalThis.fetch = realFetch;

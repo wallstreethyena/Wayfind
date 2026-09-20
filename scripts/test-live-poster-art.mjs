@@ -1,14 +1,12 @@
 // scripts/test-live-poster-art.mjs
 //
-// Owner direction 2026-09-18: when the Sporting Events poster advertises a
-// baseball game, the TILE shows Wayfind's own "Catch a Game" artwork. Only
-// the picture changes; the event, its label and where a tap goes do not.
+// Owner directions 2026-09-18 and 2026-09-20: baseball uses "Catch a Game"
+// and eligible music events use "Live Tonight." Only the tile picture changes.
 //
 // Proves, against the real shipped modules:
 //   1. A real Ticketmaster baseball event (shape copied from the live
 //      /api/events response for Tampa on 2026-09-18) gets the owner art.
-//   2. Other sports, concerts, and unclassified events keep their
-//      Ticketmaster artwork (null = "use the existing fitted-art path").
+//   2. Other sports and cross-bucket events keep provider artwork.
 //   3. A team name alone is never guessed into a sport.
 //   4. Every art file the map points at exists, is WebP, and is 9:16 like
 //      the rail tile (lib/posterImageFit.js POSTER_RATIO), so it fills the
@@ -18,8 +16,12 @@
 //      branch, keeps the dest/name eligibility rule, and makes no fetch.
 
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { readFileSync, existsSync } from "node:fs";
-import { LIVE_POSTER_SPORT_ART, sportOfEvent, livePosterArtFor } from "../lib/livePosterArt.js";
+import {
+  LIVE_POSTER_CONCERT_ART, LIVE_POSTER_SPORT_ART,
+  isConcertEvent, sportOfEvent, livePosterArtFor,
+} from "../lib/livePosterArt.js";
 import { POSTER_RATIO } from "../lib/posterImageFit.js";
 
 let n = 0;
@@ -31,9 +33,14 @@ const RAYS = {
   venue: "Tropicana Field", dest: "/events/saint-petersburg/tampa-bay-rays-vs-boston-red-sox--tm_Z7r9jZ1A7Q878",
 };
 
+const OWNER_ART_SHA256 = Object.freeze({
+  baseball: "30617ef805fd94afdb4e4bd5da6074a68bec914bc3abf8095219a08277d20f76",
+  concerts: "447444de0f8826017141ca423ca6dbe5b225bb09a38c81e4f59d6c0de20bf8d3",
+});
+
 check("a real Ticketmaster MLB game gets the baseball art on the sports poster", () => {
   assert.equal(sportOfEvent(RAYS), "baseball");
-  assert.equal(livePosterArtFor("sports", RAYS), "/posters/live/baseball-760.webp");
+  assert.equal(livePosterArtFor("sports", RAYS), "/posters/live/baseball-owner-20260920.webp");
 });
 
 check("league-only and name-only baseball still match", () => {
@@ -41,14 +48,22 @@ check("league-only and name-only baseball still match", () => {
   assert.equal(sportOfEvent({ genre: "", name: "Spring Training Baseball: Pirates vs Orioles" }), "baseball");
 });
 
-check("the concerts poster never takes sports art, even for a baseball event", () => {
+check("an eligible music event gets concert art without crossing buckets", () => {
+  const music = { name: "Live Tonight", segment: "Music", genre: "Rock" };
+  assert.equal(isConcertEvent(music), true);
+  assert.equal(livePosterArtFor("concerts", music), LIVE_POSTER_CONCERT_ART);
   assert.equal(livePosterArtFor("concerts", RAYS), null);
+  assert.equal(livePosterArtFor("sports", music), null);
+  assert.equal(isConcertEvent({ name: "Marching Band Concert", segment: "Sports", genre: "Football" }), false);
 });
 
 check("other sports and non-sports keep their Ticketmaster artwork", () => {
   assert.equal(livePosterArtFor("sports", { ...RAYS, name: "Tampa Bay Buccaneers vs. Saints", genre: "Football", subGenre: "NFL" }), null);
+  assert.equal(livePosterArtFor("sports", { ...RAYS, name: "Baseball Night: Buccaneers vs Saints", genre: "Football", subGenre: "NFL" }), null);
   assert.equal(livePosterArtFor("sports", { ...RAYS, name: "Lightning vs Panthers", genre: "Hockey", subGenre: "NHL" }), null);
   assert.equal(livePosterArtFor("sports", { name: "Some Concert", genre: "Rock", segment: "Music" }), null);
+  assert.equal(livePosterArtFor("sports", { name: "Baseball Live", genre: "Baseball", subGenre: "MLB", segment: "Music" }), null);
+  assert.equal(livePosterArtFor("sports", { name: "Orlando City", genre: "Soccer", segment: "Sports" }), null);
 });
 
 check("a team name alone is never guessed into a sport", () => {
@@ -59,11 +74,13 @@ check("a team name alone is never guessed into a sport", () => {
 check("junk input is safe", () => {
   for (const bad of [null, undefined, 3, "baseball", {}]) {
     assert.equal(livePosterArtFor("sports", bad), null);
+    assert.equal(livePosterArtFor("concerts", bad), null);
   }
+  assert.equal(livePosterArtFor("unknown", { segment: "Music" }), null);
 });
 
 check("every mapped art file exists, is WebP, and is 9:16 like the tile", () => {
-  for (const [sport, url] of Object.entries(LIVE_POSTER_SPORT_ART)) {
+  for (const [sport, url] of [...Object.entries(LIVE_POSTER_SPORT_ART), ["concerts", LIVE_POSTER_CONCERT_ART]]) {
     const file = `public${url}`;
     assert.ok(existsSync(file), `${sport}: ${file} is missing`);
     const b = readFileSync(file);
@@ -75,6 +92,7 @@ check("every mapped art file exists, is WebP, and is 9:16 like the tile", () => 
     assert.ok(w >= 760, `${sport}: ${w}px wide is below the 760px rail-art standard`);
     assert.ok(Math.abs(w / h - POSTER_RATIO) < 0.01, `${sport}: ${w}x${h} is not 9:16`);
     assert.ok(b.length < 400 * 1024, `${sport}: ${b.length} bytes is too heavy for a rail tile`);
+    assert.equal(createHash("sha256").update(b).digest("hex"), OWNER_ART_SHA256[sport], `${sport}: owner-approved pixels changed`);
   }
 });
 
