@@ -57,6 +57,25 @@ const BookingCTA = mod.default;
 ok(typeof BookingCTA === "function", "BookingCTA has a default export");
 ok(typeof mod.hasBookingCTA === "function", "hasBookingCTA is exported for Detail.js");
 
+// Feedback on a decision sheet must render before a visitor takes an outbound
+// action. Exercise the real compact component and the two sheet path builders:
+// place IDs are encoded, while list context is a bounded public discovery slug
+// with no query string or raw punctuation.
+const feedbackMod = await loadComponent(fileURLToPath(new URL("../app/components/CommunityFooter.js", import.meta.url)), REPO);
+const detailSheetMod = await loadComponent(fileURLToPath(new URL("../app/components/sheets/Detail.js", import.meta.url)), REPO);
+const hookSheetMod = await loadComponent(fileURLToPath(new URL("../app/components/sheets/HookDetail.js", import.meta.url)), REPO);
+const feedbackHtml = renderToStaticMarkup(createElement(feedbackMod.default, {
+  compact: true, path: detailSheetMod.detailFeedbackPath({ id: "ChIJ/id?secret=1" }), loc: "Orlando, FL", build: "smoke",
+}));
+ok(feedbackHtml.includes("Feedback"), "compact feedback renders a visible in-flow trigger");
+ok(detailSheetMod.detailFeedbackPath({ id: "ChIJ/id?secret=1" }) === "/p/ChIJ%2Fid%3Fsecret%3D1", "detail feedback path encodes the stable place ID as one path segment");
+ok(hookSheetMod.discoverFeedbackPath("Best of Orlando? q=private") === "/discover/best-of-orlando-q-private", "list feedback path is a bounded public discovery slug without a query string");
+ok(hookSheetMod.discoverFeedbackPath("") === "/discover", "list feedback has a stable generic fallback");
+const detailSheetSource = readFileSync(new URL("../app/components/sheets/Detail.js", import.meta.url), "utf8");
+const hookSheetSource = readFileSync(new URL("../app/components/sheets/HookDetail.js", import.meta.url), "utf8");
+ok(detailSheetSource.indexOf("data-detail-feedback") < detailSheetSource.indexOf("Premium action dock"), "place feedback is mounted before outbound detail actions");
+ok(hookSheetSource.indexOf("data-hook-feedback") < hookSheetSource.indexOf("sheetLoading && <Loader"), "list feedback is mounted before list results");
+
 // EVERY variant the Detail sheet mounts. The bug lived in the shared prologue, so
 // it fired regardless of variant — but rendering each is what makes this a smoke
 // test rather than a single lucky path.

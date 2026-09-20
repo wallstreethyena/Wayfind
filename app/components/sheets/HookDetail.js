@@ -5,9 +5,21 @@ import { C, sheetBg, sheet, SHEET_EASE, PlaceScoreChip } from "../kit";
 import { byTopRated } from "../../../lib/ranking";
 import * as Fam from "../../../lib/family";
 import * as WCC from "../../../lib/wc";
+import CommunityFooter from "../CommunityFooter";
+
+export function discoverFeedbackPath(theme) {
+  const slug = String(theme || "")
+    .normalize("NFKD")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 48)
+    .replace(/-+$/g, "");
+  return slug ? "/discover/" + slug : "/discover";
+}
 
 export default function HookDetailSheet({ ctx }) {
-  const { hookDetail, setHookDetail, hookLikes, suggested, places, offers, isDesktop, hkSort, setHkSort, hkMi, setHkMi, hkDeals, setHkDeals, weather, locName, cityNow, dedupePlaces, placesForHook, pickReason, isNightNow, isSaved, quickSaveFavorite, toggleHookLike, saveHookList, openDetail, setMapListOverride, setScreen, logEvent, listShareUrl, shareLink, showToast, giveawayMark, buildListShareUrl, liveOpen, iconForPlace, cityFixM, experienceBadges, whyFirst, Loader, Critter, FallbackImg, SortControl, openCurated, sugOpen, setSugOpen, sugQuery, setSugQuery, onSugQueryChange, sugSuggestions, setSugSuggestions, sugPicked, setSugPicked, sugNote, setSugNote, sugBusy, sugDone, pickSugSuggestion, submitPlaceSuggestion } = ctx;
+  const { hookDetail, setHookDetail, hookLikes, suggested, places, offers, isDesktop, hkSort, setHkSort, hkMi, setHkMi, hkDeals, setHkDeals, weather, locName, cityNow, dedupePlaces, placesForHook, pickReason, isNightNow, isSaved, quickSaveFavorite, toggleHookLike, saveHookList, openDetail, setMapListOverride, setScreen, logEvent, listShareUrl, shareLink, showToast, giveawayMark, buildListShareUrl, liveOpen, iconForPlace, cityFixM, experienceBadges, whyFirst, Loader, Critter, FallbackImg, SortControl, openCurated, sugOpen, setSugOpen, sugQuery, setSugQuery, onSugQueryChange, sugSuggestions, setSugSuggestions, sugPicked, setSugPicked, sugNote, setSugNote, sugBusy, sugDone, pickSugSuggestion, submitPlaceSuggestion, BUILD_ID, user } = ctx;
         // Merge the two source lists, but de-dupe by id — a place that appears
         // in both the suggested feed and the nearby search would otherwise show
         // up twice in a themed list.
@@ -112,6 +124,9 @@ export default function HookDetailSheet({ ctx }) {
 
             {/* Scrollable editorial list */}
             <div style={{ flexShrink: 0, padding: premiumImagePage ? "0 16px calc(30px + env(safe-area-inset-bottom))" : "14px 16px calc(24px + env(safe-area-inset-bottom))", marginTop: premiumImagePage ? -54 : 0, width: "100%", maxWidth: isDesktop ? 920 : "none", boxSizing: "border-box", position: "relative", zIndex: 2 }}>
+              <div data-hook-feedback style={{ margin: premiumImagePage ? "0 2px 12px" : "0 2px 10px" }}>
+                <CommunityFooter key={discoverFeedbackPath(theme)} compact path={discoverFeedbackPath(theme)} loc={locName || ""} build={BUILD_ID || ""} userId={user?.id || null} />
+              </div>
               {sheetLoading && <Loader label="Finding the best picks" pad="28px 0" />}
               {/* GROVE 33 (2026-08-25): the partner's own program, labeled as
                   such — not a ranked place, so it sits above the ranked list

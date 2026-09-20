@@ -159,6 +159,7 @@ node scripts/test-owner-places-2026-08-29c.mjs
 node scripts/test-owner-places-2026-08-29d.mjs
 node scripts/test-owner-places-2026-08-29e.mjs
 node scripts/test-command-center.mjs
+node scripts/test-command-center-feedback.mjs
 node scripts/test-vitals-attribution.mjs
 node scripts/test-layout-shift.mjs
 node scripts/test-lightbox-paging.mjs
@@ -1660,4 +1661,18 @@ node scripts/check-florida-festivals-import.mjs
 
 # Shared category teardrops: real legend render and browser sprite geometry.
 node scripts/test-map-pin-standard.mjs
+
+node scripts/test-address-search.mjs
+
+node scripts/test-direct-search.mjs
+
+node scripts/test-search-experience.mjs
+
+node scripts/test-community-feedback.mjs
+
+node scripts/test-feedback-storage.mjs
+
+node scripts/test-site-feedback.mjs
+
+node scripts/test-feedback-notification.mjs
 node scripts/test-florida-catalog-location.mjs
