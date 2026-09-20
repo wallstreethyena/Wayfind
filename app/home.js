@@ -218,7 +218,9 @@ import { WF_LAYOUT_CSS, WF_SEARCH_CSS, WF_PLACE_CARD_CSS, WF_TASTE_CSS, WF_RAIL_
 // v8 — the rail menu. lib/rails.js is metadata only (lib/railSelect.js holds
 // the selection logic and never leaves the server), so importing it here costs
 // the bundle the card copy and nothing else.
-import DaypartRail from "./components/DaypartRail";
+// Preserve server-rendered discovery content while shipping its large client
+// renderer as a separate chunk from search and the application shell.
+const DaypartRail = nextDynamic(() => import("./components/DaypartRail"));
 import { useLivePosterTiles } from "./components/useLivePosterTiles";
 import PlaceCardSkeleton from "./components/PlaceCardSkeleton";
 import { PLACE_CARD_HEIGHT_PX } from "../lib/placeCardStandard.js";

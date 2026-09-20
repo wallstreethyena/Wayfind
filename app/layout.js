@@ -1,6 +1,6 @@
 import Script from "next/script";
 import { Suspense } from "react";
-import SiteFeedback from "./components/SiteFeedback";
+import SiteFeedback from "./components/SiteFeedbackEntry";
 import DocumentPosition from "./components/DocumentPosition";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "./links.css";
