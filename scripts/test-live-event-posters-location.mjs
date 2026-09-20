@@ -12,11 +12,11 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { posterEventsKey, isSettledCurrent } from "../app/components/usePosterEvents.js";
 import {
-  currentLivePosterTile, livePosterCandidateKey, LIVE_POSTER_REQUEST_TIMEOUT_MS,
+  currentLivePosterTile, livePosterCandidateKey,
 } from "../app/components/useLivePosterTiles.js";
 import {
   livePosterCandidates, mayHaveUsableLivePosterArt,
-  LIVE_POSTER_MAX_ATTEMPTS, LIVE_POSTER_MAX_RANKED_SCAN,
+  resolveLivePosterTile, LIVE_POSTER_MAX_ATTEMPTS, LIVE_POSTER_MAX_RANKED_SCAN, LIVE_POSTER_REQUEST_TIMEOUT_MS,
 } from "../lib/livePosterSelection.js";
 import { selectPosterEvents, posterEventBucket } from "../lib/posterEvents.js";
 import { LIVE_POSTER_TYPE_CONFIG } from "../lib/liveEventPosterTypes.js";
@@ -169,9 +169,11 @@ check(() => {
 // browser assertion time out before it checks location or routing.
 check(() => {
   const tileSource = readFileSync(new URL("../app/components/useLivePosterTiles.js", import.meta.url), "utf8");
+  const workerSource = readFileSync(new URL("../lib/livePosterSelection.js", import.meta.url), "utf8");
   const railSource = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
   const browserSource = readFileSync(new URL("../tests/e2e/live-event-posters.spec.js", import.meta.url), "utf8");
-  assert.match(tileSource, /id: `live-\$\{type\}`/, "synthetic poster ids must remain live-<type>");
+  assert.match(workerSource, /id: `live-\$\{type\}`/, "synthetic poster ids must remain live-<type>");
+  assert.match(tileSource, /resolveLivePosterTile\(type, config, rankedEvents/, "the hook must render through the lazy tile worker");
   assert.match(railSource, /data-id=\{id\}/, "DaypartRail must expose the synthetic rail id on its rendered tile");
   assert.match(browserSource, /page\.locator\(`\[data-id="live-\$\{type\}"\]`\)/, "the browser suite must locate the rendered synthetic rail id");
   assert.doesNotMatch(browserSource, /data-live-poster-(?:type|event-id)/, "the browser suite must not target attributes from the deleted standalone poster component");
@@ -181,8 +183,10 @@ check(() => {
 // tile even when the provider keeps the same event id.
 check(() => {
   const tileSource = readFileSync(new URL("../app/components/useLivePosterTiles.js", import.meta.url), "utf8");
+  const workerSource = readFileSync(new URL("../lib/livePosterSelection.js", import.meta.url), "utf8");
   assert.equal(LIVE_POSTER_REQUEST_TIMEOUT_MS, 10000, "each live-poster image request must have a finite reader-facing deadline");
-  assert.match(tileSource, /fetchJsonWithDeadline\("\/api\/live-poster", \{[\s\S]{0,120}timeoutMs: LIVE_POSTER_REQUEST_TIMEOUT_MS/, "the live-poster POST must use the shared bounded JSON client");
+  assert.match(workerSource, /fetchJsonWithDeadline\("\/api\/live-poster", \{[\s\S]{0,120}timeoutMs: LIVE_POSTER_REQUEST_TIMEOUT_MS/, "the lazy live-poster worker must use the shared bounded JSON client");
+  assert.match(tileSource, /await import\("\.\.\/\.\.\/lib\/livePosterSelection\.js"\)/, "poster artwork work must remain outside the initial homepage bundle");
 
   const original = makeEvent({ id: "same", image: "https://img.example/old.jpg", dest: "/events/old" });
   const repairedImage = { ...original, image: "https://img.example/repaired.jpg" };
@@ -266,5 +270,56 @@ check(() => {
   assert.equal(currentLivePosterTile(oldState, newKey, false), null, "a newly settled feed must not flash the old tile while replacement artwork resolves");
   assert.equal(currentLivePosterTile({ candidateKey: newKey, tile: oldTile }, newKey, false), oldTile, "the replacement becomes visible only after state carries the new candidate key");
 });
+
+// --- 18. The lazy worker preserves owner art, ordered fallback and stale-work
+// cancellation at its executable network boundary.
+n++;
+const realFetch = globalThis.fetch;
+try {
+  const ownerEvent = makeEvent({ id: "owner-worker", name: "Orlando Baseball", segment: "Sports", genre: "Baseball", image: null });
+  let fetches = 0;
+  globalThis.fetch = async () => { fetches++; throw new Error("owner art must not fetch"); };
+  const ownerTile = await resolveLivePosterTile("sports", LIVE_POSTER_TYPE_CONFIG.sports, [ownerEvent]);
+  assert.equal(ownerTile?.href, ownerEvent.dest);
+  assert.equal(ownerTile?.title, ownerEvent.name);
+  assert.equal(ownerTile?.livePosterEventId, ownerEvent.id);
+  assert.equal(ownerTile?.livePosterStrategy, "owner-art");
+  assert.equal(fetches, 0, "owner art must resolve without a fitted-art request");
+
+  const first = makeEvent({ id: "fit-first", segment: "Music", image: "https://img.example/first.jpg" });
+  const second = makeEvent({ id: "fit-second", name: "Second Honest Concert", segment: "Music", image: "https://img.example/second.jpg" });
+  const payloads = [
+    { ok: false },
+    { ok: true, dataUrl: "data:image/webp;base64,good", event: second, strategy: "attention" },
+  ];
+  fetches = 0;
+  globalThis.fetch = async () => ({ ok: true, status: 200, json: async () => payloads[fetches++] });
+  const fittedTile = await resolveLivePosterTile("concerts", LIVE_POSTER_TYPE_CONFIG.concerts, [first, second]);
+  assert.equal(fetches, 2, "one rejected fit must advance exactly once to the next ranked candidate");
+  assert.equal(fittedTile?.livePosterEventId, second.id);
+  assert.equal(fittedTile?.href, second.dest);
+  assert.equal(fittedTile?.livePosterStrategy, "attention");
+
+  let stale = false;
+  let releaseFirst;
+  fetches = 0;
+  globalThis.fetch = () => {
+    fetches++;
+    return new Promise((resolve) => { releaseFirst = () => resolve({ ok: true, status: 200, json: async () => ({ ok: false }) }); });
+  };
+  const pendingTile = resolveLivePosterTile("concerts", LIVE_POSTER_TYPE_CONFIG.concerts, [first, second], () => stale);
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  stale = true;
+  releaseFirst();
+  assert.equal(await pendingTile, null);
+  assert.equal(fetches, 1, "cancellation after a pending fit must suppress every remaining candidate POST");
+
+  fetches = 0;
+  globalThis.fetch = async () => { fetches++; throw new Error("cancelled work must not fetch"); };
+  assert.equal(await resolveLivePosterTile("concerts", LIVE_POSTER_TYPE_CONFIG.concerts, [first], () => true), null);
+  assert.equal(fetches, 0, "cancellation before the first candidate must issue no POST");
+} finally {
+  globalThis.fetch = realFetch;
+}
 
 console.log(`test-live-event-posters-location: ${n} checks passed`);

@@ -13,7 +13,7 @@
 //   4. Every art file the map points at exists, is WebP, and is 9:16 like
 //      the rail tile (lib/posterImageFit.js POSTER_RATIO), so it fills the
 //      tile without cropping the headline.
-//   5. useLivePosterTiles.js wires it for the picture only: the owner-art
+//   5. The lazy live-poster worker wires it for the picture only: the owner-art
 //      branch builds the tile through the same tileFor() as the fitted-art
 //      branch, keeps the dest/name eligibility rule, and makes no fetch.
 
@@ -79,16 +79,16 @@ check("every mapped art file exists, is WebP, and is 9:16 like the tile", () => 
 });
 
 check("the tile hook changes the picture only", () => {
-  const src = readFileSync("app/components/useLivePosterTiles.js", "utf8");
-  assert.match(src, /import \{ livePosterArtFor \} from "\.\.\/\.\.\/lib\/livePosterArt\.js";/);
+  const src = readFileSync("lib/livePosterSelection.js", "utf8");
+  assert.match(src, /import \{ livePosterArtFor \} from "\.\/livePosterArt\.js";/);
   const branch = src.slice(src.indexOf("const ownerArt = livePosterArtFor(type, event);"), src.indexOf("let data = null;"));
   assert.ok(branch.length > 0, "owner-art branch not found before the fitted-art fetch");
   assert.match(branch, /if \(!event\.dest \|\| !event\.name\) continue;/, "owner art must keep the dest/name eligibility rule");
-  assert.match(branch, /setTile\(\{ candidateKey, tile: tileFor\(type, config, event, ownerArt, "owner-art"\) \}\);/);
+  assert.match(branch, /return tileFor\(type, config, event, ownerArt, "owner-art"\);/);
   assert.doesNotMatch(branch, /fetch\s*\(/, "owner art must not fetch anything");
-  assert.match(src, /setTile\(\{ candidateKey, tile: tileFor\(type, config, data\.event \|\| \{\}, data\.dataUrl, data\.strategy \|\| null\) \}\);/, "fitted art must share the same tile builder and current-candidate identity");
-  const builder = src.slice(src.indexOf("function tileFor("), src.indexOf("function useOneLivePoster("));
-  assert.match(builder, /href: e\.dest \|\| null,/, "the tap destination stays the event's own dest");
+  assert.match(src, /return tileFor\(type, config, data\.event \|\| \{\}, data\.dataUrl, data\.strategy \|\| null\);/, "fitted art must share the same tile builder");
+  const builder = src.slice(src.indexOf("function tileFor("), src.indexOf("export async function resolveLivePosterTile("));
+  assert.match(builder, /href: event\.dest \|\| null,/, "the tap destination stays the event's own dest");
   assert.match(builder, /opensPage: true,/);
 });
 
