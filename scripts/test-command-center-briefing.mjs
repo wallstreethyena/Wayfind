@@ -1,6 +1,6 @@
 // Behavioral lock for the report shared by Command Center and the daily mail.
 import {
-  buildOwnerBriefing, gatherOwnerBriefing, briefingText, briefingHtml, sendOwnerBriefingEmail,
+  buildOwnerBriefing, gatherOwnerBriefing, briefingText, briefingHtml, sendOwnerBriefingEmail, PARTNER_PATH_REVIEW_TRIGGER_OPENS,
 } from "../lib/commandCenter/briefing.js";
 import { tpStats } from "../lib/commandCenter/sources/travelpayouts.js";
 
@@ -16,27 +16,53 @@ const normalResults = () => ({
   affiliate: { source: source("Travelpayouts"), data: { confirmed_bookings: 2, revenue_paid_usd: 14.5, revenue_pending_usd: 3, fields_used: ["action_id", "state", "paid_profit_usd", "profit_usd"] } },
 });
 const now = new Date("2026-09-09T16:00:00.000Z");
+const healthyNow = new Date("2026-10-01T16:00:00.000Z");
 
-const report = buildOwnerBriefing({ now, results: normalResults() });
-ok(report.generatedAt === now.toISOString(), "report carries generatedAt");
-ok(report.period.label === "Yesterday" && report.period.complete === true && report.dateKey === "2026-09-08", "business window is the complete previous ET day");
+const report = buildOwnerBriefing({ now: healthyNow, results: normalResults() });
+ok(report.generatedAt === healthyNow.toISOString(), "report carries generatedAt");
+ok(report.period.label === "Yesterday" && report.period.complete === true && report.dateKey === "2026-09-30", "business window is the complete previous ET day");
 ok(report.title.startsWith("Yesterday") && /health checked now/.test(report.title), "title distinguishes yesterday results from current health");
 ok(report.cards.length === 3 && new Set(report.cards.map((card) => card.id)).size === 3, "exactly three distinct actions");
-ok(report.cards.every((card) => card.status === "routine"), "healthy routine reviews are labeled routine");
+ok(report.summary.status === "healthy" && report.cards.every((card) => card.status === "routine"), "positive repaired-era report stays healthy with evidence-specific cards");
+ok(report.cards.map((card) => card.id).join(",") === "traffic-denominator-recorded,partner-path-measured,intent-actions-measured", "healthy cards state the evidence and threshold outcome instead of generic reviews");
 ok(report.metrics.affiliate.confirmedBookings === 2 && report.metrics.affiliate.paidEarningsUsd === 14.5, "provider-confirmed bookings and paid earnings are reported");
 ok(report.workingWell.some((line) => /browsers and devices/.test(line)) && report.workingWell.some((line) => /paid earnings/.test(line)), "positive measured results appear in Working well");
 
-// Reproduce the owner's screenshot: active browsers cannot certify healthy
-// visit tracking when the visit counter reports zero.
+// The owner's observed 43/0/18 day is inside the proven historical incident.
+// It remains measured, but is labeled repaired history rather than a current bug.
 const visitGap = normalResults();
 visitGap.kpis.data = { active_devices: 43, sessions: 0, detail_opens: 18, saves: 0, shares: 0, directions: 0, out_clicks: 0 };
-const gapReport = buildOwnerBriefing({ now, results: visitGap });
-ok(gapReport.summary.status === "attention" && gapReport.cards[0].id === "traffic-session-gap", "active browsers with zero recorded visits prioritize the tracking gap");
-ok(gapReport.cards.length === 3 && !gapReport.cards.some((card) => card.id === "routine-traffic"), "tracking repair replaces the misleading audience-quality recommendation");
+const gapReport = buildOwnerBriefing({ now: new Date("2026-09-20T14:00:00.000Z"), results: visitGap });
+ok(gapReport.dateKey === "2026-09-19" && gapReport.summary.status === "limited" && gapReport.cards[0].id === "historical-session-gap", "affected day is labeled as a repaired historical measurement gap, not a current failure");
+ok(/repaired visit-tracking gap/.test(gapReport.summary.headline) && /historical context only/.test(gapReport.cards[0].nextStep), "historical report names the repair and limits how its counts may be used");
+ok(gapReport.cards.some((card) => card.id === "partner-path-sample-small" && card.status === "routine" && card.nextStep.includes(`${PARTNER_PATH_REVIEW_TRIGGER_OPENS} measured opens`)), "18 opens and zero clicks stay an evidence-thin routine observation, not a conversion failure");
 ok(gapReport.metrics.traffic.sessions === 0 && !gapReport.workingWell.some((line) => /0 visits/.test(line)), "do not invent visits or praise inconsistent traffic");
+const partialVisitGap = normalResults();
+partialVisitGap.kpis.data.sessions = 7;
+const partialGapReport = buildOwnerBriefing({ now: new Date("2026-09-20T14:00:00.000Z"), results: partialVisitGap });
+const partialGapCard = partialGapReport.cards.find((card) => card.id === "historical-session-gap");
+ok(partialGapCard && /7 visit events were recorded/.test(partialGapCard.detail) && !/recorded zero/.test(partialGapCard.detail), "positive partial incident sessions are labeled incomplete without falsely calling them zero");
+
+const zeroClicksAfterReviewTrigger = normalResults();
+zeroClicksAfterReviewTrigger.kpis.data = { ...zeroClicksAfterReviewTrigger.kpis.data, detail_opens: 40, out_clicks: 0 };
+const reviewTriggerReport = buildOwnerBriefing({ now: healthyNow, results: zeroClicksAfterReviewTrigger });
+const reviewTriggerCard = reviewTriggerReport.cards.find((card) => card.id === "partner-path-review-trigger");
+ok(reviewTriggerReport.summary.status === "healthy" && reviewTriggerCard?.status === "routine" && /without an eligible partner action/.test(reviewTriggerCard.detail) && /not a conversion failure/.test(reviewTriggerCard.detail), ">30 opens with zero clicks prompts exposure inspection but cannot establish a conversion issue");
+
+const independentPartnerCounters = normalResults();
+independentPartnerCounters.kpis.data = { ...independentPartnerCounters.kpis.data, detail_opens: 0, out_clicks: 2 };
+const independentPartnerCard = buildOwnerBriefing({ now: healthyNow, results: independentPartnerCounters }).cards.find((card) => card.id === "partner-path-measured");
+ok(independentPartnerCard && /0 place-page opens and 2 partner clicks were recorded/.test(independentPartnerCard.detail) && /independent counters/.test(independentPartnerCard.detail) && !/opens produced/.test(independentPartnerCard.detail), "independent open and click counters do not claim that an open caused a click");
+
+const postRepairGap = buildOwnerBriefing({ now: new Date("2026-09-22T14:00:00.000Z"), results: visitGap });
+ok(postRepairGap.dateKey === "2026-09-21" && postRepairGap.summary.status === "attention" && postRepairGap.cards[0].id === "traffic-session-gap", "same device/session contradiction on a complete post-repair day is a current failure");
+const inverseVisitGap = normalResults();
+inverseVisitGap.kpis.data = { ...inverseVisitGap.kpis.data, active_devices: 0, sessions: 7 };
+const inverseGapReport = buildOwnerBriefing({ now: new Date("2026-09-22T14:00:00.000Z"), results: inverseVisitGap });
+ok(inverseGapReport.summary.status === "attention" && inverseGapReport.cards[0].id === "traffic-device-gap" && !inverseGapReport.cards.some((card) => card.id === "traffic-denominator-recorded"), "visits without device identifiers are a current contradiction and are not eligible comparison evidence");
 const emptyTraffic = normalResults();
 emptyTraffic.kpis.data = { active_devices: 0, sessions: 0, detail_opens: 0, saves: 0, shares: 0, directions: 0, out_clicks: 0 };
-ok(!buildOwnerBriefing({ now, results: emptyTraffic }).needsChanges.some((card) => card.id === "traffic-session-gap"), "a measured empty traffic window is not a visit tracking defect");
+ok(!buildOwnerBriefing({ now: healthyNow, results: emptyTraffic }).needsChanges.some((card) => card.id === "traffic-session-gap"), "a measured empty traffic window is not a visit tracking defect");
 
 const nullResults = normalResults();
 nullResults.kpis.data.active_devices = null;
