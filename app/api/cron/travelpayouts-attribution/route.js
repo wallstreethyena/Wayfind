@@ -39,7 +39,9 @@ export async function GET(req) {
     // failure must not stop pending bookings from receiving status updates.
     try {
       provisioning = await provisionTpLinks({ sb });
-      if (provisioning.failed) provisioningError = "Travelpayouts link provisioning failed; pending mappings remain";
+      if (provisioning.failed) {
+        provisioningError = `Travelpayouts link provisioning failed: ${provisioning.reason || "pending mappings remain"}`.slice(0, 180);
+      }
     } catch (error) {
       provisioningError = String(error?.message || error).slice(0, 180);
     }
