@@ -23,7 +23,7 @@
 // resolved server-side, at click time, by the route the link points at.
 import ExperienceCatalog from "./ExperienceCatalog";
 import LicensedPhoto from "../../components/LicensedPhoto";
-import { SPRINGS_PHOTO, EXPERIENCE_PHOTOS } from "../../../lib/floridaPhotography";
+import { SPRINGS_PHOTO, EXPERIENCE_PHOTOS, FLORIDA_EVENT_PHOTOS, FLORIDA_PARK_PHOTOS } from "../../../lib/floridaPhotography";
 import styles from "./florida.module.css";
 import GuidePhoto from "../../components/GuidePhoto";
 import { guideHero } from "../../../lib/guideHero";
@@ -145,8 +145,7 @@ async function loadHalloweenEvents() {
       .filter((e) => isEligible(e, { now }))
       .map((e) => ({ event: e, cta: eventTicketCta(e.event_id, { surface: SURFACE }) }))
       .filter((x) => Boolean(x.cta))
-      .sort((a, b) => String(a.event.start_date || "").localeCompare(String(b.event.start_date || "")))
-      .slice(0, 6);
+      .sort((a, b) => String(a.event.start_date || "").localeCompare(String(b.event.start_date || "")));
     return { ok: true, items };
   } catch (err) {
     // A failed curated-events read must not take the whole landing page
@@ -208,11 +207,12 @@ function GuideGrid({ items, ranked = false }) {
 }
 
 function OfferImage({ offer }) {
+  const selectedPhoto = FLORIDA_PARK_PHOTOS[offer.offerId];
   // Brand marks stay identifiable as marks, rather than pretending to be venue photos.
   const isLogo = /logo|LECOM_Park\.PNG/i.test(offer.image || "");
-  const src = isHotlinkRefusedImage(offer.image) ? null : landingOfferImage(offer.image);
+  const src = selectedPhoto?.src || (isHotlinkRefusedImage(offer.image) ? null : landingOfferImage(offer.image));
   return <div className={styles.media}>
-    <GuidePhoto src={src} alt={isLogo ? offer.title + " logo" : offer.title}
+    <GuidePhoto src={src} alt={selectedPhoto?.alt || (isLogo ? offer.title + " logo" : offer.title)}
       loading="lazy" width={640} height={400}
       className={isLogo ? styles.logoImage : styles.offerImage}
       fallbackClassName={styles.photoFallback} fallbackText={offer.title + " · " + offer.market} />
@@ -257,6 +257,7 @@ function BoatRentalChoices({ offers }) {
 }
 
 function EventCard({ event, cta }) {
+  const selectedPhoto = FLORIDA_EVENT_PHOTOS[event.event_id];
   const parkByEvent = {
     "howl-o-scream-tampa-2026": "Busch Gardens Tampa Bay",
     "howl-o-scream-seaworld-2026": "SeaWorld Orlando",
@@ -270,12 +271,12 @@ function EventCard({ event, cta }) {
       ? { src:"/florida-photos/universal-sean-nyatsine.jpg", width:4898, height:3265, alt:"Universal globe at Universal Studios Plaza in Orlando", caption:"Universal Orlando · Sean Nyatsine / Unsplash. Event not pictured." }
       : park ? null : guideHero("fall-events-orlando-2026");
   return <article className={`${styles.guideCard} ${styles.photoGuideCard}`}>
-    {park ? <OfferImage offer={park} /> : <div className={styles.media}><LicensedPhoto {...art} sizes="(max-width:700px) 100vw, 400px" className={styles.offerImage} /></div>}
+    {selectedPhoto ? <div className={styles.media}><LicensedPhoto {...selectedPhoto} sizes="(max-width:700px) 100vw, 400px" className={styles.offerImage} /></div> : park ? <OfferImage offer={park} /> : <div className={styles.media}><LicensedPhoto {...art} sizes="(max-width:700px) 100vw, 400px" className={styles.offerImage} /></div>}
     <div className={styles.cardBody}>
     <p className={styles.meta}>{dateRangeLabel(event)} · {event.city}</p>
     <h3>{event.event_name}</h3>
     {event.card_hook ? <p>{event.card_hook}</p> : null}
-    <p className={styles.imageCaption}>{park ? "Park photograph via Tiqets. Seasonal event not pictured." : art.caption} {art?.source ? <PhotoCredit art={art} /> : null}</p>
+    {!selectedPhoto ? <p className={styles.imageCaption}>{park ? "Park photograph via Tiqets. Seasonal event not pictured." : art.caption} {art?.source ? <PhotoCredit art={art} /> : null}</p> : null}
     <a className={styles.textLink} href={cta.href} rel="sponsored noopener" target="_blank">{cta.label}<span className={styles.srOnly}> for {event.event_name}, opens a new tab</span></a>
     </div>
   </article>;
