@@ -191,12 +191,11 @@ function GuideCard({ slug, title, blurb, rank }) {
     ? { ...EXPERIENCE_PHOTOS["siesta-key-sunset-cruise"], caption: "Sarasota shoreline · Nathan Mullet / Unsplash. Drum circle not pictured." }
     : { ...SPRINGS_PHOTO, caption: "Daytime kayaking illustration. Bioluminescence not pictured." };
   return <article className={`${styles.guideCard} ${styles.photoGuideCard}`}>
-    <div className={styles.media}><LicensedPhoto {...art} sizes="(max-width:700px) 100vw, 400px" className={styles.offerImage} /></div>
+    <div className={styles.media}><LicensedPhoto {...art} sizes="(max-width:700px) 100vw, 400px" className={styles.offerImage} /><div className={styles.photoCaption}>{art.cardCaption || art.caption} {art.source ? <PhotoCredit art={art} /> : null}</div></div>
     <div className={styles.cardBody}>
     {rank ? <span className={styles.rank} aria-label={"Reader rank " + rank}>{String(rank).padStart(2, "0")}</span> : <span className={styles.editorialLabel}>The local guide</span>}
     <h3><a href={"/guides/" + slug}>{title}</a></h3>
     <p>{blurb}</p>
-    <p className={styles.imageCaption}>{art.cardCaption || art.caption} {art.source ? <PhotoCredit art={art} /> : null}</p>
     <a className={styles.textLink} href={"/guides/" + slug}>Read the guide <span aria-hidden="true">↗</span></a>
     </div>
   </article>;
@@ -206,7 +205,7 @@ function GuideGrid({ items, ranked = false }) {
   return <Collection label="guides">{liveGuides(items).map((g, i) => <GuideCard key={g.slug} {...g} rank={ranked ? i + 1 : null} />)}</Collection>;
 }
 
-function OfferImage({ offer }) {
+function OfferImage({ offer, caption }) {
   const selectedPhoto = FLORIDA_PARK_PHOTOS[offer.offerId];
   // Brand marks stay identifiable as marks, rather than pretending to be venue photos.
   const isLogo = /logo|LECOM_Park\.PNG/i.test(offer.image || "");
@@ -217,6 +216,7 @@ function OfferImage({ offer }) {
       className={isLogo ? styles.logoImage : styles.offerImage}
       fallbackClassName={styles.photoFallback} fallbackText={offer.title + " · " + offer.market} />
     {isLogo ? <span className={styles.mediaLabel}>Venue identity</span> : null}
+    {caption ? <div className={styles.photoCaption}>{caption}</div> : null}
   </div>;
 }
 
@@ -242,9 +242,8 @@ function SearchIntentCard({ item }) {
   const art = item.id === "manatee-crystal-river" ? { ...guideHero("swim-with-manatees-crystal-river"), caption: "Crystal River manatees · David Hinkel / USFWS · CC BY 2.0. Tour not pictured." } : EXPERIENCE_PHOTOS[item.id];
   if (!href) return null;
   return <article className={styles.offerCard}>
-    <div className={styles.media}><LicensedPhoto {...art} sizes="(max-width:700px) 100vw, 400px" className={styles.offerImage} /></div>
+    <div className={styles.media}><LicensedPhoto {...art} sizes="(max-width:700px) 100vw, 400px" className={styles.offerImage} /><div className={styles.photoCaption}>{art.caption} {art.source ? <PhotoCredit art={art} /> : null}</div></div>
     <div className={styles.cardBody}><p className={styles.meta}>{item.city}</p><h3>{item.title}</h3><p className={styles.cardBlurb}>{item.blurb}</p>
-      <p className={styles.imageCaption}>{art.caption}{art.source ? <> <PhotoCredit art={art} /></> : null}</p>
       <span className={styles.editorialLabel}>Compare tour options</span>
       <a className={styles.textLink} href={href} rel="sponsored noopener" target="_blank">{AVAILABILITY_CTA_LABEL}<span className={styles.srOnly}> for {item.title}, opens a new tab</span></a>
     </div>
@@ -271,12 +270,11 @@ function EventCard({ event, cta }) {
       ? { src:"/florida-photos/universal-sean-nyatsine.jpg", width:4898, height:3265, alt:"Universal globe at Universal Studios Plaza in Orlando", caption:"Universal Orlando · Sean Nyatsine / Unsplash. Event not pictured." }
       : park ? null : guideHero("fall-events-orlando-2026");
   return <article className={`${styles.guideCard} ${styles.photoGuideCard}`}>
-    {selectedPhoto ? <div className={styles.media}><LicensedPhoto {...selectedPhoto} sizes="(max-width:700px) 100vw, 400px" className={styles.offerImage} /></div> : park ? <OfferImage offer={park} /> : <div className={styles.media}><LicensedPhoto {...art} sizes="(max-width:700px) 100vw, 400px" className={styles.offerImage} /></div>}
+    {selectedPhoto ? <div className={styles.media}><LicensedPhoto {...selectedPhoto} sizes="(max-width:700px) 100vw, 400px" className={styles.offerImage} /></div> : park ? <OfferImage offer={park} caption="Park photograph via Tiqets. Seasonal event not pictured." /> : <div className={styles.media}><LicensedPhoto {...art} sizes="(max-width:700px) 100vw, 400px" className={styles.offerImage} /><div className={styles.photoCaption}>{art.caption} {art.source ? <PhotoCredit art={art} /> : null}</div></div>}
     <div className={styles.cardBody}>
     <p className={styles.meta}>{dateRangeLabel(event)} · {event.city}</p>
     <h3>{event.event_name}</h3>
     {event.card_hook ? <p>{event.card_hook}</p> : null}
-    {!selectedPhoto ? <p className={styles.imageCaption}>{park ? "Park photograph via Tiqets. Seasonal event not pictured." : art.caption} {art?.source ? <PhotoCredit art={art} /> : null}</p> : null}
     <a className={styles.textLink} href={cta.href} rel="sponsored noopener" target="_blank">{cta.label}<span className={styles.srOnly}> for {event.event_name}, opens a new tab</span></a>
     </div>
   </article>;
