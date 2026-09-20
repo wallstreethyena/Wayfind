@@ -84,9 +84,9 @@ check("the tile hook changes the picture only", () => {
   const branch = src.slice(src.indexOf("const ownerArt = livePosterArtFor(type, event);"), src.indexOf("let data = null;"));
   assert.ok(branch.length > 0, "owner-art branch not found before the fitted-art fetch");
   assert.match(branch, /if \(!event\.dest \|\| !event\.name\) continue;/, "owner art must keep the dest/name eligibility rule");
-  assert.match(branch, /setTile\(tileFor\(type, config, event, ownerArt, "owner-art"\)\);/);
+  assert.match(branch, /setTile\(\{ candidateKey, tile: tileFor\(type, config, event, ownerArt, "owner-art"\) \}\);/);
   assert.doesNotMatch(branch, /fetch\s*\(/, "owner art must not fetch anything");
-  assert.match(src, /setTile\(tileFor\(type, config, data\.event \|\| \{\}, data\.dataUrl, data\.strategy \|\| null\)\);/, "fitted art must share the same tile builder");
+  assert.match(src, /setTile\(\{ candidateKey, tile: tileFor\(type, config, data\.event \|\| \{\}, data\.dataUrl, data\.strategy \|\| null\) \}\);/, "fitted art must share the same tile builder and current-candidate identity");
   const builder = src.slice(src.indexOf("function tileFor("), src.indexOf("function useOneLivePoster("));
   assert.match(builder, /href: e\.dest \|\| null,/, "the tap destination stays the event's own dest");
   assert.match(builder, /opensPage: true,/);

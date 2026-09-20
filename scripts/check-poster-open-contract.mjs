@@ -15,8 +15,9 @@ let pass = 0;
 const failures = [];
 const ok = (condition, message) => condition ? pass++ : failures.push(message);
 
-const visible = RAILS.filter((rail) => !rail.artStale && !rail.retiredInto);
-ok(visible.length >= 18, `poster registry unexpectedly shrank to ${visible.length}`);
+const routable = RAILS.filter((rail) => !rail.artStale && !rail.retiredInto);
+const visible = routable.filter((rail) => !rail.posterHidden);
+ok(routable.length >= 18, `poster registry unexpectedly shrank to ${routable.length}`);
 ok(/onClick=\{function \(e\) \{ tileClick\(e, id\); \}\}/.test(daypart)
   && /onClick=\{\(e\) => tileClick\(e, id\)\}/.test(daypart),
 "poster anchors and fallback buttons are not both wired to the shared click handler");
@@ -39,7 +40,7 @@ for (const id of intentDoorwayIds) {
   ok(railSharePath(id) === `/r/${id}`, `${id}: exact-rail doorway is not /r/${id}`);
 }
 
-for (const rail of visible) {
+for (const rail of routable) {
   if (rail.opensPage) {
     ok(!!rail.href, `${rail.id}: opensPage has no href, so its plain tap is inert`);
   } else {
@@ -79,4 +80,4 @@ if (failures.length) {
   for (const failure of failures) console.error("  ✗ " + failure);
   process.exit(1);
 }
-console.log(`check-poster-open-contract: OK — ${pass} assertions across ${visible.length} visible posters; every tap has an outcome and callback churn cannot strand a request`);
+console.log(`check-poster-open-contract: OK — ${pass} assertions across ${routable.length} registry routes (${visible.length} visible static posters); synthetic live posters are checked by test-live-event-posters-location; callback churn cannot strand a request`);

@@ -19,6 +19,55 @@ import { useEffect, useState } from "react";
 import { usePosterEvents } from "./usePosterEvents.js";
 import { LIVE_POSTER_TYPE_CONFIG } from "../../lib/liveEventPosterTypes.js";
 import { livePosterArtFor } from "../../lib/livePosterArt.js";
+import { eventMayHaveUsableProviderArt } from "../../lib/livePosterCandidate.js";
+import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
+
+export const LIVE_POSTER_REQUEST_TIMEOUT_MS = 10000;
+// Expensive work is the server-side image download/decode/crop, so keep that
+// budget at six. The ranked scan itself is in-memory browser data: look farther
+// only to skip candidates whose URLs/dimensions prove they can never pass the
+// server's existing honesty and 640px crop gates. Four attempt budgets is a
+// finite ceiling, not an ever-growing retry loop.
+export const LIVE_POSTER_MAX_ATTEMPTS = 6;
+export const LIVE_POSTER_MAX_RANKED_SCAN = 24;
+
+/** Browser-safe prefilter only. False means the event is definitively unable
+ * to pass the existing server gates; true still requires /api/live-poster. */
+export function mayHaveUsableLivePosterArt(type, event) {
+  if (!event?.dest || !event?.name) return false;
+  if (livePosterArtFor(type, event)) return true;
+  return eventMayHaveUsableProviderArt(event);
+}
+
+/** Preserve ranked order while spending at most six image-processing POSTs. */
+export function livePosterCandidates(type, rankedEvents) {
+  return (Array.isArray(rankedEvents) ? rankedEvents : [])
+    .slice(0, LIVE_POSTER_MAX_RANKED_SCAN)
+    .filter((event) => mayHaveUsableLivePosterArt(type, event))
+    .slice(0, LIVE_POSTER_MAX_ATTEMPTS);
+}
+
+// An event id alone does not identify the poster request. Providers can repair
+// an image, destination, date or label while keeping the same id; key those
+// fields so a refreshed event cannot resurrect the previous tile's art/link.
+export function livePosterCandidateKey(candidates) {
+  return JSON.stringify((Array.isArray(candidates) ? candidates : []).map((event) => [
+    event?.id || "", event?.name || "", event?.dest || "", event?.date || "",
+    event?.venue || "", event?.city || "", event?.image || "", event?.thumb || "",
+    event?.segment || "", event?.genre || "", event?.subGenre || "", event?.source || "",
+    (Array.isArray(event?.imageVariants) ? event.imageVariants : []).map((variant) => [
+      variant?.url || "", variant?.ratio || "", variant?.width || 0, variant?.height || 0,
+    ]),
+  ]));
+}
+
+// Artwork resolves after the event feed. Keep the key beside the tile so the
+// render that first receives a new feed cannot briefly reveal the previous
+// city's tile while this feed's artwork request is still in flight.
+export function currentLivePosterTile(tileState, candidateKey, pending) {
+  if (pending || !tileState || tileState.candidateKey !== candidateKey) return null;
+  return tileState.tile || null;
+}
 
 // The synthetic rail object DaypartRail renders. `e` is the event exactly as
 // the pipeline produced it (or lib/eventPoster.js's verbatim passthrough of
@@ -62,10 +111,10 @@ function useOneLivePoster(type, center, city) {
   // playground photo as the Concerts poster. When the top event has no usable
   // event artwork the poster walks DOWN the same ranking rather than giving
   // up, so the reader still gets the most relevant event that can be shown
-  // honestly. The walk is bounded so a thin market cannot cost many requests.
-  const MAX_CANDIDATE_EVENTS = 6;
-  const candidates = (config ? byRail?.[config.bucketKey] || [] : []).slice(0, MAX_CANDIDATE_EVENTS);
-  const candidateKey = candidates.map((e) => e.id).join(",");
+  // honestly. Definitive venue/stock/undersized failures do not consume one of
+  // the six expensive server attempts; the raw ranked scan remains finite.
+  const candidates = livePosterCandidates(type, config ? byRail?.[config.bucketKey] || [] : []);
+  const candidateKey = livePosterCandidateKey(candidates);
   const [tile, setTile] = useState(null);
 
   useEffect(() => {
@@ -82,23 +131,23 @@ function useOneLivePoster(type, center, city) {
         const ownerArt = livePosterArtFor(type, event);
         if (ownerArt) {
           if (!event.dest || !event.name) continue;
-          setTile(tileFor(type, config, event, ownerArt, "owner-art"));
+          setTile({ candidateKey, tile: tileFor(type, config, event, ownerArt, "owner-art") });
           return;
         }
         let data = null;
         try {
-          const r = await fetch("/api/live-poster", {
+          data = await fetchJsonWithDeadline("/api/live-poster", {
+            timeoutMs: LIVE_POSTER_REQUEST_TIMEOUT_MS,
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ event }),
           });
-          data = await r.json();
         } catch {
           data = null;
         }
         if (cancelled) return;
         if (!data || !data.ok || !data.dataUrl) continue; // no usable art: next event down the ranking
-        setTile(tileFor(type, config, data.event || {}, data.dataUrl, data.strategy || null));
+        setTile({ candidateKey, tile: tileFor(type, config, data.event || {}, data.dataUrl, data.strategy || null) });
         return;
       }
       if (!cancelled) setTile(null); // nothing in this bucket can be shown honestly
@@ -106,7 +155,7 @@ function useOneLivePoster(type, center, city) {
     return () => { cancelled = true; };
   }, [candidateKey, type]);
 
-  return pending ? null : tile;
+  return currentLivePosterTile(tile, candidateKey, pending);
 }
 
 /**

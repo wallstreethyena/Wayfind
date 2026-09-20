@@ -35,9 +35,10 @@ export async function GET(req) {
   const u = new URL(req.url);
   const lat = Number(u.searchParams.get("lat"));
   const lng = Number(u.searchParams.get("lng"));
-  // A missing/invalid secret is an OWNER env issue, not a reason to 503 the
-  // rail. serveExplodingNearby fail-softs any thrown read to the in-repo
-  // owner list (honest empty if inventory cannot be read; cards if it can).
+  // Keep configuration failure inside the serving decision so the in-repo
+  // owner list still gets a chance when inventory is readable. If its own
+  // inventory read cannot run, serveExplodingNearby returns a loud 503 rather
+  // than an indistinguishable no-inventory product state.
   let read;
   try {
     const s = serverEnv();

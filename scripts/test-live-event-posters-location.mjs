@@ -9,9 +9,20 @@
 // already uses).
 
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { posterEventsKey, isSettledCurrent } from "../app/components/usePosterEvents.js";
+import {
+  currentLivePosterTile, livePosterCandidateKey, livePosterCandidates, mayHaveUsableLivePosterArt,
+  LIVE_POSTER_REQUEST_TIMEOUT_MS, LIVE_POSTER_MAX_ATTEMPTS, LIVE_POSTER_MAX_RANKED_SCAN,
+} from "../app/components/useLivePosterTiles.js";
 import { selectPosterEvents, posterEventBucket } from "../lib/posterEvents.js";
 import { LIVE_POSTER_TYPE_CONFIG } from "../lib/liveEventPosterTypes.js";
+import {
+  eventMayHaveUsableProviderArt, isNotEventArtwork as sharedIsNotEventArtwork,
+  isPlaceholderTmUrl as sharedIsPlaceholderTmUrl, livePosterSourceCanPossiblyFit,
+  LIVE_POSTER_MIN_CROP_WIDTH,
+} from "../lib/livePosterCandidate.js";
+import { isNotEventArtwork as serverIsNotEventArtwork, isPlaceholderTmUrl as serverIsPlaceholderTmUrl } from "../lib/posterImageFit.js";
 
 let n = 0;
 const check = (fn) => { n++; fn(); };
@@ -146,6 +157,105 @@ check(() => {
   // Title has no music words at all but the real segment says Music.
   const plainTitle = makeEvent({ name: "TBA at Amalie Arena", segment: "Music", genre: "Pop" });
   assert.equal(posterEventBucket(plainTitle), "concerts", "classification must follow the real segment field even with a generic, non-descriptive title");
+});
+
+// --- 11. The browser suite must locate the synthetic rail tiles that the
+// current renderer actually emits. The old standalone LiveEventPoster used
+// data-live-poster-* attributes; #1360 deleted that component when the two
+// posters moved into DaypartRail, so retaining those selectors makes every
+// browser assertion time out before it checks location or routing.
+check(() => {
+  const tileSource = readFileSync(new URL("../app/components/useLivePosterTiles.js", import.meta.url), "utf8");
+  const railSource = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
+  const browserSource = readFileSync(new URL("../tests/e2e/live-event-posters.spec.js", import.meta.url), "utf8");
+  assert.match(tileSource, /id: `live-\$\{type\}`/, "synthetic poster ids must remain live-<type>");
+  assert.match(railSource, /data-id=\{id\}/, "DaypartRail must expose the synthetic rail id on its rendered tile");
+  assert.match(browserSource, /page\.locator\(`\[data-id="live-\$\{type\}"\]`\)/, "the browser suite must locate the rendered synthetic rail id");
+  assert.doesNotMatch(browserSource, /data-live-poster-(?:type|event-id)/, "the browser suite must not target attributes from the deleted standalone poster component");
+});
+
+// --- 12. Artwork work settles and repaired event data invalidates the old
+// tile even when the provider keeps the same event id.
+check(() => {
+  const tileSource = readFileSync(new URL("../app/components/useLivePosterTiles.js", import.meta.url), "utf8");
+  assert.equal(LIVE_POSTER_REQUEST_TIMEOUT_MS, 10000, "each live-poster image request must have a finite reader-facing deadline");
+  assert.match(tileSource, /fetchJsonWithDeadline\("\/api\/live-poster", \{[\s\S]{0,120}timeoutMs: LIVE_POSTER_REQUEST_TIMEOUT_MS/, "the live-poster POST must use the shared bounded JSON client");
+
+  const original = makeEvent({ id: "same", image: "https://img.example/old.jpg", dest: "/events/old" });
+  const repairedImage = { ...original, image: "https://img.example/repaired.jpg" };
+  const repairedDest = { ...original, dest: "/events/repaired" };
+  const repairedDimensions = { ...original, imageVariants: [{ url: original.image, ratio: "16_9", width: 2048, height: 1152 }] };
+  const repairedSport = { ...original, segment: "Sports", genre: "Baseball", subGenre: "MLB", source: "Ticketmaster" };
+  assert.notEqual(livePosterCandidateKey([original]), livePosterCandidateKey([repairedImage]), "same-id image repair must trigger a new fitted poster request");
+  assert.notEqual(livePosterCandidateKey([original]), livePosterCandidateKey([repairedDest]), "same-id destination repair must replace the old poster link");
+  assert.notEqual(livePosterCandidateKey([original]), livePosterCandidateKey([repairedDimensions]), "same-id dimension repair must re-run the browser prefilter");
+  assert.notEqual(livePosterCandidateKey([original]), livePosterCandidateKey([repairedSport]), "same-id classification repair must re-evaluate owner art");
+});
+
+// --- 13. Six definitively unusable leaders do not hide a valid rank 7.
+// The browser only skips facts the server would reject without judgement:
+// venue/stock URLs, provider placeholder art, or variants whose declared
+// dimensions cannot retain the server's 640px minimum after a 9:16 crop.
+check(() => {
+  const venue = (id) => makeEvent({ id, segment: "Music", image: `/api/photo?place=${id}&w=800` });
+  const placeholder = (id) => makeEvent({ id, segment: "Music", image: `https://s1.ticketm.net/dam/c/${id}/generic.jpg` });
+  const tooSmall = (id) => makeEvent({ id, segment: "Music", image: `https://s1.ticketm.net/dam/a/${id}/small.jpg`, imageVariants: [
+    { url: `https://s1.ticketm.net/dam/a/${id}/small.jpg`, width: 1024, height: 576, ratio: "16_9" },
+  ] });
+  const valid7 = makeEvent({ id: "valid7", name: "Rank Seven Concert", segment: "Music", image: "https://s1.ticketm.net/dam/a/valid7/large.jpg", imageVariants: [
+    { url: "https://s1.ticketm.net/dam/a/valid7/large.jpg", width: 2048, height: 1152, ratio: "16_9" },
+  ] });
+  const ranked = [venue("v1"), placeholder("p2"), tooSmall("s3"), venue("v4"), placeholder("p5"), tooSmall("s6"), valid7];
+  assert.equal(LIVE_POSTER_MAX_ATTEMPTS, 6, "the expensive image-processing budget must remain six");
+  assert.equal(LIVE_POSTER_MAX_RANKED_SCAN, 24, "the cheap ranked scan must remain explicitly bounded");
+  assert.deepEqual(livePosterCandidates("concerts", ranked).map((e) => e.id), ["valid7"], "a valid rank 7 must survive six proven no-art leaders without weakening any art gate");
+});
+
+// --- 14. A genuinely unavailable bucket remains unavailable; the prefilter
+// does not invent a candidate merely to force a tile.
+check(() => {
+  const unavailable = Array.from({ length: 30 }, (_, i) => makeEvent({
+    id: `bad-${i}`, segment: "Music", image: `https://s1.ticketm.net/dam/c/${i}/generic.jpg`,
+  }));
+  assert.deepEqual(livePosterCandidates("concerts", unavailable), [], "all unavailable artwork must still fail closed across the entire bounded raw scan");
+});
+
+// --- 15. Owner-supplied baseball art remains first-class even when the event
+// has no provider image. This protects the Sporting Events tile's established
+// Catch a Game treatment while the prefilter is tightened.
+check(() => {
+  const baseball = makeEvent({ id: "baseball", name: "Orlando Baseball", segment: "Sports", genre: "Baseball", image: null, thumb: null, imageVariants: [] });
+  assert.equal(mayHaveUsableLivePosterArt("sports", baseball), true, "owner baseball art must bypass provider-image prefiltering");
+  assert.deepEqual(livePosterCandidates("sports", [baseball]).map((e) => e.id), ["baseball"], "owner baseball event must remain selected in ranked order");
+  assert.equal(mayHaveUsableLivePosterArt("concerts", baseball), false, "owner baseball art must never leak into Concerts");
+});
+
+// --- 16. The cheap browser prefilter and authoritative server import the same
+// URL gates and crop geometry, so a future rule change cannot strand one side.
+check(() => {
+  assert.equal(serverIsNotEventArtwork, sharedIsNotEventArtwork, "client and server must share one non-event-artwork predicate");
+  assert.equal(serverIsPlaceholderTmUrl, sharedIsPlaceholderTmUrl, "client and server must share one Ticketmaster-placeholder predicate");
+  assert.equal(LIVE_POSTER_MIN_CROP_WIDTH, 640);
+  assert.equal(livePosterSourceCanPossiblyFit({ url: "https://img.example/large.jpg", width: 2048, height: 1152 }), true);
+  assert.equal(livePosterSourceCanPossiblyFit({ url: "https://img.example/small.jpg", width: 1024, height: 576 }), false);
+  assert.equal(eventMayHaveUsableProviderArt({ image: "https://s1.ticketm.net/dam/c/generic.jpg" }), false);
+});
+
+// --- 17. A tile belongs to the complete candidate identity that produced it.
+// Once a new feed settles, its replacement artwork may still be resolving;
+// the old city's (or repaired same-id event's) tile must stay hidden then.
+check(() => {
+  const oldCandidates = [makeEvent({ id: "same", city: "Bradenton", image: "https://img.example/old.jpg" })];
+  const newCandidates = [makeEvent({ id: "same", city: "Orlando", image: "https://img.example/new.jpg" })];
+  const oldKey = livePosterCandidateKey(oldCandidates);
+  const newKey = livePosterCandidateKey(newCandidates);
+  const oldTile = { id: "live-concerts", title: "Old city event" };
+  const oldState = { candidateKey: oldKey, tile: oldTile };
+
+  assert.equal(currentLivePosterTile(oldState, oldKey, false), oldTile, "a settled tile remains visible for the exact candidates that produced it");
+  assert.equal(currentLivePosterTile(oldState, oldKey, true), null, "feed loading hides even a matching tile");
+  assert.equal(currentLivePosterTile(oldState, newKey, false), null, "a newly settled feed must not flash the old tile while replacement artwork resolves");
+  assert.equal(currentLivePosterTile({ candidateKey: newKey, tile: oldTile }, newKey, false), oldTile, "the replacement becomes visible only after state carries the new candidate key");
 });
 
 console.log(`test-live-event-posters-location: ${n} checks passed`);

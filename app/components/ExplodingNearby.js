@@ -12,7 +12,7 @@ import { loadProvidedTrendList } from "../../lib/explodingLaunchSearch.js";
 import { nowContext } from "../../lib/nowContext.js";
 import { gateOutdoor, coarseCat } from "../../lib/ranking.js";
 import { topPickAward } from "../../lib/topPickAward.js";
-import { explodingUiStatus, needsOwnerFloor, UNAVAILABLE_COPY } from "../../lib/explodingNearbyServe.js";
+import { explodingUiErrorCopy, explodingUiStatus, needsOwnerFloor, shouldPaintExplodingEmpty, UNAVAILABLE_COPY } from "../../lib/explodingNearbyServe.js";
 import { settleLoad } from "../../lib/loadState.js";
 
 // v8.57 — THE TRENDS WALK MUST REACH A DECISION.
@@ -241,7 +241,7 @@ function TrendBlock({ trend, index, photoRefFor, onLog, onMeaningful, onOpenPlac
   );
 }
 
-export default function ExplodingNearby({ center, city, weather, active, onVisibleIds, onOpenPlace, onFindSimilar, onLog, isSaved, liked, disliked, isLiked, isDisliked, onSave, onLike, onDislike, onShare }) {
+export default function ExplodingNearby({ center, city, weather, active, hasRankedFallback = false, onVisibleIds, onOpenPlace, onFindSimilar, onLog, isSaved, liked, disliked, isLiked, isDisliked, onSave, onLike, onDislike, onShare }) {
   const [result, setResult] = useState({ status: "loading", trends: [] });
   const [retry, setRetry] = useState(0);
   const rootRef = useRef(null);
@@ -253,13 +253,14 @@ export default function ExplodingNearby({ center, city, weather, active, onVisib
     if (!active || !center || !Number.isFinite(center.lat) || !Number.isFinite(center.lng)) return;
     const ctrl = new AbortController();
     setResult({ status: "loading", trends: [] });
-    const apply = (body) => {
+    const apply = (body, { ownerFloorFailed = false } = {}) => {
       const painted = explodingUiStatus({
         status: body && body.status,
         trends: body && body.trends,
         error: body && body.error,
+        ownerFloorFailed,
       });
-      setResult({ ...painted, partial: !!(body && body.partial) });
+      setResult({ ...painted, partial: !!(body && body.partial), ownerFloorFailed });
     };
     const ownerFloor = async () => {
       const u = new URL("/api/trends/nearby", typeof window !== "undefined" ? window.location.origin : "https://www.gowayfind.com");
@@ -270,19 +271,33 @@ export default function ExplodingNearby({ center, city, weather, active, onVisib
       // level down.
       const res = await settleLoad(async () => {
         const r = await fetch(u.toString(), { cache: "no-store", signal: ctrl.signal });
-        return r.json().catch(() => ({}));
+        const body = await r.json().catch(() => null);
+        if (!r.ok) return { ok: false, body };
+        if (!body || typeof body.status !== "string") return { ok: false, body };
+        if (!["ok", "no_verified_inventory", "unsupported_location", "invalid_location"].includes(body.status)) {
+          return { ok: false, body };
+        }
+        return { ok: true, body };
       }, { timeoutMs: TRENDS_LOAD_TIMEOUT_MS });
-      return res.ok ? (res.data || {}) : {};
+      return res.ok ? res.data : { ok: false, body: null };
     };
+    // settleLoad bounds the walk but does not cancel its underlying promise.
+    // Close this gate as soon as the bounded result resolves so a late batch
+    // cannot overwrite the terminal owner-floor decision with partial:true.
+    let primaryAccepting = true;
     settleLoad(() => loadProvidedTrendList({
       center, city, signal: ctrl.signal,
       // v8.24 — trends render AS THE WALK FINDS THEM (owner: "always takes so
       // long to load"). Each partial is the ranked prefix of the final list,
       // so nothing reorders under the reader; `partial` keeps a small tail
       // skeleton up until the walk completes.
-      onPartial: (body) => { if (!ctrl.signal.aborted && Array.isArray(body.trends) && body.trends.length) setResult({ status: "ok", trends: body.trends, partial: true }); },
+      onPartial: (body) => {
+        if (!primaryAccepting || ctrl.signal.aborted) return;
+        if (Array.isArray(body.trends) && body.trends.length) setResult({ status: "ok", trends: body.trends, partial: true });
+      },
     }), { timeoutMs: TRENDS_LOAD_TIMEOUT_MS })
       .then(async (settled) => {
+        primaryAccepting = false;
         if (ctrl.signal.aborted) return;
         // THE BRANCH THAT DID NOT EXIST. settleLoad cannot reject and cannot
         // hang, so this runs even when the walk never answers.
@@ -294,10 +309,29 @@ export default function ExplodingNearby({ center, city, weather, active, onVisib
           setResult((prev) => (prev && Array.isArray(prev.trends) && prev.trends.length
             ? { ...prev, partial: false }
             : explodingUiStatus({ status: "trend_data_error", trends: [], error: UNAVAILABLE_COPY })));
-          try {
-            const floor = await ownerFloor();
-            if (!ctrl.signal.aborted && floor && Array.isArray(floor.trends) && floor.trends.length) apply(floor);
-          } catch (e) { /* the terminal state above already stands */ }
+          const floor = await ownerFloor();
+          if (ctrl.signal.aborted) return;
+          if (floor.ok) {
+            setResult((prev) => {
+              if (prev && Array.isArray(prev.trends) && prev.trends.length) return prev;
+              return explodingUiStatus({
+                status: floor.body.status,
+                trends: floor.body.trends,
+                error: floor.body.error,
+              });
+            });
+          } else {
+            setResult((prev) => {
+              if (prev && Array.isArray(prev.trends) && prev.trends.length) return prev;
+              const failed = floor.body || {};
+              return { ...explodingUiStatus({
+                status: failed.status || "trend_data_error",
+                trends: [],
+                error: failed.error || UNAVAILABLE_COPY,
+                ownerFloorFailed: true,
+              }), ownerFloorFailed: true };
+            });
+          }
           return;
         }
         const body = settled.data;
@@ -320,21 +354,33 @@ export default function ExplodingNearby({ center, city, weather, active, onVisib
         // when the bucket flips from morning to afternoon.
         let next = body || {};
         if (needsOwnerFloor(next)) {
-          try {
-            const floor = await ownerFloor();
-            if (floor && Array.isArray(floor.trends) && floor.trends.length) next = floor;
-          } catch (e) { /* explodingUiStatus fail-softs the Google body */ }
+          const floor = await ownerFloor();
+          if (ctrl.signal.aborted) return;
+          if (floor.ok) next = floor.body;
+          else {
+            const failed = floor.body || next;
+            apply({
+              status: failed.status || "trend_data_error",
+              trends: [],
+              error: failed.error || next.error || UNAVAILABLE_COPY,
+            }, { ownerFloorFailed: true });
+            return;
+          }
         }
         apply(next);
       })
       .catch(() => {
+        primaryAccepting = false;
+        if (ctrl.signal.aborted) return;
         // Terminal first — check-no-stuck-loading forbids an async catch that
-        // can leave status:"loading" on the skeleton. explodingUiStatus then
-        // remaps the 502-shaped body to honest empty while the owner list exists.
+        // can leave status:"loading" on the skeleton. The floor still gets its
+        // chance; its own failure then replaces this provisional empty with an
+        // actionable error.
         setResult(explodingUiStatus({ status: "trend_data_error", trends: [], error: UNAVAILABLE_COPY }));
         ownerFloor().then((floor) => {
           if (ctrl.signal.aborted) return;
-          if (floor && Array.isArray(floor.trends) && floor.trends.length) apply(floor);
+          if (floor.ok) apply(floor.body);
+          else apply({ status: "trend_data_error", trends: [], error: UNAVAILABLE_COPY }, { ownerFloorFailed: true });
         }).catch(() => {});
       });
     return () => ctrl.abort();
@@ -359,10 +405,15 @@ export default function ExplodingNearby({ center, city, weather, active, onVisib
   // the walk is still running (v8.24 partial), in which case it is simply
   // still loading, not "nothing qualifies".
   const status = result.status === "ok" && !gatedTrends.length ? (result.partial ? "loading" : "no_verified_inventory") : result.status;
-  // 502/503 / a dead Google walk are never the paint path while the owner
-  // list still exists. explodingUiStatus is the law — execute it, do not
-  // re-derive "temporarily unavailable" from a status string here.
-  const painted = explodingUiStatus({ status, trends: gatedTrends, error: result.error });
+  // A dead Google walk is not painted until the owner floor gets its chance.
+  // If the floor also fails, carry that fact through this final paint so an
+  // outage cannot turn back into an inventory-empty message.
+  const painted = explodingUiStatus({
+    status,
+    trends: gatedTrends,
+    error: result.error,
+    ownerFloorFailed: result.ownerFloorFailed,
+  });
 
   const visibleIdKey = status === "ok"
     ? gatedTrends.flatMap((trend) => trend.matches || []).map((p) => p && p.id).filter(Boolean).join("|")
@@ -431,13 +482,19 @@ export default function ExplodingNearby({ center, city, weather, active, onVisib
   if (status === "unsupported_location" || painted.status === "unsupported_location") {
     return <div style={{ color: C.muted, fontSize: 13, lineHeight: 1.5, padding: "7px 2px 13px" }}>Trending Near You is not available in this area yet.</div>;
   }
-  if (painted.status === "no_verified_inventory") {
+  if (painted.status === "no_verified_inventory" && hasRankedFallback) return null;
+  if (shouldPaintExplodingEmpty({ status: painted.status, hasRankedFallback })) {
     return <div style={{ color: C.muted, fontSize: 13, lineHeight: 1.5, padding: "7px 2px 13px" }}>No trend has enough verified local inventory to recommend right now.</div>;
   }
   if (painted.status !== "ok" || !gatedTrends.length) {
+    const errorCopy = explodingUiErrorCopy({
+      error: painted.error,
+      ownerFloorFailed: result.ownerFloorFailed,
+      hasRankedFallback,
+    });
     return (
       <div role="alert" style={{ padding: "8px 2px 14px" }}>
-        <div style={{ color: "#F8C6B8", fontSize: 13, lineHeight: 1.5 }}>{painted.error || UNAVAILABLE_COPY}</div>
+        <div style={{ color: "#F8C6B8", fontSize: 13, lineHeight: 1.5 }}>{errorCopy}</div>
         <button type="button" onClick={() => setRetry((n) => n + 1)} style={{ marginTop: 8, minHeight: 38, padding: "0 13px", borderRadius: 9, border: "1px solid rgba(255,255,255,.15)", background: "rgba(255,255,255,.04)", color: C.text, fontWeight: 750, cursor: "pointer" }}>Try again</button>
       </div>
     );

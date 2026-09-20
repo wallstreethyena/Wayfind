@@ -3,9 +3,11 @@
 // isolation, count integrity on a mixed fixture, and the timezone
 // pass-through guarantee, all against lib/eventsPipeline.js directly.
 import { processEvents, validateEvent, dedupeAcrossProviders, resolveDestination, isFabricatedSearchUrl } from "../lib/eventsPipeline.js";
-import { generateStaples, idFromSlug, resolveEventById } from "../lib/eventResolve.js";
+import { cachedTicketmasterEventFromRows, generateStaples, idFromSlug, resolveEventById } from "../lib/eventResolve.js";
 import { eventStoryFallback, validateEventStory } from "../lib/eventStory.js";
 import { readFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 
 let failures = 0;
 const fail = (m) => { console.error("test-events-contract: FAIL — " + m); failures++; };
@@ -138,6 +140,88 @@ const run = (events, provider = "Ticketmaster") => processEvents([{ provider, co
   if (missing !== null) fail("unknown staple id should resolve to null");
   const junk = await resolveEventById("zz_bogus");
   if (junk !== null) fail("unknown provider prefix should resolve to null");
+}
+
+// 8b. A Ticketmaster detail may reuse only the exact, still-current event from
+// the shared feed cache. It must not turn a mismatched, past, or cancelled row
+// into a detail page merely because the URL contains a plausible id.
+{
+  const current = base({ id: "tm_cached", date: "2099-09-19", status: "onsale" });
+  const rows = [{ v: [current] }];
+  const cached = cachedTicketmasterEventFromRows(rows, current.id, new Date("2026-09-19T12:00:00Z"));
+  if (!cached || cached.id !== current.id || cached.name !== current.name) fail("fresh exact Ticketmaster cache row did not resolve");
+  if (cachedTicketmasterEventFromRows(rows, "tm_other", new Date("2026-09-19T12:00:00Z")) !== null) fail("cache lookup accepted a different event id");
+  if (cachedTicketmasterEventFromRows([{ v: [base({ id: "tm_cached", date: "2026-09-18" })] }], "tm_cached", new Date("2026-09-19T12:00:00Z")) !== null) fail("cache lookup accepted a past event");
+  if (cachedTicketmasterEventFromRows([{ v: [base({ id: "tm_cached", date: "2099-02-30" })] }], "tm_cached", new Date("2026-09-19T12:00:00Z")) !== null) fail("cache lookup accepted an impossible calendar date");
+  if (cachedTicketmasterEventFromRows([{ v: [base({ id: "tm_cached", date: "2099-09-19", time: "25:99" })] }], "tm_cached", new Date("2026-09-19T12:00:00Z")) !== null) fail("cache lookup accepted an impossible local time");
+  if (cachedTicketmasterEventFromRows([{ v: [base({ id: "tm_cached", date: "2099-09-19", status: "cancelled" })] }], "tm_cached", new Date("2026-09-19T12:00:00Z")) !== null) fail("cache lookup accepted a cancelled event");
+  if (cachedTicketmasterEventFromRows([{ v: [base({ id: "tm_cached", date: "2099-09-19", url: "javascript:alert(1)" })] }], "tm_cached", new Date("2026-09-19T12:00:00Z")) !== null) fail("cache lookup accepted an unsafe official URL");
+  const resolver = readFileSync(new URL("../lib/eventResolve.js", import.meta.url), "utf8");
+  if (!/React\.cache\(resolveEventByIdUncached\)/.test(resolver)) fail("event metadata and body do not share one request-scoped resolver");
+}
+
+// 8c. Provider authority: when configured, a current provider response wins,
+// including cancelled and definitively removed events. The cache is fallback
+// inventory only for a missing key or a transient provider failure.
+{
+  const workerArg = "--event-resolver-authority-worker";
+  if (process.argv.includes(workerArg)) {
+    const cached = base({ id: "tm_authority", name: "Cached listing", date: "2099-09-19", status: "onsale" });
+    const cachedResponse = () => new Response(JSON.stringify([{ v: [cached], wrote_at: "2026-09-19T12:00:00Z" }]), { status: 200, headers: { "content-type": "application/json" } });
+    const liveBody = (status = "cancelled") => ({
+      id: "authority", name: "Live provider listing", url: "https://www.ticketmaster.com/event/authority",
+      dates: { start: { localDate: "2099-09-19", localTime: "19:00:00" }, status: { code: status } },
+      _embedded: { venues: [{ name: "Live Arena", city: { name: "Orlando" }, location: { latitude: "28.5", longitude: "-81.4" } }] },
+      classifications: [{ segment: { name: "Sports" }, genre: { name: "Football" } }], images: [],
+    });
+    process.env.SUPABASE_URL = "https://cache.example";
+    delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+    process.env.SUPABASE_SERVICE_ROLE_KEY = "test-service-role";
+
+    delete process.env.TICKETMASTER_API_KEY;
+    let calls = [];
+    globalThis.fetch = async (url) => { calls.push(String(url)); return cachedResponse(); };
+    const noKey = await resolveEventById("tm_authority");
+    if (!noKey || noKey.name !== "Cached listing" || calls.length !== 1 || !calls[0].startsWith("https://cache.example/")) fail("missing Ticketmaster key did not resolve the fresh exact cached row");
+    calls = [];
+    if (await resolveEventById("tm_bad space") !== null || calls.length !== 0) fail("malformed Ticketmaster id reached the cache query");
+
+    process.env.TICKETMASTER_API_KEY = "test-ticketmaster-key";
+    calls = [];
+    globalThis.fetch = async (url) => { calls.push(String(url)); return new Response(JSON.stringify(liveBody("cancelled")), { status: 200, headers: { "content-type": "application/json" } }); };
+    const cancelled = await resolveEventById("tm_authority");
+    if (!cancelled || cancelled.name !== "Live provider listing" || cancelled.status !== "cancelled" || calls.length !== 1) fail("configured provider cancellation did not override the older feed cache");
+
+    calls = [];
+    globalThis.fetch = async (url) => { calls.push(String(url)); return new Response("", { status: 404 }); };
+    if (await resolveEventById("tm_authority") !== null || calls.length !== 1) fail("explicit provider 404 fell back to stale listing inventory");
+
+    calls = [];
+    globalThis.fetch = async (url) => { calls.push(String(url)); return new Response("", { status: 401 }); };
+    if (await resolveEventById("tm_authority") !== null || calls.length !== 1) fail("non-transient provider rejection fell back to cached inventory");
+
+    calls = [];
+    globalThis.fetch = async (url) => { calls.push(String(url)); return calls.length === 1 ? new Response("", { status: 503 }) : cachedResponse(); };
+    const transient = await resolveEventById("tm_authority");
+    if (!transient || transient.name !== "Cached listing" || calls.length !== 2 || !calls[1].startsWith("https://cache.example/")) fail("transient provider failure did not use fresh exact cached inventory");
+
+    calls = [];
+    globalThis.fetch = async (url) => { calls.push(String(url)); if (calls.length === 1) throw new Error("network down"); return cachedResponse(); };
+    const network = await resolveEventById("tm_authority");
+    if (!network || network.name !== "Cached listing" || calls.length !== 2 || !calls[1].startsWith("https://cache.example/")) fail("provider network failure did not use fresh exact cached inventory");
+    if (failures) process.exit(1);
+    console.log("event-resolver-authority-worker: OK");
+    process.exit(0);
+  }
+  const child = spawnSync(process.execPath, [fileURLToPath(import.meta.url), workerArg], {
+    cwd: fileURLToPath(new URL("..", import.meta.url)),
+    env: { NODE_ENV: "test" },
+    encoding: "utf8",
+    timeout: 30000,
+  });
+  if (child.status !== 0 || !String(child.stdout || "").includes("event-resolver-authority-worker: OK")) {
+    fail(`provider-authority child failed (${child.status}): ${String(child.stderr || child.stdout || "no output").trim().slice(0, 500)}`);
+  }
 }
 
 // 9. Event storytelling is useful before the optional model responds, and the
