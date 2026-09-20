@@ -1,6 +1,20 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import ts from "typescript";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { loadComponent } from "./lib/jsxLoad.mjs";
+import { fileURLToPath } from "node:url";
+const { default: CommunityFooter } = await loadComponent(fileURLToPath(new URL("../app/components/CommunityFooter.js", import.meta.url)), process.cwd());
+const normal = renderToStaticMarkup(createElement(CommunityFooter));
+const compact = renderToStaticMarkup(createElement(CommunityFooter, {compact:true}));
+const recommended = renderToStaticMarkup(createElement(CommunityFooter, {compact:true,recommendation:true,initialPlace:"Missing Cafe"}));
+assert.match(normal, /Send feedback/);
+assert.match(normal, /Wayfind on Instagram/);
+assert.match(compact, />Feedback<\/button>/);
+assert.doesNotMatch(compact, /Instagram|mailto:/);
+assert.match(recommended, /Recommend this place/);
+assert.doesNotMatch(recommended, /Send feedback|mailto:/);
 
 const source = readFileSync(process.argv[2] || new URL("../app/components/CommunityFooter.js", import.meta.url), "utf8");
 const ast = ts.createSourceFile("CommunityFooter.jsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JSX);

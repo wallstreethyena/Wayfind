@@ -34,9 +34,9 @@
     "criticalCount": 83,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 464,
-      "RENDER": 75,
-      "STRUCTURAL": 141,
+      "CALL": 465,
+      "RENDER": 76,
+      "STRUCTURAL": 139,
       "OTHER": 1
     }
   },
@@ -9894,13 +9894,11 @@
     {
       "file": "scripts/test-community-feedback.mjs",
       "npmScript": null,
-      "class": "STRUCTURAL",
+      "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 24,
+      "assertionCount": 30,
       "unprovenAbsenceCount": 0,
-      "honestyViolations": [
-        "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
-      ],
+      "honestyViolations": [],
       "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,
@@ -11573,13 +11571,11 @@
     {
       "file": "scripts/test-feedback-storage.mjs",
       "npmScript": null,
-      "class": "STRUCTURAL",
+      "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 15,
+      "assertionCount": 17,
       "unprovenAbsenceCount": 0,
-      "honestyViolations": [
-        "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
-      ],
+      "honestyViolations": [],
       "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,

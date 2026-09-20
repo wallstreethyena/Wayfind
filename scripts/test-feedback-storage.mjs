@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import ts from 'typescript';
+import { POST as realPOST } from '../app/api/feedback/route.js';
 const source=readFileSync(new URL('../app/api/feedback/route.js',import.meta.url),'utf8');
 const ast=ts.createSourceFile('route.js',source,ts.ScriptTarget.Latest,true);
 const fns=new Map();
@@ -32,3 +33,6 @@ for(const [options,status] of [[{configured:false},503],[{blocked:true},429],[{r
 }
 assert(readFileSync(new URL('../middleware.js',import.meta.url),'utf8').includes('"/api/feedback"'));
 console.log('test-feedback-storage: OK — stored acknowledgement, recommendation context, failures, rate limit, bounds and guarded route');
+
+assert.equal((await realPOST(request({message:" "}))).status,400,"real route export rejects empty notes before storage");
+assert.equal((await realPOST(new Request("https://wayfind.test/api/feedback",{method:"POST",body:"invalid json"}))).status,400,"real route export rejects malformed requests");
