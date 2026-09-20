@@ -19,7 +19,6 @@ export default function ExperienceCatalog() {
   const [error,setError]=useState(false);
   const [retry,setRetry]=useState(0);
   const [locating,setLocating]=useState(true);
-  const [locationMiss,setLocationMiss]=useState(false);
   const manualCity=useRef(false);
   const locationRequest=useRef(0);
 
@@ -29,7 +28,6 @@ export default function ExperienceCatalog() {
     detectCatalogCity().then(found=>{
       if(!active || request!==locationRequest.current || manualCity.current) return;
       if(found) setCity(found);
-      else setLocationMiss(true);
     }).finally(()=>{if(active && request===locationRequest.current) setLocating(false);});
     return ()=>{active=false;};
   },[]);
@@ -55,26 +53,24 @@ export default function ExperienceCatalog() {
 
   function resetResults(){setPage(0);setData(null);setError(false);setRetry(value=>value+1);}
   function choose(key){setCat(key);resetResults();}
-  function chooseCity(nextCity){locationRequest.current+=1;manualCity.current=true;setCity(nextCity);setLocationMiss(false);setLocating(false);resetResults();}
+  function chooseCity(nextCity){locationRequest.current+=1;manualCity.current=true;setCity(nextCity);setLocating(false);resetResults();}
   async function useLocation(){
     const request=++locationRequest.current;
-    manualCity.current=false;setLocating(true);setLocationMiss(false);
+    manualCity.current=false;setLocating(true);
     const found=await detectCatalogCity({requestPermission:true});
     if(request!==locationRequest.current || manualCity.current) return;
     setLocating(false);
     if(found){setCity(found);resetResults();}
-    else setLocationMiss(true);
   }
 
   const selectedCategory=categories.find(category=>category.key===cat)?.label || 'All activities';
   const loaded=data?.items?.length || 0;
   return <section id="experiences" className={styles.section}>
-    <div className={styles.sectionHead}><p className={styles.eyebrow}>Wayfind picks first</p><h2>Top experiences near you</h2><p className={styles.intro}>Choose a destination and Wayfind will lead with its five highest-scored experiences. Load five more whenever you want a longer list.</p></div>
+    <div className={styles.sectionHead}><h2>Top experiences</h2></div>
     <div className={styles.catalogControls}>
-      <label htmlFor="florida-catalog-city">Choose your location <select id="florida-catalog-city" value={city} onChange={e=>chooseCity(e.target.value)}><option value="">Choose a Florida destination</option>{cities.map(c=><option key={c}>{c}</option>)}</select></label>
+      <label htmlFor="florida-catalog-city">Location <select id="florida-catalog-city" value={city} onChange={e=>chooseCity(e.target.value)}><option value="">Choose a destination</option>{cities.map(c=><option key={c}>{c}</option>)}</select></label>
       <button type="button" className={styles.locationButton} onClick={useLocation} disabled={locating}>{locating ? 'Finding your location…' : 'Use my location'}</button>
     </div>
-    {!city && <p className={styles.locationHelp}>{locating ? 'Checking whether you are near one of our covered Florida destinations…' : locationMiss ? 'We could not match your location to a covered destination. Choose Orlando, Tampa, St. Petersburg, Clearwater or Sarasota above, or try location again.' : 'Choose a destination to see its top experiences.'}</p>}
     <div className={styles.catalogLayout}>
       <aside className={styles.catalogCategories} aria-label="Experience categories">
         <div className={styles.categoryHeading}><h3>Categories</h3>{cat!=='all' ? <button type="button" onClick={()=>choose('all')}>Clear category</button> : null}</div>
@@ -85,8 +81,7 @@ export default function ExperienceCatalog() {
         </div>
       </aside>
       <div className={styles.catalogResults}>
-        <p className={styles.note}>Top 5 by Wayfind Score. See more to keep exploring. Category counts can overlap. <a href="/how-wayfind-ranks">How Wayfind scores experiences ↗</a></p>
-        <div aria-live="polite" aria-atomic="true" className={styles.catalogStatus}>{!city ? 'Choose a location to see recommendations.' : loading && !data ? `Finding the top 5 ${selectedCategory.toLowerCase()} in ${city}…` : error ? 'The experience catalog is temporarily unavailable.' : `${loaded} of ${data?.total || 0} ${selectedCategory.toLowerCase()} shown in ${city}${loading ? ' · Loading 5 more…' : ''}`}</div>
+        <div aria-live="polite" aria-atomic="true" className={styles.catalogStatus}>{!city ? '' : loading && !data ? `Finding the top 5 ${selectedCategory.toLowerCase()} in ${city}…` : error ? 'The experience catalog is temporarily unavailable.' : `${loaded} of ${data?.total || 0} ${selectedCategory.toLowerCase()} shown in ${city}${loading ? ' · Loading 5 more…' : ''}`}</div>
         {error ? <button className={styles.catalogButton} onClick={()=>setRetry(v=>v+1)}>Try again</button> : null}
         {data?.items?.length ? <div className={styles.grid}>{data.items.map(item=><article key={item.code} className={styles.offerCard}>
           <div className={styles.media}><GuidePhoto src={item.image} alt={item.title} width={640} height={400} loading="lazy" className={styles.offerImage} fallbackClassName={styles.photoFallback} fallbackText="Photo unavailable"/></div>
