@@ -27,16 +27,16 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 684,
-    "totalRegistryEntries": 685,
-    "guardsTxtLineCount": 683,
-    "guardsTxtReachedFileCount": 678,
+    "totalOnDiskGuardFiles": 685,
+    "totalRegistryEntries": 686,
+    "guardsTxtLineCount": 684,
+    "guardsTxtReachedFileCount": 679,
     "criticalCount": 83,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 467,
+      "CALL": 469,
       "RENDER": 78,
-      "STRUCTURAL": 139,
+      "STRUCTURAL": 138,
       "OTHER": 1
     }
   },
@@ -3349,6 +3349,28 @@
     },
     {
       "file": "scripts/check-guide-place-identities.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 9,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-guide-product-isr-cache.mjs",
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
@@ -12310,7 +12332,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 72,
+      "assertionCount": 76,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -12354,7 +12376,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 41,
+      "assertionCount": 50,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,
@@ -14960,12 +14982,11 @@
     {
       "file": "scripts/test-sentry-lazy.mjs",
       "npmScript": null,
-      "class": "STRUCTURAL",
+      "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 22,
+      "assertionCount": 35,
       "unprovenAbsenceCount": 4,
       "honestyViolations": [
-        "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines",
         "4 absence assertion(s) with no positive control in the same file (e.g. \"/useEffect\\s*\\(/.test(sc), \"\")"
       ],
       "selfDocumentsRedProve": false,
