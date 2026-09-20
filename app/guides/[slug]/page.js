@@ -8,7 +8,8 @@ import { notFound } from "next/navigation";
 import { GUIDES } from "../../../lib/guides";
 import { SITE_URL } from "../../../lib/site";
 import { experienceSearchUrl, viatorProductGoUrl } from "../../../lib/affiliates";
-import { resolveGuideProduct, productCtaLabel } from "../../../lib/guideProductResolve";
+import { productCtaLabel } from "../../../lib/guideProductResolve";
+import { cachedGuideProduct } from "../../../lib/guideProductResolveCache";
 // ONE primary CTA per guide, resolved through THE predicate in
 // lib/bookingResolve — the same one the app's Detail sheet uses. The per-pick
 // experienceGoUrl()/hotelSearchUrl() calls this file used to make were a PARALLEL
@@ -470,7 +471,7 @@ export default async function GuidePage({ params }) {
   if (!isSsgBuild() && guideIntent(g) === "tour" && !(primaryCta && primaryCta.exact) && !(primaryCta && primaryCta.kind === "deal")) {
     const pick = (g.picks || []).find((p) => p && (p.bookQuery || p.viatorUrl));
     const region = g.region || "Orlando";
-    const hit = pick ? await resolveGuideProduct(pick, region).catch(() => null) : null;
+    const hit = pick ? await cachedGuideProduct(pick, region).catch(() => null) : null;
     // The href goes through OUR redirect, never a bare partner URL — the route
     // re-validates the destination host before it can become a Location.
     const href = hit ? viatorProductGoUrl(hit.url, region, "guide", "guide") : null;

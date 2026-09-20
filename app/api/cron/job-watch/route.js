@@ -5,7 +5,7 @@
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-import { jobHealth, classifyHealth, incidentLine, recordPulse, DEAD_RUN_THRESHOLD } from "../../../../lib/jobPulse";
+import { jobHealthDetailed, classifyHealth, incidentLine, recordPulse, DEAD_RUN_THRESHOLD } from "../../../../lib/jobPulse";
 import { resolveOverride } from "../../../../lib/envAudit";
 import { sbEnv } from "../../../../lib/serverCache";
 import {
@@ -78,11 +78,20 @@ export async function GET(req) {
   const auth = req.headers.get("authorization") || "";
   if (!secret || auth !== "Bearer " + secret) return new Response("unauthorized", { status: 401 });
 
-  const rows = await jobHealth(LOOKBACK_HOURS);
+  const healthRead = await jobHealthDetailed(LOOKBACK_HOURS);
+  const rows = healthRead.rows;
   const { incidents, healthy, idle } = classifyHealth(rows);
 
+  if (!healthRead.ok) {
+    const outcome = healthRead.indeterminate ? "outcome unknown" : (healthRead.status == null ? "unconfigured" : `HTTP ${healthRead.status}`);
+    const reason = `health feed read failed (${outcome}) — ${healthRead.error || "unknown error"}`;
+    await recordPulse("job-watch", { attempted: 0, succeeded: 0, failed: 1, note: reason });
+    await reportUndelivered(reason, []);
+    return Response.json({ ok: false, incidents: null, note: reason }, { status: 503, headers: { "cache-control": "no-store" } });
+  }
+
   if (!rows.length) {
-    const reason = "no pulse rows in window — health feed unavailable or nothing is reporting";
+    const reason = `no pulse rows in ${LOOKBACK_HOURS}h window — nothing is reporting`;
     await recordPulse("job-watch", { attempted: 0, succeeded: 0, failed: 1, note: reason });
     await reportUndelivered(reason, []);
     return Response.json({ ok: false, incidents: null, note: reason }, { status: 503, headers: { "cache-control": "no-store" } });
@@ -123,7 +132,8 @@ export async function GET(req) {
   const to = resolveOverride("DIGEST_EMAIL").value;
   const from = resolveOverride("WF_ALERT_FROM").value;
   if (!resendKey || !to) {
-    const reason = "RESEND_API_KEY or DIGEST_EMAIL not set";
+    const missing = [!resendKey && "RESEND_API_KEY", !to && "DIGEST_EMAIL"].filter(Boolean);
+    const reason = `${missing.join(" and ")} not set`;
     const attempted = Math.max(1, incidents.length);
     await recordPulse("job-watch", { attempted, succeeded: 0, failed: attempted, note: "CANNOT SEND: " + reason + ` — ${incidents.length} incident(s) undelivered` });
     await reportUndelivered(reason, incidents);

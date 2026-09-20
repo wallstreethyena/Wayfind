@@ -101,7 +101,7 @@ ok(!/resolveViatorProduct\s*\(/.test(mod),
 
 /* ── 6. the page upgrade must be gated and must not emit a partner href ───── */
 const page = strip(readFileSync(REPO + "app/guides/[slug]/page.js", "utf8"));
-ok(/resolveGuideProduct\s*\(/.test(page), "the guide page must attempt render-time resolution");
+ok(/cachedGuideProduct\s*\(/.test(page), "the guide page must attempt render-time resolution through its ISR cache boundary");
 ok(/guideIntent\(\s*g\s*\)\s*===\s*["']tour["']/.test(page),
   "the upgrade stays scoped to tour-intent guides");
 ok(/!\s*\(\s*primaryCta\s*&&\s*primaryCta\.exact\s*\)/.test(page),

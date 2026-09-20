@@ -40,6 +40,7 @@ export default function SentryClient() {
           window.__wfSentryQueue = [];
           window.__wfSentryReady = 1;
           for (const item of q) {
+            if (shared.shouldDropBrowserNoise(item, null, true)) continue;
             const err =
               item && item.error instanceof Error
                 ? item.error

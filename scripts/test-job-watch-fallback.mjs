@@ -103,7 +103,7 @@ const undeliveredWithoutFailStatus = (call) => /sent:\s*false/.test(call) && !/s
   const hasDef = /function\s+reportUndelivered\(/.test(src);
   ok(hasDef, "reportUndelivered is defined as a function — a single place, not duplicated inline logic per branch");
   const callSites = totalOccurrences - (hasDef ? 1 : 0);
-  ok(callSites === 3, `reportUndelivered( is called at exactly 3 call sites, excluding its own definition (found ${callSites} call sites, ${totalOccurrences} total occurrences) — health-feed failure, missing config, and a real send that failed`);
+  ok(callSites === 4, `reportUndelivered( is called at exactly 4 call sites, excluding its own definition (found ${callSites} call sites, ${totalOccurrences} total occurrences) — health-read failure, confirmed-empty health, missing mail config, and a real send that failed`);
 }
 ok((src.match(/status:\s*500/g) || []).length === 2, "exactly two `status: 500` responses exist — one per undelivered branch");
 {
@@ -142,12 +142,18 @@ const CHILD = `
 
   const rows = JSON.parse(process.env.__WF_ROWS);
   const resendMode = process.env.__WF_RESEND_MODE;
+  const healthMode = process.env.__WF_HEALTH_MODE;
   const pulseWrites = [];
   const healthReads = [];
   globalThis.fetch = async (url, opts) => {
     const u = String(url);
     if (u.includes("/rest/v1/rpc/wf_job_health")) {
       healthReads.push({ cache: opts.cache, bounded: !!opts.signal });
+      if (healthMode === "http") return { ok: false, status: 503, text: async () => "fixture health unavailable" };
+      if (healthMode === "invalid-json") return { ok: true, status: 200, json: async () => { throw new SyntaxError("Unexpected token fixture"); } };
+      if (healthMode === "invalid") return { ok: true, status: 200, json: async () => ({ rows }) };
+      if (healthMode === "network") throw new Error("fixture network down");
+      if (healthMode === "timeout") throw new DOMException("fixture timed out", "TimeoutError");
       return { ok: true, status: 200, json: async () => rows };
     }
     if (u.includes("/rest/v1/wf_job_pulse")) {
@@ -180,16 +186,19 @@ const CHILD = `
   }));
 `;
 
-function runScenario({ rows, resendMode = "unset", resendKeySet = false }) {
+function runScenario({ rows, resendMode = "unset", resendKeySet = false, healthMode = "ok", supabaseConfigured = true }) {
   const env = {
     NODE_ENV: "test",
     CRON_SECRET: "test-cron-secret",
-    SUPABASE_URL: "https://fake.supabase.example",
-    SUPABASE_SERVICE_ROLE_KEY: "fake-service-role-key",
     __WF_ROWS: JSON.stringify(rows),
     __WF_RESEND_MODE: resendMode,
+    __WF_HEALTH_MODE: healthMode,
     __WF_CRON_SECRET: "test-cron-secret",
   };
+  if (supabaseConfigured) {
+    env.SUPABASE_URL = "https://fake.supabase.example";
+    env.SUPABASE_SERVICE_ROLE_KEY = "fake-service-role-key";
+  }
   if (resendKeySet) env.RESEND_API_KEY = "test-resend-key";
   const out = execFileSync(process.execPath, ["--input-type=module", "-e", CHILD], {
     env, encoding: "utf8", timeout: 30000, stdio: ["ignore", "pipe", "pipe"],
@@ -219,9 +228,33 @@ const HEALTHY_ROWS = [
 {
   const r = runScenario({ rows: [], resendMode: "unset", resendKeySet: false });
   ok(r.status === 503 && r.body.ok === false, `empty table: must fail closed (got ${r.status})`);
-  ok(/no pulse rows in window/.test(r.body.note || ""), "empty table: reported as 'nothing is reporting', not as a clean bill of health");
+  ok(/no pulse rows in 48h window/.test(r.body.note || ""), "empty table: reported as confirmed empty, not as a clean bill of health");
   ok((r.sentryCalls || []).length === 1, "empty table: report health-feed failure");
   ok(r.flushCalls.length === 1 && r.flushCalls[0] === 2000, "health-feed alarm is flushed with bounded wait");
+  const pw = (r.pulseWrites || []).find((p) => p.job === "job-watch");
+  ok(pw && pw.failed === 1 && /no pulse rows/.test(pw.note || ""), "empty table: failed self-pulse preserves the confirmed-empty outcome");
+}
+// Read failures retain their provenance instead of impersonating an empty table.
+for (const fixture of [
+  { healthMode: "http", pattern: /HTTP 503.*fixture health unavailable/, label: "HTTP failure" },
+  { healthMode: "invalid-json", pattern: /HTTP 200.*invalid health JSON.*Unexpected token fixture/, label: "invalid JSON" },
+  { healthMode: "invalid", pattern: /invalid health payload/, label: "malformed JSON shape" },
+  { healthMode: "network", pattern: /outcome unknown.*fixture network down/, label: "network failure" },
+  { healthMode: "timeout", pattern: /outcome unknown.*fixture timed out/, label: "timeout" },
+]) {
+  const r = runScenario({ rows: HEALTHY_ROWS, healthMode: fixture.healthMode });
+  ok(r.status === 503 && r.body.ok === false, `${fixture.label}: route fails closed`);
+  ok(fixture.pattern.test(r.body.note || ""), `${fixture.label}: response names the actual read outcome`);
+  ok(!/no pulse rows/.test(r.body.note || ""), `${fixture.label}: never claims the pulse window was empty`);
+  const pw = (r.pulseWrites || []).find((p) => p.job === "job-watch");
+  ok(pw && pw.failed === 1 && /health feed read failed/.test(pw.note || ""), `${fixture.label}: failed self-pulse is preserved`);
+  ok((r.sentryCalls || []).length === 1, `${fixture.label}: Sentry fallback is preserved`);
+}
+{
+  const r = runScenario({ rows: HEALTHY_ROWS, supabaseConfigured: false });
+  ok(r.status === 503 && /unconfigured.*no Supabase env/.test(r.body.note || ""), "missing Supabase configuration is named directly");
+  ok(!/no pulse rows/.test(r.body.note || ""), "missing configuration never claims the pulse window was empty");
+  ok((r.sentryCalls || []).length === 1, "missing configuration still reaches the independent Sentry fallback");
 }
 // STATE 2: incidents > 0, delivery SUCCEEDS.
 {
@@ -244,7 +277,7 @@ const HEALTHY_ROWS = [
   ok(calls.length === 1, `no key: exactly one Sentry event (got ${calls.length})`);
   ok(calls[0] && calls[0].opts && calls[0].opts.level === "fatal", "no key: the event is high-severity ('fatal')");
   ok(calls[0] && calls[0].opts && calls[0].opts.tags && calls[0].opts.tags.job === "job-watch", "no key: the event is tagged with the job name");
-  ok(calls[0] && /RESEND_API_KEY or DIGEST_EMAIL not set/.test(calls[0].message || ""), "no key: the event names the actual missing config");
+  ok(calls[0] && /RESEND_API_KEY not set/.test(calls[0].message || ""), "no key: the event names the exact missing config rather than also blaming the defaulted recipient");
   const pw = (r.pulseWrites || []).find((p) => p.job === "job-watch");
   ok(pw && pw.succeeded === 0, "no key: the self-pulse still records succeeded:0 — kept, not weakened");
   ok(pw && /CANNOT SEND/.test(pw.note || ""), "no key: the self-pulse note is unchanged");
