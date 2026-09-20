@@ -1,3 +1,7 @@
+// Native tests execute before the original source contract and its exit.
+await import('./native-trends.spec.mjs');
+await import('./native-trends.integration.mjs');
+
 // scripts/check-trend-sources.mjs — the live trend-signal sources guard.
 //
 // ASSERTS ON THE CALL, not the string (CLAUDE.md): every pure function in
