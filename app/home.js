@@ -71,6 +71,7 @@ import { cardAffiliateProvider } from "../lib/cardAffiliate";
 import ViatorCommerceLink from "./components/ViatorCommerceLink";
 import HomeAffiliateActivityRail from "./components/HomeAffiliateActivityRail";
 import { commerceHref } from "../lib/commerce";
+import { partnerTicketLabel } from "../lib/partnerCopy";
 import { themeParkIntent } from "../lib/themeParks";
 // v4.86: every place search flows through the multi-source aggregator
 // (Google + Foursquare, merged + deduped) — same signature, bigger pool.
@@ -2608,7 +2609,7 @@ function eventCTA(e) {
   const ticketHost = /ticketmaster|eventbrite|seatgeek|axs\.com|stubhub|ticketweb|etix|dice\.fm|tickets\./.test(u);
   // An affiliate-sold event names its merchant (lib/eventTicketDeals.js via
   // curatedToFeedEvent.ticketVia) so the reader knows where the tap lands.
-  if (e.ticketVia) return { show: true, label: "Tickets · " + e.ticketVia + " ↗" };
+  if (e.ticketVia) return { show: true, label: partnerTicketLabel(e.ticketVia, { product: e.ticketProduct }) };
   if (e.ticketed === true || ticketHost) return { show: true, label: "Get tickets ↗" };
   if (e.ticketed === false) return { show: true, label: "View details ↗" };
   if (src.includes("google") || u.includes("google.")) return { show: true, label: "View on Google ↗" };
@@ -11530,7 +11531,7 @@ function UTDealsRail({ category, onSave, lat, lng, onLog = NOLOG }) {
         <div key={rail.subcategory} style={{ margin: "2px 0 14px" }}>
           <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
             <span style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>{rail.label}</span>
-            <span style={{ fontSize: 9.5, color: C.muted }}>via Undercover Tourist</span>
+            <span style={{ fontSize: 9.5, color: C.muted }}>Wayfind pick · Undercover Tourist</span>
           </div>
           <div style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain", paddingBottom: 4 }}>
             {rail.items.map((d) => (
