@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 // vetted year-round spooky PLACES ride along as normal scored place rows.
 import { fetchCuratedEvents, isTrusted, eventOutboundUrl } from "../../../../lib/curatedEvents.js";
 import { siteTodayStr } from "../../../../lib/siteTime.js";
-import { isFallTagged, fallEventLive, fallWhenLabel, fallScheduleChip, FALL_PLACE_IDS, FALL_PLACE_RAIL, FALL_EVENT_TICKET_DEALS } from "../../../../lib/fallPool.js";
+import { isFallTagged, fallEventLive, fallWhenLabel, fallScheduleChip, fallPlaceEvidenceCurrent, FALL_PLACE_IDS, FALL_PLACE_RAIL, FALL_EVENT_TICKET_DEALS } from "../../../../lib/fallPool.js";
 import { eventTicketDeal, eventTicketCta, isServableDeal } from "../../../../lib/eventTicketDeals.js";
 import { supabase } from "../../../../lib/supabase.js";
 import { wayfindScore } from "../../../../lib/wayfindScore.js";
@@ -250,6 +250,7 @@ export async function GET(request) {
       const places = [...seasonalPlaces, ...(placeResult.error ? [] : (placeResult.data || []))
         .filter((p) => !seasonalPlaceIds.has(p.place_id))
         .filter((p) => hasStoredPlacePhoto(p))
+        .filter((p) => !FALL_PLACE_IDS[p.place_id] || fallPlaceEvidenceCurrent(p.place_id, today))
         .filter((p) => (!p.status || p.status === "OPERATIONAL")
           && (FALL_PLACE_IDS[p.place_id] || (typeof p.signals?.rating === "number" && p.signals.rating > 0)))
         .map((p) => ({
