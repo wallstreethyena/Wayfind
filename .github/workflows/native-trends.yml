@@ -1,6 +1,12 @@
 name: Native trends collection
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'lib/trendSources/native*.js'
+      - 'scripts/native-trends-collect.mjs'
+      - '.github/workflows/native-trends.yml'
 permissions:
   contents: read
 concurrency:
@@ -15,7 +21,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
-      - name: Collect private research with the production engine
+      - name: Collect private research and verify same-evidence reuse
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
