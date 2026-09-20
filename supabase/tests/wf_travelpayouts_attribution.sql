@@ -10,7 +10,8 @@ $$;
 insert into public.wf_tp_links (
   provider, offer_id, campaign_id, destination_url, short_url, marker, trs, verified_at
 ) values
-  ('tiqets', 'fixture-one', 89, 'https://www.tiqets.com/en/test/', 'https://tp.st/FixtureOne', 750791, 550160, '2026-09-09T00:00:00Z');
+  ('tiqets', 'fixture-one', 89, 'https://www.tiqets.com/en/test/', 'https://tp.st/FixtureOne', 750791, 550160, '2026-09-09T00:00:00Z'),
+  ('tiqets', 'fixture-erid', 89, 'https://www.tiqets.com/en/test-erid/', 'https://tiqets.tp.st/FixtureErid?erid=2VtzqwiKLkx', 750791, 550160, '2026-09-09T00:00:00Z');
 
 insert into public.wf_tp_clicks (
   click_token, provider, campaign_id, offer_id, clicked_at, expires_at
