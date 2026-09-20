@@ -80,6 +80,14 @@ const privacyAt = home.indexOf('href="/privacy"');
 ok(mountAt > -1 && privacyAt > -1 && Math.abs(privacyAt - mountAt) < 1200,
   "CommunityFooter must live in the in-app footer block beside Privacy/Terms, not elsewhere");
 
+// == 5. Owner repair 2026-09-20: phone feedback stays out of the fixed header ==
+ok(comp.includes('const dialogMode = !hideTrigger && !recommendation;'), "ordinary feedback must use the modal path while embedded/recommendation forms keep their host");
+ok(comp.includes('bindFeedbackDialog(panelRef.current'), "ordinary feedback must bind the keyboard-aware top-layer dialog");
+ok(!comp.includes('inputRef.current?.focus('), "opening feedback must not auto-focus an editable field and summon the phone keyboard");
+ok(/const fieldStyle = \{[^\n]*fontSize: 16/.test(comp), "feedback editable fields must stay at 16px to avoid iOS focus zoom");
+ok(comp.includes('aria-label={dialogMode ? "Send feedback" : undefined}'), "the feedback modal must keep an accessible dialog label");
+ok(comp.includes('aria-label="Close feedback"'), "the feedback modal must keep a reachable close control");
+
 // == red-proofs: the walls can fail ==
 {
   const spoofed = comp.replace(GUARDED_IG, "https://www.instagram.com/someone.else/");

@@ -96,5 +96,8 @@ assert.equal(duplicate.state.calls.length, 1, "the same render cannot submit twi
 assert.match(source, /compact = false, initialPlace = "", recommendation = false/);
 assert.match(source, /htmlFor=\{id \+ "-place"\}/);
 assert.match(source, /htmlFor=\{id \+ "-message"\}/);
-assert.match(source, /triggerRef\.current\?\.focus\(\)/);
+assert.match(source, /bindFeedbackDialog\(panelRef\.current/, "ordinary feedback must leave the fixed header flow");
+assert.match(source, /aria-label="Close feedback"/, "dialog keeps a reachable close control");
+assert.doesNotMatch(source, /inputRef\.current\?\.focus\(/, "opening feedback must not summon the phone keyboard");
+assert.match(source, /fontSize: 16/, "editable feedback fields stay at iOS-safe 16px");
 console.log("test-community-feedback: OK — recommendations need no place ID, successful storage is required, and failures retain the draft");
