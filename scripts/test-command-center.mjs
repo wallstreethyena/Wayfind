@@ -18,6 +18,7 @@ import { requireOwner } from "../lib/commandCenter/auth.js";
 import { rangeFor, comparisonsFor, delta, dayList, dayStr, zonedDayStart, zonedParts } from "../lib/commandCenter/time.js";
 import { buildAlertsReport } from "../lib/commandCenter/alertsRun.js";
 import { computeAlerts, MIN_BASELINE_DAYS } from "../lib/commandCenter/alerts.js";
+import { comparableTrafficDays, trafficCountsContradict, trafficDayQuality, trafficTrackingState, FIRST_COMPARABLE_TRAFFIC_DAY, VISIT_TRACKING_INCIDENT_STARTED_AT, VISIT_TRACKING_REPAIRED_AT } from "../lib/commandCenter/trafficDataQuality.js";
 import { srcMissing, srcOk, srcError, jsonNoStore } from "../lib/commandCenter/respond.js";
 import { memTTL } from "../lib/commandCenter/cache.js";
 import { OUT_ACTIONS, ENGAGE_ACTIONS, BROWSE_ACTIONS, EVENT_MAP, KPI_DEFS } from "../lib/commandCenter/eventMap.js";
@@ -33,9 +34,11 @@ const ok = (c, m) => { if (!c) fail(m); };
   const missing = { source: srcError("First party", "offline"), data: null };
   const fixture = {
     fractionOfDay: 0.75,
-    dailyHist: good(Array.from({ length: 14 }, (_, i) => ({ day: `2026-09-${String(i + 1).padStart(2, "0")}`, devices: 110, out_clicks: 10 }))),
+    todayKey: "2026-10-04",
+    asOf: new Date("2026-10-04T16:00:00.000Z"),
+    dailyHist: good(Array.from({ length: 14 }, (_, i) => ({ day: `2026-${i < 11 ? "09" : "10"}-${String(i < 11 ? i + 20 : i - 10).padStart(2, "0")}`, devices: 110, sessions: 100, out_clicks: 10 }))),
     todayK: good({ active_devices: 39, sessions: 40, out_clicks: 0 }),
-    signupHist: good(Array.from({ length: 14 }, (_, i) => ({ day: `2026-09-${String(i + 1).padStart(2, "0")}`, signups: 10 }))),
+    signupHist: good(Array.from({ length: 14 }, (_, i) => ({ day: `2026-${i < 11 ? "09" : "10"}-${String(i < 11 ? i + 20 : i - 10).padStart(2, "0")}`, signups: 10 }))),
     signupToday: good([{ signups: 0 }]),
     ...Object.fromEntries(["cwvField", "lab", "err24", "boundary1h", "sentry", "syn", "deploys", "tpToday", "freshness"].map((key) => [key, good(null)])),
   };
@@ -43,12 +46,31 @@ const ok = (c, m) => { if (!c) fail(m); };
   const measured = buildAlertsReport(fixture);
   ok(has(measured, "traffic_drop") && has(measured, "signup_drop"), "alerts assembly: genuine measured drops still warn");
   const trackingGap = buildAlertsReport({ ...fixture, todayK: good({ active_devices: 39, sessions: 0, out_clicks: 0 }) });
-  ok(/Check visit tracking/.test(trackingGap.alerts.find((a) => a.id === "traffic_drop")?.detail || ""), "alerts assembly: a session gap qualifies the recorded-device decline rather than claiming actual audience loss");
+  ok(has(trackingGap, "visit_tracking_gap") && !has(trackingGap, "traffic_drop"), "alerts assembly: a repaired-era session regression suppresses the unreliable downturn claim and shows the tracking gap instead");
+  const inverseTrackingGap = buildAlertsReport({ ...fixture, todayK: good({ active_devices: 0, sessions: 9, out_clicks: 0 }) });
+  ok(has(inverseTrackingGap, "device_tracking_gap") && !has(inverseTrackingGap, "traffic_drop"), "alerts assembly: visits without device identifiers suppress the unreliable downturn claim and show the tracking gap instead");
+  const affectedHistory = good(Array.from({ length: 9 }, (_, i) => ({ day: `2026-09-${String(i + 11).padStart(2, "0")}`, devices: 110, sessions: 0, out_clicks: 10 })));
+  const historical = buildAlertsReport({ ...fixture, todayKey: "2026-09-19", asOf: new Date("2026-09-20T02:00:00.000Z"), dailyHist: affectedHistory, todayK: good({ active_devices: 47, sessions: 0, out_clicks: 0 }) });
+  ok(has(historical, "visit_tracking_history_repaired") && !has(historical, "traffic_drop") && /0 comparable days available; 7 required/.test(historical.baselineNote), "alerts assembly: pre-fix 47/0 is labeled repaired history and affected days cannot manufacture a traffic baseline");
+  const historicalPartial = buildAlertsReport({ ...fixture, todayKey: "2026-09-19", asOf: new Date("2026-09-20T02:00:00.000Z"), dailyHist: affectedHistory, todayK: good({ active_devices: 47, sessions: 6, out_clicks: 0 }) });
+  ok(has(historicalPartial, "visit_tracking_history_repaired") && /6 recorded visit events/.test(historicalPartial.alerts.find((a) => a.id === "visit_tracking_history_repaired")?.detail || "") && !has(historicalPartial, "traffic_drop"), "alerts assembly: positive partial historical sessions remain labeled incomplete without a zero claim");
+  const sixClean = good(Array.from({ length: 6 }, (_, i) => ({ day: `2026-09-${i + 20}`, devices: 110, sessions: 100, out_clicks: 10 })));
+  const tooYoung = buildAlertsReport({ ...fixture, todayKey: "2026-09-26", asOf: new Date("2026-09-26T16:00:00.000Z"), dailyHist: sixClean });
+  ok(!has(tooYoung, "traffic_drop") && /6 comparable days available; 7 required/.test(tooYoung.baselineNote), "alerts assembly: traffic collapse stays silent until seven complete comparable repaired-era days exist");
   const unavailable = buildAlertsReport({ ...fixture, todayK: missing, signupToday: missing });
   ok(!has(unavailable, "traffic_drop") && !has(unavailable, "out_clicks_drop") && !has(unavailable, "signup_drop"), "alerts assembly: failed current sources never become zero-count drops");
   ok(unavailable.sources.some((source) => source.connected === false), "alerts assembly: missing sources remain visible");
   const missingHistory = buildAlertsReport({ ...fixture, dailyHist: missing, signupHist: missing });
   ok(!has(missingHistory, "traffic_drop") && !has(missingHistory, "signup_drop"), "alerts assembly: missing baseline sources cannot establish a drop");
+}
+
+{
+  ok(FIRST_COMPARABLE_TRAFFIC_DAY === "2026-09-20", "traffic quality: first full repaired ET day is Sep 20");
+  ok(VISIT_TRACKING_INCIDENT_STARTED_AT === "2026-09-11T16:37:11.000Z" && VISIT_TRACKING_REPAIRED_AT === "2026-09-20T01:35:00.000Z", "traffic quality: measured incident and production-ready repair instants are locked exactly");
+  ok(trafficDayQuality("2026-09-10") === "pre_filter_incomparable" && trafficDayQuality("2026-09-11") === "known_session_gap" && trafficDayQuality("2026-09-19") === "known_session_gap" && trafficDayQuality("2026-09-20") === "comparable_repaired", "traffic quality: pre-filter, incident, and repaired-era dates are explicit");
+  ok(trafficTrackingState("2026-09-19", "2026-09-20T02:00:00.000Z") === "historical_repaired" && trafficTrackingState("2026-09-19", "2026-09-20T00:00:00.000Z") === "active_known_incident", "traffic quality: repair readiness separates active incident from historical repaired data");
+  ok(trafficCountsContradict(10, 0) && trafficCountsContradict(0, 10) && !trafficCountsContradict(10, 10) && !trafficCountsContradict(0, 0), "traffic quality: either one-sided positive counter is the same shared contradiction signal");
+  ok(comparableTrafficDays([{ day: "2026-09-10", devices: 10, sessions: 10 }, { day: "2026-09-15", devices: 10, sessions: 0 }, { day: "2026-09-20", devices: 10, sessions: 10 }, { day: "2026-09-21", devices: 10, sessions: 0 }]).length === 1, "traffic quality: only complete, internally consistent post-repair/filter-era days enter the normal baseline");
 }
 
 // ── 1. AUTH ────────────────────────────────────────────────────────────────
