@@ -1,10 +1,16 @@
 name: Native trends collection
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'lib/trendSources/native*.js'
+      - 'scripts/native-trends-collect.mjs'
+      - '.github/workflows/native-trends.yml'
 permissions:
   contents: read
 concurrency:
-  group: native-trends-manual
+  group: native-trends-collection
   cancel-in-progress: false
 jobs:
   collect:
