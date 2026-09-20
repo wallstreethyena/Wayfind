@@ -21,55 +21,52 @@ export default function ExperienceCatalog() {
   const [locating,setLocating]=useState(true);
   const manualCity=useRef(false);
   const locationRequest=useRef(0);
+  const catalogRequest=useRef(0);
 
   useEffect(()=>{
     let active=true;
     const request=++locationRequest.current;
     detectCatalogCity().then(found=>{
       if(!active || request!==locationRequest.current || manualCity.current) return;
-      if(found) setCity(found);
+      setCity(cities.includes(found) ? found : 'Orlando');
+    }).catch(()=>{
+      if(!active || request!==locationRequest.current || manualCity.current) return;
+      setCity('Orlando');
     }).finally(()=>{if(active && request===locationRequest.current) setLocating(false);});
     return ()=>{active=false;};
   },[]);
 
   useEffect(()=>{
-    if(!city){setLoading(false);setError(false);return;}
+    if(!city){catalogRequest.current+=1;setLoading(false);setError(false);return;}
     const controller=new AbortController();
+    const request=++catalogRequest.current;
     setLoading(true);setError(false);
     const params=new URLSearchParams({city,cat,page:String(page)});
     fetch('/api/florida-experiences?'+params,{signal:controller.signal})
       .then(async r=>{if(!r.ok) throw new Error('Unavailable');return r.json();})
       .then(result=>{
-        if(controller.signal.aborted) return;
+        if(controller.signal.aborted || request!==catalogRequest.current) return;
         setData(previous=>page===0 ? result : {
           ...result,
           items:[...(previous?.items || []),...result.items.filter(item=>!previous?.items?.some(current=>current.code===item.code))],
         });
         setLoading(false);
       })
-      .catch(()=>{if(!controller.signal.aborted){setError(true);setLoading(false);}});
+      .catch(()=>{if(!controller.signal.aborted && request===catalogRequest.current){setError(true);setLoading(false);}});
     return ()=>controller.abort();
   },[city,cat,page,retry]);
 
-  function resetResults(){setPage(0);setData(null);setError(false);setRetry(value=>value+1);}
+  function resetResults(){catalogRequest.current+=1;setPage(0);setData(null);setError(false);setRetry(value=>value+1);}
   function choose(key){setCat(key);resetResults();}
   function chooseCity(nextCity){locationRequest.current+=1;manualCity.current=true;setCity(nextCity);setLocating(false);resetResults();}
-  async function useLocation(){
-    const request=++locationRequest.current;
-    manualCity.current=false;setLocating(true);
-    const found=await detectCatalogCity({requestPermission:true});
-    if(request!==locationRequest.current || manualCity.current) return;
-    setLocating(false);
-    if(found){setCity(found);resetResults();}
-  }
+
 
   const selectedCategory=categories.find(category=>category.key===cat)?.label || 'All activities';
   const loaded=data?.items?.length || 0;
-  return <section id="experiences" className={styles.section}>
+  return <section id="experiences" className={styles.section} data-location-selected={Boolean(city)}>
     <div className={styles.sectionHead}><h2>Top experiences</h2></div>
     <div className={styles.catalogControls}>
-      <label htmlFor="florida-catalog-city">Location <select id="florida-catalog-city" value={city} onChange={e=>chooseCity(e.target.value)}><option value="">Choose a destination</option>{cities.map(c=><option key={c}>{c}</option>)}</select></label>
-      <button type="button" className={styles.locationButton} onClick={useLocation} disabled={locating}>{locating ? 'Finding your location…' : 'Use my location'}</button>
+      <label htmlFor="florida-catalog-city">Location <select id="florida-catalog-city" value={city} onChange={e=>chooseCity(e.target.value)}>{locating && !city ? <option value="" disabled>Finding your location…</option> : null}{cities.map(c=><option key={c}>{c}</option>)}</select></label>
     </div>
     <div className={styles.catalogLayout}>
       <aside className={styles.catalogCategories} aria-label="Experience categories">
@@ -80,7 +77,7 @@ export default function ExperienceCatalog() {
           <a href="#halloween"><MapCategoryPin family="shows" height={38}/><span>Shows & events</span></a>
         </div>
       </aside>
-      <div className={styles.catalogResults}>
+      {city ? <div className={styles.catalogResults}>
         <div aria-live="polite" aria-atomic="true" className={styles.catalogStatus}>{!city ? '' : loading && !data ? `Finding the top 5 ${selectedCategory.toLowerCase()} in ${city}…` : error ? 'The experience catalog is temporarily unavailable.' : `${loaded} of ${data?.total || 0} ${selectedCategory.toLowerCase()} shown in ${city}${loading ? ' · Loading 5 more…' : ''}`}</div>
         {error ? <button className={styles.catalogButton} onClick={()=>setRetry(v=>v+1)}>Try again</button> : null}
         {data?.items?.length ? <div className={styles.grid}>{data.items.map(item=><article key={item.code} className={styles.offerCard}>
@@ -91,7 +88,7 @@ export default function ExperienceCatalog() {
           <div className={styles.cardActionRow}><a className={styles.cardAction} rel="sponsored noopener" target="_blank" href={commerceHref({provider:'viator',offerId:item.code,surface:'paid_florida',contentId:'florida-catalog-'+item.code})}>See availability ↗<span className={styles.srOnly}> for {item.title}, opens a new tab</span></a><span className={styles.seller}>via Viator</span></div>
           </div></article>)}</div> : city && !loading && !error ? <p>No listed experiences match this category in {city}. Choose another category.</p> : null}
         {!error && data?.hasMore ? <div className={styles.catalogPages}><button type="button" className={styles.catalogButton} disabled={loading} onClick={()=>setPage(p=>p+1)}>{loading ? 'Loading…' : 'See 5 more'}</button></div> : null}
-      </div>
+      </div> : null}
     </div>
   </section>;
 }

@@ -22,6 +22,8 @@
 // which returns an /api/*/go path on this origin — the destination is
 // resolved server-side, at click time, by the route the link points at.
 import ExperienceCatalog from "./ExperienceCatalog";
+import React from "react";
+import FloridaSections from "./FloridaSections";
 import LicensedPhoto from "../../components/LicensedPhoto";
 import { SPRINGS_PHOTO, EXPERIENCE_PHOTOS, FLORIDA_EVENT_PHOTOS, FLORIDA_PARK_PHOTOS } from "../../../lib/floridaPhotography";
 import styles from "./florida.module.css";
@@ -176,11 +178,11 @@ function Collection({ children, label, preview = 5 }) {
   </>;
 }
 
-function SectionHead({ eyebrow, title, intro }) {
+function SectionHead({ eyebrow, title, intro, titleNote }) {
   return <div className={styles.sectionHead}>
-    <p className={styles.eyebrow}>{eyebrow}</p>
-    <h2>{title}</h2>
-    <p className={styles.intro}>{intro}</p>
+    {eyebrow ? <p className={styles.eyebrow}>{eyebrow}</p> : null}
+    <h2 title={titleNote}>{title}</h2>
+    {intro ? <p className={styles.intro}>{intro}</p> : null}
   </div>;
 }
 
@@ -282,9 +284,8 @@ function EventCard({ event, cta }) {
 
 function HotSection() {
   return <section id="hot" className={styles.section}>
-    <SectionHead eyebrow="A good place to begin" title={HOT_SNAPSHOT_HEADING} intro={HOT_SNAPSHOT_LABEL} />
+    <SectionHead title={HOT_SNAPSHOT_HEADING} titleNote={HOT_SNAPSHOT_LABEL} />
     <GuideGrid items={HOT_GUIDES} ranked />
-    <p className={styles.note}>Ordered by unique guide visitors in a dated readership snapshot. Not a live ranking or paid placement. <a href="/how-wayfind-ranks">How Wayfind ranks</a></p>
   </section>;
 }
 
@@ -372,8 +373,10 @@ export default async function GoFloridaPage({ searchParams }) {
     </div>
     <div className={styles.heroFoot}><span>GOOD DAYS START WITH A LITTLE LOCAL KNOWLEDGE</span><span>{SPRINGS_PHOTO.caption}</span></div>
     </div>
-    <nav className={styles.interests} aria-label="Explore Florida by interest">{INTEREST_LINKS.map((link) => <a key={link.href} href={link.href}><strong>{link.label}</strong><span>{link.detail}</span></a>)}</nav>
-    <div className={styles.content}><ExperienceCatalog />{order.map((key) => { const Section = SECTION_RENDERERS[key]; return Section ? <Section key={key} /> : null; })}</div>
+    <FloridaSections sections={[
+      { id: 'experiences', label: 'Top experiences', title: 'Top experiences', content: <ExperienceCatalog /> },
+      ...order.map(key => ({ id: key, title: ({ hot: HOT_SNAPSHOT_HEADING, halloween: HALLOWEEN_HEADING, orlando: ORLANDO_HEADING, nature: NATURE_HEADING, shows: SHOWS_HEADING, stays: STAYS_HEADING, 'gulf-coast': GULF_COAST_HEADING })[key], label: ({ hot: 'Popular guides', halloween: 'Fall events', orlando: 'Park tickets', nature: 'On the water', shows: 'Nights out', stays: 'Stays', 'gulf-coast': 'Gulf Coast' })[key], content: SECTION_RENDERERS[key] ? React.createElement(SECTION_RENDERERS[key]) : null })),
+    ]} />
     <footer className={styles.footer}>
       <div className={styles.trust}><div><p className={styles.eyebrow}>Know before you go</p><h2>A little local knowledge goes a long way.</h2></div><div><p>Guides for the details that matter. Booking options when you are ready. Clear labels so you know where every link takes you.</p><p>{DISCLOSURE}</p><a href="/editorial-policy">Our editorial approach ↗</a></div></div>
       <nav className={styles.footerLinks} aria-label="More from Wayfind">{FOOTER_LINKS.map((link) => <a key={link.href} href={link.href}>{link.label}</a>)}</nav>
