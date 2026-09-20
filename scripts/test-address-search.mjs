@@ -149,6 +149,37 @@ for (const [query,kind,value] of [['Coffee shop','experience','coffee'],['Pizza'
  assert.equal(state.searchBusy,false); assert.equal(state.query,'Timed out Cafe');
  assert.match(state.searchFeedback,/temporarily unavailable/i); oneOutcome(state,'unavailable');
 }
+{
+ const {ctx,state}=harness('Known Cafe'); await ctx.submitSearch('Known Cafe',{placeIntent:true,near:'Key West'});
+ assert.equal(state.calls.length,0,'an unsupported explicit guide region never searches the visitor city');
+ assert.equal(state.detail.id,'old'); oneOutcome(state,'unavailable');
+ assert.equal(outcomes(state)[0].reason,'unsupported_location');
+}
+{
+ const {ctx,state}=harness('EPCOT',{status:'empty',reason:'not_in_library',places:[]});
+ ctx.fetch=async(url,init)=>{state.calls.push({url,init});return url.startsWith('/api/theme-parks')?{ok:false,status:503}:{ok:true,json:async()=>({status:'empty',reason:'not_in_library',places:[]})};};
+ await ctx.submitSearch(); oneOutcome(state,'unavailable');
+ assert.equal(outcomes(state)[0].reason,'source_unavailable','park outage is not mislabeled a missing catalog entry');
+}
+{
+ const {ctx,state}=harness('Known Cafe'); await ctx.submitSearch();
+ assert.equal(state.detail._ownedSearchOnly,true,'owned search identity cannot trigger paid detail/insight enrichment');
+ Object.assign(ctx,{
+   sessionStorage:{setItem(){}}, experienceBadges(){}, scrollRef:{current:null},
+   fetchMemberSignals:()=>Promise.resolve(null), supabase:null, recordSignal(){}, OFFERS:{},recentRef:{current:[]},
+   videoCache:{current:{}},insightFullCache:{current:{}},insightCache:{current:{}},detailCache:{current:{}},
+   getCachedInsight:()=>null, HINTS:{}, loadInsight(){},
+   fetchPlaceDetail:()=>{throw new Error('owned search must not buy details');},
+ });
+ const realDetail=new Function('ctx',`with(ctx){return (${functions.get('openDetail')});}`)(ctx);
+ await realDetail(state.detail,'search');
+ assert.equal(state.detailExtra._resolved,true,'uncached details settle to honest unavailable state');
+ for(const name of ['loadInsight','loadFullInsight']) {
+   const actual=new Function('ctx',`with(ctx){return (${functions.get(name)});}`)(ctx);
+   const before=state.calls.length; await actual(state.detail,state.detailExtra);
+   assert.equal(state.calls.length,before,name+' uses only already-owned insight for this search');
+ }
+}
 assert(source.includes('aria-busy={searchBusy}'),'search announces loading');
 assert(source.includes('prefers-reduced-motion') || readFileSync(new URL('../app/components/css.js',import.meta.url),'utf8').includes('prefers-reduced-motion'),'motion respects preference');
 assert(readFileSync(new URL('../middleware.js',import.meta.url),'utf8').includes('"/api/search"'),'free database route keeps full origin guard');

@@ -4119,6 +4119,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   const [searchFeedback, setSearchFeedback] = useState("");
   const [searchBusy, setSearchBusy] = useState(false);
   const [searchRecovery, setSearchRecovery] = useState(false);
+  const [searchRecoveryNear, setSearchRecoveryNear] = useState("");
   const [cityTransition, setCityTransition] = useState(null);
   useEffect(() => {
     if (!cityTransition) return;
@@ -6596,7 +6597,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // v4.86: a Foursquare-sourced place upgrades to its Google twin on open
     // when one exists (reviews, hours, photos come along); otherwise it
     // renders honestly from the Foursquare data it arrived with.
-    if (p && typeof p.id === "string" && /^(fsq|osm|ridb):/.test(p.id)) {
+    if (p && !p._ownedSearchOnly && typeof p.id === "string" && /^(fsq|osm|ridb):/.test(p.id)) {
       try {
         const up = await findPlace(p.name, { lat: p.lat, lng: p.lng });
         if (up && up.id && up.lat != null) {
@@ -6641,7 +6642,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     let extra = detailCache.current[p.id];
     if (extra === undefined) {
       setDetailExtra(null);
-      extra = await fetchPlaceDetail(p.id);
+      // Free search must remain free through opening its result. Reuse known
+      // detail data, but a cache miss never starts paid enrichment here.
+      extra = p._ownedSearchOnly
+        ? { ok: false, editorial: null, reviews: [], hours: null, phone: null, website: null, _resolved: true, reason: "not_in_library" }
+        : await fetchPlaceDetail(p.id);
       // v6.31: never cache a bare null — that leaves the sheet stuck on
       // "Loading hours…" forever (null reads as "still fetching"). A resolved
       // sentinel settles the sheet into "Hours not listed" (or the search-time
@@ -6865,6 +6870,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     if (insightCache.current[p.id]) { setInsight(insightCache.current[p.id]); setInsightLoading(false); return; }
     const cached = getCachedInsight(p.id);
     if (cached) { insightCache.current[p.id] = cached; setInsight(cached); setInsightLoading(false); return; }
+    if (p._ownedSearchOnly) { setInsight({ unavailable: true, reason: "not_in_library" }); setInsightLoading(false); return; }
     setInsight(null);
     setInsightLoading(true);
     try {
@@ -6906,6 +6912,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     if (insightFullCache.current[p.id]) { setInsightFull(insightFullCache.current[p.id]); return; }
     const cached = getCachedInsight(p.id + "::full");
     if (cached) { insightFullCache.current[p.id] = cached; setInsightFull(cached); return; }
+    if (p._ownedSearchOnly) { setInsightFull({ unavailable: true, reason: "not_in_library" }); setInsightFullLoading(false); return; }
     setInsightFullLoading(true);
     try {
       const res = await fetch("/api/insight", {
@@ -8279,6 +8286,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     cancelMainSearch();
     setSearchFeedback("");
     setSearchRecovery(false);
+    setSearchRecoveryNear("");
     setCityTransition(null);
     setQuery(v);
     setSuggestions(localCitySuggestions(v));
@@ -8415,7 +8423,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     setCityTransition(null);
     setHookDetail(null);
     setSearchMode(true);
-    openDetail({ ...place, _searchId: attempt.id }, context);
+    openDetail({ ...place, _searchId: attempt.id, _ownedSearchOnly: true }, context);
     attempt.finish("place_opened", { status: "ok", count: 1, place_id: place.id, result_source: context === "theme_park_search" ? "owned-theme-parks" : "owned-inventory" });
   }
 
@@ -8604,6 +8612,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     setQuery(q);
     setSearchFeedback("");
     setSearchRecovery(false);
+    const guideNear = options.placeIntent && typeof options.near === "string" ? options.near.trim().slice(0, 160) : "";
+    setSearchRecoveryNear(guideNear);
     setCityTransition(null);
     setSuggestions([]);
     setSugIdx(-1);
@@ -8621,6 +8631,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       if (!q) {
         setSearchFeedback("Type a place, city, or street address to search.");
         attempt.finish("empty", { status: "empty", count: 0, reason: "empty_query" });
+        return;
+      }
+      const nearGeo = guideNear ? await geoTry(guideNear) : null;
+      if (!current()) return;
+      if (guideNear && !nearGeo) {
+        setSearchFeedback(searchFailureMessage({ reason: "unsupported_location" }));
+        setSearchRecovery(true);
+        attempt.finish("unavailable", { status: "unavailable", count: 0, reason: "unsupported_location", result_source: "owned-inventory" });
         return;
       }
       // Exact owned cities always win over venue names and discovery shortcuts.
@@ -8694,7 +8712,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               closeSearchLayers();
               setQuery("");
               setSearchMode(true);
-              setHookDetail({ id: "theme-parks-" + attempt.id, theme: "search", title, themeTitle: title, label: title, themeBody: "Verified park cards with one current ticket path, ranked by Wayfind Score.", emoji: "🎢", accent: C.accent, places: parkRows.map((place) => ({ ...place, _searchId: attempt.id })), sections: null });
+              setHookDetail({ id: "theme-parks-" + attempt.id, theme: "search", title, themeTitle: title, label: title, themeBody: "Verified park cards with one current ticket path, ranked by Wayfind Score.", emoji: "🎢", accent: C.accent, places: parkRows.map((place) => ({ ...place, _searchId: attempt.id, _ownedSearchOnly: true })), sections: null });
               attempt.finish("results_shown", { status: "ok", count: parkRows.length, result_source: "owned-theme-parks" });
             }
             return;
@@ -8705,7 +8723,6 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           parkUnavailable = true;
         }
       }
-      const nearGeo = options.placeIntent && options.near ? await geoTry(options.near) : null;
       if (!current()) return;
       const result = await ownedSearch(q, nearGeo || searchCenter);
       if (!current()) return;
@@ -8726,7 +8743,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       const outcome = result.status === "unavailable" || parkUnavailable ? "unavailable" : "empty";
       setSearchFeedback(searchFailureMessage(outcome === "unavailable" ? { ...result, status: "unavailable" } : result));
       setSearchRecovery(true);
-      attempt.finish(outcome, { status: outcome, count: 0, reason: result.reason || (parkUnavailable ? "source_unavailable" : "not_in_library"), result_source: "owned-inventory" });
+      attempt.finish(outcome, { status: outcome, count: 0, reason: parkUnavailable ? "source_unavailable" : (result.reason || "not_in_library"), result_source: "owned-inventory" });
     } catch {
       if (!current()) return;
       setSearchFeedback(searchFailureMessage(null));
@@ -10075,8 +10092,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         {searchBusy && <div className="wf-search-feedback" role="status" aria-live="polite">Searching Wayfind…</div>}
         {searchFeedback && !searchBusy && <div className="wf-search-feedback" role="status" aria-live="polite">{searchFeedback}</div>}
         {searchRecovery && query.trim() && !searchBusy && <div className="wf-search-recovery">
-          <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => submitSearch()}>Try again</button>
-          <a href={"https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(query.trim())} target="_blank" rel="noopener noreferrer">Open in Maps ↗</a>
+          <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => submitSearch(query, searchRecoveryNear ? { placeIntent: true, near: searchRecoveryNear } : undefined)}>Try again</button>
+          <a href={"https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent([query.trim(), searchRecoveryNear].filter(Boolean).join(", "))} target="_blank" rel="noopener noreferrer">Open in Maps ↗</a>
         </div>}
         {cityTransition && <div key={cityTransition.id} className="wf-city-transition" role="status" aria-live="polite"><span aria-hidden="true">✓</span> {cityTransition.text}</div>}
         {/* v8.2 ROW C — THE DESTINATIONS, AT THE TOP (public/lab/menu.html
