@@ -14,11 +14,15 @@ await import('./native-trends.integration.mjs');
 
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
+import { windowGrowth } from "../lib/trendSources/nativeCore.js";
 
 let failures = 0;
 const ok = (m) => console.log("  ok:", m);
 const fail = (m) => { failures++; console.error("  FAIL:", m); };
 const assert = (cond, m) => (cond ? ok(m) : fail(m));
+
+assert(windowGrowth(5, 10, 5) === 100, "native positive control: sufficient history measures observed growth");
+assert(windowGrowth(0, 10, 5) === null, "native negative control: absent baseline never invents growth");
 
 // ── 1. keyword -> concept matcher, executed ─────────────────────────────────
 const { conceptForKeyword, allConceptAliases } = await import("../lib/trendSources/keywordMatch.js");
