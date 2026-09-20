@@ -55,17 +55,17 @@ const home = readFileSync(join(ROOT, "app/home.js"), "utf8");
 
 // ── 1) ORDER: area resolution must come BEFORE the nearby-business search ────
 const iArea = home.indexOf("const area = await geoTry(q);");
-const iNearby = home.indexOf("const nearby = await searchNearbyPlaces(q, searchCenter");
+const iNearby = home.indexOf("const result = await ownedSearch(q, nearGeo || searchCenter);");
 ok(iArea > 0, "submitSearch resolves an area via geoTry");
-ok(iNearby > 0, "submitSearch still supports nearby-business search (McDonald's etc)");
+ok(iNearby > 0, "submitSearch supports free owned-business search (McDonald's etc)");
 ok(iArea < iNearby, "AREA resolution runs BEFORE the nearby-business search (the actual bug)");
 ok(/if \(area && area\.isArea\) \{ goTo\(area\); return; \}/.test(home),
    "a real city short-circuits straight to recentering");
 
 // ── the recenter helper actually moves the app (center + name + exits search) ─
-ok(/const goTo = \(g\) => \{[\s\S]{0,320}setCenter\(g\)/.test(home), "goTo sets the center");
-ok(/const goTo = \(g\) => \{[\s\S]{0,320}setLocName\(/.test(home), "goTo updates the location name");
-ok(/const goTo = \(g\) => \{[\s\S]{0,320}setSearchMode\(false\)/.test(home), "goTo leaves search mode so the feed shows");
+ok(/function goToSearchCity\(g, attempt\) \{[\s\S]{0,500}setCenter\(g\)/.test(home), "goTo sets the center");
+ok(/function goToSearchCity\(g, attempt\) \{[\s\S]{0,500}setLocName\(/.test(home), "goTo updates the location name");
+ok(/function goToSearchCity\(g, attempt\) \{[\s\S]{0,500}setSearchMode\(false\)/.test(home), "goTo leaves search mode so the feed shows");
 
 // ── 2) ENTER must not auto-pick an unhighlighted suggestion ──────────────────
 ok(!/pickSuggestion\(suggestions\[sugIdx >= 0 \? sugIdx : 0\]\)/.test(home),

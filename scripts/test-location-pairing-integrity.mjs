@@ -87,14 +87,14 @@ const HOME = code(read("app/home.js"));
 ok(/import\s*\{[^}]*\blocalityFromFormattedAddress\b[^}]*\bstoredPinFresh\b[^}]*\}\s*from\s*.\.\.\/lib\/locationHonesty./.test(HOME)
   || /import\s*\{[^}]*\bstoredPinFresh\b[^}]*\blocalityFromFormattedAddress\b[^}]*\}\s*from\s*.\.\.\/lib\/locationHonesty./.test(HOME),
   "home imports both helpers from the honesty module");
-const tap = (HOME.match(/wfScore: null,\s*\};[\s\S]*?openDetail\x28placeObj\x29/) || [])[0] || "";
-ok(tap.length > 0, "home: the autosuggest PLACE tap handler was found");
-ok(/setCenter\x28\{ lat, lng \}\x29[\s\S]*?const placeCity = localityFromFormattedAddress\x28place\.formattedAddress\x29;\s*if \x28placeCity\x29 setLocName\x28placeCity\x29;/.test(tap),
-  "place tap: after moving the centre, the header label is set from the place's own locality in the same commit");
-ok(/else if \x28!centerAgreesWithLabel\x28\{ lat, lng \}, locName\x29\x29 setLocName\x28..\x29;/.test(tap),
-  "place tap: when the address carries no locality, the old rule still clears an implausible label (no name beats a wrong name)");
-ok(!/\n\s*if \x28!centerAgreesWithLabel\x28\{ lat, lng \}, locName\x29\x29 setLocName\x28..\x29;/.test(tap),
-  "place tap: the bare 40-mile rule is no longer the ONLY thing deciding the header");
+const tap = (HOME.match(/function openSearchPlace\([\s\S]*?function pickSuggestion/) || [])[0] || "";
+ok(tap.length > 0, "home: owned-search place tap handler was found");
+ok(/setCenter\(\{ lat: place\.lat, lng: place\.lng \}\)[\s\S]*?const placeCity = localityFromFormattedAddress\(place\.address\);\s*if \(placeCity\) setLocName\(placeCity\);/.test(tap),
+  "place tap moves the center and derives its label from the same place address");
+ok(/else if \(!centerAgreesWithLabel\(place, locName\)\) setLocName\(..\);/.test(tap),
+  "place tap clears an implausible prior label when no locality is known");
+ok(/else if \(nearGeo && centerAgreesWithLabel\(place, nearGeo\.name\)\)/.test(tap),
+  "a guide location is used only when it agrees with the selected place");
 ok(/if \x28c && c\.manual && storedPinFresh\x28c\x29\x29 \{/.test(HOME), "manual-pin hydration trusts a stored record only through storedPinFresh");
 ok(/savedOk = storedPinFresh\x28saved\x29;/.test(HOME), "the GPS saved-anchor shortcut trusts a stored record only through storedPinFresh");
 ok(!/!c\.ts \|\|/.test(HOME) && !/!saved\.ts \|\|/.test(HOME), "no reader of wf_center accepts a record with no timestamp any more");
