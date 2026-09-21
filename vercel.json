@@ -134,6 +134,10 @@
       "schedule": "20 4 * * *"
     },
     {
+      "path": "/api/cron/place-photos?source=repair&limit=25",
+      "schedule": "5 * * * *"
+    },
+    {
       "path": "/api/cron/place-photos?source=at-risk&limit=25",
       "schedule": "35 * * * *"
     },
