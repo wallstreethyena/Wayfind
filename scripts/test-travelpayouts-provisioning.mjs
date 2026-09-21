@@ -139,7 +139,9 @@ const mixedFetch = async (url, init = {}) => {
         shorten: true,
         links: body.links.map(({ url }, index) => index === 0
           ? { url, code: "success", partner_url: "https://tiqets.tp.st/mixed_ok?erid=fixture" }
-          : { url, code: "error", message: "You are not subscribed to this campaign" }),
+          : (index === 1
+            ? { url, code: "success", partner_url: "https://evil.example/private?token=must-not-leak" }
+            : { url, code: "error", message: "You are not subscribed to this campaign" })),
       },
     });
   }
@@ -151,7 +153,13 @@ const mixedFetch = async (url, init = {}) => {
 };
 const mixed = await provisionTpLinks({ env, sb, fetchImpl: mixedFetch, now: rotationZero });
 ok(mixed.succeeded > 0 && mixed.failed > 0, "one failed provider destination does not discard successful mappings");
-ok(mixed.reason === "provider:not-subscribed", "known per-link provider failure is classified safely");
+ok(
+  mixed.reason?.startsWith("provider:invalid-short-url:")
+    && mixed.reason.includes("not-subscribed")
+    && !mixed.reason.includes("evil.example")
+    && !mixed.reason.includes("must-not-leak"),
+  "invalid success rows are isolated with privacy-safe diagnostics alongside known provider failures",
+);
 ok(mixedStored.length === mixed.succeeded && mixedStored.every((row) => validTpShortUrl(row.short_url)), "only successful validated mappings are stored from a mixed batch");
 
 await provisionTpLinks({ env: {}, sb, fetchImpl }).then(
