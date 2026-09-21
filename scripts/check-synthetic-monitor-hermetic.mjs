@@ -50,6 +50,7 @@ import { SCENARIOS, REQUIRED_FLOWS, HOMEPAGE_CARD_BUDGET_MS } from "./lib/synthe
 import { RAILS } from "../lib/rails.js";
 import {
   EXPECTED_VISIBLE_POSTER_IDS,
+  OPTIONAL_VISIBLE_POSTER_IDS,
   posterMenuDiff,
   railWindowFromCapturedPayload,
   rowsForRailWindow,
@@ -230,11 +231,24 @@ for (const s of SCENARIOS) {
 {
   const healthyMenu = posterMenuDiff(EXPECTED_VISIBLE_POSTER_IDS);
   ok(healthyMenu.missingIds.length === 0 && healthyMenu.extraIds.length === 0 && healthyMenu.duplicateIds.length === 0,
-    "menu-poster positive control: all 18 expected poster ids are accepted exactly");
+    "menu-poster positive control: every required static poster id is accepted");
+
+  // Contextual live-event and sponsor posters are intentionally optional.
+  // They are allowed ONLY when their IDs come from the product registries;
+  // an invented synthetic tile must still red-prove as unowned.
+  ok(OPTIONAL_VISIBLE_POSTER_IDS.includes("live-concerts") && OPTIONAL_VISIBLE_POSTER_IDS.includes("live-sports"),
+    "menu-poster contract includes both product-owned live-event poster types");
+  ok(OPTIONAL_VISIBLE_POSTER_IDS.includes("sponsor-coconut-grove"),
+    "menu-poster contract includes the product-owned geo-gated Coconut Grove sponsor tile");
+  const withOptional = posterMenuDiff([...EXPECTED_VISIBLE_POSTER_IDS, "live-concerts", "sponsor-coconut-grove"]);
+  ok(withOptional.missingIds.length === 0 && withOptional.extraIds.length === 0
+      && withOptional.optionalPresentIds.includes("live-concerts")
+      && withOptional.optionalPresentIds.includes("sponsor-coconut-grove"),
+    "menu-poster positive control: approved contextual posters can appear without becoming false extras");
 
   // Mutation red: remove the historical Breakfast tile from an otherwise
-  // healthy menu. If this predicate stopped checking the exact set, this would
-  // turn green while the homepage lost its morning entry point.
+  // healthy menu. If this predicate stopped checking the required set, this
+  // would turn green while the homepage lost its morning entry point.
   const breakfastRemoved = posterMenuDiff(EXPECTED_VISIBLE_POSTER_IDS.filter((id) => id !== "breakfast"));
   ok(breakfastRemoved.missingIds.includes("breakfast"),
     "menu-poster MUTATION RED: removing breakfast is detected as a missing visible poster id");
@@ -243,7 +257,7 @@ for (const s of SCENARIOS) {
     "menu-poster negative control: a duplicated poster id is detected");
   const extraMenu = posterMenuDiff([...EXPECTED_VISIBLE_POSTER_IDS, "unowned-poster"]);
   ok(extraMenu.extraIds.includes("unowned-poster"),
-    "menu-poster negative control: an unapproved visible poster id is detected");
+    "menu-poster MUTATION RED: an unapproved contextual poster id is still detected");
 
   const completePayload = {
     covered: true,
