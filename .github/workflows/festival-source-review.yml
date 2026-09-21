@@ -1,0 +1,64 @@
+name: Festival organizer evidence review
+on:
+  pull_request:
+    paths: ['.github/workflows/festival-source-review.yml']
+permissions:
+  contents: read
+concurrency:
+  group: festival-source-review-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  evidence:
+    if: github.event.pull_request.number == 1382 && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'sol/florida-fall-festivals-guide-preview'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Read public organizer pages once, without credentials
+        run: |
+          python3 - <<'PY'
+          import csv,json,time,hashlib,urllib.request,urllib.parse,urllib.error,datetime,concurrent.futures,ipaddress
+          from pathlib import Path
+          out=Path('festival-source-review');out.mkdir()
+          rows=list(csv.DictReader(open('scripts/festivals/florida_festivals.csv')))
+          urls=sorted(set(r['source_url'].replace('http://','https://',1) for r in rows if r['start_date'].startswith('2026-10-') and r['source_url']))
+          urls += ['https://germantampabay.com/oktoberfest/','https://fortmyersoktoberfest.com/','https://www.willistonflchamber.com/events/peanut-festival','https://dakindairyfarms.com/dakin-dairy-harvest-festival/','https://hulaween.com/','https://www.waterlanternfestival.com/events/sarasota','https://www.iiipoints.com/','https://www.lubee.org/flbatfestival']
+          urls=list(dict.fromkeys(urls))
+          banned=['facebook.com','instagram.com','disney.go.com','disneyworld.disney.go.com','allevents.in','happeningnext.com']
+          def allowed(url):
+            u=urllib.parse.urlsplit(url);h=(u.hostname or '').lower()
+            if u.scheme!='https' or u.username or u.password or u.port not in (None,443): return False
+            if any(h==b or h.endswith('.'+b) for b in banned): return False
+            if not '.' in h or h.endswith(('.local','.internal')): return False
+            try: ipaddress.ip_address(h);return False
+            except ValueError: return True
+          class Redirects(urllib.request.HTTPRedirectHandler):
+            def redirect_request(self,req,fp,code,msg,headers,newurl):
+              if not allowed(newurl): raise ValueError('blocked-redirect')
+              return super().redirect_request(req,fp,code,msg,headers,newurl)
+          def fetch(url):
+            at=datetime.datetime.now(datetime.timezone.utc).isoformat()
+            if not allowed(url):return {'url':url,'checked_at':at,'status':'not-fetched-social-or-disallowed-hint'}
+            name=hashlib.sha256(url.encode()).hexdigest()[:20]
+            try:
+              time.sleep(.6)
+              req=urllib.request.Request(url,headers={'User-Agent':'WayfindFestivalResearch/1.0 (+https://www.gowayfind.com)','Accept':'text/html,application/xhtml+xml,application/json'})
+              with urllib.request.build_opener(Redirects()).open(req,timeout=15) as res:
+                data=res.read(2*1024*1024+1)
+                if len(data)>2*1024*1024:raise ValueError('body-cap')
+                mime=res.headers.get('Content-Type','')
+                (out/(name+'.html')).write_bytes(data)
+                return {'url':url,'final_url':res.url,'status':res.status,'mime':mime,'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest(),'path':name+'.html','checked_at':at,'manual_review_required':True}
+            except Exception as e:return {'url':url,'checked_at':at,'status':'fetch-failed','error':str(e)[:240]}
+          with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool: results=list(pool.map(fetch,urls))
+          (out/'index.json').write_text(json.dumps(results,indent=2))
+          print(json.dumps({'urls':len(results),'fetched':sum(r['status']==200 for r in results),'all_require_manual_review':True}))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: festival-organizer-evidence
+          path: festival-source-review/
+          retention-days: 1
