@@ -2,6 +2,8 @@
 // homepage poster menu synthetic.  Keep this free of browser/network code so
 // the hermetic monitor guard can red-prove its decisions.
 import { snapRailCoord } from "./fixtures.mjs";
+import { LIVE_POSTER_TYPE_CONFIG } from "../../../lib/liveEventPosterTypes.js";
+import { PARTNER_COLLECTIONS } from "../../../lib/partnerCollections.js";
 
 // RAILS currently declares 19 records.  FOUR never reach the homepage menu:
 // `events` is retired into Night Out (`retiredInto`), `lunchcity` / `drive`
@@ -33,6 +35,18 @@ export const EXPECTED_VISIBLE_POSTER_IDS = Object.freeze([
   "breakfast", "birthday", "blog", "augtober",
 ]);
 
+// Optional synthetic tiles are product-owned too, but their presence depends
+// on live context: sports/concerts appear only when a qualifying nearby event
+// exists, and sponsor tiles appear only inside an approved partner geo gate.
+// Derive ONLY this optional allowlist from the product registries so adding a
+// new live-event type or partner collection cannot make the monitor reject an
+// intentionally-rendered tile. Static RAILS above stay explicit so a hidden
+// core poster still red-proves immediately.
+export const OPTIONAL_VISIBLE_POSTER_IDS = Object.freeze([
+  ...Object.keys(LIVE_POSTER_TYPE_CONFIG).map((type) => `live-${type}`),
+  ...PARTNER_COLLECTIONS.map((collection) => `sponsor-${collection.id}`),
+]);
+
 const asId = (value) => value == null ? "" : String(value);
 const asName = (value) => String(value == null ? "" : value).trim();
 
@@ -58,17 +72,25 @@ export function railsRequestMatchesOrigin(urlString, origin) {
   return true;
 }
 
-/** Compare the visible menu IDs with the one canonical monitored contract. */
+/**
+ * Compare the visible menu IDs with the monitored contract.
+ *
+ * Static RAILS are REQUIRED. Contextual live-event and sponsor tiles are
+ * OPTIONAL but explicitly allowlisted from their product registries. Anything
+ * else is still an unowned poster and fails exactly as before.
+ */
 export function posterMenuDiff(visibleIds) {
   const actual = Array.isArray(visibleIds) ? visibleIds.map(asId).filter(Boolean) : [];
   const actualSet = new Set(actual);
-  const expectedSet = new Set(EXPECTED_VISIBLE_POSTER_IDS);
+  const approvedSet = new Set([...EXPECTED_VISIBLE_POSTER_IDS, ...OPTIONAL_VISIBLE_POSTER_IDS]);
   return {
     expected: [...EXPECTED_VISIBLE_POSTER_IDS],
+    optional: [...OPTIONAL_VISIBLE_POSTER_IDS],
     returned: actual,
     duplicateIds: actual.filter((id, index) => actual.indexOf(id) !== index),
     missingIds: EXPECTED_VISIBLE_POSTER_IDS.filter((id) => !actualSet.has(id)),
-    extraIds: actual.filter((id) => !expectedSet.has(id)),
+    optionalPresentIds: OPTIONAL_VISIBLE_POSTER_IDS.filter((id) => actualSet.has(id)),
+    extraIds: actual.filter((id) => !approvedSet.has(id)),
   };
 }
 
