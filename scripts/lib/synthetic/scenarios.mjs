@@ -450,8 +450,8 @@ export const SCENARIOS = [
   {
     id: "menu-poster-integrity",
     flow: "menu-poster-integrity",
-    name: "All 18 homepage posters and their meal-card answers are intact",
-    description: "The live menu exposes exactly its 18 approved poster ids, and Breakfast plus Actually Worth Eating render the exact cards from the same captured /api/rails response with truthful paging metadata.",
+    name: "Homepage posters and their meal-card answers are intact",
+    description: "The live menu exposes every required static poster plus only approved contextual live-event/sponsor posters, and Breakfast plus Actually Worth Eating render the exact cards from the same captured /api/rails response with truthful paging metadata.",
     async run(ctx) {
       // Parrish is the first-paint seed (DEFAULT_CENTER) AND the metro Gabe
       // reported from. Granting Sarasota GPS while capturing the first
@@ -481,19 +481,28 @@ export const SCENARIOS = [
         })
         .map((tile) => tile.getAttribute("data-id")));
       const posters = posterMenuDiff(visibleIds);
-      ctx.ok("the homepage renders exactly the 18 approved visible poster ids", posters.missingIds.length === 0 && posters.extraIds.length === 0 && posters.duplicateIds.length === 0 && posters.returned.length === EXPECTED_VISIBLE_POSTER_IDS.length, EXPECTED_VISIBLE_POSTER_IDS, {
+      ctx.ok("the homepage renders every required poster and no unapproved poster id", posters.missingIds.length === 0 && posters.extraIds.length === 0 && posters.duplicateIds.length === 0, {
+        required: posters.expected,
+        optional: posters.optional,
+      }, {
         returned: posters.returned,
+        optionalPresentIds: posters.optionalPresentIds,
         missingIds: posters.missingIds,
         extraIds: posters.extraIds,
         duplicateIds: posters.duplicateIds,
       });
-      const tileShapes = await page.locator(".wf8-tile").evaluateAll((tiles) => tiles.map((tile) => ({
-        id: tile.getAttribute("data-id"),
-        links: tile.querySelectorAll(".wf8-tlink").length,
-        images: tile.querySelectorAll("img.wf8-tim").length,
-      })));
-      ctx.ok("every visible poster is an interactive tile with its own poster image", tileShapes.length === EXPECTED_VISIBLE_POSTER_IDS.length && tileShapes.every((tile) => tile.links === 1 && tile.images === 1), "18 interactive tiles each with one image", tileShapes);
-      ctx.note(`menu-poster-integrity menu: expected=${EXPECTED_VISIBLE_POSTER_IDS.length}; returned=${posters.returned.length}; rendered=${visibleIds.length}; missingIds=${JSON.stringify(posters.missingIds)}; extraIds=${JSON.stringify(posters.extraIds)}`);
+      const tileShapes = await page.locator(".wf8-tile").evaluateAll((tiles) => tiles
+        .filter((tile) => {
+          const style = getComputedStyle(tile);
+          return style.display !== "none" && style.visibility !== "hidden";
+        })
+        .map((tile) => ({
+          id: tile.getAttribute("data-id"),
+          links: tile.querySelectorAll(".wf8-tlink").length,
+          images: tile.querySelectorAll("img.wf8-tim").length,
+        })));
+      ctx.ok("every visible poster is an interactive tile with its own poster image", tileShapes.length === visibleIds.length && tileShapes.every((tile) => tile.links === 1 && tile.images === 1), `${visibleIds.length} visible interactive tiles each with one image`, tileShapes);
+      ctx.note(`menu-poster-integrity menu: required=${EXPECTED_VISIBLE_POSTER_IDS.length}; optionalPresent=${JSON.stringify(posters.optionalPresentIds)}; returned=${posters.returned.length}; rendered=${visibleIds.length}; missingIds=${JSON.stringify(posters.missingIds)}; extraIds=${JSON.stringify(posters.extraIds)}`);
 
       const response = await railsResponse;
       ctx.ok("the browser captured the homepage's own compact /api/rails response", !!response, "captured v=2 response", response ? response.status() : "not captured");
