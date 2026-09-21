@@ -25,6 +25,7 @@
 import { NextResponse } from "next/server";
 import { gateShut, spendAllow } from "../../../../lib/spendGate";
 import { getInventoryIdentity } from "../../../../lib/inventoryIdentity.js";
+import { placeDisplayName } from "../../../../lib/placeDisplayName.js";
 
 export const dynamic = "force-dynamic";
 
@@ -44,7 +45,7 @@ async function inventoryPlace(placeId) {
   const signals = row.signals || {};
   return {
     id: row.place_id,
-    displayName: { text: row.name },
+    displayName: { text: placeDisplayName(row, row.name) },
     location: { latitude: row.lat, longitude: row.lng },
     rating: typeof signals.rating === "number" ? signals.rating : null,
     userRatingCount: Number(signals.reviews) || 0,
@@ -99,6 +100,8 @@ export async function POST(req) {
         : NextResponse.json({ error: "upstream " + r.status }, { status: 502 });
     }
     const place = await r.json();
+    const displayName = placeDisplayName(place);
+    if (displayName) place.displayName = { text: displayName };
     // The REST API returns fully-qualified enum strings ("PRICE_LEVEL_MODERATE");
     // the Maps JS SDK this route replaces returned the short form ("MODERATE").
     // Normalize here so client-side price-level matching (unchanged from the
