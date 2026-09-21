@@ -22,6 +22,7 @@ import { homeShellData } from "../../../lib/homeShellData";
 // a season that is over.
 import { FALL_CARD_IDS, fallSkinLive } from "../../../lib/fallSkin";
 import { siteTodayStr } from "../../../lib/siteTime";
+import { placeDisplayName } from "../../../lib/placeDisplayName.js";
 
 function s(v) {
   if (Array.isArray(v)) return v[0] || "";
@@ -30,7 +31,7 @@ function s(v) {
 
 export async function generateMetadata({ params, searchParams }) {
   const id = s(params.id);
-  const t = s(searchParams.t) || "A spot worth your time";
+  const t = placeDisplayName({ id, name: s(searchParams.t) }, "A spot worth your time");
   const loc = s(searchParams.loc);
   const r = s(searchParams.r);
   const rev = s(searchParams.rev);
