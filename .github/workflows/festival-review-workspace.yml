@@ -16,39 +16,36 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
-      - name: Read public event and venue facts for review
+      - name: Read public event and venue facts only
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           node --input-type=module <<'NODE'
-          import { writeFileSync, mkdirSync } from 'node:fs';
-          const origin = new URL(process.env.SUPABASE_URL || '');
-          const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-          if (origin.protocol !== 'https:' || !origin.hostname.endsWith('.supabase.co') || !key) throw new Error('Missing service configuration');
-          const columns = 'event_id,event_series_id,event_name,short_title,year,slug,start_date,end_date,start_time,end_time,timezone,select_nights,schedule_note,event_status,venue,address,city,county,state,lat,lng,place_id,category,subcategory,tags,audience,minimum_age,price_min,price_max,is_free,price_band,ticket_status,official_ticket_url,official_event_url,hero_image,image_alt,card_hook,editorial_summary,why_go,skip_if,fun_fact,insider_tip,parking_tip,what_to_bring,duration_recommendation,crowd_level,wayfind_verdict,pairing,source_url,source_type,source_tier,verification_confidence,last_verified_at,verify_note,blog_url,event_page_url,editorial_score,uniqueness_score,popularity_score,updated_at,link_ok,link_verdict,link_checked_at,link_final_url';
-          const read = async path => {
-            if (!path.startsWith('/rest/v1/wf_events?') && !path.startsWith('/rest/v1/wf_inventory?')) throw new Error('Unsupported review resource');
-            const response = await fetch(origin.origin + path, { method: 'GET', redirect: 'error', headers: {apikey:key,Authorization:`Bearer ${key}`}, signal:AbortSignal.timeout(12000) });
-            if (!response.ok) throw new Error(`review-read-http-${response.status}`);
-            const rows = await response.json(); if(!Array.isArray(rows)) throw new Error('review-read-shape'); return rows;
+          import {writeFileSync,mkdirSync} from 'node:fs';
+          const origin=new URL(process.env.SUPABASE_URL||'');
+          const key=process.env.SUPABASE_SERVICE_ROLE_KEY;
+          if(origin.protocol!=='https:'||!origin.hostname.endsWith('.supabase.co')||!key)throw new Error('Missing service configuration');
+          const columns='event_id,event_series_id,event_name,short_title,year,slug,start_date,end_date,start_time,end_time,timezone,select_nights,schedule_note,event_status,venue,address,city,county,state,lat,lng,place_id,category,subcategory,tags,audience,minimum_age,price_min,price_max,is_free,price_band,ticket_status,official_ticket_url,official_event_url,hero_image,image_alt,card_hook,editorial_summary,why_go,skip_if,fun_fact,insider_tip,parking_tip,what_to_bring,duration_recommendation,crowd_level,wayfind_verdict,pairing,source_url,source_type,source_tier,verification_confidence,last_verified_at,verify_note,blog_url,event_page_url,editorial_score,uniqueness_score,popularity_score,updated_at,link_ok,link_verdict,link_checked_at,link_final_url';
+          const read=async path=>{
+            if(!/^\/rest\/v1\/(wf_events|wf_inventory)\?/.test(path))throw new Error('Unsupported resource');
+            const r=await fetch(origin.origin+path,{method:'GET',redirect:'error',headers:{apikey:key,Authorization:`Bearer ${key}`},signal:AbortSignal.timeout(12000)});
+            if(!r.ok)throw new Error(`review-http-${r.status}`);
+            const rows=await r.json();if(!Array.isArray(rows))throw new Error('Review shape');return rows;
           };
           const events=[];
           for(let offset=0;;offset+=300){
-            if(offset>=6000) throw new Error('event-review-cap');
+            if(offset>=6000)throw new Error('Event cap');
             const rows=await read(`/rest/v1/wf_events?select=${columns}&year=eq.2026&order=event_id.asc&offset=${offset}&limit=300`);
-            events.push(...rows); if(rows.length<300)break;
+            events.push(...rows);if(rows.length<300)break;
           }
           const ids=[...new Set(events.map(e=>e.place_id).filter(id=>typeof id==='string'&&/^[A-Za-z0-9:_-]{6,200}$/.test(id)))];
-          const fields='place_id,name,lat,lng,metro,category,primary_type,google_types,status,excluded,needs_review,refreshed_at,photo_ref,photo_url';
+          const fields='place_id,name,lat,lng,metro,category,primary_type,google_types,status,excluded,needs_review,refreshed_at,photo_ref';
           const places=[];
-          for(let offset=0;offset<ids.length;offset+=40){
-            places.push(...await read(`/rest/v1/wf_inventory?select=${fields}&place_id=in.(${ids.slice(offset,offset+40).map(encodeURIComponent).join(',')})&limit=100`));
-          }
-          const extras=['Nathan Benderson Park','Hunsader','Amber Brooke','Tampa Bay Downs','Pioneer Park','Coachman Park','Mana Wynwood','Tin City','Central Broward','Dakin','Fruitville','German American','Kolb Park'];
-          for(const name of extras){
+          for(let o=0;o<ids.length;o+=40)places.push(...await read(`/rest/v1/wf_inventory?select=${fields}&place_id=in.(${ids.slice(o,o+40).map(encodeURIComponent).join(',')})&limit=100`));
+          for(const name of ['Nathan Benderson Park','Hunsader','Amber Brooke','Tampa Bay Downs','Pioneer Park','Coachman Park','Mana Wynwood','Tin City','Central Broward','Dakin','Fruitville','German American','Kolb Park']){
             const rows=await read(`/rest/v1/wf_inventory?select=${fields}&name=ilike.${encodeURIComponent('%'+name+'%')}&limit=50`);
-            if(rows.length===50)throw new Error('venue-review-cap'); places.push(...rows);
+            if(rows.length===50)throw new Error('Venue cap');places.push(...rows);
           }
           mkdirSync('festival-record-review',{recursive:true});
           const output={observedAt:new Date().toISOString(),revision:process.env.GITHUB_SHA,events,places:[...new Map(places.map(p=>[p.place_id,p])).values()]};
