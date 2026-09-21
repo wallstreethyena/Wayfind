@@ -24,7 +24,9 @@
 // note to an immediate page (deterministic provider failure), and an idle
 // day for a keyless, un-metered backfill is exactly the opposite of that.
 //
-// ?source=at-risk|all (2026-09-09, "beat the cliff"). Unset is the smart
+// ?source=repair|at-risk|all. repair drains the places the live photo monitor
+// actually saw fail, using the same zero-Google Commons identity/license gates.
+// Unset is the smart
 // default lib/placePhotoBackfill.js's runBackfill already applies: drain
 // wf_photo_at_risk (earliest-expiring places first) THEN fall back to the
 // general beach/attractions scan with whatever `limit` budget is left — see
@@ -84,7 +86,7 @@ export async function GET(req) {
   const limit = Math.max(1, Math.min(100, Number(u.searchParams.get("limit")) || 25));
   const scanLimit = Math.max(1, Math.min(5000, Number(u.searchParams.get("scan")) || 1000));
   const sourceParam = u.searchParams.get("source");
-  const source = sourceParam === "at-risk" || sourceParam === "all" ? sourceParam : undefined;
+  const source = sourceParam === "repair" || sourceParam === "at-risk" || sourceParam === "all" ? sourceParam : undefined;
 
   let result;
   try {
@@ -115,7 +117,7 @@ export async function GET(req) {
     ? `place-photos: table unavailable (${result.tableStatus != null ? result.tableStatus : "error"})`
     : result.note
       ? (isDeterministicFailureNote(result.note) ? result.note : `place-photos: ${result.note}`)
-      : `place-photos: ${result.active} active (${result.vaulted || 0} vaulted), ${result.rejected} rejected, ${result.failed} failed, ${result.deferred || 0} deferred${result.partial ? ` — PARTIAL: stopped on its own ${Math.round(WORK_BUDGET_MS / 1000)}s budget with ${result.deadlineStopped} candidate(s) unstarted` : ""} (${describeAtRisk({ ...result, source })}, ${describeReplay({ ...result, source })}, general scanned ${result.scanned}, ${result.alreadyCovered} already covered, revault ${result.revaulted || 0}/${result.revaultAttempted || 0})`;
+      : `place-photos: ${result.active} active (${result.vaulted || 0} vaulted), ${result.rejected} rejected, ${result.failed} failed, ${result.deferred || 0} deferred${result.partial ? ` — PARTIAL: stopped on its own ${Math.round(WORK_BUDGET_MS / 1000)}s budget with ${result.deadlineStopped} candidate(s) unstarted` : ""} (repair ${result.repairTaken || 0}/${result.repairScanned || 0}, ${describeAtRisk({ ...result, source })}, ${describeReplay({ ...result, source })}, general scanned ${result.scanned}, ${result.alreadyCovered} already covered, revault ${result.revaulted || 0}/${result.revaultAttempted || 0})`;
 
   if (!result.tableUnavailable && result.attempted > 0 && result.failed === result.attempted) {
     return jobFailed("place-photos", note, { attempted: result.attempted, succeeded: 0 });
@@ -137,6 +139,10 @@ export async function GET(req) {
     vaulted: result.vaulted || 0,
     vaultSkipped: result.vaultSkipped || 0,
     scanned: result.scanned || 0,
+    repairScanned: result.repairScanned || 0,
+    repairTaken: result.repairTaken || 0,
+    repairUnavailable: !!result.repairUnavailable,
+    repairStatus: result.repairStatus != null ? result.repairStatus : null,
     atRiskScanned: result.atRiskScanned || 0,
     atRiskTaken: result.atRiskTaken || 0,
     atRiskUnavailable: !!result.atRiskUnavailable,
