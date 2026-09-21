@@ -1,0 +1,43 @@
+name: Festival guide review workspace
+on:
+  pull_request:
+    paths: ['.github/workflows/festival-review-workspace.yml']
+permissions:
+  contents: read
+jobs:
+  workspace:
+    if: github.event.pull_request.number == 1382 && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'sol/florida-fall-festivals-guide-preview'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - name: Export tracked public source at exact revisions
+        run: |
+          mkdir -p review-export
+          git rev-parse HEAD > review-export/HEAD.txt
+          git rev-parse origin/main > review-export/MAIN.txt
+          git archive --format=tar.gz --output=review-export/head-source.tar.gz HEAD
+          git archive --format=tar.gz --output=review-export/main-source.tar.gz origin/main
+          git log -1 --format='%H %T' HEAD
+          git log -1 --format='%H %T' origin/main
+          sha256sum review-export/*
+      - uses: actions/upload-artifact@v4
+        with:
+          name: festival-source
+          path: review-export/
+          retention-days: 1
+      - name: Install existing locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Export dependencies for isolated offline tests
+        run: tar -czf /tmp/festival-node-modules.tar.gz node_modules
+      - uses: actions/upload-artifact@v4
+        with:
+          name: festival-test-dependencies
+          path: /tmp/festival-node-modules.tar.gz
+          retention-days: 1
