@@ -200,7 +200,10 @@ async function inventoryPlaceByStem(stem, near, exactNames = null) {
 // inventory row's name does not contain. First confirmed match wins; nothing
 // resolving still means no card — never a stock photo under a named place.
 async function inventoryPlace(pick, near) {
-  if (!pick || pick.appQuery === null) return null;
+  // Fail closed on identity. appQuery is a search handoff, not proof of a
+  // venue. Without a reviewed Place ID or whole-name alias contract, keep the
+  // editorial pick and Open in Wayfind action but render NO place card.
+  if (!guidePickMayResolvePlaceCard(pick)) return null;
   // v8.17 — a pick that CARRIES a placeId (the Gulf Coast guides embed real
   // ids) resolves on it directly: exact, no ilike ambiguity, no geo gate
   // needed (the id IS the identity). The name path below stays the fallback
@@ -356,6 +359,7 @@ async function inventoryPlacesForRegion(region, limit = 80) {
 }
 
 import GuidePlaceCard from "../../components/GuidePlaceCard";
+import { guidePickMayResolvePlaceCard } from "../../../lib/guidePlaceIdentity.js";
 import { placeCardHook } from "../../../lib/rankingWhy";
 // v8.14 — THE CARD CONTRACT'S CSS. IconicPlaceCard renders class names
 // (.wf-place-card and friends) whose rules live in WF_PLACE_CARD_CSS, and
