@@ -142,8 +142,8 @@ ok(/"\/api\/outbound\/verdict",/.test(mw), "middleware rate-limits /api/outbound
 const crons = JSON.parse(read("vercel.json")).crons.map((c) => c.path);
 ok(crons.includes("/api/cron/events-link-health"), "vercel.json schedules the nightly events-link-health content sweep");
 const cronSrc = strip(read("app/api/cron/events-link-health/route.js"));
-ok(/probeAndClassify\(/.test(cronSrc) && /link_ok: false/.test(cronSrc) && /wf_link_verdicts/.test(cronSrc) && /wf_broken_links/.test(cronSrc),
-  "the sweep probes by content, darkens rows, and records verdicts + broken links");
+ok(/probeAndClassify\(/.test(cronSrc) && /link_ok: false/.test(cronSrc) && /wf_link_verdicts/.test(cronSrc) && /wf_broken_links/.test(cronSrc) && /link_manual_verifications/.test(cronSrc) && /manual-browser-verification/.test(cronSrc),
+  "the sweep probes by content, darkens rows, records verdicts + broken links, and honors only expiring exact-URL browser verification fuses");
 const probe = strip(read("lib/linkProbe.js"));
 ok(/isDeniedHost\(host\)/.test(probe) && /"unknown", reason: "denied-host-no-fetch"/.test(probe), "the probe never fetches a denied (Disney) host — AGENTS.md §7");
 
