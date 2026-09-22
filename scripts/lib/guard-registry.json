@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 690,
-    "totalRegistryEntries": 691,
-    "guardsTxtLineCount": 689,
-    "guardsTxtReachedFileCount": 684,
+    "totalOnDiskGuardFiles": 691,
+    "totalRegistryEntries": 692,
+    "guardsTxtLineCount": 690,
+    "guardsTxtReachedFileCount": 685,
     "criticalCount": 84,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 474,
+      "CALL": 475,
       "RENDER": 78,
       "STRUCTURAL": 138,
       "OTHER": 1
@@ -1913,6 +1913,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 42,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-daypart-crosssell.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 15,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
