@@ -40,6 +40,7 @@ import { cardImageSrc, ownedPlacePhotoSrc, isLandingCardImageAllowed } from "../
 import { RON_DUPRAT_TOP7, chefPickPlaces } from "../lib/chefPicks.js";
 import { FALL_PLACE_IDS } from "../lib/fallPool.js";
 import { CURATED_PHOTO_REFS } from "../lib/curatedPhotoRefs.js";
+import { CURATED_OWNED_PLACE_PHOTOS } from "../lib/curatedOwnedPlacePhotos.js";
 import { photoRefOwnedByPlace } from "../lib/placePhoto.js";
 import { readFileSync } from "node:fs";
 import { resolvePlacePhoto } from "../lib/placePhotoServe.js";
@@ -226,6 +227,30 @@ ok(/mergeFallDiscoveryRows\(rows, FALL_DISCOVERIES_2026\)/.test(fallRoute),
 const fallEpoch = Number((/fall-intents:v(\d+):/.exec(fallRoute) || [])[1] || 0);
 ok(fallEpoch >= 6,
   `the Fall cache epoch (v${fallEpoch}) cannot replay a pre-identity-fix image payload after deployment`);
+/* ── 4. PINTO'S FARM — the curated owned-photo bridge, executed ─────────── */
+// A business-approved photo (lib/curatedOwnedPlacePhotos.js) must win at rung
+// 1 EVEN WHEN the row also carries a Google photo_ref — that ordering is the
+// whole guarantee that this card never takes a paid Google Places Photo
+// grant. Executed with a synthetic row that has BOTH, so the assertion can
+// only pass for the right reason.
+{
+  const PINTOS_ID = "ChIJUczTK5XC2YgRRt4Jp6N3B70";
+  const curated = CURATED_OWNED_PLACE_PHOTOS[PINTOS_ID];
+  ok(!!curated && typeof curated.url === "string" && curated.url.length > 0,
+    "Pinto's Farm has a curated owned photo entry");
+  ok(curated?.url.startsWith("/") && !curated.url.startsWith("//"),
+    "the curated photo is a local owned asset, never a hotlink or a Google URL");
+  ok(!!curated?.credit && !!curated?.creditUrl,
+    "the curated photo carries a credit and a credit link — a business photo without credit is not honest");
+  const rowWithBoth = { place_id: PINTOS_ID, photo_url: curated?.url, photo_ref: `places/${PINTOS_ID}/photos/SOMEOTHERREF`, signals: {} };
+  const src = cardImageSrc(rowWithBoth, 640);
+  ok(src === curated?.url,
+    "rung 1 (owned photo_url) wins over rung 2 (photo_ref) — Pinto's card NEVER calls /api/photo, so it can never spend a Google Places Photo grant");
+  ok(isLandingCardImageAllowed(src, PINTOS_ID), "Pinto's resolved image is legal for Pinto's own card");
+  ok(FALL_PLACE_IDS[PINTOS_ID] && /pumpkin/i.test(FALL_PLACE_IDS[PINTOS_ID]),
+    "Pinto's Farm carries its documented WHY in the vetted fall pool");
+}
+
 if (fail.length) {
   console.error("check-no-imageless-card: FAILED");
   for (const f of fail) console.error("  ✗ " + f);
