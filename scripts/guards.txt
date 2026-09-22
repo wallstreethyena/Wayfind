@@ -51,6 +51,7 @@ npm run check:seo
 npm run check:events
 node scripts/check-business-events.mjs
 node scripts/check-guides.mjs
+node scripts/check-guide-standard.mjs
 node scripts/test-affiliates.mjs
 node scripts/check-legal.mjs
 node scripts/check-favorites-auth.mjs
