@@ -145,8 +145,15 @@ export default function FallGuideExplorer({ spots = [] }) {
     if (id == null) return;
     setSelectedId(id);
     requestAnimationFrame(() => {
+      const rail = railRef.current;
       const node = cardNodes.current.get(String(id));
-      node?.scrollIntoView?.({ behavior: "smooth", block: "nearest", inline: "center" });
+      if (!rail || !node) return;
+      const railBox = rail.getBoundingClientRect();
+      const cardBox = node.getBoundingClientRect();
+      const left = rail.scrollLeft
+        + (cardBox.left - railBox.left)
+        - Math.max(0, (rail.clientWidth - cardBox.width) / 2);
+      rail.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
     });
   };
 
