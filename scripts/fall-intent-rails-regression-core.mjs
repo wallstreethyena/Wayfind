@@ -322,7 +322,7 @@ const route = readFileSync(new URL("../app/api/events/fall/route.js", import.met
 const daypart = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
 const component = readFileSync(new URL("../app/components/FallIntentRails.js", import.meta.url), "utf8");
 const card = readFileSync(new URL("../app/components/RailCard.js", import.meta.url), "utf8");
-ok(/fall-intents:v14:/.test(route) && /fastCachedRail/.test(route), "the API uses a new shared FastCache key for playable social posts and the wider Halloween park radius");
+ok(/fall-intents:v15:/.test(route) && /fastCachedRail/.test(route), "the API uses a new shared FastCache key for playable social posts and the wider Halloween park radius");
 const imageProofId = "ChIJB-QyVtEXw4gRk5F8bn3YV28";
 ok(hasStoredPlacePhoto({ place_id: imageProofId, signals: { photo_url: "https://cdn.example.test/owned.jpg" } }),
   "an owned signals.photo_url is stored image proof");
@@ -331,10 +331,18 @@ ok(!hasStoredPlacePhoto({ place_id: imageProofId, signals: { photo_url: "https:/
   "stock and malformed signals.photo_url values are not stored image proof");
 ok(/hasImageProof[\s\S]{0,220}inventory\?\.photo_ref/.test(route)
   && /filter\(\(p\) => hasStoredPlacePhoto\(p\)\)/.test(route)
-  && /cardImageSrc\(\{ place_id: p\.place_id, photo_ref: p\.photo_ref, signals: p\.signals \}/.test(route),
+  && /cardImageSrc\(\{ place_id: p\.place_id, photo_ref: p\.photo_ref, photo_url: p\.photo_url, signals: p\.signals \}/.test(route),
   "Fall places require validated image proof and preserve an owned signals.photo_url without a Google photo call");
 ok(/hasStoredPlacePhoto/.test(route) && !/filter\(\(p\) => !!p\.photo_ref \|\| !!p\.signals\?\.photo_url/.test(route),
   "a truthy stock or malformed signals.photo_url cannot admit a fall place card");
+// A curated, business-approved photo (lib/curatedOwnedPlacePhotos.js) is
+// merged onto the row BEFORE hasStoredPlacePhoto runs, so it both (a) counts
+// as stored image proof and (b) wins cardImageSrc's rung 1 over any Google
+// photo_ref the row also carries — the guarantee that a curated fall place
+// card never triggers a paid Google Places Photo call.
+ok(/import \{ CURATED_OWNED_PLACE_PHOTOS \} from "\.\.\/\.\.\/\.\.\/\.\.\/lib\/curatedOwnedPlacePhotos\.js"/.test(route)
+  && /CURATED_OWNED_PLACE_PHOTOS\[p\.place_id\][\s\S]{0,80}photo_url: CURATED_OWNED_PLACE_PHOTOS\[p\.place_id\]\.url/.test(route),
+  "a curated owned photo is merged onto the inventory row before the stored-photo filter runs");
 ok(/FALL_PLACE_IDS\[p\.place_id\] \|\| \(typeof p\.signals\?\.rating/.test(route)
   && /rating: typeof p\.signals\?\.rating === "number" \? p\.signals\.rating : null/.test(route)
   && /wfScore: typeof p\.signals\?\.rating === "number"/.test(route),
