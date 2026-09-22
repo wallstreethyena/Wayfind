@@ -203,13 +203,25 @@ ok(creatorMetadata("someone-with-no-page").robots.index === false, "a handle wit
   const { createCreatorAppleMap, creatorMapGlyph } = await import("../lib/creatorAppleMap.js");
   ok(html.includes("Cindy Selects · Video guide"), "creator portrait fallback identifies itself as a video guide, never a venue photo");
   ok(creatorMapGlyph({ primary_type: "unknown", category: "food" }) !== "•", "an unknown food subtype uses a food symbol, not a generic dot");
-  let drawn = [], fitted = [], listener, destroyed = false;
+  let drawn = [], fitted = [], destroyed = false;
+  const listeners = {};
   const mapkit = {
-    Map: class { addAnnotations(a) { drawn = a; } showItems(a) { fitted = a; } addEventListener(t, fn) { listener = fn; } removeEventListener() {} destroy() { destroyed = true; } },
+    Map: class { addAnnotations(a) { drawn = a; } showItems(a) { fitted = a; } addEventListener(t, fn) { listeners[t] = fn; } removeEventListener(t) { delete listeners[t]; } destroy() { destroyed = true; } },
     Coordinate: class { constructor(lat, lng) { this.latitude = lat; this.longitude = lng; } },
-    ImageAnnotation: class { constructor(c, o) { this.coordinate = c; Object.assign(this, o); } },
+    // Like MapKit JS 6: one pin is selected at a time, and assigning `selected`
+    // fires deselect/select synchronously, exactly as a tap would.
+    ImageAnnotation: class {
+      constructor(c, o) { this.coordinate = c; this._selected = false; Object.assign(this, o); }
+      get selected() { return this._selected; }
+      set selected(v) {
+        v = !!v; if (v === this._selected) return;
+        if (v) for (const other of drawn) if (other !== this && other._selected) other.selected = false;
+        this._selected = v; listeners[v ? "select" : "deselect"]?.({ annotation: this });
+      }
+    },
     Padding: class {},
   };
+  const lifted = pin => decodeURIComponent(pin.image[1]).includes('stroke="white"');
   let selected;
   const controller = createCreatorAppleMap({ mapkit, container: {}, places: [
     { id: "cafe", name: "Coffee", lat: 27, lng: -82, primary_type: "coffee_shop" },
@@ -218,11 +230,20 @@ ok(creatorMetadata("someone-with-no-page").robots.index === false, "a handle wit
   ], onSelect: id => { selected = id; } });
   ok(drawn.length === 2 && fitted.length === 2, "all valid reviewed places fit, with no fabricated center pin");
   ok(drawn[0].image[1] !== drawn[1].image[1], "cafe and park have representative distinct glyphs");
-  listener({ annotation: drawn[0] });
+  drawn[0].selected = true;
   ok(selected === "cafe", "pin selection resolves the real place ID");
   ok(typeof controller.select === "function", "the map controller exposes card-to-pin selection");
+  selected = "no tap";
   controller.select("park");
   ok(drawn[1].selected === true && drawn[0].selected === false, "viewing a guide card elevates only its matching map pin");
+  // Card-driven selection must never come back as a tap. MapKit fires select
+  // for code-driven selection too; reporting it made the rail snap back to the
+  // card in view, so tapping a pin never brought its card forward
+  // (/guides/florida-fall-festivals-2026, 2026-09-22).
+  ok(selected === "no tap", "a card selecting its pin is not reported back as a pin tap");
+  ok(lifted(drawn[1]) && !lifted(drawn[0]), "the pin matching the card in view is visibly lifted, every other pin is plain");
+  drawn[0].selected = true;
+  ok(selected === "cafe" && lifted(drawn[0]) && !lifted(drawn[1]), "a real tap after card-driven selection still reaches the card and moves the lift");
   // A selected pin must never ask Apple for a callout. Our pins are SVG data
   // URLs with no declared size, so MapKit cannot measure one until it loads and
   // throws positioning its callout -- and because it re-positions the selected
