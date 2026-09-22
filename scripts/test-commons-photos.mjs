@@ -162,12 +162,12 @@ function makeFetch(overrides = {}) {
   return { fetchImpl, calls };
 }
 
-async function resolve(overrides) {
+async function resolve(overrides, place = PLACE) {
   const { fetchImpl, calls } = makeFetch(overrides);
   let reason = null;
   let photo;
   try {
-    photo = await findCommonsPhoto(PLACE, { fetch: fetchImpl, onReject: (r) => { reason = r; } });
+    photo = await findCommonsPhoto(place, { fetch: fetchImpl, onReject: (r) => { reason = r; } });
   } catch (e) {
     // The assertion itself: findCommonsPhoto must never let an exception
     // escape, no matter what the injected fetch does.
@@ -192,6 +192,32 @@ async function main() {
     const { photo, reason } = await resolve({});
     ok(!!photo, `an identity-verified, free-licensed candidate must resolve to a photo, got null (reason: ${reason})`);
     if (photo) ok(photo.match_confidence > 0 && photo.match_confidence <= 1, `match_confidence must be in (0,1], got ${photo.match_confidence}`);
+  }
+
+  // Production red case 2026-09-22. A short generic place name with no
+  // Wikipedia coordinates must not inherit a generic article's lead image.
+  // The actual incident attached File:Fleetwood_round_table_wishing_well...
+  // to Wayfind's "Wishing well" place in Los Angeles.
+  {
+    const genericPlace = { name: "Wishing well", lat: 33.8838096, lng: -118.1256595 };
+    const genericSearch = ["Wishing well", ["Wishing well"], [""], ["https://en.wikipedia.org/wiki/Wishing_well"]];
+    const genericPage = {
+      query: { pages: { 222: {
+        title: "Wishing well",
+        pageprops: { "wikibase-shortdesc": "Tourist attraction" },
+        categories: [{ title: "Category:Tourist attractions" }],
+        extract: "A wishing well is a type of structure found in many places.",
+      } } },
+    };
+    const { photo, reason, calls } = await resolve({
+      opensearch: genericSearch,
+      pageInfo: genericPage,
+      commonsSearch: { query: { search: [] } },
+    }, genericPlace);
+    ok(photo === null, "generic coordinate-less Wikipedia identity must not attach a lead photo to a same-named Wayfind place");
+    ok(calls.some((u) => String(u).includes("list=search")), "generic coordinate-less identity falls through to the stricter direct-Commons verifier");
+    ok(!calls.some((u) => String(u).includes("prop=pageimages")), "generic coordinate-less identity is rejected before trusting the Wikipedia lead image");
+    ok(reason === NO_DIRECT_COMMONS_REASON, `empty strict Commons fallback remains an honest miss (got ${reason})`);
   }
 
   // ── 2. a non-free license is rejected ───────────────────────────────────
