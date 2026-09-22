@@ -82,7 +82,14 @@ ok(!("roars-smores-snores-spooktacular-campout-zoo-miami-2026" in EVENT_TICKET_D
   "…and neither carries a park-admission mapping");
 // UT_EVENT_DEAL_IDS and UT_PLACE_DEAL_IDS are disjoint: an id is one product.
 ok(Object.keys(UT_EVENT_DEAL_IDS).every((id) => !(id in UT_PLACE_DEAL_IDS)), "an event-ticket deal id is never also a place-admission id");
-ok(Object.keys(UT_EVENT_DEAL_IDS).length === 4, "four hand-verified UT event-ticket rows (8, 19, 20, 21)");
+ok(Object.keys(UT_EVENT_DEAL_IDS).length === 6
+  && UT_EVENT_DEAL_IDS["8"] === "mnsshp-2026"
+  && UT_EVENT_DEAL_IDS["19"] === "hhn-orlando-2026"
+  && UT_EVENT_DEAL_IDS["20"] === "howl-o-scream-tampa-2026"
+  && UT_EVENT_DEAL_IDS["21"] === "howl-o-scream-seaworld-2026"
+  && UT_EVENT_DEAL_IDS["38"] === "mvmcp-2026"
+  && UT_EVENT_DEAL_IDS["39"] === "jollywood-nights-2026",
+  "six hand-verified UT event-ticket rows, including exact 2026 MVMCP and Jollywood products");
 
 // ── 2. one answer everywhere, executed ─────────────────────────────────────
 const deal = eventTicketDeal("hhn-orlando-2026");
