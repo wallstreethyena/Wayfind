@@ -10,10 +10,10 @@ complete handoff: any agent can pick up from whatever state the queue is in.
 |---|---|
 | 1. Scraper fixed, leads CSV (1,395 rows, 1,391 upcoming) | done 2026-09-18 |
 | 2. Queue built (70 batches of 20, soonest first) | done 2026-09-18 |
-| 3. Agents verify batches | batch 001 done by hand (6 publish, 14 hold); 002 to 070 waiting: Claude Code on the Mac needs `claude` login, then `run-agents.sh 4` |
-| 4. Publish verified rows to wf_events | 5 new rows live 2026-09-18 (Destin Seafood and Raprager were already live, skipped) |
-| 5. Render check on gowayfind.com | 5 of 5 render and appear in /api/events near their cities |
-| 6. Refresh monthly (new dates get announced) | recurring |
+| 3. Agents verify batches | done 2026-09-22: all 70 batches verified (582 publish, 809 hold, every one of the 1,391 leads accounted for) |
+| 4. Publish verified rows to wf_events | done 2026-09-22: 429 new rows inserted (311 already live, 57 duplicates skipped) |
+| 5. Render check on gowayfind.com | done 2026-09-22: `publish.mjs --verify` says 430 of 430 render |
+| 6. Refresh monthly (new dates get announced) | recurring -- next: re-scrape, `make-batches.mjs` (it never rewrites an existing batch), then step 3 |
 
 ## Non-negotiables (owner rules, do not relax)
 
@@ -31,6 +31,26 @@ complete handoff: any agent can pick up from whatever state the queue is in.
 * Public copy (card_hook, schedule_note) uses no long dashes and no hype.
 * "Done" means the card renders on gowayfind.com, not that a row was inserted.
   Keep three states separate: published and render-verified, published, HOLD.
+
+## What the first full run cost (2026-09-22)
+
+Three ways this pipeline lost real festivals without failing loudly. All three
+are now guarded in `scripts/check-florida-festivals-import.mjs`; read them
+before relaxing anything.
+
+* `wf_events.audience` is NOT NULL and the row contract never checked it. THREE
+  rows left it unstated and Postgres refused the ENTIRE 429-row insert (23502).
+  "Not stated" is now an empty list at write time.
+* The duplicate test matched on ANY shared name word. The 10 km radius has
+  already forced both rows into the same town, so the town's own name proved
+  nothing and killed real events ("Orlando Latino Fest" was refused as a
+  duplicate of "Haunted 5K & 10K at Orlando"). It is a subset test now.
+* A months-long season swallowed a weekend festival inside it, because
+  everything overlaps a season. One shared word can no longer carry that match.
+
+Agents run on the Mac's Claude subscription, which has a session limit. Hitting
+it fails every in-flight batch instantly and harmlessly; wait for the reset and
+re-run `run-agents.sh`, which skips whatever already validated.
 
 ## Files
 
