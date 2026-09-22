@@ -22,11 +22,13 @@
 // which returns an /api/*/go path on this origin — the destination is
 // resolved server-side, at click time, by the route the link points at.
 import ExperienceCatalog from "./ExperienceCatalog";
+import ThemeParkRail from "../../components/ThemeParkRail";
 import React from "react";
 import FloridaSections from "./FloridaSections";
 import LicensedPhoto from "../../components/LicensedPhoto";
 import { SPRINGS_PHOTO, EXPERIENCE_PHOTOS, FLORIDA_EVENT_PHOTOS, FLORIDA_PARK_PHOTOS } from "../../../lib/floridaPhotography";
 import styles from "./florida.module.css";
+import CommerceClickBeacon from "../../components/CommerceClickBeacon";
 import GuidePhoto from "../../components/GuidePhoto";
 import { guideHero } from "../../../lib/guideHero";
 import { activeSeasonalMark, NORMAL_MARK } from "../../../lib/seasonalBrand";
@@ -299,10 +301,38 @@ async function HalloweenSection() {
   </section>;
 }
 
+// THEME_PARK_OFFERS is MENU_PARTNER_OFFERS filtered to "attractions:
+// themeparks" - a hand-verified, same-venue-photo registry that has no Walt
+// Disney World row (see lib/paidFloridaLanding.js's THEME_PARK_OFFERS
+// comment: Disney sells nothing through any registered Florida theme-park
+// partner and no substitute photo has been HEAD-verified). Disney DOES have
+// a real, resolver-backed ticket
+// path - lib/placePartnerPicks.js pick "5" (Undercover Tourist) - it simply
+// never reached this specific carousel. ThemeParkRail reads every park
+// through that same resolver, Disney included, off owned inventory rather
+// than the photo-gated registry above, so this is the one Florida-wide
+// surface where every major park (Disney and Universal both) shows a
+// ticket path.
+//
+// NOTE for the next editor: do not wrap this comment, or any new one placed
+// inside OrlandoSection's JSX below, in a block-comment delimiter pair. This
+// file has a latent landmine at its own top-of-file comment describing the
+// commerce redirect path (search this file for "go path on this origin") -
+// that line-comment text contains an unmatched block-comment OPENER with no
+// closer of its own (harmless on its own). The instant a real block comment
+// (JSX curly-brace or otherwise) exists anywhere later in this file,
+// scripts/check-lib-call-imports.mjs's naive comment-stripping regex latches
+// its lazy match onto that later closer instead, and everything in between,
+// every import statement included, reads as commented out - which is how
+// this guard once falsely reported orderedSections and activeSeasonalMark as
+// unimported. Keep documentation here as double-slash line comments, exactly
+// as this note is written, with no block-comment delimiter characters
+// anywhere in the text, to avoid retriggering it.
 function OrlandoSection() {
   return <section id="orlando" className={styles.section}>
     <SectionHead eyebrow="Make a day of it" title={ORLANDO_HEADING} intro={ORLANDO_INTRO} />
     <Collection label="park experiences">{THEME_PARK_OFFERS.map((o) => <OfferCard key={o.offerId} offer={o} ctaLabel={TICKET_CTA_LABEL} contentPrefix="florida-orlando" />)}</Collection>
+    <ThemeParkRail mode="flagship" />
   </section>;
 }
 
@@ -353,6 +383,7 @@ export default async function GoFloridaPage({ searchParams }) {
   const order = orderedSections(focus);
   const mark = activeSeasonalMark() || NORMAL_MARK;
   return <main id="go-florida" className={styles.page}>
+    <CommerceClickBeacon surface={SURFACE} />
     <div className={styles.opening}>
       <div className={styles.heroBackdrop}>
         <LicensedPhoto {...SPRINGS_PHOTO} sizes="100vw" priority className={styles.heroPhoto} />

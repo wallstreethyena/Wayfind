@@ -12,6 +12,7 @@ import { openExternal } from "../../lib/links";
 import { resolveBrowseExperienceRows, shouldLiveSearchFallback } from "../../lib/browseExperienceLanes";
 import { browseBookableMatches } from "../../lib/browseBookableMatch";
 import { placePartnerPick } from "../../lib/placePartnerPicks";
+import { crossSellKindFor, daypartCrossSellBonus } from "../../lib/daypartCrossSell";
 import { usePinQuarantine } from "../../lib/pinQuarantine";
 import { interleaveReserved } from "../../lib/menuReserveSlots";
 const NOLOG = () => {};
@@ -245,7 +246,16 @@ export function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub,
       // commerce_impression / commerce_cta_clicked payload. The route's `venue`
       // (MOSI, Amalie Arena) is the place, already the card title; it must
       // never land here (2026-09-16 live check: "via The Dalí Museum").
-      rows.push({ key: `${m.provider}:${m.id}`, provider: m.provider, merchant: m.providerLabel || "Verified partner", offerId: m.id, title: m.title, image: m.image, quality10, score: quality10 ?? -1, rankBonus: 0, href, kind: "deal", source: "menu", distMi: Number.isFinite(m.distMi) ? m.distMi : null });
+      // Lane D, 2026-09-22 — the one bonus this loop was missing: every other
+      // mixed-provider rail (the Viator/deals loops just above, IntentPartnerPick)
+      // already leans order toward the current daypart via
+      // lib/experienceNowRank.js's timeOfDayBonus; MENU_PARTNER_OFFERS rows
+      // never did, so a theme-park all-day ticket or a sunset cruise sat at the
+      // same rank at 9pm as at 9am. daypartCrossSellBonus is the SAME small,
+      // capped, order-only shape (see lib/daypartCrossSell.js) keyed off the
+      // chip (`browseCat`/`sub`) rather than a title guess, since these rows'
+      // titles (venue names) rarely carry a time-of-day word at all.
+      rows.push({ key: `${m.provider}:${m.id}`, provider: m.provider, merchant: m.providerLabel || "Verified partner", offerId: m.id, title: m.title, image: m.image, quality10, score: quality10 ?? -1, rankBonus: daypartCrossSellBonus(crossSellKindFor({ cat: browseCat, sub: sub || "all", title: m.title, offerId: m.id }), nowHour), href, kind: "deal", source: "menu", distMi: Number.isFinite(m.distMi) ? m.distMi : null });
     }
     const seen = new Set();
     const seenOffers = new Set();

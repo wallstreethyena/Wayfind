@@ -1520,6 +1520,12 @@ node scripts/test-photo-vault-wiring.mjs
 node scripts/test-photo-vault-rendition.mjs
 node scripts/test-free-source-hotlink.mjs
 node scripts/test-hotel-image-resolver.mjs
+# 2026-09-22: the legal gate on affiliate hotel photos (lib/hotelImage.js's
+# empty HOTEL_IMAGE_PROVIDERS registry, and adapters like
+# lib/hotelImageProviders/bookingDemand.js that are not registered yet) is
+# enforced here rather than by review discipline alone — see this guard's
+# own header for what it checks and why.
+node scripts/check-hotel-image-provider-terms.mjs
 node scripts/test-photo-liveness-sweep.mjs
 
 # 2026-09-17 the WRONG-PLACE MATCH fix: production had 23 named ACTIVE free
@@ -1634,6 +1640,21 @@ node scripts/check-photo-surface-registry.mjs
 # check, auth is fail-closed, and vercel.json schedules it. Hermetic: fetch
 # and the clock are both injected.
 node scripts/test-photo-warm.mjs
+
+# 2026-09-22: the free-tier Google identity backfill for owned hotels with no
+# place id (lib/ownedHotelIdentity.js, wired as photo-warm's third step).
+# Locks: junk/already-resolved rows excluded from the unresolved set;
+# verifyCandidate's fail-closed rule (200m, lodging-only types, street-number
+# match) accepts a true match and rejects a 260m miss, a non-lodging type set,
+# a mismatched street number, a missing location, and empty types, with a
+# positive control proving a weakened 500m rule WOULD have accepted the row
+# the real rule rejects; the runner honours limit and deadline; a resolved
+# row writes ONLY the 365-day gpid marker (no name/address/types/photo ref)
+# and a miss writes only the 14-day miss marker; a denied search or details
+# grant is counted and never fatal, and never writes a marker; the
+# WAYFIND_HOTEL_IDENTITY flag off makes zero calls of any kind; a second run
+# skips every row already marked. Hermetic: every dependency injected.
+node scripts/test-owned-hotel-identity.mjs
 node scripts/test-event-poster.mjs
 node scripts/check-live-event-poster-laws.mjs
 node scripts/test-live-event-posters-location.mjs
@@ -1684,3 +1705,11 @@ node scripts/check-pintos-farm-guide.mjs
 
 # Dedicated guide folders (app/guides/<slug>/page.js) must be excluded from the generic [slug] prerender, or production serves the generic layout at their URL.
 node scripts/check-guide-dedicated-routes.mjs
+
+# Lane C (2026-09-22): every Florida theme park (Disney, Universal, and the rest of lib/themeParks.js) has a place mapping, a resolver-backed ticket CTA and stays mounted on every required discovery surface.
+node scripts/check-theme-park-coverage.mjs
+# 2026-09-22 (Lane D) — lib/daypartCrossSell.js is the one central daypart ->
+# offer-kind policy every cross-sell surface routes through: order-only, no
+# daypart-inappropriate kind ever leads, every daypart keeps a real preferred
+# pick, and it is actually wired into UnifiedBrowseCommerceRail.
+node scripts/check-daypart-crosssell.mjs

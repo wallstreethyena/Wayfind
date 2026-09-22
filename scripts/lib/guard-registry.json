@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 687,
-    "totalRegistryEntries": 688,
-    "guardsTxtLineCount": 686,
-    "guardsTxtReachedFileCount": 681,
-    "criticalCount": 83,
+    "totalOnDiskGuardFiles": 691,
+    "totalRegistryEntries": 692,
+    "guardsTxtLineCount": 690,
+    "guardsTxtReachedFileCount": 685,
+    "criticalCount": 84,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 471,
+      "CALL": 475,
       "RENDER": 78,
       "STRUCTURAL": 138,
       "OTHER": 1
@@ -1930,6 +1930,28 @@
       "owner": null
     },
     {
+      "file": "scripts/check-daypart-crosssell.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 15,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/check-daypart-rotation.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -3685,6 +3707,28 @@
       "honestyViolations": [
         "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
       ],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-hotel-image-provider-terms.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 11,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
       "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,
@@ -7578,6 +7622,28 @@
       "owner": null
     },
     {
+      "file": "scripts/check-theme-park-coverage.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 15,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/check-top40-rail.mjs",
       "npmScript": null,
       "class": "RENDER",
@@ -8332,7 +8398,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 79,
+      "assertionCount": 96,
       "unprovenAbsenceCount": 1,
       "honestyViolations": [
         "1 absence assertion(s) with no positive control in the same file (e.g. \"!/gtag\\('config', 'AW-/.test(layout), \"\")"
@@ -10810,7 +10876,7 @@
       "npmScript": null,
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 74,
+      "assertionCount": 93,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -12135,7 +12201,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 20,
+      "assertionCount": 34,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -12146,11 +12212,16 @@
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
-      "critical": false,
-      "criticalReasons": [],
-      "protects": null,
-      "blastRadius": null,
-      "owner": null
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-import:../lib/hotelImageProviders/bookingDemand.js"
+      ],
+      "protects": "The hotel card image ladder: a photo is shown only for the EXACT property (Google place id), an affiliate/partner image is used only when that provider's registry entry carries a written terms reference and explicitly allows independent use, every partner image carries attribution, and a rejected partner image falls through to Wayfind's owned copy or the same-property Google path rather than to a guess.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "A regression could put another property's photo, a generic stock hotel picture, or a partner image Wayfind has no licence to display on a monetized hotel card — a licensing exposure and a booking-trust break on the surface that earns Stay22/Booking commission."
+      },
+      "owner": "Revenue QA"
     },
     {
       "file": "scripts/test-house-card-photo.mjs",
@@ -13401,6 +13472,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 18,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-owned-hotel-identity.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 58,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -15559,7 +15652,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 55,
+      "assertionCount": 57,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
