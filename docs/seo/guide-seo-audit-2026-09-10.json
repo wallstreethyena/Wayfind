@@ -3610,7 +3610,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring omits an image rather than substituting unrelated art; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -3618,19 +3618,19 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the branded text-card fallback; no unrelated photograph is used."
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
         },
         "image_record": {
           "status": "pass",
-          "evidence": "Explicitly unavailable: No reviewed licensed Pinto's Farm photograph is stored yet."
+          "evidence": "/guides/pintos-farm-miami-2026/hero-family-paddle-boat-lake.webp; 1048x954; Pinto's Farm; Used with permission of Pinto's Farm (owner-confirmed 2026-09-22); credit required."
         },
         "representative_image": {
-          "status": "unknown",
-          "evidence": "No reviewed representative image is currently available."
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
         },
         "large_image_candidate": {
           "status": "unknown",
-          "evidence": "No representative image is available."
+          "evidence": "Delivered image is 1048x954; it is not claimed as a 1200px-wide Discover candidate."
         },
         "contextual_guide_links": {
           "status": "unknown",
