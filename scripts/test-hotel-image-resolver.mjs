@@ -69,6 +69,71 @@ ok(R({ googlePlaceId: PID, photo_ref: `places/${OTHER}/photos/x` }).src === `/ap
 ok(R({ place_id: PID }).source === "same-place", "G3: identity alone reaches the same-property Google path");
 ok(R(null).src === null && R({}).source === "fallback", "F1: nothing resolves to the branded fallback");
 
+// Booking Demand adapter (lib/hotelImageProviders/bookingDemand.js) — the
+// unregistered, terms-gated provider added 2026-09-22. It must behave
+// exactly like any other eligible provider when wired in as a fixture (the
+// resolver does not know or care WHICH provider it is), and it must return
+// [] with nothing loaded.
+const BD = await import("../lib/hotelImageProviders/bookingDemand.js");
+const { bookingDemandProvider, setBookingDemandPhotos, resetBookingDemandPhotos } = BD;
+ok(bookingDemandProvider.termsAllowIndependentUse === false, "BD0: bookingDemand ships with termsAllowIndependentUse false (no signed contract on record)");
+ok(bookingDemandProvider.vaultAllowed === false, "BD0: bookingDemand ships with vaultAllowed false (Booking forbids storing image bytes)");
+ok(String(bookingDemandProvider.termsRef || "").trim().length > 0, "BD0: bookingDemand carries a non-empty termsRef");
+ok(bookingDemandProvider.images({ placeId: PID }).length === 0, "BD1: bookingDemand.images() returns [] before any data is loaded");
+setBookingDemandPhotos({ [PID]: [{ url: "https://cf.bstatic.example/hotel/small.jpg", width: 300, attribution: "Photo courtesy of Booking.com" }, { url: "https://cf.bstatic.example/hotel/large.jpg", width: 1600, attribution: "Photo courtesy of Booking.com" }] });
+ok(bookingDemandProvider.images({ placeId: PID }).length === 2, "BD2: bookingDemand.images() returns the loaded photos for the exact requested place id");
+ok(bookingDemandProvider.images({ placeId: OTHER }).length === 0, "BD3: bookingDemand.images() returns [] for a place id with nothing loaded");
+// Even loaded and shaped correctly, it must never win a card while its
+// terms flag is false — that flag, not data availability, is the gate.
+const bdGated = R({ googlePlaceId: PID, photo_ref: REF }, { providers: [bookingDemandProvider] });
+ok(bdGated.source === "google-ref", "BD4: bookingDemand never wins a card while termsAllowIndependentUse is false, even with matching, attributed, correctly-placed photos loaded");
+resetBookingDemandPhotos();
+ok(bookingDemandProvider.images({ placeId: PID }).length === 0, "BD5: resetBookingDemandPhotos() drops back to empty");
+
+// Fixture providers proving the resolver's rejection/fall-through behavior
+// end to end (2026-09-22): a widest-wins eligible provider, a different-
+// place rejection, a terms-ineligible provider skipped even with a perfect
+// image, and a no-attribution rejection — each one falling through to the
+// existing Google/owned rungs.
+{
+  const eligibleSamePlace = provider({
+    id: "fixture-eligible",
+    images: () => [
+      { url: "https://media.partner.example/eligible-small.jpg", width: 500, placeId: PID, attribution: "Eligible Partner" },
+      { url: "https://media.partner.example/eligible-wide.jpg", width: 2000, placeId: PID, attribution: "Eligible Partner" },
+    ],
+  });
+  const won = R({ googlePlaceId: PID, photo_ref: REF }, { providers: [eligibleSamePlace] });
+  ok(won.src === "https://media.partner.example/eligible-wide.jpg" && won.source === "affiliate:fixture-eligible", `FP1: an eligible provider's widest image for the SAME place id wins the card (got ${won.src})`);
+
+  const differentPlaceOnly = provider({
+    id: "fixture-wrong-place",
+    images: () => [{ url: "https://media.partner.example/wrong-place-wide.jpg", width: 5000, placeId: OTHER, attribution: "Wrong Place Partner" }],
+  });
+  const rejectedWrongPlace = R({ googlePlaceId: PID, photo_ref: REF }, { providers: [differentPlaceOnly] });
+  ok(rejectedWrongPlace.source === "google-ref" && rejectedWrongPlace.src !== "https://media.partner.example/wrong-place-wide.jpg", "FP2: an image for a DIFFERENT place id is rejected and the card falls through to the Google rung");
+
+  const ineligibleButPerfect = provider({
+    id: "fixture-ineligible",
+    termsAllowIndependentUse: false,
+    images: () => [{ url: "https://media.partner.example/perfect.jpg", width: 2400, placeId: PID, attribution: "Would-Be-Perfect Partner" }],
+  });
+  const rejectedIneligible = R({ googlePlaceId: PID, photo_ref: REF }, { providers: [ineligibleButPerfect] });
+  ok(rejectedIneligible.source === "google-ref", "FP3: a provider with termsAllowIndependentUse false is skipped entirely, even when its image is otherwise a perfect exact-property match");
+
+  const noAttributionProvider = provider({
+    id: "fixture-no-attribution",
+    images: () => [{ url: "https://media.partner.example/unattributed.jpg", width: 2400, placeId: PID, attribution: "" }],
+  });
+  const rejectedNoAttribution = R({ googlePlaceId: PID, photo_ref: REF }, { providers: [noAttributionProvider] });
+  ok(rejectedNoAttribution.source === "google-ref", "FP4: an image with no attribution is rejected and the card falls through to the Google rung");
+
+  // Same four cases, but with no photo_ref on the row: fall-through must
+  // reach owned/same-place/fallback rungs too, not just google-ref.
+  ok(R({ googlePlaceId: PID }, { providers: [differentPlaceOnly] }).source === "same-place", "FP5: with no ref in hand, a different-place rejection still falls through, reaching the same-property Google path");
+  ok(R({ googlePlaceId: PID, photo_url: "https://cdn.wayfind.example/own.jpg" }, { providers: [ineligibleButPerfect] }).source === "owned", "FP6: with an owned copy on the row, a terms-ineligible provider's image still yields to it");
+}
+
 // Wiring: every hotel mapper uses the resolver and builds no photo URL of its own.
 for (const f of ["lib/hotels.js", "lib/eventStays.js"]) {
   const src = readFileSync(new URL("../" + f, import.meta.url), "utf8");
