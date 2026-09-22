@@ -212,6 +212,81 @@
   font-size: 10px;
 }
 
+.mapRailStage {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(350px, .85fr);
+  gap: 14px;
+  align-items: stretch;
+}
+
+.activeRail {
+  min-width: 0;
+  overflow: hidden;
+  padding: 13px;
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 20px;
+  background:
+    linear-gradient(150deg, rgba(249,115,22,.055), rgba(255,255,255,.02) 34%),
+    #0c0d0f;
+}
+
+.activeRailHead {
+  display: flex;
+  min-height: 48px;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.activeRailHead > div:first-child {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.activeRailKicker {
+  color: #ff9142;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+
+.activeRailHead strong {
+  color: #f8f5ef;
+  font-size: 14px;
+  font-weight: 850;
+}
+
+.houseRail {
+  width: 100%;
+  min-width: 0;
+  padding: 2px 0 7px;
+}
+
+.viewedTip {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  margin-top: 8px;
+  padding: 10px 11px;
+  border: 1px solid rgba(249,115,22,.18);
+  border-radius: 12px;
+  background: rgba(249,115,22,.055);
+  color: #cfc6bc;
+  font-size: 10.5px;
+  line-height: 1.45;
+}
+
+.viewedTip b {
+  color: #ff9a52;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
 .explorerGrid {
   display: grid;
   grid-template-columns: minmax(270px, .74fr) minmax(0, 1.55fr);
@@ -299,7 +374,7 @@
 .mapWrap {
   position: relative;
   min-width: 0;
-  min-height: 510px;
+  min-height: 520px;
   overflow: hidden;
   border: 1px solid rgba(255,255,255,.09);
   border-radius: 20px;
@@ -308,7 +383,7 @@
 }
 
 .mapWrap > * {
-  min-height: 510px;
+  min-height: 520px;
 }
 
 .selectedSpot {
@@ -496,6 +571,18 @@
     border-radius: 24px;
   }
 
+  .mapRailStage {
+    grid-template-columns: 1fr;
+  }
+
+  .activeRail {
+    padding: 11px;
+  }
+
+  .activeRailHead {
+    min-height: 42px;
+  }
+
   .explorerIntro {
     align-items: start;
     flex-direction: column;
@@ -534,7 +621,7 @@
 
   .mapWrap,
   .mapWrap > * {
-    min-height: 430px;
+    min-height: 255px;
   }
 
   .selectedSpot {
@@ -586,7 +673,21 @@
 
   .mapWrap,
   .mapWrap > * {
-    min-height: 385px;
+    min-height: 235px;
+  }
+
+  .activeRail {
+    padding: 9px;
+    border-radius: 16px;
+  }
+
+  .activeRailHead {
+    align-items: center;
+  }
+
+  .viewedTip {
+    grid-template-columns: 1fr;
+    gap: 3px;
   }
 
   .selectedActions {
