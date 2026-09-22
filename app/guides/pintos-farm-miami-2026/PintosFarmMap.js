@@ -106,6 +106,7 @@ export default function PintosFarmMap() {
           <div ref={scrollerRef} className={styles.farmMapScroller}>
             <div className={styles.farmMapCanvas}>
               <img
+                data-guide-map-canvas
                 src={FARM_MAP.src}
                 srcSet={FARM_MAP.srcSet}
                 sizes="(max-width: 520px) 190vw, (max-width: 700px) 150vw, (max-width: 850px) 100vw, 780px"
