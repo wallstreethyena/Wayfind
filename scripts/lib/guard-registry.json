@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 691,
-    "totalRegistryEntries": 692,
-    "guardsTxtLineCount": 690,
-    "guardsTxtReachedFileCount": 685,
+    "totalOnDiskGuardFiles": 692,
+    "totalRegistryEntries": 693,
+    "guardsTxtLineCount": 691,
+    "guardsTxtReachedFileCount": 686,
     "criticalCount": 84,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 475,
-      "RENDER": 78,
+      "RENDER": 79,
       "STRUCTURAL": 138,
       "OTHER": 1
     }
@@ -12183,6 +12183,28 @@
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-hotel-card-cta.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 25,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
