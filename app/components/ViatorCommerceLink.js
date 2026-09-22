@@ -98,6 +98,7 @@ export default function ViatorCommerceLink({
       href={href}
       data-offer={offerLabel}
       data-rank={rank}
+      data-commerce-owner="ViatorCommerceLink"
       target="_blank"
       rel="noopener sponsored nofollow"
       onClick={(e) => {

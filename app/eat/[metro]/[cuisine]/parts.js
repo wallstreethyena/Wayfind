@@ -89,6 +89,7 @@ export default function CuisineListClient({ places, metro, cuisine }) {
                   className="wf-sl-cta wf-sl-primary"
                   href={cta.href}
                   target="_blank"
+                  data-commerce-owner="CuisineListClient"
                   // sponsored/nofollow only where the link actually earns — the
                   // same signal the disclosure follows.
                   rel={cta.monetized ? "noopener sponsored nofollow" : "noopener noreferrer"}

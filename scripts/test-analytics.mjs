@@ -10,9 +10,10 @@
 //
 // Runs in plain Node with no DOM: importing these modules at all is itself the
 // SSR test, since any module-scope `window` access would throw on import.
-import { readFileSync } from "fs";
+import { readFileSync, writeFileSync } from "fs";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
+import { execSync } from "child_process";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 let failures = 0;
@@ -229,51 +230,231 @@ function harness() {
   ok(around.indexOf("signup_completed") < 0, "an unconfirmed signup does NOT report a conversion");
 }
 
-/* ── unified commerce clicks are Ads conversions (2026-09-22 audit) ────── */
-// Paid landing surfaces (guides, /go/florida, /florida-events) record partner
-// clicks ONLY as `commerce_cta_clicked`. Before this rule Google Ads received
-// zero conversions from every paid click while PostHog recorded them.
+/* ── partner_click is the ONE Ads-conversion event for verified partner
+   hand-offs (2026-09-22 revision) ───────────────────────────────────────── */
+// GUIDE PAGES reported zero Google Ads conversions: nothing on /guides/*
+// forwarded a verified partner click to Google at all. The FIRST fix tried —
+// treating commerce_cta_clicked + a caller-supplied monetized:true as the
+// conversion — was itself unsafe: GuideConversion already calls
+// track("commerce_cta_clicked", { monetized: !!cta.monetized }) for every
+// guide CTA, and lib/track.js forwards every track() call to
+// forwardToGoogle, so that rule DOUBLE-COUNTED the same click the beacon also
+// reports, under a different dedupe key — and it counted clicks on
+// lib/guideCta.js's $0 "courtesy" coupons (raw links to the partner's own
+// site, monetized:true for PostHog's own reasons) as paid conversions. A
+// verified click_id is required.
+//
+// So commerce_cta_clicked is now classified purely as "analytics" — never a
+// conversion, whatever params it carries — and `partner_click` (sent from
+// exactly one place, CommerceClickBeacon, only after verifying the clicked
+// href resolves to one of our four partner redirect routes) is the only
+// event that can produce an Ads conversion.
 {
-  ok(A.classify("commerce_cta_clicked", { monetized: true }) === "primary", "a MONETIZED commerce click is a primary conversion");
-  ok(A.labelKeyFor("commerce_cta_clicked", { monetized: true }) === "affiliate", "a monetized commerce click uses the single affiliate label");
-  ok(A.classify("commerce_cta_clicked", { monetized: false }) === "analytics", "a NON-monetized commerce click (open in app, map) is never a conversion");
-  ok(A.classify("commerce_cta_clicked") === "analytics", "no params => not a conversion (fails closed)");
-  ok(A.classify("commerce_cta_clicked", { monetized: "true" }) === "analytics", "only a real boolean true counts, never a truthy string");
-  ok(A.AFFILIATE_EVENTS.indexOf("commerce_cta_clicked") < 0, "the legacy seven stay seven; the commerce click is classified by params, not by name");
+  ok(A.PARTNER_CLICK_EVENT === "partner_click", "PARTNER_CLICK_EVENT is the literal event name partner_click");
+  ok(A.classify(A.PARTNER_CLICK_EVENT) === "primary", "partner_click is a primary conversion");
+  ok(A.labelKeyFor(A.PARTNER_CLICK_EVENT) === "affiliate", "partner_click uses the single affiliate label (event_label affiliate_click)");
+  ok(A.AFFILIATE_EVENTS.length === 7, "the legacy seven affiliate events are unchanged");
+  ok(A.AFFILIATE_EVENTS.indexOf(A.PARTNER_CLICK_EVENT) < 0, "partner_click is NOT added to the legacy seven — isAffiliateClick treats it as its own, eighth case");
 
-  A._resetDedupe();
-  const h = harness();
-  const rep = A.forwardToGoogle("commerce_cta_clicked", { monetized: true, provider: "tiqets", surface: "paid_florida" }, { gtag: h.gtag, dedupeKey: "commerce_cta_clicked|click-aaaaaaaa" });
-  ok(rep.ads === true && rep.tier === "primary", "monetized commerce click fires the Ads conversion, got " + JSON.stringify(rep));
-  const conv = h.calls.find((c) => c[1] === "conversion");
-  ok(conv && conv[2].send_to === "AW-18342267447/affLabel456789" && conv[2].event_label === "affiliate_click", "it reports into the one affiliate_click action");
-  ok(conv && conv[2].surface === "paid_florida" && conv[2].provider === "tiqets", "surface + partner survive on the conversion");
-  ok(conv && !("monetized" in conv[2]), "the internal monetized flag is not sent to Google");
-  const again = A.forwardToGoogle("commerce_cta_clicked", { monetized: true, provider: "tiqets", surface: "paid_florida" }, { gtag: h.gtag, dedupeKey: "commerce_cta_clicked|click-aaaaaaaa" });
-  ok(again.ads === false && again.skipped === "duplicate", "the same click id never converts twice");
-
-  A._resetDedupe();
-  const h2 = harness();
-  const plain = A.forwardToGoogle("commerce_cta_clicked", { monetized: false, surface: "guide" }, { gtag: h2.gtag });
-  ok(plain.ads === false && h2.calls.every((c) => c[1] !== "conversion"), "non-monetized commerce click sends GA4 only, no conversion");
+  // THE RINGLING / DOUBLE-COUNT PROTECTION. commerce_cta_clicked used to be a
+  // conversion when monetized:true; it is now indistinguishable from any
+  // other analytics-only event, on purpose, REGARDLESS of params.
+  ok(A.classify("commerce_cta_clicked", { monetized: true }) === "analytics", "commerce_cta_clicked is no longer a conversion path, even monetized:true — this is the double-count / courtesy-coupon fix");
+  ok(A.labelKeyFor("commerce_cta_clicked", { monetized: true }) === null, "commerce_cta_clicked never resolves to a label bucket any more");
+  ok(A.classify("commerce_cta_clicked") === "analytics", "commerce_cta_clicked with no params at all is analytics-only, same as every other shape");
 }
 
-// The two server-rendered paid landing pages must mount the click beacon, or
-// their partner links go back to reporting nothing (they have no other
-// client-side tracking). The beacon must forward as monetized and never let
-// emitCommerce itself forward (surfaces that also fire a legacy *_out would
-// double count).
+/* ── forwardToGoogle: partner_click sends exactly one conversion ───────── */
 {
+  A._resetDedupe();
+  const h = harness();
+  const rep = A.forwardToGoogle(A.PARTNER_CLICK_EVENT, { provider: "tiqets", surface: "guide", click_id: "should-not-reach-google" }, { gtag: h.gtag, dedupeKey: "partner_click|click-aaaaaaaa" });
+  ok(rep.ads === true && rep.tier === "primary", "partner_click fires the Ads conversion, got " + JSON.stringify(rep));
+  const convCalls = h.calls.filter((c) => c[1] === "conversion");
+  ok(convCalls.length === 1, "exactly one conversion call, got " + convCalls.length);
+  const conv = convCalls[0];
+  ok(conv[2].send_to === "AW-18342267447/affLabel456789", "send_to is account/label");
+  ok(conv[2].event_label === "affiliate_click", "event_label consolidates onto the one affiliate_click action");
+  ok(conv[2].provider === "tiqets" && conv[2].surface === "guide", "provider + surface carry on the conversion");
+  ok(!("click_id" in conv[2]), "click_id is NOT in the allowed param list — it never reaches Google, it only steers dedupe");
+
+  const again = A.forwardToGoogle(A.PARTNER_CLICK_EVENT, { provider: "tiqets", surface: "guide" }, { gtag: h.gtag, dedupeKey: "partner_click|click-aaaaaaaa" });
+  ok(again.ads === false && again.skipped === "duplicate", "a second call with the SAME click_id (same dedupeKey) within the window is skipped as a duplicate");
+
+  const different = A.forwardToGoogle(A.PARTNER_CLICK_EVENT, { provider: "tiqets", surface: "guide" }, { gtag: h.gtag, dedupeKey: "partner_click|click-bbbbbbbb" });
+  ok(different.ads === true, "a DIFFERENT click_id fires its own, separate conversion");
+}
+
+// The DEFAULT dedupe key (no explicit dedupeKey option): PARTNER_CLICK_EVENT
+// + a non-empty params.click_id composes "partner_click|<click_id>" on its
+// own, exactly like the explicit key above — CommerceClickBeacon relies on
+// this so it does not have to hand-build the string itself.
+{
+  A._resetDedupe();
+  const h = harness();
+  const rep1 = A.forwardToGoogle(A.PARTNER_CLICK_EVENT, { provider: "viator", surface: "guide", click_id: "click-1111" }, { gtag: h.gtag });
+  ok(rep1.ads === true, "partner_click with a click_id converts on its own default dedupe key");
+  const rep2 = A.forwardToGoogle(A.PARTNER_CLICK_EVENT, { provider: "viator", surface: "guide", click_id: "click-1111" }, { gtag: h.gtag });
+  ok(rep2.skipped === "duplicate", "the same click_id, with NO explicit dedupeKey passed, still dedupes correctly under its own default key");
+  const rep3 = A.forwardToGoogle(A.PARTNER_CLICK_EVENT, { provider: "viator", surface: "guide", click_id: "click-2222" }, { gtag: h.gtag });
+  ok(rep3.ads === true, "a different click_id converts again under the default key");
+}
+
+/* ── planPartnerClick: the pure decision behind the beacon, CALLED ─────── */
+// Per CLAUDE.md's "assert on the CALL, not on the string" — the pure logic
+// lives in lib/partnerClick.js precisely so it can be imported and invoked
+// here under plain Node (a "use client" React component cannot be).
+{
+  const PC = await import("../lib/partnerClick.js");
+  let minted = 0;
+  const mint = () => "minted-click-" + (++minted);
+
+  // Unowned /api/commerce/go, no click_id on the href: mints one, rewrites
+  // the href to carry it (so the redirect can join on it), and tells the
+  // beacon to ALSO record commerce_cta_clicked to PostHog itself.
+  {
+    minted = 0;
+    const plan = PC.planPartnerClick({ href: "/api/commerce/go?provider=viator&offer=abc", owned: false, locationHost: "www.gowayfind.com", fallbackSurface: "guide", mint });
+    ok(!!plan && plan.clickId === "minted-click-1", "unowned commerce/go with no click_id mints one, got " + JSON.stringify(plan));
+    ok(!!plan && typeof plan.rewriteHref === "string" && plan.rewriteHref.indexOf("click_id=minted-click-1") >= 0, "rewriteHref carries the minted click_id, got " + (plan && plan.rewriteHref));
+    ok(!!plan && plan.emitPostHog === true, "an UNOWNED link asks the beacon to also emit PostHog itself");
+  }
+
+  // Owned: the rendering component already records commerce_cta_clicked
+  // itself — the beacon must not touch the href or double-emit.
+  {
+    const plan = PC.planPartnerClick({ href: "/api/commerce/go?provider=viator&offer=abc", owned: true, locationHost: "www.gowayfind.com", fallbackSurface: "guide", mint });
+    ok(!!plan && plan.emitPostHog === false, "an OWNED link is never double-recorded to PostHog by the beacon");
+    ok(!!plan && plan.rewriteHref === null, "an OWNED link's href is left alone — the owner mints and stamps its own click_id");
+  }
+
+  // A valid click_id already on the href is reused, never re-minted.
+  {
+    minted = 0;
+    const plan = PC.planPartnerClick({ href: "/api/commerce/go?provider=viator&offer=abc&click_id=existingId123", owned: false, locationHost: "www.gowayfind.com", mint });
+    ok(!!plan && plan.clickId === "existingId123", "an existing valid click_id in the href is reused, got " + (plan && plan.clickId));
+    ok(minted === 0, "the minter is never called when the href already carries a valid click_id");
+  }
+
+  // /api/viator/go (and the other two non-joinable routes) are never
+  // rewritten, even when unowned — only /api/commerce/go joins on click_id.
+  {
+    const plan = PC.planPartnerClick({ href: "/api/viator/go?placeId=x&q=museum", owned: false, locationHost: "www.gowayfind.com", mint });
+    ok(!!plan && plan.rewriteHref === null, "/api/viator/go is never rewritten");
+    ok(!!plan && plan.googleParams.provider === "viator", "the route's own provider is used when the href carries none");
+  }
+
+  // Non-partner content paths never plan a click.
+  ok(PC.planPartnerClick({ href: "/guides/orlando-things-to-do", owned: false, locationHost: "www.gowayfind.com", mint }) === null, "a guide's own content path is never a partner click");
+  ok(PC.planPartnerClick({ href: "https://www.ringling.org/tickets", owned: false, locationHost: "www.gowayfind.com", mint }) === null, "a courtesy link straight to a partner's own site (no commission, no /go route) is never a partner click");
+
+  // HOST VERIFICATION — the path alone is not proof of origin.
+  ok(PC.planPartnerClick({ href: "https://evil.example/api/viator/go?placeId=x&q=museum", owned: false, locationHost: "www.gowayfind.com", mint }) === null, "an absolute link to a FOREIGN host that merely reuses our path is refused");
+  ok(PC.planPartnerClick({ href: "//evil.example/api/viator/go?placeId=x&q=museum", owned: false, locationHost: "www.gowayfind.com", mint }) === null, "a PROTOCOL-RELATIVE link to a foreign host (no scheme, still foreign) is refused");
+  ok(PC.planPartnerClick({ href: "/api/viator/go?placeId=x&q=museum", owned: false, locationHost: "wayfind-git-x.vercel.app", mint }) !== null, "a relative partner link on a preview host still counts (resolves to the page's own host)");
+
+  // Our own absolute host (apex or www) counts exactly like a relative link.
+  {
+    const plan = PC.planPartnerClick({ href: "https://www.gowayfind.com/api/hotels/go?provider=stay22&offer=abc", owned: false, locationHost: "gowayfind.com", mint });
+    ok(!!plan && plan.googleParams.provider === "stay22", "an absolute link to our OWN host (www.gowayfind.com) still counts, got " + JSON.stringify(plan));
+  }
+}
+
+/* ── wiring: syntactic ROLE, not substring (CLAUDE.md) ──────────────────── */
+{
+  const layout = readFileSync(join(ROOT, "app/guides/layout.js"), "utf8");
+  ok(/from ["']\.\.\/components\/CommerceClickBeacon["']/.test(layout), "app/guides/layout.js imports CommerceClickBeacon");
+  ok(/<CommerceClickBeacon[\s/>]/.test(layout), "app/guides/layout.js actually RENDERS the beacon — a rendered element, not merely an import");
+  ok(!/^["']use client["']/.test(layout.trim()), "the guides layout stays a server component (no \"use client\" of its own)");
+
   const beacon = readFileSync(join(ROOT, "app/components/CommerceClickBeacon.js"), "utf8");
   ok(/^["']use client["']/.test(beacon.trim()), "CommerceClickBeacon is a client component");
-  ok(/forwardToGoogle\(\s*"commerce_cta_clicked",\s*\{\s*monetized:\s*true/.test(beacon), "the beacon forwards partner clicks as monetized");
-  ok(/emitCommerce\(\s*"commerce_cta_clicked"/.test(beacon), "the beacon records the PostHog commerce event through emitCommerce");
+  ok(/import\s*\{[^}]*\bPARTNER_CLICK_EVENT\b[^}]*\}\s*from\s*["']\.\.\/\.\.\/lib\/analytics["']/.test(beacon), "PARTNER_CLICK_EVENT is imported by name from lib/analytics");
+  ok(/forwardToGoogle\(\s*PARTNER_CLICK_EVENT\b/.test(beacon), "the beacon CALLS forwardToGoogle with PARTNER_CLICK_EVENT as the event (role: the actual call site, not just the import)");
+  ok(!/forwardToGoogle\(\s*"commerce_cta_clicked"/.test(beacon), "the beacon no longer forwards the OLD commerce_cta_clicked/monetized shape to Google");
+  ok(/emitCommerce\(\s*"commerce_cta_clicked"/.test(beacon), "the beacon can still record the PostHog commerce event through emitCommerce, for links nobody else owns");
+  ok(/analyticsSuppressionReason\(/.test(beacon), "the beacon checks the SAME suppression predicate lib/track.js uses");
+  ok(/__WF_ANALYTICS_SUPPRESSED/.test(beacon), "the beacon also honors the owner/internal override flag, same as lib/track.js");
+
   for (const f of ["app/go/florida/page.js", "app/florida-events/page.js"]) {
     const src = readFileSync(join(ROOT, f), "utf8");
-    ok(/<CommerceClickBeacon\s+surface=/.test(src), f + " mounts CommerceClickBeacon");
+    ok(/<CommerceClickBeacon\s+surface=/.test(src), f + " still mounts CommerceClickBeacon (unchanged by this revision)");
   }
+
   const commerce = readFileSync(join(ROOT, "lib/commerce.js"), "utf8");
   ok(commerce.indexOf("forwardToGoogle") < 0, "emitCommerce never forwards to Google by itself (would double count legacy *_out surfaces)");
+}
+
+/* ── completeness: every commerce_cta_clicked emitter owns its anchor(s) ── */
+// data-commerce-owner is how a component tells the beacon "I already record
+// this click to PostHog myself — don't do it again." A file that emits
+// commerce_cta_clicked from an anchor with NO such marker is a silent
+// double-count waiting for the beacon to be mounted on its page.
+//
+// RAILCARD_ALLOWLIST: BestNearby.js / IntentRail.js / FallIntentRails.js pass
+// a `cta` object (with its own onClick) into the SHARED app/components/
+// RailCard.js, which renders the one <a> that actually fires it — these
+// three files contain no anchor of their own to mark, and RailCard.js mixes
+// tracked and untracked `cta` callers, so ownership cannot be expressed
+// there without a wider change to RailCard's contract. None of the three is
+// reachable from any page CommerceClickBeacon is mounted on today (home.js /
+// /eat, not /guides or /go/florida), so this is a documented gap, not a live
+// double-count.
+const RAILCARD_ALLOWLIST = new Set([
+  "app/components/BestNearby.js",
+  "app/components/IntentRail.js",
+  "app/components/FallIntentRails.js",
+]);
+const OWNER_ATTR_RX = /\sdata-commerce-owner=(?:"[^"]*"|\{[^}]*\})/; // a real JSX attribute, not a substring anywhere in the file
+
+function scanCommerceOwnership() {
+  const raw = execSync(
+    `grep -rlE 'emitCommerce\\("commerce_cta_clicked"|track\\("commerce_cta_clicked"' app`,
+    { cwd: ROOT, encoding: "utf8" },
+  );
+  const hits = raw.split("\n").map((s) => s.trim()).filter(Boolean).sort();
+  const checked = hits.filter((f) => f !== "app/components/CommerceClickBeacon.js" && !RAILCARD_ALLOWLIST.has(f));
+  const violations = checked.filter((f) => !OWNER_ATTR_RX.test(readFileSync(join(ROOT, f), "utf8")));
+  return { hits, checked, violations };
+}
+
+{
+  const { hits, checked, violations } = scanCommerceOwnership();
+  // Positive control: prove the scan itself finds the real emitters before
+  // trusting a "0 violations" result — a broken grep pattern would report a
+  // false-clean scan that proves nothing (CLAUDE.md's known failure mode).
+  ok(hits.length === 20, "completeness scan finds the expected 20 commerce_cta_clicked-emitting files under app/ (a new emitter changes this count on purpose — update it here AND give the new anchor ownership), got " + hits.length + ": " + hits.join(", "));
+  ok(checked.length === hits.length - 1 - RAILCARD_ALLOWLIST.size, "the beacon itself + the 3-file RailCard allowlist are excluded; every other emitter is held to the check");
+  ok(violations.length === 0, "every non-excluded commerce_cta_clicked emitter carries data-commerce-owner on the anchor whose onClick fires it: " + violations.join(", "));
+}
+
+// RED-PROVE. A check that reads real source and stays green on the exact
+// mutation it exists to catch is decoration (CLAUDE.md). Sabotage ONE real
+// marker on disk, confirm the mutation actually landed (not a silent no-op),
+// re-run THIS GUARD'S OWN scan and watch it go red, then restore byte-for-
+// byte — in a try/finally so a crash mid-probe can never leave the repo
+// dirty.
+{
+  const target = join(ROOT, "app/guides/[slug]/GuideConversion.js");
+  const original = readFileSync(target, "utf8");
+  const needle = ' data-commerce-owner="GuideConversion"';
+  const foundCount = original.split(needle).length - 1;
+  ok(foundCount === 1, "red-prove setup: GuideConversion.js carries exactly one data-commerce-owner marker to sabotage, found " + foundCount);
+
+  let redResult = null;
+  try {
+    const mutated = original.replace(needle, "");
+    ok(mutated.length === original.length - needle.length, "red-prove: the sabotage removed exactly the marker's own length from the in-memory copy");
+    writeFileSync(target, mutated);
+    const onDisk = readFileSync(target, "utf8");
+    ok(onDisk.indexOf(needle) < 0 && onDisk === mutated, "red-prove: the sabotage actually landed on disk — read back and confirmed, not assumed");
+    redResult = scanCommerceOwnership();
+  } finally {
+    writeFileSync(target, original);
+  }
+  const restored = readFileSync(target, "utf8");
+  ok(restored === original, "red-prove: GuideConversion.js was restored byte-for-byte after the probe");
+  ok(!!redResult && redResult.violations.indexOf("app/guides/[slug]/GuideConversion.js") >= 0, "red-prove: with the marker removed, THIS GUARD'S OWN scan reports GuideConversion.js as a violation — proves the check is not decoration");
 }
 
 if (failures) { console.error(`test-analytics: ${failures} failure(s)`); process.exit(1); }

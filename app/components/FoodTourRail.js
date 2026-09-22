@@ -120,6 +120,7 @@ export default function FoodTourRail({ offers, metro, surface = "cuisine_sheet" 
             <a
               data-offer={t.code}
               data-rank={i + 1}
+              data-commerce-owner="FoodTourRail"
               href={commerceHref({ provider: "viator", offerId: t.code, surface, contentId: metro })}
               onClick={(e) => onCta(t, i, e)}
               // sponsored + nofollow: this resolves to a commissioned link, and

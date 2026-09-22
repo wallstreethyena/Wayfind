@@ -503,10 +503,6 @@
       "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
     },
     {
-      "file": "scripts/test-analytics.mjs",
-      "reason": "1 absence check(s) with no same-file positive control"
-    },
-    {
       "file": "scripts/test-atlas-build.mjs",
       "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
     },

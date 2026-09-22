@@ -123,6 +123,7 @@ export default function HubConversion({ surface, slugKey, slug, city, category, 
       </div>
       <a
         href={hydrated ? withClickId(cta.href, clickId.current) : cta.href}
+        data-commerce-owner="HubConversion"
         onClick={onCta}
         {...(cta.monetized ? { target: "_blank", rel: "noreferrer sponsored" } : {})}
         style={{ display: "block", marginTop: 10, padding: "14px 18px", borderRadius: 14, background: "#FF8A3D", color: "#0B0F14", fontSize: 16, fontWeight: 800, textAlign: "center", textDecoration: "none" }}

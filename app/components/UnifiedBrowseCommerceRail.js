@@ -350,7 +350,7 @@ export function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub,
           const href = card.kind === "experience" ? commerceHref({ provider: "viator", offerId: card.offerId, surface: "browse_partner_rail", contentId: `${browseCat}:${sub || "all"}` }) : card.href;
           if (!href) return null;
           return (
-            <a key={card.key} data-offer-id={card.key} data-rank={index + 1} href={href} target="_blank" rel="sponsored nofollow noopener" onClick={(e) => {
+            <a key={card.key} data-offer-id={card.key} data-rank={index + 1} href={href} target="_blank" rel="sponsored nofollow noopener" data-commerce-owner="UnifiedBrowseCommerceRail" onClick={(e) => {
               e.preventDefault();
               const clickId = mintClickId();
               const clickHref = commerceHref({ provider: card.provider, offerId: card.offerId, surface: "browse_partner_rail", contentId: `${browseCat}:${sub || "all"}`, clickId }) || href;

@@ -52,6 +52,7 @@ export default function TicketButton({ url, label, eventId, provider = "event_of
       onClick={onClick}
       rel={earning ? "noreferrer sponsored" : "noreferrer"}
       data-s22-autopilot="false"
+      data-commerce-owner="TicketButton"
       style={{ display: "block", textAlign: "center", marginTop: 18, background: A, color: "#0D1117", fontWeight: 800, fontSize: 15, borderRadius: 12, padding: "13px 0", textDecoration: "none" }}
     >
       {label}
