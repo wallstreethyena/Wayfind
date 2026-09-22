@@ -236,7 +236,6 @@ export default function RootLayout({ children }) {
             five serial hops before a single tile is requested. Owner: "to open
             up the maps it takes a long time to load." */}
         <link rel="preconnect" href="https://tiles.openfreemap.org" crossOrigin="" />
-        <link rel="preconnect" href="https://scripts.stay22.com" />
         {/* v5.79: Impact.com publisher site-ownership verification for the
             Ticketmaster affiliate program. Impact crawls the homepage <head> for
             this exact tag when "Add Website" is clicked. NOTE: Impact reads the
@@ -254,38 +253,37 @@ export default function RootLayout({ children }) {
         <script id="impact-verify-mirror" dangerouslySetInnerHTML={{ __html: "// <meta name='impact-site-verification' value='b9afb8d7-5514-4a1c-871b-dbac1a41e2a8'>" }} />
         {/* impact content-edit verification segment (their checker substring-matches the raw HTML) */}
         <span aria-hidden="true" style={{ display: "none" }}>Impact-Site-Verification: 3e7546fd-175c-41ae-86c1-5e5cf141df51</span>
-        {/* Stay22 LinkSwap: auto-optimizes hotel/activity booking links into
-            commission-earning links (Booking, Expedia, Hotels.com, KAYAK, Vrbo,
-            GetYourGuide, TripAdvisor). lmaID is the account's live script id.
-            v5.39 (July 2026 audit, Phase 7): Lighthouse attributed ~3.0s of
-            mobile main-thread work to this script — the single largest TBT
-            contributor on the page. It now loads on the FIRST user
-            interaction (pointer/key/scroll), — a visitor who never
-            interacts can never click a booking link, and any real click is
-            preceded by a pointerdown that starts this load. Until it
-            loads, booking links are plain (functional, just untracked). */}
-        <Script id="stay22-linkswap" strategy="afterInteractive" dangerouslySetInnerHTML={{ __html: `(function(){var loaded=false;function load(){if(loaded)return;loaded=true;try{window.Stay22=window.Stay22||{};window.Stay22.params={lmaID:'6a4ea3011b2dc5741859a3fc'};var s=document.createElement('script');s.async=1;s.src='https://scripts.stay22.com/letmeallez.js';s.onerror=function(){};(document.head||document.documentElement).appendChild(s);}catch(e){}['pointerdown','keydown','touchstart','scroll'].forEach(function(ev){window.removeEventListener(ev,load,{passive:true})});}['pointerdown','keydown','touchstart','scroll'].forEach(function(ev){window.addEventListener(ev,load,{passive:true,once:true})});})();` }} />
-        {/* v6.19: Travelpayouts Drive — site-ownership VERIFICATION + affiliate
-            tracking for the Travelpayouts network (marker 550160, project
-            "Gowayfind", account 750791). Travelpayouts' "manual install" method
-            is this script (tp-em.com/NTUwMTYw.js, NTUwMTYw = base64 "550160"),
-            NOT a passive meta tag — it both verifies the site AND enables
-            Travelpayouts' auto-link/tracking. Loaded afterInteractive (NOT
-            interaction-gated like Stay22 above) so Travelpayouts' verification
-            crawler detects it on page load; once verification passes it can be
-            moved behind the same first-interaction gate for perf.
-            ⚠ CONFLICT: Stay22 (above) ALSO auto-rewrites booking links. Leaving
-            both auto-linkers on can double-wrap/fight. After verifying, scope
-            Travelpayouts Drive to tracking-only (disable its auto-linking) in
-            the TP dashboard, OR pick one rewriter — keep our controlled,
-            integrity-gated affiliate wrapper (lib/affiliates.js + lib/monetize.js)
-            as the source of truth.
-            ⚠ PRIVACY: third-party tracker — must be covered by the privacy
-            policy + cookie consent (see the monetization/legal package). */}
-        {/* v6.99 (P1 speed): verification passed weeks ago, so per the note
-            above this script now waits for FIRST INTERACTION, same gate as
-            Stay22 — a visitor who never interacts never downloads it. */}
-        <Script id="travelpayouts-drive" strategy="afterInteractive" dangerouslySetInnerHTML={{ __html: `(function(){var l=false;function go(){if(l)return;l=true;try{var s=document.createElement('script');s.async=1;s.src='https://tp-em.com/NTUwMTYw.js?t=550160';s.onerror=function(){};(document.head||document.documentElement).appendChild(s);}catch(e){}['pointerdown','keydown','touchstart','scroll'].forEach(function(ev){window.removeEventListener(ev,go,{passive:true})});}['pointerdown','keydown','touchstart','scroll'].forEach(function(ev){window.addEventListener(ev,go,{passive:true,once:true})});})();` }} />
+        {/* Stay22 LinkSwap moved OFF the global layout 2026-09-22 (click-hijack
+            fix — owner report: guide pages "popped up to Expedia" on their
+            own. See app/components/Stay22LinkSwap.js and
+            scripts/check-no-sitewide-autolinker.mjs). LinkSwap bundles a
+            pop-under product ("nova") that fires on ANY click anywhere on the
+            page, not just links — a window-level 'whitespace'/'touchstart'
+            listener feeding overPop()/underPop()/window.open(...). Loading it
+            site-wide is what made a plain background div on
+            /guides/pintos-farm-miami-2026 (no href) try to open stay22.com —
+            one of Stay22's partners is Expedia, matching the report exactly.
+            It now renders only from the specific route(s) that have a raw,
+            unwrapped OTA link for it to actually rewrite — today, just
+            app/best-beaches/[metro]/page.js's "Stay near <beach>" Booking.com
+            search link (the "house hotel pattern"), and always with
+            disablepop:true set so even there a non-link click cannot pop.
+            Every other hotel/booking surface (BookingCTA, the detail sheet)
+            already earns through the server-side, integrity-gated path in
+            lib/affiliates.js + lib/hotelRedirect.js and never needed this
+            client script.
+
+            Travelpayouts Drive (tp-em.com/NTUwMTYw.js, v6.19) was REMOVED
+            outright the same day, not scoped: it existed only for
+            Travelpayouts' site-ownership verification crawler, which passed
+            back in 2026-07 (lib/travelpayouts.js's own note: "DO NOT 'FIX'
+            app/layout.js:191 ... it is PROJECT-scoped site verification, not
+            a click wrapper"). Every live Travelpayouts dollar is earned
+            through lib/travelpayouts.js's tpDeepLink(), a server-buildable
+            tp.media/r link that never depended on this browser script running
+            anywhere — so removing it costs nothing and closes the other half
+            of the "two auto-linkers fighting" conflict this file used to warn
+            about right here. */}
         {/* v5.38 a11y: one main landmark for every route; the skip link targets it.
             v6.44: 100dvh, not 100vh — see the note on <body> above. On "/" this
             wrapper holds the 100dvh app shell, so any extra height here is pure

@@ -61,13 +61,14 @@ ok(!/@googlemaps\/js-api-loader|NEXT_PUBLIC_GOOGLE_MAPS_KEY/.test(g), "the clien
   ok(/event\.thumb \|\| event\.image/.test(home), "the event rail card renders the thumb, not the hero pick");
 }
 
-// Third-party gating: Travelpayouts behind first interaction (its own layout
-// comment pre-approved this move once verification passed), PostHog at idle.
+// Third-party gating: PostHog at idle. Travelpayouts Drive (the tp-em.com
+// verification/tracking script this block used to pin to app/layout.js,
+// gated behind first interaction) was REMOVED OUTRIGHT 2026-09-22, not just
+// re-gated — see app/layout.js's own note. scripts/check-no-sitewide-autolinker.mjs
+// now owns "no site-wide third-party auto-linker in app/layout.js" (it covers
+// Stay22 LinkSwap's route-scoping too, for the same click-hijack reason), so
+// this block no longer re-asserts a script that no longer exists.
 {
-  const layout = readFileSync(new URL("../app/layout.js", import.meta.url), "utf8");
-  ok(/tp-em\.com\/NTUwMTYw\.js/.test(layout), "positive control: the Travelpayouts script is still present");
-  ok(!/<Script id="travelpayouts-drive" strategy="lazyOnload" src=/.test(layout), "Travelpayouts no longer loads unconditionally");
-  ok(/\['pointerdown','keydown','touchstart','scroll'\][\s\S]{0,200}tp-em\.com|tp-em\.com[\s\S]{0,600}pointerdown/.test(layout), "Travelpayouts waits for first interaction (same gate as Stay22)");
   const ph = readFileSync(new URL("../app/components/PostHogProvider.js", import.meta.url), "utf8");
   ok(/requestIdleCallback\(boot/.test(ph) && /setTimeout\(boot/.test(ph), "PostHog inits at idle with a timer fallback, off the image critical path");
 }
