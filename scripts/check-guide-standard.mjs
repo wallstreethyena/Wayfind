@@ -50,12 +50,12 @@ const TEMPLATE_DIR = "[slug]";
 
 // A bespoke guide directory with NO place cards at all — verified below, not
 // just declared. Pinto's Farm Miami renders a farm-orientation diagram
-// (PintosFarmMap.js: a single non-place location pin plus static zone labels)
+// (PintosFarmMap.js: an illustrated farm map with approximate zone pins)
 // and a credited photo gallery (owner-approved use of Pinto's Farm's own
 // photos, #1417) — neither is a Wayfind place card, so there is nothing to
 // port onto RailCard and no affiliate link to disclose.
 const EXEMPT_NO_PLACE_CARDS = {
-  "pintos-farm-miami-2026": "no Wayfind place cards render on this route — a farm-orientation map (one non-place location pin) and a credited photo gallery only (see docs/proposals/guide-standard-2026-09-22.md)",
+  "pintos-farm-miami-2026": "no Wayfind place cards render on this route — an illustrated farm map with approximate zone pins (no place pin) and a credited photo gallery only (see docs/proposals/guide-standard-2026-09-22.md)",
 };
 
 const CARD_COMPONENT_RX = /from ["']\.\.\/\.\.\/components\/(RailCard|GuidePlaceCard|IconicPlaceCard|GuideMapExplorer)["']|from ["']\.\/(RailCard|GuidePlaceCard|IconicPlaceCard|GuideMapExplorer)["']/;

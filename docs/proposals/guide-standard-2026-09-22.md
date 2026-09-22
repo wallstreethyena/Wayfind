@@ -111,8 +111,8 @@ shared template's opt-in uses — one implementation, not two that will drift.
 ### Pinto's Farm Miami: grandfathered, on purpose
 
 `app/guides/pintos-farm-miami-2026/` renders no Wayfind place cards at all —
-its `PintosFarmMap.js` is a farm-orientation diagram (one real location pin
-plus static, non-place zone labels) and its gallery is Pinto's Farm's own
+its `PintosFarmMap.js` is an illustrated farm map (owner decision 2026-09-22:
+one map only, approximate non-place zone pins, no place pin) and its gallery is Pinto's Farm's own
 photos, credited under the owner-approved permission from #1417. There is
 nothing here to port onto `RailCard`: porting would mean inventing place
 identities (and scores) for a corn maze and a bounce pad that are not
