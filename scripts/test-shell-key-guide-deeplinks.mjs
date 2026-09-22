@@ -44,7 +44,7 @@ ok(!!stPetePick, "St. Pete summer guide has a pick whose placeId IS the Shell Ke
 ok(stPetePick && stPetePick.name === "Shell Key Preserve",
   `that pick is named Shell Key Preserve (got ${stPetePick && stPetePick.name})`);
 ok(stPetePick && stPetePick.appQuery === "Shell Key Preserve",
-  "the pick keeps the documented appQuery field — Open in Wayfind still names the preserve");
+  "the pick keeps the documented appQuery field — the place link still names the preserve");
 ok(stPetePick && /Tierra Verde/i.test(stPetePick.blurb || "") && /Fort De Soto/i.test(stPetePick.blurb || ""),
   "the pick is the honest next-door island (Tierra Verde + Fort De Soto), not a menu dump");
 ok(stPete && (stPete.picks || []).some((p) => p && p.name === "Fort De Soto Park"),
@@ -93,8 +93,8 @@ ok(/<h2[\s\S]{0,240}pick\.placeId[\s\S]{0,160}\/places\//.test(guidePage),
   "the heading is the /places/ link — crawlers read the h2, not a comment");
 ok(/wf-guide-actions[\s\S]{0,220}pick\.placeId[\s\S]{0,120}\/places\//.test(guidePage),
   "the actions row also links /places/{pick.placeId} so a human can tap it");
-ok(/Open in Wayfind/.test(guidePage),
-  "positive control: Open in Wayfind is still in the same template, so the /places/ absence check is not scanning an empty file");
+ok(/Explore this place/.test(guidePage),
+  "positive control: the per-pick place label is still in the same template, so the /places/ absence check is not scanning an empty file");
 
 const culturePage = strip(readFileSync(new URL("../app/culture/[metro]/page.js", import.meta.url), "utf8"));
 ok(/c\.see\.map[\s\S]{0,200}x\.placeId[\s\S]{0,160}\/places\//.test(culturePage),

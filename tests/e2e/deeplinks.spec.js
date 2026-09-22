@@ -95,7 +95,7 @@ test("guide CTA (Sarasota) hands off to a real search for the promised place", a
   page,
 }) => {
   await page.goto("/guides/things-to-do-sarasota");
-  const cta = page.getByRole("link", { name: "Open in Wayfind" }).first();
+  const cta = page.getByRole("link", { name: "Explore this place" }).first();
   await expect(cta).toBeVisible();
   const href = await cta.getAttribute("href");
   const q = decodeURIComponent((href.match(/\?q=([^&]+)/) || [])[1] || "");
@@ -110,7 +110,7 @@ test("guide CTA (St. Armands) hands off to a real search for the promised place"
   page,
 }) => {
   await page.goto("/guides/st-armands-circle-restaurants");
-  const cta = page.getByRole("link", { name: "Open in Wayfind" }).first();
+  const cta = page.getByRole("link", { name: "Explore this place" }).first();
   await expect(cta).toBeVisible();
   const href = await cta.getAttribute("href");
   const q = decodeURIComponent((href.match(/\?q=([^&]+)/) || [])[1] || "");
