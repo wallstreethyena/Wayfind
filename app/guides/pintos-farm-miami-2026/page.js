@@ -1,29 +1,78 @@
 import GuideArticleHero from "../../components/GuideArticleHero";
-import GuidePlaceCard from "../../components/GuidePlaceCard";
-import { WF_PLACE_CARD_CSS } from "../../components/css";
+import GuidePhoto from "../../components/GuidePhoto";
 import PintosFarmMap from "./PintosFarmMap";
+import { guideHero } from "../../../lib/guideHero";
 import styles from "./page.module.css";
 
-const PLACE_ID = "ChIJUczTK5XC2YgRRt4Jp6N3B70";
+const SLUG = "pintos-farm-miami-2026";
 const OFFICIAL_TICKETS = "https://pintosfarm.ticketspice.com/pintos-farm-2026";
 const OFFICIAL_EVENTS = "https://pintofarm.com/upcoming-events";
+const PINTOS_FARM_SITE = "https://pintofarm.com";
 
-const PINTOS = {
-  id: PLACE_ID,
-  place_id: PLACE_ID,
-  name: "Pinto's Farm",
-  city: "Miami",
-  address: "14890 SW 216th Street, Miami, FL 33170",
-  lat: 25.559785,
-  lng: -80.41664,
-  category: "attractions",
-  cat: "Farm & family",
-  primaryType: "farm",
-  types: ["farm", "event_venue", "tourist_attraction", "point_of_interest", "establishment"],
-  rating: 4.4,
-  reviews: 2068,
-  tags: ["family", "outdoor", "farm", "fall"]
-};
+const heroPhoto = guideHero(SLUG);
+
+// Pinto's Farm approved Wayfind's use of its own photographs from pintofarm.com
+// (owner-confirmed 2026-09-22); credit to Pinto's Farm is the only condition.
+// Owner decision, 2026-09-22: these credited photos replace the generic place
+// card on this guide. Captions describe only what is visible in each photo.
+const GALLERY = [
+  {
+    src: "/guides/pintos-farm-miami-2026/gallery-kids-pedal-go-karts-race-track.webp",
+    width: 1200,
+    height: 800,
+    alt: "Kids riding pedal go-karts on Pinto's Farm race track",
+    caption: "The race track: pedal go-karts."
+  },
+  {
+    src: "/guides/pintos-farm-miami-2026/gallery-child-feeding-cow-fence.webp",
+    width: 1200,
+    height: 1604,
+    alt: "A child feeding a cow over a wooden fence at the petting zoo",
+    caption: "Feeding time at the petting zoo."
+  },
+  {
+    src: "/guides/pintos-farm-miami-2026/gallery-baby-goat-grass.webp",
+    width: 1200,
+    height: 1286,
+    alt: "A baby goat standing on the grass",
+    caption: "One of the farm's baby goats."
+  },
+  {
+    src: "/guides/pintos-farm-miami-2026/gallery-woman-petting-horse-fence.webp",
+    width: 1200,
+    height: 1551,
+    alt: "A woman petting a horse at a fence",
+    caption: "Horses at the fence line."
+  },
+  {
+    src: "/guides/pintos-farm-miami-2026/gallery-goat-yoga.webp",
+    width: 1200,
+    height: 800,
+    alt: "Goats standing on a person's back during Goat Yoga",
+    caption: "Goat Yoga: goats climb on for photos."
+  },
+  {
+    src: "/guides/pintos-farm-miami-2026/gallery-dog-bandana-paddle-boat.webp",
+    width: 1200,
+    height: 1449,
+    alt: "A dog wearing a bandana on a blue paddle boat",
+    caption: "A dog on the boat ride."
+  },
+  {
+    src: "/guides/pintos-farm-miami-2026/gallery-brewhouse-cups-toast.webp",
+    width: 1200,
+    height: 1441,
+    alt: "Two Pinto's Brewhouse cups toasting",
+    caption: "A toast at the Brewhouse."
+  },
+  {
+    src: "/guides/pintos-farm-miami-2026/gallery-2026-pumpkin-patch-flyer.webp",
+    width: 1080,
+    height: 1350,
+    alt: "Pinto's Farm official 2026 Pumpkin Patch flyer, September 19 through November 8",
+    caption: "Pinto's official 2026 Pumpkin Patch flyer."
+  }
+];
 
 const shareImage = "/api/og?t=Pinto%27s%20Farm%202026&loc=Miami&cta=OPEN%20THE%20GUIDE&sub=Rides%20%E2%80%A2%20animals%20%E2%80%A2%20pumpkins%20%E2%80%A2%20map&tone=fall";
 
@@ -94,10 +143,10 @@ const otherSeasons = [
 export default function PintosFarmGuidePage() {
   return (
     <main className={styles.page}>
-      <style dangerouslySetInnerHTML={{ __html: WF_PLACE_CARD_CSS }} />
       <GuideArticleHero
         title="Pinto's Farm Miami: Fall 2026"
         description="Rides, animals, pumpkins, a corn maze, photo spots and the ticket details that matter, plus a Wayfind map for planning the farm."
+        image={heroPhoto}
         region="Miami"
         category="Farm guide"
         updatedLabel="Checked September 22, 2026"
@@ -121,14 +170,33 @@ export default function PintosFarmGuidePage() {
           {facts.map(([label, value]) => <div className={styles.fact} key={label}><small>{label}</small><strong>{value}</strong></div>)}
         </div>
 
-        <section className={styles.cardSection} aria-labelledby="place-card-heading">
+        <section className={styles.cardSection} aria-labelledby="gallery-heading">
           <div className={styles.sectionHead}>
-            <div><p className={styles.kicker}>Place card</p><h2 id="place-card-heading">Pinto's Farm</h2></div>
+            <div><p className={styles.kicker}>Photo gallery</p><h2 id="gallery-heading">See Pinto's Farm</h2></div>
             <a href={OFFICIAL_TICKETS} target="_blank" rel="noopener" className={styles.primaryAction}>Official tickets ↗</a>
           </div>
-          <div className="wf-place-card-list">
-            <GuidePlaceCard place={PINTOS} rank={1} editorial="Miami's full fall farm day: rides, animals, pumpkins, photos and a corn maze in one stop." />
+          <div className={styles.galleryGrid}>
+            {GALLERY.map((photo) => (
+              <figure className={styles.galleryItem} key={photo.src}>
+                <GuidePhoto
+                  src={photo.src}
+                  alt={photo.alt}
+                  width={photo.width}
+                  height={photo.height}
+                  sizes="(max-width: 700px) 47vw, (max-width: 1000px) 31vw, 23vw"
+                  loading="lazy"
+                  decoding="async"
+                  className={styles.galleryImg}
+                  fallbackClassName={styles.galleryFallback}
+                />
+                <figcaption className={styles.galleryCaption}>{photo.caption}</figcaption>
+              </figure>
+            ))}
           </div>
+          <p className={styles.galleryCredit}>
+            Photos courtesy of{" "}
+            <a href={PINTOS_FARM_SITE} target="_blank" rel="noopener">Pinto's Farm</a>
+          </p>
         </section>
 
         <PintosFarmMap />

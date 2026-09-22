@@ -112,7 +112,7 @@ function FallRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, fallSkin,
           const eventBodyHref = isEvent ? (card.detailHref || (!openEventVenue ? card.url || null : null)) : null;
           const eventBodyExternal = isEvent && !card.detailHref;
           return <RailCard key={card.id} className="wf-exploding-primary" domRef={index === sentinelIndex ? sentinelRef : undefined}
-            photo={card.image || null} place={place}
+            photo={card.image || null} photoAttr={!isEvent ? card.photoAttr || null : null} photoAttrHref={!isEvent ? card.photoAttrHref || null : null} place={place}
             creatorVideos={isEvent ? card.creatorReels : undefined}
             title={card.title || card.name} eyebrow={rail.title} rank={rank}
             score={isEvent ? null : toDisplayScore(card.wfScore)} when={isEvent ? card.when : null}
