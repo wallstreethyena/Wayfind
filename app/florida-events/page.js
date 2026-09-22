@@ -5,6 +5,7 @@ import ReturnToWayfind from "../components/ReturnToWayfind";
 // This is the CURATED layer (wf_events), not the live aggregator. Every row
 // here is hand-verified against a Tier 1 source and carries an editorial hook,
 // which is the whole difference between this page and a municipal calendar.
+import CommerceClickBeacon from "../components/CommerceClickBeacon";
 import { SITE_URL } from "../../lib/site";
 import { isSsgBuild } from "../../lib/landingInventory";
 import { unstable_cache, unstable_noStore as noStore } from "next/cache";
@@ -104,6 +105,7 @@ export default async function FloridaEventsHub() {
 
   return (
     <main style={S.page}>
+      <CommerceClickBeacon surface="florida_events_hub" />
       {jsonLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} /> : null}
       <ReturnToWayfind style={S.back} />
       <div style={S.kicker}>Wayfind Events</div>

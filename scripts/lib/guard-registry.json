@@ -27,16 +27,16 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 692,
-    "totalRegistryEntries": 693,
-    "guardsTxtLineCount": 691,
-    "guardsTxtReachedFileCount": 686,
+    "totalOnDiskGuardFiles": 693,
+    "totalRegistryEntries": 694,
+    "guardsTxtLineCount": 692,
+    "guardsTxtReachedFileCount": 687,
     "criticalCount": 84,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 475,
-      "RENDER": 78,
-      "STRUCTURAL": 139,
+      "RENDER": 80,
+      "STRUCTURAL": 138,
       "OTHER": 1
     }
   },
@@ -5340,15 +5340,12 @@
     {
       "file": "scripts/check-no-sitewide-autolinker.mjs",
       "npmScript": null,
-      "class": "STRUCTURAL",
+      "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 9,
-      "unprovenAbsenceCount": 1,
-      "honestyViolations": [
-        "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines",
-        "1 absence assertion(s) with no positive control in the same file (e.g. \"!re.test(layoutCode), `\")"
-      ],
-      "selfDocumentsRedProve": false,
+      "assertionCount": 15,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
@@ -8423,7 +8420,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 79,
+      "assertionCount": 96,
       "unprovenAbsenceCount": 1,
       "honestyViolations": [
         "1 absence assertion(s) with no positive control in the same file (e.g. \"!/gtag\\('config', 'AW-/.test(layout), \"\")"
@@ -10333,7 +10330,7 @@
       "npmScript": null,
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 77,
+      "assertionCount": 80,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -12208,6 +12205,28 @@
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-hotel-card-cta.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 25,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
