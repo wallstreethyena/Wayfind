@@ -11,7 +11,7 @@
 // is skipped, so an editor's hand-curated row always wins and re-runs are safe.
 // Only rows that pass festivalRows.rowProblems AND have not ended are written.
 import { readFileSync, readdirSync, writeFileSync, existsSync } from "node:fs";
-import { rowProblems, normName, dbRow } from "./festivalRows.mjs";
+import { rowProblems, normName, dbRow, isSameEvent } from "./festivalRows.mjs";
 
 const has = (k) => process.argv.includes(k);
 const arg = (k) => { const i = process.argv.indexOf(k); return i > -1 ? process.argv[i + 1] : null; };
@@ -69,16 +69,9 @@ if (has("--apply") || has("--dry")) {
   const live = await existing(base, key);
   const ids = new Set(live.flatMap((l) => [l.event_id, l.slug]));
   const nameDate = new Set(live.map((l) => normName(l.event_name) + "|" + l.start_date));
-  // SAME EVENT, DIFFERENT NAME (2026-09-18: "Raprager Farms Fall Festival" went
-  // live beside the hand-curated "Raprager Family Farms Fall Pumpkin Festival").
-  // A live row within 10 km whose dates overlap and that shares a distinctive
-  // name word is the same event; the existing row wins.
-  const STOP = new Set(["festival", "fest", "fall", "annual", "florida", "the", "and", "day", "days", "farm", "farms", "family", "city", "county", "2026", "2027"]);
-  const words = (s) => new Set(String(s || "").toLowerCase().replace(/['\u2019]/g, "").split(/[^a-z0-9]+/).filter((w) => w.length >= 4 && !STOP.has(w)));
-  const km = (a, b) => { const R = 6371, t = Math.PI / 180, dl = (b.lat - a.lat) * t, dg = (b.lng - a.lng) * t; const x = Math.sin(dl / 2) ** 2 + Math.cos(a.lat * t) * Math.cos(b.lat * t) * Math.sin(dg / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(x)); };
-  const sameEvent = (r) => live.find((l) => l.lat != null && l.lng != null && km(r, l) <= 10
-    && r.start_date <= (l.end_date || l.start_date) && (r.end_date || r.start_date) >= l.start_date
-    && [...words(r.event_name)].some((w) => words(l.event_name).has(w)));
+  // SAME EVENT, DIFFERENT NAME: see isSameEvent in festivalRows.mjs. It is a
+  // SUBSET test, not an overlap test, so a shared town name is not evidence.
+  const sameEvent = (r) => live.find((l) => isSameEvent(r, l));
   const fresh = rows.filter((r) => {
     if (ids.has(r.event_id) || ids.has(r.slug) || nameDate.has(normName(r.event_name) + "|" + r.start_date)) return false;
     const twin = sameEvent(r);

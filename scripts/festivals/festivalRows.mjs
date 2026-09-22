@@ -47,6 +47,51 @@ export function normName(s) {
   return String(s || "").toLowerCase().replace(/\b(19|20)\d{2}\b/g, "").replace(/[^a-z0-9]+/g, "");
 }
 
+// ── "same event, different name" ────────────────────────────────────────────
+// 2026-09-18: "Raprager Farms Fall Festival" went live beside the hand-curated
+// "Raprager Family Farms Fall Pumpkin Festival". A live row within 10 km whose
+// dates overlap and whose name is the SAME NAME SPELLED LONGER is that event.
+//
+// The test is subset, never overlap. Sharing one word is no evidence at all:
+// the 10 km radius has already forced both rows into the same town, so the
+// town's own name is the least distinctive word available. Matching on "any
+// shared word" made "Orlando Latino Fest" a duplicate of "Haunted 5K & 10K at
+// Orlando" and silently dropped a real festival. Requiring the shorter name's
+// distinctive words to ALL appear in the longer one keeps the rename case
+// (Raprager, ROCKtoberfest, John's Pass) and refuses the city-name case.
+export const NAME_STOP = Object.freeze(new Set([
+  "festival", "fest", "fall", "annual", "florida", "the", "and", "day", "days",
+  "farm", "farms", "family", "city", "county", "2026", "2027",
+]));
+
+/** Words in a name that could identify an event: 4+ letters, not boilerplate. */
+export function distinctiveWords(s) {
+  return new Set(String(s || "").toLowerCase().replace(/['\u2019]/g, "")
+    .split(/[^a-z0-9]+/).filter((w) => w.length >= 4 && !NAME_STOP.has(w)));
+}
+
+/** Great-circle distance in km. */
+export function kmBetween(a, b) {
+  const R = 6371, t = Math.PI / 180;
+  const dLat = (b.lat - a.lat) * t, dLng = (b.lng - a.lng) * t;
+  const x = Math.sin(dLat / 2) ** 2
+    + Math.cos(a.lat * t) * Math.cos(b.lat * t) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(x));
+}
+
+/** True when two rows are one event under two spellings of its name. */
+export function isSameEvent(a, b) {
+  if (!a || !b) return false;
+  for (const r of [a, b]) if (!Number.isFinite(r.lat) || !Number.isFinite(r.lng)) return false;
+  if (kmBetween(a, b) > 10) return false;
+  const aEnd = a.end_date || a.start_date, bEnd = b.end_date || b.start_date;
+  if (!(a.start_date <= bEnd && aEnd >= b.start_date)) return false;
+  const wa = distinctiveWords(a.event_name), wb = distinctiveWords(b.event_name);
+  const [small, big] = wa.size <= wb.size ? [wa, wb] : [wb, wa];
+  // A name with no distinctive word of its own proves nothing.
+  return small.size > 0 && [...small].every((w) => big.has(w));
+}
+
 const isDate = (s) => typeof s === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(s + "T00:00:00Z"));
 const isHttps = (s) => typeof s === "string" && /^https:\/\/[^\s/]+\.[^\s/]+/.test(s);
 
