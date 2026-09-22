@@ -1934,11 +1934,9 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 11,
-      "unprovenAbsenceCount": 2,
-      "honestyViolations": [
-        "2 absence assertion(s) with no positive control in the same file (e.g. \"!/(?:from|require\\()\\s*[\"'][^\"']*\\bcommerce(?:\\.m?js)?[\"']/.test(src), \"\")"
-      ],
+      "assertionCount": 15,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
       "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,

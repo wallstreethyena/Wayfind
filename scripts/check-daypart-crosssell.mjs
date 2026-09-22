@@ -92,8 +92,19 @@ for (const part of DAYPART_IDS) {
 
 // --- 4. commission/payout-free, no lib/commerce import ---
 const src = readFileSync(path.resolve("lib/daypartCrossSell.js"), "utf8");
-ok(!/(?:from|require\()\s*["'][^"']*\bcommerce(?:\.m?js)?["']/.test(src), "lib/daypartCrossSell.js does not import lib/commerce — no path for payout to reach an order");
-ok(!/\.(fromPrice|price|commission|commission_estimate|payout|grossBookingValue|gross_booking_value|provider)\b/.test(src), "the module never reads a price/commission/payout/provider field off a row — only cat/sub/title/offerId/hour");
+const COMMERCE_IMPORT_RE = /(?:from|require\()\s*["'][^"']*\bcommerce(?:\.m?js)?["']/;
+const MONEY_FIELD_RE = /\.(fromPrice|price|commission|commission_estimate|payout|grossBookingValue|gross_booking_value|provider)\b/;
+// Positive controls FIRST, on synthetic fixtures — proves each regex can
+// actually catch the exact class of violation it exists to catch, the same
+// discipline scripts/test-experience-now-rank.mjs's own commerce-free check
+// leaves implicit; a regex that had quietly stopped matching anything would
+// otherwise pass this guard forever.
+ok(COMMERCE_IMPORT_RE.test('import { commerceHref } from "./commerce.js";'), "the commerce-import regex DOES catch a real `from \"./commerce.js\"` import (positive control)");
+ok(COMMERCE_IMPORT_RE.test('import { X } from "../commerce";'), "the commerce-import regex DOES catch a real relative commerce import with no extension (positive control)");
+ok(MONEY_FIELD_RE.test("row.commission > 0 ? bonus : 0"), "the money-field regex DOES catch a real `.commission` field read (positive control)");
+ok(MONEY_FIELD_RE.test("d.payout"), "the money-field regex DOES catch a real `.payout` field read (positive control)");
+ok(!COMMERCE_IMPORT_RE.test(src), "lib/daypartCrossSell.js does not import lib/commerce — no path for payout to reach an order");
+ok(!MONEY_FIELD_RE.test(src), "the module never reads a price/commission/payout/provider field off a row — only cat/sub/title/offerId/hour");
 
 // --- 5. actually wired into UnifiedBrowseCommerceRail's menu-offer rows ---
 const rail = readFileSync(path.resolve("app/components/UnifiedBrowseCommerceRail.js"), "utf8");
