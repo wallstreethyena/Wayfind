@@ -64,7 +64,7 @@ export const WF_RAIL_MENU_CSS =
   // v8.3: .wf8-catwrap / -catrail / -cat / -cico / -ctx removed with the chip
   // row they styled (see DaypartRail.js). Nothing else referenced them.
     // the place cards — ONE horizontal rail, below the band, never a stack
-  `.wf8-pcwrap{position:relative;margin:0 calc(var(--wf8-pad) * -1)}.wf8-pcrail{display:flex;align-items:stretch;gap:${PLACE_CARD_GAP_PX}px;overflow-x:auto;scrollbar-width:none;scroll-snap-type:x mandatory;padding:4px var(--wf8-pad) 6px;scroll-padding-left:var(--wf8-pad);margin:0;list-style:none}.wf8-pcrail::-webkit-scrollbar{display:none}.wf8-pcrail>.wf-place-card{scroll-snap-align:start;margin-bottom:0!important;contain:paint style;content-visibility:auto;contain-intrinsic-size:auto ${PLACE_CARD_HEIGHT_PX}px}` +
+  `.wf8-pcwrap{position:relative;margin:0 calc(var(--wf8-pad) * -1)}.wf8-pcrail{display:flex;align-items:stretch;gap:${PLACE_CARD_GAP_PX}px;overflow-x:auto;scrollbar-width:none;scroll-snap-type:x proximity;padding:4px var(--wf8-pad) 6px;scroll-padding-left:var(--wf8-pad);margin:0;list-style:none}.wf8-pcrail::-webkit-scrollbar{display:none}.wf8-pcrail>.wf-place-card{scroll-snap-align:start;margin-bottom:0!important;contain:paint style;content-visibility:auto;contain-intrinsic-size:auto ${PLACE_CARD_HEIGHT_PX}px}` +
   // Nested discovery rails use the same shared card token as the drop.
   `.wf8 .wf-rail-exploding{margin:0 calc(var(--wf8-pad) * -1);padding:4px var(--wf8-pad) 6px;scroll-padding-left:var(--wf8-pad)}` +
   // a rail whose axis nothing nearby clears. Honest, not padded.
