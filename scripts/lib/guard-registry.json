@@ -1930,6 +1930,30 @@
       "owner": null
     },
     {
+      "file": "scripts/check-daypart-crosssell.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 11,
+      "unprovenAbsenceCount": 2,
+      "honestyViolations": [
+        "2 absence assertion(s) with no positive control in the same file (e.g. \"!/(?:from|require\\()\\s*[\"'][^\"']*\\bcommerce(?:\\.m?js)?[\"']/.test(src), \"\")"
+      ],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/check-daypart-rotation.mjs",
       "npmScript": null,
       "class": "CALL",
