@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 687,
-    "totalRegistryEntries": 688,
-    "guardsTxtLineCount": 686,
-    "guardsTxtReachedFileCount": 681,
+    "totalOnDiskGuardFiles": 688,
+    "totalRegistryEntries": 689,
+    "guardsTxtLineCount": 687,
+    "guardsTxtReachedFileCount": 682,
     "criticalCount": 83,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 471,
+      "CALL": 472,
       "RENDER": 78,
       "STRUCTURAL": 138,
       "OTHER": 1
@@ -7568,6 +7568,28 @@
             "blocking": false
           }
         ]
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-theme-park-coverage.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 15,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
@@ -15559,7 +15581,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 55,
+      "assertionCount": 57,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
