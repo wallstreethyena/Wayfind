@@ -63,16 +63,16 @@ export default function FallGuideExplorer({ spots = [] }) {
     <section className={styles.explorer} aria-labelledby="fall-explorer-heading">
       <div className={styles.explorerIntro}>
         <div>
-          <p className={styles.kicker}>The useful part</p>
+          <p className={styles.kicker}>Build your day</p>
           <h2 id="fall-explorer-heading">One map. Six ways into fall.</h2>
           <p>
-            Filter the guide by what you actually want to do. Every pin is tied to a real place or verified event.
+            Filter by the kind of day you want, then compare dates, locations and what each stop is best for.
           </p>
         </div>
         <div className={styles.explorerProof}>
-          <span>Verified picks</span>
-          <span>Exact map pins</span>
-          <span>No paid placement</span>
+          <span>2026 dates</span>
+          <span>Exact locations</span>
+          <span>Tips before you go</span>
         </div>
       </div>
 
@@ -137,6 +137,7 @@ export default function FallGuideExplorer({ spots = [] }) {
             <span className={styles.selectedEyebrow}>{groupLabel(selected)}</span>
             <h3>{selected.name}</h3>
             <p>{selected.detail}</p>
+            {selected.tip ? <p className={styles.selectedTip}><b>Good to know:</b> {selected.tip}</p> : null}
             <small>{[selected.city, selected.when].filter(Boolean).join(" • ")}</small>
           </div>
           <div className={styles.selectedActions}>
@@ -146,7 +147,7 @@ export default function FallGuideExplorer({ spots = [] }) {
               rel={isExternal(selected.href) ? "noopener" : undefined}
               className={styles.primaryAction}
             >
-              {selected.cta || "Open in Wayfind"} <span aria-hidden="true">→</span>
+              {selected.cta || "View details"} <span aria-hidden="true">→</span>
             </a>
             <a
               href={"https://maps.apple.com/?daddr=" + selected.lat + "," + selected.lng + "&dirflg=d"}
@@ -161,7 +162,7 @@ export default function FallGuideExplorer({ spots = [] }) {
       ) : null}
 
       <p className={styles.mapNote}>
-        Tap a pin or a pick. Social posts are discovery leads, not proof. Wayfind keeps unverified dates and claims out of the guide until they are confirmed.
+        Tap a pin or a pick to compare what to expect, timing and directions.
       </p>
     </section>
   );
