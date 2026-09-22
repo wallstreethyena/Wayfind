@@ -135,6 +135,33 @@ check("sharing only the TOWN NAME is not the same event (this dropped real festi
     at("Nightmare Village at Xtreme Action Park", 26.1718, -80.1331, "2026-10-04")), false);
 });
 
+check("a row never hands the database a null audience", () => {
+  // wf_events.audience is NOT NULL; a null refused the entire insert batch.
+  assert.deepEqual(dbRow({ ...good, audience: null }).audience, []);
+  assert.deepEqual(dbRow({ ...good, audience: ["families"] }).audience, ["families"]);
+  assert.equal(rowProblems({ ...good, audience: "families" }).includes("audience must be an array of strings or null"), true);
+  for (const f of files) {
+    for (const r of JSON.parse(readFileSync(`${vdir}/${f}`, "utf8")).publish) {
+      assert.notEqual(dbRow(r).audience, null, `${f}: ${r.event_id} would be refused by wf_events.audience`);
+    }
+  }
+});
+
+check("a months-long season does not swallow a weekend festival", () => {
+  // Overlap is guaranteed inside a season, so it proves nothing on its own.
+  const season = at("Crystal River Manatee Season", 28.9025, -82.5926, "2026-11-15", "2027-03-31");
+  const festival = at("Florida Manatee Festival", 28.9025, -82.5926, "2027-01-09", "2027-01-10");
+  assert.equal(isSameEvent(festival, season), false);
+  // Two shared words still carry the match, season or not.
+  assert.equal(isSameEvent(
+    at("Christmas in the Wild", 27.9659, -82.4498, "2026-12-01", "2026-12-02"),
+    at("ZooTampa Christmas in the Wild", 27.9659, -82.4498, "2026-11-20", "2027-01-05")), true);
+  // Two long runs of the same event are still the same event.
+  assert.equal(isSameEvent(
+    at("Fall Festival at Amber Brooke Farms", 28.85, -81.60, "2026-09-26", "2026-11-08"),
+    at("Amber Brooke Farms Fall Festival", 28.85, -81.60, "2026-10-01", "2026-11-15")), true);
+});
+
 check("distance and dates still bound the rule, and a nameless row never matches", () => {
   // Same name, 200 km apart: not the same event.
   assert.equal(isSameEvent(

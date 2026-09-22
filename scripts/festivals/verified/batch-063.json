@@ -1,0 +1,195 @@
+{
+  "batch": 63,
+  "verified_by": "claude-sonnet",
+  "verified_at": "2026-09-22T18:09:50Z",
+  "publish": [
+    {
+      "event_id": "panhandle-watermelon-festival-2027",
+      "event_series_id": "panhandle-watermelon-festival",
+      "slug": "panhandle-watermelon-festival-2027",
+      "year": 2027,
+      "timezone": "America/Chicago",
+      "event_status": "scheduled",
+      "city": "Chipley",
+      "county": "Washington",
+      "state": "FL",
+      "category": "food",
+      "subcategory": "food-festival",
+      "tags": ["festival", "food", "music"],
+      "audience": ["families", "adults"],
+      "event_name": "Panhandle Watermelon Festival",
+      "short_title": "Watermelon Festival",
+      "start_date": "2027-06-25",
+      "end_date": "2027-06-26",
+      "start_time": null,
+      "end_time": null,
+      "select_nights": false,
+      "schedule_note": "Fri Jun 25 to Sat Jun 26, 2027",
+      "venue": "Jim Trawick Park",
+      "address": "1544 N Railroad Ave, Chipley, FL 32428",
+      "lat": 30.7799,
+      "lng": -85.5491,
+      "is_free": true,
+      "price_min": null,
+      "price_max": null,
+      "card_hook": "A community watermelon festival with live music at Jim Trawick Park in Chipley.",
+      "official_event_url": "https://www.panhandlewatermelon.com/",
+      "official_ticket_url": null,
+      "source_url": "https://www.panhandlewatermelon.com/",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-09-22T18:09:50Z",
+      "verify_note": "2026-09-22: panhandlewatermelon.com homepage states JUNE 25-26, 2027 at Jim Trawick Park, Chipley, Florida, free music festival."
+    },
+    {
+      "event_id": "tampa-bay-juneteenth-festival-2027",
+      "event_series_id": "tampa-bay-juneteenth-festival",
+      "slug": "tampa-bay-juneteenth-festival-2027",
+      "year": 2027,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "city": "Tampa",
+      "county": "Hillsborough",
+      "state": "FL",
+      "category": "festival",
+      "subcategory": "cultural-festival",
+      "tags": ["festival", "cultural", "family"],
+      "audience": ["families", "adults"],
+      "event_name": "Tampa Bay Juneteenth Festival",
+      "short_title": "Juneteenth Festival",
+      "start_date": "2027-06-17",
+      "end_date": "2027-06-19",
+      "start_time": null,
+      "end_time": null,
+      "select_nights": false,
+      "schedule_note": "Thu Jun 17 to Sat Jun 19, 2027",
+      "venue": "Raymond James Stadium",
+      "address": "4201 N Dale Mabry Hwy, Tampa, FL 33607",
+      "lat": 27.9778,
+      "lng": -82.5054,
+      "is_free": true,
+      "price_min": null,
+      "price_max": null,
+      "card_hook": "Three days of music, food and community honoring Juneteenth at Raymond James Stadium in Tampa.",
+      "official_event_url": "https://www.roctheblockinc.com/",
+      "official_ticket_url": "https://roctheblock.festivalpro.com/form/fxLBCcnuXvrsfGNEIsVq/0",
+      "source_url": "https://www.roctheblockinc.com/",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-09-22T18:09:50Z",
+      "verify_note": "2026-09-22: roctheblockinc.com homepage hero banner states june 17 - 19, 2027, tampa, fl at Raymond James Stadium, admission free for the community; organizer's own site found independently after the lead's Eventbrite hint."
+    }
+  ],
+  "hold": [
+    {
+      "event_name": "Juneteenth Arts Festival",
+      "start_date": "2027-06-19",
+      "reason": "Organizer site (westcoastblacktheatre.org) confirms only Jun 19-20, 2026; no 2027 date stated.",
+      "url": "https://westcoastblacktheatre.org/performances/juneteenth-arts-festival"
+    },
+    {
+      "event_name": "Midsummer Fair",
+      "start_date": "2027-06-19",
+      "reason": "Lead hint is a Facebook event; no organizer site or any event details found for this name in Fort Walton Beach for any year.",
+      "url": "https://www.facebook.com/events/2968308300041351"
+    },
+    {
+      "event_name": "Mount Dora Juneteenth Festival",
+      "start_date": "2027-06-19",
+      "reason": "City calendar confirms only Saturday Jun 20, 2026; no 2027 date, and even the 2026 day differs from the lead's Jun 19.",
+      "url": "https://mountdora.gov/Calendar.aspx?EID=18591&month=3&year=2026&day=6&calType=0"
+    },
+    {
+      "event_name": "Redland Summer Fruit Festival",
+      "start_date": "2027-06-19",
+      "reason": "Miami-Dade park event page has no date info and the park's own event domain no longer resolves; no 2027 date found anywhere.",
+      "url": "https://www.miamidade.gov/fruitandspicepark/eventDetail.page?id=270"
+    },
+    {
+      "event_name": "Stonewall Pride Parade and Street Festival",
+      "start_date": "2027-06-19",
+      "reason": "Organizer pages state only that it happens 'every year in June'; the city calendar link for it is a stale 2023 entry; no specific 2027 date confirmed.",
+      "url": "https://www.wiltonmanors.gov/511/Stonewall-Parade-Street-Festival"
+    },
+    {
+      "event_name": "Tamarac Juneteenth Block Party",
+      "start_date": "2027-06-19",
+      "reason": "City site confirms only Friday Jun 19, 2026 (Community & Culture Block Party); no 2027 date stated.",
+      "url": "https://www.tamarac.gov/m/newsflash/Home/Detail/815"
+    },
+    {
+      "event_name": "The Central Florida Juneteenth Celebration",
+      "start_date": "2027-06-19",
+      "reason": "Organizer site (letscelebratejuneteenth.com) confirms only Jun 13, 2026, held in Eatonville not Maitland; no 2027 date, and the city itself does not match the lead.",
+      "url": "https://letscelebratejuneteenth.com"
+    },
+    {
+      "event_name": "Winter Haven Juneteenth Celebration",
+      "start_date": "2027-06-19",
+      "reason": "City calendar confirms only Saturday Jun 20, 2026; no 2027 date; lead hint is a Facebook event.",
+      "url": "https://mywinterhaven.com/Calendar.aspx?EID=1819"
+    },
+    {
+      "event_name": "Juneteenth: Unity x Black Excellence Festival",
+      "start_date": "2027-06-20",
+      "reason": "Organizer (juneteenthpbc.org) says even the 5th Annual 2026 date is 'dropping soon'; lead hint is a Facebook profile; no 2027 date exists.",
+      "url": "https://www.juneteenthpbc.org/events"
+    },
+    {
+      "event_name": "Mega Night Market: Asian Summer Night Market",
+      "start_date": "2027-06-25",
+      "reason": "Organizer's own site (meganightmarket.com) lists no St. Petersburg date and nothing for 2027; lead hint is a Facebook event.",
+      "url": "https://meganightmarket.com/"
+    },
+    {
+      "event_name": "Florida Mango Festival",
+      "start_date": "2027-06-26",
+      "reason": "Organizer site confirms only Jun 27, 2026; no 2027 date stated.",
+      "url": "https://floridamangofestival.com/"
+    },
+    {
+      "event_name": "Groove Fest",
+      "start_date": "2027-06-26",
+      "reason": "Lead hint is a Facebook profile; other sources (Destination Panama City tourism page, Eventbrite) confirm only Jun 27, 2026, no 2027 date.",
+      "url": "https://www.facebook.com/profile.php?id=61556399979615"
+    },
+    {
+      "event_name": "Keel Farms Tampa Bay Watermelon Weekend",
+      "start_date": "2027-06-26",
+      "reason": "Organizer site states only 'June 2027' with no specific day; not a confirmed date.",
+      "url": "https://www.keelfarms.com/festivals"
+    },
+    {
+      "event_name": "Largo Evening Market IV",
+      "start_date": "2027-06-26",
+      "reason": "Organizer page lists only a Sep 26, 2026 market with no numbered 'IV' event and no 2027 date anywhere.",
+      "url": "https://www.playlargo.com/special_events_detail_T40_R81.php"
+    },
+    {
+      "event_name": "Mac and Cheese Showdown",
+      "start_date": "2027-06-26",
+      "reason": "Lead hint is a Facebook event; city calendar confirms only Jun 27, 2026, no 2027 date.",
+      "url": "https://www.facebook.com/events/2661569220850436/"
+    },
+    {
+      "event_name": "Mango Fest",
+      "start_date": "2027-06-26",
+      "reason": "Organizer site is still in a fundraising/planning phase asking to 'help bring back' the 2026 event, with no set date; no 2027 date.",
+      "url": "https://mangofestkeywest.com/"
+    },
+    {
+      "event_name": "Rock, Freedom and Fireworks",
+      "start_date": "2027-06-26",
+      "reason": "City calendar confirms only Jun 27, 2026; no 2027 date stated.",
+      "url": "https://www.longwoodfl.org/Calendar.aspx?EID=4571&month=12&year=2025&day=17&calType=0"
+    },
+    {
+      "event_name": "St. Pete Pride Parade and Festival",
+      "start_date": "2027-06-26",
+      "reason": "Organizer site references only the 2026 season with no 2027 parade date announced.",
+      "url": "https://www.stpetepride.org/2026-events"
+    }
+  ]
+}

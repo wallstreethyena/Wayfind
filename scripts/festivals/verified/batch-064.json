@@ -1,0 +1,191 @@
+{
+  "batch": 64,
+  "verified_by": "claude-sonnet",
+  "verified_at": "2026-09-22T18:14:06Z",
+  "publish": [
+    {
+      "event_id": "cape-coral-red-white-and-boom-2027",
+      "event_series_id": "cape-coral-red-white-and-boom",
+      "slug": "cape-coral-red-white-and-boom-2027",
+      "year": 2027,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "city": "Cape Coral",
+      "county": "Lee",
+      "state": "FL",
+      "category": "festival",
+      "subcategory": "independence-day",
+      "tags": ["festival", "family"],
+      "audience": ["families"],
+      "event_name": "Cape Coral Red, White & Boom",
+      "lead_name": "Cape Coral Red, White and Boom!",
+      "short_title": "Red, White & Boom",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "start_time": "17:00",
+      "end_time": "22:00",
+      "select_nights": false,
+      "schedule_note": "Sun Jul 4, 5 to 10 PM",
+      "venue": "Cape Coral Parkway at Cape Coral Bridge",
+      "address": "Cape Coral Pkwy & Cape Coral Bridge, Cape Coral, FL 33904",
+      "lat": 26.562532,
+      "lng": -81.945609,
+      "is_free": true,
+      "price_min": null,
+      "price_max": null,
+      "card_hook": "Free July 4th celebration on Cape Coral Parkway with fireworks and national entertainment at the Cape Coral Bridge.",
+      "official_event_url": "https://www.capeboom.com/home",
+      "official_ticket_url": null,
+      "source_url": "https://www.capeboom.com/home",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-09-22T18:14:06Z",
+      "verify_note": "2026-09-22: capeboom.com states Sunday, July 4, 2027, 5 to 10 PM, free, on Cape Coral Parkway at the foot of the Cape Coral Bridge, with fireworks and national entertainment."
+    },
+    {
+      "event_id": "clermont-red-white-and-boom-2027",
+      "event_series_id": "clermont-red-white-and-boom",
+      "slug": "clermont-red-white-and-boom-2027",
+      "year": 2027,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "city": "Clermont",
+      "county": "Lake",
+      "state": "FL",
+      "category": "festival",
+      "subcategory": "independence-day",
+      "tags": ["festival", "family"],
+      "audience": ["families"],
+      "event_name": "Clermont Red, White and Boom!",
+      "lead_name": "Clermont 4th of July Red, White and Boom!",
+      "short_title": "Red, White and Boom!",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "start_time": null,
+      "end_time": null,
+      "select_nights": false,
+      "schedule_note": "Sun Jul 4",
+      "venue": "Waterfront Park",
+      "address": "330 3rd St, Clermont, FL 34711",
+      "lat": 28.56019,
+      "lng": -81.759993,
+      "is_free": null,
+      "price_min": null,
+      "price_max": null,
+      "card_hook": "July 4th celebration at Waterfront Park with Americana-style activities for all ages and fireworks over Lake Minneola.",
+      "official_event_url": "https://www.clermontfl.gov/254/Events",
+      "official_ticket_url": null,
+      "source_url": "https://www.clermontfl.gov/254/Events",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-09-22T18:14:06Z",
+      "verify_note": "2026-09-22: clermontfl.gov events page states Red, white, and boom! at Waterfront Park on Sunday, July 4, 2027, Americana activities for all ages, fireworks over Lake Minneola."
+    }
+  ],
+  "hold": [
+    {
+      "event_name": "The Big Bang: Lady Lake’s Independence Day Celebration",
+      "start_date": "2027-06-26",
+      "reason": "Organizer calendar page still shows the stale Sat Jun 28, 2025 date; no 2027 date published.",
+      "url": "https://www.ladylakefl.gov/Calendar.aspx?EID=1610"
+    },
+    {
+      "event_name": "Key Lime Festival",
+      "start_date": "2027-06-30",
+      "reason": "Organizer confirms Jul 1-5, 2027 as a save-the-calendar note, but the 2027 schedule/venue is not published yet (multi-venue Key West festival); no address to geocode.",
+      "url": "https://keylimefestival.com/"
+    },
+    {
+      "event_name": "Key West Mermaid Festival",
+      "start_date": "2027-07-01",
+      "reason": "Only confirmation available is the event's Facebook page; no organizer website with a stated 2027 date.",
+      "url": "https://www.facebook.com/KeyWestMermaidFestival/"
+    },
+    {
+      "event_name": "Bushnell Freedom Fest",
+      "start_date": "2027-07-02",
+      "reason": "Organizer hint is a Facebook profile page with no event details or dates posted.",
+      "url": "https://www.facebook.com/profile.php?id=100057516375461"
+    },
+    {
+      "event_name": "Apalachicola Waterfront July 3rd Celebration",
+      "start_date": "2027-07-03",
+      "reason": "Organizer event page only confirms Jul 3, 2026 (marked as having passed); no 2027 date published.",
+      "url": "https://www.apalachicolabay.org/event/apalachicola-july-3rd-waterfront-celebration/"
+    },
+    {
+      "event_name": "Clearwater Celebrates America",
+      "start_date": "2027-07-03",
+      "reason": "Lead lists this event twice with conflicting dates (7/3 and 7/4); organizer hint URL 404s and no page on myclearwater.com states any 2027 date.",
+      "url": "https://www.myclearwater.com/Events-and-Meetings/Clearwater-Celebrates-America"
+    },
+    {
+      "event_name": "Freedom on the Waterfront",
+      "start_date": "2027-07-03",
+      "reason": "Official mountdora.gov page describes the event as celebrating America's 250th (2026) with no year stated and no 2027 date; event not found in city's current events list.",
+      "url": "https://www.mountdora.gov/984/Freedom-on-the-Waterfront"
+    },
+    {
+      "event_name": "Lower Keys Rotary’s Independence Day Celebration",
+      "start_date": "2027-07-03",
+      "reason": "Only confirmation is a Facebook event page with no 2027 date stated.",
+      "url": "https://www.facebook.com/events/1386246189928652"
+    },
+    {
+      "event_name": "Red Hot and Boom",
+      "start_date": "2027-07-03",
+      "reason": "Official altamonte.org page gives no date at all; most recent confirmed date found anywhere is Jul 3, 2026; no 2027 date published.",
+      "url": "https://www.altamonte.org/701/Red-Hot-Boom"
+    },
+    {
+      "event_name": "Star-Spangled Food Truck Festival",
+      "start_date": "2027-07-03",
+      "reason": "Organizer hint URL (2026 event page) 404s; no 2027 date found anywhere on destincommons.com.",
+      "url": "https://destincommons.com/happenings-events/star-spangled-food-truck-festival-2026/"
+    },
+    {
+      "event_name": "Wildwood Happy Birthday America",
+      "start_date": "2027-07-03",
+      "reason": "Organizer hint URL 404s; wildwood-fl.gov event pages found only cover 2024-2026, no 2027 date published.",
+      "url": "https://www.wildwood-fl.gov/parksrec/page/happy-birthday-america-2"
+    },
+    {
+      "event_name": "4th of July at Altos del Mar Park",
+      "start_date": "2027-07-04",
+      "reason": "Official events.miamibeachfl.gov page is marked as a past event with no year stated; no 2027 date confirmed.",
+      "url": "https://events.miamibeachfl.gov/event/4th-of-july-music-performance-and-roller-disco/"
+    },
+    {
+      "event_name": "All American Celebration at Lake Sumter Landing",
+      "start_date": "2027-07-04",
+      "reason": "thevillagesentertainment.com only confirms the 2026 event; no 2027 date published.",
+      "url": "https://www.thevillagesentertainment.com/special-events/all-american-celebration/"
+    },
+    {
+      "event_name": "American Pride 4th of July",
+      "start_date": "2027-07-04",
+      "reason": "Organizer page (Moosehaven) explicitly states Saturday, July 4, 2026; no 2027 date given.",
+      "url": "https://www.moosehaven.org/american-pride-4th-of-july/"
+    },
+    {
+      "event_name": "Apopka’s July 4th Celebration",
+      "start_date": "2027-07-04",
+      "reason": "Organizer page states 'Check back for our July Fourth Celebration on July 4, 2027!' but gives no venue or address for the 2027 event; cannot geocode.",
+      "url": "https://www.apopka.gov/908/July-Fourth-Celebration"
+    },
+    {
+      "event_name": "Celebrate America",
+      "start_date": "2027-07-04",
+      "reason": "Organizer page says 'Saturday, July 4' with no year; Jul 4 falls on Saturday in 2026 (not 2027, a Sunday), so this is last year's info, not confirmed for 2027.",
+      "url": "https://talgov.com/parks/july4.aspx"
+    },
+    {
+      "event_name": "Celebration’s Star Spangled Spectacular",
+      "start_date": "2027-07-04",
+      "reason": "Organizer hint URL 404s and the event is not in celebrationtowncenter.com's current events list; other sources confirm only the 2026 date.",
+      "url": "https://celebrationtowncenter.com/event/celebrations-star-spangled-spectacular/"
+    }
+  ]
+}

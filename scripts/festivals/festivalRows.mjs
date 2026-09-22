@@ -37,7 +37,12 @@ export function festivalSlug(name, year) {
 
 /** The DB row: every allowed column, and nothing that is only batch metadata. */
 export function dbRow(row) {
-  return Object.fromEntries(ALLOWED_COLUMNS.filter((k) => k in row).map((k) => [k, row[k]]));
+  const out = Object.fromEntries(ALLOWED_COLUMNS.filter((k) => k in row).map((k) => [k, row[k]]));
+  // wf_events.audience is NOT NULL. The brief lets a row say nothing about who
+  // an event is for, and "nothing stated" is an empty list, not a null: sending
+  // the null makes Postgres refuse the whole insert batch (23502).
+  if (out.audience == null) out.audience = [];
+  return out;
 }
 
 /** Which lead a publish/hold entry answers: lead_name when the organizer's name differs. */
@@ -79,6 +84,14 @@ export function kmBetween(a, b) {
   return 2 * R * Math.asin(Math.sqrt(x));
 }
 
+/** Inclusive length of a row's date range, in days (0 when unparseable). */
+export function spanDays(row) {
+  const start = Date.parse(String(row?.start_date) + "T00:00:00Z");
+  const end = Date.parse(String(row?.end_date || row?.start_date) + "T00:00:00Z");
+  if (Number.isNaN(start) || Number.isNaN(end)) return 0;
+  return Math.round((end - start) / 86400000) + 1;
+}
+
 /** True when two rows are one event under two spellings of its name. */
 export function isSameEvent(a, b) {
   if (!a || !b) return false;
@@ -89,7 +102,16 @@ export function isSameEvent(a, b) {
   const wa = distinctiveWords(a.event_name), wb = distinctiveWords(b.event_name);
   const [small, big] = wa.size <= wb.size ? [wa, wb] : [wb, wa];
   // A name with no distinctive word of its own proves nothing.
-  return small.size > 0 && [...small].every((w) => big.has(w));
+  if (!small.size || ![...small].every((w) => big.has(w))) return false;
+  // A SEASON IS NOT A FESTIVAL. "Crystal River Manatee Season" runs for months,
+  // so a two-day "Florida Manatee Festival" inside it overlaps by definition and
+  // the overlap proves nothing -- exactly like a shared town name. One shared
+  // word cannot carry that match on its own; two can.
+  if (spanDays(a) && spanDays(b)) {
+    const longer = Math.max(spanDays(a), spanDays(b)), shorter = Math.min(spanDays(a), spanDays(b));
+    if (longer >= 21 && longer >= 3 * shorter && small.size < 2) return false;
+  }
+  return true;
 }
 
 const isDate = (s) => typeof s === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(s + "T00:00:00Z"));
@@ -135,6 +157,9 @@ export function rowProblems(row, { today, now } = {}) {
   if (row.schedule_note && DASH.test(row.schedule_note)) p.push("schedule_note must not use long dashes (write \"to\")");
   for (const k of ["price_min", "price_max"]) if (row[k] != null && !(Number.isFinite(row[k]) && row[k] >= 0)) p.push(`${k} must be a number or null`);
   if (row.is_free != null && typeof row.is_free !== "boolean") p.push("is_free must be true, false or null");
+  // audience may be unstated (null -> [] at write time) but never a non-list.
+  if (row.audience != null && (!Array.isArray(row.audience) || row.audience.some((a) => typeof a !== "string")))
+    p.push("audience must be an array of strings or null");
   if (row.is_free === true && (row.price_min > 0)) p.push("is_free contradicts price_min");
   return p;
 }

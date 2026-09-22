@@ -1,0 +1,162 @@
+{
+  "batch": 68,
+  "verified_by": "claude-sonnet",
+  "verified_at": "2026-09-22T18:19:13Z",
+  "publish": [
+    {
+      "event_id": "south-gulf-coast-florida-vintage-market-days-2027",
+      "event_series_id": "south-gulf-coast-florida-vintage-market-days",
+      "slug": "south-gulf-coast-florida-vintage-market-days-2027",
+      "year": 2027,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "city": "Fort Myers",
+      "county": "Lee",
+      "state": "FL",
+      "category": "arts",
+      "subcategory": "vintage-market",
+      "tags": ["festival", "market", "shopping"],
+      "audience": ["adults", "couples", "families"],
+      "event_name": "South Gulf Coast Florida Vintage Market Days",
+      "short_title": "Vintage Market Days",
+      "start_date": "2027-01-29",
+      "end_date": "2027-01-31",
+      "start_time": "10:00",
+      "end_time": "16:00",
+      "select_nights": false,
+      "schedule_note": "Fri Jan 29 early buying 10 AM to 4 PM; Sat 10 AM to 4 PM; Sun 10 AM to 3 PM",
+      "venue": "Lee Civic Center",
+      "address": "11831 Bayshore Rd, North Fort Myers, FL 33917",
+      "lat": 26.718472,
+      "lng": -81.765796,
+      "is_free": false,
+      "price_min": null,
+      "price_max": null,
+      "card_hook": "An upscale vintage and handmade market filling the Lee Civic Center for one weekend.",
+      "official_event_url": "https://www.vintagemarketdays.com/market/south-gulf-coast-florida/",
+      "official_ticket_url": null,
+      "source_url": "https://www.vintagemarketdays.com/market/south-gulf-coast-florida/",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-09-22T18:19:13Z",
+      "verify_note": "2026-09-22: organizer market page states Jan 29 to 31 2027 at Lee Civic Center, 11831 Bayshore Rd, Fri early buying 10 to 4, Sat 10 to 4, Sun 10 to 3, admission $15/$10/$7 per day at the gate, kids under 12 free; this differs from the lead's Sept 2027 date, publishing the organizer's confirmed next-season dates. Coordinates confirmed via US Census geocoder (address corrected to North Fort Myers, FL 33917; organizer page shows a typo'd Fort Myers, FL 33817)."
+    }
+  ],
+  "hold": [
+    {
+      "event_name": "Key West BrewFest Grand Tasting",
+      "start_date": "2027-09-04",
+      "reason": "organizer site keywestbrewfest.com/event-information/ blocks automated fetch (403); third-party tourism sites report a 2026 Grand Tasting date of Oct 3, 2026, but that is not independently confirmed from the organizer's own page, and no 2027 date exists anywhere.",
+      "url": "https://keywestbrewfest.com/event-information/"
+    },
+    {
+      "event_name": "South Florida Tacos and Treats Festival",
+      "start_date": "2027-09-04",
+      "reason": "organizer's real name is Southwest Florida Tacos & Treats Festival; its first-ever edition was confirmed for Sept 5, 2026 at Mike Greenwell Regional Park, North Fort Myers (already past); no 2027 date announced.",
+      "url": "https://www.eventbrite.com/e/southwest-florida-tacos-treats-festival-2026-tickets-1989035749470"
+    },
+    {
+      "event_name": "Okeechobee Labor Day in the Park",
+      "start_date": "2027-09-06",
+      "reason": "organizer okeechobeemainstreet.org confirms only the 2026 Labor Day in the Park, September 7, 2026 (already past); site notes it is migrating hosting platforms and no 2027 date is posted.",
+      "url": "https://okeechobeemainstreet.org/labor-day-festival/"
+    },
+    {
+      "event_name": "Emerald Coast Beer Festival",
+      "start_date": "2027-09-10",
+      "reason": "organizer escambiabayhomebrewers.org confirms only Friday, September 11, 2026 at Seville Quarter, Pensacola (already past); no 2027 date posted.",
+      "url": "https://escambiabayhomebrewers.org/emerald-coast-beer-festival/"
+    },
+    {
+      "event_name": "Florida Fin Fest",
+      "start_date": "2027-09-10",
+      "reason": "organizer flfinfest.com confirms only a Jacksonville date of September 11 to 12, 2026 (already past), with no venue address given; no 2027 date posted.",
+      "url": "https://flfinfest.com/"
+    },
+    {
+      "event_name": "I Like it HOT! Festival",
+      "start_date": "2027-09-11",
+      "reason": "promoter sikpromotions.com's own page still shows the 24th annual event, September 13 to 14, 2025; no confirmed 2026 date exists yet, let alone 2027.",
+      "url": "https://www.sikpromotions.com/applicants/summer/i-like-it-hot-festival"
+    },
+    {
+      "event_name": "Sopchoppy Depot Days Festival",
+      "start_date": "2027-09-11",
+      "reason": "no dedicated organizer page found (sopchoppy.org's events list has no matching entry); only third-party coverage reports September 12, 2026 (already past); no 2027 date anywhere.",
+      "url": "https://www.sopchoppy.org/events.html"
+    },
+    {
+      "event_name": "Sanford Food Truck Fiesta IX",
+      "start_date": "2027-09-12",
+      "reason": "city calendar sanfordfl.gov/event-calendar/ confirms only Sanford Food Truck Fiesta on September 13, 2026 at West End Trading Co. (already past); no edition X or 2027 date posted.",
+      "url": "https://sanfordfl.gov/event-calendar/"
+    },
+    {
+      "event_name": "Taste the Caribbean Festival",
+      "start_date": "2027-09-12",
+      "reason": "host page (Greater Miami CVB, miamiandbeaches.com) explicitly states \"the date for this annual event has passed; a new date will be provided when available\"; no 2027 date exists.",
+      "url": "https://www.miamiandbeaches.com/event/taste-the-caribbean-festival/38074"
+    },
+    {
+      "event_name": "Everybody’s Favorite Barbecue and Hot Sauce Festival: Jacksonville",
+      "start_date": "2027-09-17",
+      "reason": "organizer everybodysfavoritefestival.com's 2026 tour schedule lists only Cleveland, OH and Indianapolis, IN; Jacksonville is not a confirmed stop for 2026 or 2027.",
+      "url": "https://everybodysfavoritefestival.com/cities/"
+    },
+    {
+      "event_name": "Gulf Coast Jazz Festival: Fall Edition",
+      "start_date": "2027-09-17",
+      "reason": "organizer page (gulfcoastsummerfestjazzedition.com) confirms only \"Gulf Coast Summer Fest Jazz Edition\" at Community Maritime Park, Pensacola, September 18 to 20, 2026 (already past); no \"Fall Edition\" name or 2027 date found.",
+      "url": "https://www.gulfcoastsummerfestjazzedition.com/event-information"
+    },
+    {
+      "event_name": "Mega Night Market Mid Autumn Moon Festival",
+      "start_date": "2027-09-17",
+      "reason": "organizer meganightmarket.com's current 2026 Mid-Autumn events list Largo (Oct 2 to 4, 2026) and Hollywood (Sept 27, 2026), not Tampa; no Tampa Mid-Autumn Moon Festival date is confirmed for 2026 or 2027.",
+      "url": "https://meganightmarket.com/upcoming-events"
+    },
+    {
+      "event_name": "Oakland Park Latin Fest",
+      "start_date": "2027-09-17",
+      "reason": "organizer oaklandparkfl.gov states \"Latin Fest 2026 has been canceled due to rain\" and has not posted a return date; no 2027 date exists.",
+      "url": "https://www.oaklandparkfl.gov/601/Latin-Fest"
+    },
+    {
+      "event_name": "Raprager Family Farm’s Fall Festival I",
+      "start_date": "2027-09-17",
+      "reason": "organizer rapragerfarm.com only states a vague \"select dates September through November\" season with a Sept 18 grand opening and no specific closing date or day-by-day calendar; too vague to publish, and risks duplicating the already-published Raprager fall festival entry under a different spelling.",
+      "url": "https://rapragerfarm.com/fall-festival"
+    },
+    {
+      "event_name": "Wicked Barley’s Oktoberfest",
+      "start_date": "2027-09-17",
+      "reason": "brewery's own site (wickedbarleybrewing.com) does not resolve and its Facebook events page could not be read; only third-party guides mention Sept 18 to 20, 2026 (already past) unconfirmed by the organizer; no 2027 date.",
+      "url": "https://www.facebook.com/wickedbarleybrewing/events"
+    },
+    {
+      "event_name": "Clermont Sips and Salsa",
+      "start_date": "2027-09-18",
+      "reason": "city events calendar clermontfl.gov/254/Events confirms only September 19, 2026 at Waterfront Park (already past); no 2027 date posted.",
+      "url": "https://www.clermontfl.gov/254/Events"
+    },
+    {
+      "event_name": "Deviant Wolfe Oktoberfest",
+      "start_date": "2027-09-18",
+      "reason": "brewery's own page was not reachable; only third-party coverage (Historic Downtown Sanford) confirms the 2nd annual Oktoberfest on September 19, 2026 (already past); no 2027 date.",
+      "url": "https://www.historicdowntownsanford.com/downtown-sanford-events/2nd-annual-deviant-wolfe-oktoberfest/"
+    },
+    {
+      "event_name": "DogFest Winter Park",
+      "start_date": "2027-09-18",
+      "reason": "organizer is Canine Companions (DogFest Southeast); confirmed date was Saturday, September 19, 2026 at Shady Park, Winter Park (already past); no 2027 date announced, and the only lead source is a Facebook event page.",
+      "url": "https://www.facebook.com/events/1605553004206747/"
+    },
+    {
+      "event_name": "Fabulous 50’s Festival",
+      "start_date": "2027-09-18",
+      "reason": "city calendar newberryfl.gov confirms the 4th annual festival on September 19, 2026 at 25435 W. Newberry Road (already past); no 2027/5th annual date posted.",
+      "url": "https://www.newberryfl.gov/Calendar.aspx?EID=396&month=9&year=2026&day=4&calType=0"
+    }
+  ]
+}

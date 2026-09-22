@@ -1,0 +1,195 @@
+{
+  "batch": 59,
+  "verified_by": "claude-sonnet",
+  "verified_at": "2026-09-22T18:08:38Z",
+  "publish": [
+    {
+      "event_id": "welcome-to-rockville-2027",
+      "event_series_id": "welcome-to-rockville",
+      "slug": "welcome-to-rockville-2027",
+      "year": 2027,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "city": "Daytona Beach",
+      "county": "Volusia",
+      "state": "FL",
+      "category": "music",
+      "subcategory": "music-festival",
+      "tags": ["festival", "music"],
+      "audience": ["adults"],
+      "event_name": "Welcome to Rockville",
+      "short_title": "Welcome to Rockville",
+      "start_date": "2027-05-06",
+      "end_date": "2027-05-09",
+      "start_time": null,
+      "end_time": null,
+      "select_nights": false,
+      "schedule_note": "Thu May 6 to Sun May 9, 2027",
+      "venue": "Daytona International Speedway",
+      "address": "1801 W International Speedway Blvd, Daytona Beach, FL 32114",
+      "lat": 29.192788,
+      "lng": -81.066886,
+      "is_free": false,
+      "price_min": null,
+      "price_max": null,
+      "card_hook": "Four days of rock across five stages at Daytona International Speedway.",
+      "official_event_url": "https://welcometorockville.com/",
+      "official_ticket_url": "https://welcometorockville.com/passes/",
+      "source_url": "https://welcometorockville.com/",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-09-22T18:08:38Z",
+      "verify_note": "2026-09-22: welcometorockville.com states May 6-7-8-9, 2027 at Daytona International Speedway."
+    },
+    {
+      "event_id": "rolling-loud-florida-2027",
+      "event_series_id": "rolling-loud-florida",
+      "slug": "rolling-loud-florida-2027",
+      "year": 2027,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "city": "Orlando",
+      "county": "Orange",
+      "state": "FL",
+      "category": "music",
+      "subcategory": "music-festival",
+      "tags": ["festival", "music"],
+      "audience": ["adults"],
+      "event_name": "Rolling Loud Florida",
+      "short_title": "Rolling Loud",
+      "start_date": "2027-05-07",
+      "end_date": "2027-05-09",
+      "start_time": null,
+      "end_time": null,
+      "select_nights": false,
+      "schedule_note": "Fri May 7 to Sun May 9, 2027",
+      "venue": "Camping World Stadium",
+      "address": "1 Citrus Bowl Pl, Orlando, FL 32805",
+      "lat": 28.538432,
+      "lng": -81.401461,
+      "is_free": false,
+      "price_min": null,
+      "price_max": null,
+      "card_hook": "Three days of hip hop at Camping World Stadium in Orlando.",
+      "official_event_url": "https://florida.rollingloud.com/",
+      "official_ticket_url": "https://rollingloud.frontgatetickets.com/",
+      "source_url": "https://florida.rollingloud.com/",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-09-22T18:08:38Z",
+      "verify_note": "2026-09-22: florida.rollingloud.com states May 7-9, 2027 at Camping World Stadium, Orlando."
+    }
+  ],
+  "hold": [
+    {
+      "event_name": "Country Thunder",
+      "start_date": "2027-05-07",
+      "reason": "countrythunder.com lists only AZ/SK/WI editions, no Florida page; 2026 edition was in Clearwater (not Tampa as lead states); no 2027 date found.",
+      "url": "https://www.countrythunder.com/fl"
+    },
+    {
+      "event_name": "Hernando County Blueberry Festival",
+      "start_date": "2027-05-07",
+      "reason": "organizer site brooksvilleblueberryfestival.com states \"NO Festival 2026\" and gives no 2027 date; only other confirmation found is Facebook.",
+      "url": "https://brooksvilleblueberryfestival.com/"
+    },
+    {
+      "event_name": "AAPI Heritage Celebration",
+      "start_date": "2027-05-08",
+      "reason": "organizer_url_hint (sagikiquo.com) does not mention this event; no organizer page found with any date, 2026 or 2027, for a Palm Bay AAPI Heritage Celebration.",
+      "url": "https://www.sagikiquo.com/about-5"
+    },
+    {
+      "event_name": "Clay County Historical Society Railroad Festival",
+      "start_date": "2027-05-08",
+      "reason": "exploreclay.com shows only the May 9, 2026 date (already past, marked \"event has passed\"); no 2027 date posted.",
+      "url": "https://exploreclay.com/event/railroad-day-festival/"
+    },
+    {
+      "event_name": "Cocoa Village Art and Craft Fair II",
+      "start_date": "2027-05-08",
+      "reason": "visitcocoavillage.com lists only 2026 fair dates (through Dec 2026); no 2027 date posted.",
+      "url": "https://visitcocoavillage.com/events/art-craft-fairs"
+    },
+    {
+      "event_name": "Drake’s Raid",
+      "start_date": "2027-05-08",
+      "reason": "visitstaugustine.com shows only the May 9, 2026 date; no 2027 date posted.",
+      "url": "https://www.visitstaugustine.com/event/drakes-raid-re-enactment"
+    },
+    {
+      "event_name": "Founder’s Day Festival",
+      "start_date": "2027-05-08",
+      "reason": "howey.org calendar shows only the May 9, 2026 date; no 2027 date posted.",
+      "url": "https://www.howey.org/Calendar.aspx?EID=307&month=5&year=2026&day=11&calType=0"
+    },
+    {
+      "event_name": "Island Time Fest",
+      "start_date": "2027-05-08",
+      "reason": "islandtimefest.com shows no confirmed 2027 date (page content inconsistent between 2025 and 2026 listings); no clear 2027 date found.",
+      "url": "https://islandtimefest.com/"
+    },
+    {
+      "event_name": "Maifest in the Biergarten",
+      "start_date": "2027-05-08",
+      "reason": "only a May 9, 2026 date found via the German-American Society and local press; no 2027 date, and organizer_url_hint is a Facebook event page.",
+      "url": "https://germantampa.com/maifest/"
+    },
+    {
+      "event_name": "Mayfaire by-the-Lake",
+      "start_date": "2027-05-08",
+      "reason": "mayfairebythelake.org shows only May 9 to 10, 2026; no 2027 date posted.",
+      "url": "https://www.mayfairebythelake.org/"
+    },
+    {
+      "event_name": "Orlando Whiskey Riot",
+      "start_date": "2027-05-08",
+      "reason": "whiskeyriot.com/orlando-fl shows only the May 9, 2026 event; no 2027 date posted.",
+      "url": "https://whiskeyriot.com/orlando-fl"
+    },
+    {
+      "event_name": "Pensacola Beach Art and Wine Festival",
+      "start_date": "2027-05-08",
+      "reason": "organizer page returned no fetchable content; web search found only a May 2026 date; no 2027 date confirmed.",
+      "url": "https://www.pensacolabeachchamber.com/events/artandwinefestival"
+    },
+    {
+      "event_name": "Pride: Be Fabulous Arts and Music Festival",
+      "start_date": "2027-05-08",
+      "reason": "fabaf.org confirms only May 7 to 9, 2026; no 2027 date posted yet.",
+      "url": "https://fabaf.org/be-fabulous-pride-fest/"
+    },
+    {
+      "event_name": "Sheryl’s BreastFest",
+      "start_date": "2027-05-08",
+      "reason": "sherylsbreastfest.org shows only May 9, 2026; no 2027 date or event venue address posted.",
+      "url": "https://www.sherylsbreastfest.org"
+    },
+    {
+      "event_name": "Spring Arts Festival and Garden Show",
+      "start_date": "2027-05-08",
+      "reason": "palmcoast.gov and visitflagler.com show only the 2026 event (May 17, 2026); no 2027 date posted.",
+      "url": "https://www.palmcoast.gov/events/home/details/2026-spring-arts-festival-and-garden-show"
+    },
+    {
+      "event_name": "Wesley Well Farms Sunflower and Tomato Festival",
+      "start_date": "2027-05-08",
+      "reason": "wesleywellsfarm.com and visitstaugustine.com confirm only the May 9, 2026 event; no 2027 date, and organizer_url_hint is a Facebook event page.",
+      "url": "https://wesleywellsfarm.com/spring-festival/"
+    },
+    {
+      "event_name": "Worm Fiddlin’ Festival",
+      "start_date": "2027-05-08",
+      "reason": "visitwcfla.com and local coverage confirm only the May 9, 2026 event; no 2027 date posted, and organizer_url_hint is a Facebook event page.",
+      "url": "https://visitwcfla.com/events/caryville-worm-fiddlin-festival/"
+    },
+    {
+      "event_name": "Palm Harbor Art and Food Festival",
+      "start_date": "2027-05-09",
+      "reason": "visitpalmharbor.com and festival listings show only past 2025 dates (May 10 to 11, 2025); no 2026 or 2027 date posted, and organizer_url_hint is a Facebook post.",
+      "url": "https://visitpalmharbor.com/event/palm-harbor-art-food-festival/"
+    }
+  ]
+}
