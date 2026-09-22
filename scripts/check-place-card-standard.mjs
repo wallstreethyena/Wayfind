@@ -17,7 +17,7 @@ import {
   PLACE_CARD_HEIGHT_PX,
   PLACE_CARD_LIST_FILL_BELOW_PX,
   PLACE_CARD_MAX_WIDTH_PX,
-  PLACE_CARD_MEDIA_PX,
+  PLACE_CARD_MEDIA_PCT,
   PLACE_CARD_PAGE_GUTTER_PX,
   PLACE_CARD_PHONE_PEEK,
 } from "../lib/placeCardStandard.js";
@@ -191,7 +191,7 @@ const compactCss = String(WF_PLACE_CARD_CSS).replace(/\s+/g, "");
 ok(compactCss.includes(`--wf-card-h:${PLACE_CARD_HEIGHT_PX}px`) && compactCss.includes(`height:var(--wf-card-h)`), "canonical CSS consumes the shared 268px height constant");
 ok(compactCss.includes(`max-width:${PLACE_CARD_MAX_WIDTH_PX}px`) || compactCss.includes(`${PLACE_CARD_MAX_WIDTH_PX}px`), "canonical CSS consumes the shared 440px width cap");
 ok(compactCss.includes(`${PLACE_CARD_PHONE_PEEK}`) && compactCss.includes(`${PLACE_CARD_PAGE_GUTTER_PX * 2}px`) && compactCss.includes(`${PLACE_CARD_GAP_PX}px`), "canonical CSS consumes the shared phone peek, page gutter, and gap constants");
-ok(compactCss.includes(`--wf-place-card-media:${PLACE_CARD_MEDIA_PX}px`) && !/--wf-place-card-media:\d+%/.test(compactCss), "every card (stacked and rail) consumes the one photo-column constant; no percentage column");
+ok(compactCss.includes(`--wf-place-card-media:${PLACE_CARD_MEDIA_PCT}%`) && !/--wf-place-card-media:\d+px/.test(compactCss), "every card (stacked and rail) consumes the one 36% photo-column contract; no 96/108px override");
 ok(!/\.wf-place-card-list[^{]*\{[^}]*1\.08/.test(compactCss) && !/\.wf-place-card-list,\.wf-rail/.test(compactCss) && !/\.wf-place-card-list,\.wf8-pcrail/.test(compactCss),
   "1.08 phone peek is not declared on .wf-place-card-list — peek is rail-only");
 ok(/\.wf-rail[^{]*\{[^}]*--wf-place-card-width:min\(100%,440px,calc\(\(100vw/.test(compactCss) || compactCss.includes(`.wf-rail,.wf8-pcrail,.wf-rail .wf-place-card`),
@@ -387,6 +387,11 @@ if (!browserConfig) {
         ok(card.box.w > 0 && (card.box.w <= PLACE_CARD_MAX_WIDTH_PX + 0.5 || (stacked && listFills)) && card.box.w <= width + 0.5, `${width}px ${card.adapter}: width is positive, capped, and clamped to its viewport (got ${card.box.w})`);
         ok(Math.abs(card.box.w - expectedWidth) <= 1, `${width}px ${card.adapter}: computed width follows the ${stacked ? "stacked-list fill" : "rail peek"} formula (expected ${expectedWidth.toFixed(2)}, got ${card.box.w})`);
         ok(card.scrollWidth <= card.box.w + 1, `${width}px ${card.adapter}: card content does not overflow horizontally`);
+        if (card.media && card.box.w > 0) {
+          const mediaPct = (card.media.w / card.box.w) * 100;
+          ok(mediaPct >= PLACE_CARD_MEDIA_PCT - 1 && mediaPct <= PLACE_CARD_MEDIA_PCT + 1,
+            `${width}px ${card.adapter}: media stays ~${PLACE_CARD_MEDIA_PCT}% of the card (got ${mediaPct.toFixed(1)}%)`);
+        }
         if ((width === 320 || width === 360) && card.headingTextWidth != null) ok(card.headingTextWidth >= 120, `${width}px ${card.adapter}: title keeps at least 120px of readable line width (got ${card.headingTextWidth})`);
         if (card.score) {
           ok(card.score.x >= card.box.x - 1 && card.score.right <= card.box.right + 1 && card.score.y >= card.box.y - 1 && card.score.bottom <= card.box.bottom + 1, `${width}px ${card.adapter}: score badge stays inside the card`);
