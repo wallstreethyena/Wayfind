@@ -8,7 +8,7 @@ import styles from "./guides.module.css";
 import { SITE_URL } from "../../lib/site";
 import { experienceGoUrl } from "../../lib/affiliates";
 import HubConversion from "../components/HubConversion";
-import GuidePhoto from "../components/GuidePhoto";
+import GuideFigure from "../components/GuideFigure";
 
 const _ogGuides = SITE_URL + "/api/og?t=" + encodeURIComponent("Florida travel guides, written by a local");
 export const metadata = {
@@ -61,7 +61,11 @@ export default function GuidesHub() {
             const hasImage = Boolean(art?.src);
             const imageCaption = art?.cardCaption || art?.caption || null;
             return <article key={g.slug} className={`${styles.card} ${hasImage ? "" : styles.cardWithoutMedia}`} data-guide-card={g.slug}><a href={"/guides/" + g.slug} className={styles.cardLink}>
-              {hasImage ? <div className={styles.image}><GuidePhoto src={art.src} alt={art.alt || ""} width={art.width || 1600} height={art.height || 1000} loading="lazy" decoding="async" fallbackClassName={styles.imageFallback} style={{ objectPosition: art.position || "center" }} /></div> : null}
+              {/* Wayfind Guide Visual Standard (docs/design/guide-visual-standard.md,
+                  GVS-1: index card = 16:10). The caption/credit note below stays its
+                  own hand-rolled markup — GuideFigure only owns the photo box here,
+                  since the credit line must sit OUTSIDE this clickable <a>. */}
+              {hasImage ? <GuideFigure role="card" image={{ ...art, position: art.position || "center" }} showCaption={false} /> : null}
               <div className={styles.cardBody}>
                 <p className={styles.cardRegion}>{region}</p>
                 <h3>{g.title}</h3>

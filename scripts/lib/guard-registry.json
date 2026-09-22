@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 693,
-    "totalRegistryEntries": 694,
-    "guardsTxtLineCount": 692,
-    "guardsTxtReachedFileCount": 687,
+    "totalOnDiskGuardFiles": 694,
+    "totalRegistryEntries": 695,
+    "guardsTxtLineCount": 693,
+    "guardsTxtReachedFileCount": 688,
     "criticalCount": 84,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 475,
-      "RENDER": 79,
+      "RENDER": 80,
       "STRUCTURAL": 139,
       "OTHER": 1
     }
@@ -3580,6 +3580,28 @@
       "owner": null
     },
     {
+      "file": "scripts/check-guide-visual-standard.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 39,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/check-guides.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -5933,7 +5955,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 30,
+      "assertionCount": 40,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -10328,7 +10350,7 @@
       "npmScript": null,
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 80,
+      "assertionCount": 100,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

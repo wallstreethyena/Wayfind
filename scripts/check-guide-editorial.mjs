@@ -99,6 +99,21 @@ const photoFile = path.resolve('app/components/GuidePhoto.js');
 const photoCode = ts.transpileModule(fs.readFileSync(photoFile, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2020 } }).outputText;
 const photoModule = { exports: {} };
 vm.runInNewContext(photoCode, { module: photoModule, exports: photoModule.exports, require }, { filename: photoFile });
+// GuideArticleHero renders its photo through the shared GuideFigure (Wayfind
+// Guide Visual Standard, docs/design/guide-visual-standard.md) rather than
+// GuidePhoto directly — compile and wire it the same way, reusing photoModule
+// so it is the SAME executed GuidePhoto, not a second stub.
+const figureFile = path.resolve('app/components/GuideFigure.js');
+const figureCode = ts.transpileModule(fs.readFileSync(figureFile, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2020, esModuleInterop: true } }).outputText;
+const figureModule = { exports: {} };
+const figureCss = new Proxy({}, { get: (_target, name) => String(name) });
+const captionModule = await import(path.resolve('lib/guideCaption.js'));
+vm.runInNewContext(figureCode, { module: figureModule, exports: figureModule.exports, require: (name) => {
+  if (name === './GuidePhoto') return photoModule.exports;
+  if (name === '../../lib/guideCaption.js') return captionModule;
+  if (name.endsWith('.css')) return { __esModule: true, default: figureCss };
+  return require(name);
+} }, { filename: figureFile });
 // Exercise real component callbacks with controlled hook state: broken sources must
 // terminate, and stale decode results must not suppress the next image.
 let photoFailed = false;
@@ -136,6 +151,7 @@ const mod = { exports: {} };
 const css = new Proxy({}, { get: (_target, name) => String(name) });
 vm.runInNewContext(compiled, { module: mod, exports: mod.exports, require: (name) => {
   if (name === './GuidePhoto') return photoModule.exports;
+  if (name === './GuideFigure') return figureModule.exports;
   if (name.endsWith('.css')) return { __esModule: true, default: css };
   if (name.includes('seasonalBrand')) return { activeSeasonalMark: () => null, NORMAL_MARK: { png: '/brand/wayfind-wordmark-transparent-v2.png', width: 1707, height: 441 } };
   return require(name);
