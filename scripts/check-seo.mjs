@@ -7,8 +7,8 @@
 //    site's architecture).
 // 2. ONE H1 per page: the layout footer heading stays demoted to a div.
 // 3. Honest CTAs: "Book this experience" may not label related-product links.
-// 4. E-E-A-T surfaces stay: named attribution, /about, /editorial-policy,
-//    /how-wayfind-ranks, and the methodology link on every guide.
+// 4. E-E-A-T surfaces stay: named attribution plus the site-level /about,
+//    /editorial-policy and /how-wayfind-ranks pages. Guide body copy stays experience-first.
 // 5. Thin utility pages (/events, /coupons, /map) stay noindexed until they
 //    render real crawlable inventory.
 import { readFileSync, readdirSync, statSync, existsSync } from "fs";
@@ -131,7 +131,7 @@ if (culture.includes("Book this experience")) fail('culture pages label related 
 for (const f of ["about", "editorial-policy", "how-wayfind-ranks"]) if (!existsSync(join(root, "app", f, "page.js"))) fail(`/${f} page missing`);
 const guide = readFileSync(join(root, "app", "guides", "[slug]", "page.js"), "utf8");
 if (!guide.includes("Gabriel Pereira")) fail("guides lost their named attribution");
-if (!guide.includes("How we rank")) fail("guides lost the ranking-methodology link");
+if (guide.includes('href="/how-wayfind-ranks"')) fail("guides must not pitch or explain ranking methodology inside article copy");
 if (guide.includes("By the Wayfind editorial team")) fail("anonymous 'editorial team' byline resurfaced");
 
 // 6b. the landing search is cache-first with stale-if-error — a Google

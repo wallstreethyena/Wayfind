@@ -93,8 +93,14 @@ ok(/<h2[\s\S]{0,240}pick\.placeId[\s\S]{0,160}\/places\//.test(guidePage),
   "the heading is the /places/ link — crawlers read the h2, not a comment");
 ok(/wf-guide-actions[\s\S]{0,220}pick\.placeId[\s\S]{0,120}\/places\//.test(guidePage),
   "the actions row also links /places/{pick.placeId} so a human can tap it");
-ok(/Open in Wayfind/.test(guidePage),
-  "positive control: Open in Wayfind is still in the same template, so the /places/ absence check is not scanning an empty file");
+// v2026-09-22 (guide-standard, superseding #1411's own "Open in Wayfind"
+// button copy with the neutral "Explore this place" — enforced now by
+// scripts/check-guides.mjs's own experience-first rule, which fails the
+// build if "Open in Wayfind" ever renders again as guide article copy). The
+// positive control only needs SOME always-present rendered string proving
+// this is not an empty file — "Explore this place" is that string today.
+ok(/Explore this place/.test(guidePage),
+  "positive control: Explore this place is still in the same template, so the /places/ absence check is not scanning an empty file");
 
 const culturePage = strip(readFileSync(new URL("../app/culture/[metro]/page.js", import.meta.url), "utf8"));
 ok(/c\.see\.map[\s\S]{0,200}x\.placeId[\s\S]{0,160}\/places\//.test(culturePage),

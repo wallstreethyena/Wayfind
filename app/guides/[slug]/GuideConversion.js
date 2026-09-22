@@ -153,7 +153,7 @@ export default function GuideConversion({ slug, region, cta, next, social, socia
         </>
       ) : (
         <div style={{ fontSize: 14, color: "#8A97A6", lineHeight: 1.5 }}>
-          Open it in Wayfind for hours, directions, and any verified booking options available for this outing.
+          Use the place links above for current hours, directions, and any verified booking options available for this outing.
         </div>
       )}
 
@@ -178,7 +178,7 @@ export default function GuideConversion({ slug, region, cta, next, social, socia
         style={{ display: "block", width: "100%", marginTop: 10, padding: "11px 16px", borderRadius: 14, border: "1px dashed #243040", background: "transparent", color: saved ? "#FBBF24" : "#8A97A6", fontSize: 13, fontWeight: 700, cursor: saved ? "default" : "pointer" }}
         disabled={saved}
       >
-        {saved ? "Saved — it'll be waiting in Wayfind" : "Save this guide for the trip"}
+        {saved ? "Saved for this trip" : "Save this guide for the trip"}
       </button>
     </section>
   );
