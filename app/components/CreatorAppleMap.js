@@ -3,12 +3,13 @@ import { useEffect, useRef, useState } from "react";
 import { loadAppleMapKit } from "../../lib/appleMapsRuntime.js";
 import { createCreatorAppleMap } from "../../lib/creatorAppleMap.js";
 
-export default function CreatorAppleMap({ places, onSelect }) {
+export default function CreatorAppleMap({ places, onSelect, selectedId = null }) {
   const host = useRef(null);
   const selectRef = useRef(onSelect);
   selectRef.current = onSelect;
   const [status, setStatus] = useState("loading");
   const [attempt, setAttempt] = useState(0);
+  const controllerRef = useRef(null);
   useEffect(() => {
     let dead = false;
     let controller;
@@ -16,10 +17,18 @@ export default function CreatorAppleMap({ places, onSelect }) {
     loadAppleMapKit(process.env.NEXT_PUBLIC_APPLE_MAPS_TOKEN).then(mapkit => {
       if (dead || !host.current) return;
       controller = createCreatorAppleMap({ mapkit, container: host.current, places, onSelect: id => selectRef.current?.(id) });
+      controllerRef.current = controller;
+      if (selectedId != null) controller.select?.(selectedId);
       setStatus("ready");
     }).catch(() => { if (!dead) setStatus("error"); });
-    return () => { dead = true; controller?.destroy(); };
+    return () => { dead = true; if (controllerRef.current === controller) controllerRef.current = null; controller?.destroy(); };
   }, [places, attempt]);
+
+  useEffect(() => {
+    if (status !== "ready") return;
+    controllerRef.current?.select?.(selectedId);
+  }, [selectedId, status]);
+
   return <>
     <div ref={host} aria-label="Apple map of reviewed places" style={{ position: "absolute", inset: 0 }} />
     {status !== "ready" ? <div role="status" style={{ position: "absolute", inset: 0, display: "grid", placeContent: "center", padding: 28, textAlign: "center", background: "#142022", color: "#dce5df" }}>
