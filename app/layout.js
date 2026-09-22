@@ -306,8 +306,6 @@ export default function RootLayout({ children }) {
         <FooterVeil>
         <footer style={{ background: "#040810", borderTop: "1px solid #1F2937", padding: "28px 20px 40px", fontFamily: "var(--wf-sans)" }}>
           <div style={{ maxWidth: 880, margin: "0 auto" }}>
-            <div style={{ fontSize: 15, fontWeight: 800, color: "#94A3B8", margin: "0 0 6px" }}>Wayfind — find great things to do near you, right now</div>
-            <p style={{ fontSize: 12.5, color: "#94A3B8", lineHeight: 1.6, margin: "0 0 18px" }}>Wayfind decides what's actually worth your time — restaurants, beaches, attractions, events and hidden gems ranked by who you're with, when you're going, your budget, and how far you'll drive. Real reviews, no ads, no paid placement. Built in Florida, works anywhere.</p>
             <nav aria-label="Guides and cities" style={{ display: "flex", flexWrap: "wrap", gap: 28 }}>
               <div>
                 <div style={{ fontSize: 11, fontWeight: 800, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>Local guides</div>
@@ -323,7 +321,7 @@ export default function RootLayout({ children }) {
                 ))}
               </div>
               <div>
-                <div style={{ fontSize: 11, fontWeight: 800, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>People use Wayfind to</div>
+                <div style={{ fontSize: 11, fontWeight: 800, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>Quick plans</div>
                 <a href="/?go=events" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Find something to do tonight</a>
                 <a href="/guides/things-to-do-orlando-not-theme-parks" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Plan a family day out</a>
                 <a href="/?go=map" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>See the best places on a map</a>
@@ -354,7 +352,7 @@ export default function RootLayout({ children }) {
                 <a href="https://www.instagram.com/gowayfind.app/" target="_blank" rel="noopener" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Instagram</a>
               </div>
             </nav>
-            <p style={{ fontSize: 11, color: "#8B98A9", lineHeight: 1.55, margin: "20px 0 0" }}>Some links on Wayfind are affiliate links to partners like Viator, GetYourGuide, and hotel booking sites. Booking through them may earn Wayfind a commission at no extra cost to you. It never changes our rankings. Wayfind is operated by WAYFIND LLC.</p>
+            <p style={{ fontSize: 11, color: "#8B98A9", lineHeight: 1.55, margin: "20px 0 0" }}>Some links are affiliate links. Booking through them may earn a commission at no extra cost to you. Rankings are not affected. Operated by WAYFIND LLC.</p>
           </div>
         </footer>
         </FooterVeil>
