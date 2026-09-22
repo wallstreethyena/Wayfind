@@ -9,10 +9,12 @@ const shareImage = "/api/og?t=Florida%20Fall%202026&loc=Florida&cta=OPEN%20THE%2
 export const metadata = {
   title: "Florida Fall Guide 2026 | Wayfind",
   description: "Pumpkin patches, fall markets, haunted nights, family Halloween, seasonal food and the biggest fall weekends across Florida, all mapped by Wayfind.",
-  robots: { index: false, follow: false },
+  robots: { index: true, follow: true },
+  alternates: { canonical: "/guides/florida-fall-festivals-2026" },
   openGraph: {
     title: "Florida Fall Guide 2026 | Wayfind",
     description: "Pumpkins, markets, haunts, fall food and family plans. Filter the map and pick what is actually worth the drive.",
+    url: "/guides/florida-fall-festivals-2026",
     images: [shareImage],
   },
   twitter: {
