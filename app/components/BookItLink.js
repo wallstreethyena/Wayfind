@@ -82,6 +82,7 @@ export default function BookItLink({ detail, city, logEvent, addReservation }) {
       ref={ref}
       href={href}
       rel="sponsored noreferrer"
+      data-commerce-owner="BookItLink"
       onClick={() => {
         try {
           emitCommerce("commerce_cta_clicked", {

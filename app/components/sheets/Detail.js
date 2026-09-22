@@ -261,6 +261,7 @@ function PrimaryActionButton({ primaryCta, detail, kind, viaTours, locName, logE
         ref={ctaRef}
         href={exactHref}
         rel="sponsored noreferrer"
+        data-commerce-owner="PrimaryActionButton"
         aria-label={`Tickets for ${detail.name} via ${primaryCta.merchant}`}
         title="Partner link. Wayfind may earn a commission; rankings never change."
         style={style}
@@ -304,6 +305,7 @@ function PrimaryActionButton({ primaryCta, detail, kind, viaTours, locName, logE
         ref={ctaRef}
         href={href}
         rel="sponsored noreferrer"
+        data-commerce-owner="PrimaryActionButton"
         onClick={() => {
           try {
             emitCommerce("commerce_cta_clicked", {
@@ -342,7 +344,7 @@ function PrimaryActionButton({ primaryCta, detail, kind, viaTours, locName, logE
   }
 
   return (
-    <a ref={ctaRef} href={primaryCta.href || primaryCta.mapsUrl || "#"} target="_blank" rel={primaryCta.monetized ? "sponsored noopener" : "noreferrer"} onClick={(e) => { e.preventDefault(); const live = (e.currentTarget && e.currentTarget.href) || primaryCta.href || primaryCta.mapsUrl; onClick(); open(live); }} style={style}>
+    <a ref={ctaRef} href={primaryCta.href || primaryCta.mapsUrl || "#"} target="_blank" rel={primaryCta.monetized ? "sponsored noopener" : "noreferrer"} data-commerce-owner="PrimaryActionButton" onClick={(e) => { e.preventDefault(); const live = (e.currentTarget && e.currentTarget.href) || primaryCta.href || primaryCta.mapsUrl; onClick(); open(live); }} style={style}>
       <span>{primaryCta.label}</span><span aria-hidden="true">↗</span>
     </a>
   );
@@ -393,6 +395,7 @@ function WhereToGoNextRow({ p, partner, reason, pairDistMi, openDetail, liveOpen
           href={baseHref}
           target="_blank"
           rel="sponsored noopener"
+          data-commerce-owner="WhereToGoNextRow"
           aria-label={`Tickets for ${p.name} via ${partner.merchant}`}
           title="Partner link. Wayfind may earn a commission; rankings never change."
           onClick={(e) => {

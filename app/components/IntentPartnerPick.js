@@ -203,6 +203,7 @@ export default function IntentPartnerPick({ city, intent, inventory, accent = "#
               key={pick.offerId}
               data-offer-id={pick.offerId}
               data-rank={index + 1}
+              data-commerce-owner="IntentPartnerPick"
               href={href}
               target="_blank"
               rel="sponsored noopener nofollow"
