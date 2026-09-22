@@ -23,6 +23,9 @@ restyled to match.
 | Index card | 16:10 | `/guides` grid |
 
 No masonry, no `column-count`, no per-photo heights, no ratio outside this table.
+The only exception is an interactive map canvas (a `*MapCanvas` container that
+pins are positioned over): it keeps its illustration's own ratio, because any
+other ratio would put every pin in the wrong place. See GVS-7.
 A photo that does not fit its frame is cropped by `object-fit:cover`, never
 allowed to set the row height.
 
@@ -97,7 +100,10 @@ The hero is eager and high priority. Everything below the fold is lazy.
 Guides render through the shared guide components. A guide with its own folder
 (Pinto's farm map, the fall explorer) keeps its custom module as a child of the
 standard shell; it does not fork the shell. Raw `<img>` in `app/guides/**` is
-not allowed outside `GuidePhoto`.
+not allowed outside `GuidePhoto`. One narrow exemption: an interactive map
+canvas (the base layer that pins sit on, such as the Pinto's illustrated farm
+map) is not editorial photography. It may use a plain `<img>` only when the tag
+declares `data-guide-map-canvas` and carries an explicit width, height and alt.
 
 ## GVS-8. Scope
 

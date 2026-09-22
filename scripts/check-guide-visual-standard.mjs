@@ -121,6 +121,12 @@ function gvsCssViolations(css, label) {
   for (const { selector, body } of leafRules(css)) {
     const ratioMatch = /aspect-ratio\s*:\s*([0-9.]+\s*\/\s*[0-9.]+)\s*;?/.exec(body);
     if (!ratioMatch) continue;
+    // Map canvas exemption (see GVS-7): the positioned container an interactive
+    // map's pins sit on must keep its illustration's own ratio or every pin
+    // lands in the wrong place. It is a container, not a photo, so the
+    // photo-frame declarations do not apply. Only selectors named *MapCanvas
+    // qualify, and they must be position:relative (pins are absolutely placed).
+    if (/mapcanvas\b/i.test(selector) && /position\s*:\s*relative\b/.test(body)) continue;
     if (!/height\s*:\s*auto\b/.test(body)) problems.push(`${label} "${selector}": aspect-ratio without height:auto (GVS-2 — this is the exact Pinto's-gallery trap)`);
     if (!/object-fit\s*:\s*cover\b/.test(body)) problems.push(`${label} "${selector}": aspect-ratio without object-fit:cover (GVS-2)`);
     if (!/width\s*:\s*100%/.test(body)) problems.push(`${label} "${selector}": aspect-ratio without width:100% (GVS-2)`);
@@ -164,6 +170,15 @@ for (const rel of GUIDE_CSS_FILES) {
   pass++; // the file was actually scanned
 }
 
+// Map-canvas CSS exemption controls: the named container is exempt, the same
+// ratio on any other selector is not.
+{
+  const canvasCss = ".farmMapCanvas{position:relative;width:100%;aspect-ratio:2000/1247}";
+  ok(gvsCssViolations(canvasCss, "synthetic").length === 0, "a *MapCanvas container keeps its illustration's own ratio");
+  ok(gvsCssViolations(".heroPhoto{position:relative;width:100%;aspect-ratio:2000/1247}", "synthetic").length > 0, "red-proof: the same odd ratio on a non-canvas selector is still flagged");
+  ok(gvsCssViolations(".farmMapCanvas{width:100%;aspect-ratio:2000/1247}", "synthetic").length > 0, "red-proof: a *MapCanvas that is not position:relative is not exempt");
+}
+
 // ── RULE 3 — no raw <img>, no next/image, no direct GuidePhoto import,
 // anywhere under app/guides/** ──────────────────────────────────────────────
 function jsFilesUnder(dir, out) {
@@ -187,9 +202,23 @@ const GUIDEPHOTO_IMPORT_RX = /from\s+["'][^"']*\/GuidePhoto(?:\.js)?["']/;
   ok(NEXT_IMAGE_RX.test('import Image from "next/image";'), "red-proof: next/image detector fires on a synthetic positive");
   ok(GUIDEPHOTO_IMPORT_RX.test('import GuidePhoto from "../../components/GuidePhoto";'), "red-proof: direct-GuidePhoto-import detector fires on a synthetic positive");
 }
+// GVS-7 exemption, narrow on purpose: an interactive MAP CANVAS (the base
+// layer pins are positioned over, e.g. the Pinto's illustrated farm map from
+// #1437) is not editorial photography and cannot live in a fixed-ratio figure
+// frame. It is allowed ONLY when the tag declares `data-guide-map-canvas` AND
+// carries an explicit width, height and a non-empty alt. Anything else is
+// still a raw <img>.
+const MAP_CANVAS_IMG_RX = /<img\b(?=[^>]*\bdata-guide-map-canvas\b)(?=[^>]*\bwidth=)(?=[^>]*\bheight=)(?=[^>]*\balt=(?:"[^"]+"|\{[^}]+\}))[^>]*>/g;
+const withoutMapCanvases = (src) => src.replace(MAP_CANVAS_IMG_RX, "");
+{
+  const okCanvas = '<img data-guide-map-canvas src={a} width={1} height={2} alt="Illustrated farm map" />';
+  ok(!RAW_IMG_RX.test(withoutMapCanvases(okCanvas)), "a declared map canvas with width, height and alt is allowed");
+  ok(RAW_IMG_RX.test(withoutMapCanvases('<img data-guide-map-canvas src={a} width={1} height={2} />')), "red-proof: a map canvas with no alt is still a raw <img>");
+  ok(RAW_IMG_RX.test(withoutMapCanvases('<img src={a} width={1} height={2} alt="photo" />')), "red-proof: an undeclared <img> is still a raw <img> even with width, height and alt");
+}
 for (const rel of GUIDE_JS_FILES) {
   const src = readFileSync(path.join(REPO, rel), "utf8");
-  ok(!RAW_IMG_RX.test(src), `${rel}: raw <img> found — every guide photo renders through the shared GuideFigure (GVS-7)`);
+  ok(!RAW_IMG_RX.test(withoutMapCanvases(src)), `${rel}: raw <img> found — every guide photo renders through the shared GuideFigure (GVS-7); only a declared data-guide-map-canvas with width, height and alt is exempt`);
   ok(!NEXT_IMAGE_RX.test(src), `${rel}: next/image import found — guides use GuideFigure, not next/image`);
   ok(!GUIDEPHOTO_IMPORT_RX.test(src), `${rel}: imports GuidePhoto directly — GuideFigure is the only path a guide may render a photo through`);
 }
