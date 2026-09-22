@@ -1680,4 +1680,4 @@ node scripts/check-guide-product-isr-cache.mjs
 
 
 # Pinto's Farm 2026 guide: exact place identity, official ticket facts, shared card, and honest non-surveyed farm map.
-check-pintos-farm-guide.mjs
+node scripts/check-pintos-farm-guide.mjs
