@@ -62,7 +62,7 @@ const FRESH_EXP = new Date(NOW + 10 * 86400000).toISOString();
 const STALE_EXP = new Date(NOW - 86400000).toISOString();
 const FRESH_EXP_MS = Date.parse(FRESH_EXP);
 
-function cacheFromMap(map, { now = Date.now() } = {}) {
+function cacheFromMap(map, { now = NOW } = {}) {
   const reads = [];
   const fn = async (key) => {
     reads.push(key);

@@ -152,7 +152,7 @@ export default function GuideConversion({ slug, region, cta, next, social, socia
         </>
       ) : (
         <div style={{ fontSize: 14, color: "#8A97A6", lineHeight: 1.5 }}>
-          Nothing to book here — this one is just worth doing. Open it in Wayfind for hours and directions.
+          Open it in Wayfind for hours, directions, and any verified booking options available for this outing.
         </div>
       )}
 

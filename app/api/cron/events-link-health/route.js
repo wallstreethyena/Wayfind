@@ -31,6 +31,14 @@ const JOB = "events-link-health";
 // which is authoritative on first sight (gambling copy does not flicker).
 const BAD_AFTER_STRIKES = 2;
 
+function currentManualVerification(row, url, today) {
+  const all = row && row.link_manual_verifications;
+  const item = all && typeof all === "object" ? all[String(url || "")] : null;
+  const reviewBy = item && typeof item.review_by === "string" ? item.review_by : "";
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(reviewBy) || reviewBy < today) return null;
+  return item;
+}
+
 async function pool(thunks, limit) {
   const out = []; let i = 0;
   async function worker() { while (i < thunks.length) { const idx = i++; out[idx] = await thunks[idx](); } }
@@ -57,7 +65,7 @@ export async function GET(req) {
   const today = siteTodayStr(); // venue-local (US Eastern) — CLAUDE.md gotcha, never a UTC slice
   // Rows that can still be served: not ended. Oldest-checked first, never-
   // checked before everything. ~230 live URLs finish in two nights at 120.
-  const sel = `${s.url}/rest/v1/wf_events?select=event_id,event_name,venue,official_ticket_url,official_event_url,event_page_url,link_ok,link_verdict`
+  const sel = `${s.url}/rest/v1/wf_events?select=event_id,event_name,venue,official_ticket_url,official_event_url,event_page_url,link_ok,link_verdict,link_manual_verifications`
     + `&or=(end_date.is.null,end_date.gte.${today})`
     + `&or=(official_ticket_url.not.is.null,official_event_url.not.is.null,event_page_url.not.is.null)`
     + `&order=link_checked_at.asc.nullsfirst&limit=${limit}`;
@@ -82,7 +90,17 @@ export async function GET(req) {
     const names = [row.event_name, row.venue].filter(Boolean);
     const urls = [row.official_ticket_url, row.official_event_url, row.event_page_url].filter(Boolean);
     const per = [];
-    for (const url of urls) per.push({ url, ...(await probeAndClassify(url, names)) });
+    for (const url of urls) {
+      // Some organizer/ticket hosts are not machine-verifiable. A real browser
+      // review may bridge that exact URL for a SHORT period. It is never
+      // host-wide, never permanent, and expires back into normal probing.
+      const manual = currentManualVerification(row, url, today);
+      if (manual) {
+        per.push({ url, verdict: "alive", reason: "manual-browser-verification", finalUrl: url, status: 200, manual: true });
+        continue;
+      }
+      per.push({ url, ...(await probeAndClassify(url, names)) });
+    }
     // The row's verdict is its WORST publishable link: a hijacked event URL
     // darkens the row even if the ticket URL is fine — the card would
     // otherwise fall through to the event URL the moment the ticket link

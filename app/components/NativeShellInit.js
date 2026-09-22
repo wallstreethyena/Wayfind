@@ -17,39 +17,28 @@ export default function NativeShellInit() {
     initNativeShell({
       onDeepLink: (path) => { try { router.push(path); } catch (e) {} },
     });
-    // Registers for push and hands the APNs token to a SECURITY DEFINER RPC.
-    //
-    // WAS a direct .from("device_push_tokens").upsert(), against a table that
-    // DOES NOT EXIST — verified against the live database, not inferred. So
-    // every registration since the shell shipped failed silently inside this
-    // try/catch, and push has zero tokens in it.
-    //
-    // The RPC rather than the table, because a directly-writable table needs an
-    // INSERT policy permissive enough for a SIGNED-OUT device (tokens are
-    // collected pre-signup, which is most of the value), and "anon may insert"
-    // on a table of device tokens and user ids is a write surface anyone can
-    // spray. The definer function leaves the table unwritable by anon and
-    // authenticated and exposes exactly one operation.
-    //
-    // user_id is NOT passed: the function reads auth.uid() itself. A client
-    // that supplies its own user id is a client that can supply someone
-    // else's.
-    //
-    // Storage only — sending is a separate, server-side concern (APNs key + a
-    // job that reads this table). Fire-and-forget and fail-soft: a push token
-    // that never lands is a missed re-engagement channel, never a broken app.
-    // The RPC records its own wf_job_pulse heartbeat, so "zero tokens" can be
-    // told apart from "nobody ever called".
-    //
-    // See supabase/push-token-register.sql. Until that is applied this call
-    // fails exactly as the old one did — no regression, and the same silence.
+    // Push storage is server-side only. Signed-out devices are allowed because
+    // pre-signup re-engagement is a product requirement; signed-in sessions are
+    // passed only as bearer tokens and verified by the server. The client never
+    // supplies a user id and never receives a service-role credential.
     registerPushNotifications(async (token) => {
-      if (!hasSupabase || !supabase) return;
       try {
-        await supabase.rpc("wf_register_push_token", {
-          p_token: token,
-          p_platform: "ios",
-          p_device_id: deviceId(),
+        const headers = { "content-type": "application/json" };
+        if (hasSupabase && supabase) {
+          try {
+            const { data } = await supabase.auth.getSession();
+            const accessToken = data?.session?.access_token;
+            if (accessToken) headers.authorization = "Bearer " + accessToken;
+          } catch (e) {}
+        }
+        await fetch("/api/push/register", {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            token,
+            platform: "ios",
+            deviceId: deviceId(),
+          }),
         });
       } catch (e) {}
     });

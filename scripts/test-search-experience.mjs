@@ -68,3 +68,16 @@ assert.equal(direct[1][2].place_id, "verified-place");
 assert.equal(direct[1][2].count, 1);
 assert.doesNotThrow(() => createSearchAttempt(() => { throw new Error("analytics offline"); }, "Orlando").finish("city_changed"));
 console.log("test-search-experience: OK — safe query metadata, local city identity, and exactly one terminal outcome per attempt");
+
+// Owner-directed homepage search-copy removal, 2026-09-20.
+// Keep the real search controls and live feedback; no replacement paragraph.
+const { readFileSync } = await import("node:fs");
+const homeSource = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
+assert.doesNotMatch(homeSource, /wf-search-help/, "the rejected search helper and its dangling aria reference stay removed");
+assert.doesNotMatch(homeSource, /Search places, cities, or street addresses in Wayfind/, "the rejected paragraph must not return under another class");
+assert.match(homeSource, /aria-label="Search a place or city" placeholder="Search a place or city"/);
+assert.match(homeSource, /className="wf-search-submit"/);
+assert.match(homeSource, /aria-label="Clear search"/);
+assert.match(homeSource, /id="wf-suggestions" role="listbox"/);
+assert.match(homeSource, /searchFeedback && !searchBusy/);
+console.log("test-search-experience: owner search-copy removal and retained controls OK");

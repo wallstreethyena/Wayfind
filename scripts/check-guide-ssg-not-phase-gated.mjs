@@ -210,6 +210,7 @@ function harnessSource(overrides = {}) {
     `import { CATEGORY_SECTION, existingTypeSignals } from ${u("lib/placeCategory.js")};`,
     `import { wayfindScore } from ${u("lib/wayfindScore.js")};`,
     `import { regionCoords } from ${u("lib/guideNow.js")};`,
+    `import { guidePickMayResolvePlaceCard } from ${u("lib/guidePlaceIdentity.js")};`,
     "",
     overrides.inventorySocial || FN.inventorySocial,
     overrides.inventoryPlaceByStem || FN.inventoryPlaceByStem,

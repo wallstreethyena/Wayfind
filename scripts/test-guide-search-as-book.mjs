@@ -135,8 +135,8 @@ ok(!/Crystal%20River%20manatee%20swim%20tour/.test(leakHtml),
   "GuideConversion must not paint the live leak q=");
 ok(!/>Find tours in Crystal River/.test(leakHtml) && !/>Book/.test(leakHtml) && !/>Tickets/.test(leakHtml),
   "GuideConversion must not paint a Book/Tickets/Find-tours label for a search dest");
-ok(/Nothing to book here/.test(leakHtml),
-  "a hidden search dest renders the no-book empty state — hide, do not invent a SKU");
+ok(/verified booking options available/.test(leakHtml) && !/Nothing to book here/i.test(leakHtml),
+  "a hidden search dest stays neutral about page-level booking inventory — hide the unverified SKU without claiming the whole guide is unbookable");
 
 const exactHtml = renderToStaticMarkup(createElement(GuideConversion, {
   slug: "gatorland-vs-wild-florida", region: "Orlando",
