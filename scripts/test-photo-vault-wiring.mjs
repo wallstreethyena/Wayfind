@@ -163,7 +163,9 @@ const eq = (actual, expected, message) =>
 const SB = { url: "https://vault-wiring.test.invalid", key: "test-key" };
 function makeDb({ atRisk = [], repair = [], inventory = [], existingRows = [] } = {}) {
   const table = new Map(existingRows.map((r) => [r.place_id, r]));
+  const repairTable = new Map(repair.map((r) => [r.place_id, { ...r }]));
   const upsertCalls = [];
+  const repairPatchCalls = [];
   const savedFetch = globalThis.fetch;
   globalThis.fetch = async (url, init) => {
     const u = String(url);
@@ -172,9 +174,16 @@ function makeDb({ atRisk = [], repair = [], inventory = [], existingRows = [] } 
       ok(!u.includes("SELECT ") && !u.includes("select%20"), "PROBE: at-risk fetch is a PostgREST GET, never raw SQL text");
       return { ok: true, json: async () => atRisk };
     }
-    if (u.startsWith(SB.url + "/rest/v1/wf_photo_repair_queue")) {
+    if (u.startsWith(SB.url + "/rest/v1/wf_photo_repair_queue") && method === "GET") {
       ok(/status=in\.\(open,budget_blocked\)/.test(u), "PROBE: repair drain reads only unresolved live queue states");
-      return { ok: true, json: async () => repair };
+      return { ok: true, json: async () => [...repairTable.values()] };
+    }
+    if (u.startsWith(SB.url + "/rest/v1/wf_photo_repair_queue") && method === "PATCH") {
+      const id = decodeURIComponent((u.match(/place_id=eq\.([^&]+)/) || [])[1] || "");
+      const body = JSON.parse(init.body || "{}");
+      repairPatchCalls.push({ id, body });
+      if (repairTable.has(id)) repairTable.set(id, { ...repairTable.get(id), ...body });
+      return { ok: true, json: async () => [] };
     }
     if (u.startsWith(SB.url + "/rest/v1/wf_inventory")) {
       return { ok: true, json: async () => inventory };
@@ -193,7 +202,9 @@ function makeDb({ atRisk = [], repair = [], inventory = [], existingRows = [] } 
   };
   return {
     table,
+    repairTable,
     upsertCalls,
+    repairPatchCalls,
     restore() {
       globalThis.fetch = savedFetch;
     },
@@ -440,7 +451,35 @@ const PHOTO = (id) => ({
     eq(result.scanned, 0, "E7: repair mode does not run the blind general inventory scan");
   }
 
-  console.log("test-photo-vault-wiring: Section E OK — at-risk/general controls survive and source=repair drains exact observed reader failures through the same strict resolver");
+  // E8 — a successful free-photo resolution immediately closes the same live
+  // repair row. Serving the origin is enough; vault storage is an optional
+  // durability layer and may not keep the queue artificially open.
+  {
+    const id = "repairresolved001AB";
+    const db5 = makeDb({
+      repair: [{ place_id: id, detections: 5, last_seen_at: "2026-09-22T11:00:00Z", status: "open" }],
+      inventory: [{ place_id: id, name: "Resolved Restaurant", category: "food", status: "OPERATIONAL", lat: 27.2, lng: -82.2, tags: [] }],
+    });
+    const result = await runBackfill({
+      limit: 5,
+      sbEnv: SB,
+      source: "repair",
+      resolvePhoto: async () => PHOTO(id),
+      storePhoto: async () => ({ stored: false, reason: "storage-temporarily-unavailable" }),
+      dryRun: false,
+    });
+    db5.restore();
+    eq(result.active, 1, "E8: the free photo is active even when its optional vault copy is unavailable");
+    eq(db5.repairPatchCalls.length, 1, "E8: exactly one repair-row recovery patch is written");
+    const patch = db5.repairPatchCalls[0] || {};
+    eq(patch.id, id, "E8: the recovery patch targets the exact observed place");
+    eq(patch.body && patch.body.status, "recovered", "E8: the live repair row closes immediately");
+    eq(patch.body && patch.body.recovery_source, "wikimedia-free-photo", "E8: recovery provenance names the free-photo lane");
+    eq(patch.body && patch.body.recovery_ref, PHOTO(id).source_ref, "E8: recovery provenance preserves the exact Commons source ref");
+    ok(patch.body && patch.body.attribution && patch.body.attribution.source === "wikimedia", "E8: attribution is persisted with the recovery");
+  }
+
+  console.log("test-photo-vault-wiring: Section E OK — at-risk/general controls survive, source=repair drains exact observed failures, and successful free recovery closes its queue row immediately");
 }
 
 // ─────────────────────────────────────────────────────────────────────────
