@@ -1,5 +1,5 @@
 import GuideArticleHero from "../../components/GuideArticleHero";
-import GuidePhoto from "../../components/GuidePhoto";
+import GuideFigure from "../../components/GuideFigure";
 import PintosFarmMap from "./PintosFarmMap";
 import { guideHero } from "../../../lib/guideHero";
 import styles from "./page.module.css";
@@ -177,20 +177,16 @@ export default function PintosFarmGuidePage() {
           </div>
           <div className={styles.galleryGrid}>
             {GALLERY.map((photo) => (
-              <figure className={styles.galleryItem} key={photo.src}>
-                <GuidePhoto
-                  src={photo.src}
-                  alt={photo.alt}
-                  width={photo.width}
-                  height={photo.height}
-                  sizes="(max-width: 700px) 47vw, (max-width: 1000px) 31vw, 23vw"
-                  loading="lazy"
-                  decoding="async"
-                  className={styles.galleryImg}
-                  fallbackClassName={styles.galleryFallback}
-                />
-                <figcaption className={styles.galleryCaption}>{photo.caption}</figcaption>
-              </figure>
+              <GuideFigure
+                key={photo.src}
+                role="tile"
+                image={photo}
+                sizes="(max-width: 700px) 47vw, (max-width: 1000px) 31vw, 23vw"
+                className={styles.galleryItem}
+                imgClassName={styles.galleryImg}
+                fallbackClassName={styles.galleryFallback}
+                captionClassName={styles.galleryCaption}
+              />
             ))}
           </div>
           <p className={styles.galleryCredit}>

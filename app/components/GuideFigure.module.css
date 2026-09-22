@@ -1,0 +1,130 @@
+/* Wayfind Guide Visual Standard — GVS-1/GVS-2/GVS-3/GVS-6.
+   Every ratio'd image and its tonal placeholder ship the same five
+   declarations together (aspect-ratio, width, height:auto, object-fit,
+   display), on ONE selector, so scripts/check-guide-visual-standard.mjs can
+   verify height:auto always rides with aspect-ratio. height:auto is what
+   keeps GuidePhoto's intrinsic width/height HTML attributes from silently
+   pinning a fixed pixel box and defeating the ratio (the Pinto's gallery
+   incident, 2026-09-22). Only these four ratios are allowed on a guide
+   surface: 16/9 (hero, pick; 4/3 under 640px for hero), 1/1 (tile), 16/10
+   (card). No masonry, no column-count, no per-photo heights. */
+
+.figure {
+  margin: 0;
+  min-width: 0;
+}
+
+.frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: 3px;
+  background:
+    radial-gradient(circle at 78% 18%, rgba(246, 163, 108, 0.12), transparent 34%),
+    linear-gradient(145deg, #151d27, #0c121a);
+}
+
+.hero .img,
+.hero .fallback {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  display: block;
+}
+
+.pick .img,
+.pick .fallback {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  display: block;
+}
+
+.tile .img,
+.tile .fallback {
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  display: block;
+}
+
+.card .img,
+.card .fallback {
+  aspect-ratio: 16 / 10;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  display: block;
+}
+
+@media (max-width: 639px) {
+  .hero .img,
+  .hero .fallback {
+    aspect-ratio: 4 / 3;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.fallback {
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  color: #b9c3ce;
+  font-family: var(--wf-display), Georgia, serif;
+  font-size: 16px;
+  letter-spacing: -0.01em;
+  text-align: center;
+}
+
+/* The tonal placeholder ONLY covers a declared image that failed to load
+   (GuidePhoto's own error state) — GuideFigure returns null outright when
+   there is no image data at all, so a pick with no photo never draws this
+   box (GVS-5, GVS-6). */
+.figure:has([data-guide-photo-fallback]) .caption {
+  display: none;
+}
+
+.caption {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 18px;
+  margin-top: 8px;
+  color: #8793a4;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.captionText {
+  min-width: 0;
+}
+
+.creditText {
+  min-width: 0;
+  color: #aab4c1;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.caption a {
+  color: inherit;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 640px) {
+  .caption {
+    display: block;
+    font-size: 12px;
+  }
+
+  .creditText {
+    display: block;
+    margin-top: 2px;
+    text-align: left;
+  }
+}
