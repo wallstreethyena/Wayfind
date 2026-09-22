@@ -44,4 +44,6 @@ Reviewed 2026-09-10. Images may be resized, converted to WebP and cropped for di
 - **florida-lovebug-season**: /guides/verified/florida-lovebug-season.webp; [Judy Gallagher](https://commons.wikimedia.org/wiki/File:Lovebugs_-_Plecia_nearctica_on_Camphorweed_-_Pluchea_odorata,_Myakka_River_State_Park,_Sarasota,_Florida.jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/). Lovebugs, Plecia nearctica, on camphorweed at Myakka River State Park in Sarasota. Original photograph dated May 2013.
 - **red-bull-dance-your-style-tampa-2026**: /guides/unsplash/dance-battle-ilja-tulit.webp; [Ilja Tulit](https://unsplash.com/photos/woman-dancing-in-front-of-people-sitting-on-floor-YTbTdB6AAUU); [Unsplash License](https://unsplash.com/license). Illustrative; not taken at the Tampa event.
 
+- **pintos-farm-miami-2026**: /guides/pintos-farm-miami-2026/hero-family-paddle-boat-lake.webp; [Pinto's Farm](https://pintofarm.com); Used with permission of Pinto's Farm (owner-confirmed 2026-09-22); credit required. The boat ride: a family on the lake at Pinto's Farm. Gallery photos on the guide page are also Pinto's Farm's own photographs, used under the same permission and credited on the page.
+
 Unused original assets remain for cache compatibility; historical attribution is preserved in Git history.
