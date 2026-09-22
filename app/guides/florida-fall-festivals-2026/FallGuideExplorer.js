@@ -8,7 +8,7 @@ import styles from "./page.module.css";
 const FILTERS = [
   { id: "all", label: "Everything", family: "other" },
   { id: "pumpkins", label: "Pumpkin patches", family: "outdoors" },
-  { id: "markets", label: "Markets", family: "shopping" },
+  { id: "markets", label: "Markets", family: "shop" },
   { id: "family", label: "Family Halloween", family: "shows" },
   { id: "haunts", label: "Haunted + after dark", family: "drinks" },
   { id: "tastes", label: "Fall food + drinks", family: "food" },
