@@ -75,7 +75,21 @@ const tickets = [
   ["Oktoberfest + farm", "$68 plus listed fee", "Do both on Oct 3", "Pumpkin patch plus Oktoberfest"]
 ];
 
-const magicNote = "Pinto's has promoted fall magic shows, but the current official ticket page does not publish a complete 2026 show-time calendar. Check Pinto's current event posts before choosing a date around a show.";
+const magicShows = [
+  ["Sep 19, 20, 26 + 27", "1 PM"],
+  ["Oct 10 + 11", "12 PM + 2 PM"],
+  ["Oct 17 + 24", "12 PM + 2 PM + 4 PM"],
+  ["Oct 18 + 25", "12 PM + 2 PM + 4 PM + 6 PM"],
+  ["Oct 31 + Nov 1", "12 PM + 2 PM"],
+  ["Nov 7 + 8", "1 PM"]
+];
+
+const otherSeasons = [
+  ["Winterland / Christmas at the Farm", "Pinto's other major family season, built around holiday decor, photo scenes, animals and the farm's core attractions. Check the current ticket page when 2026 to 2027 dates go live."],
+  ["Spring at the Farm / Easter", "The spring version pairs the farm's core rides and animals with Easter and spring programming. Exact dates and special activities change by year."],
+  ["Lattes & Llamas", "A lighter morning format built around coffee, breakfast and llama time. Treat dates as limited and check the current event calendar before driving."],
+  ["Brewhouse + llama evenings", "Craft beer, food, live music and llama time give adults and families a reason to visit outside the main seasonal ticket windows."]
+];
 
 export default function PintosFarmGuidePage() {
   return (
@@ -175,7 +189,15 @@ export default function PintosFarmGuidePage() {
             <article><strong>Goat Yoga</strong><p>The 2026 fall ticket page lists a September 27 session at 9 AM: a 40-minute beginner class plus goat photo time. Children must be at least 5 and accompanied by an adult.</p></article>
             <article><strong>Oktoberfest, October 3</strong><p>4 PM to 9 PM, age 21+. The ticket includes beer tastings from participating local breweries, a souvenir tasting glass and live music. The standalone ticket does not include the pumpkin patch.</p></article>
           </div>
-          <div className={styles.notice}><strong>Magic shows:</strong> {magicNote}</div>
+          <div className={styles.magicBlock}>
+            <div>
+              <p className={styles.kicker}>Magic show calendar</p>
+              <h3>Choose the date around the show.</h3>
+            </div>
+            <div className={styles.magicGrid}>
+              {magicShows.map(([dates, times]) => <div key={dates}><span>{dates}</span><strong>{times}</strong></div>)}
+            </div>
+          </div>
         </section>
 
         <section className={styles.section}>
@@ -185,6 +207,14 @@ export default function PintosFarmGuidePage() {
             Pumpkins & Pints runs Friday through Sunday from 6 PM to 9 PM. It gives you the Brewhouse area and one small or medium pumpkin.
             It does <strong>not</strong> include the rest of the farm, rides or animal attractions. Choose it for an easy evening, not as a cheaper substitute for regular admission.
           </p>
+        </section>
+
+        <section className={styles.section}>
+          <p className={styles.kicker}>Beyond fall</p>
+          <h2>Pinto's has more than pumpkin season.</h2>
+          <div className={styles.eventGrid}>
+            {otherSeasons.map(([name, detail]) => <article key={name}><strong>{name}</strong><p>{detail}</p></article>)}
+          </div>
         </section>
 
         <section className={styles.cta}>
