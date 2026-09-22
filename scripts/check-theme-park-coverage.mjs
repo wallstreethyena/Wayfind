@@ -30,6 +30,7 @@ import {
   THEME_PARKS,
   themeParkForPlace,
   themeParkOperator,
+  themeParkIntent,
   normalizeThemeParkName,
 } from "../lib/themeParks.js";
 import { PLACE_PARTNER_PICKS, placePartnerPick } from "../lib/placePartnerPicks.js";
@@ -58,6 +59,42 @@ for (const park of THEME_PARKS) {
   ok(!!pick, `${park.name}: placePartnerPick() resolves a real ticket CTA (no invented merchant — read from lib/placePartnerPicks.js)`);
 }
 ok(missingCta.length === 0, missingCta.length ? `${missingCta.length} park(s) have NO registered partner offer and must be reported, not guessed: ${missingCta.join(", ")}` : "every park in THEME_PARKS has a registered, resolver-backed ticket CTA");
+
+// ── Search phrasing: a real person's common way of typing the park's name
+// must resolve as an exact search-intent match (2026-09-22 audit: "Busch
+// Gardens Tampa" — the common spelling, without "Bay" — returned no intent
+// at all). Every phrasing below must (a) be a listed alias on the park, so
+// it also feeds lib/themeParksServer.js's inventory match, and (b)
+// themeParkIntent() must resolve it as an exact hit on that same park.
+const REQUIRED_PHRASINGS = {
+  walt_disney_world: ["Walt Disney World", "Walt Disney World Resort"],
+  magic_kingdom: ["Magic Kingdom"],
+  epcot: ["EPCOT"],
+  hollywood_studios: ["Disney's Hollywood Studios", "Hollywood Studios"],
+  animal_kingdom: ["Disney's Animal Kingdom", "Animal Kingdom"],
+  universal_orlando: ["Universal Orlando Resort", "Universal Orlando"],
+  universal_studios: ["Universal Studios Florida", "Universal Studios"],
+  islands_of_adventure: ["Universal's Islands of Adventure", "Islands of Adventure"],
+  epic_universe: ["Universal Epic Universe", "Epic Universe"],
+  volcano_bay: ["Universal Volcano Bay", "Volcano Bay"],
+  seaworld: ["SeaWorld Orlando", "SeaWorld"],
+  discovery_cove: ["Discovery Cove"],
+  gatorland: ["Gatorland"],
+  kennedy: ["Kennedy Space Center Visitor Complex", "Kennedy Space Center"],
+  legoland: ["LEGOLAND Florida Resort", "LEGOLAND Florida", "LEGOLAND"],
+  peppa_pig: ["Peppa Pig Theme Park", "Peppa Pig"],
+  busch_gardens: ["Busch Gardens Tampa Bay", "Busch Gardens", "Busch Gardens Tampa"],
+};
+ok(Object.keys(REQUIRED_PHRASINGS).length === THEME_PARKS.length, `REQUIRED_PHRASINGS covers every park in THEME_PARKS (got ${Object.keys(REQUIRED_PHRASINGS).length} of ${THEME_PARKS.length})`);
+for (const park of THEME_PARKS) {
+  const phrasings = REQUIRED_PHRASINGS[park.key];
+  ok(Array.isArray(phrasings) && phrasings.length > 0, `${park.name}: has at least one required common search phrasing declared`);
+  for (const phrase of phrasings || []) {
+    ok(park.aliases.includes(phrase), `${park.name}: "${phrase}" is a listed alias (so it also feeds the inventory name match, not just search intent)`);
+    const intent = themeParkIntent(phrase);
+    ok(!!intent && intent.kind === "exact" && intent.park === park, `themeParkIntent("${phrase}") resolves as an exact match on ${park.name} (got ${intent ? intent.kind : "null"})`);
+  }
+}
 
 // ── 3: classification — theme parks are attractions, never spa/wellness ──
 const chipIdentity = read("lib/chipIdentity.js");

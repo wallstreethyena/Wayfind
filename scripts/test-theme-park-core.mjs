@@ -14,7 +14,14 @@ for (const bad of ["Universal CityWalk Orlando", "Universal Studios Hollywood", 
 assert.equal(themeParkIntent("Epic Universe")?.park.key, "epic_universe");
 assert.equal(themeParkIntent("Orlando theme parks")?.kind, "broad");
 assert.equal(themeParkIntent("Disney parks")?.operator, "disney");
-assert.equal(themeParkIntent("Universal Orlando")?.operator, "universal");
+assert.equal(themeParkIntent("Universal parks")?.operator, "universal");
+// 2026-09-22: "Universal Orlando" is now a listed alias for the Universal
+// Orlando Resort park itself (common search phrasing audit, PR #1420
+// follow-up), so it resolves EXACT to that one park rather than falling
+// through to the ambiguous multi-park operator branch — a more useful
+// result, since the phrase is literally the resort's own name.
+assert.equal(themeParkIntent("Universal Orlando")?.kind, "exact");
+assert.equal(themeParkIntent("Universal Orlando")?.park.key, "universal_orlando");
 assert.equal(themeParkIntent("theme park hotel"), null);
 assert.ok(!/near/i.test(themeParkHeading("flagship").title + themeParkHeading("flagship").description));
 
