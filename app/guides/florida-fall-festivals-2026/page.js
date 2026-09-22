@@ -3,7 +3,7 @@ import { WF_PLACE_CARD_CSS } from "../../components/css";
 import FallGuideExplorer from "./FallGuideExplorer";
 import styles from "./page.module.css";
 
-const shareImage = "/api/og?t=Florida%20Fall%202026&loc=Florida&cta=OPEN%20THE%20GUIDE&sub=Pumpkins%20%E2%80%A2%20markets%20%E2%80%A2%20haunts%20%E2%80%A2%20food&tone=fall";
+const shareImage = "/api/og?t=33%20Florida%20Fall%20Picks&loc=2026&cta=PICK%20YOUR%20WEEKEND&sub=Pumpkins%20%E2%80%A2%20haunts%20%E2%80%A2%20markets%20%E2%80%A2%20fall%20food&tone=fall";
 
 export const metadata = {
   title: "Florida Fall Guide 2026",
@@ -11,15 +11,15 @@ export const metadata = {
   robots: { index: true, follow: true },
   alternates: { canonical: "/guides/florida-fall-festivals-2026" },
   openGraph: {
-    title: "Florida Fall Guide 2026",
-    description: "Pumpkins, markets, haunts, fall food and family plans. Filter the map and pick what is actually worth the drive.",
+    title: "33 Florida Fall Picks for 2026",
+    description: "Pumpkin patches, haunted nights, markets, fall food and big weekends. Open the map and pick your weekend.",
     url: "/guides/florida-fall-festivals-2026",
     images: [shareImage],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Florida Fall Guide 2026",
-    description: "Pumpkins, markets, haunts, fall food and family plans, all in one mapped guide.",
+    title: "33 Florida Fall Picks for 2026",
+    description: "Pumpkins, haunts, markets and fall food in one mapped guide. Pick your weekend.",
     images: [shareImage],
   },
 };
