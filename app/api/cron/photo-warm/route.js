@@ -42,17 +42,14 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 const WORK_BUDGET_MS = 270_000;
 const SWEEP_BUDGET_MS = 45_000;
-// THIRD, LAST STEP (2026-09-22): the owned-hotel Google-identity backfill
+// SECOND STEP (2026-09-22): the owned-hotel Google-identity backfill
 // (lib/ownedHotelIdentity.js). Small and bounded on purpose — at most 12 rows
-// and 8 seconds — and it runs strictly AFTER the warm pass has already
-// returned, so it can never eat the warm pass's own budget. It only starts at
-// all when there is still enough headroom under maxDuration to run its own
-// 8s budget plus safety margin for recordPulse(), so it can never push the
-// response past this route's existing deadline; off entirely unless
+// and 8 seconds — and it runs between the sweep and the warm pass, because the
+// warm pass spends its entire budget by design and a step queued after it
+// never runs at all. Off entirely unless
 // WAYFIND_HOTEL_IDENTITY=1 (runOwnedHotelIdentityIfEnabled's own gate).
 const IDENTITY_MAX_ROWS = 12;
 const IDENTITY_BUDGET_MS = 8_000;
-const IDENTITY_SAFETY_MARGIN_MS = 10_000;
 
 import { runPhotoWarm, DEFAULT_PHOTO_WARM_MAX } from "../../../../lib/photoWarm";
 import { runPhotoLivenessSweep } from "../../../../lib/photoLivenessSweep";
@@ -90,6 +87,20 @@ export async function GET(req) {
     sweep = await runPhotoLivenessSweep({ deadlineAt: startedAt + SWEEP_BUDGET_MS });
   } catch { sweep = null; }
 
+  // IDENTITY BACKFILL SECOND, NOT LAST (2026-09-22, same day it shipped). It
+  // was last, gated on "is there headroom left under maxDuration" — and there
+  // never was: the warm pass is BUILT to spend its whole 270s budget and stops
+  // on `collect-deadline`, so the run reached the gate at ~270s of a 300s
+  // lambda and the backfill silently never ran (the live pulse proved it: no
+  // `ident:` bit, ever). Eight seconds ahead of the warm pass is a slot it
+  // actually gets, every quarter hour; warm's own budget is computed from
+  // elapsed time below, so it simply gets those 8 seconds later. Still off
+  // entirely unless WAYFIND_HOTEL_IDENTITY=1.
+  let ident = null;
+  try {
+    ident = await runOwnedHotelIdentityIfEnabled({ limit: IDENTITY_MAX_ROWS, deadlineAt: Date.now() + IDENTITY_BUDGET_MS });
+  } catch { ident = null; }
+
   let result;
   try {
     result = await runPhotoWarm({
@@ -113,15 +124,6 @@ export async function GET(req) {
       ? `ok (${result.stopReason})`
       : "ok";
 
-  // Only start the identity backfill if there is still enough headroom under
-  // maxDuration for its own 8s budget plus a margin for recordPulse() to
-  // land — never a duplicate/second deadline it could blow past.
-  let ident = null;
-  if (Date.now() - startedAt < maxDuration * 1000 - IDENTITY_BUDGET_MS - IDENTITY_SAFETY_MARGIN_MS) {
-    try {
-      ident = await runOwnedHotelIdentityIfEnabled({ limit: IDENTITY_MAX_ROWS, deadlineAt: Date.now() + IDENTITY_BUDGET_MS });
-    } catch { ident = null; }
-  }
   const identBit = ident && ident.enabled
     ? ` ident: tried=${ident.attempted} ok=${ident.resolved} miss=${ident.missed}`
     : "";
