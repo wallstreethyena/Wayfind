@@ -1,0 +1,229 @@
+{
+  "batch": 61,
+  "verified_by": "claude-sonnet",
+  "verified_at": "2026-09-22T18:08:53Z",
+  "publish": [
+    {
+      "event_id": "green-cove-springs-riverfest-2027",
+      "event_series_id": "green-cove-springs-riverfest",
+      "slug": "green-cove-springs-riverfest-2027",
+      "year": 2027,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "city": "Green Cove Springs",
+      "county": "Clay",
+      "state": "FL",
+      "category": "festival",
+      "subcategory": "community-festival",
+      "tags": ["festival", "family"],
+      "audience": ["families"],
+      "event_name": "Green Cove Springs Riverfest",
+      "lead_name": "Green Cove Springs Memorial Day RiverFest",
+      "short_title": "Riverfest",
+      "start_date": "2027-05-31",
+      "end_date": "2027-05-31",
+      "start_time": "10:00",
+      "end_time": "21:00",
+      "select_nights": false,
+      "schedule_note": "Mon May 31, 10 AM to 9 PM",
+      "venue": "Spring Park",
+      "address": "229 Spring St, Green Cove Springs, FL 32043",
+      "lat": 29.993108,
+      "lng": -81.677167,
+      "is_free": null,
+      "price_min": null,
+      "price_max": null,
+      "card_hook": "Memorial Day celebration at Spring Park with vendors, a kids zone, live entertainment and evening fireworks.",
+      "official_event_url": "https://www.greencovesprings.com/290/Green-Cove-Springs-Riverfest",
+      "official_ticket_url": null,
+      "source_url": "https://www.greencovesprings.com/290/Green-Cove-Springs-Riverfest",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-09-22T18:08:53Z",
+      "verify_note": "2026-09-22: city Riverfest page states Mon May 31 2027, 10 AM to 9 PM, Spring Park, non-alcoholic Memorial Day event with vendors, kids zone and fireworks."
+    },
+    {
+      "event_id": "gulf-coast-jam-2027",
+      "event_series_id": "gulf-coast-jam",
+      "slug": "gulf-coast-jam-2027",
+      "year": 2027,
+      "timezone": "America/Chicago",
+      "event_status": "scheduled",
+      "city": "Panama City Beach",
+      "county": "Bay",
+      "state": "FL",
+      "category": "music",
+      "subcategory": "music-festival",
+      "tags": ["festival", "music"],
+      "audience": ["adults"],
+      "event_name": "Gulf Coast Jam",
+      "short_title": "Gulf Coast Jam",
+      "start_date": "2027-06-03",
+      "end_date": "2027-06-06",
+      "start_time": null,
+      "end_time": null,
+      "select_nights": false,
+      "schedule_note": "Thu Jun 3 to Sun Jun 6, 2027",
+      "venue": "Frank Brown Park",
+      "address": "16200 Panama City Beach Pkwy, Panama City Beach, FL 32413",
+      "lat": 30.227765,
+      "lng": -85.880196,
+      "is_free": false,
+      "price_min": null,
+      "price_max": null,
+      "card_hook": "Four days of country music at Frank Brown Park in Panama City Beach, June 3 to 6.",
+      "official_event_url": "https://gulfcoastjam.com/",
+      "official_ticket_url": "https://tixr.com/e/189944",
+      "source_url": "https://gulfcoastjam.com/info/",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-09-22T18:08:53Z",
+      "verify_note": "2026-09-22: gulfcoastjam.com/info states the festival runs June 3-6, 2027 at Frank Brown Park, Panama City Beach; tickets sold via Tixr."
+    },
+    {
+      "event_id": "the-hukilau-2027",
+      "event_series_id": "the-hukilau",
+      "slug": "the-hukilau-2027",
+      "year": 2027,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "city": "Pompano Beach",
+      "county": "Broward",
+      "state": "FL",
+      "category": "festival",
+      "subcategory": "cultural-festival",
+      "tags": ["festival"],
+      "audience": ["adults"],
+      "event_name": "The Hukilau",
+      "short_title": "The Hukilau",
+      "start_date": "2027-06-10",
+      "end_date": "2027-06-13",
+      "start_time": null,
+      "end_time": null,
+      "select_nights": false,
+      "schedule_note": "Thu Jun 10 to Sun Jun 13, 2027",
+      "venue": "BeachComber Resort & Club",
+      "address": "1200 S Ocean Blvd, Pompano Beach, FL 33062",
+      "lat": 26.223647,
+      "lng": -80.091201,
+      "is_free": false,
+      "price_min": null,
+      "price_max": null,
+      "card_hook": "Four days of tiki culture, live music and vendors at the BeachComber Resort in Pompano Beach.",
+      "official_event_url": "https://hukilauevent.com/",
+      "official_ticket_url": "https://square.link/u/VnAu99T5?src=embed",
+      "source_url": "https://hukilauevent.com/",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-09-22T18:08:53Z",
+      "verify_note": "2026-09-22: hukilauevent.com states The Hukilau runs June 10-13, 2027 at BeachComber Resort & Club, Pompano Beach FL."
+    }
+  ],
+  "hold": [
+    {
+      "event_name": "Red, White and Bloom Market",
+      "start_date": "2027-05-22",
+      "reason": "Organizer/aggregator listings only confirm May 23, 2026 (already past); no 2027 date found.",
+      "url": "https://constellationeventsllc.com/"
+    },
+    {
+      "event_name": "Tampa Bay Barbecue Festival and Competition",
+      "start_date": "2027-05-22",
+      "reason": "Organizer site shows only a 2026 lineup; no 2027 date stated.",
+      "url": "https://www.tampabaybarbecue.com/"
+    },
+    {
+      "event_name": "Forgotten Coast Sea Turtle Festival",
+      "start_date": "2027-05-23",
+      "reason": "No organizer page states a 2027 date; only a Facebook page and past-year recaps exist.",
+      "url": "https://www.facebook.com/FCSeaTurtleCenter/"
+    },
+    {
+      "event_name": "Myakka River Blues Festival",
+      "start_date": "2027-05-24",
+      "reason": "Original Snook Haven venue closed for construction after its last event; no confirmed 2027 date or venue.",
+      "url": "http://myakkablues.com/"
+    },
+    {
+      "event_name": "New Smyrna Beach Jazz Festival",
+      "start_date": "2027-05-28",
+      "reason": "Organizer site shows only May 29-31, 2026 (already past); no 2027 date posted.",
+      "url": "https://nsbjazzfest.com"
+    },
+    {
+      "event_name": "St. Pete Pride Street Fair",
+      "start_date": "2027-05-28",
+      "reason": "Organizer's own events page does not list a street fair and gives no 2027 date.",
+      "url": "https://www.stpetepride.org/2026-events"
+    },
+    {
+      "event_name": "PrideFest Kissimmee",
+      "start_date": "2027-05-29",
+      "reason": "City page shows only Saturday, May 30, 2026 (already past); no 2027 date stated.",
+      "url": "https://www.kissimmee.gov/Parks-Recreation-Events/Events-Festivals/Pridefest-Kissimmee"
+    },
+    {
+      "event_name": "Howey Artisan Market at Mission Resort and Club V",
+      "start_date": "2027-05-29",
+      "reason": "Recurring monthly market; organizer has not published a schedule out to May 2027, only a Facebook event.",
+      "url": "https://www.missionresortandclub.com/things-to-do"
+    },
+    {
+      "event_name": "Girls in Wonderland",
+      "start_date": "2027-06-03",
+      "reason": "Organizer site says only \"Coming Soon June 2027\" with no specific day given.",
+      "url": "https://www.girlsinwonderland.com/"
+    },
+    {
+      "event_name": "Oakland Park Pride",
+      "start_date": "2027-06-04",
+      "reason": "City page shows only Friday, June 5, 2026 (already past); no 2027 date announced.",
+      "url": "https://www.oaklandparkfl.gov/750/Oakland-Park-Pride"
+    },
+    {
+      "event_name": "Caribbean Jerk Festival",
+      "start_date": "2027-06-05",
+      "reason": "Organizer (CAALC) has not announced a 2027 date; most recently confirmed date is June 2026.",
+      "url": "https://www.clermontfl.gov/events/2020310-clermont-caribbean-jerk-festival.stml"
+    },
+    {
+      "event_name": "Chiefland Watermelon Festival",
+      "start_date": "2027-06-05",
+      "reason": "Organizer page shows only Saturday, June 6, 2026 (already past); no 2027 date stated.",
+      "url": "https://chieflandwomansclub.org/watermelon-festival"
+    },
+    {
+      "event_name": "Fernandina Beach Pride Parade and Festival",
+      "start_date": "2027-06-05",
+      "reason": "Organizer page shows only Saturday, June 6, 2026 (already past); no 2027 date stated.",
+      "url": "https://www.fernandinabeachpride.com/events/2026-fernandina-beach-pride-festival-parade"
+    },
+    {
+      "event_name": "Key West Pride Street Fair",
+      "start_date": "2027-06-05",
+      "reason": "Only third-party travel sites give a 2027 date; no organizer page confirms a 2027 street fair date.",
+      "url": "https://www.cityofkeywest-fl.gov/Calendar.aspx?EID=2475"
+    },
+    {
+      "event_name": "Philippine Summer Festival",
+      "start_date": "2027-06-05",
+      "reason": "No organizer page found with a 2027 date; only aggregator and Facebook listings exist.",
+      "url": "https://www.facebook.com/events/1521146466009225/"
+    },
+    {
+      "event_name": "Pineapple Festival",
+      "start_date": "2027-06-05",
+      "reason": "Eventeny organizer page shows the event has ended (last held June 6, 2026); no 2027 date posted.",
+      "url": "https://www.eventeny.com/events/pineapple-festival-30129/"
+    },
+    {
+      "event_name": "Silver Pride",
+      "start_date": "2027-06-05",
+      "reason": "Organizer page shows only Saturday, June 6, 2026 (already past); no 2027 date announced.",
+      "url": "https://friendshipcenters.org/events/silver-pride/"
+    }
+  ]
+}

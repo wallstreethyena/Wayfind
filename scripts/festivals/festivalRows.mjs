@@ -37,7 +37,12 @@ export function festivalSlug(name, year) {
 
 /** The DB row: every allowed column, and nothing that is only batch metadata. */
 export function dbRow(row) {
-  return Object.fromEntries(ALLOWED_COLUMNS.filter((k) => k in row).map((k) => [k, row[k]]));
+  const out = Object.fromEntries(ALLOWED_COLUMNS.filter((k) => k in row).map((k) => [k, row[k]]));
+  // wf_events.audience is NOT NULL. The brief lets a row say nothing about who
+  // an event is for, and "nothing stated" is an empty list, not a null: sending
+  // the null makes Postgres refuse the whole insert batch (23502).
+  if (out.audience == null) out.audience = [];
+  return out;
 }
 
 /** Which lead a publish/hold entry answers: lead_name when the organizer's name differs. */
@@ -45,6 +50,68 @@ export const leadKey = (r) => normName(r.lead_name || r.event_name);
 
 export function normName(s) {
   return String(s || "").toLowerCase().replace(/\b(19|20)\d{2}\b/g, "").replace(/[^a-z0-9]+/g, "");
+}
+
+// ── "same event, different name" ────────────────────────────────────────────
+// 2026-09-18: "Raprager Farms Fall Festival" went live beside the hand-curated
+// "Raprager Family Farms Fall Pumpkin Festival". A live row within 10 km whose
+// dates overlap and whose name is the SAME NAME SPELLED LONGER is that event.
+//
+// The test is subset, never overlap. Sharing one word is no evidence at all:
+// the 10 km radius has already forced both rows into the same town, so the
+// town's own name is the least distinctive word available. Matching on "any
+// shared word" made "Orlando Latino Fest" a duplicate of "Haunted 5K & 10K at
+// Orlando" and silently dropped a real festival. Requiring the shorter name's
+// distinctive words to ALL appear in the longer one keeps the rename case
+// (Raprager, ROCKtoberfest, John's Pass) and refuses the city-name case.
+export const NAME_STOP = Object.freeze(new Set([
+  "festival", "fest", "fall", "annual", "florida", "the", "and", "day", "days",
+  "farm", "farms", "family", "city", "county", "2026", "2027",
+]));
+
+/** Words in a name that could identify an event: 4+ letters, not boilerplate. */
+export function distinctiveWords(s) {
+  return new Set(String(s || "").toLowerCase().replace(/['\u2019]/g, "")
+    .split(/[^a-z0-9]+/).filter((w) => w.length >= 4 && !NAME_STOP.has(w)));
+}
+
+/** Great-circle distance in km. */
+export function kmBetween(a, b) {
+  const R = 6371, t = Math.PI / 180;
+  const dLat = (b.lat - a.lat) * t, dLng = (b.lng - a.lng) * t;
+  const x = Math.sin(dLat / 2) ** 2
+    + Math.cos(a.lat * t) * Math.cos(b.lat * t) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(x));
+}
+
+/** Inclusive length of a row's date range, in days (0 when unparseable). */
+export function spanDays(row) {
+  const start = Date.parse(String(row?.start_date) + "T00:00:00Z");
+  const end = Date.parse(String(row?.end_date || row?.start_date) + "T00:00:00Z");
+  if (Number.isNaN(start) || Number.isNaN(end)) return 0;
+  return Math.round((end - start) / 86400000) + 1;
+}
+
+/** True when two rows are one event under two spellings of its name. */
+export function isSameEvent(a, b) {
+  if (!a || !b) return false;
+  for (const r of [a, b]) if (!Number.isFinite(r.lat) || !Number.isFinite(r.lng)) return false;
+  if (kmBetween(a, b) > 10) return false;
+  const aEnd = a.end_date || a.start_date, bEnd = b.end_date || b.start_date;
+  if (!(a.start_date <= bEnd && aEnd >= b.start_date)) return false;
+  const wa = distinctiveWords(a.event_name), wb = distinctiveWords(b.event_name);
+  const [small, big] = wa.size <= wb.size ? [wa, wb] : [wb, wa];
+  // A name with no distinctive word of its own proves nothing.
+  if (!small.size || ![...small].every((w) => big.has(w))) return false;
+  // A SEASON IS NOT A FESTIVAL. "Crystal River Manatee Season" runs for months,
+  // so a two-day "Florida Manatee Festival" inside it overlaps by definition and
+  // the overlap proves nothing -- exactly like a shared town name. One shared
+  // word cannot carry that match on its own; two can.
+  if (spanDays(a) && spanDays(b)) {
+    const longer = Math.max(spanDays(a), spanDays(b)), shorter = Math.min(spanDays(a), spanDays(b));
+    if (longer >= 21 && longer >= 3 * shorter && small.size < 2) return false;
+  }
+  return true;
 }
 
 const isDate = (s) => typeof s === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(s + "T00:00:00Z"));
@@ -90,6 +157,9 @@ export function rowProblems(row, { today, now } = {}) {
   if (row.schedule_note && DASH.test(row.schedule_note)) p.push("schedule_note must not use long dashes (write \"to\")");
   for (const k of ["price_min", "price_max"]) if (row[k] != null && !(Number.isFinite(row[k]) && row[k] >= 0)) p.push(`${k} must be a number or null`);
   if (row.is_free != null && typeof row.is_free !== "boolean") p.push("is_free must be true, false or null");
+  // audience may be unstated (null -> [] at write time) but never a non-list.
+  if (row.audience != null && (!Array.isArray(row.audience) || row.audience.some((a) => typeof a !== "string")))
+    p.push("audience must be an array of strings or null");
   if (row.is_free === true && (row.price_min > 0)) p.push("is_free contradicts price_min");
   return p;
 }

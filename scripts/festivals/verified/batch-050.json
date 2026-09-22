@@ -1,0 +1,229 @@
+{
+  "batch": 50,
+  "verified_by": "claude-sonnet",
+  "verified_at": "2026-09-22T19:07:45Z",
+  "publish": [
+    {
+      "event_id": "mainsail-art-festival-2027",
+      "event_series_id": "mainsail-art-festival",
+      "slug": "mainsail-art-festival-2027",
+      "year": 2027,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "city": "St. Petersburg",
+      "county": "Pinellas",
+      "state": "FL",
+      "category": "arts",
+      "subcategory": "art-festival",
+      "tags": ["festival", "arts"],
+      "audience": ["families", "adults"],
+      "event_name": "Mainsail Art Festival",
+      "short_title": "Mainsail Art Fest",
+      "start_date": "2027-04-03",
+      "end_date": "2027-04-04",
+      "start_time": "09:00",
+      "end_time": "17:00",
+      "select_nights": false,
+      "schedule_note": "Sat Apr 3, 9 AM to 6 PM, Sun Apr 4, 10 AM to 5 PM",
+      "venue": "Vinoy Park",
+      "address": "701 Bayshore Drive NE, St. Petersburg, FL 33701",
+      "lat": 27.779534,
+      "lng": -82.626289,
+      "is_free": true,
+      "price_min": null,
+      "price_max": null,
+      "card_hook": "The 52nd annual juried fine arts festival returns to the waterfront at Vinoy Park with free admission.",
+      "official_event_url": "https://www.mainsailart.org/",
+      "official_ticket_url": null,
+      "source_url": "https://www.mainsailart.org/",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-09-22T19:07:45Z",
+      "verify_note": "2026-09-22: mainsailart.org homepage states '52nd Annual Mainsail Art Festival in Vinoy Park, is April 3rd & 4th, 2027' with hours Apr 3 9am-6pm and Apr 4 10am-5pm; festival-info page confirms free admittance."
+    },
+    {
+      "event_id": "port-saint-lucie-strawberry-fest-2027",
+      "event_series_id": "port-saint-lucie-strawberry-fest",
+      "slug": "port-saint-lucie-strawberry-fest-2027",
+      "year": 2027,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "city": "Port St. Lucie",
+      "county": "St. Lucie",
+      "state": "FL",
+      "category": "food",
+      "subcategory": "food-festival",
+      "tags": ["festival", "food"],
+      "audience": ["families", "adults"],
+      "event_name": "Port Saint Lucie Strawberry Fest",
+      "short_title": "Strawberry Fest",
+      "start_date": "2027-04-03",
+      "end_date": "2027-04-04",
+      "start_time": "10:00",
+      "end_time": "17:00",
+      "select_nights": false,
+      "schedule_note": "Sat Apr 3 to Sun Apr 4, 2027, 10 AM to 5 PM",
+      "venue": "MIDFLORIDA Event Center",
+      "address": "9221 SE Civic Center Place, Port St. Lucie, FL 34952",
+      "lat": 27.2973,
+      "lng": -80.2985,
+      "is_free": false,
+      "price_min": 7,
+      "price_max": 7,
+      "card_hook": "Family strawberry festival with rides, a petting farm and live entertainment at the MIDFLORIDA Event Center.",
+      "official_event_url": "https://www.portstluciefest.com",
+      "official_ticket_url": null,
+      "source_url": "https://www.portstluciefest.com",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-09-22T19:07:45Z",
+      "verify_note": "2026-09-22: portstluciefest.com homepage states 'APRIL 3 & 4, 2027, SATURDAY & SUNDAY 10AM-5PM' at MIDFLORIDA Event Center, 9221 SE Civic Center Place; Admission-Coupon.php page states 'Admission $7 Kids 2 & Under Free (admission is cash only)' under a '2027 COUPON COMING SOON' banner."
+    },
+    {
+      "event_id": "ford-international-cuban-sandwich-festival-2027",
+      "event_series_id": "ford-international-cuban-sandwich-festival",
+      "slug": "ford-international-cuban-sandwich-festival-2027",
+      "year": 2027,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "city": "Tampa",
+      "county": "Hillsborough",
+      "state": "FL",
+      "category": "food",
+      "subcategory": "food-festival",
+      "tags": ["festival", "food"],
+      "audience": ["families", "adults"],
+      "event_name": "FORD International Cuban Sandwich Festival",
+      "lead_name": "FORD International Cuban Sandwich Festival: Tampa",
+      "short_title": "Cuban Sandwich Fest",
+      "start_date": "2027-03-21",
+      "end_date": "2027-03-21",
+      "start_time": null,
+      "end_time": null,
+      "select_nights": false,
+      "schedule_note": "Sun Mar 21, 2027",
+      "venue": "Centennial Park",
+      "address": "1800 E 8th Ave, Tampa, FL 33605",
+      "lat": 27.961036,
+      "lng": -82.439162,
+      "is_free": null,
+      "price_min": null,
+      "price_max": null,
+      "card_hook": "The 16th annual Cuban sandwich contest and Latin food festival returns to Centennial Park in Ybor City.",
+      "official_event_url": "https://www.cubansandwichfestival.com/cubansandwich-festival.html",
+      "official_ticket_url": "https://www.cubansandwichfestival.com/vip-tickets.html",
+      "source_url": "https://www.cubansandwichfestival.com/cubansandwich-festival.html",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-09-22T19:07:45Z",
+      "verify_note": "2026-09-22: cubansandwichfestival.com's cubansandwich-festival.html page states '16th Annual International Cuban Sandwich Festival is Sunday, March 21st, 2027'; the same page and its recurring branding place the event at Centennial Park, Ybor City. Hours/price were only restated for the prior (15th/2026) edition on this page, so left null pending a clean 2027-specific confirmation."
+    }
+  ],
+  "hold": [
+    {
+      "event_name": "Jupiter Farms Residents Spring Family Music Fest",
+      "start_date": "2027-03-27",
+      "reason": "Hint is Facebook-only; organizer site jupiterfarmsresidents.com has no mention of this event (only a 2025 Spring Family Fun Day and unrelated 2026 notices); no 2027 date anywhere.",
+      "url": "https://www.jupiterfarmsresidents.com/"
+    },
+    {
+      "event_name": "Largo Evening Market I",
+      "start_date": "2027-03-27",
+      "reason": "Recurring monthly market, not a single festival; organizer page (playlargo.com) only lists confirmed dates through Sep 26, 2026, no 2027 date stated.",
+      "url": "https://www.playlargo.com/special_events_detail_T40_R81.php"
+    },
+    {
+      "event_name": "Main Street Zephyrhills Founders Day Music Festival and Fish Fry",
+      "start_date": "2027-03-27",
+      "reason": "Organizer page shows the Mar 28, 2026 event ('Rhythm in the Hillz'), already past; no 2027 date posted.",
+      "url": "https://mainstreetzephyrhills.org/founders-day-event-2026/"
+    },
+    {
+      "event_name": "Margarita and Taco Festival",
+      "start_date": "2027-03-27",
+      "reason": "Organizer page (avemaria.com) only has the Mar 28, 2026 event archived, already past; events index lists no 2027 date.",
+      "url": "https://www.avemaria.com/events/margarita-taco-festival/"
+    },
+    {
+      "event_name": "Palm Beach Pride",
+      "start_date": "2027-03-27",
+      "reason": "Organizer page currently states 'March TBA, 2027' for the festival and 'Sunday, March TBA, 2027' for the parade - day not yet set (differs from the lead's 3/27-3/28 guess).",
+      "url": "https://compasslgbtq.com/palmbeachpride/"
+    },
+    {
+      "event_name": "Pints n’ Paws Craft Beer Festival",
+      "start_date": "2027-03-27",
+      "reason": "14th annual event was Mar 28, 2026, already past; no 2027 (15th annual) date found on sanfordfl.gov or pintsandpaws.com.",
+      "url": "https://pintsandpaws.com/"
+    },
+    {
+      "event_name": "Pride of Tampa Festival",
+      "start_date": "2027-03-27",
+      "reason": "Inaugural festival was Mar 28, 2026, already past; organizer has said a 2027 event is planned but has posted no specific date.",
+      "url": "https://www.prideoftampa.com/events"
+    },
+    {
+      "event_name": "Railroad Day Festival",
+      "start_date": "2027-03-27",
+      "reason": "21st annual event was Mar 28, 2026, already past; organizer (West Nassau Historical Society) has no 2027 date posted.",
+      "url": "https://www.wnhsfl.org/"
+    },
+    {
+      "event_name": "Scottish-Celtic Music Festival",
+      "start_date": "2027-03-27",
+      "reason": "Organizer's own site (sassf.org) confirms Mar 28, 2026, already past; no 2027 date announced.",
+      "url": "https://sassf.org/Music-Festival"
+    },
+    {
+      "event_name": "Spring Fling and BBQ",
+      "start_date": "2027-03-27",
+      "reason": "Organizer page lists the event ('Spring Fling Craft Fair & BBQ') as Apr 11, 2026, already past; no 2027 date or venue address given.",
+      "url": "https://mainstreetbartowfl.com/spring-fling-craft-fair"
+    },
+    {
+      "event_name": "Spring Fling Car Show",
+      "start_date": "2027-03-27",
+      "reason": "Organizer page shows the 2026 Spring Fling already occurred; a 2027 edition is referenced in the site nav but its page 404s with no date.",
+      "url": "https://www.suwanneehardware.com/2025-spring-festival"
+    },
+    {
+      "event_name": "Suwannee Valley Quilt",
+      "start_date": "2027-03-27",
+      "reason": "No organizer website found beyond Facebook (not sufficient alone); other local sources still show a stale Mar 22, 2025 date; no 2027 date or street address.",
+      "url": "https://www.facebook.com/SuwanneValleyQuiltFestival/"
+    },
+    {
+      "event_name": "Tampa Asian Pacific Islander Cultural Festival",
+      "start_date": "2027-03-27",
+      "reason": "Organizer page (tampa.gov) states the event returned Mar 28, 2026, already past, and has not been updated since; no 2027 date.",
+      "url": "https://www.tampa.gov/asianpacificfestival"
+    },
+    {
+      "event_name": "Tampa Pride",
+      "start_date": "2027-03-27",
+      "reason": "Original organizer went on hiatus after 2026 funding issues; a separate new org (Pride of Tampa) plans a 2027 parade but has posted no date; hint is Facebook-only regardless.",
+      "url": "https://www.facebook.com/OfficialTampaPride/"
+    },
+    {
+      "event_name": "Triple B BBQ Cook-Off",
+      "start_date": "2027-03-27",
+      "reason": "City of Crestview and Main Street Crestview both show the 2026 (22nd annual) event on Mar 28, 2026, already past; no 2027 date on either organizer source.",
+      "url": "https://www.cityofcrestview.org/Calendar.aspx?EID=3668"
+    },
+    {
+      "event_name": "Uncorked: Tampa Wine Festival",
+      "start_date": "2027-03-27",
+      "reason": "Organizer site (uncorkedwinefestivals.com) shows the 5th annual event on Mar 28, 2026, already past; no 2027 date published.",
+      "url": "https://uncorkedwinefestivals.com/tampa-wine-festival/"
+    },
+    {
+      "event_name": "ZooBrews",
+      "start_date": "2027-03-27",
+      "reason": "Organizer page explicitly says 'See you again in 2027 wild ones!' with no specific day - a save-the-date without a date.",
+      "url": "https://zootampa.org/zoobrews/"
+    }
+  ]
+}

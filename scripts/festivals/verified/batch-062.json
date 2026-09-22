@@ -1,0 +1,230 @@
+{
+  "batch": 62,
+  "verified_by": "claude-sonnet",
+  "verified_at": "2026-09-22T18:15:03Z",
+  "publish": [
+    {
+      "event_id": "roc-the-block-juneteenth-festival-2027",
+      "event_series_id": "roc-the-block-juneteenth-festival",
+      "slug": "roc-the-block-juneteenth-festival-2027",
+      "year": 2027,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "city": "Tampa",
+      "county": "Hillsborough",
+      "state": "FL",
+      "category": "festival",
+      "subcategory": "juneteenth-celebration",
+      "tags": ["festival", "juneteenth", "family"],
+      "audience": ["families", "community"],
+      "event_name": "ROC the Block Juneteenth Festival",
+      "short_title": "ROC the Block Juneteenth",
+      "start_date": "2027-06-17",
+      "end_date": "2027-06-19",
+      "start_time": null,
+      "end_time": null,
+      "select_nights": false,
+      "schedule_note": "Thu Jun 17 to Sat Jun 19",
+      "venue": "Raymond James Stadium",
+      "address": "4201 N Dale Mabry Hwy, Tampa, FL 33607",
+      "lat": 27.977838,
+      "lng": -82.505423,
+      "is_free": true,
+      "price_min": null,
+      "price_max": null,
+      "card_hook": "A free Juneteenth festival returns to Raymond James Stadium in Tampa with live entertainment, an art district and food vendors.",
+      "official_event_url": "https://www.roctheblockinc.com/",
+      "official_ticket_url": "https://www.eventbrite.com/o/roc-the-block-inc-26599388409",
+      "source_url": "https://www.roctheblockinc.com/",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-09-22T18:12:27Z",
+      "verify_note": "2026-09-22: roctheblockinc.com homepage states June 17 to 19, 2027, Tampa FL, at Raymond James Stadium, free for the community; organizer's dates differ slightly from the lead (2027-06-16 to 06-19), organizer's own dates used."
+    },
+    {
+      "event_id": "monticello-watermelon-festival-2027",
+      "event_series_id": "monticello-watermelon-festival",
+      "slug": "monticello-watermelon-festival-2027",
+      "year": 2027,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "city": "Monticello",
+      "county": "Jefferson",
+      "state": "FL",
+      "category": "food",
+      "subcategory": "agricultural-festival",
+      "tags": ["festival", "food"],
+      "audience": ["families", "community"],
+      "event_name": "Monticello Watermelon Festival",
+      "lead_name": "Jefferson County Watermelon Festival",
+      "short_title": "Watermelon Festival",
+      "start_date": "2027-06-18",
+      "end_date": "2027-06-19",
+      "start_time": null,
+      "end_time": null,
+      "select_nights": false,
+      "schedule_note": "Fri Jun 18 to Sat Jun 19",
+      "venue": "Downtown Monticello (Jefferson County Courthouse)",
+      "address": "1 Courthouse Cir, Monticello, FL 32344",
+      "lat": 30.54513,
+      "lng": -83.870165,
+      "is_free": null,
+      "price_min": null,
+      "price_max": null,
+      "card_hook": "Downtown Monticello celebrates its annual Watermelon Festival with a parade, live entertainment and local vendors around the courthouse.",
+      "official_event_url": "https://www.monticellowatermelonfestival.com",
+      "official_ticket_url": null,
+      "source_url": "https://www.monticellowatermelonfestival.com",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-09-22T18:12:27Z",
+      "verify_note": "2026-09-22: monticellowatermelonfestival.com homepage states 2027 Watermelon Festival, June 18 + 19, 2027, matching lead dates; site gives no single street address so downtown Monticello courthouse coordinates used."
+    },
+    {
+      "event_id": "juneteenth-arts-and-cultural-celebration-2027",
+      "event_series_id": "juneteenth-arts-and-cultural-celebration",
+      "slug": "juneteenth-arts-and-cultural-celebration-2027",
+      "year": 2027,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "city": "Cocoa",
+      "county": "Brevard",
+      "state": "FL",
+      "category": "festival",
+      "subcategory": "juneteenth-celebration",
+      "tags": ["festival", "juneteenth", "family"],
+      "audience": ["families", "community"],
+      "event_name": "Juneteenth 2027 Arts and Cultural Celebration",
+      "lead_name": "Juneteenth Arts and Cultural Festival",
+      "short_title": "Juneteenth Arts and Cultural Celebration",
+      "start_date": "2027-06-19",
+      "end_date": "2027-06-19",
+      "start_time": "10:00",
+      "end_time": "18:00",
+      "select_nights": false,
+      "schedule_note": "Sat Jun 19, 10 AM to 6 PM",
+      "venue": "Cocoa Riverfront Park",
+      "address": "401 Riveredge Blvd, Cocoa, FL 32922",
+      "lat": 28.3542504,
+      "lng": -80.7245076,
+      "is_free": true,
+      "price_min": null,
+      "price_max": null,
+      "card_hook": "Free Juneteenth celebration at Cocoa Riverfront Park with live performances, art, food and vendors.",
+      "official_event_url": "https://www.cocoafl.gov/Calendar.aspx?EID=6351",
+      "official_ticket_url": null,
+      "source_url": "https://www.cocoafl.gov/Calendar.aspx?EID=6351",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-09-22T18:15:03Z",
+      "verify_note": "2026-09-22: cocoafl.gov city calendar states Juneteenth 2027 Arts and Cultural Celebration, June 19 2027, 10 AM to 6 PM, Cocoa Riverfront Park, free admission."
+    }
+  ],
+  "hold": [
+    {
+      "event_name": "UnicornFest at Millennial",
+      "start_date": "2027-06-05",
+      "reason": "City of Fort Myers calendar and search results only show Saturday June 6, 2026; no 2027 date posted by the organizer (Millennial Brewing Co.) yet.",
+      "url": "https://www.fortmyers.gov/Calendar.aspx?EID=6847"
+    },
+    {
+      "event_name": "Wellborn Blueberry Festival",
+      "start_date": "2027-06-05",
+      "reason": "Visit Suwannee and the Wellborn Community Association both only confirm Saturday June 6, 2026; no 2027 date has been posted.",
+      "url": "https://visitsuwannee.com/event/blueberry-festival/"
+    },
+    {
+      "event_name": "Family Day on the Pier",
+      "start_date": "2027-06-06",
+      "reason": "Eventeny page titled 2026 Family Day on the Pier confirms Sunday June 7, 2026; no 2027 date posted yet.",
+      "url": "https://www.eventeny.com/events/familydayonthepier-26882/"
+    },
+    {
+      "event_name": "Summer Brew and Food Fest",
+      "start_date": "2027-06-11",
+      "reason": "Port Orange Community Trust's own event page (URL itself titled 2026) confirms Friday to Saturday June 12 to 13, 2026; no 2027 dates posted.",
+      "url": "https://poctrust.org/event/summer-brew-food-fest-2026/"
+    },
+    {
+      "event_name": "Brooksville Watermelon Festival",
+      "start_date": "2027-06-12",
+      "reason": "Organizer confirms the 6th Annual festival on Saturday June 13, 2026 at Hernando County Fairgrounds; no 2027 date found anywhere.",
+      "url": "https://floridasadventurecoast.com/events/e/brooksvilles-watermelon-festival-2026-6a02370219ec8278ab1b3ad8/"
+    },
+    {
+      "event_name": "Daytona Beach Juneteenth Family Festival",
+      "start_date": "2027-06-12",
+      "reason": "Official organizer site juneteenthdaytona.com confirms Saturday June 13, 2026; no 2027 date announced (the /events sub-page from the lead hint 404s).",
+      "url": "https://www.juneteenthdaytona.com/"
+    },
+    {
+      "event_name": "Deerfield Beach Juneteenth",
+      "start_date": "2027-06-12",
+      "reason": "City of Deerfield Beach official page confirms the celebration on Thursday June 11 and Saturday June 13, 2026; no 2027 date posted yet.",
+      "url": "https://www.deerfield-beach.com/juneteenth"
+    },
+    {
+      "event_name": "Fishermen's Village Jazz on the Harbor",
+      "start_date": "2027-06-12",
+      "reason": "Organizer page fishermensvillage.com/events lists Jazz on the Harbor for June 13, 2026 only; no 2027 date posted.",
+      "url": "https://www.fishermensvillage.com/events"
+    },
+    {
+      "event_name": "Florida Hot Air Balloon Festival",
+      "start_date": "2027-06-12",
+      "reason": "Lead hint is a stale 2023 Facebook events page; web search finds only past editions at SUN 'n FUN Expo Campus, no 2027 date announced.",
+      "url": "https://visitcentralflorida.org/events/hot-air-balloon-festival/"
+    },
+    {
+      "event_name": "Kissimmee Juneteenth Festival",
+      "start_date": "2027-06-12",
+      "reason": "Organizer page kissimmee.gov/Parks-Recreation-Events/Events-Festivals/Juneteenth-Festival lists Saturday June 13, 2026 only; no 2027 date posted.",
+      "url": "https://www.kissimmee.gov/Parks-Recreation-Events/Events-Festivals/Juneteenth-Festival"
+    },
+    {
+      "event_name": "Ritmo Carnival",
+      "start_date": "2027-06-12",
+      "reason": "Lead hint is an Eventbrite page, not the organizer; venue page riverfrontesplanade.com lists Saturday June 13, 2026 only, no 2027 date posted.",
+      "url": "https://www.riverfrontesplanade.com/upcoming-events/ritmo-carnival-rogue-wave-events"
+    },
+    {
+      "event_name": "Sanford Food Truck Fiesta VI",
+      "start_date": "2027-06-13",
+      "reason": "sanfordfoodtruckfiesta.com and sanfordfl.gov describe this as an ongoing monthly series with no numbered VI edition and no 2027 dates published.",
+      "url": "https://sanfordfoodtruckfiesta.com/"
+    },
+    {
+      "event_name": "Longwood Juneteenth",
+      "start_date": "2027-06-16",
+      "reason": "Organizer page longwoodfl.org lists Freedom Day in Longwood (Juneteenth) for June 19, 2026 only; no 2027 date posted.",
+      "url": "https://www.longwoodfl.org/Calendar.aspx?EID=6058&month=6&year=2026&day=10&calType=0"
+    },
+    {
+      "event_name": "Boynton Beach Juneteenth Festival",
+      "start_date": "2027-06-19",
+      "reason": "boynton-beach.org has no 2027 Juneteenth page; only 2024 and 2025 (June 14, 2025, Sara Sims Park) entries found, no 2027 date posted yet.",
+      "url": "https://www.boynton-beach.org/639/Signature-Events"
+    },
+    {
+      "event_name": "Clermont Juneteenth Celebration",
+      "start_date": "2027-06-19",
+      "reason": "clermontfl.gov/254/Events lists the event as its fifth annual with no 2027 date, hours, or admission announced; page states date is TBD.",
+      "url": "https://www.clermontfl.gov/254/Events"
+    },
+    {
+      "event_name": "Coconut Creek Juneteenth Freedom Day Celebration",
+      "start_date": "2027-06-19",
+      "reason": "coconutcreek.gov only has a 2025 Juneteenth Freedom Day Celebration announcement (June 14, 2025); no 2026 or 2027 event page found.",
+      "url": "https://www.coconutcreek.gov/news/2025/06/12/attend--juneteenth-celebration-6-14"
+    },
+    {
+      "event_name": "Coral Springs Juneteenth Celebration",
+      "start_date": "2027-06-19",
+      "reason": "coralsprings.gov event page only confirms the 2026 date (Fri Jun 19, 2026, 5:30 to 7:30 PM, Coral Springs Center for the Arts); no 2027 date posted yet.",
+      "url": "https://www.coralsprings.gov/Events-directory/Special-Events/Juneteenth-Celebration"
+    }
+  ]
+}

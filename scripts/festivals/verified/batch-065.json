@@ -1,0 +1,163 @@
+{
+  "batch": 65,
+  "verified_by": "claude-sonnet",
+  "verified_at": "2026-09-22T18:12:05Z",
+  "publish": [
+    {
+      "event_id": "4th-of-july-celebration-2027",
+      "event_series_id": "4th-of-july-celebration",
+      "slug": "4th-of-july-celebration-2027",
+      "lead_name": "Largo 4th of July Celebration",
+      "year": 2027,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "city": "Largo",
+      "county": "Pinellas",
+      "state": "FL",
+      "category": "festival",
+      "subcategory": "patriotic",
+      "tags": ["festival", "family"],
+      "audience": ["families"],
+      "event_name": "4th of July Celebration",
+      "short_title": "4th of July",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "start_time": "18:00",
+      "end_time": "21:00",
+      "select_nights": false,
+      "schedule_note": "Sun Jul 4, 6 to 9 PM",
+      "venue": "Largo Central Park",
+      "address": "101 Central Park Drive, Largo, FL 33771",
+      "lat": 27.914720889481,
+      "lng": -82.783510140864,
+      "is_free": true,
+      "price_min": null,
+      "price_max": null,
+      "card_hook": "Free Independence Day celebration at Largo Central Park with live music, food trucks, crafts and fireworks.",
+      "official_event_url": "https://www.playlargo.com/special_events_detail_T40_R90.php",
+      "official_ticket_url": null,
+      "source_url": "https://www.playlargo.com/special_events_detail_T40_R90.php",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-09-22T18:12:05Z",
+      "verify_note": "2026-09-22: playlargo.com special events page states Sun, Jul 4, 2027, 6pm-9pm, free admission, Largo Central Park."
+    }
+  ],
+  "hold": [
+    {
+      "event_name": "Crestview 4th of July Celebration",
+      "start_date": "2027-07-04",
+      "reason": "organizer_url_hint is a Facebook profile page, not fetchable/verifiable; web search found only City of Crestview calendar entries and an Eventbrite listing for the 2026 edition, no organizer-stated 2027 date.",
+      "url": "https://www.cityofcrestview.org/calendar.aspx?EID=3483"
+    },
+    {
+      "event_name": "Deerfield Beach 4th of July Celebration",
+      "start_date": "2027-07-04",
+      "reason": "organizer page (deerfield-beach.com) states Saturday, July 4, 2026 (last year's date); no 2027 date posted yet.",
+      "url": "https://www.deerfield-beach.com/1178/4th-of-July-Celebration"
+    },
+    {
+      "event_name": "Delray Beach 4th of July Celebration",
+      "start_date": "2027-07-04",
+      "reason": "organizer page returns HTTP 403 Forbidden, could not verify any date.",
+      "url": "https://www.delraybeachfl.gov/our-city/things-to-do/4th-of-july"
+    },
+    {
+      "event_name": "Fire on the Water",
+      "start_date": "2027-07-04",
+      "reason": "organizer site (roguewaveevents.com) is unreachable (connection reset); could not verify a 2027 date.",
+      "url": "https://roguewaveevents.com/"
+    },
+    {
+      "event_name": "Fireworks at the Fountain",
+      "start_date": "2027-07-04",
+      "reason": "organizer page (orlando.gov, still titled ...-2026) returns HTTP 404 Not Found; no 2027 page posted yet.",
+      "url": "https://www.orlando.gov/Events/Fireworks-at-the-Fountain-2026"
+    },
+    {
+      "event_name": "Fourth of July Celebration at Avalon Park",
+      "start_date": "2027-07-04",
+      "reason": "organizer_url_hint is a Facebook event; Avalon Park's own site (avalonparkorlando.com) only shows the 2026 celebration, no organizer-stated 2027 date.",
+      "url": "https://www.avalonparkorlando.com/events/fourth-of-july/"
+    },
+    {
+      "event_name": "Fourth-FEST and Fireworks",
+      "start_date": "2027-07-04",
+      "reason": "organizer_url_hint is a Facebook page; organizer's own site (puntagordafireworks.com) shows past/2026 info only, no 2027 date confirmed.",
+      "url": "https://puntagordafireworks.com/"
+    },
+    {
+      "event_name": "Geneva 4th of July Parade and Festival",
+      "start_date": "2027-07-04",
+      "reason": "organizer_url_hint is a Facebook group; only a confirmed 2026 date (Sat, Jul 4, 2026) was found, no organizer-stated 2027 date.",
+      "url": "https://www.facebook.com/groups/5390313304324584"
+    },
+    {
+      "event_name": "Leesburg 4th of July Star Spangled Spectacular",
+      "start_date": "2027-07-04",
+      "reason": "organizer page (leesburgflorida.gov) states July 4th, 2026 (last year's date); no 2027 date posted yet.",
+      "url": "https://www.leesburgflorida.gov/activities/recreation/star_spangled_spectacular.php"
+    },
+    {
+      "event_name": "Let Freedom Ring 4th of July Celebration",
+      "start_date": "2027-07-04",
+      "reason": "organizer_url_hint is a Facebook event; only a confirmed 2026 date (Barron Park, LaBelle) was found, no organizer-stated 2027 date.",
+      "url": "https://www.facebook.com/events/barron-park-labelle/let-freedom-ring-4th-of-july-celebration/1743135703727227/"
+    },
+    {
+      "event_name": "Liberty by the Bay",
+      "start_date": "2027-07-04",
+      "reason": "organizer page (tampa.gov) states July 4, 2026 (last year's date); no 2027 date posted yet.",
+      "url": "https://www.tampa.gov/libertybythebay"
+    },
+    {
+      "event_name": "Monumental 4th of July Celebration",
+      "start_date": "2027-07-04",
+      "reason": "organizer page (kissimmee.gov) states Saturday, July 4, 2026 (last year's date); no 2027 date posted yet.",
+      "url": "https://www.kissimmee.gov/Parks-Recreation-Events/Events-Festivals/Monumental-Fourth-of-July"
+    },
+    {
+      "event_name": "Ocala Fourth in the Park",
+      "start_date": "2027-07-04",
+      "reason": "organizer page (ocalamarion.com) returns HTTP 404 Not Found; could not verify any date.",
+      "url": "https://www.ocalamarion.com/events/celebrate-america-250/"
+    },
+    {
+      "event_name": "Oviedo July 4th and 250th Independence Fireworks Show",
+      "start_date": "2027-07-04",
+      "reason": "organizer_url_hint is an Eventbrite listing; the city's own calendar (cityofoviedo.net) only shows the 2026 edition, no organizer-stated 2027 date, and this was framed as a one-time 250th-anniversary event.",
+      "url": "https://www.cityofoviedo.net/Calendar.aspx?EID=2297"
+    },
+    {
+      "event_name": "Palmetto Fourth Fest",
+      "start_date": "2027-07-04",
+      "reason": "lead lists city as Palmetto Bay, but the actual organizer event is the City of Palmetto's (Manatee County) Fourth Fest, a different city than the lead; additionally only a confirmed 2026 date (15th annual) was found, no organizer-stated 2027 date.",
+      "url": "https://www.palmettofl.org/189/Festivals"
+    },
+    {
+      "event_name": "Pasco Fun Fest",
+      "start_date": "2027-07-04",
+      "reason": "organizer's own site (pascofunfest.com) states \"We don't have our next event on the calendar just yet\" - explicitly TBA.",
+      "url": "https://pascofunfest.com/"
+    },
+    {
+      "event_name": "Port Orange 4th of July Spectacular",
+      "start_date": "2027-07-04",
+      "reason": "organizer_url_hint is a Facebook page; the city's own calendar (port-orange.org) only shows 2025/2026 editions, no organizer-stated 2027 date.",
+      "url": "https://www.port-orange.org/190/Calendar"
+    },
+    {
+      "event_name": "Red, White and Blue with a Waterfront View",
+      "start_date": "2027-07-04",
+      "reason": "organizer page (boynton-beach.org) states \"4th of July\" with no year given at all, so it cannot be confirmed as the 2027 edition.",
+      "url": "https://www.boynton-beach.org/658/4th-of-July-Celebration"
+    },
+    {
+      "event_name": "Rockledge Independence Day Picnic",
+      "start_date": "2027-07-04",
+      "reason": "organizer_url_hint is a Facebook event; the city's own calendar (cityofrockledge.org) only shows the 38th annual (2025) picnic, no organizer-stated 2027 date.",
+      "url": "https://www.cityofrockledge.org/Calendar.aspx?EID=2846"
+    }
+  ]
+}

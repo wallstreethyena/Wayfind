@@ -1,0 +1,195 @@
+{
+  "batch": 52,
+  "verified_by": "claude-sonnet",
+  "verified_at": "2026-09-22T18:05:13Z",
+  "publish": [
+    {
+      "event_id": "tampa-bay-blues-festival-2027",
+      "event_series_id": "tampa-bay-blues-festival",
+      "slug": "tampa-bay-blues-festival-2027",
+      "year": 2027,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "city": "St. Petersburg",
+      "county": "Pinellas",
+      "state": "FL",
+      "category": "music",
+      "subcategory": "blues-festival",
+      "tags": ["festival", "music"],
+      "audience": ["adults"],
+      "event_name": "Tampa Bay Blues Festival",
+      "short_title": "Blues Festival",
+      "start_date": "2027-04-09",
+      "end_date": "2027-04-11",
+      "start_time": null,
+      "end_time": null,
+      "select_nights": false,
+      "schedule_note": "Fri Apr 9 to Sun Apr 11",
+      "venue": "Vinoy Waterfront Park",
+      "address": "701 Bayshore Dr NE, St. Petersburg, FL 33701",
+      "lat": 27.779534,
+      "lng": -82.626289,
+      "is_free": false,
+      "price_min": null,
+      "price_max": null,
+      "card_hook": "Blues acts take the stage at Vinoy Waterfront Park on the St. Petersburg waterfront.",
+      "official_event_url": "https://www.tampabaybluesfest.com/",
+      "official_ticket_url": "https://www.etix.com/ticket/p/80246418/tampa-bay-blues-festival-2027-stpetersburg-vinoy-park",
+      "source_url": "https://www.tampabaybluesfest.com/",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-09-22T18:05:13Z",
+      "verify_note": "2026-09-22: organizer site tampabaybluesfest.com states the festival returns to Vinoy Waterfront Park, St. Petersburg, April 9, 10 & 11, 2027; etix.com named as the only official ticket seller."
+    },
+    {
+      "event_id": "blueberry-fest-at-wickham-park-2027",
+      "event_series_id": "blueberry-fest-at-wickham-park",
+      "slug": "blueberry-fest-at-wickham-park-2027",
+      "year": 2027,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "city": "Melbourne",
+      "county": "Brevard",
+      "state": "FL",
+      "category": "food",
+      "subcategory": "berry-festival",
+      "tags": ["festival", "food"],
+      "audience": ["families", "adults"],
+      "event_name": "Blueberry Fest at Wickham Park",
+      "short_title": "Blueberry Fest",
+      "start_date": "2027-04-17",
+      "end_date": "2027-04-18",
+      "start_time": "10:00",
+      "end_time": "17:00",
+      "select_nights": false,
+      "schedule_note": "Sat Apr 17 to Sun Apr 18, 10 AM to 5 PM",
+      "venue": "Wickham Park",
+      "address": "2500 Parkway Dr, Melbourne, FL 32935",
+      "lat": 28.157632,
+      "lng": -80.662584,
+      "is_free": null,
+      "price_min": null,
+      "price_max": null,
+      "card_hook": "A pie-eating contest and vendors fill Wickham Park for this blueberry-themed weekend.",
+      "official_event_url": "https://www.melbourne-fest.com/Blueberry-Fest-Home.php",
+      "official_ticket_url": null,
+      "source_url": "https://www.melbourne-fest.com/Blueberry-Fest-Home.php",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-09-22T18:05:13Z",
+      "verify_note": "2026-09-22: melbourne-fest.com states Blueberry Fest is April 17 & 18, 2027, Saturday and Sunday 10 AM to 5 PM, at Wickham Park; a pie-eating contest charges a separate $5 entry."
+    }
+  ],
+  "hold": [
+    {
+      "event_name": "Gamble Rogers Music Festival",
+      "start_date": "2027-04-09",
+      "reason": "organizer (gamblerogersfest.org) confirms only 2026 dates (Apr 10-12); a 2027 fundraiser is underway but exact 2027 festival dates are not yet announced.",
+      "url": "https://www.gamblerogersfest.org/festival-performers"
+    },
+    {
+      "event_name": "Gasparilla Music Festival",
+      "start_date": "2027-04-09",
+      "reason": "organizer site gasparillamusic.com shows only 2026 dates (Apr 10-12); no 2027 dates announced.",
+      "url": "https://gasparillamusic.com/"
+    },
+    {
+      "event_name": "Oldsmar Days and Nights",
+      "start_date": "2027-04-09",
+      "reason": "chamber calendar listing shows only 2026 dates (Apr 10-12, registration closed); no 2027 date listed.",
+      "url": "https://business.utbchamber.com/community-calendar/Details/oldsmar-days-nights-1458442?sourceTypeId=Hub"
+    },
+    {
+      "event_name": "PhilFest",
+      "start_date": "2027-04-09",
+      "reason": "organizer (Philippine Cultural Foundation, pcfitampa.org) shows only 2026 dates (Apr 10-12, 30th annual); 2027 not yet announced.",
+      "url": "https://pcfitampa.org/philfest-2026/"
+    },
+    {
+      "event_name": "Springing the Blues",
+      "start_date": "2027-04-09",
+      "reason": "festival was retired after its 34th annual edition in April 2026; the board voted to end the event, so there is no 2027 edition.",
+      "url": "https://www.springingtheblues.com/"
+    },
+    {
+      "event_name": "Tampa Bay Rodeo and Family Festival",
+      "start_date": "2027-04-09",
+      "reason": "organizer site tamparodeo.com lists Sept 4-5, 2026 as the event (already past), a different season than the lead's Apr 2027 date; no April 2027 date found.",
+      "url": "https://tamparodeo.com/"
+    },
+    {
+      "event_name": "Tortuga Music Festival",
+      "start_date": "2027-04-09",
+      "reason": "organizer homepage shows stale \"APRIL 2-4\" hero messaging inconsistently mixed with 2026 lineup references, not a clear current confirmation of the lead's Apr 9-11, 2027 dates or any single year.",
+      "url": "https://www.tortugamusicfestival.com/"
+    },
+    {
+      "event_name": "Vintage Market Days of Metro Tampa: Bloom",
+      "start_date": "2027-04-09",
+      "reason": "organizer site vintagemarketdays.com/market/metro-tampa lists an October 16-18, 2026 market but no spring \"Bloom\" 2027 date.",
+      "url": "https://vintagemarketdays.com/market/metro-tampa/"
+    },
+    {
+      "event_name": "Absolutely Avalon",
+      "start_date": "2027-04-10",
+      "reason": "organizer avalonparkorlando.com confirms only Apr 11, 2026 (already past); no 2027 date announced.",
+      "url": "https://www.avalonparkorlando.com/play/community-festivals/absolutely-avalon/"
+    },
+    {
+      "event_name": "American Legion Catfish Festival",
+      "start_date": "2027-04-10",
+      "reason": "organizer alcff.com confirms only Apr 11, 2026; no 2027 date announced yet.",
+      "url": "https://www.alcff.com/"
+    },
+    {
+      "event_name": "Bunnell History Day",
+      "start_date": "2027-04-10",
+      "reason": "flaglercountyhistoricalsociety.com references a 2027 event image file but no date text could be confirmed on the page.",
+      "url": "https://flaglercountyhistoricalsociety.com/"
+    },
+    {
+      "event_name": "Cajun Crawfish and Music Festival",
+      "start_date": "2027-04-10",
+      "reason": "organizer confirms only the 8th annual event Apr 11-12, 2026; 2027 dates not yet announced.",
+      "url": "https://www.facebook.com/cajuncrawfishandmusicfestival"
+    },
+    {
+      "event_name": "Chautauqua Winery’s Spring Fling",
+      "start_date": "2027-04-10",
+      "reason": "hinted organizer URL is dead (404); current chautauquawinery.com site lists only fall 2026 events (harvest festival Oct 2026, release party Nov 2026), no Spring Fling 2027 date.",
+      "url": "https://chautauquawinery.com/"
+    },
+    {
+      "event_name": "Davie Jazz Festival",
+      "start_date": "2027-04-10",
+      "reason": "organizer davie-fl.gov page confirms only Apr 11, 2026; no 2027 date found.",
+      "url": "https://www.davie-fl.gov/1777/Davie-Jazz-Festival"
+    },
+    {
+      "event_name": "Dunedin Highland Games and Festival",
+      "start_date": "2027-04-10",
+      "reason": "organizer (Dunedin Scottish Arts Foundation) confirms only the 58th annual games Apr 11, 2026, which has already passed; no 2027 (59th annual) date announced.",
+      "url": "https://www.dunedinsafoundation.com/highland-games/"
+    },
+    {
+      "event_name": "Dunnellon Boomtown Days Festival",
+      "start_date": "2027-04-10",
+      "reason": "organizer/chamber page confirms only Apr 11, 2026; no 2027 date mentioned anywhere on the page.",
+      "url": "https://dunnellonchamber.com/event/2026-dunnellon-boomtown-days-festival/"
+    },
+    {
+      "event_name": "Florida Groves Music Festival",
+      "start_date": "2027-04-10",
+      "reason": "organizer site floridagroves.com is unreachable (connection reset on repeated attempts); only third-party listings (Visit Orlando, resale ticket sites) state Apr 10-11, 2027, which is not organizer confirmation.",
+      "url": "https://floridagroves.com/"
+    },
+    {
+      "event_name": "Fort Myers Fine Art Show",
+      "start_date": "2027-04-10",
+      "reason": "organizer Hot Works' 2026-27 show season list (Sarasota, Boca Raton, Naples, Tampa, West Bloomfield, Orchard Lake) does not include a Fort Myers show.",
+      "url": "https://hotworks.org/events-hot-works/"
+    }
+  ]
+}

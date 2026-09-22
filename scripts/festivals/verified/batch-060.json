@@ -1,0 +1,231 @@
+{
+  "batch": 60,
+  "verified_by": "claude-sonnet",
+  "verified_at": "2026-09-22T18:11:31Z",
+  "publish": [
+    {
+      "event_id": "pensacola-pickles-and-wings-family-festival-2027",
+      "event_series_id": "pensacola-pickles-and-wings-family-festival",
+      "slug": "pensacola-pickles-and-wings-family-festival-2027",
+      "year": 2027,
+      "timezone": "America/Chicago",
+      "event_status": "scheduled",
+      "city": "Pensacola",
+      "county": "Escambia",
+      "state": "FL",
+      "category": "food",
+      "subcategory": "food-festival",
+      "tags": ["festival", "food", "family"],
+      "audience": ["families", "adults"],
+      "event_name": "Pensacola Pickles and Wings Family Festival",
+      "lead_name": "Pensacola Pickles and Wings Festival",
+      "short_title": "Pickles and Wings Festival",
+      "start_date": "2027-05-15",
+      "end_date": "2027-05-15",
+      "start_time": "10:00",
+      "end_time": "19:00",
+      "select_nights": false,
+      "schedule_note": "Sat May 15, 2027, 10 AM to 7 PM",
+      "venue": "Seville Square",
+      "address": "311 E Government St, Pensacola, FL 32502",
+      "lat": 30.409964314297,
+      "lng": -87.210149530492,
+      "is_free": true,
+      "price_min": null,
+      "price_max": null,
+      "card_hook": "Wings, pickles, food trucks, contests and live music fill downtown Pensacola's Seville Square for this free festival.",
+      "official_event_url": "https://www.pensacolafest.com/",
+      "official_ticket_url": null,
+      "source_url": "https://www.pensacolafest.com/",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-09-22T18:11:31Z",
+      "verify_note": "2026-09-22: pensacolafest.com states Saturday, May 15, 2027, 10 AM to 7 PM, free entry, Seville Square, Fountain Park and Bartram Park, downtown Pensacola."
+    },
+    {
+      "event_id": "palatka-blue-crab-festival-2027",
+      "event_series_id": "palatka-blue-crab-festival",
+      "slug": "palatka-blue-crab-festival-2027",
+      "year": 2027,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "city": "Palatka",
+      "county": "Putnam",
+      "state": "FL",
+      "category": "food",
+      "subcategory": "seafood-festival",
+      "tags": ["festival", "food", "family"],
+      "audience": ["families", "adults"],
+      "event_name": "Palatka Blue Crab Festival",
+      "lead_name": "Blue Crab Festival",
+      "short_title": "Blue Crab Festival",
+      "start_date": "2027-05-28",
+      "end_date": "2027-05-30",
+      "start_time": null,
+      "end_time": null,
+      "select_nights": false,
+      "schedule_note": "Fri May 28 to Sun May 30, 2027",
+      "venue": "Riverfront Park",
+      "address": "100 Memorial Pkwy, Palatka, FL 32177",
+      "lat": 29.644994749637,
+      "lng": -81.630350752358,
+      "is_free": null,
+      "price_min": null,
+      "price_max": null,
+      "card_hook": "Blue crab, live music, vendors and food line the St. Johns riverfront in downtown Palatka for this all ages festival.",
+      "official_event_url": "https://www.palatkabluecrab.com/",
+      "official_ticket_url": "https://www.eventbrite.com/e/palatka-blue-crab-festival-2027-tickets-1991016270261",
+      "source_url": "https://www.palatkabluecrab.com/",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-09-22T18:11:31Z",
+      "verify_note": "2026-09-22: palatkabluecrab.com and the River & Claw Community Foundation's Eventbrite page state Friday May 28 to Sunday May 30, 2027, 9 AM to 11 PM, Riverfront Park / Memorial Parkway, downtown Palatka; all ages, free parking."
+    },
+    {
+      "event_id": "largo-evening-market-2026",
+      "event_series_id": "largo-evening-market",
+      "slug": "largo-evening-market-2026",
+      "year": 2026,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "city": "Largo",
+      "county": "Pinellas",
+      "state": "FL",
+      "category": "festival",
+      "subcategory": "night-market",
+      "tags": ["festival", "market"],
+      "audience": ["adults", "families"],
+      "event_name": "Largo Evening Market",
+      "lead_name": "Largo Evening Market III",
+      "short_title": "Evening Market",
+      "start_date": "2026-09-26",
+      "end_date": "2026-09-26",
+      "start_time": "17:00",
+      "end_time": "21:00",
+      "select_nights": false,
+      "schedule_note": "Sat Sep 26, 2026, 5 to 9 PM",
+      "venue": "Ulmer Park",
+      "address": "301 W Bay Dr, Largo, FL 33770",
+      "lat": 27.916694934105,
+      "lng": -82.791177642082,
+      "is_free": null,
+      "price_min": null,
+      "price_max": null,
+      "card_hook": "Food trucks, artisans and local vendors gather in Ulmer Park for a themed evening market in downtown Largo.",
+      "official_event_url": "https://www.playlargo.com/special_events_detail_T40_R81.php",
+      "official_ticket_url": null,
+      "source_url": "https://www.playlargo.com/special_events_detail_T40_R81.php",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-09-22T18:11:31Z",
+      "verify_note": "2026-09-22: City of Largo special events listing (sourced from The Largo Evening Market) states Sat Sep 26, 2026, 5 to 9 PM, Scavenger Hunt Market, Ulmer Park, 301 West Bay Drive."
+    }
+  ],
+  "hold": [
+    {
+      "event_name": "Billy Bowlegs Pirate Festival",
+      "start_date": "2027-05-14",
+      "reason": "No reliable organizer confirmation of a 2027 date: billybowlegsfestival.com returns a Mod_Security block page (no content), and fwb.org's event calendar page is JS-rendered with no date text retrievable; only Facebook (not accepted) mentions a 70th festival with no confirmed year.",
+      "url": "https://www.facebook.com/BillyBowlegsPirateFestival"
+    },
+    {
+      "event_name": "Digital Graffiti Festival",
+      "start_date": "2027-05-14",
+      "reason": "digitalgraffiti.com confirms May 15 to 16, 2026 (already past) and states the festival is moving to a biennial schedule, with the next event in May 2028, not 2027.",
+      "url": "https://digitalgraffiti.com/"
+    },
+    {
+      "event_name": "Lionfish Festival",
+      "start_date": "2027-05-14",
+      "reason": "emeraldcoastopen.com confirms only May 16 to 17, 2026 (already past); no 2027 date is stated on the organizer's page.",
+      "url": "https://emeraldcoastopen.com/lionfish-festival/"
+    },
+    {
+      "event_name": "OCC Invitational Bike Show",
+      "start_date": "2027-05-14",
+      "reason": "occroadhouse.com confirms only May 15 to 17, 2026 (already past); no 2027 date is stated on the organizer's page.",
+      "url": "https://www.occroadhouse.com/invitational-bike-show"
+    },
+    {
+      "event_name": "Fishermen's Village Celtic Fest",
+      "start_date": "2027-05-15",
+      "reason": "fishermensvillage.com/events confirms only May 16, 2026 (already past) for the Celtic music day; no 2027 date is stated.",
+      "url": "https://www.fishermensvillage.com/events"
+    },
+    {
+      "event_name": "Haitian Compas Festival",
+      "start_date": "2027-05-15",
+      "reason": "News coverage confirms the 27th annual festival occurred in May 2026 (already past); no organizer page or news source states a 2027 (28th annual) date, and the only ongoing source is Facebook.",
+      "url": "https://www.facebook.com/Haitiancompasfest"
+    },
+    {
+      "event_name": "Makin' Bacon Festival",
+      "start_date": "2027-05-15",
+      "reason": "Organizer/venue listings (Homestead Park, naturalnorthflorida.com) confirm only the 6th annual festival on May 16, 2026 (already past); no 2027 date is stated anywhere, and the lead's only source is an unlisted Facebook event.",
+      "url": "https://www.facebook.com/events/676250995423130/"
+    },
+    {
+      "event_name": "Newberry Watermelon Festival",
+      "start_date": "2027-05-15",
+      "reason": "newberrywatermelonfestival.com confirms only the 81st festival on May 16, 2026 (already past); no 2027 date is stated on the organizer's page.",
+      "url": "https://newberrywatermelonfestival.com/"
+    },
+    {
+      "event_name": "Tupelo Honey Festival",
+      "start_date": "2027-05-15",
+      "reason": "tupelohoneyfestival.com confirms only May 16, 2026 (already past) at Lake Alice Park; no 2027 date is stated on the organizer's page.",
+      "url": "http://www.tupelohoneyfestival.com/"
+    },
+    {
+      "event_name": "Wild Amelia Nature Festival",
+      "start_date": "2027-05-15",
+      "reason": "keepnassaubeautiful.org confirms only the 17th annual EcoExpo on May 16, 2026 (already past); no 2027 date is stated on the organizer's page.",
+      "url": "https://keepnassaubeautiful.org/events/event/wild-amelia-nature-festival-ecoexpo-2/"
+    },
+    {
+      "event_name": "Asian Cultural Festival",
+      "start_date": "2027-05-16",
+      "reason": "aahc-cf.org states only that the festival is held annually in May, with no specific date for any year, current or future, on the organizer's page.",
+      "url": "https://www.aahc-cf.org/asian-cultural-festival.html"
+    },
+    {
+      "event_name": "Jacksonville Jazz Festival",
+      "start_date": "2027-05-20",
+      "reason": "jacksonvillejazzfest.com confirms only May 21 to 24, 2026 (already past); the organizer has not yet announced 2027 dates.",
+      "url": "https://jacksonvillejazzfest.com/"
+    },
+    {
+      "event_name": "Florida Folk Festival",
+      "start_date": "2027-05-21",
+      "reason": "Conflicting reported dates for the 75th annual festival in 2027 (April 23 to 25 vs. May 28 to 30) and the official floridastateparks.org page is blocked by Cloudflare (403/challenge) so the organizer's own statement could not be confirmed directly.",
+      "url": "https://www.floridastateparks.org/FloridaFolkFestival"
+    },
+    {
+      "event_name": "HAAPI Asian Festival",
+      "start_date": "2027-05-21",
+      "reason": "The lead's Eventbrite page is for a past, ended event (last confirmed occurrence was May 31, 2025); no 2026 or 2027 date has been announced by the city or organizer.",
+      "url": "https://www.eventbrite.com/e/haapi-festival-tickets-1984020409453"
+    },
+    {
+      "event_name": "Boca H2O Music Festival",
+      "start_date": "2027-05-22",
+      "reason": "Confirmed only through May 23, 2026 (already past) at Boca Grande Sandbar; no 2027 date is announced, and the venue is in Boca Grande/Placida, not Fort Myers as the lead lists.",
+      "url": "https://www.facebook.com/events/3647042992102337"
+    },
+    {
+      "event_name": "Clermont Reggae Festival",
+      "start_date": "2027-05-22",
+      "reason": "Confirmed only through May 23, 2026 (already past) at The RasState via the organizer's Eventbrite listing; no 2027 date has been announced.",
+      "url": "https://www.eventbrite.com/e/2026-clermont-reggae-festival-tickets-1980151714081?aff=ebdsoporgprofile"
+    },
+    {
+      "event_name": "Hurricane Party",
+      "start_date": "2027-05-22",
+      "reason": "Confirmed only through the 19th annual festival on May 23, 2026 (already past) at West End Trading Co.; no 20th annual/2027 date has been announced.",
+      "url": "https://www.facebook.com/WestEndHurricaneParty/"
+    }
+  ]
+}

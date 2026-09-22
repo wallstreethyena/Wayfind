@@ -12,7 +12,7 @@
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 process.env.WF_SUPPRESS_ANALYTICS = "1";
-import { rowProblems, batchProblems, festivalSlug, normName, leadKey, dbRow } from "./festivals/festivalRows.mjs";
+import { rowProblems, batchProblems, festivalSlug, normName, leadKey, dbRow, isSameEvent, distinctiveWords } from "./festivals/festivalRows.mjs";
 import { isEligible, isFloridaEvent, isTrusted } from "../lib/curatedEvents.js";
 
 let n = 0;
@@ -98,6 +98,87 @@ check("every committed publish row that is not over would render on the site", (
       assert.equal(isTrusted(row) && isFloridaEvent(row), true, `${f}: ${r.event_id} would be hidden by lib/curatedEvents.js`);
     }
   }
+});
+
+// 4. The publisher's "same event, different name" test. It decides whether a
+//    real festival is published or silently dropped, so both directions are
+//    proved here: a rename is caught, a shared TOWN NAME is not a rename.
+const at = (name, lat, lng, start, end) => ({ event_name: name, lat, lng, start_date: start, end_date: end || start });
+const ORL = [28.5383, -81.3792], TPA = [27.9506, -82.4572];
+
+check("a renamed event is still the same event (the case this rule exists for)", () => {
+  assert.equal(isSameEvent(
+    at("Raprager Farms Fall Festival", 28.90, -82.30, "2026-10-03", "2026-10-25"),
+    at("Raprager Family Farms Fall Pumpkin Festival", 28.90, -82.30, "2026-10-01", "2026-11-01")), true);
+  assert.equal(isSameEvent(
+    at("ROCKtoberfest", 27.3364, -82.5307, "2026-10-10"),
+    at("ROCKtoberfest Downtown Sarasota", 27.3364, -82.5307, "2026-10-10")), true);
+  assert.equal(isSameEvent(
+    at("45th Annual John's Pass Seafood Festival", 27.7856, -82.7800, "2026-10-24", "2026-10-25"),
+    at("John's Pass Seafood Festival", 27.7856, -82.7800, "2026-10-24", "2026-10-25")), true);
+});
+
+check("sharing only the TOWN NAME is not the same event (this dropped real festivals)", () => {
+  // Both are in Orlando on the same night. That is what the 10 km radius already
+  // says; the word "orlando" adds nothing, so it may not decide the match.
+  assert.equal(isSameEvent(
+    at("Orlando Latino Fest", ...ORL, "2026-10-17"),
+    at("Haunted 5K & 10K at Orlando", ...ORL, "2026-10-17")), false);
+  assert.equal(isSameEvent(
+    at("Orlando International Dragon Boat Festival", ...ORL, "2026-10-10"),
+    at("Halloween Horror Nights Orlando", ...ORL, "2026-09-01", "2026-11-01")), false);
+  assert.equal(isSameEvent(
+    at("India Festival Tampa", ...TPA, "2026-10-03"),
+    at("Howl-O-Scream Busch Gardens Tampa Bay", ...TPA, "2026-09-05", "2026-11-01")), false);
+  assert.equal(isSameEvent(
+    at("Oakland Park Oktoberfest", 26.1718, -80.1331, "2026-10-04"),
+    at("Nightmare Village at Xtreme Action Park", 26.1718, -80.1331, "2026-10-04")), false);
+});
+
+check("a row never hands the database a null audience", () => {
+  // wf_events.audience is NOT NULL; a null refused the entire insert batch.
+  assert.deepEqual(dbRow({ ...good, audience: null }).audience, []);
+  assert.deepEqual(dbRow({ ...good, audience: ["families"] }).audience, ["families"]);
+  assert.equal(rowProblems({ ...good, audience: "families" }).includes("audience must be an array of strings or null"), true);
+  for (const f of files) {
+    for (const r of JSON.parse(readFileSync(`${vdir}/${f}`, "utf8")).publish) {
+      assert.notEqual(dbRow(r).audience, null, `${f}: ${r.event_id} would be refused by wf_events.audience`);
+    }
+  }
+});
+
+check("a months-long season does not swallow a weekend festival", () => {
+  // Overlap is guaranteed inside a season, so it proves nothing on its own.
+  const season = at("Crystal River Manatee Season", 28.9025, -82.5926, "2026-11-15", "2027-03-31");
+  const festival = at("Florida Manatee Festival", 28.9025, -82.5926, "2027-01-09", "2027-01-10");
+  assert.equal(isSameEvent(festival, season), false);
+  // Two shared words still carry the match, season or not.
+  assert.equal(isSameEvent(
+    at("Christmas in the Wild", 27.9659, -82.4498, "2026-12-01", "2026-12-02"),
+    at("ZooTampa Christmas in the Wild", 27.9659, -82.4498, "2026-11-20", "2027-01-05")), true);
+  // Two long runs of the same event are still the same event.
+  assert.equal(isSameEvent(
+    at("Fall Festival at Amber Brooke Farms", 28.85, -81.60, "2026-09-26", "2026-11-08"),
+    at("Amber Brooke Farms Fall Festival", 28.85, -81.60, "2026-10-01", "2026-11-15")), true);
+});
+
+check("distance and dates still bound the rule, and a nameless row never matches", () => {
+  // Same name, 200 km apart: not the same event.
+  assert.equal(isSameEvent(
+    at("Pumpkin Patch Express", 28.5383, -81.3792, "2026-10-10"),
+    at("Pumpkin Patch Express", 25.7617, -80.1918, "2026-10-10")), false);
+  // Same name and place, but the dates do not touch.
+  assert.equal(isSameEvent(
+    at("Pumpkin Patch Express", 28.5383, -81.3792, "2026-10-10"),
+    at("Pumpkin Patch Express", 28.5383, -81.3792, "2026-11-20")), false);
+  // A name made only of boilerplate has no distinctive word to match on.
+  assert.equal(distinctiveWords("The Fall Festival").size, 0);
+  assert.equal(isSameEvent(
+    at("The Fall Festival", ...ORL, "2026-10-10"),
+    at("Annual Florida Fall Fest", ...ORL, "2026-10-10")), false);
+  // Missing coordinates can never be proof of sameness.
+  assert.equal(isSameEvent({ event_name: "X Fest", start_date: "2026-10-10" },
+    at("X Fest", ...ORL, "2026-10-10")), false);
 });
 
 console.log(`check-florida-festivals-import: ${n} checks passed`);
