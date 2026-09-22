@@ -350,6 +350,8 @@ function harness() {
 
   // HOST VERIFICATION — the path alone is not proof of origin.
   ok(PC.planPartnerClick({ href: "https://evil.example/api/viator/go?placeId=x&q=museum", owned: false, locationHost: "www.gowayfind.com", mint }) === null, "an absolute link to a FOREIGN host that merely reuses our path is refused");
+  ok(PC.planPartnerClick({ href: "//evil.example/api/viator/go?placeId=x&q=museum", owned: false, locationHost: "www.gowayfind.com", mint }) === null, "a PROTOCOL-RELATIVE link to a foreign host (no scheme, still foreign) is refused");
+  ok(PC.planPartnerClick({ href: "/api/viator/go?placeId=x&q=museum", owned: false, locationHost: "wayfind-git-x.vercel.app", mint }) !== null, "a relative partner link on a preview host still counts (resolves to the page's own host)");
 
   // Our own absolute host (apex or www) counts exactly like a relative link.
   {
