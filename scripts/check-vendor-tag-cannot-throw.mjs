@@ -46,6 +46,11 @@ const fails = [];
 const ok = (c, m) => { pass++; if (!c) fails.push(m); };
 
 const LAYOUT = readFileSync(join(ROOT, "app/layout.js"), "utf8");
+// 2026-09-22 click-hijack fix: Stay22's inline loader moved OUT of
+// app/layout.js into this scoped component (Travelpayouts Drive's loader was
+// removed outright, not moved — see app/layout.js's own note). The vendor-tag
+// safety properties this guard exists to pin now live here.
+const SWAP = readFileSync(join(ROOT, "app/components/Stay22LinkSwap.js"), "utf8");
 
 // ── 1. the idiom is gone from our own client source ───────────────────────
 // POSITIVE CONTROLS for the two absence probes below. An absence assertion is
@@ -57,19 +62,21 @@ ok(/\.parentNode/.test("var f=document.getElementsByTagName('script')[0];f.paren
   "POSITIVE CONTROL: the .parentNode probe matches the original crashing idiom, so its absence below is a real finding");
 ok(/getElementsByTagName\('script'\)\[0\]/.test("var f=document.getElementsByTagName('script')[0];"),
   "POSITIVE CONTROL: the getElementsByTagName('script')[0] probe matches that same idiom");
-ok(!/\.parentNode/.test(LAYOUT),
-  "app/layout.js dereferences .parentNode nowhere — that was the only one we owned, and it is what made a parentNode TypeError ambiguous");
-ok(!/getElementsByTagName\('script'\)\[0\]/.test(LAYOUT),
-  "…and the getElementsByTagName('script')[0] idiom it came from is gone too");
+for (const [name, src] of [["app/layout.js", LAYOUT], ["app/components/Stay22LinkSwap.js", SWAP]]) {
+  ok(!/\.parentNode/.test(src),
+    `${name} dereferences .parentNode nowhere — that was the only one we owned, and it is what made a parentNode TypeError ambiguous`);
+  ok(!/getElementsByTagName\('script'\)\[0\]/.test(src),
+    `…and the getElementsByTagName('script')[0] idiom it came from is gone too, in ${name}`);
+}
 
-// Pull the two inline loaders straight out of the file. If this stops finding
-// them the guard fails rather than passing on nothing.
-const inline = [...LAYOUT.matchAll(/__html:\s*`([^`]*)`/g)].map((m) => m[1]);
+// Pull the inline loader(s) out of both files. If this stops finding the one
+// we know about, the guard fails rather than passing on nothing.
+const inline = [...(LAYOUT + "\n" + SWAP).matchAll(/__html:\s*`([^`]*)`/g)].map((m) => m[1]);
 const loaders = inline.filter((src) => /document\.createElement\('script'\)/.test(src));
-ok(loaders.length === 2, `positive control: both inline tag loaders were found in app/layout.js (got ${loaders.length})`);
+ok(loaders.length === 1, `positive control: the one remaining inline tag loader (Stay22's, in app/components/Stay22LinkSwap.js) was found (got ${loaders.length}) — Travelpayouts Drive's loader was removed outright 2026-09-22, so the count dropped from 2 to 1 on purpose`);
 for (const src of loaders) {
   const who = /stay22/.test(src) ? "stay22" : /tp-em/.test(src) ? "travelpayouts" : "unknown";
-  ok(who !== "unknown", "each inline loader is one of the two known tags");
+  ok(who !== "unknown", "the remaining inline loader is the known Stay22 tag");
   ok(/\(document\.head\|\|document\.documentElement\)\.appendChild\(s\)/.test(src),
     `${who}: appends to document.head (documentElement fallback) — neither can be null in a parsed document`);
   ok(/try\{/.test(src) && /\}catch\(e\)\{\}/.test(src), `${who}: the whole load path is wrapped — a tag cannot throw into the page`);
@@ -148,4 +155,4 @@ if (fails.length) {
   fails.forEach((f) => console.error("  ✗ " + f));
   process.exit(1);
 }
-console.log(`check-vendor-tag-cannot-throw: OK — ${pass} assertions; both tags EXECUTED against a script-less, head-hostile DOM without throwing, and vendor frames are denied by URL while ours still page`);
+console.log(`check-vendor-tag-cannot-throw: OK — ${pass} assertions; the remaining tag (Stay22's) EXECUTED against a script-less, head-hostile DOM without throwing, and vendor frames are denied by URL while ours still page`);
