@@ -4,7 +4,7 @@ import { RailDots, RailNav } from "../../components/RailCard";
 import FallGuideExplorer from "./FallGuideExplorer";
 import styles from "./page.module.css";
 
-const shareImage = "/api/og?t=Florida%20Fall%202026&loc=Florida&cta=OPEN%20THE%20GUIDE&sub=Pumpkins%20%E2%80%A2%20markets%20%E2%80%A2%20haunts%20%E2%80%A2%20food";
+const shareImage = "/api/og?t=Florida%20Fall%202026&loc=Florida&cta=OPEN%20THE%20GUIDE&sub=Pumpkins%20%E2%80%A2%20markets%20%E2%80%A2%20haunts%20%E2%80%A2%20food&tone=fall";
 
 export const metadata = {
   title: "Florida Fall Guide 2026 | Wayfind",
