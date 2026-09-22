@@ -161,7 +161,7 @@ const eq = (actual, expected, message) =>
 // real network call, proven by throwing on anything unexpected.
 // ─────────────────────────────────────────────────────────────────────────
 const SB = { url: "https://vault-wiring.test.invalid", key: "test-key" };
-function makeDb({ atRisk = [], inventory = [], existingRows = [] } = {}) {
+function makeDb({ atRisk = [], repair = [], inventory = [], existingRows = [] } = {}) {
   const table = new Map(existingRows.map((r) => [r.place_id, r]));
   const upsertCalls = [];
   const savedFetch = globalThis.fetch;
@@ -171,6 +171,10 @@ function makeDb({ atRisk = [], inventory = [], existingRows = [] } = {}) {
     if (u.startsWith(SB.url + "/rest/v1/wf_photo_at_risk")) {
       ok(!u.includes("SELECT ") && !u.includes("select%20"), "PROBE: at-risk fetch is a PostgREST GET, never raw SQL text");
       return { ok: true, json: async () => atRisk };
+    }
+    if (u.startsWith(SB.url + "/rest/v1/wf_photo_repair_queue")) {
+      ok(/status=in\.\(open,budget_blocked\)/.test(u), "PROBE: repair drain reads only unresolved live queue states");
+      return { ok: true, json: async () => repair };
     }
     if (u.startsWith(SB.url + "/rest/v1/wf_inventory")) {
       return { ok: true, json: async () => inventory };
@@ -408,7 +412,35 @@ const PHOTO = (id) => ({
     eq(JSON.stringify(order3), JSON.stringify(["onlyatrisk00001234AB"]), "E6: source:\"at-risk\" drains ONLY the at-risk worklist");
   }
 
-  console.log("test-photo-vault-wiring: Section E OK — the at-risk worklist is fully drained before the general scan; source=at-risk|all each drive one worklist exclusively");
+  // E7 — observed reader failures get their own worklist, including a food
+  // venue the blind general Commons scan would intentionally skip. Identity
+  // and license acceptance are still delegated to the same resolver.
+  {
+    const id = "repairqueuefood001AB";
+    const db4 = makeDb({
+      repair: [{ place_id: id, detections: 7, last_seen_at: "2026-09-21T22:00:00Z", status: "open" }],
+      inventory: [{ place_id: id, name: "Observed Restaurant", category: "food", status: "OPERATIONAL", lat: 27.1, lng: -82.1, tags: [] }],
+    });
+    const order4 = [];
+    const result = await runBackfill({
+      limit: 5,
+      sbEnv: SB,
+      source: "repair",
+      resolvePhoto: async (p) => {
+        order4.push(p.place_id);
+        return null;
+      },
+      dryRun: true,
+    });
+    db4.restore();
+    eq(JSON.stringify(order4), JSON.stringify([id]), "E7: source:\"repair\" attempts the exact observed failed place even when its category is food");
+    eq(result.repairScanned, 1, "E7: repair worklist size is reported");
+    eq(result.repairTaken, 1, "E7: the observed repair candidate consumes the dedicated budget");
+    eq(result.atRiskTaken, 0, "E7: repair mode does not dilute itself with at-risk inventory");
+    eq(result.scanned, 0, "E7: repair mode does not run the blind general inventory scan");
+  }
+
+  console.log("test-photo-vault-wiring: Section E OK — at-risk/general controls survive and source=repair drains exact observed reader failures through the same strict resolver");
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -519,7 +551,7 @@ const PHOTO = (id) => ({
     ok(note.length > 0, "F2: the note is non-empty (an idle run still says WHY)");
   }
 
-  // F3 — ?source=at-risk / ?source=all are threaded through to runBackfill's
+  // F3 — ?source=repair / ?source=at-risk / ?source=all are threaded through to runBackfill's
   // own `source` argument untouched, and an unrecognised value is ignored
   // (falls through to the combined default) rather than crashing the route.
   {
