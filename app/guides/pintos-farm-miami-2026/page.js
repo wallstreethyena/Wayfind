@@ -56,7 +56,7 @@ const GALLERY = [
     width: 1200,
     height: 1449,
     alt: "A dog wearing a bandana on a blue paddle boat",
-    caption: "Dog-friendly days include the boat ride."
+    caption: "A dog on the boat ride."
   },
   {
     src: "/guides/pintos-farm-miami-2026/gallery-brewhouse-cups-toast.webp",
