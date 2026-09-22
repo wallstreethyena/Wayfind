@@ -7,6 +7,8 @@ export default function CreatorAppleMap({ places, onSelect, selectedId = null })
   const host = useRef(null);
   const selectRef = useRef(onSelect);
   selectRef.current = onSelect;
+  const selectedRef = useRef(selectedId);
+  selectedRef.current = selectedId;
   const [status, setStatus] = useState("loading");
   const [attempt, setAttempt] = useState(0);
   const controllerRef = useRef(null);
@@ -18,7 +20,7 @@ export default function CreatorAppleMap({ places, onSelect, selectedId = null })
       if (dead || !host.current) return;
       controller = createCreatorAppleMap({ mapkit, container: host.current, places, onSelect: id => selectRef.current?.(id) });
       controllerRef.current = controller;
-      if (selectedId != null) controller.select?.(selectedId);
+      if (selectedRef.current != null) controller.select?.(selectedRef.current);
       setStatus("ready");
     }).catch(() => { if (!dead) setStatus("error"); });
     return () => { dead = true; if (controllerRef.current === controller) controllerRef.current = null; controller?.destroy(); };
