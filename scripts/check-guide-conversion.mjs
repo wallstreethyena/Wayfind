@@ -30,8 +30,9 @@ ok(!/Check tours &amp; tickets|Check rates ↗/.test(page), "the per-pick link w
 // link disabled to `{false ? ...}`, because the string stayed in the file. That is
 // the same mistake that shipped the dead cuisine chips.
 ok(/\{\(pick\.appQuery !== null\) \? <a href=\{appUrl\(/.test(page),
-  "'Open in Wayfind' SURVIVES per pick, gated on pick.appQuery and not on a constant (owner condition 3a)");
-ok(/Open in Wayfind/.test(page), "...and still carries its label");
+  "'Explore this place' survives per pick, gated on pick.appQuery and not on a constant");
+ok(/Explore this place/.test(page), "...and carries the neutral experience-first label");
+ok(!/Open in Wayfind/.test(page), "guide conversion copy must not pitch Wayfind inside the article");
 ok(/guidePrimaryCta\(g\)/.test(page), "exactly one CTA is resolved per guide");
 ok(/guideContinue\(/.test(page), "one continue card, not a four-link 'More guides' wall");
 ok(!/More Wayfind guides/.test(page), "the old four-link list is removed");
@@ -93,4 +94,4 @@ if (fail.length) {
   for (const f of fail) console.error("  - " + f);
   process.exit(1);
 }
-console.log(`check-guide-conversion: OK — ${pass} assertions (one CTA through THE predicate, link wall gone, Open-in-Wayfind kept, social status distinct, real deadlines only, bet falsifiable)`);
+console.log(`check-guide-conversion: OK — ${pass} assertions (one CTA through THE predicate, link wall gone, experience-first navigation kept, social status distinct, real deadlines only, bet falsifiable)`);

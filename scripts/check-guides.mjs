@@ -61,11 +61,28 @@ for (const [name, s] of [["guides", g], ["culture", c]]) {
     const code = s.replace(/\/\*[\s\S]*?\*\//g, " ").split("\n").filter((l) => !/^\s*\/\//.test(l)).join("\n");
     if (/experienceGoUrl\(|hotelSearchUrl\(/.test(code)) fail("guides still resolve booking hrefs directly — that is the parallel path bookingResolve replaced");
     if (/Check tours &amp; tickets|Check rates/.test(code)) fail("the per-pick link wall is back");
-    if (!/Open in Wayfind/.test(code)) fail("Open in Wayfind must SURVIVE as the non-monetized navigation affordance");
+    if (!/Explore this place/.test(code)) fail("Explore this place must survive as the non-monetized navigation affordance");
+    if (/Open in Wayfind/.test(code)) fail("guide article copy is pitching Wayfind instead of the experience");
   }
 }
 if (!g.includes("More Wayfind guides")) fail("guides missing related-guides section");
 if (!c.includes("More cities:")) fail("culture missing related-cities links");
+// Owner 2026-09-22: guide pages sell the place/event/experience, not the product
+// or the provenance process. Sources and methodology remain in the data layer for
+// verification; they do not consume reader-facing guide space.
+for (const [needle, label] of [
+  ['category="Wayfind guide"', "brand category pitch"],
+  ['Found this on Wayfind', "brand share pitch"],
+  ['aria-label="Sources"', "visible source/provenance block"],
+  ['{g.methodology ?', "visible methodology block"],
+  ['{g.authorBio ?', "author biography block"],
+  ['>How we rank ›</a>', "ranking-methodology link"],
+  ['Planning the rest of your trip?', "bottom product sales pitch"],
+]) {
+  if (g.includes(needle)) fail("guide detail resurfaced " + label);
+}
+if (!g.includes("Explore this place")) fail("guide detail lost the neutral place navigation label");
+
 const gl = readFileSync(new URL("../lib/guides.js", import.meta.url), "utf8");
 if ((gl.match(/appQuery:/g) || []).length < 7) fail("heading-style picks missing appQuery place mappings");
 if (!g.includes("pick.appQuery || pick.name")) fail("guide template not using appQuery for app links");
