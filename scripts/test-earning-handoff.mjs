@@ -26,9 +26,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { loadComponent } from "./lib/jsxLoad.mjs";
 
 const { bookingTargets } = await import("../lib/bookingResolve.js");
-const { viatorProductGoUrl, ticketmasterGoUrl, hotelUrl, experienceGoUrl } = await import("../lib/affiliates.js");
+const { viatorProductGoUrl, ticketmasterGoUrl, hotelUrl, experienceGoUrl, hotelGoUrl } = await import("../lib/affiliates.js");
 const { commerceHref } = await import("../lib/commerce.js");
 const { withClickId, isEarningGoHref } = await import("../lib/hubConversion.js");
+const { bookingHotelSearchUrl } = await import("../lib/hotelRedirect.js");
 
 const REPO = join(dirname(fileURLToPath(import.meta.url)), "..");
 let pass = 0;
@@ -108,10 +109,71 @@ ok(/viatorProductGoUrl\s*\(/.test(bookingResolve),
   ok(destination.searchParams.get("aid") === "wayfindllc" && destination.searchParams.get("campaign") === "wf-hotel-test-123", "hotel handoff preserves verified affiliate and click attribution");
   const booking = new URL(destination.searchParams.get("link"));
   ok(booking.origin === "https://www.booking.com" && booking.searchParams.get("ss") === "ROOST Tampa, Tampa, FL", "hotel location survives; hostile destination input is ignored");
-  for (const bad of ["name=Hotel", "name=Hotel&address=Tampa&lat=91&lng=0", "name=Hotel&address=Tampa&lng=0"]) {
+  ok(booking.searchParams.get("latitude") === null && booking.searchParams.get("dest_type") === null,
+    "no lat/lng in the request → no coordinate params on the outbound Booking.com URL");
+  for (const bad of ["name=Hotel", "name=Hotel&address=Tampa&lat=91&lng=0", "name=Hotel&address=Tampa&lng=0", "name=Hotel&address=Tampa&lat=27.5"]) {
     ok((await call(bad)).headers.get("location") === "https://www.gowayfind.com/?go=hotels", "invalid hotel data never leaves for a provider");
   }
   ok((await call(q, "Googlebot")).headers.get("location") === "https://www.gowayfind.com/?go=hotels", "crawlers do not create affiliate clicks");
+
+  // Coordinate anchoring (2026-09-22): a valid lat/lng pair rides all the way
+  // through the go route into the Booking.com search URL, rounded to 6 decimals.
+  const qll = new URLSearchParams({
+    name: "Hampton Inn & Suites", address: "309 10th St W, Bradenton",
+    click_id: "wf-hotel-test-latlng", lat: "27.497049", lng: "-82.571662",
+  });
+  const withCoords = await call(qll);
+  const destCoords = new URL(withCoords.headers.get("location"));
+  const bookingCoords = new URL(destCoords.searchParams.get("link"));
+  ok(bookingCoords.origin === "https://www.booking.com", "coordinate-anchored search still lands on www.booking.com");
+  ok(bookingCoords.searchParams.get("ss") === "Hampton Inn & Suites, 309 10th St W, Bradenton",
+    "ss keeps the existing '<name>, <address>' shape even when coordinates are added");
+  ok(bookingCoords.searchParams.get("latitude") === "27.497049" && bookingCoords.searchParams.get("longitude") === "-82.571662"
+    && bookingCoords.searchParams.get("dest_type") === "latlong",
+    `latitude/longitude/dest_type must be set and rounded (got ${bookingCoords.search})`);
+}
+
+// bookingHotelSearchUrl (call, direct): byte-identical without coords, three
+// new params with coords, fail-closed on a half pair or an out-of-range value.
+{
+  const base = { name: "Hampton Inn & Suites", address: "309 10th St W, Bradenton" };
+  const withoutCoords = bookingHotelSearchUrl(base);
+  const expectedNoCoords = new URL("https://www.booking.com/searchresults.html");
+  expectedNoCoords.searchParams.set("ss", "Hampton Inn & Suites, 309 10th St W, Bradenton");
+  ok(withoutCoords === expectedNoCoords.toString(),
+    `no lat/lng → byte-identical to the pre-existing URL shape (got ${withoutCoords})`);
+
+  const withCoords = bookingHotelSearchUrl({ ...base, lat: 27.4970491, lng: -82.5716624 });
+  const u = new URL(withCoords);
+  ok(u.origin === "https://www.booking.com" && u.pathname === "/searchresults.html", "host/path stay the fixed BOOKING_SEARCH constant");
+  ok(u.searchParams.get("ss") === "Hampton Inn & Suites, 309 10th St W, Bradenton", "ss is unchanged when coordinates are also present");
+  ok(u.searchParams.get("latitude") === "27.497049" && u.searchParams.get("longitude") === "-82.571662",
+    `lat/lng round to 6 decimals (got ${u.searchParams.get("latitude")}, ${u.searchParams.get("longitude")})`);
+  ok(u.searchParams.get("dest_type") === "latlong", "dest_type=latlong is set alongside the coordinates");
+
+  ok(bookingHotelSearchUrl({ ...base, lat: 27.49 }) === null, "lat without lng fails closed (no URL at all)");
+  ok(bookingHotelSearchUrl({ ...base, lng: -82.57 }) === null, "lng without lat fails closed (no URL at all)");
+  ok(bookingHotelSearchUrl({ ...base, lat: 91, lng: 0 }) === null, "out-of-range latitude fails closed");
+  ok(bookingHotelSearchUrl({ ...base, lat: 0, lng: 181 }) === null, "out-of-range longitude fails closed");
+}
+
+// hotelGoUrl forwards lat/lng to /api/hotels/go only when both are finite,
+// without disturbing the existing isTrueLodging/name/address gates or param order.
+{
+  const hotelPlace = { id: "hotel_ll_1", name: "Hampton Inn & Suites", address: "309 10th St W, Bradenton", types: ["lodging", "hotel"] };
+  const noCoords = hotelGoUrl(hotelPlace, "Bradenton, FL");
+  ok(typeof noCoords === "string" && !/[?&]lat=/.test(noCoords) && !/[?&]lng=/.test(noCoords),
+    `hotelGoUrl omits lat/lng when the place carries none (got ${noCoords})`);
+
+  const withCoords = hotelGoUrl({ ...hotelPlace, lat: 27.497049, lng: -82.571662 }, "Bradenton, FL");
+  const wq = new URL("https://x" + withCoords).searchParams;
+  ok(wq.get("name") === "Hampton Inn & Suites" && wq.get("address") === "309 10th St W, Bradenton" && wq.get("surface") === "hotel_booking",
+    "hotelGoUrl still emits the existing name/address/surface params");
+  ok(wq.get("lat") === "27.497049" && wq.get("lng") === "-82.571662", `hotelGoUrl forwards lat/lng (got ${withCoords})`);
+  ok(withCoords.indexOf("name=") < withCoords.indexOf("lat="), "new lat/lng params are appended, not inserted before the existing ones");
+
+  ok(!/[?&]lat=/.test(hotelGoUrl({ ...hotelPlace, lat: 27.49 }, "Bradenton, FL")), "lat without lng: hotelGoUrl forwards no coordinates");
+  ok(!/[?&]lat=/.test(hotelGoUrl({ ...hotelPlace, lat: "not-a-number", lng: -82.57 }, "Bradenton, FL")), "a non-finite lat forwards no coordinates");
 }
 ok(/booking\\\.com/i.test(read("lib/guideCta.js")),
   "guide hotel CTA rejects a leftover booking.com earning href (fail-closed belt)");

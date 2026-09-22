@@ -173,6 +173,15 @@ const SocialFindSheet = nextDynamic(loadSocialFind, { ssr: false, loading: () =>
 // well as cheap — the gate needs the reader's resolved location, which does not
 // exist on the server, so there is nothing to render into the HTML.
 const SponsoredPlaceCard = nextDynamic(() => import("./components/SponsoredPlaceCard"), { ssr: false, loading: () => null });
+// v8.57 — the hotel card's "Check rates" button. Loaded the same lazy way as
+// the other card-level extras above and NOT as a static import: BookingCTA
+// pulls in the whole booking resolver + commerce stack, and the shared bundle
+// sits at 492.7KB gz against a 498KB budget (scripts/check-bundle.mjs). Only
+// lodging cards ever render it, so the browse feed should not carry its weight
+// on first load. ssr:false is safe here: the button is an outbound commission
+// link on a client-rendered card, nothing SEO reads it, and it must never be
+// crawled as our own content.
+const BookingCTA = nextDynamic(() => import("./components/BookingCTA"), { ssr: false, loading: () => null });
 import * as Trips from "../lib/trips";
 import * as Ranking from "../lib/ranking";
 // v6.72: ViatorRail EXTRACTED to app/components/ViatorRail.js so the nine
@@ -309,7 +318,7 @@ function _viatorCityParams(cityQ, center) {
 // and v8.x because check-version.mjs only asserts VERSION == BUILD_ID, not
 // that either moved — and the owner used the footer label to judge whether
 // production was stale. A version label that never changes is disinformation.
-const BUILD_ID = "v8.56.34";
+const BUILD_ID = "v8.57.0";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -11942,6 +11951,31 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
               still work, only this render call was lost. Owner-audit mode
               (NEXT_PUBLIC_WF_SHOW_AFFILIATE_AUDIT=1) still surfaces coverage gaps;
               production hides an absent chip, so this is a pure disclosure add. */}
+          {/* v8.57 (owner, 2026-09-22: "make sure our hotel place card are wire
+              to the affiliate so we can generate revenue"). A lodging card used
+              to carry NO earning link at all: the Stay22/Booking handoff only
+              appeared one tap deeper, inside the Detail sheet, so every user who
+              browsed stays and never opened a card was a lost commission. The
+              stay rails (EventStayCards, TripConnections) already shipped this
+              button; the browse card — the surface most stays are seen on — did
+              not. Rendered through <BookingCTA>, never a hand-built href: the
+              booking-integrity contract (scripts/check-booking-cta.mjs) allows
+              exactly one place to turn a place into a booking URL. The gate is
+              isTrueLodging, the SAME predicate the stays rail filters on, so a
+              restaurant can never grow a "Check rates" button; BookingCTA itself
+              refuses any place lib/affiliates.hotelGoUrl will not build (no
+              address, campground/outfitter names), so the button cannot appear
+              on a card that would land the user on a useless search. The wrapper
+              stops click propagation because the card body opens the Detail
+              sheet — without it the sheet would open UNDER the outbound
+              navigation. The commission line rides along: a card that earns must
+              disclose on the same surface (FTC, spec Sec.2). */}
+          {isTrueLodging(p) ? (
+            <div style={{ marginTop: 9, display: "flex", flexDirection: "column", pointerEvents: "auto" }} onClick={(e) => e.stopPropagation()}>
+              <BookingCTA variant="primary" detail={p} kind="hotels" label="Check rates" city={city} locName={city} />
+              <BookingCTA variant="disclosure" detail={p} kind="hotels" city={city} locName={city} />
+            </div>
+          ) : null}
           {(() => { const _prov = cardAffiliateProvider(p); return (_prov || AFFILIATE_AUDIT) ? <div style={{ marginTop: 8 }}><AffiliateChip provider={_prov} /></div> : null; })()}
           {/* What's inside. Rides and in-park venues used to occupy their own
               cards, so one theme park could fill half the feed and a visitor had

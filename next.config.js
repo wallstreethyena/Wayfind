@@ -112,6 +112,16 @@ const ccBuildInfo = (() => {
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // 2026-09-22 — lib/ownedHotels.json must be ON DISK inside the photo-warm
+  // lambda. lib/ownedHotelIdentity.js reads the owned-hotel list with fs (not a
+  // static JSON import) so a plain-node guard can import the module without the
+  // `with { type: "json" }` attribute Next adds for us, and a path built at
+  // runtime from process.cwd() is precisely what Next's file tracer cannot see.
+  // Without this line the backfill would quietly find zero rows in production
+  // and pulse a healthy-looking "ident: tried=0" forever.
+  outputFileTracingIncludes: {
+    "/api/cron/photo-warm": ["./lib/ownedHotels.json"],
+  },
   reactStrictMode: false,
   poweredByHeader: false,
   env: {
