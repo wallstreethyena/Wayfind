@@ -52,6 +52,7 @@ export default function PintosFarmMap() {
   const [selectedId, setSelectedId] = useState(DEFAULT_ZONE.id);
   const selected = useMemo(() => ZONES.find((zone) => zone.id === selectedId) || DEFAULT_ZONE, [selectedId]);
   const scrollerRef = useRef(null);
+  const listRef = useRef(null);
 
   // On narrow screens the map is wider than the screen and scrolls sideways.
   // Bring the chosen pin to the middle of the map window with map-local
@@ -69,9 +70,20 @@ export default function PintosFarmMap() {
 
   useEffect(() => { centerOn(DEFAULT_ZONE, false); }, [centerOn]);
 
+  // On phones the spot list is a sideways rail above the map; keep the chosen
+  // spot's chip in view inside that rail, again without moving the page.
+  const revealChip = useCallback((zone) => {
+    const list = listRef.current;
+    const chip = list && zone ? list.querySelector('[data-zone="' + zone.id + '"]') : null;
+    if (!list || !chip || list.scrollWidth - list.clientWidth <= 1) return;
+    const left = chip.offsetLeft - (list.clientWidth - chip.offsetWidth) / 2;
+    list.scrollTo({ left: Math.max(0, left), behavior: "auto" });
+  }, []);
+
   const choose = (zone) => {
     setSelectedId(zone.id);
     centerOn(zone, true);
+    revealChip(zone);
   };
 
   return (
@@ -114,6 +126,7 @@ export default function PintosFarmMap() {
                     key={zone.id}
                     className={styles.zonePin}
                     data-active={active ? "true" : "false"}
+                    data-label={zone.y < 30 ? "below" : "above"}
                     aria-pressed={active}
                     aria-label={zone.name}
                     style={{ left: zone.x + "%", top: zone.y + "%" }}
@@ -136,25 +149,26 @@ export default function PintosFarmMap() {
             </div>
             <p>{selected.note}</p>
           </div>
-          <div className={styles.zoneList} role="group" aria-label="Places on the farm">
-            {ZONES.map((zone) => {
-              const active = zone.id === selected.id;
-              return (
-                <button
-                  type="button"
-                  key={zone.id}
-                  className={styles.zoneChip}
-                  data-active={active ? "true" : "false"}
-                  aria-pressed={active}
-                  onClick={() => choose(zone)}
-                >
-                  <MapCategoryPin family={zone.family} height={18} />
-                  <span>{zone.name}</span>
-                </button>
-              );
-            })}
-          </div>
           <p className={styles.mapCaveat}>Pins mark the approximate spot on an illustrated map. Pinto's can move seasonal setups, so check the day's layout at the entrance.</p>
+        </div>
+        <div ref={listRef} className={styles.zoneList} role="group" aria-label="Places on the farm">
+          {ZONES.map((zone) => {
+            const active = zone.id === selected.id;
+            return (
+              <button
+                type="button"
+                key={zone.id}
+                data-zone={zone.id}
+                className={styles.zoneChip}
+                data-active={active ? "true" : "false"}
+                aria-pressed={active}
+                onClick={() => choose(zone)}
+              >
+                <MapCategoryPin family={zone.family} height={18} />
+                <span>{zone.name}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
