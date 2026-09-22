@@ -360,6 +360,7 @@ async function inventoryPlacesForRegion(region, limit = 80) {
 }
 
 import GuidePlaceCard from "../../components/GuidePlaceCard";
+import GuideMapExplorer from "../../components/GuideMapExplorer";
 import { guidePickMayResolvePlaceCard } from "../../../lib/guidePlaceIdentity.js";
 import { placeCardHook } from "../../../lib/rankingWhy";
 // v8.14 — THE CARD CONTRACT'S CSS. IconicPlaceCard renders class names
@@ -806,7 +807,7 @@ export default async function GuidePage({ params }) {
         // prop). Neither guard was wrong — the page was just carrying both.
         backHref="/guides"
         backLabel="All guides"
-        category="Wayfind guide"
+        category="Local guide"
         region={g.region || "Florida"}
         title={g.title}
         description={g.dek || g.description}
@@ -836,7 +837,7 @@ export default async function GuidePage({ params }) {
         actions={<ShareButton
           url={shareUrl}
           title={g.title}
-          text={g.title + ". Found this on Wayfind."}
+          text={g.title}
           tone="dark"
           event="guide_share"
           meta={{ slug: params.slug, region: g.region || null, placement: "hero" }}
@@ -847,8 +848,7 @@ export default async function GuidePage({ params }) {
         <strong style={{ color: "#F4DECB" }}>Summer 2026 edition</strong>
         <p style={{ margin: "6px 0 0" }}>This guide includes summer schedules and offers that may have ended. Check each venue before planning a visit, or <a href="/florida-events" style={{ color: "#FDBA74" }}>explore upcoming Florida events</a>.</p>
       </aside> : null}
-      <div style={S.meta}>By <a href="/about" style={{ color: "#CBD5E1", textDecoration: "none", fontWeight: 700 }}>Gabriel Pereira</a> · {g.published ? <>Published {g.published} · </> : null}Updated {g.updated} · <a href="/how-wayfind-ranks" style={{ color: "#CBD5E1", textDecoration: "none", fontWeight: 700 }}>How we rank ›</a></div>
-      {g.authorBio ? <p style={{ ...S.p, fontSize: 13.5, color: "#94A3B8" }}>{g.authorBio}</p> : null}
+      <div style={S.meta}>By <a href="/about" style={{ color: "#CBD5E1", textDecoration: "none", fontWeight: 700 }}>Gabriel Pereira</a> · {g.published ? <>Published {g.published} · </> : null}Updated {g.updated}</div>
       {/* §2 OPEN LOOP, above the fold. One honest line the body resolves — a
           reader who wants the answer scrolls. Every teaser is derived from that
           guide's own tips (lib/guides.js) and check-guide-teasers.mjs proves the
@@ -903,7 +903,7 @@ export default async function GuidePage({ params }) {
           lng={bridgeCity.lng}
         />
       ) : null}
-      <div className="wf-guide-disclosure">Wayfind may earn a commission from partner links in this guide. It never changes our rankings: every pick is here on merit, and we say so when something isn&apos;t worth your money.</div>
+      <div className="wf-guide-disclosure">Some links in this guide are affiliate links. Wayfind may earn a commission if you book through them, at no extra cost to you. That does not affect which places are included.</div>
       {/* v6.71 — the per-pick link wall is GONE. Each pick used to carry
           "Check tours & tickets" + "Check rates" + "Open in Wayfind"; measured
           dwell here is 0-25s and bounce ~50%, so almost nobody reached the end
@@ -960,6 +960,26 @@ export default async function GuidePage({ params }) {
           </p>
         </section>
       ) : null}
+      {/* MAP EXPLORER (2026-09-22) — config-driven opt-in, generalized from
+          the Florida Fall Guide's bespoke map+house-card-rail+filters UI
+          (sol/fall-guide-house-cards-map, #1413). Any guide whose data
+          (lib/guides.js) sets `mapExplorer: {spots:[...]}` with >=3 mappable
+          places gets the shared Apple Map + RailCard rail + category filters
+          with NO bespoke per-guide component — GuideMapExplorer itself
+          no-ops below 3 spots, so this is safe to render unconditionally. */}
+      {g.mapExplorer && Array.isArray(g.mapExplorer.spots) && g.mapExplorer.spots.length >= 3 ? (
+        <GuideMapExplorer
+          spots={g.mapExplorer.spots}
+          filters={g.mapExplorer.filters || null}
+          kicker={g.mapExplorer.kicker}
+          heading={g.mapExplorer.heading}
+          description={g.mapExplorer.description}
+          proof={g.mapExplorer.proof}
+          note={g.mapExplorer.note}
+          accent={g.mapExplorer.accent}
+          railIdPrefix={params.slug}
+        />
+      ) : null}
       {g.picks.map((pick, i) => {
         const resolved = pickPlaces[i];
         const pickImage = guidePickImage(params.slug, pick);
@@ -999,7 +1019,7 @@ export default async function GuidePage({ params }) {
               ) : null}
               <div className="wf-guide-actions">
                 {pick.placeId ? <a href={"/places/" + encodeURIComponent(pick.placeId)} style={{ ...S.btnGhost, marginLeft: 0 }}>Place page</a> : null}
-                {(pick.appQuery !== null) ? <a href={appUrl(pick.appQuery || pick.name, pick)} style={{ ...S.btnGhost, marginLeft: 0 }}>Open in Wayfind</a> : null}
+                {(pick.appQuery !== null) ? <a href={appUrl(pick.appQuery || pick.name, pick)} style={{ ...S.btnGhost, marginLeft: 0 }}>Explore this place</a> : null}
                 {pick.eventSlug ? <a href={"/florida-events/" + encodeURIComponent(pick.eventSlug)} style={{ ...S.btnGhost, marginLeft: 0 }}>Dates, tickets &amp; verdict</a> : null}
               </div>
             </div>
@@ -1029,18 +1049,6 @@ export default async function GuidePage({ params }) {
           </section>
         );
       })}
-      {Array.isArray(g.sources) && g.sources.length ? (
-        <section aria-label="Sources" style={{ marginTop: 30, paddingTop: 18, borderTop: "1px solid #21262D" }}>
-          <h2 style={S.h2}>Sources and verification</h2>
-          <p style={S.p}>{params.slug === "fall-events-orlando-2026" ? "Event schedules, prices and availability can change. Confirm current details with the organizer before making a special trip." : "Details can change. Confirm current information with the source before making a special trip."}</p>
-          <ul style={{ color: "#CBD5E1", paddingLeft: 20 }}>
-            {g.sources.map((source, i) => (
-              <li key={i} style={{ marginBottom: 7 }}><a href={source.url} rel="nofollow noopener" style={S.footerLink}>{source.label}</a></li>
-            ))}
-          </ul>
-          {g.methodology ? <p style={S.p}>{g.methodology}</p> : null}
-        </section>
-      ) : null}
       {chrome.liveDeals && dealCards.length ? (
         <GuideDealCards slug={params.slug} region={g.region || "Orlando"} deals={dealCards} />
       ) : null}
@@ -1092,12 +1100,12 @@ export default async function GuidePage({ params }) {
           position — the rule the email capture below already follows. */}
       <section style={{ margin: "26px 0 4px", padding: "18px 20px", borderRadius: 16, background: "#0E1520", border: "1px solid #1F2A3A" }}>
         <p style={{ margin: "0 0 12px", fontSize: 15.5, lineHeight: 1.5, color: "#CBD5E1" }}>
-          Know someone this would help? Send it to them — they'll get the same picks, ranked from where they are.
+          Know someone planning this too? Send them the guide.
         </p>
         <ShareButton
           url={shareUrl}
           title={g.title}
-          text={g.title + ". Found this on Wayfind."}
+          text={g.title}
           label="Share this guide"
           tone="solid"
           event="guide_share"
@@ -1105,9 +1113,6 @@ export default async function GuidePage({ params }) {
         />
       </section>
       <GuideEmailCapture slug={params.slug} region={g.region || "Orlando"} />
-      <p style={{ ...S.p, marginTop: 30 }}>
-        Planning the rest of your trip? <a href="/" style={S.footerLink}>Wayfind</a> ranks every restaurant, attraction, and hotel near you with live hours and honest scores{g.region === "Tampa" || g.region === "Sarasota" || g.region === "Orlando" ? <>{", "}and our <a href={"/culture/" + (g.region === "Tampa" ? "tampa" : g.region === "Sarasota" ? "sarasota" : "orlando")} style={S.footerLink}>{g.region} culture guide</a> covers what to eat, say, and never skip.</> : "."}
-      </p>
       </article>
     </div>
   );
