@@ -17,7 +17,7 @@ import {
   PLACE_CARD_HEIGHT_PX,
   PLACE_CARD_LIST_FILL_BELOW_PX,
   PLACE_CARD_MAX_WIDTH_PX,
-  PLACE_CARD_MEDIA_PX,
+  PLACE_CARD_MEDIA_PERCENT,
   PLACE_CARD_PAGE_GUTTER_PX,
   PLACE_CARD_PHONE_PEEK,
 } from "../lib/placeCardStandard.js";
@@ -191,7 +191,7 @@ const compactCss = String(WF_PLACE_CARD_CSS).replace(/\s+/g, "");
 ok(compactCss.includes(`--wf-card-h:${PLACE_CARD_HEIGHT_PX}px`) && compactCss.includes(`height:var(--wf-card-h)`), "canonical CSS consumes the shared 268px height constant");
 ok(compactCss.includes(`max-width:${PLACE_CARD_MAX_WIDTH_PX}px`) || compactCss.includes(`${PLACE_CARD_MAX_WIDTH_PX}px`), "canonical CSS consumes the shared 440px width cap");
 ok(compactCss.includes(`${PLACE_CARD_PHONE_PEEK}`) && compactCss.includes(`${PLACE_CARD_PAGE_GUTTER_PX * 2}px`) && compactCss.includes(`${PLACE_CARD_GAP_PX}px`), "canonical CSS consumes the shared phone peek, page gutter, and gap constants");
-ok(compactCss.includes(`--wf-place-card-media:${PLACE_CARD_MEDIA_PX}px`) && !/--wf-place-card-media:\d+%/.test(compactCss), "every card (stacked and rail) consumes the one photo-column constant; no percentage column");
+ok(compactCss.includes(`--wf-place-card-media:${PLACE_CARD_MEDIA_PERCENT}%`) && !/--wf-place-card-media:\d+px/.test(compactCss), "every card (stacked and rail) consumes the one 36% photo-column contract; no fixed-pixel override");
 ok(!/\.wf-place-card-list[^{]*\{[^}]*1\.08/.test(compactCss) && !/\.wf-place-card-list,\.wf-rail/.test(compactCss) && !/\.wf-place-card-list,\.wf8-pcrail/.test(compactCss),
   "1.08 phone peek is not declared on .wf-place-card-list — peek is rail-only");
 ok(/\.wf-rail[^{]*\{[^}]*--wf-place-card-width:min\(100%,440px,calc\(\(100vw/.test(compactCss) || compactCss.includes(`.wf-rail,.wf8-pcrail,.wf-rail .wf-place-card`),
@@ -413,7 +413,10 @@ if (!browserConfig) {
         ok(card.root[0] === reference.root[0] && card.root[2] === reference.root[2], `${width}px ${card.adapter}: critical root height/radius match IconicPlaceCard`);
         if (card.content && reference.content) ok(JSON.stringify(card.content) === JSON.stringify(reference.content), `${width}px ${card.adapter}: content padding matches IconicPlaceCard`);
         if (card.name && reference.name) ok(JSON.stringify(card.name) === JSON.stringify(reference.name), `${width}px ${card.adapter}: title typography matches IconicPlaceCard`);
-        if (card.media && reference.media) ok(Math.abs(card.media.w - reference.media.w) <= 1.5, `${width}px ${card.adapter}: photo column matches the rail card (${card.media.w} vs ${reference.media.w}) — one photo size everywhere`);
+        if (card.media && card.box.w > 0) {
+          const mediaPct = card.media.w / card.box.w * 100;
+          ok(Math.abs(mediaPct - PLACE_CARD_MEDIA_PERCENT) <= 0.8, `${width}px ${card.adapter}: photo column stays at ${PLACE_CARD_MEDIA_PERCENT}% (got ${mediaPct.toFixed(1)}%)`);
+        }
         if (!stacked && card.actions && reference.actions) {
           ok(card.actions[0] === reference.actions[0] && card.actions[3] === reference.actions[3], `${width}px ${card.adapter}: action display and spacing match IconicPlaceCard`);
           if (card.controls.length === reference.controls.length) ok(card.actions[1] === reference.actions[1], `${width}px ${card.adapter}: equal control counts use equal action tracks`);
