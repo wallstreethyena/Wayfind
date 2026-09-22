@@ -97,7 +97,7 @@ export async function GET(req) {
     if (!title) return shareCardResponse(defaultModel());
     return shareCardResponse(listModel({
       title, loc: get("loc", 60), n: get("n", 3).replace(/[^0-9]/g, ""),
-      cta: get("cta", 22), foot: get("sub", 70),
+      cta: get("cta", 22), foot: get("sub", 70), tone: get("tone", 8),
     }));
   } catch (e) {
     // Never blank. A share that renders nothing is worse than a plain one, and
