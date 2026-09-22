@@ -1708,3 +1708,8 @@ node scripts/check-guide-dedicated-routes.mjs
 
 # Lane C (2026-09-22): every Florida theme park (Disney, Universal, and the rest of lib/themeParks.js) has a place mapping, a resolver-backed ticket CTA and stays mounted on every required discovery surface.
 node scripts/check-theme-park-coverage.mjs
+# 2026-09-22 (Lane D) — lib/daypartCrossSell.js is the one central daypart ->
+# offer-kind policy every cross-sell surface routes through: order-only, no
+# daypart-inappropriate kind ever leads, every daypart keeps a real preferred
+# pick, and it is actually wired into UnifiedBrowseCommerceRail.
+node scripts/check-daypart-crosssell.mjs
