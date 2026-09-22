@@ -26,6 +26,8 @@ ok(!/lat:\s*25\.559\d+[\s\S]{0,120}Corn maze/i.test(map), "corn maze is not assi
 ok(/GuidePlaceCard/.test(page), "page uses the shared guide place-card wrapper");
 ok(/WF_PLACE_CARD_CSS/.test(page), "page uses the canonical place-card CSS contract");
 ok(/Official tickets/.test(page) && /pintosfarm\.ticketspice\.com\/pintos-farm-2026/.test(page), "ticket CTA points to Pinto's exact official 2026 checkout");
-ok(/current official ticket page does not publish a complete 2026 show-time calendar/.test(page), "unverified magic-show times are not published as fact");
+ok(/Sep 19, 20, 26 \+ 27/.test(page) && /Oct 18 \+ 25/.test(page) && /12 PM \+ 2 PM \+ 4 PM \+ 6 PM/.test(page), "published 2026 magic-show calendar is present");
+ok(/Winterland \/ Christmas at the Farm/.test(page) && /Spring at the Farm \/ Easter/.test(page), "year-round seasonal planning is present");
+ok(/Lattes & Llamas/.test(page) && /Brewhouse \+ llama evenings/.test(page), "limited-date llama and Brewhouse planning is present");
 
 console.log("check-pintos-farm-guide: OK — " + checks + " factual identity, map, card and ticket assertions");
