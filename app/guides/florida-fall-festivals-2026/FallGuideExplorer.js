@@ -69,6 +69,11 @@ export default function FallGuideExplorer({ spots = [] }) {
   const railRef = useRef(null);
   const cardNodes = useRef(new Map());
   const scrollFrame = useRef(0);
+  // The card a pin tap is carrying the rail to. While it is set, the scroll
+  // handler holds the tapped pin instead of re-selecting every card the rail
+  // passes on the way; the viewer touching the rail cancels it.
+  const followMap = useRef(null);
+  const railZone = useRef(null);
 
   const rows = useMemo(
     () => (Array.isArray(spots) ? spots : []).filter((spot) =>
@@ -110,6 +115,7 @@ export default function FallGuideExplorer({ spots = [] }) {
   useEffect(() => {
     const rail = railRef.current;
     if (!rail || !visible.length) return undefined;
+    followMap.current = null;
 
     const readViewedCard = () => {
       cancelAnimationFrame(scrollFrame.current);
@@ -129,20 +135,36 @@ export default function FallGuideExplorer({ spots = [] }) {
             best = spot.id;
           }
         }
+        const follow = followMap.current;
+        if (follow) {
+          // Arrived at the tapped card, or at the end of the rail (the last card
+          // cannot centre): release the hold but keep the tapped pin selected.
+          if ((best != null && String(best) === follow.id) || (follow.left != null && Math.abs(rail.scrollLeft - follow.left) < 2)) {
+            followMap.current = null;
+          }
+          return;
+        }
         if (best != null) setSelectedId((current) => String(current) === String(best) ? current : best);
       });
     };
+    // Any hand on the rail or its arrows means the viewer is steering again.
+    const takeOver = () => { followMap.current = null; };
+    const zone = railZone.current || rail;
+    const takeOverEvents = ["pointerdown", "touchstart", "wheel", "keydown"];
 
     rail.addEventListener("scroll", readViewedCard, { passive: true });
+    for (const type of takeOverEvents) zone.addEventListener(type, takeOver, { passive: true });
     readViewedCard();
     return () => {
       rail.removeEventListener("scroll", readViewedCard);
+      for (const type of takeOverEvents) zone.removeEventListener(type, takeOver);
       cancelAnimationFrame(scrollFrame.current);
     };
   }, [visible]);
 
   const selectFromMap = (id) => {
     if (id == null) return;
+    followMap.current = { id: String(id), left: null };
     setSelectedId(id);
     requestAnimationFrame(() => {
       const rail = railRef.current;
@@ -153,7 +175,14 @@ export default function FallGuideExplorer({ spots = [] }) {
       const left = rail.scrollLeft
         + (cardBox.left - railBox.left)
         - Math.max(0, (rail.clientWidth - cardBox.width) / 2);
-      rail.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
+      const target = Math.min(Math.max(0, rail.scrollWidth - rail.clientWidth), Math.max(0, left));
+      // Already there: no scroll event will come to release the hold.
+      if (Math.abs(target - rail.scrollLeft) < 2) {
+        followMap.current = null;
+        return;
+      }
+      if (followMap.current) followMap.current.left = target;
+      rail.scrollTo({ left: target, behavior: "smooth" });
     });
   };
 
@@ -208,7 +237,7 @@ export default function FallGuideExplorer({ spots = [] }) {
           <CreatorAppleMap places={visible} selectedId={selected?.id || null} onSelect={selectFromMap} />
         </div>
 
-        <div className={styles.activeRail}>
+        <div ref={railZone} className={styles.activeRail}>
           <div className={styles.activeRailHead}>
             <div>
               <span className={styles.activeRailKicker}>{GROUP_LABEL[active] || "Fall picks"}</span>
