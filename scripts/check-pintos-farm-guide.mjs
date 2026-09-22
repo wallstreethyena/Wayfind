@@ -63,7 +63,15 @@ if (heroSrc) {
   ok(heroSize > 10 * 1024, `${heroSrc}: hero image exists on disk and is over 10 KB (got ${heroSize} bytes)`);
 }
 ok(/import\s+\{\s*guideHero\s*\}\s+from\s+"\.\.\/\.\.\/\.\.\/lib\/guideHero"/.test(page), "page resolves its hero photo through the reviewed lib/guideHero.js record");
-ok(/<GuidePhoto\b/.test(page), "gallery renders through the shared GuidePhoto component, same as other guide images");
+// Wayfind Guide Visual Standard (docs/design/guide-visual-standard.md): the
+// gallery renders through the shared GuideFigure (role="tile"), which is
+// itself built on GuidePhoto — assert both hops, not just the page source,
+// so a GuideFigure that stopped calling GuidePhoto internally would still
+// be caught here.
+ok(/<GuideFigure\b/.test(page), "gallery renders through the shared GuideFigure component");
+ok(/role="tile"/.test(page), "gallery tiles declare the GVS-1 tile role (1:1)");
+const guideFigureSrc = read("app/components/GuideFigure.js");
+ok(/<GuidePhoto\b/.test(guideFigureSrc), "the shared GuideFigure renders through GuidePhoto, same as other guide images");
 const altValues = [...page.matchAll(/alt:\s*"([^"]*)"/g)].map((m) => m[1]);
 ok(altValues.length >= 8 && altValues.every((a) => a.trim().length > 0), "every gallery photo has a non-empty alt description");
 ok(/Photos courtesy of/.test(page), "the gallery carries a visible Pinto's Farm photo credit");

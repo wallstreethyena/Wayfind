@@ -33,6 +33,33 @@ export function guidePickImage(slug, pick) {
   return pick?.image || null;
 }
 
+// Wayfind Guide Visual Standard (docs/design/guide-visual-standard.md, GVS-3):
+// normalizes whatever guidePickImage() returns into the documented media
+// shape GuideFigure expects, so a pick photo carries its caption/credit/
+// license the same way a hero photo does. A bare string (the only shape any
+// pick has ever used, via lib/guidesHalloween2026.js's sibling imageAlt/
+// imageNote fields) is read from the pick's own sibling fields; an author who
+// writes pick.image as an object (matching guideHero()'s shape) is passed
+// through untouched. Returns null exactly when guidePickImage() does, so the
+// pick renders as a clean typographic block — never a placeholder photo.
+export function guidePickFigureImage(slug, pick) {
+  const image = guidePickImage(slug, pick);
+  if (!image) return null;
+  if (typeof image === "object") return image;
+  return {
+    src: image,
+    alt: pick?.imageAlt || pick?.name || "",
+    caption: pick?.imageCaption || pick?.imageNote || null,
+    credit: pick?.imageCredit || null,
+    creditHref: pick?.imageCreditHref || null,
+    license: pick?.imageLicense || null,
+    licenseUrl: pick?.imageLicenseUrl || null,
+    width: pick?.imageWidth || null,
+    height: pick?.imageHeight || null,
+    position: pick?.imagePosition || null,
+  };
+}
+
 export const GUIDE_EDITORIAL_CSS = `
 .wf-guide-editorial .wf-guide-article{max-width:780px;padding-top:30px}
 .wf-guide-editorial .wf-guide-intro{font:400 23px/1.65 var(--wf-display),Georgia,serif!important;color:#eef0ed!important;margin:24px 0!important}
@@ -49,6 +76,8 @@ export const GUIDE_EDITORIAL_CSS = `
 .wf-guide-editorial .wf-guide-number{font-size:36px;color:#b29d88}
 .wf-guide-editorial .wf-guide-pick h2{font:400 30px/1.2 var(--wf-display),Georgia,serif!important;letter-spacing:-.5px;margin:8px 0 16px!important;text-wrap:balance}
 .wf-guide-editorial .wf-guide-pick>div>p{font-size:17px!important;line-height:1.75!important}
+.wf-guide-editorial .wf-guide-pick-figure{margin:16px 0 22px}
+.wf-guide-editorial .wf-guide-pick-figure figcaption{margin-top:8px}
 .wf-guide-editorial .wf-guide-pick .wf-guide-tip{padding:14px 18px;border-left:2px solid #ce966c;background:#111b25;color:#e8c6ac!important;font-size:15px!important;line-height:1.65!important;margin:20px 0!important}
 .wf-guide-editorial .wf-guide-actions a{border-radius:999px!important;min-height:44px;box-sizing:border-box;padding:10px 18px!important;display:inline-flex;align-items:center}
 .wf-guide-editorial .wf-guide-faq{margin-top:36px;padding:26px 0;border-top:1px solid #29313c}
