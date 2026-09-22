@@ -223,6 +223,13 @@ ok(creatorMetadata("someone-with-no-page").robots.index === false, "a handle wit
   ok(typeof controller.select === "function", "the map controller exposes card-to-pin selection");
   controller.select("park");
   ok(drawn[1].selected === true && drawn[0].selected === false, "viewing a guide card elevates only its matching map pin");
+  // A selected pin must never ask Apple for a callout. Our pins are SVG data
+  // URLs with no declared size, so MapKit cannot measure one until it loads and
+  // throws positioning its callout -- and because it re-positions the selected
+  // callout on every later annotation add, one selected pin aborts the add loop
+  // and the map renders a single pin instead of the whole category (shipped
+  // 2026-09-22 on /guides/florida-fall-festivals-2026, nine pins became one).
+  ok(drawn.every(pin => pin.calloutEnabled === false), "no pin asks Apple Maps to position a callout it cannot measure");
   controller.destroy(); ok(destroyed, "map is destroyed when filters change or page unmounts");
   const { RAILS } = await import("../lib/rails.js");
   ok(RAILS.find(r => r.id === "lunchcity").posterHidden === true, "Lunch poster is hidden");
