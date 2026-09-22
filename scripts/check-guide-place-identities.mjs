@@ -4,33 +4,13 @@
 // or attach an unrelated venue, as Mount Dora did with a boat operator.
 import { GUIDES } from "../lib/guides.js";
 import { readFileSync } from "node:fs";
+import { guidePickHasReviewedIdentityDecision, guidePickIdentityIssues, guidePickMayResolvePlaceCard } from "../lib/guidePlaceIdentity.js";
 
 const fails = [];
 const ok = (condition, message) => { if (!condition) fails.push(message); };
-const normalize = (value) => String(value || "").toLowerCase().replace(/[’‘]/g, "'").replace(/\s+/g, " ").trim();
 const pickKey = (slug, pickName) => `${slug}\u0000${pickName}`;
-
-function identityIssues(pick) {
-  const issues = [];
-  if (!pick || typeof pick.appQuery !== "string" || !pick.appQuery.trim()) {
-    issues.push("missing appQuery");
-    return issues;
-  }
-  if (!Array.isArray(pick.exactNames) || !pick.exactNames.length) {
-    issues.push("missing exactNames");
-    return issues;
-  }
-  const aliases = pick.exactNames.map(normalize);
-  if (!aliases.includes(normalize(pick.appQuery))) issues.push("appQuery is not an exact alias");
-  if (new Set(aliases).size !== aliases.length) issues.push("duplicate exact alias");
-  return issues;
-}
-
-function hasStrongIdentity(pick) {
-  if (pick?.appQuery === null) return true;
-  if (typeof pick?.placeId === "string" && pick.placeId) return true;
-  return identityIssues(pick).length === 0;
-}
+const identityIssues = guidePickIdentityIssues;
+const hasStrongIdentity = guidePickHasReviewedIdentityDecision;
 
 // Global contract for every pick that opts into exact identity resolution.
 for (const [slug, guide] of Object.entries(GUIDES)) {
@@ -117,6 +97,9 @@ const mutation = { ...picks[0] };
 delete mutation.appQuery;
 ok(identityIssues(mutation).includes("missing appQuery"), "red proof: deleting appQuery was not detected");
 ok(!hasStrongIdentity({ name: "New editorial pick" }), "red proof: a new pick with no identity metadata was accepted");
+ok(!guidePickMayResolvePlaceCard({ name: "Activity", appQuery: "Crystal River", placeCard: false }), "explicit activity/search opt-out must never resolve a card");
+ok(!guidePickMayResolvePlaceCard({ name: "Legacy fuzzy pick", appQuery: "Columbia Restaurant" }), "legacy fuzzy appQuery alone must never resolve a card");
+ok(guidePickMayResolvePlaceCard({ name: "Pinned venue", appQuery: "Columbia Restaurant Ybor City", placeId: "ChIJz8e7TVLEwogRBeybvscHnD4" }), "verified placeId must remain eligible for a card");
 
 if (fails.length) {
   console.error(`check-guide-place-identities: FAIL\n  - ${fails.join("\n  - ")}`);
