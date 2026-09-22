@@ -20,6 +20,7 @@
  *   independence disclosure and the removal route render on every one of them.
  */
 import { fileURLToPath } from "node:url";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { loadComponent } from "./lib/jsxLoad.mjs";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -256,6 +257,72 @@ ok(creatorMetadata("someone-with-no-page").robots.index === false, "a handle wit
   ok(RAILS.find(r => r.id === "lunchcity").posterHidden === true, "Lunch poster is hidden");
   ok(RAILS.find(r => r.id === "drive").posterHidden === true, "Drive poster is hidden");
   ok(!RAILS.find(r => r.id === "cindy").posterHidden, "Cindy poster stays visible");
+}
+
+// ── Guide map explorer: tapping a pin must hold the rail's sync (#1429) ────
+//
+// e9453520 fixed this only on the Florida Fall Guide's own (now-deleted)
+// FallGuideExplorer.js: tapping a map pin must hold that pin selected while
+// the rail smooth-scrolls to its card, ignoring every card the scroll passes
+// on the way — otherwise the first scroll frame re-selects the card still in
+// view and the rail snaps back home. #1422 generalized that explorer into
+// the shared app/components/GuideMapExplorer.js, and reconciling the two
+// required hand-porting this fix with no guard behind the port — precisely
+// the kind of step a later merge can silently drop again.
+// lib/mapRailFollow.js holds the extracted decision logic so it can be
+// EXECUTED here rather than merely grepped for; the source checks below
+// confirm GuideMapExplorer.js still calls that shared logic rather than a
+// local reimplementation (or nothing at all) a future edit could drop
+// uncovered.
+{
+  const { clampRailTarget, isAtRailTarget, followShouldRelease } = await import("../lib/mapRailFollow.js");
+
+  // clampRailTarget — a tapped pin's card never asks the rail to scroll past
+  // either end.
+  ok(clampRailTarget(-40, 2000, 400) === 0, "a negative desired scroll clamps to 0, not a negative scrollLeft");
+  ok(clampRailTarget(5000, 2000, 400) === 1600, "a desired scroll past the rail's end clamps to (scrollWidth - clientWidth)");
+  ok(clampRailTarget(300, 2000, 400) === 300, "a desired scroll inside the rail's range passes through unclamped");
+  ok(clampRailTarget(100, 300, 400) === 0, "a rail shorter than its own viewport (scrollWidth < clientWidth) clamps to 0, never negative");
+
+  // isAtRailTarget — the smooth-scroll snap tolerance.
+  ok(isAtRailTarget(100, 101) === true, "within snap tolerance counts as arrived");
+  ok(isAtRailTarget(100, 103) === false, "outside snap tolerance does not count as arrived");
+
+  // followShouldRelease — THE bug: tapping a pin must hold it selected while
+  // the rail travels, ignoring every card the scroll passes on the way.
+  const follow = { id: "spot-9", left: 840 };
+  ok(followShouldRelease(follow, "spot-3", 120) === false,
+    "mid-scroll, the rail is passing a DIFFERENT card (spot-3) — the tapped pin's hold must not release (this is the exact #1429 regression: releasing here snaps the rail back to the card in view)");
+  ok(followShouldRelease(follow, "spot-9", 500) === true,
+    "the rail's own scroll handler judges the TAPPED card best-centred — release, arrival by content");
+  ok(followShouldRelease(follow, null, 839) === true,
+    "no card is fully centred but the rail sits at the tapped card's scroll target — release, arrival by position (the last card on a rail can never centre)");
+  ok(followShouldRelease(follow, null, 400) === false,
+    "no card centred and nowhere near the target — still travelling, hold stays");
+  ok(followShouldRelease(null, "spot-9", 840) === false, "no active hold — nothing to release");
+  ok(followShouldRelease({ id: "spot-1", left: null }, null, 0) === false,
+    "a hold with no scroll target yet (scrollTo was skipped because the card was already centred) is released only by id match, never by position");
+  ok(followShouldRelease({ id: "spot-1", left: null }, "spot-1", 0) === true,
+    "…and IS released once its id matches");
+
+  // The extraction only guards the math. The historical bug was an entire
+  // FILE losing this behaviour in a merge — so the real guard is that
+  // GuideMapExplorer.js still calls this shared logic, not a local
+  // reimplementation a future edit can silently diverge from or drop.
+  const explorerSrc = readFileSync(path.join(REPO, "app/components/GuideMapExplorer.js"), "utf8");
+  ok(/from ["']\.\.\/\.\.\/lib\/mapRailFollow\.js["']/.test(explorerSrc),
+    "GuideMapExplorer.js no longer imports lib/mapRailFollow.js — the pin-tap hold fix (#1429) has been dropped or reimplemented uncovered by this guard");
+  ok(/followShouldRelease\(follow, best, rail\.scrollLeft\)/.test(explorerSrc),
+    "GuideMapExplorer.js's scroll handler no longer consults followShouldRelease — a pin tap will lose its hold to the first scroll frame again");
+  ok(/clampRailTarget\(left, rail\.scrollWidth, rail\.clientWidth\)/.test(explorerSrc),
+    "GuideMapExplorer.js no longer clamps the pin-tap scroll target to the rail's real range");
+  ok(/isAtRailTarget\(rail\.scrollLeft, target\)/.test(explorerSrc),
+    "GuideMapExplorer.js no longer releases the hold immediately when the tapped card is already in view");
+  ok(/const followMap = useRef\(null\)/.test(explorerSrc) && /const railZone = useRef\(null\)/.test(explorerSrc),
+    "GuideMapExplorer.js is missing the followMap/railZone refs the pin-tap hold depends on");
+  ok(/ref=\{railZone\}/.test(explorerSrc), "the rail's DOM node no longer carries the railZone ref — takeover listeners would attach to nothing real");
+  ok(["pointerdown", "touchstart", "wheel", "keydown"].every((t) => explorerSrc.includes(`"${t}"`)) && /takeOverEvents/.test(explorerSrc),
+    "GuideMapExplorer.js no longer cancels the pin-tap hold on pointer/touch/wheel/keyboard use of the rail");
 }
 
 if (fail.length) {

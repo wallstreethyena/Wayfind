@@ -19,7 +19,7 @@ import { cachedGuideProduct } from "../../../lib/guideProductResolveCache";
 import { bookingTargets } from "../../../lib/bookingResolve";
 import { guidePrimaryCta, guideContinue, guideIntent, paintGuideCta } from "../../../lib/guideCta";
 import GuideConversion from "./GuideConversion";
-import { GuideFacts, GuideReadingNav, guidePickImage, GUIDE_EDITORIAL_CSS } from "./GuideEditorial";
+import { GuideFacts, GuideReadingNav, guidePickImage, guidePickFigureImage, GUIDE_EDITORIAL_CSS } from "./GuideEditorial";
 import { guideAppHandoffHref } from "../../../lib/guideHandoff";
 import { declaredGuideRailPlaceIds, guidePlaceRailConfig, resolveGuidePlaceRail } from "../../../lib/guidePlaceRails";
 import GuideDealCards from "./GuideDealCards";
@@ -374,6 +374,7 @@ import { placeCardHook } from "../../../lib/rankingWhy";
 import { WF_PLACE_CARD_CSS } from "../../components/css";
 import DiscoveryPaths from "../../components/DiscoveryPaths";
 import GuideArticleHero from "../../components/GuideArticleHero";
+import GuideFigure from "../../components/GuideFigure";
 import { guideHero } from "../../../lib/guideHero";
 // The floating pill stays (it catches people who DO read to the end). This adds
 // the above-the-fold handoff under a 50/50 experiment — measured dwell on these
@@ -982,7 +983,12 @@ export default async function GuidePage({ params }) {
       ) : null}
       {g.picks.map((pick, i) => {
         const resolved = pickPlaces[i];
-        const pickImage = guidePickImage(params.slug, pick);
+        // Wayfind Guide Visual Standard (docs/design/guide-visual-standard.md):
+        // the ONLY path a pick's photo can render through. guidePickFigureImage
+        // returns null for every pick that carries no image data, and GuideFigure
+        // itself renders nothing for a null image — so a pick with no photo is a
+        // clean typographic block, never a placeholder graphic (GVS-5).
+        const pickImage = guidePickFigureImage(params.slug, pick);
         return (
           <section key={i} id={"pick-" + (i + 1)} className="wf-guide-pick">
             <div className="wf-guide-number">{String(i + 1).padStart(2, "0")}</div>
@@ -990,17 +996,7 @@ export default async function GuidePage({ params }) {
               <div style={{ fontSize: 9.5, fontWeight: 900, letterSpacing: "1.7px", textTransform: "uppercase", color: "#F97316" }}>{pick.eyebrow || (i === 0 ? "The essential" : "The local edit")}</div>
               <h2 style={{ ...S.h2, marginTop: 5, fontFamily: "var(--wf-display)", fontSize: 28 }}>{pick.placeId ? <a href={"/places/" + encodeURIComponent(pick.placeId)} style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: 4 }}>{pick.name}</a> : pick.name}</h2>
               {pickImage ? (
-                <figure style={{ margin: "12px 0 18px" }}>
-                  <img
-                    src={pickImage}
-                    alt={pick.imageAlt || pick.name}
-                    width="1200"
-                    height="1500"
-                    loading="lazy"
-                    style={{ display: "block", width: "100%", height: "auto", borderRadius: 16, objectFit: "cover", aspectRatio: "4 / 5" }}
-                  />
-                  {pick.imageNote ? <figcaption style={{ marginTop: 7, fontSize: 11.5, color: "#94A3B8" }}>{pick.imageNote}</figcaption> : null}
-                </figure>
+                <GuideFigure role="pick" image={pickImage} className="wf-guide-pick-figure" />
               ) : null}
               <p style={S.p}>{pick.blurb}</p>
               {pick.tip ? <p className="wf-guide-tip" style={S.tip}>Insider note — {pick.tip}</p> : null}
