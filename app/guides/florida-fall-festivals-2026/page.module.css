@@ -297,6 +297,7 @@
 }
 
 .mapWrap {
+  position: relative;
   min-width: 0;
   min-height: 510px;
   overflow: hidden;
