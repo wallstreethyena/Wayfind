@@ -42,9 +42,21 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 const WORK_BUDGET_MS = 270_000;
 const SWEEP_BUDGET_MS = 45_000;
+// THIRD, LAST STEP (2026-09-22): the owned-hotel Google-identity backfill
+// (lib/ownedHotelIdentity.js). Small and bounded on purpose — at most 12 rows
+// and 8 seconds — and it runs strictly AFTER the warm pass has already
+// returned, so it can never eat the warm pass's own budget. It only starts at
+// all when there is still enough headroom under maxDuration to run its own
+// 8s budget plus safety margin for recordPulse(), so it can never push the
+// response past this route's existing deadline; off entirely unless
+// WAYFIND_HOTEL_IDENTITY=1 (runOwnedHotelIdentityIfEnabled's own gate).
+const IDENTITY_MAX_ROWS = 12;
+const IDENTITY_BUDGET_MS = 8_000;
+const IDENTITY_SAFETY_MARGIN_MS = 10_000;
 
 import { runPhotoWarm, DEFAULT_PHOTO_WARM_MAX } from "../../../../lib/photoWarm";
 import { runPhotoLivenessSweep } from "../../../../lib/photoLivenessSweep";
+import { runOwnedHotelIdentityIfEnabled } from "../../../../lib/ownedHotelIdentity";
 import { sameOriginHeaders } from "../../../../lib/photoSurfaces";
 import { recordPulse } from "../../../../lib/jobPulse";
 import { SITE_URL } from "../../../../lib/site";
@@ -100,7 +112,21 @@ export async function GET(req) {
     : result.stopReason
       ? `ok (${result.stopReason})`
       : "ok";
-  const note = `${sweep ? `live ${sweep.checked}/${sweep.dead} dead; ` : ""}warm: visible=${result.visible} served=${result.alreadyServed} filled=${result.filled} free=${result.free} empty=${result.empty} known=${result.knownEmpty} unchecked=${result.unchecked} ${statusBit}`.slice(0, 200);
+
+  // Only start the identity backfill if there is still enough headroom under
+  // maxDuration for its own 8s budget plus a margin for recordPulse() to
+  // land — never a duplicate/second deadline it could blow past.
+  let ident = null;
+  if (Date.now() - startedAt < maxDuration * 1000 - IDENTITY_BUDGET_MS - IDENTITY_SAFETY_MARGIN_MS) {
+    try {
+      ident = await runOwnedHotelIdentityIfEnabled({ limit: IDENTITY_MAX_ROWS, deadlineAt: Date.now() + IDENTITY_BUDGET_MS });
+    } catch { ident = null; }
+  }
+  const identBit = ident && ident.enabled
+    ? ` ident: tried=${ident.attempted} ok=${ident.resolved} miss=${ident.missed}`
+    : "";
+
+  const note = `${sweep ? `live ${sweep.checked}/${sweep.dead} dead; ` : ""}warm: visible=${result.visible} served=${result.alreadyServed} filled=${result.filled} free=${result.free} empty=${result.empty} known=${result.knownEmpty} unchecked=${result.unchecked} ${statusBit}${identBit}`.slice(0, 240);
 
   await recordPulse("photo-warm", {
     attempted: result.attempted,
@@ -108,5 +134,5 @@ export async function GET(req) {
     note,
   });
 
-  return Response.json({ ok: true, ...result, sweep });
+  return Response.json({ ok: true, ...result, sweep, ident });
 }
