@@ -145,7 +145,7 @@ export default function PintosFarmGuidePage() {
     <main className={styles.page}>
       <GuideArticleHero
         title="Pinto's Farm Miami: Fall 2026"
-        description="Rides, animals, pumpkins, a corn maze, photo spots and the ticket details that matter, plus a Wayfind map for planning the farm."
+        description="Rides, animals, pumpkins, a corn maze, photo spots and the ticket details that matter, plus a map of where everything is on the farm."
         image={heroPhoto}
         region="Miami"
         category="Farm guide"
