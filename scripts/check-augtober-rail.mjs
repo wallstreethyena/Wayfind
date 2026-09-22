@@ -15,7 +15,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { isFallTagged, fallEventLive, fallWhenLabel, fallScheduleChip, isOpenRun, fallSkinLive, eventFranchiseKey, FALL_PLACE_IDS, FALL_PLACE_RAIL, FALL_REJECTED_IDS, FALL_OFFERING_SOURCES, FALL_EVENT_TICKET_DEALS, OPEN_RUN_DAYS } from "../lib/fallPool.js";
+import { isFallTagged, fallEventLive, fallWhenLabel, fallScheduleChip, isOpenRun, fallSkinLive, fallPlaceEvidenceCurrent, eventFranchiseKey, FALL_PLACE_IDS, FALL_PLACE_RAIL, FALL_REJECTED_IDS, FALL_OFFERING_SOURCES, FALL_EVENT_TICKET_DEALS, OPEN_RUN_DAYS } from "../lib/fallPool.js";
 import { FALL_CARD_IDS, fallCardClass, thanksgivingDayOfMonth } from "../lib/fallSkin.js";
 import { DAYPART_IDS, orderFor } from "../lib/dayparts.js";
 import { RAIL_IDS } from "../lib/rails.js";
@@ -68,8 +68,8 @@ ok(!ids.includes("ChIJ6SYy9bEWw4gRgJT7j78eTYc"), "'Screaming Buddha Yoga' is a y
 for (const r of FALL_REJECTED_IDS) ok(!ids.includes(r), `owner-rejected id ${r.slice(0, 12)}… stays OUT (name-only spookiness / brand duplicate)`);
 ok(FALL_REJECTED_IDS.includes("ChIJUXMXELw9w4gR4TGRAD8NghQ") && FALL_REJECTED_IDS.includes("ChIJJQbqwSD7wogRTm8XCaabaMA"),
   "both Vampire Penguins are pinned in the rejected list — 'vampire in the name' is not a fall theme (owner, verbatim)");
-ok(ids.filter((i) => i === "ChIJB2B8mYzHwogRkZIDCDARWww").length === 1 && !ids.includes("ChIJUcws8z5p54gRUBjqVlhhFgY"),
-  "one Ice Screamin location only — one tile per brand");
+ok(!ids.includes("ChIJB2B8mYzHwogRkZIDCDARWww") && !ids.includes("ChIJUcws8z5p54gRUBjqVlhhFgY"),
+  "Ice Screamin stays out until current evidence proves the horror theme rather than relying on the brand name");
 ok(ids.includes("ChIJ7QVjUK_FwogRaTLY8uxOico") && ids.includes("ChIJTzoiienhwogRbPa3GpuvBQU"),
   "the researched picks are IN (SpookEasy Lounge; Paradeco's fall menu) — real offerings, sourced");
 // v8.83 — the 2026-08-27 sweep's two survivors, pinned by id so a later
@@ -94,6 +94,18 @@ ok(srcIds.every((i) => /^https:\/\//.test(FALL_OFFERING_SOURCES[i].source) && FA
   "each registry entry carries a real https source and a concrete offering description");
 ok(srcIds.every((i) => /menu|pumpkin|maple|squash|haunted|ghost|horror|spooky|potion|halloween|coffin|oddities|burial/i.test(FALL_OFFERING_SOURCES[i].offering)),
   "every offering names the FALL substance (menu item or theming), not a vibe");
+ok(srcIds.every((i) => FALL_OFFERING_SOURCES[i].verified === "2026-09-20"),
+  "every retained static fall place was re-verified in this audit, not inherited from an old roundup");
+ok(srcIds.every((i) => fallPlaceEvidenceCurrent(i, "2026-09-20")),
+  "every retained static place passes the current-evidence gate on audit day");
+ok(!fallPlaceEvidenceCurrent("ChIJVQB8l1PEwogRfNZtGI6suIc", "2027-09-20"),
+  "seasonal menu proof cannot silently roll into a future fall without re-verification");
+ok(!fallPlaceEvidenceCurrent("ChIJ7QVjUK_FwogRaTLY8uxOico", "2027-09-21"),
+  "even year-round theme proof expires after one year and must be checked again");
+for (const held of ["ChIJTzoiienhwogRbPa3GpuvBQU", "ChIJ11hsiYXEwogRjDBv39F04J8", "ChIJB2B8mYzHwogRkZIDCDARWww"]) {
+  ok(FALL_REJECTED_IDS.includes(held) && !FALL_PLACE_IDS[held] && !FALL_OFFERING_SOURCES[held],
+    `held card ${held.slice(0, 12)}… cannot render without new evidence`);
+}
 
 // ── 2b. Franchise dedupe, EXECUTED (owner: "most of them are repetitive") ──
 ok(eventFranchiseKey("Howl-O-Scream SeaWorld Orlando") === eventFranchiseKey("Howl-O-Scream Busch Gardens Tampa Bay"),
