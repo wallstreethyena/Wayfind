@@ -99,6 +99,7 @@ export default function GuideConversion({ slug, region, cta, next, social, socia
           </div>
           <a
             href={ctaHref}
+            data-commerce-owner="GuideConversion"
             {...(cta.sponsored
               ? (earningGo
                 // Founder P0: earning go-route Book is SAME-TAB so a popup

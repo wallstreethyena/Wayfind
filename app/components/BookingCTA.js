@@ -154,6 +154,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
           <a
             href={primaryHref}
             rel="noreferrer sponsored"
+            data-commerce-owner="BookingCTA"
             onClick={() => {
               const clickId = primaryClickId.current;
               try {
@@ -192,6 +193,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
       <a
         href={primaryHref}
         rel="noreferrer sponsored"
+        data-commerce-owner="BookingCTA"
         onClick={() => {
           // Founder P0: native same-tab leave through the go routes. Do not
           // preventDefault + openExternal — a blocked popup fired the click
@@ -292,6 +294,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
               data-rank={i + 1}
               href={href}
               rel="noreferrer sponsored"
+              data-commerce-owner="BookingCTA"
               onClick={() => {
                 try {
                   emitCommerce("commerce_cta_clicked", {
@@ -336,6 +339,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
       <a
         data-offer={listPlaceId}
         data-rank={1}
+        data-commerce-owner="BookingCTA"
         onClick={() => {
           const clickId = fallbackClickId.current;
           try {

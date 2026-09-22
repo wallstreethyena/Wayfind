@@ -38,6 +38,7 @@ export default function PlacePageBookLink({ provider, offerId, contentId, mercha
     <a
       href={href}
       rel="sponsored noreferrer"
+      data-commerce-owner="PlacePageBookLink"
       onClick={() => {
         try {
           emitCommerce("commerce_cta_clicked", {
