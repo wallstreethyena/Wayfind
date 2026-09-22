@@ -45,7 +45,7 @@
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { EVENT_TICKET_DEALS, isServableDeal, eventTicketCta, eventTicketDeal, SEPARATELY_TICKETED } from "../lib/eventTicketDeals.js";
+import { EVENT_TICKET_DEALS, isServableDeal, eventTicketCta, eventTicketDeal, NO_EXACT_AFFILIATE_PRODUCT } from "../lib/eventTicketDeals.js";
 import { UT_EVENT_DEAL_IDS, CJ_PID } from "../lib/deals.js";
 import { PROVIDERS } from "../lib/commerceProviders.js";
 import { PARTNER_OFFER_REGISTRY } from "../lib/partnerOfferRegistry.js";
@@ -184,7 +184,11 @@ for (const eventId of Object.keys(EVENT_TICKET_DEALS)) {
 }
 ok(EVENT_TICKET_DEALS["christmas-town-2026"]?.deal === 15 && EVENT_TICKET_DEALS["seaworld-orlando-christmas-2026"]?.deal === 7 && EVENT_TICKET_DEALS["legoland-fl-holidays-2026"]?.deal === 16,
   "the three organizer-confirmed included-with-admission holiday runs are mapped to their park's admission row");
-ok(!("jollywood-nights-2026" in EVENT_TICKET_DEALS) && !("mvmcp-2026" in EVENT_TICKET_DEALS), "separately-ticketed Disney holiday parties are NOT mapped to park admission (no UT event-ticket row exists yet)");
+ok(EVENT_TICKET_DEALS["mvmcp-2026"]?.deal === 38 && EVENT_TICKET_DEALS["mvmcp-2026"]?.product === "event-ticket", "MVMCP maps to its exact Undercover Tourist event-ticket row, never Disney park admission");
+ok(EVENT_TICKET_DEALS["jollywood-nights-2026"]?.deal === 39 && EVENT_TICKET_DEALS["jollywood-nights-2026"]?.product === "event-ticket", "Jollywood maps to its exact Undercover Tourist event-ticket row, never Disney park admission");
+ok(EVENT_TICKET_DEALS["epcot-festival-holidays-2026"]?.deal === 5 && EVENT_TICKET_DEALS["epcot-festival-holidays-2026"]?.product === "park-admission", "EPCOT Festival of the Holidays uses the verified Disney admission path");
+ok(EVENT_TICKET_DEALS["universal-orlando-holidays-2026"]?.deal === 6 && EVENT_TICKET_DEALS["universal-orlando-holidays-2026"]?.product === "park-admission", "Universal Holidays uses the verified Universal admission path");
+ok(EVENT_TICKET_DEALS["sideshow-obscura-hhn35-2026"]?.deal === 6 && EVENT_TICKET_DEALS["sideshow-obscura-hhn35-2026"]?.product === "park-admission", "Sideshow Obscura uses Universal Studios admission rather than a false HHN-only ticket");
 ok(EVENT_TICKET_DEALS["zoo-boo-zoo-miami-2026"]?.provider === "tiqets" && EVENT_TICKET_DEALS["zoo-boo-zoo-miami-2026"]?.offerId === "miami-hook-zoo-miami",
   "Zoo Boo — the first Tiqets-only merchant's included-with-admission event — is mapped to Tiqets' Zoo Miami offer, THE library's admission row for zoo-miami");
 
@@ -196,40 +200,53 @@ ok(affiliateMerchantForUrl("https://tickets.legoland.com/florida/x")?.key === "l
 ok(affiliateMerchantForUrl("https://notlegoland.com/florida/") === null && affiliateMerchantForUrl("javascript:alert(1)") === null && affiliateMerchantForUrl("") === null, "a lookalike host, a non-http URL and an empty value never match");
 const fx = [
   { event_id: "howl-o-scream-tampa-2026", official_event_url: "https://buschgardens.com/tampa/events/howl-o-scream/" },
+  { event_id: "mvmcp-2026", official_ticket_url: "https://disneyworld.disney.go.com/events/mickeys-very-merry-christmas-party/purchase/" },
   { event_id: "jollywood-nights-2026", official_ticket_url: "https://disneyworld.disney.go.com/events/jollywood-nights/purchase/" },
-  // 2026-09-15: this fixture used to prove SELLABLE_NO_UT_PATH (ZooTampa was
-  // Tiqets-only, no admission row existed at all). Now that `admission`
-  // covers Tiqets too, ZooTampa's night event is exactly the case
-  // DECIDED_SEPARATELY_TICKETED exists for: a partner sells the park's
-  // admission, and a human has ALREADY ruled this specific event out of it
-  // (lib/eventTicketDeals.js SEPARATELY_TICKETED) — never a leak.
-  { event_id: "zootampa-creatures-2026", official_event_url: "https://zootampa.org/events/creatures-of-the-night/" },
+  { event_id: "epcot-festival-holidays-2026", official_event_url: "https://disneyworld.disney.go.com/events-tours/epcot/holiday-festival/" },
+  { event_id: "universal-orlando-holidays-2026", official_event_url: "https://www.universalorlando.com/web/en/us/things-to-do/events/holidays-at-universal" },
+  { event_id: "sideshow-obscura-hhn35-2026", official_event_url: "https://www.universalorlando.com/web/en/us/things-to-do/events/halloween-horror-nights" },
+  { event_id: "asian-lantern-festival-central-florida-zoo-2026", official_event_url: "https://www.centralfloridazoo.org/lanterns/" },
+  { event_id: "zootampa-christmas-wild-2026", official_event_url: "https://zootampa.org/events/christmas-in-the-wild/" },
+  { event_id: "new-central-florida-zoo-special-2026", official_event_url: "https://www.centralfloridazoo.org/lanterns/" },
   { event_id: "fantasy-fest-2026", official_event_url: "https://fantasyfest.com/" },
   { event_id: "no-url-2026" },
-  // The first Tiqets-only merchant with a real, working mapping.
   { event_id: "zoo-boo-zoo-miami-2026", official_event_url: "https://www.zoomiami.org/zoo-boo" },
 ];
 const statuses = fx.map((e) => eventAffiliateCoverage(e).status);
-ok(statuses[0] === COVERAGE.MAPPED, "a mapped event → mapped");
-ok(statuses[1] === COVERAGE.UNMAPPED, "an unmapped event at a UT-sold merchant → unmapped (the leak state)");
-ok(statuses[2] === COVERAGE.DECIDED_SEPARATELY_TICKETED, "ZooTampa's own separately-ticketed night event → decided-separately-ticketed, NOT a leak, even though the merchant now sells admission via Tiqets");
-ok(statuses[3] === COVERAGE.NO_PARTNER && statuses[4] === COVERAGE.NO_URL, "a merchant nobody sells → no-partner; no URL → no-url");
-ok(statuses[5] === COVERAGE.MAPPED, "Zoo Boo, mapped to Tiqets' Zoo Miami admission offer → mapped");
+ok(statuses.slice(0, 6).every((x) => x === COVERAGE.MAPPED), "verified event-ticket and included-with-admission cases all classify mapped");
+ok(statuses[6] === COVERAGE.DECIDED_NO_EXACT_PRODUCT, "Asian Lantern is a current reviewed no-exact-product decision, not a silent leak");
+ok(statuses[7] === COVERAGE.DECIDED_NO_EXACT_PRODUCT, "ZooTampa Christmas is a current reviewed no-exact-product decision until partner entitlement is proven");
+ok(statuses[8] === COVERAGE.UNMAPPED, "a new event at an affiliate merchant with no mapping or current decision is a revenue leak");
+ok(statuses[9] === COVERAGE.NO_PARTNER && statuses[10] === COVERAGE.NO_URL, "a merchant nobody sells → no-partner; no URL → no-url");
+ok(statuses[11] === COVERAGE.MAPPED, "Zoo Boo, mapped to Tiqets' Zoo Miami admission offer → mapped");
 ok(eventAffiliateCoverage({ event_id: "wfc:howl-o-scream-tampa-2026", official_event_url: "https://buschgardens.com/tampa/" }).status === COVERAGE.MAPPED, "the feed's wfc: prefix resolves like the bare id");
-ok(!Object.values(COVERAGE).includes("sellable-no-ut-path"), "SELLABLE_NO_UT_PATH is fully retired from the COVERAGE enum");
+
+for (const [eventId, row] of Object.entries(NO_EXACT_AFFILIATE_PRODUCT)) {
+  const reviewed = Date.parse(row.reviewedAt + "T00:00:00Z");
+  const reviewBy = Date.parse(row.reviewBy + "T00:00:00Z");
+  const days = (reviewBy - reviewed) / 86400000;
+  ok(Number.isFinite(reviewed) && Number.isFinite(reviewBy) && days >= 0 && days <= 30, `${eventId}: no-product decision expires within 30 days`);
+  ok(typeof row.reason === "string" && row.reason.length >= 20, `${eventId}: no-product decision carries an auditable reason`);
+}
+ok(
+  eventAffiliateCoverage(fx[6], { today: "2026-10-02" }).status === COVERAGE.UNMAPPED,
+  "an expired no-product decision automatically becomes a revenue leak again",
+);
 const leaks = unmappedSellableEvents(fx);
-ok(leaks.length === 1 && leaks[0].eventId === "jollywood-nights-2026" && leaks[0].merchant.admission.offerId === 5, "unmappedSellableEvents returns exactly the leak, naming the merchant's admission row — ZooTampa's decided event does not count as one");
+ok(leaks.length === 1 && leaks[0].eventId === "new-central-florida-zoo-special-2026", "current decisions suppress only reviewed cases; a new affiliate-merchant event still pages");
+const expiredLeaks = unmappedSellableEvents([fx[6]], { today: "2026-10-02" });
+ok(expiredLeaks.length === 1 && expiredLeaks[0].eventId === "asian-lantern-festival-central-florida-zoo-2026", "expired reviewed decisions return to the leak queue automatically");
 
 // ── 7. the watch is wired, executed ────────────────────────────────────────
 ok(existsSync(path.join(ROOT, "app/api/cron/affiliate-coverage/route.js")), "app/api/cron/affiliate-coverage exists");
 const vercel = JSON.parse(read("vercel.json"));
 ok((vercel.crons || []).some((c) => c.path === "/api/cron/affiliate-coverage" && /^\d+ \d+ \* \* \*$/.test(c.schedule)), "…and vercel.json schedules it daily");
-const cleanTally = tallyCoverage(fx.filter((e) => e.event_id !== "jollywood-nights-2026"));
+const cleanTally = tallyCoverage(fx.filter((e) => e.event_id !== "new-central-florida-zoo-special-2026"));
 const leakTally = tallyCoverage(fx);
 const cleanRow = coveragePulseRow(cleanTally);
 const leakRow = coveragePulseRow(leakTally);
 ok(cleanRow.attempted === 1 && cleanRow.succeeded === 1 && cleanRow.failed === 0 && /^clean:/.test(cleanRow.note), "a run with no leak pulses succeeded=1");
-ok(leakRow.attempted === 1 && leakRow.succeeded === 0 && leakRow.failed === 1 && /jollywood-nights-2026/.test(leakRow.note), "a run with a leak pulses succeeded=0 and NAMES the event, so job-watch's email says what to map");
+ok(leakRow.attempted === 1 && leakRow.succeeded === 0 && leakRow.failed === 1 && /new-central-florida-zoo-special-2026/.test(leakRow.note), "a run with a leak pulses succeeded=0 and NAMES the event, so job-watch's email says what to map");
 ok(leakRow.note.length <= 200, "the note fits the pulse column");
 
 console.log(fail ? `check-affiliate-coverage: FAIL — ${fail} failed, ${pass} passed` : `check-affiliate-coverage: OK — ${pass} assertions; unknown≠dead, one predicate, ${scanned.length} files clean of truthy link_ok gates, ${AFFILIATE_MERCHANTS.length}-merchant library consistent, nightly watch wired`);
