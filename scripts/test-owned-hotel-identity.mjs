@@ -316,6 +316,23 @@ const LAT_260M = 27.5 + 260 / 111320; // ~259.7m north of 27.5,-82.7 (verified b
   ok(unresolvedOwnedHotels(rows).length > 0, "B4: there is real work for the backfill to do");
 }
 
+// ── THE REQUEST SHAPE (2026-09-22, written after the live pulse showed
+// "ident: tried=9 ok=0 miss=9" forever). Text Search (New) takes a circle as
+// locationBias and a rectangle as locationRestriction; sending the circle as a
+// restriction made every call fail and every row a miss. No test can call
+// Google here, so the one thing a unit test CAN pin is pinned: the request
+// body this module builds. The match rule is asserted separately above and is
+// unaffected by how wide the search bias is.
+{
+  const { readFileSync } = await import("node:fs");
+  const src = readFileSync(new URL("../lib/ownedHotelIdentity.js", import.meta.url), "utf8");
+  const code = src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  ok(/body\.locationBias\s*=\s*\{\s*circle/.test(code), "S1: the search sends the circle as locationBias");
+  ok(!/locationRestriction/.test(code), "S2: no locationRestriction — Text Search takes a rectangle there, never a circle");
+  ok(Number(M.SEARCH_BIAS_RADIUS_M) > Number(M.SEARCH_RADIUS_M), "S3: the bias is wider than the match radius");
+  ok(Number(M.VERIFY_DISTANCE_M) === 200, "S4: widening the bias did not widen the 200m match rule");
+}
+
 if (fail.length) {
   console.error(`test-owned-hotel-identity: ${pass} passed, ${fail.length} FAILED`);
   for (const f of fail) console.error("  ✗ " + f);
