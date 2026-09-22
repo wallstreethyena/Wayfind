@@ -18,6 +18,7 @@ import { eventTicketDeal, eventTicketCta, isServableDeal } from "../../../../lib
 import { supabase } from "../../../../lib/supabase.js";
 import { wayfindScore } from "../../../../lib/wayfindScore.js";
 import { cardImageSrc, hasStoredPlacePhoto } from "../../../../lib/placePhoto.js";
+import { CURATED_OWNED_PLACE_PHOTOS } from "../../../../lib/curatedOwnedPlacePhotos.js";
 import { fastCachedRail, geoCell } from "../../../../lib/railFastCache.js";
 import { composeFallIntentRails } from "../../../../lib/fallIntentRails.js";
 import { pageOneRail } from "../../../../lib/railPage.js";
@@ -64,7 +65,9 @@ export async function GET(request) {
     // corrections. v13 adds Sōl St Pete's verified seasonal offering without
     // reusing a cache written before that registry entry existed. v14 adds
     // compact creator-reel credit to event cards whose detail page can play it.
-    const key = `fall-intents:v14:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v15 (2026-09-22) adds Pinto's Farm (farms rail) with a curated owned
+    // photo + photoAttr credit — a cached v14 payload predates both.
+    const key = `fall-intents:v15:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
@@ -248,6 +251,13 @@ export async function GET(request) {
 
       const seasonalPlaceIds = new Set(seasonalPlaces.map((place) => place.id));
       const places = [...seasonalPlaces, ...(placeResult.error ? [] : (placeResult.data || []))
+        // A curated owned photo (business-approved, zero Google Places calls)
+        // is merged onto the row BEFORE hasStoredPlacePhoto runs, so a place
+        // like Pinto's Farm is never dropped for lacking a Google photo_ref —
+        // and so cardImageSrc's rung 1 (owned photo_url) always wins over
+        // rung 2 (photo_ref), guaranteeing this card never takes a paid
+        // Google Places Photo grant. See lib/curatedOwnedPlacePhotos.js.
+        .map((p) => (CURATED_OWNED_PLACE_PHOTOS[p.place_id] ? { ...p, photo_url: CURATED_OWNED_PLACE_PHOTOS[p.place_id].url } : p))
         .filter((p) => !seasonalPlaceIds.has(p.place_id))
         .filter((p) => hasStoredPlacePhoto(p))
         .filter((p) => (!p.status || p.status === "OPERATIONAL")
@@ -266,7 +276,12 @@ export async function GET(request) {
           // generic inventory summary may still be useful elsewhere, but it
           // must never hide the evidence that earned this fall recommendation.
           take: FALL_PLACE_IDS[p.place_id] || FALL_PHOTO_SPOTS[p.place_id]?.visualProof || p.editorial || null,
-          image: cardImageSrc({ place_id: p.place_id, photo_ref: p.photo_ref, signals: p.signals }, 640),
+          image: cardImageSrc({ place_id: p.place_id, photo_ref: p.photo_ref, photo_url: p.photo_url, signals: p.signals }, 640),
+          // The corner credit badge RailCard/IconicPlaceCard already render
+          // for a licensed photo (photoAttr/photoAttrHref) — the same slot,
+          // for the same reason: a business-approved photo carries a credit.
+          photoAttr: CURATED_OWNED_PLACE_PHOTOS[p.place_id]?.credit || null,
+          photoAttrHref: CURATED_OWNED_PLACE_PHOTOS[p.place_id]?.creditUrl || null,
           fallRail: FALL_PLACE_RAIL[p.place_id] || (FALL_PHOTO_SPOTS[p.place_id] ? "photos" : null),
           ...(FALL_PHOTO_SPOTS[p.place_id] || {}),
         }))]
