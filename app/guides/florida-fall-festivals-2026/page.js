@@ -7,19 +7,19 @@ import styles from "./page.module.css";
 const shareImage = "/api/og?t=Florida%20Fall%202026&loc=Florida&cta=OPEN%20THE%20GUIDE&sub=Pumpkins%20%E2%80%A2%20markets%20%E2%80%A2%20haunts%20%E2%80%A2%20food&tone=fall";
 
 export const metadata = {
-  title: "Florida Fall Guide 2026 | Wayfind",
-  description: "Pumpkin patches, fall markets, haunted nights, family Halloween, seasonal food and the biggest fall weekends across Florida, all mapped by Wayfind.",
+  title: "Florida Fall Guide 2026",
+  description: "Pumpkin patches, fall markets, haunted nights, family Halloween, seasonal food and the biggest fall weekends across Florida, with dates, locations and what to expect.",
   robots: { index: true, follow: true },
   alternates: { canonical: "/guides/florida-fall-festivals-2026" },
   openGraph: {
-    title: "Florida Fall Guide 2026 | Wayfind",
+    title: "Florida Fall Guide 2026",
     description: "Pumpkins, markets, haunts, fall food and family plans. Filter the map and pick what is actually worth the drive.",
     url: "/guides/florida-fall-festivals-2026",
     images: [shareImage],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Florida Fall Guide 2026 | Wayfind",
+    title: "Florida Fall Guide 2026",
     description: "Pumpkins, markets, haunts, fall food and family plans, all in one mapped guide.",
     images: [shareImage],
   },
@@ -345,7 +345,8 @@ const mapSpots = [
     groups: ["pumpkins", "family"],
     city: "St. Petersburg",
     when: "From Sep 21 • 9 AM to 9 PM",
-    detail: "A local pumpkin stop built for fall photos and an easy family outing.",
+    detail: "An easy neighborhood pumpkin stop with a goat pen, food trailer and an expanded 2026 layout.",
+    tip: "Casual family photos are free; professional sessions require a reservation.",
     href: "/florida-events/gallaghers-pumpkins-2026",
     lat: 27.843052,
     lng: -82.6449,
@@ -358,7 +359,8 @@ const mapSpots = [
     groups: ["pumpkins", "family"],
     city: "Plant City",
     when: "Sep 26 to Oct 25",
-    detail: "Corn maze, pumpkins and a farm day that works when you want the full harvest-festival version of fall.",
+    detail: "A weekend-only Plant City corn maze and pumpkin patch with live music, duck races and a patch you actually pick from.",
+    tip: "The last hour before close is cooler and quieter. Kids under 3 are free.",
     href: "/florida-events/fox-squirrel-maze-2026",
     lat: 28.0990771,
     lng: -82.1554914,
@@ -371,7 +373,8 @@ const mapSpots = [
     groups: ["pumpkins", "family", "tastes"],
     city: "Plant City",
     when: "Oct 3 to 25 • 10 AM to 3 PM",
-    detail: "Free Harvest Days with pumpkins and family farm energy, plus the food and wine side of Keel Farms.",
+    detail: "Pumpkin activities and farm play for kids, with an on-site winery, brewery and restaurant for the adults.",
+    tip: "Book a restaurant table for after the farm loop; October Saturdays build a walk-in queue.",
     href: "/florida-events/keel-farms-harvest-days-2026",
     lat: 28.0666,
     lng: -82.1467,
@@ -384,7 +387,8 @@ const mapSpots = [
     groups: ["pumpkins", "family", "events"],
     city: "Bradenton",
     when: "Oct 10 to 25 • 9 AM to 5 PM",
-    detail: "A major local pumpkin-festival weekend with a corn-maze and hayride profile. Wayfind keeps the photo neutral until an exact reusable event image is cleared.",
+    detail: "A three-weekend working-farm festival with pumpkins, hayrides, craft vendors and livestock. Plan on a half day, not a quick photo stop.",
+    tip: "Cash only. Go early; the access-road queue builds after 11 AM. Parking is $5.",
     href: "/florida-events/hunsader-pumpkin-2026",
     lat: 27.4448076,
     lng: -82.3046144,
@@ -397,7 +401,8 @@ const mapSpots = [
     groups: ["pumpkins", "family"],
     city: "Tampa",
     when: "Oct 7 to 31",
-    detail: "A neighborhood pumpkin-patch option in Seminole Heights for a lighter, closer-to-home fall plan.",
+    detail: "A volunteer-run community pumpkin patch with useful evening hours and a central Tampa location.",
+    tip: "Check the day-specific hours before leaving; early October has Monday and Tuesday closures.",
     href: "/florida-events/seminole-heights-great-pumpkin-patch-2026",
     lat: 28.002979,
     lng: -82.454603,
@@ -492,7 +497,8 @@ const mapSpots = [
     groups: ["haunts", "events"],
     city: "Tampa",
     when: "Sep 11 to Oct 31 • nights",
-    detail: "Haunted houses, scare zones and coasters after dark. This is the full theme-park scare-night commitment.",
+    detail: "Haunted houses, scare zones and Busch Gardens coasters after dark make this the full theme-park scare-night commitment.",
+    tip: "September weeknights are the quieter and cheaper part of the run.",
     href: "/florida-events/howl-o-scream-tampa-2026",
     lat: 28.0371,
     lng: -82.4195,
@@ -505,7 +511,8 @@ const mapSpots = [
     groups: ["haunts", "events"],
     city: "Dade City",
     when: "Sep 4 to Nov 1 • nights",
-    detail: "A dedicated independent horror park in Dade City with multiple haunted experiences and a stronger scare-first profile.",
+    detail: "A standalone horror park spread across 60 rural acres, with multiple haunts plus a 2026 midway with food trucks, fire pits and a beer garden.",
+    tip: "Buy a timed ticket online. October Saturdays have the toughest walk-up queues.",
     href: "/florida-events/screamageddon-2026",
     lat: 28.341,
     lng: -82.254,
@@ -602,7 +609,8 @@ const mapSpots = [
     groups: ["events", "tastes"],
     city: "Tampa",
     when: "Oct 9 to 11",
-    detail: "A downtown Tampa fall weekend at Curtis Hixon Waterfront Park built around Oktoberfest food, beer and festival energy.",
+    detail: "Three days of imported German beer, German bands, stein-holding contests and wiener-dog races on the Hillsborough River.",
+    tip: "Friday evening is the lighter crowd. Poe and Fort Brooke garages are the practical downtown parking options.",
     href: "/florida-events/oktoberfest-tampa-curtis-hixon-2026",
     lat: 27.9489169,
     lng: -82.4616494,
@@ -615,7 +623,8 @@ const mapSpots = [
     groups: ["events", "tastes"],
     city: "Tampa",
     when: "Oct 17",
-    detail: "A waterfront music and barbecue day at Julian B. Lane Riverfront Park with a big-event feel.",
+    detail: "Barbecue teams cook all day on the riverfront while a major country lineup plays into the night.",
+    tip: "Eat before late afternoon; the best barbecue cuts can run out before the headliner.",
     href: "/florida-events/tampa-pig-jig-2026",
     lat: 27.949,
     lng: -82.4675,
@@ -628,7 +637,8 @@ const mapSpots = [
     groups: ["pumpkins", "family", "events"],
     city: "Clermont",
     when: "Sep 26 to Nov 22",
-    detail: "A full farm-festival day with pumpkins and harvest-season attractions, verified for the 2026 run.",
+    detail: "Rides, corn, flowers, animals, music and food make this a full Clermont farm-festival day.",
+    tip: "Plan a half day; there is enough here for different ages and interests.",
     href: "/florida-events/southern-hill-farms-fall-festival-2026",
     lat: 28.4541904,
     lng: -81.6783927,
@@ -642,7 +652,8 @@ const mapSpots = [
     groups: ["pumpkins", "family", "events"],
     city: "Mount Dora",
     when: "Sep 26 to Nov 15",
-    detail: "Pumpkins, a corn-maze profile and a long 2026 fall run near Mount Dora.",
+    detail: "A giant corn maze, jumping pillow, zip line and super slide make the maze the main event instead of background decor.",
+    tip: "Plan a half day if your group wants to do the maze and attractions without rushing.",
     href: "/florida-events/great-scott-fall-fest-2026",
     lat: 28.72853,
     lng: -81.6682,
@@ -656,7 +667,8 @@ const mapSpots = [
     groups: ["pumpkins", "family", "events"],
     city: "Sarasota",
     when: "Oct 3 to Nov 1 • 10 AM to 5 PM",
-    detail: "A free Sarasota pumpkin-festival option with a farm setting and a month-long 2026 run.",
+    detail: "Pumpkin photos, fall vendors, food and kids activities at the working grove market east of I-75. Festival entry is free.",
+    tip: "Morning light is better for patch photos. Parking is $5.",
     href: "/florida-events/fruitville-grove-pumpkin-2026",
     lat: 27.3378046,
     lng: -82.4230065,
@@ -670,7 +682,8 @@ const mapSpots = [
     groups: ["family", "events"],
     city: "Orlando",
     when: "Oct 10 to 25 • 10 AM to 5 PM",
-    detail: "A family Halloween event at Gatorland with the kind of only-in-Florida setting that makes the drive feel different.",
+    detail: "A costume parade, candy trails, the Swamp Ghost Museum and a cryptid-themed train, all inside Gatorland.",
+    tip: "Halloween activities are included with regular admission, parking is free, and the event is designed to stay non-gory.",
     href: "/florida-events/gatorland-ghosts-goblins-2026",
     lat: 28.3556496,
     lng: -81.4022109,
@@ -683,7 +696,8 @@ const mapSpots = [
     groups: ["family", "events"],
     city: "Miami",
     when: "Oct 24 to 25",
-    detail: "A family Halloween weekend at Zoo Miami with trick-or-treating in the 2026 event lineup.",
+    detail: "Zoo Miami turns into a daytime Halloween stop with costumes, inflatables and animal-themed Halloween activities.",
+    tip: "Trick-or-treating is for ages 12 and under and is included with zoo admission.",
     href: "/florida-events/zoo-boo-zoo-miami-2026",
     lat: 25.613,
     lng: -80.4,
@@ -696,7 +710,7 @@ const mapSpots = [
     groups: ["haunts", "events"],
     city: "Miami",
     when: "From Sep 24",
-    detail: "Miami's House of Horror returns as a dedicated Halloween carnival and haunt option for the 2026 season.",
+    detail: "Haunted houses, midway rides and a dark coaster make this the Miami pick for groups that want a haunt and carnival on the same night.",
     href: "/florida-events/house-of-horror-carnival-2026",
     lat: 25.724,
     lng: -80.319,
@@ -709,7 +723,7 @@ const mapSpots = [
     groups: ["haunts", "events"],
     city: "Fort Lauderdale",
     when: "Oct 2 to Nov 1",
-    detail: "A South Florida haunted-attraction option inside Xtreme Action Park for the 2026 Halloween season.",
+    detail: "Three haunted houses inside Xtreme Action Park: Patches' Slaughter, The Collection and The Cellar.",
     href: "/florida-events/nightmare-village-xtreme-action-park-2026",
     lat: 26.193,
     lng: -80.154,
@@ -722,7 +736,8 @@ const mapSpots = [
     groups: ["haunts", "events"],
     city: "Key West",
     when: "Oct 16 to 25",
-    detail: "Key West's citywide costume festival is one of Florida's most distinctive October road-trip events.",
+    detail: "A ten-day costume and street festival that takes over Key West and ends with the big Duval Street parade.",
+    tip: "Midweek is easier than closing weekend. Once you arrive, avoid moving the car; parking is the pain point.",
     href: "/florida-events/fantasy-fest-2026",
     lat: 24.5551,
     lng: -81.8,
@@ -735,7 +750,8 @@ const mapSpots = [
     groups: ["tastes", "events"],
     city: "Naples",
     when: "Oct 23 to 25",
-    detail: "A free waterfront fall weekend in Naples centered on Florida stone crab and seafood.",
+    detail: "A free waterfront weekend marking stone crab season with fresh claws, seafood and live music around Tin City.",
+    tip: "Go earlier for the first claws. Tin City parking is tight, so the 4th Ave S garage is easier.",
     href: "/florida-events/stone-crab-festival-2026",
     lat: 26.1465,
     lng: -81.7896,
@@ -748,7 +764,8 @@ const mapSpots = [
     groups: ["markets", "events"],
     city: "Mount Dora",
     when: "Oct 24 to 25",
-    detail: "A free downtown Mount Dora arts-and-craft weekend that fits the small-town fall road-trip lane.",
+    detail: "More than 400 juried crafters take over historic downtown Mount Dora for the town's signature October weekend.",
+    tip: "Sunday morning is the lighter crowd. Downtown streets close, so use satellite parking and shuttles.",
     href: "/florida-events/mount-dora-craft-fair-2026",
     lat: 28.8023531,
     lng: -81.6436931,
@@ -761,7 +778,8 @@ const mapSpots = [
     groups: ["tastes", "events"],
     city: "Orlando",
     when: "Nov 15 • 11 AM to 4 PM",
-    detail: "A late-fall Orlando event for coffee people, with a focused food-and-drink reason to make the trip.",
+    detail: "Florida coffee shops, roasters, matcha brands and specialty beverage makers pour tastings across Festival Park.",
+    tip: "VIP starts at 10 AM before general admission; specialty pours can disappear early.",
     href: "/florida-events/florida-coffee-festival-2026",
     lat: 28.546919,
     lng: -81.3467079,
@@ -776,7 +794,7 @@ function EventRail({ title, description, events, id }) {
     <section className={styles.section} aria-labelledby={id + "-heading"}>
       <div className={styles.sectionHead}>
         <div>
-          <p className={styles.kicker}>Wayfind verified</p>
+          <p className={styles.kicker}>What to expect</p>
           <h2 id={id + "-heading"}>{title}</h2>
           <p>{description}</p>
         </div>
@@ -809,26 +827,26 @@ export default function FloridaFallGuide() {
       />
 
       <div id="guide" className={styles.content}>
-        <div className={styles.trustBar} aria-label="Wayfind guide standards">
-          <span><b>Verified</b> dates and places</span>
-          <span><b>Mapped</b> with exact coordinates</span>
-          <span><b>No</b> paid placement</span>
+        <div className={styles.trustBar} aria-label="Florida fall guide details">
+          <span><b>2026</b> dates</span>
+          <span><b>Exact</b> locations</span>
+          <span><b>Tips</b> before you go</span>
         </div>
 
         <div className={styles.intro}>
-          <p className={styles.kicker}>Fall without the homework</p>
-          <h2>Stop saving screenshots. Pick a plan.</h2>
+          <p className={styles.kicker}>Florida fall, sorted by vibe</p>
+          <h2>Pick the kind of fall day you want.</h2>
           <p>
-            The posts that inspired this guide are good at giving you ideas. Wayfind turns those ideas into something you can use: current dates, exact locations, category filters, real map pins and direct event or place pages.
+            Pumpkin farms, street festivals, markets, haunts, family Halloween and seasonal food are grouped so you can compare dates, locations and what each stop is actually good for.
           </p>
         </div>
 
         <FallGuideExplorer spots={mapSpots} />
 
         <div className={styles.railIntro}>
-          <p className={styles.kicker}>Start with the strongest plans</p>
-          <h2>Four rails. No filler.</h2>
-          <p>These are the dated 2026 picks we can put on your calendar now. Swipe each rail for more.</p>
+          <p className={styles.kicker}>Choose your fall mood</p>
+          <h2>Four easy ways to plan the weekend.</h2>
+          <p>Jump straight to pumpkins, family Halloween, haunted nights or the biggest festival weekends.</p>
         </div>
 
         {sections.map(([title, description, events], index) => (
@@ -842,10 +860,10 @@ export default function FloridaFallGuide() {
         ))}
 
         <aside className={styles.note}>
-          <p className={styles.kicker}>Why this stays trustworthy</p>
-          <h2>A viral post can be a lead. It cannot be the date.</h2>
+          <p className={styles.kicker}>Before you go</p>
+          <h2>Use the timing to make the day better.</h2>
           <p>
-            Wayfind checks event timing, place identity and location before it becomes a mapped recommendation. If an item from a roundup cannot be verified yet, it stays out instead of getting a guessed date, a guessed pin or the wrong photo.
+            Farm festivals are easier earlier in the day when it is cooler and photos are cleaner. For ticketed haunts, reserve timed entry before you leave. For food festivals, eat the signature stuff first because the most popular items can run out.
           </p>
         </aside>
       </div>

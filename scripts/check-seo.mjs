@@ -65,7 +65,7 @@ if (!/alternates: \{ canonical: "\/" \}/.test(lay)) fail("homepage canonical mis
 if (lay.includes("<h1")) fail("the shared layout renders an H1 — every article would carry a duplicate H1 (demote to div)");
 if (!lay.includes('type="application/ld+json"')) fail("JSON-LD missing from layout");
 for (const t of ['href={"/guides/', 'href={"/culture/', 'href="/terms"', 'href="/about"', 'href="/editorial-policy"', 'href="/how-wayfind-ranks"']) if (!lay.includes(t)) fail("footer links missing: " + t);
-if (!lay.includes("People use Wayfind to")) fail("use-case links missing from server footer");
+if (!lay.includes("Quick plans")) fail("use-case links missing from server footer");
 if (!lay.includes("affiliate links")) fail("affiliate disclosure missing from server footer");
 if (!lay.includes('rel="preconnect"')) fail("preconnect hints missing");
 if (/\n  title: "Wayfind",/.test(lay)) fail("homepage title must carry search intent, not just the brand");
