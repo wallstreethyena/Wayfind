@@ -1,0 +1,4 @@
+{
+  "_comment": "SHRINKING allowlist for scripts/check-guide-visual-standard.mjs. A guide slug listed here is exempt from the guard while it cannot yet comply — today that only means 'photo sourcing not done yet', which the guard already treats as an honest pass (no photo = no violation). Nothing needs to be listed here to ship this PR: every current guide surface (the [slug] template, the guides index, and both dedicated routes) already passes the guard cleanly with zero picks carrying photos. Do not add a slug to this list without recording the owner's reason in the same commit; remove a slug the moment it complies.",
+  "slugs": []
+}

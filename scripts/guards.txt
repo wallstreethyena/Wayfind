@@ -1569,6 +1569,12 @@ node scripts/test-beach-local-conditions.mjs
 node scripts/test-owned-editorial-review.mjs
 node scripts/check-guide-editorial.mjs
 
+# Every guide and blog article renders through ONE premium editorial standard
+# (docs/design/guide-visual-standard.md): the shared GuideFigure is the only
+# path a guide draws a photo through, aspect-ratio always ships with
+# height:auto, and a pick with no photo degrades to a clean typographic block.
+node scripts/check-guide-visual-standard.mjs
+
 # The Family Day culture rail reads only the verified wf_events schedule. This
 # locks family/age/haunt trust, exact 10/25/50-mile circles, fail-closed filters,
 # the 12-card cap, real /florida-events routes, and the no-place-score contract.

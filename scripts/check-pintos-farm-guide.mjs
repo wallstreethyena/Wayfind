@@ -20,7 +20,25 @@ for (const activity of ["boat ride","tractor ride","race track","petting zoo","b
   ok(new RegExp(activity, "i").test(guide.intro + page), "included activity present: " + activity);
 }
 ok(/MapCategoryPin/.test(map), "farm layout reuses the shared Wayfind pin system");
-ok(/CreatorAppleMap/.test(map), "arrival map reuses the live Wayfind Apple map");
+// Owner decision 2026-09-22: ONE map on the page, an illustrated farm map with
+// tappable zone pins. The separate Apple arrival map is gone, and the old
+// coordinate pair (about a mile off, on a different property) must never come
+// back through the directions button or a pin.
+ok(!/CreatorAppleMap/.test(map), "one map only: the illustrated farm map, no second Apple arrival map");
+for (const src of ["/guides/pintos-farm-miami-2026/farm-map-illustrated-1200.webp", "/guides/pintos-farm-miami-2026/farm-map-illustrated-2000.webp"]) {
+  let bytes = 0;
+  try { bytes = statSync(new URL("../public" + src, import.meta.url)).size; } catch { bytes = 0; }
+  ok(map.includes(src) && bytes > 10 * 1024, `${src}: illustrated farm map is referenced and exists on disk (got ${bytes} bytes)`);
+}
+ok(!/25\.559785|80\.41664/.test(map + page), "the wrong farm coordinate (a different property about a mile away) never returns");
+ok(/https:\/\/maps\.apple\.com\/\?daddr=14890%20SW%20216th%20St%2C%20Miami%2C%20FL%2033170/.test(map), "driving directions use Pinto's verified street address");
+const zonePoints = [...map.matchAll(/\bx:\s*([\d.]+),\s*y:\s*([\d.]+)/g)].map((m) => [Number(m[1]), Number(m[2])]);
+ok(zonePoints.length >= 10 && zonePoints.every(([x, y]) => x >= 3 && x <= 97 && y >= 3 && y <= 97), `every zone pin sits inside the illustrated map (got ${zonePoints.length} pins)`);
+const liftedRule = /\.zonePin\[data-active="true"\] \.zonePinMark\{([^}]*)\}/.exec(css)?.[1] ?? "";
+ok(/aria-pressed=\{active\}/.test(map) && /scale\(1\.[2-9]/.test(liftedRule), "the picked pin visibly lifts on the map and its state is exposed to assistive tech");
+ok(/scroller\.scrollTo\(/.test(map) && !/scrollIntoView/.test(map), "choosing a spot moves only the map window, never the whole page");
+const visibleMapCopy = map.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+ok(!/Wayfind/.test(visibleMapCopy), "guides sell the experience: the farm map copy never mentions Wayfind");
 ok(/Not to scale/.test(page + map) && /Seasonal zones can move/.test(map), "layout is explicitly orientation-only");
 ok(/exact on-property positions are not published clearly enough/.test(map), "unverified seasonal positions are not invented");
 ok(!/lat:\s*25\.559\d+[\s\S]{0,120}Corn maze/i.test(map), "corn maze is not assigned a fake GPS point");
@@ -45,7 +63,15 @@ if (heroSrc) {
   ok(heroSize > 10 * 1024, `${heroSrc}: hero image exists on disk and is over 10 KB (got ${heroSize} bytes)`);
 }
 ok(/import\s+\{\s*guideHero\s*\}\s+from\s+"\.\.\/\.\.\/\.\.\/lib\/guideHero"/.test(page), "page resolves its hero photo through the reviewed lib/guideHero.js record");
-ok(/<GuidePhoto\b/.test(page), "gallery renders through the shared GuidePhoto component, same as other guide images");
+// Wayfind Guide Visual Standard (docs/design/guide-visual-standard.md): the
+// gallery renders through the shared GuideFigure (role="tile"), which is
+// itself built on GuidePhoto — assert both hops, not just the page source,
+// so a GuideFigure that stopped calling GuidePhoto internally would still
+// be caught here.
+ok(/<GuideFigure\b/.test(page), "gallery renders through the shared GuideFigure component");
+ok(/role="tile"/.test(page), "gallery tiles declare the GVS-1 tile role (1:1)");
+const guideFigureSrc = read("app/components/GuideFigure.js");
+ok(/<GuidePhoto\b/.test(guideFigureSrc), "the shared GuideFigure renders through GuidePhoto, same as other guide images");
 const altValues = [...page.matchAll(/alt:\s*"([^"]*)"/g)].map((m) => m[1]);
 ok(altValues.length >= 8 && altValues.every((a) => a.trim().length > 0), "every gallery photo has a non-empty alt description");
 ok(/Photos courtesy of/.test(page), "the gallery carries a visible Pinto's Farm photo credit");
@@ -61,7 +87,11 @@ ok(/aspect-ratio:\s*1\/1/.test(galleryImgRule), "gallery tiles are square (aspec
 ok(/height:\s*auto/.test(galleryImgRule), "gallery images set height:auto so the square aspect-ratio actually governs the box (the root cause: the img width/height attributes otherwise pin a fixed pixel height per photo, defeating aspect-ratio)");
 const fieldBandRule = /\.fieldBand\{([^}]*)\}/.exec(css)?.[1] ?? "";
 ok(/repeating-linear-gradient/.test("background:repeating-linear-gradient(105deg,transparent 0 42px,rgba(255,255,255,.025) 43px 45px)"), "positive control: the repeating-linear-gradient probe matches the old striped pattern verbatim, so the absence check right below is not vacuous");
-ok(!/repeating-linear-gradient/.test(fieldBandRule), "farm map field no longer has repeating-linear-gradient hairline striping");
-ok(fieldBandRule.length > 0, "farm map still has a .fieldBand background treatment (not just deleted)");
+// The drawn .fieldBand diagram was replaced by the illustrated map on
+// 2026-09-22; carry the "no hairline striping" protection over to the new map.
+ok(fieldBandRule === "", "the retired .fieldBand diagram rule is gone with the drawn diagram");
+const mapFrameRules = ["farmMapFrame", "farmMapScroller", "farmMapCanvas", "farmMapImg"].map((cls) => new RegExp("\\." + cls + "\\{([^}]*)\\}").exec(css)?.[1] ?? "");
+ok(mapFrameRules.every((rule) => rule.length > 0), "the illustrated map frame, scroller, canvas and image all keep a styled treatment");
+ok(mapFrameRules.every((rule) => !/repeating-linear-gradient/.test(rule)), "farm map has no repeating-linear-gradient hairline striping");
 
 console.log("check-pintos-farm-guide: OK — " + checks + " factual identity, map, card and ticket assertions");

@@ -1,26 +1,11 @@
 import styles from "./GuideArticleHero.module.css";
 import { activeSeasonalMark, NORMAL_MARK } from "../../lib/seasonalBrand";
-import GuidePhoto from "./GuidePhoto";
+import GuideFigure, { guideFigureMedia } from "./GuideFigure";
 
-function imageDetails(image) {
-  if (!image) return null;
-  if (typeof image === "string") return { src: image };
-  if (typeof image === "object" && image.src) return image;
-  return null;
-}
-
-function compactLicense(license) {
-  const raw = typeof license === "string" ? license.trim() : license?.label?.trim();
-  if (!raw) return null;
-  const ccCode = raw.match(/\bCC\s+BY(?:-(?:SA|NC|ND)){0,2}\s+\d(?:\.\d)?\b/i);
-  if (ccCode) return ccCode[0].toUpperCase();
-  const ccName = raw.match(/Creative Commons Attribution(?:-(ShareAlike|NonCommercial|NoDerivatives))?\s+(\d(?:\.\d)?)/i);
-  if (ccName) {
-    const suffix = { sharealike: "-SA", noncommercial: "-NC", noderivatives: "-ND" }[(ccName[1] || "").toLowerCase()] || "";
-    return `CC BY${suffix} ${ccName[2]}`;
-  }
-  return raw.length <= 42 ? raw : "Image license";
-}
+// Wayfind Guide Visual Standard (docs/design/guide-visual-standard.md, GVS-1):
+// the hero photo renders through the ONE shared GuideFigure component
+// (role="hero", 16:9 desktop / 4:3 under 640px), never a local <img>.
+const imageDetails = guideFigureMedia;
 
 /**
  * Compact editorial masthead for indexable guide articles.
@@ -52,12 +37,6 @@ export default function GuideArticleHero({
   const place = region || guide?.region || null;
   const section = category || guide?.category || "Guide";
   const media = imageDetails(image !== undefined ? image : guide?.heroImage);
-  const imageWidth = Number(media?.width) > 0 ? Math.round(Number(media.width)) : 1600;
-  const imageHeight = Number(media?.height) > 0 ? Math.round(Number(media.height)) : 1200;
-  const creditHref = media?.creditHref || media?.source || null;
-  const license = compactLicense(media?.license);
-  const licenseHref = media?.licenseUrl || media?.licenseURL || media?.license?.url || media?.source || null;
-  const hasCaption = Boolean(media?.caption || media?.credit || license);
   const seasonalWordmark = activeSeasonalMark() || NORMAL_MARK;
 
   return (
@@ -102,38 +81,15 @@ export default function GuideArticleHero({
         </div>
 
         {media ? (
-          <figure className={styles.figure}>
-            <div className={styles.photo}>
-              <GuidePhoto
-                src={media.src}
-                alt={media.alt || ""}
-                width={imageWidth}
-                height={imageHeight}
-                sizes="(max-width: 760px) calc(100vw - 36px), (max-width: 1120px) 43vw, 460px"
-                loading="eager"
-                fetchpriority="high"
-                decoding="async"
-                fallbackClassName={styles.photoFallback}
-                style={media.position ? { objectPosition: media.position } : undefined}
-              />
-            </div>
-            {hasCaption ? (
-              <figcaption className={styles.caption}>
-                {media.caption ? <span>{media.caption}</span> : null}
-                {media.credit || license ? (
-                  <span className={styles.credit}>
-                    {media.credit ? (
-                      creditHref ? <a href={creditHref}>Image: {media.credit}</a> : <>Image: {media.credit}</>
-                    ) : null}
-                    {media.credit && license ? <span aria-hidden="true"> · </span> : null}
-                    {license ? (
-                      licenseHref ? <a href={licenseHref}>{license}</a> : <>{license}</>
-                    ) : null}
-                  </span>
-                ) : null}
-              </figcaption>
-            ) : null}
-          </figure>
+          <GuideFigure
+            role="hero"
+            image={media}
+            priority
+            className={styles.figure}
+            frameClassName={styles.photo}
+            fallbackClassName={styles.photoFallback}
+            captionClassName={styles.caption}
+          />
         ) : null}
       </div>
     </header>

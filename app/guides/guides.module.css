@@ -11,9 +11,10 @@
 .sectionHead span { flex: none; color: #9aa6b3; font-size: 12px; }
 .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
 .card { min-width: 0; display: flex; flex-direction: column; color: inherit; text-decoration: none; border: 1px solid #26313b; border-radius: 16px; overflow: hidden; background: #0b121b; }
-.image { aspect-ratio: 16/10; background: #19212b; overflow: hidden; }
-.image img { width: 100%; height: 100%; display: block; object-fit: cover; }
-.imageFallback { width: 100%; height: 100%; display: grid; place-items: center; padding: 20px; color: #aeb9c5; font: 400 16px/1.4 var(--wf-display), Georgia, serif; text-align: center; background: radial-gradient(circle at 78% 18%, rgba(246, 163, 108, .11), transparent 35%), linear-gradient(145deg, #17202a, #0d141d); }
+/* Wayfind Guide Visual Standard (docs/design/guide-visual-standard.md): the
+   16:10 ratio, the five-rule CSS set and the tonal placeholder all live in
+   the shared GuideFigure.module.css now — GuideFigure is the only place a
+   guide draws a photo. */
 .cardBody { display: flex; flex: 1; flex-direction: column; padding: 20px; }
 .cardLink { display: flex; flex-direction: column; flex: 1; color: inherit; text-decoration: none; }
 .imageNote { padding: 0 20px 18px; }
