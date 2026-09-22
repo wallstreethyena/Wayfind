@@ -1677,3 +1677,7 @@ node scripts/test-site-feedback.mjs
 node scripts/test-feedback-notification.mjs
 node scripts/test-florida-catalog-location.mjs
 node scripts/check-guide-product-isr-cache.mjs
+
+
+# Pinto's Farm 2026 guide: exact place identity, official ticket facts, shared card, and honest non-surveyed farm map.
+check-pintos-farm-guide.mjs
