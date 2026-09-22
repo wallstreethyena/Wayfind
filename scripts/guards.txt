@@ -1684,3 +1684,6 @@ node scripts/check-pintos-farm-guide.mjs
 
 # Dedicated guide folders (app/guides/<slug>/page.js) must be excluded from the generic [slug] prerender, or production serves the generic layout at their URL.
 node scripts/check-guide-dedicated-routes.mjs
+
+# Lane C (2026-09-22): every Florida theme park (Disney, Universal, and the rest of lib/themeParks.js) has a place mapping, a resolver-backed ticket CTA and stays mounted on every required discovery surface.
+node scripts/check-theme-park-coverage.mjs
