@@ -65,7 +65,7 @@ export default function GuideEmailCapture({ slug, region }) {
   if (state === "done") {
     return (
       <section ref={ref} aria-label="Guide by email" style={{ margin: "26px 0 0", padding: "16px 18px", borderRadius: 14, border: "1px solid #2E4B33", background: "rgba(46,204,113,.06)", color: "#A7E3B4", fontSize: 13.5, fontWeight: 700 }}>
-        Sent. Check your inbox — and your picks will be waiting in Wayfind.
+        Sent. Check your inbox — your guide is on the way.
       </section>
     );
   }
