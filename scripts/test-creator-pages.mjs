@@ -220,6 +220,9 @@ ok(creatorMetadata("someone-with-no-page").robots.index === false, "a handle wit
   ok(drawn[0].image[1] !== drawn[1].image[1], "cafe and park have representative distinct glyphs");
   listener({ annotation: drawn[0] });
   ok(selected === "cafe", "pin selection resolves the real place ID");
+  ok(typeof controller.select === "function", "the map controller exposes card-to-pin selection");
+  controller.select("park");
+  ok(drawn[1].selected === true && drawn[0].selected === false, "viewing a guide card elevates only its matching map pin");
   controller.destroy(); ok(destroyed, "map is destroyed when filters change or page unmounts");
   const { RAILS } = await import("../lib/rails.js");
   ok(RAILS.find(r => r.id === "lunchcity").posterHidden === true, "Lunch poster is hidden");
