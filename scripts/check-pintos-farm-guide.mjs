@@ -10,6 +10,7 @@ const slug = "pintos-farm-miami-2026";
 const guide = GUIDES[slug];
 const page = read("app/guides/pintos-farm-miami-2026/page.js");
 const map = read("app/guides/pintos-farm-miami-2026/PintosFarmMap.js");
+const css = read("app/guides/pintos-farm-miami-2026/page.module.css");
 
 ok(!!guide, "Pinto's guide is registered in GUIDES");
 ok(guide.picks.some((p) => p.placeId === "ChIJUczTK5XC2YgRRt4Jp6N3B70"), "guide pins the exact Pinto's Google identity");
@@ -52,5 +53,15 @@ ok(/href=\{PINTOS_FARM_SITE\}/.test(page) && /const PINTOS_FARM_SITE = "https:\/
 ok(/Sep 19, 20, 26 \+ 27/.test(page) && /Oct 18 \+ 25/.test(page) && /12 PM \+ 2 PM \+ 4 PM \+ 6 PM/.test(page), "published 2026 magic-show calendar is present");
 ok(/Winterland \/ Christmas at the Farm/.test(page) && /Spring at the Farm \/ Easter/.test(page), "year-round seasonal planning is present");
 ok(/Lattes & Llamas/.test(page) && /Brewhouse \+ llama evenings/.test(page), "limited-date llama and Brewhouse planning is present");
+
+// Visual regression guard, 2026-09-22 (owner: gallery photos "so big", wants them
+// "in a square"; "weird lines on the map"). Lock the fix so neither regresses silently.
+const galleryImgRule = /\.galleryImg\{([^}]*)\}/.exec(css)?.[1] ?? "";
+ok(/aspect-ratio:\s*1\/1/.test(galleryImgRule), "gallery tiles are square (aspect-ratio:1/1), not the old tall 4/5 strip");
+ok(/height:\s*auto/.test(galleryImgRule), "gallery images set height:auto so the square aspect-ratio actually governs the box (the root cause: the img width/height attributes otherwise pin a fixed pixel height per photo, defeating aspect-ratio)");
+const fieldBandRule = /\.fieldBand\{([^}]*)\}/.exec(css)?.[1] ?? "";
+ok(/repeating-linear-gradient/.test("background:repeating-linear-gradient(105deg,transparent 0 42px,rgba(255,255,255,.025) 43px 45px)"), "positive control: the repeating-linear-gradient probe matches the old striped pattern verbatim, so the absence check right below is not vacuous");
+ok(!/repeating-linear-gradient/.test(fieldBandRule), "farm map field no longer has repeating-linear-gradient hairline striping");
+ok(fieldBandRule.length > 0, "farm map still has a .fieldBand background treatment (not just deleted)");
 
 console.log("check-pintos-farm-guide: OK — " + checks + " factual identity, map, card and ticket assertions");
