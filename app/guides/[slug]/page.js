@@ -6,6 +6,7 @@ import ReturnToWayfind from "../../components/ReturnToWayfind";
 // the guide index for the middleman internal-link structure.
 import { notFound } from "next/navigation";
 import { GUIDES } from "../../../lib/guides";
+import { DEDICATED_GUIDE_ROUTES } from "../../../lib/guideDedicatedRoutes";
 import { SITE_URL } from "../../../lib/site";
 import { experienceSearchUrl, viatorProductGoUrl } from "../../../lib/affiliates";
 import { productCtaLabel } from "../../../lib/guideProductResolve";
@@ -397,7 +398,11 @@ import { addressLine, appleDirectionsUrl } from "../../../lib/placeWhere";
 export const revalidate = 900;
 
 export function generateStaticParams() {
-  return Object.keys(GUIDES).map((slug) => ({ slug }));
+  // Dedicated guide folders own their URL; prerendering them here would
+  // overwrite that route's output (see lib/guideDedicatedRoutes.js).
+  return Object.keys(GUIDES)
+    .filter((slug) => !DEDICATED_GUIDE_ROUTES.has(slug))
+    .map((slug) => ({ slug }));
 }
 
 export function generateMetadata({ params }) {
