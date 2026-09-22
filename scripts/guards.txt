@@ -681,6 +681,11 @@ node scripts/check-place-card-css-contract.mjs
 node scripts/check-place-card-standard.mjs
 node scripts/check-place-card-no-directions.mjs
 
+# v8.57.0 — the browse card's hotel earning CTA must actually RENDER (the
+# anchor + its FTC disclosure), not merely resolve a correct URL shape in
+# isolation; see the file header for why this could regress silently.
+node scripts/test-hotel-card-cta.mjs
+
 # v8.17 — no inline style may paint text in its own background color (the invisible landing score chip)
 node scripts/check-invisible-text.mjs
 
