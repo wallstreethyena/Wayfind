@@ -135,8 +135,13 @@ export default function FallGuideExplorer({ spots = [] }) {
             best = spot.id;
           }
         }
-        if (followMap.current != null) {
-          if (best != null && String(best) === String(followMap.current)) followMap.current = null;
+        const follow = followMap.current;
+        if (follow) {
+          // Arrived at the tapped card, or at the end of the rail (the last card
+          // cannot centre): release the hold but keep the tapped pin selected.
+          if ((best != null && String(best) === follow.id) || (follow.left != null && Math.abs(rail.scrollLeft - follow.left) < 2)) {
+            followMap.current = null;
+          }
           return;
         }
         if (best != null) setSelectedId((current) => String(current) === String(best) ? current : best);
@@ -159,7 +164,7 @@ export default function FallGuideExplorer({ spots = [] }) {
 
   const selectFromMap = (id) => {
     if (id == null) return;
-    followMap.current = String(id);
+    followMap.current = { id: String(id), left: null };
     setSelectedId(id);
     requestAnimationFrame(() => {
       const rail = railRef.current;
@@ -170,7 +175,14 @@ export default function FallGuideExplorer({ spots = [] }) {
       const left = rail.scrollLeft
         + (cardBox.left - railBox.left)
         - Math.max(0, (rail.clientWidth - cardBox.width) / 2);
-      rail.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
+      const target = Math.min(Math.max(0, rail.scrollWidth - rail.clientWidth), Math.max(0, left));
+      // Already there: no scroll event will come to release the hold.
+      if (Math.abs(target - rail.scrollLeft) < 2) {
+        followMap.current = null;
+        return;
+      }
+      if (followMap.current) followMap.current.left = target;
+      rail.scrollTo({ left: target, behavior: "smooth" });
     });
   };
 
