@@ -196,6 +196,14 @@ ok(!/\.wf-place-card-list[^{]*\{[^}]*1\.08/.test(compactCss) && !/\.wf-place-car
   "1.08 phone peek is not declared on .wf-place-card-list — peek is rail-only");
 ok(/\.wf-rail[^{]*\{[^}]*--wf-place-card-width:min\(100%,440px,calc\(\(100vw/.test(compactCss) || compactCss.includes(`.wf-rail,.wf8-pcrail,.wf-rail .wf-place-card`),
   "horizontal rails still own the 1.08 peek width formula");
+ok(/\.wf-rail\{[^}]*scroll-snap-type:x proximity/.test(compactCss),
+  ".wf-rail uses proximity snapping so a slow or diagonal gesture is not forcibly captured");
+ok(/@media\(hover:none\),\(pointer:coarse\)[^{]*\{[^}]*\.wf-rail \.wf-place-card-highlights[^}]*overflow:hidden[^}]*touch-action:auto/.test(compactCss)
+  || compactCss.includes(".wf-rail .wf-place-card-highlights,.wf8-pcrail .wf-place-card-highlights{overflow:hidden;overflow-x:hidden;overflow-y:hidden;touch-action:auto"),
+  "mobile place-card highlights are clipped and return touch control to the page instead of nesting a pan-x scroller");
+const railMenuCssSource = readFileSync(path.join(ROOT, "app/components/railMenuCss.js"), "utf8").replace(/\s+/g, " ");
+ok(/\.wf8-pcrail\{[^}]*scroll-snap-type:x proximity/.test(railMenuCssSource),
+  ".wf8-pcrail uses proximity snapping on desktop too; place-card rails have one gesture law");
 {
   const rootRule = (compactCss.match(/\.wf-place-card\{[^}]*--wf-card-h:[^}]*\}/) || [""])[0];
   ok(/height:var\(--wf-card-h\)/.test(rootRule) && !/height:auto/.test(rootRule),
