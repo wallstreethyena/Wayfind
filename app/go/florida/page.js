@@ -28,6 +28,7 @@ import FloridaSections from "./FloridaSections";
 import LicensedPhoto from "../../components/LicensedPhoto";
 import { SPRINGS_PHOTO, EXPERIENCE_PHOTOS, FLORIDA_EVENT_PHOTOS, FLORIDA_PARK_PHOTOS } from "../../../lib/floridaPhotography";
 import styles from "./florida.module.css";
+import CommerceClickBeacon from "../../components/CommerceClickBeacon";
 import GuidePhoto from "../../components/GuidePhoto";
 import { guideHero } from "../../../lib/guideHero";
 import { activeSeasonalMark, NORMAL_MARK } from "../../../lib/seasonalBrand";
@@ -382,6 +383,7 @@ export default async function GoFloridaPage({ searchParams }) {
   const order = orderedSections(focus);
   const mark = activeSeasonalMark() || NORMAL_MARK;
   return <main id="go-florida" className={styles.page}>
+    <CommerceClickBeacon surface={SURFACE} />
     <div className={styles.opening}>
       <div className={styles.heroBackdrop}>
         <LicensedPhoto {...SPRINGS_PHOTO} sizes="100vw" priority className={styles.heroPhoto} />

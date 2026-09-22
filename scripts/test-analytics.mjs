@@ -229,5 +229,52 @@ function harness() {
   ok(around.indexOf("signup_completed") < 0, "an unconfirmed signup does NOT report a conversion");
 }
 
+/* ── unified commerce clicks are Ads conversions (2026-09-22 audit) ────── */
+// Paid landing surfaces (guides, /go/florida, /florida-events) record partner
+// clicks ONLY as `commerce_cta_clicked`. Before this rule Google Ads received
+// zero conversions from every paid click while PostHog recorded them.
+{
+  ok(A.classify("commerce_cta_clicked", { monetized: true }) === "primary", "a MONETIZED commerce click is a primary conversion");
+  ok(A.labelKeyFor("commerce_cta_clicked", { monetized: true }) === "affiliate", "a monetized commerce click uses the single affiliate label");
+  ok(A.classify("commerce_cta_clicked", { monetized: false }) === "analytics", "a NON-monetized commerce click (open in app, map) is never a conversion");
+  ok(A.classify("commerce_cta_clicked") === "analytics", "no params => not a conversion (fails closed)");
+  ok(A.classify("commerce_cta_clicked", { monetized: "true" }) === "analytics", "only a real boolean true counts, never a truthy string");
+  ok(A.AFFILIATE_EVENTS.indexOf("commerce_cta_clicked") < 0, "the legacy seven stay seven; the commerce click is classified by params, not by name");
+
+  A._resetDedupe();
+  const h = harness();
+  const rep = A.forwardToGoogle("commerce_cta_clicked", { monetized: true, provider: "tiqets", surface: "paid_florida" }, { gtag: h.gtag, dedupeKey: "commerce_cta_clicked|click-aaaaaaaa" });
+  ok(rep.ads === true && rep.tier === "primary", "monetized commerce click fires the Ads conversion, got " + JSON.stringify(rep));
+  const conv = h.calls.find((c) => c[1] === "conversion");
+  ok(conv && conv[2].send_to === "AW-18342267447/affLabel456789" && conv[2].event_label === "affiliate_click", "it reports into the one affiliate_click action");
+  ok(conv && conv[2].surface === "paid_florida" && conv[2].provider === "tiqets", "surface + partner survive on the conversion");
+  ok(conv && !("monetized" in conv[2]), "the internal monetized flag is not sent to Google");
+  const again = A.forwardToGoogle("commerce_cta_clicked", { monetized: true, provider: "tiqets", surface: "paid_florida" }, { gtag: h.gtag, dedupeKey: "commerce_cta_clicked|click-aaaaaaaa" });
+  ok(again.ads === false && again.skipped === "duplicate", "the same click id never converts twice");
+
+  A._resetDedupe();
+  const h2 = harness();
+  const plain = A.forwardToGoogle("commerce_cta_clicked", { monetized: false, surface: "guide" }, { gtag: h2.gtag });
+  ok(plain.ads === false && h2.calls.every((c) => c[1] !== "conversion"), "non-monetized commerce click sends GA4 only, no conversion");
+}
+
+// The two server-rendered paid landing pages must mount the click beacon, or
+// their partner links go back to reporting nothing (they have no other
+// client-side tracking). The beacon must forward as monetized and never let
+// emitCommerce itself forward (surfaces that also fire a legacy *_out would
+// double count).
+{
+  const beacon = readFileSync(join(ROOT, "app/components/CommerceClickBeacon.js"), "utf8");
+  ok(/^["']use client["']/.test(beacon.trim()), "CommerceClickBeacon is a client component");
+  ok(/forwardToGoogle\(\s*"commerce_cta_clicked",\s*\{\s*monetized:\s*true/.test(beacon), "the beacon forwards partner clicks as monetized");
+  ok(/emitCommerce\(\s*"commerce_cta_clicked"/.test(beacon), "the beacon records the PostHog commerce event through emitCommerce");
+  for (const f of ["app/go/florida/page.js", "app/florida-events/page.js"]) {
+    const src = readFileSync(join(ROOT, f), "utf8");
+    ok(/<CommerceClickBeacon\s+surface=/.test(src), f + " mounts CommerceClickBeacon");
+  }
+  const commerce = readFileSync(join(ROOT, "lib/commerce.js"), "utf8");
+  ok(commerce.indexOf("forwardToGoogle") < 0, "emitCommerce never forwards to Google by itself (would double count legacy *_out surfaces)");
+}
+
 if (failures) { console.error(`test-analytics: ${failures} failure(s)`); process.exit(1); }
 console.log("test-analytics: OK");
