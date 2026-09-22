@@ -19,6 +19,7 @@ import CreatorAppleMap from "./CreatorAppleMap";
 import MapCategoryPin from "./MapCategoryPin";
 import RailCard, { RailDots, RailNav } from "./RailCard";
 import styles from "./GuideMapExplorer.module.css";
+import { clampRailTarget, isAtRailTarget, followShouldRelease } from "../../lib/mapRailFollow.js";
 
 function isExternal(href) {
   return /^https?:\/\//i.test(String(href || ""));
@@ -139,7 +140,7 @@ export default function GuideMapExplorer({
         if (follow) {
           // Arrived at the tapped card, or at the end of the rail (the last card
           // cannot centre): release the hold but keep the tapped pin selected.
-          if ((best != null && String(best) === follow.id) || (follow.left != null && Math.abs(rail.scrollLeft - follow.left) < 2)) {
+          if (followShouldRelease(follow, best, rail.scrollLeft)) {
             followMap.current = null;
           }
           return;
@@ -175,9 +176,9 @@ export default function GuideMapExplorer({
       const left = rail.scrollLeft
         + (cardBox.left - railBox.left)
         - Math.max(0, (rail.clientWidth - cardBox.width) / 2);
-      const target = Math.min(Math.max(0, rail.scrollWidth - rail.clientWidth), Math.max(0, left));
+      const target = clampRailTarget(left, rail.scrollWidth, rail.clientWidth);
       // Already there: no scroll event will come to release the hold.
-      if (Math.abs(target - rail.scrollLeft) < 2) {
+      if (isAtRailTarget(rail.scrollLeft, target)) {
         followMap.current = null;
         return;
       }
