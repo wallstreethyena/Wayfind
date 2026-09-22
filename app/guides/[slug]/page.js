@@ -360,6 +360,7 @@ async function inventoryPlacesForRegion(region, limit = 80) {
 }
 
 import GuidePlaceCard from "../../components/GuidePlaceCard";
+import GuideMapExplorer from "../../components/GuideMapExplorer";
 import { guidePickMayResolvePlaceCard } from "../../../lib/guidePlaceIdentity.js";
 import { placeCardHook } from "../../../lib/rankingWhy";
 // v8.14 — THE CARD CONTRACT'S CSS. IconicPlaceCard renders class names
@@ -902,7 +903,7 @@ export default async function GuidePage({ params }) {
           lng={bridgeCity.lng}
         />
       ) : null}
-      <div className="wf-guide-disclosure">Some links in this guide are affiliate links. If you book through them, a commission may be earned at no extra cost to you. That does not affect which places are included.</div>
+      <div className="wf-guide-disclosure">Some links in this guide are affiliate links. Wayfind may earn a commission if you book through them, at no extra cost to you. That does not affect which places are included.</div>
       {/* v6.71 — the per-pick link wall is GONE. Each pick used to carry
           "Check tours & tickets" + "Check rates" + "Open in Wayfind"; measured
           dwell here is 0-25s and bounce ~50%, so almost nobody reached the end
@@ -958,6 +959,26 @@ export default async function GuidePage({ params }) {
             {" "}<a href={"/guides/" + sibling.slug}>{sibling.title}</a> has {sibling.indoor} picks that work right now.
           </p>
         </section>
+      ) : null}
+      {/* MAP EXPLORER (2026-09-22) — config-driven opt-in, generalized from
+          the Florida Fall Guide's bespoke map+house-card-rail+filters UI
+          (sol/fall-guide-house-cards-map, #1413). Any guide whose data
+          (lib/guides.js) sets `mapExplorer: {spots:[...]}` with >=3 mappable
+          places gets the shared Apple Map + RailCard rail + category filters
+          with NO bespoke per-guide component — GuideMapExplorer itself
+          no-ops below 3 spots, so this is safe to render unconditionally. */}
+      {g.mapExplorer && Array.isArray(g.mapExplorer.spots) && g.mapExplorer.spots.length >= 3 ? (
+        <GuideMapExplorer
+          spots={g.mapExplorer.spots}
+          filters={g.mapExplorer.filters || null}
+          kicker={g.mapExplorer.kicker}
+          heading={g.mapExplorer.heading}
+          description={g.mapExplorer.description}
+          proof={g.mapExplorer.proof}
+          note={g.mapExplorer.note}
+          accent={g.mapExplorer.accent}
+          railIdPrefix={params.slug}
+        />
       ) : null}
       {g.picks.map((pick, i) => {
         const resolved = pickPlaces[i];

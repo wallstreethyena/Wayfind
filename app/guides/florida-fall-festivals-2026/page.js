@@ -1,7 +1,52 @@
 import GuideArticleHero from "../../components/GuideArticleHero";
 import { WF_PLACE_CARD_CSS } from "../../components/css";
-import FallGuideExplorer from "./FallGuideExplorer";
+import GuideMapExplorer from "../../components/GuideMapExplorer";
 import styles from "./page.module.css";
+
+// v2026-09-22 — moved onto the shared GuideMapExplorer (map + house-card
+// rail + category filters), the SAME component every guide with >=3 mappable
+// places now gets. This guide keeps its own filter set and photo-place-id
+// map (EVENT_PHOTO_PLACE_IDS below) because those are this guide's own
+// editorial data, not something a generic component should invent.
+const MAP_EXPLORER_FILTERS = [
+  { id: "pumpkins", label: "Pumpkin patches", family: "outdoors" },
+  { id: "markets", label: "Markets", family: "shop" },
+  { id: "family", label: "Family Halloween", family: "shows" },
+  { id: "haunts", label: "Haunted + after dark", family: "drinks" },
+  { id: "tastes", label: "Fall food + drinks", family: "food" },
+  { id: "events", label: "Big fall events", family: "shows" },
+  { id: "all", label: "Everything", family: "other" },
+];
+
+const EVENT_PHOTO_PLACE_IDS = Object.freeze({
+  "st-pete-pier-fall-fest-2026": "ChIJX-E766nhwogR8u_Re6nJTyk",
+  "fox-squirrel-maze-2026": "ChIJFwrRu7o33YgRIuZ-0QgeCVQ",
+  "keel-farms-harvest-days-2026": "ChIJ_5yVrBY13YgRwSgyH1hrRjg",
+  "hunsader-pumpkin-2026": "ChIJuSnFvF8xw4gRt0WOWL_cqRc",
+  "tampa-riverwalk-trick-or-treat-2026": "ChIJc8QsSADFwogRH9awG-1qaCs",
+  "howl-o-scream-tampa-2026": "ChIJhRo4DU_GwogRUgjhMAj-pag",
+  "screamageddon-2026": "ChIJ7zRUJ9CowogRM70pcoqrdUM",
+  "oktoberfest-tampa-curtis-hixon-2026": "ChIJlRUlG4nEwogRJOgu0Hf2n54",
+  "tampa-pig-jig-2026": "ChIJ-U84wHnEwogR9ry4KMSoZW8",
+  "fantasy-fest-2026": "ChIJs_tsm0ix0YgRmYbIX_M5CT8",
+  "mount-dora-craft-fair-2026": "ChIJGSMzu2Oi54gR-rlDDL6V3Qs",
+  "florida-coffee-festival-2026": "ChIJcQyYH85654gRPh6gV_UpsDY",
+  "southern-hill-farms-fall-festival-2026": "ChIJ-aI9NvSI54gRrVByB84z-AY",
+  "great-scott-fall-fest-2026": "ChIJ68SLYriZ54gRaJgw169KqYA",
+  "fruitville-grove-pumpkin-2026": "ChIJhWqZvoVHw4gRehUSFsbZARo",
+  "gatorland-ghosts-goblins-2026": "ChIJ9RHZGx6H3YgRnWVYIWsHNPM",
+});
+
+function fallGuideSpots(spots) {
+  return spots.map((spot) => {
+    if (spot.image || !/^ChIJ/.test(String(spot.id))) {
+      const placeId = EVENT_PHOTO_PLACE_IDS[spot.id];
+      if (placeId) return { ...spot, image: "/api/photo?place=" + encodeURIComponent(placeId) + "&g=2&w=800" };
+      return spot;
+    }
+    return { ...spot, image: "/api/photo?place=" + encodeURIComponent(spot.id) + "&g=2&w=800" };
+  });
+}
 
 const shareImage = "/api/og?t=33%20Florida%20Fall%20Picks&loc=2026&cta=PICK%20YOUR%20WEEKEND&sub=Pumpkins%20%E2%80%A2%20haunts%20%E2%80%A2%20markets%20%E2%80%A2%20fall%20food&tone=fall";
 
@@ -534,7 +579,16 @@ export default function FloridaFallGuide() {
           </p>
         </div>
 
-        <FallGuideExplorer spots={mapSpots} />
+        <GuideMapExplorer
+          spots={fallGuideSpots(mapSpots)}
+          filters={MAP_EXPLORER_FILTERS}
+          kicker="Pick a category, then swipe"
+          heading="The card and the map stay together."
+          description="Swipe through a category and the matching map pin follows the card you are viewing. Tap a pin to bring that card into view."
+          proof={["2026 dates", "Exact locations", "Tips before you go"]}
+          note="Swipe the cards to move the selected pin. Tap a pin to jump back to its card."
+          railIdPrefix="fall-guide"
+        />
 
         <aside className={styles.note}>
           <p className={styles.kicker}>Before you go</p>
@@ -543,6 +597,8 @@ export default function FloridaFallGuide() {
             Farm festivals are easier earlier in the day when it is cooler and photos are cleaner. For ticketed haunts, reserve timed entry before you leave. For food festivals, eat the signature stuff first because the most popular items can run out.
           </p>
         </aside>
+
+        <div className={styles.disclosure}>Some links in this guide are affiliate links. Wayfind may earn a commission if you book through them, at no extra cost to you. That does not affect which places are included.</div>
       </div>
     </main>
   );
