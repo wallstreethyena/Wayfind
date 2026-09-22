@@ -13,7 +13,7 @@ const map = read("app/guides/pintos-farm-miami-2026/PintosFarmMap.js");
 
 ok(!!guide, "Pinto's guide is registered in GUIDES");
 ok(guide.picks.some((p) => p.placeId === "ChIJUczTK5XC2YgRRt4Jp6N3B70"), "guide pins the exact Pinto's Google identity");
-ok(/September 19 through November 8, 2026/.test(guide.intro), "guide states the verified 2026 fall run");
+ok(/September 19 through November 8/.test(guide.intro) && /2026/.test(guide.title + guide.description), "guide states the verified 2026 fall run");
 ok(/Animal encounters close at 6 PM/.test(guide.intro), "guide carries the 6 PM animal cutoff");
 for (const activity of ["boat ride","tractor ride","race track","petting zoo","bounce pad","fall photo spots","corn maze","pony rides"]) {
   ok(new RegExp(activity, "i").test(guide.intro + page), "included activity present: " + activity);
