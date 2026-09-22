@@ -1,0 +1,196 @@
+{
+  "batch": 34,
+  "verified_by": "claude-sonnet",
+  "verified_at": "2026-09-22T18:48:17Z",
+  "publish": [
+    {
+      "event_id": "kumquat-festival-2027",
+      "event_series_id": "kumquat-festival",
+      "slug": "kumquat-festival-2027",
+      "year": 2027,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "city": "Dade City",
+      "county": "Pasco",
+      "state": "FL",
+      "category": "festival",
+      "subcategory": "food-festival",
+      "tags": ["festival", "food", "family"],
+      "audience": ["families", "adults"],
+      "event_name": "Kumquat Festival",
+      "short_title": "Kumquat Festival",
+      "start_date": "2027-01-30",
+      "end_date": "2027-01-30",
+      "start_time": "09:00",
+      "end_time": "17:00",
+      "select_nights": false,
+      "schedule_note": "Sat Jan 30, 9 AM to 5 PM",
+      "venue": "Historic Downtown Dade City",
+      "address": "14112 8th Street, Dade City, FL 33525",
+      "lat": 28.363301646748,
+      "lng": -82.18990597883,
+      "is_free": true,
+      "price_min": null,
+      "price_max": null,
+      "card_hook": "Historic downtown Dade City fills with kumquat-themed food, arts and crafts, a car show and free parking.",
+      "official_event_url": "https://kumquatfestival.org/",
+      "official_ticket_url": null,
+      "source_url": "https://www.eastpascochamber.org/annual-kumquat-festivalr",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-09-22T18:48:17Z",
+      "verify_note": "2026-09-22: East Pasco Chamber of Commerce's Kumquat Festival page states Saturday, January 30, 2027, 9am-5pm, free admission and free parking, in historic downtown Dade City."
+    },
+    {
+      "event_id": "gasparilla-pirate-fest-2027",
+      "event_series_id": "gasparilla-pirate-fest",
+      "slug": "gasparilla-pirate-fest-2027",
+      "year": 2027,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "city": "Tampa",
+      "county": "Hillsborough",
+      "state": "FL",
+      "category": "festival",
+      "subcategory": "parade",
+      "tags": ["festival"],
+      "audience": ["families", "adults"],
+      "event_name": "Gasparilla Pirate Fest",
+      "lead_name": "Seminole Hard Rock Gasparilla Pirate Fest",
+      "short_title": "Gasparilla Pirate Fest",
+      "start_date": "2027-01-30",
+      "end_date": "2027-01-30",
+      "start_time": null,
+      "end_time": null,
+      "select_nights": false,
+      "schedule_note": "Sat Jan 30",
+      "venue": "Bayshore Boulevard",
+      "address": "Bayshore Boulevard, Tampa, FL 33629",
+      "lat": 27.9212816,
+      "lng": -82.4884552,
+      "is_free": null,
+      "price_min": null,
+      "price_max": null,
+      "card_hook": "Ye Mystic Krewe of Gasparilla parades pirates down Tampa's Bayshore Boulevard for the city's signature Gasparilla celebration.",
+      "official_event_url": "https://gasparillapiratefest.com/",
+      "official_ticket_url": null,
+      "source_url": "https://gasparillapiratefest.com/",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-09-22T18:48:17Z",
+      "verify_note": "2026-09-22: gasparillapiratefest.com states Gasparilla Pirate Fest is January 30, 2027, with the Parade of Pirates along Tampa's Bayshore Boulevard; organizer page does not state hours or price."
+    }
+  ],
+  "hold": [
+    {
+      "event_name": "Big Cypress Indigenous Arts and Music Festival",
+      "start_date": "2027-02-04",
+      "reason": "Organizer's own page (indigenousamf.com) states the festival is \"February 11-13\" but never prints the year in visible text (only inferable from an image filename); a corroborating search of Florida Seminole Tourism's page could not be independently verified since that page returned HTTP 403 on direct fetch. Lead's date (2/4-2/6) also does not match the organizer's Feb 11-13, adding to the uncertainty.",
+      "url": "https://indigenousamf.com/"
+    },
+    {
+      "event_name": "St. Vincent Ferrer Parish Festival",
+      "start_date": "2027-01-29",
+      "reason": "Only a Facebook hint provided; organizer sites (festivalsvf.com/stvincentferrer.com) unreachable on fetch, and news coverage confirms only the 2026 dates (Jan 30-Feb 1, 2026) with no 2027 date announced yet.",
+      "url": "https://www.facebook.com/stvincentferrerdelray"
+    },
+    {
+      "event_name": "Big Bend Brew Fest",
+      "start_date": "2027-01-30",
+      "reason": "Organizer's own site (bigbendbrewfest.com) gives the venue address but states no date for the next event and no 2027 announcement; hint was Facebook-only.",
+      "url": "https://www.bigbendbrewfest.com/"
+    },
+    {
+      "event_name": "Brevard Renaissance Fair III",
+      "start_date": "2027-01-30",
+      "reason": "Organizer site unreachable (HTTP 522); news coverage (Dec 2025) reports the fair lost its Wickham Park venue, the 2026 fair was cancelled, and organizers are still searching for a new site with no 2027 date set.",
+      "url": "https://brevardrenaissancefair.com/"
+    },
+    {
+      "event_name": "Buckhead Ridge Catfish Festival",
+      "start_date": "2027-01-30",
+      "reason": "Organizer page (voteglades.gov) only states a past date, 01/31/2026; no 2027 date is posted.",
+      "url": "https://voteglades.gov/event/buckhead-ridge-catfish-festival/"
+    },
+    {
+      "event_name": "Celebrate Lunar",
+      "start_date": "2027-01-30",
+      "reason": "The organizer_url_hint 404s; the event's real organizer site (celebratelunar.com) only states the 2026 date (January 31, 2026, Luminary Green Park) with no 2027 date announced.",
+      "url": "https://celebratelunar.com/"
+    },
+    {
+      "event_name": "Charlotte Harbor Chili, Beer and Music Festival",
+      "start_date": "2027-01-30",
+      "reason": "Organizer's own site (puntagordachilifest.com) states the next festival is Saturday, January 31, 2026 (already past); no 2027 date announced. Hint was Facebook-only.",
+      "url": "https://puntagordachilifest.com/"
+    },
+    {
+      "event_name": "Florida’s Citrus Festival",
+      "start_date": "2027-01-30",
+      "reason": "Organizer page (destroyermediaandmarketing.com/floridascitrusfestival) confirms \"Save the date for January 30 & 31, 2027\" but states venue/address details are \"More information coming soon\" - no street address or coordinates available for this year yet.",
+      "url": "https://www.destroyermediaandmarketing.com/floridascitrusfestival"
+    },
+    {
+      "event_name": "Howey Artisan Market at Mission Resort and Club I",
+      "start_date": "2027-01-30",
+      "reason": "Only a Facebook event link provided; coverage describes this as a recurring market on the 4th Saturday of each month at Mission Resort + Club, but Jan 30, 2027 is the 5th Saturday of that month, so the date cannot be confirmed against the organizer's own pattern.",
+      "url": "https://www.facebook.com/events/1618016786356990/1618018006356868/"
+    },
+    {
+      "event_name": "Milton Mardi Gras Parade and Afterparty",
+      "start_date": "2027-01-30",
+      "reason": "Hint is a Facebook event; the city calendar and Krewe of Airship Pirates site show only the 2026 parade date (Jan 31, 2026), with no 2027 date announced (Mardi Gras date shifts yearly with Easter).",
+      "url": "https://www.facebook.com/events/1540240787129226/"
+    },
+    {
+      "event_name": "Mount Dora Arts Festival",
+      "start_date": "2027-01-30",
+      "reason": "Organizer's own page (mountdoraart.com) only states the 2026 dates (\"Jan 31 & Feb 1, 2026, the 51st annual\"); no 2027 dates posted yet.",
+      "url": "https://mountdoraart.com/mount-dora-arts-festival/"
+    },
+    {
+      "event_name": "Oakland Heritage Day",
+      "start_date": "2027-01-30",
+      "reason": "Organizer calendar (oaklandfl.gov) states \"Saturday, January 31, 2026\" for the event; no 2027 date is posted yet, and the lead's Jan 30, 2027 cannot be confirmed against it. Hint was a Facebook event link.",
+      "url": "https://oaklandfl.gov/Calendar.aspx?EID=3972"
+    },
+    {
+      "event_name": "Sarasota Fine Art Show I",
+      "start_date": "2027-01-30",
+      "reason": "Organizer's own schedule (hotworks.org) lists Sarasota Fine Art Shows on Oct 31-Nov 1 2026, Dec 19-20 2026, Jan 9-10 2027 and March 6-7 2027 - none on Jan 30-31, 2027 as the lead states, and it is unclear which show corresponds to \"Show I\".",
+      "url": "https://hotworks.org/events-hot-works/"
+    },
+    {
+      "event_name": "Suncoast Scots Highland Games and Celtic Festival",
+      "start_date": "2027-01-30",
+      "reason": "Organizer's own site (suncoastscots.com) states the event is March 6, 2027, not January 30, 2027 as the lead states; the two dates disagree and it is unclear which the aggregator meant.",
+      "url": "https://www.suncoastscots.com/"
+    },
+    {
+      "event_name": "Taste of Ave",
+      "start_date": "2027-01-30",
+      "reason": "Organizer's own page (avemaria.com/events/taste-of-ave) is titled \"2026 Taste of Ave\" and states the date as Saturday, January 31, 2026; no 2027 date is posted yet. Hint was a Facebook event link.",
+      "url": "https://www.avemaria.com/events/taste-of-ave/"
+    },
+    {
+      "event_name": "Wekiva Island Otter Fest: A Celebration of Craft Beer and Wine",
+      "start_date": "2027-01-30",
+      "reason": "Organizer's own event page (wekivaisland.com) only states the 2026 date (January 31, 2026, 1-5pm); no 2027 edition has been announced.",
+      "url": "https://wekivaisland.com/event/otter-fest-a-celebration-of-beer-wine/"
+    },
+    {
+      "event_name": "East West Music and Dance Festival",
+      "start_date": "2027-01-31",
+      "reason": "Organizer's own page (shrutifoundationtampa.org/east-west-festivals) only states the 2026 edition (\"6th Annual East-West Music & Dance Festival,\" Feb 1, 2026, Water Works Park); no 2027 date posted.",
+      "url": "https://www.shrutifoundationtampa.org/east-west-festivals"
+    },
+    {
+      "event_name": "Farm to Grass MamaLinda Music Festival",
+      "start_date": "2027-02-04",
+      "reason": "Only a Facebook event link provided; other coverage confirms only the 2026 edition (gates open Feb 5, through Feb 8-9, 2026, at Saint Lucie Farm Preserve), with no 2027 date announced yet.",
+      "url": "https://www.facebook.com/events/2651-minute-maid-rd-fort-pierce-fl-united-states-florida-34945/mamalinda-music-fest-2026-farm-to-grass/558489350206803/"
+    }
+  ]
+}

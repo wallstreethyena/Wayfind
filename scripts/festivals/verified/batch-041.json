@@ -1,0 +1,230 @@
+{
+  "batch": 41,
+  "verified_by": "claude-sonnet",
+  "verified_at": "2026-09-22T18:56:22Z",
+  "publish": [
+    {
+      "event_id": "daytona-beach-bike-week-2027",
+      "event_series_id": "daytona-beach-bike-week",
+      "slug": "daytona-beach-bike-week-2027",
+      "lead_name": "Daytona Beach Bike Week I",
+      "year": 2027,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "city": "Daytona Beach",
+      "county": "Volusia",
+      "state": "FL",
+      "category": "festival",
+      "subcategory": "motorcycle-rally",
+      "tags": ["festival"],
+      "audience": ["adults"],
+      "event_name": "Daytona Beach Bike Week",
+      "short_title": "Bike Week",
+      "start_date": "2027-03-05",
+      "end_date": "2027-03-14",
+      "start_time": null,
+      "end_time": null,
+      "select_nights": false,
+      "schedule_note": "Fri Mar 5 to Sun Mar 14, historic Main Street to Midtown",
+      "venue": "Downtown Main Street",
+      "address": "500 Main St, Daytona Beach, FL 32118",
+      "lat": 29.225437,
+      "lng": -81.011501,
+      "is_free": null,
+      "price_min": null,
+      "price_max": null,
+      "card_hook": "Daytona Beach's 86th annual Bike Week rally runs along Main Street with bike vendors, shows and live entertainment.",
+      "official_event_url": "https://www.daytonabeach.com/bike-week/",
+      "official_ticket_url": null,
+      "source_url": "https://www.daytonabeach.com/bike-week/",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-09-22T18:56:22Z",
+      "verify_note": "2026-09-22: daytonabeach.com/bike-week states the 86th annual Bike Week runs March 5-14, 2027, from historic Main Street to Midtown."
+    },
+    {
+      "event_id": "festival-of-the-arts-boca-2027",
+      "event_series_id": "festival-of-the-arts-boca",
+      "slug": "festival-of-the-arts-boca-2027",
+      "lead_name": "Festival of the Arts Boca I",
+      "year": 2027,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "city": "Boca Raton",
+      "county": "Palm Beach",
+      "state": "FL",
+      "category": "arts",
+      "subcategory": "arts-festival",
+      "tags": ["festival"],
+      "audience": ["adults"],
+      "event_name": "Festival of the Arts BOCA",
+      "short_title": "Festival of the Arts",
+      "start_date": "2027-03-05",
+      "end_date": "2027-03-14",
+      "start_time": null,
+      "end_time": null,
+      "select_nights": true,
+      "schedule_note": "Select dates Fri Mar 5 to Sun Mar 14, various Boca Raton venues",
+      "venue": "Mizner Park Amphitheater",
+      "address": "590 Plaza Real, Boca Raton, FL 33432",
+      "lat": 26.356869,
+      "lng": -80.085234,
+      "is_free": null,
+      "price_min": null,
+      "price_max": null,
+      "card_hook": "Festival of the Arts BOCA's Season 21 brings concerts and cultural events across Boca Raton, anchored by Mizner Park Amphitheater.",
+      "official_event_url": "https://festivalboca.org/",
+      "official_ticket_url": null,
+      "source_url": "https://festivalboca.org/",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-09-22T18:56:22Z",
+      "verify_note": "2026-09-22: festivalboca.org states Season 21 is March 5-14, 2027, with Mizner Park Amphitheater as the festival's main venue."
+    },
+    {
+      "event_id": "florida-asl-festival-2027",
+      "event_series_id": "florida-asl-festival",
+      "slug": "florida-asl-festival-2027",
+      "year": 2027,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "city": "Doral",
+      "county": "Miami-Dade",
+      "state": "FL",
+      "category": "festival",
+      "subcategory": "cultural-festival",
+      "tags": ["festival"],
+      "audience": ["families", "adults"],
+      "event_name": "Florida ASL Festival",
+      "short_title": "ASL Festival",
+      "start_date": "2027-02-13",
+      "end_date": "2027-02-13",
+      "start_time": "10:00",
+      "end_time": "17:00",
+      "select_nights": false,
+      "schedule_note": "Sat Feb 13, 10 AM to 5 PM",
+      "venue": "Rolling Waves Brewing",
+      "address": "10400 NW 33rd St, Doral, FL 33172",
+      "lat": 25.804315,
+      "lng": -80.365349,
+      "is_free": true,
+      "price_min": null,
+      "price_max": null,
+      "card_hook": "The 5th annual Florida ASL Festival brings Deaf culture, vendors and community to Rolling Waves Brewing in Doral.",
+      "official_event_url": "https://floridaasl.com/",
+      "official_ticket_url": null,
+      "source_url": "https://floridaasl.com/",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-09-22T18:56:22Z",
+      "verify_note": "2026-09-22: floridaasl.com states the 5th annual festival is Feb 13, 2027, 10 AM to 5 PM, free admission, at Rolling Waves Brewing in Doral."
+    }
+  ],
+  "hold": [
+    {
+      "event_name": "Pensacola Chocolate and Cheese Fest",
+      "start_date": "2027-02-21",
+      "reason": "Only a Facebook event page and ticket resellers found; no organizer page confirms a 2027 date (lead's own date carried a '*' unconfirmed marker).",
+      "url": "https://www.facebook.com/events/658496026748503"
+    },
+    {
+      "event_name": "Riverside Craft Beer Festival",
+      "start_date": "2027-02-21",
+      "reason": "Organizer site confirms Feb 22, 2026 only (already past); no 2027 date announced yet.",
+      "url": "http://www.riversidecraftbeerfestival.com/"
+    },
+    {
+      "event_name": "Tampa Bay Jewish Food Festival",
+      "start_date": "2027-02-21",
+      "reason": "Organizer site (tbiclearwater.org) shows no confirmed 2027 date; most recent confirmed date found is Feb 22, 2026.",
+      "url": "https://www.tbiclearwater.org/FoodFest/home"
+    },
+    {
+      "event_name": "Georgefest II",
+      "start_date": "2027-02-22",
+      "reason": "City of Eustis page confirms Feb 21-28, 2026 only; no 2027 dates published yet.",
+      "url": "https://www.eustis.org/Residents/Georgefest"
+    },
+    {
+      "event_name": "Florida Strawberry Festival I",
+      "start_date": "2027-02-25",
+      "reason": "Organizer confirms Mar 4-14, 2027 (differs from lead's Feb 25-28), but the venue address (303 Berryfest Place, Plant City, FL 33563) could not be geocoded via Census or Nominatim; holding for coordinates.",
+      "url": "http://www.flstrawberryfestival.com/"
+    },
+    {
+      "event_name": "Country Jam Fest",
+      "start_date": "2027-02-26",
+      "reason": "Only confirmed via Eventbrite and ticket resellers (TickPick, EventTicketsCenter); Charlotte Harbor Event & Conference Center's own events calendar does not list it.",
+      "url": "https://www.eventbrite.com/e/country-jam-fest-harborside-tickets-1996445046878"
+    },
+    {
+      "event_name": "Englewood Seafood and Music Festival",
+      "start_date": "2027-02-26",
+      "reason": "Organizer site (paragonfestivals.com) confirms Feb 27-Mar 1, 2026 only; no 2027 dates published.",
+      "url": "https://www.paragonfestivals.com/festival/englewood-seafood-music-festival/"
+    },
+    {
+      "event_name": "Miami’s Original Greek Festival at Saint Sophia Greek Orthodox Cathedral",
+      "start_date": "2027-02-26",
+      "reason": "Organizer site (saintsophiamiami.org/greekfest) confirms Feb 27-Mar 1, 2026 only; no 2027 date posted.",
+      "url": "https://saintsophiamiami.org/greekfest/"
+    },
+    {
+      "event_name": "Afro Carib Festival",
+      "start_date": "2027-02-27",
+      "reason": "Most recent confirmed date is Feb 28, 2026 (already past); 2027 dates not yet announced.",
+      "url": "https://www.afrocaribfestmiramar.com/"
+    },
+    {
+      "event_name": "Amber Brooke Farm Strawberry Festival: Eustis I",
+      "start_date": "2027-02-27",
+      "reason": "Organizer site states \"2027 Dates Coming Soon!\"; not yet confirmed.",
+      "url": "https://amberbrookefarms.com/annual-strawberry-festival/"
+    },
+    {
+      "event_name": "Amber Brooke Farm Strawberry Festival: Mount Dora III",
+      "start_date": "2027-02-27",
+      "reason": "Organizer site states \"2027 Dates Coming Soon!\"; not yet confirmed.",
+      "url": "https://amberbrookefarms.com/annual-strawberry-festival/"
+    },
+    {
+      "event_name": "Anna Maria Island Springfest",
+      "start_date": "2027-02-27",
+      "reason": "Anna Maria Island Chamber event page returns no results; no 2027 date found.",
+      "url": "https://annamariaislandchamber.org/event/the-invitational-at-holmes-beach-springfest-art-craft-show-feb-28-march-1/"
+    },
+    {
+      "event_name": "Avalon Spring Fest: Lunar New Year Festival",
+      "start_date": "2027-02-27",
+      "reason": "Organizer event page returns 404; most recent confirmed date found elsewhere is Feb 28, 2026, with no 2027 date announced.",
+      "url": "https://asiatrend.org/event/4th-annual-avalon-springfest-2026-lunar-new-year-festival/"
+    },
+    {
+      "event_name": "Bay Area Renaissance Festival III",
+      "start_date": "2027-02-27",
+      "reason": "Organizer confirms Feb 6-Mar 21, 2027 weekends (differs from lead's Feb 27-28), but the venue address (12838 Auton Rd, Dade City, FL 33525) could not be geocoded via Census or Nominatim; holding for coordinates.",
+      "url": "https://www.bayarearenfest.com/"
+    },
+    {
+      "event_name": "Clearwater Sea-Blues Festival",
+      "start_date": "2027-02-27",
+      "reason": "Organizer page (visitstpeteclearwater.com) confirms Feb 28-Mar 1, 2026 only; no 2027 date posted.",
+      "url": "https://www.visitstpeteclearwater.com/event/clearwater-sea-blues-festival/52346"
+    },
+    {
+      "event_name": "Coconut Creek Butterfly Festival",
+      "start_date": "2027-02-27",
+      "reason": "Most recent confirmed date is Feb 28, 2026 (already past); no 2027 date found.",
+      "url": "https://www.facebook.com/events/sabal-pines-park/coconut-creek-butterfly-festival/785253137730340/"
+    },
+    {
+      "event_name": "Delray Beach Garlic Fest",
+      "start_date": "2027-02-27",
+      "reason": "Organizer site (garlicfestfl.com) confirms Feb 28-Mar 1, 2026 only; no 2027 date posted.",
+      "url": "https://garlicfestfl.com/days-hours/"
+    }
+  ]
+}

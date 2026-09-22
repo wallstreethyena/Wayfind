@@ -1,0 +1,228 @@
+{
+  "batch": 57,
+  "verified_by": "claude-sonnet",
+  "verified_at": "2026-09-22T18:06:19Z",
+  "publish": [
+    {
+      "event_id": "tarpon-springs-book-festival-2027",
+      "event_series_id": "tarpon-springs-book-festival",
+      "slug": "tarpon-springs-book-festival-2027",
+      "year": 2027,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "city": "Tarpon Springs",
+      "county": "Pinellas",
+      "state": "FL",
+      "category": "arts",
+      "subcategory": "book-festival",
+      "tags": ["festival", "arts", "family"],
+      "audience": ["families", "adults"],
+      "event_name": "Tarpon Springs Book Festival",
+      "short_title": "Book Festival",
+      "start_date": "2027-04-24",
+      "end_date": "2027-04-24",
+      "start_time": null,
+      "end_time": null,
+      "select_nights": false,
+      "schedule_note": "Sat Apr 24",
+      "venue": "East Court Street",
+      "address": "E Court St, Tarpon Springs, FL 34689",
+      "lat": 28.1454,
+      "lng": -82.7363,
+      "is_free": true,
+      "price_min": null,
+      "price_max": null,
+      "card_hook": "A free, family-friendly book festival takes over East Court Street in downtown Tarpon Springs for the day.",
+      "official_event_url": "https://tarponspringsbookfestival.com/",
+      "official_ticket_url": null,
+      "source_url": "https://tarponspringsbookfestival.com/",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-09-22T18:06:19Z",
+      "verify_note": "2026-09-22: tarponspringsbookfestival.com states Sat. April 24th, 2027; exploretarponsprings.com confirms East Court St, downtown Tarpon Springs, FL 34689, free admission, family friendly (2026 listing, same annual location)."
+    },
+    {
+      "event_id": "thunder-beach-spring-rally-2027",
+      "event_series_id": "thunder-beach-spring-rally",
+      "slug": "thunder-beach-spring-rally-2027",
+      "year": 2027,
+      "timezone": "America/Chicago",
+      "event_status": "scheduled",
+      "city": "Panama City Beach",
+      "county": "Bay",
+      "state": "FL",
+      "category": "festival",
+      "subcategory": "motorcycle-rally",
+      "tags": ["festival"],
+      "audience": ["adults"],
+      "event_name": "Thunder Beach Spring Rally",
+      "short_title": "Thunder Beach",
+      "start_date": "2027-04-28",
+      "end_date": "2027-05-02",
+      "start_time": null,
+      "end_time": null,
+      "select_nights": false,
+      "schedule_note": "Wed Apr 28 to Sun May 2",
+      "venue": "Frank Brown Park",
+      "address": "16200 Panama City Beach Pkwy, Panama City Beach, FL 32413",
+      "lat": 30.2278,
+      "lng": -85.8802,
+      "is_free": null,
+      "price_min": null,
+      "price_max": null,
+      "card_hook": "The 29th Annual Thunder Beach Spring Rally spreads bike shows, vendors and concerts across Panama City Beach.",
+      "official_event_url": "https://www.thunderbeachproductions.com",
+      "official_ticket_url": "https://thunderbeachproductions.com/tickets/",
+      "source_url": "https://www.thunderbeachproductions.com",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-09-22T18:06:19Z",
+      "verify_note": "2026-09-22: thunderbeachproductions.com states April 28 - May 2, 2027 (29th Annual Spring Rally); site names Frank Brown Park, 16200 Panama City Beach Pkwy as one of the rally's venues."
+    },
+    {
+      "event_id": "tampa-riverfest-2027",
+      "event_series_id": "tampa-riverfest",
+      "slug": "tampa-riverfest-2027",
+      "year": 2027,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "city": "Tampa",
+      "county": "Hillsborough",
+      "state": "FL",
+      "category": "festival",
+      "subcategory": "riverfront-festival",
+      "tags": ["festival", "family"],
+      "audience": ["families", "adults"],
+      "event_name": "Tampa Riverfest",
+      "short_title": "Riverfest",
+      "start_date": "2027-04-30",
+      "end_date": "2027-05-01",
+      "start_time": null,
+      "end_time": null,
+      "select_nights": false,
+      "schedule_note": "Fri Apr 30 to Sat May 1",
+      "venue": "Curtis Hixon Waterfront Park",
+      "address": "600 N Ashley Dr, Tampa, FL 33602",
+      "lat": 27.9489,
+      "lng": -82.4606,
+      "is_free": true,
+      "price_min": null,
+      "price_max": null,
+      "card_hook": "Free, family-friendly Riverfest fills the Tampa Riverwalk from Curtis Hixon Park to Water Works Park with music, food and activities.",
+      "official_event_url": "https://thetampariverwalk.com/events/riverfest.html",
+      "official_ticket_url": null,
+      "source_url": "https://thetampariverwalk.com/events/riverfest.html",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-09-22T18:06:19Z",
+      "verify_note": "2026-09-22: thetampariverwalk.com (Friends of the Riverwalk) states Riverfest 2027 is April 30 & May 1, 2027; tampa.gov and Friends of the Riverwalk describe it as free and family-friendly, spanning Curtis Hixon Park to Water Works Park along the Tampa Riverwalk."
+    }
+  ],
+  "hold": [
+    {
+      "event_name": "MHS Beats and Eats Jazz Festival",
+      "start_date": "2027-04-24",
+      "reason": "Milton city calendar (miltonfl.org, EID 9780) shows Sat April 25, 2026, already past; no 2027 date announced yet.",
+      "url": "https://www.miltonfl.org/Calendar.aspx?EID=9780"
+    },
+    {
+      "event_name": "Mount Dora Blueberry Festival",
+      "start_date": "2027-04-24",
+      "reason": "Conflicting sources: mountdorablueberryfestival.com states Apr 24-25, 2027 with venue location 'pending' due to Donnelly Park renovations, while the city calendar (mountdora.gov) still shows Apr 25-26, 2026; no confirmed 2027 venue/address to geocode.",
+      "url": "https://www.mountdorablueberryfestival.com/"
+    },
+    {
+      "event_name": "New Port Richey Greek Festival",
+      "start_date": "2027-04-24",
+      "reason": "Organizer (Plato Education Foundation, platoeducationfoundation.com) confirms only Sat April 25, 2026, already past; no 2027 date announced.",
+      "url": "https://platoeducationfoundation.com/events-en/greek-festival-2026/"
+    },
+    {
+      "event_name": "North Florida Wildflower Festival",
+      "start_date": "2027-04-24",
+      "reason": "No organizer confirmation of a 2027 date found; only third-party assumption that it falls on 'the last Saturday of April'.",
+      "url": "https://www.nflwildflowerfest.com/"
+    },
+    {
+      "event_name": "Orlando Boozy Crawfish Festival",
+      "start_date": "2027-04-24",
+      "reason": "2026 (2nd Annual) Eventbrite listing shows 'Sales ended' / 'Event ended'; no 2027 date announced by the organizer.",
+      "url": "https://www.eventbrite.com/e/orlando-all-you-can-eat-boozy-crawfish-festival-2nd-annual-event-tickets-1976652493819"
+    },
+    {
+      "event_name": "Orlando Pickle Festival",
+      "start_date": "2027-04-24",
+      "reason": "2026 Eventbrite listing (Battle Bros Events) shows 'Sales ended' / 'Event ended'; no 2027 date announced.",
+      "url": "https://www.eventbrite.com/e/orlando-pickle-fest-2026-tickets-1980123971101"
+    },
+    {
+      "event_name": "Roscolusa Songwriters Festival",
+      "start_date": "2027-04-24",
+      "reason": "Organizer (roscolusa.com) confirms Sat April 24, 2027 (15th Annual), but the stated venue address (232 Nocatee Center Way, Ponte Vedra, FL 32081) could not be geocoded via Census or Nominatim.",
+      "url": "https://www.roscolusa.com/"
+    },
+    {
+      "event_name": "Rotary Watermelon Festival",
+      "start_date": "2027-04-24",
+      "reason": "Most recent confirmed date is Sat April 25, 2026 at Pioneer Park, Zolfo Springs; no 2027 date announced.",
+      "url": "https://www.hardeecountyfl.gov/events/watermelon-festival-april-252026/"
+    },
+    {
+      "event_name": "St. Johns River Festival of the Arts",
+      "start_date": "2027-04-24",
+      "reason": "A 2027 event page exists on ZAPPlication but the actual dates are not populated; the most recent confirmed edition (15th Annual) was Apr 25-26, 2026.",
+      "url": "https://stjohnsriverartfest.com/"
+    },
+    {
+      "event_name": "Tampa Bay Black Heritage Music Festival",
+      "start_date": "2027-04-24",
+      "reason": "The event has rebranded to 'The Fest @ Tampa Bay' (tampabayfest.org); the page lists tentative April 17-18, 2027 dates explicitly marked 'subject to change', with no pricing or confirmed lineup yet.",
+      "url": "https://tampabayfest.org/"
+    },
+    {
+      "event_name": "Sweet Corn Fiesta",
+      "start_date": "2027-04-25",
+      "reason": "Most recent confirmed date is April 26, 2026 at Yesteryear Village; no 2027 date announced.",
+      "url": "https://www.thepalmbeaches.com/event/sweet-corn-fiesta"
+    },
+    {
+      "event_name": "Key West Songwriters Festival",
+      "start_date": "2027-04-28",
+      "reason": "Organizer's schedule/FAQ pages still display 2026 info; 2027 dates are only inferable from an image filename, not stated in page text, and the festival spans 50+ venues citywide with no single organizer-stated address.",
+      "url": "https://keywestsongwritersfestival.com/"
+    },
+    {
+      "event_name": "C-Key Tiki Fest",
+      "start_date": "2027-04-30",
+      "reason": "Official site (ckeytiki.com) references a 2027 ticket link but does not state exact dates or a street address for any specific venue in page text.",
+      "url": "https://ckeytiki.com/"
+    },
+    {
+      "event_name": "Hibiscus Festival",
+      "start_date": "2027-04-30",
+      "reason": "Official site (thehibiscusfestival.com) only has 2026 info (May 1-3, 2026); no 2027 date announced.",
+      "url": "https://thehibiscusfestival.com/"
+    },
+    {
+      "event_name": "Isle of Eight Flags Shrimp Festival",
+      "start_date": "2027-04-30",
+      "reason": "Official site (shrimpfestival.com) states '2027 Festival Information Coming Soon'; no date announced yet.",
+      "url": "https://www.shrimpfestival.com/"
+    },
+    {
+      "event_name": "Lotus Gathering",
+      "start_date": "2027-04-30",
+      "reason": "Organizer states the event is 'paused for this season' ('a rain check, not a goodbye'); no 2027 date and status uncertain.",
+      "url": "https://www.lotusgathering.com/"
+    },
+    {
+      "event_name": "7 Rivers Water Festival",
+      "start_date": "2027-05-01",
+      "reason": "Most recent confirmed date is May 2, 2026 at MLK Jr. Park, Winter Haven; no 2027 date announced.",
+      "url": "https://mywinterhaven.com/510/Seven-Rivers-Water-Festival"
+    }
+  ]
+}

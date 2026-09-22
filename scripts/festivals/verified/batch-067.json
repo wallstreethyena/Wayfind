@@ -1,0 +1,128 @@
+{
+  "batch": 67,
+  "verified_by": "claude-sonnet",
+  "verified_at": "2026-09-22T18:16:06Z",
+  "publish": [],
+  "hold": [
+    {
+      "event_name": "PrideFête Festival",
+      "start_date": "2027-08-07",
+      "reason": "Organizer page (hotspots.lgbt/pridefete2026) states only \"See You in 2027\" with no exact date given.",
+      "url": "https://hotspots.lgbt/pridefete2026/"
+    },
+    {
+      "event_name": "Reggae on the Rock",
+      "start_date": "2027-08-07",
+      "reason": "Organizer site (reggaeattherock.com) confirms only Aug 8 to 9, 2026 at Manatee Island, which has already passed; no 2027 date posted.",
+      "url": "https://reggaeattherock.com/"
+    },
+    {
+      "event_name": "Tallahassee Beer Festival",
+      "start_date": "2027-08-07",
+      "reason": "Organizer site (tlhbeerfest.com) confirms only Sat Aug 8, 2026 at Tucker Civic Center, which has already passed; no 2027 date posted.",
+      "url": "https://tlhbeerfest.com/"
+    },
+    {
+      "event_name": "Sanford Food Truck Fiesta VIII",
+      "start_date": "2027-08-08",
+      "reason": "Runs as a recurring monthly market (sanfordfoodtruckfiesta.com); no numbered \"VIII\" edition or specific 2027 date is stated by the organizer, and the city calendar's Sept 13, 2026 listing has already passed.",
+      "url": "https://sanfordfl.gov/event-calendar/"
+    },
+    {
+      "event_name": "Marcus Garvey Music Fest",
+      "start_date": "2027-08-14",
+      "reason": "Only an Instagram page and aggregator listings found; no organizer website, and the most recent confirmed date (Aug 15, 2026) has already passed.",
+      "url": "https://www.instagram.com/marcus_garvey_music_fest/"
+    },
+    {
+      "event_name": "Obon Weekend at the Morikami Museum and Japanese Gardens",
+      "start_date": "2027-08-14",
+      "reason": "Organizer site (morikami.org) confirms only Sat Aug 15 to Sun Aug 16, 2026, which has already passed; no 2027 date posted.",
+      "url": "https://morikami.org/event/obon-weekend/"
+    },
+    {
+      "event_name": "Tarpon Springs Hippie Fest",
+      "start_date": "2027-08-14",
+      "reason": "Organizer's own events calendar shows \"No event found!\" for Hippie Fest; no date stated at all.",
+      "url": "https://tarponspringsmerchantassociation.com/tarpon-springs-events-calendar/tarpon-springs-hippie-fest/"
+    },
+    {
+      "event_name": "Mega Asian Food and Music Festival on the Water",
+      "start_date": "2027-08-20",
+      "reason": "Lead sourced from a Facebook event; organizer site (meganightmarket.com) lists no Clearwater/Coachman Park date, and the Aug 21 to 23, 2026 date found elsewhere has already passed.",
+      "url": "https://meganightmarket.com/"
+    },
+    {
+      "event_name": "Beertopia Beer and Food Festival",
+      "start_date": "2027-08-21",
+      "reason": "Organizer site (desotohq.com) confirms only Sat Aug 22, 2026 at the Manatee County Fairgrounds, which has already passed; no 2027 date is posted on the organizer's own pages.",
+      "url": "https://desotohq.com/beertopia/"
+    },
+    {
+      "event_name": "Jacksonville Caribbean Carnival",
+      "start_date": "2027-08-21",
+      "reason": "Organizer site's only confirmed upcoming date was a Sept 6, 2026 pre-carnival social, which has already passed; no carnival date for 2026 or 2027 is stated, and the lead's only other source is Facebook.",
+      "url": "https://jacksonvillecarnival.com/"
+    },
+    {
+      "event_name": "Largo Evening Market VI",
+      "start_date": "2027-08-21",
+      "reason": "Organizer pages (playlargo.com, thelargoeveningmarket.com) confirm only Sat Sep 26, 2026 at Ulmer Park, already published as largo-evening-market-2026 in earlier batches; no \"VI\" edition or Aug 2027 date is stated.",
+      "url": "https://www.playlargo.com/special_events_detail_T40_R81.php"
+    },
+    {
+      "event_name": "National Dog Day Festival",
+      "start_date": "2027-08-21",
+      "reason": "Lead sourced from a Facebook event only; no organizer website found for a dog festival in Neptune Beach.",
+      "url": "https://www.facebook.com/events/2844950702375242"
+    },
+    {
+      "event_name": "The Magik and Mythk Festival",
+      "start_date": "2027-08-21",
+      "reason": "Venue page (ohpark.com) confirms only Sat Aug 22, 2026 at Osceola Heritage Park, which has already passed; no 2027 date posted.",
+      "url": "https://www.ohpark.com/event/magik-and-mythk-festival/tm_17fov0g65s47pse/"
+    },
+    {
+      "event_name": "Jacksonville Ukrainian Festival",
+      "start_date": "2027-08-22",
+      "reason": "Only Facebook/Instagram sources found; the most recent confirmed date located was Aug 24, 2025, with no organizer website and no confirmed 2026 or 2027 date.",
+      "url": "https://www.instagram.com/ukrainefestjax/"
+    },
+    {
+      "event_name": "Rock the Country",
+      "start_date": "2027-08-27",
+      "reason": "Organizer site (rockthecountry.com/ocala-fl) confirms only Aug 28 to 29, 2026 at the Florida Horse Park, which has already passed; no 2027 Ocala date posted.",
+      "url": "https://rockthecountry.com/ocala-fl/"
+    },
+    {
+      "event_name": "Rock the Park Music and Arts Festival",
+      "start_date": "2027-08-28",
+      "reason": "City page (port-orange.org) confirms only Sat Aug 29, 2026 at Riverwalk Park, which has already passed; no 2027 date posted.",
+      "url": "https://www.port-orange.org/196/Special-Events"
+    },
+    {
+      "event_name": "Key West Womenfest",
+      "start_date": "2027-09-01",
+      "reason": "Organizer site (gaykeywestfl.com) and Key West Chamber confirm only Sept 2 to 6, 2026, which has already passed; no 2027 date posted.",
+      "url": "https://gaykeywestfl.com/womenfest/"
+    },
+    {
+      "event_name": "Fins Up on the Forgotten Coast Music Festival",
+      "start_date": "2027-09-03",
+      "reason": "Local venue/organizer sources confirm only Sept 4 to 6, 2026, which has already passed; no 2027 date posted, and the lead's organizer_url_hint (a Quickbase link) is not a usable event page.",
+      "url": "https://www.apalachicolabay.org/event/fins-up-on-the-forgotten-coast-a-music-festival-celebrating-jimmy-buffett-day-3/"
+    },
+    {
+      "event_name": "Florida Scallop, Music and Arts Festival",
+      "start_date": "2027-09-04",
+      "reason": "Sources conflict on the exact 2026 weekend (Aug 29 to 30 vs Sept 5 to 6) and either way it has already passed; no 2027 date posted, and the lead's only source is Facebook.",
+      "url": "https://www.facebook.com/FLAScallopFestival/"
+    },
+    {
+      "event_name": "GeckoFest",
+      "start_date": "2027-09-04",
+      "reason": "Organizer/venue page (visitgulfportflorida.com) confirms only Sat Sept 5, 2026 (26th annual), which has already passed; no 2027 date posted.",
+      "url": "https://visitgulfportflorida.com/event/gecko-fest/"
+    }
+  ]
+}

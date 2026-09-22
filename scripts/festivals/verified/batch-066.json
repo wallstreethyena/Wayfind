@@ -1,0 +1,195 @@
+{
+  "batch": 66,
+  "verified_by": "claude-sonnet",
+  "verified_at": "2026-09-22T18:14:30Z",
+  "publish": [
+    {
+      "event_id": "star-spangled-sanford-2027",
+      "event_series_id": "star-spangled-sanford",
+      "slug": "star-spangled-sanford-2027",
+      "year": 2027,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "city": "Sanford",
+      "county": "Seminole",
+      "state": "FL",
+      "category": "festival",
+      "subcategory": null,
+      "tags": ["festival"],
+      "audience": null,
+      "event_name": "Star Spangled Sanford",
+      "short_title": "Star Spangled Sanford",
+      "start_date": "2027-07-04",
+      "end_date": "2027-07-04",
+      "start_time": "19:00",
+      "end_time": "22:00",
+      "select_nights": false,
+      "schedule_note": "Jul 4, 7 to 10 PM",
+      "venue": "Fort Mellon Park / Sanford Riverwalk",
+      "address": "600 E 1st St, Sanford, FL 32771",
+      "lat": 28.811773,
+      "lng": -81.262889,
+      "is_free": true,
+      "price_min": null,
+      "price_max": null,
+      "card_hook": "Fireworks over Lake Monroe with street performers, food vendors and local artisans at Fort Mellon Park.",
+      "official_event_url": "https://sanfordfl.gov/events/star-spangled-sanford-459/",
+      "official_ticket_url": null,
+      "source_url": "https://sanfordfl.gov/events/star-spangled-sanford-459/",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-09-22T18:14:30Z",
+      "verify_note": "2026-09-22: sanfordfl.gov event page's structured event data states Date Jul 04 2027, Time 7:00 pm to 10:00 pm, Location Ft Mellon Park/RiverWalk; free, no ticket link. Dropped the page's 'Saturday' day-of-week label since Jul 4 2027 is a Sunday and that text looks like unrefreshed copy."
+    },
+    {
+      "event_id": "key-west-lobsterfest-2027",
+      "event_series_id": "key-west-lobsterfest",
+      "slug": "key-west-lobsterfest-2027",
+      "year": 2027,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "city": "Key West",
+      "county": "Monroe",
+      "state": "FL",
+      "category": "food",
+      "subcategory": null,
+      "tags": ["festival"],
+      "audience": null,
+      "event_name": "Key West Lobsterfest",
+      "short_title": "Lobsterfest",
+      "start_date": "2027-08-11",
+      "end_date": "2027-08-15",
+      "start_time": null,
+      "end_time": null,
+      "select_nights": false,
+      "schedule_note": "Wed Aug 11 to Sun Aug 15",
+      "venue": "Duval Street, Historic Old Town Key West",
+      "address": "300 Duval St, Key West, FL 33040",
+      "lat": 24.557982,
+      "lng": -81.804489,
+      "is_free": null,
+      "price_min": null,
+      "price_max": null,
+      "card_hook": "A five day Key West lobster celebration with a free Duval Street fair, parties, dinners and a pub crawl.",
+      "official_event_url": "https://keywestlobsterfest.com/",
+      "official_ticket_url": null,
+      "source_url": "https://keywestlobsterfest.com/",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-09-22T18:14:30Z",
+      "verify_note": "2026-09-22: keywestlobsterfest.com states the 29th Annual Key West Lobsterfest runs Aug 11 to 15 2027; same site names the street fair location as the 100 to 500 blocks of Duval Street (free), 2027 times and other pricing not yet posted so address uses the block's midpoint for mapping."
+    }
+  ],
+  "hold": [
+    {
+      "event_name": "Royal Palm Beach July 4th Celebration",
+      "start_date": "2027-07-04",
+      "reason": "Organizer page (pottcevents.com) only confirms the 2026 date; official Village of Royal Palm Beach event page returned 404. No 2027 date posted.",
+      "url": "https://www.pottcevents.com/RPB-4-of-July-Celebration.html"
+    },
+    {
+      "event_name": "Safety Harbor 4th of July Celebration",
+      "start_date": "2027-07-04",
+      "reason": "cityofsafetyharbor.com calendar page only shows the 2026 event (Jul 4, 2026, Waterfront Park); no 2027 date posted.",
+      "url": "https://cityofsafetyharbor.com/Calendar.aspx?EID=22146&month=3&year=2026&day=25&calType=0"
+    },
+    {
+      "event_name": "Sopchoppy 4th of July Celebration",
+      "start_date": "2027-07-04",
+      "reason": "Only Facebook and aggregator coverage found; no city or event-committee page states a 2027 date.",
+      "url": "https://www.facebook.com/Sopchoppy4thOfJuly/"
+    },
+    {
+      "event_name": "St. Cloud Area 4th of July Celebration",
+      "start_date": "2027-07-04",
+      "reason": "stcloudfl.gov page only confirms the 2026 date (4th on the Lake, Jul 4, 2026, Lakefront Park); no 2027 date posted.",
+      "url": "https://www.stcloudfl.gov/1677/4th-of-July-Celebration"
+    },
+    {
+      "event_name": "Star Spangled Bonita 4th of July Celebration",
+      "start_date": "2027-07-04",
+      "reason": "cityofbonitasprings.org pages only confirm 2026 (Riverside Park); the 2026-2027 approved special events list has no Independence Day entry and no 2027-specific event page was found.",
+      "url": "https://www.cityofbonitasprings.org/cms/One.aspx?portalId=11726542&pageId=13788726"
+    },
+    {
+      "event_name": "Tavares July 4th Celebration",
+      "start_date": "2027-07-04",
+      "reason": "tavaresfl.gov page only confirms the 2026 date (Sat Jul 4, 2026, Downtown Tavares); no 2027 date posted.",
+      "url": "https://www.tavaresfl.gov/1313/July-4th-Celebration"
+    },
+    {
+      "event_name": "The Fourth at the St. Pete Pier",
+      "start_date": "2027-07-04",
+      "reason": "Organizer page stpetepier.org covers only the 2026 event and is marked as passed; no 2027 date posted.",
+      "url": "https://stpetepier.org/event/the-fourth-celebrating-america-250/"
+    },
+    {
+      "event_name": "Thunder on the Ridge",
+      "start_date": "2027-07-04",
+      "reason": "hainescity.com calendar only confirms the 2026 date (Jul 4, 2026, Lake Eva Park); no 2027 date posted.",
+      "url": "https://hainescity.com/Calendar.aspx?EID=6654&month=3&year=2026&day=25&calType=0"
+    },
+    {
+      "event_name": "United Flagler 4th",
+      "start_date": "2027-07-04",
+      "reason": "palmcoast.gov page only confirms the 2026 dates (Jul 3 to 4, 2026); no 2027 date posted.",
+      "url": "https://www.palmcoast.gov/Events/Home/Details?slug=unitedflagler4th"
+    },
+    {
+      "event_name": "Swamp Stomp Music Festival",
+      "start_date": "2027-07-10",
+      "reason": "tallahasseemuseum.org event page only confirms the 2026 date (Sat Jul 11, 2026); no 2027 date posted.",
+      "url": "https://tallahasseemuseum.org/events/swamp-stomp/"
+    },
+    {
+      "event_name": "Sanford Food Truck Fiesta VII",
+      "start_date": "2027-07-11",
+      "reason": "Sanford Food Truck Fiesta runs as a recurring monthly market on sanfordfl.gov/sanfordfoodtruckfiesta.com with no 2027-specific 'VII' edition date confirmed by the organizer.",
+      "url": "https://sanfordfl.gov/event-calendar/"
+    },
+    {
+      "event_name": "Summer Asian Food and Music Festival",
+      "start_date": "2027-07-11",
+      "reason": "Only the 2026 edition (Jul 12, 2026, Seminole Hard Rock Tampa) is confirmed; the organizer's own event page now 404s and no 2027 date has been posted.",
+      "url": "https://casino.hardrock.com/tampa/events/summer-asian-food-and-music-festival"
+    },
+    {
+      "event_name": "Asian Mega Night Market Food and Music Festival on the Tampa Riverfront",
+      "start_date": "2027-07-16",
+      "reason": "Organizer meganightmarket.com has no Tampa Riverfront July 2027 listing; only a Hollywood, FL Sept 2026 event and past editions are posted, and the lead's only source is a Facebook event.",
+      "url": "https://meganightmarket.com/"
+    },
+    {
+      "event_name": "Lake Placid Caladium Festival",
+      "start_date": "2027-07-23",
+      "reason": "caladiumfestival.org only confirms the 2026 event (35th Annual, Jul 24 to 26, 2026, Stuart Park); no 2027 date posted.",
+      "url": "https://www.caladiumfestival.org/"
+    },
+    {
+      "event_name": "Largo Evening Market V",
+      "start_date": "2027-07-24",
+      "reason": "playlargo.com's event page shows a Sept 26, 2026 market, not a 'V' edition or a July 2027 date; no organizer confirmation of the lead's date.",
+      "url": "https://www.playlargo.com/special_events_detail_T40_R81.php"
+    },
+    {
+      "event_name": "Street Fair (Hemingway Days)",
+      "start_date": "2027-07-24",
+      "reason": "Organizer sites (sloppyjoes.com, keywestlookalikes.com) confirm only the 2026 dates (Jul 21 to 26, 2026); no 2027 date posted.",
+      "url": "https://www.sloppyjoes.com/hemingway-days/"
+    },
+    {
+      "event_name": "Fishermen’s Village TikiFest",
+      "start_date": "2027-07-31",
+      "reason": "fishermensvillage.com/events lists TikiFest only for 2026 (Aug 1); no 2027 date posted.",
+      "url": "https://www.fishermensvillage.com/events"
+    },
+    {
+      "event_name": "Wausau Possum Festival",
+      "start_date": "2027-07-31",
+      "reason": "visitwcfla.com and the town organizer only confirm the 2026 date (Jul 31 to Aug 1, 2026); 2027 dates not yet updated by the event promoter.",
+      "url": "https://visitwcfla.com/events/wausau-possum-festival/"
+    }
+  ]
+}
