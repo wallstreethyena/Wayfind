@@ -17,7 +17,9 @@ export default function NativeShellInit() {
     initNativeShell({
       onDeepLink: (path) => { try { router.push(path); } catch (e) {} },
     });
-    // Registers for push and hands the APNs token to a SECURITY DEFINER RPC.
+    // Registers for push through Wayfind's server endpoint. The browser/native
+    // shell never receives database write authority; the server verifies any
+    // signed-in session and uses a service-only storage function.
     //
     // WAS a direct .from("device_push_tokens").upsert(), against a table that
     // DOES NOT EXIST — verified against the live database, not inferred. So
@@ -44,12 +46,23 @@ export default function NativeShellInit() {
     // See supabase/push-token-register.sql. Until that is applied this call
     // fails exactly as the old one did — no regression, and the same silence.
     registerPushNotifications(async (token) => {
-      if (!hasSupabase || !supabase) return;
       try {
-        await supabase.rpc("wf_register_push_token", {
-          p_token: token,
-          p_platform: "ios",
-          p_device_id: deviceId(),
+        const headers = { "content-type": "application/json" };
+        if (hasSupabase && supabase) {
+          try {
+            const { data } = await supabase.auth.getSession();
+            const accessToken = data?.session?.access_token;
+            if (accessToken) headers.authorization = "Bearer " + accessToken;
+          } catch (e) {}
+        }
+        await fetch("/api/push/register", {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            token,
+            platform: "ios",
+            deviceId: deviceId(),
+          }),
         });
       } catch (e) {}
     });
