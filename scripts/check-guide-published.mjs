@@ -29,9 +29,14 @@ const ok = (c, m) => { assert.ok(c, m); pass++; };
 // ── 1. The route's Article JSON-LD must fall back to `updated` — assert on
 // the actual expression, not merely that "datePublished" appears somewhere. ─
 const route = readFileSync(new URL("../app/guides/[slug]/page.js", import.meta.url), "utf8");
-ok(/\(g\.published \|\| g\.updated\) \? \{ datePublished: g\.published \|\| g\.updated \}/.test(route),
+ok(/\(g\.published \|\| g\.updated\) \? \{ datePublished: ldDateTime\(g\.published \|\| g\.updated\) \}/.test(route),
   "Article JSON-LD's datePublished falls back to g.updated when g.published is absent");
-ok(/dateModified: g\.updated/.test(route), "dateModified still reflects the factual updated date (unchanged by this fix)");
+// Rich Results Test (2026-09-23) flagged bare YYYY-MM-DD Article dates as
+// "missing a timezone". Both dates must go through ldDateTime, which appends
+// an America/New_York offset.
+ok(/dateModified: ldDateTime\(g\.updated\)/.test(route), "Article JSON-LD dateModified carries a timezone via ldDateTime");
+ok(/function ldDateTime\(d\)[\s\S]{0,400}America\/New_York/.test(route), "ldDateTime resolves the Eastern offset (DST-aware), not a hardcoded one");
+ok(/dateModified: ldDateTime\(g\.updated\)/.test(route), "dateModified still reflects the factual updated date (only its timezone was added)");
 
 // ── 2. Every CURRENT guide has a real, non-empty published OR updated date,
 // so datePublished is never actually omitted today. ─────────────────────────
