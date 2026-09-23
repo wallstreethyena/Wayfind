@@ -46,7 +46,7 @@ import { stayOnRailReaction } from "../../lib/railReaction.js";
 import { creatorVideosFor } from "../../lib/creatorVideos";
 import CreatorCardMark from "./CreatorCardMark";
 import { topPickAward } from "../../lib/topPickAward";
-import { couponForPlace } from "../../lib/coupons";
+import { couponForPlace } from "../../lib/coupons";\nimport { normalizePlaceCardHref } from "../../lib/placeCardRoute.js";
 
 // ---------------------------------------------------------------------------
 // Experience-tag chips (owner: "I need the cards to look like the cards from
@@ -287,7 +287,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
     type: "experience",
     title: place.name,
     image: photoUrl(place),
-    url: href || "",
+    url: cardHref || "",
   } : null);
   // ── EVERY HOOK LIVES ABOVE THE EARLY RETURN ────────────────────────────────
   // 2026-08-21. This component called useCardActions, returned on `!place`, and
@@ -467,11 +467,11 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
     // SHEET instead of navigating away and losing the map. href remains the
     // fallback and the crawlable link.
     if (onOpen) { onOpen(place); return; }
-    if (href && typeof window !== "undefined") window.location.assign(href);
+    if (cardHref && typeof window !== "undefined") window.location.assign(cardHref);
   };
 
   return (
-    <li ref={cardRef} data-iconic-place-card data-card-opens-detail onClick={openCard} className={`wf-place-card${fallCardClass(place.id, siteTodayStr())}${isCuratorPick ? " is-curator-pick" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${hasTake ? "" : " is-no-take"}${cta ? " has-cta" : ""}`} style={{ listStyle: "none", cursor: href ? "pointer" : "default" }}>
+    <li ref={cardRef} data-iconic-place-card data-card-opens-detail onClick={openCard} className={`wf-place-card${fallCardClass(place.id, siteTodayStr())}${isCuratorPick ? " is-curator-pick" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${hasTake ? "" : " is-no-take"}${cta ? " has-cta" : ""}`} style={{ listStyle: "none", cursor: cardHref ? "pointer" : "default" }}>
       {/* v8.62 (owner, 2026-08-26, live): the Wayfind Score sits in the top
           right corner of the CARD, never on the photo. Direct child of
           .wf-place-card so the shared css.js rule anchors it to the card. */}
@@ -535,7 +535,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
           <div className="wf-place-card-title-row" style={{ display: "flex", alignItems: "flex-start" }}>
             <div className="wf-place-card-heading">
               <span className="wf-place-card-category">{category}</span>
-              <a className="wf-place-card-name" href={href} onClick={onOpen ? (e) => { e.preventDefault(); e.stopPropagation(); onOpen(place); } : undefined} style={{ display: "block", color: "#F8F5EE", textDecoration: "none" }}>{place.name}</a>
+              <a className="wf-place-card-name" href={cardHref} onClick={onOpen ? (e) => { e.preventDefault(); e.stopPropagation(); onOpen(place); } : undefined} style={{ display: "block", color: "#F8F5EE", textDecoration: "none" }}>{place.name}</a>
             </div>
           </div>
 
