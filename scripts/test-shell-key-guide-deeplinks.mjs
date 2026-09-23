@@ -83,16 +83,16 @@ const summer = SUMMER_UNIVERSE.find((e) => e && e.key === "shell_key");
 ok(!!summer && summer.venue && summer.venue.placeId === PLACE_ID,
   "summerUniverse.shell_key still carries the same placeId — this PR did not mint a new identity");
 
-// ── 5. Guide + culture templates actually emit /places/{placeId} ──────────
+// ── 5. Guide interactions use the full app detail route. Culture list links
+// remain crawlable /places documents and are asserted separately below. ────
 const guidePage = strip(readFileSync(new URL("../app/guides/[slug]/page.js", import.meta.url), "utf8"));
-const placeHref = /href=\{\s*"\/places\/"\s*\+\s*encodeURIComponent\(pick\.placeId\)\s*\}/g;
-const guideHrefs = guidePage.match(placeHref) || [];
-ok(guideHrefs.length === 2,
-  `guide template renders /places/{pick.placeId} twice (heading + action) — got ${guideHrefs.length}`);
-ok(/<h2[\s\S]{0,240}pick\.placeId[\s\S]{0,160}\/places\//.test(guidePage),
-  "the heading is the /places/ link — crawlers read the h2, not a comment");
-ok(/wf-guide-actions[\s\S]{0,220}pick\.placeId[\s\S]{0,120}\/places\//.test(guidePage),
-  "the actions row also links /places/{pick.placeId} so a human can tap it");
+const guideDetailHrefs = guidePage.match(/href=\{guidePlacePath\(pick\.placeId\)\}/g) || [];
+ok(guideDetailHrefs.length === 2,
+  `guide template routes heading + action through guidePlacePath() twice — got ${guideDetailHrefs.length}`);
+ok(/<h2[\s\S]{0,260}pick\.placeId[\s\S]{0,180}guidePlacePath\(pick\.placeId\)/.test(guidePage),
+  "the guide pick heading routes through the full-detail helper");
+ok(/wf-guide-actions[\s\S]{0,240}pick\.placeId[\s\S]{0,160}guidePlacePath\(pick\.placeId\)/.test(guidePage),
+  "the guide actions row routes through the full-detail helper so a human never lands on the thin SEO page");
 // v2026-09-22 (guide-standard, superseding #1411's own "Open in Wayfind"
 // button copy with the neutral "Explore this place" — enforced now by
 // scripts/check-guides.mjs's own experience-first rule, which fails the
@@ -138,4 +138,4 @@ if (fail.length) {
   for (const f of fail) console.error("  - " + f);
   process.exit(1);
 }
-console.log(`test-shell-key-guide-deeplinks: OK — ${pass} assertions (GUIDES/CULTURE/TOWN_PROFILES CALLED; ${ST_PETE} + ${TAMPA} + /culture/tampa + St. Pete town profiles deep-link ${PLACE_ID}; template hrefs are /places/{placeId}; no SKU, no ferry, no search-as-Book)`);
+console.log(`test-shell-key-guide-deeplinks: OK — ${pass} assertions (GUIDES/CULTURE/TOWN_PROFILES CALLED; ${ST_PETE} + ${TAMPA} + /culture/tampa + St. Pete town profiles deep-link ${PLACE_ID}; guide interactions use full /p detail while culture list links keep crawlable /places URLs; no SKU, no ferry, no search-as-Book)`);
