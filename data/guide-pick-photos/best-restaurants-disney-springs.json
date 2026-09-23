@@ -1,0 +1,111 @@
+{
+  "slug": "best-restaurants-disney-springs",
+  "picks": {
+    "The Boathouse": {
+      "src": "/guides/picks/best-restaurants-disney-springs/boathouse-disney-springs.webp",
+      "width": 1400,
+      "height": 933,
+      "alt": "The Boathouse restaurant's blue waterfront building with nautical flags and a tall green lighthouse-style tower at Disney Springs, with visitors walking past",
+      "caption": "The Boathouse's waterfront building and lighthouse tower at Disney Springs.",
+      "credit": "Theme Park Tourist",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:The_Boathouse_(22649625124).jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Boathouse_(22649625124).jpg",
+      "author": "Theme Park Tourist",
+      "position": "42% 30%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Downloaded the original (5184x3456) from Wikimedia Commons and inspected it directly: the restaurant's blue building lettered 'THE BOATHOUSE' with nautical signal flags and its tall green lighthouse-style tower, at Disney Springs. Visitors in frame are ordinary passersby, not portrait subjects.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
+    },
+    "Morimoto Asia": {
+      "src": "/guides/picks/best-restaurants-disney-springs/morimoto-asia-interior.webp",
+      "width": 1400,
+      "height": 788,
+      "alt": "Morimoto Asia's dramatic cascading crystal-strand chandeliers over the restaurant's staircase and bar, with orchids in the foreground",
+      "caption": "The cascading crystal chandeliers over Morimoto Asia's staircase at Disney Springs.",
+      "credit": "Terry Ballard",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Morimoto_Restaurant_in_Disney_Springs_(27376853234).jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Morimoto_Restaurant_in_Disney_Springs_(27376853234).jpg",
+      "author": "Terry Ballard",
+      "position": "50% 45%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Downloaded the original (3264x1836) from Wikimedia Commons and inspected it directly: the long cascading crystal-strand chandeliers over an open staircase and bottle-lit bar back, matching Morimoto Asia's signature interior design. The file is titled and described 'Morimoto Restaurant in Disney Springs'.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
+    },
+    "Gideon's Bakehouse": {
+      "src": "/guides/picks/best-restaurants-disney-springs/gideons-bakehouse-sign.webp",
+      "width": 1400,
+      "height": 1054,
+      "alt": "The Gideon's Bakehouse sign over its entrance at Disney Springs at night, brick facade lit from below with a palm tree beside it",
+      "caption": "The entrance sign at Gideon's Bakehouse in Disney Springs.",
+      "credit": "Jeremy Thompson",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Gideon%27s_Bakehouse_at_Disney_Springs.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Gideon%27s_Bakehouse_at_Disney_Springs.jpg",
+      "author": "Jeremy Thompson",
+      "position": "45% 45%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Downloaded the original (4080x3072) from Wikimedia Commons and inspected it directly: the illuminated 'GIDEON'S BAKEHOUSE' sign over the brick entrance at Disney Springs, matching the file's description 'Sign over the entranceway of Gideon's Bakehouse at Disney Springs in Lake Buena Vista, FL'.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
+    }
+  },
+  "hero": {
+    "src": "/guides/picks/best-restaurants-disney-springs/disney-springs-hero.webp",
+    "width": 1012,
+    "height": 1349,
+    "alt": "The clear turquoise waterway of Disney Springs lined with cypress trees and shops, under a blue sky",
+    "caption": "The waterway at Disney Springs, the shopping and dining district these restaurants sit in.",
+    "credit": "Melissa Guadalupe Huertas",
+    "creditHref": "https://commons.wikimedia.org/wiki/File:Sunny_day_on_Disney_Springs,_USA.jpg",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Sunny_day_on_Disney_Springs,_USA.jpg",
+    "author": "Melissa Guadalupe Huertas",
+    "position": "55% 60%",
+    "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+    "sourceKind": "commons",
+    "placeId": null,
+    "verification": "Downloaded the original (3024x4032, dated October 2022) from Wikimedia Commons and inspected it directly: the clear turquoise water and landscaped banks of Disney Springs's namesake waterway, with the district's shops in the background, captioned 'View of Disney Springs - October 2022'. The published guide hero was previously generic stock that did not show this district; this replacement shows the real place.",
+    "sameAsCardPhoto": false,
+    "reviewedAt": "2026-09-23"
+  },
+  "gaps": {
+    "Homecomin'": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": "Homecomin' Florida Kitchen (Chef Art Smith)",
+      "note": "No Commons search under any phrasing tried ('Homecomin Disney Springs', 'Homecomin Florida Kitchen', the general Disney Springs geosearch) returned a photo of this restaurant."
+    },
+    "Wine Bar George": {
+      "reason": "no-verified-source",
+      "placeId": "ChIJ_7j9pYd_3YgRmJkanPMuZ0k",
+      "needsPermissionFrom": "Wine Bar George",
+      "note": "Wayfind's wf_place_photo row for this place_id is status 'rejected' with no image_url -- already vetted and found to have no usable photo. No Commons search turned up a photo of this restaurant either."
+    },
+    "Jaleo by José Andrés": {
+      "reason": "no-verified-source",
+      "placeId": "ChIJ0_My9aR_3YgRQnilGsmaCps",
+      "needsPermissionFrom": "Jaleo by José Andrés",
+      "note": "No row exists in wf_place_photo for this place_id, and no Commons search turned up a photo of this restaurant."
+    },
+    "T-REX Cafe": {
+      "reason": "no-verified-source",
+      "placeId": "ChIJO3vjMIF_3YgRqb3SdwzbyII",
+      "needsPermissionFrom": "T-REX Cafe",
+      "note": "No row exists in wf_place_photo for this place_id, and no Commons search (including for the dinosaur-themed exterior specifically) turned up a photo of this restaurant."
+    }
+  }
+}

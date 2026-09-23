@@ -1,0 +1,65 @@
+{
+  "slug": "weeki-wachee-kayak-mermaids-guide",
+  "picks": {
+    "Paddle the Weeki Wachee River (reserve ahead)": {
+      "src": "/guides/picks/weeki-wachee-kayak-mermaids-guide/weeki-wachee-river.webp",
+      "width": 1012,
+      "height": 759,
+      "alt": "The spring-clear, turquoise water of the Weeki Wachee River lined with dense forest, sand and grass visible on the bottom",
+      "caption": "The spring-clear water of the Weeki Wachee River inside Weeki Wachee Springs State Park.",
+      "credit": "Gzuraski",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Weeki_Wachee_River_July_2013.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Weeki_Wachee_River_July_2013.jpg",
+      "author": "Gzuraski",
+      "position": "50% 55%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Downloaded the original (2000x1500) from Wikimedia Commons and inspected it directly: clear turquoise spring water over sand and grass beds, lined by dense forest. The file is titled 'Weeki Wachee River July 2013' and described as 'Picture of the Weeki Wachee River in the Weeki Wachee Springs State Park' -- the exact river this pick covers.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
+    },
+    "The live mermaid show": {
+      "src": "/guides/picks/weeki-wachee-kayak-mermaids-guide/mermaid-shows-park-sign.webp",
+      "width": 1400,
+      "height": 945,
+      "alt": "The blue Weeki Wachee Springs road sign at the park's front gate on US 19, with placards reading Mermaid Shows and River Cruise",
+      "caption": "The Weeki Wachee Springs entrance sign on US 19, advertising the park's mermaid shows and river cruise.",
+      "credit": "DanTD",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Weeki_Wachee_sign_-_Entrance.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Weeki_Wachee_sign_-_Entrance.jpg",
+      "author": "DanTD",
+      "position": "62% 45%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Downloaded the original (1800x1215) from Wikimedia Commons and inspected it directly: the blue front-gate sign reads 'Weeki Wachee Springs' with placards for 'MERMAID SHOWS' and 'RIVER CRUISE', at the park's real US 19 entrance. No properly licensed contemporary photo of the underwater theater performance itself exists on Commons (the only performance photos are pre-1970s Florida State Archives images marked plain public domain, outside this project's allowed licence list, and would show identifiable performers); this on-site sign is the verified stand-in that still shows the exact attraction and place named in the pick.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
+    }
+  },
+  "gaps": {
+    "Buccaneer Bay, the spring-fed water park": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "No Commons search turned up any photo of Buccaneer Bay (the spring-fed water park within Weeki Wachee Springs State Park); every 'Weeki Wachee' result on Commons is either the river, the springs, the mermaid show's history, or the front-gate sign."
+    },
+    "When the manatees come": {
+      "reason": "not-a-place",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "Describes a seasonal wildlife behavior (manatees moving into the river in cooler months, gathering at Hospital Hole downstream) rather than one distinct, visitable place."
+    },
+    "The river rules that keep it this clear": {
+      "reason": "not-a-place",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "Describes the Springs Protection Zone rules, not a place."
+    }
+  }
+}
