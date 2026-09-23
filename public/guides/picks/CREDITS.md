@@ -79,6 +79,11 @@ Every photo is a Creative Commons download; images may be resized, cropped and c
 - `/guides/picks/magical-dining-orlando-2026/ottos-high-dive-milk-district.webp` — magical-dining-orlando-2026: Otto's High Dive, Milk District. [Dclemens1971](https://commons.wikimedia.org/wiki/File:Otto%E2%80%99s_Rum_Bar.jpg); [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 - `/guides/picks/magical-dining-orlando-2026/ottos-high-dive-milk-district.webp` — magical-dining-orlando-2026: hero image. [Dclemens1971](https://commons.wikimedia.org/wiki/File:Otto%E2%80%99s_Rum_Bar.jpg); [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 
+## miami-restaurants
+
+- `/guides/picks/miami-restaurants/cote-korean-steakhouse-sign.webp` — miami-restaurants: COTE Miami. [Sharon Hahn Darlin](https://commons.wikimedia.org/wiki/File:%EA%BD%83_(Cote),_Design_District,_Miami,_Florida.jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
+- `/guides/picks/miami-restaurants/versailles-restaurant-exterior.webp` — miami-restaurants: Versailles Restaurant Cuban Cuisine. [Bobak Ha'Eri](https://commons.wikimedia.org/wiki/File:2008-0426-FL-Versailles-EXT.jpg); [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
+
 ## myakka-river-state-park-guide
 
 - `/guides/picks/myakka-river-state-park-guide/myakka-river-kayak.webp` — myakka-river-state-park-guide: Paddle or pedal it. [Mwanner](https://commons.wikimedia.org/wiki/File:Myakka_River_-_Kayaking.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
@@ -97,6 +102,10 @@ Every photo is a Creative Commons download; images may be resized, cropped and c
 - `/guides/picks/orlando-in-the-rain/sea-life-orlando-aquarium-exterior.webp` — orlando-in-the-rain: SEA LIFE Orlando Aquarium. [Benoît Prieur](https://commons.wikimedia.org/wiki/File:SEA_LIFE_Orlando_Aquarium_en_f%C3%A9vrier_2022.JPG); [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
 - `/guides/picks/orlando-in-the-rain/wonderworks-upside-down-building.webp` — orlando-in-the-rain: WonderWorks Orlando. [Leonard J. DeFrancisci](https://commons.wikimedia.org/wiki/File:WonderWorks_(Orlando,_Florida)_001.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/orlando-in-the-rain/wonderworks-upside-down-building.webp` — orlando-in-the-rain: hero image. [Leonard J. DeFrancisci](https://commons.wikimedia.org/wiki/File:WonderWorks_(Orlando,_Florida)_001.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+
+## orlando-restaurants
+
+- `/guides/picks/magical-dining-orlando-2026/ottos-high-dive-milk-district.webp` — orlando-restaurants: Otto’s High Dive. [Dclemens1971](https://commons.wikimedia.org/wiki/File:Otto%E2%80%99s_Rum_Bar.jpg); [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 
 ## pinecraft-sarasota-amish-village
 
@@ -128,11 +137,22 @@ Every photo is a Creative Commons download; images may be resized, cropped and c
 
 - `/guides/picks/st-armands-circle-restaurants/st-armands-circle-storefronts.webp` — st-armands-circle-restaurants: hero image. [Ebyabe](https://commons.wikimedia.org/wiki/File:Sarasota_FL_Harding_Circle_HD_St_Armands_Circle03.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
+## st-pete-restaurants
+
+- `/guides/picks/st-pete-restaurants/doc-fords-pier-patio.webp` — st-pete-restaurants: Doc Ford's Rum Bar and Grille St Pete Pier. [Calmuziclover](https://commons.wikimedia.org/wiki/File:Doc_Ford%27s_Rum_Bar_and_Grille_on_the_new_St_Petersburg_Pier_(50220515643).jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
+
 ## swim-with-manatees-crystal-river
 
 - `/guides/picks/swim-with-manatees-crystal-river/homosassa-springs-entrance.webp` — swim-with-manatees-crystal-river: Homosassa Springs Wildlife State Park. [Paul Clark](https://commons.wikimedia.org/wiki/File:Homosassa_Springs_Wildlife_State_Park_(Citrus_County,_FL).jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 - `/guides/picks/swim-with-manatees-crystal-river/manatee-kings-bay.webp` — swim-with-manatees-crystal-river: Swim with the manatees in Kings Bay. [USFWS Endangered Species (David Hinkel)](https://commons.wikimedia.org/wiki/File:Endangered_Florida_manatee_(Trichechus_manatus),_Crystal_River_National_Wildlife_Refuge,_Florida_(5104976921).jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 - `/guides/picks/swim-with-manatees-crystal-river/three-sisters-springs-water.webp` — swim-with-manatees-crystal-river: Three Sisters Springs, from the water. [CityofCrystalRiver](https://commons.wikimedia.org/wiki/File:Three_Sister_Springs.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+
+## tampa-restaurants
+
+- `/guides/picks/things-to-do-in-tampa-florida/berns-dessert-room.webp` — tampa-restaurants: Bern's Steak House. [Swampyank](https://commons.wikimedia.org/wiki/File:Bern%27s_Steak_House.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/best-cuban-sandwich-tampa/columbia-restaurant.webp` — tampa-restaurants: Columbia Restaurant. [LittleT889](https://commons.wikimedia.org/wiki/File:Columbia,_Ybor_City.jpg); [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- `/guides/picks/best-cuban-sandwich-tampa/la-segunda-central-bakery.webp` — tampa-restaurants: La Segunda Bakery and Cafe. [LittleT889](https://commons.wikimedia.org/wiki/File:La_Segunda_Central_Bakery.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/tampa-restaurants/oxford-exchange-exterior.webp` — tampa-restaurants: Oxford Exchange. [Oxford Exchange](https://commons.wikimedia.org/wiki/File:Oxford_Exchange_Exterior.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
 ## tampa-riverwalk-guide
 

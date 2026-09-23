@@ -1,0 +1,95 @@
+{
+  "slug": "miami-restaurants",
+  "picks": {
+    "COTE Miami": {
+      "src": "/guides/picks/miami-restaurants/cote-korean-steakhouse-sign.webp",
+      "width": 1280,
+      "height": 1196,
+      "alt": "Backlit brass letters reading COTE KOREAN STEAKHOUSE mounted on the curved white facade of the restaurant's Design District building",
+      "caption": "COTE Korean Steakhouse's sign on its Design District building.",
+      "credit": "Sharon Hahn Darlin",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:%EA%BD%83_(Cote),_Design_District,_Miami,_Florida.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:%EA%BD%83_(Cote),_Design_District,_Miami,_Florida.jpg",
+      "author": "Sharon Hahn Darlin",
+      "position": "55% 48%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": "ChIJT8zbHlex2YgRbmlvb54NTIY",
+      "verification": "Commons file titled \"꽃 (Cote), Design District, Miami, Florida\" with description \"Korean Steakhouse\", photographed 2021-06-05 by Sharon Hahn Darlin. The image itself shows the restaurant's curved white facade with backlit letters reading COTE KOREAN STEAKHOUSE. Two pedestrians at the bottom edge are small, distant and incidental, not the subject. Live Commons page checked: licensed under Creative Commons Attribution 2.0 Generic, confirmed by FlickreviewR 2 as cc-by-2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
+    },
+    "Versailles Restaurant Cuban Cuisine": {
+      "src": "/guides/picks/miami-restaurants/versailles-restaurant-exterior.webp",
+      "width": 1280,
+      "height": 743,
+      "alt": "Versailles Restaurant's pylon sign reading Versailles Restaurant Cuban Cuisine in front of its cream, balustraded building with red awnings and palm trees on Calle Ocho",
+      "caption": "Versailles Restaurant's sign and Calle Ocho storefront in Little Havana (photographed in 2008).",
+      "credit": "Bobak Ha'Eri",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:2008-0426-FL-Versailles-EXT.jpg",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:2008-0426-FL-Versailles-EXT.jpg",
+      "author": "Bobak Ha'Eri",
+      "position": "50% 45%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": "ChIJt9yvFgu32YgRrk-vKGEQB6g",
+      "verification": "Commons file titled \"Exterior of Versailles Restaurant in Little Havana, Miami, Florida\", taken 2008-04-26 by Bobak Ha'Eri. The pylon sign reads 'Versailles Restaurant / Cuban Cuisine'. Photo is ~18 years old, so I compared it against two newer Commons photos of the same address (2018 and June 2021, both also in this guide's candidate pool): the same cream balustraded roofline, arched windows and red awnings appear unchanged in all three, confirming the building still matches its 2008 appearance; year noted in the caption per the currency rule. Live Commons page checked: licensed under Creative Commons Attribution 3.0 Unported (CC BY 3.0).",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
+    }
+  },
+  "gaps": {
+    "Sunny’s Steakhouse": {
+      "reason": "google-only",
+      "placeId": "ChIJ0dm17kix2YgRoDAy8rxLOjU",
+      "needsPermissionFrom": "Sunny's Steakhouse",
+      "note": "Restaurant pass (2026-09-23): rest-commons.json listed zero Commons candidates. Openverse queries 'Sunny's Steakhouse Miami' and 'Sunny's Steakhouse Little River Miami' returned zero results; 'Sunny's Steakhouse' alone returned one unrelated hit (a different building, 'Primal Cut Steakhouse ex Sapphire'). This newer Little River steakhouse has no CC-licensed photo online yet."
+    },
+    "Boia De": {
+      "reason": "google-only",
+      "placeId": "ChIJte0b2xux2YgRr8f-xaLb0jw",
+      "needsPermissionFrom": "Boia De",
+      "note": "Restaurant pass (2026-09-23): Checked 12 Commons candidates, all Portuguese/Galician/Brazilian-Navy photos of 'boia' (buoy) and a Spanish 'Bar Boia' in Cadaques, none the Miami restaurant. Openverse queries 'Boia De Miami restaurant' and 'Boia De Miami Design District' returned zero results; 'Boia De' alone returned 167 unrelated buoy/navigation-marker results. No qualifying photo of this restaurant was found."
+    },
+    "Barra Callao": {
+      "reason": "no-verified-source",
+      "placeId": "ChIJv7BTO4-t2YgRqNxbUEldJjE",
+      "needsPermissionFrom": "Barra Callao",
+      "note": "Restaurant pass (2026-09-23): rest-commons.json listed zero Commons candidates. Openverse query 'Barra Callao Miami' returned zero results; 'Barra Callao' alone returned one unrelated hit (a Peruvian sports-club supporters' stand in Callao, Peru). No CC-licensed photo of this Miami restaurant was found."
+    },
+    "Walrus Rodeo": {
+      "reason": "google-only",
+      "placeId": "ChIJsSLy8Nex2YgRgbI_3id8b_E",
+      "needsPermissionFrom": "Walrus Rodeo",
+      "note": "Restaurant pass (2026-09-23): rest-commons.json listed zero Commons candidates. Openverse queries 'Walrus Rodeo Miami', 'Walrus Rodeo' and 'Walrus Rodeo bar Little River Miami' all returned zero results. No CC-licensed photo of this Little River restaurant exists in either source."
+    },
+    "B & M Market": {
+      "reason": "google-only",
+      "placeId": "ChIJ9ZlVHnmx2YgRIhh-NLFLt5w",
+      "needsPermissionFrom": "B & M Market",
+      "note": "Restaurant pass (2026-09-23): Checked 4 Commons candidates, all the unrelated UK 'B&M' discount-store chain in Pontefract, England. Openverse queries 'B and M Market Miami' and 'B&M Market Little Haiti' both returned zero results. No photo of this Miami Caribbean market was found; the pick's name also collides with the UK retail chain in search."
+    },
+    "Chug's Diner": {
+      "reason": "google-only",
+      "placeId": "ChIJoZfKYcy32YgR4ROg8Mdxtnw",
+      "needsPermissionFrom": "Chug's Diner",
+      "note": "Restaurant pass (2026-09-23): rest-commons.json listed zero Commons candidates. Openverse queries 'Chug's Diner Miami', 'Chug's Diner' and 'Chug's Diner Coconut Grove Miami' all returned zero results. No CC-licensed photo of this Coconut Grove diner was found."
+    },
+    "La Natural": {
+      "reason": "google-only",
+      "placeId": "ChIJaeBbjZmx2YgRI0Yb0-WQtPU",
+      "needsPermissionFrom": "La Natural",
+      "note": "Restaurant pass (2026-09-23): Both Commons candidates were unrelated Los Angeles Natural History Museum photos. Openverse query 'La Natural Miami restaurant' returned 21 results, all unrelated stock/travel photography with no connection to this Little River restaurant; 'La Natural Little River Miami restaurant' returned zero. No qualifying photo was found."
+    },
+    "Over Under": {
+      "reason": "google-only",
+      "placeId": "ChIJzwEW8bK32YgRoeQcKaBkwrs",
+      "needsPermissionFrom": "Over Under",
+      "note": "Restaurant pass (2026-09-23): Checked 25 Commons candidates, shotguns, London coffee shops and Miami bridge/skyline photos that only coincidentally share the search terms 'over' and 'under', none showing this downtown bar. Openverse queries 'Over Under Miami restaurant' (one unrelated hit) and 'Over Under bar downtown Miami' (zero) confirmed no qualifying photo exists; the pick's name is too generic to search reliably."
+    }
+  }
+}

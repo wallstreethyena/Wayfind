@@ -1,0 +1,81 @@
+{
+  "slug": "orlando-restaurants",
+  "picks": {
+    "Otto’s High Dive": {
+      "src": "/guides/picks/magical-dining-orlando-2026/ottos-high-dive-milk-district.webp",
+      "width": 1400,
+      "height": 787,
+      "alt": "The brick corner storefront of Otto's High Dive in Orlando's Milk District, with its vertical neon sign next to the building's painted Abundancia signage",
+      "caption": "Otto's High Dive's brick corner building in the Milk District; its vertical sign is at left.",
+      "credit": "Dclemens1971",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Otto%E2%80%99s_Rum_Bar.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Otto%E2%80%99s_Rum_Bar.jpg",
+      "author": "Dclemens1971",
+      "position": "50% 45%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": "ChIJOwkr93R754gRwukRdzlSJgM",
+      "verification": "Reused from the already-verified magical-dining-orlando-2026 guide (see guidePickPhotoManifest.js). I re-opened the actual encoded file at /home/claude/wf/public/guides/picks/magical-dining-orlando-2026/ottos-high-dive-milk-district.webp and viewed it directly: it is a brick corner building whose vertical sign reads 'OTTO'S High Dive' next to painted 'ABUNDANCIA Neighborhood Rum Bar' signage on the same facade, confirming this is Otto's High Dive itself, not a different bar or the Abundancia business. The Commons file's own description independently reads \"Otto's High Dive, a Cuban restaurant and rum bar in Orlando, Florida.\" Not geotagged. Licence CC BY 4.0 as recorded in the manifest.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
+    }
+  },
+  "gaps": {
+    "Kaya": {
+      "reason": "google-only",
+      "placeId": "ChIJ3YuEdVp754gRoWwBx528kNc",
+      "needsPermissionFrom": "Kaya",
+      "note": "Restaurant pass (2026-09-23): Checked 25 Commons candidates for 'Kaya', all noise (Burkina Faso market-town photos, a Turkish carnation flower, Dutch 2025 election-list PDFs, a Singapore 'Kaya Toast' shop), none the Orlando restaurant. pass3-reuse.json's 'Kaya' entry is a false Kaya->Kayak match to a Sarasota mangrove-tunnel photo, correctly ignored per the brief. Openverse queries 'Kaya restaurant Orlando' and 'Kaya Filipino Orlando' returned zero results; this small, newer Filipino restaurant has no CC-licensed photo online."
+    },
+    "DOMU": {
+      "reason": "no-verified-source",
+      "placeId": "ChIJYb7ys7N654gRxvFvaVDAB0c",
+      "needsPermissionFrom": "DOMU",
+      "note": "Restaurant pass (2026-09-23): Checked 25 Commons candidates, all photos of house/shop facades in Poland, Singapore and Czechia matching the generic Slavic word 'domu' ('of the house'), none in Orlando. Openverse queries 'DOMU Orlando' and 'DOMU ramen Orlando' both returned zero results. No qualifying photo of this East End Market restaurant exists in either source."
+    },
+    "Zaru": {
+      "reason": "no-verified-source",
+      "placeId": "ChIJm9xjdgx754gRvYolbCqZPBQ",
+      "needsPermissionFrom": "Zaru",
+      "note": "Restaurant pass (2026-09-23): Checked 24 Commons candidates, all generic 'zaru soba' dish photos or unrelated Japanese mountains/temple charms sharing the name Zaru, none the Orlando restaurant. Openverse queries 'Zaru Orlando' and 'Zaru sushi Mills 50' returned zero results. This small Mills 50 restaurant has no identifiable CC-licensed photo."
+    },
+    "Coro Restaurant": {
+      "reason": "google-only",
+      "placeId": "ChIJ91E5TZp754gR6UAe4qltcFE",
+      "needsPermissionFrom": "Coro Restaurant",
+      "note": "Restaurant pass (2026-09-23): rest-commons.json listed zero Commons candidates for this pick. Openverse queries 'Coro Restaurant Orlando' and 'Coro restaurant East End Orlando' both returned zero results. No CC-licensed photo of this East End restaurant was found."
+    },
+    "TORI TORI": {
+      "reason": "no-verified-source",
+      "placeId": "ChIJS6okKNZ754gRnwUlHBXAhU8",
+      "needsPermissionFrom": "TORI TORI",
+      "note": "Restaurant pass (2026-09-23): The single Commons candidate was an Indonesian festival snack called 'Kue Tori-tori', unrelated. Openverse query 'TORI TORI Orlando' returned one hit, an unrelated photo of the Epcot Japan pavilion's torii gate. No photo of this Mills 50 izakaya was found under an allowed licence."
+    },
+    "Sticky Rice": {
+      "reason": "no-verified-source",
+      "placeId": "ChIJjXi_isN654gRGkLnctUt860",
+      "needsPermissionFrom": "Sticky Rice",
+      "note": "Restaurant pass (2026-09-23): Checked 24 Commons candidates, all generic mango-sticky-rice dish photos from Thailand, Myanmar and Vietnam, none naming this Orlando restaurant. Openverse query 'Sticky Rice Orlando restaurant' returned zero results. The pick name is also a common dish name, which floods search results with unrelated food photography."
+    },
+    "Mills Market": {
+      "reason": "no-verified-source",
+      "placeId": "ChIJG1opWwB754gRGs--XkuAER0",
+      "needsPermissionFrom": "Mills Market",
+      "note": "Restaurant pass (2026-09-23): Checked 9 Commons candidates, UK towns literally named 'Mills'/'Market' (Market Drayton, New Mills, Lake Mills) and two unrelated 2009 Orlando Pride parade photos, none the Mills 50 food hall. Openverse query 'Mills Market Orlando' returned the same two unrelated Pride photos. No qualifying photo of this food hall exists in either source."
+    },
+    "Kabooki Sushi - East Colonial": {
+      "reason": "google-only",
+      "placeId": "ChIJpegta8x654gRmUI2JGqYuus",
+      "needsPermissionFrom": "Kabooki Sushi",
+      "note": "Restaurant pass (2026-09-23): rest-commons.json listed zero Commons candidates. Openverse queries 'Kabooki Sushi Orlando' and 'Kabooki Sushi' both returned zero results. No CC-licensed photo of this specific East Colonial branch was found; a branch-level photo matters here since Kabooki Sushi has multiple Orlando locations."
+    },
+    "Kappo Tsan": {
+      "reason": "no-verified-source",
+      "placeId": "ChIJuclcIkWB3YgRi8GT12wxByM",
+      "needsPermissionFrom": "Kappo Tsan",
+      "note": "Restaurant pass (2026-09-23): rest-commons.json listed zero Commons candidates. Openverse queries 'Kappo Tsan Orlando' and 'Kappo Tsan sushi' both returned zero results. No CC-licensed photo of this west Orlando restaurant was found."
+    }
+  }
+}

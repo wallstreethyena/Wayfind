@@ -99,8 +99,16 @@ for (let i = 0; i < commonsTitles.length; i += 40) {
 // ── 3. Flickr: the live public photo page ─────────────────────────────────
 const flickrLive = new Map();
 for (const url of new Set([...files.values()].filter((f) => f.stored.sourceKind === "flickr").map((f) => f.stored.sourceUrl))) {
-  const res = await fetch(url, { headers: { "user-agent": UA } });
-  const html = await res.text();
+  // Flickr occasionally serves a stripped page (no licence or title in it);
+  // re-read up to three times so a transient page is never recorded as a
+  // licence problem, and a real missing licence still fails after retries.
+  let res, html = "";
+  for (let attempt = 0; attempt < 3; attempt++) {
+    res = await fetch(url, { headers: { "user-agent": UA } });
+    html = await res.text();
+    if (res.status === 200 && /"license": "https:\/\/creativecommons\.org\//.test(html) && /og:title/.test(html)) break;
+    await new Promise((r) => setTimeout(r, 3000 * (attempt + 1)));
+  }
   const owner = /"owner":\{"pathAlias":"?([^",]*)"?,"username":"([^"]*)","realname":"([^"]*)","displayname":"([^"]*)","nsid":"([^"]*)"/.exec(html);
   const lic = /"license": "(https:\/\/creativecommons\.org\/[^"]+)"/.exec(html);
   const title = /<meta property="og:title" content="([^"]*)"/.exec(html);
