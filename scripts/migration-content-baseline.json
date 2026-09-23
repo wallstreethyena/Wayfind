@@ -1,0 +1,422 @@
+[
+  {
+    "version": "20260729144133",
+    "name": "wf_atlas_missing_operational_gate",
+    "file": "20260729_wf_atlas_missing_operational_gate.sql",
+    "ledger_sha256": "160c3da8d735d5fe7ec3f178e1d486be0768b3965642eae650bb0de76cb7faa3",
+    "file_sha256": "885a9fb9ac24580aa5018b45277877ad79175fc57d9ae3aa5dbe1c5eb98ce699",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: production recorded this migration with different comments or whitespace; the statements match once comments are removed and whitespace is collapsed.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260729193021",
+    "name": "wf_editorial_retry_state",
+    "file": "20260729_wf_editorial_retry_state.sql",
+    "ledger_sha256": "2b89ac7c362546ce86d6b01084de941dadc5efb13f4a088586fd045371aae7f1",
+    "file_sha256": "5468ec5b7698cb8edaf85ea610d6e61bf989a9bec831bb5bd7895746cb69f497",
+    "kind": "statement-text-differs",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: the SQL production recorded differs from the committed file beyond comments and whitespace. Not re-reviewed here; pinned so any further change on either side fails.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260729194309",
+    "name": "wf_atlas_retryable",
+    "file": "20260729_wf_atlas_retryable.sql",
+    "ledger_sha256": "ad69c49208f6a51d94339d81ef624f81a67f45c209bda3c42a6f9c9f362f9505",
+    "file_sha256": "3ebf66732b59a64df93ccad3d93e64f59c00a5e14e6f941e048673097f3ea291",
+    "kind": "statement-text-differs",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: the SQL production recorded differs from the committed file beyond comments and whitespace. Not re-reviewed here; pinned so any further change on either side fails.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260729230154",
+    "name": "wf_inventory_cuisine",
+    "file": "20260730_wf_inventory_cuisine.sql",
+    "ledger_sha256": "9e111824453db0e8aae1101def3aca049d43f4a07d8e770ae49c157268228182",
+    "file_sha256": "0efa19576ca7a75a076b644c56354fdea2ba40ed6673b9ee2807d989d3d4211b",
+    "kind": "statement-text-differs",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: the SQL production recorded differs from the committed file beyond comments and whitespace. Not re-reviewed here; pinned so any further change on either side fails.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260807004146",
+    "name": "wf_gate_status_core_metros_grant",
+    "file": "20260806_wf_gate_status_core_metros_grant.sql",
+    "ledger_sha256": "3c6bcddc1cbfd4de2b5e2e2590915d2db527e6836254f10ba06cac72ca19b928",
+    "file_sha256": "f5b2989b22be5f00937310504218ada94cebd78c66506be24aa91a0028b4a36b",
+    "kind": "statement-text-differs",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: the SQL production recorded differs from the committed file beyond comments and whitespace. Not re-reviewed here; pinned so any further change on either side fails.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260811142835",
+    "name": "wf_trend_intel",
+    "file": "20260809_wf_trend_intel.sql",
+    "ledger_sha256": "8a7cf61056838393dc06a0245fe54e91a071787dbfd6404de64a8db0d34526ad",
+    "file_sha256": "ad964e5919420ec2280d3a14509f839e0d6207c7dd9ae89365de685c2f9cb977",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: production recorded this migration with different comments or whitespace; the statements match once comments are removed and whitespace is collapsed.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260811142846",
+    "name": "wf_trend_score_config",
+    "file": "20260811_wf_trend_score_config.sql",
+    "ledger_sha256": "6122e72b67d50bab4270b380fe60f678f671a07ff2cea03f46f0e32b0862d78e",
+    "file_sha256": "da67f7e482acdf64a7b1cd9d5974311782867741fd78a20703886ef0d3a4fec6",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: production recorded this migration with different comments or whitespace; the statements match once comments are removed and whitespace is collapsed.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260811172954",
+    "name": "wf_trend_signals",
+    "file": "20260811_wf_trend_signals.sql",
+    "ledger_sha256": "3b04748a04e488edef3815130f456478026a1e0e11fdf7eccd4869fc5ebe8412",
+    "file_sha256": "907d0564b242632cde3eda29f3a2048e714061f75d70610a4d864a626ba99ff3",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: production recorded this migration with different comments or whitespace; the statements match once comments are removed and whitespace is collapsed.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260813164053",
+    "name": "wf_promote_metros",
+    "file": "20260813_wf_promote_metros.sql",
+    "ledger_sha256": "4f46d52a47977013192421dac0004df9b990af1c1bebb3cd9ecde58877c6f309",
+    "file_sha256": "3a299aca8c360f5c6cec8c4c7bdbcae4d6459493ddf6e8c8d3d27142f41904a8",
+    "kind": "statement-text-differs",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: the SQL production recorded differs from the committed file beyond comments and whitespace. Not re-reviewed here; pinned so any further change on either side fails.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260813164131",
+    "name": "wf_promotion_queue",
+    "file": "20260813_wf_promotion_queue.sql",
+    "ledger_sha256": "c6ada68ac0934f3668d43660a704130ab0b5adbeb1ff20e9eda066130493e9e5",
+    "file_sha256": "d3589e955ef8fb27775e72e7aae20347aa00594d04c66eab963c9bc08756302c",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: production recorded this migration with different comments or whitespace; the statements match once comments are removed and whitespace is collapsed.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260813164157",
+    "name": "wf_geo_coverage",
+    "file": "20260813_wf_geo_coverage.sql",
+    "ledger_sha256": "164e2522f525393995eb520bf0a28dc621cc1153a712a895133352562cb88410",
+    "file_sha256": "7b513490608395f2ea4c9f3e85bf04e344d5826a2177bf99a4396ccbade5ee1c",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: production recorded this migration with different comments or whitespace; the statements match once comments are removed and whitespace is collapsed.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260822230210",
+    "name": "wf_feedback",
+    "file": "20260822_wf_feedback.sql",
+    "ledger_sha256": "70d1a026b1e57ba9308d5c1ba5c8aecf90bebd92543474d26497c5c22289c7cc",
+    "file_sha256": "ad8301d98a4cb20d1e551d3b315f02d6c64bab2fe9d116ebaaaee931bf5c687a",
+    "kind": "statement-text-differs",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: the SQL production recorded differs from the committed file beyond comments and whitespace. Not re-reviewed here; pinned so any further change on either side fails.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260901105046",
+    "name": "inventory_category_contract",
+    "file": "20260901_inventory_category_contract.sql",
+    "ledger_sha256": "7081e67d8804882062850c0335213a1e6e90e42f38162927ea13ef89d7fd302e",
+    "file_sha256": "f651a9d38393b8bed439170649e7c5685fa8a4eb39e3a592d98310e66279919c",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: production recorded this migration with different comments or whitespace; the statements match once comments are removed and whitespace is collapsed.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260901193257",
+    "name": "wf_promote_config",
+    "file": "20260901_wf_promote_config.sql",
+    "ledger_sha256": "65f3e882b8cd1573c8df3338a7e7753e560fcaa13c8fc693a0f9e35b162fc283",
+    "file_sha256": "64425a2a0e058a0be6bb591cef59419f7fdc94a6a95cde14b03eef3e25c093d0",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: production recorded this migration with different comments or whitespace; the statements match once comments are removed and whitespace is collapsed.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260901220106",
+    "name": "wf_promote_spend_cap_and_release",
+    "file": "20260901_wf_promote_spend_cap_and_release.sql",
+    "ledger_sha256": "fb0e72cbf0839c200ef168b81e8f46da060d8dff4abda6c709731069703a2b35",
+    "file_sha256": "2509e220e2d355656f50c3a7e0e4b020a1a78239f4584aaa9bcd4f2622a4bc3f",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: production recorded this migration with different comments or whitespace; the statements match once comments are removed and whitespace is collapsed.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260902122218",
+    "name": "wf_inventory_preserve_signals",
+    "file": "20260902_wf_inventory_preserve_signals.sql",
+    "ledger_sha256": "601bb1ca24abc86f584fbdb15780f4a996a5a4a8e439111a014a56022e86f4ac",
+    "file_sha256": "9ec44fa2443589e96826874bc85e49e6d30884e8943d6ea6ae21a10a1ef953de",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: production recorded this migration with different comments or whitespace; the statements match once comments are removed and whitespace is collapsed.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260902145417",
+    "name": "wf_promote_global_bucket_opt_in",
+    "file": "20260902_wf_promote_global_bucket_opt_in.sql",
+    "ledger_sha256": "646ef1773ea8daf280ca87a5d036166fafb6c69ff309fed3d4925fe754dda838",
+    "file_sha256": "74001faf561051aefaf8710637acc8fcd6a6aa6056b0562ab903e3cefb2fda09",
+    "kind": "statement-text-differs",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: the SQL production recorded differs from the committed file beyond comments and whitespace. Not re-reviewed here; pinned so any further change on either side fails.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260902214549",
+    "name": "wf_link_health_content",
+    "file": "20260902_wf_link_health_content.sql",
+    "ledger_sha256": "6d08bc0eb5c2b68d246b856a50348a36563f5088b18fb154070a991f8becbde4",
+    "file_sha256": "88bc4cc4df0d0ad7448f5e5d3b0e30788fb13394134c3617d21941a652c03fd1",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: production recorded this migration with different comments or whitespace; the statements match once comments are removed and whitespace is collapsed.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260902231056",
+    "name": "wf_inventory_category_geo_bounds",
+    "file": "20260902_wf_inventory_category_geo_bounds.sql",
+    "ledger_sha256": "64ddbad86e1c5a8ebba64b0222e851173ad55092cecbeafa35ec36a4ddc771aa",
+    "file_sha256": "842a3c5f04ecc3731b62fb310714bf2ab639df1939f19bbffa4603e3f264505e",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: production recorded this migration with different comments or whitespace; the statements match once comments are removed and whitespace is collapsed.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260904020248",
+    "name": "wf_lunch_reveal_usage",
+    "file": "20260904_wf_lunch_reveal_usage.sql",
+    "ledger_sha256": "ebdbeb41a188d449ff893c6aa0c4ef53b1f0627d4da226fb20045aec1000a076",
+    "file_sha256": "98ccf765b7292f3cc60df222222cb870cee6afb155f7197ffd40df524b0fa9e6",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: production recorded this migration with different comments or whitespace; the statements match once comments are removed and whitespace is collapsed.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260904064515",
+    "name": "preserve_editorial_and_lunch_images",
+    "file": "20260904090000_preserve_editorial_and_lunch_images.sql",
+    "ledger_sha256": "4722ef383336a33b16ee66fddd97b3b679838f8c0b1d8b1d15778925d3504a34",
+    "file_sha256": "298ba62bddf33c449ce3c0f284b0a97def7e330e9a6b224def079294312af5c8",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: production recorded this migration with different comments or whitespace; the statements match once comments are removed and whitespace is collapsed.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260906060814",
+    "name": "social_intelligence_control_plane",
+    "file": "20260906022518_social_intelligence_control_plane.sql",
+    "ledger_sha256": "5210ad52d2df42ac393fde352147edff887b9af9c2b33dadcfca426b36f4b758",
+    "file_sha256": "17efb8029e236d2e4d9b16f08483a49d8375694186596ce0337fbdd24a61eb41",
+    "kind": "statement-text-differs",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: the SQL production recorded differs from the committed file beyond comments and whitespace. Not re-reviewed here; pinned so any further change on either side fails.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260907055002",
+    "name": "wf_wikipedia_popularity_quarantine",
+    "file": "20260907_wf_wikipedia_popularity_quarantine.sql",
+    "ledger_sha256": "ef370fa9cb95c0d9881988be88a77703e151b05296165ddb8a2d646ddd412a06",
+    "file_sha256": "a1adbea0664151e417bc69510e1bbfb424780c15efbae005ccd03a20b5bbce00",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: production recorded this migration with different comments or whitespace; the statements match once comments are removed and whitespace is collapsed.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260907065534",
+    "name": "wf_popularity_attempt_ledger",
+    "file": "20260907_wf_popularity_attempt_ledger.sql",
+    "ledger_sha256": "7f7553b1b949fc427a077242b97ce6e610a4c1bc628e19c7c3eea3c2d19b35f3",
+    "file_sha256": "3f263fa6e002cea51757c032d2055f742ac0cd6254fc1ff4fc684edf0b27e24a",
+    "kind": "statement-text-differs",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: the SQL production recorded differs from the committed file beyond comments and whitespace. Not re-reviewed here; pinned so any further change on either side fails.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260907084309",
+    "name": "wf_wikipedia_popularity_eligibility",
+    "file": "20260907_wf_wikipedia_popularity_eligibility.sql",
+    "ledger_sha256": "b78247dc3510937fb4fd0dfe9b3ae41835b33878a7fdae00b7236904d675d556",
+    "file_sha256": "1012bcd33fe116183e9320b12ca163190f332f7aefaef6c92f9744918fddc308",
+    "kind": "statement-text-differs",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: the SQL production recorded differs from the committed file beyond comments and whitespace. Not re-reviewed here; pinned so any further change on either side fails.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260907113647",
+    "name": "wf_deploy_contract_audit",
+    "file": "20260907_wf_deploy_contract_audit.sql",
+    "ledger_sha256": "fdc6c1c0060c544cffa03041e7df39533972375da22c81c9351ad8677ae5c26e",
+    "file_sha256": "bed64dbab91f96297fb7a2e98c8a6424e9b240ee58fba0710121c5da3423c6d0",
+    "kind": "statement-text-differs",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: the SQL production recorded differs from the committed file beyond comments and whitespace. Not re-reviewed here; pinned so any further change on either side fails.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260907135054",
+    "name": "wf_inventory_name_trgm",
+    "file": "20260907_wf_inventory_name_trgm.sql",
+    "ledger_sha256": "5f94962e43f0ffcf11ab6e489035657c0b1dc958cd9766da1466c15da1d1c9c7",
+    "file_sha256": "574f7280c7cbede3ef8b64b43081d1313526f36dcc1ce8b2f39d190977c7ffad",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: production recorded this migration with different comments or whitespace; the statements match once comments are removed and whitespace is collapsed.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260909020327",
+    "name": "wf_affiliate_opportunity_seen",
+    "file": "20260909_wf_affiliate_opportunity_seen.sql",
+    "ledger_sha256": "cb4c553dedc5c516edd02455c8f483923e4d095af9fc4e255bf0bb1468e8e6be",
+    "file_sha256": "6f5404845b8366b5880c809a01e70f1484e7caaf15f8f0448db84b1c30b21f68",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: production recorded this migration with different comments or whitespace; the statements match once comments are removed and whitespace is collapsed.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260909021855",
+    "name": "wf_photo_repair_queue",
+    "file": "20260908_wf_photo_repair_queue.sql",
+    "ledger_sha256": "3ce25beaa0f268b853a32b89b902de6d6162359259937cdddc8e71eb7e0ddaed",
+    "file_sha256": "06fccf73a68add11c21db15d056278de99bf05520a7f09eb7bac101921e86dac",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: production recorded this migration with different comments or whitespace; the statements match once comments are removed and whitespace is collapsed.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260909143402",
+    "name": "wf_place_photo",
+    "file": "20260909_wf_place_photo.sql",
+    "ledger_sha256": "2e03fc275fcdfd281a156c4e282972b9da24b26b91fa0db2f2629fa0cb61631e",
+    "file_sha256": "3c3c5806c797d18e3483b2ead1d6f9ab275b598101f59044469e3e7718f0e819",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: production recorded this migration with different comments or whitespace; the statements match once comments are removed and whitespace is collapsed.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260909143437",
+    "name": "wf_place_photo_vault",
+    "file": "20260909_wf_place_photo_vault.sql",
+    "ledger_sha256": "7a55b09288c01d546c5f686c47e69a015b0844b4c783501cc1878445198574a3",
+    "file_sha256": "e8321411ff26eedb320ef682041ce10b4b37eaaf0c43822325ae3f519351a0c5",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: production recorded this migration with different comments or whitespace; the statements match once comments are removed and whitespace is collapsed.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260909180743",
+    "name": "wf_photo_repair_queue_budget_blocked",
+    "file": "20260909_wf_photo_repair_queue_budget_blocked.sql",
+    "ledger_sha256": "bc54f8e3d4f716d2e1ccaa553edfea9330fe0f3bf2a84cd52f3c001e41d4598a",
+    "file_sha256": "fa50b8b88b12cb0e4c1beb9a0e7cb4560d7de6faef244471c9769851a331929c",
+    "kind": "statement-text-differs",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: the SQL production recorded differs from the committed file beyond comments and whitespace. Not re-reviewed here; pinned so any further change on either side fails.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260909212259",
+    "name": "wf_places_cache_photo_partial_indexes",
+    "file": "20260909_wf_places_cache_photo_partial_indexes.sql",
+    "ledger_sha256": "c2c07f9bfe5a65fdc58758b8106cdc91168b7df8d4a1af86c5809f4ae94ab87f",
+    "file_sha256": "f33394ff6a93b8f468bc2f4c5fdeee86040d37a99b4edb064e06bd62c9835862",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: production recorded this migration with different comments or whitespace; the statements match once comments are removed and whitespace is collapsed.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260909212311",
+    "name": "wf_job_health_unavailable_is_dead",
+    "file": "20260909_wf_job_health_unavailable_is_dead.sql",
+    "ledger_sha256": "9a6c2bf85fef507191ad7d6952859f8006455577efcee49ef727bc1b9dff1713",
+    "file_sha256": "706754fdad9c7a90fdf96d28b4935a19a383e0ba9708d8032788b6cbaa4baea6",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: production recorded this migration with different comments or whitespace; the statements match once comments are removed and whitespace is collapsed.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260910153312",
+    "name": "wf_affiliate_health_single_writer",
+    "file": "20260910144000_wf_affiliate_health_single_writer.sql",
+    "ledger_sha256": "84bb79a8c4f7440f7a117d497038d49485e15ba9a23bb2016d69daaa99a9451b",
+    "file_sha256": "41d6e791bd63d812a84046eb25f14c1a92b1573d60eb309074ac638f374a2a78",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: production recorded this migration with different comments or whitespace; the statements match once comments are removed and whitespace is collapsed.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260916170753",
+    "name": "allow_tp_erid_short_urls",
+    "file": "20260916170753_allow_tp_erid_short_urls.sql",
+    "ledger_sha256": "8d6a647615c8cd7b2d0df6ff3f6954d1dbbb52e4f2853e7592c548624a3659d3",
+    "file_sha256": "069ed5f1c3065411d3465f4978b4cb71df09181c2eaa4e4e4282cca9cd43db6b",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: production recorded this migration with different comments or whitespace; the statements match once comments are removed and whitespace is collapsed.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260916185050",
+    "name": "wf_spend_refund_and_photo_outcomes",
+    "file": "20260916120000_wf_spend_refund_and_photo_outcomes.sql",
+    "ledger_sha256": "06b74a408392c1d6bd09ab50ebf175cd50ef6da21ce30c621d7ccf405130ce38",
+    "file_sha256": "3cb68e43e5c5a3f0ac1af63ce91327947a325beae030463b31a6ab19c53c820b",
+    "kind": "statement-text-differs",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: the SQL production recorded differs from the committed file beyond comments and whitespace. Not re-reviewed here; pinned so any further change on either side fails.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260921213753",
+    "name": "add_2026_disney_holiday_event_ticket_deals",
+    "file": "20260921213753_add_2026_disney_holiday_event_ticket_deals.sql",
+    "ledger_sha256": "111c1ae8c9cc15ff97d6e2d556b8dac8501fb798aa3dca8e778a260b36013f43",
+    "file_sha256": "ea6d97e268e25bbf26f9d9f15e09371962a90668cef0599c670fe532981479ea",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: production recorded this migration with different comments or whitespace; the statements match once comments are removed and whitespace is collapsed.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260921224304",
+    "name": "event_link_manual_verification_and_2026_repairs",
+    "file": "20260921224304_event_link_manual_verification_and_2026_repairs.sql",
+    "ledger_sha256": "8bf166214f9ef38ad158c79f6cdb8881acadc448e6ba5813977a395584038599",
+    "file_sha256": "27f4837f2619da33b9120f9d9dd8c2fa9ca27063ac1559c7b48874e0271ee002",
+    "kind": "statement-text-differs",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: the SQL production recorded differs from the committed file beyond comments and whitespace. Not re-reviewed here; pinned so any further change on either side fails.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260922105304",
+    "name": "launch_security_search_path_and_default_function_privileges",
+    "file": "20260922105304_launch_security_search_path_and_default_function_privileges.sql",
+    "ledger_sha256": "3a242c7d70398d15fdec2eab4792f9bcf664d049ddd0626454b0e2b5e70a871e",
+    "file_sha256": "ddb58b609b80dcce7b2ed1e1a64bdf5a90944810ccbab8f847a201ed3c42395f",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: production recorded this migration with different comments or whitespace; the statements match once comments are removed and whitespace is collapsed.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260922105624",
+    "name": "launch_push_server_registration_rpc",
+    "file": "20260922105624_launch_push_server_registration_rpc.sql",
+    "ledger_sha256": "2bcdc24624a2c4a7024b324b269772dfd3f12f1c0e66c8af94c49907d567b3b7",
+    "file_sha256": "db67ee95452db1df8fa6d9ec2cf287520071cc7e89cefd0a6f30923c6dde0169",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Pre-existing when the content check was added on 2026-09-23: production recorded this migration with different comments or whitespace; the statements match once comments are removed and whitespace is collapsed.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260923131654",
+    "name": "wf_photo_queue_reconcile",
+    "file": "20260923_wf_photo_queue_reconcile.sql",
+    "ledger_sha256": "297188b995d582befd2abf84d59514d6480ed7b50e2545c254a805dee4c5ae02",
+    "file_sha256": "0c504842efb55e845942f7274b31c174846c0884b77d0a73b37a520eec891d52",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Applied 2026-09-23 through the Supabase MCP connector with the long header comment shortened; the executable statements were verified identical to the committed file with comments stripped. Receipt: scripts/migration-apply-log.jsonl.",
+    "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  }
+]
