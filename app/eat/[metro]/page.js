@@ -34,7 +34,9 @@
 import EditorialLandingHero, { editorialHeroCss } from "../../components/EditorialLandingHero";
 import { notFound } from "next/navigation";
 import { SITE_URL } from "../../../lib/site";
+import { pageShareUrl } from "../../../lib/pageShareUrl";
 import CuisineMenu from "./CuisineMenu";
+import ShareButton from "../../components/ShareButton";
 import FoodTourRail from "../../components/FoodTourRail";
 import { METRO_DESTS, pickFoodTours } from "../../../lib/foodTours";
 import { isSsgBuild, eatFetch } from "../../../lib/eatInventory";
@@ -339,7 +341,14 @@ export default async function EatPage({ params }) {
         // cream panel directly above the trust line — so the card becomes the whole
         // decision surface without the shared template changing at all.
         actionSlot={
-          unavailable ? null : <CuisineMenu chips={menuChips} metro={params.metro} />
+          <>
+            {unavailable ? null : <CuisineMenu chips={menuChips} metro={params.metro} />}
+            <div style={{ marginTop: 14 }}>
+              <ShareButton url={pageShareUrl("/eat/" + params.metro)} title={`What to eat near ${meta.near}`}
+                text={`What to eat near ${meta.near}: pick a kind of food, the shortlist is already ranked. On Wayfind.`}
+                label="Share" tone="hero" event="page_share" meta={{ surface: "eat_metro", metro: params.metro, placement: "hero" }} />
+            </div>
+          </>
         }
         trustLines={[
           "No paid placement. No sponsored rankings.",

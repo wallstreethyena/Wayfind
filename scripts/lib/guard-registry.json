@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 713,
-    "totalRegistryEntries": 714,
-    "guardsTxtLineCount": 711,
-    "guardsTxtReachedFileCount": 706,
+    "totalOnDiskGuardFiles": 714,
+    "totalRegistryEntries": 715,
+    "guardsTxtLineCount": 712,
+    "guardsTxtReachedFileCount": 707,
     "criticalCount": 86,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 492,
+      "CALL": 493,
       "RENDER": 83,
       "STRUCTURAL": 138,
       "OTHER": 1
@@ -2110,6 +2110,28 @@
       "owner": null
     },
     {
+      "file": "scripts/check-destination-share.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 41,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/check-direct-affiliate-urls.mjs",
       "npmScript": null,
       "class": "STRUCTURAL",
@@ -3666,9 +3688,9 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 38,
-      "unprovenAbsenceCount": 3,
+      "unprovenAbsenceCount": 2,
       "honestyViolations": [
-        "3 absence assertion(s) with no positive control in the same file (e.g. \"/track\\(/.test(btn), \"                          \");\n  ok(/path: how/.test(btn),\")"
+        "2 absence assertion(s) with no positive control in the same file (e.g. \"/track\\(/.test(btn), \"                          \");\n  ok(/path: how/.test(btn),\")"
       ],
       "selfDocumentsRedProve": false,
       "wiring": {

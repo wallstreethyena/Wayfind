@@ -1,6 +1,8 @@
 import { cache } from "react";
 import ShareRedirect from "../../ShareRedirect";
 import { SITE_URL } from "../../../lib/site";
+import { pageShareUrl } from "../../../lib/pageShareUrl";
+import ShareButton from "../../components/ShareButton";
 import { getLatestSnapshot, isStale } from "../../../lib/listStore";
 import { shareCardFor, wcRotation } from "../../../lib/shareCards";
 
@@ -84,7 +86,7 @@ export async function generateMetadata({ params, searchParams }) {
   };
 }
 
-function ListView({ snap, shownV }) {
+function ListView({ snap, shownV, listKey }) {
   const list = snap.list || {};
   const items = Array.isArray(list.items) ? list.items : [];
   const stale = isStale(shownV, snap.v);
@@ -107,6 +109,14 @@ function ListView({ snap, shownV }) {
 
         <h1 style={{ fontSize: 34, lineHeight: 1.12, fontWeight: 800, letterSpacing: "-0.5px", margin: "0 0 10px" }}>{headline}</h1>
         {list.subhead ? <p style={{ fontSize: 16, color: SOFT, lineHeight: 1.5, margin: "0 0 22px" }}>{list.subhead}</p> : null}
+        {/* Re-sharing a shared list. ?v= is the version the SENDER saw (it drives
+            the "this list changed" banner), so the link carries the version on
+            screen now, not the one this visitor arrived with. */}
+        <div style={{ margin: "0 0 22px" }}>
+          <ShareButton url={pageShareUrl("/l/" + encodeURIComponent(listKey), snap.v != null ? { v: snap.v } : null)}
+            title={headline || "A Wayfind list"} text={(headline || "A Wayfind list") + ". Ranked on Wayfind."}
+            label="Share" tone="dark" event="page_share" meta={{ surface: "shared_list", list: listKey, placement: "header" }} />
+        </div>
 
         <ol style={{ listStyle: "none", padding: 0, margin: 0 }}>
           {items.map((it) => (
@@ -132,7 +142,7 @@ function ListView({ snap, shownV }) {
 export default async function Page({ params, searchParams }) {
   const snap = await latestOf(params.key);
   if (snap && snap.list && Array.isArray(snap.list.items) && snap.list.items.length) {
-    return <ListView snap={snap} shownV={s(searchParams && searchParams.v)} />;
+    return <ListView snap={snap} shownV={s(searchParams && searchParams.v)} listKey={params.key} />;
   }
   return <ShareRedirect to={"/?exp=" + encodeURIComponent(params.key)} />;
 }
