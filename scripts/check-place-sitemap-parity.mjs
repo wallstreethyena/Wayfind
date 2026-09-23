@@ -162,6 +162,8 @@ ok(cityOf("123 Main St, Bradenton, FL 34205, USA") === "Bradenton",
 ok(cityOf("1605 Fort Hamer Rd, Parrish, FL 34219, USA") === "Parrish",
   `cityOf must resolve "1605 Fort Hamer Rd, Parrish, FL 34219, USA" to "Parrish", got ${JSON.stringify(cityOf("1605 Fort Hamer Rd, Parrish, FL 34219, USA"))}`);
 ok(!/\d/.test(cityOf("123 Main St, Bradenton, FL 34205, USA") || ""), "the resolved city must never contain a digit (a ZIP leaking through)");
+ok(cityOf("6100 N LOCKWOOD RIDGE RD") === null, `a street-only Atlas address has no city (got ${JSON.stringify(cityOf("6100 N LOCKWOOD RIDGE RD"))}) — it must never become the title's city`);
+ok(cityOf("Sarasota") === "Sarasota", "a lone city segment is still a city");
 
 // ── 5. listIndexedIds() — the actual sitemap/generateStaticParams input —
 // is a SORTED, deterministic function of Atlas + eligible-GUIDES content

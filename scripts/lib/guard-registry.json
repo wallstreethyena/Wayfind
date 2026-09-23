@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 714,
-    "totalRegistryEntries": 715,
-    "guardsTxtLineCount": 712,
-    "guardsTxtReachedFileCount": 707,
+    "totalOnDiskGuardFiles": 715,
+    "totalRegistryEntries": 716,
+    "guardsTxtLineCount": 713,
+    "guardsTxtReachedFileCount": 708,
     "criticalCount": 86,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 493,
+      "CALL": 494,
       "RENDER": 83,
       "STRUCTURAL": 138,
       "OTHER": 1
@@ -6455,7 +6455,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 52,
+      "assertionCount": 54,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
