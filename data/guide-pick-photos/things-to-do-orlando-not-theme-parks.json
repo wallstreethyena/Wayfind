@@ -160,6 +160,26 @@
       "verification": "Downloaded the original (3264x2448) from Wikimedia Commons, file titled 'Mount Dora Lighthouse.jpg'; the red-and-white lighthouse on Lake Dora is the town's namesake landmark that the guide's own blurb calls out ('an inland lighthouse'). Not geotagged, but the title names the exact structure.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
+    },
+    "Winter Park scenic boat tour": {
+      "src": "/guides/picks/things-to-do-orlando-not-theme-parks/winter-park-boat-tour-dock-sign.webp",
+      "width": 1400,
+      "height": 1050,
+      "alt": "A hand-painted wooden sign reading 'Winter Park Florida Scenic Boat Tour' mounted on dock posts, with a lake behind it",
+      "caption": "The Scenic Boat Tour's dock sign in Winter Park.",
+      "credit": "Mike Whaling",
+      "creditHref": "https://www.flickr.com/photos/52699067@N00/3308589496",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/52699067@N00/3308589496",
+      "author": "Mike Whaling",
+      "position": "50% 38%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "flickr",
+      "placeId": "ChIJ4XkjoBtw54gRGiqFxtWvbM8",
+      "verification": "Flickr page by Mike Whaling (realname; username mwhaling), titled 'Winter Park Scenic Boat Tour', taken 2009-02-21. Live page license checked directly: creativecommons.org/licenses/by-sa/2.0 link present, i.e. CC BY-SA 2.0. The sign itself is painted 'Winter Park Florida Scenic Boat Tour', directly and unambiguously naming the exact dock and business this pick describes. Same source photo as used for the 'Tickets, timing, and the cash catch' pick in the dedicated winter-park-scenic-boat-tour guide; reused here across a different guide (not a same-guide duplicate), encoded to its own file.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
     }
   },
   "gaps": {
@@ -167,25 +187,19 @@
       "reason": "google-only",
       "placeId": "ChIJE1158xWa3YgRyxYmba83M0o",
       "needsPermissionFrom": "Boggy Creek Airboat Adventures",
-      "note": "wf_inventory only holds a Google Places photo reference for this operator; Commons title/name searches returned no CC-licensed photo of Boggy Creek Airboat Adventures."
-    },
-    "Winter Park scenic boat tour": {
-      "reason": "google-only",
-      "placeId": "ChIJ4XkjoBtw54gRGiqFxtWvbM8",
-      "needsPermissionFrom": "Scenic Boat Tour",
-      "note": "wf_inventory only holds a Google Places photo reference. Commons title, geosearch (700m of the dock) and category searches turned up nothing CC-licensed showing the Winter Park Scenic Boat Tour itself."
+      "note": "wf_inventory only holds a Google Places photo reference for this operator; Commons title/name searches returned no CC-licensed photo of Boggy Creek Airboat Adventures. Pass 2 (2026-09-23): searched Openverse for \"Boggy Creek Airboat Orlando\" (65 results): a 576px-wide 'Boggy Creek Airboat' photo fell below this project's 800px minimum source width; a 'Boggy Creek Airboat Rides' photo was only 500px wide; a large 'TwelveHoursInACity Visit Kissimmee' series (1024x768, CC BY 2.0) showed a generic airboat with close-up identifiable riders and no Boggy Creek signage or description confirming the operator, so it was rejected on both the exact-place and people-as-subject rules. No usable candidate found."
     },
     "Kayak a natural spring": {
       "reason": "google-only",
       "placeId": "ChIJw5hmHut154gRI1LE7BjQiEg",
       "needsPermissionFrom": "Kelly Park - Rock Springs",
-      "note": "wf_inventory only holds a Google Places photo reference. Commons title and geosearch (1.5km of the park) found no CC-licensed photo of Kelly Park or Rock Springs Run."
+      "note": "wf_inventory only holds a Google Places photo reference. Commons title and geosearch (1.5km of the park) found no CC-licensed photo of Kelly Park or Rock Springs Run. Pass 2 (2026-09-23): searched Openverse for \"Kelly Park Rock Springs Florida\" (zero), \"Rock Springs Run Kelly Park\" (zero), \"Kelly Park Apopka\" (zero), \"Rock Springs Florida\" (164 results, all unrelated: satellite imagery, a Texas horse portrait series, other US locations) and \"Kelly Park Florida spring\" (2 results, both unrelated). No usable candidate found."
     },
     "East End Market": {
       "reason": "google-only",
       "placeId": "ChIJz4eUs7N654gRiMJs2630XVc",
       "needsPermissionFrom": "East End Market",
-      "note": "wf_inventory only holds a Google Places photo reference for this food hall; no CC-licensed Commons photo of East End Market was found."
+      "note": "wf_inventory only holds a Google Places photo reference for this food hall; no CC-licensed Commons photo of East End Market was found. Pass 2 (2026-09-23): searched Openverse for \"East End Market Orlando Audubon Park\" (zero results) and \"Audubon Park Garden District Orlando\" (zero results). No usable candidate found."
     }
   }
 }

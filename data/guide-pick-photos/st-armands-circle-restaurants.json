@@ -26,37 +26,37 @@
       "reason": "google-only",
       "placeId": null,
       "needsPermissionFrom": "Columbia Restaurant, St. Armands Circle",
-      "note": "Commons has many photos of the original Ybor City Columbia location, which is a different building and not this Sarasota outpost; no Commons photo found for the St. Armands location itself."
+      "note": "Commons has many photos of the original Ybor City Columbia location, which is a different building and not this Sarasota outpost; no Commons photo found for the St. Armands location itself. Pass 2 (2026-09-23): Openverse searched \"Columbia Restaurant St Armands Circle\" — zero results; still only the unrelated Ybor City original appears in CC-licensed sources."
     },
     "Café on St. Armands": {
       "reason": "google-only",
       "placeId": "ChIJ8_xGlpFqw4gRpBDnt0x_mdg",
       "needsPermissionFrom": "Café on St. Armands",
-      "note": "No Commons photo found for this restaurant; Wayfind's inventory carries only a Google Places photo."
+      "note": "No Commons photo found for this restaurant; Wayfind's inventory carries only a Google Places photo. Pass 2 (2026-09-23): Openverse searched \"Café on St. Armands\" — the one result was an unrelated Paris street-clock photo; no photo of this restaurant exists on Openverse."
     },
     "Shore": {
       "reason": "google-only",
       "placeId": null,
       "needsPermissionFrom": "Shore, St. Armands Circle",
-      "note": "No Commons photo found for this restaurant; the app resolves its photo via a live Google Places name search."
+      "note": "No Commons photo found for this restaurant; the app resolves its photo via a live Google Places name search. Pass 2 (2026-09-23): \"Shore\" alone is too generic a word to search meaningfully on Openverse; searched \"St Armands Circle Sarasota restaurants\" instead as a broader net — zero relevant results. No photo of this restaurant exists on Openverse."
     },
     "Crab & Fin": {
       "reason": "google-only",
       "placeId": null,
       "needsPermissionFrom": "Crab & Fin",
-      "note": "No Commons photo found for this restaurant; the app resolves its photo via a live Google Places name search."
+      "note": "No Commons photo found for this restaurant; the app resolves its photo via a live Google Places name search. Pass 2 (2026-09-23): Openverse searched \"Crab Fin St Armands Sarasota\" — zero results; no photo of this restaurant exists on Openverse."
     },
     "Kilwins": {
       "reason": "google-only",
       "placeId": null,
       "needsPermissionFrom": "Kilwins, St. Armands Circle",
-      "note": "Kilwins is a chain; no Commons photo verifiably showing this specific St. Armands Circle location was found, so a photo of a different branch was not substituted."
+      "note": "Kilwins is a chain; no Commons photo verifiably showing this specific St. Armands Circle location was found, so a photo of a different branch was not substituted. Pass 2 (2026-09-23): Openverse searched \"Kilwins St Armands Circle\" — zero results; as in pass 1, no photo verifiably of this specific shop (rather than another Kilwins branch) was found."
     },
     "Blue Dolphin Café": {
       "reason": "google-only",
       "placeId": null,
       "needsPermissionFrom": "Blue Dolphin Café",
-      "note": "No Commons photo found for this restaurant; the app resolves its photo via a live Google Places name search."
+      "note": "No Commons photo found for this restaurant; the app resolves its photo via a live Google Places name search. Pass 2 (2026-09-23): Openverse searched \"Blue Dolphin Cafe St Armands\" — zero results; no photo of this restaurant exists on Openverse."
     }
   }
 }

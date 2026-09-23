@@ -1,19 +1,48 @@
 {
   "slug": "winter-park-scenic-boat-tour",
-  "picks": {},
-  "gaps": {
-    "What the hour actually covers": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "Exhaustive Commons search (title/text search, geosearch around the Morse Blvd dock, Kraft Azalea Garden, Lake Osceola categories) turned up only unrelated Winter Park subjects (a church, the Amtrak/SunRail station, a house, an Unsplash car photo) and pre-1920s NYPL stereoscope prints of Lake Osceola with no dock or pontoon boat. No properly licensed photo of the actual Winter Park Scenic Boat Tour route or vessel exists on Commons."
-    },
+  "picks": {
     "Tickets, timing, and the cash catch": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "Same search turned up no photo of the Morse Boulevard dock or ticket booth. Wayfind's own free-photo table has no row for this place either."
+      "src": "/guides/picks/winter-park-scenic-boat-tour/scenic-boat-tour-dock-sign.webp",
+      "width": 1400,
+      "height": 1050,
+      "alt": "A hand-painted wooden sign reading 'Winter Park Florida Scenic Boat Tour' mounted on dock posts, with a lake behind it",
+      "caption": "The Scenic Boat Tour's dock sign in Winter Park.",
+      "credit": "Mike Whaling",
+      "creditHref": "https://www.flickr.com/photos/52699067@N00/3308589496",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/52699067@N00/3308589496",
+      "author": "Mike Whaling",
+      "position": "50% 38%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "flickr",
+      "placeId": "ChIJ4XkjoBtw54gRGiqFxtWvbM8",
+      "verification": "Flickr page by Mike Whaling (realname; username mwhaling), titled 'Winter Park Scenic Boat Tour', taken 2009-02-21. Live page license checked directly: creativecommons.org/licenses/by-sa/2.0 link present, i.e. CC BY-SA 2.0. The sign itself is painted 'Winter Park Florida Scenic Boat Tour', directly and unambiguously naming the exact dock and business this pick describes (the cash-only ticket window sits at this same Morse Boulevard dock).",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
     },
+    "What the hour actually covers": {
+      "src": "/guides/picks/winter-park-scenic-boat-tour/rollins-college-bell-tower.webp",
+      "width": 1400,
+      "height": 1050,
+      "alt": "Rollins College's Knowles Memorial Chapel bell tower seen through hanging Spanish moss, on a Winter Park lakeshore",
+      "caption": "Rollins College's chapel tower on the Winter Park lakeshore, one of the landmarks the boat tour's narration covers.",
+      "credit": "Mike Whaling",
+      "creditHref": "https://www.flickr.com/photos/52699067@N00/3308593602",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/52699067@N00/3308593602",
+      "author": "Mike Whaling",
+      "position": "35% 45%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "flickr",
+      "placeId": "ChIJ4XkjoBtw54gRGiqFxtWvbM8",
+      "verification": "Flickr page by Mike Whaling, titled 'Rollins College Bell Tower', taken 2009-02-21 15:21, part of the same uploader's photo session as his confirmed Scenic Boat Tour dock-sign photo (taken 14:48 the same day) and a 'Home Along the Winter Park Boat Tour' shot (taken 15:42) -- consecutive Flickr photo IDs from one outing on the tour. Live page license checked directly: creativecommons.org/licenses/by-sa/2.0 link present, i.e. CC BY-SA 2.0. Knowles Memorial Chapel's tower is an unmistakable, named Rollins College landmark on the Lake Virginia shoreline this pick's own blurb calls out ('Rollins College history'), among the sights the hour-long narrated route passes.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
+    }
+  },
+  "gaps": {
     "Make it a Winter Park day": {
       "reason": "not-a-place",
       "placeId": null,

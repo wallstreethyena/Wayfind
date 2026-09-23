@@ -47,7 +47,7 @@
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": null,
-      "note": "This pick describes a bookable nighttime clear-kayak tour product run by several operators, not one fixed, identifiable place; no verified CC-licensed photo of an actual nighttime bioluminescent clear-kayak tour on this stretch of lagoon was found (bioluminescence photography is rare and essentially never CC-licensed on Commons)."
+      "note": "This pick describes a bookable nighttime clear-kayak tour product run by several operators, not one fixed, identifiable place; no verified CC-licensed photo of an actual nighttime bioluminescent clear-kayak tour on this stretch of lagoon was found (bioluminescence photography is rare and essentially never CC-licensed on Commons). Pass 2 (2026-09-23): searched Openverse for \"bioluminescence Mosquito Lagoon\" and \"Haulover Canal Merritt Island\"; found one real Mosquito Lagoon bioluminescence photo (Commons, CC BY 4.0) but it is dominated by moonlight with no legible glow visible on inspection, so it was used for this guide's HERO instead (with an honest caption) rather than for this pick, since a pick photo has to show the described product itself, not a stand-in place. No clear-kayak or in-tour photo exists. No usable candidate found for this specific pick."
     },
     "Summer or winter: what actually glows": {
       "reason": "not-a-place",

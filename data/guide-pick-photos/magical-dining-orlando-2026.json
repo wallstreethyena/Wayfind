@@ -47,55 +47,55 @@
       "reason": "google-only",
       "placeId": "ChIJO3PrEmdx54gRW1c11w1Yxlo",
       "needsPermissionFrom": "ÔMO by Jônt",
-      "note": "wf_inventory only holds a Google Places photo reference for this address. Commons name and category searches returned no CC-licensed photo of the actual restaurant interior or storefront."
+      "note": "wf_inventory only holds a Google Places photo reference for this address. Commons name and category searches returned no CC-licensed photo of the actual restaurant interior or storefront. Pass 2 (2026-09-23): searched Openverse for \"OMO by Jont Winter Park\" (license by,by-sa,cc0); zero results. No usable candidate found."
     },
     "Kaya, Mills 50": {
       "reason": "google-only",
       "placeId": "ChIJ3YuEdVp754gRoWwBx528kNc",
       "needsPermissionFrom": "Kaya",
-      "note": "wf_inventory only holds a Google Places photo reference. Commons searches for \"Kaya\" return unrelated homonym results; no CC-licensed photo of this Mills 50 restaurant was found."
+      "note": "wf_inventory only holds a Google Places photo reference. Commons searches for \"Kaya\" return unrelated homonym results; no CC-licensed photo of this Mills 50 restaurant was found. Pass 2 (2026-09-23): searched Openverse for \"Kaya restaurant Mills 50 Orlando\"; zero results. No usable candidate found."
     },
     "AVA MediterrAegean, Park Avenue": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": "AVA MediterrAegean",
-      "note": "No static placeId in source data and no CC-licensed Commons photo of this Park Avenue restaurant was found."
+      "note": "No static placeId in source data and no CC-licensed Commons photo of this Park Avenue restaurant was found. Pass 2 (2026-09-23): searched Openverse for \"AVA MediterrAegean Winter Park\"; zero results. No usable candidate found."
     },
     "The Pinery, Ivanhoe Village": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": "The Pinery",
-      "note": "No static placeId in source data and no CC-licensed Commons photo of this Ivanhoe Village restaurant was found."
+      "note": "No static placeId in source data and no CC-licensed Commons photo of this Ivanhoe Village restaurant was found. Pass 2 (2026-09-23): searched Openverse for \"The Pinery Orlando restaurant\"; zero results. No usable candidate found."
     },
     "The Ravenous Pig, Winter Park": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": "The Ravenous Pig",
-      "note": "No static placeId in source data and no CC-licensed Commons photo of this Winter Park gastropub was found."
+      "note": "No static placeId in source data and no CC-licensed Commons photo of this Winter Park gastropub was found. Pass 2 (2026-09-23): searched Openverse for \"The Ravenous Pig Winter Park\"; one result ('Awesome meal at the Ravenous Pig', CC BY-SA 2.0), a plated-food photo with no venue signage, description, or geotag on the live Flickr page -- rejected per the rule that a generic food plate does not prove an exact place. No usable candidate found."
     },
     "Kabooki Sushi, East Colonial": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": "Kabooki Sushi",
-      "note": "No static placeId in source data and no CC-licensed Commons photo of the East Colonial location specifically (as opposed to the chain's other locations) was found."
+      "note": "No static placeId in source data and no CC-licensed Commons photo of the East Colonial location specifically (as opposed to the chain's other locations) was found. Pass 2 (2026-09-23): searched Openverse for \"Kabooki Sushi Orlando\"; zero results. No usable candidate found."
     },
     "Maxine's on Shine, Colonialtown": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": "Maxine's on Shine",
-      "note": "No static placeId in source data and no CC-licensed Commons photo of this Colonialtown restaurant was found."
+      "note": "No static placeId in source data and no CC-licensed Commons photo of this Colonialtown restaurant was found. Pass 2 (2026-09-23): searched Openverse for \"Maxine's on Shine Orlando\"; zero results. No usable candidate found."
     },
     "Osteria Ester, Thornton Park": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": "Osteria Ester",
-      "note": "No static placeId in source data and no CC-licensed Commons photo of this Thornton Park restaurant was found."
+      "note": "No static placeId in source data and no CC-licensed Commons photo of this Thornton Park restaurant was found. Pass 2 (2026-09-23): searched Openverse for \"Osteria Ester Orlando\"; zero results. No usable candidate found."
     },
     "The Chapman, Park Avenue": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": "The Chapman",
-      "note": "No static placeId in source data and no CC-licensed Commons photo of this Park Avenue restaurant was found."
+      "note": "No static placeId in source data and no CC-licensed Commons photo of this Park Avenue restaurant was found. Pass 2 (2026-09-23): searched Openverse for \"The Chapman Winter Park restaurant\"; zero results. No usable candidate found."
     }
   }
 }

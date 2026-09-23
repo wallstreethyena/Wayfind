@@ -127,7 +127,7 @@
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": "Four Seasons Resort Orlando at Walt Disney World Resort",
-      "note": "No Commons search (title search or a geosearch around the resort's coordinates) returned any photo of this privately operated resort. Wayfind's wf_place_photo table has no row for it either."
+      "note": "No Commons search (title search or a geosearch around the resort's coordinates) returned any photo of this privately operated resort. Wayfind's wf_place_photo table has no row for it either. Pass 2 (2026-09-23): searched Openverse for \"Four Seasons Resort Orlando Walt Disney World\" and \"Four Seasons Orlando\" (license by,by-sa,cc0); zero and two results respectively, neither the hotel (a holiday post and an unrelated Commons temple photo). No usable candidate found."
     }
   }
 }

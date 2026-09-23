@@ -113,7 +113,7 @@
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": "Disney's Hollywood Studios",
-      "note": "Wikimedia Commons has several good photos of this coaster, but every one available shows the ride's prior 'Starring Aerosmith' branding and signage. The guide's pick describes the 2025 retheme to 'Starring The Muppets' (Aerosmith imagery removed); using an old-branded photo would misrepresent the attraction as it exists today, so this is treated as a gap rather than a mismatch, similar to using a different branch of a chain."
+      "note": "Wikimedia Commons has several good photos of this coaster, but every one available shows the ride's prior 'Starring Aerosmith' branding and signage. The guide's pick describes the 2025 retheme to 'Starring The Muppets' (Aerosmith imagery removed); using an old-branded photo would misrepresent the attraction as it exists today, so this is treated as a gap rather than a mismatch, similar to using a different branch of a chain. Pass 2 (2026-09-23): searched Openverse for \"Rock Roller Coaster Muppets Hollywood Studios\"; the one result was an unrelated 2006 travel photo, and no post-2025 Muppets-branded photo of the coaster exists among CC-licensed results. No usable candidate found."
     },
     "The after-dark water park parties": {
       "reason": "not-a-place",
@@ -125,7 +125,7 @@
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": "Level99 Disney Springs",
-      "note": "Level99 is a newly opened (2025) competitive-games venue; no Commons search (title, category, or geosearch near Disney Springs) returned any photo of it."
+      "note": "Level99 is a newly opened (2025) competitive-games venue; no Commons search (title, category, or geosearch near Disney Springs) returned any photo of it. Pass 2 (2026-09-23): searched Openverse for \"Level99 Disney Springs\"; zero results. No usable candidate found, unsurprising for a venue this new."
     },
     "Eola Food Hall and the Mills 50 crawl": {
       "reason": "not-a-place",

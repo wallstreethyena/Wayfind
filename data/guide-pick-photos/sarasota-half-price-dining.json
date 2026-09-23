@@ -12,19 +12,19 @@
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": "Gecko's Grill & Pub",
-      "note": "The guide names the regional chain generically with no specific address or placeId, so which of several Sarasota-area locations it refers to cannot be pinned down; no Commons photo of any Gecko's Grill & Pub location was found either way."
+      "note": "The guide names the regional chain generically with no specific address or placeId, so which of several Sarasota-area locations it refers to cannot be pinned down; no Commons photo of any Gecko's Grill & Pub location was found either way. Pass 2 (2026-09-23): The pick's own text describes this as a chain whose \"offer holds across locations,\" so no single-branch photo could satisfy the exact-place rule even if one existed; no Openverse search was run for this reason (a location-specific search was run instead for the Hillview branch below)."
     },
     "Bar Bingo at Gecko's Hillview": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": "Gecko's Grill & Pub (Hillview)",
-      "note": "Names the specific Hillview branch, but no Commons photo of that location exists, and the pick itself describes a recurring bar-game night rather than the building."
+      "note": "Names the specific Hillview branch, but no Commons photo of that location exists, and the pick itself describes a recurring bar-game night rather than the building. Pass 2 (2026-09-23): Openverse searched \"Gecko's Grill Pub Hillview Sarasota\" — zero results; no CC-licensed photo of this specific branch exists."
     },
     "Pie On Main": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": "Pie On Main",
-      "note": "Small independent downtown lunch counter; no Commons photo of this business was found."
+      "note": "Small independent downtown lunch counter; no Commons photo of this business was found. Pass 2 (2026-09-23): Openverse searched \"Pie On Main Sarasota\" — the only result was an unrelated personal \"365 project\" photo; no photo of this restaurant exists on Openverse."
     }
   }
 }

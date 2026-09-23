@@ -67,7 +67,7 @@
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": null,
-      "note": "Searched Commons (title/text search, the Crystal River National Wildlife Refuge category, 'boardwalk'/'walkway'/'trail' queries) and found only the water-approach view already used for the kayak pick, refuge entrance signage, and unrelated 1900s-era photos. No properly licensed photo of the land-side boardwalk/trolley viewing platform (distinct from the water view) was found."
+      "note": "Searched Commons (title/text search, the Crystal River National Wildlife Refuge category, 'boardwalk'/'walkway'/'trail' queries) and found only the water-approach view already used for the kayak pick, refuge entrance signage, and unrelated 1900s-era photos. No properly licensed photo of the land-side boardwalk/trolley viewing platform (distinct from the water view) was found. Pass 2 (2026-09-23): searched Openverse for \"Three Sisters Springs boardwalk\" (zero results), \"Three Sisters Springs Crystal River\" (29 results, all water-level manatee/swimmer photos, none showing the land boardwalk or trolley platform), and \"Crystal River National Wildlife Refuge boardwalk\" (zero results). No usable candidate found."
     },
     "A manatee eco-cruise for non-swimmers": {
       "reason": "not-a-place",

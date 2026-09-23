@@ -47,31 +47,31 @@
       "reason": "google-only",
       "placeId": "ChIJSZyKtGVaw4gRkKUbiPqvOVI",
       "needsPermissionFrom": "Original Word of Mouth",
-      "note": "No Commons photo found for this restaurant; Wayfind's inventory carries only a Google Places photo."
+      "note": "No Commons photo found for this restaurant; Wayfind's inventory carries only a Google Places photo. Pass 2 (2026-09-23): Openverse queries 'Original Word of Mouth Venice Florida' (0) and 'Original Word of Mouth Venice' with source=flickr (0) found no CC-licensed photo of this Venice location."
     },
     "Ophelia's on the Bay": {
       "reason": "google-only",
       "placeId": "ChIJs8HMPKxDw4gR8rXHdqdvpmE",
       "needsPermissionFrom": "Ophelia's on the Bay",
-      "note": "No Commons photo found for this restaurant; Wayfind's inventory carries only a Google Places photo."
+      "note": "No Commons photo found for this restaurant; Wayfind's inventory carries only a Google Places photo. Pass 2 (2026-09-23): Openverse queries \"Ophelia's on the Bay Siesta Key\" (0) and \"Ophelia's on the Bay\" with source=flickr (3 results — 'Sticky Situation', 'Lamb Osso Bucco', 'Waiting for Ophelia', none identifiably this restaurant's food, room or signage) found no usable photo of this Siesta Key restaurant."
     },
     "Gulf Drive Cafe": {
       "reason": "google-only",
       "placeId": "ChIJJWCbj5kRw4gRYkZ7QJ-L91s",
       "needsPermissionFrom": "Gulf Drive Cafe",
-      "note": "No Commons photo found for this restaurant; Wayfind's inventory carries only a Google Places photo."
+      "note": "No Commons photo found for this restaurant; Wayfind's inventory carries only a Google Places photo. Pass 2 (2026-09-23): Openverse queries 'Gulf Drive Cafe Bradenton Beach' (0) and 'Gulf Drive Cafe' with source=flickr (0) found no CC-licensed photo of this Bradenton Beach restaurant."
     },
     "Yoder's Restaurant": {
       "reason": "google-only",
       "placeId": "ChIJIwZqEutAw4gR-1cOUgiln24",
       "needsPermissionFrom": "Yoder's Restaurant",
-      "note": "No Commons photo found for this restaurant; Wayfind's inventory carries only a Google Places photo."
+      "note": "No Commons photo found for this restaurant; Wayfind's inventory carries only a Google Places photo. Pass 2 (2026-09-23): Openverse queries \"Yoder's Restaurant Sarasota Pinecraft\" (0) and \"Yoder's Restaurant Pinecraft\" with source=flickr (0) found no CC-licensed photo of this Pinecraft restaurant."
     },
     "Columbia Restaurant": {
       "reason": "google-only",
       "placeId": "ChIJaTQEjpFqw4gRnHJU2Klfw0o",
       "needsPermissionFrom": "Columbia Restaurant, St. Armands Circle",
-      "note": "Commons has many photos of the original Ybor City Columbia location, which is a different building and not this St. Armands Circle outpost; no Commons photo found for this location itself."
+      "note": "Commons has many photos of the original Ybor City Columbia location, which is a different building and not this St. Armands Circle outpost; no Commons photo found for this location itself. Pass 2 (2026-09-23): Openverse queries 'Columbia Restaurant St Armands Circle' (0) and 'Columbia Restaurant St Armands' with source=flickr (2 results, both titled 'Columbia Restaurant, St. Armands Key, Sarasota' and CC BY 2.0 — checked directly) turned out to be close-up shots of decorative Spanish gift-shop ceramics on a table, with no building exterior, sign or dining room visible, so they cannot prove this exact location versus any other Columbia gift-shop display; rejected."
     }
   }
 }

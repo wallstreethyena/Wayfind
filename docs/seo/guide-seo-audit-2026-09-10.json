@@ -127,7 +127,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring omits an image rather than substituting unrelated art; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -135,19 +135,19 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the branded text-card fallback; no unrelated photograph is used."
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
         },
         "image_record": {
           "status": "pass",
-          "evidence": "Explicitly unavailable: The previous photograph does not match this guide. A suitable licensed replacement has not yet passed review."
+          "evidence": "/guides/picks/bioluminescence-kayak-tour-space-coast/bairs-cove-haulover-canal-kayakers.webp; 1400x933; Rusty Clark; CC BY 2.0."
         },
         "representative_image": {
-          "status": "unknown",
-          "evidence": "No reviewed representative image is currently available."
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
         },
         "large_image_candidate": {
-          "status": "unknown",
-          "evidence": "No representative image is available."
+          "status": "pass",
+          "evidence": "Delivered image is 1400x933; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -208,7 +208,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring omits an image rather than substituting unrelated art; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -216,19 +216,19 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the branded text-card fallback; no unrelated photograph is used."
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
         },
         "image_record": {
           "status": "pass",
-          "evidence": "Explicitly unavailable: The previous photograph does not match this guide. A suitable licensed replacement has not yet passed review."
+          "evidence": "/guides/picks/florida-scalloping-crystal-river-homosassa/fort-island-gulf-beach-crystal-river.webp; 1400x933; Kolin Toney; CC BY-SA 2.0."
         },
         "representative_image": {
-          "status": "unknown",
-          "evidence": "No reviewed representative image is currently available."
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
         },
         "large_image_candidate": {
-          "status": "unknown",
-          "evidence": "No representative image is available."
+          "status": "pass",
+          "evidence": "Delivered image is 1400x933; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -544,15 +544,15 @@
         },
         "image_record": {
           "status": "pass",
-          "evidence": "/guides/unsplash/pie-kyrie-isaac.webp; 800x1200; Kyrie Isaac; Unsplash License."
+          "evidence": "/guides/picks/things-to-do-sarasota/pinecraft-post-office.webp; 1400x799; Witherpshins; CC BY-SA 3.0."
         },
         "representative_image": {
           "status": "pass",
           "evidence": "The route and metadata use the same per-slug reviewed image."
         },
         "large_image_candidate": {
-          "status": "unknown",
-          "evidence": "Delivered image is 800x1200; it is not claimed as a 1200px-wide Discover candidate."
+          "status": "pass",
+          "evidence": "Delivered image is 1400x799; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",

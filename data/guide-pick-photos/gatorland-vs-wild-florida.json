@@ -1,17 +1,38 @@
 {
   "slug": "gatorland-vs-wild-florida",
-  "picks": {},
-  "gaps": {
+  "picks": {
     "Gatorland: the classic park": {
-      "reason": "no-verified-source", "placeId": null, "needsPermissionFrom": "Gatorland",
-      "note": "The one Commons photo found of Gatorland's entrance (\"Gatorland entrance -Florida-23Feb2006.jpg\") is licensed CC BY-SA 2.5, which is not in this contract's allowed licence set (only CC BY/BY-SA 2.0, 3.0 or 4.0). No other verified CC-licensed photo of Gatorland was found."
-    },
+      "src": "/guides/picks/gatorland-vs-wild-florida/gatorland-mouth-entrance.webp",
+      "width": 1400,
+      "height": 933,
+      "alt": "Gatorland's giant alligator-mouth entrance building in Orlando, teal and pink with rows of white teeth and 'Gatorland Orlando FL' lettered across the jaw",
+      "caption": "Gatorland's alligator-mouth entrance, photographed in 2002.",
+      "credit": "William Warby",
+      "creditHref": "https://www.flickr.com/photos/26782864@N00/1477075489",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/26782864@N00/1477075489",
+      "author": "William Warby",
+      "position": "50% 55%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "flickr",
+      "placeId": null,
+      "verification": "Flickr page by William Warby (realname; username/pathAlias wwarby), titled 'Gatorland | Gatorland entrance, Florida...', taken 2002-04-22. Live page license checked directly on the Flickr page: license id 4 and a creativecommons.org/licenses/by/2.0 link, i.e. CC BY 2.0, matching Openverse's cached license. The photo shows Gatorland's giant alligator-mouth entrance building lettered 'GatOrland ORLANDO FL' across the lower jaw -- the park's iconic, one-of-a-kind roadside entrance -- proving the exact place beyond doubt. This is a different file than the guide's existing hero (Jawlene.jpg) and is not reused from any other pick in this guide. The structure is a long-standing unchanged fixture of the park (in place since the 1960s per the park's own history) so the 2002 date does not raise a currency concern.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
+    }
+  },
+  "gaps": {
     "Wild Florida: the airboat experience": {
-      "reason": "no-verified-source", "placeId": null, "needsPermissionFrom": "Wild Florida",
-      "note": "Commons title search for Wild Florida's airboat attraction returned no results. No verified CC-licensed photo found."
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": "Wild Florida",
+      "note": "Commons title search for Wild Florida's airboat attraction returned no results. No verified CC-licensed photo found. Pass 2 (2026-09-23): searched Openverse for \"Wild Florida airboat Kenansville\" (zero results), \"Wild Florida airboat\" (229 results, all Everglades-area airboat operators such as Cooper Town Airboat Rides and an unrelated \"April 7, 2015\" Everglades/Turner River series -- a different operator and location, rejected as a different branch), \"Wild Florida Kenansville\" restricted to source=flickr (zero), and \"Wild Florida Irwin\" (zero). No usable candidate found."
     },
     "The verdict": {
-      "reason": "not-a-place", "placeId": null, "needsPermissionFrom": null,
+      "reason": "not-a-place",
+      "placeId": null,
+      "needsPermissionFrom": null,
       "note": "A head-to-head recommendation between the two parks, not a place of its own."
     }
   }

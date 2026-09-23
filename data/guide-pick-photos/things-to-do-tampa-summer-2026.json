@@ -3,95 +3,135 @@
   "picks": {
     "Busch Gardens and the new Lions and Hyena Ridge": {
       "src": "/guides/picks/things-to-do-tampa-summer-2026/busch-gardens-lions.webp",
-      "width": 1012, "height": 759,
+      "width": 1012,
+      "height": 759,
       "alt": "Lions resting on a rock outcrop in a naturalistic savanna habitat at Busch Gardens Tampa",
       "caption": "Lions resting on their rock habitat at Busch Gardens Tampa.",
-      "credit": "Adog", "creditHref": "https://commons.wikimedia.org/wiki/File:Lions_Busch_Gardens_Tampa.jpg",
-      "license": "CC BY-SA 4.0", "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "Adog",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Lions_Busch_Gardens_Tampa.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File:Lions_Busch_Gardens_Tampa.jpg",
-      "author": "Adog", "position": "45% 55%",
+      "author": "Adog",
+      "position": "45% 55%",
       "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
-      "sourceKind": "commons", "placeId": null,
+      "sourceKind": "commons",
+      "placeId": null,
       "verification": "File titled \"Lions Busch Gardens Tampa\" showing lions on a naturalistic rock habitat, matching the new lion habitat this pick describes. Not geotagged; identified by the file title.",
-      "sameAsCardPhoto": false, "reviewedAt": "2026-09-23"
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
     },
     "ZooTampa's Florida Waters expansion": {
       "src": "/guides/picks/things-to-do-tampa-summer-2026/zootampa-manatee-center-sign.webp",
-      "width": 1400, "height": 832,
+      "width": 1400,
+      "height": 832,
       "alt": "The David A. Straz, Jr. Manatee Critical Care Center sign at ZooTampa, with its manatee logo",
       "caption": "The sign for ZooTampa's David A. Straz, Jr. Manatee Critical Care Center, the rescue facility behind the Florida Waters expansion.",
-      "credit": "Sandra P. at ZooTampa", "creditHref": "https://commons.wikimedia.org/wiki/File:Manatee_Critical_Care_Center_Sign.jpg",
-      "license": "CC BY-SA 4.0", "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "Sandra P. at ZooTampa",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Manatee_Critical_Care_Center_Sign.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File:Manatee_Critical_Care_Center_Sign.jpg",
-      "author": "Sandra P. at ZooTampa", "position": "50% 45%",
+      "author": "Sandra P. at ZooTampa",
+      "position": "50% 45%",
       "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
-      "sourceKind": "commons", "placeId": "ChIJBQ5SjLHGwogRL4X19g4J5tI",
+      "sourceKind": "commons",
+      "placeId": "ChIJBQ5SjLHGwogRL4X19g4J5tI",
       "verification": "The sign reads \"David A. Straz, Jr. Manatee Critical Care Center,\" the exact rescue facility named in the pick's blurb, uploaded by a ZooTampa staff account. Not geotagged; identified by the sign text.",
-      "sameAsCardPhoto": false, "reviewedAt": "2026-09-23"
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
     },
     "The Riverwalk with the Pirate Water Taxi": {
       "src": "/guides/picks/things-to-do-tampa-summer-2026/tampa-riverwalk.webp",
-      "width": 1400, "height": 933,
+      "width": 1400,
+      "height": 933,
       "alt": "A paved waterfront promenade along the Hillsborough River with a historic bascule bridge, benches and trees",
       "caption": "The paved Riverwalk path along the Hillsborough River, with one of its historic bascule bridges.",
-      "credit": "Barbthebuilder", "creditHref": "https://commons.wikimedia.org/wiki/File:Tampa_architectural_photos_256.jpg",
-      "license": "CC BY-SA 3.0", "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "credit": "Barbthebuilder",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Tampa_architectural_photos_256.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File:Tampa_architectural_photos_256.jpg",
-      "author": "Barbthebuilder", "position": "45% 55%",
+      "author": "Barbthebuilder",
+      "position": "45% 55%",
       "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
-      "sourceKind": "commons", "placeId": "ChIJL_dfJozEwogRF_55TezQpYo",
+      "sourceKind": "commons",
+      "placeId": "ChIJL_dfJozEwogRF_55TezQpYo",
       "verification": "Same file as Wayfind's own verified wf_place_photo record for this place; shows the Riverwalk's paved promenade, railing and a historic bascule bridge over the Hillsborough River. The Pirate Water Taxi itself is not pictured; the caption describes only the Riverwalk path visible. Not geotagged; identified visually against known Riverwalk landmarks.",
-      "sameAsCardPhoto": true, "reviewedAt": "2026-09-23"
+      "sameAsCardPhoto": true,
+      "reviewedAt": "2026-09-23"
     },
     "Ybor City": {
       "src": "/guides/picks/things-to-do-tampa-summer-2026/ybor-city-brick-archways.webp",
-      "width": 1400, "height": 973,
+      "width": 1400,
+      "height": 973,
       "alt": "A row of red-brick arched arcades on a historic Ybor City cigar-factory building, with a Victorian street lamp in front",
       "caption": "Red-brick arched arcades on a historic cigar-factory building in Ybor City.",
-      "credit": "Adrian Demoret", "creditHref": "https://commons.wikimedia.org/wiki/File:Distinctive_Ybor_Architecture..JPG",
-      "license": "CC BY-SA 3.0", "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "credit": "Adrian Demoret",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Distinctive_Ybor_Architecture..JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File:Distinctive_Ybor_Architecture..JPG",
-      "author": "Adrian Demoret", "position": "40% 45%",
+      "author": "Adrian Demoret",
+      "position": "40% 45%",
       "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
-      "sourceKind": "commons", "placeId": "ChIJF06M0-_FwogRirItJy_x26M",
+      "sourceKind": "commons",
+      "placeId": "ChIJF06M0-_FwogRirItJy_x26M",
       "verification": "Geotagged 27.9625,-82.441111, about 213m from Ybor City's Google-listed coordinate (27.9607084,-82.441888) and titled \"Distinctive Ybor Architecture\" — the arched brick arcades are Ybor's signature cigar-factory-era architecture.",
-      "sameAsCardPhoto": false, "reviewedAt": "2026-09-23"
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
     },
     "The Florida Aquarium": {
       "src": "/guides/picks/things-to-do-tampa-summer-2026/florida-aquarium.webp",
-      "width": 720, "height": 960,
+      "width": 720,
+      "height": 960,
       "alt": "The Florida Aquarium's glass-domed entrance building with its blue wordmark sign, palm trees and a manta ray sculpture out front",
       "caption": "The Florida Aquarium's glass-domed entrance on the Channelside waterfront.",
-      "credit": "James E. Scholz", "creditHref": "https://commons.wikimedia.org/wiki/File:Florida_Aquarium_Channelside.jpg",
-      "license": "CC BY-SA 4.0", "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "credit": "James E. Scholz",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Florida_Aquarium_Channelside.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File:Florida_Aquarium_Channelside.jpg",
-      "author": "James E. Scholz", "position": "50% 60%",
+      "author": "James E. Scholz",
+      "position": "50% 60%",
       "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
-      "sourceKind": "commons", "placeId": "ChIJCXAq5_DEwogRjTPE2xlsZtE",
+      "sourceKind": "commons",
+      "placeId": "ChIJCXAq5_DEwogRjTPE2xlsZtE",
       "verification": "Same file as Wayfind's own verified wf_place_photo record for this place; the building's glass dome and the readable \"THE FLORIDA AQUARIUM\" sign confirm the exact venue. Not geotagged; identified by the sign and architecture.",
-      "sameAsCardPhoto": true, "reviewedAt": "2026-09-23"
+      "sameAsCardPhoto": true,
+      "reviewedAt": "2026-09-23"
     }
   },
   "gaps": {
     "Armature Works at golden hour": {
-      "reason": "no-verified-source", "placeId": "ChIJYWj9iZ_PwogRQebjN7pJ_Nw", "needsPermissionFrom": "Armature Works",
-      "note": "Commons title search, category search and geosearch around the venue's coordinates (repeated with radii up to 500m) returned no photo of this food hall — only unrelated electrical-engineering \"armature\" documents. No CC-licensed photo found."
+      "reason": "no-verified-source",
+      "placeId": "ChIJYWj9iZ_PwogRQebjN7pJ_Nw",
+      "needsPermissionFrom": "Armature Works",
+      "note": "Commons title search, category search and geosearch around the venue's coordinates (repeated with radii up to 500m) returned no photo of this food hall — only unrelated electrical-engineering \"armature\" documents. No CC-licensed photo found. Pass 2 (2026-09-23): same Openverse searches as the other two guides' Armature Works gaps ('Armature Works Tampa', 'Armature Works' source=flickr, 'Tampa Heights trolley barn', 'Tampa food hall river') found no verified photo, let alone one at golden hour; not re-queried a third time per the shared-place rule."
     },
     "The soft-serve margarita crawl": {
-      "reason": "not-a-place", "placeId": null, "needsPermissionFrom": null,
+      "reason": "not-a-place",
+      "placeId": null,
+      "needsPermissionFrom": null,
       "note": "A roving drink trend across multiple Mexican restaurants around the bay, not one specific venue named in the pick text (Mad Beach Cantina is named only as where it started, not as the pick itself)."
     },
     "Sparkman Wharf": {
-      "reason": "no-verified-source", "placeId": "ChIJy66Xe53FwogRcpjZQHX4cCI", "needsPermissionFrom": null,
-      "note": "Commons title search and geosearch around Sparkman Wharf's coordinates found no photo of the shipping-container food hall itself (only an old political grand-opening photo centered on a named individual)."
+      "reason": "no-verified-source",
+      "placeId": "ChIJy66Xe53FwogRcpjZQHX4cCI",
+      "needsPermissionFrom": null,
+      "note": "Commons title search and geosearch around Sparkman Wharf's coordinates found no photo of the shipping-container food hall itself (only an old political grand-opening photo centered on a named individual). Pass 2 (2026-09-23): Openverse queries 'Sparkman Wharf Tampa' (1 result: the same Commons grand-opening photo centered on Mayor Bob Buckhorn, still a people-rule reject), 'Sparkman Wharf' source=flickr (0) and 'Sparkman Wharf shipping container' (0) found nothing new of the food hall. A verified photo of the real Pirate Water Taxi was found and used for the Tampa Riverwalk guide's 'Sparkman Wharf and the water taxi' pick, whose own blurb names the water taxi; it was not reused here because this guide's 'Sparkman Wharf' pick and blurb describe only the food hall/lawn, not the taxi, so captioning the taxi photo here would not honestly match what this specific pick names."
     },
     "Adventure Island": {
-      "reason": "no-verified-source", "placeId": null, "needsPermissionFrom": "Adventure Island",
-      "note": "Commons search for \"Adventure Island\" returns a different, unrelated theme park of the same name in Southend-on-Sea, UK — not Tampa's water park. No verified photo of Tampa's Adventure Island was found."
+      "reason": "people-privacy",
+      "placeId": null,
+      "needsPermissionFrom": "Adventure Island",
+      "note": "Commons search for \"Adventure Island\" returns a different, unrelated theme park of the same name in Southend-on-Sea, UK — not Tampa's water park. No verified photo of Tampa's Adventure Island was found. Pass 2 (2026-09-23): Openverse query 'Adventure Island Tampa' with source=flickr (56 results) found real 2012 photos from Tampa's park (matching slides, pools and rockwork), but every candidate centers on identifiable people as the subject — including one literally titled 'Kim at Adventure Island, Tampa, Florida' — and several feature children as the clear focus, both excluded by the people rule. A plain-text query 'Adventure Island Tampa water park' returned 0 results. Rejected for people/privacy, not for lacking a real source."
     },
     "Roasted's fruit-shaped ice cream": {
-      "reason": "no-verified-source", "placeId": null, "needsPermissionFrom": "Roasted",
-      "note": "A small independent dessert shop in Temple Terrace; no CC-licensed Commons photo of this business was found."
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": "Roasted",
+      "note": "A small independent dessert shop in Temple Terrace; no CC-licensed Commons photo of this business was found. Pass 2 (2026-09-23): Openverse query 'Roasted Temple Terrace ice cream' returned zero results; this small independent shop still has no CC-licensed coverage on Flickr or Commons."
     }
   }
 }
