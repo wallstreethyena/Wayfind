@@ -119,6 +119,18 @@ ok(RECORDS.every((r) => typeof r.key === "string" && r.key && typeof r.reason ==
   "E1: every record carries a card key and a reason");
 ok(ALLOWED.every((r) => typeof r.placeId === "string" && r.placeId.length > 10),
   "E2: every allowed record is keyed to a stable place id, not just a display name");
+// Positive control for E3's detector: the same GEO pattern must actually fire
+// on the shapes Stay22 really returns when it finds no property, and must NOT
+// fire on a real property name. Without this, E3 could pass because the
+// pattern matches nothing at all.
+ok(GEO.test("1291, 12th Street, Sarasota, Sarasota County, Florida, 34236, USA"),
+  "E3a: positive control — a full geocoded address IS detected as a non-property");
+ok(GEO.test("Osprey, Sarasota County, Florida, USA"),
+  "E3b: positive control — an area-only geocode IS detected as a non-property");
+ok(!GEO.test("Hotel Ranola") && !GEO.test("Embassy Suites by Hilton Sarasota"),
+  "E3c: negative control — a real property name is NOT mistaken for a geocode");
+ok(RECORDS.some((r) => r.resolved && GEO.test(r.resolved)),
+  "E3d: the audit record really does contain geocoded resolutions for E3 to exclude");
 ok(ALLOWED.every((r) => r.resolved && !GEO.test(r.resolved)),
   "E3: no allowed record resolved to a geocoded address instead of a property");
 ok(ALLOWED.every((r) => /^exact-verified:(google|name)-identity$/.test(r.reason)),
