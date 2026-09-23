@@ -1774,3 +1774,18 @@ node scripts/check-theme-park-coverage.mjs
 # daypart-inappropriate kind ever leads, every daypart keeps a real preferred
 # pick, and it is actually wired into UnifiedBrowseCommerceRail.
 node scripts/check-daypart-crosssell.mjs
+
+# 2026-09-23 (fix/gogate) — every discovered /go affiliate redirect route
+# refuses a self-identified crawler before it can spend money or reach a
+# partner (closes the /api/viator/go gap: 94 provider_redirect_started/hr
+# from bots on 09-15), and our own synthetic monitor's UA keeps getting a
+# real redirect while never counting as a human in the money funnel.
+node scripts/check-go-routes-crawler-gate.mjs
+
+# 2026-09-23 (fix/gogate, audit follow-up) — the synthetic monitor's own
+# "book-links" scenario can never select or trigger the one /api/viator/go
+# shape that spends the metered provider_viator ledger (a bare ?q= link with
+# no &product=/&intent=search): the scenario's own link picker filters it out,
+# and the route refuses to spend for that UA as a backstop, proven by CALLING
+# the real handler and counting ledger calls with a human negative control.
+node scripts/check-viator-monitor-spend-skip.mjs

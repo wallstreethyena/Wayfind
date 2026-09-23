@@ -25,6 +25,10 @@ ok(analytics.hasInternalBrowserMark(storage), "owner sign-in persistently marks 
 equal(analytics.analyticsSuppressionReason({ storage, user: null, userAgent: "ordinary browser" }), "internal", "marked browser stays suppressed after sign-out");
 equal(analytics.analyticsSuppressionReason({ storage: new Storage(), userAgent: "Googlebot/2.1" }), "bot", "known crawler is suppressed");
 equal(analytics.analyticsSuppressionReason({ storage: new Storage(), userAgent: "Mozilla/5.0", webdriver: true }), "bot", "webdriver automation is suppressed");
+// Our own synthetic monitor (scripts/run-synthetic-monitor.mjs) self-identifies
+// with this exact UA on every real Chromium context it opens. It must never be
+// counted as a human page visit — see lib/browserAnalytics.js's BOT_RX comment.
+equal(analytics.analyticsSuppressionReason({ storage: new Storage(), userAgent: "WayfindSyntheticMonitor/1.0 (+https://www.gowayfind.com)" }), "bot", "our own synthetic monitor UA is suppressed as a bot, never counted as a human visit");
 equal(analytics.analyticsSuppressionReason({ storage: new Storage(), userAgent: "Mozilla/5.0" }), null, "ordinary anonymous browser is not falsely suppressed");
 equal(analytics.analyticsSuppressionReason({ storage: new Storage(), user: { user_metadata: { user_name: "gabrielpereira" } }, userAgent: "Mozilla/5.0" }), "internal", "owner auth handle is suppressed when the provider omits email");
 
