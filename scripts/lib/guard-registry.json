@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 698,
-    "totalRegistryEntries": 699,
-    "guardsTxtLineCount": 697,
-    "guardsTxtReachedFileCount": 692,
+    "totalOnDiskGuardFiles": 699,
+    "totalRegistryEntries": 700,
+    "guardsTxtLineCount": 698,
+    "guardsTxtReachedFileCount": 693,
     "criticalCount": 84,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 476,
+      "CALL": 477,
       "RENDER": 83,
       "STRUCTURAL": 139,
       "OTHER": 1
@@ -3815,6 +3815,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 11,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-hotel-library-quality.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 10,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
