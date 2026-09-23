@@ -176,7 +176,10 @@ const uniqueOg = [
   ["app/best-beaches/[metro]/page.js", "/api/og/beaches"],
   ["app/family/page.js", "/api/og/intent"],
   ["app/date-night/page.js", "/api/og/intent"],
-  ["app/guides/[slug]/page.js", "/api/og?t="],
+  // v9 (owner, 2026-09-23): guides now unfurl through the photo-led hero
+  // route, not the bare typographic card — see docs/proposals/claude-sonnet-hero-photo-standard.md (proposed rule 9)
+  // and scripts/check-hero-card.mjs for the fuller assertions on it.
+  ["app/guides/[slug]/page.js", "/api/og/hero?kind=guide"],
   ["app/culture/[metro]/page.js", "/api/og?t="],
   ["app/florida/[town]/page.js", "/api/og?t="],
   ["app/about/page.js", "/api/og?t="],

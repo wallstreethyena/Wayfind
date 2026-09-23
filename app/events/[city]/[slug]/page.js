@@ -97,11 +97,25 @@ export async function generateMetadata({ params }) {
   if (!e) return { title: "Event not found · Wayfind", robots: { index: false, follow: true } };
   const where = [e.venue, e.city].filter(Boolean).join(", ");
   const story = eventStoryFallback(e);
+  const ogTitle = `${e.name} · Wayfind Events`;
+  const ogDesc = `${e.name} on ${fmtDate(e.date, e.time)}`;
+  // v9 (owner, 2026-09-23): "everything on wayfind that is sharable looks
+  // premium." This used to point straight at e.image (an aggregator-supplied
+  // photo, no width/height, and no openGraph.images key at all — so no
+  // twitter card either — when it was absent). The hero route resolves an
+  // OWNED, consent-cleared photo for this event id when one exists
+  // (lib/eventPhotos.js — none of this live aggregator's ids match that
+  // curated registry today, so this always lands on the typographic
+  // fallback for now) and otherwise falls back to a card carrying this
+  // event's own name and venue, never a hole and never an unlicensed photo.
+  const og = `${CANON}/api/og/hero?kind=event&id=${encodeURIComponent(e.id)}`
+    + `&t=${encodeURIComponent(e.name)}&cat=Event&loc=${encodeURIComponent(where || e.city || "")}`;
   return {
     title: `${e.name}${where ? " at " + where : ""} · Wayfind Events`,
     description: `${story.whyGo} ${e.name} is scheduled for ${fmtDate(e.date, e.time)}${where ? " at " + where : ""}.`,
     alternates: { canonical: `${CANON}/events/${params.city}/${params.slug}` },
-    openGraph: { title: `${e.name} · Wayfind Events`, description: `${e.name} on ${fmtDate(e.date, e.time)}`, ...(e.image ? { images: [e.image] } : {}) },
+    openGraph: { title: ogTitle, description: ogDesc, images: [{ url: og, width: 1200, height: 630, type: "image/png", alt: ogTitle }] },
+    twitter: { card: "summary_large_image", title: ogTitle, description: ogDesc, images: [og] },
     robots: { index: false, follow: true }, // noindex until the owner decides event pages should enter the crawl budget (infinite, dated inventory)
   };
 }

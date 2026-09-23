@@ -12,21 +12,77 @@
 // and every sentence the card is allowed to say come from lib/shareCard.js and
 // lib/shareCardCopy.js, where a guard can execute them.
 //
-// NO PHOTOGRAPHS — with ONE named exception, added v8.23 on the owner's
-// direction ("make it look like the actual card"). No stock, no brand art, no
-// hand-written base64 blob, no place photo. The only <img> this file may render
-// is the rail POSTER on the rail variant: first-party artwork the owner drew,
-// resolved from lib/rails.js, and handed to Satori as bytes the route already
-// fetched and sniffed rather than as a URL Satori resolves mid-stream. That
-// last clause is the whole safety argument — see lib/railShareCard.js for the
-// reasoning and scripts/check-rail-share.mjs for the assertions.
+// NO PHOTOGRAPHS — with TWO named exceptions. The first, v8.23, on the
+// owner's direction ("make it look like the actual card"): the rail POSTER,
+// first-party artwork the owner drew, resolved from lib/rails.js. The second,
+// v9 (owner, 2026-09-23): "the share cards for all of the guide and blogs
+// needs to look premium … it looks cheap … everything on wayfind that is
+// sharable looks premium and looks good on social media" — the HERO photo, a
+// guide's reviewed image, a place's free/owned photo, or an event's
+// consent-cleared photo, laid out full-bleed under a legibility scrim. See
+// docs/share-card-standard.md §9.
+//
+// Both exceptions share the one safety argument that makes an <img> here
+// tolerable at all: the bytes are handed to Satori as a pre-fetched, sniffed
+// data URI the route already has in hand, never a URL Satori resolves
+// mid-stream. lib/railShareCard.js and lib/heroCard.js/lib/heroSource.js carry
+// the reasoning; scripts/check-rail-share.mjs and scripts/check-hero-card.mjs
+// carry the assertions. No stock decoration, no brand art, no hand-written
+// base64 blob outside those two named, pre-fetched fields.
 import { ImageResponse } from "next/og";
 import { CARD, toneFor } from "../../../lib/shareCard.js";
 import { RAIL_CARD } from "../../../lib/railShareCard.js";
+import { HERO_CARD } from "../../../lib/heroCard.js";
 
-const arch600 = fetch(new URL("./fonts/Archivo-600-Latin.ttf", import.meta.url)).then((r) => r.arrayBuffer());
-const arch700 = fetch(new URL("./fonts/Archivo-700-Latin.ttf", import.meta.url)).then((r) => r.arrayBuffer());
-const arch900 = fetch(new URL("./fonts/Archivo-900-Latin.ttf", import.meta.url)).then((r) => r.arrayBuffer());
+// Font bytes, fetched once per (edge) bundle. This form — fetch(new URL(path,
+// import.meta.url)) — only resolves on the EDGE runtime, which is every
+// caller of this file except one: app/api/og/hero/route.js runs on Node.js
+// (sharp is a native addon the edge runtime cannot bundle), and it CANNOT
+// import a Node built-in (fs, path) into this file to work around that — a
+// bare `node:*` reference anywhere in this file's module graph fails the EDGE
+// bundle build for every OTHER OG route that imports card.jsx, even behind a
+// runtime check that never executes it (confirmed empirically: `typeof
+// EdgeRuntime` branching to a dynamic `import("node:path")` here broke `next
+// build` outright, because webpack resolves that import statically regardless
+// of which branch runs it). The fix lives entirely in the hero route instead:
+// it loads its own Node-safe font buffers and hands them to
+// shareCardResponse() via `opts.fontBuffers`, so this file never has to know
+// Node.js exists at all — see that function below.
+//
+// Wrapped in try/catch because webpack rewrites `fetch(new URL(path,
+// import.meta.url))` into a call on a bundler-specific PATH STRING at build
+// time — on the edge target that string is edge-fetchable; on the Node.js
+// target it is a bare "/_next/static/media/…ttf" path, and Node's own fetch()
+// throws SYNCHRONOUSLY on it, at module load, before any request ever
+// arrives. Converting that into a rejected promise (instead of letting the
+// import itself crash) plus the immediate no-op .catch() below keeps the
+// Node.js bundle importable at all; nothing there ever awaits these three —
+// see the fontBuffers seam in shareCardResponse().
+// Each `new URL("literal.ttf", import.meta.url)` call stays INLINE and
+// fully literal at its own call site on purpose — passing the path in as a
+// variable (the first version of this fix did) stops webpack's edge asset
+// bundler from recognizing the pattern at all, which silently broke fonts on
+// the edge runtime too (caught by scripts/test-og-bodies.mjs: several intent
+// cards started 500ing). safeArchivo only wraps the call in a closure so a
+// synchronous throw becomes a rejected promise instead of crashing the
+// importing module — it never touches the literal argument itself.
+function safeArchivo(loadFont) {
+  try {
+    return loadFont();
+  } catch (e) {
+    return Promise.reject(e);
+  }
+}
+const arch600 = safeArchivo(() => fetch(new URL("./fonts/Archivo-600-Latin.ttf", import.meta.url)).then((r) => r.arrayBuffer()));
+const arch700 = safeArchivo(() => fetch(new URL("./fonts/Archivo-700-Latin.ttf", import.meta.url)).then((r) => r.arrayBuffer()));
+const arch900 = safeArchivo(() => fetch(new URL("./fonts/Archivo-900-Latin.ttf", import.meta.url)).then((r) => r.arrayBuffer()));
+// Never actually unhandled: on the edge bundle these three resolve normally
+// and shareCardResponse's own await sees them; on the Node.js bundle they are
+// permanently rejected and permanently unused, so this exists purely to keep
+// that rejection from surfacing as a process-level unhandledRejection.
+arch600.catch(() => {});
+arch700.catch(() => {});
+arch900.catch(() => {});
 
 export const INK = "#06080D";
 export const ORANGE = "#F97316";
@@ -226,18 +282,88 @@ export function WayfindRailCard({ model }) {
   );
 }
 
+// ══ THE HERO PLATE ══════════════════════════════════════════════════════════
+//
+// Full-bleed photo, magazine-cover layout (v9, owner 2026-09-23). The photo is
+// placed at its true crop via objectFit/objectPosition — the same technique
+// WayfindRailCard already proves this renderer supports — never pre-cropped
+// by hand, so the reviewed focal point (lib/guideHero.js's `position`) is
+// exactly what ends up on the plate. A dark scrim (bottom + left, into
+// #040810 — the same ink the rest of the brand sits on) keeps the mark, the
+// kicker and the headline legible over any photo, bright sky included.
+export function WayfindHeroCard({ model }) {
+  const m = model || {};
+  const lines = Array.isArray(m.lines) ? m.lines : [];
+  const accent = Array.isArray(m.accent) ? m.accent : [];
+  const size = m.size || 56;
+  return (
+    <div style={{ width: HERO_CARD.w, height: HERO_CARD.h, display: "flex", position: "relative",
+      overflow: "hidden", backgroundColor: INK, fontFamily: "Archivo" }}>
+
+      {/* THE PHOTO. Rendered only when the route resolved real, sniffed bytes
+          — a null here is a fallback that already happened upstream (the
+          route ships the typographic card instead), never a broken image
+          inside a card somebody has already sent. */}
+      {m.hero ? (
+        <img src={m.hero} width={HERO_CARD.w} height={HERO_CARD.h}
+          style={{ position: "absolute", left: 0, top: 0, width: HERO_CARD.w, height: HERO_CARD.h,
+            display: "flex", objectFit: "cover", objectPosition: m.position || "50% 50%" }} />
+      ) : <div style={{ display: "flex" }} />}
+
+      {/* Legibility scrim: bottom-to-ink, plus a soft left wash so the mark
+          and kicker read at top-left over any photo. */}
+      <div style={{ position: "absolute", left: 0, top: 0, width: HERO_CARD.w, height: HERO_CARD.h, display: "flex",
+        background: "linear-gradient(180deg, rgba(4,8,16,0) 0%, rgba(4,8,16,0.10) 38%, rgba(4,8,16,0.60) 70%, #040810 100%)" }} />
+      <div style={{ position: "absolute", left: 0, top: 0, width: 640, height: HERO_CARD.h, display: "flex",
+        background: "linear-gradient(90deg, rgba(4,8,16,0.5) 0%, rgba(4,8,16,0) 100%)" }} />
+
+      <div style={{ position: "absolute", left: HERO_CARD.padX, top: HERO_CARD.markY, display: "flex" }}>
+        <Mark size={HERO_CARD.markSize} />
+      </div>
+
+      {m.count ? (
+        <div style={{ position: "absolute", right: 60, top: 56, display: "flex", alignItems: "center",
+          padding: "10px 20px", borderRadius: 999, backgroundColor: "rgba(4,8,16,0.5)",
+          border: "1px solid rgba(232,201,122,0.5)" }}>
+          <div style={{ display: "flex", fontSize: 21, fontWeight: 700, color: "#E8C97A", letterSpacing: 1.2 }}>{m.count}</div>
+        </div>
+      ) : <div style={{ display: "flex" }} />}
+
+      {m.kicker ? (
+        <div style={{ position: "absolute", left: HERO_CARD.padX, top: m.kickerTop, display: "flex",
+          fontSize: 22, fontWeight: 700, color: "#E8C97A", letterSpacing: 2 }}>{m.kicker}</div>
+      ) : <div style={{ display: "flex" }} />}
+
+      <div style={{ position: "absolute", left: HERO_CARD.padX, top: m.top, display: "flex", flexDirection: "column" }}>
+        {lines.map((l, i) => (
+          <div key={i} style={{ display: "flex", fontSize: size, fontWeight: 900,
+            lineHeight: HERO_CARD.lead, letterSpacing: -Math.round(size * 0.03 * 10) / 10,
+            color: accent.indexOf(i) >= 0 ? ORANGE_TEXT : WHITE }}>{l}</div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // One response builder so every route gets the same fonts, the same size and
 // the same cache header. next/og appends an options `headers` entry AFTER its
 // own `immutable, max-age=31536000`, and immutable wins — so the header has to
 // be rebuilt on the way out or a broken card gets pinned for a year.
 export async function shareCardResponse(model, opts) {
   const o = opts || {};
-  const [f6, f7, f9] = await Promise.all([arch600, arch700, arch900]);
-  // STILL EXACTLY ONE ImageResponse. The rail variant is a second PLATE, not a
-  // second renderer: same fonts, same 1200x630, same rebuilt Cache-Control. A
-  // route that constructed its own is how six surfaces drifted apart in v7.25.
+  // Every edge caller omits fontBuffers and gets the module-level edge fetch
+  // above. The one Node.js caller (app/api/og/hero/route.js) hands in its own
+  // fs-loaded buffers, because the edge fetch form cannot run there at all —
+  // see the comment on arch600 above for why that has to be the seam.
+  const [f6, f7, f9] = o.fontBuffers || await Promise.all([arch600, arch700, arch900]);
+  // STILL EXACTLY ONE ImageResponse. The rail and hero variants are further
+  // PLATES, not a second renderer: same fonts, same 1200x630, same rebuilt
+  // Cache-Control. A route that constructed its own is how six surfaces
+  // drifted apart in v7.25.
   const plate = model && model.variant === "rail"
     ? <WayfindRailCard model={model} />
+    : model && model.variant === "hero"
+    ? <WayfindHeroCard model={model} />
     : <WayfindCard model={model} />;
   const img = new ImageResponse(plate, {
     width: CARD.w, height: CARD.h,

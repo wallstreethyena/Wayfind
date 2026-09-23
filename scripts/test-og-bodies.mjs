@@ -82,12 +82,54 @@ try {
   if (r.status !== 404) fails.push(`unknown intent returned HTTP ${r.status}, expected 404 — a fallback card is what hid six broken routes for months`);
 } catch (e) { fails.push(`unknown-intent probe failed: ${e.message}`); }
 
+// ── /api/og/hero (v9, owner 2026-09-23) — the SAME zero-byte-body class this
+// file exists to catch, now for the node-runtime photo route. A guide with a
+// real reviewed photo, its own typographic fallback, a real place, and a
+// real event must each return a real, distinct PNG — never a shared blank.
+const heroCases = [
+  { k: "hero:guide-photo", url: `${BASE}/api/og/hero?kind=guide&id=swim-with-manatees-crystal-river&t=${encodeURIComponent("Swim With Manatees in Crystal River")}&cat=Guide&loc=Florida` },
+  { k: "hero:guide-fallback", url: `${BASE}/api/og/hero?kind=guide&id=does-not-exist-2026&t=${encodeURIComponent("A Guide With No Reviewed Photo")}&cat=Guide&loc=Florida` },
+  { k: "hero:place", url: `${BASE}/api/og/hero?kind=place&id=ChIJaeBbjZmx2YgRI0Yb0-WQtPU&t=${encodeURIComponent("A Real Wayfind Place")}&cat=Restaurant&loc=Sarasota` },
+  { k: "hero:event", url: `${BASE}/api/og/hero?kind=event&id=mobius-night-market-2026-08&t=${encodeURIComponent("Mobius Night Market")}&cat=Event&loc=Sarasota` },
+  { k: "hero:event-fallback", url: `${BASE}/api/og/hero?kind=event&id=does-not-exist-2026&t=${encodeURIComponent("An Event With No Consented Photo")}&cat=Event&loc=Sarasota` },
+  { k: "hero:town", url: `${BASE}/api/og/hero?kind=town&id=miami&t=${encodeURIComponent("Miami, Florida")}&cat=Town` },
+];
+const heroResults = [];
+const heroSeen = new Map();
+for (const { k, url } of heroCases) {
+  let res, buf;
+  try {
+    res = await fetch(url);
+    buf = Buffer.from(await res.arrayBuffer());
+  } catch (e) {
+    fails.push(`${k}: request failed outright (${e.message}) — this is the zero-byte class: the stream dies after headers`);
+    continue;
+  }
+  const hash = createHash("sha256").update(buf).digest("hex").slice(0, 16);
+  heroResults.push({ k, status: res.status, bytes: buf.length, hash });
+  if (res.status !== 200) { fails.push(`${k}: HTTP ${res.status} (expected 200 — the hero route never throws past its own boundary)`); continue; }
+  const ct = res.headers.get("content-type") || "";
+  if (!/image\/(png|jpeg)/.test(ct)) fails.push(`${k}: content-type "${ct}" is not an image`);
+  if (buf.length < MIN_BYTES) {
+    fails.push(`${k}: body is ${buf.length} bytes (< ${MIN_BYTES}) — a 200 with a tiny or empty body is the failure mode that gets cached immutable`);
+    continue;
+  }
+  if (!(buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47)) {
+    fails.push(`${k}: body is not a PNG (magic bytes ${[...buf.slice(0, 4)].map((b) => b.toString(16)).join(" ")})`);
+    continue;
+  }
+  if (heroSeen.has(hash)) fails.push(`${k}: byte-identical to "${heroSeen.get(hash)}" (sha ${hash}) — a photo card and a fallback card rendering the same bytes means one of them is not actually running`);
+  else heroSeen.set(hash, k);
+}
+
 console.log(`\n  ${"INTENT".padEnd(18)}${"HTTP".padEnd(7)}${"BYTES".padEnd(9)}HASH`);
 for (const r of results) console.log(`  ${r.k.padEnd(18)}${String(r.status).padEnd(7)}${String(r.bytes).padEnd(9)}${r.hash}`);
+console.log(`\n  ${"HERO CASE".padEnd(20)}${"HTTP".padEnd(7)}${"BYTES".padEnd(9)}HASH`);
+for (const r of heroResults) console.log(`  ${r.k.padEnd(20)}${String(r.status).padEnd(7)}${String(r.bytes).padEnd(9)}${r.hash}`);
 
 if (fails.length) {
   console.error(`\ntest-og-bodies: FAIL — ${fails.length} issue(s):\n`);
   for (const f of fails) console.error("  · " + f);
   process.exit(1);
 }
-console.log(`\ntest-og-bodies: OK — ${results.length} OG routes fetched; every body > ${MIN_BYTES} bytes, valid PNG, and ${seen.size} distinct hashes for ${results.length} inputs; unknown intent 404s`);
+console.log(`\ntest-og-bodies: OK — ${results.length} intent routes + ${heroResults.length} hero routes fetched; every body > ${MIN_BYTES} bytes, valid PNG, ${seen.size}/${results.length} distinct intent hashes and ${heroSeen.size}/${heroResults.length} distinct hero hashes; unknown intent 404s`);

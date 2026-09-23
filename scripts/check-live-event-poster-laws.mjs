@@ -43,7 +43,14 @@ function git(cmd) {
     // the wiring, or it is one of the two sponsor expressions this feature
     // had to re-shape in place to keep check-partner-collections's pinned
     // literals intact.
-    const IN_SCOPE_REMOVAL = /livePoster|LivePoster|sponsor \? \[sponsor|const allRails|const order|const railById|const art = |LiveEventPoster|flex: "1 1 0"|maxWidth: 220|minWidth: 150|overscrollBehaviorX|rails=\{RAILS\}/;
+    // const BUILD_ID = "v…"; is excluded on purpose: the comment directly
+    // above that line in app/home.js says "BUMP THIS WITH EVERY RELEASE",
+    // meaning EVERY future PR — live-poster-related or not — legitimately
+    // removes and replaces that exact line. Without this, this guard would
+    // make it permanently impossible to ship any unrelated change alongside
+    // the mandated version bump (discovered 2026-09-23 by the v9 share-card
+    // PR, whose own bump tripped this).
+    const IN_SCOPE_REMOVAL = /livePoster|LivePoster|sponsor \? \[sponsor|const allRails|const order|const railById|const art = |LiveEventPoster|flex: "1 1 0"|maxWidth: 220|minWidth: 150|overscrollBehaviorX|rails=\{RAILS\}|const BUILD_ID = /;
     // Bare structural punctuation (a closing paren or brace left over from
     // reshaping a useMemo in place) carries no meaning to audit; only lines
     // with actual content are judged.
