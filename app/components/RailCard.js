@@ -68,6 +68,7 @@ import { safeUrl } from "../../lib/links.js";
 import { creatorVideosFor } from "../../lib/creatorSignals.js";
 import CreatorCardMark from "./CreatorCardMark";
 import { couponForPlace } from "../../lib/coupons.js";
+import { normalizePlaceCardHref } from "../../lib/placeCardRoute.js";
 
 // Same glyphs as IconicPlaceCard's action row, so a thumb is one drawing in
 // this app rather than two that almost match.
@@ -317,6 +318,13 @@ export default function RailCard({
   // common case (every card that is NOT the sentinel passes nothing).
   domRef = null,
 }) {
+  // Interactive place cards always open the full /p/{id} detail experience.
+  // /places/{id} remains the durable SEO document. Normalizing at this shared
+  // renderer boundary makes the rule apply to every present and future rail.
+  const cardHref = place && place.id ? normalizePlaceCardHref(href, place.id) : href;
+  if (place && place.id && cta && !cta.external && cta.href) {
+    cta = { ...cta, href: normalizePlaceCardHref(cta.href, place.id) };
+  }
   // PLACE CARD STANDARD (owner, 2026-09-16): a card never carries a
   // Directions button. Tapping the card opens the detail page, and Directions
   // lives there. Enforced HERE, at the one component every rail renders, so a
@@ -333,11 +341,11 @@ export default function RailCard({
   // only when this card actually needs the shared store.
   const canFallback = !!(place && place.id);
   const contentSubject = !canFallback ? {
-    id: (actionItem && actionItem.id) || href || title,
+    id: (actionItem && actionItem.id) || cardHref || title,
     type: (actionItem && actionItem.type) || "experience",
     title: (actionItem && (actionItem.title || actionItem.name)) || title,
     image: (actionItem && (actionItem.image || actionItem.photo)) || photo || null,
-    url: (actionItem && actionItem.url) || href || "",
+    url: (actionItem && actionItem.url) || cardHref || "",
     provider: actionItem && actionItem.provider,
   } : null;
   // v8.33 — the creator face. Guarded the same way IconicPlaceCard guards it:
@@ -403,12 +411,12 @@ export default function RailCard({
         // tap on the body.
         if (t && typeof t.closest === "function" && t.closest("a,button,input,select,textarea")) return;
         if (onOpen) onOpen(e);
-        else if (href && typeof window !== "undefined") {
+        else if (cardHref && typeof window !== "undefined") {
           // 2026-09-02: an EXTERNAL destination goes through lib/links.safeUrl
           // (the app-wide chokepoint) — a quarantined or malformed href opens
           // nothing rather than a hijacked page. Internal routes are ours.
           if (external) { const safe = safeUrl(href); if (safe) window.open(safe, "_blank", "noopener"); }
-          else window.location.assign(href);
+          else window.location.assign(cardHref);
         }
       }}
       aria-label={ariaLabel || title}

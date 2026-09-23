@@ -113,7 +113,7 @@ const allPages = () => true;
   const noPages = extraMilesFrom(ORIGIN, [park(0, 60)], () => false);
   eq(noPages, [], "a park whose /places/ page is not proven is not eligible, whatever else is true");
   const card = extraMilesFrom(ORIGIN, [park(0, 60)], allPages)[0];
-  ok(card && card.href === `/places/${IDS[0]}` && card.kind === "extra-miles", "a card links to its real /places/<id> page and is typed extra-miles");
+  ok(card && card.href === `/p/${IDS[0]}` && card.kind === "extra-miles", "an interactive card links to full /p/<id> detail and is typed extra-miles");
   // The image goes through the ONE owned-photo path every card uses
   // (/api/photo?ref=<owned photo_ref>), and the card law's own checker agrees
   // the picture belongs to THIS place. (`?place=<id>` 404'd on the preview.)
@@ -230,7 +230,7 @@ const allPages = () => true;
   ok(!/<ExtraMilesTail[^>]*(places|dropList|shown)/.test(rail.replace(/\n\s*/g, " ")), "…and hands it only the reader's point — never the drive rail's cards");
   ok(/fetch\(`\/api\/extra-miles\?/.test(tailSrc) && !/\/api\/rails/.test(tailSrc), "the tail fetches its own route, never /api/rails");
   ok(/data\.cards\.length\) return null/.test(tailSrc), "an empty or failed answer renders nothing (no invented 'nothing worth the miles' sentence)");
-  ok(/href=\{c\.href\}/.test(tailSrc) && !/viator|ticketmaster|affiliate/i.test(tailSrc), "cards link to /places pages; no affiliate surface in the tail");
+  ok(/href=\{c\.href\}/.test(tailSrc) && !/viator|ticketmaster|affiliate/i.test(tailSrc), "cards use their governed detail href; no affiliate surface in the tail");
 }
 
 console.log(`test-extra-miles: ${fail ? "FAIL" : "OK"} — ${pass} passed, ${fail} failed`);

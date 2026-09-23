@@ -22,6 +22,7 @@
 // the same way an offline save always has.
 import { useCallback, useEffect, useState } from "react";
 import IconicPlaceCard from "./IconicPlaceCard";
+import { placeCardDetailHref } from "../../lib/placeCardRoute.js";
 import { addPlaceToTrips, tripMetaForPlace } from "../../lib/trips";
 import { readLocalLikeState, persistLike, persistDislike, recordTasteSignal } from "../../lib/likeSignal";
 
@@ -119,7 +120,7 @@ export default function GuidePlaceCard({ place, rank, editorial }) {
     <IconicPlaceCard
       place={place}
       rank={rank}
-      href={`/p/${encodeURIComponent(place.id)}`}
+      href={placeCardDetailHref(place.id)}
       editorial={editorial || null}
       saved={saved}
       liked={liked}
