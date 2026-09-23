@@ -1,0 +1,101 @@
+{
+  "slug": "magical-dining-orlando-2026",
+  "hero": {
+    "src": "/guides/picks/magical-dining-orlando-2026/ottos-high-dive-milk-district.webp",
+    "width": 1400,
+    "height": 787,
+    "alt": "The brick corner storefront of Otto's High Dive in Orlando's Milk District, with its vertical neon sign",
+    "caption": "Otto's High Dive in the Milk District — one of the ten restaurants in this guide, not a symbol of the wider Magical Dining program.",
+    "credit": "Dclemens1971",
+    "creditHref": "https://commons.wikimedia.org/wiki/File:Otto%E2%80%99s_Rum_Bar.jpg",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Otto%E2%80%99s_Rum_Bar.jpg",
+    "author": "Dclemens1971",
+    "position": "50% 45%",
+    "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+    "sourceKind": "commons",
+    "placeId": null,
+    "verification": "Downloaded the original (4732x2661) from Wikimedia Commons and viewed it directly: the file's own description reads \"Otto's High Dive, a Cuban restaurant and rum bar in Orlando, Florida\", and the corner building's vertical 'OTTO'S High Dive' sign is visible on the brick facade next to the painted 'ABUNDANCIA' signage of the same building, confirming the exact restaurant this pick names. Not geotagged.",
+    "sameAsCardPhoto": false,
+    "reviewedAt": "2026-09-23"
+  },
+  "picks": {
+    "Otto's High Dive, Milk District": {
+      "src": "/guides/picks/magical-dining-orlando-2026/ottos-high-dive-milk-district.webp",
+      "width": 1400,
+      "height": 787,
+      "alt": "The brick corner storefront of Otto's High Dive in Orlando's Milk District, with its vertical neon sign",
+      "caption": "Otto's High Dive, one of the ten restaurants named in this guide.",
+      "credit": "Dclemens1971",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Otto%E2%80%99s_Rum_Bar.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Otto%E2%80%99s_Rum_Bar.jpg",
+      "author": "Dclemens1971",
+      "position": "50% 45%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Downloaded the original (4732x2661) from Wikimedia Commons and viewed it directly: the file's own description reads \"Otto's High Dive, a Cuban restaurant and rum bar in Orlando, Florida\", and the corner building's vertical 'OTTO'S High Dive' sign is visible on the brick facade next to the painted 'ABUNDANCIA' signage of the same building, confirming the exact restaurant this pick names. Not geotagged.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
+    }
+  },
+  "gaps": {
+    "ÔMO by Jônt, Winter Park": {
+      "reason": "google-only",
+      "placeId": "ChIJO3PrEmdx54gRW1c11w1Yxlo",
+      "needsPermissionFrom": "ÔMO by Jônt",
+      "note": "wf_inventory only holds a Google Places photo reference for this address. Commons name and category searches returned no CC-licensed photo of the actual restaurant interior or storefront."
+    },
+    "Kaya, Mills 50": {
+      "reason": "google-only",
+      "placeId": "ChIJ3YuEdVp754gRoWwBx528kNc",
+      "needsPermissionFrom": "Kaya",
+      "note": "wf_inventory only holds a Google Places photo reference. Commons searches for \"Kaya\" return unrelated homonym results; no CC-licensed photo of this Mills 50 restaurant was found."
+    },
+    "AVA MediterrAegean, Park Avenue": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": "AVA MediterrAegean",
+      "note": "No static placeId in source data and no CC-licensed Commons photo of this Park Avenue restaurant was found."
+    },
+    "The Pinery, Ivanhoe Village": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": "The Pinery",
+      "note": "No static placeId in source data and no CC-licensed Commons photo of this Ivanhoe Village restaurant was found."
+    },
+    "The Ravenous Pig, Winter Park": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": "The Ravenous Pig",
+      "note": "No static placeId in source data and no CC-licensed Commons photo of this Winter Park gastropub was found."
+    },
+    "Kabooki Sushi, East Colonial": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": "Kabooki Sushi",
+      "note": "No static placeId in source data and no CC-licensed Commons photo of the East Colonial location specifically (as opposed to the chain's other locations) was found."
+    },
+    "Maxine's on Shine, Colonialtown": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": "Maxine's on Shine",
+      "note": "No static placeId in source data and no CC-licensed Commons photo of this Colonialtown restaurant was found."
+    },
+    "Osteria Ester, Thornton Park": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": "Osteria Ester",
+      "note": "No static placeId in source data and no CC-licensed Commons photo of this Thornton Park restaurant was found."
+    },
+    "The Chapman, Park Avenue": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": "The Chapman",
+      "note": "No static placeId in source data and no CC-licensed Commons photo of this Park Avenue restaurant was found."
+    }
+  }
+}
