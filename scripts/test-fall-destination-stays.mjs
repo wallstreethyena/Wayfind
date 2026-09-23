@@ -76,7 +76,7 @@ const poolRow = {
 };
 let poolReadUrl = "";
 const inventoryFetch = async (url) => {
-  if (String(url).includes("select=place_id,photo_ref")) return Response.json([{ place_id: poolRow.place_id, photo_ref: "places/ChIJInventoryOrlando001/photos/hero" }]);
+  if (String(url).includes("select=place_id,photo_ref")) return Response.json([{ place_id: poolRow.place_id, photo_ref: `places/${poolRow.place_id}/photos/hero` }]);
   poolReadUrl = String(url);
   return Response.json([poolRow]);
 };
