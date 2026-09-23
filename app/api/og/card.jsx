@@ -326,9 +326,9 @@ export function WayfindHeroCard({ model }) {
       {/* Legibility scrim: bottom-to-ink, plus a soft left wash so the mark
           and kicker read at top-left over any photo. */}
       <div style={{ position: "absolute", left: 0, top: 0, width: HERO_CARD.w, height: HERO_CARD.h, display: "flex",
-        background: "linear-gradient(180deg, rgba(4,8,16,0) 0%, rgba(4,8,16,0.10) 38%, rgba(4,8,16,0.60) 70%, #040810 100%)" }} />
+        background: "linear-gradient(180deg, rgba(4,8,16,0) 0%, rgba(4,8,16,0.18) 30%, rgba(4,8,16,0.72) 58%, rgba(4,8,16,0.92) 80%, #040810 100%)" }} />
       <div style={{ position: "absolute", left: 0, top: 0, width: 640, height: HERO_CARD.h, display: "flex",
-        background: "linear-gradient(90deg, rgba(4,8,16,0.5) 0%, rgba(4,8,16,0) 100%)" }} />
+        background: "linear-gradient(90deg, rgba(4,8,16,0.62) 0%, rgba(4,8,16,0.25) 55%, rgba(4,8,16,0) 85%)" }} />
 
       <div style={{ position: "absolute", left: HERO_CARD.padX, top: HERO_CARD.markY, display: "flex" }}>
         <Mark size={HERO_CARD.markSize} />
@@ -344,7 +344,7 @@ export function WayfindHeroCard({ model }) {
 
       {m.kicker ? (
         <div style={{ position: "absolute", left: HERO_CARD.padX, top: m.kickerTop, display: "flex",
-          fontSize: 22, fontWeight: 700, color: "#E8C97A", letterSpacing: 2 }}>{m.kicker}</div>
+          fontSize: 22, fontWeight: 700, color: "#E8C97A", letterSpacing: 2, textShadow: "0 2px 10px rgba(4,8,16,0.85)" }}>{m.kicker}</div>
       ) : <div style={{ display: "flex" }} />}
 
       {/* v9.1 — a PLACE card's rating, star DRAWN (never a text glyph — see
