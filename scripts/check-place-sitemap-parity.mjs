@@ -254,7 +254,7 @@ for (const id of indexedIds) {
     const selects = seen.filter((u) => u.includes("/wf_editorial_servable")).map((u) => new URL(u).searchParams.get("select"));
     ok(selects.length === 2, `both editorial readers must hit wf_editorial_servable (saw ${selects.length})`);
     ok(selects.every((x) => x === EDITORIAL_SERVABLE_SELECT), `the render and sitemap editorial reads must select the same columns (got ${JSON.stringify(selects)})`);
-    ok(EDITORIAL_SERVABLE_SELECT.split(",").every((c) => ["place_id", "why_here"].includes(c)), `EDITORIAL_SERVABLE_SELECT may only name columns the view is known to carry (got ${EDITORIAL_SERVABLE_SELECT})`);
+    ok(EDITORIAL_SERVABLE_SELECT.split(",").every((c) => ["place_id", "why_here", "local_tip", "best_time"].includes(c)), `EDITORIAL_SERVABLE_SELECT may only name columns the view is known to carry (got ${EDITORIAL_SERVABLE_SELECT})`);
     ok(!!row && row.why_here === LONG_WHY, "getVerifiedEditorial returns the row the view answered with");
     ok(ids.includes("ed-1"), "an editorial id with a name and both coordinates enters the sitemap set");
     ok(!ids.includes("ed-2"), "an editorial id with only one coordinate stays out: the page would not index it");
