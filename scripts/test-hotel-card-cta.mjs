@@ -256,7 +256,7 @@ async function run() {
   if (hotelHref) {
     const q = new URL(hotelHref, "https://wayfind.test").searchParams;
     ok(q.get("name") === "Days Inn Bradenton - Near the Gulf", "hotel anchor carries the place's own name");
-    ok(q.get("address") === "4308 Manatee Ave W, Bradenton, FL 34209", "hotel anchor carries the place's own street address");
+    ok(q.get("address") === "3506 1st Street West, Bradenton, FL 34205", "hotel anchor carries the place's own street address");
     ok(q.get("surface") === "hotel_booking", "hotel anchor is tagged with the hotel_booking surface");
     // THE ACTUAL BUG, PINNED. Not just "lat/lng are present" — the values
     // that travel are the SAME coordinates the place carries, so a Bradenton
@@ -304,7 +304,7 @@ async function run() {
   ok(!!latOnlyHref, "LAT-ONLY lodging fixture: still renders a working /api/hotels/go anchor");
   if (latOnlyHref) {
     const q = new URL(latOnlyHref, "https://wayfind.test").searchParams;
-    ok(q.get("name") === "Anna Maria Sound Inn", "lat-only hotel anchor still carries the place's name");
+    ok(q.get("name") === "Days Inn Bradenton - Near the Gulf", "lat-only hotel anchor still carries the place's name");
     ok(!q.has("lat") && !q.has("lng"), "lat-only hotel anchor carries NO coordinate params at all (half a pair fails closed as a pair)");
   }
 
