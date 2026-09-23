@@ -3924,7 +3924,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 21,
+      "assertionCount": 23,
       "unprovenAbsenceCount": 1,
       "honestyViolations": [
         "1 absence assertion(s) with no positive control in the same file (e.g. \"ALLOWED.every((r) => r.resolved && !GEO.test(r.resolved)),\n  \"\")"

@@ -26,12 +26,24 @@ const { isHotelBookingVerified, hotelBookingRecords, hotelBookingVerification } 
 const { ownedHotelKey } = await import("../lib/ownedHotelExclusions.js");
 const owned = JSON.parse(fs.readFileSync(path.join(ROOT, "lib/ownedHotels.json"), "utf8"));
 
-const RECORDS = hotelBookingRecords();
-const ALLOWED = RECORDS.filter((r) => r.allowed === true);
+// Two sources on purpose: the full 394-row audit record on disk, and the slim
+// allow-list the app actually ships. E0 pins them together, so the shipped
+// list can never drift from what was audited.
+const RECORDS = JSON.parse(fs.readFileSync(path.join(ROOT, "lib/hotelBookingVerification.json"), "utf8"));
+const SHIPPED = hotelBookingRecords();
+const evidenceAllowed = RECORDS.filter((r) => r.allowed === true);
+const ALLOWED = evidenceAllowed;
 const allowedRec = ALLOWED[0];
 
+const shippedKeys = new Set(SHIPPED.map((r) => r.key));
+const evidenceKeys = new Set(evidenceAllowed.map((r) => r.key));
+ok(shippedKeys.size === evidenceKeys.size && [...evidenceKeys].every((k) => shippedKeys.has(k)),
+  `E0: the shipped allow-list is exactly the allowed rows of the audit record (shipped ${shippedKeys.size}, evidence ${evidenceKeys.size})`);
+ok(SHIPPED.every((r) => r.placeId && typeof r.placeId === "string"),
+  "E0b: every shipped entry carries the place id the gate requires");
+
 // ---------------------------------------------------------------- V: the gate
-ok(RECORDS.length > 300, `V1: evidence covers the served library (got ${RECORDS.length})`);
+ok(RECORDS.length > 300, `V1: the audit record covers the served library (got ${RECORDS.length})`);
 ok(ALLOWED.length > 0, `V2: at least one hotel is verified, or the gate is vacuous (got ${ALLOWED.length})`);
 ok(ALLOWED.length < RECORDS.length,
   `V3: the gate actually withholds buttons — allowed ${ALLOWED.length} of ${RECORDS.length}`);
