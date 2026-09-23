@@ -42,7 +42,7 @@ import sharp from "sharp";
 
 import { GUIDES } from "../lib/guides.js";
 import { GUIDE_PICK_PHOTOS } from "../lib/guidePickPhotoManifest.js";
-import { selectGuidePickPhoto, guidePickPhoto } from "../lib/guidePickPhotos.js";
+import { selectGuidePickPhoto, guidePickPhoto, attachFreePhotoCredit } from "../lib/guidePickPhotos.js";
 import { loadGuidePickPhotoFiles, buildGuidePickPhotos, DATA_DIR } from "./build-guide-pick-photos.mjs";
 
 const require = createRequire(import.meta.url);
@@ -323,6 +323,35 @@ for (const { file, json } of dataFiles) {
   // component isn't just always printing a credit line regardless of input.
   const emptyHtml = renderToStaticMarkup(React.createElement(GuideFigure, { role: "pick", image: null }));
   ok(emptyHtml === "", "red-proof: GuideFigure with no image renders nothing — the credit-line check above is not vacuously true");
+}
+
+// ── Card credit for the free Commons lane, EXECUTED ──────────────────────────
+// A card may only carry the free lane's credit when it will show that exact
+// free photo. A card with a Google ref or an explicit photo keeps its photo and
+// gets NO free-lane credit (it would be crediting the wrong picture).
+{
+  const free = { url: "https://upload.wikimedia.org/x.jpg", attributionText: "A. Author, CC BY-SA 4.0, via Wikimedia Commons", attributionUrl: "https://commons.wikimedia.org/wiki/File:X.jpg" };
+  const calls = [];
+  const stub = async ({ placeId }) => { calls.push(placeId); return placeId === "ChIJnoFreePhotoHere00" ? null : free; };
+  const withRef = { id: "ChIJwithGoogleRef0000", photoRef: "places/ChIJwithGoogleRef0000/photos/AB" };
+  const withPhoto = { id: "ChIJwithExplicitPhoto", photo: "https://example.com/p.jpg" };
+  const bare = { id: "ChIJbareCardNoPhoto00" };
+  const none = { id: "ChIJnoFreePhotoHere00" };
+  await attachFreePhotoCredit([withRef, withPhoto, bare, none, bare], { findFreePhoto: stub });
+  ok(!withRef.photoAttr && withRef.photo === undefined, "a card showing a Google photo ref gets no free-lane credit and keeps its photo");
+  ok(!withPhoto.photoAttr && withPhoto.photo === "https://example.com/p.jpg", "a card with an explicit photo gets no free-lane credit and keeps its photo");
+  ok(bare.photo === free.url && bare.photoAttr === free.attributionText && bare.photoAttrHref === free.attributionUrl, "a bare card is pointed at the free photo AND given its credit together");
+  ok(!none.photo && !none.photoAttr, "no free photo: the card is left exactly as it was");
+  ok(calls.filter((c) => c === "ChIJbareCardNoPhoto00").length === 1, "the same place object is looked up once");
+  ok(!calls.includes("ChIJwithGoogleRef0000") && !calls.includes("ChIJwithExplicitPhoto"), "no lookup is made for cards that already show a photo");
+  // Red proof: the pre-fix behaviour (credit whenever a free row exists) would
+  // have credited the Google-ref card; this detector must see that as wrong.
+  const naive = { id: "ChIJwithGoogleRef0000", photoRef: "places/ChIJwithGoogleRef0000/photos/AB" };
+  naive.photoAttr = free.attributionText; // what the naive version did
+  ok(Boolean(naive.photoAttr) && Boolean(naive.photoRef), "red-proof: a credited card that still shows a Google ref is exactly the mismatch the rule prevents");
+  const pageSrc = readFileSync(abs("app/guides/[slug]/page.js"), "utf8");
+  ok(/attachFreePhotoCredit\(\[\.\.\.pickPlaces, \.\.\.placeRail\.places\], \{ findFreePhoto \}\)/.test(pageSrc), "app/guides/[slug]/page.js attaches card credit only through attachFreePhotoCredit");
+  ok(!/p\.photoAttr\s*=\s*free\.attributionText/.test(pageSrc), "page.js no longer sets the credit inline without pointing the card at the free photo");
 }
 
 if (failures.length) {

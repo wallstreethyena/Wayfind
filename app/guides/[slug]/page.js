@@ -28,7 +28,7 @@ import { GuideFacts, GuideReadingNav, guidePickImage, guidePickFigureImage, GUID
 // there resolves against the wrong directory and crashes that guard. This
 // file is never transpiled that way, so it carries the fallback instead — see
 // the pick loop below for the one call site.
-import { guidePickPhoto } from "../../../lib/guidePickPhotos";
+import { guidePickPhoto, attachFreePhotoCredit } from "../../../lib/guidePickPhotos";
 import { findFreePhoto } from "../../../lib/freePhoto";
 import { guideAppHandoffHref } from "../../../lib/guideHandoff";
 import { declaredGuideRailPlaceIds, guidePlaceRailConfig, resolveGuidePlaceRail } from "../../../lib/guidePlaceRails";
@@ -570,30 +570,10 @@ export default async function GuidePage({ params }) {
       else rendered.add(rp.id);
     }
   }
-  // FREE PHOTO CREDIT (card credit fix). GuidePlaceCard never carried the
-  // free, permanent Commons photo lane's attribution (wf_place_photo, see
-  // lib/freePhoto.js) through to IconicPlaceCard's existing photoAttr/
-  // photoAttrHref credit badge — the same slot RailCard already uses. This
-  // is the one read that fills it: findFreePhoto is read-only, keyed on
-  // place id, hits Supabase's PostgREST directly (no Google call, no spend
-  // gate, no ledger — the "free" in its own name), and returns null for the
-  // overwhelming majority of places that have no wf_place_photo row, in
-  // which case the card's badge simply renders nothing, exactly as before.
-  // Mutates the place objects in place: placeRail.places and each
-  // placeRail.markets[].places share the SAME object references (see
-  // lib/guidePlaceRails.js), so one pass covers both.
-  await Promise.all(
-    [...pickPlaces, ...placeRail.places].filter(Boolean).map(async (p) => {
-      if (!p.id) return;
-      try {
-        const free = await findFreePhoto({ placeId: p.id });
-        if (free && free.attributionText && free.attributionUrl) {
-          p.photoAttr = free.attributionText;
-          p.photoAttrHref = free.attributionUrl;
-        }
-      } catch (e) {}
-    })
-  );
+  // FREE PHOTO CREDIT (card credit fix). See attachFreePhotoCredit in
+  // lib/guidePickPhotos.js: a card only gets the free Commons lane's credit
+  // when that lane's photo is the one it will actually show.
+  await attachFreePhotoCredit([...pickPlaces, ...placeRail.places], { findFreePhoto });
   const nowResult = guidePicksForNow(g.picks, nowCtx);
   const nowHeadline = guideNowHeadline(nowCtx, g.region, nowResult);
   const nowExplainer = guideNowExplainer(nowResult, (g.picks || []).length);
