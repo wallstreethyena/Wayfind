@@ -20,26 +20,6 @@
       "verification": "Downloaded the original from Wikimedia Commons and inspected it: the file's own title and Commons category \"Florida State Road A1A in Fort Lauderdale, Florida\" and \"Central Beach, Fort Lauderdale\" match this pick's beach strip, and the \"Riomar\" wave-wall marker is a known fixture of this exact beachfront promenade; beachgoers under the umbrellas are moderate distance and not close-up, not the subject.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
-    },
-    "Las Olas Beach at sunrise": {
-      "src": "/guides/picks/things-to-do-fort-lauderdale-summer-2026/las-olas-beach.webp",
-      "width": 1400,
-      "height": 933,
-      "alt": "A large pink ribbon sculpture reading \"Fort Lauderdale\" beside a lifeguard tower on Las Olas Beach, with a \"Las Ol...\" wave-wall marker visible at the edge",
-      "caption": "Las Olas Beach, where the bars sit across A1A from the sand.",
-      "credit": "Tamanoeconomico",
-      "creditHref": "https://commons.wikimedia.org/wiki/File:Las_Olas_Beach_(Fort_Lauderdale,_Florida).jpg",
-      "license": "CC BY-SA 4.0",
-      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
-      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Las_Olas_Beach_(Fort_Lauderdale,_Florida).jpg",
-      "author": "Tamanoeconomico",
-      "position": "60% 55%",
-      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
-      "sourceKind": "commons",
-      "placeId": null,
-      "verification": "Downloaded the original from Wikimedia Commons and inspected it: the file's own title names Las Olas Beach, Fort Lauderdale, its embedded GPS (26.122, -80.104) sits on this exact stretch of A1A, and a wave-wall marker reading \"Las Ol...\" is visible at the frame's edge; one distant pedestrian is small and unidentifiable, not the subject.",
-      "sameAsCardPhoto": false,
-      "reviewedAt": "2026-09-23"
     }
   },
   "gaps": {
@@ -90,6 +70,12 @@
       "placeId": null,
       "needsPermissionFrom": null,
       "note": "No Wikimedia Commons photo exists for this restaurant, and it is not indexed in Wayfind's inventory, so there is no licensed source of any kind, including Google."
+    },
+    "Las Olas Beach at sunrise": {
+      "reason": "public-art",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "The only allowed-licence Commons photo is dominated by a temporary pink-ribbon sculpture; US freedom of panorama does not cover sculpture, so it cannot be used without the artist's licence. Needs a clean beach photo."
     }
   }
 }
