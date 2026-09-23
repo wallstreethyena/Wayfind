@@ -27,7 +27,7 @@
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": null,
-      "note": "Describes booking any of several charter operators from either town, not one fixed dock or business; no verified photo of an actual guided scallop trip in progress was found."
+      "note": "Describes booking any of several charter operators from either town, not one fixed dock or business; no verified photo of an actual guided scallop trip in progress was found. Pass 2 (2026-09-23): searched Openverse for \"scalloping Crystal River Florida\", \"bay scallop Florida snorkeling\", \"scallop Homosassa\", and \"bay scallop\" (240 results, all restaurant dishes or scallops from other US/international waters); no in-water scalloping-trip photo turned up, and Florida FWC's own scalloping photos on Flickr are CC BY-ND, which this project's license list excludes. No usable candidate found for this pick; a real Crystal River Gulf-flats photo was used for this guide's HERO instead, per the brief's fallback."
     },
     "The season, and why you check the exact dates": {
       "reason": "not-a-place",

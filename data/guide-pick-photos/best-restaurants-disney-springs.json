@@ -60,6 +60,26 @@
       "verification": "Downloaded the original (4080x3072) from Wikimedia Commons and inspected it directly: the illuminated 'GIDEON'S BAKEHOUSE' sign over the brick entrance at Disney Springs, matching the file's description 'Sign over the entranceway of Gideon's Bakehouse at Disney Springs in Lake Buena Vista, FL'.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
+    },
+    "T-REX Cafe": {
+      "src": "/guides/picks/best-restaurants-disney-springs/trex-cafe-sign-disney-springs.webp",
+      "width": 1400,
+      "height": 937,
+      "alt": "T-REX restaurant's illuminated sign at night beneath a giant dinosaur skeleton sculpture, with a 'Prehistoric Family Adventure' tagline, at Disney Springs",
+      "caption": "T-REX's dinosaur-skeleton facade and sign at Disney Springs.",
+      "credit": "Kurtis Garbutt",
+      "creditHref": "https://www.flickr.com/photos/25187937@N05/14690093928",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/25187937@N05/14690093928",
+      "author": "Kurtis Garbutt",
+      "position": "50% 20%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "flickr",
+      "placeId": "ChIJO3vjMIF_3YgRqb3SdwzbyII",
+      "verification": "Flickr page by Kurtis Garbutt (realname; username KJGarbutt), titled 'T-Rex Restaurant at Downtown Disney', taken 2013-04-19. Live page license checked directly: creativecommons.org/licenses/by/2.0 link present, i.e. CC BY 2.0. 'Downtown Disney' is the pre-2015 name for the same physical Disney Springs district T-REX still occupies today. The image shows the restaurant's giant dinosaur-skeleton facade and illuminated 'T-REX' sign reading 'A Prehistoric Family Adventure', matching this pick's own blurb ('animatronic dinosaurs'). Cropped tightly on the sign and skeleton to minimize the foreground crowd, which is an ordinary incidental queue, not a portrait subject.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
     }
   },
   "hero": {
@@ -87,25 +107,19 @@
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": "Homecomin' Florida Kitchen (Chef Art Smith)",
-      "note": "No Commons search under any phrasing tried ('Homecomin Disney Springs', 'Homecomin Florida Kitchen', the general Disney Springs geosearch) returned a photo of this restaurant."
+      "note": "No Commons search under any phrasing tried ('Homecomin Disney Springs', 'Homecomin Florida Kitchen', the general Disney Springs geosearch) returned a photo of this restaurant. Pass 2 (2026-09-23): searched Openverse for \"Homecomin Disney Springs\" (license by,by-sa,cc0); zero results. No usable candidate found."
     },
     "Wine Bar George": {
       "reason": "no-verified-source",
       "placeId": "ChIJ_7j9pYd_3YgRmJkanPMuZ0k",
       "needsPermissionFrom": "Wine Bar George",
-      "note": "Wayfind's wf_place_photo row for this place_id is status 'rejected' with no image_url -- already vetted and found to have no usable photo. No Commons search turned up a photo of this restaurant either."
+      "note": "Wayfind's wf_place_photo row for this place_id is status 'rejected' with no image_url -- already vetted and found to have no usable photo. No Commons search turned up a photo of this restaurant either. Pass 2 (2026-09-23): searched Openverse for \"Wine Bar George Disney Springs\" (license by,by-sa,cc0); zero results. No usable candidate found."
     },
     "Jaleo by José Andrés": {
       "reason": "no-verified-source",
       "placeId": "ChIJ0_My9aR_3YgRQnilGsmaCps",
       "needsPermissionFrom": "Jaleo by José Andrés",
-      "note": "No row exists in wf_place_photo for this place_id, and no Commons search turned up a photo of this restaurant."
-    },
-    "T-REX Cafe": {
-      "reason": "no-verified-source",
-      "placeId": "ChIJO3vjMIF_3YgRqb3SdwzbyII",
-      "needsPermissionFrom": "T-REX Cafe",
-      "note": "No row exists in wf_place_photo for this place_id, and no Commons search (including for the dinosaur-themed exterior specifically) turned up a photo of this restaurant."
+      "note": "No row exists in wf_place_photo for this place_id, and no Commons search turned up a photo of this restaurant. Pass 2 (2026-09-23): searched Openverse for \"Jaleo Disney Springs\" (zero results) and the broader \"Jaleo Jose Andres\" (14 results), which returned only other Jaleo locations -- Washington DC and the Cosmopolitan in Las Vegas -- plus food-plate shots with no venue named; per this project's exact-place rule, a different branch of a chain is not this place, so all were rejected. No usable candidate found."
     }
   }
 }

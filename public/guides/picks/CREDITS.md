@@ -27,6 +27,7 @@ Every photo is a Creative Commons download; images may be resized, cropped and c
 
 - `/guides/picks/best-restaurants-disney-springs/gideons-bakehouse-sign.webp` — best-restaurants-disney-springs: Gideon's Bakehouse. [Jeremy Thompson](https://commons.wikimedia.org/wiki/File:Gideon%27s_Bakehouse_at_Disney_Springs.jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 - `/guides/picks/best-restaurants-disney-springs/morimoto-asia-interior.webp` — best-restaurants-disney-springs: Morimoto Asia. [Terry Ballard](https://commons.wikimedia.org/wiki/File:Morimoto_Restaurant_in_Disney_Springs_(27376853234).jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
+- `/guides/picks/best-restaurants-disney-springs/trex-cafe-sign-disney-springs.webp` — best-restaurants-disney-springs: T-REX Cafe. [Kurtis Garbutt](https://www.flickr.com/photos/25187937@N05/14690093928); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 - `/guides/picks/best-restaurants-disney-springs/boathouse-disney-springs.webp` — best-restaurants-disney-springs: The Boathouse. [Theme Park Tourist](https://commons.wikimedia.org/wiki/File:The_Boathouse_(22649625124).jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 - `/guides/picks/best-restaurants-disney-springs/disney-springs-hero.webp` — best-restaurants-disney-springs: hero image. [Melissa Guadalupe Huertas](https://commons.wikimedia.org/wiki/File:Sunny_day_on_Disney_Springs,_USA.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
@@ -64,6 +65,10 @@ Every photo is a Creative Commons download; images may be resized, cropped and c
 
 - `/guides/picks/florida-scalloping-crystal-river-homosassa/crystal-river-manatee-closeup.webp` — florida-scalloping-crystal-river-homosassa: Off-season, swim with the manatees instead. [David Hinkel / USFWS Endangered Species](https://commons.wikimedia.org/wiki/File:Endangered_Florida_manatee_(Trichechus_manatus),_Crystal_River_National_Wildlife_Refuge,_Florida_(5104976921).jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 
+## gatorland-vs-wild-florida
+
+- `/guides/picks/gatorland-vs-wild-florida/gatorland-mouth-entrance.webp` — gatorland-vs-wild-florida: Gatorland: the classic park. [William Warby](https://www.flickr.com/photos/26782864@N00/1477075489); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
+
 ## gulf-coast-brunch-and-date-night
 
 - `/guides/picks/gulf-coast-brunch-and-date-night/sharkys-pier-venice.webp` — gulf-coast-brunch-and-date-night: Fins At Sharky's. [Don Miller](https://commons.wikimedia.org/wiki/File:Sharky%27s_Pier_(28417055172).jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
@@ -96,6 +101,7 @@ Every photo is a Creative Commons download; images may be resized, cropped and c
 ## pinecraft-sarasota-amish-village
 
 - `/guides/picks/pinecraft-sarasota-amish-village/pinecraft-amish-church.webp` — pinecraft-sarasota-amish-village: The village itself. [Witherpshins](https://commons.wikimedia.org/wiki/File:Pinecraft_Amish_Church,_1325_Hines_Street_4-2-2012.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/pinecraft-sarasota-amish-village/yoders-restaurant-sign.webp` — pinecraft-sarasota-amish-village: Yoder's Restaurant. [Jared](https://www.flickr.com/photos/93283041@N00/8778985834); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 
 ## red-bull-dance-your-style-tampa-2026
 
@@ -105,6 +111,7 @@ Every photo is a Creative Commons download; images may be resized, cropped and c
 
 ## robinson-preserve-bradenton
 
+- `/guides/picks/robinson-preserve-bradenton/robinson-preserve-boardwalk-trail.webp` — robinson-preserve-bradenton: Flat miles for wheels. [Mark Hewitt](https://commons.wikimedia.org/wiki/File:Robinson_Perserve_-_panoramio.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/robinson-preserve-bradenton/observation-tower.webp` — robinson-preserve-bradenton: The observation towers. [Gregory Urbano](https://commons.wikimedia.org/wiki/File:Robinson_Preserve_Observation_Tower_(24946730937).jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 
 ## siesta-key-drum-circle
@@ -129,11 +136,13 @@ Every photo is a Creative Commons download; images may be resized, cropped and c
 
 ## tampa-riverwalk-guide
 
+- `/guides/picks/tampa-riverwalk-guide/sparkman-wharf-pirate-water-taxi.webp` — tampa-riverwalk-guide: Sparkman Wharf and the water taxi. [Jackdude101](https://commons.wikimedia.org/wiki/File:Pirate_Water_Taxi.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/tampa-riverwalk-guide/tampa-museum-of-art.webp` — tampa-riverwalk-guide: The museum middle. [Chan Bliss](https://commons.wikimedia.org/wiki/File:Tampa_Museum_of_Art_(4342692202).jpg); [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
 ## things-to-do-daytona-beach-summer-2026
 
 - `/guides/picks/things-to-do-daytona-beach-summer-2026/jackie-robinson-ballpark-gate.webp` — things-to-do-daytona-beach-summer-2026: A Tortugas game at Jackie Robinson Ballpark. [Ebyabe](https://commons.wikimedia.org/wiki/File:Daytona_Beach_FL_City_Island_Robinson_Ballpark_gate01.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/things-to-do-daytona-beach-summer-2026/crabby-joes-sunglow-pier.webp` — things-to-do-daytona-beach-summer-2026: Crabby Joe's on Sunglow Pier. [gamiziuk](https://www.flickr.com/photos/31195825@N07/3227641605); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 - `/guides/picks/things-to-do-daytona-beach-summer-2026/daytona-speedway-grandstand.webp` — things-to-do-daytona-beach-summer-2026: Daytona International Speedway. [GT3Simon](https://commons.wikimedia.org/wiki/File:Daytona-International-Speedway-WorldCenterofRacing-Lettering.jpg); [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 - `/guides/picks/things-to-do-daytona-beach-summer-2026/daytona-lagoon-waterpark.webp` — things-to-do-daytona-beach-summer-2026: Daytona Lagoon and the revamped Ocean Center district. [Gamweb](https://commons.wikimedia.org/wiki/File:DaytonaLagoon-0632.JPG); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/things-to-do-daytona-beach-summer-2026/driving-on-the-sand.webp` — things-to-do-daytona-beach-summer-2026: Driving the World's Most Famous Beach. [formulanone](https://commons.wikimedia.org/wiki/File:Driving_on_Daytona_Beach_(24883044977).jpg); [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Adaptation (resized, cropped, WebP) released under the same licence.
@@ -159,9 +168,11 @@ Every photo is a Creative Commons download; images may be resized, cropped and c
 - `/guides/picks/things-to-do-in-sarasota-florida/st-armands-circle-marker.webp` — things-to-do-in-sarasota-florida: Lido Key and St. Armands Circle. [Ebyabe](https://commons.wikimedia.org/wiki/File:Sarasota_FL_Harding_Circle_HD_St_Armands_Circle04.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/things-to-do-in-sarasota-florida/selby-gardens-banyan.webp` — things-to-do-in-sarasota-florida: Marie Selby Botanical Gardens. [Daderot](https://commons.wikimedia.org/wiki/File:Banyan_-_Marie_Selby_Botanical_Gardens_-_Sarasota,_Florida_-_DSC01239.jpg); [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
 - `/guides/picks/things-to-do-in-sarasota-florida/myakka-state-park-alligators.webp` — things-to-do-in-sarasota-florida: Myakka River State Park. [Mx. Granger](https://commons.wikimedia.org/wiki/File:Alligators_in_Myakka_River_State_Park.jpg); [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
+- `/guides/picks/things-to-do-in-sarasota-florida/pinecraft-yoders-sign.webp` — things-to-do-in-sarasota-florida: Pinecraft: Yoder's and Der Dutchman. [Jared](https://www.flickr.com/photos/93283041@N00/8778985834); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 - `/guides/picks/things-to-do-in-sarasota-florida/jungle-gardens-flamingos.webp` — things-to-do-in-sarasota-florida: Sarasota Jungle Gardens. [Daderot](https://commons.wikimedia.org/wiki/File:Flamingos_-_Sarasota_Jungle_Gardens_-_Sarasota,_Florida_-_DSC01982.jpg); [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
 - `/guides/picks/things-to-do-in-sarasota-florida/siesta-beach-sign.webp` — things-to-do-in-sarasota-florida: Siesta Key. [Niranjan Arminius](https://commons.wikimedia.org/wiki/File:Sarasota_Siesta_Beach_Signage_20260327.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/things-to-do-in-sarasota-florida/ted-sperling-south-lido.webp` — things-to-do-in-sarasota-florida: Ted Sperling Nature Park at South Lido. [Ryan Hodnett](https://commons.wikimedia.org/wiki/File:South_Lido_County_Park_-_Sarasota,_Florida_2023-01-22_(01).jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/things-to-do-in-sarasota-florida/celery-fields-hill.webp` — things-to-do-in-sarasota-florida: The Celery Fields. [Joseph Gage](https://www.flickr.com/photos/181920661@N03/53458439841); [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/things-to-do-in-sarasota-florida/legacy-trail.webp` — things-to-do-in-sarasota-florida: The Legacy Trail. [Sanibel sun](https://commons.wikimedia.org/wiki/File:Legacy_Trail_in_Sarasota.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/things-to-do-in-sarasota-florida/the-ringling-entrance.webp` — things-to-do-in-sarasota-florida: The Ringling. [Wolfgang Moroder](https://commons.wikimedia.org/wiki/File:Ringling_Museum_main_entrance_Sarasota_Florida.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/things-to-do-in-sarasota-florida/circus-museum-tibbals.webp` — things-to-do-in-sarasota-florida: Tibbals Learning Center and Circus Museum. [Daderot](https://commons.wikimedia.org/wiki/File:Tibbals_Learning_Center_-_Circus_Museum_-_John_and_Mable_Ringling_Museum_of_Art_-_Sarasota,_FL_-_DSC00136.jpg); [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
@@ -221,6 +232,7 @@ Every photo is a Creative Commons download; images may be resized, cropped and c
 - `/guides/picks/things-to-do-orlando-not-theme-parks/lake-eola-fountain-birds-skyline.webp` — things-to-do-orlando-not-theme-parks: Lake Eola and Thornton Park. [OrlandoThings.com](https://commons.wikimedia.org/wiki/File:Lake-eola-park-orlando-florida.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/things-to-do-orlando-not-theme-parks/wekiwa-springs-swim-area.webp` — things-to-do-orlando-not-theme-parks: Swim at Wekiwa Springs. [Ebyabe](https://commons.wikimedia.org/wiki/File:Wekiwa_Springs_State_Park_springs01.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/things-to-do-orlando-not-theme-parks/playalinda-beach-rocket-launch.webp` — things-to-do-orlando-not-theme-parks: Watch a rocket launch. [Michael Slaten](https://commons.wikimedia.org/wiki/File:Playalinda_Beach_Atlas_V_Launch.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/things-to-do-orlando-not-theme-parks/winter-park-boat-tour-dock-sign.webp` — things-to-do-orlando-not-theme-parks: Winter Park scenic boat tour. [Mike Whaling](https://www.flickr.com/photos/52699067@N00/3308589496); [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
 ## things-to-do-orlando-summer-2026
 
@@ -246,6 +258,7 @@ Every photo is a Creative Commons download; images may be resized, cropped and c
 - `/guides/picks/things-to-do-sarasota/pinecraft-post-office.webp` — things-to-do-sarasota: Pinecraft. [Witherpshins](https://commons.wikimedia.org/wiki/File:Pinecraft_Florida_Post_Office,_1240_Yoder_Avenue,_Pinecraft_Florida_34278.JPG); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/things-to-do-sarasota/legacy-trail.webp` — things-to-do-sarasota: Ride the Legacy Trail. [Sanibel sun](https://commons.wikimedia.org/wiki/File:Legacy_Trail_in_Sarasota.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/things-to-do-sarasota/jungle-gardens-flamingos.webp` — things-to-do-sarasota: Sarasota Jungle Gardens. [Daderot](https://commons.wikimedia.org/wiki/File:Flamingos_-_Sarasota_Jungle_Gardens_-_Sarasota,_Florida_-_DSC01968.jpg); [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
+- `/guides/picks/things-to-do-sarasota/celery-fields-hill.webp` — things-to-do-sarasota: The Celery Fields. [Joseph Gage](https://www.flickr.com/photos/181920661@N03/53458439841); [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/things-to-do-sarasota/ca-d-zan-bayside-facade.webp` — things-to-do-sarasota: The Ringling. [McGhiever](https://commons.wikimedia.org/wiki/File:C%C3%A0_d%27Zan_bayside_fa%C3%A7ade.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
 ## things-to-do-st-augustine-summer-2026
@@ -258,6 +271,7 @@ Every photo is a Creative Commons download; images may be resized, cropped and c
 
 ## things-to-do-st-petersburg-clearwater-summer-2026
 
+- `/guides/picks/things-to-do-st-petersburg-clearwater-summer-2026/caladesi-ferry-dock.webp` — things-to-do-st-petersburg-clearwater-summer-2026: Caladesi Island by ferry. [Pinellas County](https://www.flickr.com/photos/63222477@N07/6106426813); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 - `/guides/picks/things-to-do-st-petersburg-clearwater-summer-2026/clearwater-pier60.webp` — things-to-do-st-petersburg-clearwater-summer-2026: Clearwater Beach and the Pier 60 sunset festival. [Jana Taylor](https://commons.wikimedia.org/wiki/File:Pier_60_at_Clearwater,_FL_2016_-_panoramio.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/things-to-do-st-petersburg-clearwater-summer-2026/clearwater-marine-aquarium.webp` — things-to-do-st-petersburg-clearwater-summer-2026: Clearwater Marine Aquarium. [qwesy qwesy](https://commons.wikimedia.org/wiki/File:View_of_Clearwater_Marine_Aquarium_-_panoramio.jpg); [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
 - `/guides/picks/things-to-do-st-petersburg-clearwater-summer-2026/fort-de-soto-cannon.webp` — things-to-do-st-petersburg-clearwater-summer-2026: Fort De Soto Park. [Jrozwado](https://commons.wikimedia.org/wiki/File:St_Petersburg,_FL_-_Mullet_Key_-_Fort_Desoto_Park_-_Historic_Fort_(1).jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
@@ -285,6 +299,11 @@ Every photo is a Creative Commons download; images may be resized, cropped and c
 
 - `/guides/picks/weeki-wachee-kayak-mermaids-guide/weeki-wachee-river.webp` — weeki-wachee-kayak-mermaids-guide: Paddle the Weeki Wachee River (reserve ahead). [Gzuraski](https://commons.wikimedia.org/wiki/File:Weeki_Wachee_River_July_2013.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/weeki-wachee-kayak-mermaids-guide/mermaid-shows-park-sign.webp` — weeki-wachee-kayak-mermaids-guide: The live mermaid show. [DanTD](https://commons.wikimedia.org/wiki/File:Weeki_Wachee_sign_-_Entrance.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+
+## winter-park-scenic-boat-tour
+
+- `/guides/picks/winter-park-scenic-boat-tour/scenic-boat-tour-dock-sign.webp` — winter-park-scenic-boat-tour: Tickets, timing, and the cash catch. [Mike Whaling](https://www.flickr.com/photos/52699067@N00/3308589496); [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/winter-park-scenic-boat-tour/rollins-college-bell-tower.webp` — winter-park-scenic-boat-tour: What the hour actually covers. [Mike Whaling](https://www.flickr.com/photos/52699067@N00/3308593602); [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
 ## ybor-city-tampa-guide
 

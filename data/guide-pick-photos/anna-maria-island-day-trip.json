@@ -27,7 +27,7 @@
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": null,
-      "note": "No Wikimedia Commons photo found under an allowed licence for Bean Point specifically; left as a gap rather than substituting an unrelated beach image."
+      "note": "No Wikimedia Commons photo found under an allowed licence for Bean Point specifically; left as a gap rather than substituting an unrelated beach image. Pass 2 (2026-09-23): Searched Openverse for \"Bean Point Anna Maria Island\", \"Bean Point Anna Maria\" (source=flickr), \"Bean Point beach\", \"Bean Point Florida\" (source=flickr), \"Anna Maria Island north end beach\" (source=flickr) and \"Bean Point sunset\" (source=flickr). Found one CC BY-SA 2.0 Flickr photo titled \"Bean Point, Anna Maria, Florida\" (Ken Lund) but rejected it: it is a hazy shot through an airplane window at altitude, with no geotag, no description and no readable signage, so it cannot be verified as the ground-level sunset vantage this pick describes rather than just the island's general shape seen from a plane."
     },
     "The free trolley, your parking cheat code": {
       "reason": "not-a-place",

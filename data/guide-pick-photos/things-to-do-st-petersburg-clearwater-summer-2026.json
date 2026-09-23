@@ -140,26 +140,40 @@
       "verification": "Downloaded the original (3024x4032) from Wikimedia Commons and inspected it directly: a wooden sign reading 'ST. PETERSBURG SHUFFLEBOARD CLUB INC.' above shelves of trophies inside the clubhouse, matching the file's title 'The St. Petersburg Shuffleboard Club, in St. Petersburg Florida'. No identifiable people in frame.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
+    },
+    "Caladesi Island by ferry": {
+      "src": "/guides/picks/things-to-do-st-petersburg-clearwater-summer-2026/caladesi-ferry-dock.webp",
+      "width": 1400,
+      "height": 1050,
+      "alt": "The Caladesi Island ferry, its hull lettered CALADESI, tied up at the island's marina among mangroves",
+      "caption": "The ferry to Caladesi Island at the island's marina, photographed in 2011.",
+      "credit": "Pinellas County",
+      "creditHref": "https://www.flickr.com/photos/63222477@N07/6106426813",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/63222477@N07/6106426813",
+      "author": "Pinellas County",
+      "position": "60% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "flickr",
+      "placeId": null,
+      "verification": "Re-verified 2026-09-23 on the live Flickr page: uploaded by Pinellas County (the county that runs the state park), titled 'Ferry Docking at Caladesi Island', taken 2011-09-02; the boat's hull reads CALADESI CONNECTOR I, docked at a mangrove-lined marina matching the island's known dock. Live page licence checked directly on the page: CC BY 2.0 (creativecommons.org/licenses/by/2.0), matching the cached Openverse licence. A couple of figures are visible under the boat's canopy at a distance; none is an identifiable portrait subject. No newer or better-matching candidate was found after re-checking.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
     }
   },
   "gaps": {
-    "Caladesi Island by ferry": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "Commons search and a geosearch around the island's coordinates returned only CC BY-SA 2.5-licensed photos (a licence version outside this project's allowed list), unrelated aerial GeoTIFFs and mangrove close-ups under a plain 'Public domain' mark, and one clearly unusable photo (a person posing on the beach, rejected for showing an identifiable person as the subject, not the place)."
-    },
     "Central Park, the new five-story food hall": {
       "reason": "no-verified-source",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "A newly opened (2026) downtown St. Petersburg food hall with no Commons coverage yet under any search phrasing tried."
+      "needsPermissionFrom": "Central Park",
+      "note": "A newly opened (2026) downtown St. Petersburg food hall with no Commons coverage yet under any search phrasing tried. Pass 2 (2026-09-23): Openverse queries 'Central Park food hall St Petersburg' (0 results) and 'Central Park St Petersburg Florida' (4 results: a bookstore facade and municipal-parking photos, all unrelated) found no coverage of this brand-new venue; too recent for CC-licensed photography."
     },
     "Shell Key Preserve": {
       "reason": "no-verified-source",
       "placeId": "ChIJ5_NkHLUcw4gRndvLQGe_Ox8",
       "needsPermissionFrom": null,
-      "note": "Wayfind's wf_place_photo row for this place_id (status active) was inspected directly: it is 'Shell_Key_detail.png', a NOAA nautical chart excerpt, not a photograph of the place, so it fails this project's verification rule and was not used. No other Commons search (title search, category, or the exact place name) turned up an actual photo of Shell Key Preserve."
+      "note": "Wayfind's wf_place_photo row for this place_id (status active) was inspected directly: it is 'Shell_Key_detail.png', a NOAA nautical chart excerpt, not a photograph of the place, so it fails this project's verification rule and was not used. No other Commons search (title search, category, or the exact place name) turned up an actual photo of Shell Key Preserve. Pass 2 (2026-09-23): Openverse queries 'Shell Key Preserve' (157 results) and 'Shell Key Tierra Verde' (0) surfaced a generic driftwood/beach shot with no geotag or landmark (could be any Gulf beach), a shuttle-dock photo at the Tierra Verde marina (the boat launch, not the preserve), and a photo taken from Pass-a-Grille looking across the water toward the preserve (a different beach, not the preserve itself) — none prove the exact undeveloped island. Same search as the Tampa guide's identical gap; not re-queried a third time."
     },
     "St. Pete's new fine-dining wave": {
       "reason": "not-a-place",

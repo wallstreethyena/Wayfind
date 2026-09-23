@@ -127,25 +127,25 @@
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": "Crayola Experience Orlando",
-      "note": "A Commons search surfaced a file titled 'Crayola Experience Orlando Home - Night of a Million Lights 2020', but on inspection it shows a private homeowner's Crayola-themed holiday light display, not the actual attraction inside The Florida Mall — rejected. No other CC-licensed photo of the real Crayola Experience Orlando was found."
+      "note": "A Commons search surfaced a file titled 'Crayola Experience Orlando Home - Night of a Million Lights 2020', but on inspection it shows a private homeowner's Crayola-themed holiday light display, not the actual attraction inside The Florida Mall — rejected. No other CC-licensed photo of the real Crayola Experience Orlando was found. Pass 2 (2026-09-23): searched Openverse for \"Crayola Experience Orlando Florida Mall\" (zero results) and the broader \"Crayola Experience\" (24 results): every result was either the Easton, Pennsylvania flagship, the Mall of America location, or that same private-home holiday-lights file already rejected by Pass 1 -- none is the real Florida Mall attraction, so all were rejected as a different branch or the same non-match. No usable candidate found."
     },
     "Museum of Illusions Orlando": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": "Museum of Illusions Orlando",
-      "note": "No CC-licensed Commons photo of this specific International Drive location was found; Museum of Illusions has many branded locations worldwide and Commons results for the name return other cities."
+      "note": "No CC-licensed Commons photo of this specific International Drive location was found; Museum of Illusions has many branded locations worldwide and Commons results for the name return other cities. Pass 2 (2026-09-23): searched Openverse for \"Museum of Illusions Orlando\"; zero results. No usable candidate found."
     },
     "The Great Escape Room Orlando": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": "The Great Escape Room Orlando",
-      "note": "No CC-licensed Commons photo of this specific escape-room venue was found."
+      "note": "No CC-licensed Commons photo of this specific escape-room venue was found. Pass 2 (2026-09-23): searched Openverse for \"Great Escape Room Orlando\"; zero results. No usable candidate found."
     },
     "Arcade Monsters International Drive": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": "Arcade Monsters International Drive",
-      "note": "No CC-licensed Commons photo of this specific arcade was found."
+      "note": "No CC-licensed Commons photo of this specific arcade was found. Pass 2 (2026-09-23): searched Openverse for \"Arcade Monsters Orlando\"; zero results. No usable candidate found."
     }
   }
 }

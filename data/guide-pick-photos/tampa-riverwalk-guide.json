@@ -3,27 +3,51 @@
   "picks": {
     "The museum middle": {
       "src": "/guides/picks/tampa-riverwalk-guide/tampa-museum-of-art.webp",
-      "width": 1400, "height": 1050,
+      "width": 1400,
+      "height": 1050,
       "alt": "The Tampa Museum of Art's modern building on the Riverwalk, with colorful yellow and orange panels and a row of palm trees",
       "caption": "The Tampa Museum of Art's modern Riverwalk building.",
-      "credit": "Chan Bliss", "creditHref": "https://commons.wikimedia.org/wiki/File:Tampa_Museum_of_Art_(4342692202).jpg",
-      "license": "CC BY-SA 2.0", "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "credit": "Chan Bliss",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Tampa_Museum_of_Art_(4342692202).jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File:Tampa_Museum_of_Art_(4342692202).jpg",
-      "author": "Chan Bliss", "position": "50% 55%",
+      "author": "Chan Bliss",
+      "position": "50% 55%",
       "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
-      "sourceKind": "commons", "placeId": null,
+      "sourceKind": "commons",
+      "placeId": null,
       "verification": "File title names this the Tampa Museum of Art; the boxy modern building with colored accent panels and perforated screens matches the museum's known Riverwalk architecture. Not geotagged; identified by the file title and architecture.",
-      "sameAsCardPhoto": false, "reviewedAt": "2026-09-23"
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
+    },
+    "Sparkman Wharf and the water taxi": {
+      "src": "/guides/picks/tampa-riverwalk-guide/sparkman-wharf-pirate-water-taxi.webp",
+      "width": 1400,
+      "height": 787,
+      "alt": "A bright yellow, open-air Pirate Water Taxi boat, its hull lettered PIRATEWATERTAXI.COM, cruising a Tampa waterway with a few passengers aboard",
+      "caption": "The Pirate Water Taxi, lettered with its own name, underway in downtown Tampa.",
+      "credit": "Jackdude101",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Pirate_Water_Taxi.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Pirate_Water_Taxi.jpg",
+      "author": "Jackdude101",
+      "position": "50% 45%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": "ChIJy66Xe53FwogRcpjZQHX4cCI",
+      "verification": "Commons file by Jackdude101, titled and described 'The Pirate Water Taxi in Tampa, Florida,' taken 24 July 2021; the boat's hull is lettered PIRATEWATERTAXI.COM and carries the same pirate-flag roundel the real Tampa service uses, so this is the actual vessel the pick names, not a generic boat. Not geotagged, so Sparkman Wharf itself (one of the taxi's stops, per this guide's own Riverwalk pick text) is not provably pictured; the caption and alt therefore describe only the boat, which is what the image actually shows. Live Commons licence checked directly on the file page: CC BY-SA 4.0. A driver and a few riders are visible at a distance, incidental to the boat, which is the photo's clear subject; no one is identifiable as a portrait subject.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
     }
   },
   "gaps": {
     "Armature Works, the north anchor": {
-      "reason": "no-verified-source", "placeId": "ChIJYWj9iZ_PwogRQebjN7pJ_Nw", "needsPermissionFrom": "Armature Works",
-      "note": "Commons title search, category search and geosearch around the venue's coordinates (repeated with radii up to 500m) returned no photo of this food hall — only unrelated electrical-engineering \"armature\" documents. No CC-licensed photo found."
-    },
-    "Sparkman Wharf and the water taxi": {
-      "reason": "no-verified-source", "placeId": "ChIJy66Xe53FwogRcpjZQHX4cCI", "needsPermissionFrom": null,
-      "note": "Commons title search and geosearch around Sparkman Wharf's coordinates found no photo of the shipping-container food hall or the Pirate Water Taxi itself (only an old political grand-opening photo centered on a named individual, and unrelated Water Street tower photos that do not show the wharf this pick names)."
+      "reason": "no-verified-source",
+      "placeId": "ChIJYWj9iZ_PwogRQebjN7pJ_Nw",
+      "needsPermissionFrom": "Armature Works",
+      "note": "Commons title search, category search and geosearch around the venue's coordinates (repeated with radii up to 500m) returned no photo of this food hall — only unrelated electrical-engineering \"armature\" documents. No CC-licensed photo found. Pass 2 (2026-09-23): Openverse queries 'Armature Works Tampa' (1 result, a downtown-skyline kayaking photo that does not show this building, checked directly), 'Armature Works' with source=flickr (45 results, all unrelated — sculpture and electrical-'armature' matches), 'Tampa Heights trolley barn' and 'Tampa food hall river' (0 results each) found no verified photo of this venue."
     }
   }
 }

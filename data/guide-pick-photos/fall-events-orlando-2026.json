@@ -333,13 +333,13 @@
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": "Green Meadows Petting Farm",
-      "note": "No static placeId in source data; the app resolves the venue by name search at request time. No CC-licensed Commons photo of Green Meadows Petting Farm was found."
+      "note": "No static placeId in source data; the app resolves the venue by name search at request time. No CC-licensed Commons photo of Green Meadows Petting Farm was found. Pass 2 (2026-09-23): searched Openverse for \"Green Meadows Petting Farm Kissimmee\" (zero results), \"Green Meadows Farm Florida\" (13 results, all an unrelated ornamental shrub cultivar named 'Weigela florida'), and \"Green Meadows Kissimmee farm animals\" (zero results). No usable candidate found."
     },
     "Candlelight: A Haunted Evening of Halloween Classics": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": "The Abbey Orlando",
-      "note": "No static placeId in source data. No CC-licensed Commons photo of The Abbey, the downtown Orlando venue hosting this Candlelight concert, was found."
+      "note": "No static placeId in source data. No CC-licensed Commons photo of The Abbey, the downtown Orlando venue hosting this Candlelight concert, was found. Pass 2 (2026-09-23): searched Openverse for \"The Abbey Orlando downtown\" and \"The Abbey venue Orlando\" (license by,by-sa,cc0); zero results for both. No usable candidate found, so no venue-only photo (which the brief allows with a clear caption) could be sourced either."
     }
   }
 }

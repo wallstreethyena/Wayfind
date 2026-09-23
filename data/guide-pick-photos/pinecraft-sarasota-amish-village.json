@@ -20,20 +20,34 @@
       "verification": "The building's own sign reads 'Pinecraft Amish Church 1325,' matching the file title and street address, confirming the exact Pinecraft neighborhood named in the pick. Not geotagged for a coordinate check.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
+    },
+    "Yoder's Restaurant": {
+      "src": "/guides/picks/pinecraft-sarasota-amish-village/yoders-restaurant-sign.webp",
+      "width": 1400,
+      "height": 1282,
+      "alt": "A sign mounted on Yoder's Restaurant's green exterior wall reading \"Yoder's, Amish Home Cooking, Homemade Pies, Sarasota Tradition Since 1975\"",
+      "caption": "The sign outside Yoder's Restaurant in Pinecraft, a Sarasota tradition since 1975.",
+      "credit": "Jared",
+      "creditHref": "https://www.flickr.com/photos/93283041@N00/8778985834",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/93283041@N00/8778985834",
+      "author": "Jared",
+      "position": "50% 55%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "flickr",
+      "placeId": null,
+      "verification": "Flickr photo titled \"Sarasota - Yoder's Amish Village - Restaurant Sign\" by Jared, taken 2013-04-25; the building's own sign reads \"Yoder's, Amish Home Cooking, Homemade Pies, Sarasota Tradition Since 1975,\" matching the guide's own description of the restaurant's 1975 founding. Live Flickr page licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
     }
   },
   "gaps": {
-    "Yoder's Restaurant": {
-      "reason": "google-only",
-      "placeId": null,
-      "needsPermissionFrom": "Yoder's Restaurant",
-      "note": "Real, well-known, currently operating restaurant; no Commons search for 'Yoder's Restaurant', 'Yoder's Amish restaurant' or similar returned any photo of this exact business. Google Places almost certainly holds photos of it, which this pipeline may not use without the restaurant's own permission."
-    },
     "Der Dutchman": {
       "reason": "google-only",
       "placeId": null,
       "needsPermissionFrom": "Der Dutchman (Sarasota location)",
-      "note": "The only 'Der Dutchman' photos on Commons are explicitly captioned as the original Walnut Creek, Ohio location (a different branch of the same chain), so they cannot represent the Sarasota restaurant this pick names. No photo of the Sarasota branch was found."
+      "note": "The only 'Der Dutchman' photos on Commons are explicitly captioned as the original Walnut Creek, Ohio location (a different branch of the same chain), so they cannot represent the Sarasota restaurant this pick names. No photo of the Sarasota branch was found. Pass 2 (2026-09-23): Openverse searched \"Der Dutchman Sarasota\" and \"Der Dutchman restaurant Pinecraft\" — zero results; still no CC-licensed photo of the Sarasota branch exists."
     },
     "How to visit respectfully": {
       "reason": "not-a-place",

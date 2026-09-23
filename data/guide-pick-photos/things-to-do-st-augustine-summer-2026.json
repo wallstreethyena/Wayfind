@@ -113,7 +113,7 @@
       "reason": "google-only",
       "placeId": "ChIJD8rK2Y0n5IgRnagsN_AKOXQ",
       "needsPermissionFrom": "The Drunken Horse (St. Augustine)",
-      "note": "No Wikimedia Commons photo of this wine bar exists; Wayfind's inventory shows only a Google Places photo for this venue, which is not licensed for reuse."
+      "note": "No Wikimedia Commons photo of this wine bar exists; Wayfind's inventory shows only a Google Places photo for this venue, which is not licensed for reuse. Pass 2 (2026-09-23): Searched Openverse for 'Drunken Horse St Augustine' — zero results. No CC-licensed source found."
     },
     "A food and wine tour through the old city": {
       "reason": "not-a-place",
@@ -125,7 +125,7 @@
       "reason": "google-only",
       "placeId": null,
       "needsPermissionFrom": "Outback Crab Shack and Crabby's Beachside",
-      "note": "No Wikimedia Commons photo exists for either restaurant; Crabby's Beachside has only a Google Places photo in Wayfind's inventory, and Outback Crab Shack is not indexed at all, so neither has a licensed source."
+      "note": "No Wikimedia Commons photo exists for either restaurant; Crabby's Beachside has only a Google Places photo in Wayfind's inventory, and Outback Crab Shack is not indexed at all, so neither has a licensed source. Pass 2 (2026-09-23): Searched Openverse for 'Outback Crab Shack St Augustine' and \"Crabby's Beachside St Augustine\" — zero results for either. No CC-licensed source found for either restaurant."
     },
     "Founder's Day and the America 250 season": {
       "reason": "not-a-place",

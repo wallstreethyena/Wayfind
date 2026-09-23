@@ -67,43 +67,43 @@
       "reason": "google-only",
       "placeId": "ChIJu9V8cNY6w4gR14jQbFoNfsE",
       "needsPermissionFrom": "Manatee County Parks and Natural Resources",
-      "note": "No Commons photo found for this park; Wayfind's inventory carries only a Google Places photo."
+      "note": "No Commons photo found for this park; Wayfind's inventory carries only a Google Places photo. Pass 2 (2026-09-23): Openverse searched \"Fort Hamer Park Parrish Florida\" and \"Fort Hamer bridge Manatee River\" — zero results for both; no CC-licensed photo of this park exists."
     },
     "Gamble Creek Farms": {
       "reason": "google-only",
       "placeId": null,
       "needsPermissionFrom": "Gamble Creek Farms",
-      "note": "No Commons photo found for this farm; the app resolves its photo via a live Google Places name search."
+      "note": "No Commons photo found for this farm; the app resolves its photo via a live Google Places name search. Pass 2 (2026-09-23): Openverse searched \"Gamble Creek Farms Parrish\" — zero results; no CC-licensed photo of this farm exists."
     },
     "Bunker Hill Community Park": {
       "reason": "google-only",
       "placeId": null,
       "needsPermissionFrom": "Manatee County Parks and Natural Resources",
-      "note": "No Commons photo found for this park; the app resolves its photo via a live Google Places name search."
+      "note": "No Commons photo found for this park; the app resolves its photo via a live Google Places name search. Pass 2 (2026-09-23): Openverse searched \"Bunker Hill Community Park Parrish\" — zero results; no CC-licensed photo of this park exists."
     },
     "Parrish Community Park": {
       "reason": "google-only",
       "placeId": "ChIJJSK6DAolw4gR2-tcgDhSPVI",
       "needsPermissionFrom": "Manatee County Parks and Natural Resources",
-      "note": "A recently opened park; no Commons photo found. Wayfind's inventory carries only a Google Places photo."
+      "note": "A recently opened park; no Commons photo found. Wayfind's inventory carries only a Google Places photo. Pass 2 (2026-09-23): Openverse searched \"Parrish Community Park Florida\" — zero results; this recently opened park (per the pick's own text) has no CC-licensed coverage yet."
     },
     "Ferraro's Italian Grille": {
       "reason": "google-only",
       "placeId": "ChIJVaGvf6gkw4gROjdp7yQzLh4",
       "needsPermissionFrom": "Ferraro's Italian Grille",
-      "note": "No Commons photo found for this restaurant; Wayfind's inventory carries only a Google Places photo."
+      "note": "No Commons photo found for this restaurant; Wayfind's inventory carries only a Google Places photo. Pass 2 (2026-09-23): Openverse searched \"Ferraro's Italian Grille Parrish\" — zero results; no CC-licensed photo of this restaurant exists."
     },
     "Good Liquid Brewing Company": {
       "reason": "google-only",
       "placeId": "ChIJay8TEmElw4gRmgRP3SXl7eM",
       "needsPermissionFrom": "Good Liquid Brewing Company",
-      "note": "No Commons photo found for this brewery; Wayfind's inventory carries only a Google Places photo."
+      "note": "No Commons photo found for this brewery; Wayfind's inventory carries only a Google Places photo. Pass 2 (2026-09-23): Openverse searched \"Good Liquid Brewing Company Parrish\" — zero results; no CC-licensed photo of this brewery exists."
     },
     "Ellenton Premium Outlets": {
       "reason": "google-only",
       "placeId": "ChIJKYwJVy0jw4gRkXnEq-Or48M",
       "needsPermissionFrom": "Ellenton Premium Outlets / Simon Property Group",
-      "note": "No Commons photo found for this shopping center; Wayfind's inventory carries only a Google Places photo."
+      "note": "No Commons photo found for this shopping center; Wayfind's inventory carries only a Google Places photo. Pass 2 (2026-09-23): Openverse searched \"Ellenton Premium Outlets\" — zero results; no CC-licensed photo of this mall or any tenant inside it exists."
     }
   }
 }

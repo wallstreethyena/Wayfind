@@ -20,6 +20,26 @@
       "verification": "File is titled \"Robinson Preserve Observation Tower\" and shows the tower's own boardwalk and view, an unambiguous match to the pick.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
+    },
+    "Flat miles for wheels": {
+      "src": "/guides/picks/robinson-preserve-bradenton/robinson-preserve-boardwalk-trail.webp",
+      "width": 1400,
+      "height": 933,
+      "alt": "A wooden boardwalk bridge and a paved crushed-shell trail curve along the water's edge at Robinson Preserve, with mangroves and the Sunshine Skyway Bridge in the distance and a few distant walkers on the path",
+      "caption": "The paved trail and boardwalk bridge at Robinson Preserve, with the Sunshine Skyway Bridge beyond.",
+      "credit": "Mark Hewitt",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Robinson_Perserve_-_panoramio.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Robinson_Perserve_-_panoramio.jpg",
+      "author": "Mark Hewitt",
+      "position": "40% 55%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Wikimedia Commons file (an archived Panoramio upload) titled \"Robinson Perserve\" [sic], categorized under \"Robinson Preserve,\" with an embedded geotag (27.512839, -82.668686) inside the preserve; shows the preserve's own paved and boardwalk trail network with the Sunshine Skyway Bridge visible beyond, matching this pick's \"crushed-shell and paved paths\" and the guide's own mention of views to the Skyway. Taken 28 November 2009 per file metadata; the trail infrastructure shown is long-lived park amenity, distinct from the observation-tower photo already used for a different pick in this guide. Distant walkers on the trail are incidental and not the subject. Live Commons licence checked: CC BY-SA 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
     }
   },
   "gaps": {
@@ -27,13 +47,7 @@
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": null,
-      "note": "No Commons photo found of Robinson Preserve's kayak launch or mangrove paddling trails specifically."
-    },
-    "Flat miles for wheels": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "No Commons photo found of the preserve's crushed-shell/paved trail network itself, distinct from the observation-tower photo already used."
+      "note": "No Commons photo found of Robinson Preserve's kayak launch or mangrove paddling trails specifically. Pass 2 (2026-09-23): Openverse searched \"Robinson Preserve kayak\", \"Robinson Preserve trail\", \"Robinson Preserve mangrove tunnel\" and \"Robinson Preserve paddle mangrove creek\"; also checked the Commons category for Robinson Preserve directly (only 2 files total exist there — the observation tower already used, and a boardwalk/trail photo now used for the 'Flat miles for wheels' pick). None show the preserve's kayak launch or paddling water."
     }
   }
 }

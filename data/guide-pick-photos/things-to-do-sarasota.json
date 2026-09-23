@@ -160,6 +160,26 @@
       "verification": "File title and description explicitly place this stretch of paved trail 'in Sarasota' on the Legacy Trail, matching the guide's exact pick.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
+    },
+    "The Celery Fields": {
+      "src": "/guides/picks/things-to-do-sarasota/celery-fields-hill.webp",
+      "width": 1400,
+      "height": 933,
+      "alt": "A grass-covered hill dotted with palm trees at its crest, rising above open grassland and a winding path at the Celery Fields park in Sarasota",
+      "caption": "The hill at the Celery Fields, the county's birding park and its highest point.",
+      "credit": "Joseph Gage",
+      "creditHref": "https://www.flickr.com/photos/181920661@N03/53458439841",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/181920661@N03/53458439841",
+      "author": "Joseph Gage",
+      "position": "50% 55%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "flickr",
+      "placeId": null,
+      "verification": "Flickr photo titled \"The big hill at Celery Fields\" by Joseph Gage, taken 2023-12-31; shows the park's own landscape and its distinctive artificial hill, matching this guide's description of \"boardwalks over restored wetlands ... plus a climbable hill.\" Shows the park itself rather than a bird close-up, per this guide's own crop requirement. Live Flickr page licence checked: CC BY-SA 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
     }
   },
   "gaps": {
@@ -167,13 +187,7 @@
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": null,
-      "note": "No Commons search for the downtown Sarasota Saturday farmers market returned a usable photo of the market itself."
-    },
-    "The Celery Fields": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "Commons has only tight wildlife close-ups taken at the Celery Fields (birds on reeds) and one unrelated 1930 historic farm photo; none show the modern boardwalk, hill or the birding park itself, so none verify the exact place described in the pick."
+      "note": "No Commons search for the downtown Sarasota Saturday farmers market returned a usable photo of the market itself. Pass 2 (2026-09-23): Openverse searched \"Sarasota Farmers Market\", \"Sarasota Farmers Market Main Street\" and \"Sarasota Farmers Market produce stand\". Most hits (by Flickr's own photo descriptions) were actually the separate Siesta Key Farmers Market, not the downtown market this pick names. The one candidate specifically titled \"Downtown Sarasota Farmers Market Sign\" (and its largest available \"_z\" derivative) is only 375–480px wide, under this pipeline's 800px source-width minimum, so it was rejected."
     }
   }
 }

@@ -160,6 +160,26 @@
       "verification": "Downloaded the original from Wikimedia Commons and inspected it: the \"Lagoon\" logo painted on the pool floor and the file's own title/description (\"Daytona Lagoon water park in Daytona Beach, Florida\") confirm this exact water park; swimmers in the pool are distant and not individually identifiable.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
+    },
+    "Crabby Joe's on Sunglow Pier": {
+      "src": "/guides/picks/things-to-do-daytona-beach-summer-2026/crabby-joes-sunglow-pier.webp",
+      "width": 1400,
+      "height": 1050,
+      "alt": "The Sunglow Fishing Pier reaching out over the Atlantic at Daytona Beach Shores, with the Crabby Joe's restaurant building on the pier, beachgoers and parked cars on the sand below",
+      "caption": "The Sunglow Fishing Pier in Daytona Beach Shores, home of Crabby Joe's, photographed in 2008.",
+      "credit": "gamiziuk",
+      "creditHref": "https://www.flickr.com/photos/31195825@N07/3227641605",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/31195825@N07/3227641605",
+      "author": "gamiziuk",
+      "position": "55% 48%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "flickr",
+      "placeId": null,
+      "verification": "Verified on the live Flickr page (flickr.com/photos/31195825@N07/3227641605): CC BY 2.0 confirmed via the page's own licence link (creativecommons.org/licenses/by/2.0/). The page title 'SunglowPier4-DBS-FL' and meta description 'The Sunglow Fishing Pier in Daytona Beach Shores, Volusia County, Florida' name the exact pier; dateTaken 2008-04-12 (an older photo, but this pick's own blurb describes a 'deck-and-dive seafood joint perched directly over the Atlantic on a wooden pier in Daytona Beach Shores' and the pier and its restaurant building are the same long-standing structure). Inspected the full-resolution image at 1024x768: a restaurant building sits at the pier's end with a crab-mascot mural and a hanging 'BAR & GRILL' banner on the railing, consistent with Crabby Joe's Deck and Grill; per the assignment's own guidance, a photo of the pier itself with the restaurant satisfies this gap. Two sunbathers at bottom-left and a child on a raft at bottom-right are small, incidental and not the subject.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
     }
   },
   "gaps": {
@@ -168,12 +188,6 @@
       "placeId": null,
       "needsPermissionFrom": null,
       "note": "A single race date at the Speedway (already covered as its own pick), not a distinct place."
-    },
-    "Crabby Joe's on Sunglow Pier": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "No Wikimedia Commons photo exists for this restaurant, and it is not indexed in Wayfind's inventory, so no Google photo could be confirmed either."
     }
   }
 }

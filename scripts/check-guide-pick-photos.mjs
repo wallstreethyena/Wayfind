@@ -20,7 +20,9 @@
  *      declared version) — a "permission" license is checked for shape only
  *   5. no ND/NC/GFDL license ever slips through
  *   6. a commons-sourced entry's creditHref and sourceUrl are both real
- *      Wikimedia Commons file pages
+ *      Wikimedia Commons file pages; a flickr-sourced entry's are both one
+ *      real Flickr photo page, and the hero rights policy accepts exactly
+ *      that Flickr shape (executed with positive and red controls)
  *   7. every slug in the manifest is a real guide (lib/guides.js GUIDES)
  *   8. every pick name under "picks" or "gaps" in a data file names a pick
  *      that guide actually has
@@ -44,6 +46,7 @@ import { GUIDES } from "../lib/guides.js";
 import { GUIDE_PICK_PHOTOS } from "../lib/guidePickPhotoManifest.js";
 import { selectGuidePickPhoto, guidePickPhoto, attachFreePhotoCredit } from "../lib/guidePickPhotos.js";
 import { loadGuidePickPhotoFiles, buildGuidePickPhotos, DATA_DIR } from "./build-guide-pick-photos.mjs";
+import { guideImageProblems } from "../lib/guideImagePolicy.js";
 
 const require = createRequire(import.meta.url);
 const REPO = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
@@ -100,7 +103,7 @@ function missingEntryFields(entry) {
 }
 
 const REVIEWED_AT_RX = /^\d{4}-\d{2}-\d{2}$/;
-const SOURCE_KINDS = new Set(["commons", "owned", "permission"]);
+const SOURCE_KINDS = new Set(["commons", "flickr", "owned", "permission"]);
 
 function entryTypeProblems(entry) {
   const problems = [];
@@ -118,7 +121,8 @@ function entryTypeProblems(entry) {
   const good = { src: "/x.webp", width: 10, height: 10, sameAsCardPhoto: false, sourceKind: "commons", placeId: null, reviewedAt: "2026-09-22", verification: "checked" };
   ok(entryTypeProblems(good).length === 0, "positive control: a well-typed entry has no type problems");
   ok(entryTypeProblems({ ...good, width: -1 }).some((p) => p.includes("width")), "red-proof: a negative width is flagged");
-  ok(entryTypeProblems({ ...good, sourceKind: "flickr" }).some((p) => p.includes("sourceKind")), "red-proof: an unlisted sourceKind is flagged");
+  ok(entryTypeProblems({ ...good, sourceKind: "instagram" }).some((p) => p.includes("sourceKind")), "red-proof: an unlisted sourceKind is flagged");
+  ok(entryTypeProblems({ ...good, sourceKind: "flickr" }).length === 0, "positive control: a flickr sourceKind is a listed kind");
   ok(entryTypeProblems({ ...good, reviewedAt: "09/22/2026" }).some((p) => p.includes("reviewedAt")), "red-proof: a non-ISO reviewedAt is flagged");
 }
 
@@ -228,6 +232,37 @@ for (const { slug, pickName, entry } of allEntries) {
   ok(COMMONS_FILE_RX.test(String(entry.sourceUrl)), `${slug} / "${pickName}": sourceKind "commons" but sourceUrl is not a commons.wikimedia.org/wiki/File: URL (${entry.sourceUrl})`);
 }
 ok(allEntries.some((e) => e.entry.sourceKind === "commons"), "positive control: at least one real entry is sourceKind \"commons\" (the sample) — this rule has a live subject");
+
+// ── 6b. FLICKR ENTRIES: creditHref AND sourceUrl are one real Flickr photo page ─
+// Only a single photo page proves which photo and which live licence were
+// checked; an album, a search, a profile or a raw staticflickr file does not.
+const FLICKR_PHOTO_RX = /^https:\/\/www\.flickr\.com\/photos\/[^/]+\/\d+$/;
+{
+  ok(FLICKR_PHOTO_RX.test("https://www.flickr.com/photos/63222477@N07/6106426813"), "positive control: a real Flickr photo page URL matches");
+  ok(!FLICKR_PHOTO_RX.test("https://www.flickr.com/photos/63222477@N07/albums/72157627"), "red-proof: a Flickr ALBUM page does not match");
+  ok(!FLICKR_PHOTO_RX.test("https://live.staticflickr.com/6062/6106426813_f52ff1372a_h.jpg"), "red-proof: a raw staticflickr file URL does not match");
+  ok(!FLICKR_PHOTO_RX.test("https://www.flickr.com/search/?text=gatorland"), "red-proof: a Flickr search page does not match");
+}
+for (const { slug, pickName, entry } of allEntries) {
+  if (entry.sourceKind !== "flickr") continue;
+  ok(FLICKR_PHOTO_RX.test(String(entry.creditHref)), `${slug} / "${pickName}": sourceKind "flickr" but creditHref is not a www.flickr.com/photos/<owner>/<id> page (${entry.creditHref})`);
+  ok(FLICKR_PHOTO_RX.test(String(entry.sourceUrl)), `${slug} / "${pickName}": sourceKind "flickr" but sourceUrl is not a www.flickr.com/photos/<owner>/<id> page (${entry.sourceUrl})`);
+  ok(/^CC(0| BY)/.test(String(entry.license)), `${slug} / "${pickName}": a flickr entry must carry a Creative Commons licence, got ${JSON.stringify(entry.license)}`);
+}
+ok(allEntries.some((e) => e.entry.sourceKind === "flickr"), "positive control: at least one real entry is sourceKind \"flickr\" — the flickr rule has a live subject");
+
+// ── 6c. HERO RIGHTS POLICY ACCEPTS A CHECKED FLICKR PAGE, AND ONLY THAT ────
+// lib/guideImagePolicy.js decides whether a guide hero may render; the Flickr
+// rung must accept exactly what the pick contract accepts, executed here.
+{
+  const brief = { subjects: ["beach"], locations: ["Crystal River"], allowIllustrative: false };
+  const hero = { kind: "documentary", subject: "beach", depictedLocation: "Crystal River", src: "/guides/picks/x/y.webp", source: "https://www.flickr.com/photos/43053584@N00/29618236383", license: "CC BY-SA 2.0", licenseUrl: "https://creativecommons.org/licenses/by-sa/2.0/", modificationNotice: "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.", alt: "Beach", caption: "Beach", credit: "Kolin Toney", reviewedAt: "2026-09-23", reviewNotes: "Fixture only" };
+  ok(guideImageProblems(hero, brief).length === 0, "positive control: a Flickr photo page under CC BY-SA 2.0 with its deed and a modification notice is accepted for a hero");
+  ok(guideImageProblems({ ...hero, license: "CC BY-NC 2.0", licenseUrl: "https://creativecommons.org/licenses/by-nc/2.0/" }, brief).includes("unsupported-rights"), "red-proof: a Flickr NC licence is refused for a hero");
+  ok(guideImageProblems({ ...hero, source: "https://www.flickr.com/photos/43053584@N00/albums/1" }, brief).includes("unsupported-rights"), "red-proof: a Flickr album URL is refused for a hero");
+  ok(guideImageProblems({ ...hero, modificationNotice: "" }, brief).includes("unsupported-rights"), "red-proof: a Flickr hero without a modification notice is refused");
+  ok(guideImageProblems({ ...hero, licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/" }, brief).includes("unsupported-rights"), "red-proof: a Flickr hero whose deed URL does not match its licence version is refused");
+}
 
 // ── 7. EVERY SLUG IS A REAL GUIDE ──────────────────────────────────────────
 for (const slug of Object.keys(GUIDE_PICK_PHOTOS)) {
