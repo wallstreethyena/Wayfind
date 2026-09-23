@@ -1802,3 +1802,5 @@ node scripts/check-go-routes-crawler-gate.mjs
 # and the route refuses to spend for that UA as a backstop, proven by CALLING
 # the real handler and counting ledger calls with a human negative control.
 node scripts/check-viator-monitor-spend-skip.mjs
+node scripts/check-place-featured-in.mjs
+node scripts/check-hub-place-links.mjs
