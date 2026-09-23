@@ -283,6 +283,10 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   // above it would move React's hook count between renders — the exact
   // failure scripts/check-hook-order.mjs exists for.
   const pinQ = usePinQuarantine();
+  // Interactive place cards always open the full app detail route. The
+  // crawlable /places/{id} document remains for SEO, but a stale caller cannot
+  // strand a reader there because the shared renderer owns this normalization.
+  const cardHref = place && place.id ? normalizePlaceCardHref(href, place.id) : href;
   const content = useContentCardActions(cardActionsReadOnly && place ? {
     id: place.id,
     type: "experience",
