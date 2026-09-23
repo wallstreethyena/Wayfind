@@ -694,6 +694,13 @@ node scripts/check-sitemap.mjs
 # guides) rendered noindex with no address; guide-pick content now counts as
 # real detail. See lib/guidePlaceIndex.js.
 node scripts/test-guide-place-indexability.mjs
+# 2026-09-23 SEO recovery — the sitemap must never list a /places/{id} URL the
+# page itself would noindex, and indexability must never depend on Google's
+# 30-day pd1 cache. Hermetic (no network): every publish-ready Atlas card and
+# every substantive GUIDES pick clears mergePlacePage+isIndexable with
+# details:null; a bare rating-only skeleton does not; cityOf never surfaces a
+# street or ZIP. See lib/placeEligibility.js.
+node scripts/check-place-sitemap-parity.mjs
 node scripts/check-one-main.mjs
 
 # v8.14 — the card contract CSS must travel with every IconicPlaceCard surface (the unstyled-/guides bug)
@@ -710,6 +717,7 @@ node scripts/test-hotel-card-cta.mjs
 # room at. Ingestion had swept in a nail salon, a symphony, a campground and an
 # email address, each carrying a "Check rates" button.
 node scripts/check-hotel-library-quality.mjs
+scripts/check-hotel-booking-verified.mjs
 
 # 2026-09-23 — customer-facing hotel copy (whyGo/knownFor/vibe) must never
 # carry internal curation/prompt scaffolding ("Use X when the user wants...

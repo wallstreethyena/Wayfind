@@ -35,9 +35,19 @@ assert.deepEqual(seaworldDestinations.map(({ id }) => id), [
   "point:28.41140,-81.46330", "place:same-name-distant", "place:neighbor",
 ], "a nearby normalized-name event/place pair dedupes while same-name distant and differently named nearby destinations remain separate");
 
+// 2026-09-23: "Check rates" now requires a booking-verification record
+// (lib/hotelBookingVerification.js), so these fixtures carry REAL verified
+// hotel ids. With the old "lower"/"higher" placeholders the rail renders zero
+// booking controls and the assertions below would be testing an empty rail.
+const LOWER = "wfh-days-inn-bradenton-near-the-gulf-27469";
+const HIGHER = "wfh-courtyard-by-marriott-bradenton-sarasota-riverfr-27499";
 const stay = (id, score, extra = {}) => ({ id, name: id, types: ["hotel", "lodging"], lat: 28.48, lng: -81.47, address: "1 Hotel Way, Orlando, FL", wfScore: score, rating: 4.8, reviews: 1000, ...extra });
-const selected = selectEventStays([stay("lower", 88), stay("higher", 97), stay("higher", 97), stay("wrong-city", 100, { lat: 27.3, lng: -82.5 })], orlando);
-assert.deepEqual(selected.map(({ id }) => id), ["higher", "lower"], "hotel results dedupe, reject wrong-city rows, and remain Wayfind Score descending");
+const selected = selectEventStays([stay(LOWER, 88), stay(HIGHER, 97), stay(HIGHER, 97), stay("wrong-city", 100, { lat: 27.3, lng: -82.5 })], orlando);
+assert.deepEqual(selected.map(({ id }) => id), [HIGHER, LOWER], "hotel results dedupe, reject wrong-city rows, and remain Wayfind Score descending");
+
+// The gate on this rail: an unverified stay renders no booking control at all.
+const unverifiedSelected = selectEventStays([stay("wfh-never-verified-00000", 97)], orlando);
+assert.equal(unverifiedSelected.length, 1, "the unverified stay is still selected as a place");
 
 let staysOrigin = null;
 let exactReads = 0;
@@ -57,13 +67,18 @@ const strictFailure = await completeEventStays(orlando, {
 assert.deepEqual(strictFailure, { places: [], unavailable: true }, "strict poster mode exposes a partial-source failure instead of rendering an incomplete top list");
 
 const poolRow = {
-  place_id: "ChIJInventoryOrlando001", name: "Inventory Orlando Hotel", lat: 28.48, lng: -81.47,
+  // 2026-09-23: a real VERIFIED Google place id, because the rail's "Check
+  // rates" control now requires a booking-verification record. Inventory rows
+  // are keyed by Google place id rather than by owned-hotel card key, which is
+  // why the gate resolves either. With a synthetic id this row renders no
+  // control and the assertions below go vacuous.
+  place_id: "ChIJx26IQRNAw4gRgUI4V2RHDfY", name: "Inventory Orlando Hotel", lat: 28.48, lng: -81.47,
   category: "hotels", primary_type: "hotel", google_types: ["hotel", "lodging"], status: "OPERATIONAL", excluded: false, metro: "orlando",
   signals: { rating: 4.9, reviews: 2500 }, editorial: "A verified inventory stay.",
 };
 let poolReadUrl = "";
 const inventoryFetch = async (url) => {
-  if (String(url).includes("select=place_id,photo_ref")) return Response.json([{ place_id: poolRow.place_id, photo_ref: "places/ChIJInventoryOrlando001/photos/hero" }]);
+  if (String(url).includes("select=place_id,photo_ref")) return Response.json([{ place_id: poolRow.place_id, photo_ref: `places/${poolRow.place_id}/photos/hero` }]);
   poolReadUrl = String(url);
   return Response.json([poolRow]);
 };
@@ -102,6 +117,10 @@ assert.match(readyHtml, /Stay Near the Action/);
 assert.match(readyHtml, /Great stays a short drive from Actual Event Gate, best rated first/);
 assert.equal((readyHtml.match(/data-iconic-place-card/g) || []).length, 2, "the mounted rail uses the two canonical IconicPlaceCard instances");
 assert.equal((readyHtml.match(/Check rates/g) || []).length, 2, "every stay receives the shared verified hotel booking control");
+const unverifiedHtml = renderToStaticMarkup(createElement(DestinationStaysContent, {
+  state: { key: "selected", status: "ready", places: unverifiedSelected }, currentKey: "selected", destination: destinations[0], onRetry: () => {},
+}));
+assert.equal((unverifiedHtml.match(/Check rates/g) || []).length, 0, "an unverified stay renders no booking control on this rail either");
 assert.equal((readyHtml.match(/class="wf-place-card-cta"/g) || []).length, 2, "every stay gets its own booking-CTA slot on the card face");
 assert.doesNotMatch(readyHtml, /commission/, "the rail no longer renders a separate commission-disclosure line below the card");
 // "Check rates" must render INSIDE the first stay's own <li data-iconic-place-card>

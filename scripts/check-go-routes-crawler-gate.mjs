@@ -74,7 +74,15 @@ const FIXTURES = {
     successHostSubstr: null,
   },
   "app/api/hotels/go/route.js": {
-    query: "name=" + encodeURIComponent("Test Hotel") + "&address=" + encodeURIComponent("1 Main St, Sarasota, FL"),
+    // 2026-09-23: the route also fails closed on hotels whose Stay22 handoff
+    // has not been verified to land on the property named (see
+    // lib/hotelBookingVerification.js). The monitor scenario must therefore
+    // name a REAL verified hotel — otherwise this guard's positive redirect
+    // fails for the verification reason and stops testing the crawler gate it
+    // is named after.
+    query: "name=" + encodeURIComponent("Days Inn Bradenton - Near the Gulf")
+      + "&address=" + encodeURIComponent("3506 1st Street West, Bradenton, FL")
+      + "&content=wfh-days-inn-bradenton-near-the-gulf-27469",
     successHostSubstr: "stay22.com",
   },
   "app/api/ticketmaster/go/route.js": {

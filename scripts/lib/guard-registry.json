@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 714,
-    "totalRegistryEntries": 715,
-    "guardsTxtLineCount": 712,
-    "guardsTxtReachedFileCount": 707,
-    "criticalCount": 86,
+    "totalOnDiskGuardFiles": 716,
+    "totalRegistryEntries": 717,
+    "guardsTxtLineCount": 714,
+    "guardsTxtReachedFileCount": 709,
+    "criticalCount": 87,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 493,
+      "CALL": 495,
       "RENDER": 83,
       "STRUCTURAL": 138,
       "OTHER": 1
@@ -3986,6 +3986,34 @@
       "owner": null
     },
     {
+      "file": "scripts/check-hotel-booking-verified.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 29,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-filename:booking",
+        "money-keyword-in-import:../lib/affiliates.js"
+      ],
+      "protects": "A hotel card only shows a booking button when the outbound Stay22 handoff has been verified to land on that exact property; no verification record means no button, on the card and at /api/hotels/go alike.",
+      "blastRadius": {
+        "category": "trust",
+        "detail": "Without this gate 354 of 394 served hotels sent users to a different property than the card named, including four that resolved to businesses that are not hotels at all (a Dollar Tree, a RaceTrac, a pub and a tavern) and three separate cards that all resolved to one wrong resort. A user who books the wrong hotel loses money and the affiliate commission is earned dishonestly."
+      },
+      "owner": "Revenue QA"
+    },
+    {
       "file": "scripts/check-hotel-image-provider-terms.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -6434,6 +6462,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 16,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-place-sitemap-parity.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 54,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -8980,7 +9030,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 78,
+      "assertionCount": 82,
       "unprovenAbsenceCount": 2,
       "honestyViolations": [
         "2 absence assertion(s) with no positive control in the same file (e.g. \"/planAtlasAllowlistSeed\\(/.test(ingest) && /atlasAllowlistApplyGate\\(/.test(inge\")"
@@ -11053,7 +11103,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 25,
+      "assertionCount": 26,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -11328,7 +11378,7 @@
       "npmScript": null,
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 93,
+      "assertionCount": 95,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -12076,7 +12126,7 @@
       "npmScript": null,
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 55,
+      "assertionCount": 58,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -12675,7 +12725,7 @@
       "npmScript": null,
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 25,
+      "assertionCount": 28,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,

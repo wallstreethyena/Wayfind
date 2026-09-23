@@ -57,7 +57,17 @@ const CASES = [
     VT("ChIJx", [{ url: "https://www.viator.com/tours/Orlando/x/d123-456" }]), "Orlando, FL"],
   ["bookable kind, no product -> tracked search", D({ types: ["museum", "tourist_attraction"] }), "museum", null, "Orlando, FL"],
   ["BEACH is never bookable (the Coquina->Mumbai bug)", D({ types: ["beach", "natural_feature", "tourist_attraction"], category: "beach" }), "beach", null, "Sarasota, FL"],
-  ["hotel -> tracked Stay22 handoff", D({ types: ["lodging", "hotel"] }), "hotels", null, "Orlando, FL"],
+  // 2026-09-23: the Stay22 handoff now requires a booking-verification record
+  // (lib/hotelBookingVerification.js), so this case carries a REAL verified
+  // hotel id. With the generic "ChIJx" it would resolve to null and this case
+  // would silently stop testing the handoff it is named after.
+  ["hotel -> tracked Stay22 handoff",
+    D({ id: "wfh-days-inn-bradenton-near-the-gulf-27469", types: ["lodging", "hotel"] }),
+    "hotels", null, "Orlando, FL"],
+  // The same card without a verification record must produce NO handoff.
+  ["unverified hotel -> no Stay22 handoff",
+    D({ id: "wfh-never-verified-00000", types: ["lodging", "hotel"] }),
+    "hotels", null, "Orlando, FL"],
   ["restaurant -> nothing monetized", D({ types: ["restaurant", "food"] }), "food", null, "Tampa, FL"],
   ["no address falls back to locName", D({ address: "", types: ["museum", "tourist_attraction"] }), "museum", null, "Orlando, FL"],
 ];
@@ -65,9 +75,16 @@ const CASES = [
 // side. If these ever disagree the extraction changed behaviour.
 const BEFORE_KINDS = ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"];
 const Aff = await import("../lib/affiliates.js");
+const { isHotelBookingVerified } = await import("../lib/hotelBookingVerification.js");
 function bookingTargetsExpected(detail, kind, topItem, locName) {
+  // 2026-09-23: the transcribed reference learns the booking-verification gate
+  // too. This file proves the EXTRACTION refactor changed no behaviour; the
+  // gate is a deliberate behaviour change, so baking it into both sides keeps
+  // the parity check honest instead of quietly asserting the old behaviour.
   if (kind === "hotels") return { verifiedUrl: null, goFallback: null, tk: null,
-    tu: "/api/hotels/go?" + new URLSearchParams({ name: detail.name, address: detail.address, surface: "hotel_booking", content: detail.id }) };
+    tu: isHotelBookingVerified(detail)
+      ? "/api/hotels/go?" + new URLSearchParams({ name: detail.name, address: detail.address, surface: "hotel_booking", content: detail.id })
+      : null };
   const bcity = (() => { try { const parts = String(detail.address || "").split(",").map((x) => x.trim()); return parts.length >= 3 ? parts[1] : (locName ? locName.split(",")[0] : ""); } catch (e) { return ""; } })();
   // Founder P0 (2026-08-19): earning href is viatorProductGoUrl, never
   // viatorDirectUrl. Hotel Stay22/booking.com is fail-closed (no durable hop).

@@ -225,12 +225,43 @@ ok(!/spendAllow/.test(peekFn) && !/GOOGLE_MAPS_SERVER_KEY/.test(peekFn),
   "peekPlaceDetails consults spend/key — it must only read cache");
 
 const idx = code("lib/placeIndex.js");
-ok(/unionIndexedAndAtlasIds\(indexed,\s*listPublishReadyAtlasIds\(\)\)/.test(idx),
-  "listIndexedIds no longer CALLs the Atlas union (sitemap would drop the publish-ready Atlas cards)");
-// 2026-09-23 — chained a second union onto the atlas-unioned result so every
-// GUIDES-linked placeId also lands in the sitemap/generateStaticParams set.
-ok(/unionIndexedAndAtlasIds\([A-Za-z0-9_]+,\s*listGuidePlaceIds\(\)\)/.test(idx),
-  "listIndexedIds no longer unions in listGuidePlaceIds() (guide picks would drop out of the sitemap)");
+ok(/listPublishReadyAtlasIds\(\)/.test(idx) && /listGuidePlaceIds\(\)/.test(idx),
+  "listIndexedIds's module lost its references to the Atlas / GUIDES allowlists entirely");
+// 2026-09-23 SEO recovery — listIndexedIds() stopped unioning the raw
+// recently-searched wf_place_ids set (see lib/placeEligibility.js); the old
+// "unionIndexedAndAtlasIds(indexed, listPublishReadyAtlasIds())" source-regex
+// described that exact shape and would fail on the new, correct one. Proven
+// FUNCTIONALLY instead: CALL listIndexedIds() (no live Supabase reachable —
+// credentials deleted below) and assert every durably-eligible publish-ready
+// Atlas id and every durably-eligible GUIDES id is actually in the result.
+// Full parity/eligibility coverage (including the address/coordinate data
+// gaps) lives in scripts/check-place-sitemap-parity.mjs; this is the
+// registration-didn't-silently-break smoke test.
+{
+  delete process.env.SUPABASE_URL;
+  delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const { register } = await import("node:module");
+  register("./lib/placeDataNodeHook.mjs", import.meta.url);
+  const { listIndexedIds } = await import("../lib/placeIndex.js");
+  const { guidePlaceFor, guidePlaceHasSubstantiveDetail } = await import("../lib/guidePlaceIndex.js");
+  const indexedIds = await listIndexedIds(500);
+  ok(Array.isArray(indexedIds) && indexedIds.length > 0, "listIndexedIds() returned nothing with no live Supabase reachable — Atlas alone must carry it");
+  let eligibleAtlasChecked = 0;
+  for (const id of allow) {
+    const merged = mergePlacePage(id, { skel: null, details: null, atlas: atlasPlaceFor(id), guide: null, editorial: null });
+    if (merged && merged.durableEligible) { eligibleAtlasChecked++; ok(indexedIds.includes(id), `listIndexedIds() dropped eligible Atlas id ${id}`); }
+  }
+  ok(eligibleAtlasChecked > 0, "POSITIVE CONTROL: at least one Atlas id is durably eligible");
+  let eligibleGuideChecked = 0;
+  const { listGuidePlaceIds } = await import("../lib/guidePlaceIndex.js");
+  for (const id of listGuidePlaceIds()) {
+    const guide = guidePlaceFor(id);
+    if (!guidePlaceHasSubstantiveDetail(guide)) continue;
+    const merged = mergePlacePage(id, { skel: null, details: null, atlas: null, guide, editorial: null });
+    if (merged && merged.durableEligible) { eligibleGuideChecked++; ok(indexedIds.includes(id), `listIndexedIds() dropped eligible GUIDES id ${id}`); }
+  }
+  ok(eligibleGuideChecked > 0, "POSITIVE CONTROL: at least one GUIDES id is durably eligible");
+}
 
 // ── 5. editorial / known-for wiring still Atlas-first; JSON stays server-only
 const knownFor = code("app/api/known-for/route.js");

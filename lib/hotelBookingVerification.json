@@ -1,0 +1,3548 @@
+[
+{
+"key":"wfh-2903-avenue-b-anna-maria-island-fl-27488",
+"placeId":"",
+"resolved":"2931, Avenue B, Holmes Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-3001-gulf-dr-holmes-beach-27489",
+"placeId":"",
+"resolved":"3007, Gulf Drive North, Holmes Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-a-place-to-be-27127",
+"placeId":"ChIJYRI1cmNbw4gRzMwmbnCzSGM",
+"resolved":"204, Casey Key Road, Nokomis Beach, Laurel, Sarasota County, Florida, 34275, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-addy-s-villas-27130",
+"placeId":"ChIJReZVUhNbw4gRbLcL5iFwsWQ",
+"resolved":"RaceTrac",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:RaceTrac",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-addys-villas-vacation-rentals-motel-27130",
+"placeId":"",
+"resolved":"RaceTrac",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:RaceTrac",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-ag-casa-marina-27480",
+"placeId":"ChIJvy1Ni7wRw4gRoJSNeR-NFb8",
+"resolved":"128, 24th Street North, Bradenton Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-alamanda-villas-27497",
+"placeId":"ChIJBc8cobURw4gRtcWV5ZaKnBg",
+"resolved":"Gulf Drive, Holmes Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-alina-motel-27418",
+"placeId":"",
+"resolved":"1462, Whitfield Avenue, Bayshore Gardens, Manatee County, Florida, 34243, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-allamanda-motel-27370",
+"placeId":"ChIJ7e1NFOY_w4gR3hQmdQ2uUJ0",
+"resolved":"923, 40th Street, Sarasota, Sarasota County, Florida, 34234, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-aloft-sarasota-27334",
+"placeId":"ChIJx26IQRNAw4gRgUI4V2RHDfY",
+"resolved":"Aloft Sarasota",
+"google":"",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-ameniti-bay-bw-signature-collection-27337",
+"placeId":"ChIJR8F-rdpHw4gRfCTV2SNZZEQ",
+"resolved":"Amenit\u00ed Bay: Sarasota Hotel & Suites",
+"google":"Coral Pointe Sarasota, an Ascend Collection Hotel",
+"allowed":false,
+"reason":"wrong-property:Amenit\u00ed Bay: Sarasota Hotel & Suites",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-american-hotel-development-partners-27225",
+"placeId":"",
+"resolved":"1997, Colleen Street, Vamo, Sarasota County, Florida, 34238, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-americas-best-value-inn-bradenton-sarasota-27494",
+"placeId":"ChIJvYNHMYI8w4gRsnRqXZkBRqk",
+"resolved":"537, 67th Street Circle East, Bradenton, Manatee County, Florida, 34208, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-americas-best-value-inn-sarasota-downtown-27327",
+"placeId":"ChIJpSgsEGhAw4gR1N0L296bbUg",
+"resolved":"Americas Best Value Inn",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Americas Best Value Inn",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-americas-best-value-inn-suites-north-port-27044",
+"placeId":"ChIJH5YspaVVw4gR1z6hNJrQup4",
+"resolved":"6063, Bolander Terrace, North Port, Sarasota County, Florida, 34287, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-americinn-27338",
+"placeId":"",
+"resolved":"BMO",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-anchorage-27254",
+"placeId":"",
+"resolved":"6363, Midnight Cove Road, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-angel-s-vacation-rentals-27415",
+"placeId":"",
+"resolved":"530, Tarawitt Drive, Longboat Key, Manatee County, Florida, 34228, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-angelinos-sea-lodge-27487",
+"placeId":"",
+"resolved":"2894, Avenue E, Holmes Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-anna-maria-beach-cottages-27200",
+"placeId":"",
+"resolved":"99, West Oak Street, Osprey, Sarasota County, Florida, 34229, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-anna-maria-coastal-home-rentals-27319",
+"placeId":"",
+"resolved":"Madison Drive, Sarasota, Sarasota County, Florida, 34236, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-anna-maria-gulf-coast-rentals-27493",
+"placeId":"",
+"resolved":"Dollar Tree",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Dollar Tree",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-anna-maria-island-beach-resort-27496",
+"placeId":"",
+"resolved":"157, 39th Street, Holmes Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-anna-maria-island-dream-inn-27482",
+"placeId":"",
+"resolved":"25th Street North, Bradenton Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-anna-maria-island-inn-27479",
+"placeId":"ChIJjRZP47wRw4gRUurwE1ZgRaQ",
+"resolved":"101, 23rd Street North, Bradenton Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-anna-maria-island-resorts-27465",
+"placeId":"",
+"resolved":"281, 3rd Street South, Bradenton Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-anna-maria-island-vacation-rentals-27469",
+"placeId":"",
+"resolved":"105, 6th Street North, Bradenton Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-anna-maria-pirates-den-27494",
+"placeId":"ChIJi9zEIbQRw4gRrjA6a71D5Z0",
+"resolved":"299, 35th Street, Holmes Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-aquarius-club-27353",
+"placeId":"",
+"resolved":"Longboat Key, Sarasota County, Florida, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-arbors-by-the-sea-27411",
+"placeId":"ChIJyegMyIQTw4gRunDh87mTcvw",
+"resolved":"5437, Gulf of Mexico Drive, Longboat Key, Manatee County, Florida, 34228, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-art-ovation-hotel-autograph-collection-27337",
+"placeId":"ChIJn_4zMBJAw4gRnyPviItiNRs",
+"resolved":"Art Ovation Hotel, Autograph Collection",
+"google":"",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-avenue-beach-house-27482",
+"placeId":"",
+"resolved":"439, 25th Street North, Bradenton Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-bahia-vista-gulf-27111",
+"placeId":"",
+"resolved":"Gulf n' Bay",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Gulf n' Bay",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-banana-bay-club-waterside-cottages-on-heron-lago-27231",
+"placeId":"",
+"resolved":"8274, Midnight Pass Road, Gulf Gate Estates, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-banyan-tree-beach-resort-27256",
+"placeId":"",
+"resolved":"6829, Avenue A, Gulf Gate Estates, Sarasota County, Florida, 34231, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-banyon-beach-resort-27218",
+"placeId":"",
+"resolved":"9016, Midnight Pass Road, Vamo, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-baxter-s-27472",
+"placeId":"ChIJ7fS4_DwWw4gRRN1ICQtXMFQ",
+"resolved":"Baxter's Motel",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Baxter's Motel",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-bay-breeze-inn-27485",
+"placeId":"ChIJp6eGDDEWw4gRkv0ZSe4kSsk",
+"resolved":"1584, 14th Street West, Bradenton, Manatee County, Florida, 34205, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-baymont-by-wyndham-sarasota-27321",
+"placeId":"ChIJ2T-loFxAw4gRiMRtmFiC1h0",
+"resolved":"Baymont Sarasota",
+"google":"",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-baymont-inn-suites-sarasota-27321",
+"placeId":"",
+"resolved":"Baymont Sarasota",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Baymont Sarasota",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-beach-castle-resort-27410",
+"placeId":"ChIJ5_VvAJATw4gRFcRBL_nNJXY",
+"resolved":"5336, Sandhamn Place, Longboat Key, Manatee County, Florida, 34228, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-beach-club-27478",
+"placeId":"ChIJI4sOO70Rw4gRvaNqHWxNXDQ",
+"resolved":"138, 22nd Street North, Bradenton Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-beach-club-at-siesta-key-27248",
+"placeId":"ChIJz5QbcSRCw4gRSXDrF9QQGB4",
+"resolved":"",
+"google":"",
+"allowed":false,
+"reason":"no-location-on-card",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-beach-house-resort-27471",
+"placeId":"ChIJLSeLk5kRw4gRvTlgJfgz8dA",
+"resolved":"GULF DR N/10TH ST N",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-beach-palms-of-siesta-key-village-27274",
+"placeId":"ChIJAaTpEAlqw4gRyoc1LgnQBfg",
+"resolved":"5380, Avenida Navarra, Siesta Key Village, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-beach-place-27268",
+"placeId":"ChIJX06nOftBw4gRyaA9LZ8QY48",
+"resolved":"5615, Avenida del Mare, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-beach-point-27274",
+"placeId":"",
+"resolved":"152, Beach Road, Siesta Key Village, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-beachcomber-in-venice-27086",
+"placeId":"ChIJT-zI8upbw4gRMmQKdV_HLLs",
+"resolved":"Spadaro Drive, Venice, Sarasota County, Florida, 34285, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-beachfront-sea-castles-27277",
+"placeId":"",
+"resolved":"Sandy Hook, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-beachpoint-cottages-27274",
+"placeId":"",
+"resolved":"152, Beach Road, Siesta Key Village, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-beachside-management-27267",
+"placeId":"",
+"resolved":"Midnight Pass Road, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-beachside-resorts-vacation-rentals-27276",
+"placeId":"",
+"resolved":"5208, Ocean Boulevard, Sandy Hook, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-beau-lido-suites-27313",
+"placeId":"",
+"resolved":"218, Tyler Drive, Lido Key, Sarasota, Sarasota County, Florida, 34236, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-bentley-s-boutique-hotel-27172",
+"placeId":"",
+"resolved":"Osprey, Sarasota County, Florida, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-bentley-s-on-the-beach-27128",
+"placeId":"",
+"resolved":"Gulf Shores Beach Resort",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Gulf Shores Beach Resort",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-bentley-s-resort-hotel-27172",
+"placeId":"",
+"resolved":"1653, Tamiami Trail, Osprey, Sarasota County, Florida, 34229, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-best-western-27172",
+"placeId":"",
+"resolved":"Osprey, Sarasota County, Florida, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-best-western-plus-27109",
+"placeId":"ChIJsbdss39Qw4gROz3jKBdAg6s",
+"resolved":"Best Western Plus Ambassador Suites Venice",
+"google":"Best Western Plus Ambassador Suites Venice",
+"allowed":true,
+"reason":"exact-verified:google-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-best-western-plus-ambassador-suites-venice-27109",
+"placeId":"ChIJsbdss39Qw4gROz3jKBdAg6s",
+"resolved":"Best Western Plus Ambassador Suites Venice",
+"google":"Best Western Plus Ambassador Suites Venice",
+"allowed":true,
+"reason":"exact-verified:google-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-best-western-plus-bradenton-gateway-hotel-27461",
+"placeId":"ChIJBaAp2GwWw4gRPiDlhy-YfDo",
+"resolved":"Manatee Inn - Best Western",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Manatee Inn - Best Western",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-best-western-plus-bradenton-hotel-suites-27492",
+"placeId":"ChIJGVfX-IE8w4gRX8KO6QLmUs8",
+"resolved":"Best Western Plus Bradenton Hotel & Suites",
+"google":"",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-bianco-sands-vacation-resort-27247",
+"placeId":"",
+"resolved":"1122, Point of Rocks Road, Gulf Gate Estates, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-bimini-bay-front-home-by-redawning-27514",
+"placeId":"",
+"resolved":"99, Seaside Court, Holmes Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-blue-boy-motel-27483",
+"placeId":"ChIJcRe1WDAWw4gRVnV2SV-G7WY",
+"resolved":"1865, 14th Street West, Bradenton, Manatee County, Florida, 34205, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-bridgewalk-a-landmark-resort-27465",
+"placeId":"ChIJKQApapsRw4gRtbHvF46A8pg",
+"resolved":"100-108, Bridge Street, Bradenton Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-budget-inn-27396",
+"placeId":"ChIJacNZpX8Vw4gR1csqPdFAhAg",
+"resolved":"394, Braden Avenue, Whitfield, Manatee County, Florida, 34243, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-budget-motel-27454",
+"placeId":"ChIJ2ezRn-U9w4gR8V8OYrzCl2c",
+"resolved":"1456, 301 Boulevard East, South Bradenton, Manatee County, Florida, 34203, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-bungalow-beach-resort-27477",
+"placeId":"ChIJTXee71MRw4gRpMU2A5Nf1jg",
+"resolved":"2100, Gulf Drive North, Bradenton Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-cadillac-motel-27370",
+"placeId":"ChIJBRepaeY_w4gR9RgtbPJOOW8",
+"resolved":"3897, Tamiami Trail, Sarasota, Sarasota County, Florida, 34234, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-calini-beach-club-27249",
+"placeId":"ChIJF70KeCRCw4gR3pYZk1HGtd0",
+"resolved":"Hyatt Residence Club Sarasota, Siesta Key Beach",
+"google":"Calini Beach Club",
+"allowed":false,
+"reason":"wrong-property:Hyatt Residence Club Sarasota, Siesta Key Beach",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-campbell-thyrsa-27083",
+"placeId":"",
+"resolved":"Venice, Sarasota County, Florida, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-cannons-by-the-sea-beach-cottages-27421",
+"placeId":"",
+"resolved":"Gulf of Mexico Drive, Longboat Key, Manatee County, Florida, 34228, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-captiva-beach-resort-27248",
+"placeId":"ChIJ69RB9SRCw4gRqecKrWvfQF4",
+"resolved":"Captiva Beach Resort",
+"google":"",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-carlton-arms-of-bradenton-27501",
+"placeId":"",
+"resolved":"1192, Carlton Arms Circle, Bradenton, Manatee County, Florida, 34208, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-casa-blanca-27258",
+"placeId":"ChIJC5_tuYpBw4gRVlcW0I9AEEA",
+"resolved":"Casa Blanca Street, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-casa-del-mar-27398",
+"placeId":"ChIJe6f8jYEUw4gRCll_lYuH3L8",
+"resolved":"Casa Del Mar Beach Resort",
+"google":"Casa Del Mar Beach Resort on Longboat Key",
+"allowed":false,
+"reason":"wrong-property:Casa Del Mar Beach Resort",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-casa-limonada-boutique-motel-27311",
+"placeId":"",
+"resolved":"138, Garfield Drive, Lido Key, Sarasota, Sarasota County, Florida, 34236, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-casa-sierra-rental-27494",
+"placeId":"",
+"resolved":"3216-3352, 6th Avenue, Holmes Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-casey-key-resort-27173",
+"placeId":"ChIJTcMq_VlDw4gRjlox_ETtFr4",
+"resolved":"1619, Tamiami Trail, Osprey, Sarasota County, Florida, 34229, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-castnetter-beach-resort-27498",
+"placeId":"ChIJSeOrGbURw4gRUEtOrC4HZvk",
+"resolved":"4102 4th Ave, Holmes Beach, FL 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-cedar-cove-resort-cottages-27485",
+"placeId":"ChIJ7WzbNroRw4gRq5T3dDd75a8",
+"resolved":"2720, Gulf Drive North, Holmes Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-cedars-tennis-resort-by-rva-27417",
+"placeId":"",
+"resolved":"Cedars Court, Longboat Key, Manatee County, Florida, 34228, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-cedars-west-27416",
+"placeId":"",
+"resolved":"Longboat Key, Manatee County, Florida, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-club-bamboo-27465",
+"placeId":"",
+"resolved":"Bridgewalk Resort",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Bridgewalk Resort",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-club-bamboo-resorts-27338",
+"placeId":"",
+"resolved":"5060, Fruitville Road, Fruitville, Sarasota County, Florida, 34232, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-club-bamboo-resorts-27482",
+"placeId":"",
+"resolved":"25th Street North, Bradenton Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-club-longboat-27405",
+"placeId":"",
+"resolved":"5073, Gulf of Mexico Drive, Longboat Key, Manatee County, Florida, 34228, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-comfort-inn-27268",
+"placeId":"ChIJ-_vXlL1Gw4gRyP6-bXESP7A",
+"resolved":"Days Inn Sarasota I-75",
+"google":"Quality Inn Sarasota I-75",
+"allowed":false,
+"reason":"wrong-property:Days Inn Sarasota I-75",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-comfort-inn-27494",
+"placeId":"ChIJTWlJ54M8w4gRu4Zmd7-BA4w",
+"resolved":"Comfort Inn Near Ellenton Outlet Mall",
+"google":"Quality Inn Bradenton North I-75",
+"allowed":false,
+"reason":"wrong-property:Comfort Inn Near Ellenton Outlet Mall",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-comfort-suites-27272",
+"placeId":"ChIJ_QplV7dGw4gRTpiFE2yYNCk",
+"resolved":"Comfort Suites Sarasota-Siesta Key",
+"google":"Comfort Suites Sarasota-Siesta Key",
+"allowed":true,
+"reason":"exact-verified:google-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-community-miracle-resort-27052",
+"placeId":"",
+"resolved":"322, Ortiz Boulevard, North Port, Sarasota County, Florida, 34287, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-compass-hotel-anna-maria-sound-27497",
+"placeId":"ChIJRc3ulAERw4gRR-XKZC-_SQM",
+"resolved":"12300, Manatee Avenue West, Bradenton, Manatee County, Florida, 34209, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-conclare-aman-s-beach-resort-27248",
+"placeId":"",
+"resolved":"Sea Club V Condo Association",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Sea Club V Condo Association",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-coquina-on-the-beach-27309",
+"placeId":"ChIJo-mZh9YTw4gRYGJAcIXPO0U",
+"resolved":"1000, Ben Franklin Drive, Lido Key, Sarasota, Sarasota County, Florida, 34236, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-country-inn-suites-by-radisson-bradenton-lakewoo-27441",
+"placeId":"ChIJZUcCov07w4gRBJyq1-mizLM",
+"resolved":"Country Inn & Suites",
+"google":"Country Inn & Suites by Radisson, Bradenton-Lakewood Ranch, FL",
+"allowed":false,
+"reason":"wrong-property:Country Inn & Suites",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-courtyard-by-marriott-bradenton-sarasota-riverfr-27499",
+"placeId":"ChIJmRgc9NYXw4gRQlAxbX-KlVU",
+"resolved":"Courtyard Bradenton Sarasota/Riverfront",
+"google":"Courtyard by Marriott Bradenton Sarasota/Riverfront",
+"allowed":true,
+"reason":"exact-verified:google-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-courtyard-sarasota-bradenton-airport-27381",
+"placeId":"ChIJY-XJdNs_w4gRkICZyqxST-4",
+"resolved":"Courtyard Sarasota Bradenton Airport",
+"google":"",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-courtyard-sarasota-university-park-lakewood-ranc-27390",
+"placeId":"ChIJF1qUlHWj6IgRPI5BmUPeQME",
+"resolved":"Courtyard Sarasota University Park",
+"google":"Courtyard by Marriott Sarasota at University Town Center",
+"allowed":false,
+"reason":"wrong-property:Courtyard Sarasota University Park",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-crescent-beach-4-rent-siesta-key-fl-condo-rental-27251",
+"placeId":"",
+"resolved":"Captain Curt's Sniki Tiki",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Captain Curt's Sniki Tiki",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-cypress-mayfair-27221",
+"placeId":"",
+"resolved":"5198, Central Sarasota Parkway, Osprey, Sarasota County, Florida, 34238, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-days-inn-27268",
+"placeId":"ChIJocOSvL1Gw4gRkrBXa1uxi3k",
+"resolved":"Days Inn Sarasota I-75",
+"google":"Days Inn by Wyndham Sarasota I-75",
+"allowed":true,
+"reason":"exact-verified:google-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-days-inn-bradenton-i-75-27493",
+"placeId":"ChIJd5qo-H07w4gRhKeDRhi_fOs",
+"resolved":"Days Inn Bradenton I-75",
+"google":"",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-days-inn-bradenton-near-the-gulf-27469",
+"placeId":"ChIJ0VZYHiAWw4gR6m1e6WaWTUc",
+"resolved":"Days Inn by Wyndham Bradenton - Near the Gulf",
+"google":"",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-days-inn-sarasota-27378",
+"placeId":"ChIJM-SRVNw_w4gR22oxzewxEt4",
+"resolved":"Days Inn",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Days Inn",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-deluxe-inn-mini-storage-27397",
+"placeId":"ChIJF1p16n8Vw4gR1D81Ub4d1fk",
+"resolved":"8173, Tamiami Trail, Whitfield, Manatee County, Florida, 34243, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-dock-on-the-bay-27377",
+"placeId":"ChIJdSUdlb0Uw4gR2WtEg1jGFII",
+"resolved":"Longboat Key, Sarasota County, Florida, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-dream-lover-boat-breakfast-27468",
+"placeId":"",
+"resolved":"340, Church Avenue North, Bradenton Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-driftwood-motel-27505",
+"placeId":"ChIJMQIkB0oQw4gRuD1K3MUWcY4",
+"resolved":"201, 52nd Street, Holmes Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-embassy-suites-by-hilton-27338",
+"placeId":"ChIJfYV_5RFAw4gRoWMEc-mBd6I",
+"resolved":"Embassy Suites by Hilton Sarasota",
+"google":"Embassy Suites by Hilton Sarasota",
+"allowed":true,
+"reason":"exact-verified:google-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-even-hotel-27386",
+"placeId":"ChIJsYtTeeM4w4gRRLv8RnmCiTk",
+"resolved":"EVEN Hotel Sarasota-Lakewood Ranch",
+"google":"EVEN Hotel Sarasota-Lakewood Ranch by IHG",
+"allowed":true,
+"reason":"exact-verified:google-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-fairfield-inn-suites-sarasota-lakewood-ranch-27390",
+"placeId":"ChIJyeWZPeI4w4gRNA3xTtqpTNQ",
+"resolved":"Resource Lane, Lakewood Ranch, The Meadows, Manatee County, Florida, 34202, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-fairfield-inn-suites-venice-27109",
+"placeId":"ChIJU2Qx24BQw4gR9wu-GZwnPFA",
+"resolved":"Fairfield Inn & Suites Venice",
+"google":"",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-family-inn-27376",
+"placeId":"ChIJpy9cvt0_w4gRx_V3AiWIwjQ",
+"resolved":"Marlin Drive, Sarasota, Sarasota County, Florida, 34234, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-flamingo-colony-motel-27375",
+"placeId":"ChIJqamMjt0_w4gRUvBr0prM_ww",
+"resolved":"4792, Sarasota Avenue, Sarasota, Sarasota County, Florida, 34234, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-flip-flop-cottages-27231",
+"placeId":"ChIJ_WPQkkpCw4gRpZxanfn7uz8",
+"resolved":"8274, Midnight Pass Road, Gulf Gate Estates, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-fun-wave-rentals-27496",
+"placeId":"",
+"resolved":"Manatee Avenue West, Bradenton, Manatee County, Florida, 34209, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-golden-host-resort-27374",
+"placeId":"ChIJ9dwGrz4_w4gR-0pMpk0ly_g",
+"resolved":"4659, Tamiami Trail, Sarasota, Sarasota County, Florida, 34234, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-golden-hotel-27278",
+"placeId":"",
+"resolved":"5092, Windward Avenue, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-golder-robert-27082",
+"placeId":"",
+"resolved":"Venice, Sarasota County, Florida, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-guesthouse-27528",
+"placeId":"ChIJX6QIx9Y8w4gReQx67QrCz24",
+"resolved":"Red Roof Inn Ellenton",
+"google":"Red Roof Inn Ellenton - Bradenton NE",
+"allowed":false,
+"reason":"wrong-property:Red Roof Inn Ellenton",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-gulf-beach-motel-27309",
+"placeId":"",
+"resolved":"988, Ben Franklin Drive, Lido Key, Sarasota, Sarasota County, Florida, 34236, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-gulf-sands-27499",
+"placeId":"",
+"resolved":"101, 43rd Street, Holmes Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-gulf-sands-beach-resort-27131",
+"placeId":"ChIJa37_fGFbw4gRxeNZUfXyERc",
+"resolved":"447, Casey Key Road, Nokomis Beach, Laurel, Sarasota County, Florida, 34275, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-gulf-shores-beach-resort-27128",
+"placeId":"ChIJQTbtpGNbw4gRytP88QU-p7w",
+"resolved":"Gulf Shores Beach Resort",
+"google":"",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-gulf-side-motel-27311",
+"placeId":"",
+"resolved":"138, Garfield Drive, Lido Key, Sarasota, Sarasota County, Florida, 34236, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-gulf-stream-resort-27474",
+"placeId":"ChIJB-8dQZgRw4gRak8D5Hj5xVA",
+"resolved":"Smuggler's Cove Beach Resort",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Smuggler's Cove Beach Resort",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-gulf-surf-motel-27177",
+"placeId":"ChIJf01gmThDw4gRfl-Fhogh-CU",
+"resolved":"3905, Casey Key Road, Nokomis Beach, Osprey, Sarasota County, Florida, 34275, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-gulf-tides-of-longboat-27370",
+"placeId":"ChIJ8f4n8rgUw4gR0jn7awniT54",
+"resolved":"",
+"google":"",
+"allowed":false,
+"reason":"no-location-on-card",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-gumbo-limbo-vacation-rentals-27269",
+"placeId":"",
+"resolved":"686, Calle del Otono, Sarasota Beach, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-gumbo-limbo-vacation-rentals-27317",
+"placeId":"",
+"resolved":"4396, Oak View Drive, Sarasota Springs, Sarasota County, Florida, 34232, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-hampton-by-hilton-27112",
+"placeId":"ChIJB2MfPAhbw4gRWUXiZ1R0Whk",
+"resolved":"Hampton Inn",
+"google":"Hampton Inn & Suites Venice Bayside South Sarasota",
+"allowed":false,
+"reason":"wrong-property:Hampton Inn",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-hampton-by-hilton-27300",
+"placeId":"ChIJATC8Tx5Hw4gRkfFgx-yCo7o",
+"resolved":"Hampton Inn Sarasota - I-75 Bee Ridge",
+"google":"Hampton Inn Sarasota - I-75 Bee Ridge",
+"allowed":false,
+"reason":"ambiguous-name-shared-by-another-card",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-hampton-inn-by-hilton-27533",
+"placeId":"ChIJ33HyU8w8w4gRvymJsl3cseA",
+"resolved":"Hampton Inn Ellenton/Bradenton",
+"google":"Hampton Inn Ellenton/Bradenton",
+"allowed":true,
+"reason":"exact-verified:google-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-hampton-inn-suites-27112",
+"placeId":"ChIJB2MfPAhbw4gRWUXiZ1R0Whk",
+"resolved":"Hampton Inn",
+"google":"Hampton Inn & Suites Venice Bayside South Sarasota",
+"allowed":false,
+"reason":"wrong-property:Hampton Inn",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-hampton-inn-suites-27382",
+"placeId":"ChIJDf4oLts_w4gRy2J34JnyrpE",
+"resolved":"Hampton Inn & Suites",
+"google":"Hampton Inn & Suites Sarasota/Bradenton-Airport",
+"allowed":false,
+"reason":"ambiguous-name-shared-by-another-card",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-hampton-inn-suites-27390",
+"placeId":"ChIJh0RuWt44w4gR50AvntGV8Xg",
+"resolved":"Hampton Inn & Suites",
+"google":"Hampton Inn & Suites Sarasota/Lakewood Ranch",
+"allowed":false,
+"reason":"ambiguous-name-shared-by-another-card",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-hampton-inn-suites-27497",
+"placeId":"ChIJVQaaFtIXw4gRDqNclhoqWDI",
+"resolved":"Hampton Inn & Suites",
+"google":"Hampton Inn & Suites Bradenton Downtown Historic District",
+"allowed":false,
+"reason":"ambiguous-name-shared-by-another-card",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-hampton-inn-suites-north-port-27041",
+"placeId":"ChIJT3rZ469Uw4gRK1M5B3Cbr_M",
+"resolved":"Hampton Inn & Suites",
+"google":"Hampton Inn & Suites North Port",
+"allowed":false,
+"reason":"wrong-property:Hampton Inn & Suites",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-harbor-lane-court-vacation-rentals-27501",
+"placeId":"",
+"resolved":"4507, Gulf Drive, Holmes Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-harbor-lights-beach-resort-27126",
+"placeId":"ChIJ_cjzcWNbw4gRfJBFp9Kwl64",
+"resolved":"156, Casey Key Road, Nokomis Beach, Laurel, Sarasota County, Florida, 34275, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-heritage-vacation-rentals-llc-27089",
+"placeId":"",
+"resolved":"856, Villas Drive, Venice, Sarasota County, Florida, 34285, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-hibiscus-hideaway-vacation-rentals-27060",
+"placeId":"",
+"resolved":"832, Queen Road, South Venice, Sarasota County, Florida, 34293, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-hibiscus-suites-27258",
+"placeId":"ChIJ41HLaBZBw4gR_yW1-hLguu4",
+"resolved":"Hibiscus Suites",
+"google":"",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-hibiscus-suites-gateway-to-siesta-key-27258",
+"placeId":"ChIJ41HLaBZBw4gR_yW1-hLguu4",
+"resolved":"Hibiscus Suites",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Hibiscus Suites",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-hilton-garden-inn-27393",
+"placeId":"ChIJsUjHE34Vw4gRP0OdD5Is2SI",
+"resolved":"Tamiami Trail, Whitfield, Manatee County, Florida, 34243, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-historic-el-patio-motor-hotel-27100",
+"placeId":"",
+"resolved":"El Patio",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:El Patio",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-holiday-inn-express-27259",
+"placeId":"ChIJsevE5oBBw4gRWt4XSg398-8",
+"resolved":"Spark by Hilton Sarasota Siesta Key Gateway",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Spark by Hilton Sarasota Siesta Key Gateway",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-holiday-inn-express-bradenton-27492",
+"placeId":"",
+"resolved":"Best Western Plus Bradenton Hotel & Suites",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Best Western Plus Bradenton Hotel & Suites",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-holiday-inn-express-suites-27461",
+"placeId":"ChIJk6zAA4kWw4gR7mu134NTNgI",
+"resolved":"4504, 47th Street West, Bradenton, Manatee County, Florida, 34210, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-holiday-inn-express-suites-bradenton-west-27461",
+"placeId":"ChIJk6zAA4kWw4gR7mu134NTNgI",
+"resolved":"4504, 47th Street West, Bradenton, Manatee County, Florida, 34210, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-holiday-inn-express-suites-sarasota-east-i-75-27271",
+"placeId":"ChIJCTdG_NtHw4gR3BC76VMTDcA",
+"resolved":"Holiday Inn Express & Suites Sarasota East - I-75",
+"google":"",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-holiday-inn-express-venice-27108",
+"placeId":"ChIJbfHWKX5Qw4gRPhAbPorsNuo",
+"resolved":"Holiday Inn Express Venice",
+"google":"",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-holiday-inn-river-front-hotel-bradenton-27499",
+"placeId":"ChIJmRgc9NYXw4gRQlAxbX-KlVU",
+"resolved":"Courtyard Bradenton Sarasota/Riverfront",
+"google":"Courtyard by Marriott Bradenton Sarasota/Riverfront",
+"allowed":false,
+"reason":"card-name-differs-from-property:Courtyard by Marriott Bradenton Sarasota/Riverfront",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-holiday-inn-sarasota-airport-27398",
+"placeId":"ChIJgUqUTTM-w4gRb9ve50-53t0",
+"resolved":"DoubleTree",
+"google":"DoubleTree by Hilton Sarasota Bradenton Airport",
+"allowed":false,
+"reason":"wrong-property:DoubleTree",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-holiday-inn-sarasota-lakewood-ranch-27386",
+"placeId":"ChIJsYtTeeM4w4gRRLv8RnmCiTk",
+"resolved":"EVEN Hotel Sarasota-Lakewood Ranch",
+"google":"EVEN Hotel Sarasota-Lakewood Ranch by IHG",
+"allowed":false,
+"reason":"card-name-differs-from-property:EVEN Hotel Sarasota-Lakewood Ranch by IHG",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-holiday-inn-sarasota-lido-beach-the-beach-27314",
+"placeId":"ChIJKa-9yo1qw4gRgnbkC5BOfiA",
+"resolved":"Cirque St Armands Beachside",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Cirque St Armands Beachside",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-home2-suites-by-hilton-27124",
+"placeId":"ChIJw-okY21bw4gRK62eYya724Y",
+"resolved":"Home2 Suites",
+"google":"Home2 Suites by Hilton Nokomis Sarasota Casey Key",
+"allowed":false,
+"reason":"ambiguous-name-shared-by-another-card",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-home2-suites-by-hilton-27394",
+"placeId":"ChIJc6t9Wm0Vw4gRKOXaimfNhXA",
+"resolved":"Home2 Suites",
+"google":"Home2 Suites by Hilton Sarasota Bradenton Airport",
+"allowed":false,
+"reason":"ambiguous-name-shared-by-another-card",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-home2-suites-by-hilton-lakewood-ranch-27392",
+"placeId":"ChIJw_BtBx45w4gRIh7IlYwArNA",
+"resolved":"Lakewood Ranch, Manatee County, Florida, 34202, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-home2-suites-by-hilton-sarasota-i-75-bee-ridge-27302",
+"placeId":"ChIJP-PvIANHw4gRdApbE3-oiWE",
+"resolved":"Home2 Suites Sarasota I-75 Bee Ridge",
+"google":"",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-homewood-suites-by-hilton-27337",
+"placeId":"ChIJJX2D2ZlAw4gRyYWV0lOoIIM",
+"resolved":"Homewood Suites by Hilton Sarasota",
+"google":"Homewood Suites by Hilton Sarasota",
+"allowed":false,
+"reason":"ambiguous-name-shared-by-another-card",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-homewood-suites-by-hilton-27381",
+"placeId":"ChIJyQA0K904w4gRxaM8sEe5I6o",
+"resolved":"Homewood Suites Sarasota Lakewood Ranch",
+"google":"Homewood Suites by Hilton Sarasota Lakewood Ranch",
+"allowed":false,
+"reason":"ambiguous-name-shared-by-another-card",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-horse-chaise-inn-27097",
+"placeId":"",
+"resolved":"345, Ponce de Leon Avenue, Venice, Sarasota County, Florida, 34285, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-hotel-homes-27493",
+"placeId":"",
+"resolved":"279, 34th Street, Holmes Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-hotel-ranola-27335",
+"placeId":"",
+"resolved":"Hotel Ranola",
+"google":"",
+"allowed":false,
+"reason":"no-verified-place-id",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-howard-johnson-express-inn-bradenton-27425",
+"placeId":"",
+"resolved":"14th Street West, Bayshore Gardens, Manatee County, Florida, 34207, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-howard-johnson-inn-bradenton-sarasota-airport-27425",
+"placeId":"",
+"resolved":"14th Street West, Bayshore Gardens, Manatee County, Florida, 34207, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-hyatt-place-sarasota-bradenton-airport-27381",
+"placeId":"ChIJCdzhRds_w4gRgtt02DP25nA",
+"resolved":"Hyatt Place",
+"google":"Hyatt Place Sarasota/Bradenton Airport",
+"allowed":false,
+"reason":"wrong-property:Hyatt Place",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-hyatt-place-sarasota-lakewood-ranch-27392",
+"placeId":"ChIJqftER-I4w4gRWIOCznnHnqM",
+"resolved":"Hyatt Place Sarasota / Lakewood Ranch",
+"google":"",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-hyatt-regency-sarasota-27341",
+"placeId":"ChIJ1xeGlw9Aw4gRC92rxxSOc-k",
+"resolved":"Hyatt Regency",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Hyatt Regency",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-hyatt-residence-club-sarasota-siesta-key-beach-27248",
+"placeId":"",
+"resolved":"Hyatt Residence Club Sarasota, Siesta Key Beach",
+"google":"",
+"allowed":false,
+"reason":"no-verified-place-id",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-inn-at-the-beach-27100",
+"placeId":"ChIJo1plTJdbw4gR0h9pszhsTzU",
+"resolved":"780, West Venice Avenue, Venice Beach, Venice, Sarasota County, Florida, 34285, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-island-breeze-27095",
+"placeId":"ChIJHQkhLrpbw4gR8JHggY55khQ",
+"resolved":"Calle Central, Venice, Sarasota County, Florida, 34285, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-island-garden-villas-27508",
+"placeId":"",
+"resolved":"",
+"google":"",
+"allowed":false,
+"reason":"no-location-on-card",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-island-house-beach-resort-27258",
+"placeId":"ChIJXXfXtIpBw4gRJ9Ggg0jhP9I",
+"resolved":"Siesta Key, Sarasota County, Florida, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-island-house-motel-27127",
+"placeId":"",
+"resolved":"263, Casey Key Road, Nokomis Beach, Laurel, Sarasota County, Florida, 34275, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-island-sun-inn-27089",
+"placeId":"ChIJBcDh9bdbw4gRyOaF8EDbJtU",
+"resolved":"Island Sun Inn",
+"google":"",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-island-west-27494",
+"placeId":"ChIJi9krFrQRw4gRdKXg9O0e-X4",
+"resolved":"226, 36th Street, Holmes Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-jamaica-royale-resort-sarasota-27263",
+"placeId":"ChIJ8VxmtvZBw4gRJ1sev5axEQg",
+"resolved":"Siesta Key, Sarasota County, Florida, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-kentucky-motel-27486",
+"placeId":"ChIJM0UTKzIWw4gRSm5JR5EHYDc",
+"resolved":"1399, 15th Avenue West, Bradenton, Manatee County, Florida, 34205, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-ker-downey-africa-27374",
+"placeId":"",
+"resolved":"Sarasota County, Florida, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-knights-inn-sarasota-27380",
+"placeId":"ChIJ0ZdlzKw_w4gRmyqzaPzs5lE",
+"resolved":"Tamiami Trail, Sarasota, Sarasota County, Florida, 34234, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-kompose-hotel-27383",
+"placeId":"ChIJ-eqe0MQ_w4gRe-4Zary4czk",
+"resolved":"University Parkway, Sarasota, Sarasota County, Florida, 34243, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-kon-tiki-inn-27080",
+"placeId":"ChIJX_DsOjNaw4gRPVqG9dnZ8iU",
+"resolved":"Kon-Tiki Motel",
+"google":"Kon Tiki Inn",
+"allowed":false,
+"reason":"wrong-property:Kon-Tiki Motel",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-la-palme-royale-bed-and-breakfast-27330",
+"placeId":"",
+"resolved":"Echelon on Palm",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Echelon on Palm",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-la-quinta-inn-suites-sarasota-downtown-27353",
+"placeId":"ChIJs1TT9_Y_w4gRCoqq1w3H1-0",
+"resolved":"La Quinta Inn & Suites",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:La Quinta Inn & Suites",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-la-quinta-inn-suites-sarasota-i75-27340",
+"placeId":"ChIJ2YhTAKtHw4gRXDdWMvssWE8",
+"resolved":"Comfort Inn & Suites",
+"google":"Comfort Inn & Suites Sarasota I75",
+"allowed":false,
+"reason":"wrong-property:Comfort Inn & Suites",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-lantern-inn-and-suites-27413",
+"placeId":"",
+"resolved":"7150, Manatee Street, Whitfield, Manatee County, Florida, 34243, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-laurel-villa-motel-27144",
+"placeId":"",
+"resolved":"1499, Settlers Drive, Laurel, Sarasota County, Florida, 34275, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-legacy-hotel-at-img-academy-27448",
+"placeId":"",
+"resolved":"4495, 53rd Avenue West, South Bradenton, Manatee County, Florida, 34210, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-lido-beach-resort-27310",
+"placeId":"ChIJg-jF3Ihqw4gRNJ0QhK4Ywsg",
+"resolved":"Lido Beach Resort",
+"google":"",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-lido-islander-27313",
+"placeId":"ChIJ3TkiBY9qw4gRe_8idmX2E2g",
+"resolved":"548, South Polk Drive, Lido Key, Sarasota, Sarasota County, Florida, 34236, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-lifestyle-magic-27486",
+"placeId":"",
+"resolved":"Bay Street, Bradenton Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-limetree-beach-resort-27308",
+"placeId":"ChIJnYAwx4hqw4gR3-AYzg7bsG4",
+"resolved":"Ben Franklin Drive, Lido Key, Sarasota, Sarasota County, Florida, 34236, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-little-gull-cottages-27384",
+"placeId":"",
+"resolved":"",
+"google":"",
+"allowed":false,
+"reason":"no-location-on-card",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-little-palm-inn-27545",
+"placeId":"ChIJIy0MOwcYw4gR_J6xEzA8Zp4",
+"resolved":"3509, Tamiami Trail, Memphis, Manatee County, Florida, 34221, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-longboat-accommodations-27388",
+"placeId":"",
+"resolved":"Gulf of Mexico Drive, Longboat Key, Sarasota County, Florida, 34228, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-longboat-bay-club-27374",
+"placeId":"ChIJKX0dur4Uw4gRaH02FwV_nOI",
+"resolved":"Monroe Street, Longboat Key, Sarasota County, Florida, 34228, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-longboat-key-club-27339",
+"placeId":"",
+"resolved":"532, Channel Lane, Longboat Key, Sarasota County, Florida, 34228, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-longboat-key-club-27339",
+"placeId":"",
+"resolved":"538, Channel Lane, Longboat Key, Sarasota County, Florida, 34228, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-longboat-key-club-resort-islandside-27334",
+"placeId":"",
+"resolved":"Longboat Club Road, Longboat Key, Sarasota County, Florida, 34228, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-longboat-key-club-resort-lagoon-suites-27491",
+"placeId":"",
+"resolved":"State Road 64 East, Bradenton, Manatee County, Florida, 34212, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-longboat-key-vacation-villas-27330",
+"placeId":"ChIJqZAQtMVqw4gRQSMDzhntYY4",
+"resolved":"The Resort at Longboat Key Club",
+"google":"The Resort at Longboat Key Club",
+"allowed":false,
+"reason":"card-name-differs-from-property:The Resort at Longboat Key Club",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-longboat-terrace-27410",
+"placeId":"",
+"resolved":"5369, Gulf of Mexico Drive, Longboat Key, Manatee County, Florida, 34228, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-m-and-m-lodgings-llc-27258",
+"placeId":"ChIJf71SMOxBw4gRwbz-zuF08Zk",
+"resolved":"Spark by Hilton Sarasota Siesta Key Gateway",
+"google":"Spark by Hilton Sarasota Siesta Key Gateway",
+"allowed":false,
+"reason":"card-name-differs-from-property:Spark by Hilton Sarasota Siesta Key Gateway",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-m-star-bradenton-27425",
+"placeId":"",
+"resolved":"14th Street West, Bayshore Gardens, Manatee County, Florida, 34207, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-magnolia-pointe-bw-signature-collection-27337",
+"placeId":"ChIJD5eoxb9Hw4gRC4-5UFKJ7p4",
+"resolved":"Magnolia Pointe Hotel",
+"google":"Caretta Landing Sarasota, an Ascend Collection Hotel",
+"allowed":false,
+"reason":"wrong-property:Magnolia Pointe Hotel",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-michiana-motel-27472",
+"placeId":"ChIJ79-oAT0Ww4gRK6cEN0fCaLk",
+"resolved":"Baxter's Motel",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Baxter's Motel",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-minorga-on-the-key-resort-27278",
+"placeId":"",
+"resolved":"301, Avenue Milano, Sandy Hook, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-motel-6-27492",
+"placeId":"ChIJ-87K9IE8w4gRHTlsuJuFWzY",
+"resolved":"Motel 6 - Bradenton",
+"google":"Motel 6 Bradenton, FL",
+"allowed":false,
+"reason":"wrong-property:Motel 6 - Bradenton",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-motel-6-venice-fl-27103",
+"placeId":"ChIJt8zE_qxbw4gRseKK4UWUWJ8",
+"resolved":"Motel 6",
+"google":"Motel 6 Venice, FL",
+"allowed":false,
+"reason":"wrong-property:Motel 6",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-next-to-the-best-27274",
+"placeId":"ChIJpU0Owglqw4gR7-lK2TaqOLw",
+"resolved":"5351, Calle Menorca, Siesta Key Village, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-nokomis-business-suites-27160",
+"placeId":"",
+"resolved":"Chardin Drive, Laurel, Sarasota County, Florida, 34275, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-old-bridge-village-27465",
+"placeId":"",
+"resolved":"281, 3rd Street South, Bradenton Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-our-house-at-the-beach-27268",
+"placeId":"",
+"resolved":"Beach Road, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-outrigger-resort-27407",
+"placeId":"ChIJn_2a3YMTw4gRh360dJ_w_z0",
+"resolved":"5199, Gulf of Mexico Drive, Longboat Key, Manatee County, Florida, 34228, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-oza-inn-27075",
+"placeId":"ChIJzb9TDi5aw4gRayX2lY-SyEs",
+"resolved":"1927, Redfern Road, South Venice, Sarasota County, Florida, 34293, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-oza-inn-27094",
+"placeId":"",
+"resolved":"886, Gulf Coast Boulevard, Venice, Sarasota County, Florida, 34285, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-palmetto-marriott-resort-spa-27517",
+"placeId":"ChIJPdQY5BA9w4gRH7V0a3JvRh4",
+"resolved":"7th Street East, Palmetto, Manatee County, Florida, 34221, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-palmetto-riverside-bed-breakfast-27513",
+"placeId":"ChIJgZJ4zsMXw4gRr1pQnjBfkyQ",
+"resolved":"319, 11th Avenue West, Palmetto, Manatee County, Florida, 34221, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-parrot-beach-cottages-27276",
+"placeId":"ChIJW19HHgxqw4gRD5pMo9tRdzQ",
+"resolved":"65, Avenida Messina, Siesta Key Village, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-parrot-inn-27461",
+"placeId":"",
+"resolved":"8736, Cortez Road West, Cortez, Manatee County, Florida, 34210, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-pelican-cove-resort-27461",
+"placeId":"",
+"resolved":"149, 9th Street South, Bradenton Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-pelican-post-motel-27466",
+"placeId":"ChIJ_-enfJsRw4gRqbAXbDaeXwU",
+"resolved":"240, 1st Street North, Bradenton Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-peninsula-27398",
+"placeId":"",
+"resolved":"7954, Warwick Gardens Lane, Desoto Lakes, Manatee County, Florida, 34201, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-playa-casanas-north-27510",
+"placeId":"",
+"resolved":"Gulf Drive, Holmes Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-quality-inn-27268",
+"placeId":"ChIJ-_vXlL1Gw4gRyP6-bXESP7A",
+"resolved":"Days Inn Sarasota I-75",
+"google":"Quality Inn Sarasota I-75",
+"allowed":false,
+"reason":"wrong-property:Days Inn Sarasota I-75",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-quality-inn-north-27421",
+"placeId":"",
+"resolved":"Quality Inn Bradenton - Sarasota North",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Quality Inn Bradenton - Sarasota North",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-quality-inn-suites-27376",
+"placeId":"",
+"resolved":"Quality Inn Sarasota Near Lido Key Beach",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Quality Inn Sarasota Near Lido Key Beach",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-qualityinn-andsuites-27376",
+"placeId":"",
+"resolved":"Quality Inn Sarasota Near Lido Key Beach",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Quality Inn Sarasota Near Lido Key Beach",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-queen-s-gate-resort-27472",
+"placeId":"",
+"resolved":"180, 11th Street North, Bradenton Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-rainfourth-27100",
+"placeId":"",
+"resolved":"Capital Bank",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Capital Bank",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-ramada-by-wyndham-sarasota-waterfront-27413",
+"placeId":"ChIJ_1W8M5AVw4gRRBIwOhNShU4",
+"resolved":"Ramada Sarasota Waterfront",
+"google":"",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-ramada-inn-27172",
+"placeId":"",
+"resolved":"1653, Tamiami Trail, Osprey, Sarasota County, Florida, 34229, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-ramada-inn-27252",
+"placeId":"",
+"resolved":"PhysMed: Center for Physical Medicine",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:PhysMed: Center for Physical Medicine",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-ramada-inn-hotel-conference-center-27390",
+"placeId":"",
+"resolved":"University of South Florida--Sarasota Manatee",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:University of South Florida--Sarasota Manatee",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-ramada-limited-27530",
+"placeId":"",
+"resolved":"Super 8",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Super 8",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-ramada-sarasota-27413",
+"placeId":"",
+"resolved":"Ramada Sarasota Waterfront",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Ramada Sarasota Waterfront",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-ramada-venice-hotel-venezia-27105",
+"placeId":"ChIJ7ck0hqtbw4gRXM816HVnpNs",
+"resolved":"Hotel Venezia",
+"google":"Ramada by Wyndham Venice Hotel Venezia",
+"allowed":false,
+"reason":"wrong-property:Hotel Venezia",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-red-roof-inn-ellenton-27528",
+"placeId":"ChIJX6QIx9Y8w4gReQx67QrCz24",
+"resolved":"Red Roof Inn Ellenton",
+"google":"Red Roof Inn Ellenton - Bradenton NE",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-regency-inn-and-suites-27371",
+"placeId":"ChIJB0GDTOY_w4gRob6KZZE-22s",
+"resolved":"923, 42nd Street, Sarasota, Sarasota County, Florida, 34234, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-renaissance-manor-27043",
+"placeId":"",
+"resolved":"4521, Rainbow Road, South Venice, Sarasota County, Florida, 34293, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-residence-inn-sarasota-bradenton-27381",
+"placeId":"ChIJz-ZAlMQ_w4gRLLYRhgPCJVg",
+"resolved":"Residence Inn Sarasota Bradenton",
+"google":"",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-resort-quest-southwest-florida-27388",
+"placeId":"",
+"resolved":"Gulf of Mexico Drive, Longboat Key, Sarasota County, Florida, 34228, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-resort-southwest-flori-27391",
+"placeId":"ChIJ1YsBsoQUw4gRPXppf_c0KuE",
+"resolved":"4203, Gulf of Mexico Drive, Longboat Key, Manatee County, Florida, 34228, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-ringling-beach-house-27271",
+"placeId":"",
+"resolved":"527, Beach Road, Sarasota Beach, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-rodeway-inn-27072",
+"placeId":"ChIJzaHdGi9aw4gR5M3AZWT7QwQ",
+"resolved":"Rodeway Inn",
+"google":"",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-royal-motel-27485",
+"placeId":"ChIJSU8XdTEWw4gRoTLCNVq5O_A",
+"resolved":"1584, 14th Street West, Bradenton, Manatee County, Florida, 34205, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-royalty-resorts-27340",
+"placeId":"",
+"resolved":"Palm Circle, Lakewood Ranch, Fruitville, Sarasota County, Florida, 34240, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-runaway-bay-27475",
+"placeId":"",
+"resolved":"Bradenton Beach, Manatee County, Florida, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-rva-a-resort-quest-affiliate-27426",
+"placeId":"",
+"resolved":"Wake Island Road, Longboat Key, Manatee County, Florida, 34228, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-sailfish-beach-resort-27495",
+"placeId":"",
+"resolved":"3752, Gulf Drive, Holmes Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-sailfish-gulf-suites-27495",
+"placeId":"",
+"resolved":"3766, Gulf Drive, Holmes Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-salty-living-island-rentals-27468",
+"placeId":"",
+"resolved":"101, 4th Street North, Bradenton Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-sand-cay-beach-resort-27400",
+"placeId":"",
+"resolved":"Gulf of Mexico Drive, Longboat Key, Manatee County, Florida, 34228, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-sandbox-on-the-beach-27274",
+"placeId":"ChIJpamnzA5qw4gRUyTLj6IAZiw",
+"resolved":"114, Beach Road, Siesta Key Village, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-sandcastle-resort-at-lido-beach-27304",
+"placeId":"",
+"resolved":"Sandcastle Resort at Lido Beach",
+"google":"",
+"allowed":false,
+"reason":"no-verified-place-id",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-sandpiper-inn-27411",
+"placeId":"ChIJUac9yYQTw4gRmPc9Rd4IFGo",
+"resolved":"5451, Gulf of Mexico Drive, Longboat Key, Manatee County, Florida, 34228, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-sara-sea-beach-resort-27248",
+"placeId":"ChIJp9x9XSRCw4gRdvhP9hbyu0k",
+"resolved":"",
+"google":"",
+"allowed":false,
+"reason":"no-location-on-card",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-sarasota-airport-hotel-27377",
+"placeId":"",
+"resolved":"Quality Inn Sarasota Near Lido Key Beach",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Quality Inn Sarasota Near Lido Key Beach",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-sarasota-hotel-marina-27414",
+"placeId":"",
+"resolved":"Ramada Sarasota Waterfront",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Ramada Sarasota Waterfront",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-sarasota-sands-27299",
+"placeId":"ChIJVd_zHnxqw4gRtEdeQoqfsaA",
+"resolved":"Sarasota Sands Resort",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Sarasota Sands Resort",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-sarasota-suites-27413",
+"placeId":"",
+"resolved":"7150, Manatee Street, Whitfield, Manatee County, Florida, 34243, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-sarasota-surf-and-raquet-club-27262",
+"placeId":"ChIJ9Tz_ZfNBw4gRPgbvi3E5WsY",
+"resolved":"Casarina, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-sea-club-v-27248",
+"placeId":"ChIJHVHffiNCw4gRWFE7oOGiNAE",
+"resolved":"Sea Club V Condo Association",
+"google":"Sea Club V Beach Resort",
+"allowed":false,
+"reason":"wrong-property:Sea Club V Condo Association",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-sea-crest-resort-27250",
+"placeId":"ChIJi02L8SNCw4gRDJIlNuxOTS0",
+"resolved":"Hyatt Residence Club Sarasota, Siesta Key Beach",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Hyatt Residence Club Sarasota, Siesta Key Beach",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-sea-grape-inn-27406",
+"placeId":"ChIJMfyvd4ETw4gRVzZzIBCGbbg",
+"resolved":"Gulf of Mexico Drive, Longboat Key, Manatee County, Florida, 34228, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-sea-horse-beach-resort-condo-27377",
+"placeId":"ChIJDcxEu70Uw4gR0dYNZ8rb4r8",
+"resolved":"SeaHorse Beach Resort",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:SeaHorse Beach Resort",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-sea-spray-resort-siesta-key-sarasota-27270",
+"placeId":"ChIJSyLLOeNBw4gRSbMH8tOz7hk",
+"resolved":"5538, Calle del Invierno, Sarasota Beach, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-seabreeze-sands-by-redawning-27496",
+"placeId":"",
+"resolved":"221, 38th Street, Holmes Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-seabreeze-vacation-27506",
+"placeId":"",
+"resolved":"Freckled Fin Irish Pub",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Freckled Fin Irish Pub",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-seaside-inn-and-resort-27478",
+"placeId":"ChIJjRZP47wRw4gRUurwE1ZgRaQ",
+"resolved":"2216, Gulf Drive North, Bradenton Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-shorewalk-vacation-villas-27460",
+"placeId":"",
+"resolved":"4601, 46th Street Court West, Bradenton, Manatee County, Florida, 34210, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-siesta-beach-resort-suites-27273",
+"placeId":"ChIJL7mUpQlqw4gRKC7OHzeArJE",
+"resolved":"214, Calle Miramar, Siesta Key Village, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-siesta-breakers-resort-27251",
+"placeId":"",
+"resolved":"Siesta Breakers, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-siesta-cottages-27247",
+"placeId":"ChIJ5UTk-yRCw4gRS2gBWbV7qkk",
+"resolved":"1193, Point of Rocks Road, Gulf Gate Estates, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-siesta-inn-27376",
+"placeId":"ChIJM7Liw90_w4gR8O5EKrC32fk",
+"resolved":"Marlin Drive, Sarasota, Sarasota County, Florida, 34234, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-siesta-inn-suites-27479",
+"placeId":"",
+"resolved":"2361, 1st Street, South Bradenton, Manatee County, Florida, 34208, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-siesta-key-bungalows-27232",
+"placeId":"ChIJwc8lg0pCw4gRAlil0ExjjwI",
+"resolved":"8192, Midnight Pass Road, Gulf Gate Estates, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-siesta-key-palms-hotel-27258",
+"placeId":"ChIJUTDYE4dBw4gRQm19aDA5G1E",
+"resolved":"1800, Stickney Point Road, Gulf Gate Estates, Sarasota County, Florida, 34231, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-siesta-key-suites-sarasota-27271",
+"placeId":"",
+"resolved":"521, Beach Road, Sarasota Beach, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-siesta-resorts-27251",
+"placeId":"",
+"resolved":"Sabal Drive, Gulf Gate Estates, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-siesta-royale-27254",
+"placeId":"ChIJFxrgBiFCw4gRD3nlb5kpKcc",
+"resolved":"Siesta Royale, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-siesta-sands-beach-resort-27247",
+"placeId":"ChIJt5P_hCRCw4gRg6Y5hsctM2w",
+"resolved":"1183, Point of Rocks Road, Gulf Gate Estates, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-siesta-sands-on-the-beach-27274",
+"placeId":"ChIJBZFaMQlqw4gRb_EP6twIC7A",
+"resolved":"Beach Road, Siesta Key Village, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-siesta-sun-beach-villas-27252",
+"placeId":"",
+"resolved":"Siesta Sun Beach Villas",
+"google":"",
+"allowed":false,
+"reason":"no-verified-place-id",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-siesta-sunset-royale-27272",
+"placeId":"ChIJG2UFKghqw4gR_9gDNkFmg2A",
+"resolved":"5338, Calle de Siesta, Sarasota Beach, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-silver-sands-27418",
+"placeId":"ChIJz5TQ0pYTw4gR83K9EyRe80k",
+"resolved":"5845, Gulf of Mexico Drive, Longboat Key, Manatee County, Florida, 34228, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-silver-sands-gulf-beach-resort-27418",
+"placeId":"ChIJz5TQ0pYTw4gR83K9EyRe80k",
+"resolved":"5845, Gulf of Mexico Drive, Longboat Key, Manatee County, Florida, 34228, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-silver-surf-gulf-beach-resort-27473",
+"placeId":"",
+"resolved":"102, 12th Street North, Bradenton Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-silver-surf-motel-27473",
+"placeId":"",
+"resolved":"102, 12th Street North, Bradenton Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-sleep-inn-27380",
+"placeId":"ChIJq-iKP9s_w4gRekl-76tuBCc",
+"resolved":"Sleep Inn Sarasota North",
+"google":"Sleep Inn Sarasota North",
+"allowed":true,
+"reason":"exact-verified:google-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-smuggler-s-cove-beach-resort-27474",
+"placeId":"ChIJB-8dQZgRw4gRwoIki5dlgc4",
+"resolved":"Gulf Stream Roberts Beach Resort",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Gulf Stream Roberts Beach Resort",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-sophie-s-cottage-27274",
+"placeId":"",
+"resolved":"5334, Avenida del Mare, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-southern-reflections-vacation-rental-home-saraso-27382",
+"placeId":"",
+"resolved":"2317, DeSoto Road, North Sarasota, Sarasota County, Florida, 34243, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-spring-valley-inn-27224",
+"placeId":"",
+"resolved":"Bay Tree Club, Vamo, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-springhill-suites-by-marriott-bradenton-downtown-27499",
+"placeId":"ChIJq4KWDc4Xw4gRJ_ZVutHZh3I",
+"resolved":"SpringHill Suites Bradenton Downtown/Riverfront",
+"google":"",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-springhill-suites-sarasota-27381",
+"placeId":"ChIJ8_g5t8Q_w4gRHJziKZPtZfc",
+"resolved":"1020 University Pkwy, Sarasota, FL 34234, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-springhill-suites-sarasota-bradenton-27381",
+"placeId":"ChIJ8_g5t8Q_w4gRHJziKZPtZfc",
+"resolved":"1020 University Pkwy, Sarasota, FL 34234, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-starfish-enterprise-lbk-27429",
+"placeId":"",
+"resolved":"6766, Bayview Drive, Longboat Key, Manatee County, Florida, 34228, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-starfish-enterprise-lbk-27505",
+"placeId":"",
+"resolved":"254, Sapphire Lake Drive, Bradenton, Manatee County, Florida, 34209, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-stoneybrook-27497",
+"placeId":"",
+"resolved":"8838, Brookfield Terrace, Bradenton, Manatee County, Florida, 34212, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-style-of-the-isle-27495",
+"placeId":"",
+"resolved":"Sunbow Bay Drive South, Holmes Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-suburban-extended-stay-hotel-27413",
+"placeId":"",
+"resolved":"7150, Manatee Street, Whitfield, Manatee County, Florida, 34243, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-sun-n-sea-27398",
+"placeId":"",
+"resolved":"Casa Del Mar Beach Resort",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Casa Del Mar Beach Resort",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-sun-resorts-27433",
+"placeId":"",
+"resolved":"Bayou Tavern",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Bayou Tavern",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-sun-resorts-international-27369",
+"placeId":"",
+"resolved":"Bay Isles Road, Longboat Key, Sarasota County, Florida, 34228, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-sun-resorts-international-27382",
+"placeId":"ChIJD1WXg5cUw4gR1N-9fLSskVo",
+"resolved":"North Front, Longboat Key, Sarasota County, Florida, 34228, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-sun-tide-island-beach-club-27309",
+"placeId":"ChIJd0SGxYhqw4gRAUkHuZYDUoM",
+"resolved":"Cleveland Drive, Lido Key, Sarasota, Sarasota County, Florida, 34236, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-sunfish-104-by-redawning-27508",
+"placeId":"",
+"resolved":"Gulf Drive, Holmes Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-sunrise-inn-27493",
+"placeId":"ChIJb0bfhYE8w4gR6EXnEX38tAc",
+"resolved":"67th Street Circle East, Bradenton, Manatee County, Florida, 34208, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-sunset-royale-penthouse-vacation-rental-27272",
+"placeId":"",
+"resolved":"5352, Calle de Siesta, Sarasota Beach, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-sunshine-motel-27074",
+"placeId":"ChIJg1QGDy5aw4gRpG6QBB2EH8k",
+"resolved":"1927, Redfern Road, South Venice, Sarasota County, Florida, 34293, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-suntan-terrace-27126",
+"placeId":"ChIJ11G8j3tbw4gRoPyXlmEh7mQ",
+"resolved":"191, Casey Key Road, Nokomis Beach, Laurel, Sarasota County, Florida, 34275, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-suntan-terrace-beach-resort-27317",
+"placeId":"",
+"resolved":"2048, Arlington Street, Southside Village, Sarasota, Sarasota County, Florida, 34239, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-super-8-27372",
+"placeId":"",
+"resolved":"Super 8 by Wyndham Sarasota Near Siesta Key",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Super 8 by Wyndham Sarasota Near Siesta Key",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-super-8-27424",
+"placeId":"ChIJ9zEP6ewVw4gRAuuRObU5PQA",
+"resolved":"14th Street West, Bayshore Gardens, Manatee County, Florida, 34207, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-super-8-27530",
+"placeId":"ChIJ30hX19M8w4gR7p0wd0Mscpw",
+"resolved":"Super 8",
+"google":"Super 8 by Wyndham Ellenton Bradenton Area",
+"allowed":false,
+"reason":"ambiguous-name-shared-by-another-card",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-super-8-bradenton-sarasota-area-27424",
+"placeId":"ChIJ9zEP6ewVw4gRAuuRObU5PQA",
+"resolved":"Super 8",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Super 8",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-super-8-by-wyndham-27424",
+"placeId":"ChIJ9zEP6ewVw4gRAuuRObU5PQA",
+"resolved":"Super 8",
+"google":"",
+"allowed":false,
+"reason":"ambiguous-name-shared-by-another-card",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-surestay-by-best-western-sarasota-lido-beach-27380",
+"placeId":"",
+"resolved":"Knights Inn",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Knights Inn",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-surestay-hotel-by-best-western-sarasota-north-27380",
+"placeId":"",
+"resolved":"Tamiami Trail, Sarasota, Sarasota County, Florida, 34234, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-sweet-mango-manor-27349",
+"placeId":"",
+"resolved":"1291, 12th Street, Sarasota, Sarasota County, Florida, 34236, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-the-banyan-house-historic-bed-and-breakfast-27091",
+"placeId":"",
+"resolved":"514, Harbor Drive South, Venice, Sarasota County, Florida, 34285, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-the-beach-club-resort-27248",
+"placeId":"",
+"resolved":"Calini Beach Club",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Calini Beach Club",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-the-beach-on-longboat-key-27377",
+"placeId":"",
+"resolved":"SeaHorse Beach Resort",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:SeaHorse Beach Resort",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-the-beachcomber-27126",
+"placeId":"",
+"resolved":"239, Casey Key Road, Nokomis Beach, Laurel, Sarasota County, Florida, 34275, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-the-beachcomber-27366",
+"placeId":"",
+"resolved":"2727, Gulf of Mexico Drive, Longboat Key, Sarasota County, Florida, 34228, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-the-capri-of-siesta-27248",
+"placeId":"",
+"resolved":"Captiva Beach Resort",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Captiva Beach Resort",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-the-carlisle-inn-27323",
+"placeId":"",
+"resolved":"Der Dutchman",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Der Dutchman",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-the-cypress-a-bed-breakfast-inn-27330",
+"placeId":"",
+"resolved":"Echelon on Palm",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Echelon on Palm",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-the-ebb-tide-villas-27250",
+"placeId":"",
+"resolved":"6610 Midnight Pass Rd, Sarasota, FL 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-the-flamingo-house-27275",
+"placeId":"",
+"resolved":"145, Avenida Veneccia, Siesta Key Village, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-the-garden-house-b-b-venice-fl-a-sweet-suite-27067",
+"placeId":"",
+"resolved":"114, Zephyr Road, South Venice, Sarasota County, Florida, 34293, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-the-german-inn-27498",
+"placeId":"",
+"resolved":"1527, 3rd Avenue West, Bradenton, Manatee County, Florida, 34205, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-the-hummingbird-27274",
+"placeId":"",
+"resolved":"5377, Calle Menorca, Siesta Key Village, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-the-inn-at-midtown-27321",
+"placeId":"",
+"resolved":"Baymont Sarasota",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Baymont Sarasota",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-the-inn-at-siesta-key-27271",
+"placeId":"",
+"resolved":"507, Beach Road, Sarasota Beach, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-the-inn-at-turtle-beach-27218",
+"placeId":"",
+"resolved":"9020, Midnight Pass Road, Vamo, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-the-londoner-bed-breakfast-27498",
+"placeId":"ChIJeZVhJcwXw4gRWuFPXPcsN4g",
+"resolved":"1513, 3rd Avenue West, Bradenton, Manatee County, Florida, 34205, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-the-norman-inn-27287",
+"placeId":"",
+"resolved":"4638, Sawyer Road, South Gate Ridge, Sarasota County, Florida, 34233, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-the-palm-bay-club-27263",
+"placeId":"",
+"resolved":"Palm Bay Club, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-the-resort-at-longboat-key-club-27331",
+"placeId":"ChIJqZAQtMVqw4gRQSMDzhntYY4",
+"resolved":"The Resort at Longboat Key Club",
+"google":"The Resort at Longboat Key Club",
+"allowed":true,
+"reason":"exact-verified:google-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-the-ritz-carlton-beach-club-27305",
+"placeId":"",
+"resolved":"The Ritz-Carlton Beach Club",
+"google":"",
+"allowed":false,
+"reason":"no-verified-place-id",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-the-ritz-carlton-sarasota-27338",
+"placeId":"ChIJRxeQRxBAw4gRi93tRdpVyX0",
+"resolved":"The Ritz-Carlton, Sarasota",
+"google":"",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-the-rush-inn-27464",
+"placeId":"ChIJNXaFqpwRw4gRb59DorZDcXU",
+"resolved":"275, 4th Street South, Bradenton Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-the-sarasota-modern-a-tribute-portfolio-hotel-27341",
+"placeId":"ChIJEfkg0A1Aw4gRaUdlFUu85bA",
+"resolved":"The Sarasota Modern, a tribute Portfolio Hotel",
+"google":"",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-the-shells-villa-27272",
+"placeId":"",
+"resolved":"291, Tenacity Lane, Siesta Key Village, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-the-tennis-gardens-27375",
+"placeId":"",
+"resolved":"Harbourside Drive, Longboat Key, Sarasota County, Florida, 34228, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-the-veranda-inn-27089",
+"placeId":"",
+"resolved":"Island Sun Inn",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Island Sun Inn",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-the-westin-sarasota-27336",
+"placeId":"ChIJQzeGphFAw4gRUVSuNnIkJT4",
+"resolved":"The Westin Sarasota",
+"google":"",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-timberwoods-vacation-villas-27239",
+"placeId":"",
+"resolved":"3633, Yellow Pine Court, Gulf Gate Estates, Sarasota County, Florida, 34238, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-tivoli-by-the-sea-27269",
+"placeId":"",
+"resolved":"635, Beach Road, Sarasota Beach, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-tortuga-inn-beach-resort-27473",
+"placeId":"ChIJtZv7F5gRw4gRQygwlwjeArE",
+"resolved":"Gulf Stream Roberts Beach Resort",
+"google":"Tortuga Inn Beach Resort",
+"allowed":false,
+"reason":"wrong-property:Gulf Stream Roberts Beach Resort",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-towneplace-suites-by-marriott-27108",
+"placeId":"ChIJCXyITIdQw4gRo9fHGjbfmkE",
+"resolved":"TownePlace Suites",
+"google":"",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-towneplace-suites-by-marriott-sarasota-bradenton-27460",
+"placeId":"ChIJg6L5LJAWw4gRWfpjVd_rTPw",
+"resolved":"TownePlace Suites Sarasota Bradenton West",
+"google":"",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-tradewinds-resort-27474",
+"placeId":"ChIJtZv7F5gRw4gRLkygFXDEsBs",
+"resolved":"Gulf Stream Roberts Beach Resort",
+"google":"Tradewinds Beach Resort",
+"allowed":false,
+"reason":"wrong-property:Gulf Stream Roberts Beach Resort",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-tropical-beach-resorts-27248",
+"placeId":"ChIJp9x9XSRCw4gRdvhP9hbyu0k",
+"resolved":"6745, Sarasea Circle, Gulf Gate Estates, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-tropical-breeze-resort-27276",
+"placeId":"",
+"resolved":"Columbus Boulevard, Siesta Key Village, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-tropical-fruit-garden-27297",
+"placeId":"",
+"resolved":"3993, Groveland Avenue, Ridge Wood Heights, Sarasota County, Florida, 34231, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-tropical-isle-inn-27477",
+"placeId":"ChIJ1wGQVbcRw4gR7Qi6_5mb_U8",
+"resolved":"Tropic Isle at Anna Maria Island Inn",
+"google":"Tropic Isle at Anna Maria Island Inn",
+"allowed":false,
+"reason":"card-name-differs-from-property:Tropic Isle at Anna Maria Island Inn",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-tru-by-hilton-27442",
+"placeId":"ChIJd_iPrv07w4gRfBSjYDKmqjM",
+"resolved":"Tru",
+"google":"",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-turtle-beach-resort-27217",
+"placeId":"ChIJZ-qKNKxDw4gRAhsMoqYD19s",
+"resolved":"9059, Midnight Pass Road, Vamo, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-turtle-crawl-inn-27390",
+"placeId":"ChIJ1YsBsoQUw4gRmH5vlV6tQEI",
+"resolved":"4187, Gulf of Mexico Drive, Longboat Key, Manatee County, Florida, 34228, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-twin-palms-at-siesta-27247",
+"placeId":"",
+"resolved":"1167, Point of Rocks Road, Gulf Gate Estates, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-twin-shores-27382",
+"placeId":"",
+"resolved":"North Front, Longboat Key, Sarasota County, Florida, 34228, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-umbrella-beach-resort-27496",
+"placeId":"",
+"resolved":"223, 38th Street, Holmes Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-vacation-homes-by-angel-s-vacation-rentals-27417",
+"placeId":"",
+"resolved":"730, Tarawitt Drive, Longboat Key, Manatee County, Florida, 34228, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-vacation-rentals-27510",
+"placeId":"",
+"resolved":"8229, 12th Avenue Northwest, West Bradenton, Manatee County, Florida, 34209, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-venice-beach-villas-27099",
+"placeId":"ChIJQW1jN71bw4gRgw6bv5lW_dA",
+"resolved":"522, West Venice Avenue, Venice Beach, Venice, Sarasota County, Florida, 34285, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-venice-florida-houses-27164",
+"placeId":"",
+"resolved":"316, Signorelli Drive, Laurel, Sarasota County, Florida, 34275, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-veranda-beach-club-27364",
+"placeId":"",
+"resolved":"Gulf of Mexico Drive, Longboat Key, Sarasota County, Florida, 34228, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-via-roma-beach-resort-27481",
+"placeId":"ChIJSRw9j7wRw4gRQWFQnDLyyFw",
+"resolved":"2440, Gulf Drive North, Bradenton Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-villa-floridadream-27501",
+"placeId":"",
+"resolved":"Villa FloridaDream in Bradenton/Anna Maria Island zu vermieten",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Villa FloridaDream in Bradenton/Anna Maria Island zu vermieten",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-villa-serena-inn-27416",
+"placeId":"",
+"resolved":"395, Montgomery Avenue, Whitfield, Manatee County, Florida, 34243, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-virage-hotel-27172",
+"placeId":"",
+"resolved":"Osprey, Sarasota County, Florida, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-voco-sarasota-27341",
+"placeId":"ChIJ-0P9ZA5Aw4gR71lS69AigVA",
+"resolved":"Hotel Indigo Sarasota",
+"google":"voco Sarasota by IHG",
+"allowed":false,
+"reason":"wrong-property:Hotel Indigo Sarasota",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-warm-mineral-springs-motel-27048",
+"placeId":"ChIJNx_mOHxUw4gRW_dbjdLGEJg",
+"resolved":"Warm Mineral Springs Motel",
+"google":"",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-waterline-marina-resort-beach-club-autograph-col-27506",
+"placeId":"ChIJ_RPZJDYQw4gRKTyC8Lyc8v0",
+"resolved":"Marina Drive, Holmes Beach, Manatee County, Florida, 34217, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-west-beach-hotel-and-resort-27080",
+"placeId":"",
+"resolved":"1235, Avenida del Circo, Venice, Sarasota County, Florida, 34285, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-white-sands-cabana-club-27256",
+"placeId":"",
+"resolved":"Excelsior, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-white-sands-of-longboat-27407",
+"placeId":"",
+"resolved":"5098, Gulf of Mexico Drive, Longboat Key, Manatee County, Florida, 34228, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-whitfield-motel-27418",
+"placeId":"",
+"resolved":"1294, Whitfield Avenue, Bayshore Gardens, Manatee County, Florida, 34243, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-wicker-inn-27413",
+"placeId":"ChIJH5fR55oTw4gRHDLYF1MAdUA",
+"resolved":"5601, Gulf of Mexico Drive, Longboat Key, Manatee County, Florida, 34228, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-windward-passage-27285",
+"placeId":"",
+"resolved":"4720, Ocean Boulevard, Sandy Hook, Siesta Key, Sarasota County, Florida, 34242, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-wingate-hotel-27430",
+"placeId":"",
+"resolved":"12882, Nightshade Place, Lakewood Ranch, Bradenton, Manatee County, Florida, 34202, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-wishing-well-beach-to-bay-resort-motel-27128",
+"placeId":"",
+"resolved":"Gulf Shores Beach Resort",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Gulf Shores Beach Resort",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-wohlt-house-bed-breakfast-27306",
+"placeId":"",
+"resolved":"1981, Oleander Street, South Poinsettia, Sarasota, Sarasota County, Florida, 34239, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-woodspring-suites-bradenton-27441",
+"placeId":"",
+"resolved":"Tara Boulevard, Bradenton, Manatee County, Florida, 34203, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-wyndham-hotels-resorts-27071",
+"placeId":"",
+"resolved":"Rodeway Inn",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Rodeway Inn",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-wyndham-hotels-resorts-27096",
+"placeId":"",
+"resolved":"US 41 By-Pass, Venice, Sarasota County, Florida, 34285, USA",
+"google":"",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-wyndham-hotels-resorts-27530",
+"placeId":"",
+"resolved":"Super 8",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Super 8",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-zilli-villa-27391",
+"placeId":"",
+"resolved":"Sea Club I",
+"google":"",
+"allowed":false,
+"reason":"wrong-property:Sea Club I",
+"at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-zota-beach-resort-27399",
+"placeId":"ChIJpYzyJX4Tw4gR7Eisirbe6xI",
+"resolved":"Zota Beach Resort",
+"google":"",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-09-23T18:08:59+00:00"
+}
+]
