@@ -15,7 +15,7 @@ const { GET: commerceGET } = await import("../app/api/commerce/go/route.js");
 const { GET: cronGET } = await import("../app/api/cron/travelpayouts-attribution/route.js");
 const { tpProvisionCandidates } = await import("../lib/travelpayoutsProvisioning.js");
 const { normalizeTpSubId } = await import("../lib/travelpayoutsAttribution.js");
-const { fetchTravelpayoutsBookings, normalizeTravelpayoutsBooking, reconcileTravelpayouts, travelpayoutsUtcDate } = await import("../lib/travelpayoutsStats.js");
+const { fetchTravelpayoutsBookings, logAvailableStatisticsFields, normalizeTravelpayoutsBooking, reconcileTravelpayouts, travelpayoutsUtcDate } = await import("../lib/travelpayoutsStats.js");
 const { resolveOffer } = await import("../lib/commerceProviders.js");
 
 let checks = 0;
@@ -86,7 +86,7 @@ try {
   const booking = (overrides = {}) => ({
     sub_id: `.${token}`, action_id: "booking-1", campaign_id: 89,
     date: "2020-01-02", created_at: "2020-01-02 10:00:00", updated_at: "2020-01-03 11:00:00",
-    state: "processing", action_type: "booking", profit_usd: "3.45", paid_profit_usd: null, price_usd: null,
+    state: "processing", profit_usd: "3.45", paid_profit_usd: null, price_usd: null,
     ...overrides,
   });
   const normalized = normalizeTravelpayoutsBooking(booking());
@@ -109,7 +109,11 @@ try {
       assert.equal(init.headers["X-Access-Token"], "fixture-tp-token");
       const body = JSON.parse(init.body);
       calls.push(body);
-      assert.deepEqual(body.filters.slice(0, 2), [{ field: "type", op: "eq", value: "action" }, { field: "action_type", op: "eq", value: "booking" }]);
+      // Production rejected "action_type" (HTTP 400 "wrong field: action_type",
+      // 2026-09-23). Actions come from the documented type filter alone.
+      assert.deepEqual(body.filters.map((f) => f.field), ["type", "campaign_id", "date", "date"]);
+      assert.deepEqual(body.filters[0], { field: "type", op: "eq", value: "action" });
+      assert.ok(!body.fields.includes("action_type") && !body.filters.some((f) => f.field === "action_type"), "never requests the rejected action_type field");
       assert.deepEqual(body.sort, [{ field: "updated_at", order: "asc" }]);
       const campaign = body.filters.find((f) => f.field === "campaign_id").value;
       const eligible = rows.filter((row) => row.campaign_id === campaign);
@@ -155,6 +159,29 @@ try {
     return true;
   });
   checks += 1;
+  // A "wrong field" rejection logs the provider's own field list (diagnostics
+  // only) and still fails closed with the provider's reason.
+  const fieldCalls = [];
+  const logged = [];
+  const wrongField = async (url, init) => {
+    if (url === "https://api.travelpayouts.com/statistics/v1/get_fields_list") {
+      fieldCalls.push(init.method);
+      assert.equal(init.headers["X-Access-Token"], "fixture-tp-token");
+      return Response.json({ fields: [{ name: "action_id" }, { name: "sub_id" }, "state", { name: "bad name!" }] });
+    }
+    return new Response("wrong field: sub_id", { status: 400 });
+  };
+  const originalError = console.error;
+  console.error = (line) => logged.push(line);
+  try {
+    await assert.rejects(fetchTravelpayoutsBookings({ ...options, fetchImpl: wrongField }), (error) => {
+      assert.equal(error.message, "Travelpayouts statistics HTTP 400: wrong field: sub_id");
+      return true;
+    });
+  } finally { console.error = originalError; }
+  check(fieldCalls.length === 1 && fieldCalls[0] === "GET", "a wrong-field rejection asks the provider for its field list once");
+  check(logged.length === 1 && JSON.parse(logged[0]).fields.join(",") === "action_id,sub_id,state", "the provider's field names are logged, malformed names dropped");
+  check(await logAvailableStatisticsFields({ token: "t", fetchImpl: async () => { throw new Error("down"); }, log: () => {} }) === null, "field-list diagnostics never throw");
   const silent = statsFixture({ alter: () => new Response("", { status: 400 }) });
   await assert.rejects(fetchTravelpayoutsBookings({ ...options, fetchImpl: silent.fetchImpl }), (error) => {
     assert.equal(error.message, "Travelpayouts statistics HTTP 400");
