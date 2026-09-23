@@ -2407,15 +2407,15 @@
         },
         "image_record": {
           "status": "pass",
-          "evidence": "/guides/verified/food-best-restaurants-disney-springs.webp; 1067x1600; Alfonso Betancourt; Unsplash License."
+          "evidence": "/guides/picks/miami-restaurants/versailles-hero-calle-ocho.webp; 1400x938; Sharon Hahn Darlin; CC BY 2.0."
         },
         "representative_image": {
           "status": "pass",
           "evidence": "The route and metadata use the same per-slug reviewed image."
         },
         "large_image_candidate": {
-          "status": "unknown",
-          "evidence": "Delivered image is 1067x1600; it is not claimed as a 1200px-wide Discover candidate."
+          "status": "pass",
+          "evidence": "Delivered image is 1400x938; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "unknown",

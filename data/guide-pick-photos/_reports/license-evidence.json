@@ -3,22 +3,23 @@
   "verifiedAt": "2026-09-23",
   "rule": "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, CC BY and CC BY-SA (2.0 to 4.0); NC and ND never pass.",
   "summary": {
-    "files": 183,
-    "usages": 187,
-    "verified": 183,
+    "files": 188,
+    "usages": 196,
+    "verified": 188,
     "needsReview": [],
     "authorDiffers": [],
     "byLicence": {
-      "CC BY-SA 4.0": 56,
+      "CC BY-SA 4.0": 57,
       "CC BY 4.0": 14,
-      "CC BY 2.0": 28,
+      "CC BY 2.0": 31,
       "CC0 1.0 Universal": 17,
       "CC BY-SA 3.0": 46,
       "CC BY-SA 2.0": 14,
-      "CC BY 3.0": 8
+      "CC BY 3.0": 9
     },
     "replacementCandidates": [
       "/guides/picks/gatorland-vs-wild-florida/gatorland-mouth-entrance.webp",
+      "/guides/picks/miami-restaurants/versailles-restaurant-exterior.webp",
       "/guides/picks/things-to-do-daytona-beach-summer-2026/crabby-joes-sunglow-pier.webp",
       "/guides/picks/things-to-do-naples-summer-2026/fifth-avenue-south-inn-on-fifth.webp",
       "/guides/picks/things-to-do-st-petersburg-clearwater-summer-2026/caladesi-ferry-dock.webp"
@@ -60,6 +61,11 @@
       "usedBy": [
         {
           "slug": "best-cuban-sandwich-tampa",
+          "role": "pick",
+          "pick": "Columbia Restaurant"
+        },
+        {
+          "slug": "tampa-restaurants",
           "role": "pick",
           "pick": "Columbia Restaurant"
         }
@@ -121,6 +127,11 @@
           "slug": "best-cuban-sandwich-tampa",
           "role": "pick",
           "pick": "La Segunda Central Bakery"
+        },
+        {
+          "slug": "tampa-restaurants",
+          "role": "pick",
+          "pick": "La Segunda Bakery and Cafe"
         }
       ],
       "source": {
@@ -1267,6 +1278,11 @@
           "pick": "Otto's High Dive, Milk District"
         },
         {
+          "slug": "orlando-restaurants",
+          "role": "pick",
+          "pick": "Otto’s High Dive"
+        },
+        {
           "slug": "magical-dining-orlando-2026",
           "role": "hero"
         }
@@ -1289,6 +1305,96 @@
       },
       "commercialUse": true,
       "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-09-23"
+    },
+    {
+      "src": "/guides/picks/miami-restaurants/cote-korean-steakhouse-sign.webp",
+      "usedBy": [
+        {
+          "slug": "miami-restaurants",
+          "role": "pick",
+          "pick": "COTE Miami"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:%EA%BD%83_(Cote),_Design_District,_Miami,_Florida.jpg",
+        "title": "꽃 (Cote), Design District, Miami, Florida",
+        "author": "Sharon Hahn Darlin",
+        "dateTaken": "2021-06-05 19:29:35",
+        "licence": "CC BY 2.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/2.0"
+      },
+      "wayfind": {
+        "credit": "Sharon Hahn Darlin",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:%EA%BD%83_(Cote),_Design_District,_Miami,_Florida.jpg",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-09-23"
+    },
+    {
+      "src": "/guides/picks/miami-restaurants/versailles-hero-calle-ocho.webp",
+      "usedBy": [
+        {
+          "slug": "miami-restaurants",
+          "role": "hero"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Little_Havana,_Miami,_Florida_-_Versailles_Restaurant_June_2021.jpg",
+        "title": "Little Havana, Miami, Florida - Versailles Restaurant June 2021",
+        "author": "Sharon Hahn Darlin",
+        "dateTaken": "2021-06-14 19:29:36",
+        "licence": "CC BY 2.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/2.0"
+      },
+      "wayfind": {
+        "credit": "Sharon Hahn Darlin",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Little_Havana,_Miami,_Florida_-_Versailles_Restaurant_June_2021.jpg",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-09-23"
+    },
+    {
+      "src": "/guides/picks/miami-restaurants/versailles-restaurant-exterior.webp",
+      "usedBy": [
+        {
+          "slug": "miami-restaurants",
+          "role": "pick",
+          "pick": "Versailles Restaurant Cuban Cuisine"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:2008-0426-FL-Versailles-EXT.jpg",
+        "title": "2008-0426-FL-Versailles-EXT",
+        "author": "Bobak Ha'Eri",
+        "dateTaken": "2008-04-26",
+        "licence": "CC BY 3.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/3.0"
+      },
+      "wayfind": {
+        "credit": "Bobak Ha'Eri",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:2008-0426-FL-Versailles-EXT.jpg",
+        "license": "CC BY 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "replacementCandidate": "Future replacement candidate: photo taken in 2008 (year disclosed in the caption). The same storefront appears in a 2021 photo already used as this guide's hero.",
       "status": "verified",
       "verifiedAt": "2026-09-23"
     },
@@ -1924,6 +2030,36 @@
       "verifiedAt": "2026-09-23"
     },
     {
+      "src": "/guides/picks/st-pete-restaurants/doc-fords-pier-patio.webp",
+      "usedBy": [
+        {
+          "slug": "st-pete-restaurants",
+          "role": "pick",
+          "pick": "Doc Ford's Rum Bar and Grille St Pete Pier"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Doc_Ford%27s_Rum_Bar_and_Grille_on_the_new_St_Petersburg_Pier_(50220515643).jpg",
+        "title": "Doc Ford's Rum Bar and Grille on the new St Petersburg Pier (50220515643)",
+        "author": "Calmuziclover",
+        "dateTaken": "2020-08-11 21:09",
+        "licence": "CC BY 2.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/2.0"
+      },
+      "wayfind": {
+        "credit": "Calmuziclover",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Doc_Ford%27s_Rum_Bar_and_Grille_on_the_new_St_Petersburg_Pier_(50220515643).jpg",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-09-23"
+    },
+    {
       "src": "/guides/picks/swim-with-manatees-crystal-river/homosassa-springs-entrance.webp",
       "usedBy": [
         {
@@ -2004,6 +2140,36 @@
       "wayfind": {
         "credit": "CityofCrystalRiver",
         "creditHref": "https://commons.wikimedia.org/wiki/File:Three_Sister_Springs.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-09-23"
+    },
+    {
+      "src": "/guides/picks/tampa-restaurants/oxford-exchange-exterior.webp",
+      "usedBy": [
+        {
+          "slug": "tampa-restaurants",
+          "role": "pick",
+          "pick": "Oxford Exchange"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Oxford_Exchange_Exterior.jpg",
+        "title": "Oxford Exchange Exterior",
+        "author": "Oxford Exchange",
+        "dateTaken": "2017-08-07 10:56:29",
+        "licence": "CC BY-SA 4.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      "wayfind": {
+        "credit": "Oxford Exchange",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Oxford_Exchange_Exterior.jpg",
         "license": "CC BY-SA 4.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
         "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
@@ -2980,6 +3146,11 @@
     {
       "src": "/guides/picks/things-to-do-in-tampa-florida/berns-dessert-room.webp",
       "usedBy": [
+        {
+          "slug": "tampa-restaurants",
+          "role": "pick",
+          "pick": "Bern's Steak House"
+        },
         {
           "slug": "things-to-do-in-tampa-florida",
           "role": "pick",

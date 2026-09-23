@@ -1,0 +1,81 @@
+{
+  "slug": "st-pete-restaurants",
+  "picks": {
+    "Doc Ford's Rum Bar and Grille St Pete Pier": {
+      "src": "/guides/picks/st-pete-restaurants/doc-fords-pier-patio.webp",
+      "width": 1280,
+      "height": 766,
+      "alt": "Diners at outdoor tables under string lights on the covered lower-level patio of Doc Ford's Rum Bar and Grille on the St. Petersburg Pier at night, with palm trees at the edge of the deck",
+      "caption": "The lower-level patio at Doc Ford's Rum Bar and Grille on the St. Petersburg Pier, at night.",
+      "credit": "Calmuziclover",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Doc_Ford%27s_Rum_Bar_and_Grille_on_the_new_St_Petersburg_Pier_(50220515643).jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Doc_Ford%27s_Rum_Bar_and_Grille_on_the_new_St_Petersburg_Pier_(50220515643).jpg",
+      "author": "Calmuziclover",
+      "position": "50% 55%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": "ChIJIyCdCXfhwogRH8MxhxaUGgs",
+      "verification": "Commons file titled and described \"Doc Ford's Rum Bar and Grille on the new St Petersburg Pier\"; geotagged 27.773383,-82.626328, within the St. Pete Pier footprint where this restaurant sits, and the covered lower-level patio with string lights and palms matches its known deck. Originally posted to Flickr by Calmuziclover and confirmed CC BY 2.0 by FlickreviewR 2; photographed 2020-08-11 (the Pier itself, and this restaurant, opened in 2020, so the photo shows it essentially as built). Diners are incidental, candid and not individually identifiable.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
+    }
+  },
+  "gaps": {
+    "Elliott Aster": {
+      "reason": "google-only",
+      "placeId": "ChIJnZwugRXhwogRpN-HY445tJM",
+      "needsPermissionFrom": "Elliott Aster",
+      "note": "Restaurant pass (2026-09-23): No Commons candidates were returned for this pick. Openverse searches for 'Elliott Aster St Petersburg restaurant' and, with no licence filter, 'Elliott Aster restaurant' both returned 0 results. No verified photo found for this current MICHELIN Guide restaurant."
+    },
+    "in between days": {
+      "reason": "google-only",
+      "placeId": "ChIJPRvtBsfjwogRvhNpBGje2hA",
+      "needsPermissionFrom": "in between days",
+      "note": "Restaurant pass (2026-09-23): The single Commons candidate for 'in between days' is an unrelated 2023 photo of the band Blitzen Trapper performing a song of that name. Openverse search for '\"in between days\" St Petersburg restaurant' returned 0 results. No verified photo found for this MICHELIN Guide izakaya-leaning restaurant."
+    },
+    "Il Ritorno": {
+      "reason": "no-verified-source",
+      "placeId": "ChIJ3SpvbYPhwogRS17En4FSzVI",
+      "needsPermissionFrom": "Il Ritorno",
+      "note": "Restaurant pass (2026-09-23): All 4 Commons candidates for 'Il Ritorno' are unrelated Italian artworks (a fresco, an 1854 painting, a Canaletto, an opera scene) — 'il ritorno' means 'the return' in Italian, a name collision. Openverse search for 'Il Ritorno St Petersburg Florida' returned 0 results. No verified photo found."
+    },
+    "Sushi Sho Rexley": {
+      "reason": "no-verified-source",
+      "placeId": "ChIJM8CbE53hwogR_Py8YaLt6As",
+      "needsPermissionFrom": "Sushi Sho Rexley",
+      "note": "Restaurant pass (2026-09-23): No Commons candidates were returned for this pick. Openverse search for 'Sushi Sho Rexley St Petersburg' returned 0 results. No verified photo found for this MICHELIN Guide sushi restaurant."
+    },
+    "Fortu": {
+      "reason": "google-only",
+      "placeId": "ChIJdaUo-PPhwogRii2HqysdgjI",
+      "needsPermissionFrom": "Fortu",
+      "note": "Restaurant pass (2026-09-23): All 20 Commons candidates for 'Fortu' are unrelated European military forts (Polish, French, Czech) — 'fortu' is a declined/dialect form of 'fort' in several languages, a name collision. Openverse search for 'Fortu restaurant St Petersburg Florida' returned 0 results. No verified photo found."
+    },
+    "Wild Child": {
+      "reason": "google-only",
+      "placeId": "ChIJG00H7u7jwogRoWLHFmmGmbY",
+      "needsPermissionFrom": "Wild Child",
+      "note": "Restaurant pass (2026-09-23): All 20 Commons candidates for 'Wild Child' are unrelated — the Austin, TX indie band Wild Child, a daylily cultivar, a motorcycle, hiking-trail interpretive signage, a Windsor, Ontario nightclub — not this St. Petersburg restaurant. Openverse search for 'Wild Child Central Avenue St Petersburg' returned 0 results. No verified photo found."
+    },
+    "Bodega on Central": {
+      "reason": "no-verified-source",
+      "placeId": "ChIJRfPBKCriwogR4yaS_ccI5so",
+      "needsPermissionFrom": "Bodega on Central",
+      "note": "Restaurant pass (2026-09-23): No Commons candidates were returned for this pick. Openverse search for 'Bodega on Central St Petersburg' returned 0 results. No verified photo found for this Central Avenue restaurant."
+    },
+    "Juno & The Peacock": {
+      "reason": "google-only",
+      "placeId": "ChIJK6b43nXhwogRCV39bMyGJGo",
+      "needsPermissionFrom": "Juno & The Peacock",
+      "note": "Restaurant pass (2026-09-23): No Commons candidates were returned for this pick. Openverse search for 'Juno and the Peacock St Petersburg' returned 0 results. No verified photo found."
+    },
+    "Mullet's Fish Camp": {
+      "reason": "google-only",
+      "placeId": "ChIJh6exAYbhwogRd4RP1WCELps",
+      "needsPermissionFrom": "Mullet's Fish Camp",
+      "note": "Restaurant pass (2026-09-23): No Commons candidates were returned for this pick. Openverse search for \"Mullet's Fish Camp St Petersburg\" returned 0 results. No verified photo found for this south St. Pete seafood restaurant."
+    }
+  }
+}
