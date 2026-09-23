@@ -451,7 +451,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring omits an image rather than substituting unrelated art; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -459,19 +459,19 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the branded text-card fallback; no unrelated photograph is used."
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
         },
         "image_record": {
           "status": "pass",
-          "evidence": "Explicitly unavailable: The previous photograph does not match this guide. A suitable licensed replacement has not yet passed review."
+          "evidence": "/guides/picks/siesta-key-drum-circle/siesta-key-beach-sunset.webp; 1400x1050; Fred Hsu; CC BY-SA 3.0."
         },
         "representative_image": {
-          "status": "unknown",
-          "evidence": "No reviewed representative image is currently available."
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
         },
         "large_image_candidate": {
-          "status": "unknown",
-          "evidence": "No representative image is available."
+          "status": "pass",
+          "evidence": "Delivered image is 1400x1050; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -787,7 +787,7 @@
         },
         "image_record": {
           "status": "pass",
-          "evidence": "/guides/verified/food-best-cuban-sandwich-tampa.webp; 1200x1600; Coco Shooting; Pexels License."
+          "evidence": "/guides/picks/best-cuban-sandwich-tampa/hero-columbia-arcade.webp; 1400x829; SharkshockUSA; CC BY-SA 4.0."
         },
         "representative_image": {
           "status": "pass",
@@ -795,7 +795,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1200x1600; production eligibility and crop performance are not established."
+          "evidence": "Delivered image is 1400x829; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -868,15 +868,15 @@
         },
         "image_record": {
           "status": "pass",
-          "evidence": "/guides/verified/food-st-armands-meal.webp; 1067x1600; Keith Tanner; Unsplash License."
+          "evidence": "/guides/picks/st-armands-circle-restaurants/st-armands-circle-storefronts.webp; 1280x960; Ebyabe; CC BY-SA 3.0."
         },
         "representative_image": {
           "status": "pass",
           "evidence": "The route and metadata use the same per-slug reviewed image."
         },
         "large_image_candidate": {
-          "status": "unknown",
-          "evidence": "Delivered image is 1067x1600; it is not claimed as a 1200px-wide Discover candidate."
+          "status": "pass",
+          "evidence": "Delivered image is 1280x960; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -949,7 +949,7 @@
         },
         "image_record": {
           "status": "pass",
-          "evidence": "/guides/verified/food-best-restaurants-disney-springs.webp; 1067x1600; Alfonso Betancourt; Unsplash License."
+          "evidence": "/guides/picks/best-restaurants-disney-springs/disney-springs-hero.webp; 1012x1349; Melissa Guadalupe Huertas; CC BY-SA 4.0."
         },
         "representative_image": {
           "status": "pass",
@@ -957,7 +957,7 @@
         },
         "large_image_candidate": {
           "status": "unknown",
-          "evidence": "Delivered image is 1067x1600; it is not claimed as a 1200px-wide Discover candidate."
+          "evidence": "Delivered image is 1012x1349; it is not claimed as a 1200px-wide Discover candidate."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -1030,15 +1030,15 @@
         },
         "image_record": {
           "status": "pass",
-          "evidence": "/guides/unsplash/orlando-resort-juan-burgos.webp; 960x1200; Juan Burgos; Unsplash License."
+          "evidence": "/guides/picks/best-hotels-near-magic-kingdom/mk-castle-hero.webp; 1400x2100; Jedi94; CC BY-SA 4.0."
         },
         "representative_image": {
           "status": "pass",
           "evidence": "The route and metadata use the same per-slug reviewed image."
         },
         "large_image_candidate": {
-          "status": "unknown",
-          "evidence": "Delivered image is 960x1200; it is not claimed as a 1200px-wide Discover candidate."
+          "status": "pass",
+          "evidence": "Delivered image is 1400x2100; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -1354,15 +1354,15 @@
         },
         "image_record": {
           "status": "pass",
-          "evidence": "/guides/unsplash/museum-gallery-mat.webp; 800x1200; Mat; Unsplash License."
+          "evidence": "/guides/picks/orlando-in-the-rain/wonderworks-upside-down-building.webp; 1400x1050; Leonard J. DeFrancisci; CC BY-SA 3.0."
         },
         "representative_image": {
           "status": "pass",
           "evidence": "The route and metadata use the same per-slug reviewed image."
         },
         "large_image_candidate": {
-          "status": "unknown",
-          "evidence": "Delivered image is 800x1200; it is not claimed as a 1200px-wide Discover candidate."
+          "status": "pass",
+          "evidence": "Delivered image is 1400x1050; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -2002,15 +2002,15 @@
         },
         "image_record": {
           "status": "pass",
-          "evidence": "/guides/verified/food-st-armands-meal.webp; 1067x1600; Keith Tanner; Unsplash License."
+          "evidence": "/guides/picks/magical-dining-orlando-2026/ottos-high-dive-milk-district.webp; 1400x787; Dclemens1971; CC BY 4.0."
         },
         "representative_image": {
           "status": "pass",
           "evidence": "The route and metadata use the same per-slug reviewed image."
         },
         "large_image_candidate": {
-          "status": "unknown",
-          "evidence": "Delivered image is 1067x1600; it is not claimed as a 1200px-wide Discover candidate."
+          "status": "pass",
+          "evidence": "Delivered image is 1400x787; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -3217,7 +3217,7 @@
         },
         "image_record": {
           "status": "pass",
-          "evidence": "/guides/verified/food-gulf-coast-brunch-and-date-night.webp; 1600x1068; Gabriel Gurrola; Unsplash License."
+          "evidence": "/guides/picks/gulf-coast-brunch-and-date-night/venice-fishing-pier-dusk.webp; 1280x854; Don Miller; CC BY 2.0."
         },
         "representative_image": {
           "status": "pass",
@@ -3225,7 +3225,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1600x1068; production eligibility and crop performance are not established."
+          "evidence": "Delivered image is 1280x854; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -3298,7 +3298,7 @@
         },
         "image_record": {
           "status": "pass",
-          "evidence": "/guides/verified/activity-orlando-halloween-food-2026.webp; 1600x1067; Personal Creations; CC BY 2.0."
+          "evidence": "/guides/picks/orlando-halloween-food-2026/raglan-road-hero.webp; 1400x1050; Flickr user berkielynn; CC BY-SA 2.0."
         },
         "representative_image": {
           "status": "pass",
@@ -3306,7 +3306,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1600x1067; production eligibility and crop performance are not established."
+          "evidence": "Delivered image is 1400x1050; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -3379,15 +3379,15 @@
         },
         "image_record": {
           "status": "pass",
-          "evidence": "/guides/unsplash/orlando-halloween-nik-goodner.webp; 800x1200; Nik Goodner; Unsplash License."
+          "evidence": "/guides/picks/fall-events-orlando-2026/cinderella-castle-fireworks-hero.webp; 1400x788; Jorge Royan; CC BY-SA 3.0."
         },
         "representative_image": {
           "status": "pass",
           "evidence": "The route and metadata use the same per-slug reviewed image."
         },
         "large_image_candidate": {
-          "status": "unknown",
-          "evidence": "Delivered image is 800x1200; it is not claimed as a 1200px-wide Discover candidate."
+          "status": "pass",
+          "evidence": "Delivered image is 1400x788; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -3541,15 +3541,15 @@
         },
         "image_record": {
           "status": "pass",
-          "evidence": "/guides/unsplash/dance-battle-ilja-tulit.webp; 1600x1068; Ilja Tulit; Unsplash License."
+          "evidence": "/guides/picks/red-bull-dance-your-style-tampa-2026/hero-tampa-convention-center.webp; 640x480; Zeng8r; CC BY 3.0."
         },
         "representative_image": {
           "status": "pass",
           "evidence": "The route and metadata use the same per-slug reviewed image."
         },
         "large_image_candidate": {
-          "status": "pass",
-          "evidence": "Delivered image is 1600x1068; production eligibility and crop performance are not established."
+          "status": "unknown",
+          "evidence": "Delivered image is 640x480; it is not claimed as a 1200px-wide Discover candidate."
         },
         "contextual_guide_links": {
           "status": "pass",

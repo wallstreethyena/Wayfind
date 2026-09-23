@@ -1,0 +1,18 @@
+{
+  "slug": "gatorland-vs-wild-florida",
+  "picks": {},
+  "gaps": {
+    "Gatorland: the classic park": {
+      "reason": "no-verified-source", "placeId": null, "needsPermissionFrom": "Gatorland",
+      "note": "The one Commons photo found of Gatorland's entrance (\"Gatorland entrance -Florida-23Feb2006.jpg\") is licensed CC BY-SA 2.5, which is not in this contract's allowed licence set (only CC BY/BY-SA 2.0, 3.0 or 4.0). No other verified CC-licensed photo of Gatorland was found."
+    },
+    "Wild Florida: the airboat experience": {
+      "reason": "no-verified-source", "placeId": null, "needsPermissionFrom": "Wild Florida",
+      "note": "Commons title search for Wild Florida's airboat attraction returned no results. No verified CC-licensed photo found."
+    },
+    "The verdict": {
+      "reason": "not-a-place", "placeId": null, "needsPermissionFrom": null,
+      "note": "A head-to-head recommendation between the two parks, not a place of its own."
+    }
+  }
+}

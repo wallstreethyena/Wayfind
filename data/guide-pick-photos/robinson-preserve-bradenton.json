@@ -1,0 +1,39 @@
+{
+  "slug": "robinson-preserve-bradenton",
+  "picks": {
+    "The observation towers": {
+      "src": "/guides/picks/robinson-preserve-bradenton/observation-tower.webp",
+      "width": 1280,
+      "height": 854,
+      "alt": "A fisheye view down from an observation tower at Robinson Preserve onto its circular boardwalk surrounded by mangroves and water",
+      "caption": "The view down from one of Robinson Preserve's observation towers.",
+      "credit": "Gregory Urbano",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Robinson_Preserve_Observation_Tower_(24946730937).jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Robinson_Preserve_Observation_Tower_(24946730937).jpg",
+      "author": "Gregory Urbano",
+      "position": "50% 45%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "File is titled \"Robinson Preserve Observation Tower\" and shows the tower's own boardwalk and view, an unambiguous match to the pick.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
+    }
+  },
+  "gaps": {
+    "The kayak trails": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "No Commons photo found of Robinson Preserve's kayak launch or mangrove paddling trails specifically."
+    },
+    "Flat miles for wheels": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "No Commons photo found of the preserve's crushed-shell/paved trail network itself, distinct from the observation-tower photo already used."
+    }
+  }
+}

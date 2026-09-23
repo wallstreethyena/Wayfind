@@ -1,0 +1,59 @@
+{
+  "slug": "siesta-key-drum-circle",
+  "picks": {
+    "When and exactly where": {
+      "src": "/guides/picks/siesta-key-drum-circle/siesta-key-beach-pavilion.webp",
+      "width": 1400,
+      "height": 880,
+      "alt": "The open-air pavilion with a wood-slat roof and tall palm trees at the main Siesta Beach entrance at dusk, with visitors walking beneath it",
+      "caption": "The pavilion at the main Siesta Beach entrance, the landmark this guide gives as the starting point for the walk to the drum circle.",
+      "credit": "Fred Hsu",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:2017_Sarasota_Siesta_Key_Beach_Pavilion_01_FRD_9703.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:2017_Sarasota_Siesta_Key_Beach_Pavilion_01_FRD_9703.jpg",
+      "author": "Fred Hsu",
+      "position": "50% 45%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "File title 'Siesta Key Beach Pavilion' matches the guide's own described landmark ('the main Siesta Beach pavilion'), part of a dated 2017 Fred Hsu series photographing Siesta Beach. Not geotagged for a coordinate check.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
+    }
+  },
+  "hero": {
+    "src": "/guides/picks/siesta-key-drum-circle/siesta-key-beach-sunset.webp",
+    "width": 1400,
+    "height": 1050,
+    "alt": "The vast white quartz sand of Siesta Key Beach at sunset, with small distant figures and shorebirds scattered across the sand and condo buildings on the horizon",
+    "caption": "Siesta Key Beach at sunset, the same stretch of sand where the Sunday drum circle gathers.",
+    "credit": "Fred Hsu",
+    "creditHref": "https://commons.wikimedia.org/wiki/File:2017_Sarasota_Enormity_of_Siesta_Beach_on_Siesta_Key_at_Sunset_03_FRD_9744.jpg",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:2017_Sarasota_Enormity_of_Siesta_Beach_on_Siesta_Key_at_Sunset_03_FRD_9744.jpg",
+    "author": "Fred Hsu",
+    "position": "50% 38%",
+    "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+    "sourceKind": "commons",
+    "placeId": null,
+    "verification": "File title and description both name Siesta Beach on Siesta Key; part of a dated (2017) Fred Hsu series documenting the beach at sunset, matching the guide's own 'Sunday sunset ritual' description. No embedded GPS coordinates. People visible are small and distant, not identifiable individuals.",
+    "sameAsCardPhoto": false,
+    "reviewedAt": "2026-09-23"
+  },
+  "gaps": {
+    "Parking without the meltdown": {
+      "reason": "not-a-place",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "Parking-lot and trolley logistics advice; not a single place to photograph."
+    },
+    "The unwritten rules": {
+      "reason": "not-a-place",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "Etiquette advice for the circle; not a place."
+    }
+  }
+}

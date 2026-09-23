@@ -1,0 +1,24 @@
+{
+  "slug": "winter-park-scenic-boat-tour",
+  "picks": {},
+  "gaps": {
+    "What the hour actually covers": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "Exhaustive Commons search (title/text search, geosearch around the Morse Blvd dock, Kraft Azalea Garden, Lake Osceola categories) turned up only unrelated Winter Park subjects (a church, the Amtrak/SunRail station, a house, an Unsplash car photo) and pre-1920s NYPL stereoscope prints of Lake Osceola with no dock or pontoon boat. No properly licensed photo of the actual Winter Park Scenic Boat Tour route or vessel exists on Commons."
+    },
+    "Tickets, timing, and the cash catch": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "Same search turned up no photo of the Morse Boulevard dock or ticket booth. Wayfind's own free-photo table has no row for this place either."
+    },
+    "Make it a Winter Park day": {
+      "reason": "not-a-place",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "This pick is a multi-stop day-trip itinerary (Morse Museum, Park Avenue, the boat tour) rather than a single real place."
+    }
+  }
+}

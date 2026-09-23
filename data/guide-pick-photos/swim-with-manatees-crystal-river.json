@@ -1,0 +1,91 @@
+{
+  "slug": "swim-with-manatees-crystal-river",
+  "picks": {
+    "Swim with the manatees in Kings Bay": {
+      "src": "/guides/picks/swim-with-manatees-crystal-river/manatee-kings-bay.webp",
+      "width": 1190,
+      "height": 1776,
+      "alt": "A Florida manatee surfacing close to the camera in the clear spring water of the Crystal River National Wildlife Refuge",
+      "caption": "A West Indian manatee surfaces in the clear water of the Crystal River National Wildlife Refuge, the federally protected water that includes Kings Bay.",
+      "credit": "USFWS Endangered Species (photo: David Hinkel)",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Endangered_Florida_manatee_(Trichechus_manatus),_Crystal_River_National_Wildlife_Refuge,_Florida_(5104976921).jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Endangered_Florida_manatee_(Trichechus_manatus),_Crystal_River_National_Wildlife_Refuge,_Florida_(5104976921).jpg",
+      "author": "USFWS Endangered Species (David Hinkel)",
+      "position": "48% 42%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Downloaded the original (2616x3904) from Wikimedia Commons and inspected it directly: a wild Florida manatee at the surface of clear spring-fed water. The Commons file page and its Flickr source (USFWS Endangered Species photostream, credited to David Hinkel) caption it as being photographed in the Crystal River National Wildlife Refuge, the refuge that encompasses Kings Bay -- the exact body of water named in this pick. No identifiable people in frame.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
+    },
+    "Three Sisters Springs, from the water": {
+      "src": "/guides/picks/swim-with-manatees-crystal-river/three-sisters-springs-water.webp",
+      "width": 1400,
+      "height": 933,
+      "alt": "The vivid turquoise bowl of Three Sisters Springs seen from a kayak, ringed by cypress trees, with paddlers and swimmers in the distance",
+      "caption": "The turquoise spring bowl of Three Sisters Springs, reachable only by kayak or boat from Kings Bay.",
+      "credit": "CityofCrystalRiver",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Three_Sister_Springs.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Three_Sister_Springs.jpg",
+      "author": "CityofCrystalRiver",
+      "position": "50% 58%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Downloaded the original (3936x2624) from Wikimedia Commons and inspected it directly: the vivid blue-green spring bowl ringed by cypress and Spanish moss, reachable only by water (kayakers and swimmers visible mid-frame), matches the pick's description exactly. Uploaded by the official CityofCrystalRiver Commons account and titled 'Three Sister Springs' / described 'Three Sisters Springs in Crystal River'. No identifiable faces; people are small, distant background figures, not the subject.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
+    },
+    "Homosassa Springs Wildlife State Park": {
+      "src": "/guides/picks/swim-with-manatees-crystal-river/homosassa-springs-entrance.webp",
+      "width": 1190,
+      "height": 793,
+      "alt": "The Homosassa Springs Wildlife Park entrance sign with manatee statues in a stone fountain, wildlife-walk directional signs, and the entry path",
+      "caption": "The entrance sign and manatee-statue fountain at Homosassa Springs Wildlife State Park.",
+      "credit": "Ebyabe",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Homosassa_Springs_Wildlife_State_Park_(Citrus_County,_FL).jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Homosassa_Springs_Wildlife_State_Park_(Citrus_County,_FL).jpg",
+      "author": "Ebyabe",
+      "position": "32% 55%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Downloaded the original (2304x1536) from Wikimedia Commons and inspected it directly: a wooden sign reading 'HOMOSASSA SPRINGS WILDLIFE PARK' above a manatee-statue fountain, with directional signs for 'Alligators/Hippopotamus', 'Wildlife Walk' and 'Wildlife Encounters' -- an unambiguous, on-site identification of this exact state park.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
+    }
+  },
+  "gaps": {
+    "Three Sisters Springs boardwalk, stay dry": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "Searched Commons (title/text search, the Crystal River National Wildlife Refuge category, 'boardwalk'/'walkway'/'trail' queries) and found only the water-approach view already used for the kayak pick, refuge entrance signage, and unrelated 1900s-era photos. No properly licensed photo of the land-side boardwalk/trolley viewing platform (distinct from the water view) was found."
+    },
+    "A manatee eco-cruise for non-swimmers": {
+      "reason": "not-a-place",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "Describes an activity offered by multiple tour operators, not one distinct place."
+    },
+    "Paddle Kings Bay by clear kayak": {
+      "reason": "not-a-place",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "Describes an activity (a style of kayak rental) rather than one distinct place; Kings Bay itself is already photographed under the swim pick."
+    },
+    "The summer counterpart: bay scalloping": {
+      "reason": "not-a-place",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "Describes a seasonal activity (snorkeling the grass flats for scallops) spanning open water, not one distinct place."
+    }
+  }
+}

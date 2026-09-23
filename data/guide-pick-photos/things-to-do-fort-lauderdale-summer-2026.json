@@ -1,0 +1,81 @@
+{
+  "slug": "things-to-do-fort-lauderdale-summer-2026",
+  "picks": {
+    "Fort Lauderdale Beach and the reef offshore": {
+      "src": "/guides/picks/things-to-do-fort-lauderdale-summer-2026/fort-lauderdale-beach-riomar.webp",
+      "width": 1400,
+      "height": 1050,
+      "alt": "The white curved wave wall and \"Riomar\" marker along the A1A beachfront promenade in Fort Lauderdale, with blue beach umbrellas and the ocean beyond",
+      "caption": "The wave wall along Fort Lauderdale's A1A beachfront, at the Riomar crossing.",
+      "credit": "Infrogmation of New Orleans",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Fort_Lauderdale_Florida_-_A1A_beachfront,_January_2018_-_04.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Fort_Lauderdale_Florida_-_A1A_beachfront,_January_2018_-_04.jpg",
+      "author": "Infrogmation of New Orleans",
+      "position": "70% 65%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Downloaded the original from Wikimedia Commons and inspected it: the file's own title and Commons category \"Florida State Road A1A in Fort Lauderdale, Florida\" and \"Central Beach, Fort Lauderdale\" match this pick's beach strip, and the \"Riomar\" wave-wall marker is a known fixture of this exact beachfront promenade; beachgoers under the umbrellas are moderate distance and not close-up, not the subject.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
+    }
+  },
+  "gaps": {
+    "The Water Taxi through the Venice of America": {
+      "reason": "not-a-place",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "A hop-on hop-off boat route through the Intracoastal and New River, not a single visitable place."
+    },
+    "Pier Sixty-Six and the rotating Pier Top": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "The only Wikimedia Commons photo of this resort is a decades-old image licensed plain \"Public domain,\" which is not in Wayfind's allowed licence list (CC0, or CC BY/CC BY-SA at 2.0, 3.0 or 4.0), and it predates the resort's recent luxury revamp; the property is not indexed in Wayfind's inventory either."
+    },
+    "Las Olas Boulevard's restaurant wave": {
+      "reason": "not-a-place",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "A wave of new restaurant openings (Little Hen, Skinny Louie) along a boulevard, not a single visitable place."
+    },
+    "The Fort, the world's first pickleball stadium": {
+      "reason": "google-only",
+      "placeId": "ChIJxarXNwCr2YgRZvrLZ_ZW9dQ",
+      "needsPermissionFrom": "The FORT Pickleball (Fort Lauderdale)",
+      "note": "No Wikimedia Commons photo exists for this brand-new stadium; Wayfind's inventory shows only a Google Places photo, which is not licensed for reuse."
+    },
+    "Huizenga Park, rebuilt": {
+      "reason": "google-only",
+      "placeId": "ChIJLzMH2FcA2YgRyz8FN7F7OOY",
+      "needsPermissionFrom": "Huizenga Park (Fort Lauderdale)",
+      "note": "No Wikimedia Commons photo exists of the park's recent rebuild; Wayfind's inventory shows only a Google Places photo, which is not licensed for reuse."
+    },
+    "An Everglades airboat morning": {
+      "reason": "not-a-place",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "A bookable airboat tour offered by multiple operators, not a single visitable place."
+    },
+    "Puttshack at Dania Beach": {
+      "reason": "google-only",
+      "placeId": "ChIJT1fY8CWr2YgRPfvi-_9cSiU",
+      "needsPermissionFrom": "Puttshack - Dania Beach",
+      "note": "No Wikimedia Commons photo exists for this venue; Wayfind's inventory shows only a Google Places photo, which is not licensed for reuse."
+    },
+    "Peppi's Pizza after the One Bite review": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "No Wikimedia Commons photo exists for this restaurant, and it is not indexed in Wayfind's inventory, so there is no licensed source of any kind, including Google."
+    },
+    "Las Olas Beach at sunrise": {
+      "reason": "public-art",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "The only allowed-licence Commons photo is dominated by a temporary pink-ribbon sculpture; US freedom of panorama does not cover sculpture, so it cannot be used without the artist's licence. Needs a clean beach photo."
+    }
+  }
+}

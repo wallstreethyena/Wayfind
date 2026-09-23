@@ -1,0 +1,77 @@
+{
+  "slug": "gulf-coast-brunch-and-date-night",
+  "picks": {
+    "Fins At Sharky's": {
+      "src": "/guides/picks/gulf-coast-brunch-and-date-night/sharkys-pier-venice.webp",
+      "width": 1280,
+      "height": 853,
+      "alt": "Sharky's Pier on the Venice Fishing Pier at sunset, a low building on pilings over the Gulf of Mexico with a flag flying and colorful sky behind it",
+      "caption": "Sharky's Pier at sunset, on the Venice Fishing Pier where Fins operates as its upscale sister restaurant.",
+      "credit": "Don Miller",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Sharky%27s_Pier_(28417055172).jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Sharky%27s_Pier_(28417055172).jpg",
+      "author": "Don Miller",
+      "position": "50% 60%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": "ChIJf5M5VmBZw4gRVHX-dcX1dBk",
+      "verification": "File is titled \"Sharky's Pier\" and shows the pier building on the Venice Fishing Pier; the guide's own pick text says Fins is \"the upscale sister to casual Sharky's next door, on the Venice Fishing Pier,\" so this photo shows the exact pier complex housing both restaurants, not Fins' own separate signage.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
+    }
+  },
+  "hero": {
+    "src": "/guides/picks/gulf-coast-brunch-and-date-night/venice-fishing-pier-dusk.webp",
+    "width": 1280,
+    "height": 854,
+    "alt": "The Venice Fishing Pier at dusk, silhouetted against a dramatic blue and orange sky with its lights reflected on the calm Gulf water",
+    "caption": "The Venice Fishing Pier at dusk, home to two of this guide's picks.",
+    "credit": "Don Miller",
+    "creditHref": "https://commons.wikimedia.org/wiki/File:Venice_Fishing_Pier_-_Flickr_-_DonMiller_ToGo.jpg",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Venice_Fishing_Pier_-_Flickr_-_DonMiller_ToGo.jpg",
+    "author": "Don Miller",
+    "position": "55% 60%",
+    "modificationNotice": "Resized, cropped for display and converted to WebP.",
+    "sourceKind": "commons",
+    "placeId": null,
+    "verification": "The guide's previous hero was generic stock. This is a real, identifiable photo of the Venice Fishing Pier, the real Gulf Coast setting for the guide's Fins At Sharky's pick, at the golden-hour mood the guide's date-night half describes. No people in frame.",
+    "sameAsCardPhoto": false,
+    "reviewedAt": "2026-09-23"
+  },
+  "gaps": {
+    "Original Word of Mouth": {
+      "reason": "google-only",
+      "placeId": "ChIJSZyKtGVaw4gRkKUbiPqvOVI",
+      "needsPermissionFrom": "Original Word of Mouth",
+      "note": "No Commons photo found for this restaurant; Wayfind's inventory carries only a Google Places photo."
+    },
+    "Ophelia's on the Bay": {
+      "reason": "google-only",
+      "placeId": "ChIJs8HMPKxDw4gR8rXHdqdvpmE",
+      "needsPermissionFrom": "Ophelia's on the Bay",
+      "note": "No Commons photo found for this restaurant; Wayfind's inventory carries only a Google Places photo."
+    },
+    "Gulf Drive Cafe": {
+      "reason": "google-only",
+      "placeId": "ChIJJWCbj5kRw4gRYkZ7QJ-L91s",
+      "needsPermissionFrom": "Gulf Drive Cafe",
+      "note": "No Commons photo found for this restaurant; Wayfind's inventory carries only a Google Places photo."
+    },
+    "Yoder's Restaurant": {
+      "reason": "google-only",
+      "placeId": "ChIJIwZqEutAw4gR-1cOUgiln24",
+      "needsPermissionFrom": "Yoder's Restaurant",
+      "note": "No Commons photo found for this restaurant; Wayfind's inventory carries only a Google Places photo."
+    },
+    "Columbia Restaurant": {
+      "reason": "google-only",
+      "placeId": "ChIJaTQEjpFqw4gRnHJU2Klfw0o",
+      "needsPermissionFrom": "Columbia Restaurant, St. Armands Circle",
+      "note": "Commons has many photos of the original Ybor City Columbia location, which is a different building and not this St. Armands Circle outpost; no Commons photo found for this location itself."
+    }
+  }
+}

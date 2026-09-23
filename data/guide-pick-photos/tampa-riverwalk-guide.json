@@ -1,0 +1,29 @@
+{
+  "slug": "tampa-riverwalk-guide",
+  "picks": {
+    "The museum middle": {
+      "src": "/guides/picks/tampa-riverwalk-guide/tampa-museum-of-art.webp",
+      "width": 1400, "height": 1050,
+      "alt": "The Tampa Museum of Art's modern building on the Riverwalk, with colorful yellow and orange panels and a row of palm trees",
+      "caption": "The Tampa Museum of Art's modern Riverwalk building.",
+      "credit": "Chan Bliss", "creditHref": "https://commons.wikimedia.org/wiki/File:Tampa_Museum_of_Art_(4342692202).jpg",
+      "license": "CC BY-SA 2.0", "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Tampa_Museum_of_Art_(4342692202).jpg",
+      "author": "Chan Bliss", "position": "50% 55%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons", "placeId": null,
+      "verification": "File title names this the Tampa Museum of Art; the boxy modern building with colored accent panels and perforated screens matches the museum's known Riverwalk architecture. Not geotagged; identified by the file title and architecture.",
+      "sameAsCardPhoto": false, "reviewedAt": "2026-09-23"
+    }
+  },
+  "gaps": {
+    "Armature Works, the north anchor": {
+      "reason": "no-verified-source", "placeId": "ChIJYWj9iZ_PwogRQebjN7pJ_Nw", "needsPermissionFrom": "Armature Works",
+      "note": "Commons title search, category search and geosearch around the venue's coordinates (repeated with radii up to 500m) returned no photo of this food hall — only unrelated electrical-engineering \"armature\" documents. No CC-licensed photo found."
+    },
+    "Sparkman Wharf and the water taxi": {
+      "reason": "no-verified-source", "placeId": "ChIJy66Xe53FwogRcpjZQHX4cCI", "needsPermissionFrom": null,
+      "note": "Commons title search and geosearch around Sparkman Wharf's coordinates found no photo of the shipping-container food hall or the Pirate Water Taxi itself (only an old political grand-opening photo centered on a named individual, and unrelated Water Street tower photos that do not show the wharf this pick names)."
+    }
+  }
+}

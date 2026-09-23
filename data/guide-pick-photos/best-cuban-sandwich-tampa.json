@@ -1,0 +1,57 @@
+{
+  "slug": "best-cuban-sandwich-tampa",
+  "picks": {
+    "Columbia Restaurant": {
+      "src": "/guides/picks/best-cuban-sandwich-tampa/columbia-restaurant.webp",
+      "width": 1400, "height": 1050,
+      "alt": "The ornate Spanish Revival facade of the Columbia Restaurant in Ybor City, with tiled arches and wrought-iron balconies",
+      "caption": "The Columbia Restaurant's Spanish Revival facade on Ybor City's Seventh Avenue.",
+      "credit": "LittleT889", "creditHref": "https://commons.wikimedia.org/wiki/File:Columbia,_Ybor_City.jpg",
+      "license": "CC BY 4.0", "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Columbia,_Ybor_City.jpg",
+      "author": "LittleT889", "position": "50% 42%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons", "placeId": "ChIJz8e7TVLEwogRBeybvscHnD4",
+      "verification": "Same file as Wayfind's own verified wf_place_photo record for this place; the ornate tiled Spanish Revival facade is instantly identifiable as the Columbia Restaurant's historic Ybor City building. Not geotagged; identified by architecture.",
+      "sameAsCardPhoto": true, "reviewedAt": "2026-09-23"
+    },
+    "La Segunda Central Bakery": {
+      "src": "/guides/picks/best-cuban-sandwich-tampa/la-segunda-central-bakery.webp",
+      "width": 1400, "height": 1050,
+      "alt": "The stucco exterior of La Segunda Central Bakery in Ybor City, with its red lettered BAKERY sign and cars parked out front",
+      "caption": "La Segunda Central Bakery's Ybor City building, home of Tampa's Cuban bread since 1915.",
+      "credit": "LittleT889", "creditHref": "https://commons.wikimedia.org/wiki/File:La_Segunda_Central_Bakery.jpg",
+      "license": "CC BY-SA 4.0", "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:La_Segunda_Central_Bakery.jpg",
+      "author": "LittleT889", "position": "50% 40%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons", "placeId": "ChIJXTeLe0XEwogR-wheRdFeKEY",
+      "verification": "The building's visible sign reads \"La Segunda Central BAKERY,\" confirming the exact bakery named in the pick. Not geotagged; identified by the sign text.",
+      "sameAsCardPhoto": false, "reviewedAt": "2026-09-23"
+    }
+  },
+  "hero": {
+    "src": "/guides/picks/best-cuban-sandwich-tampa/hero-columbia-arcade.webp",
+    "width": 1400, "height": 829,
+    "alt": "The tiled Spanish-mural arcade and neon Columbia sign along the sidewalk outside the Columbia Restaurant in Ybor City",
+    "caption": "The tiled arcade and neon sign outside the Columbia Restaurant, the Ybor City landmark central to Tampa's Cuban sandwich story.",
+    "credit": "SharkshockUSA", "creditHref": "https://commons.wikimedia.org/wiki/File:Columbia_restaurant_Tampa.jpg",
+    "license": "CC BY-SA 4.0", "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Columbia_restaurant_Tampa.jpg",
+    "author": "SharkshockUSA", "position": "30% 48%",
+    "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+    "sourceKind": "commons", "placeId": "ChIJz8e7TVLEwogRBeybvscHnD4",
+    "verification": "The visible red \"Columbia Restaurant\" sign and painted-tile arcade confirm this is the same Ybor City landmark named in the guide's own Columbia Restaurant pick. Replaces the guide's previous generic stock hero, which did not show a real Tampa place. One passerby is visible at a distance/edge of frame in the wider crop; the chosen position keeps her small and incidental rather than a focal subject. Not geotagged; identified by the sign.",
+    "sameAsCardPhoto": false, "reviewedAt": "2026-09-23"
+  },
+  "gaps": {
+    "West Tampa Sandwich Shop": {
+      "reason": "no-verified-source", "placeId": "ChIJPbUnl43DwogRz7WNKvF2Avw", "needsPermissionFrom": null,
+      "note": "Commons title and category search for this counter-service shop returned nothing (only unrelated West Tampa historic-district building photos, which are not this business). No verified CC-licensed photo of this exact shop was found."
+    },
+    "The rules of a Tampa Cuban": {
+      "reason": "not-a-place", "placeId": null, "needsPermissionFrom": null,
+      "note": "This pick states the recipe rules for a Tampa Cuban sandwich (salami, ham, mojo pork, Swiss, pickles, mustard, pressed) — it names no single restaurant or address to photograph."
+    }
+  }
+}
