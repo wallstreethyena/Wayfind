@@ -19,6 +19,7 @@
 // no allowlist.
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 300;
 
 import { apnsConfigured, sendPushBatch } from "../../../../lib/apns.js";
 import { allIosTokens, deleteToken } from "../../../../lib/pushTokens.js";

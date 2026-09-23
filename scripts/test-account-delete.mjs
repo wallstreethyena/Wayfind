@@ -239,6 +239,51 @@ ok(cleanupBeforeAdmin(corruptedOrder) === false, "red proof: cleanupBeforeAdmin 
 }
 
 // ---------------------------------------------------------------------------
+// 5b. Email-keyed marketing table matching cannot be wildcarded. PostgREST's
+// `ilike`/`like` operators treat `_`, `%` and (via PostgREST's own alias) `*`
+// as wildcards — an email containing any of those (underscore is common)
+// could match more rows than itself under the old ilike-based query. The
+// fix is PostgREST `in.()` with each value double-quoted: every character is
+// read as a LITERAL, never a pattern.
+// ---------------------------------------------------------------------------
+{
+  resetScenario();
+  const wildcardEmail = "vic%tim_star*@example.test";
+  scenario.authUserBody = { id: USER_ID, email: wildcardEmail, identities: [], app_metadata: { providers: ["email"] } };
+  resetCalls();
+  const res = await POST(req({ ip: "10.0.0.5b" }));
+  ok(res.status === 200, "an email containing %, _ and * still deletes successfully, got " + res.status);
+
+  const emailCall = calls.find((c) => c.url.includes("/rest/v1/wf_email_signups") && c.method === "DELETE");
+  ok(!!emailCall, "the email-keyed cleanup step is actually called");
+  ok(!/ilike/i.test(emailCall.url), "the email-keyed cleanup query no longer uses ilike anywhere");
+  ok(emailCall.url.includes("email=in.("), "the email-keyed cleanup query uses PostgREST's in.() literal-list operator");
+
+  const inList = decodeURIComponent(emailCall.url.split("email=in.(")[1].split(")")[0]);
+  ok(inList === `"${wildcardEmail}"`, `the in.() list carries the email as ONE double-quoted literal, byte for byte, got: ${inList}`);
+  // RED PROOF: an unescaped double quote or backslash INSIDE the value could
+  // break out of pgQuote's own quoting and split or extend the list — prove
+  // that shape is rejected by round-tripping one.
+  scenario.authUserBody = { id: USER_ID, email: 'break"out\\@example.test', identities: [], app_metadata: { providers: ["email"] } };
+  resetCalls();
+  const res2 = await POST(req({ ip: "10.0.0.5b2" }));
+  ok(res2.status === 200, "an email containing a literal quote and backslash still deletes successfully, got " + res2.status);
+  const emailCall2 = calls.find((c) => c.url.includes("/rest/v1/wf_email_signups") && c.method === "DELETE");
+  const inList2 = decodeURIComponent(emailCall2.url.split("email=in.(")[1].split(")")[0]);
+  ok(inList2 === '"break\\"out\\\\@example.test"', `RED PROOF: the quote and backslash inside the email are escaped, not left to break out of the literal, got: ${inList2}`);
+
+  // Mixed case: BOTH the exact and the lower-cased form are matched, still as
+  // two literals, never as a case-insensitive pattern.
+  scenario.authUserBody = { id: USER_ID, email: "Mixed.Case@Example.Test", identities: [], app_metadata: { providers: ["email"] } };
+  resetCalls();
+  const res3 = await POST(req({ ip: "10.0.0.5b3" }));
+  ok(res3.status === 200, "a mixed-case email still deletes successfully, got " + res3.status);
+  const emailCall3 = calls.find((c) => c.url.includes("/rest/v1/wf_email_signups") && c.method === "DELETE");
+  const inList3 = decodeURIComponent(emailCall3.url.split("email=in.(")[1].split(")")[0]);
+  ok(inList3 === '"Mixed.Case@Example.Test","mixed.case@example.test"', `mixed case sends both the exact and lower-cased literal, got: ${inList3}`);
+}
+
+// ---------------------------------------------------------------------------
 // 6. Deletion still completes (200) when a cleanup step returns 500
 // ---------------------------------------------------------------------------
 {
@@ -439,6 +484,93 @@ globalThis.fetch = realFetch;
   const swiftSrc = readFileSync(new URL("ios/App/App/AppleSignInPlugin.swift", ROOT), "utf8");
   ok(/result\s*\[\s*"authorizationCode"\s*\]\s*=\s*code/.test(swiftSrc), "AppleSignInPlugin.swift assigns authorizationCode onto the resolved result");
   ok(!/result\s*\[\s*"authorizationCode"\s*\]\s*=\s*code/.test('// result["authorizationCode"] discussed but not assigned'), "negative control: a comment mentioning the key does not match the assignment regex");
+}
+
+// ---------------------------------------------------------------------------
+// lib/accountDelete.js — cancelling the native Apple sheet must ABORT
+// deletion. STRUCTURAL, NOT EXECUTED: isNative() reads navigator.userAgent /
+// Capacitor.isNativePlatform(), and nativeAppleCredential() calls a
+// registerPlugin("AppleSignIn") bridge method — neither has a real
+// implementation off-device, and this file has no seam to inject a stub for
+// a plain `import("./native")` (no dependency-injection parameter on
+// deleteAccount() for it). A position-based read of the source is the
+// honest substitute: it proves the isAppleCancel() check sits INSIDE the
+// nativeAppleCredential() catch block, and that its return happens BEFORE
+// the fetch("/api/account/delete") call, i.e. an abort here can never fall
+// through to the server request. Live behavior is exercised on-device per
+// docs/ios-app-store-handoff.md, same as the other STRUCTURAL-ONLY reads in
+// scripts/check-ios-shell-wiring.mjs.
+{
+  const stripJs = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  // Skips PAST the function's own parameter list before looking for its body
+  // brace — deleteAccount({ supabase, user, deviceId }) destructures its one
+  // argument, so the first "{" after the function keyword is the PARAMETER's
+  // brace, not the body's. Parenthesis-depth-matching the "(...)" first (when
+  // one is present right after startIdx) avoids picking that up.
+  function jsFunctionBody(src, startIdx) {
+    let i = startIdx;
+    const parenStart = src.indexOf("(", startIdx);
+    if (parenStart >= 0 && parenStart < src.indexOf("{", startIdx)) {
+      let pdepth = 0;
+      for (let j = parenStart; j < src.length; j++) {
+        if (src[j] === "(") pdepth++;
+        else if (src[j] === ")") { pdepth--; if (pdepth === 0) { i = j + 1; break; } }
+      }
+    }
+    const braceStart = src.indexOf("{", i);
+    if (braceStart === -1) return null;
+    let depth = 0;
+    for (let j = braceStart; j < src.length; j++) {
+      if (src[j] === "{") depth++;
+      else if (src[j] === "}") { depth--; if (depth === 0) return src.slice(braceStart + 1, j); }
+    }
+    return null;
+  }
+
+  const src = stripJs(readFileSync(new URL("lib/accountDelete.js", ROOT), "utf8"));
+
+  // isAppleCancel(): the exact two conditions the task specifies, as a real
+  // boolean expression (not merely the strings appearing somewhere).
+  const cancelFnStart = src.search(/function\s+isAppleCancel\s*\(/);
+  ok(cancelFnStart >= 0, "lib/accountDelete.js declares isAppleCancel()");
+  const cancelFnBody = cancelFnStart >= 0 ? jsFunctionBody(src, cancelFnStart) : null;
+  ok(!!cancelFnBody && /code\s*===\s*["']APPLE_SIGN_IN_CANCELLED["']/.test(cancelFnBody),
+     "isAppleCancel() checks err.code === \"APPLE_SIGN_IN_CANCELLED\" — the code AppleSignInPlugin.swift's ASAuthorizationError.canceled branch rejects with");
+  ok(!!cancelFnBody && /\/cancel\/i\.test\(\s*message\s*\)/.test(cancelFnBody),
+     "isAppleCancel() also falls back to a case-insensitive /cancel/i test on the message");
+
+  // deleteAccount()'s own body, then the specific try/catch around
+  // nativeAppleCredential() inside it.
+  const deleteFnStart = src.search(/export\s+async\s+function\s+deleteAccount\s*\(/);
+  ok(deleteFnStart >= 0, "lib/accountDelete.js exports async function deleteAccount()");
+  const deleteFnBody = deleteFnStart >= 0 ? jsFunctionBody(src, deleteFnStart) : null;
+  ok(!!deleteFnBody, "deleteAccount()'s body was extracted by brace matching");
+
+  const credIdx = deleteFnBody ? deleteFnBody.indexOf("nativeAppleCredential()") : -1;
+  const fetchIdx = deleteFnBody ? deleteFnBody.indexOf('fetch("/api/account/delete"') : -1;
+  ok(credIdx >= 0, "control: deleteAccount() calls nativeAppleCredential() — a miss here would make the ordering check below vacuous");
+  ok(fetchIdx > credIdx, "control: the /api/account/delete fetch textually follows the Apple credential attempt");
+
+  // The catch block immediately after the nativeAppleCredential() call site.
+  const catchStart = deleteFnBody ? deleteFnBody.indexOf("catch", credIdx) : -1;
+  ok(catchStart > credIdx, "a catch block follows the nativeAppleCredential() call");
+  const catchBody = catchStart >= 0 ? jsFunctionBody(deleteFnBody, catchStart) : null;
+  ok(!!catchBody && /isAppleCancel\s*\(\s*e\s*\)/.test(catchBody),
+     "the catch block calls isAppleCancel(e) — not a re-implementation of the check inline, one source of truth");
+  const returnMatch = catchBody && catchBody.match(/return\s*\{\s*ok:\s*false,\s*error:\s*["']Deletion cancelled\.["']\s*\}/);
+  ok(!!returnMatch, 'on a cancel, the catch block returns { ok: false, error: "Deletion cancelled." } — not just sets a flag that a later step could still fall through past');
+  const catchReturnIdxInFn = returnMatch ? deleteFnBody.indexOf(returnMatch[0], catchStart) : -1;
+  ok(catchReturnIdxInFn >= 0 && catchReturnIdxInFn < fetchIdx,
+     "the cancel-abort return sits BEFORE the /api/account/delete fetch in deleteAccount()'s body — a cancel can never fall through to the server call");
+
+  // RED PROOF: the same probe, run against the pre-fix shape (a catch that
+  // only ever sets appleAuthorizationCode = null and lets deletion continue),
+  // must find no qualifying return and so must fail the ordering assertion.
+  const brokenCatchBody = `
+      appleAuthorizationCode = null;
+    `;
+  const brokenReturnMatch = brokenCatchBody.match(/return\s*\{\s*ok:\s*false,\s*error:\s*["']Deletion cancelled\.["']\s*\}/);
+  ok(!brokenReturnMatch, "red proof: the pre-fix catch shape (swallow and continue) has no cancel-abort return for this probe to find");
 }
 
 if (failures) {

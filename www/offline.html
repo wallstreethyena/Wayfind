@@ -150,19 +150,6 @@
     statusEl.textContent = text || "";
   }
 
-  function safeLastPath() {
-    // wf_last_path is written by app/components/NativeOfflineOverlay.js on
-    // every route change while the app is live, so returning here lands the
-    // user back where they left off instead of the homepage. Only a
-    // same-origin absolute path is ever accepted from storage.
-    var raw = "";
-    try { raw = sessionStorage.getItem("wf_last_path") || ""; } catch (e) { raw = ""; }
-    if (typeof raw === "string" && raw.length > 0 && raw.length < 2048 && raw.charAt(0) === "/" && raw.charAt(1) !== "/") {
-      return raw;
-    }
-    return "/";
-  }
-
   function probe(onDone) {
     if (probing) return;
     probing = true;
@@ -195,7 +182,13 @@
       // real 200 — reaching .then at all, rather than .catch, is the signal
       // that the request actually completed against a live server.
       setStatus("Back online");
-      var target = SERVER + safeLastPath();
+      // capacitor://localhost (this page) and https://www.gowayfind.com (the
+      // app) are different origins, so sessionStorage set on one is never
+      // visible on the other — reading wf_last_path here would always read
+      // empty. The handoff instead goes through the URL: land on the live
+      // origin with wf_resume=1, and app/components/NativeOfflineOverlay.js
+      // reads ITS OWN same-origin wf_last_path and router.replace()s there.
+      var target = SERVER + "/?wf_resume=1";
       try { location.replace(target); } catch (e) { location.href = target; }
       if (onDone) onDone(true);
     }).catch(function () {

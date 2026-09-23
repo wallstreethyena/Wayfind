@@ -5435,6 +5435,12 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       const result = await deleteAccount({ supabase, user, deviceId: deviceId() });
       if (result && result.ok) {
         setUser(null);
+        // Deleted accounts must not keep contributing to the identified
+        // person's PostHog history from this device — reset() drops the
+        // identified distinct id and starts a fresh anonymous one, same as a
+        // sign-out on a shared device would want, but mandatory here since
+        // the identity itself no longer exists server side.
+        try { if (typeof window !== "undefined" && window.posthog) window.posthog.reset(); } catch (e) {}
         // Mirror what the sign-in sync effect (above) sets FROM the same
         // local storage keys lib/accountDelete.js just cleared \u2014 those keys
         // are gone, so the in-memory state that mirrors them has to be reset

@@ -129,6 +129,39 @@
 			</array>
 		</dict>
 
+		<!-- lib/deviceId.js's wf_device id (app/api/push/register, and the
+		     deviceId sent to app/api/account/delete so a signed-out device's
+		     own push token row can be removed with it). Linked: it travels
+		     with the account on those two calls, it is not merely local. -->
+		<dict>
+			<key>NSPrivacyCollectedDataType</key>
+			<string>NSPrivacyCollectedDataTypeDeviceID</string>
+			<key>NSPrivacyCollectedDataTypeLinked</key>
+			<true/>
+			<key>NSPrivacyCollectedDataTypeTracking</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypePurposes</key>
+			<array>
+				<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+			</array>
+		</dict>
+
+		<!-- Text the user posts about a place — comments and tips (the
+		     "comments" table / wf_place_comments), distinct from the photo
+		     upload entry above. Linked: authored under the signed-in account. -->
+		<dict>
+			<key>NSPrivacyCollectedDataType</key>
+			<string>NSPrivacyCollectedDataTypeOtherUserContent</string>
+			<key>NSPrivacyCollectedDataTypeLinked</key>
+			<true/>
+			<key>NSPrivacyCollectedDataTypeTracking</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypePurposes</key>
+			<array>
+				<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+			</array>
+		</dict>
+
 		<!-- Sentry. NOT linked: lib/sentryShared.js sets sendDefaultPii: false,
 		     which scrubs IPs, cookies and request bodies. If that flag is ever
 		     flipped to true, this entry must become Linked. -->

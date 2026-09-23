@@ -79,11 +79,15 @@ function hasAppleIdentity(user) {
   return false;
 }
 
-// PostgREST `ilike` takes a LIKE pattern, not a literal — escape % and _ (and
-// the escape character itself) so an email containing either matches only
-// itself, not an arbitrary substring.
-function ilikeExact(value) {
-  return String(value).replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_");
+// PostgREST `ilike`/`like` take a LIKE PATTERN, not a literal — `_`, `%` and,
+// through PostgREST's own `*`-for-`%` alias, a literal `*` all act as
+// wildcards. An email whose local part happens to contain any of those
+// (underscore is common) would match more than itself. `in.()` with each
+// value double-quoted, the same pattern lib/ownedPool.js already uses for
+// PostgREST list filters, takes each value as a LITERAL — no character in it
+// is ever read as a wildcard, so it cannot be gamed into a broader match.
+function pgQuote(value) {
+  return `"${String(value).replace(/["\\]/g, "\\$&")}"`;
 }
 
 async function restDelete(s, path, query) {
@@ -228,12 +232,17 @@ export async function POST(req) {
   cleaned.wf_city_requests = await restPatch(s, "wf_city_requests", `user_id=eq.${userId}`, { email: null });
 
   // d. Email-keyed marketing tables (no user_id column at all — matched by
-  // email only, and only when the account actually has one).
+  // email only, and only when the account actually has one). Both the exact
+  // and the lower-cased form are matched (signup forms do not all normalize
+  // case before insert), but every value is a LITERAL inside in.() — never a
+  // pattern, so nothing in the email itself can widen the match.
   if (email) {
-    const pattern = "ilike." + encodeURIComponent(ilikeExact(email));
-    cleaned.wf_email_signups = await restDelete(s, "wf_email_signups", `email=${pattern}`);
-    cleaned.wf_waitlist = await restDelete(s, "wf_waitlist", `email=${pattern}`);
-    cleaned.wf_giveaway_entries = await restDelete(s, "wf_giveaway_entries", `email=${pattern}`);
+    const lower = email.toLowerCase();
+    const values = lower === email ? [email] : [email, lower];
+    const pattern = `email=in.(${encodeURIComponent(values.map(pgQuote).join(","))})`;
+    cleaned.wf_email_signups = await restDelete(s, "wf_email_signups", pattern);
+    cleaned.wf_waitlist = await restDelete(s, "wf_waitlist", pattern);
+    cleaned.wf_giveaway_entries = await restDelete(s, "wf_giveaway_entries", pattern);
   } else {
     cleaned.wf_email_signups = cleaned.wf_waitlist = cleaned.wf_giveaway_entries = "skipped_no_email";
   }

@@ -150,6 +150,23 @@ ok(externalRefs.length === 0, `offline.html has no external http(s) src/href in 
 ok(/const SERVER = "https:\/\/www\.gowayfind\.com"/.test(offlineHtml),
    "control: the SERVER constant IS present inside the script — proving the external-reference sweep above is scoped correctly rather than accidentally matching nothing");
 
+// offline.html runs on capacitor://localhost; the app runs on
+// https://www.gowayfind.com — different origins, so a sessionStorage value
+// written by one is never visible to the other. Recovery must hand the path
+// off through the URL (?wf_resume=1) for app/components/NativeOfflineOverlay.js
+// (same origin as the app) to pick up, never read its own cross-origin storage.
+ok(/SERVER \+ "\/\?wf_resume=1"/.test(offlineHtml),
+   'offline.html\'s recovery navigates to SERVER + "/?wf_resume=1" — the cross-origin handoff goes through the URL, not sessionStorage');
+ok(!/sessionStorage\.getItem\(\s*["']wf_last_path["']\s*\)/.test(offlineHtml),
+   "offline.html no longer reads its own sessionStorage for wf_last_path — that storage is on capacitor://localhost and can never contain what the app (https://www.gowayfind.com) wrote");
+// red proof: the two assertions above actually discriminate against the
+// broken (pre-fix) shape, not just against an empty string.
+{
+  const brokenOffline = 'var target = SERVER + safeLastPath(); sessionStorage.getItem("wf_last_path")';
+  ok(!/SERVER \+ "\/\?wf_resume=1"/.test(brokenOffline), "red proof: the pre-fix cross-origin sessionStorage shape does not satisfy the wf_resume assertion");
+  ok(/sessionStorage\.getItem\(\s*["']wf_last_path["']\s*\)/.test(brokenOffline), "red proof: the pre-fix shape DOES trip the no-cross-origin-read assertion, proving that assertion can fail");
+}
+
 // No dashes in the page's VISIBLE text — extracted by tag, not by sweeping
 // the whole file, since HTML comments and the SVG path's `d` attribute
 // legitimately contain hyphens (path syntax, code comments) that are not
@@ -175,6 +192,23 @@ ok(/<NativeOfflineOverlay\s*\/>/.test(layout), "app/layout.js actually RENDERS <
 const shim = stripJs(read("app/components/NativeOfflineOverlay.js"));
 ok(/dynamic\(\s*\(\)\s*=>\s*import\(\s*["']\.\/native\/OfflineOverlay["']\s*\)/.test(shim),
    "the shim loads ./native/OfflineOverlay through next/dynamic — a static import here would ship the overlay's markup/CSS to every visitor, offline or not (bundle budget)");
+
+// The shim, not offline.html, completes the cross-origin path handoff — it
+// runs on the app's own origin, so it can read the wf_last_path sessionStorage
+// entry offline.html could never see. Validated (must start with "/" and not
+// "//") before ever reaching router.replace().
+ok(/wf_resume=1/.test(shim), "the shim checks location.search for wf_resume=1 — the marker offline.html's recovery navigation sets");
+ok(/sessionStorage\.getItem\(\s*LAST_PATH_KEY\s*\)/.test(shim), "the shim reads its OWN sessionStorage wf_last_path — same origin as the write, unlike offline.html");
+ok(/router\.replace\(/.test(shim), "the shim finishes the handoff with router.replace(), not a full page navigation");
+ok(/raw\.charAt\(0\)\s*!==\s*["']\/["']/.test(shim) && /raw\.charAt\(1\)\s*===\s*["']\/["']/.test(shim),
+   "the shim validates the resumed path (must start with a single \"/\", never \"//\") before router.replace() ever sees it — an unvalidated value here would let a compromised sessionStorage entry navigate the app anywhere");
+{
+  // red proof: a shim that reads wf_resume but skips validation must NOT
+  // satisfy the validation assertion above.
+  const unvalidatedShim = 'if (/wf_resume=1/.test(search)) { router.replace(sessionStorage.getItem(LAST_PATH_KEY)); }';
+  ok(!(/raw\.charAt\(0\)\s*!==\s*["']\/["']/.test(unvalidatedShim) && /raw\.charAt\(1\)\s*===\s*["']\/["']/.test(unvalidatedShim)),
+     "red proof: a shim that router.replace()s an unvalidated sessionStorage value does not satisfy the validation assertion");
+}
 
 // The lazy chunk must be WARMED while online. A chunk first requested after
 // the connection drops can never download, so the overlay would never show.

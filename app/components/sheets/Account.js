@@ -11,7 +11,7 @@
 // deletion call lives in ctx.deleteAccountUser (app/home.js), which lazily
 // imports lib/accountDelete.js; this component only owns the confirmation
 // UI and its own busy/error state.
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { C, sheetBg, sheet, SHEET_EASE, Grabber, useDialogFocus } from "../kit";
 
 export default function AccountSheet({ ctx }) {
@@ -22,6 +22,24 @@ export default function AccountSheet({ ctx }) {
   const [confirmText, setConfirmText] = useState("");
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
+  const confirmInputRef = useRef(null);
+
+  // Move focus to the confirm input the moment the panel opens, so a keyboard
+  // or screen reader user lands straight on the one control the panel exists
+  // for, instead of on the dialog's own outer focus trap.
+  useEffect(() => {
+    if (!confirmOpen) return;
+    try { confirmInputRef.current && confirmInputRef.current.focus(); } catch (e) {}
+  }, [confirmOpen]);
+
+  // While a delete request is in flight, a swipe-to-close must not be able to
+  // dismiss the sheet out from under it — closeConfirm() already refuses while
+  // deleting, but the drag gesture bypasses that by calling setAccountOpen
+  // directly through sheetDragStart's onClose callback.
+  function guardedSheetDragStart(e, onClose) {
+    if (deleting) return;
+    sheetDragStart(e, onClose);
+  }
 
   function openConfirm() {
     setConfirmText("");
@@ -50,7 +68,7 @@ export default function AccountSheet({ ctx }) {
 
   return (
         <div style={sheetBg} onClick={() => { if (!deleting) setAccountOpen(false); }}>
-          <div ref={accountDlgRef} role="dialog" aria-modal="true" aria-label="Your account" tabIndex={-1} style={{ ...sheet, outline: "none", padding: "6px 16px 28px", overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setAccountOpen(false))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
+          <div ref={accountDlgRef} role="dialog" aria-modal="true" aria-label="Your account" tabIndex={-1} style={{ ...sheet, outline: "none", padding: "6px 16px 28px", overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => guardedSheetDragStart(e, () => setAccountOpen(false))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
             <Grabber />
             <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "0 auto 16px" }} />
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
@@ -84,11 +102,13 @@ export default function AccountSheet({ ctx }) {
                     <li>Photos and reviews you posted</li>
                     <li>Notification settings</li>
                   </ul>
-                  <div style={{ fontWeight: 700 }}>This cannot be undone.</div>
+                  <div style={{ fontWeight: 700, marginBottom: 8 }}>This cannot be undone.</div>
+                  <div>If you signed in with Apple, Apple will ask you to confirm first.</div>
                 </div>
                 <label htmlFor="deleteConfirmInput" style={{ display: "block", fontSize: 12.5, color: C.muted, fontWeight: 700, marginBottom: 6 }}>Type delete to confirm</label>
                 <input
                   id="deleteConfirmInput"
+                  ref={confirmInputRef}
                   type="text"
                   autoComplete="off"
                   autoCapitalize="none"

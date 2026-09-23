@@ -218,6 +218,28 @@ try {
       onInvalid: (t) => { invalidCalled = t; },
     });
     ok(invalidCalled === "deadtoken2", "sendPushBatch must call onInvalid with the dead token when APNs returns 410/BadDeviceToken");
+
+    // sendPushBatch must AWAIT an async onInvalid, not just fire it — a
+    // caller (weekend-picks) does invalidRemoved++/deleteToken() inside
+    // onInvalid and then recordPulse()s immediately after sendPushBatch
+    // resolves. If onInvalid were fire-and-forget, that pulse (and the
+    // response) could go out before the deletion actually committed.
+    {
+      let deletionSettled = false;
+      const { session: batch2Session } = fakeSession({ status: 410, reason: "Unregistered" });
+      const onInvalid = () => new Promise((resolve) => {
+        setTimeout(() => { deletionSettled = true; resolve(); }, 15);
+      });
+      await apns.sendPushBatch(["deadtoken3"], { title: "x", body: "y" }, {
+        connect: () => batch2Session,
+        onInvalid,
+      });
+      // This assertion IS the red proof: if lib/apns.js reverted to firing
+      // onInvalid without awaiting it ("onInvalid && onInvalid(token)"),
+      // sendPushBatch's promise resolves before the 15ms timer ever fires,
+      // deletionSettled reads false here, and this line goes red.
+      ok(deletionSettled === true, "sendPushBatch's own promise must not resolve until an async onInvalid has settled — its caller's recordPulse/return must never run ahead of a still-in-flight token deletion");
+    }
   }
 
   restoreEnv();

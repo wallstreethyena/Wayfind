@@ -19,15 +19,24 @@
 // in the main bundle for a visitor who is never offline.
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { isNative } from "../../lib/native";
 
 const OfflineOverlay = dynamic(() => import("./native/OfflineOverlay"), { ssr: false });
 
 const LAST_PATH_KEY = "wf_last_path";
 
+// Only a same-origin absolute path is ever accepted from storage — never a
+// scheme, never a protocol-relative "//host" that would leave the app.
+function validResumePath(raw) {
+  if (typeof raw !== "string" || raw.length === 0 || raw.length >= 2048) return false;
+  if (raw.charAt(0) !== "/" || raw.charAt(1) === "/") return false;
+  return true;
+}
+
 export default function NativeOfflineOverlay() {
   const pathname = usePathname();
+  const router = useRouter();
   const [offline, setOffline] = useState(false);
 
   // Record where the user was, on every route change, so a reconnect (here
@@ -40,6 +49,37 @@ export default function NativeOfflineOverlay() {
       sessionStorage.setItem(LAST_PATH_KEY, (pathname || "/") + (search || ""));
     } catch (e) {}
   }, [pathname]);
+
+  // www/offline.html runs on capacitor://localhost; the app runs on
+  // https://www.gowayfind.com. Different origins mean the sessionStorage
+  // write above is invisible from offline.html, so the handoff crosses the
+  // origin boundary through the URL instead: offline.html navigates here
+  // with ?wf_resume=1, and THIS component (same origin as the write) reads
+  // its own wf_last_path and finishes the trip with router.replace().
+  useEffect(() => {
+    if (!isNative()) return;
+    if (typeof window === "undefined" || !window.location) return;
+    const search = window.location.search || "";
+    if (!/(?:^|[?&])wf_resume=1(?:&|$)/.test(search)) return;
+
+    let target = null;
+    try {
+      const raw = sessionStorage.getItem(LAST_PATH_KEY);
+      if (validResumePath(raw)) target = raw;
+    } catch (e) {}
+
+    if (!target) {
+      // No usable saved path — stay put, just drop wf_resume so it cannot
+      // re-trigger this effect or leak into a shared link.
+      const params = new URLSearchParams(search);
+      params.delete("wf_resume");
+      const qs = params.toString();
+      target = (pathname || "/") + (qs ? "?" + qs : "");
+    }
+    try { router.replace(target); } catch (e) {}
+    // Runs once, on mount, against the URL the app was launched with.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (!isNative()) return;
