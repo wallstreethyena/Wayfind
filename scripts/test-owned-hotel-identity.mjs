@@ -333,6 +333,54 @@ const LAT_260M = 27.5 + 260 / 111320; // ~259.7m north of 27.5,-82.7 (verified b
   ok(Number(M.VERIFY_DISTANCE_M) === 200, "S4: widening the bias did not widen the 200m match rule");
 }
 
+// ── THE BATCHED MARKER READ (2026-09-22). The run has seconds, not minutes;
+// reading markers one row at a time is what made it report "tried=0" while
+// spending its whole budget. These assert the batch path is used when offered,
+// that a row already marked is skipped WITHOUT a per-row read, and that the
+// old per-row path still works when no batch reader is supplied.
+{
+  const done = row({ name: "Already Done Inn", lat: 27.70, lng: -82.90, address: "1 Done St" });
+  const fresh = row({ name: "Needs Lookup Lodge", lat: 27.71, lng: -82.91, address: "2 Fresh St" });
+  const doneKey = M.MARK_PREFIX_GPID + M.ownedRowKey(done);
+  let batchCalls = 0, perRowCalls = 0;
+  const readMarks = async (keys) => {
+    batchCalls++;
+    ok(keys.includes(doneKey), "M1: the batch read asks for every candidate's marker keys");
+    return new Map([[doneKey, { gpid: "ChIJAlreadyDone000000000" }]]);
+  };
+  const readMark = async () => { perRowCalls++; return null; };
+  const written = [];
+  const r = await runOwnedHotelIdentityBackfill({
+    rows: [done, fresh], limit: 10, deadlineAt: Date.now() + 10_000,
+    readMarks, readMark,
+    writeMark: async (k, v, ttl) => { written.push([k, v, ttl]); },
+    searchIds: async () => ["ChIJFreshCandidate00000"],
+    placeDetails: async () => ({ location: { latitude: 27.71, longitude: -82.91 }, formattedAddress: "2 Fresh St, Bradenton, FL", types: ["hotel"] }),
+  });
+  eq(batchCalls, 1, "M2: exactly one batched marker read for the whole run");
+  eq(perRowCalls, 0, "M3: no per-row marker reads once the batch answered");
+  eq(r.skipped, 1, "M4: the already-resolved hotel is skipped");
+  eq(r.resolved, 1, "M5: the unmarked hotel is the one that got looked up");
+
+  // Fallback: no batch reader supplied -> the per-row path still runs.
+  let fallbackReads = 0;
+  const r2 = await runOwnedHotelIdentityBackfill({
+    rows: [fresh], limit: 10, deadlineAt: Date.now() + 10_000,
+    readMark: async () => { fallbackReads++; return null; },
+    writeMark: async () => {},
+    searchIds: async () => [],
+  });
+  ok(fallbackReads > 0, "M6: with no batch reader, the per-row reader is still used");
+  eq(r2.missed, 1, "M7: and the run still completes normally");
+
+  // URL chunking: a long key list is split, never sent as one over-long URL.
+  const many = Array.from({ length: 400 }, (_, i) => M.MARK_PREFIX_GPID + "wfh-a-very-long-hotel-slug-for-url-budget-" + i);
+  const chunks = M.chunkMarkKeys(many);
+  ok(chunks.length > 1, "M8: a 400-key list is chunked by URL length");
+  ok(chunks.every((c) => c.join(",").length < 6000), "M9: no chunk approaches the PostgREST URL limit");
+  eq(chunks.reduce((n, c) => n + c.length, 0), many.length, "M10: chunking loses no key");
+}
+
 if (fail.length) {
   console.error(`test-owned-hotel-identity: ${pass} passed, ${fail.length} FAILED`);
   for (const f of fail) console.error("  ✗ " + f);

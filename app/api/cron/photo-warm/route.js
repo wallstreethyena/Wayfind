@@ -48,8 +48,14 @@ const SWEEP_BUDGET_MS = 45_000;
 // warm pass spends its entire budget by design and a step queued after it
 // never runs at all. Off entirely unless
 // WAYFIND_HOTEL_IDENTITY=1 (runOwnedHotelIdentityIfEnabled's own gate).
-const IDENTITY_MAX_ROWS = 12;
-const IDENTITY_BUDGET_MS = 8_000;
+// 2026-09-22 (second pass, from the live pulse): the first shape spent its
+// whole 8s reading per-row markers and reported `tried=0`. With the markers now
+// read in one batch (lib/ownedHotelIdentity.js defaultReadMarks), the budget
+// buys actual lookups: one search plus up to three Details per row, so 15 rows
+// needs about twenty seconds. Twenty of the warm pass's 270 is a rounding error
+// to it and the difference between this finishing tonight and never finishing.
+const IDENTITY_MAX_ROWS = 15;
+const IDENTITY_BUDGET_MS = 20_000;
 
 import { runPhotoWarm, DEFAULT_PHOTO_WARM_MAX } from "../../../../lib/photoWarm";
 import { runPhotoLivenessSweep } from "../../../../lib/photoLivenessSweep";
