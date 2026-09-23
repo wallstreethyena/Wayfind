@@ -20,6 +20,16 @@ import { bookingTargets } from "../../../lib/bookingResolve";
 import { guidePrimaryCta, guideContinue, guideIntent, paintGuideCta } from "../../../lib/guideCta";
 import GuideConversion from "./GuideConversion";
 import { GuideFacts, GuideReadingNav, guidePickImage, guidePickFigureImage, GUIDE_EDITORIAL_CSS } from "./GuideEditorial";
+// Verified, credited pick photos (data/guide-pick-photos/<slug>.json via
+// scripts/build-guide-pick-photos.mjs's generated lib/guidePickPhotoManifest.js).
+// Imported HERE, not inside GuideEditorial.js: that file is transpiled and
+// vm-executed directly by scripts/check-guide-visual-standard.mjs (a require()
+// bound to scripts/'s own location, not GuideEditorial.js's), so an import
+// there resolves against the wrong directory and crashes that guard. This
+// file is never transpiled that way, so it carries the fallback instead — see
+// the pick loop below for the one call site.
+import { guidePickPhoto, attachFreePhotoCredit } from "../../../lib/guidePickPhotos";
+import { findFreePhoto } from "../../../lib/freePhoto";
 import { guideAppHandoffHref } from "../../../lib/guideHandoff";
 import { declaredGuideRailPlaceIds, guidePlaceRailConfig, resolveGuidePlaceRail } from "../../../lib/guidePlaceRails";
 import GuideDealCards from "./GuideDealCards";
@@ -560,6 +570,10 @@ export default async function GuidePage({ params }) {
       else rendered.add(rp.id);
     }
   }
+  // FREE PHOTO CREDIT (card credit fix). See attachFreePhotoCredit in
+  // lib/guidePickPhotos.js: a card only gets the free Commons lane's credit
+  // when that lane's photo is the one it will actually show.
+  await attachFreePhotoCredit([...pickPlaces, ...placeRail.places], { findFreePhoto });
   const nowResult = guidePicksForNow(g.picks, nowCtx);
   const nowHeadline = guideNowHeadline(nowCtx, g.region, nowResult);
   const nowExplainer = guideNowExplainer(nowResult, (g.picks || []).length);
@@ -988,7 +1002,17 @@ export default async function GuidePage({ params }) {
         // returns null for every pick that carries no image data, and GuideFigure
         // itself renders nothing for a null image — so a pick with no photo is a
         // clean typographic block, never a placeholder graphic (GVS-5).
-        const pickImage = guidePickFigureImage(params.slug, pick);
+        //
+        // FALLBACK to the verified, credited pick-photo library when the pick
+        // carries no inline `image` of its own. guidePickPhoto's ENTRY shape
+        // already matches what GuideFigure expects (src/width/height/alt/
+        // caption/credit/creditHref/license/licenseUrl/position), so no further
+        // normalization is needed. `cardWillRender` is the SAME condition that
+        // decides whether this exact pick's GuidePlaceCard renders below
+        // (`resolved`, already dedupe-aware) — passing anything else would
+        // silently defeat the loader's "never the same photo twice in one
+        // pick" rule for a `sameAsCardPhoto` entry.
+        const pickImage = guidePickFigureImage(params.slug, pick) || guidePickPhoto(params.slug, pick.name, { cardWillRender: Boolean(resolved) });
         return (
           <section key={i} id={"pick-" + (i + 1)} className="wf-guide-pick">
             <div className="wf-guide-number">{String(i + 1).padStart(2, "0")}</div>

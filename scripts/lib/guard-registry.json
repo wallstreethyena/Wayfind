@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 697,
-    "totalRegistryEntries": 698,
-    "guardsTxtLineCount": 696,
-    "guardsTxtReachedFileCount": 691,
+    "totalOnDiskGuardFiles": 698,
+    "totalRegistryEntries": 699,
+    "guardsTxtLineCount": 697,
+    "guardsTxtReachedFileCount": 692,
     "criticalCount": 84,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 476,
-      "RENDER": 82,
+      "RENDER": 83,
       "STRUCTURAL": 139,
       "OTHER": 1
     }
@@ -3397,6 +3397,28 @@
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
       "assertionCount": 66,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-guide-pick-photos.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 63,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
