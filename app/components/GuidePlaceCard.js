@@ -21,7 +21,8 @@
 // same rows. A guide save lands locally and the app reconciles it on next load,
 // the same way an offline save always has.
 import { useCallback, useEffect, useState } from "react";
-import IconicPlaceCard from "./IconicPlaceCard";\nimport { placeCardDetailHref } from "../../lib/placeCardRoute.js";
+import IconicPlaceCard from "./IconicPlaceCard";
+import { placeCardDetailHref } from "../../lib/placeCardRoute.js";
 import { addPlaceToTrips, tripMetaForPlace } from "../../lib/trips";
 import { readLocalLikeState, persistLike, persistDislike, recordTasteSignal } from "../../lib/likeSignal";
 
