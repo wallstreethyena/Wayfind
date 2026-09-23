@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
 import { validStayOrigin } from "../../lib/stayOrigin.js";
-import { hotelMarketName } from "../../lib/eventStays.js";
 import EventStayCards from "./EventStayCards.js";
 import RailLoading from "./RailLoading.js";
 import RailHeading from "./RailHeading.js";
@@ -65,13 +64,13 @@ export default function DestinationStays({ destinations = [] }) {
         style={{ minWidth: 0, maxWidth: "min(68vw, 360px)", border: "1px solid #7C2D12", borderRadius: 999, background: "#1C1014", color: "#FFF7ED", padding: "7px 11px", fontWeight: 700 }}>
         {valid.map((item) => {
           // A place-kind destination's city is a stored metro SLUG (e.g.
-          // "manatee-sarasota"), never fit for a reader-facing label.
-          // hotelMarketName is the one place that already maps those slugs to
-          // honest names (lib/eventStays.js). An event-kind destination's city
-          // is already a real place name and rarely matches a stored slug; when
-          // it does not, the option shows the destination name alone rather
-          // than inventing a label for text we cannot verify.
-          const cityLabel = hotelMarketName(item.city);
+          // "manatee-sarasota"), never fit for a reader-facing label, and its
+          // market name ("Manatee and Sarasota Counties, Florida") is far too
+          // long for a one-line picker. An event-kind destination's city is a
+          // real town name ("Tampa") and is kept. A slug shows the destination
+          // name alone.
+          const rawCity = String(item.city || "").trim();
+          const cityLabel = rawCity && !/^[a-z0-9]+(?:-[a-z0-9]+)+$/.test(rawCity) && rawCity.length <= 24 ? rawCity : "";
           return <option key={item.id} value={item.id}>{item.name}{cityLabel ? ` · ${cityLabel}` : ""}</option>;
         })}
       </select>
