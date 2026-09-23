@@ -1,6 +1,6 @@
 {
   "title": "Surface parity audit (API level) — before-fix-2026-09-23",
-  "generatedAt": "2026-09-23T19:12:34.966Z",
+  "generatedAt": "2026-09-23T19:43:10.890Z",
   "meta": {
     "level": "api",
     "base": "https://www.gowayfind.com",
@@ -75,7 +75,8 @@
       "food:brunch",
       "food:drinks",
       "beach:marinas"
-    ]
+    ],
+    "cacheDriftPreFixObservation": "Manually observed 2026-09-23, before this fix: two captures of the IDENTICAL production inv=1 URL (no order= param) returned DIFFERENT membership counts — 134 places without Ryans Coffee House vs 152 places WITH it — while BOTH responses carried x-vercel-cache: HIT. This is the nondeterministic capped/unordered read being cached at the CDN edge for ~24h: which arbitrary heap-order slice got cached (and then served as a HIT to every request since) was itself a coin flip at cache-fill time. Post-fix (ordered, exhaustive reads), --checkCacheDrift on this script re-fetches page 0 of every pair a second time after a delay and flags any membership difference as cache_drift -- this becomes a plain regression check that should find zero drift going forward."
   },
   "summary": {
     "totalChecked": 133809,

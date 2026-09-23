@@ -1,6 +1,6 @@
 # Surface parity audit (browser level) — before-fix-browser-parrish-fixture-2026-09-23
 
-Generated: 2026-09-23T19:13:36.059Z
+Generated: 2026-09-23T19:43:51.166Z
 
 ```json
 {
@@ -15,7 +15,8 @@ Generated: 2026-09-23T19:13:36.059Z
   ],
   "radiusRequestedM": 27359,
   "radiusSnappedM": 32000,
-  "reclassifiedNote": "2026-09-23 offline reclassification (WS2 follow-up): the 69 api_included_ui_omitted rows from the original browser capture were re-evaluated against outside_display_radius:/brand_collapse: via the REAL client gates (scripts/lib/parity/clientGates.mjs) using fresh direct-Supabase ground truth at the SAME captured origin/radius/sliderMi this file recorded. All 69 are now explained (55 outside_display_radius, 14 brand_collapse); 0 remain unexplained api_included_ui_omitted. See docs/audits/surface-parity/README or the WS2 handback report for detail."
+  "reclassifiedNote": "2026-09-23 offline reclassification (WS2 follow-up): the 69 api_included_ui_omitted rows from the original browser capture were re-evaluated against outside_display_radius:/brand_collapse: via the REAL client gates (scripts/lib/parity/clientGates.mjs) using fresh direct-Supabase ground truth at the SAME captured origin/radius/sliderMi this file recorded. All 69 are now explained (58 outside_display_radius, 11 brand_collapse); 0 remain unexplained api_included_ui_omitted.",
+  "cacheDriftPreFixObservation": "This captured run recorded apiResponseCount=152 (see pairSummaries[0]), WITH Ryans Coffee House present. A separate capture of the SAME production URL earlier the same day (2026-09-23, before this fix) returned 134 places WITHOUT it, both responses carrying x-vercel-cache: HIT -- the nondeterministic capped/unordered read cached at the CDN edge for ~24h, not a real change in eligibility. See --checkCacheDrift in scripts/surface-parity-audit.mjs for the automated post-fix regression check this observation motivated."
 }
 ```
 
