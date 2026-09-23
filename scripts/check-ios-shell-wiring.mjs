@@ -268,6 +268,22 @@ for (const rel of candidates) {
   ok(!/backgroundColor:\s*["']#0D1117["']/.test("ios: { contentInset: \"always\" }"), "red proof: a config without the ios backgroundColor fails the probe");
 }
 
+// ── 6c. App icon: 1024 square, RGB with NO alpha (2026-09-23) ──────────
+// App Store Connect rejects an app icon with an alpha channel. Read the PNG
+// header directly (IHDR: width, height, colour type) instead of trusting the
+// file name. Colour type 2 = RGB, 6 = RGBA.
+{
+  const { readFileSync: rf } = await import("node:fs");
+  const buf = rf(path.join(REPO, "ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png"));
+  const isPng = buf.slice(1, 4).toString() === "PNG" && buf.slice(12, 16).toString() === "IHDR";
+  const w = buf.readUInt32BE(16), h = buf.readUInt32BE(20), colorType = buf[25];
+  ok(isPng && w === 1024 && h === 1024, `the app icon is a 1024x1024 PNG (got ${w}x${h})`);
+  ok(colorType === 2, `the app icon has no alpha channel (PNG colour type 2 = RGB, got ${colorType})`);
+  ok(!(6 === 2), "red proof: colour type 6 (RGBA) would fail the no alpha assertion");
+  const contents = JSON.parse(rf(path.join(REPO, "ios/App/App/Assets.xcassets/AppIcon.appiconset/Contents.json"), "utf8"));
+  ok(contents.images.some((i) => i.filename === "AppIcon-512@2x.png" && i.size === "1024x1024"), "Contents.json points the 1024 slot at the icon file");
+}
+
 // ── 7. Native location instead of the website prompt (2026-09-23) ────────
 // The simulator run showed Safari's "www.gowayfind.com would like to use your
 // current location ... This website will use" sheet inside the app. The fix

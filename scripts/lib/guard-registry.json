@@ -4355,7 +4355,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": true,
-      "assertionCount": 66,
+      "assertionCount": 70,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
