@@ -14,6 +14,7 @@
 // read renders nothing rather than a guess. Every card links to a real
 // /places/<id> page the API already proved exists.
 import { useEffect, useState } from "react";
+import { captureOrQueue } from "../../lib/browserAnalytics";
 
 const CSS = `
 .wf8-xm{margin:18px 0 4px;padding:14px 0 0;border-top:1px dashed var(--wf8-line,rgba(148,163,184,.35))}
@@ -32,7 +33,7 @@ const CSS = `
 `;
 
 function track(name, props) {
-  try { if (typeof window !== "undefined" && window.posthog && window.posthog.capture) window.posthog.capture(name, props || {}); } catch (e) {}
+  try { if (typeof window !== "undefined") captureOrQueue(window, name, props || {}); } catch (e) {}
 }
 
 export default function ExtraMilesTail({ lat, lng }) {
