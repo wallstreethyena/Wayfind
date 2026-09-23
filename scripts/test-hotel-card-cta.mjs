@@ -226,7 +226,7 @@ function hotelGoAnchorHref(html) {
   const m = [...html.matchAll(/<a[^>]*\shref="([^"]*)"/g)].map((x) => decodeAmp(x[1])).find((h) => h.startsWith("/api/hotels/go?"));
   return m || null;
 }
-const hasDisclosure = (html) => html.includes("Wayfind may earn a commission");
+const hasDisclosure = (html) => html.includes("We may earn a commission when you book through partner links");
 
 async function run() {
   const HomePlaceCard = await loadHomePlaceCard({ forceGateOff: MUTATION });
