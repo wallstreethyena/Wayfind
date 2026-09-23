@@ -47,17 +47,17 @@
       "height": 793,
       "alt": "The Homosassa Springs Wildlife Park entrance sign with manatee statues in a stone fountain, wildlife-walk directional signs, and the entry path",
       "caption": "The entrance sign and manatee-statue fountain at Homosassa Springs Wildlife State Park.",
-      "credit": "Ebyabe",
+      "credit": "Paul Clark",
       "creditHref": "https://commons.wikimedia.org/wiki/File:Homosassa_Springs_Wildlife_State_Park_(Citrus_County,_FL).jpg",
       "license": "CC BY 2.0",
       "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File:Homosassa_Springs_Wildlife_State_Park_(Citrus_County,_FL).jpg",
-      "author": "Ebyabe",
+      "author": "Paul Clark",
       "position": "32% 55%",
       "modificationNotice": "Resized, cropped for display and converted to WebP.",
       "sourceKind": "commons",
       "placeId": null,
-      "verification": "Downloaded the original (2304x1536) from Wikimedia Commons and inspected it directly: a wooden sign reading 'HOMOSASSA SPRINGS WILDLIFE PARK' above a manatee-statue fountain, with directional signs for 'Alligators/Hippopotamus', 'Wildlife Walk' and 'Wildlife Encounters' -- an unambiguous, on-site identification of this exact state park.",
+      "verification": "Downloaded the original (2304x1536) from Wikimedia Commons and inspected it directly: a wooden sign reading 'HOMOSASSA SPRINGS WILDLIFE PARK' above a manatee-statue fountain, with directional signs for 'Alligators/Hippopotamus', 'Wildlife Walk' and 'Wildlife Encounters' -- an unambiguous, on-site identification of this exact state park. Credit corrected 2026-09-23: the Commons file page names the author as Paul Clark (originally Flickr photo 1339260574, imported by the Flickr upload bot), CC BY 2.0.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
     }
@@ -66,7 +66,7 @@
     "Three Sisters Springs boardwalk, stay dry": {
       "reason": "no-verified-source",
       "placeId": null,
-      "needsPermissionFrom": null,
+      "needsPermissionFrom": "U.S. Fish and Wildlife Service, Crystal River National Wildlife Refuge (public agency)",
       "note": "Searched Commons (title/text search, the Crystal River National Wildlife Refuge category, 'boardwalk'/'walkway'/'trail' queries) and found only the water-approach view already used for the kayak pick, refuge entrance signage, and unrelated 1900s-era photos. No properly licensed photo of the land-side boardwalk/trolley viewing platform (distinct from the water view) was found. Pass 2 (2026-09-23): searched Openverse for \"Three Sisters Springs boardwalk\" (zero results), \"Three Sisters Springs Crystal River\" (29 results, all water-level manatee/swimmer photos, none showing the land boardwalk or trolley platform), and \"Crystal River National Wildlife Refuge boardwalk\" (zero results). No usable candidate found."
     },
     "A manatee eco-cruise for non-swimmers": {

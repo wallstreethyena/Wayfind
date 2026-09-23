@@ -46,7 +46,7 @@
     "The kayak trails": {
       "reason": "no-verified-source",
       "placeId": null,
-      "needsPermissionFrom": null,
+      "needsPermissionFrom": "Manatee County Parks and Natural Resources (public agency)",
       "note": "No Commons photo found of Robinson Preserve's kayak launch or mangrove paddling trails specifically. Pass 2 (2026-09-23): Openverse searched \"Robinson Preserve kayak\", \"Robinson Preserve trail\", \"Robinson Preserve mangrove tunnel\" and \"Robinson Preserve paddle mangrove creek\"; also checked the Commons category for Robinson Preserve directly (only 2 files total exist there — the observation tower already used, and a boardwalk/trail photo now used for the 'Flat miles for wheels' pick). None show the preserve's kayak launch or paddling water."
     }
   }

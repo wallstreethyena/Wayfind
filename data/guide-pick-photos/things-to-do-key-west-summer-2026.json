@@ -112,13 +112,13 @@
     "The Reserve, the new bank takeover": {
       "reason": "no-verified-source",
       "placeId": null,
-      "needsPermissionFrom": null,
+      "needsPermissionFrom": "The Reserve Key West",
       "note": "No Wikimedia Commons photo exists for this brand-new 2026 opening, and it is not indexed in Wayfind's inventory, so there is no licensed source of any kind, including Google. Pass 2 (2026-09-23): Searched Openverse for 'The Reserve Key West bank' — the only match was an unrelated Dry Tortugas photo licensed CC BY-NC-ND (disallowed). No usable source found for this brand-new opening."
     },
     "The Southernmost Point buoy, temporary edition": {
       "reason": "no-verified-source",
       "placeId": null,
-      "needsPermissionFrom": null,
+      "needsPermissionFrom": "City of Key West (public agency)",
       "note": "This pick is specifically about the temporary 12-foot replica at Duval Pocket Park while the original corner is rebuilt; no Wikimedia Commons photo of that temporary installation exists yet (only older photos of the original, now-fenced corner), and it is not indexed in Wayfind's inventory, so using an older photo would misrepresent the current, temporary location. Pass 2 (2026-09-23): Searched Openverse for 'Southernmost Point buoy Duval Pocket Park' — zero results. No coverage yet of the temporary replica at Duval Pocket Park."
     },
     "August's festival stack: Lobsterfest and Rum Fest": {
@@ -130,7 +130,7 @@
     "Papa's Pilar rum distillery": {
       "reason": "no-verified-source",
       "placeId": null,
-      "needsPermissionFrom": null,
+      "needsPermissionFrom": "Papa's Pilar Distillery",
       "note": "No Wikimedia Commons photo exists for this distillery, and it is not indexed in Wayfind's inventory, so there is no licensed source of any kind, including Google. Pass 2 (2026-09-23): Searched Openverse for \"Papa's Pilar rum distillery Key West\" (zero results) and \"Papa's Pilar Key West\" via source=flickr (one match, 'Papa's Pilar Rum' by Eric Holcomb, licensed CC BY-NC — disallowed). No usable source found."
     }
   }

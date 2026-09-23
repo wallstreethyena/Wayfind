@@ -104,19 +104,19 @@
     "Shipwreck Island Waterpark": {
       "reason": "no-verified-source",
       "placeId": null,
-      "needsPermissionFrom": null,
+      "needsPermissionFrom": "Shipwreck Island Waterpark",
       "note": "No Wikimedia Commons photo exists, and this waterpark is not indexed in Wayfind's inventory at all, so there is no licensed source of any kind, including Google. Pass 2 (2026-09-23): Searched Openverse for 'Shipwreck Island Waterpark Panama City Beach' and 'Shipwreck Island Waterpark' via source=flickr — zero results both times. No CC-licensed source found."
     },
     "The TikTok food crawl: Boondocks and Coco Loco": {
       "reason": "no-verified-source",
       "placeId": null,
-      "needsPermissionFrom": null,
+      "needsPermissionFrom": "Boondocks or Coco Loco (either one)",
       "note": "No Wikimedia Commons photo exists for either restaurant, and neither Boondocks nor Coco Loco is indexed in Wayfind's inventory, so there is no licensed source of any kind, including Google. Pass 2 (2026-09-23): Searched Openverse for 'Boondocks Panama City Beach' and 'Coco Loco Panama City Beach' — zero results for either. No CC-licensed source found."
     },
     "Free concerts at Aaron Bessant Park": {
       "reason": "no-verified-source",
       "placeId": null,
-      "needsPermissionFrom": null,
+      "needsPermissionFrom": "City of Panama City Beach (public agency)",
       "note": "No Wikimedia Commons photo exists, and Aaron Bessant Park is not indexed in Wayfind's inventory, so there is no licensed source of any kind, including Google. Pass 2 (2026-09-23): Searched Openverse for 'Aaron Bessant Park Panama City Beach' and 'Aaron Bessant Park' via source=flickr — zero results both times. No CC-licensed source found for the park or its amphitheater."
     }
   }

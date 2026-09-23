@@ -1,0 +1,33 @@
+{
+  "rule": "Photos accepted for now because the caption discloses the year, but NOT permanently solved: replace each one when a newer photo of the same place under an allowed licence (or with the venue's permission) becomes available. Flagged by the owner on 2026-09-23.",
+  "candidates": [
+    {
+      "src": "/guides/picks/gatorland-vs-wild-florida/gatorland-mouth-entrance.webp",
+      "guide": "gatorland-vs-wild-florida",
+      "pick": "Gatorland: the classic park",
+      "taken": "2002-04-22",
+      "reason": "Future replacement candidate: photo taken in 2002 (year disclosed in the caption). The alligator-mouth entrance still stands, but paint and surroundings may have changed."
+    },
+    {
+      "src": "/guides/picks/things-to-do-daytona-beach-summer-2026/crabby-joes-sunglow-pier.webp",
+      "guide": "things-to-do-daytona-beach-summer-2026",
+      "pick": "Crabby Joe's on Sunglow Pier",
+      "taken": "2008-04-12",
+      "reason": "Future replacement candidate: photo taken in 2008 (year disclosed in the caption). Sunglow Pier was damaged by later hurricanes, so today's pier may not match."
+    },
+    {
+      "src": "/guides/picks/things-to-do-st-petersburg-clearwater-summer-2026/caladesi-ferry-dock.webp",
+      "guide": "things-to-do-st-petersburg-clearwater-summer-2026",
+      "pick": "Caladesi Island by ferry",
+      "taken": "2011-09-02",
+      "reason": "Future replacement candidate: photo taken in 2011 (year disclosed in the caption). The ferry boat in service today may be a different vessel."
+    },
+    {
+      "src": "/guides/picks/things-to-do-naples-summer-2026/fifth-avenue-south-inn-on-fifth.webp",
+      "guide": "things-to-do-naples-summer-2026",
+      "pick": "Fifth Avenue South on summer deals",
+      "taken": "2005-05-12",
+      "reason": "Future replacement candidate: photo taken in 2005 (year disclosed in the caption). Added 2026-09-23 to replace a photo whose recorded licence was wrong; the street has changed since."
+    }
+  ]
+}

@@ -22,22 +22,22 @@
       "reviewedAt": "2026-09-23"
     },
     "Fifth Avenue South on summer deals": {
-      "src": "/guides/picks/things-to-do-naples-summer-2026/fifth-avenue-south-theatre.webp",
-      "width": 1400,
-      "height": 788,
-      "alt": "The illuminated entrance of the Sugden Community Theatre, home of the Naples Players, on Fifth Avenue South at night, framed by trees strung with lights",
-      "caption": "The Sugden Community Theatre on Fifth Avenue South, Naples' palm-lined dining and gallery strip.",
-      "credit": "Coachman76",
-      "creditHref": "https://commons.wikimedia.org/wiki/File:Naples_Players_Sugden_Community_Theatre_701_5th_Avenue_South_2010.jpg",
-      "license": "CC0 1.0 Universal",
-      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
-      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Naples_Players_Sugden_Community_Theatre_701_5th_Avenue_South_2010.jpg",
-      "author": "Coachman76",
-      "position": "50% 50%",
-      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
-      "sourceKind": "commons",
+      "src": "/guides/picks/things-to-do-naples-summer-2026/fifth-avenue-south-inn-on-fifth.webp",
+      "width": 1280,
+      "height": 960,
+      "alt": "The Inn on Fifth on Fifth Avenue South in Naples: a cream Mediterranean-style building with a striped awning, palm trees, blue shop awnings and parked cars along the street",
+      "caption": "The Inn on Fifth and neighboring shopfronts on Fifth Avenue South, photographed in 2005.",
+      "credit": "Charlie Anzman",
+      "creditHref": "https://www.flickr.com/photos/60309429@N00/305133821",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/60309429@N00/305133821",
+      "author": "Charlie Anzman",
+      "position": "50% 62%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "flickr",
       "placeId": null,
-      "verification": "Downloaded the original from Wikimedia Commons and inspected it: the building's own illuminated sign reads \"The Naples Players / Sugden Community Theatre,\" and the file's title and embedded GPS (26.1424, -81.7976) confirm the address, 701 5th Avenue South, on the exact street this pick covers; one distant person near the entrance is small and unidentifiable, not the subject. Note: license field on Commons is CC0 (categorized PD-self); treated here as CC0 1.0 Universal per the file's own Creative Commons Zero dedication.",
+      "verification": "Flickr photo 'Fifth Avenue - Naples Florida' by Charlie Anzman (page description: 'Photo of The Inn on Fifth in Naples, Fl'), taken 2005-05-12; the awning reads 'The Inn on Fifth, Old Naples, Florida', the hotel on the Fifth Avenue South strip this pick covers. Live Flickr page licence checked 2026-09-23: CC BY 2.0. Replaces the Sugden Community Theatre photo, whose Commons licence is {{PD-self}}, a public-domain release outside this contract, which had been recorded as CC0. Year disclosed in the caption; listed as a future replacement candidate.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
     },
@@ -132,19 +132,19 @@
     "Tigress at The Perry Hotel": {
       "reason": "no-verified-source",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "No Wikimedia Commons photo exists for this restaurant or the Perry Hotel, and neither is indexed in Wayfind's inventory, so there is no licensed source of any kind, including Google. Pass 2 (2026-09-23): Searched Openverse for 'Perry Hotel Key West Tigress' — zero results; this query mistakenly targeted the Key West property, when this pick's own blurb names The Perry Hotel in Naples (appQuery 'The Perry Hotel Naples'), so the search should be treated as inconclusive for the correct venue, not exhaustive. No follow-up query was run because the assigned Openverse budget was already spent by that point in the session."
+      "needsPermissionFrom": "The Perry Hotel Naples",
+      "note": "No Wikimedia Commons photo exists for this restaurant or the Perry Hotel, and neither is indexed in Wayfind's inventory, so there is no licensed source of any kind, including Google. Pass 2 (2026-09-23, re-run for the correct city): searched for The Perry Hotel in Naples, the venue this pick's blurb names (appQuery 'The Perry Hotel Naples'). Openverse, limited to CC0, CC BY and CC BY-SA: 'Perry Hotel Naples', 'Perry Hotel Naples Florida', 'Tigress Naples' and 'Tigress Dale Talde' each returned zero results; 'Perry Hotel Naples' on Flickr under any licence also returned zero. Wikimedia Commons file search for 'Perry Hotel Naples', 'Tigress Naples' and 'Naples Florida Perry' returned only unrelated scanned books, maps and documents. No photo of the hotel or the restaurant exists under a usable licence, so a real photo needs The Perry Hotel Naples' permission."
     },
     "An FC Naples match night": {
       "reason": "no-verified-source",
       "placeId": null,
-      "needsPermissionFrom": null,
+      "needsPermissionFrom": "FC Naples",
       "note": "No Wikimedia Commons photo exists for the Paradise Coast Sports Complex, and it is not indexed in Wayfind's inventory, so there is no licensed source of any kind, including Google. Pass 2 (2026-09-23): Searched Openverse for 'Paradise Coast Sports Complex Naples' — zero results. No CC-licensed source found."
     },
     "Keewaydin Island by boat": {
       "reason": "no-verified-source",
       "placeId": null,
-      "needsPermissionFrom": null,
+      "needsPermissionFrom": "Rookery Bay Reserve / Conservancy of Southwest Florida (public land)",
       "note": "The only Wikimedia Commons photos of this exact barrier island beach are licensed CC BY-SA 2.5 or plain Public Domain, neither of which is in Wayfind's allowed licence list (CC0, or CC BY/CC BY-SA at 2.0, 3.0 or 4.0); the island is not indexed in Wayfind's inventory either. Pass 2 (2026-09-23): Searched Openverse for 'Keewaydin Island Naples' (zero allowed-licence results), 'Keewaydin Island' via source=flickr (41 results, all CC BY-NC-SA 2.0 from two Flickr photographers — disallowed), and 'Keewaydin Island boat' with the licence filter (zero results). No allowed-licence photo of the island found on Flickr either."
     }
   }

@@ -31,6 +31,10 @@
  *   10. a real manifest entry, run through the ACTUAL GuideFigure component
  *       (compiled and rendered, not regexed), produces a <figure> with the
  *       GVS-3 "Photo: <credit>" credit line
+ *   11. every pick photo and every /guides/picks/ hero has a row in
+ *       data/guide-pick-photos/_reports/license-evidence.json that was
+ *       verified AT THE SOURCE, allows commercial use, and still matches the
+ *       credit, licence, deed URL and modification notice the site renders
  */
 import { readFileSync, statSync } from "node:fs";
 import path from "node:path";
@@ -47,6 +51,7 @@ import { GUIDE_PICK_PHOTOS } from "../lib/guidePickPhotoManifest.js";
 import { selectGuidePickPhoto, guidePickPhoto, attachFreePhotoCredit } from "../lib/guidePickPhotos.js";
 import { loadGuidePickPhotoFiles, buildGuidePickPhotos, DATA_DIR } from "./build-guide-pick-photos.mjs";
 import { guideImageProblems } from "../lib/guideImagePolicy.js";
+import { GUIDE_HERO_ART } from "../lib/guideHero.js";
 
 const require = createRequire(import.meta.url);
 const REPO = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
@@ -387,6 +392,58 @@ for (const { file, json } of dataFiles) {
   const pageSrc = readFileSync(abs("app/guides/[slug]/page.js"), "utf8");
   ok(/attachFreePhotoCredit\(\[\.\.\.pickPlaces, \.\.\.placeRail\.places\], \{ findFreePhoto \}\)/.test(pageSrc), "app/guides/[slug]/page.js attaches card credit only through attachFreePhotoCredit");
   ok(!/p\.photoAttr\s*=\s*free\.attributionText/.test(pageSrc), "page.js no longer sets the credit inline without pointing the card at the free photo");
+}
+
+// ── 11. LICENCE EVIDENCE: every photo has a source-checked ledger row ──────
+// data/guide-pick-photos/_reports/license-evidence.json is written by
+// scripts/build-guide-photo-license-evidence.mjs, which re-reads each photo's
+// SOURCE (Commons API / live Flickr page). Offline, this proves every photo the
+// site renders from this pipeline — every pick, every data-file hero, and every
+// lib/guideHero.js hero whose file lives under /guides/picks/ — has a row that
+// was verified at the source and still agrees with what the site credits. A
+// credit or licence edited after verification, or a new photo nobody checked at
+// its source, fails here until the evidence script is re-run.
+const LEDGER_PATH = "data/guide-pick-photos/_reports/license-evidence.json";
+const ledger = JSON.parse(readFileSync(abs(LEDGER_PATH), "utf8"));
+const ledgerBySrc = new Map((ledger.files || []).map((r) => [r.src, r]));
+const COMMERCIAL_OK_RX = /^(CC0 1\.0 Universal|CC BY(-SA)? [234]\.0)$/;
+function ledgerProblems(row, stored) {
+  if (!row) return ["no licence-evidence row"];
+  const p = [];
+  if (row.status !== "verified") p.push(`status is ${JSON.stringify(row.status)}, not "verified"`);
+  if (row.commercialUse !== true) p.push("commercialUse is not true");
+  if (!COMMERCIAL_OK_RX.test(String(row.source && row.source.licence))) p.push(`licence at source ${JSON.stringify(row.source && row.source.licence)} does not allow commercial use`);
+  if (row.source.licence !== stored.license) p.push(`licence at source ${JSON.stringify(row.source.licence)} != site licence ${JSON.stringify(stored.license)}`);
+  if (row.source.url !== stored.sourceUrl) p.push("source URL differs from the site's");
+  if (!row.source.author || !row.source.title) p.push("source author or title not recorded");
+  for (const k of ["credit", "license", "licenseUrl", "modificationNotice"]) {
+    if (row.wayfind[k] !== stored[k]) p.push(`site ${k} changed since verification (${JSON.stringify(row.wayfind[k])} -> ${JSON.stringify(stored[k])})`);
+  }
+  if (!REVIEWED_AT_RX.test(String(row.verifiedAt))) p.push("verifiedAt is not YYYY-MM-DD");
+  return p;
+}
+{
+  const stored = { sourceUrl: "https://www.flickr.com/photos/1@N00/2", credit: "A", license: "CC BY 2.0", licenseUrl: "https://creativecommons.org/licenses/by/2.0/", modificationNotice: "Resized." };
+  const row = { status: "verified", commercialUse: true, verifiedAt: "2026-09-23", source: { url: stored.sourceUrl, licence: "CC BY 2.0", author: "A", title: "T" }, wayfind: { credit: "A", license: "CC BY 2.0", licenseUrl: stored.licenseUrl, modificationNotice: "Resized." } };
+  ok(ledgerProblems(row, stored).length === 0, "positive control: a verified, matching ledger row passes");
+  ok(ledgerProblems(null, stored).length === 1, "red-proof: a photo with no ledger row fails");
+  ok(ledgerProblems({ ...row, source: { ...row.source, licence: "CC BY-SA 3.0" } }, stored).some((x) => x.includes("!= site licence")), "red-proof: a source licence that differs from the site's fails (the Bern's case)");
+  ok(ledgerProblems({ ...row, source: { ...row.source, licence: "CC BY-NC 2.0" } }, { ...stored, license: "CC BY-NC 2.0" }).some((x) => x.includes("commercial")), "red-proof: an NC licence fails the commercial-use rule");
+  ok(ledgerProblems(row, { ...stored, credit: "B" }).some((x) => x.includes("site credit changed")), "red-proof: a credit edited after verification fails (the Homosassa case)");
+  ok(ledgerProblems({ ...row, status: "needs-review" }, stored).length > 0, "red-proof: a needs-review row fails");
+}
+const heroUsages = Object.entries(GUIDE_HERO_ART)
+  .filter(([, a]) => a && typeof a.src === "string" && a.src.startsWith("/guides/picks/"))
+  .map(([slug, a]) => ({ slug, pickName: "(hero art)", entry: { src: a.src, sourceUrl: a.source, credit: a.credit, license: a.license, licenseUrl: a.licenseUrl, modificationNotice: a.modificationNotice } }));
+ok(heroUsages.length > 0, "positive control: lib/guideHero.js has heroes under /guides/picks/ — the hero half of this rule has a live subject");
+for (const { slug, pickName, entry } of [...allEntries, ...heroUsages]) {
+  const probs = ledgerProblems(ledgerBySrc.get(entry.src), entry);
+  ok(probs.length === 0, `${slug} / "${pickName}" (${entry.src}): ${probs.join("; ")} — re-run node scripts/build-guide-photo-license-evidence.mjs`);
+}
+const candidates = JSON.parse(readFileSync(abs("data/guide-pick-photos/_reports/replacement-candidates.json"), "utf8")).candidates;
+for (const c of candidates) {
+  const row = ledgerBySrc.get(c.src);
+  ok(Boolean(row) && row.replacementCandidate === c.reason, `replacement candidate ${c.src} is carried into the licence ledger`);
 }
 
 if (failures.length) {

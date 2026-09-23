@@ -46,7 +46,7 @@
     "Buccaneer Bay, the spring-fed water park": {
       "reason": "no-verified-source",
       "placeId": null,
-      "needsPermissionFrom": null,
+      "needsPermissionFrom": "Florida State Parks, Weeki Wachee Springs State Park (public agency)",
       "note": "No Commons search turned up any photo of Buccaneer Bay (the spring-fed water park within Weeki Wachee Springs State Park); every 'Weeki Wachee' result on Commons is either the river, the springs, the mermaid show's history, or the front-gate sign. Pass 2 (2026-09-23): searched Openverse for \"Buccaneer Bay Weeki Wachee\"; the one result was the general park highway sign (already effectively covered by this guide's existing 'live mermaid show' pick), not the water park itself. No usable candidate found."
     },
     "When the manatees come": {
