@@ -698,7 +698,7 @@ export default async function GuidePage({ params }) {
       "@type": "ListItem",
       position: i + 1,
       name: pick.name,
-      url: pick.eventSlug ? SITE_URL + "/florida-events/" + encodeURIComponent(pick.eventSlug) : guideUrl + "#pick-" + (i + 1),
+      url: pick.placeId ? SITE_URL + "/places/" + encodeURIComponent(pick.placeId) : pick.eventSlug ? SITE_URL + "/florida-events/" + encodeURIComponent(pick.eventSlug) : guideUrl + "#pick-" + (i + 1),
     })),
   } : null;
   const faqLd = g.faq && g.faq.length ? {
