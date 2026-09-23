@@ -283,6 +283,37 @@ try {
       check(body.pulse.ok === (!scenario.pulse) && body.pulse.indeterminate === (scenario.pulse === "indeterminate"), "confirmed, refused and indeterminate pulse outcomes remain distinct");
     }
   }
+
+  // ── Only booking actions can be reconciled as bookings ──────────────────
+  // action_type can no longer be requested, so the distinction rests on two
+  // things: every statistics request selects `type = action` (asserted on
+  // every call by statsFixture), and any row that labels itself as another
+  // kind of action is refused, failing the whole run closed.
+  for (const label of [{ type: "action" }, { action_type: "booking" }, { type: "action", action_type: "booking" }]) {
+    check(normalizeTravelpayoutsBooking(booking(label)).action_type === "booking", `booking row ${JSON.stringify(label)} is accepted`);
+  }
+  const nonBookingLabels = [
+    { type: "paid_click" }, { type: "advertise_profit" }, { type: "referral" }, { type: "init" }, { type: null }, { type: "Action" },
+    { action_type: "paid_click" }, { action_type: "advertise_profit" }, { action_type: null }, { type: "action", action_type: "paid_click" },
+  ];
+  for (const label of nonBookingLabels) {
+    assert.throws(() => normalizeTravelpayoutsBooking(booking(label)), /is not (action|booking)/, `non-booking row ${JSON.stringify(label)} must be refused`);
+    checks += 1;
+  }
+  const typeFilters = official.calls.concat(paged.calls).map((body) => body.filters.filter((f) => f.field === "type"));
+  check(typeFilters.length >= 3 && typeFilters.every((f) => f.length === 1 && f[0].op === "eq" && f[0].value === "action"), "every statistics request selects exactly type = action");
+  const mixedStats = statsFixture({ rows: [booking(), booking({ action_id: "click-2", type: "paid_click" })] });
+  await assert.rejects(fetchTravelpayoutsBookings({ ...options, fetchImpl: mixedStats.fetchImpl }), /type is not action/);
+  checks += 1;
+  for (const statsRows of [[booking({ type: "paid_click" })], [booking(), booking({ action_id: "click-2", action_type: "advertise_profit" })]]) {
+    fixture = cronFixture({ statsRows });
+    globalThis.fetch = fixture.fetchImpl;
+    const refused = await cronGET(cronRequest());
+    const refusedBody = await refused.json();
+    check(refused.status === 500 && refusedBody.ok === false, "a non-booking action fails the cron run closed");
+    check(!fixture.calls.includes("/rest/v1/rpc/wf_tp_reconcile"), "a non-booking action never reaches wf_tp_reconcile, even beside a real booking");
+    check(fixture.pulses.length === 1 && /is not (action|booking)/.test(JSON.stringify(fixture.pulses[0])), "the failure pulse names the refused non-booking row");
+  }
   console.log(`test-travelpayouts-attribution: OK — ${checks} assertions; real redirect, official statistics contract, bounded reconciliation and cron terminal paths`);
 } finally {
   globalThis.fetch = originalFetch;
