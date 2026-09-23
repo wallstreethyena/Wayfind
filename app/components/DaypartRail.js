@@ -232,6 +232,7 @@ import useEditorialHooks from "./useEditorialHooks";
 import { toHookLine } from "../../lib/editorialHook";
 import { formatBeachChipBits, waterQualityKey, WATER_TONE, WATER_PLAIN_LONG } from "../../lib/beachChip.js";
 import PlaceCardSkeleton from "./PlaceCardSkeleton";
+import { captureOrQueue } from "../../lib/browserAnalytics";
 
 // Same drawing as the share control everywhere else in the app (app/home.js
 // HookSolo, IconicPlaceCard) so a share is one glyph in this product rather
@@ -251,7 +252,7 @@ const Chevron = ({ dir }) => (
 );
 
 function logEvent(name, props) {
-  try { if (typeof window !== "undefined" && window.posthog && window.posthog.capture) window.posthog.capture(name, props || {}); } catch (e) {}
+  try { if (typeof window !== "undefined") captureOrQueue(window, name, props || {}); } catch (e) {}
 }
 
 // Rendered from the SAME float hour the band is chosen from, so the chip can

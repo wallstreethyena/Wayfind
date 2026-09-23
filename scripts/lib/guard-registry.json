@@ -10079,7 +10079,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 37,
+      "assertionCount": 47,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -16267,11 +16267,9 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 16,
-      "unprovenAbsenceCount": 1,
-      "honestyViolations": [
-        "1 absence assertion(s) with no positive control in the same file (e.g. \"!code.includes(banned),\n    `\")"
-      ],
+      "assertionCount": 17,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
       "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,
