@@ -21,11 +21,22 @@ for (const value of [
   "https://tp.st/A_b-9",
   "https://tiqets.tp.st/abc123",
   "https://yesim.tp.st/kn3kv29H?erid=2VtzqwiKLkx",
+  // Root cause regression: the "Drive" per-brand shortener domain. Travelpayouts
+  // returns links on this family for tiqets/gocity (see lib/travelpayouts.js
+  // tpxHost) and the links/v1/create API echoed it back for real production
+  // requests (wf_job_pulse 2026-09-22: "invalid-short-url:https.host-other...").
+  // This must be accepted or every provisioning batch fails closed at 0/20.
+  "https://tiqets.tpx.lu/NHifzZw0",
+  "https://gocity.tpx.lu/kn3kv29H?erid=2VtzqwiKLkx",
 ]) ok(validTpShortUrl(value), `${value} is accepted`);
 for (const value of [
   "http://tp.st/abc", "https://evil.com/abc", "https://a.b.tp.st/abc",
   "https://tp.st/a/b", "https://tp.st/abc?q=1", "https://u:p@tp.st/abc",
   "https://tp.st:443/abc", "https://tp.st/abc#x", "https://tp.st/",
+  "http://tiqets.tpx.lu/abc", "https://a.b.tpx.lu/abc", "https://tpx.lu/abc",
+  "https://tiqets.tpx.lu/a/b", "https://tiqets.tpx.lu/abc?q=1",
+  "https://u:p@tiqets.tpx.lu/abc", "https://tiqets.tpx.lu:443/abc",
+  "https://tiqets.tpx.lu/abc#x",
 ]) ok(!validTpShortUrl(value), `${value} is rejected`);
 
 const env = { TRAVELPAYOUTS_TOKEN: "test-token" };
@@ -161,6 +172,35 @@ ok(
   "invalid success rows are isolated with privacy-safe diagnostics alongside known provider failures",
 );
 ok(mixedStored.length === mixed.succeeded && mixedStored.every((row) => validTpShortUrl(row.short_url)), "only successful validated mappings are stored from a mixed batch");
+
+// Reproduces the production incident directly: the real links/v1/create
+// response for tiqets/gocity comes back on the tpx.lu "Drive" shortener
+// family, not tp.st. On the pre-fix allowlist this whole batch was rejected
+// as "invalid-short-url" (0/20 in production); it must now succeed.
+let tpxStored = [];
+const tpxFetch = async (url, init = {}) => {
+  if (url.includes("/rest/v1/wf_tp_links?") && (!init.method || init.method === "GET")) return response(200, []);
+  if (url.includes("api.travelpayouts.com")) {
+    const body = JSON.parse(init.body);
+    return response(200, {
+      code: "success",
+      result: {
+        marker: body.marker,
+        trs: body.trs,
+        shorten: true,
+        links: body.links.map(({ url }, index) => ({ url, code: "success", partner_url: `https://tiqets.tpx.lu/NHifzZw${index}` })),
+      },
+    });
+  }
+  if (url.includes("/rest/v1/wf_tp_links?") && init.method === "POST") {
+    tpxStored = JSON.parse(init.body);
+    return response(201, null);
+  }
+  throw new Error(`unexpected fetch ${url}`);
+};
+const tpx = await provisionTpLinks({ env, sb, fetchImpl: tpxFetch, now: rotationZero });
+ok(tpx.attempted === 10 && tpx.succeeded === 10 && tpx.failed === 0, "a real tpx.lu Drive-shortener batch provisions successfully (was 0/20 in production before this fix)");
+ok(tpxStored.length === 10 && tpxStored.every((row) => validTpShortUrl(row.short_url)), "tpx.lu short links are validated and stored");
 
 await provisionTpLinks({ env: {}, sb, fetchImpl }).then(
   () => ok(false, "missing token must fail"),
