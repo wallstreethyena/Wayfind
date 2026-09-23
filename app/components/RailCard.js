@@ -67,7 +67,8 @@ import { safeUrl } from "../../lib/links.js";
 // itself eager (app/home.js imports it directly).
 import { creatorVideosFor } from "../../lib/creatorSignals.js";
 import CreatorCardMark from "./CreatorCardMark";
-import { couponForPlace } from "../../lib/coupons.js";\nimport { normalizePlaceCardHref } from "../../lib/placeCardRoute.js";
+import { couponForPlace } from "../../lib/coupons.js";
+import { normalizePlaceCardHref } from "../../lib/placeCardRoute.js";
 
 // Same glyphs as IconicPlaceCard's action row, so a thumb is one drawing in
 // this app rather than two that almost match.
