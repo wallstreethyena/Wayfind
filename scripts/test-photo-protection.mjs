@@ -1058,7 +1058,7 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
 // LATER half of that chain. Every existing caller that omits it (i.e. every
 // caller before case 26) always injects its own `readLedger`, which never
 // reaches fetch at all — so adding this branch changes nothing for them.
-function makeQueueFetchStub({ dueOpen = [], blocked = [], refs = {}, patches = [], capturedUrls = [], ledgerRows } = {}) {
+function makeQueueFetchStub({ dueOpen = [], blocked = [], reconcile = [], refs = {}, patches = [], capturedUrls = [], ledgerRows } = {}) {
   return async (url, init = {}) => {
     const target = String(url);
     capturedUrls.push(target);
@@ -1067,6 +1067,9 @@ function makeQueueFetchStub({ dueOpen = [], blocked = [], refs = {}, patches = [
     }
     if (/wf_photo_repair_queue\?or=\(status\.eq\.budget_blocked/.test(target)) {
       return new Response(JSON.stringify(blocked), { status: 200, headers: { "content-type": "application/json" } });
+    }
+    if (/wf_photo_queue_reconcilable\?/.test(target)) {
+      return new Response(JSON.stringify(reconcile), { status: 200, headers: { "content-type": "application/json" } });
     }
     if (ledgerRows !== undefined && /wf_spend_ledger\?/.test(target)) {
       return new Response(JSON.stringify(ledgerRows), { status: 200, headers: { "content-type": "application/json" } });
@@ -1814,6 +1817,173 @@ function makeQueueFetchStub({ dueOpen = [], blocked = [], refs = {}, patches = [
   const healthRouteSrc = readFileSync(new URL("../app/api/health/photos/route.js", import.meta.url), "utf8");
   ok(/computePhotoRunway/.test(healthRouteSrc),
     "case 27g: app/api/health/photos/route.js must call computePhotoRunway — the SAME helper os-state.mjs uses, so the two surfaces can never disagree");
+}
+
+// ── case 28 — RECONCILE: a free recovery must never wait on a schedule ─────
+// built for money (2026-09-23 Lane L2b fix). wf_photo_queue_reconcilable
+// names rows already free to close (active vault row, or a fresh exact-ref
+// cache hit) — fetchDueRows must process them THAT drain regardless of
+// next_attempt_at, status, or the ledger, exactly restating the production
+// shape this lane fixed: A3/F (24 rows, active vault sitting next to an
+// open row not yet due) and the 58 leftover Oct-1-pinned rows #1222's own
+// migration never reached.
+{
+  // (a) THE PRODUCTION BUG, restated: a row pinned to a real future
+  // calendar date (the exact Oct-1 shape) that the reconcile view names
+  // (because a real, injected vault hit exists for it) must still recover
+  // THIS drain — never waiting for next_attempt_at, never touching the
+  // ledger (readLedger is never even given a chance to run: no
+  // readLedger stub is passed, so a call would throw "not a function" and
+  // fail the case outright if the code path ever reached it).
+  {
+    const placeId = "ChIJReconcile0001";
+    const liveRef = `places/${placeId}/photos/LIVE`;
+    const patches = [];
+    const capturedUrls = [];
+    const savedFetch = globalThis.fetch;
+    globalThis.fetch = makeQueueFetchStub({
+      dueOpen: [],
+      blocked: [],
+      reconcile: [{
+        place_id: placeId, current_ref: liveRef, attempts: 5,
+        status: "open", blocked_since: null, failure_reason: "source-unavailable",
+      }],
+      refs: { [placeId]: liveRef },
+      patches,
+      capturedUrls,
+    });
+    const vaultHit = { source: "wikimedia", license: "cc-by-sa-4.0", attributionText: "Jane Doe, CC BY-SA 4.0", attributionUrl: "https://commons.wikimedia.org/wiki/File:Example.jpg" };
+    try {
+      const result = await runRepair({
+        sbEnv: { url: "https://ledger.test", key: "test-key" },
+        findSamePlace: async () => null,
+        findFree: async ({ placeId: pid }) => (pid === placeId ? vaultHit : null),
+      });
+      ok(result.attempted === 1 && result.recovered === 1,
+        `case 28a: a reconcile-named row (pinned to next_attempt_at that never came due, no readLedger even supplied) must still recover THIS drain, got attempted=${result.attempted} recovered=${result.recovered}`);
+      ok(patches.length === 1 && patches[0].placeId === placeId && patches[0].body.status === "recovered",
+        `case 28a: the recovered row's patch must flip status to "recovered", got ${patches[0] && patches[0].body.status}`);
+      ok(patches[0].body.recovery_source === "owned-free",
+        `case 28a: recovery must come from the vault (owned-free), the SAME source A3/F rows actually had, got ${patches[0] && patches[0].body.recovery_source}`);
+      const reconcileUrl = capturedUrls.find((u) => /wf_photo_queue_reconcilable\?/.test(u));
+      ok(!!reconcileUrl, "case 28a: the reconcile select must actually have been issued");
+      ok(!!reconcileUrl && !/next_attempt_at/.test(reconcileUrl),
+        `case 28a: the reconcile select must NEVER filter on next_attempt_at — that filter is exactly what stranded A3/F and the 58 leftover Oct-1 rows behind their own schedule; got query "${reconcileUrl}"`);
+    } finally {
+      globalThis.fetch = savedFetch;
+    }
+  }
+
+  // (b) a reconcile candidate already present in the ordinary due-open
+  // select must be processed exactly once, never twice — dedup by place_id.
+  {
+    const placeId = "ChIJReconcile0002";
+    const liveRef = `places/${placeId}/photos/LIVE`;
+    const row = { place_id: placeId, current_ref: liveRef, attempts: 0, status: "open", blocked_since: null, failure_reason: null };
+    const patches = [];
+    const savedFetch = globalThis.fetch;
+    globalThis.fetch = makeQueueFetchStub({
+      dueOpen: [row],
+      blocked: [],
+      reconcile: [row],
+      refs: { [placeId]: liveRef },
+      patches,
+    });
+    try {
+      const result = await runRepair({
+        sbEnv: { url: "https://ledger.test", key: "test-key" },
+        findSamePlace: async () => null,
+        findFree: async () => null,
+        readLedger: async () => ({ used: 100, cap: 2000 }),
+      });
+      ok(result.attempted === 1, `case 28b: a row named by BOTH the due-open select and the reconcile select must be processed exactly once, got attempted=${result.attempted}`);
+      ok(patches.length === 1, `case 28b: and patched exactly once, got ${patches.length} patch(es)`);
+    } finally {
+      globalThis.fetch = savedFetch;
+    }
+  }
+
+  // (c) the reconcile select is BEST-EFFORT: a thrown fetch (e.g. the view
+  // not existing yet on an environment the migration hasn't reached) must
+  // never abort the drain — the ordinary due-open row still processes.
+  {
+    const placeId = "ChIJReconcile0003";
+    const liveRef = `places/${placeId}/photos/LIVE`;
+    const patches = [];
+    const savedFetch = globalThis.fetch;
+    globalThis.fetch = async (url, init = {}) => {
+      const target = String(url);
+      if (/wf_photo_queue_reconcilable\?/.test(target)) throw new Error("relation \"wf_photo_queue_reconcilable\" does not exist");
+      if (/wf_photo_repair_queue\?status=eq\.open&next_attempt_at/.test(target)) {
+        return new Response(JSON.stringify([{ place_id: placeId, current_ref: liveRef, attempts: 0, status: "open", blocked_since: null, failure_reason: null }]), { status: 200, headers: { "content-type": "application/json" } });
+      }
+      if (/wf_photo_repair_queue\?or=\(status\.eq\.budget_blocked/.test(target)) {
+        return new Response(JSON.stringify([]), { status: 200, headers: { "content-type": "application/json" } });
+      }
+      const invMatch = /wf_inventory\?place_id=eq\.([^&]+)/.exec(target);
+      if (invMatch) return new Response(JSON.stringify([{ photo_ref: liveRef }]), { status: 200, headers: { "content-type": "application/json" } });
+      const patchMatch = /wf_photo_repair_queue\?place_id=eq\.([^&]+)/.exec(target);
+      if (init.method === "PATCH" && patchMatch) {
+        patches.push({ placeId: decodeURIComponent(patchMatch[1]), body: JSON.parse(init.body) });
+        return new Response(null, { status: 204 });
+      }
+      throw new Error("case 28c: unexpected endpoint: " + target);
+    };
+    try {
+      const result = await runRepair({
+        sbEnv: { url: "https://ledger.test", key: "test-key" },
+        findSamePlace: async () => null,
+        findFree: async () => null,
+        readLedger: async () => ({ used: 100, cap: 2000 }),
+      });
+      ok(result.ok === true && result.attempted === 1 && result.failed === 0,
+        `case 28c: a reconcile view read failure must never abort the drain — the ordinary due-open row must still process, got ok=${result.ok} attempted=${result.attempted} failed=${result.failed}`);
+      ok(patches.length === 1, `case 28c: the ordinary row must still be patched despite the reconcile read throwing, got ${patches.length} patch(es)`);
+    } finally {
+      globalThis.fetch = savedFetch;
+    }
+  }
+
+  // (d) a NON-2xx reconcile response (not just a thrown fetch) is the same
+  // best-effort shape — swallowed, never surfaced as a queue failure.
+  {
+    const patches = [];
+    const savedFetch = globalThis.fetch;
+    globalThis.fetch = makeQueueFetchStub({ dueOpen: [], blocked: [], patches });
+    globalThis.fetch = async (url, init) => {
+      if (/wf_photo_queue_reconcilable\?/.test(String(url))) return new Response("server error", { status: 500 });
+      return makeQueueFetchStub({ dueOpen: [], blocked: [], patches })(url, init);
+    };
+    try {
+      const result = await runRepair({ sbEnv: { url: "https://ledger.test", key: "test-key" }, findSamePlace: async () => null, findFree: async () => null, readLedger: async () => ({ used: 0, cap: 2000 }) });
+      ok(result.ok === true && result.attempted === 0 && result.queueUnavailable !== true,
+        `case 28d: an HTTP 500 from the reconcile view must be swallowed, not read as a queue-unavailable failure, got ok=${result.ok} attempted=${result.attempted} queueUnavailable=${result.queueUnavailable}`);
+    } finally {
+      globalThis.fetch = savedFetch;
+    }
+  }
+
+  // (e) the migration itself: wf_photo_queue_reconcilable must exist,
+  // security_invoker, service_role only — the same posture every other
+  // read view in this lane carries — and the companion data-fix UPDATE
+  // must key off the honest 7-day backoff ceiling (backoffMs's own max),
+  // never the literal '2026-10-01' date alone, so it also catches any
+  // future recurrence of this exact bug class, not just today's rows.
+  {
+    const migrationSrc = readFileSync(new URL("../supabase/migrations/20260923_wf_photo_queue_reconcile.sql", import.meta.url), "utf8");
+    ok(/create or replace view public\.wf_photo_queue_reconcilable/.test(migrationSrc),
+      "case 28e: the migration must create wf_photo_queue_reconcilable");
+    ok(/security_invoker\s*=\s*true/.test(migrationSrc),
+      "case 28e: wf_photo_queue_reconcilable must be security_invoker=true, matching every other read view in this lane");
+    ok(/grant select on public\.wf_photo_queue_reconcilable to service_role/.test(migrationSrc),
+      "case 28e: wf_photo_queue_reconcilable must be service_role-only, matching wf_photo_queue_census's own posture");
+    ok(/revoke all on public\.wf_photo_queue_reconcilable from anon, authenticated/.test(migrationSrc),
+      "case 28e: wf_photo_queue_reconcilable must revoke anon/authenticated access");
+    ok(/next_attempt_at\s*>\s*now\(\)\s*\+\s*interval\s*'7 days'/.test(migrationSrc),
+      "case 28e: the un-pin UPDATE must key off backoffMs's own 7-day ceiling, not a literal calendar date, so it also catches any future recurrence");
+    ok(!/'2026-10-01'::timestamptz/.test(migrationSrc) && !/next_attempt_at\s*=\s*'2026-10-01/.test(migrationSrc),
+      "case 28e: the un-pin UPDATE must never be keyed to the literal 2026-10-01 date — that would fix only today's incident");
+  }
 }
 
 if (fail.length) {
