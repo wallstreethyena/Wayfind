@@ -46,7 +46,8 @@ import { stayOnRailReaction } from "../../lib/railReaction.js";
 import { creatorVideosFor } from "../../lib/creatorVideos";
 import CreatorCardMark from "./CreatorCardMark";
 import { topPickAward } from "../../lib/topPickAward";
-import { couponForPlace } from "../../lib/coupons";\nimport { normalizePlaceCardHref } from "../../lib/placeCardRoute.js";
+import { couponForPlace } from "../../lib/coupons";
+import { normalizePlaceCardHref } from "../../lib/placeCardRoute.js";
 
 // ---------------------------------------------------------------------------
 // Experience-tag chips (owner: "I need the cards to look like the cards from
