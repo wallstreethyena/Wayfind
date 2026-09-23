@@ -242,7 +242,7 @@ const run = (events, provider = "Ticketmaster") => processEvents([{ provider, co
   if (!/<EventPlan lat=\{e\.lat\} lng=\{e\.lng\}/.test(page)) fail("event detail page does not render location-aware plan recommendations");
   if (!plan.includes('aria-label="Complete the plan"')) fail("event plan lacks the premium recommendation section");
   if (!plan.includes('/api/places/search?') || !plan.includes('/api/hotels?')) fail("event plan does not resolve nearby food, after-event, and hotel inventory dynamically");
-  if (!plan.includes("not paid placement") || !plan.includes("never changes the ranking")) fail("event plan lost ranking or affiliate disclosure");
+  if (!plan.includes("not paid placement") || !plan.includes("We may earn a commission when you book through partner links. It never changes our rankings.")) fail("event plan lost ranking or affiliate disclosure");
 }
 
 if (failures) process.exit(1);
