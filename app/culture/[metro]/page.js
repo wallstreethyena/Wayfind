@@ -24,12 +24,19 @@ export function generateStaticParams() {
   return Object.keys(CULTURE).map((metro) => ({ metro }));
 }
 
+// SEO recovery (2026-09-23) — low-CTR fix (/culture/miami: 323 impr / 0
+// clicks, query "what is miami known for" 248/0; /culture/boston: 358/0).
+// Old title led "What <City> Is Known For"; the query is phrased "What IS
+// <city> known for" — front-loading that exact word order is the whole fix.
+// Length-gated per metro (the longest title, "Florida Keys", would blow the
+// 60-char budget with the full descriptor) so every metro stays safe.
 export function generateMetadata({ params }) {
   const c = CULTURE[params.metro];
   if (!c) return { title: "Not found" };
   const url = `${SITE_URL}/culture/${params.metro}`;
-  const title = `What ${c.title} Is Known For: Food, Sayings & Must-Do Experiences`;
-  const description = `What to eat in ${c.title}, the experiences not to miss, how locals talk, and the one etiquette rule visitors should know.`;
+  const longTitle = `What Is ${c.title} Known For? Food, Sayings, Must Dos`;
+  const title = longTitle.length <= 50 ? longTitle : `What Is ${c.title} Known For?`;
+  const description = `What ${c.title} is actually known for: what to eat, how locals talk, and the one etiquette rule worth knowing before you visit.`;
   // THE SHARE-CARD RULE: a card unique to this page, never the homepage art.
   const ogImg = `${SITE_URL}/api/og?t=${encodeURIComponent("What " + c.title + " is known for")}&loc=${encodeURIComponent(c.title)}`;
   return { title: `${title} | Wayfind`, description, alternates: { canonical: url }, openGraph: { title, description, url, siteName: "Wayfind", type: "article", images: [{ url: ogImg, width: 1200, height: 630 }] }, twitter: { card: "summary_large_image", title, description, images: [ogImg] } };

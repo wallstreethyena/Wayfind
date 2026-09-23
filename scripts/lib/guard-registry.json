@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 716,
-    "totalRegistryEntries": 717,
-    "guardsTxtLineCount": 714,
-    "guardsTxtReachedFileCount": 709,
+    "totalOnDiskGuardFiles": 718,
+    "totalRegistryEntries": 719,
+    "guardsTxtLineCount": 716,
+    "guardsTxtReachedFileCount": 711,
     "criticalCount": 87,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 495,
+      "CALL": 497,
       "RENDER": 83,
       "STRUCTURAL": 138,
       "OTHER": 1
@@ -4129,6 +4129,28 @@
       "owner": "Revenue QA"
     },
     {
+      "file": "scripts/check-hub-place-links.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 17,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/check-hydration-style.mjs",
       "npmScript": null,
       "class": "STRUCTURAL",
@@ -6457,6 +6479,28 @@
       "owner": null
     },
     {
+      "file": "scripts/check-place-featured-in.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 38,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/check-place-page-partner.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -6483,7 +6527,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 54,
+      "assertionCount": 56,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

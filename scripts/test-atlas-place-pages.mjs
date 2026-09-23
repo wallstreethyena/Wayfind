@@ -204,13 +204,15 @@ ok(/const atlas = atlasPlaceFor\(id\)/.test(pd), "loadPlace no longer reads the 
 // so the short-circuit is now skeleton OR Atlas OR guide, not just the pair.
 ok(/atlasPlaceFor/.test(pd) && /if \(!skel && !atlas && !guide\) return null/.test(pd),
   "loadPlace lost the triple allowlist short-circuit (skeleton OR Atlas OR guide)");
-ok(/const inv = atlas \? await getInventoryIdentity\(id\) : null/.test(pd),
-  "loadPlace no longer reads wf_inventory for Atlas ids (or reads it for non-Atlas ids)");
+// 2026-09-23 SEO recovery — a verified editorial page takes inventory
+// identity too (Atlas OR editorial), never a plain searched id.
+ok(/const inv = \(atlas \|\| editorial\) \? await getInventoryIdentity\(id\) : null/.test(pd),
+  "loadPlace no longer reads wf_inventory for Atlas/editorial ids (or reads it for other ids)");
 ok(/preferInventorySkeleton\(inv, indexed\)/.test(pd),
   "loadPlace no longer prefers inventory identity over a Places call");
 ok(/peekPlaceDetails\(id\)/.test(pd), "loadPlace no longer peeks the pd1| cache before considering Google");
-ok(/if \(shouldCallGooglePlaceDetails\(\{ skel: indexed, cached, atlas \}\)\)/.test(pd),
-  "getPlaceDetails is no longer gated on shouldCallGooglePlaceDetails({ skel: indexed, cached, atlas })");
+ok(/if \(!editorial && shouldCallGooglePlaceDetails\(\{ skel: indexed, cached, atlas \}\)\)/.test(pd),
+  "getPlaceDetails is no longer gated on !editorial && shouldCallGooglePlaceDetails({ skel: indexed, cached, atlas }) — a sitemap-listed editorial page must never spend a Places call");
 ok(/details = await getPlaceDetails\(id\)/.test(pd),
   "non-Atlas indexed cold-cache path lost getPlaceDetails — that path is still allowed");
 
