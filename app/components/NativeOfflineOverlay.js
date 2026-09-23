@@ -39,17 +39,6 @@ export default function NativeOfflineOverlay() {
   const router = useRouter();
   const [offline, setOffline] = useState(false);
 
-  // Record where the user was, on every route change, so a reconnect (here
-  // or on www/offline.html after a harder failure) can return them to it
-  // instead of dumping them on the homepage.
-  useEffect(() => {
-    if (!isNative()) return;
-    try {
-      const search = typeof window !== "undefined" && window.location ? window.location.search : "";
-      sessionStorage.setItem(LAST_PATH_KEY, (pathname || "/") + (search || ""));
-    } catch (e) {}
-  }, [pathname]);
-
   // www/offline.html runs on capacitor://localhost; the app runs on
   // https://www.gowayfind.com. Different origins mean the sessionStorage
   // write above is invisible from offline.html, so the handoff crosses the
@@ -80,6 +69,22 @@ export default function NativeOfflineOverlay() {
     // Runs once, on mount, against the URL the app was launched with.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Record where the user was, on every route change, so a reconnect (here
+  // or on www/offline.html after a harder failure) can return them to it
+  // instead of dumping them on the homepage.
+  useEffect(() => {
+    if (!isNative()) return;
+    try {
+      const search = typeof window !== "undefined" && window.location ? window.location.search : "";
+      // Never record the resume hop itself: it would overwrite the very path
+      // the resume effect above is about to read (effects run in order, and
+      // this one used to run first; Playwright caught the resume landing on
+      // /?wf_resume=1 instead of the saved page, 2026-09-23).
+      if (/(?:^|[?&])wf_resume=1(?:&|$)/.test(search || "")) return;
+      sessionStorage.setItem(LAST_PATH_KEY, (pathname || "/") + (search || ""));
+    } catch (e) {}
+  }, [pathname]);
 
   useEffect(() => {
     if (!isNative()) return;

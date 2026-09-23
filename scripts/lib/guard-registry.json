@@ -4355,7 +4355,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": true,
-      "assertionCount": 42,
+      "assertionCount": 45,
       "unprovenAbsenceCount": 5,
       "honestyViolations": [
         "5 absence assertion(s) with no positive control in the same file (e.g. \"!!regBody && /NotificationCenter\\.default\\.post\\(\\s*name:\\s*\\.capacitorDidRegist\")"

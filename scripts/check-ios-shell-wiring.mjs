@@ -210,6 +210,21 @@ ok(/raw\.charAt\(0\)\s*!==\s*["']\/["']/.test(shim) && /raw\.charAt\(1\)\s*===\s
      "red proof: a shim that router.replace()s an unvalidated sessionStorage value does not satisfy the validation assertion");
 }
 
+// ORDER + SKIP: the resume read must run BEFORE the per-route write, and the
+// write must never record the resume hop itself. Otherwise the write (which
+// used to be declared first; effects run in declaration order) overwrote
+// wf_last_path with "/?wf_resume=1" before it was read, and the resume always
+// landed on the homepage. Caught by the Playwright resume run, 2026-09-23.
+{
+  const readIdx = shim.search(/sessionStorage\.getItem\(\s*LAST_PATH_KEY\s*\)/);
+  const writeIdx = shim.search(/sessionStorage\.setItem\(\s*LAST_PATH_KEY/);
+  ok(readIdx > 0 && writeIdx > 0 && readIdx < writeIdx, "the resume effect (getItem) is declared before the per-route write effect (setItem), so the saved path is read before anything can overwrite it");
+  const writeBody = shim.slice(Math.max(0, shim.lastIndexOf("useEffect", writeIdx)), writeIdx);
+  ok(/wf_resume=1[\s\S]*return/.test(writeBody), "the per-route write returns early on ?wf_resume=1, so the resume hop is never recorded as the last path");
+  const swapped = shim.slice(writeIdx - 200) + shim.slice(0, writeIdx - 200);
+  ok(!(swapped.search(/sessionStorage\.getItem\(\s*LAST_PATH_KEY\s*\)/) < swapped.search(/sessionStorage\.setItem\(\s*LAST_PATH_KEY/)), "red proof: with the write moved ahead of the read, the order assertion fails");
+}
+
 // The lazy chunk must be WARMED while online. A chunk first requested after
 // the connection drops can never download, so the overlay would never show.
 // That exact failure happened on 2026-09-23 (Playwright offline run: nothing
