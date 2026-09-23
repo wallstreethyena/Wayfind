@@ -21,6 +21,24 @@ const { test, expect } = require("@playwright/test");
 // the inventory. Used as the /p/<id> deep-link fixture.
 const PLACE_ID = "ChIJh8tXh-FBw4gR9kFzfZN_g60";
 
+// A guide guaranteed to carry a resolved place card. #1405 (2026-09-22) added
+// lib/guidePlaceIdentity.js: a guide pick only resolves an IconicPlaceCard
+// when it carries a placeId or a reviewed exactNames alias set — a fuzzy
+// title-only match can silently attach the wrong venue (the Mount Dora
+// boat-operator bug the guard's own header describes). Every pick that
+// predates that contract and has not yet been reviewed is recorded in
+// scripts/fixtures/guide-place-identity-legacy.json and now renders NO card
+// at all — text and an "Open in Wayfind" link only. things-to-do-sarasota
+// (this suite's fixture until 2026-09-22) is entirely in that legacy list,
+// so every one of its ten picks lost its card the moment #1405 shipped,
+// which is a deliberate, reviewed product decision elsewhere in the repo —
+// not a regression this suite should catch or reintroduce. Picking a random
+// other guide would only defer the same staleness. Instead this points at
+// the one guide check-guide-place-identities.mjs pins by verified placeId
+// for every pick (its "Eighteen IDs were read from wf_inventory" repair) —
+// asserting on a contract, not on a page's current, mutable copy.
+const CARD_GUIDE_SLUG = "things-to-do-orlando-not-theme-parks";
+
 // Every route that renders app/home.js. lib/homeShellData.js is what feeds them;
 // scripts/check-shell-routes.mjs proves the prop is PASSED, this proves the band
 // actually PAINTS. Both halves are needed: the prop was present and the band
@@ -52,11 +70,19 @@ test("no place-card action is a navigation", async ({ page }) => {
   // The v8.28/v8.29 bug: IconicPlaceCard falls back to
   // <a href="/p/<id>?action=like"> when no handler is wired, so tapping Like
   // NAVIGATED. After hydration that anchor must not exist on any surface.
-  for (const url of ["/", `/p/${PLACE_ID}`, "/guides/things-to-do-sarasota"]) {
+  for (const url of ["/", `/p/${PLACE_ID}`, `/guides/${CARD_GUIDE_SLUG}`]) {
     await page.goto(url, { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(2500); // let hydration swap <a> for <button>
     const actionAnchors = await page.locator('a[href*="?action="]').count();
     expect(actionAnchors, `${url} still ships a ?action= anchor behind a control`).toBe(0);
+    // Zero anchors is meaningless if the surface never rendered a card to
+    // begin with (a card-less page trivially has zero action anchors). Prove
+    // there was something to check on the guide route, whose card count is
+    // data-driven rather than guaranteed by the route itself.
+    if (url.startsWith("/guides/")) {
+      const likeButtons = await page.locator("button.wf-place-card-like").count();
+      expect(likeButtons, `${url} rendered no place cards at all — the ?action= check above proved nothing`).toBeGreaterThan(0);
+    }
   }
 });
 
@@ -80,7 +106,7 @@ test("Like registers in place and does not leave the page", async ({ page }) => 
   //      (lib/cardActions.js's useActionBridge replays the queue).
   // A tap that paints but never records is a lie; one that records but does not
   // paint is the complaint that started all of this.
-  await page.goto("/guides/things-to-do-sarasota", { waitUntil: "domcontentloaded" });
+  await page.goto(`/guides/${CARD_GUIDE_SLUG}`, { waitUntil: "domcontentloaded" });
   const like = page.locator("button.wf-place-card-like").first();
   await expect(like).toBeVisible({ timeout: 20_000 });
 
@@ -121,7 +147,7 @@ test("a tap on a card that has not hydrated yet is never lost", async ({ browser
   } catch (e) {
     test.skip(true, "CDP throttling unavailable on this browser");
   }
-  await page.goto("/guides/things-to-do-sarasota", { waitUntil: "domcontentloaded" });
+  await page.goto(`/guides/${CARD_GUIDE_SLUG}`, { waitUntil: "domcontentloaded" });
   const like = page.locator("button.wf-place-card-like").first();
   await like.waitFor({ state: "visible", timeout: 40_000 });
   await like.click();
