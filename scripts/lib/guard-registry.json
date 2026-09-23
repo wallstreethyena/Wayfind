@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 695,
-    "totalRegistryEntries": 696,
-    "guardsTxtLineCount": 694,
-    "guardsTxtReachedFileCount": 689,
+    "totalOnDiskGuardFiles": 696,
+    "totalRegistryEntries": 697,
+    "guardsTxtLineCount": 695,
+    "guardsTxtReachedFileCount": 690,
     "criticalCount": 84,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 475,
+      "CALL": 476,
       "RENDER": 81,
       "STRUCTURAL": 139,
       "OTHER": 1
@@ -3105,6 +3105,28 @@
         "detail": "This route exists to spend Google Ads budget against. A wrong surface tag on a commerce link makes that spend unattributable in PostHog (the exact class of gap CLAUDE.md's 2026-08-25 revenue audit rule 4 describes); a non-Florida offer or a dash/partner-domain leak in visible copy is a Google Ads policy risk on a live campaign, not a cosmetic bug."
       },
       "owner": "Revenue QA"
+    },
+    {
+      "file": "scripts/check-go-routes-crawler-gate.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 23,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
     },
     {
       "file": "scripts/check-guard-hermeticity.mjs",
@@ -9439,7 +9461,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 40,
+      "assertionCount": 41,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
