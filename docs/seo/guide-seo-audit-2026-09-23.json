@@ -46,7 +46,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -127,7 +127,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -208,7 +208,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -289,7 +289,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -370,7 +370,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -451,7 +451,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -532,7 +532,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -613,7 +613,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -694,7 +694,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -775,7 +775,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -856,7 +856,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -937,7 +937,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -1018,7 +1018,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -1099,7 +1099,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -1180,7 +1180,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -1261,7 +1261,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-31) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -1342,7 +1342,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-31) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -1423,7 +1423,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-19) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -1504,7 +1504,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-10) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -1585,7 +1585,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-10) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -1666,7 +1666,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-10) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -1747,7 +1747,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-10) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -1828,7 +1828,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-10) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -1909,7 +1909,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-10) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -1990,7 +1990,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-19) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -2071,7 +2071,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-09-23) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -2152,7 +2152,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-09-23) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -2233,7 +2233,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-09-23) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -2314,7 +2314,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-09-23) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -2395,7 +2395,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-09-23) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -2476,7 +2476,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-09-13) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -2557,7 +2557,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -2638,7 +2638,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -2719,7 +2719,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -2800,7 +2800,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -2881,7 +2881,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -2962,7 +2962,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -3043,7 +3043,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -3124,7 +3124,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -3205,7 +3205,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -3286,7 +3286,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -3367,7 +3367,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-13) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -3448,7 +3448,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-13) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -3529,7 +3529,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-13) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -3610,7 +3610,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-19) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -3691,7 +3691,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-09-02) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -3772,7 +3772,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-09-08) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -3853,7 +3853,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-09-12) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -3934,7 +3934,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-09-16) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -4015,7 +4015,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-09-22) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
