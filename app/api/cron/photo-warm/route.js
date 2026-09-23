@@ -54,8 +54,13 @@ const SWEEP_BUDGET_MS = 45_000;
 // buys actual lookups: one search plus up to three Details per row, so 15 rows
 // needs about twenty seconds. Twenty of the warm pass's 270 is a rounding error
 // to it and the difference between this finishing tonight and never finishing.
-const IDENTITY_MAX_ROWS = 15;
-const IDENTITY_BUDGET_MS = 20_000;
+// 2026-09-23 (owner: "finish processing all 353 hotels"). Skipping a finished
+// hotel is one batched read now, so a bigger slice costs nothing once the list
+// is done — a steady-state run with every row marked is a single query and no
+// lookups at all. 40 rows and 45 seconds finishes the remaining list in about
+// two hours instead of six, and still leaves the warm pass 225 of its 270.
+const IDENTITY_MAX_ROWS = 40;
+const IDENTITY_BUDGET_MS = 45_000;
 
 import { runPhotoWarm, DEFAULT_PHOTO_WARM_MAX } from "../../../../lib/photoWarm";
 import { runPhotoLivenessSweep } from "../../../../lib/photoLivenessSweep";
@@ -130,8 +135,18 @@ export async function GET(req) {
       ? `ok (${result.stopReason})`
       : "ok";
 
+  // The note carries the top miss REASON too (2026-09-23): "tried=40 ok=9
+  // miss=31" says the run worked, not what is stopping the other 31, and this
+  // pulse is the only place an operator sees it without a query.
+  const topReason = ident && ident.reasons
+    ? Object.entries(ident.reasons).sort((a, b) => b[1] - a[1])[0]
+    : null;
+  // `fail=` is the one that matters operationally (2026-09-23): a refused
+  // request is OUR problem (a daily quota, a network blip), not a hotel that
+  // does not exist, and it is the difference between "Google has nothing for
+  // these 79" and "we were being rate limited for an hour".
   const identBit = ident && ident.enabled
-    ? ` ident: tried=${ident.attempted} ok=${ident.resolved} miss=${ident.missed}`
+    ? ` ident: tried=${ident.attempted} ok=${ident.resolved} miss=${ident.missed}${ident.searchFailed ? ` fail=${ident.searchFailed}` : ""}${topReason ? ` (${topReason[0]}=${topReason[1]})` : ""}`
     : "";
 
   const note = `${sweep ? `live ${sweep.checked}/${sweep.dead} dead; ` : ""}warm: visible=${result.visible} served=${result.alreadyServed} filled=${result.filled} free=${result.free} empty=${result.empty} known=${result.knownEmpty} unchecked=${result.unchecked} ${statusBit}${identBit}`.slice(0, 240);

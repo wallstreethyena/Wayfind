@@ -408,6 +408,11 @@ node scripts/test-booking-resolve-extraction.mjs
 # with a joinable click_id. Never a raw viator.com / booking.com / Impact href.
 node scripts/test-earning-handoff.mjs
 node scripts/check-guide-conversion.mjs
+# 2026-09-22: one guide CTA click must record ONE commerce_cta_clicked in
+# PostHog, never two (track() + emitCommerce() double-firing the same event
+# name on the same click). Renders the real component, invokes onClick, spies
+# on posthog.capture, and red-proves against origin/main's pre-fix source.
+node scripts/check-guide-cta-single-capture.mjs
 node scripts/test-guide-park-ticket-cta.mjs
 node scripts/check-guide-teasers.mjs
 node scripts/test-guide-editorial-mode.mjs
@@ -1593,6 +1598,8 @@ node scripts/check-guide-seo-audit.mjs
 node scripts/test-travelpayouts-attribution.mjs
 
 node scripts/test-travelpayouts-provisioning.mjs
+
+node scripts/check-tp-short-url-constraint-parity.mjs
 
 # Poster identity, event coverage, honest popularity, and empty rail rendering.
 node scripts/test-poster-events.mjs
