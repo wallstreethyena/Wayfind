@@ -1,0 +1,123 @@
+{
+  "slug": "tampa-restaurants",
+  "picks": {
+    "Oxford Exchange": {
+      "src": "/guides/picks/tampa-restaurants/oxford-exchange-exterior.webp",
+      "width": 1280,
+      "height": 853,
+      "alt": "The white two-story facade of Oxford Exchange in Tampa, with a bold 'OE' monogram above the entrance and glass storefront windows below",
+      "caption": "Oxford Exchange's facade facing Kennedy Boulevard in Tampa, with its 'OE' monogram above the entrance.",
+      "credit": "Oxford Exchange",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Oxford_Exchange_Exterior.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Oxford_Exchange_Exterior.jpg",
+      "author": "Oxford Exchange",
+      "position": "50% 40%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": "ChIJ11hsiYXEwogRjDBv39F04J8",
+      "verification": "Uploaded by the Commons account \"Oxford Exchange\" (the business's own account, source: Own work), titled \"Oxford Exchange Exterior.jpg\" with description \"Exterior of Oxford Exchange facing Kennedy Boulevard\"; the facade carries the venue's own 'OE' monogram above the entrance and a name plaque beside the door, matching the building today. Taken 2017-08-07 (photographed in 2017; no renovation or rebrand since is known). Live Commons page licence checked: only licence template present is CC BY-SA 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
+    },
+    "Bern's Steak House": {
+      "src": "/guides/picks/things-to-do-in-tampa-florida/berns-dessert-room.webp",
+      "width": 800,
+      "height": 600,
+      "alt": "A candlelit dining room inside Bern's Steak House, with framed portraits, a mirrored wall and an ornate candelabra",
+      "caption": "A candlelit dining room inside Bern's Steak House in Tampa.",
+      "credit": "Swampyank",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Bern%27s_Steak_House.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Bern%27s_Steak_House.jpg",
+      "author": "Swampyank",
+      "position": "50% 45%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": "ChIJKQXHdmfDwogRJFCLuT7eJ6I",
+      "verification": "Reusing Wayfind's already-verified photo of this exact restaurant (things-to-do-in-tampa-florida guide, per pass3-reuse.json): a Commons file titled \"Bern's Steak House.jpg\" showing one of its ornate dining rooms; no identifiable people. Licence CC BY-SA 3.0 per the manifest's 2026-09-23 correction (the page's only licence template is {{Self|cc-by-sa-3.0}}).",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
+    },
+    "Columbia Restaurant": {
+      "src": "/guides/picks/best-cuban-sandwich-tampa/columbia-restaurant.webp",
+      "width": 1400,
+      "height": 1050,
+      "alt": "The ornate Spanish Revival facade of the Columbia Restaurant in Ybor City, with tiled arches and wrought-iron balconies",
+      "caption": "The Columbia Restaurant's Spanish Revival facade on Ybor City's Seventh Avenue.",
+      "credit": "LittleT889",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Columbia,_Ybor_City.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Columbia,_Ybor_City.jpg",
+      "author": "LittleT889",
+      "position": "50% 42%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": "ChIJz8e7TVLEwogRBeybvscHnD4",
+      "verification": "Reusing Wayfind's already-verified photo of this exact restaurant, the same Commons file used as this place's own wf_place_photo card image and already reused in three other Wayfind guides (best-cuban-sandwich-tampa, things-to-do-in-tampa-florida, ybor-city-tampa-guide, per guidePickPhotoManifest.js). Same placeId (ChIJz8e7TVLEwogRBeybvscHnD4) confirms it is the same Ybor City branch, not another Columbia location.",
+      "sameAsCardPhoto": true,
+      "reviewedAt": "2026-09-23"
+    },
+    "La Segunda Bakery and Cafe": {
+      "src": "/guides/picks/best-cuban-sandwich-tampa/la-segunda-central-bakery.webp",
+      "width": 1400,
+      "height": 1050,
+      "alt": "The stucco exterior of La Segunda Central Bakery in Ybor City, with its red lettered BAKERY sign and cars parked out front",
+      "caption": "La Segunda Central Bakery's Ybor City building, home of Tampa's Cuban bread since 1915.",
+      "credit": "LittleT889",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:La_Segunda_Central_Bakery.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:La_Segunda_Central_Bakery.jpg",
+      "author": "LittleT889",
+      "position": "50% 40%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": "ChIJXTeLe0XEwogR-wheRdFeKEY",
+      "verification": "Reusing Wayfind's already-verified photo of this exact bakery (best-cuban-sandwich-tampa guide, per pass3-reuse.json); the building's visible sign reads \"La Segunda Central BAKERY,\" confirming the exact place, and the placeId matches.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
+    }
+  },
+  "gaps": {
+    "Rocca": {
+      "reason": "google-only",
+      "placeId": "ChIJ1WZIXhjFwogR1M-_3DXnG6Y",
+      "needsPermissionFrom": "Rocca",
+      "note": "Restaurant pass (2026-09-23): All 25 Commons candidates for 'Rocca' are unrelated medieval Italian fortresses (Rocca Abbaziale, Rocca Malatestiana, Rocca Maggiore, etc.) — 'rocca' is Italian for 'fortress', a name collision. Openverse searches for 'Rocca Tampa Heights restaurant' and 'Rocca Italian Tampa' both returned 0 results. No verified photo found."
+    },
+    "Ulele": {
+      "reason": "google-only",
+      "placeId": "ChIJ3Vyq7WTEwogRA-WDC7Mze2E",
+      "needsPermissionFrom": "Ulele",
+      "note": "Restaurant pass (2026-09-23): The single Commons candidate, 'Ulele Panorama - panoramio.jpg', is an undated-description 2010 upload with no Tampa reference and a Guyana-region Commons category, predating this restaurant's 2014 opening, so it was rejected as an unrelated place. Openverse search for 'Ulele Tampa' returned 123 results, almost all NC/ND-licensed Waterworks Park photos (not an allowed licence); filtered to allowed licences it returned only an unrelated skyline photo and a 'Princess Ulele' sculpture (excluded as public art). No verified restaurant photo found."
+    },
+    "Psomi": {
+      "reason": "google-only",
+      "placeId": "ChIJ_RvwD3nDwogRCeHQydPsx_k",
+      "needsPermissionFrom": "Psomi",
+      "note": "Restaurant pass (2026-09-23): All 7 Commons candidates for 'Psomi' are unrelated photos of Kastellorizo, a Greek island (a Natura 2000 protected area named Psomi), not this Tampa restaurant. Openverse search for 'Psomi Tampa restaurant' returned 0 results. No verified photo found for this MICHELIN Guide value pick."
+    },
+    "On Swann": {
+      "reason": "google-only",
+      "placeId": "ChIJ5crCip3EwogRQnhkbw_Ir6U",
+      "needsPermissionFrom": "On Swann",
+      "note": "Restaurant pass (2026-09-23): All 6 Commons candidates for 'On Swann' are unrelated photos of Swann Street/Lane in Hull, England (flytipping, rubbish, street art), a name collision, plus an unrelated 1957 Green Book PDF. Openverse search for 'On Swann restaurant Tampa Hyde Park' returned 0 results. No verified photo found."
+    },
+    "OLIVIA": {
+      "reason": "google-only",
+      "placeId": "ChIJh4m6DH7DwogRcwo9evYZIhg",
+      "needsPermissionFrom": "OLIVIA",
+      "note": "Restaurant pass (2026-09-23): All 24 Commons candidates for 'OLIVIA' are unrelated — people named Olivia (Newton-John, Chow, Holt, Gorman), Olivia Tower in Gdańsk, a Manila plaza, a daylily-adjacent PDF — not this Tampa restaurant. Openverse search for 'OLIVIA restaurant Tampa SoHo' returned 0 results. No verified photo found."
+    },
+    "Lucky Tigre": {
+      "reason": "google-only",
+      "placeId": "ChIJKZW0N5XDwogRoKTCdhDprnU",
+      "needsPermissionFrom": "Lucky Tigre",
+      "note": "Restaurant pass (2026-09-23): No Commons candidates were returned for this pick. Openverse search for 'Lucky Tigre Tampa restaurant' returned 0 results. No verified photo found for this Filipino restaurant."
+    }
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "slug": "sarasota-restaurants",
+  "picks": {},
+  "gaps": {
+    "Lucky 8": {
+      "reason": "google-only",
+      "placeId": "ChIJaeoTfN9Bw4gR4KQRHwdosqs",
+      "needsPermissionFrom": "Lucky 8",
+      "note": "Restaurant pass (2026-09-23): Commons search for 'Lucky 8' returned 2 candidates, both unrelated (a Paris shopfront and the ferris wheel at Macau's Studio City), not this Sarasota restaurant. Openverse search for 'Lucky 8 Sarasota restaurant' returned 0 results. No verified photo found for this recent MICHELIN Guide pick."
+    },
+    "Focaccia Sandwich + Bakery": {
+      "reason": "google-only",
+      "placeId": "ChIJk-o9uSlBw4gR6tDfhvqtdRk",
+      "needsPermissionFrom": "Focaccia Sandwich + Bakery",
+      "note": "Restaurant pass (2026-09-23): No Commons candidates were returned for this pick. Openverse search for 'Focaccia Sarasota bakery' returned 0 results. This is a newer MICHELIN Guide lunch pick with no apparent Creative Commons photo coverage."
+    },
+    "Indigenous Restaurant": {
+      "reason": "google-only",
+      "placeId": "ChIJZUZzwm5Aw4gR1qnftvzg0lg",
+      "needsPermissionFrom": "Indigenous Restaurant",
+      "note": "Restaurant pass (2026-09-23): No Commons candidates were returned for this pick. Openverse search for 'Indigenous Restaurant Sarasota' returned 0 results. No verified photo found."
+    },
+    "Sage Restaurant": {
+      "reason": "google-only",
+      "placeId": "ChIJtcnZQU9Bw4gROmYnVLnl0hE",
+      "needsPermissionFrom": "Sage Restaurant",
+      "note": "Restaurant pass (2026-09-23): The 3 Commons candidates were all 'The White Sage Restaurant Cottage,' a pub in Adare, Ireland with a coincidentally similar name, not this Sarasota restaurant. Openverse search for 'Sage Restaurant Sarasota' returned 0 results. No verified photo found."
+    },
+    "Florence and the Spice Boys": {
+      "reason": "google-only",
+      "placeId": "ChIJWerCJQA5w4gRkgxRabmvuBI",
+      "needsPermissionFrom": "Florence and the Spice Boys",
+      "note": "Restaurant pass (2026-09-23): No Commons candidates were returned for this pick. Openverse search for 'Florence and the Spice Boys Sarasota' returned 0 results. No verified photo found for this Middle Eastern restaurant."
+    },
+    "Zōtō": {
+      "reason": "google-only",
+      "placeId": "ChIJJYDKlHM5w4gRpCS0kh1pDG8",
+      "needsPermissionFrom": "Zōtō",
+      "note": "Restaurant pass (2026-09-23): No Commons candidates were returned for this pick. Openverse search for 'Zoto Sarasota restaurant' returned 0 results. No verified photo found."
+    },
+    "Star Fish Company": {
+      "reason": "google-only",
+      "placeId": "ChIJmcZ22HARw4gR5Th1Pxcl9II",
+      "needsPermissionFrom": "Star Fish Company",
+      "note": "Restaurant pass (2026-09-23): No Commons candidates were returned for this pick. Openverse searches for 'Star Fish Company Cortez Florida', 'Star Fish Company Cortez', 'Star Fish Company Florida' and 'Cortez Florida fish house working waterfront' all returned 0 results. No verified photo found for this Cortez fish house."
+    },
+    "Blu Kouzina UTC": {
+      "reason": "google-only",
+      "placeId": "ChIJUTI3PKk5w4gRtaS2weXk70A",
+      "needsPermissionFrom": "Blu Kouzina",
+      "note": "Restaurant pass (2026-09-23): No Commons candidates were returned for this pick. Openverse searches for 'Blu Kouzina Sarasota' and 'Blu Kouzina' both returned 0 results. This pick is specifically the UTC branch, so any future photo would also need to confirm the correct location, not another Blu Kouzina."
+    },
+    "Columbia Restaurant": {
+      "reason": "google-only",
+      "placeId": "ChIJaTQEjpFqw4gRnHJU2Klfw0o",
+      "needsPermissionFrom": "Columbia Restaurant",
+      "note": "Restaurant pass (2026-09-23): All 6 Commons candidates for 'Columbia Restaurant' show the chain's St. Augustine or Tampa/Ybor City branches, not the St. Armands Circle location this pick names (Columbia's Tampa branch is a different pick in a different guide). Openverse found 2 photos correctly titled 'Columbia Restaurant, St. Armands Key, Sarasota' (Gruenemann, CC BY 2.0, Flickr, 2014), but both show gift-shop display tableware, not the restaurant building or a dining room, so they were rejected as generic product/table photos rather than accepted as proof of place."
+    },
+    "Dry Dock Waterfront Grill": {
+      "reason": "google-only",
+      "placeId": "ChIJ38CBz8Vqw4gRg0oFYUGBU_s",
+      "needsPermissionFrom": "Dry Dock Waterfront Grill",
+      "note": "Restaurant pass (2026-09-23): No Commons candidates were returned for this pick. Openverse search for 'Dry Dock Waterfront Grill Longboat Key' returned 0 results. No verified photo found for this Longboat Key restaurant."
+    }
+  }
+}
