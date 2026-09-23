@@ -291,6 +291,28 @@ ok(!PAGE_HANDOFF.test("import ShareRedirect from \"../ShareRedirect\";\nreturn <
   }
 }
 
+// ── 4a. Legible on the surface it sits on ──────────────────────────────────
+// PremiumIntentHero's panel and EditorialLandingHero's action slot (which
+// RankedExperiencePage renders) are CREAM. ShareButton's "dark" tone is a light
+// label on a transparent pill: on cream it renders as an empty outline. That
+// shipped in this PR's first preview on /culture and the city landing pages,
+// found in the 390px screenshots, so it is pinned per placement.
+{
+  const CREAM = {
+    "app/culture/[metro]/page.js": "PremiumIntentHero actions",
+    "lib/landingShare.js": "PremiumIntentHero actions (via LandingPage)",
+    "app/eat/[metro]/page.js": "EditorialLandingHero actionSlot",
+    "app/summer-picks/client.js": "RankedExperiencePage actionSlot",
+  };
+  for (const [f, where] of Object.entries(CREAM)) {
+    const tags = shareTags(read(f));
+    ok(tags.length > 0, "positive control: no ShareButton found in " + f);
+    for (const t of tags) ok(/\btone="hero"/.test(t), f + ": the ShareButton on the cream " + where + " is not tone=\"hero\" — its label would be invisible");
+  }
+  const onDark = shareTags(read("app/florida-events/page.js"));
+  ok(onDark.every((t) => /\btone="dark"/.test(t)), "control: the dark Florida Events page must keep the dark tone");
+}
+
 // ── 4c. The city landing pages: built apart, rendered by LandingPage ────────
 {
   const landing = strip(read("lib/landing.js"));

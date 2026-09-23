@@ -112,13 +112,14 @@ export default async function CulturePage({ params }) {
         // bare homepage. "Globally" in the owner's instruction means here too.
         secondaryHref="#local-edit"
         secondaryLabel="Read the local edit"
-        // 2026-09-23: the hero's actions slot now carries the page Share, the
-        // same control the guides mount in the same slot (destination audit).
+        // 2026-09-23: the hero's actions slot now carries the page Share
+        // (destination audit). tone="hero": this panel is cream (#f6efe5), and
+        // the dark tone's light label is invisible on it.
         actions={<ShareButton
           url={pageShareUrl("/culture/" + params.metro)}
           title={`What ${c.title} is known for`}
           text={`What ${c.title} is known for: the food locals defend and what is worth crossing town for. On Wayfind.`}
-          tone="dark"
+          tone="hero"
           event="page_share"
           meta={{ surface: "culture", metro: params.metro, placement: "hero" }}
         />}
