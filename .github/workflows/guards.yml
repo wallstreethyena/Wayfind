@@ -25,6 +25,12 @@ on:
 concurrency:
   group: guards-${{ github.ref }}
   cancel-in-progress: true
+# Read-only token. check-doc-ownership reads the pull request and its comments to
+# verify an owner "/owner-approve <head sha>" (see docs/OWNER_APPROVAL.md).
+permissions:
+  contents: read
+  pull-requests: read
+  issues: read
 jobs:
   guards:
     name: guards
@@ -68,6 +74,9 @@ jobs:
       - name: Required rendered map pin standard
         run: node scripts/test-map-pin-standard.mjs --require-browser
       - name: Guard suite (all of scripts/guards.txt)
+        env:
+          # Evidence for check-doc-ownership's owner approval; read-only (see permissions above).
+          GITHUB_TOKEN: ${{ github.token }}
         run: node scripts/run-guards.mjs
       - name: Production build
         env:

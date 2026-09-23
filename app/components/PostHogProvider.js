@@ -20,7 +20,9 @@ import { usePathname } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 import {
   analyticsSuppressionReason,
+  clearPreReadyQueue,
   createPageVisitTracker,
+  drainPreReadyQueue,
   isOwnerUser,
   markInternalBrowser,
   sanitizeAnalyticsProperties,
@@ -47,6 +49,9 @@ export default function PostHogProvider({ children }) {
       try { if (window.posthog) window.posthog.opt_out_capturing(); } catch (e) {}
       phClient = null;
       pendingEvents.length = 0;
+      // Events app code queued before init (lib/browserAnalytics captureOrQueue)
+      // die with the session: a suppressed session emits nothing, ever.
+      clearPreReadyQueue(window);
       if (tracker) tracker.stop({ emitExit: false });
       tracker = null;
       try { delete window.posthog; } catch (e) { window.posthog = undefined; }
@@ -94,6 +99,8 @@ export default function PostHogProvider({ children }) {
           const [event, properties, timestamp] = pendingEvents.shift();
           ph.capture(event, properties, { timestamp });
         }
+        // App captures (emitCommerce, logEvent, track) that fired before init.
+        drainPreReadyQueue(window, ph);
       } catch (e) {}
     }).catch(() => {});
 

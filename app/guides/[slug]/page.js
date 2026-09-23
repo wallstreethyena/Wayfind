@@ -463,6 +463,21 @@ const S = {
   pick: { margin: "0 0 16px", padding: "22px", borderRadius: 20, background: "linear-gradient(145deg,#101C2B,#0A1421)", border: "1px solid #2D3748", boxShadow: "0 18px 45px rgba(0,0,0,.2)" },
 };
 
+// Google's Rich Results Test flags a bare YYYY-MM-DD Article date as
+// "missing a timezone". Guides are written in Florida, so a date-only value
+// becomes 8am Eastern with the DST-correct offset for that day.
+function ldDateTime(d) {
+  if (typeof d !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
+  let off = "-05:00";
+  try {
+    const part = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", timeZoneName: "shortOffset" })
+      .formatToParts(new Date(d + "T12:00:00Z")).find((x) => x.type === "timeZoneName");
+    const m = part && /GMT([+-])(\d{1,2})/.exec(part.value);
+    if (m) off = m[1] + m[2].padStart(2, "0") + ":00";
+  } catch {}
+  return d + "T08:00:00" + off;
+}
+
 export default async function GuidePage({ params }) {
   const g = GUIDES[params.slug];
   // v5.75 (SEO): return a real 404 for unknown guide slugs instead of a
@@ -819,7 +834,7 @@ export default async function GuidePage({ params }) {
       ` }} />
       {faqLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} /> : null}
       {itemListLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }} /> : null}
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: g.title, description: g.description, ...((g.published || g.updated) ? { datePublished: g.published || g.updated } : {}), ...(g.updated ? { dateModified: g.updated } : {}), ...(articleImage ? { image: articleImage } : {}), author: { "@type": "Person", name: "Gabriel Pereira", url: SITE_URL + "/about" }, publisher: { "@type": "Organization", name: "WAYFIND LLC", logo: { "@type": "ImageObject", url: SITE_URL + "/icon-512.png" } }, mainEntityOfPage: SITE_URL + "/guides/" + params.slug }) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: g.title, description: g.description, ...((g.published || g.updated) ? { datePublished: ldDateTime(g.published || g.updated) } : {}), ...(g.updated ? { dateModified: ldDateTime(g.updated) } : {}), ...(articleImage ? { image: articleImage } : {}), author: { "@type": "Person", name: "Gabriel Pereira", url: SITE_URL + "/about" }, publisher: { "@type": "Organization", name: "WAYFIND LLC", logo: { "@type": "ImageObject", url: SITE_URL + "/icon-512.png" } }, mainEntityOfPage: SITE_URL + "/guides/" + params.slug }) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Wayfind", item: SITE_URL }, { "@type": "ListItem", position: 2, name: "Guides", item: SITE_URL + "/guides" }, { "@type": "ListItem", position: 3, name: g.title, item: SITE_URL + "/guides/" + params.slug }] }) }} />
       <GuideArticleHero
         // v8.23 — ONE destination each. "All guides" used to appear twice on

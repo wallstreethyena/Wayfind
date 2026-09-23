@@ -1,5 +1,13 @@
 {
   "_comment": "Hand-authored fields for CRITICAL guards (scripts/lib/build-guard-registry.mjs computes the critical set mechanically — top-20-audit citation + money-keyword match — and refuses to generate the registry if any critical guard is missing an entry here). Keyed by the guard's repo-relative path. protects = one plain sentence naming the invariant. blastRadius.category is one of revenue|trust|correctness|cosmetic. owner follows CLAUDE.md's 'AI Team Structure' (Qwen=Engineering, Llama=Editorial, Revenue QA=affiliate/monetization integrity) or 'owner (Gabriel)' where the call is a business/product decision rather than a technical one.",
+  "scripts/check-viator-monitor-spend-skip.mjs": {
+    "protects": "Our own scheduled synthetic monitor (WayfindSyntheticMonitor/1.0, every 30 minutes from CI) can never spend the metered provider_viator freetext-search ledger, by construction: the monitor's own book-links scenario never selects a spend-capable /api/viator/go?q= link, and the route itself refuses to spend for that exact UA as a backstop — while a real human's identical request is proven to still reach the ledger.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "2026-09-23 audit follow-up to the fix/gogate crawler-gate PR: a scheduled job hitting the spend-capable shape every 30 minutes would be up to ~1,440 Partner API calls/month against the 1,000/month cap that already capped mid-month on 2026-09-22, silently starving real user Book resolutions of the ledger for the rest of the month."
+    },
+    "owner": "Revenue QA"
+  },
   "scripts/check-env.mjs": {
     "protects": "Every revenue- or feature-critical env var (Viator PID, Supabase keys, provider keys) is present and not a placeholder, at build time, with a printed advisory.",
     "blastRadius": {
@@ -701,6 +709,14 @@
     "blastRadius": {
       "category": "revenue",
       "detail": "A regression could put another property's photo, a generic stock hotel picture, or a partner image Wayfind has no licence to display on a monetized hotel card — a licensing exposure and a booking-trust break on the surface that earns Stay22/Booking commission."
+    },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-commerce-emit-queue.mjs": {
+    "protects": "A client analytics capture (commerce_impression, card_impression, detail_open, share_open, track()) fired before the idle-booted PostHog SDK is ready is queued (bounded) and delivered with its original timestamp on init, and an owner/internal/bot/webdriver session emits and queues nothing.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "Without it, every early capture is silently dropped: share_open never reached PostHog at all, share-link detail_open ran 35/21/24 in Supabase vs 0/0/0 in PostHog on 2026-09-17..19, and above-the-fold commerce_impression under-counts the money-funnel denominator; the suppression half stops owner/bot traffic leaking into the same funnel."
     },
     "owner": "Revenue QA"
   }
