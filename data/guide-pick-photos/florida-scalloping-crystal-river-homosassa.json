@@ -1,0 +1,51 @@
+{
+  "slug": "florida-scalloping-crystal-river-homosassa",
+  "picks": {
+    "Off-season, swim with the manatees instead": {
+      "src": "/guides/picks/florida-scalloping-crystal-river-homosassa/crystal-river-manatee-closeup.webp",
+      "width": 1400,
+      "height": 2089,
+      "alt": "Close-up underwater view of a Florida manatee's whiskered face breaking the surface in clear spring water",
+      "caption": "A Florida manatee surfaces in Crystal River National Wildlife Refuge, the same warm spring water scallopers swim in during the off-season.",
+      "credit": "David Hinkel / USFWS Endangered Species",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Endangered_Florida_manatee_(Trichechus_manatus),_Crystal_River_National_Wildlife_Refuge,_Florida_(5104976921).jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Endangered_Florida_manatee_(Trichechus_manatus),_Crystal_River_National_Wildlife_Refuge,_Florida_(5104976921).jpg",
+      "author": "David Hinkel / USFWS Endangered Species",
+      "position": "45% 32%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons file description explicitly names Crystal River National Wildlife Refuge and Kings Bay as the location, uploaded from the USFWS Endangered Species Flickr account; an exact place match for the pick. Not geotagged, so no coordinate-distance check is possible.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
+    }
+  },
+  "gaps": {
+    "A guided scallop trip from Crystal River or Homosassa": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "Describes booking any of several charter operators from either town, not one fixed dock or business; no verified photo of an actual guided scallop trip in progress was found."
+    },
+    "The season, and why you check the exact dates": {
+      "reason": "not-a-place",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "Explains the FWC season calendar; not a place."
+    },
+    "The license and the limits": {
+      "reason": "not-a-place",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "Explains licensing rules and bag limits; not a place."
+    },
+    "How you actually catch them": {
+      "reason": "not-a-place",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "Explains the snorkel-and-hand-pick technique; not a single place."
+    }
+  }
+}

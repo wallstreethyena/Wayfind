@@ -1,0 +1,53 @@
+{
+  "slug": "siesta-key-vs-lido-key",
+  "picks": {
+    "Siesta Key: the sand": {
+      "src": "/guides/picks/siesta-key-vs-lido-key/siesta-key-beach-sand.webp",
+      "width": 1400,
+      "height": 1050,
+      "alt": "The wide, pale quartz sand of Siesta Key Beach stretching to the water, with a rippled texture and small distant figures near the shoreline",
+      "caption": "The pale quartz sand of Siesta Key Beach, the vast stretch this guide says is worth the parking hassle.",
+      "credit": "Fred Hsu",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:2017_Sarasota_Enormity_of_Siesta_Beach_on_Siesta_Key_at_Sunset_03_FRD_9744.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:2017_Sarasota_Enormity_of_Siesta_Beach_on_Siesta_Key_at_Sunset_03_FRD_9744.jpg",
+      "author": "Fred Hsu",
+      "position": "50% 55%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "File title and description both name Siesta Beach on Siesta Key; part of a dated (2017) Fred Hsu series, matching this pick's exact place. Not geotagged. People visible are small and distant, not identifiable individuals.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
+    },
+    "Lido Key: the balance": {
+      "src": "/guides/picks/siesta-key-vs-lido-key/lido-key-beach.webp",
+      "width": 1400,
+      "height": 788,
+      "alt": "The quiet white sand beach at Lido Key with dune vegetation on the left and the Sarasota skyline visible in the distance",
+      "caption": "Lido Key's beach, with the Sarasota skyline in the distance and far fewer people on the sand than Siesta Key.",
+      "credit": "Ryan Hodnett",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Lido_Key_-_Sarasota,_Florida_2023-01-22_(07).jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Lido_Key_-_Sarasota,_Florida_2023-01-22_(07).jpg",
+      "author": "Ryan Hodnett",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons file explicitly titled and categorized 'Lido Key' in Sarasota, Florida, part of a dated (2023-01-22) series by Ryan Hodnett; matches the guide's exact pick location. Not geotagged for a coordinate check.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
+    }
+  },
+  "gaps": {
+    "The verdict": {
+      "reason": "not-a-place",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "A recommendation summary comparing the two keys; not a place."
+    }
+  }
+}

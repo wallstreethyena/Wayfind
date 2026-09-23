@@ -1,0 +1,30 @@
+{
+  "slug": "sarasota-half-price-dining",
+  "picks": {},
+  "gaps": {
+    "Clipp half-price certificates": {
+      "reason": "not-a-place",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "This pick is a prepaid-certificate app/service that rotates across many restaurants, not a single physical place."
+    },
+    "Gecko's Grill & Pub": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": "Gecko's Grill & Pub",
+      "note": "The guide names the regional chain generically with no specific address or placeId, so which of several Sarasota-area locations it refers to cannot be pinned down; no Commons photo of any Gecko's Grill & Pub location was found either way."
+    },
+    "Bar Bingo at Gecko's Hillview": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": "Gecko's Grill & Pub (Hillview)",
+      "note": "Names the specific Hillview branch, but no Commons photo of that location exists, and the pick itself describes a recurring bar-game night rather than the building."
+    },
+    "Pie On Main": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": "Pie On Main",
+      "note": "Small independent downtown lunch counter; no Commons photo of this business was found."
+    }
+  }
+}
