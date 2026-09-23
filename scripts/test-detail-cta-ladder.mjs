@@ -68,11 +68,22 @@ const noOffers = {};
 
 // 4. Hotel → Check rates when booking target exists.
 {
-  const p = place({ types: ["lodging", "hotel"], id: "hotel_1" });
+  // 2026-09-23: the rates path now also requires a booking-verification record
+  // (lib/hotelBookingVerification.js) proving the Stay22 handoff lands on THIS
+  // property, so the fixture is a real verified hotel. With the old invented
+  // "hotel_1" this case would resolve to no rates CTA and stop testing the
+  // ladder rung it is named after.
+  const p = place({ types: ["lodging", "hotel"], id: "wfh-days-inn-bradenton-near-the-gulf-27469" });
   // A hotel with location must expose the tracked rates path on its detail sheet.
   const cta = resolveDetailCta({ detail: p, kind: "hotel", viaTours: noTours, locName: "Tampa, FL", offers: noOffers, openState: open });
   ok(cta.type === DETAIL_CTA_TYPES.rates && cta.href.startsWith("/api/hotels/go?") && cta.provider === "stay22",
     "hotel → Check rates through tracked Stay22 handoff");
+
+  // The same hotel without a verification record must NOT reach the rates rung.
+  const unverified = place({ types: ["lodging", "hotel"], id: "wfh-never-verified-00000" });
+  const noCta = resolveDetailCta({ detail: unverified, kind: "hotel", viaTours: noTours, locName: "Tampa, FL", offers: noOffers, openState: open });
+  ok(noCta.type !== DETAIL_CTA_TYPES.rates,
+    `unverified hotel → no Check rates rung (got ${noCta.type})`);
 }
 
 // 5. Cafe / bakery → menu/pickup, not tickets.
