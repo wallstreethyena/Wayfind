@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 707,
-    "totalRegistryEntries": 708,
-    "guardsTxtLineCount": 706,
-    "guardsTxtReachedFileCount": 701,
-    "criticalCount": 84,
+    "totalOnDiskGuardFiles": 708,
+    "totalRegistryEntries": 709,
+    "guardsTxtLineCount": 707,
+    "guardsTxtReachedFileCount": 702,
+    "criticalCount": 85,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 486,
+      "CALL": 487,
       "RENDER": 83,
       "STRUCTURAL": 138,
       "OTHER": 1
@@ -3918,6 +3918,36 @@
       "protects": null,
       "blastRadius": null,
       "owner": null
+    },
+    {
+      "file": "scripts/check-hotel-booking-verified.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 21,
+      "unprovenAbsenceCount": 1,
+      "honestyViolations": [
+        "1 absence assertion(s) with no positive control in the same file (e.g. \"ALLOWED.every((r) => r.resolved && !GEO.test(r.resolved)),\n  \"\")"
+      ],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-filename:booking",
+        "money-keyword-in-import:../lib/affiliates.js"
+      ],
+      "protects": "A hotel card only shows a booking button when the outbound Stay22 handoff has been verified to land on that exact property; no verification record means no button, on the card and at /api/hotels/go alike.",
+      "blastRadius": {
+        "category": "trust",
+        "detail": "Without this gate 354 of 394 served hotels sent users to a different property than the card named, including four that resolved to businesses that are not hotels at all (a Dollar Tree, a RaceTrac, a pub and a tavern) and three separate cards that all resolved to one wrong resort. A user who books the wrong hotel loses money and the affiliate commission is earned dishonestly."
+      },
+      "owner": "Revenue QA"
     },
     {
       "file": "scripts/check-hotel-image-provider-terms.mjs",
@@ -11180,7 +11210,7 @@
       "npmScript": null,
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 93,
+      "assertionCount": 94,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -12527,7 +12557,7 @@
       "npmScript": null,
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 25,
+      "assertionCount": 28,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,

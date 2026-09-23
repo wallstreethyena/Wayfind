@@ -703,5 +703,13 @@
       "detail": "A regression could put another property's photo, a generic stock hotel picture, or a partner image Wayfind has no licence to display on a monetized hotel card — a licensing exposure and a booking-trust break on the surface that earns Stay22/Booking commission."
     },
     "owner": "Revenue QA"
+  },
+  "scripts/check-hotel-booking-verified.mjs": {
+    "protects": "A hotel card only shows a booking button when the outbound Stay22 handoff has been verified to land on that exact property; no verification record means no button, on the card and at /api/hotels/go alike.",
+    "blastRadius": {
+      "category": "trust",
+      "detail": "Without this gate 354 of 394 served hotels sent users to a different property than the card named, including four that resolved to businesses that are not hotels at all (a Dollar Tree, a RaceTrac, a pub and a tavern) and three separate cards that all resolved to one wrong resort. A user who books the wrong hotel loses money and the affiliate commission is earned dishonestly."
+    },
+    "owner": "Revenue QA"
   }
 }

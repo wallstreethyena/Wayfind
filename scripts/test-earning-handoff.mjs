@@ -160,20 +160,35 @@ ok(/viatorProductGoUrl\s*\(/.test(bookingResolve),
 // hotelGoUrl forwards lat/lng to /api/hotels/go only when both are finite,
 // without disturbing the existing isTrueLodging/name/address gates or param order.
 {
-  const hotelPlace = { id: "hotel_ll_1", name: "Hampton Inn & Suites", address: "309 10th St W, Bradenton", types: ["lodging", "hotel"] };
+  // 2026-09-23: hotelGoUrl now also requires a booking-verification record
+  // (lib/hotelBookingVerification.js), so this fixture is a REAL verified
+  // hotel rather than an invented id. An invented id would now return null
+  // and these lat/lng assertions would be testing nothing.
+  const hotelPlace = {
+    id: "wfh-days-inn-bradenton-near-the-gulf-27469",
+    name: "Days Inn Bradenton - Near the Gulf",
+    address: "3506 1st Street West, Bradenton",
+    types: ["lodging", "hotel"],
+  };
   const noCoords = hotelGoUrl(hotelPlace, "Bradenton, FL");
   ok(typeof noCoords === "string" && !/[?&]lat=/.test(noCoords) && !/[?&]lng=/.test(noCoords),
     `hotelGoUrl omits lat/lng when the place carries none (got ${noCoords})`);
 
   const withCoords = hotelGoUrl({ ...hotelPlace, lat: 27.497049, lng: -82.571662 }, "Bradenton, FL");
   const wq = new URL("https://x" + withCoords).searchParams;
-  ok(wq.get("name") === "Hampton Inn & Suites" && wq.get("address") === "309 10th St W, Bradenton" && wq.get("surface") === "hotel_booking",
+  ok(wq.get("name") === "Days Inn Bradenton - Near the Gulf" && wq.get("address") === "3506 1st Street West, Bradenton" && wq.get("surface") === "hotel_booking",
     "hotelGoUrl still emits the existing name/address/surface params");
   ok(wq.get("lat") === "27.497049" && wq.get("lng") === "-82.571662", `hotelGoUrl forwards lat/lng (got ${withCoords})`);
   ok(withCoords.indexOf("name=") < withCoords.indexOf("lat="), "new lat/lng params are appended, not inserted before the existing ones");
 
   ok(!/[?&]lat=/.test(hotelGoUrl({ ...hotelPlace, lat: 27.49 }, "Bradenton, FL")), "lat without lng: hotelGoUrl forwards no coordinates");
   ok(!/[?&]lat=/.test(hotelGoUrl({ ...hotelPlace, lat: "not-a-number", lng: -82.57 }, "Bradenton, FL")), "a non-finite lat forwards no coordinates");
+
+  // The gate itself: an otherwise-perfect lodging place that we have never
+  // verified earns NO link. This is the whole point of the 2026-09-23 audit —
+  // 354 of 394 served hotels resolved to a property other than the one named.
+  ok(hotelGoUrl({ ...hotelPlace, id: "wfh-never-verified-00000", lat: 27.49, lng: -82.57 }, "Bradenton, FL") === null,
+    "hotelGoUrl refuses a lodging place with no booking-verification record");
 }
 ok(/booking\\\.com/i.test(read("lib/guideCta.js")),
   "guide hotel CTA rejects a leftover booking.com earning href (fail-closed belt)");
