@@ -415,7 +415,7 @@ export default function RailCard({
           // 2026-09-02: an EXTERNAL destination goes through lib/links.safeUrl
           // (the app-wide chokepoint) — a quarantined or malformed href opens
           // nothing rather than a hijacked page. Internal routes are ours.
-          if (external) { const safe = safeUrl(cardHref); if (safe) window.open(safe, "_blank", "noopener"); }
+          if (external) { const safe = safeUrl(href); if (safe) window.open(safe, "_blank", "noopener"); }
           else window.location.assign(cardHref);
         }
       }}
