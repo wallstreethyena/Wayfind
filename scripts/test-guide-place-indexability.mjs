@@ -33,10 +33,17 @@ const ok = (c, m) => { assert.ok(c, m); pass++; };
 // bundler). So isIndexable() is exercised here as the EXACT one-liner it is
 // today, LOCKED to the real source by a substring match — if that line ever
 // changes, this test fails loudly instead of silently testing stale logic.
+//
+// 2026-09-23 SEO recovery: isIndexable() moved from "hasDetails &&
+// (address || description)" (true the moment a Google Place Details call
+// had ever landed — a 30-day cache, the source of the 43%-noindex churn) to
+// "durableEligible" (lib/placeEligibility.js — identity + a substantive
+// WAYFIND-HELD text source, never Google alone). Updating the lock here is
+// the intentional case the comment above calls out.
 const placeDataSrc = readFileSync(new URL("../lib/placeData.js", import.meta.url), "utf8");
-const ISINDEXABLE_LINE = "return !!(p && p.hasDetails && (p.address || p.description));";
-ok(placeDataSrc.includes(ISINDEXABLE_LINE), "isIndexable's exact gate is unchanged (hasDetails && (address || description)) — update ISINDEXABLE_LINE above if this is an intentional change");
-const isIndexable = (p) => !!(p && p.hasDetails && (p.address || p.description)); // mirrors the locked line above
+const ISINDEXABLE_LINE = "return !!(p && p.durableEligible);";
+ok(placeDataSrc.includes(ISINDEXABLE_LINE), "isIndexable's exact gate is unchanged (durableEligible) — update ISINDEXABLE_LINE above if this is an intentional change");
+const isIndexable = (p) => !!(p && p.durableEligible); // mirrors the locked line above
 
 // ── Fixture GUIDES — a tiny, self-contained stand-in so this test never
 // depends on live editorial copy staying a certain length or shape. ─────────
@@ -145,10 +152,19 @@ for (const id of realFoodCityPlaceIds) ok(realIds.includes(id), `listGuidePlaceI
 // (placeDataSrc was already read above for the isIndexable lock — reused here.)
 ok(/guidePlaceFor\(id\)/.test(placeDataSrc), "loadPlace calls guidePlaceFor(id)");
 ok(/if \(!skel && !atlas && !guide\) return null;/.test(placeDataSrc), "the allowlist gate requires ALL THREE of skel/atlas/guide to be absent before returning null");
-ok(/mergePlacePage\(id,\s*\{\s*skel,\s*details,\s*atlas,\s*guide\s*\}\)/.test(placeDataSrc), "mergePlacePage is called WITH guide, not merely defined near it");
+// 2026-09-23 SEO recovery: loadPlace also gained a fourth source (`editorial`
+// — a verified wf_editorial_servable row, lib/placeIndex.js
+// getVerifiedEditorial()), so the call now carries all four.
+ok(/mergePlacePage\(id,\s*\{\s*skel,\s*details,\s*atlas,\s*guide,\s*editorial\s*\}\)/.test(placeDataSrc), "mergePlacePage is called WITH guide AND editorial, not merely defined near them");
 const placeIndexSrc = readFileSync(new URL("../lib/placeIndex.js", import.meta.url), "utf8");
-ok(/listGuidePlaceIds\(\)/.test(placeIndexSrc) && /unionIndexedAndAtlasIds\([A-Za-z0-9_]+,\s*listGuidePlaceIds\(\)\)/.test(placeIndexSrc),
-  "listIndexedIds unions in listGuidePlaceIds() for the sitemap/generateStaticParams");
+// listIndexedIds() now filters GUIDES ids to the ones that are themselves
+// durably eligible (guidePlaceFor + placeDurableEligibility) before unioning
+// them in, rather than unioning every GUIDES-linked id unconditionally — see
+// scripts/check-place-sitemap-parity.mjs for the functional, by-call proof
+// (including the real production ids this narrower filter correctly holds
+// back for missing coordinates). This is the structural smoke test.
+ok(/listGuidePlaceIds\(\)/.test(placeIndexSrc) && /guidePlaceHasSubstantiveDetail|placeDurableEligibility/.test(placeIndexSrc),
+  "listIndexedIds lost its reference to listGuidePlaceIds() or to the eligibility filter — guide picks would drop out of the sitemap, or an ineligible one would leak in");
 
 // ── 8b. A place named by more than one guide credits EVERY guide, and the
 // sitemap union lists only guide picks that are indexable on their own. ────
