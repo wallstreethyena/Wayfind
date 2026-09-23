@@ -318,6 +318,13 @@ export default function RailCard({
   // common case (every card that is NOT the sentinel passes nothing).
   domRef = null,
 }) {
+  // Interactive place cards always open the full /p/{id} detail experience.
+  // /places/{id} remains the durable SEO document. Normalizing at this shared
+  // renderer boundary makes the rule apply to every present and future rail.
+  const cardHref = place && place.id ? normalizePlaceCardHref(href, place.id) : href;
+  if (place && place.id && cta && !cta.external && cta.href) {
+    cta = { ...cta, href: normalizePlaceCardHref(cta.href, place.id) };
+  }
   // PLACE CARD STANDARD (owner, 2026-09-16): a card never carries a
   // Directions button. Tapping the card opens the detail page, and Directions
   // lives there. Enforced HERE, at the one component every rail renders, so a
@@ -408,8 +415,8 @@ export default function RailCard({
           // 2026-09-02: an EXTERNAL destination goes through lib/links.safeUrl
           // (the app-wide chokepoint) — a quarantined or malformed href opens
           // nothing rather than a hijacked page. Internal routes are ours.
-          if (external) { const safe = safeUrl(href); if (safe) window.open(safe, "_blank", "noopener"); }
-          else window.location.assign(href);
+          if (external) { const safe = safeUrl(cardHref); if (safe) window.open(safe, "_blank", "noopener"); }
+          else window.location.assign(cardHref);
         }
       }}
       aria-label={ariaLabel || title}
