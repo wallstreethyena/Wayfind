@@ -79,11 +79,18 @@ for (const banned of ["lcpEntry", "largestShiftEntry", "navigationEntry", "lcpRe
 for (const base of ["metric:", "value:", "rating:", "route:", "device:", "loc_permission:", "signed_in:", "build:"]) {
   ok(block.includes(base), `base web_vitals property ${base} was dropped — the command-center panel reads it`);
 }
-ok(/capture\("web_vitals"/.test(block), 'the event name must stay "web_vitals" — dashboards and the panel key off it');
+ok(/captureOrQueue\(window, "web_vitals", props\)/.test(block), 'the event name must stay "web_vitals" — dashboards and the panel key off it — and it is sent through the pre-ready queue');
 
 // 8. Still fail-soft: instrumentation must never break the app.
 ok(/catch \(e\) \{\}/.test(block), "reporter lost its try/catch — telemetry must never throw into the UI");
-ok(/if \(!window\.posthog\) return;/.test(block), "reporter lost its posthog guard");
+// 2026-09-23: this used to require `if (!window.posthog) return;`. That guard
+// is exactly what dropped FCP/TTFB (and a fast LCP): they resolve before the
+// idle-booted SDK exists. The reporter now hands every metric to
+// captureOrQueue, which is fail-soft by itself (never throws, suppresses
+// owner/bot sessions, bounded queue) — so the requirement becomes "no raw
+// SDK capture", which is strictly stronger than "checks the SDK first".
+ok(/window\.posthog\.capture/.test('if (window.posthog) window.posthog.capture("web_vitals", props);'), "positive control: the raw-capture probe finds the pre-2026-09-23 reporter shape");
+ok(!/window\.posthog\.capture/.test(block), "reporter calls the raw SDK — web vitals must go through captureOrQueue or early metrics are dropped");
 
 // 9. The installed dependency must actually expose the attribution entrypoint,
 //    so a downgrade fails the build instead of the import silently rejecting.

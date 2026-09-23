@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "test": "node scripts/test-tags.mjs",
-    "check:jsx": "tsc --noEmit --allowJs --jsx preserve --target es2020 --module esnext --noResolve --skipLibCheck app/home.js app/components/kit.js app/components/PaidLanding.js app/components/ExploreBridge.js app/components/GoogleTags.js app/components/BookingCTA.js app/components/BookItLink.js app/components/screens/*.js app/components/sheets/*.js \"app/p/[id]/page.js\" app/components/MapView.js \"app/l/[key]/page.js\" app/command-center/page.js app/command-center/ui.js app/command-center/charts.js app/components/css.js app/components/curatedData.js app/components/CollectionHero.js app/components/RankedExperiencePage.js app/components/TrendingNowClient.js app/components/IntentPageClient.js app/components/ThingsToDoList.js app/components/TodaysBest.js app/components/DaypartRail.js app/components/SummerIntentRails.js app/components/PlaceCardSkeleton.js app/components/railMenuCss.js \"app/v8/page.js\" app/components/ShareButton.js app/components/PremiumIntentHero.js \"app/guides/[slug]/page.js\" \"app/r/[rail]/page.js\" app/api/og/card.jsx app/api/og/rail/route.jsx",
+    "check:jsx": "tsc --noEmit --allowJs --jsx preserve --target es2020 --module esnext --noResolve --skipLibCheck app/home.js app/components/kit.js app/components/PaidLanding.js app/components/ExploreBridge.js app/components/GoogleTags.js app/components/BookingCTA.js app/components/BookItLink.js app/components/screens/*.js app/components/sheets/*.js \"app/p/[id]/page.js\" app/components/MapView.js \"app/l/[key]/page.js\" app/command-center/page.js app/command-center/ui.js app/command-center/charts.js app/components/css.js app/components/curatedData.js app/components/CollectionHero.js app/components/RankedExperiencePage.js app/components/TrendingNowClient.js app/components/IntentPageClient.js app/components/ThingsToDoList.js app/components/TodaysBest.js app/components/DaypartRail.js app/components/SummerIntentRails.js app/components/PlaceCardSkeleton.js app/components/railMenuCss.js \"app/v8/page.js\" app/components/ShareButton.js app/components/PremiumIntentHero.js \"app/guides/[slug]/page.js\" \"app/r/[rail]/page.js\" app/api/og/card.jsx app/api/og/rail/route.jsx app/api/og/hero/route.js",
     "trends:import": "node scripts/trends-import.mjs",
     "check:dupes": "node scripts/check-dupes.mjs",
     "check:env": "node scripts/check-env.mjs",
@@ -38,6 +38,7 @@
     "@capacitor/browser": "^8.0.4",
     "@capacitor/camera": "^8.2.2",
     "@capacitor/core": "^8.5.0",
+    "@capacitor/geolocation": "^8.2.2",
     "@capacitor/push-notifications": "^8.1.2",
     "@capacitor/share": "^8.0.1",
     "@capacitor/splash-screen": "^8.0.2",

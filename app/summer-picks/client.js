@@ -79,7 +79,7 @@ export default function SummerPicksClient() {
     imageKicker="BEST SUMMER EVER"
     imageTitle="Water first. Rain plan ready. Every card earns the stop."
     dekLead="Pick the summer need."
-    trustLines={["Places rank on evidence, not payment.", "Viator links are affiliate links; Wayfind may earn a commission at no extra cost to you."]}
+    trustLines={["Places rank on evidence, not payment."]}
     topLeft={<a href="/" style={{ color: "#F97316", textDecoration: "none", fontWeight: 800 }}>← Wayfind</a>}
   >
     {!center ? <div style={{ padding: "18px", border: "1px solid rgba(255,255,255,.1)", borderRadius: 16, color: "#A8B0BE" }}>Open Summer Picks from the Wayfind homepage so your location can rank the rails.</div> : null}

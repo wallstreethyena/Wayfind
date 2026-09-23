@@ -225,7 +225,14 @@ function goodList() {
 // exactly what happened when the fonts moved from list/fonts to og/fonts.
 {
   const cardSrc = readFileSync(new URL("../app/api/og/card.jsx", import.meta.url), "utf8");
-  const wanted = [...cardSrc.matchAll(/\.\/fonts\/([A-Za-z0-9-]+\.ttf)/g)].map((m) => m[1]);
+  // v9 (2026-09-23): font loading now branches on the runtime (edge vs the
+  // Node.js hero route), so the filename appears as loadArchivoFont("…ttf")
+  // rather than inline in a ./fonts/…ttf path literal — match both forms so
+  // this stays the one place font filenames are read out of, not typed here.
+  const wanted = [...new Set([
+    ...[...cardSrc.matchAll(/\.\/fonts\/([A-Za-z0-9-]+\.ttf)/g)].map((m) => m[1]),
+    ...[...cardSrc.matchAll(/loadArchivoFont\(["'`]([A-Za-z0-9-]+\.ttf)["'`]\)/g)].map((m) => m[1]),
+  ])];
   ok(wanted.length >= 3, `the share card must load its faces from ./fonts/ — found ${wanted.length}`);
   const fontDir = new URL("../app/api/og/fonts/", import.meta.url);
   for (const f of wanted) {

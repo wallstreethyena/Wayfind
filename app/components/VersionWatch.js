@@ -48,6 +48,7 @@
 // scripts/test-stale-tab.mjs asserts.
 import { useCallback, useEffect, useRef, useState } from "react";
 import { reloadBlockers } from "../../lib/staleTab";
+import { captureOrQueue } from "../../lib/browserAnalytics";
 
 const CHECK_MS = 10 * 60 * 1000; // floor for a tab that is never backgrounded
 const RETRY_MS = 4000;           // how often an armed reload re-reads the room
@@ -97,7 +98,7 @@ export default function VersionWatch() {
       // same chip at the same scroll offset — that is what makes taking it
       // unprompted defensible at all. Do not "improve" this by adding a second
       // resume path; there is one, and it is that one.
-      try { window.posthog && window.posthog.capture("stale_tab_reload", { from: mine.slice(0, 7), to: String(to).slice(0, 7), trigger }); } catch (e) {}
+      try { captureOrQueue(window, "stale_tab_reload", { from: mine.slice(0, 7), to: String(to).slice(0, 7), trigger }); } catch (e) {}
       window.location.reload();
     };
 

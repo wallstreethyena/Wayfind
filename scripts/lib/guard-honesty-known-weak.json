@@ -741,6 +741,10 @@
     {
       "file": "scripts/test-vitals-attribution.mjs",
       "reason": "1 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/check-ios-shell-wiring.mjs",
+      "reason": "STRUCTURAL-ONLY (2026-09-23): Swift/plist/offline page wiring cannot run on the Linux build host; compile and runtime proven by the Xcode simulator run, see docs/ios-app-store-handoff.md"
     }
   ]
 }

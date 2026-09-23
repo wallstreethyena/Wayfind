@@ -220,7 +220,6 @@ export default async function CulturePage({ params }) {
           ? { label: `Browse every ${c.title} pick in Wayfind`, href: "/things-to-do/" + params.metro }
           : { label: "Open Wayfind for live picks nearby", href: "/" }}
       />
-      <div style={S.disclosure}>Wayfind may earn a commission from partner links on this page.</div>
       <p style={{ fontSize: 14, color: "#C9D1D9", marginTop: 22 }}>
         More cities: {Object.keys(CULTURE).filter((k) => k !== params.metro).map((k, i, arr) => (<span key={k}><a href={"/culture/" + k} style={S.footerLink}>{CULTURE[k].title}</a>{i < arr.length - 1 ? " · " : ""}</span>))}
       </p>

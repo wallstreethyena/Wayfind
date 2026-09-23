@@ -79,7 +79,9 @@ ok(/on_conflict=product_code/.test(cron) && /merge-duplicates/.test(cron), "cron
 // ── 9. UI: FTC disclosure + pid-wrapping on the rail (added with the UI) ─────
 const home = read("app/home.js");
 if (/experiencesData|EXPERIENCE_RAIL|_expItems/.test(home)) {
-  ok(home.includes("at no extra cost to you. It never changes our scores or rankings"), "the experiences rail renders the required FTC commission disclosure (proximate to the earning cards)");
+  const railIdx = home.indexOf("DISPLAY_CHIPS.filter");
+  const railScope = railIdx === -1 ? home : home.slice(railIdx, railIdx + 3000);
+  ok(!/earn a commission/i.test(railScope), "the experiences rail renders no inline commission disclosure (one footer disclosure plus one on true detail pages is the law now)");
   ok(/viatorDirectUrl\s*\(/.test(home), "experience card hrefs are pid-wrapped via viatorDirectUrl (never the raw product_url)");
   ok(/t\.city/.test(home), "each experience card names its market (t.city) — a widened, multi-market view never shows a far tour without a location cue");
   ok(/useState\(30\)/.test(home), "the rail defaults to the 30mi home-market view (near = near); the rungs widen explicitly");

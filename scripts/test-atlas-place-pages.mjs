@@ -200,8 +200,10 @@ ok(united[0] === "aaa" && united.includes(LIDO) && united.length === PUBLISH_REA
 // ── 4. source: loadPlace / peek never hit Places for Atlas ids ────────────
 const pd = code("lib/placeData.js");
 ok(/const atlas = atlasPlaceFor\(id\)/.test(pd), "loadPlace no longer reads the Atlas allowlist");
-ok(/atlasPlaceFor/.test(pd) && /if \(!skel && !atlas\) return null/.test(pd),
-  "loadPlace lost the dual allowlist short-circuit (skeleton OR Atlas)");
+// 2026-09-23 — a THIRD allowlist joined (a GUIDES pick, lib/guidePlaceIndex.js),
+// so the short-circuit is now skeleton OR Atlas OR guide, not just the pair.
+ok(/atlasPlaceFor/.test(pd) && /if \(!skel && !atlas && !guide\) return null/.test(pd),
+  "loadPlace lost the triple allowlist short-circuit (skeleton OR Atlas OR guide)");
 ok(/const inv = atlas \? await getInventoryIdentity\(id\) : null/.test(pd),
   "loadPlace no longer reads wf_inventory for Atlas ids (or reads it for non-Atlas ids)");
 ok(/preferInventorySkeleton\(inv, indexed\)/.test(pd),
@@ -223,8 +225,12 @@ ok(!/spendAllow/.test(peekFn) && !/GOOGLE_MAPS_SERVER_KEY/.test(peekFn),
   "peekPlaceDetails consults spend/key — it must only read cache");
 
 const idx = code("lib/placeIndex.js");
-ok(/return unionIndexedAndAtlasIds\(indexed,\s*listPublishReadyAtlasIds\(\)\)/.test(idx),
+ok(/unionIndexedAndAtlasIds\(indexed,\s*listPublishReadyAtlasIds\(\)\)/.test(idx),
   "listIndexedIds no longer CALLs the Atlas union (sitemap would drop the publish-ready Atlas cards)");
+// 2026-09-23 — chained a second union onto the atlas-unioned result so every
+// GUIDES-linked placeId also lands in the sitemap/generateStaticParams set.
+ok(/unionIndexedAndAtlasIds\([A-Za-z0-9_]+,\s*listGuidePlaceIds\(\)\)/.test(idx),
+  "listIndexedIds no longer unions in listGuidePlaceIds() (guide picks would drop out of the sitemap)");
 
 // ── 5. editorial / known-for wiring still Atlas-first; JSON stays server-only
 const knownFor = code("app/api/known-for/route.js");

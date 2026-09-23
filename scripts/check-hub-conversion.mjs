@@ -107,8 +107,8 @@ ok(hubHtml.includes("See tours &amp; tickets in Orlando") || hubHtml.includes("S
   "HubConversion must render its primary CTA label");
 ok(/href="\/api\/viator\/go/.test(hubHtml),
   "HubConversion's monetized CTA must point at our own redirect, not a partner domain");
-ok(/no extra cost to you/.test(hubHtml),
-  "FTC disclosure must render adjacent to an earning CTA");
+ok(!/earn a commission/i.test(hubHtml),
+  "HubConversion renders no inline commission disclosure (one footer disclosure plus one on true detail pages is the law now)");
 ok(/href="\/things-to-do\/orlando"/.test(hubHtml),
   "the continue card must render so the page is not terminal");
 

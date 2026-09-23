@@ -46,7 +46,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -54,7 +54,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -66,7 +66,7 @@
         },
         "large_image_candidate": {
           "status": "unknown",
-          "evidence": "Delivered image is 1024x686; it is not claimed as a 1200px-wide Discover candidate."
+          "evidence": "Reviewed source image is 1024x686; it is not claimed as a 1200px-wide Discover candidate."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -127,7 +127,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -135,7 +135,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -147,7 +147,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1400x933; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1400x933 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -208,7 +208,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -216,7 +216,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -228,7 +228,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1400x933; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1400x933 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -289,7 +289,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -297,7 +297,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -309,7 +309,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1600x1200; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1600x1200 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -370,7 +370,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -378,7 +378,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -390,7 +390,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1200x1600; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1200x1600 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -451,7 +451,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -459,7 +459,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -471,7 +471,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1400x1050; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1400x1050 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -532,7 +532,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -540,7 +540,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -552,7 +552,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1400x799; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1400x799 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -613,7 +613,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -621,7 +621,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -633,7 +633,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1600x894; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1600x894 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -694,7 +694,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -702,7 +702,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -714,7 +714,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1600x1200; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1600x1200 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -775,7 +775,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -783,7 +783,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -795,7 +795,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1400x829; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1400x829 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -856,7 +856,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -864,7 +864,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -876,7 +876,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1280x960; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1280x960 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -937,7 +937,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -945,7 +945,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -957,7 +957,7 @@
         },
         "large_image_candidate": {
           "status": "unknown",
-          "evidence": "Delivered image is 1012x1349; it is not claimed as a 1200px-wide Discover candidate."
+          "evidence": "Reviewed source image is 1012x1349; it is not claimed as a 1200px-wide Discover candidate."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -1018,7 +1018,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -1026,7 +1026,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -1038,7 +1038,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1400x2100; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1400x2100 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -1099,7 +1099,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -1107,7 +1107,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -1119,7 +1119,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1600x1200; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1600x1200 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -1180,7 +1180,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -1188,7 +1188,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -1200,7 +1200,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1600x1067; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1600x1067 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -1261,7 +1261,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-31) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -1269,7 +1269,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -1281,7 +1281,7 @@
         },
         "large_image_candidate": {
           "status": "unknown",
-          "evidence": "Delivered image is 1067x1600; it is not claimed as a 1200px-wide Discover candidate."
+          "evidence": "Reviewed source image is 1067x1600; it is not claimed as a 1200px-wide Discover candidate."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -1342,7 +1342,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-31) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -1350,7 +1350,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -1362,7 +1362,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1400x1050; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1400x1050 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -1423,7 +1423,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-19) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -1431,7 +1431,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -1443,7 +1443,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1600x1139; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1600x1139 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -1504,7 +1504,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-10) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -1512,7 +1512,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -1524,7 +1524,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1600x900; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1600x900 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -1585,7 +1585,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-10) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -1593,7 +1593,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -1605,7 +1605,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1600x1064; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1600x1064 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -1666,7 +1666,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-10) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -1674,7 +1674,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -1686,7 +1686,7 @@
         },
         "large_image_candidate": {
           "status": "unknown",
-          "evidence": "Delivered image is 796x1200; it is not claimed as a 1200px-wide Discover candidate."
+          "evidence": "Reviewed source image is 796x1200; it is not claimed as a 1200px-wide Discover candidate."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -1747,7 +1747,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-10) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -1755,7 +1755,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -1767,7 +1767,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1600x1066; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1600x1066 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -1828,7 +1828,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-10) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -1836,7 +1836,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -1848,7 +1848,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1600x1200; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1600x1200 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -1909,7 +1909,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-07-10) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -1917,7 +1917,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -1929,7 +1929,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1600x1068; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1600x1068 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -1990,7 +1990,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-19) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -1998,7 +1998,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -2010,7 +2010,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1400x787; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1400x787 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -2071,7 +2071,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-09-23) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -2079,7 +2079,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -2091,7 +2091,7 @@
         },
         "large_image_candidate": {
           "status": "unknown",
-          "evidence": "Delivered image is 1067x1600; it is not claimed as a 1200px-wide Discover candidate."
+          "evidence": "Reviewed source image is 1067x1600; it is not claimed as a 1200px-wide Discover candidate."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -2152,7 +2152,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-09-23) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -2160,7 +2160,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -2172,7 +2172,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1600x1066; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1600x1066 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -2233,7 +2233,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-09-23) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -2241,7 +2241,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -2253,7 +2253,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1600x1068; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1600x1068 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -2314,7 +2314,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-09-23) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -2322,7 +2322,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -2334,7 +2334,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1600x1067; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1600x1067 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -2395,7 +2395,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-09-23) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -2403,7 +2403,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -2415,7 +2415,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1400x938; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1400x938 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "unknown",
@@ -2476,7 +2476,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-09-13) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -2484,7 +2484,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -2496,7 +2496,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1600x1067; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1600x1067 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -2557,7 +2557,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -2565,7 +2565,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -2577,7 +2577,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1600x1067; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1600x1067 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -2638,7 +2638,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -2646,7 +2646,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -2658,7 +2658,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1600x1067; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1600x1067 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "unknown",
@@ -2719,7 +2719,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -2727,7 +2727,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -2739,7 +2739,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1600x1066; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1600x1066 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -2800,7 +2800,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -2808,7 +2808,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -2820,7 +2820,7 @@
         },
         "large_image_candidate": {
           "status": "unknown",
-          "evidence": "Delivered image is 800x1200; it is not claimed as a 1200px-wide Discover candidate."
+          "evidence": "Reviewed source image is 800x1200; it is not claimed as a 1200px-wide Discover candidate."
         },
         "contextual_guide_links": {
           "status": "unknown",
@@ -2881,7 +2881,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -2889,7 +2889,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -2901,7 +2901,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1600x1067; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1600x1067 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "unknown",
@@ -2962,7 +2962,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -2970,7 +2970,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -2982,7 +2982,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1600x921; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1600x921 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "unknown",
@@ -3043,7 +3043,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -3051,7 +3051,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -3063,7 +3063,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1600x1200; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1600x1200 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "unknown",
@@ -3124,7 +3124,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -3132,7 +3132,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -3144,7 +3144,7 @@
         },
         "large_image_candidate": {
           "status": "unknown",
-          "evidence": "Delivered image is 800x1200; it is not claimed as a 1200px-wide Discover candidate."
+          "evidence": "Reviewed source image is 800x1200; it is not claimed as a 1200px-wide Discover candidate."
         },
         "contextual_guide_links": {
           "status": "unknown",
@@ -3205,7 +3205,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -3213,7 +3213,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -3225,7 +3225,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1600x900; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1600x900 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -3286,7 +3286,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-07) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -3294,7 +3294,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -3306,7 +3306,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1600x1067; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1600x1067 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "unknown",
@@ -3367,7 +3367,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-13) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -3375,7 +3375,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -3387,7 +3387,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1600x1200; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1600x1200 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -3448,7 +3448,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-13) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -3456,7 +3456,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -3468,7 +3468,7 @@
         },
         "large_image_candidate": {
           "status": "unknown",
-          "evidence": "Delivered image is 872x1200; it is not claimed as a 1200px-wide Discover candidate."
+          "evidence": "Reviewed source image is 872x1200; it is not claimed as a 1200px-wide Discover candidate."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -3529,7 +3529,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-13) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -3537,7 +3537,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -3549,7 +3549,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1600x1067; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1600x1067 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -3610,7 +3610,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-08-19) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -3618,7 +3618,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -3630,7 +3630,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1280x854; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1280x854 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -3691,7 +3691,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-09-02) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -3699,7 +3699,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -3711,7 +3711,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1400x1050; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1400x1050 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -3772,7 +3772,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-09-08) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -3780,7 +3780,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -3792,7 +3792,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1400x788; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1400x788 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -3853,7 +3853,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-09-12) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -3861,7 +3861,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -3873,7 +3873,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Delivered image is 1600x1067; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1600x1067 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "unknown",
@@ -3934,7 +3934,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-09-16) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -3942,7 +3942,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -3954,7 +3954,7 @@
         },
         "large_image_candidate": {
           "status": "unknown",
-          "evidence": "Delivered image is 640x480; it is not claimed as a 1200px-wide Discover candidate."
+          "evidence": "Reviewed source image is 640x480; it is not claimed as a 1200px-wide Discover candidate."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -4015,7 +4015,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-09-22) is a real recorded publish date, sourced from git history for legacy entries lacking one."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -4023,7 +4023,7 @@
         },
         "social_metadata": {
           "status": "pass",
-          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
         },
         "image_record": {
           "status": "pass",
@@ -4035,7 +4035,7 @@
         },
         "large_image_candidate": {
           "status": "unknown",
-          "evidence": "Delivered image is 1048x954; it is not claimed as a 1200px-wide Discover candidate."
+          "evidence": "Reviewed source image is 1048x954; it is not claimed as a 1200px-wide Discover candidate."
         },
         "contextual_guide_links": {
           "status": "unknown",

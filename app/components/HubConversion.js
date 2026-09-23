@@ -131,13 +131,6 @@ export default function HubConversion({ surface, slugKey, slug, city, category, 
         {cta.label}{cta.monetized ? " ↗" : ""}
       </a>
 
-      {/* FTC disclosure adjacent to the earning CTA, never at the page foot. */}
-      {cta.monetized ? (
-        <div style={{ marginTop: 9, fontSize: 12, color: "#8B949E", textAlign: "center", lineHeight: 1.5 }}>
-          Wayfind may earn a commission when you book through this link, at no extra cost to you. It never changes our scores or rankings.
-        </div>
-      ) : null}
-
       {next && next.href ? (
         <a
           href={next.href}

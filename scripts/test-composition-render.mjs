@@ -147,7 +147,7 @@ ok(rail.includes("Top-rated experiences"), "ViatorRail renders its title");
 // t.url while its sibling wrapped the identical payload, so every booking from
 // that surface earned nothing.
 ok(/rel="noopener sponsored nofollow"/.test(rail), "ViatorRail keeps sponsored/nofollow affiliate rel metadata");
-ok(/may earn a commission/.test(rail), "ViatorRail keeps the commission disclosure");
+ok(!/earn a commission/i.test(rail), "ViatorRail renders no inline commission disclosure (one footer disclosure plus one on true detail pages is the law now)");
 // THE REVENUE HOLE. The UI must link to Wayfind's own redirect, not a partner
 // domain. That redirect records the click, validates the destination and keeps
 // click_id joinable through to provider_redirect_started.

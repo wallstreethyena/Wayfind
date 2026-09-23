@@ -7,7 +7,7 @@ import IconicPlaceCard from "./IconicPlaceCard";
 import BookingCTA from "./BookingCTA";
 import EventPlaceRail from "./EventPlaceRail";
 
-export default function EventStayCards({ places, title = "Stay near this event", description = "Top stays within 12 miles.", label = "Hotels near the event", surface = "event_stays", rankingAnchor = "the venue", headingAction = null }) {
+export default function EventStayCards({ places, title = "Stay near this event", description = "Top stays within 12 miles.", label = "Hotels near the event", surface = "event_stays", headingAction = null }) {
   const setStays = useEventMapPlaces()?.setStays;
   useEffect(() => {
     setStays?.(eventStayMapPins(places));
@@ -18,11 +18,9 @@ export default function EventStayCards({ places, title = "Stay near this event",
       <ul className="wf-event-stay-card">
       <IconicPlaceCard eagerMedia place={place} rank={index + 1} href={place.detailHref}
         editorial={place.blurb || null} editorialTier="known" surface={surface}
-        rankingNote={`${place.distMi.toFixed(1)} miles from ${rankingAnchor}`} />
+        cta={<BookingCTA variant="primary" detail={place} kind="hotels" label="Check rates" />} />
       </ul>
       {place.mapsOnly ? <a href={place.detailHref} style={{ display: "inline-block", color: "#aab4c2", marginTop: 10 }}>View in Apple Maps</a> : null}
-      <BookingCTA variant="primary" detail={place} kind="hotels" label="Check rates" />
-      <BookingCTA variant="disclosure" detail={place} kind="hotels" />
     </li>)}
   </EventPlaceRail>;
 }

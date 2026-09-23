@@ -48,7 +48,20 @@ function fallGuideSpots(spots) {
   });
 }
 
-const shareImage = "/api/og?t=33%20Florida%20Fall%20Picks&loc=2026&cta=PICK%20YOUR%20WEEKEND&sub=Pumpkins%20%E2%80%A2%20haunts%20%E2%80%A2%20markets%20%E2%80%A2%20fall%20food&tone=fall";
+// v9 (owner, 2026-09-23): "the share cards for all of the guide and blogs
+// needs to look premium … it looks cheap." This is a blog-style guide, not
+// exempt from that direction just because it lives outside app/guides/
+// [slug]. It has no lib/guideHero.js registry entry of its own, so the
+// credited inline hero photo below (already used in the article body, an
+// Unsplash-licensed photo of pumpkins in Davie, FL) is handed to the hero
+// route directly via the bounded ?src= override (lib/heroCard.js's
+// HERO_SRC_ALLOWED_HOSTS) rather than left as a bare typographic card.
+const shareImage = "/api/og/hero?kind=guide&id=florida-fall-festivals-2026"
+  + "&t=" + encodeURIComponent("33 Florida Fall Picks for 2026")
+  + "&cat=Guide&loc=" + encodeURIComponent("Florida")
+  + "&n=33"
+  + "&src=" + encodeURIComponent("https://images.unsplash.com/photo-1537991458814-f9f068c1fd52?auto=format&fit=crop&fm=jpg&q=82&w=1600&h=1067")
+  + "&pos=" + encodeURIComponent("50% 58%");
 
 export const metadata = {
   title: "Florida Fall Guide 2026",
@@ -59,7 +72,7 @@ export const metadata = {
     title: "33 Florida Fall Picks for 2026",
     description: "Pumpkin patches, haunted nights, markets, fall food and big weekends. Open the map and pick your weekend.",
     url: "/guides/florida-fall-festivals-2026",
-    images: [shareImage],
+    images: [{ url: shareImage, width: 1200, height: 630, type: "image/jpeg", alt: "Orange pumpkins arranged at a nursery in Davie, Florida — 33 Florida Fall Picks for 2026 on Wayfind" }],
   },
   twitter: {
     card: "summary_large_image",
@@ -598,7 +611,7 @@ export default function FloridaFallGuide() {
           </p>
         </aside>
 
-        <div className={styles.disclosure}>Some links in this guide are affiliate links. Wayfind may earn a commission if you book through them, at no extra cost to you. That does not affect which places are included.</div>
+        <div className={styles.disclosure}>We may earn a commission when you book through partner links. It never changes our rankings.</div>
       </div>
     </main>
   );

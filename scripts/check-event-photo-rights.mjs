@@ -142,23 +142,37 @@ ok(/shots\.credit/.test(code), `${PAGE} must render the photo credit alongside t
     `${PHOTO_PATH}: rendered images carry explicit dimensions while the shared wrapper controls display geometry`);
 }
 
-/* ── 7. THE SHARE CARD IS THE PHOTOGRAPH, and it resolves ───────────────── */
-// An event with owned photography previews with that photograph rather than the
-// generated text card. Deliberately NOT an <img> inside /api/og: check-share-
-// card.mjs bans photography in the generated card (the owner deleted a stock
-// sunset that decorated every card, and an <img> is the only thing in a Satori
-// render that can fail a fetch mid-response). Pointing metadata at the static
-// file needs no renderer, so there is nothing to fail — but it MUST be absolute
-// or a scraper will not resolve it (check-og-absolute.mjs).
+/* ── 7. THE SHARE CARD IS THE PHOTOGRAPH, PREMIUM-CARDED, and it resolves ── */
+// v9 (owner, 2026-09-23 — "everything on wayfind that is sharable looks
+// premium"; see docs/proposals/claude-sonnet-hero-photo-standard.md (proposed rule 9)). The raw consented photo is
+// no longer pointed at directly: a bare, uncropped portrait file behind
+// og:image is the exact "cheap"/tiny-thumbnail bug the owner reported for
+// guides, and an event photo is no different. app/api/og/hero/route.js now
+// resolves THIS SAME consent-gated photo (resolveEventHeroSource() ->
+// eventPhotos()/mayHostEventPhotos() — still the only door into it, still
+// checked below in section 5), fetches+converts+sniffs the bytes BEFORE any
+// response is built, and lays the Wayfind mark/kicker/event name over it
+// through the one shared renderer (app/api/og/card.jsx's WayfindHeroCard) —
+// never a raw photo with no brand or crop around it. scripts/check-hero-
+// card.mjs is the fuller guard on the route itself (fetch-before-response
+// ordering, JPEG sniff, allowlist, never-a-hole fallback); this section only
+// has to prove THIS page still reaches that route, still absolute.
 {
-  ok(/SITE_URL \+ shots\.hero\.src/.test(code),
-    `${PAGE}: the OG image must be built as SITE_URL + the owned hero path`);
+  ok(/SITE_URL\}\/api\/og\/hero\?kind=event&id=/.test(code),
+    `${PAGE}: the OG image must be built through the hero route (SITE_URL + /api/og/hero?kind=event&id=...), which resolves this exact event's consent-gated photo before rendering the card`);
   ok(!/images:\s*\[\{\s*url:\s*["'`]\//.test(code), `${PAGE}: an OG image url must never be a bare relative path`);
-  ok(/width:\s*ogW/.test(code) && /height:\s*ogH/.test(code),
-    `${PAGE}: OG width/height must follow the real file, not a hardcoded 1200x630 that misdescribes it`);
-  // The generated card must still be the fallback: an event with no consented
-  // photos may not end up with NO share image at all.
-  ok(/\/api\/og\?t=/.test(code), `${PAGE}: events without owned photos must still fall back to the generated card`);
+  // The hero route always renders a fixed 1200x630 card (full-bleed photo +
+  // scrim + kicker + headline), never the raw file's own dimensions — a
+  // rendered PNG is not "the real file" any more, so asserting a hardcoded
+  // 1200x630 is now the correct claim, not the bug this guard used to catch.
+  ok(/width:\s*1200,\s*height:\s*630/.test(code),
+    `${PAGE}: OG width/height must be the hero card's own fixed 1200x630, matching what the route actually renders`);
+  // The generated fallback for an event with no consented photo now lives
+  // INSIDE the hero route itself (heroFallbackModel, lib/heroCard.js), proven
+  // directly by scripts/check-hero-card.mjs's never-a-hole assertions — this
+  // page has no second URL of its own left to build for that case.
+  ok(!/\/api\/og\?t=/.test(code),
+    `${PAGE}: must not also build the old bare typographic card URL — /api/og/hero?kind=event is the one OG image now, with its own internal fallback`);
 }
 
 /* ── 8. TWO SHARE CONTROLS, UNCONDITIONAL, SERVER-RESOLVED URL ──────────── */

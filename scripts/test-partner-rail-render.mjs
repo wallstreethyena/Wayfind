@@ -51,7 +51,7 @@ for (const [city, intent] of [["Orlando", "best-of"], ["Sarasota", "date-night"]
   ok(html.includes("data-intent-partner-rail"), `${city}/${intent}: the rail element renders`);
   ok(/data-offer-id="/.test(html), `${city}/${intent}: at least one offer card renders`);
   ok(html.includes("/api/commerce/go?"), `${city}/${intent}: cards link through our redirect, never a partner URL`);
-  ok(/Wayfind may earn a commission|commission/i.test(html), `${city}/${intent}: the commission disclosure renders with the earning links`);
+  ok(!/commission/i.test(html), `${city}/${intent}: the rail renders no inline commission disclosure (one footer disclosure plus one on true detail pages is the law now)`);
 }
 
 // ── 2. THE BUG: images missing means nothing renders ──────────────────────

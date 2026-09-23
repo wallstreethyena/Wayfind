@@ -8,7 +8,12 @@ for (const [name, s] of [["guides", g], ["culture", c]]) {
   if (!s.includes('"@type": "Article"')) fail(name + " missing Article schema");
   if (!s.includes('"@type": "BreadcrumbList"')) fail(name + " missing Breadcrumb schema");
   if (!s.includes("alternates: { canonical:")) fail(name + " missing canonical");
-  if (!s.includes("may earn a commission")) fail(name + " missing affiliate disclosure");
+  // Guides are a true detail surface (partner booking links live in the
+  // article) and keep their one short disclosure line; culture is a hub/
+  // listing page and now carries none — the site's ONE footer disclosure
+  // plus one line per true detail page is the law (owner, 2026-09-23).
+  if (name === "guides" && !s.includes("may earn a commission")) fail(name + " missing affiliate disclosure");
+  if (name === "culture" && s.includes("earn a commission")) fail(name + " renders an inline commission disclosure it should no longer carry");
   // v6.71 — the guide page's monetized link moved into the client conversion
   // block (ONE primary CTA per guide, replacing the per-pick link wall), so the
   // rel lives there now. The RULE is unchanged: a monetized link carries
