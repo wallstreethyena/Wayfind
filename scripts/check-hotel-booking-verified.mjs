@@ -59,6 +59,14 @@ ok(hotelGoUrl(unknownLodging, "Bradenton, FL") === null,
   "V4: a lodging card with no verification record gets no booking URL");
 ok(isHotelBookingVerified(unknownLodging) === false,
   "V5: isHotelBookingVerified is false for an unknown card");
+// Inventory-backed rails address a place by its GOOGLE place id, so the gate
+// resolves that too — and must refuse an unverified one just as firmly.
+ok(isHotelBookingVerified({ id: "ChIJneverVerifiedPlaceId00000" }) === false,
+  "V5a: an unverified Google place id is refused");
+if (ALLOWED[0]) {
+  ok(isHotelBookingVerified({ id: ALLOWED[0].placeId }) === true,
+    `V5b: a VERIFIED Google place id resolves, so inventory-backed stays are not blanket-blocked (${ALLOWED[0].placeId})`);
+}
 
 // A card whose record exists but says NOT allowed must also get no link.
 const deniedRec = RECORDS.find((r) => r.allowed !== true);
