@@ -103,7 +103,11 @@ ok(/viatorProductGoUrl\s*\(/.test(bookingResolve),
 // Guide hotel CTA belt: no booking.com earning href.
 {
   const { GET } = await import("../app/api/hotels/go/route.js");
-  const q = new URLSearchParams({ name: "ROOST Tampa", address: "Tampa, FL", click_id: "wf-hotel-test-123", url: "https://evil.example" });
+  // 2026-09-23: the route enforces the booking-verification gate against the
+  // card id the link carries, because this URL is shareable. Every positive
+  // case below therefore names a REAL verified hotel; the unverified case is
+  // asserted explicitly further down.
+  const q = new URLSearchParams({ name: "ROOST Tampa", address: "Tampa, FL", click_id: "wf-hotel-test-123", url: "https://evil.example", content: "wfh-days-inn-bradenton-near-the-gulf-27469" });
   const call = (query, ua = "Mozilla/5.0") => GET(new Request("https://www.gowayfind.com/api/hotels/go?" + query, { headers: { "user-agent": ua } }));
   const response = await call(q);
   const destination = new URL(response.headers.get("location"));
@@ -114,16 +118,28 @@ ok(/viatorProductGoUrl\s*\(/.test(bookingResolve),
   ok(booking.origin === "https://www.booking.com" && booking.searchParams.get("ss") === "ROOST Tampa, Tampa, FL", "hotel location survives; hostile destination input is ignored");
   ok(booking.searchParams.get("latitude") === null && booking.searchParams.get("dest_type") === null,
     "no lat/lng in the request → no coordinate params on the outbound Booking.com URL");
-  for (const bad of ["name=Hotel", "name=Hotel&address=Tampa&lat=91&lng=0", "name=Hotel&address=Tampa&lng=0", "name=Hotel&address=Tampa&lat=27.5"]) {
+  for (const bad of ["name=Hotel&content=wfh-days-inn-bradenton-near-the-gulf-27469",
+                     "name=Hotel&address=Tampa&lat=91&lng=0&content=wfh-days-inn-bradenton-near-the-gulf-27469",
+                     "name=Hotel&address=Tampa&lng=0&content=wfh-days-inn-bradenton-near-the-gulf-27469",
+                     "name=Hotel&address=Tampa&lat=27.5&content=wfh-days-inn-bradenton-near-the-gulf-27469"]) {
     ok((await call(bad)).headers.get("location") === "https://www.gowayfind.com/?go=hotels", "invalid hotel data never leaves for a provider");
   }
   ok((await call(q, "Googlebot")).headers.get("location") === "https://www.gowayfind.com/?go=hotels", "crawlers do not create affiliate clicks");
+
+  // The 2026-09-23 fail-closed gate, enforced server side. A perfectly formed
+  // request for a hotel we never verified must not reach Stay22 at all.
+  for (const unverified of ["name=Some+Inn&address=1+Gulf+Dr%2C+Bradenton",
+                            "name=Some+Inn&address=1+Gulf+Dr%2C+Bradenton&content=wfh-never-verified-00000"]) {
+    ok((await call(unverified)).headers.get("location") === "https://www.gowayfind.com/?go=hotels",
+      "an unverified hotel never reaches Stay22, with or without a card id");
+  }
 
   // Coordinate anchoring (2026-09-22): a valid lat/lng pair rides all the way
   // through the go route into the Booking.com search URL, rounded to 6 decimals.
   const qll = new URLSearchParams({
     name: "Hampton Inn & Suites", address: "309 10th St W, Bradenton",
     click_id: "wf-hotel-test-latlng", lat: "27.497049", lng: "-82.571662",
+    content: "wfh-days-inn-bradenton-near-the-gulf-27469",
   });
   const withCoords = await call(qll);
   const destCoords = new URL(withCoords.headers.get("location"));
