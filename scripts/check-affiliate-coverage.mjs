@@ -234,6 +234,9 @@ ok(
 );
 const leaks = unmappedSellableEvents(fx);
 ok(leaks.length === 1 && leaks[0].eventId === "new-central-florida-zoo-special-2026", "current decisions suppress only reviewed cases; a new affiliate-merchant event still pages");
+const rtu = { event_id: "rock-the-universe-2027", official_event_url: "https://www.universalorlando.com/web/en/us/things-to-do/events/rock-the-universe" };
+ok(eventAffiliateCoverage(rtu, { today: "2026-09-23" }).status === COVERAGE.DECIDED_NO_EXACT_PRODUCT, "Rock the Universe 2027 is an owner no-resale decision, not a silent leak");
+ok(eventAffiliateCoverage(rtu, { today: "2026-10-01" }).status === COVERAGE.UNMAPPED, "the Rock the Universe decision expires and pages again for a re-check");
 const expiredLeaks = unmappedSellableEvents([fx[6]], { today: "2026-10-02" });
 ok(expiredLeaks.length === 1 && expiredLeaks[0].eventId === "asian-lantern-festival-central-florida-zoo-2026", "expired reviewed decisions return to the leak queue automatically");
 
