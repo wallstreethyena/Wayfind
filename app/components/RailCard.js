@@ -67,7 +67,7 @@ import { safeUrl } from "../../lib/links.js";
 // itself eager (app/home.js imports it directly).
 import { creatorVideosFor } from "../../lib/creatorSignals.js";
 import CreatorCardMark from "./CreatorCardMark";
-import { couponForPlace } from "../../lib/coupons.js";
+import { couponForPlace } from "../../lib/coupons.js";\nimport { normalizePlaceCardHref } from "../../lib/placeCardRoute.js";
 
 // Same glyphs as IconicPlaceCard's action row, so a thumb is one drawing in
 // this app rather than two that almost match.
@@ -333,11 +333,11 @@ export default function RailCard({
   // only when this card actually needs the shared store.
   const canFallback = !!(place && place.id);
   const contentSubject = !canFallback ? {
-    id: (actionItem && actionItem.id) || href || title,
+    id: (actionItem && actionItem.id) || cardHref || title,
     type: (actionItem && actionItem.type) || "experience",
     title: (actionItem && (actionItem.title || actionItem.name)) || title,
     image: (actionItem && (actionItem.image || actionItem.photo)) || photo || null,
-    url: (actionItem && actionItem.url) || href || "",
+    url: (actionItem && actionItem.url) || cardHref || "",
     provider: actionItem && actionItem.provider,
   } : null;
   // v8.33 — the creator face. Guarded the same way IconicPlaceCard guards it:
@@ -403,7 +403,7 @@ export default function RailCard({
         // tap on the body.
         if (t && typeof t.closest === "function" && t.closest("a,button,input,select,textarea")) return;
         if (onOpen) onOpen(e);
-        else if (href && typeof window !== "undefined") {
+        else if (cardHref && typeof window !== "undefined") {
           // 2026-09-02: an EXTERNAL destination goes through lib/links.safeUrl
           // (the app-wide chokepoint) — a quarantined or malformed href opens
           // nothing rather than a hijacked page. Internal routes are ours.
