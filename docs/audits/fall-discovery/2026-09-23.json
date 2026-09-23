@@ -719,5 +719,79 @@
         }
       ]
     }
-  ]
+  ],
+  "second_pass": {
+    "run_at": "2026-09-23 (orchestrator-directed human re-verification, real Playwright/Chromium browser against each venue's own live current page — not a mechanical automated re-fetch; this sandboxed session has no Supabase credentials to re-run the pipeline's wf_inventory read)",
+    "reason": "the pipeline's own mechanical fetch (see the top-level fields above, and 'results' below) could not resolve 7 of the then-17 registry members to verifiable current-season proof: some behind JS-rendered/paginated menus (Paradeco's 'LOAD MORE'), an image-only menu (Oxford Exchange), a bot-defended SPA (Universal's own Red Coconut Club page never rendered), and two evergreen-themed venues whose own copy never uses a literal FALL_TERMS word (Mortem Manor; originally Ice Screamin). A human pass with a real browser resolved every one.",
+    "removed": [
+      {
+        "place_id": "ChIJVQB8l1PEwogRfNZtGI6suIc",
+        "name": "Gasparilla Distillery & Cocktail Bar",
+        "reason": "event page re-checked live still reads 10/19/2024-11/3/2024, unchanged; no 2026 iteration anywhere on the site (homepage + /events listing both checked)"
+      },
+      {
+        "place_id": "ChIJTzoiienhwogRbPa3GpuvBQU",
+        "name": "Paradeco Coffee Roasters",
+        "reason": "full menu re-checked live with every 'LOAD MORE' page exhausted (49 items total) — zero pumpkin/fall/autumn/maple/harvest vocabulary anywhere"
+      },
+      {
+        "place_id": "ChIJ11hsiYXEwogRjDBv39F04J8",
+        "name": "Oxford Exchange",
+        "reason": "menu is image-rendered; re-checked by full-page screenshot of the 'All Day' menu — zero fall items; the only 'pumpkin' match is 'pumpkin seeds' as a cold salad garnish (a year-round ingredient, not seasonal evidence)"
+      },
+      {
+        "place_id": "ChIJ5crCip3EwogRQnhkbw_Ir6U",
+        "name": "On Swann",
+        "reason": "live menu platform now explicitly labelled 'Spring | Summer Dinner Menu' with zero fall vocabulary; official site offers only generic 'seasonal menu with local flair' boilerplate, no actual items"
+      },
+      {
+        "place_id": "ChIJB2B8mYzHwogRkZIDCDARWww",
+        "name": "Ice Screamin",
+        "reason": "own current site (icescreamin.shop) rebranded to 'Handcrafted Ice Cream, Dubai Chocolate & Milkshakes Near USF' — zero horror/slasher/Halloween vocabulary; the evergreen theme itself is gone from the business's own current self-description"
+      }
+    ],
+    "kept_via_rule_change": [
+      {
+        "place_id": "ChIJd6lmgVh_3YgREzqTBf28i6U",
+        "name": "Mortem Manor",
+        "action": "refresh",
+        "verified": "2026-09-23",
+        "source": "https://mortemmanor.com/",
+        "rule": "lib/fallEvidence.evergreenThemeLive() — its own page never uses a FALL_TERMS word, but shows the haunted-house theme live ('The Area's ONLY YEAR-ROUND Haunted House') plus an operating-status signal ('BUY TICKETS ONLINE NOW', 'OPEN YEAR-ROUND')"
+      },
+      {
+        "place_id": "ChIJwZ_GK-d-54gRm5Ahg7PZYeY",
+        "name": "Red Coconut Club -> Dead Coconut Club",
+        "action": "refresh",
+        "verified": "2026-09-23",
+        "source": "https://hauntedattractionnetwork.com/dead-coconut-club-harvest-hhn-2026/",
+        "until": "2026-11-01",
+        "rule": "lib/fallEvidence.currentYearProof's `offeringWindow` branch — a reputable_secondary source published before the season (2026-07-22) still reaches medium proof when the offering's OWN explicit dated window (Aug 28-Nov 1 2026) is active today; Universal's own Red Coconut Club page did not render usable content via automated browser this run (empty body after full load+scroll wait)"
+      }
+    ],
+    "new_candidate_insufficient": [
+      {
+        "place_id": "ChIJo_IdHf0lw4gRHDbQNKBRE84",
+        "name": "Ryan's Coffee House",
+        "city": "Parrish",
+        "action": "insufficient",
+        "sources": [
+          "https://ryanscoffeehouse.com/signature-lattes",
+          "https://ryans-coffee-house.square.site/"
+        ],
+        "reason": "WS3 official-site + live Square catalog check (2026-09-23): the current Signature Lattes board (footer '© 2026') lists Ryan's Special, Parrish Honey Bee, Bananas Foster, Lavender Haze, Caramel Apple Macchiato, Raspberry White Mocha and Salted Caramel Mocha as year-round signatures with no seasonal label; the Square store shows the same roster with every item Out of Stock. No White Pumpkin, no pumpkin item at all; a 2025-dated article is the only place 'White Pumpkin' ever appeared for this venue."
+      }
+    ],
+    "verified_but_missing": [],
+    "offering_expired": [
+      {
+        "place_id": "ChIJVQB8l1PEwogRfNZtGI6suIc",
+        "name": "Gasparilla Distillery & Cocktail Bar",
+        "ends": "2024-11-03"
+      }
+    ],
+    "place_closed": [],
+    "ambiguous_or_rejected": [],
+    "final_registry_size": 12
+  }
 }

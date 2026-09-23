@@ -17,7 +17,7 @@ import {
   ACTIONS, FALL_TERMS, SOURCE_TIERS, classifyEvidence, currentYearProof,
   decideAction, isOfficialTier, nameOnlyCandidate, offeringActive,
 } from "../lib/fallEvidence.js";
-import { fallCardClass, fallSeasonEnd } from "../lib/fallSkin.js";
+import { fallCardClass, fallSeasonEnd, FALL_CARD_IDS } from "../lib/fallSkin.js";
 
 let pass = 0;
 const fails = [];
@@ -186,6 +186,79 @@ ok(classifyEvidence("Pumpkin Latte $7.00, in stock now.").anyAvailable === true,
     seasonYear: 2026,
   });
   ok(verdict === "none", `a year pinned directly beside the ONLY primary occurrence still stales it, got "${verdict}"`);
+}
+
+// ── Ryan's Coffee House, Parrish (WS3 + WS4, 2026-09-23) — a real
+// candidate the registry re-verification pass found and did NOT add. Four
+// cases, each executed against the real pipeline, not re-derived here:
+//   (a) only a 2025-dated article about "White Pumpkin" -> insufficient
+//   (b) a CURRENT official menu naming a fall-term drink, but only on a
+//       permanent "signature" list with no seasonal label/dated window ->
+//       not promotable (the anyPromotable / PERMANENT_LISTING_RX rule)
+//   (c) a live official menu explicitly labelling "White Pumpkin" as a
+//       fall/seasonal item -> strong, action add
+//   (d) fallCardClass stays "" for Ryan's id, which is not on the registry
+{
+  // (a) the ONLY real source found this run: a 2025-dated roundup mentioning
+  // White Pumpkin — never refreshed for 2026, the same "old page alone"
+  // shape as the Paradeco/Oxford Exchange/On Swann roundup.
+  const proof = currentYearProof({
+    sourceTier: SOURCE_TIERS.reputable_secondary,
+    publishedAt: "2025-10-01",
+    fetchedAt: null,
+    text: "Ryan's Coffee House brings back its White Pumpkin Latte for fall 2025 — a seasonal favorite.",
+    seasonYear: 2026,
+  });
+  ok(proof === "none", `(a) a 2025-dated article about White Pumpkin, with no 2026 iteration, yields "none", got "${proof}"`);
+  ok(decideAction({ proof, inRegistry: false }) === "insufficient", "(a) …and that proof alone decides insufficient, never add");
+}
+{
+  // (b) Ryan's REAL current menu, live-fetched 2026-09-23: the "Signature
+  // Lattes" board names Caramel Apple Macchiato among six other permanent
+  // drinks (Ryan's Special, Parrish Honey Bee, Bananas Foster, Lavender
+  // Haze, Raspberry White Mocha, Salted Caramel Mocha) — "caramel apple" IS
+  // a primary FALL_TERM, but nothing on the page marks it seasonal or gives
+  // it a window; it is a year-round house drink, not a fall offering.
+  const proof = currentYearProof({
+    sourceTier: SOURCE_TIERS.official_site,
+    publishedAt: null,
+    fetchedAt: "2026-09-23",
+    text: "Signature Lattes: Ryan's Special, Parrish Honey Bee, Bananas Foster, Lavender Haze, Caramel Apple Macchiato, Raspberry White Mocha, Salted Caramel Mocha. Available year-round.",
+    seasonYear: 2026,
+  });
+  ok(proof === "none", `(b) a fall-term drink on a permanent "signature" list with no seasonal label/window is not current proof, got "${proof}"`);
+  ok(decideAction({ proof, inRegistry: false }) === "insufficient", "(b) …not promotable — decideAction never reaches add/refresh on it");
+  // the SAME item, on a page that ALSO carries an explicit seasonal signal
+  // right next to it, is not neutralized — a genuine fall relaunch of a
+  // "signature" item still counts.
+  const relaunched = currentYearProof({
+    sourceTier: SOURCE_TIERS.official_site,
+    publishedAt: null,
+    fetchedAt: "2026-09-23",
+    text: "Our Fall Specials: the Caramel Apple Macchiato is back for a limited time this season.",
+    seasonYear: 2026,
+  });
+  ok(relaunched === "strong", `(b, control) the same term WITH an explicit seasonal signal nearby is still strong proof, got "${relaunched}"`);
+}
+{
+  // (c) the hypothetical this pass did NOT find: a live official menu that
+  // labels White Pumpkin fall/seasonal outright.
+  const proof = currentYearProof({
+    sourceTier: SOURCE_TIERS.official_menu_platform,
+    publishedAt: null,
+    fetchedAt: "2026-09-23",
+    text: "Our seasonal fall menu is here: White Pumpkin Latte, Salted Caramel Cold Brew, and more — available now.",
+    seasonYear: 2026,
+  });
+  ok(proof === "strong", `(c) a live official menu explicitly labelling White Pumpkin fall/seasonal is strong, got "${proof}"`);
+  ok(decideAction({ proof, inRegistry: false }) === "add", "(c) …and strong proof on a new candidate decides add");
+}
+{
+  // (d) as things actually stand: Ryan's is NOT in the registry, so the
+  // card never renders for it, in season or not.
+  const RYANS_ID = "ChIJo_IdHf0lw4gRHDbQNKBRE84";
+  ok(!FALL_CARD_IDS.has(RYANS_ID), "(d) Ryan's Coffee House is not on FALL_CARD_IDS — this pass found it insufficient, not verified");
+  ok(fallCardClass(RYANS_ID, "2026-10-01") === "", `(d) fallCardClass(Ryan's id, in-season date) is "" while Ryan's is not in the registry`);
 }
 
 // ── offeringActive: dated offerings ─────────────────────────────────────

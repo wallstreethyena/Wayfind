@@ -68,10 +68,18 @@ ok(!ids.includes("ChIJ6SYy9bEWw4gRgJT7j78eTYc"), "'Screaming Buddha Yoga' is a y
 for (const r of FALL_REJECTED_IDS) ok(!ids.includes(r), `owner-rejected id ${r.slice(0, 12)}… stays OUT (name-only spookiness / brand duplicate)`);
 ok(FALL_REJECTED_IDS.includes("ChIJUXMXELw9w4gR4TGRAD8NghQ") && FALL_REJECTED_IDS.includes("ChIJJQbqwSD7wogRTm8XCaabaMA"),
   "both Vampire Penguins are pinned in the rejected list — 'vampire in the name' is not a fall theme (owner, verbatim)");
-ok(ids.filter((i) => i === "ChIJB2B8mYzHwogRkZIDCDARWww").length === 1 && !ids.includes("ChIJUcws8z5p54gRUBjqVlhhFgY"),
-  "one Ice Screamin location only — one tile per brand");
-ok(ids.includes("ChIJ7QVjUK_FwogRaTLY8uxOico") && ids.includes("ChIJTzoiienhwogRbPa3GpuvBQU"),
-  "the researched picks are IN (SpookEasy Lounge; Paradeco's fall menu) — real offerings, sourced");
+// v8.86 (2026-09-23, WS4 second-pass re-verification): Ice Screamin was
+// REMOVED from the pool this pass (its own current site rebranded away from
+// any horror theme — see lib/fallPool.js's removal log) and Paradeco was
+// REMOVED too (current live menu carries zero fall vocabulary, verified via
+// real-browser re-check). Both assertions below test the SAME invariants —
+// brand dedup, and "researched picks stay IN" — against still-current ids
+// (Dracula's Legacy / ATRIA Cafe) rather than being deleted, so the
+// invariants themselves are not weakened by a registry entry moving.
+ok(ids.filter((i) => i === "ChIJIZt3d7DFwogRQ5Lg2tPMXyk").length === 1 && !ids.includes("ChIJw8yuv53hwogRivnj0XblR-k"),
+  "one Dracula's Legacy Wine Bar location only — one tile per brand (its duplicate stays rejected)");
+ok(ids.includes("ChIJ7QVjUK_FwogRaTLY8uxOico") && ids.includes("ChIJA-QkamE7w4gRfdzcxEHyPls"),
+  "the researched picks are IN (SpookEasy Lounge; ATRIA Cafe's fall menu) — real offerings, sourced");
 // v8.83 — the 2026-08-27 sweep's two survivors, pinned by id so a later
 // "cleanup" cannot quietly drop the only two places that widened the pool
 // beyond Tampa/Orlando. Fear at the Pier is Panama City's year-round haunt;
@@ -218,8 +226,12 @@ for (const f of ["public/fall/card-bg-dark-640.webp", "public/fall/card-bg-dark-
 // placement/skin is (one CSS rule) x (every root that carries the class). ──
 ok(FALL_CARD_IDS.size === Object.keys(FALL_PLACE_IDS).length && Object.keys(FALL_PLACE_IDS).every((i) => FALL_CARD_IDS.has(i)),
   "FALL_CARD_IDS (client) and FALL_PLACE_IDS (server) are the SAME set — membership has one source of truth");
-ok(fallCardClass("ChIJTzoiienhwogRbPa3GpuvBQU", "2026-10-01") === " wf-fall-card", "a fall-known place wears the card in season (executed)");
-ok(fallCardClass("ChIJTzoiienhwogRbPa3GpuvBQU", "2026-11-27") === "" && fallCardClass("ChIJTzoiienhwogRbPa3GpuvBQU", "2027-09-15") === " wf-fall-card", "…gone the day after Thanksgiving, back in season next year — the card follows the annual window");
+// v8.86 (2026-09-23): swapped from Paradeco's id — REMOVED from the pool
+// this pass, see the removal log above — to SpookEasy Lounge's, which
+// stayed IN (verified 2026-09-23). Same date-boundary invariant, a
+// still-current id.
+ok(fallCardClass("ChIJ7QVjUK_FwogRaTLY8uxOico", "2026-10-01") === " wf-fall-card", "a fall-known place wears the card in season (executed)");
+ok(fallCardClass("ChIJ7QVjUK_FwogRaTLY8uxOico", "2026-11-27") === "" && fallCardClass("ChIJ7QVjUK_FwogRaTLY8uxOico", "2027-09-15") === " wf-fall-card", "…gone the day after Thanksgiving, back in season next year — the card follows the annual window");
 ok(fallCardClass("ChIJdd8VlMN-54gRoaU0d_zYhfk", "2026-10-01") === "", "a non-member place NEVER wears it — fall-known only");
 ok(fallCardClass(null, "2026-10-01") === "", "no id, no class");
 const RENDERERS = [

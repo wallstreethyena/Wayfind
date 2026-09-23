@@ -15,17 +15,29 @@
 // permanent business trait, not a dated seasonal one. No silent exemptions:
 // every id on that list carries its own justifying comment in fallEvidence.js.
 //
-// THE ANTICIPATED, INTENTIONAL RESULT (2026-09-23 run): this guard is
-// EXPECTED to fail right now, for entries the WS4 re-verification pass found
-// were NOT current-season-verifiable via a free fetch (see lib/fallPool.js's
-// v8.85 comment block and docs/audits/fall-discovery/2026-09-23.md for the
-// evidence behind each one): Gasparilla Distillery (expired 2024 event),
-// Paradeco / Oxford Exchange / On Swann (their only source is a 2025-dated
-// roundup, never updated for 2026), Ice Screamin and Mortem Manor (no
-// FALL_TERMS vocabulary found on either's own live site this run). That is
-// the guard doing its job, not a bug in the guard — per the task brief this
-// pass was built under: "make the guard correct anyway and report exactly
-// which entries block it; do not weaken it and do not delete entries."
+// THE STATE AS OF THE SECOND PASS (2026-09-23, orchestrator-directed
+// re-verification): this guard is expected to be GREEN. The first pass left
+// it intentionally red for 7 entries with no current-season-verifiable
+// evidence; this second pass resolved every one of them one of three ways —
+// never by weakening the guard or deleting a real offering silently:
+//   - Gasparilla Distillery, Paradeco, Oxford Exchange, On Swann, Ice
+//     Screamin: REMOVED from the pool (fail-closed) after a real-browser
+//     re-check found no current-season evidence and no live evergreen theme
+//     on their own official pages. See lib/fallPool.js's v8.86 comment block
+//     and docs/audits/fall-discovery/2026-09-23.md for the evidence behind
+//     each removal. Their official sources stay in
+//     data/fall-discovery/official-sources.json so the weekly pipeline can
+//     re-propose any of them the moment fresh evidence exists.
+//   - Mortem Manor: KEPT via the evergreenThemeLive() rule below — its own
+//     page never uses a FALL_TERMS word, but does show the haunted-house
+//     theme live plus an operating-status signal ("BUY TICKETS ONLINE NOW",
+//     "OPEN YEAR-ROUND"), which is now an explicit, checkable evidence path
+//     for YEAR_ROUND_EVERGREEN_IDS places — still gated on an in-window
+//     `verified` date like every other entry.
+//   - Dead Coconut Club: KEPT via the `offeringWindow` policy fix in
+//     lib/fallEvidence.currentYearProof — a reputable secondary source
+//     published before the season can still reach "medium" when the
+//     offering's OWN explicit dated window covers today.
 //
 // TWO LAYERS. The static checks below (set equality, rejected-id exclusion,
 // source/offering shape, verified-in-window-or-evergreen, dated-offering-not-
@@ -84,17 +96,18 @@ for (const id of poolIds) {
     blockers.push(`${id}: offering text missing or too short to be a real claim`);
   }
 
+  // POLICY (orchestrator, 2026-09-23): EVERY entry needs a `verified` date
+  // inside a fall season window — evergreen ids are NOT exempt from the
+  // window, only from needing a literal FALL_TERMS word to earn that date.
+  // lib/fallEvidence.YEAR_ROUND_EVERGREEN_IDS + evergreenThemeLive() document
+  // and check WHAT counts as evidence for those ids (the theme being live on
+  // the official page, not a fall word) — that check runs by hand at
+  // re-verification time, before `verified` is written here; this guard only
+  // confirms the date itself is real and current-season, for every entry.
   const evergreen = YEAR_ROUND_EVERGREEN_IDS.has(id);
   const windowOk = !!entry.verified && verifiedInSeasonWindow(entry.verified);
   if (!windowOk) {
-    if (evergreen && entry.verified) {
-      // exempt from the WINDOW requirement, but a verified date must still
-      // exist — "evidence-backed", never a bare exemption with nothing checked
-    } else if (evergreen && !entry.verified) {
-      blockers.push(`${id}: on YEAR_ROUND_EVERGREEN_IDS but carries no 'verified' date at all — the exemption covers the SEASON WINDOW, not the need for evidence`);
-    } else {
-      blockers.push(`${id}: no 'verified' date inside a fall season window (Aug 26 - Thanksgiving)${entry.verified ? ` — verified=${entry.verified} falls outside it` : " — field is absent"}, and this id is not on lib/fallEvidence.YEAR_ROUND_EVERGREEN_IDS`);
-    }
+    blockers.push(`${id}: no 'verified' date inside a fall season window (Aug 26 - Thanksgiving)${entry.verified ? ` — verified=${entry.verified} falls outside it` : " — field is absent"}${evergreen ? " (evergreen id — needs a verified re-check that the theme is live, via lib/fallEvidence.evergreenThemeLive, not a fall-word match)" : ""}`);
   }
 
   const until = entry.until || entry.ends;

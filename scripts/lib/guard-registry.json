@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 700,
-    "totalRegistryEntries": 701,
-    "guardsTxtLineCount": 699,
-    "guardsTxtReachedFileCount": 694,
+    "totalOnDiskGuardFiles": 702,
+    "totalRegistryEntries": 703,
+    "guardsTxtLineCount": 701,
+    "guardsTxtReachedFileCount": 696,
     "criticalCount": 84,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 478,
+      "CALL": 480,
       "RENDER": 83,
       "STRUCTURAL": 139,
       "OTHER": 1
@@ -2805,11 +2805,55 @@
       "owner": null
     },
     {
+      "file": "scripts/check-fall-evidence-rules.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 51,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/check-fall-is-calling.mjs",
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 25,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-fall-registry-integrity.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 11,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -4248,6 +4292,10 @@
         "githubWorkflows": [
           {
             "file": ".github/workflows/canary.yml",
+            "blocking": false
+          },
+          {
+            "file": ".github/workflows/fall-discovery.yml",
             "blocking": false
           }
         ]
