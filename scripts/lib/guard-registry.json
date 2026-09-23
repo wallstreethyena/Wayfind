@@ -6451,6 +6451,28 @@
       "owner": null
     },
     {
+      "file": "scripts/check-place-sitemap-parity.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 46,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/check-popularity-attempt-ledger.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -8980,7 +9002,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 78,
+      "assertionCount": 82,
       "unprovenAbsenceCount": 2,
       "honestyViolations": [
         "2 absence assertion(s) with no positive control in the same file (e.g. \"/planAtlasAllowlistSeed\\(/.test(ingest) && /atlasAllowlistApplyGate\\(/.test(inge\")"
