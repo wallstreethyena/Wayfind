@@ -260,4 +260,77 @@ for (const rel of candidates) {
   ok(!staticImport, `${rel} does not STATICALLY import native/OfflineOverlay (only a dynamic() call is allowed) — a static import anywhere pulls the overlay into that file's own chunk regardless of next/dynamic's ssr:false`);
 }
 
+// ── 7. Native location instead of the website prompt (2026-09-23) ────────
+// The simulator run showed Safari's "www.gowayfind.com would like to use your
+// current location ... This website will use" sheet inside the app. The fix
+// is a document-start shim in SceneDelegate.swift that routes
+// navigator.geolocation through the Capacitor Geolocation plugin. The shim is
+// plain JS inside a Swift raw string, so this section EXTRACTS and RUNS it
+// against a fake plugin, asserting behavior, not text.
+{
+  const sceneRaw = read("ios/App/App/SceneDelegate.swift");
+  const pkgSwift = read("ios/App/CapApp-SPM/Package.swift");
+  const pkgJson = JSON.parse(read("package.json"));
+  ok(!!(pkgJson.dependencies && pkgJson.dependencies["@capacitor/geolocation"]), "package.json depends on @capacitor/geolocation (so cap sync links the native plugin)");
+  ok((pkgSwift.match(/CapacitorGeolocation/g) || []).length >= 3, "CapApp-SPM Package.swift links CapacitorGeolocation (package + product)");
+  const scene = stripSwift(sceneRaw);
+  ok(/addUserScript\(\s*WKUserScript\(\s*source:\s*WayfindBridgeViewController\.geolocationShim,\s*injectionTime:\s*\.atDocumentStart/.test(scene),
+     "capacitorDidLoad adds the geolocation shim as a document-start user script");
+  const m = /\/\/ WF_GEO_SHIM_BEGIN([\s\S]*?)\/\/ WF_GEO_SHIM_END/.exec(sceneRaw);
+  ok(!!m, "the shim is delimited by WF_GEO_SHIM_BEGIN/END so it can be executed here");
+  const vm = await import("node:vm");
+  const run = (code, { native = true, plugin = true, perms = true } = {}) => {
+    const calls = [];
+    let watchCb = null;
+    const G = {
+      getCurrentPosition: (o) => { calls.push(["get", o]); return o && o.timeout === 1 ? Promise.reject(new Error("Location permission request was denied.")) : Promise.resolve({ timestamp: 5, coords: { latitude: 27.7, longitude: -82.6, accuracy: 10 } }); },
+      watchPosition: (o, cb) => { calls.push(["watch", o]); watchCb = cb; return Promise.resolve("n1"); },
+      clearWatch: (o) => { calls.push(["clear", o]); return Promise.resolve(); },
+      checkPermissions: () => Promise.resolve({ location: "granted", coarseLocation: "granted" }),
+    };
+    const origGeo = { web: true };
+    const navigator = { geolocation: origGeo };
+    if (perms) navigator.permissions = { query: () => Promise.resolve({ state: "web" }) };
+    const window = { Capacitor: { isNativePlatform: () => native, Plugins: plugin ? { Geolocation: G } : {} } };
+    const ctx = vm.createContext({ window, navigator, Promise, Date, String, isFinite, TypeError, Object });
+    vm.runInContext(code, ctx);
+    return { navigator, window, calls, fireWatch: (p, e) => watchCb && watchCb(p, e), origGeo };
+  };
+  if (m) {
+    const code = m[1];
+    const tick = () => new Promise((r) => setTimeout(r, 0));
+    // happy path
+    const a = run(code);
+    ok(a.navigator.geolocation !== a.origGeo && a.window.__wfNativeGeo === true, "in the native shell the shim replaces navigator.geolocation");
+    let got = null, err = null;
+    a.navigator.geolocation.getCurrentPosition((p) => { got = p; }, (e) => { err = e; }, { enableHighAccuracy: true, timeout: 7000, maximumAge: 60000 });
+    await tick(); await tick();
+    ok(got && got.coords.latitude === 27.7 && got.coords.longitude === -82.6 && got.timestamp === 5 && got.coords.heading === null, "getCurrentPosition resolves a W3C shaped position from the native plugin");
+    ok(a.calls[0] && a.calls[0][0] === "get" && a.calls[0][1].timeout === 7000 && a.calls[0][1].enableHighAccuracy === true, "options are passed through to the native plugin");
+    a.navigator.geolocation.getCurrentPosition(() => {}, (e) => { err = e; }, { timeout: 1 });
+    await tick(); await tick();
+    ok(err && err.code === 1 && err.PERMISSION_DENIED === 1, "a native permission denial surfaces as PositionError code 1 (PERMISSION_DENIED)");
+    // watch then clear
+    let seen = 0;
+    const id = a.navigator.geolocation.watchPosition(() => { seen++; }, () => {});
+    await tick();
+    a.fireWatch({ timestamp: 1, coords: { latitude: 1, longitude: 2 } });
+    ok(seen === 1 && typeof id === "number", "watchPosition returns a numeric id and forwards native updates");
+    a.navigator.geolocation.clearWatch(id);
+    a.fireWatch({ timestamp: 2, coords: { latitude: 1, longitude: 2 } });
+    ok(seen === 1 && a.calls.some((c) => c[0] === "clear" && c[1].id === "n1"), "clearWatch stops updates and clears the native watch");
+    const st = await a.navigator.permissions.query({ name: "geolocation" });
+    ok(st.state === "granted", "permissions.query({name:'geolocation'}) answers from native permission state");
+    const other = await a.navigator.permissions.query({ name: "camera" });
+    ok(other.state === "web", "permissions.query for other names still goes to the original implementation");
+    // web / missing plugin: untouched (red proof that the switch is real)
+    const w = run(code, { native: false });
+    ok(w.navigator.geolocation === w.origGeo, "on the website (not native) navigator.geolocation is untouched");
+    const n = run(code, { plugin: false });
+    ok(n.navigator.geolocation === n.origGeo, "if the native plugin is missing, the shim changes nothing (no broken location)");
+    const np = run(code, { perms: false });
+    ok(np.navigator.permissions && typeof np.navigator.permissions.query === "function", "when WKWebView has no Permissions API the shim provides one for geolocation");
+  }
+}
+
 console.log(`check-ios-shell-wiring: OK — ${pass} assertions (AppDelegate posts both remote-notification callbacks from their own bodies, brace-matched not grepped; SceneDelegate registers AppleSignIn + AppRating as instances with launch-time preconditions; Info.plist carries no storyboard key at either the top level or inside its scene configuration; capacitor.config.ts's server.errorPath and www/offline.html [Try again, online listener, periodic probe, no external resources outside <script>, no dashes in ${visibleTextSources.length} visible-text sources] are wired; app/layout.js renders <NativeOfflineOverlay />; the overlay module is dynamic()-only across ${candidates.length} referencing file(s) swept)`);
