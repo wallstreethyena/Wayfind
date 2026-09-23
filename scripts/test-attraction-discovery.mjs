@@ -120,7 +120,19 @@ const routeModule = await sourceModule(route, `
   const DAY = 86400000;
   const NextResponse = { json(value, init = {}) { return new Response(JSON.stringify(value), { status: init.status || 200, headers: init.headers }); } };
   const attractionDiscoveryPlaceIds = (cat, sub) => ["family", "attractions"].includes(String(cat)) && ["all", "kids"].includes(String(sub || "all")) ? ${JSON.stringify(ATTRACTION_DISCOVERY_IDS)} : [];
-  const serveFromInventory = async (cat, lat, lng, radius) => { routeCalls.push(["broad", cat, radius]); return [{ id: cat + "-base" }]; };
+  const serveFromInventory = async (cat, lat, lng, radius, n, sub, options) => {
+    routeCalls.push(["broad", cat, radius]);
+    const places = [{ id: cat + "-base" }];
+    // 2026-09-23 — the route's OWN unrelated-category branch now asks for
+    // withMeta (exhaustive-read paging: total/hasMore/truncated), while the
+    // loadAttractionDiscovery reader wiring below still calls this with no
+    // options at all. Mirror the real function's shape-by-options contract
+    // rather than asserting only one of its two call shapes.
+    if (options && options.withMeta) {
+      return { places, meta: { eligible: places.length, served: places.length, offset: (options && options.offset) || 0, truncated: false } };
+    }
+    return places;
+  };
   const serveInventoryByPlaceIds = async (ids, lat, lng, radius) => { routeCalls.push(["exact", ids.length, radius]); return [{ id: "exact" }]; };
   const loadAttractionDiscovery = async (request, readers) => { const [base, exact] = await Promise.all([readers.readCategory(request), readers.readIds(${JSON.stringify(ATTRACTION_DISCOVERY_IDS)}, request)]); return base.concat(exact); };
 `);

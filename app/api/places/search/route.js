@@ -17,6 +17,15 @@ import { mergeOwnedSignals, ownedLookupIds } from "../../../../lib/ownedLibrary"
 import { attractionDiscoveryPlaceIds, loadAttractionDiscovery } from "../../../../lib/attractionDiscovery";
 
 export const dynamic = "force-dynamic";
+// 2026-09-23 — the inv=1 branch now reads its category box EXHAUSTIVELY
+// (lib/inventoryServe.js's readOwnedCategory paging) instead of a single
+// capped fetch, so a wide box (e.g. Tampa food, ~75mi) can take several
+// sequential Supabase round trips before it answers. Platform default was
+// never declared here, so it inherited whatever ceiling the account's plan
+// applies; 30s gives the paged read (INVENTORY_SERVE_TOTAL_BUDGET_MS = 9s)
+// real headroom plus the rest of the request without changing behavior for
+// the fast, common case, which still answers in well under a second.
+export const maxDuration = 30;
 
 const FRESH_TTL_MS = 30 * DAY;   // v6.09: 30 days = the Google ToS maximum for cached
                                  // place content. Maximizing the fresh window minimizes
@@ -190,24 +199,49 @@ async function handleSearch(params, origin) {
     // merchandising ceiling. The old 50 was how a filled café identity still
     // shipped 40 cards and called the library done.
     const invN = Math.min(Math.max(Number(params.n) || 40, 1), 400);
+    // 2026-09-23 — SERVER PAGING. A capped-to-400 first page can no longer
+    // silently be the whole answer: the exhaustive read (lib/inventoryServe.js)
+    // now knows the TRUE eligible count, so the "Wayfind 5 more spots" control
+    // (app/home.js) can ask for the next page instead of the list quietly
+    // ending at 400. `offset` is caller-controlled but bounded — a caller
+    // cannot request a negative offset or an absurdly large one that would
+    // page past a sane ceiling for no reason.
+    const invOffset = Math.min(Math.max(Math.floor(Number(params.offset) || 0), 0), 100000);
     // Owned inventory is not subject to Google's 50km location-bias ceiling.
     // Preserve the browse ladder's requested circle (up to its 60mi maximum)
     // so a 45mi-owned candidate is not lost before the exact-radius gate below.
     const discoveryIds = attractionDiscoveryPlaceIds(params.cat, params.sub);
     if (!discoveryIds.length) {
-      const inv = await serveFromInventory(String(params.cat || ""), lat, lng, radius, invN, params.sub);
-      return NextResponse.json({ places: inv, cached: false, source: "inventory-direct" }, { headers: EDGE_HEADERS });
+      const result = await serveFromInventory(String(params.cat || ""), lat, lng, radius, invN, params.sub, { offset: invOffset, withMeta: true });
+      const meta = result && result.meta ? result.meta : { eligible: 0, served: 0, offset: invOffset, truncated: false };
+      const places = result && Array.isArray(result.places) ? result.places : [];
+      return NextResponse.json({
+        places, cached: false, source: "inventory-direct",
+        // total = the full eligible count under this exact chip/radius, not
+        // just what this page carries — the "That's all N spots" line and the
+        // "more" control both read this, not places.length.
+        total: meta.eligible, hasMore: meta.offset + meta.served < meta.eligible, truncated: !!meta.truncated,
+      }, { headers: EDGE_HEADERS });
     }
     const discoveryRadius = Math.min(Math.max(Number(params.radius) || 24000, 500), 96560);
     // Exact IDs only repair candidate coverage. The same chip identity and the
     // caller's exact requested circle still decide membership, and the merged
     // pool is score-ordered rather than registry-ordered or partner-ordered.
+    //
+    // No server paging here (yet): this curated repair merges TWO different
+    // reads (the broad category plus an exact-id top-up) into one already-cut
+    // list, and offset/total over that merge is a different shape than a
+    // single exhaustive read's. `total`/`hasMore` are still present so a
+    // client never has to branch on which inv=1 shape it got back.
     const discoveryRequest = { cat: params.cat, sub: params.sub, lat, lng, radiusM: discoveryRadius, n: invN };
     const merged = await loadAttractionDiscovery(discoveryRequest, {
       readCategory: (request) => serveFromInventory(String(request.cat || ""), lat, lng, request.radiusM, request.n, request.sub),
       readIds: (ids, request) => serveInventoryByPlaceIds(ids, lat, lng, request.radiusM),
     });
-    return NextResponse.json({ places: merged, cached: false, source: "inventory-direct" }, { headers: EDGE_HEADERS });
+    return NextResponse.json({
+      places: merged, cached: false, source: "inventory-direct",
+      total: merged.length, hasMore: false, truncated: false,
+    }, { headers: EDGE_HEADERS });
   }
 
   // Round the bias point to ~1km so nearby users share cache entries.

@@ -380,6 +380,26 @@ node scripts/check-rail-compute-budget.mjs
 # competes against the whole category for those slots and loses (Food > Cafés
 # rendered empty while 111 admissible cafés sat 17mi away).
 node scripts/check-narrow-chip-inventory.mjs
+# 2026-09-23 — v8.49's surviving sibling: the READ ITSELF was still capped.
+# serveFromInventory issued `limit=1000` with NO `order=`, an arbitrary
+# thousand of a box in Postgres heap order, reshuffled by any UPDATE. Ryan's
+# Coffee House, Parrish (ChIJo_IdHf0lw4gRHDbQNKBRE84), Food > Cafés — a real,
+# operational, 4.9★/205-review café — sat past row 1,000 of 1,598 food rows
+# and was never read, so no filter or rank downstream could find it. Fixed by
+# routing through lib/ownedPool.js's readOwnedCategory: order=place_id.asc +
+# Range paging to exhaustion. check-inventory-serve-complete-read is the
+# general contract (a fake PostgREST double, decoys, page failure, truncation,
+# offset paging, hydration scope); check-ryans-cafe-sentinel is the small,
+# PERMANENT, named-sentinel lock built on the shared synthetic fixtures.
+node scripts/check-inventory-serve-complete-read.mjs
+node scripts/check-ryans-cafe-sentinel.mjs
+# 2026-09-23 — the CLIENT half of the same fix: a capped first page is only
+# safe when the reader can reach the rest of it. The Food/category list's
+# "Wayfind 5 more spots" control now walks the server's offset pages once the
+# loaded rows run out, through the SAME control, deduped and appended — and
+# the map beside it must never show fewer pins than the list (MapView's own
+# uncapped-pin contract is check-map-place-card.mjs, above).
+node scripts/check-food-list-continuation.mjs
 node scripts/test-atlas-retry.mjs
 node scripts/test-atlas-verify-timefmt.mjs
 node scripts/check-cuisine-never-queried.mjs

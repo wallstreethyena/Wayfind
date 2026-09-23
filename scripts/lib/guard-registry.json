@@ -27,16 +27,16 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 700,
-    "totalRegistryEntries": 701,
-    "guardsTxtLineCount": 699,
-    "guardsTxtReachedFileCount": 694,
+    "totalOnDiskGuardFiles": 703,
+    "totalRegistryEntries": 704,
+    "guardsTxtLineCount": 702,
+    "guardsTxtReachedFileCount": 697,
     "criticalCount": 84,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 478,
+      "CALL": 480,
       "RENDER": 83,
-      "STRUCTURAL": 139,
+      "STRUCTURAL": 140,
       "OTHER": 1
     }
   },
@@ -3005,6 +3005,28 @@
       "owner": null
     },
     {
+      "file": "scripts/check-food-list-continuation.mjs",
+      "npmScript": null,
+      "class": "STRUCTURAL",
+      "hasStructuralOnlyTag": true,
+      "assertionCount": 19,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/check-food-no-tour-rail.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -4261,6 +4283,28 @@
       "owner": null
     },
     {
+      "file": "scripts/check-inventory-serve-complete-read.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 30,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/check-invisible-text.mjs",
       "npmScript": null,
       "class": "STRUCTURAL",
@@ -4887,7 +4931,7 @@
       "npmScript": null,
       "class": "STRUCTURAL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 36,
+      "assertionCount": 38,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [
         "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
@@ -5248,7 +5292,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 13,
+      "assertionCount": 17,
       "unprovenAbsenceCount": 2,
       "honestyViolations": [
         "2 absence assertion(s) with no positive control in the same file (e.g. \"/chipIdentity\\(cat, subId/.test(SRC),\n  \"\")"
@@ -7136,6 +7180,28 @@
       },
       "gating": "scheduled-monitoring-only",
       "excludedReason": "runs in the scheduled canary workflow, not prebuild — it reads PRODUCTION Supabase (wf_rpc_signatures()) to compare every db/supabase.rpc() call site's argument names against the live function signature, and a stale production schema must never be able to block a code deploy. Wrong coupling in that direction; see .github/workflows/canary.yml. Added 2026-09-07 after #1153 shipped a 5-arg RPC caller against a still-3-arg production function (the 08:23 UTC popularity cron did zero work across all four providers) — see supabase/migrations/20260907_wf_deploy_contract_audit.sql.",
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-ryans-cafe-sentinel.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 10,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
       "critical": false,
       "criticalReasons": [],
       "protects": null,
@@ -12602,7 +12668,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 38,
+      "assertionCount": 45,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

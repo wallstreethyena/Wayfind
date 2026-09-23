@@ -14,6 +14,7 @@ export const runtime = "nodejs";
 
 import { invRowToPlace, serveFromInventory } from "../../../lib/inventoryServe.js";
 import { fetchOwnedPool } from "../../../lib/ownedPool.js";
+import { makeReadCache } from "../../../lib/inventoryReadCache.js";
 import { NET_DEADLINE_MS } from "../../../lib/fetchDeadline.js";
 import { getBeachConditions } from "../../../lib/marine.js";
 import { nowContext } from "../../../lib/nowContext.js";
@@ -88,6 +89,16 @@ async function buildDateNightAnswer({ lat, lng, city, hour }) {
    * empty. Feeding its exact identity here closes that gap without widening the
    * predicate or changing the score.
    */
+  // 2026-09-23 — ONE per-compute read cache for the 8 serveFromInventory
+  // calls below. nightlife (speakeasy/music/clubs) and attractions
+  // (spa/tours/museums/beaches) each ask the SAME origin+radius three-plus
+  // times under different chips; without this each call repeats the whole
+  // exhaustive paged box read for its physical category from scratch.
+  // lib/inventoryServe.js's readCache branch keys the box READ itself
+  // without `sub`, so these calls collapse into one paged network read per
+  // physical category instead of one per chip. Scoped to THIS request only —
+  // never shared across requests (see lib/inventoryReadCache.js's header).
+  const readCache = makeReadCache();
   const toIntentPlace = (row, o) => toDateNightPlace(invRowToPlace(row), o);
   const ownedPools = Promise.all([
     fetchOwnedPool(lat, lng, {
@@ -108,14 +119,14 @@ async function buildDateNightAnswer({ lat, lng, city, hour }) {
 
   const pools = await Promise.all([
     ownedPools.then(([dinner]) => dinner.places),
-    serveFromInventory("food", lat, lng, radiusM, n, "dessert"),
-    serveFromInventory("nightlife", lat, lng, radiusM, n, "speakeasy"),
-    serveFromInventory("nightlife", lat, lng, radiusM, n, "music"),
-    serveFromInventory("nightlife", lat, lng, radiusM, n, "clubs"),
-    serveFromInventory("attractions", lat, lng, radiusM, n, "spa"),
-    serveFromInventory("attractions", lat, lng, radiusM, n, "tours"),
-    serveFromInventory("attractions", lat, lng, radiusM, n, "museums"),
-    serveFromInventory("attractions", lat, lng, radiusM, n, "beaches"),
+    serveFromInventory("food", lat, lng, radiusM, n, "dessert", { readCache }),
+    serveFromInventory("nightlife", lat, lng, radiusM, n, "speakeasy", { readCache }),
+    serveFromInventory("nightlife", lat, lng, radiusM, n, "music", { readCache }),
+    serveFromInventory("nightlife", lat, lng, radiusM, n, "clubs", { readCache }),
+    serveFromInventory("attractions", lat, lng, radiusM, n, "spa", { readCache }),
+    serveFromInventory("attractions", lat, lng, radiusM, n, "tours", { readCache }),
+    serveFromInventory("attractions", lat, lng, radiusM, n, "museums", { readCache }),
+    serveFromInventory("attractions", lat, lng, radiusM, n, "beaches", { readCache }),
     ownedPools.then(([, shopping]) => shopping.places),
   ]);
 

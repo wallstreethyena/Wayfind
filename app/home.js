@@ -3830,6 +3830,33 @@ function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage, hideLike,
 // when the user came from a "Worth the drive?" hook. Captures yes/no, then
 // reveals the live community tally.
 
+// 2026-09-23 — pulled out of the inv=1 fetch's inline `.map()` so the "Wayfind
+// 5 more spots" continuation fetch (below, inside PageInner) maps a later
+// server page IDENTICALLY to the first one, rather than carrying a second,
+// driftable copy of the same row->card shape. Pure; a row already in the
+// app's own shape (has `name`, no `displayName`) passes through unchanged.
+function mapInventoryRow(x, center) {
+  if (!x) return null;
+  if (x.name && !x.displayName) return x; // already app-shaped
+  const _la = x.location && x.location.latitude, _ln = x.location && x.location.longitude;
+  const _ph = x.photos && x.photos[0] && x.photos[0].name;
+  return {
+    id: x.id,
+    name: (x.displayName && x.displayName.text) || x.name || "",
+    lat: _la, lng: _ln,
+    distMi: _la != null ? distMeters(center, { lat: _la, lng: _ln }) / 1609.34 : null,
+    rating: typeof x.rating === "number" ? x.rating : null,
+    reviews: x.userRatingCount || 0,
+    wfScore: wayfindScore(typeof x.rating === "number" ? x.rating : 0, x.userRatingCount || 0),
+    types: Array.isArray(x.types) ? x.types : [],
+    primaryType: x.primaryType || x.primary_type || null,
+    photo: _ph ? "/api/photo?ref=" + encodeURIComponent(_ph) + "&g=2&w=640" : null,
+    openNow: null,
+    businessStatus: x.businessStatus || "OPERATIONAL",
+    _wfInventory: true,
+  };
+}
+
 function PageInner({ initialEvents = null, localEditGuides = null, railMenu = null, initialPlaceId = null, initialPlaceAction = null }) {
   const [supabaseReady, setSupabaseReady] = useState(false);
   // PERF 2026-09-08: Supabase is not part of the homepage eager graph. Load it
@@ -4141,6 +4168,18 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   }, [cityTransition]);
   const [sugIdx, setSugIdx] = useState(-1); // v5.63 (audit P4): keyboard-highlighted suggestion, -1 = none
   const [places, setPlaces] = useState([]);
+  // 2026-09-23 — SERVER PAGING for the inv=1 category list. The route now
+  // reports the TRUE eligible count and whether more exists past this page
+  // (lib/inventoryServe.js's exhaustive read); this ref remembers that answer
+  // for the CURRENT cat/sub/center so the "Wayfind 5 more spots" control can
+  // ask for the next page once every already-loaded row has been revealed,
+  // instead of the list quietly ending at 400. A ref, not state: it changes on
+  // its own schedule (inside the fetch effect / the continuation fetch) and
+  // must never itself trigger a render — reading it during render is safe
+  // because every write that matters is followed by a setPlaces/setVisibleCount
+  // that already re-renders.
+  const invMoreRef = useRef({ hasMore: false, offset: 0, cat: null, sub: null, m: null, centerKey: null });
+  const invMoreLoadingRef = useRef(false);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
   const [detail, setDetail] = useState(null);
@@ -7182,11 +7221,16 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         // the richer owned-hotel endpoint; every other category pulls rows from
         // wf_inventory via the free inv=1 serve, then maps name/photo/wfScore/
         // distance BEFORE the rows ever meet a PlaceCard.
-        const _invAll = async (m) => {
+        const _invAll = async (m, offset = 0) => {
           try {
             if (cat === "hotels") {
               const hr = await fetch(`/api/hotels?lat=${center.lat}&lng=${center.lng}&limit=40`);
               const hj = await hr.json();
+              // The hotels endpoint has no offset/paging contract of its own;
+              // a stale hasMore from a prior category must not survive the tab
+              // switch (loadMoreInventory also guards on cat/sub, but belt +
+              // suspenders costs one line).
+              invMoreRef.current = { hasMore: false, offset: 0, cat, sub, m, centerKey: `${center.lat},${center.lng}` };
               return Array.isArray(hj.hotels) ? hj.hotels : [];
             }
             // v8.49 — SEND THE CHIP. Without `sub` this asks for the whole
@@ -7196,30 +7240,19 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             // near Parrish: 0 of the top 50 food rows are cafés, which is
             // exactly why Food > Cafés rendered "Nothing here right now" while
             // 111 admissible cafés sat in inventory 17 miles away.
-            const r = await fetch(`/api/places/search?q=inventory&lat=${center.lat.toFixed(4)}&lng=${center.lng.toFixed(4)}&radius=${m}&n=400&cat=${encodeURIComponent(cat)}&inv=1${sub && sub !== "all" ? `&sub=${encodeURIComponent(sub)}` : ""}`);
+            const r = await fetch(`/api/places/search?q=inventory&lat=${center.lat.toFixed(4)}&lng=${center.lng.toFixed(4)}&radius=${m}&n=400&cat=${encodeURIComponent(cat)}&inv=1${sub && sub !== "all" ? `&sub=${encodeURIComponent(sub)}` : ""}${offset ? `&offset=${offset}` : ""}`);
             const j = await r.json();
             const raw = Array.isArray(j.places) ? j.places : [];
-            return raw.map((x) => {
-              if (!x) return null;
-              if (x.name && !x.displayName) return x; // already app-shaped
-              const _la = x.location && x.location.latitude, _ln = x.location && x.location.longitude;
-              const _ph = x.photos && x.photos[0] && x.photos[0].name;
-              return {
-                id: x.id,
-                name: (x.displayName && x.displayName.text) || x.name || "",
-                lat: _la, lng: _ln,
-                distMi: _la != null ? distMeters(center, { lat: _la, lng: _ln }) / 1609.34 : null,
-                rating: typeof x.rating === "number" ? x.rating : null,
-                reviews: x.userRatingCount || 0,
-                wfScore: wayfindScore(typeof x.rating === "number" ? x.rating : 0, x.userRatingCount || 0),
-                types: Array.isArray(x.types) ? x.types : [],
-                primaryType: x.primaryType || x.primary_type || null,
-                photo: _ph ? "/api/photo?ref=" + encodeURIComponent(_ph) + "&g=2&w=640" : null,
-                openNow: null,
-                businessStatus: x.businessStatus || "OPERATIONAL",
-                _wfInventory: true,
-              };
-            }).filter((p) => p && p.name);
+            // 2026-09-23 — SERVER PAGING. Remember whether the route says more
+            // exists past this page, for THIS exact cat/sub/center, so the
+            // "Wayfind 5 more spots" control can ask for the next page once
+            // every already-loaded row has been revealed, instead of the list
+            // quietly ending at 400. See loadMoreInventory below.
+            invMoreRef.current = {
+              hasMore: !!j.hasMore, offset: offset + raw.length,
+              cat, sub, m, centerKey: `${center.lat},${center.lng}`,
+            };
+            return raw.map((x) => mapInventoryRow(x, center)).filter((p) => p && p.name);
           } catch (e) { _fetchErrs++; return []; }
         };
 
@@ -9166,6 +9199,49 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   const exHeroSl = exHero ? scoreLabel(exHero.wfScore) : null;
   const restView = exHero ? consolidatedView.filter((p) => p && p.id !== exHero.id) : consolidatedView;
 
+  // 2026-09-23 — can the "Wayfind 5 more spots" control ask the SERVER for
+  // another page? Only when the last inv=1 read's meta still matches this
+  // exact cat/sub/center (a category/location change already re-ran the
+  // fetch effect above and overwrote invMoreRef with fresh — or cleared —
+  // meta, so a stale "yes" from a different query can never leak through).
+  const invMoreCanContinue = !!(invMoreRef.current && invMoreRef.current.hasMore
+    && invMoreRef.current.cat === cat && invMoreRef.current.sub === sub
+    && invMoreRef.current.centerKey === (center ? `${center.lat},${center.lng}` : null));
+  // The SAME control's server continuation. Once every already-loaded row is
+  // revealed (restView.length <= visibleCount) and the route said hasMore,
+  // this fetches the next page instead of the list quietly ending at 400 —
+  // same URL shape, same mapInventoryRow normalization, same dedupe-by-id;
+  // appended places then run through the SAME view/restView pipeline above
+  // (ranking, dedupePlaces, cardComplete) as the first page. No new UI
+  // element: this only changes what the existing button's onClick does once
+  // it runs out of already-loaded rows to reveal.
+  const loadMoreInventory = async () => {
+    const meta = invMoreRef.current;
+    const centerKey = center ? `${center.lat},${center.lng}` : null;
+    if (invMoreLoadingRef.current || !meta || !meta.hasMore || meta.cat !== cat || meta.sub !== sub || meta.centerKey !== centerKey) {
+      setVisibleCount((c) => c + 5);
+      return;
+    }
+    invMoreLoadingRef.current = true;
+    try {
+      const r = await fetch(`/api/places/search?q=inventory&lat=${center.lat.toFixed(4)}&lng=${center.lng.toFixed(4)}&radius=${meta.m}&n=400&cat=${encodeURIComponent(cat)}&inv=1${sub && sub !== "all" ? `&sub=${encodeURIComponent(sub)}` : ""}&offset=${meta.offset}`);
+      const j = await r.json();
+      const raw = Array.isArray(j.places) ? j.places : [];
+      const mapped = raw.map((x) => mapInventoryRow(x, center)).filter((p) => p && p.name);
+      invMoreRef.current = { ...meta, hasMore: !!j.hasMore, offset: meta.offset + raw.length };
+      setPlaces((prev) => {
+        const seen = new Set((prev || []).map((p) => p && p.id));
+        const add = mapped.filter((p) => p && p.id && !seen.has(p.id));
+        return add.length ? [...prev, ...add] : prev;
+      });
+    } catch (e) {
+      // best-effort — leave hasMore as-is so another tap can retry the page
+    } finally {
+      invMoreLoadingRef.current = false;
+      setVisibleCount((c) => c + 5);
+    }
+  };
+
   // 2026-08-08: THE UNIFIED TREND SIGNAL on the home pool (lib/trendSignal.js
   // — real foot traffic + major-event proximity, never a paid input).
   // attachTrendSignals MUTATES the place objects in `places`, so every list
@@ -9326,10 +9402,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         <PlaceCard key={p.id} p={p} rank={i + 4} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} />
       ))}
       </div>
-      {!loading && restView.length > visibleCount && (
+      {!loading && (restView.length > visibleCount || invMoreCanContinue) && (
         <div style={{ padding: "2px 2px 10px" }}>
           <div style={{ height: 1, background: C.border, margin: "0 0 12px" }} />
-          <button onClick={() => setVisibleCount((c) => c + 5)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, height: 50, borderRadius: 14, border: "none", background: "linear-gradient(180deg, #FB923C 0%, #F97316 52%, #EA580C 100%)", color: "#fff", fontSize: 14.5, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 14px rgba(249,115,22,.4)" }}>
+          <button onClick={() => { if (restView.length > visibleCount) setVisibleCount((c) => c + 5); else loadMoreInventory(); }} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, height: 50, borderRadius: 14, border: "none", background: "linear-gradient(180deg, #FB923C 0%, #F97316 52%, #EA580C 100%)", color: "#fff", fontSize: 14.5, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 14px rgba(249,115,22,.4)" }}>
             Wayfind 5 more spots
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ display: "block" }}><path d="M5 12h13M13 6l6 6-6 6" /></svg>
           </button>

@@ -11,7 +11,13 @@
 //     the exact coordinate (icon-anchor bottom), one cheap symbol layer that
 //     clusters natively. No score text on pins; the score lives in the card.
 //   · "the area looks very thin … is that a lazy get strategy?" — the map
-//     draws up to 60 of the already-fetched pool (no new API cost).
+//     draws the whole already-fetched, already-ranked pool (no new API cost).
+//     v7.16 raised the old top-10/24 cap to 60; 2026-09-23 removed the cap
+//     entirely — the pin source is clustered GeoJSON (one setData call), and
+//     the list beside the map can now page past 400 rows (server offset
+//     paging), so a fixed pin cap would show FEWER places than the cards
+//     under it claim exist. See lib/inventoryServe.js's Ryan's Coffee House
+//     header for the read-side half of the same "confident partial" bug.
 import { readFileSync } from "node:fs";
 let n = 0, bad = 0;
 const ok = (c, m) => { n++; if (!c) { bad++; console.error("  - " + m); } };
@@ -78,7 +84,17 @@ ok(/\["==", \["get", "anySel"\], 1\], \.5/.test(view), "unselected pins no longe
 // (the ranked-head ordering is asserted in the block above, parsed rather than
 //  matched against a literal — v8.89)
 ok(!/scoreLabel/.test(view) && !/"wf-place-ranks"/.test(view), "score text crept back onto the pins — the score belongs to the card (v7.16)");
-ok(/slice\(0, 60\)/.test(view), "the density cap fell below 60 — the thin-map complaint comes back");
+// 2026-09-23 — the fixed 60-pin cap is GONE (see the file header): the map
+// must show the SAME membership as the list beside it, and the list can now
+// page past 60 (or 400). Assert the invariant that replaced it: `ranked` is
+// the places array filtered for real coordinates and NOTHING ELSE — no
+// slice/cap of any size sits between the filter and the pins it feeds.
+ok(/const ranked = \(places \|\| \[\]\)\.filter\(\(p\) => p && p\.lat != null && p\.lng != null\);/.test(view),
+  "MapView's `ranked` is the full coordinate-filtered places array, uncapped — a reintroduced slice() would cap pin membership below the list again");
+ok(!/const ranked = \(places \|\| \[\]\)\.filter\([^)]*\)\.slice\(/.test(view),
+  "`ranked` must not be sliced — the map has to show every place the list loaded, not a merchandising cap");
+ok(/window\.__wfMapPins\s*=\s*\{\s*ids:\s*placeFeatures\.map/.test(view),
+  "MapView exposes window.__wfMapPins for a live parity check between the map and the list — see redraw()");
 ok(/slice\(0, 40\)/.test(map), "the default map pool cap fell below 40");
 ok(/clusterRadius: 30/.test(view), "the cluster radius widened again — more clustering means fewer visible pins");
 ok(/pixelRatio: PIN_DPR/.test(view), "pin sprites are not registered at 2x — they would render blurry on retina");
@@ -116,4 +132,4 @@ ok(map.length > 3000 && view.length > 3000 && iconic.length > 3000, "a source fi
 }
 
 if (bad) { console.error(`\ncheck-map-place-card: FAIL — ${bad}/${n} assertions`); process.exit(1); }
-console.log(`check-map-place-card: OK — ${n} assertions (iconic card in the bottom slot; tip-anchored pin sprites, no score text, 60-pin density; selection shared; camera law intact)`);
+console.log(`check-map-place-card: OK — ${n} assertions (iconic card in the bottom slot; tip-anchored pin sprites, no score text, uncapped pin density; selection shared; camera law intact)`);
