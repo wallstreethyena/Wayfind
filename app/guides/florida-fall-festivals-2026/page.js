@@ -53,15 +53,20 @@ function fallGuideSpots(spots) {
 // exempt from that direction just because it lives outside app/guides/
 // [slug]. It has no lib/guideHero.js registry entry of its own, so the
 // credited inline hero photo below (already used in the article body, an
-// Unsplash-licensed photo of pumpkins in Davie, FL) is handed to the hero
-// route directly via the bounded ?src= override (lib/heroCard.js's
-// HERO_SRC_ALLOWED_HOSTS) rather than left as a bare typographic card.
+// Unsplash-licensed photo of pumpkins in Davie, FL) is registered by this
+// guide's own id in lib/heroSource.js's DEDICATED_GUIDE_HEROES — resolved
+// server-side by kind+id, same as every other guide — rather than left as a
+// bare typographic card.
+//
+// Audit (2026-09-23): this used to hand the photo to the route directly via
+// a caller-controlled ?src=/?pos= query override, which — because the same
+// route also allowed any same-origin path — made this public route capable
+// of fetching and re-serving an arbitrary https URL (including the metered
+// /api/photo). The route no longer reads either param at all.
 const shareImage = "/api/og/hero?kind=guide&id=florida-fall-festivals-2026"
   + "&t=" + encodeURIComponent("33 Florida Fall Picks for 2026")
   + "&cat=Guide&loc=" + encodeURIComponent("Florida")
-  + "&n=33"
-  + "&src=" + encodeURIComponent("https://images.unsplash.com/photo-1537991458814-f9f068c1fd52?auto=format&fit=crop&fm=jpg&q=82&w=1600&h=1067")
-  + "&pos=" + encodeURIComponent("50% 58%");
+  + "&n=33";
 
 export const metadata = {
   title: "Florida Fall Guide 2026",

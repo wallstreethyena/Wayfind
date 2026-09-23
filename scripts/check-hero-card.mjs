@@ -20,11 +20,12 @@ import { readFileSync, existsSync, statSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-  HERO_CARD, HERO_SRC_ALLOWED_HOSTS, isAllowedHeroSrc, absoluteHeroUrl,
+  HERO_CARD, HERO_CARD_DESIGN_V, absoluteHeroUrl,
   isJpeg, bytesToDataUri, heroCountLabel, heroRatingLine, heroCardModel, heroFallbackModel, heroLineFits,
 } from "../lib/heroCard.js";
+import { resolveHeroSource } from "../lib/heroSource.js";
 import { textWidth } from "../lib/shareCard.js";
-import { footFits } from "../lib/shareCardCopy.js";
+import { footFits, placeModel } from "../lib/shareCardCopy.js";
 
 const REPO = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 let n = 0;
@@ -40,23 +41,54 @@ ok(HERO_CARD.maxWidth === HERO_CARD.w - HERO_CARD.padX * 2, "maxWidth must equal
 ok(HERO_CARD.textBottom < HERO_CARD.h, "the headline's baseline must sit above the bottom edge, not on it");
 ok(HERO_CARD.minTextTop > HERO_CARD.markY + HERO_CARD.markSize, "the headline block's floor must sit below the brand mark, or a long headline can climb over it");
 
-// ── 2. THE SRC ALLOWLIST IS BOUNDED (SSRF / open-proxy guard) ───────────────
-// This route is public. An unbounded ?src= would make it fetch, decode and
-// re-serve any https URL on the internet, at Wayfind's expense, inside a
-// Wayfind-branded card. The allowlist is what keeps ?src= a narrow escape
-// hatch for the two known credited-photo-outside-a-registry cases rather
-// than an open image proxy.
-ok(HERO_SRC_ALLOWED_HOSTS.length >= 1 && HERO_SRC_ALLOWED_HOSTS.length <= 4,
-   `HERO_SRC_ALLOWED_HOSTS has ${HERO_SRC_ALLOWED_HOSTS.length} entries — this is meant to stay a SHORT, reviewed list, not grow into an open allowlist`);
-ok(isAllowedHeroSrc("https://images.unsplash.com/photo-1", "www.gowayfind.com"), "the Unsplash allowlist entry must actually pass");
-ok(isAllowedHeroSrc("https://upload.wikimedia.org/x.jpg", "www.gowayfind.com"), "the Wikimedia allowlist entry must actually pass");
-ok(isAllowedHeroSrc("https://www.gowayfind.com/x.jpg", "www.gowayfind.com"), "the site's own origin must be allowed (a ?src= re-pointing at our own asset)");
-ok(!isAllowedHeroSrc("https://evil.example.com/x.jpg", "www.gowayfind.com"), "an arbitrary https host must be refused — this is the open-image-proxy / SSRF guard");
-ok(!isAllowedHeroSrc("http://images.unsplash.com/photo-1", "www.gowayfind.com"), "a non-https URL must be refused even on an allowed host");
-ok(!isAllowedHeroSrc("https://images.unsplash.com.evil.com/x.jpg", "www.gowayfind.com"), "a lookalike hostname must not pass a substring-style check");
-ok(!isAllowedHeroSrc("", "www.gowayfind.com"), "an empty src must be refused, not treated as \"no override\" some other way that skips validation");
-ok(!isAllowedHeroSrc("not a url", "www.gowayfind.com"), "a malformed src must be refused rather than throwing inside a render");
-ok(!isAllowedHeroSrc(null, "www.gowayfind.com"), "a null src must be refused without throwing");
+// ── 2. NO CALLER-CONTROLLED IMAGE SOURCE (audit, 2026-09-23) ────────────────
+// The route used to accept ?src=/?pos= validated against a "bounded"
+// allowlist that ALSO always allowed the site's own origin — which let a
+// requester point this public route at the metered, robots-disallowed
+// /api/photo, and pinned the result SHARE_CACHE.immutable (a year, CDN-wide)
+// under a caller-chosen ?v=. Every hero photo now comes ONLY from a
+// server-side, id-keyed registry (lib/heroSource.js) — there is no allowlist
+// left to test; the two things to prove instead are that the route never
+// reads either param, and that resolveHeroSource ignores one even if handed
+// it directly.
+{
+  const rel = "app/api/og/hero/route.js";
+  const code = strip(read(rel));
+  // Syntactic position, not a bare substring: the exact call shape that read
+  // the override, not merely the word "src" appearing anywhere (this file's
+  // own module comment says "the source photo" in prose).
+  ok(!/sp\.get\(\s*["']src["']\s*\)/.test(code),
+     `${rel} must never call sp.get("src") — that caller-controlled image source was the open-image-proxy / SSRF hole this guard exists to keep closed`);
+  ok(!/sp\.get\(\s*["']pos["']\s*\)/.test(code),
+     `${rel} must never call sp.get("pos") either — it travelled with ?src= as the same override`);
+  ok(!/resolveHeroSource\(\{[^}]*\bsrc\b/.test(code),
+     `${rel} must never pass a src key into resolveHeroSource(...) — the call site itself must not carry the override forward even if some other part of the route still read it`);
+}
+{
+  // resolveHeroSource must resolve PURELY from kind+id. Handing it an extra
+  // `src` (an old caller's shape, or an attacker probing the object) must be
+  // silently ignored — the guide's own registry entry (or null, for the
+  // typographic fallback) is what must come back, never the supplied src.
+  const EVIL = "https://evil.example.com/cat.jpg";
+  const withSrc = await resolveHeroSource({
+    origin: "https://www.gowayfind.com", kind: "guide", id: "florida-fall-festivals-2026",
+    src: EVIL, position: "1% 1%",
+  });
+  ok(!!withSrc && withSrc.url !== EVIL,
+     `an extra src param must never reach the resolved url, got url="${withSrc && withSrc.url}"`);
+  ok(!!withSrc && /images\.unsplash\.com/.test(withSrc.url),
+     `resolveHeroSource must still resolve florida-fall-festivals-2026's own DEDICATED_GUIDE_HEROES entry when called with an (ignored) src, got url="${withSrc && withSrc.url}"`);
+  const noRegistrySrc = await resolveHeroSource({
+    origin: "https://www.gowayfind.com", kind: "guide", id: "does-not-exist-2026-audit-probe", src: EVIL,
+  });
+  ok(noRegistrySrc === null,
+     "a guide id with no registry entry must resolve to null (the typographic fallback) even when a src param is supplied — never the caller's src");
+  // A too-short id ("x") fails wf_place_photo's own PLACE_ID_RX before any
+  // network call, so this stays a fast, offline assertion — the point is
+  // only that the place branch doesn't special-case `src` back in either.
+  const placeWithSrc = await resolveHeroSource({ origin: "https://www.gowayfind.com", kind: "place", id: "x", src: EVIL });
+  ok(placeWithSrc === null || placeWithSrc.url !== EVIL, "a place resolution must never surface an extra src param either");
+}
 
 // ── 3. absoluteHeroUrl NEVER CONCATENATES ───────────────────────────────────
 // "SITE_URL + null" is the exact string shape that produced
@@ -483,9 +515,93 @@ for (const { f, src } of ogPages) {
   ok(/"Content-Type":\s*"image\/png"/.test(code), "the true last-resort 1x1 fallback (sharp itself unavailable) must still exist as a bare PNG literal — the one Content-Type this route may answer besides image/jpeg, and only there");
 }
 
+// ── 14. THE CACHE KEY IS DESIGN-VERSIONED (audit, 2026-09-23) ───────────────
+// `v` used to be the photo's reviewedAt date alone: a design change to the
+// plate (geometry, copy, colors) never busted an already-CDN-cached
+// SHARE_CACHE.immutable url, so a reader's link preview (and Facebook's/X's
+// own crawler cache) could keep showing last year's card for up to a year.
+// Every page that emits `v` must stamp it with the CURRENT
+// HERO_CARD_DESIGN_V, and the route must only grant immutable caching to a
+// `v` that carries it.
+{
+  const guide = read("app/guides/[slug]/page.js");
+  ok(/HERO_CARD_DESIGN_V/.test(guide), "app/guides/[slug]/page.js must import HERO_CARD_DESIGN_V from lib/heroCard.js");
+  ok(/encodeURIComponent\(art\.reviewedAt \+ "\." \+ HERO_CARD_DESIGN_V\)/.test(guide),
+     "app/guides/[slug]/page.js's heroV must append \".\" + HERO_CARD_DESIGN_V to the reviewed photo's date, not the bare date alone");
+
+  const pintos = read("app/guides/pintos-farm-miami-2026/page.js");
+  ok(/HERO_CARD_DESIGN_V/.test(pintos), "app/guides/pintos-farm-miami-2026/page.js must import HERO_CARD_DESIGN_V from lib/heroCard.js");
+  ok(/encodeURIComponent\(heroPhoto\.reviewedAt \+ "\." \+ HERO_CARD_DESIGN_V\)/.test(pintos),
+     "app/guides/pintos-farm-miami-2026/page.js's shareImage must append \".\" + HERO_CARD_DESIGN_V to the reviewed photo's date, not the bare date alone");
+
+  // Every OTHER page this guard already knows emits a hero og:image (section
+  // 10 above) — none of the rest (place, event) build a `v` at all today, so
+  // they always take the route's `cache: SHARE_CACHE.live` branch already;
+  // the moment one of them starts emitting `v`, this loop below would need a
+  // matching entry, which is exactly why it is a loop over a named list
+  // rather than one-off assertions that silently stop covering new callers.
+  const otherHeroFiles = ["app/p/[id]/page.js", "lib/placeData.js", "app/florida-events/[slug]/page.js", "app/events/[city]/[slug]/page.js"];
+  for (const f of otherHeroFiles) {
+    const src = read(f);
+    const ogHeroUrlBlocks = src.match(/\/api\/og\/hero\?[^`"']*/g) || [];
+    for (const block of ogHeroUrlBlocks) {
+      ok(!/&v=/.test(block), `${f}: an og:image hero URL literal now carries a bare &v= — it must carry ".${HERO_CARD_DESIGN_V}" (or whatever HERO_CARD_DESIGN_V currently is) or the route will never grant it immutable caching`);
+    }
+  }
+}
+
+// ── 15. IMMUTABLE CACHING REQUIRES THE CURRENT DESIGN SUFFIX ────────────────
+// Extracted and evaluated directly (rather than re-implemented here) so this
+// proves the ACTUAL expression the route runs, not a description of it.
+{
+  const rel = "app/api/og/hero/route.js";
+  const code = strip(read(rel));
+  const m = code.match(/const cache = ([^;]+);/);
+  ok(!!m, `${rel} must compute \`cache\` as one visible, extractable expression`);
+  if (m) {
+    const expr = m[1];
+    const SHARE_CACHE_STUB = { immutable: "immutable", live: "live" };
+    const evalCache = (vVal) => {
+      // eslint-disable-next-line no-new-func
+      const fn = new Function("v", "HERO_CARD_DESIGN_V", "SHARE_CACHE", "return (" + expr + ");");
+      return fn(vVal, HERO_CARD_DESIGN_V, SHARE_CACHE_STUB);
+    };
+    ok(evalCache("2026-09-10." + HERO_CARD_DESIGN_V) === "immutable",
+       `a v carrying the CURRENT design suffix must select SHARE_CACHE.immutable, got "${evalCache("2026-09-10." + HERO_CARD_DESIGN_V)}"`);
+    ok(evalCache("2026-09-10") === "live",
+       `a v with NO design suffix (the pre-fix shape) must select SHARE_CACHE.live, not a year-long cache pin, got "${evalCache("2026-09-10")}"`);
+    ok(evalCache("2026-09-10.d1") === "live",
+       `a v stamped with a STALE design suffix (a previous HERO_CARD_DESIGN_V) must select SHARE_CACHE.live — this is the exact redesign-cache-poisoning bug this guard exists to prevent, got "${evalCache("2026-09-10.d1")}"`);
+    ok(evalCache("x1") === "live", `an attacker-invented v unrelated to the design suffix must never select SHARE_CACHE.immutable, got "${evalCache("x1")}"`);
+    ok(evalCache("") === "live", `an empty v must select SHARE_CACHE.live, got "${evalCache("")}"`);
+  }
+}
+
+// ── 16. THE PLACE TYPOGRAPHIC CARD NAMES ITS RATING SOURCE (audit, 2026-09-23)
+// A star rating with no named source is an unattributed third-party rating.
+// Every rating this card shows is a Google Places rating — the PHOTO layout
+// (heroRatingLine, asserted in §6b above) already says "Google reviews"; the
+// typographic fallback (placeModel) did not.
+{
+  const withRating = placeModel({ name: "La Natural", cat: "Wine Bar", city: "Miami", r: "4.2", rev: "690" });
+  const withRatingHeadline = withRating.lines.join(" ");
+  ok(/Google/.test(withRatingHeadline), `placeModel's headline must attribute the rating to Google, got "${withRatingHeadline}"`);
+  ok(/Google/.test(withRating.foot), `placeModel's foot must attribute the rating to Google, got "${withRating.foot}"`);
+  ok(footFits(withRating.foot), `the Google-attributed foot must still fit its own pill, got "${withRating.foot}"`);
+
+  const withScoreAndRating = placeModel({ name: "Ulele", city: "Tampa", sc: "9.1", r: "4.6", rev: "8200" });
+  ok(/Google/.test(withScoreAndRating.foot), `placeModel's Wayfind-score foot must still attribute the accompanying rating to Google, got "${withScoreAndRating.foot}"`);
+  ok(footFits(withScoreAndRating.foot), `the Google-attributed Wayfind-score foot must still fit its own pill, got "${withScoreAndRating.foot}"`);
+
+  const noRating = placeModel({ name: "A Place", cat: "Cafe", city: "Tampa" });
+  const noRatingHeadline = noRating.lines.join(" ");
+  ok(!/Google/.test(noRatingHeadline) && !/Google/.test(noRating.foot),
+     `a place with no rating data must never mention Google — nothing here is actually attributed to it, got headline="${noRatingHeadline}" foot="${noRating.foot}"`);
+}
+
 if (fails.length) {
   console.error(`check-hero-card: FAIL — ${fails.length}/${n}`);
   for (const f of fails) console.error("  · " + f);
   process.exit(1);
 }
-console.log(`check-hero-card: OK — ${n} assertions; ${TITLES.length} title lengths fitted with no clipping, the src allowlist refuses every non-listed host, the JPEG sniff/encoder round-trips real bytes, ${ogPages.length} og:image pages carry no /api/photo, and guides/places/events all resolve through the hero route`);
+console.log(`check-hero-card: OK — ${n} assertions; ${TITLES.length} title lengths fitted with no clipping, the route never reads a caller-supplied src/pos, the JPEG sniff/encoder round-trips real bytes, ${ogPages.length} og:image pages carry no /api/photo, guides/places/events all resolve through the hero route, v carries the design suffix everywhere it is emitted, immutable caching requires that suffix, and the typographic place card names Google as its rating source`);

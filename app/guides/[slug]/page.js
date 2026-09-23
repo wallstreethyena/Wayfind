@@ -386,6 +386,7 @@ import DiscoveryPaths from "../../components/DiscoveryPaths";
 import GuideArticleHero from "../../components/GuideArticleHero";
 import GuideFigure from "../../components/GuideFigure";
 import { guideHero } from "../../../lib/guideHero";
+import { HERO_CARD_DESIGN_V } from "../../../lib/heroCard.js";
 // The floating pill stays (it catches people who DO read to the end). This adds
 // the above-the-fold handoff under a 50/50 experiment — measured dwell on these
 // pages is 0-25s, so almost nobody reaches the pill. Control renders nothing.
@@ -433,7 +434,12 @@ export function generateMetadata({ params }) {
   // line) when no reviewed image exists yet. See
   // docs/proposals/claude-sonnet-hero-photo-standard.md (proposed rule 9).
   const art = guideHero(params.slug);
-  const heroV = art && art.kind !== "unavailable" && art.reviewedAt ? "&v=" + encodeURIComponent(art.reviewedAt) : "";
+  // Audit (2026-09-23): the design suffix (HERO_CARD_DESIGN_V) rides along
+  // with the reviewed-photo date so a hero-plate change (not just a new
+  // photo) also busts every already-CDN-cached immutable URL — see the
+  // route's own cache-selection comment in app/api/og/hero/route.js.
+  const heroV = art && art.kind !== "unavailable" && art.reviewedAt
+    ? "&v=" + encodeURIComponent(art.reviewedAt + "." + HERO_CARD_DESIGN_V) : "";
   const heroUrl = `${SITE_URL}/api/og/hero?kind=guide&id=${encodeURIComponent(params.slug)}&t=${encodeURIComponent(g.title)}&cat=Guide&loc=${encodeURIComponent(g.region || "")}${heroV}`;
   return {
     title: `${g.title} | Wayfind`,
