@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 696,
-    "totalRegistryEntries": 697,
-    "guardsTxtLineCount": 695,
-    "guardsTxtReachedFileCount": 690,
+    "totalOnDiskGuardFiles": 697,
+    "totalRegistryEntries": 698,
+    "guardsTxtLineCount": 696,
+    "guardsTxtReachedFileCount": 691,
     "criticalCount": 84,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 475,
+      "CALL": 476,
       "RENDER": 82,
       "STRUCTURAL": 139,
       "OTHER": 1
@@ -7759,6 +7759,28 @@
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
       "assertionCount": 20,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-tp-short-url-constraint-parity.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 8,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

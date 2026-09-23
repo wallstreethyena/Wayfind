@@ -1592,6 +1592,8 @@ node scripts/test-travelpayouts-attribution.mjs
 
 node scripts/test-travelpayouts-provisioning.mjs
 
+node scripts/check-tp-short-url-constraint-parity.mjs
+
 # Poster identity, event coverage, honest popularity, and empty rail rendering.
 node scripts/test-poster-events.mjs
 node scripts/test-event-popularity.mjs
