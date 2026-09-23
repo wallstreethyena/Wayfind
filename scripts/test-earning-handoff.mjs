@@ -79,7 +79,10 @@ ok(/viatorProductGoUrl\s*\(/.test(bookingResolve),
 
 // Hotel booking is enabled globally through a tracked first-party redirect.
 {
-  const hotel = { id: "hotel_1", name: "Test Inn", address: "1 Main, Orlando, FL", types: ["lodging", "hotel"] };
+  // 2026-09-23: a real verified hotel id, because the tracked hotel route now
+  // requires a booking-verification record. An invented id returns null and
+  // this assertion would stop testing the route it names.
+  const hotel = { id: "wfh-days-inn-bradenton-near-the-gulf-27469", name: "Test Inn", address: "1 Main, Orlando, FL", types: ["lodging", "hotel"] };
   const t = bookingTargets(hotel, "hotels", null, "Orlando, FL");
   const rawHotel = hotelUrl(hotel);
   ok(rawHotel && /booking\.com/i.test(rawHotel),
