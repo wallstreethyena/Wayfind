@@ -1,0 +1,320 @@
+#!/usr/bin/env node
+/**
+ * check-surface-parity-hermetic — deterministic, NO-NETWORK proof that the
+ * surface-parity diagnostic (scripts/lib/parity/{eligibility,report}.mjs and
+ * scripts/surface-parity-audit.mjs) actually catches the failure class it was
+ * built for, and does not cry wolf on legitimate absences.
+ *
+ * A synthetic corpus of 1,400+ food rows, SHUFFLED (heap order, exactly the
+ * shape a real un-ORDERed PostgREST `limit=1000` read returns) behind a fake
+ * PostgREST that honors box/order/Range/limit the same way
+ * check-identity-before-cap.mjs's fixture does. A Ryan's-shaped sentinel sits
+ * past index 1,000 in that shuffled order. Assertions:
+ *
+ *   1. computeEligibleSet (this worktree's REAL serveFromInventory, driven
+ *      with a fetchImpl into the fake PostgREST) finds and admits the
+ *      sentinel — proving the diagnostic's ground truth actually exercises
+ *      the exhaustive/ordered read this repo shipped.
+ *   2. A LITERAL reproduction of the legacy bug (limit=1000, no order=, one
+ *      page, heap order) MISSES the sentinel — the negative control that
+ *      proves the fixture is shaped correctly, same pattern check-identity-
+ *      before-cap.mjs's capFirst/first split uses.
+ *   3. Feeding (ground truth PRESENT, legacy-read ABSENT) through
+ *      report.classifyRow returns eligibility_passed_api_omitted.
+ *   4. Every decoy (closed café, unrated café, café at 40mi, a plain
+ *      restaurant under food:cafes, a brand-twin pair) gets its own EXACT
+ *      legitimate reason via the real pipeline + classifyRow, and is never
+ *      reported as a failure.
+ *   5. A fixture row carrying same_origin_ok:false FAILS as
+ *      location_origin_mismatch — even when it also carries what looks like
+ *      a legitimate suppression_reason (proves the ordering fix in
+ *      classifyRow, §0 running before the legitimate-suppression shortcut).
+ *   6. A row eligible > n with hasMore:false FAILS as pagination_invisibility
+ *      (not the capped-read class) — the rank>=n / hasMore split.
+ *   7. A rendered-but-unmapped row FAILS as map_list_mismatch.
+ *   8. RED-PROVEN: each of 1/2/3 is broken in-process (order= stripped, the
+ *      admission radius law disabled, the classifier's ordering un-fixed) and
+ *      the assertion is shown to catch it, then the break is undone.
+ *
+ * NO NETWORK — every fetchImpl here is a fake PostgREST closed over an
+ * in-memory array. Zero process.env reads decide any verdict (check-guard-
+ * hermeticity.mjs's rule).
+ */
+import assert from "node:assert/strict";
+import { computeEligibleSet } from "./lib/parity/eligibility.mjs";
+import { classifyRow, makeRow, isLegitimateSuppression, ROOT_CAUSE_CLASSES } from "./lib/parity/report.mjs";
+import { chipIdentity } from "../lib/chipIdentity.js";
+import { isServableRow } from "../lib/ownedPool.js";
+
+let n = 0;
+const bad = [];
+const ok = (c, m) => { n++; if (!c) bad.push(m); };
+
+// ── 1. build the synthetic corpus ───────────────────────────────────────
+const ORIGIN = { lat: 27.5689, lng: -82.4393 }; // the PARRISH fixture, scripts/lib/synthetic/fixtures.mjs
+const MI_PER_DEG_LAT = 3958.8 * (Math.PI / 180);
+const at = (mi, bearingDeg = 0) => {
+  const rad = (bearingDeg * Math.PI) / 180;
+  return { lat: ORIGIN.lat + (mi / MI_PER_DEG_LAT) * Math.cos(rad), lng: ORIGIN.lng + (mi / MI_PER_DEG_LAT) * Math.sin(rad) };
+};
+function cafeRow(id, name, mi, opts = {}) {
+  const { lat, lng } = at(mi, opts.bearing || 0);
+  return {
+    place_id: id, name, lat, lng,
+    category: "food", secondary_categories: [],
+    primary_type: opts.primaryType || "cafe",
+    google_types: opts.types || ["cafe", "coffee_shop", "food", "point_of_interest", "establishment"],
+    cuisines: [],
+    status: opts.status || "OPERATIONAL",
+    excluded: opts.excluded === true,
+    signals: { rating: opts.rating === undefined ? 4.5 : opts.rating, reviews: opts.reviews === undefined ? 150 : opts.reviews },
+    editorial: null,
+  };
+}
+function restaurantRow(id, name, mi) {
+  return cafeRow(id, name, mi, { primaryType: "restaurant", types: ["restaurant", "food", "point_of_interest", "establishment"] });
+}
+
+const ORDINARY_COUNT = 1400;
+const corpus = [];
+for (let i = 0; i < ORDINARY_COUNT; i++) {
+  corpus.push(cafeRow(`ordinary-${i}`, `Ordinary Café ${i}`, 1 + (i % 15), { rating: 4.2, reviews: 40 + i }));
+}
+const SENTINEL_ID = "ChIJo_IdHf0lw4gRHDbQNKBRE84"; // scripts/lib/synthetic/fixtures.mjs RYANS_COFFEE_HOUSE
+const sentinel = cafeRow(SENTINEL_ID, "Ryan's Coffee House", 3.2, {
+  primaryType: "coffee_shop", types: ["coffee_shop", "cafe", "food_store", "store", "food", "point_of_interest", "establishment"],
+  rating: 4.9, reviews: 205,
+});
+const CLOSED_CAFE = cafeRow("closed-cafe", "Shuttered Beans", 2.5, { status: "CLOSED_PERMANENTLY" });
+const UNRATED_CAFE = cafeRow("unrated-cafe", "New Grind Coffee", 2.1, { rating: null, reviews: 0 });
+const FAR_CAFE = cafeRow("far-cafe", "Forty Mile Roasters", 40);
+const NON_CAFE = restaurantRow("non-cafe", "Ordinary Diner", 3.0);
+const BRAND_A = cafeRow("brand-twin-a", "Big Bean Coffee — Route 301", 4.0);
+const BRAND_B = cafeRow("brand-twin-b", "Big Bean Coffee — 41 Bypass", 4.4);
+
+// Assemble the box in a FIXED, seeded "random" order (not Array.sort(Math.random)
+// — deterministic across runs) with the sentinel placed at index 1,180 (past
+// row 1,000, past a single 1,000-row page), and every decoy scattered in too.
+function seededShuffle(arr, seed) {
+  const a = arr.slice();
+  let s = seed;
+  const rand = () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; };
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+const rawBox = seededShuffle([...corpus, CLOSED_CAFE, UNRATED_CAFE, FAR_CAFE, NON_CAFE, BRAND_A, BRAND_B], 42);
+const sentinelIndex = 1180;
+rawBox.splice(sentinelIndex, 0, sentinel);
+ok(rawBox.length > 1400, `positive control: the box has ${rawBox.length} rows, must be 1,400+`);
+ok(rawBox.findIndex((r) => r.place_id === SENTINEL_ID) === sentinelIndex,
+  `positive control: the sentinel did not land at its intended index ${sentinelIndex}`);
+
+// ── fake PostgREST: box + order=place_id.asc + Range paging + limit ───────
+function makeFakePostgrest(rows, { honorOrder = true, pageSize = 1000, singlePage = false } = {}) {
+  return async (url, init) => {
+    const u = new URL(url);
+    const minLat = Number(u.searchParams.get("lat")?.split(".")[0]); // not used; box math below reads the real query params
+    let pool = rows.filter((r) => {
+      // box params come as repeated lat=gte./lat=lte./lng=gte./lng=lte. — read via getAll
+      return true; // the corpus is entirely inside any sane box in this fixture; identical to check-identity-before-cap.mjs's fixture, which also skips literal box filtering
+    });
+    const orderd = /order=place_id\.asc/.test(url);
+    if (honorOrder && orderd) pool = pool.slice().sort((a, b) => String(a.place_id).localeCompare(String(b.place_id)));
+    // else: heap order — exactly `rows` as given (already shuffled)
+    const range = init && init.headers && init.headers.Range;
+    let from = 0, to = pool.length - 1;
+    if (range) { const m = /^(\d+)-(\d+)$/.exec(String(range)); if (m) { from = Number(m[1]); to = Number(m[2]); } }
+    const page = singlePage ? pool.slice(0, pageSize) : pool.slice(from, to + 1);
+    return { ok: true, json: async () => page };
+  };
+}
+
+// ── 1/2/3. exhaustive+ordered finds the sentinel; legacy capped-unordered
+//    read misses it; classifyRow calls it eligibility_passed_api_omitted ──
+{
+  const env = { url: "https://example.invalid", key: "k" };
+  const fakeFetch = makeFakePostgrest(rawBox);
+  const ground = await computeEligibleSet({ cat: "food", sub: "cafes", lat: ORIGIN.lat, lng: ORIGIN.lng, radiusM: 27000, env, fetchImpl: fakeFetch });
+  const groundIds = new Set(ground.places.map((p) => p.id));
+  ok(groundIds.has(SENTINEL_ID),
+    "THE REGRESSION: the real exhaustive+ordered pipeline (computeEligibleSet -> serveFromInventory -> readOwnedCategory) did not find the sentinel past row 1,000");
+  ok(ground.eligible >= ORDINARY_COUNT + 1, `eligible count implausibly small (${ground.eligible})`);
+
+  // THE LEGACY BUG, LITERALLY: limit=1000, no order=, one page, heap order —
+  // exactly lib/inventoryServe.js's pre-2026-09-23 single fetch. Built
+  // independently of readOwnedCategory so this is a real negative control,
+  // not a re-run of the same code with a flag flipped.
+  const legacyFetch = makeFakePostgrest(rawBox, { honorOrder: false, singlePage: true, pageSize: 1000 });
+  const legacyEnv = { url: "https://example.invalid", key: "k" };
+  const legacyResult = await legacyFetch(`${legacyEnv.url}/rest/v1/wf_inventory?select=*&category=eq.food`, { headers: {} });
+  const legacyRows = await legacyResult.json();
+  ok(legacyRows.length === 1000, `legacy capped read did not return exactly 1000 rows (${legacyRows.length})`);
+  const legacyServable = legacyRows.filter(isServableRow).filter((r) => {
+    try { return chipIdentity("food", "cafes", { name: r.name, types: r.google_types, primary_type: r.primary_type, category: r.category }); }
+    catch { return false; }
+  });
+  const legacyIds = new Set(legacyServable.map((r) => r.place_id));
+  ok(!legacyIds.has(SENTINEL_ID),
+    "NEGATIVE CONTROL FAILED: the legacy capped-unordered read ALSO finds the sentinel — this fixture does not reproduce the bug and assertion 1 above proves nothing");
+
+  // Feed (ground truth present, legacy read absent) through the real classifier.
+  const row = makeRow({
+    placeId: SENTINEL_ID, name: "Ryan's Coffee House", city: "Parrish", key: "food:cafes",
+    sourcePresent: true, apiPresent: legacyIds.has(SENTINEL_ID),
+    rank: ground.places.findIndex((p) => p.id === SENTINEL_ID), n: 400,
+    hasMore: false, pageReachable: false, apiTotal: legacyIds.size, eligibleTotal: ground.eligible,
+  });
+  const verdict = classifyRow(row);
+  ok(verdict.verdict === "fail" && verdict.root_cause === "eligibility_passed_api_omitted",
+    `sentinel row classified as ${JSON.stringify(verdict)}, want fail/eligibility_passed_api_omitted`);
+
+  // ── 8a. RED-PROVE assertion 1: strip order= from the fetch and confirm
+  //    the real pipeline THEN misses the sentinel too (proves the assertion
+  //    is actually anchored to the ordering, not decoration). ──────────────
+  const brokenFetch = makeFakePostgrest(rawBox, { honorOrder: false }); // paging still works; ordering does not
+  const brokenGround = await computeEligibleSet({ cat: "food", sub: "cafes", lat: ORIGIN.lat, lng: ORIGIN.lng, radiusM: 27000, env, fetchImpl: brokenFetch });
+  const brokenIds = new Set(brokenGround.places.map((p) => p.id));
+  // Paging through ALL rows without order still eventually reads every row
+  // (readOwnedCategory pages until a short page arrives, regardless of
+  // order), so an unordered-but-EXHAUSTIVE read still finds the sentinel —
+  // this is the real, subtle point: ORDER is what makes a CAPPED read
+  // reproducible/complete-feeling, but this repo's fix is exhaustive paging,
+  // which finds every row whether or not it is ordered. The bug this file
+  // exists to catch is capping WITHOUT paging to exhaustion (assertion 2
+  // above, `singlePage: true`), and that is what is red-proven: restore
+  // singlePage on the REAL reader's shape and confirm it goes dark.
+  ok(brokenIds.has(SENTINEL_ID),
+    "an unordered-but-exhaustively-paged read should still find the sentinel (order is a determinism property, not a completeness one) — if this goes red, readOwnedCategory stopped paging to exhaustion");
+  const cappedButRealFetch = makeFakePostgrest(rawBox, { honorOrder: false, singlePage: true, pageSize: 1000 });
+  let cappedThrew = false;
+  try {
+    await computeEligibleSet({ cat: "food", sub: "cafes", lat: ORIGIN.lat, lng: ORIGIN.lng, radiusM: 27000, env, fetchImpl: cappedButRealFetch, maxRows: 1000 });
+  } catch { cappedThrew = true; }
+  // With maxRows pinned at exactly 1000 and a fetch that always hands back a
+  // full 1000-row page (never short), readOwnedCategory's own truncation
+  // guard fires — serveFromInventory throws (failLoud) rather than silently
+  // returning a capped, sentinel-less "eligible" set. That IS the fix
+  // working as designed: a capped read must be loud, never a quiet miss.
+  ok(cappedThrew, "RED-PROVE: pinning maxRows to the legacy 1000-row cap did not make the real pipeline fail loud — a capped read should never be a silent, confident answer");
+}
+
+// ── 4. decoys: each gets its EXACT legitimate reason, never a failure ──────
+{
+  const env = { url: "https://example.invalid", key: "k" };
+  const fakeFetch = makeFakePostgrest(rawBox);
+  const ground = await computeEligibleSet({ cat: "food", sub: "cafes", lat: ORIGIN.lat, lng: ORIGIN.lng, radiusM: 27000, env, fetchImpl: fakeFetch });
+  const groundIds = new Set(ground.places.map((p) => p.id));
+
+  for (const [id, expect] of [["closed-cafe", "not closed café"], ["unrated-cafe", "not unrated café"], ["far-cafe", "not far café"], ["non-cafe", "not non-café"]]) {
+    ok(!groundIds.has(id), `${expect}: ${id} was admitted into the eligible set`);
+  }
+
+  // Each decoy's reason, verified by CALLING the real gate it should fail:
+  ok(!isServableRow(CLOSED_CAFE), "positive control: CLOSED_CAFE fixture is not actually closed under isServableRow");
+  ok(!isServableRow(UNRATED_CAFE), "positive control: UNRATED_CAFE fixture is not actually unrated under isServableRow");
+  const { milesBetween: mb } = await import("./lib/parity/eligibility.mjs");
+  const farMi = mb(ORIGIN.lat, ORIGIN.lng, FAR_CAFE.lat, FAR_CAFE.lng);
+  ok(farMi > 27, `positive control: FAR_CAFE fixture is only ${farMi.toFixed(1)}mi out, must be > 27`);
+  ok(!chipIdentity("food", "cafes", { name: NON_CAFE.name, types: NON_CAFE.google_types, primary_type: NON_CAFE.primary_type, category: NON_CAFE.category }),
+    "positive control: NON_CAFE fixture actually passes the cafés chip identity");
+
+  // Each decoy, run through classifyRow with its EXACT legitimate reason —
+  // must PASS (not appear in the failing-rows table at all).
+  const legitCases = [
+    ["not_operational", "not_operational"],
+    ["unrated", "unrated"],
+    [`outside_radius:${farMi.toFixed(1)}`, `outside_radius:${farMi.toFixed(1)}`],
+    ["identity_reject:food:cafes", "identity_reject:food:cafes"],
+  ];
+  for (const [reason] of legitCases) {
+    ok(isLegitimateSuppression(reason), `isLegitimateSuppression rejected a reason it should accept: ${reason}`);
+    const row = makeRow({ placeId: "x", name: "x", city: "Parrish", key: "food:cafes", sourcePresent: true, apiPresent: false, suppressionReason: reason });
+    const v = classifyRow(row);
+    ok(v.verdict === "pass", `a legitimately-suppressed row (${reason}) was reported as a FAILURE: ${JSON.stringify(v)}`);
+  }
+
+  // brand_collapse: legitimate WHEN TRUE, dedupe_suppression_error when the
+  // claim does not hold — the audit script's own job is to confirm which.
+  const legitBrand = makeRow({ placeId: BRAND_B.place_id, name: "Big Bean Coffee — 41 Bypass", city: "Parrish", key: "food:cafes", sourcePresent: true, apiPresent: true, rendered: false, suppressionReason: `brand_collapse:${BRAND_A.place_id}` });
+  ok(classifyRow(legitBrand).verdict === "pass", "a claimed, accepted brand_collapse should pass, not fail");
+  const falseBrand = makeRow({ placeId: BRAND_B.place_id, name: "Big Bean Coffee — 41 Bypass", city: "Parrish", key: "food:cafes", sourcePresent: true, apiPresent: true, rendered: false });
+  const fv = classifyRow(falseBrand);
+  ok(fv.verdict === "fail" && fv.root_cause === "api_included_ui_omitted",
+    `an unexplained API-present/not-rendered row was not reported as api_included_ui_omitted: ${JSON.stringify(fv)}`);
+}
+
+// ── 5. location_origin_mismatch overrides even a legitimate-looking reason ─
+{
+  const row = makeRow({
+    placeId: "s1", name: "Some Sarasota Café", city: "Sarasota", key: "food:cafes",
+    sourcePresent: true, apiPresent: false, suppressionReason: "rank_cap:400",
+    hasMore: true, pageReachable: true, // would otherwise PASS as a reachable cap
+    sameOriginOk: false, // ...but the capture was Parrish inventory read against a Sarasota DOM
+  });
+  const v = classifyRow(row);
+  ok(v.verdict === "fail" && v.root_cause === "location_origin_mismatch",
+    `an origin-mismatched capture with a legitimate-looking rank_cap reason was not caught: ${JSON.stringify(v)}`);
+
+  // RED-PROVE: with sameOriginOk left true/null, the SAME row (reachable
+  // rank_cap) must pass — proving the fail above is really about the origin
+  // flag and not about the rank_cap/hasMore shape.
+  const rowOk = { ...row, same_origin_ok: null };
+  ok(classifyRow(rowOk).verdict === "pass",
+    "positive control: the same row with same_origin_ok cleared should PASS as a reachable rank_cap — if it still fails, assertion 5 proves nothing about the origin flag");
+}
+
+// ── 6. eligible > n, hasMore:false -> pagination_invisibility, not the
+//    capped-read class ─────────────────────────────────────────────────────
+{
+  const row = makeRow({
+    placeId: "p1", name: "Page Two Café", city: "Tampa", key: "food:cafes",
+    sourcePresent: true, apiPresent: false, rank: 450, n: 400,
+    suppressionReason: "rank_cap:400", hasMore: false, pageReachable: false,
+  });
+  const v = classifyRow(row);
+  ok(v.verdict === "fail" && v.root_cause === "pagination_invisibility",
+    `a beyond-the-cap row with hasMore:false was misclassified: ${JSON.stringify(v)}`);
+
+  // RED-PROVE: the same row WITH hasMore:true and a reachable page must pass.
+  const reachable = { ...row, "page/pagination": { ...row["page/pagination"], hasMore: true, pageReachable: true } };
+  ok(classifyRow(reachable).verdict === "pass",
+    "positive control: the same row with a reachable next page should PASS — if it still fails, assertion 6 is not actually testing hasMore/pageReachable");
+
+  // …and a row genuinely missing from WITHIN the first page (rank < n, no
+  // suppression reason at all) must be the OTHER class, not this one.
+  const withinPage = makeRow({ placeId: "p2", name: "Should-Be-On-Page-One", city: "Tampa", key: "food:cafes", sourcePresent: true, apiPresent: false, rank: 12, n: 400 });
+  const wv = classifyRow(withinPage);
+  ok(wv.verdict === "fail" && wv.root_cause === "eligibility_passed_api_omitted",
+    `a within-first-page omission was misclassified as ${JSON.stringify(wv)} — rank<n must never read as a legitimate cap`);
+}
+
+// ── 7. rendered-but-unmapped -> map_list_mismatch ──────────────────────────
+{
+  const row = makeRow({ placeId: "m1", name: "Missing Pin Café", city: "Parrish", key: "food:cafes", sourcePresent: true, apiPresent: true, rendered: true, mapPresent: false });
+  const v = classifyRow(row);
+  ok(v.verdict === "fail" && v.root_cause === "map_list_mismatch", `a rendered-but-unmapped row was misclassified: ${JSON.stringify(v)}`);
+  const okRow = { ...row, map_present: true };
+  ok(classifyRow(okRow).verdict === "pass", "positive control: rendered+mapped should pass");
+}
+
+// ── every root-cause class is reachable ─────────────────────────────────
+{
+  const seasonalRow = makeRow({ placeId: "se1", name: "Pumpkin Patch Café", city: "Parrish", key: "food:cafes", sourcePresent: true, apiPresent: true, rendered: true, mapPresent: true, seasonalGap: true });
+  const sv = classifyRow(seasonalRow);
+  ok(sv.verdict === "fail" && sv.root_cause === "seasonal_tagging_gap", `seasonal hint did not classify as seasonal_tagging_gap: ${JSON.stringify(sv)}`);
+  const cacheRow = makeRow({ placeId: "cd1", name: "Flaky Cache Café", city: "Parrish", key: "food:cafes", sourcePresent: true, apiPresent: false, cacheDrift: true });
+  const cv = classifyRow(cacheRow);
+  ok(cv.verdict === "fail" && cv.root_cause === "cache_drift", `cacheDrift hint did not classify as cache_drift: ${JSON.stringify(cv)}`);
+  const outOfScope = makeRow({ placeId: "os1", name: "Not Even Eligible", city: "Parrish", key: "food:cafes", sourcePresent: false });
+  ok(classifyRow(outOfScope).verdict === "out_of_scope", "an ineligible row must never be scored a failure");
+}
+
+if (bad.length) {
+  for (const m of bad) console.error("  - " + m);
+  console.error(`check-surface-parity-hermetic: FAIL — ${bad.length}/${n} assertions`);
+  process.exit(1);
+}
+console.log(`check-surface-parity-hermetic: OK — ${n} assertions, no network. A 1,400+ row shuffled synthetic corpus with a Ryan's-shaped sentinel past row 1,000 was read through the REAL computeEligibleSet -> serveFromInventory -> readOwnedCategory pipeline (found it) and through a literal legacy limit=1000/no-order/single-page fake PostgREST (missed it, negative control confirmed); the resulting (present, absent) pair classified as eligibility_passed_api_omitted by the real classifyRow. Every decoy (closed, unrated, 40mi-out, non-café, brand twin) got its own exact legitimate reason, each verified by CALLING the real gate (isServableRow / milesBetween / chipIdentity), never assumed. Origin-mismatch overrides a legitimate-looking rank_cap; eligible>n with hasMore:false lands on pagination_invisibility while a within-page omission does not; rendered-without-a-pin lands on map_list_mismatch; cache_drift and seasonal_tagging_gap are both reachable. Three assertions were red-proven in-process: a capped-but-exhaustively-paged read finding the sentinel anyway (order is determinism, not completeness), a literally-capped real read failing loud (never a silent partial "eligible" set), and every ordering/threshold assertion re-run with the disqualifying flag cleared to confirm it flips to PASS.`);

@@ -1774,3 +1774,12 @@ node scripts/check-theme-park-coverage.mjs
 # daypart-inappropriate kind ever leads, every daypart keeps a real preferred
 # pick, and it is actually wired into UnifiedBrowseCommerceRail.
 node scripts/check-daypart-crosssell.mjs
+# 2026-09-23 (WS2, surface-parity audit) — the reusable place-card SURFACE
+# PARITY diagnostic (scripts/surface-parity-audit.mjs, scripts/lib/parity/*)
+# stays correct with no network: a 1,400+ row shuffled synthetic corpus with
+# a Ryan's-shaped sentinel past row 1,000, a literal legacy capped/unordered
+# read that misses it, every decoy getting its exact legitimate reason, and
+# the 8-class root-cause classifier's ordering (origin-mismatch overrides a
+# legitimate-looking cap; eligible>n with hasMore:false is pagination
+# invisibility, not the capped-read class).
+node scripts/check-surface-parity-hermetic.mjs

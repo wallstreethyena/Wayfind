@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 703,
-    "totalRegistryEntries": 704,
-    "guardsTxtLineCount": 702,
-    "guardsTxtReachedFileCount": 697,
+    "totalOnDiskGuardFiles": 704,
+    "totalRegistryEntries": 705,
+    "guardsTxtLineCount": 703,
+    "guardsTxtReachedFileCount": 698,
     "criticalCount": 84,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 480,
+      "CALL": 481,
       "RENDER": 83,
       "STRUCTURAL": 140,
       "OTHER": 1
@@ -7801,6 +7801,28 @@
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-surface-parity-hermetic.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 29,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
