@@ -56,7 +56,7 @@ export function buildGuideSeoAudit(sourceInput) {
   });
 
   return {
-    audit_date: "2026-09-10",
+    audit_date: "2026-09-23",
     scope: "All current Wayfind /guides/[slug] entries on the audited source branch.",
     status_vocabulary: ["pass", "fail", "unknown"],
     interpretation: "Pass means the cited source contract was verified. Unknown is never a pass. This artifact does not certify indexing, rankings, Discover eligibility, production uptime, or factual freshness beyond the recorded evidence.",
