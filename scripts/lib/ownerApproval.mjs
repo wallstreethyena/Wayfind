@@ -12,9 +12,10 @@
 // (resolved by GitHub from the authenticated account that posted it, never
 // from git metadata) with a line
 //
-//     /owner-approve <head commit sha, at least 12 hex characters>
+//     /owner-approve <the full 40-character head commit sha>
 //
-// that names the PR's CURRENT head commit. A new push changes the head, so an
+// that names the PR's CURRENT head commit. The full sha, not a prefix: a short
+// prefix can be matched by grinding a different commit, a full SHA-1 cannot. A new push changes the head, so an
 // old approval stops matching: the owner approves exact bytes, not a branch.
 // Only GitHub Actions can read that evidence (the "guards" check and the
 // "owner-approval" check, which applies the BASE branch's copy of this file);
@@ -24,29 +25,33 @@
 // (scripts/check-doc-ownership.mjs) gathers evidence and passes it in, so every
 // rule here is executable in hermetic tests.
 
-// GitHub logins allowed to approve. Compared case-insensitively (GitHub logins are).
-export const OWNER_LOGINS = Object.freeze(["wallstreethyena"]);
+// Accounts allowed to approve: the login (compared case-insensitively, as GitHub
+// does) AND the numeric account id, which never changes, so a renamed or released
+// login that someone else registers later cannot approve.
+export const OWNERS = Object.freeze([Object.freeze({ login: "wallstreethyena", id: 297334934 })]);
+export const OWNER_LOGINS = Object.freeze(OWNERS.map((o) => o.login));
 
 // Owner-only paths: rule-defining documents, plus the pieces that enforce this
-// rule, so a pull request cannot quietly weaken its own gate.
+// rule, so a pull request cannot quietly weaken its own gate. Case-insensitive:
+// on a case-insensitive checkout (macOS) "claude.md" IS CLAUDE.md.
 export const OWNER_ONLY = Object.freeze([
-  /^AGENTS\.md$/,
-  /^CLAUDE\.md$/,
-  /^LOCKS\.md$/,
-  /^QUEUE\.md$/,
-  /^docs\/[^/]*-standard\.md$/,
-  /^scripts\/check-doc-ownership\.mjs$/,
-  /^scripts\/check-owner-approval-pr\.mjs$/,
-  /^scripts\/lib\/ownerApproval\.mjs$/,
-  /^scripts\/lib\/githubPullEvidence\.mjs$/,
-  /^scripts\/test-owner-approval\.mjs$/,
-  /^\.github\/workflows\/guards\.yml$/,
-  /^\.github\/workflows\/owner-approval\.yml$/,
-  /^\.github\/CODEOWNERS$/,
+  /^AGENTS\.md$/i,
+  /^CLAUDE\.md$/i,
+  /^LOCKS\.md$/i,
+  /^QUEUE\.md$/i,
+  /^docs\/[^/]*-standard\.md$/i,
+  /^scripts\/check-doc-ownership\.mjs$/i,
+  /^scripts\/check-owner-approval-pr\.mjs$/i,
+  /^scripts\/lib\/ownerApproval\.mjs$/i,
+  /^scripts\/lib\/githubPullEvidence\.mjs$/i,
+  /^scripts\/test-owner-approval\.mjs$/i,
+  /^\.github\/workflows\/guards\.yml$/i,
+  /^\.github\/workflows\/owner-approval\.yml$/i,
+  /^\.github\/CODEOWNERS$/i,
 ]);
 
 export const APPROVAL_COMMAND = "/owner-approve";
-const APPROVAL_LINE = /^\/owner-approve[ \t]+([0-9a-fA-F]{12,40})[ \t]*$/gm;
+const APPROVAL_LINE = /^\/owner-approve[ \t]+([0-9a-fA-F]{40})[ \t]*$/gm;
 const SHA40 = /^[0-9a-f]{40}$/;
 
 export function isOwnerOnly(path) {
@@ -57,24 +62,25 @@ export function ownerOnlyChanges(paths) {
   return (Array.isArray(paths) ? paths : []).filter(isOwnerOnly);
 }
 
-function isOwnerLogin(login, owners) {
-  return typeof login === "string" && owners.some((o) => o.toLowerCase() === login.toLowerCase());
+function isOwner(user, owners) {
+  return typeof user.login === "string" && Number.isSafeInteger(user.id)
+    && owners.some((o) => o.id === user.id && o.login.toLowerCase() === user.login.toLowerCase());
 }
 
 /**
  * Find an owner approval for exactly `headSha` among GitHub issue comments
- * (REST shape: { id, body, user: { login, type }, html_url }).
+ * (REST shape: { id, body, user: { login, id, type }, html_url }).
  * Returns the approving comment or null. Never throws on odd input.
  */
-export function findOwnerApproval(comments, headSha, owners = OWNER_LOGINS) {
+export function findOwnerApproval(comments, headSha, owners = OWNERS) {
   const head = String(headSha || "").toLowerCase();
   if (!SHA40.test(head) || !Array.isArray(owners) || !owners.length) return null;
   for (const comment of Array.isArray(comments) ? comments : []) {
     const user = comment && comment.user;
-    if (!user || user.type !== "User" || !isOwnerLogin(user.login, owners)) continue;
+    if (!user || user.type !== "User" || !isOwner(user, owners)) continue;
     const body = typeof comment.body === "string" ? comment.body : "";
     for (const match of body.matchAll(APPROVAL_LINE)) {
-      if (head.startsWith(match[1].toLowerCase())) return comment;
+      if (match[1].toLowerCase() === head) return comment;
     }
   }
   return null;
@@ -110,7 +116,7 @@ export function decideOwnerApproval(evidence) {
   }
   const approval = findOwnerApproval(evidence.comments, pr.liveHeadSha);
   if (!approval) {
-    return { ok: false, protectedPaths, reason: `owner-only files changed (${list}) with no owner approval for head ${pr.liveHeadSha.slice(0, 12)}. The owner (${OWNER_LOGINS.join(", ")}) approves by commenting on PR #${pr.number}: "${APPROVAL_COMMAND} ${pr.liveHeadSha.slice(0, 12)}", then re-running this check` };
+    return { ok: false, protectedPaths, reason: `owner-only files changed (${list}) with no owner approval for head ${pr.liveHeadSha.slice(0, 12)}. The owner (${OWNER_LOGINS.join(", ")}) approves by commenting on PR #${pr.number}: "${APPROVAL_COMMAND} ${pr.liveHeadSha}" (the full sha), then re-running the checks` };
   }
   return { ok: true, protectedPaths, reason: `owner-only files changed (${list}); approved by @${approval.user.login} for head ${pr.liveHeadSha.slice(0, 12)} in comment ${approval.id}` };
 }

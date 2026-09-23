@@ -10,16 +10,22 @@ change only with the owner's approval:
   `.github/workflows/guards.yml`, `.github/workflows/owner-approval.yml`,
   `.github/CODEOWNERS`
 
-The list lives in `scripts/lib/ownerApproval.mjs` (`OWNER_ONLY`).
+The list lives in `scripts/lib/ownerApproval.mjs` (`OWNER_ONLY`). Paths match
+case-insensitively, because on a Mac `claude.md` is the same file as `CLAUDE.md`.
 
 ## What counts as approval
 
-A comment on the pull request, posted from an owner GitHub login
-(`OWNER_LOGINS`, currently `wallstreethyena`), with its own line:
+A comment on the pull request, posted from the owner's GitHub account
+(`OWNERS`: login `wallstreethyena` and account id `297334934`, so a renamed
+or re-registered login does not count), with its own line:
 
 ```
-/owner-approve <first 12 or more characters of the PR's current head commit>
+/owner-approve <the PR's current head commit, all 40 characters>
 ```
+
+The failing check prints the exact line to paste. A shortened sha does not
+count, because a different commit with the same short prefix can be made on
+purpose.
 
 GitHub authenticates who posted a comment, so it can't be faked by editing a
 commit. The command names one exact commit. Pushing anything new changes the
@@ -52,12 +58,22 @@ approvals. That is on purpose: a local pass must never look like approval.
 After the owner comments, re-run both checks on the pull request (the
 "Re-run jobs" button on each), or push again and approve the new head.
 
-## Known limit
+## Known limits
 
-GitHub can't tell the owner apart from a tool that is signed in to the owner's
-own account. Agents that use the owner's `gh` login could post the comment too.
-The rule for agents is to post `/owner-approve` only when the owner explicitly
-instructs it for that exact change, and to say in the same comment that they
-are posting on his instruction. The durable fix is to give agents their own
-GitHub identity, such as a free GitHub App. The owner's comment is then
-something no agent can produce.
+1. **Agents share the owner's account.** GitHub can't tell the owner apart from
+   a tool signed in to the owner's own account, so agents using the owner's
+   `gh` login could post the comment too. The rule for agents is to post
+   `/owner-approve` only when the owner explicitly instructs it for that exact
+   change, and to say in the same comment that they are posting on his
+   instruction.
+2. **Required checks are matched by name.** On a repository owned by a personal
+   account, branch protection accepts any GitHub Actions job with the required
+   name. A pull request that adds its own workflow with a job called
+   `owner-approval` or `guards` could report a passing check under that name.
+   Pinning a required workflow by file needs GitHub Enterprise.
+
+Both have the same free fix: a GitHub App owned by the owner. Agents act as the
+App, so an owner comment is something no agent can produce, and the approval
+check is posted by the App, whose key sits in an environment that only `main`
+can use, so no pull request can post a check in its name. Branch protection
+then pins the required check to that App.
