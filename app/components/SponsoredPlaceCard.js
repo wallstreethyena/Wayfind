@@ -111,7 +111,7 @@ export default function SponsoredPlaceCard({ pick, onLog }) {
           {branch || pick.advertiser}{distance ? " · " + distance + " away" : ""}{Number.isFinite(Number(pick.rating)) ? " · " + Number(pick.rating).toFixed(1) + "★" : ""}{Number.isFinite(Number(pick.reviews)) ? " · " + Number(pick.reviews).toLocaleString() + " Google reviews" : ""}
         </div>
         {pick.body ? <p className="wf-place-card-attachment-body">{pick.body}</p> : null}
-        <a href={pick.outboundHref} target="_blank" rel="sponsored nofollow noopener" onClick={onBook}
+        <a href={pick.outboundHref} target="_blank" rel="sponsored nofollow noopener" data-commerce-owner="SponsoredPlaceCard" onClick={onBook}
           aria-label={pick.cta + " at " + pick.advertiser + (branch ? " " + branch : "")}
           className="wf-place-card-attachment-primary">
           {pick.cta} <span aria-hidden="true">→</span>

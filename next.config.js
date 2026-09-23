@@ -12,17 +12,20 @@ const { withSentryConfig } = require("@sentry/nextjs/config");
 
 const CSP_REPORT_ONLY = [
   "default-src 'self'",
-  // tp-em.com = Travelpayouts "Drive" verification + tracking script (app/layout.js,
-  // v6.19). It loads the script from tp-em.com AND beacons to tp-em.com/collect*, so
-  // it needs BOTH script-src and connect-src. It was the ONLY origin firing CSP
-  // reports in Report-Only (verified live 2026-07-15 on the home route) — i.e. the
-  // one thing that would break on the enforce-flip. Same class as scripts.stay22.com.
+  // tp-em.com = Travelpayouts "Drive" verification + tracking script. It was
+  // loaded from app/layout.js (v6.19) until the 2026-09-22 click-hijack fix
+  // REMOVED that script outright (site verification already passed; live
+  // Travelpayouts revenue runs through lib/travelpayouts.js's server-buildable
+  // tpDeepLink(), unaffected) — so tp-em.com is deliberately gone from both
+  // script-src and connect-src below. scripts.stay22.com stays: Stay22
+  // LinkSwap is still loaded, now scoped to the one route with a raw OTA link
+  // for it to rewrite (app/components/Stay22LinkSwap.js) instead of site-wide.
   // Google tag (gtag.js) for Ads AW-18342267447 + GA4. googletagmanager.com
   // was MISSING while the Ads tag was already live in app/layout.js — harmless
   // only because this header is Report-Only. On the enforce-flip the tag would
   // have died silently and taken every conversion with it. googleadservices.com
   // is the Ads conversion-tracking script gtag pulls in when a conversion fires.
-  "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://scripts.stay22.com https://tp-em.com https://maps.googleapis.com https://maps.gstatic.com https://cdn.apple-mapkit.com https://us-assets.i.posthog.com https://www.googletagmanager.com https://www.googleadservices.com",
+  "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://scripts.stay22.com https://maps.googleapis.com https://maps.gstatic.com https://cdn.apple-mapkit.com https://us-assets.i.posthog.com https://www.googletagmanager.com https://www.googleadservices.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' data: https://fonts.gstatic.com",
   // v5.56 (premium redesign, Phase 3 — image pipeline): the event + booking
@@ -67,7 +70,7 @@ const CSP_REPORT_ONLY = [
   // NOT adding securepubads / pagead2 / static.doubleclick: those are ad-SERVING
   // and viewability endpoints, and Wayfind serves no ads — blocking them is
   // correct and keeps the policy tight.
-  "connect-src 'self' https://*.googleapis.com https://*.supabase.co wss://*.supabase.co https://api.open-meteo.com https://marine-api.open-meteo.com https://us.i.posthog.com https://us.posthog.com https://us-assets.i.posthog.com https://*.stay22.com https://tp-em.com https://o4511751348486144.ingest.us.sentry.io https://tiles.openfreemap.org https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://www.google.com https://googleads.g.doubleclick.net https://ad.doubleclick.net https://cdn.apple-mapkit.com https://*.apple-mapkit.com",
+  "connect-src 'self' https://*.googleapis.com https://*.supabase.co wss://*.supabase.co https://api.open-meteo.com https://marine-api.open-meteo.com https://us.i.posthog.com https://us.posthog.com https://us-assets.i.posthog.com https://*.stay22.com https://o4511751348486144.ingest.us.sentry.io https://tiles.openfreemap.org https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://www.google.com https://googleads.g.doubleclick.net https://ad.doubleclick.net https://cdn.apple-mapkit.com https://*.apple-mapkit.com",
   "worker-src 'self' blob: https://*.apple-mapkit.com",
   // v5.94: the /trending/[city] pages load click-to-load creator-video embeds by
   // id (TikTok player, YouTube-nocookie, Instagram). CSP is Report-Only today, so a

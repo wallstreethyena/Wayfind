@@ -619,6 +619,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
                 href={partnerHref}
                 target="_blank"
                 rel="sponsored noopener"
+                data-commerce-owner="IconicPlaceCard"
                 aria-label={`Partner tickets for ${place.name} via ${partner.merchant}`}
                 title="Partner link. Wayfind may earn a commission; rankings never change."
                 onClick={(event) => {

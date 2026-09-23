@@ -66,6 +66,7 @@ export default function TrackedOfferLink({
       href={finalHref}
       target="_blank"
       rel="noreferrer sponsored"
+      data-commerce-owner="TrackedOfferLink"
       style={style}
       onClick={() => {
         if (clicked.current) return; // one click per link per view

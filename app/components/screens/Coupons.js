@@ -219,6 +219,7 @@ function CouponCard({ c, position, ctx }) {
           {c.url ? (
             <a
               href={c.url} target="_blank" rel="noreferrer sponsored nofollow"
+              data-commerce-owner="CouponCard"
               onClick={(e) => {
                 e.preventDefault();
                 const clickId = mintClickId();

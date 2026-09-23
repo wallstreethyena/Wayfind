@@ -430,6 +430,11 @@ node scripts/check-guards-can-fail.mjs
 node scripts/check-provider-redirects.mjs
 node scripts/test-redirect-integrity.mjs
 node scripts/check-direct-affiliate-urls.mjs
+
+# 2026-09-22 click-hijack fix: no site-wide third-party auto-linker script in
+# app/layout.js (Stay22 LinkSwap route-scoped, Travelpayouts Drive removed).
+node scripts/check-no-sitewide-autolinker.mjs
+
 node scripts/check-doc-ownership.mjs
 node scripts/test-doc-ownership-shallow.mjs
 node scripts/test-safe-force-push.mjs
