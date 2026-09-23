@@ -90,7 +90,7 @@ export default function DestinationStays({ destinations = [] }) {
     <style dangerouslySetInnerHTML={{ __html: `
       .wf-fall-destination-stays .wf-rail-heading{align-items:flex-start;flex-wrap:wrap}
       .wf-fall-destination-stays .wf-rail-heading-controls{display:flex;align-items:center;justify-content:space-between;flex-wrap:nowrap;gap:10px;flex:0 1 auto;max-width:100%;min-width:0}
-      .wf-fall-destination-stays .wf-rail-heading-controls>label{flex:1 1 auto;min-width:0;max-width:100%}
+      .wf-fall-destination-stays .wf-rail-heading-controls>label{flex:1 1 auto;min-width:0;max-width:100%;white-space:nowrap}
       .wf-fall-destination-stays .wf-rail-heading-controls select{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
       .wf-fall-destination-stays .wf-rail-heading-controls .wf-rail-nav{flex:0 0 auto}
       @media(max-width:520px){.wf-fall-destination-stays .wf-rail-heading-controls{width:100%;flex-basis:100%;margin-left:0}}

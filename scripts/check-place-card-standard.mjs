@@ -303,8 +303,13 @@ if (!browserConfig) {
   });
   const eventPlaces = [place("event-a"), place("event-b")].map((item) => ({ ...item, href: `/p/${item.id}`, editorial: "A verified local favorite." }));
   const event = React.createElement(EventNearbyCards, { places: eventPlaces });
-  const stayPlaces = [place("stay-a", "Sarasota Harbor Hotel"), place("stay-b", "Gulf Coast Inn")].map((item) => ({ ...item, detailHref: `/p/${item.id}`, blurb: "A practical stay near the venue.", mapsOnly: false }));
+  const stayPlaces = [place("stay-a", "Sarasota Harbor Hotel"), place("stay-b", "Carlisle Inn & Conference Center Sarasota Waterfront Suites")].map((item) => ({ ...item, types: ["hotel", "lodging"], address: "1 Hotel Way, Orlando, FL", city: "Orlando", detailHref: `/p/${item.id}`, blurb: "A practical stay near the venue.", mapsOnly: false }));
   const stays = React.createElement(EventStayCards, { places: stayPlaces });
+  // 2026-09-23: stay cards carry "Check rates" INSIDE the fixed-height card.
+  // A long hotel name plus the CTA must still leave every control inside the
+  // card box (the controls-inside-card assertion below), so the probe must
+  // actually render the CTA, and one name is deliberately three lines long.
+  ok(renderToStaticMarkup(stays).includes("wf-place-card-cta"), "PROBE: event stay fixture renders the in-card Check rates slot");
   const thing = React.createElement(ThingsCard, { r: { id: "tour", kind: "experience", title: "Sarasota Guided Mangrove Tunnel Kayak Tour", rating: 4.8, reviews: 240, price_from: 59, duration_min: 120 }, rank: 1, city: "Sarasota" });
   const sponsorRow = sponsoredPlaceById("rio-body-wax-gastonia");
   ok(!!sponsorRow, "PROBE: real sponsored registry row exists for the rendered sponsor adapter");
