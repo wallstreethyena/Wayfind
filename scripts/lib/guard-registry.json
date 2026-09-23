@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 699,
-    "totalRegistryEntries": 700,
-    "guardsTxtLineCount": 698,
-    "guardsTxtReachedFileCount": 693,
+    "totalOnDiskGuardFiles": 700,
+    "totalRegistryEntries": 701,
+    "guardsTxtLineCount": 699,
+    "guardsTxtReachedFileCount": 694,
     "criticalCount": 84,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 477,
+      "CALL": 478,
       "RENDER": 83,
       "STRUCTURAL": 139,
       "OTHER": 1
@@ -2569,11 +2569,33 @@
       "owner": null
     },
     {
+      "file": "scripts/check-event-outing.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 103,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/check-event-pairings.mjs",
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 43,
+      "assertionCount": 50,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -11343,7 +11365,7 @@
       "npmScript": null,
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 35,
+      "assertionCount": 42,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

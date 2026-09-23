@@ -857,6 +857,11 @@ node scripts/check-fall-share.mjs
 # floor-gated, genuinely nearby, /p/ links) and the hub becomes visual place
 # cards whose badge is the DATE, never a Wayfind Score (an event is dated)
 node scripts/check-event-pairings.mjs
+# 2026-09-22 — every event page recommends BEFORE/AFTER places for what the
+# event actually is (a concert vs. a food festival vs. a kids' matinee), not
+# a generic top-rated shelf. lib/eventOuting.js is the outing engine; this is
+# its guard (see docs/proposals/events-outing-intelligence.md).
+node scripts/check-event-outing.mjs
 # 2026-08-22 — the owner's handpicked board (lib/localPicks.js) IS the "What
 # Should We Do Today?" card, for one town and one hour. Four failures this
 # pins, none of which anything else in the suite would notice: a radius wide
