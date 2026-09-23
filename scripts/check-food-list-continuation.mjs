@@ -102,5 +102,58 @@ ok(/const ranked = \(places \|\| \[\]\)\.filter\(\(p\) => p && p\.lat != null &&
    !/const ranked = \(places \|\| \[\]\)\.filter\([^)]*\)\.slice\(/.test(VIEW),
   "MapView caps pin membership below the list again — see check-map-place-card.mjs for the full pin-density contract");
 
+// ── 7. 2026-09-23 fix round (item 1) — the MAIN category browse surface (the
+// browseCat view.map(PlaceCard) block, distinct from the exploreList above)
+// must ALSO reach past its own capped page: it used to print "That's all N
+// spots" unconditionally, which is false the instant the route says hasMore.
+// The control is a SHARED component (MoreSpotsButton, ONE definition) so
+// assertion 5 above ("exactly one line of button text outside comments")
+// keeps holding even though it now mounts on two screens. ──
+ok(/function MoreSpotsButton\(\{ onClick \}\) \{/.test(HOME),
+  "MoreSpotsButton (the ONE shared \"Wayfind 5 more spots\" component) is missing — item 1 needs a single definition both screens can render");
+ok((HOME.match(/function MoreSpotsButton\(/g) || []).length === 1,
+  "MoreSpotsButton is defined more than once — the whole point of extracting it was ONE definition, not a second copy per screen");
+ok((HOME.match(/<MoreSpotsButton\b/g) || []).length === 2,
+  `MoreSpotsButton is rendered ${(HOME.match(/<MoreSpotsButton\b/g) || []).length} time(s) — it must mount on BOTH the Food/category list (exploreList) and the main category browse surface, never zero, never a third place`);
+ok(/\{invMoreCanContinue \? \(\s*<MoreSpotsButton onClick=\{loadMoreInventory\}/.test(HOME),
+  "the main category browse surface does not render MoreSpotsButton when invMoreCanContinue is true — rows past the capped page would stay unreachable while the end-of-feed line still claimed completeness");
+ok(/That's all \{view\.length\}/.test(HOME),
+  "the main browse surface's \"That's all N spots\" line is gone entirely — completeness still needs to be stated when it is actually true");
+// The old, unconditional render is gone: the line must sit behind the
+// invMoreCanContinue ternary's ELSE branch, not print regardless of hasMore.
+ok(/invMoreCanContinue \? \(\s*<MoreSpotsButton onClick=\{loadMoreInventory\} \/>\s*\) : \(\(\) => \{/.test(HOME),
+  "\"That's all N spots\" is not gated on !invMoreCanContinue (still printed even when the server says there is more) — the exact bug item 1 fixes");
+
+// ── 8. 2026-09-23 fix round (item 3) — appending a page must not collapse the
+// list the button was just asked to grow. invAppendingRef is set ONLY inside
+// loadMoreInventory's own setPlaces updater (never unconditionally, or a
+// no-op append with zero new rows would leave it stuck true and eat the NEXT
+// real category switch's reset) and consumed once by the reset effect. ──
+ok(/const invAppendingRef = useRef\(false\)/.test(HOME),
+  "invAppendingRef is missing — nothing tells the setVisibleCount(5) reset effect that a places change was an append, not a new result set");
+ok(/if \(invAppendingRef\.current\) \{ invAppendingRef\.current = false; return; \}/.test(HOME),
+  "the setVisibleCount(5) reset effect does not consume invAppendingRef — an appended page would still collapse back to 5 cards");
+ok(/if \(!add\.length\) return prev;[\s\S]{0,400}invAppendingRef\.current = true;/.test(HOME),
+  "loadMoreInventory does not set invAppendingRef.current right where it decides an append actually happened — setting it unconditionally would leave it stuck true after a no-op fetch and eat the NEXT real category switch's reset");
+
+// ── 9. 2026-09-23 fix round (item 6) — stale async races. (a) loadMoreInventory
+// must re-check the query identity AFTER the await, against a LIVE read of
+// invMoreRef.current (the closure's own cat/sub/center cannot have changed
+// mid-call, so only a live ref proves whether a concurrent fetch effect moved
+// on). (b) _invAll's writes to invMoreRef.current must be guarded by this
+// effect's own `cancelled` flag. ──
+ok(/const liveMeta = invMoreRef\.current;/.test(HOME) && /stillCurrent/.test(HOME),
+  "loadMoreInventory does not re-read invMoreRef.current after the await to detect a query change mid-flight");
+ok(/if \(!stillCurrent\) return;/.test(HOME),
+  "loadMoreInventory does not drop a stale page once the query changed during its own fetch");
+ok((HOME.match(/!cancelled\)[\s\S]{0,40}invMoreRef\.current = /g) || []).length >= 3,
+  "_invAll (or its error path) writes invMoreRef.current without checking this effect's own `cancelled` flag at one of its THREE write sites (hotels branch, success branch, the new r.ok-false branch)");
+
+// ── 10. 2026-09-23 fix round (item 5, client half) — a FAILED inv=1 response
+// (503, per the route's own fail-loud fix) must count as a fetch error, not
+// read as "this category has nothing". ──
+ok(/if \(!r\.ok\) \{\s*_fetchErrs\+\+;/.test(HOME),
+  "_invAll does not check r.ok before reading the response body — a 503 (places:[]) would be indistinguishable from a genuinely empty category and would not increment _fetchErrs");
+
 if (bad) { console.error(`\ncheck-food-list-continuation: FAIL — ${bad}/${n} assertions`); process.exit(1); }
-console.log(`check-food-list-continuation: OK — ${n} assertions (the Food/category list walks the server's offset pages through the SAME control, deduped and appended, and the map beside it stays uncapped)`);
+console.log(`check-food-list-continuation: OK — ${n} assertions (the Food/category list AND the main browse surface both walk the server's offset pages through the ONE shared control, appends never collapse the list, stale pages are dropped, failed reads count as errors, and the map beside the list stays uncapped)`);

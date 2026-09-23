@@ -102,7 +102,13 @@ const realCafes = Array.from({ length: REAL_CAFE_N }, (_, i) => {
     primary_type: "coffee_shop", google_types: ["coffee_shop", "cafe"],
     cuisines: [], status: "OPERATIONAL", excluded: false,
     signals: { rating: 4.6 + (i % 4) / 10, reviews: 80 + i * 10 },
-    photo_ref: null,
+    // 2026-09-23 fix round, item 7 — a REAL DB value, standing in for what the
+    // underlying wf_inventory row actually carries. The box read must NOT
+    // return this (EXHAUSTIVE_INVENTORY_FIELDS excludes photo_ref) — the
+    // PostgREST double below PROJECTS each row onto its requested `select`
+    // list, so this only reaches a served place if the SEPARATE, served-rows-
+    // only photo hydration call fetches it back.
+    photo_ref: `places/wf_test_cafe_${i}/photos/native`,
   };
 });
 
@@ -115,7 +121,7 @@ const ryans = {
   primary_type: RYANS_COFFEE_HOUSE.primaryType, google_types: ["coffee_shop", "cafe"],
   cuisines: [], status: "OPERATIONAL", excluded: false,
   signals: { rating: 4.9, reviews: 205 },
-  photo_ref: null,
+  photo_ref: `places/${RYANS_COFFEE_HOUSE.placeId}/photos/native`, // see realCafes above
 };
 
 // Decoys — every one absent from the served food:cafes set, each for a
@@ -212,20 +218,45 @@ function parseBoxQuery(url) {
   const raw = u.search;
   const num = (re) => { const m = raw.match(re); return m ? Number(m[1]) : null; };
   const inListMatch = raw.match(/place_id=in\.\(([^)]*)\)/);
+  const select = u.searchParams.get("select") || "";
+  const isInListRead = !!inListMatch && !/lat=gte\./.test(raw);
+  // Quoted ids (lib/ownedPool.js's hydratePhotoRefs double-quotes each id —
+  // "a comma or parenthesis in a place_id can never split the list") vs the
+  // bare, individually-encoded ids hydrateEditorialFor's in.() list uses.
+  const inList = inListMatch
+    ? decodeURIComponent(inListMatch[1]).split(",").map((s) => s.trim().replace(/^"|"$/g, "")).filter(Boolean)
+    : null;
   return {
     order: u.searchParams.get("order") || "",
+    select,
+    selectFields: select.split(",").map((s) => s.trim()).filter(Boolean),
     minLat: num(/lat=gte\.(-?[\d.]+)/), maxLat: num(/lat=lte\.(-?[\d.]+)/),
     minLng: num(/lng=gte\.(-?[\d.]+)/), maxLng: num(/lng=lte\.(-?[\d.]+)/),
     isBoxRead: /lat=gte\./.test(raw),
-    isEditorialRead: !!inListMatch && !/lat=gte\./.test(raw),
-    inList: inListMatch ? decodeURIComponent(inListMatch[1]).split(",").map((s) => s.trim()).filter(Boolean) : null,
+    // 2026-09-23 fix round, item 7 — editorial and photo_ref are now TWO
+    // separate in.() hydration calls, distinguished by their `select`, not
+    // conflated into one "isEditorialRead" bucket.
+    isEditorialRead: isInListRead && select.includes("editorial"),
+    isPhotoRead: isInListRead && select.includes("photo_ref"),
+    inList,
   };
 }
 function jsonRes(body, okStatus = true, status = okStatus ? 200 : 500) {
   return { ok: okStatus, status, json: async () => body, text: async () => JSON.stringify(body) };
 }
+// Real PostgREST returns ONLY the requested columns. The fixture rows carry
+// every field regardless of what is asked for, so without this projection a
+// box read would leak `photo_ref` into the response even after
+// EXHAUSTIVE_INVENTORY_FIELDS stopped requesting it — silently proving
+// nothing about the fix. Projecting makes the field list itself load-bearing.
+function project(row, fields) {
+  if (!fields || !fields.length) return row;
+  const out = {};
+  for (const f of fields) out[f] = row[f];
+  return out;
+}
 
-let calls = [];       // reset per scenario: {kind:"box"|"editorial", ...}
+let calls = [];       // reset per scenario: {kind:"box"|"editorial"|"photo", ...}
 let failPlan = null;  // {from, timesLeft} — the box page at `from` fails `timesLeft` times
 
 function installMock() {
@@ -238,11 +269,18 @@ function installMock() {
       calls.push({ kind: "editorial", url, ids: q.inList || [] });
       return jsonRes((q.inList || []).map((id) => ({ place_id: id, editorial: null })));
     }
+    if (q.isPhotoRead) {
+      calls.push({ kind: "photo", url, ids: q.inList || [] });
+      return jsonRes((q.inList || []).map((id) => {
+        const row = world.find((r) => r.place_id === id);
+        return { place_id: id, photo_ref: (row && row.photo_ref) || null };
+      }));
+    }
     const rangeHeader = String((init && init.headers && init.headers.Range) || "");
     const m = rangeHeader.match(/^(\d+)-(\d+)$/);
     const from = m ? Number(m[1]) : 0;
     const to = m ? Number(m[2]) : from + 999;
-    calls.push({ kind: "box", url, order: q.order, range: rangeHeader, from, to });
+    calls.push({ kind: "box", url, order: q.order, range: rangeHeader, from, to, select: q.select });
     if (failPlan && failPlan.from === from && failPlan.timesLeft > 0) {
       failPlan.timesLeft--;
       return jsonRes({ message: "synthetic failure" }, false, 500);
@@ -251,7 +289,7 @@ function installMock() {
     if (q.order === "place_id.asc") {
       matches = matches.slice().sort((a, b) => (a.place_id < b.place_id ? -1 : a.place_id > b.place_id ? 1 : 0));
     }
-    return jsonRes(matches.slice(from, to + 1));
+    return jsonRes(matches.slice(from, to + 1).map((row) => project(row, q.selectFields)));
   };
   return () => { globalThis.fetch = orig; };
 }
@@ -285,6 +323,22 @@ function installMock() {
   ok(editorialCalls.length > 0, "editorial hydration ran for the served page");
   ok(servedIds.every((id) => editorialIds.has(id)), "editorial hydration requested EVERY served id");
   ok([...editorialIds].every((id) => servedIds.includes(id)), "editorial hydration requested ONLY served ids — never the full eligible set or a decoy");
+
+  // ── 2026-09-23 fix round, item 7 — photo_ref: dropped from the box read,
+  // hydrated back for served rows only. ──
+  const boxCallSelects = boxCalls.map((c) => c.select);
+  ok(boxCallSelects.every((s) => !s.split(",").includes("photo_ref")), "the box read's own `select` still requests photo_ref — EXHAUSTIVE_INVENTORY_FIELDS must not carry it");
+  ok(boxCallSelects.every((s) => s.split(",").includes("name") && s.split(",").includes("signals")), "FIXTURE SANITY: the box read's select is otherwise unchanged (still requests name, signals, …)");
+  const photoCalls = calls.filter((c) => c.kind === "photo");
+  const photoIds = new Set(photoCalls.flatMap((c) => c.ids));
+  ok(photoCalls.length > 0, "a separate photo_ref hydration call ran for the served page");
+  ok(servedIds.every((id) => photoIds.has(id)), "photo_ref hydration requested EVERY served id");
+  ok([...photoIds].every((id) => servedIds.includes(id)), "photo_ref hydration requested ONLY served ids — never the full eligible set, filler, or a decoy");
+  const ryansServed = result.places.find((p) => p.id === RYANS_COFFEE_HOUSE.placeId);
+  ok(!!ryansServed && ryansServed.photo_ref === `places/${RYANS_COFFEE_HOUSE.placeId}/photos/native`,
+    "Ryan's served place object does not carry the hydrated photo_ref — the exhaustive read must stay byte-identical in shape to before this split");
+  ok(!!ryansServed && Array.isArray(ryansServed.photos) && ryansServed.photos[0] && ryansServed.photos[0].name === ryansServed.photo_ref,
+    "Ryan's served place's photos[0].name does not mirror the hydrated photo_ref — this is the exact shape invRowToPlace produced when photo_ref rode along on the box read");
 }
 
 // bonus: options.skipEditorial means no hydration call at all
@@ -294,7 +348,12 @@ function installMock() {
   try {
     await serveFromInventory("food", CENTER.lat, CENTER.lng, RADIUS_M, 5, "cafes", { env: FIXTURE_ENV, primaryOnly: true, skipEditorial: true });
   } finally { uninstall(); }
-  ok(!calls.some((c) => c.kind === "editorial"), "options.skipEditorial suppresses hydration entirely — a caller that hydrates its own final set must not pay for it twice");
+  ok(!calls.some((c) => c.kind === "editorial"), "options.skipEditorial suppresses editorial hydration entirely — a caller that hydrates its own final set must not pay for it twice");
+  // 2026-09-23 fix round, item 7 — photo_ref hydration is a SEPARATE concern
+  // from skipEditorial (which has only ever meant "the caller hydrates
+  // EDITORIAL text itself"). Every caller, skipEditorial or not, received
+  // photo_ref on served rows before this split, and must still receive it.
+  ok(calls.some((c) => c.kind === "photo"), "options.skipEditorial must NOT suppress photo_ref hydration — every caller received photo_ref on served rows before this split, skipEditorial or not");
 }
 
 // ══════════════ SCENARIO 2 — a page failure is never a silent empty answer ══════════════
@@ -375,9 +434,71 @@ function installMock() {
   ok(page3.meta.offset + page3.meta.served === page3.meta.eligible, "page3 (the last page): offset+served == eligible -> hasMore reads false");
 }
 
+// ══════════════ SCENARIO 5 — a per-page RETRY is clamped to what remains of
+// the TOTAL budget, never the page's own (stale) ms — item 8 of the 2026-09-23
+// fix round audit. Deterministic: Date.now() is monkey-patched to a fake
+// clock the fake page-fetch itself advances, so this needs no real sleeping
+// and cannot flake under CI load. options.fetchImpl (readExhaustiveRows'
+// OWN test seam — see its `const baseFetch = options.fetchImpl ||
+// fetchDeadline`) is used directly, so this observes the exact `ms` every
+// physical attempt receives with no need to mock the global fetch. ══════════
+{
+  const realNow = Date.now;
+  let clock = 1_000_000; // arbitrary fixed epoch — only the DELTA matters
+  Date.now = () => clock;
+  const seenMs = [];
+  let attempt = 0;
+  const fakeFetchImpl = async (url, init, ms) => {
+    seenMs.push(ms);
+    attempt++;
+    if (attempt === 1) {
+      clock += 800; // the first attempt eats 800 of the 1000ms TOTAL budget before failing
+      return jsonRes({ message: "synthetic 500" }, false, 500);
+    }
+    return jsonRes([]); // the retry — an empty (short) page completes the read cleanly
+  };
+  let threw = null;
+  try {
+    await serveFromInventory("food", CENTER.lat, CENTER.lng, RADIUS_M, 5, "cafes", {
+      env: FIXTURE_ENV, primaryOnly: true,
+      fetchImpl: fakeFetchImpl, deadlineMs: 900, totalDeadlineMs: 1000,
+    });
+  } catch (e) { threw = e; } finally { Date.now = realNow; }
+  ok(threw === null, `the retry (clamped or not) should let this read complete, not throw: ${threw && threw.message}`);
+  ok(seenMs.length === 2, `the failed page retried exactly once (saw ${seenMs.length} attempt(s))`);
+  ok(seenMs[0] === 900, `the FIRST attempt gets the full per-page budget (900ms), got ${seenMs[0]}`);
+  ok(seenMs[1] < seenMs[0], `the RETRY's ms (${seenMs[1]}) is not clamped below the page's own ms (${seenMs[0]}) once 800 of the 1000ms total budget is already spent`);
+  ok(seenMs[1] <= 200, `the RETRY's ms (${seenMs[1]}) does not reflect only what remains of the 1000ms total budget after the first attempt's simulated 800ms — it should be ~200ms, not the page's full 900ms ceiling`);
+}
+// The SAME clamp must not let a retry proceed with a non-positive budget —
+// it should give up rather than issue a request with an already-exhausted
+// (or negative) deadline.
+{
+  const realNow = Date.now;
+  let clock = 1_000_000;
+  Date.now = () => clock;
+  const seenMs = [];
+  let attempt = 0;
+  const fakeFetchImpl = async (url, init, ms) => {
+    seenMs.push(ms);
+    attempt++;
+    clock += 1000; // consume the ENTIRE total budget on the first attempt alone
+    return jsonRes({ message: "synthetic 500" }, false, 500);
+  };
+  let threw = null, resultSoft = null;
+  try {
+    resultSoft = await serveFromInventory("food", CENTER.lat, CENTER.lng, RADIUS_M, 5, "cafes", {
+      env: FIXTURE_ENV, primaryOnly: true,
+      fetchImpl: fakeFetchImpl, deadlineMs: 900, totalDeadlineMs: 1000,
+    });
+  } catch (e) { threw = e; } finally { Date.now = realNow; }
+  ok(seenMs.length === 1, `with NO budget left after the first attempt, no second physical request is issued (saw ${seenMs.length})`);
+  ok(Array.isArray(resultSoft) && resultSoft.length === 0, "an exhausted-budget failure still answers (a plain empty array, non-failLoud), never hangs or throws unexpectedly");
+}
+
 if (fail.length) {
   console.error(`check-inventory-serve-complete-read: FAIL (${fail.length} of ${pass + fail.length})`);
   for (const m of fail) console.error("  ✗ " + m);
   process.exit(1);
 }
-console.log(`check-inventory-serve-complete-read: OK (${pass} assertions) — the box read is exhaustive, ordered, paged, decoy-safe and reports its own truncation`);
+console.log(`check-inventory-serve-complete-read: OK (${pass} assertions) — the box read is exhaustive, ordered, paged, decoy-safe, reports its own truncation, hydrates photo_ref for served rows only, and clamps a page retry to the remaining total budget`);
