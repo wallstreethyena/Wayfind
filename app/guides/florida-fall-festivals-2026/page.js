@@ -598,7 +598,7 @@ export default function FloridaFallGuide() {
           </p>
         </aside>
 
-        <div className={styles.disclosure}>Some links in this guide are affiliate links. Wayfind may earn a commission if you book through them, at no extra cost to you. That does not affect which places are included.</div>
+        <div className={styles.disclosure}>We may earn a commission when you book through partner links. It never changes our rankings.</div>
       </div>
     </main>
   );

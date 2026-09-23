@@ -273,7 +273,7 @@ export default async function CuratedEventPage({ params }) {
             aria-label={ticket.label.replace(" ↗", "") + " for " + e.event_name}>
             {"🎟️ " + ticket.label}
           </a>
-          <p style={S.disclosure}>Ticket link is an affiliate link; Wayfind may earn a commission. It never changes what we recommend.</p>
+          <p style={S.disclosure}>We may earn a commission when you book through partner links. It never changes our rankings.</p>
         </div>
       ) : null}
 

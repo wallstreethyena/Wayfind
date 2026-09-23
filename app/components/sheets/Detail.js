@@ -222,7 +222,7 @@ function WayfindTakeRail({ editorial }) {
 function FTCDisclosure() {
   return (
     <div style={{ fontSize: 10.5, color: C.muted, margin: "7px 2px 0", textAlign: "center" }}>
-      Wayfind may earn a commission when you book through this link, at no extra cost to you. It never changes our scores or rankings.
+      We may earn a commission when you book through partner links. It never changes our rankings.
     </div>
   );
 }
@@ -505,6 +505,9 @@ export default function DetailSheet({ ctx }) {
   // above every early return. See lib/pinQuarantine.js.
   const pinQ = usePinQuarantine();
   const primaryCta = resolveDetailCta({ detail, kind: placeKind(detail), viaTours, locName, offers, openState, catalog: pinQ });
+  // The one disclosure line under the primary action. When it renders, the
+  // BookingCTA disclosure lower in the sheet stays off (one line per sheet).
+  const ftcNearPrimary = !!(detail && !detail._event && primaryCta && primaryCta.monetized && (primaryCta.exact || (primaryCta.type !== DETAIL_CTA_TYPES.tickets && primaryCta.type !== DETAIL_CTA_TYPES.rates)));
   const verdict = detailVerdict({ detail, weather, openState });
   const ctaCategory = Dining.cuisineLabel(detail) || primaryCategory(detail) || placeKind(detail) || "";
   const ctaCity = locName ? locName.split(",")[0] : "";
@@ -909,7 +912,7 @@ export default function DetailSheet({ ctx }) {
                     onClick={handlePrimaryCtaClick}
                   />
                 </div>
-                {!detail._event && primaryCta.monetized && (primaryCta.exact || (primaryCta.type !== DETAIL_CTA_TYPES.tickets && primaryCta.type !== DETAIL_CTA_TYPES.rates)) && <FTCDisclosure />}
+                {ftcNearPrimary && <FTCDisclosure />}
                 {/* One balanced secondary bar. Directions used to occupy a row
                     by itself above reactions, which made the dock look like two
                     unrelated button systems. Keep every secondary action on the
@@ -960,7 +963,9 @@ export default function DetailSheet({ ctx }) {
                 return <a href={_vu} rel="noreferrer sponsored" style={{ display: "block", textAlign: "center", fontSize: 12, fontWeight: 800, color: C.light, textDecoration: "none", margin: "8px 2px 0" }}>Prefer a whole place? Vacation rentals on VRBO ↗</a>;
               })()}
 
-              <BookingCTA variant="disclosure" detail={detail} kind={placeKind(detail)} viaTours={viaTours} />
+              {/* 2026-09-23 (owner): ONE disclosure line per detail sheet. When the
+                  line already rendered under the primary action, this one stays off. */}
+              {!ftcNearPrimary && <BookingCTA variant="disclosure" detail={detail} kind={placeKind(detail)} viaTours={viaTours} />}
               {Array.isArray(detail._children) && detail._children.length ? (
                 <section data-contained-venues style={{ margin: "10px 0 16px", padding: "13px 14px", background: "rgba(255,255,255,.025)", border: `1px solid ${C.border}`, borderRadius: 14 }}>
                   <div style={{ fontSize: 10.5, fontWeight: 800, color: C.light, letterSpacing: ".6px", textTransform: "uppercase" }}>Inside {detail.name}</div>

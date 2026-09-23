@@ -168,7 +168,7 @@ ok(/import \{[^}]*eventTicketCta[^}]*\} from "\.\.\/\.\.\/\.\.\/\.\.\/lib\/event
 ok(!/href:\s*deal\.affiliate_url/.test(route) && !/affiliate_url/.test(rails), "neither the route's payload nor the rail component ever renders wf_deals.affiliate_url");
 ok(/import \{[^}]*eventTicketCta[^}]*\} from "\.\.\/\.\.\/\.\.\/lib\/eventTicketDeals\.js"/.test(page) && /const ticket = eventTicketCta\(e\.event_id/.test(page), "the /florida-events page resolves its ticket through the same registry");
 ok(/<a style=\{S\.tix\} href=\{ticket\.href\} target="_blank" rel="sponsored nofollow noopener"/.test(page), "…and renders it as a disclosed, sponsored, new-tab link");
-ok(/affiliate link; Wayfind may earn a commission/.test(page), "…with a proximate disclosure");
+ok(/We may earn a commission when you book through partner links\. It never changes our rankings\./.test(page), "…with a proximate disclosure");
 ok(/import \{[^}]*eventTicketHref[^}]*\} from "\.\/eventTicketDeals\.js"/.test(curated) && /url:\s*eventTicketHref\(row\.event_id/.test(curated), "curatedToFeedEvent's url is the commerce redirect when a deal exists");
 ok(/const live = commerceHref\(\{ provider: card\.ticket\.provider/.test(rails) && /sponsored: true/.test(rails), "the rail CTA re-mints a click id on press and is marked sponsored");
 

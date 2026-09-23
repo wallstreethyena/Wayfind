@@ -171,8 +171,8 @@ ok(fullIds.every((id) => fullHtml.includes("offer=" + encodeURIComponent(id))),
   "every rendered card carries its opaque offer id on the Wayfind redirect");
 ok(!/https?:\/\/(?:www\.)?(?:viator\.com|tiqets\.com)/.test(fullHtml),
   "rendered markup exposes no raw affiliate destination URL");
-ok(/Wayfind may earn a commission when you book through these links, at no extra cost to you\. It never changes our scores or rankings\./.test(fullHtml),
-  "commission disclosure remains present and still says rankings never change");
+ok(!/earn a commission/i.test(fullHtml),
+  "no inline commission disclosure renders on the rail (one footer disclosure plus one on true detail pages is the law now)");
 
 const byId = new Map(valid40.map((row) => [row.code, row]));
 const renderedScores = fullIds

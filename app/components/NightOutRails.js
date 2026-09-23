@@ -91,7 +91,6 @@ function NightOutRailSection({
         Best match tonight — the only verified guided night activity in this market
       </p>
       <NightTourProductCards items={[soloProduct]} city={city} />
-      <p style={{ margin: "9px 0 0", fontSize: 10.5, color: C.muted, lineHeight: 1.45 }}>Wayfind may earn a commission when you book through this Viator link, at no extra cost to you. It never changes our rankings.</p>
     </section>
   );
   if (soloItem) {
@@ -173,7 +172,6 @@ function NightOutRailSection({
         {loadingMore ? <div className="wf-rail-card wf-exploding-primary wf-sk" role="status" aria-busy="true" aria-label={`Loading more ${rail.title}`}
           style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 88, color: C.muted, fontSize: 12.5 }}>Loading more…</div> : null}
       </div>
-      {tourProducts.length ? <p style={{ margin: "9px 0 0", fontSize: 10.5, color: C.muted, lineHeight: 1.45 }}>Wayfind may earn a commission when you book through these Viator links, at no extra cost to you. It never changes our rankings.</p> : null}
       {eventCards.length + tourProducts.length + items.length > 1 ? <RailDots railId={railId} count={eventCards.length + tourProducts.length + items.length} /> : null}
     </section>
   );

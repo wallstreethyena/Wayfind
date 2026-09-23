@@ -80,7 +80,13 @@ const rows = rowsRaw.replace(/\/\*[\s\S]*?\*\//g, " ").split("\n").filter((l) =>
   .replace(/\{\/\*[\s\S]*?\*\/\}/g, " ");
 
 ok(/resolveRowCta\(/.test(page), "the page resolves each row's CTA through the ONE ladder");
-ok(/showsDisclosure\(/.test(rows), "the rows gate the FTC line on showsDisclosure(), not on 'a CTA exists'");
+// The per-row "we may earn a commission" line was removed (owner,
+// 2026-09-23: no repeated inline commission lines under lists) — this is a
+// hub/list surface, not a true detail page, so the site's ONE footer
+// disclosure plus one line per detail page covers it now. showsDisclosure()
+// itself is still exercised and still discriminates paid vs. unpaid above;
+// only its render call site on this list is gone.
+ok(!/earn a commission/i.test(rows), "the rows render no inline commission disclosure (one footer disclosure plus one on true detail pages is the law now)");
 const CuisineListClient = (await loadComponent(path.resolve(R), path.resolve("."))).default;
 const fixtureCta = { type: "directions", label: "Directions", href: "https://maps.example/place", monetized: false, provider: null, offerId: null };
 const editorialHook = "Hand-folded soup dumplings and a glass-walled kitchen make the craft visible from every table.";

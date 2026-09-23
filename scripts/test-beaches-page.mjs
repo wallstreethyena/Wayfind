@@ -129,7 +129,7 @@ ok(!/["'`][^"'`]*\.(png|jpe?g|webp)["'`]/.test(og), "no static file may stand in
   ok(/href=\{t\.url\}/.test(ts) && /\/pid=\/\.test\(t\.url\)/.test(ts), "tour links must be Viator's OWN product_url VERBATIM (mcid+pid intact) — a link missing pid= never ships (never hand-built, never unattributed)");
   ok(ts.includes('rel="noopener sponsored nofollow"'), "affiliate links must carry nofollow+sponsored");
   ok(ts.includes("items.length < 2") && /return null/.test(ts), "the section hides below 2 tours — never a lonely ad");
-  ok(ts.includes("may earn a commission"), "the disclosure line is required");
+  ok(!ts.includes("earn a commission"), "TourStrip renders no inline commission disclosure (one footer disclosure plus one on true detail pages is the law now)");
   ok(ts.includes("wayfindScore(t.rating, t.reviews)"), "tour tiles carry the ONE Score");
 }
 // v6.55b Stay lane: the house hotel pattern, honestly.

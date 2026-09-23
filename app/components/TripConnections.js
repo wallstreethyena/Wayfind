@@ -63,7 +63,6 @@ export function TripConnectionsContent({ state, currentKey, titleId, center, onO
         {state.kind === "stays" ? <div style={{ marginTop: 8 }}>
           {item.mapsOnly ? <a href={item.detailHref} style={{ color: "#AAB4C2", fontSize: 12.5 }}>View in Apple Maps</a> : null}
           <BookingCTA variant="primary" detail={item} kind="hotels" label="Check rates" />
-          <BookingCTA variant="disclosure" detail={item} kind="hotels" />
         </div> : null}
       </div>)}
     </div>

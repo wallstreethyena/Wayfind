@@ -24,7 +24,6 @@
 import { useEffect, useRef } from "react";
 import { track } from "../../../../lib/track";
 import { emitCommerce, rankBucket, mintClickId } from "../../../../lib/commerce";
-import { showsDisclosure } from "../../../../lib/rowCta";
 import IconicPlaceCard from "../../../components/IconicPlaceCard";
 // funnelProps emits the COMMERCE dialect (city_id/category/canonical_place_id).
 // Sending `metro`/`cuisine` here would be silently DROPPED by the commerce
@@ -125,9 +124,6 @@ export default function CuisineListClient({ places, metro, cuisine }) {
                 </a>
               ) : null}
 
-              {showsDisclosure(cta) ? (
-                <div className="wf-sl-ftc">We may earn a commission — never affects ranking.</div>
-              ) : null}
             </div>
           </li>
         );

@@ -28,7 +28,7 @@ ok(/if \(!pick\.image/.test(partner) && !/Wayfind bookable/.test(partner), "card
 ok(/via \{pick\.merchant\}/.test(partner), "each card must identify its provider");
 ok(/evidenceScore\(b\) - evidenceScore\(a\)/.test(partner), "the complete mixed list must be ordered by evidence");
 ok(/railRef\.current/.test(partner) && /rail\.scrollLeft = 0/.test(partner) && /\[city, intent\]/.test(partner), "a city or intent change must reset the rail to its top-ranked card");
-ok((partner.match(/never changes our scores or rankings/g) || []).length === 1, "the sheet rail must render one disclosure");
+ok(!/earn a commission/i.test(partner), "the sheet rail must render no inline commission disclosure (one footer disclosure plus one on true detail pages is the law now)");
 
 // 2026-08-04 — this pinned the count at 3, which froze the rail's reach as
 // correct: it mounted on attractions, family and hotels, and Food, Nightlife,

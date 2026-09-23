@@ -389,7 +389,6 @@ export function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub,
           );
         })}
       </div>
-      <div style={{ fontSize: 10, color: C.muted, marginTop: 7, lineHeight: 1.4 }}>Wayfind may earn a commission when you book through these links, at no extra cost to you. It never changes our scores or rankings.</div>
     </aside>
   );
 }
