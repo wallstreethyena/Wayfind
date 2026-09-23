@@ -32,7 +32,7 @@ export default function EventNearbyCards({ places = [] }) {
           editorialTier="known"
           surface="event_nearby"
           eagerMedia
-          rankingNote={place.rankingNote || `Nearby place — ${Number(place.distMi).toFixed(1)} miles from the event venue`}
+          rankingNote={place.rankingNote || `Nearby place · ${Number(place.distMi).toFixed(1)} miles from the event venue`}
         />
       ))}
     </EventPlaceRail>

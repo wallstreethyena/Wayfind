@@ -271,7 +271,32 @@ const RANKING_NOTE_RX = / · \d+\.\d mi from the venue$/;
     if (dashRx.test(copy.railNote)) labelOffenders.push(`${archetype} railNote: "${copy.railNote}"`);
   }
   ok(labelOffenders.length === 0, `no reader-facing SLOT_TABLE/outingCopy string contains a dash (offenders: ${labelOffenders.join("; ") || "none"})`);
+  // The hours ban covers EVERY reader-facing string, not just one archetype's
+  // output (a "After hours" club_night label slipped past a concert-only dump).
+  const hoursRx = /open (late|until|now)|hours/i;
+  const hoursOffenders = [];
+  for (const [archetype, slots] of Object.entries(SLOT_TABLE)) {
+    for (const slot of slots) if (hoursRx.test(slot.label)) hoursOffenders.push(`${archetype}.${slot.key}: "${slot.label}"`);
+  }
+  for (const archetype of OUTING_ARCHETYPES) {
+    const copy = outingCopy(archetype);
+    if (hoursRx.test(copy.railTitle) || hoursRx.test(copy.railNote)) hoursOffenders.push(`${archetype} copy`);
+  }
+  ok(hoursOffenders.length === 0, `no reader-facing SLOT_TABLE/outingCopy string claims hours (offenders: ${hoursOffenders.join("; ") || "none"})`);
 }
+
+// 15. Event SHAPE beats start time (Fable audit 2026-09-23, real curated rows).
+{
+  const bluegrass = classifyEvent({ event_name: "Thanksgiving Bluegrass Festival", category: "music", subcategory: "music-festival", start_date: "2026-11-26", end_date: "2026-11-29", start_time: "12:00:00" });
+  ok(bluegrass.archetype === "festival_allday", `a noon, multi day music festival is festival_allday, not a dinner and nightcap concert (got ${bluegrass.archetype})`);
+  const lights = classifyEvent({ event_name: "Holiday Lights Walk", category: "holiday", subcategory: "holiday lights", start_date: "2026-11-27", end_date: "2026-12-31", start_time: "17:30:00" });
+  ok(lights.archetype === "family_evening", `a 17:30 multi day holiday lights run is family_evening (got ${lights.archetype})`);
+  const crawl = classifyEvent({ event_name: "Zombie Pub Crawl", category: "halloween", subcategory: "bar-crawl", start_date: "2026-10-31", start_time: "19:00:00", minimum_age: null });
+  ok(crawl.adult === true && crawl.alreadyFed === true, "a bar crawl with no minimum_age is still adult and already fed");
+  const market = classifyEvent({ name: "The Market at Waterside Place", segment: "Community", genre: "Farmers market" });
+  ok(market.archetype === "festival_fed", `a live seed farmers market (genre only) is festival_fed (got ${market.archetype})`);
+}
+
 
 // 12. classifyEvent({}) is a generic archetype, and AVOID still applies.
 {
@@ -317,6 +342,47 @@ const RANKING_NOTE_RX = / · \d+\.\d mi from the venue$/;
   ok(normalClassy.length === 0, "red proof control: show_classy's own slot exclude keeps a night club out");
   const sabotagedClassy = fillOutingSlots(classyCtx, soleNightClub, { max: 8, min: 3, ignoreSlotExclude: true });
   ok(sabotagedClassy.length === 1, "red proof: bypassing the per-slot exclude lets the night club through — proves the exclude list is load-bearing");
+}
+
+// 14. Regressions found running the engine against LIVE inventory, 2026-09-23.
+{
+  // 14a. A kids show is a family outing before it is theater. "Disney Junior
+  //      Live" (segment Family, genre Children's Theatre, 11:00) resolved to
+  //      show_matinee and was handed a wine bar.
+  const kidsTheater = classifyEvent({ name: "Disney Junior Live", segment: "Family", genre: "Children's Theatre", time: "11:00:00" });
+  ok(kidsTheater.archetype === "family_day", `a Family segment children's theatre show classifies as family_day (got ${kidsTheater.archetype})`);
+  const kidsPicks = fillOutingSlots(kidsTheater, downtown(), { max: 8, min: 3 });
+  ok(kidsPicks.length >= 3 && !kidsPicks.some((p) => ALCOHOL_TYPES.has(p.primaryType)), "the children's theatre picks contain zero alcohol types");
+  // 14b. Family flag vetoes alcohol in ANY archetype (a family day game).
+  const familyGame = classifyEvent({ name: "Family Day: Rays vs. Red Sox", segment: "Sports", genre: "Baseball", time: "13:10" });
+  ok(familyGame.family === true, "a Family Day game carries the family flag");
+  const gamePicks = fillOutingSlots(familyGame, downtown(), { max: 8, min: 3 });
+  ok(!gamePicks.some((p) => ALCOHOL_TYPES.has(p.primaryType)), "a family flagged game never gets an alcohol stop, whatever archetype it lands in");
+  // 14c. A specific primaryType is the place's identity; a secondary Google
+  //      type may not relabel it. A coffee_shop typed "bar" was labeled
+  //      "Wine before"; a cocktail_bar typed "cafe" was labeled "Brunch before".
+  const trickRows = [
+    row("Cafe Arts", "coffee_shop", 0.2, 96, ["coffee_shop", "cafe", "bar"]),
+    row("Intermezzo Coffee & Cocktails", "cocktail_bar", 0.2, 96, ["cocktail_bar", "cafe", "bar"]),
+    ...downtown(),
+  ];
+  const classy = fillOutingSlots(classifyEvent({ name: "Masterworks", segment: "Arts & Theatre", genre: "Classical", time: "19:30" }), trickRows, { max: 8, min: 3 });
+  const wineMislabel = classy.find((p) => p.name === "Cafe Arts" && /wine|drink/i.test(p.outing.slotLabel));
+  ok(!wineMislabel, "a coffee shop is never labeled as a wine or drink stop because of a secondary type");
+  const dayGame = fillOutingSlots(classifyEvent({ name: "Rays vs. Red Sox", segment: "Sports", genre: "Baseball", time: "13:10" }), trickRows, { max: 8, min: 3 });
+  const brunchMislabel = dayGame.find((p) => p.name === "Intermezzo Coffee & Cocktails" && /brunch|lunch|breakfast|coffee/i.test(p.outing.slotLabel));
+  ok(!brunchMislabel, "a cocktail bar is never labeled as a brunch or coffee stop because of a secondary type");
+  // 14d. Every slotted (non overflow) pick's own primaryType is one the slot
+  //      names, or a generic food identity. The label on a card must be true.
+  const GENERIC = new Set(["restaurant", "food", "point_of_interest", "establishment", "store", "food_store", ""]);
+  const honest = (picks, archetype) => picks.every((p) => {
+    if (p.outing.slotKey === "also_nearby") return true;
+    const slot = (SLOT_TABLE[archetype] || []).find((s) => s.key === p.outing.slotKey);
+    if (!slot) return false;
+    const pool = new Set([...(slot.primary || []), ...(slot.any || [])]);
+    return pool.has(p.primaryType) || GENERIC.has(p.primaryType || "");
+  });
+  ok(honest(classy, "show_classy") && honest(dayGame, "sports_day") && honest(kidsPicks, "family_day"), "every slotted pick's primaryType matches the slot its card label names");
 }
 
 // outingCacheKey sanity — used by lib/eventPairingsCache.js to split the

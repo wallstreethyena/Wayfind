@@ -233,6 +233,24 @@ cached, `cache: "no-store"` reads current inventory), and now passes
    overflow avoid set automatically — you do not need to hand-maintain a
    second avoid list for the new archetype.
 
+## Rules learned from the live inventory run (2026-09-23)
+
+The engine was run against real Wayfind inventory for five real event shapes
+before shipping (Michael Franti at Jannus Live, a Rays day game, a kids show at
+the Straz, the Sarasota Orchestra, a downtown St. Pete food festival). Three
+rules came out of it and are locked in `scripts/check-event-outing.mjs` (14a to 14d):
+
+1. **A kids show is a family outing first.** Family events that are not flagged
+   adult resolve to `family_day` / `family_evening` ahead of theater and
+   concerts. "Disney Junior Live" at 11am had resolved to a matinee and was
+   handed a wine bar.
+2. **The family flag vetoes alcohol in every archetype**, not only in the
+   family archetypes (a Family Day ballgame, a family food festival).
+3. **The card label must match the place.** A secondary Google type can only
+   slot a place whose own primary type is generic ("restaurant"). A coffee shop
+   that Google also tags "bar" is never labeled "Wine before", and a cocktail bar
+   tagged "cafe" is never labeled "Brunch before".
+
 ## Research sources
 
 The archetype/slot judgment calls above are grounded in, not invented from:
