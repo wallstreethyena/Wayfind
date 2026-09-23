@@ -56,6 +56,13 @@ const FIXTURE_GUIDES = {
       { name: "No PlaceId Pick", city: "Sarasota", blurb: LONG_BLURB },
     ],
   },
+  "st-armands-fixture": {
+    title: "St. Armands Circle (fixture)",
+    region: "Sarasota",
+    picks: [
+      { name: "Lucky 8", placeId: "ChIJfixtureLONGblurb0001", city: "Sarasota", blurb: "A second guide naming the same restaurant." },
+    ],
+  },
   "no-picks-array-fixture": { title: "Empty", region: "Nowhere" },
   "not-a-guide-fixture": null,
 };
@@ -142,6 +149,23 @@ ok(/mergePlacePage\(id,\s*\{\s*skel,\s*details,\s*atlas,\s*guide\s*\}\)/.test(pl
 const placeIndexSrc = readFileSync(new URL("../lib/placeIndex.js", import.meta.url), "utf8");
 ok(/listGuidePlaceIds\(\)/.test(placeIndexSrc) && /unionIndexedAndAtlasIds\([A-Za-z0-9_]+,\s*listGuidePlaceIds\(\)\)/.test(placeIndexSrc),
   "listIndexedIds unions in listGuidePlaceIds() for the sitemap/generateStaticParams");
+
+// ── 8b. A place named by more than one guide credits EVERY guide, and the
+// sitemap union lists only guide picks that are indexable on their own. ────
+const multi = guidePlaceFor("ChIJfixtureLONGblurb0001", idx);
+ok(multi.guideSlug === "sarasota-restaurants-fixture", "the FIRST guide stays the primary attribution");
+ok(Array.isArray(multi.alsoIn) && multi.alsoIn.length === 1 && multi.alsoIn[0].slug === "st-armands-fixture" && multi.alsoIn[0].title === "St. Armands Circle (fixture)",
+  "a second guide naming the same placeId is recorded in alsoIn (slug + title)");
+ok(guidePlaceFor("ChIJfixtureSHORTblurb002", idx).alsoIn.length === 0, "a single-guide pick has an empty alsoIn");
+const fixtureSitemapIds = listGuidePlaceIds(idx);
+ok(fixtureSitemapIds.includes("ChIJfixtureLONGblurb0001"), "a substantive-blurb pick is in the sitemap union");
+ok(!fixtureSitemapIds.includes("ChIJfixtureSHORTblurb002") && !fixtureSitemapIds.includes("ChIJfixtureNOBLURB00003"),
+  "stub/no-blurb picks are NOT in the sitemap union (their page can render noindex; a noindex URL must never be submitted)");
+for (const id of listGuidePlaceIds()) ok(guidePlaceHasSubstantiveDetail(guidePlaceFor(id)), `real sitemap union id ${id} is indexable on its guide blurb alone`);
+const placePageSrc = readFileSync(new URL("../lib/placePage.js", import.meta.url), "utf8");
+ok(/p\.guide\.alsoIn\.map\(/.test(placePageSrc) && /Also featured in/.test(placePageSrc), "the place page renders a link to every other guide in alsoIn");
+const allowSrc = readFileSync(new URL("../lib/atlasPlaceAllowlist.js", import.meta.url), "utf8");
+ok(/alsoIn: Array\.isArray\(guide\.alsoIn\)/.test(allowSrc), "mergePlacePage carries alsoIn through to the page");
 
 // ── 9. GUIDES itself must still parse and every real guide keeps a `picks`
 // array — buildGuidePlaceIndex(GUIDES) silently returning {} on a shape
