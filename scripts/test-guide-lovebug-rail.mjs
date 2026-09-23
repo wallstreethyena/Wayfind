@@ -290,8 +290,8 @@ ok(!handoffEmitsStatewideNear(statewide), `statewide text handoff omits near=Flo
 ok(!/[?&]near=/.test(statewide), "statewide text fallback has no invented near market");
 
 const byId = guideAppHandoffHref("The Bishop Museum of Science and Nature", { region: "Florida" }, { placeId: gulf[0].placeId });
-ok(byId === "/places/" + encodeURIComponent(gulf[0].placeId), "exact place identity opens the place page");
-ok(!handoffEmitsStatewideNear(byId), "place-page handoff never carries near=Florida, FL");
+ok(byId === "/p/" + encodeURIComponent(gulf[0].placeId), "exact place identity opens the full app detail");
+ok(!handoffEmitsStatewideNear(byId), "full-detail handoff never carries near=Florida, FL");
 
 const orlando = guideAppHandoffHref("Orlando Science Center", { region: "Orlando" }, {});
 ok(orlando.includes("near=" + encodeURIComponent("Orlando, FL")), "Orlando guides still emit near=Orlando, FL");
