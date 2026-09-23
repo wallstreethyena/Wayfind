@@ -17,7 +17,9 @@
 import { serveFromInventory, distMeters } from "../lib/inventoryServe.js";
 import { chipIdentity } from "../lib/chipIdentity.js";
 import { placeAllowed } from "../lib/placeFilter.js";
-import { fallCardClass } from "../lib/fallSkin.js";
+import { fallCardClass, FALL_CARD_IDS } from "../lib/fallSkin.js";
+import { verifiedInSeasonWindow } from "../lib/fallEvidence.js";
+import { siteTodayStr } from "../lib/siteTime.js";
 import { RYANS_COFFEE_HOUSE, PARRISH } from "./lib/synthetic/fixtures.mjs";
 
 let pass = 0;
@@ -153,15 +155,38 @@ const servedIds = (served || []).map((p) => p.id);
 ok(servedIds.includes(RYANS_COFFEE_HOUSE.placeId),
   `the REAL serveFromInventory serves Ryan's Coffee House under food:cafes from a fixture where it sits past row 1,000 (served: ${servedIds.join(",") || "(none)"})`);
 
-// ── 4. THE FALL SKIN — Ryan's Coffee House carries no seasonal styling, ever ──
-// (lib/fallSkin.js's FALL_CARD_IDS does not name it — this pins that absence
-// so a future sweep cannot accidentally paint a café outage sentinel with
-// unrelated seasonal chrome.) Checked on both an in-season and an out-of-
-// season date: the answer must be "" either way, for the same reason either way.
-ok(fallCardClass(RYANS_COFFEE_HOUSE.placeId, "2026-10-15") === "",
-  "fallCardClass(Ryan's, in-season date) is empty — Ryan's is not a fall-pinned place");
+// ── 4. THE FALL SKIN — consistent with the registry, not hardcoded to absent
+// forever. (independent PR #1495 audit fix, 2026-09-23: the old version of
+// this section asserted fallCardClass(Ryan's, ...) === "" unconditionally,
+// which would have gone RED the day Ryan's is legitimately fall-verified and
+// added to lib/fallSkin.FALL_CARD_IDS — a sentinel is supposed to survive a
+// LEGITIMATE change to the thing it watches, not fail on one. The real
+// invariant this guard protects is narrower and permanent: Ryan's card can
+// only ever carry the fall skin IN SEASON, and only if the registry actually
+// names it — never out of season, regardless of registry membership.)
+ok(fallCardClass(RYANS_COFFEE_HOUSE.placeId, "2026-10-15") === (FALL_CARD_IDS.has(RYANS_COFFEE_HOUSE.placeId) ? " wf-fall-card" : ""),
+  "fallCardClass(Ryan's, in-season date) matches registry membership — the skin is exactly as present as FALL_CARD_IDS.has(Ryan's) says, no more and no less");
 ok(fallCardClass(RYANS_COFFEE_HOUSE.placeId, "2026-12-01") === "",
-  "fallCardClass(Ryan's, out-of-season date) is empty");
+  "fallCardClass(Ryan's, out-of-season date) is empty regardless of registry membership — the season gate always wins");
+
+// ── 4b. RED-PROVE the OTHER half of the registry contract: a Ryan's record
+// that DID get into the fall registry but carries no current-season verified
+// evidence must fail check-fall-registry-integrity.mjs's own blocking check.
+// That guard is a standalone script with no exported function, so this
+// exercises its EXACT dependency — verifiedInSeasonWindow(entry.verified,
+// today), the same call scripts/check-fall-registry-integrity.mjs makes per
+// entry — against a synthetic Ryan's-shaped row, proving the invariant on the
+// call rather than re-asserting the guard's source text.
+const today = siteTodayStr();
+// The EXACT gate scripts/check-fall-registry-integrity.mjs computes per entry:
+// `const windowOk = !!entry.verified && verifiedInSeasonWindow(entry.verified, today);`
+const windowOk = (entry) => !!entry.verified && verifiedInSeasonWindow(entry.verified, today);
+ok(windowOk({ verified: undefined }) === false,
+  "a Ryan's record with NO verified date fails check-fall-registry-integrity's windowOk gate");
+ok(windowOk({ verified: "2025-10-01" }) === false, // a real date, but a PRIOR fall season
+  "a Ryan's record verified in a PRIOR fall season fails the same windowOk gate — stale evidence cannot smuggle Ryan's into the registry");
+ok(windowOk({ verified: today }) === true,
+  "positive control — a Ryan's record verified TODAY would pass windowOk, proving the gate above is discriminating rather than always-false");
 
 if (fail.length) {
   console.error(`check-ryans-cafe-sentinel: FAIL (${fail.length} of ${pass + fail.length})`);

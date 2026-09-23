@@ -8,12 +8,22 @@
 // What it does NOT prove is FRESHNESS — that a documented offering is still
 // true. Nothing stopped an entry verified two seasons ago from riding the
 // rail forever. This guard adds that: every FALL_PLACE_IDS member needs a
-// `verified` date that is itself dated inside a fall season window (checked
-// with lib/fallEvidence.verifiedInSeasonWindow, the SAME law fallSkin.js uses
-// for the card itself) — UNLESS it is on the documented, evidence-backed
+// `verified` date that is itself dated inside the CURRENT fall season window
+// (checked with lib/fallEvidence.verifiedInSeasonWindow(verified, today) —
+// the SAME law fallSkin.js uses for the card itself, and the SAME "current
+// season" seasonStart() shares with scripts/check-fall-offering-freshness.mjs)
+// — UNLESS it is on the documented, evidence-backed
 // lib/fallEvidence.YEAR_ROUND_EVERGREEN_IDS list, because its claim is a
-// permanent business trait, not a dated seasonal one. No silent exemptions:
-// every id on that list carries its own justifying comment in fallEvidence.js.
+// permanent business trait, not a dated seasonal one; even those still need a
+// `verified` date inside the CURRENT window, only the literal FALL_TERMS word
+// is waived for them (see evergreenThemeLive()). No silent exemptions: every
+// id on the evergreen list carries its own justifying comment in
+// fallEvidence.js.
+//
+// FIXED 2026-09-23 (independent PR #1495 audit finding): verifiedInSeasonWindow
+// used to read the year OFF the verified date itself, so a verification from a
+// PRIOR season passed this guard forever — see that function's own comment in
+// lib/fallEvidence.js for the exact gap and the fix. `today` is now required.
 //
 // THE STATE AS OF THE SECOND PASS (2026-09-23, orchestrator-directed
 // re-verification): this guard is expected to be GREEN. The first pass left
@@ -105,9 +115,9 @@ for (const id of poolIds) {
   // re-verification time, before `verified` is written here; this guard only
   // confirms the date itself is real and current-season, for every entry.
   const evergreen = YEAR_ROUND_EVERGREEN_IDS.has(id);
-  const windowOk = !!entry.verified && verifiedInSeasonWindow(entry.verified);
+  const windowOk = !!entry.verified && verifiedInSeasonWindow(entry.verified, today);
   if (!windowOk) {
-    blockers.push(`${id}: no 'verified' date inside a fall season window (Aug 26 - Thanksgiving)${entry.verified ? ` — verified=${entry.verified} falls outside it` : " — field is absent"}${evergreen ? " (evergreen id — needs a verified re-check that the theme is live, via lib/fallEvidence.evergreenThemeLive, not a fall-word match)" : ""}`);
+    blockers.push(`${id}: no 'verified' date inside the CURRENT fall season window (Aug 26 - Thanksgiving, as of today ${today})${entry.verified ? ` — verified=${entry.verified} is not inside it (a PRIOR season's own verification no longer counts)` : " — field is absent"}${evergreen ? " (evergreen id — needs a verified re-check that the theme is live, via lib/fallEvidence.evergreenThemeLive, not a fall-word match)" : ""}`);
   }
 
   const until = entry.until || entry.ends;
@@ -124,14 +134,25 @@ for (const b of blockers) console.error("check-fall-registry-integrity: BLOCKED 
 // positive control: fallSeasonEnd is a real function this guard actually
 // calls through verifiedInSeasonWindow's own dependency chain, not a stub
 ok(fallSeasonEnd(2026) === "2026-11-26", `positive control — fallSeasonEnd(2026) is the season law this guard's window check relies on (${fallSeasonEnd(2026)})`);
-// Deliberately proves the "reads the date's OWN year" design (see the
-// function's own comment): 2025-10-01 is inside 2025's window exactly the
-// same way 2026-09-23 is inside 2026's — this is not hardcoded to whatever
-// year happens to be current when the guard runs. 2026-07-04 (before the
-// season starts) and 2026-12-25 (after Thanksgiving) are the negative controls.
-ok(verifiedInSeasonWindow("2026-09-23") === true && verifiedInSeasonWindow("2025-10-01") === true
-  && verifiedInSeasonWindow("2026-07-04") === false && verifiedInSeasonWindow("2026-12-25") === false,
-  "verifiedInSeasonWindow executed against known in/out-of-window dates, across two different years, behaves as documented");
+// RED-PROVE of the exact 2026-09-23 fix (independent PR #1495 audit): a
+// verification from a PRIOR season must NOT pass just because it once fell
+// inside THAT season's own window — this is the literal bug this guard used
+// to assert as correct behavior (`verifiedInSeasonWindow("2025-10-01") ===
+// true`, no `today` in sight). With `today` fixed at 2026-09-23: today itself
+// and the season's own Aug 26 open both pass; a year-ago verification, a date
+// before this year's season opened, and a date in the future all fail.
+ok(verifiedInSeasonWindow("2026-09-23", "2026-09-23") === true
+  && verifiedInSeasonWindow("2026-08-26", "2026-09-23") === true
+  && verifiedInSeasonWindow("2025-10-01", "2026-09-23") === false
+  && verifiedInSeasonWindow("2026-07-04", "2026-09-23") === false
+  && verifiedInSeasonWindow("2026-12-25", "2026-09-23") === false,
+  "verifiedInSeasonWindow(verified, today) executed against known in/out-of-window dates — a PRIOR season's own verification no longer counts as current (the exact fixed bug)");
+// Cross-year sanity: the SAME function, asked from a DIFFERENT `today`, opens
+// a DIFFERENT window — proving the anchor is genuinely `today`, not a
+// hardcoded year baked into the guard.
+ok(verifiedInSeasonWindow("2025-10-01", "2025-10-15") === true
+  && verifiedInSeasonWindow("2025-10-01", "2026-09-23") === false,
+  "the identical verified date passes when `today` is inside ITS season and fails once `today` has moved into the next one");
 
 // ── 4. live checks: OPERATIONAL/excluded + the documented offering is not
 // name-only against the place's REAL name. SKIPs loudly without credentials.

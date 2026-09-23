@@ -19,7 +19,15 @@
 import assert from "node:assert/strict";
 process.env.WF_SUPPRESS_ANALYTICS = "1";
 import { FALL_OFFERING_SOURCES } from "../lib/fallPool.js";
-import { FALL_SEASON_START_MD } from "../lib/fallSkin.js";
+// seasonStart moved to lib/fallEvidence.js 2026-09-23 (independent PR #1495
+// audit) so lib/fallEvidence.verifiedInSeasonWindow can share the SAME
+// "current season" anchor this guard already used — importing it here rather
+// than keeping a second copy is what makes that sharing real instead of two
+// definitions that can drift apart. Re-exported so anything that imported
+// seasonStart from THIS file before the move keeps working.
+import { seasonStart } from "../lib/fallEvidence.js";
+import { siteTodayStr } from "../lib/siteTime.js";
+export { seasonStart };
 
 let n = 0;
 const ok = (c, m) => { assert.equal(!!c, true, m); n++; };
@@ -33,13 +41,6 @@ export function isSeasonalClaim(offering) {
   const s = String(offering || "");
   if (YEAR_ROUND_RX.test(s)) return false;
   return SEASONAL_RX.test(s);
-}
-
-/** Start of the fall season that `todayStr` falls in (or the most recent one). */
-export function seasonStart(todayStr) {
-  const y = Number(todayStr.slice(0, 4));
-  const thisYear = `${y}-${FALL_SEASON_START_MD}`;
-  return todayStr >= thisYear ? thisYear : `${y - 1}-${FALL_SEASON_START_MD}`;
 }
 
 // ── BASELINE ──────────────────────────────────────────────────────────────
@@ -63,7 +64,10 @@ export const BASELINE = Object.freeze({
   // that way.
 });
 
-const today = new Date().toISOString().slice(0, 10);
+// siteTodayStr(), never new Date().toISOString().slice(0,10) — the latter is
+// UTC and would misjudge the season boundary for hours around midnight UTC
+// (8pm US Eastern), a gotcha this repo's own CLAUDE.md calls out by name.
+const today = siteTodayStr();
 const start = seasonStart(today);
 const rows = Object.entries(FALL_OFFERING_SOURCES);
 

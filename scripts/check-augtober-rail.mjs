@@ -74,12 +74,19 @@ ok(FALL_REJECTED_IDS.includes("ChIJUXMXELw9w4gR4TGRAD8NghQ") && FALL_REJECTED_ID
 // REMOVED too (current live menu carries zero fall vocabulary, verified via
 // real-browser re-check). Both assertions below test the SAME invariants —
 // brand dedup, and "researched picks stay IN" — against still-current ids
-// (Dracula's Legacy / ATRIA Cafe) rather than being deleted, so the
-// invariants themselves are not weakened by a registry entry moving.
+// rather than being deleted, so the invariants themselves are not weakened by
+// a registry entry moving.
+// v8.88 (2026-09-23, independent PR #1495 audit fix round, same day): ATRIA
+// Cafe (ChIJA-QkamE7w4gRfdzcxEHyPls) was ALSO removed this round — its
+// re-fetched live Toast menu turned out to be a complete overhaul to a
+// sourdough-pizza program with zero fall vocabulary (lib/fallPool.js's v8.88
+// comment, docs/audits/fall-discovery/2026-09-23.md). Swapped the second half
+// of this assertion to Joy Coffee's fall menu, which was re-checked the same
+// round and KEPT (see lib/fallEvidence.js's anyAvailable price-override fix).
 ok(ids.filter((i) => i === "ChIJIZt3d7DFwogRQ5Lg2tPMXyk").length === 1 && !ids.includes("ChIJw8yuv53hwogRivnj0XblR-k"),
   "one Dracula's Legacy Wine Bar location only — one tile per brand (its duplicate stays rejected)");
-ok(ids.includes("ChIJ7QVjUK_FwogRaTLY8uxOico") && ids.includes("ChIJA-QkamE7w4gRfdzcxEHyPls"),
-  "the researched picks are IN (SpookEasy Lounge; ATRIA Cafe's fall menu) — real offerings, sourced");
+ok(ids.includes("ChIJ7QVjUK_FwogRaTLY8uxOico") && ids.includes("ChIJ1U_vFp0Xw4gRGKl6mJGJ9UI"),
+  "the researched picks are IN (SpookEasy Lounge; Joy Coffee's fall menu) — real offerings, sourced");
 // v8.83 — the 2026-08-27 sweep's two survivors, pinned by id so a later
 // "cleanup" cannot quietly drop the only two places that widened the pool
 // beyond Tampa/Orlando. Fear at the Pier is Panama City's year-round haunt;

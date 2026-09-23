@@ -179,18 +179,27 @@ ok(fallCardClass(solId, "2026-09-10") === " wf-fall-card", "Sōl wears the fall 
 // re-checked this pass and keeps its 2026-09-10 date. Per-id expected dates
 // (not one shared literal) so the assertion follows each venue's own real
 // re-check history rather than forcing all three to share one.
+// v8.88 (2026-09-23, independent PR #1495 audit fix round, same day): ATRIA
+// Cafe REMOVED from the pool entirely — a re-fetch of its live Toast menu
+// (the "2026-09-23 manual WebFetch" verification behind the date above was
+// never actually recorded) found a complete overhaul to a sourdough-pizza
+// program with zero fall vocabulary (lib/fallPool.js's v8.88 comment,
+// docs/audits/fall-discovery/2026-09-23.md). Joy Coffee's own re-fetch this
+// same round found its menu's "Unavailable" markers are Alpine.js template
+// boilerplate present on every catalog item (not per-item stock), each
+// pumpkin item priced and wired for order — kept, `verified` now advances to
+// 2026-09-23 too. Down to two exact local venues.
 const localMenus = [
-  { id: "ChIJ1U_vFp0Xw4gRGKl6mJGJ9UI", name: "Joy Coffee", lat: 27.4597729, lng: -82.5757174, verifiedOn: "2026-09-10" },
-  { id: "ChIJA-QkamE7w4gRfdzcxEHyPls", name: "ATRIA Cafe", lat: 27.4648662, lng: -82.4325881, verifiedOn: "2026-09-23" },
+  { id: "ChIJ1U_vFp0Xw4gRGKl6mJGJ9UI", name: "Joy Coffee", lat: 27.4597729, lng: -82.5757174, verifiedOn: "2026-09-23" },
   { id: "ChIJY5LPSxJAw4gRMhj-bOy9MKU", name: "Buddy Brew Coffee", lat: 27.3364, lng: -82.544416, verifiedOn: "2026-09-23" },
 ];
 ok(localMenus.every(({ id, verifiedOn }) => FALL_PLACE_IDS[id] && FALL_PLACE_RAIL[id] === "food"
   && FALL_OFFERING_SOURCES[id]?.verified === verifiedOn
   && /pumpkin/i.test(FALL_OFFERING_SOURCES[id]?.offering || "")
-  && fallCardClass(id, "2026-09-10") === " wf-fall-card"), "three exact local venues have named pumpkin menu proof, one food assignment and seasonal styling");
+  && fallCardClass(id, "2026-09-10") === " wf-fall-card"), "two exact local venues have named pumpkin menu proof, one food assignment and seasonal styling");
 for (const origin of [{ lat: 27.4989, lng: -82.5748 }, { lat: 27.3364, lng: -82.5307 }]) {
   const answer = composeFallIntentRails([], localMenus.map((p) => ({ ...p, fallRail: FALL_PLACE_RAIL[p.id] })), { ...origin, today: "2026-09-10", now });
-  ok(answer.rails.find((rail) => rail.id === "food").cards.length === 3, "all three verified menu additions qualify from the Gulf Coast without widening food beyond 27 miles");
+  ok(answer.rails.find((rail) => rail.id === "food").cards.length === 2, "both verified menu additions qualify from the Gulf Coast without widening food beyond 27 miles");
 }
 ok(!FALL_PLACE_IDS["ChIJHRtA_2MXw4gR8krgF386Zso"], "First Watch Bradenton is excluded because the official fall menu announcement excludes the Tampa Bay area");
 ok(FALL_PHOTO_PLACE_IDS.length >= 6, "the photo rail has a useful researched Gulf Coast starting set");
