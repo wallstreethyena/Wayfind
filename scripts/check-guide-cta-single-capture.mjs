@@ -31,13 +31,20 @@
  * asserting "commerce_cta_clicked appears in the file" cannot tell one call
  * site from two — this can, because it runs both and counts.
  *
- * RED-PROVE: the exact same guard logic is run a second time against the
- * PRE-FIX source pulled straight from origin/main (git show), on a real
- * monetized fixture. It must record commerce_cta_clicked TWICE — proving the
- * check is not decoration and would have caught the bug it exists for.
+ * RED-PROVE: the exact same guard logic is run a second time against a
+ * PRE-FIX variant built IN MEMORY from the current file: the product event
+ * track("guide_cta_clicked", …) is turned back into the pre-fix
+ * track("commerce_cta_clicked", …), which is exactly the bug. It must record
+ * commerce_cta_clicked TWICE — proving the check is not decoration.
+ *
+ * Why not `git show origin/main:…`: Vercel builds from a shallow clone with no
+ * origin/main (the guard crashed there on the first push), and once this fix
+ * is merged origin/main no longer holds the pre-fix source, so a git-based
+ * red-prove would fail forever after merge. The in-memory mutation needs no
+ * git and stays valid for as long as the file keeps its current shape; if the
+ * shape changes, the mutation's own "applied exactly once" check goes red.
  */
-import { execFileSync } from "node:child_process";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import os from "node:os";
 import { fileURLToPath } from "node:url";
@@ -183,26 +190,28 @@ try {
   }
 
   // -------------------------------------------------------------------------
-  // 3. RED-PROVE — the identical logic against the PRE-FIX source, straight
-  //    from origin/main via `git show`, written to a real file on disk NEXT
-  //    TO the original (same relative depth, so its `../../../lib/...`
-  //    imports resolve exactly like the real file's), loaded, exercised, and
-  //    then deleted whether it passes or throws.
+  // 3. RED-PROVE — the identical logic against a PRE-FIX variant built in
+  //    memory from the current file (the product event turned back into the
+  //    duplicate commerce event), written to a real file on disk NEXT TO the
+  //    original (same relative depth, so its `../../../lib/...` imports
+  //    resolve exactly like the real file's), loaded, exercised, and then
+  //    deleted whether it passes or throws.
   // -------------------------------------------------------------------------
-  console.log("check-guide-cta-single-capture: red-proving against the PRE-FIX origin/main source —");
-  const preFixSrc = execFileSync("git", ["show", "origin/main:app/guides/[slug]/GuideConversion.js"], {
-    cwd: REPO, encoding: "utf8", maxBuffer: 4 * 1024 * 1024,
-  });
-  ok(preFixSrc.length > 500, "red-prove setup: origin/main's GuideConversion.js was actually read (non-trivial length)");
-  ok(/track\(\s*["']commerce_cta_clicked["']/.test(preFixSrc) && /emitCommerce\(\s*["']commerce_cta_clicked["']/.test(preFixSrc),
-    "red-prove setup: origin/main's source still carries BOTH the track() AND emitCommerce() commerce_cta_clicked call sites — otherwise this is not testing the pre-fix bug");
+  console.log("check-guide-cta-single-capture: red-proving against an in-memory PRE-FIX variant —");
+  const currentSrc = readFileSync(path.join(REPO, "app/guides/[slug]/GuideConversion.js"), "utf8");
+  const PRODUCT_CALL = 'track("guide_cta_clicked",';
+  const productCalls = currentSrc.split(PRODUCT_CALL).length - 1;
+  ok(productCalls === 1, `red-prove setup: the current source has exactly ONE ${PRODUCT_CALL} call to turn back into the bug (found ${productCalls})`);
+  const preFixSrc = currentSrc.replace(PRODUCT_CALL, 'track("commerce_cta_clicked",');
+  ok(preFixSrc !== currentSrc && /track\(\s*["']commerce_cta_clicked["']/.test(preFixSrc) && /emitCommerce\(\s*["']commerce_cta_clicked["']/.test(preFixSrc),
+    "red-prove setup: the mutation applied — the variant carries BOTH the track() AND emitCommerce() commerce_cta_clicked call sites, i.e. the pre-fix bug");
 
   const preFixDir = path.join(REPO, "app/guides/[slug]");
   const preFixPath = path.join(preFixDir, `.redprove-preFix-GuideConversion-${process.pid}.js`);
   let preFixResult = null;
   try {
     writeFileSync(preFixPath, preFixSrc);
-    const onDisk = execFileSync("cat", [preFixPath], { encoding: "utf8" });
+    const onDisk = readFileSync(preFixPath, "utf8");
     ok(onDisk === preFixSrc, "red-prove: the pre-fix mutation actually landed on disk, read back and confirmed — not assumed");
 
     const preFixMod = await loadComponent(preFixPath, REPO);
@@ -238,5 +247,5 @@ console.log(
   `check-guide-cta-single-capture: OK — ${pass} assertions ` +
   "(spy positive control; fixed GuideConversion records commerce_cta_clicked exactly once on a monetized click " +
   "and zero times on a non-monetized click, guide_cta_clicked exactly once either way, no event name repeats; " +
-  "red-prove against real origin/main source independently reproduces the double-fire at count=2)"
+  "red-prove against an in-memory pre-fix variant reproduces the double-fire at count=2)"
 );
