@@ -26,6 +26,7 @@ import {
 import {
   guideAppHandoffHref,
   guideNearMarket,
+  guidePlacePath,
   handoffEmitsStatewideNear,
 } from "../lib/guideHandoff.js";
 import { wayfindScore } from "../lib/wayfindScore.js";
@@ -301,6 +302,9 @@ ok(handoffEmitsStatewideNear("/?q=x&intent=place&near=Florida%2C%20FL"), "detect
 ok(handoffEmitsStatewideNear("/?q=x&intent=place&near=Florida,+FL"), "detector catches plus-encoded Florida, FL");
 ok(!handoffEmitsStatewideNear("/?q=x&intent=place&near=Orlando%2C%20FL"), "detector does not flag a real city");
 
+ok(guidePlacePath(gulf[0].placeId) === "/p/" + encodeURIComponent(gulf[0].placeId), "guidePlacePath is the one full-detail route for exact place identity");
+ok(/guidePlacePath\(pick\.placeId\)/.test(pageCode) && !/<a href=\{["']?\/places\//.test(pageCode),
+  "guide pick heading and action cannot bypass the full-detail route with a direct /places anchor");
 ok(/guideAppHandoffHref/.test(pageCode) && !/const nearCity = \(g\.region \|\| "Orlando"\) \+ ", FL"/.test(pageCode),
   "the guide page no longer builds near from g.region unconditionally");
 ok(/inventoryPlacesByExactIds/.test(pageCode) && !/isSsgBuild\(\)/.test(fetchSrc),
