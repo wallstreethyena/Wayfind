@@ -260,6 +260,14 @@ for (const rel of candidates) {
   ok(!staticImport, `${rel} does not STATICALLY import native/OfflineOverlay (only a dynamic() call is allowed) — a static import anywhere pulls the overlay into that file's own chunk regardless of next/dynamic's ssr:false`);
 }
 
+// ── 6b. No white strip behind the status bar (2026-09-23 simulator run) ──
+{
+  const capCfg = stripJs(read("capacitor.config.ts"));
+  const iosBlock = (capCfg.match(/ios:\s*\{([\s\S]*?)\n\s*\},/) || [])[1] || "";
+  ok(/backgroundColor:\s*["']#0D1117["']/.test(iosBlock), "capacitor.config.ts ios.backgroundColor is the Wayfind dark #0D1117, so no white strip shows behind the status bar");
+  ok(!/backgroundColor:\s*["']#0D1117["']/.test("ios: { contentInset: \"always\" }"), "red proof: a config without the ios backgroundColor fails the probe");
+}
+
 // ── 7. Native location instead of the website prompt (2026-09-23) ────────
 // The simulator run showed Safari's "www.gowayfind.com would like to use your
 // current location ... This website will use" sheet inside the app. The fix

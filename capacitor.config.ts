@@ -36,6 +36,11 @@ const config: CapacitorConfig = {
   },
   ios: {
     contentInset: "always",
+    // The web view's own background, visible behind the status bar inset and
+    // during page swaps. Without it iOS paints WHITE there: the simulator run
+    // (2026-09-23) showed a white strip above the dark offline screen, with
+    // the white status bar text invisible on it. Same color as the splash.
+    backgroundColor: "#0D1117",
     // Deterministic native-shell marker. The remote page can render before
     // Capacitor's injected bridge reports its platform; the user-agent marker
     // is present from the WebView's first request and avoids that race.
