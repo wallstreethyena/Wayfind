@@ -441,7 +441,7 @@ export function generateMetadata({ params }) {
     keywords: g.relatedKeywords || (g.keyword ? [g.keyword] : undefined),
     alternates: { canonical: url },
     robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
-    openGraph: { title: g.title, description: g.description, url, siteName: "Wayfind", type: "article", images: [{ url: heroUrl, width: 1200, height: 630, type: "image/png", alt: `${g.title} on Wayfind` }] },
+    openGraph: { title: g.title, description: g.description, url, siteName: "Wayfind", type: "article", images: [{ url: heroUrl, width: 1200, height: 630, type: "image/jpeg", alt: `${g.title} on Wayfind` }] },
     twitter: { card: "summary_large_image", title: g.title, description: g.description, images: [heroUrl] },
   };
 }

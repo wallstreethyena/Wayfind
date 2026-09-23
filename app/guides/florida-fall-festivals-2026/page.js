@@ -72,7 +72,7 @@ export const metadata = {
     title: "33 Florida Fall Picks for 2026",
     description: "Pumpkin patches, haunted nights, markets, fall food and big weekends. Open the map and pick your weekend.",
     url: "/guides/florida-fall-festivals-2026",
-    images: [{ url: shareImage, width: 1200, height: 630, type: "image/png", alt: "Orange pumpkins arranged at a nursery in Davie, Florida — 33 Florida Fall Picks for 2026 on Wayfind" }],
+    images: [{ url: shareImage, width: 1200, height: 630, type: "image/jpeg", alt: "Orange pumpkins arranged at a nursery in Davie, Florida — 33 Florida Fall Picks for 2026 on Wayfind" }],
   },
   twitter: {
     card: "summary_large_image",

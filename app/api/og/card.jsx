@@ -114,6 +114,19 @@ function Mark({ size }) {
   );
 }
 
+// A small drawn star (v9.1, place hero cards) — never a text glyph. Archivo's
+// Latin subset has no U+2605, which is the exact tofu-box regression
+// lib/shareCardCopy.js#placeModel already paid for once ("No star GLYPH
+// anywhere"). Five points, filled flat, no stroke.
+function Star({ size, fill }) {
+  const s = size || 18;
+  return (
+    <svg width={s} height={s} viewBox="0 0 24 24" style={{ display: "flex" }}>
+      <path d="M12 2.6l2.9 6.3 6.8.7-5.1 4.6 1.5 6.8-6.1-3.5-6.1 3.5 1.5-6.8-5.1-4.6 6.8-.7Z" fill={fill} />
+    </svg>
+  );
+}
+
 // A pixel heart, drawn from the same 16x16 grid the /ask page uses so the text
 // card and the page it opens are visibly the same object. It is SVG rects, not
 // an image: nothing to fetch, nothing to 404, and it survives the no-photograph
@@ -334,6 +347,17 @@ export function WayfindHeroCard({ model }) {
           fontSize: 22, fontWeight: 700, color: "#E8C97A", letterSpacing: 2 }}>{m.kicker}</div>
       ) : <div style={{ display: "flex" }} />}
 
+      {/* v9.1 — a PLACE card's rating, star DRAWN (never a text glyph — see
+          the Star component's own comment). Sits between the kicker and the
+          headline; heroCardModel already reserves the extra headroom this
+          needs (HERO_CARD.kickerGapRating) so it never collides with either. */}
+      {m.rating ? (
+        <div style={{ position: "absolute", left: HERO_CARD.padX, top: m.ratingTop, display: "flex", alignItems: "center" }}>
+          <Star size={18} fill="#E8C97A" />
+          <div style={{ display: "flex", fontSize: HERO_CARD.ratingSize, fontWeight: 700, color: WHITE, marginLeft: 9 }}>{m.rating}</div>
+        </div>
+      ) : <div style={{ display: "flex" }} />}
+
       <div style={{ position: "absolute", left: HERO_CARD.padX, top: m.top, display: "flex", flexDirection: "column" }}>
         {lines.map((l, i) => (
           <div key={i} style={{ display: "flex", fontSize: size, fontWeight: 900,
@@ -341,6 +365,17 @@ export function WayfindHeroCard({ model }) {
             color: accent.indexOf(i) >= 0 ? ORANGE_TEXT : WHITE }}>{l}</div>
         ))}
       </div>
+
+      {/* v9.1 — "SEE THE SPOT", place cards only. Sits in the deliberate 72px
+          margin BELOW textBottom (the same margin the top brand mark mirrors
+          from the opposite edge), so it never competes with the headline for
+          vertical space regardless of how many lines the headline took. */}
+      {m.cta ? (
+        <div style={{ position: "absolute", right: HERO_CARD.ctaRight, top: HERO_CARD.ctaTop, display: "flex",
+          alignItems: "center", backgroundColor: ORANGE, borderRadius: 999, padding: "14px 28px" }}>
+          <div style={{ display: "flex", fontSize: 21, fontWeight: 900, color: "#0A0A0B", letterSpacing: 1.2 }}>{m.cta}</div>
+        </div>
+      ) : <div style={{ display: "flex" }} />}
     </div>
   );
 }

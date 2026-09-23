@@ -21,7 +21,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   HERO_CARD, HERO_SRC_ALLOWED_HOSTS, isAllowedHeroSrc, absoluteHeroUrl,
-  isJpeg, bytesToDataUri, heroCountLabel, heroCardModel, heroFallbackModel, heroLineFits,
+  isJpeg, bytesToDataUri, heroCountLabel, heroRatingLine, heroCardModel, heroFallbackModel, heroLineFits,
 } from "../lib/heroCard.js";
 import { textWidth } from "../lib/shareCard.js";
 import { footFits } from "../lib/shareCardCopy.js";
@@ -160,6 +160,43 @@ ok(heroCardModel({ title: "x", position: "30% 48%" }).position === "30% 48%", "a
 // truthy placeholder the JSX would then try to render as a src).
 ok(heroCardModel({ title: "x" }).hero === null, "a model built with no hero must carry hero:null, not an empty string or a placeholder");
 
+// ── 6b. THE PLACE PHOTO CARD — NAME HEADLINE, RATING, "SEE THE SPOT" ───────
+// Audit (2026-09-23): the sample the owner's complaint pointed at was a
+// synthetic test fixture, not this file — heroCardModel's headline is
+// already the route's own `t=` (this place's real name) for every kind. The
+// REAL gap: the route never passed kind/r/rev into the PHOTO-path model at
+// all, so a place's rating never reached the plate and there was no CTA.
+ok(heroRatingLine("4.2", "690") === "4.2 · 690 Google reviews", `expected "4.2 · 690 Google reviews", got "${heroRatingLine("4.2", "690")}"`);
+ok(heroRatingLine("4.6", "1") === "4.6 · 1 Google review", "a single review must not read as plural");
+ok(heroRatingLine("4.5", null) === "4.5 rating", "a rating with no review count still says something real, never blank");
+ok(heroRatingLine(null, "690") === "", "a review count with no rating must not render — an unrated popularity claim is not one this route can back");
+ok(heroRatingLine("0", "10") === "" && heroRatingLine("bad", "10") === "", "a zero or non-numeric rating must render nothing, never NaN or 0.0");
+ok(!/★/.test(heroRatingLine("4.2", "690")), "heroRatingLine must NEVER embed the star glyph (U+2605) in its string — Archivo's Latin subset has no U+2605 (the exact tofu-box regression lib/shareCardCopy.js#placeModel already paid for); the star is drawn by the JSX Star component instead");
+{
+  const withPhoto = heroCardModel({ kind: "place", title: "Bern's Steak House", cat: "Steakhouse", loc: "Tampa", r: "4.6", rev: "8400", hero: "data:image/jpeg;base64,AAAA" });
+  ok(/bern/i.test(withPhoto.lines.join(" ")), `the place PHOTO card's headline must be the business's own name, got lines=${JSON.stringify(withPhoto.lines)}`);
+  ok(withPhoto.kicker.includes("STEAKHOUSE") && withPhoto.kicker.includes("TAMPA"), `the place PHOTO card's kicker must carry category + city, got "${withPhoto.kicker}"`);
+  ok(withPhoto.rating === "4.6 · 8,400 Google reviews", `the place PHOTO card must carry the rating, got "${withPhoto.rating}"`);
+  ok(withPhoto.cta === "SEE THE SPOT", `the place PHOTO card must carry the "SEE THE SPOT" pill, got "${withPhoto.cta}"`);
+  ok(withPhoto.ratingTop != null && withPhoto.kickerTop < withPhoto.ratingTop && withPhoto.ratingTop < withPhoto.top,
+     `the rating row must sit strictly between the kicker and the headline (kickerTop=${withPhoto.kickerTop}, ratingTop=${withPhoto.ratingTop}, top=${withPhoto.top})`);
+  ok(withPhoto.top >= HERO_CARD.minTextTop - 0.5, "reserving room for the rating row must never push the headline above its own floor");
+
+  const noRating = heroCardModel({ kind: "place", title: "Bern's Steak House", cat: "Steakhouse", loc: "Tampa", hero: "data:image/jpeg;base64,AAAA" });
+  ok(noRating.rating === "" && noRating.ratingTop === null, "a place with no rating data must render no rating row, never a blank one");
+  ok(noRating.kickerTop === noRating.top - HERO_CARD.kickerGap,
+     "with no rating, the kicker must use the ORIGINAL (shorter) gap — the taller gap is reserved for when there is a second line to fit");
+  ok(withPhoto.kickerTop === withPhoto.top - HERO_CARD.kickerGapRating,
+     "with a rating, the kicker must use the TALLER gap so the rating row has room between it and the headline");
+
+  // Gated on kind, not on the mere presence of r/rev — a stray query param
+  // on a GUIDE card must never paint a rating or a place-only CTA onto it.
+  const guideWithNumbers = heroCardModel({ kind: "guide", title: "The 12 Best Restaurants", r: "4.6", rev: "8400", hero: "data:image/jpeg;base64,AAAA" });
+  ok(guideWithNumbers.rating === "" && guideWithNumbers.cta === "", "a guide card must never carry a rating row or the place-only CTA, even if r/rev are present in the query string");
+  const noKind = heroCardModel({ title: "x", r: "4.6", rev: "8400", hero: "data:image/jpeg;base64,AAAA" });
+  ok(noKind.rating === "" && noKind.cta === "", "a hero card with no kind at all must never carry the place-only rating/CTA");
+}
+
 // ── 7. heroFallbackModel — PER-PAGE TITLE, NEVER THE GENERIC HOMEPAGE LINE ──
 // This is the other half of the owner's complaint: a card with no photo must
 // still say something specific to the page it came from.
@@ -174,9 +211,33 @@ ok(heroCardModel({ title: "x" }).hero === null, "a model built with no hero must
   ok(p.fitted, "the place fallback must fit");
   ok(/ulele/i.test(p.lines.join(" ")) || /ulele/i.test(p.eyebrow || ""), "the place fallback must name the actual place");
   ok(footFits(p.foot), "the place fallback's foot must not run under the CTA");
+  ok(p.cta === "SEE THE SPOT", `the place fallback must carry the "SEE THE SPOT" CTA too (placeModel's own default), got "${p.cta}"`);
+  // v9.1 — app/p/[id]/page.js has always supported a Wayfind score + distance
+  // or a hook line for its richer headline (placeModel's own ladder); wiring
+  // /p/[id] through this route must not silently drop that richness.
+  const pScore = heroFallbackModel({ kind: "place", title: "Ulele", loc: "Tampa", sc: "9.1", mi: "3.2" });
+  ok(/9\.1/.test(pScore.lines.join(" ")), `sc/mi must reach placeModel's score+distance headline, got lines=${JSON.stringify(pScore.lines)}`);
+  const pHook = heroFallbackModel({ kind: "place", title: "Ulele", hook: "The best sunset view on the river" });
+  ok(/sunset/i.test(pHook.lines.join(" ")), `hook must reach placeModel's hook headline, got lines=${JSON.stringify(pHook.lines)}`);
+  const pFall = heroFallbackModel({ kind: "place", title: "Gasparilla Distillery", loc: "Tampa", tone: "fall" });
+  ok(pFall.tone === "fall", "tone must reach placeModel unchanged — the season has to survive this route too (scripts/check-fall-share.mjs owns the fuller contract)");
 
   const e = heroFallbackModel({ kind: "event", title: "Möbius Sarasota Night Market", loc: "Sarasota" });
   ok(e.fitted && e.lines.length >= 1, "the event fallback must produce a real card");
+
+  // v9.1 — a distinct, non-bare town card: named as a town guide, and a real
+  // subline about what's inside, never the bare sitewide "Ranked by Wayfind"
+  // line every OTHER kind already carried before this.
+  const t1 = heroFallbackModel({ kind: "town", title: "Sarasota, Florida", loc: "Sarasota", n: 24 });
+  ok(t1.fitted, "the town fallback must fit");
+  ok(t1.eyebrow.includes("FLORIDA TOWN GUIDE"), `the town card must carry a distinct kicker naming what it is, got eyebrow="${t1.eyebrow}"`);
+  ok(/sarasota/i.test(t1.lines.join(" ")), "the town card's headline must still carry the actual town");
+  ok(/24 spots/.test(t1.foot), `a real spot count must reach the subline, got foot="${t1.foot}"`);
+  ok(!/^Ranked by Wayfind · never paid placement$/.test(t1.foot), "a town card's subline must say what's actually inside, not the bare sitewide default");
+  const t2 = heroFallbackModel({ kind: "town", title: "Naples, Florida" });
+  ok(/restaurants|beaches|things to do/i.test(t2.foot), `with no spot count, the town card must still name real categories, got foot="${t2.foot}"`);
+  const tBare = heroFallbackModel({ kind: "town" });
+  ok(tBare.fitted && tBare.lines.length >= 1 && tBare.cta, "even a bare town fallback must produce a complete card, not a hole");
 
   const bare = heroFallbackModel({});
   ok(bare.fitted && bare.lines.length >= 1 && bare.cta, "even a bare fallback call must produce a complete card, not a hole");
@@ -323,6 +384,16 @@ for (const { f, src } of ogPages) {
 
   const places = read("lib/placeData.js");
   ok(/\/api\/og\/hero\?kind=place/.test(places), "lib/placeData.js#placePageMetadata must unfurl /places/[id] through the hero route");
+  ok(/city\s*\?\s*`&loc=\$\{encodeURIComponent\(city\)\}`/.test(places),
+     "lib/placeData.js#placePageMetadata's hero URL must build &loc= from the PER-PLACE `city` variable (cityOf(p.address)), never a literal city name");
+
+  // v9.1 (audit) — /p/[id] (the in-app share-button link, distinct from the
+  // durable /places/[id] page above) used to unfurl through the bare
+  // typographic /api/og?kind=place — the same "cheap" card the owner's
+  // complaint was about, just reached from a different page.
+  const pShare = read("app/p/[id]/page.js");
+  ok(/\/api\/og\/hero\?kind=place&id=/.test(pShare), "app/p/[id]/page.js must unfurl through the hero route too, carrying this place's own id");
+  ok(/og \+= "&tone=fall"/.test(pShare), "app/p/[id]/page.js must still hand the hero route its fall tone the same way it always has — scripts/check-fall-share.mjs owns the fuller contract");
 
   const flEvent = read("app/florida-events/[slug]/page.js");
   ok(/\/api\/og\/hero\?kind=event/.test(flEvent), "app/florida-events/[slug]/page.js must go through the hero route rather than pointing og:image straight at the static file");
@@ -337,6 +408,79 @@ for (const { f, src } of ogPages) {
 {
   const pkg = read("package.json");
   ok(pkg.includes("app/api/og/hero/route.js"), "package.json's check:jsx must type-check the new hero route alongside app/api/og/card.jsx");
+}
+
+// ── 12. CITY RESOLUTION IS PER-PLACE, NEVER ONE HARDCODED TEST CITY ─────────
+// Audit (2026-09-23): verify against two REAL places named in the audit —
+// La Natural (Miami) and Bern's Steak House (Tampa) — that lib/placeData.js's
+// cityOf() actually resolves a different city per address rather than
+// returning something constant. cityOf is the pure function
+// placePageMetadata feeds into the hero URL's &loc=, asserted in section 10.
+//
+// EXTRACTED FROM SOURCE rather than imported: lib/placeData.js's own imports
+// (`from "./site"`, `from "./socialMeta"`, …) omit the .js extension, which
+// Next's webpack bundler resolves but plain Node ESM — every guard here runs
+// under plain `node`, not the Next build — cannot. cityOf itself has zero
+// external references (verified below), so it is extracted and evaluated in
+// isolation rather than dragging that unrelated, pre-existing extension gap
+// into scope for this PR.
+{
+  const placeDataSrc = read("lib/placeData.js");
+  const m = placeDataSrc.match(/export function cityOf\(address\) \{[\s\S]*?\n\}/);
+  ok(!!m, "lib/placeData.js#cityOf must exist in the expected shape to test in isolation");
+  const body = m ? m[0] : "";
+  ok(!/\bimport\b|[^.\w]require\(/.test(body), "cityOf must stay a PURE function with no external reference — that is the only reason extracting it for isolated testing here is safe");
+  // eslint-disable-next-line no-new-func
+  const cityOf = m ? new Function("return (" + body.replace("export function", "function") + ")")() : () => null;
+  const laNatural = cityOf("7289 NW 2nd Ave, Miami, FL 33150");
+  const berns = cityOf("1208 S Howard Ave, Tampa, FL 33606");
+  ok(laNatural === "Miami", `cityOf must resolve La Natural's address to "Miami", got "${laNatural}"`);
+  ok(berns === "Tampa", `cityOf must resolve Bern's Steak House's address to "Tampa", got "${berns}"`);
+  ok(laNatural !== berns, "two different places' addresses must resolve to two different cities — a constant return here is exactly the \"said SARASOTA for everything\" failure mode");
+  ok(cityOf(null) === null && cityOf("") === null, "a missing address must resolve to null, never a fallback city string");
+}
+
+// ── 12b. THE ROUTE ACTUALLY HANDS kind/r/rev TO THE PHOTO MODEL ─────────────
+// This is the exact regression the audit found: heroCardModel itself (tested
+// directly above) has always gated the rating row and the CTA correctly on
+// `kind === "place"` — the route just never PASSED kind, r or rev into its
+// one heroCardModel(...) call for the photo path, so a real place with a real
+// resolved photo could never show either. Unit-testing heroCardModel alone
+// cannot catch that class of bug (a wiring gap in the CALLER, not the
+// function) — this asserts the actual call site.
+{
+  const code = strip(read("app/api/og/hero/route.js"));
+  const calls = (code.match(/heroCardModel\(/g) || []).length;
+  ok(calls === 1, `expected exactly one heroCardModel(...) call site (the photo path) to inspect, found ${calls}`);
+  const at = code.indexOf("heroCardModel(");
+  const close = code.indexOf("});", at);
+  const block = at > -1 && close > -1 ? code.slice(at, close) : "";
+  ok(/\bkind\b/.test(block), "app/api/og/hero/route.js's heroCardModel(...) call must pass kind — without it the model can never know a card is a place, so it can never show the rating or the \"SEE THE SPOT\" pill even when it resolved a real photo");
+  ok(/\br\b/.test(block) && /\brev\b/.test(block), "app/api/og/hero/route.js's heroCardModel(...) call must pass r and rev — this route already extracts both from the query string, and dropping them here is exactly how a place's rating never reached the photo layout");
+}
+
+// ── 13. THE HERO ROUTE'S OUTPUT IS JPEG (v9.1, audit 2026-09-23) ───────────
+// A rendered 1200x630 card with a full-bleed photo behind it came out around
+// 1MB as next/og's native PNG. This route already has sharp in hand (to
+// decode the SOURCE photo); it must also use it to re-encode its own OUTPUT
+// before ever returning a Response, and every returned Content-Type must
+// therefore be image/jpeg, never the PNG shareCardResponse itself produces.
+// scripts/test-og-bodies.mjs proves this live against a running server
+// (content-type, byte budget, JPEG magic bytes); this half proves the code
+// shape that makes that true rather than incidental.
+{
+  const src = read("app/api/og/hero/route.js");
+  const code = strip(src);
+  ok(/function toJpegResponse/.test(code), "app/api/og/hero/route.js must define a dedicated PNG→JPEG re-encode step — the shared renderer itself must stay PNG-only for every other (edge) OG route");
+  ok(/Content-Type",\s*"image\/jpeg"/.test(code), "the re-encode step must set Content-Type: image/jpeg explicitly — copying shareCardResponse's own headers would keep the PNG content-type on a JPEG body");
+  const shareCalls = (code.match(/shareCardResponse\(/g) || []).length;
+  const jpegWraps = (code.match(/toJpegResponse\(/g) || []).length;
+  ok(shareCalls >= 3, `expected the photo path, the no-photo fallback and the top-level catch fallback to each call shareCardResponse, found ${shareCalls}`);
+  ok(jpegWraps >= shareCalls, `every shareCardResponse(...) result must be piped through toJpegResponse — found ${shareCalls} shareCardResponse call(s) but only ${jpegWraps} toJpegResponse call(s)`);
+  // The absolute-last-resort fallback (fonts AND sharp both unavailable) is
+  // the one path allowed to answer PNG instead — it exists because nothing
+  // else can be trusted to run at that point, sharp included.
+  ok(/"Content-Type":\s*"image\/png"/.test(code), "the true last-resort 1x1 fallback (sharp itself unavailable) must still exist as a bare PNG literal — the one Content-Type this route may answer besides image/jpeg, and only there");
 }
 
 if (fails.length) {

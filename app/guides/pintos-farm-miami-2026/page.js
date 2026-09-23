@@ -94,7 +94,7 @@ export const metadata = {
     title: "Pinto's Farm Miami 2026",
     description: "The useful Pinto's guide: tickets, rides, animals, fall dates, special events and a farm map.",
     url: "/guides/pintos-farm-miami-2026",
-    images: [{ url: shareImage, width: 1200, height: 630, type: "image/png", alt: "Pinto's Farm Miami 2026 on Wayfind" }]
+    images: [{ url: shareImage, width: 1200, height: 630, type: "image/jpeg", alt: "Pinto's Farm Miami 2026 on Wayfind" }]
   },
   twitter: {
     card: "summary_large_image",

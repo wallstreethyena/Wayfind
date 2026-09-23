@@ -114,7 +114,7 @@ export async function generateMetadata({ params }) {
     title: `${e.name}${where ? " at " + where : ""} · Wayfind Events`,
     description: `${story.whyGo} ${e.name} is scheduled for ${fmtDate(e.date, e.time)}${where ? " at " + where : ""}.`,
     alternates: { canonical: `${CANON}/events/${params.city}/${params.slug}` },
-    openGraph: { title: ogTitle, description: ogDesc, images: [{ url: og, width: 1200, height: 630, type: "image/png", alt: ogTitle }] },
+    openGraph: { title: ogTitle, description: ogDesc, images: [{ url: og, width: 1200, height: 630, type: "image/jpeg", alt: ogTitle }] },
     twitter: { card: "summary_large_image", title: ogTitle, description: ogDesc, images: [og] },
     robots: { index: false, follow: true }, // noindex until the owner decides event pages should enter the crawl budget (infinite, dated inventory)
   };

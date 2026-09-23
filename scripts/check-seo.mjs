@@ -180,6 +180,10 @@ const uniqueOg = [
   // route, not the bare typographic card — see docs/proposals/claude-sonnet-hero-photo-standard.md (proposed rule 9)
   // and scripts/check-hero-card.mjs for the fuller assertions on it.
   ["app/guides/[slug]/page.js", "/api/og/hero?kind=guide"],
+  // v9.1 (audit, 2026-09-23): /p/[id] used to point at the bare typographic
+  // /api/og?kind=place — the same "cheap" card the owner's complaint was
+  // about, just for the share-button path rather than the durable page.
+  ["app/p/[id]/page.js", "/api/og/hero?kind=place"],
   ["app/culture/[metro]/page.js", "/api/og?t="],
   ["app/florida/[town]/page.js", "/api/og?t="],
   ["app/about/page.js", "/api/og?t="],
