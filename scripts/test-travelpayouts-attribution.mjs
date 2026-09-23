@@ -147,6 +147,20 @@ try {
   } });
   const withoutPaid = await fetchTravelpayoutsBookings({ ...options, fetchImpl: optional.fetchImpl });
   check(repaired && withoutPaid[0].paid_profit_usd === null, "explicit optional field error retries without inventing paid revenue");
+  // A non-repairable provider rejection must carry the provider's own reason
+  // into the error (and so the job pulse), redacted and on one line.
+  const rejected = statsFixture({ alter: () => new Response('{"error":"filter \\"x\\" is not allowed"}\n token fixture-tp-token', { status: 400 }) });
+  await assert.rejects(fetchTravelpayoutsBookings({ ...options, fetchImpl: rejected.fetchImpl }), (error) => {
+    assert.equal(error.message, 'Travelpayouts statistics HTTP 400: {"error":"filter \\"x\\" is not allowed"} token [redacted]');
+    return true;
+  });
+  checks += 1;
+  const silent = statsFixture({ alter: () => new Response("", { status: 400 }) });
+  await assert.rejects(fetchTravelpayoutsBookings({ ...options, fetchImpl: silent.fetchImpl }), (error) => {
+    assert.equal(error.message, "Travelpayouts statistics HTTP 400");
+    return true;
+  });
+  checks += 1;
   const counts = (n, overrides = {}) => ({ received: n, inserted: n, updated: 0, stale: 0, unmatched: 0, invalid: 0, ...overrides });
   const rpcDB = (result) => ({ rpc(name, { p_rows }) { assert.equal(name, "wf_tp_reconcile"); assert.ok(p_rows.length); return Promise.resolve({ data: result, error: null }); } });
   assert.deepEqual(await reconcileTravelpayouts(rpcDB(counts(1)), [normalized]), counts(1)); checks += 1;
