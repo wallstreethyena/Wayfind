@@ -5422,11 +5422,57 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     setUser(null);
     showToast("Signed out");
   }
+  // In-app account deletion (Apple guideline 5.1.1(v)). The actual server
+  // call + local storage cleanup lives in lib/accountDelete.js, imported
+  // lazily here so it never sits in the bundle for the near-total majority
+  // of sessions that never delete an account. Returns { ok, error? } so the
+  // confirm panel in Account.js can show its own inline error without
+  // duplicating this function's logic.
+  async function deleteAccountUser() {
+    if (!supabase || !user) return { ok: false, error: "You are not signed in." };
+    try {
+      const { deleteAccount } = await import("../lib/accountDelete.js");
+      const result = await deleteAccount({ supabase, user, deviceId: deviceId() });
+      if (result && result.ok) {
+        setUser(null);
+        // Deleted accounts must not keep contributing to the identified
+        // person's PostHog history from this device — reset() drops the
+        // identified distinct id and starts a fresh anonymous one, same as a
+        // sign-out on a shared device would want, but mandatory here since
+        // the identity itself no longer exists server side.
+        try { if (typeof window !== "undefined" && window.posthog) window.posthog.reset(); } catch (e) {}
+        // Mirror what the sign-in sync effect (above) sets FROM the same
+        // local storage keys lib/accountDelete.js just cleared \u2014 those keys
+        // are gone, so the in-memory state that mirrors them has to be reset
+        // too, or the UI would keep showing a deleted account's favorites
+        // until the next full reload.
+        try {
+          setLiked({});
+          setDisliked({});
+          setLikedItems({});
+          setDislikedItems({});
+          setSharedItems({});
+          setLists({ favorites: { id: "favorites", name: "Favorites", emoji: "\u2764\ufe0f", places: [] } });
+        } catch (e) {}
+        setAccountOpen(false);
+        showToast("Your account was deleted");
+        return { ok: true };
+      }
+      const message = (result && result.error) || "Could not delete your account. Please try again.";
+      showToast(message);
+      return { ok: false, error: message };
+    } catch (e) {
+      const message = "Could not delete your account. Please try again.";
+      showToast(message);
+      return { ok: false, error: message };
+    }
+  }
   async function wfShowDiag() {
     try {
       let msg = "URL params: " + (window.location.search || window.location.hash || "clean");
       try { const { data: _d } = await supabase.auth.getSession(); msg = "Session: " + (_d && _d.session ? "ACTIVE, token until " + new Date(_d.session.expires_at * 1000).toTimeString().slice(0, 8) : "NONE") + "\n" + msg; } catch (e) { msg = "Session: NONE (no client)\n" + msg; }
       msg += "\n\nAuth log (old\u2192new):\n" + (JSON.parse(localStorage.getItem("wf_authlog") || "[]").map((r) => r.t + "  " + r.e + (r.s ? " \u2713" : " \u2717")).join("\n") || "(empty)");
+      try { if (window.__wfPushToken) msg += "\nPush token: set"; } catch (e) {}
       alert("Wayfind " + BUILD_ID + "\n" + msg);
     } catch (e) {}
   }
@@ -9360,7 +9406,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // coupons
     cpnOffers, savedCoupons, clipCoupon, toggleSaveCoupon, copyCouponCode, shareCoupon, walletOpen, setWalletOpen, couponHandoff,
     // saved
-    activeList, setActiveList, sysFolder, setSysFolder, setNewListOpen, user, setAuthOpen, signOutUser, lists, setListMenu, likedItems, dislikedItems, sharedItems, shareList, deleteList, rollDice,
+    activeList, setActiveList, sysFolder, setSysFolder, setNewListOpen, user, setAuthOpen, signOutUser, deleteAccountUser, lists, setListMenu, likedItems, dislikedItems, sharedItems, shareList, deleteList, rollDice,
     // personalization (v6.56): the taste consent + entry point live at the
     // bottom of Favorites, not on the home feed — and only for signed-in
     // users, which is why nothing here needs the auth primitives: the

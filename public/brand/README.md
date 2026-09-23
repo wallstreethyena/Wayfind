@@ -29,6 +29,12 @@ produced" and it read as missing.
 | `wayfind-logo-ink.svg` | Same wordmark, near-black lettering (`#0E1116`). | On light backgrounds. |
 | `wayfind-logo-bold.svg` | Heavier wordmark cut, white lettering, slightly wider. | Where the wordmark must hold at small sizes or over busy imagery. |
 
+### iOS app icon
+
+| File | Purpose | Use |
+| --- | --- | --- |
+| `wayfind-app-icon.svg` | Source of the iPhone app icon (owner-chosen 2026-09-23): a thick flat orange (#FE6D01) outline pin with a ring, on pure black, full bleed. | Rendered to `ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png` at 1024x1024, RGB, no alpha, no rounded frame baked in (iOS applies its own mask). |
+
 **The pin is the USER, never a place.** Outline pin = you are here; filled circle
 with a rank number = somewhere we are recommending. Using the pin for a place
 makes the user's own position read as a search result, which is the one thing the

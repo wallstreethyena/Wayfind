@@ -1,25 +1,27 @@
 // scripts/check-ios-device-family.mjs
 //
-// THE INVARIANT: the App target ships iPhone + iPad
-// (TARGETED_DEVICE_FAMILY = "1,2") in EVERY build configuration.
+// THE INVARIANT: the App target ships iPhone ONLY
+// (TARGETED_DEVICE_FAMILY = "1") in EVERY build configuration.
 //
 // ── A PRODUCT DECISION WITH A NAMED OWNER, NOT A DEFAULT ─────────────────
-// Owner decision, 2026-08-05: ship iPad. An earlier version of this guard
-// asserted "1" (iPhone-only) on the strength of a work order that recommended
-// it. That was the wrong call to make on a work order's say-so — it is a
-// product decision — and the owner's actual choice is iPad.
+// Owner decision, 2026-09-23, verbatim: "For v1, prioritize iPhone launch
+// speed and approval quality. Configure the first release as iPhone only
+// rather than shipping a mediocre iPad experience. We can expand afterward."
 //
-// The tradeoff is recorded so nobody "helpfully" flips it back: declaring iPad
-// support is a promise the app has to keep. Wayfind is a remote-URL Capacitor
-// shell around a layout designed and verified at 390px, so an iPad build is
-// JUDGED on iPad, needs its own screenshot set, and gives a reviewer a second
-// surface on which to find a stretched phone layout — guideline 4.2 territory
-// for a wrapped site. That is the cost the owner accepted in exchange for being
-// listed as an iPad app.
+// This REVERSES the 2026-08-05 decision this same guard used to assert
+// ("1,2", ship iPad) — recorded here, not deleted, so nobody reads the git
+// history and "corrects" this back on the strength of the old comment. The
+// tradeoff the owner is declining this time: Wayfind is a remote-URL
+// Capacitor shell around a layout designed and verified at 390px, so an iPad
+// build would be JUDGED on iPad, need its own screenshot set, and give a
+// reviewer a second surface on which to find a stretched phone layout —
+// guideline 4.2 territory for a wrapped site. Shipping iPhone-only trades a
+// second listed device class for a cleaner, faster first approval.
 //
-// UISupportedInterfaceOrientations~ipad in Info.plist becomes LIVE again with
-// this setting. It was deliberately left in place when the target was
-// iPhone-only for exactly this reason.
+// UISupportedInterfaceOrientations~ipad in Info.plist is REMOVED alongside
+// this change (asserted below) — with TARGETED_DEVICE_FAMILY "1" it would
+// never be read by iOS, and a dead, unread key is exactly the kind of stale
+// config that quietly reactivates on the next "helpful" device-family flip.
 //
 // If this is revisited, it is revisited by the OWNER, and this comment and the
 // assertion below change together.
@@ -75,8 +77,8 @@ ok(names.includes("Debug") && names.includes("Release"), `both Debug and Release
 let declared = 0;
 for (const c of configs) {
   const v = c.buildSettings && c.buildSettings.TARGETED_DEVICE_FAMILY;
-  ok(v !== undefined, `${c.name}: TARGETED_DEVICE_FAMILY is set EXPLICITLY. Xcode's default happens to be iPhone+iPad too, so an absent setting would give the right build for the wrong reason — and would flip silently if that default ever changed.`);
-  ok(String(v) === "1,2", `${c.name}: TARGETED_DEVICE_FAMILY is "1,2" (iPhone + iPad), got ${JSON.stringify(v)}. Owner decision 2026-08-05 — "1" would silently drop the iPad listing this submission is built around.`);
+  ok(v !== undefined, `${c.name}: TARGETED_DEVICE_FAMILY is set EXPLICITLY. An absent setting would fall back to Xcode's own default (currently iPhone+iPad), which is not this submission's build regardless of what it defaults to.`);
+  ok(String(v) === "1", `${c.name}: TARGETED_DEVICE_FAMILY is "1" (iPhone only), got ${JSON.stringify(v)}. Owner decision 2026-09-23 — "1,2" would silently ship an unjudged iPad listing this submission is built to avoid.`);
   declared += 1;
 }
 ok(declared === configs.length, `every one of the ${configs.length} configurations was checked, not just the first`);
@@ -86,8 +88,8 @@ ok(declared === configs.length, `every one of the ${configs.length} configuratio
 const raw = readFileSync(PBXPROJ, "utf8");
 const all = raw.match(/TARGETED_DEVICE_FAMILY = "[^"]*";/g) || [];
 ok(all.length === declared, `the raw file contains exactly ${declared} TARGETED_DEVICE_FAMILY settings, matching the ${declared} resolved through the object graph (got ${all.length}: ${all.join(" ")}) — a mismatch means one is hiding somewhere the graph walk does not reach`);
-const bad = all.filter((s) => !/= "1,2";$/.test(s));
-ok(bad.length === 0, `every configuration declares iPhone + iPad (offending: ${bad.join(" ")})`);
+const bad = all.filter((s) => !/= "1";$/.test(s));
+ok(bad.length === 0, `every configuration declares iPhone only (offending: ${bad.join(" ")})`);
 
 // ── RELEASE SIGNING IS AUTOMATIC AND UNPINNED ────────────────────────────
 // Owner decision 2026-08-05. Release was CODE_SIGN_STYLE = Manual pinned to
@@ -128,4 +130,30 @@ ok((relCfg.buildSettings || {}).CODE_SIGN_IDENTITY === "Apple Distribution",
 ok((relCfg.buildSettings || {}).DEVELOPMENT_TEAM === "VZGMT57ND7",
    `Release is signed for the WAYFIND LLC team VZGMT57ND7 (got ${JSON.stringify((relCfg.buildSettings || {}).DEVELOPMENT_TEAM)})`);
 
-console.log(`check-ios-device-family: OK — ${pass} assertions (all ${declared} App-target build configurations [${names.join(", ")}] resolved through the pbxproj object graph declare TARGETED_DEVICE_FAMILY = "1,2"; counted, not matched, because includes() cannot tell 1 changed from 2; Release signing resolved per-config as Automatic, unpinned, Apple Distribution, team VZGMT57ND7)`);
+// ── THE IPHONE-ONLY DECISION MUST HOLD IN Info.plist TOO ─────────────────
+// TARGETED_DEVICE_FAMILY "1" is the setting that actually stops iOS from
+// installing on an iPad, but three Info.plist keys are the OTHER half of the
+// same decision, and none of them are enforced by the pbxproj alone: a stale
+// ~ipad orientation key, a landscape orientation the 390px layout was never
+// built for, or a 32-bit armv7 capability would all sit there unread today
+// and become live again the instant a future change touches device family.
+// Asserted structurally (array contents, not a substring) per CLAUDE.md —
+// includes() cannot tell "exactly Portrait" from "Portrait plus Landscape".
+const INFO_PLIST = path.join(REPO, "ios/App/App/Info.plist");
+const info = readPlist(INFO_PLIST);
+ok(info && typeof info === "object", "Info.plist parses");
+
+ok(!Object.prototype.hasOwnProperty.call(info, "UISupportedInterfaceOrientations~ipad"),
+   `Info.plist has no UISupportedInterfaceOrientations~ipad key (got ${JSON.stringify(info["UISupportedInterfaceOrientations~ipad"])}). TARGETED_DEVICE_FAMILY "1" means iOS never reads it, but a key sitting there unread is exactly the kind of stale config that reactivates on the next device-family change nobody re-reads this file for.`);
+
+const orientations = info.UISupportedInterfaceOrientations;
+ok(Array.isArray(orientations), `control: UISupportedInterfaceOrientations is an array (got ${JSON.stringify(orientations)}) — a non-array would make the next assertion vacuous`);
+ok(orientations && orientations.length === 1 && orientations[0] === "UIInterfaceOrientationPortrait",
+   `UISupportedInterfaceOrientations is EXACTLY ["UIInterfaceOrientationPortrait"] (got ${JSON.stringify(orientations)}). The layout is built and verified at 390px only; a landscape entry left behind would ship a device rotation nothing in the app has ever been designed for.`);
+
+const caps = info.UIRequiredDeviceCapabilities;
+ok(Array.isArray(caps), `control: UIRequiredDeviceCapabilities is an array (got ${JSON.stringify(caps)})`);
+ok(caps && caps.length === 1 && caps[0] === "arm64",
+   `UIRequiredDeviceCapabilities is EXACTLY ["arm64"] (got ${JSON.stringify(caps)}). "armv7" is a 32-bit-era leftover no device running this app's iOS 15+ deployment target can be; arm64 is the real, current requirement.`);
+
+console.log(`check-ios-device-family: OK — ${pass} assertions (all ${declared} App-target build configurations [${names.join(", ")}] resolved through the pbxproj object graph declare TARGETED_DEVICE_FAMILY = "1" [iPhone only, owner decision 2026-09-23]; counted, not matched, because includes() cannot tell 1 changed from 2; Release signing resolved per-config as Automatic, unpinned, Apple Distribution, team VZGMT57ND7; Info.plist carries no ~ipad orientation key, exactly Portrait orientations, and exactly [arm64] required device capabilities)`);

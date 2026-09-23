@@ -54,6 +54,17 @@ public class AppleSignInPlugin: CAPPlugin, CAPBridgedPlugin,
         if let email = credential.email { result["email"] = email }
         if let givenName = credential.fullName?.givenName { result["givenName"] = givenName }
         if let familyName = credential.fullName?.familyName { result["familyName"] = familyName }
+        // Account deletion (Apple guideline 5.1.1(v)) needs a FRESH one time
+        // authorization code to revoke the Sign in with Apple grant server
+        // side — the identityToken above cannot be used for that. Apple does
+        // not always return one (only reliably on the original authorization
+        // and on some re-authentications), so this is best effort: present
+        // only when Apple actually included it, same pattern as email/name.
+        if let codeData = credential.authorizationCode,
+           let code = String(data: codeData, encoding: .utf8),
+           !code.isEmpty {
+            result["authorizationCode"] = code
+        }
         call.resolve(result)
     }
 

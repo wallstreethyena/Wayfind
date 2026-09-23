@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<!--
+  www/offline.html — Capacitor server.errorPath (capacitor.config.ts).
+
+  2026-09-23 launch hardening. Capacitor loads THIS file, from webDir, when
+  the remote URL (https://www.gowayfind.com) fails to load at all — a plane,
+  a dead hotel wifi, a cold launch with no signal. Without it the WebView
+  shows Apple's bare "cannot connect to the server" page, which is the
+  fastest way a reviewer or a real user decides the app is broken.
+
+  FULLY SELF CONTAINED. Everything below — CSS, JS, the pin mark — is
+  inline. No external request of any kind, because the one condition this
+  page exists to handle is "there is no network", so anything it fetches
+  from elsewhere would just be one more thing failing silently.
+
+  Companion to app/components/NativeOfflineOverlay.js, which covers the
+  OTHER offline case: the app already loaded once and the connection drops
+  later, mid-session. That overlay never navigates the WebView away from the
+  live page, so this file is never shown in that case — the two are a pair,
+  not duplicates.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wayfind is offline</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #0D1117;
+    --accent: #F97316;
+    --text: #F3F4F6;
+    --muted: #9CA3AF;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100%;
+    padding: max(24px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
+    text-align: center;
+    /* This is a full screen native-feeling state, not a text document —
+       no selection handles, no callout menu, no tap highlight. */
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .wf-pin {
+    width: 64px;
+    height: 72px;
+    margin-bottom: 28px;
+  }
+  .wf-pin.is-pulsing {
+    animation: wf-pulse 2.2s ease-in-out infinite;
+  }
+  @keyframes wf-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.55; transform: scale(0.94); }
+  }
+  h1 {
+    margin: 0 0 12px;
+    font-size: 22px;
+    line-height: 1.3;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+  p.body {
+    margin: 0 0 28px;
+    max-width: 320px;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+  button.wf-retry {
+    appearance: none;
+    -webkit-appearance: none;
+    border: none;
+    outline: none;
+    background: var(--accent);
+    color: #0D1117;
+    font-size: 16px;
+    font-weight: 800;
+    font-family: inherit;
+    padding: 0 28px;
+    min-height: 52px;
+    min-width: 44px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  button.wf-retry:active {
+    opacity: 0.85;
+  }
+  button.wf-retry:disabled {
+    opacity: 0.55;
+    cursor: default;
+  }
+  .wf-status {
+    margin-top: 18px;
+    min-height: 18px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .wf-pin.is-pulsing {
+      animation: none;
+    }
+  }
+</style>
+</head>
+<body>
+  <!-- Simple inline SVG pin in the brand style (public/brand/wayfind-pin.svg
+       redrawn flat, since that file's radial gradients read poorly at 64px
+       on a dark background — this keeps the silhouette, drops the gloss). -->
+  <svg class="wf-pin is-pulsing" id="wf-pin" viewBox="0 0 32 36" fill="none" role="img" aria-hidden="true">
+    <path d="M16 2 C9.4 2 4 7.4 4 14 c0 8.4 12 16 12 16 s12-7.6 12-16 C28 7.4 22.6 2 16 2 Z M16 8.6 a5.4 5.4 0 1 0 0.001 0 Z" fill="#F97316" fill-rule="evenodd"></path>
+  </svg>
+
+  <h1>You're offline</h1>
+  <p class="body">Wayfind needs a connection to find what's around you. We'll reconnect as soon as you're back online.</p>
+
+  <button type="button" class="wf-retry" id="wf-retry">Try again</button>
+  <div class="wf-status" id="wf-status" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  "use strict";
+  const SERVER = "https://www.gowayfind.com";
+  const TIMEOUT_MS = 6000;
+  const POLL_MS = 5000;
+
+  var statusEl = document.getElementById("wf-status");
+  var retryBtn = document.getElementById("wf-retry");
+  var pinEl = document.getElementById("wf-pin");
+  var pollTimer = null;
+  var probing = false;
+
+  function setStatus(text) {
+    statusEl.textContent = text || "";
+  }
+
+  function probe(onDone) {
+    if (probing) return;
+    probing = true;
+    retryBtn.disabled = true;
+    setStatus("Checking connection...");
+
+    var controller = null;
+    var signal;
+    try {
+      controller = new AbortController();
+      signal = controller.signal;
+    } catch (e) {
+      signal = undefined;
+    }
+    var timedOut = false;
+    var timer = setTimeout(function () {
+      timedOut = true;
+      try { controller && controller.abort(); } catch (e) {}
+    }, TIMEOUT_MS);
+
+    var url = SERVER + "/api/version?probe=" + Date.now();
+    var opts = { mode: "no-cors", cache: "no-store" };
+    if (signal) opts.signal = signal;
+
+    fetch(url, opts).then(function () {
+      clearTimeout(timer);
+      probing = false;
+      retryBtn.disabled = false;
+      // opaque (no-cors) responses report ok:false with status 0 even on a
+      // real 200 — reaching .then at all, rather than .catch, is the signal
+      // that the request actually completed against a live server.
+      setStatus("Back online");
+      // capacitor://localhost (this page) and https://www.gowayfind.com (the
+      // app) are different origins, so sessionStorage set on one is never
+      // visible on the other — reading wf_last_path here would always read
+      // empty. The handoff instead goes through the URL: land on the live
+      // origin with wf_resume=1, and app/components/NativeOfflineOverlay.js
+      // reads ITS OWN same-origin wf_last_path and router.replace()s there.
+      var target = SERVER + "/?wf_resume=1";
+      try { location.replace(target); } catch (e) { location.href = target; }
+      if (onDone) onDone(true);
+    }).catch(function () {
+      clearTimeout(timer);
+      probing = false;
+      retryBtn.disabled = false;
+      setStatus(timedOut ? "Still offline" : "Still offline");
+      if (onDone) onDone(false);
+    });
+  }
+
+  retryBtn.addEventListener("click", function () {
+    probe(function () {});
+  });
+
+  window.addEventListener("online", function () {
+    probe(function () {});
+  });
+
+  function startPolling() {
+    stopPolling();
+    pollTimer = setInterval(function () {
+      if (document.visibilityState !== "hidden") probe(function () {});
+    }, POLL_MS);
+  }
+  function stopPolling() {
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+  }
+
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "hidden") stopPolling();
+    else startPolling();
+  });
+
+  try {
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      pinEl.classList.remove("is-pulsing");
+    }
+  } catch (e) {}
+
+  setStatus("");
+  startPolling();
+})();
+</script>
+</body>
+</html>
