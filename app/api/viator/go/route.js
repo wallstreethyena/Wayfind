@@ -20,7 +20,7 @@ import { captureServer, distinctIdFromCookies } from "../../../../lib/serverEven
 import { commercePayload, sanitizeClientClickId } from "../../../../lib/commerce.js";
 import { withViatorTracking } from "../../../../lib/affiliates.js";
 import { FALLBACK } from "../../../../lib/commerceProviders.js";
-import { isCrawler } from "../../../../lib/crawler.js";
+import { isCrawler, isSyntheticMonitor } from "../../../../lib/crawler.js";
 import {
   chooseViatorGoLocation,
   isDeniedViatorSku,
@@ -308,6 +308,37 @@ export async function GET(req) {
   if (!q) {
     const chosen = chooseViatorGoLocation({ siteFallback: FALLBACK });
     emit("provider_redirect_failed", { failure_reason: "missing-query", resolver_path: chosen.resolver_path });
+    return Response.redirect(siteLocation(req, chosen.location), 302);
+  }
+
+  // OUR OWN SYNTHETIC MONITOR MUST NEVER SPEND THE METERED VIATOR LEDGER.
+  // This is the only remaining branch that reaches resolveProduct() ->
+  // providerSpendAllow("viator") + a real Partner API fetch — every other
+  // branch above (rawProduct, intent=search, missing-q) is free. Every
+  // rendered link the app actually builds for a Book CTA either carries
+  // ?product= (an exact-product passthrough, no spend) or ?intent=search
+  // (lib/affiliates.experienceGoUrl always appends it — the honest,
+  // non-spend search rung), so a bare ?q= WITHOUT either of those is not a
+  // shape any real page renders today. But scripts/lib/synthetic/scenarios.mjs's
+  // "book-links" scenario scrapes whatever /api/viator/go link it finds on a
+  // live page and fetches it directly from CI every 30 minutes
+  // (.github/workflows/synthetic-monitor.yml) — a future rail that ever
+  // rendered this exact shape would otherwise let a scheduled job silently
+  // spend 48 Partner API calls/day against a 1,000/month cap. This is a
+  // defense-in-depth backstop, not the primary fix — the scenario itself is
+  // ALSO changed to never pick this shape (see scenarios.mjs's book-links
+  // comment) — so this branch is not expected to fire from that scenario,
+  // only from a direct hit or a future regression.
+  //
+  // Failing closed here is the SAME outcome a genuine "no candidates found"
+  // resolve failure already produces for a human (chooseViatorGoLocation
+  // with a null resolvedProductUrl) — never searchResults, never the Viator
+  // homepage, per this file's own 2026-08-25 integrity lock above. Never
+  // checked for any other UA: a human's ?q= Book attempt always reaches
+  // resolveProduct(), same as before this change.
+  if (isSyntheticMonitor(req.headers.get("user-agent"))) {
+    const chosen = chooseViatorGoLocation({ siteFallback: FALLBACK });
+    emit("provider_redirect_failed", { failure_reason: "synthetic-monitor-search-skipped", resolver_path: chosen.resolver_path });
     return Response.redirect(siteLocation(req, chosen.location), 302);
   }
 
