@@ -13,6 +13,7 @@ import { gateFree, gateShut, spendAllow, spendAllowCapped, textEnterpriseCap } f
 import { cget, cset, upsertPlaceIds, cacheConfigured, lastWrite, memSize, DAY } from "../../../../lib/serverCache";
 import { serveFromInventory, serveInventoryByPlaceIds } from "../../../../lib/inventoryServe";
 import { hasScoreSignal } from "../../../../lib/score";
+import { keepPhotoCredits } from "../../../../lib/photoCredits";
 import { mergeOwnedSignals, ownedLookupIds } from "../../../../lib/ownedLibrary";
 import { attractionDiscoveryPlaceIds, loadAttractionDiscovery } from "../../../../lib/attractionDiscovery";
 
@@ -357,6 +358,10 @@ async function handleSearch(params, origin) {
     else if (places.length) await cset(k, places, FRESH_TTL_MS);
     else await cset(k, [], NEG_TTL_MS);
     if (places.length) await upsertPlaceIds(skeletons(places));
+    // PHOTO CREDIT (2026-09-23): keep the author credit Google just sent with
+    // these photos (Places policy requires showing it). Copies from THIS
+    // response only, runs after the reply (waitUntil), never calls Google.
+    if (places.length) keepPhotoCredits(places, FRESH_TTL_MS);
     // The whole page was unrenderable: fall back to OWNED inventory, which
     // carries its own rating/reviews, rather than serving a confidently empty
     // list. Same reader-first order the 429 path already uses.
