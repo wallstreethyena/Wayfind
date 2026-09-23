@@ -1,259 +1,223 @@
-# iOS App Store handoff — draft
+# Wayfind iOS: App Store handoff
 
-2026-09-23. Written by the offline/iOS-shell lane of the App Store readiness PR.
-This is a DRAFT: the lead finalizes it once the other two lanes (auth/account,
-push backend) land. Everything below is either verified against this repo's
-current code, or marked as something Gabe has to do himself and cannot be
-verified from the repo.
+2026-09-23. Written for Gabe. Plain language, short steps.
 
-Plain language, short sentences. This is for Gabe, not for another engineer.
+This PR takes the code side of the iPhone app to "ready to submit". What is left
+needs your Apple login, your Apple keys, or a click in App Store Connect. Those
+steps are listed below in the order you should do them.
 
 ---
 
-## 1. What changed in the iOS shell
+## 1. What this PR changed
 
-Four things, all in `ios/App/App` and the Capacitor config, all fixing things
-that were silently broken before:
+**Delete account, inside the app.** Account sheet (tap the round button with your
+initial in the top bar) → "Delete account" → type `delete` → "Delete my account".
+It removes the account, saved spots, lists, likes, photos and reviews, taste
+profile, feedback, marketing email signups and this device's push token, then
+signs you out. If you signed in with Apple, Apple shows its sheet once more so
+Wayfind can also cancel the Sign in with Apple link (Apple requires this). If you
+cancel that sheet, nothing is deleted.
 
-1. **Push notifications now actually register.** `AppDelegate.swift` was
-   missing the two callbacks that tell Capacitor a device token arrived (or
-   failed to arrive). Without them, the app asked iOS for permission, iOS
-   said yes, and the token just evaporated. `device_push_tokens` had zero
-   rows, ever. Fixed by adding those two callbacks.
-2. **The app rating prompt now works.** `AppRatingPlugin.swift` existed but
-   was never registered with Capacitor, so every call to it failed silently.
-   `SceneDelegate.swift` now registers it, the same way it already registered
-   Sign in with Apple.
-3. **The app no longer risks a duplicate screen at launch.** `Info.plist`
-   named a storyboard as the app's initial screen, while `SceneDelegate.swift`
-   also builds its own screen in code. Both would have tried to run at once.
-   The storyboard is no longer named as the initial screen, so only the
-   working path (SceneDelegate) runs.
-4. **iPhone only for this first release.** Gabe's call, 2026-09-23: launch
-   with a clean iPhone build instead of a stretched iPad one, and add iPad
-   later. The project setting, the allowed screen rotations, and a required
-   device flag were all changed to match, and a guard script
-   (`scripts/check-ios-device-family.mjs`) now fails the build if anyone
-   changes this without also updating the same comment that explains why.
-5. **A real offline screen.** Before this, losing signal (a plane, dead hotel
-   wifi, a cold launch with no bars) showed Apple's bare "cannot connect to
-   the server" page, which is the fastest way a reviewer decides the app is
-   broken. Now there are two matching screens: `www/offline.html` for a hard
-   failure to load the app at all, and a native overlay
-   (`app/components/NativeOfflineOverlay.js`) for losing the connection
-   after the app is already open. Both say "You're offline", both have a
-   "Try again" button, and both reconnect on their own the moment the
-   network comes back.
+**Real push notifications, both sides.**
+- The app now actually receives a device token (the iOS code that hands the token
+  to the app was missing, which is why the token table was always empty).
+- The app no longer asks for notification permission the moment it opens. It
+  shows a Wayfind card "Get Weekend Picks near you" on the second launch or right
+  after a first sign in, and only asks iOS if you tap "Turn on".
+- Signing in links the phone's token to your account.
+- Tapping a notification opens the page it points to.
+- The server can send through Apple (APNs) with `lib/apns.js`. Dead tokens are
+  cleaned up automatically.
+- A test path: `POST /api/push/test` (details in section 4).
+- "Weekend Picks Near You" goes out Fridays at 11 AM Eastern, but only after you
+  switch it on (`WEEKEND_PICKS_PUSH_ENABLED=1`). It is OFF by default.
 
-None of this needs a Vercel deploy by itself. It needs Gabe to build the app
-in Xcode and upload it, same as any other native change (see section 3).
+**Offline screen.** If the app opens with no connection, it shows a branded
+"You're offline" screen with a "Try again" button and reconnects on its own when
+the connection returns, then puts you back on the page you were on. If the
+connection drops while the app is open, the same screen covers the app and goes
+away by itself when you are back online.
 
----
-
-## 2. What Gabe has to provide
-
-This repo cannot do any of these. They are either Apple Developer portal
-steps, App Store Connect steps, or values that go into Vercel's environment
-variables (never into the code).
-
-### 2a. Push notifications (APNs)
-
-1. In the Apple Developer portal, create an **APNs Auth Key** (a `.p8` file).
-   Note the **Key ID** shown when you create it.
-2. Your **Team ID** is already known: `VZGMT57ND7`.
-3. Add these to Vercel's environment variables (Project Settings →
-   Environment Variables), not to any file in this repo:
-   - `APNS_TEAM_ID` = `VZGMT57ND7`
-   - `APNS_KEY_ID` = the Key ID from step 1
-   - `APNS_AUTH_KEY` = the full contents of the `.p8` file
-   - `APNS_TOPIC` = `com.gowayfind.app`
-   - `APNS_ENV` = `production`
-
-### 2b. Sign in with Apple
-
-1. In the Apple Developer portal, create a **Sign in with Apple key**
-   (a separate `.p8` file from the push one). Note its **Key ID**.
-2. Add these to Vercel:
-   - `APPLE_TEAM_ID` = `VZGMT57ND7`
-   - `APPLE_SIWA_KEY_ID` = the Key ID from step 1
-   - `APPLE_SIWA_PRIVATE_KEY` = the full contents of that `.p8` file
-   - `APPLE_SIWA_CLIENT_ID` = `com.gowayfind.app`
-
-### 2c. Weekend Picks push flags
-
-- `WEEKEND_PICKS_PUSH_ENABLED` and `WEEKEND_PICKS_ALLOWLIST` — set these in
-  Vercel when the push backend lane is ready to turn the feature on. Leave
-  them unset until then; the code treats "unset" as "off."
-
-### 2d. App ID capabilities (Apple Developer portal)
-
-On the `com.gowayfind.app` App ID, turn on:
-- Push Notifications
-- Sign In with Apple
-- Associated Domains
-
-These are entitlements the code already asks for
-(`ios/App/App/App.entitlements`). If the App ID itself does not have the
-capability turned on, Xcode's automatic signing will fail to create a
-matching profile at archive time, and you will not find out until you try to
-archive.
-
-### 2e. App Store Connect
-
-- Create the app record for `com.gowayfind.app`, if it does not exist yet.
-- **Screenshots:** at least one set at 6.9 inch iPhone size (iPhone 16 Pro
-  Max / 15 Pro Max simulator or a real device that size). This is the only
-  size Apple currently requires for an iPhone-only submission.
-- **Privacy nutrition labels:** must match `ios/App/App/PrivacyInfo.xcprivacy`
-  exactly. That file already lists what this app actually collects (email,
-  name, user ID, location, photos, product analytics, crash/performance
-  data) — use it as the answer key when filling out the App Store Connect
-  privacy questionnaire, category by category.
-- **Age rating questionnaire.**
-- **Review notes.** Apple's reviewer needs two things spelled out in the
-  notes box or they will bounce the build asking for them:
-  - **How to find Delete Account.** Tap the account icon (top right, the
-    circle with your initial) → Account → Delete Account. It asks you to
-    type "delete" to confirm.
-  - **A demo login.** Create one throwaway account (email/password or a test
-    Apple ID) that the reviewer can sign in with directly, so they are not
-    stuck at a sign-in wall.
-- **D-U-N-S number / organization enrollment.** Only relevant if the Apple
-  Developer account is not already enrolled as an organization. If Gabe is
-  enrolled as an individual, skip this.
+**iOS project fixes found in the audit.**
+- iPhone only for v1 (portrait only, modern 64 bit devices). iPad can come later.
+- The app rating prompt plugin was never switched on; now it is.
+- The app no longer tries to build its first screen twice at launch.
+- The privacy file now also lists the device ID (push token) and user content
+  (reviews and photos) that the app stores.
+- Sign in with Apple now hands over the one time code needed to cancel the Apple
+  link on account deletion.
 
 ---
 
-## 3. TestFlight, step by step, on Gabe's Mac
+## 2. What you have to provide (Apple Developer portal)
 
-This assumes the Mac environment already confirmed working: Xcode 26.6, iOS
-26.5 simulators, `node` and `gh` available, repo at `~/Projects/wayfind`.
+Team ID is `VZGMT57ND7`. Bundle ID is `com.gowayfind.app`.
 
-1. **Work in a fresh worktree**, not the dirty main clone — this repo's own
-   `CLAUDE.md` rule, and it matters here too since two other lanes may still
-   be committing.
+1. **App ID capabilities.** Identifiers → `com.gowayfind.app` → make sure these
+   are ticked: Push Notifications, Sign In with Apple, Associated Domains.
+2. **APNs key (for push).** Keys → "+" → tick "Apple Push Notifications service
+   (APNs)" → download the `.p8` file (you can only download it once) and note the
+   Key ID.
+3. **Sign in with Apple key (for account deletion).** Keys → "+" → tick "Sign in
+   with Apple" → Configure → pick the `com.gowayfind.app` App ID → download the
+   `.p8` and note the Key ID. (One key can carry both APNs and Sign in with Apple;
+   two separate keys is also fine.)
+
+## 3. What you have to put in Vercel (Project Settings → Environment Variables, Production)
+
+Never put these in the code or in git.
+
+| Name | Value |
+|---|---|
+| `APNS_TEAM_ID` | `VZGMT57ND7` |
+| `APNS_KEY_ID` | Key ID of the APNs key |
+| `APNS_AUTH_KEY` | full text of the APNs `.p8` file |
+| `APNS_TOPIC` | `com.gowayfind.app` |
+| `APNS_ENV` | `production` |
+| `APPLE_TEAM_ID` | `VZGMT57ND7` |
+| `APPLE_SIWA_KEY_ID` | Key ID of the Sign in with Apple key |
+| `APPLE_SIWA_PRIVATE_KEY` | full text of that `.p8` file |
+| `APPLE_SIWA_CLIENT_ID` | `com.gowayfind.app` |
+| `WEEKEND_PICKS_PUSH_ENABLED` | leave unset until you want Friday pushes; `1` turns them on |
+| `WEEKEND_PICKS_ALLOWLIST` | optional: comma separated user IDs or device IDs to test Friday pushes on just your phone first |
+
+`CRON_SECRET` and `SUPABASE_SERVICE_ROLE_KEY` already exist in Vercel and are
+reused. After adding the variables, redeploy production so they take effect.
+
+Without the APNs values, push test calls answer "unconfigured" and nothing is
+sent. Without the Sign in with Apple values, account deletion still works but
+cannot cancel the Apple link (the response says `skipped_unconfigured`).
+
+---
+
+## 4. TestFlight, step by step (on your Mac)
+
+1. Fresh copy of the code (your main folder has other work in it):
    ```
    cd ~/Projects/wayfind
    git fetch origin
    git worktree add ../wayfind-ios-release origin/main
    cd ../wayfind-ios-release
-   ```
-2. **Install dependencies.**
-   ```
    npm ci
-   ```
-3. **Sync the native project.** This copies `capacitor.config.ts`'s settings
-   and the `www/` folder (including `offline.html`) into the Xcode project,
-   and regenerates `ios/App/App/capacitor.config.json` and
-   `ios/App/App/public` — both are git-ignored and expected to be
-   regenerated, not hand-edited.
-   ```
    npx cap sync ios
    ```
-4. **Open the project in Xcode.** This project has **no `.xcworkspace`
-   file** — it uses Swift Package Manager (see `ios/App/CapApp-SPM`), not
-   CocoaPods, so there is nothing a workspace would add. Open the
-   `.xcodeproj` directly:
+   `cap sync` copies the offline screen and settings into the Xcode project.
+2. Open the project. It uses Swift Package Manager, so there is no
+   `.xcworkspace`; open the project file:
    ```
    open ios/App/App.xcodeproj
    ```
-5. **Select your team.** In Xcode, click the App target → Signing &
-   Capabilities → make sure the team is the Wayfind LLC team
-   (`VZGMT57ND7`). Signing is set to Automatic, so Xcode should just work
-   once the team is selected and the App ID capabilities from section 2d are
-   turned on.
-6. **Archive.** Product menu → Archive. This can take a few minutes.
-7. **Distribute.** In the Organizer window that opens after the archive
-   finishes: Distribute App → App Store Connect → Upload. Use the defaults
-   Xcode suggests unless you have a specific reason not to.
-8. **TestFlight.** Once the build finishes processing in App Store Connect
-   (usually a few minutes to an hour), go to the app's TestFlight tab, add
-   it to Internal Testing, and add yourself (and anyone else testing) as an
-   internal tester.
+3. Click the **App** target → **Signing & Capabilities** → Team: your team
+   (`VZGMT57ND7`). Signing is Automatic.
+4. At the top, pick **Any iOS Device (arm64)** as the destination.
+5. **Product → Archive.** When it finishes, the Organizer opens.
+6. **Distribute App → App Store Connect → Upload.** Keep the defaults.
+7. In App Store Connect, wait for the build to finish processing, then
+   **TestFlight** tab → Internal Testing → add yourself.
+8. Every new upload needs a higher build number: App target → General →
+   Build (1, 2, 3...). Version stays 1.0 until you ship.
 
----
+## 5. Test on your real iPhone (TestFlight build)
 
-## 4. Real iPhone test script
-
-Do this on a real iPhone, not just the simulator — push notifications and
-some permission prompts do not behave the same in the simulator.
-
-1. **Install the TestFlight build.** Open the TestFlight app, accept the
-   invite, install.
-2. **Allow notifications.** On first launch (or whenever the app first asks),
-   tap Allow on the system permission prompt.
-3. **Get the device's push token**, one of two ways:
-   - The 5-tap diagnostic: tap the Wayfind logo/wordmark 5 times in a row
-     wherever `wfShowDiag` is wired in the app, which shows on-device debug
-     info including the push token.
-   - Or query Supabase directly:
-     ```sql
-     select token, platform, user_id, created_at
-     from device_push_tokens
-     order by created_at desc
-     limit 5;
-     ```
-4. **Send a test push.**
+1. Install from TestFlight. Open the app, close it, open it again (the
+   notification card appears on the second launch). Tap **Turn on**, then
+   **Allow**.
+2. Sign in, so your token is linked to your account.
+3. Send yourself a test notification. Easiest: from any terminal with the
+   secret set:
    ```
-   node scripts/push-test.mjs
+   CRON_SECRET=... node scripts/push-test.mjs --url https://www.gowayfind.com --user <your user id> --path /florida-events
    ```
-   Follow its prompts (it will ask for a token or a user id, depending on how
-   it's set up — check the script's own `--help` output before running it
-   for the first time).
-5. **Tap the notification** when it arrives and confirm it opens the right
-   page inside the app, not just the app's homepage.
-6. **Airplane mode test (offline).** Turn on Airplane Mode, background and
-   reopen the app (or navigate somewhere). Confirm the "You're offline"
-   overlay appears, has a working "Try again" button, and that it goes away
-   on its own within a few seconds of turning Airplane Mode back off.
-7. **Delete account test.** Sign in with a throwaway Apple ID (create one if
-   you don't have a spare), go to Account → Delete Account, type "delete" to
-   confirm, and verify the account and its data are actually gone — try
-   signing back in with the same Apple ID and confirm it comes back as a
-   brand new account, not the deleted one.
+   Your user id is in Supabase (`auth.users`). Or find the token with:
+   ```sql
+   select token, user_id, created_at from device_push_tokens order by created_at desc limit 5;
+   ```
+   and use `--token <token>` instead of `--user`.
+4. Tap the notification. It should open the `--path` page inside the app.
+5. Offline: turn on Airplane Mode inside the app → the "You're offline" screen
+   appears. Turn Airplane Mode off → it disappears by itself within a few
+   seconds. Also try closing the app, turning Airplane Mode on, and opening it:
+   you get the same branded screen, never a blank page.
+6. Delete account: sign in with a spare Apple ID, Account → Delete account → type
+   `delete` → Delete my account. Apple's sheet appears once. You end up signed
+   out. Sign in again with the same Apple ID: it should be a brand new, empty
+   account.
+
+Important: test push only on the **TestFlight** build. A build you run straight
+from Xcode on your phone gets a "sandbox" token, and with `APNS_ENV=production`
+Apple rejects it (and Wayfind deletes it as dead). If you ever need to test from
+Xcode, temporarily set `APNS_ENV=sandbox` on a preview deployment.
 
 ---
 
-## 5. Known caveat: the apex domain cannot carry Universal Links
+## 6. App Store Connect listing
 
-`gowayfind.com` (no `www`) 308-redirects to `www.gowayfind.com` at the Vercel
-domain level. Apple's Universal Links validation refuses to follow a
-redirect when it checks the `apple-app-site-association` file, so the apex
-domain entry in the app's entitlements (`applinks:gowayfind.com`) can never
-actually validate as things stand today. Links to `www.gowayfind.com` work
-correctly; links to the bare `gowayfind.com` open in Safari instead of the
-app.
-
-This is **not fixable in this codebase** — it is a Vercel domain
-configuration choice, and there are two ways to fix it, both outside this
-repo:
-- Serve the apex domain directly (no redirect) so it can validate on its
-  own, or
-- Drop the apex domain from the app's associated-domains entitlement, so the
-  app only ever claims the domain that actually works (`www`).
-
-Either is a small Vercel dashboard change; neither needs a code change here.
-Flagging it so it doesn't get treated as a bug in this PR — it was already
-true before this PR and stays true after it.
+- **App record** for `com.gowayfind.app` (Apps → "+" → New App), name Wayfind,
+  primary language English, SKU anything.
+- **Screenshots:** iPhone 6.9 inch (iPhone 17 Pro Max simulator works: take them
+  with Cmd+S). 3 to 10 images. Show real Wayfind screens (home, a place page, an
+  event page with its map, saved spots).
+- **Privacy Policy URL:** `https://www.gowayfind.com/privacy`.
+  **Support URL:** your contact page or a mailto page.
+- **Category:** Travel (secondary Food & Drink).
+- **Age rating:** answer honestly; bars and nightlife listings usually mean
+  "Infrequent/Mild Alcohol, Tobacco, or Drug Use or References" (12+).
+- **App Privacy (nutrition labels).** Match `ios/App/App/PrivacyInfo.xcprivacy`:
+  Contact Info (email, name), Identifiers (user ID, device ID), Location (precise),
+  User Content (photos, reviews), Usage Data / Diagnostics (analytics, crash). All
+  "linked to the user", all "not used for tracking", purpose App Functionality
+  (plus Analytics for usage data).
+- **Review notes** (paste and fill in):
+  > Wayfind is a local discovery app for Florida. Native features: push
+  > notifications (Weekend Picks), Sign in with Apple, native camera and photo
+  > picker for reviews, native share sheet, universal links, and an offline
+  > screen. To delete an account: sign in, tap the round button with your
+  > initial in the top bar, then "Delete account". Demo login: <email> /
+  > <password>.
+  Create that demo login yourself (email and password account) before
+  submitting.
+- **Export compliance** is already answered in the app (standard HTTPS only).
 
 ---
 
-## 6. Verification (for the record)
+## 7. What is blocking the TestFlight upload right now
 
-Everything in section 1 is covered by guard scripts that ran green at the
-time this doc was written:
-`scripts/check-ios-device-family.mjs`,
-`scripts/check-ios-shell-wiring.mjs`,
-`scripts/check-ios-privacy-manifest.mjs`,
-`scripts/check-auth.mjs`,
-`scripts/check-universal-links.mjs`,
-`scripts/test-app-rating.mjs`,
-`scripts/check-push-registration.mjs`.
+Only things that need you:
+1. Merge this PR (production needs the new server routes and pages, because the
+   app loads the live site).
+2. App ID capabilities ticked (section 2, step 1).
+3. APNs key and Sign in with Apple key created and added to Vercel (sections 2
+   and 3), then a production redeploy.
+4. Xcode signed into your Apple account with the team selected, then Archive and
+   Upload (section 4).
+5. App Store Connect app record created (section 6).
 
-`ios/App/App/PrivacyInfo.xcprivacy` was checked against every native
-Capacitor plugin actually bundled in this app (`app`, `browser`, `camera`,
-`push-notifications`, `share`, `splash-screen`, `status-bar`) for the
-file-timestamp and system-boot-time required-reason APIs Apple added to its
-review checklist. None of them are used by any bundled plugin's Swift source,
-so no new declaration was needed beyond the `UserDefaults` one already in the
-manifest (`CA92.1`, used by Capacitor's own runtime).
+Nothing else in the code is waiting.
+
+---
+
+## 8. Known limits (not blockers)
+
+- **Bare `gowayfind.com` links open in Safari, not the app.** Vercel redirects
+  the bare domain to `www`, and Apple will not follow a redirect when checking
+  app links. `www.gowayfind.com` links open in the app. To fix later: in Vercel,
+  serve the bare domain without the redirect, or remove `gowayfind.com` from the
+  app's associated domains.
+- **Google sign in users:** deletion removes everything on Wayfind's side; Google
+  itself keeps no Wayfind token to cancel.
+- **Weekend Picks is off** until you set `WEEKEND_PICKS_PUSH_ENABLED=1`. The
+  in-app card already promises Friday picks, so switch it on before public launch.
+- **iPad** is off for v1 on purpose.
+
+## 9. How this was verified
+
+- All guard checks green (`npm run prebuild`), production build green, page size
+  491.2 KB of the 498 KB budget.
+- New checks: `test-account-delete`, `check-apns-sender`, `check-ios-shell-wiring`,
+  updated `check-push-registration`, `check-ios-device-family`,
+  `check-ios-privacy-manifest`. Each includes a proof that it fails when the thing
+  it protects is broken.
+- Browser runs at iPhone size: the offline screen, Try again, automatic recovery
+  to the saved page, the in-app offline cover (shows only in the app, never on the
+  website), and a hostile saved path being refused.
+- Xcode simulator build and run: see the PR description for the results.
