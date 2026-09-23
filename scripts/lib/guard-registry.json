@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 712,
-    "totalRegistryEntries": 713,
-    "guardsTxtLineCount": 710,
-    "guardsTxtReachedFileCount": 705,
+    "totalOnDiskGuardFiles": 713,
+    "totalRegistryEntries": 714,
+    "guardsTxtLineCount": 711,
+    "guardsTxtReachedFileCount": 706,
     "criticalCount": 86,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 491,
+      "CALL": 492,
       "RENDER": 83,
       "STRUCTURAL": 138,
       "OTHER": 1
@@ -2857,6 +2857,28 @@
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-fall-offering-freshness.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 10,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
