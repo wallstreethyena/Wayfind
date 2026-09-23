@@ -67,7 +67,10 @@ const strictFailure = await completeEventStays(orlando, {
 assert.deepEqual(strictFailure, { places: [], unavailable: true }, "strict poster mode exposes a partial-source failure instead of rendering an incomplete top list");
 
 const poolRow = {
-  place_id: "ChIJInventoryOrlando001", name: "Inventory Orlando Hotel", lat: 28.48, lng: -81.47,
+  // 2026-09-23: a real verified hotel key, because the rail's "Check rates"
+  // control now requires a booking-verification record. With the old synthetic
+  // place id this row renders no control and the assertions below go vacuous.
+  place_id: "wfh-springhill-suites-by-marriott-bradenton-downtown-27499", name: "Inventory Orlando Hotel", lat: 28.48, lng: -81.47,
   category: "hotels", primary_type: "hotel", google_types: ["hotel", "lodging"], status: "OPERATIONAL", excluded: false, metro: "orlando",
   signals: { rating: 4.9, reviews: 2500 }, editorial: "A verified inventory stay.",
 };
