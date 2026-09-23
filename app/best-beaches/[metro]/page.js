@@ -13,6 +13,12 @@ import { WF_PLACE_CARD_CSS } from "../../components/css";
 import { SITE_URL } from "../../../lib/site";
 import BeachPageClient, { BackControl } from "./parts";
 import TourStrip from "../../components/TourStrip";
+// This route renders the ONE raw, unwrapped Booking.com "Stay near <beach>"
+// link on the site (below, "the house hotel pattern") — the only place left
+// that needs Stay22's client-side LinkSwap rewriter. See
+// app/components/Stay22LinkSwap.js and scripts/check-no-sitewide-autolinker.mjs
+// for why it no longer loads from app/layout.js.
+import Stay22LinkSwap from "../../components/Stay22LinkSwap";
 
 export const revalidate = 3600;
 
@@ -214,9 +220,12 @@ export default async function BeachesPage({ params }) {
 
         {beaches[0] ? (
           /* Stay lane (owner-approved #1): the house hotel pattern — a PLAIN
-             Booking.com area search; Stay22's site-wide LinkSwap (app/layout)
+             Booking.com area search; Stay22 LinkSwap (scoped to THIS route as
+             of the 2026-09-22 click-hijack fix — see Stay22LinkSwap above)
              rewrites it to the best-paying provider with our attribution.
              We never rank or name specific hotels here — no invented superlatives. */
+          <>
+          <Stay22LinkSwap />
           <a href={"https://www.booking.com/searchresults.html?ss=" + encodeURIComponent(beaches[0].name + " Florida")} target="_blank" rel="noreferrer nofollow sponsored" style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 14, background: C.card, border: "1px solid " + C.border, borderRadius: 14, padding: "13px 15px", textDecoration: "none", color: "inherit" }}>
             <span aria-hidden="true" style={{ fontSize: 20 }}>🏨</span>
             <span style={{ flex: 1, minWidth: 0 }}>
@@ -225,6 +234,7 @@ export default async function BeachesPage({ params }) {
             </span>
             <span style={{ flexShrink: 0, background: C.accent, color: "#0D1117", borderRadius: 999, padding: "7px 14px", fontSize: 12, fontWeight: 800 }}>Check rates ↗</span>
           </a>
+          </>
         ) : null}
 
         <p style={{ fontSize: 11, color: C.muted, marginTop: 26, lineHeight: 1.5 }}>
