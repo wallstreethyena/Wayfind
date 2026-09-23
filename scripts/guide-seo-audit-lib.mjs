@@ -40,7 +40,7 @@ export function buildGuideSeoAudit(sourceInput) {
       decision: guide.description,
       checks: {
         ...source,
-        article_schema: source.article_schema.status === "pass" ? result("pass", hasArt ? "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded." : "Article wiring omits an image rather than substituting unrelated art; publication date remains omitted because none is recorded.") : source.article_schema,
+        article_schema: source.article_schema.status === "pass" ? result("pass", hasArt ? "Article wiring includes the reviewed image and truthful modified date; publication date is emitted when the guide records one." : "Article wiring omits an image rather than substituting unrelated art; publication date remains omitted because none is recorded.") : source.article_schema,
         image_record: result("pass", hasArt ? `${art.src}; ${art.width}x${art.height}; ${art.credit}; ${art.license}.` : `Explicitly unavailable: ${art?.reason || "no reviewed image"}`),
         representative_image: result(hasArt ? "pass" : "unknown", hasArt ? "The route and metadata use the same per-slug reviewed image." : "No reviewed representative image is currently available."),
         large_image_candidate: result(largeCandidate ? "pass" : "unknown", largeCandidate ? `Delivered image is ${art.width}x${art.height}; production eligibility and crop performance are not established.` : hasArt ? `Delivered image is ${art.width}x${art.height}; it is not claimed as a 1200px-wide Discover candidate.` : "No representative image is available."),
