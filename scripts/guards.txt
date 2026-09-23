@@ -441,6 +441,7 @@ node scripts/check-direct-affiliate-urls.mjs
 node scripts/check-no-sitewide-autolinker.mjs
 
 node scripts/check-doc-ownership.mjs
+node scripts/test-owner-approval.mjs
 node scripts/test-doc-ownership-shallow.mjs
 node scripts/test-safe-force-push.mjs
 node scripts/check-locks.mjs

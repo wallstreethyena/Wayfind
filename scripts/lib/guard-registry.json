@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 707,
-    "totalRegistryEntries": 708,
-    "guardsTxtLineCount": 706,
-    "guardsTxtReachedFileCount": 701,
+    "totalOnDiskGuardFiles": 709,
+    "totalRegistryEntries": 710,
+    "guardsTxtLineCount": 707,
+    "guardsTxtReachedFileCount": 702,
     "criticalCount": 84,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 486,
+      "CALL": 488,
       "RENDER": 83,
       "STRUCTURAL": 138,
       "OTHER": 1
@@ -2166,7 +2166,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 6,
+      "assertionCount": 4,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [
         "has a real import/render/exec capability but zero assertions whose subject is a value RETURNED by code — every check reads source text only"
@@ -5877,6 +5877,33 @@
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-owner-approval-pr.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 0,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": false,
+        "npmScripts": [],
+        "githubWorkflows": [
+          {
+            "file": ".github/workflows/owner-approval.yml",
+            "blocking": false
+          }
+        ]
+      },
+      "gating": "scheduled-monitoring-only",
+      "excludedReason": "Runs in .github/workflows/owner-approval.yml on pull_request_target, from the BASE branch, as the \"owner-approval\" check; it needs GitHub Actions pull-request context and refuses without it, so it cannot run in prebuild. test-owner-approval.mjs (in guards.txt) runs it as a child process with that context and a stub API on every build.",
       "critical": false,
       "criticalReasons": [],
       "protects": null,
@@ -13849,6 +13876,33 @@
         "guardsTxt": true,
         "npmScripts": [],
         "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-owner-approval.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 116,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": [
+          {
+            "file": ".github/workflows/owner-approval.yml",
+            "blocking": false
+          }
+        ]
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
