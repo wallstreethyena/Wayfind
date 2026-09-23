@@ -1033,6 +1033,14 @@ node scripts/test-adaptive-widen.mjs
 node scripts/test-chip-contracts.mjs
 node scripts/check-css-comment-bytes.mjs
 node scripts/check-augtober-rail.mjs
+# 2026-09-23 (WS4 fall-discovery) — lib/fallEvidence.js is the pure evidence-
+# classification law the discovery pipeline and the registry re-verification
+# both run through; check-fall-registry-integrity then applies it to the real
+# lib/fallPool.js registry (set equality, rejected-id exclusion, current-
+# season verification or the documented evergreen exemption, no expired
+# dated offering surviving). See both files' own header comments.
+node scripts/check-fall-evidence-rules.mjs
+node scripts/check-fall-registry-integrity.mjs
 # 2026-09-03 — one event-affiliate registry (lib/eventTicketDeals.js), product-true,
 # routed through /api/commerce/go on the fall rail, the Events feed and the event page.
 node scripts/check-event-ticket-deals.mjs

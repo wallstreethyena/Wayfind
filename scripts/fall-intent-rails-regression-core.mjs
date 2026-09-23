@@ -162,18 +162,30 @@ const solId = "ChIJ9ZpMS-7jwogRWChZqTQG66g";
 const fallPlaceIds = Object.keys(FALL_PLACE_IDS);
 ok(fallPlaceIds.includes(solId) && FALL_PLACE_RAIL[solId] === "food",
   "Sōl St Pete's documented pumpkin curry appears once, under Fall Drinks & Seasonal Bites");
+// v8.86 (2026-09-23, WS4 second-pass re-verification): Sōl's `verified` date
+// advanced from 2026-09-10 to 2026-09-23 — a real re-check, not a typo — see
+// lib/fallPool.js's FALL_OFFERING_SOURCES entry and this file's own header
+// comment for what changed. The invariant this assertion protects (the
+// SOURCE URL and the named dish) is unchanged; only the expected re-check
+// date needed to follow the data forward.
 ok(FALL_OFFERING_SOURCES[solId]?.source === "https://solstpete.com/st-petersburg-warehouse-arts-district-sol-st-pete-bistro-food-menu"
-  && FALL_OFFERING_SOURCES[solId]?.verified === "2026-09-10"
+  && FALL_OFFERING_SOURCES[solId]?.verified === "2026-09-23"
   && /Golden Pumpkin Curry Di Mare/.test(FALL_OFFERING_SOURCES[solId]?.offering || ""),
   "Sōl's fall eligibility is pinned to its official current menu and named dish");
 ok(fallCardClass(solId, "2026-09-10") === " wf-fall-card", "Sōl wears the fall card during the annual fall window");
+// v8.86 (2026-09-23, WS4 second-pass re-verification): ATRIA and Buddy Brew
+// were re-checked live against their Toast ordering platforms this pass and
+// their `verified` dates advanced to 2026-09-23; Joy Coffee was NOT
+// re-checked this pass and keeps its 2026-09-10 date. Per-id expected dates
+// (not one shared literal) so the assertion follows each venue's own real
+// re-check history rather than forcing all three to share one.
 const localMenus = [
-  { id: "ChIJ1U_vFp0Xw4gRGKl6mJGJ9UI", name: "Joy Coffee", lat: 27.4597729, lng: -82.5757174 },
-  { id: "ChIJA-QkamE7w4gRfdzcxEHyPls", name: "ATRIA Cafe", lat: 27.4648662, lng: -82.4325881 },
-  { id: "ChIJY5LPSxJAw4gRMhj-bOy9MKU", name: "Buddy Brew Coffee", lat: 27.3364, lng: -82.544416 },
+  { id: "ChIJ1U_vFp0Xw4gRGKl6mJGJ9UI", name: "Joy Coffee", lat: 27.4597729, lng: -82.5757174, verifiedOn: "2026-09-10" },
+  { id: "ChIJA-QkamE7w4gRfdzcxEHyPls", name: "ATRIA Cafe", lat: 27.4648662, lng: -82.4325881, verifiedOn: "2026-09-23" },
+  { id: "ChIJY5LPSxJAw4gRMhj-bOy9MKU", name: "Buddy Brew Coffee", lat: 27.3364, lng: -82.544416, verifiedOn: "2026-09-23" },
 ];
-ok(localMenus.every(({ id }) => FALL_PLACE_IDS[id] && FALL_PLACE_RAIL[id] === "food"
-  && FALL_OFFERING_SOURCES[id]?.verified === "2026-09-10"
+ok(localMenus.every(({ id, verifiedOn }) => FALL_PLACE_IDS[id] && FALL_PLACE_RAIL[id] === "food"
+  && FALL_OFFERING_SOURCES[id]?.verified === verifiedOn
   && /pumpkin/i.test(FALL_OFFERING_SOURCES[id]?.offering || "")
   && fallCardClass(id, "2026-09-10") === " wf-fall-card"), "three exact local venues have named pumpkin menu proof, one food assignment and seasonal styling");
 for (const origin of [{ lat: 27.4989, lng: -82.5748 }, { lat: 27.3364, lng: -82.5307 }]) {

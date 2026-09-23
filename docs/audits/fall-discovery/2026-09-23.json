@@ -1,0 +1,797 @@
+{
+  "run_at": "2026-09-23T18:21:41.023Z",
+  "today": "2026-09-23",
+  "season_window": {
+    "start_md": "08-26",
+    "end": "2026-11-26"
+  },
+  "ok": true,
+  "coverage": {
+    "metros_scanned": [
+      "tampa",
+      "st-pete",
+      "manatee-sarasota",
+      "orlando",
+      "miami-dade",
+      "broward",
+      "palm-beach",
+      "florida"
+    ],
+    "plausible_pool_size": 8255,
+    "plausible_pool_with_known_source": 17,
+    "plausible_pool_coverage_pct": 0.2,
+    "square_toast_probes_attempted": 25,
+    "square_toast_probes_hit": 0,
+    "registry_members": 17,
+    "candidates_evaluated": 19
+  },
+  "by_action": {
+    "refresh": 7,
+    "expire": 1,
+    "insufficient": 11
+  },
+  "verified_but_missing": [],
+  "fall_listed_but_stale": [
+    {
+      "place_id": "ChIJVQB8l1PEwogRfNZtGI6suIc",
+      "name": "Gasparilla Distillery & Cocktail Bar",
+      "city": "tampa",
+      "source": "https://www.gasparilladistillery.net/events/ghost-of-gasparilla-halloween-pop-up-bar",
+      "current_year_proof": "none"
+    },
+    {
+      "place_id": "ChIJTzoiienhwogRbPa3GpuvBQU",
+      "name": "Paradeco Coffee Roasters",
+      "city": "tampa",
+      "source": "https://tampabaydatenightguide.com/seasonal-menus-in-tampa-restaurants-fall/",
+      "current_year_proof": "none"
+    },
+    {
+      "place_id": "ChIJ1U_vFp0Xw4gRGKl6mJGJ9UI",
+      "name": "Joy Coffee",
+      "city": "manatee-sarasota",
+      "source": "https://joycoffeebradenton.square.site/?fulfillment=PICKUP&location_id=LMTGQ2Y8V9RM8",
+      "current_year_proof": "none"
+    },
+    {
+      "place_id": "ChIJA-QkamE7w4gRfdzcxEHyPls",
+      "name": "ATRIA Cafe",
+      "city": "manatee-sarasota",
+      "source": "https://order.toasttab.com/online/atria-cafe-lwr",
+      "current_year_proof": "none"
+    },
+    {
+      "place_id": "ChIJY5LPSxJAw4gRMhj-bOy9MKU",
+      "name": "Buddy Brew Coffee",
+      "city": "manatee-sarasota",
+      "source": "https://order.toasttab.com/online/buddybrewsarasota",
+      "current_year_proof": "none"
+    },
+    {
+      "place_id": "ChIJ11hsiYXEwogRjDBv39F04J8",
+      "name": "Oxford Exchange",
+      "city": "tampa",
+      "source": "https://tampabaydatenightguide.com/seasonal-menus-in-tampa-restaurants-fall/",
+      "current_year_proof": "none"
+    },
+    {
+      "place_id": "ChIJ5crCip3EwogRQnhkbw_Ir6U",
+      "name": "On Swann",
+      "city": "tampa",
+      "source": "https://tampabaydatenightguide.com/seasonal-menus-in-tampa-restaurants-fall/",
+      "current_year_proof": "none"
+    },
+    {
+      "place_id": "ChIJB2B8mYzHwogRkZIDCDARWww",
+      "name": "Ice Screamin/Tampa",
+      "city": "tampa",
+      "source": "https://icescreamin.com/",
+      "current_year_proof": "none"
+    },
+    {
+      "place_id": "ChIJd6lmgVh_3YgREzqTBf28i6U",
+      "name": "Mortem Manor Haunted Attraction",
+      "city": "orlando",
+      "source": "https://mortemmanor.com/",
+      "current_year_proof": "none"
+    },
+    {
+      "place_id": "ChIJwZ_GK-d-54gRm5Ahg7PZYeY",
+      "name": "Red Coconut Club",
+      "city": "orlando",
+      "source": "https://hauntedattractionnetwork.com/dead-coconut-club-harvest-hhn-2026/",
+      "current_year_proof": "none"
+    }
+  ],
+  "offering_expired": [
+    {
+      "place_id": "ChIJVQB8l1PEwogRfNZtGI6suIc",
+      "name": "Gasparilla Distillery & Cocktail Bar",
+      "ends": "2024-11-03"
+    }
+  ],
+  "place_closed": [],
+  "ambiguous_or_rejected": [],
+  "registry_members_not_evaluated_this_run": [],
+  "results": [
+    {
+      "place_id": "ChIJ7QVjUK_FwogRaTLY8uxOico",
+      "place": "SpookEasy Lounge",
+      "city": "tampa",
+      "offering": "halloween bars in tampa: sip spooky cocktails at these pop-ups skip to content facebook x",
+      "terms": [
+        "halloween",
+        "spooky",
+        "pumpkin",
+        "pumpkin spice",
+        "fall",
+        "maple",
+        "harvest"
+      ],
+      "source": "https://tampabaydatenightguide.com/pop-up-halloween-bars-in-tampa/",
+      "source_type": "reputable_secondary",
+      "source_tier": "reputable_secondary",
+      "fetched_at": "2026-09-23T18:21:22.067Z",
+      "source_date": "2026-09-22",
+      "starts": null,
+      "ends": null,
+      "current_year_proof": "medium",
+      "confidence": "medium",
+      "action": "refresh",
+      "place_operational": true,
+      "sources_checked": [
+        {
+          "url": "https://tampabaydatenightguide.com/pop-up-halloween-bars-in-tampa/",
+          "type": "reputable_secondary",
+          "http_status": 200,
+          "fetch_error": null,
+          "current_year_proof": "medium"
+        }
+      ]
+    },
+    {
+      "place_id": "ChIJIZt3d7DFwogRQ5Lg2tPMXyk",
+      "place": "Dracula's Legacy Wine Bar & Bistro Tampa",
+      "city": "tampa",
+      "offering": "halloween bars in tampa: sip spooky cocktails at these pop-ups skip to content facebook x",
+      "terms": [
+        "halloween",
+        "spooky",
+        "pumpkin",
+        "pumpkin spice",
+        "fall",
+        "maple",
+        "harvest"
+      ],
+      "source": "https://tampabaydatenightguide.com/pop-up-halloween-bars-in-tampa/",
+      "source_type": "reputable_secondary",
+      "source_tier": "reputable_secondary",
+      "fetched_at": "2026-09-23T18:21:22.136Z",
+      "source_date": "2026-09-22",
+      "starts": null,
+      "ends": null,
+      "current_year_proof": "medium",
+      "confidence": "medium",
+      "action": "refresh",
+      "place_operational": true,
+      "sources_checked": [
+        {
+          "url": "https://tampabaydatenightguide.com/pop-up-halloween-bars-in-tampa/",
+          "type": "reputable_secondary",
+          "http_status": 200,
+          "fetch_error": null,
+          "current_year_proof": "medium"
+        }
+      ]
+    },
+    {
+      "place_id": "ChIJVQB8l1PEwogRfNZtGI6suIc",
+      "place": "Gasparilla Distillery & Cocktail Bar",
+      "city": "tampa",
+      "offering": null,
+      "terms": [],
+      "source": "https://www.gasparilladistillery.net/events/ghost-of-gasparilla-halloween-pop-up-bar",
+      "source_type": "official_site",
+      "source_tier": "official_site",
+      "fetched_at": "2026-09-23T18:21:23.338Z",
+      "starts": "2024-10-19",
+      "ends": "2024-11-03",
+      "current_year_proof": "none",
+      "confidence": "none",
+      "action": "expire",
+      "place_operational": true,
+      "sources_checked": [
+        {
+          "url": "https://www.gasparilladistillery.net/events/ghost-of-gasparilla-halloween-pop-up-bar",
+          "type": "official_site",
+          "http_status": 403,
+          "fetch_error": "http_403",
+          "current_year_proof": "none"
+        },
+        {
+          "url": "https://www.gasparilladistillery.net/",
+          "type": "official_site",
+          "http_status": 403,
+          "fetch_error": "http_403",
+          "current_year_proof": "none"
+        }
+      ]
+    },
+    {
+      "place_id": "ChIJTzoiienhwogRbPa3GpuvBQU",
+      "place": "Paradeco Coffee Roasters",
+      "city": "tampa",
+      "offering": "don&#039;t miss these seasonal fall menus in tampa skip to content facebook x instagram threads pinterest things to do ea",
+      "terms": [
+        "fall",
+        "autumn",
+        "pumpkin spice",
+        "pumpkin",
+        "maple",
+        "harvest",
+        "fall menu",
+        "butternut"
+      ],
+      "source": "https://tampabaydatenightguide.com/seasonal-menus-in-tampa-restaurants-fall/",
+      "source_type": "reputable_secondary",
+      "source_tier": "reputable_secondary",
+      "fetched_at": "2026-09-23T18:21:22.142Z",
+      "source_date": "2025-10-06",
+      "starts": null,
+      "ends": null,
+      "current_year_proof": "none",
+      "confidence": "none",
+      "action": "insufficient",
+      "place_operational": true,
+      "sources_checked": [
+        {
+          "url": "https://tampabaydatenightguide.com/seasonal-menus-in-tampa-restaurants-fall/",
+          "type": "reputable_secondary",
+          "http_status": 200,
+          "fetch_error": null,
+          "current_year_proof": "none"
+        },
+        {
+          "url": "https://paradecocoffee.com/menu/",
+          "type": "official_site",
+          "http_status": 202,
+          "fetch_error": null,
+          "current_year_proof": "none"
+        }
+      ]
+    },
+    {
+      "place_id": "ChIJ1U_vFp0Xw4gRGKl6mJGJ9UI",
+      "place": "Joy Coffee",
+      "city": "manatee-sarasota",
+      "offering": "roissant unavailable $7.00 add checkmark other items spiced pumpkin flat white unavailable $6.00 add checkmark classic spiced pumpkin latte unavailabl",
+      "terms": [
+        "pumpkin"
+      ],
+      "source": "https://joycoffeebradenton.square.site/?fulfillment=PICKUP&location_id=LMTGQ2Y8V9RM8",
+      "source_type": "official_menu_platform",
+      "source_tier": "official_menu_platform",
+      "fetched_at": "2026-09-23T18:21:22.534Z",
+      "source_date": null,
+      "starts": null,
+      "ends": null,
+      "current_year_proof": "none",
+      "confidence": "none",
+      "action": "insufficient",
+      "place_operational": true,
+      "sources_checked": [
+        {
+          "url": "https://joycoffeebradenton.square.site/?fulfillment=PICKUP&location_id=LMTGQ2Y8V9RM8",
+          "type": "official_menu_platform",
+          "http_status": 200,
+          "fetch_error": null,
+          "current_year_proof": "none"
+        }
+      ]
+    },
+    {
+      "place_id": "ChIJA-QkamE7w4gRfdzcxEHyPls",
+      "place": "ATRIA Cafe",
+      "city": "manatee-sarasota",
+      "offering": null,
+      "terms": [],
+      "source": "https://order.toasttab.com/online/atria-cafe-lwr",
+      "source_type": "official_menu_platform",
+      "source_tier": "official_menu_platform",
+      "fetched_at": "2026-09-23T18:21:23.752Z",
+      "starts": null,
+      "ends": null,
+      "current_year_proof": "none",
+      "confidence": "none",
+      "action": "insufficient",
+      "place_operational": true,
+      "sources_checked": [
+        {
+          "url": "https://order.toasttab.com/online/atria-cafe-lwr",
+          "type": "official_menu_platform",
+          "http_status": 403,
+          "fetch_error": "http_403",
+          "current_year_proof": "none"
+        }
+      ]
+    },
+    {
+      "place_id": "ChIJY5LPSxJAw4gRMhj-bOy9MKU",
+      "place": "Buddy Brew Coffee",
+      "city": "manatee-sarasota",
+      "offering": null,
+      "terms": [],
+      "source": "https://order.toasttab.com/online/buddybrewsarasota",
+      "source_type": "official_menu_platform",
+      "source_tier": "official_menu_platform",
+      "fetched_at": "2026-09-23T18:21:23.809Z",
+      "starts": null,
+      "ends": null,
+      "current_year_proof": "none",
+      "confidence": "none",
+      "action": "insufficient",
+      "place_operational": true,
+      "sources_checked": [
+        {
+          "url": "https://order.toasttab.com/online/buddybrewsarasota",
+          "type": "official_menu_platform",
+          "http_status": 403,
+          "fetch_error": "http_403",
+          "current_year_proof": "none"
+        }
+      ]
+    },
+    {
+      "place_id": "ChIJ9ZpMS-7jwogRWChZqTQG66g",
+      "place": "Sōl St Pete Bistro",
+      "city": "st-pete",
+      "offering": "cheese salad (v) $23.00 baby greens, fresh chevre, pecans, apple cider pickled onions, micro arugula, fresh herbed balsamic vinaigrette | add 2 diver",
+      "terms": [
+        "apple cider",
+        "pumpkin",
+        "maple"
+      ],
+      "source": "https://solstpete.com/st-petersburg-warehouse-arts-district-sol-st-pete-bistro-food-menu",
+      "source_type": "official_site",
+      "source_tier": "official_site",
+      "fetched_at": "2026-09-23T18:21:24.156Z",
+      "source_date": null,
+      "starts": null,
+      "ends": null,
+      "current_year_proof": "strong",
+      "confidence": "strong",
+      "action": "refresh",
+      "place_operational": true,
+      "sources_checked": [
+        {
+          "url": "https://solstpete.com/st-petersburg-warehouse-arts-district-sol-st-pete-bistro-food-menu",
+          "type": "official_site",
+          "http_status": 200,
+          "fetch_error": null,
+          "current_year_proof": "strong"
+        }
+      ]
+    },
+    {
+      "place_id": "ChIJ11hsiYXEwogRjDBv39F04J8",
+      "place": "Oxford Exchange",
+      "city": "tampa",
+      "offering": "don&#039;t miss these seasonal fall menus in tampa skip to content facebook x instagram threads pinterest things to do ea",
+      "terms": [
+        "fall",
+        "autumn",
+        "pumpkin spice",
+        "pumpkin",
+        "maple",
+        "harvest",
+        "fall menu",
+        "butternut"
+      ],
+      "source": "https://tampabaydatenightguide.com/seasonal-menus-in-tampa-restaurants-fall/",
+      "source_type": "reputable_secondary",
+      "source_tier": "reputable_secondary",
+      "fetched_at": "2026-09-23T18:21:23.871Z",
+      "source_date": "2025-10-06",
+      "starts": null,
+      "ends": null,
+      "current_year_proof": "none",
+      "confidence": "none",
+      "action": "insufficient",
+      "place_operational": true,
+      "sources_checked": [
+        {
+          "url": "https://tampabaydatenightguide.com/seasonal-menus-in-tampa-restaurants-fall/",
+          "type": "reputable_secondary",
+          "http_status": 200,
+          "fetch_error": null,
+          "current_year_proof": "none"
+        },
+        {
+          "url": "https://oxfordexchange.com/pages/menus",
+          "type": "official_site",
+          "http_status": 200,
+          "fetch_error": null,
+          "current_year_proof": "none"
+        }
+      ]
+    },
+    {
+      "place_id": "ChIJ5crCip3EwogRQnhkbw_Ir6U",
+      "place": "On Swann",
+      "city": "tampa",
+      "offering": "don&#039;t miss these seasonal fall menus in tampa skip to content facebook x instagram threads pinterest things to do ea",
+      "terms": [
+        "fall",
+        "autumn",
+        "pumpkin spice",
+        "pumpkin",
+        "maple",
+        "harvest",
+        "fall menu",
+        "butternut"
+      ],
+      "source": "https://tampabaydatenightguide.com/seasonal-menus-in-tampa-restaurants-fall/",
+      "source_type": "reputable_secondary",
+      "source_tier": "reputable_secondary",
+      "fetched_at": "2026-09-23T18:21:24.213Z",
+      "source_date": "2025-10-06",
+      "starts": null,
+      "ends": null,
+      "current_year_proof": "none",
+      "confidence": "none",
+      "action": "insufficient",
+      "place_operational": true,
+      "sources_checked": [
+        {
+          "url": "https://tampabaydatenightguide.com/seasonal-menus-in-tampa-restaurants-fall/",
+          "type": "reputable_secondary",
+          "http_status": 200,
+          "fetch_error": null,
+          "current_year_proof": "none"
+        }
+      ]
+    },
+    {
+      "place_id": "ChIJB2B8mYzHwogRkZIDCDARWww",
+      "place": "Ice Screamin/Tampa",
+      "city": "tampa",
+      "offering": null,
+      "terms": [],
+      "source": "https://icescreamin.com/",
+      "source_type": "official_site",
+      "source_tier": "official_site",
+      "fetched_at": "2026-09-23T18:21:25.030Z",
+      "source_date": null,
+      "starts": null,
+      "ends": null,
+      "current_year_proof": "none",
+      "confidence": "none",
+      "action": "insufficient",
+      "place_operational": true,
+      "sources_checked": [
+        {
+          "url": "https://icescreamin.com/",
+          "type": "official_site",
+          "http_status": 200,
+          "fetch_error": null,
+          "current_year_proof": "none"
+        }
+      ]
+    },
+    {
+      "place_id": "ChIJn6X9ZlDEwogRTbyZDHcMf_0",
+      "place": "Ghost Party Haunted Tours",
+      "city": "tampa",
+      "offering": "dying to take you on a journey into the unknown, revealing spooky mysteries, paranormal occurrences, and real ghostly encounters. hear creepy tales,",
+      "terms": [
+        "spooky"
+      ],
+      "source": "https://ghost-party.com/",
+      "source_type": "official_site",
+      "source_tier": "official_site",
+      "fetched_at": "2026-09-23T18:21:41.021Z",
+      "source_date": null,
+      "starts": null,
+      "ends": null,
+      "current_year_proof": "strong",
+      "confidence": "strong",
+      "action": "refresh",
+      "place_operational": true,
+      "sources_checked": [
+        {
+          "url": "https://ghost-party.com/",
+          "type": "official_site",
+          "http_status": 200,
+          "fetch_error": null,
+          "current_year_proof": "strong"
+        }
+      ]
+    },
+    {
+      "place_id": "ChIJd6lmgVh_3YgREzqTBf28i6U",
+      "place": "Mortem Manor Haunted Attraction",
+      "city": "orlando",
+      "offering": null,
+      "terms": [],
+      "source": "https://mortemmanor.com/",
+      "source_type": "official_site",
+      "source_tier": "official_site",
+      "fetched_at": "2026-09-23T18:21:24.950Z",
+      "source_date": null,
+      "starts": null,
+      "ends": null,
+      "current_year_proof": "none",
+      "confidence": "none",
+      "action": "insufficient",
+      "place_operational": true,
+      "sources_checked": [
+        {
+          "url": "https://mortemmanor.com/",
+          "type": "official_site",
+          "http_status": 200,
+          "fetch_error": null,
+          "current_year_proof": "none"
+        }
+      ]
+    },
+    {
+      "place_id": "ChIJUS9EYpll54gR63QOjYM4vDw",
+      "place": "Orlando Ghosts: Ghost Tours and Haunted Pub Crawls",
+      "city": "orlando",
+      "offering": "ejae our guide was great, learned some great history on the spooky history of orlando. 09.20.26 t.c. escape we enjoyed the ghost tour, the stories and",
+      "terms": [
+        "spooky",
+        "halloween"
+      ],
+      "source": "https://usghostadventures.com/orlando/",
+      "source_type": "official_site",
+      "source_tier": "official_site",
+      "fetched_at": "2026-09-23T18:21:25.445Z",
+      "source_date": "2024-01-09",
+      "starts": null,
+      "ends": null,
+      "current_year_proof": "strong",
+      "confidence": "strong",
+      "action": "refresh",
+      "place_operational": true,
+      "sources_checked": [
+        {
+          "url": "https://usghostadventures.com/orlando/",
+          "type": "official_site",
+          "http_status": 200,
+          "fetch_error": null,
+          "current_year_proof": "strong"
+        }
+      ]
+    },
+    {
+      "place_id": "ChIJ2Z9gE5eNk4gRz-Ey8y0ahfM",
+      "place": "Fear at the Pier Haunted Attraction and Escape Rooms",
+      "city": "panama-city-florida",
+      "offering": "s *, amazing special effects, and incredible monsters. it's halloween everyday at fear at the pier ! * disclaimer: our haunted house features live act",
+      "terms": [
+        "halloween",
+        "fall"
+      ],
+      "source": "https://pcbattractions.com/haunted-house/",
+      "source_type": "official_site",
+      "source_tier": "official_site",
+      "fetched_at": "2026-09-23T18:21:25.855Z",
+      "source_date": "2023-04-10",
+      "starts": null,
+      "ends": null,
+      "current_year_proof": "strong",
+      "confidence": "strong",
+      "action": "refresh",
+      "place_operational": true,
+      "sources_checked": [
+        {
+          "url": "https://pcbattractions.com/haunted-house/",
+          "type": "official_site",
+          "http_status": 200,
+          "fetch_error": null,
+          "current_year_proof": "strong"
+        }
+      ]
+    },
+    {
+      "place_id": "ChIJwZ_GK-d-54gRm5Ahg7PZYeY",
+      "place": "Red Coconut Club",
+      "city": "orlando",
+      "offering": "dead coconut club harvest coming to universal citywalk for hhn 35 skip to content search follow us home news",
+      "terms": [
+        "harvest",
+        "fall",
+        "halloween",
+        "spooky"
+      ],
+      "source": "https://hauntedattractionnetwork.com/dead-coconut-club-harvest-hhn-2026/",
+      "source_type": "reputable_secondary",
+      "source_tier": "reputable_secondary",
+      "fetched_at": "2026-09-23T18:21:25.776Z",
+      "source_date": "2026-07-22",
+      "starts": "2026-08-28",
+      "ends": "2026-11-01",
+      "current_year_proof": "none",
+      "confidence": "none",
+      "action": "insufficient",
+      "place_operational": true,
+      "sources_checked": [
+        {
+          "url": "https://hauntedattractionnetwork.com/dead-coconut-club-harvest-hhn-2026/",
+          "type": "reputable_secondary",
+          "http_status": 200,
+          "fetch_error": null,
+          "current_year_proof": "none"
+        }
+      ]
+    },
+    {
+      "place_id": "ChIJUczTK5XC2YgRRt4Jp6N3B70",
+      "place": "Pinto's Farm",
+      "city": "miami-dade",
+      "offering": "with local breweries and several beer tastings at our first oktoberfest ! september 19-november 8 september 19-november 8 september 19-november 8 enjo",
+      "terms": [
+        "oktoberfest",
+        "fall",
+        "pumpkin",
+        "seasonal menu"
+      ],
+      "source": "https://pintofarm.com/upcoming-events",
+      "source_type": "official_site",
+      "source_tier": "official_site",
+      "fetched_at": "2026-09-23T18:21:26.015Z",
+      "source_date": null,
+      "starts": "2026-09-19",
+      "ends": "2026-11-08",
+      "current_year_proof": "strong",
+      "confidence": "strong",
+      "action": "refresh",
+      "place_operational": true,
+      "sources_checked": [
+        {
+          "url": "https://pintofarm.com/upcoming-events",
+          "type": "official_site",
+          "http_status": 200,
+          "fetch_error": null,
+          "current_year_proof": "strong"
+        }
+      ]
+    },
+    {
+      "place_id": "ChIJK4x0bSDD2YgReYmwh03vUW4",
+      "place": "The Little Farm",
+      "city": "miami-dade",
+      "offering": "pumpkin patch - miami skip to content open to public on select weekends 9:30am &#8211; 1",
+      "terms": [
+        "pumpkin",
+        "fall"
+      ],
+      "source": "https://thelittlefarm.us/little-farm-events/pumpkin-patch/",
+      "source_type": "official_site",
+      "source_tier": "official_site",
+      "fetched_at": "2026-09-23T18:21:27.496Z",
+      "source_date": "2023-04-18",
+      "starts": null,
+      "ends": null,
+      "current_year_proof": "none",
+      "confidence": "none",
+      "action": "insufficient",
+      "place_operational": true,
+      "sources_checked": [
+        {
+          "url": "https://thelittlefarm.us/little-farm-events/pumpkin-patch/",
+          "type": "official_site",
+          "http_status": 200,
+          "fetch_error": null,
+          "current_year_proof": "none"
+        }
+      ]
+    },
+    {
+      "place_id": "ChIJ28aBEDHiwogRzv5VMM80mE0",
+      "place": "3 Daughters Brewing",
+      "city": "tampa",
+      "offering": "3 daughters closes out oktoberfest season with huge, free party this saturday skip to content stories guides even",
+      "terms": [
+        "oktoberfest",
+        "halloween",
+        "fall"
+      ],
+      "source": "https://ilovetheburg.com/oktoberfest-3-daughters-st-pete/",
+      "source_type": "reputable_secondary",
+      "source_tier": "reputable_secondary",
+      "fetched_at": "2026-09-23T18:21:26.402Z",
+      "source_date": "2024-10-22",
+      "starts": null,
+      "ends": null,
+      "current_year_proof": "none",
+      "confidence": "none",
+      "action": "insufficient",
+      "place_operational": true,
+      "sources_checked": [
+        {
+          "url": "https://ilovetheburg.com/oktoberfest-3-daughters-st-pete/",
+          "type": "reputable_secondary",
+          "http_status": 200,
+          "fetch_error": null,
+          "current_year_proof": "none"
+        }
+      ]
+    }
+  ],
+  "second_pass": {
+    "run_at": "2026-09-23 (orchestrator-directed human re-verification, real Playwright/Chromium browser against each venue's own live current page — not a mechanical automated re-fetch; this sandboxed session has no Supabase credentials to re-run the pipeline's wf_inventory read)",
+    "reason": "the pipeline's own mechanical fetch (see the top-level fields above, and 'results' below) could not resolve 7 of the then-17 registry members to verifiable current-season proof: some behind JS-rendered/paginated menus (Paradeco's 'LOAD MORE'), an image-only menu (Oxford Exchange), a bot-defended SPA (Universal's own Red Coconut Club page never rendered), and two evergreen-themed venues whose own copy never uses a literal FALL_TERMS word (Mortem Manor; originally Ice Screamin). A human pass with a real browser resolved every one.",
+    "removed": [
+      {
+        "place_id": "ChIJVQB8l1PEwogRfNZtGI6suIc",
+        "name": "Gasparilla Distillery & Cocktail Bar",
+        "reason": "event page re-checked live still reads 10/19/2024-11/3/2024, unchanged; no 2026 iteration anywhere on the site (homepage + /events listing both checked)"
+      },
+      {
+        "place_id": "ChIJTzoiienhwogRbPa3GpuvBQU",
+        "name": "Paradeco Coffee Roasters",
+        "reason": "full menu re-checked live with every 'LOAD MORE' page exhausted (49 items total) — zero pumpkin/fall/autumn/maple/harvest vocabulary anywhere"
+      },
+      {
+        "place_id": "ChIJ11hsiYXEwogRjDBv39F04J8",
+        "name": "Oxford Exchange",
+        "reason": "menu is image-rendered; re-checked by full-page screenshot of the 'All Day' menu — zero fall items; the only 'pumpkin' match is 'pumpkin seeds' as a cold salad garnish (a year-round ingredient, not seasonal evidence)"
+      },
+      {
+        "place_id": "ChIJ5crCip3EwogRQnhkbw_Ir6U",
+        "name": "On Swann",
+        "reason": "live menu platform now explicitly labelled 'Spring | Summer Dinner Menu' with zero fall vocabulary; official site offers only generic 'seasonal menu with local flair' boilerplate, no actual items"
+      },
+      {
+        "place_id": "ChIJB2B8mYzHwogRkZIDCDARWww",
+        "name": "Ice Screamin",
+        "reason": "own current site (icescreamin.shop) rebranded to 'Handcrafted Ice Cream, Dubai Chocolate & Milkshakes Near USF' — zero horror/slasher/Halloween vocabulary; the evergreen theme itself is gone from the business's own current self-description"
+      }
+    ],
+    "kept_via_rule_change": [
+      {
+        "place_id": "ChIJd6lmgVh_3YgREzqTBf28i6U",
+        "name": "Mortem Manor",
+        "action": "refresh",
+        "verified": "2026-09-23",
+        "source": "https://mortemmanor.com/",
+        "rule": "lib/fallEvidence.evergreenThemeLive() — its own page never uses a FALL_TERMS word, but shows the haunted-house theme live ('The Area's ONLY YEAR-ROUND Haunted House') plus an operating-status signal ('BUY TICKETS ONLINE NOW', 'OPEN YEAR-ROUND')"
+      },
+      {
+        "place_id": "ChIJwZ_GK-d-54gRm5Ahg7PZYeY",
+        "name": "Red Coconut Club -> Dead Coconut Club",
+        "action": "refresh",
+        "verified": "2026-09-23",
+        "source": "https://hauntedattractionnetwork.com/dead-coconut-club-harvest-hhn-2026/",
+        "until": "2026-11-01",
+        "rule": "lib/fallEvidence.currentYearProof's `offeringWindow` branch — a reputable_secondary source published before the season (2026-07-22) still reaches medium proof when the offering's OWN explicit dated window (Aug 28-Nov 1 2026) is active today; Universal's own Red Coconut Club page did not render usable content via automated browser this run (empty body after full load+scroll wait)"
+      }
+    ],
+    "new_candidate_insufficient": [
+      {
+        "place_id": "ChIJo_IdHf0lw4gRHDbQNKBRE84",
+        "name": "Ryan's Coffee House",
+        "city": "Parrish",
+        "action": "insufficient",
+        "sources": [
+          "https://ryanscoffeehouse.com/signature-lattes",
+          "https://ryans-coffee-house.square.site/"
+        ],
+        "reason": "WS3 official-site + live Square catalog check (2026-09-23): the current Signature Lattes board (footer '© 2026') lists Ryan's Special, Parrish Honey Bee, Bananas Foster, Lavender Haze, Caramel Apple Macchiato, Raspberry White Mocha and Salted Caramel Mocha as year-round signatures with no seasonal label; the Square store shows the same roster with every item Out of Stock. No White Pumpkin, no pumpkin item at all; a 2025-dated article is the only place 'White Pumpkin' ever appeared for this venue."
+      }
+    ],
+    "verified_but_missing": [],
+    "offering_expired": [
+      {
+        "place_id": "ChIJVQB8l1PEwogRfNZtGI6suIc",
+        "name": "Gasparilla Distillery & Cocktail Bar",
+        "ends": "2024-11-03"
+      }
+    ],
+    "place_closed": [],
+    "ambiguous_or_rejected": [],
+    "final_registry_size": 12
+  }
+}
