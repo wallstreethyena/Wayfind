@@ -76,6 +76,29 @@ assert.equal((railHtml.match(/wf-place-card-score/g) || []).length, 3, "every ca
 assert.equal((railHtml.match(/loading="eager"/g) || []).length, 3, "every nearby image loads eagerly so horizontal scrolling cannot strand a lazy request");
 assert.doesNotMatch(railHtml, /wfw-p|wfw-th/, "the retired standalone thumbnail card does not render");
 
+// v2 (2026-09-22) — the rail's title/description come from the outing
+// engine's stamp on the first row (lib/eventOuting.js, via
+// lib/eventPairings.js), with a legacy fallback when that stamp is absent
+// (a row from an older cache entry, or a caller this pass missed).
+assert.match(railHtml, /Nearby places/, "rows without an outing stamp fall back to the legacy rail title");
+assert.match(railHtml, /Nearby picks by Wayfind Score\./, "rows without an outing stamp fall back to the legacy rail description");
+
+const outingPlace = (id, name, rank, outing, slotLabel) => ({
+  ...place(id, name, rank),
+  outing,
+  rankingNote: `${slotLabel} · ${(rank + 0.2).toFixed(1)} mi from the venue`,
+});
+const concertCopy = { archetype: "concert_evening", railTitle: "Make a night of it", railNote: "Picks for before and after, ranked by Wayfind Score and walking distance." };
+const withOuting = [
+  outingPlace("ChIJOutingAlpha0001", "Dinner Spot", 1, { ...concertCopy, slotKey: "dinner_before", slotLabel: "Dinner before the show", timing: "before" }, "Dinner before the show"),
+  outingPlace("ChIJOutingBravo0002", "Nightcap Spot", 2, { ...concertCopy, slotKey: "nightcap", slotLabel: "Nightcap", timing: "after" }, "Nightcap"),
+];
+const outingRailHtml = renderToStaticMarkup(createElement(EventNearbyCards, { places: withOuting }));
+assert.match(outingRailHtml, /Make a night of it/, "the rail title comes from the first row's outing.railTitle, not the static legacy copy");
+assert.match(outingRailHtml, /Picks for before and after, ranked by Wayfind Score and walking distance\./, "the rail description comes from the first row's outing.railNote");
+assert.match(outingRailHtml, /Dinner before the show · 1\.2 mi from the venue/, "each card's own ranking note comes from row.rankingNote (its slot), not a generic sentence");
+assert.match(outingRailHtml, /Nightcap · 2\.2 mi from the venue/, "a second row keeps its own slot's ranking note");
+
 // One ordered admission result feeds both map and rail. Reject every row that
 // would create a false pin, an unscored card, a dead card, or a fake distance.
 const invalid = [
@@ -147,7 +170,7 @@ assert.match(railHtml, /Nearby picks by Wayfind Score/, "compact copy retains th
 assert.doesNotMatch(whereHtml, /Worth a stop near|Separate places, not part/, "verbose duplicate heading does not return");
 assert.equal(renderToStaticMarkup(createElement(EventPlaceRail, { title: "Empty", count: 0 })), "", "empty rails are hidden");
 
-console.log("test-event-nearby-cards: OK — 38 assertions across the real EventWhere, EventNearbyCards, and IconicPlaceCard render chain; positive rail/actions and negative pin-card admission verified");
+console.log("test-event-nearby-cards: OK — 44 assertions across the real EventWhere, EventNearbyCards, and IconicPlaceCard render chain; positive rail/actions, outing-engine rail copy, and negative pin-card admission verified");
 
 Module._extensions[".js"] = defaultJsLoader;
 Module._load = defaultModuleLoad;

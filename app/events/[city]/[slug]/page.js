@@ -221,8 +221,11 @@ export default async function EventPage({ params }) {
   // nothing honestly nearby (lib/eventPairings.js), and then no shelf at all.
   const lat = e.lat == null || e.lat === "" ? NaN : Number(e.lat);
   const lng = e.lng == null || e.lng === "" ? NaN : Number(e.lng);
+  // name/date/time/segment/genre feed lib/eventOuting.js's classifyEvent so
+  // the picks below are BEFORE/AFTER this specific event (a symphony, a
+  // ballgame, a kids' matinee), not a generic top-rated shelf near the point.
   const picks = Number.isFinite(lat) && Number.isFinite(lng)
-    ? (await eventPairings({ lat, lng, city: e.city, place_id: e.place_id || e.placeId }, {}).catch(() => [])).map((p) => ({ ...p, href: pairingHref(p) }))
+    ? (await eventPairings({ lat, lng, city: e.city, place_id: e.place_id || e.placeId, name: e.name, date: e.date, time: e.time, segment: e.segment, genre: e.genre }, {}).catch(() => [])).map((p) => ({ ...p, href: pairingHref(p) }))
     : [];
   const storyEvent = eventStoryEvidence(e);
   const initialStory = eventStoryFallback(storyEvent);

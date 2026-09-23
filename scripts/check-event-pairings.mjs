@@ -3,9 +3,14 @@
 // event cards. Two owner asks (2026-08-23): "other places near the location
 // worth going to that pair well," and "turn these into the place cards we have."
 //
-// It EXECUTES eventPairings against a stubbed inventory (so it needs no network
-// or live key), and it SOURCE-CHECKS the two honesty rules the visual cards
-// must never break:
+// v3 (2026-09-22): eventPairings now runs every candidate through the outing
+// engine (lib/eventOuting.js) instead of a bare governed-score sort — the
+// SLOT-FILL behavior (which archetype gets which places, AVOID, timing) is
+// scripts/check-event-outing.mjs's job. This file stays the plumbing guard:
+// the module's public contract (signature, self-exclusion, the floor, the
+// "genuinely nearby" cap, /p/ links), the v3 Data Cache boundary (now keyed
+// on the event's CLASSIFICATION as well as its coordinates), and the two
+// honesty rules the visual cards must never break:
 //   1. AN EVENT NEVER CARRIES A WAYFIND SCORE. A place is quality-ranked; an
 //      event is dated. The hub card badge is the DATE, and the hub must not
 //      render a score chip on the event. (The PLACES inside the pairing module
@@ -36,11 +41,16 @@ let pass = 0;
 const fail = [];
 const ok = (c, m) => { if (c) pass++; else fail.push(m); };
 
-// A valid wf_inventory restaurant row (passes placeAllowed(food) + governedScore).
-const mkRow = (i, dLat = 0.01) => ({
+// A valid wf_inventory row (passes placeAllowed(food) + governedScore). Default
+// type/distance are tuned so an ORIGIN with no name/segment/time (classifies
+// as the generic_day archetype's plain lunch/coffee/dinner/dessert slots)
+// stays inside every default per-slot maxMi without widening — plumbing tests
+// below care about counts and identity, not the outing engine's slot-fill
+// judgment (that is scripts/check-event-outing.mjs's job).
+const mkRow = (i, { dLat = 0.002, primaryType = "restaurant", types } = {}) => ({
   place_id: "p" + i, name: "Test Kitchen " + i,
   lat: 25.7272 + dLat * i, lng: -80.2578,
-  primary_type: "restaurant", google_types: ["restaurant", "food", "point_of_interest"],
+  primary_type: primaryType, google_types: types || [primaryType, "food", "point_of_interest"],
   signals: { rating: 4.8, reviews: 2000 + i, priceNum: 2 }, status: "OPERATIONAL",
   photo_ref: "places/p" + i + "/photos/x",
 });
@@ -48,15 +58,25 @@ const mkRow = (i, dLat = 0.01) => ({
 const stub = (rows) => async (url) => ({ ok: true, json: async () => (String(url).includes("category=eq.food") ? rows : []) });
 const ORIGIN = { lat: 25.7272, lng: -80.2578, city: "Miami", place_id: "p2" };
 
-// 1. A healthy set builds cards, excludes the event's own venue, and scores each
-//    place with THE Wayfind Score.
+// 1. A healthy set builds cards, excludes the event's own venue, scores each
+//    place with THE Wayfind Score, and is stamped with the outing engine's
+//    slot + ranking note. Mixed types so the "no more than 3 of the same
+//    primaryType" cap (lib/eventOuting.js) doesn't itself trim the count.
 {
-  const res = await eventPairings(ORIGIN, { fetchImpl: stub([1, 2, 3, 4, 5].map((i) => mkRow(i))) });
+  const res = await eventPairings(ORIGIN, { fetchImpl: stub([
+    mkRow(1),
+    mkRow(2),
+    mkRow(3, { primaryType: "cafe", types: ["cafe", "food"] }),
+    mkRow(4, { primaryType: "ice_cream_shop", types: ["ice_cream_shop", "food"] }),
+    mkRow(5),
+  ]) });
   ok(res.length === 4, `five nearby minus the event venue yields four pairings (got ${res.length})`);
   ok(!res.some((p) => p.id === "p2"), "the event's own venue (place_id) is never paired with itself");
   ok(res.every((p) => Number.isFinite(p.wfScore) && p.wfScore > 0), "every pairing carries a real Wayfind Score");
   ok(res.every((p) => p.wfScore === p.governed_score), "map, detail-link metadata, card badge, and ordering use the same governed score");
   ok(res.every((p) => Number.isFinite(p.distMi)), "every pairing carries a distance");
+  ok(res.every((p) => p.outing && typeof p.outing.slotKey === "string" && p.outing.slotKey.length > 0), "every pairing is stamped with the outing slot it filled");
+  ok(res.every((p) => / · \d+\.\d mi from the venue$/.test(p.rankingNote || "")), "every pairing's ranking note names its slot and distance");
 }
 
 // 2. THE FLOOR. Two nearby places is not a shelf.
@@ -67,8 +87,8 @@ const ORIGIN = { lat: 25.7272, lng: -80.2578, city: "Miami", place_id: "p2" };
 
 // 3. GENUINELY NEARBY. A place beyond maxMi is not "nearby" and is dropped.
 {
-  const near = [1, 2, 3].map((i) => mkRow(i, 0.01));      // ~0.7–2mi
-  const far = mkRow(9, 0.09);                              // ~55mi north
+  const near = [1, 2, 3].map((i) => mkRow(i, { dLat: 0.01 }));      // ~0.7–2mi
+  const far = mkRow(9, { dLat: 0.09 });                              // ~55mi north
   const res = await eventPairings({ lat: 25.7272, lng: -80.2578, city: "Miami" }, { fetchImpl: stub([...near, far]) });
   ok(res.length >= 3 && !res.some((p) => p.id === "p9"), "a place beyond the nearby cap is excluded from the outing");
 }
@@ -122,8 +142,10 @@ ok(!/PlaceScoreChip|wayfindScore\s*\(/.test(hub), "the hub never renders a Wayfi
 // 7. CACHE CONTRACT. The curated page is ISR, but the exhaustive inventory
 // reader below eventPairings deliberately uses cache: "no-store". Execute the
 // real wrapper against a cache double: the loader must run inside the boundary,
-// identical identities must coalesce, and every input that can change the
-// answer must produce its own cache entry.
+// identical identities must coalesce, every input that can change the answer
+// must produce its own cache entry, and — v3 — the event's CLASSIFICATION is
+// one of those inputs, so a concert and a food festival at the exact same
+// venue never share a cache entry.
 {
   const stored = new Map();
   const configs = [];
@@ -156,19 +178,29 @@ ok(!/PlaceScoreChip|wayfindScore\s*\(/.test(hub), "the hub never renders a Wayfi
   const base = { lat: 28.05, lng: -82.42, city: "Tampa", place_id: "busch-gardens" };
   await cached(base);
   await cached({ ...base });
-  await cached({ ...base, event_name: "A field pairings do not read" });
+  await cached({ ...base, note: "a field neither pairings nor classification reads" });
   await cached({ ...base, lat: 28.06 });
   await cached({ ...base, lng: -82.41 });
   await cached({ ...base, city: "Temple Terrace" });
   await cached({ ...base, place_id: "another-venue" });
   await cached({ ...base, place_id: undefined, placeId: "busch-gardens" });
+  // v3 — same coordinates, same venue, DIFFERENT event. A concert and a food
+  // festival at Busch Gardens classify to different archetypes and must not
+  // share a cache entry (a food festival's picks would otherwise leak onto a
+  // concert page at the same venue, or vice versa).
+  await cached({ ...base, segment: "Music" });
+  await cached({ ...base, category: "food", subcategory: "food-festival" });
 
-  ok(configs.length === 1 && configs[0].keyParts[0] === EVENT_PAIRINGS_CACHE_KEY && EVENT_PAIRINGS_CACHE_KEY === "event-pairings-v2", "event pairings use a fresh versioned Data Cache namespace");
+  ok(configs.length === 1 && configs[0].keyParts[0] === EVENT_PAIRINGS_CACHE_KEY && EVENT_PAIRINGS_CACHE_KEY === "event-pairings-v3", "event pairings use a fresh versioned Data Cache namespace");
   ok(configs[0].options.revalidate === EVENT_PAIRINGS_REVALIDATE_SECONDS && EVENT_PAIRINGS_REVALIDATE_SECONDS === 3600, "the pairing cache and parent ISR page share a one-hour lifetime");
   ok(!escapedBoundary, "every exhaustive pairing load executes inside the Data Cache boundary");
-  ok(loads.length === 5, `identical inputs coalesce while lat, lng, city, and venue identity split the cache (got ${loads.length} loads)`);
-  ok(loads.every(({ event }) => Object.hasOwn(event, "lat") && Object.hasOwn(event, "lng") && Object.hasOwn(event, "city") && Object.hasOwn(event, "place_id")), "the cached loader receives every field eventPairings reads");
+  ok(loads.length === 7, `identical inputs (and fields classifyEvent does not read) coalesce, while lat, lng, city, venue identity, AND classification each split the cache (got ${loads.length} loads)`);
+  ok(loads.every(({ event }) => Object.hasOwn(event, "lat") && Object.hasOwn(event, "lng") && Object.hasOwn(event, "city") && Object.hasOwn(event, "place_id") && Object.hasOwn(event, "outing")), "the cached loader receives every field eventPairings reads, including the pre-computed outing classification");
   ok(loads.every(({ options }) => options?.requireComplete === true), "the persistent cache opts into complete candidate pools");
+
+  const atVenue = loads.filter(({ event }) => event.lat === base.lat && event.lng === base.lng && event.city === base.city && event.place_id === base.place_id);
+  const archetypesAtVenue = new Set(atVenue.map(({ event }) => event.outing && event.outing.archetype));
+  ok(atVenue.length === 3 && archetypesAtVenue.size === 3, `a concert and a food festival at the SAME venue coordinates each earn their own cache entry (got archetypes: ${[...archetypesAtVenue].join(", ")})`);
 }
 
 // A rejected load must stay outside the cache while the page remains fail-soft;
