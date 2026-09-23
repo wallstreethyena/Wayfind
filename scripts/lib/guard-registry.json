@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 707,
-    "totalRegistryEntries": 708,
-    "guardsTxtLineCount": 706,
-    "guardsTxtReachedFileCount": 701,
-    "criticalCount": 84,
+    "totalOnDiskGuardFiles": 709,
+    "totalRegistryEntries": 710,
+    "guardsTxtLineCount": 708,
+    "guardsTxtReachedFileCount": 703,
+    "criticalCount": 85,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 486,
+      "CALL": 488,
       "RENDER": 83,
       "STRUCTURAL": 138,
       "OTHER": 1
@@ -3171,6 +3171,28 @@
         "detail": "This route exists to spend Google Ads budget against. A wrong surface tag on a commerce link makes that spend unattributable in PostHog (the exact class of gap CLAUDE.md's 2026-08-25 revenue audit rule 4 describes); a non-Florida offer or a dash/partner-domain leak in visible copy is a Google Ads policy risk on a live campaign, not a cosmetic bug."
       },
       "owner": "Revenue QA"
+    },
+    {
+      "file": "scripts/check-go-routes-crawler-gate.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 23,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
     },
     {
       "file": "scripts/check-guard-hermeticity.mjs",
@@ -8368,6 +8390,33 @@
       "owner": null
     },
     {
+      "file": "scripts/check-viator-monitor-spend-skip.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 25,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-filename:viator"
+      ],
+      "protects": "Our own scheduled synthetic monitor (WayfindSyntheticMonitor/1.0, every 30 minutes from CI) can never spend the metered provider_viator freetext-search ledger, by construction: the monitor's own book-links scenario never selects a spend-capable /api/viator/go?q= link, and the route itself refuses to spend for that exact UA as a backstop — while a real human's identical request is proven to still reach the ledger.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "2026-09-23 audit follow-up to the fix/gogate crawler-gate PR: a scheduled job hitting the spend-capable shape every 30 minutes would be up to ~1,440 Partner API calls/month against the 1,000/month cap that already capped mid-month on 2026-09-22, silently starving real user Book resolutions of the ledger for the rest of the month."
+      },
+      "owner": "Revenue QA"
+    },
+    {
       "file": "scripts/check-viator-redirect-layer.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -9679,7 +9728,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 40,
+      "assertionCount": 41,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
