@@ -20,6 +20,16 @@ import { bookingTargets } from "../../../lib/bookingResolve";
 import { guidePrimaryCta, guideContinue, guideIntent, paintGuideCta } from "../../../lib/guideCta";
 import GuideConversion from "./GuideConversion";
 import { GuideFacts, GuideReadingNav, guidePickImage, guidePickFigureImage, GUIDE_EDITORIAL_CSS } from "./GuideEditorial";
+// Verified, credited pick photos (data/guide-pick-photos/<slug>.json via
+// scripts/build-guide-pick-photos.mjs's generated lib/guidePickPhotoManifest.js).
+// Imported HERE, not inside GuideEditorial.js: that file is transpiled and
+// vm-executed directly by scripts/check-guide-visual-standard.mjs (a require()
+// bound to scripts/'s own location, not GuideEditorial.js's), so an import
+// there resolves against the wrong directory and crashes that guard. This
+// file is never transpiled that way, so it carries the fallback instead — see
+// the pick loop below for the one call site.
+import { guidePickPhoto } from "../../../lib/guidePickPhotos";
+import { findFreePhoto } from "../../../lib/freePhoto";
 import { guideAppHandoffHref } from "../../../lib/guideHandoff";
 import { declaredGuideRailPlaceIds, guidePlaceRailConfig, resolveGuidePlaceRail } from "../../../lib/guidePlaceRails";
 import GuideDealCards from "./GuideDealCards";
@@ -560,6 +570,30 @@ export default async function GuidePage({ params }) {
       else rendered.add(rp.id);
     }
   }
+  // FREE PHOTO CREDIT (card credit fix). GuidePlaceCard never carried the
+  // free, permanent Commons photo lane's attribution (wf_place_photo, see
+  // lib/freePhoto.js) through to IconicPlaceCard's existing photoAttr/
+  // photoAttrHref credit badge — the same slot RailCard already uses. This
+  // is the one read that fills it: findFreePhoto is read-only, keyed on
+  // place id, hits Supabase's PostgREST directly (no Google call, no spend
+  // gate, no ledger — the "free" in its own name), and returns null for the
+  // overwhelming majority of places that have no wf_place_photo row, in
+  // which case the card's badge simply renders nothing, exactly as before.
+  // Mutates the place objects in place: placeRail.places and each
+  // placeRail.markets[].places share the SAME object references (see
+  // lib/guidePlaceRails.js), so one pass covers both.
+  await Promise.all(
+    [...pickPlaces, ...placeRail.places].filter(Boolean).map(async (p) => {
+      if (!p.id) return;
+      try {
+        const free = await findFreePhoto({ placeId: p.id });
+        if (free && free.attributionText && free.attributionUrl) {
+          p.photoAttr = free.attributionText;
+          p.photoAttrHref = free.attributionUrl;
+        }
+      } catch (e) {}
+    })
+  );
   const nowResult = guidePicksForNow(g.picks, nowCtx);
   const nowHeadline = guideNowHeadline(nowCtx, g.region, nowResult);
   const nowExplainer = guideNowExplainer(nowResult, (g.picks || []).length);
@@ -988,7 +1022,17 @@ export default async function GuidePage({ params }) {
         // returns null for every pick that carries no image data, and GuideFigure
         // itself renders nothing for a null image — so a pick with no photo is a
         // clean typographic block, never a placeholder graphic (GVS-5).
-        const pickImage = guidePickFigureImage(params.slug, pick);
+        //
+        // FALLBACK to the verified, credited pick-photo library when the pick
+        // carries no inline `image` of its own. guidePickPhoto's ENTRY shape
+        // already matches what GuideFigure expects (src/width/height/alt/
+        // caption/credit/creditHref/license/licenseUrl/position), so no further
+        // normalization is needed. `cardWillRender` is the SAME condition that
+        // decides whether this exact pick's GuidePlaceCard renders below
+        // (`resolved`, already dedupe-aware) — passing anything else would
+        // silently defeat the loader's "never the same photo twice in one
+        // pick" rule for a `sameAsCardPhoto` entry.
+        const pickImage = guidePickFigureImage(params.slug, pick) || guidePickPhoto(params.slug, pick.name, { cardWillRender: Boolean(resolved) });
         return (
           <section key={i} id={"pick-" + (i + 1)} className="wf-guide-pick">
             <div className="wf-guide-number">{String(i + 1).padStart(2, "0")}</div>

@@ -130,6 +130,17 @@ export default function GuidePlaceCard({ place, rank, editorial }) {
       onDislike={onDislike}
       onItinerary={onItinerary}
       surface="guide"
+      // The free, permanent-vault Commons photo lane's CC credit (#1188 —
+      // wf_place_photo via lib/freePhoto.js), attached server-side in
+      // app/guides/[slug]/page.js onto `place.photoAttr`/`photoAttrHref`
+      // BEFORE this client component ever mounts (a free, no-Google-call,
+      // no-spend-gate read — see that file for the call site). IconicPlaceCard
+      // already renders this exact prop pair in its credit badge slot for
+      // every other surface (RailCard's home rails, the Fall intent rails);
+      // this card simply forgot to forward it. Omitted entirely when the
+      // place carries no free photo — the badge itself renders nothing then.
+      photoAttr={place.photoAttr || null}
+      photoAttrHref={place.photoAttrHref || null}
     />
   );
 }

@@ -1575,6 +1575,13 @@ node scripts/check-guide-editorial.mjs
 # height:auto, and a pick with no photo degrades to a clean typographic block.
 node scripts/check-guide-visual-standard.mjs
 
+# The guide-pick-photo data contract: data/guide-pick-photos/<slug>.json ->
+# scripts/build-guide-pick-photos.mjs -> lib/guidePickPhotoManifest.js ->
+# lib/guidePickPhotos.js. Every entry legal (fields, file size/width,
+# licence + licence URL, Commons provenance), the manifest in sync with its
+# source JSON, and the loader's sameAsCardPhoto dedupe executed.
+node scripts/check-guide-pick-photos.mjs
+
 # The Family Day culture rail reads only the verified wf_events schedule. This
 # locks family/age/haunt trust, exact 10/25/50-mile circles, fail-closed filters,
 # the 12-card cap, real /florida-events routes, and the no-place-score contract.

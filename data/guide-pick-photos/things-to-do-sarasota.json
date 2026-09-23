@@ -1,0 +1,33 @@
+{
+  "slug": "things-to-do-sarasota",
+  "picks": {
+    "The Ringling": {
+      "src": "/guides/picks/things-to-do-sarasota/ca-d-zan-bayside-facade.webp",
+      "width": 1100,
+      "height": 777,
+      "alt": "The Venetian Gothic bayside facade of Ca' d'Zan, with stained-glass arcade windows and a colonnaded loggia, on the Ringling estate in Sarasota",
+      "caption": "Ca' d'Zan, John Ringling's Venetian Gothic mansion on the Ringling estate.",
+      "credit": "McGhiever",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:C%C3%A0_d%27Zan_bayside_fa%C3%A7ade.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:C%C3%A0_d%27Zan_bayside_fa%C3%A7ade.jpg",
+      "author": "McGhiever",
+      "position": "50% 50%",
+      "modificationNotice": "Resized and converted to WebP; display may crop the photograph.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Downloaded the original (2027x1431) from Wikimedia Commons and inspected it directly: the Venetian Gothic quatrefoil frieze, stained-glass arcade windows and colonnaded ground-floor loggia match Ca' d'Zan, the mansion at the center of the guide's \"The Ringling\" pick (the Ringling estate's art museum, Ca' d'Zan mansion, and circus museum). The Commons file page titles the subject \"Ca' d'Zan bayside facade\" and lists it as the uploader's own work under CC BY-SA 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-22"
+    }
+  },
+  "gaps": {
+    "Kayak Lido's mangrove tunnels": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "No verified CC-licensed or owner-permitted photo of this exact mangrove-tunnel paddling spot has been found yet; left for a future data pass rather than substituting a generic kayaking stock photo."
+    }
+  }
+}
