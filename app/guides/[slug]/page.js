@@ -30,7 +30,7 @@ import { GuideFacts, GuideReadingNav, guidePickImage, guidePickFigureImage, GUID
 // the pick loop below for the one call site.
 import { guidePickPhoto, attachFreePhotoCredit } from "../../../lib/guidePickPhotos";
 import { findFreePhoto } from "../../../lib/freePhoto";
-import { guideAppHandoffHref } from "../../../lib/guideHandoff";
+import { guideAppHandoffHref, guidePlacePath } from "../../../lib/guideHandoff";
 import { declaredGuideRailPlaceIds, guidePlaceRailConfig, resolveGuidePlaceRail } from "../../../lib/guidePlaceRails";
 import GuideDealCards from "./GuideDealCards";
 // v8.23 — the share control every guide was missing, and the resolver that
@@ -1046,7 +1046,7 @@ export default async function GuidePage({ params }) {
             <div className="wf-guide-number">{String(i + 1).padStart(2, "0")}</div>
             <div>
               <div style={{ fontSize: 9.5, fontWeight: 900, letterSpacing: "1.7px", textTransform: "uppercase", color: "#F97316" }}>{pick.eyebrow || (i === 0 ? "The essential" : "The local edit")}</div>
-              <h2 style={{ ...S.h2, marginTop: 5, fontFamily: "var(--wf-display)", fontSize: 28 }}>{pick.placeId ? <a href={"/places/" + encodeURIComponent(pick.placeId)} style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: 4 }}>{pick.name}</a> : pick.name}</h2>
+              <h2 style={{ ...S.h2, marginTop: 5, fontFamily: "var(--wf-display)", fontSize: 28 }}>{pick.placeId ? <a href={guidePlacePath(pick.placeId)} style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: 4 }}>{pick.name}</a> : pick.name}</h2>
               {pickImage ? (
                 <GuideFigure role="pick" image={pickImage} className="wf-guide-pick-figure" />
               ) : null}
@@ -1066,7 +1066,7 @@ export default async function GuidePage({ params }) {
                 </ul>
               ) : null}
               <div className="wf-guide-actions">
-                {pick.placeId ? <a href={"/places/" + encodeURIComponent(pick.placeId)} style={{ ...S.btnGhost, marginLeft: 0 }}>Place page</a> : null}
+                {pick.placeId ? <a href={guidePlacePath(pick.placeId)} style={{ ...S.btnGhost, marginLeft: 0 }}>Open place</a> : null}
                 {(pick.appQuery !== null) ? <a href={appUrl(pick.appQuery || pick.name, pick)} style={{ ...S.btnGhost, marginLeft: 0 }}>Explore this place</a> : null}
                 {pick.eventSlug ? <a href={"/florida-events/" + encodeURIComponent(pick.eventSlug)} style={{ ...S.btnGhost, marginLeft: 0 }}>Dates, tickets &amp; verdict</a> : null}
               </div>
