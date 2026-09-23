@@ -1,0 +1,48 @@
+{
+  "slug": "ybor-city-tampa-guide",
+  "picks": {
+    "The Columbia Restaurant": {
+      "src": "/guides/picks/ybor-city-tampa-guide/columbia-restaurant.webp",
+      "width": 1400, "height": 1050,
+      "alt": "The ornate Spanish Revival facade of the Columbia Restaurant in Ybor City, with tiled arches and wrought-iron balconies",
+      "caption": "The Columbia Restaurant's Spanish Revival facade on Ybor City's Seventh Avenue.",
+      "credit": "LittleT889", "creditHref": "https://commons.wikimedia.org/wiki/File:Columbia,_Ybor_City.jpg",
+      "license": "CC BY 4.0", "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Columbia,_Ybor_City.jpg",
+      "author": "LittleT889", "position": "50% 42%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons", "placeId": "ChIJz8e7TVLEwogRBeybvscHnD4",
+      "verification": "Same file as Wayfind's own verified wf_place_photo record for this place; the ornate tiled Spanish Revival facade is instantly identifiable as the Columbia Restaurant's historic Ybor City building. Not geotagged; identified by architecture.",
+      "sameAsCardPhoto": true, "reviewedAt": "2026-09-23"
+    },
+    "Seventh Avenue and the cigar legacy": {
+      "src": "/guides/picks/ybor-city-tampa-guide/seventh-avenue-ybor.webp",
+      "width": 1400, "height": 748,
+      "alt": "A covered sidewalk lined with shopfronts and string lights along Ybor City's Seventh Avenue, with palm trees and cars along the curb",
+      "caption": "A covered stretch of shopfronts along Ybor City's Seventh Avenue.",
+      "credit": "Richard Mc Neil", "creditHref": "https://commons.wikimedia.org/wiki/File:Long_corridor_de_commerces_sur_la_7i%C3%A8me_Avenue_Est_%C3%A0_Ybor_City,_Tampa,_Florida,_USA_-_panoramio.jpg",
+      "license": "CC BY 3.0", "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Long_corridor_de_commerces_sur_la_7i%C3%A8me_Avenue_Est_%C3%A0_Ybor_City,_Tampa,_Florida,_USA_-_panoramio.jpg",
+      "author": "Richard Mc Neil", "position": "35% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons", "placeId": null,
+      "verification": "File title translates to \"long row of shops on Seventh Avenue East in Ybor City, Tampa\" — the exact street named in the pick; geotagged 27.960419,-82.445312, about 338m from Ybor City's general Google-listed coordinate, consistent with a point further along the same avenue.",
+      "sameAsCardPhoto": false, "reviewedAt": "2026-09-23"
+    },
+    "The streetcar and the roosters": {
+      "src": "/guides/picks/ybor-city-tampa-guide/teco-streetcar-ybor.webp",
+      "width": 1400, "height": 1050,
+      "alt": "TECO Line Streetcar No. 430, painted blue and yellow, stopped on the tracks in Ybor City",
+      "caption": "TECO Line Streetcar No. 430 stopped on the tracks in Ybor City.",
+      "credit": "Pokemonprime", "creditHref": "https://commons.wikimedia.org/wiki/File:TECO_Line_Streetcar_No._430,_Ybor_City,_Florida.jpg",
+      "license": "CC BY 4.0", "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:TECO_Line_Streetcar_No._430,_Ybor_City,_Florida.jpg",
+      "author": "Pokemonprime", "position": "45% 55%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons", "placeId": null,
+      "verification": "Geotagged 27.961089,-82.437292, within Ybor City and about 338m east of Ybor's general Google-listed coordinate, consistent with the file's own title placing car No. 430 in Ybor City; livery and route markings confirm the same TECO Line Streetcar named in the pick. No roosters are pictured; the caption describes only the streetcar actually visible.",
+      "sameAsCardPhoto": false, "reviewedAt": "2026-09-23"
+    }
+  },
+  "gaps": {}
+}

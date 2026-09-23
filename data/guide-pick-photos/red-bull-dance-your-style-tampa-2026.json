@@ -1,0 +1,65 @@
+{
+  "slug": "red-bull-dance-your-style-tampa-2026",
+  "picks": {
+    "Saturday: the National Final": {
+      "src": "/guides/picks/red-bull-dance-your-style-tampa-2026/tampa-convention-center.webp",
+      "width": 1400, "height": 1859,
+      "alt": "The glass facade of the Tampa Convention Center along the Riverwalk, with palm trees and the tall-masted Jose Gasparilla ship docked behind it",
+      "caption": "The Tampa Convention Center's Riverwalk side, the venue for Saturday's National Final.",
+      "credit": "Gart69", "creditHref": "https://commons.wikimedia.org/wiki/File:Tampa_Convention_Center,_Featuring_Pirate_Ship_-_February_8,_2026.jpg",
+      "license": "CC0 1.0 Universal", "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Tampa_Convention_Center,_Featuring_Pirate_Ship_-_February_8,_2026.jpg",
+      "author": "Gart69", "position": "35% 45%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons", "placeId": null,
+      "verification": "File title states this is the Tampa Convention Center, 333 S Franklin St, the exact venue address given in the pick's blurb; photographed February 2026, so it shows the building's current appearance. Not geotagged; identified by the file title.",
+      "sameAsCardPhoto": false, "reviewedAt": "2026-09-23"
+    },
+    "Friday: Battle Day at The RITZ Ybor": {
+      "src": "/guides/picks/red-bull-dance-your-style-tampa-2026/ritz-ybor.webp",
+      "width": 1400, "height": 1050,
+      "alt": "The brick facade and marquee of The RITZ Ybor theater, with palm trees and pedestrians on the sidewalk",
+      "caption": "The RITZ Ybor's marquee on Seventh Avenue, the venue for Friday's Battle Day.",
+      "credit": "Pokemonprime", "creditHref": "https://commons.wikimedia.org/wiki/File:The_Ritz_Ybor,_Ybor_City,_Florida.jpg",
+      "license": "CC BY 4.0", "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Ritz_Ybor,_Ybor_City,_Florida.jpg",
+      "author": "Pokemonprime", "position": "50% 42%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons", "placeId": null,
+      "verification": "Geotagged 27.960694,-82.443047, about 70m from The RITZ Ybor's Google-listed coordinate (27.960119,-82.442763); the marquee is visible on the exact brick theater building named in the pick.",
+      "sameAsCardPhoto": false, "reviewedAt": "2026-09-23"
+    }
+  },
+  "hero": {
+    "src": "/guides/picks/red-bull-dance-your-style-tampa-2026/hero-tampa-convention-center.webp",
+    "width": 640, "height": 480,
+    "alt": "The Tampa Convention Center's low white building on the downtown waterfront, seen across the water with a hotel tower behind it",
+    "caption": "The Tampa Convention Center on the downtown Tampa waterfront, host venue for Saturday's National Final.",
+    "credit": "Zeng8r", "creditHref": "https://commons.wikimedia.org/wiki/File:Tampa_Convention_Center.JPG",
+    "license": "CC BY 3.0", "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Tampa_Convention_Center.JPG",
+    "author": "Zeng8r", "position": "50% 40%",
+    "modificationNotice": "Resized, cropped for display and converted to WebP.",
+    "sourceKind": "commons", "placeId": null,
+    "verification": "File title states this is the Tampa Convention Center; the low white building with docked boats in front and the Tampa Marriott Waterside tower behind it matches the venue's well-known waterfront profile. Replaces the guide's previous generic stock hero, which did not show a real Tampa place. Not geotagged; identified by the file title and architecture.",
+    "sameAsCardPhoto": false, "reviewedAt": "2026-09-23"
+  },
+  "gaps": {
+    "How the crowd picks the winner": {
+      "reason": "not-a-place", "placeId": null, "needsPermissionFrom": null,
+      "note": "Explains the audience-vote battle format, not a place."
+    },
+    "The 16 dancers in the final": {
+      "reason": "not-a-place", "placeId": null, "needsPermissionFrom": null,
+      "note": "A roster of named individual competitors, not a place; any available photos would also center on identifiable people rather than a venue."
+    },
+    "Florida's stake in the final": {
+      "reason": "not-a-place", "placeId": null, "needsPermissionFrom": null,
+      "note": "Discusses which competitors and crew have Florida ties, not a place."
+    },
+    "Eat and drink around the weekend": {
+      "reason": "not-a-place", "placeId": null, "needsPermissionFrom": null,
+      "note": "A general pointer to nearby restaurants (with live Wayfind picks shown separately on the page) rather than one specific venue named as this pick."
+    }
+  }
+}
