@@ -2,6 +2,7 @@ import GuideArticleHero from "../../components/GuideArticleHero";
 import GuideFigure from "../../components/GuideFigure";
 import PintosFarmMap from "./PintosFarmMap";
 import { guideHero } from "../../../lib/guideHero";
+import { HERO_CARD_DESIGN_V } from "../../../lib/heroCard.js";
 import styles from "./page.module.css";
 
 const SLUG = "pintos-farm-miami-2026";
@@ -83,7 +84,10 @@ const GALLERY = [
 const shareImage = "/api/og/hero?kind=guide&id=" + SLUG
   + "&t=" + encodeURIComponent("Pinto's Farm Miami 2026")
   + "&cat=Guide&loc=Miami"
-  + (heroPhoto && heroPhoto.reviewedAt ? "&v=" + encodeURIComponent(heroPhoto.reviewedAt) : "");
+  // Audit (2026-09-23): design suffix appended so a hero-plate change also
+  // busts this page's already-CDN-cached immutable URL — see
+  // app/api/og/hero/route.js's cache-selection comment.
+  + (heroPhoto && heroPhoto.reviewedAt ? "&v=" + encodeURIComponent(heroPhoto.reviewedAt + "." + HERO_CARD_DESIGN_V) : "");
 
 export const metadata = {
   title: "Pinto's Farm Miami 2026: Fall Guide, Tickets & Farm Map",

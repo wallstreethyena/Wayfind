@@ -40,7 +40,7 @@ import path from "node:path";
 import { shareCardResponse, SHARE_CACHE } from "../card.jsx";
 import { resolveHeroSource } from "../../../../lib/heroSource.js";
 import {
-  heroCardModel, heroFallbackModel, isJpeg, bytesToDataUri, HERO_MAX_JPEG_BYTES,
+  heroCardModel, heroFallbackModel, isJpeg, bytesToDataUri, HERO_MAX_JPEG_BYTES, HERO_CARD_DESIGN_V,
 } from "../../../../lib/heroCard.js";
 
 export const runtime = "nodejs";
@@ -145,14 +145,24 @@ export async function GET(req) {
     // asserts against that page. Only the typographic fallback has a palette
     // to carry it; the photo layout has no tone concept.
     const tone = s(sp.get("tone"));
-    const srcOverride = s(sp.get("src"));
-    const posOverride = s(sp.get("pos"));
     const v = s(sp.get("v"));
-    const cache = v ? SHARE_CACHE.immutable : SHARE_CACHE.live;
+    // Audit (2026-09-23): a caller-controlled `v` used to pin
+    // SHARE_CACHE.immutable (a year, CDN-wide) for ANY non-empty value, which
+    // meant (a) an attacker's own invented `v` got a free permanent cache
+    // slot, and (b) a real design change to the plate below never busted the
+    // URLs already cached under an OLD `v` — a reader's link preview (and
+    // Facebook's/X's own crawler cache) would keep showing last year's card
+    // for up to a year. Immutable now requires `v` to carry THIS design's
+    // own suffix (HERO_CARD_DESIGN_V, from lib/heroCard.js); anything else —
+    // no `v`, or a `v` stamped with a design version this deploy no longer
+    // is — gets SHARE_CACHE.live instead of a long-lived cache pin.
+    const cache = v && v.endsWith("." + HERO_CARD_DESIGN_V) ? SHARE_CACHE.immutable : SHARE_CACHE.live;
 
-    // BYTES, AWAITED, BEFORE ANY MODEL OR RESPONSE IS BUILT.
+    // BYTES, AWAITED, BEFORE ANY MODEL OR RESPONSE IS BUILT. Resolved ONLY
+    // from server-side registries keyed by kind+id — there is no caller
+    // source override any more (see lib/heroSource.js's resolveHeroSource).
     const [source, fontBuffers] = await Promise.all([
-      resolveHeroSource({ origin: url.origin, kind, id, src: srcOverride, position: posOverride }),
+      resolveHeroSource({ origin: url.origin, kind, id }),
       loadNodeFontBuffers(),
     ]);
     const heroDataUri = source ? await fetchHeroJpeg(source.url) : null;
