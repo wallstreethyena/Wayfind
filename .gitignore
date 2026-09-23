@@ -56,3 +56,4 @@ trend-export*.csv
 /synthetic-evidence/
 artifacts/
 scripts/festivals/logs/
+.share-samples/

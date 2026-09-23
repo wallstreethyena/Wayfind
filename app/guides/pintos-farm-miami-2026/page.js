@@ -1,7 +1,10 @@
 import GuideArticleHero from "../../components/GuideArticleHero";
+import ShareButton from "../../components/ShareButton";
+import { pageShareUrl } from "../../../lib/pageShareUrl";
 import GuideFigure from "../../components/GuideFigure";
 import PintosFarmMap from "./PintosFarmMap";
 import { guideHero } from "../../../lib/guideHero";
+import { HERO_CARD_DESIGN_V } from "../../../lib/heroCard.js";
 import styles from "./page.module.css";
 
 const SLUG = "pintos-farm-miami-2026";
@@ -74,7 +77,19 @@ const GALLERY = [
   }
 ];
 
-const shareImage = "/api/og?t=Pinto%27s%20Farm%202026&loc=Miami&cta=OPEN%20THE%20GUIDE&sub=Rides%20%E2%80%A2%20animals%20%E2%80%A2%20pumpkins%20%E2%80%A2%20map&tone=fall";
+// v9 (owner, 2026-09-23): "the share cards for all of the guide and blogs
+// needs to look premium … it looks cheap." This guide DOES carry a reviewed
+// lib/guideHero.js entry (heroPhoto above, Pinto's Farm's own photo, used
+// with their permission) — the hero route resolves it by id, the same path
+// every app/guides/[slug] page now uses, rather than the bare typographic
+// card this dedicated route shipped before.
+const shareImage = "/api/og/hero?kind=guide&id=" + SLUG
+  + "&t=" + encodeURIComponent("Pinto's Farm Miami 2026")
+  + "&cat=Guide&loc=Miami"
+  // Audit (2026-09-23): design suffix appended so a hero-plate change also
+  // busts this page's already-CDN-cached immutable URL — see
+  // app/api/og/hero/route.js's cache-selection comment.
+  + (heroPhoto && heroPhoto.reviewedAt ? "&v=" + encodeURIComponent(heroPhoto.reviewedAt + "." + HERO_CARD_DESIGN_V) : "");
 
 export const metadata = {
   title: "Pinto's Farm Miami 2026: Fall Guide, Tickets & Farm Map",
@@ -85,7 +100,7 @@ export const metadata = {
     title: "Pinto's Farm Miami 2026",
     description: "The useful Pinto's guide: tickets, rides, animals, fall dates, special events and a farm map.",
     url: "/guides/pintos-farm-miami-2026",
-    images: [shareImage]
+    images: [{ url: shareImage, width: 1200, height: 630, type: "image/jpeg", alt: "Pinto's Farm Miami 2026 on Wayfind" }]
   },
   twitter: {
     card: "summary_large_image",
@@ -152,6 +167,14 @@ export default function PintosFarmGuidePage() {
         updatedLabel="Checked September 22, 2026"
         jumpHref="#guide"
         jumpLabel="Plan your visit"
+        actions={<ShareButton
+          url={pageShareUrl("/guides/pintos-farm-miami-2026")}
+          title={"Pinto's Farm Miami: Fall 2026"}
+          text={"Pinto's Farm Miami, fall 2026: rides, animals, pumpkins and the ticket details that matter. On Wayfind."}
+          tone="dark"
+          event="guide_share"
+          meta={{ slug: "pintos-farm-miami-2026", placement: "hero" }}
+        />}
       />
 
       <article id="guide" className={styles.article}>

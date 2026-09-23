@@ -9,6 +9,8 @@ import { TOWN_HUBS } from "../../../lib/cultureHubs";
 import ExploreBridge from "../../components/ExploreBridge";
 import { LANDING_CITIES, rankedFor, whyLine } from "../../../lib/landing";
 import { SITE_URL } from "../../../lib/site";
+import { pageShareUrl } from "../../../lib/pageShareUrl";
+import ShareButton from "../../components/ShareButton";
 import { experienceSearchUrl, viatorProductGoUrl, experienceGoUrl } from "../../../lib/affiliates";
 import { resolveViatorProduct } from "../../../lib/viatorServer";
 import PremiumIntentHero from "../../components/PremiumIntentHero";
@@ -110,6 +112,17 @@ export default async function CulturePage({ params }) {
         // bare homepage. "Globally" in the owner's instruction means here too.
         secondaryHref="#local-edit"
         secondaryLabel="Read the local edit"
+        // 2026-09-23: the hero's actions slot now carries the page Share
+        // (destination audit). tone="hero": this panel is cream (#f6efe5), and
+        // the dark tone's light label is invisible on it.
+        actions={<ShareButton
+          url={pageShareUrl("/culture/" + params.metro)}
+          title={`What ${c.title} is known for`}
+          text={`What ${c.title} is known for: the food locals defend and what is worth crossing town for. On Wayfind.`}
+          tone="hero"
+          event="page_share"
+          meta={{ surface: "culture", metro: params.metro, placement: "hero" }}
+        />}
       />
       <article id="local-edit" style={{ maxWidth: 860, margin: "0 auto" }}>
       <div style={{ ...S.kicker, marginBottom: 8 }}>The local edit</div>
@@ -220,7 +233,6 @@ export default async function CulturePage({ params }) {
           ? { label: `Browse every ${c.title} pick in Wayfind`, href: "/things-to-do/" + params.metro }
           : { label: "Open Wayfind for live picks nearby", href: "/" }}
       />
-      <div style={S.disclosure}>Wayfind may earn a commission from partner links on this page.</div>
       <p style={{ fontSize: 14, color: "#C9D1D9", marginTop: 22 }}>
         More cities: {Object.keys(CULTURE).filter((k) => k !== params.metro).map((k, i, arr) => (<span key={k}><a href={"/culture/" + k} style={S.footerLink}>{CULTURE[k].title}</a>{i < arr.length - 1 ? " · " : ""}</span>))}
       </p>

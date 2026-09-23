@@ -37,6 +37,7 @@ node scripts/test-dupes-imports.mjs
 npm run check:env
 node scripts/test-tags.mjs
 node scripts/test-browser-analytics.mjs
+node scripts/test-commerce-emit-queue.mjs
 node scripts/check-libs.mjs
 npm run check:gate
 npm run check:categories
@@ -461,6 +462,7 @@ node scripts/check-direct-affiliate-urls.mjs
 node scripts/check-no-sitewide-autolinker.mjs
 
 node scripts/check-doc-ownership.mjs
+node scripts/test-owner-approval.mjs
 node scripts/test-doc-ownership-shallow.mjs
 node scripts/test-safe-force-push.mjs
 node scripts/check-locks.mjs
@@ -511,6 +513,9 @@ node scripts/check-ios-privacy-manifest.mjs
 node scripts/check-ios-device-family.mjs
 node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-universal-links.mjs
 node scripts/check-push-registration.mjs
+node scripts/check-apns-sender.mjs
+node scripts/check-ios-shell-wiring.mjs
+node scripts/test-account-delete.mjs
 node scripts/check-map-pin-glyph.mjs
 node scripts/check-map-place-card.mjs
 node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-app-rating.mjs
@@ -705,6 +710,10 @@ node scripts/test-session-map-parity.mjs
 # WF-006 / WF-008 / WF-009 / WF-010 / WF-011 — partner geo, sitemap membership, landmarks, nested interactives
 node scripts/test-partner-geo.mjs
 node scripts/check-sitemap.mjs
+# 2026-09-23 — guide-linked restaurant picks (47 of 50 across the food-city
+# guides) rendered noindex with no address; guide-pick content now counts as
+# real detail. See lib/guidePlaceIndex.js.
+node scripts/test-guide-place-indexability.mjs
 node scripts/check-one-main.mjs
 
 # v8.14 — the card contract CSS must travel with every IconicPlaceCard surface (the unstyled-/guides bug)
@@ -721,6 +730,13 @@ node scripts/test-hotel-card-cta.mjs
 # room at. Ingestion had swept in a nail salon, a symphony, a campground and an
 # email address, each carrying a "Check rates" button.
 node scripts/check-hotel-library-quality.mjs
+
+# 2026-09-23 — customer-facing hotel copy (whyGo/knownFor/vibe) must never
+# carry internal curation/prompt scaffolding ("Use X when the user wants...
+# It scored 9.8/10 from the Wayfind rating signal." painted verbatim on the
+# Palmetto Riverside Bed & Breakfast card). A guest reads only why to go and
+# what they get out of it.
+node scripts/check-customer-copy-leaks.mjs
 
 # v8.17 — no inline style may paint text in its own background color (the invisible landing score chip)
 node scripts/check-invisible-text.mjs
@@ -761,12 +777,16 @@ node scripts/check-banned-art.mjs
 # bug), no shared link can carry a dev host, and the share control is a sibling
 # of the tile's link rather than a button nested inside an anchor.
 node scripts/check-rail-share.mjs
+node scripts/check-hero-card.mjs
 
 # v8.23 — every guide can be shared (39 pages, ~46% of external entries, and
 # not one share control before this), and BOTH share implementations open the
 # native sheet before touching the clipboard: reversing those two lines is the
 # v4.06 iOS bug, and it only reproduces on a real phone.
 node scripts/check-guide-share.mjs
+# 2026-09-23 — every destination page carries the standard Share over its own URL;
+# every app page is classified (a new page fails until someone decides).
+node scripts/check-destination-share.mjs
 
 # v8.23.2 — the rail must LOOK different at different hours. The engine was
 # always correct (clock, bands, 15 of 17 rails moving) and the feature was still
@@ -1041,6 +1061,7 @@ node scripts/check-augtober-rail.mjs
 # dated offering surviving). See both files' own header comments.
 node scripts/check-fall-evidence-rules.mjs
 node scripts/check-fall-registry-integrity.mjs
+node scripts/check-fall-offering-freshness.mjs
 # 2026-09-03 — one event-affiliate registry (lib/eventTicketDeals.js), product-true,
 # routed through /api/commerce/go on the fall rail, the Events feed and the event page.
 node scripts/check-event-ticket-deals.mjs
@@ -1632,6 +1653,10 @@ node scripts/test-family-day-data.mjs
 node scripts/test-family-day-events.mjs
 node scripts/test-family-day-taxonomy.mjs
 node scripts/check-guide-seo-audit.mjs
+# 2026-09-23 — best-restaurants-disney-springs (and 24 other legacy lib/guides.js
+# entries) had no datePublished in their Article JSON-LD. See lib/guides.js
+# `published` fields and app/guides/[slug]/page.js's datePublished fallback.
+node scripts/check-guide-published.mjs
 
 node scripts/test-travelpayouts-attribution.mjs
 
@@ -1791,3 +1816,18 @@ node scripts/check-daypart-crosssell.mjs
 # legitimate-looking cap; eligible>n with hasMore:false is pagination
 # invisibility, not the capped-read class).
 node scripts/check-surface-parity-hermetic.mjs
+
+# 2026-09-23 (fix/gogate) — every discovered /go affiliate redirect route
+# refuses a self-identified crawler before it can spend money or reach a
+# partner (closes the /api/viator/go gap: 94 provider_redirect_started/hr
+# from bots on 09-15), and our own synthetic monitor's UA keeps getting a
+# real redirect while never counting as a human in the money funnel.
+node scripts/check-go-routes-crawler-gate.mjs
+
+# 2026-09-23 (fix/gogate, audit follow-up) — the synthetic monitor's own
+# "book-links" scenario can never select or trigger the one /api/viator/go
+# shape that spends the metered provider_viator ledger (a bare ?q= link with
+# no &product=/&intent=search): the scenario's own link picker filters it out,
+# and the route refuses to spend for that UA as a backstop, proven by CALLING
+# the real handler and counting ledger calls with a human negative control.
+node scripts/check-viator-monitor-spend-skip.mjs

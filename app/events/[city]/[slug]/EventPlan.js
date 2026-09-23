@@ -147,7 +147,7 @@ export default function EventPlan({ lat, lng, city, venue, time }) {
           </>}
         </section>;
       })}
-      {rails.some((rail) => rail.kind === "stay" && Array.isArray(rail.places) && rail.places.length) && <div style={{ color: "#64748B", fontSize: 10.5, lineHeight: 1.4, marginTop: 12 }}>Hotel booking may earn Wayfind a commission at no extra cost to you. It never changes the ranking.</div>}
+      {rails.some((rail) => rail.kind === "stay" && Array.isArray(rail.places) && rail.places.length) && <div style={{ color: "#64748B", fontSize: 10.5, lineHeight: 1.4, marginTop: 12 }}>We may earn a commission when you book through partner links. It never changes our rankings.</div>}
     </section>
   );
 }

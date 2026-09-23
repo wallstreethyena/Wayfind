@@ -95,7 +95,7 @@ if (/results\.find\(\(?r\)? *=> *r *&& *r\.productUrl *&& *regionOk/.test(goSrc)
 // disclosure carries the full required commission text.
 if (!/function bookingTargets\(/.test(bookingUnion)) fail("the CTA + disclosure must derive from one bookingTargets() predicate (FTC parity)");
 if (!/variant === "disclosure"[\s\S]{0,340}targets\.tu/.test(bookingCTA)) fail("the disclosure variant must gate on the shared targets.tu — an earning CTA must never render without its disclosure");
-if (!/at no extra cost to you\. It never changes our scores or rankings/.test(bookingCTA)) fail("the commission disclosure is missing the required 'at no extra cost … never changes our scores or rankings' text");
+if (!/We may earn a commission when you book through partner links\. It never changes our rankings\./.test(bookingCTA)) fail("the commission disclosure must carry the one short owner-approved sentence (2026-09-23) so the detail sheet reads the same line everywhere");
 
 // v6.60 (owner, Coquina->Mumbai): a beach / natural feature must NEVER get a
 // Viator CTA. Both fallback paths in BookingCTA must gate on isTicketyPlace —

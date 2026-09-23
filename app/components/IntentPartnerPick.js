@@ -259,7 +259,6 @@ export default function IntentPartnerPick({ city, intent, inventory, accent = "#
           );
         })}
       </div>
-      <div style={{ color: C.muted, fontSize: 10, marginTop: 7, lineHeight: 1.4 }}>Wayfind may earn a commission when you book through these links, at no extra cost to you. It never changes our scores or rankings.</div>
     </aside>
   );
 }

@@ -18,6 +18,7 @@ import path from "node:path";
 
 // Every exclusion needs a reason. Keep this list short and argued.
 const EXCLUDED = {
+  "check-owner-approval-pr.mjs": "Runs in .github/workflows/owner-approval.yml on pull_request_target, from the BASE branch, as the \"owner-approval\" check; it needs GitHub Actions pull-request context and refuses without it, so it cannot run in prebuild. test-owner-approval.mjs (in guards.txt) runs it as a child process with that context and a stub API on every build.",
   "check-job-watch-delivery.mjs": "Runs in .github/workflows/canary.yml against production with required credentials. Provider/email outages must fail the operational canary without blocking repair deploys; test-job-watch-delivery.mjs exercises the same evaluator in prebuild.",
   "check-bundle.mjs": "runs in `npm run audit:regression` — needs a completed next build, too slow for every prebuild",
   "check-headers.mjs": "runs in `npm run audit:regression` — asserts deployed response headers, needs a live origin",

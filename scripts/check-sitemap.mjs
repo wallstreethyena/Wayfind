@@ -6,6 +6,7 @@
 // they render crawlable inventory (same contract as check-seo.mjs).
 import { readFileSync } from "fs";
 import { listPublishReadyAtlasIds, unionIndexedAndAtlasIds } from "../lib/atlasPlaceAllowlist.js";
+import { listGuidePlaceIds } from "../lib/guidePlaceIndex.js";
 
 let pass = 0;
 const fail = (m) => { console.error("check-sitemap: FAIL — " + m); process.exit(1); };
@@ -37,8 +38,13 @@ ok(sm.includes("/places/"), "durable place pages stay in the sitemap (the real /
 
 // Atlas publish-ready cards must be in the place-URL set (union, not a 12k dump).
 const idx = readFileSync(new URL("../lib/placeIndex.js", import.meta.url), "utf8");
-ok(/return unionIndexedAndAtlasIds\(indexed,\s*listPublishReadyAtlasIds\(\)\)/.test(idx),
+ok(/unionIndexedAndAtlasIds\(indexed,\s*listPublishReadyAtlasIds\(\)\)/.test(idx),
   "listIndexedIds must CALL unionIndexedAndAtlasIds(indexed, listPublishReadyAtlasIds()) — a mention is not the union");
+// 2026-09-23 fix: every GUIDES-linked placeId (the guide-place allowlist) must
+// also be unioned in, chained off the atlas-unioned result — so a guide pick
+// enters the sitemap the moment it is added, before wf_place_ids ever sees it.
+ok(/unionIndexedAndAtlasIds\([A-Za-z0-9_]+,\s*listGuidePlaceIds\(\)\)/.test(idx),
+  "listIndexedIds must ALSO union in listGuidePlaceIds() — guide picks belong in the sitemap");
 const atlasIds = listPublishReadyAtlasIds();
 // 255 from #1021 + 8 sourced ChIJ cards from the 2026-08-29 owner batch (#1019)
 // + 1 official North Redington Beach Frog Pond ChIJ from 2026-08-29e.
@@ -48,4 +54,14 @@ const united = unionIndexedAndAtlasIds(["wf-indexed-only"], atlasIds);
 ok(united.includes("wf-indexed-only") && united.includes(atlasIds[0]) && united.length === PUBLISH_READY + 1,
   `union must keep indexed ids and the ${PUBLISH_READY} Atlas cards without dumping inventory`);
 
-console.log(`check-sitemap: OK — ${pass} assertions (factual lastmod; durable membership; empty/personalized/thin hubs excluded; Atlas ${PUBLISH_READY} unioned)`);
+// Functional check (not just source-regex): every GUIDES-linked placeId
+// actually survives listIndexedIds's chained union, so it lands in
+// app/sitemap.js's `places` array on the day it's added, not the day a real
+// search first happens to put it in wf_place_ids.
+const guideIds = listGuidePlaceIds();
+ok(guideIds.length >= 50, `guide place index must expose at least the 50 restaurant picks fixed 2026-09-23 (got ${guideIds.length})`);
+const unitedWithGuides = unionIndexedAndAtlasIds(united, guideIds);
+ok(guideIds.every((id) => unitedWithGuides.includes(id)),
+  "every GUIDES-linked placeId must survive the atlas+guide union into the sitemap set");
+
+console.log(`check-sitemap: OK — ${pass} assertions (factual lastmod; durable membership; empty/personalized/thin hubs excluded; Atlas ${PUBLISH_READY} unioned; ${guideIds.length} guide places unioned)`);

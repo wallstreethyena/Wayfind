@@ -114,8 +114,8 @@ ok(/rel=\{?["'][^"']*sponsored/.test(rail) && /nofollow/.test(rail),
 ok(/if \(!list\.length\) return null/.test(rail),
   "an empty rail renders NOTHING: an empty 'tours near you' frame costs trust and would still measure as a viewed surface");
 ok(/DISCLOSURE_VERSION/.test(railCode), "the disclosure carries a version, so consent evidence ties to the exact wording shown");
-ok(/may earn a commission/i.test(rail) && /no extra cost to you/i.test(rail),
-  "the disclosure states plainly that Wayfind may earn a commission, at no extra cost");
+ok(!/earn a commission/i.test(rail),
+  "the rail carries no inline commission disclosure (one footer disclosure plus one on true detail pages is the law now)");
 
 // ── 4. the page mounts it, above the reading column ─────────────────────
 const PAGE = path.resolve("app/eat/[metro]/page.js");

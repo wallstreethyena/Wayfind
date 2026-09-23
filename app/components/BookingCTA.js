@@ -234,7 +234,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
     // A founder pin is also an earning Book (detailCta exact / this primary),
     // even when isTicketyPlace is false (park / natural_feature).
     if (!targets.tu && !pin) return null;
-    return <div style={{ fontSize: 10.5, color: C.muted, margin: "7px 2px 0", textAlign: "center" }}>Wayfind may earn a commission when you book through this link, at no extra cost to you. It never changes our scores or rankings.</div>;
+    return <div style={{ fontSize: 10.5, color: C.muted, margin: "7px 2px 0", textAlign: "center" }}>We may earn a commission when you book through partner links. It never changes our rankings.</div>;
   }
 
   if (variant === "list") {

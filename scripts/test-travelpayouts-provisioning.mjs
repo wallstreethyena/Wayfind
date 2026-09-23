@@ -167,9 +167,10 @@ ok(mixed.succeeded > 0 && mixed.failed > 0, "one failed provider destination doe
 ok(
   mixed.reason?.startsWith("provider:invalid-short-url:")
     && mixed.reason.includes("not-subscribed")
-    && !mixed.reason.includes("evil.example")
+    && mixed.reason.includes("host-other:evil.example")
+    && !mixed.reason.includes("/private")
     && !mixed.reason.includes("must-not-leak"),
-  "invalid success rows are isolated with privacy-safe diagnostics alongside known provider failures",
+  "invalid success rows name the offending registrable domain, isolated alongside known provider failures, without leaking path/query/tokens",
 );
 ok(mixedStored.length === mixed.succeeded && mixedStored.every((row) => validTpShortUrl(row.short_url)), "only successful validated mappings are stored from a mixed batch");
 
@@ -201,6 +202,74 @@ const tpxFetch = async (url, init = {}) => {
 const tpx = await provisionTpLinks({ env, sb, fetchImpl: tpxFetch, now: rotationZero });
 ok(tpx.attempted === 10 && tpx.succeeded === 10 && tpx.failed === 0, "a real tpx.lu Drive-shortener batch provisions successfully (was 0/20 in production before this fix)");
 ok(tpxStored.length === 10 && tpxStored.every((row) => validTpShortUrl(row.short_url)), "tpx.lu short links are validated and stored");
+
+// The tpx.lu incident above only got named because someone read the raw
+// production response by hand — the pre-fix "host-other" shape gave no way
+// to tell tpx.lu apart from any other unexpected host. The next unexpected
+// domain must be diagnosable from the pulse note alone, without repeating
+// that manual investigation, while still never leaking path, query, or
+// token content from that same bad response.
+let namedHostStored = [];
+const namedHostFetch = async (url, init = {}) => {
+  if (url.includes("/rest/v1/wf_tp_links?") && (!init.method || init.method === "GET")) return response(200, []);
+  if (url.includes("api.travelpayouts.com")) {
+    const body = JSON.parse(init.body);
+    return response(200, {
+      code: "success",
+      result: {
+        marker: body.marker,
+        trs: body.trs,
+        shorten: true,
+        links: body.links.map(({ url }) => ({
+          url,
+          code: "success",
+          partner_url: "https://tracking.partner-network.example/click?erid=must-not-leak&token=secret",
+        })),
+      },
+    });
+  }
+  namedHostStored.push(init);
+  return response(201, null);
+};
+const namedHost = await provisionTpLinks({ env, sb, fetchImpl: namedHostFetch, now: rotationZero });
+ok(namedHost.failed === namedHost.attempted && namedHost.succeeded === 0, "an unrecognized host still rejects the whole bound batch");
+ok(
+  namedHost.reason === "provider:invalid-short-url:https.host-other:partner-network.example.path-ok.query-erid-other.nohash.noport.nocreds",
+  `the registrable domain that broke the allowlist is named exactly, nothing more (got ${namedHost.reason})`,
+);
+ok(!namedHost.reason.includes("tracking."), "the subdomain is never included, only the registrable domain");
+ok(!namedHost.reason.includes("click"), "the path is never included");
+ok(!namedHost.reason.includes("erid=") && !namedHost.reason.includes("secret"), "query values and tokens are never included");
+ok(namedHostStored.length === 0, "an unrecognized-host failure is never written to the database");
+
+// A host under a multi-part public suffix is a known, documented limitation
+// (naive eTLD+1): it names the last two labels, not the true registrable
+// domain. This still names *something* diagnosable, never leaks more than
+// two labels, and must not crash.
+let coUkStored = [];
+const coUkFetch = async (url, init = {}) => {
+  if (url.includes("/rest/v1/wf_tp_links?") && (!init.method || init.method === "GET")) return response(200, []);
+  if (url.includes("api.travelpayouts.com")) {
+    const body = JSON.parse(init.body);
+    return response(200, {
+      code: "success",
+      result: {
+        marker: body.marker,
+        trs: body.trs,
+        shorten: true,
+        links: body.links.map(({ url }) => ({ url, code: "success", partner_url: "https://go.ads.example.co.uk/x" })),
+      },
+    });
+  }
+  coUkStored.push(init);
+  return response(201, null);
+};
+const coUk = await provisionTpLinks({ env, sb, fetchImpl: coUkFetch, now: rotationZero });
+ok(
+  coUk.reason === "provider:invalid-short-url:https.host-other:co.uk.path-ok.query-none.nohash.noport.nocreds",
+  `multi-label host names its last two labels without crashing, documented limitation and all (got ${coUk.reason})`,
+);
+ok(coUkStored.length === 0, "a multi-part-suffix host failure is never written to the database");
 
 await provisionTpLinks({ env: {}, sb, fetchImpl }).then(
   () => ok(false, "missing token must fail"),

@@ -252,6 +252,17 @@ const KNOWN_UNPULSED = {
   "app/api/cron/schema-watch/route.js": "Pre-existing: the send-skipped and send-attempted final branches of its email step predate full pulse adoption; the scan step above already pulses.",
   "app/api/cron/scout/route.js": "Pre-existing: one feature-gate return and the dry-run summary branch predate full pulse adoption; the job's real adjudication path already pulses.",
   "app/api/cron/social-discovery/route.js": "Pre-existing: three early mode/config-validation returns predate full pulse adoption; the job's real work paths already pulse.",
+  // 2026-09-23 (WS-B, push notifications). This is the ONE deliberate, dated
+  // exception to "every terminal path pulses", not a gap that crept in. Owner
+  // rule: Weekend Picks must never mass send unless WEEKEND_PICKS_PUSH_ENABLED
+  // is explicitly "1", and that check must cost NOTHING — not a DB read, not a
+  // recordPulse write, which is itself a Supabase network call — when the flag
+  // is off. Every OTHER terminal path in this route (jobCannotRun, jobFailed,
+  // the empty-recipients return, the final success return) does pulse; only
+  // this one, product-mandated early return does not. See scripts/check-apns-sender.mjs
+  // section 6 for the red-proof that the SAME gate, with the flag enabled,
+  // does reach a real network call — proving this is a gate, not dead code.
+  "app/api/cron/weekend-picks/route.js": "2026-09-23: the WEEKEND_PICKS_PUSH_ENABLED=disabled early return is intentionally unpulsed — a disabled mass-send flag must cost zero DB/network calls, and recordPulse() is itself a Supabase call. Every other terminal path in this route (jobCannotRun/jobFailed/success) pulses; see the route's own header comment and scripts/check-apns-sender.mjs.",
 };
 
 // ── self-test: prove the scanner can both pass AND fail ────────────────────

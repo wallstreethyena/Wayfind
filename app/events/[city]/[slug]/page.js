@@ -25,6 +25,8 @@ import EventActions from "./EventActions.js";
 import { eventStoryEvidence, eventStoryFallback } from "../../../../lib/eventStory.js";
 import RailCard, { RailDots, RailNav } from "../../../components/RailCard.js";
 import { WF_PLACE_CARD_CSS } from "../../../components/css.js";
+import ShareButton from "../../../components/ShareButton.js";
+import { pageShareUrl } from "../../../../lib/pageShareUrl.js";
 import { eventCategoryArt } from "../../../../lib/eventCategoryArt.js";
 
 export const runtime = "nodejs";
@@ -97,11 +99,25 @@ export async function generateMetadata({ params }) {
   if (!e) return { title: "Event not found · Wayfind", robots: { index: false, follow: true } };
   const where = [e.venue, e.city].filter(Boolean).join(", ");
   const story = eventStoryFallback(e);
+  const ogTitle = `${e.name} · Wayfind Events`;
+  const ogDesc = `${e.name} on ${fmtDate(e.date, e.time)}`;
+  // v9 (owner, 2026-09-23): "everything on wayfind that is sharable looks
+  // premium." This used to point straight at e.image (an aggregator-supplied
+  // photo, no width/height, and no openGraph.images key at all — so no
+  // twitter card either — when it was absent). The hero route resolves an
+  // OWNED, consent-cleared photo for this event id when one exists
+  // (lib/eventPhotos.js — none of this live aggregator's ids match that
+  // curated registry today, so this always lands on the typographic
+  // fallback for now) and otherwise falls back to a card carrying this
+  // event's own name and venue, never a hole and never an unlicensed photo.
+  const og = `${CANON}/api/og/hero?kind=event&id=${encodeURIComponent(e.id)}`
+    + `&t=${encodeURIComponent(e.name)}&cat=Event&loc=${encodeURIComponent(where || e.city || "")}`;
   return {
     title: `${e.name}${where ? " at " + where : ""} · Wayfind Events`,
     description: `${story.whyGo} ${e.name} is scheduled for ${fmtDate(e.date, e.time)}${where ? " at " + where : ""}.`,
     alternates: { canonical: `${CANON}/events/${params.city}/${params.slug}` },
-    openGraph: { title: `${e.name} · Wayfind Events`, description: `${e.name} on ${fmtDate(e.date, e.time)}`, ...(e.image ? { images: [e.image] } : {}) },
+    openGraph: { title: ogTitle, description: ogDesc, images: [{ url: og, width: 1200, height: 630, type: "image/jpeg", alt: ogTitle }] },
+    twitter: { card: "summary_large_image", title: ogTitle, description: ogDesc, images: [og] },
     robots: { index: false, follow: true }, // noindex until the owner decides event pages should enter the crawl budget (infinite, dated inventory)
   };
 }
@@ -144,6 +160,17 @@ async function EventListPage({ params }) {
         <a href="/events" style={{ color: A, fontWeight: 800, textDecoration: "none", fontSize: 13.5 }}>‹ All events</a>
         <h1 style={{ fontSize: 26, fontWeight: 800, color: "#F1F5F9", lineHeight: 1.2, margin: "16px 0 4px" }}>Events {win.title} in {city.name}, {city.state}</h1>
         <p style={{ fontSize: 14, color: "#94A3B8", lineHeight: 1.6, marginBottom: 8 }}>Concerts, games, festivals and things to do {win.label.toLowerCase()} near {city.name} — real, bookable events ranked by Wayfind.</p>
+        <div style={{ margin: "4px 0 10px" }}>
+          <ShareButton
+            url={pageShareUrl(`/events/${params.city}/${params.slug}`)}
+            title={`Events ${win.title} in ${city.name}, ${city.state}`}
+            text={`Events ${win.label.toLowerCase()} in ${city.name}: concerts, games, festivals and things to do. On Wayfind.`}
+            label="Share"
+            tone="dark"
+            event="page_share"
+            meta={{ surface: "events_window", city: params.city, window: params.slug, placement: "header" }}
+          />
+        </div>
         {/* Time-window nav (durable, shareable URLs). */}
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", margin: "6px 0 18px" }}>
           {Object.keys(EVENT_WINDOWS).map((w) => (

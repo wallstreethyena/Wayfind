@@ -9,7 +9,9 @@ import { TOWN_PROFILES } from "../../../lib/culture";
 import { TOWN_HUBS } from "../../../lib/cultureHubs";
 import { rankedFor, whyLine, LANDING_CITIES } from "../../../lib/landing";
 import { SITE_URL } from "../../../lib/site";
+import { pageShareUrl } from "../../../lib/pageShareUrl";
 import IconicPlaceCard from "../../components/IconicPlaceCard";
+import ShareButton from "../../components/ShareButton";
 import { WF_PLACE_CARD_CSS } from "../../components/css";
 
 export const revalidate = 86400;
@@ -72,6 +74,17 @@ export default async function Page({ params }) {
       <div style={S.kicker}>Wayfind · Florida destinations</div>
       <h1 style={S.h1}>{t.title}, Florida</h1>
       <p style={S.tag}>{t.tag}</p>
+      <div style={{ margin: "0 0 16px" }}>
+        <ShareButton
+          url={pageShareUrl("/florida/" + params.town)}
+          title={`${t.title}, Florida`}
+          text={`${t.title}, Florida: the one thing to do and the top-rated places right now. On Wayfind.`}
+          label="Share"
+          tone="dark"
+          event="page_share"
+          meta={{ surface: "florida_town", town: params.town, placement: "header" }}
+        />
+      </div>
       <p style={S.one}><b style={{ color: "#F2C14E" }}>⭐ The one thing:</b> {t.one}</p>
 
       {topTen.length >= 3 ? (
@@ -118,7 +131,7 @@ export default async function Page({ params }) {
         {nearby.map(([k, slug], i) => (<span key={slug}><a style={S.a} href={`/florida/${slug}`}>{TOWN_PROFILES[k].title}</a>{i < nearby.length - 1 ? " · " : ""}</span>))}
         {" "}· <a style={S.a} href="/culture/sarasota">Sarasota &amp; the Cultural Coast</a>
       </p>
-      <div style={S.disclosure}>Researched from local sources, official venue information, and verified visitor data. Listings rank on merit — see <a style={S.a} href="/how-wayfind-ranks">how Wayfind ranks</a> and our <a style={S.a} href="/editorial-policy">editorial policy</a>. Wayfind may earn a commission from partner links; it never changes a ranking.</div>
+      <div style={S.disclosure}>Researched from local sources, official venue information, and verified visitor data. Listings rank on merit — see <a style={S.a} href="/how-wayfind-ranks">how Wayfind ranks</a> and our <a style={S.a} href="/editorial-policy">editorial policy</a>.</div>
     </main>
   );
 }

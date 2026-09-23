@@ -99,15 +99,26 @@ const readyHtml = renderToStaticMarkup(createElement(DestinationStaysContent, {
   state: { key: "selected", status: "ready", places: selected }, currentKey: "selected", destination: destinations[0], onRetry: () => {},
 }));
 assert.match(readyHtml, /Stay Near the Action/);
-assert.match(readyHtml, /Hotels within 12 miles of Actual Event Gate, ordered by Wayfind Score/);
+assert.match(readyHtml, /Great stays a short drive from Actual Event Gate, best rated first/);
 assert.equal((readyHtml.match(/data-iconic-place-card/g) || []).length, 2, "the mounted rail uses the two canonical IconicPlaceCard instances");
 assert.equal((readyHtml.match(/Check rates/g) || []).length, 2, "every stay receives the shared verified hotel booking control");
-assert.match(readyHtml, /commission/, "the matching booking disclosure renders with the earning control");
+assert.equal((readyHtml.match(/class="wf-place-card-cta"/g) || []).length, 2, "every stay gets its own booking-CTA slot on the card face");
+assert.doesNotMatch(readyHtml, /commission/, "the rail no longer renders a separate commission-disclosure line below the card");
+// "Check rates" must render INSIDE the first stay's own <li data-iconic-place-card>
+// element — specifically inside its .wf-place-card-cta slot — not as a sibling
+// control floating below the card (the pre-fix layout).
+const firstCardOpen = readyHtml.indexOf("data-iconic-place-card");
+const firstCardClose = readyHtml.indexOf("</li>", firstCardOpen);
+assert.ok(firstCardOpen >= 0 && firstCardClose > firstCardOpen, "the rendered rail contains a place card <li> to search inside");
+const firstCta = readyHtml.indexOf("wf-place-card-cta", firstCardOpen);
+assert.ok(firstCta > firstCardOpen && firstCta < firstCardClose, "the booking-CTA slot renders inside the stay's own card, not as a sibling below it");
+const firstCheckRates = readyHtml.indexOf("Check rates", firstCta);
+assert.ok(firstCheckRates > firstCta && firstCheckRates < firstCardClose, "Check rates renders inside the wf-place-card-cta slot, inside the card");
 const ownMarketHtml = renderToStaticMarkup(createElement(DestinationStaysContent, {
   state: { key: "selected", status: "ready", places: completeSelected }, currentKey: "selected", destination: destinations[0], onRetry: () => {},
 }));
 assert.match(ownMarketHtml, /Check rates/);
-assert.match(ownMarketHtml, /commission/, "a real-shape hotel with its own known market retains the matching booking disclosure");
+assert.doesNotMatch(ownMarketHtml, /commission/, "a real-shape hotel with its own known market still renders no separate commission-disclosure line on the rail");
 const ownMarketHref = ownMarketHtml.match(/href="(\/api\/hotels\/go\?[^\"]+)"/)?.[1]?.replaceAll("&amp;", "&");
 assert.ok(ownMarketHref, "the real-shape market hotel renders through the tracked hotel route");
 const ownMarketQuery = new URL(ownMarketHref, "https://wayfind.test").searchParams;

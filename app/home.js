@@ -26,7 +26,7 @@ import { cuisineMetroFor } from "../lib/cuisine";
 // v6.15: the ONE shared place classifier (labels + the junk gate now agree).
 import { primaryCategory, catOfType } from "../lib/placeCategory";
 import { deviceId } from "../lib/deviceId";
-import { analyticsSuppressionReason } from "../lib/browserAnalytics";
+import { analyticsSuppressionReason, captureOrQueue } from "../lib/browserAnalytics";
 import { markIntroSeen } from "../lib/introGate";
 import { isNative, nativeAppleCredential, nativeOAuthSignIn, nativeShare } from "../lib/native";
 import { noteHighPointAndMaybeAsk } from "../lib/appRating";
@@ -319,7 +319,7 @@ function _viatorCityParams(cityQ, center) {
 // and v8.x because check-version.mjs only asserts VERSION == BUILD_ID, not
 // that either moved — and the owner used the footer label to judge whether
 // production was stale. A version label that never changes is disinformation.
-const BUILD_ID = "v8.57.0";
+const BUILD_ID = "v8.62.0";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -1152,12 +1152,12 @@ function heroImpression(card, variant, text) {
   const k = card + ":" + variant;
   if (_heroSeen.has(k)) return;
   _heroSeen.add(k);
-  try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture("hero_impression", { card, variant, text }); } catch (e) {}
+  try { if (typeof window !== "undefined") captureOrQueue(window, "hero_impression", { card, variant, text }); } catch (e) {}
 }
 function heroTap(card, variant) {
-  try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture("hero_tap", { card, variant }); } catch (e) {}
+  try { if (typeof window !== "undefined") captureOrQueue(window, "hero_tap", { card, variant }); } catch (e) {}
 }
-function _sharePath(nm) { try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture("share_path", { path: nm }); } catch (e) {} }
+function _sharePath(nm) { try { if (typeof window !== "undefined") captureOrQueue(window, "share_path", { path: nm }); } catch (e) {} }
 // v4.80 — reliable external open for partner links (Viator, Stay22). From an
 // installed home-screen PWA, plain target="_blank" + rel="noreferrer" anchors
 // can open a browser view that never navigates (long-standing iOS standalone
@@ -2750,7 +2750,7 @@ class MapErrorBoundary extends Component {
 class ErrorBoundary extends Component {
   constructor(props) { super(props); this.state = { hit: false, err: "" }; }
   static getDerivedStateFromError(e) { return { hit: true, err: String((e && e.message) || e || "").slice(0, 160) }; }
-  componentDidCatch(error) { try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture("app_error", { message: String(error && error.message || "").slice(0, 200), stack: String((error && error.stack) || "").split("\n").slice(0, 3).join(" | "), build: BUILD_ID }); } catch (e) {} }
+  componentDidCatch(error) { try { if (typeof window !== "undefined") captureOrQueue(window, "app_error", { message: String(error && error.message || "").slice(0, 200), stack: String((error && error.stack) || "").split("\n").slice(0, 3).join(" | "), build: BUILD_ID }); } catch (e) {} }
   render() {
     if (this.state.hit) {
       return (
@@ -5188,7 +5188,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       if (session && session.user) setUser(session.user);
       else if (_event === "SIGNED_OUT") setUser(null);
       try { if (session && session.user && typeof window !== "undefined" && window.__WF_NOTE_AUTH_USER) window.__WF_NOTE_AUTH_USER(session.user); } catch (e) {}
-      try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture("auth_event", { event: _event, hasSession: !!(session && session.user) }); } catch (e) {}
+      try { if (typeof window !== "undefined") captureOrQueue(window, "auth_event", { event: _event, hasSession: !!(session && session.user) }); } catch (e) {}
       try { if (session && session.user && typeof window !== "undefined" && window.posthog) window.posthog.identify(session.user.id); } catch (e) {}
       try { const _k = "wf_authlog"; const _a = JSON.parse(localStorage.getItem(_k) || "[]"); _a.push({ t: new Date().toISOString().slice(5, 19), e: _event, s: !!(session && session.user) }); localStorage.setItem(_k, JSON.stringify(_a.slice(-12))); } catch (e) {}
     });
@@ -5428,11 +5428,57 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     setUser(null);
     showToast("Signed out");
   }
+  // In-app account deletion (Apple guideline 5.1.1(v)). The actual server
+  // call + local storage cleanup lives in lib/accountDelete.js, imported
+  // lazily here so it never sits in the bundle for the near-total majority
+  // of sessions that never delete an account. Returns { ok, error? } so the
+  // confirm panel in Account.js can show its own inline error without
+  // duplicating this function's logic.
+  async function deleteAccountUser() {
+    if (!supabase || !user) return { ok: false, error: "You are not signed in." };
+    try {
+      const { deleteAccount } = await import("../lib/accountDelete.js");
+      const result = await deleteAccount({ supabase, user, deviceId: deviceId() });
+      if (result && result.ok) {
+        setUser(null);
+        // Deleted accounts must not keep contributing to the identified
+        // person's PostHog history from this device — reset() drops the
+        // identified distinct id and starts a fresh anonymous one, same as a
+        // sign-out on a shared device would want, but mandatory here since
+        // the identity itself no longer exists server side.
+        try { if (typeof window !== "undefined" && window.posthog) window.posthog.reset(); } catch (e) {}
+        // Mirror what the sign-in sync effect (above) sets FROM the same
+        // local storage keys lib/accountDelete.js just cleared \u2014 those keys
+        // are gone, so the in-memory state that mirrors them has to be reset
+        // too, or the UI would keep showing a deleted account's favorites
+        // until the next full reload.
+        try {
+          setLiked({});
+          setDisliked({});
+          setLikedItems({});
+          setDislikedItems({});
+          setSharedItems({});
+          setLists({ favorites: { id: "favorites", name: "Favorites", emoji: "\u2764\ufe0f", places: [] } });
+        } catch (e) {}
+        setAccountOpen(false);
+        showToast("Your account was deleted");
+        return { ok: true };
+      }
+      const message = (result && result.error) || "Could not delete your account. Please try again.";
+      showToast(message);
+      return { ok: false, error: message };
+    } catch (e) {
+      const message = "Could not delete your account. Please try again.";
+      showToast(message);
+      return { ok: false, error: message };
+    }
+  }
   async function wfShowDiag() {
     try {
       let msg = "URL params: " + (window.location.search || window.location.hash || "clean");
       try { const { data: _d } = await supabase.auth.getSession(); msg = "Session: " + (_d && _d.session ? "ACTIVE, token until " + new Date(_d.session.expires_at * 1000).toTimeString().slice(0, 8) : "NONE") + "\n" + msg; } catch (e) { msg = "Session: NONE (no client)\n" + msg; }
       msg += "\n\nAuth log (old\u2192new):\n" + (JSON.parse(localStorage.getItem("wf_authlog") || "[]").map((r) => r.t + "  " + r.e + (r.s ? " \u2713" : " \u2717")).join("\n") || "(empty)");
+      try { if (window.__wfPushToken) msg += "\nPush token: set"; } catch (e) {}
       alert("Wayfind " + BUILD_ID + "\n" + msg);
     } catch (e) {}
   }
@@ -6319,7 +6365,6 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       const str = (v, n) => (v == null ? null : String(v).slice(0, n));
       const send = (m) => {
         try {
-          if (!window.posthog) return;
           const ctx = window.__WF_CTX || {};
           const a = m.attribution || {};
           const props = { metric: m.name, value: Math.round(m.name === "CLS" ? m.value * 1000 : m.value), rating: m.rating, route: window.location.pathname, device: window.innerWidth < 768 ? "mobile" : "desktop", loc_permission: ctx.locPermission || "unknown", signed_in: !!ctx.signedIn, build: BUILD_ID };
@@ -6345,7 +6390,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             props.inp_presentation = num(a.presentationDelay);
             props.inp_load_state = str(a.loadState, 40);
           }
-          window.posthog.capture("web_vitals", props);
+          // Pre-ready queue: FCP/TTFB (and a fast LCP) resolve before the
+          // idle-booted SDK exists; a raw capture here dropped them.
+          captureOrQueue(window, "web_vitals", props);
         } catch (e) {}
       };
       [onLCP, onCLS, onINP, onTTFB, onFCP].forEach((f) => { try { f(send); } catch (e) {} });
@@ -6365,7 +6412,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     try { if (place && place.type) tasteBump(place); } catch (e) {}
     if (skipOwnerOrBotAnalytics(user)) return;
     const _exp = (() => { try { return experimentProps(); } catch (e) { return {}; } })();
-    try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture(action, Object.assign({ place_id: (place && place.id) || (extra && extra.place_id) || null, place_name: (place && place.name) || null }, extra || {}, _exp)); } catch (e0) {}
+    // Pre-ready queue, not raw window.posthog: a share-link landing logs
+    // share_open and detail_open in the first ~2s, before the idle-booted SDK
+    // exists — those were silently dropped (Supabase had them, PostHog never).
+    try { if (typeof window !== "undefined") captureOrQueue(window, action, Object.assign({ place_id: (place && place.id) || (extra && extra.place_id) || null, place_name: (place && place.name) || null }, extra || {}, _exp)); } catch (e0) {}
     // Mirror to GA4 / Google Ads. One product action => one PostHog event (above)
     // and at most one Google event (here); forwardToGoogle dedupes and decides
     // on its own whether the action is worth an Ads conversion at all.
@@ -9403,7 +9453,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // coupons
     cpnOffers, savedCoupons, clipCoupon, toggleSaveCoupon, copyCouponCode, shareCoupon, walletOpen, setWalletOpen, couponHandoff,
     // saved
-    activeList, setActiveList, sysFolder, setSysFolder, setNewListOpen, user, setAuthOpen, signOutUser, lists, setListMenu, likedItems, dislikedItems, sharedItems, shareList, deleteList, rollDice,
+    activeList, setActiveList, sysFolder, setSysFolder, setNewListOpen, user, setAuthOpen, signOutUser, deleteAccountUser, lists, setListMenu, likedItems, dislikedItems, sharedItems, shareList, deleteList, rollDice,
     // personalization (v6.56): the taste consent + entry point live at the
     // bottom of Favorites, not on the home feed — and only for signed-in
     // users, which is why nothing here needs the auth primitives: the
@@ -11022,7 +11072,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                   <span style={{ color: C.border }}>·</span>
                   <a href="/terms" style={{ fontSize: 12, fontWeight: 700, color: C.muted, textDecoration: "none" }}>Terms</a>
                 </div>
-                <div style={{ fontSize: 10.5, color: C.muted, opacity: 0.8, lineHeight: 1.5, maxWidth: 320, margin: "0 auto" }}>Some links, including tickets and tours, are affiliate links. Wayfind may earn a commission at no extra cost to you.</div>
+                <div style={{ fontSize: 10.5, color: C.muted, opacity: 0.8, lineHeight: 1.5, maxWidth: 320, margin: "0 auto" }}>Some links are affiliate links. We may earn a commission at no extra cost to you. It never changes our rankings.</div>
                 <div onClick={() => { try { window.__wfv = (window.__wfv || 0) + 1; clearTimeout(window.__wfvT); window.__wfvT = setTimeout(() => { window.__wfv = 0; }, 2200); if (window.__wfv >= 5) { window.__wfv = 0; wfShowDiag(); } } catch (e) {} }} style={{ fontSize: 11, color: C.muted, opacity: 0.6, marginTop: 10, textAlign: "center", cursor: "pointer" }}>Wayfind · {BUILD_ID}</div>
               </div>
               <div style={{ height: 20 }} />
@@ -11569,7 +11619,6 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
           })}
         </div>
       )}
-      <div style={{ fontSize: 10.5, color: C.muted, marginTop: 9, lineHeight: 1.4 }}>Wayfind may earn a commission when you book through this link, at no extra cost to you. It never changes our scores or rankings.</div>
       {st.hasMore ? (
         <button onClick={loadMore} disabled={more} style={{ width: "100%", marginTop: 10, padding: "11px 0", borderRadius: 12, border: `1px solid ${C.accent}`, background: C.adim, color: C.accent, fontSize: 13.5, fontWeight: 800, cursor: more ? "default" : "pointer", opacity: more ? 0.6 : 1 }}>{more ? "Loading…" : "Show more experiences"}</button>
       ) : null}
@@ -11663,7 +11712,6 @@ function UTDealsRail({ category, onSave, lat, lng, onLog = NOLOG }) {
               </a>
             ))}
           </div>
-          <div style={{ fontSize: 10, color: C.muted, marginTop: 7, lineHeight: 1.4 }}>Wayfind may earn a commission when you book through this link, at no extra cost to you. It never changes our scores or rankings.</div>
         </div>
       ))}
     </>
@@ -12016,7 +12064,6 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           {isTrueLodging(p) ? (
             <div style={{ marginTop: 9, display: "flex", flexDirection: "column", pointerEvents: "auto" }} onClick={(e) => e.stopPropagation()}>
               <BookingCTA variant="primary" detail={p} kind="hotels" label="Check rates" city={city} locName={city} />
-              <BookingCTA variant="disclosure" detail={p} kind="hotels" city={city} locName={city} />
             </div>
           ) : null}
           {(() => { const _prov = cardAffiliateProvider(p); return (_prov || AFFILIATE_AUDIT) ? <div style={{ marginTop: 8 }}><AffiliateChip provider={_prov} /></div> : null; })()}

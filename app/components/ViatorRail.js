@@ -79,7 +79,6 @@ export default function ViatorRail({ title, items, theme, onLog, onOpenExternal 
         ))}
       </div>
       <RailDots railId={railId} count={rankedItems.length} />
-      <div style={{ fontSize: 10, color: C.muted, marginTop: 7, lineHeight: 1.4 }}>Wayfind may earn a commission when you book through this link, at no extra cost to you. It never changes our scores or rankings.</div>
     </div>
   );
 }

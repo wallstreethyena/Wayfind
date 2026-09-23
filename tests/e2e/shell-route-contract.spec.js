@@ -57,6 +57,15 @@ test("no place-card action is a navigation", async ({ page }) => {
     await page.waitForTimeout(2500); // let hydration swap <a> for <button>
     const actionAnchors = await page.locator('a[href*="?action="]').count();
     expect(actionAnchors, `${url} still ships a ?action= anchor behind a control`).toBe(0);
+    // Zero anchors is meaningless if the surface never rendered a card to
+    // begin with (a card-less page trivially has zero action anchors). #1405
+    // made every legacy guide pick card-less on 2026-09-22 and this check kept
+    // passing on an empty page until #1452 restored the cards. Prove there was
+    // something to check on the guide route, whose card count is data-driven.
+    if (url.startsWith("/guides/")) {
+      const likeButtons = await page.locator("button.wf-place-card-like").count();
+      expect(likeButtons, `${url} rendered no place cards at all — the ?action= check above proved nothing`).toBeGreaterThan(0);
+    }
   }
 });
 

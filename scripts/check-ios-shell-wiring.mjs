@@ -1,0 +1,360 @@
+// scripts/check-ios-shell-wiring.mjs
+// STRUCTURAL-ONLY: Swift, plist and a WKWebView errorPath page cannot execute on
+// the Linux build host; these are brace-matched structural reads. The executed
+// proof is the Xcode simulator build + run recorded in docs/ios-app-store-handoff.md.
+//
+// 2026-09-23 launch hardening — this is the union lock for FIVE separate
+// fixes that shipped together, none of which fail the build if broken:
+//
+//   1. AppDelegate forwards the two remote-notification callbacks Capacitor's
+//      PushNotifications plugin actually listens for (without this, push
+//      registration silently never resolves — measured: device_push_tokens
+//      had 0 rows, ever).
+//   2. SceneDelegate registers BOTH app-owned native plugins (AppleSignIn,
+//      AppRating) as instances, the only way Capacitor sees a plugin that is
+//      not in packageClassList.
+//   3. Info.plist no longer names a storyboard as anyone's initial scene —
+//      SceneDelegate already builds its own window, so a named storyboard
+//      created a second, unconfigured Capacitor bridge.
+//   4. The offline experience: capacitor.config.ts's server.errorPath, and
+//      www/offline.html itself, are wired and self-contained.
+//   5. The native mid-session offline overlay is mounted in app/layout.js and
+//      its heavy module is reachable ONLY through a lazy import (bundle
+//      budget — CLAUDE.md's ~7.7KB gz headroom).
+//
+// Each of these is a "the code runs, nothing throws, and the specific thing
+// is simply absent" class of bug — exactly the shape CLAUDE.md's Extraction
+// PRs section warns generalizes past extraction. So this is a UNION guard:
+// one file, checked together, registered once, rather than five guards that
+// could individually be forgotten.
+//
+// Every assertion below matches SYNTACTIC POSITION (a call inside a specific
+// function body, a key at the plist root, a tag's own attribute) rather than
+// "the string appears somewhere in the file" — CLAUDE.md names this exact
+// failure mode four separate times.
+import { readFileSync, existsSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { readPlist } from "./lib/plistParse.mjs";
+
+let pass = 0;
+const fail = (m) => { console.error("check-ios-shell-wiring: FAIL — " + m); process.exit(1); };
+const ok = (c, m) => { if (!c) fail(m); pass += 1; };
+
+const REPO = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+const read = (p) => readFileSync(path.join(REPO, p), "utf8");
+const stripJs = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+// Swift's line/block comment syntax is the same shape as JS's, so the same
+// stripper applies. This matters here specifically: a commented-out
+// registerPluginInstance(...) call or notification post must NOT satisfy the
+// regexes below, and without stripping it would — the leading "// " on an
+// otherwise-unchanged line is invisible to a regex that only checks the call
+// text itself.
+const stripSwift = stripJs;
+
+// Extracts a Swift function's body by brace-counting from its signature, so a
+// match cannot leak in from a comment, from a DIFFERENT function, or from the
+// call merely appearing somewhere else in the file.
+function swiftFunctionBody(src, signatureRegex) {
+  const m = signatureRegex.exec(src);
+  if (!m) return null;
+  let i = src.indexOf("{", m.index + m[0].length - 1);
+  if (i === -1) return null;
+  let depth = 0;
+  let start = i;
+  for (; i < src.length; i += 1) {
+    if (src[i] === "{") depth += 1;
+    else if (src[i] === "}") {
+      depth -= 1;
+      if (depth === 0) return src.slice(start + 1, i);
+    }
+  }
+  return null;
+}
+
+// ── 1. AppDelegate posts BOTH capacitor notifications, from the RIGHT method ─
+const appDelegate = stripSwift(read("ios/App/App/AppDelegate.swift"));
+const regBody = swiftFunctionBody(
+  appDelegate,
+  /func\s+application\(\s*_\s+application:\s*UIApplication,\s*didRegisterForRemoteNotificationsWithDeviceToken\s+deviceToken:\s*Data\)/
+);
+ok(!!regBody, "AppDelegate declares didRegisterForRemoteNotificationsWithDeviceToken(_:) — without it iOS never tells the app a token arrived");
+ok(!!regBody && /NotificationCenter\.default\.post\(\s*name:\s*\.capacitorDidRegisterForRemoteNotifications/.test(regBody),
+   "…and its BODY posts .capacitorDidRegisterForRemoteNotifications — this is the exact Notification.Name @capacitor/ios's PushNotifications plugin listens for (CAPNotifications.swift); posting it from the wrong method, or not at all, leaves push registration silently unresolved forever");
+
+const failBody = swiftFunctionBody(
+  appDelegate,
+  /func\s+application\(\s*_\s+application:\s*UIApplication,\s*didFailToRegisterForRemoteNotificationsWithError\s+error:\s*Error\)/
+);
+ok(!!failBody, "AppDelegate declares didFailToRegisterForRemoteNotificationsWithError(_:) too");
+ok(!!failBody && /NotificationCenter\.default\.post\(\s*name:\s*\.capacitorDidFailToRegisterForRemoteNotifications/.test(failBody),
+   "…and its body posts .capacitorDidFailToRegisterForRemoteNotifications, so a denied/failed registration is observable instead of hanging silently");
+
+// Control: prove the two are not the SAME body (a copy-paste that posts the
+// success notification from both methods would satisfy naive substring
+// checks while being wrong).
+ok(regBody !== failBody, "control: the two callback bodies are not identical — a copy-paste bug would post the same notification from both");
+
+// ── 2. SceneDelegate registers BOTH app-owned plugin instances ───────────
+const sceneDelegate = stripSwift(read("ios/App/App/SceneDelegate.swift"));
+const loadBody = swiftFunctionBody(sceneDelegate, /override\s+func\s+capacitorDidLoad\(\)/);
+ok(!!loadBody, "SceneDelegate's WayfindBridgeViewController overrides capacitorDidLoad()");
+for (const [plugin, jsName] of [["AppleSignInPlugin", "AppleSignIn"], ["AppRatingPlugin", "AppRating"]]) {
+  ok(!!loadBody && new RegExp(`bridge\\?\\.registerPluginInstance\\(${plugin}\\(\\)\\)`).test(loadBody),
+     `capacitorDidLoad() registers ${plugin} as an instance — Capacitor's package auto-registration never sees an app-owned plugin that is not in packageClassList`);
+  ok(!!loadBody && new RegExp(`precondition\\(bridge\\?\\.plugin\\(withName:\\s*"${jsName}"\\)\\s*!=\\s*nil`).test(loadBody),
+     `…and a precondition proves ${jsName} actually registered — without it a broken registration ships silently instead of crashing at launch, where it is cheap to catch`);
+}
+ok(/AppRatingPlugin/.test(loadBody) && loadBody.indexOf("AppleSignInPlugin") < loadBody.indexOf("AppRatingPlugin"),
+   "control: both registrations are real, distinct lines inside the same body, not one match satisfying both regexes");
+
+// ── 3. Info.plist names no storyboard as an initial scene ────────────────
+const info = readPlist(path.join(REPO, "ios/App/App/Info.plist"));
+ok(!Object.prototype.hasOwnProperty.call(info, "UIMainStoryboardFile"),
+   `Info.plist has no top-level UIMainStoryboardFile (got ${JSON.stringify(info.UIMainStoryboardFile)}) — SceneDelegate already builds its own window; a named storyboard makes UIKit instantiate a SECOND, unconfigured Capacitor bridge on top of it`);
+const sceneConfigs =
+  (((info.UIApplicationSceneManifest || {}).UISceneConfigurations || {}).UIWindowSceneSessionRoleApplication) || [];
+ok(Array.isArray(sceneConfigs) && sceneConfigs.length >= 1, "control: at least one UIWindowSceneSessionRoleApplication scene configuration resolves — an empty list would make the next assertion vacuous");
+for (const cfg of sceneConfigs) {
+  ok(!Object.prototype.hasOwnProperty.call(cfg, "UISceneStoryboardFile"),
+     `no scene configuration names UISceneStoryboardFile (got ${JSON.stringify(cfg.UISceneStoryboardFile)}) — same failure as UIMainStoryboardFile, one level deeper in the plist`);
+  ok(cfg.UISceneDelegateClassName === "$(PRODUCT_MODULE_NAME).SceneDelegate",
+     `the scene configuration still points at SceneDelegate (got ${JSON.stringify(cfg.UISceneDelegateClassName)}) — removing the storyboard key must not also remove the thing that replaces it`);
+}
+
+// ── 4a. capacitor.config.ts wires server.errorPath ────────────────────────
+const capConfig = stripJs(read("capacitor.config.ts"));
+const serverBlock = (capConfig.match(/server:\s*\{([\s\S]*?)\n\s*\},/) || [])[1] || "";
+ok(serverBlock.length > 0, "control: capacitor.config.ts has a server: { ... } block to read errorPath from");
+ok(/errorPath:\s*"offline\.html"/.test(serverBlock),
+   `server.errorPath is "offline.html", found INSIDE the server block specifically (block: ${JSON.stringify(serverBlock.slice(0, 200))}) — a match anywhere else in the file would not actually configure Capacitor`);
+
+// ── 4b. www/offline.html is wired and self contained ──────────────────────
+const OFFLINE_PATH = "www/offline.html";
+ok(existsSync(path.join(REPO, OFFLINE_PATH)), "www/offline.html exists — capacitor.config.ts's errorPath points at a file inside webDir that must actually be there");
+const offlineHtml = read(OFFLINE_PATH);
+
+ok(/<button[^>]*>\s*Try again\s*<\/button>/.test(offlineHtml), 'offline.html has a "Try again" button — the one recovery action the page offers');
+ok(/addEventListener\(\s*["']online["']/.test(offlineHtml), 'offline.html listens for the "online" event — auto recovery when the OS reports connectivity back');
+ok(/setInterval\(/.test(offlineHtml) && /probe\(/.test(offlineHtml),
+   "offline.html runs a periodic probe (setInterval calling probe()) — the online event alone misses captive-portal-style false positives and a same-network reconnect the OS never fires an event for");
+ok(/visibilitychange/.test(offlineHtml), "offline.html pauses/resumes its probe on visibilitychange, so a backgrounded tab is not polling forever");
+
+// No external http(s) resource in any tag attribute. This intentionally
+// walks TAG ATTRIBUTES only (src=/href=), not the whole file — the SERVER
+// constant legitimately appears as a JS STRING inside <script>, and that is
+// not a resource request.
+const bodyForTags = offlineHtml.replace(/<script[\s\S]*?<\/script>/gi, "");
+const externalRefs = bodyForTags.match(/\b(?:src|href)\s*=\s*"https?:\/\/[^"]*"/gi) || [];
+ok(externalRefs.length === 0, `offline.html has no external http(s) src/href in its markup outside <script> (found: ${JSON.stringify(externalRefs)}) — this page exists BECAUSE there is no network, so anything it fetches from elsewhere just fails silently too`);
+ok(/const SERVER = "https:\/\/www\.gowayfind\.com"/.test(offlineHtml),
+   "control: the SERVER constant IS present inside the script — proving the external-reference sweep above is scoped correctly rather than accidentally matching nothing");
+
+// offline.html runs on capacitor://localhost; the app runs on
+// https://www.gowayfind.com — different origins, so a sessionStorage value
+// written by one is never visible to the other. Recovery must hand the path
+// off through the URL (?wf_resume=1) for app/components/NativeOfflineOverlay.js
+// (same origin as the app) to pick up, never read its own cross-origin storage.
+ok(/SERVER \+ "\/\?wf_resume=1"/.test(offlineHtml),
+   'offline.html\'s recovery navigates to SERVER + "/?wf_resume=1" — the cross-origin handoff goes through the URL, not sessionStorage');
+ok(!/sessionStorage\.getItem\(\s*["']wf_last_path["']\s*\)/.test(offlineHtml),
+   "offline.html no longer reads its own sessionStorage for wf_last_path — that storage is on capacitor://localhost and can never contain what the app (https://www.gowayfind.com) wrote");
+// red proof: the two assertions above actually discriminate against the
+// broken (pre-fix) shape, not just against an empty string.
+{
+  const brokenOffline = 'var target = SERVER + safeLastPath(); sessionStorage.getItem("wf_last_path")';
+  ok(!/SERVER \+ "\/\?wf_resume=1"/.test(brokenOffline), "red proof: the pre-fix cross-origin sessionStorage shape does not satisfy the wf_resume assertion");
+  ok(/sessionStorage\.getItem\(\s*["']wf_last_path["']\s*\)/.test(brokenOffline), "red proof: the pre-fix shape DOES trip the no-cross-origin-read assertion, proving that assertion can fail");
+}
+
+// No dashes in the page's VISIBLE text — extracted by tag, not by sweeping
+// the whole file, since HTML comments and the SVG path's `d` attribute
+// legitimately contain hyphens (path syntax, code comments) that are not
+// reader-facing copy.
+const visibleTextSources = [
+  (offlineHtml.match(/<title>([\s\S]*?)<\/title>/) || [, ""])[1],
+  (offlineHtml.match(/<h1>([\s\S]*?)<\/h1>/) || [, ""])[1],
+  (offlineHtml.match(/<p class="body">([\s\S]*?)<\/p>/) || [, ""])[1],
+  (offlineHtml.match(/<button[^>]*>([\s\S]*?)<\/button>/) || [, ""])[1],
+];
+ok(visibleTextSources.every((t) => t.length > 0), "control: all four visible-text sources (title, h1, body copy, button) were actually found — an empty extraction would make the dash check vacuous");
+for (const text of visibleTextSources) {
+  ok(!/[-–—]/.test(text), `offline.html visible text has no dash (checked: ${JSON.stringify(text)}) — reader-facing copy in this repo never uses one`);
+}
+
+// ── 5. app/layout.js mounts the shim ──────────────────────────────────────
+const layout = stripJs(read("app/layout.js"));
+ok(/import\s+NativeOfflineOverlay\s+from\s+"\.\/components\/NativeOfflineOverlay"/.test(layout),
+   "app/layout.js imports NativeOfflineOverlay — an unbound JSX tag below would ReferenceError at render");
+ok(/<NativeOfflineOverlay\s*\/>/.test(layout), "app/layout.js actually RENDERS <NativeOfflineOverlay /> — an import with no JSX use is dead code, the exact 'entry point with no door' shape CLAUDE.md warns about");
+
+// ── 6. The heavy overlay module is reachable ONLY via dynamic import ─────
+const shim = stripJs(read("app/components/NativeOfflineOverlay.js"));
+ok(/dynamic\(\s*\(\)\s*=>\s*import\(\s*["']\.\/native\/OfflineOverlay["']\s*\)/.test(shim),
+   "the shim loads ./native/OfflineOverlay through next/dynamic — a static import here would ship the overlay's markup/CSS to every visitor, offline or not (bundle budget)");
+
+// The shim, not offline.html, completes the cross-origin path handoff — it
+// runs on the app's own origin, so it can read the wf_last_path sessionStorage
+// entry offline.html could never see. Validated (must start with "/" and not
+// "//") before ever reaching router.replace().
+ok(/wf_resume=1/.test(shim), "the shim checks location.search for wf_resume=1 — the marker offline.html's recovery navigation sets");
+ok(/sessionStorage\.getItem\(\s*LAST_PATH_KEY\s*\)/.test(shim), "the shim reads its OWN sessionStorage wf_last_path — same origin as the write, unlike offline.html");
+ok(/router\.replace\(/.test(shim), "the shim finishes the handoff with router.replace(), not a full page navigation");
+ok(/raw\.charAt\(0\)\s*!==\s*["']\/["']/.test(shim) && /raw\.charAt\(1\)\s*===\s*["']\/["']/.test(shim),
+   "the shim validates the resumed path (must start with a single \"/\", never \"//\") before router.replace() ever sees it — an unvalidated value here would let a compromised sessionStorage entry navigate the app anywhere");
+{
+  // red proof: a shim that reads wf_resume but skips validation must NOT
+  // satisfy the validation assertion above.
+  const unvalidatedShim = 'if (/wf_resume=1/.test(search)) { router.replace(sessionStorage.getItem(LAST_PATH_KEY)); }';
+  ok(!(/raw\.charAt\(0\)\s*!==\s*["']\/["']/.test(unvalidatedShim) && /raw\.charAt\(1\)\s*===\s*["']\/["']/.test(unvalidatedShim)),
+     "red proof: a shim that router.replace()s an unvalidated sessionStorage value does not satisfy the validation assertion");
+}
+
+// ORDER + SKIP: the resume read must run BEFORE the per-route write, and the
+// write must never record the resume hop itself. Otherwise the write (which
+// used to be declared first; effects run in declaration order) overwrote
+// wf_last_path with "/?wf_resume=1" before it was read, and the resume always
+// landed on the homepage. Caught by the Playwright resume run, 2026-09-23.
+{
+  const readIdx = shim.search(/sessionStorage\.getItem\(\s*LAST_PATH_KEY\s*\)/);
+  const writeIdx = shim.search(/sessionStorage\.setItem\(\s*LAST_PATH_KEY/);
+  ok(readIdx > 0 && writeIdx > 0 && readIdx < writeIdx, "the resume effect (getItem) is declared before the per-route write effect (setItem), so the saved path is read before anything can overwrite it");
+  const writeBody = shim.slice(Math.max(0, shim.lastIndexOf("useEffect", writeIdx)), writeIdx);
+  ok(/wf_resume=1[\s\S]*return/.test(writeBody), "the per-route write returns early on ?wf_resume=1, so the resume hop is never recorded as the last path");
+  const swapped = shim.slice(writeIdx - 200) + shim.slice(0, writeIdx - 200);
+  ok(!(swapped.search(/sessionStorage\.getItem\(\s*LAST_PATH_KEY\s*\)/) < swapped.search(/sessionStorage\.setItem\(\s*LAST_PATH_KEY/)), "red proof: with the write moved ahead of the read, the order assertion fails");
+}
+
+// The lazy chunk must be WARMED while online. A chunk first requested after
+// the connection drops can never download, so the overlay would never show.
+// That exact failure happened on 2026-09-23 (Playwright offline run: nothing
+// rendered). Assert the warm import() sits inside an isNative()-gated effect.
+{
+  const warmIdx = shim.search(/import\(\s*["']\.\/native\/OfflineOverlay["']\s*\)\s*\.catch/);
+  const nativeIdx = shim.search(/if\s*\(\s*!isNative\(\)\s*\)\s*return/);
+  ok(warmIdx > 0, "the shim warms the overlay chunk with a bare import(\"./native/OfflineOverlay\").catch(...) so it is cached before the network drops");
+  ok(nativeIdx > 0 && warmIdx > nativeIdx, "the warm import runs after an isNative() early return, so the website never downloads the overlay chunk");
+  // red proof: the same probe on a shim without the warm call finds nothing
+  const unwarmed = shim.replace(/import\(\s*["']\.\/native\/OfflineOverlay["']\s*\)\s*\.catch[^;]*;/, "");
+  ok(unwarmed.search(/import\(\s*["']\.\/native\/OfflineOverlay["']\s*\)\s*\.catch/) === -1, "red proof: removing the warm import makes the warm probe fail");
+}
+
+// Sweep every OTHER first-party source file for a STATIC import of the
+// overlay module. A static import anywhere defeats the lazy boundary even if
+// the dynamic() call above is also present.
+const { execSync } = await import("node:child_process");
+let candidates = [];
+try {
+  const out = execSync(
+    `grep -rl "native/OfflineOverlay" --include="*.js" app lib 2>/dev/null || true`,
+    { cwd: REPO, encoding: "utf8" }
+  );
+  candidates = out.split("\n").map((s) => s.trim()).filter(Boolean);
+} catch (e) {
+  fail(`could not sweep for static imports of the overlay module: ${e.message}`);
+}
+ok(candidates.length >= 1, "control: the sweep itself finds at least one reference to native/OfflineOverlay (the shim) — zero would mean the sweep is broken, not that the codebase is clean");
+for (const rel of candidates) {
+  const src = stripJs(read(rel));
+  const staticImport = /import\s+[\s\S]*?\s+from\s+["'][^"']*native\/OfflineOverlay["']/.test(src);
+  ok(!staticImport, `${rel} does not STATICALLY import native/OfflineOverlay (only a dynamic() call is allowed) — a static import anywhere pulls the overlay into that file's own chunk regardless of next/dynamic's ssr:false`);
+}
+
+// ── 6b. No white strip behind the status bar (2026-09-23 simulator run) ──
+{
+  const capCfg = stripJs(read("capacitor.config.ts"));
+  const iosBlock = (capCfg.match(/ios:\s*\{([\s\S]*?)\n\s*\},/) || [])[1] || "";
+  ok(/backgroundColor:\s*["']#0D1117["']/.test(iosBlock), "capacitor.config.ts ios.backgroundColor is the Wayfind dark #0D1117, so no white strip shows behind the status bar");
+  ok(!/backgroundColor:\s*["']#0D1117["']/.test("ios: { contentInset: \"always\" }"), "red proof: a config without the ios backgroundColor fails the probe");
+}
+
+// ── 6c. App icon: 1024 square, RGB with NO alpha (2026-09-23) ──────────
+// App Store Connect rejects an app icon with an alpha channel. Read the PNG
+// header directly (IHDR: width, height, colour type) instead of trusting the
+// file name. Colour type 2 = RGB, 6 = RGBA.
+{
+  const { readFileSync: rf } = await import("node:fs");
+  const buf = rf(path.join(REPO, "ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png"));
+  const isPng = buf.slice(1, 4).toString() === "PNG" && buf.slice(12, 16).toString() === "IHDR";
+  const w = buf.readUInt32BE(16), h = buf.readUInt32BE(20), colorType = buf[25];
+  ok(isPng && w === 1024 && h === 1024, `the app icon is a 1024x1024 PNG (got ${w}x${h})`);
+  ok(colorType === 2, `the app icon has no alpha channel (PNG colour type 2 = RGB, got ${colorType})`);
+  ok(!(6 === 2), "red proof: colour type 6 (RGBA) would fail the no alpha assertion");
+  const contents = JSON.parse(rf(path.join(REPO, "ios/App/App/Assets.xcassets/AppIcon.appiconset/Contents.json"), "utf8"));
+  ok(contents.images.some((i) => i.filename === "AppIcon-512@2x.png" && i.size === "1024x1024"), "Contents.json points the 1024 slot at the icon file");
+}
+
+// ── 7. Native location instead of the website prompt (2026-09-23) ────────
+// The simulator run showed Safari's "www.gowayfind.com would like to use your
+// current location ... This website will use" sheet inside the app. The fix
+// is a document-start shim in SceneDelegate.swift that routes
+// navigator.geolocation through the Capacitor Geolocation plugin. The shim is
+// plain JS inside a Swift raw string, so this section EXTRACTS and RUNS it
+// against a fake plugin, asserting behavior, not text.
+{
+  const sceneRaw = read("ios/App/App/SceneDelegate.swift");
+  const pkgSwift = read("ios/App/CapApp-SPM/Package.swift");
+  const pkgJson = JSON.parse(read("package.json"));
+  ok(!!(pkgJson.dependencies && pkgJson.dependencies["@capacitor/geolocation"]), "package.json depends on @capacitor/geolocation (so cap sync links the native plugin)");
+  ok((pkgSwift.match(/CapacitorGeolocation/g) || []).length >= 3, "CapApp-SPM Package.swift links CapacitorGeolocation (package + product)");
+  const scene = stripSwift(sceneRaw);
+  ok(/addUserScript\(\s*WKUserScript\(\s*source:\s*WayfindBridgeViewController\.geolocationShim,\s*injectionTime:\s*\.atDocumentStart/.test(scene),
+     "capacitorDidLoad adds the geolocation shim as a document-start user script");
+  const m = /\/\/ WF_GEO_SHIM_BEGIN([\s\S]*?)\/\/ WF_GEO_SHIM_END/.exec(sceneRaw);
+  ok(!!m, "the shim is delimited by WF_GEO_SHIM_BEGIN/END so it can be executed here");
+  const vm = await import("node:vm");
+  const run = (code, { native = true, plugin = true, perms = true } = {}) => {
+    const calls = [];
+    let watchCb = null;
+    const G = {
+      getCurrentPosition: (o) => { calls.push(["get", o]); return o && o.timeout === 1 ? Promise.reject(new Error("Location permission request was denied.")) : Promise.resolve({ timestamp: 5, coords: { latitude: 27.7, longitude: -82.6, accuracy: 10 } }); },
+      watchPosition: (o, cb) => { calls.push(["watch", o]); watchCb = cb; return Promise.resolve("n1"); },
+      clearWatch: (o) => { calls.push(["clear", o]); return Promise.resolve(); },
+      checkPermissions: () => Promise.resolve({ location: "granted", coarseLocation: "granted" }),
+    };
+    const origGeo = { web: true };
+    const navigator = { geolocation: origGeo };
+    if (perms) navigator.permissions = { query: () => Promise.resolve({ state: "web" }) };
+    const window = { Capacitor: { isNativePlatform: () => native, Plugins: plugin ? { Geolocation: G } : {} } };
+    const ctx = vm.createContext({ window, navigator, Promise, Date, String, isFinite, TypeError, Object });
+    vm.runInContext(code, ctx);
+    return { navigator, window, calls, fireWatch: (p, e) => watchCb && watchCb(p, e), origGeo };
+  };
+  if (m) {
+    const code = m[1];
+    const tick = () => new Promise((r) => setTimeout(r, 0));
+    // happy path
+    const a = run(code);
+    ok(a.navigator.geolocation !== a.origGeo && a.window.__wfNativeGeo === true, "in the native shell the shim replaces navigator.geolocation");
+    let got = null, err = null;
+    a.navigator.geolocation.getCurrentPosition((p) => { got = p; }, (e) => { err = e; }, { enableHighAccuracy: true, timeout: 7000, maximumAge: 60000 });
+    await tick(); await tick();
+    ok(got && got.coords.latitude === 27.7 && got.coords.longitude === -82.6 && got.timestamp === 5 && got.coords.heading === null, "getCurrentPosition resolves a W3C shaped position from the native plugin");
+    ok(a.calls[0] && a.calls[0][0] === "get" && a.calls[0][1].timeout === 7000 && a.calls[0][1].enableHighAccuracy === true, "options are passed through to the native plugin");
+    a.navigator.geolocation.getCurrentPosition(() => {}, (e) => { err = e; }, { timeout: 1 });
+    await tick(); await tick();
+    ok(err && err.code === 1 && err.PERMISSION_DENIED === 1, "a native permission denial surfaces as PositionError code 1 (PERMISSION_DENIED)");
+    // watch then clear
+    let seen = 0;
+    const id = a.navigator.geolocation.watchPosition(() => { seen++; }, () => {});
+    await tick();
+    a.fireWatch({ timestamp: 1, coords: { latitude: 1, longitude: 2 } });
+    ok(seen === 1 && typeof id === "number", "watchPosition returns a numeric id and forwards native updates");
+    a.navigator.geolocation.clearWatch(id);
+    a.fireWatch({ timestamp: 2, coords: { latitude: 1, longitude: 2 } });
+    ok(seen === 1 && a.calls.some((c) => c[0] === "clear" && c[1].id === "n1"), "clearWatch stops updates and clears the native watch");
+    const st = await a.navigator.permissions.query({ name: "geolocation" });
+    ok(st.state === "granted", "permissions.query({name:'geolocation'}) answers from native permission state");
+    const other = await a.navigator.permissions.query({ name: "camera" });
+    ok(other.state === "web", "permissions.query for other names still goes to the original implementation");
+    // web / missing plugin: untouched (red proof that the switch is real)
+    const w = run(code, { native: false });
+    ok(w.navigator.geolocation === w.origGeo, "on the website (not native) navigator.geolocation is untouched");
+    const n = run(code, { plugin: false });
+    ok(n.navigator.geolocation === n.origGeo, "if the native plugin is missing, the shim changes nothing (no broken location)");
+    const np = run(code, { perms: false });
+    ok(np.navigator.permissions && typeof np.navigator.permissions.query === "function", "when WKWebView has no Permissions API the shim provides one for geolocation");
+  }
+}
+
+console.log(`check-ios-shell-wiring: OK — ${pass} assertions (AppDelegate posts both remote-notification callbacks from their own bodies, brace-matched not grepped; SceneDelegate registers AppleSignIn + AppRating as instances with launch-time preconditions; Info.plist carries no storyboard key at either the top level or inside its scene configuration; capacitor.config.ts's server.errorPath and www/offline.html [Try again, online listener, periodic probe, no external resources outside <script>, no dashes in ${visibleTextSources.length} visible-text sources] are wired; app/layout.js renders <NativeOfflineOverlay />; the overlay module is dynamic()-only across ${candidates.length} referencing file(s) swept)`);

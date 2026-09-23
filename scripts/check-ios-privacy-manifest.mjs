@@ -119,6 +119,8 @@ const MUST = [
   ["NSPrivacyCollectedDataTypePreciseLocation", "getCurrentPosition() feeds the nearby ranking"],
   ["NSPrivacyCollectedDataTypePhotosorVideos", "nativePickPhoto() hands a File to the upload pipeline"],
   ["NSPrivacyCollectedDataTypeProductInteraction", "PostHog records saves, taps and sheet opens"],
+  ["NSPrivacyCollectedDataTypeDeviceID", "lib/deviceId.js's wf_device id travels with push registration and account deletion"],
+  ["NSPrivacyCollectedDataTypeOtherUserContent", "the comments/tips a signed-in user posts about a place"],
 ];
 for (const [k, why] of MUST) ok(declared.has(k), `${k} is declared — ${why}`);
 

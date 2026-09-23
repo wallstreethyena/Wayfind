@@ -98,17 +98,20 @@ try {
   const laneRules = clone("lane-rules");
   commitFile(laneRules, "AGENTS.md", "# rules\n\n## 1. First rule\n\n## 2. Lane wrote this\n", LANE);
   const r1 = runGuard(laneRules, GUARD);
-  check("lane editing AGENTS.md is refused", r1.code === 1 && /owner-only files modified by a lane/.test(r1.out), `code ${r1.code}: ${r1.out.trim()}`);
+  check("lane editing AGENTS.md is refused", r1.code === 1 && /owner-only files changed/.test(r1.out), `code ${r1.code}: ${r1.out.trim()}`);
 
   const laneProposal = clone("lane-proposal");
   commitFile(laneProposal, "docs/proposals/lane-topic.md", "proposal\n", LANE);
   const r2 = runGuard(laneProposal, GUARD);
   check("lane writing a proposal is allowed", r2.code === 0 && /OK/.test(r2.out), `code ${r2.code}: ${r2.out.trim()}`);
 
+  // 2026-09-23: a commit AUTHORED as the owner is no longer approval (anyone can type
+  // the name). Approval is a GitHub-authenticated "/owner-approve <head sha>" comment,
+  // verified only on the merge gate; see scripts/test-owner-approval.mjs.
   const ownerRules = clone("owner-rules");
   commitFile(ownerRules, "AGENTS.md", "# rules\n\n## 1. First rule\n\n## 2. Owner wrote this\n", OWNER);
   const r3 = runGuard(ownerRules, GUARD);
-  check("owner editing AGENTS.md is allowed", r3.code === 0 && /OK/.test(r3.out), `code ${r3.code}: ${r3.out.trim()}`);
+  check("a commit merely authored as the owner is refused off the merge gate", r3.code === 1 && /commit author names are not evidence/.test(r3.out), `code ${r3.code}: ${r3.out.trim()}`);
 
   const laneCode = clone("lane-code");
   commitFile(laneCode, "lib/thing.js", "export const a = 1;\n", LANE);
@@ -193,4 +196,4 @@ if (passed !== EXPECTED) {
   console.error("  A different count means a proof was skipped or added without review. Neither may pass silently.");
   process.exit(1);
 }
-console.log(`test-doc-ownership-shallow: OK — ${passed} assertions (incident shape reproduced from a real shallow clone, pre-fix source pinned at blob ${PRE_FIX_BLOB.slice(0, 12)} and read from a committed fixture so it runs on shallow checkouts too, red-proved, Vercel skip preserved, four ordinary answers unchanged)`);
+console.log(`test-doc-ownership-shallow: OK — ${passed} assertions (incident shape reproduced from a real shallow clone, pre-fix source pinned at blob ${PRE_FIX_BLOB.slice(0, 12)} and read from a committed fixture so it runs on shallow checkouts too, red-proved, Vercel skip preserved, ordinary answers verified, owner-by-author-name refused)`);
