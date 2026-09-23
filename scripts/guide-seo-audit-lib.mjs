@@ -39,6 +39,8 @@ export function buildGuideSeoAudit(sourceInput) {
     const choices = GUIDE_QUICK_CHOICES[slug] || [];
     const hasArt = art?.kind !== "unavailable" && Boolean(art?.src);
     const largeCandidate = hasArt && art.width >= 1200 && art.width * art.height > 300000;
+    const hasRealPublished = Boolean(guide.published);
+    const hasDatePublished = Boolean(guide.published || guide.updated);
     return {
       slug,
       url: `${SITE_URL}/guides/${slug}`,
@@ -47,7 +49,13 @@ export function buildGuideSeoAudit(sourceInput) {
       decision: guide.description,
       checks: {
         ...source,
-        article_schema: source.article_schema.status === "pass" ? result("pass", hasArt ? "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded." : "Article wiring omits an image rather than substituting unrelated art; publication date remains omitted because none is recorded.") : source.article_schema,
+        article_schema: source.article_schema.status !== "pass" ? source.article_schema : result(
+          hasDatePublished ? "pass" : "fail",
+          (hasArt ? "Article wiring includes the reviewed image. " : "Article wiring omits an image rather than substituting unrelated art. ") +
+          (hasRealPublished ? `datePublished (${guide.published}) is a real recorded publish date, sourced from git history for legacy entries lacking one.` :
+            hasDatePublished ? `datePublished falls back to the truthful dateModified (${guide.updated}) — no separate publish date is recorded for this slug.` :
+            "datePublished is omitted because no publish or modified date is recorded — this is the defect scripts/check-guide-published.mjs exists to catch."),
+        ),
         image_record: result("pass", hasArt ? `${art.src}; ${art.width}x${art.height}; ${art.credit}; ${art.license}.` : `Explicitly unavailable: ${art?.reason || "no reviewed image"}`),
         representative_image: result(hasArt ? "pass" : "unknown", hasArt ? "The route and metadata use the same per-slug reviewed image." : "No reviewed representative image is currently available."),
         large_image_candidate: result(largeCandidate ? "pass" : "unknown", largeCandidate ? `Reviewed source image is ${art.width}x${art.height} and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established.` : hasArt ? `Reviewed source image is ${art.width}x${art.height}; it is not claimed as a 1200px-wide Discover candidate.` : "No representative image is available."),

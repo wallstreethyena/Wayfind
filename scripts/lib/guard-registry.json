@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 705,
-    "totalRegistryEntries": 706,
-    "guardsTxtLineCount": 704,
-    "guardsTxtReachedFileCount": 699,
+    "totalOnDiskGuardFiles": 707,
+    "totalRegistryEntries": 708,
+    "guardsTxtLineCount": 706,
+    "guardsTxtReachedFileCount": 701,
     "criticalCount": 84,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 484,
+      "CALL": 486,
       "RENDER": 83,
       "STRUCTURAL": 138,
       "OTHER": 1
@@ -3571,6 +3571,28 @@
         "detail": "2026-08-05: all nine tour-intent guides resolved to a generic Viator search; 20 readers saw the CTA and zero clicked — the same 'promised tickets, got a search page' defect check-guide-cta-honesty.mjs locks from the label side."
       },
       "owner": "Revenue QA"
+    },
+    {
+      "file": "scripts/check-guide-published.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 9,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
     },
     {
       "file": "scripts/check-guide-seo-audit.mjs",
@@ -7485,7 +7507,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 16,
+      "assertionCount": 19,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -8838,7 +8860,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 77,
+      "assertionCount": 78,
       "unprovenAbsenceCount": 2,
       "honestyViolations": [
         "2 absence assertion(s) with no positive control in the same file (e.g. \"/planAtlasAllowlistSeed\\(/.test(ingest) && /atlasAllowlistApplyGate\\(/.test(inge\")"
@@ -12295,6 +12317,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 17,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-guide-place-indexability.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 42,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
