@@ -56,8 +56,7 @@ export async function generateMetadata({ params, searchParams }) {
   // share link's name, category, city, rating, and — the two fields the bare
   // typographic card always had that the photo layout has no room for — a
   // Wayfind score + distance or a hook line) rather than the generic
-  // homepage line. See docs/proposals/claude-sonnet-hero-photo-standard.md
-  // (proposed rule 9).
+  // homepage line. See docs/share-card-standard.md rule 9.
   let og = SITE_URL + "/api/og/hero?kind=place&id=" + encodeURIComponent(id) + "&t=" + encodeURIComponent(t);
   if (loc) og += "&loc=" + encodeURIComponent(loc);
   if (r) og += "&r=" + encodeURIComponent(r);

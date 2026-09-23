@@ -249,7 +249,7 @@ for (const f of OG_FILES) {
   const imgs = (src.match(/<img\b/g) || []).length;
   if (rel === "app/api/og/card.jsx") {
     // v9 (owner, 2026-09-23) added the hero photo as a SECOND named
-    // exception alongside the rail poster (docs/proposals/claude-sonnet-hero-photo-standard.md (proposed rule 9)).
+    // exception alongside the rail poster (docs/share-card-standard.md rule 9).
     // Asserted by SYNTACTIC POSITION, not by counting "<img" and separately
     // hoping a substring match happens to be true (see CLAUDE.md's "the
     // identifier must play its role" — a guard that greps for a name passes

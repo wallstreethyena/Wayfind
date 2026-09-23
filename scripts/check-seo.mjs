@@ -177,7 +177,7 @@ const uniqueOg = [
   ["app/family/page.js", "/api/og/intent"],
   ["app/date-night/page.js", "/api/og/intent"],
   // v9 (owner, 2026-09-23): guides now unfurl through the photo-led hero
-  // route, not the bare typographic card — see docs/proposals/claude-sonnet-hero-photo-standard.md (proposed rule 9)
+  // route, not the bare typographic card — see docs/share-card-standard.md rule 9
   // and scripts/check-hero-card.mjs for the fuller assertions on it.
   ["app/guides/[slug]/page.js", "/api/og/hero?kind=guide"],
   // v9.1 (audit, 2026-09-23): /p/[id] used to point at the bare typographic
