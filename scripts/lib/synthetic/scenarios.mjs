@@ -113,6 +113,39 @@ export function firstNonEmptyRailItems(body) {
   return null;
 }
 
+// /api/viator/go?q=... WITHOUT &product= or &intent=search is the one shape
+// that reaches resolveProduct() -> providerSpendAllow("viator") + a real
+// Partner API call (app/api/viator/go/route.js). The "book-links" scenario
+// below fires every 30 minutes from CI, forever, so picking that shape up
+// would spend the metered Viator ledger on a schedule, not a click — exactly
+// the leak an audit flagged 2026-09-23 (WayfindSyntheticMonitor hitting a
+// spend-capable link would be up to ~1,440 calls/month against a 1,000/month
+// cap). No page actually renders this shape today (lib/affiliates.
+// experienceGoUrl always appends &intent=search; the only bare ?product=
+// links are the no-spend exact-product passthrough), but this scenario must
+// not go looking for it even if one appears later — the route ALSO refuses
+// to spend for this UA as a backstop (isSyntheticMonitor in
+// app/api/viator/go/route.js), so this filter is belt-and-braces, not the
+// only thing standing between the monitor and the ledger.
+export function isSpendRiskyViatorGo(href) {
+  if (!/^\/api\/viator\/go\?/.test(String(href || ""))) return false;
+  let qs;
+  try { qs = new URLSearchParams(String(href).split("?")[1] || ""); } catch { return true; }
+  if (qs.get("product")) return false;
+  if (qs.get("intent") === "search") return false;
+  return !!qs.get("q");
+}
+
+/** Prefer hrefs that are not spend-risky; fall back to the full list only when every candidate is risky. */
+export function pickBookLinkCandidates(hrefs, note) {
+  const all = Array.isArray(hrefs) ? hrefs : [];
+  const safe = all.filter((h) => !isSpendRiskyViatorGo(h));
+  if (safe.length < all.length && typeof note === "function") {
+    note(`book-links: skipped ${all.length - safe.length} spend-risky /api/viator/go?q= link(s) without &product=/&intent=search`);
+  }
+  return safe.length ? safe : all;
+}
+
 async function toggledAfterClick(locator) {
   const read = () => locator.evaluate((el) => ({
     ariaPressed: el.getAttribute("aria-pressed"),
@@ -838,10 +871,12 @@ export const SCENARIOS = [
       await page.waitForTimeout(1500);
 
       const GO_PATTERN = /^\/api\/(viator|commerce|ticketmaster)\/go\?/;
+
       let hrefs = await page.evaluate((src) => {
         const rx = new RegExp(src);
         return [...document.querySelectorAll("a[href]")].map((a) => a.getAttribute("href")).filter((h) => h && rx.test(h));
       }, GO_PATTERN.source);
+      hrefs = pickBookLinkCandidates(hrefs, ctx.note);
 
       if (!hrefs.length) {
         // Fall back to a page that always carries ticketed CTAs.
@@ -852,6 +887,7 @@ export const SCENARIOS = [
           const rx = new RegExp(src);
           return [...document.querySelectorAll("a[href]")].map((a) => a.getAttribute("href")).filter((h) => h && rx.test(h));
         }, GO_PATTERN.source);
+        hrefs = pickBookLinkCandidates(hrefs, ctx.note);
       }
 
       ctx.ok("a Book/ticket CTA link was found on a real surface", hrefs.length > 0, "> 0", hrefs.length);

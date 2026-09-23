@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 696,
-    "totalRegistryEntries": 697,
-    "guardsTxtLineCount": 695,
-    "guardsTxtReachedFileCount": 690,
-    "criticalCount": 84,
+    "totalOnDiskGuardFiles": 697,
+    "totalRegistryEntries": 698,
+    "guardsTxtLineCount": 696,
+    "guardsTxtReachedFileCount": 691,
+    "criticalCount": 85,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 476,
+      "CALL": 477,
       "RENDER": 81,
       "STRUCTURAL": 139,
       "OTHER": 1
@@ -8170,6 +8170,33 @@
       "protects": null,
       "blastRadius": null,
       "owner": null
+    },
+    {
+      "file": "scripts/check-viator-monitor-spend-skip.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 25,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-filename:viator"
+      ],
+      "protects": "Our own scheduled synthetic monitor (WayfindSyntheticMonitor/1.0, every 30 minutes from CI) can never spend the metered provider_viator freetext-search ledger, by construction: the monitor's own book-links scenario never selects a spend-capable /api/viator/go?q= link, and the route itself refuses to spend for that exact UA as a backstop — while a real human's identical request is proven to still reach the ledger.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "2026-09-23 audit follow-up to the fix/gogate crawler-gate PR: a scheduled job hitting the spend-capable shape every 30 minutes would be up to ~1,440 Partner API calls/month against the 1,000/month cap that already capped mid-month on 2026-09-22, silently starving real user Book resolutions of the ledger for the rest of the month."
+      },
+      "owner": "Revenue QA"
     },
     {
       "file": "scripts/check-viator-redirect-layer.mjs",
