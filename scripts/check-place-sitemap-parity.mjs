@@ -154,6 +154,9 @@ const longEditorial = { place_id: "test-long-editorial", name: "Editorial Spot",
 const longEdMerged = mergePlacePage("test-long-editorial", { skel: bareSkel, details: null, atlas: null, guide: null, editorial: longEditorial });
 ok(!!longEdMerged && isIndexable(longEdMerged), "a verified editorial row with a real why_here (>=80 chars) plus identity DOES satisfy durableEligible");
 ok(longEdMerged.description === LONG_WHY, "the editorial why_here becomes the merged page's description (top of the priority order)");
+const tipMerged = mergePlacePage("test-tip-editorial", { skel: bareSkel, details: null, atlas: null, guide: null, editorial: { ...longEditorial, local_tip: "Park on the north lot; the south lot fills by 10.", best_time: "Weekday mornings" } });
+ok(tipMerged.localTip === "Park on the north lot; the south lot fills by 10." && tipMerged.bestTime === "Weekday mornings", "verified editorial local_tip/best_time reach the page model");
+ok(longEdMerged.localTip === null && longEdMerged.bestTime === null, "no editorial tip/best time -> nothing rendered (never a placeholder)");
 
 // ── 4. cityOf never surfaces a street or a ZIP — the exact two cases named
 // in the SEO-recovery work order. ───────────────────────────────────────────

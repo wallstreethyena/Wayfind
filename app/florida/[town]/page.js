@@ -13,6 +13,10 @@ import { pageShareUrl } from "../../../lib/pageShareUrl";
 import IconicPlaceCard from "../../components/IconicPlaceCard";
 import ShareButton from "../../components/ShareButton";
 import { WF_PLACE_CARD_CSS } from "../../components/css";
+// SEO recovery (2026-09-23) — see lib/landing.js's own import of this for the
+// full rationale. Same durable-eligible set the sitemap uses; async, fail-soft.
+import { listIndexedIds } from "../../../lib/placeIndex.js";
+import { selectEligiblePlaceLinks } from "../../../lib/hubPlaceLinks.js";
 
 export const revalidate = 86400;
 export const dynamicParams = false;
@@ -21,12 +25,20 @@ const KEY_BY_SLUG = Object.fromEntries(Object.entries(TOWN_HUBS).map(([k, slug])
 
 export function generateStaticParams() { return Object.values(TOWN_HUBS).map((town) => ({ town })); }
 
-export function generateMetadata({ params }) {
+// SEO recovery (2026-09-23) — low-CTR fix (/florida/bradenton: 538 impr / 1
+// click). Title now leads with "Things to Do in <Town>, FL" (the exact
+// searcher phrase) and drops the em dash; description states the same claim
+// without one long compound sentence. Both stay under the 60/155 budget for
+// every current TOWN_HUBS town (checked against "Anna Maria Island", the
+// longest) via the short-description fallback below.
+export async function generateMetadata({ params }) {
   const t = TOWN_PROFILES[KEY_BY_SLUG[params.town]];
   if (!t) return { title: "Not found" };
   const url = `${SITE_URL}/florida/${params.town}`;
-  const title = `Things to Do in ${t.title}, Florida (${new Date().getFullYear()}) — An Honest Local Guide`;
-  const description = `${t.tag}. What ${t.title} actually is, what's worth your time, and the top-rated places right now — ranked by real reviews, no ads, no paid placement.`;
+  const title = `Things to Do in ${t.title}, FL (${new Date().getFullYear()}): Local Guide`;
+  const longDescription = `${t.tag}. The top-rated places in ${t.title}, FL right now, ranked by real reviews with no ads or paid placement.`;
+  const shortDescription = `${t.tag}. Top-rated in ${t.title}, FL, ranked by real reviews, no ads.`;
+  const description = longDescription.length <= 155 ? longDescription : shortDescription;
   // THE SHARE-CARD RULE: a card unique to this page, never the homepage art.
   const ogImg = `${SITE_URL}/api/og?t=${encodeURIComponent("Things to do in " + t.title + ", Florida")}&loc=${encodeURIComponent(t.title)}`;
   return { title, description, alternates: { canonical: url }, openGraph: { title, description, url, siteName: "Wayfind", type: "article", images: [{ url: ogImg, width: 1200, height: 630 }] }, twitter: { card: "summary_large_image", title, description, images: [ogImg] } };
@@ -65,6 +77,12 @@ export default async function Page({ params }) {
   const top = (await rankedFor("things-to-do", params.town).catch(() => null)) || [];
   const topTen = top.slice(0, 10);
   const inLanding = !!LANDING_CITIES[params.town];
+  // Task A (SEO recovery) — same durable-eligible set the sitemap lists,
+  // narrowed to ids actually shown in topTen above. Card hrefs (appUrl,
+  // /?q=) are untouched. Empty on any Supabase hiccup (fail-soft) or when
+  // nothing in this list is eligible.
+  const eligiblePlaceIds = topTen.length ? new Set(await listIndexedIds()) : new Set();
+  const { ids: placeNavIds, names: placeNavNames } = selectEligiblePlaceLinks(topTen, eligiblePlaceIds);
   const nearby = Object.entries(TOWN_HUBS).filter(([k]) => k !== key);
   return (
     <main style={S.page}>
@@ -104,6 +122,18 @@ export default async function Page({ params }) {
             );
           })}
           </ul>
+          {placeNavIds.length ? (
+            <nav aria-label="Place pages in this list" style={{ margin: "10px 0 0" }}>
+              <p style={S.links}><b style={{ color: "#FFFFFF" }}>Place pages in this list:</b>{" "}
+                {placeNavIds.map((id, i) => (
+                  <span key={id}>
+                    <a style={S.a} href={`/places/${encodeURIComponent(id)}`}>{placeNavNames.get(id)}</a>
+                    {i < placeNavIds.length - 1 ? " · " : ""}
+                  </span>
+                ))}
+              </p>
+            </nav>
+          ) : null}
         </>
       ) : null}
 
