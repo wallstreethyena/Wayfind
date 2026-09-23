@@ -1,0 +1,79 @@
+{
+  "slug": "tonights-move-tampa-september-12-2026",
+  "picks": {
+    "Bruno Mars — The Romantic Tour": {
+      "src": "/guides/picks/tonights-move-tampa-september-12-2026/raymond-james-stadium.webp",
+      "width": 1190, "height": 890,
+      "alt": "A full football stadium bowl at Raymond James Stadium during a game, seen from the upper deck",
+      "caption": "Raymond James Stadium's bowl, filled for a game — the venue hosting tonight's show.",
+      "credit": "Bernard Gagnon", "creditHref": "https://commons.wikimedia.org/wiki/File:Raymond_James_Stadium02.JPG",
+      "license": "CC BY-SA 3.0", "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Raymond_James_Stadium02.JPG",
+      "author": "Bernard Gagnon", "position": "50% 55%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons", "placeId": null,
+      "verification": "Geotagged 27.97583333,-82.50333333, about 8m from the stadium's known coordinate (27.9759,-82.5033); this is the venue named in the pick's blurb, photographed during a football game rather than the concert. The crowd is a wide, non-identifiable mass, not an individual subject.",
+      "sameAsCardPhoto": false, "reviewedAt": "2026-09-23"
+    },
+    "Rays vs Astros": {
+      "src": "/guides/picks/tonights-move-tampa-september-12-2026/tropicana-field.webp",
+      "width": 1400, "height": 1050,
+      "alt": "The interior of Tropicana Field's domed roof during a baseball game, with the infield and stands visible",
+      "caption": "Tropicana Field's domed interior during a Tampa Bay Rays game.",
+      "credit": "Quintin Soloviev", "creditHref": "https://commons.wikimedia.org/wiki/File:Tropicana_Field_in_Tampa,_Florida_2024.jpg",
+      "license": "CC BY 4.0", "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Tropicana_Field_in_Tampa,_Florida_2024.jpg",
+      "author": "Quintin Soloviev", "position": "50% 60%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons", "placeId": null,
+      "verification": "File title and the unmistakable cable-supported dome roof confirm this is Tropicana Field, the venue named in the pick. Not geotagged; identified by the venue's distinctive architecture.",
+      "sameAsCardPhoto": false, "reviewedAt": "2026-09-23"
+    },
+    "The Strokes": {
+      "src": "/guides/picks/tonights-move-tampa-september-12-2026/amalie-arena.webp",
+      "width": 1400, "height": 1050,
+      "alt": "The Lightning's downtown Tampa arena on the waterfront, still signed Amalie Arena, with palm trees along the water",
+      "caption": "The Channelside arena hosting tonight's show, photographed while still signed Amalie Arena (renamed Benchmark International Arena in 2025).",
+      "credit": "Miosotis Jade", "creditHref": "https://commons.wikimedia.org/wiki/File:Amalie_Arena,_Tampa.jpg",
+      "license": "CC BY-SA 4.0", "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Amalie_Arena,_Tampa.jpg",
+      "author": "Miosotis Jade", "position": "50% 45%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons", "placeId": null,
+      "verification": "The building's readable signage and downtown-waterfront setting match the venue named in the pick's blurb; the current name (Benchmark International Arena) postdates this photo's Amalie Arena branding, which the caption discloses. Not geotagged; identified by the building signage.",
+      "sameAsCardPhoto": false, "reviewedAt": "2026-09-23"
+    },
+    "The Mavericks": {
+      "src": "/guides/picks/tonights-move-tampa-september-12-2026/ruth-eckerd-hall.webp",
+      "width": 1400, "height": 1050,
+      "alt": "The curved white facade of Ruth Eckerd Hall in Clearwater with its illuminated name lettering over the entrance",
+      "caption": "Ruth Eckerd Hall's entrance in Clearwater, tonight's venue for The Mavericks.",
+      "credit": "PalauanReich", "creditHref": "https://commons.wikimedia.org/wiki/File:RuthEckerdHall_03.jpg",
+      "license": "CC BY-SA 4.0", "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:RuthEckerdHall_03.jpg",
+      "author": "PalauanReich", "position": "50% 40%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons", "placeId": null,
+      "verification": "The building's lettering reads \"RUTH ECKERD HALL,\" confirming the exact venue named in the pick. A crowd near the entrance is incidental background, not the photo's subject. Not geotagged; identified by the building signage.",
+      "sameAsCardPhoto": false, "reviewedAt": "2026-09-23"
+    }
+  },
+  "gaps": {
+    "St. Pete ArtWalk": {
+      "reason": "not-a-place", "placeId": null, "needsPermissionFrom": null,
+      "note": "A self-guided crawl across many galleries and studios in St. Petersburg's arts district, not one fixed venue to photograph."
+    },
+    "Endless Summer Afterglow": {
+      "reason": "not-a-place", "placeId": null, "needsPermissionFrom": null,
+      "note": "A street festival spanning Bridge Street in Bradenton Beach rather than one named venue."
+    },
+    "MORFLOW FEST": {
+      "reason": "no-verified-source", "placeId": null, "needsPermissionFrom": "BayCare Sound",
+      "note": "The venue (BayCare Sound, the renamed Coachman Park amphitheater in Clearwater) is a fixed venue, but Commons title search, category search and geosearch around its coordinates found no photo of it under either its current or former name."
+    },
+    "Not tonight": {
+      "reason": "not-a-place", "placeId": null, "needsPermissionFrom": null,
+      "note": "A wrap-up note about events NOT worth going to (a cleanup that already ended, a show starting later in the week, a weekend-only expo) rather than a single place."
+    }
+  }
+}
