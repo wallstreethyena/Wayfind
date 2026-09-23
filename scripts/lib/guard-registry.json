@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 711,
-    "totalRegistryEntries": 712,
-    "guardsTxtLineCount": 709,
-    "guardsTxtReachedFileCount": 704,
-    "criticalCount": 85,
+    "totalOnDiskGuardFiles": 712,
+    "totalRegistryEntries": 713,
+    "guardsTxtLineCount": 710,
+    "guardsTxtReachedFileCount": 705,
+    "criticalCount": 86,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 490,
+      "CALL": 491,
       "RENDER": 83,
       "STRUCTURAL": 138,
       "OTHER": 1
@@ -10391,6 +10391,34 @@
       "owner": null
     },
     {
+      "file": "scripts/test-commerce-emit-queue.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 47,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-filename:commerce",
+        "money-keyword-in-import:../lib/commerce.js"
+      ],
+      "protects": "A client analytics capture (commerce_impression, card_impression, detail_open, share_open, track()) fired before the idle-booted PostHog SDK is ready is queued (bounded) and delivered with its original timestamp on init, and an owner/internal/bot/webdriver session emits and queues nothing.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "Without it, every early capture is silently dropped: share_open never reached PostHog at all, share-link detail_open ran 35/21/24 in Supabase vs 0/0/0 in PostHog on 2026-09-17..19, and above-the-fold commerce_impression under-counts the money-funnel denominator; the suppression half stops owner/bot traffic leaking into the same funnel."
+      },
+      "owner": "Revenue QA"
+    },
+    {
       "file": "scripts/test-commons-identity.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -16604,11 +16632,9 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 16,
-      "unprovenAbsenceCount": 1,
-      "honestyViolations": [
-        "1 absence assertion(s) with no positive control in the same file (e.g. \"!code.includes(banned),\n    `\")"
-      ],
+      "assertionCount": 17,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
       "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,
