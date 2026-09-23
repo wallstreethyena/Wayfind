@@ -1,0 +1,62 @@
+{
+  "slug": "st-armands-circle-restaurants",
+  "picks": {},
+  "hero": {
+    "src": "/guides/picks/st-armands-circle-restaurants/st-armands-circle-storefronts.webp",
+    "width": 1280,
+    "height": 960,
+    "alt": "A row of shop storefronts on St. Armands Circle in Sarasota, including Circle Books and Loving Touches, under a Mediterranean-revival roofline with a palm tree in the foreground",
+    "caption": "Storefronts along St. Armands Circle, John Ringling's shopping-and-dining roundabout.",
+    "credit": "Ebyabe",
+    "creditHref": "https://commons.wikimedia.org/wiki/File:Sarasota_FL_Harding_Circle_HD_St_Armands_Circle03.jpg",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Sarasota_FL_Harding_Circle_HD_St_Armands_Circle03.jpg",
+    "author": "Ebyabe",
+    "position": "40% 45%",
+    "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+    "sourceKind": "commons",
+    "placeId": null,
+    "verification": "Part of Ebyabe's numbered \"St Armands Circle\" historic-district series, showing the Circle's own storefronts and Mediterranean-revival architecture. The guide's previous hero was generic stock not showing the real Circle; this is a real, identifiable photo of the place itself. No identifiable people in frame.",
+    "sameAsCardPhoto": false,
+    "reviewedAt": "2026-09-23"
+  },
+  "gaps": {
+    "Columbia Restaurant": {
+      "reason": "google-only",
+      "placeId": null,
+      "needsPermissionFrom": "Columbia Restaurant, St. Armands Circle",
+      "note": "Commons has many photos of the original Ybor City Columbia location, which is a different building and not this Sarasota outpost; no Commons photo found for the St. Armands location itself."
+    },
+    "Café on St. Armands": {
+      "reason": "google-only",
+      "placeId": "ChIJ8_xGlpFqw4gRpBDnt0x_mdg",
+      "needsPermissionFrom": "Café on St. Armands",
+      "note": "No Commons photo found for this restaurant; Wayfind's inventory carries only a Google Places photo."
+    },
+    "Shore": {
+      "reason": "google-only",
+      "placeId": null,
+      "needsPermissionFrom": "Shore, St. Armands Circle",
+      "note": "No Commons photo found for this restaurant; the app resolves its photo via a live Google Places name search."
+    },
+    "Crab & Fin": {
+      "reason": "google-only",
+      "placeId": null,
+      "needsPermissionFrom": "Crab & Fin",
+      "note": "No Commons photo found for this restaurant; the app resolves its photo via a live Google Places name search."
+    },
+    "Kilwins": {
+      "reason": "google-only",
+      "placeId": null,
+      "needsPermissionFrom": "Kilwins, St. Armands Circle",
+      "note": "Kilwins is a chain; no Commons photo verifiably showing this specific St. Armands Circle location was found, so a photo of a different branch was not substituted."
+    },
+    "Blue Dolphin Café": {
+      "reason": "google-only",
+      "placeId": null,
+      "needsPermissionFrom": "Blue Dolphin Café",
+      "note": "No Commons photo found for this restaurant; the app resolves its photo via a live Google Places name search."
+    }
+  }
+}

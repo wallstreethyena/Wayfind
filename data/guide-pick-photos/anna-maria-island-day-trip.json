@@ -1,0 +1,39 @@
+{
+  "slug": "anna-maria-island-day-trip",
+  "picks": {
+    "Pine Avenue and the City Pier": {
+      "src": "/guides/picks/anna-maria-island-day-trip/anna-maria-city-pier.webp",
+      "width": 1190,
+      "height": 1190,
+      "alt": "The Anna Maria City Pier extending out over calm turquoise Gulf water, with a few people walking or fishing along its length, framed by a palm tree",
+      "caption": "The Anna Maria City Pier, at the end of Pine Avenue.",
+      "credit": "RayRR",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:AMI_City_Pier.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:AMI_City_Pier.jpg",
+      "author": "RayRR",
+      "position": "62% 55%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "File is titled \"AMI City Pier\" and shows the rebuilt Anna Maria City Pier structure over the Gulf, matching the pier half of this two-part pick (Pine Avenue's shops themselves have no qualifying Commons photo). People walking the pier are incidental, distant and not the subject.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
+    }
+  },
+  "gaps": {
+    "Bean Point, the island's secret-that-isn't": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "No Wikimedia Commons photo found under an allowed licence for Bean Point specifically; left as a gap rather than substituting an unrelated beach image."
+    },
+    "The free trolley, your parking cheat code": {
+      "reason": "not-a-place",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "A transit/logistics tip pick (the island's free trolley), not a single real place."
+    }
+  }
+}

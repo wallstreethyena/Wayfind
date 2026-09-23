@@ -1,0 +1,54 @@
+{
+  "slug": "florida-lovebug-season",
+  "picks": {},
+  "gaps": {
+    "Why are lovebugs suddenly everywhere?": {
+      "reason": "not-a-place",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "An explainer/FAQ-style pick about lovebug biology, not a real place."
+    },
+    "What time of day are lovebugs worst?": {
+      "reason": "not-a-place",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "An explainer/FAQ-style pick about lovebug timing, not a real place."
+    },
+    "Why do lovebugs cover cars?": {
+      "reason": "not-a-place",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "An explainer/FAQ-style pick about lovebug behavior, not a real place."
+    },
+    "Do lovebugs really destroy car paint?": {
+      "reason": "not-a-place",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "An explainer/FAQ-style pick about car paint myths, not a real place."
+    },
+    "Are lovebugs dangerous?": {
+      "reason": "not-a-place",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "An explainer/FAQ-style pick about lovebug risk, not a real place."
+    },
+    "No, the University of Florida did not create them": {
+      "reason": "not-a-place",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "An explainer/FAQ-style pick debunking a myth, not a real place."
+    },
+    "The Wayfind move: change the plan, not the whole day": {
+      "reason": "not-a-place",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "An editorial/product pick about how to use Wayfind during lovebug season, not a real place."
+    },
+    "Can Wayfind tell me where lovebugs are worst right now?": {
+      "reason": "not-a-place",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "An editorial/product FAQ pick, not a real place."
+    }
+  }
+}
