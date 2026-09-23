@@ -79,15 +79,42 @@ function hasAppleIdentity(user) {
   return false;
 }
 
-// PostgREST `ilike`/`like` take a LIKE PATTERN, not a literal — `_`, `%` and,
-// through PostgREST's own `*`-for-`%` alias, a literal `*` all act as
-// wildcards. An email whose local part happens to contain any of those
-// (underscore is common) would match more than itself. `in.()` with each
-// value double-quoted, the same pattern lib/ownedPool.js already uses for
-// PostgREST list filters, takes each value as a LITERAL — no character in it
-// is ever read as a wildcard, so it cannot be gamed into a broader match.
-function pgQuote(value) {
-  return `"${String(value).replace(/["\\]/g, "\\$&")}"`;
+// EMAIL MATCHING (fixed 2026-09-23 after the live preview test). Email
+// keyed marketing rows must be removed whatever case they were stored in:
+// a waitlist row saved as "WF-DELETE-TEST...@EXAMPLE.COM" survived the first
+// version, which matched only the exact and all lower case spellings.
+//
+// Two steps, so the match is both case insensitive AND exact:
+//   1. find CANDIDATES with ilike. That is a LIKE pattern, so `%` `_` are
+//      escaped and PostgREST's `*` alias is replaced by `_`; a pattern can
+//      only ever over match here, never under match.
+//   2. keep only rows whose email, trimmed and lower cased, EQUALS the
+//      account email the same way, and delete exactly those rows by id.
+// Nothing in the email itself can widen what gets deleted.
+function ilikeCandidatePattern(email) {
+  return "*" + String(email).trim().replace(/[\\%_]/g, (m) => "\\" + m).replace(/\*/g, "_") + "*";
+}
+
+async function deleteEmailRows(s, table, email) {
+  const target = String(email).trim().toLowerCase();
+  try {
+    const q = `select=id,email&email=ilike.${encodeURIComponent(ilikeCandidatePattern(email))}&limit=500`;
+    const r = await fetch(`${s.url}/rest/v1/${table}?${q}`, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(8000),
+      headers: { apikey: s.key, authorization: "Bearer " + s.key },
+    });
+    if (!r.ok) return "failed";
+    const rows = await r.json();
+    const ids = (Array.isArray(rows) ? rows : [])
+      .filter((row) => row && String(row.email == null ? "" : row.email).trim().toLowerCase() === target)
+      .map((row) => String(row.id))
+      .filter((id) => /^\d+$/.test(id));
+    if (!ids.length) return "none";
+    return await restDelete(s, table, `id=in.(${ids.join(",")})`);
+  } catch {
+    return "failed";
+  }
 }
 
 async function restDelete(s, path, query) {
@@ -231,18 +258,13 @@ export async function POST(req) {
   // is not, so it is cleared here ahead of that.
   cleaned.wf_city_requests = await restPatch(s, "wf_city_requests", `user_id=eq.${userId}`, { email: null });
 
-  // d. Email-keyed marketing tables (no user_id column at all — matched by
-  // email only, and only when the account actually has one). Both the exact
-  // and the lower-cased form are matched (signup forms do not all normalize
-  // case before insert), but every value is a LITERAL inside in.() — never a
-  // pattern, so nothing in the email itself can widen the match.
+  // d. Email-keyed marketing tables (no user_id column at all, matched by
+  // email only, and only when the account actually has one). Case
+  // insensitive and exact; see deleteEmailRows above.
   if (email) {
-    const lower = email.toLowerCase();
-    const values = lower === email ? [email] : [email, lower];
-    const pattern = `email=in.(${encodeURIComponent(values.map(pgQuote).join(","))})`;
-    cleaned.wf_email_signups = await restDelete(s, "wf_email_signups", pattern);
-    cleaned.wf_waitlist = await restDelete(s, "wf_waitlist", pattern);
-    cleaned.wf_giveaway_entries = await restDelete(s, "wf_giveaway_entries", pattern);
+    cleaned.wf_email_signups = await deleteEmailRows(s, "wf_email_signups", email);
+    cleaned.wf_waitlist = await deleteEmailRows(s, "wf_waitlist", email);
+    cleaned.wf_giveaway_entries = await deleteEmailRows(s, "wf_giveaway_entries", email);
   } else {
     cleaned.wf_email_signups = cleaned.wf_waitlist = cleaned.wf_giveaway_entries = "skipped_no_email";
   }

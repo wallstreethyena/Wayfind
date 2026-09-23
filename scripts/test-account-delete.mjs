@@ -53,6 +53,9 @@ function resetScenario() {
     userMediaRows: [],
     commentPhotoNames: [],
     restStatus: 200, // wf_feedback / wf_taste / wf_city_requests / email tables / push tokens
+    // Rows the email-table candidate SELECT returns (per table). Default: one
+    // exact row per table so the DELETE path runs.
+    emailRows: null,
     storageDeleteStatus: 200,
     adminDeleteStatus: 200,
     appleTokenBehavior: "ok", // "ok" | "throw" | "fail"
@@ -77,6 +80,11 @@ async function mockFetch(url, opts) {
   }
   if (u.endsWith("/storage/v1/object/user-media") || u.endsWith("/storage/v1/object/comment-photos")) {
     return jsonResponse(scenario.storageDeleteStatus, {});
+  }
+  if (method === "GET" && /\/rest\/v1\/(wf_email_signups|wf_waitlist|wf_giveaway_entries)\?select=/.test(u)) {
+    const table = u.match(/\/rest\/v1\/(\w+)\?/)[1];
+    const rows = scenario.emailRows ? (scenario.emailRows[table] || []) : [{ id: 11, email: scenario.authUserBody.email }];
+    return jsonResponse(scenario.restStatus === 200 ? 200 : scenario.restStatus, rows);
   }
   if (u.includes("/rest/v1/wf_feedback") || u.includes("/rest/v1/wf_taste") || u.includes("/rest/v1/wf_city_requests")
     || u.includes("/rest/v1/wf_email_signups") || u.includes("/rest/v1/wf_waitlist") || u.includes("/rest/v1/wf_giveaway_entries")
@@ -239,48 +247,54 @@ ok(cleanupBeforeAdmin(corruptedOrder) === false, "red proof: cleanupBeforeAdmin 
 }
 
 // ---------------------------------------------------------------------------
-// 5b. Email-keyed marketing table matching cannot be wildcarded. PostgREST's
-// `ilike`/`like` operators treat `_`, `%` and (via PostgREST's own alias) `*`
-// as wildcards — an email containing any of those (underscore is common)
-// could match more rows than itself under the old ilike-based query. The
-// fix is PostgREST `in.()` with each value double-quoted: every character is
-// read as a LITERAL, never a pattern.
+// 5b. Email-keyed rows: case insensitive AND exact (2026-09-23).
+// The live preview test found a waitlist row stored in UPPER CASE that the
+// earlier exact/lower-case in.() match left behind. The route now finds
+// candidates with an escaped ilike pattern (which can only over match), keeps
+// rows whose trimmed lower-cased email EQUALS the account's, and deletes those
+// ids only. So: every case variant goes, a look-alike never goes, and no
+// wildcard in the email can widen the delete.
 // ---------------------------------------------------------------------------
 {
   resetScenario();
-  const wildcardEmail = "vic%tim_star*@example.test";
-  scenario.authUserBody = { id: USER_ID, email: wildcardEmail, identities: [], app_metadata: { providers: ["email"] } };
+  const acct = "WF-Delete-Test@Example.com";
+  scenario.authUserBody = { id: USER_ID, email: acct, identities: [], app_metadata: { providers: ["email"] } };
+  scenario.emailRows = {
+    wf_email_signups: [{ id: 1, email: "wf-delete-test@example.com" }, { id: 2, email: "wfxdelete-test@example.com" }],
+    wf_waitlist: [{ id: 3, email: "WF-DELETE-TEST@EXAMPLE.COM" }, { id: 4, email: " wf-delete-test@example.com " }, { id: 5, email: "other-wf-delete-test@example.com" }],
+    wf_giveaway_entries: [],
+  };
   resetCalls();
   const res = await POST(req({ ip: "10.0.0.5b" }));
-  ok(res.status === 200, "an email containing %, _ and * still deletes successfully, got " + res.status);
+  const body = await res.json();
+  ok(res.status === 200, "mixed case account email deletes successfully, got " + res.status);
+  const sel = calls.find((c) => c.method === "GET" && c.url.includes("/rest/v1/wf_waitlist?select="));
+  ok(!!sel && /email=ilike\./.test(sel.url), "candidates are found with a case insensitive ilike query");
+  const del = (t) => calls.find((c) => c.method === "DELETE" && c.url.includes("/rest/v1/" + t + "?"));
+  ok(del("wf_waitlist") && decodeURIComponent(del("wf_waitlist").url).endsWith("id=in.(3,4)"), "the UPPER CASE and whitespace padded waitlist rows are deleted by id, the look-alike (id 5) is kept: " + (del("wf_waitlist") && decodeURIComponent(del("wf_waitlist").url)));
+  ok(del("wf_email_signups") && decodeURIComponent(del("wf_email_signups").url).endsWith("id=in.(1)"), "the exact signup row goes, the one character look-alike (id 2, matched by the _ wildcard) stays");
+  ok(!del("wf_giveaway_entries") && body.cleaned.wf_giveaway_entries === "none", "no candidate rows means no DELETE at all and cleaned reports none");
+  ok(!calls.some((c) => c.method === "DELETE" && /email=/.test(decodeURIComponent(c.url)) && /wf_(email_signups|waitlist|giveaway_entries)/.test(c.url)), "no email-table DELETE is ever issued by an email pattern, only by id");
 
-  const emailCall = calls.find((c) => c.url.includes("/rest/v1/wf_email_signups") && c.method === "DELETE");
-  ok(!!emailCall, "the email-keyed cleanup step is actually called");
-  ok(!/ilike/i.test(emailCall.url), "the email-keyed cleanup query no longer uses ilike anywhere");
-  ok(emailCall.url.includes("email=in.("), "the email-keyed cleanup query uses PostgREST's in.() literal-list operator");
-
-  const inList = decodeURIComponent(emailCall.url.split("email=in.(")[1].split(")")[0]);
-  ok(inList === `"${wildcardEmail}"`, `the in.() list carries the email as ONE double-quoted literal, byte for byte, got: ${inList}`);
-  // RED PROOF: an unescaped double quote or backslash INSIDE the value could
-  // break out of pgQuote's own quoting and split or extend the list — prove
-  // that shape is rejected by round-tripping one.
-  scenario.authUserBody = { id: USER_ID, email: 'break"out\\@example.test', identities: [], app_metadata: { providers: ["email"] } };
+  // Wildcard characters in the account email are escaped in the candidate
+  // pattern (so the SELECT can only over match) and cannot widen the delete.
+  resetScenario();
+  const wildcardEmail = "vic%tim_star*@example.test";
+  scenario.authUserBody = { id: USER_ID, email: wildcardEmail, identities: [], app_metadata: { providers: ["email"] } };
+  scenario.emailRows = { wf_email_signups: [{ id: 7, email: "victimxstarz@example.test" }, { id: 8, email: wildcardEmail }], wf_waitlist: [], wf_giveaway_entries: [] };
   resetCalls();
   const res2 = await POST(req({ ip: "10.0.0.5b2" }));
-  ok(res2.status === 200, "an email containing a literal quote and backslash still deletes successfully, got " + res2.status);
-  const emailCall2 = calls.find((c) => c.url.includes("/rest/v1/wf_email_signups") && c.method === "DELETE");
-  const inList2 = decodeURIComponent(emailCall2.url.split("email=in.(")[1].split(")")[0]);
-  ok(inList2 === '"break\\"out\\\\@example.test"', `RED PROOF: the quote and backslash inside the email are escaped, not left to break out of the literal, got: ${inList2}`);
-
-  // Mixed case: BOTH the exact and the lower-cased form are matched, still as
-  // two literals, never as a case-insensitive pattern.
-  scenario.authUserBody = { id: USER_ID, email: "Mixed.Case@Example.Test", identities: [], app_metadata: { providers: ["email"] } };
+  ok(res2.status === 200, "an email containing %, _ and * still deletes successfully");
+  const sel2 = calls.find((c) => c.method === "GET" && c.url.includes("/rest/v1/wf_email_signups?select="));
+  const pat = decodeURIComponent(sel2.url.split("email=ilike.")[1].split("&")[0]);
+  ok(pat === "*vic\\%tim\\_star_@example.test*", "percent and underscore are escaped and * becomes a single character wildcard in the candidate pattern, got: " + pat);
+  ok(decodeURIComponent(del("wf_email_signups").url).endsWith("id=in.(8)"), "RED PROOF shape: a row the pattern happens to match (id 7) is still NOT deleted, only the exact email row (id 8)");
+  // Non numeric ids are never interpolated into the delete filter.
+  resetScenario();
+  scenario.emailRows = { wf_email_signups: [{ id: "1),or(id.gt.0", email: USER_EMAIL }], wf_waitlist: [], wf_giveaway_entries: [] };
   resetCalls();
-  const res3 = await POST(req({ ip: "10.0.0.5b3" }));
-  ok(res3.status === 200, "a mixed-case email still deletes successfully, got " + res3.status);
-  const emailCall3 = calls.find((c) => c.url.includes("/rest/v1/wf_email_signups") && c.method === "DELETE");
-  const inList3 = decodeURIComponent(emailCall3.url.split("email=in.(")[1].split(")")[0]);
-  ok(inList3 === '"Mixed.Case@Example.Test","mixed.case@example.test"', `mixed case sends both the exact and lower-cased literal, got: ${inList3}`);
+  await POST(req({ ip: "10.0.0.5b3" }));
+  ok(!del("wf_email_signups"), "a non numeric id from the candidate query is dropped, never interpolated into a DELETE filter");
 }
 
 // ---------------------------------------------------------------------------
