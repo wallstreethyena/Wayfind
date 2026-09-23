@@ -166,10 +166,15 @@ const renderBookingCTA = (BookingCTA, variant, detail, city = CITY) => renderToS
 // toPlace()) and what a browse-feed place looks like otherwise ──────────────
 const HOTEL_LAT = 27.4989;
 const HOTEL_LNG = -82.5748;
+// 2026-09-23: the card's booking button now also requires a verification
+// record (lib/hotelBookingVerification.js) proving the Stay22 handoff lands on
+// THIS property. The fixture therefore uses a real verified hotel; an invented
+// id renders no button at all, which would make every assertion below vacuous.
+// NO_RECORD_HOTEL further down pins that fail-closed behaviour directly.
 const hotelFixture = (overrides = {}) => ({
-  id: "wfh-bradenton-hampton-inn-27499",
-  name: "Bradenton Hampton Inn",
-  address: "4308 Manatee Ave W, Bradenton, FL 34209",
+  id: "wfh-days-inn-bradenton-near-the-gulf-27469",
+  name: "Days Inn Bradenton - Near the Gulf",
+  address: "3506 1st Street West, Bradenton, FL 34205",
   lat: HOTEL_LAT, lng: HOTEL_LNG,
   category: "hotels",
   types: ["lodging", "hotel"],
@@ -209,12 +214,19 @@ const OUTDOOR_LODGING = {
 // the page's locName, so this fixture is rendered (below) with NO city
 // context either — the true "nothing to search" state, not merely a blank
 // address field on an otherwise city-anchored card.
-const NO_ADDRESS_HOTEL = hotelFixture({ id: "wfh-no-address-inn-1", name: "Gulf Coast Suites", address: "" });
+// Keeps the fixture's VERIFIED id: the only thing wrong with it is the empty
+// address, so this still tests the address gate and not the 2026-09-23
+// verification gate.
+const NO_ADDRESS_HOTEL = hotelFixture({ address: "" });
 
 // Lat present, lng absent — the coordinate PAIR must fail closed (no lat/lng
 // params at all) without breaking the link itself, per lib/affiliates.js
 // hotelGoUrl's "only forward coordinates when BOTH are finite" comment.
-const LAT_ONLY_HOTEL = hotelFixture({ id: "wfh-lat-only-inn-1", name: "Anna Maria Sound Inn", lat: 27.52, lng: undefined });
+const LAT_ONLY_HOTEL = hotelFixture({ lat: 27.52, lng: undefined });
+// A perfectly-formed lodging card we have simply never verified. 2026-09-23:
+// 354 of 394 served hotels resolved to a property other than the one named,
+// so an unverified card must render no booking anchor at all.
+const NO_RECORD_HOTEL = hotelFixture({ id: "wfh-never-verified-00000" });
 
 // React SSR escapes "&" inside attribute values as "&amp;"; every existing
 // guard that reads a rendered href (e.g. test-fall-destination-stays.mjs)
@@ -237,14 +249,14 @@ async function run() {
   // exact props (B) pinned, produces an anchor carrying name, address,
   // surface, and BOTH lat and lng.
   const hotel = hotelFixture();
-  ok(slotMounted(renderCard(HomePlaceCard, hotel)), "LODGING fixture (Bradenton Hampton Inn): the real, unstubbed isTrueLodging(p) gate mounts the card's earning slot");
+  ok(slotMounted(renderCard(HomePlaceCard, hotel)), "LODGING fixture (Days Inn Bradenton): the real, unstubbed isTrueLodging(p) gate mounts the card's earning slot");
   const hotelPrimaryHtml = renderBookingCTA(BookingCTA, "primary", hotel);
   const hotelHref = hotelGoAnchorHref(hotelPrimaryHtml);
   ok(!!hotelHref, "LODGING fixture: the pinned <BookingCTA variant=\"primary\"> call renders an /api/hotels/go earning anchor");
   if (hotelHref) {
     const q = new URL(hotelHref, "https://wayfind.test").searchParams;
-    ok(q.get("name") === "Bradenton Hampton Inn", "hotel anchor carries the place's own name");
-    ok(q.get("address") === "4308 Manatee Ave W, Bradenton, FL 34209", "hotel anchor carries the place's own street address");
+    ok(q.get("name") === "Days Inn Bradenton - Near the Gulf", "hotel anchor carries the place's own name");
+    ok(q.get("address") === "3506 1st Street West, Bradenton, FL 34205", "hotel anchor carries the place's own street address");
     ok(q.get("surface") === "hotel_booking", "hotel anchor is tagged with the hotel_booking surface");
     // THE ACTUAL BUG, PINNED. Not just "lat/lng are present" — the values
     // that travel are the SAME coordinates the place carries, so a Bradenton
@@ -281,13 +293,18 @@ async function run() {
   ok(!hotelGoAnchorHref(renderBookingCTA(BookingCTA, "primary", NO_ADDRESS_HOTEL, "")), "ADDRESSLESS lodging fixture: BookingCTA renders no earning anchor (fail closed, nothing to search)");
   ok(!hasDisclosure(renderBookingCTA(BookingCTA, "disclosure", NO_ADDRESS_HOTEL, "")), "ADDRESSLESS lodging fixture: renders no commission disclosure to match");
 
+  // 2026-09-23 fail-closed verification gate, on the real rendered card.
+  ok(slotMounted(renderCard(HomePlaceCard, NO_RECORD_HOTEL)), "UNVERIFIED lodging fixture: the card's outer type-only gate still mounts the slot");
+  ok(!hotelGoAnchorHref(renderBookingCTA(BookingCTA, "primary", NO_RECORD_HOTEL)), "UNVERIFIED lodging fixture: BookingCTA renders no earning anchor (no verification record)");
+  ok(!hasDisclosure(renderBookingCTA(BookingCTA, "disclosure", NO_RECORD_HOTEL)), "UNVERIFIED lodging fixture: renders no commission disclosure either");
+
   // 6) A lodging place with lat but no lng still renders a WORKING link —
   // the coordinate pair fails closed as a pair, but must not break the link.
   const latOnlyHref = hotelGoAnchorHref(renderBookingCTA(BookingCTA, "primary", LAT_ONLY_HOTEL));
   ok(!!latOnlyHref, "LAT-ONLY lodging fixture: still renders a working /api/hotels/go anchor");
   if (latOnlyHref) {
     const q = new URL(latOnlyHref, "https://wayfind.test").searchParams;
-    ok(q.get("name") === "Anna Maria Sound Inn", "lat-only hotel anchor still carries the place's name");
+    ok(q.get("name") === "Days Inn Bradenton - Near the Gulf", "lat-only hotel anchor still carries the place's name");
     ok(!q.has("lat") && !q.has("lng"), "lat-only hotel anchor carries NO coordinate params at all (half a pair fails closed as a pair)");
   }
 
@@ -313,7 +330,7 @@ if (!MUTATION) {
   const child = spawnSync(process.execPath, [SELF, "--mutation-control-child"], { cwd: ROOT, encoding: "utf8" });
   const childOutput = `${child.stdout || ""}\n${child.stderr || ""}`;
   const nonzero = child.status !== 0;
-  const namesTheRightFailure = childOutput.includes("LODGING fixture (Bradenton Hampton Inn): the real, unstubbed isTrueLodging(p) gate mounts the card's earning slot");
+  const namesTheRightFailure = childOutput.includes("LODGING fixture (Days Inn Bradenton): the real, unstubbed isTrueLodging(p) gate mounts the card's earning slot");
   if (!nonzero || !namesTheRightFailure) {
     console.error("test-hotel-card-cta: FAIL");
     console.error("  - MUTATION CONTROL: forcing the card's lodging gate off (isTrueLodging(p) -> false) did not make this same guard fail loudly");

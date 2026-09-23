@@ -719,5 +719,13 @@
       "detail": "Without it, every early capture is silently dropped: share_open never reached PostHog at all, share-link detail_open ran 35/21/24 in Supabase vs 0/0/0 in PostHog on 2026-09-17..19, and above-the-fold commerce_impression under-counts the money-funnel denominator; the suppression half stops owner/bot traffic leaking into the same funnel."
     },
     "owner": "Revenue QA"
+  },
+  "scripts/check-hotel-booking-verified.mjs": {
+    "protects": "A hotel card only shows a booking button when the outbound Stay22 handoff has been verified to land on that exact property; no verification record means no button, on the card and at /api/hotels/go alike.",
+    "blastRadius": {
+      "category": "trust",
+      "detail": "Without this gate 354 of 394 served hotels sent users to a different property than the card named, including four that resolved to businesses that are not hotels at all (a Dollar Tree, a RaceTrac, a pub and a tavern) and three separate cards that all resolved to one wrong resort. A user who books the wrong hotel loses money and the affiliate commission is earned dishonestly."
+    },
+    "owner": "Revenue QA"
   }
 }
