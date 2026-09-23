@@ -128,8 +128,13 @@ ok(canShareNatively() === false, "with no navigator there is no native sheet, an
   const hero = strip(read("app/components/PremiumIntentHero.js"));
   ok(/actions = null/.test(hero), "PremiumIntentHero's actions slot must default to null so its other consumer is unchanged");
   ok(/\{actions\}/.test(hero), "the actions slot is declared but never rendered");
+  // 2026-09-23, made deliberately (destination share audit): the culture page's
+  // hero now carries the page Share in this slot, the same control the guides
+  // mount here. What it passes must be exactly that, and nothing else.
   const culture = strip(read("app/culture/[metro]/page.js"));
-  ok(!/actions=/.test(culture), "the culture page now passes actions — make that call deliberately before allowing it");
+  const cultureActions = culture.match(/actions=\{\s*<(\w+)\b/g) || [];
+  ok(cultureActions.length === 1 && /<ShareButton$/.test(cultureActions[0]),
+     "the culture hero's actions slot must hold exactly the standard ShareButton — found " + JSON.stringify(cultureActions));
 }
 
 // ── 5. NO DEAD-END CTA ON AN EDITORIAL PAGE ───────────────────────────────

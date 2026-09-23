@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import ShareButton from "../components/ShareButton";
+import { pageShareUrl } from "../../lib/pageShareUrl.js";
 import RankedExperiencePage from "../components/RankedExperiencePage";
 import SummerPicksRails from "../components/SummerPicksRails";
 import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
@@ -81,6 +83,11 @@ export default function SummerPicksClient() {
     dekLead="Pick the summer need."
     trustLines={["Places rank on evidence, not payment."]}
     topLeft={<a href="/" style={{ color: "#F97316", textDecoration: "none", fontWeight: 800 }}>← Wayfind</a>}
+    // The share keeps this page's own ?city / ?lat / ?lng, so the recipient
+    // sees the summer picks for the same place the sender was looking at.
+    actionSlot={<ShareButton url={pageShareUrl("/summer-picks", sp)} title="Florida Summer Picks"
+      text={`Ranked Florida summer picks around ${headingCity}. On Wayfind.`}
+      label="Share" tone="hero" event="page_share" meta={{ surface: "summer_picks", placement: "hero" }} />}
   >
     {!center ? <div style={{ padding: "18px", border: "1px solid rgba(255,255,255,.1)", borderRadius: 16, color: "#A8B0BE" }}>Open Summer Picks from the Wayfind homepage so your location can rank the rails.</div> : null}
     {center && !rails && !failed && !sports.length ? <div role="status" aria-busy="true" aria-label="Ranking Florida summer picks">{[0, 1, 2].map((n) => <div key={n} className="wf-sk" style={{ height: 120, borderRadius: 16, marginBottom: 12 }} />)}</div> : null}

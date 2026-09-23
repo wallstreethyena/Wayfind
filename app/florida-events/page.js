@@ -1,4 +1,5 @@
 import ReturnToWayfind from "../components/ReturnToWayfind";
+import ShareButton from "../components/ShareButton";
 // v7.45 — The Florida Events hub. Server-rendered so crawlers read every card
 // and every date without executing JavaScript.
 //
@@ -7,6 +8,7 @@ import ReturnToWayfind from "../components/ReturnToWayfind";
 // which is the whole difference between this page and a municipal calendar.
 import CommerceClickBeacon from "../components/CommerceClickBeacon";
 import { SITE_URL } from "../../lib/site";
+import { pageShareUrl } from "../../lib/pageShareUrl";
 import { isSsgBuild } from "../../lib/landingInventory";
 import { unstable_cache, unstable_noStore as noStore } from "next/cache";
 import {
@@ -43,7 +45,8 @@ const S = {
   page: { maxWidth: 760, margin: "0 auto", padding: "28px 18px 60px", background: "#0D1117", color: "#E6EDF3", fontFamily: "var(--wf-sans)", lineHeight: 1.6 },
   kicker: { fontSize: 12, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: "#FF8A3D" },
   h1: { fontSize: 30, lineHeight: 1.2, margin: "10px 0 8px", fontWeight: 800, color: "#FFFFFF" },
-  sub: { fontSize: 16, color: "#8B949E", marginBottom: 26 },
+  sub: { fontSize: 16, color: "#8B949E", marginBottom: 14 },
+  shareRow: { display: "flex", gap: 10, flexWrap: "wrap", margin: "0 0 22px" },
   railTitle: { fontSize: 13, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: "#8ED6C4", margin: "30px 0 4px" },
   railSub: { fontSize: 13.5, color: "#8B949E", margin: "0 0 12px" },
   // v8.42 — image-forward place cards. The hero photo is the venue's own
@@ -114,6 +117,20 @@ export default async function FloridaEventsHub() {
         Every date here was checked against the organiser&rsquo;s own site. When an event has not
         announced its next edition, we say so rather than moving last year&rsquo;s date forward twelve months.
       </p>
+      {/* The page a Weekend Picks notification opens. Owner, 2026-09-23: it had
+          no Share at all, so the one surface built to be sent on was a dead end
+          for sending. Same control and tone as the event pages' hero Share. */}
+      <div style={S.shareRow}>
+        <ShareButton
+          url={pageShareUrl("/florida-events")}
+          title="Florida Events"
+          text="Florida events worth leaving home for, with every date checked. Found on Wayfind."
+          label="Share"
+          tone="dark"
+          event="page_share"
+          meta={{ surface: "florida_events_hub", placement: "header" }}
+        />
+      </div>
 
       {model.empty ? (
         <p style={S.sub}>{FLORIDA_EVENTS_HUB_EMPTY_COPY}</p>

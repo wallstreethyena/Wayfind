@@ -1,4 +1,5 @@
 import ReturnToWayfind from "../components/ReturnToWayfind";
+import ShareButton from "../components/ShareButton";
 // v4.18 — Guides hub. A browsable index so humans and crawlers reach every
 // guide from one internally linked page, strengthening the authority flow.
 import { GUIDES } from "../../lib/guides";
@@ -6,6 +7,7 @@ import { guideHero } from "../../lib/guideHero";
 import { guideRegions } from "../../lib/guideIndex";
 import styles from "./guides.module.css";
 import { SITE_URL } from "../../lib/site";
+import { pageShareUrl } from "../../lib/pageShareUrl";
 import { experienceGoUrl } from "../../lib/affiliates";
 import HubConversion from "../components/HubConversion";
 import GuideFigure from "../components/GuideFigure";
@@ -46,6 +48,17 @@ export default function GuidesHub() {
         <p className={styles.eyebrow}>The Wayfind journal</p>
         <h1>Florida guides.<br />Better days out.</h1>
         <p className={styles.lead}>Florida travel guides for the way you want to spend your day. Find a beach, compare a night out, or plan a weekend around something worth going to.</p>
+        <div style={{ margin: "0 0 18px" }}>
+          <ShareButton
+            url={pageShareUrl("/guides")}
+            title="Florida guides from Wayfind"
+            text="Florida guides for better days out: beaches, nights out and weekends worth planning. On Wayfind."
+            label="Share"
+            tone="dark"
+            event="page_share"
+            meta={{ surface: "guides_index", placement: "header" }}
+          />
+        </div>
         <nav className={styles.regions} aria-label="Browse guides by destination">
           {regions.map(({ region }, i) => <a key={region} href={"#destination-" + i}>{region}</a>)}
         </nav>

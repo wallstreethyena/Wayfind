@@ -25,6 +25,8 @@ import EventActions from "./EventActions.js";
 import { eventStoryEvidence, eventStoryFallback } from "../../../../lib/eventStory.js";
 import RailCard, { RailDots, RailNav } from "../../../components/RailCard.js";
 import { WF_PLACE_CARD_CSS } from "../../../components/css.js";
+import ShareButton from "../../../components/ShareButton.js";
+import { pageShareUrl } from "../../../../lib/pageShareUrl.js";
 import { eventCategoryArt } from "../../../../lib/eventCategoryArt.js";
 
 export const runtime = "nodejs";
@@ -158,6 +160,17 @@ async function EventListPage({ params }) {
         <a href="/events" style={{ color: A, fontWeight: 800, textDecoration: "none", fontSize: 13.5 }}>‹ All events</a>
         <h1 style={{ fontSize: 26, fontWeight: 800, color: "#F1F5F9", lineHeight: 1.2, margin: "16px 0 4px" }}>Events {win.title} in {city.name}, {city.state}</h1>
         <p style={{ fontSize: 14, color: "#94A3B8", lineHeight: 1.6, marginBottom: 8 }}>Concerts, games, festivals and things to do {win.label.toLowerCase()} near {city.name} — real, bookable events ranked by Wayfind.</p>
+        <div style={{ margin: "4px 0 10px" }}>
+          <ShareButton
+            url={pageShareUrl(`/events/${params.city}/${params.slug}`)}
+            title={`Events ${win.title} in ${city.name}, ${city.state}`}
+            text={`Events ${win.label.toLowerCase()} in ${city.name}: concerts, games, festivals and things to do. On Wayfind.`}
+            label="Share"
+            tone="dark"
+            event="page_share"
+            meta={{ surface: "events_window", city: params.city, window: params.slug, placement: "header" }}
+          />
+        </div>
         {/* Time-window nav (durable, shareable URLs). */}
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", margin: "6px 0 18px" }}>
           {Object.keys(EVENT_WINDOWS).map((w) => (

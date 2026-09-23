@@ -24,6 +24,8 @@
 // the worker (dpl_96WvKb / /eat/tampa/indian). ISR fills the real pairs.
 import { notFound } from "next/navigation";
 import { SITE_URL } from "../../../../lib/site";
+import { pageShareUrl } from "../../../../lib/pageShareUrl";
+import ShareButton from "../../../components/ShareButton";
 import { CUISINE_METROS } from "../../../../lib/cuisine";
 import CuisineListClient from "./parts";
 import { WF_PLACE_CARD_CSS } from "../../../components/css";
@@ -303,6 +305,11 @@ export default async function CuisineListPage({ params }) {
             </span>
             <span className="wf-sl-rulewrap" aria-hidden="true" />
             <span className="wf-sl-ranked">The shortlist is already built</span>
+          </div>
+          <div style={{ marginTop: 14 }}>
+            <ShareButton url={pageShareUrl(`/eat/${params.metro}/${params.cuisine}`)} title={`The best ${name} near ${meta.label}`}
+              text={`The best ${name} near ${meta.label}, ranked by real reviews, not ads. On Wayfind.`}
+              label="Share" tone="hero" event="page_share" meta={{ surface: "eat_cuisine", metro: params.metro, cuisine: params.cuisine, placement: "header" }} />
           </div>
         </div>
 
