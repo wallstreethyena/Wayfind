@@ -269,14 +269,38 @@ ok(wrapChild.status === 0 && String(wrapChild.stdout || "").trim().split("\n").p
   `Gatorland exact CTA must wrap through the go builder with d663-3458ENTRY (status=${wrapChild.status} out=${String(wrapChild.stdout || "").trim()} err=${String(wrapChild.stderr || "").slice(0, 200)})`);
 
 // 7. The events must carry `exact`, or none of this is readable.
+//
+// commerce_cta_clicked is deliberately EXCLUDED here (2026-09-22 double-count
+// fix): it fires through lib/commerce.emitCommerce, whose commercePayload()
+// whitelists CONTEXT_FIELDS and silently drops anything else — "exact" is not
+// in that list and never will be, the same as HubConversion's commerce leg
+// (lib/hubConversion.hubCommerceProps carries no exact either). Before the
+// fix, GuideConversion ALSO called track("commerce_cta_clicked", { exact,
+// ... }) straight to window.posthog.capture with no whitelist, which is what
+// let this assertion pass — but that call was the double-fire bug itself
+// (same event name from track() AND emitCommerce() on one click; proven in
+// production via paired click_ids on swim-with-manatees-crystal-river and
+// things-to-do-sarasota, 2026-08-19/20). The click's product event is now
+// named guide_cta_clicked (mirrors HubConversion's guide_cta_clicked), and
+// THAT is the literal-field, unwhitelisted event this invariant belongs on.
 const conv = readFileSync(REPO + "app/guides/[slug]/GuideConversion.js", "utf8")
   .replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
 ok(/isSearchAsBookHref\(\s*cta\.href\s*\)/.test(conv),
   "GuideConversion must hide search-as-Book at paint time — belt on the resolver");
-for (const ev of ["commerce_impression", "commerce_cta_clicked"]) {
+for (const ev of ["commerce_impression", "guide_cta_clicked"]) {
   const m = new RegExp(`track\\(\\s*["']${ev}["'][\\s\\S]{0,320}?\\)`).exec(conv);
   ok(m && /exact:\s*!!cta\.exact/.test(m[0]),
     `${ev} must carry exact: !!cta.exact — without it a search and a product are the same row`);
+}
+// And the money event must NOT carry it — the whitelist dropping it silently
+// is correct behaviour, but a regression that fed emitCommerce a field named
+// "exact" would still show the CTA is leaking product-distinguishing data
+// onto the schema-checked commerce surface, which lib/commerce.js's own
+// CONTEXT_FIELDS contract forbids.
+{
+  const m = /emitCommerce\(\s*["']commerce_cta_clicked["'][\s\S]{0,320}?\)/.exec(conv);
+  ok(m && !/\bexact\s*:/.test(m[0]),
+    "commerce_cta_clicked (emitCommerce) must NOT carry exact — CONTEXT_FIELDS has no such key and never should");
 }
 
 if (fail.length) {
