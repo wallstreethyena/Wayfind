@@ -1,0 +1,54 @@
+# .github/workflows/owner-approval.yml — OWNER APPROVAL, JUDGED BY THE BASE BRANCH
+# (2026-09-23).
+#
+# Owner-only files (AGENTS.md, CLAUDE.md and the pieces that enforce the rule; the
+# list is OWNER_ONLY in scripts/lib/ownerApproval.mjs) change only with an
+# "/owner-approve <head sha>" comment by the owner's GitHub login. How to approve:
+# docs/OWNER_APPROVAL.md.
+#
+# Why a separate workflow: "guards" runs on pull_request, so it executes the pull
+# request's OWN copy of the guard, and a pull request that edits the guard is
+# judged by the edited guard. pull_request_target runs this file and the checked
+# out scripts from the BASE branch instead, so editing the guard, its owner-only
+# list or this workflow in a pull request does not change the rule applied here.
+#
+# LIMIT (GitHub, personal-account repositories): a required check is matched by
+# name and app. A pull request that ADDS its own workflow with a job named
+# "owner-approval" could report a second check with this name. Pinning a required
+# workflow by path needs GitHub Enterprise; the free fix is a GitHub App identity
+# for the check. See docs/OWNER_APPROVAL.md, "Known limits".
+#
+# SECURITY: pull_request_target runs in the base repository's context. This job
+# must never check out, install or execute anything from the pull request, and
+# must never put event text into a shell command. It reads the pull request only
+# as data, through the GitHub API, with a read-only token.
+# scripts/test-owner-approval.mjs fails if any of that changes.
+name: owner-approval
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, edited, ready_for_review]
+permissions:
+  contents: read
+  pull-requests: read
+  issues: read
+concurrency:
+  group: owner-approval-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  owner-approval:
+    name: owner-approval
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out the base branch (never the pull request)
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          sparse-checkout: scripts
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - name: Owner approval for owner-only files
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/check-owner-approval-pr.mjs
