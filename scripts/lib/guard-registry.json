@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 695,
-    "totalRegistryEntries": 696,
-    "guardsTxtLineCount": 694,
-    "guardsTxtReachedFileCount": 689,
-    "criticalCount": 84,
+    "totalOnDiskGuardFiles": 696,
+    "totalRegistryEntries": 697,
+    "guardsTxtLineCount": 695,
+    "guardsTxtReachedFileCount": 690,
+    "criticalCount": 85,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 475,
+      "CALL": 476,
       "RENDER": 81,
       "STRUCTURAL": 139,
       "OTHER": 1
@@ -10073,6 +10073,34 @@
       "protects": null,
       "blastRadius": null,
       "owner": null
+    },
+    {
+      "file": "scripts/test-commerce-emit-queue.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 37,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-filename:commerce",
+        "money-keyword-in-import:../lib/commerce.js"
+      ],
+      "protects": "A client analytics capture (commerce_impression, card_impression, detail_open, share_open, track()) fired before the idle-booted PostHog SDK is ready is queued (bounded) and delivered with its original timestamp on init, and an owner/internal/bot/webdriver session emits and queues nothing.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "Without it, every early capture is silently dropped: share_open never reached PostHog at all, share-link detail_open ran 35/21/24 in Supabase vs 0/0/0 in PostHog on 2026-09-17..19, and above-the-fold commerce_impression under-counts the money-funnel denominator; the suppression half stops owner/bot traffic leaking into the same funnel."
+      },
+      "owner": "Revenue QA"
     },
     {
       "file": "scripts/test-commons-identity.mjs",
