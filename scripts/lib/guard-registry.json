@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 718,
-    "totalRegistryEntries": 719,
-    "guardsTxtLineCount": 716,
-    "guardsTxtReachedFileCount": 711,
+    "totalOnDiskGuardFiles": 719,
+    "totalRegistryEntries": 720,
+    "guardsTxtLineCount": 717,
+    "guardsTxtReachedFileCount": 712,
     "criticalCount": 87,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 497,
+      "CALL": 498,
       "RENDER": 83,
       "STRUCTURAL": 138,
       "OTHER": 1
@@ -5749,6 +5749,28 @@
       "honestyViolations": [
         "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
       ],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-no-third-party-rating-schema.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 7,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
       "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,

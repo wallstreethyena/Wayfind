@@ -88,7 +88,7 @@ export default async function Page({ params }) {
     <main style={S.page}>
       <style dangerouslySetInnerHTML={{ __html: WF_PLACE_CARD_CSS }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Wayfind", item: SITE_URL }, { "@type": "ListItem", position: 2, name: "Florida", item: SITE_URL + "/culture/sarasota" }, { "@type": "ListItem", position: 3, name: t.title, item: SITE_URL + "/florida/" + params.town }] }) }} />
-      {topTen.length >= 3 ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "ItemList", name: `Top things to do in ${t.title}, Florida`, itemListElement: topTen.map((p, i) => ({ "@type": "ListItem", position: i + 1, item: { "@type": "LocalBusiness", name: p.name, ...(p.rating != null && p.reviews >= 15 ? { aggregateRating: { "@type": "AggregateRating", ratingValue: p.rating, reviewCount: p.reviews } } : {}) } })) }) }} /> : null}
+      {topTen.length >= 3 ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "ItemList", name: `Top things to do in ${t.title}, Florida`, itemListElement: topTen.map((p, i) => ({ "@type": "ListItem", position: i + 1, item: { "@type": "LocalBusiness", name: p.name } })) }) }} /> : null}
       <div style={S.kicker}>Wayfind · Florida destinations</div>
       <h1 style={S.h1}>{t.title}, Florida</h1>
       <p style={S.tag}>{t.tag}</p>
