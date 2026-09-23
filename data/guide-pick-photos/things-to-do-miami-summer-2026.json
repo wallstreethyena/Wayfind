@@ -92,7 +92,7 @@
     "Balloon Museum at Mana Wynwood": {
       "reason": "no-verified-source",
       "placeId": null,
-      "needsPermissionFrom": null,
+      "needsPermissionFrom": "Balloon Museum (Mana Wynwood)",
       "note": "A temporary traveling exhibition; no Wikimedia Commons photo exists and it is not indexed in Wayfind's inventory, so there is no licensed source of any kind, including Google. Pass 2 (2026-09-23): Searched Openverse for 'Balloon Museum Mana Wynwood Miami' — zero results. Still no CC-licensed coverage of this temporary exhibition."
     },
     "Miami Spice month": {
@@ -104,13 +104,13 @@
     "Inter Miami at Miami Freedom Park": {
       "reason": "no-verified-source",
       "placeId": null,
-      "needsPermissionFrom": null,
+      "needsPermissionFrom": "Inter Miami CF (Miami Freedom Park)",
       "note": "The only Wikimedia Commons photos of Miami Freedom Park show the stadium mid-construction in 2025, not the completed venue the club has now moved into, and the finished stadium is not indexed in Wayfind's inventory; using the construction photo would misrepresent the current place. Pass 2 (2026-09-23): Searched Openverse for 'Miami Freedom Park stadium' and 'Chase Stadium Miami Inter Miami'. Two Commons results are explicitly captioned 'construction' (rejected); a third, uncaptioned 'Miami Freedom Park' Commons file 404'd on the live Commons page when checked and could not be verified. Among the 'Chase Stadium' matches, the only wide, uncropped, allowed-licence result (CC BY 2.0, 'Chase Stadium - Inter Miami vs Nashville SC') carries a geotag of 26.19°N/-80.16°W, which is the club's former temporary stadium in Fort Lauderdale, not the Miami Freedom Park site near the airport (~25.79°N) — the wrong place; the rest of the results are tight cropped player portraits, unsuitable in any case (they would center an identifiable athlete). No verified photo of the completed Miami Freedom Park stadium found."
     },
     "Joia Beach Club on Watson Island": {
       "reason": "no-verified-source",
       "placeId": null,
-      "needsPermissionFrom": null,
+      "needsPermissionFrom": "Joia Beach",
       "note": "No Wikimedia Commons photo exists for this venue, and it is not indexed in Wayfind's inventory, so there is no licensed source of any kind, including Google. Pass 2 (2026-09-23): Searched Openverse for 'Joia Beach Watson Island Miami' — zero results. No CC-licensed source found."
     },
     "The Coral Gables restaurant boom": {

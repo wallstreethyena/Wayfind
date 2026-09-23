@@ -32,7 +32,7 @@
     "Pier Sixty-Six and the rotating Pier Top": {
       "reason": "no-verified-source",
       "placeId": null,
-      "needsPermissionFrom": null,
+      "needsPermissionFrom": "Pier Sixty-Six Hotel & Marina",
       "note": "The only Wikimedia Commons photo of this resort is a decades-old image licensed plain \"Public domain,\" which is not in Wayfind's allowed licence list (CC0, or CC BY/CC BY-SA at 2.0, 3.0 or 4.0), and it predates the resort's recent luxury revamp; the property is not indexed in Wayfind's inventory either. Pass 2 (2026-09-23): Searched Openverse for 'Pier Sixty-Six Fort Lauderdale', 'Pier 66 Fort Lauderdale tower' (source=flickr), and 'Pier 66 Hotel Fort Lauderdale'. Found only CC BY-NC-ND (US Coast Guard, unrelated) and CC BY-NC-SA ('Pier 66' by bobdole369, 2009) Flickr photos, both disallowed licences; a third, nominally CC BY 2.0 result's Flickr page now redirects to Flickr's Explore feed instead of the photo, so it could not be verified live and was not used. No usable photo of the tower or rotating Pier Top found."
     },
     "Las Olas Boulevard's restaurant wave": {
@@ -44,7 +44,7 @@
     "The Fort, the world's first pickleball stadium": {
       "reason": "google-only",
       "placeId": "ChIJxarXNwCr2YgRZvrLZ_ZW9dQ",
-      "needsPermissionFrom": "The FORT Pickleball (Fort Lauderdale)",
+      "needsPermissionFrom": "The FORT pickleball stadium (Fort Lauderdale)",
       "note": "No Wikimedia Commons photo exists for this brand-new stadium; Wayfind's inventory shows only a Google Places photo, which is not licensed for reuse. Pass 2 (2026-09-23): Searched Openverse for 'The Fort pickleball Fort Lauderdale' — zero results. This brand-new venue has no CC-licensed Flickr or Commons coverage yet."
     },
     "Huizenga Park, rebuilt": {
@@ -68,13 +68,13 @@
     "Peppi's Pizza after the One Bite review": {
       "reason": "no-verified-source",
       "placeId": null,
-      "needsPermissionFrom": null,
+      "needsPermissionFrom": "Peppi's Pizza (Fort Lauderdale)",
       "note": "No Wikimedia Commons photo exists for this restaurant, and it is not indexed in Wayfind's inventory, so there is no licensed source of any kind, including Google. Pass 2 (2026-09-23): Searched Openverse for \"Peppi's Pizza Fort Lauderdale\" — zero results. No CC-licensed source found."
     },
     "Las Olas Beach at sunrise": {
       "reason": "public-art",
       "placeId": null,
-      "needsPermissionFrom": null,
+      "needsPermissionFrom": "City of Fort Lauderdale (public agency)",
       "note": "The only allowed-licence Commons photo is dominated by a temporary pink-ribbon sculpture; US freedom of panorama does not cover sculpture, so it cannot be used without the artist's licence. Needs a clean beach photo."
     }
   }
