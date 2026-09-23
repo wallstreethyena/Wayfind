@@ -172,3 +172,66 @@ export function reconcileProduction(files, ledger, exceptions, canonicalHashes =
   for (const version of pins.keys()) if (!seen.has(version)) errors.push(`historical exception absent from production: ${version}`);
   return { errors };
 }
+
+// ── Content integrity: a name match is not proof the SQL is the same ────────
+// reconcileProduction() maps a production ledger row to a repo file by logical
+// NAME. That proves the migration was applied, not that production ran the SQL
+// that is committed. This compares the live statement-array hash of every
+// name-matched row with the exact committed file. A difference is drift unless
+// a reviewed baseline entry pins BOTH sides by hash, so a later edit to either
+// the committed file or the production ledger text fails again. Historical
+// exception pins are skipped here: they are already exact hash pins.
+// Read-only by construction: it compares hashes and never touches production.
+const HEX64 = /^[a-f0-9]{64}$/;
+export const CONTENT_BASELINE_KINDS = Object.freeze(["comments-or-whitespace-only", "statement-text-differs"]);
+
+export function verifyLedgerContent({ files, ledger, canonicalHashes, baseline, exceptions = [] }) {
+  const errors = [];
+  let verified = 0, baselined = 0;
+  if (!Array.isArray(files) || !Array.isArray(ledger) || !(canonicalHashes instanceof Map) || !Array.isArray(baseline) || !Array.isArray(exceptions)) {
+    return { errors: ["content check received invalid input"], verified, baselined };
+  }
+  const canonical = new Map();
+  for (const file of files) { const parsed = parseFileName(file); if (parsed) canonical.set(parsed.name, file); }
+  const names = new Map();
+  for (const row of ledger) names.set(row?.name, (names.get(row?.name) || 0) + 1);
+  const pinned = new Set(exceptions.map((pin) => pin?.version));
+  const entries = new Map();
+  for (const entry of baseline) {
+    const shapeOk = entry && typeof entry.version === "string" && /^\d{8,14}$/.test(entry.version)
+      && typeof entry.name === "string" && entry.name && typeof entry.file === "string" && parseFileName(entry.file)
+      && HEX64.test(entry.ledger_sha256 || "") && HEX64.test(entry.file_sha256 || "") && entry.ledger_sha256 !== entry.file_sha256
+      && CONTENT_BASELINE_KINDS.includes(entry.kind)
+      && typeof entry.reason === "string" && entry.reason.trim().length >= 20
+      && typeof entry.reviewed_by === "string" && entry.reviewed_by.trim();
+    if (!shapeOk) { errors.push(`malformed content baseline entry: ${entry?.version || "(no version)"}`); continue; }
+    if (entries.has(entry.version)) errors.push(`duplicate content baseline entry: ${entry.version}`);
+    entries.set(entry.version, entry);
+  }
+  const used = new Set();
+  for (const row of ledger) {
+    if (!row || pinned.has(row.version)) continue;
+    const file = canonical.get(row.name);
+    if (!file || names.get(row.name) !== 1) continue;
+    const fileHash = canonicalHashes.get(file);
+    if (!HEX64.test(fileHash || "") || !HEX64.test(row.statements_sha256 || "")) {
+      errors.push(`content check cannot hash ${file} against production ${row.version} / ${row.name}`);
+      continue;
+    }
+    if (fileHash === row.statements_sha256) { verified++; continue; }
+    const entry = entries.get(row.version);
+    if (!entry) {
+      errors.push(`content drift: supabase/migrations/${file} does not match production ${row.version} / ${row.name} (ledger ${row.statements_sha256.slice(0, 12)}, file ${fileHash.slice(0, 12)}); fix the file or review it into scripts/migration-content-baseline.json`);
+      continue;
+    }
+    used.add(row.version);
+    if (entry.name !== row.name || entry.file !== file) errors.push(`content baseline ${row.version} names ${entry.name} / ${entry.file}, but production maps it to ${row.name} / ${file}`);
+    else if (entry.ledger_sha256 !== row.statements_sha256) errors.push(`content drift: production ledger text for ${row.version} / ${row.name} changed since it was baselined`);
+    else if (entry.file_sha256 !== fileHash) errors.push(`content drift: supabase/migrations/${file} was edited after its difference from production ${row.version} was baselined`);
+    else baselined++;
+  }
+  for (const version of entries.keys()) {
+    if (!used.has(version)) errors.push(`stale content baseline entry ${version}: it no longer describes a name-matched production difference (now exact, renamed or gone); remove it`);
+  }
+  return { errors, verified, baselined };
+}

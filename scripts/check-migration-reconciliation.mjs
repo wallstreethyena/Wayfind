@@ -43,6 +43,7 @@ import {
   parseFileName,
   reconcileProduction,
   canonicalSingleStatementHash,
+  verifyLedgerContent,
 } from "./lib/migrationReconciliation.mjs";
 
 const REPO = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
@@ -88,6 +89,22 @@ const MIGRATIONS_DIR = path.join(REPO, "supabase", "migrations");
     return missing.length === 0 ? "ok" : "fail";
   })();
   if (staleResult !== "fail") { fails++; console.error("self-test FAIL — a stale allowlist entry (probed object not live) must fail, not pass"); }
+  // Content integrity: a name match must also be a content match, unless a
+  // reviewed baseline pins both hashes.
+  {
+    const sql = "select 1;\n";
+    const file = "20260101_content_fixture.sql";
+    const hashes = new Map([[file, canonicalSingleStatementHash(sql)]]);
+    const row = (h) => [{ version: "20260101000009", name: "content_fixture", statements_sha256: h }];
+    const drifted = "c".repeat(64);
+    const entry = { version: "20260101000009", name: "content_fixture", file, ledger_sha256: drifted, file_sha256: hashes.get(file), kind: "statement-text-differs", reason: "fixture: reviewed pre-existing difference", reviewed_by: "self-test" };
+    const verdict = (h, baseline) => verifyLedgerContent({ files: [file], ledger: row(h), canonicalHashes: hashes, baseline });
+    if (verdict(hashes.get(file), []).errors.length || verdict(hashes.get(file), []).verified !== 1) { fails++; console.error("self-test FAIL — an exact name+content match must verify"); }
+    if (!verdict(drifted, []).errors.some((e) => e.startsWith("content drift"))) { fails++; console.error("self-test FAIL — same name, different SQL must be content drift"); }
+    if (verdict(drifted, [entry]).errors.length || verdict(drifted, [entry]).baselined !== 1) { fails++; console.error("self-test FAIL — a difference pinned by a reviewed baseline must pass"); }
+    if (!verdict("d".repeat(64), [entry]).errors.length) { fails++; console.error("self-test FAIL — a baselined row whose ledger text changed again must fail"); }
+    if (!verdict(hashes.get(file), [entry]).errors.some((e) => e.startsWith("stale content baseline"))) { fails++; console.error("self-test FAIL — a baseline entry for a row that now matches must be reported stale"); }
+  }
   if (fails) {
     console.error(`check-migration-reconciliation: FAIL — ${fails} comparator self-test(s) failed; the comparator itself is broken, its verdicts below cannot be trusted`);
     process.exit(1);
@@ -147,6 +164,19 @@ const exceptions = JSON.parse(readFileSync(path.join(REPO, "scripts/migration-hi
 const reverse = reconcileProduction(files, ledgerResult.rows, exceptions, canonicalHashes);
 for (const error of reverse.errors) console.error(`check-migration-reconciliation: FAIL — ${error}`);
 let bad = reverse.errors.length, applied = 0;
+
+// ── Content integrity, not filename alone ───────────────────────────────────
+// Every production row matched to a repo file by name must carry the exact
+// statement hash of that committed file, or be pinned (both hashes) in the
+// reviewed baseline. Missing baseline file fails closed.
+let contentBaseline;
+try { contentBaseline = JSON.parse(readFileSync(path.join(REPO, "scripts/migration-content-baseline.json"), "utf8")); }
+catch (e) { contentBaseline = null; bad++; console.error(`check-migration-reconciliation: FAIL — cannot read scripts/migration-content-baseline.json: ${e.message}`); }
+const content = contentBaseline
+  ? verifyLedgerContent({ files, ledger: ledgerResult.rows, canonicalHashes, baseline: contentBaseline, exceptions })
+  : { errors: [], verified: 0, baselined: 0 };
+for (const error of content.errors) console.error(`check-migration-reconciliation: FAIL — ${error}`);
+bad += content.errors.length;
 for (const file of files) {
   const result = reconcile(file, ledgerResult.rows, objectSet, canonicalHashes.get(file));
   if (result.status === "ok") { applied++; continue; }
@@ -170,4 +200,4 @@ if (bad) {
   console.error(`check-migration-reconciliation: ${bad} failure(s). ${applied} file(s) reconciled.`);
   process.exit(1);
 }
-console.log(`check-migration-reconciliation: OK — ${files.length} files under supabase/migrations/ reconcile bidirectionally against production (${applied} applied), self-test + hash-alias red-proof passed.`);
+console.log(`check-migration-reconciliation: OK — ${files.length} files under supabase/migrations/ reconcile bidirectionally against production (${applied} applied); content: ${content.verified} name-matched migrations byte-identical to production, ${content.baselined} reviewed historical differences pinned by hash, 0 drift; self-test + hash-alias red-proof passed.`);
