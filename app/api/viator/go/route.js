@@ -20,6 +20,7 @@ import { captureServer, distinctIdFromCookies } from "../../../../lib/serverEven
 import { commercePayload, sanitizeClientClickId } from "../../../../lib/commerce.js";
 import { withViatorTracking } from "../../../../lib/affiliates.js";
 import { FALLBACK } from "../../../../lib/commerceProviders.js";
+import { isCrawler } from "../../../../lib/crawler.js";
 import {
   chooseViatorGoLocation,
   isDeniedViatorSku,
@@ -236,6 +237,18 @@ export async function GET(req) {
     emit("provider_redirect_failed", { failure_reason: reason });
     return Response.redirect(url, 302);
   };
+
+  // Refuse crawlers BEFORE resolving anything, matching /api/commerce/go,
+  // /api/hotels/go and /api/ticketmaster/go: no freetext search is even
+  // attempted, so a bot can never spend the Viator search-API ledger or mint
+  // an exact-product handoff. (2026-09-15 07:00Z: 94 provider_redirect_started
+  // in one hour, 106 IPs, desktop Chrome/Mac UAs, `q:`-prefixed offer ids —
+  // this route was the only /go route with no isCrawler gate.)
+  if (isCrawler(req.headers.get("user-agent"))) {
+    const chosen = chooseViatorGoLocation({ siteFallback: FALLBACK });
+    emit("provider_redirect_failed", { failure_reason: "crawler-refused", resolver_path: chosen.resolver_path });
+    return Response.redirect(siteLocation(req, chosen.location), 302);
+  }
 
   // The provider-health probe used to be public and made a real metered
   // Partner API request. Operator health checks belong in authenticated
