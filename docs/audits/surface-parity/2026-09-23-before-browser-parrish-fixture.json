@@ -1,6 +1,6 @@
 {
   "title": "Surface parity audit (browser level) — before-fix-browser-parrish-fixture-2026-09-23",
-  "generatedAt": "2026-09-23T18:39:18.096Z",
+  "generatedAt": "2026-09-23T19:13:36.059Z",
   "meta": {
     "level": "browser",
     "base": "https://www.gowayfind.com",
@@ -12,16 +12,37 @@
       "food:cafes"
     ],
     "radiusRequestedM": 27359,
-    "radiusSnappedM": 32000
+    "radiusSnappedM": 32000,
+    "reclassifiedNote": "2026-09-23 offline reclassification (WS2 follow-up): the 69 api_included_ui_omitted rows from the original browser capture were re-evaluated against outside_display_radius:/brand_collapse: via the REAL client gates (scripts/lib/parity/clientGates.mjs) using fresh direct-Supabase ground truth at the SAME captured origin/radius/sliderMi this file recorded. All 69 are now explained (55 outside_display_radius, 14 brand_collapse); 0 remain unexplained api_included_ui_omitted. See docs/audits/surface-parity/README or the WS2 handback report for detail."
   },
   "summary": {
     "totalChecked": 211,
     "totalEligible": 211,
-    "totalFail": 128,
-    "distinctPlacesAffected": 128,
+    "totalFail": 59,
+    "distinctPlacesAffected": 59,
     "byClass": {
       "eligibility_passed_api_omitted": 59,
-      "api_included_ui_omitted": 69,
+      "api_included_ui_omitted": 0,
+      "map_list_mismatch": 0,
+      "pagination_invisibility": 0,
+      "cache_drift": 0,
+      "dedupe_suppression_error": 0,
+      "location_origin_mismatch": 0,
+      "seasonal_tagging_gap": 0
+    },
+    "distinctPlacesByClass": {
+      "eligibility_passed_api_omitted": 59,
+      "api_included_ui_omitted": 0,
+      "map_list_mismatch": 0,
+      "pagination_invisibility": 0,
+      "cache_drift": 0,
+      "dedupe_suppression_error": 0,
+      "location_origin_mismatch": 0,
+      "seasonal_tagging_gap": 0
+    },
+    "distinctPlacesByClassExcludingRyans": {
+      "eligibility_passed_api_omitted": 59,
+      "api_included_ui_omitted": 0,
       "map_list_mismatch": 0,
       "pagination_invisibility": 0,
       "cache_drift": 0,
@@ -52,3974 +73,519 @@
       "missing": 128
     }
   ],
-  "rows": [
-    {
-      "place_id": "ChIJQfGy7xY9w4gRNczJwyuwhuQ",
-      "name": "Scooter's Coffee",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 2,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJK6-idnsjw4gRq9OfzqqqLQY",
-      "name": "Tropical Smoothie Cafe",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 11,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJc7NpREonw4gRqKlmr60I15A",
-      "name": "Ella's Sweet Spot",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 24,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJxQhtk34Xw4gRWq5lJv-lf1A",
-      "name": "7 Brew Coffee",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 27,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJyQ2Ck8s9w4gR_ZOH_flSsq4",
-      "name": "Tropical Smoothie Cafe",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 28,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJAVpBNGElw4gR2Hh2qaL8la4",
-      "name": "Frosted Pink",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 31,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJPSkey7Elw4gR5gvfcin8NQc",
-      "name": "Tuscan Hills Coffee Company",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 37,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJ_6CbWvzhwogRVqaYeaqJi6w",
-      "name": "Southside Coffee Brew Bar",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 42,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJFSXdlLAlw4gRK8HfbT01-UY",
-      "name": "Silverleaf Bread Co",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 46,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJsZzRCME7w4gR_itBs8Ox4-I",
-      "name": "Panera Bread",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 47,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJOUBQFYARw4gRJbDt6elyWVI",
-      "name": "Anna Maria Island Coffee Shack",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 49,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJzWjwvr_ZwogRgxGJNIKkhLI",
-      "name": "The Healthy Spot FL",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 50,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJEUEmzE1Bw4gRHHXe_oxJF7E",
-      "name": "Hashtag Café",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 51,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJq-nbv7DZwogR40d6CEdYHnc",
-      "name": "Armetta's Gelato & Caffè",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 52,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJww1nz5VBw4gRl0xv985c9E4",
-      "name": "Cedar Fox Coffee",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 53,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJLdTATpvhwogRRfR3upxt17Y",
-      "name": "St. Pete Bakery Café",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 57,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJV8ZGWbI5w4gRjH_FUWxpIwI",
-      "name": "Tropical Smoothie Cafe",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 66,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJY_kA8nfjwogR1AhPPGA2k7o",
-      "name": "Tealicious Cafe",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 68,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJG-8UUxJAw4gRR5dxpu_5F7c",
-      "name": "ofKors BAKERY",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 69,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJLVbLmKDHBA8Rod1TXwVnuow",
-      "name": "Paradeco Coffee Roasters @ SkyBeach Resort",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 72,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJ5UKubEVAw4gR73q9TXVHO9Y",
-      "name": "Elixir Tea House",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 73,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJGYGbU-RBw4gRJw1koTHBA3k",
-      "name": "OfKors Cafe",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 75,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJ7R-BEwBBw4gRPxw9nzLE4l0",
-      "name": "The Bakero",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 76,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJc1Yy525Aw4gR-iJPLLloKWI",
-      "name": "The Garden Room Cafe' at Shoogie Boogies",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 77,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJuWIiRTAjw4gRDZ9UMpCXslg",
-      "name": "The Blend (9510) Coffee & Cocktails",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 79,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJh0AxVlRBw4gRXJAiYfqMbUc",
-      "name": "Postal 98 Cafe LLC",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 80,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJXyaPvkVAw4gRxzzecD3I0Po",
-      "name": "Perq Coffee Bar",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 81,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJ75_T10bjwogRinmX-NdH7I4",
-      "name": "Cafe Clementine",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 83,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJ4WKSLz7ZwogRuNaPhuSnf1M",
-      "name": "American Honey Creamery and Coffee Co.",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 85,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJI6bqpRJAw4gRu_rxFfAtU9g",
-      "name": "Kahwa Coffee",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 86,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJCwyD8vHhwogRZvt6Q7M7Xbk",
-      "name": "Pete's Bagels Drive Thru",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 87,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJeWH0FnfhwogROuk81Bd8_C0",
-      "name": "Black Crow Coffee Shop",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 89,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJUf1Pvx0Qw4gRG1cRymqab8g",
-      "name": "Hometown Desserts",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 90,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJz1o-DQBBw4gRtoBDP8PHREc",
-      "name": "Yoder's Pie Craft Coffee Co.",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 91,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJvdgK6t_hwogRoUREbQ9hnTI",
-      "name": "Daycation Coffee",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 92,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJgXnW94DhwogRvByd2uvhm6c",
-      "name": "11 Chicks Yummy Creations",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 93,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJ-dXwYevhwogR4fnuJd-YeZ0",
-      "name": "Bean Wandering Coffee Downtown",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 94,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJfela991Aw4gRjfQ4MeP-eys",
-      "name": "Argentinian Pastry",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 95,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJH3DNubrRwogRYmh4hiVWUHI",
-      "name": "Gretchen's Goodies",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 96,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJ6c4jseEPw4gRFwfY73OsuJY",
-      "name": "The Donut Experiment",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 97,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJccYEmQ7hwogRHWrSeUKWSeA",
-      "name": "Uptown Eats",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 99,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJH85LXKdBw4gRfz7EUIawBYc",
-      "name": "MERCI CAFÉ",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 100,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJGUfpXgDjwogRUVleoMzQ1v0",
-      "name": "Crispy Avenue Caffe",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 101,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJzQI9X4HhwogRV--GFv9FWUU",
-      "name": "City's Bistro",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 102,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJKTUZrzFBw4gR2CG9xPx9rME",
-      "name": "Toastique",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 104,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJQ1-s3BdDw4gR74Iwj_aNZYY",
-      "name": "Coast To Coast Coffee",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 105,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJE-HcouVBw4gRkmP-iGsQn6M",
-      "name": "O & A Coffee and Supply Downtown Sarasota",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 107,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJDd4mIuAPw4gRHt7XU-e-hI4",
-      "name": "Mademoiselle Paris French Restaurant & Bakery",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 112,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJ2ckQoZzhwogRecV7YRopNd4",
-      "name": "TeBella Tea St. Pete",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 114,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJ5zWe-fzhwogR9SKxxEIiN1Y",
-      "name": "Gypsy Souls Coffeehouse St. Pete & Gypsy Beans Coffee Roasters",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 116,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJi66wUlw5w4gRk4c6afD_tjY",
-      "name": "Tropical Smoothie Cafe",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 117,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJTzoiienhwogRbPa3GpuvBQU",
-      "name": "Paradeco Coffee Roasters",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 118,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJe5Ox97ECw4gR2fGQC-g97jc",
-      "name": "Café Soleil",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 119,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJhxkggUNBw4gRspsAJPp5zSM",
-      "name": "Millie's",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 121,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJVzO7EWj9wogR97bcEQKnzJ4",
-      "name": "Tiki Bagel",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 122,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJkdqWX81Bw4gROPcEE_ipguQ",
-      "name": "Clarabell Cookies",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 123,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJgY-J944Rw4gRW2ciNjGUnXQ",
-      "name": "Fifty Three Fifty, The Pourhouse",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 124,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJLwJA4jfjwogRPZ6UOkUNl10",
-      "name": "1Chick 1Bro Cafe Bistro",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 125,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJ8W_zEkDhwogRzOhHc7D_J1Y",
-      "name": "Bad Mother",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 126,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJjejusGHhwogRHcHyw0OP1Lc",
-      "name": "Neighborhood Joe",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 128,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJNVxs_YbhwogR_lrq-yc_YBI",
-      "name": "Blush Tea and Coffee St Pete",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 129,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJfYXo7GfjwogRjEDK4RnJr8A",
-      "name": "Bagel Babe Co.",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 130,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJMXRZ34bhwogR18X29qVsnLk",
-      "name": "Lucky Cup Coffee Co.",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 131,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJB8gjMgAlw4gR93CI-p8no74",
-      "name": "Foxtail Coffee - North River Ranch",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 132,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJrSLx1qRBw4gR2UF92STx0FU",
-      "name": "DD Roasters",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 134,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJnXI9iVz9wogRuNTSboD6VtA",
-      "name": "SumitrA Espresso Lounge +",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 135,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJ48kv0WzjwogRsxVzEuztReQ",
-      "name": "Black Crow Coffee Co Grand Central Dist",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 136,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJJZC_CSRDw4gRFsrOqTCgzJU",
-      "name": "Palma Coffee",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 137,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJIavfm5nhwogROZnbY0Pw98U",
-      "name": "Cafe Gala",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 138,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJ_xxoW-3jwogR7jypN1_VMQ0",
-      "name": "Salty Pup Coffeehouse & Winebar",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 139,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJkVYmx9oRw4gRTb4Y85DBjYk",
-      "name": "Cool Beans A.M.I.",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 140,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJvcPn1ovjwogRdn0kBeTj2gU",
-      "name": "Say Coffee House",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 141,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJRxyh-1DjwogR8PPwjlbgTUo",
-      "name": "Valhalla Bakery St Pete",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 142,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJvxarZpvhwogRzkV8q1gTJ6k",
-      "name": "Kahwa Coffee",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 143,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJLX7wJ8kTw4gRThCaPmHSZdo",
-      "name": "Longbeach Cafe",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 144,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJxUxv-Y9Bw4gRa9l-hu_GmyY",
-      "name": "Simon's Coffee House",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 145,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJ48ZANgpqw4gRILtaGpyY3Mo",
-      "name": "Village Cafe",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 146,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJm-_ANgpqw4gRwUv0XefhcY4",
-      "name": "Sun Garden Cafe",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 147,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJNTEdLwpqw4gRk_myAtOzFfU",
-      "name": "Meaney's Mini Donuts & Coffee House",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 148,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJN9sKYpbjwogRi6sY8V5GVhM",
-      "name": "The Under Grounds Coffee Co",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 149,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJheluy8Mlw4gRaPPAIPkCXAI",
-      "name": "Panera Bread",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 150,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJX66zL4zjwogRvDsuViZt1ng",
-      "name": "The Crumb Factory Bakery & Cafe",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 151,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJiRzf9oQTw4gROVL4gwX0E8I",
-      "name": "Blue Dolphin Cafe",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 152,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJeTyYt4JBw4gRTuznUSryWGM",
-      "name": "Bagels & Brews Cafe",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 154,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJyQ4tlTbhwogRXX9UPdd7jJY",
-      "name": "Flatbread & Butter",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 156,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJGaYnOZjRwogR_PyYX-yJ6GI",
-      "name": "Foxtail Coffee Co. - Riverview South",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 157,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJ-REJt5Fqw4gRLOdF-9RkZe4",
-      "name": "Blue Dolphin Cafe",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 158,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJ4X4gR7pGw4gRXAzPjRwQ544",
-      "name": "Rendez-Vous French Bakery",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 159,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJSRMEYBNBw4gRQtogogz6Pas",
-      "name": "Bread Bandits",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 160,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJOyU5FsjdwogR24Wo9xaISGU",
-      "name": "State Flour Bakery",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 161,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJPTRyBjdBw4gRJNFnfc5hxMo",
-      "name": "L’Opera Bakery Bistro",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 163,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJLZ8gf8zjwogRXTIy_pQKG9w",
-      "name": "Pete's Bagels",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 164,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJodynlWBHw4gRMpM4vvzTsaM",
-      "name": "Panera Bread",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 165,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJ3ec4eXdBw4gR3I2X1aWGd7Y",
-      "name": "Paisano's Italian Bakery",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 167,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJrVd3bak_w4gR_MrZOJn4NyI",
-      "name": "Panera Bread",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 168,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJV1PLb7zhwogRIMMWNlR0pjw",
-      "name": "Seymour’s Bagel Shop",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 170,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJgZF6Vu7hwogRpPHCbojSk7w",
-      "name": "Forest Vibe",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 171,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJj7B4MH9Bw4gRqduEpeQoj5M",
-      "name": "The Clever Cup Coffee Shop",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 173,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJBYve1s3jwogRtpUeAgYSqdM",
-      "name": "The Breeze Waterfront Cafe",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 174,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJn_bj-nFBw4gRrUA_4ZQW8oY",
-      "name": "Palm Avenue Deli",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 175,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJxz6zy1JAw4gRuv_Uqg38SFM",
-      "name": "Rendez Vous French Bakery",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 176,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJBdC3TW5Aw4gRWhgHDaTVq5o",
-      "name": "Tropical Smoothie Cafe",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 178,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJt3V-wiTdwogRS7HQsBrOzEw",
-      "name": "Kubana Kafe",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 180,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJYecWexPjwogRRytxXfBwczs",
-      "name": "Annex Coffee",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 181,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJIzpHyd7jwogR2NelI36DKgI",
-      "name": "Somebody’s Coffee",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 182,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJg__y9jqS00kR3EFGgwzBuZY",
-      "name": "Sun Bear",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 185,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJ0VocsGpBw4gRsLDt4-jEEQ4",
-      "name": "Foxtail Coffee - Quay Sarasota",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 186,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJ24N-e9ZBw4gRARVRrEsGbfg",
-      "name": "Mama G’s Gulfgate",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 187,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJy6vf9_dBw4gRGg1sXR5UTGU",
-      "name": "Project Coffee",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 188,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJN6ESnfDhwogR8PERJMn1-98",
-      "name": "St Pete Dessert Catering Co.",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 189,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJy9JRVwMRw4gRe2--exNKGDs",
-      "name": "Nautilus Café",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 190,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJOyM_LABDw4gRIV3Tw13ENrs",
-      "name": "Toasted mango cafe",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 191,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJJR9dPiQPw4gRXksgtGRIdK8",
-      "name": "North Shore Cafe",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 192,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJOSoWhGs5w4gR3vI10jfU9RQ",
-      "name": "Panera Bread",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 193,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJPTLV6MVBw4gRZw58b_NHVZ0",
-      "name": "The Houston Run Hitch",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 194,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJRcachLRBw4gRM7Y5Qocs21Q",
-      "name": "Rooftop Cafe",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 195,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJj3f6scQVw4gRFKCjoxYjkTg",
-      "name": "Sips - South",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 198,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJ2SoWzANBw4gRj8YUXRgZ844",
-      "name": "Bloom Matcha Co",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 199,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJbY3dfDZJw4gRYi0diDlBw_Y",
-      "name": "Sugar Luxe SRQ",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 200,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJI8k-aMNBw4gRPgslN9Uwwvs",
-      "name": "Your Culinary Place L.L.C. - Shared Commercial Commissary Kitchens",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 201,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJBT-e0coTw4gR-o5Nm820wVs",
-      "name": "Elegant Lady Cheesecake Parlor",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 202,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJvdM3DABBw4gRbWEC59OXqMI",
-      "name": "La Cruto'n",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 203,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJQy_5UNpDw4gR_jcks6PnEoA",
-      "name": "Bungalow Bagels",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 204,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJNbBvReDRwogRL_pAoGUGGeQ",
-      "name": "Kafé Rústico",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 205,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJ_9O26hJAw4gRXHWEpPpmGik",
-      "name": "WFM Coffee Bar",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": true,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 206,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "api_included_ui_omitted",
-      "why": "API response carried this place; no matching card rendered"
-    },
-    {
-      "place_id": "ChIJoWqi_IjjwogR34giX74JdM4",
-      "name": "Dirty Laundry",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 208,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJ5V3fdJIdw4gR_sjfSsYq4Xs",
-      "name": "Golden Krust Caribbean Restaurant",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 209,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJcbtxGifdwogRtKvLf5HwCVo",
-      "name": "Jerk Hut South Tampa",
-      "city": "Parrish (DEFAULT_CENTER/fixture)",
-      "eligible_for": "food:cafes",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 210,
-        "page": null,
-        "offset": null,
-        "n": 152,
-        "hasMore": false,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 211
-      },
-      "suppression_reason": null,
-      "same_origin_ok": true,
-      "cache_header": "HIT",
-      "notes": null,
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
+  "affectedPlacesByClass": {
+    "eligibility_passed_api_omitted": {
+      "totalEntries": 59,
+      "truncated": false,
+      "entries": [
+        {
+          "place_id": "ChIJc7NpREonw4gRqKlmr60I15A",
+          "name": "Ella's Sweet Spot",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJAVpBNGElw4gR2Hh2qaL8la4",
+          "name": "Frosted Pink",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJPSkey7Elw4gR5gvfcin8NQc",
+          "name": "Tuscan Hills Coffee Company",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJ_6CbWvzhwogRVqaYeaqJi6w",
+          "name": "Southside Coffee Brew Bar",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJFSXdlLAlw4gRK8HfbT01-UY",
+          "name": "Silverleaf Bread Co",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJzWjwvr_ZwogRgxGJNIKkhLI",
+          "name": "The Healthy Spot FL",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJq-nbv7DZwogR40d6CEdYHnc",
+          "name": "Armetta's Gelato & Caffè",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJLdTATpvhwogRRfR3upxt17Y",
+          "name": "St. Pete Bakery Café",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJY_kA8nfjwogR1AhPPGA2k7o",
+          "name": "Tealicious Cafe",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJLVbLmKDHBA8Rod1TXwVnuow",
+          "name": "Paradeco Coffee Roasters @ SkyBeach Resort",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJuWIiRTAjw4gRDZ9UMpCXslg",
+          "name": "The Blend (9510) Coffee & Cocktails",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJ75_T10bjwogRinmX-NdH7I4",
+          "name": "Cafe Clementine",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJ4WKSLz7ZwogRuNaPhuSnf1M",
+          "name": "American Honey Creamery and Coffee Co.",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJCwyD8vHhwogRZvt6Q7M7Xbk",
+          "name": "Pete's Bagels Drive Thru",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJeWH0FnfhwogROuk81Bd8_C0",
+          "name": "Black Crow Coffee Shop",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJvdgK6t_hwogRoUREbQ9hnTI",
+          "name": "Daycation Coffee",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJgXnW94DhwogRvByd2uvhm6c",
+          "name": "11 Chicks Yummy Creations",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJ-dXwYevhwogR4fnuJd-YeZ0",
+          "name": "Bean Wandering Coffee Downtown",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJH3DNubrRwogRYmh4hiVWUHI",
+          "name": "Gretchen's Goodies",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJccYEmQ7hwogRHWrSeUKWSeA",
+          "name": "Uptown Eats",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJGUfpXgDjwogRUVleoMzQ1v0",
+          "name": "Crispy Avenue Caffe",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJzQI9X4HhwogRV--GFv9FWUU",
+          "name": "City's Bistro",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJ2ckQoZzhwogRecV7YRopNd4",
+          "name": "TeBella Tea St. Pete",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJ5zWe-fzhwogR9SKxxEIiN1Y",
+          "name": "Gypsy Souls Coffeehouse St. Pete & Gypsy Beans Coffee Roasters",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJTzoiienhwogRbPa3GpuvBQU",
+          "name": "Paradeco Coffee Roasters",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJe5Ox97ECw4gR2fGQC-g97jc",
+          "name": "Café Soleil",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJVzO7EWj9wogR97bcEQKnzJ4",
+          "name": "Tiki Bagel",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJLwJA4jfjwogRPZ6UOkUNl10",
+          "name": "1Chick 1Bro Cafe Bistro",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJ8W_zEkDhwogRzOhHc7D_J1Y",
+          "name": "Bad Mother",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJjejusGHhwogRHcHyw0OP1Lc",
+          "name": "Neighborhood Joe",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJNVxs_YbhwogR_lrq-yc_YBI",
+          "name": "Blush Tea and Coffee St Pete",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJfYXo7GfjwogRjEDK4RnJr8A",
+          "name": "Bagel Babe Co.",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJMXRZ34bhwogR18X29qVsnLk",
+          "name": "Lucky Cup Coffee Co.",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJB8gjMgAlw4gR93CI-p8no74",
+          "name": "Foxtail Coffee - North River Ranch",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJnXI9iVz9wogRuNTSboD6VtA",
+          "name": "SumitrA Espresso Lounge +",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJ48kv0WzjwogRsxVzEuztReQ",
+          "name": "Black Crow Coffee Co Grand Central Dist",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJIavfm5nhwogROZnbY0Pw98U",
+          "name": "Cafe Gala",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJ_xxoW-3jwogR7jypN1_VMQ0",
+          "name": "Salty Pup Coffeehouse & Winebar",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJvcPn1ovjwogRdn0kBeTj2gU",
+          "name": "Say Coffee House",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJRxyh-1DjwogR8PPwjlbgTUo",
+          "name": "Valhalla Bakery St Pete",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJvxarZpvhwogRzkV8q1gTJ6k",
+          "name": "Kahwa Coffee",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJN9sKYpbjwogRi6sY8V5GVhM",
+          "name": "The Under Grounds Coffee Co",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJX66zL4zjwogRvDsuViZt1ng",
+          "name": "The Crumb Factory Bakery & Cafe",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJyQ4tlTbhwogRXX9UPdd7jJY",
+          "name": "Flatbread & Butter",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJGaYnOZjRwogR_PyYX-yJ6GI",
+          "name": "Foxtail Coffee Co. - Riverview South",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJOyU5FsjdwogR24Wo9xaISGU",
+          "name": "State Flour Bakery",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJLZ8gf8zjwogRXTIy_pQKG9w",
+          "name": "Pete's Bagels",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJV1PLb7zhwogRIMMWNlR0pjw",
+          "name": "Seymour’s Bagel Shop",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJgZF6Vu7hwogRpPHCbojSk7w",
+          "name": "Forest Vibe",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJBYve1s3jwogRtpUeAgYSqdM",
+          "name": "The Breeze Waterfront Cafe",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJt3V-wiTdwogRS7HQsBrOzEw",
+          "name": "Kubana Kafe",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJYecWexPjwogRRytxXfBwczs",
+          "name": "Annex Coffee",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJIzpHyd7jwogR2NelI36DKgI",
+          "name": "Somebody’s Coffee",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJg__y9jqS00kR3EFGgwzBuZY",
+          "name": "Sun Bear",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJN6ESnfDhwogR8PERJMn1-98",
+          "name": "St Pete Dessert Catering Co.",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJNbBvReDRwogRL_pAoGUGGeQ",
+          "name": "Kafé Rústico",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJoWqi_IjjwogR34giX74JdM4",
+          "name": "Dirty Laundry",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJ5V3fdJIdw4gR_sjfSsYq4Xs",
+          "name": "Golden Krust Caribbean Restaurant",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJcbtxGifdwogRtKvLf5HwCVo",
+          "name": "Jerk Hut South Tampa",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        }
+      ]
+    },
+    "api_included_ui_omitted": {
+      "totalEntries": 0,
+      "truncated": false,
+      "entries": []
+    },
+    "map_list_mismatch": {
+      "totalEntries": 0,
+      "truncated": false,
+      "entries": []
+    },
+    "pagination_invisibility": {
+      "totalEntries": 0,
+      "truncated": false,
+      "entries": []
+    },
+    "cache_drift": {
+      "totalEntries": 0,
+      "truncated": false,
+      "entries": []
+    },
+    "dedupe_suppression_error": {
+      "totalEntries": 0,
+      "truncated": false,
+      "entries": []
+    },
+    "location_origin_mismatch": {
+      "totalEntries": 0,
+      "truncated": false,
+      "entries": []
+    },
+    "seasonal_tagging_gap": {
+      "totalEntries": 0,
+      "truncated": false,
+      "entries": []
     }
-  ]
+  }
 }

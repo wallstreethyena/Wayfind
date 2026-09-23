@@ -1,6 +1,6 @@
 {
   "title": "Surface parity audit -- SEO landing pages (Parrish, before-fix)",
-  "generatedAt": "2026-09-23T18:42:43.381Z",
+  "generatedAt": "2026-09-23T19:13:59.121Z",
   "meta": {
     "level": "seo-landing",
     "base": "https://www.gowayfind.com",
@@ -32,6 +32,26 @@
     "totalFail": 48,
     "distinctPlacesAffected": 48,
     "byClass": {
+      "eligibility_passed_api_omitted": 48,
+      "api_included_ui_omitted": 0,
+      "map_list_mismatch": 0,
+      "pagination_invisibility": 0,
+      "cache_drift": 0,
+      "dedupe_suppression_error": 0,
+      "location_origin_mismatch": 0,
+      "seasonal_tagging_gap": 0
+    },
+    "distinctPlacesByClass": {
+      "eligibility_passed_api_omitted": 48,
+      "api_included_ui_omitted": 0,
+      "map_list_mismatch": 0,
+      "pagination_invisibility": 0,
+      "cache_drift": 0,
+      "dedupe_suppression_error": 0,
+      "location_origin_mismatch": 0,
+      "seasonal_tagging_gap": 0
+    },
+    "distinctPlacesByClassExcludingRyans": {
       "eligibility_passed_api_omitted": 48,
       "api_included_ui_omitted": 0,
       "map_list_mismatch": 0,
@@ -148,1494 +168,431 @@
       ]
     }
   ],
-  "rows": [
-    {
-      "place_id": "ChIJ69ZcEwQlw4gRpx9RhNkxcYE",
-      "name": "C & K Smokehouse BBQ",
-      "city": "Parrish",
-      "eligible_for": "food:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 1,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 1098
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /restaurants/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
+  "affectedPlacesByClass": {
+    "eligibility_passed_api_omitted": {
+      "totalEntries": 48,
+      "truncated": false,
+      "entries": [
+        {
+          "place_id": "ChIJ69ZcEwQlw4gRpx9RhNkxcYE",
+          "name": "C & K Smokehouse BBQ",
+          "city": "Parrish",
+          "keys": [
+            "food:all"
+          ]
+        },
+        {
+          "place_id": "ChIJqzsAbq4lw4gR46Lr7T6Fgi4",
+          "name": "P J's Sandwich Shop",
+          "city": "Parrish",
+          "keys": [
+            "food:all"
+          ]
+        },
+        {
+          "place_id": "ChIJK-PZyBElw4gR74Z1Z58fLA0",
+          "name": "Aqua Tequila",
+          "city": "Parrish",
+          "keys": [
+            "food:all"
+          ]
+        },
+        {
+          "place_id": "ChIJYfzA4SUlw4gRnPt72baj7pU",
+          "name": "First Watch",
+          "city": "Parrish",
+          "keys": [
+            "food:all"
+          ]
+        },
+        {
+          "place_id": "ChIJ0enaRRklw4gRbih-Q1wLFok",
+          "name": "Restaurant iDalia",
+          "city": "Parrish",
+          "keys": [
+            "food:all"
+          ]
+        },
+        {
+          "place_id": "ChIJsTne71Alw4gRtIgWq3kXD94",
+          "name": "3Natives",
+          "city": "Parrish",
+          "keys": [
+            "food:all"
+          ]
+        },
+        {
+          "place_id": "ChIJ8UrJfl0jw4gRiQDiFPPWabo",
+          "name": "American Honey Creamery and Coffee Co.",
+          "city": "Parrish",
+          "keys": [
+            "food:all"
+          ]
+        },
+        {
+          "place_id": "ChIJIRddWIMlw4gRnLfSvvcA76Y",
+          "name": "Gulley's",
+          "city": "Parrish",
+          "keys": [
+            "food:all"
+          ]
+        },
+        {
+          "place_id": "ChIJZW-6RgAjw4gRDVp3TtAFsaM",
+          "name": "Oar & Iron",
+          "city": "Parrish",
+          "keys": [
+            "food:all"
+          ]
+        },
+        {
+          "place_id": "ChIJUXMXELw9w4gR4TGRAD8NghQ",
+          "name": "Vampire Penguin",
+          "city": "Parrish",
+          "keys": [
+            "food:all"
+          ]
+        },
+        {
+          "place_id": "ChIJdwZ5rFYjw4gRE4bKJxlG17A",
+          "name": "Butterfields Family Restaurant",
+          "city": "Parrish",
+          "keys": [
+            "food:all"
+          ]
+        },
+        {
+          "place_id": "ChIJeynD5C0lw4gRLd7l0-FF988",
+          "name": "OSAKA Sushi & Grill",
+          "city": "Parrish",
+          "keys": [
+            "food:all"
+          ]
+        },
+        {
+          "place_id": "ChIJu3mmJlU9w4gRX3KqQYNgeuk",
+          "name": "Tookies and Treats Bakery Shop",
+          "city": "Parrish",
+          "keys": [
+            "food:all"
+          ]
+        },
+        {
+          "place_id": "ChIJWyTNmKojw4gR_ewI6bzBwno",
+          "name": "Publix Super Market at Gateway Commons",
+          "city": "Parrish",
+          "keys": [
+            "food:all"
+          ]
+        },
+        {
+          "place_id": "ChIJE_R_oOkkw4gRdAIx8XLGFBQ",
+          "name": "Michelangelo 301 Pizza",
+          "city": "Parrish",
+          "keys": [
+            "food:all"
+          ]
+        },
+        {
+          "place_id": "ChIJhYw136klw4gRZTEwF75nL_Y",
+          "name": "Papa Johns Pizza",
+          "city": "Parrish",
+          "keys": [
+            "food:all"
+          ]
+        },
+        {
+          "place_id": "ChIJnZd7698lw4gRSrCg7Tn6onY",
+          "name": "Elite Medical Spa of Parrish",
+          "city": "Parrish",
+          "keys": [
+            "attractions:all"
+          ]
+        },
+        {
+          "place_id": "ChIJHaRHOlQlw4gRVVkd3p9kigQ",
+          "name": "MassageLuXe Parrish",
+          "city": "Parrish",
+          "keys": [
+            "attractions:all"
+          ]
+        },
+        {
+          "place_id": "ChIJNfLLSBklw4gREMLRjzZ7mdE",
+          "name": "Bakers Ranch Wedding Venue",
+          "city": "Parrish",
+          "keys": [
+            "attractions:all"
+          ]
+        },
+        {
+          "place_id": "ChIJJSK6DAolw4gR2-tcgDhSPVI",
+          "name": "Parrish Community Park",
+          "city": "Parrish",
+          "keys": [
+            "attractions:all"
+          ]
+        },
+        {
+          "place_id": "ChIJhdITejIjw4gRDjqbf3gPSWQ",
+          "name": "Crunch Fitness - Parrish",
+          "city": "Parrish",
+          "keys": [
+            "attractions:all"
+          ]
+        },
+        {
+          "place_id": "ChIJu9V8cNY6w4gR14jQbFoNfsE",
+          "name": "Fort Hamer Park",
+          "city": "Parrish",
+          "keys": [
+            "attractions:all"
+          ]
+        },
+        {
+          "place_id": "ChIJDUMIR-Qjw4gR_Wi3JOkVEJ0",
+          "name": "Sun Tanner: Wellness & Tanning Spa",
+          "city": "Parrish",
+          "keys": [
+            "attractions:all"
+          ]
+        },
+        {
+          "place_id": "ChIJx0zhIwo9w4gRzwLiq_RT1Bg",
+          "name": "Blue Door Spa Ellenton",
+          "city": "Parrish",
+          "keys": [
+            "attractions:all"
+          ]
+        },
+        {
+          "place_id": "ChIJf3I_7J8lw4gR29qaAjl8OKk",
+          "name": "Ahh Just Relax!",
+          "city": "Parrish",
+          "keys": [
+            "attractions:all"
+          ]
+        },
+        {
+          "place_id": "ChIJldW9k7D0s6kRh1y_dI1KXMw",
+          "name": "Double Down Fishing Charters",
+          "city": "Parrish",
+          "keys": [
+            "attractions:all"
+          ]
+        },
+        {
+          "place_id": "ChIJ94UF6Jo8w4gRVpCB9EpriwA",
+          "name": "Tom Bennett Park",
+          "city": "Parrish",
+          "keys": [
+            "attractions:all"
+          ]
+        },
+        {
+          "place_id": "ChIJTQ5vtFMow4gRgXnhbGgK2e0",
+          "name": "Little Manatee River State Park",
+          "city": "Parrish",
+          "keys": [
+            "attractions:all"
+          ]
+        },
+        {
+          "place_id": "ChIJfUYeWmAlw4gReflS439GCg0",
+          "name": "Gamble Creek Farms",
+          "city": "Parrish",
+          "keys": [
+            "attractions:all"
+          ]
+        },
+        {
+          "place_id": "ChIJWUyEEXojw4gRsFy9QmBgWq4",
+          "name": "Buffalo Creek Park",
+          "city": "Parrish",
+          "keys": [
+            "attractions:all"
+          ]
+        },
+        {
+          "place_id": "ChIJhY2ZLlPfwogRInh0mhpVusk",
+          "name": "Bahia Beach",
+          "city": "Parrish",
+          "keys": [
+            "beach:beaches"
+          ]
+        },
+        {
+          "place_id": "ChIJfT0ICjcQw4gRoI9vij9_77s",
+          "name": "Holmes Beach, Florida",
+          "city": "Parrish",
+          "keys": [
+            "beach:beaches"
+          ]
+        },
+        {
+          "place_id": "ChIJ1ajZI7Ajw4gRquist_-IpXI",
+          "name": "Jaxx Wing Co. - Palmetto",
+          "city": "Parrish",
+          "keys": [
+            "nightlife:all"
+          ]
+        },
+        {
+          "place_id": "ChIJ989G5wU7w4gRn7UHu-cuzJo",
+          "name": "Loaded Cannon Distillery",
+          "city": "Parrish",
+          "keys": [
+            "nightlife:all"
+          ]
+        },
+        {
+          "place_id": "ChIJ6dA5zbshw4gRoGDqdyieauE",
+          "name": "Waypoint Bar & Grill",
+          "city": "Parrish",
+          "keys": [
+            "nightlife:all"
+          ]
+        },
+        {
+          "place_id": "ChIJUUIQJqciw4gR5o8AzOxiMRs",
+          "name": "Peggy’s Corral",
+          "city": "Parrish",
+          "keys": [
+            "nightlife:all"
+          ]
+        },
+        {
+          "place_id": "ChIJpX2t2-AXw4gRsUxHGrnwBfM",
+          "name": "The Clam House Bar & Grill",
+          "city": "Parrish",
+          "keys": [
+            "nightlife:all"
+          ]
+        },
+        {
+          "place_id": "ChIJh6rNQdQ7w4gRqqWIL5j9Q9k",
+          "name": "3 Car Garage Brewing",
+          "city": "Parrish",
+          "keys": [
+            "nightlife:all"
+          ]
+        },
+        {
+          "place_id": "ChIJLykIX_AXw4gRBijggj7UtYo",
+          "name": "Jaxx Wing Co.",
+          "city": "Parrish",
+          "keys": [
+            "nightlife:all"
+          ]
+        },
+        {
+          "place_id": "ChIJ_9_PFFk9w4gRlFYnnw20YHA",
+          "name": "Jaxx Sportsbar and Grill",
+          "city": "Parrish",
+          "keys": [
+            "nightlife:all"
+          ]
+        },
+        {
+          "place_id": "ChIJ5TCV780Xw4gR9tilZdFHw24",
+          "name": "McCabe's Irish Pub",
+          "city": "Parrish",
+          "keys": [
+            "nightlife:all"
+          ]
+        },
+        {
+          "place_id": "ChIJ14-Hmc0Xw4gRzZYgIy6qqAA",
+          "name": "The Loaded Barrel Tavern",
+          "city": "Parrish",
+          "keys": [
+            "nightlife:all"
+          ]
+        },
+        {
+          "place_id": "ChIJd4rV2zvXwogRQr4Dtairzjw",
+          "name": "The Local Brew Company",
+          "city": "Parrish",
+          "keys": [
+            "nightlife:all"
+          ]
+        },
+        {
+          "place_id": "ChIJbYs4syc8w4gRmXV_dN-rLrw",
+          "name": "Paddy Wagon Irish Pub",
+          "city": "Parrish",
+          "keys": [
+            "nightlife:all"
+          ]
+        },
+        {
+          "place_id": "ChIJk6Kbjs0Xw4gR13VkF4VZNTM",
+          "name": "Jennings downtown",
+          "city": "Parrish",
+          "keys": [
+            "nightlife:all"
+          ]
+        },
+        {
+          "place_id": "ChIJf_zGtR07w4gR3i1LY_zZjmM",
+          "name": "Inner Compass Brewing Company at LWR",
+          "city": "Parrish",
+          "keys": [
+            "nightlife:all"
+          ]
+        },
+        {
+          "place_id": "ChIJl8M4kM0Xw4gR342n1tkVjCs",
+          "name": "Cork's Cigar Bar",
+          "city": "Parrish",
+          "keys": [
+            "nightlife:all"
+          ]
+        },
+        {
+          "place_id": "ChIJqcGZ0vU9w4gRXLMbMNJdlqc",
+          "name": "Hi Way Bar",
+          "city": "Parrish",
+          "keys": [
+            "nightlife:all"
+          ]
+        }
+      ]
     },
-    {
-      "place_id": "ChIJqzsAbq4lw4gR46Lr7T6Fgi4",
-      "name": "P J's Sandwich Shop",
-      "city": "Parrish",
-      "eligible_for": "food:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 2,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 1098
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /restaurants/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
+    "api_included_ui_omitted": {
+      "totalEntries": 0,
+      "truncated": false,
+      "entries": []
     },
-    {
-      "place_id": "ChIJK-PZyBElw4gR74Z1Z58fLA0",
-      "name": "Aqua Tequila",
-      "city": "Parrish",
-      "eligible_for": "food:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 3,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 1098
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /restaurants/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
+    "map_list_mismatch": {
+      "totalEntries": 0,
+      "truncated": false,
+      "entries": []
     },
-    {
-      "place_id": "ChIJYfzA4SUlw4gRnPt72baj7pU",
-      "name": "First Watch",
-      "city": "Parrish",
-      "eligible_for": "food:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 4,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 1098
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /restaurants/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
+    "pagination_invisibility": {
+      "totalEntries": 0,
+      "truncated": false,
+      "entries": []
     },
-    {
-      "place_id": "ChIJ0enaRRklw4gRbih-Q1wLFok",
-      "name": "Restaurant iDalia",
-      "city": "Parrish",
-      "eligible_for": "food:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 6,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 1098
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /restaurants/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
+    "cache_drift": {
+      "totalEntries": 0,
+      "truncated": false,
+      "entries": []
     },
-    {
-      "place_id": "ChIJsTne71Alw4gRtIgWq3kXD94",
-      "name": "3Natives",
-      "city": "Parrish",
-      "eligible_for": "food:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 7,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 1098
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /restaurants/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
+    "dedupe_suppression_error": {
+      "totalEntries": 0,
+      "truncated": false,
+      "entries": []
     },
-    {
-      "place_id": "ChIJ8UrJfl0jw4gRiQDiFPPWabo",
-      "name": "American Honey Creamery and Coffee Co.",
-      "city": "Parrish",
-      "eligible_for": "food:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 9,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 1098
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /restaurants/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
+    "location_origin_mismatch": {
+      "totalEntries": 0,
+      "truncated": false,
+      "entries": []
     },
-    {
-      "place_id": "ChIJIRddWIMlw4gRnLfSvvcA76Y",
-      "name": "Gulley's",
-      "city": "Parrish",
-      "eligible_for": "food:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 10,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 1098
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /restaurants/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJZW-6RgAjw4gRDVp3TtAFsaM",
-      "name": "Oar & Iron",
-      "city": "Parrish",
-      "eligible_for": "food:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 11,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 1098
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /restaurants/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJUXMXELw9w4gR4TGRAD8NghQ",
-      "name": "Vampire Penguin",
-      "city": "Parrish",
-      "eligible_for": "food:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 12,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 1098
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /restaurants/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJdwZ5rFYjw4gRE4bKJxlG17A",
-      "name": "Butterfields Family Restaurant",
-      "city": "Parrish",
-      "eligible_for": "food:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 13,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 1098
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /restaurants/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJeynD5C0lw4gRLd7l0-FF988",
-      "name": "OSAKA Sushi & Grill",
-      "city": "Parrish",
-      "eligible_for": "food:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 14,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 1098
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /restaurants/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJu3mmJlU9w4gRX3KqQYNgeuk",
-      "name": "Tookies and Treats Bakery Shop",
-      "city": "Parrish",
-      "eligible_for": "food:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 16,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 1098
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /restaurants/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJWyTNmKojw4gR_ewI6bzBwno",
-      "name": "Publix Super Market at Gateway Commons",
-      "city": "Parrish",
-      "eligible_for": "food:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 17,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 1098
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /restaurants/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJE_R_oOkkw4gRdAIx8XLGFBQ",
-      "name": "Michelangelo 301 Pizza",
-      "city": "Parrish",
-      "eligible_for": "food:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 18,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 1098
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /restaurants/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJhYw136klw4gRZTEwF75nL_Y",
-      "name": "Papa Johns Pizza",
-      "city": "Parrish",
-      "eligible_for": "food:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 19,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 1098
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /restaurants/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJnZd7698lw4gRSrCg7Tn6onY",
-      "name": "Elite Medical Spa of Parrish",
-      "city": "Parrish",
-      "eligible_for": "attractions:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 0,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 729
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /things-to-do/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJHaRHOlQlw4gRVVkd3p9kigQ",
-      "name": "MassageLuXe Parrish",
-      "city": "Parrish",
-      "eligible_for": "attractions:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 1,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 729
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /things-to-do/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJNfLLSBklw4gREMLRjzZ7mdE",
-      "name": "Bakers Ranch Wedding Venue",
-      "city": "Parrish",
-      "eligible_for": "attractions:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 2,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 729
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /things-to-do/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJJSK6DAolw4gR2-tcgDhSPVI",
-      "name": "Parrish Community Park",
-      "city": "Parrish",
-      "eligible_for": "attractions:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 4,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 729
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /things-to-do/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJhdITejIjw4gRDjqbf3gPSWQ",
-      "name": "Crunch Fitness - Parrish",
-      "city": "Parrish",
-      "eligible_for": "attractions:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 5,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 729
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /things-to-do/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJu9V8cNY6w4gR14jQbFoNfsE",
-      "name": "Fort Hamer Park",
-      "city": "Parrish",
-      "eligible_for": "attractions:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 7,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 729
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /things-to-do/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJDUMIR-Qjw4gR_Wi3JOkVEJ0",
-      "name": "Sun Tanner: Wellness & Tanning Spa",
-      "city": "Parrish",
-      "eligible_for": "attractions:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 8,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 729
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /things-to-do/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJx0zhIwo9w4gRzwLiq_RT1Bg",
-      "name": "Blue Door Spa Ellenton",
-      "city": "Parrish",
-      "eligible_for": "attractions:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 9,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 729
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /things-to-do/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJf3I_7J8lw4gR29qaAjl8OKk",
-      "name": "Ahh Just Relax!",
-      "city": "Parrish",
-      "eligible_for": "attractions:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 11,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 729
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /things-to-do/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJldW9k7D0s6kRh1y_dI1KXMw",
-      "name": "Double Down Fishing Charters",
-      "city": "Parrish",
-      "eligible_for": "attractions:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 12,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 729
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /things-to-do/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJ94UF6Jo8w4gRVpCB9EpriwA",
-      "name": "Tom Bennett Park",
-      "city": "Parrish",
-      "eligible_for": "attractions:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 15,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 729
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /things-to-do/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJTQ5vtFMow4gRgXnhbGgK2e0",
-      "name": "Little Manatee River State Park",
-      "city": "Parrish",
-      "eligible_for": "attractions:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 17,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 729
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /things-to-do/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJfUYeWmAlw4gReflS439GCg0",
-      "name": "Gamble Creek Farms",
-      "city": "Parrish",
-      "eligible_for": "attractions:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 18,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 729
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /things-to-do/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJWUyEEXojw4gRsFy9QmBgWq4",
-      "name": "Buffalo Creek Park",
-      "city": "Parrish",
-      "eligible_for": "attractions:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 19,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 729
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /things-to-do/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJhY2ZLlPfwogRInh0mhpVusk",
-      "name": "Bahia Beach",
-      "city": "Parrish",
-      "eligible_for": "beach:beaches",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 15,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 17
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /beaches/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJfT0ICjcQw4gRoI9vij9_77s",
-      "name": "Holmes Beach, Florida",
-      "city": "Parrish",
-      "eligible_for": "beach:beaches",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 16,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 17
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /beaches/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJ1ajZI7Ajw4gRquist_-IpXI",
-      "name": "Jaxx Wing Co. - Palmetto",
-      "city": "Parrish",
-      "eligible_for": "nightlife:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 1,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 152
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /nightlife/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJ989G5wU7w4gRn7UHu-cuzJo",
-      "name": "Loaded Cannon Distillery",
-      "city": "Parrish",
-      "eligible_for": "nightlife:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 2,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 152
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /nightlife/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJ6dA5zbshw4gRoGDqdyieauE",
-      "name": "Waypoint Bar & Grill",
-      "city": "Parrish",
-      "eligible_for": "nightlife:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 3,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 152
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /nightlife/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJUUIQJqciw4gR5o8AzOxiMRs",
-      "name": "Peggy’s Corral",
-      "city": "Parrish",
-      "eligible_for": "nightlife:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 4,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 152
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /nightlife/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJpX2t2-AXw4gRsUxHGrnwBfM",
-      "name": "The Clam House Bar & Grill",
-      "city": "Parrish",
-      "eligible_for": "nightlife:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 7,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 152
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /nightlife/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJh6rNQdQ7w4gRqqWIL5j9Q9k",
-      "name": "3 Car Garage Brewing",
-      "city": "Parrish",
-      "eligible_for": "nightlife:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 8,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 152
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /nightlife/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJLykIX_AXw4gRBijggj7UtYo",
-      "name": "Jaxx Wing Co.",
-      "city": "Parrish",
-      "eligible_for": "nightlife:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 9,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 152
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /nightlife/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJ_9_PFFk9w4gRlFYnnw20YHA",
-      "name": "Jaxx Sportsbar and Grill",
-      "city": "Parrish",
-      "eligible_for": "nightlife:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 10,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 152
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /nightlife/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJ5TCV780Xw4gR9tilZdFHw24",
-      "name": "McCabe's Irish Pub",
-      "city": "Parrish",
-      "eligible_for": "nightlife:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 11,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 152
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /nightlife/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJ14-Hmc0Xw4gRzZYgIy6qqAA",
-      "name": "The Loaded Barrel Tavern",
-      "city": "Parrish",
-      "eligible_for": "nightlife:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 12,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 152
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /nightlife/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJd4rV2zvXwogRQr4Dtairzjw",
-      "name": "The Local Brew Company",
-      "city": "Parrish",
-      "eligible_for": "nightlife:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 13,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 152
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /nightlife/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJbYs4syc8w4gRmXV_dN-rLrw",
-      "name": "Paddy Wagon Irish Pub",
-      "city": "Parrish",
-      "eligible_for": "nightlife:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 14,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 152
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /nightlife/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJk6Kbjs0Xw4gR13VkF4VZNTM",
-      "name": "Jennings downtown",
-      "city": "Parrish",
-      "eligible_for": "nightlife:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 15,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 152
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /nightlife/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJf_zGtR07w4gR3i1LY_zZjmM",
-      "name": "Inner Compass Brewing Company at LWR",
-      "city": "Parrish",
-      "eligible_for": "nightlife:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 16,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 152
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /nightlife/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJl8M4kM0Xw4gR342n1tkVjCs",
-      "name": "Cork's Cigar Bar",
-      "city": "Parrish",
-      "eligible_for": "nightlife:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 17,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 152
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /nightlife/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
-    },
-    {
-      "place_id": "ChIJqcGZ0vU9w4gRXLMbMNJdlqc",
-      "name": "Hi Way Bar",
-      "city": "Parrish",
-      "eligible_for": "nightlife:all",
-      "source_present": true,
-      "API_present": false,
-      "rendered": false,
-      "map_present": null,
-      "page/pagination": {
-        "rank": 19,
-        "page": null,
-        "offset": null,
-        "n": null,
-        "hasMore": null,
-        "pageReachable": false,
-        "apiTotal": null,
-        "eligibleTotal": 152
-      },
-      "suppression_reason": null,
-      "same_origin_ok": null,
-      "cache_header": null,
-      "notes": "SSG/ISR landing page /nightlife/parrish -- static list, no continuation control a crawler or reader can use to reach this place",
-      "hint": {
-        "cacheDrift": false,
-        "seasonalGap": false
-      },
-      "verdict": "fail",
-      "root_cause": "eligibility_passed_api_omitted",
-      "why": "eligible under the real pipeline; the API never served it on any reachable page"
+    "seasonal_tagging_gap": {
+      "totalEntries": 0,
+      "truncated": false,
+      "entries": []
     }
-  ]
+  }
 }

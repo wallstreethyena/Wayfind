@@ -43,6 +43,9 @@
 import assert from "node:assert/strict";
 import { computeEligibleSet } from "./lib/parity/eligibility.mjs";
 import { classifyRow, makeRow, isLegitimateSuppression, ROOT_CAUSE_CLASSES } from "./lib/parity/report.mjs";
+import { classifyClientOmissions, toAppShape, SLIDER_MI_DEFAULT } from "./lib/parity/clientGates.mjs";
+import { dedupePlaces, normName } from "../lib/placeDedupe.js";
+import { cardComplete } from "../lib/score.js";
 import { chipIdentity } from "../lib/chipIdentity.js";
 import { isServableRow } from "../lib/ownedPool.js";
 
@@ -246,6 +249,103 @@ function makeFakePostgrest(rows, { honorOrder = true, pageSize = 1000, singlePag
     `an unexplained API-present/not-rendered row was not reported as api_included_ui_omitted: ${JSON.stringify(fv)}`);
 }
 
+// ── 4b. THE REAL CLIENT-RENDER GATES (2026-09-23, WS2 follow-up): the
+// display-radius cut and the brand dedupe, computed by scripts/lib/parity/
+// clientGates.mjs, which imports the REAL lib/placeDedupe.js (itself
+// extracted VERBATIM from app/home.js) and lib/score.js's cardComplete --
+// never a restated copy of either rule. A 17.5mi row and a real brand twin
+// must be accepted as legitimate; a same-brand-LOOKING row that the real
+// dedupePlaces does NOT actually collapse must still fail. ─────────────────
+{
+  const env = { url: "https://example.invalid", key: "k" };
+  const SLIDER = 17; // matches app/home.js's DEFAULT_RADIUS_MI, same value SLIDER_MI_DEFAULT carries
+  ok(SLIDER_MI_DEFAULT === SLIDER, `SLIDER_MI_DEFAULT drifted from the app default: ${SLIDER_MI_DEFAULT}`);
+
+  // Fixtures: one place outside the 17mi DISPLAY radius but inside the
+  // looser ~19.3mi GROUND-TRUTH eligibility gate (radiusM*1.15,
+  // lib/inventoryServe.js) -- eligible, and exactly the shape of the 3 real
+  // Parrish cafés (Cedar Fox Coffee, OfKors Cafe, The Bakero) the
+  // coordinator found at 17.03-17.05mi. A real brand-twin pair with a
+  // DETERMINISTIC winner (different review counts, so betterPlace's own
+  // reviews-tiebreak decides it, not array order). And a same-BRAND-LOOKING
+  // pair the real normName rule does NOT actually fold together.
+  const FAR_DISPLAY_CAFE = cafeRow("far-display-cafe", "Cutoff Line Coffee", 17.5);
+  const BRAND_C = cafeRow("brand-twin-c", "Round Robin Coffee — Route 301", 5.0, { reviews: 90 });
+  const BRAND_D = cafeRow("brand-twin-d", "Round Robin Coffee — 41 Bypass", 5.4, { reviews: 310 });
+  const LOOKALIKE_A = cafeRow("lookalike-a", "Sunshine Coffee Bar", 6.0);
+  const LOOKALIKE_B = cafeRow("lookalike-b", "Sunshine Coffee Roasters", 6.4);
+
+  const miniBox = [FAR_DISPLAY_CAFE, BRAND_C, BRAND_D, LOOKALIKE_A, LOOKALIKE_B, sentinel];
+  const miniFetch = makeFakePostgrest(miniBox);
+  const ground = await computeEligibleSet({ cat: "food", sub: "cafes", lat: ORIGIN.lat, lng: ORIGIN.lng, radiusM: 27000, env, fetchImpl: miniFetch });
+  const groundById = new Map(ground.places.map((p) => [p.id, p]));
+  for (const id of ["far-display-cafe", "brand-twin-c", "brand-twin-d", "lookalike-a", "lookalike-b"]) {
+    ok(groundById.has(id), `positive control: ${id} must be GROUND-TRUTH eligible (inside the ~19.3mi admission gate) for this test to mean anything`);
+  }
+
+  // Every ground-truth-eligible fixture here must pass the REAL cardComplete
+  // -- proving the defensive cardIncomplete branch is genuinely unreachable
+  // given ground truth's own rating>0 requirement, not just assumed so.
+  for (const p of ground.places) {
+    ok(cardComplete(toAppShape(p, ORIGIN.lat, ORIGIN.lng)), `ground-truth-eligible ${p.id} unexpectedly fails the real cardComplete()`);
+  }
+
+  const omissions = classifyClientOmissions(ground.places, { originLat: ORIGIN.lat, originLng: ORIGIN.lng, sliderMi: SLIDER });
+
+  // outside_display_radius: — a 17.5mi row.
+  const farEntry = omissions.get("far-display-cafe");
+  ok(!!farEntry && typeof farEntry.reason === "string" && farEntry.reason.startsWith("outside_display_radius:"),
+    `far-display-cafe (17.5mi) did not get outside_display_radius:, got ${JSON.stringify(farEntry)}`);
+  ok(isLegitimateSuppression(farEntry.reason), `isLegitimateSuppression rejected ${farEntry.reason}`);
+  const farRow = makeRow({ placeId: "far-display-cafe", name: "Cutoff Line Coffee", city: "Parrish", key: "food:cafes", sourcePresent: true, apiPresent: true, rendered: false, suppressionReason: farEntry.reason });
+  ok(classifyRow(farRow).verdict === "pass", `a real outside_display_radius reason was reported as a FAILURE: ${JSON.stringify(classifyRow(farRow))}`);
+  // RED-PROVE via the real rule's OWN escape hatch: app/home.js's
+  // _distFiltered is `sliderMi >= 60 || ...` -- at sliderMi=60 the SAME
+  // 17.5mi candidate must clear the cut (reason: null), proving the
+  // assertion above is anchored to the slider value, not a hardcoded
+  // distance string.
+  const omissionsWideSlider = classifyClientOmissions(ground.places, { originLat: ORIGIN.lat, originLng: ORIGIN.lng, sliderMi: 60 });
+  ok(omissionsWideSlider.get("far-display-cafe").reason === null,
+    `RED-PROVE failed: at sliderMi=60 (the real rule's own escape hatch) far-display-cafe should clear the display-radius cut, got ${JSON.stringify(omissionsWideSlider.get("far-display-cafe"))}`);
+
+  // brand_collapse: — a REAL brand twin, winner decided by calling the REAL
+  // betterPlace (via dedupePlaces), never assumed.
+  const appC = toAppShape(groundById.get("brand-twin-c"), ORIGIN.lat, ORIGIN.lng);
+  const appD = toAppShape(groundById.get("brand-twin-d"), ORIGIN.lat, ORIGIN.lng);
+  ok(normName(appC.name) === normName(appD.name) && normName(appC.name).length > 0,
+    `positive control: BRAND_C/BRAND_D must share a normName for this to test brand collapse at all (got "${normName(appC.name)}" vs "${normName(appD.name)}")`);
+  const collapsedTrue = dedupePlaces([appC, appD], true);
+  ok(collapsedTrue.length === 1, `positive control: the REAL dedupePlaces(..., true) must collapse the brand twins to 1 (got ${collapsedTrue.length})`);
+  const realWinnerId = collapsedTrue[0].id;
+  const realLoserId = realWinnerId === appC.id ? appD.id : appC.id;
+  ok(appC.reviews !== appD.reviews, "fixture sanity: BRAND_C/BRAND_D must have different review counts so betterPlace's own tiebreak (not array order) decides the winner");
+  ok(realWinnerId === (appD.reviews > appC.reviews ? appD.id : appC.id),
+    `betterPlace's own reviews-tiebreak did not pick the higher-review twin as winner (got ${realWinnerId})`);
+  const collapsedFalse = dedupePlaces([appC, appD], false);
+  ok(collapsedFalse.length === 2, `positive control: the REAL dedupePlaces(..., false) must keep both distinct (collapseBrand off) — if 1, the fixture collides by id, not by name, and proves nothing about collapseBrand`);
+
+  const loserEntry = omissions.get(realLoserId);
+  ok(!!loserEntry && loserEntry.reason === `brand_collapse:${realWinnerId}`,
+    `the real dedupe loser (${realLoserId}) did not get brand_collapse:${realWinnerId}, got ${JSON.stringify(loserEntry)}`);
+  const winnerEntry = omissions.get(realWinnerId);
+  ok(!!winnerEntry && winnerEntry.reason === null, `the real dedupe WINNER (${realWinnerId}) was unexpectedly given a suppression reason: ${JSON.stringify(winnerEntry)}`);
+  const brandRow = makeRow({ placeId: realLoserId, name: "twin", city: "Parrish", key: "food:cafes", sourcePresent: true, apiPresent: true, rendered: false, suppressionReason: loserEntry.reason });
+  ok(classifyRow(brandRow).verdict === "pass", `a real, computed brand_collapse was reported as a FAILURE: ${JSON.stringify(classifyRow(brandRow))}`);
+
+  // A same-brand-LOOKING row the real rule does NOT collapse must FAIL —
+  // never silently accepted as legitimate.
+  ok(normName(LOOKALIKE_A.name) !== normName(LOOKALIKE_B.name),
+    `fixture sanity: LOOKALIKE_A/B must have DIFFERENT normName (got "${normName(LOOKALIKE_A.name)}" == "${normName(LOOKALIKE_B.name)}") — if equal, this is not testing the "not actually collapsed" case`);
+  const lookA = omissions.get("lookalike-a");
+  const lookB = omissions.get("lookalike-b");
+  ok(lookA && lookA.reason === null && lookB && lookB.reason === null,
+    `a non-brand-twin pair (different normName) was given a suppression reason it should not get: ${JSON.stringify(lookA)} / ${JSON.stringify(lookB)}`);
+  const lookRow = makeRow({ placeId: "lookalike-a", name: "Sunshine Coffee Bar", city: "Parrish", key: "food:cafes", sourcePresent: true, apiPresent: true, rendered: false, suppressionReason: lookA.reason });
+  const lookVerdict = classifyRow(lookRow);
+  ok(lookVerdict.verdict === "fail" && lookVerdict.root_cause === "api_included_ui_omitted",
+    `a same-brand-LOOKING row NOT collapsed by the real dedupe rule must FAIL as api_included_ui_omitted, got ${JSON.stringify(lookVerdict)}`);
+}
+
 // ── 5. location_origin_mismatch overrides even a legitimate-looking reason ─
 {
   const row = makeRow({
@@ -317,4 +417,4 @@ if (bad.length) {
   console.error(`check-surface-parity-hermetic: FAIL — ${bad.length}/${n} assertions`);
   process.exit(1);
 }
-console.log(`check-surface-parity-hermetic: OK — ${n} assertions, no network. A 1,400+ row shuffled synthetic corpus with a Ryan's-shaped sentinel past row 1,000 was read through the REAL computeEligibleSet -> serveFromInventory -> readOwnedCategory pipeline (found it) and through a literal legacy limit=1000/no-order/single-page fake PostgREST (missed it, negative control confirmed); the resulting (present, absent) pair classified as eligibility_passed_api_omitted by the real classifyRow. Every decoy (closed, unrated, 40mi-out, non-café, brand twin) got its own exact legitimate reason, each verified by CALLING the real gate (isServableRow / milesBetween / chipIdentity), never assumed. Origin-mismatch overrides a legitimate-looking rank_cap; eligible>n with hasMore:false lands on pagination_invisibility while a within-page omission does not; rendered-without-a-pin lands on map_list_mismatch; cache_drift and seasonal_tagging_gap are both reachable. Three assertions were red-proven in-process: a capped-but-exhaustively-paged read finding the sentinel anyway (order is determinism, not completeness), a literally-capped real read failing loud (never a silent partial "eligible" set), and every ordering/threshold assertion re-run with the disqualifying flag cleared to confirm it flips to PASS.`);
+console.log(`check-surface-parity-hermetic: OK — ${n} assertions, no network. A 1,400+ row shuffled synthetic corpus with a Ryan's-shaped sentinel past row 1,000 was read through the REAL computeEligibleSet -> serveFromInventory -> readOwnedCategory pipeline (found it) and through a literal legacy limit=1000/no-order/single-page fake PostgREST (missed it, negative control confirmed); the resulting (present, absent) pair classified as eligibility_passed_api_omitted by the real classifyRow. Every decoy (closed, unrated, 40mi-out, non-café, brand twin) got its own exact legitimate reason, each verified by CALLING the real gate (isServableRow / milesBetween / chipIdentity), never assumed. The CLIENT render-time gates (scripts/lib/parity/clientGates.mjs, WS2 2026-09-23) were exercised the same way: a 17.5mi row got outside_display_radius: (and cleared it at sliderMi=60, the real rule's own escape hatch); a real brand twin's winner was decided by CALLING the real betterPlace (reviews tiebreak, not array order) and the loser got brand_collapse:<that exact winner id>; a same-brand-LOOKING pair the real normName does NOT actually fold together stayed unexplained and FAILED as api_included_ui_omitted; every ground-truth-eligible fixture was confirmed to pass the real cardComplete(). Origin-mismatch overrides a legitimate-looking rank_cap; eligible>n with hasMore:false lands on pagination_invisibility while a within-page omission does not; rendered-without-a-pin lands on map_list_mismatch; cache_drift and seasonal_tagging_gap are both reachable. Three assertions were red-proven in-process: a capped-but-exhaustively-paged read finding the sentinel anyway (order is determinism, not completeness), a literally-capped real read failing loud (never a silent partial "eligible" set), and every ordering/threshold assertion re-run with the disqualifying flag cleared to confirm it flips to PASS.`);

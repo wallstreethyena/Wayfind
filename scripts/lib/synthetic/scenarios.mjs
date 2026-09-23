@@ -41,6 +41,8 @@ import {
 } from "./menuPosterIntegrity.mjs";
 import { splitBreakfastRails } from "../../../lib/breakfastRails.js";
 import { composeWorthEatingRails } from "../../../lib/worthEatingRails.js";
+import { FALL_CARD_IDS, fallSkinLive } from "../../../lib/fallSkin.js";
+import { siteTodayStr } from "../../../lib/siteTime.js";
 
 /**
  * HOW LONG THE HOMEPAGE MAY TAKE TO SHOW ITS FIRST REAL PLACE CARD.
@@ -72,6 +74,7 @@ export const REQUIRED_FLOWS = Object.freeze([
   "location-behavior",
   "mobile-390",
   "menu-poster-integrity",
+  "surface-parity-cafes",
 ]);
 
 /**
@@ -111,6 +114,26 @@ export function firstNonEmptyRailItems(body) {
     if (items && items.length > 0) return { rail, items };
   }
   return null;
+}
+
+/** THE SAME same-origin proof scripts/surface-parity-audit.mjs's browser
+ * level uses (toFixed(4) exact match, the real client's own precision —
+ * app/home.js's inv=1 fetch sends `center.lat.toFixed(4)`) — for the
+ * /api/places/search?inv=1 endpoint, which lib/synthetic/menuPosterIntegrity
+ * .js's railsRequestMatchesOrigin does not cover (that one is /api/rails
+ * only). Pure; no network. */
+export function invRequestMatchesOrigin(urlString, origin, cat, sub) {
+  if (!origin || !Number.isFinite(Number(origin.lat)) || !Number.isFinite(Number(origin.lng))) return false;
+  let url;
+  try { url = new URL(String(urlString || ""), "https://www.gowayfind.com"); } catch { return false; }
+  if (url.pathname !== "/api/places/search" || url.searchParams.get("inv") !== "1") return false;
+  if (cat && url.searchParams.get("cat") !== cat) return false;
+  const gotSub = url.searchParams.get("sub") || "all";
+  if (sub && gotSub !== sub) return false;
+  const lat = Number(url.searchParams.get("lat"));
+  const lng = Number(url.searchParams.get("lng"));
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return false;
+  return Number(lat.toFixed(4)) === Number(Number(origin.lat).toFixed(4)) && Number(lng.toFixed(4)) === Number(Number(origin.lng).toFixed(4));
 }
 
 async function toggledAfterClick(locator) {
@@ -528,6 +551,99 @@ export const SCENARIOS = [
         componentSelectors: ['section[aria-label="American & Contemporary"]', 'section[aria-label="Mexican & Latin American"]', 'section[aria-label="Italian & Pizza"]'],
         origin,
       });
+    },
+  },
+
+  // ── 2c. Parrish Food > Cafés — the surface-parity sentinel ───────────────
+  // WS2 2026-09-23 follow-up: the live counterpart of scripts/surface-
+  // parity-audit.mjs's browser-level Parrish fixture, which found production
+  // serving Ryan's Coffee House (rank 3, well inside the eligible set) in
+  // its inv=1 API response while the DOM never rendered a card for it and
+  // window.__wfMapPins never carried a pin for it. Grants the REAL
+  // DEFAULT_CENTER origin (PARRISH, not Sarasota — see menu-poster-integrity
+  // above for why that distinction matters), clicks the exact chip path a
+  // real visitor uses, captures the inv=1 response WITH a same-origin proof
+  // (never trusts a stale/unrelated response), and checks Ryan's presence
+  // at all three layers: API, rendered DOM, and the map hook.
+  {
+    id: "surface-parity-parrish-cafes",
+    flow: "surface-parity-cafes",
+    name: "Parrish Food > Cafés: API/DOM/map agree on Ryan's Coffee House",
+    description: "Granting the real Parrish DEFAULT_CENTER origin and clicking Food > Cafés, the captured inv=1 response, the rendered card list, and window.__wfMapPins (after opening the map) all carry Ryan's Coffee House — the live counterpart of the surface-parity audit's browser-level Parrish fixture.",
+    async run(ctx) {
+      const origin = PARRISH;
+      const page = await ctx.openPage({ viewport: { width: 390, height: 844 }, origin });
+
+      // Register before navigation — same reasoning as menu-poster-integrity
+      // above: a cache hit can answer before a post-goto listener attaches.
+      const invResponsePromise = page.waitForResponse((response) => {
+        try { return invRequestMatchesOrigin(response.url(), origin, "food", "cafes"); }
+        catch { return false; }
+      }, { timeout: 20000 }).catch(() => null);
+
+      const url = ctx.baseUrl + "/";
+      await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
+      ctx.setUrl(url);
+      await page.waitForTimeout(1500); // let first-paint geolocation settle before tapping the chip
+
+      // Exactly the click sequence scripts/surface-parity-audit.mjs's browser
+      // level uses (confirmed live 2026-09-23 DOM dump): the home page's
+      // `.wf-navtabs` "Browse categories" group, category then sub-chip.
+      const catBtn = page.getByRole("group", { name: "Browse categories" }).getByRole("button", { name: "Food", exact: true });
+      await catBtn.click({ timeout: 15000 }).catch(async () => {
+        await page.locator(".wf-cattile, .wf-navtab", { hasText: "Food" }).first().click({ timeout: 15000 });
+      });
+      await page.waitForTimeout(1200); // let the category-open fetch land before the sub-chip click, or the wrong response can be captured
+      const subBtn = page.locator(".wf-subchip, .wf-navsub", { hasText: "Cafés" }).first();
+      await subBtn.click({ timeout: 15000 });
+
+      const invResponse = await invResponsePromise;
+      ctx.ok("captured the Food > Cafés inv=1 response at the granted Parrish origin (same-origin proof)", !!invResponse, "a matching inv=1 response", invResponse ? { status: invResponse.status() } : "not captured / origin mismatch");
+      if (!invResponse) return;
+      const payload = await invResponse.json().catch(() => null);
+      const apiIds = new Set((payload && Array.isArray(payload.places) ? payload.places : []).map((p) => p && (p.id || p.place_id)).filter(Boolean));
+      ctx.ok("the API response carries Ryan's Coffee House", apiIds.has(RYANS_COFFEE_HOUSE.placeId), true, apiIds.has(RYANS_COFFEE_HOUSE.placeId));
+      ctx.note(`surface-parity-parrish-cafes: API returned ${apiIds.size} places, hasMore=${payload ? payload.hasMore : "n/a"}`);
+
+      await page.waitForTimeout(2000); // give React time to commit the response into rendered cards
+      const renderedIds = await page.evaluate(() => Array.from(document.querySelectorAll("[data-wf-position-key]"))
+        .map((el) => el.getAttribute("data-wf-position-key"))
+        .filter(Boolean)
+        .map((k) => k.replace(/^place-/, "")));
+      ctx.ok("a card for Ryan's Coffee House is rendered in the DOM", renderedIds.includes(RYANS_COFFEE_HOUSE.placeId), true, renderedIds.includes(RYANS_COFFEE_HOUSE.placeId));
+
+      // Open the map (top .wf-dests "Destinations" row's "Map" link — the
+      // bottom nav only renders while screen==="map", app/home.js v8.3) and
+      // read the diagnostic hook.
+      let mapHookPresent = false, mapIds = [];
+      try {
+        await page.getByRole("link", { name: "Map" }).first().click({ timeout: 10000 });
+        await page.waitForTimeout(2500);
+        const mapState = await page.evaluate(() => ({
+          present: typeof window.__wfMapPins !== "undefined" && window.__wfMapPins !== null,
+          ids: (window.__wfMapPins && Array.isArray(window.__wfMapPins.ids)) ? window.__wfMapPins.ids : [],
+        }));
+        mapHookPresent = mapState.present;
+        mapIds = mapState.ids;
+      } catch (e) { ctx.note(`surface-parity-parrish-cafes: map capture failed — ${e && e.message ? e.message.split("\n")[0] : e}`); }
+      ctx.ok("window.__wfMapPins is present and carries a pin for Ryan's Coffee House", mapHookPresent && mapIds.includes(RYANS_COFFEE_HOUSE.placeId), true, { mapHookPresent, hasRyans: mapIds.includes(RYANS_COFFEE_HOUSE.placeId) });
+
+      // Fall-card class: only asserted when it actually applies. Ryan's is
+      // NOT in FALL_CARD_IDS (lib/fallSkin.js), so this is always a no-op
+      // note today, not a false assertion — the moment a future sweep adds
+      // Ryan's to that list, this scenario starts checking it automatically
+      // without needing to be told, because it reads the real set rather
+      // than a hardcoded assumption.
+      const fallApplies = FALL_CARD_IDS.has(RYANS_COFFEE_HOUSE.placeId) && fallSkinLive(siteTodayStr());
+      if (fallApplies) {
+        const hasFallClass = await page.evaluate((id) => {
+          const el = document.querySelector(`[data-wf-position-key="place-${id}"], [data-wf-position-key="${id}"]`);
+          return !!el && el.className.includes("wf-fall-card");
+        }, RYANS_COFFEE_HOUSE.placeId);
+        ctx.ok("Ryan's card carries the fall skin class (in-season, on FALL_CARD_IDS)", hasFallClass, true, hasFallClass);
+      } else {
+        ctx.note("surface-parity-parrish-cafes: fall-card class not applicable (Ryan's Coffee House is not on lib/fallSkin.js's FALL_CARD_IDS, or the season is not live) — skipped, not asserted");
+      }
     },
   },
 

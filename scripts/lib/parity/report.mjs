@@ -31,6 +31,13 @@ const LEGIT_PREFIXES = [
   "not_operational", "excluded", "unrated",
   "outside_radius:", "identity_reject:", "rank_cap:",
   "brand_collapse:", "destination_consolidated:",
+  // outside_display_radius: the CLIENT's "Within X mi" slider cut
+  // (app/home.js's `_distFiltered`, default 17mi) -- distinct from
+  // outside_radius: above, which is the GROUND-TRUTH eligibility radius
+  // gate (lib/inventoryServe.js's own 1.15x admission law). A place can
+  // clear the eligibility radius and still legitimately sit outside the
+  // smaller display slider, and that is a different, later gate.
+  "outside_display_radius:",
 ];
 
 export function isLegitimateSuppression(reason) {
@@ -164,6 +171,8 @@ export function classifyRow(row) {
  * including the ones that passed and were never materialized into a row) so
  * the summary counts stay honest even though `rows` is a subset.
  */
+const RYAN_ID = "ChIJo_IdHf0lw4gRHDbQNKBRE84"; // Ryan's Coffee House, the job's sentinel
+
 export function summarize(rows, overrideCounts = {}) {
   const classified = rows.map((r) => ({ ...r, ...classifyRow(r) }));
   const fails = classified.filter((r) => r.verdict === "fail");
@@ -173,12 +182,46 @@ export function summarize(rows, overrideCounts = {}) {
     else (byClass._unclassified ||= []).push(r);
   }
   const affectedPlaces = new Set(fails.map((r) => r.place_id));
+
+  // Distinct-PLACE counts per class (a place counts once per class no matter
+  // how many city/key pairs it failed at inside that class) -- pair counts
+  // (byClass above) answer "how many observations failed"; this answers "how
+  // many real places are affected", which is the number that matters to a
+  // reader deciding how bad the bug is.
+  const distinctByClass = {};
+  const nonRyanDistinctByClass = {};
+  for (const [cls, list] of Object.entries(byClass)) {
+    const ids = new Set(list.map((r) => r.place_id));
+    distinctByClass[cls] = ids.size;
+    nonRyanDistinctByClass[cls] = new Set([...ids].filter((id) => id !== RYAN_ID)).size;
+  }
+
+  // COMPACT affected-place listing per class: grouped by (place_id, city),
+  // each entry carrying the list of eligible_for keys that failed for that
+  // place at that city -- collapses e.g. Ryan's 4 keys x 5 cities = 20 rows
+  // down to 5 entries. This is what the committed report ships instead of
+  // one row per (place, surface, chip) observation.
+  const affectedPlacesByClass = {};
+  for (const [cls, list] of Object.entries(byClass)) {
+    const byPlaceCity = new Map(); // `${place_id}\u0000${city}` -> entry
+    for (const r of list) {
+      const k = `${r.place_id}\u0000${r.city || ""}`;
+      let e = byPlaceCity.get(k);
+      if (!e) { e = { place_id: r.place_id, name: r.name, city: r.city, keys: [] }; byPlaceCity.set(k, e); }
+      if (!e.keys.includes(r.eligible_for)) e.keys.push(r.eligible_for);
+    }
+    affectedPlacesByClass[cls] = [...byPlaceCity.values()];
+  }
+
   return {
     totalChecked: overrideCounts.totalChecked ?? rows.length,
     totalEligible: overrideCounts.totalEligible ?? rows.filter((r) => r.source_present === true).length,
     totalFail: fails.length,
     distinctPlacesAffected: affectedPlaces.size,
     byClass: Object.fromEntries(Object.entries(byClass).map(([k, v]) => [k, v.length])),
+    distinctByClass,
+    nonRyanDistinctByClass,
+    affectedPlacesByClass,
     classified,
     fails,
   };
@@ -196,17 +239,53 @@ export function toMarkdownTable(rows, cols) {
   return [head, sep, body].join("\n");
 }
 
-/** Write {out}.json and {out}.md. `out` is a path WITHOUT extension. */
-export function writeReport(out, { title, meta, rows, totalChecked, totalEligible, pairSummaries }) {
+/**
+ * Write {out}.json and {out}.md. `out` is a path WITHOUT extension.
+ *
+ * COMPACT BY DEFAULT (2026-09-23, orchestrator review): the committed report
+ * carries the summary, per-pair counts (`pairSummaries`), and per root-cause
+ * class the DISTINCT affected places (place_id/name/city/keys) -- not one row
+ * per (place, surface, chip) observation, which is what blew the first
+ * version of this report to 53MB/15MB for a 616-pair statewide sweep.
+ *
+ * Pass `full: true` (with `fullOut`, a path OUTSIDE the repo, e.g. under
+ * /tmp) to ALSO write the complete row-level detail there -- every
+ * classified row, unfiltered -- for a deep-dive that does not belong in git
+ * history. `fullOut` is required when `full` is true and MUST NOT resolve
+ * under the repo working directory (checked, not just documented, so this
+ * cannot regress the same way silently).
+ *
+ * `maxPlacesPerClassJson` (default 500) bounds the per-class affected-place
+ * LISTING the committed JSON carries -- the exact distinct-place COUNT
+ * (`distinctPlacesByClass`/`distinctPlacesByClassExcludingRyans`) is always
+ * complete and untruncated regardless of this cap; only the sample listing
+ * used for spot-checking is bounded, with `truncated`/`totalEntries` on the
+ * class saying so. A statewide sweep's pagination_invisibility class alone
+ * can carry 16,000+ (place, city) entries -- listing all of them is what
+ * made the FIRST version of this report's committed JSON 4.9MB even after
+ * collapsing to distinct places (down from 53MB uncompacted); the count is
+ * exact either way, and `--full` still carries the untruncated detail.
+ */
+export function writeReport(out, { title, meta, rows, totalChecked, totalEligible, pairSummaries, full = false, fullOut = null, maxPlacesPerClassJson = 500 }) {
   mkdirSync(path.dirname(out), { recursive: true });
   const summary = summarize(rows, { totalChecked, totalEligible });
+  const cappedAffectedPlacesByClass = {};
+  for (const [cls, places] of Object.entries(summary.affectedPlacesByClass)) {
+    cappedAffectedPlacesByClass[cls] = {
+      totalEntries: places.length,
+      truncated: places.length > maxPlacesPerClassJson,
+      entries: places.slice(0, maxPlacesPerClassJson),
+    };
+  }
   const json = { title, generatedAt: new Date().toISOString(), meta, summary: {
     totalChecked: summary.totalChecked,
     totalEligible: summary.totalEligible,
     totalFail: summary.totalFail,
     distinctPlacesAffected: summary.distinctPlacesAffected,
     byClass: summary.byClass,
-  }, pairSummaries: pairSummaries || null, rows: summary.classified };
+    distinctPlacesByClass: summary.distinctByClass,
+    distinctPlacesByClassExcludingRyans: summary.nonRyanDistinctByClass,
+  }, pairSummaries: pairSummaries || null, affectedPlacesByClass: cappedAffectedPlacesByClass };
   writeFileSync(`${out}.json`, JSON.stringify(json, null, 2));
 
   const md = [];
@@ -219,28 +298,54 @@ export function writeReport(out, { title, meta, rows, totalChecked, totalEligibl
   md.push("");
   md.push(`- Pairs checked: **${summary.totalChecked}**`);
   md.push(`- Eligible pairs (source_present): **${summary.totalEligible}**`);
-  md.push(`- FAIL: **${summary.totalFail}**`);
-  md.push(`- Distinct places affected: **${summary.distinctPlacesAffected}**`);
+  md.push(`- FAIL pairs: **${summary.totalFail}**`);
+  md.push(`- Distinct places affected (any class): **${summary.distinctPlacesAffected}**`);
   md.push("");
-  md.push("| root cause | count |");
-  md.push("| --- | --- |");
-  for (const c of ROOT_CAUSE_CLASSES) md.push(`| ${c} | ${summary.byClass[c] || 0} |`);
-  if (summary.byClass._unclassified) md.push(`| _unclassified_ | ${summary.byClass._unclassified} |`);
+  md.push("| root cause | pairs | distinct places | distinct places (excl. Ryan's) |");
+  md.push("| --- | --- | --- | --- |");
+  for (const c of ROOT_CAUSE_CLASSES) {
+    md.push(`| ${c} | ${summary.byClass[c] || 0} | ${summary.distinctByClass[c] || 0} | ${summary.nonRyanDistinctByClass[c] || 0} |`);
+  }
+  if (summary.byClass._unclassified) md.push(`| _unclassified_ | ${summary.byClass._unclassified} | ${summary.distinctByClass._unclassified || 0} | ${summary.nonRyanDistinctByClass._unclassified || 0} |`);
   md.push("");
-  if (summary.fails.length) {
-    md.push("## Failing rows");
+  for (const c of ROOT_CAUSE_CLASSES) {
+    const places = summary.affectedPlacesByClass[c] || [];
+    if (!places.length) continue;
+    md.push(`## ${c} — ${places.length} (place, city) entries`);
     md.push("");
-    const cols = ["place_id", "name", "city", "eligible_for", "API_present", "rendered", "map_present", "page/pagination", "root_cause"];
-    const getters = {
-      "page/pagination": (r) => JSON.stringify(r["page/pagination"]),
-    };
-    md.push(`| ${cols.join(" | ")} |`);
-    md.push(`| ${cols.map(() => "---").join(" | ")} |`);
-    for (const r of summary.fails) {
-      md.push(`| ${cols.map((c) => csvSafe(getters[c] ? getters[c](r) : r[c])).join(" | ")} |`);
-    }
+    const top = places.slice(0, 50);
+    md.push("| place_id | name | city | keys |");
+    md.push("| --- | --- | --- | --- |");
+    for (const p of top) md.push(`| ${csvSafe(p.place_id)} | ${csvSafe(p.name)} | ${csvSafe(p.city)} | ${csvSafe(p.keys.join(", "))} |`);
+    if (places.length > top.length) md.push(`| _...${places.length - top.length} more (see the .json)_ | | | |`);
     md.push("");
   }
   writeFileSync(`${out}.md`, md.join("\n"));
-  return { jsonPath: `${out}.json`, mdPath: `${out}.md`, summary };
+
+  let fullPaths = null;
+  if (full) {
+    if (!fullOut) throw new Error("writeReport: full:true requires fullOut (a path OUTSIDE the repo)");
+    const resolvedFull = path.resolve(fullOut);
+    const resolvedRepo = path.resolve(process.cwd());
+    if (resolvedFull === resolvedRepo || resolvedFull.startsWith(resolvedRepo + path.sep)) {
+      throw new Error(`writeReport: fullOut (${fullOut}) resolves inside the repo working directory -- full row detail must never be committed. Point it at /tmp or another out-of-repo path.`);
+    }
+    mkdirSync(path.dirname(resolvedFull), { recursive: true });
+    const fullJson = { title, generatedAt: json.generatedAt, meta, summary: json.summary, pairSummaries: pairSummaries || null, rows: summary.classified };
+    writeFileSync(`${resolvedFull}.json`, JSON.stringify(fullJson, null, 2));
+    const fmd = [`# ${title} — FULL ROW DETAIL (not committed)`, "", `Generated: ${json.generatedAt}`, "", `${summary.classified.length} total rows, ${summary.fails.length} FAIL.`, ""];
+    if (summary.fails.length) {
+      fmd.push("## Failing rows");
+      fmd.push("");
+      const cols = ["place_id", "name", "city", "eligible_for", "API_present", "rendered", "map_present", "page/pagination", "root_cause"];
+      const getters = { "page/pagination": (r) => JSON.stringify(r["page/pagination"]) };
+      fmd.push(`| ${cols.join(" | ")} |`);
+      fmd.push(`| ${cols.map(() => "---").join(" | ")} |`);
+      for (const r of summary.fails) fmd.push(`| ${cols.map((c) => csvSafe(getters[c] ? getters[c](r) : r[c])).join(" | ")} |`);
+    }
+    writeFileSync(`${resolvedFull}.md`, fmd.join("\n"));
+    fullPaths = { jsonPath: `${resolvedFull}.json`, mdPath: `${resolvedFull}.md` };
+  }
+
+  return { jsonPath: `${out}.json`, mdPath: `${out}.md`, summary, fullPaths };
 }

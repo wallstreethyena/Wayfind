@@ -1,6 +1,6 @@
 # Surface parity audit (browser level) — before-fix-browser-parrish-fixture-2026-09-23
 
-Generated: 2026-09-23T18:39:18.096Z
+Generated: 2026-09-23T19:13:36.059Z
 
 ```json
 {
@@ -14,7 +14,8 @@ Generated: 2026-09-23T18:39:18.096Z
     "food:cafes"
   ],
   "radiusRequestedM": 27359,
-  "radiusSnappedM": 32000
+  "radiusSnappedM": 32000,
+  "reclassifiedNote": "2026-09-23 offline reclassification (WS2 follow-up): the 69 api_included_ui_omitted rows from the original browser capture were re-evaluated against outside_display_radius:/brand_collapse: via the REAL client gates (scripts/lib/parity/clientGates.mjs) using fresh direct-Supabase ground truth at the SAME captured origin/radius/sliderMi this file recorded. All 69 are now explained (55 outside_display_radius, 14 brand_collapse); 0 remain unexplained api_included_ui_omitted. See docs/audits/surface-parity/README or the WS2 handback report for detail."
 }
 ```
 
@@ -22,149 +23,72 @@ Generated: 2026-09-23T18:39:18.096Z
 
 - Pairs checked: **211**
 - Eligible pairs (source_present): **211**
-- FAIL: **128**
-- Distinct places affected: **128**
+- FAIL pairs: **59**
+- Distinct places affected (any class): **59**
 
-| root cause | count |
-| --- | --- |
-| eligibility_passed_api_omitted | 59 |
-| api_included_ui_omitted | 69 |
-| map_list_mismatch | 0 |
-| pagination_invisibility | 0 |
-| cache_drift | 0 |
-| dedupe_suppression_error | 0 |
-| location_origin_mismatch | 0 |
-| seasonal_tagging_gap | 0 |
+| root cause | pairs | distinct places | distinct places (excl. Ryan's) |
+| --- | --- | --- | --- |
+| eligibility_passed_api_omitted | 59 | 59 | 59 |
+| api_included_ui_omitted | 0 | 0 | 0 |
+| map_list_mismatch | 0 | 0 | 0 |
+| pagination_invisibility | 0 | 0 | 0 |
+| cache_drift | 0 | 0 | 0 |
+| dedupe_suppression_error | 0 | 0 | 0 |
+| location_origin_mismatch | 0 | 0 | 0 |
+| seasonal_tagging_gap | 0 | 0 | 0 |
 
-## Failing rows
+## eligibility_passed_api_omitted — 59 (place, city) entries
 
-| place_id | name | city | eligible_for | API_present | rendered | map_present | page/pagination | root_cause |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| ChIJQfGy7xY9w4gRNczJwyuwhuQ | Scooter's Coffee | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":2,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJK6-idnsjw4gRq9OfzqqqLQY | Tropical Smoothie Cafe | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":11,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJc7NpREonw4gRqKlmr60I15A | Ella's Sweet Spot | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":24,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJxQhtk34Xw4gRWq5lJv-lf1A | 7 Brew Coffee | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":27,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJyQ2Ck8s9w4gR_ZOH_flSsq4 | Tropical Smoothie Cafe | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":28,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJAVpBNGElw4gR2Hh2qaL8la4 | Frosted Pink | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":31,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJPSkey7Elw4gR5gvfcin8NQc | Tuscan Hills Coffee Company | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":37,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJ_6CbWvzhwogRVqaYeaqJi6w | Southside Coffee Brew Bar | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":42,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJFSXdlLAlw4gRK8HfbT01-UY | Silverleaf Bread Co | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":46,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJsZzRCME7w4gR_itBs8Ox4-I | Panera Bread | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":47,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJOUBQFYARw4gRJbDt6elyWVI | Anna Maria Island Coffee Shack | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":49,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJzWjwvr_ZwogRgxGJNIKkhLI | The Healthy Spot FL | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":50,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJEUEmzE1Bw4gRHHXe_oxJF7E | Hashtag Café | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":51,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJq-nbv7DZwogR40d6CEdYHnc | Armetta's Gelato & Caffè | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":52,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJww1nz5VBw4gRl0xv985c9E4 | Cedar Fox Coffee | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":53,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJLdTATpvhwogRRfR3upxt17Y | St. Pete Bakery Café | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":57,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJV8ZGWbI5w4gRjH_FUWxpIwI | Tropical Smoothie Cafe | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":66,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJY_kA8nfjwogR1AhPPGA2k7o | Tealicious Cafe | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":68,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJG-8UUxJAw4gRR5dxpu_5F7c | ofKors BAKERY | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":69,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJLVbLmKDHBA8Rod1TXwVnuow | Paradeco Coffee Roasters @ SkyBeach Resort | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":72,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJ5UKubEVAw4gR73q9TXVHO9Y | Elixir Tea House | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":73,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJGYGbU-RBw4gRJw1koTHBA3k | OfKors Cafe | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":75,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJ7R-BEwBBw4gRPxw9nzLE4l0 | The Bakero | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":76,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJc1Yy525Aw4gR-iJPLLloKWI | The Garden Room Cafe' at Shoogie Boogies | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":77,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJuWIiRTAjw4gRDZ9UMpCXslg | The Blend (9510) Coffee & Cocktails | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":79,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJh0AxVlRBw4gRXJAiYfqMbUc | Postal 98 Cafe LLC | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":80,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJXyaPvkVAw4gRxzzecD3I0Po | Perq Coffee Bar | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":81,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJ75_T10bjwogRinmX-NdH7I4 | Cafe Clementine | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":83,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJ4WKSLz7ZwogRuNaPhuSnf1M | American Honey Creamery and Coffee Co. | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":85,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJI6bqpRJAw4gRu_rxFfAtU9g | Kahwa Coffee | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":86,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJCwyD8vHhwogRZvt6Q7M7Xbk | Pete's Bagels Drive Thru | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":87,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJeWH0FnfhwogROuk81Bd8_C0 | Black Crow Coffee Shop | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":89,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJUf1Pvx0Qw4gRG1cRymqab8g | Hometown Desserts | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":90,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJz1o-DQBBw4gRtoBDP8PHREc | Yoder's Pie Craft Coffee Co. | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":91,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJvdgK6t_hwogRoUREbQ9hnTI | Daycation Coffee | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":92,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJgXnW94DhwogRvByd2uvhm6c | 11 Chicks Yummy Creations | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":93,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJ-dXwYevhwogR4fnuJd-YeZ0 | Bean Wandering Coffee Downtown | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":94,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJfela991Aw4gRjfQ4MeP-eys | Argentinian Pastry | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":95,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJH3DNubrRwogRYmh4hiVWUHI | Gretchen's Goodies | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":96,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJ6c4jseEPw4gRFwfY73OsuJY | The Donut Experiment | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":97,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJccYEmQ7hwogRHWrSeUKWSeA | Uptown Eats | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":99,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJH85LXKdBw4gRfz7EUIawBYc | MERCI CAFÉ | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":100,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJGUfpXgDjwogRUVleoMzQ1v0 | Crispy Avenue Caffe | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":101,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJzQI9X4HhwogRV--GFv9FWUU | City's Bistro | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":102,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJKTUZrzFBw4gR2CG9xPx9rME | Toastique | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":104,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJQ1-s3BdDw4gR74Iwj_aNZYY | Coast To Coast Coffee | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":105,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJE-HcouVBw4gRkmP-iGsQn6M | O & A Coffee and Supply Downtown Sarasota | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":107,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJDd4mIuAPw4gRHt7XU-e-hI4 | Mademoiselle Paris French Restaurant & Bakery | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":112,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJ2ckQoZzhwogRecV7YRopNd4 | TeBella Tea St. Pete | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":114,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJ5zWe-fzhwogR9SKxxEIiN1Y | Gypsy Souls Coffeehouse St. Pete & Gypsy Beans Coffee Roasters | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":116,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJi66wUlw5w4gRk4c6afD_tjY | Tropical Smoothie Cafe | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":117,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJTzoiienhwogRbPa3GpuvBQU | Paradeco Coffee Roasters | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":118,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJe5Ox97ECw4gR2fGQC-g97jc | Café Soleil | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":119,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJhxkggUNBw4gRspsAJPp5zSM | Millie's | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":121,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJVzO7EWj9wogR97bcEQKnzJ4 | Tiki Bagel | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":122,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJkdqWX81Bw4gROPcEE_ipguQ | Clarabell Cookies | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":123,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJgY-J944Rw4gRW2ciNjGUnXQ | "Fifty Three Fifty, The Pourhouse" | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":124,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJLwJA4jfjwogRPZ6UOkUNl10 | 1Chick 1Bro Cafe Bistro | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":125,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJ8W_zEkDhwogRzOhHc7D_J1Y | Bad Mother | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":126,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJjejusGHhwogRHcHyw0OP1Lc | Neighborhood Joe | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":128,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJNVxs_YbhwogR_lrq-yc_YBI | Blush Tea and Coffee St Pete | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":129,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJfYXo7GfjwogRjEDK4RnJr8A | Bagel Babe Co. | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":130,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJMXRZ34bhwogR18X29qVsnLk | Lucky Cup Coffee Co. | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":131,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJB8gjMgAlw4gR93CI-p8no74 | Foxtail Coffee - North River Ranch | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":132,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJrSLx1qRBw4gR2UF92STx0FU | DD Roasters | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":134,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJnXI9iVz9wogRuNTSboD6VtA | SumitrA Espresso Lounge + | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":135,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJ48kv0WzjwogRsxVzEuztReQ | Black Crow Coffee Co Grand Central Dist | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":136,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJJZC_CSRDw4gRFsrOqTCgzJU | Palma Coffee | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":137,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJIavfm5nhwogROZnbY0Pw98U | Cafe Gala | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":138,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJ_xxoW-3jwogR7jypN1_VMQ0 | Salty Pup Coffeehouse & Winebar | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":139,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJkVYmx9oRw4gRTb4Y85DBjYk | Cool Beans A.M.I. | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":140,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJvcPn1ovjwogRdn0kBeTj2gU | Say Coffee House | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":141,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJRxyh-1DjwogR8PPwjlbgTUo | Valhalla Bakery St Pete | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":142,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJvxarZpvhwogRzkV8q1gTJ6k | Kahwa Coffee | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":143,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJLX7wJ8kTw4gRThCaPmHSZdo | Longbeach Cafe | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":144,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJxUxv-Y9Bw4gRa9l-hu_GmyY | Simon's Coffee House | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":145,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJ48ZANgpqw4gRILtaGpyY3Mo | Village Cafe | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":146,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJm-_ANgpqw4gRwUv0XefhcY4 | Sun Garden Cafe | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":147,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJNTEdLwpqw4gRk_myAtOzFfU | Meaney's Mini Donuts & Coffee House | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":148,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJN9sKYpbjwogRi6sY8V5GVhM | The Under Grounds Coffee Co | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":149,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJheluy8Mlw4gRaPPAIPkCXAI | Panera Bread | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":150,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJX66zL4zjwogRvDsuViZt1ng | The Crumb Factory Bakery & Cafe | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":151,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJiRzf9oQTw4gROVL4gwX0E8I | Blue Dolphin Cafe | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":152,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJeTyYt4JBw4gRTuznUSryWGM | Bagels & Brews Cafe | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":154,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJyQ4tlTbhwogRXX9UPdd7jJY | Flatbread & Butter | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":156,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJGaYnOZjRwogR_PyYX-yJ6GI | Foxtail Coffee Co. - Riverview South | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":157,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJ-REJt5Fqw4gRLOdF-9RkZe4 | Blue Dolphin Cafe | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":158,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJ4X4gR7pGw4gRXAzPjRwQ544 | Rendez-Vous French Bakery | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":159,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJSRMEYBNBw4gRQtogogz6Pas | Bread Bandits | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":160,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJOyU5FsjdwogR24Wo9xaISGU | State Flour Bakery | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":161,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJPTRyBjdBw4gRJNFnfc5hxMo | L’Opera Bakery Bistro | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":163,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJLZ8gf8zjwogRXTIy_pQKG9w | Pete's Bagels | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":164,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJodynlWBHw4gRMpM4vvzTsaM | Panera Bread | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":165,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJ3ec4eXdBw4gR3I2X1aWGd7Y | Paisano's Italian Bakery | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":167,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJrVd3bak_w4gR_MrZOJn4NyI | Panera Bread | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":168,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJV1PLb7zhwogRIMMWNlR0pjw | Seymour’s Bagel Shop | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":170,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJgZF6Vu7hwogRpPHCbojSk7w | Forest Vibe | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":171,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJj7B4MH9Bw4gRqduEpeQoj5M | The Clever Cup Coffee Shop | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":173,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJBYve1s3jwogRtpUeAgYSqdM | The Breeze Waterfront Cafe | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":174,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJn_bj-nFBw4gRrUA_4ZQW8oY | Palm Avenue Deli | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":175,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJxz6zy1JAw4gRuv_Uqg38SFM | Rendez Vous French Bakery | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":176,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJBdC3TW5Aw4gRWhgHDaTVq5o | Tropical Smoothie Cafe | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":178,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJt3V-wiTdwogRS7HQsBrOzEw | Kubana Kafe | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":180,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJYecWexPjwogRRytxXfBwczs | Annex Coffee | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":181,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJIzpHyd7jwogR2NelI36DKgI | Somebody’s Coffee | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":182,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJg__y9jqS00kR3EFGgwzBuZY | Sun Bear | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":185,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJ0VocsGpBw4gRsLDt4-jEEQ4 | Foxtail Coffee - Quay Sarasota | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":186,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJ24N-e9ZBw4gRARVRrEsGbfg | Mama G’s Gulfgate | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":187,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJy6vf9_dBw4gRGg1sXR5UTGU | Project Coffee | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":188,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJN6ESnfDhwogR8PERJMn1-98 | St Pete Dessert Catering Co. | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":189,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJy9JRVwMRw4gRe2--exNKGDs | Nautilus Café | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":190,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJOyM_LABDw4gRIV3Tw13ENrs | Toasted mango cafe | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":191,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJJR9dPiQPw4gRXksgtGRIdK8 | North Shore Cafe | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":192,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJOSoWhGs5w4gR3vI10jfU9RQ | Panera Bread | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":193,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJPTLV6MVBw4gRZw58b_NHVZ0 | The Houston Run Hitch | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":194,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJRcachLRBw4gRM7Y5Qocs21Q | Rooftop Cafe | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":195,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJj3f6scQVw4gRFKCjoxYjkTg | Sips - South | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":198,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJ2SoWzANBw4gRj8YUXRgZ844 | Bloom Matcha Co | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":199,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJbY3dfDZJw4gRYi0diDlBw_Y | Sugar Luxe SRQ | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":200,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJI8k-aMNBw4gRPgslN9Uwwvs | Your Culinary Place L.L.C. - Shared Commercial Commissary Kitchens | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":201,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJBT-e0coTw4gR-o5Nm820wVs | Elegant Lady Cheesecake Parlor | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":202,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJvdM3DABBw4gRbWEC59OXqMI | La Cruto'n | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":203,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJQy_5UNpDw4gR_jcks6PnEoA | Bungalow Bagels | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":204,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJNbBvReDRwogRL_pAoGUGGeQ | Kafé Rústico | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":205,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJ_9O26hJAw4gRXHWEpPpmGik | WFM Coffee Bar | Parrish (DEFAULT_CENTER/fixture) | food:cafes | true | false |  | "{""rank"":206,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | api_included_ui_omitted |
-| ChIJoWqi_IjjwogR34giX74JdM4 | Dirty Laundry | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":208,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJ5V3fdJIdw4gR_sjfSsYq4Xs | Golden Krust Caribbean Restaurant | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":209,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
-| ChIJcbtxGifdwogRtKvLf5HwCVo | Jerk Hut South Tampa | Parrish (DEFAULT_CENTER/fixture) | food:cafes | false | false |  | "{""rank"":210,""page"":null,""offset"":null,""n"":152,""hasMore"":false,""pageReachable"":false,""apiTotal"":null,""eligibleTotal"":211}" | eligibility_passed_api_omitted |
+| place_id | name | city | keys |
+| --- | --- | --- | --- |
+| ChIJc7NpREonw4gRqKlmr60I15A | Ella's Sweet Spot | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJAVpBNGElw4gR2Hh2qaL8la4 | Frosted Pink | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJPSkey7Elw4gR5gvfcin8NQc | Tuscan Hills Coffee Company | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJ_6CbWvzhwogRVqaYeaqJi6w | Southside Coffee Brew Bar | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJFSXdlLAlw4gRK8HfbT01-UY | Silverleaf Bread Co | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJzWjwvr_ZwogRgxGJNIKkhLI | The Healthy Spot FL | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJq-nbv7DZwogR40d6CEdYHnc | Armetta's Gelato & Caffè | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJLdTATpvhwogRRfR3upxt17Y | St. Pete Bakery Café | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJY_kA8nfjwogR1AhPPGA2k7o | Tealicious Cafe | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJLVbLmKDHBA8Rod1TXwVnuow | Paradeco Coffee Roasters @ SkyBeach Resort | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJuWIiRTAjw4gRDZ9UMpCXslg | The Blend (9510) Coffee & Cocktails | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJ75_T10bjwogRinmX-NdH7I4 | Cafe Clementine | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJ4WKSLz7ZwogRuNaPhuSnf1M | American Honey Creamery and Coffee Co. | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJCwyD8vHhwogRZvt6Q7M7Xbk | Pete's Bagels Drive Thru | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJeWH0FnfhwogROuk81Bd8_C0 | Black Crow Coffee Shop | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJvdgK6t_hwogRoUREbQ9hnTI | Daycation Coffee | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJgXnW94DhwogRvByd2uvhm6c | 11 Chicks Yummy Creations | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJ-dXwYevhwogR4fnuJd-YeZ0 | Bean Wandering Coffee Downtown | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJH3DNubrRwogRYmh4hiVWUHI | Gretchen's Goodies | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJccYEmQ7hwogRHWrSeUKWSeA | Uptown Eats | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJGUfpXgDjwogRUVleoMzQ1v0 | Crispy Avenue Caffe | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJzQI9X4HhwogRV--GFv9FWUU | City's Bistro | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJ2ckQoZzhwogRecV7YRopNd4 | TeBella Tea St. Pete | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJ5zWe-fzhwogR9SKxxEIiN1Y | Gypsy Souls Coffeehouse St. Pete & Gypsy Beans Coffee Roasters | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJTzoiienhwogRbPa3GpuvBQU | Paradeco Coffee Roasters | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJe5Ox97ECw4gR2fGQC-g97jc | Café Soleil | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJVzO7EWj9wogR97bcEQKnzJ4 | Tiki Bagel | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJLwJA4jfjwogRPZ6UOkUNl10 | 1Chick 1Bro Cafe Bistro | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJ8W_zEkDhwogRzOhHc7D_J1Y | Bad Mother | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJjejusGHhwogRHcHyw0OP1Lc | Neighborhood Joe | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJNVxs_YbhwogR_lrq-yc_YBI | Blush Tea and Coffee St Pete | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJfYXo7GfjwogRjEDK4RnJr8A | Bagel Babe Co. | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJMXRZ34bhwogR18X29qVsnLk | Lucky Cup Coffee Co. | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJB8gjMgAlw4gR93CI-p8no74 | Foxtail Coffee - North River Ranch | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJnXI9iVz9wogRuNTSboD6VtA | SumitrA Espresso Lounge + | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJ48kv0WzjwogRsxVzEuztReQ | Black Crow Coffee Co Grand Central Dist | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJIavfm5nhwogROZnbY0Pw98U | Cafe Gala | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJ_xxoW-3jwogR7jypN1_VMQ0 | Salty Pup Coffeehouse & Winebar | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJvcPn1ovjwogRdn0kBeTj2gU | Say Coffee House | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJRxyh-1DjwogR8PPwjlbgTUo | Valhalla Bakery St Pete | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJvxarZpvhwogRzkV8q1gTJ6k | Kahwa Coffee | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJN9sKYpbjwogRi6sY8V5GVhM | The Under Grounds Coffee Co | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJX66zL4zjwogRvDsuViZt1ng | The Crumb Factory Bakery & Cafe | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJyQ4tlTbhwogRXX9UPdd7jJY | Flatbread & Butter | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJGaYnOZjRwogR_PyYX-yJ6GI | Foxtail Coffee Co. - Riverview South | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJOyU5FsjdwogR24Wo9xaISGU | State Flour Bakery | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJLZ8gf8zjwogRXTIy_pQKG9w | Pete's Bagels | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJV1PLb7zhwogRIMMWNlR0pjw | Seymour’s Bagel Shop | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJgZF6Vu7hwogRpPHCbojSk7w | Forest Vibe | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| ChIJBYve1s3jwogRtpUeAgYSqdM | The Breeze Waterfront Cafe | Parrish (DEFAULT_CENTER/fixture) | food:cafes |
+| _...9 more (see the .json)_ | | | |

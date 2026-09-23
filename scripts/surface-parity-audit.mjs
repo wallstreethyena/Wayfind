@@ -47,6 +47,31 @@
  *                               the nearest landing-page slug.
  *   --cityName=<text>          label for the synthetic origin above (report
  *                               display only)
+ *   --sliderMi=<n>             default: 17 (DEFAULT_RADIUS_MI, lib/google.js)
+ *                               -- the client's "Within X mi" display-radius
+ *                               cut, applied (browser level only) via the
+ *                               REAL app/home.js gate (clientGates.mjs) to
+ *                               tell a legitimate outside_display_radius:<mi>
+ *                               absence apart from a real omission.
+ *   --checkCacheDrift          default: off. API level only. After the
+ *                               normal exhaustive paged fetch across every
+ *                               pair, waits --cacheDriftDelayMs once, then
+ *                               re-fetches just page 0 of each pair's URL and
+ *                               compares membership -- any place present in
+ *                               one read and absent from the other gets
+ *                               hint.cacheDrift (report.mjs's classifyRow
+ *                               already reads this) instead of being reported
+ *                               as a fresh eligibility_passed_api_omitted.
+ *   --cacheDriftDelayMs=<ms>   default: 4000. Delay before the single
+ *                               second-pass re-fetch above.
+ *   --full                     also write COMPLETE row-level detail (every
+ *                               classified row, unfiltered) to --fullOut --
+ *                               never committed; the default report is the
+ *                               compact summary + distinct-place listing.
+ *   --fullOut=<path>           path (WITHOUT extension) OUTSIDE the repo for
+ *                               --full's output (e.g. /tmp/...). Required
+ *                               when --full is set; writeReport() throws if
+ *                               it resolves inside the repo.
  *
  * ENV (command line / calling shell only — NEVER written into a repo file):
  *   SUPABASE_URL / NEXT_PUBLIC_SUPABASE_URL, and SUPABASE_KEY — an anon /
@@ -59,8 +84,17 @@
  * also printed at the end of every run of this script).
  */
 import { LANDING_CITIES } from "../lib/landingCities.js";
-import { chipIdentityKeys, subAllowOnlyKeys, computeEligibleSet, placeName } from "./lib/parity/eligibility.mjs";
+import { chipIdentityKeys, subAllowOnlyKeys, computeEligibleSet, placeName, milesBetween } from "./lib/parity/eligibility.mjs";
 import { makeRow, writeReport } from "./lib/parity/report.mjs";
+// REAL client-side gates, called rather than restated (2026-09-23,
+// orchestrator review): a place the API served but the browser did not
+// render can be a real bug, OR a place the CLIENT itself legitimately drops
+// before paint -- the display-radius cut and the same-brand dedupe are two
+// such gates, and calling the actual functions (via clientGates.mjs, which
+// itself imports lib/placeDedupe.js/lib/score.js/lib/wayfindScore.js
+// VERBATIM) is the only way to tell them apart from a real omission without
+// silently re-implementing (and possibly drifting from) app/home.js's rule.
+import { classifyClientOmissions, SLIDER_MI_DEFAULT } from "./lib/parity/clientGates.mjs";
 
 // ── CLI ──────────────────────────────────────────────────────────────────
 function parseArgs(argv) {
@@ -81,6 +115,15 @@ const RAW_RADIUS_M = Number(args.radius) || 27359; // 17mi, app/home.js's reques
 const OUT = args.out;
 const LABEL = args.label || null;
 const MAX_PAGES = Math.max(1, Number(args.maxPages) || 200);
+const SLIDER_MI = Number.isFinite(Number(args.sliderMi)) && args.sliderMi !== undefined ? Number(args.sliderMi) : SLIDER_MI_DEFAULT;
+const CHECK_CACHE_DRIFT = !!args.checkCacheDrift;
+const CACHE_DRIFT_DELAY_MS = Math.max(500, Number(args.cacheDriftDelayMs) || 4000);
+const FULL = !!args.full;
+const FULL_OUT = args.fullOut ? String(args.fullOut) : (FULL ? `/tmp/surface-parity-full-${Date.now()}` : null);
+if (FULL && !FULL_OUT) {
+  console.error("surface-parity-audit: --full requires --fullOut=<path outside the repo> (or a default under /tmp is used)");
+  process.exit(2);
+}
 
 if (!OUT) {
   console.error("surface-parity-audit: --out=<path without extension> is required");
@@ -182,6 +225,7 @@ async function fetchProdMembership({ lat, lng, cat, sub }) {
   const N = 400;
   const ids = [];
   const idSet = new Set();
+  let page0Ids = new Set();
   let offset = 0;
   let page = 0;
   let lastJson = null;
@@ -196,13 +240,14 @@ async function fetchProdMembership({ lat, lng, cat, sub }) {
     for (const p of r.json.places) {
       const id = p && (p.id || p.place_id);
       if (id && !idSet.has(id)) { idSet.add(id); ids.push(id); }
+      if (page === 0 && id) page0Ids.add(id);
     }
     if (r.json.hasMore !== true) break;
     if (!r.json.places.length) break;
     offset += r.json.places.length;
   }
   return {
-    ids, idSet, pages: page + 1, firstStatus,
+    ids, idSet, page0Ids, pages: page + 1, firstStatus,
     total: lastJson ? lastJson.total : null,
     hasMore: lastJson ? !!lastJson.hasMore : null,
     truncated: lastJson ? !!lastJson.truncated : null,
@@ -211,6 +256,21 @@ async function fetchProdMembership({ lat, lng, cat, sub }) {
     supportsPaging: lastJson ? Object.prototype.hasOwnProperty.call(lastJson, "hasMore") : false,
   };
 }
+
+/** ONE fetch of page 0 only (offset 0, same n=400 page size as the exhaustive
+ * reader's first page) — used by the cache-drift re-check, which is about
+ * whether the SAME URL returns the SAME membership on a second read, not
+ * about paging further. */
+async function fetchPage0({ lat, lng, cat, sub }) {
+  const r = await fetchProdJSON(invUrl({ lat, lng, cat, sub, n: 400, offset: 0 }));
+  const ids = new Set();
+  if (r.ok && r.json && Array.isArray(r.json.places)) {
+    for (const p of r.json.places) { const id = p && (p.id || p.place_id); if (id) ids.add(id); }
+  }
+  return { ids, cacheHeader: r.cacheHeader, status: r.status };
+}
+
+function sleep(ms) { return new Promise((res) => setTimeout(res, ms)); }
 
 // ── API-LEVEL RUN ───────────────────────────────────────────────────────
 async function runApiLevel() {
@@ -224,6 +284,12 @@ async function runApiLevel() {
   const failRows = [];
   const pairSummaries = [];
   let done = 0;
+  // Cache-drift re-check bookkeeping (only populated when --checkCacheDrift):
+  // one entry per pair carrying what a second, later read needs to compare
+  // against, plus a lookup from (pair, place_id) -> the row a drift finding
+  // should be stamped onto.
+  const driftCandidates = [];
+  const rowByPairPlace = new Map(); // `${city.slug}\u0000${key}\u0000${place_id}` -> row
 
   await pool(pairs, CONCURRENCY, async ({ city, key }) => {
     const [cat, sub] = key.split(":");
@@ -270,35 +336,85 @@ async function runApiLevel() {
         notes: prod.supportsPaging ? null : "production response carries no total/hasMore/truncated fields (pre-fix shape)",
       });
       failRows.push(row);
+      if (!beyondFirstPage) rowByPairPlace.set(`${city.slug}\u0000${key}\u0000${p.id}`, row);
     }
 
-    pairSummaries.push({
+    const pairSummary = {
       city: city.slug, cityName: city.name, key,
       eligible: ground.eligible, groundTruncated: ground.truncated,
       apiFirstStatus: prod.firstStatus, apiPages: prod.pages, apiTotal: prod.total,
       apiReturned: prod.ids.length, apiHasMore: prod.hasMore, apiSupportsPaging: prod.supportsPaging,
       apiSource: prod.source, apiCache: prod.cacheHeaders[0] || null,
       missing: missing.length,
-    });
+    };
+    pairSummaries.push(pairSummary);
+    if (CHECK_CACHE_DRIFT) driftCandidates.push({ city, key, cat, sub, page0Ids: prod.page0Ids, pairSummary });
 
     done++;
     if (done % 20 === 0 || done === pairs.length) console.log(`  ${done}/${pairs.length} pairs done`);
   });
+
+  // ── cache-drift re-check: ONE delayed second pass over every pair's page 0,
+  // not a per-pair delay -- keeps a statewide sweep's wall clock bounded while
+  // still proving (or disproving) that the SAME URL returns the SAME
+  // membership on a second read. Pre-fix, this is the exact symptom the
+  // job's before-report already observed once by hand (134 without Ryan's vs
+  // 152 with Ryan's, same URL, both x-vercel-cache: HIT) -- the unordered,
+  // no-order= read cached for ~24h at the CDN edge, so which arbitrary heap
+  // slice got cached (and served as a HIT to every request since) was
+  // itself nondeterministic across cache-fill events. Post-fix, reads are
+  // deterministic (ordered, exhaustive), so this becomes a plain regression
+  // check that should find ZERO drift going forward.
+  if (CHECK_CACHE_DRIFT && driftCandidates.length) {
+    console.log(`surface-parity-audit: cache-drift re-check — waiting ${CACHE_DRIFT_DELAY_MS}ms, then re-fetching page 0 of ${driftCandidates.length} pairs`);
+    await sleep(CACHE_DRIFT_DELAY_MS);
+    let driftPairs = 0, driftRows = 0;
+    await pool(driftCandidates, CONCURRENCY, async ({ city, key, cat, sub, page0Ids, pairSummary }) => {
+      const second = await fetchPage0({ lat: city.lat, lng: city.lng, cat, sub });
+      const added = [...second.ids].filter((id) => !page0Ids.has(id));
+      const removed = [...page0Ids].filter((id) => !second.ids.has(id));
+      pairSummary.cacheDriftChecked = true;
+      pairSummary.cacheDriftSecondCache = second.cacheHeader;
+      if (added.length || removed.length) {
+        pairSummary.cacheDrift = true;
+        pairSummary.cacheDriftAdded = added.length;
+        pairSummary.cacheDriftRemoved = removed.length;
+        driftPairs++;
+        // Stamp hint.cacheDrift onto any already-built row for a place that
+        // FLIPPED from absent (first read) to present (second read) -- that
+        // is a place this audit was about to report as a stable
+        // eligibility_passed_api_omitted, when what actually happened is the
+        // read itself is nondeterministic. Removed (present->absent) ids
+        // have no row to stamp (they were not "missing" on the first pass);
+        // they still count toward cacheDriftRemoved above for visibility.
+        for (const id of added) {
+          const row = rowByPairPlace.get(`${city.slug}\u0000${key}\u0000${id}`);
+          if (row) { row.hint.cacheDrift = true; driftRows++; }
+        }
+      } else {
+        pairSummary.cacheDrift = false;
+      }
+    });
+    console.log(`surface-parity-audit: cache-drift re-check done — ${driftPairs}/${driftCandidates.length} pairs drifted, ${driftRows} row(s) reclassified as cache_drift`);
+  }
 
   const meta = {
     level: "api", base: BASE, label: LABEL,
     cities: CITY_LIST.map((c) => c.slug), keys: KEY_LIST,
     radiusRequestedM: RAW_RADIUS_M, radiusSnappedM: RADIUS_M, radiusMi: Number(RADIUS_MI.toFixed(2)),
     subAllowOnlyKeysAvailable: subAllowOnlyKeys(),
+    checkCacheDrift: CHECK_CACHE_DRIFT, cacheDriftDelayMs: CHECK_CACHE_DRIFT ? CACHE_DRIFT_DELAY_MS : null,
   };
-  const { jsonPath, mdPath, summary } = writeReport(OUT, {
+  const { jsonPath, mdPath, summary, fullPaths } = writeReport(OUT, {
     title: `Surface parity audit (API level)${LABEL ? " — " + LABEL : ""}`,
     meta, rows: failRows, totalChecked, totalEligible, pairSummaries,
+    full: FULL, fullOut: FULL_OUT,
   });
   console.log(`surface-parity-audit: wrote ${jsonPath} and ${mdPath}`);
+  if (fullPaths) console.log(`surface-parity-audit: wrote FULL detail (not committed) to ${fullPaths.jsonPath} and ${fullPaths.mdPath}`);
   console.log(`surface-parity-audit: eligible pairs checked=${totalChecked} FAIL=${summary.totalFail} distinct places=${summary.distinctPlacesAffected}`);
   console.log("  by class:", JSON.stringify(summary.byClass));
-  return { jsonPath, mdPath, summary, pairSummaries };
+  return { jsonPath, mdPath, summary, pairSummaries, fullPaths };
 }
 
 // ── BROWSER-LEVEL RUN ────────────────────────────────────────────────────
@@ -514,6 +630,23 @@ async function runBrowserLevel() {
         // give it one more explicit beat before treating it as final.
         await page.waitForTimeout(200);
 
+        // REAL client-render gates (2026-09-23, WS2 follow-up): for any
+        // eligible place the API DID serve (apiPresent !== false) but that
+        // did not render, decide whether app/home.js's own display-radius
+        // cut or brand-collapse dedupe legitimately explains the absence --
+        // by actually RUNNING those gates over the full eligible pool
+        // (clientGates.mjs, which imports the REAL lib/placeDedupe.js/
+        // lib/score.js/lib/wayfindScore.js), never by asserting a reason.
+        // Computed from the CAPTURED origin (what the browser actually
+        // sent), falling back to the fixture only when no capture landed --
+        // a same_origin_ok===false row is voided by classifyRow regardless
+        // of any suppression_reason computed here, so this stays accurate
+        // without needing a branch for that case.
+        const gateOriginLat = Number.isFinite(capturedLat) ? capturedLat : city.lat;
+        const gateOriginLng = Number.isFinite(capturedLng) ? capturedLng : city.lng;
+        const clientOmissions = classifyClientOmissions(ground.places, { originLat: gateOriginLat, originLng: gateOriginLng, sliderMi: SLIDER_MI });
+        let legitDisplayRadius = 0, legitBrandCollapse = 0, unexpectedCardIncomplete = 0;
+
         const missing = [];
         for (const [id, { p, rank }] of eligibleById) {
           // Real per-place API membership from the CAPTURED response body
@@ -523,11 +656,32 @@ async function runBrowserLevel() {
           const rendered = renderedSet.has(id);
           const mapPresent = mapHookPresent ? mapSet.has(id) : null;
           if (sameOriginOk === false) {
-            missing.push({ id, p, rank, rendered, mapPresent, apiPresent: false });
+            missing.push({ id, p, rank, rendered, mapPresent, apiPresent: false, suppressionReason: null });
             continue;
           }
           if (apiPresent === false || !rendered || mapPresent === false) {
-            missing.push({ id, p, rank, rendered, mapPresent, apiPresent });
+            let suppressionReason = null;
+            // Only a genuine render omission (API served it, client did not
+            // render it) can be explained by the display-radius/dedupe
+            // gates -- a place the API itself never served, or one absent
+            // only from the map, is a different failure class these client
+            // render-time gates say nothing about.
+            if (apiPresent !== false && !rendered) {
+              const co = clientOmissions.get(id);
+              if (co && co.reason) {
+                suppressionReason = co.reason;
+                if (co.reason.startsWith("outside_display_radius:")) legitDisplayRadius++;
+                else if (co.reason.startsWith("brand_collapse:")) legitBrandCollapse++;
+              } else if (co && co.cardIncomplete) {
+                // Should be unreachable (ground truth's rating>0 gate is
+                // strictly stronger than cardComplete's rating>0 OR
+                // reviews>0) -- surfaced loudly rather than silently
+                // absorbed into a manufactured "legitimate" reason.
+                unexpectedCardIncomplete++;
+                console.warn(`  [unexpected] ${placeName(p)} (${id}) is eligible under ground truth but fails the real cardComplete() -- left unexplained, not treated as legitimate`);
+              }
+            }
+            missing.push({ id, p, rank, rendered, mapPresent, apiPresent, suppressionReason });
           }
         }
 
@@ -544,6 +698,7 @@ async function runBrowserLevel() {
             eligibleTotal: ground.eligible,
             cacheHeader: matchingBody ? matchingBody.cacheHeader : null,
             sameOriginOk,
+            suppressionReason: m.suppressionReason || null,
           });
           rows.push(row);
         }
@@ -557,6 +712,7 @@ async function runBrowserLevel() {
           apiResponseHasMore: matchingBody ? matchingBody.hasMore : null,
           rendered: renderedIds.length, mapHookPresent, mapPins: mapIds.length,
           loadMoreClicks: clicks, missing: missing.length,
+          sliderMi: SLIDER_MI, legitDisplayRadius, legitBrandCollapse, unexpectedCardIncomplete,
         });
 
         await context.close();
@@ -569,15 +725,17 @@ async function runBrowserLevel() {
   const meta = {
     level: "browser", base: BASE, label: LABEL,
     cities: CITY_LIST.map((c) => c.slug), keys,
-    radiusRequestedM: RAW_RADIUS_M, radiusSnappedM: RADIUS_M,
+    radiusRequestedM: RAW_RADIUS_M, radiusSnappedM: RADIUS_M, sliderMi: SLIDER_MI,
   };
-  const { jsonPath, mdPath, summary } = writeReport(OUT, {
+  const { jsonPath, mdPath, summary, fullPaths } = writeReport(OUT, {
     title: `Surface parity audit (browser level)${LABEL ? " — " + LABEL : ""}`,
     meta, rows, totalChecked, totalEligible, pairSummaries,
+    full: FULL, fullOut: FULL_OUT,
   });
   console.log(`surface-parity-audit: wrote ${jsonPath} and ${mdPath}`);
+  if (fullPaths) console.log(`surface-parity-audit: wrote FULL detail (not committed) to ${fullPaths.jsonPath} and ${fullPaths.mdPath}`);
   console.log(`surface-parity-audit: eligible pairs checked=${totalChecked} FAIL=${summary.totalFail} distinct places=${summary.distinctPlacesAffected}`);
-  return { jsonPath, mdPath, summary, pairSummaries };
+  return { jsonPath, mdPath, summary, pairSummaries, fullPaths };
 }
 
 // ── main ─────────────────────────────────────────────────────────────────

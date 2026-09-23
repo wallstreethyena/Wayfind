@@ -1,6 +1,7 @@
 "use client";
 import { Component, useEffect, useMemo, useRef, useState } from "react";
 import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, distMeters, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces, normalizeSearchPlace, wayfindScore } from "../lib/google";
+import { normName, betterPlace, dedupePlaces } from "../lib/placeDedupe";
 import { localCitySuggestions, createSearchAttempt } from "../lib/searchExperience.js";
 import { mergeHealedPlacePhotos } from "../lib/detailHero";
 import { RON_DUPRAT_TOP7, chefHookCard, chefPickPlaces } from "../lib/chefPicks";
@@ -1337,43 +1338,9 @@ function setCachedInsight(id, data) {
 // sit back to back in a curated feed. Exact place_id duplicates always collapse.
 // When collapseBrand is true (general recommendation feeds) same-name brands
 // collapse to their single best branch; brand searches pass false and keep all.
-function normName(s) {
-  let t = String(s || "").toLowerCase();
-  const cut = t.search(/\s[-\u2013\u2014|]\s/);
-  if (cut > 0) t = t.slice(0, cut);
-  return t.replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
-}
-function betterPlace(a, b) {
-  if (!a) return b; if (!b) return a;
-  const oa = a.openNow === true ? 1 : 0, ob = b.openNow === true ? 1 : 0;
-  if (oa !== ob) return oa > ob ? a : b;
-  const na = a.reviews || 0, nb = b.reviews || 0;
-  if (na !== nb) return na > nb ? a : b;
-  const ra = a.rating || 0, rb = b.rating || 0;
-  if (ra !== rb) return ra > rb ? a : b;
-  const pa = a.photo ? 1 : 0, pb = b.photo ? 1 : 0;
-  if (pa !== pb) return pa > pb ? a : b;
-  return (a.wfScore || 0) >= (b.wfScore || 0) ? a : b;
-}
-function dedupePlaces(list, collapseBrand) {
-  if (!Array.isArray(list)) return [];
-  const out = []; const at = new Map();
-  for (const p of list) {
-    if (!p) continue;
-    const id = p.id || p.placeId || ("n:" + p.name + "|" + (p.address || ""));
-    if (at.has(id)) { const i = at.get(id); out[i] = betterPlace(out[i], p); }
-    else { at.set(id, out.length); out.push(p); }
-  }
-  if (!collapseBrand) return out;
-  const out2 = []; const nat = new Map();
-  for (const p of out) {
-    const k = normName(p.name);
-    if (!k) { out2.push(p); continue; }
-    if (nat.has(k)) { const i = nat.get(k); out2[i] = betterPlace(out2[i], p); }
-    else { nat.set(k, out2.length); out2.push(p); }
-  }
-  return out2;
-}
+// normName/betterPlace/dedupePlaces moved to lib/placeDedupe.js (2026-09-23) so
+// the surface-parity diagnostic can call the REAL brand-collapse rule instead
+// of restating it \u2014 imported back in unchanged, zero behavior change here.
 
 // v5.5: build a share URL whose landing page (/p/[id]) renders a branded Wayfind
 // preview card in iMessage and social, then bounces the visitor into the app.
