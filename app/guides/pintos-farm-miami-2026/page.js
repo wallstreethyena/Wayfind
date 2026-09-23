@@ -1,4 +1,6 @@
 import GuideArticleHero from "../../components/GuideArticleHero";
+import ShareButton from "../../components/ShareButton";
+import { pageShareUrl } from "../../../lib/pageShareUrl";
 import GuideFigure from "../../components/GuideFigure";
 import PintosFarmMap from "./PintosFarmMap";
 import { guideHero } from "../../../lib/guideHero";
@@ -165,6 +167,14 @@ export default function PintosFarmGuidePage() {
         updatedLabel="Checked September 22, 2026"
         jumpHref="#guide"
         jumpLabel="Plan your visit"
+        actions={<ShareButton
+          url={pageShareUrl("/guides/pintos-farm-miami-2026")}
+          title={"Pinto's Farm Miami: Fall 2026"}
+          text={"Pinto's Farm Miami, fall 2026: rides, animals, pumpkins and the ticket details that matter. On Wayfind."}
+          tone="dark"
+          event="guide_share"
+          meta={{ slug: "pintos-farm-miami-2026", placement: "hero" }}
+        />}
       />
 
       <article id="guide" className={styles.article}>

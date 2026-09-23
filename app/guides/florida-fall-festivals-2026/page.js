@@ -1,4 +1,6 @@
 import GuideArticleHero from "../../components/GuideArticleHero";
+import ShareButton from "../../components/ShareButton";
+import { pageShareUrl } from "../../../lib/pageShareUrl";
 import { WF_PLACE_CARD_CSS } from "../../components/css";
 import GuideMapExplorer from "../../components/GuideMapExplorer";
 import styles from "./page.module.css";
@@ -580,6 +582,14 @@ export default function FloridaFallGuide() {
         backLabel="All guides"
         jumpHref="#guide"
         jumpLabel="Open the fall map"
+        actions={<ShareButton
+          url={pageShareUrl("/guides/florida-fall-festivals-2026")}
+          title="Florida Fall Guide 2026"
+          text="The Florida fall guide: pumpkin patches, markets, haunted nights and the weekends worth planning. On Wayfind."
+          tone="dark"
+          event="guide_share"
+          meta={{ slug: "florida-fall-festivals-2026", placement: "hero" }}
+        />}
       />
 
       <div id="guide" className={styles.content}>

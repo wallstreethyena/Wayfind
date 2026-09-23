@@ -9,6 +9,8 @@ import { TOWN_HUBS } from "../../../lib/cultureHubs";
 import ExploreBridge from "../../components/ExploreBridge";
 import { LANDING_CITIES, rankedFor, whyLine } from "../../../lib/landing";
 import { SITE_URL } from "../../../lib/site";
+import { pageShareUrl } from "../../../lib/pageShareUrl";
+import ShareButton from "../../components/ShareButton";
 import { experienceSearchUrl, viatorProductGoUrl, experienceGoUrl } from "../../../lib/affiliates";
 import { resolveViatorProduct } from "../../../lib/viatorServer";
 import PremiumIntentHero from "../../components/PremiumIntentHero";
@@ -110,6 +112,16 @@ export default async function CulturePage({ params }) {
         // bare homepage. "Globally" in the owner's instruction means here too.
         secondaryHref="#local-edit"
         secondaryLabel="Read the local edit"
+        // 2026-09-23: the hero's actions slot now carries the page Share, the
+        // same control the guides mount in the same slot (destination audit).
+        actions={<ShareButton
+          url={pageShareUrl("/culture/" + params.metro)}
+          title={`What ${c.title} is known for`}
+          text={`What ${c.title} is known for: the food locals defend and what is worth crossing town for. On Wayfind.`}
+          tone="dark"
+          event="page_share"
+          meta={{ surface: "culture", metro: params.metro, placement: "hero" }}
+        />}
       />
       <article id="local-edit" style={{ maxWidth: 860, margin: "0 auto" }}>
       <div style={{ ...S.kicker, marginBottom: 8 }}>The local edit</div>
