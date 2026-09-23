@@ -525,6 +525,21 @@ const LAT_260M = 27.5 + 260 / 111320; // ~259.7m north of 27.5,-82.7 (verified b
   ok(!/return \[\];/.test(body), "F12: no path in the real fetcher reports a failure as an empty answer");
 }
 
+// ── THE QUEUE ONLY HOLDS ROWS THE SITE ACTUALLY SERVES (2026-09-23). 56 of the
+// 58 excluded rows (salons, a symphony, campgrounds, condo associations) were
+// still queued for a Google lookup, spending a daily search allowance the real
+// hotels are waiting on, to fill a card nobody renders.
+{
+  const { isExcludedOwnedHotel } = await import("../lib/ownedHotelExclusions.js");
+  const { readFileSync } = await import("node:fs");
+  const all = JSON.parse(readFileSync(new URL("../lib/ownedHotels.json", import.meta.url), "utf8"));
+  const queued = unresolvedOwnedHotels(all);
+  const leaked = queued.filter((h) => isExcludedOwnedHotel(h));
+  eq(leaked.length, 0, `Q1: no excluded row is queued for a lookup${leaked.length ? ` — e.g. ${leaked[0].name}` : ""}`);
+  ok(queued.length > 0, "Q2: real hotels are still queued (the filter did not empty the queue)");
+  ok(queued.every((h) => !h.gpid), "Q3: and every queued row still lacks an id");
+}
+
 if (fail.length) {
   console.error(`test-owned-hotel-identity: ${pass} passed, ${fail.length} FAILED`);
   for (const f of fail) console.error("  ✗ " + f);
