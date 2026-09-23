@@ -224,6 +224,42 @@ for (const id of indexedIds) {
   ok(!!merged && isIndexable(merged), `listIndexedIds() included ${id}, but rebuilding it through mergePlacePage does not come out durably eligible — sitemap/page parity broken`);
 }
 
+// ── 5c. The render-time editorial read and the sitemap-membership editorial
+// read must ask wf_editorial_servable for the SAME columns. They once
+// differed (the render read selected a `name` column the view lacks, got a
+// 400, fell back to null) and every editorial-only sitemap id rendered
+// noindex. Proven by CALLING both readers against a stub fetch that records
+// the URLs they issue. ─────────────────────────────────────────────────────
+{
+  const { getVerifiedEditorial, listVerifiedEditorialIds, EDITORIAL_SERVABLE_SELECT } = await import("../lib/placeIndex.js");
+  const seen = [];
+  const realFetch = globalThis.fetch;
+  process.env.SUPABASE_URL = "https://stub.supabase.local";
+  process.env.SUPABASE_SERVICE_ROLE_KEY = "stub-key";
+  globalThis.fetch = async (url) => {
+    const u = String(url);
+    seen.push(u);
+    const body = u.includes("/wf_place_ids") ? [{ place_id: "ed-1", name: "Editorial One", lat: 27.3, lng: -82.5, category: "food" }, { place_id: "ed-2", name: "Half Coords", lat: 27.3, lng: null }]
+      : [{ place_id: "ed-1", why_here: LONG_WHY }, { place_id: "ed-2", why_here: LONG_WHY }];
+    return new Response(JSON.stringify(body), { status: 200, headers: { "content-type": "application/json" } });
+  };
+  try {
+    const row = await getVerifiedEditorial("ed-1");
+    const ids = await listVerifiedEditorialIds();
+    const selects = seen.filter((u) => u.includes("/wf_editorial_servable")).map((u) => new URL(u).searchParams.get("select"));
+    ok(selects.length === 2, `both editorial readers must hit wf_editorial_servable (saw ${selects.length})`);
+    ok(selects.every((x) => x === EDITORIAL_SERVABLE_SELECT), `the render and sitemap editorial reads must select the same columns (got ${JSON.stringify(selects)})`);
+    ok(EDITORIAL_SERVABLE_SELECT.split(",").every((c) => ["place_id", "why_here"].includes(c)), `EDITORIAL_SERVABLE_SELECT may only name columns the view is known to carry (got ${EDITORIAL_SERVABLE_SELECT})`);
+    ok(!!row && row.why_here === LONG_WHY, "getVerifiedEditorial returns the row the view answered with");
+    ok(ids.includes("ed-1"), "an editorial id with a name and both coordinates enters the sitemap set");
+    ok(!ids.includes("ed-2"), "an editorial id with only one coordinate stays out: the page would not index it");
+  } finally {
+    globalThis.fetch = realFetch;
+    delete process.env.SUPABASE_URL;
+    delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+  }
+}
+
 // ── 6. Full round-trip predicate sanity, called directly (not just through
 // mergePlacePage), so a future refactor of mergePlacePage's own wiring can't
 // silently stop calling placeDurableEligibility while this file still passes
