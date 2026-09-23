@@ -141,8 +141,12 @@ export async function GET(req) {
   const topReason = ident && ident.reasons
     ? Object.entries(ident.reasons).sort((a, b) => b[1] - a[1])[0]
     : null;
+  // `fail=` is the one that matters operationally (2026-09-23): a refused
+  // request is OUR problem (a daily quota, a network blip), not a hotel that
+  // does not exist, and it is the difference between "Google has nothing for
+  // these 79" and "we were being rate limited for an hour".
   const identBit = ident && ident.enabled
-    ? ` ident: tried=${ident.attempted} ok=${ident.resolved} miss=${ident.missed}${topReason ? ` (${topReason[0]}=${topReason[1]})` : ""}`
+    ? ` ident: tried=${ident.attempted} ok=${ident.resolved} miss=${ident.missed}${ident.searchFailed ? ` fail=${ident.searchFailed}` : ""}${topReason ? ` (${topReason[0]}=${topReason[1]})` : ""}`
     : "";
 
   const note = `${sweep ? `live ${sweep.checked}/${sweep.dead} dead; ` : ""}warm: visible=${result.visible} served=${result.alreadyServed} filled=${result.filled} free=${result.free} empty=${result.empty} known=${result.knownEmpty} unchecked=${result.unchecked} ${statusBit}${identBit}`.slice(0, 240);

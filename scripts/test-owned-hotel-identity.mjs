@@ -473,6 +473,58 @@ const LAT_260M = 27.5 + 260 / 111320; // ~259.7m north of 27.5,-82.7 (verified b
   eq(written[0][2], M.MARK_TTL_MS_MISS, "W16: the 14-day miss TTL is unchanged");
 }
 
+// ═══ A REFUSED REQUEST IS NOT AN ABSENT HOTEL (2026-09-23) ════════════════
+// At 02:10 resolutions stopped and 79 hotels in a row were filed
+// "no-candidate" — the verdict meaning Google has never heard of the property
+// — because a failed request and an empty answer were the same value in here.
+// A hotel must never be written off for 14 days over OUR outage.
+{
+  const r = row({ name: "Unlucky Inn", lat: 27.3, lng: -82.3, address: "5 Unlucky St" });
+  const written = [];
+  let searchCalls = 0;
+  const out = await runOwnedHotelIdentityBackfill({
+    rows: [r, row({ name: "Next Inn", lat: 27.31, lng: -82.31, address: "6 Next St" })],
+    limit: 10, deadlineAt: Date.now() + 10_000,
+    readMark: async () => null,
+    writeMark: async (k, v) => { written.push([k, v]); },
+    searchIds: async () => { searchCalls++; return null; },   // the request never completed
+    placeDetails: async () => { throw new Error("RED-PROOF: a failed search must never reach Details"); },
+  });
+  eq(written.length, 0, "F1: a failed search writes NO marker — the hotel is not written off for 14 days");
+  eq(out.missed, 0, "F2: and is not counted as a miss");
+  eq(out.searchFailed, 1, "F3: it is counted as a failure, which is a different number");
+  eq(out.attempted, 0, "F4: an attempt that never reached Google is not an attempt");
+  eq(out.resolved, 0, "F5: nothing resolved");
+  // The real property, not a green checkmark (their check-guards-can-fail
+  // caught the placeholder): TWO unmarked rows went in, the first search
+  // failed, so exactly ONE search was attempted — the run stopped instead of
+  // failing its way through the rest of the list.
+  eq(searchCalls, 1, "F6: the run stopped after the first failure instead of burning the budget on the rest");
+
+  // An EMPTY answer is still a real verdict and still marks the row.
+  const written2 = [];
+  const out2 = await runOwnedHotelIdentityBackfill({
+    rows: [r], limit: 10, deadlineAt: Date.now() + 10_000,
+    readMark: async () => null,
+    writeMark: async (k, v) => { written2.push([k, v]); },
+    searchIds: async () => [],              // Google answered: nothing here
+  });
+  eq(out2.missed, 1, "F7: an empty answer from Google IS a miss");
+  eq(written2[0][1].why, "no-candidate", "F8: recorded as no-candidate");
+  eq(out2.searchFailed, 0, "F9: and not as a failure");
+
+  // The runner can only tell them apart if the PRODUCTION fetcher does. Tests
+  // inject their own searchIds, so the real one's contract is pinned here:
+  // a refused or unparseable response returns null, never an empty array.
+  const { readFileSync } = await import("node:fs");
+  const libSrc = readFileSync(new URL("../lib/ownedHotelIdentity.js", import.meta.url), "utf8");
+  const fn = libSrc.slice(libSrc.indexOf("export async function defaultSearchIds"));
+  const body = fn.slice(0, fn.indexOf("\n}")).replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  ok(/if\s*\(!r\)\s*return null;/.test(body), "F10: a failed request returns null from defaultSearchIds, not []");
+  ok(/catch\s*\{\s*return null;\s*\}/.test(body), "F11: an unparseable body returns null too");
+  ok(!/return \[\];/.test(body), "F12: no path in the real fetcher reports a failure as an empty answer");
+}
+
 if (fail.length) {
   console.error(`test-owned-hotel-identity: ${pass} passed, ${fail.length} FAILED`);
   for (const f of fail) console.error("  ✗ " + f);
