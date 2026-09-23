@@ -1,6 +1,8 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { BEACH_PILOT, BEACH_SOURCES, localBeachSources } from '../../lib/beachPlanning';
+import ShareButton from '../components/ShareButton';
+import { pageShareUrl } from '../../lib/pageShareUrl';
 const stamp = value => value ? new Date(value).toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }) : 'Unavailable';
 function Source({ href, title, source, children }) {
   return <section className="evidence"><h3>{title}</h3>{children}<p className="source"><a href={href} target="_blank" rel="noreferrer">Official source ↗</a><br />Retrieved: {stamp(source?.retrievedAt)}</p></section>;
@@ -45,6 +47,13 @@ export default function Conditions({ initialSlug = 'coquina' }) {
   return <>
     <label className="beach-label" htmlFor="pilot-beach">Choose a beach</label>
     <select id="pilot-beach" value={slug} onChange={e => setSlug(e.target.value)}>{BEACH_PILOT.map(b => <option key={b.slug} value={b.slug}>{b.name}</option>)}</select>
+    {/* The beach is picked here, in state, and never written to the URL, so the
+        share is built from the SELECTED beach: the recipient opens the same one. */}
+    <div style={{ marginTop: 12 }}>
+      <ShareButton url={pageShareUrl('/beach-conditions', { beach: slug })} title={(beach ? beach.name : 'Beach') + ' conditions on Wayfind'}
+        text={(beach ? beach.name : 'Beach') + ' conditions: weather, swimming reports and red-tide evidence, each with its source. On Wayfind.'}
+        label="Share" tone="dark" event="page_share" meta={{ surface: 'beach_conditions', beach: slug, placement: 'header' }} />
+    </div>
     <div className="notice"><strong>Look, listen, and follow lifeguard instructions.</strong><p>If you hear thunder, get into a substantial building or enclosed vehicle. Remain sheltered for at least 30 minutes after the last thunder. An expired warning does not start that clock. <a href={BEACH_SOURCES.lightning}>NWS guidance ↗</a></p></div>
     <section className="evidence local-conditions"><h2>Local flags & closures</h2>
       <p className="unknown">Latest reported flag: {localFlag} · Water closure: {waterClosure} · Beach closure: Unknown.</p>
