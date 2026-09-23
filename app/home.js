@@ -25,7 +25,7 @@ import { cuisineMetroFor } from "../lib/cuisine";
 // v6.15: the ONE shared place classifier (labels + the junk gate now agree).
 import { primaryCategory, catOfType } from "../lib/placeCategory";
 import { deviceId } from "../lib/deviceId";
-import { analyticsSuppressionReason } from "../lib/browserAnalytics";
+import { analyticsSuppressionReason, captureOrQueue } from "../lib/browserAnalytics";
 import { markIntroSeen } from "../lib/introGate";
 import { isNative, nativeAppleCredential, nativeOAuthSignIn, nativeShare } from "../lib/native";
 import { noteHighPointAndMaybeAsk } from "../lib/appRating";
@@ -6405,7 +6405,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     try { if (place && place.type) tasteBump(place); } catch (e) {}
     if (skipOwnerOrBotAnalytics(user)) return;
     const _exp = (() => { try { return experimentProps(); } catch (e) { return {}; } })();
-    try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture(action, Object.assign({ place_id: (place && place.id) || (extra && extra.place_id) || null, place_name: (place && place.name) || null }, extra || {}, _exp)); } catch (e0) {}
+    // Pre-ready queue, not raw window.posthog: a share-link landing logs
+    // share_open and detail_open in the first ~2s, before the idle-booted SDK
+    // exists — those were silently dropped (Supabase had them, PostHog never).
+    try { if (typeof window !== "undefined") captureOrQueue(window, action, Object.assign({ place_id: (place && place.id) || (extra && extra.place_id) || null, place_name: (place && place.name) || null }, extra || {}, _exp)); } catch (e0) {}
     // Mirror to GA4 / Google Ads. One product action => one PostHog event (above)
     // and at most one Google event (here); forwardToGoogle dedupes and decides
     // on its own whether the action is worth an Ads conversion at all.

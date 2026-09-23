@@ -37,6 +37,7 @@ node scripts/test-dupes-imports.mjs
 npm run check:env
 node scripts/test-tags.mjs
 node scripts/test-browser-analytics.mjs
+node scripts/test-commerce-emit-queue.mjs
 node scripts/check-libs.mjs
 npm run check:gate
 npm run check:categories
