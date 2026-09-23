@@ -381,6 +381,98 @@ const LAT_260M = 27.5 + 260 / 111320; // ~259.7m north of 27.5,-82.7 (verified b
   eq(chunks.reduce((n, c) => n + c.length, 0), many.length, "M10: chunking loses no key");
 }
 
+// ═══ THE THREE BUGS OF 2026-09-22, EACH PINNED BY NAME ═══════════════════
+// Every one of these shipped, looked fine in CI, and was caught only by
+// reading the live pulse. A guard that cannot fail on the exact shape of the
+// original mistake would not have caught them either, so each assertion below
+// names its PR and fails on that shape specifically.
+{
+  const { readFileSync } = await import("node:fs");
+  const route = readFileSync(new URL("../app/api/cron/photo-warm/route.js", import.meta.url), "utf8");
+  const code = route.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+
+  // #1433 — the backfill was queued AFTER the warm pass, which always spends
+  // its whole 270s budget, so it never ran. Order is the fix; order is pinned.
+  // The CALL, not the import (the first draft of this assertion matched the
+  // import line, which always sits at the top, so it passed no matter where
+  // the call was — a guard that cannot fail is not a guard, 2026-09-23).
+  const identAt = code.indexOf("await runOwnedHotelIdentityIfEnabled(");
+  const warmAt = code.indexOf("await runPhotoWarm({");
+  ok(identAt > 0 && warmAt > 0, "P1 (#1433): the cron calls both the identity backfill and the warm pass");
+  ok(identAt < warmAt, "P2 (#1433): the identity backfill runs BEFORE the warm pass, never after it");
+  ok(!/maxDuration\s*\*\s*1000\s*-\s*IDENTITY_BUDGET_MS/.test(code),
+    "P3 (#1433): it is not gated on leftover headroom under maxDuration — there never is any");
+
+  // #1435 — the circle went out as locationRestriction, which Text Search
+  // takes only as a rectangle, so Google rejected every request.
+  const libSrc = readFileSync(new URL("../lib/ownedHotelIdentity.js", import.meta.url), "utf8");
+  const libCode = libSrc.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  ok(/locationBias\s*=\s*\{\s*circle/.test(libCode), "P4 (#1435): the circle is sent as locationBias");
+  ok(!/locationRestriction/.test(libCode), "P5 (#1435): never as locationRestriction");
+
+  // #1438 — markers were read one row at a time, so finished hotels ate the
+  // whole budget. Reads must not scale with how much work is already done.
+  let batchCalls = 0, perRowCalls = 0;
+  const marked = [];
+  const marks = new Map();
+  for (let i = 0; i < 300; i++) {
+    const r = row({ name: "Done Hotel " + i, lat: 27.1 + i / 10000, lng: -82.1, address: i + " Done St" });
+    marked.push(r);
+    marks.set(M.MARK_PREFIX_GPID + M.ownedRowKey(r), { gpid: "ChIJDonePlaceId0000000" + i });
+  }
+  const tail = row({ name: "Still Needs One", lat: 27.99, lng: -82.99, address: "7 Tail St" });
+  const r3 = await runOwnedHotelIdentityBackfill({
+    rows: [...marked, tail], limit: 40, deadlineAt: Date.now() + 10_000,
+    readMarks: async () => { batchCalls++; return marks; },
+    readMark: async () => { perRowCalls++; return null; },
+    writeMark: async () => {},
+    searchIds: async () => ["ChIJTailCandidate00000"],
+    placeDetails: async () => ({ location: { latitude: 27.99, longitude: -82.99 }, formattedAddress: "7 Tail St, Bradenton, FL", types: ["hotel"] }),
+  });
+  eq(batchCalls, 1, "P6 (#1438): 300 finished hotels cost exactly ONE marker read, not 300");
+  eq(perRowCalls, 0, "P7 (#1438): and zero per-row reads");
+  eq(r3.skipped, 300, "P8 (#1438): all 300 finished rows are skipped");
+  eq(r3.resolved, 1, "P9 (#1438): the run still reaches the one row that needed work");
+}
+
+// ═══ WHY A HOTEL DID NOT MATCH (2026-09-23) ══════════════════════════════
+// The owner asked for a reason per remaining blank card. These assert the
+// reason codes are real verdicts from the SAME rule, not labels invented
+// after the fact — and that adding them did not move the rule.
+{
+  const base = row({ name: "Reason Inn", lat: 27.5, lng: -82.7, address: "100 Main St" });
+  eq(M.explainCandidate(base, details()), "ok", "W1: a true match explains itself as ok");
+  eq(M.explainCandidate(base, details({ location: null })), "no-location", "W2: no coordinates from Google");
+  eq(M.explainCandidate(row({ lat: null, lng: null }), details()), "row-no-coords", "W3: OUR row has no coordinates");
+  eq(M.explainCandidate(base, details({ location: { latitude: 27.505, longitude: -82.7 } })), "too-far", "W4: past the 200m line");
+  eq(M.explainCandidate(base, details({ types: [] })), "no-types", "W5: Google returned no types");
+  eq(M.explainCandidate(base, details({ types: ["restaurant"] })), "not-lodging", "W6: real place, not somewhere you sleep");
+  eq(M.explainCandidate(base, details({ formattedAddress: "900 Main St, Bradenton, FL" })), "street-mismatch", "W7: right block, wrong building");
+  eq(M.explainCandidate(base, details({ types: ["campground"] })), "not-lodging", "W8: a campground still never verifies a hotel card");
+
+  // verifyCandidate must be exactly "explainCandidate said ok" — one rule.
+  for (const d of [details(), details({ types: ["restaurant"] }), details({ location: null }), details({ formattedAddress: "900 Main St" })]) {
+    eq(M.verifyCandidate(base, d), M.explainCandidate(base, d) === "ok", "W9: verifyCandidate is exactly explainCandidate === ok");
+  }
+  eq(M.worstOf(["too-far", "street-mismatch", "not-lodging"]), "street-mismatch", "W10: the closest-to-matching reason is the one reported");
+  eq(M.worstOf([]), "no-candidate", "W11: nothing came back at all");
+
+  // The reason rides on the miss marker, and carries NO Google content.
+  const written = [];
+  await runOwnedHotelIdentityBackfill({
+    rows: [base], limit: 5, deadlineAt: Date.now() + 5_000,
+    readMark: async () => null,
+    writeMark: async (k, v, ttl) => { written.push([k, v, ttl]); },
+    searchIds: async () => ["ChIJSomeCandidate000000"],
+    placeDetails: async () => details({ types: ["restaurant"] }),
+  });
+  eq(written.length, 1, "W12: one marker written");
+  ok(written[0][0].startsWith(M.MARK_PREFIX_MISS), "W13: it is a miss marker");
+  eq(written[0][1].why, "not-lodging", "W14: carrying the verdict");
+  eq(Object.keys(written[0][1]).sort().join(","), "at,why", "W15: and nothing else — no id, no name, no address from Google");
+  eq(written[0][2], M.MARK_TTL_MS_MISS, "W16: the 14-day miss TTL is unchanged");
+}
+
 if (fail.length) {
   console.error(`test-owned-hotel-identity: ${pass} passed, ${fail.length} FAILED`);
   for (const f of fail) console.error("  ✗ " + f);
