@@ -481,12 +481,13 @@ const LAT_260M = 27.5 + 260 / 111320; // ~259.7m north of 27.5,-82.7 (verified b
 {
   const r = row({ name: "Unlucky Inn", lat: 27.3, lng: -82.3, address: "5 Unlucky St" });
   const written = [];
+  let searchCalls = 0;
   const out = await runOwnedHotelIdentityBackfill({
     rows: [r, row({ name: "Next Inn", lat: 27.31, lng: -82.31, address: "6 Next St" })],
     limit: 10, deadlineAt: Date.now() + 10_000,
     readMark: async () => null,
     writeMark: async (k, v) => { written.push([k, v]); },
-    searchIds: async () => null,            // the request never completed
+    searchIds: async () => { searchCalls++; return null; },   // the request never completed
     placeDetails: async () => { throw new Error("RED-PROOF: a failed search must never reach Details"); },
   });
   eq(written.length, 0, "F1: a failed search writes NO marker — the hotel is not written off for 14 days");
@@ -494,7 +495,11 @@ const LAT_260M = 27.5 + 260 / 111320; // ~259.7m north of 27.5,-82.7 (verified b
   eq(out.searchFailed, 1, "F3: it is counted as a failure, which is a different number");
   eq(out.attempted, 0, "F4: an attempt that never reached Google is not an attempt");
   eq(out.resolved, 0, "F5: nothing resolved");
-  ok(true, "F6: the run stopped instead of burning the budget failing the same way");
+  // The real property, not a green checkmark (their check-guards-can-fail
+  // caught the placeholder): TWO unmarked rows went in, the first search
+  // failed, so exactly ONE search was attempted — the run stopped instead of
+  // failing its way through the rest of the list.
+  eq(searchCalls, 1, "F6: the run stopped after the first failure instead of burning the budget on the rest");
 
   // An EMPTY answer is still a real verdict and still marks the row.
   const written2 = [];
