@@ -58,4 +58,65 @@ ok(/insert\s+into\s+public\.device_push_tokens/i.test(sql), "server function sto
 ok(/coalesce\(excluded\.user_id,\s*t\.user_id\)/i.test(sql), "signed-out re-registration cannot erase an existing user association");
 ok(/insert\s+into\s+public\.wf_job_pulse[\s\S]*?'push_register'/i.test(sql), "push registration remains observable through the job pulse");
 
-console.log(`check-push-registration: OK — ${pass} assertions; native push now crosses a rate-limited Wayfind server boundary and only a service-role-only invoker function writes the locked table`);
+// 5. lib/native.js's push contract (2026-09-23 launch hardening): listeners
+// added before register() is ever called (the original race), a tap handler
+// exists, and the boot path never itself triggers the OS permission prompt.
+const nativeLib = stripJs(read("lib/native.js"));
+ok(/pushNotificationActionPerformed/.test(nativeLib), "lib/native.js handles a notification tap (pushNotificationActionPerformed)");
+{
+  // Structural, not just presence: every addListener("registration"/
+  // "pushNotificationActionPerformed", ...) call must appear TEXTUALLY BEFORE
+  // every PushNotifications.register() call site, so the original defect
+  // (register() resolving before anything was listening) cannot come back
+  // without this guard going red.
+  const listenerIdx = [...nativeLib.matchAll(/addListener\(\s*["'](registration|pushNotificationActionPerformed)["']/g)].map((m) => m.index);
+  const registerIdx = [...nativeLib.matchAll(/PushNotifications\.register\(\)/g)].map((m) => m.index);
+  ok(listenerIdx.length >= 2, "lib/native.js registers both the token and the tap listener");
+  ok(registerIdx.length >= 1, "lib/native.js still calls PushNotifications.register() somewhere");
+  ok(
+    registerIdx.every((r) => listenerIdx.every((l) => l < r)),
+    "every PushNotifications.register() call must come after every addListener() call — this is the exact race the 2026-09-22 defect shipped"
+  );
+}
+ok(/export\s+async\s+function\s+getPushPermission/.test(nativeLib), "lib/native.js exports a permission READ that never prompts");
+ok(/export\s+async\s+function\s+requestPushPermission/.test(nativeLib), "lib/native.js exports the ONE function allowed to trigger the OS prompt");
+{
+  // registerPushNotifications (the boot-path function) must gate its own
+  // register() call on an already-granted permission, and must never itself
+  // call requestPermissions — that keeps "boot never prompts" true even if
+  // someone edits requestPushPermission's implementation later.
+  const registerFn = (nativeLib.match(/export\s+async\s+function\s+registerPushNotifications[\s\S]*?\n\}/) || [""])[0];
+  ok(registerFn.length > 100, "registerPushNotifications body was found");
+  ok(!/requestPermissions\(/.test(registerFn), "registerPushNotifications (the boot path) never calls requestPermissions — that would prompt at boot");
+  ok(/checkPermissions\(\)/.test(registerFn) && /receive\s*===\s*["']granted["']/.test(registerFn), "registerPushNotifications only registers when permission reads as already granted");
+}
+
+// 6. The tap path filter actually rejects the two shapes a crafted push
+// payload would use to send the app off-origin, exercised as a CALL against
+// the real export — not pattern-matched from source (AGENTS.md: assert on
+// the call, not the string).
+{
+  const { safeNativeTapPath } = await import(path.join(REPO, "lib/native.js"));
+  ok(typeof safeNativeTapPath === "function", "lib/native.js exports safeNativeTapPath so the tap filter can be called directly, not just grepped");
+  ok(safeNativeTapPath("/p/abc123") === "/p/abc123", "a real same-origin path must survive the filter");
+  ok(safeNativeTapPath("//evil.com") === null, "a protocol-relative path (//evil.com) must be rejected");
+  ok(safeNativeTapPath("https://evil.com") === null, "a full off-origin URL (https://evil.com) must be rejected");
+  ok(safeNativeTapPath("evil.com") === null, "a path with no leading slash must be rejected");
+}
+
+// 7. NativeShellInit's boot path (the useEffect that runs unconditionally on
+// every native launch) never itself asks for permission — the prompt is
+// contextual (PushPrompt), never at boot.
+ok(!/requestPermissions\(|requestPushPermission\(/.test(client), "NativeShellInit's boot path never calls requestPermissions/requestPushPermission — permission is asked for in context, not at cold boot");
+
+// 8. A token registered while signed out gets re-linked once a session
+// exists — the token-never-re-linked-after-sign-in defect.
+ok(/onAuthStateChange/.test(client), "NativeShellInit listens for auth state changes");
+{
+  const authBlock = (client.match(/onAuthStateChange\(([\s\S]*?)\n\s*\}\)\s*;/) || [""])[0];
+  ok(authBlock.length > 40, "onAuthStateChange handler body was found");
+  ok(/SIGNED_IN/.test(authBlock), "the re-link only fires on SIGNED_IN, not every auth event");
+  ok(/\/api\/push\/register/.test(client) && /postPushRegister\(/.test(authBlock), "SIGNED_IN re-POSTs the known push token to /api/push/register with the fresh session");
+}
+
+console.log(`check-push-registration: OK — ${pass} assertions; native push now crosses a rate-limited Wayfind server boundary, only a service-role-only invoker function writes the locked table, listeners are added before register() is ever called, taps route through a same-origin path filter, and a sign-in re-links an already-registered token`);

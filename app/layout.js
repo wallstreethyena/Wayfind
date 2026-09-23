@@ -19,6 +19,7 @@ import VersionWatch from "./components/VersionWatch";
 import GoogleTags from "./components/GoogleTags";
 import FooterVeil from "./components/FooterVeil";
 import NativeShellInit from "./components/NativeShellInit";
+import NativeOfflineOverlay from "./components/NativeOfflineOverlay";
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),
@@ -192,6 +193,11 @@ export default function RootLayout({ children }) {
         {/* No-op on the website; wires push/camera/share/deep-links only
             inside the Capacitor iOS wrapper — see lib/native.js. */}
         <NativeShellInit />
+        {/* No-op on the website; full screen offline state for a mid-session
+            connection drop inside the Capacitor iOS wrapper — see
+            app/components/NativeOfflineOverlay.js and its lazy
+            app/components/native/OfflineOverlay.js. */}
+        <NativeOfflineOverlay />
         <PostHogProvider>
         {/* v5.38 a11y: keyboard users can jump past the app chrome. The link
             is visually hidden until focused, then appears top-left. */}

@@ -491,6 +491,9 @@ node scripts/check-ios-privacy-manifest.mjs
 node scripts/check-ios-device-family.mjs
 node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-universal-links.mjs
 node scripts/check-push-registration.mjs
+node scripts/check-apns-sender.mjs
+node scripts/check-ios-shell-wiring.mjs
+node scripts/test-account-delete.mjs
 node scripts/check-map-pin-glyph.mjs
 node scripts/check-map-place-card.mjs
 node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-app-rating.mjs

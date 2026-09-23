@@ -35,6 +35,14 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<!-- 2026-09-23 launch hardening: NO UISceneStoryboardFile here. SceneDelegate
+	     (see ios/App/App/SceneDelegate.swift) already builds its own UIWindow +
+	     WayfindBridgeViewController programmatically in willConnectTo. A storyboard
+	     name here made UIKit instantiate ITS OWN initial view controller
+	     (CAPBridgeViewController from Main.storyboard) on top of that — a second,
+	     unconfigured Capacitor bridge nobody asked for. Main.storyboard is still
+	     referenced by the Xcode project's Resources build phase (harmless to leave
+	     bundled) but is no longer named as anyone's initial scene. -->
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -48,32 +56,31 @@
             <string>Default Configuration</string>
             <key>UISceneDelegateClassName</key>
             <string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
-            <key>UISceneStoryboardFile</key>
-            <string>Main</string>
         </dict>
       </array>
     </dict>
 	</dict>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
-	<key>UIMainStoryboardFile</key>
-	<string>Main</string>
+	<!-- 2026-09-23: no UIMainStoryboardFile either, for the same reason — it is
+	     the pre-UIScene entry point and is redundant with (and conflicts with)
+	     SceneDelegate's own window setup above. -->
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
-		<string>armv7</string>
+		<!-- armv7 was a 32-bit-era leftover; every device this ships to is
+		     arm64. Declaring the real architecture, not a legacy default. -->
+		<string>arm64</string>
 	</array>
+	<!-- 2026-09-23 owner decision: iPhone only for v1 (see
+	     scripts/check-ios-device-family.mjs). Portrait only — the layout is
+	     built and verified at 390px and has never been designed for
+	     landscape. No ~ipad key: TARGETED_DEVICE_FAMILY "1" means iPad never
+	     reads this file at all, and a stale ~ipad key here would be exactly
+	     the kind of dead config that quietly reactivates on the next
+	     "helpful" device-family flip. -->
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>UISupportedInterfaceOrientations~ipad</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>

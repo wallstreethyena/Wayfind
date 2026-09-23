@@ -37,7 +37,8 @@ export default function Privacy() {
         <p style={S.p}>Where laws such as the GDPR apply, we process personal data on these bases: performing our service for you (accounts, saved places), our legitimate interest in understanding and improving the product (analytics, security), and your consent where required (marketing email, if ever introduced).</p>
 
         <h2 style={S.h2}>Your rights</h2>
-        <p style={S.p}>You can request access to, a copy of, or deletion of your personal data at any time. Email <a style={S.a} href="mailto:privacy@gowayfind.com">privacy@gowayfind.com</a> from the address on your account and we will verify the request and respond. Deletion removes your account, saved places, and tips from our systems.</p>
+        <p style={S.p}>You can request access to, a copy of, or deletion of your personal data at any time. To delete your account yourself, open the app, go to Account, then Delete account. This removes your account, saved places, likes, lists, photos, and tips you posted. If Sign in with Apple was used, we also ask Apple to revoke that sign in where possible.</p>
+        <p style={S.p}>You can also email <a style={S.a} href="mailto:privacy@gowayfind.com">privacy@gowayfind.com</a> from the address on your account and we will verify the request and respond.</p>
         <p style={S.p}>Signed-out data lives on your device: clearing your browser storage removes it completely.</p>
 
         <h2 style={S.h2}>Sale or sharing of personal information</h2>

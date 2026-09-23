@@ -25,6 +25,14 @@ const config: CapacitorConfig = {
     // CAP_SERVER_URL before `npx cap sync` if you need a pre-prod build.
     url: process.env.CAP_SERVER_URL || "https://www.gowayfind.com",
     cleartext: false,
+    // 2026-09-23 launch hardening. Shown from webDir (www/offline.html) when
+    // the remote URL above fails to load — a plane, a dead hotel wifi, a cold
+    // launch with no signal. Without this the WebView shows Apple's bare
+    // "cannot connect to the server" page, which is the single fastest way a
+    // reviewer or a real user decides the app is broken. See www/offline.html
+    // for the page and app/components/NativeOfflineOverlay.js for the
+    // same-session (already-loaded) counterpart.
+    errorPath: "offline.html",
   },
   ios: {
     contentInset: "always",
