@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 695,
-    "totalRegistryEntries": 696,
-    "guardsTxtLineCount": 694,
-    "guardsTxtReachedFileCount": 689,
+    "totalOnDiskGuardFiles": 696,
+    "totalRegistryEntries": 697,
+    "guardsTxtLineCount": 695,
+    "guardsTxtReachedFileCount": 690,
     "criticalCount": 84,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 475,
-      "RENDER": 81,
+      "RENDER": 82,
       "STRUCTURAL": 139,
       "OTHER": 1
     }
@@ -3300,7 +3300,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 39,
+      "assertionCount": 40,
       "unprovenAbsenceCount": 1,
       "honestyViolations": [
         "1 absence assertion(s) with no positive control in the same file (e.g. \"v === null || !/[:\\u2014\\u2013]/.test(v),\n      `\")"
@@ -3324,6 +3324,28 @@
         "detail": "Top-20 finding #11: protects the exact 'promised tickets, got a search page' bug CLAUDE.md documents (0/20 click-through on nine guides), but the em-dash/colon absence probe has no positive-control fixture."
       },
       "owner": "Revenue QA"
+    },
+    {
+      "file": "scripts/check-guide-cta-single-capture.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 16,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
     },
     {
       "file": "scripts/check-guide-deal-cards.mjs",

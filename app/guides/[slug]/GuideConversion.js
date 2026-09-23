@@ -8,11 +8,26 @@
 // revisit rather than defend, so the instrumentation has to make that visible
 // within a week:
 //   commerce_impression   the CTA was actually seen (IntersectionObserver, once)
-//   commerce_cta_clicked  it was clicked
+//   guide_cta_clicked     it was clicked — the PRODUCT event, every click, via
+//                         lib/track (mirrors HubConversion's onCta)
+//   commerce_cta_clicked  the MONEY event — same click, MONETIZED CTAs only,
+//                         via lib/commerce.emitCommerce (schema-checked)
 //   guide_next_step       cta | continue | save | none  — what the reader did
 //   primary_cta_null      NO MONETIZABLE CTA resolved. Directions is the
 //                         acknowledged non-monetized terminal and does NOT
 //                         suppress this event.
+//
+// ONE CLICK, ONE commerce_cta_clicked. Both used to be track("commerce_cta_
+// clicked", …) AND emitCommerce("commerce_cta_clicked", …) on the SAME click —
+// same event name from two different callers, so every monetized click
+// recorded twice in PostHog (proven in production: paired click_ids on
+// swim-with-manatees-crystal-river and things-to-do-sarasota, 2026-08-19/20,
+// one row from each call, milliseconds apart). track() has no schema and no
+// whitelist, so it was never the right caller for a commerce event anyway —
+// HubConversion already had this split right. The product event is now
+// guide_cta_clicked (fires on every click, monetized or not, like
+// HubConversion's guide_cta_clicked) and commerce_cta_clicked comes from
+// emitCommerce alone, monetized CTAs only.
 import { useEffect, useRef, useState } from "react";
 import { track } from "../../../lib/track";
 import { emitCommerce } from "../../../lib/commerce";
@@ -111,8 +126,10 @@ export default function GuideConversion({ slug, region, cta, next, social, socia
                 : { target: "_blank", rel: "noreferrer sponsored" })
               : {})}
             onClick={() => {
+              // Product event, every click (mirrors HubConversion's onCta —
+              // track() has no whitelist, so it is never the commerce event).
               try {
-                track("commerce_cta_clicked", { slug, region, cta_kind: cta.kind, monetized: !!cta.monetized, exact: !!cta.exact, place: cta.place || null, click_id: clickId.current });
+                track("guide_cta_clicked", { slug, region, cta_kind: cta.kind, monetized: !!cta.monetized, exact: !!cta.exact, place: cta.place || null, click_id: clickId.current });
               } catch (e) {}
               if (cta.monetized) {
                 try {
