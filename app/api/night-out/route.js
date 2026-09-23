@@ -62,12 +62,12 @@ export async function GET(request) {
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
     return Response.json({ error: "lat and lng are required" }, { status: 400, headers: { "cache-control": "no-store" } });
   }
-  const key = `night-out:v5:${geoCell(lat)}:${geoCell(lng)}`;
+  const key = `night-out:v6:${geoCell(lat)}:${geoCell(lng)}`;
   try {
     const cached = await fastCachedRail(key, async () => {
       const origin = { lat, lng };
       // nightOutEditorialEvidence is handed IN rather than looked up later:
-      // the ten predicates read editorial text, so the curated override has to
+      // the nine predicates read editorial text, so the curated override has to
       // be present at ADMISSION time or a place whose only night-evidence is
       // curated would be refused before anything could restore it. Curing
       // candidate starvation by creating evidence starvation is a lateral move.

@@ -26,7 +26,7 @@
  * "everything got let in":
  *   · the buried qualifying candidate                    MUST appear
  *   · a strong Cocktails population                      MUST stay strong
- *   · an ordinary restaurant                             MUST NOT reach Dinner + Entertainment
+ *   · an ordinary restaurant                             MUST NOT reach Shows
  *   · a high-scoring candidate at 28 miles               MUST stay out
  *
  * NO NETWORK. admitNightOutRows is PURE and is CALLED over the corpus, and
@@ -89,7 +89,7 @@ corpus.push(BURIED);
 for (let i = 0; i < 40; i++) {
   corpus.push(row({ id: `bar-${i}`, name: `Cocktail Bar ${i}`, pt: "cocktail_bar", cat: "nightlife", mi: 6, rating: 5, reviews: 6000 }));
 }
-// CONTROL 3 — an ordinary restaurant that must NOT leak into Dinner + Entertainment.
+// CONTROL 3 — an ordinary restaurant that must NOT leak into Shows via the dinner-show door.
 const PLAIN = row({ id: "plain-diner", name: "Corner Diner", pt: "restaurant", cat: "food", mi: 3 });
 corpus.push(PLAIN);
 // CONTROL 4 — a high-scoring qualifying candidate at 28 miles: out, forever.
@@ -124,8 +124,8 @@ const railOf = (id) => (byId.has(id) ? nightOutPlaceRail(byId.get(id)) : null);
 // CONTROL 1 — the buried qualifying candidate reaches its rail.
 ok(byId.has("buried-dinner-show"),
   `THE REGRESSION: a qualifying candidate at corpus index ${corpus.indexOf(BURIED)} — below both old cut-offs — did not survive admission. This is cap-before-identity again.`);
-ok(railOf("buried-dinner-show") === "dinner-entertainment",
-  `the buried candidate landed on rail "${railOf("buried-dinner-show")}" instead of dinner-entertainment`);
+ok(railOf("buried-dinner-show") === "shows",
+  `the buried candidate landed on rail "${railOf("buried-dinner-show")}" instead of shows (a dinner show is a show)`);
 
 // CONTROL 2 — Cocktails stays strong.
 const cocktails = places.filter((p) => nightOutPlaceRail(p) === "cocktails");
@@ -133,8 +133,8 @@ ok(cocktails.length === 40,
   `the dense Cocktails control lost rows: ${cocktails.length} of 40 survived — a fix that thins the strong rail is not a fix`);
 
 // CONTROL 3 — an ordinary restaurant does not leak in.
-ok(!byId.has("plain-diner") || railOf("plain-diner") !== "dinner-entertainment",
-  "an ordinary restaurant reached Dinner + Entertainment — the predicate was widened to make a shelf look fuller");
+ok(!byId.has("plain-diner") || railOf("plain-diner") !== "shows",
+  "an ordinary restaurant reached Shows — the dinner-show predicate was widened to make a shelf look fuller");
 ok(!byId.has("plain-diner"),
   `Corner Diner was admitted onto rail "${railOf("plain-diner")}" — it matches no Night Out intent and must not be in the pool at all`);
 

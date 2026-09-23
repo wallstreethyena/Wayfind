@@ -28,8 +28,11 @@ assert(entertainment.every(e => ["concerts", "comedy"].includes(posterEventBucke
 const play = event("The Comedy of Errors", { segment: "Arts & Theatre" });
 assert.equal(posterEventBucket(play), "theater", "a play is not standup because comedy appears in its title");
 const night = pick([play, lateConcert], "night-out");
-assert(night["live-music"].some(e => e.id === play.id), "the requested theater overlap reaches Live Music");
-assert(night.shows.some(e => e.id === lateConcert.id), "concerts also reach Shows");
+// Owner, 2026-09-23 ("this is repetitive … the rails need to make sense"):
+// the earlier theater/concert overlap is retired. One event, one shelf.
+assert(night.shows.some(e => e.id === play.id) && !night["live-music"].some(e => e.id === play.id), "a play is on Shows only, never Live Music");
+assert(night["live-music"].some(e => e.id === lateConcert.id) && !night.shows.some(e => e.id === lateConcert.id), "a concert is on Live Music only, never Shows");
+assert(!("dinner-entertainment" in night), "the removed Dinner + Entertainment shelf is not rebuilt from events");
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 assert(home.includes("setForyouEvents(frontPageEvents(evs, eventBucket).usable)"), "the full source pool reaches poster selection before any UI cap");
 assert(home.includes("selectPosterEvents(fp.usable.filter"), "the real homepage event slot delegates selection to the tested boundary");

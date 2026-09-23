@@ -2,7 +2,7 @@
 
 import { selectPosterEvents } from "../../lib/posterEvents.js";
 
-// One Night Out answer: ten evidence-gated rails over venue inventory and the
+// One Night Out answer: nine evidence-gated rails over venue inventory and the
 // dated event cards owned by home.js. Events lead each shelf because a dated
 // happening is not interchangeable with the building where one might occur.
 //
@@ -73,8 +73,8 @@ function NightOutRailSection({
   //
   // A horizontal rail with a single card promises a choice and delivers one,
   // and it reads worse than the honest empty state directly above. Measured at
-  // Parrish AFTER the retrieval fix: Dinner + Entertainment really does have
-  // exactly one qualifying place within 27 miles, so this is now genuine
+  // Parrish AFTER the retrieval fix: the (since removed) Dinner + Entertainment
+  // rail really did have exactly one qualifying place within 27 miles, so this is now genuine
   // scarcity rather than the candidate starvation that used to produce it.
   //
   // The answer is presentation, never data. Nothing is padded, nothing is
