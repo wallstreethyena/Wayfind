@@ -127,7 +127,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date is emitted when the guide records one."
+          "evidence": "Article wiring omits an image rather than substituting unrelated art; publication date remains omitted because none is recorded."
         },
         "breadcrumb_schema": {
           "status": "pass",
@@ -208,7 +208,7 @@
         },
         "article_schema": {
           "status": "pass",
-          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date is emitted when the guide records one."
+          "evidence": "Article wiring omits an image rather than substituting unrelated art; publication date remains omitted because none is recorded."
         },
         "breadcrumb_schema": {
           "status": "pass",
