@@ -1,34 +1,19 @@
 #!/usr/bin/env node
 /**
- * check-doc-ownership — owner-only files change only with GitHub-authenticated owner approval.
+ * check-doc-ownership — rule-defining files are owner-only.
  *
  * Measured 2026-07-31: 11 of 29 branch-vs-main conflicts (38%) were on coordination
  * documents, not code. AGENTS.md conflicted on 3 branches, CLAUDE.md on 3,
  * docs/KIMI_QUEUE.md on 3. Rules cannot stabilise while the rules are a merge target.
  *
- * 2026-09-23: this check used to accept an owner-only edit when the COMMIT AUTHOR NAME
- * was "Gabriel Pereira". Author and committer are free text anyone can set, so the
- * check could be satisfied by impersonation (and PR #1478 could only pass that way).
- * Approval is now decided by scripts/lib/ownerApproval.mjs from evidence GitHub
- * authenticates: an "/owner-approve <head sha>" comment on the pull request by an
- * owner login, naming the PR's current head commit. Commit metadata is not read at all.
- *
- * GitHub Actions is the only authority. This file is the "guards" check's copy of
- * the rule, and "guards" runs on pull_request, i.e. the pull request's OWN copy of
- * this file. The "owner-approval" check (scripts/check-owner-approval-pr.mjs, on
- * pull_request_target) applies the same rule from the BASE branch, so a pull request
- * that edits this file is still judged by the unedited rule. Off GitHub Actions an
- * owner-only change always fails: a local run cannot see or grant approval, and
- * must never look like it did. Ordinary changes are unaffected everywhere and need
- * no network.
- *
+ * Fails when a non-owner commit on the current branch touches an owner-only path.
  * Lane state belongs in docs/lanes/<lane>.md — one file per lane, so two lanes can
- * never collide. Rule changes go to docs/proposals/<lane>-<topic>.md, or to a PR the
- * owner approves. How to approve: docs/OWNER_APPROVAL.md.
+ * never collide. Rule changes go to docs/proposals/<lane>-<topic>.md.
  */
 import { execFileSync } from "node:child_process";
-import { decideOwnerApproval, ownerOnlyChanges } from "./lib/ownerApproval.mjs";
-import { fetchPullEvidence, readPullContext } from "./lib/githubPullEvidence.mjs";
+
+const OWNER_ONLY = [/^AGENTS\.md$/, /^CLAUDE\.md$/, /^LOCKS\.md$/, /^QUEUE\.md$/, /^docs\/[^/]*-standard\.md$/];
+const OWNERS = ["Gabriel Pereira"];
 const git = (...args) => {
   try {
     return { ok: true, out: execFileSync("git", args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim() };
@@ -94,37 +79,26 @@ if (!baseResult.ok || !baseResult.out) {
 }
 const base = baseResult.out;
 
-// Net change of the branch against its base. Renames are split into a delete and
-// an add so moving an owner-only file is still an owner-only change.
-const diffResult = git("diff", "--name-only", "--no-renames", base, "HEAD");
-if (!diffResult.ok) fail(`cannot list changed files against ${base.slice(0, 8)} (${diffResult.error})`);
-const changedPaths = diffResult.out.split("\n").filter(Boolean);
-
-if (!ownerOnlyChanges(changedPaths).length) {
-  console.log(`check-doc-ownership: OK — ${changedPaths.length} changed file(s), no owner-only files touched`);
-  process.exit(0);
-}
-
-// Owner-only files changed. Gather GitHub-authenticated evidence (merge gate only).
-// The files come from git (the net diff above); the approval comes from the API.
-async function gatherPullRequestEvidence() {
-  const ctx = readPullContext(process.env, ["pull_request", "pull_request_target"]);
-  if (ctx.error) return { pr: null, comments: null, error: ctx.error };
-  try {
-    const live = await fetchPullEvidence(ctx);
-    return { pr: { number: ctx.number, eventHeadSha: ctx.eventHeadSha, liveHeadSha: live.liveHeadSha }, comments: live.comments, error: null };
-  } catch (e) {
-    return { pr: null, comments: null, error: String((e && e.message) || e) };
+const commitResult = git("rev-list", `${base}..HEAD`);
+if (!commitResult.ok) fail(`cannot enumerate branch commits (${commitResult.error})`);
+const commits = commitResult.out.split("\n").filter(Boolean);
+const bad = [];
+for (const c of commits) {
+  const authorResult = git("log", "-1", "--format=%an", c);
+  if (!authorResult.ok || !authorResult.out) fail(`cannot read author for ${c.slice(0, 8)} (${authorResult.error || "empty author"})`);
+  const author = authorResult.out;
+  if (OWNERS.includes(author)) continue;
+  const filesResult = git("diff-tree", "--no-commit-id", "--name-only", "-r", c);
+  if (!filesResult.ok) fail(`cannot inspect ${c.slice(0, 8)} (${filesResult.error})`);
+  for (const f of filesResult.out.split("\n").filter(Boolean)) {
+    if (OWNER_ONLY.some((rx) => rx.test(f))) bad.push({ c: c.slice(0, 8), author, f });
   }
 }
 
-const evidence = IS_MERGE_GATE
-  ? { changedPaths, mergeGate: true, ...(await gatherPullRequestEvidence()) }
-  : { changedPaths, mergeGate: false, pr: null, comments: null, error: null };
-const verdict = decideOwnerApproval(evidence);
-if (!verdict.ok) {
-  console.error(`check-doc-ownership: FAIL — ${verdict.reason}.`);
-  console.error("  Lane state goes in docs/lanes/<lane>.md; rule proposals in docs/proposals/<lane>-<topic>.md. See docs/OWNER_APPROVAL.md.");
+if (bad.length) {
+  console.error("check-doc-ownership: FAIL — owner-only files modified by a lane:");
+  for (const b of bad) console.error(`  ${b.c}  ${b.f}  (author: ${b.author})`);
+  console.error("  Write docs/lanes/<lane>.md for state, or docs/proposals/<lane>-<topic>.md to propose a rule change.");
   process.exit(1);
 }
-console.log(`check-doc-ownership: OK — ${verdict.reason}`);
+console.log(`check-doc-ownership: OK — ${commits.length} commit(s), no owner-only files touched by a lane`);

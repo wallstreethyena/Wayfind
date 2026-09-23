@@ -25,7 +25,7 @@ import { cuisineMetroFor } from "../lib/cuisine";
 // v6.15: the ONE shared place classifier (labels + the junk gate now agree).
 import { primaryCategory, catOfType } from "../lib/placeCategory";
 import { deviceId } from "../lib/deviceId";
-import { analyticsSuppressionReason } from "../lib/browserAnalytics";
+import { analyticsSuppressionReason, captureOrQueue } from "../lib/browserAnalytics";
 import { markIntroSeen } from "../lib/introGate";
 import { isNative, nativeAppleCredential, nativeOAuthSignIn, nativeShare } from "../lib/native";
 import { noteHighPointAndMaybeAsk } from "../lib/appRating";
@@ -318,7 +318,7 @@ function _viatorCityParams(cityQ, center) {
 // and v8.x because check-version.mjs only asserts VERSION == BUILD_ID, not
 // that either moved — and the owner used the footer label to judge whether
 // production was stale. A version label that never changes is disinformation.
-const BUILD_ID = "v8.59.0";
+const BUILD_ID = "v8.61.0";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -1151,12 +1151,12 @@ function heroImpression(card, variant, text) {
   const k = card + ":" + variant;
   if (_heroSeen.has(k)) return;
   _heroSeen.add(k);
-  try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture("hero_impression", { card, variant, text }); } catch (e) {}
+  try { if (typeof window !== "undefined") captureOrQueue(window, "hero_impression", { card, variant, text }); } catch (e) {}
 }
 function heroTap(card, variant) {
-  try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture("hero_tap", { card, variant }); } catch (e) {}
+  try { if (typeof window !== "undefined") captureOrQueue(window, "hero_tap", { card, variant }); } catch (e) {}
 }
-function _sharePath(nm) { try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture("share_path", { path: nm }); } catch (e) {} }
+function _sharePath(nm) { try { if (typeof window !== "undefined") captureOrQueue(window, "share_path", { path: nm }); } catch (e) {} }
 // v4.80 — reliable external open for partner links (Viator, Stay22). From an
 // installed home-screen PWA, plain target="_blank" + rel="noreferrer" anchors
 // can open a browser view that never navigates (long-standing iOS standalone
@@ -2783,7 +2783,7 @@ class MapErrorBoundary extends Component {
 class ErrorBoundary extends Component {
   constructor(props) { super(props); this.state = { hit: false, err: "" }; }
   static getDerivedStateFromError(e) { return { hit: true, err: String((e && e.message) || e || "").slice(0, 160) }; }
-  componentDidCatch(error) { try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture("app_error", { message: String(error && error.message || "").slice(0, 200), stack: String((error && error.stack) || "").split("\n").slice(0, 3).join(" | "), build: BUILD_ID }); } catch (e) {} }
+  componentDidCatch(error) { try { if (typeof window !== "undefined") captureOrQueue(window, "app_error", { message: String(error && error.message || "").slice(0, 200), stack: String((error && error.stack) || "").split("\n").slice(0, 3).join(" | "), build: BUILD_ID }); } catch (e) {} }
   render() {
     if (this.state.hit) {
       return (
@@ -5182,7 +5182,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       if (session && session.user) setUser(session.user);
       else if (_event === "SIGNED_OUT") setUser(null);
       try { if (session && session.user && typeof window !== "undefined" && window.__WF_NOTE_AUTH_USER) window.__WF_NOTE_AUTH_USER(session.user); } catch (e) {}
-      try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture("auth_event", { event: _event, hasSession: !!(session && session.user) }); } catch (e) {}
+      try { if (typeof window !== "undefined") captureOrQueue(window, "auth_event", { event: _event, hasSession: !!(session && session.user) }); } catch (e) {}
       try { if (session && session.user && typeof window !== "undefined" && window.posthog) window.posthog.identify(session.user.id); } catch (e) {}
       try { const _k = "wf_authlog"; const _a = JSON.parse(localStorage.getItem(_k) || "[]"); _a.push({ t: new Date().toISOString().slice(5, 19), e: _event, s: !!(session && session.user) }); localStorage.setItem(_k, JSON.stringify(_a.slice(-12))); } catch (e) {}
     });
@@ -6359,7 +6359,6 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       const str = (v, n) => (v == null ? null : String(v).slice(0, n));
       const send = (m) => {
         try {
-          if (!window.posthog) return;
           const ctx = window.__WF_CTX || {};
           const a = m.attribution || {};
           const props = { metric: m.name, value: Math.round(m.name === "CLS" ? m.value * 1000 : m.value), rating: m.rating, route: window.location.pathname, device: window.innerWidth < 768 ? "mobile" : "desktop", loc_permission: ctx.locPermission || "unknown", signed_in: !!ctx.signedIn, build: BUILD_ID };
@@ -6385,7 +6384,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             props.inp_presentation = num(a.presentationDelay);
             props.inp_load_state = str(a.loadState, 40);
           }
-          window.posthog.capture("web_vitals", props);
+          // Pre-ready queue: FCP/TTFB (and a fast LCP) resolve before the
+          // idle-booted SDK exists; a raw capture here dropped them.
+          captureOrQueue(window, "web_vitals", props);
         } catch (e) {}
       };
       [onLCP, onCLS, onINP, onTTFB, onFCP].forEach((f) => { try { f(send); } catch (e) {} });
@@ -6405,7 +6406,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     try { if (place && place.type) tasteBump(place); } catch (e) {}
     if (skipOwnerOrBotAnalytics(user)) return;
     const _exp = (() => { try { return experimentProps(); } catch (e) { return {}; } })();
-    try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture(action, Object.assign({ place_id: (place && place.id) || (extra && extra.place_id) || null, place_name: (place && place.name) || null }, extra || {}, _exp)); } catch (e0) {}
+    // Pre-ready queue, not raw window.posthog: a share-link landing logs
+    // share_open and detail_open in the first ~2s, before the idle-booted SDK
+    // exists — those were silently dropped (Supabase had them, PostHog never).
+    try { if (typeof window !== "undefined") captureOrQueue(window, action, Object.assign({ place_id: (place && place.id) || (extra && extra.place_id) || null, place_name: (place && place.name) || null }, extra || {}, _exp)); } catch (e0) {}
     // Mirror to GA4 / Google Ads. One product action => one PostHog event (above)
     // and at most one Google event (here); forwardToGoogle dedupes and decides
     // on its own whether the action is worth an Ads conversion at all.
