@@ -49,7 +49,16 @@ export async function generateMetadata({ params, searchParams }) {
   // v6.72: ABSOLUTE. Relative worked only because metadataBase resolved it,
   // and several scrapers (iMessage among them) fetch the raw value instead.
   // Only the base is prefixed; the += query appends below are unaffected.
-  let og = SITE_URL + "/api/og?kind=place&t=" + encodeURIComponent(t);
+  // v9.1 (owner, 2026-09-23; audit fix): unfurls through the same photo-led
+  // hero card every guide/place/event page uses (id IS this place's Google
+  // Place id) — a REAL free/permanent photo when lib/heroSource.js resolves
+  // one for it, falling back to placeModel's own richer ladder (this exact
+  // share link's name, category, city, rating, and — the two fields the bare
+  // typographic card always had that the photo layout has no room for — a
+  // Wayfind score + distance or a hook line) rather than the generic
+  // homepage line. See docs/proposals/claude-sonnet-hero-photo-standard.md
+  // (proposed rule 9).
+  let og = SITE_URL + "/api/og/hero?kind=place&id=" + encodeURIComponent(id) + "&t=" + encodeURIComponent(t);
   if (loc) og += "&loc=" + encodeURIComponent(loc);
   if (r) og += "&r=" + encodeURIComponent(r);
   if (rev) og += "&rev=" + encodeURIComponent(rev);
@@ -69,7 +78,7 @@ export async function generateMetadata({ params, searchParams }) {
       description: desc,
       type: "website",
       siteName: "Wayfind",
-      images: [{ url: og, width: 1200, height: 630, alt: t }],
+      images: [{ url: og, width: 1200, height: 630, type: "image/jpeg", alt: t }],
     },
     twitter: {
       card: "summary_large_image",

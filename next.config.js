@@ -124,6 +124,17 @@ const nextConfig = {
   // and pulse a healthy-looking "ident: tried=0" forever.
   outputFileTracingIncludes: {
     "/api/cron/photo-warm": ["./lib/ownedHotels.json"],
+    // 2026-09-23 (v9) — app/api/og/card.jsx loads its Archivo fonts via
+    // fs.readFileSync(path.join(process.cwd(), …)) when running on Node.js
+    // (app/api/og/hero/route.js is the one Node caller; every other OG route
+    // is edge, where `fetch(new URL(path, import.meta.url))` bundles the
+    // asset instead). A runtime process.cwd() path is exactly what Next's
+    // file tracer cannot see on its own — the same lesson ownedHotels.json
+    // already paid for above — so without this line the deployed lambda is
+    // missing the three .ttf files and every request 500s despite a green
+    // local build (scripts/test-og-bodies.mjs's hero cases are the guard
+    // that actually fetches this route and would have caught it).
+    "/api/og/hero": ["./app/api/og/fonts/*.ttf"],
   },
   reactStrictMode: false,
   poweredByHeader: false,

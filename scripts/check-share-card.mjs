@@ -248,9 +248,23 @@ for (const f of OG_FILES) {
   // proves the fetch is awaited before any header is written.
   const imgs = (src.match(/<img\b/g) || []).length;
   if (rel === "app/api/og/card.jsx") {
-    ok(imgs <= 1, `${rel} renders ${imgs} <img> elements — the rail poster is the only one allowed`);
-    ok(imgs === 0 || /<img src=\{m\.poster\}/.test(src),
-       `${rel}: the only permitted <img> src is {m.poster} — a pre-fetched, sniffed data URI from lib/railShareCard.js, never a URL Satori resolves itself`);
+    // v9 (owner, 2026-09-23) added the hero photo as a SECOND named
+    // exception alongside the rail poster (docs/proposals/claude-sonnet-hero-photo-standard.md (proposed rule 9)).
+    // Asserted by SYNTACTIC POSITION, not by counting "<img" and separately
+    // hoping a substring match happens to be true (see CLAUDE.md's "the
+    // identifier must play its role" — a guard that greps for a name passes
+    // as soon as the name appears anywhere, including holding the wrong
+    // value): every <img> tag is captured whole and its own src attribute is
+    // checked against the exact two allowed model fields.
+    const imgTags = src.match(/<img\b[^>]*>/g) || [];
+    ok(imgTags.length === imgs, `${rel}: <img> tag count disagrees with itself (${imgTags.length} vs ${imgs}) — an <img> spans a line break the capture missed`);
+    ok(imgTags.length === 2, `${rel} renders ${imgTags.length} <img> elements — exactly two are allowed: the rail poster and the hero photo`);
+    ok(imgTags.some((t) => /^<img src=\{m\.poster\}/.test(t)),
+       `${rel}: missing the rail poster <img src={m.poster}> — a pre-fetched, sniffed data URI from lib/railShareCard.js, never a URL Satori resolves itself`);
+    ok(imgTags.some((t) => /^<img src=\{m\.hero\}/.test(t)),
+       `${rel}: missing the hero photo <img src={m.hero}> — a pre-fetched, sniffed data URI from lib/heroSource.js, never a URL Satori resolves itself`);
+    ok(imgTags.every((t) => /^<img src=\{m\.(poster|hero)\}/.test(t)),
+       `${rel}: an <img> src is neither {m.poster} nor {m.hero} — those are the only two model fields allowed to back a share-card photo, found: ${imgTags.filter((t) => !/^<img src=\{m\.(poster|hero)\}/.test(t)).join(" | ")}`);
   } else {
     ok(imgs === 0, `${rel} renders an <img> — the chosen direction has no photography, and an image is also the only thing in a card that can fail a fetch mid-response`);
   }
@@ -310,7 +324,7 @@ for (const f of DELETED) {
 const CALLERS = [
   "app/api/og/route.js", "app/api/og/intent/route.js", "app/api/og/beaches/route.js",
   "app/api/og/coupon/route.jsx", "app/api/og/list/card.jsx",
-  "app/api/og/rail/route.jsx",
+  "app/api/og/rail/route.jsx", "app/api/og/hero/route.js",
 ];
 for (const rel of CALLERS) {
   const src = readFileSync(path.join(REPO, rel), "utf8");

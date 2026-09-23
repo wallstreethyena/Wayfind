@@ -53,28 +53,26 @@ export async function generateMetadata({ params }) {
   if (!e) return {};
   const title = `${e.event_name} ${e.year}: Dates, Tickets & What to Know`;
   const desc = `${e.event_name} runs ${dateRangeLabel(e)} in ${e.city}. ${e.card_hook || ""} Wayfind's verdict, timing, parking and what to pair it with.`.trim();
-  // THE SHARE CARD. An event that has owned, consent-cleared photography
-  // previews with the PHOTOGRAPH; everything else keeps the generated text
-  // card. This is deliberately NOT a photo inside /api/og: scripts/check-share-
-  // card.mjs bans photography in the generated card and is right to — the
-  // owner deleted a stock sunset that decorated every card, and an <img> is
-  // the only thing in a Satori render that can fail a fetch mid-response. The
-  // distinction that guard itself draws is between stock borrowed to decorate
-  // a claim and the object actually being shared. A photo of THIS market,
-  // handed to us by the organiser, is the second thing, and pointing metadata
-  // straight at the static file gets it with no renderer and nothing to fail.
-  // Built on SITE_URL because a scraper does not resolve a relative path
-  // (scripts/check-og-absolute.mjs).
-  const shots = eventPhotos(e.event_id);
-  const og = shots && shots.hero
-    ? SITE_URL + shots.hero.src
-    : SITE_URL + "/api/og?t=" + encodeURIComponent(`${e.event_name} — ${dateRangeLabel(e)}`);
-  const ogW = shots && shots.hero ? shots.hero.w : 1200;
-  const ogH = shots && shots.hero ? shots.hero.h : 630;
+  // THE SHARE CARD (v9, owner 2026-09-23: "everything on wayfind that is
+  // sharable looks premium"). An event that has owned, consent-cleared
+  // photography (lib/eventPhotos.js) now previews through the HERO ROUTE
+  // rather than pointing metadata straight at the static file: the route
+  // fetches those exact same bytes, converts and sniffs them BEFORE any
+  // response is built (the same safety contract lib/railShareCard.js already
+  // proved for the rail poster — see docs/proposals/claude-sonnet-hero-photo-standard.md (proposed rule 9) and
+  // scripts/check-hero-card.mjs), and lays the Wayfind mark, a kicker and
+  // this event's real name over it instead of shipping the bare photo with
+  // no brand or crop around it. Everything else falls back to the
+  // typographic card, carrying this exact event's own name — never a photo
+  // Wayfind has no consent to reuse. Built on SITE_URL because a scraper
+  // does not resolve a relative path (scripts/check-og-absolute.mjs).
+  const ogTitle = `${e.event_name} — ${dateRangeLabel(e)}`;
+  const og = `${SITE_URL}/api/og/hero?kind=event&id=${encodeURIComponent(e.event_id)}`
+    + `&t=${encodeURIComponent(ogTitle)}&cat=Event&loc=${encodeURIComponent(e.city || "")}`;
   return {
     title: title + " | Wayfind",
     description: desc.slice(0, 300),
-    openGraph: { title, description: desc.slice(0, 300), url: `${SITE_URL}/florida-events/${e.slug}`, siteName: "Wayfind", images: [{ url: og, width: ogW, height: ogH, alt: shots && shots.hero ? shots.hero.alt : title }] },
+    openGraph: { title, description: desc.slice(0, 300), url: `${SITE_URL}/florida-events/${e.slug}`, siteName: "Wayfind", images: [{ url: og, width: 1200, height: 630, type: "image/jpeg", alt: title }] },
     twitter: { card: "summary_large_image", title, images: [og] },
     alternates: { canonical: `${SITE_URL}/florida-events/${e.slug}` },
   };

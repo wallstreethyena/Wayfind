@@ -394,7 +394,7 @@ import IntentPartnerPick from "../../components/IntentPartnerPick";
 import { guideRailIntent } from "../../../lib/railPlacement";
 import { LANDING_CITIES } from "../../../lib/landing";
 import { isSsgBuild, guideFetch } from "../../../lib/landingInventory";
-import { guideArticleImage, guideContextLinks, guideImageMetadata, guideQuickChoices } from "../../../lib/guideSeo";
+import { guideArticleImage, guideContextLinks, guideQuickChoices } from "../../../lib/guideSeo";
 // Event guides reuse the ONE event "where" block (map, route, numbered nearby
 // picks) that /florida-events/[slug] renders, fed by the same curated row and
 // the same cached pairings, so a guide can never draw a second map rule.
@@ -421,21 +421,28 @@ export function generateMetadata({ params }) {
   const g = GUIDES[params.slug];
   if (!g) return { title: "Guide not found" };
   const url = `${SITE_URL}/guides/${params.slug}`;
-  // THE SHARE-CARD RULE (owner, 2026-07-22): every page shares a card that is
-  // unique to that page — never the generic homepage art.
+  // THE SHARE-CARD RULE (owner, 2026-07-22; amended v9, 2026-09-23). The
+  // owner's OWN Facebook preview of THIS page (sarasota-restaurants) showed a
+  // tiny, left-aligned PORTRAIT thumbnail next to the bare domain — og:image
+  // used to point straight at the reviewed guide asset (a raw 1067x1600
+  // webp), with no card, no crop and no brand around it. /api/og/hero
+  // resolves that same reviewed image SERVER-SIDE, crops it to its own
+  // reviewed focal point, and lays the Wayfind mark, a kicker and this
+  // guide's real title over a legibility scrim — falling back to the
+  // typographic card (this guide's OWN title, never the generic homepage
+  // line) when no reviewed image exists yet. See
+  // docs/proposals/claude-sonnet-hero-photo-standard.md (proposed rule 9).
   const art = guideHero(params.slug);
-  const reviewedImage = guideImageMetadata(art);
-  // Use the image reviewed for this exact article. The three guides with an
-  // explicit source gap keep the honest branded text card.
-  const socialImage = reviewedImage || { url: `${SITE_URL}/api/og?t=${encodeURIComponent(g.title)}`, width: 1200, height: 630, alt: `${g.title} on Wayfind` };
+  const heroV = art && art.kind !== "unavailable" && art.reviewedAt ? "&v=" + encodeURIComponent(art.reviewedAt) : "";
+  const heroUrl = `${SITE_URL}/api/og/hero?kind=guide&id=${encodeURIComponent(params.slug)}&t=${encodeURIComponent(g.title)}&cat=Guide&loc=${encodeURIComponent(g.region || "")}${heroV}`;
   return {
     title: `${g.title} | Wayfind`,
     description: g.description,
     keywords: g.relatedKeywords || (g.keyword ? [g.keyword] : undefined),
     alternates: { canonical: url },
     robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
-    openGraph: { title: g.title, description: g.description, url, siteName: "Wayfind", type: "article", images: [socialImage] },
-    twitter: { card: "summary_large_image", title: g.title, description: g.description, images: [socialImage] },
+    openGraph: { title: g.title, description: g.description, url, siteName: "Wayfind", type: "article", images: [{ url: heroUrl, width: 1200, height: 630, type: "image/jpeg", alt: `${g.title} on Wayfind` }] },
+    twitter: { card: "summary_large_image", title: g.title, description: g.description, images: [heroUrl] },
   };
 }
 

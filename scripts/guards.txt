@@ -751,6 +751,7 @@ node scripts/check-banned-art.mjs
 # bug), no shared link can carry a dev host, and the share control is a sibling
 # of the tile's link rather than a button nested inside an anchor.
 node scripts/check-rail-share.mjs
+node scripts/check-hero-card.mjs
 
 # v8.23 — every guide can be shared (39 pages, ~46% of external entries, and
 # not one share control before this), and BOTH share implementations open the
