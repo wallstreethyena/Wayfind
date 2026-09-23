@@ -1,0 +1,109 @@
+{
+  "slug": "things-to-do-in-parrish-florida",
+  "picks": {
+    "Florida Railroad Museum": {
+      "src": "/guides/picks/things-to-do-in-parrish-florida/florida-railroad-museum.webp",
+      "width": 1190,
+      "height": 893,
+      "alt": "A vintage silver train car at the Florida Railroad Museum in Parrish, with a sign reading \"Museum Gift Shop, Ticket Office, Welcome\" mounted on its side",
+      "caption": "The ticket office and gift shop car at the Florida Railroad Museum in Parrish.",
+      "credit": "Ebyabe",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Parrish_FL_Florida_Railroad_Museum01.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Parrish_FL_Florida_Railroad_Museum01.jpg",
+      "author": "Ebyabe",
+      "position": "68% 55%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": "ChIJ______8sw4gRMudh58gsGMU",
+      "verification": "This is the same Commons file already verified and stored in Wayfind's wf_place_photo table for this place (status active): the car's own \"Museum Gift Shop / Ticket Office\" sign is an unambiguous match, and no different qualifying Commons file for this museum was found.",
+      "sameAsCardPhoto": true,
+      "reviewedAt": "2026-09-23"
+    },
+    "Lake Manatee State Park": {
+      "src": "/guides/picks/things-to-do-in-parrish-florida/lake-manatee-state-park.webp",
+      "width": 1280,
+      "height": 254,
+      "alt": "A wide panoramic view of Lake Manatee State Park's lake, calm blue water bordered by a sandy shore and a tree line under a clear sky",
+      "caption": "The lake at Lake Manatee State Park.",
+      "credit": "Ebyabe",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Lake_Manatee_SP_lake_pano01.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Lake_Manatee_SP_lake_pano01.jpg",
+      "author": "Ebyabe",
+      "position": "50% 55%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": "ChIJU17a-Akxw4gR3ppLxjXbveg",
+      "verification": "File is titled \"Lake Manatee SP lake pano01\" by the same photographer (Ebyabe) whose sign photo of this park is Wayfind's existing card photo; this is a different Commons file, showing the lake itself rather than the entrance sign.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
+    },
+    "Coquina Beach and Anna Maria Island": {
+      "src": "/guides/picks/things-to-do-in-parrish-florida/coquina-beach.webp",
+      "width": 1280,
+      "height": 960,
+      "alt": "Coquina Beach's blue lifeguard station on Anna Maria Island, with beachgoers and a tern flying overhead against white sand and the Gulf of Mexico",
+      "caption": "Coquina Beach's lifeguard station on Anna Maria Island.",
+      "credit": "Fred Hsu",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:2017_Sarasota_Coquina_Beach_Lifeguard_Station_FRD_8532.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:2017_Sarasota_Coquina_Beach_Lifeguard_Station_FRD_8532.jpg",
+      "author": "Fred Hsu",
+      "position": "30% 55%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": "ChIJ5eLMVXE9w4gR15l0tMZGkMY",
+      "verification": "File is titled and categorized as Coquina Beach's lifeguard station on Anna Maria Island, from a prolific, geographically precise Florida contributor (Fred Hsu). Beachgoers are ordinary incidental beach activity, not the photo's subject; cropped toward the lifeguard stand rather than the group.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
+    }
+  },
+  "gaps": {
+    "Fort Hamer Park": {
+      "reason": "google-only",
+      "placeId": "ChIJu9V8cNY6w4gR14jQbFoNfsE",
+      "needsPermissionFrom": "Manatee County Parks and Natural Resources",
+      "note": "No Commons photo found for this park; Wayfind's inventory carries only a Google Places photo."
+    },
+    "Gamble Creek Farms": {
+      "reason": "google-only",
+      "placeId": null,
+      "needsPermissionFrom": "Gamble Creek Farms",
+      "note": "No Commons photo found for this farm; the app resolves its photo via a live Google Places name search."
+    },
+    "Bunker Hill Community Park": {
+      "reason": "google-only",
+      "placeId": null,
+      "needsPermissionFrom": "Manatee County Parks and Natural Resources",
+      "note": "No Commons photo found for this park; the app resolves its photo via a live Google Places name search."
+    },
+    "Parrish Community Park": {
+      "reason": "google-only",
+      "placeId": "ChIJJSK6DAolw4gR2-tcgDhSPVI",
+      "needsPermissionFrom": "Manatee County Parks and Natural Resources",
+      "note": "A recently opened park; no Commons photo found. Wayfind's inventory carries only a Google Places photo."
+    },
+    "Ferraro's Italian Grille": {
+      "reason": "google-only",
+      "placeId": "ChIJVaGvf6gkw4gROjdp7yQzLh4",
+      "needsPermissionFrom": "Ferraro's Italian Grille",
+      "note": "No Commons photo found for this restaurant; Wayfind's inventory carries only a Google Places photo."
+    },
+    "Good Liquid Brewing Company": {
+      "reason": "google-only",
+      "placeId": "ChIJay8TEmElw4gRmgRP3SXl7eM",
+      "needsPermissionFrom": "Good Liquid Brewing Company",
+      "note": "No Commons photo found for this brewery; Wayfind's inventory carries only a Google Places photo."
+    },
+    "Ellenton Premium Outlets": {
+      "reason": "google-only",
+      "placeId": "ChIJKYwJVy0jw4gRkXnEq-Or48M",
+      "needsPermissionFrom": "Ellenton Premium Outlets / Simon Property Group",
+      "note": "No Commons photo found for this shopping center; Wayfind's inventory carries only a Google Places photo."
+    }
+  }
+}
