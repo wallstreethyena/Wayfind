@@ -105,8 +105,8 @@ ok(/seen\.has\(id\)/.test(code) && /seen\.add\(id\)/.test(code),
 // ── 3. DISCLOSURE ───────────────────────────────────────────────────────────
 ok(/p\.trending && p\.trend_reason \? "🔥 " \+ p\.trend_reason : null/.test(code),
   "the trend bump is disclosed on the card wherever it was applied");
-ok(/affiliate links; Wayfind may earn a commission/.test(bn),
-  "the rail carries the affiliate disclosure, proximate to the ticket CTA it can render");
+ok(!/earn a commission/i.test(bn.slice(bn.indexOf('"top40"'), bn.indexOf('"top40"') + 4000)),
+  "the top40 rail carries no inline commission disclosure (one footer disclosure plus one on true detail pages is the law now)");
 ok(/p\.creator_video \?/.test(code),
   "the creator-video badge is driven by the flag byVisibleScore stamps when it applied the bonus, so label and score cannot disagree");
 // v7.15 (owner, 2026-08-11: "i told you i don't like the bubbles either") —

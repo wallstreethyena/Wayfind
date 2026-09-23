@@ -271,7 +271,7 @@ ok(!/https?:\/\/(?:www\.)?(?:usghostadventures\.com|samboat\.com|rentcars\.com|c
   "client pick catalogue contains no raw Awin advertiser or redirect-network destination URL (asset CDNs are not destinations)");
 ok(/commerceHref\(/.test(clientSrc), "the client links through Wayfind's commerce redirect");
 ok(/rel="sponsored noopener nofollow"/.test(clientSrc), "every rendered link is explicitly sponsored and nofollow");
-ok(/never changes our scores or rankings/.test(clientSrc), "the point-of-action disclosure protects ranking integrity");
+ok(!/earn a commission/i.test(clientSrc), "the rail carries no inline commission disclosure (one footer disclosure plus one on true detail pages is the law now)");
 ok(/Bookable highlights near \{city\}/.test(partnerComponentSrc), "curated and inventory products share the Bookable highlights heading");
 ok(/flex: "0 0 200px"/.test(partnerComponentSrc) && /height: 86/.test(partnerComponentSrc), "the unified rail uses the established compact bookable-card dimensions");
 ok(/data-bookable-card-media/.test(partnerComponentSrc) && /if \(!pick\.image/.test(partnerComponentSrc) && !/Wayfind bookable/.test(partnerComponentSrc), "every compact card requires real artwork and never substitutes a placeholder panel");

@@ -518,6 +518,8 @@ ${WF_SKELETON_CSS}
 //    SHORTER than before — which matters, because .wf-place-card has a fixed
 //    --wf-card-h and clips anything that outgrows it.
 `.wf-place-card-take.is-known-for{border-left-color:rgba(148,163,184,.34);color:#AEB9C9!important}
+.wf-place-card-cta{display:flex;width:100%;margin-top:8px}
+.wf-place-card-cta>a{flex:1;width:100%;min-height:40px!important;height:40px!important}
 .wf-place-card-actions{--wf-act-h:38px;align-items:center;gap:5px!important;margin-top:auto!important;padding-top:9px;flex-wrap:wrap!important;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
 .wf-place-card-actions>a,.wf-place-card-actions>button,.wf-place-card-actions>span{
   display:inline-flex!important;

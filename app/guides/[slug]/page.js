@@ -918,7 +918,7 @@ export default async function GuidePage({ params }) {
           lng={bridgeCity.lng}
         />
       ) : null}
-      <div className="wf-guide-disclosure">Some links in this guide are affiliate links. Wayfind may earn a commission if you book through them, at no extra cost to you. That does not affect which places are included.</div>
+      <div className="wf-guide-disclosure">We may earn a commission when you book through partner links. It never changes our rankings.</div>
       {/* v6.71 — the per-pick link wall is GONE. Each pick used to carry
           "Check tours & tickets" + "Check rates" + "Open in Wayfind"; measured
           dwell here is 0-25s and bounce ~50%, so almost nobody reached the end

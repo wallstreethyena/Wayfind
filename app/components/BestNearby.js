@@ -1127,9 +1127,7 @@ export default function BestNearby({
                 );
               })}
             </div>
-            {/* Proximate disclosure, because a ticket CTA can appear above. */}
             <RailDots railId="top40" count={list.length} />
-            <div style={{ marginTop: 7, fontSize: 10, color: "#6F7C8D" }}>Ticket links are affiliate links; Wayfind may earn a commission. Ranking never changes.</div>
           </div>
         );
         })();
@@ -1296,9 +1294,6 @@ export default function BestNearby({
                       onClick={() => { try { onLog && onLog("best_nearby_more", null, { section: sdef.id, shown: list.length }); } catch (e) {} }}>
                       {"Search past these " + list.length + " \u2192"}
                     </a>
-                    {sdef.id === "todo" && list.some((r) => r.kind === "experience") ? (
-                      <div style={{ fontSize: 11, color: C.muted, marginTop: 6, lineHeight: 1.4 }}>Tours &amp; activities are affiliate links; Wayfind may earn a commission at no cost to you. It never changes what we recommend.</div>
-                    ) : null}
                   </>
                 ) : Array.isArray(data) ? (
                   <div style={{ padding: "8px 2px 10px", fontSize: 12.5, color: C.muted }}>Nothing strong here right now.</div>

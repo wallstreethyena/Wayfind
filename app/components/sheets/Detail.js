@@ -222,7 +222,7 @@ function WayfindTakeRail({ editorial }) {
 function FTCDisclosure() {
   return (
     <div style={{ fontSize: 10.5, color: C.muted, margin: "7px 2px 0", textAlign: "center" }}>
-      Wayfind may earn a commission when you book through this link, at no extra cost to you. It never changes our scores or rankings.
+      We may earn a commission when you book through partner links. It never changes our rankings.
     </div>
   );
 }

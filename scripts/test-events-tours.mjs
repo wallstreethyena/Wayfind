@@ -16,7 +16,7 @@ ok(/Everything bookable near you/.test(src) && /\{tours\.length\}/.test(src), "l
 ok(/!isBusiness && !isTours && !eventsLoading/.test(src), "date chips hidden on the tours view (they zeroed out and read as broken)");
 ok(!/\.slice\(/.test(src.slice(src.indexOf("{isTours && ("), src.indexOf("{/* Event grid"))), "the full tours category does not truncate its inventory");
 ok(/ViatorRail title="Bookable experiences near you"/.test(src), "the pinned rail on event categories is untouched");
-ok((src.match(/Wayfind may earn a commission/g) || []).length === 0 && /Wayfind may earn a commission/.test(rail), "Events relies on ViatorRail's single built-in commission disclosure");
+ok((src.match(/earn a commission/gi) || []).length === 0 && (rail.match(/earn a commission/gi) || []).length === 0, "Events and ViatorRail render no inline commission disclosure (one footer disclosure plus one on true detail pages is the law now)");
 ok(/No bookable tours are loading right now/.test(src), "honest empty state kept");
 ok(/<RailCard[\s\S]+?ctaNode=\{<ViatorCommerceLink/.test(rail), "every tour uses RailCard while the booking CTA still routes through ViatorCommerceLink");
 

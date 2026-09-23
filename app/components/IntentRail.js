@@ -577,9 +577,6 @@ export default function IntentRailBody({
           <a href={href} className="wf-railsec-more" onClick={() => { try { if (onLog) onLog("home_rail_see_all", null, { rail: intent, shown: list.length }); } catch (e) {} }}>
             {"See every one →"}
           </a>
-          {hasPartner ? (
-            <div style={{ marginTop: 7, fontSize: 10, color: "#6F7C8D" }}>Ticket links are affiliate links; Wayfind may earn a commission. Ranking never changes.</div>
-          ) : null}
         </>
       )}
     </div>

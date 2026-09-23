@@ -255,7 +255,13 @@ const ThumbIcon = ({ down = false }) => (
 function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfind", aiSummary, badge, rankingNote, onShare, saved, liked, disliked, inTrip, onSave, onItinerary, onLike, onDislike, onOpen, onBadge, cardActionsReadOnly = false, surface = "place_card", eagerMedia = false, mediaPriority = null, memoKey = null,
   // #1188 — the free permanent photo lane's CC credit. Same prop names as
   // RailCard.js; see its JSDoc. Omit for a photo that needs no credit.
-  photoAttr = null, photoAttrHref = null }) {
+  photoAttr = null, photoAttrHref = null,
+  // Stay-card value fix (fix/stay-card-value-copy) — an optional booking CTA
+  // slot rendered INSIDE the card, directly above the Save/Like/Dislike/Share
+  // row. Absent on every surface except EventStayCards, which is the only
+  // caller passing it. A caller that never sets it gets byte-identical output
+  // to before this prop existed.
+  cta = null }) {
   // v8.29 — the shared like/dislike/save store, read ONLY when this card has an
   // action its caller did not wire. A fully wired card (the home shell's, which
   // owns its own state) subscribes to nothing and re-renders for nothing.
@@ -673,6 +679,15 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
             </div>
           ) : null}
           {rankingNote ? <div style={{ color: "#8791A4", fontSize: 9.5, marginTop: 4 }}>{rankingNote}</div> : null}
+
+          {/* Stay-card value fix — the booking CTA lives ON the card face,
+              directly above the creator credit and the Save/Like/Dislike/Share
+              row, instead of floating below the card as a separate element.
+              stopPropagation keeps a tap on the CTA from also opening the
+              card's detail sheet (the <li> opens on any click that is not
+              inside an a/button/etc — this wrapper is neither, so it needs
+              its own guard). */}
+          {cta ? <div className="wf-place-card-cta" onClick={(e) => e.stopPropagation()}>{cta}</div> : null}
 
           {/* v8.34 — the creator credit sits in the bottom band, directly above
               the actions (see css.js .wf-place-card-credit). It carries the

@@ -157,13 +157,6 @@ export default function FoodTourRail({ offers, metro, surface = "cuisine_sheet" 
           </li>
         ))}
       </ul>
-
-      {/* ADJACENT, not in a footer: the disclosure sits directly under the offers
-          it describes, in the same visual block, so it is seen with them. */}
-      <p ref={discRef} style={{ fontSize: 10.5, color: C.muted, lineHeight: 1.45, margin: "9px 0 0" }}>
-        Wayfind may earn a commission when you book through these links, at no extra cost to you.
-        It never changes our rankings.
-      </p>
     </section>
   );
 }

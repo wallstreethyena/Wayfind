@@ -705,6 +705,13 @@ node scripts/test-hotel-card-cta.mjs
 # email address, each carrying a "Check rates" button.
 node scripts/check-hotel-library-quality.mjs
 
+# 2026-09-23 — customer-facing hotel copy (whyGo/knownFor/vibe) must never
+# carry internal curation/prompt scaffolding ("Use X when the user wants...
+# It scored 9.8/10 from the Wayfind rating signal." painted verbatim on the
+# Palmetto Riverside Bed & Breakfast card). A guest reads only why to go and
+# what they get out of it.
+node scripts/check-customer-copy-leaks.mjs
+
 # v8.17 — no inline style may paint text in its own background color (the invisible landing score chip)
 node scripts/check-invisible-text.mjs
 

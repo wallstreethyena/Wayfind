@@ -140,7 +140,12 @@ function pinBookingCtaWiring() {
   const primary = /<BookingCTA variant="primary" detail=\{p\} kind="hotels" label="Check rates" city=\{city\} locName=\{city\} \/>/;
   const disclosure = /<BookingCTA variant="disclosure" detail=\{p\} kind="hotels" city=\{city\} locName=\{city\} \/>/;
   ok(primary.test(src), "PINNED: PlaceCard's primary hotel CTA still calls <BookingCTA variant=\"primary\" detail={p} kind=\"hotels\" .../> verbatim");
-  ok(disclosure.test(src), "PINNED: PlaceCard's hotel disclosure still calls <BookingCTA variant=\"disclosure\" detail={p} kind=\"hotels\" .../> verbatim");
+  // v9.x (owner: no repeated inline commission lines under browse cards) — the
+  // per-card disclosure was removed from the browse feed; the site now
+  // carries exactly one footer disclosure plus one short line on the Detail
+  // sheet the card opens into. A returning disclosure call site here would
+  // be the regression this guard now watches for.
+  ok(!disclosure.test(src), "PINNED: PlaceCard mounts NO inline commission disclosure alongside its primary hotel CTA (disclosure now lives in the footer and on the Detail sheet only)");
 }
 
 // ── (C) Load the REAL BookingCTA.js directly, bypassing next/dynamic ───────
@@ -248,11 +253,11 @@ async function run() {
       "hotel anchor's lat/lng are the card's own coordinates, not dropped or substituted (the Hampton Beach, NH regression)");
   }
 
-  // 2) FTC parity: the pinned <BookingCTA variant="disclosure"> call — which
-  // PlaceCard mounts on the SAME slot as the primary anchor — carries the
-  // commission sentence whenever the primary anchor exists.
+  // 2) BookingCTA's own disclosure variant (used on true detail surfaces,
+  // e.g. the Detail sheet) still renders its commission sentence correctly
+  // in isolation — PlaceCard itself no longer calls it (pinned above).
   const hotelDisclosureHtml = renderBookingCTA(BookingCTA, "disclosure", hotel);
-  ok(hasDisclosure(hotelDisclosureHtml), "LODGING fixture: the pinned <BookingCTA variant=\"disclosure\"> call renders the commission disclosure sentence on the same surface as the earning anchor");
+  ok(hasDisclosure(hotelDisclosureHtml), "LODGING fixture: <BookingCTA variant=\"disclosure\"> still renders the commission disclosure sentence when called directly (detail-surface use)");
 
   // 3) A restaurant: the card's earning slot never mounts (real gate, real
   // predicate), and even if it were asked to, BookingCTA itself refuses.

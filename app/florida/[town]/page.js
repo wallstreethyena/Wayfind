@@ -118,7 +118,7 @@ export default async function Page({ params }) {
         {nearby.map(([k, slug], i) => (<span key={slug}><a style={S.a} href={`/florida/${slug}`}>{TOWN_PROFILES[k].title}</a>{i < nearby.length - 1 ? " · " : ""}</span>))}
         {" "}· <a style={S.a} href="/culture/sarasota">Sarasota &amp; the Cultural Coast</a>
       </p>
-      <div style={S.disclosure}>Researched from local sources, official venue information, and verified visitor data. Listings rank on merit — see <a style={S.a} href="/how-wayfind-ranks">how Wayfind ranks</a> and our <a style={S.a} href="/editorial-policy">editorial policy</a>. Wayfind may earn a commission from partner links; it never changes a ranking.</div>
+      <div style={S.disclosure}>Researched from local sources, official venue information, and verified visitor data. Listings rank on merit — see <a style={S.a} href="/how-wayfind-ranks">how Wayfind ranks</a> and our <a style={S.a} href="/editorial-policy">editorial policy</a>.</div>
     </main>
   );
 }
