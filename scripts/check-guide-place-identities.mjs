@@ -70,6 +70,9 @@ const verifiedPlaceIds = new Map([
   [pickKey("best-restaurants-disney-springs", "T-REX Cafe"), "ChIJO3vjMIF_3YgRqb3SdwzbyII"],
   [pickKey("magical-dining-orlando-2026", "ÔMO by Jônt, Winter Park"), "ChIJO3PrEmdx54gRW1c11w1Yxlo"],
   [pickKey("magical-dining-orlando-2026", "Kaya, Mills 50"), "ChIJ3YuEdVp754gRoWwBx528kNc"],
+  // The district itself, not "Ybor City Ghost Tours Co" (ChIJF06M0-_FwogRirItJy_x26M),
+  // which this pick pinned until 2026-09-23. wf_inventory: "Ybor City Historic District".
+  [pickKey("things-to-do-in-tampa-florida", "Ybor City"), "ChIJR_Wrg-fFwogRUIk0jJIOQW8"],
 ]);
 for (const [key, expectedId] of verifiedPlaceIds) {
   const separator = key.indexOf("\u0000");
