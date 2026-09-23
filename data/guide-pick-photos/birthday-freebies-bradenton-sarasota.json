@@ -1,0 +1,162 @@
+{
+  "slug": "birthday-freebies-bradenton-sarasota",
+  "picks": {},
+  "gaps": {
+    "Starbucks: a free handcrafted drink — if you set it up early": {
+      "reason": "google-only",
+      "placeId": "ChIJCTw8qAE9w4gRV4bsIMbQ2H8",
+      "needsPermissionFrom": "Starbucks",
+      "note": "No Commons-licensed photo found for this specific location; only Google Places photos exist."
+    },
+    "Sephora at UTC: a free beauty gift set, all month": {
+      "reason": "google-only",
+      "placeId": "ChIJVcT9hOc4w4gREnfUoBV42RA",
+      "needsPermissionFrom": "Sephora",
+      "note": "No Commons-licensed photo found for this specific location; only Google Places photos exist."
+    },
+    "AMC Bradenton 20: free large popcorn on the house": {
+      "reason": "google-only",
+      "placeId": "ChIJ1wH4N3QWw4gREDvfx8VmUSY",
+      "needsPermissionFrom": "AMC Bradenton 20",
+      "note": "No Commons-licensed photo found for this specific location; only Google Places photos exist."
+    },
+    "Nothing Bundt Cakes: a free Bundtlet, no purchase": {
+      "reason": "google-only",
+      "placeId": "ChIJ2RTKm1tHw4gRK4xtJw-jqWI",
+      "needsPermissionFrom": "Nothing Bundt Cakes",
+      "note": "No Commons-licensed photo found for this specific location; only Google Places photos exist."
+    },
+    "Baskin-Robbins: a free scoop, on the day itself": {
+      "reason": "google-only",
+      "placeId": "ChIJ16W70NY9w4gRG9cBamnCpn0",
+      "needsPermissionFrom": "Baskin-Robbins",
+      "note": "No Commons-licensed photo found for this specific location; only Google Places photos exist."
+    },
+    "Chick-fil-A: the reward grows with your tier": {
+      "reason": "google-only",
+      "placeId": "ChIJ_1KKw-oXw4gRGao51ByvSIc",
+      "needsPermissionFrom": "Chick-fil-A",
+      "note": "A CC BY-SA 4.0 Commons photo of a Chick-fil-A in Bradenton exists, but its address (State Road 70) could not be confirmed against this placeId's coordinates without Google Places access, so it was not used per the chain-branch verification rule."
+    },
+    "The Cheesecake Factory at UTC: free slice with any purchase": {
+      "reason": "google-only",
+      "placeId": "ChIJZ0W_vt04w4gRlbOczIeB2k0",
+      "needsPermissionFrom": "The Cheesecake Factory",
+      "note": "No Commons-licensed photo found for this specific location; only Google Places photos exist."
+    },
+    "Crumbl: a free cookie — but only at Silver status": {
+      "reason": "google-only",
+      "placeId": "ChIJ_5OG3Z45w4gRbGmfLDXwT6A",
+      "needsPermissionFrom": "Crumbl Cookies",
+      "note": "No Commons-licensed photo found for this specific location; only Google Places photos exist."
+    },
+    "IHOP: free birthday pancakes": {
+      "reason": "google-only",
+      "placeId": "ChIJ6yU9i-IVw4gRo01we-1UEZU",
+      "needsPermissionFrom": "IHOP",
+      "note": "No Commons-licensed photo found for this specific location; only Google Places photos exist."
+    },
+    "Panera: a birthday treat from MyPanera": {
+      "reason": "google-only",
+      "placeId": "ChIJz80-WhEWw4gRzOuwAzFVxag",
+      "needsPermissionFrom": "Panera Bread",
+      "note": "No Commons-licensed photo found for this specific location; only Google Places photos exist."
+    },
+    "Ulta Beauty: birthday gift plus double points — with a purchase": {
+      "reason": "google-only",
+      "placeId": "ChIJmyxjyZgXw4gRB3WmGve_TxY",
+      "needsPermissionFrom": "Ulta Beauty",
+      "note": "No Commons-licensed photo found for this specific location; only Google Places photos exist."
+    },
+    "Dairy Queen: a birthday 'surprise' — don't count the Blizzard yet": {
+      "reason": "google-only",
+      "placeId": "ChIJQd5TVAgWw4gRtK1Eo_WdA9U",
+      "needsPermissionFrom": "Dairy Queen",
+      "note": "No Commons-licensed photo found for this specific location; only Google Places photos exist."
+    },
+    "Firehouse Subs: a birthday reward we couldn't fully verify": {
+      "reason": "google-only",
+      "placeId": "ChIJ2SaIlRsWw4gRzGAwvP0eDaE",
+      "needsPermissionFrom": "Firehouse Subs",
+      "note": "No Commons-licensed photo found for this specific location; only Google Places photos exist."
+    },
+    "Auntie Anne's at Ellenton Premium Outlets: a free pretzel, no purchase": {
+      "reason": "google-only",
+      "placeId": "ChIJHaxvqjIjw4gRAr21gNtVWBw",
+      "needsPermissionFrom": "Auntie Anne's",
+      "note": "No Commons-licensed photo found for this specific location; only Google Places photos exist."
+    },
+    "Culver's: a free Create Your Own Dish — twice a year": {
+      "reason": "google-only",
+      "placeId": "ChIJyUVHMkMRw4gRWxSSGDprdYQ",
+      "needsPermissionFrom": "Culver's",
+      "note": "No Commons-licensed photo found for this specific location; only Google Places photos exist."
+    },
+    "Chili's: a free dessert that expires fast": {
+      "reason": "google-only",
+      "placeId": "ChIJObBe1x8Ww4gRZocRz7u1X2g",
+      "needsPermissionFrom": "Chili's",
+      "note": "No Commons-licensed photo found for this specific location; only Google Places photos exist."
+    },
+    "Duck Donuts: a free donut for keeping the app warm": {
+      "reason": "google-only",
+      "placeId": "ChIJbQc50hEWw4gRekS45lcFEFU",
+      "needsPermissionFrom": "Duck Donuts",
+      "note": "No Commons-licensed photo found for this specific location; only Google Places photos exist."
+    },
+    "Jersey Mike's: 72 Shore Points — with a purchase gate": {
+      "reason": "google-only",
+      "placeId": "ChIJafhu4hYWw4gRyNie7mo17V4",
+      "needsPermissionFrom": "Jersey Mike's",
+      "note": "No Commons-licensed photo found for this specific location; only Google Places photos exist."
+    },
+    "Moe's: the birthday burrito": {
+      "reason": "google-only",
+      "placeId": "ChIJiVUwo8Y9w4gRyfRSxgrLTps",
+      "needsPermissionFrom": "Moe's Southwest Grill",
+      "note": "No Commons-licensed photo found for this specific location; only Google Places photos exist."
+    },
+    "Olive Garden: free dessert at the table": {
+      "reason": "google-only",
+      "placeId": "ChIJ82ZQGhEWw4gRyW9_GZld-8I",
+      "needsPermissionFrom": "Olive Garden",
+      "note": "No Commons-licensed photo found for this specific location; only Google Places photos exist."
+    },
+    "Smoothie King: $2 off — free only at the top tier": {
+      "reason": "google-only",
+      "placeId": "ChIJ3TqagqwXw4gRSzSibPN094s",
+      "needsPermissionFrom": "Smoothie King",
+      "note": "No Commons-licensed photo found for this specific location; only Google Places photos exist."
+    },
+    "Cold Stone: a two-week birthday window": {
+      "reason": "google-only",
+      "placeId": "ChIJpR7FkLoWw4gRGsi3ogvZxw4",
+      "needsPermissionFrom": "Cold Stone Creamery",
+      "note": "No Commons-licensed photo found for this specific location; only Google Places photos exist."
+    },
+    "First Watch: a birthday treat with brunch": {
+      "reason": "google-only",
+      "placeId": "ChIJYfzA4SUlw4gRnPt72baj7pU",
+      "needsPermissionFrom": "First Watch",
+      "note": "No Commons-licensed photo found for this specific location; only Google Places photos exist."
+    },
+    "Cooper's Hawk at UTC: a $15 birthday reward, at the table": {
+      "reason": "google-only",
+      "placeId": "ChIJg3dcWgZHw4gRXN7pMNzP_pA",
+      "needsPermissionFrom": "Cooper's Hawk Winery & Restaurant",
+      "note": "No Commons-licensed photo found for this specific location; only Google Places photos exist."
+    },
+    "Wahlburgers in Sarasota: a free shake, show the email": {
+      "reason": "google-only",
+      "placeId": "ChIJz5Lpb5c_w4gRivPISVkQG3A",
+      "needsPermissionFrom": "Wahlburgers",
+      "note": "No Commons-licensed photo found for this specific location; only Google Places photos exist."
+    },
+    "Toast birthday credits: real dollars at local restaurants (Turmeric, Wheat + Water, Riviera French Café)": {
+      "reason": "google-only",
+      "placeId": "ChIJ32YG_ao5w4gRpzcR49e5sMo",
+      "needsPermissionFrom": "Turmeric Indian Bar & Grill, Wheat + Water Italian Kitchen, Riviera French Café",
+      "note": "No Commons-licensed photo found for these specific restaurants; only Google Places photos exist."
+    }
+  }
+}

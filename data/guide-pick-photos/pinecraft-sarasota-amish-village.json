@@ -1,0 +1,45 @@
+{
+  "slug": "pinecraft-sarasota-amish-village",
+  "picks": {
+    "The village itself": {
+      "src": "/guides/picks/pinecraft-sarasota-amish-village/pinecraft-amish-church.webp",
+      "width": 1400,
+      "height": 902,
+      "alt": "The stone-faced Pinecraft Amish Church building at 1325 Hines Street, with a sign reading 'Pinecraft Amish Church 1325' on the corner",
+      "caption": "The Pinecraft Amish Church on Hines Street, one of the neighborhood landmarks that make up the Pinecraft village.",
+      "credit": "Witherpshins",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Pinecraft_Amish_Church,_1325_Hines_Street_4-2-2012.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Pinecraft_Amish_Church,_1325_Hines_Street_4-2-2012.jpg",
+      "author": "Witherpshins",
+      "position": "50% 45%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "The building's own sign reads 'Pinecraft Amish Church 1325,' matching the file title and street address, confirming the exact Pinecraft neighborhood named in the pick. Not geotagged for a coordinate check.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
+    }
+  },
+  "gaps": {
+    "Yoder's Restaurant": {
+      "reason": "google-only",
+      "placeId": null,
+      "needsPermissionFrom": "Yoder's Restaurant",
+      "note": "Real, well-known, currently operating restaurant; no Commons search for 'Yoder's Restaurant', 'Yoder's Amish restaurant' or similar returned any photo of this exact business. Google Places almost certainly holds photos of it, which this pipeline may not use without the restaurant's own permission."
+    },
+    "Der Dutchman": {
+      "reason": "google-only",
+      "placeId": null,
+      "needsPermissionFrom": "Der Dutchman (Sarasota location)",
+      "note": "The only 'Der Dutchman' photos on Commons are explicitly captioned as the original Walnut Creek, Ohio location (a different branch of the same chain), so they cannot represent the Sarasota restaurant this pick names. No photo of the Sarasota branch was found."
+    },
+    "How to visit respectfully": {
+      "reason": "not-a-place",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "Etiquette guidance for visiting the residential neighborhood; not a single place."
+    }
+  }
+}
