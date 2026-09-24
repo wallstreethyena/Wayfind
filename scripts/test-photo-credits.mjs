@@ -90,5 +90,7 @@ ok(!/googleapis/.test(route), "/api/photo-credits has no Google endpoint");
 ok(/photoCacheKey\(`places\/\$\{id\}\/photos\/\*`, CACHE_WIDTH\)/.test(route) && /const CACHE_WIDTH = 640;/.test(route), "reads the same photo|<name>|640 rows /api/photo serves");
 ok(/exp=gt\./.test(route) && /expires_at=gt\./.test(route), "only live cache rows and live credits");
 ok(/pickCachedCredits\(credits, live\)/.test(route), "route uses the tested pairing function");
+const batch = Number((route.match(/const KEY_BATCH = (\d+);/) || [])[1]);
+ok(batch >= 1 && batch * 440 < 8000, `credit lookups stay under ~8 KB per request (KEY_BATCH ${batch}; 120 built a 50 KB URL Supabase refused with 400)`);
 
 console.log(`test-photo-credits: ${n} assertions passed`);
