@@ -555,6 +555,13 @@ function makeFakePostgrest(rows, { honorOrder = true, pageSize = 1000, singlePag
     "surface-parity-audit.mjs serverRadiusFor must use the discovery clamp for discovery keys and the ladder snap for every other key");
   ok(!/computeEligibleSet\(\{[^}]*radiusM: RADIUS_M,/.test(AUDIT),
     "a ground-truth computeEligibleSet call still uses the global snapped RADIUS_M instead of serverRadiusFor(cat, sub, ...)");
+  // Positive controls for the absence check above: the probe fires on the
+  // old shape, and the audit really does route both ground-truth calls
+  // through serverRadiusFor.
+  ok(/computeEligibleSet\(\{[^}]*radiusM: RADIUS_M,/.test("computeEligibleSet({ cat, sub, lat, lng, radiusM: RADIUS_M, env: SB_ENV })"),
+    "positive control: the RADIUS_M probe no longer matches the old call shape, so its absence proves nothing");
+  ok((AUDIT.match(/computeEligibleSet\(\{[^}]*radiusM: serverRadiusFor\(cat, sub, RAW_RADIUS_M\)/g) || []).length === 2 && /radiusM: serverRadiusFor\(cat, sub, RAW_RADIUS_M\)/.test(AUDIT),
+    "both ground-truth computeEligibleSet calls (API and browser level) must use serverRadiusFor(cat, sub, RAW_RADIUS_M)");
 }
 
 if (bad.length) {

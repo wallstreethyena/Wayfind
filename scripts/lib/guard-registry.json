@@ -8206,11 +8206,9 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 61,
-      "unprovenAbsenceCount": 1,
-      "honestyViolations": [
-        "1 absence assertion(s) with no positive control in the same file (e.g. \"!/computeEligibleSet\\(\\{[^}]*radiusM: RADIUS_M,/.test(AUDIT),\n    \"\")"
-      ],
+      "assertionCount": 63,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
       "selfDocumentsRedProve": true,
       "wiring": {
         "guardsTxt": true,
