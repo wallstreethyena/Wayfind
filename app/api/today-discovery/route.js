@@ -9,6 +9,7 @@ import { allCreators } from "../../../lib/creatorVideos.js";
 import { NET_DEADLINE_MS, fetchDeadline } from "../../../lib/fetchDeadline.js";
 import { distMeters, invRowToPlace, serveFromInventory, serveInventoryByPlaceIds } from "../../../lib/inventoryServe.js";
 import { fetchOwnedPool } from "../../../lib/ownedPool.js";
+import { makeReadCache } from "../../../lib/inventoryReadCache.js";
 import { completeAnswersOnly, fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
 import { nearestWater } from "../../../lib/waterStations.js";
 import { claimsTodayRail, composeTodayDiscoveryRails, TODAY_NATURE_MI } from "../../../lib/todayDiscoveryRails.js";
@@ -121,7 +122,15 @@ export async function GET(request) {
   try {
     const cached = await fastCachedRail(key, async () => {
       const radiusM = TODAY_NATURE_MI * 1609.34;
-      const options = { failLoud: true, primaryOnly: true, deadlineMs: NET_DEADLINE_MS };
+      // 2026-09-23 — one per-compute read cache, shared by every
+      // serveFromInventory call below. Today this compute reads four
+      // DIFFERENT physical categories (food/nightlife/hotels/shopping), so
+      // there is no duplicate box to coalesce yet — but a future rail that
+      // adds a second chip on one of these categories gets the coalescing for
+      // free, and it costs nothing when there is nothing to share. Scoped to
+      // THIS request only (lib/inventoryReadCache.js's header).
+      const readCache = makeReadCache();
+      const options = { failLoud: true, primaryOnly: true, deadlineMs: NET_DEADLINE_MS, readCache };
       const origin = { lat, lng };
       /**
        * CANDIDATE INTEGRITY — ASK WHAT THE PLACE IS BEFORE RANKING IT.

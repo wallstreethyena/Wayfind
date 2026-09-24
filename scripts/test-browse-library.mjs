@@ -209,7 +209,12 @@ ok(!/return await searchPlaces\(cat, sub/.test(FETCH.split("SUB_ALLOW[")[0]),
 // ── 6. serveFromInventory still filters before rank (edit the ORDER, fail) ──
 const SRC = readFileSync(new URL("../lib/inventoryServe.js", import.meta.url), "utf8")
   .replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^[ \t]*\/\/.*$/gm, " ");
-ok(SRC.indexOf("chipIdentity(cat, subId") < SRC.indexOf("return rankInventory("),
+// 2026-09-23: rankInventory is now called into a variable (fullRanked), not
+// returned directly — serveFromInventoryUncached pages/hydrates its result
+// before responding. "rankInventory(rows, lat, lng, radiusM" alone is not
+// unique (it also matches rankInventory's own declaration), so this anchors
+// on the exhaustive-read call site's full signature, which exists once.
+ok(SRC.indexOf("chipIdentity(cat, subId") < SRC.indexOf("rankInventory(rows, lat, lng, radiusM, Infinity)"),
   "serveFromInventory applies chipIdentity(cat, subId) BEFORE rankInventory — Family → Rainy is family:rainy, not attractions:rainy");
 ok(!/slice\(\s*0\s*,\s*Math\.min\([^)]*,\s*50\)/.test(SRC),
   "rankInventory must not hide a merchandising 50 inside Math.min — that was the leftover cap");

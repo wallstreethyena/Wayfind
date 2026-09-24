@@ -1,6 +1,7 @@
 "use client";
 import { Component, useEffect, useMemo, useRef, useState } from "react";
 import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, distMeters, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces, normalizeSearchPlace, wayfindScore } from "../lib/google";
+import { normName, betterPlace, dedupePlaces } from "../lib/placeDedupe";
 import { localCitySuggestions, createSearchAttempt } from "../lib/searchExperience.js";
 import { mergeHealedPlacePhotos } from "../lib/detailHero";
 import { RON_DUPRAT_TOP7, chefHookCard, chefPickPlaces } from "../lib/chefPicks";
@@ -1337,43 +1338,9 @@ function setCachedInsight(id, data) {
 // sit back to back in a curated feed. Exact place_id duplicates always collapse.
 // When collapseBrand is true (general recommendation feeds) same-name brands
 // collapse to their single best branch; brand searches pass false and keep all.
-function normName(s) {
-  let t = String(s || "").toLowerCase();
-  const cut = t.search(/\s[-\u2013\u2014|]\s/);
-  if (cut > 0) t = t.slice(0, cut);
-  return t.replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
-}
-function betterPlace(a, b) {
-  if (!a) return b; if (!b) return a;
-  const oa = a.openNow === true ? 1 : 0, ob = b.openNow === true ? 1 : 0;
-  if (oa !== ob) return oa > ob ? a : b;
-  const na = a.reviews || 0, nb = b.reviews || 0;
-  if (na !== nb) return na > nb ? a : b;
-  const ra = a.rating || 0, rb = b.rating || 0;
-  if (ra !== rb) return ra > rb ? a : b;
-  const pa = a.photo ? 1 : 0, pb = b.photo ? 1 : 0;
-  if (pa !== pb) return pa > pb ? a : b;
-  return (a.wfScore || 0) >= (b.wfScore || 0) ? a : b;
-}
-function dedupePlaces(list, collapseBrand) {
-  if (!Array.isArray(list)) return [];
-  const out = []; const at = new Map();
-  for (const p of list) {
-    if (!p) continue;
-    const id = p.id || p.placeId || ("n:" + p.name + "|" + (p.address || ""));
-    if (at.has(id)) { const i = at.get(id); out[i] = betterPlace(out[i], p); }
-    else { at.set(id, out.length); out.push(p); }
-  }
-  if (!collapseBrand) return out;
-  const out2 = []; const nat = new Map();
-  for (const p of out) {
-    const k = normName(p.name);
-    if (!k) { out2.push(p); continue; }
-    if (nat.has(k)) { const i = nat.get(k); out2[i] = betterPlace(out2[i], p); }
-    else { nat.set(k, out2.length); out2.push(p); }
-  }
-  return out2;
-}
+// normName/betterPlace/dedupePlaces moved to lib/placeDedupe.js (2026-09-23) so
+// the surface-parity diagnostic can call the REAL brand-collapse rule instead
+// of restating it \u2014 imported back in unchanged, zero behavior change here.
 
 // v5.5: build a share URL whose landing page (/p/[id]) renders a branded Wayfind
 // preview card in iMessage and social, then bounces the visitor into the app.
@@ -3830,6 +3797,55 @@ function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage, hideLike,
 // when the user came from a "Worth the drive?" hook. Captures yes/no, then
 // reveals the live community tally.
 
+// 2026-09-23 — pulled out of the inv=1 fetch's inline `.map()` so the "Wayfind
+// 5 more spots" continuation fetch (below, inside PageInner) maps a later
+// server page IDENTICALLY to the first one, rather than carrying a second,
+// driftable copy of the same row->card shape. Pure; a row already in the
+// app's own shape (has `name`, no `displayName`) passes through unchanged.
+function mapInventoryRow(x, center) {
+  if (!x) return null;
+  if (x.name && !x.displayName) return x; // already app-shaped
+  const _la = x.location && x.location.latitude, _ln = x.location && x.location.longitude;
+  const _ph = x.photos && x.photos[0] && x.photos[0].name;
+  return {
+    id: x.id,
+    name: (x.displayName && x.displayName.text) || x.name || "",
+    lat: _la, lng: _ln,
+    distMi: _la != null ? distMeters(center, { lat: _la, lng: _ln }) / 1609.34 : null,
+    rating: typeof x.rating === "number" ? x.rating : null,
+    reviews: x.userRatingCount || 0,
+    wfScore: wayfindScore(typeof x.rating === "number" ? x.rating : 0, x.userRatingCount || 0),
+    types: Array.isArray(x.types) ? x.types : [],
+    primaryType: x.primaryType || x.primary_type || null,
+    photo: _ph ? "/api/photo?ref=" + encodeURIComponent(_ph) + "&g=2&w=640" : null,
+    openNow: null,
+    businessStatus: x.businessStatus || "OPERATIONAL",
+    _wfInventory: true,
+  };
+}
+
+// 2026-09-23 (fix round, item 1) — THE ONE "Wayfind 5 more spots" control
+// definition. It used to render only inside the Food/category list
+// (exploreList); the main category browse surface (the browseCat view.map
+// block below) printed "That's all N spots" even when the server said
+// hasMore, which rows 401+ made false. Extracted here so BOTH surfaces render
+// the SAME component — one definition, two mount points — instead of a second
+// copy of the button drifting from the first. scripts/check-food-list-
+// continuation.mjs's "exactly one definition" assertion is written against
+// this declaration.
+function MoreSpotsButton({ onClick }) {
+  return (
+    <div style={{ padding: "2px 2px 10px" }}>
+      <div style={{ height: 1, background: C.border, margin: "0 0 12px" }} />
+      <button onClick={onClick} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, height: 50, borderRadius: 14, border: "none", background: "linear-gradient(180deg, #FB923C 0%, #F97316 52%, #EA580C 100%)", color: "#fff", fontSize: 14.5, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 14px rgba(249,115,22,.4)" }}>
+        Wayfind 5 more spots
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ display: "block" }}><path d="M5 12h13M13 6l6 6-6 6" /></svg>
+      </button>
+      <div style={{ textAlign: "center", fontSize: 11.5, color: C.muted, marginTop: 9 }}>More spots worth your time nearby</div>
+    </div>
+  );
+}
+
 function PageInner({ initialEvents = null, localEditGuides = null, railMenu = null, initialPlaceId = null, initialPlaceAction = null }) {
   const [supabaseReady, setSupabaseReady] = useState(false);
   // PERF 2026-09-08: Supabase is not part of the homepage eager graph. Load it
@@ -4141,6 +4157,25 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   }, [cityTransition]);
   const [sugIdx, setSugIdx] = useState(-1); // v5.63 (audit P4): keyboard-highlighted suggestion, -1 = none
   const [places, setPlaces] = useState([]);
+  // 2026-09-23 — SERVER PAGING for the inv=1 category list. The route now
+  // reports the TRUE eligible count and whether more exists past this page
+  // (lib/inventoryServe.js's exhaustive read); this ref remembers that answer
+  // for the CURRENT cat/sub/center so the "Wayfind 5 more spots" control can
+  // ask for the next page once every already-loaded row has been revealed,
+  // instead of the list quietly ending at 400. A ref, not state: it changes on
+  // its own schedule (inside the fetch effect / the continuation fetch) and
+  // must never itself trigger a render — reading it during render is safe
+  // because every write that matters is followed by a setPlaces/setVisibleCount
+  // that already re-renders.
+  const invMoreRef = useRef({ hasMore: false, offset: 0, cat: null, sub: null, m: null, centerKey: null });
+  const invMoreLoadingRef = useRef(false);
+  // 2026-09-23 (fix round, item 3) — set true the instant loadMoreInventory
+  // actually appends a fetched page onto `places`, cleared by the very next
+  // run of the setVisibleCount(5) reset effect below. Appending changes the
+  // `places` ARRAY REFERENCE, which is that effect's own dependency — without
+  // this flag, every successful "Wayfind 5 more spots" continuation collapsed
+  // the just-grown list straight back down to 5 cards.
+  const invAppendingRef = useRef(false);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
   const [detail, setDetail] = useState(null);
@@ -6286,7 +6321,18 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   }
 
   // Reset the explore list back to 5 whenever a new result set loads or search mode flips.
-  useEffect(() => { if (!posRestore.current) setVisibleCount(5); }, [places, searchMode]);
+  // 2026-09-23 (fix round, item 3) — NOT while a "Wayfind 5 more spots"
+  // continuation just appended a page: loadMoreInventory's setPlaces(prev =>
+  // [...prev, ...add]) changes this SAME `places` array reference, retriggering
+  // this effect and collapsing the just-grown list straight back down to 5 —
+  // the visible symptom being "tap more spots, see 5 again". invAppendingRef
+  // is set (inside loadMoreInventory's own setPlaces updater) only when an
+  // append genuinely happened; consumed once, here, so every OTHER places
+  // change (a real category/location/search switch) still resets normally.
+  useEffect(() => {
+    if (invAppendingRef.current) { invAppendingRef.current = false; return; }
+    if (!posRestore.current) setVisibleCount(5);
+  }, [places, searchMode]);
   function pickSub(id) { setSub(id); setVibe("all"); try { logEvent("filter_changed", null, { cat, sub: id }); } catch (e) {} }
 
   // Signal functions — record engagement, drive personalised ranking, trigger sign-up.
@@ -7232,11 +7278,22 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         // the richer owned-hotel endpoint; every other category pulls rows from
         // wf_inventory via the free inv=1 serve, then maps name/photo/wfScore/
         // distance BEFORE the rows ever meet a PlaceCard.
-        const _invAll = async (m) => {
+        const _invAll = async (m, offset = 0) => {
           try {
             if (cat === "hotels") {
               const hr = await fetch(`/api/hotels?lat=${center.lat}&lng=${center.lng}&limit=40`);
               const hj = await hr.json();
+              // The hotels endpoint has no offset/paging contract of its own;
+              // a stale hasMore from a prior category must not survive the tab
+              // switch (loadMoreInventory also guards on cat/sub, but belt +
+              // suspenders costs one line).
+              // 2026-09-23 (fix round, item 6b) — this effect's own `cancelled`
+              // flag guards the write: a category/location change already
+              // re-runs this effect and can flip `cancelled` true WHILE this
+              // fetch is still in flight (hotels has no abort of its own), and
+              // a write that lands after that point would overwrite the NEW
+              // effect's fresh invMoreRef meta with this stale one's.
+              if (!cancelled) invMoreRef.current = { hasMore: false, offset: 0, cat, sub, m, centerKey: `${center.lat},${center.lng}` };
               return Array.isArray(hj.hotels) ? hj.hotels : [];
             }
             // v8.49 — SEND THE CHIP. Without `sub` this asks for the whole
@@ -7246,30 +7303,34 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             // near Parrish: 0 of the top 50 food rows are cafés, which is
             // exactly why Food > Cafés rendered "Nothing here right now" while
             // 111 admissible cafés sat in inventory 17 miles away.
-            const r = await fetch(`/api/places/search?q=inventory&lat=${center.lat.toFixed(4)}&lng=${center.lng.toFixed(4)}&radius=${m}&n=400&cat=${encodeURIComponent(cat)}&inv=1${sub && sub !== "all" ? `&sub=${encodeURIComponent(sub)}` : ""}`);
+            const r = await fetch(`/api/places/search?q=inventory&lat=${center.lat.toFixed(4)}&lng=${center.lng.toFixed(4)}&radius=${m}&n=400&cat=${encodeURIComponent(cat)}&inv=1${sub && sub !== "all" ? `&sub=${encodeURIComponent(sub)}` : ""}${offset ? `&offset=${offset}` : ""}`);
+            // 2026-09-23 (fix round, item 5) — a FAILED read (the route now
+            // answers 503 + no-store rather than a cacheable {places:[]}) must
+            // count as a failure, not a quiet "nothing here". Before this, a
+            // non-2xx response's body was still `{places:[]}`-shaped and read
+            // exactly like a real empty category.
+            if (!r.ok) {
+              _fetchErrs++;
+              if (!cancelled) invMoreRef.current = { hasMore: false, offset, cat, sub, m, centerKey: `${center.lat},${center.lng}` };
+              return [];
+            }
             const j = await r.json();
             const raw = Array.isArray(j.places) ? j.places : [];
-            return raw.map((x) => {
-              if (!x) return null;
-              if (x.name && !x.displayName) return x; // already app-shaped
-              const _la = x.location && x.location.latitude, _ln = x.location && x.location.longitude;
-              const _ph = x.photos && x.photos[0] && x.photos[0].name;
-              return {
-                id: x.id,
-                name: (x.displayName && x.displayName.text) || x.name || "",
-                lat: _la, lng: _ln,
-                distMi: _la != null ? distMeters(center, { lat: _la, lng: _ln }) / 1609.34 : null,
-                rating: typeof x.rating === "number" ? x.rating : null,
-                reviews: x.userRatingCount || 0,
-                wfScore: wayfindScore(typeof x.rating === "number" ? x.rating : 0, x.userRatingCount || 0),
-                types: Array.isArray(x.types) ? x.types : [],
-                primaryType: x.primaryType || x.primary_type || null,
-                photo: _ph ? "/api/photo?ref=" + encodeURIComponent(_ph) + "&g=2&w=640" : null,
-                openNow: null,
-                businessStatus: x.businessStatus || "OPERATIONAL",
-                _wfInventory: true,
+            // 2026-09-23 — SERVER PAGING. Remember whether the route says more
+            // exists past this page, for THIS exact cat/sub/center, so the
+            // "Wayfind 5 more spots" control can ask for the next page once
+            // every already-loaded row has been revealed, instead of the list
+            // quietly ending at 400. See loadMoreInventory below.
+            // 2026-09-23 (fix round, item 6b) — guarded by `cancelled` for the
+            // same reason as the hotels branch above: this write must never
+            // land after a category/location change has already moved on.
+            if (!cancelled) {
+              invMoreRef.current = {
+                hasMore: !!j.hasMore, offset: offset + raw.length,
+                cat, sub, m, centerKey: `${center.lat},${center.lng}`,
               };
-            }).filter((p) => p && p.name);
+            }
+            return raw.map((x) => mapInventoryRow(x, center)).filter((p) => p && p.name);
           } catch (e) { _fetchErrs++; return []; }
         };
 
@@ -9216,6 +9277,68 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   const exHeroSl = exHero ? scoreLabel(exHero.wfScore) : null;
   const restView = exHero ? consolidatedView.filter((p) => p && p.id !== exHero.id) : consolidatedView;
 
+  // 2026-09-23 — can the "Wayfind 5 more spots" control ask the SERVER for
+  // another page? Only when the last inv=1 read's meta still matches this
+  // exact cat/sub/center (a category/location change already re-ran the
+  // fetch effect above and overwrote invMoreRef with fresh — or cleared —
+  // meta, so a stale "yes" from a different query can never leak through).
+  const invMoreCanContinue = !!(invMoreRef.current && invMoreRef.current.hasMore
+    && invMoreRef.current.cat === cat && invMoreRef.current.sub === sub
+    && invMoreRef.current.centerKey === (center ? `${center.lat},${center.lng}` : null));
+  // The SAME control's server continuation. Once every already-loaded row is
+  // revealed (restView.length <= visibleCount) and the route said hasMore,
+  // this fetches the next page instead of the list quietly ending at 400 —
+  // same URL shape, same mapInventoryRow normalization, same dedupe-by-id;
+  // appended places then run through the SAME view/restView pipeline above
+  // (ranking, dedupePlaces, cardComplete) as the first page. No new UI
+  // element: this only changes what the existing button's onClick does once
+  // it runs out of already-loaded rows to reveal.
+  const loadMoreInventory = async () => {
+    const meta = invMoreRef.current;
+    const centerKey = center ? `${center.lat},${center.lng}` : null;
+    if (invMoreLoadingRef.current || !meta || !meta.hasMore || meta.cat !== cat || meta.sub !== sub || meta.centerKey !== centerKey) {
+      setVisibleCount((c) => c + 5);
+      return;
+    }
+    invMoreLoadingRef.current = true;
+    try {
+      const r = await fetch(`/api/places/search?q=inventory&lat=${center.lat.toFixed(4)}&lng=${center.lng.toFixed(4)}&radius=${meta.m}&n=400&cat=${encodeURIComponent(cat)}&inv=1${sub && sub !== "all" ? `&sub=${encodeURIComponent(sub)}` : ""}&offset=${meta.offset}`);
+      // 2026-09-23 (fix round, item 5) — a FAILED continuation page (the route
+      // now answers 503 + no-store) must not be read as "the next page is
+      // empty" — leave hasMore/offset untouched so another tap retries it.
+      if (!r.ok) return;
+      const j = await r.json();
+      // 2026-09-23 (fix round, item 6a) — RE-CHECK AFTER THE AWAIT. The guard
+      // above only proves the query matched when this fetch STARTED; a
+      // category/location change mid-flight re-runs the fetch effect, which
+      // overwrites invMoreRef.current with a DIFFERENT query's meta (see
+      // _invAll, above). Writing THIS page's rows into `places` under a now-
+      // different cat/sub/center would silently mix two queries' results —
+      // the stale-async race the audit flagged — so drop it instead.
+      const liveMeta = invMoreRef.current;
+      const stillCurrent = liveMeta && liveMeta.cat === meta.cat && liveMeta.sub === meta.sub && liveMeta.centerKey === meta.centerKey && liveMeta.m === meta.m;
+      if (!stillCurrent) return;
+      const raw = Array.isArray(j.places) ? j.places : [];
+      const mapped = raw.map((x) => mapInventoryRow(x, center)).filter((p) => p && p.name);
+      invMoreRef.current = { ...liveMeta, hasMore: !!j.hasMore, offset: meta.offset + raw.length };
+      setPlaces((prev) => {
+        const seen = new Set((prev || []).map((p) => p && p.id));
+        const add = mapped.filter((p) => p && p.id && !seen.has(p.id));
+        if (!add.length) return prev;
+        // 2026-09-23 (fix round, item 3) — tell the setVisibleCount(5) reset
+        // effect that THIS `places` change is an append, not a new result set,
+        // so it does not collapse the list it was just asked to grow.
+        invAppendingRef.current = true;
+        return [...prev, ...add];
+      });
+    } catch (e) {
+      // best-effort — leave hasMore as-is so another tap can retry the page
+    } finally {
+      invMoreLoadingRef.current = false;
+      setVisibleCount((c) => c + 5);
+    }
+  };
+
   // 2026-08-08: THE UNIFIED TREND SIGNAL on the home pool (lib/trendSignal.js
   // — real foot traffic + major-event proximity, never a paid input).
   // attachTrendSignals MUTATES the place objects in `places`, so every list
@@ -9376,15 +9499,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         <PlaceCard key={p.id} p={p} rank={i + 4} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} />
       ))}
       </div>
-      {!loading && restView.length > visibleCount && (
-        <div style={{ padding: "2px 2px 10px" }}>
-          <div style={{ height: 1, background: C.border, margin: "0 0 12px" }} />
-          <button onClick={() => setVisibleCount((c) => c + 5)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, height: 50, borderRadius: 14, border: "none", background: "linear-gradient(180deg, #FB923C 0%, #F97316 52%, #EA580C 100%)", color: "#fff", fontSize: 14.5, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 14px rgba(249,115,22,.4)" }}>
-            Wayfind 5 more spots
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ display: "block" }}><path d="M5 12h13M13 6l6 6-6 6" /></svg>
-          </button>
-          <div style={{ textAlign: "center", fontSize: 11.5, color: C.muted, marginTop: 9 }}>More spots worth your time nearby</div>
-        </div>
+      {!loading && (restView.length > visibleCount || invMoreCanContinue) && (
+        <MoreSpotsButton onClick={() => { if (restView.length > visibleCount) setVisibleCount((c) => c + 5); else loadMoreInventory(); }} />
       )}
     </>
   );
@@ -10751,10 +10867,18 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                         <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} />
                       ))}
                       </div>
-                      {/* End-of-feed honesty: name the count + the city so a short list reads
-                          as complete, not broken. When sparse (<8) offer a real next step —
-                          relax the sub-filter if one is on, else widen the search radius. */}
-                      {(() => {
+                      {/* 2026-09-23 (fix round, item 1) — a capped first page is only
+                          "all of them" when the route agrees there is no more. This
+                          main browse surface used to print "That's all N spots" even
+                          when invMoreCanContinue was true (rows 401+ unreachable),
+                          making the line false. Render the SAME MoreSpotsButton (see
+                          its one definition above PageInner) here too when the
+                          server says there is a next page, and only claim
+                          completeness once there truly is none — no design change,
+                          same button, same end-of-feed copy either way. */}
+                      {invMoreCanContinue ? (
+                        <MoreSpotsButton onClick={loadMoreInventory} />
+                      ) : (() => {
                         const _lbl = ((Cats.CATEGORY_TILES.find((t) => t.id === browseCat) || {}).label || "").toLowerCase();
                         const _city = locName ? locName.split(",")[0] : "this area";
                         const _canRelax = sub && sub !== "all";

@@ -18,6 +18,15 @@ import { mergeOwnedSignals, ownedLookupIds } from "../../../../lib/ownedLibrary"
 import { attractionDiscoveryPlaceIds, loadAttractionDiscovery } from "../../../../lib/attractionDiscovery";
 
 export const dynamic = "force-dynamic";
+// 2026-09-23 — the inv=1 branch now reads its category box EXHAUSTIVELY
+// (lib/inventoryServe.js's readOwnedCategory paging) instead of a single
+// capped fetch, so a wide box (e.g. Tampa food, ~75mi) can take several
+// sequential Supabase round trips before it answers. Platform default was
+// never declared here, so it inherited whatever ceiling the account's plan
+// applies; 30s gives the paged read (INVENTORY_SERVE_TOTAL_BUDGET_MS = 9s)
+// real headroom plus the rest of the request without changing behavior for
+// the fast, common case, which still answers in well under a second.
+export const maxDuration = 30;
 
 const FRESH_TTL_MS = 30 * DAY;   // v6.09: 30 days = the Google ToS maximum for cached
                                  // place content. Maximizing the fresh window minimizes
@@ -48,6 +57,11 @@ const TEXT_PRO_MASK = [
 
 // Edge cache: 1 day fresh + 9 days stale-while-revalidate on top of Supabase.
 const EDGE_HEADERS = { "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=777600" };
+// 2026-09-23 (fix round, item 5) — for a FAILED or INCOMPLETE inv=1 read.
+// EDGE_HEADERS' s-maxage=86400 exists for successful, COMPLETE answers; a 503
+// or a truncated read cached under it would freeze "Nothing here" (or a
+// partial list) for a full day. no-store on those responses only.
+const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
 
 // v6.35 — REFRESH-AHEAD poke. A fresh-but-aging cache hit (cget returns due:true
 // at a jittered 20–27 days) is served to the user INSTANTLY; this fire-and-forget
@@ -191,24 +205,91 @@ async function handleSearch(params, origin) {
     // merchandising ceiling. The old 50 was how a filled café identity still
     // shipped 40 cards and called the library done.
     const invN = Math.min(Math.max(Number(params.n) || 40, 1), 400);
+    // 2026-09-23 — SERVER PAGING. A capped-to-400 first page can no longer
+    // silently be the whole answer: the exhaustive read (lib/inventoryServe.js)
+    // now knows the TRUE eligible count, so the "Wayfind 5 more spots" control
+    // (app/home.js) can ask for the next page instead of the list quietly
+    // ending at 400. `offset` is caller-controlled but bounded — a caller
+    // cannot request a negative offset or an absurdly large one that would
+    // page past a sane ceiling for no reason.
+    const invOffset = Math.min(Math.max(Math.floor(Number(params.offset) || 0), 0), 100000);
     // Owned inventory is not subject to Google's 50km location-bias ceiling.
     // Preserve the browse ladder's requested circle (up to its 60mi maximum)
     // so a 45mi-owned candidate is not lost before the exact-radius gate below.
     const discoveryIds = attractionDiscoveryPlaceIds(params.cat, params.sub);
     if (!discoveryIds.length) {
-      const inv = await serveFromInventory(String(params.cat || ""), lat, lng, radius, invN, params.sub);
-      return NextResponse.json({ places: inv, cached: false, source: "inventory-direct" }, { headers: EDGE_HEADERS });
+      // 2026-09-23 (fix round, item 5) — FAIL LOUD. Without failLoud, a
+      // failed read returned {places:[], total:0} and this response still
+      // carried EDGE_HEADERS (s-maxage=86400), freezing "Nothing here" for a
+      // day. A genuine failure now answers 503 with no-store instead, so the
+      // next request tries again rather than replaying a cached emptiness.
+      try {
+        const result = await serveFromInventory(String(params.cat || ""), lat, lng, radius, invN, params.sub, { offset: invOffset, withMeta: true, failLoud: true });
+        const meta = result && result.meta ? result.meta : { eligible: 0, served: 0, offset: invOffset, truncated: false };
+        const places = result && Array.isArray(result.places) ? result.places : [];
+        return NextResponse.json({
+          places, cached: false, source: "inventory-direct",
+          // total = the full eligible count under this exact chip/radius, not
+          // just what this page carries — the "That's all N spots" line and the
+          // "more" control both read this, not places.length.
+          total: meta.eligible, hasMore: meta.offset + meta.served < meta.eligible, truncated: !!meta.truncated,
+        }, { headers: meta.truncated || meta.photosIncomplete ? NO_STORE_HEADERS : EDGE_HEADERS });
+      } catch (error) {
+        return NextResponse.json({ places: [], error: String((error && error.message) || error) }, { status: 503, headers: NO_STORE_HEADERS });
+      }
     }
     const discoveryRadius = Math.min(Math.max(Number(params.radius) || 24000, 500), 96560);
     // Exact IDs only repair candidate coverage. The same chip identity and the
     // caller's exact requested circle still decide membership, and the merged
     // pool is score-ordered rather than registry-ordered or partner-ordered.
+    //
+    // 2026-09-23 (fix round, item 2) — SERVER PAGING, here too. This used to
+    // ask serveFromInventory for only the top invN (<=400) of the broad
+    // category, with no offset and no meta, so `hasMore` was always false and
+    // `total` was just `merged.length` — while the TRUE eligible count under a
+    // wide chip (attractions:all, Parrish) can be ~920. Reading the broad
+    // category with {offset, withMeta} gives the real eligible/served/offset
+    // this branch was missing; the exact-ID top-up (loadAttractionDiscovery's
+    // own identity/score rules, unchanged — see lib/attractionDiscovery.js)
+    // still runs ONLY on the first page (invOffset === 0): it repairs candidate
+    // coverage for what the reader sees FIRST, and running it again on every
+    // later page would re-sort an already-paged, already-ranked slice by
+    // mergeAttractionDiscovery's scoreOf() alone (no distance penalty) — a
+    // different order than the exhaustive read produced, breaking "page N is
+    // the next N rows". `total` adds any exact-ID candidates the merge pulled
+    // in beyond what the broad read already served (they may not be part of
+    // the box's own eligible count at all — see the header on
+    // mergeAttractionDiscovery for why an exact ID can qualify when the box's
+    // native chip contract would have missed it).
     const discoveryRequest = { cat: params.cat, sub: params.sub, lat, lng, radiusM: discoveryRadius, n: invN };
-    const merged = await loadAttractionDiscovery(discoveryRequest, {
-      readCategory: (request) => serveFromInventory(String(request.cat || ""), lat, lng, request.radiusM, request.n, request.sub),
-      readIds: (ids, request) => serveInventoryByPlaceIds(ids, lat, lng, request.radiusM),
-    });
-    return NextResponse.json({ places: merged, cached: false, source: "inventory-direct" }, { headers: EDGE_HEADERS });
+    let discoveryMeta = null;
+    try {
+      const merged = await loadAttractionDiscovery(discoveryRequest, {
+        readCategory: async (request) => {
+          // readCategory is always invoked with the SAME discoveryRequest object
+          // built above (lib/attractionDiscovery.js's loadAttractionDiscovery
+          // passes `request` through unchanged), so request.cat/.sub/.radiusM/.n
+          // are exactly params.cat/params.sub/discoveryRadius/invN. Read
+          // params.sub directly (rather than request.sub) so this call site is
+          // textually, not just referentially, "forwards params.sub" — the same
+          // invariant scripts/check-narrow-chip-inventory.mjs asserts on every
+          // serveFromInventory call in this route.
+          const result = await serveFromInventory(String(request.cat || ""), lat, lng, request.radiusM, request.n, params.sub, { offset: invOffset, withMeta: true, failLoud: true });
+          discoveryMeta = result && result.meta ? result.meta : null;
+          return result && Array.isArray(result.places) ? result.places : [];
+        },
+        readIds: (ids, request) => invOffset === 0 ? serveInventoryByPlaceIds(ids, lat, lng, request.radiusM) : Promise.resolve([]),
+      });
+      const meta = discoveryMeta || { eligible: merged.length, served: merged.length, offset: invOffset, truncated: false };
+      const extraCandidates = Math.max(0, merged.length - meta.served);
+      const total = meta.eligible + extraCandidates;
+      return NextResponse.json({
+        places: merged, cached: false, source: "inventory-direct",
+        total, hasMore: meta.offset + meta.served < meta.eligible, truncated: !!meta.truncated,
+      }, { headers: meta.truncated || meta.photosIncomplete ? NO_STORE_HEADERS : EDGE_HEADERS });
+    } catch (error) {
+      return NextResponse.json({ places: [], error: String((error && error.message) || error) }, { status: 503, headers: NO_STORE_HEADERS });
+    }
   }
 
   // Round the bias point to ~1km so nearby users share cache entries.
@@ -293,7 +374,20 @@ async function handleSearch(params, origin) {
     const gateBlocked = async (why) => {
       const stale = await serveStale();
       if (stale) return stale;
-      const inv = params.cat ? await serveFromInventory(params.cat, lat, lng, radius, n, params.sub) : [];
+      // 2026-09-23 re-audit: in free mode this is the path every category
+      // search takes, so a FAILED inventory read must not be served as an
+      // honestly empty answer and edge-cached for a day. failLoud separates
+      // the two: a thrown read answers 503 + no-store (the client's
+      // proxySearch already treats !r.ok as "no results this time"), and only
+      // a read that really completed may be cached, empty or not.
+      let inv = [];
+      if (params.cat) {
+        try {
+          inv = await serveFromInventory(params.cat, lat, lng, radius, n, params.sub, { failLoud: true });
+        } catch (error) {
+          return NextResponse.json({ places: [], cached: false, gate: why, error: "inventory read failed", debug: dbg() }, { status: 503, headers: NO_STORE_HEADERS });
+        }
+      }
       if (inv.length) return NextResponse.json({ places: inv, cached: false, source: "inventory", gate: why, debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
       return NextResponse.json({ places: [], cached: false, gate: why, debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
     };

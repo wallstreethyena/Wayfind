@@ -98,6 +98,20 @@ export async function loadComponent(entryAbs, repoRoot, { onGraph } = {}) {
       return jsonFile;
     }
     const src = readFileSync(abs, "utf8");
+    // RESERVE the output path and register it in `done` BEFORE recursing into
+    // this file's own imports — 2026-09-23. `done` used to gain an entry only
+    // AFTER a file's whole dependency tree had resolved, so a CIRCULAR import
+    // (e.g. lib/inventoryServe.js <-> lib/ownedPool.js: ownedPool statically
+    // imports boxForRadius from inventoryServe, and inventoryServe now lazily
+    // imports readOwnedCategory from ownedPool) recursed into itself forever —
+    // emit(A) calls emit(B), which finds A not yet in `done` and calls
+    // emit(A) again, endlessly, until the call stack overflowed compiling
+    // app/home.js's real dependency graph. Reserving the path first means the
+    // SECOND, cyclic call to emit(A) returns immediately with the path the
+    // first call already claimed; content still gets written once, by the
+    // original (outer) call, before loadComponent() ever returns.
+    const file = path.join(out, path.basename(abs).replace(/\.jsx?$/, "") + "-" + done.size + ".mjs");
+    done.set(abs, file);
     // Rewrite relative specifiers: local JSX deps get compiled too, everything
     // else points back at the ORIGINAL file with an explicit .js so node resolves
     // it (the repo uses Next's extensionless imports).
@@ -128,10 +142,9 @@ export async function loadComponent(entryAbs, repoRoot, { onGraph } = {}) {
     const js = ts.transpileModule(rewritten, {
       compilerOptions: { jsx: ts.JsxEmit.React, target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext },
     }).outputText;
-    const file = path.join(out, path.basename(abs).replace(/\.jsx?$/, "") + "-" + done.size + ".mjs");
+    // `file`/`done` were already reserved above, before recursing.
     // The React import the classic JSX transform needs.
     writeFileSync(file, 'import React from "react";\n' + js);
-    done.set(abs, file);
     return file;
   };
 

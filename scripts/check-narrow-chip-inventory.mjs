@@ -63,7 +63,14 @@ const SRC = readFileSync(new URL("../lib/inventoryServe.js", import.meta.url), "
   .replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^[ \t]*\/\/.*$/gm, " ");
 ok(/chipIdentity\(cat, subId/.test(SRC),
   "serveFromInventory applies chipIdentity(cat, subId) — the tapped chip, not physical:sub");
-ok(SRC.indexOf("chipIdentity(cat, subId") < SRC.indexOf("return rankInventory("),
+// 2026-09-23: the ordering proof no longer anchors on a literal
+// "return rankInventory(" — serveFromInventoryUncached now calls rankInventory
+// into a variable (fullRanked, with an unbounded n) so it can page/hydrate the
+// result, it does not return it directly. "rankInventory(rows, lat, lng,
+// radiusM" alone is NOT unique — rankInventory's own declaration matches the
+// same text — so this anchors on the full exhaustive-read call site
+// (", Infinity)"), which exists exactly once, inside serveFromInventoryUncached.
+ok(SRC.indexOf("chipIdentity(cat, subId") < SRC.indexOf("rankInventory(rows, lat, lng, radiusM, Infinity)"),
   "…and it does so BEFORE rankInventory — Family → Rainy used to rank unfiltered attractions");
 ok(/await import\(["']\.\/chipIdentity\.js["']\)/.test(SRC),
   "chipIdentity is a dynamic import inside serveFromInventory — a top-level import leaked 0.2KB onto the homepage");
@@ -71,8 +78,24 @@ const EXPLODING = readFileSync(new URL("../lib/explodingNearby.js", import.meta.
   .replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^[ \t]*\/\/.*$/gm, " ");
 ok(!/from ["'].*inventoryServe/.test(EXPLODING),
   "explodingNearby must not import inventoryServe — that was the homepage-JS leak of chipIdentity");
-ok(/lat=gte\.|lat=lte\./.test(SRC),
-  "the inventory read is GEO-BOUNDED — an unbounded limit=1000 reads heap order and loses 81% of nearby cafés");
+// 2026-09-23 — THE READ ITSELF MUST BE EXHAUSTIVE, not just geo-bounded. A
+// bounded-but-capped `limit=1000` still lost Ryan's Coffee House (row 1,001+
+// of 1,598 food rows near Parrish). The box math (boxForRadius) stays inline
+// here; the actual paged fetch now lives in lib/ownedPool.js's
+// readOwnedCategory, called through a LAZY import — asserted directly against
+// both files rather than a substring that used to live in just one of them.
+ok(/boxForRadius\(lat, lng, radiusM\)/.test(SRC),
+  "the geo box is still computed from the caller's exact radius");
+ok(/await import\(["']\.\/ownedPool\.js["']\)/.test(SRC) && /readOwnedCategory\(/.test(SRC),
+  "serveFromInventory reads through ownedPool's readOwnedCategory, not a capped single fetch");
+const OWNED_SRC = readFileSync(new URL("../lib/ownedPool.js", import.meta.url), "utf8")
+  .replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^[ \t]*\/\/.*$/gm, " ");
+ok(/order=place_id\.asc/.test(OWNED_SRC),
+  "readOwnedCategory orders by place_id — the fix for the heap-order truncation that lost 81% of nearby cafés");
+ok(/Range-Unit/.test(OWNED_SRC) && /from \+= page/.test(OWNED_SRC),
+  "readOwnedCategory pages with Range headers to exhaustion, not a single limit=1000");
+ok(/lat=gte\.|lat=lte\./.test(OWNED_SRC),
+  "the exhaustive read is GEO-BOUNDED — an unbounded read would page the whole category, not just the box");
 
 // 4. FAIL-OPEN. An unknown chip must not empty a category.
 const unknown = rankInventory(pool, PLAT, PLNG, R, 50);

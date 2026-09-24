@@ -107,6 +107,26 @@ assert.match(route, /loadAttractionDiscovery\(discoveryRequest/);
 assert.match(route, /serveFromInventory\(String\(request\.cat \|\| ""\), lat, lng, request\.radiusM/);
 assert.match(route, /serveInventoryByPlaceIds\(ids, lat, lng, request\.radiusM\)/);
 assert.match(route, /places: merged/);
+// 2026-09-23 fix round, item 2 — the discovery branch must read WITH offset
+// and withMeta (it used to ignore offset entirely and always answer
+// hasMore:false), and must merge the exact-ID top-up ONLY on the first page.
+// Counted, not just matched once — BOTH inv=1 branches (the unrelated-
+// category path and the discovery path's own broad read) must carry this,
+// so a fix that only lands on one branch cannot hide behind the other's
+// still-matching occurrence.
+assert.equal((route.match(/offset: invOffset, withMeta: true, failLoud: true/g) || []).length, 2,
+  "both inv=1 branches' broad reads must ask for {offset, withMeta, failLoud} — one of them no longer does, so it cannot know the true eligible count, report hasMore past the first page, or fail loud on error");
+assert.match(route, /invOffset === 0 \? serveInventoryByPlaceIds\(ids, lat, lng, request\.radiusM\) : Promise\.resolve\(\[\]\)/,
+  "the exact-ID top-up is not gated on invOffset === 0 — merging it again on later pages would re-sort an already-paged slice by a different score formula");
+assert.match(route, /const extraCandidates = Math\.max\(0, merged\.length - meta\.served\)/,
+  "total no longer accounts for exact-ID candidates the merge added beyond what the broad read itself served");
+assert.match(route, /hasMore: meta\.offset \+ meta\.served < meta\.eligible/,
+  "hasMore in the discovery branch is not derived from meta.offset + meta.served < meta.eligible");
+// 2026-09-23 fix round, item 5 — fail loud, no-store on failure/truncation.
+assert.match(route, /const NO_STORE_HEADERS = \{ "Cache-Control": "no-store" \}/,
+  "NO_STORE_HEADERS is missing — a failed or truncated inv=1 answer would still be cached under EDGE_HEADERS's s-maxage=86400");
+assert.match(route, /status: 503, headers: NO_STORE_HEADERS/,
+  "a failed inv=1 read (failLoud) no longer answers 503 + no-store");
 
 // Execute the production route body with hermetic readers. This proves the
 // branch and radius arguments themselves; no database or paid provider can be
@@ -115,26 +135,93 @@ async function sourceModule(source, prelude) {
   const body = source.replace(/^import[^;]+;\n/gm, "");
   return import("data:text/javascript," + encodeURIComponent(prelude + "\n" + body));
 }
-const routeModule = await sourceModule(route, `
+// eligible deliberately exceeds served so hasMore can read true on an early
+// page and false once offset+served reaches it — the exact shape item 2's
+// bug (eligible up to ~920, always reporting hasMore:false) is about.
+const preludeFor = (failBroad) => `
   export const routeCalls = [];
   const DAY = 86400000;
   const NextResponse = { json(value, init = {}) { return new Response(JSON.stringify(value), { status: init.status || 200, headers: init.headers }); } };
   const attractionDiscoveryPlaceIds = (cat, sub) => ["family", "attractions"].includes(String(cat)) && ["all", "kids"].includes(String(sub || "all")) ? ${JSON.stringify(ATTRACTION_DISCOVERY_IDS)} : [];
-  const serveFromInventory = async (cat, lat, lng, radius) => { routeCalls.push(["broad", cat, radius]); return [{ id: cat + "-base" }]; };
+  // Mirrors the REAL serveFromInventory's failLoud contract exactly: with
+  // failLoud it THROWS on a failed read; without it, it fails SOFT (an empty,
+  // 200-shaped answer). A stub that throws unconditionally on failBroad would
+  // "pass" a test of item 5 even with failLoud never wired up at all — the
+  // route would just never see the throw in the first place from a caller
+  // that never asked for it. Only discriminating on options.failLoud proves
+  // the route ACTUALLY passes it, not merely that its try/catch exists.
+  const serveFromInventory = async (cat, lat, lng, radius, n, sub, options) => {
+    routeCalls.push(["broad", cat, radius, (options && options.offset) || 0]);
+    if (${failBroad ? "true" : "false"}) {
+      if (options && options.failLoud) throw new Error("synthetic broad-read failure");
+      return (options && options.withMeta)
+        ? { places: [], meta: { eligible: 0, served: 0, offset: (options && options.offset) || 0, truncated: false } }
+        : [];
+    }
+    const places = [{ id: cat + "-base-" + ((options && options.offset) || 0) }];
+    if (options && options.withMeta) {
+      const offset = (options && options.offset) || 0;
+      return { places, meta: { eligible: 4, served: places.length, offset, truncated: false } };
+    }
+    return places;
+  };
   const serveInventoryByPlaceIds = async (ids, lat, lng, radius) => { routeCalls.push(["exact", ids.length, radius]); return [{ id: "exact" }]; };
-  const loadAttractionDiscovery = async (request, readers) => { const [base, exact] = await Promise.all([readers.readCategory(request), readers.readIds(${JSON.stringify(ATTRACTION_DISCOVERY_IDS)}, request)]); return base.concat(exact); };
-`);
+  const loadAttractionDiscovery = async (request, readers) => {
+    const ids = ${JSON.stringify(ATTRACTION_DISCOVERY_IDS)};
+    const broad = readers.readCategory(request);
+    const [base, exact] = await Promise.all([broad, readers.readIds(ids, request)]);
+    const seen = new Set(base.map((p) => p.id));
+    return base.concat(exact.filter((p) => !seen.has(p.id)));
+  };
+`;
 process.env.GOOGLE_MAPS_SERVER_KEY = "test-placeholder-not-a-key";
 try {
+  const routeModule = await sourceModule(route, preludeFor(false));
   let response = await routeModule.GET(new Request("https://example.test/api/places/search?q=inventory&lat=28.48&lng=-81.47&radius=72420&n=400&cat=food&sub=all&inv=1"));
-  assert.deepEqual((await response.json()).places, [{ id: "food-base" }]);
-  assert.deepEqual(routeModule.routeCalls, [["broad", "food", 50000]],
+  assert.deepEqual((await response.json()).places, [{ id: "food-base-0" }]);
+  assert.deepEqual(routeModule.routeCalls, [["broad", "food", 50000, 0]],
     "actual unrelated route performs only its unchanged snapped-radius broad read");
+
+  // ── item 2: first page (offset 0) merges the exact-ID top-up ──
   routeModule.routeCalls.length = 0;
   response = await routeModule.GET(new Request("https://example.test/api/places/search?q=inventory&lat=28.48&lng=-81.47&radius=72420&n=400&cat=attractions&sub=all&inv=1"));
-  assert.deepEqual((await response.json()).places, [{ id: "attractions-base" }, { id: "exact" }]);
-  assert.deepEqual(routeModule.routeCalls, [["broad", "attractions", 72420], ["exact", 6, 72420]],
-    "actual supported route gives both owned readers the same requested radius");
+  let body = await response.json();
+  assert.deepEqual(body.places, [{ id: "attractions-base-0" }, { id: "exact" }]);
+  assert.deepEqual(routeModule.routeCalls, [["broad", "attractions", 72420, 0], ["exact", 6, 72420]],
+    "the FIRST page still gives both owned readers the same requested radius");
+  assert.equal(body.total, 5, "total = meta.eligible(4) + the one exact candidate the merge added beyond what the broad read served (1) = 5");
+  assert.equal(body.hasMore, true, "meta.offset(0) + meta.served(1) < meta.eligible(4) -> hasMore true on the first page");
+
+  // ── item 2: a LATER page (offset > 0) must carry the offset through to the
+  // broad read and must NOT re-run the exact-ID merge ──
+  routeModule.routeCalls.length = 0;
+  response = await routeModule.GET(new Request("https://example.test/api/places/search?q=inventory&lat=28.48&lng=-81.47&radius=72420&n=400&cat=attractions&sub=all&inv=1&offset=3"));
+  body = await response.json();
+  assert.deepEqual(body.places, [{ id: "attractions-base-3" }],
+    "a later page's response is JUST the broad read's own page — no repeated exact-ID top-up");
+  assert.deepEqual(routeModule.routeCalls, [["broad", "attractions", 72420, 3]],
+    "a later page never calls serveInventoryByPlaceIds — item 2 requires the top-up ONLY at offset 0");
+  assert.equal(body.total, 4, "total is just meta.eligible on a later page — no extra candidates to add");
+  assert.equal(body.hasMore, false, "meta.offset(3) + meta.served(1) === meta.eligible(4) -> hasMore false on the last page");
+} finally {
+  delete process.env.GOOGLE_MAPS_SERVER_KEY;
+}
+
+// ── item 5: a FAILED broad read (failLoud) answers 503 + no-store, on BOTH
+// inv=1 branches, never a cached {places:[]} under EDGE_HEADERS. ──
+process.env.GOOGLE_MAPS_SERVER_KEY = "test-placeholder-not-a-key";
+try {
+  const failModule = await sourceModule(route, preludeFor(true));
+  let response = await failModule.GET(new Request("https://example.test/api/places/search?q=inventory&lat=28.48&lng=-81.47&radius=72420&n=400&cat=food&sub=all&inv=1"));
+  assert.equal(response.status, 503, "the unrelated-category branch does not answer 503 on a failed (failLoud) read");
+  assert.equal(response.headers.get("Cache-Control"), "no-store", "a failed unrelated-category read is cacheable — it would freeze an outage as \"Nothing here\" for a day");
+  let bodyErr = await response.json();
+  assert.deepEqual(bodyErr.places, [], "a failed read's body should carry an empty places array, never a stale or partial one");
+  assert.equal(typeof bodyErr.error, "string", "a failed read's body does not carry an error message");
+
+  response = await failModule.GET(new Request("https://example.test/api/places/search?q=inventory&lat=28.48&lng=-81.47&radius=72420&n=400&cat=attractions&sub=all&inv=1"));
+  assert.equal(response.status, 503, "the discovery branch does not answer 503 on a failed (failLoud) broad read");
+  assert.equal(response.headers.get("Cache-Control"), "no-store", "a failed discovery-branch read is cacheable");
 } finally {
   delete process.env.GOOGLE_MAPS_SERVER_KEY;
 }

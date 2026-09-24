@@ -1,0 +1,592 @@
+{
+  "title": "Surface parity audit (browser level) — before-fix-browser-parrish-fixture-2026-09-23",
+  "generatedAt": "2026-09-23T19:43:51.166Z",
+  "meta": {
+    "level": "browser",
+    "base": "https://www.gowayfind.com",
+    "label": "before-fix-browser-parrish-fixture-2026-09-23",
+    "cities": [
+      "custom"
+    ],
+    "keys": [
+      "food:cafes"
+    ],
+    "radiusRequestedM": 27359,
+    "radiusSnappedM": 32000,
+    "reclassifiedNote": "2026-09-23 offline reclassification (WS2 follow-up): the 69 api_included_ui_omitted rows from the original browser capture were re-evaluated against outside_display_radius:/brand_collapse: via the REAL client gates (scripts/lib/parity/clientGates.mjs) using fresh direct-Supabase ground truth at the SAME captured origin/radius/sliderMi this file recorded. All 69 are now explained (58 outside_display_radius, 11 brand_collapse); 0 remain unexplained api_included_ui_omitted.",
+    "cacheDriftPreFixObservation": "This captured run recorded apiResponseCount=152 (see pairSummaries[0]), WITH Ryans Coffee House present. A separate capture of the SAME production URL earlier the same day (2026-09-23, before this fix) returned 134 places WITHOUT it, both responses carrying x-vercel-cache: HIT -- the nondeterministic capped/unordered read cached at the CDN edge for ~24h, not a real change in eligibility. See --checkCacheDrift in scripts/surface-parity-audit.mjs for the automated post-fix regression check this observation motivated."
+  },
+  "summary": {
+    "totalChecked": 211,
+    "totalEligible": 211,
+    "totalFail": 59,
+    "distinctPlacesAffected": 59,
+    "byClass": {
+      "eligibility_passed_api_omitted": 59,
+      "api_included_ui_omitted": 0,
+      "map_list_mismatch": 0,
+      "pagination_invisibility": 0,
+      "cache_drift": 0,
+      "dedupe_suppression_error": 0,
+      "location_origin_mismatch": 0,
+      "seasonal_tagging_gap": 0
+    },
+    "distinctPlacesByClass": {
+      "eligibility_passed_api_omitted": 59,
+      "api_included_ui_omitted": 0,
+      "map_list_mismatch": 0,
+      "pagination_invisibility": 0,
+      "cache_drift": 0,
+      "dedupe_suppression_error": 0,
+      "location_origin_mismatch": 0,
+      "seasonal_tagging_gap": 0
+    },
+    "distinctPlacesByClassExcludingRyans": {
+      "eligibility_passed_api_omitted": 59,
+      "api_included_ui_omitted": 0,
+      "map_list_mismatch": 0,
+      "pagination_invisibility": 0,
+      "cache_drift": 0,
+      "dedupe_suppression_error": 0,
+      "location_origin_mismatch": 0,
+      "seasonal_tagging_gap": 0
+    }
+  },
+  "pairSummaries": [
+    {
+      "city": "custom",
+      "key": "food:cafes",
+      "eligible": 211,
+      "grantedLat": 27.5689,
+      "grantedLng": -82.4393,
+      "capturedLat": 27.5689,
+      "capturedLng": -82.4393,
+      "capturedUrl": "https://www.gowayfind.com/api/places/search?q=inventory&lat=27.5689&lng=-82.4393&radius=27359&n=400&cat=food&inv=1&sub=cafes",
+      "sameOriginOk": true,
+      "capturedEligibleCount": null,
+      "apiResponseCount": 152,
+      "apiResponseCacheHeader": "HIT",
+      "apiResponseHasMore": false,
+      "rendered": 83,
+      "mapHookPresent": false,
+      "mapPins": 0,
+      "loadMoreClicks": 0,
+      "missing": 128
+    }
+  ],
+  "affectedPlacesByClass": {
+    "eligibility_passed_api_omitted": {
+      "totalEntries": 59,
+      "truncated": false,
+      "entries": [
+        {
+          "place_id": "ChIJc7NpREonw4gRqKlmr60I15A",
+          "name": "Ella's Sweet Spot",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJAVpBNGElw4gR2Hh2qaL8la4",
+          "name": "Frosted Pink",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJPSkey7Elw4gR5gvfcin8NQc",
+          "name": "Tuscan Hills Coffee Company",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJ_6CbWvzhwogRVqaYeaqJi6w",
+          "name": "Southside Coffee Brew Bar",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJFSXdlLAlw4gRK8HfbT01-UY",
+          "name": "Silverleaf Bread Co",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJzWjwvr_ZwogRgxGJNIKkhLI",
+          "name": "The Healthy Spot FL",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJq-nbv7DZwogR40d6CEdYHnc",
+          "name": "Armetta's Gelato & Caffè",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJLdTATpvhwogRRfR3upxt17Y",
+          "name": "St. Pete Bakery Café",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJY_kA8nfjwogR1AhPPGA2k7o",
+          "name": "Tealicious Cafe",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJLVbLmKDHBA8Rod1TXwVnuow",
+          "name": "Paradeco Coffee Roasters @ SkyBeach Resort",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJuWIiRTAjw4gRDZ9UMpCXslg",
+          "name": "The Blend (9510) Coffee & Cocktails",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJ75_T10bjwogRinmX-NdH7I4",
+          "name": "Cafe Clementine",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJ4WKSLz7ZwogRuNaPhuSnf1M",
+          "name": "American Honey Creamery and Coffee Co.",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJCwyD8vHhwogRZvt6Q7M7Xbk",
+          "name": "Pete's Bagels Drive Thru",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJeWH0FnfhwogROuk81Bd8_C0",
+          "name": "Black Crow Coffee Shop",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJvdgK6t_hwogRoUREbQ9hnTI",
+          "name": "Daycation Coffee",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJgXnW94DhwogRvByd2uvhm6c",
+          "name": "11 Chicks Yummy Creations",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJ-dXwYevhwogR4fnuJd-YeZ0",
+          "name": "Bean Wandering Coffee Downtown",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJH3DNubrRwogRYmh4hiVWUHI",
+          "name": "Gretchen's Goodies",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJccYEmQ7hwogRHWrSeUKWSeA",
+          "name": "Uptown Eats",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJGUfpXgDjwogRUVleoMzQ1v0",
+          "name": "Crispy Avenue Caffe",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJzQI9X4HhwogRV--GFv9FWUU",
+          "name": "City's Bistro",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJ2ckQoZzhwogRecV7YRopNd4",
+          "name": "TeBella Tea St. Pete",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJ5zWe-fzhwogR9SKxxEIiN1Y",
+          "name": "Gypsy Souls Coffeehouse St. Pete & Gypsy Beans Coffee Roasters",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJTzoiienhwogRbPa3GpuvBQU",
+          "name": "Paradeco Coffee Roasters",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJe5Ox97ECw4gR2fGQC-g97jc",
+          "name": "Café Soleil",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJVzO7EWj9wogR97bcEQKnzJ4",
+          "name": "Tiki Bagel",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJLwJA4jfjwogRPZ6UOkUNl10",
+          "name": "1Chick 1Bro Cafe Bistro",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJ8W_zEkDhwogRzOhHc7D_J1Y",
+          "name": "Bad Mother",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJjejusGHhwogRHcHyw0OP1Lc",
+          "name": "Neighborhood Joe",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJNVxs_YbhwogR_lrq-yc_YBI",
+          "name": "Blush Tea and Coffee St Pete",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJfYXo7GfjwogRjEDK4RnJr8A",
+          "name": "Bagel Babe Co.",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJMXRZ34bhwogR18X29qVsnLk",
+          "name": "Lucky Cup Coffee Co.",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJB8gjMgAlw4gR93CI-p8no74",
+          "name": "Foxtail Coffee - North River Ranch",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJnXI9iVz9wogRuNTSboD6VtA",
+          "name": "SumitrA Espresso Lounge +",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJ48kv0WzjwogRsxVzEuztReQ",
+          "name": "Black Crow Coffee Co Grand Central Dist",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJIavfm5nhwogROZnbY0Pw98U",
+          "name": "Cafe Gala",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJ_xxoW-3jwogR7jypN1_VMQ0",
+          "name": "Salty Pup Coffeehouse & Winebar",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJvcPn1ovjwogRdn0kBeTj2gU",
+          "name": "Say Coffee House",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJRxyh-1DjwogR8PPwjlbgTUo",
+          "name": "Valhalla Bakery St Pete",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJvxarZpvhwogRzkV8q1gTJ6k",
+          "name": "Kahwa Coffee",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJN9sKYpbjwogRi6sY8V5GVhM",
+          "name": "The Under Grounds Coffee Co",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJX66zL4zjwogRvDsuViZt1ng",
+          "name": "The Crumb Factory Bakery & Cafe",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJyQ4tlTbhwogRXX9UPdd7jJY",
+          "name": "Flatbread & Butter",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJGaYnOZjRwogR_PyYX-yJ6GI",
+          "name": "Foxtail Coffee Co. - Riverview South",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJOyU5FsjdwogR24Wo9xaISGU",
+          "name": "State Flour Bakery",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJLZ8gf8zjwogRXTIy_pQKG9w",
+          "name": "Pete's Bagels",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJV1PLb7zhwogRIMMWNlR0pjw",
+          "name": "Seymour’s Bagel Shop",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJgZF6Vu7hwogRpPHCbojSk7w",
+          "name": "Forest Vibe",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJBYve1s3jwogRtpUeAgYSqdM",
+          "name": "The Breeze Waterfront Cafe",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJt3V-wiTdwogRS7HQsBrOzEw",
+          "name": "Kubana Kafe",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJYecWexPjwogRRytxXfBwczs",
+          "name": "Annex Coffee",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJIzpHyd7jwogR2NelI36DKgI",
+          "name": "Somebody’s Coffee",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJg__y9jqS00kR3EFGgwzBuZY",
+          "name": "Sun Bear",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJN6ESnfDhwogR8PERJMn1-98",
+          "name": "St Pete Dessert Catering Co.",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJNbBvReDRwogRL_pAoGUGGeQ",
+          "name": "Kafé Rústico",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJoWqi_IjjwogR34giX74JdM4",
+          "name": "Dirty Laundry",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJ5V3fdJIdw4gR_sjfSsYq4Xs",
+          "name": "Golden Krust Caribbean Restaurant",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        },
+        {
+          "place_id": "ChIJcbtxGifdwogRtKvLf5HwCVo",
+          "name": "Jerk Hut South Tampa",
+          "city": "Parrish (DEFAULT_CENTER/fixture)",
+          "keys": [
+            "food:cafes"
+          ]
+        }
+      ]
+    },
+    "api_included_ui_omitted": {
+      "totalEntries": 0,
+      "truncated": false,
+      "entries": []
+    },
+    "map_list_mismatch": {
+      "totalEntries": 0,
+      "truncated": false,
+      "entries": []
+    },
+    "pagination_invisibility": {
+      "totalEntries": 0,
+      "truncated": false,
+      "entries": []
+    },
+    "cache_drift": {
+      "totalEntries": 0,
+      "truncated": false,
+      "entries": []
+    },
+    "dedupe_suppression_error": {
+      "totalEntries": 0,
+      "truncated": false,
+      "entries": []
+    },
+    "location_origin_mismatch": {
+      "totalEntries": 0,
+      "truncated": false,
+      "entries": []
+    },
+    "seasonal_tagging_gap": {
+      "totalEntries": 0,
+      "truncated": false,
+      "entries": []
+    }
+  }
+}

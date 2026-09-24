@@ -19,7 +19,15 @@
 import assert from "node:assert/strict";
 process.env.WF_SUPPRESS_ANALYTICS = "1";
 import { FALL_OFFERING_SOURCES } from "../lib/fallPool.js";
-import { FALL_SEASON_START_MD } from "../lib/fallSkin.js";
+// seasonStart moved to lib/fallEvidence.js 2026-09-23 (independent PR #1495
+// audit) so lib/fallEvidence.verifiedInSeasonWindow can share the SAME
+// "current season" anchor this guard already used — importing it here rather
+// than keeping a second copy is what makes that sharing real instead of two
+// definitions that can drift apart. Re-exported so anything that imported
+// seasonStart from THIS file before the move keeps working.
+import { seasonStart } from "../lib/fallEvidence.js";
+import { siteTodayStr } from "../lib/siteTime.js";
+export { seasonStart };
 
 let n = 0;
 const ok = (c, m) => { assert.equal(!!c, true, m); n++; };
@@ -35,13 +43,6 @@ export function isSeasonalClaim(offering) {
   return SEASONAL_RX.test(s);
 }
 
-/** Start of the fall season that `todayStr` falls in (or the most recent one). */
-export function seasonStart(todayStr) {
-  const y = Number(todayStr.slice(0, 4));
-  const thisYear = `${y}-${FALL_SEASON_START_MD}`;
-  return todayStr >= thisYear ? thisYear : `${y - 1}-${FALL_SEASON_START_MD}`;
-}
-
 // ── BASELINE ──────────────────────────────────────────────────────────────
 // Seasonal claims that predate this guard. Each one is DEBT, listed so it is
 // visible and shrinkable — not an exemption to hide behind. Re-verify the
@@ -49,14 +50,24 @@ export function seasonStart(todayStr) {
 // delete it from here. A baselined row that HAS a current date fails below,
 // so the list can only shrink.
 export const BASELINE = Object.freeze({
-  "ChIJVQB8l1PEwogRfNZtGI6suIc": "Ghost of Gasparilla pop-up: dated run not re-read since the rail was built",
-  "ChIJTzoiienhwogRbPa3GpuvBQU": "Paradeco fall menu: menu not re-read for the 2026 season",
-  "ChIJ11hsiYXEwogRjDBv39F04J8": "Oxford Exchange autumn menu: menu not re-read for the 2026 season",
-  "ChIJ5crCip3EwogRQnhkbw_Ir6U": "On Swann fall menu: menu not re-read for the 2026 season",
-  "ChIJwZ_GK-d-54gRm5Ahg7PZYeY": "Dead Coconut Club Harvest takeover: dated run not re-read at source",
+  // 2026-09-23 (Claude, Wayfind lane, place-surface parity + fall evidence
+  // release): the five baselined rows were re-read at source on 2026-09-23.
+  // Dead Coconut Club re-verified with its published 2026 run (Aug 28 to
+  // Nov 1) and graduated; Gasparilla Distillery (only a 2024 Ghost of
+  // Gasparilla run on its own site), Paradeco (current menu, 49 items, no
+  // fall items), Oxford Exchange (current menu, no fall items) and On Swann
+  // (current menu is the Spring | Summer dinner menu) could not be verified
+  // for this season and left the fall registry (fail closed). Their evidence
+  // is in docs/audits/fall-discovery/2026-09-23.md and their official URLs
+  // stay in data/fall-discovery/official-sources.json so the weekly discovery
+  // run can propose them again. The debt list is now empty and may only stay
+  // that way.
 });
 
-const today = new Date().toISOString().slice(0, 10);
+// siteTodayStr(), never new Date().toISOString().slice(0,10) — the latter is
+// UTC and would misjudge the season boundary for hours around midnight UTC
+// (8pm US Eastern), a gotcha this repo's own CLAUDE.md calls out by name.
+const today = siteTodayStr();
 const start = seasonStart(today);
 const rows = Object.entries(FALL_OFFERING_SOURCES);
 

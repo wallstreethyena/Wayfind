@@ -192,8 +192,20 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     const bounds = new LngLatBounds();
     // v7.16 — the owner called the old top-10/24 cap "thin… a lazy get
     // strategy". The pool is ALREADY fetched and ranked (no new API cost);
-    // small pins can carry real density, so the map now shows up to 60.
-    const ranked = (places || []).filter((p) => p && p.lat != null && p.lng != null).slice(0, 60);
+    // small pins can carry real density, so the map used to show up to 60.
+    //
+    // 2026-09-23 — THAT CAP IS GONE. The pin layer is a clustered GeoJSON
+    // source (wf-places / wf-place-clusters below), not one DOM marker per
+    // place, so hundreds of pins cost one setData call and cluster natively
+    // at zoomed-out levels — there was never a rendering reason for 60. The
+    // real reason to keep it was PARITY: the list this map sits beside can
+    // now page past 400 rows (server offset paging, lib/inventoryServe.js),
+    // and a map capped below the list's length would show fewer places than
+    // the cards under it claim exist — the same "confident partial" failure
+    // shape the read-side fix (Ryan's Coffee House, Parrish) exists to close,
+    // just on the map instead of the shelf. The map now draws every place the
+    // caller loaded; it is the caller's job to decide how many that is.
+    const ranked = (places || []).filter((p) => p && p.lat != null && p.lng != null);
     const eventList = (events || []).filter((e) => e && e.lat != null && e.lng != null);
 
     const placeFeatures = [];
@@ -228,6 +240,17 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     }
     const placeSource = map.getSource("wf-places");
     if (placeSource) placeSource.setData({ type: "FeatureCollection", features: placeFeatures });
+    // Diagnostic only, never a UI change — 2026-09-23. Lets a live check (or a
+    // person with devtools open) confirm the map's pin membership matches the
+    // list it sits beside for the same query/origin, without adding anything
+    // a reader can see. Best-effort: a page without `window` (SSR) or a
+    // hardened environment that blocks property writes must never break the
+    // render over this.
+    try {
+      if (typeof window !== "undefined") {
+        window.__wfMapPins = { ids: placeFeatures.map((f) => f.properties.id), at: Date.now() };
+      }
+    } catch (e) {}
     if (map.getLayer("wf-place-clusters")) {
       const clusterColor = { food: "#F97316", nightlife: "#A855F7", attractions: "#0EA5E9", family: "#14B8A6", hotels: "#6366F1", shopping: "#EC4899" }[category] || "#F97316";
       map.setPaintProperty("wf-place-clusters", "circle-stroke-color", clusterColor);

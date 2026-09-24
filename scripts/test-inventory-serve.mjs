@@ -112,6 +112,82 @@ const rows = [
   ok("office park never serves family (park in name is not enough)", !fam.keep({ name: "Regus Office Park", google_types: ["office"] }));
 }
 
+// ── serveFromInventory: withMeta / offset / determinism (2026-09-23) ──
+// rankInventory/invRowToPlace above are pure and already covered by every
+// assertion so far. This section drives the ASYNC pipeline — serveFromInventory
+// itself, with options.withMeta and options.offset — against a small mocked
+// PostgREST double. The full exhaustive-read CONTRACT (order=, Range paging,
+// decoys, page failure, truncation) is scripts/check-inventory-serve-complete-
+// read.mjs; this is the narrower withMeta/offset/determinism shape those tests
+// do not otherwise cover in this file.
+{
+  const { serveFromInventory } = await import("../lib/inventoryServe.js");
+  const CENTER = { lat: 27.34, lng: -82.53 };
+  const RADIUS_M = 17 * 1609.34;
+  const metaRows = Array.from({ length: 12 }, (_, i) => ({
+    place_id: `wf_meta_test_${i}`,
+    name: `Café ${i}`,
+    lat: CENTER.lat + (i % 4) * 0.002, lng: CENTER.lng + (i % 3) * 0.002,
+    category: "food", secondary_categories: [],
+    primary_type: "coffee_shop", google_types: ["coffee_shop", "cafe"],
+    cuisines: [], status: "OPERATIONAL", excluded: false,
+    signals: { rating: 4.2 + (i % 6) / 10, reviews: 50 + i * 20 },
+    photo_ref: null,
+  }));
+  // WRITE, never read back — scripts/check-guard-hermeticity.mjs's rule.
+  // serveFromInventory's own lazy sbEnv() import (its default when no
+  // options.env is passed) reads these exact names, so setting them here is
+  // the fixture's precondition; nothing in this file reads them back into a
+  // verdict, which is what the shared test-rail-compute-budget.mjs harness
+  // already does for the same reason.
+  process.env.SUPABASE_URL = "https://fixture.supabase.co";
+  process.env.SUPABASE_SERVICE_ROLE_KEY = "fixture-service-role-key";
+  const origFetch = globalThis.fetch;
+  globalThis.fetch = async (input, init) => {
+    const url = typeof input === "string" ? input : input.url;
+    if (!url.includes("/rest/v1/wf_inventory")) return { ok: true, status: 200, json: async () => [] };
+    if (/place_id=in\.\(/.test(url) && !/lat=gte\./.test(url)) {
+      return { ok: true, status: 200, json: async () => [] }; // editorial hydration — no-op here
+    }
+    const rangeHeader = String((init && init.headers && init.headers.Range) || "");
+    const m = rangeHeader.match(/^(\d+)-(\d+)$/);
+    const from = m ? Number(m[1]) : 0;
+    return { ok: true, status: 200, json: async () => (from === 0 ? metaRows : []) };
+  };
+  let metaFull, metaPage1, metaPage2, metaAgain;
+  try {
+    metaFull = await serveFromInventory("food", CENTER.lat, CENTER.lng, RADIUS_M, 100, "cafes", { primaryOnly: true, withMeta: true });
+    metaPage1 = await serveFromInventory("food", CENTER.lat, CENTER.lng, RADIUS_M, 5, "cafes", { primaryOnly: true, withMeta: true, offset: 0 });
+    metaPage2 = await serveFromInventory("food", CENTER.lat, CENTER.lng, RADIUS_M, 5, "cafes", { primaryOnly: true, withMeta: true, offset: 5 });
+    metaAgain = await serveFromInventory("food", CENTER.lat, CENTER.lng, RADIUS_M, 100, "cafes", { primaryOnly: true, withMeta: true });
+  } finally {
+    globalThis.fetch = origFetch;
+  }
+  ok("withMeta returns {places, meta}", Array.isArray(metaFull.places) && typeof metaFull.meta === "object" && metaFull.meta !== null);
+  ok("meta carries eligible/served/offset/truncated/pages", ["eligible", "served", "offset", "truncated", "pages"].every((k) => k in metaFull.meta));
+  ok("meta.eligible counts every admitted row", metaFull.meta.eligible === metaRows.length);
+  ok("offset=0 page matches the head of the full ranked list", JSON.stringify(metaPage1.places.map((p) => p.id)) === JSON.stringify(metaFull.places.slice(0, 5).map((p) => p.id)));
+  ok("offset=5 page matches the next slice — no gap, no overlap with offset=0", JSON.stringify(metaPage2.places.map((p) => p.id)) === JSON.stringify(metaFull.places.slice(5, 10).map((p) => p.id)));
+  ok("determinism: two independent full reads (no shared readCache) produce the identical ranked id order", JSON.stringify(metaAgain.places.map((p) => p.id)) === JSON.stringify(metaFull.places.map((p) => p.id)));
+
+  globalThis.fetch = async (input, init) => {
+    const url = typeof input === "string" ? input : input.url;
+    if (!url.includes("/rest/v1/wf_inventory")) return { ok: true, status: 200, json: async () => [] };
+    if (/place_id=in\.\(/.test(url) && !/lat=gte\./.test(url)) return { ok: true, status: 200, json: async () => [] };
+    const rangeHeader = String((init && init.headers && init.headers.Range) || "");
+    const m = rangeHeader.match(/^(\d+)-(\d+)$/);
+    const from = m ? Number(m[1]) : 0;
+    return { ok: true, status: 200, json: async () => (from === 0 ? metaRows : []) };
+  };
+  let plain;
+  try {
+    plain = await serveFromInventory("food", CENTER.lat, CENTER.lng, RADIUS_M, 5, "cafes", { primaryOnly: true });
+  } finally {
+    globalThis.fetch = origFetch;
+  }
+  ok("a caller that omits withMeta still gets the plain array shape (every existing caller, unchanged)", Array.isArray(plain) && plain.length === 5);
+}
+
 console.log(`\ntest-inventory-serve: ${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);
-console.log("test-inventory-serve: OK — row->Google-shape mapping, geo gate, closed-drop, quality rank, n-cap, and the family virtual category all hold");
+console.log("test-inventory-serve: OK — row->Google-shape mapping, geo gate, closed-drop, quality rank, n-cap, the family virtual category, and serveFromInventory's withMeta/offset/determinism all hold");

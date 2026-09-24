@@ -375,7 +375,12 @@ ok(nightOrder.includes("datenight"), "Date Night still exists in the night order
   ok(/dateNightBeachOk|composeDateNightRails/.test(src), "the API composes through dateNightIntent");
   ok(!/places\.googleapis|searchText|placeDetails/.test(src), "the API does not call Google Places");
   ok(/weatherKnown/.test(src) && /beachShow/.test(src), "the API feeds the fail-closed beach gate");
-  const invAll = src.match(/await Promise\.all\(\[[\s\S]*?serveFromInventory\("attractions", lat, lng, radiusM, n, "beaches"\),[\s\S]*?\]\)/);
+  // 2026-09-23: each serveFromInventory call now carries a trailing options
+  // arg ({ readCache }) so the 8 calls in this Promise.all share ONE paged
+  // read per physical category instead of one per chip — `[^)]*` tolerates
+  // that added argument without weakening what this proves (the call is
+  // still inside the SAME Promise.all block as every other inventory read).
+  const invAll = src.match(/await Promise\.all\(\[[\s\S]*?serveFromInventory\("attractions", lat, lng, radiusM, n, "beaches"[^)]*\),[\s\S]*?\]\)/);
   ok(!!invAll, "inventory Promise.all is a readable block (positive control)");
   ok(invAll && !/fetchWeather|getBeachConditions/.test(invAll[0]),
     "weather / beach-condition fetches are NOT awaited with inventory — Dinner must not wait on weather");

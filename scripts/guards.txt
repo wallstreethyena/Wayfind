@@ -381,6 +381,66 @@ node scripts/check-rail-compute-budget.mjs
 # competes against the whole category for those slots and loses (Food > Cafés
 # rendered empty while 111 admissible cafés sat 17mi away).
 node scripts/check-narrow-chip-inventory.mjs
+# 2026-09-23 — v8.49's surviving sibling: the READ ITSELF was still capped.
+# serveFromInventory issued `limit=1000` with NO `order=`, an arbitrary
+# thousand of a box in Postgres heap order, reshuffled by any UPDATE. Ryan's
+# Coffee House, Parrish (ChIJo_IdHf0lw4gRHDbQNKBRE84), Food > Cafés — a real,
+# operational, 4.9★/205-review café — sat past row 1,000 of 1,598 food rows
+# and was never read, so no filter or rank downstream could find it. Fixed by
+# routing through lib/ownedPool.js's readOwnedCategory: order=place_id.asc +
+# Range paging to exhaustion. check-inventory-serve-complete-read is the
+# general contract (a fake PostgREST double, decoys, page failure, truncation,
+# offset paging, hydration scope); check-ryans-cafe-sentinel is the small,
+# PERMANENT, named-sentinel lock built on the shared synthetic fixtures.
+node scripts/check-inventory-serve-complete-read.mjs
+node scripts/check-ryans-cafe-sentinel.mjs
+# 2026-09-23 — the CLIENT half of the same fix: a capped first page is only
+# safe when the reader can reach the rest of it. The Food/category list's
+# "Wayfind 5 more spots" control now walks the server's offset pages once the
+# loaded rows run out, through the SAME control, deduped and appended — and
+# the map beside it must never show fewer pins than the list (MapView's own
+# uncapped-pin contract is check-map-place-card.mjs, above).
+node scripts/check-food-list-continuation.mjs
+# 2026-09-23 fix round (independent audit of PR #1495) — 8 follow-on fixes on
+# top of the exhaustive-read work above. check-food-list-continuation.mjs
+# (above) and test-attraction-discovery.mjs / check-inventory-serve-complete-
+# read.mjs (elsewhere in this file) were EXTENDED in place for most of these;
+# check-owned-pool-fallback-scope.mjs is the one NEW guard file this round
+# adds:
+#   1. BLOCKER — the main category browse surface (not just the Food/category
+#      list) now renders the SAME shared "Wayfind 5 more spots" control
+#      (MoreSpotsButton, ONE definition) when the server says hasMore, and
+#      only claims "That's all N spots" once that is actually true.
+#   2. BLOCKER — the attraction-discovery inv=1 branch (app/api/places/
+#      search/route.js) now reads its broad category with {offset, withMeta}
+#      and merges the exact-ID top-up ONLY on the first page, so hasMore and
+#      total are no longer always false/wrong past page 0.
+#   3. app/home.js's setVisibleCount(5) reset effect no longer collapses the
+#      list a "Wayfind 5 more spots" continuation just appended onto it
+#      (invAppendingRef).
+#   4. lib/ownedPool.js's readOwnedCategory secondary_categories fallback is
+#      scoped to from===0 && status===400 (the real pre-migration case),
+#      never a later page's transient 5xx — see check-owned-pool-fallback-
+#      scope.mjs, a fake-PostgREST double reproducing the exact 100-missing-
+#      rows/truncated:false shape the independent audit found.
+#   5. the inv=1 route now reads failLoud and answers 503 + Cache-Control:
+#      no-store on a failed or truncated read, instead of caching a false
+#      "Nothing here" under EDGE_HEADERS's 86400s s-maxage; the client
+#      (_invAll) now treats a non-2xx response as a counted fetch error.
+#   6. stale-async races: loadMoreInventory re-checks the query identity
+#      AFTER its own await and drops a page whose query changed mid-flight;
+#      _invAll's writes to invMoreRef.current are guarded by this effect's
+#      own `cancelled` flag.
+#   7. the exhaustive bulk read (lib/inventoryServe.js) no longer carries
+#      photo_ref (EXHAUSTIVE_INVENTORY_FIELDS, separate from
+#      LEAN_INVENTORY_FIELDS which lib/inventoryBoxBatch.js and
+#      lib/familyDayData.js still use unchanged); photo_ref is hydrated back
+#      for the SERVED rows only, reusing lib/ownedPool.js's own
+#      hydratePhotoRefs.
+#   8. fetchPageWithRetry's one per-page retry is clamped to whatever remains
+#      of the total budget (deadlineAt), so it can no longer overshoot
+#      INVENTORY_SERVE_TOTAL_BUDGET_MS by reusing a page's full, stale ms.
+node scripts/check-owned-pool-fallback-scope.mjs
 node scripts/test-atlas-retry.mjs
 node scripts/test-atlas-verify-timefmt.mjs
 node scripts/check-cuisine-never-queried.mjs
@@ -1043,6 +1103,14 @@ node scripts/test-adaptive-widen.mjs
 node scripts/test-chip-contracts.mjs
 node scripts/check-css-comment-bytes.mjs
 node scripts/check-augtober-rail.mjs
+# 2026-09-23 (WS4 fall-discovery) — lib/fallEvidence.js is the pure evidence-
+# classification law the discovery pipeline and the registry re-verification
+# both run through; check-fall-registry-integrity then applies it to the real
+# lib/fallPool.js registry (set equality, rejected-id exclusion, current-
+# season verification or the documented evergreen exemption, no expired
+# dated offering surviving). See both files' own header comments.
+node scripts/check-fall-evidence-rules.mjs
+node scripts/check-fall-registry-integrity.mjs
 node scripts/check-fall-offering-freshness.mjs
 # 2026-09-03 — one event-affiliate registry (lib/eventTicketDeals.js), product-true,
 # routed through /api/commerce/go on the fall rail, the Events feed and the event page.
@@ -1789,6 +1857,15 @@ node scripts/check-theme-park-coverage.mjs
 # daypart-inappropriate kind ever leads, every daypart keeps a real preferred
 # pick, and it is actually wired into UnifiedBrowseCommerceRail.
 node scripts/check-daypart-crosssell.mjs
+# 2026-09-23 (WS2, surface-parity audit) — the reusable place-card SURFACE
+# PARITY diagnostic (scripts/surface-parity-audit.mjs, scripts/lib/parity/*)
+# stays correct with no network: a 1,400+ row shuffled synthetic corpus with
+# a Ryan's-shaped sentinel past row 1,000, a literal legacy capped/unordered
+# read that misses it, every decoy getting its exact legitimate reason, and
+# the 8-class root-cause classifier's ordering (origin-mismatch overrides a
+# legitimate-looking cap; eligible>n with hasMore:false is pagination
+# invisibility, not the capped-read class).
+node scripts/check-surface-parity-hermetic.mjs
 
 # 2026-09-23 (fix/gogate) — every discovered /go affiliate redirect route
 # refuses a self-identified crawler before it can spend money or reach a
