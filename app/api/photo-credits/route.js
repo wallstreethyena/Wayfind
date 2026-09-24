@@ -18,7 +18,10 @@ export const dynamic = "force-dynamic";
 
 const PLACE_RX = /^[A-Za-z0-9_-]{10,200}$/;
 const MAX_PLACES = 40;
-const KEY_BATCH = 120;
+// Google photo names are ~400 characters. 120 per `in.(...)` built a ~50 KB
+// URL that Supabase refused with 400 (live, 2026-09-24: a 39-place guide with
+// 61 cached names got zero credits). 15 names keep each request near 6 KB.
+const KEY_BATCH = 15;
 const CACHE_WIDTH = 640;
 
 function sbEnv() {
