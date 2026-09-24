@@ -9316,7 +9316,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       // different cat/sub/center would silently mix two queries' results —
       // the stale-async race the audit flagged — so drop it instead.
       const liveMeta = invMoreRef.current;
-      const stillCurrent = liveMeta && liveMeta.cat === meta.cat && liveMeta.sub === meta.sub && liveMeta.centerKey === meta.centerKey;
+      const stillCurrent = liveMeta && liveMeta.cat === meta.cat && liveMeta.sub === meta.sub && liveMeta.centerKey === meta.centerKey && liveMeta.m === meta.m;
       if (!stillCurrent) return;
       const raw = Array.isArray(j.places) ? j.places : [];
       const mapped = raw.map((x) => mapInventoryRow(x, center)).filter((p) => p && p.name);

@@ -537,6 +537,26 @@ function makeFakePostgrest(rows, { honorOrder = true, pageSize = 1000, singlePag
   ok(classifyRow(outOfScope).verdict === "out_of_scope", "an ineligible row must never be scored a failure");
 }
 
+
+// 2026-09-23 re-audit — PER-KEY GROUND-TRUTH RADIUS. The route snaps the
+// radius to its ladder for plain inv=1 keys but reads attraction-discovery
+// keys (every attractions:* / family:*) at the raw radius clamped to
+// [500, 96560]. The audit must compute ground truth at the SAME radius the
+// route uses for that key, or it reports phantom eligibility_passed_api_omitted
+// rows between the two gates. Source-level lock on both sides of the contract.
+{
+  const { readFileSync } = await import("node:fs");
+  const AUDIT = readFileSync(new URL("./surface-parity-audit.mjs", import.meta.url), "utf8");
+  const ROUTE = readFileSync(new URL("../app/api/places/search/route.js", import.meta.url), "utf8");
+  ok(/const discoveryRadius = Math\.min\(Math\.max\(Number\(params\.radius\) \|\| 24000, 500\), 96560\);/.test(ROUTE),
+    "the route's discovery-branch radius clamp changed; update serverRadiusFor in surface-parity-audit.mjs to match it");
+  const fn = (AUDIT.match(/function serverRadiusFor\([\s\S]*?\n\}/) || [""])[0];
+  ok(/attractionDiscoveryPlaceIds\(cat, sub\)\.length > 0/.test(fn) && /Math\.min\(Math\.max\(Number\(rawRadius\) \|\| 24000, 500\), 96560\)/.test(fn) && /return snapRadius\(rawRadius\)/.test(fn),
+    "surface-parity-audit.mjs serverRadiusFor must use the discovery clamp for discovery keys and the ladder snap for every other key");
+  ok(!/computeEligibleSet\(\{[^}]*radiusM: RADIUS_M,/.test(AUDIT),
+    "a ground-truth computeEligibleSet call still uses the global snapped RADIUS_M instead of serverRadiusFor(cat, sub, ...)");
+}
+
 if (bad.length) {
   for (const m of bad) console.error("  - " + m);
   console.error(`check-surface-parity-hermetic: FAIL — ${bad.length}/${n} assertions`);

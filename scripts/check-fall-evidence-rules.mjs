@@ -137,10 +137,27 @@ ok(nameOnlyCandidate("Joe's Diner", "Serving breakfast all day, no seasonal menu
     sourceTier: SOURCE_TIERS.official_menu_platform,
     publishedAt: null,
     fetchedAt: "2026-09-23",
-    text: "Spiced Pumpkin Flat White Unavailable $6.00. Pumpkin Bread Unavailable $5.00. Pumpkin Chai Unavailable $7.50.",
+    // Store-level boilerplate: EVERY priced item on the page carries the
+    // marker, plain Espresso included (Joy Coffee's live page, 2026-09-23:
+    // 35 markers, 35 prices). Tightened in the re-audit: the price override
+    // only applies to this page-wide shape.
+    text: "Espresso Unavailable $3.50 Add. Cappuccino Unavailable $4.75 Add. Chocolate Croissant Unavailable $7.00 Add. Spiced Pumpkin Flat White Unavailable $6.00 Add. Classic Spiced Pumpkin Latte Unavailable $7.00 Add. Pumpkin Bread Unavailable $5.00 Add. Spiced Pumpkin Chai Unavailable $7.50 Add.",
     seasonYear: 2026,
   });
-  ok(verdict === "strong", `an "Unavailable" marker immediately followed by a real price is a template artifact, not real unavailability — this is CURRENT proof, got "${verdict}"`);
+  ok(verdict === "strong", `a page-wide "Unavailable" marker next to EVERY price (store closed for online scheduling) is a template artifact, not real unavailability — this is CURRENT proof, got "${verdict}"`);
+}
+{
+  // Re-audit probe: a GENUINE per-item "Sold out" badge printed next to the
+  // catalog price, on a page where the other items are orderable, must stay
+  // unavailable. The price alone never overrides a per-item marker.
+  const verdict = currentYearProof({
+    sourceTier: SOURCE_TIERS.official_menu_platform,
+    publishedAt: null,
+    fetchedAt: "2026-09-23",
+    text: "Espresso $3.50 Add. Cappuccino $4.75 Add. Latte $5.00 Add. Cold Brew $5.25 Add. Pumpkin Spice Latte Sold out $6.00. Mocha $5.50 Add.",
+    seasonYear: 2026,
+  });
+  ok(verdict === "none", `a per-item "Sold out" badge beside its price, on a page whose other items are orderable, is real unavailability — not current proof, got "${verdict}"`);
 }
 {
   // a GENUINELY sold-out item — the marker with NO price to override it —
@@ -154,8 +171,10 @@ ok(nameOnlyCandidate("Joe's Diner", "Serving breakfast all day, no seasonal menu
   });
   ok(verdict === "none", `a marker with no price anywhere near it (genuinely sold out, nothing to order) is not current proof, got "${verdict}"`);
 }
-ok(classifyEvidence("Pumpkin Latte Unavailable $7.00").anyAvailable === true,
-  "classifyEvidence flags anyAvailable=true when the marker is immediately followed by a real price — a live catalog SKU, not a sold-out claim");
+ok(classifyEvidence("Pumpkin Latte Unavailable $7.00").anyAvailable === false,
+  "classifyEvidence must NOT treat a lone per-item marker as boilerplate just because a price follows it (re-audit: Square/Toast print the price beside a real Sold out badge)");
+ok(classifyEvidence("pumpkin bread sold out $5. espresso $3. latte $5. mocha $5. cold brew $5. tea $3.").anyAvailable === false,
+  "a sold-out pumpkin item among orderable items stays unavailable even with its price printed after the badge");
 ok(classifyEvidence("Pumpkin Latte Unavailable. Ask your barista about our other drinks.").anyAvailable === false,
   "…but anyAvailable=false when the marker carries no price to override it — a genuine sold-out signal");
 ok(classifyEvidence("Pumpkin Latte $7.00, in stock now.").anyAvailable === true,

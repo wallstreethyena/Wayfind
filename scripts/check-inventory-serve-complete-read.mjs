@@ -258,6 +258,7 @@ function project(row, fields) {
 
 let calls = [];       // reset per scenario: {kind:"box"|"editorial"|"photo", ...}
 let failPlan = null;  // {from, timesLeft} — the box page at `from` fails `timesLeft` times
+let photoFail = false; // 2026-09-23 re-audit: every photo_ref hydration read fails
 
 function installMock() {
   const orig = globalThis.fetch;
@@ -271,6 +272,7 @@ function installMock() {
     }
     if (q.isPhotoRead) {
       calls.push({ kind: "photo", url, ids: q.inList || [] });
+      if (photoFail) return jsonRes({ message: "synthetic photo failure" }, false, 500);
       return jsonRes((q.inList || []).map((id) => {
         const row = world.find((r) => r.place_id === id);
         return { place_id: id, photo_ref: (row && row.photo_ref) || null };
@@ -494,6 +496,42 @@ function installMock() {
   } catch (e) { threw = e; } finally { Date.now = realNow; }
   ok(seenMs.length === 1, `with NO budget left after the first attempt, no second physical request is issued (saw ${seenMs.length})`);
   ok(Array.isArray(resultSoft) && resultSoft.length === 0, "an exhausted-budget failure still answers (a plain empty array, non-failLoud), never hangs or throws unexpectedly");
+}
+
+
+// ══════════════ SCENARIO — photo hydration failure is reported, never cached silently ══════════════
+// 2026-09-23 re-audit: photo_ref is enrichment, so a failed hydration must not
+// blank the page, but it must be REPORTED (meta.photosIncomplete) so the inv=1
+// route answers no-store instead of letting a CDN hold a photo-less page for a
+// day. A healthy hydration reports false.
+{
+  calls = [];
+  failPlan = null;
+  photoFail = false;
+  let healthy, broken;
+  let uninstall = installMock();
+  try {
+    healthy = await serveFromInventory("food", CENTER.lat, CENTER.lng, RADIUS_M, 5, "cafes", { env: FIXTURE_ENV, primaryOnly: true, withMeta: true });
+  } finally { uninstall(); }
+  photoFail = true;
+  uninstall = installMock();
+  try {
+    broken = await serveFromInventory("food", CENTER.lat, CENTER.lng, RADIUS_M, 5, "cafes", { env: FIXTURE_ENV, primaryOnly: true, withMeta: true });
+  } finally { uninstall(); photoFail = false; }
+  ok(healthy.meta.photosIncomplete === false, "a healthy photo hydration reports meta.photosIncomplete === false");
+  ok(broken.meta.photosIncomplete === true, "a FAILED photo hydration is not reported in meta.photosIncomplete, so the route would edge-cache a photo-less page for a day");
+  ok(broken.places.length === healthy.places.length && broken.places.some((p) => p.id === RYANS_COFFEE_HOUSE.placeId),
+    "a failed photo hydration blanked or shrank the served page — photos are enrichment, the places must still be served");
+}
+{
+  // The route must honour it (and must not serve a failed gate-path inventory read as a cached empty answer).
+  const { readFileSync } = await import("node:fs");
+  const ROUTE = readFileSync(new URL("../app/api/places/search/route.js", import.meta.url), "utf8");
+  ok((ROUTE.match(/meta\.truncated \|\| meta\.photosIncomplete \? NO_STORE_HEADERS : EDGE_HEADERS/g) || []).length === 2,
+    "both inv=1 branches (plain and attraction discovery) must answer no-store when meta.truncated OR meta.photosIncomplete");
+  const gate = (ROUTE.match(/const gateBlocked = async \(why\) => \{[\s\S]*?\n    \};/) || [""])[0];
+  ok(/failLoud: true/.test(gate) && /status: 503, headers: NO_STORE_HEADERS/.test(gate),
+    "the free-mode gate fallback must read inventory failLoud and answer 503 no-store on a failed read, never an edge-cached empty list");
 }
 
 if (fail.length) {

@@ -144,6 +144,7 @@ import { walkPagesToExhaustion, computeApiNextPageReachable } from "./lib/parity
 // guards already use to run a real production module under plain node),
 // loaded lazily inside runBrowserLevel so an --level=api run never pays for it.
 import { CATEGORY_TILES } from "../lib/categories.js";
+import { attractionDiscoveryPlaceIds } from "../lib/attractionDiscovery.js";
 // --level=browser/seo/creator/rails call further real production modules;
 // imported lazily inside each level's own function (below) so `--level=api`
 // never pays for loading lib/google.js, lib/landing.js's whole JSX dependency
@@ -197,6 +198,20 @@ function snapRadius(rawRadius) {
 }
 const RADIUS_M = snapRadius(RAW_RADIUS_M);
 const RADIUS_MI = RADIUS_M / 1609.34;
+
+// 2026-09-23 re-audit: the route does NOT snap every key. Keys that go
+// through the attraction-discovery branch (every attractions:* and family:*
+// chip) read the broad category at the RAW client radius clamped to
+// [500, 96560] (app/api/places/search/route.js `discoveryRadius`), not the
+// ladder value. Ground truth must use the radius production actually reads
+// at for THAT key, or places between the two gates show up as false
+// eligibility_passed_api_omitted rows.
+function serverRadiusFor(cat, sub, rawRadius) {
+  if (attractionDiscoveryPlaceIds(cat, sub).length > 0) {
+    return Math.min(Math.max(Number(rawRadius) || 24000, 500), 96560);
+  }
+  return snapRadius(rawRadius);
+}
 
 function fl(cities) {
   return Object.entries(cities).filter(([, c]) => c.state === "FL").map(([slug, c]) => ({ slug, ...c }));
@@ -356,7 +371,7 @@ async function runApiLevel() {
     const [cat, sub] = key.split(":");
     let ground;
     try {
-      ground = await computeEligibleSet({ cat, sub, lat: city.lat, lng: city.lng, radiusM: RADIUS_M, env: SB_ENV });
+      ground = await computeEligibleSet({ cat, sub, lat: city.lat, lng: city.lng, radiusM: serverRadiusFor(cat, sub, RAW_RADIUS_M), env: SB_ENV });
     } catch (e) {
       pairSummaries.push({ city: city.slug, key, error: `ground truth read failed: ${e.message}` });
       done++;
@@ -551,7 +566,7 @@ async function runBrowserLevel() {
         const ui = CHIP_UI_LABELS[key];
         console.log(`surface-parity-audit: browser — ${city.slug} ${key}`);
 
-        const ground = await computeEligibleSet({ cat, sub, lat: city.lat, lng: city.lng, radiusM: RADIUS_M, env: SB_ENV });
+        const ground = await computeEligibleSet({ cat, sub, lat: city.lat, lng: city.lng, radiusM: serverRadiusFor(cat, sub, RAW_RADIUS_M), env: SB_ENV });
         totalChecked += ground.places.length;
         totalEligible += ground.places.length;
         const eligibleIds = new Set(ground.places.map((p) => p.id));
@@ -662,7 +677,7 @@ async function runBrowserLevel() {
         // surface SHOULD have expected at the origin it actually used.
         let capturedEligibleCount = null;
         if (sameOriginOk === false && Number.isFinite(capturedLat) && Number.isFinite(capturedLng)) {
-          const capturedRadiusM = Number.isFinite(capturedRadius) ? snapRadius(capturedRadius) : RADIUS_M;
+          const capturedRadiusM = serverRadiusFor(cat, sub, Number.isFinite(capturedRadius) ? capturedRadius : RAW_RADIUS_M);
           try {
             const capturedGround = await computeEligibleSet({ cat, sub, lat: capturedLat, lng: capturedLng, radiusM: capturedRadiusM, env: SB_ENV });
             capturedEligibleCount = capturedGround.eligible;

@@ -232,7 +232,7 @@ async function handleSearch(params, origin) {
           // just what this page carries — the "That's all N spots" line and the
           // "more" control both read this, not places.length.
           total: meta.eligible, hasMore: meta.offset + meta.served < meta.eligible, truncated: !!meta.truncated,
-        }, { headers: meta.truncated ? NO_STORE_HEADERS : EDGE_HEADERS });
+        }, { headers: meta.truncated || meta.photosIncomplete ? NO_STORE_HEADERS : EDGE_HEADERS });
       } catch (error) {
         return NextResponse.json({ places: [], error: String((error && error.message) || error) }, { status: 503, headers: NO_STORE_HEADERS });
       }
@@ -285,7 +285,7 @@ async function handleSearch(params, origin) {
       return NextResponse.json({
         places: merged, cached: false, source: "inventory-direct",
         total, hasMore: meta.offset + meta.served < meta.eligible, truncated: !!meta.truncated,
-      }, { headers: meta.truncated ? NO_STORE_HEADERS : EDGE_HEADERS });
+      }, { headers: meta.truncated || meta.photosIncomplete ? NO_STORE_HEADERS : EDGE_HEADERS });
     } catch (error) {
       return NextResponse.json({ places: [], error: String((error && error.message) || error) }, { status: 503, headers: NO_STORE_HEADERS });
     }
@@ -373,7 +373,20 @@ async function handleSearch(params, origin) {
     const gateBlocked = async (why) => {
       const stale = await serveStale();
       if (stale) return stale;
-      const inv = params.cat ? await serveFromInventory(params.cat, lat, lng, radius, n, params.sub) : [];
+      // 2026-09-23 re-audit: in free mode this is the path every category
+      // search takes, so a FAILED inventory read must not be served as an
+      // honestly empty answer and edge-cached for a day. failLoud separates
+      // the two: a thrown read answers 503 + no-store (the client's
+      // proxySearch already treats !r.ok as "no results this time"), and only
+      // a read that really completed may be cached, empty or not.
+      let inv = [];
+      if (params.cat) {
+        try {
+          inv = await serveFromInventory(params.cat, lat, lng, radius, n, params.sub, { failLoud: true });
+        } catch (error) {
+          return NextResponse.json({ places: [], cached: false, gate: why, error: "inventory read failed", debug: dbg() }, { status: 503, headers: NO_STORE_HEADERS });
+        }
+      }
       if (inv.length) return NextResponse.json({ places: inv, cached: false, source: "inventory", gate: why, debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
       return NextResponse.json({ places: [], cached: false, gate: why, debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
     };

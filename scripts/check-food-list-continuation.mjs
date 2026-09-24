@@ -146,6 +146,12 @@ ok(/const liveMeta = invMoreRef\.current;/.test(HOME) && /stillCurrent/.test(HOM
   "loadMoreInventory does not re-read invMoreRef.current after the await to detect a query change mid-flight");
 ok(/if \(!stillCurrent\) return;/.test(HOME),
   "loadMoreInventory does not drop a stale page once the query changed during its own fetch");
+// 2026-09-23 re-audit: the radius (`m`) is part of the query identity too. A
+// slider change re-runs the fetch effect with a new radius; a continuation page
+// fetched under the OLD radius must not be appended, and its offset (numbered
+// in the old ranking) must not be written onto the new query's meta.
+ok(/const stillCurrent = [^;]*liveMeta\.m === meta\.m[^;]*;/.test(HOME),
+  "loadMoreInventory's stale check ignores the radius (m): a slider change mid-fetch would append the old radius's page and carry its offset into the new query");
 ok((HOME.match(/!cancelled\)[\s\S]{0,40}invMoreRef\.current = /g) || []).length >= 3,
   "_invAll (or its error path) writes invMoreRef.current without checking this effect's own `cancelled` flag at one of its THREE write sites (hotels branch, success branch, the new r.ok-false branch)");
 
