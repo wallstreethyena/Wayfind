@@ -6542,7 +6542,7 @@
       "npmScript": null,
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 72,
+      "assertionCount": 76,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

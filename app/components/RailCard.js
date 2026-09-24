@@ -80,6 +80,15 @@ const ThumbIcon = ({ down = false }) => (
   </svg>
 );
 
+// Same drawing as IconicPlaceCard's HeartIcon (see that file's header for
+// why: the literal "♡"/"♥" character it replaced sits outside every common
+// UI sans font, so it is a font-fallback-width flake, not a fixed glyph).
+const HeartIcon = ({ filled = false }) => (
+  <svg className="wf-save-heart" viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+    <path d="M12 20.2c-.3 0-.6-.1-.8-.3-1.6-1.3-7.7-6.5-7.7-11 0-3 2.3-5.2 5.1-5.2 1.5 0 2.9.7 3.4 1.8.5-1.1 1.9-1.8 3.4-1.8 2.8 0 5.1 2.2 5.1 5.2 0 4.5-6.1 9.7-7.7 11-.2.2-.5.3-.8.3Z" />
+  </svg>
+);
+
 // The WHEN badge — the events counterpart to WayfindScoreBadge, and the reason
 // an event card can wear the money card's layout honestly.
 //
@@ -541,7 +550,7 @@ export default function RailCard({
               aria-label={isSavedNow ? "Remove from saved: " + title : "Save " + title}
               aria-pressed={isSavedNow}
               onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (doSave) doSave(e); }}
-            >{isSavedNow ? "♥ Saved" : "♡ Save"}</button>
+            ><HeartIcon filled={isSavedNow} />{isSavedNow ? "Saved" : "Save"}</button>
             <button
               type="button"
               className={"wf-place-card-like" + (isLikedNow ? " is-active" : "")}
