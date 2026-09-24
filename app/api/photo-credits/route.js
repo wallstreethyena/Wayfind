@@ -60,7 +60,7 @@ export async function GET(req) {
     const credits = [];
     for (let i = 0; i < names.length; i += KEY_BATCH) {
       const inList = names.slice(i, i + KEY_BATCH).map((n) => `"${n}"`).join(",");
-      credits.push(...(await rest(s, `wf_photo_credit?select=photo_name,place_id,author_name,author_uri,maps_uri&photo_name=in.(${encodeURIComponent(inList)})&expires_at=gt.${nowIso}`)));
+      credits.push(...(await rest(s, `wf_photo_credit?select=photo_name,place_id,author_name,author_uri,maps_uri,expires_at&photo_name=in.(${encodeURIComponent(inList)})&expires_at=gt.${nowIso}`)));
     }
     return NextResponse.json({ credits: pickCachedCredits(credits, live) }, { headers });
   } catch {
