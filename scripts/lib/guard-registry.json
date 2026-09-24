@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 720,
-    "totalRegistryEntries": 721,
-    "guardsTxtLineCount": 718,
-    "guardsTxtReachedFileCount": 713,
+    "totalOnDiskGuardFiles": 721,
+    "totalRegistryEntries": 722,
+    "guardsTxtLineCount": 719,
+    "guardsTxtReachedFileCount": 714,
     "criticalCount": 87,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 499,
+      "CALL": 500,
       "RENDER": 83,
       "STRUCTURAL": 138,
       "OTHER": 1
@@ -14123,11 +14123,38 @@
       "owner": null
     },
     {
+      "file": "scripts/test-owner-approval-gate.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 39,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": [
+          {
+            "file": ".github/workflows/owner-approval-gate.yml",
+            "blocking": false
+          }
+        ]
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-owner-approval.mjs",
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 121,
+      "assertionCount": 122,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,

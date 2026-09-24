@@ -1,13 +1,15 @@
 // scripts/lib/githubPullEvidence.mjs — read a pull request's owner-approval
 // evidence from the GitHub REST API. Only meaningful inside GitHub Actions.
 //
-// Two callers:
+// Three callers:
 //   scripts/check-doc-ownership.mjs    the "guards" check (pull_request): runs the
 //                                      pull request's own copy of the rules
 //   scripts/check-owner-approval-pr.mjs the "owner-approval" check
 //                                      (pull_request_target): runs the BASE
 //                                      branch's copy, so a pull request cannot
 //                                      rewrite the rule that judges it
+//   scripts/owner-approval-gate.mjs    the "owner-approval-gate" check, posted
+//                                      as the Owner Gate GitHub App from main
 //
 // Nothing here decides approval (that is scripts/lib/ownerApproval.mjs). Every
 // problem comes back as an error string or a thrown Error, and both callers turn
@@ -91,5 +93,5 @@ export async function fetchPullEvidence(ctx, { withFiles = false, fetchImpl = gl
   if (headOf(first) !== headOf(second)) {
     throw new Error(`the pull request head moved from ${headOf(first).slice(0, 12) || "nothing"} to ${headOf(second).slice(0, 12) || "nothing"} while its evidence was being read; the run for the new head decides`);
   }
-  return { liveHeadSha: headOf(second), comments, files };
+  return { liveHeadSha: headOf(second), baseRef: String((second && second.base && second.base.ref) || ""), comments, files };
 }

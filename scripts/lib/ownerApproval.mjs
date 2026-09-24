@@ -45,9 +45,14 @@ export const OWNER_ONLY = Object.freeze([
   /^scripts\/lib\/ownerApproval\.mjs$/i,
   /^scripts\/lib\/githubPullEvidence\.mjs$/i,
   /^scripts\/test-owner-approval\.mjs$/i,
-  /^\.github\/workflows\/guards\.yml$/i,
-  /^\.github\/workflows\/owner-approval\.yml$/i,
-  /^\.github\/CODEOWNERS$/i,
+  /^scripts\/owner-approval-gate\.mjs$/i,
+  /^scripts\/lib\/githubAppAuth\.mjs$/i,
+  /^scripts\/test-owner-approval-gate\.mjs$/i,
+  /^scripts\/owner-gate-setup-check\.mjs$/i,
+  // Everything under .github/: every workflow, CODEOWNERS, and anything added
+  // later. A workflow can report a check under any name and can read repository
+  // secrets, so adding or editing one is an owner decision (2026-09-24).
+  /^\.github\//i,
 ]);
 
 export const APPROVAL_COMMAND = "/owner-approve";
@@ -67,9 +72,19 @@ function isOwner(user, owners) {
     && owners.some((o) => o.id === user.id && o.login.toLowerCase() === user.login.toLowerCase());
 }
 
+// A comment's author never changes when its body is edited, and anyone with
+// write access to the repository (including an App) can edit any comment. So an
+// approval counts only as it was first posted: a comment edited after posting
+// (updated_at differs from created_at) is never evidence, even if its author is
+// the owner. To change an approval, post a new comment.
+function unedited(comment) {
+  return typeof comment.created_at === "string" && comment.created_at !== ""
+    && comment.updated_at === comment.created_at;
+}
+
 /**
  * Find an owner approval for exactly `headSha` among GitHub issue comments
- * (REST shape: { id, body, user: { login, id, type }, html_url }).
+ * (REST shape: { id, body, user: { login, id, type }, created_at, updated_at }).
  * Returns the approving comment or null. Never throws on odd input.
  */
 export function findOwnerApproval(comments, headSha, owners = OWNERS) {
@@ -78,6 +93,7 @@ export function findOwnerApproval(comments, headSha, owners = OWNERS) {
   for (const comment of Array.isArray(comments) ? comments : []) {
     const user = comment && comment.user;
     if (!user || user.type !== "User" || !isOwner(user, owners)) continue;
+    if (!unedited(comment)) continue;
     const body = typeof comment.body === "string" ? comment.body : "";
     for (const match of body.matchAll(APPROVAL_LINE)) {
       if (match[1].toLowerCase() === head) return comment;
