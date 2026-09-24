@@ -78,18 +78,22 @@ ok(/enable row level security/.test(mig) && /using \(expires_at > now\(\)\)/.tes
 ok(/revoke all on public\.wf_photo_credit from public, anon, authenticated;/.test(mig) && /grant select on public\.wf_photo_credit to anon, authenticated;/.test(mig), "readers can only SELECT");
 
 // 7. The reader endpoint only pairs a credit with the EXACT cached photo.
-const cr = (name, pid, o = {}) => ({ photo_name: `places/${pid}/photos/${name}`, place_id: pid, author_name: "A", author_uri: "https://maps.google.com/maps/contrib/1", maps_uri: "https://www.google.com/maps/x", ...o });
+const cr = (name, pid, o = {}) => ({ photo_name: `places/${pid}/photos/${name}`, place_id: pid, author_name: "A", author_uri: "https://maps.google.com/maps/contrib/1", maps_uri: "https://www.google.com/maps/x", expires_at: new Date(Date.now() + DAY).toISOString(), ...o });
 const liveSet = new Set(["places/ChIJa/photos/C1", "places/ChIJa/photos/C2", "places/ChIJa/photos/C3", "places/ChIJa/photos/C4", "places/ChIJb/photos/X"]);
 const picked = pickCachedCredits([cr("C1", "ChIJa"), cr("NOTCACHED", "ChIJa"), cr("C2", "ChIJa"), cr("C3", "ChIJa"), cr("C4", "ChIJa"), cr("X", "ChIJb")], liveSet);
 ok(picked.some((p) => p.photo_name.endsWith("/C1")) && picked.some((p) => p.place_id === "ChIJb"), "cached + credited photos are returned (positive control)");
 ok(!picked.some((p) => p.photo_name.endsWith("/NOTCACHED")), "a credit whose photo is not cached is never returned");
 ok(picked.filter((p) => p.place_id === "ChIJa").length === 3, "at most 3 per place");
 ok(pickCachedCredits([{ ...cr("X", "ChIJb"), place_id: "ChIJa" }], liveSet).length === 0, "a credit row claiming another place is refused");
+ok(pickCachedCredits([cr("X", "ChIJb", { expires_at: new Date(Date.now() - 1000).toISOString() })], liveSet).length === 0, "an expired credit is never returned");
+ok(pickCachedCredits([cr("X", "ChIJb", { expires_at: undefined })], liveSet).length === 0, "a credit without an expiry is never returned (fail closed)");
+ok(picked.every((p) => typeof p.expires_at === "string"), "every returned credit carries its expiry so readers can re-check at render");
 const route = read("app/api/photo-credits/route.js");
 ok(!/googleapis/.test(route), "/api/photo-credits has no Google endpoint");
 ok(/photoCacheKey\(`places\/\$\{id\}\/photos\/\*`, CACHE_WIDTH\)/.test(route) && /const CACHE_WIDTH = 640;/.test(route), "reads the same photo|<name>|640 rows /api/photo serves");
 ok(/exp=gt\./.test(route) && /expires_at=gt\./.test(route), "only live cache rows and live credits");
 ok(/pickCachedCredits\(credits, live\)/.test(route), "route uses the tested pairing function");
+ok(/maps_uri,expires_at&/.test(route), "route selects expires_at for readers");
 const batch = Number((route.match(/const KEY_BATCH = (\d+);/) || [])[1]);
 ok(batch >= 1 && batch * 440 < 8000, `credit lookups stay under ~8 KB per request (KEY_BATCH ${batch}; 120 built a 50 KB URL Supabase refused with 400)`);
 
