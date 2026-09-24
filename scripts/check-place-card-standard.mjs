@@ -37,6 +37,11 @@ let pass = 0;
 const failures = [];
 const ok = (condition, message) => { pass++; if (!condition) failures.push(message); };
 
+// Same drawing as HeartIcon/HeartGlyph in app/components/{IconicPlaceCard,RailCard,ThingsToDoList}.js
+// and the inline copy in app/home.js's PlaceCard — used only by the red-proof
+// stress fixture below, which renders raw HTML rather than compiling JSX.
+const HeartSvgMarkup = '<svg class="wf-save-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.2c-.3 0-.6-.1-.8-.3-1.6-1.3-7.7-6.5-7.7-11 0-3 2.3-5.2 5.1-5.2 1.5 0 2.9.7 3.4 1.8.5-1.1 1.9-1.8 3.4-1.8 2.8 0 5.1 2.2 5.1 5.2 0 4.5-6.1 9.7-7.7 11-.2.2-.5.3-.8.3Z"/></svg>';
+
 const walk = (dir) => readdirSync(dir).flatMap((name) => {
   const absolute = path.join(dir, name);
   const stat = statSync(absolute);
@@ -356,7 +361,7 @@ if (!browserConfig) {
             const cs = getComputedStyle(card), contentCss = content ? getComputedStyle(content) : null, nameCss = name ? getComputedStyle(name) : null, actionCss = actions ? getComputedStyle(actions) : null;
             const headingCss = heading ? getComputedStyle(heading) : null;
             const headingTextWidth = name ? name.getBoundingClientRect().width - parseFloat(nameCss.paddingLeft || "0") - parseFloat(nameCss.paddingRight || "0") : null;
-            return { box: box(card), scrollWidth: card.scrollWidth, hrefs: [...card.querySelectorAll("a[href]")].map((a) => a.getAttribute("href") || ""), root: [cs.height, cs.width, cs.borderRadius, cs.backgroundColor], content: contentCss ? [contentCss.paddingTop, contentCss.paddingRight, contentCss.paddingBottom, contentCss.paddingLeft] : null, name: nameCss ? [nameCss.fontSize, nameCss.lineHeight, nameCss.fontWeight] : null, headingTextWidth, extras: [...card.querySelectorAll(".wf-rail-card-cta,.wf-place-card-credit")].map(box), nameBox: name ? box(name) : null, labelFits: [...card.querySelectorAll(".wf-place-card-save,.wf-place-card-share,.wf-place-card-book")].map(el => ({name:el.className, fits:el.scrollWidth <= el.clientWidth + 1})), hasBooking: !!card.querySelector('.wf-place-card-book'), actionStyles: Object.fromEntries(['save','like','dislike','share'].map(key => { const el = card.querySelector('.wf-place-card-' + key); if (!el) return [key,null]; const style = getComputedStyle(el); return [key,[style.height,style.fontSize,style.fontWeight,style.paddingLeft,style.paddingRight,style.borderRadius]]; })), actions: actionCss ? [actionCss.display, actionCss.gridTemplateColumns, actionCss.height, actionCss.columnGap] : null, media: media ? box(media) : null, score: score ? box(score) : null, controls: [...card.querySelectorAll(".wf-place-card-actions>*")].map(box) };
+            return { box: box(card), scrollWidth: card.scrollWidth, hrefs: [...card.querySelectorAll("a[href]")].map((a) => a.getAttribute("href") || ""), root: [cs.height, cs.width, cs.borderRadius, cs.backgroundColor], content: contentCss ? [contentCss.paddingTop, contentCss.paddingRight, contentCss.paddingBottom, contentCss.paddingLeft] : null, name: nameCss ? [nameCss.fontSize, nameCss.lineHeight, nameCss.fontWeight] : null, headingTextWidth, extras: [...card.querySelectorAll(".wf-rail-card-cta,.wf-place-card-credit")].map(box), nameBox: name ? box(name) : null, labelFits: [...card.querySelectorAll(".wf-place-card-save,.wf-place-card-share,.wf-place-card-book")].map(el => ({name:el.className, fits:el.scrollWidth <= el.clientWidth + 1, text:el.textContent, hasIcon:!!el.querySelector("svg")})), hasBooking: !!card.querySelector('.wf-place-card-book'), actionStyles: Object.fromEntries(['save','like','dislike','share'].map(key => { const el = card.querySelector('.wf-place-card-' + key); if (!el) return [key,null]; const style = getComputedStyle(el); return [key,[style.height,style.fontSize,style.fontWeight,style.paddingLeft,style.paddingRight,style.borderRadius]]; })), actions: actionCss ? [actionCss.display, actionCss.gridTemplateColumns, actionCss.height, actionCss.columnGap] : null, media: media ? box(media) : null, score: score ? box(score) : null, controls: [...card.querySelectorAll(".wf-place-card-actions>*")].map(box) };
           }),
         }));
         return { innerWidth, scrollWidth: document.documentElement.scrollWidth, adapters };
@@ -401,6 +406,23 @@ if (!browserConfig) {
           if (card.nameBox) ok(!(Math.min(card.score.right, card.nameBox.right) - Math.max(card.score.x, card.nameBox.x) > 1 && Math.min(card.score.bottom, card.nameBox.bottom) - Math.max(card.score.y, card.nameBox.y) > 1), `${width}px ${card.adapter}: score never overlaps the title`);
         }
         for (const label of card.labelFits) ok(label.fits, `${width}px ${card.adapter}: action label fits without clipping (${label.name})`);
+        // 2026-09-23 — CI failed intermittently on EXACTLY the assertion above
+        // (every surface, only wf-place-card-save, only sub-430px) with a
+        // scrollWidth===clientWidth hairline fit, never locally. Root cause:
+        // the label's text carried a literal "♡"/"♥" character outside every
+        // common UI sans font, so the browser substituted a FALLBACK font for
+        // just that glyph, and which fallback won was a font-cache race on a
+        // freshly provisioned runner. The fix replaced the character with a
+        // real <svg> (no glyph left for a font to disagree about). This
+        // structurally re-closes that vector for every surface, every run —
+        // if it ever regressed (the character came back, or a NEW surface
+        // introduced it) the guard would catch it here, at the same
+        // assertion that flaked, before it could flake again.
+        const saveLabel = card.labelFits.find((l) => l.name.split(" ")[0] === "wf-place-card-save");
+        if (saveLabel) {
+          ok(!/[♡♥]/.test(saveLabel.text), `${width}px ${card.adapter}: Save label carries no raw heart glyph (U+2661/U+2665) that a fallback font could re-substitute (text was ${JSON.stringify(saveLabel.text)})`);
+          ok(saveLabel.hasIcon, `${width}px ${card.adapter}: Save label's heart is a real <svg> (font-independent), not a text glyph`);
+        }
         ok(card.controls.length >= 4, `${width}px ${card.adapter}: positive control found at least four action controls (got ${card.controls.length})`);
         for (const control of card.controls) ok(control.x >= card.box.x - 1 && control.right <= card.box.right + 1 && control.y >= card.box.y - 1 && control.bottom <= card.box.bottom + 1, `${width}px ${card.adapter}: action control stays inside card body`);
         for (const extra of card.extras) {
@@ -446,6 +468,84 @@ if (!browserConfig) {
         ok(Math.max(...union) - Math.min(...union) <= 1, `${width}px: list/rail skeleton and hydrated cards share one 268px height`);
       }
       ok(measured.scrollWidth <= width + 1, `${width}px: fixture has no horizontal page overflow (scrollWidth ${measured.scrollWidth})`);
+    }
+
+    // ── RED-PROOF: the font-substitution flake, forced and re-checked ──────
+    // 2026-09-23. The two real CI failures never reproduced locally, because
+    // they depended on which font a freshly provisioned runner's font-cache
+    // handed Chromium for a glyph outside the UA control font — not anything
+    // this repo's fixture controls. That made the ORIGINAL bug untestable on
+    // demand. It no longer needs to be: the fix removed the glyph, so a
+    // fallback font has nothing left to substitute for the icon, and the
+    // label text itself is now plain ASCII, which every font can render. This
+    // block proves that by forcing a DELIBERATELY MISMATCHED font onto the
+    // action row (one already measured to reproduce the original bug when it
+    // still had the character — a `git stash` back to the raw-glyph version
+    // and a run of this same block failed on exactly this assertion, at
+    // exactly this width, before the fix) and asserting Save/Share still fit.
+    // A silently-ignored font override would make this a no-op stress test,
+    // which is exactly the trap CLAUDE.md's "the mutation must be proven to
+    // apply" lesson warns about — so it first proves the override actually
+    // changed rendering (a control string measurably widens) before trusting
+    // a pass on the real labels.
+    //
+    // This block is also the ONLY place in this file that ever renders the
+    // "Saved" (is-active) button state — the census loop above only ever
+    // renders "Save" (unsaved) across all 8 adapters. Writing it surfaced a
+    // second, genuinely deterministic bug that had nothing to do with font
+    // fallback: "Saved" is one letter longer than "Save", and it clipped by a
+    // real, reproducible 2px (scrollWidth 44 vs clientWidth 42, ordinary
+    // unforced font, every run, every width) under the padding this fix
+    // first gave Save. Fixed alongside the glyph removal — see the CSS
+    // comment above `.wf-sheet-card-actions>.wf-place-card-save` in
+    // app/components/css.js.
+    if (browser && !MUTATION) {
+      const page = await browser.newPage({ viewport: { width: 320, height: 700 }, deviceScaleFactor: 1 });
+      // The stress font must be installed AND must actually differ from the font
+      // the action buttons already get (a <button> uses the platform's control
+      // font, which on Linux may itself be DejaVu Sans). So probe candidates on a
+      // real <button> and use the first one that measurably changes "Saved".
+      // FreeSans and Liberation come with `playwright install --with-deps`, so a
+      // CI runner always has at least one; if none differs, the setup assertion
+      // below fails loudly instead of running a stress test that proves nothing.
+      const STRESS_CANDIDATES = ["DejaVu Sans", "FreeSans", "Liberation Serif", "FreeSerif"];
+      await page.setContent(`<!doctype html><html><body style="margin:0">
+        <button id="probe-normal">Saved</button>
+        ${STRESS_CANDIDATES.map((f, i) => `<button id="probe-${i}" style="font-family:'${f}'!important">Saved</button>`).join("")}
+      </body></html>`, { waitUntil: "load" });
+      const probe = await page.evaluate((n) => {
+        const w = (id) => { const r = document.createRange(); r.selectNodeContents(document.getElementById(id)); return r.getBoundingClientRect().width; };
+        return { normal: w("probe-normal"), forced: Array.from({ length: n }, (_, i) => w(`probe-${i}`)) };
+      }, STRESS_CANDIDATES.length);
+      const pick = probe.forced.findIndex((width) => Math.abs(width - probe.normal) > 2);
+      const STRESS_FONT = pick >= 0 ? STRESS_CANDIDATES[pick] : null;
+      ok(STRESS_FONT !== null, `RED-PROOF SETUP: a mismatched font measurably changes a button's "Saved" (normal ${probe.normal.toFixed(1)}px; ${STRESS_CANDIDATES.map((f, i) => `${f} ${probe.forced[i].toFixed(1)}px`).join(", ")}) — without one the stress rows below would prove nothing`);
+      // Each row below has exactly the 4 grid ITEMS the real card ever renders at
+      // once (one save-state button + like + dislike + share) against the grid's 4
+      // explicit `grid-template-columns` tracks (44px 26px 26px minmax(0,1fr)) — the
+      // real product never puts both "Save" and "Saved" in the same row, and doing
+      // so here would leave one row with 5 items against 4 tracks, which makes CSS
+      // Grid auto-placement wrap the extra item into an implicit row and assign
+      // column widths that do not match either real state.
+      const stressRow = (saveButtonHtml) => `<div class="wf-place-card"><div class="wf-place-card-actions wf-sheet-card-actions">
+      ${saveButtonHtml}
+      <button class="wf-place-card-like">x</button><button class="wf-place-card-dislike">x</button>
+      <button class="wf-place-card-share">&#8599; Share</button>
+      </div></div>`;
+      const stressHtml = `<!doctype html><html><head><style>*{box-sizing:border-box}${WF_PLACE_CARD_CSS}
+      .wf-place-card-actions>a,.wf-place-card-actions>button,.wf-place-card-actions>span{font-family:'${STRESS_FONT || "none"}'!important}
+      </style></head><body style="margin:0;padding:0 13px;background:#040810">
+      ${stressRow(`<button class="wf-place-card-save">${HeartSvgMarkup}Save</button>`)}
+      ${stressRow(`<button class="wf-place-card-save is-active">${HeartSvgMarkup}Saved</button>`)}
+      </body></html>`;
+      await page.setContent(stressHtml, { waitUntil: "load" });
+      const labels = await page.evaluate(() => [...document.querySelectorAll(".wf-place-card-save,.wf-place-card-share")].map((el) => ({
+        name: el.className, text: el.textContent, fits: el.scrollWidth <= el.clientWidth + 1,
+      })));
+      await page.close();
+      for (const label of labels) {
+        ok(label.fits, `RED-PROOF 320px: action label still fits under a forced mismatched font (${STRESS_FONT}; ${label.name}, text ${JSON.stringify(label.text)}) — the scenario (a different font rendering the label) that made the original guard flake in CI`);
+      }
     }
   } catch (error) {
     ok(false, `Chromium launch or rendered measurement failed: ${error.message}`);

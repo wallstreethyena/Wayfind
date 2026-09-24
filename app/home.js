@@ -11984,7 +11984,17 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
                 return "Book on Viator ↗";
               })()}</ViatorCommerceLink>
             )}
-            <button className={`wf-place-card-save${saved ? " is-active" : ""}`} onClick={(e) => { e.stopPropagation(); onSave(); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: saved ? C.accent : "transparent", border: `1.5px solid ${saved ? C.accent : C.border}`, borderRadius: 999, color: saved ? "#0D1117" : C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}>{saved ? "♥ Saved" : "♡ Save"}</button>
+            {/* 2026-09-23 — the icon used to be a literal "♡"/"♥" character.
+                That codepoint sits outside every common UI sans font, so the
+                browser silently substituted a fallback font for just that
+                glyph — a font-cache-race width flake against this row's
+                fixed-width grid track (scripts/check-place-card-standard.mjs,
+                see the HeartIcon comment in IconicPlaceCard.js for the full
+                story). An <svg> has no glyph to substitute; same drawing as
+                IconicPlaceCard's HeartIcon and RailCard's/ThingsToDoList's
+                HeartGlyph, so it is one drawing across the app, not four
+                that almost match. */}
+            <button className={`wf-place-card-save${saved ? " is-active" : ""}`} onClick={(e) => { e.stopPropagation(); onSave(); }} style={{ display: "inline-flex", alignItems: "center", background: saved ? C.accent : "transparent", border: `1.5px solid ${saved ? C.accent : C.border}`, borderRadius: 999, color: saved ? "#0D1117" : C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}><svg className="wf-save-heart" viewBox="0 0 24 24" fill={saved ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d="M12 20.2c-.3 0-.6-.1-.8-.3-1.6-1.3-7.7-6.5-7.7-11 0-3 2.3-5.2 5.1-5.2 1.5 0 2.9.7 3.4 1.8.5-1.1 1.9-1.8 3.4-1.8 2.8 0 5.1 2.2 5.1 5.2 0 4.5-6.1 9.7-7.7 11-.2.2-.5.3-.8.3Z" /></svg>{saved ? "Saved" : "Save"}</button>
             {onLike && (
               <button className={`wf-place-card-like${liked ? " is-active" : ""}`} onClick={onLike} aria-label={liked ? "Remove like" : "Like this place"} aria-pressed={liked} title={liked ? "Remove like" : "Like this place"} style={{ display: "inline-flex", alignItems: "center", background: liked ? "#34D399" : "transparent", border: `1.5px solid ${liked ? "#34D399" : C.border}`, borderRadius: 999, color: liked ? "#06231A" : C.muted, padding: "5px 11px", cursor: "pointer" }}><svg viewBox="0 0 24 24" fill={liked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M8 10v10H4V10h4Z" /><path d="M8 18h8.5a2 2 0 0 0 1.9-1.4l1.3-4a2 2 0 0 0-1.9-2.6H14l.6-3.1A2.4 2.4 0 0 0 12.2 4L8 10v8Z" /></svg></button>
             )}
