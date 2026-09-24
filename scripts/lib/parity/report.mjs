@@ -56,6 +56,29 @@ export function makeRow({
   rank = null, page = null, hasMore = null, pageReachable = null,
   offset = null, n = null, apiTotal = null, eligibleTotal = null,
   sameOriginOk = null, cacheHeader = null,
+  // Honest reachability (2026-09-23, PR #1495 fix round). `pageReachable`
+  // above is kept ONLY as informational context inside page/pagination (rank/
+  // page/hasMore for a human reading the report) -- classifyRow no longer
+  // decides anything from it, because "hasMore:true" alone proved nothing:
+  // the OLD pageReachable was `supportsPaging && hasMore===true`, read off a
+  // single flag, never off whether continuing actually delivered anything.
+  //
+  // These two are the PROVEN facts, one per level, set by the caller only
+  // when it actually did the proof (never inferred here):
+  //   apiNextPageReachable     -- API level. true only when the exhaustive
+  //     offset-page walk terminated CLEANLY (server hasMore genuinely went
+  //     false, or a short page arrived) rather than being cut off by our own
+  //     --maxPages cap or a failed offset fetch. A place still missing after
+  //     a clean exhaustive walk is a real omission; a place missing after an
+  //     UNPROVEN (cut-off) walk is not -- it might simply be un-reached.
+  //   browserNextPageReachable -- browser level. true only when the "Wayfind
+  //     5 more spots" control was clicked until it genuinely DISAPPEARED
+  //     (not until --maxPages was hit) AND the rendered-id union covers every
+  //     UI-eligible id (legitimately-suppressed places excluded).
+  // A row is produced by exactly one level, so exactly one of these two is
+  // ever non-null on any given row; never let one level's proof stand in for
+  // the other (same rule the job's fix-round description states explicitly).
+  apiNextPageReachable = null, browserNextPageReachable = null,
   suppressionReason = null, notes = null,
   // Explicit, caller-set hints for the two root-cause classes this pipeline
   // cannot detect on its own (cache_drift needs two observations of the same
@@ -73,6 +96,8 @@ export function makeRow({
     "page/pagination": { rank, page, offset, n, hasMore, pageReachable, apiTotal, eligibleTotal },
     suppression_reason: suppressionReason,
     same_origin_ok: sameOriginOk,
+    api_next_page_reachable: apiNextPageReachable,
+    browser_next_page_reachable: browserNextPageReachable,
     cache_header: cacheHeader,
     notes,
     hint: { cacheDrift: !!cacheDrift, seasonalGap: !!seasonalGap },
@@ -105,13 +130,23 @@ export function classifyRow(row) {
   // A legitimate reason clears the row outright, UNLESS it is rank_cap and
   // the surface does not actually make the rest of the list reachable -- a
   // cap the reader can never page past is pagination_invisibility, not a cap.
+  //
+  // HONEST REACHABILITY (2026-09-23, PR #1495 fix round): "reachable" is
+  // decided ONLY from api_next_page_reachable / browser_next_page_reachable
+  // -- the PROVEN facts a level sets after actually exhausting its own
+  // continuation mechanism and checking coverage. The OLD test here
+  // (`pg.hasMore === true && pg.pageReachable !== false`) read a single flag
+  // the server can lie about (or that a walk WE cut off ourselves happened to
+  // still be true) and never checked whether continuing actually delivered
+  // anything -- see runApiLevel's/runBrowserLevel's own comments for why that
+  // made rank_cap: nearly always a false "legitimate" the moment the caller
+  // already performs an exhaustive walk.
   const reason = row.suppression_reason;
   if (isLegitimateSuppression(reason)) {
     if (reason.startsWith("rank_cap:")) {
-      const pg = row["page/pagination"] || {};
-      const reachable = pg.hasMore === true && pg.pageReachable !== false;
+      const reachable = row.api_next_page_reachable === true || row.browser_next_page_reachable === true;
       if (!reachable) {
-        return { verdict: "fail", root_cause: "pagination_invisibility", why: "rank_cap claimed but hasMore is not true / the next page is not reachable" };
+        return { verdict: "fail", root_cause: "pagination_invisibility", why: "rank_cap claimed but the next page/continuation was never proven reachable (exhausted cleanly AND covering the eligible/UI-eligible set)" };
       }
     }
     return { verdict: "pass", root_cause: null };
@@ -127,14 +162,27 @@ export function classifyRow(row) {
     if (row.hint && row.hint.cacheDrift) {
       return { verdict: "fail", root_cause: "cache_drift", why: "membership differs across cache states for an identical request" };
     }
+    // A place that should have been on the very FIRST (unpaged) page and is
+    // simply not in the API's response at all -- whether or not pagination
+    // proved reachable further down the list is irrelevant to this specific
+    // place, so this stays a confident eligibility_passed_api_omitted exactly
+    // as before. The honest-reachability fix (item 1) lives entirely in the
+    // rank_cap: branch above, which is where a "beyond the first page, so
+    // maybe it's just further along" claim is actually made and needs
+    // actual proof instead of a bare hasMore flag -- a row reaching HERE
+    // never carried that claim in the first place.
     return { verdict: "fail", root_cause: "eligibility_passed_api_omitted", why: "eligible under the real pipeline; the API never served it on any reachable page" };
   }
 
   // 2. API served it; the client never rendered a card for it.
   if (row.rendered === false) {
-    const pg = row["page/pagination"] || {};
-    if (pg.hasMore === true && pg.pageReachable === false) {
-      return { verdict: "fail", root_cause: "pagination_invisibility", why: "API says hasMore, but the continuation control never surfaced/advanced far enough to reveal this card" };
+    // Same honesty rule, browser side: the continuation control must have
+    // been clicked to genuine exhaustion (not cut off by --maxPages) with its
+    // rendered-id union covering every UI-eligible place, or we cannot
+    // confidently say the client "omitted" this card versus simply not
+    // having been asked to reveal it yet.
+    if (row.browser_next_page_reachable === false) {
+      return { verdict: "fail", root_cause: "pagination_invisibility", why: "the client continuation control was not proven to reach every UI-eligible place (never exhausted, or the rendered-id union does not cover the eligible set)" };
     }
     if (reason && reason.startsWith("brand_collapse:")) {
       return { verdict: "fail", root_cause: "dedupe_suppression_error", why: "claimed brand_collapse does not hold under inspection" };
@@ -348,4 +396,46 @@ export function writeReport(out, { title, meta, rows, totalChecked, totalEligibl
   }
 
   return { jsonPath: `${out}.json`, mdPath: `${out}.md`, summary, fullPaths };
+}
+
+/**
+ * Write {out}.json / {out}.md for a level that is NOT a chip-eligibility
+ * comparison and does not fit the 8-class root-cause taxonomy above --
+ * --level=seo (rendered landing HTML vs the page's own recomputed top-N),
+ * --level=creator (creator-linked place ids vs their creator surface) and
+ * --level=rails (a rail's served set vs its own identity predicate).
+ *
+ * `sections` is an array of `{ heading, note, columns, rows }`; each row is
+ * an object keyed by `columns` (a column may be a string key or a `(row)=>`
+ * getter, same convention as toMarkdownTable above). `summaryLines` is an
+ * array of plain strings rendered as a bullet list under "## Summary" in the
+ * markdown (and carried verbatim in the JSON's `summary.lines`) -- e.g.
+ * "23/23 page-eligible creators checked, 2 missing ids" -- so a human skims
+ * the same headline numbers the JSON's `summary` object carries structurally.
+ */
+export function writeGenericReport(out, { title, meta, summary = {}, summaryLines = [], sections = [] }) {
+  mkdirSync(path.dirname(out), { recursive: true });
+  const json = { title, generatedAt: new Date().toISOString(), meta, summary: { ...summary, lines: summaryLines }, sections };
+  writeFileSync(`${out}.json`, JSON.stringify(json, null, 2));
+
+  const md = [`# ${title}`, "", `Generated: ${json.generatedAt}`, ""];
+  if (meta) md.push("```json\n" + JSON.stringify(meta, null, 2) + "\n```", "");
+  if (summaryLines.length) {
+    md.push("## Summary", "");
+    for (const line of summaryLines) md.push(`- ${line}`);
+    md.push("");
+  }
+  for (const section of sections) {
+    if (!section) continue;
+    md.push(`## ${section.heading}`, "");
+    if (section.note) md.push(section.note, "");
+    const rows = section.rows || [];
+    if (rows.length && Array.isArray(section.columns) && section.columns.length) {
+      md.push(toMarkdownTable(rows, section.columns), "");
+    } else if (!rows.length) {
+      md.push("_none_", "");
+    }
+  }
+  writeFileSync(`${out}.md`, md.join("\n"));
+  return { jsonPath: `${out}.json`, mdPath: `${out}.md` };
 }

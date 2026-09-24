@@ -44,6 +44,7 @@ import assert from "node:assert/strict";
 import { computeEligibleSet } from "./lib/parity/eligibility.mjs";
 import { classifyRow, makeRow, isLegitimateSuppression, ROOT_CAUSE_CLASSES } from "./lib/parity/report.mjs";
 import { classifyClientOmissions, toAppShape, SLIDER_MI_DEFAULT } from "./lib/parity/clientGates.mjs";
+import { walkPagesToExhaustion, computeApiNextPageReachable } from "./lib/parity/pagingProof.mjs";
 import { dedupePlaces, normName } from "../lib/placeDedupe.js";
 import { cardComplete } from "../lib/score.js";
 import { chipIdentity } from "../lib/chipIdentity.js";
@@ -351,7 +352,7 @@ function makeFakePostgrest(rows, { honorOrder = true, pageSize = 1000, singlePag
   const row = makeRow({
     placeId: "s1", name: "Some Sarasota Café", city: "Sarasota", key: "food:cafes",
     sourcePresent: true, apiPresent: false, suppressionReason: "rank_cap:400",
-    hasMore: true, pageReachable: true, // would otherwise PASS as a reachable cap
+    hasMore: true, apiNextPageReachable: true, // would otherwise PASS as a PROVEN-reachable cap
     sameOriginOk: false, // ...but the capture was Parrish inventory read against a Sarasota DOM
   });
   const v = classifyRow(row);
@@ -360,35 +361,159 @@ function makeFakePostgrest(rows, { honorOrder = true, pageSize = 1000, singlePag
 
   // RED-PROVE: with sameOriginOk left true/null, the SAME row (reachable
   // rank_cap) must pass — proving the fail above is really about the origin
-  // flag and not about the rank_cap/hasMore shape.
+  // flag and not about the rank_cap/reachability shape.
   const rowOk = { ...row, same_origin_ok: null };
   ok(classifyRow(rowOk).verdict === "pass",
-    "positive control: the same row with same_origin_ok cleared should PASS as a reachable rank_cap — if it still fails, assertion 5 proves nothing about the origin flag");
+    "positive control: the same row with same_origin_ok cleared should PASS as a proven-reachable rank_cap — if it still fails, assertion 5 proves nothing about the origin flag");
 }
 
-// ── 6. eligible > n, hasMore:false -> pagination_invisibility, not the
-//    capped-read class ─────────────────────────────────────────────────────
+// ── 6. HONEST REACHABILITY (2026-09-23, PR #1495 fix round, items 1 & 6):
+//    api_next_page_reachable / browser_next_page_reachable are the ONLY
+//    facts classifyRow trusts for "is a rank_cap actually reachable" or "is a
+//    non-rendered row explained by pagination" — never the raw hasMore flag,
+//    which the OLD `pg.hasMore === true && pg.pageReachable !== false` read
+//    and which a lying/degraded server (or a walk WE cut off ourselves) could
+//    satisfy while proving nothing about what continuing would return. ──────
 {
+  // 6a. eligible > n, api_next_page_reachable:false (unproven / not covering
+  //     the eligible set) -> pagination_invisibility, never the plain omitted
+  //     class and never silently passed just because hasMore claims true.
   const row = makeRow({
     placeId: "p1", name: "Page Two Café", city: "Tampa", key: "food:cafes",
     sourcePresent: true, apiPresent: false, rank: 450, n: 400,
-    suppressionReason: "rank_cap:400", hasMore: false, pageReachable: false,
+    suppressionReason: "rank_cap:400", hasMore: false, apiNextPageReachable: false,
   });
   const v = classifyRow(row);
   ok(v.verdict === "fail" && v.root_cause === "pagination_invisibility",
-    `a beyond-the-cap row with hasMore:false was misclassified: ${JSON.stringify(v)}`);
+    `a beyond-the-cap row with api_next_page_reachable:false was misclassified: ${JSON.stringify(v)}`);
 
-  // RED-PROVE: the same row WITH hasMore:true and a reachable page must pass.
-  const reachable = { ...row, "page/pagination": { ...row["page/pagination"], hasMore: true, pageReachable: true } };
+  // RED-PROVE (the OLD bug, reproduced): hasMore:true alone, with NO proof of
+  // actual coverage, used to read as "reachable" (`pg.hasMore===true &&
+  // pg.pageReachable!==false`, and pageReachable defaults to null which is
+  // `!== false`). Confirm that shape alone is NOT enough any more — only
+  // api_next_page_reachable:true clears it.
+  const hasMoreAloneRow = { ...row, "page/pagination": { ...row["page/pagination"], hasMore: true } };
+  ok(classifyRow(hasMoreAloneRow).verdict === "fail" && classifyRow(hasMoreAloneRow).root_cause === "pagination_invisibility",
+    "RED-PROVE failed: hasMore:true alone (no api_next_page_reachable proof) must still FAIL — if this passes, the old hasMore-only bug is back");
+
+  // POSITIVE CONTROL: the same row WITH a genuinely proven-reachable pair
+  // (api_next_page_reachable:true) must pass.
+  const reachable = { ...row, api_next_page_reachable: true, "page/pagination": { ...row["page/pagination"], hasMore: true } };
   ok(classifyRow(reachable).verdict === "pass",
-    "positive control: the same row with a reachable next page should PASS — if it still fails, assertion 6 is not actually testing hasMore/pageReachable");
+    "positive control: the same row with a PROVEN-reachable next page should PASS — if it still fails, assertion 6a is not actually testing api_next_page_reachable");
 
   // …and a row genuinely missing from WITHIN the first page (rank < n, no
   // suppression reason at all) must be the OTHER class, not this one.
-  const withinPage = makeRow({ placeId: "p2", name: "Should-Be-On-Page-One", city: "Tampa", key: "food:cafes", sourcePresent: true, apiPresent: false, rank: 12, n: 400 });
+  const withinPage = makeRow({ placeId: "p2", name: "Should-Be-On-Page-One", city: "Tampa", key: "food:cafes", sourcePresent: true, apiPresent: false, rank: 12, n: 400, apiNextPageReachable: true });
   const wv = classifyRow(withinPage);
   ok(wv.verdict === "fail" && wv.root_cause === "eligibility_passed_api_omitted",
     `a within-first-page omission was misclassified as ${JSON.stringify(wv)} — rank<n must never read as a legitimate cap`);
+
+  // 6b. NAMED CASE (item 6): "an API hasMore:true with a missing offset page
+  //     FAILS". Drive the REAL walkPagesToExhaustion (the exact function
+  //     surface-parity-audit.mjs's fetchProdMembership delegates to) against
+  //     a fake server whose page 0 says hasMore:true and whose offset page
+  //     (page 1) then fails outright — a literal "missing offset page", not
+  //     a re-implementation of the loop.
+  let calls = 0;
+  const missingOffsetPageWalk = await walkPagesToExhaustion({
+    maxPages: 5,
+    fetchPage: async () => {
+      calls++;
+      return calls === 1
+        ? { ok: true, json: { places: [{ id: "found-on-page-0" }], hasMore: true } }
+        : { ok: false, json: null }; // the offset page fetch itself fails
+    },
+  });
+  ok(calls === 2, `positive control: the fake server should have been asked for exactly 2 pages (got ${calls})`);
+  ok(missingOffsetPageWalk.exhaustedCleanly === false && missingOffsetPageWalk.stoppedByFailedFetch === true,
+    `a walk whose offset page fetch failed must NOT read as cleanly exhausted: ${JSON.stringify(missingOffsetPageWalk)}`);
+  const reachableAfterMissingPage = computeApiNextPageReachable(missingOffsetPageWalk, ["found-on-page-0", "should-be-on-page-1"]);
+  ok(reachableAfterMissingPage === false,
+    "RED-PROVE failed: api_next_page_reachable must be false when the offset page fetch failed — a missing offset page must never silently read as proven");
+  const missingPageRow = makeRow({
+    placeId: "should-be-on-page-1", name: "Should Be On Page 1", city: "Tampa", key: "food:cafes",
+    sourcePresent: true, apiPresent: false, rank: 401, n: 400,
+    // In real production code, runApiLevel assigns rank_cap:<PAGE_N> to every
+    // rank>=n missing row BEFORE it ever reaches classifyRow (see
+    // surface-parity-audit.mjs) -- without this field here, this row would
+    // fall through to the plain (reachability-blind) priority-1 branch and
+    // misreport eligibility_passed_api_omitted, silently proving nothing
+    // about the honest-reachability fix this assertion exists to lock in.
+    suppressionReason: "rank_cap:400",
+    hasMore: missingOffsetPageWalk.hasMore, apiNextPageReachable: reachableAfterMissingPage,
+  });
+  const mv = classifyRow(missingPageRow);
+  ok(mv.verdict === "fail" && mv.root_cause === "pagination_invisibility",
+    `an hasMore:true pair whose offset page fetch failed must FAIL as pagination_invisibility, got ${JSON.stringify(mv)}`);
+  // RED-PROVE the OTHER direction: if the SAME walk had instead exhausted
+  // cleanly (server said hasMore:false) and STILL did not cover the eligible
+  // id, that is a real, provable omission — NOT pagination_invisibility. This
+  // is what stops every beyond-first-page omission from being blanket-
+  // reclassified as "unproven" once a walk genuinely finishes.
+  let cleanCalls = 0;
+  const cleanWalk = await walkPagesToExhaustion({
+    maxPages: 5,
+    fetchPage: async () => {
+      cleanCalls++;
+      return cleanCalls === 1
+        ? { ok: true, json: { places: [{ id: "found-on-page-0" }], hasMore: true } }
+        : { ok: true, json: { places: [], hasMore: false } };
+    },
+  });
+  ok(cleanWalk.exhaustedCleanly === true, `positive control: a walk ending on hasMore:false must read as cleanly exhausted: ${JSON.stringify(cleanWalk)}`);
+  const cleanReachable = computeApiNextPageReachable(cleanWalk, ["found-on-page-0", "genuinely-never-served"]);
+  ok(cleanReachable === false, "positive control: coverage is still false when a clean walk's union lacks an eligible id");
+  const genuineOmissionRow = makeRow({
+    placeId: "genuinely-never-served", name: "Genuinely Never Served", city: "Tampa", key: "food:cafes",
+    sourcePresent: true, apiPresent: false, rank: 1, n: 400,
+    hasMore: cleanWalk.hasMore, apiNextPageReachable: cleanReachable,
+  });
+  const gv = classifyRow(genuineOmissionRow);
+  ok(gv.verdict === "fail" && gv.root_cause === "eligibility_passed_api_omitted",
+    `a place missing after a CLEANLY exhausted walk must be eligibility_passed_api_omitted, not pagination_invisibility: ${JSON.stringify(gv)}`);
+}
+
+// ── 6c. NAMED CASE (item 6): "a browser run that never exhausts the control
+//     FAILS". browser_next_page_reachable:false (the continuation was cut off
+//     at --maxPages, or its rendered-id union does not cover the UI-eligible
+//     set) must FAIL as pagination_invisibility for a served-but-unrendered
+//     row — never silently pass, and never be confused with the API-level
+//     field (each level's proof stands only for that level, per the job's
+//     explicit "never count UI reachability as proven at API level" rule). ──
+{
+  const neverExhausted = makeRow({
+    placeId: "b1", name: "Beyond The Fold Café", city: "Tampa", key: "food:cafes",
+    sourcePresent: true, apiPresent: true, rendered: false,
+    browserNextPageReachable: false,
+  });
+  const bv = classifyRow(neverExhausted);
+  ok(bv.verdict === "fail" && bv.root_cause === "pagination_invisibility",
+    `a browser row whose continuation never exhausted must FAIL as pagination_invisibility: ${JSON.stringify(bv)}`);
+
+  // RED-PROVE: the SAME row, but with the continuation PROVEN exhausted and
+  // covering (browser_next_page_reachable:true), must NOT read as pagination_
+  // invisibility — it falls through to the plain api_included_ui_omitted
+  // class (still a FAIL, but a different, more confident one), proving the
+  // assertion above is anchored to the reachability flag and not to
+  // `rendered:false` alone.
+  const exhausted = { ...neverExhausted, browser_next_page_reachable: true };
+  const ev = classifyRow(exhausted);
+  ok(ev.verdict === "fail" && ev.root_cause === "api_included_ui_omitted",
+    `RED-PROVE failed: a browser row with a PROVEN-exhausted continuation should read as api_included_ui_omitted, not pagination_invisibility: ${JSON.stringify(ev)}`);
+
+  // An API-level field must never stand in for a browser-level proof, or
+  // vice versa: a row that only sets api_next_page_reachable (never measured
+  // at the browser level, which is what a real browser row's null leaves it
+  // at) must still FAIL as pagination_invisibility here.
+  const apiFieldIgnoredAtBrowserLevel = makeRow({
+    placeId: "b2", name: "Cross-Level Café", city: "Tampa", key: "food:cafes",
+    sourcePresent: true, apiPresent: true, rendered: false,
+    apiNextPageReachable: true, // set, but this is a BROWSER-level row (rendered:false with apiPresent:true)
+  });
+  const xv = classifyRow(apiFieldIgnoredAtBrowserLevel);
+  ok(xv.verdict === "fail" && xv.root_cause === "api_included_ui_omitted",
+    `an api_next_page_reachable:true must not itself explain a browser-level rendered:false (no browser_next_page_reachable set): ${JSON.stringify(xv)}`);
 }
 
 // ── 7. rendered-but-unmapped -> map_list_mismatch ──────────────────────────

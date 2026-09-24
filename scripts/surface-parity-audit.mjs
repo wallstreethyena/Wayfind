@@ -6,7 +6,7 @@
  * and scripts/lib/parity/report.mjs (the row schema + root-cause classifier)
  * against either a live API endpoint or a live browser.
  *
- *   --level=api|browser        default: api
+ *   --level=api|browser|seo|creator|rails   default: api
  *   --cities=slug,slug,...     default: every LANDING_CITIES entry with
  *                               state==="FL" (lib/landingCities.js)
  *   --keys=cat:sub,cat:sub,... default: every key in CHIP_IDENTITY
@@ -73,19 +73,53 @@
  *                               when --full is set; writeReport() throws if
  *                               it resolves inside the repo.
  *
+ * --level=seo (2026-09-23, PR #1495 fix round). For every LANDING_INV_SPEC
+ *   route (lib/landingInventory.js: things-to-do/restaurants/beaches/
+ *   nightlife) x city in --cities, fetches the LIVE rendered
+ *   /{catSlug}/{citySlug} HTML, extracts place ids from the same crawlable
+ *   `/p/<id>?action=save` anchor every IconicPlaceCard always renders, and
+ *   compares that set to the TRUE top-level ranking the page's own code would
+ *   produce right now -- computed by loading lib/landing.js for real (the
+ *   jsxLoad.mjs loader other guards in this repo already use to run a real
+ *   JSX module under plain node) and calling its actual rankedFor(), then
+ *   lib/venueContainment.js's real groupByContainment() to know which ranked
+ *   places are top-level cards (their own /p/<id> link) versus rendered only
+ *   as a nested chip inside a parent's card (no independent link at all) --
+ *   never a re-implementation of either.
+ * --level=creator. Every creator-linked (creator handle, place id) pair from
+ *   lib/creatorVideos.js's allCreators() that is OPERATIONAL in inventory is
+ *   checked two ways: (1) the REAL creatorVideosFor() resolver, called
+ *   against the place shaped from its live inventory row, must still resolve
+ *   to that creator (proves the surface machinery every place card/detail
+ *   sheet uses would actually attribute it); (2) for creators who clear
+ *   CREATOR_PAGE_MIN_SPOTS (their own indexable /creators/<handle> page
+ *   exists), the LIVE rendered page HTML must actually carry that place.
+ * --level=rails. lib/railSelect.js's RAIL_SELECT is each rail's own,
+ *   already-written contract: an `identity` function is a real, callable
+ *   category/identity predicate; a rail with none but a `waiver` string is
+ *   curated/cross-category by the file's own admission and is recorded OUT
+ *   OF SCOPE with that waiver, never forced through a manufactured category.
+ *   For each identity-bearing rail, a live /api/rails response (v=1 -- the
+ *   full, unwindowed shape; this surface caps nothing, "no max on anything")
+ *   is compared against the eligible set the SAME identity function admits
+ *   over a live inventory box read at that rail's own radius.
+ *
  * ENV (command line / calling shell only — NEVER written into a repo file):
  *   SUPABASE_URL / NEXT_PUBLIC_SUPABASE_URL, and SUPABASE_KEY — an anon /
  *   publishable key is enough (wf_inventory is anon-readable). Used ONLY to
  *   compute GROUND TRUTH via this repo's own (fixed) code; the live API/
  *   browser calls talk to production over plain HTTPS and need no credential.
  *
- * THE AFTER-RUN, once the fix is deployed, is this exact command with a new
- * --out and --label — see docs/audits/surface-parity/README (the command is
- * also printed at the end of every run of this script).
+ * THE AFTER-RUN, once the fix is deployed, is ONE command per level with a
+ * new --out and --label — see docs/audits/surface-parity/README.md, whose
+ * "Post-deploy AFTER run" section carries the exact five commands (the api
+ * one is also printed at the end of every run of this script).
  */
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
 import { LANDING_CITIES } from "../lib/landingCities.js";
 import { chipIdentityKeys, subAllowOnlyKeys, computeEligibleSet, placeName, milesBetween } from "./lib/parity/eligibility.mjs";
-import { makeRow, writeReport } from "./lib/parity/report.mjs";
+import { makeRow, writeReport, writeGenericReport } from "./lib/parity/report.mjs";
 // REAL client-side gates, called rather than restated (2026-09-23,
 // orchestrator review): a place the API served but the browser did not
 // render can be a real bug, OR a place the CLIENT itself legitimately drops
@@ -95,6 +129,26 @@ import { makeRow, writeReport } from "./lib/parity/report.mjs";
 // VERBATIM) is the only way to tell them apart from a real omission without
 // silently re-implementing (and possibly drifting from) app/home.js's rule.
 import { classifyClientOmissions, SLIDER_MI_DEFAULT } from "./lib/parity/clientGates.mjs";
+// The exhaustive offset-page walk's own honesty bookkeeping (item 1/6, PR
+// #1495 fix round) -- factored out so scripts/check-surface-parity-
+// hermetic.mjs can drive the SAME walk against a fake server, never a
+// re-implementation of it.
+import { walkPagesToExhaustion, computeApiNextPageReachable } from "./lib/parity/pagingProof.mjs";
+// The real browse-surface chip menu (item 2, PR #1495 fix round): read, never
+// hand-copied, so CHIP_UI_LABELS below can never silently drift from what
+// app/home.js's CategoryMenu actually renders. lib/categories.js is a plain,
+// self-contained module (zero imports) and loads directly; lib/google.js
+// uses Next's extensionless local imports internally (`from "./businessStatus"`)
+// that plain node cannot resolve, so it -- like lib/landing.js/lib/railSelect.js
+// below -- goes through jsxLoad.mjs (the same repo-standard loader other
+// guards already use to run a real production module under plain node),
+// loaded lazily inside runBrowserLevel so an --level=api run never pays for it.
+import { CATEGORY_TILES } from "../lib/categories.js";
+// --level=browser/seo/creator/rails call further real production modules;
+// imported lazily inside each level's own function (below) so `--level=api`
+// never pays for loading lib/google.js, lib/landing.js's whole JSX dependency
+// graph, or lib/railSelect.js's rail registry.
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
 // ── CLI ──────────────────────────────────────────────────────────────────
 function parseArgs(argv) {
@@ -204,6 +258,18 @@ async function fetchProdJSON(url) {
   return { status: r.status, ok: r.ok, json, cacheHeader };
 }
 
+/** Same request as fetchProdJSON, but for a page that returns HTML
+ * (--level=seo's rendered landing pages, --level=creator's /creators/<handle>
+ * pages) rather than JSON. */
+async function fetchProdHTML(url) {
+  const r = await fetch(url, {
+    headers: { Referer: `${BASE}/`, Origin: BASE, "User-Agent": BROWSER_UA },
+  });
+  let text = null;
+  try { text = await r.text(); } catch { text = null; }
+  return { status: r.status, ok: r.ok, text };
+}
+
 function invUrl({ lat, lng, cat, sub, n, offset }) {
   const u = new URL(`${BASE}/api/places/search`);
   u.searchParams.set("q", "inventory");
@@ -220,41 +286,36 @@ function invUrl({ lat, lng, cat, sub, n, offset }) {
 
 /** Page a production inv=1 endpoint to exhaustion, honoring hasMore when the
  * server reports it (post-fix) and stopping after one page when it does not
- * (pre-fix production shape — the exact thing this audit exists to measure). */
+ * (pre-fix production shape — the exact thing this audit exists to measure).
+ *
+ * HONEST REACHABILITY (2026-09-23, PR #1495 fix round, item 1). This walk
+ * already goes to exhaustion, which is exactly the proof `api_next_page_
+ * reachable` needs -- the missing piece was distinguishing WHY the walk
+ * stopped. `exhaustedCleanly` is true only when the loop ended because the
+ * server's own hasMore genuinely went false or a short/empty page arrived --
+ * never because we merely stopped asking. Two things leave it false, and both
+ * mean "unproven", not "proven absent": hitting --maxPages while hasMore was
+ * still true (our own cap cut the walk off), or an offset-page fetch failing
+ * mid-walk (a "missing offset page" -- exactly the case the job's fix round
+ * names for the hermetic guard). The caller (runApiLevel) uses this, together
+ * with a coverage check against ground truth, to set api_next_page_reachable
+ * -- and NEVER the old `supportsPaging && hasMore === true`, which reads a
+ * flag the server can misreport and proves nothing about what continuing
+ * would actually return. */
 async function fetchProdMembership({ lat, lng, cat, sub }) {
   const N = 400;
-  const ids = [];
-  const idSet = new Set();
-  let page0Ids = new Set();
-  let offset = 0;
-  let page = 0;
-  let lastJson = null;
-  let cacheHeaders = [];
   let firstStatus = null;
-  for (; page < MAX_PAGES; page++) {
-    const r = await fetchProdJSON(invUrl({ lat, lng, cat, sub, n: N, offset }));
-    if (page === 0) firstStatus = r.status;
-    cacheHeaders.push(r.cacheHeader);
-    if (!r.ok || !r.json || !Array.isArray(r.json.places)) break;
-    lastJson = r.json;
-    for (const p of r.json.places) {
-      const id = p && (p.id || p.place_id);
-      if (id && !idSet.has(id)) { idSet.add(id); ids.push(id); }
-      if (page === 0 && id) page0Ids.add(id);
-    }
-    if (r.json.hasMore !== true) break;
-    if (!r.json.places.length) break;
-    offset += r.json.places.length;
-  }
-  return {
-    ids, idSet, page0Ids, pages: page + 1, firstStatus,
-    total: lastJson ? lastJson.total : null,
-    hasMore: lastJson ? !!lastJson.hasMore : null,
-    truncated: lastJson ? !!lastJson.truncated : null,
-    source: lastJson ? lastJson.source : null,
-    cacheHeaders,
-    supportsPaging: lastJson ? Object.prototype.hasOwnProperty.call(lastJson, "hasMore") : false,
-  };
+  const cacheHeaders = [];
+  const walk = await walkPagesToExhaustion({
+    maxPages: MAX_PAGES,
+    fetchPage: async (offset, page) => {
+      const r = await fetchProdJSON(invUrl({ lat, lng, cat, sub, n: N, offset }));
+      if (page === 0) firstStatus = r.status;
+      cacheHeaders.push(r.cacheHeader);
+      return { ok: r.ok, json: r.json };
+    },
+  });
+  return { ...walk, firstStatus, cacheHeaders };
 }
 
 /** ONE fetch of page 0 only (offset 0, same n=400 page size as the exhaustive
@@ -314,26 +375,43 @@ async function runApiLevel() {
     });
 
     const PAGE_N = 400;
+    // HONEST REACHABILITY (item 1, PR #1495 fix round). `rank >= PAGE_N`
+    // still means "this place sits beyond the first observed page, so a
+    // rank_cap claim is at least PLAUSIBLE" -- what changed is how that claim
+    // is PROVEN: api_next_page_reachable is true only when the exhaustive
+    // offset-page walk above (a) terminated CLEANLY (server hasMore genuinely
+    // went false / a short page arrived, never merely "we stopped asking")
+    // AND (b) its id union covers every ground-truth eligible id -- i.e.
+    // paging genuinely delivered everything there was to deliver. The OLD
+    // `prod.supportsPaging && prod.hasMore === true` read a single flag the
+    // server can misreport (or that a walk WE cut off ourselves happened to
+    // still carry) and never checked whether continuing actually returned
+    // anything -- which is nearly always vacuous the moment the walk is
+    // already exhaustive: if paging genuinely worked, the "missing" place
+    // would already have been found during the walk and never reach this
+    // code path at all. classifyRow's rank_cap: branch uses this exact field
+    // to decide pass vs pagination_invisibility; a rank < PAGE_N place (which
+    // should already have been on the very first, unpaged fetch) carries no
+    // suppression_reason at all and is a plain eligibility_passed_api_omitted
+    // regardless of this walk's later-page behavior -- unchanged from before.
+    const apiNextPageReachable = computeApiNextPageReachable(prod, ground.places.map((p) => p.id));
     for (const { p, rank } of missing) {
-      // rank >= PAGE_N means this place sits BEYOND the first page BY
-      // CONSTRUCTION (there are simply more eligible places than the page
-      // size) -- legitimate only when the surface actually exposes hasMore
-      // and a client can page forward to reach it. rank < PAGE_N means it
-      // should have been on the very FIRST page and still is not there --
-      // that can never be a legitimate cap, it is the capped/unordered-read
-      // symptom this whole audit exists to catch.
       const beyondFirstPage = rank >= PAGE_N;
-      const pageReachable = prod.supportsPaging && prod.hasMore === true;
       const suppressionReason = beyondFirstPage ? `rank_cap:${PAGE_N}` : null;
       const row = makeRow({
         placeId: p.id, name: placeName(p), city: city.name, key, cat, sub,
         sourcePresent: true, apiPresent: false, rendered: null, mapPresent: null,
         rank, page: Math.floor(rank / PAGE_N), offset: null, n: PAGE_N,
-        hasMore: prod.hasMore, pageReachable,
+        hasMore: prod.hasMore, pageReachable: apiNextPageReachable,
+        apiNextPageReachable,
         apiTotal: prod.total, eligibleTotal: ground.eligible,
         cacheHeader: Array.isArray(prod.cacheHeaders) ? prod.cacheHeaders.join(",") : prod.cacheHeaders,
         suppressionReason,
-        notes: prod.supportsPaging ? null : "production response carries no total/hasMore/truncated fields (pre-fix shape)",
+        notes: [
+          prod.supportsPaging ? null : "production response carries no total/hasMore/truncated fields (pre-fix shape)",
+          prod.cutOffByMaxPages ? "offset-page walk was cut off by --maxPages while hasMore was still true -- reachability NOT proven" : null,
+          prod.stoppedByFailedFetch ? "an offset-page fetch failed mid-walk -- reachability NOT proven" : null,
+        ].filter(Boolean).join("; ") || null,
       });
       failRows.push(row);
       if (!beyondFirstPage) rowByPairPlace.set(`${city.slug}\u0000${key}\u0000${p.id}`, row);
@@ -346,6 +424,10 @@ async function runApiLevel() {
       apiReturned: prod.ids.length, apiHasMore: prod.hasMore, apiSupportsPaging: prod.supportsPaging,
       apiSource: prod.source, apiCache: prod.cacheHeaders[0] || null,
       missing: missing.length,
+      apiWalkExhaustedCleanly: prod.exhaustedCleanly,
+      apiWalkCutOffByMaxPages: prod.cutOffByMaxPages,
+      apiWalkStoppedByFailedFetch: prod.stoppedByFailedFetch,
+      apiNextPageReachable,
     };
     pairSummaries.push(pairSummary);
     if (CHECK_CACHE_DRIFT) driftCandidates.push({ city, key, cat, sub, page0Ids: prod.page0Ids, pairSummary });
@@ -418,19 +500,38 @@ async function runApiLevel() {
 }
 
 // ── BROWSER-LEVEL RUN ────────────────────────────────────────────────────
-// Chip-menu labels the real UI renders (lib/categories.js CATEGORY_TILES,
-// lib/google.js SUBFILTERS) — recorded here as DATA the click sequence
-// drives, not a second copy of identity. Only the combinations this audit
-// actually clicks through need an entry; the rest of CHIP_IDENTITY's keys
-// are covered at the API level, where every key is reachable without a UI
-// path (inv=1 accepts any cat/sub whether or not the client menu offers a
-// button for it).
-const CHIP_UI_LABELS = {
-  "food:cafes": { catLabel: "Food", subLabel: "Cafés" },
-};
+// Chip-menu labels the real UI renders — DERIVED, not hand-listed (item 2,
+// PR #1495 fix round: "derive labels from the real SUBFILTERS/CategoryMenu
+// definitions, not a hand list if avoidable"). app/home.js's nav tabs render
+// `Cats.CATEGORY_TILES` verbatim for the category row and `SUBFILTERS[cat]`
+// verbatim for that category's sub-chip tray (confirmed live, 2026-09-23:
+// `{Cats.CATEGORY_TILES.map((m) => ... {m.label} ...)}` /
+// `{navSubs.map((sf) => ... {sf.label} ...)}`, navSubs = SUBFILTERS[navOpenCat]).
+// Every (cat, sub) pair CATEGORY_TILES x SUBFILTERS[cat] -- including each
+// category's own "All" sub -- is therefore a REAL, clickable path from the
+// main browse surface and gets an entry; a key with no CATEGORY_TILES entry
+// at all (e.g. `beach:beaches` -- the standalone Beach tab was retired in
+// favor of Things To Do -> Outdoors/Beaches, lib/google.js's CATEGORIES
+// comment: "kept for back-compat/deep links") has NO UI path and is
+// correctly left out here, same as before -- it is covered at the API level,
+// where inv=1 accepts any cat/sub whether or not the client menu offers a
+// button for it.
+async function deriveChipUiLabels() {
+  const { loadComponent } = await import("./lib/jsxLoad.mjs");
+  const { SUBFILTERS } = await loadComponent(join(ROOT, "lib/google.js"), ROOT);
+  const out = {};
+  for (const tile of CATEGORY_TILES) {
+    const subs = SUBFILTERS[tile.id] || [];
+    for (const sf of subs) {
+      out[`${tile.id}:${sf.id}`] = { catLabel: tile.label, subLabel: sf.label };
+    }
+  }
+  return out;
+}
 
 async function runBrowserLevel() {
   const { chromium } = await import("playwright");
+  const CHIP_UI_LABELS = await deriveChipUiLabels();
   const keys = KEY_LIST.filter((k) => CHIP_UI_LABELS[k]);
   if (!keys.length) {
     console.error(`surface-parity-audit: --level=browser has no UI path for any of [${KEY_LIST.join(", ")}] — add it to CHIP_UI_LABELS or audit that key at --level=api`);
@@ -575,12 +676,21 @@ async function runBrowserLevel() {
         await page.waitForTimeout(2000);
 
         // Click "Wayfind 5 more spots" until it disappears (or the runaway cap).
+        // `continuationExhausted` (item 1, PR #1495 fix round) is the honest
+        // half of this proof: true ONLY when the control genuinely
+        // disappeared (including trivially, when it was never visible at all
+        // because the category has too few eligible places to need one) --
+        // never when we merely stopped clicking because --maxPages was hit,
+        // or a click itself failed. The other half (coverage) is computed
+        // just below, once renderedIds exists.
         let clicks = 0;
+        let continuationExhausted = false;
         while (clicks < MAX_PAGES) {
           const more = page.getByRole("button", { name: /Wayfind 5 more spots/ });
           const visible = await more.first().isVisible().catch(() => false);
-          if (!visible) break;
-          await more.first().click({ timeout: 10000 }).catch(() => { clicks = MAX_PAGES; });
+          if (!visible) { continuationExhausted = true; break; }
+          const clicked = await more.first().click({ timeout: 10000 }).then(() => true).catch(() => false);
+          if (!clicked) break; // a failed click is NOT exhaustion -- unproven, same as hitting --maxPages
           clicks++;
           await page.waitForTimeout(350);
         }
@@ -647,6 +757,22 @@ async function runBrowserLevel() {
         const clientOmissions = classifyClientOmissions(ground.places, { originLat: gateOriginLat, originLng: gateOriginLng, sliderMi: SLIDER_MI });
         let legitDisplayRadius = 0, legitBrandCollapse = 0, unexpectedCardIncomplete = 0;
 
+        // HONEST browser-level reachability (item 1, PR #1495 fix round):
+        // "reachable" means the continuation control was clicked to genuine
+        // exhaustion AND the resulting rendered-id union covers every place
+        // this surface OWES a card -- a legitimately-suppressed place
+        // (display-radius cut, real brand collapse) is not "UI-eligible" and
+        // does not count against coverage. Never inferred from the API's own
+        // hasMore, which says nothing about whether the CLIENT actually
+        // surfaced the rest -- that was the exact gap the old per-row
+        // `pageReachable: matchingBody.supportsPaging && matchingBody.hasMore
+        // === true` left open.
+        const uiEligibleIds = [...eligibleIds].filter((id) => {
+          const co = clientOmissions.get(id);
+          return !(co && co.reason);
+        });
+        const browserNextPageReachable = continuationExhausted && uiEligibleIds.every((id) => renderedSet.has(id));
+
         const missing = [];
         for (const [id, { p, rank }] of eligibleById) {
           // Real per-place API membership from the CAPTURED response body
@@ -692,7 +818,8 @@ async function runBrowserLevel() {
             rendered: m.rendered, mapPresent: m.mapPresent,
             rank: m.rank, page: null,
             hasMore: matchingBody ? matchingBody.hasMore : null,
-            pageReachable: matchingBody ? (matchingBody.supportsPaging && matchingBody.hasMore === true) : null,
+            pageReachable: browserNextPageReachable,
+            browserNextPageReachable,
             n: matchingBody ? matchingBody.count : null,
             apiTotal: matchingBody ? matchingBody.total : null,
             eligibleTotal: ground.eligible,
@@ -713,6 +840,7 @@ async function runBrowserLevel() {
           rendered: renderedIds.length, mapHookPresent, mapPins: mapIds.length,
           loadMoreClicks: clicks, missing: missing.length,
           sliderMi: SLIDER_MI, legitDisplayRadius, legitBrandCollapse, unexpectedCardIncomplete,
+          continuationExhausted, uiEligible: uiEligibleIds.length, browserNextPageReachable,
         });
 
         await context.close();
@@ -738,9 +866,346 @@ async function runBrowserLevel() {
   return { jsonPath, mdPath, summary, pairSummaries, fullPaths };
 }
 
+// ── SEO-LEVEL RUN (item 3, PR #1495 fix round) ──────────────────────────
+/** Every place-card's crawlable, ALWAYS-rendered save action
+ * (app/components/IconicPlaceCard.js: `actionHref = (action) => "/p/" +
+ * encodeURIComponent(place.id) + "?action=" + action`, and "Save still has a
+ * crawlable fallback for callers that have not wired onSave" -- true of every
+ * landing-page render, which never wires onSave). This is the one place-id
+ * signal EVERY top-level card's rendered HTML carries, in display order. A
+ * place rendered only as a grouped CHILD (lib/venueContainment.js) carries no
+ * such link -- it is a plain `<span>{c.name}</span>` with no id anywhere in
+ * the markup -- which is exactly why the true-top-N comparison below groups
+ * the live ranking the same way before comparing, instead of expecting every
+ * ranked id to have its own link. */
+function extractSavedPlaceIds(html) {
+  const ids = [];
+  const seen = new Set();
+  const re = /\/p\/([A-Za-z0-9_%.-]{6,255})\?action=save/g;
+  let m;
+  while ((m = re.exec(String(html || "")))) {
+    let id;
+    try { id = decodeURIComponent(m[1]); } catch { id = m[1]; }
+    if (id && !seen.has(id)) { seen.add(id); ids.push(id); }
+  }
+  return ids;
+}
+
+async function runSeoLevel() {
+  const { loadComponent } = await import("./lib/jsxLoad.mjs");
+  const { serveFromInventory } = await import("../lib/inventoryServe.js");
+  const { groupByContainment } = await import("../lib/venueContainment.js");
+  // The four SEO/local landing routes and the exact (cat, sub) each one
+  // reads -- imported from the real lib/landingInventory.js, never restated:
+  // things-to-do/attractions:all, restaurants/food:all, beaches/beach:beaches,
+  // nightlife/nightlife:all. Their pages live at app/{catSlug}/[city]/page.js,
+  // all four binding the same lib/landing.js LandingPage/rankedFor for every
+  // LANDING_CITIES slug (generateStaticParams returns
+  // Object.keys(LANDING_CITIES) unconditionally).
+  const { LANDING_INV_SPEC } = await import("../lib/landingInventory.js");
+
+  console.log("surface-parity-audit: SEO level — loading lib/landing.js for real (jsxLoad.mjs)...");
+  // The REAL ranking module, run for real -- never a copy of rankLandingPool.
+  // serveFromInventory is injected at the ONE seam lib/landingInventory.js's
+  // fetchLandingInventory already exposes for exactly this purpose (a
+  // dependency override for hermetic/alternate-credential callers), pinned to
+  // OUR anon/publishable SB_ENV rather than lib/serverCache.js's own sbEnv()
+  // (which reads SUPABASE_SERVICE_ROLE_KEY -- a credential this audit is
+  // explicitly never given). Same pattern eligibility.mjs's computeEligibleSet
+  // uses for the exact same reason.
+  const landingMod = await loadComponent(join(ROOT, "lib/landing.js"), ROOT);
+  const serveWithEnv = (cat, lat, lng, radiusM, n, sub, serveOpts) =>
+    serveFromInventory(cat, lat, lng, radiusM, n, sub, { ...serveOpts, env: SB_ENV });
+
+  const catSlugs = Object.keys(LANDING_INV_SPEC);
+  console.log(`surface-parity-audit: SEO level — ${catSlugs.length} landing routes x ${CITY_LIST.length} cities`);
+
+  const sections = [];
+  let totalChecked = 0, totalMissing = 0, totalPagesWithList = 0;
+  for (const catSlug of catSlugs) {
+    const rows = [];
+    for (const city of CITY_LIST) {
+      let list;
+      try {
+        list = await landingMod.rankedFor(catSlug, city.slug, { serveFromInventory: serveWithEnv });
+      } catch (e) {
+        rows.push({ city: city.slug, error: `rankedFor threw: ${e.message}` });
+        continue;
+      }
+      if (!Array.isArray(list) || !list.length) {
+        rows.push({ city: city.slug, note: list === null ? "rankedFor returned null (no key/upstream down at this read)" : "thin market -- rankedFor returned []", expected: 0, rendered: 0, missing: 0 });
+        continue;
+      }
+      totalPagesWithList++;
+      // The TRUE top-level ids -- grouped exactly as LandingPage groups them,
+      // via the REAL groupByContainment, so a legitimately-nested child (a
+      // ride inside its park) is never counted as "missing" for lacking its
+      // own /p/<id> link.
+      const expectedIds = groupByContainment(list).groups.map((g) => g.place && g.place.id).filter(Boolean);
+      totalChecked += expectedIds.length;
+
+      const url = `${BASE}/${catSlug}/${city.slug}`;
+      const html = await fetchProdHTML(url);
+      if (!html.ok || !html.text) {
+        rows.push({ city: city.slug, error: `fetch ${url} -> status ${html.status}`, expected: expectedIds.length });
+        continue;
+      }
+      const renderedIds = extractSavedPlaceIds(html.text);
+      const renderedSet = new Set(renderedIds);
+      const missing = expectedIds.filter((id) => !renderedSet.has(id));
+      totalMissing += missing.length;
+      rows.push({
+        city: city.slug, url, expected: expectedIds.length, rendered: renderedIds.length,
+        missing: missing.length, missingIds: missing.slice(0, 15).join(", ") || "",
+      });
+    }
+    sections.push({
+      heading: `${catSlug} (${LANDING_INV_SPEC[catSlug].cat}:${LANDING_INV_SPEC[catSlug].sub})`,
+      columns: ["city", "expected", "rendered", "missing", "missingIds", "note", "error"],
+      rows,
+    });
+  }
+
+  const meta = { level: "seo", base: BASE, label: LABEL, cities: CITY_LIST.map((c) => c.slug), routes: catSlugs };
+  const summaryLines = [
+    `${totalPagesWithList}/${catSlugs.length * CITY_LIST.length} (route, city) pages had a non-empty ranked list`,
+    `${totalChecked} true top-level places checked across every route/city`,
+    `${totalMissing} missing from their rendered landing page (expected on the page, per the page's own live ranking, but no matching /p/<id>?action=save link found)`,
+  ];
+  const { jsonPath, mdPath } = writeGenericReport(OUT, {
+    title: `Surface parity audit (SEO landing level)${LABEL ? " — " + LABEL : ""}`,
+    meta, summary: { totalChecked, totalMissing, pagesWithList: totalPagesWithList }, summaryLines, sections,
+  });
+  console.log(`surface-parity-audit: wrote ${jsonPath} and ${mdPath}`);
+  console.log(`surface-parity-audit: SEO level — checked=${totalChecked} missing=${totalMissing}`);
+  return { jsonPath, mdPath };
+}
+
+// ── CREATOR-LEVEL RUN (item 4, PR #1495 fix round) ──────────────────────
+async function runCreatorLevel() {
+  const { allCreators, hasCreatorPage, creatorVideosFor } = await import("../lib/creatorVideos.js");
+  const { creators } = allCreators();
+
+  // Every (creator, place) pair with a real placeId -- distinct by (handle,
+  // spot key) so two posts about the same venue by the same creator count
+  // once, matching the coordinator-referenced reuse figure (89 creators, 318
+  // ids) exactly.
+  const pairs = [];
+  const seenPair = new Set();
+  for (const c of creators) {
+    for (const s of c.spots || []) {
+      if (!s.placeId) continue;
+      const k = `${c.handle}\u0000${s.key}`;
+      if (seenPair.has(k)) continue;
+      seenPair.add(k);
+      pairs.push({ handle: c.handle, placeId: s.placeId, name: s.name, city: s.city, hasPage: hasCreatorPage(c.handle) });
+    }
+  }
+  console.log(`surface-parity-audit: creator level — ${creators.length} creators, ${pairs.length} distinct (creator, place-id) pairs; checking OPERATIONAL status + the real resolver + (page-eligible creators) their live page`);
+
+  // OPERATIONAL status, read directly off wf_inventory -- a plain status
+  // check, not an eligibility computation (family/rating/radius gates do not
+  // apply here; the job's rule is simply "OPERATIONAL in inventory").
+  const idList = [...new Set(pairs.map((p) => p.placeId))];
+  const statusById = new Map();
+  const BATCH = 100;
+  for (let i = 0; i < idList.length; i += BATCH) {
+    const batch = idList.slice(i, i + BATCH);
+    const url = `${SB_ENV.url}/rest/v1/wf_inventory?select=place_id,name,status,lat,lng,google_types,primary_type,category&place_id=in.(${batch.map(encodeURIComponent).join(",")})`;
+    const r = await fetch(url, { headers: { apikey: SB_ENV.key, Authorization: `Bearer ${SB_ENV.key}` } });
+    if (!r.ok) throw new Error(`surface-parity-audit: creator level — wf_inventory batch read failed (${r.status})`);
+    const rows = await r.json();
+    for (const row of rows) if (row && row.place_id) statusById.set(row.place_id, row);
+  }
+
+  const rows = [];
+  let operationalCount = 0, resolverFail = 0, pageFail = 0;
+  // /creators/<handle> pages are few (CREATOR_PAGE_MIN_SPOTS gates most of the
+  // 89 down to a small page-eligible set) -- fetched once per handle, not per
+  // pair, and cached across pairs sharing a creator.
+  const pageHtmlByHandle = new Map();
+  for (const pair of pairs) {
+    const invRow = statusById.get(pair.placeId);
+    const operational = !!invRow && String(invRow.status || "").toUpperCase() === "OPERATIONAL";
+    if (!operational) {
+      rows.push({ handle: pair.handle, placeId: pair.placeId, name: pair.name, operational: false, note: invRow ? `status=${invRow.status}` : "not in wf_inventory", outOfScope: true });
+      continue;
+    }
+    operationalCount++;
+    // The real resolver, called against the place as its live inventory row
+    // shapes it -- proves the actual JOIN mechanism (placeId, or the name+
+    // city fallback) still attributes this exact row to this creator, the
+    // same machinery every place card / detail sheet relies on.
+    const shaped = {
+      id: invRow.place_id, name: invRow.name,
+      types: Array.isArray(invRow.google_types) ? invRow.google_types : [],
+      primaryType: invRow.primary_type || null,
+    };
+    let resolverOk = false;
+    try {
+      resolverOk = creatorVideosFor(shaped, pair.city).some((v) => v && v.creator && String(v.creator).toLowerCase() === pair.handle.toLowerCase());
+    } catch { resolverOk = false; }
+    if (!resolverOk) resolverFail++;
+
+    let pageOk = null;
+    if (pair.hasPage) {
+      let html = pageHtmlByHandle.get(pair.handle);
+      if (html === undefined) {
+        const res = await fetchProdHTML(`${BASE}/creators/${encodeURIComponent(pair.handle)}`);
+        html = res.ok ? res.text : null;
+        pageHtmlByHandle.set(pair.handle, html);
+      }
+      pageOk = !!html && (html.includes(pair.placeId) || html.includes(invRow.name));
+      if (!pageOk) pageFail++;
+    }
+
+    rows.push({
+      handle: pair.handle, placeId: pair.placeId, name: invRow.name, operational: true,
+      resolverOk, hasPage: pair.hasPage, pageOk,
+    });
+  }
+
+  const failing = rows.filter((r) => r.operational && (r.resolverOk === false || r.pageOk === false));
+  const meta = { level: "creator", base: BASE, label: LABEL, creators: creators.length, pairsChecked: pairs.length };
+  const summaryLines = [
+    `${creators.length} creators, ${pairs.length} distinct (creator, place-id) pairs`,
+    `${operationalCount} OPERATIONAL in inventory (the rest are out of scope: not operational / not in inventory)`,
+    `${resolverFail} fail the real creatorVideosFor() resolver against their live inventory row`,
+    `${pageFail} are missing from their creator's own live /creators/<handle> page (page-eligible creators only)`,
+  ];
+  const { jsonPath, mdPath } = writeGenericReport(OUT, {
+    title: `Surface parity audit (creator level)${LABEL ? " — " + LABEL : ""}`,
+    meta, summary: { creators: creators.length, pairsChecked: pairs.length, operationalCount, resolverFail, pageFail }, summaryLines,
+    sections: [
+      { heading: "Failing pairs (resolver and/or creator page)", columns: ["handle", "placeId", "name", "resolverOk", "hasPage", "pageOk"], rows: failing },
+      { heading: "All checked pairs", note: "Full detail for every OPERATIONAL (creator, place) pair, plus out-of-scope (non-operational) ones.", columns: ["handle", "placeId", "name", "operational", "resolverOk", "hasPage", "pageOk", "note"], rows },
+    ],
+  });
+  console.log(`surface-parity-audit: wrote ${jsonPath} and ${mdPath}`);
+  console.log(`surface-parity-audit: creator level — pairs=${pairs.length} operational=${operationalCount} resolverFail=${resolverFail} pageFail=${pageFail}`);
+  return { jsonPath, mdPath };
+}
+
+// ── RAILS-LEVEL RUN (item 5, PR #1495 fix round) ────────────────────────
+async function runRailsLevel() {
+  const { RAIL_SELECT } = await import("../lib/railSelect.js");
+  const { FAMILY_NEAR_MI } = await import("../lib/familyPlace.js");
+  const { EVENTS_NEAR_MI } = await import("../lib/eventVenue.js");
+  const { BREAKFAST_NEAR_MI } = await import("../lib/breakfast.js");
+  const { BIRTHDAY_NEAR_MI } = await import("../lib/birthdayPlace.js");
+  const { NEAR_RADIUS_MI } = await import("../lib/todaysBest.js");
+
+  // Radius per identity-bearing rail, read from the SAME constants
+  // lib/railsData.js imports for the SAME rail (never re-guessed) where one
+  // is exported; `break` (quick eats) has none exported -- lib/railsData.js's
+  // buildMorningIdentityPools applies `p.distMi <= 8` inline, ported here
+  // literally with this citation rather than invented independently. Any
+  // identity-bearing rail with neither (eat/beach/tonight/datenight) falls
+  // back to NEAR_RADIUS_MI, the general radius fillRails applies to every
+  // non-drive rail -- noted per-row, never silently assumed to be exact.
+  const RAIL_RADIUS_MI = { family: FAMILY_NEAR_MI, events: EVENTS_NEAR_MI, breakfast: BREAKFAST_NEAR_MI, birthday: BIRTHDAY_NEAR_MI, break: 8 };
+  const RAIL_SOURCE_CAT = { family: "attractions", events: "attractions", breakfast: "food", birthday: "attractions", break: "food", eat: "food", beach: "beach", tonight: "nightlife", datenight: "food" };
+
+  const outOfScope = [];
+  const checked = [];
+  for (const [railId, def] of Object.entries(RAIL_SELECT)) {
+    if (!def || typeof def.identity !== "function") {
+      outOfScope.push({ rail: railId, reason: (def && def.waiver) || "no identity function and no recorded waiver in lib/railSelect.js" });
+    } else {
+      checked.push(railId);
+    }
+  }
+  console.log(`surface-parity-audit: rails level — ${checked.length} identity-bearing rails (${checked.join(", ")}), ${outOfScope.length} curated rails out of scope`);
+
+  // Same box-query shape lib/railsData.js's buildIdentityPool uses for these
+  // exact rails (status=eq.OPERATIONAL within a lat/lng box) -- ported here
+  // (byte-similar, cited) because buildIdentityPool itself is not callable in
+  // isolation from a raw box; it requires the full multi-category `pools`
+  // object loadPools() builds. The identity FUNCTION itself is never
+  // restated -- it is called straight off RAIL_SELECT.
+  async function fetchOperationalBox({ lat, lng, radiusMi }) {
+    const dLat = radiusMi / 69 + 0.02;
+    const dLng = radiusMi / (69 * Math.cos((lat * Math.PI) / 180)) + 0.02;
+    const q = `lat=gte.${(lat - dLat).toFixed(4)}&lat=lte.${(lat + dLat).toFixed(4)}&lng=gte.${(lng - dLng).toFixed(4)}&lng=lte.${(lng + dLng).toFixed(4)}`;
+    const url = `${SB_ENV.url}/rest/v1/wf_inventory?select=place_id,name,lat,lng,google_types,primary_type,category,cuisines,signals&status=eq.OPERATIONAL&${q}&limit=1000`;
+    const r = await fetch(url, { headers: { apikey: SB_ENV.key, Authorization: `Bearer ${SB_ENV.key}` } });
+    if (!r.ok) throw new Error(`wf_inventory box read failed (${r.status})`);
+    const rows = await r.json();
+    return (Array.isArray(rows) ? rows : []).map((row) => {
+      const s = row.signals || {};
+      const d = milesBetween(lat, lng, row.lat, row.lng);
+      return {
+        id: row.place_id, name: row.name,
+        rating: typeof s.rating === "number" ? s.rating : null,
+        reviews: typeof s.reviews === "number" ? s.reviews : 0,
+        primaryType: row.primary_type || null, primary_type: row.primary_type || null,
+        types: Array.isArray(row.google_types) ? row.google_types : [],
+        cuisines: Array.isArray(row.cuisines) ? row.cuisines.filter(Boolean) : [],
+        category: row.category || null,
+        lat: row.lat, lng: row.lng, distMi: d,
+      };
+    }).filter((p) => Number.isFinite(p.distMi) && p.distMi <= radiusMi);
+  }
+
+  const rows = [];
+  let totalEligible = 0, totalMissing = 0;
+  for (const city of CITY_LIST) {
+    const railsUrl = `${BASE}/api/rails?lat=${city.lat.toFixed(4)}&lng=${city.lng.toFixed(4)}&city=${encodeURIComponent(city.slug)}`;
+    const r = await fetchProdJSON(railsUrl);
+    const servedPlaces = (r.ok && r.json && r.json.covered && r.json.data && r.json.data.places) || {};
+
+    for (const railId of checked) {
+      const radiusMi = RAIL_RADIUS_MI[railId] || NEAR_RADIUS_MI;
+      const cat = RAIL_SOURCE_CAT[railId] || "attractions";
+      let groundRows;
+      try {
+        groundRows = await fetchOperationalBox({ lat: city.lat, lng: city.lng, radiusMi });
+      } catch (e) {
+        rows.push({ rail: railId, city: city.slug, error: `ground read failed: ${e.message}` });
+        continue;
+      }
+      const identityFn = RAIL_SELECT[railId].identity;
+      const eligible = groundRows.filter((p) => { try { return !!identityFn(p); } catch { return false; } });
+      const eligibleIds = eligible.map((p) => p.id);
+      totalEligible += eligibleIds.length;
+      const served = Array.isArray(servedPlaces[railId]) ? servedPlaces[railId] : [];
+      const servedIds = new Set(served.map((p) => p && p.id).filter(Boolean));
+      const missing = eligibleIds.filter((id) => !servedIds.has(id));
+      totalMissing += missing.length;
+      rows.push({
+        rail: railId, city: city.slug, sourceCat: cat, radiusMi,
+        eligible: eligibleIds.length, served: served.length, missing: missing.length,
+        missingIds: missing.slice(0, 15).join(", ") || "",
+        railsCovered: !!(r.ok && r.json && r.json.covered),
+      });
+    }
+  }
+
+  const meta = { level: "rails", base: BASE, label: LABEL, cities: CITY_LIST.map((c) => c.slug), railsChecked: checked, railsOutOfScope: outOfScope.map((o) => o.rail) };
+  const summaryLines = [
+    `${checked.length} identity-bearing rails checked (${checked.join(", ")}) across ${CITY_LIST.length} cities`,
+    `${outOfScope.length} curated rails recorded OUT OF SCOPE with their own waiver (no forced category)`,
+    `${totalEligible} total eligible (rail, city) place observations; ${totalMissing} missing from the rail's own served set`,
+  ];
+  const { jsonPath, mdPath } = writeGenericReport(OUT, {
+    title: `Surface parity audit (rails level)${LABEL ? " — " + LABEL : ""}`,
+    meta, summary: { totalEligible, totalMissing, railsChecked: checked.length, railsOutOfScope: outOfScope.length }, summaryLines,
+    sections: [
+      { heading: "Out of scope (curated, no category contract)", columns: ["rail", "reason"], rows: outOfScope },
+      { heading: "Checked rails — per (rail, city)", columns: ["rail", "city", "sourceCat", "radiusMi", "eligible", "served", "missing", "missingIds", "railsCovered", "error"], rows },
+    ],
+  });
+  console.log(`surface-parity-audit: wrote ${jsonPath} and ${mdPath}`);
+  console.log(`surface-parity-audit: rails level — eligible=${totalEligible} missing=${totalMissing} outOfScope=${outOfScope.length}`);
+  return { jsonPath, mdPath };
+}
+
 // ── main ─────────────────────────────────────────────────────────────────
 (async () => {
   if (LEVEL === "api") await runApiLevel();
   else if (LEVEL === "browser") await runBrowserLevel();
-  else { console.error(`surface-parity-audit: unknown --level=${LEVEL} (want api|browser)`); process.exit(2); }
+  else if (LEVEL === "seo") await runSeoLevel();
+  else if (LEVEL === "creator") await runCreatorLevel();
+  else if (LEVEL === "rails") await runRailsLevel();
+  else { console.error(`surface-parity-audit: unknown --level=${LEVEL} (want api|browser|seo|creator|rails)`); process.exit(2); }
 })().catch((e) => { console.error("surface-parity-audit: FAILED —", e && e.stack || e); process.exit(1); });
