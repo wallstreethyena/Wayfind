@@ -11,6 +11,7 @@ import { activeSeasonalMark } from "../lib/seasonalBrand";
 import { lunchRevealCookieValue, lunchRevealCount, lunchRevealLimit } from "../lib/lunchReveal";
 import { intentRadiusMi, intentScopeLabel } from "../lib/momentIntents";
 import { MAP_DEFAULT_CATEGORY } from "../lib/mapExplorer";
+import { nextPageOffset } from "../lib/inventoryPaging";
 import { nearMeQuery } from "../lib/nearMeQuery";
 // v8.41 — the ONE landing. Every control that swaps the feed under the reader
 // takes them to the results through this, not through its own hand-rolled
@@ -7331,7 +7332,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             // land after a category/location change has already moved on.
             if (!cancelled) {
               invMoreRef.current = {
-                hasMore: !!j.hasMore, offset: offset + raw.length,
+                hasMore: !!j.hasMore, offset: nextPageOffset(j, offset, raw.length),
                 cat, sub, m, centerKey: `${center.lat},${center.lng}`,
               };
             }
@@ -9325,7 +9326,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       if (!stillCurrent) return;
       const raw = Array.isArray(j.places) ? j.places : [];
       const mapped = raw.map((x) => mapInventoryRow(x, center)).filter((p) => p && p.name);
-      invMoreRef.current = { ...liveMeta, hasMore: !!j.hasMore, offset: meta.offset + raw.length };
+      invMoreRef.current = { ...liveMeta, hasMore: !!j.hasMore, offset: nextPageOffset(j, meta.offset, raw.length) };
       setPlaces((prev) => {
         const seen = new Set((prev || []).map((p) => p && p.id));
         const add = mapped.filter((p) => p && p.id && !seen.has(p.id));

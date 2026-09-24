@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 729,
-    "totalRegistryEntries": 730,
-    "guardsTxtLineCount": 727,
-    "guardsTxtReachedFileCount": 722,
+    "totalOnDiskGuardFiles": 730,
+    "totalRegistryEntries": 731,
+    "guardsTxtLineCount": 728,
+    "guardsTxtReachedFileCount": 723,
     "criticalCount": 87,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 507,
+      "CALL": 508,
       "RENDER": 83,
       "STRUCTURAL": 139,
       "OTHER": 1
@@ -3141,7 +3141,7 @@
       "npmScript": null,
       "class": "STRUCTURAL",
       "hasStructuralOnlyTag": true,
-      "assertionCount": 33,
+      "assertionCount": 36,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,
@@ -4524,6 +4524,28 @@
       },
       "gating": "scheduled-monitoring-only",
       "excludedReason": "runs in the scheduled canary workflow, not prebuild — it reads PRODUCTION Supabase, and a stale row in the database must never be able to block a code deploy. Wrong coupling in that direction; see .github/workflows/canary.yml.",
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-inventory-paging.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 12,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
       "critical": false,
       "criticalReasons": [],
       "protects": null,

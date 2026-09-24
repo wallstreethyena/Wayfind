@@ -58,8 +58,17 @@ ok(/_invAll\s*=\s*async\s*\(m,\s*offset\s*=\s*0\)\s*=>/.test(HOME),
   "_invAll no longer takes an offset parameter — the first page can no longer be followed by a second");
 ok(/\$\{offset \? `&offset=\$\{offset\}` : ""\}/.test(HOME),
   "_invAll's inventory fetch no longer forwards &offset= to the route");
-ok(/invMoreRef\.current\s*=\s*\{\s*hasMore:\s*!!j\.hasMore,\s*offset:\s*offset \+ raw\.length,/.test(HOME),
-  "_invAll no longer records hasMore/offset from the route response into invMoreRef");
+ok(/invMoreRef\.current\s*=\s*\{\s*hasMore:\s*!!j\.hasMore,\s*offset:\s*nextPageOffset\(j, offset, raw\.length\),/.test(HOME),
+  "_invAll no longer records hasMore and the route's nextOffset (via lib/inventoryPaging.nextPageOffset) into invMoreRef");
+// 2026-09-23 post-deploy audit: counting rows RECEIVED skipped the ranked row
+// at 400 whenever page 0 carried discovery extras (The Escape Company,
+// Orlando). Both continuation sites must follow the route's nextOffset.
+ok(/invMoreRef\.current = \{ \.\.\.liveMeta, hasMore: !!j\.hasMore, offset: nextPageOffset\(j, meta\.offset, raw\.length\) \};/.test(HOME),
+  "loadMoreInventory must advance with nextPageOffset(j, meta.offset, raw.length), not meta.offset + raw.length");
+ok(!/offset: (?:meta\.)?offset \+ raw\.length/.test(HOME),
+  "a continuation site still advances by the count of rows received (offset + raw.length)");
+ok(/offset: (?:meta\.)?offset \+ raw\.length/.test("invMoreRef.current = { hasMore, offset: meta.offset + raw.length };"),
+  "positive control: the rows-received probe no longer matches the old shape");
 
 // ── 4. THE CONTINUATION — loadMoreInventory fetches the NEXT offset page
 // through the identical &sub=/&cat= shape, dedupes by id (a re-fetch must
