@@ -552,6 +552,7 @@ ${WF_SKELETON_CSS}
   border-radius:12px!important;
 }
 .wf-place-card-like svg,.wf-place-card-dislike svg{display:block;width:19px;height:19px}
+.wf-save-heart{display:block;flex:0 0 auto;width:11px;height:11px;margin-right:1px}
 ` +
 // v8.81 — "ON" IS A SOLID FILL. These two used to say it with an 8% tint,
 // which is a whisper on a dark card and silence on any skin that paints its
@@ -600,8 +601,8 @@ ${WF_SKELETON_CSS}
   .wf-sheet-card-actions{grid-template-columns:44px 26px 26px minmax(0,1fr);gap:4px!important}
   .wf-sheet-card-actions:has(.wf-place-card-book){grid-template-columns:44px 26px 26px minmax(0,1fr)}
   .wf-sheet-card-actions>.wf-place-card-like,.wf-sheet-card-actions>.wf-place-card-dislike{width:100%!important;min-width:0!important;flex:1 1 auto;padding-inline:0!important}
-  .wf-sheet-card-actions>.wf-place-card-save,.wf-sheet-card-actions>.wf-place-card-share{padding-inline:4px!important}
   .wf-sheet-card-actions>.wf-place-card-share{padding-inline:1px!important}
+  .wf-sheet-card-actions>.wf-place-card-save{padding-inline:0!important}
   .wf-sheet-card-actions>a,.wf-sheet-card-actions>button,.wf-sheet-card-actions>span{min-width:0!important;padding-inline:4px!important;font-size:9.5px!important;overflow:hidden}
 }
 @media(min-width:${WF_DESKTOP_BP}px){

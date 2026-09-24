@@ -55,6 +55,15 @@ const ThumbGlyph = ({ down = false }) => (
   </svg>
 );
 
+// Same drawing as IconicPlaceCard's HeartIcon (see that file's header for
+// why: the literal "♡"/"♥" character it replaced sits outside every common
+// UI sans font, so it is a font-fallback-width flake, not a fixed glyph).
+const HeartGlyph = ({ filled = false }) => (
+  <svg className="wf-save-heart" viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+    <path d="M12 20.2c-.3 0-.6-.1-.8-.3-1.6-1.3-7.7-6.5-7.7-11 0-3 2.3-5.2 5.1-5.2 1.5 0 2.9.7 3.4 1.8.5-1.1 1.9-1.8 3.4-1.8 2.8 0 5.1 2.2 5.1 5.2 0 4.5-6.1 9.7-7.7 11-.2.2-.5.3-.8.3Z" />
+  </svg>
+);
+
 // v6.47 (owner: "the little experience chip are also not workign i used to be
 // able to click on them and open a page"). The chips rendered as inert <span>s
 // with a "›" glyph — they LOOKED like links and did nothing. They are now real
@@ -210,7 +219,7 @@ export function Card({ r, first, rank, city, blurb, beachSignal, onOpenPlace, on
               style={{ color: content.saved ? "#FF9B50" : "#DFE5EE" }}
               onClick={(e) => { e.stopPropagation(); e.preventDefault(); content.toggleSave(); }}
               onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.stopPropagation(); e.preventDefault(); content.toggleSave(); } }}
-            >{content.saved ? "♥ Saved" : "♡ Save"}</span>
+            ><HeartGlyph filled={content.saved} />{content.saved ? "Saved" : "Save"}</span>
             <span
               role="button" tabIndex={0}
               className={"wf-place-card-like" + (content.liked ? " is-active" : "")}

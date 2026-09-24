@@ -253,6 +253,27 @@ const ThumbIcon = ({ down = false }) => (
   </svg>
 );
 
+// HeartIcon — 2026-09-23. Save/Saved used to lead with a literal "♡"/"♥"
+// character (WHITE/BLACK HEART SUIT, U+2661/U+2665). That codepoint sits
+// outside every common UI sans font (Arial/Liberation/Helvetica/Inter all
+// lack it), so the browser silently substitutes a FALLBACK font for just
+// that one glyph — and which fallback wins is a font-cache race on a
+// freshly provisioned machine, not anything this app controls. Measured on
+// scripts/check-place-card-standard.mjs: the Save label's fixed-width box at
+// the sub-430px breakpoint was a hairline, sometimes zero-margin fit even in
+// the BEST case, so any wider substitution clipped it — reproduced
+// deterministically in CI, never locally, exactly matching the flaky guard
+// failures this replaces. An <svg> has no glyph to substitute: its geometry
+// is pixel-fixed in every browser, on every OS, every time. This is the same
+// pattern ThumbIcon already uses for Like/Dislike above — Save is simply the
+// third control to stop depending on which font a visitor's platform
+// happens to ship.
+const HeartIcon = ({ filled = false }) => (
+  <svg className="wf-save-heart" viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+    <path d="M12 20.2c-.3 0-.6-.1-.8-.3-1.6-1.3-7.7-6.5-7.7-11 0-3 2.3-5.2 5.1-5.2 1.5 0 2.9.7 3.4 1.8.5-1.1 1.9-1.8 3.4-1.8 2.8 0 5.1 2.2 5.1 5.2 0 4.5-6.1 9.7-7.7 11-.2.2-.5.3-.8.3Z" />
+  </svg>
+);
+
 function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfind", aiSummary, badge, rankingNote, onShare, saved, liked, disliked, inTrip, onSave, onItinerary, onLike, onDislike, onOpen, onBadge, cardActionsReadOnly = false, surface = "place_card", eagerMedia = false, mediaPriority = null, memoKey = null,
   // #1188 — the free permanent photo lane's CC credit. Same prop names as
   // RailCard.js; see its JSDoc. Omit for a photo that needs no credit.
@@ -730,9 +751,9 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
                 aria-label={isSavedNow ? "Remove from saved: " + place.name : "Save " + place.name}
                 aria-pressed={isSavedNow}
                 onClick={(e) => { e.stopPropagation(); e.preventDefault(); doSave(e, place); }}
-              >{isSavedNow ? "♥ Saved" : "♡ Save"}</button>
+              ><HeartIcon filled={isSavedNow} />{isSavedNow ? "Saved" : "Save"}</button>
             ) : (
-              <a className="wf-place-card-save" href={actionHref("save")} aria-label={"Save " + place.name}>♡ Save</a>
+              <a className="wf-place-card-save" href={actionHref("save")} aria-label={"Save " + place.name}><HeartIcon />Save</a>
             )}
             {/* v8.29.6 — ALWAYS A BUTTON (main PR #888), ALWAYS WIRED (v8.29).
                 The anchor is gone: a control that promises to register a like
