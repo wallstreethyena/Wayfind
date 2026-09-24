@@ -47,27 +47,45 @@ export function compactGuideLicense(license) {
  * OUTSIDE its clickable <a> (guides index) can still share one formatter with
  * the default in-figure caption every other role uses.
  */
-export function GuideFigureCredit({ image, as: As = "p", className }) {
+export function guideFigureCaptionParts(media) {
+  const full = guideCaptionText(media.caption, media.modificationNotice);
+  const notice = String(media.modificationNotice || "").trim();
+  if (!notice) return { caption: full, notice: "" };
+  const escaped = notice.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+").replace(/['’‘]/g, "['’‘]");
+  const pattern = new RegExp(escaped, "i");
+  if (!pattern.test(full)) return { caption: full, notice: "" };
+  return { caption: full.replace(pattern, "").trim(), notice };
+}
+
+export function GuideFigureCredit({ image, as: As = "div", className }) {
   const media = guideFigureMedia(image);
   if (!media) return null;
   const license = compactGuideLicense(media.license);
-  const hasCaption = Boolean(media.caption || media.credit || license);
+  const caption = guideFigureCaptionParts(media);
+  const hasCaption = Boolean(caption.caption || caption.notice || media.credit || license || media.providerHref);
   if (!hasCaption) return null;
   const creditHref = media.creditHref || media.source || null;
   const licenseHref = media.licenseUrl || media.licenseURL || media.license?.url || media.source || null;
   return (
     <As className={className}>
-      {media.caption ? (
+      {caption.caption ? (
         <span className={styles.captionText}>
-          {guideCaptionText(media.caption, media.modificationNotice)}
+          {caption.caption}
         </span>
       ) : null}
-      {media.credit || license ? (
+      {media.credit || license || media.providerHref ? (
         <span className={styles.creditText}>
           {media.credit ? (creditHref ? <a href={creditHref}>Photo: {media.credit}</a> : <>Photo: {media.credit}</>) : null}
           {media.credit && license ? <span aria-hidden="true"> · </span> : null}
           {license ? (licenseHref ? <a href={licenseHref}>{license}</a> : <>{license}</>) : null}
+          {media.providerHref ? <><span aria-hidden="true"> · </span><a href={media.providerHref}>Google Maps</a></> : null}
         </span>
+      ) : null}
+      {caption.notice ? (
+        <details className={styles.photoDetails}>
+          <summary>Photo details</summary>
+          <p>{caption.notice}</p>
+        </details>
       ) : null}
     </As>
   );

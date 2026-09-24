@@ -390,7 +390,9 @@ for (const { file, json } of dataFiles) {
   naive.photoAttr = free.attributionText; // what the naive version did
   ok(Boolean(naive.photoAttr) && Boolean(naive.photoRef), "red-proof: a credited card that still shows a Google ref is exactly the mismatch the rule prevents");
   const pageSrc = readFileSync(abs("app/guides/[slug]/page.js"), "utf8");
-  ok(/attachFreePhotoCredit\(\[\.\.\.pickPlaces, \.\.\.placeRail\.places\], \{ findFreePhoto \}\)/.test(pageSrc), "app/guides/[slug]/page.js attaches card credit only through attachFreePhotoCredit");
+  const hasEditorialCreditResolver = (source) => /guidePlaceFigureImage\(place, \{ findFreePhoto, findSamePlaceCachedPhoto \}\)/.test(source);
+  ok(hasEditorialCreditResolver(pageSrc), "app/guides/[slug]/page.js resolves editorial photos through the credited free/cache resolver");
+  ok(!hasEditorialCreditResolver(pageSrc.replaceAll("guidePlaceFigureImage(place,", "uncreditedPhoto(place,")), "red-proof: bypassing the credited editorial resolver fails");
   ok(!/p\.photoAttr\s*=\s*free\.attributionText/.test(pageSrc), "page.js no longer sets the credit inline without pointing the card at the free photo");
 }
 

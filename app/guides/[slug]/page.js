@@ -28,8 +28,9 @@ import { GuideFacts, GuideReadingNav, guidePickImage, guidePickFigureImage, GUID
 // there resolves against the wrong directory and crashes that guard. This
 // file is never transpiled that way, so it carries the fallback instead — see
 // the pick loop below for the one call site.
-import { guidePickPhoto, attachFreePhotoCredit } from "../../../lib/guidePickPhotos";
+import { guidePickPhoto } from "../../../lib/guidePickPhotos";
 import { findFreePhoto } from "../../../lib/freePhoto";
+import { findSamePlaceCachedPhoto } from "../../../lib/photoCacheRecovery.js";
 import { guideAppHandoffHref, guidePlacePath } from "../../../lib/guideHandoff";
 import { declaredGuideRailPlaceIds, guidePlaceRailConfig, resolveGuidePlaceRail } from "../../../lib/guidePlaceRails";
 import GuideDealCards from "./GuideDealCards";
@@ -369,18 +370,10 @@ async function inventoryPlacesForRegion(region, limit = 80) {
   } catch (e) { return []; }
 }
 
-import GuidePlaceCard from "../../components/GuidePlaceCard";
+import { guidePlaceFigureImage } from "../../../lib/guidePlaceFigureImage.js";
 import GuideMapExplorer from "../../components/GuideMapExplorer";
 import { guidePickMayResolvePlaceCard } from "../../../lib/guidePlaceIdentity.js";
-import { placeCardHook } from "../../../lib/rankingWhy";
-// v8.14 — THE CARD CONTRACT'S CSS. IconicPlaceCard renders class names
-// (.wf-place-card and friends) whose rules live in WF_PLACE_CARD_CSS, and
-// this page never injected them — so every guide shipped the iconic card as
-// raw unstyled HTML: the like/dislike SVGs (no width attribute; sized by CSS)
-// exploded to viewport width in default link-blue, and the card body rendered
-// as a bare text stack. home.js, /v8 and RankedExperiencePage all inject this
-// alongside the component; guides now do the same. Locked by
-// scripts/check-place-card-css-contract.mjs.
+// Separate interactive map discovery still uses the shared place-card CSS.
 import { WF_PLACE_CARD_CSS } from "../../components/css";
 import DiscoveryPaths from "../../components/DiscoveryPaths";
 import GuideArticleHero from "../../components/GuideArticleHero";
@@ -418,7 +411,8 @@ export function generateStaticParams() {
     .map((slug) => ({ slug }));
 }
 
-export function generateMetadata({ params }) {
+export async function generateMetadata({ params }) {
+  params = await params;
   const g = GUIDES[params.slug];
   if (!g) return { title: "Guide not found" };
   const url = `${SITE_URL}/guides/${params.slug}`;
@@ -485,6 +479,7 @@ function ldDateTime(d) {
 }
 
 export default async function GuidePage({ params }) {
+  params = await params;
   const g = GUIDES[params.slug];
   // v5.75 (SEO): return a real 404 for unknown guide slugs instead of a
   // 200-status "not found" body — otherwise Google indexes infinite junk URLs.
@@ -587,8 +582,8 @@ export default async function GuidePage({ params }) {
   }
   // DEDUPE (v8.14): two picks in one guide can legitimately resolve to the
   // same place (De Soto's trail + living-history picks are both the memorial).
-  // The FIRST pick keeps the card; later duplicates keep their text block and
-  // "Open in Wayfind" link — two identical cards on one page reads as a bug.
+  // The first pick keeps its resolved venue photo; later duplicates retain
+  // their own curated images, prose and place links without repeating it.
   {
     const rendered = new Set();
     for (let i = 0; i < pickPlaces.length; i++) {
@@ -598,10 +593,14 @@ export default async function GuidePage({ params }) {
       else rendered.add(rp.id);
     }
   }
-  // FREE PHOTO CREDIT (card credit fix). See attachFreePhotoCredit in
-  // lib/guidePickPhotos.js: a card only gets the free Commons lane's credit
-  // when that lane's photo is the one it will actually show.
-  await attachFreePhotoCredit([...pickPlaces, ...placeRail.places], { findFreePhoto });
+  // Curated media needs no lookup. Resolve the remaining venues once using
+  // only existing free media; no request here can buy a Google photograph.
+  const curatedPickImages = g.picks.map((pick) => guidePickFigureImage(params.slug, pick) || guidePickPhoto(params.slug, pick.name));
+  const editorialImages = new Map();
+  const missingPickPhotos = pickPlaces.filter((place, i) => place && !curatedPickImages[i]);
+  await Promise.all([...new Map([...missingPickPhotos, ...placeRail.places].filter(Boolean).map((place) => [place.id, place])).values()].map(async (place) => {
+    editorialImages.set(place.id, await guidePlaceFigureImage(place, { findFreePhoto, findSamePlaceCachedPhoto }));
+  }));
   const nowResult = guidePicksForNow(g.picks, nowCtx);
   const nowHeadline = guideNowHeadline(nowCtx, g.region, nowResult);
   const nowExplainer = guideNowExplainer(nowResult, (g.picks || []).length);
@@ -1025,22 +1024,9 @@ export default async function GuidePage({ params }) {
       ) : null}
       {g.picks.map((pick, i) => {
         const resolved = pickPlaces[i];
-        // Wayfind Guide Visual Standard (docs/design/guide-visual-standard.md):
-        // the ONLY path a pick's photo can render through. guidePickFigureImage
-        // returns null for every pick that carries no image data, and GuideFigure
-        // itself renders nothing for a null image — so a pick with no photo is a
-        // clean typographic block, never a placeholder graphic (GVS-5).
-        //
-        // FALLBACK to the verified, credited pick-photo library when the pick
-        // carries no inline `image` of its own. guidePickPhoto's ENTRY shape
-        // already matches what GuideFigure expects (src/width/height/alt/
-        // caption/credit/creditHref/license/licenseUrl/position), so no further
-        // normalization is needed. `cardWillRender` is the SAME condition that
-        // decides whether this exact pick's GuidePlaceCard renders below
-        // (`resolved`, already dedupe-aware) — passing anything else would
-        // silently defeat the loader's "never the same photo twice in one
-        // pick" rule for a `sameAsCardPhoto` entry.
-        const pickImage = guidePickFigureImage(params.slug, pick) || guidePickPhoto(params.slug, pick.name, { cardWillRender: Boolean(resolved) });
+        // One editorial photograph per recommendation. Curated images win;
+        // otherwise use the same venue-owned source as discovery cards.
+        const pickImage = curatedPickImages[i] || editorialImages.get(resolved?.id);
         return (
           <section key={i} id={"pick-" + (i + 1)} className="wf-guide-pick">
             <div className="wf-guide-number">{String(i + 1).padStart(2, "0")}</div>
@@ -1052,19 +1038,6 @@ export default async function GuidePage({ params }) {
               ) : null}
               <p style={S.p}>{pick.blurb}</p>
               {pick.tip ? <p className="wf-guide-tip" style={S.tip}>Insider note — {pick.tip}</p> : null}
-              {/* THE CARD, only when the place genuinely resolved. Editorial
-                  is the place's sourced why-go / known-for (placeCardHook) —
-                  never pick.blurb. Occasion/deal copy stays in the article
-                  block above. No sourced why → empty slot, not the promo.
-                  A pick that did not resolve keeps the text block and gets
-                  NO card — never a stock photo under a named place. */}
-              {resolved ? (
-                // IconicPlaceCard renders an <li>; give it a real list parent
-                // so the HTML stays valid (crawlers parse these pages raw).
-                <ul className="wf-guide-card-slot" style={{ listStyle: "none", margin: "14px 0 4px", padding: 0 }}>
-                  <GuidePlaceCard place={resolved} rank={i + 1} editorial={placeCardHook(resolved, [pick.blurb, pick.tip]) || null} />
-                </ul>
-              ) : null}
               <div className="wf-guide-actions">
                 {pick.placeId ? <a href={guidePlacePath(pick.placeId)} style={{ ...S.btnGhost, marginLeft: 0 }}>Open place</a> : null}
                 {(pick.appQuery !== null) ? <a href={appUrl(pick.appQuery || pick.name, pick)} style={{ ...S.btnGhost, marginLeft: 0 }}>Explore this place</a> : null}
@@ -1081,12 +1054,12 @@ export default async function GuidePage({ params }) {
                 {placeRail.markets.map((market) => (
                   <div key={market.id}>
                     <p className="wf-guide-place-rail-market">{market.label}</p>
-                    <ol className="wf8-pcrail">
-                      {market.places.map((place, ri) => (
-                        <li key={place.id} className="wf-place-card-slot">
-                          <ul className="wf-place-card-slot-list" style={{ listStyle: "none", margin: 0, padding: 0 }}>
-                            <GuidePlaceCard place={place} rank={ri + 1} editorial={placeCardHook(place, [place.editorial]) || null} />
-                          </ul>
+                    <ol className="wf-guide-photo-list">
+                      {market.places.map((place) => (
+                        <li key={place.id}>
+                          <h3><a href={guidePlacePath(place.id)}>{place.name}</a></h3>
+                          <GuideFigure role="pick" image={editorialImages.get(place.id)} />
+                          <a className="wf-guide-photo-link" href={guidePlacePath(place.id)}>Explore {place.name}</a>
                         </li>
                       ))}
                     </ol>

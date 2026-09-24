@@ -100,10 +100,19 @@ ok(Math.min(...perTeaser.map(([, n]) => n)) >= 2,
   // position. It would have failed with the teaser correctly placed.
   const iT = code.indexOf("g.teaser ?");
   const iIntro = code.indexOf('className="wf-guide-intro" style=');
-  const iPicks = code.indexOf("g.picks.map");
+  // The server also maps picks while preparing photos, before JSX renders.
+  // Anchor on the JSX expression rather than that earlier data operation.
+  const iPicks = code.indexOf("{g.picks.map(");
   ok(iT > 0 && iIntro > 0 && iPicks > 0, "found the teaser, intro and picks RENDER sites");
   ok(iT > 0 && iIntro > 0 && iT < iIntro, "the teaser renders BEFORE the intro — above the fold is the point");
-  ok(iT < iPicks, "...and before the picks");
+  const teaserPrecedesPicks = (source) => {
+    const teaser = source.indexOf("g.teaser ?");
+    const picks = source.indexOf("{g.picks.map(");
+    return teaser >= 0 && picks >= 0 && teaser < picks;
+  };
+  ok(teaserPrecedesPicks(code), "...and before the picks");
+  ok(!teaserPrecedesPicks("{g.picks.map(" + code), "negative control rejects picks rendered before teaser");
+  ok(!teaserPrecedesPicks(code.replaceAll("{g.picks.map(", "{other.map(")), "negative control rejects a missing picks render site");
 }
 
 if (fail.length) {
@@ -111,4 +120,4 @@ if (fail.length) {
   for (const f of fail) console.error("  - " + f);
   process.exit(1);
 }
-console.log(`check-guide-teasers: OK — ${pass} assertions (17 teasers, every distinctive noun grounded in its own guide across ${tokensChecked} tokens, no hype, above the fold)`);
+console.log(`check-guide-teasers: OK — ${pass} assertions (${Object.keys(GUIDES).length} teasers, every distinctive noun grounded in its own guide across ${tokensChecked} tokens, no hype, above the fold)`);

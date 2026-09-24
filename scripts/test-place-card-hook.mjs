@@ -202,10 +202,12 @@ ok(toHookLine(PLATE_LIST_ONLY, "X") === PLATE_LIST_ONLY,
 // ── call sites: article keeps the promo, card does not ─────────────────────
 const guidePage = read("app/guides/[slug]/page.js");
 const guideCode = code("app/guides/[slug]/page.js");
-ok(/import\s*\{[^}]*\bplaceCardHook\b[^}]*\}\s*from\s*["'][^"']*rankingWhy/.test(guideCode),
-  "guide page imports placeCardHook from rankingWhy");
-ok(/editorial=\{placeCardHook\(resolved,\s*\[pick\.blurb,\s*pick\.tip\]\)\s*\|\|\s*null\}/.test(guideCode),
-  "guide page CALLS placeCardHook(resolved, [pick.blurb, pick.tip]) — sourced why, blanked if it is the article");
+// Owner update 2026-09-24: editorial recommendations use photographs.
+// Keep the underlying shared card hook tests above for discovery surfaces.
+const photoEditorial = (source) => /<GuideFigure\s+role="pick"/.test(source) && !/<(?:GuidePlaceCard|IconicPlaceCard)\b/.test(source);
+ok(photoEditorial(guideCode), "guide article uses photos instead of embedded discovery cards");
+ok(!photoEditorial(guideCode + "<GuidePlaceCard place={resolved} />"), "red proof: reintroducing the rejected guide card fails");
+ok(!photoEditorial(guideCode.replaceAll('<GuideFigure role="pick"', '<MissingFigure role="pick"')), "red proof: deleting the editorial photos fails");
 ok(!/editorial=\{pick\.blurb/.test(guideCode),
   "guide page does not pass pick.blurb as the card editorial");
 ok(/<p style=\{S\.p\}>\{pick\.blurb\}<\/p>/.test(guideCode),
