@@ -793,5 +793,42 @@
     "place_closed": [],
     "ambiguous_or_rejected": [],
     "final_registry_size": 12
+  },
+  "third_pass": {
+    "run_at": "2026-09-23 (independent PR #1495 audit fix round, same day — WebFetch against each venue's own live ordering page; plain curl was blocked by Cloudflare's 'Just a moment...' JS challenge, HTTP 403, on both Toast URLs)",
+    "reason": "the independent audit found the second pass's 'verified: 2026-09-23' dates for ATRIA and Buddy Brew were never backed by a recorded fetch (no second-pass evidence-table row for either, and the mechanical run still showed proof: none for both), and flagged Joy Coffee's own 'proof: none' reading as needing a fresh check given a 2026-09-23 report that its live Square menu shows all seven pumpkin items marked Unavailable. This pass re-fetched all three live and recorded exact items, URL and evidence below.",
+    "kept_with_corrected_evidence": [
+      {
+        "place_id": "ChIJ1U_vFp0Xw4gRGKl6mJGJ9UI",
+        "name": "Joy Coffee",
+        "action": "kept, verified advances 2026-09-10 -> 2026-09-23",
+        "source": "https://joycoffeebradenton.square.site/?fulfillment=PICKUP&location_id=LMTGQ2Y8V9RM8",
+        "fetched_at": "2026-09-23",
+        "items": ["Spiced Pumpkin Flat White $6.00", "Classic Spiced Pumpkin Latte $7.00", "Pumpkin Bread $5.00", "Pumpkin Cloud Cold Brew $7.50", "Pumpkin Shaken Espresso $6.00", "Spiced Pumpkin Chai $7.50", "Spiced Pumpkin Matcha Latte $7.50"],
+        "reason": "all seven pumpkin items DO carry the raw-HTML 'Unavailable' marker the 2026-09-23 report flagged, but that marker is Alpine.js x-show boilerplate present after EVERY catalog item on this storefront (including plain Espresso) and gated by a whole-store isLocationClosedSchedulingDisabled flag, never a per-item stock field. Each pumpkin item also has a real, wired quick-add-button (itemId + itemVariationId) and a price immediately following the marker. lib/fallEvidence.js's anyAvailable rule was fixed to treat a real price right after the marker as an override (PRICE_OVERRIDE_WINDOW), while still failing a genuinely sold-out item that shows a marker with no nearby price."
+      },
+      {
+        "place_id": "ChIJY5LPSxJAw4gRMhj-bOy9MKU",
+        "name": "Buddy Brew Coffee",
+        "action": "kept, verified re-confirmed at 2026-09-23 with a recorded fetch (the prior date was unbacked)",
+        "source": "https://order.toasttab.com/online/buddybrewsarasota",
+        "fetched_at": "2026-09-23",
+        "items": ["Spiced Pumpkin Latte $6.25+", "Caramel Apple Latte $6.25+", "Salted Maple Iced Flat White $6.75", "Pumpkin Pie Matcha $8.00", "Apple Cider Sparkler $6.50", "Pumpkin Bread (Pastries)", "Apple Cinnamon Muffin (Pastries)", "Maple Pecan Muffin (Pastries)"],
+        "reason": "a live 'Fall Specials' section is genuinely present with real prices on every item; checked twice this run (once for the general item list, once specifically probing for sold-out/disabled indicators) — none found."
+      }
+    ],
+    "removed": [
+      {
+        "place_id": "ChIJA-QkamE7w4gRfdzcxEHyPls",
+        "name": "ATRIA Cafe",
+        "reason": "the 'verified 2026-09-23' date carried no recorded second-pass evidence row and the mechanical run still read proof: none. Re-fetching the live Toast menu this round found it COMPLETELY OVERHAULED to a sourdough-pizza program (pizzas, focaccia, salads) with zero coffee/breakfast items and zero fall/pumpkin vocabulary anywhere — not a dropped seasonal item but an entirely different menu. Fail-closed removal, not a rejection: its URL stays in data/fall-discovery/official-sources.json for future re-proposal.",
+        "source_checked": "https://order.toasttab.com/online/atria-cafe-lwr",
+        "fetched_at": "2026-09-23"
+      }
+    ],
+    "verified_but_missing": [],
+    "place_closed": [],
+    "ambiguous_or_rejected": [],
+    "final_registry_size": 11
   }
 }

@@ -15,7 +15,7 @@
 //      against the SAME season boundary, not two definitions that can drift
 import {
   ACTIONS, FALL_TERMS, SOURCE_TIERS, classifyEvidence, currentYearProof,
-  decideAction, isOfficialTier, nameOnlyCandidate, offeringActive,
+  decideAction, isOfficialTier, nameOnlyCandidate, offeringActive, verifiedInSeasonWindow,
 } from "../lib/fallEvidence.js";
 import { fallCardClass, fallSeasonEnd, FALL_CARD_IDS } from "../lib/fallSkin.js";
 
@@ -119,10 +119,19 @@ ok(nameOnlyCandidate("Joe's Diner", "Serving breakfast all day, no seasonal menu
   });
   ok(verdict === "strong", `an official post explicitly dated inside the current season is strong even without a live fetch, got "${verdict}"`);
 }
-// Present in the catalog but marked Unavailable EVERYWHERE it appears is not
-// proof of a current offering (Joy Coffee, live 2026-09-23: every one of its
-// seven pumpkin items is marked Unavailable on the operator's own Square
-// ordering page).
+// CORRECTED 2026-09-23 (independent PR #1495 audit, re-fetching Joy Coffee's
+// live Square page — see lib/fallEvidence.UNAVAILABLE_RX's comment for the
+// full technical finding). The ORIGINAL version of this test read Joy
+// Coffee's page as "every one of its seven pumpkin items is marked
+// Unavailable" and asserted that shape as "none" — that description was
+// itself a misread. "Unavailable" immediately followed by a REAL PRICE is
+// Alpine.js template boilerplate present for EVERY item on the page
+// (confirmed live, including plain Espresso), never a per-item stock signal
+// — so it is overridden. A GENUINELY sold-out item — no price rendered — is
+// still correctly flagged as unavailable, which is what actually needs proof
+// of a current offering. Both shapes are executed below, real Joy Coffee text
+// included as the corrected positive control (this exact text is Joy
+// Coffee's own current live Square catalog, re-fetched 2026-09-23).
 {
   const verdict = currentYearProof({
     sourceTier: SOURCE_TIERS.official_menu_platform,
@@ -131,19 +140,34 @@ ok(nameOnlyCandidate("Joe's Diner", "Serving breakfast all day, no seasonal menu
     text: "Spiced Pumpkin Flat White Unavailable $6.00. Pumpkin Bread Unavailable $5.00. Pumpkin Chai Unavailable $7.50.",
     seasonYear: 2026,
   });
-  ok(verdict === "none", `an item marked Unavailable everywhere it appears is not current proof, got "${verdict}"`);
+  ok(verdict === "strong", `an "Unavailable" marker immediately followed by a real price is a template artifact, not real unavailability — this is CURRENT proof, got "${verdict}"`);
 }
-ok(classifyEvidence("Pumpkin Latte Unavailable $7.00").anyAvailable === false,
-  "classifyEvidence flags anyAvailable=false when the only primary occurrence is immediately marked Unavailable");
-ok(classifyEvidence("Pumpkin Latte $7.00, in stock now.").anyAvailable === true,
-  "…and anyAvailable=true when nothing marks it unavailable");
 {
-  // one available occurrence among several unavailable ones is still proof
+  // a GENUINELY sold-out item — the marker with NO price to override it —
+  // still correctly reads as not-currently-offered.
   const verdict = currentYearProof({
     sourceTier: SOURCE_TIERS.official_menu_platform,
     publishedAt: null,
     fetchedAt: "2026-09-23",
-    text: "Pumpkin Bread Unavailable $5.00. Pumpkin Spice Latte $6.00, ready to order.",
+    text: "Pumpkin Loaf: Sold Out. Come back another day.",
+    seasonYear: 2026,
+  });
+  ok(verdict === "none", `a marker with no price anywhere near it (genuinely sold out, nothing to order) is not current proof, got "${verdict}"`);
+}
+ok(classifyEvidence("Pumpkin Latte Unavailable $7.00").anyAvailable === true,
+  "classifyEvidence flags anyAvailable=true when the marker is immediately followed by a real price — a live catalog SKU, not a sold-out claim");
+ok(classifyEvidence("Pumpkin Latte Unavailable. Ask your barista about our other drinks.").anyAvailable === false,
+  "…but anyAvailable=false when the marker carries no price to override it — a genuine sold-out signal");
+ok(classifyEvidence("Pumpkin Latte $7.00, in stock now.").anyAvailable === true,
+  "…and anyAvailable=true when nothing marks it unavailable in the first place");
+{
+  // one available occurrence among several unavailable (genuinely, no price)
+  // ones is still proof
+  const verdict = currentYearProof({
+    sourceTier: SOURCE_TIERS.official_menu_platform,
+    publishedAt: null,
+    fetchedAt: "2026-09-23",
+    text: "Pumpkin Bread: Sold Out. Pumpkin Spice Latte $6.00, ready to order.",
     seasonYear: 2026,
   });
   ok(verdict === "strong", `at least one AVAILABLE primary occurrence is still strong proof, got "${verdict}"`);
@@ -260,6 +284,19 @@ ok(classifyEvidence("Pumpkin Latte $7.00, in stock now.").anyAvailable === true,
   ok(!FALL_CARD_IDS.has(RYANS_ID), "(d) Ryan's Coffee House is not on FALL_CARD_IDS — this pass found it insufficient, not verified");
   ok(fallCardClass(RYANS_ID, "2026-10-01") === "", `(d) fallCardClass(Ryan's id, in-season date) is "" while Ryan's is not in the registry`);
 }
+
+// ── verifiedInSeasonWindow: the CURRENT season, not the date's own year ──
+// FIXED 2026-09-23 (independent PR #1495 audit finding): a `today` is now
+// required, and the window is anchored to the season `today` sits in — a
+// verification from a PRIOR season must not pass just because it once fell
+// inside THAT season's own window. See the function's own comment in
+// lib/fallEvidence.js for the full story of the bug this replaces.
+ok(verifiedInSeasonWindow("2026-09-23", "2026-09-23") === true, "a same-day verification is inside the current season");
+ok(verifiedInSeasonWindow("2025-10-01", "2026-09-23") === false, "a PRIOR season's own verification no longer counts as current — the exact fixed bug");
+ok(verifiedInSeasonWindow("2026-07-04", "2026-09-23") === false, "a date before this year's season opened is not inside it");
+ok(verifiedInSeasonWindow("2026-12-25", "2026-09-23") === false, "a date in the future relative to today is not a real verification yet");
+ok(verifiedInSeasonWindow(null, "2026-09-23") === false && verifiedInSeasonWindow("2026-09-23", null) === false,
+  "no verified date, or no today, is never a pass — never a guess");
 
 // ── offeringActive: dated offerings ─────────────────────────────────────
 ok(offeringActive({ starts: "2026-09-19", ends: "2026-11-08", today: "2026-10-01" }) === true, "a dated offering is active within its window");
