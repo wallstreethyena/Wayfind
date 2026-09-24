@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 728,
-    "totalRegistryEntries": 729,
-    "guardsTxtLineCount": 726,
-    "guardsTxtReachedFileCount": 721,
+    "totalOnDiskGuardFiles": 729,
+    "totalRegistryEntries": 730,
+    "guardsTxtLineCount": 727,
+    "guardsTxtReachedFileCount": 722,
     "criticalCount": 87,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 506,
+      "CALL": 507,
       "RENDER": 83,
       "STRUCTURAL": 139,
       "OTHER": 1
@@ -5160,6 +5160,28 @@
       "honestyViolations": [
         "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
       ],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-map-keeps-chosen-category.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 17,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
       "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,

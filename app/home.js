@@ -4251,6 +4251,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // MapScreen) so it survives MapScreen's own mount/unmount as the user
   // switches screens -- it should fire once per session, not once per visit.
   const mapDefaultAppliedRef = useRef(false);
+  // 2026-09-23: true once the reader explicitly picks a category or chip this
+  // session, so the Map tab's first-open Activities default never overrides a
+  // real choice (see lib/mapExplorer.shouldApplyMapDefault).
+  const categoryChosenRef = useRef(false);
 
   const [mapDate, setMapDate] = useState("all");
   const [mapPreview, setMapPreview] = useState(null);
@@ -4878,6 +4882,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       setScreen("suggested");
       try { if (SCREEN_PATH[screen]) window.history.pushState({ wf: "screen" }, "", "/"); } catch (e) {}
     }
+    categoryChosenRef.current = true;
     if (browseCat !== id) { setMoodPick(id); setBrowseCat(id); setCat(id); setSub("all"); setVibe("all"); }
     landOnBrowse();
   };
@@ -6146,7 +6151,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     const url = CANON_ORIGIN;
     shareLink("Wayfind", url, () => { setShareCopied(true); setTimeout(() => setShareCopied(false), 1800); }, "Find great things to do near you with Wayfind", () => { try { logEvent("share", null, { kind: "app" }); } catch (e) {} });
   }
-  function pickCat(id) { setCat(id); setSub("all"); setVibe("all"); setQuickFilter(null); setSearchMode(false); setSearchLabel(""); setScreen("explore"); }
+  function pickCat(id) { categoryChosenRef.current = true; setCat(id); setSub("all"); setVibe("all"); setQuickFilter(null); setSearchMode(false); setSearchLabel(""); setScreen("explore"); }
   // Reset the scroll container to the top whenever the list the user is looking
   // at changes — category, sub-filter, vibe, sort, intent, distance, or screen.
   // Without this, changing a filter leaves you stranded mid-list looking at
@@ -6333,7 +6338,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     if (invAppendingRef.current) { invAppendingRef.current = false; return; }
     if (!posRestore.current) setVisibleCount(5);
   }, [places, searchMode]);
-  function pickSub(id) { setSub(id); setVibe("all"); try { logEvent("filter_changed", null, { cat, sub: id }); } catch (e) {} }
+  function pickSub(id) { categoryChosenRef.current = true; setSub(id); setVibe("all"); try { logEvent("filter_changed", null, { cat, sub: id }); } catch (e) {} }
 
   // Signal functions — record engagement, drive personalised ranking, trigger sign-up.
   function recordSignal(p, action) {
@@ -9564,7 +9569,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // places/locName/dedupePlaces, all already passed through ctx elsewhere.
     socialFind, setSocialFind, screen,
     // map screen (G4)
-    mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, map3D, setMap3D, mapRetryKey, setMapRetryKey, mapDefaultAppliedRef, cat, setCat, setSub, setVibe, sortBy, deviceLoc, searchMapArea, mapFocus, setMapFocus, setMapSearchOpen, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, view, featuredBoost, MapView, Hol, recenterToMe,
+    mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, map3D, setMap3D, mapRetryKey, setMapRetryKey, mapDefaultAppliedRef, categoryChosenRef, cat, setCat, setSub, setVibe, sortBy, deviceLoc, searchMapArea, mapFocus, setMapFocus, setMapSearchOpen, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, view, featuredBoost, MapView, Hol, recenterToMe,
     // experience badge screen (G4)
     activeBadge, setActiveBadge, EXPERIENCES, expPlaces, expMi, setExpMi, expSort, setExpSort, expTours, expLoading, momentPicks, setBrowseCat, ViatorRail, intentScopeLabel,
     // intro overlay (G4) — the 3.2s auto-show timer stays in PageInner, flips introOpen
@@ -10074,6 +10079,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               // THE CHOICE THAT ACTS. Same two setters the feed has always
               // used, so a place filtered here is the same list the browse
               // view produced before the tabs moved into the nav.
+              categoryChosenRef.current = true;
               if (browseCat !== catId) pickBrowse(catId);
               setSub(subId);
               // v8.10 (owner, 2026-08-18: "the submenu also goes away — i want
