@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 730,
-    "totalRegistryEntries": 731,
-    "guardsTxtLineCount": 728,
-    "guardsTxtReachedFileCount": 723,
+    "totalOnDiskGuardFiles": 731,
+    "totalRegistryEntries": 732,
+    "guardsTxtLineCount": 729,
+    "guardsTxtReachedFileCount": 724,
     "criticalCount": 87,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 508,
+      "CALL": 509,
       "RENDER": 83,
       "STRUCTURAL": 139,
       "OTHER": 1
@@ -13260,6 +13260,28 @@
         "detail": "The inverse of the leak measured 2026-09-04, when 829 of 2,263 Book-eligible rows were free public ground (33% of every Book button on the site). Selling a ticket to a free trailhead is the fastest way to lose a local user permanently. The paid positive control is what stops the guard passing on a code path that renders nothing for anything."
       },
       "owner": "Revenue QA"
+    },
+    {
+      "file": "scripts/test-jev-mcp.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 21,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
     },
     {
       "file": "scripts/test-job-pulse.mjs",

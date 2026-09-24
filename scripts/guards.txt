@@ -1893,3 +1893,4 @@ node scripts/check-hub-place-links.mjs
 # Google photo author credits are kept from responses already received
 # (never re-bought), bounded, and stored only for their own place (2026-09-23).
 node scripts/test-photo-credits.mjs
+node scripts/test-jev-mcp.mjs

@@ -130,6 +130,7 @@ const EXEMPT = {
   "app/editorial-policy/page.js": { kind: "policy", why: "editorial policy page, not a destination" },
   "app/how-wayfind-ranks/page.js": { kind: "policy", why: "methodology page" },
   "app/command-center/page.js": { kind: "internal", why: "owner-only operations console" },
+  "app/oauth/consent/page.js": { kind: "internal", why: "one-time OAuth approval screen for an authenticated account, not a destination to share" },
   "app/design/beach-review/page.js": { kind: "internal", why: "internal design review surface" },
   "app/v8/page.js": { kind: "internal", why: "internal rail preview" },
 };
