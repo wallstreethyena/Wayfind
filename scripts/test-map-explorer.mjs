@@ -69,7 +69,13 @@ ok(/mapRetryKey/.test(home), "a retry key exists so a failed map can be remounte
 
 const screen = readFileSync(new URL("../app/components/screens/Map.js", import.meta.url), "utf8");
 ok(!/showSubs=\{false\}/.test(screen) && /activeCat=\{cat\}/.test(screen), "the map's category bar shows its sub-filter row, same as Home and Itinerary");
-ok(/setCat\("attractions"\)/.test(screen) && /MAP_DEFAULT_CATEGORY/.test(screen), "the map opens defaulted to Activities (attractions) the first time it is visited in a session");
+// 2026-09-23: the "has the reader chosen anything" test moved into
+// lib/mapExplorer.shouldApplyMapDefault (it still keys on MAP_DEFAULT_CATEGORY),
+// because a bare `cat === MAP_DEFAULT_CATEGORY` could not tell an explicit Food
+// choice from the untouched default and broke map/list parity. The default
+// itself is unchanged: first open, nothing chosen, Activities.
+const mapExplorerSrc = readFileSync(new URL("../lib/mapExplorer.js", import.meta.url), "utf8");
+ok(/setCat\("attractions"\)/.test(screen) && /shouldApplyMapDefault\(/.test(screen) && /cat === MAP_DEFAULT_CATEGORY/.test(mapExplorerSrc), "the map opens defaulted to Activities (attractions) the first time it is visited in a session, unless the reader already chose a category");
 ok(/key=\{mapRetryKey\}/.test(screen) && /onRetry=\{/.test(screen), "the map view remounts on retry via a key change");
 ok(!/Numbered by rank/.test(screen), "the bulky map legend is gone; numbered pins and the result drawer carry that meaning");
 ok(/bottom: 76/.test(screen) && /Browse list/.test(screen), "the result drawer floats above bottom navigation and remains discoverable");
