@@ -131,7 +131,7 @@ ok(guidePlaceFor("ChIJ-random-inventory-row") === null, "the real (production) g
 // report actually resolve through the real (non-fixture) index, and the two
 // "already indexable" control ids from that report are among them. ─────────
 const realFoodCitySlugs = ["sarasota-restaurants", "tampa-restaurants", "st-pete-restaurants", "orlando-restaurants", "miami-restaurants"];
-for (const slug of realFoodCitySlugs) ok(!!FOOD_CITY_2026_GUIDES[slug], `${slug} exists in FOOD_CITY_2026_GUIDES`);
+for (const slug of realFoodCitySlugs) ok(!!FOOD_CITY_2026_GUIDES[slug] && FOOD_CITY_2026_GUIDES[slug].mapExplorer.spots.every((spot) => spot.href === `/p/${encodeURIComponent(spot.id)}`), `${slug} exists and every restaurant-map place card opens full /p detail`);
 const realFoodCityPlaceIds = realFoodCitySlugs.flatMap((slug) => FOOD_CITY_2026_GUIDES[slug].picks.map((p) => p.placeId));
 assert.equal(realFoodCityPlaceIds.length, 50, "the 5 food-city guides name exactly 50 restaurant picks"); pass++;
 for (const id of realFoodCityPlaceIds) {

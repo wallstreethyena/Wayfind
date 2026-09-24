@@ -253,12 +253,12 @@ if (!browserConfig && !MUTATION) {
   const PlaceCardSkeleton = await load("PlaceCardSkeleton.js");
   const ThingsCard = (await loadComponent(path.join(ROOT, "app/components/ThingsToDoList.js"), ROOT)).Card;
   const noop = () => {};
-  const probePlace = { id: "ssr-probe", name: "SSR Probe Place", rating: 4.8, reviews: 120, types: ["restaurant"], governed_score: 92, wfScore: 92, lat: 27.4, lng: -82.4, distMi: 2.1, href: "/p/ssr-probe", detailHref: "/p/ssr-probe" };
+  const probePlace = { id: "ssr-probe", name: "SSR Probe Place", rating: 4.8, reviews: 120, types: ["restaurant"], governed_score: 92, wfScore: 92, lat: 27.4, lng: -82.4, distMi: 2.1, href: "/places/ssr-probe", detailHref: "/p/ssr-probe" };
   const sponsorRow = sponsoredPlaceById("rio-body-wax-gastonia");
   const sponsorPick = sponsorRow && hydrateSponsoredPlace(sponsorRow, { lat: sponsorRow.lat, lng: sponsorRow.lng });
   const probes = [
     React.createElement(Iconic, { place: probePlace, href: probePlace.href, onSave: noop, onLike: noop, onDislike: noop, onShare: noop }),
-    React.createElement(RailCard, { title: probePlace.name, place: probePlace, score: 9.2 }),
+    React.createElement(RailCard, { title: probePlace.name, place: probePlace, score: 9.2, href: "/places/ssr-probe", cta: { label: "View details", href: "/places/ssr-probe" } }),
     React.createElement(EventNearbyCards, { places: [probePlace] }),
     React.createElement(EventStayCards, { places: [probePlace] }),
     React.createElement(ThingsCard, { r: { ...probePlace, kind: "experience", title: probePlace.name }, rank: 1, city: "Sarasota" }),
@@ -269,7 +269,7 @@ if (!browserConfig && !MUTATION) {
   const HomePlaceCard = await loadHomePlaceCard();
   probes.push(React.createElement(HomePlaceCard, { p: probePlace, rank: 1, saved: false, liked: false, disliked: false, onDetail: noop, onSave: noop, onLike: noop, onDislike: noop, onShareCard: noop, line: null, onBadge: noop, city: "Sarasota" }));
   const markup = probes.map((probe) => renderToStaticMarkup(probe));
-  ok(markup.length === 9 && markup.every((value) => value.includes("wf-place-card")), `PROBE: all nine actual adapters compiled and server-rendered before browser skip (got ${markup.length})`);
+  ok(markup.length === 9 && markup.every((value) => value.includes("wf-place-card")) && markup[0].includes('href="/p/ssr-probe"') && !markup[0].includes('href="/places/ssr-probe"') && markup[1].includes('href="/p/ssr-probe"') && !markup[1].includes('href="/places/ssr-probe"'), `PROBE: all nine actual adapters compiled and stale /places card inputs normalized to /p before browser skip (got ${markup.length})`);
 }
 if (!browserConfig) {
   ok(!REQUIRE_BROWSER, "Chromium is REQUIRED for this invocation but no executable is available");
@@ -290,15 +290,15 @@ if (!browserConfig) {
     types: ["amusement_park", "tourist_attraction"], distMi: 3.2,
     governed_score: 92, wfScore: 92, lat: 27.4, lng: -82.4,
   });
-  const iconic = (id) => React.createElement(Iconic, { place: place(id), rank: 1, href: `/p/${id}`, onSave: noop, onLike: noop, onDislike: noop, onShare: noop });
-  const rail = React.createElement(RailCard, { title: "Sarasota Guided Mangrove Tunnel Kayak Tour", score: 9.2, rank: 1, href: "/p/rail", photo: "", category: "Activities", distMi: 3.2, place: place("rail"), onSave: noop, onLike: noop, onDislike: noop, onShare: noop });
+  const iconic = (id) => React.createElement(Iconic, { place: place(id), rank: 1, href: `/places/${id}`, onSave: noop, onLike: noop, onDislike: noop, onShare: noop });
+  const rail = React.createElement(RailCard, { title: "Sarasota Guided Mangrove Tunnel Kayak Tour", score: 9.2, rank: 1, href: "/places/rail", photo: "", category: "Activities", distMi: 3.2, place: place("rail"), cta: { label: "See details", href: "/places/rail" }, onSave: noop, onLike: noop, onDislike: noop, onShare: noop });
   const richRail = React.createElement(RailCard, {
     title: "Sarasota Guided Mangrove Tunnel Kayak Tour", score: 9.2, rank: 1,
-    href: "/p/rich-rail", eyebrow: "Activities", facts: ["Orlando", "6.9 mi"],
+    href: "/places/rich-rail", eyebrow: "Activities", facts: ["Orlando", "6.9 mi"],
     take: "A verified local outing with a useful creator guide.",
     chips: [{ label: "Local favorite", icon: "★" }],
     creatorVideos: [{ creator: "horrornightsorl", platform: "instagram" }],
-    cta: { label: "See details", href: "/p/rich-rail" },
+    cta: { label: "See details", href: "/places/rich-rail" },
     place: place("rich-rail"), onSave: noop, onLike: noop, onDislike: noop, onShare: noop,
   });
   const eventPlaces = [place("event-a"), place("event-b")].map((item) => ({ ...item, href: `/p/${item.id}`, editorial: "A verified local favorite." }));
@@ -356,7 +356,7 @@ if (!browserConfig) {
             const cs = getComputedStyle(card), contentCss = content ? getComputedStyle(content) : null, nameCss = name ? getComputedStyle(name) : null, actionCss = actions ? getComputedStyle(actions) : null;
             const headingCss = heading ? getComputedStyle(heading) : null;
             const headingTextWidth = name ? name.getBoundingClientRect().width - parseFloat(nameCss.paddingLeft || "0") - parseFloat(nameCss.paddingRight || "0") : null;
-            return { box: box(card), scrollWidth: card.scrollWidth, root: [cs.height, cs.width, cs.borderRadius, cs.backgroundColor], content: contentCss ? [contentCss.paddingTop, contentCss.paddingRight, contentCss.paddingBottom, contentCss.paddingLeft] : null, name: nameCss ? [nameCss.fontSize, nameCss.lineHeight, nameCss.fontWeight] : null, headingTextWidth, extras: [...card.querySelectorAll(".wf-rail-card-cta,.wf-place-card-credit")].map(box), nameBox: name ? box(name) : null, labelFits: [...card.querySelectorAll(".wf-place-card-save,.wf-place-card-share,.wf-place-card-book")].map(el => ({name:el.className, fits:el.scrollWidth <= el.clientWidth + 1})), hasBooking: !!card.querySelector('.wf-place-card-book'), actionStyles: Object.fromEntries(['save','like','dislike','share'].map(key => { const el = card.querySelector('.wf-place-card-' + key); if (!el) return [key,null]; const style = getComputedStyle(el); return [key,[style.height,style.fontSize,style.fontWeight,style.paddingLeft,style.paddingRight,style.borderRadius]]; })), actions: actionCss ? [actionCss.display, actionCss.gridTemplateColumns, actionCss.height, actionCss.columnGap] : null, media: media ? box(media) : null, score: score ? box(score) : null, controls: [...card.querySelectorAll(".wf-place-card-actions>*")].map(box) };
+            return { box: box(card), scrollWidth: card.scrollWidth, hrefs: [...card.querySelectorAll("a[href]")].map((a) => a.getAttribute("href") || ""), root: [cs.height, cs.width, cs.borderRadius, cs.backgroundColor], content: contentCss ? [contentCss.paddingTop, contentCss.paddingRight, contentCss.paddingBottom, contentCss.paddingLeft] : null, name: nameCss ? [nameCss.fontSize, nameCss.lineHeight, nameCss.fontWeight] : null, headingTextWidth, extras: [...card.querySelectorAll(".wf-rail-card-cta,.wf-place-card-credit")].map(box), nameBox: name ? box(name) : null, labelFits: [...card.querySelectorAll(".wf-place-card-save,.wf-place-card-share,.wf-place-card-book")].map(el => ({name:el.className, fits:el.scrollWidth <= el.clientWidth + 1})), hasBooking: !!card.querySelector('.wf-place-card-book'), actionStyles: Object.fromEntries(['save','like','dislike','share'].map(key => { const el = card.querySelector('.wf-place-card-' + key); if (!el) return [key,null]; const style = getComputedStyle(el); return [key,[style.height,style.fontSize,style.fontWeight,style.paddingLeft,style.paddingRight,style.borderRadius]]; })), actions: actionCss ? [actionCss.display, actionCss.gridTemplateColumns, actionCss.height, actionCss.columnGap] : null, media: media ? box(media) : null, score: score ? box(score) : null, controls: [...card.querySelectorAll(".wf-place-card-actions>*")].map(box) };
           }),
         }));
         return { innerWidth, scrollWidth: document.documentElement.scrollWidth, adapters };
@@ -369,7 +369,8 @@ if (!browserConfig) {
       ok(measured.innerWidth === width, `PROBE ${width}px: achieved viewport equals requested viewport (got ${measured.innerWidth})`);
       ok(measured.adapters.length === 9 && measured.adapters.every((adapter) => adapter.cards.length === 2), `PROBE ${width}px: all nine real adapter fixtures rendered two cards`);
       const live = measured.adapters.filter((adapter) => adapter.id !== "skeleton").flatMap((adapter) => adapter.cards.map((card) => ({ ...card, adapter: adapter.id })));
-      ok(live.length === 16, `PROBE ${width}px: sixteen live component cards were measured (got ${live.length})`);
+      const routed = live.filter((card) => card.adapter === "iconic" || card.adapter === "rail-card").flatMap((card) => card.hrefs || []);
+      ok(live.length === 16 && routed.some((href) => href.startsWith("/p/")) && routed.every((href) => !href.startsWith("/places/")), `PROBE ${width}px: sixteen live cards measured and stale /places inputs cannot escape the shared place-card renderers (got ${live.length})`);
       const STACKED = new Set(["home-live-route", "guide-list-slot"]);
       const expectedRailWidth = Math.min(PLACE_CARD_MAX_WIDTH_PX, (width - PLACE_CARD_PAGE_GUTTER_PX * 2 - (PLACE_CARD_PHONE_PEEK - 1) * PLACE_CARD_GAP_PX) / PLACE_CARD_PHONE_PEEK);
       const listFills = width < PLACE_CARD_LIST_FILL_BELOW_PX;

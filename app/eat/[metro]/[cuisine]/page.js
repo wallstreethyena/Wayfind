@@ -281,9 +281,7 @@ export default async function CuisineListPage({ params }) {
       numberOfItems: places.length,
       itemListElement: places.map((p, i) => ({
         "@type": "ListItem", position: i + 1,
-        item: { "@type": "Restaurant", name: p.name,
-          aggregateRating: p.rating != null && p.reviews >= 15
-            ? { "@type": "AggregateRating", ratingValue: p.rating, reviewCount: p.reviews } : undefined },
+        item: { "@type": "Restaurant", name: p.name },
       })) },
   ];
 

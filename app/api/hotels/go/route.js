@@ -3,6 +3,7 @@ export const runtime = "nodejs";
 import { randomUUID } from "node:crypto";
 import { commercePayload, sanitizeClientClickId } from "../../../../lib/commerce.js";
 import { isCrawler } from "../../../../lib/crawler.js";
+import { isHotelBookingVerified } from "../../../../lib/hotelBookingVerification.js";
 import {
   HOTEL_REDIRECT_FALLBACK,
   normalizedHotelLocation,
@@ -61,6 +62,12 @@ export async function GET(req) {
 
   if (isCrawler(req.headers.get("user-agent"))) return fail("crawler-refused");
   if (!hotel) return fail("invalid-hotel-location");
+  // 2026-09-23: the button is gated in lib/affiliates.hotelGoUrl, but this URL
+  // is shareable and guessable, so the same fail-closed rule is enforced here
+  // against the card id the link carries. A request for a hotel we have not
+  // verified does not reach Stay22 at all — it falls back like any other
+  // refusal. See lib/hotelBookingVerification.js for what earns a pass.
+  if (!isHotelBookingVerified({ id: contentId })) return fail("unverified-property");
 
   const destination = stay22HotelRedirectUrl(hotel, clickId);
   if (!destination) return fail("tracking-url-failed");

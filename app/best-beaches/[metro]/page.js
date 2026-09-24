@@ -13,6 +13,10 @@ import { WF_PLACE_CARD_CSS } from "../../components/css";
 import { SITE_URL } from "../../../lib/site";
 import BeachPageClient, { BackControl } from "./parts";
 import TourStrip from "../../components/TourStrip";
+// SEO recovery (2026-09-23) — see lib/landing.js's own import of this for the
+// full rationale. Same durable-eligible set the sitemap uses; async, fail-soft.
+import { listIndexedIds } from "../../../lib/placeIndex.js";
+import { selectEligiblePlaceLinks } from "../../../lib/hubPlaceLinks.js";
 // This route renders the ONE raw, unwrapped Booking.com "Stay near <beach>"
 // link on the site (below, "the house hotel pattern") — the only place left
 // that needs Stay22's client-side LinkSwap rewriter. See
@@ -139,6 +143,12 @@ export default async function BeachesPage({ params }) {
   if (!meta) notFound();
   const beaches = await beachesFor(params.metro);
   const editorials = await editorialsFor(beaches.map((b) => b.id));
+  // Task A (SEO recovery) — same durable-eligible set the sitemap lists,
+  // narrowed to ids actually on THIS beach list. The #1-3 cards keep their
+  // existing /p/{id} share-URL hrefs untouched; this only adds a small nav
+  // after the list. Fail-soft: [] on any Supabase hiccup.
+  const eligiblePlaceIds = beaches.length ? new Set(await listIndexedIds()) : new Set();
+  const { ids: beachNavIds, names: beachNavNames } = selectEligiblePlaceLinks(beaches, eligiblePlaceIds);
   const heroImg = "/cards/beach-adobestock-216195684.jpeg";
   const quickPicks = beaches.length
     ? [
@@ -157,7 +167,7 @@ export default async function BeachesPage({ params }) {
     ] },
   ];
   if (beaches.length) {
-    ld.push({ "@context": "https://schema.org", "@type": "ItemList", name: "The best beaches — " + meta.label, numberOfItems: beaches.length, itemListElement: beaches.map((b, i) => ({ "@type": "ListItem", position: i + 1, item: { "@type": "Beach", name: b.name, geo: b.lat != null ? { "@type": "GeoCoordinates", latitude: b.lat, longitude: b.lng } : undefined, aggregateRating: b.rating != null && b.reviews >= 15 ? { "@type": "AggregateRating", ratingValue: b.rating, reviewCount: b.reviews } : undefined } })) });
+    ld.push({ "@context": "https://schema.org", "@type": "ItemList", name: "The best beaches — " + meta.label, numberOfItems: beaches.length, itemListElement: beaches.map((b, i) => ({ "@type": "ListItem", position: i + 1, item: { "@type": "Beach", name: b.name, geo: b.lat != null ? { "@type": "GeoCoordinates", latitude: b.lat, longitude: b.lng } : undefined } })) });
     ld.push({ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: [
       { "@type": "Question", name: "What is the best beach near " + meta.short + "?", acceptedAnswer: { "@type": "Answer", text: beaches[0].name + " currently ranks #1" + (beaches[0].rating != null ? " with a " + beaches[0].rating + "★ rating across " + (beaches[0].reviews || 0).toLocaleString() + " reviews" : "") + ", based on the Wayfind Score — rating strength × review depth, no ads, no paid placement." } },
       { "@type": "Question", name: "How does Wayfind rank beaches?", acceptedAnswer: { "@type": "Answer", text: "One Bayesian formula weighs each beach's rating by how many people stand behind it — a 4.8 from thousands outranks a 5.0 from a handful. The method is published in full at " + SITE_URL + "/how-wayfind-ranks." } },
@@ -215,6 +225,19 @@ export default async function BeachesPage({ params }) {
             </li>
           ))}
         </ol>
+
+        {beachNavIds.length ? (
+          <nav aria-label="Place pages in this list" style={{ marginTop: 10 }}>
+            <p style={{ fontSize: 12.5, color: C.muted }}><b style={{ color: C.text }}>Place pages in this list:</b>{" "}
+              {beachNavIds.map((id, i) => (
+                <span key={id}>
+                  <a href={`/places/${encodeURIComponent(id)}`} style={{ color: C.gold, fontWeight: 700, textDecoration: "none" }}>{beachNavNames.get(id)}</a>
+                  {i < beachNavIds.length - 1 ? " · " : ""}
+                </span>
+              ))}
+            </p>
+          </nav>
+        ) : null}
 
         <TourStrip lat={CENTROID[params.metro] ? CENTROID[params.metro].lat : 27.4} lng={CENTROID[params.metro] ? CENTROID[params.metro].lng : -82.55} title="Make it a beach day" subtitle="Bookable on-the-water experiences near these beaches — ranked by the same Score." waterOnly />
 

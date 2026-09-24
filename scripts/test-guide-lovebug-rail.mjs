@@ -26,6 +26,7 @@ import {
 import {
   guideAppHandoffHref,
   guideNearMarket,
+  guidePlacePath,
   handoffEmitsStatewideNear,
 } from "../lib/guideHandoff.js";
 import { wayfindScore } from "../lib/wayfindScore.js";
@@ -290,8 +291,8 @@ ok(!handoffEmitsStatewideNear(statewide), `statewide text handoff omits near=Flo
 ok(!/[?&]near=/.test(statewide), "statewide text fallback has no invented near market");
 
 const byId = guideAppHandoffHref("The Bishop Museum of Science and Nature", { region: "Florida" }, { placeId: gulf[0].placeId });
-ok(byId === "/places/" + encodeURIComponent(gulf[0].placeId), "exact place identity opens the place page");
-ok(!handoffEmitsStatewideNear(byId), "place-page handoff never carries near=Florida, FL");
+ok(byId === "/p/" + encodeURIComponent(gulf[0].placeId), "exact place identity opens the full app detail");
+ok(!handoffEmitsStatewideNear(byId), "full-detail handoff never carries near=Florida, FL");
 
 const orlando = guideAppHandoffHref("Orlando Science Center", { region: "Orlando" }, {});
 ok(orlando.includes("near=" + encodeURIComponent("Orlando, FL")), "Orlando guides still emit near=Orlando, FL");
@@ -301,6 +302,9 @@ ok(handoffEmitsStatewideNear("/?q=x&intent=place&near=Florida%2C%20FL"), "detect
 ok(handoffEmitsStatewideNear("/?q=x&intent=place&near=Florida,+FL"), "detector catches plus-encoded Florida, FL");
 ok(!handoffEmitsStatewideNear("/?q=x&intent=place&near=Orlando%2C%20FL"), "detector does not flag a real city");
 
+ok(guidePlacePath(gulf[0].placeId) === "/p/" + encodeURIComponent(gulf[0].placeId), "guidePlacePath is the one full-detail route for exact place identity");
+ok(/guidePlacePath\(pick\.placeId\)/.test(pageCode) && !/<a href=\{["']?\/places\//.test(pageCode),
+  "guide pick heading and action cannot bypass the full-detail route with a direct /places anchor");
 ok(/guideAppHandoffHref/.test(pageCode) && !/const nearCity = \(g\.region \|\| "Orlando"\) \+ ", FL"/.test(pageCode),
   "the guide page no longer builds near from g.region unconditionally");
 ok(/inventoryPlacesByExactIds/.test(pageCode) && !/isSsgBuild\(\)/.test(fetchSrc),
