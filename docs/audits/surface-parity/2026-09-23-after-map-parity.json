@@ -1,0 +1,129 @@
+{
+  "title": "Map/list membership parity, live production, real browser (Playwright, WebGL via SwiftShader, granted GPS)",
+  "generatedAt": "2026-09-24T02:40:00Z",
+  "note": "listNotOnMap/mapNotInList compare the rendered list card ids with window.__wfMapPins.ids after opening the map. Before #1507 the map's first-open Activities default replaced an explicit Food choice.",
+  "runs": [
+    {
+      "label": "parrish-cafes2",
+      "lat": 27.5689,
+      "lng": -82.4393,
+      "sub": "cafes",
+      "invUrl": "https://www.gowayfind.com/api/places/search?q=inventory&lat=27.5689&lng=-82.4393&radius=27359&n=400&cat=food&inv=1&sub=cafes",
+      "sameOrigin": true,
+      "api": {
+        "count": 211,
+        "total": 211,
+        "hasMore": false
+      },
+      "moreClicks": 0,
+      "rendered": 93,
+      "ryansRendered": true,
+      "ryansFallCard": false,
+      "webgl": true,
+      "mapPins": 324,
+      "listNotOnMap": 93,
+      "mapNotInList": 324,
+      "ryansOnMap": false,
+      "deployment": "before #1507"
+    },
+    {
+      "label": "tampa-dinner",
+      "lat": 27.9506,
+      "lng": -82.4572,
+      "sub": "dinner",
+      "invUrl": "https://www.gowayfind.com/api/places/search?q=inventory&lat=27.9506&lng=-82.4572&radius=27359&n=400&cat=food&inv=1&sub=dinner",
+      "sameOrigin": true,
+      "api": {
+        "count": 400,
+        "total": 1096,
+        "hasMore": true
+      },
+      "moreClicks": 4,
+      "rendered": 769,
+      "ryansRendered": false,
+      "ryansFallCard": false,
+      "webgl": true,
+      "mapPins": 381,
+      "listNotOnMap": 769,
+      "mapNotInList": 381,
+      "ryansOnMap": false,
+      "deployment": "before #1507"
+    },
+    {
+      "label": "parrish-act-all",
+      "lat": 27.5689,
+      "lng": -82.4393,
+      "sub": "all",
+      "invUrl": "https://www.gowayfind.com/api/places/search?q=inventory&lat=27.5689&lng=-82.4393&radius=27359&n=400&cat=attractions&inv=1",
+      "sameOrigin": true,
+      "api": {
+        "count": 400,
+        "total": 756,
+        "hasMore": true
+      },
+      "moreClicks": 2,
+      "rendered": 480,
+      "ryansRendered": false,
+      "ryansFallCard": false,
+      "webgl": true,
+      "mapPins": 480,
+      "listNotOnMap": 0,
+      "mapNotInList": 0,
+      "ryansOnMap": false,
+      "deployment": "after #1495"
+    },
+    {
+      "label": "post-tampa-dinner",
+      "lat": 27.9506,
+      "lng": -82.4572,
+      "sub": "dinner",
+      "invUrl": "https://www.gowayfind.com/api/places/search?q=inventory&lat=27.9506&lng=-82.4572&radius=27359&n=400&cat=food&inv=1&sub=dinner",
+      "sameOrigin": true,
+      "api": {
+        "count": 400,
+        "total": 1096,
+        "hasMore": true
+      },
+      "moreClicks": 4,
+      "rendered": 769,
+      "ryansRendered": false,
+      "ryansFallCard": false,
+      "webgl": true,
+      "mapPins": 769,
+      "listNotOnMap": 0,
+      "mapNotInList": 0,
+      "ryansOnMap": false,
+      "deployment": "after #1507"
+    },
+    {
+      "label": "final-parrish-cafes",
+      "lat": 27.5689,
+      "lng": -82.4393,
+      "sub": "cafes",
+      "invUrl": "https://www.gowayfind.com/api/places/search?q=inventory&lat=27.5689&lng=-82.4393&radius=27359&n=400&cat=food&inv=1&sub=cafes",
+      "sameOrigin": true,
+      "api": {
+        "count": 211,
+        "total": 211,
+        "hasMore": false
+      },
+      "moreClicks": 0,
+      "rendered": 93,
+      "ryansRendered": true,
+      "ryansFallCard": false,
+      "activeChips": [
+        "Map"
+      ],
+      "pinsLater": 93,
+      "laterListNotOnMap": 0,
+      "laterMapNotInList": 0,
+      "ryansOnMapLater": true,
+      "webgl": true,
+      "mapPins": 93,
+      "listNotOnMap": 0,
+      "mapNotInList": 0,
+      "ryansOnMap": true,
+      "deployment": "after #1507"
+    }
+  ]
+}

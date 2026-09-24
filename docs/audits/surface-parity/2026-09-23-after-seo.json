@@ -1,0 +1,547 @@
+{
+  "title": "Surface parity audit (SEO landing level) — after-seo",
+  "generatedAt": "2026-09-24T02:19:36.268Z",
+  "meta": {
+    "level": "seo",
+    "base": "https://www.gowayfind.com",
+    "label": "after-seo",
+    "cities": [
+      "parrish",
+      "ellenton",
+      "palmetto",
+      "bradenton",
+      "sarasota",
+      "lakewood-ranch",
+      "anna-maria-island",
+      "cortez",
+      "longboat-key",
+      "siesta-key",
+      "venice",
+      "tampa",
+      "orlando",
+      "miami"
+    ],
+    "routes": [
+      "things-to-do",
+      "restaurants",
+      "beaches",
+      "nightlife"
+    ]
+  },
+  "summary": {
+    "totalChecked": 807,
+    "totalMissing": 9,
+    "pagesWithList": 56,
+    "lines": [
+      "56/56 (route, city) pages had a non-empty ranked list",
+      "807 true top-level places checked across every route/city",
+      "9 missing from their rendered landing page (expected on the page, per the page's own live ranking, but no matching /p/<id>?action=save link found)"
+    ]
+  },
+  "sections": [
+    {
+      "heading": "things-to-do (attractions:all)",
+      "columns": [
+        "city",
+        "expected",
+        "rendered",
+        "missing",
+        "missingIds",
+        "note",
+        "error"
+      ],
+      "rows": [
+        {
+          "city": "parrish",
+          "url": "https://www.gowayfind.com/things-to-do/parrish",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 1,
+          "missingIds": "ChIJ53aJQ7RKw4gRmhGLew07rJI"
+        },
+        {
+          "city": "ellenton",
+          "url": "https://www.gowayfind.com/things-to-do/ellenton",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "palmetto",
+          "url": "https://www.gowayfind.com/things-to-do/palmetto",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 1,
+          "missingIds": "ChIJy76z4HY9w4gROaX_C6lQu8g"
+        },
+        {
+          "city": "bradenton",
+          "url": "https://www.gowayfind.com/things-to-do/bradenton",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "sarasota",
+          "url": "https://www.gowayfind.com/things-to-do/sarasota",
+          "expected": 13,
+          "rendered": 13,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "lakewood-ranch",
+          "url": "https://www.gowayfind.com/things-to-do/lakewood-ranch",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "anna-maria-island",
+          "url": "https://www.gowayfind.com/things-to-do/anna-maria-island",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 2,
+          "missingIds": "ChIJFUjnJNsRw4gRVflsz2MNAeg, ChIJa-ZQUSQDw4gRdghHs3QrVJ4"
+        },
+        {
+          "city": "cortez",
+          "url": "https://www.gowayfind.com/things-to-do/cortez",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 1,
+          "missingIds": "ChIJS0WVadsQw4gRkLwrrUWIfc0"
+        },
+        {
+          "city": "longboat-key",
+          "url": "https://www.gowayfind.com/things-to-do/longboat-key",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "siesta-key",
+          "url": "https://www.gowayfind.com/things-to-do/siesta-key",
+          "expected": 13,
+          "rendered": 13,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "venice",
+          "url": "https://www.gowayfind.com/things-to-do/venice",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 1,
+          "missingIds": "ChIJNwQxUnFDw4gRlEruVgcCmu0"
+        },
+        {
+          "city": "tampa",
+          "url": "https://www.gowayfind.com/things-to-do/tampa",
+          "expected": 14,
+          "rendered": 14,
+          "missing": 1,
+          "missingIds": "ChIJd2yJDQLPwogRBAMcTq9DgF0"
+        },
+        {
+          "city": "orlando",
+          "url": "https://www.gowayfind.com/things-to-do/orlando",
+          "expected": 9,
+          "rendered": 9,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "miami",
+          "url": "https://www.gowayfind.com/things-to-do/miami",
+          "expected": 11,
+          "rendered": 11,
+          "missing": 0,
+          "missingIds": ""
+        }
+      ]
+    },
+    {
+      "heading": "restaurants (food:all)",
+      "columns": [
+        "city",
+        "expected",
+        "rendered",
+        "missing",
+        "missingIds",
+        "note",
+        "error"
+      ],
+      "rows": [
+        {
+          "city": "parrish",
+          "url": "https://www.gowayfind.com/restaurants/parrish",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "ellenton",
+          "url": "https://www.gowayfind.com/restaurants/ellenton",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "palmetto",
+          "url": "https://www.gowayfind.com/restaurants/palmetto",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "bradenton",
+          "url": "https://www.gowayfind.com/restaurants/bradenton",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "sarasota",
+          "url": "https://www.gowayfind.com/restaurants/sarasota",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "lakewood-ranch",
+          "url": "https://www.gowayfind.com/restaurants/lakewood-ranch",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "anna-maria-island",
+          "url": "https://www.gowayfind.com/restaurants/anna-maria-island",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "cortez",
+          "url": "https://www.gowayfind.com/restaurants/cortez",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "longboat-key",
+          "url": "https://www.gowayfind.com/restaurants/longboat-key",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "siesta-key",
+          "url": "https://www.gowayfind.com/restaurants/siesta-key",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "venice",
+          "url": "https://www.gowayfind.com/restaurants/venice",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "tampa",
+          "url": "https://www.gowayfind.com/restaurants/tampa",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "orlando",
+          "url": "https://www.gowayfind.com/restaurants/orlando",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "miami",
+          "url": "https://www.gowayfind.com/restaurants/miami",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        }
+      ]
+    },
+    {
+      "heading": "beaches (beach:beaches)",
+      "columns": [
+        "city",
+        "expected",
+        "rendered",
+        "missing",
+        "missingIds",
+        "note",
+        "error"
+      ],
+      "rows": [
+        {
+          "city": "parrish",
+          "url": "https://www.gowayfind.com/beaches/parrish",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "ellenton",
+          "url": "https://www.gowayfind.com/beaches/ellenton",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "palmetto",
+          "url": "https://www.gowayfind.com/beaches/palmetto",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "bradenton",
+          "url": "https://www.gowayfind.com/beaches/bradenton",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "sarasota",
+          "url": "https://www.gowayfind.com/beaches/sarasota",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 1,
+          "missingIds": "ChIJRy0ULSJCw4gRM0LkdIWTKCE"
+        },
+        {
+          "city": "lakewood-ranch",
+          "url": "https://www.gowayfind.com/beaches/lakewood-ranch",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "anna-maria-island",
+          "url": "https://www.gowayfind.com/beaches/anna-maria-island",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "cortez",
+          "url": "https://www.gowayfind.com/beaches/cortez",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "longboat-key",
+          "url": "https://www.gowayfind.com/beaches/longboat-key",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "siesta-key",
+          "url": "https://www.gowayfind.com/beaches/siesta-key",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 1,
+          "missingIds": "ChIJp6kyPa1Dw4gR5BhsSYE8pdo"
+        },
+        {
+          "city": "venice",
+          "url": "https://www.gowayfind.com/beaches/venice",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "tampa",
+          "url": "https://www.gowayfind.com/beaches/tampa",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "orlando",
+          "url": "https://www.gowayfind.com/beaches/orlando",
+          "expected": 2,
+          "rendered": 2,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "miami",
+          "url": "https://www.gowayfind.com/beaches/miami",
+          "expected": 10,
+          "rendered": 10,
+          "missing": 0,
+          "missingIds": ""
+        }
+      ]
+    },
+    {
+      "heading": "nightlife (nightlife:all)",
+      "columns": [
+        "city",
+        "expected",
+        "rendered",
+        "missing",
+        "missingIds",
+        "note",
+        "error"
+      ],
+      "rows": [
+        {
+          "city": "parrish",
+          "url": "https://www.gowayfind.com/nightlife/parrish",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "ellenton",
+          "url": "https://www.gowayfind.com/nightlife/ellenton",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "palmetto",
+          "url": "https://www.gowayfind.com/nightlife/palmetto",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "bradenton",
+          "url": "https://www.gowayfind.com/nightlife/bradenton",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "sarasota",
+          "url": "https://www.gowayfind.com/nightlife/sarasota",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "lakewood-ranch",
+          "url": "https://www.gowayfind.com/nightlife/lakewood-ranch",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "anna-maria-island",
+          "url": "https://www.gowayfind.com/nightlife/anna-maria-island",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "cortez",
+          "url": "https://www.gowayfind.com/nightlife/cortez",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "longboat-key",
+          "url": "https://www.gowayfind.com/nightlife/longboat-key",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "siesta-key",
+          "url": "https://www.gowayfind.com/nightlife/siesta-key",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "venice",
+          "url": "https://www.gowayfind.com/nightlife/venice",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "tampa",
+          "url": "https://www.gowayfind.com/nightlife/tampa",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "orlando",
+          "url": "https://www.gowayfind.com/nightlife/orlando",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        },
+        {
+          "city": "miami",
+          "url": "https://www.gowayfind.com/nightlife/miami",
+          "expected": 15,
+          "rendered": 15,
+          "missing": 0,
+          "missingIds": ""
+        }
+      ]
+    }
+  ]
+}
