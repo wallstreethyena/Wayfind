@@ -128,8 +128,10 @@ export function stripCommentsAndStrings(src) {
 
 const RENDER_RX = /\bjsxLoad\b|\bloadComponent\s*\(|ReactDOMServer|renderToStaticMarkup|renderToString|\bpuppeteer\b|\bplaywright\b|\bJSDOM\b/;
 const CHILDPROC_RX = /\bchild_process\b|\bspawnSync\s*\(|\bexecSync\s*\(|\bexecFileSync\s*\(|\bspawn\s*\(|\bfork\s*\(|\bexeca\s*\(/;
-const LIBAPP_IMPORT_RX = /(?:from|require\()\s*["']((?:\.{1,2}\/)+(?:lib|app)\/[^"']*|(?:lib|app)\/[^"']*)["']/;
-const DYNAMIC_IMPORT_LIBAPP_RX = /\bimport\s*\(\s*[^)]*["']((?:\.{1,2}\/)+(?:lib|app)\/[^"']*|(?:lib|app)\/[^"']*)["']/;
+// Edge Function helpers are production code too. An imported helper that is
+// called and checked by a guard must count the same way as lib/ and app/ code.
+const LIBAPP_IMPORT_RX = /(?:from|require\()\s*["']((?:\.{1,2}\/)+(?:lib|app|supabase\/functions)\/[^"']*|(?:lib|app|supabase\/functions)\/[^"']*)["']/;
+const DYNAMIC_IMPORT_LIBAPP_RX = /\bimport\s*\(\s*[^)]*["']((?:\.{1,2}\/)+(?:lib|app|supabase\/functions)\/[^"']*|(?:lib|app|supabase\/functions)\/[^"']*)["']/;
 // A handful of guards (e.g. test-book-it.mjs) copy a lib/ file into a temp
 // dir first (so a rewritten/stubbed copy can be imported under plain node)
 // and then `await import()` THAT path — the specifier never contains "lib/"
