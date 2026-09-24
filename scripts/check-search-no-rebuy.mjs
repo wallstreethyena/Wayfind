@@ -47,7 +47,7 @@ async function loadRoute(prelude) {
 }
 
 function harness({ google, inventoryRows = () => [] }) {
-  const state = { grants: 0, googleCalls: 0, cache: new Map(), invReads: 0, idUpserts: 0 };
+  const state = { grants: 0, googleCalls: 0, cache: new Map(), invReads: 0, idUpserts: 0, creditKeeps: 0 };
   const prelude = `
     const NextResponse = { json: (body, init) => ({ body, status: (init && init.status) || 200 }) };
     const gateFree = () => true, gateShut = () => false, textEnterpriseCap = () => null;
@@ -56,6 +56,7 @@ function harness({ google, inventoryRows = () => [] }) {
     const cget = async (k, opts) => { const r = __S.cache.get(k); if (!r) return null; return { v: r.v, stale: false, due: false, ageMs: 0 }; };
     const cset = async (k, v, ttl) => { __S.cache.set(k, { v, ttl }); };
     const upsertPlaceIds = async (rows) => { __S.idUpserts += (rows || []).length; };
+    const keepPhotoCredits = (places) => { __S.creditKeeps++; };
     const cacheConfigured = () => true, lastWrite = () => null, memSize = () => __S.cache.size;
     const DAY = 86400000;
     const serveFromInventory = async () => [];
@@ -91,6 +92,7 @@ const lean = (n) => Array.from({ length: n }, (_, i) => ({ id: "unowned" + i, di
   const r2 = await m.__handleSearch(P, "https://x.test");
   ok(Array.isArray(r1.body.places) && r1.body.places.length === 0, "A1: first answer is honestly empty (lean rows never reach the client)");
   ok(state.idUpserts === 20, "A2: the 20 discovered ids are still learned into wf_place_ids on the first buy");
+  ok(state.creditKeeps === 1 && state.googleCalls === 1, "A2b: photo credits are kept once, from the one paid answer (never a second Google call)");
   ok(state.grants === 1, `A3: two identical requests take ONE ledger grant (got ${state.grants}) — the re-buy loop`);
   ok(state.googleCalls === 1, `A4: Google is asked once, not twice (got ${state.googleCalls})`);
   ok(Array.isArray(r2.body.places) && r2.body.places.length === 0, "A5: second answer is still honestly empty, not a fabricated list");
