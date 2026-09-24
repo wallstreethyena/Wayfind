@@ -51,6 +51,8 @@ const FORGED_OWNER = { GIT_AUTHOR_NAME: "Gabriel Pereira", GIT_AUTHOR_EMAIL: "ga
 const LANE = { GIT_AUTHOR_NAME: "claude.exe (Wayfind lane)", GIT_AUTHOR_EMAIL: "lane@example.com", GIT_COMMITTER_NAME: "claude.exe (Wayfind lane)", GIT_COMMITTER_EMAIL: "lane@example.com" };
 const OWNER_LOGIN = OWNER_LOGINS[0];
 const OWNER_ID = OWNERS[0].id;
+// GitHub returns both timestamps; they are equal until the comment is edited.
+const T = { created_at: "2026-09-24T00:00:00Z", updated_at: "2026-09-24T00:00:00Z" };
 
 let checks = 0;
 const ok = (cond, msg) => { assert.ok(cond, msg); checks += 1; };
@@ -61,32 +63,36 @@ const git = (cwd, args, env = {}) => execFileSync("git", args, { cwd, encoding: 
 {
   const head = "a".repeat(40);
   const owner = { type: "User", login: OWNER_LOGIN, id: OWNER_ID };
-  ok(findOwnerApproval([{ id: 1, user: owner, body: `/owner-approve ${head}` }], head)?.id === 1, "owner comment naming the full head sha approves");
-  ok(findOwnerApproval([{ id: 2, user: { ...owner, login: OWNER_LOGIN.toUpperCase() }, body: `/owner-approve ${head}` }], head)?.id === 2, "logins compare case-insensitively");
-  ok(findOwnerApproval([{ id: 3, user: owner, body: `lgtm\n/owner-approve ${head.toUpperCase()}\nthanks` }], head)?.id === 3, "the command may sit on its own line inside a longer comment");
-  ok(findOwnerApproval([{ id: 4, user: owner, body: `/owner-approve ${head.slice(0, 12)}` }], head) === null && findOwnerApproval([{ id: 4, user: owner, body: `/owner-approve ${head.slice(0, 39)}` }], head) === null,
+  ok(findOwnerApproval([{ id: 1, ...T, user: owner, body: `/owner-approve ${head}` }], head)?.id === 1, "owner comment naming the full head sha approves");
+  ok(findOwnerApproval([{ id: 2, ...T, user: { ...owner, login: OWNER_LOGIN.toUpperCase() }, body: `/owner-approve ${head}` }], head)?.id === 2, "logins compare case-insensitively");
+  ok(findOwnerApproval([{ id: 3, ...T, user: owner, body: `lgtm\n/owner-approve ${head.toUpperCase()}\nthanks` }], head)?.id === 3, "the command may sit on its own line inside a longer comment");
+  ok(findOwnerApproval([{ id: 4, ...T, user: owner, body: `/owner-approve ${head.slice(0, 12)}` }], head) === null && findOwnerApproval([{ id: 4, ...T, user: owner, body: `/owner-approve ${head.slice(0, 39)}` }], head) === null,
     "a prefix never approves, only the full 40-character sha (a short prefix can be ground)");
-  ok(findOwnerApproval([{ id: 5, user: owner, body: `/owner-approve ${"b".repeat(12)}` }], head) === null, "a different commit never approves");
-  ok(findOwnerApproval([{ id: 6, user: owner, body: `please /owner-approve ${head.slice(0, 12)}` }], head) === null, "a mid-line mention is not the command");
-  ok(findOwnerApproval([{ id: 7, user: { type: "User", login: "someone-else", id: 1 }, body: `/owner-approve ${head}` }], head) === null, "a non-owner login never approves");
-  ok(findOwnerApproval([{ id: 8, user: { type: "Bot", login: OWNER_LOGIN, id: OWNER_ID }, body: `/owner-approve ${head}` }], head) === null, "a bot account never approves");
-  ok(findOwnerApproval([{ id: 9, user: { type: "User", login: OWNER_LOGIN, id: OWNER_ID + 1 } , body: `/owner-approve ${head}` }], head) === null
-    && findOwnerApproval([{ id: 9, user: { type: "User", login: OWNER_LOGIN }, body: `/owner-approve ${head}` }], head) === null,
+  ok(findOwnerApproval([{ id: 5, ...T, user: owner, body: `/owner-approve ${"b".repeat(12)}` }], head) === null, "a different commit never approves");
+  ok(findOwnerApproval([{ id: 6, ...T, user: owner, body: `please /owner-approve ${head.slice(0, 12)}` }], head) === null, "a mid-line mention is not the command");
+  ok(findOwnerApproval([{ id: 7, ...T, user: { type: "User", login: "someone-else", id: 1 }, body: `/owner-approve ${head}` }], head) === null, "a non-owner login never approves");
+  ok(findOwnerApproval([{ id: 8, ...T, user: { type: "Bot", login: OWNER_LOGIN, id: OWNER_ID }, body: `/owner-approve ${head}` }], head) === null, "a bot account never approves");
+  ok(findOwnerApproval([{ id: 9, ...T, user: { type: "User", login: OWNER_LOGIN, id: OWNER_ID + 1 } , body: `/owner-approve ${head}` }], head) === null
+    && findOwnerApproval([{ id: 9, ...T, user: { type: "User", login: OWNER_LOGIN }, body: `/owner-approve ${head}` }], head) === null,
     "the owner's login on a different (or missing) account id never approves: a re-registered login is not the owner");
-  ok(findOwnerApproval([{ id: 9, user: owner, body: `/owner-approve ${head}` }], "not-a-sha") === null, "no valid head, no approval");
+  ok(findOwnerApproval([{ id: 9, ...T, user: owner, body: `/owner-approve ${head}` }], "not-a-sha") === null, "no valid head, no approval");
+  ok(findOwnerApproval([{ id: 10, created_at: T.created_at, updated_at: "2026-09-24T00:05:00Z", user: owner, body: `/owner-approve ${head}` }], head) === null
+    && findOwnerApproval([{ id: 11, user: owner, body: `/owner-approve ${head}` }], head) === null,
+    "an EDITED comment never approves (anyone with write access can edit it), nor one without timestamps");
   ok(findOwnerApproval(null, head) === null && findOwnerApproval([null, { body: 1 }], head) === null, "malformed comment lists never approve or throw");
   ok(isOwnerOnly("CLAUDE.md") && isOwnerOnly("AGENTS.md") && isOwnerOnly("docs/card-standard.md") && isOwnerOnly("scripts/check-doc-ownership.mjs")
     && isOwnerOnly("scripts/lib/ownerApproval.mjs") && isOwnerOnly(".github/workflows/guards.yml") && isOwnerOnly(".github/workflows/owner-approval.yml")
     && isOwnerOnly("scripts/check-owner-approval-pr.mjs") && isOwnerOnly("scripts/lib/githubPullEvidence.mjs") && isOwnerOnly("scripts/test-owner-approval.mjs")
     && isOwnerOnly("claude.md") && isOwnerOnly("Agents.MD") && isOwnerOnly("docs/x-Standard.md")
-    && !isOwnerOnly("docs/history/x.md") && !isOwnerOnly("lib/x.js") && !isOwnerOnly(".github/workflows/canary.yml"),
-  "owner-only set covers the rule files and the gate's own enforcement, case-insensitively, nothing else");
+    && isOwnerOnly(".github/workflows/canary.yml") && isOwnerOnly(".github/workflows/new-workflow.yml")
+    && !isOwnerOnly("docs/history/x.md") && !isOwnerOnly("lib/x.js") && !isOwnerOnly("docs/github/x.md"),
+  "owner-only set covers the rule files, the gates' own code and everything under .github/, case-insensitively, nothing else");
   const base = { changedPaths: ["CLAUDE.md"], mergeGate: true, pr: { number: 7, eventHeadSha: head, liveHeadSha: head }, comments: [], error: null };
   ok(decideOwnerApproval({ ...base, changedPaths: ["lib/x.js"] }).ok, "decision: ordinary change passes");
-  ok(!decideOwnerApproval({ ...base, mergeGate: false, comments: [{ id: 1, user: owner, body: `/owner-approve ${head}` }] }).ok, "decision: off the merge gate even a real approval is not accepted");
+  ok(!decideOwnerApproval({ ...base, mergeGate: false, comments: [{ id: 1, ...T, user: owner, body: `/owner-approve ${head}` }] }).ok, "decision: off the merge gate even a real approval is not accepted");
   ok(!decideOwnerApproval({ ...base, error: "boom" }).ok && !decideOwnerApproval({ ...base, pr: null }).ok, "decision: missing evidence fails closed");
-  ok(!decideOwnerApproval({ ...base, pr: { number: 7, eventHeadSha: head, liveHeadSha: "c".repeat(40) }, comments: [{ id: 1, user: owner, body: `/owner-approve ${"c".repeat(40)}` }] }).ok, "decision: a head that moved after the run started fails");
-  ok(decideOwnerApproval({ ...base, comments: [{ id: 1, user: owner, body: `/owner-approve ${head}` }] }).ok, "decision: owner approval of the exact head passes");
+  ok(!decideOwnerApproval({ ...base, pr: { number: 7, eventHeadSha: head, liveHeadSha: "c".repeat(40) }, comments: [{ id: 1, ...T, user: owner, body: `/owner-approve ${"c".repeat(40)}` }] }).ok, "decision: a head that moved after the run started fails");
+  ok(decideOwnerApproval({ ...base, comments: [{ id: 1, ...T, user: owner, body: `/owner-approve ${head}` }] }).ok, "decision: owner approval of the exact head passes");
   ok(decideOwnerApproval({ ...base, comments: [] }).reason.includes(`/owner-approve ${head}"`), "decision: the refusal prints the full sha to paste");
 }
 
@@ -161,7 +167,7 @@ globalThis.fetch = async (url, init = {}) => {
     catch (e) { code = e.status ?? 1; out = `${e.stdout || ""}${e.stderr || ""}`; }
     return { code, out, calls: readFileSync(log, "utf8").split("\n").filter(Boolean) };
   };
-  const approve = (sha, login = OWNER_LOGIN, type = "User", prefix = "") => ({ id: 100 + runN, user: { login, type, id: login === OWNER_LOGIN ? OWNER_ID : 4242 }, body: `${prefix}/owner-approve ${sha}` });
+  const approve = (sha, login = OWNER_LOGIN, type = "User", prefix = "") => ({ id: 100 + runN, ...T, user: { login, type, id: login === OWNER_LOGIN ? OWNER_ID : 4242 }, body: `${prefix}/owner-approve ${sha}` });
 
   // A. no owner-only change -> pass, locally and on the gate, with no API call.
   const plain = branch([["lib/thing.js", "export const a = 1;\n"]]);
@@ -236,7 +242,7 @@ globalThis.fetch = async (url, init = {}) => {
   ok(r.code === 1 && r.out.includes(`/owner-approve ${H}`), `P B: unapproved CLAUDE.md change fails and names the command (${r.code}: ${r.out.trim()})`);
   r = pr({ files: [file("CLAUDE.md")], comments: [approve(H)] });
   ok(r.code === 0 && new RegExp(`approved by @${OWNER_LOGIN}`).test(r.out), `P D: owner approval of the exact head passes (${r.code}: ${r.out.trim()})`);
-  const filler = Array.from({ length: 100 }, (_, i) => ({ id: i + 1, user: { login: "someone", type: "User", id: 7 }, body: "noise" }));
+  const filler = Array.from({ length: 100 }, (_, i) => ({ id: i + 1, ...T, user: { login: "someone", type: "User", id: 7 }, body: "noise" }));
   r = pr({ files: [file("CLAUDE.md")], comments: [...filler, approve(H)], pageSize: 100 });
   ok(r.code === 0 && r.calls.some((c) => /\/issues\/1478\/comments\?per_page=100&page=2/.test(c)), `P D: an approval on the second page of comments is found (pagination read) (${r.code})`);
   r = pr({ files: [file("CLAUDE.md")], comments: [approve(H, "wayfind-agent"), approve(H, OWNER_LOGIN, "Bot")] });
@@ -294,7 +300,7 @@ globalThis.fetch = async (url, init = {}) => {
   ok(uses.length === 2 && uses.every((u) => /@[0-9a-f]{40}$/.test(u)), `owner-approval pins every action to a full commit sha (${uses.join(", ")})`);
 }
 
-const EXPECTED = 64;
+const EXPECTED = 65;
 if (checks !== EXPECTED) {
   console.error(`test-owner-approval: FAIL — ran ${checks} assertions, expected exactly ${EXPECTED}; a proof was skipped or added without review.`);
   process.exit(1);
