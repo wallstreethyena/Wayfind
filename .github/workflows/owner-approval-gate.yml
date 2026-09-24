@@ -1,0 +1,58 @@
+# .github/workflows/owner-approval-gate.yml — THE OWNER GATE (2026-09-24).
+#
+# Posts the "owner-approval-gate" check AS the Wayfind Owner Gate GitHub App.
+# Branch protection pins that required check to the App's id, so a check with
+# the same name from any other source (for example a job a pull request adds to
+# its own workflow) does not satisfy it. The App's private key is an environment
+# secret of "owner-gate", whose deployment branch policy admits main only; this
+# workflow runs on pull_request_target and issue_comment, which GitHub always
+# runs from main. The rule it applies is scripts/lib/ownerApproval.mjs, read from
+# main. See docs/OWNER_APPROVAL.md.
+#
+# SECURITY: pull_request_target runs in the base repository's context with a
+# secret in reach. This job never checks out, installs or runs anything from the
+# pull request, never puts event text into a shell command, and reads the pull
+# request only as API data with a read-only token. The App token is used for one
+# call: creating the check run. scripts/test-owner-approval-gate.mjs fails if any
+# of that changes.
+name: owner-approval-gate
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, edited, ready_for_review]
+  issue_comment:
+    types: [created, edited, deleted]
+permissions:
+  contents: read
+  pull-requests: read
+  issues: read
+jobs:
+  owner-gate-runner:
+    name: owner-gate-runner
+    # Only pull request events and comments that carry (or, when edited, used to
+    # carry) the approval command, so removing an approval re-evaluates too.
+    # Concurrency lives on the job, not the workflow, so an unrelated comment
+    # (its job is skipped) can never cancel a gate run that is in progress.
+    if: github.event_name == 'pull_request_target' || (github.event.issue.pull_request && (contains(github.event.comment.body, '/owner-approve') || contains(github.event.changes.body.from, '/owner-approve')))
+    concurrency:
+      group: owner-approval-gate-${{ github.event.pull_request.number || github.event.issue.number }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment:
+      name: owner-gate
+      deployment: false
+    steps:
+      - name: Check out main (never the pull request)
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          sparse-checkout: scripts
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - name: Post the owner-approval-gate check as the Owner Gate App
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          OWNER_GATE_APP_ID: ${{ vars.OWNER_GATE_APP_ID }}
+          OWNER_GATE_PRIVATE_KEY: ${{ secrets.OWNER_GATE_PRIVATE_KEY }}
+        run: node scripts/owner-approval-gate.mjs
