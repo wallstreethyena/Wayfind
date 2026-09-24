@@ -15,7 +15,7 @@
 // drop the 30-day cap, and this guard fails (each has a positive control).
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { extractPhotoCredits, recordPhotoCredits, MAX_PLACES, MAX_PHOTOS_PER_PLACE } from "../lib/photoCredits.js";
+import { extractPhotoCredits, recordPhotoCredits, pickCachedCredits, MAX_PLACES, MAX_PHOTOS_PER_PLACE } from "../lib/photoCredits.js";
 
 let n = 0;
 const ok = (c, m) => { assert.ok(c, m); n++; };
@@ -76,5 +76,19 @@ ok(!/googleapis/.test(read("lib/photoCredits.js")), "lib/photoCredits.js has no 
 const mig = read("supabase/migrations/20260924120000_wf_photo_credit.sql");
 ok(/enable row level security/.test(mig) && /using \(expires_at > now\(\)\)/.test(mig), "table has RLS and hides expired credits");
 ok(/revoke all on public\.wf_photo_credit from public, anon, authenticated;/.test(mig) && /grant select on public\.wf_photo_credit to anon, authenticated;/.test(mig), "readers can only SELECT");
+
+// 7. The reader endpoint only pairs a credit with the EXACT cached photo.
+const cr = (name, pid, o = {}) => ({ photo_name: `places/${pid}/photos/${name}`, place_id: pid, author_name: "A", author_uri: "https://maps.google.com/maps/contrib/1", maps_uri: "https://www.google.com/maps/x", ...o });
+const liveSet = new Set(["places/ChIJa/photos/C1", "places/ChIJa/photos/C2", "places/ChIJa/photos/C3", "places/ChIJa/photos/C4", "places/ChIJb/photos/X"]);
+const picked = pickCachedCredits([cr("C1", "ChIJa"), cr("NOTCACHED", "ChIJa"), cr("C2", "ChIJa"), cr("C3", "ChIJa"), cr("C4", "ChIJa"), cr("X", "ChIJb")], liveSet);
+ok(picked.some((p) => p.photo_name.endsWith("/C1")) && picked.some((p) => p.place_id === "ChIJb"), "cached + credited photos are returned (positive control)");
+ok(!picked.some((p) => p.photo_name.endsWith("/NOTCACHED")), "a credit whose photo is not cached is never returned");
+ok(picked.filter((p) => p.place_id === "ChIJa").length === 3, "at most 3 per place");
+ok(pickCachedCredits([{ ...cr("X", "ChIJb"), place_id: "ChIJa" }], liveSet).length === 0, "a credit row claiming another place is refused");
+const route = read("app/api/photo-credits/route.js");
+ok(!/googleapis/.test(route), "/api/photo-credits has no Google endpoint");
+ok(/photoCacheKey\(`places\/\$\{id\}\/photos\/\*`, CACHE_WIDTH\)/.test(route) && /const CACHE_WIDTH = 640;/.test(route), "reads the same photo|<name>|640 rows /api/photo serves");
+ok(/exp=gt\./.test(route) && /expires_at=gt\./.test(route), "only live cache rows and live credits");
+ok(/pickCachedCredits\(credits, live\)/.test(route), "route uses the tested pairing function");
 
 console.log(`test-photo-credits: ${n} assertions passed`);
