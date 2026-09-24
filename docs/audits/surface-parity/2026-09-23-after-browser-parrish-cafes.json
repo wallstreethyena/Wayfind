@@ -1,0 +1,125 @@
+{
+  "title": "Surface parity audit (browser level) — after-browser-parrish-cafes",
+  "generatedAt": "2026-09-24T01:48:19.138Z",
+  "meta": {
+    "level": "browser",
+    "base": "https://www.gowayfind.com",
+    "label": "after-browser-parrish-cafes",
+    "cities": [
+      "custom"
+    ],
+    "keys": [
+      "food:cafes"
+    ],
+    "radiusRequestedM": 27359,
+    "radiusSnappedM": 32000,
+    "sliderMi": 17
+  },
+  "summary": {
+    "totalChecked": 211,
+    "totalEligible": 211,
+    "totalFail": 0,
+    "distinctPlacesAffected": 0,
+    "byClass": {
+      "eligibility_passed_api_omitted": 0,
+      "api_included_ui_omitted": 0,
+      "map_list_mismatch": 0,
+      "pagination_invisibility": 0,
+      "cache_drift": 0,
+      "dedupe_suppression_error": 0,
+      "location_origin_mismatch": 0,
+      "seasonal_tagging_gap": 0
+    },
+    "distinctPlacesByClass": {
+      "eligibility_passed_api_omitted": 0,
+      "api_included_ui_omitted": 0,
+      "map_list_mismatch": 0,
+      "pagination_invisibility": 0,
+      "cache_drift": 0,
+      "dedupe_suppression_error": 0,
+      "location_origin_mismatch": 0,
+      "seasonal_tagging_gap": 0
+    },
+    "distinctPlacesByClassExcludingRyans": {
+      "eligibility_passed_api_omitted": 0,
+      "api_included_ui_omitted": 0,
+      "map_list_mismatch": 0,
+      "pagination_invisibility": 0,
+      "cache_drift": 0,
+      "dedupe_suppression_error": 0,
+      "location_origin_mismatch": 0,
+      "seasonal_tagging_gap": 0
+    }
+  },
+  "pairSummaries": [
+    {
+      "city": "custom",
+      "key": "food:cafes",
+      "eligible": 211,
+      "grantedLat": 27.5689,
+      "grantedLng": -82.4393,
+      "capturedLat": 27.5689,
+      "capturedLng": -82.4393,
+      "capturedUrl": "https://www.gowayfind.com/api/places/search?q=inventory&lat=27.5689&lng=-82.4393&radius=27359&n=400&cat=food&inv=1&sub=cafes",
+      "sameOriginOk": true,
+      "capturedEligibleCount": null,
+      "apiResponseCount": 211,
+      "apiResponseCacheHeader": "HIT",
+      "apiResponseHasMore": false,
+      "rendered": 93,
+      "mapHookPresent": false,
+      "mapPins": 0,
+      "loadMoreClicks": 0,
+      "missing": 118,
+      "sliderMi": 17,
+      "legitDisplayRadius": 107,
+      "legitBrandCollapse": 11,
+      "unexpectedCardIncomplete": 0,
+      "continuationExhausted": true,
+      "uiEligible": 93,
+      "browserNextPageReachable": true
+    }
+  ],
+  "affectedPlacesByClass": {
+    "eligibility_passed_api_omitted": {
+      "totalEntries": 0,
+      "truncated": false,
+      "entries": []
+    },
+    "api_included_ui_omitted": {
+      "totalEntries": 0,
+      "truncated": false,
+      "entries": []
+    },
+    "map_list_mismatch": {
+      "totalEntries": 0,
+      "truncated": false,
+      "entries": []
+    },
+    "pagination_invisibility": {
+      "totalEntries": 0,
+      "truncated": false,
+      "entries": []
+    },
+    "cache_drift": {
+      "totalEntries": 0,
+      "truncated": false,
+      "entries": []
+    },
+    "dedupe_suppression_error": {
+      "totalEntries": 0,
+      "truncated": false,
+      "entries": []
+    },
+    "location_origin_mismatch": {
+      "totalEntries": 0,
+      "truncated": false,
+      "entries": []
+    },
+    "seasonal_tagging_gap": {
+      "totalEntries": 0,
+      "truncated": false,
+      "entries": []
+    }
+  }
+}

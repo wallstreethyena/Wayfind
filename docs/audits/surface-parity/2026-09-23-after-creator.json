@@ -1,0 +1,2791 @@
+{
+  "title": "Surface parity audit (creator level) — after-creator",
+  "generatedAt": "2026-09-24T02:16:45.455Z",
+  "meta": {
+    "level": "creator",
+    "base": "https://www.gowayfind.com",
+    "label": "after-creator",
+    "creators": 89,
+    "pairsChecked": 318
+  },
+  "summary": {
+    "creators": 89,
+    "pairsChecked": 318,
+    "operationalCount": 193,
+    "resolverFail": 0,
+    "pageFail": 0,
+    "lines": [
+      "89 creators, 318 distinct (creator, place-id) pairs",
+      "193 OPERATIONAL in inventory (the rest are out of scope: not operational / not in inventory)",
+      "0 fail the real creatorVideosFor() resolver against their live inventory row",
+      "0 are missing from their creator's own live /creators/<handle> page (page-eligible creators only)"
+    ]
+  },
+  "sections": [
+    {
+      "heading": "Failing pairs (resolver and/or creator page)",
+      "columns": [
+        "handle",
+        "placeId",
+        "name",
+        "resolverOk",
+        "hasPage",
+        "pageOk"
+      ],
+      "rows": []
+    },
+    {
+      "heading": "All checked pairs",
+      "note": "Full detail for every OPERATIONAL (creator, place) pair, plus out-of-scope (non-operational) ones.",
+      "columns": [
+        "handle",
+        "placeId",
+        "name",
+        "operational",
+        "resolverOk",
+        "hasPage",
+        "pageOk",
+        "note"
+      ],
+      "rows": [
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJ18poUgC32YgRBBvIMo3rIH8",
+          "name": "Boûlan Wynwood",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJxXAWDgCl2YgRjgwndTs5qbk",
+          "name": "El Churrascaso Grill - Miami Lakes",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJA3BFE2G72YgRJ13Z8fc5eto",
+          "name": "Pronto Cafe",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJWaAhpcG72YgRzHo_xlU6wLk",
+          "name": "Alfreds Bakery",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJlZFyCaC22YgRbFtPKFIFrRM",
+          "name": "Kaseya Center",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJiVoQKPW32YgRcBqp1YYscZ8",
+          "name": "Arepera Araguaney",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJLdM5b4_p2YgRMMBQSpU30L0",
+          "name": "South Florida Off Road Tours",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJS6usPha72YgRyZo3Xspq74Q",
+          "name": "Aloha Catering Miami",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJ71QojyS32YgRUy2lCCIsHxI",
+          "name": "La Esquina del Chicharrón",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJPQBFR8mpxIgRUFHMPbfyzuk",
+          "name": "Manasota Key Resort",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJcYG4UWq_2YgRE7QTzwGqb5Q",
+          "name": "Rio Grande Churrascaria",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJXQKnpwKx2YgRpmpajKBcSsM",
+          "name": "Madame Olivia Midtown",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJ50CQep252YgRIBXSGDitzVk",
+          "name": "Hakuna Matata Pizzeria",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJy7RVBQC52YgRvXZ6o8vXHq8",
+          "name": "La Macha Taqueria",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJcyAwPKy22YgRDQNU5lP6UVI",
+          "name": "Mister O1 Extraordinary Pizza",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJeypiAQK32YgR5snBbBJSwxA",
+          "name": "Mister 11:11",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJz-3g0sDB2YgRO6WGPpqPHa0",
+          "name": "Inka Nikkei",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJNa1-V2O12YgRAqLfC-1lsb0",
+          "name": "The Best Açaí",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJO5IyrXW32YgRnyXQP2MkKnE",
+          "name": "Veganlitaly",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJUaUivXS82YgRbT4THNosftc",
+          "name": "Sano Food Doral",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJnc76dwC52YgREdu7Qa8PasU",
+          "name": "Blast House Burgers",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJSdJjH-Wy2YgRUDTeZcMZAYo",
+          "name": "7tyone",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJc4yzjOmz2YgRZL2ZoQs9QlY",
+          "name": "Madame Olivia North Miami",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJj84kH5e72YgR3ZT20enUvB8",
+          "name": "Fresh Salad Miami",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJhUvU1XW32YgR9VD9MK8CMLU",
+          "name": "Hot Dog Maracay",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJH2nbBnC32YgRnNJ3RywrVOk",
+          "name": "The Barking Bun",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJdwA2tJml2YgRQmKB5vDJgHw",
+          "name": "El Lider Miami",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJ-W890xS72YgRy7dmUNbvdYU",
+          "name": "Pal Perrero",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJOaxANQeh2YgRFppt3GMgsJ8",
+          "name": "Forages",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJ3QbpMBe72YgR_zGWHA1zLuo",
+          "name": "Crete Frozen Yogurt",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJYViXK5-12YgRqxd40YLsIDs",
+          "name": "San Marco Miami",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJ2ZZybj-r2YgRzW-AJXm_GKU",
+          "name": "Sardelli's Italian Steakhouse",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJeScTbwa32YgRwfibKQG-Bxg",
+          "name": "Niño Gordo Wynwood",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJh7DSwQe82YgRAxyadBFFXPw",
+          "name": "Parrillada Familiar Da Silva",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJjeUh8Tu32YgRY4P9OJblnB4",
+          "name": "STL Café",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJF1LSW0S32YgRjBhh4JsaQfo",
+          "name": "MŌKAH",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJa8EUn-632YgRCPUPVpld-LI",
+          "name": "Sawa Restaurant & Lounge",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJExeuhVm32YgRxtpe7J2Pfl0",
+          "name": "Balloon Museum",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJc31-dGSx2YgRfPu3z13tJ0M",
+          "name": "Oh Mamma",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJOZcVZ9S72YgRAek77F8bufE",
+          "name": "Brutal Pepitos",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJV7tZbwC72YgRbiUCKntZn6g",
+          "name": "Piacere Wood Fired Pizza",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJ-x7MrSS52YgRzkbWmZlQfFM",
+          "name": "Mister Corn",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJrbQZBQC_2YgRVlOuC4y6r54",
+          "name": "El Sushi by Soya",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJZ1SqfrK22YgRsnv5agRpB9w",
+          "name": "Plant the Future",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJhRdita6n2YgRAXGrnFK-BH0",
+          "name": "Southwest Ranches Farmer's Market",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJq19C-PK72YgRlgO2-QusVy0",
+          "name": "SiFÚ DORAL",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJxV7_BnIJ2YgRx70VLv4ncu4",
+          "name": "Rosso Coffee Club",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJmTRdUKO32YgRG_aLnXYf5HA",
+          "name": "305 Peruvian Modern Cuisine",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJo_QCg1-r2YgR68lZFkEcwBI",
+          "name": "ETARU",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJJ22PHSG52YgRA_B3TOLKzCA",
+          "name": "PINCHO",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJ_1YhUzur2YgReuu9jiegbIQ",
+          "name": "Rio Grande Churrascaria Hollywood",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJ8Qku8Fa72YgR2nvM9nRyE7c",
+          "name": "Parrilla Point",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJjThZb8Gh2YgRXPsrehmDaFc",
+          "name": "Frenchies Calientes Hot Dog",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJxXnzwtG72YgR2ngEfSeKA20",
+          "name": "Na'guara hot dogs",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJ9_gKQCix2YgRoLXkxdjuleE",
+          "name": "Diyon Hotdogs",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJy_82XJ232YgRyMPLruA8h8w",
+          "name": "Metro Caracas Hotdog",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJBwFsXuW32YgREo290MTrQHM",
+          "name": "Casa Tua Cucina Wynwood",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJJffET7632YgRolxzqJYaBcc",
+          "name": "AVA MediterrAegean Coconut Grove",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJz4Ucz5Lp2YgRG9sCckMPEQ0",
+          "name": "By Brothers",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJZ6cL0-e32YgRPRoWEZzYz88",
+          "name": "Lira House Wynwood",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJCSwptQKt2YgRYw-RZ3Xkl-8",
+          "name": "Lentrecote French Restaurant",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJqU2oA4m32YgRYwF5JdM4I38",
+          "name": "Superblue Miami",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJDYJ34TG32YgRL6OSt-0n5ss",
+          "name": "Le Specialita Café & Market by Ignazio and Maggio Cipriani",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJgfpf6Qm32YgRGTHIgOFBjW4",
+          "name": "Majestic Portuguese Bakehouse",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJl2S_W9Lr2YgRtdR9_YtEUHU",
+          "name": "Milagros Farm",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJhe3DKSu32YgRVOWZEyWPqdo",
+          "name": "Mayami Wynwood",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJBaHYVHq72YgRRJ6ayeJqRpo",
+          "name": "Tu Sancocho Express",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJxQ7i2J-x2YgR4VgRLlrYkNs",
+          "name": "Pasta e Basta",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJw0TRvEat2YgROpFgeN-2rc4",
+          "name": "Signor Sassi",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJE_-bfqi32YgRuEbR3HQXiq4",
+          "name": "El Ñaño Miami",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJze21JQC72YgRI4f9-Z7ofEY",
+          "name": "Mangiamo",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "gabrielaromero11",
+          "placeId": "ChIJab7ZGDu32YgR377f_tXuWzU",
+          "name": "Canta Corazón Wynwood",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJG-Tq3xy32YgR7QyvDubSiLA",
+          "name": "Yamashiro Miami",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJqZppyNO72YgRGGXMaUINCMM",
+          "name": "Tres Leches Factory",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJA3BFE2G72YgRJ13Z8fc5eto",
+          "name": "Pronto Cafe",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJKQXHdmfDwogRJFCLuT7eJ6I",
+          "name": "Bern's Steak House",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJd_ueXDW_2YgR_KpiHatf9mA",
+          "name": "Carvel",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJuUT523632YgRBMFdMCwrT7A",
+          "name": "Miami Slice Coconut Grove",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJE62csu632YgRyNLkXVYldRo",
+          "name": "Shops at Merrick Park",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJAQDA5oO22YgRgz9gUAZZk4c",
+          "name": "Ockap Caviar & Cuisine",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJQ47WSc232YgRAjB9GMNA6I8",
+          "name": "Takay",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJjexh77G32YgRjlfjbczZVVQ",
+          "name": "Buccan Sandwich Shop",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJ5UFpka3H2YgRtMJVgnk4JwE",
+          "name": "Honey Veil South Miami",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJ3Xp9YOGt2YgRIQUPDTGnNmE",
+          "name": "PopUp Bagels",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJfUZrOACn2YgR--4cIuDDuzQ",
+          "name": "Hausmash",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJO2jhb4m32YgRvulhfY9IMx0",
+          "name": "Venetian Pool",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJmV2XCADd2YgRde64fCaxsmc",
+          "name": "Taco Mexico",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJF6pqghMB2YgRl7OIepJ4H0s",
+          "name": "MAASS Restaurant at The Four Seasons",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJWx-tm-Sx2YgR-WmuniqfB_g",
+          "name": "Karyu",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJN6KbW5kB2YgRADEpRSHNiU8",
+          "name": "Daniel's, A Florida Steakhouse",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJ21LFT4a32YgRyb1IpODQgs4",
+          "name": "Drinking Pig BBQ",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJhw4bDvq22YgRt1rD2Am4AxY",
+          "name": "Sanguich",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJzwEW8bK32YgRoeQcKaBkwrs",
+          "name": "Over Under",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJzSTGD_rF2YgRur0EKGn_Gsg",
+          "name": "Cry Baby Creamery",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJPy3IMAKy2YgRfP0FgOWAG2U",
+          "name": "Edan Bistro",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJd24p_Wut2YgREj-DrhuLKEU",
+          "name": "Humo Bodegon",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJy1mepf-32YgRbyBzPI647n4",
+          "name": "Voodoo Doughnut",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJfR41HgDH2YgRPJvOcefxI0c",
+          "name": "Skinny Louie",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJ3zmyGIsJ2YgRVTBoYAuLo8c",
+          "name": "Delicious by Carlotta Gelati",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJ5927yBu32YgRhW6nCcO80-g",
+          "name": "My Cousin Nick",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJr6p-2SKn2YgRq7wT9LkBsvk",
+          "name": "Wunderbar German Kitchen & Biergarten",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJIf5xTgC32YgRChhM8pC28cU",
+          "name": "MYKA Greek Frozen Yogurt",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJM5vU2qS32YgReejUakiPOQ4",
+          "name": "Francesco Martucci",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJY47wgm7B2YgR4eWL-Iy4bn8",
+          "name": "Hate Mondays Tavern",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJyZpQsa222YgRTVzO326qSV8",
+          "name": "Ghee Indian Kitchen",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJA0WpTAG52YgRI9H50ZhfmqE",
+          "name": "Charlie's Ice Cream",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJte0b2xux2YgRr8f-xaLb0jw",
+          "name": "Boia De",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJy7ck47K32YgRdj5lpfRK5uU",
+          "name": "Go Greek Yogurt",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJ6XVQENW32YgRTWc7CXMsAjo",
+          "name": "Yauca",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJk5Z6oJDG2YgRyAWZS8mqhNM",
+          "name": "The Butcher Shop",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "iviethefoodie",
+          "placeId": "ChIJXRQFsCS32YgR7FGFBSuy-p4",
+          "name": "Papo Llega Y Pon",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "tampaiman",
+          "placeId": "ChIJ3TJxHZvHwogRwn4HI0koZbg",
+          "name": "Farooj Abo AlAbed",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "tampaiman",
+          "placeId": "ChIJ6zjZ8QzHwogRqmeLP6LbLuo",
+          "name": "Slap Burger Tampa",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "tampaiman",
+          "placeId": "ChIJXYwN3-XlwogRa3yrxh22C7o",
+          "name": "Oou Cha",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "eatsbylaurr",
+          "placeId": "ChIJb0Uq9LLzwogRmm6jXRaFuEQ",
+          "name": "Madison Avenue Pizza",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "eatsbylaurr",
+          "placeId": "ChIJ3TJxHZvHwogRwn4HI0koZbg",
+          "name": "Farooj Abo AlAbed",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "eatsbylaurr",
+          "placeId": "ChIJ6zjZ8QzHwogRqmeLP6LbLuo",
+          "name": "Slap Burger Tampa",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "eatsbylaurr",
+          "placeId": "ChIJC7huKWvFwogRBkI-LJuEHx8",
+          "name": "Tommy's Chophouse",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "eatsbylaurr",
+          "placeId": "ChIJv30X8SzHwogRVHpiMio-n70",
+          "name": "Roasted!",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "eatsbylaurr",
+          "placeId": "ChIJjVv1s8PBwogRKcHMfbnnYiQ",
+          "name": "Sogna Napoli Trattoria & Pizzeria",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "eatsbylaurr",
+          "placeId": "ChIJm_MbVcLHwogRdDvs5papv1A",
+          "name": "Burger Culture Lutz",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "eatsbylaurr",
+          "placeId": "ChIJiQg4SH7FwogRREQj9LKv9JA",
+          "name": "Lady and the Mug Specialty Coffee Shop",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "eatsbylaurr",
+          "placeId": "ChIJpYJWz2_FwogRdPdhUqFdUYg",
+          "name": "Bodega Bus",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "eatsbylaurr",
+          "placeId": "ChIJL3wQOF3DwogRspNmaImYNks",
+          "name": "SoDough Square",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "eatsbylaurr",
+          "placeId": "ChIJl4yUMAC3wogRIsIpAqpCHRs",
+          "name": "Ebisu Tampa",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "eatsbylaurr",
+          "placeId": "ChIJObt0oc3FwogRp6S69IOrc98",
+          "name": "Brewly cafe",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "eatsbylaurr",
+          "placeId": "ChIJ3Rit2Qq5wogRKv1xCNAklSs",
+          "name": "Station House BBQ",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "eatsbylaurr",
+          "placeId": "ChIJo9jsaGTOwogRdOmdOfqbAxc",
+          "name": "Ploy Thai",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "eatsbylaurr",
+          "placeId": "ChIJsxvw2YvEwogRCqbQZ7wpHUE",
+          "name": "SoFresh - Healthy Salads, Wraps & Bowls",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "eatsbylaurr",
+          "placeId": "ChIJy0nsMePHwogRDUr5WXBynR8",
+          "name": "Cairo Cravings",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "eatsbylaurr",
+          "placeId": "ChIJm6YHl4PhwogRHXgaRna2Ndc",
+          "name": "Brick & Mortar",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "eatsbylaurr",
+          "placeId": "ChIJ12-F9xTHwogR2epNwOfvBfU",
+          "name": "Naz's Halal Food",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "eatsbylaurr",
+          "placeId": "ChIJLYqwFgDBwogR8jv9-KOOKAc",
+          "name": "Perro Y Salsa",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "eatsbylaurr",
+          "placeId": "ChIJ352SLTf3wogR5QAhr23PJhE",
+          "name": "Marina Grille",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "eatsbylaurr",
+          "placeId": "ChIJL_P88M3HwogRxAdUGTdrcQE",
+          "name": "The Red Bird",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "eatsbylaurr",
+          "placeId": "ChIJ9VVjJQA5w4gRgCmeYa3DAMM",
+          "name": "Ganges Restaurant & Bar",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "eatsbylaurr",
+          "placeId": "ChIJ4VV6ppbDwogRbOl5NqhG6kA",
+          "name": "Sunda New Asian",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "eatsbylaurr",
+          "placeId": "ChIJwZnbpBHpwogR3PZgkgesIoc",
+          "name": "alimento",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "eatsbylaurr",
+          "placeId": "ChIJ3xGkbI3DwogRApmOd1WDFHA",
+          "name": "Happy Fish",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "eatsbylaurr",
+          "placeId": "ChIJ8RJCVp3ZwogRo-_z9hFUKjU",
+          "name": "Rock N Roll Sushi",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "eatsbylaurr",
+          "placeId": "ChIJN55L42rGt4kRTHYc4QFZM3c",
+          "name": "International Plaza and Bay Street",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "eatsbylaurr",
+          "placeId": "ChIJj_gXZRrFwogRQGeho6l9TPk",
+          "name": "Con Amor",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "eatsbylaurr",
+          "placeId": "ChIJwRGBsWcdw4gRNBMBx_4nXvk",
+          "name": "Sea Worthy Fish Bar",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "cailincoastal",
+          "placeId": "ChIJSbDatOjnwogRLPoi6_FtJrM",
+          "name": "Atomic Cat Cafe",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "cailincoastal",
+          "placeId": "ChIJizhkpNfHwogRbx738MsVHK4",
+          "name": "Heights Drive-Thru",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "cailincoastal",
+          "placeId": "ChIJ_8qUegDhwogRzpjJDDiY8Q4",
+          "name": "Forbici Modern Italian",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "cailincoastal",
+          "placeId": "ChIJ6aH4CjTtwogRfryJ-BX89x4",
+          "name": "Shaker & Peel",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "cailincoastal",
+          "placeId": "ChIJq9_svUThwogRG7K4WtuaWXY",
+          "name": "CALI",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "cailincoastal",
+          "placeId": "ChIJRXYxgcD7wogRa-OrJa9lrz8",
+          "name": "Buddy Brew Coffee",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "cailincoastal",
+          "placeId": "ChIJBZ4zDADhwogRoA7MoF0zKaE",
+          "name": "OLIVIA",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "cailincoastal",
+          "placeId": "ChIJDSP1V4PhwogRSo-PPfqZE0w",
+          "name": "Park & Rec DTSP",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "cailincoastal",
+          "placeId": "ChIJXYwN3-XlwogRa3yrxh22C7o",
+          "name": "Oou Cha",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "cailincoastal",
+          "placeId": "ChIJ-Z1yo6_twogR5GJkLIFUAYE",
+          "name": "Craft Street Kitchen",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "cailincoastal",
+          "placeId": "ChIJnej4u9b2wogRAAYRwwkuB4A",
+          "name": "Starlite Horizon Dining Yacht",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "cailincoastal",
+          "placeId": "ChIJ2cdLArvhwogRMMkAEPKsp2U",
+          "name": "Central Park St Pete Food Hall",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "cailincoastal",
+          "placeId": "ChIJactSz_zjwogRHv9F_yOCXlw",
+          "name": "Pin On Grand",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "cailincoastal",
+          "placeId": "ChIJ54ykeVPjwogRL6BAo2YMlJk",
+          "name": "New Power Medicine",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "cailincoastal",
+          "placeId": "ChIJDVENUajjwogRhM7VwB41sqU",
+          "name": "Zee's Barbeque",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "cailincoastal",
+          "placeId": "ChIJBZcEIE_9wogRhe70u_z23DY",
+          "name": "Dolphin Racer",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "cailincoastal",
+          "placeId": "ChIJU6N76oDBwogRjU3JNe6seko",
+          "name": "Eclipse Cafe | Coffee & Matcha Tampa",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "cailincoastal",
+          "placeId": "ChIJoWqi_IjjwogR34giX74JdM4",
+          "name": "Dirty Laundry",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "cailincoastal",
+          "placeId": "ChIJb665ozDFwogRNrVsepGJrNY",
+          "name": "The Bagel Nook",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "cailincoastal",
+          "placeId": "ChIJMxRkEfbPwogRf7eSyMSsyOI",
+          "name": "Kungfu Kitchen - Brandon",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "cailincoastal",
+          "placeId": "ChIJuTpIh6zhwogRVDPLO_oed7U",
+          "name": "Fusillo Pasta St. Pete",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "cailincoastal",
+          "placeId": "ChIJo9ZVDI7BwogRQmX2pgDkJFk",
+          "name": "Agave Social",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "cailincoastal",
+          "placeId": "ChIJ25CTOATnwogRKwXjsYgh99I",
+          "name": "Sodough Square",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "stufftodointampabay",
+          "placeId": "ChIJC7huKWvFwogRBkI-LJuEHx8",
+          "name": "Tommy's Chophouse",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "stufftodointampabay",
+          "placeId": "ChIJizhkpNfHwogRbx738MsVHK4",
+          "name": "Heights Drive-Thru",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "stufftodointampabay",
+          "placeId": "ChIJmzKZ8InEwogR0PM7xTqUB6M",
+          "name": "Nueva Cantina",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "stufftodointampabay",
+          "placeId": "ChIJv30X8SzHwogRVHpiMio-n70",
+          "name": "Roasted!",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "alexandramartin_tv",
+          "placeId": "ChIJN_06nHi32YgRySCC7mR6HUM",
+          "name": "PASTA",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "alexandramartin_tv",
+          "placeId": "ChIJy5C9Qk2x2YgRe4lg1zuS8iA",
+          "name": "Borti Pasta Bar",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "alexandramartin_tv",
+          "placeId": "ChIJsQI4pFG32YgRu9buf2FGB94",
+          "name": "Charlatam - Miami",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "alexandramartin_tv",
+          "placeId": "ChIJ61FPT4W02YgRkJQX7JyuJx0",
+          "name": "La Tiendita II",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "alexandramartin_tv",
+          "placeId": "ChIJYTi0cLTC2YgRe4PpurmXWQM",
+          "name": "Wat Buddharangsi Buddhist Temple",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "alexandramartin_tv",
+          "placeId": "ChIJM6d-F5Gt2YgR4xiZtJnzG68",
+          "name": "Hürrem Hammam Wellness & Spa",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "alexandramartin_tv",
+          "placeId": "ChIJTwAMw0Cx2YgRw0ke2G7Z7ko",
+          "name": "Ichimi (Midtown)",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "alexandramartin_tv",
+          "placeId": "ChIJT2rHbuay2YgRfsErmiRgvMQ",
+          "name": "Mi Colombia cafeteria Miami Beach",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "alexandramartin_tv",
+          "placeId": "ChIJG-Tq3xy32YgR7QyvDubSiLA",
+          "name": "Yamashiro Miami",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "alexandramartin_tv",
+          "placeId": "ChIJOZIFBwC12YgRieEn821YBic",
+          "name": "Andrés Carne de Res Miami",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "alexandramartin_tv",
+          "placeId": "ChIJ5Z1h9M3D2YgRkUQhvnVypfQ",
+          "name": "Chefsfull aka “The Gorilla Truck”",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "alexandramartin_tv",
+          "placeId": "ChIJqZppyNO72YgRGGXMaUINCMM",
+          "name": "Tres Leches Factory",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "alexandramartin_tv",
+          "placeId": "ChIJ-WgWlqq12YgRLqHWVu34USo",
+          "name": "Bella Miami Beach",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "alexandramartin_tv",
+          "placeId": "ChIJpYiE0s6_2YgRncfqRBxOs_M",
+          "name": "Sushiato",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "alexandramartin_tv",
+          "placeId": "ChIJnY-BzZS32YgRP-9tqv6E6xs",
+          "name": "domaselo",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "alexandramartin_tv",
+          "placeId": "ChIJf4__A_HB2YgR9arNkSGbUaM",
+          "name": "Yambo Express",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "alexandramartin_tv",
+          "placeId": "ChIJA3BFE2G72YgRJ13Z8fc5eto",
+          "name": "Pronto Cafe",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "alexandramartin_tv",
+          "placeId": "ChIJZ8VImgCp2YgRDymqli3x3IE",
+          "name": "La Casita Tropical",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "alexandramartin_tv",
+          "placeId": "ChIJ687YflPA2YgR_QjPW4hRGyw",
+          "name": "Ay Bendito Con Sabor a Puerto Rico",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "influencetampa",
+          "placeId": "ChIJe_sgCQTFwogRzB1ctERShiI",
+          "name": "Ro Hyde Park Sushi Bar & Asian Restaurant",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "influencetampa",
+          "placeId": "ChIJQZRp15bDwogReY6sMTk-YWg",
+          "name": "Hyde Park Village",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "influencetampa",
+          "placeId": "ChIJKQXHdmfDwogRJFCLuT7eJ6I",
+          "name": "Bern's Steak House",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "influencetampa",
+          "placeId": "ChIJWSwkNNXdwogRCJUtqnx7je0",
+          "name": "Salt Shack On The Bay",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "influencetampa",
+          "placeId": "ChIJURkn5v7DwogR5XfGAWpOE74",
+          "name": "Sucré Table",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "influencetampa",
+          "placeId": "ChIJCUsmv-rDwogRFLK0RwWg_LE",
+          "name": "The Sapphire Tampa",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "influencetampa",
+          "placeId": "ChIJl9A3H2PxwogRqvtZC7HHe_I",
+          "name": "Hog Island Fish Camp",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "influencetampa",
+          "placeId": "ChIJdaUo-PPhwogRii2HqysdgjI",
+          "name": "Fortu",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "influencetampa",
+          "placeId": "ChIJJ1tmaHbDwogRxB86-j_tUjw",
+          "name": "Alessi Bakeries Food Market",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "influencetampa",
+          "placeId": "ChIJoSQpEbDdwogR_pwYErjpEtk",
+          "name": "Beccofino Italian Bistro",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "influencetampa",
+          "placeId": "ChIJZevb9ZHAwogROpUBDf-kHQ8",
+          "name": "Tate & Tilly",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "influencetampa",
+          "placeId": "ChIJ69YTzXPFwogRRTUQ-HGDL7g",
+          "name": "Café Rialto",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "influencetampa",
+          "placeId": "ChIJERKjMobFwogRU-c43PevXB0",
+          "name": "The Tampa EDITION",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "influencetampa",
+          "placeId": "ChIJBwQpZK_FwogRsoz9WgSYnOk",
+          "name": "JW Marriott Tampa Water Street",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "influencetampa",
+          "placeId": "ChIJce6XFIjEwogRaNJA6ZKu31c",
+          "name": "Straz Center for the Performing Arts",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "secretsoftampabay",
+          "placeId": "ChIJw3vqvtndwogRobHwt-M78qw",
+          "name": "Rio Izakaya",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "secretsoftampabay",
+          "placeId": "ChIJzY7HwxfDwogRLhC31vgX3ZY",
+          "name": "O-Ku",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "secretsoftampabay",
+          "placeId": "ChIJzQJrFNfpwogRXVE296Q-hIM",
+          "name": "Palmette Brasserie & Bar",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "secretsoftampabay",
+          "placeId": "ChIJ7aECsrzFwogRKra8aP0X5cE",
+          "name": "Predalina",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "secretsoftampabay",
+          "placeId": "ChIJq6q6ujDiwogRxFvyGOkUW9A",
+          "name": "The Urban Stillhouse",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "secretsoftampabay",
+          "placeId": "ChIJJeuujrDFwogRZWZ69psQAa4",
+          "name": "SORSI Waterfront",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "secretsoftampabay",
+          "placeId": "ChIJ1ZTeIVrdwogRkMOsdzgVFYA",
+          "name": "The Stovall House",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "secretsoftampabay",
+          "placeId": "ChIJFRtVgujBwogRBhpnTaxHUE0",
+          "name": "Piccolo Buco by Coopers Hawk",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "secretsoftampabay",
+          "placeId": "ChIJQZRp15bDwogReY6sMTk-YWg",
+          "name": "Hyde Park Village",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "secretsoftampabay",
+          "placeId": "ChIJ0aB-cKPDwogRCb9YmF_OOhI",
+          "name": "1983 Restaurant, Bar & Arcade",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "secretsoftampabay",
+          "placeId": "ChIJ0Ts6lqTZwogRCYwOKw7pW2g",
+          "name": "Circles Waterfront Restaurant",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "secretsoftampabay",
+          "placeId": "ChIJ1WZIXhjFwogR1M-_3DXnG6Y",
+          "name": "Rocca",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "secretsoftampabay",
+          "placeId": "ChIJaRL0syxrw4gRHAo4CxKP9IY",
+          "name": "The St. Regis Longboat Key Resort",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "secretsoftampabay",
+          "placeId": "ChIJnZwugRXhwogRpN-HY445tJM",
+          "name": "Elliott Aster",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "secretsoftampabay",
+          "placeId": "ChIJI_OEjj7DwogRcWK3mnLt9fU",
+          "name": "Barcelona Wine Bar",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "secretsoftampabay",
+          "placeId": "ChIJ14hpXQDDwogRnzzMJmb0ylE",
+          "name": "Maru Rooftop Nikkei",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "secretsoftampabay",
+          "placeId": "ChIJEeANUgDFwogRsSiGNytPdd0",
+          "name": "Riverwalk Terrace",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "secretsoftampabay",
+          "placeId": "ChIJ6VPPdiz3wogRjsClFdAJ504",
+          "name": "Latitude 28",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "cindy.selects",
+          "placeId": "ChIJIQGDwpgXw4gRxIJcGmjtyK4",
+          "name": "Spinning Coffee",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "cindy.selects",
+          "placeId": "ChIJ1RqNFQB954gR3YpxvP7m-Gs",
+          "name": "Jabal Coffee House",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "cindy.selects",
+          "placeId": "ChIJIQE2BMF954gRRQ97-X89_G0",
+          "name": "Dolce and Bake Cafe/Bakery",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "cindy.selects",
+          "placeId": "ChIJa5cUmp1954gR3E-NDXQ3f8c",
+          "name": "Seek First... Coffee Shop",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "cindy.selects",
+          "placeId": "ChIJzybHW0dj54gRu_MY96JT_zk",
+          "name": "NeuroPlay: The Sensory Playroom",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "cindy.selects",
+          "placeId": "ChIJo_IdHf0lw4gRHDbQNKBRE84",
+          "name": "Ryan's Coffee House",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "cindy.selects",
+          "placeId": "ChIJ1U_vFp0Xw4gRGKl6mJGJ9UI",
+          "name": "Joy Coffee",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "cindy.selects",
+          "placeId": "ChIJwTbbJpx_54gRN5aKRhMcC18",
+          "name": "Maple Street Biscuit Company",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "cindy.selects",
+          "placeId": "ChIJNx9_bQA5w4gRnwQGGQQhsLQ",
+          "name": "Root and Seed - Coffee & Gluten free bakery",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "cindy.selects",
+          "placeId": "ChIJPSkey7Elw4gR5gvfcin8NQc",
+          "name": "Tuscan Hills Coffee Company",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "cindy.selects",
+          "placeId": "ChIJEUEmzE1Bw4gRHHXe_oxJF7E",
+          "name": "Hashtag Café",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "cindy.selects",
+          "placeId": "ChIJU-JqYJo5w4gRTKYuKEM5uH0",
+          "name": "The Breakfast Company",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "manateelittlelocals",
+          "placeId": "ChIJRyOEfAo5w4gR664aD_YYBLU",
+          "name": "Mote Science Education Aquarium (SEA)",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "manateelittlelocals",
+          "placeId": "ChIJr7ec9tEXw4gRwicCx3wfH2w",
+          "name": "The Bishop Museum of Science and Nature",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "manateelittlelocals",
+          "placeId": "ChIJHR5ndAAXw4gR8YMNFEoI_f0",
+          "name": "Eleanors Coffee & Cakes",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "manateelittlelocals",
+          "placeId": "ChIJhTVjs3o7w4gRzLPhLiXpCXs",
+          "name": "Heritage Harbour Park",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "manateelittlelocals",
+          "placeId": "ChIJFaUWcgBbw4gRDb7B9bck8OU",
+          "name": "Northeast Venice Park",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "manateelittlelocals",
+          "placeId": "ChIJ_wDB-_Mxw4gR7-VDggiDis0",
+          "name": "Lakewood Ranch Library",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "manateelittlelocals",
+          "placeId": "ChIJh3AM9dxBw4gRhaIkp0z8rQE",
+          "name": "ALEUR-Event Collective",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "manateelittlelocals",
+          "placeId": "ChIJeTU_Lhk9w4gRYtxmZ9i_yP4",
+          "name": "JJ Fox's Treehouse",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "manateelittlelocals",
+          "placeId": "ChIJHTdUDQT9wogRB5cYNqzhm_E",
+          "name": "Capybara Cafe",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "manateelittlelocals",
+          "placeId": "ChIJi0X6m8_RwogRmw_ipYjNjpc",
+          "name": "Hogan's Place Gibsonton Florida",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "manateelittlelocals",
+          "placeId": "ChIJATacWyI5w4gR-qfYvgyJnfk",
+          "name": "PopStroke",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "tampaterrencee",
+          "placeId": "ChIJdaUo-PPhwogRii2HqysdgjI",
+          "name": "Fortu",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "tampaterrencee",
+          "placeId": "ChIJD9Xl7lT8wogRJxFfsfNLji4",
+          "name": "Sculley's Seafood Restaurant",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "tampaterrencee",
+          "placeId": "ChIJeS-mqN_PwogRYCTAjzN5_FI",
+          "name": "Frankie's Italian Deli",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "tampaterrencee",
+          "placeId": "ChIJQ4DLFKfrwogR-QrEqDFXpk8",
+          "name": "Southern Luv BBQ",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "tampaterrencee",
+          "placeId": "ChIJn2Mfbv5654gRVPqvg4fcmlA",
+          "name": "Due Amici Pizza & Pasta Bar",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "tampaterrencee",
+          "placeId": "ChIJ7SBhwk_BwogR8Ld48Qfa3oo",
+          "name": "El Chuzo BBQ",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "tampaterrencee",
+          "placeId": "ChIJpxuhmQ63wogRdyNj0LVyOco",
+          "name": "Hungry Crab Juicy Seafood & Bar",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "tampaterrencee",
+          "placeId": "ChIJn38erTXDwogRb0CWRhZeTmc",
+          "name": "Jay Luigi",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "tampaterrencee",
+          "placeId": "ChIJb0Uq9LLzwogRmm6jXRaFuEQ",
+          "name": "Madison Avenue Pizza",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "tampaterrencee",
+          "placeId": "ChIJz3OOrDIg6IgRMKjzAPsV3NI",
+          "name": "Weeki Wachee Springs State Park",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "tampaterrencee",
+          "placeId": "ChIJmedZNwDPwogRst1K4Ya19DU",
+          "name": "Snack Trap",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "fashion.eat.travel",
+          "placeId": "ChIJ18poUgC32YgRBBvIMo3rIH8",
+          "name": "Boûlan Wynwood",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "fashion.eat.travel",
+          "placeId": "ChIJxXAWDgCl2YgRjgwndTs5qbk",
+          "name": "El Churrascaso Grill - Miami Lakes",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "fashion.eat.travel",
+          "placeId": "ChIJz4Ucz5Lp2YgRG9sCckMPEQ0",
+          "name": "By Brothers",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "katelynintampa",
+          "placeId": "ChIJSbDatOjnwogRLPoi6_FtJrM",
+          "name": "Atomic Cat Cafe",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "katelynintampa",
+          "placeId": "ChIJe_sgCQTFwogRzB1ctERShiI",
+          "name": "Ro Hyde Park Sushi Bar & Asian Restaurant",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "cheatdayorlando",
+          "placeId": "ChIJ15lqd26D54gR0zik2zNTX4o",
+          "name": "Rosallie Le French Cafe",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "cheatdayorlando",
+          "placeId": "ChIJP1om-VJ-54gRAF-_k_y5cig",
+          "name": "Helena Modern Riviera",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "cheatdayorlando",
+          "placeId": "ChIJfyPWjCh-54gR1SvWozmef5k",
+          "name": "SeaWorld Orlando",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "estefani.ruizruiz",
+          "placeId": "ChIJlbfJX1HPwogRvvfHRiaRQkA",
+          "name": "Latin Grill Tampa",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "estefani.ruizruiz",
+          "placeId": "ChIJA97liAnHwogRWgNVGLuqV1c",
+          "name": "Darna Mediterranean Grill",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "estefani.ruizruiz",
+          "placeId": "ChIJG-Tq3xy32YgR7QyvDubSiLA",
+          "name": "Yamashiro Miami",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "foodbytiana",
+          "placeId": "ChIJv30X8SzHwogRVHpiMio-n70",
+          "name": "Roasted!",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "foodbytiana",
+          "placeId": "ChIJT4Y7OwDBwogRICfhJkopIHg",
+          "name": "NAZCA",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "foodbytiana",
+          "placeId": "ChIJsWDK4QLzwogR0CgPI35zaX0",
+          "name": "Nueva Cantina - Palm Harbor",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "josyinorlando",
+          "placeId": "ChIJuTGc8gN_54gRwRztnG7fJ-Y",
+          "name": "@ The Diner",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "josyinorlando",
+          "placeId": "ChIJUTIu2jqB3YgR8YmZ3ILb4gk",
+          "name": "@ The Diner",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "tampavida",
+          "placeId": "ChIJ9d2y1ivFwogRU2MFLQrwqsc",
+          "name": "Blooming Floral Cafe",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "tampavida",
+          "placeId": "ChIJc9TZhGDAwogRRHZ5EzKtJIc",
+          "name": "The Perfect Press Coffee Co.,LLC",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "toddlerfriendlytampabay",
+          "placeId": "ChIJ3aykOYywwogRzgNrH-W_jBU",
+          "name": "The Happy Hangar Café",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": true,
+          "pageOk": true
+        },
+        {
+          "handle": "atthediner",
+          "placeId": "ChIJuTGc8gN_54gRwRztnG7fJ-Y",
+          "name": "@ The Diner",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": false,
+          "pageOk": null
+        },
+        {
+          "handle": "atthediner",
+          "placeId": "ChIJUTIu2jqB3YgR8YmZ3ILb4gk",
+          "name": "@ The Diner",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": false,
+          "pageOk": null
+        },
+        {
+          "handle": "hallo.ween365days",
+          "placeId": "ChIJdd8VlMN-54gRoaU0d_zYhfk",
+          "name": "Universal Studios Florida",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": false,
+          "pageOk": null
+        },
+        {
+          "handle": "hallo.ween365days",
+          "placeId": "ChIJzzgyJU--woARcZqceSdQ3dM",
+          "name": "Universal Studios Hollywood",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "nuevacantina",
+          "placeId": "ChIJmzKZ8InEwogR0PM7xTqUB6M",
+          "name": "Nueva Cantina",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "nuevacantina",
+          "placeId": "ChIJsWDK4QLzwogR0CgPI35zaX0",
+          "name": "Nueva Cantina - Palm Harbor",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": false,
+          "pageOk": null
+        },
+        {
+          "handle": "oliviashannonwolk",
+          "placeId": "ChIJjapVvA9w54gRY4Tpi19HXhI",
+          "name": "All Fired Up",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "oliviashannonwolk",
+          "placeId": "ChIJhbni_xFn54gR0p89LazzSD8",
+          "name": "All Fired Up",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "thefloridaplayground",
+          "placeId": "ChIJYT6hEfvPwogRXtCm4bU3InA",
+          "name": "MilkShake Factory Brandon",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": false,
+          "pageOk": null
+        },
+        {
+          "handle": "thefloridaplayground",
+          "placeId": "ChIJk2lxnh5_54gR4KAHboQfZgI",
+          "name": "Corazon by Baires",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": false,
+          "pageOk": null
+        },
+        {
+          "handle": "xandra.orlando",
+          "placeId": "ChIJEyMWSOd-54gR-QBrGagmCHw",
+          "name": "Universal CityWalk Orlando",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": false,
+          "pageOk": null
+        },
+        {
+          "handle": "xandra.orlando",
+          "placeId": "ChIJdd8VlMN-54gRoaU0d_zYhfk",
+          "name": "Universal Studios Florida",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": false,
+          "pageOk": null
+        },
+        {
+          "handle": "_queen.sav_",
+          "placeId": "ChIJkSQPf539wokRMWt15Ub6os4",
+          "name": "Brother Bruno's Pizza",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "addyabnormal",
+          "placeId": "ChIJDVFcVYZ_3YgRU4PZ5Fw44Ek",
+          "name": "The Edison",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": false,
+          "pageOk": null
+        },
+        {
+          "handle": "alex_pistorio",
+          "placeId": "ChIJRStTdYSD54gRhH5dTvKQLJI",
+          "name": "MANGONI Italian Market Pizza",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": false,
+          "pageOk": null
+        },
+        {
+          "handle": "anoctobersunday",
+          "placeId": "ChIJYWbd5bFBaYgRO9b4WSc6ET8",
+          "name": "Georgetown Drive-In",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "bates_farm",
+          "placeId": "ChIJ08paSdYAe0gR2ACKWXW3m6w",
+          "name": "Bates Farm",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "beercutieandfoodie",
+          "placeId": "ChIJdd8VlMN-54gRoaU0d_zYhfk",
+          "name": "Universal Studios Florida",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": false,
+          "pageOk": null
+        },
+        {
+          "handle": "blackhawkhardware",
+          "placeId": "ChIJ31zKXVOeVogRYKJb06G_c7o",
+          "name": "Blackhawk Hardware and Garden Center",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "brevardbanana",
+          "placeId": "ChIJI0Ja3y4E3ogRoNdEL3xe4Ek",
+          "name": "Brevard Zoo",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": false,
+          "pageOk": null
+        },
+        {
+          "handle": "cakeyourway",
+          "placeId": "ChIJd8uvoLE6K4gRwluO461TMro",
+          "name": "Cake Your Way",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "conazucarcafelosangeles",
+          "placeId": "ChIJ8UcgMK6PwoARgStBn3cH5n4",
+          "name": "Con Azucar Cafe",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "eatlocalflorida",
+          "placeId": "ChIJdfcBx1RBw4gRHlEUsS7539U",
+          "name": "Joe The Boar",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": false,
+          "pageOk": null
+        },
+        {
+          "handle": "halloweendiet",
+          "placeId": "ChIJa147K9HX3IAR-lwiGIQv9i4",
+          "name": "Disneyland Park",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "harvestmoonorchard",
+          "placeId": "ChIJt-i--GutwokRPyo0w5TWmfo",
+          "name": "Harvest Moon Farm & Orchard",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "helenamodernriviera",
+          "placeId": "ChIJP1om-VJ-54gRAF-_k_y5cig",
+          "name": "Helena Modern Riviera",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": false,
+          "pageOk": null
+        },
+        {
+          "handle": "horrorvibescoffee",
+          "placeId": "ChIJ6REWkQ2VwoARTSEKn3Yu6eM",
+          "name": "Horror Vibes Coffee",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "kalenawhite",
+          "placeId": "ChIJYWbd5bFBaYgRO9b4WSc6ET8",
+          "name": "Georgetown Drive-In",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "mangoniwg",
+          "placeId": "ChIJRStTdYSD54gRhH5dTvKQLJI",
+          "name": "MANGONI Italian Market Pizza",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": false,
+          "pageOk": null
+        },
+        {
+          "handle": "miriaminspired",
+          "placeId": "ChIJP1om-VJ-54gRAF-_k_y5cig",
+          "name": "Helena Modern Riviera",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": false,
+          "pageOk": null
+        },
+        {
+          "handle": "mr.tampa.bay",
+          "placeId": "ChIJQVp535WxwogR42W828PdPRw",
+          "name": "Haraz Coffee House",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "parrishfloridahomes",
+          "placeId": "ChIJfUYeWmAlw4gReflS439GCg0",
+          "name": "Gamble Creek Farms",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": false,
+          "pageOk": null
+        },
+        {
+          "handle": "perfectpresscoffeeco",
+          "placeId": "ChIJc9TZhGDAwogRRHZ5EzKtJIc",
+          "name": "The Perfect Press Coffee Co.,LLC",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": false,
+          "pageOk": null
+        },
+        {
+          "handle": "raglanroadpub",
+          "placeId": "ChIJOcKapod_3YgR90H_S_UKiMA",
+          "name": "Raglan Road Irish Pub",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": false,
+          "pageOk": null
+        },
+        {
+          "handle": "rosallielefrenchcafe",
+          "placeId": "ChIJ15lqd26D54gR0zik2zNTX4o",
+          "name": "Rosallie Le French Cafe",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "ryanbros.cityheights",
+          "placeId": "ChIJmR_bwGZV2YAR13jvyWxggPA",
+          "name": "Ryan Bros Coffee",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "splashartuk",
+          "placeId": "ChIJGbN0dcIhe0gRUXJQlOlTlew",
+          "name": "Splash Art",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "the_bagel_nook",
+          "placeId": "ChIJqwhQSDXTw4kRpobLnZNWJdI",
+          "name": "The Bagel Nook",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "theghoulishmortal",
+          "placeId": "ChIJsQagnL9_54gRBssKAR3j6S8",
+          "name": "Villatel Resort Orlando",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": false,
+          "pageOk": null
+        },
+        {
+          "handle": "thingstodotampabay",
+          "placeId": "ChIJ6dc1V8nhwogRILD0R9alDWM",
+          "name": "Good Fortune St. Pete",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": false,
+          "pageOk": null
+        },
+        {
+          "handle": "timspumpkinpatch",
+          "placeId": "ChIJRyvATuoD2okRJNZ_PpKp6GY",
+          "name": "Tim's Pumpkin Patch",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "whats_in_westchester_ny",
+          "placeId": "ChIJt-i--GutwokRPyo0w5TWmfo",
+          "name": "Harvest Moon Farm & Orchard",
+          "operational": false,
+          "note": "not in wf_inventory",
+          "outOfScope": true
+        },
+        {
+          "handle": "youdothedishesstudio",
+          "placeId": "ChIJIV9AOfbHwogR5SPjijvBLRM",
+          "name": "You Do the Dishes",
+          "operational": true,
+          "resolverOk": true,
+          "hasPage": false,
+          "pageOk": null
+        }
+      ]
+    }
+  ]
+}
