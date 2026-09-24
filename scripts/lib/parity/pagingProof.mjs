@@ -25,6 +25,8 @@
  *
  * @param {{ maxPages: number, pageSize: number, fetchPage: (offset:number, page:number) => Promise<{ok:boolean, json:any}> }} args
  */
+import { nextPageOffset } from "../../../lib/inventoryPaging.js";
+
 export async function walkPagesToExhaustion({ maxPages, fetchPage }) {
   const ids = [];
   const idSet = new Set();
@@ -45,7 +47,10 @@ export async function walkPagesToExhaustion({ maxPages, fetchPage }) {
     }
     if (r.json.hasMore !== true) { exhaustedCleanly = true; break; }
     if (!r.json.places.length) { exhaustedCleanly = true; break; }
-    offset += r.json.places.length;
+    // Same rule as the client continuation (lib/inventoryPaging.js): follow the
+    // route's nextOffset, never the count of rows received, with the shared
+    // overlap for ranking drift between page reads.
+    offset = nextPageOffset(r.json, offset, r.json.places.length);
   }
   // Ran out of OUR OWN page budget while the server was still promising
   // more, and no fetch actually failed -- an audit-side limitation, still

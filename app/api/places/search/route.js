@@ -232,7 +232,7 @@ async function handleSearch(params, origin) {
           // total = the full eligible count under this exact chip/radius, not
           // just what this page carries — the "That's all N spots" line and the
           // "more" control both read this, not places.length.
-          total: meta.eligible, hasMore: meta.offset + meta.served < meta.eligible, truncated: !!meta.truncated,
+          total: meta.eligible, hasMore: meta.offset + meta.served < meta.eligible, nextOffset: meta.offset + meta.served, truncated: !!meta.truncated,
         }, { headers: meta.truncated || meta.photosIncomplete ? NO_STORE_HEADERS : EDGE_HEADERS });
       } catch (error) {
         return NextResponse.json({ places: [], error: String((error && error.message) || error) }, { status: 503, headers: NO_STORE_HEADERS });
@@ -285,7 +285,10 @@ async function handleSearch(params, origin) {
       const total = meta.eligible + extraCandidates;
       return NextResponse.json({
         places: merged, cached: false, source: "inventory-direct",
-        total, hasMore: meta.offset + meta.served < meta.eligible, truncated: !!meta.truncated,
+        // nextOffset: where the RANKED read stopped. Page 0 can carry exact-ID
+        // extras on top of the ranked rows, so the client must not count rows
+        // received (lib/inventoryPaging.js).
+        total, hasMore: meta.offset + meta.served < meta.eligible, nextOffset: meta.offset + meta.served, truncated: !!meta.truncated,
       }, { headers: meta.truncated || meta.photosIncomplete ? NO_STORE_HEADERS : EDGE_HEADERS });
     } catch (error) {
       return NextResponse.json({ places: [], error: String((error && error.message) || error) }, { status: 503, headers: NO_STORE_HEADERS });

@@ -3,7 +3,7 @@
 // tasteBoost is exclusive to the map's default ranking blend and moves with it.
 import { useEffect, useRef, useState } from "react";
 import { C, scoreLabel, PlaceScoreChip } from "../kit";
-import { MAP_DEFAULT_CATEGORY } from "../../../lib/mapExplorer";
+import { shouldApplyMapDefault } from "../../../lib/mapExplorer";
 import { TRENDING_BONUS } from "../../../lib/wayfindScore";
 import IconicPlaceCard from "../IconicPlaceCard";
 import useMissingPlacePhotos from "../useMissingPlacePhotos";
@@ -48,7 +48,7 @@ export default function MapScreen({ ctx }) {
   // retracts). Tapping the pill re-anchors the WHOLE discovery engine there
   // via ctx.searchMapArea — the same manual-recenter path area search uses.
   const [areaOffer, setAreaOffer] = useState(null);
-  const { searchMapArea, mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, map3D, setMap3D, mapRetryKey, setMapRetryKey, cat, setCat, sub, setSub, setVibe, sortBy, center, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, events, eventsLoading, eventsUnavailable, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, suggested, places, liked, disliked, view, featuredBoost, MapView, CategoryMenu, FallbackImg, iconForPlace, liveOpen, logEvent, loadEvents, openDetail, openVenue, ticketUrl, Hol, recenterToMe, isBeach, beachSignals, PlaceCard, isSaved, toggleLike, toggleDislike, quickSaveFavorite, addShared, giveawayMark, blurbs, openExperience, openCuisine, cityNow, mapDefaultAppliedRef } = ctx;
+  const { searchMapArea, mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, map3D, setMap3D, mapRetryKey, setMapRetryKey, cat, setCat, sub, setSub, setVibe, sortBy, center, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, events, eventsLoading, eventsUnavailable, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, suggested, places, liked, disliked, view, featuredBoost, MapView, CategoryMenu, FallbackImg, iconForPlace, liveOpen, logEvent, loadEvents, openDetail, openVenue, ticketUrl, Hol, recenterToMe, isBeach, beachSignals, PlaceCard, isSaved, toggleLike, toggleDislike, quickSaveFavorite, addShared, giveawayMark, blurbs, openExperience, openCuisine, cityNow, mapDefaultAppliedRef, categoryChosenRef } = ctx;
   // THE MONOGRAM. Owner, with a screenshot of a card reading "RP" where a photo
   // should be: "some places with no images."
   //
@@ -115,7 +115,10 @@ export default function MapScreen({ ctx }) {
   useEffect(() => {
     if (!mapDefaultAppliedRef || mapDefaultAppliedRef.current) return;
     mapDefaultAppliedRef.current = true;
-    if (cat === MAP_DEFAULT_CATEGORY) { setCat("attractions"); setSub("all"); setVibe("all"); setMapBrowse(true); }
+    // 2026-09-23: only when the reader has not chosen a category or chip this
+    // session (lib/mapExplorer.shouldApplyMapDefault) — an explicit Food pick
+    // must keep the map on the same places as the list.
+    if (shouldApplyMapDefault({ cat, chosen: !!(categoryChosenRef && categoryChosenRef.current) })) { setCat("attractions"); setSub("all"); setVibe("all"); setMapBrowse(true); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
               const dateChips = [];
