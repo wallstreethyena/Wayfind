@@ -258,7 +258,7 @@ ok(/\.wf-place-card\.wf-fall-card\{background:#BC4D08 url\(/.test(css),
 
 // route file structural
 const route = strip(readFileSync(path.join(ROOT, "app/api/events/fall/route.js"), "utf8"));
-ok(/isFallTagged\(e\.tags\)/.test(route) && /fallEventLive\(e, today\)/.test(route), "the API applies BOTH pool laws");
+ok(/isFallEvent\(e\)/.test(route) && /fallEventLive\(e, today\)/.test(route), "the API applies BOTH pool laws");
 ok(/FALL_PLACE_IDS/.test(route), "the API serves the vetted place pool, not an ad-hoc list");
 
 console.log(`\ncheck-augtober-rail: ${fail ? "FAIL" : "OK"} — ${pass} assertions; dated events retire, the open run never claims an end, and a tile tap expands in place instead of navigating`);
