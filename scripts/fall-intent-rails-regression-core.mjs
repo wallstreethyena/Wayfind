@@ -3,8 +3,11 @@ import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import {
   FALL_INTENT_RAIL_DEFS, FALL_MIN_RESULTS, FALL_NEAR_MI, FALL_RAIL_RADIUS_MI, fallEventRail, fallPhase,
-  fallRailOrder, composeFallIntentRails,
+  fallRailOrder, composeFallIntentRails, nextFallOccurrence, hasUpcomingFallOccurrence,
 } from "../lib/fallIntentRails.js";
+import { FALL_FEATURED_FESTIVALS_2026, FALL_FEATURED_FESTIVAL_IDS } from "../lib/fallFeaturedFestivals2026.js";
+import { mergeFallDiscoveryRows } from "../lib/fallEventImage.js";
+import { eventOutboundUrl } from "../lib/curatedEvents.js";
 import { FALL_OFFERING_SOURCES, FALL_PLACE_IDS, FALL_PLACE_RAIL } from "../lib/fallPool.js";
 import { fallCardClass } from "../lib/fallSkin.js";
 import { hasStoredPlacePhoto } from "../lib/placePhoto.js";
@@ -41,7 +44,7 @@ const selectedCurated = publication.selected.filter((row) => row.action !== "KEE
 ok(publication.rows.length === 4 && publication.patches.length === 25 && publication.provider_records.length === 1, "Sarasota publication reconciles four additions, 25 corrections and one retained provider");
 ok(publicationIds.size === 29 && new Set(publication.selected.map((row) => row.event_id)).size === 30, "the 30 selections have unique canonical identities");
 ok(!publicationIds.has(publication.provider_records[0].event_id), "the Vampire Circus provider event is not duplicated in curated storage");
-ok(selectedCurated.every((row) => fallEventRail(publishedById.get(row.event_id)) === row.primary_rail), "every curated publication executes into its reviewed primary taxonomy rail");
+ok(selectedCurated.every((row) => fallEventRail(publishedById.get(row.event_id)) === (FALL_FEATURED_FESTIVAL_IDS.has(row.event_id) ? "festivals" : row.primary_rail)), "every curated publication executes into its reviewed primary taxonomy rail");
 ok(publication.rows.every((row) => row.event_status === "scheduled" && row.source_tier === 1 && row.verification_confidence === "high"), "every added event passes the canonical trust threshold");
 ok(publication.patches.every((row) => !Object.keys(row.set).some((field) => ["slug", "event_id", "link_ok", "link_verdict", "link_checked_at", "link_final_url"].includes(field))), "corrections preserve canonical identity and independently maintained link health");
 ok(publication.rail_photo_holds.every((id) => publishedById.get(id)?.hero_image === null && fallEventCardImageSrc(publishedById.get(id)) === null), "unproven photos stay off rails without borrowing a nearby place identity");
@@ -279,7 +282,7 @@ ok(sarasotaSelectedByRail.festivals.join("|") === [
   "wellen-park-wine-festival-2026",
 ].sort().join("|"), "Sarasota composition returns the exact five remaining audited outdoor-night and festival cards");
 ok(sarasotaSelected.rails.flatMap((rail) => rail.cards).map((card) => card.event_id || card.id).sort().join("|") === auditSelectedIds.slice().sort().join("|"), "Sarasota composition renders every selected audit card exactly once");
-ok(Object.keys(FALL_DISCOVERY_RAIL).every((id) => discoveryIds.includes(id) || seededIds.has(id) || gulfCoastIds.has(id) || publicationIds.has(id)), "every explicit rail pin names canonical discovery source data");
+ok(Object.keys(FALL_DISCOVERY_RAIL).every((id) => FALL_FEATURED_FESTIVAL_IDS.has(id) || discoveryIds.includes(id) || seededIds.has(id) || gulfCoastIds.has(id) || publicationIds.has(id)), "every explicit rail pin names canonical discovery source data");
 ok([...gulfCoastIds].every((id) => id in FALL_DISCOVERY_RAIL), "every reviewed Gulf Coast event has one explicit primary intent");
 ok([...seededIds].filter((id) => !(id in FALL_DISCOVERY_RAIL)).length === 0 && seededIds.size >= 22, `every seeded row (${seededIds.size}) is pinned to one shelf`);
 ok(Object.values(FALL_DISCOVERY_RAIL).every((rail) => expected.includes(rail)), "every explicit pin targets an approved rail");
@@ -343,7 +346,7 @@ const route = readFileSync(new URL("../app/api/events/fall/route.js", import.met
 const daypart = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
 const component = readFileSync(new URL("../app/components/FallIntentRails.js", import.meta.url), "utf8");
 const card = readFileSync(new URL("../app/components/RailCard.js", import.meta.url), "utf8");
-ok(/fall-intents:v15:/.test(route) && /fastCachedRail/.test(route), "the API uses a new shared FastCache key for playable social posts and the wider Halloween park radius");
+ok(/fall-intents:v16:/.test(route) && /fastCachedRail/.test(route), "the API uses a new shared FastCache key for playable social posts and the wider Halloween park radius");
 const imageProofId = "ChIJB-QyVtEXw4gRk5F8bn3YV28";
 ok(hasStoredPlacePhoto({ place_id: imageProofId, signals: { photo_url: "https://cdn.example.test/owned.jpg" } }),
   "an owned signals.photo_url is stored image proof");
@@ -372,7 +375,7 @@ ok(/FALL_PLACE_IDS\[p\.place_id\] \|\| \(typeof p\.signals\?\.rating/.test(route
 // built by eventTicketCta (an /api/commerce/go href), and the raw affiliate_url
 // column is read only to GATE (active/link_ok/PID), never to render.
 ok(/eventTicketCta\(e\.event_id/.test(route) && !/href:\s*deal\.affiliate_url/.test(route), "the fall ticket CTA is the commerce redirect, not the raw CJ link");
-ok(/schedule:\s*fallScheduleChip\(e\)/.test(route) && /const detailHref = e\.slug && pageSlugs\.has\(e\.slug\) \? "\/florida-events\/"/.test(route) && /\n\s*detailHref,/.test(route), "every fall event card ships its schedule chip and its own confirmed event page");
+ok(/schedule:\s*fallScheduleChip\(e\)/.test(route) && /const detailHref = !FALL_FEATURED_FESTIVAL_IDS\.has\(e\.event_id\) && e\.slug && pageSlugs\.has\(e\.slug\) \? "\/florida-events\/"/.test(route) && /\n\s*detailHref,/.test(route), "every fall event card ships its schedule chip and its own confirmed event page");
 ok(/key:\s*"schedule"/.test(component) && /card\.schedule\?\.label/.test(component), "the schedule chip is the first chip on an event card");
 ok(/href=\{eventBodyHref\}/.test(component) && /card\.detailHref/.test(component), "the card body opens the event page when the row has one");ok(/FALL_DISCOVERIES_2026/.test(route) && /eventRows/.test(route), "publish-ready fall discoveries are served even when their database seed lags");
 ok(/take: FALL_PLACE_IDS\[p\.place_id\] \|\| FALL_PHOTO_SPOTS\[p\.place_id\]\?\.visualProof \|\| p\.editorial/.test(route), "verified seasonal or visual evidence wins over a generic inventory summary");
@@ -410,6 +413,62 @@ ok(/railRenderState/.test(component)
 ok(/actionItem=\{isEvent \? \{[\s\S]{0,220}type: "event"/.test(component), "dated events receive live isolated content actions instead of dead place reactions");
 ok(/sponsored: true/.test(component) && /commerce_cta_clicked/.test(component), "affiliate tickets are disclosed and measured");
 ok(/cta\.sponsored \? "sponsored nofollow noopener"/.test(card), "the shared card emits sponsored rel on paid outbound links");
+
+// Owner request: the five screenshot festivals appear once in the festival
+// rail, including from a distant Florida origin; other rails stay local.
+const featured = FALL_FEATURED_FESTIVALS_2026;
+const featuredById = new Map(featured.map((row) => [row.event_id, row]));
+const festivalAnswer = (today, lat = 27.5875, lng = -82.4251) => composeFallIntentRails(featured, [], { lat, lng, today, now: new Date(today + "T16:00:00Z") });
+for (const origin of [[27.5875, -82.4251], [25.7617, -80.1918]]) {
+  const answer = festivalAnswer("2026-09-25", ...origin);
+  const cards = answer.rails.find((rail) => rail.id === "festivals").cards;
+  ok(cards.length === 5 && new Set(cards.map((card) => card.event_id)).size === 5,
+    `all five festivals appear exactly once from ${origin.join(",")}`);
+  ok(answer.rails.filter((rail) => rail.id !== "festivals").every((rail) => !rail.cards.some((card) => FALL_FEATURED_FESTIVAL_IDS.has(card.event_id))),
+    "featured festivals do not duplicate into farms or family rails");
+  const dates = cards.map((card) => nextFallOccurrence(card, "2026-09-25"));
+  ok(dates.join("|") === ["2026-10-03", "2026-10-03", "2026-10-10", "2026-10-10", "2026-10-17"].join("|"),
+    "the actual festival cards order by next attendance day");
+  ok(answer.rails.map((rail) => rail.id).join("|") === fallRailOrder("2026-09-25").join("|"), "date ordering preserves seasonal rail section order");
+}
+ok(featured.length === 5 && featured.every((row) => !["editorial_score", "uniqueness_score", "popularity_score", "wfScore"].some((key) => key in row)), "the five new source records do not invent quality scores");
+ok(featured.every((row) => row.occurrence_dates.length > 0 && row.occurrence_dates.every((date) => [0, 6].includes(new Date(date + "T12:00:00Z").getUTCDay()))), "all advertised festival dates are actual weekend days in 2026");
+ok(nextFallOccurrence(featuredById.get("dakin-harvest-festival-2026"), "2026-10-12") === "2026-10-17", "a weekday between Dakin weekends advances to the next open Saturday");
+ok(nextFallOccurrence(featuredById.get("fruitville-grove-pumpkin-2026"), "2026-10-26") === "2026-10-31", "Fruitville advances past closed weekdays");
+ok(nextFallOccurrence(featuredById.get("keel-farms-harvest-days-2026"), "2026-10-26") === "2026-10-31", "Keel includes the final October Saturday");
+ok(festivalAnswer("2026-10-26").rails.find((rail) => rail.id === "festivals").cards.length === 2,
+  "Dakin, Hunsader and Pumpkin Patch Express retire after their final Sunday");
+ok(festivalAnswer("2026-11-02").rails.every((rail) => !rail.cards.length), "all five expire after their last listed attendance day");
+ok(nextFallOccurrence(event({ select_nights: true }), "2026-09-25") === null,
+  "unknown select-night schedules never claim today");
+ok(nextFallOccurrence(event({ start_date: "2026-09-01", end_date: null }), "2026-09-25") === null,
+  "a past start without a closing date does not invent a fresh occurrence");
+ok(!hasUpcomingFallOccurrence({ occurrence_dates: ["2026-10-10"], end_date: "2026-10-25" }, "2026-10-12"),
+  "an exhausted explicit calendar cannot linger because of a wider envelope");
+const chronology = composeFallIntentRails([
+  event({ id: "later-high-score", event_id: "later-high-score", event_name: "Later Festival", category: "festival", start_date: "2026-10-20", end_date: "2026-10-20", editorial_score: 10 }),
+  event({ id: "sooner-low-score", event_id: "sooner-low-score", event_name: "Sooner Festival", category: "festival", start_date: "2026-10-01", end_date: "2026-10-01", editorial_score: 1 }),
+  event({ id: "unknown-calendar", event_id: "unknown-calendar", event_name: "Unknown Festival", category: "festival", select_nights: true, editorial_score: 10 }),
+], [], { lat: 27.95, lng: -82.46, today: "2026-09-25", now });
+ok(chronology.rails.find((rail) => rail.id === "festivals").cards.map((card) => card.id).join("|") === "sooner-low-score|later-high-score|unknown-calendar",
+  "date wins over editorial score and confirmed dates precede uncertain schedules");
+const unfeaturedFar = composeFallIntentRails([event({ event_id: "unfeatured-festival", id: "unfeatured-festival", category: "festival" })], [], { lat: 25.7617, lng: -80.1918, today: "2026-09-25", now });
+ok(unfeaturedFar.rails.every((rail) => !rail.cards.length), "the statewide exception cannot expand unrelated local events");
+ok(featuredById.get("fruitville-grove-pumpkin-2026").is_free === false && featuredById.get("fruitville-grove-pumpkin-2026").address.startsWith("7410"), "Fruitville retains corrected paid admission and address");
+const staleTicketFeatured = mergeFallDiscoveryRows([{ ...featured[0], official_ticket_url: "https://example.com/old-tickets" }], [featured[0]])[0];
+ok(eventOutboundUrl(staleTicketFeatured) === featured[0].official_event_url, "featured organizer information overrides an older database ticket link");
+const deadFeatured = mergeFallDiscoveryRows([{ ...featured[0], link_ok: false }], [featured[0]])[0];
+ok(!eventOutboundUrl(deadFeatured) && deadFeatured.link_ok === false, "a featured source update cannot erase dead-link health");
+ok(fallEventCardImageSrc(featuredById.get("hunsader-pumpkin-2026")) === "/guides/verified/hunsader-farms-goats.webp"
+  && fallEventCardImageSrc({ ...featuredById.get("hunsader-pumpkin-2026"), hero_image: "https://example.com/unproven.jpg" }) === null,
+  "Hunsader image hold resolves only for the exact licensed venue photograph");
+ok(/FALL_FEATURED_FESTIVALS_2026/.test(route) && /hasUpcomingFallOccurrence\(e, today\)/.test(route), "the production API merges all five and filters exhausted schedules");
+ok(/officialOnly = FALL_FEATURED_FESTIVAL_IDS\.has\(e\.event_id\) && !!eventOutboundUrl\(e\)/.test(route)
+  && /card\.officialOnly \|\| !openEventVenue/.test(component)
+  && /card\.detailHref \|\| card\.officialOnly \? undefined/.test(component),
+  "featured cards open verified organizer information; a dead official link keeps venue fallback");
+ok(/photoAttr=\{card\.photoAttr \|\| null\}/.test(component) && /photoAttrHref=\{card\.photoAttrHref \|\| null\}/.test(component),
+  "event photos use the shared card's visible attribution controls");
 
 if (failures.length) {
   console.error("test-fall-intent-rails: FAIL");

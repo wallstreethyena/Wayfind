@@ -109,17 +109,17 @@ function FallRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, fallSkin,
           const openEventVenue = isEvent && card.place_id && onOpenPlace
             ? () => onOpenPlace({ id: card.place_id, name: card.venue || card.name, lat: card.lat, lng: card.lng, types: [], hook: card.hook })
             : null;
-          const eventBodyHref = isEvent ? (card.detailHref || (!openEventVenue ? card.url || null : null)) : null;
+          const eventBodyHref = isEvent ? (card.detailHref || (card.officialOnly || !openEventVenue ? card.url || null : null)) : null;
           const eventBodyExternal = isEvent && !card.detailHref;
           return <RailCard key={card.id} className="wf-exploding-primary" domRef={index === sentinelIndex ? sentinelRef : undefined}
-            photo={card.image || null} photoAttr={!isEvent ? card.photoAttr || null : null} photoAttrHref={!isEvent ? card.photoAttrHref || null : null} place={place}
+            photo={card.image || null} photoAttr={card.photoAttr || null} photoAttrHref={card.photoAttrHref || null} place={place}
             creatorVideos={isEvent ? card.creatorReels : undefined}
             title={card.title || card.name} eyebrow={rail.title} rank={rank}
             score={isEvent ? null : toDisplayScore(card.wfScore)} when={isEvent ? card.when : null}
-            facts={facts} chips={isEvent ? eventChips(card, { onOpenVenue: card.detailHref ? openEventVenue : null }) : placeChips}
+            facts={facts} chips={isEvent ? eventChips(card, { onOpenVenue: card.detailHref || card.officialOnly ? openEventVenue : null }) : placeChips}
             take={card.hook || (card.shotLocation ? `${card.shotLocation}. ${card.take} ${card.fallReason || ""}`.trim() : card.take) || null} cta={cta}
             href={eventBodyHref} external={eventBodyExternal}
-            ariaLabel={`Open ${card.title || card.name}`} onOpen={isEvent ? (card.detailHref ? undefined : openEventVenue || undefined) : (place && onOpenPlace ? () => onOpenPlace(place) : undefined)}
+            ariaLabel={`Open ${card.title || card.name}`} onOpen={isEvent ? (card.detailHref || card.officialOnly ? undefined : openEventVenue || undefined) : (place && onOpenPlace ? () => onOpenPlace(place) : undefined)}
             actionItem={isEvent ? { id: card.id, type: "event", title: card.title || card.name, image: card.image || null, url: eventBodyHref || card.url || "", provider: card.source || null } : null}
             saved={place && isSaved ? !!isSaved(place.id) : undefined}
             liked={place && (isLiked ? !!isLiked(place.id) : liked ? !!liked[place.id] : undefined)}

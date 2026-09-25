@@ -20,7 +20,7 @@ import { wayfindScore } from "../../../../lib/wayfindScore.js";
 import { cardImageSrc, hasStoredPlacePhoto } from "../../../../lib/placePhoto.js";
 import { CURATED_OWNED_PLACE_PHOTOS } from "../../../../lib/curatedOwnedPlacePhotos.js";
 import { fastCachedRail, geoCell } from "../../../../lib/railFastCache.js";
-import { composeFallIntentRails } from "../../../../lib/fallIntentRails.js";
+import { composeFallIntentRails, nextFallOccurrence, hasUpcomingFallOccurrence } from "../../../../lib/fallIntentRails.js";
 import { pageOneRail } from "../../../../lib/railPage.js";
 import { FALL_PHOTO_PLACE_IDS, FALL_PHOTO_SPOTS } from "../../../../lib/fallPhotoSpots.js";
 import { FALL_DISCOVERIES_2026, FALL_DISCOVERY_RAIL, FALL_SEASONAL_PLACE_IDS } from "../../../../lib/fallDiscoveries2026.js";
@@ -28,6 +28,8 @@ import { windowRailAnswer } from "../../../../lib/railResponse.js";
 import { FALL_COLLECTION_POSTER, FALL_EVENT_VENUE_PLACE_IDS, fallEventCardImageSrc, mergeFallDiscoveryRows } from "../../../../lib/fallEventImage.js";
 import { eventSocialPosts } from "../../../../lib/eventSocial.js";
 import { fallStayDestinations } from "../../../../lib/fallStayDestinations.js";
+
+import { FALL_FEATURED_FESTIVALS_2026, FALL_FEATURED_FESTIVAL_IDS } from "../../../../lib/fallFeaturedFestivals2026.js";
 
 const FALL_DB_DEADLINE_MS = 3500;
 
@@ -65,15 +67,16 @@ export async function GET(request) {
     // corrections. v13 adds Sōl St Pete's verified seasonal offering without
     // reusing a cache written before that registry entry existed. v14 adds
     // compact creator-reel credit to event cards whose detail page can play it.
+    // v16 adds the five reviewed festivals, next-date ordering and image credits.
     // v15 (2026-09-22) adds Pinto's Farm (farms rail) with a curated owned
     // photo + photoAttr credit — a cached v14 payload predates both.
-    const key = `fall-intents:v15:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    const key = `fall-intents:v16:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
         ...Object.keys(FALL_PLACE_IDS),
         ...FALL_PHOTO_PLACE_IDS,
-        ...FALL_DISCOVERIES_2026.map((row) => row.place_id).filter(Boolean),
+        ...[...FALL_DISCOVERIES_2026, ...FALL_FEATURED_FESTIVALS_2026].map((row) => row.place_id).filter(Boolean),
         ...Object.values(FALL_EVENT_VENUE_PLACE_IDS),
       ])];
       const dealIds = [...new Set(Object.values(FALL_EVENT_TICKET_DEALS))];
@@ -105,7 +108,7 @@ export async function GET(request) {
       // The owner-supplied discovery registry is publish-ready source data,
       // not merely a seed script. Merge it at read time so a missed/lagging
       // database seed cannot erase verified farms, cafes and spooky dates.
-      const eventRows = mergeFallDiscoveryRows(rows, FALL_DISCOVERIES_2026);
+      const eventRows = mergeFallDiscoveryRows(rows, [...FALL_DISCOVERIES_2026, ...FALL_FEATURED_FESTIVALS_2026]);
       // /florida-events/<slug> is served from wf_events by slug. A registry row
       // whose database seed is lagging has no page yet, so it gets no
       // detailHref — the card falls back to the venue sheet / official page
@@ -118,7 +121,7 @@ export async function GET(request) {
       // applied — so a creator-discovered row could have DATED a card on the
       // rail the owner looks at most. The fall date law (fallEventLive, with
       // its open-run rule) stays here because it is genuinely this rail's own.
-      .filter((e) => isTrusted(e) && isFallTagged(e.tags) && fallEventLive(e, today))
+      .filter((e) => isTrusted(e) && isFallTagged(e.tags) && fallEventLive(e, today) && hasUpcomingFallOccurrence(e, today))
       .sort((a, b) => String(a.start_date).localeCompare(String(b.start_date)));
       const inventoryById = new Map((placeResult.data || []).map((row) => [row.place_id, row]));
       const events = eligibleRows
@@ -144,7 +147,8 @@ export async function GET(request) {
         const inventory = inventoryById.get(e.place_id) || null;
         const hasImageProof = (!!e.hero_image && e.hero_image !== FALL_COLLECTION_POSTER) || !!inventory?.photo_ref;
         const image = hasImageProof ? fallEventCardImageSrc(e, 640, inventory) : null;
-        const detailHref = e.slug && pageSlugs.has(e.slug) ? "/florida-events/" + e.slug : null;
+        const officialOnly = FALL_FEATURED_FESTIVAL_IDS.has(e.event_id) && !!eventOutboundUrl(e);
+        const detailHref = !FALL_FEATURED_FESTIVAL_IDS.has(e.event_id) && e.slug && pageSlugs.has(e.slug) ? "/florida-events/" + e.slug : null;
         // The card marker promises a video one tap away, so publish it only
         // when our event page exists and only for canonical Instagram reels.
         // /p/ may be a still or carousel and stays available on the detail page
@@ -164,7 +168,11 @@ export async function GET(request) {
         venue: e.venue || null,
         lat: e.lat, lng: e.lng, place_id: e.place_id || null,
         start_date: e.start_date, end_date: e.end_date || null,
-        when: fallWhenLabel(e, today),
+        when: e.occurrence_dates?.length && nextFallOccurrence(e, today)
+          ? fallWhenLabel({ ...e, start_date: nextFallOccurrence(e, today), end_date: nextFallOccurrence(e, today) }, today)
+          : fallWhenLabel(e, today),
+        select_nights: e.select_nights,
+        officialOnly,
         // The schedule the reader acts on: which days, what time, straight
         // from the row's clock columns and verified schedule_note.
         schedule: fallScheduleChip(e),
@@ -180,7 +188,9 @@ export async function GET(request) {
         // destination. The helper also rejects legacy DB rows that were seeded
         // with that poster and derives this venue's own photo from place_id.
         image: image || null,
-        imageIsVenue: !!image && (!e.hero_image || e.hero_image === FALL_COLLECTION_POSTER),
+        imageIsVenue: !!image && (e.image_is_venue === true || !e.hero_image || e.hero_image === FALL_COLLECTION_POSTER || /^\/api\/photo\?place=/.test(e.hero_image)),
+        photoAttr: e.photoAttr || null,
+        photoAttrHref: e.photoAttrHref || null,
         url: eventOutboundUrl(e) || null,   // 2026-09-02: link_ok + quarantine + safeUrl gated
         is_free: !!e.is_free, price_band: e.price_band || null,
         tags: e.tags || [],

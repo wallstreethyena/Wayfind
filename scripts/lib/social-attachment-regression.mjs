@@ -178,7 +178,7 @@ export function checkSocialAttachments(repo) {
   ensure(/const instagramPost = platform === "instagram"/.test(facade) && /instagramPost \? "View post" : "Play"/.test(facade), "every Instagram embed must use post-neutral wording because the provider may offer only a native handoff");
 
   const fallRoute = readFileSync(path.join(repo, "app/api/events/fall/route.js"), "utf8");
-  ensure(/fall-intents:v15:/.test(fallRoute), "fall rail cache must invalidate payloads written before creator marks");
+  ensure(/fall-intents:v16:/.test(fallRoute), "fall rail cache must invalidate payloads written before creator marks");
   ensure(/const creatorReels = detailHref \? eventSocialPosts\(e\.event_id\)/.test(fallRoute), "fall event marks must require a reachable Wayfind detail page");
   ensure(/\.filter\(\(post\) => post\.platform === "instagram" && \/instagram/.test(fallRoute) && /creatorReels,/.test(fallRoute), "fall cards must receive compact Instagram reel credit, never ambiguous /p/ media");
   ensure(!/creatorReels[^\n]*url/.test(fallRoute), "fall card credit must not copy native URLs into the rail payload");

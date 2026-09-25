@@ -1,0 +1,20 @@
+{
+  "hunsader-farms-goats.webp": {
+    "source": "https://unsplash.com/photos/a-couple-of-goats-laying-on-top-of-a-grass-covered-field-i_sBNY7UoNQ",
+    "original": "https://images.unsplash.com/photo-1698292735561-07672acd9787?auto=format&fit=crop&w=1200&q=85",
+    "creator": "Robin Teng (@probablyrobin)",
+    "license": "Unsplash License — free commercial use",
+    "depicted_venue": "Hunsader Farms, County Road 675, Bradenton",
+    "description": "Resting goats at the named farm; venue image, not documentary coverage of the 2026 festival.",
+    "transformation": "Converted from 1200×800 JPEG to WebP at quality 86; no compositing.",
+    "verified_at": "2026-09-25"
+  },
+  "nature-parrish-railroad-museum.webp": {
+    "source": "https://commons.wikimedia.org/wiki/File:Parrish_FL_Florida_Railroad_Museum01.jpg",
+    "creator": "Ebyabe",
+    "license": "CC BY-SA 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+    "description": "Existing Wayfind guide image of the Florida Railroad Museum ticket office; venue image, not a Pumpkin Patch Express train photo.",
+    "existing_provenance": "lib/guideHero.js and data/guide-pick-photos/_reports/license-evidence.json"
+  }
+}
