@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 // vetted year-round spooky PLACES ride along as normal scored place rows.
 import { fetchCuratedEvents, isTrusted, eventOutboundUrl } from "../../../../lib/curatedEvents.js";
 import { siteTodayStr } from "../../../../lib/siteTime.js";
-import { isFallTagged, fallEventLive, fallWhenLabel, fallScheduleChip, FALL_PLACE_IDS, FALL_PLACE_RAIL, FALL_EVENT_TICKET_DEALS } from "../../../../lib/fallPool.js";
+import { isFallEvent, fallEventLive, fallWhenLabel, fallScheduleChip, FALL_PLACE_IDS, FALL_PLACE_RAIL, FALL_EVENT_TICKET_DEALS } from "../../../../lib/fallPool.js";
 import { eventTicketDeal, eventTicketCta, isServableDeal } from "../../../../lib/eventTicketDeals.js";
 import { supabase } from "../../../../lib/supabase.js";
 import { wayfindScore } from "../../../../lib/wayfindScore.js";
@@ -68,9 +68,11 @@ export async function GET(request) {
     // reusing a cache written before that registry entry existed. v14 adds
     // compact creator-reel credit to event cards whose detail page can play it.
     // v16 adds the five reviewed festivals, next-date ordering and image credits.
+    // v17 admits verified seasonal events whose provider data omitted a core
+    // fall tag (for example an event explicitly named Oktoberfest or Fall).
     // v15 (2026-09-22) adds Pinto's Farm (farms rail) with a curated owned
     // photo + photoAttr credit — a cached v14 payload predates both.
-    const key = `fall-intents:v16:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    const key = `fall-intents:v17:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
@@ -121,7 +123,7 @@ export async function GET(request) {
       // applied — so a creator-discovered row could have DATED a card on the
       // rail the owner looks at most. The fall date law (fallEventLive, with
       // its open-run rule) stays here because it is genuinely this rail's own.
-      .filter((e) => isTrusted(e) && isFallTagged(e.tags) && fallEventLive(e, today) && hasUpcomingFallOccurrence(e, today))
+      .filter((e) => isTrusted(e) && isFallEvent(e) && fallEventLive(e, today) && hasUpcomingFallOccurrence(e, today))
       .sort((a, b) => String(a.start_date).localeCompare(String(b.start_date)));
       const inventoryById = new Map((placeResult.data || []).map((row) => [row.place_id, row]));
       const events = eligibleRows
