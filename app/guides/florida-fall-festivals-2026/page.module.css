@@ -724,3 +724,275 @@
     padding: 22px 18px;
   }
 }
+
+
+.editorialSection {
+  margin: 54px 0 0;
+}
+
+.editorialSection > h2 {
+  max-width: 860px;
+  margin: 0;
+  font-family: var(--wf-display, Georgia, serif);
+  font-size: clamp(30px, 4.8vw, 50px);
+  line-height: 1;
+  letter-spacing: -.035em;
+  text-wrap: balance;
+}
+
+.sectionDeck {
+  max-width: 760px;
+  margin: 13px 0 0;
+  color: #b9b2a8;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.miniCard,
+.miniCardCompact {
+  min-width: 0;
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 20px;
+  background:
+    linear-gradient(145deg, rgba(249,115,22,.055), rgba(255,255,255,.018)),
+    #0d0d0d;
+}
+
+.miniCard {
+  padding: 18px;
+}
+
+.miniCardCompact {
+  padding: 14px;
+}
+
+.miniCardTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: #ff9142;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.miniCard h3,
+.miniCardCompact h3 {
+  margin: 8px 0 7px;
+  color: #fff;
+  font-size: 18px;
+  line-height: 1.1;
+}
+
+.miniCardCompact h3 {
+  font-size: 15px;
+}
+
+.miniCard p,
+.miniCardCompact p {
+  margin: 0;
+  color: #aaa39a;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.miniCard a,
+.miniCardCompact a {
+  display: inline-flex;
+  margin-top: 12px;
+  color: #ff9142;
+  font-size: 11px;
+  font-weight: 900;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.weekendStack {
+  display: grid;
+  gap: 14px;
+  margin-top: 22px;
+}
+
+.weekendCard {
+  padding: 18px;
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 24px;
+  background: rgba(255,255,255,.025);
+}
+
+.weekendHeading {
+  display: grid;
+  grid-template-columns: 118px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.weekendHeading > span {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(249,115,22,.32);
+  border-radius: 999px;
+  background: rgba(249,115,22,.09);
+  color: #ff984f;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.weekendHeading h3 {
+  margin: 0;
+  color: #fff;
+  font-size: 21px;
+  line-height: 1.12;
+}
+
+.weekendHeading p {
+  margin: 5px 0 0;
+  color: #9f988f;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.weekendEvents {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.bucketGrid,
+.regionGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.bucket,
+.regionCard {
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 22px;
+  background: #0d0d0d;
+}
+
+.bucket h3,
+.regionCard h3 {
+  margin: 0;
+  color: #fff;
+  font-size: 20px;
+}
+
+.bucket > p,
+.regionCard > p {
+  margin: 5px 0 0;
+  color: #817b74;
+  font-size: 11px;
+}
+
+.bucketList,
+.regionLinks {
+  display: grid;
+  gap: 1px;
+  margin-top: 13px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.065);
+  border-radius: 14px;
+  background: rgba(255,255,255,.06);
+}
+
+.bucketList a,
+.regionLinks a {
+  display: flex;
+  min-width: 0;
+  padding: 11px 12px;
+  background: #111;
+  color: #f2ede6;
+  text-decoration: none;
+}
+
+.bucketList a {
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.bucketList a:hover,
+.regionLinks a:hover {
+  background: #171717;
+}
+
+.bucketList span {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bucketList small {
+  flex: 0 0 auto;
+  color: #8a847d;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.regionLinks a {
+  font-size: 12px;
+  font-weight: 760;
+}
+
+@media (max-width: 820px) {
+  .weekendEvents {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .editorialSection {
+    margin-top: 42px;
+  }
+
+  .editorialSection > h2 {
+    font-size: 34px;
+  }
+
+  .cardGrid,
+  .bucketGrid,
+  .regionGrid,
+  .weekendEvents {
+    grid-template-columns: 1fr;
+  }
+
+  .weekendCard {
+    padding: 14px;
+    border-radius: 20px;
+  }
+
+  .weekendHeading {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .weekendHeading > span {
+    width: fit-content;
+    min-height: 36px;
+    padding: 0 12px;
+  }
+
+  .bucketList a {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 3px;
+  }
+}
