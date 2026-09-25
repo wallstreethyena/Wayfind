@@ -724,3 +724,476 @@
     padding: 22px 18px;
   }
 }
+
+
+.editorialSection {
+  margin: 54px 0 0;
+}
+
+.editorialSection > h2 {
+  max-width: 860px;
+  margin: 0;
+  font-family: var(--wf-display, Georgia, serif);
+  font-size: clamp(30px, 4.8vw, 50px);
+  line-height: 1;
+  letter-spacing: -.035em;
+  text-wrap: balance;
+}
+
+.sectionDeck {
+  max-width: 760px;
+  margin: 13px 0 0;
+  color: #b9b2a8;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.miniCard,
+.miniCardCompact {
+  min-width: 0;
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 20px;
+  background:
+    linear-gradient(145deg, rgba(249,115,22,.055), rgba(255,255,255,.018)),
+    #0d0d0d;
+}
+
+.miniCard {
+  padding: 18px;
+}
+
+.miniCardCompact {
+  padding: 14px;
+}
+
+.miniCardTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: #ff9142;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.miniCard h3,
+.miniCardCompact h3 {
+  margin: 8px 0 7px;
+  color: #fff;
+  font-size: 18px;
+  line-height: 1.1;
+}
+
+.miniCardCompact h3 {
+  font-size: 15px;
+}
+
+.miniCard p,
+.miniCardCompact p {
+  margin: 0;
+  color: #aaa39a;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.miniCard a,
+.miniCardCompact a {
+  display: inline-flex;
+  margin-top: 12px;
+  color: #ff9142;
+  font-size: 11px;
+  font-weight: 900;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.weekendStack {
+  display: grid;
+  gap: 14px;
+  margin-top: 22px;
+}
+
+.weekendCard {
+  padding: 18px;
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 24px;
+  background: rgba(255,255,255,.025);
+}
+
+.weekendHeading {
+  display: grid;
+  grid-template-columns: 118px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.weekendHeading > span {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(249,115,22,.32);
+  border-radius: 999px;
+  background: rgba(249,115,22,.09);
+  color: #ff984f;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.weekendHeading h3 {
+  margin: 0;
+  color: #fff;
+  font-size: 21px;
+  line-height: 1.12;
+}
+
+.weekendHeading p {
+  margin: 5px 0 0;
+  color: #9f988f;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.weekendEvents {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.bucketGrid,
+.regionGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.bucket,
+.regionCard {
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 22px;
+  background: #0d0d0d;
+}
+
+.bucket h3,
+.regionCard h3 {
+  margin: 0;
+  color: #fff;
+  font-size: 20px;
+}
+
+.bucket > p,
+.regionCard > p {
+  margin: 5px 0 0;
+  color: #817b74;
+  font-size: 11px;
+}
+
+.bucketList,
+.regionLinks {
+  display: grid;
+  gap: 1px;
+  margin-top: 13px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.065);
+  border-radius: 14px;
+  background: rgba(255,255,255,.06);
+}
+
+.bucketList a,
+.regionLinks a {
+  display: flex;
+  min-width: 0;
+  padding: 11px 12px;
+  background: #111;
+  color: #f2ede6;
+  text-decoration: none;
+}
+
+.bucketList a {
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.bucketList a:hover,
+.regionLinks a:hover {
+  background: #171717;
+}
+
+.bucketList span {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bucketList small {
+  flex: 0 0 auto;
+  color: #8a847d;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.regionLinks a {
+  font-size: 12px;
+  font-weight: 760;
+}
+
+@media (max-width: 820px) {
+  .weekendEvents {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .editorialSection {
+    margin-top: 42px;
+  }
+
+  .editorialSection > h2 {
+    font-size: 34px;
+  }
+
+  .cardGrid,
+  .bucketGrid,
+  .regionGrid,
+  .weekendEvents {
+    grid-template-columns: 1fr;
+  }
+
+  .weekendCard {
+    padding: 14px;
+    border-radius: 20px;
+  }
+
+  .weekendHeading {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .weekendHeading > span {
+    width: fit-content;
+    min-height: 36px;
+    padding: 0 12px;
+  }
+
+  .bucketList a {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 3px;
+  }
+}
+
+
+.quickNav {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(108px, 1fr));
+  gap: 8px;
+  overflow-x: auto;
+  margin: 0 0 50px;
+  padding: 3px 0 10px;
+  scrollbar-width: none;
+}
+.quickNav::-webkit-scrollbar { display: none; }
+.quickNav a {
+  display: grid;
+  min-height: 94px;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  padding: 12px 9px;
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.015)), #0b0b0b;
+  color: #f7f3ed;
+  text-align: center;
+  text-decoration: none;
+  box-shadow: 0 16px 34px rgba(0,0,0,.18);
+}
+.quickNav a:hover {
+  border-color: rgba(249,115,22,.46);
+  transform: translateY(-1px);
+}
+.quickNav span {
+  font-size: 25px;
+  line-height: 1;
+}
+.quickNav b {
+  font-size: 10px;
+  line-height: 1.15;
+  text-transform: uppercase;
+  letter-spacing: .045em;
+}
+
+.topTenGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.miniMedia {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px 18px 0 0;
+  background: #111;
+}
+.miniFigure {
+  margin: 0 !important;
+}
+.miniFigure figcaption {
+  display: none;
+}
+.rankBadge,
+.rankBadgeStatic {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 999px;
+  background: #f97316;
+  color: #090909;
+  font-size: 15px;
+  font-weight: 950;
+  box-shadow: 0 7px 20px rgba(0,0,0,.35);
+}
+.rankBadge {
+  position: absolute;
+  z-index: 3;
+  top: 10px;
+  left: 10px;
+}
+.rankBadgeStatic {
+  margin: 14px 14px 0;
+}
+.miniBody {
+  padding: 15px 16px 17px;
+}
+.miniCard,
+.miniCardCompact {
+  overflow: hidden;
+  padding: 0 !important;
+}
+.miniCardCompact .miniBody {
+  padding: 13px 14px 15px;
+}
+.whenLine {
+  display: block;
+  margin-top: 9px;
+  color: #858079;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.laneGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 42px 0 6px;
+}
+.laneCard {
+  position: relative;
+  min-height: 210px;
+  overflow: hidden;
+  padding: 22px;
+  border: 1px solid rgba(255,255,255,.11);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 80% 15%, rgba(249,115,22,.17), transparent 12rem),
+    linear-gradient(145deg, rgba(255,255,255,.055), rgba(255,255,255,.018)),
+    #0d0d0d;
+  color: #fff;
+  text-decoration: none;
+}
+.laneCard::after {
+  content: "";
+  position: absolute;
+  right: -24px;
+  bottom: -42px;
+  width: 130px;
+  height: 130px;
+  border: 1px solid rgba(249,115,22,.20);
+  border-radius: 999px;
+}
+.laneCard > span {
+  color: #ff9142;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+.laneCard h3 {
+  max-width: 12ch;
+  margin: 9px 0 10px;
+  font-family: var(--wf-display, Georgia, serif);
+  font-size: 25px;
+  line-height: 1;
+  letter-spacing: -.03em;
+}
+.laneCard p {
+  max-width: 27ch;
+  margin: 0;
+  color: #aaa39a;
+  font-size: 12px;
+  line-height: 1.55;
+}
+.laneCard > b {
+  position: absolute;
+  left: 22px;
+  bottom: 18px;
+  color: #ff9142;
+  font-size: 11px;
+}
+.mapSection {
+  scroll-margin-top: 24px;
+}
+
+@media (max-width: 1050px) {
+  .topTenGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .laneGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .quickNav {
+    grid-template-columns: repeat(10, 102px);
+    margin-right: -9px;
+  }
+  .quickNav a {
+    min-height: 88px;
+    border-radius: 16px;
+  }
+  .topTenGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+  }
+  .miniCard h3,
+  .miniCardCompact h3 {
+    font-size: 15px;
+  }
+  .miniBody {
+    padding: 12px 12px 14px;
+  }
+  .miniCardTop {
+    gap: 5px;
+    font-size: 8px;
+  }
+  .laneGrid {
+    grid-template-columns: 1fr;
+    margin-top: 34px;
+  }
+  .laneCard {
+    min-height: 180px;
+  }
+}
