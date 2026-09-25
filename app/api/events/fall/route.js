@@ -70,9 +70,12 @@ export async function GET(request) {
     // v16 adds the five reviewed festivals, next-date ordering and image credits.
     // v17 admits verified seasonal events whose provider data omitted a core
     // fall tag (for example an event explicitly named Oktoberfest or Fall).
+    // v18 publishes newly verified local haunts and removes the duplicate
+    // event-image gate that could hide a row even when its exact place_id could
+    // resolve through the shared owned-photo ladder.
     // v15 (2026-09-22) adds Pinto's Farm (farms rail) with a curated owned
     // photo + photoAttr credit — a cached v14 payload predates both.
-    const key = `fall-intents:v17:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    const key = `fall-intents:v18:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
@@ -147,8 +150,12 @@ export async function GET(request) {
             })
           : null;
         const inventory = inventoryById.get(e.place_id) || null;
-        const hasImageProof = (!!e.hero_image && e.hero_image !== FALL_COLLECTION_POSTER) || !!inventory?.photo_ref;
-        const image = hasImageProof ? fallEventCardImageSrc(e, 640, inventory) : null;
+        // One image law only. fallEventCardImageSrc rejects collection art and
+        // explicit image holds, then uses this event's hero, owned venue ref, or
+        // exact place_id through /api/photo. A second "proof" gate here used to
+        // hide valid events whose venue identity was already enough to resolve
+        // their own cached/inventory photo.
+        const image = fallEventCardImageSrc(e, 640, inventory);
         const officialOnly = FALL_FEATURED_FESTIVAL_IDS.has(e.event_id) && !!eventOutboundUrl(e);
         const detailHref = !FALL_FEATURED_FESTIVAL_IDS.has(e.event_id) && e.slug && pageSlugs.has(e.slug) ? "/florida-events/" + e.slug : null;
         // The card marker promises a video one tap away, so publish it only
