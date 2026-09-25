@@ -105,10 +105,10 @@ ok(fallEventRail(event({ event_name: "EPCOT Food & Wine", category: "festival", 
 ok(fallEventRail(event({ event_name: "Scream-A-Geddon Horror Park", category: "halloween", subcategory: "haunted-house", tags: ["fall", "halloween", "scary"] })) === "haunts", "a non-park scare attraction enters haunts");
 ok(fallEventRail(event({ event_name: "Boo at the Bay", tags: ["halloween", "trick-or-treat"], audience: ["families", "kids"] })) === "family", "safe trick-or-treat programming enters family");
 ok(fallEventRail(event({ event_name: "Scary Family Fixture", tags: ["halloween", "scary"], audience: ["families"] })) === "haunts", "a scary signal vetoes family placement");
-ok(fallEventRail(event({ event_name: "Wellen Park Oktoberfest", category: "festival", subcategory: "oktoberfest", tags: ["fall", "beer", "music"] })) === "oktoberfest", "Oktoberfest does not leak into generic festivals");
+ok(fallEventRail(event({ event_name: "Lake Nona Oktoberfest", category: "food", subcategory: "Oktoberfest / beer festival", tags: ["festival", "food", "family"] })) === "oktoberfest", "an explicit Oktoberfest still reaches its rail when provider tags omit fall");
 ok(fallEventRail(event({ event_name: "Jock Lindsey Halloween Hangar Bar", subcategory: "themed-bar", tags: ["halloween", "nightlife", "date-night"], audience: ["adults", "couples"] })) === "date-night", "a verified couples themed bar enters spooky date night");
 ok(fallEventRail(event({ event_name: "Generic Cocktail Bar", category: "nightlife", tags: [], audience: ["couples"] })) == null, "a normal cocktail bar is not seasonal");
-ok(fallEventRail(event({ event_name: "Stone Crab Festival", category: "food", subcategory: "seafood-festival", tags: ["fall", "food"] })) === "festivals", "a named fall food festival enters outdoor festivals");
+ok(fallEventRail(event({ event_name: "Pensacola Fall Food Truck Fest", category: "food", subcategory: "food-truck-festival", tags: ["festival", "food", "family"] })) === "festivals", "a named Fall festival still reaches outdoor festivals when provider tags omit fall");
 ok(fallEventRail(event({ event_name: "Crystal Classic", category: "arts", subcategory: "festival", tags: ["fall", "art"], audience: ["photographers"] })) === "photos", "explicit photographer fit promotes a visual event to photo spots");
 ok(fallEventRail(event({ event_name: "North Florida Scenic Drive", tags: ["fall", "scenic", "road-trip"] })) === "day-trips", "a seasonal scenic drive enters day trips");
 ok(fallEventRail(event({ event_name: "Audience Missing", tags: ["halloween"], audience: [] })) == null, "missing audience does not guess family or couples");
@@ -346,7 +346,7 @@ const route = readFileSync(new URL("../app/api/events/fall/route.js", import.met
 const daypart = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
 const component = readFileSync(new URL("../app/components/FallIntentRails.js", import.meta.url), "utf8");
 const card = readFileSync(new URL("../app/components/RailCard.js", import.meta.url), "utf8");
-ok(/fall-intents:v16:/.test(route) && /fastCachedRail/.test(route), "the API uses a new shared FastCache key for playable social posts and the wider Halloween park radius");
+ok(/fall-intents:v17:/.test(route) && /fastCachedRail/.test(route), "the API uses a new shared FastCache key for playable social posts and the wider Halloween park radius");
 const imageProofId = "ChIJB-QyVtEXw4gRk5F8bn3YV28";
 ok(hasStoredPlacePhoto({ place_id: imageProofId, signals: { photo_url: "https://cdn.example.test/owned.jpg" } }),
   "an owned signals.photo_url is stored image proof");
