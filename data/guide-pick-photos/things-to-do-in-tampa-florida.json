@@ -340,6 +340,26 @@
       "verification": "The building's readable signage and downtown-waterfront setting match the Lightning's home arena; the current name (Benchmark International Arena) postdates this photo's Amalie Arena branding, which the caption discloses. Not geotagged; identified by the building signage.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
+    },
+    "A Gulf day trip to Shell Key Preserve": {
+      "src": "/guides/picks/things-to-do-in-tampa-florida/shell-key-clear-kayaks.webp",
+      "width": 1400,
+      "height": 713,
+      "alt": "Kayakers paddle clear boats along calm blue water beside the mangroves at Shell Key, Florida",
+      "caption": "Clear kayaks beside the mangroves at Shell Key.",
+      "credit": "Joe Whalen / Tampa Bay Estuary Program",
+      "creditHref": "https://unsplash.com/photos/two-people-in-a-canoe-paddling-down-a-river-KUU87l4KSoE",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license",
+      "sourceUrl": "https://unsplash.com/photos/two-people-in-a-canoe-paddling-down-a-river-KUU87l4KSoE",
+      "author": "Joe Whalen",
+      "position": "50% 50%",
+      "modificationNotice": "Resized and converted to WebP; display may crop the photograph.",
+      "sourceKind": "unsplash",
+      "placeId": "ChIJ5_NkHLUcw4gRndvLQGe_Ox8",
+      "verification": "Unsplash source uploaded by the Tampa Bay Estuary Program explicitly identifies Shell Key, Florida, and photographer Joe Whalen, with the free Unsplash License. Downloaded and visually inspected 1400px image: clear kayaks with rear-facing paddlers, calm blue water and dense green mangrove shore. Subject directly matches the guides’ Shell Key paddle trip; no generic substitute or identifiable face.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-24"
     }
   },
   "gaps": {
@@ -360,12 +380,6 @@
       "placeId": null,
       "needsPermissionFrom": null,
       "note": "An annual citywide parade and flotilla along Bayshore Boulevard and the bay rather than a single fixed venue; available event photos on Commons also center on identifiable crowds, so this is left as a gap rather than substituting a different place's photo."
-    },
-    "A Gulf day trip to Shell Key Preserve": {
-      "reason": "no-verified-source",
-      "placeId": "ChIJ5_NkHLUcw4gRndvLQGe_Ox8",
-      "needsPermissionFrom": null,
-      "note": "Wayfind's own wf_place_photo row for this place is a NOAA nautical chart (Shell_Key_detail.png), not a photograph of the island, so it does not satisfy \"a real photo of that exact place.\" Commons title search and geosearch around the preserve's coordinates found no actual photograph of Shell Key Preserve. Pass 2 (2026-09-23): Openverse queries 'Shell Key Preserve' (157 results) and 'Shell Key Tierra Verde' (0) surfaced a generic driftwood/beach shot with no geotag or landmark (could be any Gulf beach), a shuttle-dock photo at the Tierra Verde marina (the boat launch, not the preserve itself), and a photo taken from Pass-a-Grille looking across the water toward the preserve (a different beach) — none show the preserve itself closely or distinctively enough to satisfy the exact-place rule."
     },
     "Parque Amigos de Jose Marti": {
       "reason": "public-art",

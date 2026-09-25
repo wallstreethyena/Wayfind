@@ -98,7 +98,11 @@ export const GUIDE_EDITORIAL_CSS = `
 .wf-guide-place-rail-secondary a{color:#fdba74;font-weight:700;text-decoration:none}
 .wf-guide-place-rail-market{margin:16px 0 8px;font-size:12px;letter-spacing:1.4px;font-weight:800;color:#94a3b8;text-transform:uppercase}
 .wf-guide-place-rail .wf8-pcrail{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 16px;-webkit-overflow-scrolling:touch}
-.wf-guide-place-rail .wf-place-card-slot{list-style:none}
+.wf-guide-photo-list{list-style:none;margin:0;padding:0;display:grid;gap:30px}
+.wf-guide-photo-list li{min-width:0}
+.wf-guide-photo-list h3{font:400 26px/1.25 var(--wf-display),Georgia,serif;margin:0 0 14px}
+.wf-guide-photo-list h3 a{color:#eef0ed;text-underline-offset:5px}
+.wf-guide-photo-link{display:inline-flex;align-items:center;min-height:44px;margin-top:10px;color:#fdba74;text-underline-offset:4px}
 @media(max-width:760px){
  .wf-guide-editorial .wf-guide-article{padding-top:24px}
  .wf-guide-editorial .wf-guide-intro{font-size:20px!important;line-height:1.65!important}

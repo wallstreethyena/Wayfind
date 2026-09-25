@@ -3,6 +3,7 @@ import ShareButton from "../components/ShareButton";
 // v4.18 — Guides hub. A browsable index so humans and crawlers reach every
 // guide from one internally linked page, strengthening the authority flow.
 import { GUIDES } from "../../lib/guides";
+import { FLORIDA_CITY_GUIDES } from "../../lib/guidesCoverage2026";
 import { guideHero } from "../../lib/guideHero";
 import { guideRegions } from "../../lib/guideIndex";
 import styles from "./guides.module.css";
@@ -63,6 +64,12 @@ export default function GuidesHub() {
           {regions.map(({ region }, i) => <a key={region} href={"#destination-" + i}>{region}</a>)}
         </nav>
       </header>
+      <section className={styles.section} aria-labelledby="city-guide-title">
+        <div className={styles.sectionHead}><h2 id="city-guide-title">Start with your city</h2></div>
+        <nav className={styles.regions} aria-label="Guides for every Florida coverage area">
+          {Object.entries(FLORIDA_CITY_GUIDES).map(([city, slug]) => <a key={city} href={"/guides/" + slug}>{city.split("-").map((word) => word[0].toUpperCase() + word.slice(1)).join(" ")}</a>)}
+        </nav>
+      </section>
       {regions.map(({ region, guides }, i) => (
         <section key={region} id={"destination-" + i} className={styles.section}>
           <div className={styles.sectionHead}>

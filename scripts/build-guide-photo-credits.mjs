@@ -73,7 +73,7 @@ const header = [
     " record (picks and hero). Do not hand-edit — rerun the script after any data file changes:" +
     " `node scripts/build-guide-photo-credits.mjs`.",
   "",
-  "Every photo is a Creative Commons download; images may be resized, cropped and converted to WebP" +
+  "Each photo uses the license named below; images may be resized, cropped and converted to WebP" +
     " for display. A CC BY-SA source keeps its adaptation under the same licence, noted per entry below.",
 ].join("\n");
 
