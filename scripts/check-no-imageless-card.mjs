@@ -195,8 +195,9 @@ for (const row of FALL_DISCOVERIES_2026) {
       `${row.event_id}: without a verified place identity, the card stays honest instead of borrowing a farm photo`);
   }
 }
-ok(/fallEventCardImageSrc\(e, 640, inventory\)/.test(fallRoute),
-  "the live Fall endpoint applies the collection-poster rejection before returning cards");
+ok(/const image = fallEventCardImageSrc\(e, 640, inventory\)/.test(fallRoute)
+  && !/const hasImageProof =/.test(fallRoute),
+  "the live Fall endpoint always executes the one event-image ladder instead of hiding a valid place_id behind a second proof gate");
 
 // A stale database copy used to win the de-duplication race over the owner's
 // newer registry row. Nueva Cantina therefore lost its valid Place ID in

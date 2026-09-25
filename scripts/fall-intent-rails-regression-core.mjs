@@ -97,6 +97,7 @@ ok(fallRailOrder("2026-10-28")[0] === "family", "Halloween week leads with pract
 ok(fallRailOrder("2026-11-10")[0] === "festivals", "November leads with outdoor festivals");
 
 ok(fallEventRail(event({ event_name: "Hunsader Pumpkin Festival", tags: ["fall", "pumpkins", "farm"], audience: ["families"] })) === "farms", "a real pumpkin farm enters the farm rail");
+ok(fallEventRail(event({ event_name: "Raprager October Haunted Nights", subcategory: "haunted-maze", tags: ["fall", "halloween", "scary", "haunt", "haunted-maze", "haunted-hayride", "farm"], audience: ["adults", "teens", "families"] })) === "haunts", "a scary farm haunt is a haunt, not swallowed by the generic farm rule");
 ok(fallEventRail(event({ event_name: "Generic Fall Concert", category: "music", subcategory: "concert", tags: ["fall"] })) == null, "fall alone cannot seasonalize an ordinary concert");
 ok(fallEventRail(event({ event_name: "Halloween Horror Nights", category: "halloween", subcategory: "haunted-house", tags: ["halloween", "theme-park", "scary"] })) === "theme-parks", "HHN is a theme-park decision, not duplicated as a local haunt");
 ok(fallEventRail(event({ event_name: "Halloween Hangar Bar", subcategory: "themed-bar", tags: ["fall", "halloween", "theme-park", "nightlife"], audience: ["adults"] })) === "date-night", "a theme-park district tag cannot turn an adults-only Halloween bar into a park event");
@@ -135,6 +136,14 @@ const distanceLaw = composeFallIntentRails([], [
 const farmCards = distanceLaw.rails.find((rail) => rail.id === "farms").cards;
 ok(farmCards.map((card) => card.id).join("|") === "farm-near", "a farm beyond its 45-mile rail radius is rejected");
 ok(!farmCards.some((card) => card.id === "farm-unknown"), "unknown distance is rejected rather than guessed nearby");
+
+const hauntRadiusLaw = composeFallIntentRails([
+  event({ id: "haunt-near", event_id: "haunt-near", event_name: "Nearby Haunted House", title: "Nearby Haunted House", lat: 27.95, lng: -82.00, start_date: "2026-10-01", end_date: "2026-10-31", tags: ["fall", "halloween", "scary", "haunted-house"] }),
+  event({ id: "haunt-far", event_id: "haunt-far", event_name: "Too Far Haunted House", title: "Too Far Haunted House", lat: 27.95, lng: -81.70, start_date: "2026-10-01", end_date: "2026-10-31", tags: ["fall", "halloween", "scary", "haunted-house"] }),
+], [], { lat: 27.95, lng: -82.46, today: "2026-10-01", now });
+const hauntRadiusCards = hauntRadiusLaw.rails.find((rail) => rail.id === "haunts").cards;
+ok(hauntRadiusCards.some((card) => card.id === "haunt-near") && !hauntRadiusCards.some((card) => card.id === "haunt-far"),
+  "haunts stay local: an in-radius scare is admitted and an over-45-mile scare is rejected");
 
 // Reproduce the owner's Bradenton screenshot: Orlando was cut off at 60 mi.
 // Real park coordinates also cover Sarasota; boundary controls protect the
@@ -346,17 +355,18 @@ const route = readFileSync(new URL("../app/api/events/fall/route.js", import.met
 const daypart = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
 const component = readFileSync(new URL("../app/components/FallIntentRails.js", import.meta.url), "utf8");
 const card = readFileSync(new URL("../app/components/RailCard.js", import.meta.url), "utf8");
-ok(/fall-intents:v17:/.test(route) && /fastCachedRail/.test(route), "the API uses a new shared FastCache key for playable social posts and the wider Halloween park radius");
+ok(/fall-intents:v18:/.test(route) && /fastCachedRail/.test(route), "the API uses a new shared FastCache key for playable social posts and the wider Halloween park radius");
 const imageProofId = "ChIJB-QyVtEXw4gRk5F8bn3YV28";
 ok(hasStoredPlacePhoto({ place_id: imageProofId, signals: { photo_url: "https://cdn.example.test/owned.jpg" } }),
   "an owned signals.photo_url is stored image proof");
 ok(!hasStoredPlacePhoto({ place_id: imageProofId, signals: { photo_url: "https://images.pexels.com/not-owned.jpg" } })
   && !hasStoredPlacePhoto({ place_id: imageProofId, signals: { photo_url: "not a URL" } }),
   "stock and malformed signals.photo_url values are not stored image proof");
-ok(/hasImageProof[\s\S]{0,220}inventory\?\.photo_ref/.test(route)
+ok(!/const hasImageProof =/.test(route)
+  && /const image = fallEventCardImageSrc\(e, 640, inventory\)/.test(route)
   && /filter\(\(p\) => hasStoredPlacePhoto\(p\)\)/.test(route)
   && /cardImageSrc\(\{ place_id: p\.place_id, photo_ref: p\.photo_ref, photo_url: p\.photo_url, signals: p\.signals \}/.test(route),
-  "Fall places require validated image proof and preserve an owned signals.photo_url without a Google photo call");
+  "Fall events use the shared image ladder directly while permanent places still require validated stored proof");
 ok(/hasStoredPlacePhoto/.test(route) && !/filter\(\(p\) => !!p\.photo_ref \|\| !!p\.signals\?\.photo_url/.test(route),
   "a truthy stock or malformed signals.photo_url cannot admit a fall place card");
 // A curated, business-approved photo (lib/curatedOwnedPlacePhotos.js) is
