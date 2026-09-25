@@ -4432,15 +4432,15 @@
         },
         "image_record": {
           "status": "pass",
-          "evidence": "/guides/verified/food-st-armands-meal.webp; 1067x1600; Keith Tanner; Unsplash License."
+          "evidence": "/guides/verified/city-lakewood-pond.webp; 1600x1067; Lucas Liberman; Unsplash License."
         },
         "representative_image": {
           "status": "pass",
           "evidence": "The route and metadata use the same per-slug reviewed image."
         },
         "large_image_candidate": {
-          "status": "unknown",
-          "evidence": "Reviewed source image is 1067x1600; it is not claimed as a 1200px-wide Discover candidate."
+          "status": "pass",
+          "evidence": "Reviewed source image is 1600x1067 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "unknown",

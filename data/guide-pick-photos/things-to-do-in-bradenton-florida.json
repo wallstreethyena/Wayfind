@@ -1,0 +1,26 @@
+{
+  "slug": "things-to-do-in-bradenton-florida",
+  "picks": {
+    "Robinson Preserve": {
+      "src": "/guides/picks/robinson-preserve-bradenton/robinson-preserve-boardwalk-trail.webp",
+      "width": 1400,
+      "height": 933,
+      "alt": "A wooden boardwalk bridge and a paved crushed-shell trail curve along the water's edge at Robinson Preserve, with mangroves and the Sunshine Skyway Bridge in the distance and a few distant walkers on the path",
+      "caption": "The paved trail and boardwalk bridge at Robinson Preserve, with the Sunshine Skyway Bridge beyond.",
+      "credit": "Mark Hewitt",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Robinson_Perserve_-_panoramio.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Robinson_Perserve_-_panoramio.jpg",
+      "author": "Mark Hewitt",
+      "position": "40% 55%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Wikimedia Commons file (an archived Panoramio upload) titled \"Robinson Perserve\" [sic], categorized under \"Robinson Preserve,\" with an embedded geotag (27.512839, -82.668686) inside the preserve; shows the preserve's own paved and boardwalk trail network with the Sunshine Skyway Bridge visible beyond, matching this pick's \"crushed-shell and paved paths\" and the guide's own mention of views to the Skyway. Taken 28 November 2009 per file metadata; the trail infrastructure shown is long-lived park amenity, distinct from the observation-tower photo already used for a different pick in this guide. Distant walkers on the trail are incidental and not the subject. Live Commons licence checked: CC BY-SA 3.0. Reused for the same venue/area in things-to-do-in-bradenton-florida; image visually reviewed on 2026-09-24. Not a new license claim.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-24"
+    }
+  },
+  "gaps": {}
+}

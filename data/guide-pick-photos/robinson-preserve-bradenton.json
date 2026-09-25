@@ -40,14 +40,27 @@
       "verification": "Wikimedia Commons file (an archived Panoramio upload) titled \"Robinson Perserve\" [sic], categorized under \"Robinson Preserve,\" with an embedded geotag (27.512839, -82.668686) inside the preserve; shows the preserve's own paved and boardwalk trail network with the Sunshine Skyway Bridge visible beyond, matching this pick's \"crushed-shell and paved paths\" and the guide's own mention of views to the Skyway. Taken 28 November 2009 per file metadata; the trail infrastructure shown is long-lived park amenity, distinct from the observation-tower photo already used for a different pick in this guide. Distant walkers on the trail are incidental and not the subject. Live Commons licence checked: CC BY-SA 3.0.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
+    },
+    "The kayak trails": {
+      "src": "/guides/picks/robinson-preserve-bradenton/kayaks-beside-boardwalk.webp",
+      "width": 1200,
+      "height": 675,
+      "alt": "Three colorful kayaks sit in a shallow inlet beside a curving boardwalk at Robinson Preserve, seen from the observation tower",
+      "caption": "Kayaks beside the boardwalk at Robinson Preserve.",
+      "credit": "Ryan Thorpe",
+      "creditHref": "https://unsplash.com/photos/people-riding-on-red-and-white-go-kart-on-gray-concrete-road-during-daytime-dcFryYlLWdk",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license",
+      "sourceUrl": "https://unsplash.com/photos/people-riding-on-red-and-white-go-kart-on-gray-concrete-road-during-daytime-dcFryYlLWdk",
+      "author": "Ryan Thorpe",
+      "position": "50% 50%",
+      "modificationNotice": "Resized and converted to WebP; display may crop the photograph.",
+      "sourceKind": "unsplash",
+      "placeId": "ChIJR0i18icRw4gRbyGIoLLoSo0",
+      "verification": "Unsplash source identifies Robinson Preserve Tower, Bradenton, Florida and photographer Ryan Thorpe; the photographer caption says Kayaks and the page states free Unsplash License. Downloaded and visually inspected: three kayaks in shallow creek beside curving boardwalk, mangrove shore and walking paths from elevated tower. Matches the actual preserve paddling subject and tidal tip. The automatic Unsplash title incorrectly says go kart; ignored in favor of visible image and source location.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-24"
     }
   },
-  "gaps": {
-    "The kayak trails": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": "Manatee County Parks and Natural Resources (public agency)",
-      "note": "No Commons photo found of Robinson Preserve's kayak launch or mangrove paddling trails specifically. Pass 2 (2026-09-23): Openverse searched \"Robinson Preserve kayak\", \"Robinson Preserve trail\", \"Robinson Preserve mangrove tunnel\" and \"Robinson Preserve paddle mangrove creek\"; also checked the Commons category for Robinson Preserve directly (only 2 files total exist there — the observation tower already used, and a boardwalk/trail photo now used for the 'Flat miles for wheels' pick). None show the preserve's kayak launch or paddling water."
-    }
-  }
+  "gaps": {}
 }

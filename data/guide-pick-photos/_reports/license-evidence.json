@@ -1,11 +1,11 @@
 {
   "generatedBy": "scripts/build-guide-photo-license-evidence.mjs",
   "verifiedAt": "2026-09-23",
-  "rule": "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, CC BY and CC BY-SA (2.0 to 4.0); NC and ND never pass.",
+  "rule": "Every guide pick photo has source evidence for its recorded license. Free Unsplash License photos are manually checked at the exact source page and actual image; CC source evidence is retained with its original verification date. NC and ND do not pass.",
   "summary": {
-    "files": 187,
-    "usages": 196,
-    "verified": 187,
+    "files": 190,
+    "usages": 204,
+    "verified": 190,
     "needsReview": [],
     "authorDiffers": [],
     "byLicence": {
@@ -15,7 +15,8 @@
       "CC BY 2.0": 31,
       "CC0 1.0 Universal": 17,
       "CC BY-SA 3.0": 46,
-      "CC BY-SA 2.0": 14
+      "CC BY-SA 2.0": 14,
+      "Unsplash License": 3
     },
     "replacementCandidates": [
       "/guides/picks/gatorland-vs-wild-florida/gatorland-mouth-entrance.webp",
@@ -1220,6 +1221,10 @@
       "src": "/guides/picks/gulf-coast-brunch-and-date-night/venice-fishing-pier-dusk.webp",
       "usedBy": [
         {
+          "slug": "things-to-do-in-venice-florida",
+          "role": "hero"
+        },
+        {
           "slug": "gulf-coast-brunch-and-date-night",
           "role": "hero"
         }
@@ -1681,6 +1686,11 @@
       "src": "/guides/picks/pinecraft-sarasota-amish-village/yoders-restaurant-sign.webp",
       "usedBy": [
         {
+          "slug": "gulf-coast-brunch-and-date-night",
+          "role": "pick",
+          "pick": "Yoder's Restaurant"
+        },
+        {
           "slug": "pinecraft-sarasota-amish-village",
           "role": "pick",
           "pick": "Yoder's Restaurant"
@@ -1798,6 +1808,38 @@
       "verifiedAt": "2026-09-23"
     },
     {
+      "src": "/guides/picks/robinson-preserve-bradenton/kayaks-beside-boardwalk.webp",
+      "usedBy": [
+        {
+          "slug": "robinson-preserve-bradenton",
+          "role": "pick",
+          "pick": "The kayak trails"
+        }
+      ],
+      "source": {
+        "kind": "unsplash",
+        "url": "https://unsplash.com/photos/people-riding-on-red-and-white-go-kart-on-gray-concrete-road-during-daytime-dcFryYlLWdk",
+        "title": "Three colorful kayaks sit in a shallow inlet beside a curving boardwalk at Robinson Preserve, seen from the observation tower",
+        "author": "Ryan Thorpe",
+        "licence": "Unsplash License",
+        "licenceUrl": "https://unsplash.com/license",
+        "evidence": "Primary photo page identifies the named location and explicitly states Free to use under the Unsplash License. Source page and actual downloaded photograph independently reviewed on 2026-09-24.",
+        "verification": "Unsplash source identifies Robinson Preserve Tower, Bradenton, Florida and photographer Ryan Thorpe; the photographer caption says Kayaks and the page states free Unsplash License. Downloaded and visually inspected: three kayaks in shallow creek beside curving boardwalk, mangrove shore and walking paths from elevated tower. Matches the actual preserve paddling subject and tidal tip. The automatic Unsplash title incorrectly says go kart; ignored in favor of visible image and source location."
+      },
+      "wayfind": {
+        "credit": "Ryan Thorpe",
+        "creditHref": "https://unsplash.com/photos/people-riding-on-red-and-white-go-kart-on-gray-concrete-road-during-daytime-dcFryYlLWdk",
+        "license": "Unsplash License",
+        "licenseUrl": "https://unsplash.com/license",
+        "modificationNotice": "Resized and converted to WebP; display may crop the photograph."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-09-24",
+      "verificationMethod": "manual-source-and-image-review"
+    },
+    {
       "src": "/guides/picks/robinson-preserve-bradenton/observation-tower.webp",
       "usedBy": [
         {
@@ -1834,6 +1876,11 @@
           "slug": "robinson-preserve-bradenton",
           "role": "pick",
           "pick": "Flat miles for wheels"
+        },
+        {
+          "slug": "things-to-do-in-bradenton-florida",
+          "role": "pick",
+          "pick": "Robinson Preserve"
         }
       ],
       "source": {
@@ -2516,6 +2563,38 @@
       "authorMatchesCredit": true,
       "status": "verified",
       "verifiedAt": "2026-09-23"
+    },
+    {
+      "src": "/guides/picks/things-to-do-in-miami-florida/vizcaya-interior.webp",
+      "usedBy": [
+        {
+          "slug": "things-to-do-in-miami-florida",
+          "role": "pick",
+          "pick": "Vizcaya Museum and Gardens"
+        }
+      ],
+      "source": {
+        "kind": "unsplash",
+        "url": "https://unsplash.com/photos/a-large-room-with-a-large-painting-on-the-wall-8hzYzvJ38zg",
+        "title": "Decorated interior, stone columns and tall windows at Vizcaya Museum and Gardens",
+        "author": "Zoshua Colah",
+        "licence": "Unsplash License",
+        "licenceUrl": "https://unsplash.com/license",
+        "evidence": "Primary photo page identifies the named location and explicitly states Free to use under the Unsplash License. Source page and actual downloaded photograph independently reviewed on 2026-09-24.",
+        "verification": "Source location explicitly Vizcaya Museum and Gardens Miami Florida. Visually checked full room context; no unrelated venue or detail crop. Free Unsplash License on source."
+      },
+      "wayfind": {
+        "credit": "Zoshua Colah",
+        "creditHref": "https://unsplash.com/photos/a-large-room-with-a-large-painting-on-the-wall-8hzYzvJ38zg",
+        "license": "Unsplash License",
+        "licenseUrl": "https://unsplash.com/license",
+        "modificationNotice": "Converted to WebP; cropped for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-09-24",
+      "verificationMethod": "manual-source-and-image-review"
     },
     {
       "src": "/guides/picks/things-to-do-in-parrish-florida/coquina-beach.webp",
@@ -3305,6 +3384,43 @@
       "verifiedAt": "2026-09-23"
     },
     {
+      "src": "/guides/picks/things-to-do-in-tampa-florida/shell-key-clear-kayaks.webp",
+      "usedBy": [
+        {
+          "slug": "things-to-do-in-tampa-florida",
+          "role": "pick",
+          "pick": "A Gulf day trip to Shell Key Preserve"
+        },
+        {
+          "slug": "things-to-do-st-petersburg-clearwater-summer-2026",
+          "role": "pick",
+          "pick": "Shell Key Preserve"
+        }
+      ],
+      "source": {
+        "kind": "unsplash",
+        "url": "https://unsplash.com/photos/two-people-in-a-canoe-paddling-down-a-river-KUU87l4KSoE",
+        "title": "Kayakers paddle clear boats along calm blue water beside the mangroves at Shell Key, Florida",
+        "author": "Joe Whalen",
+        "licence": "Unsplash License",
+        "licenceUrl": "https://unsplash.com/license",
+        "evidence": "Primary photo page identifies the named location and explicitly states Free to use under the Unsplash License. Source page and actual downloaded photograph independently reviewed on 2026-09-24.",
+        "verification": "Unsplash source uploaded by the Tampa Bay Estuary Program explicitly identifies Shell Key, Florida, and photographer Joe Whalen, with the free Unsplash License. Downloaded and visually inspected 1400px image: clear kayaks with rear-facing paddlers, calm blue water and dense green mangrove shore. Subject directly matches the guides’ Shell Key paddle trip; no generic substitute or identifiable face."
+      },
+      "wayfind": {
+        "credit": "Joe Whalen / Tampa Bay Estuary Program",
+        "creditHref": "https://unsplash.com/photos/two-people-in-a-canoe-paddling-down-a-river-KUU87l4KSoE",
+        "license": "Unsplash License",
+        "licenseUrl": "https://unsplash.com/license",
+        "modificationNotice": "Resized and converted to WebP; display may crop the photograph."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-09-24",
+      "verificationMethod": "manual-source-and-image-review"
+    },
+    {
       "src": "/guides/picks/things-to-do-in-tampa-florida/tampa-bay-history-center.webp",
       "usedBy": [
         {
@@ -3697,6 +3813,11 @@
     {
       "src": "/guides/picks/things-to-do-miami-summer-2026/calle-ocho-cigar-bar-sign.webp",
       "usedBy": [
+        {
+          "slug": "things-to-do-in-miami-florida",
+          "role": "pick",
+          "pick": "Little Havana"
+        },
         {
           "slug": "things-to-do-miami-summer-2026",
           "role": "pick",
