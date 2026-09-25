@@ -144,6 +144,31 @@ for (const asset of ["card-bg-dark-640.webp", "card-bg-dark-1100.webp"]) {
   ok(bytes > 2000, `public/fall/${asset} exists and is a real image (${bytes} bytes) — a 404 here repaints the flat fallback and loses the season`);
 }
 
+
+// 8. THE STATEWIDE FALL GUIDE STAYS A PLANNER, NOT A FIVE CARD POST.
+// This locks the owner requested October weekend planner and statewide lanes
+// without creating a second guide URL for the same search intent.
+const MASTER_GUIDE = readFileSync(new URL("../app/guides/florida-fall-festivals-2026/page.js", import.meta.url), "utf8");
+const MASTER_DATA = readFileSync(new URL("../lib/floridaFallGuide2026.js", import.meta.url), "utf8");
+ok(MASTER_GUIDE.includes("OctoberWeekendPlanner"),
+  "the Florida fall guide keeps the every October weekend planner");
+ok(MASTER_GUIDE.includes("WeekdayPlans"),
+  "the Florida fall guide keeps weekday fall options instead of weekend only coverage");
+ok(MASTER_GUIDE.includes("BrowseByKind") && MASTER_GUIDE.includes("BrowseByRegion"),
+  "the Florida fall guide stays browsable by both vibe and Florida region");
+for (const id of [
+  "frrm-pumpkin-patch-express-2026",
+  "dakin-harvest-festival-2026",
+  "hunsader-pumpkin-2026",
+  "keel-farms-harvest-days-2026",
+  "jacksonville-pumpkin-fest-2026",
+  "pensacola-interstate-fair-2026",
+  "halloween-horror-nights-orlando-2026",
+  "the-berry-farm-harvest-festival-2026",
+]) {
+  ok(MASTER_DATA.includes(id), `statewide master guide keeps verified anchor ${id}`);
+}
+
 if (fail.length) {
   console.error(`check-fall-is-calling: FAIL (${fail.length} of ${pass + fail.length})`);
   for (const m of fail) console.error("  ✗ " + m);
