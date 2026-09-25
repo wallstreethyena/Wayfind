@@ -108,7 +108,7 @@ function missingEntryFields(entry) {
 }
 
 const REVIEWED_AT_RX = /^\d{4}-\d{2}-\d{2}$/;
-const SOURCE_KINDS = new Set(["commons", "flickr", "owned", "permission"]);
+const SOURCE_KINDS = new Set(["commons", "flickr", "owned", "permission", "unsplash"]);
 
 function entryTypeProblems(entry) {
   const problems = [];
@@ -117,6 +117,7 @@ function entryTypeProblems(entry) {
   if (!(Number.isFinite(entry.height) && entry.height > 0)) problems.push("height must be a positive number");
   if (typeof entry.sameAsCardPhoto !== "boolean") problems.push("sameAsCardPhoto must be a boolean");
   if (!SOURCE_KINDS.has(entry.sourceKind)) problems.push(`sourceKind must be one of ${[...SOURCE_KINDS].join("/")}, got ${JSON.stringify(entry.sourceKind)}`);
+  if (entry.sourceKind === "unsplash" && (!/^https:\/\/unsplash\.com\/photos\/[^/?#]+$/.test(entry.sourceUrl || "") || entry.license !== "Unsplash License")) problems.push("Unsplash photos require a public photo source page and the free Unsplash License");
   if (!(entry.placeId === null || typeof entry.placeId === "string")) problems.push("placeId must be a string or null");
   if (!REVIEWED_AT_RX.test(String(entry.reviewedAt))) problems.push(`reviewedAt must be YYYY-MM-DD, got ${JSON.stringify(entry.reviewedAt)}`);
   if (typeof entry.verification !== "string" || !entry.verification.trim()) problems.push("verification must be a non-empty string");
@@ -175,7 +176,7 @@ await Promise.all(allEntries.map(async ({ slug, pickName, entry }) => {
 const CC_RX = /^CC (BY|BY-SA) (2\.0|3\.0|4\.0)$/;
 const PERMISSION_RX = /^Used with permission of .+ \(owner-confirmed \d{4}-\d{2}-\d{2}\); credit required$/;
 const ALLOWED_LICENSE_STRINGS = new Set([
-  "CC0 1.0 Universal",
+  "CC0 1.0 Universal", "Unsplash License",
   "CC BY 2.0", "CC BY 3.0", "CC BY 4.0",
   "CC BY-SA 2.0", "CC BY-SA 3.0", "CC BY-SA 4.0",
 ]);
@@ -187,6 +188,7 @@ function licenseProblem(license, licenseUrl) {
   if (license === "CC0 1.0 Universal") {
     return licenseUrl === "https://creativecommons.org/publicdomain/zero/1.0/" ? null : `CC0 licenseUrl must be exactly https://creativecommons.org/publicdomain/zero/1.0/, got ${JSON.stringify(licenseUrl)}`;
   }
+  if (license === "Unsplash License") return licenseUrl === "https://unsplash.com/license" ? null : "Unsplash License requires its canonical license URL";
   const ccMatch = CC_RX.exec(String(license));
   if (ccMatch) {
     const kind = ccMatch[1].toLowerCase(); // by | by-sa
@@ -209,6 +211,9 @@ function licenseProblem(license, licenseUrl) {
     }
   }
   ok(licenseProblem("Used with permission of Ringling Museum (owner-confirmed 2026-09-22); credit required", "https://www.ringling.org/") === null, "positive control: a well-formed permission license is legal");
+  ok(licenseProblem("Unsplash License", "https://unsplash.com/license") === null, "positive control: free Unsplash license accepted at its canonical URL");
+  ok(licenseProblem("Unsplash License", "https://unsplash.com/plus") !== null, "red-proof: Unsplash Plus is not licensed by the free license");
+  ok(entryTypeProblems({ src: "/x.webp", width: 1400, height: 900, sameAsCardPhoto: false, sourceKind: "unsplash", sourceUrl: "https://example.com/stolen", license: "Unsplash License", placeId: null, reviewedAt: "2026-09-24", verification: "checked" }).some(p => p.includes("Unsplash")), "red-proof: an unrelated source cannot claim the free Unsplash license");
   // red-proofs — every rejected shape must actually be rejected.
   ok(typeof licenseProblem("CC BY-NC 4.0", "https://creativecommons.org/licenses/by-nc/4.0/") === "string", "red-proof: CC BY-NC is refused (NC forbidden)");
   ok(typeof licenseProblem("CC BY-ND 4.0", "https://creativecommons.org/licenses/by-nd/4.0/") === "string", "red-proof: CC BY-ND is refused (ND forbidden)");
@@ -390,7 +395,9 @@ for (const { file, json } of dataFiles) {
   naive.photoAttr = free.attributionText; // what the naive version did
   ok(Boolean(naive.photoAttr) && Boolean(naive.photoRef), "red-proof: a credited card that still shows a Google ref is exactly the mismatch the rule prevents");
   const pageSrc = readFileSync(abs("app/guides/[slug]/page.js"), "utf8");
-  ok(/attachFreePhotoCredit\(\[\.\.\.pickPlaces, \.\.\.placeRail\.places\], \{ findFreePhoto \}\)/.test(pageSrc), "app/guides/[slug]/page.js attaches card credit only through attachFreePhotoCredit");
+  const hasEditorialCreditResolver = (source) => /guidePlaceFigureImage\(place, \{ findFreePhoto, findSamePlaceCachedPhoto \}\)/.test(source);
+  ok(hasEditorialCreditResolver(pageSrc), "app/guides/[slug]/page.js resolves editorial photos through the credited free/cache resolver");
+  ok(!hasEditorialCreditResolver(pageSrc.replaceAll("guidePlaceFigureImage(place,", "uncreditedPhoto(place,")), "red-proof: bypassing the credited editorial resolver fails");
   ok(!/p\.photoAttr\s*=\s*free\.attributionText/.test(pageSrc), "page.js no longer sets the credit inline without pointing the card at the free photo");
 }
 
@@ -406,7 +413,7 @@ for (const { file, json } of dataFiles) {
 const LEDGER_PATH = "data/guide-pick-photos/_reports/license-evidence.json";
 const ledger = JSON.parse(readFileSync(abs(LEDGER_PATH), "utf8"));
 const ledgerBySrc = new Map((ledger.files || []).map((r) => [r.src, r]));
-const COMMERCIAL_OK_RX = /^(CC0 1\.0 Universal|CC BY(-SA)? [234]\.0)$/;
+const COMMERCIAL_OK_RX = /^(CC0 1\.0 Universal|CC BY(-SA)? [234]\.0|Unsplash License)$/;
 function ledgerProblems(row, stored) {
   if (!row) return ["no licence-evidence row"];
   const p = [];

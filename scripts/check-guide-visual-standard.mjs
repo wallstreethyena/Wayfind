@@ -262,6 +262,20 @@ for (const rel of ENTRY_POINTS) {
   ok(withImageHtml.includes("<figure") && withImageHtml.includes('src="/guides/test.webp"'), "GuideFigure with real image data DOES render a photo (positive control — the null case above isn't just a broken component)");
   ok(withImageHtml.includes("Photo: Test Credit") || withImageHtml.includes("Photo:"), "GuideFigure renders the GVS-3 caption/credit line under the photo");
 
+  const notice = "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.";
+  for (const caption of ["The venue exterior.", "The venue exterior. " + notice]) {
+    const html = renderToStaticMarkup(React.createElement(GuideFigure, { role: "pick", image: {
+      src: "/guides/test.webp", caption, modificationNotice: notice,
+      credit: "Photographer", creditHref: "https://example.com/author", license: "CC BY 4.0", licenseUrl: "https://creativecommons.org/licenses/by/4.0/",
+    } }));
+    const disclosure = html.match(/<details[^>]*>[\s\S]*?<\/details>/)?.[0] || "";
+    const visible = html.replace(disclosure, "");
+    ok(disclosure.includes("<summary>Photo details</summary>") && disclosure.includes(notice), "real render: modification notice stays available in native photo details");
+    ok(!/<details[^>]*\sopen/.test(disclosure) && !visible.includes(notice), "real render: operational transformation notice does not dominate the visible caption");
+    ok(visible.includes("The venue exterior.") && visible.includes("Photo: Photographer") && visible.includes("CC BY 4.0"), "real render: description, photographer and license remain visible outside disclosure");
+    ok(html.split(notice).length === 2, "real render: embedded or separate modification notice appears exactly once");
+  }
+
   // Structural half: the pick loop must GATE the figure on real data, never
   // render it unconditionally (the exact shape that would defeat GVS-5).
   const pageSrc = read("app/guides/[slug]/page.js").replace(/\/\*[\s\S]*?\*\//g, " ");

@@ -13,6 +13,15 @@ and blocks CI when a page drifts. Surfaces outside `app/guides/**` (the home app
 shell, city and category landing pages) are out of scope and must not be
 restyled to match.
 
+Owner update, 2026-09-24: guide and blog recommendations must be shown with
+beautiful, generous photographs instead of embedded discovery place cards.
+Each numbered pick shows one relevant `GuideFigure` before its prose and
+insider note. Supplemental editorial venue lists use the same photo treatment.
+Keep the pick number, title, real place links, photo credit and required licence.
+Do not repeat the same image in a figure and a card. This is the narrow editorial
+exception to AGENTS §14; separate interactive discovery maps and all
+non-editorial cards retain their established appearance and controls.
+
 ## GVS-1. Image shapes are fixed by role, never by the photo
 
 | Role | Ratio | Where |
@@ -59,7 +68,10 @@ Pexels License, or a permission line) follows when the licence requires it. A
 Google place photo carries the attribution its provider returns. Captions
 describe only what is visible in the frame; a photo that does not show the named
 place says so in its own words ("Illustrative photo. …"), per
-`lib/guideImagePolicy.js`.
+`lib/guideImagePolicy.js`. Keep the description, linked photographer and licence
+visible. Put longer image-editing and adaptation notices in the native
+“Photo details” disclosure immediately below, once, so required provenance
+remains available without overwhelming the article.
 
 ## GVS-4. Article shape
 

@@ -493,9 +493,15 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
   ok(stale.outcome === "classified" && stale.failureReason === "stale-reference",
     `case 10: a queue row whose current_ref no longer matches inventory, with no recovery -> "stale-reference", got outcome "${stale.outcome}" reason "${stale.failureReason}"`);
 
-  const noSource = decideRowOutcome({ row, livePhotoRef: "", recovery: { ref: olderRef, uri: "x", expMs: freshExpMs }, ledgerHasHeadroom: true });
+  const recoveredWithoutRef = decideRowOutcome({ row, livePhotoRef: "", recovery: { ref: olderRef, uri: "https://lh3.googleusercontent.com/p/older", expMs: freshExpMs }, ledgerHasHeadroom: false });
+  ok(recoveredWithoutRef.outcome === "recovered" && recoveredWithoutRef.recoverySource === "same-place-cache",
+    "case 10: a same-place cached image remains usable without an inventory Google ref");
+  const freeWithoutRef = decideRowOutcome({ row, livePhotoRef: null, vaultHit: { source: "wikimedia", license: "CC0", attributionText: "Author", attributionUrl: "https://commons.wikimedia.org/" }, ledgerHasHeadroom: false });
+  ok(freeWithoutRef.outcome === "recovered" && freeWithoutRef.recoverySource === "owned-free",
+    "case 10: a verified free image must recover even without an inventory Google ref");
+  const noSource = decideRowOutcome({ row, livePhotoRef: "", recovery: null, vaultHit: null, ledgerHasHeadroom: true });
   ok(noSource.outcome === "classified" && noSource.failureReason === "no-source",
-    `case 10: no live photo_ref -> "no-source" regardless of recovery, got outcome "${noSource.outcome}" reason "${noSource.failureReason}"`);
+    `case 10: no live photo_ref and no available image -> "no-source", got outcome "${noSource.outcome}" reason "${noSource.failureReason}"`);
 
   // Execute the real runRepair end-to-end against a fetch stub, proving:
   // (a) the injectable findSamePlace is actually called (never the worker's
@@ -1835,9 +1841,9 @@ function makeQueueFetchStub({ dueOpen = [], blocked = [], reconcile = [], refs =
   // ledger (readLedger is never even given a chance to run: no
   // readLedger stub is passed, so a call would throw "not a function" and
   // fail the case outright if the code path ever reached it).
-  {
+  for (const hasGoogleRef of [true, false]) {
     const placeId = "ChIJReconcile0001";
-    const liveRef = `places/${placeId}/photos/LIVE`;
+    const liveRef = hasGoogleRef ? `places/${placeId}/photos/LIVE` : null;
     const patches = [];
     const capturedUrls = [];
     const savedFetch = globalThis.fetch;

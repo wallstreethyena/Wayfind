@@ -20,6 +20,26 @@
       "verification": "File is titled \"Sharky's Pier\" and shows the pier building on the Venice Fishing Pier; the guide's own pick text says Fins is \"the upscale sister to casual Sharky's next door, on the Venice Fishing Pier,\" so this photo shows the exact pier complex housing both restaurants, not Fins' own separate signage.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
+    },
+    "Yoder's Restaurant": {
+      "src": "/guides/picks/pinecraft-sarasota-amish-village/yoders-restaurant-sign.webp",
+      "width": 1400,
+      "height": 1282,
+      "alt": "A sign mounted on Yoder's Restaurant's green exterior wall reading \"Yoder's, Amish Home Cooking, Homemade Pies, Sarasota Tradition Since 1975\"",
+      "caption": "The sign outside Yoder's Restaurant in Pinecraft, a Sarasota tradition since 1975.",
+      "credit": "Jared",
+      "creditHref": "https://www.flickr.com/photos/93283041@N00/8778985834",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/93283041@N00/8778985834",
+      "author": "Jared",
+      "position": "50% 55%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "flickr",
+      "placeId": null,
+      "verification": "Flickr photo titled \"Sarasota - Yoder's Amish Village - Restaurant Sign\" by Jared, taken 2013-04-25; the building's own sign reads \"Yoder's, Amish Home Cooking, Homemade Pies, Sarasota Tradition Since 1975,\" matching the guide's own description of the restaurant's 1975 founding. Live Flickr page licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
     }
   },
   "hero": {
@@ -60,12 +80,6 @@
       "placeId": "ChIJJWCbj5kRw4gRYkZ7QJ-L91s",
       "needsPermissionFrom": "Gulf Drive Cafe",
       "note": "No Commons photo found for this restaurant; Wayfind's inventory carries only a Google Places photo. Pass 2 (2026-09-23): Openverse queries 'Gulf Drive Cafe Bradenton Beach' (0) and 'Gulf Drive Cafe' with source=flickr (0) found no CC-licensed photo of this Bradenton Beach restaurant."
-    },
-    "Yoder's Restaurant": {
-      "reason": "google-only",
-      "placeId": "ChIJIwZqEutAw4gR-1cOUgiln24",
-      "needsPermissionFrom": "Yoder's Restaurant",
-      "note": "No Commons photo found for this restaurant; Wayfind's inventory carries only a Google Places photo. Pass 2 (2026-09-23): Openverse queries \"Yoder's Restaurant Sarasota Pinecraft\" (0) and \"Yoder's Restaurant Pinecraft\" with source=flickr (0) found no CC-licensed photo of this Pinecraft restaurant."
     },
     "Columbia Restaurant": {
       "reason": "google-only",

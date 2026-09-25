@@ -1,0 +1,47 @@
+{
+  "slug": "things-to-do-in-miami-florida",
+  "picks": {
+    "Vizcaya Museum and Gardens": {
+      "src": "/guides/picks/things-to-do-in-miami-florida/vizcaya-interior.webp",
+      "alt": "Decorated interior, stone columns and tall windows at Vizcaya Museum and Gardens",
+      "caption": "Inside Vizcaya Museum and Gardens in Miami, photographed in June 2024.",
+      "credit": "Zoshua Colah",
+      "creditHref": "https://unsplash.com/photos/a-large-room-with-a-large-painting-on-the-wall-8hzYzvJ38zg",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license",
+      "width": 1400,
+      "height": 934,
+      "bytes": 179484,
+      "position": "50% 50%",
+      "reviewedAt": "2026-09-24",
+      "modificationNotice": "Converted to WebP; cropped for display.",
+      "sourceUrl": "https://unsplash.com/photos/a-large-room-with-a-large-painting-on-the-wall-8hzYzvJ38zg",
+      "author": "Zoshua Colah",
+      "sourceKind": "unsplash",
+      "verification": "Source location explicitly Vizcaya Museum and Gardens Miami Florida. Visually checked full room context; no unrelated venue or detail crop. Free Unsplash License on source.",
+      "sameAsCardPhoto": false,
+      "placeId": null
+    },
+    "Little Havana": {
+      "src": "/guides/picks/things-to-do-miami-summer-2026/calle-ocho-cigar-bar-sign.webp",
+      "width": 1100,
+      "height": 1466,
+      "alt": "The neon \"Guantanamera Cigar Bar and Lounge\" sign with a palm-tree design, mounted on a building along Calle Ocho in Little Havana",
+      "caption": "A cigar bar's neon sign along Calle Ocho, Little Havana's essential culture walk.",
+      "credit": "Phillip Pessar",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Guantanamera_Cigar_Bar_Sign_Calle_Ocho_Little_Havana_Miami_FL_August_2023.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Guantanamera_Cigar_Bar_Sign_Calle_Ocho_Little_Havana_Miami_FL_August_2023.jpg",
+      "author": "Phillip Pessar",
+      "position": "50% 30%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Downloaded the original from Wikimedia Commons and inspected it: the file's own title names Calle Ocho, Little Havana, and its embedded GPS (25.7656, -80.2191) sits on Calle Ocho; a cigar-bar sign is a direct match for this pick's mention of hand-rolled cigars, and no people are visible. Reused for the same venue/area in things-to-do-in-miami-florida; image visually reviewed on 2026-09-24. Not a new license claim.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-24"
+    }
+  },
+  "gaps": {}
+}
