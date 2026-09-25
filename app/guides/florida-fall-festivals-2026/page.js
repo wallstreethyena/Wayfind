@@ -3,7 +3,22 @@ import ShareButton from "../../components/ShareButton";
 import { pageShareUrl } from "../../../lib/pageShareUrl";
 import { WF_PLACE_CARD_CSS } from "../../components/css";
 import GuideMapExplorer from "../../components/GuideMapExplorer";
+import GuideFigure from "../../components/GuideFigure";
+import { fallEventCardImageSrc } from "../../../lib/fallEventImage";
 import styles from "./page.module.css";
+import {
+  FLORIDA_FALL_GUIDE_EVENTS_2026,
+  FLORIDA_FALL_GUIDE_EVENT_COUNT,
+  FALL_GUIDE_KIND_LABELS,
+  FALL_GUIDE_OCTOBER_WEEKENDS,
+  FALL_GUIDE_REGION_ORDER,
+  FALL_GUIDE_STARTER_IDS,
+  FALL_GUIDE_WEEKDAY_IDS,
+  fallGuideEventHref,
+  fallGuideKind,
+  fallGuideRegion,
+  findFallGuideEvent,
+} from "../../../lib/floridaFallGuide2026";
 
 // v2026-09-22 — moved onto the shared GuideMapExplorer (map + house-card
 // rail + category filters), the SAME component every guide with >=3 mappable
@@ -66,25 +81,25 @@ function fallGuideSpots(spots) {
 // of fetching and re-serving an arbitrary https URL (including the metered
 // /api/photo). The route no longer reads either param at all.
 const shareImage = "/api/og/hero?kind=guide&id=florida-fall-festivals-2026"
-  + "&t=" + encodeURIComponent("33 Florida Fall Picks for 2026")
+  + "&t=" + encodeURIComponent("The Complete Florida Fall Guide 2026")
   + "&cat=Guide&loc=" + encodeURIComponent("Florida")
-  + "&n=33";
+  + "&n=" + FLORIDA_FALL_GUIDE_EVENT_COUNT;
 
 export const metadata = {
-  title: "Florida Fall Guide 2026",
-  description: "Pumpkin patches, fall markets, haunted nights, family Halloween, seasonal food and the biggest fall weekends across Florida, with dates, locations and what to expect.",
+  title: "Florida Fall Guide 2026: October Weekends, Halloween, Farms and Food",
+  description: "Plan every October weekend in Florida with verified 2026 pumpkin patches, fall festivals, haunted nights, family Halloween, seasonal food, fairs and weekday fall plans across the state.",
   robots: { index: true, follow: true },
   alternates: { canonical: "/guides/florida-fall-festivals-2026" },
   openGraph: {
-    title: "33 Florida Fall Picks for 2026",
-    description: "Pumpkin patches, haunted nights, markets, fall food and big weekends. Open the map and pick your weekend.",
+    title: "The Complete Florida Fall Guide 2026",
+    description: "Every October weekend, pumpkin patches, haunted nights, family Halloween, fall food and statewide festival plans in one guide.",
     url: "/guides/florida-fall-festivals-2026",
-    images: [{ url: shareImage, width: 1200, height: 630, type: "image/jpeg", alt: "Orange pumpkins arranged at a nursery in Davie, Florida — 33 Florida Fall Picks for 2026 on Wayfind" }],
+    images: [{ url: shareImage, width: 1200, height: 630, type: "image/jpeg", alt: "Orange pumpkins arranged at a nursery in Davie, Florida for Wayfind's complete 2026 Florida fall guide" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "33 Florida Fall Picks for 2026",
-    description: "Pumpkins, haunts, markets and fall food in one mapped guide. Pick your weekend.",
+    title: "The Complete Florida Fall Guide 2026",
+    description: "Pick your October weekend, then choose farms, haunts, family Halloween, food or festivals across Florida.",
     images: [shareImage],
   },
 };
@@ -567,25 +582,262 @@ const mapSpots = [
   },
 ];
 
+
+function formatGuideDate(value) {
+  if (!value) return "";
+  const [year, month, day] = String(value).split("-").map(Number);
+  if (!year || !month || !day) return value;
+  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", timeZone: "America/New_York" })
+    .format(new Date(Date.UTC(year, month - 1, day, 12)));
+}
+
+function eventWhen(event) {
+  if (event.schedule_note) return event.schedule_note;
+  const start = formatGuideDate(event.start_date);
+  const end = formatGuideDate(event.end_date);
+  if (start && end && start !== end) return start + " to " + end;
+  return start || end || "Check the organizer for dates";
+}
+
+function eventImage(event) {
+  if (!event) return null;
+  const src = fallEventCardImageSrc(event, 900);
+  if (!src) return null;
+  return {
+    src,
+    alt: event.image_alt || ((event.venue || event.event_name) + "; venue photo"),
+    width: 900,
+    height: 675,
+    caption: event.image_alt || "",
+    credit: event.photoAttr || null,
+    creditHref: event.photoAttrHref || null,
+  };
+}
+
+function EventMiniCard({ event, compact = false, rank = null, visual = true }) {
+  if (!event) return null;
+  const href = fallGuideEventHref(event);
+  const image = visual ? eventImage(event) : null;
+  return (
+    <article className={compact ? styles.miniCardCompact : styles.miniCard}>
+      {image ? (
+        <div className={styles.miniMedia}>
+          {rank ? <span className={styles.rankBadge}>{rank}</span> : null}
+          <GuideFigure
+            role="card"
+            image={image}
+            showCaption={false}
+            className={styles.miniFigure}
+            fallbackText={event.event_name}
+          />
+        </div>
+      ) : rank ? <span className={styles.rankBadgeStatic}>{rank}</span> : null}
+      <div className={styles.miniBody}>
+        <div className={styles.miniCardTop}>
+          <span>{event.city || "Florida"}</span>
+          <span>{FALL_GUIDE_KIND_LABELS[fallGuideKind(event)] || "Fall plan"}</span>
+        </div>
+        <h3>{event.event_name}</h3>
+        <p>{event.card_hook || event.editorial_summary || eventWhen(event)}</p>
+        <small className={styles.whenLine}>{eventWhen(event)}</small>
+        {href ? <a href={href}>{String(href).startsWith("/") ? "Open on Wayfind" : "Official information"}</a> : null}
+      </div>
+    </article>
+  );
+}
+
+function StarterGrid() {
+  const picks = FALL_GUIDE_STARTER_IDS.map(findFallGuideEvent).filter(Boolean);
+  return (
+    <section className={styles.editorialSection} aria-labelledby="start-here">
+      <p className={styles.kicker}>Start here</p>
+      <h2 id="start-here">Ten fall plans worth building a weekend around.</h2>
+      <p className={styles.sectionDeck}>
+        This is the fast version: unusual experiences, big statewide events, classic farms and the strongest October anchors from North Florida to the Keys.
+      </p>
+      <div className={styles.topTenGrid}>
+        {picks.map((event, index) => <EventMiniCard key={event.event_id} event={event} rank={index + 1} />)}
+      </div>
+    </section>
+  );
+}
+
+function FallQuickNav() {
+  const items = [
+    ["🎃", "Pumpkin patches", "#fall-kind-farms"],
+    ["👻", "Halloween events", "#fall-kind-haunts"],
+    ["🍴", "Food and drinks", "#fall-kind-food"],
+    ["🚂", "Train rides", "#start-here"],
+    ["🌽", "Corn mazes", "#fall-kind-farms"],
+    ["🧒", "Family fun", "#fall-kind-family"],
+    ["🎵", "Live music", "#fall-kind-festival"],
+    ["🍂", "Fall festivals", "#fall-kind-festival"],
+    ["📅", "Weekend plans", "#october-weekends"],
+    ["📍", "Map view", "#fall-map"],
+  ];
+  return (
+    <nav className={styles.quickNav} aria-label="Florida fall guide shortcuts">
+      {items.map(([icon, label, href]) => (
+        <a key={label} href={href}>
+          <span aria-hidden="true">{icon}</span>
+          <b>{label}</b>
+        </a>
+      ))}
+    </nav>
+  );
+}
+
+function ExperienceLanes() {
+  const lanes = [
+    { id: "food", eyebrow: "Eat the season", title: "Fall food and drinks", copy: "Pumpkin, cider, Oktoberfest, seafood weekends and seasonal menus.", href: "#fall-kind-food" },
+    { id: "family", eyebrow: "Easy with kids", title: "Family day solved", copy: "Pumpkin patches, animals, trains, trick or treating and daytime Halloween.", href: "#fall-kind-family" },
+    { id: "haunts", eyebrow: "After dark", title: "Halloween and haunts", copy: "Theme park scares, haunted trails, ghost tours and late night Halloween.", href: "#fall-kind-haunts" },
+    { id: "weekend", eyebrow: "Pick a date", title: "Your October weekends", copy: "Five weekend plans built from verified 2026 event dates.", href: "#october-weekends" },
+  ];
+  return (
+    <section className={styles.laneGrid} aria-label="Choose your Florida fall plan">
+      {lanes.map((lane) => (
+        <a className={styles.laneCard} href={lane.href} key={lane.id}>
+          <span>{lane.eyebrow}</span>
+          <h3>{lane.title}</h3>
+          <p>{lane.copy}</p>
+          <b>Open this lane →</b>
+        </a>
+      ))}
+    </section>
+  );
+}
+
+function OctoberWeekendPlanner() {
+  return (
+    <section className={styles.editorialSection} aria-labelledby="october-weekends">
+      <p className={styles.kicker}>Every October weekend</p>
+      <h2 id="october-weekends">Pick the weekend first. Then pick the vibe.</h2>
+      <p className={styles.sectionDeck}>
+        Each weekend below is built from dated 2026 events so you can choose the part of October that fits your group instead of scrolling one giant list.
+      </p>
+      <div className={styles.weekendStack}>
+        {FALL_GUIDE_OCTOBER_WEEKENDS.map((weekend) => (
+          <article className={styles.weekendCard} key={weekend.date}>
+            <div className={styles.weekendHeading}>
+              <span>{weekend.date}</span>
+              <div>
+                <h3>{weekend.title}</h3>
+                <p>{weekend.note}</p>
+              </div>
+            </div>
+            <div className={styles.weekendEvents}>
+              {weekend.ids.map(findFallGuideEvent).filter(Boolean).map((event) => (
+                <EventMiniCard compact key={event.event_id} event={event} />
+              ))}
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function WeekdayPlans() {
+  const plans = FALL_GUIDE_WEEKDAY_IDS.map(findFallGuideEvent).filter(Boolean);
+  return (
+    <section className={styles.editorialSection} aria-labelledby="weekday-fall">
+      <p className={styles.kicker}>Monday through Thursday</p>
+      <h2 id="weekday-fall">Fall does not have to wait for Saturday.</h2>
+      <p className={styles.sectionDeck}>
+        Use these when you want a quieter pumpkin stop, a seasonal dinner, a coffee run, a ghost tour or a major festival that is open beyond the weekend.
+      </p>
+      <div className={styles.cardGrid}>
+        {plans.map((event) => <EventMiniCard key={event.event_id} event={event} />)}
+      </div>
+    </section>
+  );
+}
+
+function BrowseByKind() {
+  const kinds = ["farms", "family", "haunts", "food", "festival", "activities"];
+  return (
+    <section className={styles.editorialSection} aria-labelledby="browse-by-kind">
+      <p className={styles.kicker}>Everything by vibe</p>
+      <h2 id="browse-by-kind">Pumpkins, scares, food, festivals and family Halloween.</h2>
+      <div className={styles.bucketGrid}>
+        {kinds.map((kind) => {
+          const events = FLORIDA_FALL_GUIDE_EVENTS_2026.filter((event) => fallGuideKind(event) === kind)
+            .filter((event) => String(event.end_date || event.start_date || "") >= "2026-09-25")
+            .slice(0, 10);
+          if (!events.length) return null;
+          return (
+            <div className={styles.bucket} key={kind} id={"fall-kind-" + kind}>
+              <h3>{FALL_GUIDE_KIND_LABELS[kind]}</h3>
+              <p>{events.length} featured plans in this guide</p>
+              <div className={styles.bucketList}>
+                {events.map((event) => (
+                  <a key={event.event_id} href={fallGuideEventHref(event) || "#guide"}>
+                    <span>{event.event_name}</span>
+                    <small>{event.city || "Florida"} · {formatGuideDate(event.start_date)}</small>
+                  </a>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function BrowseByRegion() {
+  return (
+    <section className={styles.editorialSection} aria-labelledby="browse-by-region">
+      <p className={styles.kicker}>Statewide</p>
+      <h2 id="browse-by-region">Find fall near the part of Florida you are actually in.</h2>
+      <p className={styles.sectionDeck}>
+        The guide reaches beyond Tampa Bay and Orlando so a fall road trip can start in Pensacola, Jacksonville, Miami, the Gulf Coast or anywhere in between.
+      </p>
+      <div className={styles.regionGrid}>
+        {FALL_GUIDE_REGION_ORDER.map((region) => {
+          const events = FLORIDA_FALL_GUIDE_EVENTS_2026.filter((event) => fallGuideRegion(event) === region)
+            .filter((event) => String(event.end_date || event.start_date || "") >= "2026-09-25")
+            .slice(0, 12);
+          if (!events.length) return null;
+          return (
+            <article className={styles.regionCard} key={region}>
+              <h3>{region}</h3>
+              <p>{events.length} current picks shown</p>
+              <div className={styles.regionLinks}>
+                {events.map((event) => (
+                  <a key={event.event_id} href={fallGuideEventHref(event) || "#guide"}>
+                    {event.event_name}
+                  </a>
+                ))}
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 export default function FloridaFallGuide() {
   return (
     <main className={styles.page}>
       <style dangerouslySetInnerHTML={{ __html: WF_PLACE_CARD_CSS }} />
       <GuideArticleHero
-        title="Florida Fall Guide 2026"
-        description="Pumpkin patches, markets, haunted nights, fall food, family Halloween and the weekends actually worth putting on the calendar."
+        title="The Complete Florida Fall Guide 2026"
+        description="Plan every October weekend with pumpkin patches, farm days, haunted nights, family Halloween, seasonal food, fairs and statewide fall festivals."
         image={hero}
         region="Florida"
         category="Fall guide"
-        updatedLabel="Updated September 21, 2026"
+        updatedLabel="Updated September 25, 2026"
         backHref="/guides"
         backLabel="All guides"
         jumpHref="#guide"
-        jumpLabel="Open the fall map"
+        jumpLabel="Plan October"
         actions={<ShareButton
           url={pageShareUrl("/guides/florida-fall-festivals-2026")}
-          title="Florida Fall Guide 2026"
-          text="The Florida fall guide: pumpkin patches, markets, haunted nights and the weekends worth planning. On Wayfind."
+          title="The Complete Florida Fall Guide 2026"
+          text="Every October weekend, pumpkin patches, haunted nights, family Halloween, fall food and statewide festival plans. On Wayfind."
           tone="dark"
           event="guide_share"
           meta={{ slug: "florida-fall-festivals-2026", placement: "hero" }}
@@ -594,19 +846,26 @@ export default function FloridaFallGuide() {
 
       <div id="guide" className={styles.content}>
         <div className={styles.trustBar} aria-label="Florida fall guide details">
-          <span><b>2026</b> dates</span>
-          <span><b>Exact</b> locations</span>
-          <span><b>Tips</b> before you go</span>
+          <span><b>{FLORIDA_FALL_GUIDE_EVENT_COUNT}+</b> verified plans</span>
+          <span><b>Every</b> October weekend</span>
+          <span><b>Statewide</b> Florida coverage</span>
         </div>
 
         <div className={styles.intro}>
-          <p className={styles.kicker}>Florida fall, sorted by vibe</p>
-          <h2>Pick the kind of fall day you want.</h2>
+          <p className={styles.kicker}>Florida fall, all in one place</p>
+          <h2>Pick your weekend. We did the rest.</h2>
           <p>
-            Pumpkin farms, markets, family Halloween, haunted nights, seasonal food and the biggest fall weekends are grouped into swipeable rails tied directly to the map.
+            This guide combines dated 2026 farms, pumpkin patches, Halloween nights, trick or treating, food festivals, seasonal menus, Oktoberfests, fairs and fall day trips across Florida. Start with the ten anchors, plan an October weekend, then browse by vibe or region.
           </p>
         </div>
 
+        <FallQuickNav />
+        <StarterGrid />
+        <ExperienceLanes />
+        <OctoberWeekendPlanner />
+        <WeekdayPlans />
+
+        <section id="fall-map" className={styles.mapSection} aria-label="Florida fall map">
         <GuideMapExplorer
           spots={fallGuideSpots(mapSpots)}
           filters={MAP_EXPLORER_FILTERS}
@@ -617,6 +876,10 @@ export default function FloridaFallGuide() {
           note="Swipe the cards to move the selected pin. Tap a pin to jump back to its card."
           railIdPrefix="fall-guide"
         />
+        </section>
+
+        <BrowseByKind />
+        <BrowseByRegion />
 
         <aside className={styles.note}>
           <p className={styles.kicker}>Before you go</p>
