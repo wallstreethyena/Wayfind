@@ -75,7 +75,7 @@ export async function GET(request) {
     // resolve through the shared owned-photo ladder.
     // v15 (2026-09-22) adds Pinto's Farm (farms rail) with a curated owned
     // photo + photoAttr credit — a cached v14 payload predates both.
-    const key = `fall-intents:v18:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    const key = `fall-intents:v19:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
