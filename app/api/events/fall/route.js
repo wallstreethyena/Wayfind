@@ -70,9 +70,11 @@ export async function GET(request) {
     // v16 adds the five reviewed festivals, next-date ordering and image credits.
     // v17 admits verified seasonal events whose provider data omitted a core
     // fall tag (for example an event explicitly named Oktoberfest or Fall).
+    // v18 preserves real seasonal-place date windows so every Fall rail can
+    // sort dated cards chronologically, and flushes the expanded food registry.
     // v15 (2026-09-22) adds Pinto's Farm (farms rail) with a curated owned
     // photo + photoAttr credit — a cached v14 payload predates both.
-    const key = `fall-intents:v17:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    const key = `fall-intents:v18:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
@@ -256,6 +258,12 @@ export async function GET(request) {
             image: inventory?.photo_ref ? fallEventCardImageSrc({ ...row, hero_image: null }, 640, inventory) : null,
             fallRail: FALL_DISCOVERY_RAIL[row.event_id],
             sourceUrl: row.source_url || null,
+            // Keep source dates on a permanent-business card for ordering.
+            // These are real published dates only; a missing close stays null.
+            start_date: row.start_date || null,
+            end_date: row.end_date || null,
+            occurrence_dates: Array.isArray(row.occurrence_dates) ? row.occurrence_dates : [],
+            seasonalStart: row.start_date || null,
             seasonalThrough: row.end_date || null,
           };
         })
