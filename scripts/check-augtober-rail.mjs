@@ -15,7 +15,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { isFallTagged, fallEventLive, fallWhenLabel, fallScheduleChip, isOpenRun, fallSkinLive, eventFranchiseKey, FALL_PLACE_IDS, FALL_PLACE_RAIL, FALL_REJECTED_IDS, FALL_OFFERING_SOURCES, FALL_EVENT_TICKET_DEALS, OPEN_RUN_DAYS } from "../lib/fallPool.js";
+import { isFallTagged, isFallEvent, fallEventLive, fallWhenLabel, fallScheduleChip, isOpenRun, fallSkinLive, eventFranchiseKey, FALL_PLACE_IDS, FALL_PLACE_RAIL, FALL_REJECTED_IDS, FALL_OFFERING_SOURCES, FALL_EVENT_TICKET_DEALS, OPEN_RUN_DAYS } from "../lib/fallPool.js";
 import { FALL_CARD_IDS, fallCardClass, thanksgivingDayOfMonth } from "../lib/fallSkin.js";
 import { DAYPART_IDS, orderFor } from "../lib/dayparts.js";
 import { RAIL_IDS } from "../lib/rails.js";
@@ -25,8 +25,11 @@ let pass = 0, fail = 0;
 const ok = (c, m) => { c ? pass++ : (fail++, console.log("  FAIL:", m)); };
 
 // ── 1. The pool laws, executed ─────────────────────────────────────────────
-ok(isFallTagged(["halloween", "nightlife"]) && isFallTagged(["fall"]) && !isFallTagged(["food", "beer"]),
-  "fall tagging admits halloween/fall and refuses untagged rows");
+ok(isFallTagged(["halloween", "nightlife"]) && isFallTagged(["fall"]) && !isFallTagged(["food", "beer"])
+  && isFallEvent({ event_name: "Lake Nona Oktoberfest", tags: ["festival", "food", "family"] })
+  && isFallEvent({ event_name: "St. Pete Indie Flea Fall/Winter Market", tags: ["market", "local"] })
+  && !isFallEvent({ event_name: "Summer Seafood Festival", tags: ["festival", "food"] }),
+  "fall identity admits explicit seasonal names when source tags lag, without admitting ordinary festivals");
 
 // dated: the real HHN35 shape
 const hhn = { start_date: "2026-08-28", end_date: "2026-11-01" };
