@@ -99,6 +99,7 @@ import * as Fam from "../lib/family";
 import { getSupabase } from "../lib/lazySupabase";
 let supabase = null;
 import { usePlaceProduct } from "../lib/placeProduct";
+import { useCardTapIntent } from "./components/useCardTapIntent.js";
 // v8: heroRefFromPlaces went with the date-night and hidden-gem hero photo
 // effects — the rail uses owned artwork and the place cards carry their own
 // photoRef, so nothing on this page live-picks a hero photo any more.
