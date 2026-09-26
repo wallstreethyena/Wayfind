@@ -165,8 +165,9 @@ assert.equal(renderToStaticMarkup(createElement(DestinationStaysContent, {
 })), "", "a late hotel response cannot flash under the newly selected destination");
 
 const fallSource = fs.readFileSync(new URL("../app/components/FallIntentRails.js", import.meta.url), "utf8");
-assert.match(fallSource, /firstPopulatedRail[\s\S]*index === firstPopulatedRail \? <DestinationStays/, "the automatic stays rail mounts after the first populated Fall rail");
-assert.doesNotMatch(fallSource, /<DestinationStays[^>]*(?:center|lat|lng)=/, "the visitor center is never passed as the hotel destination");
+const recommendedHotelSource = fs.readFileSync(new URL("../app/components/FallRecommendedHotels.js", import.meta.url), "utf8");
+assert.match(fallSource, /payload\.rails\.map[\s\S]*<FallRecommendedHotels center=\{center\}/, "the Fall collection renders recommended hotels only after all content rails");
+assert.ok(!/DestinationStays|firstPopulatedRail/.test(fallSource) && !/<select|Stay near/i.test(recommendedHotelSource), "the Fall collection no longer exposes a destination selector or a 'Stay near' chooser");
 const fallRoute = fs.readFileSync(new URL("../app/api/events/fall/route.js", import.meta.url), "utf8");
 assert.match(fallRoute, /cached = \{ \.\.\.cached, value: \{ \.\.\.cached\.value, stayDestinations: fallStayDestinations\(cached\.value\.rails\) \} \}/, "a request-local clone derives destination metadata from full cached rails, so pre-deploy cache entries gain it without mutating shared cache state");
 assert.match(fallRoute, /windowRailAnswer\(cached\.value, full\)/, "wire pagination retains the full-answer destination metadata through the established cache-value envelope");
