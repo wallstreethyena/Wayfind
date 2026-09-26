@@ -63,5 +63,20 @@
   "ChIJo_IdHf0lw4gRHDbQNKBRE84": [
     { "url": "https://ryanscoffeehouse.com/signature-lattes", "type": "official_site", "known_insufficient": true, "note": "seeded 2026-09-23 (WS3 official-site + live Square catalog check, Parrish): the current Signature Lattes board (footer '© 2026') lists Ryan's Special, Parrish Honey Bee, Bananas Foster, Lavender Haze, Caramel Apple Macchiato, Raspberry White Mocha and Salted Caramel Mocha as YEAR-ROUND signatures, with no seasonal label and no dated window on any item. No White Pumpkin, no pumpkin item at all — a 2025-dated article is the only place 'White Pumpkin' ever appeared for this venue. known_insufficient pins the verdict so a stray fall word elsewhere on the site cannot vouch for a claim the venue's own current menu does not make." },
     { "url": "https://ryans-coffee-house.square.site/", "type": "official_menu_platform", "known_insufficient": true, "note": "seeded 2026-09-23 (WS3 live Square store check): same roster as the signature-lattes page, and every single item shows Out of Stock — online ordering looks paused. No fall/pumpkin item, no seasonal label. Facebook and Instagram were login-walled and could not be checked for free." }
+  ],
+  "ChIJ3xa3znR_54gRR3bePMYdOfg": [
+    { "url": "https://order.toasttab.com/online/cfs-dr-philips-7535-west-sand-lake-road", "type": "official_menu_platform", "note": "seeded 2026-09-25: current Dr. Phillips ordering menu shows the 2026 fall latte lineup, including pumpkin spice and apple cinnamon." }
+  ],
+  "ChIJ-ZFB15jtwogRpEcx2izoHr8": [
+    { "url": "https://charliecoffeefl.com/", "type": "official_site", "note": "seeded 2026-09-25: current site publishes Fall Menu 2026 with Pumpkin Roll Latte, Apple Cinnamon Crumble Latte and Maple Brown Sugar Matcha." }
+  ],
+  "ChIJJWzJr9232YgR6jjHElv8mjc": [
+    { "url": "https://www.puravidamiami.com/", "type": "official_site", "note": "seeded 2026-09-25: current official site promotes Fall Flavors and Pumpkin Spice Cloud." }
+  ],
+  "ChIJsRAN-H5Bw4gRl0sAl0587IY": [
+    { "url": "https://www.cropjuice.com/menus/", "type": "official_site", "note": "seeded 2026-09-25: current Fall Menu lists Cinnful Cider, Real Pumpkin Sp'iced Coffee, Pumpkin Spice Smoothie and pumpkin seasonal bites." }
+  ],
+  "ChIJYVbXKAC32YgRUVddTqA46Kg": [
+    { "url": "https://premierguidemiami.com/article/crema-gourmet-fall-2026", "type": "reputable_secondary", "published_at": "2026-09-15", "starts": "2026-09-14", "ends": "2026-11-29", "note": "seeded 2026-09-25: current-season Miami guide gives the 2026 Pumpkin Spice Latte window through Nov 29 and Halloween Ube Chai window Oct 5-Nov 1." }
   ]
 }
