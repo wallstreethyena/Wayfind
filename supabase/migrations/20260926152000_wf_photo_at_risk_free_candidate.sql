@@ -1,18 +1,18 @@
 -- Keep the reporting risk view honest while giving the free-photo worker an
 -- ACTIONABLE queue that cannot be starved by terminal decisions.
 //
-// Production incident, 2026-09-26:
-// wf_photo_at_risk contained ~5.1k live cached Google-photo places. The hourly
-// worker fetched only the first 1000 by earliest expiry, then filtered out any
-// place that already had a wf_place_photo row. Once those first 1000 were all
-// decided/rejected, every run reported "at-risk 0/1000 ... 1000 already
-// covered" and never reached later undecided places.
+-- Production incident, 2026-09-26:
+-- wf_photo_at_risk contained ~5.1k live cached Google-photo places. The hourly
+-- worker fetched only the first 1000 by earliest expiry, then filtered out any
+-- place that already had a wf_place_photo row. Once those first 1000 were all
+-- decided/rejected, every run reported "at-risk 0/1000 ... 1000 already
+-- covered" and never reached later undecided places.
 //
-// wf_photo_at_risk remains the reporting superset. This worker view keeps only
-// places with no decision yet, plus the one legacy rejection explicitly
-// allowed to replay through the newer direct-Commons resolver. Terminal
-// rejected rows remain visible in wf_photo_at_risk, but can no longer occupy
-// every slot in the worker's capped read.
+-- wf_photo_at_risk remains the reporting superset. This worker view keeps only
+-- places with no decision yet, plus the one legacy rejection explicitly
+-- allowed to replay through the newer direct-Commons resolver. Terminal
+-- rejected rows remain visible in wf_photo_at_risk, but can no longer occupy
+-- every slot in the worker's capped read.
 create or replace view public.wf_photo_at_risk_free_candidate
 with (security_invoker = true) as
 select
