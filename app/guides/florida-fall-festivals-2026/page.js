@@ -4,7 +4,7 @@ import { pageShareUrl } from "../../../lib/pageShareUrl";
 import { WF_PLACE_CARD_CSS } from "../../components/css";
 import GuideMapExplorer from "../../components/GuideMapExplorer";
 import GuideFigure from "../../components/GuideFigure";
-import { fallEventCardImageSrc } from "../../../lib/fallEventImage";
+import { fallEventCardImageSrc, withFallVenueIdentity } from "../../../lib/fallEventImage";
 import styles from "./page.module.css";
 import {
   FLORIDA_FALL_GUIDE_EVENTS_2026,
@@ -601,11 +601,12 @@ function eventWhen(event) {
 
 function eventImage(event) {
   if (!event) return null;
-  const src = fallEventCardImageSrc(event, 900);
+  const resolved = withFallVenueIdentity(event);
+  const src = fallEventCardImageSrc(resolved, 900);
   if (!src) return null;
   return {
     src,
-    alt: event.image_alt || ((event.venue || event.event_name) + "; venue photo"),
+    alt: resolved.image_alt || ((resolved.venue || resolved.event_name) + "; venue photo"),
     width: 900,
     height: 675,
     caption: event.image_alt || "",

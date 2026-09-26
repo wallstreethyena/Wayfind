@@ -48,6 +48,7 @@ import CreatorCardMark from "./CreatorCardMark";
 import { topPickAward } from "../../lib/topPickAward";
 import { couponForPlace } from "../../lib/coupons";
 import { normalizePlaceCardHref } from "../../lib/placeCardRoute.js";
+import { useCardTapIntent } from "./useCardTapIntent.js";
 
 // ---------------------------------------------------------------------------
 // Experience-tag chips (owner: "I need the cards to look like the cards from
@@ -359,6 +360,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   // stale failure, and a source swap (e.g. a re-rank bringing a fresh photo)
   // gets its own fair shot at loading before falling back.
   const [imgFailed, setImgFailed] = useState("");
+  const tapIntent = useCardTapIntent();
   useEffect(() => {
     const el = laneRef.current;
     if (!el) return undefined;
@@ -492,6 +494,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   const openCard = (event) => {
     const target = event && event.target;
     if (target && typeof target.closest === "function" && target.closest("a,button,input,select,textarea,[role='button']")) return;
+    if (!tapIntent.shouldOpen()) return;
     // v7.16 (map): an in-app caller (the map's bottom card) opens the detail
     // SHEET instead of navigating away and losing the map. href remains the
     // fallback and the crawlable link.
@@ -500,7 +503,10 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   };
 
   return (
-    <li ref={cardRef} data-iconic-place-card data-card-opens-detail onClick={openCard} className={`wf-place-card${fallCardClass(place.id, siteTodayStr())}${isCuratorPick ? " is-curator-pick" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${hasTake ? "" : " is-no-take"}${cta ? " has-cta" : ""}`} style={{ listStyle: "none", cursor: cardHref ? "pointer" : "default" }}>
+    <li ref={cardRef} data-iconic-place-card data-card-opens-detail
+      onPointerDown={tapIntent.onPointerDown} onPointerMove={tapIntent.onPointerMove}
+      onPointerUp={tapIntent.onPointerUp} onPointerCancel={tapIntent.onPointerCancel}
+      onClick={openCard} className={`wf-place-card${fallCardClass(place.id, siteTodayStr())}${isCuratorPick ? " is-curator-pick" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${hasTake ? "" : " is-no-take"}${cta ? " has-cta" : ""}`} style={{ listStyle: "none", cursor: cardHref ? "pointer" : "default" }}>
       {/* v8.62 (owner, 2026-08-26, live): the Wayfind Score sits in the top
           right corner of the CARD, never on the photo. Direct child of
           .wf-place-card so the shared css.js rule anchors it to the card. */}
