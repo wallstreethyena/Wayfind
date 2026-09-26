@@ -75,9 +75,11 @@ export async function GET(request) {
     // resolve through the shared owned-photo ladder.
     // v20 preserves real seasonal-place date windows and flushes the expanded
     // Fall Drinks & Seasonal Bites registry without losing v19's haunt fixes.
+    // v21 fixes empty occurrence_dates arrays so they do not erase those real
+    // seasonal windows when the rail sorts cards by date.
     // v15 (2026-09-22) adds Pinto's Farm (farms rail) with a curated owned
     // photo + photoAttr credit — a cached v14 payload predates both.
-    const key = `fall-intents:v20:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    const key = `fall-intents:v21:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
