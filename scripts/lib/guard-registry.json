@@ -4519,6 +4519,10 @@
           {
             "file": ".github/workflows/canary.yml",
             "blocking": false
+          },
+          {
+            "file": ".github/workflows/fall-discovery.yml",
+            "blocking": false
           }
         ]
       },
