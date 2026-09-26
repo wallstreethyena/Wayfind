@@ -491,9 +491,11 @@ const expandedFoodIds = [
   "ChIJJWzJr9232YgR6jjHElv8mjc",
   "ChIJsRAN-H5Bw4gRl0sAl0587IY",
   "ChIJYVbXKAC32YgRUVddTqA46Kg",
+  "ChIJC9pvtLN654gR6F0GZH-G-8I",
+  "ChIJEUd8H-Nj54gRq59RRWIA6mI",
 ];
-ok(expandedFoodIds.every((id) => FALL_PLACE_RAIL[id] === "food" && FALL_PLACE_IDS[id] && FALL_OFFERING_SOURCES[id]?.verified === "2026-09-25"),
-  "the five new food places are evidence-backed, assigned to food, and current-season verified");
+ok(expandedFoodIds.every((id) => FALL_PLACE_RAIL[id] === "food" && FALL_PLACE_IDS[id] && /^2026-09-2[56]$/.test(FALL_OFFERING_SOURCES[id]?.verified || "")),
+  "the current food expansion is evidence-backed, assigned to food, and verified Sep 25-26");
 const unfeaturedFar = composeFallIntentRails([event({ event_id: "unfeatured-festival", id: "unfeatured-festival", category: "festival" })], [], { lat: 25.7617, lng: -80.1918, today: "2026-09-25", now });
 ok(unfeaturedFar.rails.every((rail) => !rail.cards.length), "the statewide exception cannot expand unrelated local events");
 ok(featuredById.get("fruitville-grove-pumpkin-2026").is_free === false && featuredById.get("fruitville-grove-pumpkin-2026").address.startsWith("7410"), "Fruitville retains corrected paid admission and address");
