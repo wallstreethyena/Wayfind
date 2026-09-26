@@ -194,6 +194,7 @@ async function sourceRoute(routeSource) {
     const resolvePlacePhoto = (...a) => globalThis.__wfFreePhotoTest.resolvePlacePhoto(...a);
     const findSamePlaceCachedPhoto = (...a) => globalThis.__wfFreePhotoTest.findSamePlaceCachedPhoto(...a);
     const findFreePhoto = (...a) => globalThis.__wfFreePhotoTest.findFreePhoto(...a);
+    const recordReaderPhotoMiss = (...a) => globalThis.__wfFreePhotoTest.recordReaderPhotoMiss(...a);
     const gateShut = (...a) => globalThis.__wfFreePhotoTest.gateShut(...a);
     const spendAllow = (...a) => globalThis.__wfFreePhotoTest.spendAllow(...a);
     const spendAllowPhotos = (...a) => globalThis.__wfFreePhotoTest.spendAllowPhotos(...a);
@@ -214,6 +215,11 @@ globalThis.__wfFreePhotoTest = {
   resolvePlacePhoto: null, // set per-scenario
   findSamePlaceCachedPhoto: null, // set per-scenario
   findFreePhoto: null, // set per-scenario
+  // This test isolates free-photo/spend behavior. Reader-miss queue behavior
+  // is covered by test-photo-protection.mjs, so keep this sourced route fully
+  // hermetic with a no-op writer rather than letting a new route dependency
+  // escape to Supabase.
+  recordReaderPhotoMiss: async () => false,
 };
 
 const savedFetch = globalThis.fetch;
