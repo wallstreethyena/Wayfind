@@ -160,6 +160,10 @@ const eq = (actual, expected, message) =>
 // upsertPhotoRow) run for REAL against a small in-memory table — never a
 // real network call, proven by throwing on anything unexpected.
 // ─────────────────────────────────────────────────────────────────────────
+const CANDIDATE_MIGRATION = readFileSync(new URL("../supabase/migrations/20260926152000_wf_photo_at_risk_free_candidate.sql", import.meta.url), "utf8");
+ok(/create or replace view\s+public\.wf_photo_at_risk_free_candidate/i.test(CANDIDATE_MIGRATION), "PROBE: actionable at-risk worker view exists in the schema migration");
+ok(/p\.place_id\s+is\s+null[\s\S]*p\.status\s*=\s*'rejected'[\s\S]*p\.source_ref\s*=\s*'rejected:no_wiki_candidate'/i.test(CANDIDATE_MIGRATION), "PROBE: actionable view excludes terminal decisions but preserves the one replay-eligible legacy rejection");
+
 const SB = { url: "https://vault-wiring.test.invalid", key: "test-key" };
 function makeDb({ atRisk = [], repair = [], inventory = [], existingRows = [] } = {}) {
   const table = new Map(existingRows.map((r) => [r.place_id, r]));
@@ -170,7 +174,7 @@ function makeDb({ atRisk = [], repair = [], inventory = [], existingRows = [] } 
   globalThis.fetch = async (url, init) => {
     const u = String(url);
     const method = (init && init.method) || "GET";
-    if (u.startsWith(SB.url + "/rest/v1/wf_photo_at_risk")) {
+    if (u.startsWith(SB.url + "/rest/v1/wf_photo_at_risk_free_candidate")) {
       ok(!u.includes("SELECT ") && !u.includes("select%20"), "PROBE: at-risk fetch is a PostgREST GET, never raw SQL text");
       return { ok: true, json: async () => atRisk };
     }
@@ -648,7 +652,7 @@ const PHOTO = (id) => ({
   globalThis.fetch = async (url, init) => {
     const u = String(url);
     const method = (init && init.method) || "GET";
-    if (u.startsWith(SB.url + "/rest/v1/wf_photo_at_risk")) return { ok: true, json: async () => [] };
+    if (u.startsWith(SB.url + "/rest/v1/wf_photo_at_risk_free_candidate")) return { ok: true, json: async () => [] };
     if (u.startsWith(SB.url + "/rest/v1/wf_inventory")) {
       invRequests.push(u);
       const gt = decodeURIComponent((u.match(/place_id=gt\.([^&]*)/) || [])[1] || "");
@@ -721,7 +725,7 @@ const PHOTO = (id) => ({
     );
     const lost = describeAtRisk({ atRiskUnavailable: true, atRiskTaken: 0, atRiskScanned: 0, source: undefined });
     ok(lost.includes("UNAVAILABLE"), `H3 (THE HEADLINE INVARIANT): a worklist read that FAILED says so out loud (got ${JSON.stringify(lost)})`);
-    ok(lost.includes("wf_photo_at_risk"), "H3: and names the view that could not be read, so the operator knows where to look");
+    ok(lost.includes("wf_photo_at_risk_free_candidate"), "H3: and names the view that could not be read, so the operator knows where to look");
     ok(
       describeAtRisk({ atRiskUnavailable: true, atRiskTaken: 0, atRiskScanned: 0, source: "all" }).includes("UNAVAILABLE"),
       "H3: a failed read OUTRANKS source= — an outage is the more urgent fact even when the caller asked for something narrower"
@@ -820,7 +824,7 @@ const PHOTO = (id) => ({
     const savedFetch = globalThis.fetch;
     globalThis.fetch = async (url) => {
       const u = String(url);
-      if (u.startsWith(SB.url + "/rest/v1/wf_photo_at_risk")) return { ok: false, status: 500, json: async () => ({}) };
+      if (u.startsWith(SB.url + "/rest/v1/wf_photo_at_risk_free_candidate")) return { ok: false, status: 500, json: async () => ({}) };
       throw new Error("UNEXPECTED NETWORK CALL: " + u);
     };
     let result;
