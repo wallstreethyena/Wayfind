@@ -473,18 +473,7 @@ export default function RailCard({
                 }}
                 style={{ objectFit: "cover" }}
               />
-            : (!photo && resolvedPhotoFallback && imgFailed !== resolvedPhotoFallback)
-              ? <img
-                  src={resolvedPhotoFallback}
-                  data-fallback=""
-                  alt=""
-                  loading={eagerMedia ? "eager" : "lazy"}
-                  decoding="async"
-                  {...(mediaPriority ? { fetchpriority: mediaPriority } : null)}
-                  onError={() => setImgFailed(resolvedPhotoFallback)}
-                  style={{ objectFit: "cover" }}
-                />
-              : <div className="wf-place-card-monogram" aria-hidden="true">{initialsOf(title)}</div>}
+            : <div className="wf-place-card-monogram" aria-hidden="true">{initialsOf(title)}</div>}
           {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
           {/* v8.56.13 (#1188) — CC-license credit for the free permanent photo
               lane (lib/freePhoto.js, wf_place_photo). Not decoration: Wikimedia
