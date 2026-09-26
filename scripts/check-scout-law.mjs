@@ -21,7 +21,7 @@
  *   5. the strict write validator must independently REJECT a row that claims
  *      an adjudicated category without that provenance
  *   6. omitting adjudication must reproduce the previous behaviour exactly
- *   7. the floor stays 92 and its SQL-facing inverse agrees with THE score
+ *   7. the floor stays 90 and its SQL-facing inverse agrees with THE score
  *
  * Every assertion below is red-proven by construction: each one is stated
  * against a case whose opposite is also asserted, so a rule that stops firing
@@ -46,16 +46,29 @@ ok(ADJUDICABLE.size === SECTIONS.length, `ADJUDICABLE (${ADJUDICABLE.size}) and 
 for (const s of SECTIONS) ok(ADJUDICABLE.has(s), `SECTIONS has "${s}" but placeCategory.ADJUDICABLE does not`);
 
 // ── 1. The floor, and its SQL-facing inverse ────────────────────────────────
-ok(SCOUT_FLOOR === 92, `SCOUT_FLOOR must be 92 (the owner's 9.2), got ${SCOUT_FLOOR}`);
-for (const rating of [4.6, 4.7, 4.8, 4.9, 5.0]) {
+ok(SCOUT_FLOOR === 90, `SCOUT_FLOOR must be 90 (the owner's 9.0), got ${SCOUT_FLOOR}`);
+for (const rating of [4.5, 4.6, 4.7, 4.8, 4.9, 5.0]) {
   const need = minReviewsFor(rating, SCOUT_FLOOR);
   ok(Number.isFinite(need), `minReviewsFor(${rating}) should be reachable`);
   ok(wayfindScore(rating, need) >= SCOUT_FLOOR, `minReviewsFor(${rating})=${need} does not actually clear ${SCOUT_FLOOR} (got ${wayfindScore(rating, need)})`);
   ok(need === 0 || wayfindScore(rating, need - 1) < SCOUT_FLOOR, `minReviewsFor(${rating})=${need} is not TIGHT — ${need - 1} reviews already clears it`);
 }
-ok(!Number.isFinite(minReviewsFor(4.5, SCOUT_FLOOR)), "a 4.5-star place can never reach 9.2; minReviewsFor must say Infinity");
+ok(!Number.isFinite(minReviewsFor(4.4, SCOUT_FLOOR)), "a 4.4-star place can never reach 9.0; minReviewsFor must say Infinity");
 ok(clearsFloor(4.7, 9851), "Mote Marine (4.7/9851) must clear the floor");
 ok(!clearsFloor(4.9, 20), "4.9 from 20 reviews must NOT clear the floor — that is the whole point of the Bayesian prior");
+
+// Newly covered Google types must resolve without model spend. These are all
+// destination identities seen in the 9.0+ recovery pool.
+for (const [types, name, section] of [
+  [["art_studio"], "Fragments Art Studio", "Activities"],
+  [["sports_complex","sports_activity_location"], "North Port Aquatic Center", "Activities"],
+  [["scenic_spot"], "Scenic view of The Sunshine Skyway Bridge", "Activities"],
+  [["tour_agency","travel_agency","service"], "Get Wet Water Sports", "Activities"],
+  [["comedy_club"], "Dade County Comedy", "Nightlife"],
+]) {
+  const out = classify({ types, primaryType: null, name });
+  ok(out.section === section, `9.0+ type recovery: ${name} must resolve to ${section}, got ${out.section}`);
+}
 
 // ── 2. Abstention is the ONLY adjudicable state ─────────────────────────────
 const roofer = { types: ["roofing_contractor", "point_of_interest"], primaryType: "roofing_contractor", name: "Siesta Roofing" };
