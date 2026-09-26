@@ -389,6 +389,8 @@ export default function RailCard({
   // a neighboring place's photo.
   const samePlacePhoto = place?.id ? ownedPlacePhotoSrc(place.id, 640) : "";
   const resolvedPhotoFallback = photoFallback || (samePlacePhoto && samePlacePhoto !== photo ? samePlacePhoto : "");
+  const primaryPhoto = photo || resolvedPhotoFallback;
+  const secondaryPhotoFallback = photo ? resolvedPhotoFallback : "";
   if (!title) return null;
   // A wired handler always wins; the store is what an unwired card falls back
   // to, so no surface can ship a thumb that does nothing.
@@ -458,10 +460,10 @@ export default function RailCard({
               which left the fully-sized media box painting nothing. Keyed
               to the ORIGINAL `photo` prop, not the fallback src that just
               replaced it, so this still flips once the fallback also fails. */}
-          {photo && imgFailed !== photo
+          {primaryPhoto && imgFailed !== primaryPhoto
             ? <img
-                src={photo}
-                data-fallback={resolvedPhotoFallback}
+                src={primaryPhoto}
+                data-fallback={secondaryPhotoFallback}
                 alt=""
                 loading={eagerMedia ? "eager" : "lazy"}
                 decoding="async"
@@ -469,7 +471,7 @@ export default function RailCard({
                 onError={(ev) => {
                   const fb = ev.currentTarget.dataset.fallback;
                   if (fb) { ev.currentTarget.dataset.fallback = ""; ev.currentTarget.src = fb; }
-                  else { setImgFailed(photo); }
+                  else { setImgFailed(primaryPhoto); }
                 }}
                 style={{ objectFit: "cover" }}
               />
