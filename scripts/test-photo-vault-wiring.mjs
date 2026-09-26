@@ -768,7 +768,7 @@ const PHOTO = (id) => ({
       runBackfill: async () => ({
         ok: true, attempted: 0, active: 0, rejected: 0, failed: 0,
         atRiskUnavailable: true, atRiskStatus: 500,
-        note: "unavailable: place-photos wf_photo_at_risk read failed (HTTP 500)",
+        note: "unavailable: place-photos wf_photo_at_risk_free_candidate read failed (HTTP 500)",
       }),
       recordPulse: async (job, stats) => { pulses.push({ job, stats }); return true; },
     };
@@ -815,7 +815,7 @@ const PHOTO = (id) => ({
   }
 
   // H3c — the REAL runBackfill (not a hand-copied fixture) produces the note
-  // shape H3b assumes, when its wf_photo_at_risk fetch genuinely fails. H3b
+  // shape H3b assumes, when its actionable at-risk candidate-view fetch genuinely fails. H3b
   // proves the ROUTE composes a note it is HANDED correctly; this proves
   // lib/placePhotoBackfill.js is the one actually HANDING it that shape —
   // without this, a change to the real early-return's note text could drift
@@ -972,7 +972,7 @@ const PHOTO = (id) => ({
       runBackfill: async () => ({
         ok: true, attempted: 0, active: 0, rejected: 0, failed: 0,
         atRiskUnavailable: true, atRiskStatus: 500,
-        note: "unavailable: place-photos wf_photo_at_risk read failed (HTTP 500)",
+        note: "unavailable: place-photos wf_photo_at_risk_free_candidate read failed (HTTP 500)",
       }),
       describeAtRisk,
       describeReplay,
