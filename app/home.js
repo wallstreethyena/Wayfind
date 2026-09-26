@@ -99,6 +99,7 @@ import * as Fam from "../lib/family";
 import { getSupabase } from "../lib/lazySupabase";
 let supabase = null;
 import { usePlaceProduct } from "../lib/placeProduct";
+import { useCardTapIntent } from "./components/useCardTapIntent.js";
 // v8: heroRefFromPlaces went with the date-night and hidden-gem hero photo
 // effects — the rail uses owned artwork and the place cards carry their own
 // photoRef, so nothing on this page live-picks a hero photo any more.
@@ -11847,6 +11848,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [p && p.id]);
   const cardProduct = usePlaceProduct(p && p.id);
+  const tapIntent = useCardTapIntent();
   // THE GATE COMES LAST. Every hook above runs on every render; `cardComplete`
   // reads p.photo, which the heal effect above writes, so this gate genuinely
   // flips mid-life. A hook below it would change React's hook count on that
@@ -11959,7 +11961,11 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
     : topPickAward({ category: pcat, rank: cardRank });
   return (
     <div data-wf-position-key={"place-" + p.id} className={`wf-place-card${fallCardClass(p && p.id, siteTodayStr())}${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${isCuratorPick ? " is-curator-pick" : ""}${!(curatedHook || knownForHook || aiSummary) ? " is-no-take" : ""}`} style={{ position: "relative" }}>
-      <button type="button" className="wf-place-card-open" onClick={onDetail} aria-label={`Open ${p.name}`} style={{ position: "absolute", inset: 0, zIndex: 0, width: "100%", height: "100%", opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
+      <button type="button" className="wf-place-card-open"
+        onPointerDown={tapIntent.onPointerDown} onPointerMove={tapIntent.onPointerMove}
+        onPointerUp={tapIntent.onPointerUp} onPointerCancel={tapIntent.onPointerCancel}
+        onClick={(event) => { if (tapIntent.shouldOpen()) onDetail?.(event); }}
+        aria-label={`Open ${p.name}`} style={{ position: "absolute", inset: 0, zIndex: 0, width: "100%", height: "100%", opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
       {/* v8.62 (owner, 2026-08-26, live): "top right hand corner of the card,
           not in front of the image." The score badge is a direct child of the
           CARD, anchored to its top-right corner by the shared
@@ -12044,7 +12050,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
               <span>{cardAward.label}</span>
             </div>
           )}
-          <div className="wf-place-card-highlights" style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 7 }}>
+          <div className="wf-place-card-highlights" style={{ display: "flex", gap: 6, marginBottom: 7 }}>
             {badges.map((b) => (
               <button key={b.key} onClick={(e) => {
                 e.stopPropagation();
