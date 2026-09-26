@@ -21,19 +21,20 @@
  *   5. the strict write validator must independently REJECT a row that claims
  *      an adjudicated category without that provenance
  *   6. omitting adjudication must reproduce the previous behaviour exactly
- *   7. the floor stays 92 and its SQL-facing inverse agrees with THE score
+ *   7. the floor stays 90 and its SQL-facing inverse agrees with THE score
  *
  * Every assertion below is red-proven by construction: each one is stated
  * against a case whose opposite is also asserted, so a rule that stops firing
  * fails here rather than in production.
  */
+import { readFileSync } from "node:fs";
 import { classify, ADJUDICABLE } from "../lib/placeCategory.js";
 import { buildInventoryRow, extractPlaceFields } from "../lib/seedPlaces.js";
 import { decidePromotion, validateInventoryRow, toWriteRow } from "../lib/promoteIndex.js";
 import { wayfindScore } from "../lib/wayfindScore.js";
 import {
   SCOUT_FLOOR, SECTIONS, minReviewsFor, clearsFloor,
-  needsAdjudication, parseAdjudication, adjudicationOutcome,
+  needsAdjudication, parseAdjudication, adjudicationOutcome, freeScoutLane,
 } from "../lib/scoutAdjudicate.js";
 
 let fails = 0;
@@ -81,6 +82,41 @@ for (const [name, types, expected] of [
   const c = classify({ name, types, primaryType: types[0] });
   ok(c.category === expected, `${name} must resolve to ${expected} without scout adjudication, got ${c.category}`);
   ok(needsAdjudication(c) === false, `${name} must not consume a scout verdict once its Google type is decisive`);
+}
+
+// Phase 2: free deterministic lanes must settle before paid adjudication.
+{
+  const recovered = freeScoutLane({
+    name: "Scenic view of The Sunshine Skyway Bridge",
+    google_types: ["scenic_spot","point_of_interest","establishment"],
+    primary_type: null,
+  });
+  ok(recovered.kind === "recovered" && recovered.classification.category === "attractions",
+    "free scout lane must recover a newly deterministic scenic spot without a model");
+
+  const excluded = freeScoutLane({
+    name: "Landis Pools",
+    google_types: ["general_contractor","sports_activity_location","swimming_pool","service","point_of_interest"],
+    primary_type: "general_contractor",
+  });
+  ok(excluded.kind === "excluded" && excluded.classification.excluded === true,
+    "free scout lane must preserve decisive service exclusions without a model");
+
+  const ambiguous = freeScoutLane({
+    name: "Mote Marine Laboratory",
+    google_types: ["research_institute","point_of_interest","establishment"],
+    primary_type: null,
+  });
+  ok(ambiguous.kind === "adjudicate" && needsAdjudication(ambiguous.classification),
+    "free scout lane must leave true abstentions parked for adjudication");
+
+  const scoutRoute = readFileSync(new URL("../app/api/cron/scout/route.js", import.meta.url), "utf8");
+  const freePass = scoutRoute.indexOf("for (const src of rows)");
+  const paidPass = scoutRoute.indexOf("for (let i = 0; i < ambiguous.length");
+  ok(freePass >= 0 && paidPass > freePass && scoutRoute.includes("freeScoutLane(p)"),
+    "scout route must sweep every candidate through freeScoutLane before any paid adjudication pass");
+  ok(!/if \(!key\) return jobCannotRun\("scout"/.test(scoutRoute),
+    "missing Anthropic configuration must not return before deterministic scout recovery can settle");
 }
 
 // The new activity tokens must not rescue a service business when Google's
