@@ -426,7 +426,7 @@ export async function generateMetadata({ params }) {
   // guide's real title over a legibility scrim — falling back to the
   // typographic card (this guide's OWN title, never the generic homepage
   // line) when no reviewed image exists yet. See
-  // docs/proposals/claude-sonnet-hero-photo-standard.md (proposed rule 9).
+  // docs/share-card-standard.md rule 9.
   const art = guideHero(params.slug);
   // Audit (2026-09-23): the design suffix (HERO_CARD_DESIGN_V) rides along
   // with the reviewed-photo date so a hero-plate change (not just a new

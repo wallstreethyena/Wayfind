@@ -21,7 +21,7 @@ export function auditSourceContracts({ routeSource, sitemapSource } = {}) {
     article_schema: sourceResult(/"@type": "Article"/.test(route) && /articleImage \? \{ image: articleImage \}/.test(route), "Article schema is wired to the reviewed image helper; unavailable art is omitted."),
     breadcrumb_schema: sourceResult(/"@type": "BreadcrumbList"/.test(route) && /SITE_URL \+ "\/guides\/" \+ params\.slug/.test(route), "BreadcrumbList links Wayfind, Guides and the canonical article URL."),
     // v9 (owner, 2026-09-23 — "everything on wayfind that is sharable looks
-    // premium"; docs/proposals/claude-sonnet-hero-photo-standard.md (proposed rule 9)). The raw reviewed file is no
+    // premium"; docs/share-card-standard.md rule 9). The raw reviewed file is no
     // longer pointed at directly: og:image now resolves through the hero
     // route (app/api/og/hero/route.js), which fetches this exact per-slug
     // reviewed image, crops it to a 1200x630 branded card, and falls back to

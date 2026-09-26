@@ -59,7 +59,7 @@ export async function generateMetadata({ params }) {
   // rather than pointing metadata straight at the static file: the route
   // fetches those exact same bytes, converts and sniffs them BEFORE any
   // response is built (the same safety contract lib/railShareCard.js already
-  // proved for the rail poster — see docs/proposals/claude-sonnet-hero-photo-standard.md (proposed rule 9) and
+  // proved for the rail poster — see docs/share-card-standard.md rule 9 and
   // scripts/check-hero-card.mjs), and lays the Wayfind mark, a kicker and
   // this event's real name over it instead of shipping the bare photo with
   // no brand or crop around it. Everything else falls back to the
