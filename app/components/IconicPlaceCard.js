@@ -389,9 +389,6 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
     else if (action === "share" && h.share) h.share(h.place);
   }, actionsLive);
   if (!place) return null;
-  const primaryPhoto = photoUrl(place);
-  const stablePlacePhoto = ownedPlacePhotoSrc(place.place_id || place.googlePlaceId || place.id, 640);
-  const samePlacePhotoFallback = stablePlacePhoto && stablePlacePhoto !== primaryPhoto ? stablePlacePhoto : "";
   const expTags = experienceTags(place, 3);
   // Resolve the offer in the shared card itself so every IconicPlaceCard
   // surface (browse, map, saved, guides and intent pages) gets the same
@@ -532,22 +529,15 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
             left behind — same bug, different component.
             Default stays lazy: this card also renders far below the
             fold on landing pages, where lazy works and matters. */}
-          {primaryPhoto && imgFailed !== primaryPhoto
+          {photoUrl(place) && imgFailed !== photoUrl(place)
             ? (
               <img
-                src={primaryPhoto}
-                data-fallback={samePlacePhotoFallback}
+                src={photoUrl(place)}
                 alt=""
                 loading={eagerMedia ? "eager" : "lazy"}
                 decoding="async"
                 {...(mediaPriority ? { fetchpriority: mediaPriority } : null)}
-                // A stale stored ref gets one identity-safe retry through the
-                // exact same place id. A second failure becomes the monogram.
-                onError={(ev) => {
-                  const fb = ev.currentTarget.dataset.fallback;
-                  if (fb) { ev.currentTarget.dataset.fallback = ""; ev.currentTarget.src = fb; }
-                  else { setImgFailed(primaryPhoto); }
-                }}
+                onError={() => setImgFailed(photoUrl(place))}
                 style={{ objectFit: "cover" }}
               />
             )
