@@ -1037,7 +1037,7 @@ node scripts/check-outing-identity.mjs
 # admitting an excluded place, no overriding a decided one, no minting
 # taxonomy, needs_review=true with a null last_verified_at on every recovered
 # row, a validator that independently refuses laundered provenance, and the
-# 9.2 floor agreeing with lib/wayfindScore.js in both directions.
+# 9.0 floor agreeing with lib/wayfindScore.js in both directions.
 node scripts/check-scout-law.mjs
 # 2026-08-22 — THERE IS NO MAX (owner: "fuck the 12 max ... no more max on
 # anything"). MAX_CARDS, NEARBY_POOL_CAP, the two 40-row identity-pool slices
