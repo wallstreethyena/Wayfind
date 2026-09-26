@@ -355,7 +355,7 @@ const route = readFileSync(new URL("../app/api/events/fall/route.js", import.met
 const daypart = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
 const component = readFileSync(new URL("../app/components/FallIntentRails.js", import.meta.url), "utf8");
 const card = readFileSync(new URL("../app/components/RailCard.js", import.meta.url), "utf8");
-ok(route.includes("fall-intents:v21:") && route.includes("fastCachedRail"), "the API uses the v21 shared FastCache key after the date-order fix");
+ok(route.includes("fall-intents:v22:") && route.includes("fastCachedRail"), "the API uses the v22 shared FastCache key after the Orlando food/date-window publish");
 const imageProofId = "ChIJB-QyVtEXw4gRk5F8bn3YV28";
 ok(hasStoredPlacePhoto({ place_id: imageProofId, signals: { photo_url: "https://cdn.example.test/owned.jpg" } }),
   "an owned signals.photo_url is stored image proof");
@@ -397,8 +397,10 @@ ok(/FALL_PLACE_RAIL/.test(route) && /composeFallIntentRails/.test(route), "the A
 ok(/FALL_SEASONAL_PLACE_IDS/.test(route) && /const seasonalPlaces =/.test(route) && /discoveryId: row\.event_id/.test(route), "permanent-business discoveries are served as Google-place cards, not events");
 ok(/seasonalStart: row\.start_date \|\| null/.test(route)
   && /seasonalThrough: row\.end_date \|\| null/.test(route)
-  && /occurrence_dates: Array\.isArray\(row\.occurrence_dates\)/.test(route),
-  "seasonal place cards preserve their published date window so chronological ordering survives event-to-place conversion");
+  && /occurrence_dates: Array\.isArray\(row\.occurrence_dates\)/.test(route)
+  && /seasonalStart: FALL_OFFERING_SOURCES\[p\.place_id\]\?\.starts \|\| null/.test(route)
+  && /seasonalThrough: FALL_OFFERING_SOURCES\[p\.place_id\]\?\.until \|\| FALL_OFFERING_SOURCES\[p\.place_id\]\?\.ends \|\| null/.test(route),
+  "seasonal place cards preserve published source windows so chronological ordering survives both event-to-place and permanent-place paths");
 ok(/FALL_COLLECTION_POSTER/.test(route) && /fallEventCardImageSrc/.test(route), "old cached scarecrow hero values are rejected at serve time, not merely removed from new source rows");
 ok(/FALL_PHOTO_PLACE_IDS/.test(route) && /FALL_PHOTO_SPOTS/.test(route), "the photo rail reads the researched registry rather than trusting an Instagrammable label");
 ok(/FallIntentRails = dynamic/.test(daypart), "the ten-rail component is lazy and absent from first paint");
@@ -491,9 +493,11 @@ const expandedFoodIds = [
   "ChIJJWzJr9232YgR6jjHElv8mjc",
   "ChIJsRAN-H5Bw4gRl0sAl0587IY",
   "ChIJYVbXKAC32YgRUVddTqA46Kg",
+  "ChIJC9pvtLN654gR6F0GZH-G-8I",
+  "ChIJEUd8H-Nj54gRq59RRWIA6mI",
 ];
-ok(expandedFoodIds.every((id) => FALL_PLACE_RAIL[id] === "food" && FALL_PLACE_IDS[id] && FALL_OFFERING_SOURCES[id]?.verified === "2026-09-25"),
-  "the five new food places are evidence-backed, assigned to food, and current-season verified");
+ok(expandedFoodIds.every((id) => FALL_PLACE_RAIL[id] === "food" && FALL_PLACE_IDS[id] && /^2026-09-2[56]$/.test(FALL_OFFERING_SOURCES[id]?.verified || "")),
+  "the current food expansion is evidence-backed, assigned to food, and verified Sep 25-26");
 const unfeaturedFar = composeFallIntentRails([event({ event_id: "unfeatured-festival", id: "unfeatured-festival", category: "festival" })], [], { lat: 25.7617, lng: -80.1918, today: "2026-09-25", now });
 ok(unfeaturedFar.rails.every((rail) => !rail.cards.length), "the statewide exception cannot expand unrelated local events");
 ok(featuredById.get("fruitville-grove-pumpkin-2026").is_free === false && featuredById.get("fruitville-grove-pumpkin-2026").address.startsWith("7410"), "Fruitville retains corrected paid admission and address");
