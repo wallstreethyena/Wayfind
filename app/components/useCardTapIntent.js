@@ -22,8 +22,11 @@ export function useCardTapIntent() {
 
   const onPointerDown = (event) => {
     const target = event && event.target;
+    const nestedControl = target && typeof target.closest === "function" ? target.closest(NESTED_CONTROL) : null;
+    // Ignore a real child control inside a card, but not the currentTarget when
+    // the card's own invisible open surface is itself a <button> (home PlaceCard).
     if ((event?.pointerType === "mouse" && event.button !== 0)
-      || (target && typeof target.closest === "function" && target.closest(NESTED_CONTROL))) {
+      || (nestedControl && nestedControl !== event.currentTarget)) {
       gesture.current = { ...gesture.current, active: false, pointerId: null, moved: false, suppressNextClick: false, rail: null, startScrollLeft: 0 };
       return;
     }
