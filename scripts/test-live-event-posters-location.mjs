@@ -44,6 +44,12 @@ function makeEvent(over = {}) {
   };
 }
 
+ // This suite proves location/bucket wiring, not today's calendar boundary.
+ // Pin the selector clock to the owner-spec date so the 2026-09-25 fixture
+ // cannot turn into a past event merely because CI runs after that date.
+const FIXTURE_NOW = new Date("2026-09-16T12:00:00.000Z");
+const selectFixturePosterEvents = (events, opts) => selectPosterEvents(events, { ...opts, now: FIXTURE_NOW });
+
 // --- 1. The active location fully determines the request key -----------
 check(() => {
   const kBradentonSports = posterEventsKey({ active: true, disabled: false, lat: BRADENTON.lat, lng: BRADENTON.lng, city: "Bradenton", mode: "summer-sports" });
@@ -93,8 +99,8 @@ check(() => {
     makeEvent({ id: "c1", name: "Comedy Night at the Club", segment: "Arts & Theatre", genre: "Comedy" }),
     makeEvent({ id: "t1", name: "Broadway Touring Show", segment: "Arts & Theatre", genre: "Theatre" }),
   ];
-  const sportsRail = selectPosterEvents(pool, { mode: "summer-sports", center: BRADENTON });
-  const concertsRail = selectPosterEvents(pool, { mode: "date-night", center: BRADENTON });
+  const sportsRail = selectFixturePosterEvents(pool, { mode: "summer-sports", center: BRADENTON });
+  const concertsRail = selectFixturePosterEvents(pool, { mode: "date-night", center: BRADENTON });
   const sportsIds = sportsRail.sports.map((e) => e.id).sort();
   const concertIds = concertsRail.livemusic.map((e) => e.id).sort();
   assert.deepEqual(sportsIds, ["s1", "s2"], "the sports poster's pool must be exactly the two real sporting events, nothing else");
@@ -110,14 +116,14 @@ check(() => {
 // each poster is an INDEPENDENT call with no shared state ----------------
 check(() => {
   const musicOnlyPool = [makeEvent({ id: "m1", segment: "Music", genre: "Rock" })];
-  const sportsRail = selectPosterEvents(musicOnlyPool, { mode: "summer-sports", center: BRADENTON });
-  const concertsRail = selectPosterEvents(musicOnlyPool, { mode: "date-night", center: BRADENTON });
+  const sportsRail = selectFixturePosterEvents(musicOnlyPool, { mode: "summer-sports", center: BRADENTON });
+  const concertsRail = selectFixturePosterEvents(musicOnlyPool, { mode: "date-night", center: BRADENTON });
   assert.deepEqual(sportsRail.sports, [], "sports must be a real empty array (not undefined, not an error) when the pool has no sporting events");
   assert.equal(concertsRail.livemusic.length, 1, "concerts must be entirely unaffected by sports having nothing to show");
 
   const sportsOnlyPool = [makeEvent({ id: "s1", segment: "Sports", genre: "Baseball" })];
-  const sportsRail2 = selectPosterEvents(sportsOnlyPool, { mode: "summer-sports", center: BRADENTON });
-  const concertsRail2 = selectPosterEvents(sportsOnlyPool, { mode: "date-night", center: BRADENTON });
+  const sportsRail2 = selectFixturePosterEvents(sportsOnlyPool, { mode: "summer-sports", center: BRADENTON });
+  const concertsRail2 = selectFixturePosterEvents(sportsOnlyPool, { mode: "date-night", center: BRADENTON });
   assert.equal(sportsRail2.sports.length, 1, "sports must be entirely unaffected by concerts having nothing to show");
   assert.deepEqual(concertsRail2.livemusic, [], "concerts must be a real empty array when the pool has no music events");
 });
@@ -127,14 +133,14 @@ check(() => {
 check(() => {
   const farAway = makeEvent({ id: "far", segment: "Sports", genre: "Baseball", lat: 40.7128, lng: -74.006 }); // NYC
   const noDest = makeEvent({ id: "nodest", segment: "Sports", genre: "Baseball", dest: "" });
-  const rail = selectPosterEvents([farAway, noDest], { mode: "summer-sports", center: BRADENTON });
+  const rail = selectFixturePosterEvents([farAway, noDest], { mode: "summer-sports", center: BRADENTON });
   assert.deepEqual(rail.sports, [], "an event far outside the radius and an event with no real destination must both be excluded, not shown");
 });
 
 // --- 8. No duplicate event inside the same poster's pool -----------------
 check(() => {
   const dup = makeEvent({ id: "dup1", segment: "Music", genre: "Rock" });
-  const rail = selectPosterEvents([dup, { ...dup }], { mode: "date-night", center: BRADENTON });
+  const rail = selectFixturePosterEvents([dup, { ...dup }], { mode: "date-night", center: BRADENTON });
   assert.equal(rail.livemusic.length, 1, "the same event id must never appear twice in one poster's pool");
 });
 
