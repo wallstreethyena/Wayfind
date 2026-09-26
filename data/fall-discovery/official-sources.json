@@ -78,5 +78,13 @@
   ],
   "ChIJYVbXKAC32YgRUVddTqA46Kg": [
     { "url": "https://premierguidemiami.com/article/crema-gourmet-fall-2026", "type": "reputable_secondary", "published_at": "2026-09-15", "starts": "2026-09-14", "ends": "2026-11-29", "note": "seeded 2026-09-25: current-season Miami guide gives the 2026 Pumpkin Spice Latte window through Nov 29 and Halloween Ube Chai window Oct 5-Nov 1." }
+  ],
+  "ChIJC9pvtLN654gR6F0GZH-G-8I": [
+    { "url": "https://gideonsbakehouse.com/bakery-menu/", "type": "official_site", "starts": "2026-09-01", "ends": "2026-09-30", "note": "seeded 2026-09-26: current bakery menu lists the Pumpkin Bread Chocolate Crumb cookie as September-only; current preorder/product pages also list Pumpkin Caramel Double Frosted Cake for September pickup at East End Market." },
+    { "url": "https://gideonsbakehouse.com/locations/east-end-market/", "type": "official_site", "note": "seeded 2026-09-26: official location page confirms the exact East End Market Orlando shop at 3203 Corrine Drive." }
+  ],
+  "ChIJEUd8H-Nj54gRq59RRWIA6mI": [
+    { "url": "https://anotherbrokenegg.com/", "type": "official_site", "note": "seeded 2026-09-26: current homepage promotes its limited-time seasonal menu with Pumpkin Pie Cold Brew, Pumpkin Brunch Old Fashioned and Cranberry Pomegranate Fizz." },
+    { "url": "https://anotherbrokenegg.com/location/orlando-fl/", "type": "official_site", "note": "seeded 2026-09-26: official Orlando location page confirms the exact S Semoran Boulevard cafe and seasonal selections." }
   ]
 }

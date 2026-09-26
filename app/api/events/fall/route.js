@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 // vetted year-round spooky PLACES ride along as normal scored place rows.
 import { fetchCuratedEvents, isTrusted, eventOutboundUrl } from "../../../../lib/curatedEvents.js";
 import { siteTodayStr } from "../../../../lib/siteTime.js";
-import { isFallEvent, fallEventLive, fallWhenLabel, fallScheduleChip, FALL_PLACE_IDS, FALL_PLACE_RAIL, FALL_EVENT_TICKET_DEALS } from "../../../../lib/fallPool.js";
+import { isFallEvent, fallEventLive, fallWhenLabel, fallScheduleChip, FALL_PLACE_IDS, FALL_PLACE_RAIL, FALL_OFFERING_SOURCES, FALL_EVENT_TICKET_DEALS } from "../../../../lib/fallPool.js";
 import { eventTicketDeal, eventTicketCta, isServableDeal } from "../../../../lib/eventTicketDeals.js";
 import { supabase } from "../../../../lib/supabase.js";
 import { wayfindScore } from "../../../../lib/wayfindScore.js";
@@ -75,9 +75,13 @@ export async function GET(request) {
     // resolve through the shared owned-photo ladder.
     // v20 preserves real seasonal-place date windows and flushes the expanded
     // Fall Drinks & Seasonal Bites registry without losing v19's haunt fixes.
+    // v21 fixes empty occurrence_dates arrays so they do not erase those real
+    // seasonal windows when the rail sorts cards by date.
+    // v22 publishes the verified Orlando food expansion and carries any real
+    // offering start/end window onto permanent place cards for truthful sort.
     // v15 (2026-09-22) adds Pinto's Farm (farms rail) with a curated owned
     // photo + photoAttr credit — a cached v14 payload predates both.
-    const key = `fall-intents:v20:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    const key = `fall-intents:v22:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
@@ -303,6 +307,11 @@ export async function GET(request) {
           // generic inventory summary may still be useful elsewhere, but it
           // must never hide the evidence that earned this fall recommendation.
           take: FALL_PLACE_IDS[p.place_id] || FALL_PHOTO_SPOTS[p.place_id]?.visualProof || p.editorial || null,
+          // Permanent businesses are not events, but some seasonal offerings
+          // publish a real window. Carry only those sourced dates so the shared
+          // Fall sorter can put dated food cards in true chronological order.
+          seasonalStart: FALL_OFFERING_SOURCES[p.place_id]?.starts || null,
+          seasonalThrough: FALL_OFFERING_SOURCES[p.place_id]?.until || FALL_OFFERING_SOURCES[p.place_id]?.ends || null,
           image: cardImageSrc({ place_id: p.place_id, photo_ref: p.photo_ref, photo_url: p.photo_url, signals: p.signals }, 640),
           // The corner credit badge RailCard/IconicPlaceCard already render
           // for a licensed photo (photoAttr/photoAttrHref) — the same slot,

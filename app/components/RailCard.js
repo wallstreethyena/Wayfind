@@ -70,6 +70,7 @@ import CreatorCardMark from "./CreatorCardMark";
 import { couponForPlace } from "../../lib/coupons.js";
 import { normalizePlaceCardHref } from "../../lib/placeCardRoute.js";
 import { ownedPlacePhotoSrc } from "../../lib/placePhoto.js";
+import { useCardTapIntent } from "./useCardTapIntent.js";
 
 // Same glyphs as IconicPlaceCard's action row, so a thumb is one drawing in
 // this app rather than two that almost match.
@@ -382,6 +383,7 @@ export default function RailCard({
   // ref 302→ok, a second 404 "owned-miss" — a currently-real, intermittent
   // failure of a well-formed ref, not a bad record).
   const [imgFailed, setImgFailed] = useState("");
+  const tapIntent = useCardTapIntent();
   // If a stored photo_ref goes stale, retry the SAME venue through the stable
   // place-id resolver before giving up to the monogram. Caller-supplied event
   // fallbacks still win. Internal slugs are refused by ownedPlacePhotoSrc.
@@ -416,6 +418,10 @@ export default function RailCard({
       className={`wf-place-card wf-rail-card${fallCardClass(place && place.id, siteTodayStr())}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${className ? " " + className : ""}`}
       role="button"
       tabIndex={0}
+      onPointerDown={tapIntent.onPointerDown}
+      onPointerMove={tapIntent.onPointerMove}
+      onPointerUp={tapIntent.onPointerUp}
+      onPointerCancel={tapIntent.onPointerCancel}
       onKeyDown={KB_CLICK}
       onClick={(e) => {
         const t = e && e.target;
@@ -425,6 +431,7 @@ export default function RailCard({
         // that role itself, so closest() would match here and swallow every
         // tap on the body.
         if (t && typeof t.closest === "function" && t.closest("a,button,input,select,textarea")) return;
+        if (!tapIntent.shouldOpen()) return;
         if (onOpen) onOpen(e);
         else if (cardHref && typeof window !== "undefined") {
           // 2026-09-02: an EXTERNAL destination goes through lib/links.safeUrl
@@ -510,7 +517,7 @@ export default function RailCard({
           ) : null}
 
           {pills.length || badge || (cardCoupon && !hasCallerDeal) ? (
-            <div className="wf-place-card-highlights" style={{ display: "flex", flexWrap: "wrap" }}>
+            <div className="wf-place-card-highlights">
               {cardCoupon && !hasCallerDeal ? <span className="wf-place-card-deal" title={cardCoupon.title || "Deal available"}>🏷️ Deal</span> : null}
               {pills.map((chip) => (chip.onClick
                 /* v8.22: chips may carry a `title` — the long form of a
