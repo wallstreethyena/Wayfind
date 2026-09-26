@@ -387,6 +387,9 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
     else if (action === "share" && h.share) h.share(h.place);
   }, actionsLive);
   if (!place) return null;
+  const primaryPhoto = photoUrl(place);
+  const stablePlacePhoto = ownedPlacePhotoSrc(place.place_id || place.id, 640);
+  const samePlacePhotoFallback = stablePlacePhoto && stablePlacePhoto !== primaryPhoto ? stablePlacePhoto : "";
   const expTags = experienceTags(place, 3);
   // Resolve the offer in the shared card itself so every IconicPlaceCard
   // surface (browse, map, saved, guides and intent pages) gets the same
@@ -523,19 +526,22 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
             left behind — same bug, different component.
             Default stays lazy: this card also renders far below the
             fold on landing pages, where lazy works and matters. */}
-          {photoUrl(place) && imgFailed !== photoUrl(place)
+          {primaryPhoto && imgFailed !== primaryPhoto
             ? (
               <img
-                src={photoUrl(place)}
+                src={primaryPhoto}
+                data-fallback={samePlacePhotoFallback}
                 alt=""
                 loading={eagerMedia ? "eager" : "lazy"}
                 decoding="async"
                 {...(mediaPriority ? { fetchpriority: mediaPriority } : null)}
-                // GUARD-HONESTY 2026-09-07 — the fallback the ladder never
-                // had: a resolved src that then fails to LOAD (404/5xx/
-                // network) swaps to the same monogram a missing src already
-                // gets, instead of leaving a blank, full-size media box.
-                onError={() => setImgFailed(photoUrl(place))}
+                // A stale ref gets one identity-safe retry through /api/photo
+                // by the SAME place id. If that also fails, use the monogram.
+                onError={(ev) => {
+                  const fb = ev.currentTarget.dataset.fallback;
+                  if (fb) { ev.currentTarget.dataset.fallback = ""; ev.currentTarget.src = fb; }
+                  else { setImgFailed(primaryPhoto); }
+                }}
                 style={{ objectFit: "cover" }}
               />
             )

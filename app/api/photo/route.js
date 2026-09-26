@@ -16,6 +16,7 @@ import { FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef, resolvePlacePhoto } from "
 import { findSamePlaceCachedPhoto } from "../../../lib/photoCacheRecovery";
 import { findFreePhoto } from "../../../lib/freePhoto";
 import { recordPhotoOutcome } from "../../../lib/photoOutcomes";
+import { recordReaderPhotoMiss } from "../../../lib/photoReaderMissQueue";
 
 export const dynamic = "force-dynamic";
 
@@ -321,6 +322,19 @@ export async function GET(req) {
       },
     });
   }
+
+  // A REAL reader who still has no image after exact cache, inventory,
+  // same-place cache and free licensed recovery is the strongest defect
+  // signal we have. Record that exact place in the existing free repair queue
+  // so a miss like Mika Cafe cannot vanish merely because the sampled monitor
+  // did not happen to probe it. This write is bounded and fail-soft, spends
+  // nothing at Google, and deliberately ignores global gate/config outages.
+  await recordReaderPhotoMiss({
+    placeId: recoveryPlaceId,
+    currentRef: ref,
+    result,
+    probe,
+  });
 
   if (result.type === "empty") {
     return NextResponse.redirect(new URL(FALLBACK_PATH, req.url), {

@@ -45,6 +45,7 @@ import { createPacer, fetchWithRetry, groupByKeySignature, queueCandidates, read
 import { decideRowOutcome, readPhotosAllowanceRaw, runRepair, statusFor } from "../lib/photoRepair.js";
 import { findSamePlaceCachedPhoto } from "../lib/photoCacheRecovery.js";
 import { findFreePhoto } from "../lib/freePhoto.js";
+import { readerPhotoMissCandidate, recordReaderPhotoMiss } from "../lib/photoReaderMissQueue.js";
 
 let pass = 0;
 const fail = [];
@@ -155,6 +156,70 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
   ok(classifyProbe({ status: 404, resultHeader: "something-else" }) === "error", "case 2: a 404 carrying an unrecognized reason must classify as error, not miss");
   ok(classifyProbe({ status: 500 }) === "error", "case 2: a 500 must classify as error");
   ok(classifyProbe({}) === "error", "case 2: an empty/unclassifiable response must classify as error");
+}
+
+// ── case 2b — real reader misses become repair breadcrumbs ────────────────
+{
+  const placeId = "ChIJReaderMiss123456";
+  const spend = readerPhotoMissCandidate({
+    placeId,
+    currentRef: `places/${placeId}/photos/CURRENT`,
+    result: { type: "miss", reason: "spend-denied" },
+  });
+  ok(spend?.failureReason === "source-unavailable" && spend?.placeId === placeId,
+    "case 2b: a real reader spend-denied miss becomes an exact-place source-unavailable repair candidate");
+  ok(readerPhotoMissCandidate({ placeId, result: { type: "miss", reason: "gate-shut" } }) === null,
+    "case 2b: a global gate shutdown is not filed as a place defect");
+  ok(readerPhotoMissCandidate({ placeId, result: { type: "miss", reason: "unconfigured" } }) === null,
+    "case 2b: a global photo configuration outage is not filed as a place defect");
+  ok(readerPhotoMissCandidate({ placeId, probe: true, result: { type: "miss", reason: "spend-denied" } }) === null,
+    "case 2b: monitor probes never double-write through the reader-miss path");
+  ok(readerPhotoMissCandidate({ placeId, result: { type: "empty", reason: "no-photo" } })?.failureReason === "no-source",
+    "case 2b: a real reader no-photo result enters the free repair lane as no-source");
+  ok(readerPhotoMissCandidate({ placeId, result: { type: "miss", reason: "owned-miss" } })?.failureReason === "owned-miss",
+    "case 2b: an owned-photo failure keeps its specific failure class");
+
+  let postBody = null;
+  const fakeFetch = async (url, opts = {}) => {
+    if ((opts.method || "GET") === "GET") {
+      return { ok: true, json: async () => [{ place_id: placeId, status: "recovered", detections: 7 }] };
+    }
+    postBody = JSON.parse(opts.body);
+    return { ok: true };
+  };
+  const wrote = await recordReaderPhotoMiss({
+    placeId,
+    currentRef: `places/${placeId}/photos/CURRENT`,
+    result: { type: "miss", reason: "spend-denied" },
+  }, {
+    env: { SUPABASE_URL: "https://queue.test.invalid", SUPABASE_SERVICE_ROLE_KEY: "fixture-key" },
+    fetchImpl: fakeFetch,
+    nowIso: "2026-09-25T19:00:00.000Z",
+    timeoutMs: 5000,
+  });
+  ok(wrote === true && Array.isArray(postBody) && postBody.length === 1,
+    "case 2b: the best-effort writer performs one merge-upsert body when the queue is available");
+  ok(postBody?.[0]?.status === "open" && postBody?.[0]?.detections === 8
+    && postBody?.[0]?.failure_reason === "source-unavailable",
+    "case 2b: a recovered row seen broken by a reader reopens and increments detections using the shared queue law");
+
+  let noEnvCalls = 0;
+  const skipped = await recordReaderPhotoMiss({
+    placeId,
+    result: { type: "miss", reason: "spend-denied" },
+  }, {
+    env: {},
+    fetchImpl: async () => { noEnvCalls++; return { ok: false }; },
+  });
+  ok(skipped === false && noEnvCalls === 0,
+    "case 2b: absent server credentials fail soft without any network call");
+
+  const route = readFileSync(new URL("../app/api/photo/route.js", import.meta.url), "utf8");
+  const queueCall = route.indexOf("await recordReaderPhotoMiss({");
+  const freeCall = route.indexOf("const free = await getFreePhoto();");
+  const emptyReturn = route.indexOf('if (result.type === "empty")');
+  ok(queueCall > freeCall && queueCall < emptyReturn,
+    "case 2b: the live route queues only after same-place/free recovery fails and before returning the visible miss");
 }
 
 // ── case 3 — backoff math (REWRITTEN 2026-09-09 — the calendar branch is GONE) ─

@@ -73,9 +73,11 @@ export async function GET(request) {
     // v18 publishes newly verified local haunts and removes the duplicate
     // event-image gate that could hide a row even when its exact place_id could
     // resolve through the shared owned-photo ladder.
+    // v20 preserves real seasonal-place date windows and flushes the expanded
+    // Fall Drinks & Seasonal Bites registry without losing v19's haunt fixes.
     // v15 (2026-09-22) adds Pinto's Farm (farms rail) with a curated owned
     // photo + photoAttr credit — a cached v14 payload predates both.
-    const key = `fall-intents:v19:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    const key = `fall-intents:v20:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
@@ -263,6 +265,12 @@ export async function GET(request) {
             image: inventory?.photo_ref ? fallEventCardImageSrc({ ...row, hero_image: null }, 640, inventory) : null,
             fallRail: FALL_DISCOVERY_RAIL[row.event_id],
             sourceUrl: row.source_url || null,
+            // Keep source dates on a permanent-business card for ordering.
+            // These are real published dates only; a missing close stays null.
+            start_date: row.start_date || null,
+            end_date: row.end_date || null,
+            occurrence_dates: Array.isArray(row.occurrence_dates) ? row.occurrence_dates : [],
+            seasonalStart: row.start_date || null,
             seasonalThrough: row.end_date || null,
           };
         })
