@@ -116,6 +116,10 @@ const ROUTE = read("app/api/photo/route.js");
     "RailCard's img-vs-monogram gate reads the error state, not only whether `photo` is truthy");
   ok(/setImgFailed\(photo\)/.test(RAIL),
     "RailCard's onError reaches the state setter on a failure with no (or an exhausted) fallback");
+  ok(/ownedPlacePhotoSrc\(place\.id, 640\)/.test(RAIL)
+    && /resolvedPhotoFallback = photoFallback \|\|/.test(RAIL)
+    && /data-fallback=\{resolvedPhotoFallback\}/.test(RAIL),
+    "RailCard retries the exact same place id before using the monogram; caller event fallbacks still win");
   ok(!/style\.visibility\s*=\s*"hidden"/.test(RAIL),
     "the old hide-without-replacing failure path is GONE — a hidden <img> inside a CSS-forced-size box is the same blank panel as no fallback at all");
 }
@@ -124,8 +128,12 @@ const ROUTE = read("app/api/photo/route.js");
 {
   ok(/const \[imgFailed, setImgFailed\] = useState\(""\);/.test(ICONIC),
     "IconicPlaceCard tracks image failure keyed to the src string");
-  ok(/photoUrl\(place\) && imgFailed !== photoUrl\(place\)/.test(ICONIC),
-    "IconicPlaceCard's img-vs-monogram gate reads the error state");
+  ok(/const primaryPhoto = photoUrl\(place\)/.test(ICONIC)
+    && /primaryPhoto && imgFailed !== primaryPhoto/.test(ICONIC),
+    "IconicPlaceCard resolves one primary source and its img-vs-monogram gate reads keyed error state");
+  ok(/ownedPlacePhotoSrc\(place\.place_id \|\| place\.id, 640\)/.test(ICONIC)
+    && /samePlacePhotoFallback/.test(ICONIC),
+    "IconicPlaceCard prepares an identity-safe same-place retry, never a neighbour image");
   // Scoped to the media block specifically (check-drop-photo-window.mjs's own
   // technique) — this 700+ line file has other onError-shaped code, and a
   // guard answering a question it was not asking would pass on a reverted
@@ -137,8 +145,10 @@ const ROUTE = read("app/api/photo/route.js");
   // <img>, and is ~1450 chars on its own — measured, not guessed, so this
   // doesn't silently drift back to a too-narrow window later.
   const mediaBlock = ICONIC.slice(mi, mi + 2200);
-  ok(/onError=\{\(\) => setImgFailed\(photoUrl\(place\)\)\}/.test(mediaBlock),
-    "…and the <img> INSIDE that block (not merely somewhere in the file) wires onError to the failure state");
+  ok(/data-fallback=\{samePlacePhotoFallback\}/.test(mediaBlock)
+    && /ev\.currentTarget\.src = fb/.test(mediaBlock)
+    && /setImgFailed\(primaryPhoto\)/.test(mediaBlock),
+    "…and the media block retries that same-place source once, then falls to the monogram if recovery fails");
 }
 
 /* ── 3. ThingsToDoList.js's Viator tour-row branch ──────────────────────── */
@@ -168,16 +178,16 @@ const RED = [
     const fake = 'onError={(ev) => {\n  const fb = ev.currentTarget.dataset.fallback;\n  if (fb) { ev.currentTarget.dataset.fallback = ""; ev.currentTarget.src = fb; }\n  else { ev.currentTarget.style.visibility = "hidden"; }\n}}';
     return /style\.visibility\s*=\s*"hidden"/.test(fake) && !/setImgFailed\(photo\)/.test(fake);
   }],
-  ["a pre-fix IconicPlaceCard <img> with no onError at all is detectable", () => {
-    const fake = '<img\n  src={photoUrl(place)}\n  alt=""\n  loading={eagerMedia ? "eager" : "lazy"}\n  decoding="async"\n  style={{ objectFit: "cover" }}\n/>';
-    return !/onError=\{\(\) => setImgFailed\(photoUrl\(place\)\)\}/.test(fake);
+  ["a pre-fix IconicPlaceCard <img> with no same-place retry is detectable", () => {
+    const fake = '<img\n  src={primaryPhoto}\n  alt=""\n  onError={() => setImgFailed(primaryPhoto)}\n/>';
+    return !/data-fallback=\{samePlacePhotoFallback\}/.test(fake);
   }],
-  ["an onError present ELSEWHERE in the file must not satisfy the media-block-scoped IconicPlaceCard check", () => {
-    const fakeFile = 'function unrelated() { return <button onError={() => setImgFailed(photoUrl(place))} />; }\n'
-      + '<div className="wf-place-card-media">\n  <img src={photoUrl(place)} alt="" />\n</div>';
+  ["an onError present ELSEWHERE must not satisfy the media-block recovery check", () => {
+    const fakeFile = 'const samePlacePhotoFallback = "/api/photo?place=abc";\n'
+      + '<div className="wf-place-card-media">\n  <img src={primaryPhoto} onError={() => setImgFailed(primaryPhoto)} />\n</div>';
     const mi = fakeFile.indexOf('<div className="wf-place-card-media">');
     const block = fakeFile.slice(mi, mi + 900);
-    return !/onError=\{\(\) => setImgFailed\(photoUrl\(place\)\)\}/.test(block);
+    return !/data-fallback=\{samePlacePhotoFallback\}/.test(block);
   }],
   ["a pre-fix ThingsToDoList tour <img> with no onError is detectable", () => {
     const fake = '{r.image_url\n  ? <img src={r.image_url} alt="" loading="lazy" style={{ objectFit: "cover" }} />\n  : <div className="wf-place-card-monogram" aria-hidden="true">WF</div>}';
@@ -194,4 +204,4 @@ if (fails) {
   console.error(`check-card-photo-error-fallback: FAIL — ${fails} of ${pass + fails} assertions`);
   process.exit(1);
 }
-console.log(`check-card-photo-error-fallback: OK — ${pass} assertions; RailCard, IconicPlaceCard and ThingsToDoList's tour card all fall to the monogram when a resolved photo src FAILS to load, not only when one was never assigned`);
+console.log(`check-card-photo-error-fallback: OK — ${pass} assertions; place cards retry the exact same place id before the monogram, and tour cards still fall back safely on image failure`);
