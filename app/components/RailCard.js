@@ -69,6 +69,8 @@ import { creatorVideosFor } from "../../lib/creatorSignals.js";
 import CreatorCardMark from "./CreatorCardMark";
 import { couponForPlace } from "../../lib/coupons.js";
 import { normalizePlaceCardHref } from "../../lib/placeCardRoute.js";
+import { ownedPlacePhotoSrc } from "../../lib/placePhoto.js";
+import { useCardTapIntent } from "./useCardTapIntent.js";
 
 // Same glyphs as IconicPlaceCard's action row, so a thumb is one drawing in
 // this app rather than two that almost match.
@@ -381,6 +383,12 @@ export default function RailCard({
   // ref 302→ok, a second 404 "owned-miss" — a currently-real, intermittent
   // failure of a well-formed ref, not a bad record).
   const [imgFailed, setImgFailed] = useState("");
+  const tapIntent = useCardTapIntent();
+  // A stored ref can age out while the place identity is still correct. Retry
+  // through the same exact place id once before using the monogram; never borrow
+  // a neighboring place's photo.
+  const samePlacePhoto = place?.id ? ownedPlacePhotoSrc(place.id, 640) : "";
+  const resolvedPhotoFallback = photoFallback || (samePlacePhoto && samePlacePhoto !== photo ? samePlacePhoto : "");
   if (!title) return null;
   // A wired handler always wins; the store is what an unwired card falls back
   // to, so no surface can ship a thumb that does nothing.
@@ -410,6 +418,10 @@ export default function RailCard({
       className={`wf-place-card wf-rail-card${fallCardClass(place && place.id, siteTodayStr())}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${className ? " " + className : ""}`}
       role="button"
       tabIndex={0}
+      onPointerDown={tapIntent.onPointerDown}
+      onPointerMove={tapIntent.onPointerMove}
+      onPointerUp={tapIntent.onPointerUp}
+      onPointerCancel={tapIntent.onPointerCancel}
       onKeyDown={KB_CLICK}
       onClick={(e) => {
         const t = e && e.target;
@@ -419,6 +431,9 @@ export default function RailCard({
         // that role itself, so closest() would match here and swallow every
         // tap on the body.
         if (t && typeof t.closest === "function" && t.closest("a,button,input,select,textarea")) return;
+        // A swipe across a horizontal rail must stay a swipe. Mobile Safari can
+        // synthesize a click on release even after the rail has moved.
+        if (!tapIntent.shouldOpen()) return;
         if (onOpen) onOpen(e);
         else if (cardHref && typeof window !== "undefined") {
           // 2026-09-02: an EXTERNAL destination goes through lib/links.safeUrl
@@ -446,7 +461,7 @@ export default function RailCard({
           {photo && imgFailed !== photo
             ? <img
                 src={photo}
-                data-fallback={photoFallback || ""}
+                data-fallback={resolvedPhotoFallback}
                 alt=""
                 loading={eagerMedia ? "eager" : "lazy"}
                 decoding="async"
@@ -504,7 +519,7 @@ export default function RailCard({
           ) : null}
 
           {pills.length || badge || (cardCoupon && !hasCallerDeal) ? (
-            <div className="wf-place-card-highlights" style={{ display: "flex", flexWrap: "wrap" }}>
+            <div className="wf-place-card-highlights">
               {cardCoupon && !hasCallerDeal ? <span className="wf-place-card-deal" title={cardCoupon.title || "Deal available"}>🏷️ Deal</span> : null}
               {pills.map((chip) => (chip.onClick
                 /* v8.22: chips may carry a `title` — the long form of a
