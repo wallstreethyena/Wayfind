@@ -185,7 +185,11 @@ const CSS = strip(readFileSync(join(ROOT, "app/components/railMenuCss.js"), "utf
   const card = readFileSync(join(ROOT, "app/components/IconicPlaceCard.js"), "utf8");
   ok(/wf-place-card-monogram/.test(card),
     "a photoless card renders its monogram — an existing designed state, not an empty box. Without this the fix would trade a crash for the blank grey v8.70 removed");
-  ok(/photoUrl\(place\)\s*\n?\s*\?/.test(card) || /\{photoUrl\(place\)/.test(card),
+  ok(
+    /photoUrl\(place\)\s*\n?\s*\?/.test(card)
+      || /\{photoUrl\(place\)/.test(card)
+      || (/const primaryPhoto = photoUrl\(place\)/.test(card)
+        && /\{primaryPhoto && imgFailed !== primaryPhoto/.test(card)),
     "…chosen by whether the row actually carries a photo, which is exactly what the twin removes");
 }
 
