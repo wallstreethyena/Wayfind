@@ -355,7 +355,7 @@ const route = readFileSync(new URL("../app/api/events/fall/route.js", import.met
 const daypart = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
 const component = readFileSync(new URL("../app/components/FallIntentRails.js", import.meta.url), "utf8");
 const card = readFileSync(new URL("../app/components/RailCard.js", import.meta.url), "utf8");
-ok(/fall-intents:v20:/.test(route) && /fastCachedRail/.test(route), "the API uses a new shared FastCache key for playable social posts and the wider Halloween park radius");
+ok(route.includes("fall-intents:v21:") && route.includes("fastCachedRail"), "the API uses the v21 shared FastCache key after the date-order fix");
 const imageProofId = "ChIJB-QyVtEXw4gRk5F8bn3YV28";
 ok(hasStoredPlacePhoto({ place_id: imageProofId, signals: { photo_url: "https://cdn.example.test/owned.jpg" } }),
   "an owned signals.photo_url is stored image proof");
@@ -467,14 +467,20 @@ const chronology = composeFallIntentRails([
 ok(chronology.rails.find((rail) => rail.id === "festivals").cards.map((card) => card.id).join("|") === "sooner-low-score|later-high-score|unknown-calendar",
   "date wins over editorial score and confirmed dates precede uncertain schedules");
 const seasonalPlaceChronology = composeFallIntentRails([], [
-  { id: "seasonal-later", name: "Later Fall Drink", fallRail: "food", lat: 27.95, lng: -82.46, wfScore: 99, seasonalStart: "2026-10-20", seasonalThrough: "2026-11-01" },
-  { id: "seasonal-sooner", name: "Sooner Fall Drink", fallRail: "food", lat: 27.95, lng: -82.46, wfScore: 10, seasonalStart: "2026-10-01", seasonalThrough: "2026-11-01" },
-  { id: "seasonal-undated", name: "Undated Verified Fall Drink", fallRail: "food", lat: 27.95, lng: -82.46, wfScore: 100 },
+  // The production API serializes an absent explicit calendar as [].
+  // That must NOT erase a real seasonalStart/seasonalThrough envelope.
+  { id: "seasonal-later", name: "Later Fall Drink", fallRail: "food", lat: 27.95, lng: -82.46, wfScore: 99, occurrence_dates: [], seasonalStart: "2026-10-20", seasonalThrough: "2026-11-01" },
+  { id: "seasonal-sooner", name: "Sooner Fall Drink", fallRail: "food", lat: 27.95, lng: -82.46, wfScore: 10, occurrence_dates: [], seasonalStart: "2026-10-01", seasonalThrough: "2026-11-01" },
+  { id: "seasonal-undated", name: "Undated Verified Fall Drink", fallRail: "food", lat: 27.95, lng: -82.46, wfScore: 100, occurrence_dates: [] },
 ], { lat: 27.95, lng: -82.46, today: "2026-09-25", now });
 ok(seasonalPlaceChronology.rails.find((rail) => rail.id === "food").cards.map((card) => card.id).join("|") === "seasonal-sooner|seasonal-later|seasonal-undated",
   "seasonal place cards obey next-date ordering; verified cards with no published date come after dated cards");
 ok(nextFallOccurrence({ kind: "place", seasonalStart: "2026-10-01", seasonalThrough: "2026-10-31" }, "2026-09-25") === "2026-10-01",
   "seasonal place dates participate in chronology without pretending the business itself is an event");
+ok(nextFallOccurrence({ kind: "place", occurrence_dates: [], seasonalStart: "2026-10-01", seasonalThrough: "2026-10-31" }, "2026-09-25") === "2026-10-01",
+  "an empty serialized occurrence_dates array falls back to the real seasonal window instead of erasing it");
+ok(hasUpcomingFallOccurrence({ occurrence_dates: [], start_date: "2026-10-01", end_date: "2026-10-31" }, "2026-09-25") === true,
+  "an empty explicit calendar keeps a valid envelope eligible");
 ok(nextFallOccurrence({ kind: "place", seasonalStart: "2026-09-01", seasonalThrough: null }, "2026-09-25") === null,
   "an open-ended seasonal place never fabricates today as an event date");
 ok(fallEventRail(event({ event_id: "seasonal-drink-probe", event_name: "Pumpkin Latte Drop", category: "food", tags: ["fall", "seasonal-drinks"] })) === "food",
