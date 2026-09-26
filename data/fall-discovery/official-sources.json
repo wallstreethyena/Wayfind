@@ -1,82 +1,244 @@
 {
   "_comment": "place_id -> free sources to check for a fall/Halloween offering. url + type (see lib/fallEvidence.SOURCE_TIERS); published_at is set ONLY when the seeding research (WebFetch, this file's own history) established a real publish/update date the script's own structural extraction could not reliably re-derive on every run — the script re-fetches every url live and applies lib/fallEvidence rules itself; this file supplies WHERE to look, never the verdict. note records how/when a human seeded the entry, for provenance. Candidates only: nothing here is written by editing lib/fallPool.js, and this file does not itself decide add/refresh/expire.",
   "ChIJ7QVjUK_FwogRaTLY8uxOico": [
-    { "url": "https://tampabaydatenightguide.com/pop-up-halloween-bars-in-tampa/", "type": "reputable_secondary", "published_at": "2026-09-22", "note": "seeded 2026-09-23 (WS4 re-verification): article confirms 'year-round spooky lounge with great haunts, drinks, and food'; page shows published 2026-09-04, updated 2026-09-22." }
+    {
+      "url": "https://tampabaydatenightguide.com/pop-up-halloween-bars-in-tampa/",
+      "type": "reputable_secondary",
+      "published_at": "2026-09-22",
+      "note": "seeded 2026-09-23 (WS4 re-verification): article confirms 'year-round spooky lounge with great haunts, drinks, and food'; page shows published 2026-09-04, updated 2026-09-22."
+    }
   ],
   "ChIJIZt3d7DFwogRQ5Lg2tPMXyk": [
-    { "url": "https://tampabaydatenightguide.com/pop-up-halloween-bars-in-tampa/", "type": "reputable_secondary", "published_at": "2026-09-22", "note": "seeded 2026-09-23: same roundup, confirms 'year-round spooky bar... perfect spot for a haunted night out'." }
+    {
+      "url": "https://tampabaydatenightguide.com/pop-up-halloween-bars-in-tampa/",
+      "type": "reputable_secondary",
+      "published_at": "2026-09-22",
+      "note": "seeded 2026-09-23: same roundup, confirms 'year-round spooky bar... perfect spot for a haunted night out'."
+    }
   ],
   "ChIJVQB8l1PEwogRfNZtGI6suIc": [
-    { "url": "https://www.gasparilladistillery.net/events/ghost-of-gasparilla-halloween-pop-up-bar", "type": "official_site", "starts": "2024-10-19", "ends": "2024-11-03", "note": "seeded 2026-09-23: the operator's OWN event page, but its dates read 10/19/2024-11/3/2024 with no 2026 iteration published yet as of this run — see the re-verification table (STALE/EXPIRED, orchestrator to decide)." },
-    { "url": "https://www.gasparilladistillery.net/", "type": "official_site", "note": "seeded 2026-09-23: homepage does not currently mention the Halloween pop-up or a Pumpkin Pie Old Fashioned." }
+    {
+      "url": "https://www.gasparilladistillery.net/events/ghost-of-gasparilla-halloween-pop-up-bar",
+      "type": "official_site",
+      "starts": "2024-10-19",
+      "ends": "2024-11-03",
+      "note": "seeded 2026-09-23: the operator's OWN event page, but its dates read 10/19/2024-11/3/2024 with no 2026 iteration published yet as of this run — see the re-verification table (STALE/EXPIRED, orchestrator to decide)."
+    },
+    {
+      "url": "https://www.gasparilladistillery.net/",
+      "type": "official_site",
+      "note": "seeded 2026-09-23: homepage does not currently mention the Halloween pop-up or a Pumpkin Pie Old Fashioned."
+    }
   ],
   "ChIJTzoiienhwogRbPa3GpuvBQU": [
-    { "url": "https://tampabaydatenightguide.com/seasonal-menus-in-tampa-restaurants-fall/", "type": "reputable_secondary", "published_at": "2025-10-06", "note": "seeded 2026-09-23: this roundup is a PREVIOUS-YEAR page (published 2025-09-22, updated 2025-10-06 — never touched for 2026) — the exact 'old page alone' shape lib/fallEvidence.js exists to catch." },
-    { "url": "https://paradecocoffee.com/menu/", "type": "official_site", "note": "seeded 2026-09-23: the roaster's own current menu page lists no pumpkin/fall items as of this run — does not corroborate the secondary source." }
+    {
+      "url": "https://tampabaydatenightguide.com/seasonal-menus-in-tampa-restaurants-fall/",
+      "type": "reputable_secondary",
+      "published_at": "2025-10-06",
+      "note": "seeded 2026-09-23: this roundup is a PREVIOUS-YEAR page (published 2025-09-22, updated 2025-10-06 — never touched for 2026) — the exact 'old page alone' shape lib/fallEvidence.js exists to catch."
+    },
+    {
+      "url": "https://paradecocoffee.com/menu/",
+      "type": "official_site",
+      "note": "seeded 2026-09-23: the roaster's own current menu page lists no pumpkin/fall items as of this run — does not corroborate the secondary source."
+    }
   ],
   "ChIJ1U_vFp0Xw4gRGKl6mJGJ9UI": [
-    { "url": "https://joycoffeebradenton.square.site/?fulfillment=PICKUP&location_id=LMTGQ2Y8V9RM8", "type": "official_menu_platform", "note": "re-checked 2026-09-23 (independent PR #1495 audit fix round, ~fetched this run): all seven pumpkin items (Spiced Pumpkin Flat White $6.00, Classic Spiced Pumpkin Latte $7.00, Pumpkin Bread $5.00, Pumpkin Cloud Cold Brew $7.50, Pumpkin Shaken Espresso $6.00, Spiced Pumpkin Chai $7.50, Spiced Pumpkin Matcha Latte $7.50) carry the raw-HTML 'Unavailable' marker seen on the 2026-09-23 mechanical run, but structural inspection shows it is Alpine.js x-show boilerplate present after EVERY catalog item (including plain Espresso) and gated by a whole-store isLocationClosedSchedulingDisabled flag, not a per-item stock field — each pumpkin item also has a real, wired quick-add-button (itemId + itemVariationId) and a price immediately after the marker. Kept on this corrected reading; see lib/fallEvidence.js's UNAVAILABLE_RX comment and docs/audits/fall-discovery/2026-09-23.md." }
+    {
+      "url": "https://joycoffeebradenton.square.site/?fulfillment=PICKUP&location_id=LMTGQ2Y8V9RM8",
+      "type": "official_menu_platform",
+      "note": "re-checked 2026-09-23 (independent PR #1495 audit fix round, ~fetched this run): all seven pumpkin items (Spiced Pumpkin Flat White $6.00, Classic Spiced Pumpkin Latte $7.00, Pumpkin Bread $5.00, Pumpkin Cloud Cold Brew $7.50, Pumpkin Shaken Espresso $6.00, Spiced Pumpkin Chai $7.50, Spiced Pumpkin Matcha Latte $7.50) carry the raw-HTML 'Unavailable' marker seen on the 2026-09-23 mechanical run, but structural inspection shows it is Alpine.js x-show boilerplate present after EVERY catalog item (including plain Espresso) and gated by a whole-store isLocationClosedSchedulingDisabled flag, not a per-item stock field — each pumpkin item also has a real, wired quick-add-button (itemId + itemVariationId) and a price immediately after the marker. Kept on this corrected reading; see lib/fallEvidence.js's UNAVAILABLE_RX comment and docs/audits/fall-discovery/2026-09-23.md."
+    }
   ],
   "ChIJA-QkamE7w4gRfdzcxEHyPls": [
-    { "url": "https://order.toasttab.com/online/atria-cafe-lwr", "type": "official_menu_platform", "known_insufficient": true, "note": "re-fetched 2026-09-23 (independent PR #1495 audit fix round, via WebFetch — plain curl hit Cloudflare's 'Just a moment...' JS challenge, HTTP 403): the prior 'verified 2026-09-23, every fall item present and marked Available' note above was never backed by an actual fetch. The REAL live menu today is a sourdough-pizza program (pizzas, focaccia, salads) with ZERO coffee/breakfast items and ZERO fall/pumpkin vocabulary anywhere — a complete menu overhaul, not a dropped seasonal item. Removed from lib/fallPool.js fail-closed (not rejected); URL kept here so the weekly pipeline re-checks it. See docs/audits/fall-discovery/2026-09-23.md for the quoted menu text." }
+    {
+      "url": "https://order.toasttab.com/online/atria-cafe-lwr",
+      "type": "official_menu_platform",
+      "known_insufficient": true,
+      "note": "re-fetched 2026-09-23 (independent PR #1495 audit fix round, via WebFetch — plain curl hit Cloudflare's 'Just a moment...' JS challenge, HTTP 403): the prior 'verified 2026-09-23, every fall item present and marked Available' note above was never backed by an actual fetch. The REAL live menu today is a sourdough-pizza program (pizzas, focaccia, salads) with ZERO coffee/breakfast items and ZERO fall/pumpkin vocabulary anywhere — a complete menu overhaul, not a dropped seasonal item. Removed from lib/fallPool.js fail-closed (not rejected); URL kept here so the weekly pipeline re-checks it. See docs/audits/fall-discovery/2026-09-23.md for the quoted menu text."
+    }
   ],
   "ChIJY5LPSxJAw4gRMhj-bOy9MKU": [
-    { "url": "https://order.toasttab.com/online/buddybrewsarasota", "type": "official_menu_platform", "note": "re-fetched 2026-09-23 (independent PR #1495 audit fix round, via WebFetch — plain curl hit Cloudflare's 'Just a moment...' JS challenge, HTTP 403): live Toast menu confirms a real 'Fall Specials' section — Spiced Pumpkin Latte ($6.25+), Caramel Apple Latte ($6.25+), Salted Maple Iced Flat White ($6.75), Pumpkin Pie Matcha ($8.00), Apple Cider Sparkler ($6.50) — plus Pumpkin Bread, Apple Cinnamon Muffin and Maple Pecan Muffin under Pastries, none showing a sold-out/unavailable marker. Checked twice this run (general item list, then specifically for disabled/sold-out indicators)." }
+    {
+      "url": "https://order.toasttab.com/online/buddybrewsarasota",
+      "type": "official_menu_platform",
+      "note": "re-fetched 2026-09-23 (independent PR #1495 audit fix round, via WebFetch — plain curl hit Cloudflare's 'Just a moment...' JS challenge, HTTP 403): live Toast menu confirms a real 'Fall Specials' section — Spiced Pumpkin Latte ($6.25+), Caramel Apple Latte ($6.25+), Salted Maple Iced Flat White ($6.75), Pumpkin Pie Matcha ($8.00), Apple Cider Sparkler ($6.50) — plus Pumpkin Bread, Apple Cinnamon Muffin and Maple Pecan Muffin under Pastries, none showing a sold-out/unavailable marker. Checked twice this run (general item list, then specifically for disabled/sold-out indicators)."
+    }
   ],
   "ChIJ9ZpMS-7jwogRWChZqTQG66g": [
-    { "url": "https://solstpete.com/st-petersburg-warehouse-arts-district-sol-st-pete-bistro-food-menu", "type": "official_site", "note": "seeded 2026-09-23: Golden Pumpkin Curry Di Mare still listed at $28 vegan / $48 with scallops." }
+    {
+      "url": "https://solstpete.com/st-petersburg-warehouse-arts-district-sol-st-pete-bistro-food-menu",
+      "type": "official_site",
+      "note": "seeded 2026-09-23: Golden Pumpkin Curry Di Mare still listed at $28 vegan / $48 with scallops."
+    }
   ],
   "ChIJ11hsiYXEwogRjDBv39F04J8": [
-    { "url": "https://tampabaydatenightguide.com/seasonal-menus-in-tampa-restaurants-fall/", "type": "reputable_secondary", "published_at": "2025-10-06", "note": "seeded 2026-09-23: same PREVIOUS-YEAR roundup as Paradeco/On Swann (published/updated 2025)." },
-    { "url": "https://oxfordexchange.com/pages/menus", "type": "official_site", "note": "seeded 2026-09-23: the venue's own menu page renders its menus as images; no machine-readable fall item text found via free fetch this run." }
+    {
+      "url": "https://tampabaydatenightguide.com/seasonal-menus-in-tampa-restaurants-fall/",
+      "type": "reputable_secondary",
+      "published_at": "2025-10-06",
+      "note": "seeded 2026-09-23: same PREVIOUS-YEAR roundup as Paradeco/On Swann (published/updated 2025)."
+    },
+    {
+      "url": "https://oxfordexchange.com/pages/menus",
+      "type": "official_site",
+      "note": "seeded 2026-09-23: the venue's own menu page renders its menus as images; no machine-readable fall item text found via free fetch this run."
+    }
   ],
   "ChIJ5crCip3EwogRQnhkbw_Ir6U": [
-    { "url": "https://tampabaydatenightguide.com/seasonal-menus-in-tampa-restaurants-fall/", "type": "reputable_secondary", "published_at": "2025-10-06", "note": "seeded 2026-09-23: same PREVIOUS-YEAR roundup as Paradeco/Oxford Exchange." }
+    {
+      "url": "https://tampabaydatenightguide.com/seasonal-menus-in-tampa-restaurants-fall/",
+      "type": "reputable_secondary",
+      "published_at": "2025-10-06",
+      "note": "seeded 2026-09-23: same PREVIOUS-YEAR roundup as Paradeco/Oxford Exchange."
+    }
   ],
   "ChIJB2B8mYzHwogRkZIDCDARWww": [
-    { "url": "https://icescreamin.com/", "type": "official_site", "note": "seeded 2026-09-23: Square Online storefront; the fetched HTML is a JS-rendered shell with no horror/Halloween text in the initial payload this run could read for free." }
+    {
+      "url": "https://icescreamin.com/",
+      "type": "official_site",
+      "note": "seeded 2026-09-23: Square Online storefront; the fetched HTML is a JS-rendered shell with no horror/Halloween text in the initial payload this run could read for free."
+    }
   ],
   "ChIJn6X9ZlDEwogRTbyZDHcMf_0": [
-    { "url": "https://ghost-party.com/", "type": "official_site", "note": "seeded 2026-09-23: the OPERATOR'S REAL current domain (found this run — the registry's prior source, ghostpartytours.com, is unreachable/stale). Confirms 'The Original Ybor City Ghost Tour every night', spooky haunted-hospital tours, year-round." }
+    {
+      "url": "https://ghost-party.com/",
+      "type": "official_site",
+      "note": "seeded 2026-09-23: the OPERATOR'S REAL current domain (found this run — the registry's prior source, ghostpartytours.com, is unreachable/stale). Confirms 'The Original Ybor City Ghost Tour every night', spooky haunted-hospital tours, year-round."
+    }
   ],
   "ChIJd6lmgVh_3YgREzqTBf28i6U": [
-    { "url": "https://mortemmanor.com/", "type": "official_site", "note": "seeded 2026-09-23: the operator's own homepage is live and real, but its literal text ('haunted house', 'scares', 'creepiest') never uses a lib/fallEvidence.FALL_TERMS word (no 'Halloween', 'spooky', etc.) — flagged for the orchestrator, not auto-resolved." }
+    {
+      "url": "https://mortemmanor.com/",
+      "type": "official_site",
+      "note": "seeded 2026-09-23: the operator's own homepage is live and real, but its literal text ('haunted house', 'scares', 'creepiest') never uses a lib/fallEvidence.FALL_TERMS word (no 'Halloween', 'spooky', etc.) — flagged for the orchestrator, not auto-resolved."
+    }
   ],
   "ChIJUS9EYpll54gR63QOjYM4vDw": [
-    { "url": "https://usghostadventures.com/orlando/", "type": "official_site", "note": "seeded 2026-09-23: confirms 'spooky history of Orlando' in a live review excerpt on the operator's own page." }
+    {
+      "url": "https://usghostadventures.com/orlando/",
+      "type": "official_site",
+      "note": "seeded 2026-09-23: confirms 'spooky history of Orlando' in a live review excerpt on the operator's own page."
+    }
   ],
   "ChIJ2Z9gE5eNk4gRz-Ey8y0ahfM": [
-    { "url": "https://pcbattractions.com/haunted-house/", "type": "official_site", "note": "seeded 2026-09-23: confirms 'It's Halloween everyday at fear at the pier!' on the operator's own page." }
+    {
+      "url": "https://pcbattractions.com/haunted-house/",
+      "type": "official_site",
+      "note": "seeded 2026-09-23: confirms 'It's Halloween everyday at fear at the pier!' on the operator's own page."
+    }
   ],
   "ChIJwZ_GK-d-54gRm5Ahg7PZYeY": [
-    { "url": "https://hauntedattractionnetwork.com/dead-coconut-club-harvest-hhn-2026/", "type": "reputable_secondary", "published_at": "2026-07-22", "starts": "2026-08-28", "ends": "2026-11-01", "note": "seeded 2026-09-23: confirms the 2026 Dead Coconut Club - Harvest overlay with its OWN structured dates (Aug 28-Nov 1, 2026), which cover today; the article's own publish date (Jul 22) predates the season, a documented caveat in the re-verification table." }
+    {
+      "url": "https://hauntedattractionnetwork.com/dead-coconut-club-harvest-hhn-2026/",
+      "type": "reputable_secondary",
+      "published_at": "2026-07-22",
+      "starts": "2026-08-28",
+      "ends": "2026-11-01",
+      "note": "seeded 2026-09-23: confirms the 2026 Dead Coconut Club - Harvest overlay with its OWN structured dates (Aug 28-Nov 1, 2026), which cover today; the article's own publish date (Jul 22) predates the season, a documented caveat in the re-verification table."
+    }
   ],
   "ChIJUczTK5XC2YgRRt4Jp6N3B70": [
-    { "url": "https://pintofarm.com/upcoming-events", "type": "official_site", "starts": "2026-09-19", "ends": "2026-11-08", "note": "seeded 2026-09-23: confirms Fall at the Farm pumpkin patch Sep 19-Nov 8 2026 AND a new Oktoberfest Oct 3 2026 event." }
+    {
+      "url": "https://pintofarm.com/upcoming-events",
+      "type": "official_site",
+      "starts": "2026-09-19",
+      "ends": "2026-11-08",
+      "note": "seeded 2026-09-23: confirms Fall at the Farm pumpkin patch Sep 19-Nov 8 2026 AND a new Oktoberfest Oct 3 2026 event."
+    }
   ],
   "ChIJK4x0bSDD2YgReYmwh03vUW4": [
-    { "url": "https://thelittlefarm.us/little-farm-events/pumpkin-patch/", "type": "official_site", "known_insufficient": true, "note": "seeded 2026-09-23 (NEW candidate, Miami-Dade): the operator's own events page states 'October 17th - 31st' with NO year attached anywhere near the date, even though the page's own last-modified byline reads 2026-09-18 — the dates never actually changed. A mechanical live-official-fetch check alone reads this as strong (the page IS live, and 2026 DOES appear elsewhere on the page, in that unrelated byline), so `known_insufficient` pins the correct verdict as a documented human override rather than letting a coincidental year elsewhere on the page vouch for an unrelated date claim. See scripts/fall-discovery/run.mjs's evaluateSource for the mechanism; the general rules in lib/fallEvidence.js are unchanged." }
+    {
+      "url": "https://thelittlefarm.us/little-farm-events/pumpkin-patch/",
+      "type": "official_site",
+      "known_insufficient": true,
+      "note": "seeded 2026-09-23 (NEW candidate, Miami-Dade): the operator's own events page states 'October 17th - 31st' with NO year attached anywhere near the date, even though the page's own last-modified byline reads 2026-09-18 — the dates never actually changed. A mechanical live-official-fetch check alone reads this as strong (the page IS live, and 2026 DOES appear elsewhere on the page, in that unrelated byline), so `known_insufficient` pins the correct verdict as a documented human override rather than letting a coincidental year elsewhere on the page vouch for an unrelated date claim. See scripts/fall-discovery/run.mjs's evaluateSource for the mechanism; the general rules in lib/fallEvidence.js are unchanged."
+    }
   ],
   "ChIJ28aBEDHiwogRzv5VMM80mE0": [
-    { "url": "https://ilovetheburg.com/oktoberfest-3-daughters-st-pete/", "type": "reputable_secondary", "published_at": "2024-10-22", "note": "seeded 2026-09-23 (NEW candidate, St Pete brewery): the only free source found for a 3 Daughters Brewing Oktoberfest is a 2024-dated article (event described as 'Saturday, October 26' 2024); no 2026 iteration found this run. Logged as insufficient, not added." }
+    {
+      "url": "https://ilovetheburg.com/oktoberfest-3-daughters-st-pete/",
+      "type": "reputable_secondary",
+      "published_at": "2024-10-22",
+      "note": "seeded 2026-09-23 (NEW candidate, St Pete brewery): the only free source found for a 3 Daughters Brewing Oktoberfest is a 2024-dated article (event described as 'Saturday, October 26' 2024); no 2026 iteration found this run. Logged as insufficient, not added."
+    }
   ],
   "ChIJo_IdHf0lw4gRHDbQNKBRE84": [
-    { "url": "https://ryanscoffeehouse.com/signature-lattes", "type": "official_site", "known_insufficient": true, "note": "seeded 2026-09-23 (WS3 official-site + live Square catalog check, Parrish): the current Signature Lattes board (footer '© 2026') lists Ryan's Special, Parrish Honey Bee, Bananas Foster, Lavender Haze, Caramel Apple Macchiato, Raspberry White Mocha and Salted Caramel Mocha as YEAR-ROUND signatures, with no seasonal label and no dated window on any item. No White Pumpkin, no pumpkin item at all — a 2025-dated article is the only place 'White Pumpkin' ever appeared for this venue. known_insufficient pins the verdict so a stray fall word elsewhere on the site cannot vouch for a claim the venue's own current menu does not make." },
-    { "url": "https://ryans-coffee-house.square.site/", "type": "official_menu_platform", "known_insufficient": true, "note": "seeded 2026-09-23 (WS3 live Square store check): same roster as the signature-lattes page, and every single item shows Out of Stock — online ordering looks paused. No fall/pumpkin item, no seasonal label. Facebook and Instagram were login-walled and could not be checked for free." }
+    {
+      "url": "https://ryanscoffeehouse.com/signature-lattes",
+      "type": "official_site",
+      "known_insufficient": true,
+      "note": "seeded 2026-09-23 (WS3 official-site + live Square catalog check, Parrish): the current Signature Lattes board (footer '© 2026') lists Ryan's Special, Parrish Honey Bee, Bananas Foster, Lavender Haze, Caramel Apple Macchiato, Raspberry White Mocha and Salted Caramel Mocha as YEAR-ROUND signatures, with no seasonal label and no dated window on any item. No White Pumpkin, no pumpkin item at all — a 2025-dated article is the only place 'White Pumpkin' ever appeared for this venue. known_insufficient pins the verdict so a stray fall word elsewhere on the site cannot vouch for a claim the venue's own current menu does not make."
+    },
+    {
+      "url": "https://ryans-coffee-house.square.site/",
+      "type": "official_menu_platform",
+      "known_insufficient": true,
+      "note": "seeded 2026-09-23 (WS3 live Square store check): same roster as the signature-lattes page, and every single item shows Out of Stock — online ordering looks paused. No fall/pumpkin item, no seasonal label. Facebook and Instagram were login-walled and could not be checked for free."
+    }
   ],
   "ChIJ3xa3znR_54gRR3bePMYdOfg": [
-    { "url": "https://order.toasttab.com/online/cfs-dr-philips-7535-west-sand-lake-road", "type": "official_menu_platform", "note": "seeded 2026-09-25: current Dr. Phillips ordering menu shows the 2026 fall latte lineup, including pumpkin spice and apple cinnamon." }
+    {
+      "url": "https://order.toasttab.com/online/cfs-dr-philips-7535-west-sand-lake-road",
+      "type": "official_menu_platform",
+      "note": "seeded 2026-09-25: current Dr. Phillips ordering menu shows the 2026 fall latte lineup, including pumpkin spice and apple cinnamon."
+    }
   ],
   "ChIJ-ZFB15jtwogRpEcx2izoHr8": [
-    { "url": "https://charliecoffeefl.com/", "type": "official_site", "note": "seeded 2026-09-25: current site publishes Fall Menu 2026 with Pumpkin Roll Latte, Apple Cinnamon Crumble Latte and Maple Brown Sugar Matcha." }
+    {
+      "url": "https://charliecoffeefl.com/",
+      "type": "official_site",
+      "note": "seeded 2026-09-25: current site publishes Fall Menu 2026 with Pumpkin Roll Latte, Apple Cinnamon Crumble Latte and Maple Brown Sugar Matcha."
+    }
   ],
   "ChIJJWzJr9232YgR6jjHElv8mjc": [
-    { "url": "https://www.puravidamiami.com/", "type": "official_site", "note": "seeded 2026-09-25: current official site promotes Fall Flavors and Pumpkin Spice Cloud." }
+    {
+      "url": "https://www.puravidamiami.com/",
+      "type": "official_site",
+      "note": "seeded 2026-09-25: current official site promotes Fall Flavors and Pumpkin Spice Cloud."
+    }
   ],
   "ChIJsRAN-H5Bw4gRl0sAl0587IY": [
-    { "url": "https://www.cropjuice.com/menus/", "type": "official_site", "note": "seeded 2026-09-25: current Fall Menu lists Cinnful Cider, Real Pumpkin Sp'iced Coffee, Pumpkin Spice Smoothie and pumpkin seasonal bites." }
+    {
+      "url": "https://www.cropjuice.com/menus/",
+      "type": "official_site",
+      "note": "seeded 2026-09-25: current Fall Menu lists Cinnful Cider, Real Pumpkin Sp'iced Coffee, Pumpkin Spice Smoothie and pumpkin seasonal bites."
+    }
   ],
   "ChIJYVbXKAC32YgRUVddTqA46Kg": [
-    { "url": "https://premierguidemiami.com/article/crema-gourmet-fall-2026", "type": "reputable_secondary", "published_at": "2026-09-15", "starts": "2026-09-14", "ends": "2026-11-29", "note": "seeded 2026-09-25: current-season Miami guide gives the 2026 Pumpkin Spice Latte window through Nov 29 and Halloween Ube Chai window Oct 5-Nov 1." }
+    {
+      "url": "https://premierguidemiami.com/article/crema-gourmet-fall-2026",
+      "type": "reputable_secondary",
+      "published_at": "2026-09-15",
+      "starts": "2026-09-14",
+      "ends": "2026-11-29",
+      "note": "seeded 2026-09-25: current-season Miami guide gives the 2026 Pumpkin Spice Latte window through Nov 29 and Halloween Ube Chai window Oct 5-Nov 1."
+    }
+  ],
+  "ChIJC9pvtLN654gR6F0GZH-G-8I": [
+    {
+      "url": "https://gideonsbakehouse.com/bakery-menu/",
+      "type": "official_site",
+      "starts": "2026-09-01",
+      "ends": "2026-09-30",
+      "note": "seeded 2026-09-26: current bakery menu lists the Pumpkin Bread Chocolate Crumb cookie as September-only; the current preorder/product pages also list Pumpkin Caramel Double Frosted Cake for September pickup at East End Market."
+    },
+    {
+      "url": "https://gideonsbakehouse.com/locations/east-end-market/",
+      "type": "official_site",
+      "note": "seeded 2026-09-26: official location page confirms the exact East End Market Orlando shop at 3203 Corrine Drive."
+    }
+  ],
+  "ChIJEUd8H-Nj54gRq59RRWIA6mI": [
+    {
+      "url": "https://anotherbrokenegg.com/",
+      "type": "official_site",
+      "note": "seeded 2026-09-26: current homepage promotes its limited-time seasonal menu with Pumpkin Pie Cold Brew, Pumpkin Brunch Old Fashioned and Cranberry Pomegranate Fizz."
+    },
+    {
+      "url": "https://anotherbrokenegg.com/location/orlando-fl/",
+      "type": "official_site",
+      "note": "seeded 2026-09-26: official Orlando location page confirms the exact S Semoran Boulevard cafe and seasonal selections."
+    }
   ]
 }
