@@ -46,7 +46,8 @@ import { readFileSync } from "node:fs";
 import { resolvePlacePhoto } from "../lib/placePhotoServe.js";
 import { FALL_FEATURED_FESTIVALS_2026 } from "../lib/fallFeaturedFestivals2026.js";
 import { FALL_DISCOVERIES_2026 } from "../lib/fallDiscoveries2026.js";
-import { FALL_COLLECTION_POSTER, fallEventCardImageSrc, mergeFallDiscoveryRows } from "../lib/fallEventImage.js";
+import { FALL_COLLECTION_POSTER, fallEventCardImageSrc, mergeFallDiscoveryRows, withFallVenueIdentity } from "../lib/fallEventImage.js";
+import { FALL_GUIDE_STARTER_IDS, findFallGuideEvent } from "../lib/floridaFallGuide2026.js";
 
 let pass = 0; const fail = [];
 const ok = (c, m) => { if (c) pass++; else fail.push(m); };
@@ -234,6 +235,20 @@ ok(/mergeFallDiscoveryRows\(rows, \[\.\.\.FALL_DISCOVERIES_2026, \.\.\.FALL_FEAT
 const fallEpoch = Number((/fall-intents:v(\d+):/.exec(fallRoute) || [])[1] || 0);
 ok(fallEpoch >= 6,
   `the Fall cache epoch (v${fallEpoch}) cannot replay a pre-identity-fix image payload after deployment`);
+/* ── 4. COMPLETE FALL GUIDE — top picks may not regress to text-only ───── */
+const fallGuidePage = readFileSync(new URL("../app/guides/florida-fall-festivals-2026/page.js", import.meta.url), "utf8");
+ok(/withFallVenueIdentity\(event\)[\s\S]{0,180}fallEventCardImageSrc\(resolved, 900\)/.test(fallGuidePage),
+  "the complete Fall Guide resolves the verified venue identity before asking for its card image");
+for (const id of FALL_GUIDE_STARTER_IDS) {
+  const event = findFallGuideEvent(id);
+  const resolved = withFallVenueIdentity(event);
+  ok(!!event && !!fallEventCardImageSrc(resolved, 900),
+    `Fall Guide Top 10 ${id} resolves to an honest venue or event image`);
+}
+// An explicit hold remains stronger than the completeness rule.
+ok(fallEventCardImageSrc(withFallVenueIdentity({ event_id: "candlelight-halloween-siesta-key-2026", place_id: "ChIJhfPm_PFBw4gR-zBwab4otK4" }), 900) === null,
+  "the guide image repair does not bypass an explicit editorial image hold");
+
 /* ── 4. PINTO'S FARM — the curated owned-photo bridge, executed ─────────── */
 // A business-approved photo (lib/curatedOwnedPlacePhotos.js) must win at rung
 // 1 EVEN WHEN the row also carries a Google photo_ref — that ordering is the
