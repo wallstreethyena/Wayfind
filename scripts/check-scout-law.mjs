@@ -46,7 +46,7 @@ ok(ADJUDICABLE.size === SECTIONS.length, `ADJUDICABLE (${ADJUDICABLE.size}) and 
 for (const s of SECTIONS) ok(ADJUDICABLE.has(s), `SECTIONS has "${s}" but placeCategory.ADJUDICABLE does not`);
 
 // ── 1. The floor, and its SQL-facing inverse ────────────────────────────────
-ok(SCOUT_FLOOR === 92, `SCOUT_FLOOR must be 92 (the owner's 9.2), got ${SCOUT_FLOOR}`);
+ok(SCOUT_FLOOR === 90, `SCOUT_FLOOR must be 90 (the owner's 9.0), got ${SCOUT_FLOOR}`);
 for (const rating of [4.6, 4.7, 4.8, 4.9, 5.0]) {
   const need = minReviewsFor(rating, SCOUT_FLOOR);
   ok(Number.isFinite(need), `minReviewsFor(${rating}) should be reachable`);
@@ -55,7 +55,8 @@ for (const rating of [4.6, 4.7, 4.8, 4.9, 5.0]) {
 }
 ok(!Number.isFinite(minReviewsFor(4.5, SCOUT_FLOOR)), "a 4.5-star place can never reach 9.2; minReviewsFor must say Infinity");
 ok(clearsFloor(4.7, 9851), "Mote Marine (4.7/9851) must clear the floor");
-ok(!clearsFloor(4.9, 20), "4.9 from 20 reviews must NOT clear the floor — that is the whole point of the Bayesian prior");
+ok(!clearsFloor(4.9, 5), "4.9 from 5 reviews must NOT clear the 9.0 floor — thin praise is still pulled toward the Bayesian prior");
+ok(clearsFloor(4.9, 20), "4.9 from 20 reviews now clears the owner-requested 9.0 floor");
 
 // ── 2. Abstention is the ONLY adjudicable state ─────────────────────────────
 const roofer = { types: ["roofing_contractor", "point_of_interest"], primaryType: "roofing_contractor", name: "Siesta Roofing" };
@@ -66,6 +67,20 @@ ok(classify(roofer).excluded === true, "self-test: a roofing_contractor must be 
 ok(needsAdjudication(classify(mote)) === true, "Mote must land in the abstention bucket — otherwise this whole feature is inert");
 ok(needsAdjudication(classify(roofer)) === false, "an EXCLUDED place must never be adjudicable");
 ok(needsAdjudication(classify(diner)) === false, "a DECIDED place must never be adjudicable");
+
+// Clear destination identities that were measured in the 9.0+ backlog should
+// classify deterministically and never consume a scout-model verdict.
+for (const [name, types, expected] of [
+  ["Wet Rentals and Tours", ["tour_agency","travel_agency","service","point_of_interest"], "attractions"],
+  ["Fragments Art Studio", ["art_studio","educational_institution","point_of_interest"], "attractions"],
+  ["Dade County Comedy", ["comedy_club","point_of_interest"], "nightlife"],
+  ["Scenic view of The Sunshine Skyway Bridge", ["scenic_spot","point_of_interest"], "attractions"],
+  ["North Port Aquatic Center", ["sports_complex","sports_activity_location","swimming_pool","point_of_interest"], "attractions"],
+]) {
+  const c = classify({ name, types, primaryType: types[0] });
+  ok(c.category === expected, `${name} must resolve to ${expected} without scout adjudication, got ${c.category}`);
+  ok(needsAdjudication(c) === false, `${name} must not consume a scout verdict once its Google type is decisive`);
+}
 
 // ── 2b. A food bank is not a place to eat ───────────────────────────────────
 // FEAST Food Pantry (4.8 / 234) carries the bare type `food` and nothing else,
