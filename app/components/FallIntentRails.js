@@ -5,7 +5,7 @@
 // extra round trip for page 0) and streaming ten more per rail as the reader
 // scrolls past the 8th card — see app/components/usePagedRail.js and
 // lib/railPage.js for the shared contract every poster/rail endpoint speaks.
-import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import RailCard, { RailDots, RailNav } from "./RailCard";
 import RailHeading from "./RailHeading";
 import RailLoading from "./RailLoading";
@@ -17,8 +17,9 @@ import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
 import { RAIL_PAGE_SIZE } from "../../lib/railPage.js";
 import { usePagedRail } from "./usePagedRail.js";
 import { railRenderState, RAIL_RENDER_STATE } from "../../lib/railVisibility.js";
-import DestinationStays from "./DestinationStays.js";
+import FallRecommendedHotels from "./FallRecommendedHotels.js";
 import { partnerTicketLabel } from "../../lib/partnerCopy.js";
+import { ownedPlacePhotoSrc } from "../../lib/placePhoto.js";
 
 const COLORS = { text: "#FFF7ED", muted: "#A99FA8" };
 export const FALL_LOAD_TIMEOUT_MS = 10000;
@@ -112,7 +113,10 @@ function FallRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, fallSkin,
           const eventBodyHref = isEvent ? (card.detailHref || (card.officialOnly || !openEventVenue ? card.url || null : null)) : null;
           const eventBodyExternal = isEvent && !card.detailHref;
           return <RailCard key={card.id} className="wf-exploding-primary" domRef={index === sentinelIndex ? sentinelRef : undefined}
-            photo={card.image || null} photoAttr={card.photoAttr || null} photoAttrHref={card.photoAttrHref || null} place={place}
+            photo={card.image || null}
+            photoFallback={isEvent && card.place_id ? ownedPlacePhotoSrc(card.place_id, 640) : null}
+            eagerMedia={index === 0}
+            photoAttr={card.photoAttr || null} photoAttrHref={card.photoAttrHref || null} place={place}
             creatorVideos={isEvent ? card.creatorReels : undefined}
             title={card.title || card.name} eyebrow={rail.title} rank={rank}
             score={isEvent ? null : toDisplayScore(card.wfScore)} when={isEvent ? card.when : null}
@@ -181,11 +185,10 @@ export default function FallIntentRails({
   if (!payload && !failed) return <RailLoading label="Ranking Florida fall experiences" />;
   if (failed) return <div><p style={{ color: COLORS.muted, fontSize: 13 }}>We could not reach Wayfind&apos;s verified fall inventory. That is a service miss, not an empty city.</p><button type="button" onClick={() => setRetry((value) => value + 1)} style={{ border: "1px solid #7C2D12", borderRadius: 999, background: "#1C1014", color: COLORS.text, padding: "7px 12px", fontWeight: 800 }}>Try again</button></div>;
 
-  const firstPopulatedRail = payload.rails.findIndex((rail) => Array.isArray(rail.cards) && rail.cards.length > 0);
-  return <>{payload.rails.map((rail, index) => <Fragment key={rail.id}>
-    <FallRailSection rail={rail} lat={lat} lng={lng} onOpenPlace={onOpenPlace} onTrack={onTrack} city={city} fallSkin={fallSkin}
+  return <>
+    {payload.rails.map((rail) => <FallRailSection key={rail.id} rail={rail} lat={lat} lng={lng} onOpenPlace={onOpenPlace} onTrack={onTrack} city={city} fallSkin={fallSkin}
       isSaved={isSaved} liked={liked} disliked={disliked} isLiked={isLiked} isDisliked={isDisliked}
-      onSave={onSave} onLike={onLike} onDislike={onDislike} onShare={onShare} />
-    {index === firstPopulatedRail ? <DestinationStays destinations={payload.stayDestinations} /> : null}
-  </Fragment>)}</>;
+      onSave={onSave} onLike={onLike} onDislike={onDislike} onShare={onShare} />)}
+    <FallRecommendedHotels center={center} />
+  </>;
 }
