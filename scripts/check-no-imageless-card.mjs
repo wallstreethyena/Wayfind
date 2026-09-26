@@ -47,7 +47,7 @@ import { resolvePlacePhoto } from "../lib/placePhotoServe.js";
 import { FALL_FEATURED_FESTIVALS_2026 } from "../lib/fallFeaturedFestivals2026.js";
 import { FALL_DISCOVERIES_2026 } from "../lib/fallDiscoveries2026.js";
 import { FALL_COLLECTION_POSTER, fallEventCardImageSrc, mergeFallDiscoveryRows, withFallVenueIdentity } from "../lib/fallEventImage.js";
-import { FALL_GUIDE_STARTER_IDS, findFallGuideEvent } from "../lib/floridaFallGuide2026.js";
+import { FALL_GUIDE_STARTER_IDS, FALL_GUIDE_WEEKDAY_IDS, FALL_GUIDE_OCTOBER_WEEKENDS, findFallGuideEvent } from "../lib/floridaFallGuide2026.js";
 
 let pass = 0; const fail = [];
 const ok = (c, m) => { if (c) pass++; else fail.push(m); };
@@ -239,11 +239,16 @@ ok(fallEpoch >= 6,
 const fallGuidePage = readFileSync(new URL("../app/guides/florida-fall-festivals-2026/page.js", import.meta.url), "utf8");
 ok(/withFallVenueIdentity\(event\)[\s\S]{0,180}fallEventCardImageSrc\(resolved, 900\)/.test(fallGuidePage),
   "the complete Fall Guide resolves the verified venue identity before asking for its card image");
-for (const id of FALL_GUIDE_STARTER_IDS) {
+const fallGuideVisualIds = [...new Set([
+  ...FALL_GUIDE_STARTER_IDS,
+  ...FALL_GUIDE_WEEKDAY_IDS,
+  ...FALL_GUIDE_OCTOBER_WEEKENDS.flatMap((weekend) => weekend.ids),
+])];
+for (const id of fallGuideVisualIds) {
   const event = findFallGuideEvent(id);
   const resolved = withFallVenueIdentity(event);
   ok(!!event && !!fallEventCardImageSrc(resolved, 900),
-    `Fall Guide Top 10 ${id} resolves to an honest venue or event image`);
+    `Fall Guide visual card ${id} resolves to an honest venue or event image`);
 }
 // An explicit hold remains stronger than the completeness rule.
 ok(fallEventCardImageSrc(withFallVenueIdentity({ event_id: "candlelight-halloween-siesta-key-2026", place_id: "ChIJhfPm_PFBw4gR-zBwab4otK4" }), 900) === null,
