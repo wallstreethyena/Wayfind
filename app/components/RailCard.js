@@ -389,8 +389,6 @@ export default function RailCard({
   // a neighboring place's photo.
   const samePlacePhoto = place?.id ? ownedPlacePhotoSrc(place.id, 640) : "";
   const resolvedPhotoFallback = photoFallback || (samePlacePhoto && samePlacePhoto !== photo ? samePlacePhoto : "");
-  const primaryPhoto = photo || resolvedPhotoFallback;
-  const secondaryPhotoFallback = photo ? resolvedPhotoFallback : "";
   if (!title) return null;
   // A wired handler always wins; the store is what an unwired card falls back
   // to, so no surface can ship a thumb that does nothing.
@@ -460,10 +458,10 @@ export default function RailCard({
               which left the fully-sized media box painting nothing. Keyed
               to the ORIGINAL `photo` prop, not the fallback src that just
               replaced it, so this still flips once the fallback also fails. */}
-          {primaryPhoto && imgFailed !== primaryPhoto
+          {photo && imgFailed !== photo
             ? <img
-                src={primaryPhoto}
-                data-fallback={secondaryPhotoFallback}
+                src={photo}
+                data-fallback={resolvedPhotoFallback}
                 alt=""
                 loading={eagerMedia ? "eager" : "lazy"}
                 decoding="async"
@@ -471,11 +469,22 @@ export default function RailCard({
                 onError={(ev) => {
                   const fb = ev.currentTarget.dataset.fallback;
                   if (fb) { ev.currentTarget.dataset.fallback = ""; ev.currentTarget.src = fb; }
-                  else { setImgFailed(primaryPhoto); }
+                  else { setImgFailed(photo); }
                 }}
                 style={{ objectFit: "cover" }}
               />
-            : <div className="wf-place-card-monogram" aria-hidden="true">{initialsOf(title)}</div>}
+            : (!photo && resolvedPhotoFallback && imgFailed !== resolvedPhotoFallback)
+              ? <img
+                  src={resolvedPhotoFallback}
+                  data-fallback=""
+                  alt=""
+                  loading={eagerMedia ? "eager" : "lazy"}
+                  decoding="async"
+                  {...(mediaPriority ? { fetchpriority: mediaPriority } : null)}
+                  onError={() => setImgFailed(resolvedPhotoFallback)}
+                  style={{ objectFit: "cover" }}
+                />
+              : <div className="wf-place-card-monogram" aria-hidden="true">{initialsOf(title)}</div>}
           {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
           {/* v8.56.13 (#1188) — CC-license credit for the free permanent photo
               lane (lib/freePhoto.js, wf_place_photo). Not decoration: Wikimedia
