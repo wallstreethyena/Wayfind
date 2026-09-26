@@ -48,6 +48,7 @@ import CreatorCardMark from "./CreatorCardMark";
 import { topPickAward } from "../../lib/topPickAward";
 import { couponForPlace } from "../../lib/coupons";
 import { normalizePlaceCardHref } from "../../lib/placeCardRoute.js";
+import { useCardTapIntent } from "./useCardTapIntent.js";
 
 // ---------------------------------------------------------------------------
 // Experience-tag chips (owner: "I need the cards to look like the cards from
@@ -359,6 +360,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   // stale failure, and a source swap (e.g. a re-rank bringing a fresh photo)
   // gets its own fair shot at loading before falling back.
   const [imgFailed, setImgFailed] = useState("");
+  const tapIntent = useCardTapIntent();
   useEffect(() => {
     const el = laneRef.current;
     if (!el) return undefined;
@@ -387,6 +389,9 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
     else if (action === "share" && h.share) h.share(h.place);
   }, actionsLive);
   if (!place) return null;
+  const primaryPhoto = photoUrl(place);
+  const stablePlacePhoto = ownedPlacePhotoSrc(place.place_id || place.googlePlaceId || place.id, 640);
+  const samePlacePhotoFallback = stablePlacePhoto && stablePlacePhoto !== primaryPhoto ? stablePlacePhoto : "";
   const expTags = experienceTags(place, 3);
   // Resolve the offer in the shared card itself so every IconicPlaceCard
   // surface (browse, map, saved, guides and intent pages) gets the same
@@ -489,6 +494,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   const openCard = (event) => {
     const target = event && event.target;
     if (target && typeof target.closest === "function" && target.closest("a,button,input,select,textarea,[role='button']")) return;
+    if (!tapIntent.shouldOpen()) return;
     // v7.16 (map): an in-app caller (the map's bottom card) opens the detail
     // SHEET instead of navigating away and losing the map. href remains the
     // fallback and the crawlable link.
@@ -497,7 +503,10 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   };
 
   return (
-    <li ref={cardRef} data-iconic-place-card data-card-opens-detail onClick={openCard} className={`wf-place-card${fallCardClass(place.id, siteTodayStr())}${isCuratorPick ? " is-curator-pick" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${hasTake ? "" : " is-no-take"}${cta ? " has-cta" : ""}`} style={{ listStyle: "none", cursor: cardHref ? "pointer" : "default" }}>
+    <li ref={cardRef} data-iconic-place-card data-card-opens-detail
+      onPointerDown={tapIntent.onPointerDown} onPointerMove={tapIntent.onPointerMove}
+      onPointerUp={tapIntent.onPointerUp} onPointerCancel={tapIntent.onPointerCancel}
+      onClick={openCard} className={`wf-place-card${fallCardClass(place.id, siteTodayStr())}${isCuratorPick ? " is-curator-pick" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${hasTake ? "" : " is-no-take"}${cta ? " has-cta" : ""}`} style={{ listStyle: "none", cursor: cardHref ? "pointer" : "default" }}>
       {/* v8.62 (owner, 2026-08-26, live): the Wayfind Score sits in the top
           right corner of the CARD, never on the photo. Direct child of
           .wf-place-card so the shared css.js rule anchors it to the card. */}
@@ -523,19 +532,22 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
             left behind — same bug, different component.
             Default stays lazy: this card also renders far below the
             fold on landing pages, where lazy works and matters. */}
-          {photoUrl(place) && imgFailed !== photoUrl(place)
+          {primaryPhoto && imgFailed !== primaryPhoto
             ? (
               <img
-                src={photoUrl(place)}
+                src={primaryPhoto}
+                data-fallback={samePlacePhotoFallback}
                 alt=""
                 loading={eagerMedia ? "eager" : "lazy"}
                 decoding="async"
                 {...(mediaPriority ? { fetchpriority: mediaPriority } : null)}
-                // GUARD-HONESTY 2026-09-07 — the fallback the ladder never
-                // had: a resolved src that then fails to LOAD (404/5xx/
-                // network) swaps to the same monogram a missing src already
-                // gets, instead of leaving a blank, full-size media box.
-                onError={() => setImgFailed(photoUrl(place))}
+                // A stale stored ref gets one identity-safe retry through the
+                // exact same place id. A second failure becomes the monogram.
+                onError={(ev) => {
+                  const fb = ev.currentTarget.dataset.fallback;
+                  if (fb) { ev.currentTarget.dataset.fallback = ""; ev.currentTarget.src = fb; }
+                  else { setImgFailed(primaryPhoto); }
+                }}
                 style={{ objectFit: "cover" }}
               />
             )
