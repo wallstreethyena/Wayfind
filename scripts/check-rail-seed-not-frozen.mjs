@@ -110,7 +110,7 @@ ok(/usePagedRail\(/.test(rails),
 // ── one verified option is presented, never padded (v8.97c) ────────────────
 //
 // After the identity-first retrieval fix, Dinner + Entertainment at Parrish
-// really does hold exactly one qualifying place within 27 miles. A horizontal
+// (a rail removed 2026-09-23) really did hold exactly one qualifying place within 27 miles. A horizontal
 // rail with one card promises a choice and delivers one; the answer is a
 // compact treatment, and the thing to guard is that it is a PRESENTATION branch
 // and not a data one.
