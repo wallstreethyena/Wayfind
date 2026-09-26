@@ -53,10 +53,11 @@ for (const rating of [4.6, 4.7, 4.8, 4.9, 5.0]) {
   ok(wayfindScore(rating, need) >= SCOUT_FLOOR, `minReviewsFor(${rating})=${need} does not actually clear ${SCOUT_FLOOR} (got ${wayfindScore(rating, need)})`);
   ok(need === 0 || wayfindScore(rating, need - 1) < SCOUT_FLOOR, `minReviewsFor(${rating})=${need} is not TIGHT — ${need - 1} reviews already clears it`);
 }
-ok(!Number.isFinite(minReviewsFor(4.5, SCOUT_FLOOR)), "a 4.5-star place can never reach 9.2; minReviewsFor must say Infinity");
+ok(!Number.isFinite(minReviewsFor(4.4, SCOUT_FLOOR)), "a 4.4-star place can never reach the 9.0 floor; minReviewsFor must say Infinity");
+ok(Number.isFinite(minReviewsFor(4.5, SCOUT_FLOOR)), "a 4.5-star place can eventually round to the 9.0 floor with enough reviews");
 ok(clearsFloor(4.7, 9851), "Mote Marine (4.7/9851) must clear the floor");
 ok(!clearsFloor(4.9, 5), "4.9 from 5 reviews must NOT clear the 9.0 floor — thin praise is still pulled toward the Bayesian prior");
-ok(clearsFloor(4.9, 20), "4.9 from 20 reviews now clears the owner-requested 9.0 floor");
+ok(clearsFloor(4.9, minReviewsFor(4.9, SCOUT_FLOOR)), "4.9 must clear the owner-requested 9.0 floor at its exact derived review threshold");
 
 // ── 2. Abstention is the ONLY adjudicable state ─────────────────────────────
 const roofer = { types: ["roofing_contractor", "point_of_interest"], primaryType: "roofing_contractor", name: "Siesta Roofing" };
