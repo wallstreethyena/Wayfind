@@ -16,15 +16,18 @@ export function useCardTapIntent() {
     startY: 0,
     moved: false,
     suppressNextClick: false,
+    rail: null,
+    startScrollLeft: 0,
   });
 
   const onPointerDown = (event) => {
     const target = event && event.target;
     if ((event?.pointerType === "mouse" && event.button !== 0)
       || (target && typeof target.closest === "function" && target.closest(NESTED_CONTROL))) {
-      gesture.current = { ...gesture.current, active: false, pointerId: null, moved: false, suppressNextClick: false };
+      gesture.current = { ...gesture.current, active: false, pointerId: null, moved: false, suppressNextClick: false, rail: null, startScrollLeft: 0 };
       return;
     }
+    const rail = target && typeof target.closest === "function" ? target.closest(".wf-rail,.wf8-pcrail") : null;
     gesture.current = {
       active: true,
       pointerId: event?.pointerId ?? null,
@@ -32,6 +35,8 @@ export function useCardTapIntent() {
       startY: Number(event?.clientY || 0),
       moved: false,
       suppressNextClick: false,
+      rail,
+      startScrollLeft: Number(rail?.scrollLeft || 0),
     };
   };
 
@@ -46,18 +51,22 @@ export function useCardTapIntent() {
   const onPointerUp = (event) => {
     const current = gesture.current;
     if (!current.active || current.pointerId !== (event?.pointerId ?? null)) return;
-    current.suppressNextClick = current.moved;
+    const railMoved = current.rail && Math.abs(Number(current.rail.scrollLeft || 0) - current.startScrollLeft) >= 4;
+    current.suppressNextClick = current.moved || railMoved;
     current.active = false;
     current.pointerId = null;
+    current.rail = null;
   };
 
   const onPointerCancel = (event) => {
     const current = gesture.current;
     if (current.pointerId !== (event?.pointerId ?? null)) return;
+    const railMoved = current.rail && Math.abs(Number(current.rail.scrollLeft || 0) - current.startScrollLeft) >= 4;
+    current.suppressNextClick = current.moved || railMoved;
     current.active = false;
     current.pointerId = null;
     current.moved = false;
-    current.suppressNextClick = false;
+    current.rail = null;
   };
 
   const shouldOpen = () => {
