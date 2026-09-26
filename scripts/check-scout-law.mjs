@@ -82,6 +82,19 @@ for (const [name, types, expected] of [
   ok(needsAdjudication(c) === false, `${name} must not consume a scout verdict once its Google type is decisive`);
 }
 
+// The new activity tokens must not rescue a service business when Google's
+// decisive primaryType says it is a trade. This freezes the real Landis Pools
+// failure mode found in the 9.0+ backlog.
+{
+  const c = classify({
+    name: "Landis Pools",
+    primaryType: "general_contractor",
+    types: ["general_contractor","sports_activity_location","swimming_pool","service","point_of_interest"],
+  });
+  ok(c.excluded === true && c.category === null,
+    `a trade business must stay excluded even when secondary types look recreational; got excluded=${c.excluded} category=${c.category}`);
+}
+
 // ── 2b. A food bank is not a place to eat ───────────────────────────────────
 // FEAST Food Pantry (4.8 / 234) carries the bare type `food` and nothing else,
 // and resolved into "best places to eat" until 2026-08-22. The veto must run
