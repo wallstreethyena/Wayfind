@@ -193,4 +193,37 @@ ok(/enrich-\$\{args\.metro\}\.json/.test(orch), "raw enrichment is cached per me
 ok(/--refresh/.test(orch), "cache can be bypassed with --refresh");
 ok(/reused from cache/.test(orch), "run reports paid calls vs cache reuse");
 
-console.log(`test-promote-index: OK — ${pass} assertions (bucketing, missing-set idempotency, cost caps, enrich→validate chain, dedupe, orchestrator guards)`);
+// ── 7. Phase 3 verified-first claim order ───────────────────────────────────
+{
+  const migration = readFileSync(
+    join(dirname(fileURLToPath(import.meta.url)), "../supabase/migrations/20260927121500_phase3_verified_promotion_first.sql"),
+    "utf8"
+  );
+  ok(/wf_scout_verdicts\s+sv/.test(migration) && /sv\.accepted\s+is\s+true/i.test(migration),
+    "Phase 3 claim order must recognize scout-accepted destinations");
+  ok(/phase2-deterministic-recovery/.test(migration) && /scout-deterministic-recovery/.test(migration),
+    "Phase 3 claim order must recognize both existing and future deterministic recovery stamps");
+  const provenCase = migration.indexOf("case");
+  const priorityOrder = migration.indexOf("q.priority desc", provenCase);
+  ok(provenCase >= 0 && priorityOrder > provenCase,
+    "verified-destination ordering must be evaluated before ordinary queue priority");
+  ok(/3000000\s*\+\s*p\.score\*1000/.test(migration),
+    "current proven 9.0+ rows must receive the durable high-priority band");
+  ok(!/update\s+public\.wf_promote_config/i.test(migration) && !/wf_spend_ledger/i.test(migration),
+    "Phase 3 priority migration must not raise provider caps or rewrite the spend ledger");
+
+  const rows = [
+    { id: "unreviewed-98", proven: false, priority: 1098999, enqueued: 1 },
+    { id: "proven-90", proven: true, priority: 1090067, enqueued: 2 },
+    { id: "proven-97", proven: true, priority: 1097783, enqueued: 3 },
+  ];
+  rows.sort((a, b) =>
+    Number(b.proven) - Number(a.proven) ||
+    b.priority - a.priority ||
+    a.enqueued - b.enqueued
+  );
+  eq(rows[0].id, "proven-97", "within proven rows the existing score/review priority still wins");
+  eq(rows[1].id, "proven-90", "a proven 9.0 destination must outrank a higher-score unreviewed row");
+}
+
+console.log(`test-promote-index: OK — ${pass} assertions (bucketing, missing-set idempotency, cost caps, enrich→validate chain, dedupe, orchestrator guards, Phase 3 verified-first claim order)`);
