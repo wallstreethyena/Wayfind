@@ -44,7 +44,7 @@ function makeDb({ atRisk = [], inventory = [], existingRows = [], replayFailStat
     if (u.startsWith(SB.url + "/rest/v1/wf_photo_at_risk")) {
       return { ok: true, json: async () => atRisk };
     }
-    if (u.startsWith(SB.url + "/rest/v1/wf_inventory")) {
+    if (u.startsWith(SB.url + "/rest/v1/wf_inventory") || u.startsWith(SB.url + "/rest/v1/wf_photo_general_free_candidate")) {
       const inMatch = u.match(/place_id=in\.\(([^)]*)\)/);
       if (inMatch) {
         const ids = new Set(
