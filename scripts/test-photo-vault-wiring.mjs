@@ -189,7 +189,7 @@ function makeDb({ atRisk = [], repair = [], inventory = [], existingRows = [] } 
       if (repairTable.has(id)) repairTable.set(id, { ...repairTable.get(id), ...body });
       return { ok: true, json: async () => [] };
     }
-    if (u.startsWith(SB.url + "/rest/v1/wf_inventory")) {
+    if (u.startsWith(SB.url + "/rest/v1/wf_inventory") || u.startsWith(SB.url + "/rest/v1/wf_photo_general_free_candidate")) {
       return { ok: true, json: async () => inventory };
     }
     if (u.startsWith(SB.url + "/rest/v1/wf_place_photo") && method === "GET") {
@@ -653,7 +653,7 @@ const PHOTO = (id) => ({
     const u = String(url);
     const method = (init && init.method) || "GET";
     if (u.startsWith(SB.url + "/rest/v1/wf_photo_at_risk_free_candidate")) return { ok: true, json: async () => [] };
-    if (u.startsWith(SB.url + "/rest/v1/wf_inventory")) {
+    if (u.startsWith(SB.url + "/rest/v1/wf_inventory") || u.startsWith(SB.url + "/rest/v1/wf_photo_general_free_candidate")) {
       invRequests.push(u);
       const gt = decodeURIComponent((u.match(/place_id=gt\.([^&]*)/) || [])[1] || "");
       const asked = parseInt((u.match(/limit=(\d+)/) || [])[1] || "0", 10) || CAP;
@@ -1535,6 +1535,60 @@ const PHOTO = (id) => ({
   }
 
   console.log("test-photo-vault-wiring: Section J OK — the run stops on its own budget inside the platform ceiling, finishes what it started, writes those rows, always pulses, reports PARTIAL honestly, and the next run picks up exactly what was left");
+}
+
+
+// Scheduled-size scans must reach undecided rows after a fully decided prefix.
+// The fake database distinguishes the actionable view from raw inventory, so
+// reverting only the worker URL reproduces the original starvation.
+{
+  const migration = readFileSync(new URL("../supabase/migrations/20260927000000_wf_photo_general_free_candidate.sql", import.meta.url), "utf8");
+  ok(/security_invoker\s*=\s*true/i.test(migration), "K: candidate view retains caller RLS");
+  ok(/i\.status\s*=\s*'OPERATIONAL'/i.test(migration) && /i\.category\s+in\s*\('beach',\s*'attractions'\)/i.test(migration), "K: exact existing category/status scope, including singular beach");
+  ok(/not exists\s*\([\s\S]*from public\.wf_place_photo p where p\.place_id = i\.place_id/i.test(migration), "K: all existing decisions excluded before pagination");
+  ok(/revoke all[\s\S]*from anon, authenticated/i.test(migration) && /grant select[\s\S]*to service_role/i.test(migration), "K: worklist restricted to service role");
+  const all = Array.from({ length: 1026 }, (_, i) => ({ place_id: "K" + String(i).padStart(5, "0"), name: "Place " + i, category: "beach", status: "OPERATIONAL", tags: [], lat: 28, lng: -81 }));
+  const table = new Map(all.slice(0, 1000).map(r => [r.place_id, {place_id: r.place_id, status: "rejected", source_ref: "rejected:no_direct_commons_candidate"}]));
+  const savedFetch = globalThis.fetch;
+  const resolved = [];
+  const pages = [];
+  let viewUnavailable = false;
+  globalThis.fetch = async (input, init = {}) => {
+    const u = new URL(input);
+    const method = init.method || "GET";
+    if (u.pathname.endsWith("/wf_photo_general_free_candidate") || u.pathname.endsWith("/wf_inventory")) {
+      const actionable = u.pathname.endsWith("/wf_photo_general_free_candidate");
+      if (actionable && viewUnavailable) return {ok:false, status:503};
+      const limit = Math.min(1000, Number(u.searchParams.get("limit")) || 1000);
+      const gt = (u.searchParams.get("place_id") || "gt.").slice(3);
+      const page = all.filter(r => (!actionable || !table.has(r.place_id)) && r.place_id > gt).slice(0, limit);
+      pages.push(page.length);
+      return Response.json(page);
+    }
+    if (u.pathname.endsWith("/wf_place_photo") && method === "GET") {
+      if (u.searchParams.has("source_ref")) return Response.json([]);
+      const ids = u.searchParams.get("place_id") || "";
+      return Response.json([...table.values()].filter(r => ids.includes('"' + r.place_id + '"')));
+    }
+    if (u.pathname.endsWith("/wf_place_photo") && method === "POST") {
+      const row = JSON.parse(init.body)[0]; table.set(row.place_id, row); return Response.json([]);
+    }
+    throw new Error("UNEXPECTED NETWORK CALL " + method + " " + u);
+  };
+  const opts = {source:"all", sbEnv:SB, storePhoto:null, wikimedia:{canRequest:()=>true}, resolvePhoto:async (p, deps) => {resolved.push(p.place_id); deps.onReject("no_direct_commons_candidate"); return null;}};
+  try {
+    const first = await runBackfill(opts);
+    const second = await runBackfill(opts);
+    eq(first.attempted, 25, "K: scheduled default drains 25 beyond decided first 1000");
+    eq(second.attempted, 1, "K: next run reaches remaining place as decisions leave worklist");
+    eq(new Set(resolved).size, 26, "K: terminal decisions are never attempted twice");
+    ok(resolved.every(id => id >= "K01000"), "K: decided prefix remains untouched");
+    ok(pages.length === 2 && pages.every(n => n <= 1000), "K: bounded read budget unchanged");
+    viewUnavailable = true;
+    const unavailable = await runBackfill(opts);
+    eq(unavailable.ok, false, "K: unavailable view is an explicit failure, not empty success");
+    ok(String(unavailable.reason).includes("wf_photo_general_free_candidate") && String(unavailable.reason).includes("503"), "K: error names missing worklist and status");
+  } finally {globalThis.fetch = savedFetch;}
 }
 
 if (failures) {
