@@ -275,17 +275,26 @@ export async function GET(req) {
   // re-fetches Details for places whose verdict was never stored and bins them
   // again — paid work with a guaranteed-wrong outcome. The RECOVERED ones carry
   // no verdict and depend on nothing, so they always go.
-  const toRequeue = dryRun ? [] : [...recovered, ...(writeErr ? [] : accepted)];
+  const recoveredToRequeue = dryRun ? [] : recovered;
+  const acceptedToRequeue = dryRun || writeErr ? [] : accepted;
   let requeued = 0;
-  if (toRequeue.length) {
-    try {
-      const ids = toRequeue.map((a) => `"${a.place_id}"`).join(",");
-      await rest(`wf_promotion_queue?place_id=in.(${ids})`, {
-        method: "PATCH", headers: { prefer: "return=minimal" },
-        body: JSON.stringify({ status: "pending", attempts: 0, reject_reason: null, last_error: null, next_attempt_at: now, claimed_at: null }),
-      });
-      requeued = toRequeue.length;
-    } catch (e) { writeErr = `requeue failed: ${String(e && e.message).slice(0, 160)}`; }
+  const reopen = async (rows, reason) => {
+    if (!rows.length) return;
+    const ids = rows.map((a) => `"${a.place_id}"`).join(",");
+    await rest(`wf_promotion_queue?place_id=in.(${ids})`, {
+      method: "PATCH", headers: { prefer: "return=minimal" },
+      body: JSON.stringify({
+        status: "pending", attempts: 0, reject_reason: null, last_error: null,
+        next_attempt_at: now, claimed_at: null, reason,
+      }),
+    });
+    requeued += rows.length;
+  };
+  try {
+    await reopen(recoveredToRequeue, "scout-deterministic-recovery");
+    await reopen(acceptedToRequeue, "scout-adjudicated-recovery");
+  } catch (e) {
+    writeErr = `requeue failed: ${String(e && e.message).slice(0, 160)}`;
   }
 
   // succeeded = places handed BACK TO THE PROMOTER, not places looked at. A run
