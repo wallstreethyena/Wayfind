@@ -249,6 +249,27 @@ export async function GET(req) {
     } catch (e) { writeErr = `verdict write failed: ${String(e && e.message).slice(0, 160)}`; }
   }
 
+  // Keep the queue's rejection label truthful after a negative verdict. The
+  // old "unclassified" text describes the PREVIOUS classifier decision, not the
+  // settled scout outcome, and made a resolved negative look like an unresolved
+  // backlog item. Do this only after the verdict write succeeds.
+  let negativeSettled = 0;
+  if (!dryRun && !writeErr) {
+    const negatives = verdictRows.filter((v) => v.accepted === false);
+    if (negatives.length) {
+      try {
+        const ids = negatives.map((v) => `"${v.place_id}"`).join(",");
+        await rest(`wf_promotion_queue?place_id=in.(${ids})&status=eq.rejected`, {
+          method: "PATCH", headers: { prefer: "return=minimal" },
+          body: JSON.stringify({ reject_reason: "scout-resolved-negative", last_error: null, claimed_at: null }),
+        });
+        negativeSettled = negatives.length;
+      } catch (e) {
+        writeErr = `negative verdict settle failed: ${String(e && e.message).slice(0, 160)}`;
+      }
+    }
+  }
+
   // Only now reopen the queue. Ordering matters for the ADJUDICATED ones: if
   // the verdict write failed we must not requeue them, or the promoter
   // re-fetches Details for places whose verdict was never stored and bins them
@@ -286,7 +307,7 @@ export async function GET(req) {
     ok: true, floor, model: MODEL, dryRun,
     candidates: rows.length, adjudicated: verdictRows.length, requeued,
     accepted: accepted.length, rejected: rejected.length,
-    recovered: recovered.length, excluded: excluded.length, skipped: skipped.length,
+    recovered: recovered.length, excluded: excluded.length, skipped: skipped.length, negativeSettled,
     // Full lists, not counts. A rejected gem and an admitted roofer are both
     // things the owner must be able to see without opening the database — and
     // a count cannot show either.
