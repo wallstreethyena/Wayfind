@@ -117,6 +117,12 @@ for (const [name, types, expected] of [
     "scout route must sweep every candidate through freeScoutLane before any paid adjudication pass");
   ok(!/if \(!key\) return jobCannotRun\("scout"/.test(scoutRoute),
     "missing Anthropic configuration must not return before deterministic scout recovery can settle");
+  const verdictWrite = scoutRoute.indexOf('wf_scout_verdicts?on_conflict=place_id');
+  const negativeSettle = scoutRoute.indexOf('reject_reason: "scout-resolved-negative"');
+  ok(verdictWrite >= 0 && negativeSettle > verdictWrite,
+    "negative queue labels may change only after the scout verdict is durably written");
+  ok(scoutRoute.includes('negativeSettled') && scoutRoute.includes('status=eq.rejected'),
+    "scout must report settled negatives and only relabel rows that are already rejected");
 }
 
 // The new activity tokens must not rescue a service business when Google's
