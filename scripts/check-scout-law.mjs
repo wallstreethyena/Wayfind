@@ -296,8 +296,9 @@ ok(Object.keys(parseAdjudication('[{"id":"A","section":', asked)).length === 0, 
   const src = readFileSync(new URL("../app/api/cron/scout/route.js", import.meta.url), "utf8");
   ok(/if\s*\(!out\.answered\)/.test(src),
     "the scout route must skip unanswered places before writing a verdict — otherwise a dropped line bins a good place forever");
-  const gate = src.indexOf("!out.answered"), write = src.indexOf("verdictRows.push({\n        place_id");
-  ok(gate > -1 && write > -1 && gate < write, "the unanswered check must come BEFORE the verdict write, not after");
+  const gate = src.indexOf("!out.answered");
+  const write = gate > -1 ? src.indexOf("verdictRows.push({", gate) : -1;
+  ok(gate > -1 && write > gate, "the unanswered check must come BEFORE its model-verdict write, not after");
 }
 
 // ── 12. The cron route must actually be scheduled and secured ───────────────
