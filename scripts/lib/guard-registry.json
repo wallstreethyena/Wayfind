@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 733,
-    "totalRegistryEntries": 734,
-    "guardsTxtLineCount": 731,
-    "guardsTxtReachedFileCount": 726,
+    "totalOnDiskGuardFiles": 734,
+    "totalRegistryEntries": 735,
+    "guardsTxtLineCount": 732,
+    "guardsTxtReachedFileCount": 727,
     "criticalCount": 87,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 510,
-      "RENDER": 84,
+      "RENDER": 85,
       "STRUCTURAL": 139,
       "OTHER": 1
     }
@@ -11412,6 +11412,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 47,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-detail-nearby.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 31,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
