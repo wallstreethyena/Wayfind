@@ -36,6 +36,7 @@ import { useCommerceImpression } from "../useCommerceImpression";
 import { nearbyTourListAllowed, placePartnerPick } from "../../../lib/placePartnerPicks";
 import { usePinQuarantine } from "../../../lib/pinQuarantine";
 import { pairsWellWith } from "../../../lib/pairsWellWith";
+import { detailNearbyPool, detailDistanceMi, DETAIL_NEARBY_RADIUS_MI } from "../../../lib/detailNearby.js";
 import { askShareIntent } from "../shareIntentSheet";
 import { placeKinds } from "../../../lib/dateInvite";
 import { hasRealPlacePhoto, realPlacePhotoSrc } from "../../../lib/detailHero";
@@ -1093,7 +1094,7 @@ export default function DetailSheet({ ctx }) {
                   it never decides which match earns a slot. */}
               {!detail._event && (() => {
                 const nextPool = dedupePlaces([...(suggested || []), ...places]).filter((p) => p && p.id !== detail.id);
-                const picks = pairsWellWith(detail, nextPool, { max: 3, radiusMi: 8 })
+                const picks = pairsWellWith(detail, nextPool, { max: 3, radiusMi: DETAIL_NEARBY_RADIUS_MI })
                   .map((pick) => ({ ...pick, partner: placePartnerPick(pick.p, pinQ) }));
                 if (!picks.length) return null;
                 return (
@@ -1586,7 +1587,7 @@ export default function DetailSheet({ ctx }) {
                 <TripConnections place={detail} onOpenPlace={(place) => openDetail(place, "trip_connections")} />
               ) : null}
               {!detail._event && (() => {
-                const simPool = dedupePlaces([...(suggested || []), ...places]);
+                const simPool = detailNearbyPool(detail, dedupePlaces([...(suggested || []), ...(places || [])]));
                 const badgesOf = (x) => { try { return new Set(experienceBadges(x, null, 99).map((b) => b.key)); } catch (er) { return new Set(); } };
                 const sim = similarPlaces(simPool, detail, 4, badgesOf);
                 if (sim.length === 0) return null;
@@ -1603,7 +1604,7 @@ export default function DetailSheet({ ctx }) {
                             {(() => { const cz = Dining.cuisineLabel(p); return cz ? <span style={{ fontSize: 11.5, fontWeight: 700, color: C.light }}>{cz}</span> : null; })()}
                             <PlaceScoreChip p={p} size={12} />
                             {(() => { const lo = typeof liveOpen === "function" ? liveOpen(p) : p.openNow; return lo === true ? <span style={{ fontSize: 11.5, fontWeight: 700, color: C.green }}>· Open</span> : lo === false ? <span style={{ fontSize: 11.5, fontWeight: 700, color: C.red }}>· Closed</span> : null; })()}
-                            {p.distMi != null && <span style={{ fontSize: 11.5, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}
+                            <span style={{ fontSize: 11.5, color: C.muted }}>· {detailDistanceMi(detail, p).toFixed(1)} mi from this place</span>
                           </div>
                         </div>
                         <span style={{ fontSize: 18, color: C.muted, flexShrink: 0 }}>›</span>
@@ -1614,7 +1615,7 @@ export default function DetailSheet({ ctx }) {
               })()}
 
               {(() => {
-                const altPool = dedupePlaces([...(suggested || []), ...places]);
+                const altPool = detailNearbyPool(detail, dedupePlaces([...(suggested || []), ...(places || [])]));
                 const alts = betterAlternatives(detail, altPool, 3);
                 const Row = (p, reasons, knownFor) => (
                   <div key={"alt-" + p.id} onClick={() => openDetail(p)} style={{ display: "flex", gap: 11, alignItems: "center", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 10, marginBottom: 8, cursor: "pointer" }}>
@@ -1624,9 +1625,9 @@ export default function DetailSheet({ ctx }) {
                       <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 2 }}>
                         <PlaceScoreChip p={p} size={12} />
                         {(() => { const lo = typeof liveOpen === "function" ? liveOpen(p) : p.openNow; return lo === true ? <span style={{ fontSize: 11.5, fontWeight: 700, color: C.green }}>· Open</span> : lo === false ? <span style={{ fontSize: 11.5, fontWeight: 700, color: C.red }}>· Closed</span> : null; })()}
-                        {p.distMi != null && <span style={{ fontSize: 11.5, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}
+                        <span style={{ fontSize: 11.5, color: C.muted }}>· {detailDistanceMi(detail, p).toFixed(1)} mi from this place</span>
                       </div>
-                      {reasons && reasons.length > 0 && <div style={{ fontSize: 12, color: C.light, fontWeight: 600, lineHeight: 1.4, marginTop: 3 }}>{reasons.join(" · ")}</div>}
+                      {reasons && reasons.length > 0 && <div style={{ fontSize: 12, color: C.light, fontWeight: 600, lineHeight: 1.4, marginTop: 3 }}>{reasons.map((reason) => reason.replace(/^closer, /, "closer to you, ")).join(" · ")}</div>}
                       {knownFor ? <div style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.4, marginTop: 2 }}>{knownFor.charAt(0).toUpperCase() + knownFor.slice(1)}</div> : null}
                     </div>
                     <span style={{ fontSize: 18, color: C.muted, flexShrink: 0 }}>›</span>

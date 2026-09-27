@@ -70,7 +70,7 @@ ok(PAIR_RADIUS_MI <= 5, "the pairing radius keeps the loop on the same outing");
 
 // UI wiring: the sheet renders the loop and a tap opens the NEXT detail.
 const ui = read("app/components/sheets/Detail.js");
-ok(ui.includes('pairsWellWith(detail, nextPool, { max: 3, radiusMi: 8 })') && ui.includes("data-where-to-go-next"),
+ok(ui.includes('pairsWellWith(detail, nextPool, { max: 3, radiusMi: DETAIL_NEARBY_RADIUS_MI })') && ui.includes("data-where-to-go-next") && (await import("../lib/detailNearby.js")).DETAIL_NEARBY_RADIUS_MI === 8,
   "the detail sheet runs the pairing law over the already-loaded pool for Where to go next");
 ok(/data-where-to-go-next[\s\S]{0,700}Where to go next/.test(ui),
   "the place-specific discovery loop is visibly named Where to go next");
