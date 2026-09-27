@@ -123,6 +123,13 @@ for (const [name, types, expected] of [
     "negative queue labels may change only after the scout verdict is durably written");
   ok(scoutRoute.includes('negativeSettled') && scoutRoute.includes('status=eq.rejected'),
     "scout must report settled negatives and only relabel rows that are already rejected");
+  ok(scoutRoute.includes('const recoveredToRequeue = dryRun ? [] : recovered'),
+    "deterministic scout recoveries must have their own requeue lane");
+  ok(scoutRoute.includes('const acceptedToRequeue = dryRun || writeErr ? [] : accepted'),
+    "adjudicated recoveries must still wait for a durable verdict write before requeue");
+  ok(scoutRoute.includes('scout-deterministic-recovery') &&
+     scoutRoute.includes('scout-adjudicated-recovery'),
+    "scout must stamp the proof source on requeued places so Phase 3 can prioritize proven destinations");
 }
 
 // The new activity tokens must not rescue a service business when Google's
