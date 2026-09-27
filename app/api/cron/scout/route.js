@@ -55,10 +55,9 @@ import { recordPulse } from "../../../../lib/jobPulse";
 import { jobCannotRun, jobFailed } from "../../../../lib/jobFail";
 import { aiKey } from "../../../../lib/aiKey";
 import { paidAnthropicRequest } from "../../../../lib/paidAi";
-import { classify } from "../../../../lib/placeCategory";
 import {
   SCOUT_FLOOR, ADJUDICATE_SYSTEM, buildAdjudicationBatch,
-  parseAdjudication, adjudicationOutcome, clearsFloor,
+  parseAdjudication, adjudicationOutcome, clearsFloor, freeScoutLane,
 } from "../../../../lib/scoutAdjudicate";
 
 const MODEL = "claude-haiku-4-5";
@@ -117,10 +116,11 @@ export async function GET(req) {
 
   const s = sbEnv();
   if (!s || !s.url || !s.key) return jobCannotRun("scout", "SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_URL is missing");
+  // Model access is optional for the FREE lanes. We still resolve stale
+  // deterministic classifications and exclusions before surfacing an AI
+  // configuration failure. This keeps paid-model availability from blocking
+  // zero-cost recovery work.
   const key = aiKey();
-  // No key is a CONFIGURATION failure, not an empty queue. Conflating those is
-  // the exact shape that hid atlas-build for five days (lib/jobPulse.js).
-  if (!key) return jobCannotRun("scout", "ANTHROPIC_API_KEY is missing — the scout cannot adjudicate");
 
   const H = { apikey: s.key, authorization: "Bearer " + s.key, "content-type": "application/json" };
   // cache:"no-store" on EVERY call, POSTs included. A cached RPC response hands
@@ -156,83 +156,81 @@ export async function GET(req) {
 
   const now = new Date().toISOString();
   const verdictRows = [], accepted = [], rejected = [], skipped = [], recovered = [], excluded = [];
+  const rowById = new Map(rows.map((r) => [r.place_id, r]));
+  const ambiguous = [];
   let modelError = null;
 
-  for (let i = 0; i < rows.length && i < BATCH * MAX_BATCHES; i += BATCH) {
-    const slice = rows.slice(i, i + BATCH).map((r) => fromCache(r.details, r));
-    // DEFENCE IN DEPTH. The RPC says the promoter abstained on these, but that
-    // was a past run against a past classifier. Re-derive it here, and drop any
-    // place classify() can now decide for itself — a model must never be asked
-    // about a place the rules already answer.
-    const live = [];
-    for (const p of slice) {
-      const src = rows.find((r) => r.place_id === p.place_id);
-      const c = classify({ types: p.google_types, primaryType: p.primary_type, name: p.name });
+  // PASS 1: sweep EVERY selected row through the free deterministic lanes
+  // before any model call. A paid-AI outage must never strand a later scenic
+  // spot, sports venue, art studio, or obvious service exclusion just because
+  // an earlier ambiguous row needed adjudication.
+  for (const src of rows) {
+    const p = fromCache(src.details, src);
+    const lane = freeScoutLane(p);
 
-      // FREE LANE 1 — classify() EXCLUDES it (Top Lawn Pros, Landis Pools, The
-      // Shop: general_contractor / car_repair behind five stars). Store the
-      // verdict so this place leaves the candidate set permanently. Without
-      // this row it would be re-selected, and re-billed, on every single run.
-      if (c.excluded) {
-        verdictRows.push({
-          place_id: p.place_id, name: p.name, score: src?.score ?? null,
-          rating: src?.rating ?? null, reviews: src?.reviews ?? 0,
-          section: null, accepted: false, reason: `classify(): ${c.reason}`.slice(0, 300),
-          model: "classify", adjudicated_at: now,
-        });
-        excluded.push({ place_id: p.place_id, name: p.name, score: src?.score, why: c.reason });
-        continue;
-      }
-
-      // FREE LANE 2 — classify() can DECIDE it today. The stored `unclassified`
-      // rejection is STALE: the classifier has moved since the row was binned.
-      // Westcoast Black Theatre Troupe (4.9 / 528) is this case — types carry
-      // `event_venue`, which resolves to attractions now and did not then. No
-      // model call, no verdict, no judgement: just reopen the queue and let the
-      // promoter re-derive it from a fresh fetch, exactly as it would any place.
-      if (c.section) {
-        recovered.push({ place_id: p.place_id, name: p.name, score: src?.score, section: c.section, category: c.category });
-        continue;
-      }
-
-      live.push({ p, c });
-    }
-    if (!live.length) continue;
-
-    // A dry run still ADJUDICATES — it just writes nothing. A preview that
-    // skips the model call previews the plumbing, not the judgement, and the
-    // judgement is the only part worth previewing.
-    const { verdicts, error } = await adjudicateBatch(key, live.map(({ p }) => p));
-    // FAIL CLOSED. No verdicts means nothing moves; the places stay exactly as
-    // they were and are picked up again next run. Nothing is written, so
-    // nothing is billed twice and nothing is wrongly binned.
-    if (!verdicts) { modelError = error; break; }
-
-    for (const { p, c } of live) {
-      const src = rows.find((r) => r.place_id === p.place_id);
-      const out = adjudicationOutcome(c, verdicts[p.place_id]);
-      // The floor is re-asserted here against THE score function, not against
-      // the SQL that selected the row. Two independent statements of the same
-      // rule, which is what keeps a future SQL edit from lowering it silently.
-      if (out.accept && !clearsFloor(src?.rating, src?.reviews, floor)) {
-        skipped.push({ place_id: p.place_id, name: p.name, why: "below floor on re-check" });
-        continue;
-      }
-      // AN OMISSION IS NOT A VERDICT. If the model simply did not mention this
-      // place, leave it exactly where it is so the next run asks again. Writing
-      // a rejection here would permanently bin a good place on a dropped line —
-      // it dropped Sarasota Kayak Rentals (5.0 / 193) on the first live run.
-      if (!out.answered) {
-        skipped.push({ place_id: p.place_id, name: p.name, score: src?.score, why: out.reason });
-        continue;
-      }
+    if (lane.kind === "excluded") {
+      const c = lane.classification;
       verdictRows.push({
         place_id: p.place_id, name: p.name, score: src?.score ?? null,
         rating: src?.rating ?? null, reviews: src?.reviews ?? 0,
-        section: out.accept ? out.section : null, accepted: out.accept,
-        reason: out.reason.slice(0, 300), model: MODEL, adjudicated_at: now,
+        section: null, accepted: false, reason: `classify(): ${c.reason}`.slice(0, 300),
+        model: "classify", adjudicated_at: now,
       });
-      (out.accept ? accepted : rejected).push({ place_id: p.place_id, name: p.name, score: src?.score, section: out.section, why: out.reason });
+      excluded.push({ place_id: p.place_id, name: p.name, score: src?.score, why: c.reason });
+      continue;
+    }
+
+    if (lane.kind === "recovered") {
+      const c = lane.classification;
+      recovered.push({
+        place_id: p.place_id, name: p.name, score: src?.score,
+        section: c.section, category: c.category,
+      });
+      continue;
+    }
+
+    ambiguous.push({ p, c: lane.classification });
+  }
+
+  // PASS 2: only true abstentions may touch the model. If model access is
+  // unavailable, keep those rows parked but still persist/requeue the free-lane
+  // work above.
+  if (ambiguous.length && !key) {
+    modelError = `ANTHROPIC_API_KEY is missing — ${ambiguous.length} ambiguous candidate(s) left parked after free recovery`;
+  }
+
+  if (!modelError) {
+    for (let i = 0; i < ambiguous.length && i < BATCH * MAX_BATCHES; i += BATCH) {
+      const live = ambiguous.slice(i, i + BATCH);
+      // A dry run still ADJUDICATES — it just writes nothing. A preview that
+      // skips the model call previews the plumbing, not the judgement.
+      const { verdicts, error } = await adjudicateBatch(key, live.map(({ p }) => p));
+      // FAIL CLOSED. A model error leaves only the genuinely ambiguous rows
+      // parked. The deterministic work from PASS 1 is still allowed to settle.
+      if (!verdicts) { modelError = error; break; }
+
+      for (const { p, c } of live) {
+        const src = rowById.get(p.place_id);
+        const out = adjudicationOutcome(c, verdicts[p.place_id]);
+        if (out.accept && !clearsFloor(src?.rating, src?.reviews, floor)) {
+          skipped.push({ place_id: p.place_id, name: p.name, why: "below floor on re-check" });
+          continue;
+        }
+        if (!out.answered) {
+          skipped.push({ place_id: p.place_id, name: p.name, score: src?.score, why: out.reason });
+          continue;
+        }
+        verdictRows.push({
+          place_id: p.place_id, name: p.name, score: src?.score ?? null,
+          rating: src?.rating ?? null, reviews: src?.reviews ?? 0,
+          section: out.accept ? out.section : null, accepted: out.accept,
+          reason: out.reason.slice(0, 300), model: MODEL, adjudicated_at: now,
+        });
+        (out.accept ? accepted : rejected).push({
+          place_id: p.place_id, name: p.name, score: src?.score,
+          section: out.section, why: out.reason,
+        });
+      }
     }
   }
 
@@ -249,6 +247,27 @@ export async function GET(req) {
         body: JSON.stringify(verdictRows),
       });
     } catch (e) { writeErr = `verdict write failed: ${String(e && e.message).slice(0, 160)}`; }
+  }
+
+  // Keep the queue's rejection label truthful after a negative verdict. The
+  // old "unclassified" text describes the PREVIOUS classifier decision, not the
+  // settled scout outcome, and made a resolved negative look like an unresolved
+  // backlog item. Do this only after the verdict write succeeds.
+  let negativeSettled = 0;
+  if (!dryRun && !writeErr) {
+    const negatives = verdictRows.filter((v) => v.accepted === false);
+    if (negatives.length) {
+      try {
+        const ids = negatives.map((v) => `"${v.place_id}"`).join(",");
+        await rest(`wf_promotion_queue?place_id=in.(${ids})&status=eq.rejected`, {
+          method: "PATCH", headers: { prefer: "return=minimal" },
+          body: JSON.stringify({ reject_reason: "scout-resolved-negative", last_error: null, claimed_at: null }),
+        });
+        negativeSettled = negatives.length;
+      } catch (e) {
+        writeErr = `negative verdict settle failed: ${String(e && e.message).slice(0, 160)}`;
+      }
+    }
   }
 
   // Only now reopen the queue. Ordering matters for the ADJUDICATED ones: if
@@ -288,7 +307,7 @@ export async function GET(req) {
     ok: true, floor, model: MODEL, dryRun,
     candidates: rows.length, adjudicated: verdictRows.length, requeued,
     accepted: accepted.length, rejected: rejected.length,
-    recovered: recovered.length, excluded: excluded.length, skipped: skipped.length,
+    recovered: recovered.length, excluded: excluded.length, skipped: skipped.length, negativeSettled,
     // Full lists, not counts. A rejected gem and an admitted roofer are both
     // things the owner must be able to see without opening the database — and
     // a count cannot show either.

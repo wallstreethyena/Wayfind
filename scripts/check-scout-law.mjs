@@ -21,19 +21,20 @@
  *   5. the strict write validator must independently REJECT a row that claims
  *      an adjudicated category without that provenance
  *   6. omitting adjudication must reproduce the previous behaviour exactly
- *   7. the floor stays 92 and its SQL-facing inverse agrees with THE score
+ *   7. the floor stays 90 and its SQL-facing inverse agrees with THE score
  *
  * Every assertion below is red-proven by construction: each one is stated
  * against a case whose opposite is also asserted, so a rule that stops firing
  * fails here rather than in production.
  */
+import { readFileSync } from "node:fs";
 import { classify, ADJUDICABLE } from "../lib/placeCategory.js";
 import { buildInventoryRow, extractPlaceFields } from "../lib/seedPlaces.js";
 import { decidePromotion, validateInventoryRow, toWriteRow } from "../lib/promoteIndex.js";
 import { wayfindScore } from "../lib/wayfindScore.js";
 import {
   SCOUT_FLOOR, SECTIONS, minReviewsFor, clearsFloor,
-  needsAdjudication, parseAdjudication, adjudicationOutcome,
+  needsAdjudication, parseAdjudication, adjudicationOutcome, freeScoutLane,
 } from "../lib/scoutAdjudicate.js";
 
 let fails = 0;
@@ -81,6 +82,47 @@ for (const [name, types, expected] of [
   const c = classify({ name, types, primaryType: types[0] });
   ok(c.category === expected, `${name} must resolve to ${expected} without scout adjudication, got ${c.category}`);
   ok(needsAdjudication(c) === false, `${name} must not consume a scout verdict once its Google type is decisive`);
+}
+
+// Phase 2: free deterministic lanes must settle before paid adjudication.
+{
+  const recovered = freeScoutLane({
+    name: "Scenic view of The Sunshine Skyway Bridge",
+    google_types: ["scenic_spot","point_of_interest","establishment"],
+    primary_type: null,
+  });
+  ok(recovered.kind === "recovered" && recovered.classification.category === "attractions",
+    "free scout lane must recover a newly deterministic scenic spot without a model");
+
+  const excluded = freeScoutLane({
+    name: "Landis Pools",
+    google_types: ["general_contractor","sports_activity_location","swimming_pool","service","point_of_interest"],
+    primary_type: "general_contractor",
+  });
+  ok(excluded.kind === "excluded" && excluded.classification.excluded === true,
+    "free scout lane must preserve decisive service exclusions without a model");
+
+  const ambiguous = freeScoutLane({
+    name: "Mote Marine Laboratory",
+    google_types: ["research_institute","point_of_interest","establishment"],
+    primary_type: null,
+  });
+  ok(ambiguous.kind === "adjudicate" && needsAdjudication(ambiguous.classification),
+    "free scout lane must leave true abstentions parked for adjudication");
+
+  const scoutRoute = readFileSync(new URL("../app/api/cron/scout/route.js", import.meta.url), "utf8");
+  const freePass = scoutRoute.indexOf("for (const src of rows)");
+  const paidPass = scoutRoute.indexOf("for (let i = 0; i < ambiguous.length");
+  ok(freePass >= 0 && paidPass > freePass && scoutRoute.includes("freeScoutLane(p)"),
+    "scout route must sweep every candidate through freeScoutLane before any paid adjudication pass");
+  ok(!/if \(!key\) return jobCannotRun\("scout"/.test(scoutRoute),
+    "missing Anthropic configuration must not return before deterministic scout recovery can settle");
+  const verdictWrite = scoutRoute.indexOf('wf_scout_verdicts?on_conflict=place_id');
+  const negativeSettle = scoutRoute.indexOf('reject_reason: "scout-resolved-negative"');
+  ok(verdictWrite >= 0 && negativeSettle > verdictWrite,
+    "negative queue labels may change only after the scout verdict is durably written");
+  ok(scoutRoute.includes('negativeSettled') && scoutRoute.includes('status=eq.rejected'),
+    "scout must report settled negatives and only relabel rows that are already rejected");
 }
 
 // The new activity tokens must not rescue a service business when Google's
@@ -254,8 +296,9 @@ ok(Object.keys(parseAdjudication('[{"id":"A","section":', asked)).length === 0, 
   const src = readFileSync(new URL("../app/api/cron/scout/route.js", import.meta.url), "utf8");
   ok(/if\s*\(!out\.answered\)/.test(src),
     "the scout route must skip unanswered places before writing a verdict — otherwise a dropped line bins a good place forever");
-  const gate = src.indexOf("!out.answered"), write = src.indexOf("verdictRows.push({\n        place_id");
-  ok(gate > -1 && write > -1 && gate < write, "the unanswered check must come BEFORE the verdict write, not after");
+  const gate = src.indexOf("!out.answered");
+  const write = gate > -1 ? src.indexOf("verdictRows.push({", gate) : -1;
+  ok(gate > -1 && write > gate, "the unanswered check must come BEFORE its model-verdict write, not after");
 }
 
 // ── 12. The cron route must actually be scheduled and secured ───────────────
