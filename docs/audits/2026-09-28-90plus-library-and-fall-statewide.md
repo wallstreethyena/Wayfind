@@ -79,7 +79,7 @@ The guard is `scripts/check-temp-closed-recheck.mjs`. Branch: `fix/temp-closed-r
 | Naples | 9 |
 | Pensacola | 5 |
 
-**Search.** `/florida-events/<slug>` had never been in the sitemap. Branch `fix/sitemap-event-pages` adds every live, trusted Florida event page.
+**Search.** `/florida-events/<slug>` had never been in the sitemap. The fix landed through the other lane's #1537, which also adds the `/florida-events` hub and the Fall festivals guide. This lane's duplicate (#1540) was closed in its favor.
 
 ## Known gaps
 
