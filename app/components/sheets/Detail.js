@@ -45,6 +45,7 @@ import { whyWayfindPickedBody } from "../../../lib/insightWhy";
 import { isOwnerPick } from "../../../lib/ownerBump";
 import { ATTRACTION_DISCOVERY_IDS } from "../../../lib/tripAttractions.js";
 import CommunityFooter from "../CommunityFooter";
+import PlacePhotoContribution from "../PlacePhotoContribution";
 
 // This rail brings the full shared place card with it. Keep that code outside
 // the homepage's eager detail bundle and request it only for plausible hotel
@@ -1109,6 +1110,17 @@ export default function DetailSheet({ ctx }) {
                   </div>
                 );
               })()}
+              {!detail._event && (
+                <PlacePhotoContribution
+                  place={detail}
+                  user={user}
+                  authReady={authReady}
+                  setAuthOpen={setAuthOpen}
+                  showToast={showToast}
+                  logEvent={logEvent}
+                />
+              )}
+
               {/* Review/photo nudge (2026-08-01, owner: "recommend the user to
                   post a review and share photos"). The Community takes box
                   below already accepts both — a review-typed note plus up to
