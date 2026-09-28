@@ -150,7 +150,9 @@ ok(/import \{[^}]*cardComplete[^}]*\} from "\.\.\/lib\/score"/.test(home), "home
 // result count, the "That's all N spots" line and the map. Ungated, it counted
 // rows PlaceCard then refused, which is what turned thin data into what read as
 // a dead site. Gate stays on the pool, not on the JSX, so every reader agrees.
-ok(/const view = dedupePlaces\([^\n]*\)\.filter\(cardComplete\);/.test(home),
+// 2026-09-28: dedupe moved BEFORE the sort (lib/sortModes.js, test-sort-modes),
+// so `view` is now the sorted, deduped pool gated here.
+ok(/const view = viewBase\.filter\(cardComplete\);/.test(home) && /viewBase = sortPlacesBy\(_dedupedPool, sortBy\)/.test(home),
   "the browse pool `view` is gated on cardComplete — the count and the rendered cards are the same list");
 
 ok(/if \(p\.wfScore == null && Number\(p\.rating\) > 0\) p\.wfScore = wayfindScore\(/.test(home),
