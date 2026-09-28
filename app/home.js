@@ -291,6 +291,7 @@ import { askShareIntent } from "./components/shareIntentSheet";
 import { placeKinds } from "../lib/dateInvite";
 import { isDateRoom } from "../lib/dateRoom.js";
 import { isSeedCenter, cityLabel, landingSlugFromLoc, centerAgreesWithLabel, firstPaintRailOrigin, localityFromFormattedAddress, storedPinFresh } from "../lib/locationHonesty";
+import { ownedPlacePhotoSrc } from "../lib/placePhoto";
 
 const BUILD = "beta";
 
@@ -11815,6 +11816,15 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   // cardComplete early return below (rules of hooks: this hook must run on
   // every render, even for a card that ultimately renders nothing).
   const cardPhoto = useBestPhoto(p && p.photo, p && p.photos);
+  // 2026-09-28 (owner: "a lot of the places don't have pictures"): a Google-id
+  // row with no photo ref — or whose ref dies — gets the SAME place-scoped
+  // ladder landing cards already use (lib/placePhoto.cardImageSrc):
+  // /api/photo?place=<id> tries the permanent vault / Commons lane and the
+  // same-place cache before any metered spend, and 404s to the monogram when
+  // nothing exists. Never another place's photo. Locked by
+  // scripts/test-card-photo-fallback.mjs.
+  const cardPlaceSrc = ownedPlacePhotoSrc(p && p.id);
+  const cardPrimarySrc = cardPhoto || (p && p.photo) || cardPlaceSrc;
   // v8.49.1 (owner, 2026-08-25, Family → Kids at Parrish): Kids Empire and
   // Intense Escape both painted the same beach-sunset stock scene. That was
   // rung 3 of the photo ladder — /api/market-photo keyed on category+city —
@@ -11964,8 +11974,8 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
       {dispScore != null && <div className="wf-place-card-score"><WayfindScoreBadge score={dispScore} /></div>}
       <div className="wf-place-card-layout" style={{ position: "relative", zIndex: 1, pointerEvents: "none" }}>
         <div className="wf-place-card-media">
-          {(cardPhoto || (p && p.photo))
-            ? <FallbackImg src={cardPhoto || p.photo} icon={iconForPlace(p)} />
+          {cardPrimarySrc
+            ? <FallbackImg src={cardPrimarySrc} fallbackSrc={cardPlaceSrc && cardPlaceSrc !== cardPrimarySrc ? cardPlaceSrc : undefined} icon={iconForPlace(p)} />
             : <div className="wf-place-card-monogram" aria-hidden="true">{cardInitials}</div>}
           {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
         </div>
