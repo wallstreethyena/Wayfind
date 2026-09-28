@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 735,
-    "totalRegistryEntries": 736,
-    "guardsTxtLineCount": 733,
-    "guardsTxtReachedFileCount": 728,
+    "totalOnDiskGuardFiles": 736,
+    "totalRegistryEntries": 737,
+    "guardsTxtLineCount": 734,
+    "guardsTxtReachedFileCount": 729,
     "criticalCount": 88,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 511,
+      "CALL": 512,
       "RENDER": 85,
       "STRUCTURAL": 139,
       "OTHER": 1
@@ -16417,6 +16417,28 @@
       "owner": null
     },
     {
+      "file": "scripts/test-sort-modes.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 24,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-sparse-category.mjs",
       "npmScript": null,
       "class": "STRUCTURAL",
@@ -16768,7 +16790,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 11,
+      "assertionCount": 12,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
