@@ -92,3 +92,34 @@ ok(eligibleAtlasCount > 0, "POSITIVE CONTROL: at least one publish-ready Atlas i
 console.log(`check-sitemap: listIndexedIds() carries all ${eligibleAtlasCount} eligible publish-ready Atlas ids (full eligibility/parity proof lives in check-place-sitemap-parity.mjs)`);
 
 console.log(`check-sitemap: OK — ${pass} assertions (factual lastmod; durable membership; empty/personalized/thin hubs excluded; Atlas ${PUBLISH_READY} cards, ${guideIds.length} guide places, listIndexedIds() carries every eligible one)`);
+
+// 2026-09-28 — the curated Florida events layer and the dedicated fall-festivals
+// guide were indexable but missing from the sitemap (CLAUDE.md lesson 5).
+{
+  const smCode = sm.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  ok(/export const revalidate\s*=\s*\d+/.test(smCode), "sitemap exports a numeric revalidate, so the curated events (a skipped read at build) are read at request time");
+  ok(/floridaEventSitemapRows\(\s*await fetchCuratedEvents\(\)/.test(smCode), "sitemap CALLS floridaEventSitemapRows on the live curated read");
+  ok(/try\s*\{[^}]*floridaEventSitemapRows[^}]*\}\s*catch/.test(smCode), "a failed events read is caught, so it drops the events and never the whole sitemap");
+  ok(/\.\.\.floridaEvents\b/.test(smCode) && /\.\.\.dedicatedGuides\b/.test(smCode), "events + dedicated guides are spread into the returned sitemap array");
+  ok(/`\$\{SITE_URL\}\/florida-events`/.test(smCode), "/florida-events hub is listed");
+  ok(/"florida-fall-festivals-2026"/.test(smCode), "dedicated fall-festivals guide is listed");
+
+  // Functional: CALL the row builder with fixtures, including negative controls.
+  const { floridaEventSitemapRows } = await import("../lib/curatedEvents.js");
+  const now = new Date("2026-09-28T16:00:00Z");
+  const base = { event_status: "scheduled", source_tier: 1, verification_confidence: "high", card_hook: "x", city: "Sarasota", state: "FL", lat: 27.3, lng: -82.5 };
+  const { isTrusted } = await import("../lib/curatedEvents.js");
+  const good = { ...base, slug: "good-fest-2026", start_date: "2026-10-10", last_verified_at: "2026-09-20T00:00:00Z" };
+  ok(isTrusted(good), "POSITIVE CONTROL: the fixture event passes isTrusted (otherwise every assertion below is vacuous)");
+  const rows = floridaEventSitemapRows([
+    good, { ...good }, // duplicate slug
+    { ...base, slug: "past-fest", start_date: "2026-09-01" },
+    { ...base, slug: "chicago-fest", start_date: "2026-10-10", state: "IL", lat: 41.9, lng: -87.6 },
+    { ...base, slug: "cancelled-fest", start_date: "2026-10-10", event_status: "cancelled" },
+    { ...base, slug: null, start_date: "2026-10-10" },
+  ], "https://www.gowayfind.com", { now });
+  ok(rows.length === 1 && rows[0].url === "https://www.gowayfind.com/florida-events/good-fest-2026", `only the upcoming trusted Florida event is listed, once (got ${JSON.stringify(rows.map((r) => r.url))})`);
+  ok(rows[0].lastModified instanceof Date && rows[0].lastModified.toISOString().startsWith("2026-09-20"), "event lastmod is the row's own last_verified_at, never request time");
+  ok(floridaEventSitemapRows(null).length === 0, "a null read yields zero event rows, not a throw");
+  console.log("check-sitemap: florida-events sitemap layer OK");
+}

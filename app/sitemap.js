@@ -12,6 +12,12 @@ import { trendingCitySlugs } from "../lib/trending";
 import { creatorSlugs } from "../lib/creatorPages";
 import { sponsorSlugs } from "../lib/sponsoredPlaces";
 import { listIndexedIds } from "../lib/placeIndex";
+import { fetchCuratedEvents, floridaEventSitemapRows } from "../lib/curatedEvents";
+
+// Hourly, so the curated events layer below is read at request time. During
+// `next build` fetchCuratedEvents() is deliberately a skipped read (returns []),
+// so a build-time-only sitemap would list zero events forever.
+export const revalidate = 3600;
 
 export default async function sitemap() {
   // /events /coupons /map /best-of /p/ stay out: thin noindex hubs, personal
@@ -38,7 +44,20 @@ export default async function sitemap() {
   // that cleared sponsorHasPage(), so a sponsor with no real content can never
   // put a thin URL in here to chase a placement.
   const partners = [`${SITE_URL}/partners`, ...sponsorSlugs().map((s) => `${SITE_URL}/partners/${s}`)].map((url) => ({ url }));
+  // 2026-09-28: the curated Florida events layer (/florida-events + one page
+  // per event, each with Event JSON-LD) was indexable but absent from the
+  // sitemap, which is CLAUDE.md lesson 5 ("new public content ships WITH its
+  // sitemap"). Only upcoming, trusted Florida rows, the same gate the hub and
+  // the single-event page apply. A failed read drops the events, never the
+  // whole sitemap.
+  let events = [];
+  try { events = floridaEventSitemapRows(await fetchCuratedEvents(), SITE_URL); } catch { events = []; }
+  const floridaEvents = [{ url: `${SITE_URL}/florida-events` }, ...events];
+  // Dedicated guide routes with their own page.js (robots index:true). The
+  // fall-festivals guide has no GUIDES entry, so the loop above never listed
+  // it; a slug that IS in GUIDES is already listed and is skipped here.
+  const dedicatedGuides = ["florida-fall-festivals-2026"].filter((slug) => !GUIDES[slug]).map((slug) => ({ url: `${SITE_URL}/guides/${slug}` }));
   const placeIds = await listIndexedIds(500);
   const places = [`${SITE_URL}/places`, ...placeIds.map((id) => `${SITE_URL}/places/${encodeURIComponent(id)}`)].map((url) => ({ url }));
-  return [...core, ...guides, ...culture, ...landing, ...hubs, ...trending, ...creators, ...partners, ...bestBeaches, ...eventWindows, ...places];
+  return [...core, ...guides, ...culture, ...landing, ...hubs, ...trending, ...creators, ...partners, ...bestBeaches, ...eventWindows, ...floridaEvents, ...dedicatedGuides, ...places];
 }
