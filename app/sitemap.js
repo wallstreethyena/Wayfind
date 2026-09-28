@@ -12,6 +12,12 @@ import { trendingCitySlugs } from "../lib/trending";
 import { creatorSlugs } from "../lib/creatorPages";
 import { sponsorSlugs } from "../lib/sponsoredPlaces";
 import { listIndexedIds } from "../lib/placeIndex";
+import { fetchCuratedEvents, sitemapEventEntries } from "../lib/curatedEvents";
+
+// Hourly, at request time. fetchCuratedEvents() deliberately returns [] during
+// `next build` (isSsgBuild — a build must not wait on Supabase), so a sitemap
+// frozen at build would carry zero event pages forever.
+export const revalidate = 3600;
 
 export default async function sitemap() {
   // /events /coupons /map /best-of /p/ stay out: thin noindex hubs, personal
@@ -40,5 +46,14 @@ export default async function sitemap() {
   const partners = [`${SITE_URL}/partners`, ...sponsorSlugs().map((s) => `${SITE_URL}/partners/${s}`)].map((url) => ({ url }));
   const placeIds = await listIndexedIds(500);
   const places = [`${SITE_URL}/places`, ...placeIds.map((id) => `${SITE_URL}/places/${encodeURIComponent(id)}`)].map((url) => ({ url }));
-  return [...core, ...guides, ...culture, ...landing, ...hubs, ...trending, ...creators, ...partners, ...bestBeaches, ...eventWindows, ...places];
+  // Single curated event pages (/florida-events/<slug>) — see sitemapEventEntries.
+  // A failed events read drops THIS section only; the rest of the sitemap
+  // must not 500 because one table was slow.
+  let events = [];
+  try {
+    events = sitemapEventEntries(await fetchCuratedEvents(), { siteUrl: SITE_URL });
+  } catch (err) {
+    console.warn(`[sitemap] curated events unavailable: ${String(err && err.message).slice(0, 120)}`);
+  }
+  return [...core, ...guides, ...culture, ...landing, ...hubs, ...trending, ...creators, ...partners, ...bestBeaches, ...eventWindows, ...events, ...places];
 }

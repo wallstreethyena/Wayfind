@@ -91,4 +91,36 @@ for (const id of atlasIds) {
 ok(eligibleAtlasCount > 0, "POSITIVE CONTROL: at least one publish-ready Atlas id is itself durably eligible — otherwise the assertion above never actually ran");
 console.log(`check-sitemap: listIndexedIds() carries all ${eligibleAtlasCount} eligible publish-ready Atlas ids (full eligibility/parity proof lives in check-place-sitemap-parity.mjs)`);
 
+// ── Curated event pages (/florida-events/<slug>) — added 2026-09-28 ──────────
+// They had never been in the sitemap. Assert on the CALL: sitemapEventEntries()
+// is executed against fixtures, and the sitemap is asserted to call it with the
+// real reader and spread its result into the returned list.
+const { sitemapEventEntries } = await import("../lib/curatedEvents.js");
+const NOW = new Date("2026-10-10T16:00:00Z"); // site-local 2026-10-10
+const base = { event_status: "scheduled", source_tier: 1, verification_confidence: "high", card_hook: "h", city: "Tampa", state: "FL", last_verified_at: "2026-09-28T00:00:00+00:00" };
+const rows = [
+  { ...base, slug: "future-ok", start_date: "2026-10-20", end_date: "2026-10-21" },
+  { ...base, slug: "running-ok", start_date: "2026-10-01", end_date: "2026-10-31" },
+  { ...base, slug: "ended", start_date: "2026-09-01", end_date: "2026-09-02" },
+  { ...base, slug: "low-conf", verification_confidence: "low", start_date: "2026-10-20", end_date: "2026-10-20" },
+  { ...base, slug: "tier5", source_tier: 5, start_date: "2026-10-20", end_date: "2026-10-20" },
+  { ...base, slug: "no-hook", card_hook: null, start_date: "2026-10-20", end_date: "2026-10-20" },
+  { ...base, slug: "cancelled", event_status: "cancelled", start_date: "2026-10-20", end_date: "2026-10-20" },
+  { ...base, slug: "not-florida", state: "GA", start_date: "2026-10-20", end_date: "2026-10-20" },
+  { ...base, slug: "open-run-ok", start_date: "2026-09-21", end_date: null, schedule_note: "Open daily. The 2026 closing date has not been published." },
+  { ...base, slug: "one-day-past", start_date: "2026-10-01", end_date: null, schedule_note: "One afternoon only." },
+  { ...base, slug: "future-ok", start_date: "2026-10-20", end_date: "2026-10-21" },
+];
+const got = sitemapEventEntries(rows, { siteUrl: "https://x.test", now: NOW });
+const slugs = got.map((e) => e.url.replace("https://x.test/florida-events/", ""));
+ok(JSON.stringify(slugs) === JSON.stringify(["future-ok", "running-ok", "open-run-ok"]),
+  `sitemapEventEntries must admit exactly the live, trusted, Florida pages once each (got ${JSON.stringify(slugs)})`);
+ok(got[0].lastModified === "2026-09-28", "event lastmod is the row's own verification date, never request time");
+ok(sitemapEventEntries(null, { siteUrl: "https://x.test", now: NOW }).length === 0, "a null read yields no event URLs, not a throw");
+// Wiring, by position: the sitemap reads the real events, passes them through
+// the filter, and spreads the result into what it returns.
+ok(/events\s*=\s*sitemapEventEntries\(\s*await\s+fetchCuratedEvents\(\)/.test(sm), "sitemap must CALL sitemapEventEntries(await fetchCuratedEvents(), ...)");
+ok(/return\s*\[[^\]]*\.\.\.events\b[^\]]*\]/.test(sm), "sitemap must spread ...events into its returned list");
+ok(/export\s+const\s+revalidate\s*=\s*\d+\s*;/.test(sm), "sitemap must revalidate at request time — fetchCuratedEvents() returns [] during next build");
+
 console.log(`check-sitemap: OK — ${pass} assertions (factual lastmod; durable membership; empty/personalized/thin hubs excluded; Atlas ${PUBLISH_READY} cards, ${guideIds.length} guide places, listIndexedIds() carries every eligible one)`);
