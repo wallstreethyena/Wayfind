@@ -60,11 +60,19 @@ ok(byTopRated({}, {}) === 0 && Number.isFinite(byTopRated({ wfScore: 50 }, {})),
     "trending's disclosed +0.6 is in the key too (90+6=96 > 94) — every term in the shown number is in the sort, and nothing else is");
 }
 
+// sortModes' "rated" IS byTopRated — by identity, not by a name in the source.
+{
+  const { comparatorFor } = await import("../lib/sortModes.js");
+  ok(comparatorFor("rated") === byTopRated, "lib/sortModes: Top rated delegates to the shared byTopRated comparator");
+}
+
 // ── anti-recurrence: no divergent inline rated-sort survives ──────────────────
 const files = ["app/home.js", "app/components/sheets/HookDetail.js", "app/components/screens/Experience.js"];
 for (const f of files) {
   const src = readFileSync(new URL("../" + f, import.meta.url), "utf8");
-  ok(/byTopRated/.test(src), f + " uses the shared byTopRated comparator");
+  // 2026-09-28: home.js's browse feed reaches byTopRated through
+  // lib/sortModes.sortPlacesBy (asserted by CALL below), not by name.
+  ok(/byTopRated/.test(src) || /sortPlacesBy\([^)]*sortBy\)/.test(src), f + " uses the shared byTopRated comparator (directly or via sortPlacesBy)");
   for (const line of src.split("\n")) {
     if (/=== "rated"/.test(line) && /\.sort\(/.test(line)) {
       ok(/byTopRated/.test(line), f + ': an inline "rated" sort must delegate to byTopRated — a divergent one is exactly the bug that kept coming back');
