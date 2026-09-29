@@ -47,7 +47,7 @@ ok(WAYFIND_SCORE_M === 60 && WAYFIND_SCORE_C === 3.9, `the Bayesian constants ar
 // The 0–100 contract. Every downstream constant — the 30-point distance cap,
 // the +15 curated bonus, lib/score.js's bands — is calibrated to it.
 ok(wayfindScore(4.6, 3000) === 92, `4.6 over 3000 reviews scores 92 on the 0–100 scale (got ${wayfindScore(4.6, 3000)}) — a 0–50 scale silently doubles every penalty and bonus applied to it`);
-ok(wayfindScore(5.0, 4) === 79, `a 5.0 from 4 reviews scores 79 (got ${wayfindScore(5.0, 4)}) — the Bayesian pull is what stops it beating a proven 4.6`);
+ok(wayfindScore(5.0, 4) === 76, `a 5.0 from 4 reviews scores 76 — Bayesian 79 minus the <500-review deduction of 3 (got ${wayfindScore(5.0, 4)}) — the Bayesian pull is what stops it beating a proven 4.6`);
 ok(wayfindScore(4.6, 3000) > wayfindScore(5.0, 4), "a proven 4.6 outranks an unproven 5.0 — the entire reason the blend exists");
 
 // THE NULL CONTRACT. "We do not know" is not a low score.
