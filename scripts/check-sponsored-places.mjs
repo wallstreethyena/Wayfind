@@ -195,7 +195,7 @@ ok(html.includes(esc(rio.body)), "the advertiser's body copy renders");
 ok(html.includes(rio.claim), "the advertiser's own claim renders");
 ok(html.includes("384") && /Google reviews/.test(html), "the real review count renders, attributed to Google");
 ok(/4\.9★/.test(html), "the real star rating renders");
-ok(/Wayfind Score 9\.5 out of 10/.test(html), "the LIVE Wayfind Score renders (9.5 for 4.9 / 384)");
+ok(/Wayfind Score 9\.2 out of 10/.test(html), "the LIVE Wayfind Score renders (9.2 for 4.9 / 384 — Bayesian 9.5 minus the <500-review −0.3)");
 ok(/Score pending/.test(html) === false, "a paid card never ships the pending state");
 ok(html.includes(rio.person.name), "the esthetician the reader will actually sit with is credited");
 
@@ -271,7 +271,7 @@ ok(/pays to be featured/i.test(pageHtml.replace(/\s+/g, " ")),
   "the page says in plain words that the business pays to be featured");
 ok(/no advertiser can move it/i.test(pageHtml), "…and that the score cannot be bought");
 ok(pageHtml.includes("Wayfind Score"), "the Wayfind Score is named on the page");
-ok(/9\.5/.test(pageHtml), "the page shows the LIVE score (9.5 for 4.9 / 384)");
+ok(/9\.2/.test(pageHtml), "the page shows the LIVE score (9.2 for 4.9 / 384)");
 ok(pageHtml.includes(esc(rio.page.lede)), "the lede renders");
 ok(rio.page.waxes.every((w) => pageHtml.includes(w.name)), "every wax formula renders");
 ok(pageHtml.includes(esc(rio.page.services[0])), "the service list renders");
@@ -413,7 +413,7 @@ if (mob) {
   const card = sponsoredRailCardForReader(SRQ[0], SRQ[1], { lat: SRQ[0], lng: SRQ[1] }, DURING, DURING);
   ok(card.place.wfScore === wayfindScore(mob.rating, mob.reviews),
     "the rail card's score is recomputed from rating/reviews, never a stored number");
-  ok(card.place.wfScore === 81, `wayfindScore(5, 10) is 81 -> "8.1" — a thin 5★ is shrunk by the prior like anyone else's, got ${card.place.wfScore}`);
+  ok(card.place.wfScore === 78, `wayfindScore(5, 10) is 78 -> "7.8" (Bayesian 81 minus the <500-review 3) — a thin 5★ is shrunk like anyone else's, got ${card.place.wfScore}`);
   ok(!Object.prototype.hasOwnProperty.call(mob, "wfScore") && !/wfScore\s*:\s*\d/.test(JSON.stringify(mob)),
     "…and no baked score is stored on the entry for it to disagree with");
 
@@ -505,7 +505,7 @@ if (mob) {
   ok(markup.includes("/events/mobius-night-market-hero.jpg"), "…and shows the owned, consent-cleared photograph");
   ok(!/wayfind partner/i.test(markup), "the rendered card never uses the banned affiliation construction");
   // 8.1, not 10.0. The number is the whole trust argument for paid placement.
-  ok(/8\.1/.test(markup), "the rendered score is the recomputed 8.1, not the raw 5★");
+  ok(/7\.8/.test(markup), "the rendered score is the recomputed 7.8, not the raw 5★");
 }
 
 /* J. THE WIRING, in syntactic position. */
