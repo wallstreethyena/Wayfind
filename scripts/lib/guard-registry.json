@@ -27,16 +27,16 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 738,
-    "totalRegistryEntries": 739,
-    "guardsTxtLineCount": 736,
-    "guardsTxtReachedFileCount": 731,
-    "criticalCount": 87,
+    "totalOnDiskGuardFiles": 747,
+    "totalRegistryEntries": 748,
+    "guardsTxtLineCount": 745,
+    "guardsTxtReachedFileCount": 740,
+    "criticalCount": 89,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 514,
-      "RENDER": 85,
-      "STRUCTURAL": 139,
+      "CALL": 520,
+      "RENDER": 87,
+      "STRUCTURAL": 140,
       "OTHER": 1
     }
   },
@@ -2115,6 +2115,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 41,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-detail-plan-add-only.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 10,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -4889,6 +4911,28 @@
       "honestyViolations": [
         "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
       ],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-like-store-writes.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 8,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
       "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,
@@ -8291,6 +8335,28 @@
       "owner": null
     },
     {
+      "file": "scripts/check-temp-closed-recheck.mjs",
+      "npmScript": null,
+      "class": "STRUCTURAL",
+      "hasStructuralOnlyTag": true,
+      "assertionCount": 12,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/check-theme-park-coverage.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -10060,6 +10126,28 @@
       "owner": null
     },
     {
+      "file": "scripts/test-browse-back.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 16,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-browse-bookable-match.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -10305,6 +10393,50 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 52,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-card-photo-fallback.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 12,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-card-store-coherence.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 47,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -15489,6 +15621,33 @@
       "owner": null
     },
     {
+      "file": "scripts/test-promote-paid-cap.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 14,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-import:../lib/spendGate.js"
+      ],
+      "protects": "The promotion-only paid switch (WAYFIND_PROMOTE_PAID + PROMOTE_DETAILS_MONTH_CAP) raises the details_pro ceiling for the index→inventory drain alone; every other SKU and the user-facing spendAllow path are unchanged, and shut still means zero.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "A regression could let the promotion allowance widen other Google SKUs or user-facing Details calls past their free tiers, turning a bounded owner-approved spend into an open bill."
+      },
+      "owner": "Revenue QA"
+    },
+    {
       "file": "scripts/test-promote-throttle.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -16530,6 +16689,33 @@
       "owner": "Revenue QA"
     },
     {
+      "file": "scripts/test-spend-tests-prod-env.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 0,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-filename:spend"
+      ],
+      "protects": "Every spend-gate test is re-executed with the production paid switches ON (WAYFIND_PROMOTE_PAID, PROMOTE_DETAILS_MONTH_CAP, WAYFIND_PHOTOS_PAID, GOOGLE_PHOTOS_MONTH_CAP) and must exit 0, so a test that reads those switches ambiently cannot pass CI and then fail the Vercel prebuild.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "Without it, a green CI can hide a red production prebuild: 2026-09-29 #1538 blocked every production deploy of main because two spend tests read the paid switches from Vercel's build env."
+      },
+      "owner": "Revenue QA"
+    },
+    {
       "file": "scripts/test-sports-rail.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -16620,11 +16806,33 @@
       "owner": null
     },
     {
+      "file": "scripts/test-sync-inflight-merge.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 29,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-sync-reconcile.mjs",
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 31,
+      "assertionCount": 39,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

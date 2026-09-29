@@ -764,10 +764,10 @@ export default async function GuidePage({ params }) {
       <style dangerouslySetInnerHTML={{ __html: `
         .wf-guide-article{max-width:860px;margin:0 auto}
         .wf-guide-intro{max-width:760px;font-family:Georgia,"Times New Roman",serif;font-size:21px;line-height:1.55;color:#F1F5F9}
-        .wf-guide-disclosure{font-size:11px;color:#F1F5F9;margin:12px 4px 28px;padding:0 0 12px;border-bottom:1px solid #2D3748}
+        .wf-guide-disclosure{font-size:13px;line-height:1.5;color:#CBD5E1;margin:12px 4px 28px;padding:0 0 12px;border-bottom:1px solid #2D3748}
         /* RIGHT NOW block — server-rendered, so it is in the indexed HTML. */
         .wf-guide-now{margin:26px 0 8px;padding:18px 20px;border-radius:14px;background:rgba(249,115,22,.07);border:1px solid rgba(249,115,22,.30)}
-        .wf-guide-now-head{font-size:13px;font-weight:800;letterSpacing:.6px;text-transform:uppercase;color:#FDBA74;margin-bottom:6px}
+        .wf-guide-now-head{font-size:13px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#FDBA74;margin-bottom:6px}
         .wf-guide-now-why{margin:0;font-size:16px;line-height:1.5;color:#F1F5F9}
         .wf-guide-now-list{margin:12px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:6px}
         .wf-guide-now-list a{color:#F1F5F9;font-weight:650}
@@ -780,7 +780,6 @@ export default async function GuidePage({ params }) {
         .wf-guide-number{font:600 49px/1 Georgia,"Times New Roman",serif;color:#68778d;letter-spacing:-2px;padding-top:3px;text-shadow:0 1px 18px rgba(104,119,141,.14)}
         .wf-guide-pick h2{font-size:31px;color:#F1F5F9!important}
         .wf-guide-pick>p{color:#94A3B8!important}
-        .wf-guide-pick .wf-guide-tip{color:#a64f1b!important}
         /* Live deal cards. Sized so the whole card is one tap target on a phone,
            and min-width:0 on the text column is what stops a long merchant name
            forcing the grid wider than the viewport — the classic overflow. */
@@ -799,8 +798,8 @@ export default async function GuidePage({ params }) {
         .wf-gd-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px;flex-wrap:wrap}
         .wf-gd-loc{font-size:12px;color:#94A3B8;min-width:0;overflow-wrap:anywhere}
         .wf-gd-cta{flex:none;font-size:13px;font-weight:750;color:#FBBF24}
-        .wf-gd-ends{font-size:11.5px;color:#94A3B8;margin-top:5px}
-        .wf-gd-disc{font-size:11px;color:#94A3B8;line-height:1.45;margin:12px 2px 0}
+        .wf-gd-ends{font-size:12.5px;color:#94A3B8;margin-top:5px}
+        .wf-gd-disc{font-size:12.5px;color:#94A3B8;line-height:1.45;margin:12px 2px 0}
         .wf-guide-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
         .wf-guide-actions a{border-radius:4px!important}
         .wf-guide-quick,.wf-guide-related{margin:18px 0 22px;padding:16px;border:1px solid #263548;border-radius:14px;background:#0b121d}
@@ -817,7 +816,7 @@ export default async function GuidePage({ params }) {
           .wf-guide-quick>div,.wf-guide-related>div{grid-template-columns:1fr}
           .wf-guide-article{padding-top:2px}
           .wf-guide-intro{font-size:17px!important;line-height:1.5!important;margin:14px 2px 16px!important}
-          .wf-guide-disclosure{margin:10px 2px 16px!important;padding:0 0 10px!important;font-size:10.5px!important;line-height:1.4!important}
+          .wf-guide-disclosure{margin:10px 2px 16px!important;padding:0 0 10px!important;font-size:12.5px!important;line-height:1.5!important}
           .wf-gd-card{grid-template-columns:72px minmax(0,1fr);gap:11px;padding:10px}
           .wf-gd-img{width:72px;height:72px}
           .wf-gd-h{font-size:19px}
@@ -1031,7 +1030,7 @@ export default async function GuidePage({ params }) {
           <section key={i} id={"pick-" + (i + 1)} className="wf-guide-pick">
             <div className="wf-guide-number">{String(i + 1).padStart(2, "0")}</div>
             <div>
-              <div style={{ fontSize: 9.5, fontWeight: 900, letterSpacing: "1.7px", textTransform: "uppercase", color: "#F97316" }}>{pick.eyebrow || (i === 0 ? "The essential" : "The local edit")}</div>
+              <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "1.4px", textTransform: "uppercase", color: "#F97316" }}>{pick.eyebrow || (i === 0 ? "The essential" : "The local edit")}</div>
               <h2 style={{ ...S.h2, marginTop: 5, fontFamily: "var(--wf-display)", fontSize: 28 }}>{pick.placeId ? <a href={guidePlacePath(pick.placeId)} style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: 4 }}>{pick.name}</a> : pick.name}</h2>
               {pickImage ? (
                 <GuideFigure role="pick" image={pickImage} className="wf-guide-pick-figure" />

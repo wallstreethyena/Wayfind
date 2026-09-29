@@ -77,7 +77,11 @@ ok(/import \{ useBestPhoto \} from "\.\.\/lib\/bestPhoto"/.test(home), "PlaceCar
   ok(gate !== -1, "PlaceCard still gates on cardComplete");
   ok(pick < gate, "the hook runs BEFORE the early return (rules of hooks)");
 }
-ok(/src=\{cardPhoto \|\| p\.photo\}/.test(home), "the card renders the vision-picked photo, then the primary — venue-truth only");
+// 2026-09-28: the chain gained a third rung — the SAME venue's place-scoped
+// route (ownedPlacePhotoSrc(p.id)) — still venue-truth only; locked in full by
+// scripts/test-card-photo-fallback.mjs.
+ok(/const cardPrimarySrc = cardPhoto \|\| \(p && p\.photo\) \|\| cardPlaceSrc;/.test(home) && /const cardPlaceSrc = ownedPlacePhotoSrc\(p && p\.id\);/.test(home) && /<FallbackImg src=\{cardPrimarySrc\}/.test(home),
+  "the card renders the vision-picked photo, then the primary, then this venue's own place photo — venue-truth only");
 ok(!/cardMarketFallback/.test(home), "house PlaceCard must not reuse a category+city stock scene (Kids Empire / Intense Escape shared a beach sunset)");
 
 console.log(`test-image-score: ${n - failn}/${n} passed`);
