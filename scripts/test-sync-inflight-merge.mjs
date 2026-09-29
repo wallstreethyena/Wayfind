@@ -15,7 +15,7 @@
 //   3. Scoped structural count (comments stripped): exactly two call sites,
 //      one in each apply step — with a positive control on the stripper.
 import { readFileSync } from "fs";
-import { reconcileIds, mergeSinceSnapshot } from "../lib/syncReconcile.js";
+import { reconcileIds, reconcileIdsSafe, mergeSinceSnapshot } from "../lib/syncReconcile.js";
 
 let pass = 0;
 const fail = (m) => { console.error("test-sync-inflight-merge: FAIL — " + m); process.exit(1); };
@@ -98,7 +98,7 @@ async function runColl({ local, base, remoteIds, during }) {
   const mk = new Function("cancelled", "supabase", "user", "localStorage", "setLocal", "reconcileIds", "reconcileIdsSafe", "mergeSinceSnapshot",
     rcSrc + "\nreturn reconcileColl;");
   const setLocal = (k, v) => LS.setItem(k, v);
-  const reconcileColl = mk(false, supabase, { id: "u1" }, LS, setLocal, reconcileIds, reconcileIds, mergeSinceSnapshot);
+  const reconcileColl = mk(false, supabase, { id: "u1" }, LS, setLocal, reconcileIds, reconcileIdsSafe, mergeSinceSnapshot);
   await reconcileColl({ table: "likes", listName: null, storeKey: "wf_liked_items", baseKey: "wf_liked_base", boolKey: "wf_liked",
     setItems: (v) => { items = v; }, setBool: (v) => { bools = v; }, rows: remoteIds.map((id) => ({ place_id: id, place: { id } })), rowPlace: (r) => r.place });
   return { items, bools, store: JSON.parse(LS.getItem("wf_liked_items")), base: JSON.parse(LS.getItem("wf_liked_base")), calls };
@@ -124,7 +124,9 @@ const ent = (id) => ({ place: { id }, ts: 1 });
 }
 
 // 2b. favorites setLists updater
-const favStart = code.indexOf("reconcileIds(favBase,");
+// Either name: the favorites call became reconcileIdsSafe when the
+// empty-local safe-pull landed alongside this guard.
+const favStart = code.search(/reconcileIds(?:Safe)?\(favBase,/);
 ok(favStart > 0, "favorites reconcile located");
 const favRegion = code.slice(favStart, rcStart);
 const slStart = favRegion.indexOf("setLists((prev) =>");
