@@ -27,16 +27,16 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 743,
-    "totalRegistryEntries": 744,
-    "guardsTxtLineCount": 741,
-    "guardsTxtReachedFileCount": 736,
+    "totalOnDiskGuardFiles": 744,
+    "totalRegistryEntries": 745,
+    "guardsTxtLineCount": 742,
+    "guardsTxtReachedFileCount": 737,
     "criticalCount": 88,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 517,
       "RENDER": 87,
-      "STRUCTURAL": 139,
+      "STRUCTURAL": 140,
       "OTHER": 1
     }
   },
@@ -8325,6 +8325,28 @@
             "blocking": false
           }
         ]
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-temp-closed-recheck.mjs",
+      "npmScript": null,
+      "class": "STRUCTURAL",
+      "hasStructuralOnlyTag": true,
+      "assertionCount": 12,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,

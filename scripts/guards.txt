@@ -703,6 +703,9 @@ node scripts/test-promote-backfill.mjs
 # runtime. Legacy anon/service_role keys were disabled on this project 2026-07-16.
 node scripts/check-supabase-key-live.mjs
 node scripts/test-promote-decision.mjs
+# 2026-09-28: the ONE automatic re-arm of promotion rejects (CLOSED_TEMPORARILY
+# only, 30-day window, capped) — any widening turns it into a spend loop.
+node scripts/check-temp-closed-recheck.mjs
 node scripts/check-curated-events.mjs
 # A failed wf_events list read is not a healthy empty hub. Soft-fail → []
 # used to ISR-cache "Nothing verified…" + numberOfItems:0 while detail
