@@ -2,6 +2,7 @@
 import { Component, useEffect, useMemo, useRef, useState } from "react";
 import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, distMeters, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces, normalizeSearchPlace, wayfindScore } from "../lib/google";
 import { normName, betterPlace, dedupePlaces } from "../lib/placeDedupe";
+import { comparatorFor, sortPlacesBy, nearestBranch } from "../lib/sortModes";
 import { localCitySuggestions, createSearchAttempt } from "../lib/searchExperience.js";
 import { mergeHealedPlacePhotos } from "../lib/detailHero";
 import { RON_DUPRAT_TOP7, chefHookCard, chefPickPlaces } from "../lib/chefPicks";
@@ -5750,11 +5751,15 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   }
 
   // Detect viewport so desktop gets a wider, side-by-side layout.
+  // 2026-09-28 perf: store the BOOLEAN, not the pixel width. setVw(innerWidth)
+  // re-rendered this whole ~7.7k-line component on every resize event (every
+  // pixel of a desktop drag); a boolean only changes when the breakpoint is
+  // crossed, and React bails out on an identical primitive.
   const [vw, setVw] = useState(0);
   useEffect(() => {
-    const onR = () => setVw(window.innerWidth);
+    const onR = () => setVw(window.innerWidth >= 900 ? 900 : 1);
     onR();
-    window.addEventListener("resize", onR);
+    window.addEventListener("resize", onR, { passive: true });
     return () => window.removeEventListener("resize", onR);
   }, []);
   const isDesktop = vw >= 900;
@@ -9235,18 +9240,19 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // v4.25: every sort mode is real on the browse feed, the distance limit
   // applies to all of them, and the near-first rule survives ranking.
   const _distFiltered = [..._mealPool].filter((p) => sliderMi >= 60 || p.distMi == null || p.distMi <= sliderMi);
+  // 2026-09-28 (owner: "0.7 miles, then 15 miles, then 0.9 miles"): dedupe
+  // BEFORE ordering. Brand collapse writes the surviving branch into the first
+  // branch's slot, so sorting first let a far flagship inherit a near branch's
+  // position. The explicit sort is now the last ordering step, and "Closest
+  // first" keeps a chain's NEAREST branch. Locked by test-sort-modes.
+  const _dedupedPool = dedupePlaces(dealsOnly ? _distFiltered.filter((p) => offers[p.id]) : _distFiltered, !searchMode, sortBy === "near" ? nearestBranch : betterPlace);
   let viewBase;
-  if (sortBy === "near") {
-    viewBase = _distFiltered.sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12));
-  } else if (sortBy === "rated") {
-    // v6.30 (owner): "Top rated" ranks purely by the displayed Wayfind Score,
-    // highest first, so the badges read in order — the score IS the model
-    // output. Distance has its own "Closest first" sort; reviews break ties.
-    viewBase = _distFiltered.sort(Ranking.byTopRated); // v6.42: THE shared Top-rated comparator (locked by test-top-rated)
-  } else if (sortBy === "price") {
-    viewBase = _distFiltered.sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0)));
+  if (comparatorFor(sortBy)) {
+    // near: distance ascending · rated: v6.42 shared Top-rated comparator
+    // (displayed Wayfind Score, locked by test-top-rated) · price: low → high.
+    viewBase = sortPlacesBy(_dedupedPool, sortBy);
   } else {
-    viewBase = Ranking.rankByConditions(_distFiltered, _viewCtx, (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_LAST, faveTier: faveTier(p), featured: featuredBoost(p), evidence: hasCreatorVideoAt(p) ? CREATOR_VIDEO_BONUS : 0, trend: p.trending ? TRENDING_BONUS : 0 }));
+    viewBase = Ranking.rankByConditions(_dedupedPool, _viewCtx, (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_LAST, faveTier: faveTier(p), featured: featuredBoost(p), evidence: hasCreatorVideoAt(p) ? CREATOR_VIDEO_BONUS : 0, trend: p.trending ? TRENDING_BONUS : 0 }));
     // Near-first rule: with 5+ options inside 12 miles, nothing past 20 may outrank them.
     const _nc = viewBase.filter((p) => p && p.distMi != null && p.distMi <= 12).length;
     if (_nc >= 5) viewBase = [...viewBase.filter((p) => !(p.distMi != null && p.distMi > 20)), ...viewBase.filter((p) => p.distMi != null && p.distMi > 20)];
@@ -9268,7 +9274,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // "Nothing here right now" branch with a widen/relax action instead of
   // rendering a silent void. A data regression can still lose places; it can no
   // longer look like a broken page.
-  const view = dedupePlaces(dealsOnly ? viewBase.filter((p) => offers[p.id]) : viewBase, !searchMode).filter(cardComplete);
+  const view = viewBase.filter(cardComplete);
   // Consolidate the FULL ranked pool before selecting the hero. Doing this
   // after removing the hero stranded its children as peer recommendations:
   // SeaWorld could become the hero while Bayside Stadium survived below as if
@@ -9280,7 +9286,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   })();
   // Explore now opens on a single standout, just like the home screen. Prefer a
   // place you can actually go to now; the rest of the ranked list follows below.
-  const exHero = (!loading && consolidatedView.length > 0) ? (consolidatedView.find((p) => liveOpen(p) === true) || consolidatedView[0]) : null;
+  // The hero sits directly under the sort control, so under an explicit sort
+  // it is simply row 1 — picking "the first open one" put a 15 mi card above
+  // a 0.4 mi one. Open-now still wins exact ties (lib/sortModes.js).
+  const exHero = (!loading && consolidatedView.length > 0) ? (comparatorFor(sortBy) ? consolidatedView[0] : (consolidatedView.find((p) => liveOpen(p) === true) || consolidatedView[0])) : null;
   const exHeroSl = exHero ? scoreLabel(exHero.wfScore) : null;
   const restView = exHero ? consolidatedView.filter((p) => p && p.id !== exHero.id) : consolidatedView;
 
@@ -10535,21 +10544,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             // number carries the bump, the why-line says so, first.
             if (heroPick.trending && heroPick.trend_reason) heroWhy.unshift("🔥 " + heroPick.trend_reason);
           }
-          const feedList0 = heroPick ? displayList.filter((p) => p && p.id !== heroPick.id) : displayList;
-          // v4.24 near-first rule: with 5+ options inside 12 miles, nothing past
-          // 20 miles may outrank them. Sparse areas (fewer than 5 close) exempt.
-          const _nearCount = feedList0.filter((p) => p && p.distMi != null && p.distMi <= 12).length;
-          const feedList0P = _nearCount >= 5 ? feedList0.slice().sort((a, b) => (((a.distMi != null && a.distMi > 20) ? 1 : 0) - ((b.distMi != null && b.distMi > 20) ? 1 : 0))) : feedList0;
-          const feedListS = sortBy === "rated" ? feedList0P.slice().sort(Ranking.byTopRated) : sortBy === "price" ? feedList0P.slice().sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0))) : feedList0P;
-          const feedListN = sortBy === "near" ? feedListS.filter((p) => p && (sliderMi >= 60 || p.distMi == null || p.distMi <= sliderMi)) : feedListS;
-          const feedList = dealsOnly ? feedListN.filter((p) => offers[p.id]) : feedListN;
-          // Trust fix (v4.3): closed places no longer hold the top slots. Sort by the
-          // chosen order first (score for Best, distance for Closest), then stably push
-          // open-now to the top, unknown-status next, opens-later below that, and closed
-          // last. Closed spots still appear, just never in the most valuable positions.
-          const homeOpenRank = (p) => !p ? 4 : p.openNow === true ? 0 : p.openNow == null ? 1 : (p.nextOpen && p.nextOpen.today) ? 2 : 3;
-          const homeBaseSorted = sortBy === "near" ? [...feedList].sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12)) : [...feedList];
-          const homeFeed = homeBaseSorted.sort((a, b) => homeOpenRank(a) - homeOpenRank(b));
+          // 2026-09-28: the unused feedList*/homeFeed chain that sat here re-sorted
+          // the whole pool on every render and was never rendered (dead since v8).
           return (
             <>
             {/* v8.2 — THE BAND RUNS EDGE TO EDGE (owner, 2026-08-15; lab:

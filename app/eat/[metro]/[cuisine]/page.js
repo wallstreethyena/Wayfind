@@ -36,6 +36,7 @@ import { couponForPlaceName, couponEndsLabel } from "../../../../lib/coupons";
 import { hasBookingCTA, bookingTargets } from "../../../../lib/bookingResolve";
 import * as Aff from "../../../../lib/affiliates";
 import { siteTodayStr } from "../../../../lib/siteTime";
+import { reviewDepthDeduction } from "../../../../lib/wayfindScore";
 import { isSsgBuild, eatFetch, eatCuisineStaticParams } from "../../../../lib/eatInventory";
 
 export const revalidate = 3600;
@@ -232,18 +233,27 @@ export default async function CuisineListPage({ params }) {
   // coupon ~4h early for a Florida user.
   const today = siteTodayStr();
 
-  const places = rows.map((r) => ({
-    id: r.place_id, name: r.name,
-    rating: r.rating != null ? Number(r.rating) : null,
-    reviews: Number(r.reviews) || 0,
-    hook: r.hook || null,
-    // 0-100 -> /10, one decimal. Null stays NULL: a missing base score must never
-    // coerce to 0, which renders as a fake red 0.1/10.
-    score: r.wf_score == null ? null : Math.round((Number(r.wf_score) / 10) * 10) / 10,
-    wfScore: r.wf_score == null ? null : Number(r.wf_score),
-    price: r.price_level || null,
-    why: r.why_here || null,
-  })).map((p) => {
+  // The SQL score predates the review-depth deduction (lib/wayfindScore.js,
+  // owner 2026-09-28), so it is applied here from the same row's review count
+  // and the list re-sorted on the result — the number shown is the number
+  // sorted. Stable sort: equal scores keep the RPC's own tiebreak order.
+  const places = rows.map((r) => {
+    const wf = r.wf_score == null || !isFinite(Number(r.wf_score))
+      ? null
+      : Math.max(0, Number(r.wf_score) - reviewDepthDeduction(r.reviews));
+    return {
+      id: r.place_id, name: r.name,
+      rating: r.rating != null ? Number(r.rating) : null,
+      reviews: Number(r.reviews) || 0,
+      hook: r.hook || null,
+      // 0-100 -> /10, one decimal. Null stays NULL: a missing base score must never
+      // coerce to 0, which renders as a fake red 0.1/10.
+      score: wf == null ? null : Math.round((wf / 10) * 10) / 10,
+      wfScore: wf,
+      price: r.price_level || null,
+      why: r.why_here || null,
+    };
+  }).sort((a, b) => (b.wfScore == null ? -1 : b.wfScore) - (a.wfScore == null ? -1 : a.wfScore)).map((p) => {
     const detail = { id: p.id, name: p.name, address: null, types: ["restaurant"], primaryCategory: "restaurant" };
     const coupon = couponForPlaceName(p.name, today);
     const bookable = hasBookingCTA(detail, "food", {}, meta.label)
