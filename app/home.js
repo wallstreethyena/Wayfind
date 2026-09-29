@@ -87,6 +87,7 @@ import { setLocal, sweepLocal } from "../lib/localStore";
 import { browsePosition, horizontalPositions, restoreBrowsePosition } from "../lib/restoreBrowsePosition";
 import { placeRouteBackPlan } from "../lib/railReaction";
 import { reconcileIdsSafe } from "../lib/syncReconcile";
+import { STORE_CHANGE_EVENT, applyFavoritesChange, applyReactionChange } from "../lib/likeSignal";
 // v4.94: the ONE junk filter — composites and any non-aggregator pool call it too.
 import { placeAllowed, SUB_ALLOW } from "../lib/placeFilter";
 import { parseCouponValue } from "../lib/couponValue";
@@ -7146,6 +7147,27 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     return stopSessionRecording;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supabaseReady]);
+  // A card with no wired handler saves/likes through lib/cardActions, which
+  // writes the same keys this shell persists wholesale. It announces each write
+  // as a DELTA; fold it into state with functional updaters so it composes with
+  // anything already queued, instead of the next persist erasing it. (A storage
+  // re-read here would drop a queued-but-uncommitted home save the same way.)
+  // Locked by scripts/test-card-store-coherence.mjs.
+  useEffect(() => {
+    const onStoreChange = (ev) => {
+      const d = ev && ev.detail;
+      if (!d || !d.id) return;
+      if (d.kind === "save") setLists((prev) => applyFavoritesChange(prev, d));
+      else if (d.kind === "like" || d.kind === "dislike") {
+        setLiked((prev) => applyReactionChange("liked", prev, d));
+        setDisliked((prev) => applyReactionChange("disliked", prev, d));
+        setLikedItems((prev) => applyReactionChange("likedItems", prev, d));
+        setDislikedItems((prev) => applyReactionChange("dislikedItems", prev, d));
+      }
+    };
+    try { window.addEventListener(STORE_CHANGE_EVENT, onStoreChange); } catch (e) {}
+    return () => { try { window.removeEventListener(STORE_CHANGE_EVENT, onStoreChange); } catch (e) {} };
+  }, []);
   const listsHydrated = useRef(false);
   useEffect(() => {
     // Skip the first run so default empty lists never overwrite real saved data
@@ -10585,7 +10607,18 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                   Score it shows is recomputed by the same formula as every
                   unpaid card. Money buys the position, never the number. */}
               {!browseCat && sponsoredPick ? (
-                <SponsoredPlaceCard pick={sponsoredPick} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />
+                <SponsoredPlaceCard pick={sponsoredPick} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }}
+                  saved={sponsoredPick.placeId ? isSaved(sponsoredPick.placeId) : undefined}
+                  liked={sponsoredPick.placeId ? !!liked[sponsoredPick.placeId] : undefined}
+                  disliked={sponsoredPick.placeId ? !!disliked[sponsoredPick.placeId] : undefined}
+                  onSave={(p) => quickSaveFavorite(p)}
+                  onLike={(e, p) => toggleLike(e || { stopPropagation() {} }, p)}
+                  onDislike={(e, p) => toggleDislike(e || { stopPropagation() {} }, p)}
+                  onShare={(p) => {
+                    if (!p || !p.id) return;
+                    try { logEvent("share", p, { kind: "sponsored_place_card" }); } catch (er) {}
+                    try { shareLink(p.name, placeShareUrl(p, "", ""), () => showToast("Link copied"), fallShareLine("Check out " + p.name + " on Wayfind", p.id, siteTodayStr()), () => { try { giveawayMark(p.id); addShared(p); } catch (er) {} }); } catch (er) {}
+                  }} />
               ) : null}
               {/* v6.62 (2026-08-08, owner: "add this to the top of the page"),
                   REVERSES v6.97's "MOVED BELOW THE ANSWER" call below. The six
