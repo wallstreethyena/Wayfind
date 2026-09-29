@@ -139,6 +139,8 @@ node scripts/test-sparse-category.mjs
 # breakfast-only primary as Lunch #1 when lunch library exists.
 node scripts/test-browse-library.mjs
 node scripts/test-sync-reconcile.mjs
+node scripts/check-like-store-writes.mjs
+node scripts/test-sync-inflight-merge.mjs
 node scripts/test-site-time.mjs
 node scripts/check-sitetime.mjs
 node scripts/test-classifier-veto.mjs
@@ -487,6 +489,7 @@ node scripts/test-guide-editorial-mode.mjs
 node scripts/test-guide-lovebug-rail.mjs
 node scripts/test-gulf-coast-brunch-date-night.mjs
 node scripts/test-detail-render-smoke.mjs
+node scripts/check-detail-plan-add-only.mjs
 node scripts/check-lib-call-imports.mjs
 # THE FOCUS GUARD. check-lib-call-imports above only sees bare CALLS to lib/
 # FUNCTIONS; FOCUS.outline was a property read on a kit.js object and sailed
@@ -520,6 +523,9 @@ node scripts/check-intro-gate.mjs
 node scripts/check-hub-conversion.mjs
 node scripts/test-intent-header-clarity.mjs
 node scripts/test-rail-like-stays.mjs
+# 2026-09-29 — the sponsored card (and every unwired card-store write) must never erase
+# a save/like made elsewhere: re-read before write, same-tab delta, home's own handlers.
+node scripts/test-card-store-coherence.mjs
 node scripts/check-viator-redirect-layer.mjs
 node scripts/check-intent-partner-picks.mjs
 # 2026-09-15 (Lane C) — every registered partner offer earns an intent-page or
@@ -1901,5 +1907,7 @@ node scripts/test-guide-editorial-photos.mjs
 
 node scripts/test-guide-city-coverage.mjs
 node scripts/test-detail-nearby.mjs
+node scripts/test-card-photo-fallback.mjs
+node scripts/test-photo-serving-alert.mjs
 node scripts/test-intl-cache.mjs
 node scripts/test-browse-back.mjs
