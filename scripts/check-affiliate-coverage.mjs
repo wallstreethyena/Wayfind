@@ -212,7 +212,13 @@ const fx = [
   { event_id: "no-url-2026" },
   { event_id: "zoo-boo-zoo-miami-2026", official_event_url: "https://www.zoomiami.org/zoo-boo" },
 ];
-const statuses = fx.map((e) => eventAffiliateCoverage(e).status);
+// The fixture runs at a PINNED date inside every reviewed decision's window.
+// It used to run at the real date, so the day a reviewBy passed (2026-09-29)
+// this build guard went red on unchanged code and blocked every Vercel deploy.
+// Expiry is still tested below, explicitly, at dates past each window; the
+// nightly cron keeps using the real date so an expired decision still pages.
+const FIXTURE_TODAY = "2026-09-25";
+const statuses = fx.map((e) => eventAffiliateCoverage(e, { today: FIXTURE_TODAY }).status);
 ok(statuses.slice(0, 6).every((x) => x === COVERAGE.MAPPED), "verified event-ticket and included-with-admission cases all classify mapped");
 ok(statuses[6] === COVERAGE.DECIDED_NO_EXACT_PRODUCT, "Asian Lantern is a current reviewed no-exact-product decision, not a silent leak");
 ok(statuses[7] === COVERAGE.DECIDED_NO_EXACT_PRODUCT, "ZooTampa Christmas is a current reviewed no-exact-product decision until partner entitlement is proven");
@@ -232,7 +238,7 @@ ok(
   eventAffiliateCoverage(fx[6], { today: "2026-10-02" }).status === COVERAGE.UNMAPPED,
   "an expired no-product decision automatically becomes a revenue leak again",
 );
-const leaks = unmappedSellableEvents(fx);
+const leaks = unmappedSellableEvents(fx, { today: FIXTURE_TODAY });
 ok(leaks.length === 1 && leaks[0].eventId === "new-central-florida-zoo-special-2026", "current decisions suppress only reviewed cases; a new affiliate-merchant event still pages");
 const rtu = { event_id: "rock-the-universe-2027", official_event_url: "https://www.universalorlando.com/web/en/us/things-to-do/events/rock-the-universe" };
 ok(eventAffiliateCoverage(rtu, { today: "2026-09-23" }).status === COVERAGE.DECIDED_NO_EXACT_PRODUCT, "Rock the Universe 2027 is an owner no-resale decision, not a silent leak");
@@ -244,8 +250,8 @@ ok(expiredLeaks.length === 1 && expiredLeaks[0].eventId === "asian-lantern-festi
 ok(existsSync(path.join(ROOT, "app/api/cron/affiliate-coverage/route.js")), "app/api/cron/affiliate-coverage exists");
 const vercel = JSON.parse(read("vercel.json"));
 ok((vercel.crons || []).some((c) => c.path === "/api/cron/affiliate-coverage" && /^\d+ \d+ \* \* \*$/.test(c.schedule)), "…and vercel.json schedules it daily");
-const cleanTally = tallyCoverage(fx.filter((e) => e.event_id !== "new-central-florida-zoo-special-2026"));
-const leakTally = tallyCoverage(fx);
+const cleanTally = tallyCoverage(fx.filter((e) => e.event_id !== "new-central-florida-zoo-special-2026"), { today: FIXTURE_TODAY });
+const leakTally = tallyCoverage(fx, { today: FIXTURE_TODAY });
 const cleanRow = coveragePulseRow(cleanTally);
 const leakRow = coveragePulseRow(leakTally);
 ok(cleanRow.attempted === 1 && cleanRow.succeeded === 1 && cleanRow.failed === 0 && /^clean:/.test(cleanRow.note), "a run with no leak pulses succeeded=1");
