@@ -482,12 +482,9 @@ twice, and another lane was nearly asked to fix a guard that was working.
   allow token substring-matching a service type (`parking`→`park`, `drugstore`→`store`);
   fix by adding the service to `CAT_EXCLUDE`, not by loosening the identity guard.
 - **Cross-device sync** (the sign-in effect in `app/home.js`): reconcile via
-  `lib/syncReconcile.reconcileIdsSafe` against a **per-collection base snapshot**
+  `lib/syncReconcile.reconcileIds` against a **per-collection base snapshot**
   (`wf_fav_base` / `wf_liked_base` / `wf_disliked_base` / `wf_shared_base`). Never
   unconditionally push all local rows up — that resurrects deletions across devices.
-  Empty local + non-empty base is treated as a wiped/corrupt store and PULLS (never
-  deletes remote); apply results with `mergeSinceSnapshot` so toggles made during the
-  sync survive. Accepted trade-off: removing your last item offline can reappear.
 - **Wayfind Score**: stored 0–100 internally, shown `/10` via `toDisplayScore`. A **null**
   base score must stay null (→ "Score pending"); never coerce to 0 (it produces a fake red
   0.1/10). `scoreLabel` routes through `toDisplayScore` for the same reason.
