@@ -60,10 +60,12 @@ export function coveragePulseRow(tally) {
 }
 
 /** Pure: tally every row by coverage state. */
-export function tallyCoverage(rows) {
+export function tallyCoverage(rows, opts = {}) {
   const tally = { mapped: 0, unmapped: [], decidedSeparatelyTicketed: 0, noPartner: 0, noUrl: 0, decidedSeparatelyTicketedIds: [] };
   for (const row of Array.isArray(rows) ? rows : []) {
-    const c = eventAffiliateCoverage(row);
+    // opts.today is for fixtures only; the cron passes nothing, so reviewed
+    // decisions expire against the real venue-local date and page as designed.
+    const c = eventAffiliateCoverage(row, opts);
     if (c.status === COVERAGE.MAPPED) tally.mapped++;
     else if (c.status === COVERAGE.UNMAPPED) tally.unmapped.push(c);
     else if (c.status === COVERAGE.DECIDED_SEPARATELY_TICKETED) { tally.decidedSeparatelyTicketed++; tally.decidedSeparatelyTicketedIds.push(c.eventId); }
