@@ -27,16 +27,16 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 744,
-    "totalRegistryEntries": 745,
-    "guardsTxtLineCount": 742,
-    "guardsTxtReachedFileCount": 737,
-    "criticalCount": 87,
+    "totalOnDiskGuardFiles": 746,
+    "totalRegistryEntries": 747,
+    "guardsTxtLineCount": 744,
+    "guardsTxtReachedFileCount": 739,
+    "criticalCount": 88,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 518,
+      "CALL": 519,
       "RENDER": 87,
-      "STRUCTURAL": 139,
+      "STRUCTURAL": 140,
       "OTHER": 1
     }
   },
@@ -8335,6 +8335,28 @@
       "owner": null
     },
     {
+      "file": "scripts/check-temp-closed-recheck.mjs",
+      "npmScript": null,
+      "class": "STRUCTURAL",
+      "hasStructuralOnlyTag": true,
+      "assertionCount": 12,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/check-theme-park-coverage.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -15597,6 +15619,33 @@
       "protects": null,
       "blastRadius": null,
       "owner": null
+    },
+    {
+      "file": "scripts/test-promote-paid-cap.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 14,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-import:../lib/spendGate.js"
+      ],
+      "protects": "The promotion-only paid switch (WAYFIND_PROMOTE_PAID + PROMOTE_DETAILS_MONTH_CAP) raises the details_pro ceiling for the index→inventory drain alone; every other SKU and the user-facing spendAllow path are unchanged, and shut still means zero.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "A regression could let the promotion allowance widen other Google SKUs or user-facing Details calls past their free tiers, turning a bounded owner-approved spend into an open bill."
+      },
+      "owner": "Revenue QA"
     },
     {
       "file": "scripts/test-promote-throttle.mjs",
