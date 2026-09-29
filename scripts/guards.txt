@@ -125,6 +125,7 @@ node scripts/test-events-tours.mjs
 node scripts/test-ranked-experience-rails.mjs
 node scripts/test-front-events.mjs
 node scripts/test-top-rated.mjs
+node scripts/test-sort-modes.mjs
 node scripts/test-card-gate.mjs
 node scripts/test-map-cost.mjs
 node scripts/check-maps-deferral.mjs
@@ -1899,3 +1900,4 @@ node scripts/test-guide-editorial-photos.mjs
 
 node scripts/test-guide-city-coverage.mjs
 node scripts/test-detail-nearby.mjs
+node scripts/test-intl-cache.mjs
