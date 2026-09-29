@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 744,
-    "totalRegistryEntries": 745,
-    "guardsTxtLineCount": 742,
-    "guardsTxtReachedFileCount": 737,
+    "totalOnDiskGuardFiles": 745,
+    "totalRegistryEntries": 746,
+    "guardsTxtLineCount": 743,
+    "guardsTxtReachedFileCount": 738,
     "criticalCount": 88,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 517,
+      "CALL": 518,
       "RENDER": 87,
       "STRUCTURAL": 140,
       "OTHER": 1
@@ -10371,6 +10371,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 52,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-card-photo-fallback.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 12,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
