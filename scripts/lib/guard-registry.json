@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 737,
-    "totalRegistryEntries": 738,
-    "guardsTxtLineCount": 735,
-    "guardsTxtReachedFileCount": 730,
+    "totalOnDiskGuardFiles": 738,
+    "totalRegistryEntries": 739,
+    "guardsTxtLineCount": 736,
+    "guardsTxtReachedFileCount": 731,
     "criticalCount": 87,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 513,
+      "CALL": 514,
       "RENDER": 85,
       "STRUCTURAL": 139,
       "OTHER": 1
@@ -14852,6 +14852,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 22,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-photo-serving-alert.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 16,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
