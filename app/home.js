@@ -86,7 +86,7 @@ import { saveItem as saveMonetized, fetchSavedItems } from "../lib/savedItems";
 import { setLocal, sweepLocal } from "../lib/localStore";
 import { browsePosition, horizontalPositions, restoreBrowsePosition } from "../lib/restoreBrowsePosition";
 import { placeRouteBackPlan } from "../lib/railReaction";
-import { reconcileIds } from "../lib/syncReconcile";
+import { reconcileIdsSafe } from "../lib/syncReconcile";
 // v4.94: the ONE junk filter — composites and any non-aggregator pool call it too.
 import { placeAllowed, SUB_ALLOW } from "../lib/placeFilter";
 import { parseCouponValue } from "../lib/couponValue";
@@ -5537,7 +5537,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         if (!cancelled && saved) {
           const remotePlaces = saved.map((r) => r.place).filter((p) => p && p.id);
           let favBase = []; try { favBase = JSON.parse(localStorage.getItem("wf_fav_base") || "[]"); } catch {}
-          const rec = reconcileIds(favBase, favPlaces.map((p) => p.id), remotePlaces.map((p) => p.id));
+          const rec = reconcileIdsSafe(favBase, favPlaces.map((p) => p.id), remotePlaces.map((p) => p.id));
           if (rec.deleteRemote.length) { try { await supabase.from("saved_places").delete().eq("user_id", user.id).eq("list_name", "Favorites").in("place_id", rec.deleteRemote); } catch {} }
           const pushSet = new Set(rec.pushUp);
           const toPush = favPlaces.filter((p) => pushSet.has(p.id));
@@ -5555,12 +5555,12 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         // this device's push-up (the old union-pull + unconditional re-push below did
         // exactly that). Each is an id-keyed item store {place,ts}; reconcileIds runs
         // the 3-way merge (lib/syncReconcile). rowPlace(r) -> the place object.
-        const reconcileColl = async ({ table, listName, storeKey, baseKey, setItems, setBool, rows, rowPlace }) => {
+        const reconcileColl = async ({ table, listName, storeKey, baseKey, setItems, setBool, boolKey, rows, rowPlace }) => {
           if (cancelled || !rows) return;
           let local = {}; try { local = JSON.parse(localStorage.getItem(storeKey) || "{}"); } catch {}
           const remote = {}; rows.forEach((r) => { const p = rowPlace(r); if (p && p.id) remote[p.id] = p; });
           let base = []; try { base = JSON.parse(localStorage.getItem(baseKey) || "[]"); } catch {}
-          const rec = reconcileIds(base, Object.keys(local), Object.keys(remote));
+          const rec = reconcileIdsSafe(base, Object.keys(local), Object.keys(remote));
           if (rec.deleteRemote.length) {
             try { let q = supabase.from(table).delete().eq("user_id", user.id).in("place_id", rec.deleteRemote); if (listName) q = q.eq("list_name", listName); await q; } catch {}
           }
@@ -5570,16 +5570,20 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           }
           const next = {};
           rec.keep.forEach((id, i) => { const entry = local[id] || (remote[id] ? { place: remote[id], ts: Date.now() - i } : null); if (entry) next[id] = entry; });
-          try { localStorage.setItem(storeKey, JSON.stringify(next)); setLocal(baseKey, JSON.stringify(rec.keep)); } catch {}
+          try { setLocal(storeKey, JSON.stringify(next)); setLocal(baseKey, JSON.stringify(rec.keep)); } catch {}
           if (!cancelled) {
             if (setItems) setItems(next);
-            if (setBool) setBool(Object.fromEntries(rec.keep.map((id) => [id, true])));
+            if (setBool) {
+              const boolMap = Object.fromEntries(rec.keep.map((id) => [id, true]));
+              setBool(boolMap);
+              if (boolKey) { try { setLocal(boolKey, JSON.stringify(boolMap)); } catch {} }
+            }
           }
         };
         const { data: likeRows } = await supabase.from("likes").select("place_id, place").eq("user_id", user.id);
-        await reconcileColl({ table: "likes", listName: null, storeKey: "wf_liked_items", baseKey: "wf_liked_base", setItems: setLikedItems, setBool: setLiked, rows: likeRows, rowPlace: (r) => (r.place && r.place.id ? r.place : (r.place_id ? { id: r.place_id } : null)) });
+        await reconcileColl({ table: "likes", listName: null, storeKey: "wf_liked_items", baseKey: "wf_liked_base", setItems: setLikedItems, setBool: setLiked, boolKey: "wf_liked", rows: likeRows, rowPlace: (r) => (r.place && r.place.id ? r.place : (r.place_id ? { id: r.place_id } : null)) });
         const { data: disRows } = await supabase.from("saved_places").select("place").eq("user_id", user.id).eq("list_name", "Disliked");
-        await reconcileColl({ table: "saved_places", listName: "Disliked", storeKey: "wf_disliked_items", baseKey: "wf_disliked_base", setItems: setDislikedItems, setBool: null, rows: disRows, rowPlace: (r) => r.place });
+        await reconcileColl({ table: "saved_places", listName: "Disliked", storeKey: "wf_disliked_items", baseKey: "wf_disliked_base", setItems: setDislikedItems, setBool: setDisliked, boolKey: "wf_disliked", rows: disRows, rowPlace: (r) => r.place });
         const { data: shrRows } = await supabase.from("saved_places").select("place").eq("user_id", user.id).eq("list_name", "Shared");
         await reconcileColl({ table: "saved_places", listName: "Shared", storeKey: "wf_shared_items", baseKey: "wf_shared_base", setItems: setSharedItems, setBool: null, rows: shrRows, rowPlace: (r) => r.place });
       } catch {}
@@ -6543,7 +6547,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     }
     setLiked(nextLiked); setDisliked(nextDis);
     setLikedItems(nextLikedItems); setDislikedItems(nextDisItems);
-    try { localStorage.setItem("wf_liked", JSON.stringify(nextLiked)); localStorage.setItem("wf_disliked", JSON.stringify(nextDis)); localStorage.setItem("wf_liked_items", JSON.stringify(nextLikedItems)); setLocal("wf_disliked_items", JSON.stringify(nextDisItems)); } catch {}
+    try { setLocal("wf_liked", JSON.stringify(nextLiked)); setLocal("wf_disliked", JSON.stringify(nextDis)); setLocal("wf_liked_items", JSON.stringify(nextLikedItems)); setLocal("wf_disliked_items", JSON.stringify(nextDisItems)); } catch {}
     // Same-turn stamp: card + open detail sheet. sessionOwner is server-set
     // on a prior likes fetch — no email/UUID on the client, no page refresh.
     if (user && likesSessionOwner) patchOwnerPick(p.id, nowLiked);
@@ -6572,7 +6576,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     }
     setLiked(nextLiked); setDisliked(nextDis);
     setLikedItems(nextLikedItems); setDislikedItems(nextDisItems);
-    try { localStorage.setItem("wf_liked", JSON.stringify(nextLiked)); localStorage.setItem("wf_disliked", JSON.stringify(nextDis)); localStorage.setItem("wf_liked_items", JSON.stringify(nextLikedItems)); setLocal("wf_disliked_items", JSON.stringify(nextDisItems)); } catch {}
+    try { setLocal("wf_liked", JSON.stringify(nextLiked)); setLocal("wf_disliked", JSON.stringify(nextDis)); setLocal("wf_liked_items", JSON.stringify(nextLikedItems)); setLocal("wf_disliked_items", JSON.stringify(nextDisItems)); } catch {}
     if (!wasDis) showToast("Got it — fewer places like this");
   }
   function toggleHookLike(hookId) {
