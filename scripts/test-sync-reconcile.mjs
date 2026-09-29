@@ -1,7 +1,7 @@
 // scripts/test-sync-reconcile.mjs — locks the F1 cross-device sync reconciler.
 // The repro that MUST hold: device A removes X (deletes from cloud); device B,
 // which still has X locally, must NOT resurrect it on its next sync.
-import { reconcileIds } from "../lib/syncReconcile.js";
+import { reconcileIds, reconcileIdsSafe } from "../lib/syncReconcile.js";
 
 let pass = 0;
 const fail = (m) => { console.error("test-sync-reconcile: FAIL — " + m); process.exit(1); };
@@ -60,8 +60,9 @@ const eq = (a, b, m) => { const A = JSON.stringify([...a].sort()), B = JSON.stri
 import { readFileSync } from "fs";
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 const w = (c, m) => { if (!c) fail(m); pass++; };
-w(/import \{ reconcileIds \} from "\.\.\/lib\/syncReconcile"/.test(home), "home.js imports reconcileIds");
-w(/reconcileIds\(favBase,/.test(home), "favorites sync reconciles against a base snapshot");
+w(/import \{ reconcileIdsSafe \} from "\.\.\/lib\/syncReconcile"/.test(home), "home.js imports reconcileIdsSafe");
+w(/reconcileIdsSafe\(favBase,/.test(home), "favorites sync reconciles against a base snapshot");
+w(/reconcileIdsSafe\(base,/.test(home), "reconcileColl (likes/disliked/shared) reconciles via reconcileIdsSafe");
 // v7.08 — persisted through setLocal() now (lib/localStore.js), not a bare
 // setItem. Same requirement, and for the first time actually met: on the
 // production store measured at five characters under its 5MB quota, the bare
@@ -85,5 +86,35 @@ w(/reconcileColl\(\{ table: "likes"/.test(home) && /reconcileColl\(\{ table: "sa
 // The old unconditional re-push loops (upload every local id not on the server) are gone.
 w(!/const srvL = new Set\(\(likeRows/.test(home) && !/const srvD = new Set/.test(home) && !/const srvS = new Set/.test(home),
   "the old unconditional likes/disliked/shared re-push loops (resurrection source) are removed");
+
+// 6) reconcileIdsSafe — a corrupt/cleared local store is NOT "user deleted everything".
+{
+  const r = reconcileIdsSafe(["W", "X"], [], ["W", "X", "Z"]);
+  eq(r.deleteRemote, [], "safe: empty local + non-empty base deletes nothing remote");
+  eq(r.pushUp, [], "safe: empty local pushes nothing");
+  eq(r.keep, ["W", "X", "Z"], "safe: keep == remote (pull)");
+  const r2 = reconcileIdsSafe(["W"], undefined, ["W"]);
+  eq(r2.deleteRemote, [], "safe: undefined local treated as empty");
+  // control: the unsafe reconciler WOULD delete, proving the guard does the work
+  eq(reconcileIds(["W", "X"], [], ["W", "X", "Z"]).deleteRemote, ["W", "X"], "control: reconcileIds deletes on empty local");
+  eq(reconcileIdsSafe([], [], ["Z"]).keep, ["Z"], "safe: fresh device pulls remote");
+}
+// 7) non-empty local -> identical to reconcileIds.
+{
+  const cases = [
+    [["W", "X"], ["W", "X"], ["W"]],
+    [["W", "X"], ["W"], ["W", "X"]],
+    [["W", "X"], ["W", "X", "Y"], ["W"]],
+    [[], ["W", "X"], ["Z"]],
+    [["W"], ["W", "X"], ["W"]],
+    [[], [], []],
+    [["A"], ["B"], []],
+  ];
+  for (const [b, l, r] of cases) {
+    const a = reconcileIdsSafe(b, l, r), c = reconcileIds(b, l, r);
+    if (JSON.stringify(a) !== JSON.stringify(c)) fail(`safe != reconcileIds for ${JSON.stringify([b, l, r])}`);
+    pass++;
+  }
+}
 
 console.log(`test-sync-reconcile: OK — ${pass} assertions (A-deletes -> B never resurrects; offline adds survive; first-sync migrates; favorites + likes/disliked/shared wired)`);

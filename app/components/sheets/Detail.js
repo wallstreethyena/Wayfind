@@ -533,8 +533,17 @@ export default function DetailSheet({ ctx }) {
       try { emitCommerce("commerce_cta_clicked", commerceCtx); } catch (e) {}
     }
     if (primaryCta.type === DETAIL_CTA_TYPES.plan) {
-      quickSaveFavorite(detail);
+      addToTripOnly();
     }
+  }
+
+  // "Add to my trip" is ADD-ONLY. quickSaveFavorite is a toggle (it is the
+  // Favorites heart's handler), so calling it on an already-saved place
+  // deleted the favorite and its server row. Never route a plan CTA through
+  // the toggle when the place is saved already.
+  function addToTripOnly() {
+    if (isSaved(detail.id)) { try { showToast("Already in your trip"); } catch (e) {} return; }
+    quickSaveFavorite(detail);
   }
 
   // v7.08: wired into the dock below (it had NO caller since the v6.72 dock
@@ -542,7 +551,7 @@ export default function DetailSheet({ ctx }) {
   // CTA whether it renders as the primary (closed place) or the dock row.
   function addToPlan() {
     try { logEvent("primary_cta_clicked", detail, { cta_type: "add_to_plan" }); } catch (e) {}
-    quickSaveFavorite(detail);
+    addToTripOnly();
   }
 
   // v6.44 (owner-reported, with a photo): the hero showed TWO identical
