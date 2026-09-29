@@ -58,6 +58,13 @@ eq(bare.row.signals.reviews, 0, "no index signal -> reviews 0, same as a place G
 // ── spendAllowCapped: mode arithmetic, ledger stubbed ────────────────────────
 process.env.SUPABASE_URL = "https://stub.supabase.co";
 process.env.SUPABASE_SERVICE_ROLE_KEY = "sb_secret_stub";
+// Hermetic: the arithmetic below is the switch-OFF contract. Production sets
+// WAYFIND_PROMOTE_PAID=1 + PROMOTE_DETAILS_MONTH_CAP (owner-approved, #1538),
+// which replaces the details_pro free-tier clamp by design — inheriting them made
+// this guard fail every Vercel build ("got p_cap 6650 want 4800"). The switch-ON
+// contract is locked by scripts/test-promote-paid-cap.mjs.
+delete process.env.WAYFIND_PROMOTE_PAID;
+delete process.env.PROMOTE_DETAILS_MONTH_CAP;
 const { spendAllowCapped } = await import("../lib/spendGate.js");
 const takes = [];
 globalThis.fetch = async (url, init) => {
