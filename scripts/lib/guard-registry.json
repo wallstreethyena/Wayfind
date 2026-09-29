@@ -34,8 +34,8 @@
     "criticalCount": 87,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 513,
-      "RENDER": 85,
+      "CALL": 512,
+      "RENDER": 86,
       "STRUCTURAL": 139,
       "OTHER": 1
     }
@@ -2115,6 +2115,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 41,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-detail-plan-add-only.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 10,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -4889,28 +4911,6 @@
       "honestyViolations": [
         "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
       ],
-      "selfDocumentsRedProve": false,
-      "wiring": {
-        "guardsTxt": true,
-        "npmScripts": [],
-        "githubWorkflows": []
-      },
-      "gating": "blocks-ci-and-deploy",
-      "excludedReason": null,
-      "critical": false,
-      "criticalReasons": [],
-      "protects": null,
-      "blastRadius": null,
-      "owner": null
-    },
-    {
-      "file": "scripts/check-like-store-writes.mjs",
-      "npmScript": null,
-      "class": "CALL",
-      "hasStructuralOnlyTag": false,
-      "assertionCount": 8,
-      "unprovenAbsenceCount": 0,
-      "honestyViolations": [],
       "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,
@@ -16602,7 +16602,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 39,
+      "assertionCount": 31,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

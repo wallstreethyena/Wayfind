@@ -488,6 +488,7 @@ node scripts/test-guide-editorial-mode.mjs
 node scripts/test-guide-lovebug-rail.mjs
 node scripts/test-gulf-coast-brunch-date-night.mjs
 node scripts/test-detail-render-smoke.mjs
+node scripts/check-detail-plan-add-only.mjs
 node scripts/check-lib-call-imports.mjs
 # THE FOCUS GUARD. check-lib-call-imports above only sees bare CALLS to lib/
 # FUNCTIONS; FOCUS.outline was a property read on a kit.js object and sailed
