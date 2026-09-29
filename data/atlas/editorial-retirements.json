@@ -1,0 +1,167 @@
+{
+  "_comment": "Explicit removals for scripts/ingest-atlas-editorial.mjs (additive merge). Live cards are never overwritten; only these are removed or skipped. Owner decision 2026-09-29.",
+  "retire": [
+    {
+      "placeId": "ChIJ_37IauQ_w4gRz03lc0QInIE",
+      "name": "Sarasota Jungle Gardens",
+      "reason": "Closed since Hurricane Milton (official notice 10/15/24), no reopening date — verified 2026-09-28"
+    },
+    {
+      "placeId": "ChIJBR7CQS0Ww4gRtrYOql8YY5Y",
+      "name": "Motorworks Brewing",
+      "reason": "Bradenton taproom 'currently closed for remodeling', no reopening date — verified 2026-09-28"
+    }
+  ],
+  "skipNew": [
+    {
+      "placeId": "ChIJvYtWPXtbw4gRsWlOnut5anE",
+      "name": "Pop's Sunset Grill (#441)",
+      "reason": "Duplicate of live Pop's Sunset Grill (same address, 112 Circuit Rd, Nokomis)"
+    },
+    {
+      "placeId": "ChIJ1xoFMTYQw4gRmslQtAXM8A4",
+      "name": "Keyes Marina (#62)",
+      "reason": "Same business as live Island Discount Tackle – Keyes Marina (5501/5503 Marina Dr, Holmes Beach)"
+    },
+    {
+      "placeId": "ChIJA4xMia1Dw4gRTrT57btYdzc",
+      "name": "#4 Bayfront Yacht Works and Marina",
+      "reason": "cites unvetted source domain(s) pending owner review: turtlebeachgrill.com, murphssurf.com"
+    },
+    {
+      "placeId": "ChIJHYWhzLpbw4gR-dyWVALZtfw",
+      "name": "#42 Downtown Venice",
+      "reason": "cites unvetted source domain(s) pending owner review: dos.fl.gov"
+    },
+    {
+      "placeId": "ChIJJYbrnZZUw4gRFKzCl5_yYpQ",
+      "name": "#57 Highland Ridge Park",
+      "reason": "cites unvetted source domain(s) pending owner review: playpickleball.com"
+    },
+    {
+      "placeId": "ChIJ46hkCFKr3IgRYeY52WzyILI",
+      "name": "#74 McKibben Park",
+      "reason": "cites unvetted source domain(s) pending owner review: northportlist.com"
+    },
+    {
+      "placeId": "ChIJgTrJSr0jw4gRhhdNk-hyIQw",
+      "name": "#75 Moccasin Wallow Golf Club",
+      "reason": "cites unvetted source domain(s) pending owner review: moccasinwallowgc.teesnap.net, fsga.org"
+    },
+    {
+      "placeId": "ChIJjUHOiWVKw4gR8B6UfaCzujw",
+      "name": "#82 Old Miakka School House",
+      "reason": "cites unvetted source domain(s) pending owner review: historicpreservationsarasota.com, scgovlibrary.librarymarket.com"
+    },
+    {
+      "placeId": "ChIJvVS5lOgXw4gRRa2OzWpQPV4",
+      "name": "#86 Palma Sola Park",
+      "reason": "cites unvetted source domain(s) pending owner review: palmasolaparkassociation.com"
+    },
+    {
+      "placeId": "ChIJiTMReo1Dw4gRNXP8-5NsE2I",
+      "name": "#90 Potter Park",
+      "reason": "cites unvetted source domain(s) pending owner review: palmerranch.net"
+    },
+    {
+      "placeId": "ChIJ94UF6Jo8w4gRVpCB9EpriwA",
+      "name": "#117 Tom Bennett Park",
+      "reason": "cites unvetted source domain(s) pending owner review: fun4manasotakids.com"
+    },
+    {
+      "placeId": "ChIJ3-wcgLJBw4gR9UGr_yLsHJY",
+      "name": "#168 CMX CinéBistro Siesta Key",
+      "reason": "cites unvetted source domain(s) pending owner review: images.cinemaplus.com"
+    },
+    {
+      "placeId": "ChIJb7aEobJBw4gRpSE1cA2kF48",
+      "name": "#191 Connors",
+      "reason": "cites unvetted source domain(s) pending owner review: cdn.allcitymenu.com"
+    },
+    {
+      "placeId": "ChIJqaxUi8w8w4gRroFJlc-sNW0",
+      "name": "#222 Ker's WingHouse Bar & Grill",
+      "reason": "cites unvetted source domain(s) pending owner review: bradenton.com"
+    },
+    {
+      "placeId": "ChIJewgdn-9Xw4gRzTItwoCvOj8",
+      "name": "#240 Oak & Stone Artisan Pizza",
+      "reason": "cites unvetted source domain(s) pending owner review: wellenpark.com"
+    },
+    {
+      "placeId": "ChIJ6UfZV4A5w4gRXcJtOJX_4RQ",
+      "name": "#336 Yard House Sarasota - UTC",
+      "reason": "cites unvetted source domain(s) pending owner review: bradenton.com, eu.floridatoday.com"
+    },
+    {
+      "placeId": "ChIJ_1W8M5AVw4gRRBIwOhNShU4",
+      "name": "#391 Ramada by Wyndham Sarasota Waterfront",
+      "reason": "cites unvetted source domain(s) pending owner review: ramadasarasota.com"
+    },
+    {
+      "placeId": "ChIJp9x9XSRCw4gRdvhP9hbyu0k",
+      "name": "#408 Tropical Beach Resorts",
+      "reason": "cites unvetted source domain(s) pending owner review: siestasand.us"
+    },
+    {
+      "placeId": "ChIJlfhHga1Dw4gRHiBwxSG_UUk",
+      "name": "#411 Turtle Beach Campground",
+      "reason": "cites unvetted source domain(s) pending owner review: sarasotanewsleader.com, mysuncoast.com"
+    },
+    {
+      "placeId": "ChIJUUIQJqciw4gR5o8AzOxiMRs",
+      "name": "#440 Peggys Corral",
+      "reason": "cites unvetted source domain(s) pending owner review: facebook.com, thebradentontimes.com"
+    },
+    {
+      "placeId": "ChIJMUIBZec4w4gRDF221EwsnpA",
+      "name": "#443 Seasons 52",
+      "reason": "cites unvetted source domain(s) pending owner review: utcsarasota.com"
+    },
+    {
+      "placeId": "ChIJc4nsMiojw4gRqqf6JDsI3GU",
+      "name": "#450 The Greyson",
+      "reason": "cites unvetted source domain(s) pending owner review: bradenton.com"
+    },
+    {
+      "placeId": "ChIJaZ8tIKZDw4gRP-YZWJzb2jY",
+      "name": "#453 The Point",
+      "reason": "cites unvetted source domain(s) pending owner review: uw-media.postcrescent.com"
+    },
+    {
+      "placeId": "ChIJ41g3Dm4Rw4gRHB0BArvuO_A",
+      "name": "#480 The Beach Shop",
+      "reason": "cites unvetted source domain(s) pending owner review: bradenton.com, amisun.com"
+    },
+    {
+      "placeId": "ChIJhSykt7lbw4gRevdY3JXPtaU",
+      "name": "#482 Venice Shopping Center",
+      "reason": "cites unvetted source domain(s) pending owner review: publix.com"
+    },
+    {
+      "placeId": "ChIJCUb7Ie49w4gR-C9UGz6bIe0",
+      "name": "#492 At Home",
+      "reason": "cites unvetted source domain(s) pending owner review: bradenton.com"
+    },
+    {
+      "placeId": "ChIJay8TEmElw4gRmgRP3SXl7eM",
+      "name": "#506 Creekside Commons",
+      "reason": "cites unvetted source domain(s) pending owner review: loopnet.com, showcase.com, bradenton.com"
+    },
+    {
+      "placeId": "ChIJASKfu8w8w4gRqJ238ljHle0",
+      "name": "#542 Nike Factory Store",
+      "reason": "cites unvetted source domain(s) pending owner review: nike.com"
+    },
+    {
+      "placeId": "ChIJSa5jNpVDw4gR7Eqn4mw9IfY",
+      "name": "#550 Pelican Plaza Shopping Center",
+      "reason": "cites unvetted source domain(s) pending owner review: chick-fil-a.com, heraldtribune.com, sarasotanewsleader.com"
+    },
+    {
+      "placeId": "ChIJPyvEqIARw4gRxj5IgR5ILRw",
+      "name": "#488 Ace Hardware (Cortez)",
+      "reason": "cites unvetted source domain(s) pending owner review: acehardware.com"
+    }
+  ]
+}
