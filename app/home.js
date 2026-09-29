@@ -5752,11 +5752,15 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   }
 
   // Detect viewport so desktop gets a wider, side-by-side layout.
+  // 2026-09-28 perf: store the BOOLEAN, not the pixel width. setVw(innerWidth)
+  // re-rendered this whole ~7.7k-line component on every resize event (every
+  // pixel of a desktop drag); a boolean only changes when the breakpoint is
+  // crossed, and React bails out on an identical primitive.
   const [vw, setVw] = useState(0);
   useEffect(() => {
-    const onR = () => setVw(window.innerWidth);
+    const onR = () => setVw(window.innerWidth >= 900 ? 900 : 1);
     onR();
-    window.addEventListener("resize", onR);
+    window.addEventListener("resize", onR, { passive: true });
     return () => window.removeEventListener("resize", onR);
   }, []);
   const isDesktop = vw >= 900;
