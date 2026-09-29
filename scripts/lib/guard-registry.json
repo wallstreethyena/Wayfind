@@ -34,8 +34,8 @@
     "criticalCount": 87,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 512,
-      "RENDER": 86,
+      "CALL": 513,
+      "RENDER": 85,
       "STRUCTURAL": 139,
       "OTHER": 1
     }
@@ -2115,28 +2115,6 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 41,
-      "unprovenAbsenceCount": 0,
-      "honestyViolations": [],
-      "selfDocumentsRedProve": false,
-      "wiring": {
-        "guardsTxt": true,
-        "npmScripts": [],
-        "githubWorkflows": []
-      },
-      "gating": "blocks-ci-and-deploy",
-      "excludedReason": null,
-      "critical": false,
-      "criticalReasons": [],
-      "protects": null,
-      "blastRadius": null,
-      "owner": null
-    },
-    {
-      "file": "scripts/check-detail-plan-add-only.mjs",
-      "npmScript": null,
-      "class": "RENDER",
-      "hasStructuralOnlyTag": false,
-      "assertionCount": 10,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -10344,28 +10322,6 @@
       "owner": null
     },
     {
-      "file": "scripts/test-card-store-coherence.mjs",
-      "npmScript": null,
-      "class": "RENDER",
-      "hasStructuralOnlyTag": false,
-      "assertionCount": 47,
-      "unprovenAbsenceCount": 0,
-      "honestyViolations": [],
-      "selfDocumentsRedProve": false,
-      "wiring": {
-        "guardsTxt": true,
-        "npmScripts": [],
-        "githubWorkflows": []
-      },
-      "gating": "blocks-ci-and-deploy",
-      "excludedReason": null,
-      "critical": false,
-      "criticalReasons": [],
-      "protects": null,
-      "blastRadius": null,
-      "owner": null
-    },
-    {
       "file": "scripts/test-cash-register-batch-2026-08-20.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -16603,6 +16559,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 39,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-sync-inflight-merge.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 29,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

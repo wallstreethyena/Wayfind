@@ -140,6 +140,7 @@ node scripts/test-sparse-category.mjs
 node scripts/test-browse-library.mjs
 node scripts/test-sync-reconcile.mjs
 node scripts/check-like-store-writes.mjs
+node scripts/test-sync-inflight-merge.mjs
 node scripts/test-site-time.mjs
 node scripts/check-sitetime.mjs
 node scripts/test-classifier-veto.mjs

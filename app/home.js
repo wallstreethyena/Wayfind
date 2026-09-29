@@ -88,6 +88,7 @@ import { browsePosition, horizontalPositions, restoreBrowsePosition } from "../l
 import { placeRouteBackPlan } from "../lib/railReaction";
 import { reconcileIdsSafe } from "../lib/syncReconcile";
 import { STORE_CHANGE_EVENT, applyFavoritesChange, applyReactionChange } from "../lib/likeSignal";
+import { mergeSinceSnapshot } from "../lib/syncReconcile";
 // v4.94: the ONE junk filter — composites and any non-aggregator pool call it too.
 import { placeAllowed, SUB_ALLOW } from "../lib/placeFilter";
 import { parseCouponValue } from "../lib/couponValue";
@@ -5544,11 +5545,17 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           const toPush = favPlaces.filter((p) => pushSet.has(p.id));
           if (toPush.length) { try { await supabase.from("saved_places").upsert(toPush.map((p) => ({ user_id: user.id, place_id: p.id, place: p, list_name: "Favorites" })), { onConflict: "user_id,place_id,list_name", ignoreDuplicates: true }); } catch {} }
           const pool = {}; [...remotePlaces, ...favPlaces].forEach((p) => { if (p && p.id) pool[p.id] = p; });
-          const keptPlaces = rec.keep.map((id) => pool[id]).filter(Boolean);
           try { setLocal("wf_fav_base", JSON.stringify(rec.keep)); } catch {}
+          // In-flight merge: a favorite toggled during the awaits above is in
+          // prev but not in the snapshot (favPlaces) — keep it; one removed during
+          // them is in the snapshot but not prev — drop it. Base stays rec.keep so
+          // the next sync reconciles anything the race left on the server.
           setLists((prev) => {
             const fav = prev.favorites || { id: "favorites", name: "Favorites", emoji: "❤️", places: [] };
-            return { ...prev, favorites: { ...fav, places: keptPlaces } };
+            const curPlaces = (fav.places || []).filter((p) => p && p.id);
+            const curById = {}; curPlaces.forEach((p) => { curById[p.id] = p; });
+            const ids = mergeSinceSnapshot(favPlaces.map((p) => p.id), rec.keep, curPlaces.map((p) => p.id));
+            return { ...prev, favorites: { ...fav, places: ids.map((id) => curById[id] || pool[id]).filter(Boolean) } };
           });
         }
         // F1 (extended): likes / disliked / shared reconcile against a BASE snapshot
@@ -5569,13 +5576,17 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           if (toPush.length) {
             try { await supabase.from(table).upsert(toPush.map((p) => (listName ? { user_id: user.id, place_id: p.id, place: p, list_name: listName } : { user_id: user.id, place_id: p.id, place: p })), { onConflict: listName ? "user_id,place_id,list_name" : "user_id,place_id", ignoreDuplicates: true }); } catch {}
           }
+          // In-flight merge: re-read the store AFTER the awaits so a toggle made
+          // during them survives (added) or stays gone (removed).
+          let cur = {}; try { cur = JSON.parse(localStorage.getItem(storeKey) || "{}") || {}; } catch {}
+          const mergedIds = mergeSinceSnapshot(Object.keys(local), rec.keep, Object.keys(cur));
           const next = {};
-          rec.keep.forEach((id, i) => { const entry = local[id] || (remote[id] ? { place: remote[id], ts: Date.now() - i } : null); if (entry) next[id] = entry; });
+          mergedIds.forEach((id, i) => { const entry = cur[id] || local[id] || (remote[id] ? { place: remote[id], ts: Date.now() - i } : null); if (entry) next[id] = entry; });
           try { setLocal(storeKey, JSON.stringify(next)); setLocal(baseKey, JSON.stringify(rec.keep)); } catch {}
           if (!cancelled) {
             if (setItems) setItems(next);
             if (setBool) {
-              const boolMap = Object.fromEntries(rec.keep.map((id) => [id, true]));
+              const boolMap = Object.fromEntries(mergedIds.map((id) => [id, true]));
               setBool(boolMap);
               if (boolKey) { try { setLocal(boolKey, JSON.stringify(boolMap)); } catch {} }
             }
