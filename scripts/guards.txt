@@ -1160,6 +1160,7 @@ node scripts/check-events-rail-renders.mjs
 node scripts/check-no-dead-end-pages.mjs
 node scripts/check-known-for-tiers.mjs
 node scripts/check-owner-bump.mjs
+node scripts/test-review-depth-deduction.mjs
 node scripts/check-ingest-never-blanks.mjs
 node scripts/check-owner-batch-schema.mjs
 node scripts/check-rail-card-width-is-global.mjs
