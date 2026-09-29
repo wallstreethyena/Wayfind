@@ -139,6 +139,7 @@ node scripts/test-sparse-category.mjs
 # breakfast-only primary as Lunch #1 when lunch library exists.
 node scripts/test-browse-library.mjs
 node scripts/test-sync-reconcile.mjs
+node scripts/test-sync-inflight-merge.mjs
 node scripts/test-site-time.mjs
 node scripts/check-sitetime.mjs
 node scripts/test-classifier-veto.mjs
