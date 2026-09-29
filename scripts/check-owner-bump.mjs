@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 // scripts/check-owner-bump.mjs — THE GOD BUMP: BANDED, EVERYWHERE, AND VISIBLE.
 //
-// Size is banded from the PRE-BUMP shown score (owner, 2026-09-14):
-//   ≤ 8.0  → +1.5  (7.5 → 9.0, 8.0 → 9.5)
-//   8.1–9.0 → +0.6 (8.1 → 8.7, 9.0 → 9.6)
-//   > 9.0  → +0.2  (9.2 → 9.4)
-// The old rule was a flat +0.7 (8.0 → 8.7, 8.1 → 8.8). Mechanism unchanged.
+// Size is banded from the PRE-BUMP shown score (owner, 2026-09-28):
+//   ≥ 9.0    → +0.2  (9.0 → 9.2, 9.4 → 9.6)
+//   8.0–8.9  → +0.7  (8.0 → 8.7, 8.9 → 9.6)
+//   < 8.0    → +1.5  (7.9 → 9.4, 7.5 → 9.0)
+// Before: ≤8.0 +1.5 / 8.1–9.0 +0.6 / >9.0 +0.2 (2026-09-14); before that a
+// flat +0.7. Mechanism unchanged.
 //
 // He asked for the guard by name, and this is it. Three properties:
 //
@@ -37,7 +38,7 @@
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { withOwnerBump, isOwnerPick, stampOwnerPick, ownerBumpScoreRaw, ownerBumpPoints, OWNER_BUMP_LEQ_80, OWNER_BUMP_81_TO_90, OWNER_BUMP_ABOVE_90, SCORE_CEILING } from "../lib/ownerBump.js";
+import { withOwnerBump, isOwnerPick, stampOwnerPick, ownerBumpScoreRaw, ownerBumpPoints, OWNER_BUMP_BELOW_80, OWNER_BUMP_80_TO_89, OWNER_BUMP_90_UP, SCORE_CEILING } from "../lib/ownerBump.js";
 import { isOwnerEmail, isOwnerSession, ownerUserIds, OWNER_ACCOUNT_EMAIL } from "../lib/ownerIdentity.js";
 import { memberDelta } from "../lib/ranking.js";
 import { toDisplayScore } from "../lib/score.js";
@@ -50,15 +51,15 @@ const strip = (src) => src
   .replace(/(^|[^:"'`])\/\/[^\n]*/g, "$1");
 
 // ── 1. THE ARITHMETIC THE OWNER ASKED FOR, ON THE BADGE ─────────────────────
-ok(OWNER_BUMP_LEQ_80 === 15 && OWNER_BUMP_81_TO_90 === 6 && OWNER_BUMP_ABOVE_90 === 2,
-  `the bands are 15 / 6 / 2 internal (got ${OWNER_BUMP_LEQ_80} / ${OWNER_BUMP_81_TO_90} / ${OWNER_BUMP_ABOVE_90}) — Wayfind stores 0-100 and shows /10`);
-ok(ownerBumpPoints(80) === 15 && ownerBumpPoints(81) === 6 && ownerBumpPoints(90) === 6 && ownerBumpPoints(91) === 2,
-  "band choice is from the pre-bump shown score: ≤8.0 → 15, 8.1–9.0 → 6, >9.0 → 2");
+ok(OWNER_BUMP_BELOW_80 === 15 && OWNER_BUMP_80_TO_89 === 7 && OWNER_BUMP_90_UP === 2,
+  `the bands are 15 / 7 / 2 internal (got ${OWNER_BUMP_BELOW_80} / ${OWNER_BUMP_80_TO_89} / ${OWNER_BUMP_90_UP}) — Wayfind stores 0-100 and shows /10`);
+ok(ownerBumpPoints(79) === 15 && ownerBumpPoints(80) === 7 && ownerBumpPoints(89) === 7 && ownerBumpPoints(90) === 2 && ownerBumpPoints(91) === 2,
+  "band choice is from the pre-bump shown score: <8.0 → 15, 8.0–8.9 → 7, ≥9.0 → 2 (the 8.0 and 9.0 edges are exact)");
 ok(toDisplayScore(withOwnerBump(80, false)) === 8,
   "…and an 8.0 the owner has NOT liked is still an 8.0");
 
 // His examples, executed — not restated as comments.
-for (const [base, want] of [[75, 9.0], [80, 9.5], [81, 8.7], [90, 9.6], [92, 9.4]]) {
+for (const [base, want] of [[90, 9.2], [80, 8.7], [79, 9.4], [75, 9.0], [89, 9.6], [94, 9.6]]) {
   ok(toDisplayScore(withOwnerBump(base, true)) === want,
     `${toDisplayScore(base)} liked → ${want} (got ${toDisplayScore(withOwnerBump(base, true))})`);
 }
@@ -176,14 +177,14 @@ ok(isOwnerPick(null) === false && isOwnerPick({}) === false, "total over garbage
   const d = memberDelta({ likes: 50 });
   ok(d === 1.2, `owner-weighted likes produce memberDelta ${d} (the +0.12 we must NOT stack)`);
   const liked = stampOwnerPick({ id: "x", wfScore: 81, _members: { authors: 0, warnAuthors: 0 } }, true);
-  ok(liked.wfScore === 87 && toDisplayScore(liked.wfScore) === 8.7,
-    `8.1 becomes 8.7 on the badge after stampOwnerPick (got ${toDisplayScore(liked.wfScore)}) — +0.6 only, not +0.6+${d / 10}`);
-  ok(liked.wfScore !== 81 + d + 6,
+  ok(liked.wfScore === 88 && toDisplayScore(liked.wfScore) === 8.8,
+    `8.1 becomes 8.8 on the badge after stampOwnerPick (got ${toDisplayScore(liked.wfScore)}) — +0.7 only, not +0.7+${d / 10}`);
+  ok(liked.wfScore !== 81 + d + 7,
     "the displayed bump is not raw + memberDelta + band");
   ok(liked._members.ownerPick === true, "…and the same stamp sets ownerPick so the mark travels with the number");
   const likedTwice = stampOwnerPick(liked, true);
-  ok(likedTwice.wfScore === 87,
-    `stamping twice does not stack (got ${likedTwice.wfScore}) — uses _wfScoreRaw, not the already-bumped 8.7`);
+  ok(likedTwice.wfScore === 88,
+    `stamping twice does not stack (got ${likedTwice.wfScore}) — uses _wfScoreRaw, not the already-bumped 8.8`);
   const unliked = stampOwnerPick(likedTwice, false);
   ok(unliked.wfScore === 81 && unliked._members.ownerPick === false,
     "unlike restores the pre-bump number and clears the mark");
@@ -199,9 +200,9 @@ ok(isOwnerPick(null) === false && isOwnerPick({}) === false, "total over garbage
     "…and the non-owner path does not mint that computed score (ranking stays honest)");
 
   // Already-bumped number must not pick a smaller band on the next like.
-  const low = stampOwnerPick({ id: "lo", wfScore: 80 }, true);
-  ok(low.wfScore === 95 && low._wfScoreRaw === 80, "8.0 liked → 9.5 and remembers raw 80");
-  ok(stampOwnerPick(low, true).wfScore === 95, "liking the 9.5 again does not drop into the +0.2 band");
+  const low = stampOwnerPick({ id: "lo", wfScore: 79 }, true);
+  ok(low.wfScore === 94 && low._wfScoreRaw === 79, "7.9 liked → 9.4 and remembers raw 79");
+  ok(stampOwnerPick(low, true).wfScore === 94, "liking the 9.4 again does not drop into the +0.2 band");
 
   const detail = strip(readFileSync(join(ROOT, "app/components/sheets/Detail.js"), "utf8"));
   ok(/<PlaceScoreChip p=\{detail\}/.test(detail),
@@ -212,5 +213,5 @@ ok(isOwnerPick(null) === false && isOwnerPick({}) === false, "total over garbage
     "the detail thumbs-up fills when liked — the owner can see the like registered");
 }
 
-console.log(`\ncheck-owner-bump: ${fail ? "FAIL" : "OK"} — ${pass} assertions; 7.5→9.0, 8.0→9.5, 8.1→8.7, 9.0→9.6, 9.2→9.4 EXECUTED; unlike restores raw; like twice still one bump; stampOwnerPick is idempotent; sessionOwner door works; client has no hardcoded identity; detail sheet shows the score + like state; null stays null.`);
+console.log(`\ncheck-owner-bump: ${fail ? "FAIL" : "OK"} — ${pass} assertions; 9.0→9.2, 8.0→8.7, 7.9→9.4, 7.5→9.0, 8.9→9.6 EXECUTED; unlike restores raw; like twice still one bump; stampOwnerPick is idempotent; sessionOwner door works; client has no hardcoded identity; detail sheet shows the score + like state; null stays null.`);
 process.exit(fail ? 1 : 0);
