@@ -3,6 +3,7 @@ import { Component, useEffect, useMemo, useRef, useState } from "react";
 import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, distMeters, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces, normalizeSearchPlace, wayfindScore } from "../lib/google";
 import { normName, betterPlace, dedupePlaces } from "../lib/placeDedupe";
 import { comparatorFor, sortPlacesBy, nearestBranch } from "../lib/sortModes";
+import { openBrowseHistory } from "../lib/browseHistory";
 import { localCitySuggestions, createSearchAttempt } from "../lib/searchExperience.js";
 import { mergeHealedPlacePhotos } from "../lib/detailHero";
 import { RON_DUPRAT_TOP7, chefHookCard, chefPickPlaces } from "../lib/chefPicks";
@@ -8329,6 +8330,26 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     return () => window.removeEventListener("popstate", onPop);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!detail]);
+
+  // 2026-09-28 (owner: "the navigation of it is kind of weird"): the phone's
+  // Back button closes an open category instead of leaving Wayfind.
+  // The tab row's pressed tab + sub-tray (navOpenCat) is separate state from
+  // the open category. Every close path — in-app ‹ Back, the Home tab, the
+  // phone's Back — must release it too, or the tab stays highlighted and the
+  // next tap on it reads as "deselect": tapping Food after Back did nothing
+  // (verified in a real browser, 2026-09-28).
+  useEffect(() => { if (!browseCat) setNavOpenCat(null); }, [browseCat]);
+  const browseOpenRef = useRef(false);
+  browseOpenRef.current = !!browseCat;
+  // lib/browseHistory.js holds the three rules (one entry per visit; Back
+  // under a detail sheet keeps the category; in-app close steps over our
+  // entry) and is exercised against a simulated history stack by
+  // scripts/test-browse-back.mjs.
+  useEffect(() => {
+    if (!browseCat) return undefined;
+    return openBrowseHistory(window, { isOpen: () => browseOpenRef.current, close: () => closeBrowse() });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [!!browseCat]);
 
   // v6.93 — same back-button/swipe-back close behavior for the Social Media
   // Find sheet as the detail sheet above.
