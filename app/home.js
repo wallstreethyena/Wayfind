@@ -8292,6 +8292,51 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!detail]);
 
+  // 2026-09-28 (owner: "the navigation of it is kind of weird"). Opening a
+  // category (Food, Nightlife…) pushed NO history entry, so the phone's Back
+  // button left Wayfind entirely — reproduced on production: Home → Food →
+  // Back landed on the previous site. Same contract as the detail sheet
+  // above, with two differences, both locked by scripts/test-browse-back.mjs:
+  //   1. A detail sheet can sit ON TOP of a category, and every popstate
+  //      listener fires on every Back. So Back only closes the category when
+  //      the entry it lands on is no longer a browse entry.
+  //   2. The category also closes from in-app controls (‹ Back, the Home
+  //      tab). When that happens while our entry is on top, we step back over
+  //      it, so the next Back press is never a dead one.
+  // No entry is pushed when we are already standing on a browse entry — that
+  // is a Back/Forward restore (applyPosition), not a new visit.
+  // The tab row's pressed tab + sub-tray (navOpenCat) is separate state from
+  // the open category. Every close path — in-app ‹ Back, the Home tab, the
+  // phone's Back — must release it too, or the tab stays highlighted and the
+  // next tap on it reads as "deselect": tapping Food after Back did nothing
+  // (verified in a real browser, 2026-09-28).
+  useEffect(() => { if (!browseCat) setNavOpenCat(null); }, [browseCat]);
+  const browseOpenRef = useRef(false);
+  const browsePoppedRef = useRef(false);
+  browseOpenRef.current = !!browseCat;
+  useEffect(() => {
+    if (!browseCat) return undefined;
+    try { if (!(window.history.state && window.history.state.wf === "browse")) window.history.pushState({ wf: "browse" }, ""); } catch (e) {}
+    const onPop = () => {
+      if (window.history.state && window.history.state.wf === "browse") return;
+      // Let the position restore (applyPosition, above) settle first; it may
+      // already have closed the category from the saved snapshot.
+      setTimeout(() => {
+        if (!browseOpenRef.current) return;
+        browsePoppedRef.current = true;
+        closeBrowse();
+      }, 0);
+    };
+    window.addEventListener("popstate", onPop);
+    return () => {
+      window.removeEventListener("popstate", onPop);
+      const viaBack = browsePoppedRef.current;
+      browsePoppedRef.current = false;
+      try { if (!viaBack && window.history.state && window.history.state.wf === "browse") window.history.back(); } catch (e) {}
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [!!browseCat]);
+
   // v6.93 — same back-button/swipe-back close behavior for the Social Media
   // Find sheet as the detail sheet above.
   useEffect(() => {
