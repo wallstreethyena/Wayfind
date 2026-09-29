@@ -735,5 +735,13 @@
       "detail": "A regression could let the promotion allowance widen other Google SKUs or user-facing Details calls past their free tiers, turning a bounded owner-approved spend into an open bill."
     },
     "owner": "Revenue QA"
+  },
+  "scripts/test-spend-tests-prod-env.mjs": {
+    "protects": "Every spend-gate test is re-executed with the production paid switches ON (WAYFIND_PROMOTE_PAID, PROMOTE_DETAILS_MONTH_CAP, WAYFIND_PHOTOS_PAID, GOOGLE_PHOTOS_MONTH_CAP) and must exit 0, so a test that reads those switches ambiently cannot pass CI and then fail the Vercel prebuild.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "Without it, a green CI can hide a red production prebuild: 2026-09-29 #1538 blocked every production deploy of main because two spend tests read the paid switches from Vercel's build env."
+    },
+    "owner": "Revenue QA"
   }
 }

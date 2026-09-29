@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 746,
-    "totalRegistryEntries": 747,
-    "guardsTxtLineCount": 744,
-    "guardsTxtReachedFileCount": 739,
-    "criticalCount": 88,
+    "totalOnDiskGuardFiles": 747,
+    "totalRegistryEntries": 748,
+    "guardsTxtLineCount": 745,
+    "guardsTxtReachedFileCount": 740,
+    "criticalCount": 89,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 519,
+      "CALL": 520,
       "RENDER": 87,
       "STRUCTURAL": 140,
       "OTHER": 1
@@ -16685,6 +16685,33 @@
       "blastRadius": {
         "category": "revenue",
         "detail": "A regression can recreate the exposed-key cost incident by allowing anonymous photo, search, autocomplete, or geocoding requests to reach Google after the monthly ceiling is exhausted."
+      },
+      "owner": "Revenue QA"
+    },
+    {
+      "file": "scripts/test-spend-tests-prod-env.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 0,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-filename:spend"
+      ],
+      "protects": "Every spend-gate test is re-executed with the production paid switches ON (WAYFIND_PROMOTE_PAID, PROMOTE_DETAILS_MONTH_CAP, WAYFIND_PHOTOS_PAID, GOOGLE_PHOTOS_MONTH_CAP) and must exit 0, so a test that reads those switches ambiently cannot pass CI and then fail the Vercel prebuild.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "Without it, a green CI can hide a red production prebuild: 2026-09-29 #1538 blocked every production deploy of main because two spend tests read the paid switches from Vercel's build env."
       },
       "owner": "Revenue QA"
     },
