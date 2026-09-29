@@ -66,6 +66,27 @@ ok(byTopRated({}, {}) === 0 && Number.isFinite(byTopRated({ wfScore: 50 }, {})),
   ok(comparatorFor("rated") === byTopRated, "lib/sortModes: Top rated delegates to the shared byTopRated comparator");
 }
 
+// 2026-09-29 live incident: a row stamped BEFORE trending was attached kept
+// sorting as its stale number while its chip showed the new one.
+{
+  const { displayedWfScore } = await import("../lib/creatorBoost.js");
+  const mk = (name, wfScore, reviews) => ({ id: name, name, wfScore, reviews, distMi: 1.5 });
+  const columbia = mk("Columbia Restaurant", 92, 22179);
+  const rows = [mk("Tiny Bites", 93, 170), mk("Buddys Juice Bar", 93, 127), columbia, mk("Ulele", 92, 11695)];
+  rows.sort(byTopRated); // first sort stamps every row
+  ok(rows.indexOf(columbia) === 2, "control: before trending, Columbia sorts inside the 9.2 group");
+  columbia.trending = true; // lib/trendSignal attaches this AFTER the first sort, on the same object
+  rows.sort(byTopRated);
+  const shown = displayedWfScore(columbia);
+  ok(shown === 98, "control: the chip now shows 9.8 (+0.6 trending) — got " + shown);
+  ok(rows[0] === columbia, "a stamp taken before trending was attached is re-derived: Columbia (shows 9.8) leads the 9.3s");
+  ok(columbia.governed_score === shown, "shown == sorted after re-derivation");
+  ok(!Object.keys(columbia).includes("__gsInputs"), "the fingerprint never leaks into spreads/JSON (non-enumerable)");
+  const server = { id: "s", name: "Server stamped", wfScore: 80, reviews: 5, governed_score: 99 };
+  [server, mk("x", 95, 1)].sort(byTopRated);
+  ok(server.governed_score === 99, "an upstream (server) stamp without a fingerprint stays authoritative");
+}
+
 // ── anti-recurrence: no divergent inline rated-sort survives ──────────────────
 const files = ["app/home.js", "app/components/sheets/HookDetail.js", "app/components/screens/Experience.js"];
 for (const f of files) {
