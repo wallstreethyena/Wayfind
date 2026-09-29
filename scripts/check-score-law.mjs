@@ -146,8 +146,22 @@ ok(governedWayfindScore(90, { hasCreatorVideo: true, trending: true, distanceMi:
     { id: "honey", name: "American Honey Creamery", rating: 4.7, reviews: 739, lat: 27.4, lng: -82.6 },
     { id: "ryans", name: "Ryan's Coffee House", rating: 4.9, reviews: 191, lat: 27.4, lng: -82.6, creator_video: true },
   ], floor);
-  ok(shot[0].id === "ryans",
-    "THE 2026-08-08 SCREENSHOT: the row with the creator video (chip 10.0) leads the row without it (chip 9.3) — a 10.0 may never render beneath a 9.3");
+  // Since the review-depth deduction (2026-09-28) Ryan's 191 reviews cost it
+  // −0.3 and Honey's 739 cost −0.1, so this pair now TIES on the chip — which
+  // is lawful, and is why the assertion is on the law (monotonic in the chip,
+  // creator term inside the key) rather than on who happens to lead.
+  const ryans = shot.find((r) => r.id === "ryans");
+  const ryansNoVideo = rankRows([
+    { id: "honey", name: "American Honey Creamery", rating: 4.7, reviews: 739, lat: 27.4, lng: -82.6 },
+    { id: "ryans", name: "Ryan's Coffee House", rating: 4.9, reviews: 191, lat: 27.4, lng: -82.6 },
+  ], floor).find((r) => r.id === "ryans");
+  ok(shot.length === 2 && ryans && ryansNoVideo && ryans.governed_score === ryansNoVideo.governed_score + 2,
+    `THE 2026-08-08 SCREENSHOT: the creator video is INSIDE the sort key — Ryan's scores exactly +2 over its no-video self (${ryans && ryans.governed_score} vs ${ryansNoVideo && ryansNoVideo.governed_score})`);
+  ok(shot.length === 2 && shot[0].governed_score >= shot[1].governed_score,
+    `…and the pair is non-increasing in the chip it paints (${shot.map((r) => `${r.id}=${r.governed_score}`).join(", ")}) — a higher number may never render beneath a lower one`);
+  const vid = rankRows([twin("novid"), twin("vid", { creator_video: true })], floor);
+  ok(vid.length === 2 && vid[0].id === "vid",
+    "…and between otherwise identical twins, the one with the creator video leads");
 
   // Monotonicity in the stamped number, over a set that exercises all three
   // terms at once. This is the assertion that generalises past the fixture.

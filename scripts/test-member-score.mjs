@@ -40,8 +40,8 @@ ok(/stampOwnerPick\([\s\S]{0,80}g\.ownerPick === true\)/.test(home),
 // EXECUTED, not read: the bump layer's own null behaviour.
 ok(withOwnerBump(null, true) === null,
   "the god bump on a null base stays null — a flat +15 on an unrated place would be a 1.5/10 badge, which is the same defect as the 0.1/10 this file was written for");
-ok(withOwnerBump(82, true) === 88 && toDisplayScore(withOwnerBump(82, true)) === 8.8,
-  "…and on a real 8.2 base it is exactly +0.6 on the badge (mid band)");
+ok(withOwnerBump(82, true) === 89 && toDisplayScore(withOwnerBump(82, true)) === 8.9,
+  "…and on a real 8.2 base it is exactly +0.7 on the badge (8.0–8.9 band)");
 ok(!/wfScore: \+\(\(\(p\.wfScore \|\| 0\) \+ d\)/.test(home),
   "the old (p.wfScore || 0) coercion (red 0.1/10 source) is removed");
 
