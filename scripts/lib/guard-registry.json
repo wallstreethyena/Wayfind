@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 758,
-    "totalRegistryEntries": 759,
-    "guardsTxtLineCount": 757,
-    "guardsTxtReachedFileCount": 751,
+    "totalOnDiskGuardFiles": 759,
+    "totalRegistryEntries": 760,
+    "guardsTxtLineCount": 758,
+    "guardsTxtReachedFileCount": 752,
     "criticalCount": 91,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 526,
-      "RENDER": 91,
+      "RENDER": 92,
       "STRUCTURAL": 141,
       "OTHER": 1
     }
@@ -10675,6 +10675,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 82,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-chunk-recovery.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 64,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
