@@ -3,9 +3,9 @@
   "verifiedAt": "2026-09-30",
   "rule": "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, CC BY and CC BY-SA (2.0 to 4.0); NC and ND never pass.",
   "summary": {
-    "files": 211,
-    "usages": 225,
-    "verified": 211,
+    "files": 210,
+    "usages": 224,
+    "verified": 210,
     "needsReview": [],
     "authorDiffers": [],
     "byLicence": {
@@ -15,7 +15,7 @@
       "CC BY 2.0": 36,
       "CC0 1.0 Universal": 18,
       "CC BY-SA 3.0": 51,
-      "CC BY-SA 2.0": 16,
+      "CC BY-SA 2.0": 15,
       "Unsplash License": 3
     },
     "replacementCandidates": [
@@ -2767,37 +2767,6 @@
         "creditHref": "https://commons.wikimedia.org/wiki/File:Bradenton_Riverwalk_Tower_Plaza.jpg",
         "license": "CC BY-SA 4.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-09-30"
-    },
-    {
-      "src": "/guides/picks/things-to-do-in-cortez-florida/star-fish-company-dock-dining.webp",
-      "usedBy": [
-        {
-          "slug": "things-to-do-in-cortez-florida",
-          "role": "pick",
-          "pick": "Star Fish Company"
-        }
-      ],
-      "source": {
-        "kind": "flickr",
-        "url": "https://www.flickr.com/photos/97651299@N00/32449700360",
-        "title": "Cortez Scenic Spot",
-        "author": "Carol VanHook",
-        "displayName": "Carol VanHook",
-        "dateTaken": "2017-02-10 18:25:44",
-        "licence": "CC BY-SA 2.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
-      },
-      "wayfind": {
-        "credit": "Carol VanHook",
-        "creditHref": "https://www.flickr.com/photos/97651299@N00/32449700360",
-        "license": "CC BY-SA 2.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
         "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
       },
       "commercialUse": true,

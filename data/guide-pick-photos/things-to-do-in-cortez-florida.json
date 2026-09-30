@@ -1,27 +1,6 @@
 {
   "slug": "things-to-do-in-cortez-florida",
-  "picks": {
-    "Star Fish Company": {
-      "src": "/guides/picks/things-to-do-in-cortez-florida/star-fish-company-dock-dining.webp",
-      "width": 1400,
-      "height": 934,
-      "alt": "Waterfront dining deck at Star Fish Company in Cortez with picnic tables under string lights, a Starfish Co. sign on the building, and small boats tied along the dock",
-      "caption": "The dockside dining deck at Star Fish Company in Cortez, photographed in February 2017.",
-      "credit": "Carol VanHook",
-      "creditHref": "https://www.flickr.com/photos/97651299@N00/32449700360",
-      "license": "CC BY-SA 2.0",
-      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
-      "sourceUrl": "https://www.flickr.com/photos/97651299@N00/32449700360",
-      "author": "Carol VanHook",
-      "position": "50% 55%",
-      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
-      "sourceKind": "flickr",
-      "placeId": null,
-      "verification": "Flickr photo 32449700360 by Carol VanHook, titled Cortez Scenic Spot, description reads Starfish Co.; taken 2017-02-10. Viewed the full image: the STARFISH CO. lettering is visible on the building behind the deck, alongside the working-waterfront docks and boats that match the Cortez location. Diners at the tables are incidental and mid-distance, not the subject; no children in focus. Live Flickr licence checked: CC BY-SA 2.0.",
-      "sameAsCardPhoto": false,
-      "reviewedAt": "2026-09-29"
-    }
-  },
+  "picks": {},
   "gaps": {
     "FISH Preserve": {
       "reason": "no-verified-source",
@@ -34,6 +13,12 @@
       "placeId": null,
       "needsPermissionFrom": null,
       "note": "Searched Commons (Cortez categories and geosearch), Openverse and Flickr CC search for Swordfish Grill / Swordfish Grill Cortez: zero results for the venue; only generic grilled-swordfish food photos from other restaurants."
+    },
+    "Star Fish Company": {
+      "reason": "people-privacy",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "Only licensed candidate (Flickr 32449700360, Carol VanHook, CC BY-SA 2.0, Feb 2017) shows the STARFISH CO. building and dock, but about six diners sit mid-frame directly beneath the sign with two faces recognizable at full size. Crops were tested 2026-09-30: every crop that keeps the sign also keeps the diners, and the only diner-free crop is mostly sky and trees with the sign cut off at the bottom edge. Owner decision: no photo with recognizable diners, no generic substitute."
     }
   }
 }

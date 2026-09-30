@@ -191,10 +191,6 @@ Each photo uses the license named below; images may be resized, cropped and conv
 - `/guides/picks/robinson-preserve-bradenton/robinson-preserve-boardwalk-trail.webp` — things-to-do-in-bradenton-florida: Robinson Preserve. [Mark Hewitt](https://commons.wikimedia.org/wiki/File:Robinson_Perserve_-_panoramio.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/things-to-do-in-bradenton-florida/bishop-museum-entrance.webp` — things-to-do-in-bradenton-florida: The Bishop Museum of Science and Nature. [Ebyabe](https://commons.wikimedia.org/wiki/File:Bradenton_FL_South_Florida_Museum01.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
-## things-to-do-in-cortez-florida
-
-- `/guides/picks/things-to-do-in-cortez-florida/star-fish-company-dock-dining.webp` — things-to-do-in-cortez-florida: Star Fish Company. [Carol VanHook](https://www.flickr.com/photos/97651299@N00/32449700360); [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Adaptation (resized, cropped, WebP) released under the same licence.
-
 ## things-to-do-in-ellenton-florida
 
 - `/guides/picks/things-to-do-in-ellenton-florida/gamble-mansion-front.webp` — things-to-do-in-ellenton-florida: Gamble Plantation Historic State Park. [Ebyabe](https://commons.wikimedia.org/wiki/File:Gamble_Plantation_SP_mansion01.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
