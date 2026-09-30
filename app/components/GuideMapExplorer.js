@@ -280,6 +280,8 @@ export default function GuideMapExplorer({
                     }
                   }}
                   photo={photo}
+                  photoAttr={spot.photoAttr || null}
+                  photoAttrHref={spot.photoAttrHref || null}
                   place={place}
                   title={spot.name}
                   eyebrow={GROUP_LABEL[Array.isArray(spot.groups) ? spot.groups[0] : active] || "Guide pick"}

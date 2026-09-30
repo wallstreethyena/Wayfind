@@ -112,12 +112,14 @@ const ROUTE = read("app/api/photo/route.js");
 {
   ok(/const \[imgFailed, setImgFailed\] = useState\(""\);/.test(RAIL),
     "RailCard tracks image failure keyed to the src string (useState(\"\")), not a bare boolean");
-  ok(/photo && imgFailed !== photo/.test(RAIL),
+  // 2026-09-30: the rendered src is `shownPhoto` = photoSrcFilter(photo),
+  // which is exactly `photo` outside a guide's PhotoPolicyProvider.
+  ok(/const shownPhoto = photoSrcFilter\(photo\);/.test(RAIL) && /shownPhoto && imgFailed !== shownPhoto/.test(RAIL),
     "RailCard's img-vs-monogram gate reads the error state, not only whether `photo` is truthy");
-  ok(/setImgFailed\(photo\)/.test(RAIL),
+  ok(/setImgFailed\(shownPhoto\)/.test(RAIL),
     "RailCard's onError reaches the state setter on a failure with no (or an exhausted) fallback");
   ok(/ownedPlacePhotoSrc\(place\.id, 640\)/.test(RAIL)
-    && /resolvedPhotoFallback = photoFallback \|\|/.test(RAIL)
+    && /resolvedPhotoFallback = (?:photoSrcFilter\(photoFallback\)|photoFallback) \|\|/.test(RAIL)
     && /data-fallback=\{resolvedPhotoFallback\}/.test(RAIL),
     "RailCard retries the exact same place id before using the monogram; caller event fallbacks still win");
   ok(!/style\.visibility\s*=\s*"hidden"/.test(RAIL),
@@ -128,7 +130,7 @@ const ROUTE = read("app/api/photo/route.js");
 {
   ok(/const \[imgFailed, setImgFailed\] = useState\(""\);/.test(ICONIC),
     "IconicPlaceCard tracks image failure keyed to the src string");
-  ok(/const primaryPhoto = photoUrl\(place\)/.test(ICONIC)
+  ok(/const primaryPhoto = (?:photoSrcFilter\()?photoUrl\(place\)/.test(ICONIC)
     && /primaryPhoto && imgFailed !== primaryPhoto/.test(ICONIC),
     "IconicPlaceCard resolves one primary source and its img-vs-monogram gate reads keyed error state");
   ok(/ownedPlacePhotoSrc\(place\.place_id \|\| place\.id, 640\)/.test(ICONIC)
