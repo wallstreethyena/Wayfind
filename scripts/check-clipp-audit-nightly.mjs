@@ -11,7 +11,7 @@
 //   build    deployability only — check-guide-deal-cards judges Clipp cards at a
 //            pinned date (see that guard);
 //   runtime  a lapsed fuse still HIDES its cards (couponIsLive, unchanged);
-//   nightly  app/api/cron/clipp-audit reads the REAL date, pulses succeeded=0
+//   nightly  app/api/cron/certificate-audit reads the REAL date, pulses succeeded=0
 //            while any fuse is stale, and job-watch emails until a human renews
 //            after a real-browser check.
 //
@@ -28,7 +28,7 @@ const read = (p) => readFileSync(new URL("../" + p, import.meta.url), "utf8");
 const code = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
 const dayAfter = (iso) => new Date(Date.parse(iso + "T12:00:00Z") + 86400000).toISOString().slice(0, 10);
 
-const route = await import("../app/api/cron/clipp-audit/route.js");
+const route = await import("../app/api/cron/certificate-audit/route.js");
 const { clippAuditPulseRow } = route;
 ok(typeof clippAuditPulseRow === "function" && typeof route.GET === "function", "route exports GET and clippAuditPulseRow");
 
@@ -47,7 +47,7 @@ ok(!fresh.city.stale && !fresh.merchant.stale && !fresh.reverified.stale, `fresh
 ok(fresh.city.hidden === 0 && fresh.merchant.hidden === 0 && fresh.reverified.hidden === 0, "fresh: no Clipp card hidden — merchant and city cards may display");
 ok(fresh.merchant.visible === fresh.merchant.total && fresh.city.visible === fresh.city.total, "fresh: every counted card is visible");
 const freshPulse = clippAuditPulseRow(fresh);
-ok(freshPulse.succeeded === 1 && freshPulse.failed === 0 && freshPulse.attempted === 1 && /^clean:/.test(freshPulse.note), `fresh: nightly is clean (${JSON.stringify(freshPulse)})`);
+ok(freshPulse.succeeded === 1 && freshPulse.failed === 0 && freshPulse.attempted === 1 && /^clean Clipp audit:/.test(freshPulse.note), `fresh: nightly is clean (${JSON.stringify(freshPulse)})`);
 
 // ── STATE 2: EXPIRED — the day after the merchant fuse ─────────────────────
 // Judged against the merchant fuse ALONE (city may still be inside its window,
@@ -58,7 +58,7 @@ ok(lapsed.merchant.stale === true, `expired ${lapsedDay}: merchant fuse reports 
 ok(lapsed.merchant.visible === 0 && lapsed.merchant.hidden === lapsed.merchant.total, "expired: EVERY merchant card is hidden (fail closed)");
 const lapsedPulse = clippAuditPulseRow(lapsed);
 ok(lapsedPulse.succeeded === 0 && lapsedPulse.failed >= 1, `expired: nightly reports the problem (succeeded=0) so job-watch pages (${JSON.stringify(lapsedPulse)})`);
-ok(/^stale:/.test(lapsedPulse.note) && /merchant/.test(lapsedPulse.note) && lapsedPulse.note.includes(MERCHANT) && /real browser/.test(lapsedPulse.note), "expired: the note names the merchant fuse, its date, and the human check required");
+ok(/^stale Clipp audit:/.test(lapsedPulse.note) && /merchant/.test(lapsedPulse.note) && lapsedPulse.note.includes(MERCHANT) && /real browser/.test(lapsedPulse.note), "expired: the note names the merchant fuse, its date, and the human check required");
 ok(lapsedPulse.note.length <= 200, "pulse note fits the 200 char pulse column");
 // The runtime hide is the REAL couponIsLive over the REAL registry, not the counter.
 const merchantCards = COUPONS.filter((c) => /^cpn-/.test(c.id) && c.expires === MERCHANT && c.business !== "Clipp");
@@ -87,7 +87,7 @@ ok(/expires:\s*CLIPP_INDEX_REVERIFIED_IDS\.has\([^)]*\)\s*\?\s*CLIPP_INDEX_REVER
 // showing visibility is a pure function of (today <= that literal).
 const laterDays = [dayAfter(MERCHANT), "2026-12-25", "2027-06-01"];
 ok(laterDays.every((d) => clippAuditStatus(d).merchant.visible === 0), "renewed-only-by-edit: with the literal unchanged, merchant cards stay hidden on every later day");
-const routeSrc = code(read("app/api/cron/clipp-audit/route.js"));
+const routeSrc = code(read("app/api/cron/certificate-audit/route.js"));
 ok(!/writeFile|appendFile|createClient|\.from\(|fetch\(|\.update\(|\.insert\(|\.upsert\(/.test(routeSrc), "the nightly job is read-only: no file write, no database write, no fetch — it can never renew a date");
 ok(!/CLIPP_(?:MERCHANT_)?AUDIT_EXPIRY\s*=/.test(routeSrc), "the nightly job never assigns a fuse");
 ok(clippAuditStatus(MERCHANT).merchant.visible === status.merchant.total && clippAuditStatus(MERCHANT).merchant.stale === false, "on the fuse date itself the cards are still visible (last valid day), matching couponIsLive");
@@ -100,9 +100,9 @@ const PIN = (guard.match(/CLIPP_FIXTURE_TODAY\s*=\s*"(\d{4}-\d{2}-\d{2})"/) || [
 ok(PIN && PIN <= CITY && PIN <= MERCHANT && PIN <= REVERIFIED, `the pin ${PIN} is <= every fuse (${CITY}, ${MERCHANT}, ${REVERIFIED})`);
 
 // ── the nightly path is wired ───────────────────────────────────────────────
-ok(existsSync(new URL("../app/api/cron/clipp-audit/route.js", import.meta.url)), "app/api/cron/clipp-audit exists");
+ok(existsSync(new URL("../app/api/cron/certificate-audit/route.js", import.meta.url)), "app/api/cron/certificate-audit exists");
 const vercel = JSON.parse(read("vercel.json"));
-ok((vercel.crons || []).some((x) => x.path === "/api/cron/clipp-audit" && /^\d+ \d+ \* \* \*$/.test(x.schedule)), "vercel.json schedules clipp-audit daily");
+ok((vercel.crons || []).some((x) => x.path === "/api/cron/certificate-audit" && /^\d+ \d+ \* \* \*$/.test(x.schedule)), "vercel.json schedules certificate-audit daily");
 ok(/recordPulse\(JOB,/.test(routeSrc) && /siteTodayStr\(\)/.test(routeSrc), "the cron pulses through recordPulse (job-watch delivers) against the real venue-local date");
 ok(/CRON_SECRET/.test(routeSrc) && /401/.test(routeSrc), "the cron is CRON_SECRET-gated and fails closed");
 

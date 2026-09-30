@@ -1010,7 +1010,7 @@
       "excludedReason": null,
       "critical": false,
       "criticalReasons": [],
-      "protects": "A stale Clipp audit is a nightly alert, never a deploy blocker, and never a reason to show an unverified offer: the three Clipp fuses (city, merchant, re-verified subset) stay three separate hand-edited literals; a lapsed fuse hides its cards through the real couponIsLive; app/api/cron/clipp-audit reads the real venue-local date, is read-only, and pulses succeeded=0 while any fuse is stale so job-watch emails until a human renews after a real-browser check; check-guide-deal-cards judges Clipp cards at a pinned date <= every fuse.",
+      "protects": "A stale Clipp audit is a nightly alert, never a deploy blocker, and never a reason to show an unverified offer: the three Clipp fuses (city, merchant, re-verified subset) stay three separate hand-edited literals; a lapsed fuse hides its cards through the real couponIsLive; app/api/cron/certificate-audit reads the real venue-local date, is read-only, and pulses succeeded=0 while any fuse is stale so job-watch emails until a human renews after a real-browser check; check-guide-deal-cards judges Clipp cards at a pinned date <= every fuse.",
       "blastRadius": {
         "category": "revenue",
         "detail": "2026-09-28/29: the real-date Clipp expiry read inside check-guide-deal-cards turned the prebuild red on unchanged code and failed every Vercel production build until a date was renewed by hand (#1547) — a two-weekly recurrence. The opposite failure is worse: renewing a date without the real-browser check would put a false verification in the repo and re-show sold-out certificates."
