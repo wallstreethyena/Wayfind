@@ -418,5 +418,65 @@
     "kind": "comments-or-whitespace-only",
     "reason": "Applied 2026-09-23 through the Supabase MCP connector with the long header comment shortened; the executable statements were verified identical to the committed file with comments stripped. Receipt: scripts/migration-apply-log.jsonl.",
     "reviewed_by": "claude.exe (Wayfind lane), owner-requested migration content check 2026-09-23"
+  },
+  {
+    "version": "20260926000735",
+    "name": "prioritize_90plus_promotion",
+    "file": "20260926000735_prioritize_90plus_promotion.sql",
+    "ledger_sha256": "909efe1459670cea2af223107d67a67a9e607721d4ef86d77cbc9e4a230143f7",
+    "file_sha256": "8da75099c30121ddeaf29c2819ae4b3e322c4dee0f8024626ed8b1ae297e1424",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Applied through the Supabase MCP connector without the two-line header comment. Verified 2026-09-29: the committed file with only that leading comment removed hashes byte-identical to the production ledger row, so the executable SQL is identical.",
+    "reviewed_by": "claude (Wayfind lane), migration reconciliation 2026-09-29 (canary red since 2026-09-27); production SQL read via supabase_migrations.schema_migrations, read-only"
+  },
+  {
+    "version": "20260926123010",
+    "name": "scout_90plus_default_floor",
+    "file": "20260926123010_scout_90plus_default_floor.sql",
+    "ledger_sha256": "b9da31d2b1654cf0ae8bd4217e0a7ff25676544c016a204bd2a4bf6dc4b694a3",
+    "file_sha256": "46dcebdfa46ace112acf33af7079891d02544a77988d6756bd79ef3552574679",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Applied without the two-line header comment. Verified 2026-09-29: the committed file with only that leading comment removed hashes byte-identical to the production ledger row, so the executable SQL is identical.",
+    "reviewed_by": "claude (Wayfind lane), migration reconciliation 2026-09-29 (canary red since 2026-09-27); production SQL read via supabase_migrations.schema_migrations, read-only"
+  },
+  {
+    "version": "20260926151424",
+    "name": "wf_photo_at_risk_free_candidate",
+    "file": "20260926152000_wf_photo_at_risk_free_candidate.sql",
+    "ledger_sha256": "2fb090e8bb5eed1df3a8a7d49949dbbc984d390aee934f27cd111e0b98730418",
+    "file_sha256": "bef8981643c5734a167b2e5cbf9561a7455fca93a2fbda9ec0a70a0a1e433351",
+    "kind": "statement-text-differs",
+    "reason": "Superseded, not drift in the live object: production first applied an earlier view definition (no legacy-replay allowance) as 20260926151424, then re-applied the final definition as 20260926151614 wf_photo_at_risk_free_candidate_replay (now committed as its own file, byte-exact). The committed 20260926152000 file is that final definition (verified 2026-09-29: its SQL body hashes identical to the 151614 row) and the live view via pg_get_viewdef matches it. Do NOT align this file to the 151424 text: it sorts after 151614 and would regress the view on a fresh replay.",
+    "reviewed_by": "claude (Wayfind lane), migration reconciliation 2026-09-29 (canary red since 2026-09-27); production SQL read via supabase_migrations.schema_migrations, read-only"
+  },
+  {
+    "version": "20260927100118",
+    "name": "wf_photo_general_free_candidate",
+    "file": "20260927000000_wf_photo_general_free_candidate.sql",
+    "ledger_sha256": "45f8cf4684736b749faf18fa5be5707d11cbdc341bc3c5f1eee1dc2aa45d2abb",
+    "file_sha256": "ae1579333304dfa68474f76b300c91c971f30b1591b41facfbdf513aa3493516",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Applied as a minified single line without the header comment. Verified 2026-09-29: with comments removed and whitespace collapsed the committed statements are identical to the production ledger text, and the live view definition matches.",
+    "reviewed_by": "claude (Wayfind lane), migration reconciliation 2026-09-29 (canary red since 2026-09-27); production SQL read via supabase_migrations.schema_migrations, read-only"
+  },
+  {
+    "version": "20260927122045",
+    "name": "phase3_verified_promotion_first",
+    "file": "20260927121500_phase3_verified_promotion_first.sql",
+    "ledger_sha256": "ff6c4953e46928158ca0ab4a394740f50f72d49599123ce2bf50e1afc2cc9144",
+    "file_sha256": "56cbd08b65066dc58109291374b794fa7ee2455db29e5e66e8906a35359ef6bd",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Applied without one three-line explanatory comment and the trailing newline. Verified 2026-09-29: removing exactly that comment and the final newline from the committed file hashes byte-identical to the production ledger row.",
+    "reviewed_by": "claude (Wayfind lane), migration reconciliation 2026-09-29 (canary red since 2026-09-27); production SQL read via supabase_migrations.schema_migrations, read-only"
+  },
+  {
+    "version": "20260928173008",
+    "name": "wf_promotion_recheck_temp_closed",
+    "file": "20260928170000_wf_promotion_recheck_temp_closed.sql",
+    "ledger_sha256": "791cf3149ca5962b4b33217b0aba7ae6aaba0c3369c4e300b3393ed0c9db2a13",
+    "file_sha256": "3c3c60b152b303e9cb7734bc0d15e6cc58aae8e76e5d166a8faa2952509e8782",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Applied without the long header comment, one inline comment and the trailing newline. Verified 2026-09-29: the committed file from its first statement on, minus that inline comment and the final newline, hashes byte-identical to the production ledger row; cron job wf-promotion-recheck-temp-closed is live at 50 4 * * 1.",
+    "reviewed_by": "claude (Wayfind lane), migration reconciliation 2026-09-29 (canary red since 2026-09-27); production SQL read via supabase_migrations.schema_migrations, read-only"
   }
 ]
