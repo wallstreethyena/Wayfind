@@ -485,6 +485,8 @@ node scripts/check-guide-conversion.mjs
 # name on the same click). Renders the real component, invokes onClick, spies
 # on posthog.capture, and red-proves against origin/main's pre-fix source.
 node scripts/check-guide-cta-single-capture.mjs
+node scripts/test-guide-inline-book.mjs
+node scripts/test-guide-inline-book.mjs --red-prove
 node scripts/test-guide-park-ticket-cta.mjs
 node scripts/check-guide-teasers.mjs
 node scripts/test-guide-editorial-mode.mjs

@@ -759,5 +759,13 @@
       "detail": "Preview deployments and local dev write to the production telemetry table, so without provenance a real production outage and a reviewer opening a Preview URL are indistinguishable. And wf_spend_take records the cap only on a successful grant, so without the ceiling row the value behind a blackout is permanently unrecoverable, as it is for 2026-09-23."
     },
     "owner": "Revenue QA"
+  },
+  "scripts/test-guide-inline-book.mjs": {
+    "protects": "The guide-inline-book-v1 experiment on the Orlando guide: only a link-checked, well-reviewed, priced offer matching the pick can render; the server HTML and control arm are unchanged (SEO); the offer links only to our /api/commerce/go redirect; one tap records exactly one commerce_cta_clicked with experiment + variant.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "A regression would either paint a wrong or low-quality partner product next to an editorial pick, change indexed guide HTML, send a partner link that bypasses our attributed redirect, or double-count commerce clicks and corrupt the experiment's primary metric."
+    },
+    "owner": "Revenue QA"
   }
 }
