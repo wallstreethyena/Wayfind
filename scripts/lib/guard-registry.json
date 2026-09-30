@@ -27,16 +27,16 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 757,
-    "totalRegistryEntries": 758,
-    "guardsTxtLineCount": 756,
-    "guardsTxtReachedFileCount": 750,
+    "totalOnDiskGuardFiles": 758,
+    "totalRegistryEntries": 759,
+    "guardsTxtLineCount": 757,
+    "guardsTxtReachedFileCount": 751,
     "criticalCount": 91,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 526,
       "RENDER": 91,
-      "STRUCTURAL": 140,
+      "STRUCTURAL": 141,
       "OTHER": 1
     }
   },
@@ -3951,6 +3951,28 @@
       },
       "gating": "manual-npm-script-only",
       "excludedReason": "runs in `npm run audit:regression` — asserts deployed response headers, needs a live origin",
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-heartbeat-tolerance.mjs",
+      "npmScript": null,
+      "class": "STRUCTURAL",
+      "hasStructuralOnlyTag": true,
+      "assertionCount": 10,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
       "critical": false,
       "criticalReasons": [],
       "protects": null,

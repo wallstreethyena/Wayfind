@@ -1383,6 +1383,12 @@ node scripts/test-inverse-booking-cta.mjs
 # "billing:"/"quota:"-prefixed dead run after one run, per lib/jobPulse.js)
 # picks it up on its next run.
 node scripts/test-revenue-heartbeat.mjs
+# 2026-09-30 heartbeat-watch paged "photo-monitor OVERDUE (371min vs 240min
+# max)" while photo-monitor was green on every run: GitHub starts the three
+# scheduled monitors with a median gap of ~4h and a worst of 516min. Replays
+# every wf_heartbeat_expected migration and fails if a GitHub-scheduled
+# monitor's tolerance is below that measured worst gap (or missing).
+node scripts/check-heartbeat-tolerance.mjs
 # 2026-09-04 PRODUCTION-LIKE SYNTHETIC USER MONITORING. scripts/run-synthetic-monitor.mjs
 # drives real Chromium against production across 12 named flows (homepage, rails,
 # place-card controls, Today/Night Out/Fall, events, save/share, itinerary, Book
