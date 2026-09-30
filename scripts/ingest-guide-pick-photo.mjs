@@ -106,7 +106,10 @@ async function main() {
   if (o.gap) {
     if (!GAP_REASONS.has(o.gap)) throw new Error(`--gap must be one of ${[...GAP_REASONS].join("/")}`);
     if (!o.note) throw new Error("--note is required for a gap");
-    data.gaps[o.pick] = { reason: o.gap, placeId, needsPermissionFrom: o.needs || null, note: o.note };
+    // Re-recording a gap must not erase who could unblock it; keep the existing
+    // rights-holder lead unless a new one is passed explicitly.
+    const prior = data.gaps[o.pick] || {};
+    data.gaps[o.pick] = { reason: o.gap, placeId, needsPermissionFrom: o.needs && o.needs !== true ? o.needs : (prior.needsPermissionFrom ?? null), note: o.note };
     // A pick is either photographed or a gap, never both; drop a rejected photo and its file.
     const rejected = data.picks[o.pick];
     if (rejected) {
