@@ -29,6 +29,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync, appendFileSync, unl
 import path from "node:path";
 import sharp from "sharp";
 import { GUIDES } from "../lib/guides.js";
+import { GUIDE_HERO_ART } from "../lib/guideHero.js";
 import { UA, allowedLicence, getJson, slugify } from "./find-guide-pick-photo-candidates.mjs";
 import { siteTodayStr } from "../lib/siteTime.js";
 
@@ -114,7 +115,15 @@ async function main() {
     const rejected = data.picks[o.pick];
     if (rejected) {
       delete data.picks[o.pick];
-      const stillUsed = list.some((g) => { try { return Object.values(JSON.parse(readFileSync(`data/guide-pick-photos/${g.slug}.json`, "utf8")).picks || {}).some((e) => e.src === rejected.src && !(g.slug === o.slug)); } catch { return false; } });
+      // Keep the file if anything else still renders it: another pick in ANY
+      // guide (this one included), a data-file hero, or a guideHero.js hero.
+      const heroSrcs = new Set(Object.values(GUIDE_HERO_ART).map((a) => a?.src).filter(Boolean));
+      const stillUsed = heroSrcs.has(rejected.src) || list.some((g) => {
+        try {
+          const d = g.slug === o.slug ? data : JSON.parse(readFileSync(`data/guide-pick-photos/${g.slug}.json`, "utf8"));
+          return d.hero?.src === rejected.src || Object.values(d.picks || {}).some((e) => e.src === rejected.src);
+        } catch { return false; }
+      });
       if (!stillUsed && existsSync("public" + rejected.src)) unlinkSync("public" + rejected.src);
     }
     writeFileSync(dataFile, JSON.stringify(data, null, 2) + "\n");

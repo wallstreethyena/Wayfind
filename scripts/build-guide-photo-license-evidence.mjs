@@ -30,7 +30,9 @@ const TODAY = new Date().toISOString().slice(0, 10);
 // Unsplash has no public licence API, so its rows are verified by hand
 // (source page + downloaded photo). Regenerating must carry those forward, or
 // every run silently demotes them to needs-review; a carried row is kept only
-// while what Wayfind stores and renders is byte-identical to what was reviewed.
+// while the stored credit, credit link, licence, licence URL, modification
+// notice and source URL are unchanged from the reviewed row (the image file
+// itself is not hashed, so replacing it still needs a fresh manual review).
 const PREVIOUS = existsSync(OUT) ? new Map(JSON.parse(readFileSync(OUT, "utf8")).files.map((r) => [r.src, r])) : new Map();
 const REPLACEMENT_CANDIDATES = JSON.parse(readFileSync("data/guide-pick-photos/_reports/replacement-candidates.json", "utf8")).candidates;
 
@@ -138,7 +140,7 @@ for (const f of [...files.values()].sort((a, b) => a.src.localeCompare(b.src))) 
   const s = f.stored;
   if (s.sourceKind === "unsplash") {
     const prev = PREVIOUS.get(f.src);
-    const same = prev && prev.verificationMethod === "manual-source-and-image-review" && prev.status === "verified"
+    const same = existsSync("public" + f.src) && prev && prev.verificationMethod === "manual-source-and-image-review" && prev.status === "verified"
       && ["credit", "creditHref", "license", "licenseUrl", "modificationNotice"].every((k) => prev.wayfind?.[k] === s[k]) && prev.source?.url === s.sourceUrl;
     rows.push(same ? { ...prev, usedBy: f.usages }
       : { src: f.src, usedBy: f.usages, source: { kind: "unsplash", url: s.sourceUrl }, wayfind: { credit: s.credit, creditHref: s.creditHref, license: s.license, licenseUrl: s.licenseUrl, modificationNotice: s.modificationNotice },
