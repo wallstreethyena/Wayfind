@@ -743,5 +743,13 @@
       "detail": "Without it, a green CI can hide a red production prebuild: 2026-09-29 #1538 blocked every production deploy of main because two spend tests read the paid switches from Vercel's build env."
     },
     "owner": "Revenue QA"
+  },
+  "scripts/test-guide-inline-book.mjs": {
+    "protects": "The guide-inline-book-v1 experiment on the Orlando guide: only a link-checked, well-reviewed, priced offer matching the pick can render; the server HTML and control arm are unchanged (SEO); the offer links only to our /api/commerce/go redirect; one tap records exactly one commerce_cta_clicked with experiment + variant.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "A regression would either paint a wrong or low-quality partner product next to an editorial pick, change indexed guide HTML, send a partner link that bypasses our attributed redirect, or double-count commerce clicks and corrupt the experiment's primary metric."
+    },
+    "owner": "Revenue QA"
   }
 }

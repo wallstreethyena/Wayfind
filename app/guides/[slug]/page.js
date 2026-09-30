@@ -41,6 +41,8 @@ import ShareButton from "../../components/ShareButton";
 import { guideDealIds } from "../../../lib/guideDeals";
 import { guideCommerceChrome } from "../../../lib/guideEditorialMode";
 import GuideEmailCapture from "./GuideEmailCapture";
+import GuidePickDecision from "./GuidePickDecision";
+import { inlineBookConfig } from "../../../lib/guideInlineBook";
 import { COUPONS, couponIsLive, couponEndsLabel } from "../../../lib/coupons";
 // Venue-local US Eastern, DST-aware. NEVER new Date().toISOString() — that is UTC
 // and expires a coupon roughly four hours early.
@@ -1037,6 +1039,9 @@ export default async function GuidePage({ params }) {
               ) : null}
               <p style={S.p}>{pick.blurb}</p>
               {pick.tip ? <p className="wf-guide-tip" style={S.tip}>Insider note — {pick.tip}</p> : null}
+              {/* guide-inline-book-v1 (lib/guideInlineBook.js): client-only
+                  treatment; the server HTML and the control arm are unchanged. */}
+              {inlineBookConfig(params.slug, i) ? <GuidePickDecision slug={params.slug} pickIndex={i} /> : null}
               <div className="wf-guide-actions">
                 {pick.placeId ? <a href={guidePlacePath(pick.placeId)} style={{ ...S.btnGhost, marginLeft: 0 }}>Open place</a> : null}
                 {(pick.appQuery !== null) ? <a href={appUrl(pick.appQuery || pick.name, pick)} style={{ ...S.btnGhost, marginLeft: 0 }}>Explore this place</a> : null}
