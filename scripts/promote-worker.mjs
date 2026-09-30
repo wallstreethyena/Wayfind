@@ -36,7 +36,7 @@
 // project 2026-07-16. scripts/check-supabase-key-live.mjs catches that at build
 // time; `vercel env pull .env.local` is the fix.
 import { readFileSync, appendFileSync } from "node:fs";
-import { decidePromotion, dedupeById, PROMOTE_METROS, metrosFromRows } from "../lib/promoteIndex.js";
+import { decidePromotion, dedupeById, partitionSplitVenues, PROMOTE_METROS, metrosFromRows } from "../lib/promoteIndex.js";
 import { clampBatchLimit } from "../lib/promoteThrottle.js";
 import { CORE_DETAILS_MASK, RATING_DETAILS_MASK, PROMOTE_SKU, RATING_SKU, withIndexSignals, hasIndexRating } from "../lib/promoteDetails.js";
 
@@ -259,10 +259,28 @@ while (T.claimed < TOTAL) {
   T.spend += bought * COST_PER;
 
   const promote = results.filter((r) => r.kind === "promote");
-  const { rows } = dedupeById(promote.map((r) => r.row));
+  const { rows: idRows } = dedupeById(promote.map((r) => r.row));
 
+  // One venue, one card — same rule and same reason as the cron route (Siesta
+  // Key Village, 2026-09-29). Twins become terminal rejects; an unreadable
+  // lookup becomes a write error so the batch returns to pending.
+  let rows = idRows;
   let writeError = null;
-  if (rows.length) {
+  if (idRows.length) {
+    try {
+      const part = await partitionSplitVenues(idRows, async (path) => {
+        const r = await fetch(`${SB_URL}/rest/v1/${path}`, { headers: H });
+        if (!r.ok) throw new Error(`split-venue lookup -> ${r.status}: ${(await r.text()).slice(0, 200)}`);
+        return r.json();
+      });
+      rows = part.keep;
+      for (const { row, twin } of part.twins) {
+        const hit = results.find((x) => x.kind === "promote" && x.row === row);
+        if (hit) { hit.kind = "reject"; hit.error = `duplicate venue: same name+metro as ${twin.place_id}, ${twin.meters}m apart`; }
+      }
+    } catch (e) { writeError = String(e.message || e).slice(0, 300); }
+  }
+  if (rows.length && !writeError) {
     try {
       const r = await fetch(`${SB_URL}/rest/v1/wf_inventory`, {
         method: "POST",
