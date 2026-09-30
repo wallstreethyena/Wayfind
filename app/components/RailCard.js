@@ -71,6 +71,7 @@ import CreatorCardMark from "./CreatorCardMark";
 import { couponForPlace } from "../../lib/coupons.js";
 import { normalizePlaceCardHref } from "../../lib/placeCardRoute.js";
 import { ownedPlacePhotoSrc } from "../../lib/placePhoto.js";
+import { usePhotoSrcFilter } from "./photoPolicyContext";
 import { useCardTapIntent } from "./useCardTapIntent.js";
 
 // Same glyphs as IconicPlaceCard's action row, so a thumb is one drawing in
@@ -388,11 +389,16 @@ export default function RailCard({
   // failure of a well-formed ref, not a bad record).
   const [imgFailed, setImgFailed] = useState("");
   const tapIntent = useCardTapIntent();
+  // 2026-09-30 — inside a PhotoPolicyProvider (guides) a Google photo cannot
+  // render here: this card has no room for Google's required visible credit.
+  // Outside it the filter returns every src unchanged.
+  const photoSrcFilter = usePhotoSrcFilter();
+  const shownPhoto = photoSrcFilter(photo);
   // If a stored photo_ref goes stale, retry the SAME venue through the stable
   // place-id resolver before giving up to the monogram. Caller-supplied event
   // fallbacks still win. Internal slugs are refused by ownedPlacePhotoSrc.
-  const samePlacePhoto = place?.id ? ownedPlacePhotoSrc(place.id, 640) : "";
-  const resolvedPhotoFallback = photoFallback || (samePlacePhoto && samePlacePhoto !== photo ? samePlacePhoto : "");
+  const samePlacePhoto = place?.id ? photoSrcFilter(ownedPlacePhotoSrc(place.id, 640)) : "";
+  const resolvedPhotoFallback = photoSrcFilter(photoFallback) || (samePlacePhoto && samePlacePhoto !== shownPhoto ? samePlacePhoto : "");
   if (!title) return null;
   // A wired handler always wins; the store is what an unwired card falls back
   // to, so no surface can ship a thumb that does nothing.
@@ -460,9 +466,9 @@ export default function RailCard({
               which left the fully-sized media box painting nothing. Keyed
               to the ORIGINAL `photo` prop, not the fallback src that just
               replaced it, so this still flips once the fallback also fails. */}
-          {photo && imgFailed !== photo
+          {shownPhoto && imgFailed !== shownPhoto
             ? <img
-                src={photo}
+                src={shownPhoto}
                 data-fallback={resolvedPhotoFallback}
                 alt=""
                 loading={eagerMedia ? "eager" : "lazy"}
@@ -471,7 +477,7 @@ export default function RailCard({
                 onError={(ev) => {
                   const fb = ev.currentTarget.dataset.fallback;
                   if (fb) { ev.currentTarget.dataset.fallback = ""; ev.currentTarget.src = fb; }
-                  else { setImgFailed(photo); }
+                  else { setImgFailed(shownPhoto); }
                 }}
                 style={{ objectFit: "cover" }}
               />
@@ -483,7 +489,7 @@ export default function RailCard({
               rank owns top-left, score owns the card's top-right corner
               (outside this box entirely). Renders only when a caller actually
               passes photoAttr; every existing call site is unaffected. */}
-          {photoAttr
+          {photoAttr && shownPhoto
             ? (photoAttrHref
                 ? <a
                     className="wf-place-card-photo-attr"

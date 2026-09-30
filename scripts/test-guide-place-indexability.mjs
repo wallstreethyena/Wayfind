@@ -41,9 +41,11 @@ const ok = (c, m) => { assert.ok(c, m); pass++; };
 // WAYFIND-HELD text source, never Google alone). Updating the lock here is
 // the intentional case the comment above calls out.
 const placeDataSrc = readFileSync(new URL("../lib/placeData.js", import.meta.url), "utf8");
-const ISINDEXABLE_LINE = "return !!(p && p.durableEligible);";
+// 2026-09-29: the not-public registry (lib/notPublicPlaces.js, exact id) is the
+// only addition; proven functionally by scripts/check-not-public-places.mjs.
+const ISINDEXABLE_LINE = "return !!(p && p.durableEligible && !isNotPublicPlace(p.id));";
 ok(placeDataSrc.includes(ISINDEXABLE_LINE), "isIndexable's exact gate is unchanged (durableEligible) — update ISINDEXABLE_LINE above if this is an intentional change");
-const isIndexable = (p) => !!(p && p.durableEligible); // mirrors the locked line above
+const isIndexable = (p) => !!(p && p.durableEligible); // mirrors the locked line above (no fixture here is a not-public id)
 
 // ── Fixture GUIDES — a tiny, self-contained stand-in so this test never
 // depends on live editorial copy staying a certain length or shape. ─────────

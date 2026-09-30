@@ -14,11 +14,15 @@
 // the beacon — it adds no markup, no metadata and no styling of its own, so
 // every guide page's own <title>/description/OG tags are untouched.
 import CommerceClickBeacon from "../components/CommerceClickBeacon";
+// 2026-09-30 (owner): no Google photo on a guide without its visible credit.
+// The provider is a client island that only carries one boolean; the pages
+// stay server components. See app/components/PhotoPolicy.js.
+import { PhotoPolicyProvider } from "../components/PhotoPolicy";
 
 export default function GuidesLayout({ children }) {
   return (
     <>
-      {children}
+      <PhotoPolicyProvider requireGoogleCredit>{children}</PhotoPolicyProvider>
       <CommerceClickBeacon surface="guide" />
     </>
   );

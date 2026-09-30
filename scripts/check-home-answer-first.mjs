@@ -727,7 +727,11 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
     // `&& imgFailed !== photo` clause between `{photo` and the `?` without
     // loosening what this actually proves: an <img> with src={photo} is
     // still the only thing standing between the gate and the monogram.
-    ok(/\{photo[^?]*\?\s*<img/.test(RC) && /src=\{photo\}/.test(RC) && /wf-place-card-monogram/.test(RC),
+    // 2026-09-30: the rendered src is `shownPhoto`, which is exactly `photo`
+    // outside a PhotoPolicyProvider (and "" for a Google photo inside one, so
+    // a guide falls to the same monogram). The proof is unchanged: nothing but
+    // the caller's resolved photo can reach the <img>.
+    ok(/const shownPhoto = photoSrcFilter\(photo\);/.test(RC) && /\{shownPhoto[^?]*\?\s*<img/.test(RC) && /src=\{shownPhoto\}/.test(RC) && /wf-place-card-monogram/.test(RC),
       "…and RailCard renders only the resolved venue photo, with a branded monogram on a genuine miss");
     ok(/\/api\/photo\?ref=/.test(CF) && /REF_RX\.test\(ref\)/.test(CF),
       "the photo goes through the guarded /api/photo proxy with a shape-checked ref — never a bare Google URL");
