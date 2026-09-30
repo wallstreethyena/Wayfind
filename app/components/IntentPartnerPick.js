@@ -11,6 +11,7 @@ import { clipCouponToWallet } from "../../lib/couponWallet";
 import { C, PlaceScoreChip } from "./kit";
 import { discountDepthBonus, timeOfDayBonus } from "../../lib/experienceNowRank";
 import { siteHourFloat } from "../../lib/nowContext";
+import { usePhotoSrcFilter } from "./photoPolicyContext";
 
 const disclosureVersion = "partner-rail-v2";
 
@@ -63,6 +64,12 @@ export default function IntentPartnerPick({ city, intent, inventory, initialInve
   // used to order anyway (it was empty until its fetch landed).
   const [hour, setHour] = useState(null);
   useEffect(() => { setHour(siteHourFloat()); }, []);
+  // 2026-09-30 — under a PhotoPolicyProvider (guides) a card whose only image
+  // is a Google photo (a network deal's venue photo via /api/photo) is left
+  // out, exactly like any other imageless pick: the card has no room for
+  // Google's required visible credit. Partner-supplied product images are
+  // unaffected.
+  const photoSrcFilter = usePhotoSrcFilter();
   // SELF-SUPPLY (2026-08-02, audit F2). `inventory` is where every pick's IMAGE
   // comes from, and a pick without an image is dropped below — so a caller that
   // could not run IntentPageClient's fetch got a rail that resolved its curated
@@ -154,7 +161,7 @@ export default function IntentPartnerPick({ city, intent, inventory, initialInve
       return [...bookable, ...networkDeals, ...localCoupons].filter((pick) => {
         const key = `${pick.provider}:${pick.offerId}`;
         const titleKey = String(pick.title || "").trim().toLowerCase();
-        if (!pick.image) return false;
+        if (!pick.image || !photoSrcFilter(pick.image)) return false;
         if (!pick.offerId || !pick.provider || pick.link_ok === false) return false;
         if (seen.has(key) || (titleKey && seen.has(titleKey))) return false;
         seen.add(key);
@@ -162,7 +169,7 @@ export default function IntentPartnerPick({ city, intent, inventory, initialInve
         return true;
       }).sort((a, b) => evidenceScore(b, hour) - evidenceScore(a, hour)).slice(0, PARTNER_RAIL_RENDER_LIMIT);
     },
-    [city, intent, activeInventory, networkDeals, localCoupons, hour]
+    [city, intent, activeInventory, networkDeals, localCoupons, hour, photoSrcFilter]
   );
   const rootRef = useRef(null);
   const railRef = useRef(null);
