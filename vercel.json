@@ -126,7 +126,7 @@
       "schedule": "20 9 * * *"
     },
     {
-      "path": "/api/cron/clipp-audit",
+      "path": "/api/cron/certificate-audit",
       "schedule": "40 9 * * *"
     },
     {

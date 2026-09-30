@@ -28,7 +28,7 @@ const today = siteTodayStr();
 // the day a date lapsed (2026-09-28) it went red on UNCHANGED code and every
 // Vercel build failed (dpl for #1535) until someone renewed a date. Deployability
 // and "has a human re-verified Clipp lately" are different questions: the nightly
-// app/api/cron/clipp-audit now answers the second, and a lapsed Clipp card still
+// app/api/cron/certificate-audit now answers the second, and a lapsed Clipp card still
 // hides at runtime (proved below), so the build no longer has to. Same fix #1545
 // made for check-affiliate-coverage. The pin must stay <= every Clipp fuse.
 const CLIPP_FIXTURE_TODAY = "2026-09-25";

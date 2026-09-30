@@ -1,4 +1,8 @@
-// app/api/cron/clipp-audit/route.js — CLIPP AUDIT WATCH.
+// app/api/cron/certificate-audit/route.js — CLIPP CERTIFICATE AUDIT WATCH.
+//
+// Route path says "certificate", not the partner name, on purpose: Clipp's terms
+// forbid a partner-name URL, and scripts/check-clipp-deals.mjs fails any route
+// directory that carries it.
 //
 // WHY THIS EXISTS (owner, 2026-09-29). Clipp certificates rotate weekly, so
 // lib/coupons.js carries hand-set re-verify dates (CLIPP_AUDIT_EXPIRY for the
@@ -33,7 +37,7 @@ import { clippAuditStatus } from "../../../../lib/coupons.js";
 import { recordPulse } from "../../../../lib/jobPulse.js";
 import { siteTodayStr } from "../../../../lib/siteTime.js";
 
-const JOB = "clipp-audit";
+const JOB = "certificate-audit";
 const FUSES = [
   ["city", "city cards"],
   ["merchant", "merchant certificates"],
@@ -47,8 +51,8 @@ const FUSES = [
 export function clippAuditPulseRow(status) {
   const stale = FUSES.filter(([k]) => status[k] && status[k].stale);
   const note = stale.length
-    ? "stale: " + stale.map(([k, label]) => `${label} lapsed ${status[k].expires} (${status[k].hidden} hidden)`).join("; ") + " — reverify in a real browser, then edit lib/coupons.js"
-    : "clean: " + FUSES.map(([k]) => `${k} to ${status[k].expires}`).join(", ");
+    ? "stale Clipp audit: " + stale.map(([k, label]) => `${label} lapsed ${status[k].expires} (${status[k].hidden} hidden)`).join("; ") + " — reverify in a real browser, then edit lib/coupons.js"
+    : "clean Clipp audit: " + FUSES.map(([k]) => `${k} to ${status[k].expires}`).join(", ");
   return { attempted: 1, succeeded: stale.length ? 0 : 1, failed: stale.length, note: note.slice(0, 200) };
 }
 
