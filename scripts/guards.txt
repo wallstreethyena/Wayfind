@@ -796,6 +796,7 @@ node scripts/test-hotel-card-cta.mjs
 node scripts/check-hotel-library-quality.mjs
 scripts/check-hotel-booking-verified.mjs
 scripts/check-owned-hotel-identity.mjs
+scripts/test-harvest-owned-hotel-identity.mjs
 
 # 2026-09-23 — customer-facing hotel copy (whyGo/knownFor/vibe) must never
 # carry internal curation/prompt scaffolding ("Use X when the user wants...
