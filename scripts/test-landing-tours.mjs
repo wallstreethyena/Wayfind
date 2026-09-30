@@ -20,7 +20,9 @@ const ts = readFileSync(new URL("../app/components/TourStrip.js", import.meta.ur
 ok(ts.startsWith('"use client"'), "TourStrip is a client island — it fetches /api/experiences at RUNTIME (the build-time read returned empty)");
 ok(ts.includes('fetch("/api/experiences?"'), "TourStrip reads the runtime experiences endpoint");
 ok(/href=\{t\.url\}/.test(ts) && !/viatorApiProductUrl|product_code/.test(ts), "product_url rendered VERBATIM (mcid+pid) — never rebuilt");
-ok(/\/pid=\/\.test\(t\.url\)/.test(ts), "a tour without pid= does not ship");
+// pid= filter lives in lib/tourStripItems.js now (shared by server seed + client refresh); TourStrip must still route its rows through it.
+const tsItems = readFileSync(new URL("../lib/tourStripItems.js", import.meta.url), "utf8");
+ok(/\/pid=\/\.test\(t\.url\)/.test(tsItems) && /prepareTourStripItems\(/.test(ts), "a tour without pid= does not ship");
 ok(ts.includes('rel="noopener sponsored nofollow"') && !ts.includes("earn a commission"), "affiliate rel present; no inline commission disclosure (one footer disclosure plus one on true detail pages is the law now)");
 ok(ts.includes("items.length < 2") , "the strip hides below 2 tours — never a lonely ad");
 console.log(`test-landing-tours: ${n - failn}/${n} passed`);
