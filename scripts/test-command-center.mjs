@@ -23,6 +23,7 @@ import { srcMissing, srcOk, srcError, jsonNoStore } from "../lib/commandCenter/r
 import { memTTL } from "../lib/commandCenter/cache.js";
 import { OUT_ACTIONS, ENGAGE_ACTIONS, BROWSE_ACTIONS, EVENT_MAP, KPI_DEFS } from "../lib/commandCenter/eventMap.js";
 import { buildVisitorReport } from "../lib/commandCenter/visitorReport.js";
+import { classifySessions, REPEAT_MIN } from "../lib/commandCenter/trafficQuality.js";
 
 let failures = 0;
 const fail = (m) => { console.error("test-command-center: FAIL — " + m); failures++; };
@@ -221,6 +222,62 @@ const fetchOwner = (id, status = 200) => async () => ({ ok: status === 200, stat
     at("page_exit", "s4", "v5", "2026-09-01T13:02:00Z", { page_path: "/map", active_ms: 60000, reason: "pagehide" }),
   ]);
   ok(staleClick.exits[0]?.classification === "unobserved_exit", "visitor report: an old click cannot claim what caused a later page end");
+
+  // ── traffic quality: behaviour decides, country never does ────────────────
+  // Every call below runs the REAL classifier/report; nothing is a regex over
+  // source. The farm fixture mirrors the Sep 2026 proxy traffic (desktop, no
+  // referrer, one page, 0 taps, ~3 s) — but half of it is stamped "US" to prove
+  // the country cannot be what excludes it.
+  const id = { browser: "Chrome", os: "Windows", device: "Desktop" };
+  const farmSession = (n, extra = {}) => [
+    at("page_visit", `farm${n}`, `fv${n}`, `2026-09-01T14:${String(n).padStart(2, "0")}:00Z`, { page_path: `/p/ChIJfarm${n}`, ...id, country: n % 2 ? "US" : "SC", referrer_domain: null, ...extra }),
+    at("page_exit", `farm${n}`, `fv${n}`, `2026-09-01T14:${String(n).padStart(2, "0")}:03Z`, { page_path: `/p/ChIJfarm${n}`, ...id, active_ms: 3000, max_scroll_pct: 12, reason: "pagehide", ...extra }),
+  ];
+  const farm = Array.from({ length: 6 }, (_, n) => farmSession(n)).flat();
+  const phoneBounce = Array.from({ length: 6 }, (_, n) => [
+    at("page_visit", `ph${n}`, `pv${n}`, `2026-09-01T15:0${n}:00Z`, { page_path: "/guides/things-to-do-orlando-not-theme-parks", browser: "Mobile Safari", os: "iOS", device: "Mobile", country: "BR", referrer_domain: null }),
+    at("page_exit", `ph${n}`, `pv${n}`, `2026-09-01T15:0${n}:04Z`, { page_path: "/guides/things-to-do-orlando-not-theme-parks", browser: "Mobile Safari", os: "iOS", device: "Mobile", active_ms: 4000, max_scroll_pct: 20, reason: "pagehide" }),
+  ]).flat();
+  const reader = [
+    at("page_visit", "r1", "rv1", "2026-09-01T16:00:00Z", { page_path: "/guides/things-to-do-orlando-not-theme-parks", ...id, country: "SC", referrer_domain: "google.com" }),
+    at("element_click", "r1", "rv1", "2026-09-01T16:00:40Z", { page_path: "/guides/things-to-do-orlando-not-theme-parks", ...id, element_type: "link", destination_type: "internal", destination_path: "/api/commerce/go", place_id: null }),
+    at("page_exit", "r1", "rv1", "2026-09-01T16:00:41Z", { page_path: "/guides/things-to-do-orlando-not-theme-parks", ...id, active_ms: 41000, max_scroll_pct: 40, reason: "pagehide" }),
+    at("page_visit", "r2", "rv2", "2026-09-01T16:10:00Z", { page_path: "/", page_surface: "suggested", browser: "Chrome", os: "Android", device: "Mobile", country: "US", referrer_domain: "instagram.com" }),
+    at("element_click", "r2", "rv2", "2026-09-01T16:10:09Z", { page_surface: "suggested", browser: "Chrome", os: "Android", device: "Mobile", element_type: "button", destination_type: "none", place_id: "ChIJlakeeola" }),
+    at("page_exit", "r2", "rv2", "2026-09-01T16:10:10Z", { page_surface: "suggested", browser: "Chrome", os: "Android", device: "Mobile", active_ms: 10000, max_scroll_pct: 30, reason: "route_change" }),
+  ];
+  const oddities = [
+    at("page_visit", "ua1", "uv1", "2026-09-01T17:00:00Z", { ...id, user_agent: "Mozilla/5.0 HeadlessChrome/120.0", referrer_domain: "google.com" }),
+    at("page_visit", "phb", "pb1", "2026-09-01T17:01:00Z", { ...id, ph_bot: "true", referrer_domain: "google.com" }),
+    at("page_visit", "noid", "ni1", "2026-09-01T17:02:00Z", { browser: null, os: null, device: "Desktop", referrer_domain: "google.com" }),
+    at("page_visit", "noidtap", "nt1", "2026-09-01T17:03:00Z", { browser: null, os: null, device: "Mobile", referrer_domain: null }),
+    at("element_click", "noidtap", "nt1", "2026-09-01T17:03:09Z", { browser: null, os: null, device: "Mobile", element_type: "button", destination_type: "none" }),
+  ];
+  const tq = classifySessions(new Map(Object.entries(Object.groupBy([...farm, ...phoneBounce, ...reader, ...oddities], (row) => row.session_id))));
+  const reasonsOf = (sid) => tq.bySession.get(sid)?.reasons || [];
+  ok([0, 1, 2, 3, 4, 5].every((n) => reasonsOf(`farm${n}`).includes("repeated_no_engagement")), "traffic quality: a repeated empty desktop visit is automated whether it is stamped US or SC");
+  ok([0, 1, 2, 3, 4, 5].every((n) => !tq.bySession.get(`ph${n}`)?.automated) && tq.bySession.get("ph0")?.soft.includes("no_engagement"), "traffic quality: repeated quick PHONE bounces stay people (chat-app links carry no referrer)");
+  ok(!tq.bySession.get("r1")?.automated, "traffic quality: an engaged reader from outside the US is a person — country never excludes");
+  ok(reasonsOf("ua1").includes("crawler_user_agent") && reasonsOf("phb").includes("posthog_bot_flag") && reasonsOf("noid").includes("no_browser_identity"), "traffic quality: crawler UA, PostHog bot flag and missing browser identity are each hard reasons");
+  const fewFarm = classifySessions(new Map(Object.entries(Object.groupBy(Array.from({ length: REPEAT_MIN - 1 }, (_, n) => farmSession(n)).flat(), (row) => row.session_id))));
+  ok(fewFarm.summary.automated_sessions === 0, `traffic quality: below ${REPEAT_MIN} repeats an empty desktop visit is not called a bot`);
+  ok(!tq.bySession.get("noidtap")?.automated, "traffic quality: a visitor whose UA failed to parse but who TAPPED is kept");
+  ok(tq.summary.raw_sessions === 18 && tq.summary.automated_sessions === 9 && tq.summary.people_sessions === 9, "traffic quality: raw = people + automated, nothing silently dropped");
+
+  const story = buildVisitorReport([...farm, ...phoneBounce, ...reader, ...oddities], {
+    names: { ChIJlakeeola: "Lake Eola Park" },
+    guideTitles: { "things-to-do-orlando-not-theme-parks": "12 Things to Do in Orlando That Aren't Theme Parks" },
+  });
+  const cmp = story.story.traffic.comparison;
+  ok(cmp.unfiltered.some((row) => /place page/.test(row.title)) && !cmp.filtered.some((row) => /place page/.test(row.title)), "visitor story: the unfiltered comparison keeps the bot landing pages the filtered view removes");
+  ok(story.story.sessions_total === 18 && story.story.sessions_people === 9, "visitor story: raw and filtered session counts both reported");
+  ok(!story.journeys.some((row) => row.path.some((path) => /ChIJfarm/.test(path))), "visitor story: automated sessions never reach the ranked journeys");
+  const orlandoVisit = story.story.visits.find((visit) => visit.steps[0]?.includes("12 Things to Do in Orlando"));
+  ok(orlandoVisit && orlandoVisit.outcome === "partner" && /partner booking link/.test(orlandoVisit.steps.join(" ")), "visitor story: a legacy internal-typed /api/commerce/go click reads as a partner booking, with the real guide title");
+  const cardVisit = story.story.visits.find((visit) => visit.source === "Instagram");
+  ok(cardVisit && cardVisit.steps.some((step) => step === "opened the card for Lake Eola Park"), "visitor story: a card tap names the place that was tapped");
+  ok(story.exits.some((row) => row.classification === "partner_click_before_exit"), "visitor report: a click into /api/*/go ends as a partner click, not internal navigation");
+  ok(!JSON.stringify(story).includes('"farm0"') && !JSON.stringify(story).includes('"rv1"'), "visitor story: session and visit ids never serialize into the story");
 }
 {
   // cache: stale-on-error + inflight dedupe
@@ -445,7 +502,10 @@ const histDays = (n, devices = 40, extra = {}) => Array.from({ length: n }, (_, 
   ok(!JSON.stringify(visitorProbe).includes("private-session") && !JSON.stringify(visitorProbe).includes("private-visit"), "visitor source: visitorStory never returns correlation ids");
   const visitorQuery = visitorQueries.find((query) => /page_active_time/.test(query)) || "";
   const diagnosticQuery = visitorQueries.find((query) => /places_none/.test(query)) || "";
-  ok(/LIMIT 50001/.test(visitorQuery) && /\$virt_is_bot/.test(visitorQuery), "visitor source: report query is bounded and bot-filtered at runtime");
+  // The story classifies bots itself so it can show raw vs filtered: PostHog's
+  // flag must arrive as a COLUMN, and must NOT be filtered away in SQL.
+  ok(/LIMIT 50001/.test(visitorQuery) && /properties\.\$virt_is_bot AS ph_bot/.test(visitorQuery) && !/\$virt_is_bot\), 'false'\) NOT IN/.test(visitorQuery) && !/\{wayfind/.test(visitorQuery), "visitor source: report query is bounded, carries the bot flag as a column, and leaves no unresolved scope placeholder");
+  ok(/uuid-owner/.test(visitorQuery) && /\$internal_or_test_user/.test(visitorQuery), "visitor source: internal/test people are still excluded from both views");
   ok(/provider_redirect_failed/.test(diagnosticQuery) && /Unknown page/.test(diagnosticQuery), "visitor source: diagnostics use verified event names and preserve missing paths as unknown");
 
   const allQueries = [];
