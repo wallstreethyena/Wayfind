@@ -115,7 +115,7 @@ function FallRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, fallSkin,
           return <RailCard key={card.id} className="wf-exploding-primary" domRef={index === sentinelIndex ? sentinelRef : undefined}
             photo={card.image || null}
             photoFallback={isEvent && card.place_id ? ownedPlacePhotoSrc(card.place_id, 640) : null}
-            eagerMedia={index === 0}
+            eagerMedia={index < 3}
             photoAttr={card.photoAttr || null} photoAttrHref={card.photoAttrHref || null} place={place}
             creatorVideos={isEvent ? card.creatorReels : undefined}
             title={card.title || card.name} eyebrow={rail.title} rank={rank}

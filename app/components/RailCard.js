@@ -39,6 +39,7 @@
 // is invented to fill a slot — an event does not get a fabricated score, it gets
 // the `when` badge in the same box, which is a fact it really carries. That is
 // the same never-fabricate rule the rest of this codebase runs on.
+import { compactWhen } from "../../lib/whenCompact.js";
 import { useEffect, useState } from "react";
 // v8.29.2 — the same fallback hands IconicPlaceCard grew in v8.29. RailCard's
 // thumbs were WORSE than a navigation: `onClick={... if (onLike) onLike(e)}`
@@ -103,7 +104,10 @@ const HeartIcon = ({ filled = false }) => (
 //
 // `tone` is derived from the event's real date, never chosen for effect:
 //   now   — starts today       soon — tomorrow        later — further out
-export function RailWhenBadge({ label, value, tone = "later" }) {
+export function RailWhenBadge(props) {
+  // One grammar for every producer (lib/whenCompact.js): 3-letter days/months,
+  // ranges split as kicker + "thru …" so nothing ellipsizes in the 104px box.
+  const { label, value, tone = "later" } = compactWhen(props) || {};
   if (!label && !value) return null;
   return (
     <span className="wf-rail-when" data-when-tone={tone} aria-label={`Starts ${label}${value ? " at " + value : ""}`}>

@@ -21,6 +21,12 @@ import FooterVeil from "./components/FooterVeil";
 import NativeShellInit from "./components/NativeShellInit";
 import NativeOfflineOverlay from "./components/NativeOfflineOverlay";
 
+// Origin of the Supabase photo vault, for the preconnect hint below. Server-only
+// read (never a NEXT_PUBLIC_* template href); an invalid/missing URL renders no hint.
+const PHOTO_VAULT_ORIGIN = (() => {
+  try { return new URL(process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || "").origin; } catch { return null; }
+})();
+
 export const metadata = {
   metadataBase: new URL(SITE_URL),
   alternates: { canonical: "/" },
@@ -236,6 +242,12 @@ export default function RootLayout({ children }) {
           + "input,select,textarea{font-size:16px}"
         }} />
         <link rel="preconnect" href="https://lh3.googleusercontent.com" />
+        {/* The photo vault. Most rail images 302 from /api/photo to the Supabase
+            Storage render endpoint; without this the handshake to that host
+            starts only after the redirect lands (owner 2026-09-30: "the images
+            are taking a real long time to load"). No crossOrigin: <img> fetches
+            are no-cors and use the anonymous connection pool. */}
+        {PHOTO_VAULT_ORIGIN ? <link rel="preconnect" href={PHOTO_VAULT_ORIGIN} /> : null}
         <link rel="preconnect" href="https://api.open-meteo.com" />
         {/* The map tiles. Without this the DNS + TLS handshake for the tile host
             starts cold, AFTER ~1MB of maplibre has downloaded and mounted —
