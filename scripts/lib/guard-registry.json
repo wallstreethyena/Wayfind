@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 756,
-    "totalRegistryEntries": 757,
-    "guardsTxtLineCount": 755,
-    "guardsTxtReachedFileCount": 749,
+    "totalOnDiskGuardFiles": 757,
+    "totalRegistryEntries": 758,
+    "guardsTxtLineCount": 756,
+    "guardsTxtReachedFileCount": 750,
     "criticalCount": 91,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 526,
-      "RENDER": 90,
+      "RENDER": 91,
       "STRUCTURAL": 140,
       "OTHER": 1
     }
@@ -13851,6 +13851,28 @@
       "owner": null
     },
     {
+      "file": "scripts/test-landing-ssr-rails.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 41,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-landing-tours.mjs",
       "npmScript": null,
       "class": "STRUCTURAL",
@@ -16132,10 +16154,10 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 11,
-      "unprovenAbsenceCount": 2,
+      "assertionCount": 12,
+      "unprovenAbsenceCount": 3,
       "honestyViolations": [
-        "2 absence assertion(s) with no positive control in the same file (e.g. \"/nextDynamic\\(\\(\\) => import\\(\"\\.\\/components\\/UnifiedBrowseCommerceRail\"\\)/.tes\")"
+        "3 absence assertion(s) with no positive control in the same file (e.g. \"/setItems\\(prepareTourStripItems\\(/.test(read(\"                           \").rep\")"
       ],
       "selfDocumentsRedProve": false,
       "wiring": {

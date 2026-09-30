@@ -54,7 +54,7 @@ ok(!/\.(fromPrice|price|commission|commission_estimate|payout|grossBookingValue|
 const partner = readFileSync(path.resolve("app/components/IntentPartnerPick.js"), "utf8");
 ok(/from "\.\.\/\.\.\/lib\/experienceNowRank"/.test(partner), "IntentPartnerPick imports the shared now-rank helpers");
 ok(/discountDepthBonus\(/.test(partner) && /timeOfDayBonus\(/.test(partner), "IntentPartnerPick's evidenceScore applies both bonuses");
-ok(/evidenceScore\(b\) - evidenceScore\(a\)/.test(partner), "the guarded evidence sort call itself is untouched");
+ok(/evidenceScore\(b(?:, hour)?\) - evidenceScore\(a(?:, hour)?\)/.test(partner), "the guarded evidence sort call itself is untouched");
 ok(/if \(base < 0\) return base;/.test(partner), "unrated inventory (no rating evidence) is excluded from both bonuses and still sorts last");
 
 const browseRail = readFileSync(path.resolve("app/components/UnifiedBrowseCommerceRail.js"), "utf8");
