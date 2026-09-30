@@ -26,7 +26,7 @@ ok(/\/api\/deals\?category=/.test(partner) && /couponsForIntent/.test(partner), 
 ok(/commerceHref\(/.test(partner), "bookable products must use Wayfind's tracked redirect");
 ok(/if \(!pick\.image/.test(partner) && !/Wayfind bookable/.test(partner), "cards without real artwork must fail closed instead of rendering a placeholder");
 ok(/via \{pick\.merchant\}/.test(partner), "each card must identify its provider");
-ok(/evidenceScore\(b\) - evidenceScore\(a\)/.test(partner), "the complete mixed list must be ordered by evidence");
+ok(/evidenceScore\(b(?:, hour)?\) - evidenceScore\(a(?:, hour)?\)/.test(partner), "the complete mixed list must be ordered by evidence");
 ok(/railRef\.current/.test(partner) && /rail\.scrollLeft = 0/.test(partner) && /\[city, intent\]/.test(partner), "a city or intent change must reset the rail to its top-ranked card");
 ok(!/earn a commission/i.test(partner), "the sheet rail must render no inline commission disclosure (one footer disclosure plus one on true detail pages is the law now)");
 

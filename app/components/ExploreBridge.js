@@ -35,6 +35,7 @@ import { useEffect, useLayoutEffect, useState } from "react";
 import { track } from "../../lib/track";
 import { captureAttribution, decorateHref } from "../../lib/attribution";
 import { recordExposure } from "../../lib/experiment";
+import { usePhotoSrcFilter } from "./photoPolicyContext";
 
 // useLayoutEffect warns during SSR; useEffect never runs before paint. Pick per
 // environment — the choice is stable for the lifetime of the process, so this
@@ -56,6 +57,9 @@ const S = {
 };
 
 export default function ExploreBridge({ city, picks, entryPage, pageType }) {
+  // Under a PhotoPolicyProvider (guides) these 82px thumbnails show no Google
+  // photo: there is no room for Google's required visible credit.
+  const photoSrcFilter = usePhotoSrcFilter();
   const [variant, setVariant] = useState(null);
   const [attr, setAttr] = useState(null);
   const list = Array.isArray(picks) ? picks.slice(0, 3) : [];
@@ -129,7 +133,7 @@ export default function ExploreBridge({ city, picks, entryPage, pageType }) {
               onClick={() => go("detail_open", { place_id: p.id, place_name: p.name, position: i + 1, city: where || null, category: p.category || null })}
               style={S.card}
             >
-              {p.photoRef ? (
+              {p.photoRef && photoSrcFilter("/api/photo?ref=" + encodeURIComponent(p.photoRef) + "&g=2&w=240") ? (
                 <img src={"/api/photo?ref=" + encodeURIComponent(p.photoRef) + "&g=2&w=240"} alt="" loading="lazy" width="82" height="82" style={{ width: 82, minHeight: 82, objectFit: "cover", display: "block", flex: "0 0 82px", background: "#161B22" }} />
               ) : (
                 <div aria-hidden="true" style={{ width: 82, flex: "0 0 82px", background: "linear-gradient(135deg,#1b2735,#2c3e50)" }} />

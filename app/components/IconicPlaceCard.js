@@ -20,6 +20,7 @@ import * as Tags from "../../lib/tags";
 import { directionsHref } from "../../lib/directions.js";
 import { useEffect, useRef, useState } from "react";
 import { hasPlacePhotoRef, ownedPlacePhotoSrc } from "../../lib/placePhoto.js";
+import { usePhotoSrcFilter } from "./photoPolicyContext";
 import { toHookLine } from "../../lib/editorialHook.js";
 // v8.29 — THE CARD'S OWN HANDS. Save/Like/Dislike used to fall back to
 // <a href="/p/<id>?action=like"> whenever a caller forgot to wire a handler,
@@ -305,6 +306,10 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   // above it would move React's hook count between renders — the exact
   // failure scripts/check-hook-order.mjs exists for.
   const pinQ = usePinQuarantine();
+  // 2026-09-30 — under a PhotoPolicyProvider (guides) no Google photo renders
+  // here: this card cannot show Google's required visible credit. A hook, so
+  // it sits above every early return with the others.
+  const photoSrcFilter = usePhotoSrcFilter();
   // Interactive place cards always open the full app detail route. The
   // crawlable /places/{id} document remains for SEO, but a stale caller cannot
   // strand a reader there because the shared renderer owns this normalization.
@@ -389,8 +394,8 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
     else if (action === "share" && h.share) h.share(h.place);
   }, actionsLive);
   if (!place) return null;
-  const primaryPhoto = photoUrl(place);
-  const stablePlacePhoto = ownedPlacePhotoSrc(place.place_id || place.id, 640);
+  const primaryPhoto = photoSrcFilter(photoUrl(place));
+  const stablePlacePhoto = photoSrcFilter(ownedPlacePhotoSrc(place.place_id || place.id, 640));
   const samePlacePhotoFallback = stablePlacePhoto && stablePlacePhoto !== primaryPhoto ? stablePlacePhoto : "";
   const expTags = experienceTags(place, 3);
   // Resolve the offer in the shared card itself so every IconicPlaceCard
@@ -555,7 +560,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
           {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
           {/* v8.56.13 (#1188) — same CC credit badge as RailCard.js, same
               reasoning: see its comment above the equivalent block. */}
-          {photoAttr
+          {photoAttr && primaryPhoto
             ? (photoAttrHref
                 ? <a
                     className="wf-place-card-photo-attr"
