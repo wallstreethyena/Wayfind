@@ -474,6 +474,7 @@ node scripts/check-coupon-link-attribution.mjs
 node scripts/test-partner-rail-render.mjs
 node scripts/test-bookable-highlights-30.mjs
 node scripts/check-tour-strip-redirect.mjs
+node scripts/test-landing-ssr-rails.mjs
 node scripts/check-food-tour-rail.mjs
 node scripts/test-booking-resolve-extraction.mjs
 # Founder P0 (2026-08-19): Book/commerce clicks same-tab through /api/*/go

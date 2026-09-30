@@ -29,10 +29,8 @@ import { useEffect, useState } from "react";
 import { wayfindScore } from "../../lib/google";
 import { toDisplayScore } from "../../lib/score";
 import { isPerfectScore } from "../../lib/lawfulOrder";
-import { rankExperiences } from "../../lib/experiencesData";
+import { prepareTourStripItems } from "../../lib/tourStripItems";
 import { commerceHref } from "../../lib/commerce";
-
-const WATER = /beach|dolphin|kayak|snorkel|boat|sail|paddle|jet ski|parasail|cruise|water|manatee|sunset/i;
 
 /**
  * THE href for a strip card. Exported so a guard can CALL it.
@@ -54,24 +52,27 @@ export function tourHref(t) {
   return commerceHref({ provider: "viator", offerId: code, surface: "tour_strip", contentId: code });
 }
 
-export default function TourStrip({ lat, lng, title, subtitle, waterOnly }) {
-  const [items, setItems] = useState(null);
+// SSR SEED (2026-09-29). `initialItems` is the server-prepared list
+// (lib/landingRails.js -> prepareTourStripItems over the same owned
+// wf_experiences read /api/experiences serves), so the "Book" links exist in the
+// crawlable HTML instead of appearing only after a client fetch. It is ONLY a
+// first-paint seed: the mount fetch below still runs and its answer wins, exactly
+// as before. A failed refresh keeps the seed rather than blanking the strip;
+// with no seed (server read failed / dark) behaviour is byte-for-byte the old
+// client-only path. Links are unchanged: tourHref -> /api/commerce/go.
+export default function TourStrip({ lat, lng, title, subtitle, waterOnly, initialItems }) {
+  const seeded = Array.isArray(initialItems) && initialItems.length >= 2;
+  const [items, setItems] = useState(seeded ? initialItems : null);
   useEffect(() => {
     if (!isFinite(lat)) { setItems([]); return; }
     let dead = false;
     const q = new URLSearchParams({ lat: String(lat), lng: String(lng), mi: "60", cat: "all", limit: "12", page: "0" });
     fetch("/api/experiences?" + q.toString()).then((r) => (r.ok ? r.json() : null), () => null).then((res) => {
       if (dead) return;
-      // `t.code` is now REQUIRED, because it is what the redirect resolves —
-      // a row without one cannot be linked at all, and the honest answer is to
-      // drop it rather than fall back to the raw partner URL. The pid check on
-      // the stored URL is kept as a completeness signal on the row itself, not
-      // because that URL is ever rendered.
-      let arr = (res && Array.isArray(res.items) ? res.items : []).filter((t) => t && t.url && /pid=/.test(t.url) && t.image && t.code);
-      if (waterOnly) arr = arr.filter((t) => WATER.test(t.title || ""));
-      const seen = new Set();
-      arr = rankExperiences(arr.filter((t) => { const k = (t.title || "").toLowerCase().slice(0, 40); if (seen.has(k)) return false; seen.add(k); return true; })).slice(0, 4);
-      setItems(arr);
+      if (!res && seeded) return; // failed refresh: keep the server-rendered seed
+      // Filter/dedupe/rank lives in lib/tourStripItems.js so the server seed and
+      // this refresh cannot diverge (t.code required; never the raw partner URL).
+      setItems(prepareTourStripItems(res, { waterOnly }));
     });
     return () => { dead = true; };
   }, [lat, lng, waterOnly]);
