@@ -223,6 +223,7 @@ import { C, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useD
 import { sponsorRailNear, partnerCollectionById, hydratePartnerCollection } from "../lib/partnerCollections";
 import { toDisplayScore, pickEligibleByScore, cardComplete, displayableAt } from "../lib/score";
 import { stampOwnerPick } from "../lib/ownerBump.js";
+import { restampGoverned, settleRescored, rescoredIds } from "../lib/lawfulOrder.js";
 import { frontPageEvents, bestFirst } from "../lib/frontEvents";
 import { settleLoad } from "../lib/loadState.js";
 import { HOME_AFFILIATE_ACTIVITY_FETCH_LIMIT, HOME_AFFILIATE_ACTIVITY_RADIUS_MI, homeAffiliateActivities } from "../lib/homeAffiliateActivities";
@@ -926,8 +927,37 @@ function withMemberSignal(list, sig) {
     const base = p._wfScoreRaw != null ? p._wfScoreRaw : p.wfScore;
     const nudged = base != null ? +((base + d).toFixed(2)) : base;
     const forDisplay = g.ownerPick === true ? base : nudged;
-    return stampOwnerPick({ ...p, wfScore: forDisplay, _members: g }, g.ownerPick === true);
+    // restampGoverned against the ORIGINAL row: the nudge moved wfScore before
+    // stampOwnerPick saw it, so only this outer compare can see that move.
+    return restampGoverned(p, stampOwnerPick({ ...p, wfScore: forDisplay, _members: g }, g.ownerPick === true));
   });
+}
+// The detail-open overlay copies the like-derived fields onto a row that may
+// already carry a memoised sort key; restamp so the rank follows the chip.
+function withSignalFields(row, next) {
+  return restampGoverned(row, { ...row, wfScore: next.wfScore, _members: next._members, _wfScoreRaw: next._wfScoreRaw });
+}
+// Rails (DaypartRail) own their rows, so a like made after the drop opened
+// never reaches them through setPlaces. `picks` is patchOwnerPick's
+// server-derived id -> ownerPick map; apply it, then settle ONLY the cards
+// whose shown score moved against `raw` (the rail's pre-signal order) so a
+// bumped card climbs to its number without reshuffling the rest of the rail.
+function withLivePicks(rows, picks, raw) {
+  let live = rows || [];
+  if (picks && live.length) {
+    let changed = false;
+    const out = live.map((p) => {
+      if (!p || !Object.prototype.hasOwnProperty.call(picks, p.id)) return p;
+      const want = picks[p.id] === true;
+      if (!!(p._members && p._members.ownerPick) === want) return p;
+      changed = true;
+      return stampOwnerPick(p, want);
+    });
+    if (changed) live = out;
+  }
+  const base = raw || rows || [];
+  if (live === base) return base;
+  return settleRescored(live, rescoredIds(base, live));
 }
 // v4.95: the old mapsRouteUrl (Google-Maps directions to ALL places at once)
 // is gone by product direction — a list's map icon opens Wayfind's own map.
@@ -4164,6 +4194,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   }, [cityTransition]);
   const [sugIdx, setSugIdx] = useState(-1); // v5.63 (audit P4): keyboard-highlighted suggestion, -1 = none
   const [places, setPlaces] = useState([]);
+  // Server-derived owner picks from this session's likes (patchOwnerPick),
+  // id -> boolean. Rails hold their own rows, so this is how a like reaches them.
+  const [livePicks, setLivePicks] = useState({});
   // 2026-09-23 — SERVER PAGING for the inv=1 category list. The route now
   // reports the TRUE eligible count and whether more exists past this page
   // (lib/inventoryServe.js's exhaustive read); this ref remembers that answer
@@ -6531,12 +6564,21 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // and stamp ownerPick AND wfScore on list cards and the open sheet.
   // The client cannot mint: only the server owner map (or sessionOwner,
   // which the same route already computed for this session).
+  //
+  // RE-RANK, NOT JUST RE-SCORE (owner, 2026-09-30). The browse feed and the
+  // Experience screen re-order from these arrays on every render, and the
+  // hook sheet re-applies its active sort, so patching the score is enough
+  // there — restampGoverned (inside stampOwnerPick) keeps the sort key honest.
+  // Rails own their rows, so they get the server-derived verdict via
+  // `livePicks` and settle the changed card in place (DaypartRail).
   function patchOwnerPick(placeId, ownerPick) {
     if (!placeId) return;
     const patch = (cur) => (cur || []).map((pl) => (pl && pl.id === placeId ? stampOwnerPick(pl, ownerPick) : pl));
     setPlaces(patch);
     setExpPlaces(patch);
     setDetail((cur) => (cur && cur.id === placeId ? stampOwnerPick(cur, ownerPick) : cur));
+    setHookDetail((cur) => (cur && Array.isArray(cur.places) && cur.places.some((pl) => pl && pl.id === placeId) ? { ...cur, places: patch(cur.places) } : cur));
+    setLivePicks((cur) => (cur[placeId] === ownerPick ? cur : { ...cur, [placeId]: ownerPick }));
   }
   async function refreshOwnerPick(placeId) {
     if (!placeId) return;
@@ -6757,8 +6799,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       if (!sig) return;
       const next = withMemberSignal([p], sig)[0];
       if (!next || next.id !== p.id) return;
-      setDetail((cur) => (cur && cur.id === p.id ? { ...cur, wfScore: next.wfScore, _members: next._members, _wfScoreRaw: next._wfScoreRaw } : cur));
-      const patch = (cur) => (cur || []).map((pl) => (pl && pl.id === p.id ? { ...pl, wfScore: next.wfScore, _members: next._members, _wfScoreRaw: next._wfScoreRaw } : pl));
+      setDetail((cur) => (cur && cur.id === p.id ? withSignalFields(cur, next) : cur));
+      const patch = (cur) => (cur || []).map((pl) => (pl && pl.id === p.id ? withSignalFields(pl, next) : pl));
       setPlaces(patch);
       setExpPlaces(patch);
     }).catch(() => {});
@@ -9936,6 +9978,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }}
         memberSignalsFor={(list) => fetchMemberSignals(supabase, list)}
         applyMemberSignal={withMemberSignal}
+        livePicks={livePicks}
+        applyLivePicks={withLivePicks}
         // v8.30.1 — THE PLACE CARD'S SHARE, which was never wired (owner,
         // 2026-08-22, screenshot: "the share button on the amazon rail place
         // cards are not working"). `onShareRail` directly below is the TILE's

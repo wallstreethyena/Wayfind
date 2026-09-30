@@ -392,6 +392,11 @@ export default function DaypartRail({
   // re-deriving either: one signal source, one aggregation.
   memberSignalsFor = null,
   applyMemberSignal = null,
+  // A like made AFTER this drop opened: the parent's server-derived owner
+  // picks plus ITS decorator, which re-scores the card and settles it into
+  // the rank its new number earns (app/home.js withLivePicks).
+  livePicks = null,
+  applyLivePicks = null,
   // v8.17 (owner, live screenshot: "when i go on a card detail and then try
   // to go back everything is gone from the main page"). ROOT CAUSE: a rail
   // card's only open path was its /p/{id} href — a FULL NAVIGATION off the
@@ -1301,10 +1306,10 @@ export default function DaypartRail({
       .catch(() => { if (!dead) setMemberSig(null); });
     return () => { dead = true; };
   }, [memberSignalsFor, _selRaw]);
-  const selPlaces = useMemo(
-    () => (memberSig && applyMemberSignal ? applyMemberSignal(_selRaw, memberSig) : _selRaw),
-    [applyMemberSignal, memberSig, _selRaw]
-  );
+  const selPlaces = useMemo(() => {
+    const signed = memberSig && applyMemberSignal ? applyMemberSignal(_selRaw, memberSig) : _selRaw;
+    return applyLivePicks ? applyLivePicks(signed, livePicks, _selRaw) : signed;
+  }, [applyMemberSignal, memberSig, _selRaw, applyLivePicks, livePicks]);
   // Chef is static testimony in HIS order (the shape IconicPlaceCard reads;
   // `photo` self-heals once refs are harvested). Augtober now owns its complete
   // answer in FallIntentRails, behind the same lazy boundary as Birthday,
