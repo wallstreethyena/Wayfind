@@ -1513,6 +1513,8 @@ node scripts/test-spend-bypass-regression.mjs
 # ledger for the same numbers with the switch on. One grant == one outbound
 # Google request across the whole media/Details/self-heal fan-out.
 node scripts/test-photos-paid-cap.mjs
+scripts/check-photo-cap-parses.mjs
+scripts/check-photo-outcome-provenance.mjs
 # 2026-09-28: promotion-only paid details ceiling — must never widen to another SKU.
 node scripts/test-promote-paid-cap.mjs
 node scripts/test-spend-tests-prod-env.mjs

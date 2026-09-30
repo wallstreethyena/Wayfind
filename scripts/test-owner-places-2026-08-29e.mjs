@@ -46,8 +46,8 @@ ok(HOLD_GOOGLE.length === 5, `expected 5 hold_google_id shops, got ${HOLD_GOOGLE
 ok(HOLD_GOOGLE.every((p) => /Cha Cha Coconuts|ofKors Bakery|ofKors Cafe|Turmeric Indian|Cinnaholic South Tampa/.test(p.name)),
   "hold_google_id names are Cha Cha, ofKors bakery/cafe, Turmeric, Cinnaholic South Tampa");
 
-ok(listPublishReadyAtlasIds().length === 264,
-  "Atlas publish-ready lock is 264 — 263 from #1019 plus the official NRB ChIJ");
+ok(listPublishReadyAtlasIds().length === 459,
+  "Atlas publish-ready lock is 459 (owner-approved 2026-09-29 Atlas-590 additive merge; was 264) — 263 from #1019 plus the official NRB ChIJ");
 
 for (const p of ADD) {
   ok(PLACE_ID.test(p.placeId), `${p.name}: real Google placeId, not invented`);
@@ -169,11 +169,21 @@ const cinLine = toHookLine(cinna.knownFor, cinna.name);
 ok(cinLine.length >= 20 && isUsableCardHook(cinLine, cinna.name) && /plant-based/i.test(cinLine),
   "Cinnaholic two-beat is official plant-based rolls + South Tampa");
 
+// Owner decision 2026-09-29: the Atlas-590 Detwiler's cards are specific stores the owner
+// named by place_id (Palmetto, Palmer, Clark, Lockwood Ridge) — not a random pick. Only
+// these exact ids are exempt; any other Detwiler's card still trips the HOLD below.
+const OWNER_NAMED_DETWILERS = new Set([
+  "ChIJ1S54gcw9w4gRFyFsgYHVIk0", // #200 Palmetto, 1800 US-301
+  "ChIJtXqbvWtHw4gROfKsKwXeMJQ", // #201 Palmer, 6000 Palmer Blvd
+  "ChIJR6Dvk-BBw4gRuwoeUcPq3xE", // #203 Clark, 2881 Clark Rd
+  "ChIJ-1_UDBs_w4gRvIMj4gJYjNo", // #508 University/Lockwood Ridge, 6100 N Lockwood Ridge Rd
+]);
 for (const h of HOLDS) {
   const stem = h.name.split(",")[0].toLowerCase().replace(/[^a-z0-9 #]/g, "").slice(0, 18);
+  const exempt = /detwiler/i.test(h.name) ? OWNER_NAMED_DETWILERS : new Set();
   if (/#1024|#1025|#1026|actually worth|hidden gems|727living|rays at trop|hispanic heritage|red bull dance your style sep 16|anna maria/i.test(h.name)) continue;
   if (/frog pond|farmer/i.test(h.name)) continue;
-  ok(!cards.some((c) => c && c.name && stem.length >= 8 && c.name.toLowerCase().includes(stem.trim())),
+  ok(!cards.some((c) => c && c.name && !exempt.has(c.placeId) && stem.length >= 8 && c.name.toLowerCase().includes(stem.trim())),
     `HOLD ${h.name} leaked into editorial-cards.json`);
 }
 
