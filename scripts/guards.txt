@@ -1136,6 +1136,7 @@ node scripts/check-fall-offering-freshness.mjs
 # routed through /api/commerce/go on the fall rail, the Events feed and the event page.
 node scripts/check-event-ticket-deals.mjs
 node scripts/check-affiliate-coverage.mjs
+node scripts/check-clipp-audit-nightly.mjs
 # 2026-09-16 (Lane B) — MENU_PARTNER_OFFERS: the metro-gated, category:sub-keyed
 # partner rail feeding UnifiedBrowseCommerceRail independent of loaded places.
 node scripts/check-menu-partner-offers.mjs
