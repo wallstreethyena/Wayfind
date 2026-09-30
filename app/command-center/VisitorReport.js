@@ -35,6 +35,7 @@ function pageName(path, surface) {
 }
 
 function journeyName(row) {
+  if (asRows(row.titles).length) return row.titles.join(" → ");
   const paths = asRows(row.path);
   const surfaces = asRows(row.surfaces);
   return paths.map((path, index) => pageName(path, surfaces[index])).join(" → ");
@@ -163,6 +164,7 @@ function Heatmap({ rows }) {
 }
 
 function clickDestination(row) {
+  if (row.destination_type === "partner" || /^\/api\/[a-z0-9-]+\/go\/?$/i.test(row.destination_path || "")) return "a partner booking site";
   if (row.outbound_domain) return row.outbound_domain;
   if (row.destination_path) return simplePage(row.destination_path);
   if (row.destination_type === "none") return "No page change seen";
@@ -183,6 +185,69 @@ function Finding({ item }) {
         {item.sample_size != null ? ` · ${fmtNum(item.sample_size)} measured` : ""}
       </small>
     </li>
+  );
+}
+
+const OUTCOME_WORDS = {
+  partner: "Partner booking tap", directions: "Went for directions", photo_credit: "Left via photo credit",
+  outbound: "Left for another site", one_page: "One page, no taps", left: "Browsed, then ended",
+};
+
+function PlainStory({ story }) {
+  const diagnosis = asRows(story.diagnosis);
+  const visits = asRows(story.visits);
+  const traffic = story.traffic || {};
+  const reasons = Object.entries(traffic.by_reason || {}).filter(([, n]) => n);
+  const cmp = traffic.comparison || {};
+  return (
+    <section className={styles.findingsBlock} aria-labelledby="plain-story-title">
+      <div>
+        <span className={styles.eyebrow}>In plain English</span>
+        <h3 id="plain-story-title">{story.headline}</h3>
+        <p>Real people only. Automated traffic is counted separately below and never mixed in.</p>
+      </div>
+      {diagnosis.length ? (
+        <ul className={styles.findingsList}>
+          {diagnosis.map((item) => (
+            <li key={item.id} className={`${styles.finding} ${styles[item.severity === "high" ? "finding_issue" : item.severity === "medium" ? "finding_opportunity" : "finding_clue"]}`}>
+              <span className={styles.findingKind}>{item.severity === "high" ? "Fix first" : item.severity === "medium" ? "Worth fixing" : "Good to know"}</span>
+              <strong>{item.title}</strong>
+              <p>{item.what}</p>
+              {item.why ? <p><b>Why:</b> {item.why}</p> : null}
+              {item.fix ? <p className={styles.findingRecommendation}><b>Fix:</b> {item.fix}</p> : null}
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      <details className={styles.measurementDetails} open>
+        <summary>Real visits, step by step ({visits.length} most recent)</summary>
+        <ol className={styles.coverageNotes}>
+          {visits.map((visit, index) => (
+            <li key={index}>
+              <strong>{[visit.when, visit.source, visit.device, visit.active_s ? seconds(visit.active_s) + " in front" : null].filter(Boolean).join(" · ")}</strong>
+              {" "}<em>({OUTCOME_WORDS[visit.outcome] || visit.outcome})</em>
+              <ol>{asRows(visit.steps).map((step, i) => <li key={i}>{step}</li>)}</ol>
+              <p>{visit.ending}</p>
+            </li>
+          ))}
+        </ol>
+      </details>
+      <details className={styles.measurementDetails}>
+        <summary>Filtered vs unfiltered traffic ({fmtNum(traffic.people_sessions)} people · {fmtNum(traffic.automated_sessions)} automated · {fmtNum(traffic.raw_sessions)} raw)</summary>
+        <p>Rule {traffic.rule_version}: a session is automated only on evidence it carries — a crawler user agent, PostHog's bot flag, no browser identity, or the same empty desktop visit (one page, no tap, under {traffic.thresholds ? traffic.thresholds.quick_exit_s : 10} s, no referrer) repeated at least {traffic.thresholds ? traffic.thresholds.repeat_min : 5} times. Country is never used to decide. Phone visits are never excluded by the repeat rule. {fmtNum(traffic.people_quick_bounces)} quick one-page bounces were kept as people.</p>
+        {reasons.length ? <ul className={styles.coverageNotes}>{reasons.map(([reason, n]) => <li key={reason}>{reason.replace(/_/g, " ")}: {fmtNum(n)}</li>)}</ul> : null}
+        <div className={styles.storyGrid}>
+          {[["Unfiltered (everything)", cmp.unfiltered], ["Filtered (people)", cmp.filtered]].map(([label, rows]) => (
+            <div key={label}>
+              <h4>{label}</h4>
+              <ol className={styles.coverageNotes}>
+                {asRows(rows).map((row, i) => <li key={i}>{row.title}: {fmtNum(row.sessions)} visits · {row.left_without_tapping_pct}% left without tapping</li>)}
+              </ol>
+            </div>
+          ))}
+        </div>
+      </details>
+    </section>
   );
 }
 
@@ -234,6 +299,8 @@ export default function VisitorReport({ report }) {
         </div>
       </div>
 
+      {report.story ? <PlainStory story={report.story} /> : null}
+
       <div className={styles.storyGrid}>
         <StoryCard number="1" title="Where people went" note="The most common page paths we measured.">
           <RankedRows rows={journeys.slice(0, 5)} empty="No complete page paths were measured."
@@ -243,16 +310,16 @@ export default function VisitorReport({ report }) {
 
         <StoryCard number="2" title="How long they stayed" note="Time with the page open in front. Hidden tabs do not count.">
           <RankedRows rows={attention.slice(0, 6)} empty="We did not measure how long pages stayed in front."
-            label={(row) => pageName(row.page_path, row.page_surface)} value={(row) => row.active_s_avg}
+            label={(row) => row.title || pageName(row.page_path, row.page_surface)} value={(row) => row.active_s_avg}
             displayValue={(row) => seconds(row.active_s_avg)}
             detail={(row) => `${seconds(row.active_s_avg)} on average · ${fmtNum(row.exits_measured)} measured ends${row.max_scroll_pct_avg != null ? ` · ${Math.round(Number(row.max_scroll_pct_avg))}% down the page` : ""}`} />
         </StoryCard>
 
         <StoryCard number="3" title="What they clicked next" note="The last measured click on a page.">
           <RankedRows rows={clicks.slice(0, 6)} empty="No next clicks were measured."
-            label={(row) => row.element_label || row.destination_path || row.outbound_domain || row.element_type || "Unnamed click"}
+            label={(row) => row.words || row.element_label || row.destination_path || row.outbound_domain || row.element_type || "Unnamed click"}
             value={(row) => row.visits}
-            detail={(row) => `${pageName(row.page_path, row.page_surface)} → ${clickDestination(row)}`} />
+            detail={(row) => `on ${row.title || pageName(row.page_path, row.page_surface)} → ${clickDestination(row)}`} />
         </StoryCard>
 
         <StoryCard number="4" title="Where page visits ended" note="A partner click can be useful, but it does not prove a booking. When we did not see what happened next, the answer stays unknown.">
@@ -263,7 +330,7 @@ export default function VisitorReport({ report }) {
                 return (
                   <li key={`${row.page_path}-${row.classification}-${index}`} className={styles[`exit_${words.tone}`]}>
                     <span>{words.title}</span>
-                    <strong>{pageName(row.page_path, row.page_surface)}</strong>
+                    <strong>{row.title || pageName(row.page_path, row.page_surface)}</strong>
                     <p>{exitReason(row)}</p>
                     <b>{fmtNum(row.visits)} visits</b>
                   </li>

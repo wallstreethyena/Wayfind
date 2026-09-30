@@ -1,4 +1,4 @@
-import { gateShut, spendAllow, spendAllowPhotos } from "../../../lib/spendGate";
+import { gateShut, spendAllow, spendAllowPhotos, photosCeiling } from "../../../lib/spendGate";
 // v6.18 — server-side Google Places photo proxy.
 //
 // Why this exists: the browser was loading place photos directly from
@@ -15,7 +15,7 @@ import { NextResponse } from "next/server";
 import { FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef, resolvePlacePhoto } from "../../../lib/placePhotoServe";
 import { findSamePlaceCachedPhoto } from "../../../lib/photoCacheRecovery";
 import { findFreePhoto } from "../../../lib/freePhoto";
-import { recordPhotoOutcome } from "../../../lib/photoOutcomes";
+import { recordPhotoOutcome, recordPhotoDeniedCeiling } from "../../../lib/photoOutcomes";
 import { recordReaderPhotoMiss } from "../../../lib/photoReaderMissQueue";
 
 export const dynamic = "force-dynamic";
@@ -218,6 +218,15 @@ export async function GET(req) {
     const outcomeClass = result.reason === "spend-denied" ? "ledger-denied" : result.upstream;
     if (outcomeClass) {
       try { await recordPhotoOutcome(outcomeClass); } catch { /* recordPhotoOutcome never throws; defensive anyway */ }
+    }
+    // 2026-09-30: on a LEDGER denial, also record which ceiling refused. The
+    // Sep 24-27 blackout left no trace of the value that caused it, because
+    // wf_spend_take only writes the cap on a SUCCESSFUL grant. Memoised per
+    // (day, env, ceiling), so this is one extra write per lambda instance on
+    // a blackout day, not one per request. Same fire-and-forget contract as
+    // the line above: it can never change the response.
+    if (result.reason === "spend-denied") {
+      try { await recordPhotoDeniedCeiling(photosCeiling()); } catch { /* never throws; defensive */ }
     }
     if (Number.isFinite(result.refunded) && result.refunded > 0) {
       try { await recordPhotoOutcome("refunded"); } catch { /* same */ }
