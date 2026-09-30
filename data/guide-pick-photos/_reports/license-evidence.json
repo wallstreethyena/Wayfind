@@ -3,16 +3,16 @@
   "verifiedAt": "2026-09-30",
   "rule": "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, CC BY and CC BY-SA (2.0 to 4.0); NC and ND never pass.",
   "summary": {
-    "files": 210,
-    "usages": 224,
-    "verified": 210,
+    "files": 209,
+    "usages": 223,
+    "verified": 209,
     "needsReview": [],
     "authorDiffers": [],
     "byLicence": {
       "CC BY-SA 4.0": 61,
       "CC BY 4.0": 15,
       "CC BY 3.0": 11,
-      "CC BY 2.0": 36,
+      "CC BY 2.0": 35,
       "CC0 1.0 Universal": 18,
       "CC BY-SA 3.0": 51,
       "CC BY-SA 2.0": 15,
@@ -6131,37 +6131,6 @@
         "creditHref": "https://commons.wikimedia.org/wiki/File:Tropicana_Field_in_Tampa,_Florida_2024.jpg",
         "license": "CC BY 4.0",
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-09-30"
-    },
-    {
-      "src": "/guides/picks/weeki-wachee-kayak-mermaids-guide/buccaneer-bay-slides-spring.webp",
-      "usedBy": [
-        {
-          "slug": "weeki-wachee-kayak-mermaids-guide",
-          "role": "pick",
-          "pick": "Buccaneer Bay, the spring-fed water park"
-        }
-      ],
-      "source": {
-        "kind": "flickr",
-        "url": "https://www.flickr.com/photos/35168275@N00/1343753945",
-        "title": "Weeki Wachee Springs (Hernando County, FL)",
-        "author": "Paul",
-        "displayName": "Paul",
-        "dateTaken": "2006-10-06 23:16:56",
-        "licence": "CC BY 2.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
-      },
-      "wayfind": {
-        "credit": "Paul (systemslibrarian)",
-        "creditHref": "https://www.flickr.com/photos/35168275@N00/1343753945",
-        "license": "CC BY 2.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
         "modificationNotice": "Resized, cropped for display and converted to WebP."
       },
       "commercialUse": true,

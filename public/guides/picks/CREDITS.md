@@ -363,7 +363,6 @@ Each photo uses the license named below; images may be resized, cropped and conv
 
 ## weeki-wachee-kayak-mermaids-guide
 
-- `/guides/picks/weeki-wachee-kayak-mermaids-guide/buccaneer-bay-slides-spring.webp` — weeki-wachee-kayak-mermaids-guide: Buccaneer Bay, the spring-fed water park. [Paul](https://www.flickr.com/photos/35168275@N00/1343753945); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 - `/guides/picks/weeki-wachee-kayak-mermaids-guide/weeki-wachee-river.webp` — weeki-wachee-kayak-mermaids-guide: Paddle the Weeki Wachee River (reserve ahead). [Gzuraski](https://commons.wikimedia.org/wiki/File:Weeki_Wachee_River_July_2013.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/weeki-wachee-kayak-mermaids-guide/mermaid-shows-park-sign.webp` — weeki-wachee-kayak-mermaids-guide: The live mermaid show. [DanTD](https://commons.wikimedia.org/wiki/File:Weeki_Wachee_sign_-_Entrance.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/weeki-wachee-kayak-mermaids-guide/manatee-cow-calf-weeki-wachee-river.webp` — weeki-wachee-kayak-mermaids-guide: When the manatees come. [Fredlyfish4](https://commons.wikimedia.org/wiki/File:Manatees_in_Weeki_Wachee_River.JPG); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
