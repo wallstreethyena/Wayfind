@@ -743,5 +743,21 @@
       "detail": "Without it, a green CI can hide a red production prebuild: 2026-09-29 #1538 blocked every production deploy of main because two spend tests read the paid switches from Vercel's build env."
     },
     "owner": "Revenue QA"
+  },
+  "scripts/check-photo-cap-parses.mjs": {
+    "protects": "A present-but-unparseable GOOGLE_PHOTOS_MONTH_CAP fails the BUILD instead of the website. explicitCap() requires ^[1-9]\\\\d*$, so a value a human reads as correct (\"7,000\", \"7k\") parses to null, photosPaidEnabled() goes false, and photosCeiling() silently falls back to the 950 free tier. This guard reads the real build environment, where Vercel carries the production spend switches, and refuses the deploy.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "This exact typo blacked out every uncached place photo on gowayfind.com for five days (2026-09-23 to 09-28: 617/804/1,315/815 denials a day, ZERO served) with no alert, because spending LESS than intended is a safe failure for the budget and a catastrophic one for the product. A regression here re-opens a silent site-wide image outage."
+    },
+    "owner": "Revenue QA"
+  },
+  "scripts/check-photo-outcome-provenance.mjs": {
+    "protects": "Photo outcome counts name the environment that produced them (production keeps its bare class names; preview and dev are namespaced) and a ledger denial records the ceiling that refused it. Also pins that a production blackout still pages the owner while the same volume of Preview denials does not.",
+    "blastRadius": {
+      "category": "reliability",
+      "detail": "Preview deployments and local dev write to the production telemetry table, so without provenance a real production outage and a reviewer opening a Preview URL are indistinguishable. And wf_spend_take records the cap only on a successful grant, so without the ceiling row the value behind a blackout is permanently unrecoverable, as it is for 2026-09-23."
+    },
+    "owner": "Revenue QA"
   }
 }
