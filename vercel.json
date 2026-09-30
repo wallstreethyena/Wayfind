@@ -126,6 +126,10 @@
       "schedule": "20 9 * * *"
     },
     {
+      "path": "/api/cron/clipp-audit",
+      "schedule": "40 9 * * *"
+    },
+    {
       "path": "/api/cron/travelpayouts-attribution",
       "schedule": "20 7 * * *"
     },
