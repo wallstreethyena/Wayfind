@@ -178,4 +178,34 @@ const descriptiveTip = pressPack({
 });
 ok(!reviewOwnedEditorialPack(descriptiveTip).errors.some((e) => e.check === "press-operational-claim"), "descriptive prose may cite press alone");
 
+// Backing is token equality within a datum type, not a substring match.
+const backedBy = (prose, pressText, govText) => !reviewOwnedEditorialPack(pressPack({
+  pressSupports: [pressText], govSupports: [govText],
+  extra: (c) => { c.editorial.local_tip = prose; c.editorial.citations.local_tip = [PRESS, GOV]; },
+})).errors.some((e) => e.check === "press-operational-claim");
+const falseMatches = [
+  ["price vs year", "Parking costs $12.", "Locals say parking costs $12.", "The county opened the lot in 2012."],
+  ["price vs street number", "Parking costs $12.", "Locals say parking costs $12.", "The lot is at 12 Main Street."],
+  ["1 PM vs 11 PM", "Arrive at 1 PM.", "Locals arrive at 1 PM.", "The gate closes at 11 PM."],
+  ["year vs larger price", "Opened in 1998.", "It opened in 1998.", "Entry was $11,998 for the bond."],
+  ["123 vs 3123 street number", "Find it at 123 Gulf Drive.", "It sits at 123 Gulf Drive.", "The county office is at 3123 Gulf Drive."],
+  ["ZIP vs price", "Ship to FL 34217.", "Mail goes to FL 34217.", "The permit costs $34217 total."],
+  ["June 1 vs June 11", "Reopens June 1.", "It reopens June 1.", "The festival runs June 11."],
+];
+for (const [label, prose, press, gov] of falseMatches) {
+  ok(!backedBy(prose, press, gov), `a loose substring is NOT backing: ${label}`);
+}
+const trueMatches = [
+  ["same price", "Parking costs $12.", "Locals say parking costs $12.", "Public parking costs $12.00."],
+  ["same clock time, other notation", "Arrive at 1 PM.", "Locals arrive at 1 PM.", "Doors open at 1:00 p.m."],
+  ["24-hour clock", "Arrive at 1 PM.", "Locals arrive at 1 PM.", "Doors open at 13:00."],
+  ["same phone, other format", "Call (941) 555-0123.", "Call (941) 555-0123.", "Ranger station: 941.555.0123."],
+  ["street abbreviation", "Find it at 123 Gulf Drive.", "It sits at 123 Gulf Drive.", "Office: 123 Gulf Dr."],
+  ["date notation", "Reopens June 14.", "It reopens June 14.", "Reopening date 6/14."],
+  ["day range wording", "Closed Monday through Thursday.", "Closed Monday through Thursday.", "Closed Mon-Thu."],
+];
+for (const [label, prose, press, gov] of trueMatches) {
+  ok(backedBy(prose, press, gov), `the same datum in another notation IS backing: ${label}`);
+}
+
 console.log(`test-owned-editorial-rules: ${passed} assertions passed`);
