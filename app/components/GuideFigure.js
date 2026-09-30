@@ -1,6 +1,7 @@
 import GuidePhoto from "./GuidePhoto";
 import styles from "./GuideFigure.module.css";
 import { guideCaptionText } from "../../lib/guideCaption.js";
+import { isGooglePhotoSrc } from "../../lib/googlePhotoSrc.js";
 
 // Wayfind Guide Visual Standard (docs/design/guide-visual-standard.md).
 // GuideFigure is the ONLY component guides and blog articles use to render a
@@ -25,6 +26,20 @@ export function guideFigureMedia(image) {
   if (typeof image === "string") return { src: image };
   if (typeof image === "object" && image.src) return image;
   return null;
+}
+
+/**
+ * 2026-09-30 (owner): a Google Places photo may only be shown with Google's
+ * required credit visible beside it: the author's name (`credit`) and a link
+ * to the photo on Google Maps (`providerHref`). A Google photo missing either,
+ * or drawn with its caption hidden, is not drawn at all. Every other photo is
+ * unaffected (licence rules for those are GVS-3's job).
+ */
+export function googleCreditMissing(media, showCaption = true) {
+  if (!media || !isGooglePhotoSrc(media.src)) return false;
+  const credit = typeof media.credit === "string" ? media.credit.trim() : "";
+  const provider = typeof media.providerHref === "string" && /^https:\/\//.test(media.providerHref);
+  return !credit || !provider || showCaption === false;
 }
 
 // Shared with GuideArticleHero's previous inline copy — one formatter, so a
@@ -116,6 +131,7 @@ export default function GuideFigure({
 }) {
   const media = guideFigureMedia(image);
   if (!media) return null;
+  if (googleCreditMissing(media, showCaption)) return null;
   const width = Number(media.width) > 0 ? Math.round(Number(media.width)) : 1600;
   const height = Number(media.height) > 0 ? Math.round(Number(media.height)) : 1200;
   return (

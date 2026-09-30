@@ -373,6 +373,7 @@ async function inventoryPlacesForRegion(region, limit = 80) {
 }
 
 import { guidePlaceFigureImage } from "../../../lib/guidePlaceFigureImage.js";
+import { withAttributableSpotPhotos } from "../../../lib/guideSpotPhotos.js";
 import GuideMapExplorer from "../../components/GuideMapExplorer";
 import { guidePickMayResolvePlaceCard } from "../../../lib/guidePlaceIdentity.js";
 // Separate interactive map discovery still uses the shared place-card CSS.
@@ -603,6 +604,11 @@ export default async function GuidePage({ params }) {
   await Promise.all([...new Map([...missingPickPhotos, ...placeRail.places].filter(Boolean).map((place) => [place.id, place])).values()].map(async (place) => {
     editorialImages.set(place.id, await guidePlaceFigureImage(place, { findFreePhoto, findSamePlaceCachedPhoto }));
   }));
+  // Map-explorer cards cannot show Google's required photo credit, so each
+  // spot gets its licensed photo (with its credit) or none (2026-09-30).
+  const mapExplorerSpots = g.mapExplorer && Array.isArray(g.mapExplorer.spots) && g.mapExplorer.spots.length >= 3
+    ? await withAttributableSpotPhotos(g.mapExplorer.spots, { findFreePhoto })
+    : null;
   const nowResult = guidePicksForNow(g.picks, nowCtx);
   const nowHeadline = guideNowHeadline(nowCtx, g.region, nowResult);
   const nowExplainer = guideNowExplainer(nowResult, (g.picks || []).length);
@@ -1010,9 +1016,9 @@ export default async function GuidePage({ params }) {
           places gets the shared Apple Map + RailCard rail + category filters
           with NO bespoke per-guide component — GuideMapExplorer itself
           no-ops below 3 spots, so this is safe to render unconditionally. */}
-      {g.mapExplorer && Array.isArray(g.mapExplorer.spots) && g.mapExplorer.spots.length >= 3 ? (
+      {mapExplorerSpots ? (
         <GuideMapExplorer
-          spots={g.mapExplorer.spots}
+          spots={mapExplorerSpots}
           filters={g.mapExplorer.filters || null}
           kicker={g.mapExplorer.kicker}
           heading={g.mapExplorer.heading}

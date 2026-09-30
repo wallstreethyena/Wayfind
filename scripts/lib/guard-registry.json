@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 754,
-    "totalRegistryEntries": 755,
-    "guardsTxtLineCount": 753,
-    "guardsTxtReachedFileCount": 747,
+    "totalOnDiskGuardFiles": 755,
+    "totalRegistryEntries": 756,
+    "guardsTxtLineCount": 754,
+    "guardsTxtReachedFileCount": 748,
     "criticalCount": 91,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 525,
-      "RENDER": 89,
+      "RENDER": 90,
       "STRUCTURAL": 140,
       "OTHER": 1
     }
@@ -12958,6 +12958,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 44,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-google-photo-attribution.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 34,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
