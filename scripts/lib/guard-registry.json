@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 759,
-    "totalRegistryEntries": 760,
-    "guardsTxtLineCount": 758,
-    "guardsTxtReachedFileCount": 752,
-    "criticalCount": 91,
+    "totalOnDiskGuardFiles": 760,
+    "totalRegistryEntries": 761,
+    "guardsTxtLineCount": 759,
+    "guardsTxtReachedFileCount": 753,
+    "criticalCount": 92,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 526,
+      "CALL": 527,
       "RENDER": 92,
       "STRUCTURAL": 141,
       "OTHER": 1
@@ -16490,6 +16490,33 @@
       "protects": null,
       "blastRadius": null,
       "owner": null
+    },
+    {
+      "file": "scripts/test-search-sku-accounting.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 14,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-import:../lib/spendGate.js"
+      ],
+      "protects": "Every Places Text Search / Nearby Search caller debits the spend-ledger row for the SKU Google actually bills: the guard executes each caller with the network recorded and derives the billed SKU from the X-Goog-FieldMask header it sent (Google's published field-to-SKU table), so an Enterprise mask can never be counted against the cheaper text_pro / nearby_pro free-tier rows, and no caller reaches Google without a grant.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "2026-09-30: lib/landing.js sent an Enterprise-tier Text Search mask ($35/1k, 1,000 free) while debiting text_pro (4,800 free), lib/nightlifeCensus.js did the same on Nearby, and app/api/city/unlock sent an Enterprise mask with no ledger grant at all. The ledger could report 'inside the free tier' while Google billed Enterprise — the same silent-bill shape as the August $1,878 invoice."
+      },
+      "owner": "Revenue QA"
     },
     {
       "file": "scripts/test-searched-location.mjs",
