@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 752,
-    "totalRegistryEntries": 753,
-    "guardsTxtLineCount": 751,
-    "guardsTxtReachedFileCount": 745,
+    "totalOnDiskGuardFiles": 753,
+    "totalRegistryEntries": 754,
+    "guardsTxtLineCount": 752,
+    "guardsTxtReachedFileCount": 746,
     "criticalCount": 91,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 524,
+      "CALL": 525,
       "RENDER": 88,
       "STRUCTURAL": 140,
       "OTHER": 1
@@ -13174,6 +13174,28 @@
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-harvest-owned-hotel-identity.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 34,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
