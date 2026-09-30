@@ -5,7 +5,11 @@
 -- WHY (owner requirement, 2026-09-29). wf_photo_credit (20260924120000) hides
 -- expired rows from readers through RLS but never removes them. Measured on
 -- 2026-09-29: 90,886 rows, 189 MB, 54,224 already expired, 0 new rows since
--- the 2026-09-24 backfill, and every remaining row expires by 2026-10-17. Two
+-- the 2026-09-24 backfill. The newest row in the table expires at
+-- 2026-10-16 15:01 UTC (queried 2026-09-30; an earlier draft said "by
+-- 2026-10-17", which was a rounded estimate). That is the table's last row;
+-- the last credit a reader can actually SEE (a credit whose exact photo the
+-- app holds) expires earlier, 2026-10-03 15:01 UTC. Two
 -- reasons to delete rather than keep hiding:
 --   1. Storage. Hidden rows still cost disk, index and vacuum work forever.
 --   2. Google's Places terms. Photo credits are Places content; expires_at is
