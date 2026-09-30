@@ -120,7 +120,15 @@ const LAT_260M = 27.5 + 260 / 111320; // ~259.7m north of 27.5,-82.7 (verified b
     readMark: async () => null, writeMark: async () => {},
   });
   eq(res.attempted, 2, "L1: the runner stops exactly at `limit`, never at the 5 unresolved rows");
-  eq(searchCalls, 2, "L2: exactly `limit` search calls were made, not one per unresolved row");
+  // The ladder (2026-09-30) spends up to identityQueries().length searches on a
+  // row that never verifies, so `limit` bounds ATTEMPTED ROWS, not raw calls.
+  // What must still hold is that the cap is the limit and not the row count:
+  // 5 unresolved rows may never cost more than 2 rows' worth of work.
+  const ladder = M.identityQueries(rows[0]).length;
+  ok(ladder > 1, "L2a: the row fixture really does produce a multi-shape ladder (else L2b proves nothing)");
+  ok(searchCalls <= 2 * ladder, `L2b: searches are bounded by limit x ladder, not by the 5 unresolved rows (got ${searchCalls}, max ${2 * ladder})`);
+  ok(searchCalls < 5 * ladder, "L2c: the two rows past `limit` were never searched at all");
+  eq(res.searches, searchCalls, "L2d: the reported search count is the real number of outbound searches");
 }
 
 // ── runner: deadline ─────────────────────────────────────────────────────
@@ -254,7 +262,7 @@ const LAT_260M = 27.5 + 260 / 111320; // ~259.7m north of 27.5,-82.7 (verified b
       readMark: async () => null, writeMark: async () => {},
     });
     eq(res.enabled, true, "E1: enabled is true with the flag set to \"1\"");
-    eq(searchCalls, 1, "E2: the injected searchIds is actually reached when enabled");
+    ok(searchCalls >= 1, "E2: the injected searchIds is actually reached when enabled");
   } finally {
     delete process.env.WAYFIND_HOTEL_IDENTITY;
   }
@@ -469,7 +477,17 @@ const LAT_260M = 27.5 + 260 / 111320; // ~259.7m north of 27.5,-82.7 (verified b
   eq(written.length, 1, "W12: one marker written");
   ok(written[0][0].startsWith(M.MARK_PREFIX_MISS), "W13: it is a miss marker");
   eq(written[0][1].why, "not-lodging", "W14: carrying the verdict");
-  eq(Object.keys(written[0][1]).sort().join(","), "at,why", "W15: and nothing else — no id, no name, no address from Google");
+  eq(Object.keys(written[0][1]).sort().join(","), "at,v,why", "W15: and nothing else — a timestamp, our verdict, and the ladder version that produced it");
+  eq(written[0][1].v, M.QUERY_LADDER_VERSION, "W15a: the version stamped is the current ladder version");
+  {
+    // The point of W15 is that NOTHING Google returned is persisted. `v` is our
+    // own integer, so the set grew by one — this makes the real rule explicit
+    // rather than relying on a field-name whitelist to catch it.
+    const GOOGLE_KEYS = ["id", "placeId", "gpid", "name", "displayName", "address", "formattedAddress", "types", "location", "lat", "lng"];
+    const leaked = GOOGLE_KEYS.filter((k) => k in written[0][1]);
+    ok(leaked.length === 0, `W15b: no Google-derived field is persisted on a miss marker (leaked: ${leaked.join(", ")})`);
+    ok("id" in { id: 1 }, "W15b-control: the leak detector's `in` check really does find a present key");
+  }
   eq(written[0][2], M.MARK_TTL_MS_MISS, "W16: the 14-day miss TTL is unchanged");
 }
 
@@ -538,6 +556,184 @@ const LAT_260M = 27.5 + 260 / 111320; // ~259.7m north of 27.5,-82.7 (verified b
   eq(leaked.length, 0, `Q1: no excluded row is queued for a lookup${leaked.length ? ` — e.g. ${leaked[0].name}` : ""}`);
   ok(queued.length > 0, "Q2: real hotels are still queued (the filter did not empty the queue)");
   ok(queued.every((h) => !h.gpid), "Q3: and every queued row still lacks an id");
+}
+
+// ── THE QUERY LADDER (2026-09-30) ─────────────────────────────────────────
+//
+// The ladder widens the CANDIDATE SEARCH and nothing else. These assertions
+// exist to prove exactly that: the shapes are built only from the row's own
+// fields, a row that already resolved still resolves identically and at the
+// same cost, a row Google only finds by name+city is now recovered, and a
+// candidate that fails the 200 m / lodging / street-number rule is STILL a
+// miss no matter which shape found it.
+{
+  const full = row({ name: "Kentucky Motel", address: "17th Ave W & Tamiami Trail", city: "Bradenton" });
+  const shapes = M.identityQueries(full);
+  eq(shapes[0], M.identityQuery(full), "LQ1: shape 1 is byte-identical to identityQuery — a row that resolves today resolves the same way");
+  eq(shapes.length, 4, "LQ2: a row with a name, a street and a city produces exactly the four approved shapes");
+  eq(shapes[1], "Kentucky Motel, Bradenton FL", "LQ3: shape 2 is name + city");
+  eq(shapes[2], "Kentucky Motel, 17th Ave W & Tamiami Trail, FL", "LQ4: shape 3 is name + street");
+  eq(shapes[3], "17th Ave W & Tamiami Trail, Bradenton FL", "LQ5: shape 4 is street + city");
+
+  // Nothing invented: every shape must be reconstructible from the row's own
+  // three fields plus the literal "FL". A shape carrying a county, a ZIP or a
+  // brand expansion would fail this.
+  const allowed = new Set(["Kentucky Motel", "17th Ave W & Tamiami Trail", "Bradenton FL", "FL"]);
+  const foreign = shapes.flatMap((s) => s.split(", ")).filter((t) => !allowed.has(t));
+  ok(foreign.length === 0, `LQ6: every shape is built only from the row's own fields (foreign tokens: ${foreign.join(" | ")})`);
+  ok(!allowed.has("Manatee County"), "LQ6-control: the allow-set really would reject an invented token");
+
+  eq(M.identityQueries(row({ name: "Sara Sea Beach Resort", address: "", city: "Sarasota" })).length, 1,
+    "LQ7: with no street line there is only one distinct question to ask, and it is not invented");
+  eq(M.identityQueries(row({ name: "", address: "100 Main St", city: "Venice" }))[0], "100 Main St, Venice FL",
+    "LQ8: a row with no name still gets its street + city shape");
+  eq(M.identityQueries({ name: "", address: "", city: "" }).length, 0,
+    "LQ9: a row with nothing to ask about produces NO query rather than a bare \"FL\" fishing trip");
+  const dedup = M.identityQueries(row({ name: "Solo", address: "", city: "" }));
+  eq(new Set(dedup).size, dedup.length, "LQ10: identical shapes are de-duplicated, never searched twice");
+}
+
+// LD1 — a row that verifies on shape 1 costs exactly one search. The ladder
+// must not make the already-working path more expensive.
+{
+  let searches = 0;
+  const res = await runOwnedHotelIdentityBackfill({
+    rows: [row()], limit: 5, deadlineAt: Date.now() + 10_000,
+    searchIds: async () => { searches++; return ["ChIJFirstShapeWinner"]; },
+    placeDetails: async () => details(),
+    readMark: async () => null, writeMark: async () => {},
+  });
+  eq(res.resolved, 1, "LD1: a row verified by shape 1 resolves");
+  eq(searches, 1, "LD1a: and cost exactly ONE search — the ladder never runs past a winner");
+  eq(res.searches, 1, "LD1b: the reported search count agrees");
+}
+
+// LD2 — THE RECOVERY THIS CHANGE IS FOR. Google returns nothing for the
+// over-specified shape 1 and the real place for shape 2. Paired with a
+// control proving the single-shape behaviour would have missed it.
+{
+  const r = row({ name: "Ladder Inn", address: "999 Stale Address Rd", city: "Bradenton" });
+  const answer = (q) => (q === M.identityQuery(r) ? [] : ["ChIJRecoveredByShapeTwo"]);
+  const det = details({ formattedAddress: "999 Stale Address Rd, Bradenton, FL" });
+
+  let calls = [];
+  const res = await runOwnedHotelIdentityBackfill({
+    rows: [r], limit: 5, deadlineAt: Date.now() + 10_000,
+    searchIds: async (q) => { calls.push(q); return answer(q); },
+    placeDetails: async () => det,
+    readMark: async () => null, writeMark: async () => {},
+  });
+  eq(res.resolved, 1, "LD2: a hotel Google only finds by name + city is now recovered");
+  ok(calls.length >= 2, "LD2a: it took more than the first shape to get there");
+  eq(calls[0], M.identityQuery(r), "LD2b: and the first question asked was still the original one");
+
+  // POSITIVE CONTROL: the same fixture with only shape 1 available is a miss.
+  // The gap between these two results is exactly what the ladder buys.
+  const oneShape = await runOwnedHotelIdentityBackfill({
+    rows: [r], limit: 5, deadlineAt: Date.now() + 10_000,
+    searchIds: async (q) => (q === M.identityQuery(r) ? [] : null),
+    placeDetails: async () => det,
+    readMark: async () => null, writeMark: async () => {},
+  });
+  eq(oneShape.resolved, 0, "LD2-control: with only the original shape answering, the same hotel is a miss");
+}
+
+// LD3 — THE GATE IS NOT WEAKENED. A candidate that only shape 4 finds, and
+// that fails the street-number rule, is still a miss. Widening the net must
+// never widen the verdict.
+{
+  const r = row({ name: "Gate Test Inn", address: "100 Main St", city: "Bradenton" });
+  const written = [];
+  const res = await runOwnedHotelIdentityBackfill({
+    rows: [r], limit: 5, deadlineAt: Date.now() + 10_000,
+    searchIds: async (q) => (q === M.identityQueries(r)[3] ? ["ChIJWrongBuilding"] : []),
+    placeDetails: async () => details({ formattedAddress: "200 Main St, Bradenton, FL" }),
+    readMark: async () => null, writeMark: async (k, v) => { written.push([k, v]); },
+  });
+  eq(res.resolved, 0, "LD3: a wrong-building candidate found by the widest shape is STILL refused");
+  eq(res.missed, 1, "LD3a: and recorded as a miss");
+  eq(written[0][1].why, "street-mismatch", "LD3b: with the real reason, so the row stays diagnosable");
+  ok(M.verifyCandidate(r, details({ formattedAddress: "100 Main St, Bradenton, FL" })) === true,
+    "LD3-control: the same rule DOES accept the right street number — the gate still works in both directions");
+}
+
+// LD4 — ids repeat heavily between shapes; the same place is never looked up
+// twice for one row.
+{
+  const r = row({ name: "Repeat Inn", address: "100 Main St", city: "Bradenton" });
+  const looked = [];
+  const res = await runOwnedHotelIdentityBackfill({
+    rows: [r], limit: 5, deadlineAt: Date.now() + 10_000,
+    searchIds: async () => ["ChIJSameIdEveryShape"],
+    placeDetails: async (id) => { looked.push(id); return details({ types: ["restaurant"] }); },
+    readMark: async () => null, writeMark: async () => {},
+  });
+  eq(looked.length, 1, "LD4: one repeated candidate costs ONE Place Details call across the whole ladder");
+  eq(new Set(looked).size, looked.length, "LD4a: no id is looked up twice");
+  eq(res.missed, 1, "LD4b: and the row is still correctly a miss");
+}
+
+// LD5 — the per-row details ceiling is a hard stop, so one stubborn row can
+// never eat the free allowance.
+{
+  const r = row({ name: "Greedy Inn", address: "100 Main St", city: "Bradenton" });
+  let n = 0;
+  const looked = [];
+  await runOwnedHotelIdentityBackfill({
+    rows: [r], limit: 5, deadlineAt: Date.now() + 10_000,
+    searchIds: async () => [`ChIJUnique${n++}A`, `ChIJUnique${n++}B`, `ChIJUnique${n++}C`],
+    placeDetails: async (id) => { looked.push(id); return details({ types: ["restaurant"] }); },
+    readMark: async () => null, writeMark: async () => {},
+  });
+  ok(looked.length <= M.MAX_DETAILS_PER_ROW,
+    `LD5: details lookups for one row never exceed MAX_DETAILS_PER_ROW (got ${looked.length}, cap ${M.MAX_DETAILS_PER_ROW})`);
+  ok(M.MAX_DETAILS_PER_ROW > 0 && M.MAX_DETAILS_PER_ROW < 12,
+    "LD5-control: the cap is a real finite number below the 4-shapes x 3-ids worst case");
+  ok(looked.length > 1, "LD5a: and the cap did not collapse the ladder to a single lookup");
+}
+
+// LD6 — the version stamp is what lets a widened ladder retry a row that the
+// old one missed, without touching the cache by hand.
+{
+  const r = row({ name: "Legacy Miss Inn" });
+  const legacy = { at: Date.now(), why: "no-candidate" };            // written before the ladder
+  const current = { at: Date.now(), why: "no-candidate", v: M.QUERY_LADDER_VERSION };
+
+  const retried = await runOwnedHotelIdentityBackfill({
+    rows: [r], limit: 5, deadlineAt: Date.now() + 10_000,
+    searchIds: async () => ["ChIJNowFound"], placeDetails: async () => details(),
+    readMark: async (k) => (k.startsWith(M.MARK_PREFIX_MISS) ? legacy : null),
+    writeMark: async () => {},
+  });
+  eq(retried.resolved, 1, "LD6: a miss from an OLDER ladder is retried, and this one now resolves");
+  eq(retried.ladderRetried, 1, "LD6a: and the retry is counted, so the pass is auditable");
+  eq(retried.skipped, 0, "LD6b: a legacy miss is not counted as skipped");
+
+  const skipped = await runOwnedHotelIdentityBackfill({
+    rows: [r], limit: 5, deadlineAt: Date.now() + 10_000,
+    searchIds: async () => { throw new Error("must not search a row already missed by THIS ladder"); },
+    placeDetails: async () => { throw new Error("must not look up details for a skipped row"); },
+    readMark: async (k) => (k.startsWith(M.MARK_PREFIX_MISS) ? current : null),
+    writeMark: async () => {},
+  });
+  eq(skipped.skipped, 1, "LD6c: a miss from the CURRENT ladder still silences the row for its 14 days");
+  eq(skipped.attempted, 0, "LD6d: and costs no lookup at all — the throwing fixtures were never reached");
+}
+
+// LD7 — a failed request mid-ladder is our outage, not a verdict about the
+// hotel. No marker may be written.
+{
+  const r = row({ name: "Outage Inn", address: "100 Main St", city: "Bradenton" });
+  const written = [];
+  const res = await runOwnedHotelIdentityBackfill({
+    rows: [r], limit: 5, deadlineAt: Date.now() + 10_000,
+    searchIds: async (q) => (q === M.identityQuery(r) ? [] : null), // shape 2 fails outright
+    placeDetails: async () => null,
+    readMark: async () => null, writeMark: async (k, v) => { written.push([k, v]); },
+  });
+  eq(written.length, 0, "LD7: a search failure part-way down the ladder writes NO marker");
+  eq(res.missed, 0, "LD7a: and is never counted as a verified miss");
+  eq(res.searchFailed, 1, "LD7b: it is reported as a search failure instead");
 }
 
 if (fail.length) {
