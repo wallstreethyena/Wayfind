@@ -69,7 +69,7 @@ import { gateShut, spendAllowCapped, effectiveCap, gateMode } from "../../../../
 // moment the queue is empty either way.
 import { sbEnv } from "../../../../lib/serverCache";
 import { recordPulse } from "../../../../lib/jobPulse";
-import { decidePromotion, dedupeById, PROMOTE_METROS, metrosFromRows } from "../../../../lib/promoteIndex";
+import { decidePromotion, dedupeById, partitionSplitVenues, PROMOTE_METROS, metrosFromRows } from "../../../../lib/promoteIndex";
 import { clampBatchLimit, nextBatchLimit } from "../../../../lib/promoteThrottle";
 import { CORE_DETAILS_MASK, RATING_DETAILS_MASK, PROMOTE_SKU, RATING_SKU, withIndexSignals, hasIndexRating } from "../../../../lib/promoteDetails";
 import { jobFailed } from "../../../../lib/jobFail";
@@ -379,11 +379,36 @@ export async function GET(req) {
     okIds.push(item.place_id);
   }
 
-  const { rows, dropped } = dedupeById(writeRows);
+  const { rows: idRows, dropped } = dedupeById(writeRows);
+
+  // One venue, one card. decidePromotion() is per-place and dedupeById() is per
+  // place_id, so a SECOND Google listing of a venue we already serve (Siesta Key
+  // Village, 86m apart, 2026-09-29) passed every gate and turned the inventory
+  // integrity canary red. Same rule as scripts/check-inventory-integrity.mjs.
+  // A twin is a verdict about the data (terminal reject, no retry, no re-buy);
+  // an UNREADABLE lookup is an operational failure and fails the whole write.
+  let rows = idRows;
+  let writeError = null;
+  if (idRows.length) {
+    try {
+      const part = await partitionSplitVenues(idRows, async (path) => {
+        const r = await fetch(`${s.url}/rest/v1/${path}`, { cache: "no-store", headers: { apikey: s.key, Authorization: `Bearer ${s.key}` } });
+        if (!r.ok) throw new Error(`split-venue lookup -> ${r.status}: ${(await r.text()).slice(0, 200)}`);
+        return r.json();
+      });
+      rows = part.keep;
+      for (const { row, twin } of part.twins) {
+        rejects.push({ place_id: row.place_id, name: row.name, error: `duplicate venue: same name+metro as ${twin.place_id}, ${twin.meters}m apart` });
+        const at = okIds.indexOf(row.place_id);
+        if (at >= 0) okIds.splice(at, 1);
+      }
+    } catch (e) {
+      writeError = String(e.message || e).slice(0, 300);
+    }
+  }
 
   let written = 0;
-  let writeError = null;
-  if (rows.length) {
+  if (rows.length && !writeError) {
     try {
       const r = await fetch(`${s.url}/rest/v1/wf_inventory`, {
         method: "POST",
