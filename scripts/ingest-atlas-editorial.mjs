@@ -53,6 +53,10 @@ const field = (card, label) => {
 
 const raw = readFileSync(SRC, "utf8");
 const blocks = raw.split(/\n(?=## \d+\. )/).filter((b) => /^## \d+\. /.test(b));
+// Every place the workbench knows about, whatever its status. The workbench is the
+// source of truth ONLY for these ids; cards other lanes added for places outside it
+// (owner batches, new cities) must survive a re-ingest instead of being wiped.
+const workbenchPids = new Set(blocks.map((b) => (b.match(/^Google Place ID: `([^`]+)`/m) || [])[1]).filter(Boolean));
 const cards = [];
 for (const b of blocks) {
   if (field(b, "Quality Level") !== "PUBLISH-READY CANDIDATE") continue;
@@ -61,7 +65,9 @@ for (const b of blocks) {
   const placeId = (b.match(/^Google Place ID: `([^`]+)`/m) || [])[1];
   const category = (field(b, "Category") || "").replace(/^.*\(`([a-z]+)`\).*$/, "$1") || null;
   // hours: drop the "| expires: ..." bookkeeping suffix
-  let hours = field(b, "Hours"); if (hours) hours = hours.replace(/\s*\|\s*expires:.*$/i, "").trim();
+  // unNull AGAIN after the strip: an unknown-hours card is "`null` | expires: `null`", which
+  // only becomes a bare `null` once the suffix is gone (it leaked into 78 cards as text).
+  let hours = field(b, "Hours"); if (hours) hours = unNull(hours.replace(/\s*\|\s*expires:.*$/i, "").trim());
   const card = { placeId, name, num: Number(num), category, hours };
   // Every key starts null so the shape is stable, then each label fills its key
   // ONLY on a hit. Without the null-guard a later alias ("Heads Up") would
@@ -103,8 +109,28 @@ const sample = cards.find((c) => c.name?.includes("Siesta")) || cards[0];
 console.log(`\nSample — ${sample.name} (${sample.placeId}):`);
 console.log(JSON.stringify(sample, null, 2).split("\n").slice(0, 16).join("\n") + "\n  ...");
 
-writeFileSync(OUT, JSON.stringify(cards, null, 2));
-console.log(`\nWrote snapshot: ${OUT.replace(ROOT, ".")} (${cards.length} cards)`);
+// ADDITIVE merge (owner decision 2026-09-29): a card already in the snapshot is the
+// owner-reviewed live copy and WINS — the workbench never overwrites it. The workbench
+// only ADDS cards for places not yet live. Removal/skip is explicit, never inferred:
+// data/atlas/editorial-retirements.json lists { retire: [{placeId, reason}], skipNew: [...] }.
+let existing = [];
+try { existing = JSON.parse(readFileSync(OUT, "utf8")); } catch { existing = []; }
+let policy = { retire: [], skipNew: [] };
+try { policy = JSON.parse(readFileSync(join(ROOT, "data/atlas/editorial-retirements.json"), "utf8")); } catch {}
+const retireIds = new Set(policy.retire.map((r) => r.placeId));
+const skipIds = new Set(policy.skipNew.map((r) => r.placeId));
+const liveIds = new Set(existing.map((c) => c.placeId));
+const kept = existing.filter((c) => c.placeId && !retireIds.has(c.placeId));
+const retired = existing.filter((c) => retireIds.has(c.placeId));
+const added = cards.filter((c) => !liveIds.has(c.placeId) && !skipIds.has(c.placeId) && !retireIds.has(c.placeId));
+const merged = [...kept, ...added];
+const mergedPids = merged.map((c) => c.placeId);
+if (mergedPids.some((p, i) => mergedPids.indexOf(p) !== i)) problems.push("duplicate place_id after additive merge");
+console.log(`\nAdditive merge: ${kept.length} live kept as-is + ${added.length} new = ${merged.length}; retired ${retired.length}; skipped ${cards.filter((c) => skipIds.has(c.placeId)).length} new (see editorial-retirements.json skipNew)`);
+for (const r of retired) console.log(`  - retired #${r.num} ${r.name}`);
+
+writeFileSync(OUT, JSON.stringify(merged, null, 2));
+console.log(`\nWrote snapshot: ${OUT.replace(ROOT, ".")} (${merged.length} cards)`);
 
 if (!COMMIT) { console.log("\nDRY-RUN — no database write. Re-run with --commit to attach to wf_inventory."); process.exit(problems.length ? 1 : 0); }
 if (problems.length) { console.error("\nREFUSING to commit: validation problems above. Fix first."); process.exit(1); }
