@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 755,
-    "totalRegistryEntries": 756,
-    "guardsTxtLineCount": 754,
-    "guardsTxtReachedFileCount": 748,
+    "totalOnDiskGuardFiles": 756,
+    "totalRegistryEntries": 757,
+    "guardsTxtLineCount": 755,
+    "guardsTxtReachedFileCount": 749,
     "criticalCount": 91,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 525,
+      "CALL": 526,
       "RENDER": 90,
       "STRUCTURAL": 140,
       "OTHER": 1
@@ -14713,6 +14713,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 18,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-owned-editorial-rules.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 68,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
