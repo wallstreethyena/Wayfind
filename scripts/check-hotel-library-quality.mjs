@@ -59,7 +59,13 @@ const KEEP = [
 ];
 const servedNames = new Set(served.map((h) => h.name));
 for (const n of KEEP) ok(servedNames.has(n), `L6: a real hotel is still served — ${n}`);
-ok(served.length > 350, `L7: the library still serves a full list (got ${served.length})`);
+// The floor is an over-pruning ratchet, not a target. 2026-09-29: the
+// one-place-one-card dedupe (OWNED_HOTEL_DUPLICATES, guarded by
+// scripts/check-owned-hotel-identity.mjs) retired 28 cards that were second and
+// third listings of a hotel already served under its current name, so the
+// served count moved 372 -> 344 by design. 330 keeps ~4% headroom: it still
+// trips if a bad merge or a regenerated library drops a dozen real hotels.
+ok(served.length > 330, `L7: the library still serves a full list (got ${served.length})`);
 
 // 4 — the shapes themselves may not appear in what we serve.
 const FORBIDDEN = [

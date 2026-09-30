@@ -3,6 +3,7 @@ import { Component, useEffect, useMemo, useRef, useState } from "react";
 import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, distMeters, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces, normalizeSearchPlace, wayfindScore } from "../lib/google";
 import { normName, betterPlace, dedupePlaces } from "../lib/placeDedupe";
 import { comparatorFor, sortPlacesBy, nearestBranch } from "../lib/sortModes";
+import { openBrowseHistory } from "../lib/browseHistory";
 import { localCitySuggestions, createSearchAttempt } from "../lib/searchExperience.js";
 import { mergeHealedPlacePhotos } from "../lib/detailHero";
 import { RON_DUPRAT_TOP7, chefHookCard, chefPickPlaces } from "../lib/chefPicks";
@@ -86,7 +87,9 @@ import { saveItem as saveMonetized, fetchSavedItems } from "../lib/savedItems";
 import { setLocal, sweepLocal } from "../lib/localStore";
 import { browsePosition, horizontalPositions, restoreBrowsePosition } from "../lib/restoreBrowsePosition";
 import { placeRouteBackPlan } from "../lib/railReaction";
-import { reconcileIds } from "../lib/syncReconcile";
+import { reconcileIdsSafe } from "../lib/syncReconcile";
+import { STORE_CHANGE_EVENT, applyFavoritesChange, applyReactionChange } from "../lib/likeSignal";
+import { mergeSinceSnapshot } from "../lib/syncReconcile";
 // v4.94: the ONE junk filter — composites and any non-aggregator pool call it too.
 import { placeAllowed, SUB_ALLOW } from "../lib/placeFilter";
 import { parseCouponValue } from "../lib/couponValue";
@@ -291,6 +294,7 @@ import { askShareIntent } from "./components/shareIntentSheet";
 import { placeKinds } from "../lib/dateInvite";
 import { isDateRoom } from "../lib/dateRoom.js";
 import { isSeedCenter, cityLabel, landingSlugFromLoc, centerAgreesWithLabel, firstPaintRailOrigin, localityFromFormattedAddress, storedPinFresh } from "../lib/locationHonesty";
+import { ownedPlacePhotoSrc } from "../lib/placePhoto";
 
 const BUILD = "beta";
 
@@ -5537,17 +5541,23 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         if (!cancelled && saved) {
           const remotePlaces = saved.map((r) => r.place).filter((p) => p && p.id);
           let favBase = []; try { favBase = JSON.parse(localStorage.getItem("wf_fav_base") || "[]"); } catch {}
-          const rec = reconcileIds(favBase, favPlaces.map((p) => p.id), remotePlaces.map((p) => p.id));
+          const rec = reconcileIdsSafe(favBase, favPlaces.map((p) => p.id), remotePlaces.map((p) => p.id));
           if (rec.deleteRemote.length) { try { await supabase.from("saved_places").delete().eq("user_id", user.id).eq("list_name", "Favorites").in("place_id", rec.deleteRemote); } catch {} }
           const pushSet = new Set(rec.pushUp);
           const toPush = favPlaces.filter((p) => pushSet.has(p.id));
           if (toPush.length) { try { await supabase.from("saved_places").upsert(toPush.map((p) => ({ user_id: user.id, place_id: p.id, place: p, list_name: "Favorites" })), { onConflict: "user_id,place_id,list_name", ignoreDuplicates: true }); } catch {} }
           const pool = {}; [...remotePlaces, ...favPlaces].forEach((p) => { if (p && p.id) pool[p.id] = p; });
-          const keptPlaces = rec.keep.map((id) => pool[id]).filter(Boolean);
           try { setLocal("wf_fav_base", JSON.stringify(rec.keep)); } catch {}
+          // In-flight merge: a favorite toggled during the awaits above is in
+          // prev but not in the snapshot (favPlaces) — keep it; one removed during
+          // them is in the snapshot but not prev — drop it. Base stays rec.keep so
+          // the next sync reconciles anything the race left on the server.
           setLists((prev) => {
             const fav = prev.favorites || { id: "favorites", name: "Favorites", emoji: "❤️", places: [] };
-            return { ...prev, favorites: { ...fav, places: keptPlaces } };
+            const curPlaces = (fav.places || []).filter((p) => p && p.id);
+            const curById = {}; curPlaces.forEach((p) => { curById[p.id] = p; });
+            const ids = mergeSinceSnapshot(favPlaces.map((p) => p.id), rec.keep, curPlaces.map((p) => p.id));
+            return { ...prev, favorites: { ...fav, places: ids.map((id) => curById[id] || pool[id]).filter(Boolean) } };
           });
         }
         // F1 (extended): likes / disliked / shared reconcile against a BASE snapshot
@@ -5555,12 +5565,12 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         // this device's push-up (the old union-pull + unconditional re-push below did
         // exactly that). Each is an id-keyed item store {place,ts}; reconcileIds runs
         // the 3-way merge (lib/syncReconcile). rowPlace(r) -> the place object.
-        const reconcileColl = async ({ table, listName, storeKey, baseKey, setItems, setBool, rows, rowPlace }) => {
+        const reconcileColl = async ({ table, listName, storeKey, baseKey, setItems, setBool, boolKey, rows, rowPlace }) => {
           if (cancelled || !rows) return;
           let local = {}; try { local = JSON.parse(localStorage.getItem(storeKey) || "{}"); } catch {}
           const remote = {}; rows.forEach((r) => { const p = rowPlace(r); if (p && p.id) remote[p.id] = p; });
           let base = []; try { base = JSON.parse(localStorage.getItem(baseKey) || "[]"); } catch {}
-          const rec = reconcileIds(base, Object.keys(local), Object.keys(remote));
+          const rec = reconcileIdsSafe(base, Object.keys(local), Object.keys(remote));
           if (rec.deleteRemote.length) {
             try { let q = supabase.from(table).delete().eq("user_id", user.id).in("place_id", rec.deleteRemote); if (listName) q = q.eq("list_name", listName); await q; } catch {}
           }
@@ -5568,18 +5578,26 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           if (toPush.length) {
             try { await supabase.from(table).upsert(toPush.map((p) => (listName ? { user_id: user.id, place_id: p.id, place: p, list_name: listName } : { user_id: user.id, place_id: p.id, place: p })), { onConflict: listName ? "user_id,place_id,list_name" : "user_id,place_id", ignoreDuplicates: true }); } catch {}
           }
+          // In-flight merge: re-read the store AFTER the awaits so a toggle made
+          // during them survives (added) or stays gone (removed).
+          let cur = {}; try { cur = JSON.parse(localStorage.getItem(storeKey) || "{}") || {}; } catch {}
+          const mergedIds = mergeSinceSnapshot(Object.keys(local), rec.keep, Object.keys(cur));
           const next = {};
-          rec.keep.forEach((id, i) => { const entry = local[id] || (remote[id] ? { place: remote[id], ts: Date.now() - i } : null); if (entry) next[id] = entry; });
-          try { localStorage.setItem(storeKey, JSON.stringify(next)); setLocal(baseKey, JSON.stringify(rec.keep)); } catch {}
+          mergedIds.forEach((id, i) => { const entry = cur[id] || local[id] || (remote[id] ? { place: remote[id], ts: Date.now() - i } : null); if (entry) next[id] = entry; });
+          try { setLocal(storeKey, JSON.stringify(next)); setLocal(baseKey, JSON.stringify(rec.keep)); } catch {}
           if (!cancelled) {
             if (setItems) setItems(next);
-            if (setBool) setBool(Object.fromEntries(rec.keep.map((id) => [id, true])));
+            if (setBool) {
+              const boolMap = Object.fromEntries(mergedIds.map((id) => [id, true]));
+              setBool(boolMap);
+              if (boolKey) { try { setLocal(boolKey, JSON.stringify(boolMap)); } catch {} }
+            }
           }
         };
         const { data: likeRows } = await supabase.from("likes").select("place_id, place").eq("user_id", user.id);
-        await reconcileColl({ table: "likes", listName: null, storeKey: "wf_liked_items", baseKey: "wf_liked_base", setItems: setLikedItems, setBool: setLiked, rows: likeRows, rowPlace: (r) => (r.place && r.place.id ? r.place : (r.place_id ? { id: r.place_id } : null)) });
+        await reconcileColl({ table: "likes", listName: null, storeKey: "wf_liked_items", baseKey: "wf_liked_base", setItems: setLikedItems, setBool: setLiked, boolKey: "wf_liked", rows: likeRows, rowPlace: (r) => (r.place && r.place.id ? r.place : (r.place_id ? { id: r.place_id } : null)) });
         const { data: disRows } = await supabase.from("saved_places").select("place").eq("user_id", user.id).eq("list_name", "Disliked");
-        await reconcileColl({ table: "saved_places", listName: "Disliked", storeKey: "wf_disliked_items", baseKey: "wf_disliked_base", setItems: setDislikedItems, setBool: null, rows: disRows, rowPlace: (r) => r.place });
+        await reconcileColl({ table: "saved_places", listName: "Disliked", storeKey: "wf_disliked_items", baseKey: "wf_disliked_base", setItems: setDislikedItems, setBool: setDisliked, boolKey: "wf_disliked", rows: disRows, rowPlace: (r) => r.place });
         const { data: shrRows } = await supabase.from("saved_places").select("place").eq("user_id", user.id).eq("list_name", "Shared");
         await reconcileColl({ table: "saved_places", listName: "Shared", storeKey: "wf_shared_items", baseKey: "wf_shared_base", setItems: setSharedItems, setBool: null, rows: shrRows, rowPlace: (r) => r.place });
       } catch {}
@@ -6543,7 +6561,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     }
     setLiked(nextLiked); setDisliked(nextDis);
     setLikedItems(nextLikedItems); setDislikedItems(nextDisItems);
-    try { localStorage.setItem("wf_liked", JSON.stringify(nextLiked)); localStorage.setItem("wf_disliked", JSON.stringify(nextDis)); localStorage.setItem("wf_liked_items", JSON.stringify(nextLikedItems)); setLocal("wf_disliked_items", JSON.stringify(nextDisItems)); } catch {}
+    try { setLocal("wf_liked", JSON.stringify(nextLiked)); setLocal("wf_disliked", JSON.stringify(nextDis)); setLocal("wf_liked_items", JSON.stringify(nextLikedItems)); setLocal("wf_disliked_items", JSON.stringify(nextDisItems)); } catch {}
     // Same-turn stamp: card + open detail sheet. sessionOwner is server-set
     // on a prior likes fetch — no email/UUID on the client, no page refresh.
     if (user && likesSessionOwner) patchOwnerPick(p.id, nowLiked);
@@ -6572,7 +6590,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     }
     setLiked(nextLiked); setDisliked(nextDis);
     setLikedItems(nextLikedItems); setDislikedItems(nextDisItems);
-    try { localStorage.setItem("wf_liked", JSON.stringify(nextLiked)); localStorage.setItem("wf_disliked", JSON.stringify(nextDis)); localStorage.setItem("wf_liked_items", JSON.stringify(nextLikedItems)); setLocal("wf_disliked_items", JSON.stringify(nextDisItems)); } catch {}
+    try { setLocal("wf_liked", JSON.stringify(nextLiked)); setLocal("wf_disliked", JSON.stringify(nextDis)); setLocal("wf_liked_items", JSON.stringify(nextLikedItems)); setLocal("wf_disliked_items", JSON.stringify(nextDisItems)); } catch {}
     if (!wasDis) showToast("Got it — fewer places like this");
   }
   function toggleHookLike(hookId) {
@@ -7142,6 +7160,27 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     return stopSessionRecording;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supabaseReady]);
+  // A card with no wired handler saves/likes through lib/cardActions, which
+  // writes the same keys this shell persists wholesale. It announces each write
+  // as a DELTA; fold it into state with functional updaters so it composes with
+  // anything already queued, instead of the next persist erasing it. (A storage
+  // re-read here would drop a queued-but-uncommitted home save the same way.)
+  // Locked by scripts/test-card-store-coherence.mjs.
+  useEffect(() => {
+    const onStoreChange = (ev) => {
+      const d = ev && ev.detail;
+      if (!d || !d.id) return;
+      if (d.kind === "save") setLists((prev) => applyFavoritesChange(prev, d));
+      else if (d.kind === "like" || d.kind === "dislike") {
+        setLiked((prev) => applyReactionChange("liked", prev, d));
+        setDisliked((prev) => applyReactionChange("disliked", prev, d));
+        setLikedItems((prev) => applyReactionChange("likedItems", prev, d));
+        setDislikedItems((prev) => applyReactionChange("dislikedItems", prev, d));
+      }
+    };
+    try { window.addEventListener(STORE_CHANGE_EVENT, onStoreChange); } catch (e) {}
+    return () => { try { window.removeEventListener(STORE_CHANGE_EVENT, onStoreChange); } catch (e) {} };
+  }, []);
   const listsHydrated = useRef(false);
   useEffect(() => {
     // Skip the first run so default empty lists never overwrite real saved data
@@ -8291,6 +8330,26 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     return () => window.removeEventListener("popstate", onPop);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!detail]);
+
+  // 2026-09-28 (owner: "the navigation of it is kind of weird"): the phone's
+  // Back button closes an open category instead of leaving Wayfind.
+  // The tab row's pressed tab + sub-tray (navOpenCat) is separate state from
+  // the open category. Every close path — in-app ‹ Back, the Home tab, the
+  // phone's Back — must release it too, or the tab stays highlighted and the
+  // next tap on it reads as "deselect": tapping Food after Back did nothing
+  // (verified in a real browser, 2026-09-28).
+  useEffect(() => { if (!browseCat) setNavOpenCat(null); }, [browseCat]);
+  const browseOpenRef = useRef(false);
+  browseOpenRef.current = !!browseCat;
+  // lib/browseHistory.js holds the three rules (one entry per visit; Back
+  // under a detail sheet keeps the category; in-app close steps over our
+  // entry) and is exercised against a simulated history stack by
+  // scripts/test-browse-back.mjs.
+  useEffect(() => {
+    if (!browseCat) return undefined;
+    return openBrowseHistory(window, { isOpen: () => browseOpenRef.current, close: () => closeBrowse() });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [!!browseCat]);
 
   // v6.93 — same back-button/swipe-back close behavior for the Social Media
   // Find sheet as the detail sheet above.
@@ -10581,7 +10640,18 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                   Score it shows is recomputed by the same formula as every
                   unpaid card. Money buys the position, never the number. */}
               {!browseCat && sponsoredPick ? (
-                <SponsoredPlaceCard pick={sponsoredPick} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />
+                <SponsoredPlaceCard pick={sponsoredPick} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }}
+                  saved={sponsoredPick.placeId ? isSaved(sponsoredPick.placeId) : undefined}
+                  liked={sponsoredPick.placeId ? !!liked[sponsoredPick.placeId] : undefined}
+                  disliked={sponsoredPick.placeId ? !!disliked[sponsoredPick.placeId] : undefined}
+                  onSave={(p) => quickSaveFavorite(p)}
+                  onLike={(e, p) => toggleLike(e || { stopPropagation() {} }, p)}
+                  onDislike={(e, p) => toggleDislike(e || { stopPropagation() {} }, p)}
+                  onShare={(p) => {
+                    if (!p || !p.id) return;
+                    try { logEvent("share", p, { kind: "sponsored_place_card" }); } catch (er) {}
+                    try { shareLink(p.name, placeShareUrl(p, "", ""), () => showToast("Link copied"), fallShareLine("Check out " + p.name + " on Wayfind", p.id, siteTodayStr()), () => { try { giveawayMark(p.id); addShared(p); } catch (er) {} }); } catch (er) {}
+                  }} />
               ) : null}
               {/* v6.62 (2026-08-08, owner: "add this to the top of the page"),
                   REVERSES v6.97's "MOVED BELOW THE ANSWER" call below. The six
@@ -11819,6 +11889,15 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   // cardComplete early return below (rules of hooks: this hook must run on
   // every render, even for a card that ultimately renders nothing).
   const cardPhoto = useBestPhoto(p && p.photo, p && p.photos);
+  // 2026-09-28 (owner: "a lot of the places don't have pictures"): a Google-id
+  // row with no photo ref — or whose ref dies — gets the SAME place-scoped
+  // ladder landing cards already use (lib/placePhoto.cardImageSrc):
+  // /api/photo?place=<id> tries the permanent vault / Commons lane and the
+  // same-place cache before any metered spend, and 404s to the monogram when
+  // nothing exists. Never another place's photo. Locked by
+  // scripts/test-card-photo-fallback.mjs.
+  const cardPlaceSrc = ownedPlacePhotoSrc(p && p.id);
+  const cardPrimarySrc = cardPhoto || (p && p.photo) || cardPlaceSrc;
   // v8.49.1 (owner, 2026-08-25, Family → Kids at Parrish): Kids Empire and
   // Intense Escape both painted the same beach-sunset stock scene. That was
   // rung 3 of the photo ladder — /api/market-photo keyed on category+city —
@@ -11968,8 +12047,8 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
       {dispScore != null && <div className="wf-place-card-score"><WayfindScoreBadge score={dispScore} /></div>}
       <div className="wf-place-card-layout" style={{ position: "relative", zIndex: 1, pointerEvents: "none" }}>
         <div className="wf-place-card-media">
-          {(cardPhoto || (p && p.photo))
-            ? <FallbackImg src={cardPhoto || p.photo} icon={iconForPlace(p)} />
+          {cardPrimarySrc
+            ? <FallbackImg src={cardPrimarySrc} fallbackSrc={cardPlaceSrc && cardPlaceSrc !== cardPrimarySrc ? cardPlaceSrc : undefined} icon={iconForPlace(p)} />
             : <div className="wf-place-card-monogram" aria-hidden="true">{cardInitials}</div>}
           {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
         </div>

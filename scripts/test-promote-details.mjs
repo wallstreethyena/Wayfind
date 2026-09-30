@@ -58,6 +58,11 @@ eq(bare.row.signals.reviews, 0, "no index signal -> reviews 0, same as a place G
 // ── spendAllowCapped: mode arithmetic, ledger stubbed ────────────────────────
 process.env.SUPABASE_URL = "https://stub.supabase.co";
 process.env.SUPABASE_SERVICE_ROLE_KEY = "sb_secret_stub";
+// The build environment may carry the promotion-only paid switch (owner-approved
+// 2026-09-28). These cases pin the FREE/OPEN arithmetic, so clear it; the paid
+// ceiling has its own proof in scripts/test-promote-paid-cap.mjs.
+delete process.env.WAYFIND_PROMOTE_PAID;
+delete process.env.PROMOTE_DETAILS_MONTH_CAP;
 const { spendAllowCapped } = await import("../lib/spendGate.js");
 const takes = [];
 globalThis.fetch = async (url, init) => {

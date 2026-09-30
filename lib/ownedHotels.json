@@ -95,7 +95,7 @@
     "lng": -82.704124,
     "address": "2300 Gulf Dr N",
     "city": "Bradenton",
-    "gpid": "ChIJjRZP47wRw4gRUurwE1ZgRaQ",
+    "gpid": "ChIJW2BK37wRw4gRMKhCQ-qwbMM",
     "rating": 4.7,
     "reviews": 1270,
     "category": "hotels",
@@ -107,7 +107,7 @@
     "knownFor": "Beach, island or Gulf-adjacent stay energy; better for vacation rhythm than boardroom polish.",
     "bookingMove": "Verify exact beach access, parking, resort fees and whether the room is hotel-managed or condo-style.",
     "insiderMove": "Great candidate if the user asks for beach proximity, but verify the official booking page before launch.",
-    "photo_ref": "places/ChIJjRZP47wRw4gRUurwE1ZgRaQ/photos/AaVGc3nx5NJ5gZXxJ34aoTEIKAWkHjzpSnGlgEMzbtC5OKQmtNHLI70U5ZI6iKqlczyni_WSOJIpEAAvn3bonu5VhgywkB8DmUHDkvtgo3wEGeiUgAuGc2I_gMy1xlgUym9IcswKujy4YmriXSvIYsFtO4a5lzjLE1GbdHmB-59sjwzP3kaRMSOhvZoSr5MSNIMkSGLW4u6eCkEbLVO2DyaTrFRk_R3mhWXlE1hh1W8R9Fs8LewiHKCrpXnWtqK2m2uxnLpowR-V1JWrwzLLgYTz03_6DQR-6M2hY7nkgPvE2EX8IDkQbt0aBxu1sPw8VpVMz9W0p6iCcLgt16xqtsP2_iO_IEF1ccITunlk9OVpg5t5Ueyvy5pwAYwJ-DiXO0WDkEoVNdmxYjr3j_dYgvR4uojtwktdBxJkXznKSURNvJDMpwkUzln3pkzUiv5j53Kc"
+    "photo_ref": null
   },
   {
     "name": "Anna Maria Island Resorts",
@@ -725,7 +725,7 @@
     "lng": -82.57501,
     "address": "6511 14th St W",
     "city": "Bradenton",
-    "gpid": null,
+    "gpid": "ChIJASMXqe0Vw4gRzTn6lEHnwdg",
     "rating": null,
     "reviews": 0
   },
@@ -2485,7 +2485,7 @@
     "lng": -82.573895,
     "address": "138 Garfield Dr",
     "city": "Sarasota",
-    "gpid": null,
+    "gpid": "ChIJVVUJtohqw4gREJqIXVcQLDc",
     "rating": null,
     "reviews": 0
   },
@@ -3335,7 +3335,7 @@
     "lng": -82.535089,
     "address": "915 Seaside Dr",
     "city": "Sarasota",
-    "gpid": null,
+    "gpid": "ChIJS7WGeCRCw4gR7bmYEoqJd5g",
     "rating": null,
     "reviews": 0
   },
@@ -3515,7 +3515,7 @@
     "lng": -82.572025,
     "address": "7251 N Tamiami Trail",
     "city": "Sarasota",
-    "gpid": null,
+    "gpid": "ChIJ4ywr2o8Vw4gR37GtZmd2jbk",
     "rating": null,
     "reviews": 0
   },
@@ -3845,7 +3845,7 @@
     "lng": -82.55397,
     "address": "4800 N Tamiami Trl",
     "city": "Sarasota",
-    "gpid": null,
+    "gpid": "ChIJB4-9zB8Ww4gRUfO0-HD7tUo",
     "rating": null,
     "reviews": 0
   },
@@ -3995,7 +3995,7 @@
     "lng": -82.559188,
     "address": "523 Beach Rd",
     "city": "Sarasota",
-    "gpid": null,
+    "gpid": "ChIJuQd82OJBw4gRxzpw8s7_LnM",
     "rating": null,
     "reviews": 0
   },
@@ -4055,7 +4055,7 @@
     "lng": -82.533849,
     "address": "",
     "city": "Sarasota",
-    "gpid": "ChIJp9x9XSRCw4gRdvhP9hbyu0k",
+    "gpid": null,
     "rating": null,
     "reviews": 0
   },
@@ -4605,7 +4605,7 @@
     "lng": -82.553907,
     "address": "4309 N Tamiami Trl",
     "city": "Sarasota",
-    "gpid": null,
+    "gpid": "ChIJf8Igqec_w4gRN54YRdjrE9Q",
     "rating": null,
     "reviews": 0
   },
@@ -4615,7 +4615,7 @@
     "lng": -82.555622,
     "address": "5340 N Tamiami Trl",
     "city": "Sarasota",
-    "gpid": null,
+    "gpid": "ChIJ0ZdlzKw_w4gRmyqzaPzs5lE",
     "rating": null,
     "reviews": 0
   },
@@ -4635,7 +4635,7 @@
     "lng": -82.54496,
     "address": "1205 Cocoanut Ave",
     "city": "Sarasota",
-    "gpid": null,
+    "gpid": "ChIJSzAlIwpAw4gRde_tU-fIgKk",
     "rating": null,
     "reviews": 0
   },
@@ -4645,7 +4645,7 @@
     "lng": -82.449877,
     "address": "Harbor Dr S",
     "city": "Sarasota",
-    "gpid": null,
+    "gpid": "ChIJZwAjH79bw4gRB213AOJmz2Y",
     "rating": null,
     "reviews": 0
   },
@@ -4665,7 +4665,7 @@
     "lng": -82.634504,
     "address": "3465 Gulf of Mexico Dr",
     "city": "Sarasota",
-    "gpid": null,
+    "gpid": "ChIJNUKxl70Uw4gRIVzOyG8U2yk",
     "rating": null,
     "reviews": 0
   },
@@ -4675,7 +4675,7 @@
     "lng": -82.471232,
     "address": "129 Casey Key Rd",
     "city": "Sarasota",
-    "gpid": null,
+    "gpid": "ChIJJa32bGNbw4gRxhyS0Q6kyTY",
     "rating": null,
     "reviews": 0
   },
@@ -4685,7 +4685,7 @@
     "lng": -82.626224,
     "address": "2721 Gulf of Mexico Dr",
     "city": "Sarasota",
-    "gpid": null,
+    "gpid": "ChIJzfpjCMgUw4gRHE1LWQFufKw",
     "rating": null,
     "reviews": 0
   },
@@ -4705,7 +4705,7 @@
     "lng": -82.494853,
     "address": "3727 Bahia Vista, Sarasota,FL",
     "city": "Sarasota",
-    "gpid": null,
+    "gpid": "ChIJO3IB9cBAw4gROE-Fuxz-qRQ",
     "rating": null,
     "reviews": 0
   },
@@ -4715,7 +4715,7 @@
     "lng": -82.540295,
     "address": "621 S Gulfstream Ave",
     "city": "Sarasota",
-    "gpid": null,
+    "gpid": "ChIJO6Zl0xRAw4gRdWRUzhHh1ZM",
     "rating": null,
     "reviews": 0
   },
@@ -4755,7 +4755,7 @@
     "lng": -82.562838,
     "address": "5251 Calle Menorca",
     "city": "Sarasota",
-    "gpid": null,
+    "gpid": "ChIJU0lLwglqw4gRur_cYiU1Qhk",
     "rating": null,
     "reviews": 0
   },
@@ -4765,7 +4765,7 @@
     "lng": -82.559361,
     "address": "515 Beach Rd",
     "city": "Sarasota",
-    "gpid": null,
+    "gpid": "ChIJEzhQ2eJBw4gR73MSY69EAns",
     "rating": null,
     "reviews": 0
   },
@@ -4785,7 +4785,7 @@
     "lng": -82.514663,
     "address": "9004 Midnight Pass Rd Unit 34242",
     "city": "Sarasota",
-    "gpid": null,
+    "gpid": "ChIJP4iKyq1Dw4gR7DRX5Qi7Ma8",
     "rating": null,
     "reviews": 0
   },
@@ -4885,7 +4885,7 @@
     "lng": -82.562796,
     "address": "312 Beach Rd",
     "city": "Sarasota",
-    "gpid": null,
+    "gpid": "ChIJU8GXMAhqw4gRgWzZIB7OM6o",
     "rating": null,
     "reviews": 0
   },
@@ -4945,7 +4945,7 @@
     "lng": -82.556959,
     "address": "625 Beach Rd",
     "city": "Sarasota",
-    "gpid": null,
+    "gpid": "ChIJvbbSr_xBw4gRptXiJ4JrAN8",
     "rating": null,
     "reviews": 0
   },
@@ -4995,7 +4995,7 @@
     "lng": -82.565383,
     "address": "140 Columbus Blvd",
     "city": "Sarasota",
-    "gpid": null,
+    "gpid": "ChIJq5hbYglqw4gRqD5_5_KhK7U",
     "rating": null,
     "reviews": 0
   },
@@ -5005,7 +5005,7 @@
     "lng": -82.508598,
     "address": "4001 Groveland Ave Apt 1",
     "city": "Sarasota",
-    "gpid": null,
+    "gpid": "ChIJXUVFuhVBw4gRdlEUMOY0z_A",
     "rating": null,
     "reviews": 0
   },
@@ -5065,7 +5065,7 @@
     "lng": -82.532072,
     "address": "1115 Point of Rocks Rd",
     "city": "Sarasota",
-    "gpid": null,
+    "gpid": "ChIJty7e_SRCw4gR7CkRBOrdRCM",
     "rating": null,
     "reviews": 0
   },
@@ -5145,7 +5145,7 @@
     "lng": -82.623565,
     "address": "2509 Gulf of Mexico Dr",
     "city": "Sarasota",
-    "gpid": null,
+    "gpid": "ChIJv7K2-8gUw4gRyWaRmgigiDE",
     "rating": null,
     "reviews": 0
   },
@@ -5155,7 +5155,7 @@
     "lng": -82.480135,
     "address": "1650 S Tamiami Trl",
     "city": "Sarasota",
-    "gpid": null,
+    "gpid": "ChIJCe_O6llDw4gRgbHQpUeeh7Q",
     "rating": null,
     "reviews": 0
   },
@@ -5205,7 +5205,7 @@
     "lng": -82.549555,
     "address": "1280 Whitfield Ave",
     "city": "Sarasota",
-    "gpid": null,
+    "gpid": "ChIJR_S6Hz0-w4gRPI_DnlSZ7tk",
     "rating": null,
     "reviews": 0
   },
@@ -5225,7 +5225,7 @@
     "lng": -82.471569,
     "address": "221 Casey Key Rd",
     "city": "Sarasota",
-    "gpid": null,
+    "gpid": "ChIJVc6RoGNbw4gRYpX9dstnjks",
     "rating": null,
     "reviews": 0
   },
@@ -5285,7 +5285,7 @@
     "lng": -82.471358,
     "address": "205 Casey Key Rd, Nokomis, FL 34275",
     "city": "Sarasota",
-    "gpid": null,
+    "gpid": "ChIJTU7gbGNbw4gRTlwCLj7vuYs",
     "rating": null,
     "reviews": 0
   }

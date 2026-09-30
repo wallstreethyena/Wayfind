@@ -54,9 +54,9 @@ const oneDay = { start_date: "2026-10-17", end_date: null, start_time: "17:00:00
 ok(isOpenRun(store) === true && isOpenRun(oneDay) === false, "an open run is a CLAIM the note makes; a bare null end is not one");
 ok(fallEventLive(oneDay, "2026-10-01") === true && fallEventLive(oneDay, "2026-10-17") === true, "the one-day row is live up to and on its day");
 ok(fallEventLive(oneDay, "2026-10-18") === false, "…and retired the day after — it does NOT ride the open-run allowance");
-ok(fallWhenLabel(oneDay, "2026-10-01").label === "Oct 17" && /Saturday/.test(fallWhenLabel(oneDay, "2026-10-01").value), "…and its badge is the date and weekday, not 'Opens'");
+ok(fallWhenLabel(oneDay, "2026-10-01").label === "Oct 17" && /^Sat 5pm$/.test(fallWhenLabel(oneDay, "2026-10-01").value), "…and its badge is the date and 3-letter weekday, not 'Opens' (owner 2026-09-30: abbreviations, no truncation)");
 ok(fallWhenLabel(oneDay, "2026-10-17").label === "Today", "…and reads 'Today' on the day");
-ok(/Saturday · 5pm/.test(fallScheduleChip(oneDay)?.label || ""), "the schedule chip carries the weekday and the clock");
+ok(/^Sat · 5pm$/.test(fallScheduleChip(oneDay)?.label || ""), "the schedule chip carries the 3-letter weekday and the clock");
 ok(/Select nights · 7pm/.test(fallScheduleChip({ ...hhn, select_nights: true, start_time: "19:00:00", schedule_note: "Select nights. Event starts at 7 p.m." })?.label || ""), "…and 'Select nights · 7pm' for a select-night run with a clock");
 ok(fallScheduleChip({ start_date: "2026-10-01", end_date: "2026-10-31" }) === null, "no clock and no note -> no chip, never a template");
 ok(/Thru Nov 1/.test(fallWhenLabel(hhn, "2026-09-01").label) || /Select nights thru Nov 1/.test(fallWhenLabel({ ...hhn, select_nights: true }, "2026-09-01").label),

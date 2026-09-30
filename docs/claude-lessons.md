@@ -1,0 +1,622 @@
+# Claude lessons — the full incident record behind CLAUDE.md
+
+> Moved out of `CLAUDE.md` on 2026-09-28 so every Claude session stops paying for it
+> on every turn. `CLAUDE.md` now holds the **rules**; this file holds the **evidence and
+> the stories** each rule was bought with. Nothing here was deleted or reworded — this is
+> the pre-trim `CLAUDE.md` verbatim (below the rule). When a script comment cites
+> "CLAUDE.md §…" or quotes a CLAUDE.md phrase, the full passage is here.
+
+---
+
+
+Guidance for any Claude session working in this repo. **Two Claude sessions edit it
+concurrently** (this one + "Cowork-Claude"), plus the owner (Gabriel). Coordination and
+non-collision matter more than raw speed.
+
+---
+
+## ✅ Parallel lanes — all clear (no frozen files)
+
+**There is no frozen lane right now.** The Viator / affiliate booking-integrity lane that
+used to live here is **closed** — treat those files as normal code.
+
+History, so nobody re-freezes them by mistake: the lane was `fix/booking-integrity-v2`
+(the fix for "Tickets & tours" links sending people to the wrong place — Dalí → Barcelona,
+Ringling → Houston, a geo/entity mismatch in the resolver). Its work **already shipped to
+main**. The branch's one commit, `19dc542` (2026-07-17), *looked* unmerged only because a
+squash-merge left the refs diverged; every identifier it introduced — `geoConfirms`,
+`geoConfirmed`, `AMBIGUITY_EPS`, `GENERIC` — is on `main` today, and diffing the lane's
+files main→branch is **net −87 lines**, i.e. the branch was *behind* main, not ahead.
+The remote branch has been deleted.
+
+**Two standing conditions when you touch this code** (both exist to stop specific shipped
+bugs — do not "simplify" either one away):
+
+- **Do not weaken `geoConfirms()`** in `lib/bookingResolver.js`. It is what stops
+  wrong-place redirects.
+- **Do not weaken the beach exclusion** in `isTicketyPlace()` (`lib/affiliates.js:63`).
+  Beaches carry `tourist_attraction` in their Google types, which leaked Viator CTAs onto
+  free sand. Beach-typed / `natural_feature` / `category === "beach"` is NEVER bookable.
+- **`scripts/test-booking-integrity.mjs` must stay green** — it is the regression lock for
+  both of the above.
+
+`isTicketyPlace` / `viatorApiProductUrl` already exist (`lib/affiliates.js`). **Don't
+re-add those helpers** — fold into them.
+
+### The real guard against another merge-#346
+
+Freezing files was never the actual protection, and it cost an audit cycle. Two Claude
+sessions plus the owner commit to `main` through PRs from **separate clones**; nobody holds
+a lock on `app/home.js` or anything else. What protects the repo:
+
+**Never assume your local base is current. `git fetch origin main` and diff immediately
+before every commit.** A stale ref cache is also why a branch can look absent or unmerged
+when it is neither — run `git fetch --prune --all` before trusting `git branch -r`.
+
+---
+
+## 📉 Lessons — 2026-08-25 revenue audit (full story: docs/POSTMORTEM_2026-08-25_REVENUE_PATH.md)
+
+Five rules, each bought with a real outage or leak that day. Do not relearn them.
+
+1. **Env-gated branches need a static guard or a CI run with the flag ON.** The
+   spend-gate's `NextResponse.json()` (never imported) crashed all four content
+   crons the moment FREE MODE flipped — green build, dead pipeline.
+   `scripts/check-response-imports.mjs` now checks the source; keep it green,
+   and give any new env-flag branch the same treatment.
+2. **Deterministic provider failures (billing/quota) never retry.** 579
+   identical Anthropic 400s over 8 days, each also burning paid Places calls.
+   `lib/providerHealth.js` classifies + breaks the circuit; pulse notes with a
+   `billing:`/`quota:` prefix page after ONE dead run. Keep the Anthropic
+   account on auto-reload — the breaker limits blast radius, it can't add credits.
+3. **Every fallback rung keeps attribution, and "degraded" is not "failed."**
+   Missing-query Viator clicks went to the bare homepage (free traffic to the
+   partner); Uber Eats' attributed search fallback was counted as a failure
+   (47% "failure rate" nobody could alert on). Redirect events now carry
+   `resolver_path`; `provider_redirect_failed` means unattributable, nothing else.
+4. **Commercial links go through our `/api/*/go` routes, never a client-built
+   `NEXT_PUBLIC_*` template href.** Build-time inlining silently unmonetized
+   the Detail delivery rung (August's two largest `primary_cta_null` buckets).
+   `Aff.uberEatsGoUrl` / `experienceGoUrl` are the pattern. When you fix a
+   bake-time-env bug, grep for its siblings — this was the second occurrence.
+5. **New public content ships WITH its sitemap + schema; new tables ship WITH
+   RLS.** The 83-row curated events layer was invisible to Google; three
+   backup tables sat anon-writable for six days (RLS enabled 2026-08-25 —
+   drop them once confirmed unreferenced). Read the Supabase advisor output
+   on a schedule, not after the revenue dips.
+
+---
+
+## ⚠️ Concurrency rules
+
+- **main moves fast** — both sessions push, sometimes every few minutes. NEVER assume main
+  is unchanged: `git fetch` and branch off **fresh `origin/main`** for every fix.
+- **Work in an ISOLATED git worktree**, never a shared one. (A shared worktree once had its
+  HEAD moved and working tree contaminated mid-edit — a commit accidentally swept up the
+  other session's uncommitted work and had to be redone cleanly.) Always verify
+  `git status` shows **only your own files** before you commit.
+- Leave the other session's branches/worktrees alone.
+
+### Force-pushing a shared branch is a compare-and-swap, or it is data loss (2026-09-09)
+
+**`git push --force-with-lease` with no explicit value does NOT protect you.** The bare
+lease compares against your own remote-tracking ref, so the moment you `git fetch` — which
+every careful lane does before rebasing — the lease silently absorbs the other lane's
+commits and the force push deletes them without a warning.
+
+That is not theory. On 2026-09-09 a lane force-pushed PR #1221 exactly this way and
+destroyed `be96edfc`, four housekeeping commits another lane had pushed to the same branch
+minutes earlier. Recovered to `rescue/1221-be96edfc` only because someone went looking; git
+reported nothing but `(forced update)`. Reproduced mechanically since: fetch, bare lease,
+push — the other lane's commit is simply gone from the remote.
+
+**Owner's rule, verbatim:** *"No agent may force-push a shared PR branch unless it has
+fetched that exact remote branch immediately beforehand and the push is conditional on the
+exact SHA it just observed."*
+
+So the lease is always pinned to a SHA you read seconds ago, never left implicit:
+
+```
+REMOTE_HEAD="$(git ls-remote origin refs/heads/<branch> | awk '{print $1}')"
+git push --force-with-lease=refs/heads/<branch>:$REMOTE_HEAD origin HEAD:<branch>
+```
+
+Use **`scripts/safe-force-push.sh <branch>`** rather than retyping it. It fetches that one
+branch, pins the lease to what it just observed, lists anything the push would destroy, and
+**refuses** when that list is non-empty unless you pass `--accept-loss <the exact SHA it
+just showed you>` — so discarding another lane's work becomes a deliberate act naming the
+thing being discarded, not a side effect. It also refuses `main` outright.
+
+**And the rule that makes force-pushing rare: ONE LANE OWNS ONE REMOTE BRANCH.** Two lanes
+pushing one branch is the condition that turns a routine rebase into a race. If you need to
+build on another lane's branch, branch off it — a second branch costs nothing and a lost
+commit costs an audit cycle. Keep a `rescue/<branch>-<sha8>` branch alive until the PR it
+came from is settled.
+
+### Every lane sets its own git identity (2026-07-30, owner directive)
+
+**Authorship questions get answered by `git log --format='%an'`, never from memory.**
+
+On 2026-07-29 a relay chain credited this lane with `foodTours.js` and a food-tour rail it
+had never touched, and asked it to merge a PR whose contents did not match the description
+(#477 was commerce-redirect work; the praised matcher existed nowhere in the repo). Every
+lane commits as the same GitHub account, so the PR list alone cannot tell the lanes apart.
+Praise or blame routed to the wrong lane is corrosive in both directions, and merging
+another lane's PR on a garbled premise is how a merge-#346 happens.
+
+So each lane stamps its own `user.name`, keeping `user.email` as-is.
+
+**Use `--worktree`, not a bare `git config`.** Worktrees SHARE `.git/config` with the clone
+that owns them — a worktree's `.git` is a *file* pointing at
+`<clone>/.git/worktrees/<name>`. So a repo-local `git config user.name "…lane…"` inside a
+worktree of the OWNER's clone relabels **the owner's own commits too**, which defeats the
+entire point. Per-worktree config needs the extension enabled once per clone:
+
+```
+git config --local extensions.worktreeConfig true    # once, per clone
+git config --worktree user.name "<lane name>"        # in EACH new worktree
+```
+
+Verify the split before trusting it — the failure is silent otherwise:
+
+```
+git -C <owner clone>    config user.name   # -> the owner, unchanged
+git -C <your worktree>  config user.name   # -> your lane
+```
+
+`--worktree` settings do **not** propagate to worktrees created later, so this is one line
+per new worktree. Cheap, and the alternative is authorship that has to be remembered.
+
+This lane is `claude.exe (Wayfind lane)`.
+
+### …and every commit carries a `Lane:` trailer (2026-07-30, owner-approved, ALL lanes)
+
+**The `--worktree` identity above only survives on branch refs. Squash-merge discards it.**
+
+Measured on `main` right after #482 landed:
+
+```
+$ git log origin/main -1 --format='author: %an  committer: %cn'
+author: wallstreethyena  committer: GitHub
+```
+
+Every lane's PR lands identically — eight consecutive commits on `main` (#472 through
+#482, across three lanes) all read `wallstreethyena`. GitHub rewrites the author to the
+PR's GitHub account, and the per-commit author is gone with the branch. So
+`git log --format='%an'` answers authorship for a **branch**, and answers nothing for
+`main`.
+
+What DOES survive is the commit **body**: GitHub's default squash message is the PR title
+plus the concatenated commit messages. #482's full body is intact inside `ff13673`, which
+is what makes this fix work. So every commit ends with a trailer naming its lane:
+
+```
+Lane: claude.exe (Wayfind lane)
+Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>
+```
+
+Then squashed history is greppable and authoritative:
+
+```
+git log origin/main --grep='Lane: ' --format='%h %s'          # every lane-attributed commit
+git log origin/main --grep='Lane: claude.exe' --format='%h %s' # just this lane
+```
+
+Four things to know so this does not quietly stop working:
+
+- **`--grep` is the seam. `%(trailers:key=Lane)` returns EMPTY on squashed `main`** — do not
+  reach for it. Measured on `8311fa6`, the commit that introduced this convention: GitHub
+  strips the authored `Co-Authored-By`, normalizes it to `Co-authored-by`, and re-appends it
+  **after a blank line**. Git's trailer parser only reads a *contiguous* block at the end of
+  the message, so that inserted blank line demotes `Lane:` to ordinary body prose. The text
+  survives — `git log origin/main --grep='Lane: '` finds it — but the structured read does
+  not. **This is not fixable by reordering:** GitHub re-appends the co-author regardless, so
+  any trailer placed above it gets separated the same way, and putting `Lane:` last would
+  break the harness requirement below. `%(trailers:...)` works only on branch refs.
+
+- **Two layers, not one.** `--worktree user.name` is the branch-ref layer; the trailer is
+  the squashed-history layer. Keep both — the trailer alone loses per-commit attribution
+  inside a multi-commit branch, and the identity alone loses everything at merge.
+- **A custom squash body drops it.** `gh pr merge --squash` with the default body preserves
+  the commit messages; passing `--body`, or editing the message in GitHub's UI, replaces
+  them. If you override the squash body, carry the trailer into it by hand.
+- **`Co-Authored-By` stays last** — it is a harness requirement. `Lane:` sits directly
+  above it. Both are trailers, so grep finds either regardless of order; consistency just
+  makes the log easier to read.
+
+A multi-commit PR yields one `Lane:` line per commit in the squash body. That is fine and
+still greppable — and it is a feature when two lanes contribute commits to one branch.
+
+---
+
+## ✅ How to ship a fix
+
+1. **Branch per fix** off fresh `origin/main`.
+2. **Assertion-guarded splice** + a lock test wired into `npm run prebuild`.
+3. **Full `npm run prebuild` green before commit** (all ~70 guard suites). If anything is
+   red → **report-only**, do not merge.
+4. **squash-merge + delete branch.** Merges are **owner-gated** (explicit `gh pr merge <#>`).
+5. After merge, confirm the merged **union** is prebuild-green and the **Vercel deploy is
+   green** before considering it done.
+6. Prefer many small, single-purpose PRs over one big one. Sequence two fixes that touch the
+   same file/anchor (rebuild the 2nd on the merged 1st).
+
+### `gh` merge mechanics that will waste your time (2026-07-29)
+
+- **`--delete-branch` fails from a DETACHED HEAD.** This is a *second*, separate trigger from
+  the already-known "a worktree holds the branch" case. The failure is nasty because
+  **the merge SUCCEEDS and only the cleanup is skipped** — `gh` prints
+  `could not determine current branch: failed to run git: not on any branch` after the PR
+  has already landed. Read it as "merged, branch survived", not "nothing happened", or you
+  will try to merge again and be told it was already merged. Be on a real branch that is
+  **not** the PR's own before merging.
+- **`mergeable=CONFLICTING` is not proof of a conflict.** GitHub lags after a force-push and
+  reported `CONFLICTING` / `DIRTY` twice on branches where `git rebase origin/main` then said
+  *"Current branch is up to date"* — there was nothing to resolve either time. Likewise
+  `GraphQL: Pull Request is not mergeable` immediately after a push. **Poll `gh pr view <#>
+  --json mergeable` until it leaves `UNKNOWN` and settles before believing it**, and confirm
+  against a real rebase rather than re-deriving a conflict that does not exist.
+- **Never trust a merge's exit code — verify by content.** `git show origin/main:<file>` and
+  grep for the thing the PR was supposed to add. A PR reported as merged manually turned out
+  to still be `state=OPEN` with its content absent from `origin/main`.
+- **IN A SQUASH-MERGE REPO, EVERY SHA-BASED SAFETY CHECK IS UNRELIABLE. VERIFY BY
+  CONTENT** — diff the branch against `main`, or grep the subject line on `main`.
+  Nothing else binds. Squash-merge rewrites the commit, so the original SHA is never an
+  ancestor of `main` no matter how thoroughly the work shipped. That breaks the whole
+  family at once: `git branch --merged` reports ~0 merged branches in a repo where almost
+  everything merged, and `git branch -r --contains <sha>` reports 0 for commits whose
+  content is fully on `main`. Both are *correct about ancestry* and *useless about
+  shipping*. Proven 2026-07-30: eight detached worktrees each held a commit that
+  `--contains` placed on no remote branch; matching the subjects against `main` found all
+  eight already shipped (#423, #425, #426, #427, #428, #430, #431, #434). **Reaching for
+  the "better" SHA test is the trap — there isn't one.**
+
+---
+
+## ✅ Writing an assertion: the identifier must play its ROLE, not merely appear
+
+**A guard that greps for a name passes as soon as the name appears anywhere in the
+file — including in the very code the guard is supposed to be protecting.** This is a
+distinct failure from AGENTS.md §4's "did it run": the check runs, reads real content,
+and returns a truthful answer to the wrong question. It has now produced four false
+greens on this repo in a single day:
+
+| the assertion | why it passed anyway |
+|---|---|
+| `/NEUTRAL_HERO/.test(src)` — "the constant is declared" | the **use site** still mentioned the name after the declaration was deleted |
+| `includes('prefix = "wf-beach-premium"')` — "the default is unchanged" | there were **two** defaults; one changed, the other still matched |
+| `/\bquickTitle\b/` — "the prop is accepted" | the prop was gone from the signature but still referenced in the JSX body |
+| `/EditorialLandingHero/` — "the page uses the template" | the page only **stringified** it; nothing rendered |
+
+**The rule: assert the syntactic position, not the substring.**
+
+- a declaration → `/(?:const|export const)\s+NAME\s*=/`, never `/NAME/`
+- a prop → match inside the destructuring block, not the whole file
+- a rendered component → `/<Name[\s/>]/`, never `/Name/`
+- a value that exists N times → **count** it (`match(...g).length`) and assert N; `includes`
+  cannot tell 1 from 2
+- an absence → prove the probe finds a known positive first (AGENTS.md §4d)
+
+**And red-prove by breaking the thing the assertion protects, not by editing the
+assertion.** All four above were caught exactly that way — the fixture went green when
+it should have gone red, which is the only signal that separates these from real checks.
+
+### The mutation itself must be proven to have applied
+
+Red-proving only means something if the sabotage actually landed. **A mutation that
+silently fails to apply is indistinguishable from a guard that correctly passed** — same
+output, opposite meaning.
+
+Concretely, on 2026-07-29: a "surviving legacy cache read" mutation was written as
+`sed -i '' '0,/re/s//new/'`. The `0,/re/` address is a **GNU extension that BSD sed
+(macOS) ignores** — the file was never modified, the guard printed OK, and that read as
+a passing red-prove. It only surfaced because the same mutation was re-run in python and
+immediately failed.
+
+- prefer **python** (or any tool that can `assert` its target is present) over `sed` for
+  mutations; `sed` reports success when it matches nothing
+- have the mutation **print what it changed**, and assert the target string existed first
+- never accept a green from a red-prove you did not watch turn red
+
+### Verify with a warm cache too when the fix involves cached data
+
+**A fresh browser profile has no cache, so it cannot show you a stale-client bug.** When
+a fix is upstream of anything cached client-side, the automated check passes on a clean
+profile while returning users stay broken — correct code, stale clients, green tests.
+
+This shipped once, on 2026-07-29: #466 fixed `fetchPlaceDetail` (`websiteUri` →
+`websiteURI`), and the live Playwright verification came back clean and was **reported as
+verified**. But `wf_lines` and `wf_insights` are 30-day **localStorage** caches that had
+already been filled from the broken fetch, so every returning user kept the degraded
+"Why Wayfind picked this" for up to a month. The clean result was real and also not the
+whole picture.
+
+- if a fix changes what goes INTO a cache, ship a **cache-key bump with it** — see
+  `CACHE_EPOCH` in `app/home.js`, locked by `scripts/check-cache-epoch.mjs`
+- verify twice: once on a clean profile, once with the **pre-fix cache seeded**
+- seed a **known-good control** under the new key at the same time. "The poison did not
+  render" is equally consistent with *nothing* having rendered — the control is what
+  separates those two
+
+### Mobile verification means a real 390px viewport — render into an iframe
+
+**`resize_window` does not reliably change the captured viewport.** On 2026-07-30 a
+390px resize was issued, the tool reported success, and the screenshot came back
+**1512 px wide**. Two defects were invisible in it and appeared instantly at true phone
+width: a chrome bar inheriting a cream card background (pale grey on cream, illegible),
+and `/best-beaches` rendering **two stacked back affordances**. Both were owner-facing.
+
+Most Wayfind traffic is mobile, so a desktop screenshot is not evidence about the
+surface users actually see. The standard:
+
+```js
+// Render the page INTO a 390px iframe, then screenshot. The iframe's width is real
+// regardless of what the outer window does.
+document.body.style.cssText = "margin:0;background:#222";
+document.body.innerHTML =
+  '<iframe src="' + url + '" style="width:390px;height:844px;border:0;display:block;margin:0 auto"></iframe>';
+```
+
+- **assert the width you got, do not assume it** — read `innerWidth` back out of the
+  frame and print it. A resize that silently no-ops is the failure mode here, and it
+  reports success
+- 390 × 844 is the reference (iPhone 14/15). Check anything sticky, absolutely
+  positioned, or overlaid — those are what break first and only at width
+- a screenshot at 1512px is **not** a mobile verification, however the tool labels it
+
+### Reachability is transitive — one hop is not proof
+
+**"An entry point exists" is not "the surface can be opened."** A grep for the setter
+stops after one hop; the setter's own call site may be dead.
+
+Both halves happened on 2026-07-29, converting "the last surface on the old sheet":
+
+- the *"All experiences"* sheet (`app/home.js`) was picked as the target, then found
+  unreachable — `setAllExpOpen(true)` appeared **zero** times and the state was never
+  exposed through `ctx`. Deleted.
+- *Occasions* was picked to replace it **because** `sheets/Menu.js` has a
+  `setMenuSheet("experiences")` button — but that button lives inside the
+  `menuSheet === "menu"` block, and nothing sets `menuSheet` to `"menu"`. Five of
+  MenuSheet's six sub-states (`menu`, `community`, `explore`, `experiences`, `weather`)
+  could not be opened. Only `"pick"` could.
+
+I reported the first finding as proof and made the second mistake in the same breath.
+
+**Resolved (#480):** `menu`, `community`, `explore` and `weather` were deleted — 208 lines
+of sheet that rendered for nobody, plus `SheetHero`, whose last three callers were all
+inside them, and 23 `ctx` values Menu.js no longer reads. `experiences` was kept because
+it is the converted surface; its missing entry point is a product question, tracked in
+`docs/KIMI_QUEUE.md`. **A styled surface with no door is only acceptable while something
+is tracking it** — otherwise it becomes the next "All experiences".
+
+- trace the chain to a **user-visible** trigger: a nav button, a URL param, a card tap —
+  not to another conditional block
+- for state that gates a render, enumerate **every write**, then ask what renders each
+  write's call site. `grep -n "setFoo("` and read all of them, including the ones with
+  variable arguments
+- confirm it in the browser before believing it. Static analysis found these; a click
+  would have found them faster
+
+These five are the same failure in five costumes: **the check ran, and answered a
+question you were not asking.** §4's "did it run", the role-vs-substring trap, the
+mutation that never applied, the cache that was never warm, and the entry point that was
+itself unreachable.
+
+### The stronger form: assert on the CALL, not on the string
+
+Matching a better regex is still reading the source. **Where the thing can be executed,
+execute it and assert the RESULT.** A structural regex tells you the code looks right; a
+call tells you it behaves right, and only the second is what ships. Three instances on
+2026-07-30, all different domains, all the same shape:
+
+| what was asserted | why the string was not enough |
+|---|---|
+| "the guard's rule 2 fires" — proven by reading the rule | it **did not fire on explicit `.js` imports**; only running it against that import shape revealed the hole |
+| "`commerceHref` returns our own path" | asserted by **calling it** and parsing the returned URL — a regex over the function body would have passed on a partner domain built at runtime |
+| "the partner city page exists" — `curl` returned **HTTP 200** | the body was a soft-404 (`<title>404 Error</title>`, "there is no such page"). The status code was the substring; the page content was the call. Guessed WeGoTrip URLs "passed" while being dead |
+
+- prefer `import()` + invoke + assert the return over `readFileSync` + regex
+- for anything off-box (a partner URL, a webhook, an RPC), assert on the **response body**,
+  never on the status code alone — a 200 is not evidence a page exists
+- when you cannot execute it, say so in the assertion message, so the weaker check is
+  visible as weaker rather than reading as proof
+
+### A guard that fires on CORRECT code is worse than no guard
+
+A guard nobody trusts gets commented out, and it takes its real catches with it. So a new
+guard is not finished when it catches the bug — it is finished when it catches the bug
+**and is silent on every correct file in the repo.** Run it against the whole tree before
+you believe it.
+
+`check-lib-call-imports` (2026-07-30) needed two rounds of this before it was shippable.
+Both false positives were the guard's model of the language being a convenient subset
+rather than the real thing:
+
+| it flagged | why it was wrong |
+|---|---|
+| `Detail.js` "calls `hasBookingCTA` without importing it" | the import was `import Comp, { hasBookingCTA } from …`; an `import\s*\{` regex only matches a **bare** named import, so default-plus-named imports read as absent. Destructured component props (`function C({ openExternal })`) were missed the same way — and destructured props are the commonest way a component legitimately has a name in scope |
+| `ui.js` "calls `devices()`", `eventMap.js` "calls `minutes()`" | both were **inside string literals** — a UI label `"devices (first-party)"` and a definition containing `"last 5 minutes (Wayfind's own event log"`. Prose is not code: blank string contents before scanning for calls |
+
+The rule that falls out: **model the scope, do not approximate it.** If the check asks
+"is this name in scope", it has to know every way a name gets into scope — named imports
+in all their forms, declarations, destructured locals, destructured parameters — and it
+has to look only at code, never at comments or strings.
+
+Two cheap habits that make this fast:
+
+- **Carry a positive and a negative control.** A check that reports `0` for everything,
+  including something you know exists, is broken — not clean. A `git grep -c` pipeline
+  reported "0 refs" for every identifier on a freshly merged union and briefly looked like
+  a merge-#346 feature loss; the real cause was `git grep -c` printing `path:count`
+  (2 fields) without a treeish and `treeish:path:count` (3) with one, so an `awk '{s+=$3}'`
+  summed nothing. The control caught it in one command.
+- **State the false-positive surface in the success line.** `331 files scanned against 612
+  lib export names` is a claim a reviewer can falsify; "guard added" is not.
+
+---
+
+### Pipes swallow exit codes — a guard in a `&&` chain can pass while failing
+
+`node scripts/run-guards.mjs 2>&1 | tail -1 && git push && gh pr merge` **merges on a
+red suite.** The `&&` reads the exit status of `tail`, which is always 0. The failure
+line was printed and read as progress. That happened on 2026-07-30 and a PR was
+merged without a verified green.
+
+- pipe a guard through anything and you must `set -o pipefail`, or check
+  `${PIPESTATUS[0]}` explicitly
+- **a merge never proceeds without a green verified on the actual exit code** — not on
+  output that looked fine
+- prefer `node scripts/run-guards.mjs; echo "rc=$?"` over a pipeline whenever the
+  answer gates an irreversible action
+
+And the follow-on lesson from the same hour: **a red guard is not a red repo.** Before
+reporting a broken `main`, reproduce on a CLEAN tree. That failure was a polluted
+`.next` — 19 stale `next dev` chunks, which are unminified, so every local name
+survives literally and a built-artifact sweep reads them all as offenders. The bisect
+that "confirmed" it read the same stale artifacts and made a green main look broken
+twice, and another lane was nearly asked to fix a guard that was working.
+`rm -rf .next && npx next build` before blaming anyone.
+
+---
+
+## 🧠 Gotchas / patterns — do NOT re-break these
+
+- **"Today" / any date cutoff** → use `lib/siteTime.siteTodayStr()` (venue-local US Eastern,
+  DST-aware). **Never** `new Date().toISOString().slice(0,10)` — that's UTC and drops
+  tonight's events after ~8 PM ET and expires coupons ~4h early.
+- **Classifier `placeAllowed` (`lib/placeFilter.js`)**: the service / category-exclude vetoes
+  run **before** the positive allow, and they are **identity-protected** (a real destination
+  has a truthy `primaryCategory`). Don't reorder blindly — a naive change regresses
+  zoo-with-`veterinary_care` and marina-with-`storage`. Category leaks are usually a broad
+  allow token substring-matching a service type (`parking`→`park`, `drugstore`→`store`);
+  fix by adding the service to `CAT_EXCLUDE`, not by loosening the identity guard.
+- **Cross-device sync** (the sign-in effect in `app/home.js`): reconcile via
+  `lib/syncReconcile.reconcileIds` against a **per-collection base snapshot**
+  (`wf_fav_base` / `wf_liked_base` / `wf_disliked_base` / `wf_shared_base`). Never
+  unconditionally push all local rows up — that resurrects deletions across devices.
+- **Wayfind Score**: stored 0–100 internally, shown `/10` via `toDisplayScore`. A **null**
+  base score must stay null (→ "Score pending"); never coerce to 0 (it produces a fake red
+  0.1/10). `scoreLabel` routes through `toDisplayScore` for the same reason.
+- **Order In location**: inherits the app's persisted location (`wf_center`) →
+  URL params → geolocation → default. `nearestMetro` uses true haversine miles (~75mi
+  radius), not raw-degree Manhattan.
+- **Paid API proxies** are guarded in `middleware.js` (same-origin + per-IP rate limit via
+  `lib/apiGuard.js`). Any new metered/scrape proxy must be added to the matcher.
+  `/api/eats/go` is a GET-302 nav → `rateLimitOnly` (never same-origin-block a navigation).
+
+---
+
+## 🚨 Extraction PRs — the mandatory guard pair
+
+Moving a function between modules is the single most dangerous refactor in this
+repo, and 2026-07-30 proved it: #486 extracted `hasVerifiedTours()` into
+`lib/bookingResolve.js`, removed the definition, left the call site, and imported
+only the other two names. Every place-detail render threw `ReferenceError`. It sat
+in production for hours on the core surface while **six** checks reported green:
+four booking guards, `check:jsx`, and `next build`.
+
+The single property all six shared: **nothing ever called the component.**
+
+So any PR that moves a function between modules runs BOTH of these, and neither
+substitutes for the other:
+
+| guard | approach | what it catches |
+|---|---|---|
+| `test-detail-render-smoke` | **RENDERS** the component (compiles real JSX via `scripts/lib/jsxLoad.mjs`) across every variant × several data shapes | anything that throws on a path the test exercises |
+| `check-lib-call-imports` | **STATIC**, every source file against every name `lib/` exports | an unbound call in code no test happens to render |
+
+The first proves the paths we thought of. The second covers the ones we did not.
+
+Why each of the six missed it, because the pattern generalises:
+
+- **source-as-text guards** asked "does this identifier appear across component +
+  resolver" — it did, in the resolver. They never asked whether the COMPONENT
+  could reach it. One of those guards was written in the same PR that caused the
+  bug, and it encoded the bug as correct.
+- **`check:jsx`** is `tsc --noEmit` with `checkJs` off: syntax, no binding.
+- **`next build`** bundles a client component without EXECUTING it. An unbound
+  identifier inside a function body is legal JavaScript until it is called.
+- **the extraction's own test** imported the RESOLVER and proved it byte-identical.
+  It never imported the COMPONENT, which is where the break was.
+- **the live check** loaded pages that never mount the component.
+
+Two further habits from the same incident:
+
+- **Verify on a surface that actually mounts the thing you changed.** "Live-verified"
+  on a page that cannot reach the code is worse than no check, because it is
+  reported as evidence.
+- **A minifier cannot rename a free variable.** So an unbound identifier survives
+  into the built chunk as its literal name — grepping `.next/static/chunks` for a
+  module-local helper's name is a cheap, real check on the production artifact.
+  Proven both ways: broken tree built exit-0 with the literal intact; fixed tree
+  had zero occurrences.
+- **…but ASSERTIONS ABOUT BUILT OUTPUT MUST SCOPE TO PRODUCTION CHUNKS.** The premise
+  above holds only for `next build` output. `.next/static/chunks` also retains
+  **unminified `next dev` artifacts** (`_app-pages-browser_*`, `app-pages-internals*`,
+  `*_ssr_*`), which violate every property `next build` guarantees — nothing is
+  minified, so every local name survives literally whether bound or not, and the sweep
+  reads them all as offenders. **That is what made a green `main` look red** and get
+  escalated as a blocker across lanes on 2026-07-30. Exclude the dev prefixes, and
+  **assert that at least one production chunk was actually swept** so a dev-only tree
+  says "run `next build`" instead of silently proving nothing.
+
+---
+
+## 🧪 Guard pattern — assert the invariant, not the file path
+
+Learned the hard way on 2026-07-30 (#486). FOUR guards went red for the same
+reason when `bookingTargets()` moved from `app/components/BookingCTA.js` into
+`lib/bookingResolve.js`: `check-guides`, `check-booking-cta`,
+`test-sheet-booking`, and one of my own. Every one of them asserted *"this string
+appears in this file"* rather than *"this invariant holds"*.
+
+**The dangerous half is the inverse.** Each of those guards would have gone
+GREEN the moment the code left its old path — a guard that reads
+`app/components/BookingCTA.js` for `rel="noreferrer sponsored"` passes happily
+when the CTA moves elsewhere and the rel is dropped. Red-on-move is noisy; the
+green-on-move is the FTC gap.
+
+So:
+
+- assert on the **union** of the plausible locations, or on the **export**, never
+  on one path;
+- where a thing must exist exactly once, count it (`bookingTargets` is now
+  asserted to be defined exactly once across component + resolver — two
+  definitions IS the parallel path the booking contract forbids);
+- when a guard goes red because code moved, **follow the code**. Deleting the
+  assertion re-opens whatever it was written for.
+
+Related trap, same day, five separate occurrences: a guard that greps RAW source
+fails on its own explanatory comment. Strip comments before any position or
+presence check — `check-editorial-publish`, `check-env-value-overrides`,
+`check-editorial-retry-state`, `check-cuisine-never-queried` and
+`check-cuisine-sheet` all hit it.
+
+And the one that costs most: **assert on the call, not the string.** Four
+break-tests this session "passed" while testing nothing —
+`/Open in Wayfind/` matched with the link disabled to `{false ? …}`;
+`rpc/wf_cuisine_chips` matched inside a defined-but-uncalled function;
+`thin.length` matched in an unrelated ternary. If breaking the behaviour leaves
+the guard green, the assertion is decoration.
+
+---
+
+## Recent state (for context, not instructions)
+
+- Two audits complete (recent-release surfaces + full-site sweep). 14 fixes shipped
+  (#181–194), all prebuild-green and deployed.
+- **P0 RLS read-exposure: APPLIED + verified** by the owner (anon reads 0 rows) — **closed.**
+- Remaining work is the audit residuals (a11y P2s, order-in P2s, minor P3s). The Viator
+  booking-integrity lane is **closed** — see the lanes section above.
+
+---
+
+## Archived: the July 2026 "AI Operating System" section
+
+The "Wayfind AI Operating System" block that used to sit here (mission text, an
+agent org chart, a weekly email report, alert and reporting rules) was moved to
+`docs/history/AI_OPERATING_SYSTEM_2026-07.md` on 2026-09-23 at the owner's request.
+
+It is history, not instructions. Nothing in it is an active operating rule. No
+session sends reports, emails or alerts, or adopts that org chart, on the strength
+of that file unless the owner explicitly approves it in the session.
