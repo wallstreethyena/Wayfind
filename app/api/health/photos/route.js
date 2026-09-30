@@ -165,6 +165,15 @@ export async function GET(req) {
           ledgerDenied: todayByClass["ledger-denied"] || 0,
           quotaOpen: todayByClass["quota-open"] || 0,
           refunded: todayByClass.refunded || 0,
+          // 2026-09-30: non-production writes are namespaced (`preview:`,
+          // `dev:`) and a ledger denial also records the ceiling that refused
+          // it. Surfaced explicitly so the two questions the Sep 24-27
+          // blackout could not answer — "was that production?" and "which
+          // ceiling said no?" — are one glance, not a query.
+          nonProduction: Object.entries(todayByClass).reduce((sum, [k, v]) => (/^[a-z0-9_-]+:/.test(k) && !k.startsWith("denied-ceiling:") ? sum + v : sum), 0),
+          deniedCeilings: Object.entries(todayByClass)
+            .filter(([k]) => k.startsWith("denied-ceiling:"))
+            .map(([k, v]) => ({ ceiling: k.slice("denied-ceiling:".length), n: v })),
           other: Object.entries(todayByClass).reduce((sum, [k, v]) => (NAMED_OUTCOME_CLASSES.has(k) ? sum : sum + v), 0),
         }
       : null,
