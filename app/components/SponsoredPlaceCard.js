@@ -21,7 +21,38 @@ function branchOf(pick) {
   return parts.length > 1 ? parts[parts.length - 1].trim() : "";
 }
 
-export default function SponsoredPlaceCard({ pick, onLog }) {
+// WHOSE HANDS PRESS THE BUTTONS (2026-09-29). A sponsored place is a real
+// place (pick.placeId), so its Save / Like / Not-for-me / Share are the SAME
+// Favorites and like maps every other card on the home page writes. The home
+// shell owns those in React state and persists them wholesale; when this card
+// wrote through lib/cardActions instead, the two writers each overwrote the
+// other's saves (the card from a stale snapshot, home from state that never
+// heard of the card's write). So a WIRED caller's handlers and state win, and
+// the lib/cardActions store is only the floor for a caller that wired nothing.
+// Called, not just read, by scripts/test-card-store-coherence.mjs.
+export function sponsoredActions({ hasStoreKey, actionPlace, wired, fb, content }) {
+  const w = wired || {};
+  const surface = { surface: "home_sponsored_card" };
+  if (!hasStoreKey) {
+    return {
+      doSave: content.toggleSave, doLike: content.toggleLike, doDislike: content.toggleDislike, doShare: content.share,
+      saved: content.saved, liked: content.liked, disliked: content.disliked,
+    };
+  }
+  const live = !!(fb && fb.hydrated);
+  const id = actionPlace.id;
+  return {
+    doSave: typeof w.onSave === "function" ? () => w.onSave(actionPlace) : (live ? () => fallbackSave(actionPlace, surface) : null),
+    doLike: typeof w.onLike === "function" ? (event) => w.onLike(event, actionPlace) : (live ? () => fallbackLike(actionPlace, surface) : null),
+    doDislike: typeof w.onDislike === "function" ? (event) => w.onDislike(event, actionPlace) : (live ? () => fallbackDislike(actionPlace, surface) : null),
+    doShare: typeof w.onShare === "function" ? () => w.onShare(actionPlace) : (live ? () => fallbackShare(actionPlace, surface) : null),
+    saved: typeof w.saved === "boolean" ? w.saved : (live && !!fb.saved[id]),
+    liked: typeof w.liked === "boolean" ? w.liked : (live && !!fb.liked[id]),
+    disliked: typeof w.disliked === "boolean" ? w.disliked : (live && !!fb.disliked[id]),
+  };
+}
+
+export default function SponsoredPlaceCard({ pick, onLog, saved: savedProp, liked: likedProp, disliked: dislikedProp, onSave, onLike, onDislike, onShare }) {
   const ctx = pick ? {
     surface: "home_sponsored_card",
     provider: "direct",
@@ -43,7 +74,11 @@ export default function SponsoredPlaceCard({ pick, onLog }) {
     cardCategory: pick.category || "Local business",
     distMi: pick.distMi,
   } : null;
-  const fb = useCardActions(hasStoreKey);
+  const wired = { saved: savedProp, liked: likedProp, disliked: dislikedProp, onSave, onLike, onDislike, onShare };
+  // Subscribe to the fallback store only when some control still needs it — a
+  // fully wired card must not re-render on another surface's write.
+  const fbNeeded = hasStoreKey && !(onSave && onLike && onDislike && onShare);
+  const fb = useCardActions(fbNeeded);
   const content = useContentCardActions(!hasStoreKey && pick ? {
     id: pick.id,
     type: "experience",
@@ -54,13 +89,7 @@ export default function SponsoredPlaceCard({ pick, onLog }) {
   if (!pick) return null;
 
   const actionPlace = place || { id: pick.id, name: pick.advertiser, photo: pick.photo || null };
-  const doSave = hasStoreKey ? (fb.hydrated ? () => fallbackSave(actionPlace, { surface: "home_sponsored_card" }) : null) : content.toggleSave;
-  const doLike = hasStoreKey ? (fb.hydrated ? () => fallbackLike(actionPlace, { surface: "home_sponsored_card" }) : null) : content.toggleLike;
-  const doDislike = hasStoreKey ? (fb.hydrated ? () => fallbackDislike(actionPlace, { surface: "home_sponsored_card" }) : null) : content.toggleDislike;
-  const doShare = hasStoreKey ? (fb.hydrated ? () => fallbackShare(actionPlace, { surface: "home_sponsored_card" }) : null) : content.share;
-  const saved = hasStoreKey ? (fb.hydrated && !!fb.saved[pick.placeId]) : content.saved;
-  const liked = hasStoreKey ? (fb.hydrated && !!fb.liked[pick.placeId]) : content.liked;
-  const disliked = hasStoreKey ? (fb.hydrated && !!fb.disliked[pick.placeId]) : content.disliked;
+  const { doSave, doLike, doDislike, doShare, saved, liked, disliked } = sponsoredActions({ hasStoreKey, actionPlace, wired, fb, content });
   const branch = branchOf(pick);
   const distance = miles(pick.distMi);
   const accent = pick.accent || C.purple;

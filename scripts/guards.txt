@@ -139,6 +139,8 @@ node scripts/test-sparse-category.mjs
 # breakfast-only primary as Lunch #1 when lunch library exists.
 node scripts/test-browse-library.mjs
 node scripts/test-sync-reconcile.mjs
+node scripts/check-like-store-writes.mjs
+node scripts/test-sync-inflight-merge.mjs
 node scripts/test-site-time.mjs
 node scripts/check-sitetime.mjs
 node scripts/test-classifier-veto.mjs
@@ -487,6 +489,7 @@ node scripts/test-guide-editorial-mode.mjs
 node scripts/test-guide-lovebug-rail.mjs
 node scripts/test-gulf-coast-brunch-date-night.mjs
 node scripts/test-detail-render-smoke.mjs
+node scripts/check-detail-plan-add-only.mjs
 node scripts/check-lib-call-imports.mjs
 # THE FOCUS GUARD. check-lib-call-imports above only sees bare CALLS to lib/
 # FUNCTIONS; FOCUS.outline was a property read on a kit.js object and sailed
@@ -520,6 +523,9 @@ node scripts/check-intro-gate.mjs
 node scripts/check-hub-conversion.mjs
 node scripts/test-intent-header-clarity.mjs
 node scripts/test-rail-like-stays.mjs
+# 2026-09-29 — the sponsored card (and every unwired card-store write) must never erase
+# a save/like made elsewhere: re-read before write, same-tab delta, home's own handlers.
+node scripts/test-card-store-coherence.mjs
 node scripts/check-viator-redirect-layer.mjs
 node scripts/check-intent-partner-picks.mjs
 # 2026-09-15 (Lane C) — every registered partner offer earns an intent-page or
@@ -697,6 +703,9 @@ node scripts/test-promote-backfill.mjs
 # runtime. Legacy anon/service_role keys were disabled on this project 2026-07-16.
 node scripts/check-supabase-key-live.mjs
 node scripts/test-promote-decision.mjs
+# 2026-09-28: the ONE automatic re-arm of promotion rejects (CLOSED_TEMPORARILY
+# only, 30-day window, capped) — any widening turns it into a spend loop.
+node scripts/check-temp-closed-recheck.mjs
 node scripts/check-curated-events.mjs
 # A failed wf_events list read is not a healthy empty hub. Soft-fail → []
 # used to ISR-cache "Nothing verified…" + numberOfItems:0 while detail
@@ -786,6 +795,7 @@ node scripts/test-hotel-card-cta.mjs
 # email address, each carrying a "Check rates" button.
 node scripts/check-hotel-library-quality.mjs
 scripts/check-hotel-booking-verified.mjs
+scripts/check-owned-hotel-identity.mjs
 
 # 2026-09-23 — customer-facing hotel copy (whyGo/knownFor/vibe) must never
 # carry internal curation/prompt scaffolding ("Use X when the user wants...
@@ -1498,6 +1508,9 @@ node scripts/test-spend-bypass-regression.mjs
 # ledger for the same numbers with the switch on. One grant == one outbound
 # Google request across the whole media/Details/self-heal fan-out.
 node scripts/test-photos-paid-cap.mjs
+# 2026-09-28: promotion-only paid details ceiling — must never widen to another SKU.
+node scripts/test-promote-paid-cap.mjs
+node scripts/test-spend-tests-prod-env.mjs
 
 # 2026-09-07 security audit: public event aggregation fanned out to provider
 # APIs before cache and without finite per-request budgets.
@@ -1901,4 +1914,7 @@ node scripts/test-guide-editorial-photos.mjs
 
 node scripts/test-guide-city-coverage.mjs
 node scripts/test-detail-nearby.mjs
+node scripts/test-card-photo-fallback.mjs
+node scripts/test-photo-serving-alert.mjs
 node scripts/test-intl-cache.mjs
+node scripts/test-browse-back.mjs

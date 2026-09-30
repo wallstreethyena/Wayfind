@@ -97,4 +97,53 @@ ok(/maps_uri,expires_at&/.test(route), "route selects expires_at for readers");
 const batch = Number((route.match(/const KEY_BATCH = (\d+);/) || [])[1]);
 ok(batch >= 1 && batch * 440 < 8000, `credit lookups stay under ~8 KB per request (KEY_BATCH ${batch}; 120 built a 50 KB URL Supabase refused with 400)`);
 
+// EXECUTED: the route is pinned to the places it was asked about (2026-09-30).
+// `_` is legal in a place id and is a LIKE wildcard, so the cache query can
+// return a photo row of a DIFFERENT place whose id differs only at a `_`.
+// The route is called for real (imports swapped for the real lib functions
+// and a mocked Supabase) with exactly that row in the cache answer.
+// RED-PROOF: drop `asked.has(m[2])` from the route and the foreign photo name
+// is sent to the credit lookup and its credit comes back under the wrong place.
+{
+  const { photoCacheKey } = await import("../lib/placePhotoServe.js");
+  globalThis.__PC = { photoCacheKey, pickCachedCredits };
+  let src = readFileSync(new URL("../app/api/photo-credits/route.js", import.meta.url), "utf8");
+  const importCount = (src.match(/^import[^;]+;\n/gm) || []).length;
+  src = src.replace(/^import[^;]+;\n/gm, "").replace(/^export const dynamic[^\n]*\n/m, "");
+  // Hermetic: the route's Supabase env comes from this prelude, never the shell.
+  const envReads = (src.match(/process\.env\./g) || []).length;
+  src = src.replace(/process\.env\./g, "__ENV.");
+  const prelude = "const NextResponse = { json: (body, init) => ({ body, init }) }; const { photoCacheKey, pickCachedCredits } = globalThis.__PC;"
+    + " const __ENV = { SUPABASE_URL: 'https://example.supabase.co', SUPABASE_SERVICE_ROLE_KEY: 'test-key' };";
+  const { GET } = await import("data:text/javascript," + encodeURIComponent(prelude + "\n" + src));
+  ok(importCount === 3 && envReads === 3 && typeof GET === "function", "loaded the real /api/photo-credits handler (3 imports and 3 env reads swapped)");
+  const ASKED = "ChIJ_1EOeJrFwogR3FwZdANqM_w";
+  const OTHER = "ChIJx1EOeJrFwogR3FwZdANqM_w"; // same id except where ASKED has `_`
+  const future = new Date(Date.now() + 5 * 864e5).toISOString();
+  const own = `places/${ASKED}/photos/AAAA`, foreign = `places/${OTHER}/photos/BBBB`;
+  const credit = (name, place, who) => ({ photo_name: name, place_id: place, author_name: who, author_uri: "https://maps.google.com/maps/contrib/1", maps_uri: "https://www.google.com/maps/place//data=x", expires_at: future });
+  const creditQueries = [];
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = async (url) => {
+    const u = decodeURIComponent(String(url));
+    if (u.includes("/wf_places_cache?")) return new Response(JSON.stringify([{ k: `photo|${own}|640` }, { k: `photo|${foreign}|640` }]), { status: 200 });
+    if (u.includes("/wf_photo_credit?")) {
+      creditQueries.push(u);
+      const rows = [credit(own, ASKED, "Own Author")];
+      if (u.includes(foreign)) rows.push(credit(foreign, OTHER, "Other Place Author"));
+      return new Response(JSON.stringify(rows), { status: 200 });
+    }
+    throw new Error("unexpected fetch " + u);
+  };
+  try {
+    const res = await GET(new Request(`https://www.gowayfind.com/api/photo-credits?place=${ASKED}`));
+    const got = res.body.credits;
+    ok(got.length === 1 && got[0].photo_name === own && got[0].author_name === "Own Author", `positive control: the asked place's own credit is returned (got ${got.length})`);
+    ok(got.every((c) => c.place_id === ASKED && c.photo_name.split("/")[1] === ASKED), "every returned credit belongs to the asked place");
+    ok(creditQueries.length > 0 && creditQueries.every((q) => !q.includes(foreign)), "a wildcard-matched photo of another place is never even looked up");
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+}
+
 console.log(`test-photo-credits: ${n} assertions passed`);

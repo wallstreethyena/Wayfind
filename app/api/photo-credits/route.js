@@ -50,10 +50,15 @@ export async function GET(req) {
     //    cache right now (the same `photo|<name>|640` rows /api/photo serves).
     const likes = ids.map((id) => `k.like."${photoCacheKey(`places/${id}/photos/*`, CACHE_WIDTH)}"`).join(",");
     const cacheRows = await rest(s, `wf_places_cache?select=k&or=(${encodeURIComponent(likes)})&exp=gt.${nowIso}&limit=2000`);
+    // Pinned to the requested places. `_` is legal in a place id and is also a
+    // LIKE wildcard, so the query above can match a different place whose id
+    // differs only where this one has `_`. Such a row must never pair a credit
+    // (or a photo) with the wrong place, so it is dropped here, by exact id.
+    const asked = new Set(ids);
     const live = new Set();
     for (const row of cacheRows) {
-      const m = /^photo\|(places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+)\|640$/.exec(row.k || "");
-      if (m) live.add(m[1]);
+      const m = /^photo\|(places\/([A-Za-z0-9_-]+)\/photos\/[A-Za-z0-9_-]+)\|640$/.exec(row.k || "");
+      if (m && asked.has(m[2])) live.add(m[1]);
     }
     // 2. The live credits for exactly those names.
     const names = [...live];

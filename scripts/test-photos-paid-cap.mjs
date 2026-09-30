@@ -26,7 +26,7 @@ const ok = (condition, message) => {
 };
 const eq = (actual, expected, message) => ok(actual === expected, `${message} (got ${JSON.stringify(actual)}, expected ${JSON.stringify(expected)})`);
 
-const ENV_KEYS = ["WAYFIND_GATE", "WAYFIND_PHOTOS_PAID", "GOOGLE_PHOTOS_MONTH_CAP", "SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "GOOGLE_GEOCODING_MONTH_CAP", "GOOGLE_TEXT_ENTERPRISE_MONTH_CAP", "AUTOCOMPLETE_MONTH_CAP", "VERCEL_ENV", "WAYFIND_ALLOW_NONPROD_PHOTO_SPEND"];
+const ENV_KEYS = ["WAYFIND_GATE", "WAYFIND_PHOTOS_PAID", "GOOGLE_PHOTOS_MONTH_CAP", "SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "GOOGLE_GEOCODING_MONTH_CAP", "GOOGLE_TEXT_ENTERPRISE_MONTH_CAP", "AUTOCOMPLETE_MONTH_CAP", "VERCEL_ENV", "WAYFIND_ALLOW_NONPROD_PHOTO_SPEND", "WAYFIND_PROMOTE_PAID", "PROMOTE_DETAILS_MONTH_CAP"];
 // Hermetic: the shell's environment is never consulted. Every scenario deletes
 // all relevant keys and sets exactly the values it asserts against, so the
 // verdict is identical in a clean terminal and one with .env sourced.
