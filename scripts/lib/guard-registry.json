@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 756,
-    "totalRegistryEntries": 757,
-    "guardsTxtLineCount": 755,
-    "guardsTxtReachedFileCount": 749,
+    "totalOnDiskGuardFiles": 757,
+    "totalRegistryEntries": 758,
+    "guardsTxtLineCount": 756,
+    "guardsTxtReachedFileCount": 750,
     "criticalCount": 91,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 525,
+      "CALL": 526,
       "RENDER": 91,
       "STRUCTURAL": 140,
       "OTHER": 1
@@ -15102,6 +15102,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 13,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-photo-monitor-cold-rate.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 15,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

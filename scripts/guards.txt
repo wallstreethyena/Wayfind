@@ -1932,3 +1932,4 @@ node scripts/test-card-photo-fallback.mjs
 node scripts/test-photo-serving-alert.mjs
 node scripts/test-intl-cache.mjs
 node scripts/test-browse-back.mjs
+node scripts/test-photo-monitor-cold-rate.mjs
