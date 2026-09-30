@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 753,
-    "totalRegistryEntries": 754,
-    "guardsTxtLineCount": 752,
-    "guardsTxtReachedFileCount": 746,
+    "totalOnDiskGuardFiles": 754,
+    "totalRegistryEntries": 755,
+    "guardsTxtLineCount": 753,
+    "guardsTxtReachedFileCount": 747,
     "criticalCount": 91,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 525,
-      "RENDER": 88,
+      "RENDER": 89,
       "STRUCTURAL": 140,
       "OTHER": 1
     }
@@ -5967,6 +5967,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 7,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-not-public-places.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 45,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
