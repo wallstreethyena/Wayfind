@@ -77,6 +77,13 @@ for (const [slug, g] of optedIn) {
   ok(cta && typeof cta.href === "string" && cta.href.startsWith("/api/commerce/go"),
     `${slug}: primary CTA does not go through the tracked commerce redirect (href=${cta && String(cta.href).slice(0, 60)})`);
   ok(cta && cta.deal && cta.deal.ends !== undefined, `${slug}: primary CTA carries no expiry field — deadlines must come from the registry, never hardcoded`);
+  // The pin only excuses a lapsed CLIPP audit. A non-Clipp CTA must still be monetized
+  // and tracked at the REAL date, or production would fall back to an untracked link.
+  const isClippHref = (x) => !!x && typeof x.href === "string" && /[?&]provider=clipp(?:&|$)/.test(x.href);
+  if (!isClippHref(cta)) {
+    const real = guidePrimaryCta(g, today);
+    ok(real && real.monetized === true && String(real.href).startsWith("/api/commerce/go"), `${slug}: primary CTA is not monetized and tracked at the real date ${today} (kind=${real && real.kind}) — a non-Clipp expiry the pin must not hide`);
+  }
 }
 
 // Images: resolve what the component would actually choose, against real files.
@@ -170,7 +177,11 @@ ok(/inventoryPlacesForRegion[\s\S]{0,1800}next:\s*\{\s*revalidate:\s*3600\s*\}/.
     rows.forEach((c, i) => {
       ok(!!c, `${slug}: resolved "${ids[i]}", which is not in the registry — it would render as nothing`);
       if (!c) return;
-      ok(liveAt(c), `${slug}: resolved ${c.id}, which has expired — a promise we cannot keep`);
+      // The resolver is asked about resolveDay and must return only cards live on THAT
+      // day. (Judging a non-Clipp row at the real date here would flag a card the
+      // resolver would itself drop at the real date — a false red on 2027-01-01.)
+      // Real-date behaviour of the resolver is asserted separately below.
+      ok(couponIsLive(c, resolveDay), `${slug}: resolved ${c.id}, which was not live on the day it was resolved for — a promise we cannot keep`);
       ok(areas.includes(String(c.area || "")), `${slug} (${g.region}): resolved ${c.id} from ${c.area}, outside its own market — "near you" has to stay true`);
       ok(!!c.title && !!c.business && !!c.details && !!c.url, `${slug}/${c.id}: resolved a row missing a field the card paints`);
       if (c.commerce) ok(String(c.url).startsWith("/api/commerce/go"), `${slug}/${c.id}: declares commerce but is not tracked — the click would earn nothing`);
@@ -194,6 +205,20 @@ ok(/inventoryPlacesForRegion[\s\S]{0,1800}next:\s*\{\s*revalidate:\s*3600\s*\}/.
 }
 
 if (bad) { console.error(`\ncheck-guide-deal-cards: FAIL — ${bad}/${n} assertions`); process.exit(1); }
+// THE RESOLVER AT THE REAL DATE. Whatever the pin excuses in the build, the resolver
+// that actually runs in production is asked about the real day and must return only
+// cards live on it — for every guide, Clipp or not.
+// (Hand-declared dealCards are returned as written — an editor is never overruled —
+// and are live-gated at render, asserted above; only auto-resolved guides are held
+// to "live on the day asked".)
+for (const [slug, g] of Object.entries(GUIDES)) {
+  if (Array.isArray(g.dealCards) && g.dealCards.length) continue;
+  for (const id of guideDealIds(g, today)) {
+    const c = COUPONS.find((x) => x && x.id === id);
+    ok(!!c && couponIsLive(c, today), `${slug}: the resolver returned ${id} for the real date ${today}, but it is not live — an expired promise would render in production`);
+  }
+}
+
 // FAIL-CLOSED STAYS PROVEN. Pinning the date above removes the build's opinion on
 // whether Clipp was re-verified; it must not remove the runtime's. Every Clipp
 // card carries an expiry, is live on that last day, and is HIDDEN the day after —

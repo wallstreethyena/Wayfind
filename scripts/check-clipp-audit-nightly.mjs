@@ -18,8 +18,9 @@
 // EXECUTES THE CALLS. clippAuditStatus() and clippAuditPulseRow() run with an
 // injected date, so "the rule is in the file" cannot satisfy any of it. The three
 // fuses are also asserted to stay three separate declarations.
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, unlinkSync, existsSync } from "node:fs";
 import { COUPONS, couponIsLive, clippAuditStatus } from "../lib/coupons.js";
+import { CLIPP_MERCHANT_OFFERS, CLIPP_INDEX_REVERIFIED } from "../lib/clippOffers.js";
 
 let n = 0, bad = 0;
 const ok = (cond, msg) => { n++; if (!cond) { bad++; console.error("  - " + msg); } };
@@ -61,8 +62,14 @@ ok(lapsedPulse.succeeded === 0 && lapsedPulse.failed >= 1, `expired: nightly rep
 ok(/^stale Clipp audit:/.test(lapsedPulse.note) && /merchant/.test(lapsedPulse.note) && lapsedPulse.note.includes(MERCHANT) && /real browser/.test(lapsedPulse.note), "expired: the note names the merchant fuse, its date, and the human check required");
 ok(lapsedPulse.note.length <= 200, "pulse note fits the 200 char pulse column");
 // The runtime hide is the REAL couponIsLive over the REAL registry, not the counter.
-const merchantCards = COUPONS.filter((c) => /^cpn-/.test(c.id) && c.expires === MERCHANT && c.business !== "Clipp");
-ok(merchantCards.length === status.merchant.total, `registry has exactly the counted merchant cards on the merchant fuse (${merchantCards.length} vs ${status.merchant.total})`);
+// The exact merchant set, by id (offers not in the separately re-verified subset) —
+// never selected by date, so renewing the merchant fuse to the same day as the
+// re-verified one cannot make this assertion wrong.
+const reverifiedIds = new Set(CLIPP_INDEX_REVERIFIED.offerIds);
+const merchantIds = new Set(CLIPP_MERCHANT_OFFERS.map((o) => "cpn-" + o.offerId).filter((id) => !reverifiedIds.has(id.replace(/^cpn-/, ""))));
+const merchantCards = COUPONS.filter((c) => merchantIds.has(c.id));
+ok(merchantCards.length === status.merchant.total && merchantCards.length >= 1, `registry has exactly the counted merchant cards (${merchantCards.length} vs ${status.merchant.total})`);
+ok(merchantCards.every((c) => c.expires === MERCHANT), "every merchant card expires on the merchant fuse and nothing else");
 ok(merchantCards.every((c) => couponIsLive(c, MERCHANT) && !couponIsLive(c, lapsedDay)), "each merchant card is live on its last day and hidden the day after, through the real couponIsLive");
 
 // ── FUSES ARE INDEPENDENT ───────────────────────────────────────────────────
@@ -87,6 +94,26 @@ ok(/expires:\s*CLIPP_INDEX_REVERIFIED_IDS\.has\([^)]*\)\s*\?\s*CLIPP_INDEX_REVER
 // showing visibility is a pure function of (today <= that literal).
 const laterDays = [dayAfter(MERCHANT), "2026-12-25", "2027-06-01"];
 ok(laterDays.every((d) => clippAuditStatus(d).merchant.visible === 0), "renewed-only-by-edit: with the literal unchanged, merchant cards stay hidden on every later day");
+// The POSITIVE half: a deliberate edit of the merchant literal — and nothing else —
+// brings the cards back. Proven on a throwaway copy of lib/coupons.js whose ONLY
+// difference is that one literal, so the real file is never touched.
+{
+  const probePath = new URL("../lib/__renewed_probe_coupons.js", import.meta.url);
+  const renewedSrc = src.replace(/(const\s+CLIPP_MERCHANT_AUDIT_EXPIRY\s*=\s*)"\d{4}-\d{2}-\d{2}"/, '$1"2099-01-01"');
+  ok(renewedSrc !== src, "the probe copy really changed the merchant literal (a probe that changed nothing would prove nothing)");
+  try {
+    writeFileSync(probePath, renewedSrc);
+    const renewed = await import(probePath.href + "?probe=" + Date.now());
+    const before = clippAuditStatus(lapsedDay), after = renewed.clippAuditStatus(lapsedDay);
+    ok(before.merchant.visible === 0 && after.merchant.visible === after.merchant.total && after.merchant.total === before.merchant.total && after.merchant.stale === false, `renewed: editing ONLY the merchant literal brings all ${after.merchant.total} merchant cards back on ${lapsedDay} (0 before)`);
+    ok(after.city.visible === before.city.visible && after.city.stale === before.city.stale && after.city.expires === before.city.expires, "renewed: the city fuse is unaffected by a merchant renewal — the fuses are independent");
+    ok(after.reverified.visible === before.reverified.visible, "renewed: the re-verified subset is unaffected too");
+    ok(clippAuditPulseRow(renewed.clippAuditStatus(lapsedDay)).note.indexOf("merchant certificates lapsed") === -1, "renewed: the nightly no longer reports the merchant fuse");
+  } finally {
+    try { unlinkSync(probePath); } catch (e) {}
+  }
+  ok(!existsSync(probePath), "the probe copy was removed");
+}
 const routeSrc = code(read("app/api/cron/certificate-audit/route.js"));
 ok(!/writeFile|appendFile|createClient|\.from\(|fetch\(|\.update\(|\.insert\(|\.upsert\(/.test(routeSrc), "the nightly job is read-only: no file write, no database write, no fetch — it can never renew a date");
 ok(!/CLIPP_(?:MERCHANT_)?AUDIT_EXPIRY\s*=/.test(routeSrc), "the nightly job never assigns a fuse");
@@ -95,7 +122,7 @@ ok(clippAuditStatus(MERCHANT).merchant.visible === status.merchant.total && clip
 // ── the build must not depend on the fuses ──────────────────────────────────
 const guard = code(read("scripts/check-guide-deal-cards.mjs"));
 ok(/const\s+CLIPP_FIXTURE_TODAY\s*=\s*"\d{4}-\d{2}-\d{2}"/.test(guard), "check-guide-deal-cards pins the date it judges Clipp cards at");
-ok(/liveAt\(c\)/.test(guard) && !/couponIsLive\(c,\s*today\)/.test(guard), "check-guide-deal-cards no longer judges a Clipp card at the real date");
+ok(/const\s+liveAt\s*=\s*\(c\)\s*=>\s*couponIsLive\(c,\s*isClipp\(c\)\s*\?\s*CLIPP_FIXTURE_TODAY\s*:\s*today\)/.test(guard) && /liveAt\(c\)/.test(guard.replace(/const\s+liveAt[^\n]*/, "")), "check-guide-deal-cards judges ONLY Clipp cards at the pin (liveAt) and every other card at the real date, and actually uses liveAt");
 const PIN = (guard.match(/CLIPP_FIXTURE_TODAY\s*=\s*"(\d{4}-\d{2}-\d{2})"/) || [])[1] || "";
 ok(PIN && PIN <= CITY && PIN <= MERCHANT && PIN <= REVERIFIED, `the pin ${PIN} is <= every fuse (${CITY}, ${MERCHANT}, ${REVERIFIED})`);
 
