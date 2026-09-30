@@ -960,6 +960,9 @@ node scripts/check-fall-is-calling.mjs
 # near-black card. This pins the warm palette, the id+date decision (never a
 # query parameter), and that every place-share sentence carries the marker.
 node scripts/check-fall-share.mjs
+# Owner 2026-09-30: Fall rails by date then distance; one compact when-pill grammar
+# at the RailWhenBadge boundary (3-letter days/months); first 3 fall cards eager.
+node scripts/check-fall-date-order-and-when.mjs
 # v8.42 — event pages get real "nearby & worth it" places (buildNearbyPool,
 # floor-gated, genuinely nearby, /p/ links) and the hub becomes visual place
 # cards whose badge is the DATE, never a Wayfind Score (an event is dated)

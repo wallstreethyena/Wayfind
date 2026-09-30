@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 749,
-    "totalRegistryEntries": 750,
-    "guardsTxtLineCount": 747,
-    "guardsTxtReachedFileCount": 742,
+    "totalOnDiskGuardFiles": 750,
+    "totalRegistryEntries": 751,
+    "guardsTxtLineCount": 748,
+    "guardsTxtReachedFileCount": 743,
     "criticalCount": 89,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 521,
+      "CALL": 522,
       "RENDER": 88,
       "STRUCTURAL": 140,
       "OTHER": 1
@@ -2879,6 +2879,28 @@
         "1 absence assertion(s) with no positive control in the same file (e.g. \"/serveExplodingNearby\\s*\\(/.test(route), \"\")"
       ],
       "selfDocumentsRedProve": true,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-fall-date-order-and-when.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 37,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],

@@ -81,7 +81,10 @@ export async function GET(request) {
     // offering start/end window onto permanent place cards for truthful sort.
     // v15 (2026-09-22) adds Pinto's Farm (farms rail) with a curated owned
     // photo + photoAttr credit — a cached v14 payload predates both.
-    const key = `fall-intents:v22:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v23 (2026-09-30, owner) orders each rail by date then DISTANCE (open-now
+    // places and running select-nights events key as today) and emits the
+    // compact when-pill grammar (3-letter weekdays) — a v22 payload holds both.
+    const key = `fall-intents:v23:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
