@@ -55,7 +55,8 @@ const index = indexAtlasCards(cards);
 // 255 from #1021 + 8 sourced ChIJ cards from the 2026-08-29 owner batch (#1019)
 // + 1 official North Redington Beach Frog Pond ChIJ from 2026-08-29e.
 // The three Tampa farms stay HOLD — they must not mint ids or grow this count.
-const PUBLISH_READY = 264;
+// 2026-09-29: owner-approved Atlas-590 completion (wayfind-atlas-editorial #1/#2) → additive merge: 262 live kept + 197 new = 459 (was 264); 28 held for source vetting.
+const PUBLISH_READY = 459;
 
 // ── 1. allowlist size + the three live-404 examples open ──────────────────
 const allow = listPublishReadyAtlasIds();
@@ -95,7 +96,8 @@ ok(mergePlacePage(POINT_OF_ROCKS, { skel: null, details: null, atlas: null }) ==
 ok(mergePlacePage(UNKNOWN, {}) == null, "mergePlacePage on empty extras is not null");
 
 const missing = missingAtlasEditorial(atlas590, cards);
-ok(missing.length >= 300, `silent residual set shrank unexpectedly (${missing.length}) — do not open those ids`);
+// Owner-approved 2026-09-29: 142 Atlas-590 rows still have no publish-ready card (additive merge: 126).
+ok(missing.length >= 126, `silent residual set shrank unexpectedly (${missing.length}) — do not open those ids`);
 ok(missing.some((r) => r.place_id === POINT_OF_ROCKS), "Point of Rocks is no longer in the silent residual set");
 for (const r of missing.slice(0, 12)) {
   ok(atlasPlaceFor(r.place_id) == null, `silent Atlas-590 ${r.name} (${r.place_id}) invented a page`);
