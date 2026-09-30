@@ -187,6 +187,50 @@ miles away. Changes, each locked by an executed guard:
 
 Cache keys bumped: `event-pairings-v4`, `event-stays-v3`.
 
+## An unforgettable night (2026-09-30, second pass)
+
+Owner: "a lot more fun things to do … make the person's night unforgettable
+… if there are instagrammable places make sure we add that element."
+
+- **"Make it memorable"** (`GOLDEN_HOUR_SLOT`, before; every evening
+  archetype except family): pier, observation deck, garden, glass studio or
+  other real attraction, or a boat experience. Tour operators and marinas
+  enter ONLY here, and only when their own name says sunset, sail, cruise,
+  tiki, dolphin, boat, kayak, paddle, yacht or pontoon (`nameRx`), so a tours
+  sales counter never does. A plain `park` is not admitted (inventory cannot
+  tell the waterfront park from a downtown square). Distance is flat to
+  0.6 mi and the slot reaches 1.5 mi: a destination earns the walk. A
+  secondary identity type that is a slot primary is a full fit
+  (`secondaryOk`), which is how the St. Pete Pier (primary
+  `tourist_attraction`, typed `fishing_pier`) ranks as a pier.
+- **"Keep the night going"** (`SECOND_ACT_SLOT`, after; concert, country,
+  comedy (no rival comedy clubs), sports night, generic evening): live music,
+  karaoke, bowling, arcades, mini golf, escape rooms, pool halls. A bar typed
+  `live_music_venue`/`karaoke`/`comedy_club` counts, and this slot alone lifts
+  the AVOID veto on `event_venue` (nearly every music bar carries it).
+- **"Fun after"** (`FAMILY_FUN_SLOT`, family evening): arcades, bowling, mini
+  golf, a pier or aquarium. Alcohol, hookah, karaoke and every boat sale stay
+  out (two layers: the family alcohol veto and the slot's own exclude).
+- **Quota release (pass 2b).** Where no such places exist nearby, their
+  reserved room returns to the other slots, so a food only block still shows
+  twelve. A slot stretches by at most two past its quota.
+- **Family is kid safe in every slot** (`FAMILY_HARD`): for any family
+  flagged event (including a family night game, which resolves to
+  `sports_night`), alcohol, boats, marinas, karaoke, hookah, pool halls,
+  dance halls and comedy clubs are stripped from every slot's `allow` and
+  added to its `exclude`.
+- **Instagrammable, only with proof** (`lib/photoWorthy.js`): `creator` when
+  real Instagram/TikTok creators filmed it (`lib/creatorSignals.js`), else
+  `curated` when a `lib/curated.js` entry tagged instagrammable, rooftop or
+  view has the same name in the same city. No type or name guesses. The pick
+  carries `photoWorthy` and its card note ends "· Filmed by local creators"
+  or "· A photo stop worth planning". Ranking lift is bounded (+0.05 / +0.03):
+  it wins ties, never a clearly better place.
+
+Booking is unchanged: cards book only through curated partner picks and the
+detail sheet's `/api/viator/go` path with `geoConfirms` intact. Cache key
+bumped to `event-pairings-v5`.
+
 ## What is excluded, and why
 
 **AVOID** (every archetype except `family_day`): `tour_agency`,
@@ -242,7 +286,7 @@ page's "Also nearby" shelf).
 
 ## Caching
 
-`lib/eventPairingsCache.js` (`EVENT_PAIRINGS_CACHE_KEY = "event-pairings-v4"`)
+`lib/eventPairingsCache.js` (`EVENT_PAIRINGS_CACHE_KEY = "event-pairings-v5"`)
 calls `classifyEvent(event)` **outside** the `unstable_cache` boundary and
 passes the JSON-serialized result in as an extra cache-key argument. This is
 what makes a concert and a food festival at the exact same venue coordinates

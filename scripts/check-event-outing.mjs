@@ -30,6 +30,7 @@ import {
   OUTING_ARCHETYPES,
   OUTING_MIN_SCORE,
 } from "../lib/eventOuting.js";
+import { photoWorthy, PHOTO_WORTHY_COPY } from "../lib/photoWorthy.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(path.join(ROOT, p), "utf8");
@@ -127,7 +128,7 @@ const ALCOHOL_TYPES = new Set(["bar", "pub", "irish_pub", "brewery", "brewpub", 
 const AVOID_SET_FOR_TEST = new Set(AVOID);
 const EXPLORE_ALLOWED = new Set(["museum", "art_museum", "tourist_attraction"]);
 const RESTAURANT_LIKE = (t) => t === "restaurant" || /_restaurant$/.test(t) || t === "steak_house" || t === "diner" || t === "food_court";
-const RANKING_NOTE_RX = / · \d+\.\d mi from the venue$/;
+const RANKING_NOTE_RX = / · \d+\.\d mi from the venue( · (Filmed by local creators|A photo stop worth planning))?$/;
 
 // 1. Evening concert.
 {
@@ -452,6 +453,95 @@ const RANKING_NOTE_RX = / · \d+\.\d mi from the venue$/;
   const variedPicks = fillOutingSlots(concert, varied, { max: 8, min: 1 });
   ok(variedPicks.filter((p) => p.id.startsWith("sushi")).length === 2, `no more than two picks share a lead cuisine (got ${variedPicks.filter((p) => p.id.startsWith("sushi")).length} sushi)`);
   ok(variedPicks.some((p) => p.id === "tacos"), "the cuisine cap opens room for a different kind of meal");
+}
+
+// 17. An unforgettable night (2026-09-30, owner: "a lot more fun things to
+//     do … make the person's night unforgettable … instagrammable places").
+//     Every assertion RUNS fillOutingSlots / photoWorthy.
+{
+  const concert = classifyEvent({ name: "Indie Rock Night", segment: "Music", genre: "Rock", time: "20:00" });
+  const r = (id, name, primaryType, governed, distMi, types) => ({ id, name, primaryType, types: types || [primaryType], governed_score: governed, distMi });
+  const fun = [
+    r("sail", "Tampa Bay Sunset Sail", "tour_agency", 90, 0.5),
+    r("counter", "Best Tours Agency", "tour_agency", 99, 0.2),
+    // "z-pier" sorts AFTER "a-statue", so a tie would go to the statue: only
+    // the fishing_pier identity can put the pier first.
+    r("z-pier", "City Pier", "tourist_attraction", 90, 0.6, ["tourist_attraction", "fishing_pier", "park"]),
+    r("a-statue", "Old Statue", "tourist_attraction", 90, 0.6),
+    r("jazz", "Blue Note Room", "bar", 90, 0.2, ["bar", "live_music_venue", "event_venue"]),
+    r("hall", "Grand Wedding Hall", "event_venue", 95, 0.2),
+    r("arcade", "Pixel Arcade", "video_arcade", 88, 0.4),
+    r("bowl", "Strike Lanes", "bowling_alley", 86, 0.5),
+    r("hookah", "Cloud Nine Hookah", "hookah_bar", 90, 0.3),
+    r("tavern", "Corner Tavern", "bar", 85, 0.2),
+    r("dinner", "Bistro One", "restaurant", 90, 0.2),
+  ];
+  const opts = { max: 12, min: 1, photoWorthy: false };
+  const night = fillOutingSlots(concert, fun, opts);
+  const bySlot = (picks, key) => picks.filter((p) => p.outing.slotKey === key).map((p) => p.id);
+
+  // 17a. Experiences: a boat named for what it is gets in; a tours counter never does.
+  ok(bySlot(night, "memorable_before").includes("sail"), `a named sunset sail is a "Make it memorable" pick for a concert (got ${bySlot(night, "memorable_before").join(", ") || "none"})`);
+  ok(!night.some((p) => p.id === "counter"), "a generic tour agency storefront is never recommended, even at a 99");
+  // 17b. Identity: a pier's secondary fishing_pier type makes it a full fit.
+  const pierVsStatue = bySlot(fillOutingSlots(concert, fun.filter((p) => p.id !== "sail"), opts), "memorable_before");
+  ok(pierVsStatue[0] === "z-pier", `a tourist attraction typed fishing_pier outranks an equal plain attraction (got ${pierVsStatue.join(", ")})`);
+  // 17c. Second act: a music bar (event_venue typed) counts; a wedding hall never does.
+  ok(bySlot(night, "second_act_after").includes("jazz"), `a bar typed live_music_venue is a "Keep the night going" pick (got ${bySlot(night, "second_act_after").join(", ") || "none"})`);
+  ok(!night.some((p) => p.id === "hall"), "a plain event hall never enters any slot");
+  // 17d. Classy stays quiet: no arcade, bowling or second act.
+  const classy = fillOutingSlots(classifyEvent({ name: "Symphony No. 9", genre: "Classical", time: "19:30" }), fun, opts);
+  ok(!classy.some((p) => ["arcade", "bowl", "hookah"].includes(p.id)) && bySlot(classy, "second_act_after").length === 0, "a symphony never gets an arcade, bowling or a second act");
+  // 17e. Family evening: fun is kid fun. No boats for sale, no bar, no hookah.
+  const kids = fillOutingSlots(classifyEvent({ name: "Disney Junior Live", segment: "Family", time: "18:00" }), fun, opts);
+  ok(kids.some((p) => p.id === "arcade" || p.id === "bowl"), "a family evening gets arcade or bowling fun");
+  ok(!kids.some((p) => ["sail", "counter", "jazz", "hookah", "tavern", "hall"].includes(p.id)), `a family evening never gets a boat sale, bar, hookah or event hall (got ${kids.map((p) => p.id).join(", ")})`);
+  // 17e2. A family flagged NIGHT GAME (sports_night, which carries the
+  //       memorable and second act slots) is just as kid safe (Fable audit).
+  const familyGameCtx = classifyEvent({ name: "Rays vs Yankees Family Night", segment: "Sports", audience: ["family"], time: "19:00" });
+  const familyFun = [...fun, r("kara", "Sing Along Karaoke", "karaoke", 92, 0.2), r("tiki", "Cruisin Tiki Boat", "boat_tour_agency", 92, 0.3), r("dock", "Sunset Marina", "marina", 92, 0.3)];
+  const famGame = fillOutingSlots(familyGameCtx, familyFun, opts);
+  ok(familyGameCtx.archetype === "sports_night" && familyGameCtx.family, `fixture control: the family night game is sports_night and family (got ${familyGameCtx.archetype}, family ${familyGameCtx.family})`);
+  ok(!famGame.some((p) => ["sail", "tiki", "dock", "kara", "jazz", "hookah", "tavern"].includes(p.id)), `a family night game never gets a boat, marina, karaoke or bar (got ${famGame.map((p) => p.id).join(", ")})`);
+  const unguarded = fillOutingSlots({ ...familyGameCtx, family: false }, familyFun, opts);
+  ok(unguarded.some((p) => ["sail", "tiki", "kara"].includes(p.id)), "red proof control: the same night game without the family flag does admit them, so the guard is doing the work");
+
+  // 17e3. Quota release stretches a slot by at most two.
+  const bars = Array.from({ length: 14 }, (_, i) => r(`bar-${String(i).padStart(2, "0")}`, `Bar ${i}`, ["bar", "pub", "irish_pub", "brewery", "brewpub"][i % 5], 90 - i, 0.2));
+  const barNight = fillOutingSlots(concert, bars, { max: 12, min: 1, photoWorthy: false });
+  const drinksBefore = barNight.filter((p) => p.outing.slotKey === "drinks_before").length;
+  ok(drinksBefore <= 4, `a bar heavy block never fills one slot past quota plus two (drinks before: ${drinksBefore})`);
+
+  // 17f. Every archetype but already fed still reserves a full shelf of twelve.
+  const sums = Object.entries(SLOT_TABLE).filter(([k]) => k !== "festival_fed").map(([k, v]) => [k, v.reduce((a, sl) => a + sl.quota, 0)]);
+  ok(sums.every(([, n]) => n === 12), `slot quotas sum to 12 (got ${sums.filter(([, n]) => n !== 12).map(([k, n]) => k + "=" + n).join(", ") || "all 12"})`);
+  // 17g. A food only block still fills: empty fun slots release their room.
+  const foodOnly = downtown().filter((p) => !["tour_agency", "spa", "museum", "park", "playground", "gym", "hotel"].includes(p.primaryType));
+  const filled = fillOutingSlots(concert, foodOnly, { max: 12, photoWorthy: false });
+  ok(filled.length >= 11, `with no fun places nearby, food and drink fill the released room (got ${filled.length} picks)`);
+}
+
+// 18. photoWorthy: "instagrammable" only when we can prove it.
+{
+  const creator = photoWorthy({ id: "no-such-id", name: "Fortu" }, "St. Petersburg");
+  ok(creator && creator.level === "creator" && creator.copy === "Filmed by local creators", `a place real creators filmed reads "Filmed by local creators" (got ${JSON.stringify(creator)})`);
+  const curated = photoWorthy({ id: "x", name: "Perspective Rooftop Pool Bar" }, "Sarasota");
+  ok(curated && curated.level === "curated", `a curated rooftop in its own city is a photo stop (got ${JSON.stringify(curated)})`);
+  ok(photoWorthy({ id: "x", name: "Perspective Rooftop Pool Bar" }, "Tampa") === null, "a curated name in a different city is not proof");
+  ok(photoWorthy({ id: "x", name: "Sunny Pier Park" }, "St. Petersburg") === null, "no proof, no claim: a pier named place with no creator or curated record gets nothing");
+  // Bounded: the boost breaks a tie, never a clear quality gap.
+  const concert = classifyEvent({ name: "Indie Rock Night", segment: "Music", genre: "Rock", time: "20:00" });
+  const tie = [
+    { id: "a-plain", name: "Plain Grill", primaryType: "restaurant", types: ["restaurant"], governed_score: 88, distMi: 0.2 },
+    { id: "b-filmed", name: "Filmed Grill", primaryType: "restaurant", types: ["restaurant"], governed_score: 88, distMi: 0.2 },
+  ];
+  const stub = (p) => (p.id === "b-filmed" ? { level: "creator", copy: "Filmed by local creators" } : null);
+  const tiePick = fillOutingSlots(concert, tie, { max: 2, min: 1, photoWorthy: stub }).filter((p) => p.outing.slotKey === "dinner_before");
+  ok(tiePick[0] && tiePick[0].id === "b-filmed" && / · Filmed by local creators$/.test(tiePick[0].rankingNote), "a creator filmed place wins a tie and its card says why");
+  const gap = [{ ...tie[0], governed_score: 98 }, tie[1]];
+  const gapPick = fillOutingSlots(concert, gap, { max: 2, min: 1, photoWorthy: stub }).filter((p) => p.outing.slotKey === "dinner_before");
+  ok(gapPick[0] && gapPick[0].id === "a-plain", "the photo boost never beats a clearly better place");
+  ok(!/[-\u2013\u2014]/.test(Object.values(PHOTO_WORTHY_COPY).join(" ")), "photo copy carries no dashes");
 }
 
 // outingCacheKey sanity — used by lib/eventPairingsCache.js to split the

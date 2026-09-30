@@ -76,7 +76,7 @@ const ORIGIN = { lat: 25.7272, lng: -80.2578, city: "Miami", place_id: "p2" };
   ok(res.every((p) => p.wfScore === p.governed_score), "map, detail-link metadata, card badge, and ordering use the same governed score");
   ok(res.every((p) => Number.isFinite(p.distMi)), "every pairing carries a distance");
   ok(res.every((p) => p.outing && typeof p.outing.slotKey === "string" && p.outing.slotKey.length > 0), "every pairing is stamped with the outing slot it filled");
-  ok(res.every((p) => / · \d+\.\d mi from the venue$/.test(p.rankingNote || "")), "every pairing's ranking note names its slot and distance");
+  ok(res.every((p) => / · \d+\.\d mi from the venue( · (Filmed by local creators|A photo stop worth planning))?$/.test(p.rankingNote || "")), "every pairing's ranking note names its slot and distance");
 }
 
 // 2. THE FLOOR. Two nearby places is not a shelf.
@@ -219,7 +219,7 @@ ok(!/PlaceScoreChip|wayfindScore\s*\(/.test(hub), "the hub never renders a Wayfi
   await cached({ ...base, segment: "Music" });
   await cached({ ...base, category: "food", subcategory: "food-festival" });
 
-  ok(configs.length === 1 && configs[0].keyParts[0] === EVENT_PAIRINGS_CACHE_KEY && EVENT_PAIRINGS_CACHE_KEY === "event-pairings-v4", "event pairings use a fresh versioned Data Cache namespace");
+  ok(configs.length === 1 && configs[0].keyParts[0] === EVENT_PAIRINGS_CACHE_KEY && EVENT_PAIRINGS_CACHE_KEY === "event-pairings-v5", "event pairings use a fresh versioned Data Cache namespace");
   ok(configs[0].options.revalidate === EVENT_PAIRINGS_REVALIDATE_SECONDS && EVENT_PAIRINGS_REVALIDATE_SECONDS === 3600, "the pairing cache and parent ISR page share a one-hour lifetime");
   ok(!escapedBoundary, "every exhaustive pairing load executes inside the Data Cache boundary");
   ok(loads.length === 7, `identical inputs (and fields classifyEvent does not read) coalesce, while lat, lng, city, venue identity, AND classification each split the cache (got ${loads.length} loads)`);
