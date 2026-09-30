@@ -61,6 +61,11 @@ Each photo uses the license named below; images may be resized, cropped and conv
 - `/guides/picks/fall-events-orlando-2026/walt-disney-world-dolphin-hotel.webp` — fall-events-orlando-2026: Walt Disney World Swan and Dolphin Food & Wine Classic. [Eden, Janine and Jim](https://commons.wikimedia.org/wiki/File:Dolphin_Hotel_(49560737946).jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 - `/guides/picks/fall-events-orlando-2026/cinderella-castle-fireworks-hero.webp` — fall-events-orlando-2026: hero image. [Jorge Royan](https://commons.wikimedia.org/wiki/File:Disneyworld_fireworks_-_0219.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
+## florida-lovebug-season
+
+- `/guides/picks/florida-lovebug-season/lovebug-close-up-gainesville.webp` — florida-lovebug-season: Are lovebugs dangerous?. [Alex Abair](https://commons.wikimedia.org/wiki/File:Plecia_nearctica_271553494.jpg); [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- `/guides/picks/florida-lovebug-season/lovebug-mating-pair-felda.webp` — florida-lovebug-season: Why are lovebugs suddenly everywhere?. [Judy Gallagher](https://commons.wikimedia.org/wiki/File:Lovebugs_-_Plecia_nearctica,_Okaloacoochee_Slough_State_Forest,_Felda,_Florida.jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
+
 ## florida-scalloping-crystal-river-homosassa
 
 - `/guides/picks/florida-scalloping-crystal-river-homosassa/crystal-river-manatee-closeup.webp` — florida-scalloping-crystal-river-homosassa: Off-season, swim with the manatees instead. [David Hinkel / USFWS Endangered Species](https://commons.wikimedia.org/wiki/File:Endangered_Florida_manatee_(Trichechus_manatus),_Crystal_River_National_Wildlife_Refuge,_Florida_(5104976921).jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
@@ -147,6 +152,7 @@ Each photo uses the license named below; images may be resized, cropped and conv
 
 - `/guides/picks/swim-with-manatees-crystal-river/homosassa-springs-entrance.webp` — swim-with-manatees-crystal-river: Homosassa Springs Wildlife State Park. [Paul Clark](https://commons.wikimedia.org/wiki/File:Homosassa_Springs_Wildlife_State_Park_(Citrus_County,_FL).jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 - `/guides/picks/swim-with-manatees-crystal-river/manatee-kings-bay.webp` — swim-with-manatees-crystal-river: Swim with the manatees in Kings Bay. [USFWS Endangered Species (David Hinkel)](https://commons.wikimedia.org/wiki/File:Endangered_Florida_manatee_(Trichechus_manatus),_Crystal_River_National_Wildlife_Refuge,_Florida_(5104976921).jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
+- `/guides/picks/swim-with-manatees-crystal-river/three-sisters-boardwalk-platforms.webp` — swim-with-manatees-crystal-river: Three Sisters Springs boardwalk, stay dry. [qwesy qwesy](https://commons.wikimedia.org/wiki/File:Three_Sisters_Springs,_Crystal_River_-_panoramio.jpg); [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
 - `/guides/picks/swim-with-manatees-crystal-river/three-sisters-springs-water.webp` — swim-with-manatees-crystal-river: Three Sisters Springs, from the water. [CityofCrystalRiver](https://commons.wikimedia.org/wiki/File:Three_Sister_Springs.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
 ## tampa-restaurants
@@ -155,6 +161,7 @@ Each photo uses the license named below; images may be resized, cropped and conv
 - `/guides/picks/best-cuban-sandwich-tampa/columbia-restaurant.webp` — tampa-restaurants: Columbia Restaurant. [LittleT889](https://commons.wikimedia.org/wiki/File:Columbia,_Ybor_City.jpg); [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 - `/guides/picks/best-cuban-sandwich-tampa/la-segunda-central-bakery.webp` — tampa-restaurants: La Segunda Bakery and Cafe. [LittleT889](https://commons.wikimedia.org/wiki/File:La_Segunda_Central_Bakery.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/tampa-restaurants/oxford-exchange-exterior.webp` — tampa-restaurants: Oxford Exchange. [Oxford Exchange](https://commons.wikimedia.org/wiki/File:Oxford_Exchange_Exterior.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/tampa-restaurants/ulele-entrance-water-works-building.webp` — tampa-restaurants: Ulele. [Under the same moon...](https://www.flickr.com/photos/71119007@N03/14989438915); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 
 ## tampa-riverwalk-guide
 
@@ -176,15 +183,37 @@ Each photo uses the license named below; images may be resized, cropped and conv
 ## things-to-do-fort-lauderdale-summer-2026
 
 - `/guides/picks/things-to-do-fort-lauderdale-summer-2026/fort-lauderdale-beach-riomar.webp` — things-to-do-fort-lauderdale-summer-2026: Fort Lauderdale Beach and the reef offshore. [Infrogmation of New Orleans](https://commons.wikimedia.org/wiki/File:Fort_Lauderdale_Florida_-_A1A_beachfront,_January_2018_-_04.jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
+- `/guides/picks/things-to-do-fort-lauderdale-summer-2026/water-taxi-downtown.webp` — things-to-do-fort-lauderdale-summer-2026: The Water Taxi through the Venice of America. [Tamanoeconomico](https://commons.wikimedia.org/wiki/File:Water_Taxi_(Fort_Lauderdale,_Florida)_1.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
 ## things-to-do-in-bradenton-florida
 
+- `/guides/picks/things-to-do-in-bradenton-florida/bradenton-riverwalk-tower-plaza.webp` — things-to-do-in-bradenton-florida: Bradenton Riverwalk. [The Grid](https://commons.wikimedia.org/wiki/File:Bradenton_Riverwalk_Tower_Plaza.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/robinson-preserve-bradenton/robinson-preserve-boardwalk-trail.webp` — things-to-do-in-bradenton-florida: Robinson Preserve. [Mark Hewitt](https://commons.wikimedia.org/wiki/File:Robinson_Perserve_-_panoramio.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/things-to-do-in-bradenton-florida/bishop-museum-entrance.webp` — things-to-do-in-bradenton-florida: The Bishop Museum of Science and Nature. [Ebyabe](https://commons.wikimedia.org/wiki/File:Bradenton_FL_South_Florida_Museum01.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+
+## things-to-do-in-cortez-florida
+
+- `/guides/picks/things-to-do-in-cortez-florida/star-fish-company-dock-dining.webp` — things-to-do-in-cortez-florida: Star Fish Company. [Carol VanHook](https://www.flickr.com/photos/97651299@N00/32449700360); [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+
+## things-to-do-in-ellenton-florida
+
+- `/guides/picks/things-to-do-in-ellenton-florida/gamble-mansion-front.webp` — things-to-do-in-ellenton-florida: Gamble Plantation Historic State Park. [Ebyabe](https://commons.wikimedia.org/wiki/File:Gamble_Plantation_SP_mansion01.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+
+## things-to-do-in-longboat-key-florida
+
+- `/guides/picks/things-to-do-in-longboat-key-florida/quick-point-lagoon.webp` — things-to-do-in-longboat-key-florida: Quick Point Nature Preserve. [Ryan Hodnett](https://commons.wikimedia.org/wiki/File:Quick_Point_Nature_Preserve_-_Longboat_Key%2C_Florida_2023-01-24_(01).jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
 ## things-to-do-in-miami-florida
 
 - `/guides/picks/things-to-do-miami-summer-2026/calle-ocho-cigar-bar-sign.webp` — things-to-do-in-miami-florida: Little Havana. [Phillip Pessar](https://commons.wikimedia.org/wiki/File:Guantanamera_Cigar_Bar_Sign_Calle_Ocho_Little_Havana_Miami_FL_August_2023.jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
+- `/guides/picks/things-to-do-in-miami-florida/pamm-hanging-gardens-exterior.webp` — things-to-do-in-miami-florida: Pérez Art Museum Miami. [Phillip Pessar](https://www.flickr.com/photos/southbeachcars/22601118889); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 - `/guides/picks/things-to-do-in-miami-florida/vizcaya-interior.webp` — things-to-do-in-miami-florida: Vizcaya Museum and Gardens. [Zoshua Colah](https://unsplash.com/photos/a-large-room-with-a-large-painting-on-the-wall-8hzYzvJ38zg); [Unsplash License](https://unsplash.com/license).
+
+## things-to-do-in-palmetto-florida
+
+- `/guides/picks/things-to-do-in-palmetto-florida/mangrove-lagoon.webp` — things-to-do-in-palmetto-florida: Emerson Point Preserve. [Paul R. Burley](https://commons.wikimedia.org/wiki/File:Emerson_Point_Preserve_Palmetto_Florida_2019-2542.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/things-to-do-in-palmetto-florida/heritage-chapel.webp` — things-to-do-in-palmetto-florida: Palmetto Historical Park. [Ebyabe](https://commons.wikimedia.org/wiki/File:Palmetto_FL_HD_Hist_Park_Heritage_Chapel03.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/things-to-do-in-palmetto-florida/sutton-park-pavilion.webp` — things-to-do-in-palmetto-florida: Sutton Park. [Paul R. Burley](https://commons.wikimedia.org/wiki/File:Sutton_Park_Palmetto_Florida_2019-12031.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
 ## things-to-do-in-parrish-florida
 
@@ -230,16 +259,23 @@ Each photo uses the license named below; images may be resized, cropped and conv
 - `/guides/picks/things-to-do-in-tampa-florida/ybor-city-museum-state-park.webp` — things-to-do-in-tampa-florida: Ybor City Museum State Park. [Peter K Burian](https://commons.wikimedia.org/wiki/File:Ybor_City_Museum_State_Park,_Tampa,_Florida.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/things-to-do-in-tampa-florida/zootampa-lowry-park-sign.webp` — things-to-do-in-tampa-florida: ZooTampa at Lowry Park. [TampAGS, for AGS Media](https://commons.wikimedia.org/wiki/File:Lowry_Park_Zoo_Sign_in_Tampa.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
+## things-to-do-in-venice-florida
+
+- `/guides/picks/things-to-do-in-venice-florida/caspersen-beach-sunset-rocks.webp` — things-to-do-in-venice-florida: Caspersen Beach Park. [Grendelkhan](https://commons.wikimedia.org/wiki/File:Sunset_at_Caspersen_Beach.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/things-to-do-in-venice-florida/triangle-inn-venice-museum.webp` — things-to-do-in-venice-florida: Venice Museum. [Ebyabe](https://commons.wikimedia.org/wiki/File:Venice_FL_Triangle_Inn03.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+
 ## things-to-do-key-west-summer-2026
 
 - `/guides/picks/things-to-do-key-west-summer-2026/blue-heaven-restaurant.webp` — things-to-do-key-west-summer-2026: Blue Heaven's pie under the bougainvillea. [Steven Miller](https://commons.wikimedia.org/wiki/File:Blue_Heaven_Restaurant_-_Exterior,_Nov_2011_-_Key_West.jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 - `/guides/picks/things-to-do-key-west-summer-2026/fort-zachary-taylor-beach.webp` — things-to-do-key-west-summer-2026: Fort Zachary Taylor's beach and fort. [Julian Lupyan](https://commons.wikimedia.org/wiki/File:Fort_Zachary_Taylor_Beach_from_the_West,_Key_West,_Florida.jpg); [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
 - `/guides/picks/things-to-do-key-west-summer-2026/mallory-square-sunset.webp` — things-to-do-key-west-summer-2026: Mallory Square's sunset celebration. [andrea.anzi](https://commons.wikimedia.org/wiki/File:Sunset_from_Mallory_Square_-_Key_West_-_panoramio.jpg); [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
+- `/guides/picks/things-to-do-key-west-summer-2026/key-west-reef-sea-turtle.webp` — things-to-do-key-west-summer-2026: Snorkeling the continental US's only living reef. [SNORKELINGDIVES.COM](https://www.flickr.com/photos/77111848@N07/16292642896); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 - `/guides/picks/things-to-do-key-west-summer-2026/duval-street-key-west.webp` — things-to-do-key-west-summer-2026: The Duval Street crawl. [Julian Lupyan](https://commons.wikimedia.org/wiki/File:Buildings_on_the_Corner_of_Front_and_Duval_Street,_Key_West,_Florida.jpg); [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
 - `/guides/picks/things-to-do-key-west-summer-2026/hemingway-house-cat.webp` — things-to-do-key-west-summer-2026: The Hemingway Home's six-toed cats. [Abujoy](https://commons.wikimedia.org/wiki/File:ErnestHemingwayHouse004.JPG); [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
 
 ## things-to-do-miami-summer-2026
 
+- `/guides/picks/things-to-do-miami-summer-2026/nu-stadium-bowl.webp` — things-to-do-miami-summer-2026: Inter Miami at Miami Freedom Park. [Cuban Boy](https://commons.wikimedia.org/wiki/File:Nu_Stadium_(1).jpg); [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
 - `/guides/picks/things-to-do-miami-summer-2026/calle-ocho-cigar-bar-sign.webp` — things-to-do-miami-summer-2026: Little Havana's Calle Ocho. [Phillip Pessar](https://commons.wikimedia.org/wiki/File:Guantanamera_Cigar_Bar_Sign_Calle_Ocho_Little_Havana_Miami_FL_August_2023.jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 - `/guides/picks/things-to-do-miami-summer-2026/south-pointe-park-pier-view.webp` — things-to-do-miami-summer-2026: South Pointe Park Pier and South Beach. [Dough4872](https://commons.wikimedia.org/wiki/File:Miami_Beach_from_South_Pointe_Park_Pier.jpeg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/things-to-do-miami-summer-2026/venetian-pool-coral-gables.webp` — things-to-do-miami-summer-2026: The Venetian Pool. [Jesper Rautell Balle](https://commons.wikimedia.org/wiki/File:Venetian_pool_coral_gables_florida.jpg); [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
@@ -248,6 +284,7 @@ Each photo uses the license named below; images may be resized, cropped and conv
 ## things-to-do-naples-summer-2026
 
 - `/guides/picks/things-to-do-naples-summer-2026/tin-city-naples.webp` — things-to-do-naples-summer-2026: A sunset cruise from Tin City. [Todd Van Hoosear](https://commons.wikimedia.org/wiki/File:Tin_City,_Naples_(49417605872).jpg); [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/things-to-do-naples-summer-2026/airboat-everglades-city-dock.webp` — things-to-do-naples-summer-2026: An Everglades airboat in ghost orchid season. [Guillaume Capron](https://www.flickr.com/photos/7883724@N05/6163620022); [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/things-to-do-naples-summer-2026/clam-pass-park-sunset.webp` — things-to-do-naples-summer-2026: Clam Pass Park's mangrove boardwalk. [P,TO 19104](https://commons.wikimedia.org/wiki/File:Sunset_at_Clam_Pass_Beach,_Naples_FL.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/things-to-do-naples-summer-2026/corkscrew-swamp-boardwalk.webp` — things-to-do-naples-summer-2026: Corkscrew Swamp Sanctuary's boardwalk. [P. Hughes](https://commons.wikimedia.org/wiki/File:Corkscrew_Swamp_Sanctuary_-_Trail.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/things-to-do-naples-summer-2026/fifth-avenue-south-inn-on-fifth.webp` — things-to-do-naples-summer-2026: Fifth Avenue South on summer deals. [Charlie Anzman](https://www.flickr.com/photos/60309429@N00/305133821); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
@@ -330,8 +367,10 @@ Each photo uses the license named below; images may be resized, cropped and conv
 
 ## weeki-wachee-kayak-mermaids-guide
 
+- `/guides/picks/weeki-wachee-kayak-mermaids-guide/buccaneer-bay-slides-spring.webp` — weeki-wachee-kayak-mermaids-guide: Buccaneer Bay, the spring-fed water park. [Paul](https://www.flickr.com/photos/35168275@N00/1343753945); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 - `/guides/picks/weeki-wachee-kayak-mermaids-guide/weeki-wachee-river.webp` — weeki-wachee-kayak-mermaids-guide: Paddle the Weeki Wachee River (reserve ahead). [Gzuraski](https://commons.wikimedia.org/wiki/File:Weeki_Wachee_River_July_2013.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/weeki-wachee-kayak-mermaids-guide/mermaid-shows-park-sign.webp` — weeki-wachee-kayak-mermaids-guide: The live mermaid show. [DanTD](https://commons.wikimedia.org/wiki/File:Weeki_Wachee_sign_-_Entrance.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/weeki-wachee-kayak-mermaids-guide/manatee-cow-calf-weeki-wachee-river.webp` — weeki-wachee-kayak-mermaids-guide: When the manatees come. [Fredlyfish4](https://commons.wikimedia.org/wiki/File:Manatees_in_Weeki_Wachee_River.JPG); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
 ## winter-park-scenic-boat-tour
 

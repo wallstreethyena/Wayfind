@@ -27,6 +27,11 @@ const OUT = "data/guide-pick-photos/_reports/license-evidence.json";
 const UA = "WayfindGuidePhotoAudit/1.0 (https://github.com/wallstreethyena/Wayfind; editorial photo credit audit)";
 const TODAY = new Date().toISOString().slice(0, 10);
 // Photos kept for now but to be replaced when a newer licensed photo exists.
+// Unsplash has no public licence API, so its rows are verified by hand
+// (source page + downloaded photo). Regenerating must carry those forward, or
+// every run silently demotes them to needs-review; a carried row is kept only
+// while what Wayfind stores and renders is byte-identical to what was reviewed.
+const PREVIOUS = existsSync(OUT) ? new Map(JSON.parse(readFileSync(OUT, "utf8")).files.map((r) => [r.src, r])) : new Map();
 const REPLACEMENT_CANDIDATES = JSON.parse(readFileSync("data/guide-pick-photos/_reports/replacement-candidates.json", "utf8")).candidates;
 
 const strip = (html) => String(html || "").replace(/<[^>]*>/g, " ").replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#0?39;/g, "'").replace(/\s+/g, " ").trim();
@@ -78,7 +83,14 @@ for (let i = 0; i < commonsTitles.length; i += 40) {
   const batch = commonsTitles.slice(i, i + 40);
   const params = new URLSearchParams({ action: "query", format: "json", formatversion: "2", redirects: "1", prop: "imageinfo", iiprop: "extmetadata|url|size",
     iiextmetadatafilter: "LicenseShortName|LicenseUrl|Artist|ObjectName|DateTimeOriginal|Restrictions|UsageTerms", titles: batch.join("|") });
-  const res = await fetch("https://commons.wikimedia.org/w/api.php?" + params, { headers: { "user-agent": UA } });
+  // Commons throttles shared egress with 429s; back off and retry a bounded
+  // number of times instead of aborting the whole audit on the first one.
+  let res;
+  for (let attempt = 0; attempt < 6; attempt++) {
+    res = await fetch("https://commons.wikimedia.org/w/api.php?" + params, { headers: { "user-agent": UA } });
+    if (res.ok || (res.status !== 429 && res.status < 500)) break;
+    await new Promise((r) => setTimeout(r, 5000 * 2 ** attempt));
+  }
   if (!res.ok) throw new Error(`Commons API ${res.status}`);
   const j = await res.json();
   const alias = new Map();
@@ -124,6 +136,15 @@ for (const url of new Set([...files.values()].filter((f) => f.stored.sourceKind 
 const rows = [];
 for (const f of [...files.values()].sort((a, b) => a.src.localeCompare(b.src))) {
   const s = f.stored;
+  if (s.sourceKind === "unsplash") {
+    const prev = PREVIOUS.get(f.src);
+    const same = prev && prev.verificationMethod === "manual-source-and-image-review" && prev.status === "verified"
+      && ["credit", "creditHref", "license", "licenseUrl", "modificationNotice"].every((k) => prev.wayfind?.[k] === s[k]) && prev.source?.url === s.sourceUrl;
+    rows.push(same ? { ...prev, usedBy: f.usages }
+      : { src: f.src, usedBy: f.usages, source: { kind: "unsplash", url: s.sourceUrl }, wayfind: { credit: s.credit, creditHref: s.creditHref, license: s.license, licenseUrl: s.licenseUrl, modificationNotice: s.modificationNotice },
+        commercialUse: false, authorMatchesCredit: false, status: "needs-review", problems: ["Unsplash photo has no recorded manual source review matching what the site renders"], verifiedAt: TODAY });
+    continue;
+  }
   const live = s.sourceKind === "commons" ? commonsLive.get(commonsTitle(s.sourceUrl)) : flickrLive.get(s.sourceUrl);
   const problems = [];
   if (!existsSync("public" + f.src)) problems.push("file missing from public/");

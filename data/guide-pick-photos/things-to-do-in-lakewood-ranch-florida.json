@@ -1,0 +1,24 @@
+{
+  "slug": "things-to-do-in-lakewood-ranch-florida",
+  "picks": {},
+  "gaps": {
+    "Lakewood Ranch Main Street": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "Finder returned 0 licensed candidates. Commons Category:Lakewood Ranch, Florida holds only Town Hall (Lakewood Ranch Blvd, not Main Street), a Walgreens on SR 70 and an SCF campus; Commons and Openverse/Flickr searches for Lakewood Ranch Main Street / Lakewood Main Street returned nothing of the street."
+    },
+    "Waterside Place": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "Finder candidates were all same-name places in England (Lower Sheering, Barton, Lincoln, Walsall). Commons and Openverse/Flickr searches for Waterside Lakewood Ranch and Kingfisher Lake returned no photo of the Lakewood Ranch town center."
+    },
+    "Waterside Park": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "Finder candidates were all Chelsea Waterside Park, New York. Commons and Openverse/Flickr searches for Waterside Park / Kingfisher Lake Lakewood Ranch returned no photo of the island park or its bridge."
+    }
+  }
+}
