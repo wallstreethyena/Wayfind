@@ -108,9 +108,11 @@ const figureCode = ts.transpileModule(fs.readFileSync(figureFile, 'utf8'), { com
 const figureModule = { exports: {} };
 const figureCss = new Proxy({}, { get: (_target, name) => String(name) });
 const captionModule = await import(path.resolve('lib/guideCaption.js'));
+const googlePhotoModule = await import(path.resolve('lib/googlePhotoSrc.js'));
 vm.runInNewContext(figureCode, { module: figureModule, exports: figureModule.exports, require: (name) => {
   if (name === './GuidePhoto') return photoModule.exports;
   if (name === '../../lib/guideCaption.js') return captionModule;
+  if (name === '../../lib/googlePhotoSrc.js') return googlePhotoModule;
   if (name.endsWith('.css')) return { __esModule: true, default: figureCss };
   return require(name);
 } }, { filename: figureFile });

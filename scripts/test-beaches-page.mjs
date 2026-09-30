@@ -126,7 +126,9 @@ ok(!/["'`][^"'`]*\.(png|jpe?g|webp)["'`]/.test(og), "no static file may stand in
   const serve = readFileSync(new URL("../lib/experiencesServe.js", import.meta.url), "utf8");
   ok(ts.includes('"use client"') && !/SUPABASE_SERVICE_ROLE_KEY|VIATOR_API_KEY|s\.key/.test(ts), "tours read must stay server-only — TourStrip is a client component and holds no service/API key");
   ok(!/"use client"/.test(serve) && /SUPABASE_SERVICE_ROLE_KEY/.test(readFileSync(new URL("../lib/serverCache.js", import.meta.url), "utf8")), "the service key lives only in the server-only serveExperiences call chain (lib/serverCache.sbEnv), never in a client component");
-  ok(/href=\{t\.url\}/.test(ts) && /\/pid=\/\.test\(t\.url\)/.test(ts), "tour links must be Viator's OWN product_url VERBATIM (mcid+pid intact) — a link missing pid= never ships (never hand-built, never unattributed)");
+  // The pid= completeness filter moved to lib/tourStripItems.js (shared by the server seed and the client refresh), so it is asserted on the UNION of both files.
+  const tsItems = readFileSync(new URL("../lib/tourStripItems.js", import.meta.url), "utf8");
+  ok(/href=\{t\.url\}/.test(ts) && /\/pid=\/\.test\(t\.url\)/.test(ts + tsItems), "tour links must be Viator's OWN product_url VERBATIM (mcid+pid intact) — a link missing pid= never ships (never hand-built, never unattributed)");
   ok(ts.includes('rel="noopener sponsored nofollow"'), "affiliate links must carry nofollow+sponsored");
   ok(ts.includes("items.length < 2") && /return null/.test(ts), "the section hides below 2 tours — never a lonely ad");
   ok(!ts.includes("earn a commission"), "TourStrip renders no inline commission disclosure (one footer disclosure plus one on true detail pages is the law now)");

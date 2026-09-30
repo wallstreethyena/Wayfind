@@ -41,6 +41,8 @@ import ShareButton from "../../components/ShareButton";
 import { guideDealIds } from "../../../lib/guideDeals";
 import { guideCommerceChrome } from "../../../lib/guideEditorialMode";
 import GuideEmailCapture from "./GuideEmailCapture";
+import GuidePickDecision from "./GuidePickDecision";
+import { inlineBookConfig } from "../../../lib/guideInlineBook";
 import { COUPONS, couponIsLive, couponEndsLabel } from "../../../lib/coupons";
 // Venue-local US Eastern, DST-aware. NEVER new Date().toISOString() — that is UTC
 // and expires a coupon roughly four hours early.
@@ -371,6 +373,7 @@ async function inventoryPlacesForRegion(region, limit = 80) {
 }
 
 import { guidePlaceFigureImage } from "../../../lib/guidePlaceFigureImage.js";
+import { withAttributableSpotPhotos } from "../../../lib/guideSpotPhotos.js";
 import GuideMapExplorer from "../../components/GuideMapExplorer";
 import { guidePickMayResolvePlaceCard } from "../../../lib/guidePlaceIdentity.js";
 // Separate interactive map discovery still uses the shared place-card CSS.
@@ -601,6 +604,11 @@ export default async function GuidePage({ params }) {
   await Promise.all([...new Map([...missingPickPhotos, ...placeRail.places].filter(Boolean).map((place) => [place.id, place])).values()].map(async (place) => {
     editorialImages.set(place.id, await guidePlaceFigureImage(place, { findFreePhoto, findSamePlaceCachedPhoto }));
   }));
+  // Map-explorer cards cannot show Google's required photo credit, so each
+  // spot gets its licensed photo (with its credit) or none (2026-09-30).
+  const mapExplorerSpots = g.mapExplorer && Array.isArray(g.mapExplorer.spots) && g.mapExplorer.spots.length >= 3
+    ? await withAttributableSpotPhotos(g.mapExplorer.spots, { findFreePhoto })
+    : null;
   const nowResult = guidePicksForNow(g.picks, nowCtx);
   const nowHeadline = guideNowHeadline(nowCtx, g.region, nowResult);
   const nowExplainer = guideNowExplainer(nowResult, (g.picks || []).length);
@@ -1008,9 +1016,9 @@ export default async function GuidePage({ params }) {
           places gets the shared Apple Map + RailCard rail + category filters
           with NO bespoke per-guide component — GuideMapExplorer itself
           no-ops below 3 spots, so this is safe to render unconditionally. */}
-      {g.mapExplorer && Array.isArray(g.mapExplorer.spots) && g.mapExplorer.spots.length >= 3 ? (
+      {mapExplorerSpots ? (
         <GuideMapExplorer
-          spots={g.mapExplorer.spots}
+          spots={mapExplorerSpots}
           filters={g.mapExplorer.filters || null}
           kicker={g.mapExplorer.kicker}
           heading={g.mapExplorer.heading}
@@ -1037,6 +1045,9 @@ export default async function GuidePage({ params }) {
               ) : null}
               <p style={S.p}>{pick.blurb}</p>
               {pick.tip ? <p className="wf-guide-tip" style={S.tip}>Insider note — {pick.tip}</p> : null}
+              {/* guide-inline-book-v1 (lib/guideInlineBook.js): client-only
+                  treatment; the server HTML and the control arm are unchanged. */}
+              {inlineBookConfig(params.slug, i) ? <GuidePickDecision slug={params.slug} pickIndex={i} /> : null}
               <div className="wf-guide-actions">
                 {pick.placeId ? <a href={guidePlacePath(pick.placeId)} style={{ ...S.btnGhost, marginLeft: 0 }}>Open place</a> : null}
                 {(pick.appQuery !== null) ? <a href={appUrl(pick.appQuery || pick.name, pick)} style={{ ...S.btnGhost, marginLeft: 0 }}>Explore this place</a> : null}

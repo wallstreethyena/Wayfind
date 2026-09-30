@@ -40,7 +40,9 @@ for (const file of HOUSE) {
 // verified photo that fails to LOAD falls to the monogram too — `[^?]*`
 // tolerates that extra `&& imgFailed !== photo` clause without loosening
 // what this proves: only a real <img src={photo}> stands before the monogram.
-ok(/\{photo[^?]*\?/.test(rail) && /src=\{photo\}/.test(rail),
+// 2026-09-30: `shownPhoto` is photoSrcFilter(photo) — exactly `photo` outside
+// a guide's PhotoPolicyProvider, "" for a Google photo inside one.
+ok(/const shownPhoto = photoSrcFilter\(photo\);/.test(rail) && /\{shownPhoto[^?]*\?/.test(rail) && /src=\{shownPhoto\}/.test(rail),
   "RailCard renders only the caller's verified photo and otherwise uses its branded monogram");
 
 console.log(fail === 0

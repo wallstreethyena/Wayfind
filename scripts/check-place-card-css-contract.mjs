@@ -137,7 +137,9 @@ if (renderSites < 3)
     fail("fall cards must override the base gray meta and editorial copy with the high-contrast cream palette");
   const whenLabel = (cssSrc.match(/\.wf-rail-when-label\{[^}]*\}/) || [""])[0];
   const whenValue = (cssSrc.match(/\.wf-rail-when-value\{[^}]*\}/) || [""])[0];
-  if (!(whenLabel.includes("font-size:5.5px") && whenLabel.includes("letter-spacing:.42px"))
+  // 2026-09-30: 7px kicker — ranges moved out of the kicker (lib/whenCompact.js),
+  // so the kicker only ever holds ≤13 chars ("Select nights", "Opens Nov 13").
+  if (!(whenLabel.includes("font-size:7px") && whenLabel.includes("letter-spacing:.35px"))
       || !(whenValue.includes("font-size:12.25px") && whenValue.includes("overflow:hidden")))
     fail("event when-badge typography must fit long verified date ranges inside the fixed score slot");
   if (!/color:\s*"#F8F5EE"/.test(ttd) || !/wf-place-card-share" style=\{\{ color: "#DFE5EE"/.test(ttd))

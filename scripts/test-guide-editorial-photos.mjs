@@ -64,6 +64,7 @@ console.log("test-guide-editorial-photos: OK — same-place free/cache media, ex
 // markup. Source checks above cover placement; these verify what readers get.
 const require = createRequire(import.meta.url);
 const caption = await import("../lib/guideCaption.js");
+const googlePhotoSrc = await import("../lib/googlePhotoSrc.js");
 function compileComponent(file, overrides = {}) {
   const code = ts.transpileModule(readFileSync(new URL(file, import.meta.url), "utf8"), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2020, esModuleInterop: true },
@@ -76,6 +77,7 @@ const photoComponent = compileComponent("../app/components/GuidePhoto.js");
 const figureComponent = compileComponent("../app/components/GuideFigure.js", {
   "./GuidePhoto": photoComponent,
   "../../lib/guideCaption.js": caption,
+  "../../lib/googlePhotoSrc.js": googlePhotoSrc,
   "./GuideFigure.module.css": { __esModule: true, default: new Proxy({}, { get: (_t, name) => String(name) }) },
 });
 const html = renderToStaticMarkup(React.createElement(figureComponent.default, { role: "pick", image: cached }));
