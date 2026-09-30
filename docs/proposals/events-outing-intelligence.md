@@ -214,6 +214,13 @@ Owner: "a lot more fun things to do … make the person's night unforgettable
 - **Quota release (pass 2b).** Where no such places exist nearby, their
   reserved room returns to the other slots, so a food only block still shows
   twelve. A slot stretches by at most two past its quota.
+- **Optional slots never switch off the widen.** Pass 3 (suburban widen)
+  also runs when any core meal or drink slot is empty, and its result is
+  kept only when it fills strictly more core slots. The reach slots
+  (`OPTIONAL_SLOT_KEYS`: memorable, second act, family fun, explore) reach
+  farther than the meal slots and used to lift a thin block past `min`,
+  starving it of meals (live preview: Clearwater Jazz Holiday 6 picks on
+  main, 3 on the branch; Epcot lost every coffee and breakfast pick).
 - **Family is kid safe in every slot** (`FAMILY_HARD`): for any family
   flagged event (including a family night game, which resolves to
   `sports_night`), alcohol, boats, marinas, karaoke, hookah, pool halls,
@@ -229,7 +236,7 @@ Owner: "a lot more fun things to do … make the person's night unforgettable
 
 Booking is unchanged: cards book only through curated partner picks and the
 detail sheet's `/api/viator/go` path with `geoConfirms` intact. Cache key
-bumped to `event-pairings-v5`.
+bumped to `event-pairings-v6`.
 
 ## What is excluded, and why
 
@@ -286,7 +293,7 @@ page's "Also nearby" shelf).
 
 ## Caching
 
-`lib/eventPairingsCache.js` (`EVENT_PAIRINGS_CACHE_KEY = "event-pairings-v5"`)
+`lib/eventPairingsCache.js` (`EVENT_PAIRINGS_CACHE_KEY = "event-pairings-v6"`)
 calls `classifyEvent(event)` **outside** the `unstable_cache` boundary and
 passes the JSON-serialized result in as an extra cache-key argument. This is
 what makes a concert and a food festival at the exact same venue coordinates

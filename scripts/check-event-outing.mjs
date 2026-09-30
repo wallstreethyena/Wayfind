@@ -544,6 +544,29 @@ const RANKING_NOTE_RX = / · \d+\.\d mi from the venue( · (Filmed by local crea
   ok(!/[-\u2013\u2014]/.test(Object.values(PHOTO_WORTHY_COPY).join(" ")), "photo copy carries no dashes");
 }
 
+// 19. Optional reach slots never switch off the suburban widen (live preview
+//     regression 2026-09-30: Clearwater Jazz Holiday 6 picks on main, 3 on
+//     the branch). A classy show whose meals sit 1.2 to 1.5 mi out, with one
+//     attraction next door, must still get dinner, dessert and a drink.
+{
+  const classyCtx = classifyEvent({ name: "Clearwater Jazz Holiday", genre: "Jazz", time: "19:00" });
+  const r = (id, name, primaryType, governed, distMi) => ({ id, name, primaryType, types: [primaryType], governed_score: governed, distMi });
+  const block = [
+    r("near-1", "Harbor Grill", "restaurant", 92, 0.1),
+    r("near-2", "Dock Diner", "restaurant", 89, 0.5),
+    r("pad", "Splash Pad", "tourist_attraction", 85, 0.3),
+    r("fine", "DeLukas", "fine_dining_restaurant", 91, 1.2),
+    r("drink", "Terrace Bar", "cocktail_bar", 95, 1.5),
+    r("cafe", "Corner Cafe", "cafe", 90, 1.3),
+  ];
+  const got = fillOutingSlots(classyCtx, block, { max: 12, photoWorthy: false });
+  const keys = new Set(got.map((p) => p.outing.slotKey));
+  ok(got.length >= 5 && keys.has("dessert_after") && (keys.has("quiet_drink_after") || keys.has("wine_before")), `an empty core slot still triggers the widen; optional slots cannot suppress it (got ${got.map((p) => p.id + ":" + p.outing.slotKey).join(", ")})`);
+  // Control: with every core slot filled nearby, the widen is not taken.
+  const dense = [...block.slice(0, 3), r("w", "Wine Nook", "wine_bar", 90, 0.2), r("d", "Scoops", "ice_cream_shop", 88, 0.3), r("q", "Velvet", "cocktail_bar", 87, 0.3), r("far", "Far Fine", "fine_dining_restaurant", 99, 1.5)];
+  ok(!fillOutingSlots(classyCtx, dense, { max: 12, photoWorthy: false }).some((p) => p.id === "far"), "control: when every core slot fills nearby, a 1.5 mi place does not replace them");
+}
+
 // outingCacheKey sanity — used by lib/eventPairingsCache.js to split the
 // Data Cache; two different classifications must produce different keys, and
 // the same classification must always produce the same key.
