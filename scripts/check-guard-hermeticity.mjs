@@ -56,6 +56,8 @@ const EXEMPT = {
     "Scheduled production canary: ambient Supabase credentials provide the connection, while persisted heartbeat freshness and outcome decide the verdict. Missing credentials fail, never skip. Hermetic prebuild coverage lives in test-job-watch-delivery.mjs.",
   "check-env.mjs":
     "its entire purpose is reporting on the ambient environment; it asserts nothing and always exits 0",
+  "check-photo-cap-parses.mjs":
+    "Reading the ambient GOOGLE_PHOTOS_MONTH_CAP is the ENTIRE POINT, and the shell it must read is Vercel's build environment, which carries the production spend switches (see #1555). The 2026-09-23 to 09-28 incident is why: an unparseable cap (\"7,000\") makes explicitCap() return null, photosPaidEnabled() go false, and photosCeiling() fall back to 950, which blacked out every uncached place photo on gowayfind.com for five days with no alert — 617/804/1,315/815 denials a day, ZERO served. Spending LESS than intended is a safe failure for the budget and a catastrophic one for the product, so the fail-closed gate cannot catch it and the only cheap moment to refuse the value is the build. It is never inert on a machine where the variable is absent: absence is a legitimate free-tier configuration and passes, while ~60 of its assertions run against synthetic values in BOTH directions (\"7,000\"/\"7k\"/\"0\" must fail, \"7700\"/\"950\" must pass), so the detector has teeth in a clean terminal too.",
   "check-env-value-overrides.mjs":
     "reads ATLAS_MODEL only to SAVE and restore it around deliberate fixture mutation — the assertions run against values it sets itself",
   "check-inventory-integrity.mjs":

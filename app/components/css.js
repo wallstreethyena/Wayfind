@@ -726,9 +726,9 @@ ${WF_SKELETON_CSS}
   box-shadow:inset -1px 0 rgba(255,255,255,.12);
 }
 .wf-rail-when-rail svg{width:13px;height:13px}
-.wf-rail-when-body{display:flex;box-sizing:border-box;flex:1;min-width:0;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 5px;text-align:center}
-.wf-rail-when-label{width:100%;overflow:hidden;color:#D4DCE7;font-size:5.5px;font-weight:850;letter-spacing:.42px;text-overflow:ellipsis;text-transform:uppercase;white-space:nowrap}
-.wf-rail-when-value{width:100%;overflow:hidden;color:#F8FAFC;font-size:12.25px;font-weight:850;line-height:1;text-overflow:ellipsis;white-space:nowrap}
+.wf-rail-when-body{display:flex;box-sizing:border-box;flex:1;min-width:0;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:5px 2px;text-align:center}
+.wf-rail-when-label{width:100%;overflow:hidden;color:#D4DCE7;font-size:7px;font-weight:850;letter-spacing:.35px;text-overflow:ellipsis;text-transform:uppercase;white-space:nowrap}
+.wf-rail-when-value{width:100%;overflow:hidden;color:#F8FAFC;font-size:12.25px;font-weight:850;letter-spacing:-.1px;line-height:1;text-overflow:ellipsis;white-space:nowrap}
 
 /* An affiliate card may itself be wrapped by a tracked <a>. These explicit
    descendants prevent browser link blue from leaking into the house card. */

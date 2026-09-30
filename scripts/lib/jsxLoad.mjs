@@ -97,6 +97,19 @@ export async function loadComponent(entryAbs, repoRoot, { onGraph } = {}) {
       done.set(abs, jsonFile);
       return jsonFile;
     }
+    // CSS modules — 2026-09-30. `import styles from "./X.module.css"` (GuideFigure
+    // and friends) used to be transpiled AS JavaScript and died with a syntax
+    // error before any component rendered. Next maps each class to a hashed
+    // name; here each class maps to its own name, so a guard can still assert
+    // on className. Plain (non-module) CSS imports are side-effect only.
+    if (/\.css$/i.test(abs)) {
+      const cssFile = path.join(out, path.basename(abs) + "-" + done.size + ".mjs");
+      writeFileSync(cssFile, /\.module\.css$/i.test(abs)
+        ? "export default new Proxy({}, { get: (_, key) => (typeof key === \"string\" ? key : undefined) });\n"
+        : "export default {};\n");
+      done.set(abs, cssFile);
+      return cssFile;
+    }
     const src = readFileSync(abs, "utf8");
     // RESERVE the output path and register it in `done` BEFORE recursing into
     // this file's own imports — 2026-09-23. `done` used to gain an entry only

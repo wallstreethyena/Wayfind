@@ -344,9 +344,11 @@ for (const { file, json } of dataFiles) {
   }).outputText;
   const figureModule = { exports: {} };
   const captionModule = await import(abs("lib/guideCaption.js"));
+  const googlePhotoModule = await import(abs("lib/googlePhotoSrc.js"));
   vm.runInNewContext(figureCode, { module: figureModule, exports: figureModule.exports, require: (name) => {
     if (name === "./GuidePhoto") return photoModule.exports;
     if (name === "../../lib/guideCaption.js") return captionModule;
+    if (name === "../../lib/googlePhotoSrc.js") return googlePhotoModule;
     if (name.endsWith(".css")) return { __esModule: true, default: cssStub };
     return require(name);
   } }, { filename: abs("app/components/GuideFigure.js") });

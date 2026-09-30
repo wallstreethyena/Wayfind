@@ -3,8 +3,10 @@ import ShareButton from "../../components/ShareButton";
 import { pageShareUrl } from "../../../lib/pageShareUrl";
 import { WF_PLACE_CARD_CSS } from "../../components/css";
 import GuideMapExplorer from "../../components/GuideMapExplorer";
-import GuideFigure from "../../components/GuideFigure";
+import GuideFigure, { googleCreditMissing } from "../../components/GuideFigure";
 import { fallEventCardImageSrc, withFallVenueIdentity } from "../../../lib/fallEventImage";
+import { findFreePhoto } from "../../../lib/freePhoto";
+import { withAttributableSpotPhotos } from "../../../lib/guideSpotPhotos.js";
 import styles from "./page.module.css";
 import {
   FLORIDA_FALL_GUIDE_EVENTS_2026,
@@ -58,7 +60,7 @@ function fallGuideSpots(spots) {
   return spots.map((spot) => {
     if (spot.image || !/^ChIJ/.test(String(spot.id))) {
       const placeId = EVENT_PHOTO_PLACE_IDS[spot.id];
-      if (placeId) return { ...spot, image: "/api/photo?place=" + encodeURIComponent(placeId) + "&g=2&w=800" };
+      if (placeId) return { ...spot, photoPlaceId: placeId, image: "/api/photo?place=" + encodeURIComponent(placeId) + "&g=2&w=800" };
       return spot;
     }
     return { ...spot, image: "/api/photo?place=" + encodeURIComponent(spot.id) + "&g=2&w=800" };
@@ -604,7 +606,7 @@ function eventImage(event) {
   const resolved = withFallVenueIdentity(event);
   const src = fallEventCardImageSrc(resolved, 900);
   if (!src) return null;
-  return {
+  const image = {
     src,
     alt: resolved.image_alt || ((resolved.venue || resolved.event_name) + "; venue photo"),
     width: 900,
@@ -613,6 +615,9 @@ function eventImage(event) {
     credit: event.photoAttr || null,
     creditHref: event.photoAttrHref || null,
   };
+  // These cards hide their caption, so a Google venue photo could never show
+  // its required credit here: no photo, and the card keeps its text layout.
+  return googleCreditMissing(image, false) ? null : image;
 }
 
 function EventMiniCard({ event, compact = false, rank = null, visual = true }) {
@@ -820,6 +825,22 @@ function BrowseByRegion() {
   );
 }
 
+// 2026-09-30 (owner): the map cards cannot show Google's required photo
+// credit, so each spot gets its licensed photo (with credit) or none. The
+// lookup is revalidated hourly like this page's other reads, so it never
+// turns the page into a per-request render.
+const revalidatingFetch = (url, init = {}) => {
+  const { cache, ...rest } = init;
+  return fetch(url, { ...rest, next: { revalidate: 3600 } });
+};
+
+async function FallMapExplorer(props) {
+  const spots = await withAttributableSpotPhotos(fallGuideSpots(mapSpots), {
+    findFreePhoto: (args) => findFreePhoto(args, { fetchImpl: revalidatingFetch }),
+  });
+  return <GuideMapExplorer spots={spots} {...props} />;
+}
+
 export default function FloridaFallGuide() {
   return (
     <main className={styles.page}>
@@ -867,8 +888,7 @@ export default function FloridaFallGuide() {
         <WeekdayPlans />
 
         <section id="fall-map" className={styles.mapSection} aria-label="Florida fall map">
-        <GuideMapExplorer
-          spots={fallGuideSpots(mapSpots)}
+        <FallMapExplorer
           filters={MAP_EXPLORER_FILTERS}
           kicker="Pick a category, then swipe"
           heading="The card and the map stay together."

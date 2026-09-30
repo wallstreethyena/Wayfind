@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 749,
-    "totalRegistryEntries": 750,
-    "guardsTxtLineCount": 747,
-    "guardsTxtReachedFileCount": 742,
-    "criticalCount": 89,
+    "totalOnDiskGuardFiles": 756,
+    "totalRegistryEntries": 757,
+    "guardsTxtLineCount": 755,
+    "guardsTxtReachedFileCount": 749,
+    "criticalCount": 91,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 522,
-      "RENDER": 87,
+      "CALL": 526,
+      "RENDER": 90,
       "STRUCTURAL": 140,
       "OTHER": 1
     }
@@ -2879,6 +2879,28 @@
         "1 absence assertion(s) with no positive control in the same file (e.g. \"/serveExplodingNearby\\s*\\(/.test(route), \"\")"
       ],
       "selfDocumentsRedProve": true,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-fall-date-order-and-when.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 37,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
@@ -5962,6 +5984,28 @@
       "owner": null
     },
     {
+      "file": "scripts/check-not-public-places.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 45,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/check-og-absolute.mjs",
       "npmScript": null,
       "class": "STRUCTURAL",
@@ -6429,6 +6473,58 @@
       "protects": null,
       "blastRadius": null,
       "owner": null
+    },
+    {
+      "file": "scripts/check-photo-cap-parses.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 14,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-import:lib/spendGate.js"
+      ],
+      "protects": "A present-but-unparseable GOOGLE_PHOTOS_MONTH_CAP fails the BUILD instead of the website. explicitCap() requires ^[1-9]\\\\d*$, so a value a human reads as correct (\"7,000\", \"7k\") parses to null, photosPaidEnabled() goes false, and photosCeiling() silently falls back to the 950 free tier. This guard reads the real build environment, where Vercel carries the production spend switches, and refuses the deploy.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "This exact typo blacked out every uncached place photo on gowayfind.com for five days (2026-09-23 to 09-28: 617/804/1,315/815 denials a day, ZERO served) with no alert, because spending LESS than intended is a safe failure for the budget and a catastrophic one for the product. A regression here re-opens a silent site-wide image outage."
+      },
+      "owner": "Revenue QA"
+    },
+    {
+      "file": "scripts/check-photo-outcome-provenance.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 22,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": "Photo outcome counts name the environment that produced them (production keeps its bare class names; preview and dev are namespaced) and a ledger denial records the ceiling that refused it. Also pins that a production blackout still pages the owner while the same volume of Preview denials does not.",
+      "blastRadius": {
+        "category": "reliability",
+        "detail": "Preview deployments and local dev write to the production telemetry table, so without provenance a real production outage and a reviewer opening a Preview URL are indistinguishable. And wf_spend_take records the cap only on a successful grant, so without the ceiling row the value behind a blackout is permanently unrecoverable, as it is for 2026-09-23."
+      },
+      "owner": "Revenue QA"
     },
     {
       "file": "scripts/check-photo-surface-registry.mjs",
@@ -7958,7 +8054,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 19,
+      "assertionCount": 29,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -10223,7 +10319,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 41,
+      "assertionCount": 53,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -10861,7 +10957,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 160,
+      "assertionCount": 190,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -12879,6 +12975,28 @@
       "owner": null
     },
     {
+      "file": "scripts/test-google-photo-attribution.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 34,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-guide-city-coverage.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -12965,6 +13083,33 @@
       "protects": null,
       "blastRadius": null,
       "owner": null
+    },
+    {
+      "file": "scripts/test-guide-inline-book.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 24,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-filename:book"
+      ],
+      "protects": "The guide-inline-book-v1 experiment on the Orlando guide: only a link-checked, well-reviewed, priced offer matching the pick can render; the server HTML and control arm are unchanged (SEO); the offer links only to our /api/commerce/go redirect; one tap records exactly one commerce_cta_clicked with experiment + variant.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "A regression would either paint a wrong or low-quality partner product next to an editorial pick, change indexed guide HTML, send a partner link that bypasses our attributed redirect, or double-count commerce clicks and corrupt the experiment's primary metric."
+      },
+      "owner": "Revenue QA"
     },
     {
       "file": "scripts/test-guide-lovebug-rail.mjs",
@@ -13073,6 +13218,28 @@
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-harvest-owned-hotel-identity.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 34,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
@@ -14567,7 +14734,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 112,
+      "assertionCount": 154,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
