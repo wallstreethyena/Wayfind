@@ -7,6 +7,7 @@ import "./links.css";
 import { fontVariables } from "./fonts";
 import { SITE_URL } from "../lib/site";
 import { cardActionBridgeScript } from "../lib/cardActionAttrs";
+import { chunkRecoveryScript } from "../lib/chunkRecovery";
 import { GUIDES } from "../lib/guides";
 import { RAILS_COLLAPSED_KEY, RAILS_COLLAPSED_ATTR, DEFAULT_COLLAPSED_RAILS, DEFAULT_COLLAPSED_RAILS_DESKTOP, RAILS_DESKTOP_MQ } from "../lib/railCollapse";
 // v8.46.1 — the pairing law, interpolated into the pre-hydration events primer
@@ -124,6 +125,19 @@ export default function RootLayout({ children }) {
     // live routes in headless Chromium and fails if documentElement.scrollWidth
     // ever exceeds clientWidth. A CSS rule nobody measures is a rule that rots.
     <html lang="en" className={fontVariables} style={{ overflowX: "clip", maxWidth: "100%" }}>
+      <head>
+        {/* CHUNK-LOAD RECOVERY (2026-09-30) — in <head>, AHEAD of Next's own
+            <script async src="/_next/static/..."> tags. Measured: from <body>
+            it registered too late — a chunk that answered 502 fast (the
+            @capacitor/core chunk every page loads) failed before the listener
+            existed, and the page stayed server-rendered and dead (never
+            hydrated, no reload). One /_next/static script that answers 502
+            used to leave either that or a white "Application error" page; this
+            reloads once (sessionStorage-stamped, never a loop). Built from
+            lib/chunkRecovery.js; app/error.js and app/global-error.js use the
+            window.__wfChunkRecover hook it exposes. */}
+        <script dangerouslySetInnerHTML={{ __html: chunkRecoveryScript() }} />
+      </head>
       <body style={{ margin: 0, background: "#040810", minHeight: "100dvh", overflowX: "clip", overscrollBehaviorX: "none", maxWidth: "100vw", fontFamily: "var(--wf-sans)" }}>
         {/* Stale-tab watch: a long-lived tab silently runs yesterday's bundle
             forever, so shipped fixes never reach it (see the component's
