@@ -28,6 +28,7 @@ import {
   SLOT_TABLE,
   AVOID,
   OUTING_ARCHETYPES,
+  OUTING_MIN_SCORE,
 } from "../lib/eventOuting.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -124,6 +125,7 @@ function downtown() {
 
 const ALCOHOL_TYPES = new Set(["bar", "pub", "irish_pub", "brewery", "brewpub", "wine_bar", "cocktail_bar", "night_club", "lounge", "sports_bar", "bar_and_grill", "liquor_store", "adult_entertainment"]);
 const AVOID_SET_FOR_TEST = new Set(AVOID);
+const EXPLORE_ALLOWED = new Set(["museum", "art_museum", "tourist_attraction"]);
 const RESTAURANT_LIKE = (t) => t === "restaurant" || /_restaurant$/.test(t) || t === "steak_house" || t === "diner" || t === "food_court";
 const RANKING_NOTE_RX = / · \d+\.\d mi from the venue$/;
 
@@ -304,7 +306,12 @@ const RANKING_NOTE_RX = / · \d+\.\d mi from the venue$/;
   ok(OUTING_ARCHETYPES.includes(ctx.archetype), `an event with no fields at all still classifies to a known archetype (got ${ctx.archetype})`);
   ok(!/family|comedy|sports|festival|club|country|show/.test(ctx.archetype), `an event with no fields classifies to a GENERIC archetype, not a specific one (got ${ctx.archetype})`);
   const picks = fillOutingSlots(ctx, downtown(), {});
-  ok(!picks.some((p) => AVOID_SET_FOR_TEST.has(p.primaryType)), "AVOID still applies to the generic fallback archetype");
+  // 2026-09-30: a DAYTIME generic event may admit a real sight (museum,
+  // tourist_attraction) through the "Make a day of it" slot ONLY. Every other
+  // AVOID type (tour agency decoy, spa, gym, hotel) stays out, and no other
+  // slot may carry an avoided type.
+  const leaked = picks.filter((p) => AVOID_SET_FOR_TEST.has(p.primaryType) && !(p.outing.slotKey === "explore_after" && EXPLORE_ALLOWED.has(p.primaryType)));
+  ok(leaked.length === 0, `AVOID still applies to the generic fallback archetype outside the explore slot's allow list (leaked: ${leaked.map((p) => p.name).join(", ") || "none"})`);
 }
 
 // 13. RED PROOFS — prove this guard can actually fail, by sabotaging the
@@ -383,6 +390,68 @@ const RANKING_NOTE_RX = / · \d+\.\d mi from the venue$/;
     return pool.has(p.primaryType) || GENERIC.has(p.primaryType || "");
   });
   ok(honest(classy, "show_classy") && honest(dayGame, "sports_day") && honest(kidsPicks, "family_day"), "every slotted pick's primaryType matches the slot its card label names");
+}
+
+
+// 16. Recommendation intelligence (2026-09-30, owner: "the recommendations
+//     needs to be good"). Every assertion RUNS fillOutingSlots.
+{
+  const concert = classifyEvent({ name: "Indie Rock Night", segment: "Music", genre: "Rock", time: "20:00" });
+  const dayCtx = classifyEvent({ name: "Saturday Makers Fair", segment: "Community", time: "11:00" });
+
+  // 16a. Daytime events get a real nearby sight; evening concerts never do.
+  const dayPicks = fillOutingSlots(dayCtx, downtown(), { max: 12 });
+  const explore = dayPicks.filter((p) => p.outing.slotKey === "explore_after");
+  ok(explore.some((p) => p.name === "City History Museum"), `a daytime event's "Make a day of it" slot surfaces the nearby museum (got ${explore.map((p) => p.name).join(", ") || "nothing"})`);
+  ok(!dayPicks.some((p) => p.primaryType === "tour_agency"), "the 4.95 star tour agency decoy never passes the explore slot's allow list");
+  const nightPicks = fillOutingSlots(concert, downtown(), { max: 12 });
+  ok(!nightPicks.some((p) => p.primaryType === "museum"), "an evening concert never gets a museum pick");
+
+  // 16b. Quality floor: a close, perfectly typed but mediocre place loses its
+  //      slot to a real one, and never appears while better picks exist.
+  const withWeak = [...downtown(), { id: "weak-1", name: "Tired Tavern", primaryType: "bar", types: ["bar"], governed_score: OUTING_MIN_SCORE - 5, distMi: 0.05 }];
+  ok(!fillOutingSlots(concert, withWeak, { max: 12 }).some((p) => p.id === "weak-1"), `a place under OUTING_MIN_SCORE (${OUTING_MIN_SCORE}) is not recommended when better picks exist`);
+
+  // 16c. Price fit: a symphony dinner prefers the upscale room over an
+  //      identically scored, identically placed cheap one.
+  const classyCtx = classifyEvent({ name: "Symphony No. 9", genre: "Classical", time: "19:30" });
+  const priced = [
+    { id: "cheap", name: "Cheap Eats", primaryType: "restaurant", types: ["restaurant"], governed_score: 88, distMi: 0.4, priceLevel: 1 },
+    { id: "upscale", name: "The Upscale Room", primaryType: "restaurant", types: ["restaurant"], governed_score: 88, distMi: 0.4, priceLevel: 3 },
+    { id: "cafe", name: "Corner Cafe", primaryType: "cafe", types: ["cafe"], governed_score: 80, distMi: 0.3 },
+    { id: "wine", name: "Wine Nook", primaryType: "wine_bar", types: ["wine_bar"], governed_score: 80, distMi: 0.3 },
+  ];
+  const classyDinner = fillOutingSlots(classyCtx, priced, { max: 8, min: 1 }).filter((p) => p.outing.slotKey === "dinner_before");
+  ok(classyDinner[0] && classyDinner[0].id === "upscale", `show_classy dinner ranks the $$$ room over the $ one at equal score and distance (got ${classyDinner.map((p) => p.id).join(", ")})`);
+
+  // 16f. Inside a five minute walk, a much better place is not beaten on distance.
+  const walk = [
+    { id: "a-closest", name: "Closest Room", primaryType: "restaurant", types: ["restaurant"], governed_score: 89, distMi: 0.06 },
+    { id: "b-best", name: "Best Room", primaryType: "restaurant", types: ["restaurant"], governed_score: 99, distMi: 0.2 },
+  ];
+  const walkDinner = fillOutingSlots(concert, walk, { max: 8, min: 1 }).filter((p) => p.outing.slotKey === "dinner_before");
+  ok(walkDinner[0] && walkDinner[0].id === "b-best", `a 99 at 0.2 mi outranks an 89 at 0.06 mi (got ${walkDinner.map((p) => p.id).join(", ")})`);
+
+  // 16d. Editorial lift: a vetted Wayfind write up breaks a tie, and nothing more.
+  const tie = [
+    { id: "a-plain", name: "Plain Bar", primaryType: "bar", types: ["bar"], governed_score: 84, distMi: 0.3 },
+    { id: "b-vetted", name: "Vetted Bar", primaryType: "bar", types: ["bar"], governed_score: 84, distMi: 0.3, editorial: "Order the frozen negroni." },
+  ];
+  const drinks = fillOutingSlots(concert, tie, { max: 2, min: 1 }).filter((p) => p.outing.slotKey === "drinks_before");
+  ok(drinks[0] && drinks[0].id === "b-vetted", "a place with a Wayfind write up wins an exact tie");
+  const farVetted = [
+    { id: "near-great", name: "Near Great Bar", primaryType: "bar", types: ["bar"], governed_score: 92, distMi: 0.1 },
+    { id: "far-vetted", name: "Far Vetted Bar", primaryType: "bar", types: ["bar"], governed_score: 80, distMi: 0.7, editorial: "Nice patio." },
+  ];
+  const lift = fillOutingSlots(concert, farVetted, { max: 2, min: 1 }).filter((p) => p.outing.slotKey === "drinks_before");
+  ok(lift[0] && lift[0].id === "near-great", "the editorial lift never beats a clearly better, clearly closer place");
+
+  // 16e. Cuisine variety: at most two picks share a lead cuisine.
+  const sushiRow = (i) => ({ id: `sushi-${i}`, name: `Sushi ${i}`, primaryType: "restaurant", types: ["restaurant"], cuisines: ["Sushi"], governed_score: 95 - i, distMi: 0.2 });
+  const varied = [...[1, 2, 3, 4].map(sushiRow), { id: "tacos", name: "Taco Spot", primaryType: "restaurant", types: ["restaurant"], cuisines: ["Mexican"], governed_score: 80, distMi: 0.5 }];
+  const variedPicks = fillOutingSlots(concert, varied, { max: 8, min: 1 });
+  ok(variedPicks.filter((p) => p.id.startsWith("sushi")).length === 2, `no more than two picks share a lead cuisine (got ${variedPicks.filter((p) => p.id.startsWith("sushi")).length} sushi)`);
+  ok(variedPicks.some((p) => p.id === "tacos"), "the cuisine cap opens room for a different kind of meal");
 }
 
 // outingCacheKey sanity — used by lib/eventPairingsCache.js to split the

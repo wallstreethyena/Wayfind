@@ -110,10 +110,15 @@ fit   = 1     if c.primaryType is in s.primary
         0.6   if any of c.types[] (or c.primaryType) is in s.primary ∪ s.any
         0     otherwise (ineligible for this slot)
 
+walk  = max(0, c.distMi - 0.25) / (effectiveMaxMi - 0.25)   # flat inside a 5 minute walk
 score = 0.55 * (c.governed_score / 100)
-      + 0.30 * clamp(1 - c.distMi / effectiveMaxMi, 0, 1) ^ 1.5
+      + 0.30 * clamp(1 - walk, 0, 1) ^ 1.5
       + 0.15 * fit
+      + 0.04 if c.editorial (a vetted Wayfind write up; a tiebreaker, never more)
+      - 0.08 if c.priceLevel is known and outside the slot's `price` band
 ```
+
+A candidate under `OUTING_MIN_SCORE` (60) is ineligible for every slot.
 
 Fill order, per event:
 
@@ -129,8 +134,9 @@ Fill order, per event:
    by governed score + distance under the label "Also nearby", up to the 12
    mile cap.
 
-Two caps apply throughout: **no more than 3 picks share the same
-`primaryType`** (so five near-identical steakhouses can't crowd out
+Three caps apply throughout: **no more than `max(3, ceil(max / 3))` picks
+share the same `primaryType`** (4 on the default twelve), **no more than 2
+share a lead cuisine** (so five near-identical steakhouses can't crowd out
 everything else), and results are **deduplicated by id** with deterministic
 tie-breaks (score, then distance, then id) — the same event and candidate
 pool always produce the same order.
@@ -142,6 +148,44 @@ ranked by score. Each row is stamped:
 row.outing = { archetype, slotKey, slotLabel, timing, railTitle, railNote };
 row.rankingNote = `${slotLabel} · ${distMi.toFixed(1)} mi from the venue`;
 ```
+
+## Recommendation intelligence (2026-09-30)
+
+Owner: "the display is very thin … the recommendations needs to be good."
+Measured on live `wf_inventory` around Jannus Live (16 2nd St N, St
+Petersburg): 117 restaurants and bars and 37 attractions within half a mile,
+yet the map showed 8 picks, and the stays rail led with beach resorts 7 to 9
+miles away. Changes, each locked by an executed guard:
+
+- **Twelve picks, not eight.** `eventPairings` defaults `max` to 12 and every
+  archetype's slot quotas sum to 12 (they summed to 8, which capped the shelf
+  whatever `max` said). The same-`primaryType` cap scales with the shelf
+  (`max(3, ceil(max / 3))`), and a new **cuisine cap** (2 per lead cuisine)
+  keeps twelve from being twelve of one thing.
+- **Quality floor.** `OUTING_MIN_SCORE` (60): a weak place is never a pick
+  while better ones exist.
+- **Walk-flat distance.** Inside 0.25 mi, distance does not decide between
+  two places, so a 99 at 0.2 mi beats an 89 at 0.06 mi.
+- **Price fit.** Slots may carry a soft `price` band (`PRICE_UPSCALE`
+  for pre-theater dinner, `PRICE_CASUAL` for family, late-night and casual
+  slots, `PRICE_MID` for concert dinner). Out of band costs 0.08; unpriced
+  is neutral.
+- **Editorial lift.** A place with a Wayfind write up gets +0.04: it wins
+  ties and never beats a clearly better, clearly closer place.
+- **Open places only.** `lib/eventPairings.js` drops any row that fails
+  `isOperational` (`lib/businessStatus.js`); `buildNearbyPool` passes an
+  explicit `CLOSED_PERMANENTLY` through.
+- **"Make a day of it."** Daytime archetypes (`show_matinee`, `sports_day`,
+  `festival_allday`, `generic_day`) carry `EXPLORE_SLOT`, which re-admits
+  `museum`, `art_museum` and `tourist_attraction` through a slot-level
+  `allow`. That applies to this slot only; every other AVOID type on the row
+  still vetoes it, and evening archetypes never get it.
+- **Stays near the venue** (`lib/eventStays.js venueStayRank`, event page
+  only; the destination poster keeps pure score order): quality floor 75,
+  nothing past 3 mi when six good stays sit inside it, then 0.55 quality +
+  0.45 proximity (flat inside 0.6 mi).
+
+Cache keys bumped: `event-pairings-v4`, `event-stays-v3`.
 
 ## What is excluded, and why
 
@@ -198,7 +242,7 @@ page's "Also nearby" shelf).
 
 ## Caching
 
-`lib/eventPairingsCache.js` (`EVENT_PAIRINGS_CACHE_KEY = "event-pairings-v3"`)
+`lib/eventPairingsCache.js` (`EVENT_PAIRINGS_CACHE_KEY = "event-pairings-v4"`)
 calls `classifyEvent(event)` **outside** the `unstable_cache` boundary and
 passes the JSON-serialized result in as an extra cache-key argument. This is
 what makes a concert and a food festival at the exact same venue coordinates

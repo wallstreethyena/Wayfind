@@ -93,6 +93,34 @@ const ORIGIN = { lat: 25.7272, lng: -80.2578, city: "Miami", place_id: "p2" };
   ok(res.length >= 3 && !res.some((p) => p.id === "p9"), "a place beyond the nearby cap is excluded from the outing");
 }
 
+// 3b. A place that no longer operates is never recommended (2026-09-30).
+//     buildNearbyPool passes an explicit CLOSED_PERMANENTLY through; the
+//     pairing boundary must not. Red proof: the same set with the row
+//     OPERATIONAL does include it, so the absence is the gate, not luck.
+{
+  const closed = { ...mkRow(4, { primaryType: "cafe", types: ["cafe", "food"] }), status: "CLOSED_PERMANENTLY" };
+  const set = [mkRow(1), mkRow(3), mkRow(5), mkRow(6, { primaryType: "ice_cream_shop", types: ["ice_cream_shop", "food"] })];
+  const without = await eventPairings({ lat: 25.7272, lng: -80.2578, city: "Miami" }, { fetchImpl: stub([...set, closed]) });
+  const withOpen = await eventPairings({ lat: 25.7272, lng: -80.2578, city: "Miami" }, { fetchImpl: stub([...set, { ...closed, status: "OPERATIONAL" }]) });
+  ok(withOpen.some((p) => p.id === "p4"), "control: the same cafe is paired while it operates");
+  ok(without.length >= 3 && !without.some((p) => p.id === "p4"), "a CLOSED_PERMANENTLY place is never paired with an event");
+}
+
+// 3c. A dense downtown fills a real shelf: twelve by default, not eight.
+//     Before 2026-09-30 the concert slot quotas summed to 8, so no `max`
+//     could ever show more; this runs the real pool + engine end to end.
+{
+  const food = ["restaurant", "italian_restaurant", "seafood_restaurant", "mexican_restaurant", "steak_house", "pizza_restaurant", "hamburger_restaurant", "diner"];
+  const drink = ["bar", "pub", "brewery", "cocktail_bar", "wine_bar", "irish_pub", "lounge"];
+  const mk = (t, i) => mkRow(20 + i, { dLat: 0.0002, primaryType: t, types: [t] });   // ~0.3 to 0.5 mi, a real downtown walk
+  const foodRows = food.map(mk);
+  const drinkRows = drink.map((t, i) => mk(t, food.length + i));
+  const denseStub = async (url) => ({ ok: true, json: async () => (String(url).includes("category=eq.food") ? foodRows : String(url).includes("category=eq.nightlife") ? drinkRows : []) });
+  const res = await eventPairings({ lat: 25.7272, lng: -80.2578, city: "Miami", name: "Indie Rock Night", segment: "Music", genre: "Rock", time: "20:00" }, { fetchImpl: denseStub });
+  ok(res.length === 12, `a dense venue for an evening concert shows twelve picks, not eight (got ${res.length})`);
+  ok(res.some((p) => p.outing.timing === "before") && res.some((p) => p.outing.timing === "after"), "the dense shelf covers both before and after the show");
+}
+
 // 4. Graceful nulls: no coordinates, no section.
 {
   ok((await eventPairings({}, { fetchImpl: stub([mkRow(1)]) })).length === 0, "an event with no coordinates yields no pairings");
@@ -191,7 +219,7 @@ ok(!/PlaceScoreChip|wayfindScore\s*\(/.test(hub), "the hub never renders a Wayfi
   await cached({ ...base, segment: "Music" });
   await cached({ ...base, category: "food", subcategory: "food-festival" });
 
-  ok(configs.length === 1 && configs[0].keyParts[0] === EVENT_PAIRINGS_CACHE_KEY && EVENT_PAIRINGS_CACHE_KEY === "event-pairings-v3", "event pairings use a fresh versioned Data Cache namespace");
+  ok(configs.length === 1 && configs[0].keyParts[0] === EVENT_PAIRINGS_CACHE_KEY && EVENT_PAIRINGS_CACHE_KEY === "event-pairings-v4", "event pairings use a fresh versioned Data Cache namespace");
   ok(configs[0].options.revalidate === EVENT_PAIRINGS_REVALIDATE_SECONDS && EVENT_PAIRINGS_REVALIDATE_SECONDS === 3600, "the pairing cache and parent ISR page share a one-hour lifetime");
   ok(!escapedBoundary, "every exhaustive pairing load executes inside the Data Cache boundary");
   ok(loads.length === 7, `identical inputs (and fields classifyEvent does not read) coalesce, while lat, lng, city, venue identity, AND classification each split the cache (got ${loads.length} loads)`);
