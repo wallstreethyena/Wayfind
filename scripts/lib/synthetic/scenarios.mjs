@@ -623,11 +623,22 @@ export const SCENARIOS = [
       // level uses (confirmed live 2026-09-23 DOM dump): the home page's
       // `.wf-navtabs` "Browse categories" group, category then sub-chip.
       const catBtn = page.getByRole("group", { name: "Browse categories" }).getByRole("button", { name: "Food", exact: true });
-      await catBtn.click({ timeout: 15000 }).catch(async () => {
-        await page.locator(".wf-cattile, .wf-navtab", { hasText: "Food" }).first().click({ timeout: 15000 });
-      });
-      await page.waitForTimeout(1200); // let the category-open fetch land before the sub-chip click, or the wrong response can be captured
       const subBtn = page.locator(".wf-subchip, .wf-navsub", { hasText: "Cafés" }).first();
+      // The Food button is server-rendered, so on a slow runner it can be tapped
+      // before React hydrates and that tap opens nothing (it underlines the tab
+      // and stops; seen ~1 run in 3 on 2026-09-29 with no product change — a
+      // second tap after hydration opens it every time). A reader whose first
+      // tap did nothing taps again, so do the same: up to 3 taps, moving on only
+      // when the sub-chip row is actually there. Never re-tap once it is open
+      // (a second tap on an open category would close it).
+      let opened = false;
+      for (let attempt = 0; attempt < 3 && !opened; attempt++) {
+        await catBtn.click({ timeout: 15000 }).catch(async () => {
+          await page.locator(".wf-cattile, .wf-navtab", { hasText: "Food" }).first().click({ timeout: 15000 });
+        });
+        opened = await subBtn.waitFor({ state: "visible", timeout: 6000 }).then(() => true, () => false);
+      }
+      await page.waitForTimeout(1200); // let the category-open fetch land before the sub-chip click, or the wrong response can be captured
       await subBtn.click({ timeout: 15000 });
 
       const invResponse = await invResponsePromise;
@@ -651,7 +662,21 @@ export const SCENARIOS = [
       let mapHookPresent = false, mapIds = [];
       try {
         await page.getByRole("link", { name: "Map" }).first().click({ timeout: 10000 });
-        await page.waitForTimeout(2500);
+        // WAIT FOR THE HOOK, DON'T SLEEP FOR IT (2026-09-29). The hook is set by
+        // MapView.redraw() only after MapLibre reports its style loaded, which
+        // needs the map chunk, the OpenFreeMap style/sprite/tiles and a software-
+        // GL render on this runner. Measured on production at 390px: 4.7 s, 5.1 s,
+        // 5.3 s and once 22 s after the tap, all with the pins correct (93 for
+        // Cafés). The old fixed 2.5 s sleep therefore failed nearly every scheduled
+        // run since #1495 introduced it (only 2 of ~30 runs passed, by luck) while
+        // the product was fine. Poll for the hook up to the map's own 26 s failure
+        // watchdog (MapView armWatchdog); a map that never draws pins still fails
+        // here, and the Ryan's membership assertion below is unchanged.
+        await page.waitForFunction(
+          () => typeof window.__wfMapPins !== "undefined" && window.__wfMapPins !== null,
+          undefined,
+          { timeout: 30000 },
+        ).catch(() => null);
         const mapState = await page.evaluate(() => ({
           present: typeof window.__wfMapPins !== "undefined" && window.__wfMapPins !== null,
           ids: (window.__wfMapPins && Array.isArray(window.__wfMapPins.ids)) ? window.__wfMapPins.ids : [],
