@@ -19,14 +19,17 @@
 //   7. Panhandle markets get Central time.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { loadComponent } from "./lib/jsxLoad.mjs";
 import { LANDING_CITIES, MARKET_CITIES, COVERED_CITIES, CITY_ALIASES } from "../lib/landingCities.js";
 import { localCitySuggestions } from "../lib/searchExperience.js";
 import { knownCityGeocode } from "../lib/knownCityGeocode.js";
 import { splitCityQualifier } from "../lib/directSearch.js";
 import { nearestCoveredCity, COVERAGE_MI } from "../lib/railCoverage.js";
 import { resolveRailCity } from "../lib/locationHonesty.js";
-import { railHref } from "../lib/dayparts.js";
-import { tzForPoint } from "../lib/nowContext.js";
+import { railHref, partForHour } from "../lib/dayparts.js";
+import { tzForPoint, siteHourFloat } from "../lib/nowContext.js";
 
 let asserts = 0;
 const ok = (cond, msg) => { asserts++; assert.ok(cond, msg); };
@@ -92,12 +95,34 @@ for (const href of ["/things-to-do", "/restaurants", "/nightlife", "/best-beache
   ok(railHref({ href }, "fl", "jacksonville") === null, `railHref(${href}) emits no link for a market`);
 }
 ok(railHref({ href: "/restaurants" }, "fl", "tampa") === "/restaurants/tampa", "control: a published city still links");
-const strip = (src) => src.replace(/\/\/[^\n]*/g, "").replace(/\/\*[\s\S]*?\*\//g, "");
-for (const route of ["app/things-to-do/[city]/page.js", "app/restaurants/[city]/page.js", "app/nightlife/[city]/page.js", "app/beaches/[city]/page.js", "app/sitemap.js", "app/events/[city]/page.js"]) {
-  const src = strip(readFileSync(new URL(`../${route}`, import.meta.url), "utf8"));
-  ok(/LANDING_CITIES/.test(src), `${route} reads LANDING_CITIES (positive control)`);
-  ok(!/COVERED_CITIES|MARKET_CITIES/.test(src), `${route} never publishes from the covered table`);
-}
+// Published routes, by CALL: each /{cat}/[city] route's generateStaticParams
+// (dynamicParams=false) and the sitemap. Published = LANDING_CITIES plus the
+// evergreen pairs #1584 approved (lib/evergreenCities.js). A covered-only
+// market must appear in neither.
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const { EVERGREEN_CITIES } = await import("../lib/evergreenCities.js");
+const coveredOnly = Object.keys(MARKET_CITIES).filter((slug) => !EVERGREEN_CITIES[slug]);
+ok(coveredOnly.length >= 15, `positive control: ${coveredOnly.length} markets publish nothing`);
+const realFetch = globalThis.fetch;
+globalThis.fetch = async () => new Response("[]", { status: 200, headers: { "content-type": "application/json" } });
+try {
+  for (const cat of ["things-to-do", "restaurants", "nightlife", "beaches"]) {
+    const mod = await loadComponent(path.join(ROOT, `app/${cat}/[city]/page.js`), ROOT);
+    ok(mod.dynamicParams === false, `/${cat}/[city] 404s anything not prerendered`);
+    const slugs = new Set((await mod.generateStaticParams()).map((p) => p.city));
+    ok(slugs.has("tampa"), `/${cat}: control — a published city is prerendered`);
+    for (const slug of slugs) {
+      const evergreen = EVERGREEN_CITIES[slug] && EVERGREEN_CITIES[slug].cats.includes(cat);
+      ok(!!LANDING_CITIES[slug] || evergreen, `/${cat}/${slug} is published only because it is a landing city or an approved evergreen pair`);
+    }
+    for (const slug of coveredOnly) ok(!slugs.has(slug), `/${cat}/${slug} is not a page (covered market, not published)`);
+  }
+  const sitemap = await loadComponent(path.join(ROOT, "app/sitemap.js"), ROOT);
+  const urls = (await sitemap.default()).map((row) => row.url);
+  ok(urls.some((u) => /\/restaurants\/tampa$/.test(u)), `sitemap control: /restaurants/tampa is listed (${urls.length} urls)`);
+  // Landing + event routes only: /guides/* and /trending/* have their own registries.
+  for (const slug of coveredOnly) ok(!urls.some((u) => new RegExp(`/(?:things-to-do|restaurants|nightlife|beaches|events|florida)/${slug}(?:/|$)`).test(u)), `sitemap has no landing/event URL for covered-only ${slug}`);
+} finally { globalThis.fetch = realFetch; }
 
 // 7. Central time on the Panhandle; controls stay Eastern.
 for (const slug of ["pensacola", "destin", "panama-city-beach"]) {
@@ -109,5 +134,16 @@ for (const slug of ["tallahassee", "jacksonville", "st-petersburg"]) {
   ok(tzForPoint(c.lat, c.lng) === "America/New_York", `${slug} stays Eastern`);
 }
 ok(tzForPoint(29.8119, -85.303) === "America/New_York", "Port St. Joe (Gulf County, Eastern) stays Eastern");
+// Meal selection: the same expression railMenuData uses
+// (partForHour(siteHourFloat(now, tzForPoint(lat, lng)))), across the 11:30
+// morning→lunch edge, before and after the 2026-11-01 DST change. With the old
+// Eastern answer Pensacola would read "lunch" at 11:00 local.
+for (const [iso, label] of [["2026-10-01T16:00:00Z", "CDT"], ["2026-11-02T17:00:00Z", "CST, after DST ends"]]) {
+  const now = new Date(iso);
+  const part = (c) => partForHour(siteHourFloat(now, tzForPoint(c.lat, c.lng)));
+  ok(part(MARKET_CITIES.pensacola) === "morning", `${iso} (${label}): Pensacola at 11:00 local is morning`);
+  ok(part(MARKET_CITIES.destin) === "morning", `${iso}: Destin at 11:00 local is morning`);
+  ok(part(LANDING_CITIES.tampa) === "lunch", `${iso}: control — Tampa at 12:00 local is lunch`);
+}
 
 console.log(`test-covered-markets: ${asserts} assertions OK — ${markets.length} Florida markets searchable, geocodable and feed-covered; zero pages minted; Panhandle on Central time`);

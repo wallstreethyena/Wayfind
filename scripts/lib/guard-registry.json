@@ -34,8 +34,8 @@
     "criticalCount": 94,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 532,
-      "RENDER": 103,
+      "CALL": 531,
+      "RENDER": 104,
       "STRUCTURAL": 140,
       "OTHER": 1
     }
@@ -11395,9 +11395,9 @@
     {
       "file": "scripts/test-covered-markets.mjs",
       "npmScript": null,
-      "class": "CALL",
+      "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 32,
+      "assertionCount": 40,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -11982,7 +11982,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 49,
+      "assertionCount": 51,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

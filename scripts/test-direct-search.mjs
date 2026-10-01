@@ -192,6 +192,20 @@ assert.equal(splitCityQualifier("Dolce & Bake, Orlando, FL").text, "dolce and ba
     const bare = await searchOwnedPlaces({ query, ...ORLANDO, env: ENV, nowMs: NOW, addressIndex: [], fetchImpl: fetchRows([]) });
     assert.equal(bare.reason, "place-query-required", `${query} is a covered city, not a venue near Orlando`);
   }
+  {
+    // A business whose own name ends in a covered city keeps exact status:
+    // "Hotel St. Pete" is searched as "hotel" within St. Pete, but the full
+    // query still equals the name. A sibling hotel is a match, never exact.
+    const STP = { lat: 27.7676, lng: -82.6403 };
+    const rows = [
+      row({ place_id: "ChIJhotelstpete", name: "Hotel St. Pete", lat: STP.lat, lng: STP.lng, primary_type: "hotel", google_types: ["hotel", "lodging"] }),
+      row({ place_id: "ChIJhotelother", name: "Hotel Zamora", lat: STP.lat + 0.01, lng: STP.lng, primary_type: "hotel", google_types: ["hotel", "lodging"] }),
+    ];
+    const result = await searchOwnedPlaces({ query: "Hotel St. Pete", ...ORLANDO, env: ENV, nowMs: NOW, addressIndex: [], fetchImpl: fetchRows(rows) });
+    const exact = result.places.filter((place) => place.exactMatch === true).map((place) => place.id);
+    assert.deepEqual(exact, ["ChIJhotelstpete"], "the exact business named with a city suffix stays the one exact result");
+    assert(result.places.some((place) => place.id === "ChIJhotelother"), "the sibling hotel is still a (non-exact) result");
+  }
   for (const [query, cityLat] of [["400 W Garden St, Pensacola, FL", 30.4213], ["pizza st pete", 27.7676], ["tacos jax", 30.3322], ["pizza orlando", ORLANDO.lat]]) {
     const seen = [];
     await searchOwnedPlaces({ query, ...ORLANDO, env: ENV, nowMs: NOW, addressIndex: [], fetchImpl: async (url, init) => { seen.push(String(url)); return fetchRows([])(url, init); } });
