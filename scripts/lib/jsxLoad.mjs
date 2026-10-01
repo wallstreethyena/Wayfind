@@ -42,6 +42,21 @@ export async function loadComponent(entryAbs, repoRoot, { onGraph } = {}) {
     // HTML the crawler gets — which is the thing these tests exist to check.
     // A lazy child's own behaviour belongs to that child's own guard.
     "next/dynamic": 'export default function dynamic() { return function DynamicStub() { return null; }; }\n',
+    // next/font/google — 2026-10-01. A font loader call is compiled away by
+    // Next (it becomes a CSS import + a { className, variable, style } object),
+    // so bare node cannot run it. The stub RECORDS each call's options on
+    // globalThis.__wfNextFontCalls and returns that same object shape, so a
+    // guard can assert on the options the real module passes and render the
+    // components that apply the returned class (app/fontsDisplay.js).
+    "next/font/google": [
+      "const mk = (family) => (options = {}) => {",
+      "  (globalThis.__wfNextFontCalls || (globalThis.__wfNextFontCalls = [])).push({ family, options });",
+      "  const slug = family.toLowerCase().replace(/[^a-z0-9]/g, '');",
+      "  return { className: '__className_' + slug, variable: '__variable_' + slug, style: { fontFamily: \"'\" + family + \"'\" } };",
+      "};",
+      "export const Fraunces = mk('Fraunces');",
+      "export const Inter = mk('Inter');",
+    ].join("\n"),
     // next/server — 2026-09-04 (guard-honesty audit). Route handlers (not just
     // components) now get loaded here too, so a route's `import { NextResponse }
     // from "next/server"` needs to resolve. next's package.json has no bare
@@ -140,6 +155,13 @@ export async function loadComponent(entryAbs, repoRoot, { onGraph } = {}) {
       .replace(/from\s+["'](\.[^"']+)["']/g, (m, spec) => {
         const target = localTarget(abs, spec);
         return target ? `from "${emit(target)}"` : m;
+      })
+      // …and bare side-effect imports — 2026-10-01. `import "./fontFallbacks.css"`
+      // (app/fontsDisplay.js) has no `from`, so neither rule above saw it and
+      // node looked for the .css next to the emitted copy in the temp dir.
+      .replace(/\bimport\s+["'](\.[^"']+)["']/g, (m, spec) => {
+        const target = localTarget(abs, spec);
+        return target ? `import "${emit(target)}"` : m;
       })
       // …and the same for DYNAMIC imports. v8.94: several server modules defer
       // a heavy dependency with `await import("./serverCache.js")` precisely so

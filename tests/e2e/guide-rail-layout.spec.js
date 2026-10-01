@@ -60,13 +60,13 @@ const CHUNKS = /\/_next\/static\/chunks\//;
 const SLOW_MS = 6000;
 const HYDRATE_DELAY_MS = 3000;
 const NO_RAIL_SEED = !!process.env.E2E_NO_RAIL_SEED;
-// KNOWN, SEPARATE SHIFT (2026-10-01): when the webfonts land after first paint
-// (Fraunces is preload:false, see app/fonts.js), text reflows and "Right now"
-// grows ~24px, shifting pick 1 by ~0.03-0.04 CLS. It is not the rail or the
-// bridge: it reproduces on production with E2E_FONT_DELAY_MS=2500 every time,
-// and appears ~1 in 10 cold loads on a fresh preview domain. A red here whose
-// `shifts[].src` starts with SECTION.wf-guide-now is that, not a regression of
-// what this spec locks.
+// FONT SWAP (2026-10-01): Fraunces used to be preload:false and landed after
+// first paint, reflowing the guide ("Right now" / pick 1 moved up to 107px on
+// an Android-class fallback). It is now preloaded on every --wf-display route
+// and has a metric-matched Android fallback (app/fontsDisplay.js,
+// app/fontFallbacks.css), locked by tests/e2e/font-fallback-swap.spec.js.
+// E2E_FONT_DELAY_MS still forces a late swap here, for diagnosis: a red whose
+// `shifts[].src` is a Fraunces block is the font, not the rail or the bridge.
 const FONT_DELAY_MS = Number(process.env.E2E_FONT_DELAY_MS || 0);
 
 async function prepare(context, { expId, mode, automated = false, hydrateDelay = 0 }) {
@@ -104,7 +104,9 @@ async function prepare(context, { expId, mode, automated = false, hydrateDelay =
       for (let i = 0; i < 4 && !res; i++) {
         // Node's fetch does not see the browser's cookie jar; carry the
         // deployment-protection cookie explicitly (previews only).
-        const headers = Object.assign({}, req.headers(), process.env.E2E_COOKIE ? { cookie: process.env.E2E_COOKIE } : {});
+        // Same-host only: never hand the protection cookie to a third party.
+        const sameHost = (() => { try { return new URL(url).host === new URL(process.env.E2E_BASE_URL || "http://x").host; } catch (e) { return false; } })();
+        const headers = Object.assign({}, req.headers(), process.env.E2E_COOKIE && sameHost ? { cookie: process.env.E2E_COOKIE } : {});
         try { res = await fetch(url, { method: req.method(), headers, redirect: "manual" }); }
         catch (e) { await new Promise((ok) => setTimeout(ok, 500 * (i + 1))); }
       }

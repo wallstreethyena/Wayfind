@@ -290,6 +290,9 @@ node scripts/test-activation.mjs
 node scripts/test-containment.mjs
 node scripts/test-experiment.mjs
 node scripts/test-explore-bridge-gate.mjs
+# Fraunces: metric-matched Android fallback + scoped preload; every --wf-display
+# route under <DisplayFontScope> (2026-10-01, the "Right now" font jump).
+node scripts/test-font-fallback-metrics.mjs
 node scripts/test-beach-geo.mjs
 node scripts/check-app-viewport.mjs
 node scripts/check-shell-decomposition.mjs
@@ -1994,6 +1997,11 @@ node scripts/test-beach-never-booking.mjs
 # announced in the Command Center instead — warn 2 days ahead and while lapsed, never a build.
 node scripts/test-coupon-audit-alert.mjs
 
+# 2026-10-01: "saint pete" offered a restaurant, never the city — LANDING_CITIES was
+# the only city table, so Florida markets with owned inventory but no published page
+# did not exist to search, the Location box or /api/rails. Locks the COVERED vs
+# PUBLISHED split: markets are searchable + feed-covered, mint no page/link/sitemap URL.
+node scripts/test-covered-markets.mjs
 # 2026-10-01: ownerless expiry fuses fail builds or hide data silently. Time-dependent tests run on explicit
 # reference dates; the coupon selection fix; Family-day/fall/coupon fuses warn through the Command Center.
 node scripts/test-coupon-selection.mjs

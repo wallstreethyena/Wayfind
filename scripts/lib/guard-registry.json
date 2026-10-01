@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 778,
-    "totalRegistryEntries": 779,
-    "guardsTxtLineCount": 778,
-    "guardsTxtReachedFileCount": 771,
+    "totalOnDiskGuardFiles": 780,
+    "totalRegistryEntries": 781,
+    "guardsTxtLineCount": 780,
+    "guardsTxtReachedFileCount": 773,
     "criticalCount": 94,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 535,
-      "RENDER": 103,
+      "RENDER": 105,
       "STRUCTURAL": 140,
       "OTHER": 1
     }
@@ -7711,7 +7711,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 20,
+      "assertionCount": 21,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -8961,7 +8961,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 26,
+      "assertionCount": 30,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -11459,6 +11459,28 @@
       "owner": null
     },
     {
+      "file": "scripts/test-covered-markets.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 41,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-creator-archetypes.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -12026,7 +12048,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 45,
+      "assertionCount": 56,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -12144,7 +12166,7 @@
       "assertionCount": 19,
       "unprovenAbsenceCount": 5,
       "honestyViolations": [
-        "5 absence assertion(s) with no positive control in the same file (e.g. \"/const rank = \\(deps && deps\\.rankedFor\\) \\|\\| rankedFor;/.test(railsData)\n  &&\")"
+        "5 absence assertion(s) with no positive control in the same file (e.g. \"/const rank = rankerFor\\(\\(deps && deps\\.rankedFor\\) \\|\\| rankedFor\\);/.test(rai\")"
       ],
       "selfDocumentsRedProve": false,
       "wiring": {
@@ -13180,6 +13202,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 31,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-font-fallback-metrics.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 36,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

@@ -92,10 +92,11 @@ export default function RootLayout({ children }) {
     // the entire app up under Safari's translucent chrome. min-height:100dvh
     // keeps short document routes (/terms, a thin guide) filling the screen
     // while letting long ones scroll normally.
-    // v6.67: fontVariables puts --wf-display and --wf-sans in scope at the root, so
-    // every route inherits them — including the ones rendered outside the home shell
-    // (/guides, /events, /best-of). The body then names --wf-sans ONCE here; because
-    // font-family inherits and almost nothing in this tree sets it, that single
+    // v6.67: fontVariables puts --wf-sans in scope at the root, so every route
+    // inherits it — including the ones rendered outside the home shell
+    // (/guides, /events, /best-of). --wf-display (Fraunces) is scoped and
+    // preloaded per route tree instead (app/fontsDisplay.js, 2026-10-01). The
+    // body then names --wf-sans ONCE here; because font-family inherits and almost nothing in this tree sets it, that single
     // declaration is what carries the brand face across the entire app. See app/fonts.js.
     // ── THE SIDEWAYS-SHIFT FIX (2026-08-12, owner: "I never want to see that on
     // the site again"). ──────────────────────────────────────────────────────

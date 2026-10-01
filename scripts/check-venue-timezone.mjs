@@ -91,9 +91,16 @@ const T = new Date("2026-08-12T18:30:00-07:00");
   ok(tzForPoint(40.0, -114.6) === "America/Los_Angeles", "the Pacific line");
   ok(tzForPoint(61.2, -149.9) === "America/Anchorage", "Anchorage");
   ok(tzForPoint(21.3, -157.8) === "Pacific/Honolulu", "Honolulu");
-  // The KNOWN approximation error, asserted so it is a decision and not a surprise.
-  ok(tzForPoint(30.42, -87.2) === SITE_TZ,
-    "KNOWN LIMIT: Pensacola is Central in fact and reads Eastern here — a one-hour error on a bucket edge, documented in nowContext.js, and the same error it already had");
+  // The Panhandle used to be the KNOWN approximation error (asserted as
+  // Eastern). Pensacola, Destin and Panama City Beach became covered markets
+  // on 2026-10-01, so the band west of the Apalachicola is now Central.
+  ok(tzForPoint(30.42, -87.2) === "America/Chicago", "Pensacola is Central (Panhandle band, nowContext.js)");
+  ok(tzForPoint(30.18, -85.81) === "America/Chicago", "Panama City Beach is Central");
+  ok(tzForPoint(30.44, -84.28) === SITE_TZ, "control: Tallahassee stays Eastern");
+  ok(tzForPoint(29.81, -85.30) === SITE_TZ, "control: Port St. Joe (Gulf County, Eastern) stays Eastern");
+  // The remaining KNOWN approximation error, asserted so it is a decision and not a surprise.
+  ok(tzForPoint(36.16, -86.78) === SITE_TZ,
+    "KNOWN LIMIT: Nashville is Central in fact and reads Eastern here — a one-hour error on a bucket edge, documented in nowContext.js");
 }
 
 // ── 6. siteHourFloat keeps its old signature ───────────────────────────────
