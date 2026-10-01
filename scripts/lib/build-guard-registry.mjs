@@ -2,10 +2,16 @@
 // scripts/lib/build-guard-registry.mjs — GENERATOR for scripts/lib/guard-registry.json.
 //
 // This is NOT a guard (not wired into scripts/guards.txt) — it is the tool
-// that PRODUCES the checked-in registry. Run it by hand after adding/moving/
-// renaming a guard, or after editing scripts/lib/guard-registry-overrides.json:
+// that PRODUCES the registry. Since 2026-10-01 the registry is a GENERATED,
+// GITIGNORED artifact: scripts/check-guard-registry.mjs runs this generator on
+// every guard-suite run (prebuild + the guards CI job), so a generator that
+// throws or exits non-zero turns the suite red. Run it by hand to inspect:
 //
-//   node scripts/lib/build-guard-registry.mjs
+//   node scripts/lib/build-guard-registry.mjs              # -> scripts/lib/guard-registry.json
+//   node scripts/lib/build-guard-registry.mjs --out <file> # -> any path
+//
+// The committed, REVIEWED artifact is scripts/lib/guard-expectations.tsv (one
+// line per guard). Adding, removing, or downgrading a guard is an edit there.
 //
 // 2026-09-07: THE DERIVATION NO LONGER LIVES HERE. It moved to
 // scripts/lib/deriveGuardRegistry.mjs, which this file and
@@ -18,9 +24,8 @@
 // test-api-guard was CALL/26 when the file was RENDER/49, and the check
 // reported OK).
 //
-// Consequence worth knowing: editing a guard file, scripts/guards.txt,
-// package.json, a workflow YAML, or guard-registry-overrides.json and NOT
-// re-running this generator now fails the build. That is the point.
+// Output is byte-deterministic: no date stamp, sorted enumeration, one shared
+// serializer (serializeRegistry). Two runs on the same tree are identical.
 //
 // WHAT COUNTS AS "CRITICAL" (mechanical, reproducible — never a hand-typed
 // list of guard names). Both rules now LIVE IN deriveGuardRegistry.mjs, which
@@ -42,7 +47,7 @@
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { repoRoot } from "./guardWiring.mjs";
-import { deriveGuardRegistry } from "./deriveGuardRegistry.mjs";
+import { deriveGuardRegistry, serializeRegistry } from "./deriveGuardRegistry.mjs";
 
 const ROOT = repoRoot(import.meta.url);
 
@@ -61,18 +66,19 @@ function main() {
     process.exit(1);
   }
 
-  // `generated` is the ONE field the derivation deliberately does not produce
-  // (a clock read is not a function of the repo). It is added here on write
-  // and skipped by diffRegistry, so regenerating on a different day is not
-  // reported as drift.
-  const doc = { generated: new Date().toISOString().slice(0, 10), ...derived };
+  const doc = derived;
 
-  const outPath = path.join(ROOT, "scripts/lib/guard-registry.json");
-  writeFileSync(outPath, JSON.stringify(doc, null, 2) + "\n");
+  const outIdx = process.argv.indexOf("--out");
+  if (outIdx !== -1 && !process.argv[outIdx + 1]) {
+    console.error("build-guard-registry: FAIL — --out needs a path");
+    process.exit(1);
+  }
+  const outPath = outIdx !== -1 ? path.resolve(process.argv[outIdx + 1]) : path.join(ROOT, "scripts/lib/guard-registry.json");
+  writeFileSync(outPath, serializeRegistry(doc));
 
   const { counts } = doc;
   console.log(
-    `build-guard-registry: wrote ${counts.totalRegistryEntries} entries (${counts.totalOnDiskGuardFiles} on-disk guard files + 1 tsc-wrapper entry) to scripts/lib/guard-registry.json`
+    `build-guard-registry: wrote ${counts.totalRegistryEntries} entries (${counts.totalOnDiskGuardFiles} on-disk guard files + 1 tsc-wrapper entry) to ${path.relative(ROOT, outPath) || outPath}`
   );
   console.log(`  critical: ${counts.criticalCount}, currently unwired-from-guards.txt-and-critical: ${counts.unwiredCriticalCount}`);
   if (counts.unwiredCriticalCount) {
