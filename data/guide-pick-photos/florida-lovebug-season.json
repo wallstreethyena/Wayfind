@@ -1,13 +1,48 @@
 {
   "slug": "florida-lovebug-season",
-  "picks": {},
-  "gaps": {
+  "picks": {
     "Why are lovebugs suddenly everywhere?": {
-      "reason": "not-a-place",
+      "src": "/guides/picks/florida-lovebug-season/lovebug-mating-pair-felda.webp",
+      "width": 1400,
+      "height": 933,
+      "alt": "Close-up of a mating pair of lovebugs, black flies with orange thoraxes, joined end to end beneath a cluster of small white flowers",
+      "caption": "A mating pair of lovebugs, Plecia nearctica, on a flower cluster in Okaloacoochee Slough State Forest near Felda, photographed in December 2015.",
+      "credit": "Judy Gallagher",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Lovebugs_-_Plecia_nearctica,_Okaloacoochee_Slough_State_Forest,_Felda,_Florida.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Lovebugs_-_Plecia_nearctica,_Okaloacoochee_Slough_State_Forest,_Felda,_Florida.jpg",
+      "author": "Judy Gallagher",
+      "position": "50% 45%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "An explainer/FAQ-style pick about lovebug biology, not a real place."
+      "verification": "Commons file by Judy Gallagher titled and described 'Lovebugs - Plecia nearctica, Okaloacoochee Slough State Forest, Felda, Florida', DateTimeOriginal 2015-12-13, in Category:Plecia nearctica. Seen: two joined black flies with red-orange thoraxes, the diagnostic lovebug mating pair, illustrating the adult emergence/mating biology the pick explains. Different image from the guide hero (Myakka camphorweed). A blurred fingertip steadies the flower in the background; no identifiable person. Live Commons licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-29"
     },
+    "Are lovebugs dangerous?": {
+      "src": "/guides/picks/florida-lovebug-season/lovebug-close-up-gainesville.webp",
+      "width": 1400,
+      "height": 1050,
+      "alt": "Close-up of a single lovebug with dark smoky wings, an orange thorax and long black legs standing on a smooth gray surface",
+      "caption": "A single lovebug, Plecia nearctica, photographed up close in Gainesville in April 2023.",
+      "credit": "Alex Abair",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Plecia_nearctica_271553494.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Plecia_nearctica_271553494.jpg",
+      "author": "Alex Abair",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons file 'Plecia nearctica 271553494' by Alex Abair (iNaturalist import), described 'Common Lovebug (Plecia nearctica) in the United States', dated 2023-04-27, geotag 29.615677,-82.368402 (Gainesville, FL), in Category:Plecia nearctica. Seen: one sharp lovebug with orange thorax, black body and smoky wings — the harmless fly the 'dangerous?' question is about. Surface not identified, so caption makes no car claim. No people. Live Commons licence checked: CC BY 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-29"
+    }
+  },
+  "gaps": {
     "What time of day are lovebugs worst?": {
       "reason": "not-a-place",
       "placeId": null,
@@ -25,12 +60,6 @@
       "placeId": null,
       "needsPermissionFrom": null,
       "note": "An explainer/FAQ-style pick about car paint myths, not a real place."
-    },
-    "Are lovebugs dangerous?": {
-      "reason": "not-a-place",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "An explainer/FAQ-style pick about lovebug risk, not a real place."
     },
     "No, the University of Florida did not create them": {
       "reason": "not-a-place",
