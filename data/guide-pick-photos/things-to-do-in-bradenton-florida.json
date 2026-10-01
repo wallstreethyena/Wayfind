@@ -20,7 +20,54 @@
       "verification": "Wikimedia Commons file (an archived Panoramio upload) titled \"Robinson Perserve\" [sic], categorized under \"Robinson Preserve,\" with an embedded geotag (27.512839, -82.668686) inside the preserve; shows the preserve's own paved and boardwalk trail network with the Sunshine Skyway Bridge visible beyond, matching this pick's \"crushed-shell and paved paths\" and the guide's own mention of views to the Skyway. Taken 28 November 2009 per file metadata; the trail infrastructure shown is long-lived park amenity, distinct from the observation-tower photo already used for a different pick in this guide. Distant walkers on the trail are incidental and not the subject. Live Commons licence checked: CC BY-SA 3.0. Reused for the same venue/area in things-to-do-in-bradenton-florida; image visually reviewed on 2026-09-24. Not a new license claim.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-24"
+    },
+    "The Bishop Museum of Science and Nature": {
+      "src": "/guides/picks/things-to-do-in-bradenton-florida/bishop-museum-entrance.webp",
+      "width": 1400,
+      "height": 1050,
+      "alt": "Cream stucco entrance portico with a red tile roof, lettered South Florida Museum, Bishop Planetarium and Parker Manatee Aquarium, framed by palms",
+      "caption": "The 10th Street West entrance in 2010, when the museum still carried its former name, South Florida Museum.",
+      "credit": "Ebyabe",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Bradenton_FL_South_Florida_Museum01.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Bradenton_FL_South_Florida_Museum01.jpg",
+      "author": "Ebyabe",
+      "position": "50% 55%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": "ChIJr7ec9tEXw4gRwicCx3wfH2w",
+      "verification": "Commons file 'Bradenton FL South Florida Museum01.jpg' by Ebyabe, dated 2010-10-22. The facade lettering reads SOUTH FLORIDA MUSEUM, BISHOP PLANETARIUM and PARKER MANATEE AQUARIUM with street number 201 on the column, matching the museum's 201 10th Street West address named in this pick; the institution was renamed The Bishop Museum of Science and Nature, and the caption names the former signage rather than implying current branding. No people in frame. Image visually reviewed. Live Commons licence checked: CC BY-SA 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-29"
+    },
+    "Bradenton Riverwalk": {
+      "src": "/guides/picks/things-to-do-in-bradenton-florida/bradenton-riverwalk-tower-plaza.webp",
+      "width": 1400,
+      "height": 1050,
+      "alt": "A tall blue sign tower lettered Bradenton Riverwalk stands on a brick plaza beside a railing, with the Manatee River, the Green Bridge on the left and a raised railroad bridge span on the right under a clear sky",
+      "caption": "Tower Plaza on the Bradenton Riverwalk, looking across the Manatee River toward the Green Bridge, in 2018.",
+      "credit": "The Grid",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Bradenton_Riverwalk_Tower_Plaza.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Bradenton_Riverwalk_Tower_Plaza.jpg",
+      "author": "The Grid",
+      "position": "50% 45%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons file 'Bradenton Riverwalk Tower Plaza.jpg' by The Grid, dated 2018-04-14, described as 'Tower Plaza at Bradenton Riverwalk in downtown Bradenton, FL', embedded geotag 27.498914, -82.569786 on the downtown riverfront. Visually confirmed: the tower's oval sign reads BRADENTON RIVERWALK, and the Manatee River, the US 41 Green Bridge and the raised CSX railroad bridge span are visible behind it. A decorative banner hangs on the tower but the subject is the Riverwalk plaza and sign tower, not the artwork. No people in frame. Image visually reviewed at 1280px. Live Commons licence checked: CC BY-SA 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-29"
     }
   },
-  "gaps": {}
+  "gaps": {
+    "Village of the Arts": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "Searched Commons Category:Village of the Arts (28 files), Commons full-text and Openverse/Flickr for Village of the Arts Bradenton. Best streetscapes, File:12th_Street_and_12th_Avenue_(Bradenton,_Florida).jpg (CC BY-SA 3.0, street signs visible) and File:Village_of_the_Arts_(Bradenton,_Florida).jpg (dated 'Coming Fall 2014' sign, visitors), are foliage-heavy and cannot fit the 200KB WebP budget at 1400px even at q50. Cottage gallery photos by Bfpage (e.g. Charming_gallery_one.jpg, 10th Avenue West Studios, verified current) are public domain, which the pick-photo licence contract refuses. Remaining files are closeups of artworks (public-art rule) or a 2012 studio sign with dated hours."
+    }
+  }
 }

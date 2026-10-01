@@ -60,15 +60,29 @@
       "verification": "Downloaded the original (2304x1536) from Wikimedia Commons and inspected it directly: a wooden sign reading 'HOMOSASSA SPRINGS WILDLIFE PARK' above a manatee-statue fountain, with directional signs for 'Alligators/Hippopotamus', 'Wildlife Walk' and 'Wildlife Encounters' -- an unambiguous, on-site identification of this exact state park. Credit corrected 2026-09-23: the Commons file page names the author as Paul Clark (originally Flickr photo 1339260574, imported by the Flickr upload bot), CC BY 2.0.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
+    },
+    "Three Sisters Springs boardwalk, stay dry": {
+      "src": "/guides/picks/swim-with-manatees-crystal-river/three-sisters-boardwalk-platforms.webp",
+      "width": 1024,
+      "height": 768,
+      "alt": "Wooden boardwalk viewing platforms among oaks and Spanish moss above clear turquoise spring water",
+      "caption": "The boardwalk's viewing platforms above the spring run at Three Sisters Springs, seen from the water in 2015.",
+      "credit": "qwesy qwesy",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Three_Sisters_Springs,_Crystal_River_-_panoramio.jpg",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Three_Sisters_Springs,_Crystal_River_-_panoramio.jpg",
+      "author": "qwesy qwesy",
+      "position": "50% 65%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": "ChIJjZq3rbFB6IgRb6e1zyAKbg4",
+      "verification": "Commons file 'Three Sisters Springs, Crystal River - panoramio.jpg' by qwesy qwesy, taken 1 September 2015, geotagged 28.888512,-82.589190 at Three Sisters Springs. Shows the wooden boardwalk platforms with posted refuge signs directly above the clear spring water, the land-side viewing the pick recommends. No people. Image visually reviewed. Live Commons licence checked: CC BY 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-29"
     }
   },
   "gaps": {
-    "Three Sisters Springs boardwalk, stay dry": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": "U.S. Fish and Wildlife Service, Crystal River National Wildlife Refuge (public agency)",
-      "note": "Searched Commons (title/text search, the Crystal River National Wildlife Refuge category, 'boardwalk'/'walkway'/'trail' queries) and found only the water-approach view already used for the kayak pick, refuge entrance signage, and unrelated 1900s-era photos. No properly licensed photo of the land-side boardwalk/trolley viewing platform (distinct from the water view) was found. Pass 2 (2026-09-23): searched Openverse for \"Three Sisters Springs boardwalk\" (zero results), \"Three Sisters Springs Crystal River\" (29 results, all water-level manatee/swimmer photos, none showing the land boardwalk or trolley platform), and \"Crystal River National Wildlife Refuge boardwalk\" (zero results). No usable candidate found."
-    },
     "A manatee eco-cruise for non-swimmers": {
       "reason": "not-a-place",
       "placeId": null,
