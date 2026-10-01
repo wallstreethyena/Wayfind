@@ -7,7 +7,8 @@ import { directionsUrl } from "./kit";
 import { composeLunchBreakRails } from "../../lib/lunchBreakRails.js";
 import { toHookLine } from "../../lib/editorialHook";
 import { toDisplayScore } from "../../lib/score.js";
-import { wayfindScore } from "../../lib/wayfindScore.js";
+import { useCuratedRows } from "../../lib/curatorPicks.js";
+import { railScoreOf } from "../../lib/railRank.js";
 import { topPickAward } from "../../lib/topPickAward.js";
 import { priceLabel } from "../../lib/price.js";
 import { visibleRails } from "../../lib/railVisibility.js";
@@ -15,7 +16,9 @@ import { visibleRails } from "../../lib/railVisibility.js";
 const compact = (n) => Number(n) >= 1000 ? Math.round(Number(n) / 100) / 10 + "k" : String(Number(n) || 0);
 
 export default function LunchBreakRails({ places = [], city = "", onOpenPlace, isSaved, liked, disliked, isLiked, isDisliked, onSave, onLike, onDislike, onShare }) {
-  const rails = useMemo(() => visibleRails(composeLunchBreakRails(places), "places"), [places]);
+  // Owner pick applied BEFORE compose/sort/slice (lib/curatorPicks.js).
+  const curated = useCuratedRows(places);
+  const rails = useMemo(() => visibleRails(composeLunchBreakRails(curated), "places"), [curated]);
   return <>
     {rails.map((rail) => (
       <section key={rail.id} aria-label={rail.title} style={{ marginTop: 22 }}>
@@ -30,7 +33,7 @@ export default function LunchBreakRails({ places = [], city = "", onOpenPlace, i
               const facts = [place.reviews ? compact(place.reviews) + " reviews" : null, priceLabel(place.priceLevel != null ? place.priceLevel : place.priceNum) || null, Number.isFinite(place.distMi) ? place.distMi + " mi" : null].filter(Boolean);
               const directions = directionsUrl(place);
               return <RailCard key={place.id} className="wf-exploding-primary" photo={photo} place={place} title={place.name} eyebrow={rail.title} rank={cardRank}
-                score={toDisplayScore(wayfindScore(place.rating, place.reviews))} facts={facts}
+                score={toDisplayScore(railScoreOf(place))} facts={facts}
                 award={topPickAward({ category: rail.title.toLowerCase(), rank: cardRank })}
                 take={toHookLine(place.editorial, place.name) || null}
                 cta={null}

@@ -28,7 +28,9 @@ import {
   SLOT_TABLE,
   AVOID,
   OUTING_ARCHETYPES,
+  OUTING_MIN_SCORE,
 } from "../lib/eventOuting.js";
+import { photoWorthy, PHOTO_WORTHY_COPY } from "../lib/photoWorthy.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(path.join(ROOT, p), "utf8");
@@ -124,8 +126,9 @@ function downtown() {
 
 const ALCOHOL_TYPES = new Set(["bar", "pub", "irish_pub", "brewery", "brewpub", "wine_bar", "cocktail_bar", "night_club", "lounge", "sports_bar", "bar_and_grill", "liquor_store", "adult_entertainment"]);
 const AVOID_SET_FOR_TEST = new Set(AVOID);
+const EXPLORE_ALLOWED = new Set(["museum", "art_museum", "tourist_attraction"]);
 const RESTAURANT_LIKE = (t) => t === "restaurant" || /_restaurant$/.test(t) || t === "steak_house" || t === "diner" || t === "food_court";
-const RANKING_NOTE_RX = / · \d+\.\d mi from the venue$/;
+const RANKING_NOTE_RX = / · \d+\.\d mi from the venue( · (Filmed by local creators|A photo stop worth planning))?$/;
 
 // 1. Evening concert.
 {
@@ -304,7 +307,12 @@ const RANKING_NOTE_RX = / · \d+\.\d mi from the venue$/;
   ok(OUTING_ARCHETYPES.includes(ctx.archetype), `an event with no fields at all still classifies to a known archetype (got ${ctx.archetype})`);
   ok(!/family|comedy|sports|festival|club|country|show/.test(ctx.archetype), `an event with no fields classifies to a GENERIC archetype, not a specific one (got ${ctx.archetype})`);
   const picks = fillOutingSlots(ctx, downtown(), {});
-  ok(!picks.some((p) => AVOID_SET_FOR_TEST.has(p.primaryType)), "AVOID still applies to the generic fallback archetype");
+  // 2026-09-30: a DAYTIME generic event may admit a real sight (museum,
+  // tourist_attraction) through the "Make a day of it" slot ONLY. Every other
+  // AVOID type (tour agency decoy, spa, gym, hotel) stays out, and no other
+  // slot may carry an avoided type.
+  const leaked = picks.filter((p) => AVOID_SET_FOR_TEST.has(p.primaryType) && !(p.outing.slotKey === "explore_after" && EXPLORE_ALLOWED.has(p.primaryType)));
+  ok(leaked.length === 0, `AVOID still applies to the generic fallback archetype outside the explore slot's allow list (leaked: ${leaked.map((p) => p.name).join(", ") || "none"})`);
 }
 
 // 13. RED PROOFS — prove this guard can actually fail, by sabotaging the
@@ -383,6 +391,282 @@ const RANKING_NOTE_RX = / · \d+\.\d mi from the venue$/;
     return pool.has(p.primaryType) || GENERIC.has(p.primaryType || "");
   });
   ok(honest(classy, "show_classy") && honest(dayGame, "sports_day") && honest(kidsPicks, "family_day"), "every slotted pick's primaryType matches the slot its card label names");
+}
+
+
+// 16. Recommendation intelligence (2026-09-30, owner: "the recommendations
+//     needs to be good"). Every assertion RUNS fillOutingSlots.
+{
+  const concert = classifyEvent({ name: "Indie Rock Night", segment: "Music", genre: "Rock", time: "20:00" });
+  const dayCtx = classifyEvent({ name: "Saturday Makers Fair", segment: "Community", time: "11:00" });
+
+  // 16a. Daytime events get a real nearby sight; evening concerts never do.
+  const dayPicks = fillOutingSlots(dayCtx, downtown(), { max: 12 });
+  const explore = dayPicks.filter((p) => p.outing.slotKey === "explore_after");
+  ok(explore.some((p) => p.name === "City History Museum"), `a daytime event's "Make a day of it" slot surfaces the nearby museum (got ${explore.map((p) => p.name).join(", ") || "nothing"})`);
+  ok(!dayPicks.some((p) => p.primaryType === "tour_agency"), "the 4.95 star tour agency decoy never passes the explore slot's allow list");
+  const nightPicks = fillOutingSlots(concert, downtown(), { max: 12 });
+  ok(!nightPicks.some((p) => p.primaryType === "museum"), "an evening concert never gets a museum pick");
+
+  // 16b. Quality floor: a close, perfectly typed but mediocre place loses its
+  //      slot to a real one, and never appears while better picks exist.
+  const withWeak = [...downtown(), { id: "weak-1", name: "Tired Tavern", primaryType: "bar", types: ["bar"], governed_score: OUTING_MIN_SCORE - 5, distMi: 0.05 }];
+  ok(!fillOutingSlots(concert, withWeak, { max: 12 }).some((p) => p.id === "weak-1"), `a place under OUTING_MIN_SCORE (${OUTING_MIN_SCORE}) is not recommended when better picks exist`);
+
+  // 16c. Price fit: a symphony dinner prefers the upscale room over an
+  //      identically scored, identically placed cheap one.
+  const classyCtx = classifyEvent({ name: "Symphony No. 9", genre: "Classical", time: "19:30" });
+  const priced = [
+    { id: "cheap", name: "Cheap Eats", primaryType: "restaurant", types: ["restaurant"], governed_score: 88, distMi: 0.4, priceLevel: 1 },
+    { id: "upscale", name: "The Upscale Room", primaryType: "restaurant", types: ["restaurant"], governed_score: 88, distMi: 0.4, priceLevel: 3 },
+    { id: "cafe", name: "Corner Cafe", primaryType: "cafe", types: ["cafe"], governed_score: 80, distMi: 0.3 },
+    { id: "wine", name: "Wine Nook", primaryType: "wine_bar", types: ["wine_bar"], governed_score: 80, distMi: 0.3 },
+  ];
+  const classyDinner = fillOutingSlots(classyCtx, priced, { max: 8, min: 1 }).filter((p) => p.outing.slotKey === "dinner_before");
+  ok(classyDinner[0] && classyDinner[0].id === "upscale", `show_classy dinner ranks the $$$ room over the $ one at equal score and distance (got ${classyDinner.map((p) => p.id).join(", ")})`);
+
+  // 16f. Inside a five minute walk, a much better place is not beaten on distance.
+  const walk = [
+    { id: "a-closest", name: "Closest Room", primaryType: "restaurant", types: ["restaurant"], governed_score: 89, distMi: 0.06 },
+    { id: "b-best", name: "Best Room", primaryType: "restaurant", types: ["restaurant"], governed_score: 99, distMi: 0.2 },
+  ];
+  const walkDinner = fillOutingSlots(concert, walk, { max: 8, min: 1 }).filter((p) => p.outing.slotKey === "dinner_before");
+  ok(walkDinner[0] && walkDinner[0].id === "b-best", `a 99 at 0.2 mi outranks an 89 at 0.06 mi (got ${walkDinner.map((p) => p.id).join(", ")})`);
+
+  // 16d. Editorial lift: a vetted Wayfind write up breaks a tie, and nothing more.
+  const tie = [
+    { id: "a-plain", name: "Plain Bar", primaryType: "bar", types: ["bar"], governed_score: 84, distMi: 0.3 },
+    { id: "b-vetted", name: "Vetted Bar", primaryType: "bar", types: ["bar"], governed_score: 84, distMi: 0.3, editorial: "Order the frozen negroni." },
+  ];
+  const drinks = fillOutingSlots(concert, tie, { max: 2, min: 1 }).filter((p) => p.outing.slotKey === "drinks_before");
+  ok(drinks[0] && drinks[0].id === "b-vetted", "a place with a Wayfind write up wins an exact tie");
+  const farVetted = [
+    { id: "near-great", name: "Near Great Bar", primaryType: "bar", types: ["bar"], governed_score: 92, distMi: 0.1 },
+    { id: "far-vetted", name: "Far Vetted Bar", primaryType: "bar", types: ["bar"], governed_score: 80, distMi: 0.7, editorial: "Nice patio." },
+  ];
+  const lift = fillOutingSlots(concert, farVetted, { max: 2, min: 1 }).filter((p) => p.outing.slotKey === "drinks_before");
+  ok(lift[0] && lift[0].id === "near-great", "the editorial lift never beats a clearly better, clearly closer place");
+
+  // 16e. Cuisine variety: at most two picks share a lead cuisine.
+  const sushiRow = (i) => ({ id: `sushi-${i}`, name: `Sushi ${i}`, primaryType: "restaurant", types: ["restaurant"], cuisines: ["Sushi"], governed_score: 95 - i, distMi: 0.2 });
+  const varied = [...[1, 2, 3, 4].map(sushiRow), { id: "tacos", name: "Taco Spot", primaryType: "restaurant", types: ["restaurant"], cuisines: ["Mexican"], governed_score: 80, distMi: 0.5 }];
+  const variedPicks = fillOutingSlots(concert, varied, { max: 8, min: 1 });
+  ok(variedPicks.filter((p) => p.id.startsWith("sushi")).length === 2, `no more than two picks share a lead cuisine (got ${variedPicks.filter((p) => p.id.startsWith("sushi")).length} sushi)`);
+  ok(variedPicks.some((p) => p.id === "tacos"), "the cuisine cap opens room for a different kind of meal");
+}
+
+// 17. An unforgettable night (2026-09-30, owner: "a lot more fun things to
+//     do … make the person's night unforgettable … instagrammable places").
+//     Every assertion RUNS fillOutingSlots / photoWorthy.
+{
+  const concert = classifyEvent({ name: "Indie Rock Night", segment: "Music", genre: "Rock", time: "20:00" });
+  const r = (id, name, primaryType, governed, distMi, types) => ({ id, name, primaryType, types: types || [primaryType], governed_score: governed, distMi });
+  const fun = [
+    r("sail", "Tampa Bay Sunset Sail", "tour_agency", 90, 0.5),
+    r("counter", "Best Tours Agency", "tour_agency", 99, 0.2),
+    // "z-pier" sorts AFTER "a-statue", so a tie would go to the statue: only
+    // the fishing_pier identity can put the pier first.
+    r("z-pier", "City Pier", "tourist_attraction", 90, 0.6, ["tourist_attraction", "fishing_pier", "park"]),
+    r("a-statue", "Old Statue", "tourist_attraction", 90, 0.6),
+    r("jazz", "Blue Note Room", "bar", 90, 0.2, ["bar", "live_music_venue", "event_venue"]),
+    r("hall", "Grand Wedding Hall", "event_venue", 95, 0.2),
+    r("arcade", "Pixel Arcade", "video_arcade", 88, 0.4),
+    r("bowl", "Strike Lanes", "bowling_alley", 86, 0.5),
+    r("hookah", "Cloud Nine Hookah", "hookah_bar", 90, 0.3),
+    r("tavern", "Corner Tavern", "bar", 85, 0.2),
+    r("dinner", "Bistro One", "restaurant", 90, 0.2),
+  ];
+  const opts = { max: 12, min: 1, photoWorthy: false };
+  const night = fillOutingSlots(concert, fun, opts);
+  const bySlot = (picks, key) => picks.filter((p) => p.outing.slotKey === key).map((p) => p.id);
+
+  // 17a. Experiences: a boat named for what it is gets in; a tours counter never does.
+  ok(bySlot(night, "memorable_before").includes("sail"), `a named sunset sail is a "Make it memorable" pick for a concert (got ${bySlot(night, "memorable_before").join(", ") || "none"})`);
+  ok(!night.some((p) => p.id === "counter"), "a generic tour agency storefront is never recommended, even at a 99");
+  // 17b. Identity: a pier's secondary fishing_pier type makes it a full fit.
+  const pierVsStatue = bySlot(fillOutingSlots(concert, fun.filter((p) => p.id !== "sail"), opts), "memorable_before");
+  ok(pierVsStatue[0] === "z-pier", `a tourist attraction typed fishing_pier outranks an equal plain attraction (got ${pierVsStatue.join(", ")})`);
+  // 17c. Second act: a music bar (event_venue typed) counts; a wedding hall never does.
+  ok(bySlot(night, "second_act_after").includes("jazz"), `a bar typed live_music_venue is a "Keep the night going" pick (got ${bySlot(night, "second_act_after").join(", ") || "none"})`);
+  ok(!night.some((p) => p.id === "hall"), "a plain event hall never enters any slot");
+  // 17d. Classy stays quiet: no arcade, bowling or second act.
+  const classy = fillOutingSlots(classifyEvent({ name: "Symphony No. 9", genre: "Classical", time: "19:30" }), fun, opts);
+  ok(!classy.some((p) => ["arcade", "bowl", "hookah"].includes(p.id)) && bySlot(classy, "second_act_after").length === 0, "a symphony never gets an arcade, bowling or a second act");
+  // 17e. Family evening: fun is kid fun. No boats for sale, no bar, no hookah.
+  const kids = fillOutingSlots(classifyEvent({ name: "Disney Junior Live", segment: "Family", time: "18:00" }), fun, opts);
+  ok(kids.some((p) => p.id === "arcade" || p.id === "bowl"), "a family evening gets arcade or bowling fun");
+  ok(!kids.some((p) => ["sail", "counter", "jazz", "hookah", "tavern", "hall"].includes(p.id)), `a family evening never gets a boat sale, bar, hookah or event hall (got ${kids.map((p) => p.id).join(", ")})`);
+  // 17e2. A family flagged NIGHT GAME (sports_night, which carries the
+  //       memorable and second act slots) is just as kid safe (Fable audit).
+  const familyGameCtx = classifyEvent({ name: "Rays vs Yankees Family Night", segment: "Sports", audience: ["family"], time: "19:00" });
+  const familyFun = [...fun, r("kara", "Sing Along Karaoke", "karaoke", 92, 0.2), r("tiki", "Cruisin Tiki Boat", "boat_tour_agency", 92, 0.3), r("dock", "Sunset Marina", "marina", 92, 0.3)];
+  const famGame = fillOutingSlots(familyGameCtx, familyFun, opts);
+  ok(familyGameCtx.archetype === "sports_night" && familyGameCtx.family, `fixture control: the family night game is sports_night and family (got ${familyGameCtx.archetype}, family ${familyGameCtx.family})`);
+  ok(!famGame.some((p) => ["sail", "tiki", "dock", "kara", "jazz", "hookah", "tavern"].includes(p.id)), `a family night game never gets a boat, marina, karaoke or bar (got ${famGame.map((p) => p.id).join(", ")})`);
+  const unguarded = fillOutingSlots({ ...familyGameCtx, family: false }, familyFun, opts);
+  ok(unguarded.some((p) => ["sail", "tiki", "kara"].includes(p.id)), "red proof control: the same night game without the family flag does admit them, so the guard is doing the work");
+
+  // 17e3. Quota release stretches a slot by at most two.
+  const bars = Array.from({ length: 14 }, (_, i) => r(`bar-${String(i).padStart(2, "0")}`, `Bar ${i}`, ["bar", "pub", "irish_pub", "brewery", "brewpub"][i % 5], 90 - i, 0.2));
+  const barNight = fillOutingSlots(concert, bars, { max: 12, min: 1, photoWorthy: false });
+  const drinksBefore = barNight.filter((p) => p.outing.slotKey === "drinks_before").length;
+  ok(drinksBefore <= 4, `a bar heavy block never fills one slot past quota plus two (drinks before: ${drinksBefore})`);
+
+  // 17f. Every archetype but already fed still reserves a full shelf of twelve.
+  const sums = Object.entries(SLOT_TABLE).filter(([k]) => k !== "festival_fed").map(([k, v]) => [k, v.reduce((a, sl) => a + sl.quota, 0)]);
+  ok(sums.every(([, n]) => n === 12), `slot quotas sum to 12 (got ${sums.filter(([, n]) => n !== 12).map(([k, n]) => k + "=" + n).join(", ") || "all 12"})`);
+  // 17g. A food only block still fills: empty fun slots release their room.
+  const foodOnly = downtown().filter((p) => !["tour_agency", "spa", "museum", "park", "playground", "gym", "hotel"].includes(p.primaryType));
+  const filled = fillOutingSlots(concert, foodOnly, { max: 12, photoWorthy: false });
+  ok(filled.length >= 11, `with no fun places nearby, food and drink fill the released room (got ${filled.length} picks)`);
+}
+
+// 18. photoWorthy: "instagrammable" only when we can prove it.
+{
+  const creator = photoWorthy({ id: "no-such-id", name: "Fortu" }, "St. Petersburg");
+  ok(creator && creator.level === "creator" && creator.copy === "Filmed by local creators", `a place real creators filmed reads "Filmed by local creators" (got ${JSON.stringify(creator)})`);
+  const curated = photoWorthy({ id: "x", name: "Perspective Rooftop Pool Bar" }, "Sarasota");
+  ok(curated && curated.level === "curated", `a curated rooftop in its own city is a photo stop (got ${JSON.stringify(curated)})`);
+  ok(photoWorthy({ id: "x", name: "Perspective Rooftop Pool Bar" }, "Tampa") === null, "a curated name in a different city is not proof");
+  ok(photoWorthy({ id: "x", name: "Sunny Pier Park" }, "St. Petersburg") === null, "no proof, no claim: a pier named place with no creator or curated record gets nothing");
+  // Bounded: the boost breaks a tie, never a clear quality gap.
+  const concert = classifyEvent({ name: "Indie Rock Night", segment: "Music", genre: "Rock", time: "20:00" });
+  const tie = [
+    { id: "a-plain", name: "Plain Grill", primaryType: "restaurant", types: ["restaurant"], governed_score: 88, distMi: 0.2 },
+    { id: "b-filmed", name: "Filmed Grill", primaryType: "restaurant", types: ["restaurant"], governed_score: 88, distMi: 0.2 },
+  ];
+  const stub = (p) => (p.id === "b-filmed" ? { level: "creator", copy: "Filmed by local creators" } : null);
+  const tiePick = fillOutingSlots(concert, tie, { max: 2, min: 1, photoWorthy: stub }).filter((p) => p.outing.slotKey === "dinner_before");
+  ok(tiePick[0] && tiePick[0].id === "b-filmed" && / · Filmed by local creators$/.test(tiePick[0].rankingNote), "a creator filmed place wins a tie and its card says why");
+  const gap = [{ ...tie[0], governed_score: 98 }, tie[1]];
+  const gapPick = fillOutingSlots(concert, gap, { max: 2, min: 1, photoWorthy: stub }).filter((p) => p.outing.slotKey === "dinner_before");
+  ok(gapPick[0] && gapPick[0].id === "a-plain", "the photo boost never beats a clearly better place");
+  ok(!/[-\u2013\u2014]/.test(Object.values(PHOTO_WORTHY_COPY).join(" ")), "photo copy carries no dashes");
+}
+
+// 19. Optional reach slots never switch off the suburban widen (live preview
+//     regression 2026-09-30: Clearwater Jazz Holiday 6 picks on main, 3 on
+//     the branch). A classy show whose meals sit 1.2 to 1.5 mi out, with one
+//     attraction next door, must still get dinner, dessert and a drink.
+{
+  const classyCtx = classifyEvent({ name: "Clearwater Jazz Holiday", genre: "Jazz", time: "19:00" });
+  const r = (id, name, primaryType, governed, distMi) => ({ id, name, primaryType, types: [primaryType], governed_score: governed, distMi });
+  const block = [
+    r("near-1", "Harbor Grill", "restaurant", 92, 0.1),
+    r("near-2", "Dock Diner", "restaurant", 89, 0.5),
+    r("pad", "Splash Pad", "tourist_attraction", 85, 0.3),
+    r("fine", "DeLukas", "fine_dining_restaurant", 91, 1.2),
+    r("drink", "Terrace Bar", "cocktail_bar", 95, 1.5),
+    r("cafe", "Corner Cafe", "cafe", 90, 1.3),
+  ];
+  const got = fillOutingSlots(classyCtx, block, { max: 12, photoWorthy: false });
+  // Semantic, not just "some row carries the label": the recovered rows are
+  // the specific places that belong there, in a slot whose own type rules
+  // admit them, and every nearby pick survives.
+  const slotOf = (id) => (got.find((p) => p.id === id) || {}).outing?.slotKey;
+  const tableSlot = (key) => SLOT_TABLE.show_classy.find((s) => s.key === key);
+  const admits = (key, type) => !!tableSlot(key) && [...tableSlot(key).primary, ...(tableSlot(key).any || [])].includes(type) && !(tableSlot(key).exclude || []).includes(type);
+  ok(slotOf("cafe") === "dessert_after" && admits("dessert_after", "cafe"), `19a: the meal regression stays fixed: dessert after is recovered from 1.3 mi (got ${got.map((p) => p.id + ":" + p.outing.slotKey).join(", ")})`);
+  ok(slotOf("drink") === "quiet_drink_after" && admits("quiet_drink_after", "cocktail_bar"), `19b: the cocktail bar fills the drink slot it is the real thing for (got ${slotOf("drink")})`);
+  ok(["near-1", "near-2", "pad"].every((id) => got.some((p) => p.id === id)), "19c: every nearby pick survives the widen");
+  // Control: with every core slot filled nearby, the widen is not taken.
+  const dense = [...block.slice(0, 3), r("w", "Wine Nook", "wine_bar", 90, 0.2), r("d", "Scoops", "ice_cream_shop", 88, 0.3), r("q", "Velvet", "cocktail_bar", 87, 0.3), r("far", "Far Fine", "fine_dining_restaurant", 99, 1.5)];
+  ok(!fillOutingSlots(classyCtx, dense, { max: 12, photoWorthy: false }).some((p) => p.id === "far"), "control: when every core slot fills nearby, a 1.5 mi place does not replace them");
+}
+
+// 20. Widening never silently re-ranks a dense shelf (owner review
+//     2026-10-01: "it did not happen on nine pages does not close the
+//     concern"). Every case RUNS fillOutingSlots; `trace` is a test seam that
+//     records when and why pass 3 searched farther.
+{
+  const concert = classifyEvent({ name: "Indie Rock Night", segment: "Music", genre: "Rock", time: "20:00" });
+  const r = (id, name, primaryType, governed, distMi, extra = {}) => ({ id, name, primaryType, types: [primaryType], governed_score: governed, distMi, ...extra });
+  // Dense nearby: three valid dinners (the weakest at 0.9 mi), two bars and a
+  // nightcap fill every core slot but late night bites, which only exists at
+  // 1.6 mi. A 99 dinner sits at 1.5 mi: it scores higher once the radius is
+  // doubled, which is exactly how a full rerun would swap it in.
+  const dense = [
+    r("d74", "Dinner Seventy Four", "restaurant", 74, 0.9, { cuisines: ["A"] }),
+    r("d72", "Dinner Seventy Two", "italian_restaurant", 72, 0.9, { cuisines: ["B"] }),
+    r("d70", "Dinner Seventy", "seafood_restaurant", 70, 0.9, { cuisines: ["C"] }),
+    r("bar1", "Bar One", "bar", 85, 0.2),
+    r("bar2", "Bar Two", "pub", 84, 0.2),
+    r("cap", "Cap Lounge", "cocktail_bar", 88, 0.3),
+    r("far99", "Far Ninety Nine", "american_restaurant", 99, 1.5, { cuisines: ["D"] }),
+    r("pizza", "Late Pizza", "pizza_restaurant", 86, 1.6),
+  ];
+  const base = { photoWorthy: false };
+  const near = fillOutingSlots(concert, dense.filter((c) => c.id !== "pizza" && c.id !== "far99"), { ...base, max: 6 });
+  const trace = [];
+  const got = fillOutingSlots(concert, dense, { ...base, max: 6, trace });
+  const ids = got.map((p) => p.id);
+  ok(ids.includes("pizza") && got.find((p) => p.id === "pizza").outing.slotKey === "late_night_bites", `20a: the empty core slot (late night bites) is filled from the wider radius (got ${ids.join(", ")})`);
+  ok(!ids.includes("far99"), "20b: widening for one empty slot never pulls a farther place into an already filled slot");
+  const kept = near.map((p) => p.id).filter((id) => ids.includes(id));
+  const dropped = near.map((p) => p.id).filter((id) => !ids.includes(id));
+  ok(dropped.length <= 1 && dropped.every((id) => id === "d70"), `20c: on a full shelf at most one pick gives way, and only the lowest priority extra (a slot's third dinner, d70) (dropped: ${dropped.join(", ") || "none"}; kept ${kept.length})`);
+  ok(trace.filter((t) => t.pass === "fill_empty_core").length === 1 && trace[0].slots.join() === "late_night_bites", `20d: one bounded widen, only for the missing slot (trace ${JSON.stringify(trace)})`);
+
+  // With room on the shelf, nothing gives way at all.
+  const roomy = fillOutingSlots(concert, dense, { ...base, max: 12 });
+  const nearRoomy = fillOutingSlots(concert, dense.filter((c) => c.id !== "pizza" && c.id !== "far99"), { ...base, max: 12 });
+  ok(nearRoomy.every((p) => roomy.some((q) => q.id === p.id && q.outing.slotKey === p.outing.slotKey)), "20e: with room on the shelf every nearby pick keeps its place and slot");
+
+  // No valid wider candidate: unchanged picks, one bounded attempt, no error.
+  const t2 = [];
+  const noWide = fillOutingSlots(concert, dense.filter((c) => c.id !== "pizza"), { ...base, max: 6, trace: t2 });
+  const noWideNear = fillOutingSlots(concert, dense.filter((c) => c.id !== "pizza" && c.id !== "far99"), { ...base, max: 6 });
+  ok(JSON.stringify(noWide.map((p) => p.id + p.outing.slotKey)) === JSON.stringify(noWideNear.map((p) => p.id + p.outing.slotKey)) && t2.length === 1, `20f: with no valid wider candidate the shelf is unchanged and widening ran once (trace ${t2.length})`);
+
+  // Exhausted quota: five far pizzas, late night bites quota 1, adds exactly one.
+  const pizzas = [1, 2, 3, 4, 5].map((i) => r("pz" + i, "Pizza " + i, "pizza_restaurant", 80 + i, 1.5 + i / 100));
+  const q = fillOutingSlots(concert, [...dense.filter((c) => c.id !== "pizza"), ...pizzas], { ...base, max: 12 });
+  ok(q.filter((p) => p.outing.slotKey === "late_night_bites").length === 1, `20g: a widened slot is filled only to its quota (got ${q.filter((p) => p.outing.slotKey === "late_night_bites").length})`);
+
+  // Duplicate identity and overlapping slots: one row per place.
+  const dup = fillOutingSlots(concert, [...dense, { ...dense[7] }, r("pizza", "Late Pizza", "pizza_restaurant", 86, 1.6)], { ...base, max: 12 });
+  ok(dup.filter((p) => p.id === "pizza").length === 1, "20h: a duplicated identity is recommended once");
+  const classy = classifyEvent({ name: "Symphony No. 9", genre: "Classical", time: "19:30" });
+  const overlap = [r("c1", "Classy One", "restaurant", 92, 0.2), r("c2", "Classy Two", "restaurant", 90, 0.3), r("c3", "Classy Three", "restaurant", 88, 0.4), r("w1", "Wine One", "wine_bar", 90, 0.3), r("q1", "Quiet One", "cocktail_bar", 89, 0.3), r("cafe", "Corner Cafe", "cafe", 91, 1.4)];
+  const ov = fillOutingSlots(classy, overlap, { ...base, max: 12 });
+  ok(ov.filter((p) => p.id === "cafe").length === 1, `20i: a place eligible for several widened slots is used once (got ${ov.filter((p) => p.id === "cafe").map((p) => p.outing.slotKey).join(", ")})`);
+
+  // Family: a correctly empty bar slot is not "missing" and never widens.
+  const famCtx = classifyEvent({ name: "Rays vs Yankees Family Night", segment: "Sports", audience: ["family"], time: "19:00" });
+  const famNear = [r("fd1", "Family Diner", "restaurant", 90, 0.2), r("fd2", "Family Grill", "american_restaurant", 88, 0.3), r("lf", "Late Slice", "pizza_restaurant", 85, 0.3), r("arc", "Arcade", "video_arcade", 86, 0.4), r("pier", "City Pier", "tourist_attraction", 90, 0.5, { types: ["tourist_attraction", "fishing_pier"] }), r("farbar", "Far Sports Bar", "sports_bar", 99, 1.5)];
+  const t3 = [];
+  const fam = fillOutingSlots(famCtx, famNear, { ...base, max: 12, trace: t3 });
+  ok(!t3.some((t) => (t.slots || []).some((k) => /bar/.test(k))), `20j: a family event never widens to look for a bar slot it correctly cannot fill (trace ${JSON.stringify(t3)})`);
+  ok(!fam.some((p) => p.id === "farbar"), "20k: and no bar appears");
+
+  // Thin is judged on CORE picks (real snapshot 2.5 mi off downtown St.
+  // Pete: a jazz night got three sights and no food, because the sights alone
+  // reached `min` and switched the overflow off).
+  const sights = [r("g1", "Palm Garden", "botanical_garden", 92, 0.4), r("g2", "City Pier", "pier", 94, 0.6), r("g3", "Glass Studio", "tourist_attraction", 88, 0.7)];
+  const farFood = [r("ff", "Far Fine", "restaurant", 99, 2.5), r("fd", "Far Gelato", "dessert_shop", 96, 2.4)];
+  const t4 = [];
+  const thinCore = fillOutingSlots(classy, [...sights, ...farFood], { ...base, max: 12, trace: t4 });
+  ok(["ff", "fd"].every((id) => thinCore.some((p) => p.id === id)), `20l: sights alone never make a shelf "full": food still reaches it (got ${thinCore.map((p) => p.id + ":" + p.outing.slotKey).join(", ")})`);
+  ok(sights.every((c) => thinCore.some((p) => p.id === c.id && p.outing.slotKey === "memorable_before")) && t4.length === 1 && t4[0].pass === "widen_thin", "20m: the nearby sights keep their slot and the thin widen runs once");
+
+  // A full shelf where every slot holds a single pick has nothing that may
+  // give way: the empty slot stays empty rather than costing a slot its only pick.
+  const sole = [dense[0], dense[3], dense[5], dense[7]];
+  const soleNear = fillOutingSlots(concert, sole.slice(0, 3), { ...base, max: 3 });
+  const soleGot = fillOutingSlots(concert, sole, { ...base, max: 3 });
+  ok(soleNear.length === 3 && JSON.stringify(soleGot.map((p) => p.id + p.outing.slotKey)) === JSON.stringify(soleNear.map((p) => p.id + p.outing.slotKey)), `20n: a slot's only pick is never displaced (near ${soleNear.map((p) => p.id).join(",")}; got ${soleGot.map((p) => p.id).join(",")})`);
+
+  // Family review 2026-10-01: a gastropub or lounge_bar never reaches a
+  // family page, by slot ("Sports bar before") or by overflow ("Also nearby").
+  const famPub = [r("gp", "Corner Gastropub", "gastropub", 95, 0.2, { types: ["gastropub", "restaurant"] }), r("lb", "Velvet Lounge", "lounge_bar", 94, 0.3), r("fd", "Family Diner", "restaurant", 90, 0.2)];
+  const famPubGot = fillOutingSlots(famCtx, famPub, { ...base, max: 12, min: 3 });
+  ok(!famPubGot.some((p) => p.id === "gp" || p.id === "lb"), `20o: a family event never gets a gastropub or lounge bar (got ${famPubGot.map((p) => p.id + ":" + p.outing.slotKey).join(", ")})`);
+  const adultPub = fillOutingSlots(classifyEvent({ name: "Rays vs Yankees", segment: "Sports", time: "19:00" }), famPub, { ...base, max: 12 });
+  ok(adultPub.some((p) => p.id === "gp"), "20o control: an adult game still gets the gastropub");
+  // Overflow keeps one row per place even if the caller's pool repeats it.
+  const dupPool = [r("x", "Book Nook", "book_store", 95, 0.3), r("x", "Book Nook", "book_store", 95, 0.3), r("y", "Diner", "restaurant", 80, 0.2)];
+  const dupOut = fillOutingSlots(concert, dupPool, { ...base, max: 8 });
+  ok(dupOut.filter((p) => p.id === "x").length === 1, `20p: overflow never repeats a place (got ${dupOut.map((p) => p.id).join(",")})`);
 }
 
 // outingCacheKey sanity — used by lib/eventPairingsCache.js to split the

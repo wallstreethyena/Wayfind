@@ -344,10 +344,18 @@ for (const { file, json } of dataFiles) {
     compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2020, esModuleInterop: true },
   }).outputText;
   const figureModule = { exports: {} };
+  // GuideFigure's credit links render through the shared PhotoCreditLink (#1601);
+  // compile the REAL one so the figure still executes end to end.
+  const creditLinkCode = ts.transpileModule(readFileSync(abs("app/components/PhotoCreditLink.js"), "utf8"), {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2020, esModuleInterop: true },
+  }).outputText;
+  const creditLinkModule = { exports: {} };
+  vm.runInNewContext(creditLinkCode, { module: creditLinkModule, exports: creditLinkModule.exports, require }, { filename: abs("app/components/PhotoCreditLink.js") });
   const captionModule = await import(abs("lib/guideCaption.js"));
   const googlePhotoModule = await import(abs("lib/googlePhotoSrc.js"));
   vm.runInNewContext(figureCode, { module: figureModule, exports: figureModule.exports, require: (name) => {
     if (name === "./GuidePhoto") return photoModule.exports;
+    if (name === "./PhotoCreditLink") return creditLinkModule.exports;
     if (name === "../../lib/guideCaption.js") return captionModule;
     if (name === "../../lib/googlePhotoSrc.js") return googlePhotoModule;
     if (name.endsWith(".css")) return { __esModule: true, default: cssStub };

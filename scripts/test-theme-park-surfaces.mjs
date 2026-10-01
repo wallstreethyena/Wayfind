@@ -24,8 +24,16 @@ const google = readFileSync(new URL("../lib/google.js", import.meta.url), "utf8"
 const filters = readFileSync(new URL("../lib/placeFilter.js", import.meta.url), "utf8");
 const commerce = readFileSync(new URL("../lib/browseCommerceMap.js", import.meta.url), "utf8");
 
-assert.match(home, /nextDynamic\(\(\) => import\("\.\/components\/ThemeParkRail"\)/,
-  "the statewide rail stays in its own client chunk");
+// 2026-10-01 (owner: "do not defer what the first interaction needs; keep
+// it counted"): the flagship rail holds the homepage's first place cards and
+// renders on first paint, so it is a STATIC import, inside check-bundle's
+// count. As next/dynamic its first card landed 4.2s vs 2.7s at 390px (median
+// of 5, same Vercel preview infra). Either placement is a decision; this pins
+// the current one in both directions.
+assert.match(home, /^import ThemeParkRail from "\.\/components\/ThemeParkRail";$/m,
+  "the flagship rail is statically imported (eager, counted by check-bundle)");
+assert.doesNotMatch(home, /nextDynamic\(\(\) => import\("\.\/components\/ThemeParkRail"\)/,
+  "the flagship rail is not behind a lazy chunk the first paint has to wait for");
 assert.ok(home.indexOf("<HomeAffiliateActivityRail") < home.indexOf('<ThemeParkRail\n                        mode="flagship"'),
   "the homepage keeps Bookable near the reader first, then Florida's Biggest Parks");
 assert.match(home, /browseCat === "family" && <ThemeParkRail mode="family"/,

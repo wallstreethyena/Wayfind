@@ -15,6 +15,7 @@ import { nearestWater } from "../../../lib/waterStations.js";
 import { claimsTodayRail, composeTodayDiscoveryRails, TODAY_NATURE_MI } from "../../../lib/todayDiscoveryRails.js";
 import { windowRailAnswer } from "../../../lib/railResponse.js";
 import { pageOneRail } from "../../../lib/railPage.js";
+import { loadOwnerPickIds, applyCuratorPicksServer } from "../../../lib/curatorPicksServer.js";
 
 function json(body, status = 200, cache = "public, s-maxage=3600, stale-while-revalidate=86400") {
   return Response.json(body, { status, headers: { "cache-control": cache } });
@@ -143,7 +144,8 @@ export async function GET(request) {
        */
       const IDENTITY_FIRST = ["attractions", "beach"];
       const broadCategories = ["food", "nightlife", "hotels", "shopping"];
-      const [narrow, creatorExact, ...pools] = await Promise.all([
+      const [pickIds, narrow, creatorExact, ...pools] = await Promise.all([
+        loadOwnerPickIds().catch(() => null), // owner picks (lib/curatorPicksServer.js); null = unknown
         fetchOwnedPool(lat, lng, {
           categories: IDENTITY_FIRST,
           radiusMi: TODAY_NATURE_MI,
@@ -177,7 +179,9 @@ export async function GET(request) {
           else if (prior.inventoryCategory !== place.inventoryCategory) prior.inventoryCategories = [...new Set([prior.inventoryCategory, ...(prior.inventoryCategories || []), place.inventoryCategory])];
         }
       });
-      const places = await attachWater([...byId.values()]);
+      // Picks land before the composer ranks/caps; unknown -> untouched.
+      let places = await attachWater([...byId.values()]);
+      try { places = applyCuratorPicksServer(places, pickIds); } catch {}
       return { ...composeTodayDiscoveryRails(places, { city }), degraded: !!narrow.stats.degraded, sourceStats: narrow.stats };
     }, {
       name: "today-discovery",

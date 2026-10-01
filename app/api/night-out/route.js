@@ -23,6 +23,7 @@ export const maxDuration = 20;
 import { NET_DEADLINE_MS, DB_DEADLINE_MS } from "../../../lib/fetchDeadline.js";
 import { composeNightOutRails } from "../../../lib/nightOutIntent.js";
 import { fetchNightOutPool } from "../../../lib/nightOutPool.js";
+import { loadOwnerPickIds, applyCuratorPicksServer } from "../../../lib/curatorPicksServer.js";
 import { completeAnswersOnly, fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
 import { windowRailAnswer } from "../../../lib/railResponse.js";
 import { pageOneRail } from "../../../lib/railPage.js";
@@ -77,7 +78,10 @@ export async function GET(request) {
         photoDeadlineMs: DB_DEADLINE_MS,
         editorialOverride: nightOutEditorialEvidence,
       });
-      const composed = composeNightOutRails([], pool.places, origin);
+      // Owner picks before the composer ranks/caps (lib/curatorPicksServer.js); unknown -> untouched.
+      let poolPlaces = pool.places;
+      try { poolPlaces = applyCuratorPicksServer(pool.places, await loadOwnerPickIds()); } catch { poolPlaces = pool.places; }
+      const composed = composeNightOutRails([], poolPlaces, origin);
       // `degraded` rides on the ANSWER, not only in sourceStats, because that is
       // where fastCachedRail's `usable` and the cache-control header below can
       // both see it. A pool missing a whole category is a fact about the

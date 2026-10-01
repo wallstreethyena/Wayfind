@@ -110,10 +110,15 @@ fit   = 1     if c.primaryType is in s.primary
         0.6   if any of c.types[] (or c.primaryType) is in s.primary ∪ s.any
         0     otherwise (ineligible for this slot)
 
+walk  = max(0, c.distMi - 0.25) / (effectiveMaxMi - 0.25)   # flat inside a 5 minute walk
 score = 0.55 * (c.governed_score / 100)
-      + 0.30 * clamp(1 - c.distMi / effectiveMaxMi, 0, 1) ^ 1.5
+      + 0.30 * clamp(1 - walk, 0, 1) ^ 1.5
       + 0.15 * fit
+      + 0.04 if c.editorial (a vetted Wayfind write up; a tiebreaker, never more)
+      - 0.08 if c.priceLevel is known and outside the slot's `price` band
 ```
+
+A candidate under `OUTING_MIN_SCORE` (60) is ineligible for every slot.
 
 Fill order, per event:
 
@@ -121,16 +126,21 @@ Fill order, per event:
    best-scoring eligible candidate for each slot.
 2. **Pass 2 — fill to `max`.** Add remaining candidates by score, honoring
    each slot's `quota`.
-3. **Pass 3 — suburban widen.** If still under `min`, redo passes 1–2 with
-   every slot's `maxMi` doubled (capped at 12 miles overall) — an
-   amphitheater or speedway with little truly walkable nearby still gets a
-   real answer, just fewer, further picks.
-4. **Pass 4 — overflow.** If still under `min`, admit remaining candidates
+3. **Pass 3 — suburban widen.** One bounded search at every slot's `maxMi`
+   doubled (capped at 12 miles overall), ADDED to the picks already made:
+   when the shelf is thin (fewer than `min` core picks), for every eligible
+   core slot up to its quota; otherwise only for the eligible core slots that
+   came up empty. No nearby pick changes place or slot. On a full shelf an
+   empty slot's first pick may displace one extra (the lowest scoring pick of
+   a slot that keeps another), never a slot's only pick. An amphitheater or
+   speedway with little truly walkable nearby still gets a real answer.
+4. **Pass 4 — overflow.** If still under `min` core picks, admit remaining candidates
    by governed score + distance under the label "Also nearby", up to the 12
    mile cap.
 
-Two caps apply throughout: **no more than 3 picks share the same
-`primaryType`** (so five near-identical steakhouses can't crowd out
+Three caps apply throughout: **no more than `max(3, ceil(max / 3))` picks
+share the same `primaryType`** (4 on the default twelve), **no more than 2
+share a lead cuisine** (so five near-identical steakhouses can't crowd out
 everything else), and results are **deduplicated by id** with deterministic
 tie-breaks (score, then distance, then id) — the same event and candidate
 pool always produce the same order.
@@ -142,6 +152,97 @@ ranked by score. Each row is stamped:
 row.outing = { archetype, slotKey, slotLabel, timing, railTitle, railNote };
 row.rankingNote = `${slotLabel} · ${distMi.toFixed(1)} mi from the venue`;
 ```
+
+## Recommendation intelligence (2026-09-30)
+
+Owner: "the display is very thin … the recommendations needs to be good."
+Measured on live `wf_inventory` around Jannus Live (16 2nd St N, St
+Petersburg): 117 restaurants and bars and 37 attractions within half a mile,
+yet the map showed 8 picks, and the stays rail led with beach resorts 7 to 9
+miles away. Changes, each locked by an executed guard:
+
+- **Twelve picks, not eight.** `eventPairings` defaults `max` to 12 and every
+  archetype's slot quotas sum to 12 (they summed to 8, which capped the shelf
+  whatever `max` said). The same-`primaryType` cap scales with the shelf
+  (`max(3, ceil(max / 3))`), and a new **cuisine cap** (2 per lead cuisine)
+  keeps twelve from being twelve of one thing.
+- **Quality floor.** `OUTING_MIN_SCORE` (60): a weak place is never a pick
+  while better ones exist.
+- **Walk-flat distance.** Inside 0.25 mi, distance does not decide between
+  two places, so a 99 at 0.2 mi beats an 89 at 0.06 mi.
+- **Price fit.** Slots may carry a soft `price` band (`PRICE_UPSCALE`
+  for pre-theater dinner, `PRICE_CASUAL` for family, late-night and casual
+  slots, `PRICE_MID` for concert dinner). Out of band costs 0.08; unpriced
+  is neutral.
+- **Editorial lift.** A place with a Wayfind write up gets +0.04: it wins
+  ties and never beats a clearly better, clearly closer place.
+- **Open places only.** `lib/eventPairings.js` drops any row that fails
+  `isOperational` (`lib/businessStatus.js`); `buildNearbyPool` passes an
+  explicit `CLOSED_PERMANENTLY` through.
+- **"Make a day of it."** Daytime archetypes (`show_matinee`, `sports_day`,
+  `festival_allday`, `generic_day`) carry `EXPLORE_SLOT`, which re-admits
+  `museum`, `art_museum` and `tourist_attraction` through a slot-level
+  `allow`. That applies to this slot only; every other AVOID type on the row
+  still vetoes it, and evening archetypes never get it.
+- **Stays near the venue** (`lib/eventStays.js venueStayRank`, event page
+  only; the destination poster keeps pure score order): quality floor 75,
+  nothing past 3 mi when six good stays sit inside it, then 0.55 quality +
+  0.45 proximity (flat inside 0.6 mi).
+
+Cache keys bumped: `event-pairings-v4`, `event-stays-v3`.
+
+## An unforgettable night (2026-09-30, second pass)
+
+Owner: "a lot more fun things to do … make the person's night unforgettable
+… if there are instagrammable places make sure we add that element."
+
+- **"Make it memorable"** (`GOLDEN_HOUR_SLOT`, before; every evening
+  archetype except family): pier, observation deck, garden, glass studio or
+  other real attraction, or a boat experience. Tour operators and marinas
+  enter ONLY here, and only when their own name says sunset, sail, cruise,
+  tiki, dolphin, boat, kayak, paddle, yacht or pontoon (`nameRx`), so a tours
+  sales counter never does. A plain `park` is not admitted (inventory cannot
+  tell the waterfront park from a downtown square). Distance is flat to
+  0.6 mi and the slot reaches 1.5 mi: a destination earns the walk. A
+  secondary identity type that is a slot primary is a full fit
+  (`secondaryOk`), which is how the St. Pete Pier (primary
+  `tourist_attraction`, typed `fishing_pier`) ranks as a pier.
+- **"Keep the night going"** (`SECOND_ACT_SLOT`, after; concert, country,
+  comedy (no rival comedy clubs), sports night, generic evening): live music,
+  karaoke, bowling, arcades, mini golf, escape rooms, pool halls. A bar typed
+  `live_music_venue`/`karaoke`/`comedy_club` counts, and this slot alone lifts
+  the AVOID veto on `event_venue` (nearly every music bar carries it).
+- **"Fun after"** (`FAMILY_FUN_SLOT`, family evening): arcades, bowling, mini
+  golf, a pier or aquarium. Alcohol, hookah, karaoke and every boat sale stay
+  out (two layers: the family alcohol veto and the slot's own exclude).
+- **Quota release (pass 2b).** Where no such places exist nearby, their
+  reserved room returns to the other slots, so a food only block still shows
+  twelve. A slot stretches by at most two past its quota.
+- **Optional slots never switch off the widen.** Pass 3 (suburban widen)
+  also runs when an eligible core meal or drink slot is empty, and thinness
+  counts core picks only. A slot the event rules out (a family event's bar
+  slots, whose primary types FAMILY_HARD vetoes) is not "missing" and never
+  widens. The reach slots
+  (`OPTIONAL_SLOT_KEYS`: memorable, second act, family fun, explore) reach
+  farther than the meal slots and used to lift a thin block past `min`,
+  starving it of meals (live preview: Clearwater Jazz Holiday 6 picks on
+  main, 3 on the branch; Epcot lost every coffee and breakfast pick).
+- **Family is kid safe in every slot** (`FAMILY_HARD`): for any family
+  flagged event (including a family night game, which resolves to
+  `sports_night`), alcohol, boats, marinas, karaoke, hookah, pool halls,
+  dance halls and comedy clubs are stripped from every slot's `allow` and
+  added to its `exclude`.
+- **Instagrammable, only with proof** (`lib/photoWorthy.js`): `creator` when
+  real Instagram/TikTok creators filmed it (`lib/creatorSignals.js`), else
+  `curated` when a `lib/curated.js` entry tagged instagrammable, rooftop or
+  view has the same name in the same city. No type or name guesses. The pick
+  carries `photoWorthy` and its card note ends "· Filmed by local creators"
+  or "· A photo stop worth planning". Ranking lift is bounded (+0.05 / +0.03):
+  it wins ties, never a clearly better place.
+
+Booking is unchanged: cards book only through curated partner picks and the
+detail sheet's `/api/viator/go` path with `geoConfirms` intact. Cache key
+bumped to `event-pairings-v7`.
 
 ## What is excluded, and why
 
@@ -198,7 +299,7 @@ page's "Also nearby" shelf).
 
 ## Caching
 
-`lib/eventPairingsCache.js` (`EVENT_PAIRINGS_CACHE_KEY = "event-pairings-v3"`)
+`lib/eventPairingsCache.js` (`EVENT_PAIRINGS_CACHE_KEY = "event-pairings-v7"`)
 calls `classifyEvent(event)` **outside** the `unstable_cache` boundary and
 passes the JSON-serialized result in as an extra cache-key argument. This is
 what makes a concert and a food festival at the exact same venue coordinates
