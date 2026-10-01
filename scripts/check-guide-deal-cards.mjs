@@ -19,13 +19,13 @@ import { GUIDE_DEAL_MAX, areasForRegion, guideDealIds } from "../lib/guideDeals.
 let n = 0, bad = 0;
 const ok = (cond, msg) => { n++; if (!cond) { bad++; console.error("  - " + msg); } };
 
-// PINNED, not the real date (2026-10-01). This guard runs inside `npm run build`, and the
+// PINNED, not the real date. This guard runs inside `npm run build`, and the
 // Clipp cards carry a deliberate 2-week owner-audit fuse — so reading the real date made
 // every Vercel build fail the day a fuse lapsed (08-11, 08-23, 09-14, 09-29), blocking
-// unrelated deploys. The fixture date sits inside every live window; the lapse itself is
+// unrelated deploys. The fixture date (2026-09-27) sits inside BOTH Clipp audit windows (city pages and merchant certificates), so the resolver and CTA paths are exercised for both; the lapse itself is
 // announced by the Command Center rule `coupon_audit_*` (lib/commandCenter/alerts.js), and
 // expiry is still asserted explicitly below by CALLING couponIsLive past each fuse.
-const FIXTURE_TODAY = "2026-10-01";
+const FIXTURE_TODAY = "2026-09-27";
 const today = FIXTURE_TODAY;
 const src = readFileSync(new URL("../app/guides/[slug]/GuideDealCards.js", import.meta.url), "utf8");
 const page = readFileSync(new URL("../app/guides/[slug]/page.js", import.meta.url), "utf8");

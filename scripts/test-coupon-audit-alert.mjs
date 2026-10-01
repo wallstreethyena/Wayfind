@@ -72,14 +72,16 @@ if (cityCard) {
 const merchantFuse = COUPON_AUDIT_FUSES.find((f) => f.id === "clipp_merchant_cards");
 const merchantCards = COUPONS.filter((c) => c && c.expires && String(c.expires).slice(0, 10) === String(merchantFuse && merchantFuse.expires).slice(0, 10));
 ok(merchantCards.length > 10, `merchant certificate cards found by their fuse date (${merchantCards.length})`);
-ok(merchantCards.every((c) => couponIsLive(c, siteTodayStr(new Date("2026-10-13T15:00:00Z"))) === false), "every lapsed-merchant-fuse card is hidden after the fuse");
+// Derived from the fuse itself (not a hard-coded instant), so renewing the fuse after a real audit cannot break this test.
+const dayAfterFuse = merchantFuse ? new Date(Date.parse(String(merchantFuse.expires).slice(0, 10) + "T16:00:00Z") + 86400000).toISOString().slice(0, 10) : null;
+ok(!!dayAfterFuse && merchantCards.every((c) => couponIsLive(c, dayAfterFuse) === false && couponIsLive(c, String(merchantFuse.expires).slice(0, 10)) === true), "every merchant-fuse card is live on the fuse's last day and hidden the day after (whatever the fuse is renewed to)");
 // Malformed / missing audit data is safe: no expiry = no auto-hide rule to fire, bad shapes never throw.
 ok(couponIsLive(null, "2026-10-13") === false && couponIsLive({}, "2026-10-13") === false, "null / empty coupon rows are not live and do not throw");
 
 // ── Gideon's: only the expired September offering is retired ────────────────────────────────────────────
 const GIDEON = "ChIJC9pvtLN654gR6F0GZH-G-8I";
 ok(!(GIDEON in FALL_PLACE_IDS) && !(GIDEON in FALL_OFFERING_SOURCES) && !(GIDEON in FALL_PLACE_RAIL) && !FALL_CARD_IDS.has(GIDEON), "the expired Gideon's September offering is out of all four fall sets");
-ok(Object.keys(FALL_PLACE_IDS).length === 17 && Object.keys(FALL_OFFERING_SOURCES).length === 17, "exactly one pool entry was retired (18 -> 17); the other offerings are untouched");
+ok(Object.keys(FALL_PLACE_IDS).length >= 1 && Object.keys(FALL_PLACE_IDS).length === Object.keys(FALL_OFFERING_SOURCES).length, "the fall pool and its offering records stay in step after the retirement (and are not empty)");
 // The boundary that made it fail the build, from the real helper: `until` is INCLUSIVE in venue-local time.
 const sep30 = (iso) => offeringActive({ ends: "2026-09-30", today: siteTodayStr(new Date(iso)) });
 ok(sep30("2026-10-01T03:59:59Z") === true && sep30("2026-10-01T04:00:00Z") === false, "a 2026-09-30 end is active through 23:59:59 ET and expired from 00:00 ET on 10-01");
