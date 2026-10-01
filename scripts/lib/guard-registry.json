@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 766,
-    "totalRegistryEntries": 767,
-    "guardsTxtLineCount": 766,
-    "guardsTxtReachedFileCount": 759,
+    "totalOnDiskGuardFiles": 767,
+    "totalRegistryEntries": 768,
+    "guardsTxtLineCount": 767,
+    "guardsTxtReachedFileCount": 760,
     "criticalCount": 92,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 530,
+      "CALL": 531,
       "RENDER": 96,
       "STRUCTURAL": 140,
       "OTHER": 1
@@ -7661,7 +7661,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 20,
+      "assertionCount": 21,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -8911,7 +8911,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 26,
+      "assertionCount": 30,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -11316,6 +11316,28 @@
       "owner": null
     },
     {
+      "file": "scripts/test-covered-markets.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 32,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-creator-archetypes.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -11883,7 +11905,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 45,
+      "assertionCount": 49,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -12001,7 +12023,7 @@
       "assertionCount": 19,
       "unprovenAbsenceCount": 5,
       "honestyViolations": [
-        "5 absence assertion(s) with no positive control in the same file (e.g. \"/const rank = \\(deps && deps\\.rankedFor\\) \\|\\| rankedFor;/.test(railsData)\n  &&\")"
+        "5 absence assertion(s) with no positive control in the same file (e.g. \"/const rank = rankerFor\\(\\(deps && deps\\.rankedFor\\) \\|\\| rankedFor\\);/.test(rai\")"
       ],
       "selfDocumentsRedProve": false,
       "wiring": {

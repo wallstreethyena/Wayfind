@@ -1969,3 +1969,9 @@ node scripts/test-chunk-recovery.mjs
 # (check-guide-deal-cards read the real date). The guard is pinned; this proves the lapse is
 # announced in the Command Center instead — warn 2 days ahead and while lapsed, never a build.
 node scripts/test-coupon-audit-alert.mjs
+
+# 2026-10-01: "saint pete" offered a restaurant, never the city — LANDING_CITIES was
+# the only city table, so Florida markets with owned inventory but no published page
+# did not exist to search, the Location box or /api/rails. Locks the COVERED vs
+# PUBLISHED split: markets are searchable + feed-covered, mint no page/link/sitemap URL.
+node scripts/test-covered-markets.mjs

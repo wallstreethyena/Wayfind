@@ -181,9 +181,26 @@ assert.equal(splitCityQualifier("Dolce & Bake, Orlando, FL").text, "dolce and ba
   assert.equal(noLocation.reason, "unsupported_location");
   const nullLocation = await searchOwnedPlaces({ query: "Unknown Cafe", lat: null, lng: null, env: ENV, nowMs: NOW, addressIndex: [] });
   assert.equal(nullLocation.reason, "unsupported_location", "null coordinates are absence, not zero degrees");
-  for (const query of ["Gastonia", "Pensacola", "Pensacola, FL", "400 W Garden St, Pensacola, FL"]) {
+  for (const query of ["Gastonia", "Gastonia, NC", "400 W Main Ave, Gastonia, NC"]) {
     const explicitUnsupported = await searchOwnedPlaces({ query, ...ORLANDO, env: ENV, nowMs: NOW, addressIndex: [], fetchImpl: fetchRows([]) });
     assert.equal(explicitUnsupported.reason, "unsupported_location", `${query} does not silently become an Orlando search`);
+  }
+  // Pensacola became a covered market (lib/landingCities.js MARKET_CITIES,
+  // 2026-10-01). Same invariant, now satisfied the other way: an explicit
+  // Pensacola query searches PENSACOLA, never the device's Orlando.
+  for (const query of ["Pensacola", "Pensacola, FL"]) {
+    const bare = await searchOwnedPlaces({ query, ...ORLANDO, env: ENV, nowMs: NOW, addressIndex: [], fetchImpl: fetchRows([]) });
+    assert.equal(bare.reason, "place-query-required", `${query} is a covered city, not a venue near Orlando`);
+  }
+  for (const [query, cityLat] of [["400 W Garden St, Pensacola, FL", 30.4213], ["pizza st pete", 27.7676], ["tacos jax", 30.3322], ["pizza orlando", ORLANDO.lat]]) {
+    const seen = [];
+    await searchOwnedPlaces({ query, ...ORLANDO, env: ENV, nowMs: NOW, addressIndex: [], fetchImpl: async (url, init) => { seen.push(String(url)); return fetchRows([])(url, init); } });
+    assert(seen.length > 0, `${query} reaches the owned library`);
+    for (const u of seen) {
+      const lo = Number(u.match(/lat=gte\.(-?[\d.]+)/)?.[1]), hi = Number(u.match(/lat=lte\.(-?[\d.]+)/)?.[1]);
+      assert(Number.isFinite(lo) && Number.isFinite(hi), `${query}: the probe found the lat box (positive control)`);
+      assert(Math.abs((lo + hi) / 2 - cityLat) < 0.01, `${query} searches a box centred on its own city (${cityLat}), got ${lo}..${hi}`);
+    }
   }
   const outside = await searchOwnedPlaces({ query: "Unknown Cafe", lat: 40.7128, lng: -74.006, env: ENV, nowMs: NOW, addressIndex: [] });
   assert.equal(outside.reason, "unsupported_location");
