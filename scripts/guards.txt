@@ -1577,6 +1577,8 @@ node scripts/check-reverse-migration-reconciliation.mjs
 # breakfast, coffee and bakery-cafe cards remain reachable), including rows
 # whose provider omitted primaryType.
 node scripts/test-morning-identity.mjs
+node scripts/test-taxonomy-identity.mjs
+node scripts/test-creator-name-fallback.mjs
 # 2026-09-09 (owner's affiliate deep-link audit): the only writer of
 # wf_affiliate_opportunities used PostgREST `resolution=ignore-duplicates`, which
 # SKIPS an existing row rather than updating it — so a place already in the queue
