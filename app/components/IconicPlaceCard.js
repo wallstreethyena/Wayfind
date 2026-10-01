@@ -44,7 +44,12 @@ import { stayOnRailReaction } from "../../lib/railReaction.js";
 // passed in, because this card renders on surfaces (guide pages, /best-of,
 // the map's bottom card) whose row shapes differ wildly but ALL carry a place
 // id and a name — which is exactly what creatorVideosFor() resolves on.
-import { creatorVideosFor } from "../../lib/creatorVideos";
+// Lean mirror (lib/creatorSignals.js), NOT the full registry: this card is
+// eager on "/" (the server-rendered proof block renders it from app/page.js),
+// and CreatorCardMark reads only .creator/.platform — never .url/.caption. The
+// full lib/creatorVideos registry (~34KB gz of video urls/addresses) stays on
+// the lazy sheets. Guarded by scripts/check-creator-registry-bundle-wall.mjs.
+import { creatorVideosFor } from "../../lib/creatorSignals.js";
 import CreatorCardMark from "./CreatorCardMark";
 import { topPickAward } from "../../lib/topPickAward";
 import { couponForPlace } from "../../lib/coupons";
