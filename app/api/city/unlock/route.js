@@ -1,4 +1,4 @@
-import { gateShut, gateFree } from "../../../../lib/spendGate";
+import { gateShut, gateFree, spendAllowCapped, textEnterpriseCap } from "../../../../lib/spendGate";
 // app/api/city/unlock/route.js — the on-demand city fetch (spec STEP 3 #10). A
 // SIGNED-IN user tapped "Unlock {city}" in an uncovered area; this pulls Google
 // Places for that city into wf_inventory. The moment inventory lands near the
@@ -153,6 +153,11 @@ export async function POST(req) {
   if (!covered && gkey) {
     await pool(PULLS, 3, async (pl) => {
       try {
+        // 2026-09-30: this crawl reached Google in "open" mode with NO ledger
+        // grant at all. FIELD_MASK carries rating / userRatingCount /
+        // regularOpeningHours, so each pull bills Text Search ENTERPRISE — one
+        // grant per request on that row, under the operator's ceiling.
+        if (!(await spendAllowCapped("text_enterprise", textEnterpriseCap()))) return;
         const r = await fetch("https://places.googleapis.com/v1/places:searchText", {
           method: "POST",
           headers: { "Content-Type": "application/json", "X-Goog-Api-Key": gkey, "X-Goog-FieldMask": FIELD_MASK },
