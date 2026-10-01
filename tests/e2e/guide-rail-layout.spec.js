@@ -60,6 +60,14 @@ const CHUNKS = /\/_next\/static\/chunks\//;
 const SLOW_MS = 6000;
 const HYDRATE_DELAY_MS = 3000;
 const NO_RAIL_SEED = !!process.env.E2E_NO_RAIL_SEED;
+// KNOWN, SEPARATE SHIFT (2026-10-01): when the webfonts land after first paint
+// (Fraunces is preload:false, see app/fonts.js), text reflows and "Right now"
+// grows ~24px, shifting pick 1 by ~0.03-0.04 CLS. It is not the rail or the
+// bridge: it reproduces on production with E2E_FONT_DELAY_MS=2500 every time,
+// and appears ~1 in 10 cold loads on a fresh preview domain. A red here whose
+// `shifts[].src` starts with SECTION.wf-guide-now is that, not a regression of
+// what this spec locks.
+const FONT_DELAY_MS = Number(process.env.E2E_FONT_DELAY_MS || 0);
 
 async function prepare(context, { expId, mode, automated = false, hydrateDelay = 0 }) {
   await context.addInitScript(([id, automated]) => {
@@ -68,7 +76,9 @@ async function prepare(context, { expId, mode, automated = false, hydrateDelay =
     window.__shifts = [];
     try {
       new PerformanceObserver((list) => {
-        for (const e of list.getEntries()) if (!e.hadRecentInput) window.__shifts.push({ v: e.value, t: e.startTime });
+        for (const e of list.getEntries()) if (!e.hadRecentInput) window.__shifts.push({ v: e.value, t: Math.round(e.startTime),
+          // Which elements moved — for diagnosing a red, not asserted on.
+          src: (e.sources || []).map((x) => { const n = x.node; return n && n.nodeType === 1 ? (n.tagName + (n.id ? "#" + n.id : "") + (n.className && typeof n.className === "string" ? "." + n.className.split(" ")[0] : "")).slice(0, 60) : "#text"; }) });
       }).observe({ type: "layout-shift", buffered: true });
     } catch (e) {}
   }, [expId, automated]);
@@ -88,10 +98,14 @@ async function prepare(context, { expId, mode, automated = false, hydrateDelay =
         if (mode === "slow") await new Promise((ok) => setTimeout(ok, SLOW_MS));
       }
       if (hydrateDelay && CHUNKS.test(url)) await new Promise((ok) => setTimeout(ok, hydrateDelay));
+      if (FONT_DELAY_MS && /\.woff2?(\?|$)/.test(url)) await new Promise((ok) => setTimeout(ok, FONT_DELAY_MS));
       if (!viaNode) return route.continue();
       let res;
       for (let i = 0; i < 4 && !res; i++) {
-        try { res = await fetch(url, { method: req.method(), headers: req.headers(), redirect: "manual" }); }
+        // Node's fetch does not see the browser's cookie jar; carry the
+        // deployment-protection cookie explicitly (previews only).
+        const headers = Object.assign({}, req.headers(), process.env.E2E_COOKIE ? { cookie: process.env.E2E_COOKIE } : {});
+        try { res = await fetch(url, { method: req.method(), headers, redirect: "manual" }); }
         catch (e) { await new Promise((ok) => setTimeout(ok, 500 * (i + 1))); }
       }
       if (!res) return route.abort();
@@ -118,6 +132,16 @@ async function measure(page, path, { anchor = false, wait = SLOW_MS + 4000 } = {
     };
   });
   await page.waitForTimeout(wait);
+  // Final numbers must be POST-hydration, or a slow network would let the
+  // bridge cases "pass" without ever resolving. If the bridge was served, wait
+  // until the client resolved it: released (treatment) or dropped (control /
+  // automation). A page that never hydrates fails here, loudly.
+  if (await page.$("aside[data-explore-bridge]")) {
+    await page.waitForFunction(() => {
+      const b = document.querySelector("aside[data-explore-bridge]");
+      return !b || b.hasAttribute("data-ready");
+    }, null, { timeout: 30000 });
+  }
   return page.evaluate((start) => {
     const a = document.querySelector("aside[data-intent-partner-rail]");
     const b = document.querySelector("aside[data-explore-bridge]");
@@ -129,6 +153,7 @@ async function measure(page, path, { anchor = false, wait = SLOW_MS + 4000 } = {
       bridgeReady: !!(b && b.hasAttribute("data-ready")),
       arm: document.documentElement.getAttribute("data-wf-bridge"),
       cls: Number(window.__shifts.reduce((s, e) => s + e.v, 0).toFixed(3)),
+      shifts: window.__shifts.filter((e) => e.v >= 0.005).map((e) => ({ v: Number(e.v.toFixed(3)), t: e.t, src: e.src })),
       innerWidth,
     };
   }, start);
