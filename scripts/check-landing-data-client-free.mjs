@@ -121,9 +121,10 @@ ok(JSON.stringify(importers.sort()) === JSON.stringify([...ROUTES].sort()), `lib
   const line = data.whyLine({ rating: 4.6, userRatingCount: 1200 }, "museum");
   ok(typeof line === "string", `CALLED whyLine() on the loaded data module: returned ${JSON.stringify(line)}`);
   ok(typeof render.LandingPage === "function", "lib/landingPage.js exports LandingPage");
-  const { renderToStaticMarkup } = await import("react-dom/server");
-  const html = renderToStaticMarkup(await render.LandingPage({ catSlug: "nope", citySlug: "nowhere" }));
-  ok(/<h1[^>]*>Not found<\/h1>/.test(html) && /href="\/"/.test(html), `RENDERED LandingPage() for an unknown pair through the moved styles/links: ${html.slice(0, 80)}`);
+  // An unknown pair is a REAL 404 (notFound()), never a 200 "Not found" page.
+  let nf = null;
+  try { await render.LandingPage({ catSlug: "nope", citySlug: "nowhere" }); } catch (e) { nf = e; }
+  ok(nf && /NEXT_HTTP_ERROR_FALLBACK;404|NEXT_NOT_FOUND/.test(String(nf.digest || nf.message)), `CALLED LandingPage() for an unknown pair: it calls notFound() (got ${nf ? String(nf.digest || nf.message).slice(0, 60) : "a rendered page"})`);
 }
 
 if (fails) { console.error(`check-landing-data-client-free: FAIL (${fails}/${asserts})`); process.exit(1); }
