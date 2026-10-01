@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 778,
-    "totalRegistryEntries": 779,
-    "guardsTxtLineCount": 778,
-    "guardsTxtReachedFileCount": 771,
+    "totalOnDiskGuardFiles": 779,
+    "totalRegistryEntries": 780,
+    "guardsTxtLineCount": 779,
+    "guardsTxtReachedFileCount": 772,
     "criticalCount": 94,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 535,
-      "RENDER": 103,
+      "RENDER": 104,
       "STRUCTURAL": 140,
       "OTHER": 1
     }
@@ -13180,6 +13180,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 31,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-font-fallback-metrics.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 36,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
