@@ -18,6 +18,7 @@ import { wayfindScore } from "../../lib/google";
 import { attachTrendSignals } from "../../lib/trendSignal";
 import { byVisibleScore } from "../../lib/todaysBest";
 import { rankByHour, timeFit } from "../../lib/trendingTime";
+import { useCuratedRows } from "../../lib/curatorPicks";
 import { nowContext } from "../../lib/nowContext.js";
 import { canonicalShareUrl } from "../../lib/site";
 import { track } from "../../lib/track";
@@ -39,6 +40,9 @@ const PHOTO_REF = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
 export default function TrendingNowClient() {
   const sp = useSearchParams();
   const [rows, setRows] = useState(null); // null = loading
+  // wf_buzz_picks rows are keyed place_id; curatorPicks matches on id, so carry one (the card's own place={{...id: r.place_id}} is unchanged).
+  const idRows = useMemo(() => (rows ? rows.map((r) => (r && r.id == null && r.place_id != null ? { ...r, id: r.place_id } : r)) : rows), [rows]);
+  const curatedRows = useCuratedRows(idRows); // lib/curatorPicks.js: owner picks re-score rows BEFORE the govKey sort
   const [copied, setCopied] = useState(false);
   const [sortBy, setSortBy] = useState("rated");
   // v6.90 — owner report: "trending near Parrish" rendered "No trending picks
@@ -72,11 +76,14 @@ export default function TrendingNowClient() {
     });
     return () => { active = false; if (sub && sub.subscription) sub.subscription.unsubscribe(); };
   }, []);
+  // lib/curatorPicksWrite.js trackCuratorWrite: bearer for the owner-verdict read.
+  const getCuratorHeaders = async () => { try { const { data } = await supabase.auth.getSession(); const t = data?.session?.access_token; return t ? { Authorization: "Bearer " + t } : undefined; } catch (er) { return undefined; } };
   function toggleLike(e, p) {
     try { e && e.stopPropagation && e.stopPropagation(); } catch (er) {}
     const wasLiked = !!liked[p.id];
     const next = persistLike({ supabase, user, place: p, wasLiked, liked, disliked, likedItems, dislikedItems });
     setLiked(next.liked); setDisliked(next.disliked); setLikedItems(next.likedItems); setDislikedItems(next.dislikedItems);
+    if (next.write) import("../../lib/curatorPicksWrite").then((m) => m.trackCuratorWrite(p.id, !wasLiked, next.write, getCuratorHeaders, wasLiked)).catch(() => {});
     if (!wasLiked) { try { track("like", { place_id: p.id, surface: "trending_now" }); } catch (er) {} try { recordLikeEvent("like", p, { supabase, user }); } catch (er) {} try { recordTasteSignal("like", p, { supabase, user }); } catch (er) {} }
   }
   function toggleDislike(e, p) {
@@ -84,6 +91,7 @@ export default function TrendingNowClient() {
     const wasDis = !!disliked[p.id];
     const next = persistDislike({ supabase, user, place: p, wasDisliked: wasDis, liked, disliked, likedItems, dislikedItems });
     setLiked(next.liked); setDisliked(next.disliked); setLikedItems(next.likedItems); setDislikedItems(next.dislikedItems);
+    if (next.write && liked[p.id]) import("../../lib/curatorPicksWrite").then((m) => m.trackCuratorWrite(p.id, false, next.write, getCuratorHeaders, true)).catch(() => {});
     if (!wasDis) { try { track("dislike", { place_id: p.id, surface: "trending_now" }); } catch (er) {} try { recordLikeEvent("dislike", p, { supabase, user }); } catch (er) {} try { recordTasteSignal("dislike", p, { supabase, user }); } catch (er) {} }
   }
   function toggleSave(e, p) {
@@ -184,7 +192,7 @@ export default function TrendingNowClient() {
   // shows (incl. the disclosed trending bump) — falling back to the base for
   // any row byVisibleScore could not score. Shown == sorted, on this page too.
   const govKey = (r) => (Number.isFinite(r.governed_score) ? r.governed_score : wayfindScore(r.rating, r.reviews) ?? -Infinity);
-  const visibleRows = (rows || []).filter((r) => r.distance_mi == null || r.distance_mi <= radius).slice().sort((a, b) => {
+  const visibleRows = (curatedRows || []).filter((r) => r.distance_mi == null || r.distance_mi <= radius).slice().sort((a, b) => {
     if (sortBy === "near") return (a.distance_mi ?? 1e12) - (b.distance_mi ?? 1e12);
     return govKey(b) - govKey(a);
   });
