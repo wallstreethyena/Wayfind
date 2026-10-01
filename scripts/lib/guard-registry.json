@@ -1295,10 +1295,11 @@
       "npmScript": null,
       "class": "STRUCTURAL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 17,
-      "unprovenAbsenceCount": 0,
+      "assertionCount": 18,
+      "unprovenAbsenceCount": 1,
       "honestyViolations": [
-        "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
+        "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines",
+        "1 absence assertion(s) with no positive control in the same file (e.g. \"/creatorVideosFor[^;]*from\\s+[\"']\\.\\.\\/\\.\\.\\/lib\\/creatorSignals\\.js[\"']/.test(I\")"
       ],
       "selfDocumentsRedProve": false,
       "wiring": {

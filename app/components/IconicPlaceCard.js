@@ -44,7 +44,13 @@ import { stayOnRailReaction } from "../../lib/railReaction.js";
 // passed in, because this card renders on surfaces (guide pages, /best-of,
 // the map's bottom card) whose row shapes differ wildly but ALL carry a place
 // id and a name — which is exactly what creatorVideosFor() resolves on.
-import { creatorVideosFor } from "../../lib/creatorVideos";
+// 2026-10-01: the LEAN resolver (same match rules, {creator, platform, reach}
+// rows — all CreatorCardMark reads; equivalence locked by
+// check-creator-signals-fresh), as RailCard has used since WO9. The full
+// registry (~32KB gz of urls/captions) made every surface that lazy-loads
+// this card wait on it: measured on the homepage theme-park rail at 390px,
+// its chunk download sat between hydration and the first card.
+import { creatorVideosFor } from "../../lib/creatorSignals.js";
 import CreatorCardMark from "./CreatorCardMark";
 import { topPickAward } from "../../lib/topPickAward";
 import { couponForPlace } from "../../lib/coupons";
