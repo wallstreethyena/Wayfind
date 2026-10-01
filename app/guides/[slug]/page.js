@@ -391,6 +391,7 @@ import IntentPartnerPick from "../../components/IntentPartnerPick";
 import { guideRailIntent } from "../../../lib/railPlacement";
 import { LANDING_CITIES } from "../../../lib/landing";
 import { isSsgBuild, guideFetch } from "../../../lib/landingInventory";
+import { ssrPartnerInventory } from "../../../lib/landingRails";
 import { guideArticleImage, guideContextLinks, guideQuickChoices } from "../../../lib/guideSeo";
 // Event guides reuse the ONE event "where" block (map, route, numbered nearby
 // picks) that /florida-events/[slug] renders, fed by the same curated row and
@@ -749,6 +750,20 @@ export default async function GuidePage({ params }) {
   // What this guide sells under, derived from what it IS — the same
   // guideIntent() classification the primary CTA uses. null for hotel guides.
   const railIntent = guideRailIntent(guideIntent(g));
+  // FIRST-PAINT SEED for the "Bookable highlights" rail (2026-10-01). The rail
+  // is a client component that used to render NOTHING until its mount fetch
+  // returned, then pop ~208px in ABOVE "Right now" and pick 1 — measured in
+  // production at 390px as a 0.25 layout shift on the Sarasota guide, landing
+  // while the reader was already at pick 1. The same owned-table seed the city
+  // landing pages use (lib/landingRails.js, #1562: wf_experiences only, Next
+  // data cache, 4s deadline, no Viator/Places call) server-renders the rail at
+  // its final size. The client refresh still runs and wins, and a refresh that
+  // fails or comes back empty keeps the seed, so it can no longer insert or
+  // collapse under the reader. Guides whose city has no owned cache, or a seed
+  // read that fails, get `undefined` = exactly the previous client-only path.
+  const railSeed = chrome.bookableHighlights && railIntent && bridgeCity
+    ? await ssrPartnerInventory({ city: bridgeCity.name, intent: railIntent })
+    : undefined;
   let bridgePicks = [];
   if (bridgeCity && !isSsgBuild()) {
     try {
@@ -948,6 +963,7 @@ export default async function GuidePage({ params }) {
           city={bridgeCity.name}
           intent={railIntent}
           inventory={[]}
+          initialInventory={railSeed}
           lat={bridgeCity.lat}
           lng={bridgeCity.lng}
         />

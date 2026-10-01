@@ -94,6 +94,9 @@ globalThis.fetch = async (url, init = {}) => {
 const paid = () => calls.filter((c) => c.kind === "google" || c.kind === "ledger");
 
 const landing = await loadComponent(path.join(ROOT, "lib/landing.js"), ROOT);
+// LandingPage lives in lib/landingPage.js (kept off the homepage graph; see
+// scripts/check-landing-data-client-free.mjs).
+const landingPage = await loadComponent(path.join(ROOT, "lib/landingPage.js"), ROOT);
 const ev = await import("../lib/evergreenCities.js");
 const { LANDING_CITIES } = await import("../lib/landingCities.js");
 
@@ -188,7 +191,7 @@ const fixture = (c, city, s) => Array.from({ length: 10 }, (_, i) => {
 });
 const photoUrls = (html) => [...html.matchAll(/\/api\/photo\?[^"'\s>]*/g)].map((m) => m[0].replace(/&amp;/g, "&"));
 const render = async (c, s, city) => {
-  const el = await landing.LandingPage({ catSlug: c, citySlug: s, rankOpts: { inventoryRows: fixture(c, city, s) } });
+  const el = await landingPage.LandingPage({ catSlug: c, citySlug: s, rankOpts: { inventoryRows: fixture(c, city, s) } });
   return renderToStaticMarkup(el);
 };
 {
@@ -306,8 +309,8 @@ const render = async (c, s, city) => {
   ok(parkQuery(calls).length >= 1 && tHtml.length > 1000, `CONTROL: tampa things-to-do (LANDING_CITIES) DOES read the theme-park seed (${parkQuery(calls).length}) in this same rig`);
   const ipp = strip(readFileSync(path.join(ROOT, "app/components/IntentPartnerPick.js"), "utf8"));
   ok(/const dealImage = \(deal, noSpend\) =>[^;]*nospend=1/.test(ipp) && /dealImage\(deal, photoNoSpend\)/.test(ipp), "IntentPartnerPick builds a deal's Google-ref photo with nospend=1 when photoNoSpend (SOURCE check: client effect, not executable here)");
-  const lsrc = strip(readFileSync(path.join(ROOT, "lib/landing.js"), "utf8"));
-  ok(/<IntentPartnerPick[\s\S]*?photoNoSpend=\{evergreen\}/.test(lsrc), "landing.js passes photoNoSpend={evergreen} to <IntentPartnerPick>");
+  const lsrc = strip(readFileSync(path.join(ROOT, "lib/landingPage.js"), "utf8"));
+  ok(/<IntentPartnerPick[\s\S]*?photoNoSpend=\{evergreen\}/.test(lsrc), "landingPage.js passes photoNoSpend={evergreen} to <IntentPartnerPick>");
 }
 
 // ── G. LOCATION: a venue from the next metro never ranks on an evergreen page ─
@@ -353,7 +356,7 @@ const render = async (c, s, city) => {
   };
   for (const d of ["app", "lib", "scripts"]) walk(path.join(ROOT, d));
   const importers = files.filter((f) => /\bevergreenCities(\.js)?["']/.test(strip(readFileSync(f, "utf8")))).map((f) => path.relative(ROOT, f)).sort();
-  const ALLOWED = ["lib/landing.js", "scripts/check-evergreen-landing-zero-spend.mjs"];
+  const ALLOWED = ["lib/landing.js", "lib/landingPage.js", "scripts/check-evergreen-landing-zero-spend.mjs"];
   ok(importers.includes("lib/landing.js"), "PROBE: the importer scan finds the known importer lib/landing.js");
   ok(JSON.stringify(importers) === JSON.stringify(ALLOWED), `only the landing layer imports lib/evergreenCities.js — a cron or rail that adopts it would start spending on these towns (importers: ${importers.join(", ")})`);
   console.log(`  scanned ${files.length} files for evergreenCities importers`);

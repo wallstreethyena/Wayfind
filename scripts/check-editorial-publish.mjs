@@ -117,7 +117,7 @@ ok(/published: persistedPublished/.test(atlas) && /const publishedCount = persis
 for (const [file, needle, what] of [
   ["lib/editorialRule.js", 'row.verified !== true', "the shared editorial mapper"],
   ["app/api/editorial/route.js", "verified=is.true", "the per-place detail route"],
-  ["lib/landing.js", "verified=is.true", "the landing/ranking pages"],
+  ["lib/landingPage.js", "verified=is.true", "the landing/ranking pages"],
   ["app/best-beaches/[metro]/page.js", "verified=is.true", "the beaches metro page"],
   ["lib/todaysBest.js", '.eq("verified", true)', "Today's Best / things-to-do hooks"],
   ["app/components/IntentPageClient.js", '.eq("verified", true)', "the intent pages"],

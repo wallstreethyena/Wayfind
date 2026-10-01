@@ -594,6 +594,13 @@ node scripts/check-creator-video-boost.mjs
 # that made it work cannot be quietly rewired back to the heavy path.
 node scripts/check-creator-signals-fresh.mjs
 node scripts/check-creator-registry-bundle-wall.mjs
+# 2026-10-01 — the same registry was back in route "/"'s initial JS by a path
+# the edge wall above cannot see: app/page.js imported rankedFor from
+# lib/landing.js, which also held LandingPage and so imported IconicPlaceCard
+# & co.; Next makes every client module reachable from a route's SERVER graph an
+# eager client entry. LandingPage now lives in lib/landingPage.js (-60,057 gz
+# bytes on "/"). This walks the real import graph, not strings.
+node scripts/check-landing-data-client-free.mjs
 # 2026-09-07 — the lean mirror's DATA FORMAT compacted further (positional
 # tuples + a sentinel + an interned platform table, replacing pretty-printed
 # object literals — see scripts/gen-creator-signals.mjs's header). This guard
@@ -1959,3 +1966,8 @@ node scripts/test-photo-monitor-cold-rate.mjs
 # failures, the reload-once rule, and renders both boundaries.
 node scripts/test-chunk-recovery.mjs
 node scripts/check-evergreen-landing-zero-spend.mjs
+
+# 2026-10-01: the Clipp owner-audit fuses used to fail every Vercel build when they lapsed
+# (check-guide-deal-cards read the real date). The guard is pinned; this proves the lapse is
+# announced in the Command Center instead — warn 2 days ahead and while lapsed, never a build.
+node scripts/test-coupon-audit-alert.mjs
