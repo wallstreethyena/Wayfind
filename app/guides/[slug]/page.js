@@ -7,6 +7,7 @@ import ReturnToWayfind from "../../components/ReturnToWayfind";
 import { notFound } from "next/navigation";
 import { GUIDES } from "../../../lib/guides";
 import { DEDICATED_GUIDE_ROUTES } from "../../../lib/guideDedicatedRoutes";
+import { isGuidePast, currentGuides, guideEndsOn, endedLabel } from "../../../lib/guideLifecycle";
 import { SITE_URL } from "../../../lib/site";
 import { experienceSearchUrl, viatorProductGoUrl } from "../../../lib/affiliates";
 import { productCtaLabel } from "../../../lib/guideProductResolve";
@@ -500,9 +501,14 @@ export default async function GuidePage({ params }) {
   const appUrl = (name, pick) => guideAppHandoffHref(name, g, pick);
 
   // ── the ONE primary CTA, resolved once, server-side ─────────────────────
-  let primaryCta = guidePrimaryCta(g);
-  const continueTo = guideContinue(g, params.slug, GUIDES);
-  const contextLinks = guideContextLinks(params.slug, GUIDES);
+  // ALREADY HAPPENED (owner, 2026-09-23). A guide past its `endsOn` stays live
+  // at its URL as an archive, but it must not sell tickets to a night that is
+  // over, and its next steps must point at guides that are still current.
+  const past = isGuidePast(g);
+  let primaryCta = guidePrimaryCta(past ? { ...g, eventTicket: undefined } : g);
+  const liveGuides = currentGuides(GUIDES);
+  const continueTo = guideContinue(g, params.slug, liveGuides);
+  const contextLinks = guideContextLinks(params.slug, liveGuides);
   const quickChoices = guideQuickChoices(params.slug);
   const articleImage = guideArticleImage(guideHero(params.slug));
 
@@ -626,7 +632,6 @@ export default async function GuidePage({ params }) {
   let liveIndoor = [];
 
   const today = siteTodayStr();
-  const isSummerEdition = params.slug.endsWith("-summer-2026") && today > "2026-08-30";
   // The canonical guide URL, built server-side from SITE_URL — the same string
   // generateMetadata canonicalises to, so what gets shared and what gets
   // indexed can never disagree.
@@ -893,9 +898,9 @@ export default async function GuidePage({ params }) {
         />}
       />
       <article id="guide" className="wf-guide-article">
-      {isSummerEdition ? <aside aria-label="Seasonal edition" style={{ margin: "0 0 24px", padding: "16px 18px", border: "1px solid #594332", borderRadius: 12, color: "#D6C8BA", fontSize: 15 }}>
-        <strong style={{ color: "#F4DECB" }}>Summer 2026 edition</strong>
-        <p style={{ margin: "6px 0 0" }}>This guide includes summer schedules and offers that may have ended. Check each venue before planning a visit, or <a href="/florida-events" style={{ color: "#FDBA74" }}>explore upcoming Florida events</a>.</p>
+      {past ? <aside aria-label="Past guide" data-guide-past style={{ margin: "0 0 24px", padding: "16px 18px", border: "1px solid #594332", borderRadius: 12, color: "#D6C8BA", fontSize: 15 }}>
+        <strong style={{ color: "#F4DECB" }}>This already happened{guideEndsOn(g) ? <> · ended {endedLabel(guideEndsOn(g))}</> : null}</strong>
+        <p style={{ margin: "6px 0 0" }}>This guide is kept as an archive, so its dates, prices and schedules may no longer apply. For what is on now, <a href="/florida-events" style={{ color: "#FDBA74" }}>see upcoming Florida events</a>. <a href="/guides/past" style={{ color: "#FDBA74" }}>More past guides</a>.</p>
       </aside> : null}
       <div style={S.meta}>By <a href="/about" style={{ color: "#CBD5E1", textDecoration: "none", fontWeight: 700 }}>Gabriel Pereira</a> · {g.published ? <>Published {g.published} · </> : null}Updated {g.updated}</div>
       {/* §2 OPEN LOOP, above the fold. One honest line the body resolves — a

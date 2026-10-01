@@ -27,16 +27,16 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 761,
-    "totalRegistryEntries": 762,
-    "guardsTxtLineCount": 760,
-    "guardsTxtReachedFileCount": 754,
+    "totalOnDiskGuardFiles": 762,
+    "totalRegistryEntries": 763,
+    "guardsTxtLineCount": 761,
+    "guardsTxtReachedFileCount": 755,
     "criticalCount": 92,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 527,
+      "CALL": 529,
       "RENDER": 93,
-      "STRUCTURAL": 141,
+      "STRUCTURAL": 140,
       "OTHER": 1
     }
   },
@@ -3656,6 +3656,28 @@
       "owner": null
     },
     {
+      "file": "scripts/check-guide-lifecycle.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 39,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/check-guide-pick-photos.mjs",
       "npmScript": null,
       "class": "RENDER",
@@ -3846,9 +3868,9 @@
     {
       "file": "scripts/check-guide-standard.mjs",
       "npmScript": null,
-      "class": "STRUCTURAL",
+      "class": "CALL",
       "hasStructuralOnlyTag": true,
-      "assertionCount": 10,
+      "assertionCount": 13,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -16830,7 +16852,7 @@
       "assertionCount": 31,
       "unprovenAbsenceCount": 2,
       "honestyViolations": [
-        "2 absence assertion(s) with no positive control in the same file (e.g. \"/const regions = guideRegions\\(GUIDES\\)/.test(hub) && /regions\\.map\\(/.test(hub)\")"
+        "2 absence assertion(s) with no positive control in the same file (e.g. \"/const regions = guideRegions\\(currentGuides\\(GUIDES\\)\\)/.test(hub) && /regions\\\")"
       ],
       "selfDocumentsRedProve": false,
       "wiring": {
