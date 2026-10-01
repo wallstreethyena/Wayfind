@@ -536,6 +536,9 @@ node scripts/test-rail-like-stays.mjs
 # 2026-09-29 — the sponsored card (and every unwired card-store write) must never erase
 # a save/like made elsewhere: re-read before write, same-tab delta, home's own handlers.
 node scripts/test-card-store-coherence.mjs
+# Every first-party events write obeys the owner/internal/bot gate; the server
+# never poses as a visitor device (2026-10-01, Website user flow analysis).
+node scripts/test-analytics-write-suppression.mjs
 node scripts/check-viator-redirect-layer.mjs
 node scripts/check-intent-partner-picks.mjs
 # 2026-09-15 (Lane C) — every registered partner offer earns an intent-page or
