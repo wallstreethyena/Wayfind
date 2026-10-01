@@ -15,6 +15,7 @@
 //      still rejects every other relative path.
 //   4. THE CTA HIDES ON A DEAD ROW. A retired deal (active=false / link_ok=false)
 //      produces no ticket, never a redirect to a dead partner page.
+import { siteTodayStr } from "../lib/siteTime.js";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -149,9 +150,22 @@ const plain = curatedToFeedEvent({ event_id: "fantasy-fest-2026", slug: "ff", st
 ok(plain.url === "https://fantasyfest.com/" && plain.ticketVia === "" && plain.ticketProduct === "" && plain.ticketed === undefined, "an unmapped event keeps its official URL and no ticket claim");
 
 // ── 3. the pipeline admits the shape, executed ─────────────────────────────
-ok(validateEvent({ name: "HHN", date: "2026-10-01", url: feed.url }).ok === true, "validateEvent accepts a commerce-go ticket URL");
-ok(validateEvent({ name: "HHN", date: "2026-10-01", url: "/anywhere-else" }).ok === false, "…and still rejects every other relative path");
-ok(validateEvent({ name: "HHN", date: "2026-10-01", url: "/api/commerce/go?provider=x&offer=<script>" }).ok === false, "…and a commerce-go URL carrying junk");
+// The reference time is INJECTED (validateEvent(e, now)), never the host clock: a literal fixture date
+// used to turn these into failures the day after it, failing every build (same class as the Clipp fuse).
+// 2026-10-01 16:00Z = noon ET on 10-01. validateEvent rejects `date < siteTodayStr(now)`, i.e. the venue-local
+// (US Eastern) day is INCLUSIVE — today is valid, yesterday is "past".
+const REF_NOW = new Date("2026-10-01T16:00:00Z");
+const EVENT_DAY = "2026-10-02";
+ok(siteTodayStr(REF_NOW) === "2026-10-01", "the reference instant falls on 2026-10-01 in venue-local time");
+ok(siteTodayStr(new Date("2026-10-02T02:00:00Z")) === "2026-10-01", "22:00 ET on 10-01 is still 10-01 (cutoff is the Eastern day, not UTC)");
+ok(validateEvent({ name: "HHN", date: EVENT_DAY, url: feed.url }, REF_NOW).ok === true, "validateEvent accepts a commerce-go ticket URL");
+ok(validateEvent({ name: "HHN", date: "2026-10-01", url: feed.url }, REF_NOW).ok === true, "an event today is still valid (inclusive boundary)");
+const stale = validateEvent({ name: "HHN", date: "2026-09-30", url: feed.url }, REF_NOW);
+ok(stale.ok === false && stale.reason === "past", `control: the same URL on a past date is rejected as past (got ${JSON.stringify(stale)})`);
+const relBad = validateEvent({ name: "HHN", date: EVENT_DAY, url: "/anywhere-else" }, REF_NOW);
+ok(relBad.ok === false && relBad.reason === "invalid_url", `…and still rejects every other relative path for the URL, not the date (got ${JSON.stringify(relBad)})`);
+const junk = validateEvent({ name: "HHN", date: EVENT_DAY, url: "/api/commerce/go?provider=x&offer=<script>" }, REF_NOW);
+ok(junk.ok === false && junk.reason === "invalid_url", `…and a commerce-go URL carrying junk is rejected for the URL (got ${JSON.stringify(junk)})`);
 
 // ── 4. a dead row hides the CTA, executed ──────────────────────────────────
 ok(eventTicketCta("hhn-orlando-2026", { liveDeal: { active: false, link_ok: true } }) === null, "active=false → no ticket CTA");
