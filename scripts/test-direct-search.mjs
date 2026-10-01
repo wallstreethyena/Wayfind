@@ -206,6 +206,30 @@ assert.equal(splitCityQualifier("Dolce & Bake, Orlando, FL").text, "dolce and ba
     assert.deepEqual(exact, ["ChIJhotelstpete"], "the exact business named with a city suffix stays the one exact result");
     assert(result.places.some((place) => place.id === "ChIJhotelother"), "the sibling hotel is still a (non-exact) result");
   }
+  {
+    // Bare covered-city query: still a city (place-query-required when no
+    // venue carries the words), but a venue named with the city's words near
+    // that city is still offered — the owner's "Saint Pete Salt Room".
+    const STP = { lat: 27.7676, lng: -82.6403 };
+    const salt = [row({ place_id: "ChIJsaltroom", name: "Saint Pete Salt Room", lat: STP.lat + 0.02, lng: STP.lng, primary_type: "spa", google_types: ["spa"] })];
+    const bare = await searchOwnedPlaces({ query: "saint pete", ...ORLANDO, env: ENV, nowMs: NOW, addressIndex: [], fetchImpl: fetchRows(salt) });
+    assert.equal(bare.status, "ok", "a bare city query still finds the venue carrying the city's words near that city");
+    assert.deepEqual(bare.places.map((p) => p.id), ["ChIJsaltroom"]);
+    const stateForm = await searchOwnedPlaces({ query: "Saint Pete, FL", ...ORLANDO, env: ENV, nowMs: NOW, addressIndex: [], fetchImpl: fetchRows(salt) });
+    assert.equal(stateForm.status, "ok", "the state suffix is not part of the venue-name search");
+    // City-qualified search: places nearest the named city lead; a Tampa
+    // name-prefix match drops below a St. Pete match. Unqualified control keeps
+    // the old order.
+    const TPA = { lat: 27.9506, lng: -82.4572 };
+    const pizzas = [
+      row({ place_id: "ChIJpizzakitchen", name: "Pizza Kitchen", lat: TPA.lat, lng: TPA.lng, primary_type: "pizza_restaurant", google_types: ["pizza_restaurant"] }),
+      row({ place_id: "ChIJtonyspizza", name: "Tony's Pizza", lat: STP.lat + 0.004, lng: STP.lng, primary_type: "pizza_restaurant", google_types: ["pizza_restaurant"] }),
+    ];
+    const qualified = await searchOwnedPlaces({ query: "pizza st pete", ...ORLANDO, env: ENV, nowMs: NOW, addressIndex: [], fetchImpl: fetchRows(pizzas) });
+    assert.deepEqual(qualified.places.map((p) => p.id), ["ChIJtonyspizza", "ChIJpizzakitchen"], "St. Pete's pizza leads; Tampa's stays listed below");
+    const control = await searchOwnedPlaces({ query: "pizza", lat: STP.lat, lng: STP.lng, env: ENV, nowMs: NOW, addressIndex: [], fetchImpl: fetchRows(pizzas) });
+    assert.equal(control.places[0].id, "ChIJpizzakitchen", "control: without a city qualifier the name-prefix match still leads");
+  }
   for (const [query, cityLat] of [["400 W Garden St, Pensacola, FL", 30.4213], ["pizza st pete", 27.7676], ["tacos jax", 30.3322], ["pizza orlando", ORLANDO.lat]]) {
     const seen = [];
     await searchOwnedPlaces({ query, ...ORLANDO, env: ENV, nowMs: NOW, addressIndex: [], fetchImpl: async (url, init) => { seen.push(String(url)); return fetchRows([])(url, init); } });
