@@ -51,7 +51,7 @@
  *      merely plausible.
  */
 import { readFileSync } from "node:fs";
-import { LANDING_CITIES } from "../lib/landingCities.js";
+import { COVERED_CITIES } from "../lib/landingCities.js";
 import { nearestCoveredCity, railDistanceMi, COVERAGE_MI } from "../lib/railCoverage.js";
 
 let failures = 0, asserts = 0;
@@ -79,20 +79,22 @@ ok(cityCalls.length >= 2, `resolveCitySlug must be called at both /api/rails req
 for (const args of cityCalls) {
   ok(args === "center.lat, center.lng", `resolveCitySlug must be called with the UNSNAPPED center.lat, center.lng — found "resolveCitySlug(${args})", which is exactly the mistake this guard exists to catch if it ever reads "snap(center.lat), snap(center.lng)" instead`);
 }
-ok(/const resolveCitySlug = useCallback\(\(la, ln\) => nearestCoveredCity\(LANDING_CITIES, la, ln, COVERAGE_MI\), \[\]\);/.test(dayRail),
-  "resolveCitySlug must be the SAME call route.js's own nearestCity() makes (nearestCoveredCity(LANDING_CITIES, la, ln, COVERAGE_MI)) — a hand-rolled equivalent could silently drift from the server's own answer");
+ok(/const resolveCitySlug = useCallback\(\(la, ln\) => nearestCoveredCity\(COVERED_CITIES, la, ln, COVERAGE_MI\), \[\]\);/.test(dayRail),
+  "resolveCitySlug must be the SAME call route.js's own nearestCity() makes (nearestCoveredCity(COVERED_CITIES, la, ln, COVERAGE_MI)) — a hand-rolled equivalent could silently drift from the server's own answer");
+ok(/return nearestCoveredCity\(COVERED_CITIES, lat, lng, COVERAGE_MI\);/.test(routeSrc),
+  "app/api/rails/route.js nearestCity() must resolve over the SAME COVERED_CITIES table DaypartRail resolves over — two tables would let the client send a slug the server then refuses");
 ok(/citySlug \? `&city=\$\{encodeURIComponent\(citySlug\)\}` : ""/.test(dayRail),
   "the main /api/rails fetch must append &city=<slug> when one resolves, and nothing when it does not (out-of-coverage stays out-of-coverage)");
 ok(/\.\.\.\(citySlug \? \{ city: citySlug \} : \{\}\)/.test(dayRail),
   "the rail-page fetch (loadSelectedRailPage) must append the same &city= override, or a paged rail can land on a different city than its first page did");
-ok(/import \{ LANDING_CITIES \} from "\.\.\/\.\.\/lib\/landingCities\.js";/.test(dayRail)
+ok(/import \{ COVERED_CITIES \} from "\.\.\/\.\.\/lib\/landingCities\.js";/.test(dayRail)
   && /import \{ nearestCoveredCity, COVERAGE_MI \} from "\.\.\/\.\.\/lib\/railCoverage\.js";/.test(dayRail),
   "DaypartRail must import the city table and coverage law from the shared, side-effect-free modules — never a hand-copied literal that could drift from the server's own table");
 
 // ── 3. THE SERVER TRUSTS AN EXPLICIT city= OVER ITS OWN nearestCity() ───────
 // If this ever stopped being true, sending &city= from the client would do
 // nothing and the whole fix would be a no-op that still passes assertion #2.
-ok(/const asked = String\(sp\.get\("city"\) \|\| ""\);/.test(routeSrc) && /const slug = LANDING_CITIES\[asked\] \? asked : nearestCity\(la, ln\);/.test(routeSrc),
+ok(/const asked = String\(sp\.get\("city"\) \|\| ""\);/.test(routeSrc) && /const slug = COVERED_CITIES\[asked\] \? asked : nearestCity\(la, ln\);/.test(routeSrc),
   "app/api/rails/route.js must still prefer an explicit &city= over its own nearestCity(la, ln) — the client-side fix is inert without this");
 
 // ── 4. ONE CITY TABLE, NOT TWO ──────────────────────────────────────────────
@@ -117,7 +119,7 @@ ok(!/const COVERAGE_MI = 90;/.test(routeSrc),
   "app/api/rails/route.js must import COVERAGE_MI rather than re-declare its own literal 90 — a second copy is exactly the kind of drift this table split exists to prevent");
 
 // ── 5. THE DEFECT IS REAL — executed against the LIVE table, not asserted in
-// prose. Find the two closest LANDING_CITIES entries (whichever they are
+// prose. Find the two closest COVERED_CITIES entries (the table the resolver reads) (whichever they are
 // today) and prove a point near their boundary really does flip slugs when
 // resolved from a snapped coordinate, and does NOT flip when resolved from
 // the exact one — which is the entire justification for resolveCitySlug.
@@ -148,11 +150,11 @@ function closestPair(cities) {
   ok(found.mi > 0.6 && found.mi < 0.8, `self-test: closestPair's own distance math must be right (~0.69mi expected, got ${found.mi.toFixed(2)}mi)`);
 }
 
-const { pair, mi } = closestPair(LANDING_CITIES);
-ok(mi < 8, `THE TEETH: at least one LANDING_CITIES pair (${pair.join(" / ")}, ${mi.toFixed(2)}mi apart) must sit well inside the product's tightest reader-origin distance gate (break, 8mi) — this is what makes coordinate-based city selection unsafe to snap at all, at any width, and why resolveCitySlug exists instead of a coarser but still-approximate grid`);
+const { pair, mi } = closestPair(COVERED_CITIES);
+ok(mi < 8, `THE TEETH: at least one COVERED_CITIES pair (${pair.join(" / ")}, ${mi.toFixed(2)}mi apart) must sit well inside the product's tightest reader-origin distance gate (break, 8mi) — this is what makes coordinate-based city selection unsafe to snap at all, at any width, and why resolveCitySlug exists instead of a coarser but still-approximate grid`);
 
 const [aSlug, bSlug] = pair;
-const a = LANDING_CITIES[aSlug], b = LANDING_CITIES[bSlug];
+const a = COVERED_CITIES[aSlug], b = COVERED_CITIES[bSlug];
 const GRID = 0.05; // the grid this measurement rejected — used here only to
 // reproduce the defect it caused, not as a value this repo ships.
 const snap = (v) => Math.round(v / GRID) * GRID;
@@ -167,8 +169,8 @@ let flip = null;
 for (let steps = -20; steps <= 120 && !flip; steps++) {
   const t = steps / 100;
   const p = { lat: a.lat + (b.lat - a.lat) * t, lng: a.lng + (b.lng - a.lng) * t };
-  const exactSlug = nearestCoveredCity(LANDING_CITIES, p.lat, p.lng, COVERAGE_MI);
-  const snappedSlug = nearestCoveredCity(LANDING_CITIES, snap(p.lat), snap(p.lng), COVERAGE_MI);
+  const exactSlug = nearestCoveredCity(COVERED_CITIES, p.lat, p.lng, COVERAGE_MI);
+  const snappedSlug = nearestCoveredCity(COVERED_CITIES, snap(p.lat), snap(p.lng), COVERAGE_MI);
   if (exactSlug !== snappedSlug) flip = { t, exactSlug, snappedSlug };
 }
 // THE NEGATIVE CONTROL: prove the failure mode is real, on the live table, by

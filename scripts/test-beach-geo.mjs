@@ -209,7 +209,7 @@ ok(/category === "beach" \? beachesWithin\(ranked, \{ lat, lng \}\) : vetBeachDi
   ok(/\}, \[center && center\.lat, center && center\.lng, lat, lng, daypart, initialDaypart[,\]]/.test(rail),
     "…and that re-rank must re-run on `center` (and, since v8.30, on the band), so a SEARCHED city is subject to the rule exactly like a located one");
   const api = readFileSync(new URL("../app/api/rails/route.js", import.meta.url), "utf8");
-  ok(/nearestCoveredCity\(LANDING_CITIES,\s*lat,\s*lng,\s*COVERAGE_MI\)/.test(api),
+  ok(/nearestCoveredCity\(COVERED_CITIES,\s*lat,\s*lng,\s*COVERAGE_MI\)/.test(api),
     "the API routes through the executable coverage-boundary law");
   ok(nearestCoveredCity({ miami: { lat: 25.7617, lng: -80.1918 } }, 24.5551, -81.7800, 90) === null,
     "out of coverage resolves to NOTHING, never to the arithmetically-nearest town");
