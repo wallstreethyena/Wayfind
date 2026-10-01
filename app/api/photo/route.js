@@ -17,6 +17,11 @@ import { findSamePlaceCachedPhoto } from "../../../lib/photoCacheRecovery";
 import { findFreePhoto } from "../../../lib/freePhoto";
 import { recordPhotoOutcome, recordPhotoDeniedCeiling } from "../../../lib/photoOutcomes";
 import { recordReaderPhotoMiss } from "../../../lib/photoReaderMissQueue";
+import { keepPhotoCredits } from "../../../lib/photoCredits";
+
+// Credits live as long as the photo cache row they pair with (30 days, the
+// Google ToS maximum for cached place content).
+const PHOTO_CREDIT_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
 export const dynamic = "force-dynamic";
 
@@ -173,6 +178,9 @@ export async function GET(req) {
     // the place's current photo through the same gated path (see
     // lib/placePhotoServe.js PLACE-ONLY DISCOVERY).
     discoverPlace: true,
+    // Keep the photographer credits from the free Details response the
+    // resolver already received (never an extra Google call).
+    keepCredits: (placeId, photos) => keepPhotoCredits([{ id: placeId, photos }], PHOTO_CREDIT_TTL_MS),
     gateShut: shut,
     probe,
     // Ask the ledger only after resolvePlacePhoto has missed both the exact

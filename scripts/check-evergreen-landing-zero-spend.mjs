@@ -228,6 +228,10 @@ const render = async (c, s, city) => {
   const { resolvePlacePhoto, FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef } = await import("../lib/placePhotoServe.js");
   const { gateShut, spendAllow, spendAllowPhotos } = await import("../lib/spendGate.js");
   const { landingCardPhotoSrc } = await import("../lib/placePhoto.js");
+  // #1587: the route keeps photo credits from the Details response it already
+  // read. Bound to the REAL keeper: no Google call; its Supabase write lands in
+  // this rig's recording fetch, so the zero-spend assertions still see it.
+  const { keepPhotoCredits } = await import("../lib/photoCredits.js");
   let googlePhotoFetches = 0;
   const deps = {
     cacheGet: async () => null, cacheSet: async () => {}, cacheDel: async () => {},
@@ -241,6 +245,7 @@ const render = async (c, s, city) => {
     findSamePlaceCachedPhoto: async () => null, findFreePhoto: async () => null,
     recordReaderPhotoMiss: async () => false, recordPhotoOutcome: async () => {}, recordPhotoDeniedCeiling: async () => {},
     photosCeiling: () => 0,
+    keepPhotoCredits,
   };
   const routeSrc = readFileSync(path.join(ROOT, "app/api/photo/route.js"), "utf8");
   // Same sourcing technique as scripts/test-free-photo-serving.mjs: strip the
