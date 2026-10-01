@@ -104,10 +104,15 @@ const eq = (a, b, m) => { assert.deepEqual(a, b, m); pass++; };
   const viaExactId = creatorsFeaturing({ id: REAL_ID });
   ok(viaExactId.some((c) => c.handle === "estefani.ruizruiz"), "an exact curated placeId surfaces its real creator credit");
 
-  // Same NAME as that real entry, but a placeId no curated row owns. The raw
+  // Same NAME as that real entry, but an id no curated row owns. The raw
   // registry (creatorVideosFor) genuinely fuzzy-matches this by name+city —
   // proven directly below — so this is a real, not a hypothetical, trap.
-  const bait = { id: "ChIJ-nonexistent-bait-0000000", name: "Latin Grill Tampa", city: "Tampa" };
+  // 2026-10-01: the bait carries an UNIDENTIFIED provider id (fsq:). Since
+  // lib/creatorMatch.js, the registry refuses to name-match a row whose
+  // DIFFERENT Google place id proves it is another venue, so a ChIJ bait no
+  // longer exercises the trap; an unidentified row still does — and that is
+  // exactly the row placeFeaturedIn must still never credit by name.
+  const bait = { id: "fsq:nonexistent-bait-0000000", name: "Latin Grill Tampa", city: "Tampa" };
   const rawFuzzyMatch = creatorVideosFor(bait, "Tampa");
   ok(Array.isArray(rawFuzzyMatch) && rawFuzzyMatch.length > 0, "sanity: the underlying registry DOES fuzzy-match this name+city pair — proves the trap is real, not hypothetical");
   const viaFeaturedIn = creatorsFeaturing(bait);
