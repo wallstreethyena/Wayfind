@@ -37,6 +37,8 @@ node scripts/test-dupes-imports.mjs
 npm run check:env
 node scripts/test-tags.mjs
 node scripts/test-browser-analytics.mjs
+node scripts/test-card-tap-tracking.mjs
+node scripts/test-card-tap-tracking.mjs --red-prove
 node scripts/test-commerce-emit-queue.mjs
 node scripts/check-libs.mjs
 npm run check:gate
@@ -1116,6 +1118,18 @@ node scripts/check-rail-drop-images.mjs
 # THE $1,878 GUARD — no atmosphere-tier fields in server masks, every metered
 # Google call site behind the WAYFIND_GATE spend gate, radius ladder present.
 node scripts/check-spend-guard.mjs
+# 2026-09-30: check-spend-guard proves a gate EXISTS in front of every Google
+# call; this proves it debits the RIGHT ledger row. Executes each Text/Nearby
+# Search caller with the network recorded and asserts the SKU implied by the
+# X-Goog-FieldMask actually sent equals the SKU granted (landing.js had been
+# charging Enterprise masks to text_pro).
+node scripts/test-search-sku-accounting.mjs
+# 2026-10-01 (PR #1582, owner: "Block — correct accounting"): BLOCKING MODE for
+# text_enterprise / nearby_enterprise, by COUNTING outbound Google requests from
+# every runtime Text/Nearby caller. Cap missing/0/abc/-5/1.5/blank/exhausted → 0
+# requests; valid → 1 per grant; 500/throw never retries unpaid; N concurrent vs
+# a ledger granting k → k; blocked landing serves inventory → expired cache → empty.
+node scripts/test-enterprise-search-blocking.mjs
 
 # BRAND-ASSET GUARD — every share surface renders through the ONE branded
 # renderer (drawn pin + wordmark), one brand orange, score pill in the kit.
@@ -1944,3 +1958,8 @@ node scripts/test-photo-monitor-cold-rate.mjs
 # pre-React handler). Executes the inline recovery script against simulated
 # failures, the reload-once rule, and renders both boundaries.
 node scripts/test-chunk-recovery.mjs
+
+# 2026-10-01: the Clipp owner-audit fuses used to fail every Vercel build when they lapsed
+# (check-guide-deal-cards read the real date). The guard is pinned; this proves the lapse is
+# announced in the Command Center instead — warn 2 days ahead and while lapsed, never a build.
+node scripts/test-coupon-audit-alert.mjs
