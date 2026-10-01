@@ -18,7 +18,7 @@
 //            even though it is otherwise perfect. That is the guard against a
 //            moved/re-pointed place id quietly landing in the wrong market.
 import assert from "node:assert";
-import { decidePromotion, PROMOTE_METROS } from "../lib/promoteIndex.js";
+import { decidePromotion, PROMOTE_METROS, findSplitVenueTwin, partitionSplitVenues, splitVenueLookupPath } from "../lib/promoteIndex.js";
 
 const NOW = "2026-08-13T12:00:00.000Z";
 let n = 0;
@@ -164,5 +164,75 @@ t("a stored category string on the input is not a type signal", () => {
   assert.equal(v.action, "reject");
   assert.match(v.error, /unclassified/i);
 });
+
+// ── One venue, one card (incident 2026-09-29: Siesta Key Village, 2 Google
+// place_ids 86m apart; scripts/check-inventory-integrity.mjs went red). The rule
+// is the canary's rule; these fixtures are the canary's own examples.
+const SKV_OLD = { place_id: "ChIJK1nJH9xrw4gRIr9IhuzYVQI", name: "Siesta Key Village", metro: "manatee-sarasota", lat: 27.2759675, lng: -82.5648518, signals: { reviews: 562 } };
+const SKV_NEW = { place_id: "ChIJq2xCMQpqw4gRuG2G3EKqDBs", name: "Siesta Key Village", metro: "manatee-sarasota", lat: 27.2767372, lng: -82.5641511, signals: { reviews: 167 } };
+
+t("the real Siesta Key Village pair is a split venue (86m, positive control)", () => {
+  const twin = findSplitVenueTwin(SKV_NEW, [SKV_OLD]);
+  assert.ok(twin, "the 2026-09-29 incident pair must be detected");
+  assert.equal(twin.place_id, SKV_OLD.place_id);
+  assert.ok(twin.meters >= 80 && twin.meters <= 95, `expected ~86m, got ${twin.meters}`);
+});
+t("a row is never its own twin (same place_id, idempotent re-promote)", () => {
+  assert.equal(findSplitVenueTwin(SKV_OLD, [SKV_OLD]), null);
+});
+t("two well-reviewed same-name records 400-800m apart are branches, not a split", () => {
+  const a = { place_id: "A", name: "maman", metro: "miami", lat: 25.7663, lng: -80.1937, signals: { reviews: 958 } };
+  const b = { place_id: "B", name: "Maman", metro: "miami", lat: 25.7663 + 0.00595, lng: -80.1937, signals: { reviews: 1010 } };
+  assert.equal(findSplitVenueTwin(b, [a]), null);
+});
+t("a weak record 400-800m from a strong same-name one IS a split (shadowed)", () => {
+  const a = { place_id: "A", name: "Lake Eola Park", metro: "orlando", lat: 28.5430, lng: -81.3730, signals: { reviews: 24631 } };
+  const b = { place_id: "B", name: "lake eola park ", metro: "orlando", lat: 28.5430 + 0.0055, lng: -81.3730, signals: { reviews: 78 } };
+  assert.ok(findSplitVenueTwin(b, [a]));
+});
+t("same name in another metro, a different name, or a >800m gap is not a twin", () => {
+  assert.equal(findSplitVenueTwin(SKV_NEW, [{ ...SKV_OLD, metro: "orlando" }]), null);
+  assert.equal(findSplitVenueTwin(SKV_NEW, [{ ...SKV_OLD, name: "Siesta Key Beach Club" }]), null);
+  assert.equal(findSplitVenueTwin(SKV_NEW, [{ ...SKV_OLD, lat: SKV_OLD.lat + 0.02 }]), null);
+});
+t("unlocated rows are skipped, never guessed at", () => {
+  assert.equal(findSplitVenueTwin({ ...SKV_NEW, lat: null }, [SKV_OLD]), null);
+  assert.equal(findSplitVenueTwin(SKV_NEW, [{ ...SKV_OLD, lng: undefined }]), null);
+});
+t("lookup path quotes names containing commas and quotes", () => {
+  const path = splitVenueLookupPath(['Smith, "Jo" & Sons', "Siesta Key Village"]);
+  assert.match(path, /^wf_inventory\?select=/);
+  assert.match(path, /status=eq\.OPERATIONAL/);
+  assert.match(path, /excluded=not\.is\.true/);
+  assert.match(decodeURIComponent(path), /name=in\.\("Smith, \\"Jo\\" & Sons","Siesta Key Village"\)/);
+  assert.equal(splitVenueLookupPath([]), null);
+});
+
+const asyncTests = [];
+const ta = (name, fn) => asyncTests.push(fn().then(() => { n++; console.log("  ok  " + name); }));
+ta("partition rejects a batch row that twins an already-served row", async () => {
+  const { keep, twins } = await partitionSplitVenues([SKV_NEW], async () => [SKV_OLD]);
+  assert.equal(keep.length, 0);
+  assert.equal(twins.length, 1);
+  assert.equal(twins[0].twin.place_id, SKV_OLD.place_id);
+});
+ta("partition keeps unrelated rows and the stronger of two in-batch twins", async () => {
+  const other = { ...SKV_OLD, place_id: "ZZZ", name: "Turtle Beach", lat: 27.2 };
+  const { keep, twins } = await partitionSplitVenues([SKV_NEW, other, SKV_OLD], async () => []);
+  assert.deepEqual(keep.map((r) => r.place_id).sort(), ["ZZZ", SKV_OLD.place_id].sort());
+  assert.equal(twins.length, 1);
+  assert.equal(twins[0].row.place_id, SKV_NEW.place_id);
+});
+ta("an unreadable lookup THROWS — it must never read as 'no twins'", async () => {
+  await assert.rejects(partitionSplitVenues([SKV_NEW], async () => { throw new Error("split-venue lookup -> 503"); }), /503/);
+  await assert.rejects(partitionSplitVenues([SKV_NEW], async () => ({ error: "x" })), /non-array/);
+});
+ta("no rows means no lookup", async () => {
+  let called = 0;
+  const out = await partitionSplitVenues([], async () => { called++; return []; });
+  assert.equal(called, 0);
+  assert.deepEqual(out, { keep: [], twins: [] });
+});
+await Promise.all(asyncTests);
 
 console.log(`test-promote-decision: ${n} assertions OK`);

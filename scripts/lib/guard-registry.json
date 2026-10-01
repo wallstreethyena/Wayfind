@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-30",
+  "generated": "2026-10-01",
   "generator": "scripts/lib/build-guard-registry.mjs",
   "derivation": "scripts/lib/deriveGuardRegistry.mjs",
   "schemaNotes": "Mechanically-derived fields (class/assertionCount/wiring/gating/critical/criticalReasons) are regenerated every run from scripts/guards.txt, package.json, .github/workflows/*.yml, ops/*.workflow.yml and scripts/lib/guardHonestyAnalysis.mjs — editing them by hand will be overwritten on the next `node scripts/lib/build-guard-registry.mjs`. Hand-authored fields (protects/blastRadius/owner) live in scripts/lib/guard-registry-overrides.json and are merged in; they are REQUIRED for every entry with critical:true and optional elsewhere. scripts/check-guard-registry.mjs (the CI guard) re-derives guards.txt wiring LIVE rather than trusting this file's cached `wiring.guardsTxt` — and since 2026-09-07 it also re-derives EVERY mechanically-derived field via scripts/lib/deriveGuardRegistry.mjs and fails when the committed snapshot disagrees, so a stale registry can no longer be merged unnoticed.",
@@ -27,16 +27,16 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 752,
-    "totalRegistryEntries": 753,
-    "guardsTxtLineCount": 750,
-    "guardsTxtReachedFileCount": 745,
-    "criticalCount": 90,
+    "totalOnDiskGuardFiles": 760,
+    "totalRegistryEntries": 761,
+    "guardsTxtLineCount": 759,
+    "guardsTxtReachedFileCount": 753,
+    "criticalCount": 91,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 525,
-      "RENDER": 87,
-      "STRUCTURAL": 140,
+      "CALL": 527,
+      "RENDER": 92,
+      "STRUCTURAL": 141,
       "OTHER": 1
     }
   },
@@ -3958,6 +3958,28 @@
       "owner": null
     },
     {
+      "file": "scripts/check-heartbeat-tolerance.mjs",
+      "npmScript": null,
+      "class": "STRUCTURAL",
+      "hasStructuralOnlyTag": true,
+      "assertionCount": 10,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/check-hero-card.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -5967,6 +5989,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 7,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-not-public-places.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 45,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -10648,6 +10692,28 @@
       "owner": null
     },
     {
+      "file": "scripts/test-chunk-recovery.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 71,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-city-fetch.mjs",
       "npmScript": null,
       "class": "STRUCTURAL",
@@ -12953,6 +13019,28 @@
       "owner": null
     },
     {
+      "file": "scripts/test-google-photo-attribution.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 34,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-guide-city-coverage.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -13039,6 +13127,33 @@
       "protects": null,
       "blastRadius": null,
       "owner": null
+    },
+    {
+      "file": "scripts/test-guide-inline-book.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 24,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-filename:book"
+      ],
+      "protects": "The guide-inline-book-v1 experiment on the Orlando guide: only a link-checked, well-reviewed, priced offer matching the pick can render; the server HTML and control arm are unchanged (SEO); the offer links only to our /api/commerce/go redirect; one tap records exactly one commerce_cta_clicked with experiment + variant.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "A regression would either paint a wrong or low-quality partner product next to an editorial pick, change indexed guide HTML, send a partner link that bypasses our attributed redirect, or double-count commerce clicks and corrupt the experiment's primary metric."
+      },
+      "owner": "Revenue QA"
     },
     {
       "file": "scripts/test-guide-lovebug-rail.mjs",
@@ -13147,6 +13262,28 @@
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-harvest-owned-hotel-identity.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 34,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
@@ -13744,6 +13881,28 @@
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-landing-ssr-rails.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 41,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
@@ -15026,6 +15185,28 @@
       "owner": null
     },
     {
+      "file": "scripts/test-photo-monitor-cold-rate.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 15,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-photo-protection.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -15672,7 +15853,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 38,
+      "assertionCount": 75,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -16039,10 +16220,10 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 11,
-      "unprovenAbsenceCount": 2,
+      "assertionCount": 12,
+      "unprovenAbsenceCount": 3,
       "honestyViolations": [
-        "2 absence assertion(s) with no positive control in the same file (e.g. \"/nextDynamic\\(\\(\\) => import\\(\"\\.\\/components\\/UnifiedBrowseCommerceRail\"\\)/.tes\")"
+        "3 absence assertion(s) with no positive control in the same file (e.g. \"/setItems\\(prepareTourStripItems\\(/.test(read(\"                           \").rep\")"
       ],
       "selfDocumentsRedProve": false,
       "wiring": {

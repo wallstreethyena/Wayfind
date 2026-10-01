@@ -138,15 +138,28 @@ export async function GET(req) {
   // The note carries the top miss REASON too (2026-09-23): "tried=40 ok=9
   // miss=31" says the run worked, not what is stopping the other 31, and this
   // pulse is the only place an operator sees it without a query.
-  const topReason = ident && ident.reasons
-    ? Object.entries(ident.reasons).sort((a, b) => b[1] - a[1])[0]
-    : null;
+  // 2026-09-30: the TOP reason alone could not answer the owner's question
+  // ("break the misses into no candidate, too far, and street mismatch"), and
+  // the only other place that breakdown exists is the miss markers, which
+  // needs a database read. A pass that cannot be audited from its own pulse is
+  // the same failure shape as a blackout with no ceiling recorded. The whole
+  // reasons map now rides along, shortest-first-by-count, and the 240-char
+  // pulse cap still truncates safely because it is appended last.
+  const reasonBits = ident && ident.reasons
+    ? Object.entries(ident.reasons).sort((a, b) => b[1] - a[1])
+    : [];
+  const topReason = reasonBits[0] || null;
+  const allReasons = reasonBits.map(([k, v]) => `${k}=${v}`).join(" ");
   // `fail=` is the one that matters operationally (2026-09-23): a refused
   // request is OUR problem (a daily quota, a network blip), not a hotel that
   // does not exist, and it is the difference between "Google has nothing for
   // these 79" and "we were being rate limited for an hour".
   const identBit = ident && ident.enabled
-    ? ` ident: tried=${ident.attempted} ok=${ident.resolved} miss=${ident.missed}${ident.searchFailed ? ` fail=${ident.searchFailed}` : ""}${topReason ? ` (${topReason[0]}=${topReason[1]})` : ""}`
+    ? ` ident: tried=${ident.attempted} ok=${ident.resolved} miss=${ident.missed}`
+      + `${ident.searchFailed ? ` fail=${ident.searchFailed}` : ""}`
+      + `${ident.searches ? ` q=${ident.searches}` : ""}`
+      + `${ident.ladderRetried ? ` retried=${ident.ladderRetried}` : ""}`
+      + `${allReasons ? ` (${allReasons})` : ""}`
     : "";
 
   const note = `${sweep ? `live ${sweep.checked}/${sweep.dead} dead; ` : ""}warm: visible=${result.visible} served=${result.alreadyServed} filled=${result.filled} free=${result.free} empty=${result.empty} known=${result.knownEmpty} unchecked=${result.unchecked} ${statusBit}${identBit}`.slice(0, 240);
