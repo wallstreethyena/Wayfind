@@ -21,7 +21,7 @@
  *      for one tap, and must emit exactly ONE element_click.
  *
  * --red-prove: re-runs check 2 against the real browserAnalytics source with
- * the body-tap fallback removed (in memory) and requires it to FAIL.
+ * the [data-card-opens-detail] selector removed (in memory) and requires it to FAIL.
  */
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -98,15 +98,15 @@ await checkClicks(analytics.clickProperties);
 }
 
 if (process.argv.includes("--red-prove")) {
-  const target = "  if (!element) return placeCardBodyClick(target, locationLike);";
+  const target = `target.closest("a,button,[role='button'],[data-card-opens-detail]")`;
   if (!analyticsSrc.includes(target)) { console.error("test-card-tap-tracking: red-prove target missing — update the mutation"); process.exit(1); }
-  const mutated = await import("data:text/javascript;base64," + Buffer.from(analyticsSrc.replace(target, "  if (!element) return null;")).toString("base64"));
-  console.log("test-card-tap-tracking: mutation applied (body-tap fallback removed)");
+  const mutated = await import("data:text/javascript;base64," + Buffer.from(analyticsSrc.replace(target, `target.closest("a,button,[role='button']")`)).toString("base64"));
+  console.log("test-card-tap-tracking: mutation applied (card selector removed)");
   const before = fail.length;
   await checkClicks(mutated.clickProperties);
   if (fail.length === before) { console.error("test-card-tap-tracking: RED-PROVE FAILED — the mutated source still passed"); process.exit(1); }
   fail.length = before;
-  console.log("test-card-tap-tracking: red-prove OK — without the fallback a card-body tap records nothing");
+  console.log("test-card-tap-tracking: red-prove OK — without the card selector a card-body tap records nothing");
 }
 
 if (fail.length) { for (const m of fail) console.error("test-card-tap-tracking: FAIL — " + m); process.exit(1); }
