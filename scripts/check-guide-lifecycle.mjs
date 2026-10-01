@@ -97,6 +97,7 @@ ok(notice.length > 0, "a past guide shows the already-happened notice");
 const noticeLinks = [...notice.matchAll(/href="([^"]+)"/g)].map((m) => m[1]);
 ok(noticeLinks.length === 2 && noticeLinks[0] === "/florida-events" && noticeLinks[1] === "/guides/past", `the notice links exactly /florida-events and /guides/past (got ${JSON.stringify(noticeLinks)})`);
 ok(/>see upcoming Florida events</.test(notice) && />More past guides</.test(notice), "the notice link texts are the approved ones");
+ok(article.indexOf("data-guide-past") > -1 && article.indexOf("data-guide-past") < article.indexOf("<GuideArticleHero"), "the already-happened notice renders ABOVE the hero, so a phone reader sees it before scrolling");
 ok(!/isSummerEdition/.test(article), "the hard-coded summer banner is replaced by the endsOn notice");
 
 ok(/currentGuides\(GUIDES\)/.test(strip(read("app/layout.js"))) && !/Object\.keys\(GUIDES\)\.slice/.test(strip(read("app/layout.js"))), "footer guide links are current guides");
