@@ -7,7 +7,8 @@ import { directionsUrl } from "./kit";
 import { splitBreakfastRails } from "../../lib/breakfastRails.js";
 import { toHookLine } from "../../lib/editorialHook";
 import { toDisplayScore } from "../../lib/score.js";
-import { wayfindScore } from "../../lib/wayfindScore.js";
+import { useCuratedRows } from "../../lib/curatorPicks.js";
+import { railScoreOf } from "../../lib/railRank.js";
 import { topPickAward } from "../../lib/topPickAward.js";
 import { priceLabel } from "../../lib/price.js";
 import { railScrollNeedsMore } from "../../lib/railResponse.js";
@@ -16,7 +17,9 @@ import { visibleRails } from "../../lib/railVisibility.js";
 const compact = (n) => Number(n) >= 1000 ? Math.round(Number(n) / 100) / 10 + "k" : String(Number(n) || 0);
 
 export default function BreakfastRails({ places = [], city = "", hasMore = false, loadingMore = false, onLoadMore, onOpenPlace, isSaved, liked, disliked, isLiked, isDisliked, onSave, onLike, onDislike, onShare }) {
-  const rails = useMemo(() => visibleRails(splitBreakfastRails(places), "places"), [places]);
+  // Owner pick applied BEFORE compose/sort/slice (lib/curatorPicks.js).
+  const curated = useCuratedRows(places);
+  const rails = useMemo(() => visibleRails(splitBreakfastRails(curated), "places"), [curated]);
   return (
     <>
       {rails.map((rail) => (
@@ -47,7 +50,7 @@ export default function BreakfastRails({ places = [], city = "", hasMore = false
                     title={place.name}
                     eyebrow={rail.title}
                     rank={rank}
-                    score={toDisplayScore(wayfindScore(place.rating, place.reviews))}
+                    score={toDisplayScore(railScoreOf(place))}
                     facts={facts}
                     award={topPickAward({ category: rail.id === "breakfast-cafes" ? "café" : "breakfast", rank })}
                     take={toHookLine(place.editorial, place.name) || null}

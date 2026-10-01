@@ -3,7 +3,8 @@
 import { readFileSync } from "fs";
 let n = 0, failn = 0;
 const ok = (c, m) => { n++; if (!c) { failn++; console.error("FAIL:", m); } };
-const s = readFileSync(new URL("../lib/landing.js", import.meta.url), "utf8");
+// LandingPage moved to lib/landingPage.js (2026-10-01, check-landing-data-client-free); read both halves.
+const s = readFileSync(new URL("../lib/landing.js", import.meta.url), "utf8") + "\n" + readFileSync(new URL("../lib/landingPage.js", import.meta.url), "utf8");
 ok(s.includes("import TourStrip from"), "the ranking page mounts the client TourStrip");
 // Tours mount ONLY where Viator inventory actually matches the page. Widening
 // this to every category would put day tours on a bar page — the entity

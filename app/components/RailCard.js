@@ -497,7 +497,7 @@ export default function RailCard({
                     target="_blank"
                     rel="noopener noreferrer"
                     title={"Photo: " + photoAttr}
-                    aria-label={"Photo credit: " + photoAttr}
+                    aria-label={"Photo credit: " + photoAttr + " (new tab)"}
                     onClick={(e) => e.stopPropagation()}
                   >©</a>
                 : <span className="wf-place-card-photo-attr" title={"Photo: " + photoAttr} aria-label={"Photo credit: " + photoAttr}>©</span>)

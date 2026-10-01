@@ -180,7 +180,7 @@ const SCI  = { id: "sci", name: "Orlando Science Center", types: ["museum", "tou
 /* ── wiring: both surfaces collapse in-venue results ───────────────────── */
 {
   const home = readFileSync(join(ROOT, "app/home.js"), "utf8");
-  const landing = readFileSync(join(ROOT, "lib/landing.js"), "utf8");
+  const landing = readFileSync(join(ROOT, "lib/landing.js"), "utf8") + "\n" + readFileSync(join(ROOT, "lib/landingPage.js"), "utf8"); // LandingPage lives in landingPage.js
   const detail = readFileSync(join(ROOT, "app/components/sheets/Detail.js"), "utf8");
 
   ok(home.indexOf("consolidateDestinations") >= 0, "the in-app list consolidates destinations");
@@ -285,7 +285,7 @@ const SCI  = { id: "sci", name: "Orlando Science Center", types: ["museum", "tou
   ok(F.passesMarketFloor(null, oFloor, false) === false, "null place never passes");
 
   // The list must never be emptied to enforce a bar.
-  const landing = readFileSync(join(ROOT, "lib/landing.js"), "utf8");
+  const landing = readFileSync(join(ROOT, "lib/landing.js"), "utf8") + "\n" + readFileSync(join(ROOT, "lib/landingPage.js"), "utf8"); // LandingPage lives in landingPage.js
   ok(/if \(_kept\.length >= 5\) pool = _kept;/.test(landing),
     "a floor that would wipe the market is not applied — a thin market gets the honest unfiltered pool");
 }

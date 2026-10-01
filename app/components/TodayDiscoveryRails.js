@@ -17,7 +17,8 @@ import { toHookLine } from "../../lib/editorialHook";
 import { priceLabel } from "../../lib/price.js";
 import { toDisplayScore } from "../../lib/score.js";
 import { topPickAward } from "../../lib/topPickAward.js";
-import { wayfindScore } from "../../lib/wayfindScore.js";
+import { useCuratedRows } from "../../lib/curatorPicks.js";
+import { railScoreOf } from "../../lib/railRank.js";
 import { beachDecisionReason, beachWaterBand } from "../../lib/beachDecision.js";
 import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
 import { RAIL_PAGE_SIZE } from "../../lib/railPage.js";
@@ -58,9 +59,11 @@ function TodayRailSection({ rail, lat, lng, city, onOpenPlace, isSaved, liked, d
   const seedItems = useMemo(() => (rail.places || []).slice(0, RAIL_PAGE_SIZE), [rail]);
   const seedTotal = Number.isFinite(rail.total) ? rail.total : (rail.places || []).length;
   const params = useMemo(() => ({ lat, lng, city, rail: rail.id }), [lat, lng, city, rail.id]);
-  const { items, total, sentinelIndex, sentinelRef, loading, loadingMore, error, fetchMore } = usePagedRail(
+  const { items: pagedItems, total, sentinelIndex, sentinelRef, loading, loadingMore, error, fetchMore } = usePagedRail(
     "/api/today-discovery", params, { seedItems, seedTotal, itemsKey: "places" },
   );
+  // Owner pick applied before the rail is rendered/ranked (lib/curatorPicks.js); moves only re-scored rows into score order.
+  const items = useCuratedRows(pagedItems, { ranked: true });
   const count = Number.isFinite(total) ? total : items.length;
   const railId = "today-discovery-" + rail.id;
   const renderState = railRenderState(items, { loading, error });
@@ -89,7 +92,7 @@ function TodayRailSection({ rail, lat, lng, city, onOpenPlace, isSaved, liked, d
           const directions = directionsUrl(place);
           return <RailCard key={place.id} className="wf-exploding-primary" domRef={index === sentinelIndex ? sentinelRef : undefined}
             photo={photo} place={place} title={place.name} eyebrow={rail.title} rank={rank}
-            score={toDisplayScore(wayfindScore(place.rating, place.reviews))} facts={facts} chips={chips}
+            score={toDisplayScore(railScoreOf(place))} facts={facts} chips={chips}
             award={topPickAward({ category: rail.title.toLowerCase(), rank })}
             take={place.water && beachDecisionReason(place.water) ? beachDecisionReason(place.water) : (toHookLine(place.editorial, place.name) || null)}
             cta={null}

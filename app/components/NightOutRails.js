@@ -26,7 +26,8 @@ import { composeNightOutRails } from "../../lib/nightOutIntent.js";
 import { cardImageSrc } from "../../lib/placePhoto.js";
 import { priceLabel } from "../../lib/price.js";
 import { toDisplayScore } from "../../lib/score.js";
-import { wayfindScore } from "../../lib/wayfindScore.js";
+import { useCuratedRows } from "../../lib/curatorPicks.js";
+import { railScoreOf } from "../../lib/railRank.js";
 import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
 import { RAIL_PAGE_SIZE } from "../../lib/railPage.js";
 import { usePagedRail } from "./usePagedRail.js";
@@ -48,9 +49,11 @@ function NightOutRailSection({
   const seedItems = useMemo(() => (rail.places || []).slice(0, RAIL_PAGE_SIZE), [rail]);
   const seedTotal = Number.isFinite(rail.total) ? rail.total : (rail.places || []).length;
   const params = useMemo(() => ({ lat: lat.toFixed(2), lng: lng.toFixed(2), rail: rail.id }), [lat, lng, rail.id]);
-  const { items, total, sentinelIndex, sentinelRef, loadingMore } = usePagedRail(
+  const { items: pagedItems, total, sentinelIndex, sentinelRef, loadingMore } = usePagedRail(
     "/api/night-out", params, { seedItems, seedTotal, itemsKey: "places", timeoutMs: 22000 },
   );
+  // Owner pick applied before the rail is rendered/ranked (lib/curatorPicks.js); moves only re-scored rows into score order.
+  const items = useCuratedRows(pagedItems, { ranked: true });
   const count = eventCards.length + tourProducts.length + (Number.isFinite(total) ? total : items.length);
   const railId = "night-out-" + rail.id;
   if (!count && (eventsPending || toursPending)) return (
@@ -105,7 +108,7 @@ function NightOutRailSection({
         <RailCard className="wf-exploding-primary wf-rail-solo"
           photo={cardImageSrc(soloItem, 640) || null} place={soloItem}
           title={soloItem.name} eyebrow={type} rank={1}
-          score={toDisplayScore(wayfindScore(soloItem.rating, soloItem.reviews))}
+          score={toDisplayScore(railScoreOf(soloItem))}
           facts={[
             soloItem.reviews ? compact(soloItem.reviews) + " reviews" : null,
             priceLabel(soloItem.priceLevel != null ? soloItem.priceLevel : soloItem.priceNum) || null,
@@ -153,7 +156,7 @@ function NightOutRailSection({
             domRef={index === sentinelIndex ? sentinelRef : undefined}
             photo={cardImageSrc(place, 640) || null} place={place}
             title={place.name} eyebrow={type} rank={rank}
-            score={toDisplayScore(wayfindScore(place.rating, place.reviews))}
+            score={toDisplayScore(railScoreOf(place))}
             facts={facts} take={toHookLine(place.editorial, place.name) || null}
             cta={null}
             ariaLabel={`Open ${place.name}`}
@@ -182,7 +185,9 @@ export default function NightOutRails({
   onOpenPlace = null, isSaved, liked, disliked, isLiked, isDisliked,
   onSave, onLike, onDislike, onShare,
 }) {
-  const fallback = useMemo(() => composeNightOutRails([], places, center || {}), [places, center]);
+  // Owner pick applied BEFORE compose/sort/slice (lib/curatorPicks.js).
+  const curatedPlaces = useCuratedRows(places);
+  const fallback = useMemo(() => composeNightOutRails([], curatedPlaces, center || {}), [curatedPlaces, center]);
   const [remoteResult, setRemote] = useState(null);
   const [failed, setFailed] = useState(false);
   const [retry, setRetry] = useState(0);
