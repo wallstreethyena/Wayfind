@@ -120,15 +120,29 @@
       "verification": "Downloaded the original from Wikimedia Commons and inspected it: the building's own illuminated \"TIN CITY\" sign and a visible \"Cruises & Tours\" storefront placard match this pick exactly, and the file's embedded GPS (26.1411, -81.7910) sits at Tin City's dock in Naples; no people are visible.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
+    },
+    "An Everglades airboat in ghost orchid season": {
+      "src": "/guides/picks/things-to-do-naples-summer-2026/airboat-everglades-city-dock.webp",
+      "width": 1024,
+      "height": 768,
+      "alt": "An airboat with its large rear fan cage tied up at a wooden dock on calm, reflective water, with a low wall of mangroves along the far shore under a cloudy sky",
+      "caption": "An airboat tied up at a dock in Everglades City, the mangrove backcountry southeast of Naples, in 2011. No ghost orchids are pictured.",
+      "credit": "Guillaume Capron",
+      "creditHref": "https://www.flickr.com/photos/7883724@N05/6163620022",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/7883724@N05/6163620022",
+      "author": "Guillaume Capron",
+      "position": "50% 55%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "flickr",
+      "placeId": null,
+      "verification": "Flickr photo 'Airboat @Everglades City' by Guillaume Capron, taken 2011-09-02, CC BY-SA 2.0 (checked on live page), geotag 25.857215,-81.383113 which is on the Barron River at Everglades City, Collier County. Visually: a flat-bottomed airboat with a caged rear propeller at a wooden dock, mangrove shoreline behind - literally the pick's subject (an Everglades airboat) in its real setting. No people visible. Ghost orchids are not shown and the caption says so. Live Flickr licence checked: CC BY-SA 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-29"
     }
   },
   "gaps": {
-    "An Everglades airboat in ghost orchid season": {
-      "reason": "not-a-place",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "A bookable airboat tour offered by multiple operators through the backcountry, not a single visitable place."
-    },
     "Tigress at The Perry Hotel": {
       "reason": "no-verified-source",
       "placeId": null,

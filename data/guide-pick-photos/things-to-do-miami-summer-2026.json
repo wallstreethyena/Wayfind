@@ -80,6 +80,26 @@
       "verification": "Downloaded the original from Wikimedia Commons and inspected it: the file's own title names Calle Ocho, Little Havana, and its embedded GPS (25.7656, -80.2191) sits on Calle Ocho; a cigar-bar sign is a direct match for this pick's mention of hand-rolled cigars, and no people are visible.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
+    },
+    "Inter Miami at Miami Freedom Park": {
+      "src": "/guides/picks/things-to-do-miami-summer-2026/nu-stadium-bowl.webp",
+      "width": 1200,
+      "height": 900,
+      "alt": "Inside a soccer stadium with pink and black seats under a white canopy roof, the green pitch in afternoon sun and fans filing into the lower bowl",
+      "caption": "Inter Miami's stadium at Miami Freedom Park on April 4, 2026, before kickoff.",
+      "credit": "Cuban Boy",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Nu_Stadium_(1).jpg",
+      "license": "CC0 1.0 Universal",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Nu_Stadium_(1).jpg",
+      "author": "Cuban Boy",
+      "position": "50% 60%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons file 'Nu Stadium (1).jpg' by Cuban Boy, dated 2026-04-04, geotagged 25.793158,-80.258858 at the Miami Freedom Park site. The image shows the stadium bowl with Inter Miami's pink seating, pink-shirted fans and the canopy roof. Fans in the stands are small, mostly seen from behind, and incidental; the video board shows a small crowd shot. Image visually reviewed. Live Commons licence checked: CC0 1.0 Universal.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-29"
     }
   },
   "gaps": {
@@ -100,12 +120,6 @@
       "placeId": null,
       "needsPermissionFrom": null,
       "note": "An annual prix-fixe dining promotion spanning roughly 300 restaurants citywide, not a single visitable place."
-    },
-    "Inter Miami at Miami Freedom Park": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": "Inter Miami CF (Miami Freedom Park)",
-      "note": "The only Wikimedia Commons photos of Miami Freedom Park show the stadium mid-construction in 2025, not the completed venue the club has now moved into, and the finished stadium is not indexed in Wayfind's inventory; using the construction photo would misrepresent the current place. Pass 2 (2026-09-23): Searched Openverse for 'Miami Freedom Park stadium' and 'Chase Stadium Miami Inter Miami'. Two Commons results are explicitly captioned 'construction' (rejected); a third, uncaptioned 'Miami Freedom Park' Commons file 404'd on the live Commons page when checked and could not be verified. Among the 'Chase Stadium' matches, the only wide, uncropped, allowed-licence result (CC BY 2.0, 'Chase Stadium - Inter Miami vs Nashville SC') carries a geotag of 26.19°N/-80.16°W, which is the club's former temporary stadium in Fort Lauderdale, not the Miami Freedom Park site near the airport (~25.79°N) — the wrong place; the rest of the results are tight cropped player portraits, unsuitable in any case (they would center an identifiable athlete). No verified photo of the completed Miami Freedom Park stadium found."
     },
     "Joia Beach Club on Watson Island": {
       "reason": "no-verified-source",
