@@ -1,0 +1,12 @@
+# explore-bridge-v1: change history
+
+The pre-registration for this experiment lives with its code:
+
+- the hypothesis, primary outcome and guardrails (including CLS) are in the header of `app/components/ExploreBridge.js`;
+- assignment, exposure and the split (`TREATMENT_PCT = 50`) are in `lib/experiment.js`.
+
+This file records production changes made **while it runs**, so a before/after reading can account for them. Nothing here changes the key, the split, assignment, exposure counting or the primary outcome.
+
+| when (UTC) | change | merge / deploy | effect on this test |
+|---|---|---|---|
+| _set at release_ | **#1602 layout repair.** The treatment block was server-rendered as `null` and inserted at hydration, after the guide had painted, pushing the partner rail and pick 1 down under the reader. It is now server-rendered for everyone, hidden by CSS unless a pre-paint script (`lib/exploreBridgeGate.js`) marks the treatment arm with the **same** assignment as `recordExposure()`. | _set at release_ | **Treatment** sees the same block, painted at its final size instead of inserted. **Control** and automation see nothing, as before. Assignment is unchanged; `scripts/test-explore-bridge-gate.mjs` executes the script against `recordExposure()` for 4,000 ids. Exposure is still recorded only at mount, and the block takes no taps until then, so no tap can precede its exposure. **The CLS guardrail is not comparable across this timestamp:** treatment CLS falls by design. Measured on a local production build, slow hydration at 390px: before, 0.32–0.39; after, 0–0.03 (the 0.03 is the guide-inline-book cue). Read the CLS guardrail separately before and after this deploy. |

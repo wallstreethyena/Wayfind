@@ -21,7 +21,10 @@ export default function ExperienceScreen({ ctx }) {
           if (expSort === "near") list = [...list].sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12));
           else if (expSort === "rated") list = [...list].sort(byTopRated); // v6.42 (owner, PERMANENT): Top rated = displayed Wayfind Score ONLY. The old distance penalty (-1.3/mi past 4, cap 30) is REMOVED — it made 9.4 sit above 9.8 ("Top Rated Near You", Parrish repro)
           else if (expSort === "price") list = [...list].sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0)));
-          else list = [...list].sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
+          // Default order is the number on the card too (owner, 2026-09-30:
+          // a liked 9.4 must climb above a 9.2). Raw wfScore omitted the
+          // creator/trending/distance terms the chip shows, so it could invert.
+          else list = [...list].sort(byTopRated);
           // The eight home category chips use the beach-inspired editorial
           // header system while preserving this screen's exact PlaceCard list.
           // Back and Share remain primary; map and save move directly below the

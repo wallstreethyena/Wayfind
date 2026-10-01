@@ -12,6 +12,7 @@ import { pageShareUrl } from "../../lib/pageShareUrl";
 import { experienceGoUrl } from "../../lib/affiliates";
 import HubConversion from "../components/HubConversion";
 import GuideFigure from "../components/GuideFigure";
+import PhotoCreditLink from "../components/PhotoCreditLink";
 
 const _ogGuides = SITE_URL + "/api/og?t=" + encodeURIComponent("Florida travel guides, written by a local");
 export const metadata = {
@@ -96,9 +97,9 @@ export default function GuidesHub() {
               {imageCaption || art?.credit || art?.license ? <div className={styles.imageNote}>
                 {imageCaption ? <p className={styles.cardCaption}>{imageCaption}{art.modificationNotice ? " Resized; display crop. Source license retained." : ""}</p> : null}
                 {art?.credit || art?.license ? <p className={styles.credit}>
-                  {art.credit ? <a href={art.source}>Image: {art.credit}</a> : null}
+                  {art.credit ? <PhotoCreditLink href={art.source}>Image: {art.credit}</PhotoCreditLink> : null}
                   {art.credit && art.license ? " · " : ""}
-                  {art.license ? <a href={art.licenseUrl || art.source}>{art.license}</a> : null}
+                  {art.license ? <PhotoCreditLink href={art.licenseUrl || art.source}>{art.license}</PhotoCreditLink> : null}
                 </p> : null}
               </div> : null}
             </article>;

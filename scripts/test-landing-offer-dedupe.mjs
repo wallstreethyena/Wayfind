@@ -85,7 +85,8 @@ ok(links(seededHtml).map((l) => l.offer).sort().join() === "XXX7,YYY8,ZZZ9", `fi
 // ACTUALLY renders — is mounted and exercised in test-landing-offer-dedupe-runtime.mjs.
 const { readFileSync } = await import("node:fs");
 const strip = (t) => t.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
-const landSrc = strip(readFileSync(rel("../lib/landing.js"), "utf8"));
+// LandingPage moved to lib/landingPage.js (#1607); read both halves.
+const landSrc = strip(readFileSync(rel("../lib/landing.js"), "utf8") + "\n" + readFileSync(rel("../lib/landingPage.js"), "utf8"));
 ok((landSrc.match(/<TourStrip[^>]*excludeCodes=\{railSeeds\.railCodes\}/g) || []).length === 2, "WEAKER (source) check: both landing <TourStrip> usages pass excludeCodes={railSeeds.railCodes}");
 
 console.log(`test-landing-offer-dedupe: OK — ${pass} assertions; rail+strip rendered with overlapping and disjoint fixtures, each product id counted once per page, empty-state exercised; first paint applies the server prediction to the un-excluded seed`);

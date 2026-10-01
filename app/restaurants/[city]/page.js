@@ -1,7 +1,8 @@
 // v5.02 — SSR landing pages (launch prompt 5). All logic lives in
 // lib/landing.js (one module, all four categories); this route only binds
 // the "restaurants" slug. ISR: rendered on demand with server keys, cached a day.
-import { LandingPage, landingMetadata, LANDING_CITIES } from "../../../lib/landing";
+import { landingMetadata, LANDING_CITIES } from "../../../lib/landing";
+import { LandingPage } from "../../../lib/landingPage";
 import { landingShareAction } from "../../../lib/landingShare";
 
 export const revalidate = 86400;

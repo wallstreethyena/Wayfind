@@ -30,6 +30,7 @@ import { SPRINGS_PHOTO, EXPERIENCE_PHOTOS, FLORIDA_EVENT_PHOTOS, FLORIDA_PARK_PH
 import styles from "./florida.module.css";
 import CommerceClickBeacon from "../../components/CommerceClickBeacon";
 import GuidePhoto from "../../components/GuidePhoto";
+import PhotoCreditLink from "../../components/PhotoCreditLink";
 import { guideHero } from "../../../lib/guideHero";
 import { activeSeasonalMark, NORMAL_MARK } from "../../../lib/seasonalBrand";
 import { unstable_cache } from "next/cache";
@@ -165,7 +166,7 @@ const COAST_ART = guideHero("siesta-key-vs-lido-key");
 function PhotoCredit({ art }) {
   if (!art?.src) return null;
   return <span className={styles.credit}>
-    <a href={art.source}>{art.credit}</a> · <a href={art.licenseUrl}>{art.license}</a> · Cropped for display
+    <PhotoCreditLink href={art.source}>{art.credit}</PhotoCreditLink> · <PhotoCreditLink href={art.licenseUrl}>{art.license}</PhotoCreditLink> · Cropped for display
   </span>;
 }
 

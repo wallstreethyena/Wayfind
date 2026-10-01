@@ -29,6 +29,7 @@ import {
 import { completeAnswersOnly, fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
 import { windowRailAnswer } from "../../../lib/railResponse.js";
 import { pageOneRail } from "../../../lib/railPage.js";
+import { loadOwnerPickIds, applyCuratorPicksServer } from "../../../lib/curatorPicksServer.js";
 
 const WX_URL =
   "https://api.open-meteo.com/v1/forecast?current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,dew_point_2m" +
@@ -141,7 +142,10 @@ async function buildDateNightAnswer({ lat, lng, city, hour }) {
     seen.add(row.id);
     places.push(row);
   }
-  const composed = composeDateNightRails(places, {
+  // Owner picks land before the composer ranks/caps (lib/curatorPicksServer.js); unknown -> untouched.
+  let ranked = places;
+  try { ranked = applyCuratorPicksServer(places, await loadOwnerPickIds()); } catch { ranked = places; }
+  const composed = composeDateNightRails(ranked, {
     weatherKnown: wxSignals.weatherKnown,
     outdoorOK: wxSignals.outdoorOK,
     beachShow: wxSignals.beachShow,

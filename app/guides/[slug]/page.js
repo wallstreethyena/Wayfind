@@ -33,6 +33,7 @@ import { findFreePhoto } from "../../../lib/freePhoto";
 import { findSamePlaceCachedPhoto } from "../../../lib/photoCacheRecovery.js";
 import { guideAppHandoffHref, guidePlacePath } from "../../../lib/guideHandoff";
 import { declaredGuideRailPlaceIds, guidePlaceRailConfig, resolveGuidePlaceRail } from "../../../lib/guidePlaceRails";
+import { loadOwnerPickIds } from "../../../lib/curatorPicksServer.js";
 import GuideDealCards from "./GuideDealCards";
 // v8.23 — the share control every guide was missing, and the resolver that
 // finally connects 39 guides to a 69-row deal registry they were never wired
@@ -386,11 +387,12 @@ import { HERO_CARD_DESIGN_V } from "../../../lib/heroCard.js";
 // The floating pill stays (it catches people who DO read to the end). This adds
 // the above-the-fold handoff under a 50/50 experiment — measured dwell on these
 // pages is 0-25s, so almost nobody reaches the pill. Control renders nothing.
-import ExploreBridge from "../../components/ExploreBridge";
+import ExploreBridge from "../../components/ExploreBridgeGate";
 import IntentPartnerPick from "../../components/IntentPartnerPick";
 import { guideRailIntent } from "../../../lib/railPlacement";
 import { LANDING_CITIES } from "../../../lib/landing";
 import { isSsgBuild, guideFetch } from "../../../lib/landingInventory";
+import { ssrPartnerInventory } from "../../../lib/landingRails";
 import { guideArticleImage, guideContextLinks, guideQuickChoices } from "../../../lib/guideSeo";
 // Event guides reuse the ONE event "where" block (map, route, numbered nearby
 // picks) that /florida-events/[slug] renders, fed by the same curated row and
@@ -555,8 +557,11 @@ export default async function GuidePage({ params }) {
     : null;
   const pickPlaces = await Promise.all((g.picks || []).map((p) => inventoryPlace(p, regionCoords)));
   const railConfig = guidePlaceRailConfig(g.placeRail || params.slug);
-  const railInventory = railConfig ? await inventoryPlacesByExactIds(declaredGuideRailPlaceIds(railConfig)) : [];
-  const placeRail = resolveGuidePlaceRail(railConfig, railInventory);
+  const [railInventory, ownerPickIds] = await Promise.all([
+    railConfig ? inventoryPlacesByExactIds(declaredGuideRailPlaceIds(railConfig)) : [],
+    railConfig ? loadOwnerPickIds().catch(() => null) : null,
+  ]);
+  const placeRail = resolveGuidePlaceRail(railConfig, railInventory, ownerPickIds);
   // Event map: only for a guide that names a curated event slug. A failed read
   // or a missing/undisplayable row renders no map (the article still stands),
   // and the pairings keep their own "unavailable" contract.
@@ -749,6 +754,20 @@ export default async function GuidePage({ params }) {
   // What this guide sells under, derived from what it IS — the same
   // guideIntent() classification the primary CTA uses. null for hotel guides.
   const railIntent = guideRailIntent(guideIntent(g));
+  // FIRST-PAINT SEED for the "Bookable highlights" rail (2026-10-01). The rail
+  // is a client component that used to render NOTHING until its mount fetch
+  // returned, then pop ~208px in ABOVE "Right now" and pick 1 — measured in
+  // production at 390px as a 0.25 layout shift on the Sarasota guide, landing
+  // while the reader was already at pick 1. The same owned-table seed the city
+  // landing pages use (lib/landingRails.js, #1562: wf_experiences only, Next
+  // data cache, 4s deadline, no Viator/Places call) server-renders the rail at
+  // its final size. The client refresh still runs and wins, and a refresh that
+  // fails or comes back empty keeps the seed, so it can no longer insert or
+  // collapse under the reader. Guides whose city has no owned cache, or a seed
+  // read that fails, get `undefined` = exactly the previous client-only path.
+  const railSeed = chrome.bookableHighlights && railIntent && bridgeCity
+    ? await ssrPartnerInventory({ city: bridgeCity.name, intent: railIntent })
+    : undefined;
   let bridgePicks = [];
   if (bridgeCity && !isSsgBuild()) {
     try {
@@ -948,6 +967,7 @@ export default async function GuidePage({ params }) {
           city={bridgeCity.name}
           intent={railIntent}
           inventory={[]}
+          initialInventory={railSeed}
           lat={bridgeCity.lat}
           lng={bridgeCity.lng}
         />

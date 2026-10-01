@@ -15,7 +15,8 @@ import { toHookLine } from "../../lib/editorialHook";
 import { priceLabel } from "../../lib/price.js";
 import { toDisplayScore } from "../../lib/score.js";
 import { topPickAward } from "../../lib/topPickAward.js";
-import { wayfindScore } from "../../lib/wayfindScore.js";
+import { useCuratedRows } from "../../lib/curatorPicks.js";
+import { railScoreOf } from "../../lib/railRank.js";
 import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
 import { RAIL_PAGE_SIZE } from "../../lib/railPage.js";
 import { usePagedRail } from "./usePagedRail.js";
@@ -35,9 +36,11 @@ function BirthdayRailSection({ rail, lat, lng, city, onOpenPlace, isSaved, liked
   const seedItems = useMemo(() => (rail.places || []).slice(0, RAIL_PAGE_SIZE), [rail]);
   const seedTotal = Number.isFinite(rail.total) ? rail.total : (rail.places || []).length;
   const params = useMemo(() => ({ lat, lng, rail: rail.id }), [lat, lng, rail.id]);
-  const { items, total, sentinelIndex, sentinelRef, loading, loadingMore, error, fetchMore } = usePagedRail(
+  const { items: pagedItems, total, sentinelIndex, sentinelRef, loading, loadingMore, error, fetchMore } = usePagedRail(
     "/api/birthday", params, { seedItems, seedTotal, itemsKey: "places" },
   );
+  // Owner pick applied before the rail is rendered/ranked (lib/curatorPicks.js); moves only re-scored rows into score order.
+  const items = useCuratedRows(pagedItems, { ranked: true });
   const count = Number.isFinite(total) ? total : items.length;
   const railId = "birthday-" + rail.id;
   const renderState = railRenderState(items, { loading, error });
@@ -89,7 +92,7 @@ function BirthdayRailSection({ rail, lat, lng, city, onOpenPlace, isSaved, liked
                   title={place.name}
                   eyebrow={reward ? "Birthday Gift" : rail.title}
                   rank={rank}
-                  score={toDisplayScore(wayfindScore(place.rating, place.reviews))}
+                  score={toDisplayScore(railScoreOf(place))}
                   facts={facts}
                   award={topPickAward({ category: reward ? "birthday gift" : type, rank })}
                   chips={chips}

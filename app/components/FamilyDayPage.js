@@ -17,6 +17,7 @@ import { resolveLocationContext, milesBetween } from "../../lib/locationHonesty"
 import { nowContext } from "../../lib/nowContext";
 import { canonicalShareUrl } from "../../lib/site";
 import { track } from "../../lib/track";
+import { useCuratedRows } from "../../lib/curatorPicks.js";
 
 const COLORS = { text: "#F1F5F9", muted: "#9AA6B6", border: "rgba(255,255,255,.11)", panel: "#0B111B", accent: "#22C55E" };
 const DISTANCES = [10, 25, 50];
@@ -178,7 +179,7 @@ function FamilyRail({ rail, loc, radiusMi, filters, weatherSettled, weatherPause
     enabled: visible && !weatherPaused && state.status === "ready" && state.places.length > 0,
     seedItems: state.places, seedTotal: state.matched, itemsKey: "places", timeoutMs: 12000,
   });
-  const cards = paging.items;
+  const cards = useCuratedRows(paging.items, { ranked: true }); // owner picks before render (lib/curatorPicks.js)
   const ready = !weatherPaused && weatherSettled && state.status === "ready";
   useEffect(() => {
     paging.sentinelRef(ready ? cardRailRef.current?.children[paging.sentinelIndex] : null);

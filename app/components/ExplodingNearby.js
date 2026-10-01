@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import RailCard, { RailNav, RailDots } from "./RailCard";
 import { C, directionsUrl } from "./kit";
 import { tbPhotoUrl } from "../../lib/todaysBest.js";
@@ -14,6 +14,7 @@ import { gateOutdoor, coarseCat } from "../../lib/ranking.js";
 import { topPickAward } from "../../lib/topPickAward.js";
 import { explodingUiErrorCopy, explodingUiStatus, needsOwnerFloor, shouldPaintExplodingEmpty, UNAVAILABLE_COPY } from "../../lib/explodingNearbyServe.js";
 import { settleLoad } from "../../lib/loadState.js";
+import { useCuratorPicks, applyCuratorPicksRanked } from "../../lib/curatorPicks.js";
 
 // v8.57 — THE TRENDS WALK MUST REACH A DECISION.
 //
@@ -46,6 +47,12 @@ const prettyType = (t) => {
   return s ? s.charAt(0).toUpperCase() + s.slice(1) : "";
 };
 
+// The shown score: the stamped governed_score once the owner's pick is applied
+// (lib/curatorPicks.js), else the walk's own governedScore. Null stays null.
+const shownScore = (p) => (Number.isFinite(p.governed_score) ? p.governed_score : p.governedScore);
+// Mirror governedScore into the keys stampOwnerPick bumps (wfScore + governed_score).
+const mirrorScore = (p) => (Number.isFinite(p.governedScore) && !Number.isFinite(p.governed_score) ? { ...p, wfScore: p.governedScore, governed_score: p.governedScore } : p);
+
 function asPlace(p, photoRef) {
   return {
     priceLevel: p.priceLevel != null ? p.priceLevel : null,
@@ -60,7 +67,7 @@ function asPlace(p, photoRef) {
     types: p.types || [],
     photo: tbPhotoUrl(photoRef || p.photoRef, 720),
     photos: (photoRef || p.photoRef) ? [tbPhotoUrl(photoRef || p.photoRef, 720)] : [],
-    wfScore: p.governedScore,
+    wfScore: shownScore(p),
     distMi: p.distanceMi,
   };
 }
@@ -137,7 +144,7 @@ function TrendBlock({ trend, index, photoRefFor, onLog, onMeaningful, onOpenPlac
         title={p.name}
         eyebrow={prettyType(p.primaryType || p.category)}
         rank={rank}
-        score={toDisplayScore(p.governedScore)}
+        score={toDisplayScore(shownScore(p))}
         facts={facts}
         award={!additional ? topPickAward({ category: coarseCat(place) || prettyType(p.primaryType || p.category) || "nearby", rank }) : null}
         chips={chips}
@@ -244,6 +251,13 @@ function TrendBlock({ trend, index, photoRefFor, onLog, onMeaningful, onOpenPlac
 export default function ExplodingNearby({ center, city, weather, active, hasRankedFallback = false, onVisibleIds, onOpenPlace, onFindSimilar, onLog, isSaved, liked, disliked, isLiked, isDisliked, onSave, onLike, onDislike, onShare }) {
   const [result, setResult] = useState({ status: "loading", trends: [] });
   const [retry, setRetry] = useState(0);
+  const curatorPicks = useCuratorPicks();
+  // Owner picks applied BEFORE the gate/render; matches are score-ordered, so
+  // re-rank (lib/curatorPicks.js). Memoised so rows keep identity across renders.
+  const curatedTrends = useMemo(() => {
+    const raw = Array.isArray(result.trends) ? result.trends : [];
+    return raw.map((t) => (t && Array.isArray(t.matches) ? { ...t, matches: applyCuratorPicksRanked(t.matches.map(mirrorScore), curatorPicks) } : t));
+  }, [result.trends, curatorPicks]);
   const rootRef = useRef(null);
   const mountedAt = useRef(Date.now());
   const firstMeaningful = useRef(false);
@@ -392,7 +406,7 @@ export default function ExplodingNearby({ center, city, weather, active, hasRank
   // trend whose matches are all gated renders no module rather than a wrong
   // one. Fails open exactly as before: unreadable weather leaves every row in.
   const gatedTrends = (() => {
-    const list = Array.isArray(result.trends) ? result.trends : [];
+    const list = curatedTrends;
     if (!list.length || !center || !isFinite(center.lat)) return list;
     try {
       const ctx = nowContext({ lat: center.lat, lng: center.lng, city: city || null, weather: weather || null });

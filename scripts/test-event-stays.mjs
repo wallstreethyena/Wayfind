@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { eventStays, selectEventStays } from "../lib/eventStays.js";
+import { eventStays, selectEventStays, venueStayProximity } from "../lib/eventStays.js";
 
 const origin = { lat: 28.475, lng: -81.467 };
 const hotel = (id, extra = {}) => ({ id, name: "Test Hotel", types: ["hotel", "lodging"], lat: 28.48, lng: -81.47, wfScore: 92, ...extra });
@@ -48,4 +48,37 @@ const serviceRows = await eventStays(origin, { readOwned: async () => [], readIn
   { id: "spa-hotel", displayName: { text: "Test Spa Resort" }, primaryType: "spa", types: ["hotel", "spa", "lodging"], location: { latitude: 28.48, longitude: -81.47 }, rating: 4.8, userRatingCount: 1000 },
 ] });
 if (serviceRows.places.length !== 1 || serviceRows.places[0].id !== "spa-hotel") throw new Error("Event Stays must reject standalone massage businesses while retaining spa resorts");
+
+// VENUE-FIRST RANKING (2026-09-30). Real wf_inventory shape around Jannus Live,
+// 16 2nd St N, St Petersburg: before this, pure score order sent the page to
+// beach resorts 7 to 9 miles away while real hotels sat two blocks off.
+{
+  const jannus = { lat: 27.7722, lng: -82.6367 };
+  const MI_LAT = 1 / 69;
+  const at = (id, mi, wfScore, extra = {}) => ({ id, name: id, types: ["hotel", "lodging"], lat: jannus.lat + mi * MI_LAT, lng: jannus.lng, wfScore, ...extra });
+  const pool = [
+    at("hollander", 0.34, 93), at("hampton", 0.19, 90), at("hyatt-place", 0.09, 89), at("birchwood", 0.39, 89),
+    at("avalon", 0.35, 89), at("the-1888", 0.35, 90), at("ponce", 0.20, 68), at("vinoy", 0.56, 89),
+    at("the-saint-beach", 7.44, 97), at("inn-on-the-beach", 8.27, 95), at("plaza-beach", 7.28, 93),
+    at("closed-inn", 0.05, 99, { status: "CLOSED_PERMANENTLY" }),
+  ];
+  const venue = selectEventStays(pool, jannus, 6, { rank: "venue" });
+  assert.equal(venue.length, 6);
+  assert.ok(venue.every((p) => p.distMi <= 3), `with six good stays within 3 mi, nothing farther is shown (got ${venue.map((p) => p.id + "@" + p.distMi.toFixed(1)).join(", ")})`);
+  assert.ok(!venue.some((p) => p.id === "ponce"), "a stay under the quality floor never outranks ones that clear it");
+  assert.ok(!venue.some((p) => p.id === "closed-inn"), "a permanently closed hotel is never recommended");
+  assert.equal(venue[0].id, "hollander", "the best-reviewed walkable hotel leads");
+  // The destination poster keeps its promised Wayfind Score order.
+  const scoreOrder = selectEventStays(pool, jannus, 3);
+  assert.deepEqual(scoreOrder.map((p) => p.id), ["the-saint-beach", "inn-on-the-beach", "hollander"], "default rank stays pure Wayfind Score order for the destination poster");
+  // Sparse venue: when there are not enough close stays, farther good ones fill,
+  // nearest-and-best first, and weak ones come last.
+  const sparse = [at("far-good", 6, 92), at("mid-good", 2.5, 88), at("near-weak", 0.3, 65)];
+  assert.deepEqual(selectEventStays(sparse, jannus, 6, { rank: "venue" }).map((p) => p.id), ["mid-good", "far-good", "near-weak"], "a thin venue still gets a ranked list, floor-clearing stays first");
+  // The hard 3 mile rule, isolated: six floor-clearing stays at 2.8 mi must
+  // hold off a 99 at 3.5 mi that would win on the blend alone.
+  const edge = [...[1, 2, 3, 4, 5, 6].map((i) => at("edge-" + i, 2.8, 76)), at("just-past", 3.5, 99)];
+  assert.ok(!selectEventStays(edge, jannus, 6, { rank: "venue" }).some((p) => p.id === "just-past"), "enough good stays within 3 mi means nothing past 3 mi, whatever its score");
+  assert.ok(venueStayProximity(0.3) === 1 && venueStayProximity(3) < venueStayProximity(1), "proximity is flat inside a walk and decays after it");
+}
 console.log("event-stays PASS: venue geography, lodging identity, score order, dedupe, invalid origins, empty/error distinction, partial availability, inventory mapping");
