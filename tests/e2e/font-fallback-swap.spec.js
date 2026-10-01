@@ -94,6 +94,9 @@ test.beforeAll(() => {
 // E2E_FETCH_VIA_NODE=1: same escape hatch as guide-rail-layout.spec.js, for
 // sandboxes whose TLS-intercepting proxy Chromium does not trust (Node still
 // verifies the proxy CA).
+function sameHost(url) {
+  try { return !!process.env.E2E_BASE_URL && new URL(url).host === new URL(process.env.E2E_BASE_URL).host; } catch (e) { return false; }
+}
 async function upstream(route) {
   const req = route.request();
   if (!process.env.E2E_FETCH_VIA_NODE) {
@@ -105,7 +108,9 @@ async function upstream(route) {
   }
   let res;
   for (let i = 0; i < 4 && !res; i++) {
-    const headers = Object.assign({}, req.headers(), process.env.E2E_COOKIE ? { cookie: process.env.E2E_COOKIE } : {});
+    // The deployment-protection cookie goes to the deployment's own host ONLY,
+    // never to a third party the page happens to request.
+    const headers = Object.assign({}, req.headers(), process.env.E2E_COOKIE && sameHost(req.url()) ? { cookie: process.env.E2E_COOKIE } : {});
     try { res = await fetch(req.url(), { method: req.method(), headers, redirect: "manual" }); }
     catch (e) { await new Promise((ok) => setTimeout(ok, 500 * (i + 1))); }
   }
@@ -174,7 +179,7 @@ const NON_DISPLAY_ROUTES = ["/", "/events", "/go/tampa", "/best-beaches"];
 
 async function getText(url) {
   if (process.env.E2E_FETCH_VIA_NODE) {
-    const headers = process.env.E2E_COOKIE ? { cookie: process.env.E2E_COOKIE } : {};
+    const headers = process.env.E2E_COOKIE && sameHost(url) ? { cookie: process.env.E2E_COOKIE } : {};
     const r = await fetch(url, { headers, redirect: "follow" });
     const h = {}; r.headers.forEach((v, k) => { h[k] = v; });
     return { status: r.status, headers: h, body: await r.text() };

@@ -104,7 +104,9 @@ async function prepare(context, { expId, mode, automated = false, hydrateDelay =
       for (let i = 0; i < 4 && !res; i++) {
         // Node's fetch does not see the browser's cookie jar; carry the
         // deployment-protection cookie explicitly (previews only).
-        const headers = Object.assign({}, req.headers(), process.env.E2E_COOKIE ? { cookie: process.env.E2E_COOKIE } : {});
+        // Same-host only: never hand the protection cookie to a third party.
+        const sameHost = (() => { try { return new URL(url).host === new URL(process.env.E2E_BASE_URL || "http://x").host; } catch (e) { return false; } })();
+        const headers = Object.assign({}, req.headers(), process.env.E2E_COOKIE && sameHost ? { cookie: process.env.E2E_COOKIE } : {});
         try { res = await fetch(url, { method: req.method(), headers, redirect: "manual" }); }
         catch (e) { await new Promise((ok) => setTimeout(ok, 500 * (i + 1))); }
       }
