@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 761,
-    "totalRegistryEntries": 762,
-    "guardsTxtLineCount": 760,
-    "guardsTxtReachedFileCount": 754,
+    "totalOnDiskGuardFiles": 762,
+    "totalRegistryEntries": 763,
+    "guardsTxtLineCount": 761,
+    "guardsTxtReachedFileCount": 755,
     "criticalCount": 92,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 527,
+      "CALL": 528,
       "RENDER": 93,
       "STRUCTURAL": 141,
       "OTHER": 1
@@ -3594,7 +3594,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 51,
+      "assertionCount": 57,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -11169,6 +11169,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 87,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-coupon-audit-alert.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 24,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
