@@ -129,9 +129,9 @@ ok(!/citySlug = "sarasota"/.test(RAIL),
 /* ── B. unknown slug is not sarasota ───────────────────────────────────── */
 const RD = strip(read("lib/railsData.js"));
 const RAILS_API = strip(read("app/api/rails/route.js"));
-ok(/resolveRailCity\(citySlug,\s*LANDING_CITIES\)/.test(RD),
+ok(/resolveRailCity\(citySlug,\s*COVERED_CITIES\)/.test(RD),
   "railMenuData resolves the slug through resolveRailCity");
-ok(!/LANDING_CITIES\[citySlug\] \|\| LANDING_CITIES\.sarasota/.test(RD),
+ok(!/(?:LANDING|COVERED)_CITIES\[citySlug\] \|\| (?:LANDING|COVERED)_CITIES\.sarasota/.test(RD),
   "the unknown-slug → LANDING_CITIES.sarasota fallback is gone");
 ok(!/const slug = LANDING_CITIES\[citySlug\] \? citySlug : "sarasota"/.test(RD),
   "an unknown slug is no longer rewritten to the string \"sarasota\"");
@@ -146,7 +146,9 @@ ok(/"miami":\s*\{\s*name:\s*"Miami"/.test(LANDING_CITIES_SRC),
   "Miami is an explicit landing/rail market, backed by its own coordinates");
 ok(/miami:\s*\["miami"\]/.test(RD),
   "Miami has its own rail pool and never borrows Orlando or Sarasota");
-ok(/nearestCoveredCity\(LANDING_CITIES,\s*lat,\s*lng,\s*COVERAGE_MI\)/.test(RAILS_API),
+// 2026-10-01: the rails resolve over COVERED_CITIES (published + covered
+// Florida markets, lib/landingCities.js) — same law, wider table.
+ok(/nearestCoveredCity\(COVERED_CITIES,\s*lat,\s*lng,\s*COVERAGE_MI\)/.test(RAILS_API),
   "/api/rails calls the executed coverage law");
 
 /* ── C. DEFAULT_CENTER is a seed; geo can replace it; no "you" ─────────── */
