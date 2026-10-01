@@ -287,6 +287,7 @@ node scripts/check-guide-place-identities.mjs
 node scripts/test-activation.mjs
 node scripts/test-containment.mjs
 node scripts/test-experiment.mjs
+node scripts/test-explore-bridge-gate.mjs
 node scripts/test-beach-geo.mjs
 node scripts/check-app-viewport.mjs
 node scripts/check-shell-decomposition.mjs
