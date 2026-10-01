@@ -127,7 +127,7 @@ async function main() {
       if (!stillUsed && existsSync("public" + rejected.src)) unlinkSync("public" + rejected.src);
     }
     writeFileSync(dataFile, JSON.stringify(data, null, 2) + "\n");
-    csvRow(o.slug, [o.pick, placeId, "", "gap", o.gap, o.needs || ""]);
+    csvRow(o.slug, [o.pick, placeId, "", "gap", o.gap, data.gaps[o.pick].needsPermissionFrom || ""]);
     console.log(`gap recorded: ${o.slug} / ${o.pick} (${o.gap})`);
     return;
   }
