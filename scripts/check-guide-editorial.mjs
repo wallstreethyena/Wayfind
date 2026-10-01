@@ -106,11 +106,18 @@ vm.runInNewContext(photoCode, { module: photoModule, exports: photoModule.export
 const figureFile = path.resolve('app/components/GuideFigure.js');
 const figureCode = ts.transpileModule(fs.readFileSync(figureFile, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2020, esModuleInterop: true } }).outputText;
 const figureModule = { exports: {} };
+// GuideFigure's external credit links render through the shared PhotoCreditLink
+// (#1601). Compile the REAL one so the figure still executes end to end.
+const creditLinkFile = path.resolve('app/components/PhotoCreditLink.js');
+const creditLinkCode = ts.transpileModule(fs.readFileSync(creditLinkFile, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2020, esModuleInterop: true } }).outputText;
+const creditLinkModule = { exports: {} };
+vm.runInNewContext(creditLinkCode, { module: creditLinkModule, exports: creditLinkModule.exports, require }, { filename: creditLinkFile });
 const figureCss = new Proxy({}, { get: (_target, name) => String(name) });
 const captionModule = await import(path.resolve('lib/guideCaption.js'));
 const googlePhotoModule = await import(path.resolve('lib/googlePhotoSrc.js'));
 vm.runInNewContext(figureCode, { module: figureModule, exports: figureModule.exports, require: (name) => {
   if (name === './GuidePhoto') return photoModule.exports;
+  if (name === './PhotoCreditLink') return creditLinkModule.exports;
   if (name === '../../lib/guideCaption.js') return captionModule;
   if (name === '../../lib/googlePhotoSrc.js') return googlePhotoModule;
   if (name.endsWith('.css')) return { __esModule: true, default: figureCss };
