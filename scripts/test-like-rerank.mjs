@@ -102,13 +102,11 @@ const like = (list, id, on) => list.map((p) => (p.id === id ? stampOwnerPick(p, 
   ok(/restampGoverned\(p, stampOwnerPick\(/.test(home), "withMemberSignal restamps against the ORIGINAL row (the nudge moves wfScore before stampOwnerPick)");
   ok(/function withSignalFields\(row, next\)[\s\S]{0,200}restampGoverned\(/.test(home), "the detail-open overlay restamps the rows it patches");
   ok(!/\{ \.\.\.pl, wfScore: next\.wfScore/.test(home) && !/\{ \.\.\.cur, wfScore: next\.wfScore/.test(home), "no hand-rolled wfScore spread survives in the detail overlay");
-  const patch = (home.match(/function patchOwnerPick\([\s\S]*?\n  \}/) || [""])[0];
-  ok(/setPlaces\(patch\)/.test(patch) && /setExpPlaces\(patch\)/.test(patch) && /setDetail\(/.test(patch), "patchOwnerPick re-scores the feed, the Experience pool and the open sheet");
-  ok(/setHookDetail\(/.test(patch), "patchOwnerPick re-scores an open hook/holiday sheet");
-  ok(/setLivePicks\(/.test(patch), "patchOwnerPick publishes the verdict to the rails");
-  ok(/livePicks=\{livePicks\}/.test(home) && /applyLivePicks=\{withLivePicks\}/.test(home), "DaypartRail receives the live picks and the parent's decorator");
+  // 2026-10-01: the like path moved into ONE store (lib/curatorPicks.js);
+  // scripts/test-curator-picks.mjs covers the store and every surface by CALL.
+  ok(/useEffect\(\(\) => \{ setPlaces\(\(cur\) => applyCuratorPicks\(cur, curator\)\); \}, \[curator, places\]\);/.test(home), "the feed re-applies the owner's pick whenever the pick set or the pool changes");
   const rail = read("app/components/DaypartRail.js");
-  ok(/applyLivePicks\(signed, livePicks, _selRaw\)/.test(rail), "DaypartRail applies live picks and settles against its pre-signal order");
+  ok(/settleRescored\(curated, rescoredIds\(_selRaw, curated\)\)/.test(rail), "DaypartRail settles re-scored cards against its pre-signal order");
   const exp = read("app/components/screens/Experience.js");
   ok(/else list = \[\.\.\.list\]\.sort\(byTopRated\);/.test(exp), "Experience default order is the number on the card, not raw wfScore");
   ok(/return restampGoverned\(place, \{/.test(read("lib/ownerBump.js")), "stampOwnerPick restamps the sort key it just invalidated");

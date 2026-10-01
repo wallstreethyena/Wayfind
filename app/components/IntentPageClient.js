@@ -38,6 +38,7 @@ import { supabase } from "../../lib/supabase";
 import { readLocalLikeState, readLocalSavedState, persistLike, persistDislike, persistSave, recordLikeEvent, recordTasteSignal } from "../../lib/likeSignal";
 import { wayfindScore } from "../../lib/google";
 import { governedScoreOf } from "../../lib/lawfulOrder";
+import { useCuratedRows } from "../../lib/curatorPicks";
 import { FAR_MILES } from "../../lib/wayfindScore";
 import { attachTrendSignals } from "../../lib/trendSignal";
 import { TRENDING_POPULARITY_THRESHOLD } from "./kit";
@@ -61,6 +62,7 @@ export default function IntentPageClient({ intent }) {
   const def = INTENT_PAGES[intent];
   const sp = useSearchParams();
   const [rows, setRows] = useState(null); // null = loading
+  const curatedRows = useCuratedRows(rows); // lib/curatorPicks.js: owner picks re-score rows BEFORE the sort/slice below
   const [copied, setCopied] = useState(false);
   const [sortBy, setSortBy] = useState("rated");
   const [radius, setRadius] = useState(17);
@@ -111,11 +113,14 @@ export default function IntentPageClient({ intent }) {
     });
     return () => { active = false; if (sub && sub.subscription) sub.subscription.unsubscribe(); };
   }, []);
+  // lib/curatorPicks.js trackCuratorWrite: bearer for the owner-verdict read.
+  const getCuratorHeaders = async () => { try { const { data } = await supabase.auth.getSession(); const t = data?.session?.access_token; return t ? { Authorization: "Bearer " + t } : undefined; } catch (er) { return undefined; } };
   function toggleLike(e, p) {
     try { e && e.stopPropagation && e.stopPropagation(); } catch (er) {}
     const wasLiked = !!liked[p.id];
     const next = persistLike({ supabase, user, place: p, wasLiked, liked, disliked, likedItems, dislikedItems });
     setLiked(next.liked); setDisliked(next.disliked); setLikedItems(next.likedItems); setDislikedItems(next.dislikedItems);
+    if (next.write) import("../../lib/curatorPicks").then((m) => m.trackCuratorWrite(p.id, !wasLiked, next.write, getCuratorHeaders, wasLiked)).catch(() => {});
     if (!wasLiked) { try { track("like", { place_id: p.id, intent }); } catch (er) {} try { recordLikeEvent("like", p, { supabase, user }); } catch (er) {} try { recordTasteSignal("like", p, { supabase, user }); } catch (er) {} }
   }
   function toggleDislike(e, p) {
@@ -123,6 +128,7 @@ export default function IntentPageClient({ intent }) {
     const wasDis = !!disliked[p.id];
     const next = persistDislike({ supabase, user, place: p, wasDisliked: wasDis, liked, disliked, likedItems, dislikedItems });
     setLiked(next.liked); setDisliked(next.disliked); setLikedItems(next.likedItems); setDislikedItems(next.dislikedItems);
+    if (next.write && liked[p.id]) import("../../lib/curatorPicks").then((m) => m.trackCuratorWrite(p.id, false, next.write, getCuratorHeaders, true)).catch(() => {});
     if (!wasDis) { try { track("dislike", { place_id: p.id, intent }); } catch (er) {} try { recordLikeEvent("dislike", p, { supabase, user }); } catch (er) {} try { recordTasteSignal("dislike", p, { supabase, user }); } catch (er) {} }
   }
   function toggleSave(e, p) {
@@ -573,7 +579,7 @@ export default function IntentPageClient({ intent }) {
   // governedScoreOf prefers the governed_score rankRows already stamped, so
   // this is a read of the sort key rather than a second derivation of it.
   const ratedKey = (r) => governedScoreOf(r) ?? -Infinity;
-  const visibleRows = (rows || []).filter((r) => r.distMi == null || r.distMi <= radius).slice().sort((a, b) => {
+  const visibleRows = (curatedRows || []).filter((r) => r.distMi == null || r.distMi <= radius).slice().sort((a, b) => {
     if (sortBy === "near") return (a.distMi ?? 1e12) - (b.distMi ?? 1e12);
     if (sortBy === "price") return (a.priceLevel ?? 9) - (b.priceLevel ?? 9) || ratedKey(b) - ratedKey(a);
     return ratedKey(b) - ratedKey(a);
@@ -666,7 +672,7 @@ export default function IntentPageClient({ intent }) {
 
         {/* momentPicks resolve against the rows this page already loaded, so a
             pick we cannot show a score for is dropped rather than rendered thin. */}
-        <PerfectRightNow picks={momentPicks} places={rows || []} durablePlaces={visibleRows} context={now} onOpenPlace={(p) => { window.location.href = "/p/" + encodeURIComponent(p.id); }} />
+        <PerfectRightNow picks={momentPicks} places={curatedRows || []} durablePlaces={visibleRows} context={now} onOpenPlace={(p) => { window.location.href = "/p/" + encodeURIComponent(p.id); }} />
 
       </div>
 

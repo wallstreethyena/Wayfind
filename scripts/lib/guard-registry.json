@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 760,
-    "totalRegistryEntries": 761,
-    "guardsTxtLineCount": 759,
-    "guardsTxtReachedFileCount": 753,
+    "totalOnDiskGuardFiles": 761,
+    "totalRegistryEntries": 762,
+    "guardsTxtLineCount": 760,
+    "guardsTxtReachedFileCount": 754,
     "criticalCount": 91,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 527,
+      "CALL": 528,
       "RENDER": 92,
       "STRUCTURAL": 141,
       "OTHER": 1
@@ -6363,7 +6363,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 58,
+      "assertionCount": 60,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -11476,6 +11476,28 @@
       "owner": null
     },
     {
+      "file": "scripts/test-curator-picks.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 60,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-daily-trend-intelligence.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -14013,7 +14035,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 44,
+      "assertionCount": 41,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

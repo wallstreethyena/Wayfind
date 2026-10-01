@@ -149,6 +149,7 @@ node scripts/test-showtime-dedup.mjs
 node scripts/test-member-score.mjs
 node scripts/test-curator-boost.mjs
 node scripts/test-like-rerank.mjs
+node scripts/test-curator-picks.mjs
 node scripts/test-scorelabel.mjs
 node scripts/test-booking-integrity.mjs
 node scripts/test-viator-integrity-lock.mjs

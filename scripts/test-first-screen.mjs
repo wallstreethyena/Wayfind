@@ -195,16 +195,11 @@ ok(/const railMenuBand = railMenu \? \(/.test(code),
     // track renders, or the rail returns null/holds a skeleton while waiting
     // for it — it stops belonging here, because that is precisely the
     // 6.4-second regression this file exists to prevent.
-    // `livePicks` / `applyLivePicks` (2026-09-30, a like re-ranks the open
-    // drop) are the same class as `liked` and `applyMemberSignal`: client
-    // state plus the parent's decorator, read ONLY in the drop's `selPlaces`
-    // memo. `livePicks` starts as {} and only changes after a like, so neither
-    // can delay or change first paint. Read outside the drop, they leave.
     const NON_CONTENT = new Set([
       "center", "sponsor", "sponsorCard", "isSaved", "isOnTrip", "initialRail",
       "liked", "disliked", "isLiked", "isDisliked",
       "memberSignalsFor", "applyMemberSignal", "locName", "eventsSlot",
-      "livePosters", "livePicks", "applyLivePicks",
+      "livePosters",
     ]);
     if (NON_CONTENT.has(name) || /^on[A-Z]/.test(name)) continue;
     ok(/^railMenu\.\w+$/.test(value) || value === "RAILS",

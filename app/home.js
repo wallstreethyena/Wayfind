@@ -223,7 +223,8 @@ import { C, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useD
 import { sponsorRailNear, partnerCollectionById, hydratePartnerCollection } from "../lib/partnerCollections";
 import { toDisplayScore, pickEligibleByScore, cardComplete, displayableAt } from "../lib/score";
 import { stampOwnerPick } from "../lib/ownerBump.js";
-import { restampGoverned, settleRescored, rescoredIds } from "../lib/lawfulOrder.js";
+import { restampGoverned } from "../lib/lawfulOrder.js";
+import { applyCuratorPicks, getCuratorPicks, useCuratorPicks, noteSessionOwner, trackCuratorWrite } from "../lib/curatorPicks.js";
 import { frontPageEvents, bestFirst } from "../lib/frontEvents";
 import { settleLoad } from "../lib/loadState.js";
 import { HOME_AFFILIATE_ACTIVITY_FETCH_LIMIT, HOME_AFFILIATE_ACTIVITY_RADIUS_MI, homeAffiliateActivities } from "../lib/homeAffiliateActivities";
@@ -866,6 +867,8 @@ async function likesAuthHeaders(sb) {
 // toggleLike can stamp the god bump in the same click (card + open sheet)
 // instead of waiting for the like write + fresh refetch.
 let likesSessionOwner = false;
+// Stable identity (module `supabase`), so useCuratorPicks does not re-run.
+const curatorHeaders = () => likesAuthHeaders(supabase);
 async function fetchMemberSignals(sb, list, opts) {
   try {
     const ids = (list || []).map((p) => p && p.id).filter(Boolean).slice(0, 50);
@@ -895,6 +898,7 @@ async function fetchMemberSignals(sb, list, opts) {
     }
     if (lRes && lRes.sessionOwner === true) likesSessionOwner = true;
     else if (lRes && lRes.sessionOwner === false) likesSessionOwner = false;
+    noteSessionOwner(likesSessionOwner);
     const lc = lRes && lRes.counts ? lRes.counts : null;
     const lo = lRes && lRes.owner ? lRes.owner : null; // Curator Boost: which places the owner picked (display-only chip; the weight is already in the count)
     if (lc) for (const k in lc) { if (!out[k]) out[k] = { authors: 0, warnAuthors: 0 }; out[k].likes = lc[k]; if (lo && lo[k]) out[k].ownerPick = true; }
@@ -926,38 +930,21 @@ function withMemberSignal(list, sig) {
     const d = Ranking.memberDelta(g);
     const base = p._wfScoreRaw != null ? p._wfScoreRaw : p.wfScore;
     const nudged = base != null ? +((base + d).toFixed(2)) : base;
-    const forDisplay = g.ownerPick === true ? base : nudged;
+    // The curator store's verdict beats this read's `ownerPick`: the likes
+    // route caches per id-set for 60s, so a read issued after the owner's tap
+    // can still say "not picked" (lib/curatorPicks.js).
+    const cp = getCuratorPicks();
+    const pick = cp.known(p.id) ? cp.has(p.id) : g.ownerPick === true;
+    const forDisplay = pick ? base : nudged;
     // restampGoverned against the ORIGINAL row: the nudge moved wfScore before
     // stampOwnerPick saw it, so only this outer compare can see that move.
-    return restampGoverned(p, stampOwnerPick({ ...p, wfScore: forDisplay, _members: g }, g.ownerPick === true));
+    return restampGoverned(p, stampOwnerPick({ ...p, wfScore: forDisplay, _members: { ...g, ownerPick: pick } }, pick));
   });
 }
 // The detail-open overlay copies the like-derived fields onto a row that may
 // already carry a memoised sort key; restamp so the rank follows the chip.
 function withSignalFields(row, next) {
   return restampGoverned(row, { ...row, wfScore: next.wfScore, _members: next._members, _wfScoreRaw: next._wfScoreRaw });
-}
-// Rails (DaypartRail) own their rows, so a like made after the drop opened
-// never reaches them through setPlaces. `picks` is patchOwnerPick's
-// server-derived id -> ownerPick map; apply it, then settle ONLY the cards
-// whose shown score moved against `raw` (the rail's pre-signal order) so a
-// bumped card climbs to its number without reshuffling the rest of the rail.
-function withLivePicks(rows, picks, raw) {
-  let live = rows || [];
-  if (picks && live.length) {
-    let changed = false;
-    const out = live.map((p) => {
-      if (!p || !Object.prototype.hasOwnProperty.call(picks, p.id)) return p;
-      const want = picks[p.id] === true;
-      if (!!(p._members && p._members.ownerPick) === want) return p;
-      changed = true;
-      return stampOwnerPick(p, want);
-    });
-    if (changed) live = out;
-  }
-  const base = raw || rows || [];
-  if (live === base) return base;
-  return settleRescored(live, rescoredIds(base, live));
 }
 // v4.95: the old mapsRouteUrl (Google-Maps directions to ALL places at once)
 // is gone by product direction — a list's map icon opens Wayfind's own map.
@@ -4194,9 +4181,6 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   }, [cityTransition]);
   const [sugIdx, setSugIdx] = useState(-1); // v5.63 (audit P4): keyboard-highlighted suggestion, -1 = none
   const [places, setPlaces] = useState([]);
-  // Server-derived owner picks from this session's likes (patchOwnerPick),
-  // id -> boolean. Rails hold their own rows, so this is how a like reaches them.
-  const [livePicks, setLivePicks] = useState({});
   // 2026-09-23 — SERVER PAGING for the inv=1 category list. The route now
   // reports the TRUE eligible count and whether more exists past this page
   // (lib/inventoryServe.js's exhaustive read); this ref remembers that answer
@@ -4708,11 +4692,12 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   const pickBrowse = (id) => { const nv = browseCat === id ? null : id; if (!nv) { closeBrowse(); return; } captureBrowseReturn(); setMoodPick(nv); setBrowseCat(nv); if (nv) { setCat(nv); setSub("all"); setVibe("all"); } };
   const openCuisine = (label, fromPlace) => {
     if (!label) return;
-    const ctx = condCtxFromNow(nowContext({ weather }));
-    const pool = intentPool();
-    const list = Ranking.rankByConditions(pool.filter((p) => Dining.cuisineLabel(p) === label), ctx).slice(0, 10);
-    setCuisineSheet({ label, list });
+    setCuisineSheet({ label });
   };
+  // Ranked at RENDER from the curated pools, not frozen at open: a like made
+  // while the sheet is open re-ranks it, and a newly picked place can enter
+  // the top 10 because the cut happens after the bump.
+  const cuisineList = (label) => Ranking.rankByConditions(intentPool().filter((p) => Dining.cuisineLabel(p) === label), condCtxFromNow(nowContext({ weather }))).slice(0, 10);
   // v2.1: intent entries. Each opens an existing surface or a ranked quick list
   // built from data already loaded. No new fetching, no new card systems.
   const intentCtx = () => condCtxFromNow(nowContext({ weather }));
@@ -4736,6 +4721,19 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     return () => { live = false; };
   }, [detail && detail.id, supabaseReady]);
   const [hookDetail, setHookDetail] = useState(null);
+  // CURATION: every pool a surface ranks or slices carries the owner's pick
+  // (lib/curatorPicks.js) — on arrival and whenever the pick set changes. A
+  // tap anywhere re-scores the card here; the feed, Experience, the sheets
+  // and the map then re-rank from their own active sort on the next render.
+  // applyCuratorPicks returns the same array when nothing changed, so these
+  // settle in one pass.
+  const curator = useCuratorPicks(curatorHeaders);
+  useEffect(() => { setPlaces((cur) => applyCuratorPicks(cur, curator)); }, [curator, places]);
+  useEffect(() => { setExpPlaces((cur) => (Array.isArray(cur) ? applyCuratorPicks(cur, curator) : cur)); }, [curator, expPlaces]);
+  useEffect(() => { setSuggested((cur) => (Array.isArray(cur) ? applyCuratorPicks(cur, curator) : cur)); }, [curator, suggested]);
+  useEffect(() => { setHomeTodo((cur) => (Array.isArray(cur) ? applyCuratorPicks(cur, curator) : cur)); }, [curator, homeTodo]);
+  useEffect(() => { setDetail((cur) => { if (!cur) return cur; const n = applyCuratorPicks([cur], curator); return n[0] === cur ? cur : n[0]; }); }, [curator, detail]);
+  useEffect(() => { setHookDetail((cur) => { if (!cur || !Array.isArray(cur.places)) return cur; const n = applyCuratorPicks(cur.places, curator); return n === cur.places ? cur : { ...cur, places: n }; }); }, [curator, hookDetail]);
   const [viaTours, setViaTours] = useState({});
   // Sheet-local filter: the browse-style SortControl inside every themed list.
   const [hkSort, setHkSort] = useState("rated");
@@ -6560,33 +6558,17 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     try { setLocal("wf_shared_items", JSON.stringify(next)); } catch {}
     svFolderUpsert("Shared", p);
   }
-  // After a like/unlike write LANDS, refetch the server's ownerPick (fresh=1)
-  // and stamp ownerPick AND wfScore on list cards and the open sheet.
-  // The client cannot mint: only the server owner map (or sessionOwner,
-  // which the same route already computed for this session).
-  //
-  // RE-RANK, NOT JUST RE-SCORE (owner, 2026-09-30). The browse feed and the
-  // Experience screen re-order from these arrays on every render, and the
-  // hook sheet re-applies its active sort, so patching the score is enough
-  // there — restampGoverned (inside stampOwnerPick) keeps the sort key honest.
-  // Rails own their rows, so they get the server-derived verdict via
-  // `livePicks` and settle the changed card in place (DaypartRail).
-  function patchOwnerPick(placeId, ownerPick) {
-    if (!placeId) return;
-    const patch = (cur) => (cur || []).map((pl) => (pl && pl.id === placeId ? stampOwnerPick(pl, ownerPick) : pl));
-    setPlaces(patch);
-    setExpPlaces(patch);
-    setDetail((cur) => (cur && cur.id === placeId ? stampOwnerPick(cur, ownerPick) : cur));
-    setHookDetail((cur) => (cur && Array.isArray(cur.places) && cur.places.some((pl) => pl && pl.id === placeId) ? { ...cur, places: patch(cur.places) } : cur));
-    setLivePicks((cur) => (cur[placeId] === ownerPick ? cur : { ...cur, [placeId]: ownerPick }));
-  }
-  async function refreshOwnerPick(placeId) {
-    if (!placeId) return;
-    try {
-      const sig = await fetchMemberSignals(supabase, [{ id: placeId }], { fresh: true });
-      const ownerPick = !!(sig && sig[placeId] && sig[placeId].ownerPick);
-      patchOwnerPick(placeId, ownerPick);
-    } catch (e) {}
+  // THE OWNER'S LIKE — ONE STORE, EVERY SURFACE (lib/curatorPicks.js).
+  // A tap is sequenced per place; the store shows the optimistic pick only
+  // when the server already told this session it is the owner, re-reads the
+  // verdict FRESH (fresh=1, both route caches skipped) once the write settles,
+  // and ignores any answer that belongs to an older tap. Every list below then
+  // re-applies the pick through stampOwnerPick (curation effect), and each
+  // surface re-ranks from its own active sort. The client cannot mint: the
+  // verdict is the server's owner map.
+  function refreshOwnerPick(placeId, writePromise, on, prior) {
+    if (!placeId || !writePromise) return;
+    trackCuratorWrite(placeId, on, writePromise, curatorHeaders, prior);
   }
   function toggleLike(e, p) {
     e.stopPropagation();
@@ -6604,14 +6586,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     setLiked(nextLiked); setDisliked(nextDis);
     setLikedItems(nextLikedItems); setDislikedItems(nextDisItems);
     try { setLocal("wf_liked", JSON.stringify(nextLiked)); setLocal("wf_disliked", JSON.stringify(nextDis)); setLocal("wf_liked_items", JSON.stringify(nextLikedItems)); setLocal("wf_disliked_items", JSON.stringify(nextDisItems)); } catch {}
-    // Same-turn stamp: card + open detail sheet. sessionOwner is server-set
-    // on a prior likes fetch — no email/UUID on the client, no page refresh.
-    if (user && likesSessionOwner) patchOwnerPick(p.id, nowLiked);
+    // The store stamps the optimistic pick in the same turn for a session the
+    // server marked as the owner, then reconciles after the write settles.
     if (supabase && user) {
       if (wasLiked) {
-        supabase.from("likes").delete().eq("user_id", user.id).eq("place_id", p.id).then(() => refreshOwnerPick(p.id), () => {});
+        refreshOwnerPick(p.id, supabase.from("likes").delete().eq("user_id", user.id).eq("place_id", p.id), false, true);
       } else {
-        supabase.from("likes").upsert({ user_id: user.id, place_id: p.id, place: p }, { onConflict: "user_id,place_id" }).then(() => refreshOwnerPick(p.id), () => {});
+        refreshOwnerPick(p.id, supabase.from("likes").upsert({ user_id: user.id, place_id: p.id, place: p }, { onConflict: "user_id,place_id" }), true, false);
         svFolderDelete("Disliked", p.id);
       }
     }
@@ -6628,7 +6609,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       nextDisItems[p.id] = { place: p, ts: Date.now() }; delete nextLikedItems[p.id];
       recordSignal(p, "dislike"); logEvent("dislike", p);
       svFolderUpsert("Disliked", p);
-      if (supabase && user) supabase.from("likes").delete().eq("user_id", user.id).eq("place_id", p.id).then(() => refreshOwnerPick(p.id), () => {});
+      if (supabase && user) refreshOwnerPick(p.id, supabase.from("likes").delete().eq("user_id", user.id).eq("place_id", p.id), false, !!liked[p.id]);
     }
     setLiked(nextLiked); setDisliked(nextDis);
     setLikedItems(nextLikedItems); setDislikedItems(nextDisItems);
@@ -9978,8 +9959,6 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }}
         memberSignalsFor={(list) => fetchMemberSignals(supabase, list)}
         applyMemberSignal={withMemberSignal}
-        livePicks={livePicks}
-        applyLivePicks={withLivePicks}
         // v8.30.1 — THE PLACE CARD'S SHARE, which was never wired (owner,
         // 2026-08-22, screenshot: "the share button on the amazon rail place
         // cards are not working"). `onShareRail` directly below is the TILE's
@@ -11422,7 +11401,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
 
       {/* Hook editorial page — full-screen themed experience, not a sheet */}
       {cuisineSheet && (() => {
-        const cs = cuisineSheet; const list = cs.list || [];
+        const cs = cuisineSheet; const list = cs.list || cuisineList(cs.label);
         return (
           <div onClick={() => setCuisineSheet(null)} style={{ position: "fixed", inset: 0, zIndex: 95, background: "rgba(0,0,0,.62)", backdropFilter: "blur(3px)", display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
             <div onClick={(e) => e.stopPropagation()} style={{ background: "#0D1117", width: "100%", maxWidth: 640, maxHeight: "82vh", overflowY: "auto", borderRadius: "20px 20px 0 0", border: `1px solid ${C.border}`, padding: "16px 16px 28px" }}>

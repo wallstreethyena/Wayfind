@@ -11,7 +11,7 @@
 // detail sheet (owner call — never a Google tab). Tours: direct image, Score,
 // from-$, duration, "Selling fast" ONLY on the engine's flag, tap books.
 // scripts/test-todays-best.mjs locks the contract.
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { C, FOCUS, WayfindScoreBadge } from "./kit";
 import IconicPlaceCard from "./IconicPlaceCard";
 import { topPickAward } from "../../lib/topPickAward";
@@ -30,6 +30,7 @@ import { fetchThingsToDo, tbPhotoUrl } from "../../lib/todaysBest.js";
 // v6.72: one source for the hour, the bucket and the outdoor gate.
 import { nowContext } from "../../lib/nowContext.js";
 import { rankForNow } from "../../lib/ranking.js";
+import { useCuratorPicks, applyCuratorPicks } from "../../lib/curatorPicks.js";
 import { supabase } from "../../lib/supabase.js";
 import { waterForBeaches, sampledShort } from "../../lib/waterStations.js";
 import { WATER_PLAIN, waterQualityKey } from "../../lib/beachChip.js";
@@ -256,7 +257,15 @@ export function Card({ r, first, rank, city, blurb, beachSignal, onOpenPlace, on
 }
 
 export default function ThingsToDoList({ center, city, weather, onOpenPlace, onLog, blurbs, loadBlurbs, onSave, onShare, liked, disliked, onLike, onDislike }) {
-  const [list, setList] = useState(null); // null = loading
+  const [fetchedRows, setFetchedRows] = useState(null); // null = loading
+  const curatorPicks = useCuratorPicks();
+  const nowCtx = useMemo(() => (center ? nowContext({ lat: center.lat, lng: center.lng, weather }) : null), [fetchedRows]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Owner picks applied BEFORE rank/slice (lib/curatorPicks.js); the printed governed_score is the sort key.
+  const list = useMemo(() => {
+    if (fetchedRows === null || !nowCtx) return fetchedRows;
+    const mirrored = fetchedRows.map((r) => (Number.isFinite(r.governed_score) && !Number.isFinite(r.wfScore) ? { ...r, wfScore: r.governed_score } : r));
+    return rankForNow(applyCuratorPicks(mirrored, curatorPicks), nowCtx, (p) => (p && p.score != null ? p.score : 50)).slice(0, 20);
+  }, [fetchedRows, curatorPicks, nowCtx]);
   // v6.71 (Wave 2): batched water-quality + popularity for whichever beach
   // rows land in this ranked list — same wf_beach_water / wf_place_popularity_scored
   // reads as home.js's `beachSignals` effect, one query pair per list load
@@ -301,7 +310,7 @@ export default function ThingsToDoList({ center, city, weather, onOpenPlace, onL
   useEffect(() => {
     if (!center) return;
     let dead = false;
-    setList(null);
+    setFetchedRows(null);
     (async () => {
       const now = nowContext({ lat: center.lat, lng: center.lng, weather });
       const fetched = await fetchThingsToDo({
@@ -315,8 +324,9 @@ export default function ThingsToDoList({ center, city, weather, onOpenPlace, onL
       // the hour as a number; it does not know that a morning list should lean
       // quiet and close and an evening list should lean open-late, and it
       // cannot suppress an outdoor category outright.
+      // (rank + slice now run in the `list` memo above, after the picks apply.)
       const rows = rankForNow(fetched, now, (p) => (p && p.score != null ? p.score : 50)).slice(0, 20);
-      if (!dead) setList(rows);
+      if (!dead) setFetchedRows(Array.isArray(fetched) ? fetched : []);
       // Standard-card blurbs for PLACE rows (the same shared AI pool the
       // other feeds use — cached 30d sitewide; tours have no blurb source).
       try { if (!dead && loadBlurbs) loadBlurbs((rows || []).filter((x) => x.kind !== "experience").slice(0, 8).map((x) => ({ id: x.id, name: x.title, rating: x.rating, reviews: x.reviews }))); } catch (e) {}
