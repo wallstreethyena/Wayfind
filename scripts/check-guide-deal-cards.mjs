@@ -12,15 +12,21 @@
 // Images are checked against the filesystem, not against a naming convention.
 import { readFileSync, existsSync } from "node:fs";
 import { GUIDES } from "../lib/guides.js";
-import { COUPONS, couponIsLive } from "../lib/coupons.js";
+import { COUPONS, COUPON_AUDIT_FUSES, couponIsLive } from "../lib/coupons.js";
 import { guidePrimaryCta } from "../lib/guideCta.js";
-import { siteTodayStr } from "../lib/siteTime.js";
 import { GUIDE_DEAL_MAX, areasForRegion, guideDealIds } from "../lib/guideDeals.js";
 
 let n = 0, bad = 0;
 const ok = (cond, msg) => { n++; if (!cond) { bad++; console.error("  - " + msg); } };
 
-const today = siteTodayStr();
+// PINNED, not the real date. This guard runs inside `npm run build`, and the
+// Clipp cards carry a deliberate 2-week owner-audit fuse — so reading the real date made
+// every Vercel build fail the day a fuse lapsed (08-11, 08-23, 09-14, 09-29), blocking
+// unrelated deploys. The fixture date (2026-09-27) sits inside BOTH Clipp audit windows (city pages and merchant certificates), so the resolver and CTA paths are exercised for both; the lapse itself is
+// announced by the Command Center rule `coupon_audit_*` (lib/commandCenter/alerts.js), and
+// expiry is still asserted explicitly below by CALLING couponIsLive past each fuse.
+const FIXTURE_TODAY = "2026-09-27";
+const today = FIXTURE_TODAY;
 const src = readFileSync(new URL("../app/guides/[slug]/GuideDealCards.js", import.meta.url), "utf8");
 const page = readFileSync(new URL("../app/guides/[slug]/page.js", import.meta.url), "utf8");
 // Strip comments before matching, so this guard cannot pass on its own prose.
@@ -178,6 +184,25 @@ ok(/inventoryPlacesForRegion[\s\S]{0,1800}next:\s*\{\s*revalidate:\s*3600\s*\}/.
   ok(autoGuides >= 15, `only ${autoGuides} guides resolve offers automatically — the resolver looks disconnected (it was 27 when it shipped)`);
   console.log(`  · ${autoGuides} guides resolve ${autoCards} cards from the registry with no hand-typed ids`);
 }
+
+// ── The pin must hold, and expiry must still mean something ────────────────────
+// Expiry asserted by CALLING couponIsLive at the boundary, for every dated coupon: live on its
+// last day, gone the day after. This is what the real-date read used to cover by accident.
+const dayAfter = (iso) => new Date(Date.parse(iso.slice(0, 10) + "T00:00:00Z") + 86400000).toISOString().slice(0, 10);
+const dated = COUPONS.filter((c) => c && c.expires);
+ok(dated.length >= 10, `only ${dated.length} dated coupons — the expiry boundary check would prove nothing`);
+for (const c of dated) {
+  const last = String(c.expires).slice(0, 10);
+  ok(couponIsLive(c, last) === true, `${c.id}: not live on its own last day ${last}`);
+  ok(couponIsLive(c, dayAfter(last)) === false, `${c.id}: still live the day after ${last} — expiry no longer hides it`);
+}
+// The audit fuses are what the Command Center warns on; they must be real, ISO, and cover the pin.
+ok(COUPON_AUDIT_FUSES.length >= 2, "COUPON_AUDIT_FUSES lost entries — the lapse alert would watch nothing");
+for (const f of COUPON_AUDIT_FUSES) ok(/^\d{4}-\d{2}-\d{2}$/.test(f.expires), `fuse ${f.id}: expires is not an ISO date (${f.expires})`);
+// This file must not read the clock again — a regression to the real date re-opens the deploy block.
+const selfSrc = code(readFileSync(new URL(import.meta.url), "utf8"));
+const clock = new RegExp(["siteToday" + "Str\\(", "new Da" + "te\\(\\s*\\)", "Date\\." + "now\\("].join("|"));
+ok(!clock.test(selfSrc.replace(/new Date\(Date\.parse[^;]*;/g, "")), "check-guide-deal-cards reads the real clock — a coupon-fuse lapse would fail every build again");
 
 if (bad) { console.error(`\ncheck-guide-deal-cards: FAIL — ${bad}/${n} assertions`); process.exit(1); }
 console.log(`check-guide-deal-cards: OK — ${n} assertions (${optedIn.length} guide(s) opted in; every card registry-backed, live-gated, imaged from a real file, and tracked)`);
