@@ -107,7 +107,7 @@ ok(!/"(spa|wellness)[^"]*":\s*isThemeParkPlace/.test(chipIdentity), "isThemePark
 const REQUIRED_SURFACES = [
   { path: "app/home.js", note: "home rail + attractions/family browse tabs + theme-park search intent" },
   { path: "app/components/FamilyDayPage.js", note: "/family" },
-  { path: "lib/landing.js", note: "/things-to-do/[city] for Orlando + Tampa" },
+  { path: "lib/landingPage.js", note: "/things-to-do/[city] for Orlando + Tampa" },
   { path: "app/go/florida/page.js", note: "/go/florida statewide (Disney-inclusive, unlike the photo-gated THEME_PARK_OFFERS carousel)" },
 ];
 for (const surface of REQUIRED_SURFACES) {

@@ -27,16 +27,16 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 763,
-    "totalRegistryEntries": 764,
-    "guardsTxtLineCount": 763,
-    "guardsTxtReachedFileCount": 756,
+    "totalOnDiskGuardFiles": 764,
+    "totalRegistryEntries": 765,
+    "guardsTxtLineCount": 764,
+    "guardsTxtReachedFileCount": 757,
     "criticalCount": 92,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 528,
       "RENDER": 94,
-      "STRUCTURAL": 141,
+      "STRUCTURAL": 142,
       "OTHER": 1
     }
   },
@@ -4837,6 +4837,30 @@
       "assertionCount": 32,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-landing-data-client-free.mjs",
+      "npmScript": null,
+      "class": "STRUCTURAL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 8,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [
+        "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
+      ],
       "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,

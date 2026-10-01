@@ -57,7 +57,7 @@ ok(five < shown(4.8, 3200),
 ok(shown(null, 0) === null, "an unrated place yields null, never 0 — a coerced zero prints a fake 0.1/10 (CLAUDE.md)");
 
 /* ── 2. STRUCTURAL: no template prints the raw star in the badge ───────── */
-const SURFACES = ["lib/landing.js", "app/components/PaidLanding.js", "app/components/IconicPlaceCard.js", "app/components/RankedExperiencePage.js"];
+const SURFACES = ["lib/landing.js", "lib/landingPage.js", "app/components/PaidLanding.js", "app/components/IconicPlaceCard.js", "app/components/RankedExperiencePage.js"];
 let checked = 0;
 for (const rel of SURFACES) {
   let src;
@@ -78,7 +78,7 @@ ok(checked >= 2, `PROBE: at least two score-bearing surfaces were read (got ${ch
 
 /* ── 3. the scale must be legible ──────────────────────────────────────── */
 {
-  const landing = readFileSync(new URL("../lib/landing.js", import.meta.url), "utf8");
+  const landing = readFileSync(new URL("../lib/landing.js", import.meta.url), "utf8") + "\n" + readFileSync(new URL("../lib/landingPage.js", import.meta.url), "utf8"); // LandingPage lives in landingPage.js
   const iconic = readFileSync(new URL("../app/components/IconicPlaceCard.js", import.meta.url), "utf8");
   const kit = readFileSync(new URL("../app/components/kit.js", import.meta.url), "utf8");
   ok(/import IconicPlaceCard from ["'][^"']*IconicPlaceCard["']/.test(landing) && /<IconicPlaceCard\b/.test(landing),
