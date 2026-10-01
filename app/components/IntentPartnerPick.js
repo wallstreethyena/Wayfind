@@ -25,7 +25,8 @@ const DEAL_CATEGORIES = Object.freeze({
   "best-of": ["attractions", "more"],
 });
 
-const dealImage = (deal) => deal?.image || (deal?.photoRef ? `/api/photo?ref=${encodeURIComponent(deal.photoRef)}&g=2&w=600` : "");
+// noSpend (evergreen landing towns): a deal's own Google ref is read as a free probe (nospend=1), never bought.
+const dealImage = (deal, noSpend) => deal?.image || (deal?.photoRef ? `/api/photo?ref=${encodeURIComponent(deal.photoRef)}&g=2&w=600${noSpend ? "&nospend=1" : ""}` : "");
 // v6.90 — owner: "make sure they are displayed by rating and discount, point
 // based on the activity time of today — something great that is not the best
 // time of the day should show lower in ranking." Rating/quality stays the
@@ -52,7 +53,7 @@ const evidenceScore = (pick, hour) => {
   return base + discountDepthBonus(pick?.discount || pick?.badge || pick?.eyebrow || "") + timeOfDayBonus(text, hour);
 };
 
-export default function IntentPartnerPick({ city, intent, inventory, initialInventory, accent = "#F97316", lat, lng, couponIntent, onOpenCoupons, onLog }) {
+export default function IntentPartnerPick({ city, intent, inventory, initialInventory, accent = "#F97316", lat, lng, couponIntent, onOpenCoupons, onLog, photoNoSpend }) {
   const [networkDeals, setNetworkDeals] = useState([]);
   // HYDRATION-SAFE TIME-OF-DAY (2026-09-29). The order below folds in
   // siteHourFloat() — the hour it is RIGHT NOW. Once this rail is server-rendered
@@ -111,7 +112,7 @@ export default function IntentPartnerPick({ city, intent, inventory, initialInve
         for (const payload of payloads) {
           for (const rail of (payload && Array.isArray(payload.rails) ? payload.rails : [])) {
             for (const deal of (Array.isArray(rail.items) ? rail.items : [])) {
-              const image = dealImage(deal);
+              const image = dealImage(deal, photoNoSpend);
               if (!image) continue;
               rows.push({
                 offerId: String(deal.id || ""), provider: deal.provider || "undercover_tourist",
