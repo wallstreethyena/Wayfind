@@ -62,6 +62,7 @@ function run({ getThrows = false, setThrows = false, now = 1_790_000_000_000 } =
     body: { appendChild(c) { appended.push(c); } },
     createElement: el,
     getElementById: (id) => byId.get(id) || null,
+    querySelector: (sel) => (sel === "[data-wf-recovery]" && w.__recoveryShown ? {} : null),
     addEventListener() {},
   };
   vm.runInContext(chunkRecoveryScript(), vm.createContext({ window: w, document, Date: FakeDate, Number, String, RegExp, isFinite }));
@@ -162,6 +163,14 @@ const OWN_CHUNK = "https://www.gowayfind.com/_next/static/chunks/4968-2dcc614085
     "2: a failure a React boundary caught never paints the bar (the boundary's own screen is showing)");
 }
 {
+  // One prompt at a time: a React recovery screen already showing suppresses
+  // the bar (positive control: the same failure paints it when none is shown).
+  const shown = run({ getThrows: true });
+  shown.w.__recoveryShown = true;
+  shown.fire("error", SCRIPT(OWN_CHUNK));
+  ok(shown.appended.length === 0, "2: the bar never paints over a React recovery screen ([data-wf-recovery])");
+}
+{
   const { w, fire, appended } = run({ getThrows: true });
   fire("error", SCRIPT(OWN_CHUNK));
   ok(w.reloads === 0 && appended.length === 1, "2: no sessionStorage ⇒ no automatic reload, but the reader still gets the bar");
@@ -176,6 +185,7 @@ const OWN_CHUNK = "https://www.gowayfind.com/_next/static/chunks/4968-2dcc614085
 const screenMod = await loadComponent(fileURLToPath(new URL("../app/components/RecoveryScreen.js", import.meta.url)), REPO);
 const html = renderToStaticMarkup(createElement(screenMod.default, { error: POSITIVES[0], reset() {}, boundary: "route" }));
 ok(/role="alert"/.test(html), "3: the screen is announced (role=alert)");
+ok(/data-wf-recovery="1"/.test(html), "3: the screen carries data-wf-recovery, which the pre-React bar defers to");
 ok(/That took a wrong turn/.test(html) && /Reload Wayfind/.test(html), "3: the home screen's own words and its Reload Wayfind button");
 ok(/Try again/.test(html), "3: first paint offers Try again (reset) — the chunk-only copy swaps in after the effect asks the inline script");
 ok(/href="\/"/.test(html), "3: there is always a way home");
@@ -201,6 +211,8 @@ ok(!OWN_DOCUMENT.test(routeHtml), "3: app/error.js renders INSIDE the root layou
   const effect = /useEffect\(\(\) => \{([\s\S]*?)\}, \[/.exec(screen);
   ok(effect && /window\.reportError\(error\)/.test(effect[1]),
     "4: the boundary effect reports every caught error via reportError() (Sentry's global handler + the early shim capture it) — none is swallowed");
+  ok(effect && /getElementById\("wf-chunk-bar"\)[\s\S]*\.remove\(\)/.test(effect[1]),
+    "4: the boundary effect removes a #wf-chunk-bar painted for the same failure (one prompt at a time)");
   ok(effect && /window\.__wfChunkRecover\(error\)/.test(effect[1]),
     "4: the boundary effect applies the ONE chunk rule through window.__wfChunkRecover (reload once, never a loop)");
   // Bundle ratchet (scripts/check-bundle.mjs, 498KB, 0.3KB headroom on
