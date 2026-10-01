@@ -1988,3 +1988,8 @@ node scripts/test-beach-never-booking.mjs
 # (check-guide-deal-cards read the real date). The guard is pinned; this proves the lapse is
 # announced in the Command Center instead — warn 2 days ahead and while lapsed, never a build.
 node scripts/test-coupon-audit-alert.mjs
+
+# 2026-10-01: ownerless expiry fuses fail builds or hide data silently. Time-dependent tests run on explicit
+# reference dates; the coupon selection fix; Family-day/fall/coupon fuses warn through the Command Center.
+node scripts/test-coupon-selection.mjs
+node scripts/test-family-evidence-expiry.mjs

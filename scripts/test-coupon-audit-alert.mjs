@@ -8,7 +8,9 @@
 import { computeAlerts } from "../lib/commandCenter/alerts.js";
 import { COUPON_AUDIT_FUSES } from "../lib/couponAuditFuses.js";
 import { buildAlertsReport } from "../lib/commandCenter/alertsRun.js";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync, statSync } from "node:fs";
+import { join, relative } from "node:path";
+import { fileURLToPath } from "node:url";
 import { COUPONS, couponIsLive } from "../lib/coupons.js";
 import { siteTodayStr } from "../lib/siteTime.js";
 import { offeringActive } from "../lib/fallEvidence.js";
@@ -18,7 +20,7 @@ import { FALL_CARD_IDS } from "../lib/fallSkin.js";
 let n = 0, bad = 0;
 const ok = (c, m) => { n++; if (!c) { bad++; console.error("  - " + m); } };
 const fuse = { id: "t_fuse", label: "Test fuse", expires: "2026-10-12" };
-const run = (today, fuses = [fuse]) => computeAlerts({ couponAudit: { today, fuses } }).filter((a) => String(a.id).startsWith("coupon_audit_"));
+const run = (today, fuses = [fuse]) => computeAlerts({ couponAudit: { today, fuses } }).filter((a) => /^(coupon_audit_|audit_fuse_)/.test(String(a.id)));
 
 ok(run("2026-10-01").length === 0, "13 days ahead must be silent");
 ok(run("2026-10-09").length === 0, "3 days ahead must be silent");
@@ -32,7 +34,7 @@ ok(lapsed[0] && /Builds are NOT affected/.test(lapsed[0].detail || lapsed[0].bod
 ok(run("2026-10-13", [fuse, { id: "t2", label: "Other", expires: "2027-01-01" }]).length === 1, "only the lapsed fuse alerts");
 
 // Controls: no data / malformed data never throws and never alerts.
-ok(computeAlerts({}).filter((a) => String(a.id).startsWith("coupon_audit_")).length === 0, "no couponAudit -> no alert");
+ok(computeAlerts({}).filter((a) => /^(coupon_audit_|audit_fuse_)/.test(String(a.id))).length === 0, "no couponAudit -> no alert");
 ok(run("not-a-date").length === 0, "a malformed today must not alert");
 ok(run("2026-10-13", [{ id: "x", label: "x", expires: "soon" }, null]).length === 0, "malformed fuses are skipped, not thrown on");
 
@@ -46,7 +48,7 @@ const rep = buildAlertsReport({ fractionOfDay: 0.5, todayKey: "2099-01-01", asOf
   dailyHist: stub, todayK: stub, signupHist: stub, signupToday: stub, cwvField: stub, lab: stub, err24: stub, boundary1h: stub,
   sentry: stub, syn: stub, deploys: stub, tpToday: stub, freshness: stub, photos: stub,
   couponAudit: { today: "2099-01-01", fuses: COUPON_AUDIT_FUSES } });
-ok(rep.alerts.filter((a) => String(a.id).startsWith("coupon_audit_")).length === COUPON_AUDIT_FUSES.length, "buildAlertsReport forwards couponAudit into the alert rules");
+ok(rep.alerts.filter((a) => /^(coupon_audit_|audit_fuse_)/.test(String(a.id))).length === COUPON_AUDIT_FUSES.length, "buildAlertsReport forwards couponAudit into the alert rules");
 const run_src = readFileSync(new URL("../lib/commandCenter/alertsRun.js", import.meta.url), "utf8").replace(/^\s*\/\/.*$/gm, "");
 ok(/couponAudit:\s*\{\s*today:\s*siteTodayStr\(now\),\s*fuses:\s*COUPON_AUDIT_FUSES\s*\}/.test(run_src), "gatherAlerts passes the venue-local date and the real fuses (weaker, source-level check: gatherAlerts needs live providers)");
 
@@ -89,5 +91,31 @@ ok(sep30("2026-10-01T03:59:59Z") === true && sep30("2026-10-01T04:00:00Z") === f
 const dated = Object.values(FALL_OFFERING_SOURCES).filter((v) => v.until).map((v) => v.until).sort();
 ok(dated.length >= 1 && dated.every((u) => u >= "2026-10-01"), `remaining dated fall offerings all end on/after 2026-10-01 (next: ${dated[0]})`);
 
+
+// ── Stable alert identity: the countdown must never enter the id (the cc-alerts cooldown is keyed by id) ──
+{
+  const f = { id: "x_fuse", label: "X", expires: "2026-10-12" };
+  const ids = new Set(["2026-10-10", "2026-10-11", "2026-10-12", "2026-10-13", "2026-10-20"].flatMap((d) => run(d, [f]).map((a) => a.id)));
+  ok(ids.size === 1 && [...ids][0] === "coupon_audit_x_fuse", `one stable id across the whole countdown and lapse (got ${JSON.stringify([...ids])})`);
+  const g = { id: "fam", alertId: "audit_fuse_fam", label: "F", expires: "2026-10-12" };
+  ok(run("2026-10-11", [g])[0] && run("2026-10-11", [g])[0].id === "audit_fuse_fam", "an explicit alertId is honored (family-day evidence)");
+  ok(run("2026-10-13", [f, g]).length === 2 && run("2026-10-13", [f, g]).every((a) => a.severity === "warn"), "both families warn, never critical");
+  // renewal: moving the date forward clears the warning (no alert is produced for a renewed fuse)
+  ok(run("2026-10-13", [{ ...f, expires: "2026-10-26" }]).length === 0, "renewing a lapsed fuse clears its warning");
+}
+
+// ── The fuse list stays SERVER-ONLY (2026-10-01: its labels in the client bundle failed the #1600 production build) ──
+// Executed as a scan of every source file under app/ and lib/: only the alert gatherer may import it. (The
+// 498KB route ratchet can no longer see this — #1607 left ~47KB of headroom — so the boundary is asserted directly.)
+{
+  const root = fileURLToPath(new URL("..", import.meta.url));
+  const files = [];
+  const walk = (dir) => { for (const e of readdirSync(dir)) { if (e === "node_modules" || e.startsWith(".")) continue; const p = join(dir, e); const st = statSync(p); if (st.isDirectory()) walk(p); else if (/\.(js|jsx|mjs|ts|tsx)$/.test(e)) files.push(p); } };
+  walk(join(root, "app")); walk(join(root, "lib"));
+  const code = (t) => t.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  const importers = files.filter((f) => /(?:from\s*|import\s*\(?\s*)["'][^"']*couponAuditFuses(?:\.js)?["']/.test(code(readFileSync(f, "utf8")))).map((f) => relative(root, f));
+  ok(files.length > 500, `scanned a real tree (${files.length} files under app/ + lib/) — a 0 here would prove nothing`);
+  ok(importers.length === 1 && importers[0] === "lib/commandCenter/alertsRun.js", `only lib/commandCenter/alertsRun.js imports lib/couponAuditFuses.js (found ${JSON.stringify(importers)})`);
+}
 if (bad) { console.error(`\ntest-coupon-audit-alert: FAIL — ${bad}/${n} assertions`); process.exit(1); }
 console.log(`test-coupon-audit-alert: OK — ${n} assertions (silent until 2 days out, warns with days left, reports the lapse as warn, malformed input is inert, real fuses covered, wired through buildAlertsReport)`);
