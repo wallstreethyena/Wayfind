@@ -288,6 +288,9 @@ node scripts/test-activation.mjs
 node scripts/test-containment.mjs
 node scripts/test-experiment.mjs
 node scripts/test-explore-bridge-gate.mjs
+# Fraunces: metric-matched Android fallback + scoped preload; every --wf-display
+# route under <DisplayFontScope> (2026-10-01, the "Right now" font jump).
+node scripts/test-font-fallback-metrics.mjs
 node scripts/test-beach-geo.mjs
 node scripts/check-app-viewport.mjs
 node scripts/check-shell-decomposition.mjs
