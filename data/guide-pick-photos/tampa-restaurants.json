@@ -80,6 +80,26 @@
       "verification": "Reusing Wayfind's already-verified photo of this exact bakery (best-cuban-sandwich-tampa guide, per pass3-reuse.json); the building's visible sign reads \"La Segunda Central BAKERY,\" confirming the exact place, and the placeId matches.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
+    },
+    "Ulele": {
+      "src": "/guides/picks/tampa-restaurants/ulele-entrance-water-works-building.webp",
+      "width": 1024,
+      "height": 761,
+      "alt": "Red-brick two-story building with an arched entrance under a sign reading ú·lē·lē, flanked by palm trees",
+      "caption": "The entrance to Ulele in Tampa's restored red-brick Water Works building, photographed in August 2014.",
+      "credit": "Under the same moon...",
+      "creditHref": "https://www.flickr.com/photos/71119007@N03/14989438915",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/71119007@N03/14989438915",
+      "author": "Under the same moon...",
+      "position": "50% 60%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "flickr",
+      "placeId": "ChIJ3Vyq7WTEwogRA-WDC7Mze2E",
+      "verification": "Flickr photo 14989438915 by Under the same moon..., titled 'Ulele Restaurant entrance, Tampa, FL', taken 2014-08-20 (the month the restaurant opened). Viewed the full image: the ú·lē·lē sign over the arched door of the red-brick Water Works building matches the Tampa Heights restaurant, same institution today. No people visible. 1024px rendition used because the 1600px version could not fit the 200KB budget. Live Flickr licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-29"
     }
   },
   "gaps": {
@@ -88,12 +108,6 @@
       "placeId": "ChIJ1WZIXhjFwogR1M-_3DXnG6Y",
       "needsPermissionFrom": "Rocca",
       "note": "Restaurant pass (2026-09-23): All 25 Commons candidates for 'Rocca' are unrelated medieval Italian fortresses (Rocca Abbaziale, Rocca Malatestiana, Rocca Maggiore, etc.) — 'rocca' is Italian for 'fortress', a name collision. Openverse searches for 'Rocca Tampa Heights restaurant' and 'Rocca Italian Tampa' both returned 0 results. No verified photo found."
-    },
-    "Ulele": {
-      "reason": "google-only",
-      "placeId": "ChIJ3Vyq7WTEwogRA-WDC7Mze2E",
-      "needsPermissionFrom": "Ulele",
-      "note": "Restaurant pass (2026-09-23): The single Commons candidate, 'Ulele Panorama - panoramio.jpg', is an undated-description 2010 upload with no Tampa reference and a Guyana-region Commons category, predating this restaurant's 2014 opening, so it was rejected as an unrelated place. Openverse search for 'Ulele Tampa' returned 123 results, almost all NC/ND-licensed Waterworks Park photos (not an allowed licence); filtered to allowed licences it returned only an unrelated skyline photo and a 'Princess Ulele' sculpture (excluded as public art). No verified restaurant photo found."
     },
     "Psomi": {
       "reason": "google-only",

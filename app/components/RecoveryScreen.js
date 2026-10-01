@@ -37,6 +37,9 @@ export default function RecoveryScreen({ error, reset, boundary }) {
     try { if (typeof window.reportError === "function") window.reportError(error); } catch (e) { /* best-effort */ }
     try { if (typeof window.__wfChunkRecover === "function") wasChunk = !!window.__wfChunkRecover(error); } catch (e) { /* best-effort */ }
     try { captureOrQueue(window, "app_error", { boundary: boundary || "unknown", chunk: wasChunk, message: String((error && error.message) || "").slice(0, 200) }); } catch (e) { /* best-effort */ }
+    // One prompt at a time: the pre-React layer may have painted its
+    // #wf-chunk-bar for the same failure before this screen mounted.
+    try { const bar = document.getElementById("wf-chunk-bar"); if (bar) bar.remove(); } catch (e) { /* best-effort */ }
     setChunk(wasChunk);
   }, [error, boundary]);
 
@@ -49,6 +52,7 @@ export default function RecoveryScreen({ error, reset, boundary }) {
     <main
       role="alert"
       aria-live="assertive"
+      data-wf-recovery="1"
       style={{ minHeight: "100dvh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14, background: BG, color: TEXT, padding: 24, textAlign: "center", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif", boxSizing: "border-box" }}
     >
       <div style={{ fontSize: 18, fontWeight: 800 }}>That took a wrong turn</div>
