@@ -5,11 +5,12 @@
 -- WHY (owner requirement, 2026-09-29). wf_photo_credit (20260924120000) hides
 -- expired rows from readers through RLS but never removes them. Measured on
 -- 2026-09-29: 90,886 rows, 189 MB, 54,224 already expired, 0 new rows since
--- the 2026-09-24 backfill. The newest row in the table expires at
--- 2026-10-16 15:01 UTC (queried 2026-09-30; an earlier draft said "by
--- 2026-10-17", which was a rounded estimate). That is the table's last row;
--- the last credit a reader can actually SEE (a credit whose exact photo the
--- app holds) expires earlier, 2026-10-03 15:01 UTC. Two
+-- the 2026-09-24 backfill. Those dates are a snapshot, not a schedule: on
+-- 2026-09-30 the newest row expired 2026-10-16 15:01 UTC and the last credit
+-- a reader could see expired 2026-10-03 15:01 UTC, but new credits began
+-- arriving on 2026-10-01 (newest then 2026-10-31 00:34 UTC, 54,620 rows
+-- eligible). The function never relies on any of these numbers; it reads
+-- expires_at at run time. Two
 -- reasons to delete rather than keep hiding:
 --   1. Storage. Hidden rows still cost disk, index and vacuum work forever.
 --   2. Google's Places terms. Photo credits are Places content; expires_at is
@@ -33,9 +34,9 @@
 -- wf_job_pulse as attempted=1, succeeded=0, failed=1, which job-watch pages
 -- on. The DELETE runs at most p_max_rows (1..20000) rows per call.
 --
--- SCHEDULE. Hourly at :23, 5,000 rows per run. The 2026-09-29 backlog
--- (54,224) clears in about 11 runs; after that each run deletes whatever
--- expired in the last hour, usually nothing.
+-- SCHEDULE. Hourly at :23, 5,000 rows per run. A backlog of about 55,000
+-- clears in about 11 runs; after that each run deletes whatever expired
+-- before the cutoff since the last run.
 --
 -- DISK. DELETE makes the space reusable by the table, it does not return it
 -- to the operating system. Shrinking the file needs a one-time
