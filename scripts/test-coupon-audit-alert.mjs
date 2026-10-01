@@ -9,6 +9,11 @@ import { computeAlerts } from "../lib/commandCenter/alerts.js";
 import { COUPON_AUDIT_FUSES } from "../lib/coupons.js";
 import { buildAlertsReport } from "../lib/commandCenter/alertsRun.js";
 import { readFileSync } from "node:fs";
+import { COUPONS, couponIsLive } from "../lib/coupons.js";
+import { siteTodayStr } from "../lib/siteTime.js";
+import { offeringActive } from "../lib/fallEvidence.js";
+import { FALL_PLACE_IDS, FALL_OFFERING_SOURCES, FALL_PLACE_RAIL } from "../lib/fallPool.js";
+import { FALL_CARD_IDS } from "../lib/fallSkin.js";
 
 let n = 0, bad = 0;
 const ok = (c, m) => { n++; if (!c) { bad++; console.error("  - " + m); } };
@@ -44,6 +49,43 @@ const rep = buildAlertsReport({ fractionOfDay: 0.5, todayKey: "2099-01-01", asOf
 ok(rep.alerts.filter((a) => String(a.id).startsWith("coupon_audit_")).length === COUPON_AUDIT_FUSES.length, "buildAlertsReport forwards couponAudit into the alert rules");
 const run_src = readFileSync(new URL("../lib/commandCenter/alertsRun.js", import.meta.url), "utf8").replace(/^\s*\/\/.*$/gm, "");
 ok(/couponAudit:\s*\{\s*today:\s*siteTodayStr\(now\),\s*fuses:\s*COUPON_AUDIT_FUSES\s*\}/.test(run_src), "gatherAlerts passes the venue-local date and the real fuses (weaker, source-level check: gatherAlerts needs live providers)");
+
+
+// ── Runtime eligibility still follows the REAL (venue-local) day, proven at exact instants ───────────────
+// The guards run at a pinned date, so THIS is where the boundary semantics are asserted: the production
+// call chain is couponIsLive(c, siteTodayStr(now)). EDT = UTC-4 until 2026-11-01, so 23:59:59 ET on
+// 10-12 is 03:59:59Z on 10-13. Inclusive: a coupon is live through its last local day, hidden from 00:00 ET after.
+const cityCard = COUPONS.find((c) => c && c.id === "cpn-clipp-fl-sarasota");
+ok(!!cityCard && /^\d{4}-\d{2}-\d{2}$/.test(String(cityCard.expires)), "the Sarasota Clipp city card exists and carries an ISO audit expiry");
+if (cityCard) {
+  const exp = String(cityCard.expires).slice(0, 10);
+  const lastInstant = new Date(Date.parse(exp + "T00:00:00Z") + 86400000 + 4 * 3600000 - 1000); // 23:59:59 ET on exp (EDT)
+  const nextInstant = new Date(lastInstant.getTime() + 1000);                                    // 00:00:00 ET the day after
+  ok(siteTodayStr(lastInstant) === exp, `23:59:59 ET on ${exp} is still ${exp} (got ${siteTodayStr(lastInstant)})`);
+  ok(couponIsLive(cityCard, siteTodayStr(lastInstant)) === true, "city card is live at the last second of its last local day");
+  ok(siteTodayStr(nextInstant) !== exp && couponIsLive(cityCard, siteTodayStr(nextInstant)) === false, "city card is hidden from 00:00 ET the next day");
+  for (const when of ["2026-10-13T15:00:00Z", "2027-03-01T15:00:00Z"]) {
+    ok(couponIsLive(cityCard, siteTodayStr(new Date(when))) === (exp >= siteTodayStr(new Date(when))), `eligibility at ${when} follows the audit date`);
+  }
+}
+// Unaudited merchant certificate cards are HIDDEN by real time once their fuse lapses (not renewed here).
+const merchantFuse = COUPON_AUDIT_FUSES.find((f) => f.id === "clipp_merchant_cards");
+const merchantCards = COUPONS.filter((c) => c && c.expires && String(c.expires).slice(0, 10) === String(merchantFuse && merchantFuse.expires).slice(0, 10));
+ok(merchantCards.length > 10, `merchant certificate cards found by their fuse date (${merchantCards.length})`);
+ok(merchantCards.every((c) => couponIsLive(c, siteTodayStr(new Date("2026-10-13T15:00:00Z"))) === false), "every lapsed-merchant-fuse card is hidden after the fuse");
+// Malformed / missing audit data is safe: no expiry = no auto-hide rule to fire, bad shapes never throw.
+ok(couponIsLive(null, "2026-10-13") === false && couponIsLive({}, "2026-10-13") === false, "null / empty coupon rows are not live and do not throw");
+
+// ── Gideon's: only the expired September offering is retired ────────────────────────────────────────────
+const GIDEON = "ChIJC9pvtLN654gR6F0GZH-G-8I";
+ok(!(GIDEON in FALL_PLACE_IDS) && !(GIDEON in FALL_OFFERING_SOURCES) && !(GIDEON in FALL_PLACE_RAIL) && !FALL_CARD_IDS.has(GIDEON), "the expired Gideon's September offering is out of all four fall sets");
+ok(Object.keys(FALL_PLACE_IDS).length === 17 && Object.keys(FALL_OFFERING_SOURCES).length === 17, "exactly one pool entry was retired (18 -> 17); the other offerings are untouched");
+// The boundary that made it fail the build, from the real helper: `until` is INCLUSIVE in venue-local time.
+const sep30 = (iso) => offeringActive({ ends: "2026-09-30", today: siteTodayStr(new Date(iso)) });
+ok(sep30("2026-10-01T03:59:59Z") === true && sep30("2026-10-01T04:00:00Z") === false, "a 2026-09-30 end is active through 23:59:59 ET and expired from 00:00 ET on 10-01");
+// Every remaining dated fall offering is active today and has a future end — the NEXT one to expire is a known date, not a surprise.
+const dated = Object.values(FALL_OFFERING_SOURCES).filter((v) => v.until).map((v) => v.until).sort();
+ok(dated.length >= 1 && dated.every((u) => u >= "2026-10-01"), `remaining dated fall offerings all end on/after 2026-10-01 (next: ${dated[0]})`);
 
 if (bad) { console.error(`\ntest-coupon-audit-alert: FAIL — ${bad}/${n} assertions`); process.exit(1); }
 console.log(`test-coupon-audit-alert: OK — ${n} assertions (silent until 2 days out, warns with days left, reports the lapse as warn, malformed input is inert, real fuses covered, wired through buildAlertsReport)`);
