@@ -12,7 +12,8 @@
 // Images are checked against the filesystem, not against a naming convention.
 import { readFileSync, existsSync } from "node:fs";
 import { GUIDES } from "../lib/guides.js";
-import { COUPONS, COUPON_AUDIT_FUSES, couponIsLive } from "../lib/coupons.js";
+import { COUPONS, couponIsLive } from "../lib/coupons.js";
+import { COUPON_AUDIT_FUSES } from "../lib/couponAuditFuses.js";
 import { guidePrimaryCta } from "../lib/guideCta.js";
 import { GUIDE_DEAL_MAX, areasForRegion, guideDealIds } from "../lib/guideDeals.js";
 
