@@ -8,6 +8,10 @@ import path from 'node:path';
 import ts from 'typescript';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
+// REAL, not stubbed: the venue-photo rung is the thing under test below.
+import { eventVenueImageSrc } from '../lib/eventPageImage.js';
+import { FALL_EVENT_IMAGE_HOLDS } from '../lib/fallEventImage.js';
+import { FALL_DISCOVERIES_2026 } from '../lib/fallDiscoveries2026.js';
 let event, curated, photographs, social = [];
 const reviewDir = process.argv.includes("--write-review") ? "public/design" : null;
 const leaf = () => null;
@@ -28,7 +32,7 @@ function page(file) {
   resolveEventById:async()=>event,idFromSlug:()=> 'fixture',isEventWindow:()=>false,
   fetchCuratedEventBySlug:async()=>curated,fetchCuratedEvents:async()=>[],
   eventJsonLd:()=>null,dateRangeLabel:()=> 'September 18',eventWebsiteUrl:()=>null,
-  eventPhotos:()=>photographs,addressLine:()=> '123 Test St, Sarasota, FL',
+  eventPhotos:()=>photographs,eventVenueImageSrc,addressLine:()=> '123 Test St, Sarasota, FL',
   directionsUrl:()=> 'https://www.google.com/maps/dir/?api=1&destination=test',
   appleDirectionsUrl:()=> 'https://maps.apple.com/?daddr=27.3,-82.5&dirflg=d',
   websiteUrl:()=> 'https://www.universalorlando.com',websiteHost:()=> 'universalorlando.com',safeUrl:()=>null,SITE_URL:'https://www.gowayfind.com',
@@ -124,7 +128,37 @@ assert.equal(photoCount(html),1);assert.match(html,/src="\/row-only.jpg"/);asser
 curated={...curated,hero_image:null};
 html=renderToStaticMarkup(await local({params:{slug:'fixture'}}));
 assert.equal(photoCount(html),1);assert.match(html,/class="wf-event-photo wf-event-photo-fallback"/);assert.match(html,/role="img"/);checks+=3;
-console.log(`test-event-experience: OK — ${checks} assertions across 10 real page renders; live/cancelled, paid/free, owned/row/missing photos. Provider/map internals remain covered separately.`);
+
+// THE VENUE-PHOTO RUNG (owner, 2026-10-01, Ananda Farm): the Fall rail card
+// showed the venue's own photo (/api/photo?place=<its place_id>) and the page
+// it opened showed initials. A row with no hero_image but an exact place_id
+// must render the card's exact URL, not the monogram.
+const ANANDA='ChIJScJ5bQAZw4gRjNIj9iS5bus';
+const cardUrl='/api/photo?place='+ANANDA+'&g=2&w=640';
+curated={...curated,event_id:'ananda-farm-fall-festival-2026',place_id:ANANDA,hero_image:null};
+html=renderToStaticMarkup(await local({params:{slug:'fixture'}}));
+assert.ok(html.includes('src="'+cardUrl.replaceAll('&','&amp;')+'"'),'venue-photo rung: page renders the same /api/photo?place= URL the rail card shows');
+assert.doesNotMatch(html,/class="wf-event-photo wf-event-photo-fallback"/,'venue-photo rung: no initials panel when the venue has an exact place_id');
+assert.equal(photoCount(html),1);checks+=3;
+// The registry rung: a database row lagging its place_id still gets the
+// registry's identity, exactly like the rail (mergeFallDiscoveryRows).
+const reg=FALL_DISCOVERIES_2026.find(r=>r.place_id&&!r.hero_image&&!FALL_EVENT_IMAGE_HOLDS.has(r.event_id));
+assert.ok(reg,'registry fixture: at least one place_id-only discovery row exists (positive control)');
+curated={...curated,event_id:reg.event_id,place_id:null,hero_image:null};
+html=renderToStaticMarkup(await local({params:{slug:'fixture'}}));
+assert.ok(html.includes('/api/photo?place='+encodeURIComponent(reg.place_id)),'registry rung: '+reg.event_id+' renders its registry venue photo');checks+=2;
+// Holds stay held: an image hold must not leak back in through this rung.
+const held=[...FALL_EVENT_IMAGE_HOLDS][0];
+curated={...curated,event_id:held,place_id:ANANDA,hero_image:null};
+html=renderToStaticMarkup(await local({params:{slug:'fixture'}}));
+assert.match(html,/class="wf-event-photo wf-event-photo-fallback"/,'image hold '+held+' still renders the initials panel');
+assert.doesNotMatch(html,/\/api\/photo\?place=/,'image hold '+held+' never wears a venue photo');checks+=2;
+// A stored hero still wins over the venue photo (no regression to the row rung).
+curated={...curated,event_id:'ananda-farm-fall-festival-2026',place_id:ANANDA,hero_image:'/row-only.jpg'};
+html=renderToStaticMarkup(await local({params:{slug:'fixture'}}));
+assert.match(html,/src="\/row-only.jpg"/);assert.doesNotMatch(html,/\/api\/photo\?place=/);checks+=2;
+curated={...curated,event_id:'fixture',place_id:null,hero_image:null};
+console.log(`test-event-experience: OK — ${checks} assertions across 14 real page renders; live/cancelled, paid/free, owned/row/venue/held/missing photos. Provider/map internals remain covered separately.`);
 
 // Render the real event/facade chain: the cover must already be visible before
 // any image load event (including a cached image that precedes hydration).
