@@ -146,8 +146,13 @@ ok(/review volume/i.test(hero) && /proximity|distance/i.test(hero),
   "the hero states the METHOD: rating weighted by review volume, then proximity");
 ok(/no ads/i.test(hero) && /paid placement/i.test(hero),
   "the hero states the merit claim: no ads, no paid placement — matching what landingMetadata already tells search engines");
-ok(/title=\{`The best \$\{cat\.label\.toLowerCase\(\)\} in \$\{city\.name\}, \$\{city\.state\}/.test(wl),
+// 2026-10-01: the scope ("in <City>" / "in and near <Town>") comes from ONE
+// helper, landingScope(), for the H1 and <title> alike (rendered + compared in
+// scripts/test-evergreen-eligibility.mjs).
+ok(/title=\{`The best \$\{cat\.label\.toLowerCase\(\)\} \$\{scope\.where\}, \$\{city\.state\}/.test(wl),
   "the H1 carries city.state, matching landingMetadata's <title> and the canonical");
+ok(/const title = `Best \$\{cat\.label\} \$\{scope\.where\}, \$\{city\.state\}/.test(wl),
+  "landingMetadata's <title> uses the SAME scope.where as the H1 (no surface makes a stricter claim)");
 ok(/`Best \$\{cat\.label\} in \$\{city\.name\}, \$\{city\.state\}/.test(wl),
   "…and landingMetadata's <title> still carries it too, so the two cannot drift apart");
 console.log(`test-ranking-editorial: ${n - failn}/${n} passed`);

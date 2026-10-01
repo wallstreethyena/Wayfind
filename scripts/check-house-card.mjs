@@ -186,8 +186,34 @@ for (const f of AWARD_SITES) {
     const mediaBlock = (src.match(/wf-place-card-media[\s\S]{0,900}/) || [""])[0];
     ok(!/wf-place-card-score/.test(mediaBlock),
       f + " score overlay must NOT live inside wf-place-card-media (owner: not in front of the image)");
-    ok(/wf-place-card-media[\s\S]{0,900}wf-place-card-rank/.test(src),
-      f + " rank overlay must be a child of wf-place-card-media");
+    if (f === "app/components/IconicPlaceCard.js") {
+      // RENDERED, not proximity: on main the media block already used 892 of
+      // this regex's 900-char window, so any honest addition inside it (the
+      // evergreen no-photo tile, 2026-10-01) overflowed a heuristic while the
+      // DOM stayed correct. Render the real card in every media shape and
+      // assert the rank node sits INSIDE the media element.
+      const { renderToStaticMarkup } = await import("react-dom/server");
+      const React = (await import("react")).default;
+      const inMedia = (html) => {
+        const start = html.indexOf('<div class="wf-place-card-media"');
+        if (start < 0) return false;
+        let depth = 0, i = start;
+        const re = /<div\b|<\/div>/g; re.lastIndex = start;
+        for (let m; (m = re.exec(html));) { depth += m[0] === "</div>" ? -1 : 1; if (depth === 0) { i = m.index; break; } }
+        return html.slice(start, i).includes('class="wf-place-card-rank"');
+      };
+      for (const [label, place] of [
+        ["with a photo", { id: "ChIJHouseCardRank000000000x", name: "Rank Probe", photo: "/api/photo?place=ChIJHouseCardRank000000000x&g=2&w=640" }],
+        ["monogram", { name: "Rank Probe" }],
+        ["evergreen no-photo tile", { name: "Rank Probe", photoNoSpend: true }],
+      ]) {
+        const html = renderToStaticMarkup(React.createElement(Iconic, { place: { rating: 4.6, reviews: 900, ...place }, rank: 3 }));
+        ok(inMedia(html), f + " rank overlay must be a child of wf-place-card-media (RENDERED, " + label + ")");
+      }
+    } else {
+      ok(/wf-place-card-media[\s\S]{0,900}wf-place-card-rank/.test(src),
+        f + " rank overlay must be a child of wf-place-card-media");
+    }
   }
 }
 {
