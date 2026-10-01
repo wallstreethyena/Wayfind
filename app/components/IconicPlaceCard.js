@@ -559,7 +559,16 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
                 style={{ objectFit: "cover" }}
               />
             )
-            : <div className="wf-place-card-monogram" aria-hidden="true">{initials}</div>}
+            // Evergreen landing cards (photoNoSpend) may only show a photo
+            // already owned for that exact place, so many have none. Say so
+            // instead of leaving an unexplained letter tile: a visible caption
+            // and an image label naming the place. Other surfaces unchanged.
+            : place.photoNoSpend
+              ? <div className="wf-place-card-monogram" role="img" aria-label={(place.name || "This place") + ": no verified photo yet"}>
+                  {initials}
+                  <span aria-hidden="true" style={{ position: "absolute", left: 6, right: 6, bottom: 10, textAlign: "center", fontSize: 10.5, fontWeight: 700, letterSpacing: ".03em", color: "#94A3B8" }}>No verified photo yet</span>
+                </div>
+              : <div className="wf-place-card-monogram" aria-hidden="true">{initials}</div>}
           {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
           {/* v8.56.13 (#1188) — same CC credit badge as RailCard.js, same
               reasoning: see its comment above the equivalent block. */}

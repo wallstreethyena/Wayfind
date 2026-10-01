@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 765,
-    "totalRegistryEntries": 766,
-    "guardsTxtLineCount": 765,
-    "guardsTxtReachedFileCount": 758,
+    "totalOnDiskGuardFiles": 766,
+    "totalRegistryEntries": 767,
+    "guardsTxtLineCount": 766,
+    "guardsTxtReachedFileCount": 759,
     "criticalCount": 93,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 528,
-      "RENDER": 96,
+      "RENDER": 97,
       "STRUCTURAL": 141,
       "OTHER": 1
     }
@@ -12621,6 +12621,28 @@
       "honestyViolations": [
         "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
       ],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-evergreen-eligibility.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 50,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
       "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,
