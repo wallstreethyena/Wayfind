@@ -128,6 +128,13 @@ const cardsIn = (html) => (html.match(/class="wf-place-card-rank"/g) || []).leng
   try { await page.LandingPage({ catSlug: "things-to-do", citySlug: "naples", rankOpts: { serveFromInventory: async (cat, lat, lng, r, n, sub, o) => { if (o && o.failLoud) throw new Error("db down"); return []; } } }); }
   catch (e) { threw = e; }
   ok(threw && !isNotFound(threw) && /db down/.test(threw.message), `a configured inventory read that errors THROWS (keeps the last good ISR page), never 404s (got ${threw ? threw.message : "no throw"})`);
+  // Withheld and unknown pairs are REAL 404s. Production renders these routes
+  // dynamically, where dynamicParams=false is not enforced, so the page itself
+  // must call notFound() — a 200 "Not found" body is a soft 404 (measured live).
+  for (const [c, slug] of [["beaches", "naples"], ["things-to-do", "st-augustine"], ["nightlife", "fort-myers"], ["things-to-do", "nowhere-xyz"]]) {
+    const r = await renderPair(c, slug, rows("things-to-do", NAP, 12));
+    ok(r.notFound, `/${c}/${slug} calls notFound() (a real 404), even with 12 fixture places (got ${r.error ? r.error.message : "a rendered page"})`);
+  }
   const thinCtl = await renderPair("restaurants", "sarasota", rows("restaurants", LANDING_CITIES.sarasota, 3));
   ok(!thinCtl.error && cardsIn(thinCtl.html) === 3, "CONTROL: a LANDING_CITIES page with 3 places still renders (the floor is evergreen-only)");
 }
