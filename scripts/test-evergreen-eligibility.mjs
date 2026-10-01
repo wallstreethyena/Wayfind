@@ -28,7 +28,12 @@ const ok = (cond, msg) => { asserts++; if (!cond) { failures++; console.error(" 
 
 const SB = "https://sb.evergreen-eligibility.invalid";
 for (const k of ["WAYFIND_GATE", "SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY", "GOOGLE_MAPS_SERVER_KEY", "VERCEL_ENV", "NEXT_PHASE", "INSIDER_ENABLED"]) delete process.env[k];
-Object.assign(process.env, { WAYFIND_GATE: "shut", SUPABASE_URL: SB, SUPABASE_SERVICE_ROLE_KEY: "k", NEXT_PUBLIC_SUPABASE_URL: SB, NEXT_PUBLIC_SUPABASE_ANON_KEY: "k", VERCEL_ENV: "production" });
+process.env.WAYFIND_GATE = "shut";
+process.env.SUPABASE_URL = SB;
+process.env.SUPABASE_SERVICE_ROLE_KEY = "guard-service-key";
+process.env.NEXT_PUBLIC_SUPABASE_URL = SB;
+process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "guard-anon-key";
+process.env.VERCEL_ENV = "production";
 let google = 0;
 globalThis.fetch = async (u) => {
   if (/googleapis\.com/.test(String(u))) google++;
