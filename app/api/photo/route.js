@@ -127,7 +127,13 @@ export async function GET(req) {
   // only ever DENY spend, never grant it — lib/placePhotoServe's resolver
   // never even calls authorizeSpend while probing, so this is provable by
   // call count, not merely "asked and denied".
-  const probe = req.headers.get("x-wayfind-photo-probe") === "1";
+  // NO-SPEND READS (2026-09-30): `nospend=1` is the same no-spend read as the
+  // header, in the only form an <img src> can carry. Evergreen landing towns
+  // (lib/evergreenCities.js) put it on every card photo so a reader view can
+  // never buy a photo for them. Like the header it can only DENY spend: the
+  // resolver's probe branch never calls authorizeSpend, and a probe is never
+  // queued for repair. Locked by scripts/check-evergreen-landing-zero-spend.mjs.
+  const probe = req.headers.get("x-wayfind-photo-probe") === "1" || searchParams.get("nospend") === "1";
   const recoveryPlaceId = placeIdFromRef(ref) || (PLACE_RX.test(place) ? place : "");
   let recoveryPromise = null;
   const getRecovery = () => {

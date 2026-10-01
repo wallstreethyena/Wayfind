@@ -230,7 +230,10 @@ const compactCount = (n) => Number(n) >= 1000
 // homepage bundle — 0.7KB gz, against 1.1KB of headroom. Rung 1 is a server
 // and landing-page concern; a row that reaches this card has already been
 // through it. Same definitions, same order, no duplicated string-building.
+// photoNoSpend (evergreen landing towns): the row's own no-spend `photo` only,
+// and the id retry below keeps nospend=1 — see lib/evergreenCities.js.
 const photoUrl = (p) => {
+  if (p && p.photoNoSpend) return p.photo || ownedPlacePhotoSrc(p.place_id || p.id, 640, true) || null;
   const ref = p && (p.photoRef || p.photo_ref);
   if (hasPlacePhotoRef(ref)) return "/api/photo?ref=" + encodeURIComponent(ref) + "&g=2&w=640";
   if (p && typeof p.photo === "string" && p.photo) return p.photo;
@@ -395,7 +398,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   }, actionsLive);
   if (!place) return null;
   const primaryPhoto = photoSrcFilter(photoUrl(place));
-  const stablePlacePhoto = photoSrcFilter(ownedPlacePhotoSrc(place.place_id || place.id, 640));
+  const stablePlacePhoto = photoSrcFilter(ownedPlacePhotoSrc(place.place_id || place.id, 640, !!place.photoNoSpend));
   const samePlacePhotoFallback = stablePlacePhoto && stablePlacePhoto !== primaryPhoto ? stablePlacePhoto : "";
   const expTags = experienceTags(place, 3);
   // Resolve the offer in the shared card itself so every IconicPlaceCard

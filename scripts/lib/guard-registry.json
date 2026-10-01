@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-30",
+  "generated": "2026-10-01",
   "generator": "scripts/lib/build-guard-registry.mjs",
   "derivation": "scripts/lib/deriveGuardRegistry.mjs",
   "schemaNotes": "Mechanically-derived fields (class/assertionCount/wiring/gating/critical/criticalReasons) are regenerated every run from scripts/guards.txt, package.json, .github/workflows/*.yml, ops/*.workflow.yml and scripts/lib/guardHonestyAnalysis.mjs — editing them by hand will be overwritten on the next `node scripts/lib/build-guard-registry.mjs`. Hand-authored fields (protects/blastRadius/owner) live in scripts/lib/guard-registry-overrides.json and are merged in; they are REQUIRED for every entry with critical:true and optional elsewhere. scripts/check-guard-registry.mjs (the CI guard) re-derives guards.txt wiring LIVE rather than trusting this file's cached `wiring.guardsTxt` — and since 2026-09-07 it also re-derives EVERY mechanically-derived field via scripts/lib/deriveGuardRegistry.mjs and fails when the committed snapshot disagrees, so a stale registry can no longer be merged unnoticed.",
@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 759,
-    "totalRegistryEntries": 760,
-    "guardsTxtLineCount": 758,
-    "guardsTxtReachedFileCount": 752,
-    "criticalCount": 91,
+    "totalOnDiskGuardFiles": 760,
+    "totalRegistryEntries": 761,
+    "guardsTxtLineCount": 759,
+    "guardsTxtReachedFileCount": 753,
+    "criticalCount": 92,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 526,
-      "RENDER": 92,
+      "RENDER": 93,
       "STRUCTURAL": 141,
       "OTHER": 1
     }
@@ -2840,6 +2840,34 @@
       "protects": null,
       "blastRadius": null,
       "owner": null
+    },
+    {
+      "file": "scripts/check-evergreen-landing-zero-spend.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 44,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-filename:spend",
+        "money-keyword-in-import:../lib/spendGate.js"
+      ],
+      "protects": "The evergreen landing towns (lib/evergreenCities.js: St. Petersburg, Naples, Fort Myers, Jacksonville, St. Augustine) publish exactly their 15 qualifying cat x city pairs (routes + sitemap, no event windows) and withhold the 5 weak pairs; rendering or ranking any of them makes zero googleapis calls and zero spend-ledger asks (inventory-only ranking, nospend=1 card photos honored by /api/photo as a probe), proven by call with Sarasota as the spend-allowed positive control; photo-warm's landingCityList never walks them and only lib/landing.js imports the table.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "2026-09-30: the towns were added for SEO with a ZERO-new-Google-spend constraint. Without this lock, a cold ISR regen would fall back to paid Places Text Search, a card photo cache miss would buy a Places photo, and adding the towns to LANDING_CITIES would enrol them in the photo-warm cron that buys photos 4x/hour."
+      },
+      "owner": "claude.exe (Wayfind lane)"
     },
     {
       "file": "scripts/check-experiences-link-health.mjs",
