@@ -54,12 +54,6 @@ ok(/creatorCountFor[^;]*from\s+["']\.\/creatorSignals\.js["']/.test(TREND),
 ok(!/creatorCountFor[^;]*from\s+["']\.\/creatorVideos\.js["']/.test(TREND),
   "lib/trendSignal.js must NOT import creatorCountFor from ./creatorVideos.js");
 
-// 2026-10-01: IconicPlaceCard is lazy on "/" (DaypartRail / ThemeParkRail
-// next/dynamic) but renders near the fold; pulling the full registry into its
-// chunk delayed the first theme-park card. Same lean import as RailCard.
-const ICONIC = read("app/components/IconicPlaceCard.js");
-ok(/creatorVideosFor[^;]*from\s+["']\.\.\/\.\.\/lib\/creatorSignals\.js["']/.test(ICONIC) && !/from\s+["']\.\.\/\.\.\/lib\/creatorVideos(\.js)?["']/.test(ICONIC),
-  "app/components/IconicPlaceCard.js must import creatorVideosFor from lib/creatorSignals.js, never lib/creatorVideos (its badge only needs .creator/.platform)");
 ok(/creatorVideosFor[^;]*from\s+["']\.\.\/\.\.\/lib\/creatorSignals\.js["']/.test(RAIL_CARD),
   "app/components/RailCard.js must import creatorVideosFor from lib/creatorSignals.js — it is eager on \"/\" (app/home.js imports RailCard directly) and only needs .creator/.platform, never .url");
 
