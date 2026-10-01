@@ -7,7 +7,8 @@ import { rankingWhyLine, sourcedRankingWhy } from "../lib/rankingWhy.js";
 
 let n = 0, failn = 0;
 const ok = (c, m) => { n++; if (!c) { failn++; console.error("FAIL:", m); } };
-const s = readFileSync(new URL("../lib/landing.js", import.meta.url), "utf8");
+// LandingPage moved to lib/landingPage.js (2026-10-01, check-landing-data-client-free); read both halves.
+const s = readFileSync(new URL("../lib/landing.js", import.meta.url), "utf8") + "\n" + readFileSync(new URL("../lib/landingPage.js", import.meta.url), "utf8");
 const code = s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
 ok(s.includes("async function landingEditorials"), "the verified-editorial join exists");
 ok(s.includes("verified=is.true&select=place_id,hook,why_here,local_tip"), "it reads the verified Wayfind cards");

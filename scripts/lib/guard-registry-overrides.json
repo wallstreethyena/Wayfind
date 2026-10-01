@@ -767,5 +767,21 @@
       "detail": "A regression would either paint a wrong or low-quality partner product next to an editorial pick, change indexed guide HTML, send a partner link that bypasses our attributed redirect, or double-count commerce clicks and corrupt the experiment's primary metric."
     },
     "owner": "Revenue QA"
+  },
+  "scripts/test-beach-never-booking.mjs": {
+    "protects": "A beach (Siesta, Turtle, Coquina, any beach-typed/category/bare-beach-named place) never renders a booking CTA on its own card, whatever PLACE_PARTNER_PICKS pins say: placePartnerPick, placePagePartner, resolveDetailCta and the rendered IconicPlaceCard all refuse, while a non-beach attraction control keeps its ticket pill.",
+    "blastRadius": {
+      "category": "trust",
+      "detail": "A regression puts a Viator ticket link on free sand (a beach that looks like it needs a ticket), the owner-reported v6.53 failure, and sends paid-looking traffic to a product that is not beach admission."
+    },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-search-sku-accounting.mjs": {
+    "protects": "Every Places Text Search / Nearby Search caller debits the spend-ledger row for the SKU Google actually bills: the guard executes each caller with the network recorded and derives the billed SKU from the X-Goog-FieldMask header it sent (Google's published field-to-SKU table), so an Enterprise mask can never be counted against the cheaper text_pro / nearby_pro free-tier rows, and no caller reaches Google without a grant.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "2026-09-30: lib/landing.js sent an Enterprise-tier Text Search mask ($35/1k, 1,000 free) while debiting text_pro (4,800 free), lib/nightlifeCensus.js did the same on Nearby, and app/api/city/unlock sent an Enterprise mask with no ledger grant at all. The ledger could report 'inside the free tier' while Google billed Enterprise — the same silent-bill shape as the August $1,878 invoice."
+    },
+    "owner": "Revenue QA"
   }
 }

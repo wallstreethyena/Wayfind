@@ -37,6 +37,8 @@ node scripts/test-dupes-imports.mjs
 npm run check:env
 node scripts/test-tags.mjs
 node scripts/test-browser-analytics.mjs
+node scripts/test-card-tap-tracking.mjs
+node scripts/test-card-tap-tracking.mjs --red-prove
 node scripts/test-commerce-emit-queue.mjs
 node scripts/check-libs.mjs
 npm run check:gate
@@ -148,6 +150,8 @@ node scripts/test-menu-taxonomy-audit.mjs
 node scripts/test-showtime-dedup.mjs
 node scripts/test-member-score.mjs
 node scripts/test-curator-boost.mjs
+node scripts/test-like-rerank.mjs
+node scripts/test-curator-picks.mjs
 node scripts/test-scorelabel.mjs
 node scripts/test-booking-integrity.mjs
 node scripts/test-viator-integrity-lock.mjs
@@ -283,6 +287,7 @@ node scripts/check-guide-place-identities.mjs
 node scripts/test-activation.mjs
 node scripts/test-containment.mjs
 node scripts/test-experiment.mjs
+node scripts/test-explore-bridge-gate.mjs
 node scripts/test-beach-geo.mjs
 node scripts/check-app-viewport.mjs
 node scripts/check-shell-decomposition.mjs
@@ -592,6 +597,13 @@ node scripts/check-creator-video-boost.mjs
 # that made it work cannot be quietly rewired back to the heavy path.
 node scripts/check-creator-signals-fresh.mjs
 node scripts/check-creator-registry-bundle-wall.mjs
+# 2026-10-01 — the same registry was back in route "/"'s initial JS by a path
+# the edge wall above cannot see: app/page.js imported rankedFor from
+# lib/landing.js, which also held LandingPage and so imported IconicPlaceCard
+# & co.; Next makes every client module reachable from a route's SERVER graph an
+# eager client entry. LandingPage now lives in lib/landingPage.js (-60,057 gz
+# bytes on "/"). This walks the real import graph, not strings.
+node scripts/check-landing-data-client-free.mjs
 # 2026-09-07 — the lean mirror's DATA FORMAT compacted further (positional
 # tuples + a sentinel + an interned platform table, replacing pretty-printed
 # object literals — see scripts/gen-creator-signals.mjs's header). This guard
@@ -1116,6 +1128,18 @@ node scripts/check-rail-drop-images.mjs
 # THE $1,878 GUARD — no atmosphere-tier fields in server masks, every metered
 # Google call site behind the WAYFIND_GATE spend gate, radius ladder present.
 node scripts/check-spend-guard.mjs
+# 2026-09-30: check-spend-guard proves a gate EXISTS in front of every Google
+# call; this proves it debits the RIGHT ledger row. Executes each Text/Nearby
+# Search caller with the network recorded and asserts the SKU implied by the
+# X-Goog-FieldMask actually sent equals the SKU granted (landing.js had been
+# charging Enterprise masks to text_pro).
+node scripts/test-search-sku-accounting.mjs
+# 2026-10-01 (PR #1582, owner: "Block — correct accounting"): BLOCKING MODE for
+# text_enterprise / nearby_enterprise, by COUNTING outbound Google requests from
+# every runtime Text/Nearby caller. Cap missing/0/abc/-5/1.5/blank/exhausted → 0
+# requests; valid → 1 per grant; 500/throw never retries unpaid; N concurrent vs
+# a ledger granting k → k; blocked landing serves inventory → expired cache → empty.
+node scripts/test-enterprise-search-blocking.mjs
 
 # BRAND-ASSET GUARD — every share surface renders through the ONE branded
 # renderer (drawn pin + wordmark), one brand orange, score pill in the kit.
@@ -1928,6 +1952,10 @@ node scripts/test-photo-credits.mjs
 # The photo lane keeps the credit from the free Details response it already
 # received, tied to the exact fetched photo name (2026-10-01).
 node scripts/test-photo-credit-capture.mjs
+# Every external photo-attribution link opens in a new tab (noopener, announced to
+# screen readers) with attribution byte-identical; a click on a credit inside a card
+# never opens the card (#1601).
+node scripts/test-photo-credit-new-tab.mjs
 # A guide never shows a Google photo without Google's required visible credit;
 # licensed photos (with credit) or none instead (owner, 2026-09-30).
 node scripts/test-google-photo-attribution.mjs
@@ -1947,3 +1975,9 @@ node scripts/test-photo-monitor-cold-rate.mjs
 # pre-React handler). Executes the inline recovery script against simulated
 # failures, the reload-once rule, and renders both boundaries.
 node scripts/test-chunk-recovery.mjs
+node scripts/test-beach-never-booking.mjs
+
+# 2026-10-01: the Clipp owner-audit fuses used to fail every Vercel build when they lapsed
+# (check-guide-deal-cards read the real date). The guard is pinned; this proves the lapse is
+# announced in the Command Center instead — warn 2 days ahead and while lapsed, never a build.
+node scripts/test-coupon-audit-alert.mjs

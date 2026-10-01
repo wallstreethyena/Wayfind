@@ -44,7 +44,12 @@ import { stayOnRailReaction } from "../../lib/railReaction.js";
 // passed in, because this card renders on surfaces (guide pages, /best-of,
 // the map's bottom card) whose row shapes differ wildly but ALL carry a place
 // id and a name — which is exactly what creatorVideosFor() resolves on.
-import { creatorVideosFor } from "../../lib/creatorVideos";
+// Lean mirror (lib/creatorSignals.js), NOT the full registry: this card is
+// eager on "/" (the server-rendered proof block renders it from app/page.js),
+// and CreatorCardMark reads only .creator/.platform — never .url/.caption. The
+// full lib/creatorVideos registry (~34KB gz of video urls/addresses) stays on
+// the lazy sheets. Guarded by scripts/check-creator-registry-bundle-wall.mjs.
+import { creatorVideosFor } from "../../lib/creatorSignals.js";
 import CreatorCardMark from "./CreatorCardMark";
 import { topPickAward } from "../../lib/topPickAward";
 import { couponForPlace } from "../../lib/coupons";
@@ -508,7 +513,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   };
 
   return (
-    <li ref={cardRef} data-iconic-place-card data-card-opens-detail
+    <li ref={cardRef} data-iconic-place-card data-card-opens-detail data-place-id={place.id}
       onPointerDown={tapIntent.onPointerDown} onPointerMove={tapIntent.onPointerMove}
       onPointerUp={tapIntent.onPointerUp} onPointerCancel={tapIntent.onPointerCancel}
       onClick={openCard} className={`wf-place-card${fallCardClass(place.id, siteTodayStr())}${isCuratorPick ? " is-curator-pick" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${hasTake ? "" : " is-no-take"}${cta ? " has-cta" : ""}`} style={{ listStyle: "none", cursor: cardHref ? "pointer" : "default" }}>
@@ -568,7 +573,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
                     target="_blank"
                     rel="noopener noreferrer"
                     title={"Photo: " + photoAttr}
-                    aria-label={"Photo credit: " + photoAttr}
+                    aria-label={"Photo credit: " + photoAttr + " (new tab)"}
                     onClick={(e) => e.stopPropagation()}
                   >©</a>
                 : <span className="wf-place-card-photo-attr" title={"Photo: " + photoAttr} aria-label={"Photo credit: " + photoAttr}>©</span>)
@@ -669,7 +674,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
                 target="_blank"
                 rel="sponsored noopener"
                 data-commerce-owner="IconicPlaceCard"
-                aria-label={`Partner tickets for ${place.name} via ${partner.merchant}`}
+                aria-label={`Partner ${partner.product === "tour" ? "tours" : "tickets"} for ${place.name} via ${partner.merchant}`}
                 title="Partner link. Wayfind may earn a commission; rankings never change."
                 onClick={(event) => {
                   const clickId = mintClickId();
@@ -694,7 +699,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
                   the click-id mint, the commerce event and the rel are
                   untouched. */}
                 <TicketGlyph />
-                <span className="wf-ticket-pill-lb">Tickets</span>
+                <span className="wf-ticket-pill-lb">{partner.product === "tour" ? "Tours" : "Tickets"}</span>
                 <span className="wf-ticket-pill-sep" aria-hidden="true" />
                 <span className="wf-ticket-pill-mr">{partner.merchant}</span>
                 <span className="wf-ticket-pill-ar" aria-hidden="true">↗</span>

@@ -91,7 +91,10 @@ ok(selectEligiblePlaceLinks(fixtureList, ["A"]).ids.length === 1,
 // ---------------------------------------------------------------------------
 const SURFACES = [
   {
-    file: "lib/landing.js",
+    file: "lib/landingPage.js",
+    // LandingPage moved here from lib/landing.js (2026-10-01). Until that move
+    // is on origin/main, section 4 diffs the card href against the old home.
+    formerly: "lib/landing.js",
     callPattern: /selectEligiblePlaceLinks\(list,\s*eligiblePlaceIds\)/,
     emptyPattern: /if \(!navIds\.length\) return null;/,
     cardHref: 'href={"/?q=" + encodeURIComponent(p.name || "")}',
@@ -130,7 +133,7 @@ for (const s of SURFACES) {
 // ---------------------------------------------------------------------------
 function gitShow(ref, path) {
   try {
-    return execFileSync("git", ["show", `${ref}:${path}`], { cwd: root, encoding: "utf8" });
+    return execFileSync("git", ["show", `${ref}:${path}`], { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
   } catch (e) {
     return null;
   }
@@ -141,8 +144,8 @@ if (!mainReadable) {
   console.log("check-hub-place-links: SKIP — origin/main is not readable in this checkout (assertion 4 needs it); assertions 1-3 above still ran and count.");
 } else {
   for (const s of SURFACES) {
-    const mainSrc = gitShow("origin/main", s.file);
-    ok(mainSrc !== null, `origin/main has a copy of ${s.file} to diff the card href against`);
+    const mainSrc = gitShow("origin/main", s.file) ?? (s.formerly ? gitShow("origin/main", s.formerly) : null);
+    ok(mainSrc !== null, `origin/main has a copy of ${s.file}${s.formerly ? ` (or its former home ${s.formerly})` : ""} to diff the card href against`);
     if (mainSrc == null) continue;
     ok(mainSrc.includes(s.cardHref),
       `origin/main's ${s.file} already contains this exact card href expression (so the assertion above is a real diff, not a coincidence): ${s.cardHref}`);

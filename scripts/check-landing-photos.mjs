@@ -21,7 +21,8 @@ import {
 } from "../lib/placePhoto.js";
 
 const fail = (m) => { console.error("check-landing-photos: FAIL — " + m); process.exit(1); };
-const landing = readFileSync(new URL("../lib/landing.js", import.meta.url), "utf8");
+// LandingPage moved to lib/landingPage.js (2026-10-01, check-landing-data-client-free); read both halves.
+const landing = readFileSync(new URL("../lib/landing.js", import.meta.url), "utf8") + "\n" + readFileSync(new URL("../lib/landingPage.js", import.meta.url), "utf8");
 const code = landing.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`])\/\/[^\n]*/g, "$1");
 
 if (!/import\s*\{[^}]*\blandingCardPhotoSrc\b[^}]*\}\s*from\s*"\.\/placePhoto\.js"/.test(code)) {
