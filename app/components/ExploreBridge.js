@@ -28,8 +28,13 @@
 // recordExposure(). Server and first client render are identical (no
 // hydration mismatch, the 3d95dd7 failure class). The layout effect then drops
 // the block for control/automation (it was never visible) and releases taps for
-// treatment only after exposure is recorded. CLS is a listed guardrail on this
-// experiment — measure it, don't assume it.
+// treatment only after exposure is recorded. Until then the block is `inert`
+// (and pointer-events:none): no tap, Tab or Enter can reach a link before its
+// exposure exists — pointer-events alone left keyboard activation open.
+// The value is the string "inert", not "": Next's App Router renders with
+// React 19, where inert is a BOOLEAN and "" is falsy (the attribute silently
+// vanished from the real build while a React 18 render showed it).
+// CLS is a listed guardrail on this experiment — measure it, don't assume it.
 //
 // EVENT DISCIPLINE
 // ----------------
@@ -122,7 +127,7 @@ export default function ExploreBridge({ city, picks, entryPage, pageType }) {
   ];
 
   return (
-    <aside data-explore-bridge="" data-ready={resolved ? "" : undefined} style={S.wrap} aria-label={"Find something to do" + (where ? " in " + where : "")}>
+    <aside data-explore-bridge="" data-ready={resolved ? "" : undefined} inert={resolved ? undefined : "inert"} style={S.wrap} aria-label={"Find something to do" + (where ? " in " + where : "")}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 18, flexWrap: "wrap" }}>
         <div>
           <div style={{ color: "#C85E1D", fontSize: 9.5, fontWeight: 900, letterSpacing: "1.7px", textTransform: "uppercase", marginBottom: 4 }}>Choose your lens</div>
