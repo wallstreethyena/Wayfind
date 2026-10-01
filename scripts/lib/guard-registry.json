@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 776,
-    "totalRegistryEntries": 777,
-    "guardsTxtLineCount": 776,
-    "guardsTxtReachedFileCount": 769,
+    "totalOnDiskGuardFiles": 777,
+    "totalRegistryEntries": 778,
+    "guardsTxtLineCount": 777,
+    "guardsTxtReachedFileCount": 770,
     "criticalCount": 94,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 533,
+      "CALL": 534,
       "RENDER": 103,
       "STRUCTURAL": 140,
       "OTHER": 1
@@ -9386,6 +9386,28 @@
         "detail": "A doubled or malformed tracking parameter can silently break attribution on every Viator click the site sends."
       },
       "owner": "Revenue QA"
+    },
+    {
+      "file": "scripts/test-analytics-write-suppression.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 7,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
     },
     {
       "file": "scripts/test-analytics.mjs",
