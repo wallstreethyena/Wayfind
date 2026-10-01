@@ -7,6 +7,7 @@ import "./links.css";
 import { fontVariables } from "./fonts";
 import { SITE_URL } from "../lib/site";
 import { cardActionBridgeScript } from "../lib/cardActionAttrs";
+import { chunkRecoveryScript } from "../lib/chunkRecovery";
 import { GUIDES } from "../lib/guides";
 import { RAILS_COLLAPSED_KEY, RAILS_COLLAPSED_ATTR, DEFAULT_COLLAPSED_RAILS, DEFAULT_COLLAPSED_RAILS_DESKTOP, RAILS_DESKTOP_MQ } from "../lib/railCollapse";
 // v8.46.1 — the pairing law, interpolated into the pre-hydration events primer
@@ -20,6 +21,12 @@ import GoogleTags from "./components/GoogleTags";
 import FooterVeil from "./components/FooterVeil";
 import NativeShellInit from "./components/NativeShellInit";
 import NativeOfflineOverlay from "./components/NativeOfflineOverlay";
+
+// Origin of the Supabase photo vault, for the preconnect hint below. Server-only
+// read (never a NEXT_PUBLIC_* template href); an invalid/missing URL renders no hint.
+const PHOTO_VAULT_ORIGIN = (() => {
+  try { return new URL(process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || "").origin; } catch { return null; }
+})();
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),
@@ -118,6 +125,19 @@ export default function RootLayout({ children }) {
     // live routes in headless Chromium and fails if documentElement.scrollWidth
     // ever exceeds clientWidth. A CSS rule nobody measures is a rule that rots.
     <html lang="en" className={fontVariables} style={{ overflowX: "clip", maxWidth: "100%" }}>
+      <head>
+        {/* CHUNK-LOAD RECOVERY (2026-09-30) — in <head>, AHEAD of Next's own
+            <script async src="/_next/static/..."> tags. Measured: from <body>
+            it registered too late — a chunk that answered 502 fast (the
+            @capacitor/core chunk every page loads) failed before the listener
+            existed, and the page stayed server-rendered and dead (never
+            hydrated, no reload). One /_next/static script that answers 502
+            used to leave either that or a white "Application error" page; this
+            reloads once (sessionStorage-stamped, never a loop). Built from
+            lib/chunkRecovery.js; app/error.js and app/global-error.js use the
+            window.__wfChunkRecover hook it exposes. */}
+        <script dangerouslySetInnerHTML={{ __html: chunkRecoveryScript() }} />
+      </head>
       <body style={{ margin: 0, background: "#040810", minHeight: "100dvh", overflowX: "clip", overscrollBehaviorX: "none", maxWidth: "100vw", fontFamily: "var(--wf-sans)" }}>
         {/* Stale-tab watch: a long-lived tab silently runs yesterday's bundle
             forever, so shipped fixes never reach it (see the component's
@@ -236,6 +256,12 @@ export default function RootLayout({ children }) {
           + "input,select,textarea{font-size:16px}"
         }} />
         <link rel="preconnect" href="https://lh3.googleusercontent.com" />
+        {/* The photo vault. Most rail images 302 from /api/photo to the Supabase
+            Storage render endpoint; without this the handshake to that host
+            starts only after the redirect lands (owner 2026-09-30: "the images
+            are taking a real long time to load"). No crossOrigin: <img> fetches
+            are no-cors and use the anonymous connection pool. */}
+        {PHOTO_VAULT_ORIGIN ? <link rel="preconnect" href={PHOTO_VAULT_ORIGIN} /> : null}
         <link rel="preconnect" href="https://api.open-meteo.com" />
         {/* The map tiles. Without this the DNS + TLS handshake for the tile host
             starts cold, AFTER ~1MB of maplibre has downloaded and mounted —

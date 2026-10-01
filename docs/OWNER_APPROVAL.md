@@ -100,7 +100,11 @@ Agents act as a second GitHub App, **Wayfind Agents** (`wayfind-agents[bot]`):
 that. Its permissions cover pull requests, comments, pushing branches and
 re-running workflows. It has no workflows, administration, secrets, environments
 or checks-write permission, so it cannot change a workflow file, touch branch
-protection or the gate key, or post the gate check. (The gate also refuses
+protection or the gate key, or post the gate check. Its private key lives at
+`~/.config/wayfind-agents/app.pem` on the owner's Mac (folder 700, file 600), and
+no script prints, logs or commits it. Actions write (needed to re-run jobs) also
+lets it cancel or start runs and disable or enable workflows; none of that changes
+what a workflow does, and a disabled required check can only block a merge. (The gate also refuses
 re-runs, so re-running an old run cannot apply an older rule.) An `/owner-approve` comment from `wayfind-agents[bot]`
 never counts (it is not the owner's account).
 
@@ -116,18 +120,39 @@ the gate posts nothing (`NOT CONFIGURED`) and is not required, and `guards` plus
 `owner-approval` keep working exactly as before. The owner's steps (only the owner
 can create an App or hold its key):
 
-1. Create both Apps (github.com/settings/apps/new; exact fields in the setup checklist).
-2. Install each App on the Wayfind repository only.
-3. Gate App: generate a private key, paste it into the `owner-gate` environment
-   as the secret `OWNER_GATE_PRIVATE_KEY`, add the App id as the environment
-   variable `OWNER_GATE_APP_ID`, then delete the downloaded key file.
-4. Agents App: generate a private key and leave it where the agents' setup reads it.
+1. Create both Apps (github.com/settings/apps/new; exact fields in the setup
+   checklist), each installed on the Wayfind repository only, no webhook.
+   Least privilege: the Owner Gate App gets **Checks: read and write** and nothing
+   else (GitHub adds the mandatory Metadata: read), because the gate reads the pull
+   request with the workflow's own read-only token and uses the App token for one
+   call. The Agents App gets Actions, Contents, Issues and Pull requests read and
+   write, Checks and Commit statuses read.
+2. Gate App key: straight from Downloads into the `owner-gate` environment secret
+   `OWNER_GATE_PRIVATE_KEY` (the checklist's one Terminal line sends it and deletes
+   the file, without the clipboard), plus the environment variable
+   `OWNER_GATE_APP_ID`. That key never lives on any machine agents use.
+3. Agents App key: `install-agents-key.sh` moves it out of Downloads to
+   `~/.config/wayfind-agents/app.pem`, locks it, and checks with GitHub that the
+   key, the App and its exact permissions are right. It does not switch agents yet.
 
-Then, while an agent can still act as the owner (these need admin rights), it adds
-`owner-approval-gate` pinned to the Gate App id to the required checks, runs
-`scripts/owner-gate-setup-check.mjs`, proves on a real pull request that a
-same-named check from a workflow does not satisfy the gate, and switches agents to
-the Agents App. The owner's last step is revoking his own GitHub CLI login
-(github.com/settings/applications) and erasing github.com from the Mac keychain.
+Then, in this order, while an agent can still use the owner's login (these need
+admin rights), and without turning off `guards` or `owner-approval`:
+
+1. Prove the gate check on a real pull request comes from the Owner Gate App.
+2. Run `scripts/owner-gate-setup-check.mjs`.
+3. Only now require `owner-approval-gate`, pinned to the Gate App's id, and prove
+   the pin (not merely the name) with the branch protection settings.
+4. On a throwaway pull request, prove that same-named checks and statuses from a
+   workflow are not required, the merge stays blocked, and a pull request's own
+   jobs cannot open the `owner-gate` environment.
+5. Prove `wayfind-agents[bot]` can push branches, open and edit pull requests,
+   comment and re-run jobs, and cannot push workflow changes, touch branch
+   protection, environments, secrets or variables, push to main, merge an
+   unapproved change, or produce a passing gate check (by posting it, commenting
+   `/owner-approve`, editing an owner comment, or re-running the gate). Then switch
+   agents to the App.
+6. The owner revokes his GitHub CLI login (github.com/settings/applications); the
+   agent confirms GitHub rejects it and erases it from the Mac.
+
 After that, changing branch protection or the gate is something only the owner
 can do.
