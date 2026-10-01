@@ -35,7 +35,7 @@ const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 // rated.
 ok(/const nudged = base != null \? \+\(\(base \+ d\)\.toFixed\(2\)\) : base;/.test(home),
   "withMemberSignal nudges only a non-null base (null stays null)");
-ok(/stampOwnerPick\([\s\S]{0,80}g\.ownerPick === true\)/.test(home),
+ok(/stampOwnerPick\([\s\S]{0,120}, pick\)\)/.test(home),
   "…and the owner bump is applied to THAT value via stampOwnerPick, so it inherits the same null rule rather than re-deriving one");
 // EXECUTED, not read: the bump layer's own null behaviour.
 ok(withOwnerBump(null, true) === null,

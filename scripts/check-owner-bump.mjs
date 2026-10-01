@@ -97,24 +97,34 @@ ok(isOwnerPick(null) === false && isOwnerPick({}) === false, "total over garbage
     "app/home.js does not call withOwnerBump directly — the arithmetic stays inside stampOwnerPick so like + list load cannot drift");
   const fn = home.match(/function withMemberSignal\(list, sig\)[\s\S]{0,2200}?\n\}/);
   ok(!!fn, "positive control: withMemberSignal is still found under its known shape");
-  ok(!!fn && /stampOwnerPick\([\s\S]{0,80}g\.ownerPick === true\)/.test(fn[0]),
+  ok(!!fn && /stampOwnerPick\([\s\S]{0,120}, pick\)\)/.test(fn[0]),
     "the bump is applied inside withMemberSignal via stampOwnerPick — the list-load choke point");
-  ok(!!fn && /g\.ownerPick === true \? base : nudged/.test(fn[0]),
+  ok(!!fn && /const pick = cp\.known\(p\.id\) \? cp\.has\(p\.id\) : g\.ownerPick === true;/.test(fn[0]),
+    "the pick is the curator store's server-confirmed verdict, else this read's server ownerPick — never a client guess");
+  ok(!!fn && /pick \? base : nudged/.test(fn[0]),
     "an owner pick uses the raw base (then the banded bump), not memberDelta stacked on top");
   ok(/applyMemberSignal=\{withMemberSignal\}/.test(home),
     "…and the rail drop is HANDED that same function, so the rail cannot end up with an unbumped copy of the rule");
-  ok(/function patchOwnerPick\(/.test(home) && /stampOwnerPick\(pl, ownerPick\)/.test(home) && /stampOwnerPick\(cur, ownerPick\)/.test(home),
-    "the like path stamps the same function onto the feed AND the open detail sheet");
+  // 2026-10-01: the like path moved into ONE store (lib/curatorPicks.js) so
+  // every surface — not just the feed and the sheet — re-ranks. The same
+  // invariants are asserted on the new path, by CALL where possible.
+  for (const [setter, label] of [["setPlaces", "the feed"], ["setExpPlaces", "the Experience pool"], ["setDetail", "the open detail sheet"]]) {
+    ok(new RegExp(setter + "\\(\\(cur\\) => [^\\n]{0,120}applyCuratorPicks\\(").test(home), "the curation effect re-applies the pick to " + label);
+  }
+  const cpSrc = strip(readFileSync(join(ROOT, "lib/curatorPicks.js"), "utf8"));
+  ok(/return stampOwnerPick\(p, want\);/.test(cpSrc) && !/withOwnerBump\(/.test(cpSrc),
+    "applyCuratorPicks stamps through stampOwnerPick — the store never restates the arithmetic");
   const tog = home.match(/function toggleLike\([\s\S]{0,2200}?function /);
   ok(!!tog, "positive control: toggleLike is still found under its known shape");
-  ok(!!tog && /if \(user && likesSessionOwner\) patchOwnerPick\(p\.id, nowLiked\)/.test(tog[0]),
-    "toggleLike stamps card + sheet in the same click when the server has already said this session is the owner");
-  ok(!!tog && tog[0].indexOf("patchOwnerPick") < tog[0].indexOf("refreshOwnerPick"),
-    "…and that stamp runs before the post-write refetch, so the score does not wait on a refresh");
+  ok(!!tog && /refreshOwnerPick\(p\.id, supabase\.from\("likes"\)\.upsert\(/.test(tog[0]) && /refreshOwnerPick\(p\.id, supabase\.from\("likes"\)\.delete\(\)/.test(tog[0]),
+    "toggleLike hands BOTH the like and the unlike write to the sequenced reconcile");
+  ok(/function refreshOwnerPick\([^)]*\) \{[\s\S]{0,400}trackCuratorWrite\(/.test(home),
+    "refreshOwnerPick reconciles through the store's trackCuratorWrite");
   ok(/fetchPlaceById\(placeId\)/.test(home) && /withMemberSignal\(\[p\], sig\)/.test(home),
     "/p/{id} runs fetchPlaceById through withMemberSignal so the sheet is not stuck on the raw score");
-  ok(/function refreshOwnerPick\(/.test(home) && /fresh: true/.test(home),
-    "refreshOwnerPick cache-busts then stamps from the server owner map");
+  const cpwSrc = strip(readFileSync(join(ROOT, "lib/curatorPicksWrite.js"), "utf8"));
+  ok(/&fresh=1/.test(cpwSrc) && /fetchCuratorVerdict/.test(cpwSrc),
+    "the post-tap verdict read cache-busts (fresh=1) then stamps from the server owner map");
   ok(/lRes\.sessionOwner === true/.test(home) && /likesSessionOwner = true/.test(home),
     "the client caches the server's sessionOwner flag — it does not decide owner from an email or UUID");
   const route = strip(readFileSync(join(ROOT, "app/api/signals/likes/route.js"), "utf8"));

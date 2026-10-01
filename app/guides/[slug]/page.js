@@ -33,6 +33,7 @@ import { findFreePhoto } from "../../../lib/freePhoto";
 import { findSamePlaceCachedPhoto } from "../../../lib/photoCacheRecovery.js";
 import { guideAppHandoffHref, guidePlacePath } from "../../../lib/guideHandoff";
 import { declaredGuideRailPlaceIds, guidePlaceRailConfig, resolveGuidePlaceRail } from "../../../lib/guidePlaceRails";
+import { loadOwnerPickIds } from "../../../lib/curatorPicksServer.js";
 import GuideDealCards from "./GuideDealCards";
 // v8.23 — the share control every guide was missing, and the resolver that
 // finally connects 39 guides to a 69-row deal registry they were never wired
@@ -556,8 +557,11 @@ export default async function GuidePage({ params }) {
     : null;
   const pickPlaces = await Promise.all((g.picks || []).map((p) => inventoryPlace(p, regionCoords)));
   const railConfig = guidePlaceRailConfig(g.placeRail || params.slug);
-  const railInventory = railConfig ? await inventoryPlacesByExactIds(declaredGuideRailPlaceIds(railConfig)) : [];
-  const placeRail = resolveGuidePlaceRail(railConfig, railInventory);
+  const [railInventory, ownerPickIds] = await Promise.all([
+    railConfig ? inventoryPlacesByExactIds(declaredGuideRailPlaceIds(railConfig)) : [],
+    railConfig ? loadOwnerPickIds().catch(() => null) : null,
+  ]);
+  const placeRail = resolveGuidePlaceRail(railConfig, railInventory, ownerPickIds);
   // Event map: only for a guide that names a curated event slug. A failed read
   // or a missing/undisplayable row renders no map (the article still stands),
   // and the pairings keep their own "unavailable" contract.

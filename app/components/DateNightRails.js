@@ -51,7 +51,8 @@ import RailLoading from "./RailLoading";
 import { directionsUrl } from "./kit";
 import { toHookLine } from "../../lib/editorialHook";
 import { toDisplayScore } from "../../lib/score.js";
-import { wayfindScore } from "../../lib/wayfindScore.js";
+import { useCuratedRows } from "../../lib/curatorPicks.js";
+import { railScoreOf } from "../../lib/railRank.js";
 import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
 import { topPickAward } from "../../lib/topPickAward.js";
 import { coarseCat } from "../../lib/ranking.js";
@@ -80,9 +81,11 @@ function DateNightRailSection({ rail, lat, lng, city, hour, eventCards = [], eve
   const seedItems = useMemo(() => (rail.places || []).slice(0, RAIL_PAGE_SIZE), [rail]);
   const seedTotal = Number.isFinite(rail.total) ? rail.total : (rail.places || []).length;
   const params = useMemo(() => ({ lat, lng, city, hour: hour == null ? "" : hour, rail: rail.id }), [lat, lng, city, hour, rail.id]);
-  const { items, total, sentinelIndex, sentinelRef, loadingMore } = usePagedRail(
+  const { items: pagedItems, total, sentinelIndex, sentinelRef, loadingMore } = usePagedRail(
     "/api/date-night", params, { seedItems, seedTotal, itemsKey: "places" },
   );
+  // Owner pick applied before the rail is rendered/ranked (lib/curatorPicks.js); moves only re-scored rows into score order.
+  const items = useCuratedRows(pagedItems, { ranked: true });
   const placeCount = Number.isFinite(total) ? total : items.length;
   const count = eventCards.length + placeCount;
   const railId = "datenight-" + rail.id;
@@ -128,7 +131,7 @@ function DateNightRailSection({ rail, lat, lng, city, hour, eventCards = [], eve
               title={p.name}
               eyebrow={type}
               rank={rank}
-              score={toDisplayScore(wayfindScore(p.rating, p.reviews))}
+              score={toDisplayScore(railScoreOf(p))}
               facts={facts}
               award={topPickAward({ category: coarseCat(p) || type || "date night", rank })}
               chips={chips}

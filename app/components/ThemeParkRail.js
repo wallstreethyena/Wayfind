@@ -7,6 +7,7 @@ import { WF_PLACE_CARD_CSS } from "./css.js";
 import { themeParkHeading, themeParkForPlace, orderThemeParks, filterFamilyThemeParks } from "../../lib/themeParks.js";
 import { placePartnerPick } from "../../lib/placePartnerPicks.js";
 import { usePinQuarantine } from "../../lib/pinQuarantine.js";
+import { useCuratedRows } from "../../lib/curatorPicks.js";
 
 export default function ThemeParkRail({ mode = "flagship", query = "", items = null, initialItems = null, familyContext = null, onOpenPlace,
   isSaved, isOnTrip, isLiked, isDisliked, liked, disliked,
@@ -17,7 +18,8 @@ export default function ThemeParkRail({ mode = "flagship", query = "", items = n
   // the fetch: the mount refresh still runs and wins, and a failed refresh keeps
   // the seed. No seed = the old behaviour exactly.
   const seeded = Array.isArray(initialItems) && initialItems.length > 0;
-  const [loaded, setLoaded] = useState(Array.isArray(items) ? items : seeded ? initialItems : []);
+  const [fetched, setLoaded] = useState(Array.isArray(items) ? items : seeded ? initialItems : []);
+  const loaded = useCuratedRows(fetched); // owner picks BEFORE orderThemeParks (lib/curatorPicks.js)
   const pinQ = usePinQuarantine();
   useEffect(() => {
     if (Array.isArray(items)) { setLoaded(items); return undefined; }

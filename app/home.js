@@ -230,6 +230,8 @@ import { C, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useD
 import { sponsorRailNear, partnerCollectionById, hydratePartnerCollection } from "../lib/partnerCollections";
 import { toDisplayScore, pickEligibleByScore, cardComplete, displayableAt } from "../lib/score";
 import { stampOwnerPick } from "../lib/ownerBump.js";
+import { restampGoverned } from "../lib/lawfulOrder.js";
+import { applyCuratorPicks, getCuratorPicks, useCuratorPicks, noteSessionOwner, beginCuratorToggle, noteOwnerReads } from "../lib/curatorPicks.js";
 import { frontPageEvents, bestFirst } from "../lib/frontEvents";
 import { settleLoad } from "../lib/loadState.js";
 import { HOME_AFFILIATE_ACTIVITY_FETCH_LIMIT, HOME_AFFILIATE_ACTIVITY_RADIUS_MI, homeAffiliateActivities } from "../lib/homeAffiliateActivities";
@@ -297,7 +299,15 @@ import CreatorAvatar from "./components/CreatorAvatar";
 // dimension is stored or which Google tokens collapse together.
 import { signalWeights as tasteSignals, applyLocalTaste, blendTaste as tasteBlend, localToVector as tasteLocalToVector, tasteChips, hasLearnedTaste, tasteNorm } from "../lib/taste";
 import { canonicalShareUrl } from "../lib/site";
-import { askShareIntent } from "./components/shareIntentSheet";
+// The share-intent sheet loads on the first Share tap, not with the homepage
+// (bundle budget, scripts/check-bundle.mjs). It always opens its own panel
+// first, so the native share it may call later runs from a fresh tap inside
+// that panel — the user activation is not lost to this import. A failed load
+// never swallows the share: it falls back to the plain share.
+const askShareIntent = (o) => {
+  // Delegation only: the options (onPlain + onInvite) pass through unchanged.
+  import("./components/shareIntentSheet").then(({ askShareIntent: ask }) => ask(o), () => { try { o && o.onPlain && o.onPlain(); } catch (e) {} });
+};
 import { placeKinds } from "../lib/dateInvite";
 import { isDateRoom } from "../lib/dateRoom.js";
 import { isSeedCenter, cityLabel, landingSlugFromLoc, centerAgreesWithLabel, firstPaintRailOrigin, localityFromFormattedAddress, storedPinFresh } from "../lib/locationHonesty";
@@ -872,6 +882,8 @@ async function likesAuthHeaders(sb) {
 // toggleLike can stamp the god bump in the same click (card + open sheet)
 // instead of waiting for the like write + fresh refetch.
 let likesSessionOwner = false;
+// Stable identity (module `supabase`), so useCuratorPicks does not re-run.
+const curatorHeaders = () => likesAuthHeaders(supabase);
 async function fetchMemberSignals(sb, list, opts) {
   try {
     const ids = (list || []).map((p) => p && p.id).filter(Boolean).slice(0, 50);
@@ -901,8 +913,13 @@ async function fetchMemberSignals(sb, list, opts) {
     }
     if (lRes && lRes.sessionOwner === true) likesSessionOwner = true;
     else if (lRes && lRes.sessionOwner === false) likesSessionOwner = false;
+    noteSessionOwner(likesSessionOwner);
     const lc = lRes && lRes.counts ? lRes.counts : null;
     const lo = lRes && lRes.owner ? lRes.owner : null; // Curator Boost: which places the owner picked (display-only chip; the weight is already in the count)
+    // This read is the newest answer for exactly these ids: the curator store
+    // takes it (lib/curatorPicks.js noteOwnerReads), so withMemberSignal and the
+    // curation effects read ONE verdict and can never flip-flop between two.
+    if (lc) noteOwnerReads(ids, lo || {});
     if (lc) for (const k in lc) { if (!out[k]) out[k] = { authors: 0, warnAuthors: 0 }; out[k].likes = lc[k]; if (lo && lo[k]) out[k].ownerPick = true; }
     return Object.keys(out).length ? out : null;
   } catch (e) { return null; }
@@ -932,9 +949,21 @@ function withMemberSignal(list, sig) {
     const d = Ranking.memberDelta(g);
     const base = p._wfScoreRaw != null ? p._wfScoreRaw : p.wfScore;
     const nudged = base != null ? +((base + d).toFixed(2)) : base;
-    const forDisplay = g.ownerPick === true ? base : nudged;
-    return stampOwnerPick({ ...p, wfScore: forDisplay, _members: g }, g.ownerPick === true);
+    // The curator store's verdict beats this read's `ownerPick`: the likes
+    // route caches per id-set for 60s, so a read issued after the owner's tap
+    // can still say "not picked" (lib/curatorPicks.js).
+    const cp = getCuratorPicks();
+    const pick = cp.known(p.id) ? cp.has(p.id) : g.ownerPick === true;
+    const forDisplay = pick ? base : nudged;
+    // restampGoverned against the ORIGINAL row: the nudge moved wfScore before
+    // stampOwnerPick saw it, so only this outer compare can see that move.
+    return restampGoverned(p, stampOwnerPick({ ...p, wfScore: forDisplay, _members: { ...g, ownerPick: pick } }, pick));
   });
+}
+// The detail-open overlay copies the like-derived fields onto a row that may
+// already carry a memoised sort key; restamp so the rank follows the chip.
+function withSignalFields(row, next) {
+  return restampGoverned(row, { ...row, wfScore: next.wfScore, _members: next._members, _wfScoreRaw: next._wfScoreRaw });
 }
 // v4.95: the old mapsRouteUrl (Google-Maps directions to ALL places at once)
 // is gone by product direction — a list's map icon opens Wayfind's own map.
@@ -4682,11 +4711,12 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   const pickBrowse = (id) => { const nv = browseCat === id ? null : id; if (!nv) { closeBrowse(); return; } captureBrowseReturn(); setMoodPick(nv); setBrowseCat(nv); if (nv) { setCat(nv); setSub("all"); setVibe("all"); } };
   const openCuisine = (label, fromPlace) => {
     if (!label) return;
-    const ctx = condCtxFromNow(nowContext({ weather }));
-    const pool = intentPool();
-    const list = Ranking.rankByConditions(pool.filter((p) => Dining.cuisineLabel(p) === label), ctx).slice(0, 10);
-    setCuisineSheet({ label, list });
+    setCuisineSheet({ label });
   };
+  // Ranked at RENDER from the curated pools, not frozen at open: a like made
+  // while the sheet is open re-ranks it, and a newly picked place can enter
+  // the top 10 because the cut happens after the bump.
+  const cuisineList = (label) => Ranking.rankByConditions(intentPool().filter((p) => Dining.cuisineLabel(p) === label), condCtxFromNow(nowContext({ weather }))).slice(0, 10);
   // v2.1: intent entries. Each opens an existing surface or a ranked quick list
   // built from data already loaded. No new fetching, no new card systems.
   const intentCtx = () => condCtxFromNow(nowContext({ weather }));
@@ -4710,6 +4740,19 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     return () => { live = false; };
   }, [detail && detail.id, supabaseReady]);
   const [hookDetail, setHookDetail] = useState(null);
+  // CURATION: every pool a surface ranks or slices carries the owner's pick
+  // (lib/curatorPicks.js) — on arrival and whenever the pick set changes. A
+  // tap anywhere re-scores the card here; the feed, Experience, the sheets
+  // and the map then re-rank from their own active sort on the next render.
+  // applyCuratorPicks returns the same array when nothing changed, so these
+  // settle in one pass.
+  const curator = useCuratorPicks(curatorHeaders);
+  useEffect(() => { setPlaces((cur) => applyCuratorPicks(cur, curator)); }, [curator, places]);
+  useEffect(() => { setExpPlaces((cur) => (Array.isArray(cur) ? applyCuratorPicks(cur, curator) : cur)); }, [curator, expPlaces]);
+  useEffect(() => { setSuggested((cur) => (Array.isArray(cur) ? applyCuratorPicks(cur, curator) : cur)); }, [curator, suggested]);
+  useEffect(() => { setHomeTodo((cur) => (Array.isArray(cur) ? applyCuratorPicks(cur, curator) : cur)); }, [curator, homeTodo]);
+  useEffect(() => { setDetail((cur) => { if (!cur) return cur; const n = applyCuratorPicks([cur], curator); return n[0] === cur ? cur : n[0]; }); }, [curator, detail]);
+  useEffect(() => { setHookDetail((cur) => { if (!cur || !Array.isArray(cur.places)) return cur; const n = applyCuratorPicks(cur.places, curator); return n === cur.places ? cur : { ...cur, places: n }; }); }, [curator, hookDetail]);
   const [viaTours, setViaTours] = useState({});
   // Sheet-local filter: the browse-style SortControl inside every themed list.
   const [hkSort, setHkSort] = useState("rated");
@@ -6534,24 +6577,19 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     try { setLocal("wf_shared_items", JSON.stringify(next)); } catch {}
     svFolderUpsert("Shared", p);
   }
-  // After a like/unlike write LANDS, refetch the server's ownerPick (fresh=1)
-  // and stamp ownerPick AND wfScore on list cards and the open sheet.
-  // The client cannot mint: only the server owner map (or sessionOwner,
-  // which the same route already computed for this session).
-  function patchOwnerPick(placeId, ownerPick) {
-    if (!placeId) return;
-    const patch = (cur) => (cur || []).map((pl) => (pl && pl.id === placeId ? stampOwnerPick(pl, ownerPick) : pl));
-    setPlaces(patch);
-    setExpPlaces(patch);
-    setDetail((cur) => (cur && cur.id === placeId ? stampOwnerPick(cur, ownerPick) : cur));
-  }
-  async function refreshOwnerPick(placeId) {
-    if (!placeId) return;
-    try {
-      const sig = await fetchMemberSignals(supabase, [{ id: placeId }], { fresh: true });
-      const ownerPick = !!(sig && sig[placeId] && sig[placeId].ownerPick);
-      patchOwnerPick(placeId, ownerPick);
-    } catch (e) {}
+  // THE OWNER'S LIKE — ONE STORE, EVERY SURFACE (lib/curatorPicks.js).
+  // A tap is sequenced per place; the store shows the optimistic pick only
+  // when the server already told this session it is the owner, re-reads the
+  // verdict FRESH (fresh=1, both route caches skipped) once the write settles,
+  // and ignores any answer that belongs to an older tap. Every list below then
+  // re-applies the pick through stampOwnerPick (curation effect), and each
+  // surface re-ranks from its own active sort. The client cannot mint: the
+  // verdict is the server's owner map.
+  function refreshOwnerPick(placeId, writePromise, on, prior) {
+    if (!placeId || !writePromise) return;
+    // Optimistic pick in THIS turn; the reconcile path loads on first tap.
+    const seq = beginCuratorToggle(placeId, on);
+    import("../lib/curatorPicksWrite.js").then((m) => m.trackCuratorWrite(placeId, on, writePromise, curatorHeaders, prior, seq), () => {});
   }
   function toggleLike(e, p) {
     e.stopPropagation();
@@ -6569,14 +6607,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     setLiked(nextLiked); setDisliked(nextDis);
     setLikedItems(nextLikedItems); setDislikedItems(nextDisItems);
     try { setLocal("wf_liked", JSON.stringify(nextLiked)); setLocal("wf_disliked", JSON.stringify(nextDis)); setLocal("wf_liked_items", JSON.stringify(nextLikedItems)); setLocal("wf_disliked_items", JSON.stringify(nextDisItems)); } catch {}
-    // Same-turn stamp: card + open detail sheet. sessionOwner is server-set
-    // on a prior likes fetch — no email/UUID on the client, no page refresh.
-    if (user && likesSessionOwner) patchOwnerPick(p.id, nowLiked);
+    // The store stamps the optimistic pick in the same turn for a session the
+    // server marked as the owner, then reconciles after the write settles.
     if (supabase && user) {
       if (wasLiked) {
-        supabase.from("likes").delete().eq("user_id", user.id).eq("place_id", p.id).then(() => refreshOwnerPick(p.id), () => {});
+        refreshOwnerPick(p.id, supabase.from("likes").delete().eq("user_id", user.id).eq("place_id", p.id), false, true);
       } else {
-        supabase.from("likes").upsert({ user_id: user.id, place_id: p.id, place: p }, { onConflict: "user_id,place_id" }).then(() => refreshOwnerPick(p.id), () => {});
+        refreshOwnerPick(p.id, supabase.from("likes").upsert({ user_id: user.id, place_id: p.id, place: p }, { onConflict: "user_id,place_id" }), true, false);
         svFolderDelete("Disliked", p.id);
       }
     }
@@ -6593,7 +6630,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       nextDisItems[p.id] = { place: p, ts: Date.now() }; delete nextLikedItems[p.id];
       recordSignal(p, "dislike"); logEvent("dislike", p);
       svFolderUpsert("Disliked", p);
-      if (supabase && user) supabase.from("likes").delete().eq("user_id", user.id).eq("place_id", p.id).then(() => refreshOwnerPick(p.id), () => {});
+      if (supabase && user) refreshOwnerPick(p.id, supabase.from("likes").delete().eq("user_id", user.id).eq("place_id", p.id), false, !!liked[p.id]);
     }
     setLiked(nextLiked); setDisliked(nextDis);
     setLikedItems(nextLikedItems); setDislikedItems(nextDisItems);
@@ -6764,8 +6801,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       if (!sig) return;
       const next = withMemberSignal([p], sig)[0];
       if (!next || next.id !== p.id) return;
-      setDetail((cur) => (cur && cur.id === p.id ? { ...cur, wfScore: next.wfScore, _members: next._members, _wfScoreRaw: next._wfScoreRaw } : cur));
-      const patch = (cur) => (cur || []).map((pl) => (pl && pl.id === p.id ? { ...pl, wfScore: next.wfScore, _members: next._members, _wfScoreRaw: next._wfScoreRaw } : pl));
+      setDetail((cur) => (cur && cur.id === p.id ? withSignalFields(cur, next) : cur));
+      const patch = (cur) => (cur || []).map((pl) => (pl && pl.id === p.id ? withSignalFields(pl, next) : pl));
       setPlaces(patch);
       setExpPlaces(patch);
     }).catch(() => {});
@@ -11385,7 +11422,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
 
       {/* Hook editorial page — full-screen themed experience, not a sheet */}
       {cuisineSheet && (() => {
-        const cs = cuisineSheet; const list = cs.list || [];
+        const cs = cuisineSheet; const list = cs.list || cuisineList(cs.label);
         return (
           <div onClick={() => setCuisineSheet(null)} style={{ position: "fixed", inset: 0, zIndex: 95, background: "rgba(0,0,0,.62)", backdropFilter: "blur(3px)", display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
             <div onClick={(e) => e.stopPropagation()} style={{ background: "#0D1117", width: "100%", maxWidth: 640, maxHeight: "82vh", overflowY: "auto", borderRadius: "20px 20px 0 0", border: `1px solid ${C.border}`, padding: "16px 16px 28px" }}>

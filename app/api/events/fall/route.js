@@ -28,6 +28,7 @@ import { windowRailAnswer } from "../../../../lib/railResponse.js";
 import { FALL_COLLECTION_POSTER, FALL_EVENT_VENUE_PLACE_IDS, fallEventCardImageSrc, mergeFallDiscoveryRows } from "../../../../lib/fallEventImage.js";
 import { eventSocialPosts } from "../../../../lib/eventSocial.js";
 import { fallStayDestinations } from "../../../../lib/fallStayDestinations.js";
+import { loadOwnerPickIds, applyCuratorPicksServer } from "../../../../lib/curatorPicksServer.js";
 
 import { FALL_FEATURED_FESTIVALS_2026, FALL_FEATURED_FESTIVAL_IDS } from "../../../../lib/fallFeaturedFestivals2026.js";
 
@@ -97,7 +98,7 @@ export async function GET(request) {
       const signal = AbortSignal.timeout(FALL_DB_DEADLINE_MS);
       // All three reads are independent. Start them together so a cold cache
       // costs one Supabase round trip rather than a waterfall of three.
-      const [rows, placeResult, dealResult] = await Promise.all([
+      const [rows, placeResult, dealResult, pickIds] = await Promise.all([
         // fresh: the rail retires an event the moment its date passes, so it
         // must not read the ISR pages' hour-old cache entry (lib/supabase.js).
         fetchCuratedEvents({ signal, fresh: true }),
@@ -107,6 +108,7 @@ export async function GET(request) {
         dealIds.length
           ? supabase.from("wf_deals").select("id,affiliate_url,active,link_ok,provider").in("id", dealIds).abortSignal(signal)
           : Promise.resolve({ data: [], error: null }),
+        loadOwnerPickIds().catch(() => null), // owner picks (lib/curatorPicksServer.js); null = unknown
       ]);
       const sourceFailures = Number(!!placeResult.error) + Number(!!dealResult.error);
       if (placeResult.error) console.error("[api/events/fall] place inventory degraded", { message: String(placeResult.error.message || placeResult.error) });
@@ -284,7 +286,7 @@ export async function GET(request) {
         .filter((place) => place.image);
 
       const seasonalPlaceIds = new Set(seasonalPlaces.map((place) => place.id));
-      const places = [...seasonalPlaces, ...(placeResult.error ? [] : (placeResult.data || []))
+      let places = [...seasonalPlaces, ...(placeResult.error ? [] : (placeResult.data || []))
         // A curated owned photo (business-approved, zero Google Places calls)
         // is merged onto the row BEFORE hasStoredPlacePhoto runs, so a place
         // like Pinto's Farm is never dropped for lacking a Google photo_ref —
@@ -326,8 +328,10 @@ export async function GET(request) {
         }))]
         // Seasonal rails promise a real image of the named destination. A
         // missing/refused photo is an enrichment task, not a blank card.
-        .filter((place) => place.image)
-        .sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
+        .filter((place) => place.image);
+      // Picks land before the wfScore sort and the composer's caps; unknown -> untouched.
+      try { places = applyCuratorPicksServer(places, pickIds); } catch {}
+      places.sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
 
       const composed = composeFallIntentRails(events, places, { lat, lng, today });
       return { today, ...composed, sourceCount: events.length + places.length, sourceFailures };
