@@ -126,11 +126,15 @@ Fill order, per event:
    best-scoring eligible candidate for each slot.
 2. **Pass 2 — fill to `max`.** Add remaining candidates by score, honoring
    each slot's `quota`.
-3. **Pass 3 — suburban widen.** If still under `min`, redo passes 1–2 with
-   every slot's `maxMi` doubled (capped at 12 miles overall) — an
-   amphitheater or speedway with little truly walkable nearby still gets a
-   real answer, just fewer, further picks.
-4. **Pass 4 — overflow.** If still under `min`, admit remaining candidates
+3. **Pass 3 — suburban widen.** One bounded search at every slot's `maxMi`
+   doubled (capped at 12 miles overall), ADDED to the picks already made:
+   when the shelf is thin (fewer than `min` core picks), for every eligible
+   core slot up to its quota; otherwise only for the eligible core slots that
+   came up empty. No nearby pick changes place or slot. On a full shelf an
+   empty slot's first pick may displace one extra (the lowest scoring pick of
+   a slot that keeps another), never a slot's only pick. An amphitheater or
+   speedway with little truly walkable nearby still gets a real answer.
+4. **Pass 4 — overflow.** If still under `min` core picks, admit remaining candidates
    by governed score + distance under the label "Also nearby", up to the 12
    mile cap.
 
@@ -215,8 +219,10 @@ Owner: "a lot more fun things to do … make the person's night unforgettable
   reserved room returns to the other slots, so a food only block still shows
   twelve. A slot stretches by at most two past its quota.
 - **Optional slots never switch off the widen.** Pass 3 (suburban widen)
-  also runs when any core meal or drink slot is empty, and its result is
-  kept only when it fills strictly more core slots. The reach slots
+  also runs when an eligible core meal or drink slot is empty, and thinness
+  counts core picks only. A slot the event rules out (a family event's bar
+  slots, whose primary types FAMILY_HARD vetoes) is not "missing" and never
+  widens. The reach slots
   (`OPTIONAL_SLOT_KEYS`: memorable, second act, family fun, explore) reach
   farther than the meal slots and used to lift a thin block past `min`,
   starving it of meals (live preview: Clearwater Jazz Holiday 6 picks on
@@ -236,7 +242,7 @@ Owner: "a lot more fun things to do … make the person's night unforgettable
 
 Booking is unchanged: cards book only through curated partner picks and the
 detail sheet's `/api/viator/go` path with `geoConfirms` intact. Cache key
-bumped to `event-pairings-v6`.
+bumped to `event-pairings-v7`.
 
 ## What is excluded, and why
 
@@ -293,7 +299,7 @@ page's "Also nearby" shelf).
 
 ## Caching
 
-`lib/eventPairingsCache.js` (`EVENT_PAIRINGS_CACHE_KEY = "event-pairings-v6"`)
+`lib/eventPairingsCache.js` (`EVENT_PAIRINGS_CACHE_KEY = "event-pairings-v7"`)
 calls `classifyEvent(event)` **outside** the `unstable_cache` boundary and
 passes the JSON-serialized result in as an extra cache-key argument. This is
 what makes a concert and a food festival at the exact same venue coordinates
