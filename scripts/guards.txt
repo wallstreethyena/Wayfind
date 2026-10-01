@@ -1122,6 +1122,12 @@ node scripts/check-spend-guard.mjs
 # X-Goog-FieldMask actually sent equals the SKU granted (landing.js had been
 # charging Enterprise masks to text_pro).
 node scripts/test-search-sku-accounting.mjs
+# 2026-10-01 (PR #1582, owner: "Block — correct accounting"): BLOCKING MODE for
+# text_enterprise / nearby_enterprise, by COUNTING outbound Google requests from
+# every runtime Text/Nearby caller. Cap missing/0/abc/-5/1.5/blank/exhausted → 0
+# requests; valid → 1 per grant; 500/throw never retries unpaid; N concurrent vs
+# a ledger granting k → k; blocked landing serves inventory → expired cache → empty.
+node scripts/test-enterprise-search-blocking.mjs
 
 # BRAND-ASSET GUARD — every share surface renders through the ONE branded
 # renderer (drawn pin + wordmark), one brand orange, score pill in the kit.
