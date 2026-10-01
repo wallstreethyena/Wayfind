@@ -597,6 +597,13 @@ node scripts/check-creator-video-boost.mjs
 # that made it work cannot be quietly rewired back to the heavy path.
 node scripts/check-creator-signals-fresh.mjs
 node scripts/check-creator-registry-bundle-wall.mjs
+# 2026-10-01 — the same registry was back in route "/"'s initial JS by a path
+# the edge wall above cannot see: app/page.js imported rankedFor from
+# lib/landing.js, which also held LandingPage and so imported IconicPlaceCard
+# & co.; Next makes every client module reachable from a route's SERVER graph an
+# eager client entry. LandingPage now lives in lib/landingPage.js (-60,057 gz
+# bytes on "/"). This walks the real import graph, not strings.
+node scripts/check-landing-data-client-free.mjs
 # 2026-09-07 — the lean mirror's DATA FORMAT compacted further (positional
 # tuples + a sentinel + an interned platform table, replacing pretty-printed
 # object literals — see scripts/gen-creator-signals.mjs's header). This guard

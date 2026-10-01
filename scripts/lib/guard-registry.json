@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 767,
-    "totalRegistryEntries": 768,
-    "guardsTxtLineCount": 767,
-    "guardsTxtReachedFileCount": 760,
+    "totalOnDiskGuardFiles": 768,
+    "totalRegistryEntries": 769,
+    "guardsTxtLineCount": 768,
+    "guardsTxtReachedFileCount": 761,
     "criticalCount": 92,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 530,
-      "RENDER": 97,
+      "RENDER": 98,
       "STRUCTURAL": 140,
       "OTHER": 1
     }
@@ -4833,6 +4833,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 32,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-landing-data-client-free.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 13,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -17403,7 +17425,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 19,
+      "assertionCount": 20,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
