@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 760,
-    "totalRegistryEntries": 761,
-    "guardsTxtLineCount": 759,
-    "guardsTxtReachedFileCount": 753,
+    "totalOnDiskGuardFiles": 762,
+    "totalRegistryEntries": 763,
+    "guardsTxtLineCount": 762,
+    "guardsTxtReachedFileCount": 755,
     "criticalCount": 92,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 526,
-      "RENDER": 93,
+      "CALL": 527,
+      "RENDER": 94,
       "STRUCTURAL": 141,
       "OTHER": 1
     }
@@ -2840,34 +2840,6 @@
       "protects": null,
       "blastRadius": null,
       "owner": null
-    },
-    {
-      "file": "scripts/check-evergreen-landing-zero-spend.mjs",
-      "npmScript": null,
-      "class": "RENDER",
-      "hasStructuralOnlyTag": false,
-      "assertionCount": 54,
-      "unprovenAbsenceCount": 0,
-      "honestyViolations": [],
-      "selfDocumentsRedProve": false,
-      "wiring": {
-        "guardsTxt": true,
-        "npmScripts": [],
-        "githubWorkflows": []
-      },
-      "gating": "blocks-ci-and-deploy",
-      "excludedReason": null,
-      "critical": true,
-      "criticalReasons": [
-        "money-keyword-in-filename:spend",
-        "money-keyword-in-import:../lib/spendGate.js"
-      ],
-      "protects": "The evergreen landing towns (lib/evergreenCities.js: St. Petersburg, Naples, Fort Myers, Jacksonville, St. Augustine) publish exactly their 15 qualifying cat x city pairs (routes + sitemap, no event windows) and withhold the 5 weak pairs; rendering or ranking any of them makes zero googleapis calls and zero spend-ledger asks (inventory-only ranking, nospend=1 card photos honored by /api/photo as a probe), proven by call with Sarasota as the spend-allowed positive control; photo-warm's landingCityList never walks them and only lib/landing.js imports the table.",
-      "blastRadius": {
-        "category": "revenue",
-        "detail": "2026-09-30: the towns were added for SEO with a ZERO-new-Google-spend constraint. Without this lock, a cold ISR regen would fall back to paid Places Text Search, a card photo cache miss would buy a Places photo, and adding the towns to LANDING_CITIES would enrol them in the photo-warm cron that buys photos 4x/hour."
-      },
-      "owner": "claude.exe (Wayfind lane)"
     },
     {
       "file": "scripts/check-experiences-link-health.mjs",
@@ -10622,6 +10594,28 @@
       "owner": null
     },
     {
+      "file": "scripts/test-card-tap-tracking.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 11,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-cash-register-batch-2026-08-20.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -12170,6 +12164,28 @@
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
       "assertionCount": 35,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-enterprise-search-blocking.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 34,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -16518,6 +16534,33 @@
       "protects": null,
       "blastRadius": null,
       "owner": null
+    },
+    {
+      "file": "scripts/test-search-sku-accounting.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 14,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-import:../lib/spendGate.js"
+      ],
+      "protects": "Every Places Text Search / Nearby Search caller debits the spend-ledger row for the SKU Google actually bills: the guard executes each caller with the network recorded and derives the billed SKU from the X-Goog-FieldMask header it sent (Google's published field-to-SKU table), so an Enterprise mask can never be counted against the cheaper text_pro / nearby_pro free-tier rows, and no caller reaches Google without a grant.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "2026-09-30: lib/landing.js sent an Enterprise-tier Text Search mask ($35/1k, 1,000 free) while debiting text_pro (4,800 free), lib/nightlifeCensus.js did the same on Nearby, and app/api/city/unlock sent an Enterprise mask with no ledger grant at all. The ledger could report 'inside the free tier' while Google billed Enterprise — the same silent-bill shape as the August $1,878 invoice."
+      },
+      "owner": "Revenue QA"
     },
     {
       "file": "scripts/test-searched-location.mjs",
