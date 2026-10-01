@@ -8,7 +8,7 @@
 //
 // Everything here is a CALL: the real components are rendered with overlapping
 // fixtures and the go-links are counted per product id across the whole page; the
-// shared prepare step the client refresh uses, the rail's published set and the
+// shared prepare step the client refresh uses, the server-predicted rail set and the
 // server prediction are invoked and asserted on their return values. A positive
 // control proves non-overlapping products all still render.
 import { fileURLToPath } from "node:url";
@@ -27,7 +27,6 @@ const Strip = (await loadComponent(rel("../app/components/TourStrip.js"), REPO))
 const Pick = (await loadComponent(rel("../app/components/IntentPartnerPick.js"), REPO)).default;
 const { prepareTourStripItems } = await import("../lib/tourStripItems.js");
 const { railViatorCodes, landingRailSeeds } = await import("../lib/landingRails.js");
-const ro = await import("../lib/railOffers.js");
 
 const row = (code, extra = {}) => ({ code, title: `Distinct adventure ${code} on the bay`, image: `https://media.viator.com/${code}.jpg`, rating: 4.8, reviews: 500, fromPrice: 50, duration: "2h",
   url: `https://www.viator.com/tours/x/${code}?mcid=42383&pid=P00308545&medium=api`, ...extra });
@@ -71,16 +70,6 @@ ok(links(allShared).length === 0 && !/Book/.test(allShared), "all strip products
 ok(prepareTourStripItems({ items: [row("AAA1"), row("BBB2"), row("CCC3")] }, { excludeCodes: predicted }).length === 0, "refresh path: same -> empty");
 ok(prepareTourStripItems({ items: [row("AAA1"), row("XXX7")] }, { excludeCodes: predicted }).length === 1, "refresh path: one survivor is below the strip's minimum of 2 (strip hides, component rule)");
 
-// ── 6. client channel: what the rail publishes is what the strip receives ──
-const target = new EventTarget();
-let got = null;
-const off = ro.subscribeRailOffers((s) => { got = s; }, target);
-ro.publishRailOffers(["AAA1", " BBB2 ", ""], target);
-ok(got instanceof Set && got.size === 2 && got.has("AAA1") && got.has("BBB2"), "publish -> subscribe delivers the normalized viator code set");
-ok(ro.readRailOffers(target).has("AAA1"), "a late subscriber can read the last published set");
-off(); got = null; ro.publishRailOffers(["ZZZ"], target);
-ok(got === null, "unsubscribe stops delivery");
-
 // ── 7. seeds end to end: landingRailSeeds wires the exclusion into the strip seed ──
 const experiences = { items: [row("AAA1"), row("BBB2"), row("XXX7"), row("YYY8"), row("ZZZ9")] };
 const seeds = await landingRailSeeds({ catSlug: "things-to-do", city: { name: "Sarasota", lat: 27.33, lng: -82.53 }, metro: "sarasota", railIntent: "best-of",
@@ -91,11 +80,9 @@ ok(Array.isArray(seeds.tourItems) && !seeds.tourItems.some((t) => ["AAA1", "BBB2
 // ── 8. SOURCE-LEVEL (weaker: effects do not run under renderToStaticMarkup) ──
 const { readFileSync } = await import("node:fs");
 const strip = (t) => t.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
-const pickSrc = strip(readFileSync(rel("../app/components/IntentPartnerPick.js"), "utf8"));
-ok(/useEffect\(\(\) => \{\s*publishRailOffers\(/.test(pickSrc), "WEAKER (source) check: IntentPartnerPick publishes its rendered viator codes from an effect");
 const stripSrc = strip(readFileSync(rel("../app/components/TourStrip.js"), "utf8"));
-ok(/subscribeRailOffers\(/.test(stripSrc) && /excludeCodes: railCodes/.test(stripSrc), "WEAKER (source) check: TourStrip subscribes to the rail and feeds the same exclusion to the refresh prepare step");
+ok(/useState\(\(\) => new Set\(\(excludeCodes \|\| \[\]\)/.test(stripSrc) && /prepareTourStripItems\(res, \{ waterOnly, excludeCodes: railCodes \}\)/.test(stripSrc) && /initialItems\.filter\(\(t\) => !railCodes\.has\(/.test(stripSrc), "WEAKER (source) check: TourStrip builds railCodes from the server excludeCodes prop and applies it to BOTH the seed and the refresh prepare step");
 const landSrc = strip(readFileSync(rel("../lib/landing.js"), "utf8"));
 ok((landSrc.match(/<TourStrip[^>]*excludeCodes=\{railSeeds\.railCodes\}/g) || []).length === 2, "WEAKER (source) check: both landing <TourStrip> usages pass excludeCodes={railSeeds.railCodes}");
 
-console.log(`test-landing-offer-dedupe: OK — ${pass} assertions; rail+strip rendered with overlapping and disjoint fixtures, each product id counted once per page, empty-state and client publish/subscribe channel exercised`);
+console.log(`test-landing-offer-dedupe: OK — ${pass} assertions; rail+strip rendered with overlapping and disjoint fixtures, each product id counted once per page, empty-state exercised; client applies the server prediction to seed and refresh`);

@@ -31,7 +31,6 @@ import { toDisplayScore } from "../../lib/score";
 import { isPerfectScore } from "../../lib/lawfulOrder";
 import { prepareTourStripItems } from "../../lib/tourStripItems";
 import { commerceHref } from "../../lib/commerce";
-import { readRailOffers, subscribeRailOffers, normalizeCodes } from "../../lib/railOffers";
 
 /**
  * THE href for a strip card. Exported so a guard can CALL it.
@@ -63,21 +62,17 @@ export function tourHref(t) {
 // client-only path. Links are unchanged: tourHref -> /api/commerce/go.
 //
 // ONE OFFER, ONE SLOT (2026-09-30). `excludeCodes` is the server's prediction of the
-// viator products IntentPartnerPick renders on the same page; the rail then
-// publishes what it really rendered (lib/railOffers.js) and this strip follows it.
-// Both feed prepareTourStripItems' exclusion, on the seed AND on the refresh, so
-// hydration cannot bring a duplicate back. All excluded -> fewer than 2 -> the
-// strip hides (the rail already carries those products).
+// viator products IntentPartnerPick renders on the same page (lib/landingRails.js
+// railViatorCodes, same resolver + qualification as the rail). It feeds
+// prepareTourStripItems' exclusion on the seed AND on the refresh, so hydration
+// cannot bring a duplicate back. All excluded -> fewer than 2 -> the strip hides.
+// (No client pub/sub: it cost the home route its 498KB gz budget. Known limit: a
+// card at the rail's 30-slot cutoff can reorder by time of day after mount.)
 export default function TourStrip({ lat, lng, title, subtitle, waterOnly, initialItems, excludeCodes }) {
   const seeded = Array.isArray(initialItems) && initialItems.length >= 2;
   // The mount-time prop is the ONLY first-render input, identical on server and client.
-  const [railCodes, setRailCodes] = useState(() => normalizeCodes(excludeCodes));
+  const [railCodes] = useState(() => new Set((excludeCodes || []).map((c) => String(c).trim()).filter(Boolean)));
   const [res, setRes] = useState(null); // raw /api/experiences body once the refresh lands
-  useEffect(() => {
-    const cur = readRailOffers();
-    if (cur.size) setRailCodes((prev) => new Set([...prev, ...cur]));
-    return subscribeRailOffers((codes) => setRailCodes(codes));
-  }, []);
   const items = useMemo(() => {
     if (res) return prepareTourStripItems(res, { waterOnly, excludeCodes: railCodes });
     if (seeded) return initialItems.filter((t) => !railCodes.has(String(t && t.code).trim()));
