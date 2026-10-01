@@ -81,7 +81,7 @@ function clientClosure(files) {
 // Positive control first: the walker must see the render half's components.
 const page = clientEntries("lib/landingPage.js");
 for (const r of RENDER) ok(page.clients.has(r), `CONTROL: lib/landingPage.js reaches ${r} (walker resolved ${page.walked} modules)`);
-ok(clientClosure([...page.clients]).has("lib/creatorVideos.js"), "CONTROL: the render half's client closure contains lib/creatorVideos.js");
+ok(clientClosure([...page.clients]).has("lib/creatorSignals.js"), "CONTROL: the render half's client closure is walked (reaches IconicPlaceCard's badge source lib/creatorSignals.js)");
 
 // A. the data module reaches no client module at all.
 const data = clientEntries("lib/landing.js");
