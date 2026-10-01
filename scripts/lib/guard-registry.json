@@ -27,16 +27,16 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 755,
-    "totalRegistryEntries": 756,
-    "guardsTxtLineCount": 754,
-    "guardsTxtReachedFileCount": 748,
-    "criticalCount": 91,
+    "totalOnDiskGuardFiles": 761,
+    "totalRegistryEntries": 762,
+    "guardsTxtLineCount": 760,
+    "guardsTxtReachedFileCount": 754,
+    "criticalCount": 92,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 525,
-      "RENDER": 90,
-      "STRUCTURAL": 140,
+      "CALL": 527,
+      "RENDER": 93,
+      "STRUCTURAL": 141,
       "OTHER": 1
     }
   },
@@ -3660,7 +3660,7 @@
       "npmScript": null,
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 90,
+      "assertionCount": 95,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -3951,6 +3951,28 @@
       },
       "gating": "manual-npm-script-only",
       "excludedReason": "runs in `npm run audit:regression` — asserts deployed response headers, needs a live origin",
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-heartbeat-tolerance.mjs",
+      "npmScript": null,
+      "class": "STRUCTURAL",
+      "hasStructuralOnlyTag": true,
+      "assertionCount": 10,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
       "critical": false,
       "criticalReasons": [],
       "protects": null,
@@ -10670,6 +10692,28 @@
       "owner": null
     },
     {
+      "file": "scripts/test-chunk-recovery.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 71,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-city-fetch.mjs",
       "npmScript": null,
       "class": "STRUCTURAL",
@@ -12098,6 +12142,28 @@
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
       "assertionCount": 35,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-enterprise-search-blocking.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 34,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -13851,6 +13917,28 @@
       "owner": null
     },
     {
+      "file": "scripts/test-landing-ssr-rails.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 41,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-landing-tours.mjs",
       "npmScript": null,
       "class": "STRUCTURAL",
@@ -15097,6 +15185,28 @@
       "owner": null
     },
     {
+      "file": "scripts/test-photo-monitor-cold-rate.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 15,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-photo-protection.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -15743,7 +15853,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 38,
+      "assertionCount": 75,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -16110,10 +16220,10 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 11,
-      "unprovenAbsenceCount": 2,
+      "assertionCount": 12,
+      "unprovenAbsenceCount": 3,
       "honestyViolations": [
-        "2 absence assertion(s) with no positive control in the same file (e.g. \"/nextDynamic\\(\\(\\) => import\\(\"\\.\\/components\\/UnifiedBrowseCommerceRail\"\\)/.tes\")"
+        "3 absence assertion(s) with no positive control in the same file (e.g. \"/setItems\\(prepareTourStripItems\\(/.test(read(\"                           \").rep\")"
       ],
       "selfDocumentsRedProve": false,
       "wiring": {
@@ -16402,6 +16512,33 @@
       "protects": null,
       "blastRadius": null,
       "owner": null
+    },
+    {
+      "file": "scripts/test-search-sku-accounting.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 14,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-import:../lib/spendGate.js"
+      ],
+      "protects": "Every Places Text Search / Nearby Search caller debits the spend-ledger row for the SKU Google actually bills: the guard executes each caller with the network recorded and derives the billed SKU from the X-Goog-FieldMask header it sent (Google's published field-to-SKU table), so an Enterprise mask can never be counted against the cheaper text_pro / nearby_pro free-tier rows, and no caller reaches Google without a grant.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "2026-09-30: lib/landing.js sent an Enterprise-tier Text Search mask ($35/1k, 1,000 free) while debiting text_pro (4,800 free), lib/nightlifeCensus.js did the same on Nearby, and app/api/city/unlock sent an Enterprise mask with no ledger grant at all. The ledger could report 'inside the free tier' while Google billed Enterprise — the same silent-bill shape as the August $1,878 invoice."
+      },
+      "owner": "Revenue QA"
     },
     {
       "file": "scripts/test-searched-location.mjs",

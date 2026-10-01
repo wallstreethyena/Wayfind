@@ -26,7 +26,10 @@ ok(rows[0].title === "Low", "the helper does not mutate its input");
 const consumers = [
   ["app/components/ViatorRail.js", /rankExperiences\(items\)/],
   ["app/components/FoodTourRail.js", /rankExperiences\(offers\)/],
-  ["app/components/TourStrip.js", /rankExperiences\(arr\.filter/],
+  // TourStrip's filter+rank moved to lib/tourStripItems.js (2026-09-29) so the server
+  // seed and the client refresh share ONE ranker; the component must still call it
+  // (asserted just below the loop), and the ranker must still be the shared one.
+  ["lib/tourStripItems.js", /rankExperiences\(arr\.filter/],
   ["app/components/BookingCTA.js", /rankExperiences\(viaTours\[placeId\]\.items\)/],
   ["app/components/screens/Events.js", /rankExperiences\(eventsTours\)/],
   ["app/components/UnifiedBrowseCommerceRail.js", /rankExperiences\(rows\)/],
@@ -36,6 +39,8 @@ for (const [file, pattern] of consumers) {
   const src = read(file);
   ok(/rankExperiences/.test(src) && pattern.test(src), file + " delegates its displayed collection to the shared ranker");
 }
+
+ok(/setItems\(prepareTourStripItems\(/.test(read("app/components/TourStrip.js").replace(/^\s*\/\/.*$/gm, "")), "app/components/TourStrip.js displays the collection prepared by the shared ranker (prepareTourStripItems)");
 
 const home = read("app/home.js");
 const browseRail = read("app/components/UnifiedBrowseCommerceRail.js");

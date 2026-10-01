@@ -51,6 +51,7 @@ import { GUIDE_PICK_PHOTOS } from "../lib/guidePickPhotoManifest.js";
 import { selectGuidePickPhoto, guidePickPhoto, attachFreePhotoCredit } from "../lib/guidePickPhotos.js";
 import { loadGuidePickPhotoFiles, buildGuidePickPhotos, DATA_DIR } from "./build-guide-pick-photos.mjs";
 import { guideImageProblems } from "../lib/guideImagePolicy.js";
+import { loadComponent } from "./lib/jsxLoad.mjs";
 import { GUIDE_HERO_ART } from "../lib/guideHero.js";
 
 const require = createRequire(import.meta.url);
@@ -453,6 +454,36 @@ const candidates = JSON.parse(readFileSync(abs("data/guide-pick-photos/_reports/
 for (const c of candidates) {
   const row = ledgerBySrc.get(c.src);
   ok(Boolean(row) && row.replacementCandidate === c.reason, `replacement candidate ${c.src} is carried into the licence ledger`);
+}
+
+// ── 12. EVERY PICK IS ACCOUNTED FOR ────────────────────────────────────────
+// A pick with no committed photo and no recorded gap is a silent hole: the page
+// falls back to the rented Google photo cache (lib/guidePlaceFigureImage.js),
+// which expires, and nobody is on the hook to source a licensed photo. 29 picks
+// across 9 city guides shipped exactly that way (found 2026-09-30, when the
+// cache rollover left them as bare text). Every pick must now either resolve a
+// committed photo through the page's OWN resolvers (GuideEditorial's
+// guidePickFigureImage, then this manifest) or carry a documented gap reason in
+// data/guide-pick-photos/<slug>.json that says why none exists.
+{
+  const { guidePickFigureImage } = await loadComponent(abs("app/guides/[slug]/GuideEditorial.js"), REPO);
+  ok(typeof guidePickFigureImage === "function", "GuideEditorial.guidePickFigureImage compiled and loaded (the page's own pick-image resolver)");
+  const gapsBySlug = new Map(dataFiles.map(({ json }) => [json.slug, json.gaps || {}]));
+  const unaccounted = (guides, manifest, gaps) => Object.entries(guides).flatMap(([slug, guide]) => (guide?.picks || [])
+    .filter((pick) => !guidePickFigureImage(slug, pick) && !manifest[slug]?.picks?.[pick.name] && !GAP_REASONS.has(gaps.get(slug)?.[pick.name]?.reason))
+    .map((pick) => `${slug} / "${pick.name}"`));
+  // positive control + red-proof on fixtures before trusting the real run
+  const fx = { "fx-guide": { picks: [{ name: "Photo pick" }, { name: "Gap pick" }, { name: "Inline pick", image: "/x.webp" }] } };
+  const fxManifest = { "fx-guide": { picks: { "Photo pick": {} } } };
+  const fxGaps = new Map([["fx-guide", { "Gap pick": { reason: "not-a-place" } }]]);
+  ok(unaccounted(fx, fxManifest, fxGaps).length === 0, "positive control: photo, inline-image and documented-gap picks are all accounted for");
+  ok(unaccounted({ "fx-guide": { picks: [...fx["fx-guide"].picks, { name: "Silent pick" }] } }, fxManifest, fxGaps).join() === 'fx-guide / "Silent pick"', "red-proof: a pick with no photo and no gap is reported, and only that pick");
+  ok(unaccounted(fx, fxManifest, new Map([["fx-guide", { "Gap pick": { reason: "just because" } }]])).length === 1, "red-proof: a gap without an allowed reason does not account for a pick");
+  const holes = unaccounted(GUIDES, GUIDE_PICK_PHOTOS, gapsBySlug);
+  const total = Object.values(GUIDES).reduce((n, g) => n + (g?.picks?.length || 0), 0);
+  ok(total > 0, "positive control: GUIDES carries picks — the coverage rule has a live subject");
+  for (const hole of holes) failures.push(`${hole}: no committed photo and no documented gap — source one with scripts/find-guide-pick-photo-candidates.mjs + scripts/ingest-guide-pick-photo.mjs, or record why none exists (--gap)`);
+  if (!holes.length) pass++;
 }
 
 if (failures.length) {

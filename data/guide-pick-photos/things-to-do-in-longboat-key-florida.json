@@ -1,0 +1,39 @@
+{
+  "slug": "things-to-do-in-longboat-key-florida",
+  "picks": {
+    "Quick Point Nature Preserve": {
+      "src": "/guides/picks/things-to-do-in-longboat-key-florida/quick-point-lagoon.webp",
+      "width": 1400,
+      "height": 788,
+      "alt": "A calm tidal lagoon lined on both sides by dense green mangroves under an overcast sky",
+      "caption": "The mangrove-lined tidal lagoon at Quick Point Nature Preserve on Longboat Key, photographed in January 2023.",
+      "credit": "Ryan Hodnett",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Quick_Point_Nature_Preserve_-_Longboat_Key%2C_Florida_2023-01-24_(01).jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Quick_Point_Nature_Preserve_-_Longboat_Key%2C_Florida_2023-01-24_(01).jpg",
+      "author": "Ryan Hodnett",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons title and description 'Quick Point Nature Preserve in Longboat Key, Florida' by Ryan Hodnett, 2023-01-24, geotag 27.336745,-82.582433 falls inside the preserve at the island's south end; part of the photographer's same-day Quick Point series. Seen: sheltered mangrove-fringed tidal lagoon matching the town's description of the restored lagoon. No people. Live Commons licence checked: CC BY-SA 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-29"
+    }
+  },
+  "gaps": {
+    "Bayfront Park": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "Commons/Openverse searches for 'Bayfront Park Longboat Key' and a geosearch around 4052 Gulf of Mexico Dr return only Miami's Bayfront Park (same-name, wrong city) and unrelated Longboat Key shots (Durante Park, Diplomat, beaches); no photo verifiably showing Longboat Key's bayside Bayfront Park."
+    },
+    "Public beach access at 4001 Gulf of Mexico Drive": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "Finder returned 0 candidates; Commons 'Longboat Key beach' results (Ebyabe 2011 boardwalk/beach, Guspederson 2016 = guide hero) carry no location beyond 'Longboat Key', so none can be tied to the 4001 Gulf of Mexico Drive access; generic Longboat beach would be a stand-in and duplicates the hero subject."
+    }
+  }
+}

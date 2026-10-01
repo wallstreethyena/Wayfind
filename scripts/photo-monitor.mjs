@@ -50,7 +50,7 @@
 // queue rows — never a crash. A red canary here always means the instrument
 // failed, never that the world looked bad (spec §4, risk 13).
 import { recordPulse } from "../lib/jobPulse.js";
-import { allowanceFromLedger, classifyProbe, computeBreach, isSampleDegraded, mergeQueueUpsert, openGrowthRatio, parseOpenTotal, pulseVerdict } from "../lib/photoCoverage.js";
+import { allowanceFromLedger, classifyProbe, computeBreach, isSampleDegraded, mergeQueueUpsert, openGrowthRatio, parseOpenTotal, pulseVerdict, readerPlaceholderRate } from "../lib/photoCoverage.js";
 
 const DEFAULT_BASE_URL = "https://www.gowayfind.com";
 // RL_LIMIT in lib/apiGuard.js is 120 requests / 60s per IP, best-effort, per
@@ -741,8 +741,12 @@ async function main() {
   const sampleDegraded = isSampleDegraded(rateLimitedCount, summary.sampled);
   if (sampleDegraded) console.error(SAMPLE_DEGRADED_WARNING + ` (${rateLimitedCount}/${summary.sampled} rate-limited)`);
 
+  // Cold-cache probe misses are not placeholders a reader sees while the ledger
+  // has headroom (see readerPlaceholderRate). The breach and the pulse use this
+  // rate; the raw probe rate stays in the note and --json for the record.
+  const reader = readerPlaceholderRate(summary, { headroom: allowance.headroom });
   const breach = computeBreach({
-    placeholderRate: summary.placeholderRate,
+    placeholderRate: reader.rate,
     placeholderThreshold: PLACEHOLDER_RATE_THRESHOLD,
     openGrowth,
     openGrowthThreshold: OPEN_GROWTH_THRESHOLD,
@@ -754,8 +758,9 @@ async function main() {
 
   const verdict = pulseVerdict({ breached: breach, key: incidentKey, recentPulses });
 
-  const pct = Math.round(summary.placeholderRate * 100);
+  const pct = Math.round(reader.rate * 100);
   const noteBits = [`placeholder-rate ${pct}% of ${summary.sampled} probes`];
+  if (reader.coldSurfaces > 0) noteBits.push(`raw-probe-rate=${Math.round(reader.rawRate * 100)}%`);
   // `open=<total>` is the breadcrumb the NEXT run parses for its baseline —
   // keep the literal shape parseOpenTotal reads. Its "+N this run" is the
   // QUEUED count only (candidates.length), never cold probes.
@@ -780,7 +785,8 @@ async function main() {
     sampled: summary.sampled,
     byResult: summary.byResult,
     byReason: summary.byReason,
-    placeholderRate: summary.placeholderRate,
+    placeholderRate: reader.rate,
+    rawProbePlaceholderRate: reader.rawRate,
     configOutages,
     cold,
     ledgerPhase: allowance.phase,
@@ -807,7 +813,7 @@ async function main() {
   else {
     console.log(`photo-monitor: sampled ${out.sampled} probes across ${out.sampledFrom.cells}/${out.sampledFrom.cellsTotal} cells`);
     console.log(`  real=${summary.byResult.real} compass=${summary.byResult.compass} miss=${summary.byResult.miss} rateLimited=${summary.byResult.rateLimited} error=${summary.byResult.error}`);
-    console.log(`  placeholderRate=${(summary.placeholderRate * 100).toFixed(1)}% queueWrites=${queueWrites} cold=${cold} ledgerPhase=${allowance.phase} configOutages=${configOutages} sampleDegraded=${sampleDegraded} breach=${breach}`);
+    console.log(`  placeholderRate=${(reader.rate * 100).toFixed(1)}% rawProbeRate=${(reader.rawRate * 100).toFixed(1)}% queueWrites=${queueWrites} cold=${cold} ledgerPhase=${allowance.phase} configOutages=${configOutages} sampleDegraded=${sampleDegraded} breach=${breach}`);
     if (queueUnavailable) console.log(`  queue: unavailable (${queueErrorMessage})`);
   }
 

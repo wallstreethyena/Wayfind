@@ -474,6 +474,7 @@ node scripts/check-coupon-link-attribution.mjs
 node scripts/test-partner-rail-render.mjs
 node scripts/test-bookable-highlights-30.mjs
 node scripts/check-tour-strip-redirect.mjs
+node scripts/test-landing-ssr-rails.mjs
 node scripts/check-food-tour-rail.mjs
 node scripts/test-booking-resolve-extraction.mjs
 # Founder P0 (2026-08-19): Book/commerce clicks same-tab through /api/*/go
@@ -1115,6 +1116,18 @@ node scripts/check-rail-drop-images.mjs
 # THE $1,878 GUARD — no atmosphere-tier fields in server masks, every metered
 # Google call site behind the WAYFIND_GATE spend gate, radius ladder present.
 node scripts/check-spend-guard.mjs
+# 2026-09-30: check-spend-guard proves a gate EXISTS in front of every Google
+# call; this proves it debits the RIGHT ledger row. Executes each Text/Nearby
+# Search caller with the network recorded and asserts the SKU implied by the
+# X-Goog-FieldMask actually sent equals the SKU granted (landing.js had been
+# charging Enterprise masks to text_pro).
+node scripts/test-search-sku-accounting.mjs
+# 2026-10-01 (PR #1582, owner: "Block — correct accounting"): BLOCKING MODE for
+# text_enterprise / nearby_enterprise, by COUNTING outbound Google requests from
+# every runtime Text/Nearby caller. Cap missing/0/abc/-5/1.5/blank/exhausted → 0
+# requests; valid → 1 per grant; 500/throw never retries unpaid; N concurrent vs
+# a ledger granting k → k; blocked landing serves inventory → expired cache → empty.
+node scripts/test-enterprise-search-blocking.mjs
 
 # BRAND-ASSET GUARD — every share surface renders through the ONE branded
 # renderer (drawn pin + wordmark), one brand orange, score pill in the kit.
@@ -1382,6 +1395,12 @@ node scripts/test-inverse-booking-cta.mjs
 # "billing:"/"quota:"-prefixed dead run after one run, per lib/jobPulse.js)
 # picks it up on its next run.
 node scripts/test-revenue-heartbeat.mjs
+# 2026-09-30 heartbeat-watch paged "photo-monitor OVERDUE (371min vs 240min
+# max)" while photo-monitor was green on every run: GitHub starts the three
+# scheduled monitors with a median gap of ~4h and a worst of 516min. Replays
+# every wf_heartbeat_expected migration and fails if a GitHub-scheduled
+# monitor's tolerance is below that measured worst gap (or missing).
+node scripts/check-heartbeat-tolerance.mjs
 # 2026-09-04 PRODUCTION-LIKE SYNTHETIC USER MONITORING. scripts/run-synthetic-monitor.mjs
 # drives real Chromium against production across 12 named flows (homepage, rails,
 # place-card controls, Today/Night Out/Fall, events, save/share, itinerary, Book
@@ -1931,3 +1950,9 @@ node scripts/test-card-photo-fallback.mjs
 node scripts/test-photo-serving-alert.mjs
 node scripts/test-intl-cache.mjs
 node scripts/test-browse-back.mjs
+node scripts/test-photo-monitor-cold-rate.mjs
+# 2026-09-30: one /_next/static chunk answering 502 left production on Next's
+# bare white "Application error" page (no app/error.js, no global-error.js, no
+# pre-React handler). Executes the inline recovery script against simulated
+# failures, the reload-once rule, and renders both boundaries.
+node scripts/test-chunk-recovery.mjs
