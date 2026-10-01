@@ -40,26 +40,40 @@
       "verification": "Downloaded the original (1800x1215) from Wikimedia Commons and inspected it directly: the blue front-gate sign reads 'Weeki Wachee Springs' with placards for 'MERMAID SHOWS' and 'RIVER CRUISE', at the park's real US 19 entrance. No properly licensed contemporary photo of the underwater theater performance itself exists on Commons (the only performance photos are pre-1970s Florida State Archives images marked plain public domain, outside this project's allowed licence list, and would show identifiable performers); this on-site sign is the verified stand-in that still shows the exact attraction and place named in the pick.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
+    },
+    "When the manatees come": {
+      "src": "/guides/picks/weeki-wachee-kayak-mermaids-guide/manatee-cow-calf-weeki-wachee-river.webp",
+      "width": 1024,
+      "height": 768,
+      "alt": "A manatee and her calf resting just below the surface of a clear, shallow river edged with grasses and shrubs",
+      "caption": "A manatee cow and calf in the Weeki Wachee River inside the state park, January 2014.",
+      "credit": "Fredlyfish4",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Manatees_in_Weeki_Wachee_River.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Manatees_in_Weeki_Wachee_River.JPG",
+      "author": "Fredlyfish4",
+      "position": "50% 45%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons file 'Manatees in Weeki Wachee River.JPG' by Fredlyfish4, dated 2014-01-05; description: 'A manatee cow and calf in the Weeki Wachee River in Weeki Wachee Springs State Park in Florida.' Visually confirmed two manatees in clear shallow water against the vegetated bank; January matches the cool-season arrival the pick describes. No people. Image visually reviewed. Live Commons licence checked: CC BY-SA 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-29"
     }
   },
   "gaps": {
-    "Buccaneer Bay, the spring-fed water park": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": "Florida State Parks, Weeki Wachee Springs State Park (public agency)",
-      "note": "No Commons search turned up any photo of Buccaneer Bay (the spring-fed water park within Weeki Wachee Springs State Park); every 'Weeki Wachee' result on Commons is either the river, the springs, the mermaid show's history, or the front-gate sign. Pass 2 (2026-09-23): searched Openverse for \"Buccaneer Bay Weeki Wachee\"; the one result was the general park highway sign (already effectively covered by this guide's existing 'live mermaid show' pick), not the water park itself. No usable candidate found."
-    },
-    "When the manatees come": {
-      "reason": "not-a-place",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "Describes a seasonal wildlife behavior (manatees moving into the river in cooler months, gathering at Hospital Hole downstream) rather than one distinct, visitable place."
-    },
     "The river rules that keep it this clear": {
       "reason": "not-a-place",
       "placeId": null,
       "needsPermissionFrom": null,
       "note": "Describes the Springs Protection Zone rules, not a place."
+    },
+    "Buccaneer Bay, the spring-fed water park": {
+      "reason": "no-verified-source",
+      "placeId": "ChIJz3OOrDIg6IgRMKjzAPsV3NI",
+      "needsPermissionFrom": "Florida State Parks, Weeki Wachee Springs State Park (public agency)",
+      "note": "No Commons search turned up any photo of Buccaneer Bay (the spring-fed water park within Weeki Wachee Springs State Park); every 'Weeki Wachee' result on Commons is either the river, the springs, the mermaid show's history, or the front-gate sign. Pass 2 (2026-09-23): searched Openverse for \"Buccaneer Bay Weeki Wachee\"; the one result was the general park highway sign (already effectively covered by this guide's existing 'live mermaid show' pick), not the water park itself. No usable candidate found. Re-checked 2026-09-30: the only licensed candidate (Flickr 1343753945, Oct 2006) is dominated by the Thunderbolt flume slide, which the state removed in early 2021, so it no longer represents the park; rejected on owner review. Current licensed photos of the remaining slides were not found."
     }
   }
 }
