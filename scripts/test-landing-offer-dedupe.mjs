@@ -75,14 +75,17 @@ const experiences = { items: [row("AAA1"), row("BBB2"), row("XXX7"), row("YYY8")
 const seeds = await landingRailSeeds({ catSlug: "things-to-do", city: { name: "Sarasota", lat: 27.33, lng: -82.53 }, metro: "sarasota", railIntent: "best-of",
   deps: { inventory: { serve: async () => ({ items: INV.map((r) => ({ ...r })) }) }, tour: { serve: async () => experiences }, parks: { load: async () => [] } } });
 ok(Array.isArray(seeds.railCodes) && seeds.railCodes.includes("AAA1"), "landingRailSeeds returns the rail's predicted viator codes");
-ok(Array.isArray(seeds.tourItems) && !seeds.tourItems.some((t) => ["AAA1", "BBB2", "CCC3"].includes(t.code)) && seeds.tourItems.length === 3, `the strip SEED already excludes the rail's products (got ${(seeds.tourItems || []).map((t) => t.code)})`);
+// The seed is the UN-excluded pool: the prediction is applied by the strip at render, so
+// a product the rail does not actually show can come back (test-landing-offer-dedupe-runtime).
+ok(Array.isArray(seeds.tourItems) && seeds.tourItems.map((t) => t.code).sort().join() === "AAA1,BBB2,XXX7,YYY8,ZZZ9", `the strip SEED is the whole pool, not pre-excluded (got ${(seeds.tourItems || []).map((t) => t.code)})`);
+const seededHtml = renderToStaticMarkup(React.createElement(Strip, { lat: 27.33, lng: -82.53, title: "Book", initialItems: seeds.tourItems, excludeCodes: seeds.railCodes }));
+ok(links(seededHtml).map((l) => l.offer).sort().join() === "XXX7,YYY8,ZZZ9", `first paint from the seeds excludes the predicted rail products (got ${links(seededHtml).map((l) => l.offer)})`);
 
-// ── 8. SOURCE-LEVEL (weaker: effects do not run under renderToStaticMarkup) ──
+// ── 8. SOURCE-LEVEL wiring (weaker). The post-mount behaviour — following what the rail
+// ACTUALLY renders — is mounted and exercised in test-landing-offer-dedupe-runtime.mjs.
 const { readFileSync } = await import("node:fs");
 const strip = (t) => t.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
-const stripSrc = strip(readFileSync(rel("../app/components/TourStrip.js"), "utf8"));
-ok(/useState\(\(\) => new Set\(\(excludeCodes \|\| \[\]\)/.test(stripSrc) && /prepareTourStripItems\(res, \{ waterOnly, excludeCodes: railCodes \}\)/.test(stripSrc) && /initialItems\.filter\(\(t\) => !railCodes\.has\(/.test(stripSrc), "WEAKER (source) check: TourStrip builds railCodes from the server excludeCodes prop and applies it to BOTH the seed and the refresh prepare step");
 const landSrc = strip(readFileSync(rel("../lib/landing.js"), "utf8"));
 ok((landSrc.match(/<TourStrip[^>]*excludeCodes=\{railSeeds\.railCodes\}/g) || []).length === 2, "WEAKER (source) check: both landing <TourStrip> usages pass excludeCodes={railSeeds.railCodes}");
 
-console.log(`test-landing-offer-dedupe: OK — ${pass} assertions; rail+strip rendered with overlapping and disjoint fixtures, each product id counted once per page, empty-state exercised; client applies the server prediction to seed and refresh`);
+console.log(`test-landing-offer-dedupe: OK — ${pass} assertions; rail+strip rendered with overlapping and disjoint fixtures, each product id counted once per page, empty-state exercised; first paint applies the server prediction to the un-excluded seed`);

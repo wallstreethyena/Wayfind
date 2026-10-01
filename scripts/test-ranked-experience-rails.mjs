@@ -40,7 +40,7 @@ for (const [file, pattern] of consumers) {
   ok(/rankExperiences/.test(src) && pattern.test(src), file + " delegates its displayed collection to the shared ranker");
 }
 
-ok(/prepareTourStripItems\(res, \{ waterOnly, excludeCodes/.test(read("app/components/TourStrip.js").replace(/^\s*\/\/.*$/gm, "")), "app/components/TourStrip.js displays the collection prepared by the shared ranker (prepareTourStripItems)");
+ok(/const items = pool && prepareTourStripItems\(pool, \{ waterOnly,/.test(read("app/components/TourStrip.js").replace(/^\s*\/\/.*$/gm, "")), "app/components/TourStrip.js displays the collection prepared by the shared ranker (prepareTourStripItems)");
 
 const home = read("app/home.js");
 const browseRail = read("app/components/UnifiedBrowseCommerceRail.js");

@@ -25,7 +25,7 @@
 // The pid is not lost: /api/commerce/go re-applies withViatorTracking
 // server-side (PROVIDERS.viator), so attribution is identical and the handoff
 // is ours.
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { wayfindScore } from "../../lib/google";
 import { toDisplayScore } from "../../lib/score";
 import { isPerfectScore } from "../../lib/lawfulOrder";
@@ -61,23 +61,34 @@ export function tourHref(t) {
 // with no seed (server read failed / dark) behaviour is byte-for-byte the old
 // client-only path. Links are unchanged: tourHref -> /api/commerce/go.
 //
-// ONE OFFER, ONE SLOT (2026-09-30). `excludeCodes` is the server's prediction of the
-// viator products IntentPartnerPick renders on the same page (lib/landingRails.js
-// railViatorCodes, same resolver + qualification as the rail). It feeds
-// prepareTourStripItems' exclusion on the seed AND on the refresh, so hydration
-// cannot bring a duplicate back. All excluded -> fewer than 2 -> the strip hides.
-// (No client pub/sub: it cost the home route its 498KB gz budget. Known limit: a
-// card at the rail's 30-slot cutoff can reorder by time of day after mount.)
+// ONE OFFER, ONE SLOT (2026-10-01). The strip leaves out the viator products the
+// IntentPartnerPick rail on the same page ACTUALLY shows — never ones it was merely
+// expected to show ("an experience must not disappear from both locations").
+//   first render (server + hydration): `excludeCodes`, the server's prediction
+//     (lib/landingRails.js railViatorCodes), so the HTML is deduped and hydrates.
+//   after mount: the rail's visible go-links in the DOM, re-read by a
+//     MutationObserver whenever the page changes — rail empty, crashed, hidden,
+//     refreshed, reordered or navigated away -> the strip follows.
+// `initialItems` is the server's UN-excluded pool (up to 12) so a product the rail
+// does not show can come back even when the refresh fails; prepareTourStripItems
+// excludes, then caps at 4 (backfill). All excluded -> fewer than 2 -> strip hides.
+// Read from the DOM, not a pub/sub module: the latter cost the home route its
+// 498KB gz budget. Locked by scripts/test-landing-offer-dedupe-runtime.mjs.
+const RAIL_LINKS = '[data-commerce-owner="IntentPartnerPick"][href*="provider=viator&"]';
 export default function TourStrip({ lat, lng, title, subtitle, waterOnly, initialItems, excludeCodes }) {
   const seeded = Array.isArray(initialItems) && initialItems.length >= 2;
-  // The mount-time prop is the ONLY first-render input, identical on server and client.
-  const [railCodes] = useState(() => new Set((excludeCodes || []).map((c) => String(c).trim()).filter(Boolean)));
   const [res, setRes] = useState(null); // raw /api/experiences body once the refresh lands
-  const items = useMemo(() => {
-    if (res) return prepareTourStripItems(res, { waterOnly, excludeCodes: railCodes });
-    if (seeded) return initialItems.filter((t) => !railCodes.has(String(t && t.code).trim()));
-    return null;
-  }, [res, seeded, initialItems, waterOnly, railCodes]);
+  const [shown, setShown] = useState(null); // offer ids the rail renders visibly; null until mounted
+  useEffect(() => {
+    // A string, so an unchanged set is a no-op setState (no render loop).
+    const read = () => setShown([...document.querySelectorAll(RAIL_LINKS)].filter((a) => a.offsetParent !== null).map((a) => a.getAttribute("data-offer-id")).join("\n"));
+    read();
+    const mo = new MutationObserver(read);
+    mo.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["href", "data-offer-id", "hidden", "style", "class"] });
+    return () => mo.disconnect();
+  }, []);
+  const pool = res || (seeded ? { items: initialItems } : null);
+  const items = pool && prepareTourStripItems(pool, { waterOnly, excludeCodes: shown === null ? excludeCodes : shown.split("\n") });
   useEffect(() => {
     if (!isFinite(lat)) { setRes({ items: [] }); return; }
     let dead = false;
@@ -87,7 +98,7 @@ export default function TourStrip({ lat, lng, title, subtitle, waterOnly, initia
       if (!res && seeded) return; // failed refresh: keep the server-rendered seed
       // Filter/dedupe/rank lives in lib/tourStripItems.js so the server seed and
       // this refresh cannot diverge (t.code required; never the raw partner URL).
-      // The raw body is kept so a later rail publication re-runs it with backfill.
+      // The raw body is kept so a later rail change re-runs it with backfill.
       setRes(res || { items: [] });
     });
     return () => { dead = true; };
