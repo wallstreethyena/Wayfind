@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 762,
-    "totalRegistryEntries": 763,
-    "guardsTxtLineCount": 761,
-    "guardsTxtReachedFileCount": 755,
+    "totalOnDiskGuardFiles": 763,
+    "totalRegistryEntries": 764,
+    "guardsTxtLineCount": 763,
+    "guardsTxtReachedFileCount": 756,
     "criticalCount": 92,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 528,
-      "RENDER": 93,
+      "RENDER": 94,
       "STRUCTURAL": 141,
       "OTHER": 1
     }
@@ -10580,6 +10580,28 @@
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-card-tap-tracking.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 11,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
