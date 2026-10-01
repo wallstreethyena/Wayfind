@@ -15,6 +15,7 @@
 import { readFileSync } from "node:fs";
 import { GUIDES } from "../lib/guides.js";
 import { guideRegions } from "../lib/guideIndex.js";
+import { currentGuides, pastGuides } from "../lib/guideLifecycle.js";
 import { TOWN_PROFILES, TOWN_ALIASES } from "../lib/culture.js";
 import { CULTURE } from "../lib/cultureCorpus.js";
 import { SUMMER_UNIVERSE } from "../lib/summerUniverse.js";
@@ -109,13 +110,23 @@ ok(/t\[ck\]\.items\.map[\s\S]{0,220}x\.placeId[\s\S]{0,160}\/places\//.test(cult
   "culture town Don't-miss items with placeId render /places/{id}");
 
 const hub = strip(readFileSync(new URL("../app/guides/page.js", import.meta.url), "utf8"));
-const hubGroups = guideRegions(GUIDES);
-const reachesStPete = (groups) => groups.some(({ guides }) => guides.some(({ slug }) => slug === ST_PETE));
-ok(reachesStPete(hubGroups),
-  "guides hub grouping includes the St. Petersburg summer guide as an indexable hop");
-ok(!reachesStPete(hubGroups.map(group => ({ ...group, guides: group.guides.filter(g => g.slug !== ST_PETE) }))),
+// 2026-09-23: a guide that already happened leaves the hub grouping and is
+// reached through /guides/past (lib/guideLifecycle.js). Either path counts as
+// the indexable hop; losing BOTH is the failure. The St. Pete summer guide is
+// past now, so the archive path is the one this proves.
+const hubGroups = guideRegions(currentGuides(GUIDES));
+const archive = pastGuides(GUIDES);
+const pastPage = strip(readFileSync(new URL("../app/guides/past/page.js", import.meta.url), "utf8"));
+const reachesStPete = (groups, past) => groups.some(({ guides }) => guides.some(({ slug }) => slug === ST_PETE)) || past.some(({ slug }) => slug === ST_PETE);
+ok(reachesStPete(hubGroups, archive),
+  "the St. Petersburg summer guide stays discoverable from /guides or /guides/past as an indexable hop");
+ok(!reachesStPete(hubGroups.map(group => ({ ...group, guides: group.guides.filter(g => g.slug !== ST_PETE) })), archive.filter(g => g.slug !== ST_PETE)),
   "negative control: removing the St. Petersburg article loses its discovery path");
-ok(/const regions = guideRegions\(GUIDES\)/.test(hub) && /regions\.map\(/.test(hub) && /href=\{\"\/guides\/\" \+ g\.slug\}/.test(hub),
+// The grouped render is the one that destructures `guides`; a bare
+// /regions\.map\(/ also matched the region-chip nav above it, so the real
+// guide grid could be blanked with this check still green (found 2026-09-30).
+ok(/const regions = guideRegions\(currentGuides\(GUIDES\)\)/.test(hub) && /regions\.map\(\(\{ region, guides \}/.test(hub) && /guides\.map\(\(g\) =>/.test(hub) && /href=\{\"\/guides\/\" \+ g\.slug\}/.test(hub)
+  && /href="\/guides\/past"/.test(hub) && /pastGuides\(GUIDES\)/.test(pastPage) && /href=\{\"\/guides\/\" \+ g\.slug\}/.test(pastPage),
   "the hub renders grouped guide URLs rather than keeping the complete grouping unused");
 
 // ── 6. Fail-closed integrity on the files we edited ───────────────────────
