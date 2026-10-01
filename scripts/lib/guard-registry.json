@@ -35,8 +35,8 @@
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 530,
-      "RENDER": 95,
-      "STRUCTURAL": 141,
+      "RENDER": 96,
+      "STRUCTURAL": 140,
       "OTHER": 1
     }
   },
@@ -1293,14 +1293,11 @@
     {
       "file": "scripts/check-creator-registry-bundle-wall.mjs",
       "npmScript": null,
-      "class": "STRUCTURAL",
+      "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 18,
-      "unprovenAbsenceCount": 1,
-      "honestyViolations": [
-        "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines",
-        "1 absence assertion(s) with no positive control in the same file (e.g. \"/creatorVideosFor[^;]*from\\s+[\"']\\.\\.\\/\\.\\.\\/lib\\/creatorSignals\\.js[\"']/.test(I\")"
-      ],
+      "assertionCount": 27,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
       "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,
