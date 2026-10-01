@@ -27,9 +27,9 @@ async function staleOf(value) {
   const key = `test-cc-stale-shape:${n++}`;
   let calls = 0;
   const loader = async () => { calls++; if (calls === 1) return value; throw new Error("upstream down"); };
-  const fresh = await memTTL(key, 5, loader);
-  await wait(15);
-  const stale = await memTTL(key, 5, loader);
+  const fresh = await memTTL(key, 50, loader);
+  await wait(100); // past the 50ms TTL, well inside the 10x (500ms) stale window
+  const stale = await memTTL(key, 50, loader);
   return { fresh, stale, calls };
 }
 
@@ -48,7 +48,7 @@ const num = await staleOf(42);
 ok(num.stale === 42, `a scalar served stale is returned as-is, got ${num.stale}`);
 
 let threw = false;
-try { await memTTL(`test-cc-stale-shape:${n++}`, 5, async () => { throw new Error("never worked"); }); } catch (e) { threw = /never worked/.test(e.message); }
+try { await memTTL(`test-cc-stale-shape:${n++}`, 50, async () => { throw new Error("never worked"); }); } catch (e) { threw = /never worked/.test(e.message); }
 ok(threw, "with no prior value the loader's error is rethrown");
 
 if (fail.length) {
