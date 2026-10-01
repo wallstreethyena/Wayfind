@@ -6,7 +6,7 @@
 // build — production stuck on an old deploy. The guard is now pinned; this rule is where the
 // lapse is reported. Asserted by CALLING computeAlerts and gatherAlerts' wiring, not by regex.
 import { computeAlerts } from "../lib/commandCenter/alerts.js";
-import { COUPON_AUDIT_FUSES } from "../lib/coupons.js";
+import { COUPON_AUDIT_FUSES } from "../lib/couponAuditFuses.js";
 import { buildAlertsReport } from "../lib/commandCenter/alertsRun.js";
 import { readFileSync } from "node:fs";
 import { COUPONS, couponIsLive } from "../lib/coupons.js";
