@@ -1994,3 +1994,7 @@ node scripts/test-coupon-audit-alert.mjs
 # did not exist to search, the Location box or /api/rails. Locks the COVERED vs
 # PUBLISHED split: markets are searchable + feed-covered, mint no page/link/sitemap URL.
 node scripts/test-covered-markets.mjs
+# 2026-10-01: ownerless expiry fuses fail builds or hide data silently. Time-dependent tests run on explicit
+# reference dates; the coupon selection fix; Family-day/fall/coupon fuses warn through the Command Center.
+node scripts/test-coupon-selection.mjs
+node scripts/test-family-evidence-expiry.mjs
