@@ -63,4 +63,11 @@ having min(created_at) >= '2026-09-30T00:00:00Z' and max(created_at) < '2026-10-
 order by first_seen;
 ```
 
-Exclude confirmed test devices from reports **by `device_id`**. Never delete visitor rows to make a number match.
+Never delete visitor rows to make a number match.
+
+**There is no per-`device_id` exclusion today** (checked 2026-10-01, `docs/analytics-reconciliation.md` §4). What exists:
+- the browser mark `wf_internal_browser_v1`, which stops future writes from that browser only;
+- the Supabase `wf_cc_settings.exclude_emails` row, which excludes accounts and every device that ever wrote as them;
+- PostHog user-id / test-account filters.
+
+Excluding a confirmed test `device_id` needs a reviewed, reversible addition first, for example an `exclude_devices` key unioned into `wf_cc_excluded_devices()`, applied by the owner. Until then a suspected test device is reported as a caveat, not removed.
