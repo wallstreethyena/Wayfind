@@ -1,4 +1,5 @@
 import GuidePhoto from "./GuidePhoto";
+import PhotoCreditLink from "./PhotoCreditLink";
 import styles from "./GuideFigure.module.css";
 import { guideCaptionText } from "../../lib/guideCaption.js";
 import { isGooglePhotoSrc } from "../../lib/googlePhotoSrc.js";
@@ -90,10 +91,10 @@ export function GuideFigureCredit({ image, as: As = "div", className }) {
       ) : null}
       {media.credit || license || media.providerHref ? (
         <span className={styles.creditText}>
-          {media.credit ? (creditHref ? <a href={creditHref}>Photo: {media.credit}</a> : <>Photo: {media.credit}</>) : null}
+          {media.credit ? (creditHref ? <PhotoCreditLink href={creditHref}>Photo: {media.credit}</PhotoCreditLink> : <>Photo: {media.credit}</>) : null}
           {media.credit && license ? <span aria-hidden="true"> · </span> : null}
-          {license ? (licenseHref ? <a href={licenseHref}>{license}</a> : <>{license}</>) : null}
-          {media.providerHref ? <><span aria-hidden="true"> · </span><a href={media.providerHref}>Google Maps</a></> : null}
+          {license ? (licenseHref ? <PhotoCreditLink href={licenseHref}>{license}</PhotoCreditLink> : <>{license}</>) : null}
+          {media.providerHref ? <><span aria-hidden="true"> · </span><PhotoCreditLink href={media.providerHref}>Google Maps</PhotoCreditLink></> : null}
         </span>
       ) : null}
       {caption.notice ? (
