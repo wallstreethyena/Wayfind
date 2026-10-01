@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 768,
-    "totalRegistryEntries": 769,
-    "guardsTxtLineCount": 768,
-    "guardsTxtReachedFileCount": 761,
-    "criticalCount": 92,
+    "totalOnDiskGuardFiles": 769,
+    "totalRegistryEntries": 770,
+    "guardsTxtLineCount": 769,
+    "guardsTxtReachedFileCount": 762,
+    "criticalCount": 93,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 530,
-      "RENDER": 98,
+      "RENDER": 99,
       "STRUCTURAL": 140,
       "OTHER": 1
     }
@@ -6477,7 +6477,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 19,
+      "assertionCount": 20,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -9857,6 +9857,33 @@
       "owner": null
     },
     {
+      "file": "scripts/test-beach-never-booking.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 36,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-filename:booking"
+      ],
+      "protects": "A beach (Siesta, Turtle, Coquina, any beach-typed/category/bare-beach-named place) never renders a booking CTA on its own card, whatever PLACE_PARTNER_PICKS pins say: placePartnerPick, placePagePartner, resolveDetailCta and the rendered IconicPlaceCard all refuse, while a non-beach attraction control keeps its ticket pill.",
+      "blastRadius": {
+        "category": "trust",
+        "detail": "A regression puts a Viator ticket link on free sand (a beach that looks like it needs a ticket), the owner-reported v6.53 failure, and sends paid-looking traffic to a product that is not beach admission."
+      },
+      "owner": "Revenue QA"
+    },
+    {
       "file": "scripts/test-beach-planning.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -10640,7 +10667,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 62,
+      "assertionCount": 64,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -10694,7 +10721,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 34,
+      "assertionCount": 36,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

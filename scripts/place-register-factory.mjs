@@ -23,7 +23,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { PLACE_PARTNER_PICKS, placePartnerPick } from "../lib/placePartnerPicks.js";
+import { PLACE_PARTNER_PICKS, placePartnerPick, isBeachPlace } from "../lib/placePartnerPicks.js";
 import {
   inspectViatorProductPage,
   isDeniedViatorSku,
@@ -125,6 +125,9 @@ export function inventoryAttachable() {
   const hooked = [];
   const unmatched = [];
   for (const row of all) {
+    // A beach is never attachable inventory (placePartnerPick refuses it by
+    // rule): listing it as "unmatched" would queue a replacement pin for free sand.
+    if (isBeachPlace({ name: row.name })) continue;
     const pick = placePartnerPick({ name: row.name });
     if (pick) hooked.push({ ...row, offerId: pick.offerId, provider: pick.provider });
     else unmatched.push(row);
