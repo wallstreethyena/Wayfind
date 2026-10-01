@@ -108,5 +108,23 @@ const walk = (dir) => {
 walk(path.join(ROOT, "app")); walk(path.join(ROOT, "lib"));
 ok(JSON.stringify(importers.sort()) === JSON.stringify([...ROUTES].sort()), `lib/landingPage.js is imported by exactly the four category routes (got: ${importers.join(", ")})`);
 
+// D. EXECUTED: load the real modules (JSX compiled by scripts/lib/jsxLoad.mjs)
+// and assert on what they export and return — the split must leave a data
+// module that loads on its own and a render module that still renders.
+{
+  const { loadComponent } = await import("./lib/jsxLoad.mjs");
+  const data = await loadComponent(path.join(ROOT, "lib/landing.js"), ROOT);
+  const render = await loadComponent(path.join(ROOT, "lib/landingPage.js"), ROOT);
+  ok(!("LandingPage" in data), "lib/landing.js no longer exports LandingPage (a re-export would put the render components back on every data importer)");
+  ok(typeof data.rankedFor === "function" && typeof data.landingMetadata === "function" && typeof data.whyLine === "function",
+    "lib/landing.js still exports rankedFor / landingMetadata / whyLine (what app/page.js, lib/railsData.js and the routes import)");
+  const line = data.whyLine({ rating: 4.6, userRatingCount: 1200 }, "museum");
+  ok(typeof line === "string", `CALLED whyLine() on the loaded data module: returned ${JSON.stringify(line)}`);
+  ok(typeof render.LandingPage === "function", "lib/landingPage.js exports LandingPage");
+  const { renderToStaticMarkup } = await import("react-dom/server");
+  const html = renderToStaticMarkup(await render.LandingPage({ catSlug: "nope", citySlug: "nowhere" }));
+  ok(/<h1[^>]*>Not found<\/h1>/.test(html) && /href="\/"/.test(html), `RENDERED LandingPage() for an unknown pair through the moved styles/links: ${html.slice(0, 80)}`);
+}
+
 if (fails) { console.error(`check-landing-data-client-free: FAIL (${fails}/${asserts})`); process.exit(1); }
 console.log(`check-landing-data-client-free: OK (${asserts} assertions — lib/landing.js walk ${data.walked} modules, 0 client; app/page.js walk ${home.walked} modules, client entries: ${[...home.clients].sort().join(", ")})`);
