@@ -18,12 +18,18 @@
 //
 // HYDRATION / CLS
 // ---------------
-// The variant lives in localStorage, which the server cannot read, so this must
-// render null on the server AND on the first client render or hydration
-// mismatches (the 3d95dd7 failure class). The isomorphic layout effect below
-// resolves the variant BEFORE the browser paints, which keeps the insertion
-// from registering as a visible layout shift for most visitors. CLS is a listed
-// guardrail on this experiment — measure it, don't assume it.
+// The variant lives in localStorage, which the server cannot read. Until
+// 2026-10-01 this rendered null on the server and inserted the whole block at
+// hydration. The browser had ALREADY painted the server HTML by then, so the
+// insertion shoved the guide down under a reader who was mid-page (#1602).
+// Now the markup is server-rendered for everyone and hidden by CSS unless the
+// pre-paint script in lib/exploreBridgeGate.js (emitted by ExploreBridgeGate)
+// marked <html data-wf-bridge="treatment"> with the SAME assignment as
+// recordExposure(). Server and first client render are identical (no
+// hydration mismatch, the 3d95dd7 failure class). The layout effect then drops
+// the block for control/automation (it was never visible) and releases taps for
+// treatment only after exposure is recorded. CLS is a listed guardrail on this
+// experiment — measure it, don't assume it.
 //
 // EVENT DISCIPLINE
 // ----------------
@@ -61,6 +67,7 @@ export default function ExploreBridge({ city, picks, entryPage, pageType }) {
   // photo: there is no room for Google's required visible credit.
   const photoSrcFilter = usePhotoSrcFilter();
   const [variant, setVariant] = useState(null);
+  const [resolved, setResolved] = useState(false);
   const [attr, setAttr] = useState(null);
   const list = Array.isArray(picks) ? picks.slice(0, 3) : [];
   const where = (city && city.name) || "";
@@ -71,7 +78,11 @@ export default function ExploreBridge({ city, picks, entryPage, pageType }) {
     try {
       v = recordExposure({ entry_page: entryPage, page_type: pageType, city: where || null });
     } catch (e) { v = null; }
+    // A client-side navigation never ran the server's pre-paint script; mark
+    // the arm here (still before paint) so the CSS gate agrees with exposure.
+    try { if (v === "treatment") document.documentElement.setAttribute("data-wf-bridge", v); } catch (e) {}
     setVariant(v);
+    setResolved(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -98,7 +109,10 @@ export default function ExploreBridge({ city, picks, entryPage, pageType }) {
     try { track(event, Object.assign({ surface: "explore_bridge" }, params || {})); } catch (e) {}
   }
 
-  if (variant !== "treatment") return null; // control + SSR render nothing
+  // Control and automation: drop the (hidden, never painted) server markup.
+  // Before resolution the markup is rendered for everyone, exactly as the
+  // server sent it; only the CSS gate decides whether it is visible.
+  if (resolved && variant !== "treatment") return null;
 
   const intents = [
     { k: "tonight", icon: "🌙", label: "Tonight", href: "/?go=events" },
@@ -108,7 +122,7 @@ export default function ExploreBridge({ city, picks, entryPage, pageType }) {
   ];
 
   return (
-    <aside style={S.wrap} aria-label={"Find something to do" + (where ? " in " + where : "")}>
+    <aside data-explore-bridge="" data-ready={resolved ? "" : undefined} style={S.wrap} aria-label={"Find something to do" + (where ? " in " + where : "")}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 18, flexWrap: "wrap" }}>
         <div>
           <div style={{ color: "#C85E1D", fontSize: 9.5, fontWeight: 900, letterSpacing: "1.7px", textTransform: "uppercase", marginBottom: 4 }}>Choose your lens</div>

@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 763,
-    "totalRegistryEntries": 764,
-    "guardsTxtLineCount": 763,
-    "guardsTxtReachedFileCount": 756,
+    "totalOnDiskGuardFiles": 764,
+    "totalRegistryEntries": 765,
+    "guardsTxtLineCount": 764,
+    "guardsTxtReachedFileCount": 757,
     "criticalCount": 92,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 528,
-      "RENDER": 94,
+      "RENDER": 95,
       "STRUCTURAL": 141,
       "OTHER": 1
     }
@@ -12680,7 +12680,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 59,
+      "assertionCount": 60,
       "unprovenAbsenceCount": 1,
       "honestyViolations": [
         "1 absence assertion(s) with no positive control in the same file (e.g. \"!/index:\\s*false|follow:\\s*false/.test(guideMetadata) && !/robots:/.test(culture\")"
@@ -12705,6 +12705,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 117,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-explore-bridge-gate.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 28,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

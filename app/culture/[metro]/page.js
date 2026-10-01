@@ -6,7 +6,7 @@ import { notFound } from "next/navigation";
 import { TOWN_PROFILES } from "../../../lib/culture";
 import { CULTURE } from "../../../lib/cultureCorpus";
 import { TOWN_HUBS } from "../../../lib/cultureHubs";
-import ExploreBridge from "../../components/ExploreBridge";
+import ExploreBridge from "../../components/ExploreBridgeGate";
 import { LANDING_CITIES, rankedFor, whyLine } from "../../../lib/landing";
 import { SITE_URL } from "../../../lib/site";
 import { pageShareUrl } from "../../../lib/pageShareUrl";
