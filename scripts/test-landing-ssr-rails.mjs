@@ -110,4 +110,17 @@ ok((landing.match(/<TourStrip\s[^>]*initialItems=\{railSeeds\.tourItems\}/g) || 
 ok(/<IntentPartnerPick[^>]*initialInventory=\{railSeeds\.partnerInventory\}/.test(landing), "<IntentPartnerPick/> receives initialInventory");
 ok(/<ThemeParkRail[^>]*initialItems=\{railSeeds\.themeParks\}/.test(landing), "<ThemeParkRail/> receives initialItems");
 
+// Guides (2026-10-01): the "Bookable highlights" rail on a guide is seeded the
+// same way, so it is painted at its final size instead of inserting ~208px
+// above pick 1 after a client fetch (0.25 layout shift measured on
+// /guides/things-to-do-sarasota). Source-level wiring check — the guide page
+// itself needs live data to render; the seed helper and the seeded render are
+// CALLED above.
+{
+  const guide = readFileSync(path.join(REPO, "app/guides/[slug]/page.js"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  ok(/import\s*\{\s*ssrPartnerInventory\s*\}\s*from\s*"[^"]*lib\/landingRails"/.test(guide), "guide page imports ssrPartnerInventory");
+  ok(/const\s+railSeed\s*=[^;]*await\s+ssrPartnerInventory\(\{\s*city:\s*bridgeCity\.name,\s*intent:\s*railIntent\s*\}\)/.test(guide), "guide page CALLS ssrPartnerInventory for its rail city + intent");
+  ok((guide.match(/<IntentPartnerPick[\s\S]{0,240}?initialInventory=\{railSeed\}/g) || []).length === 1, "the guide's one <IntentPartnerPick/> receives initialInventory={railSeed}");
+}
+
 console.log(`test-landing-ssr-rails: OK — ${pass} assertions (3 rail components RENDERED with seeds: go-links present in server markup, none on a partner host, none without a seed; beach row renders no Book link; seed helpers CALLED with throwing/dark/hung/healthy readers; wiring in landing.js checked at JSX position — source-level)`);

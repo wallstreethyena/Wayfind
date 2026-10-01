@@ -493,7 +493,6 @@ const expandedFoodIds = [
   "ChIJJWzJr9232YgR6jjHElv8mjc",
   "ChIJsRAN-H5Bw4gRl0sAl0587IY",
   "ChIJYVbXKAC32YgRUVddTqA46Kg",
-  "ChIJC9pvtLN654gR6F0GZH-G-8I",
   "ChIJEUd8H-Nj54gRq59RRWIA6mI",
 ];
 ok(expandedFoodIds.every((id) => FALL_PLACE_RAIL[id] === "food" && FALL_PLACE_IDS[id] && /^2026-09-2[56]$/.test(FALL_OFFERING_SOURCES[id]?.verified || "")),
