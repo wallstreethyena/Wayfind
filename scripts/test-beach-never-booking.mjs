@@ -94,9 +94,95 @@ for (const b of BEACHES) {
   ok(goLinks(html).length === 1 && /wf-ticket-pill/.test(html), `CONTROL: rendered non-beach card still carries exactly one go-link ticket pill (got ${goLinks(html).length})`);
 }
 
+// ── BookingCTA (the Detail sheet's own component), RENDERED ───────────────────
+const BookingCTA = (await loadComponent(path.join(ROOT, "app/components/BookingCTA.js"), ROOT)).default;
+const cta = (variant, detail, kind, viaTours) => renderToStaticMarkup(createElement(BookingCTA, {
+  variant, detail, kind, viaTours, locName: "Sarasota, FL", logEvent: () => {}, addReservation: () => {}, openExternal: () => {},
+}));
+const VT = (id) => ({ [id]: { loading: false, items: [{ code: "9999P1", productCode: "9999P1", title: "Sunset Cruise from the harbor", url: "https://www.viator.com/tours/Sarasota/x/d1-9999P1" }] } });
+for (const b of BEACHES) {
+  for (const s of shapes(b.name)) {
+    const id = s.p.id || "fx-bare-" + b.name;
+    const d = { ...s.p, id };
+    const prim = cta("primary", d, "beach", VT(id));
+    ok(prim === "" || (!/\/api\/[a-z]+\/go/.test(prim) && !/Tickets|Tours|Search Viator|Check rates/.test(prim)),
+      `${b.name} (${s.label}): BookingCTA primary renders no booking CTA (got ${prim.slice(0, 120)})`);
+    ok(!/wf-ticket|Partner tickets/.test(cta("disclosure", d, "beach", VT(id))) , `${b.name} (${s.label}): disclosure variant clean`);
+  }
+}
+// Detail sheet beach: the nearby-experiences list is labeled as nearby EXPERIENCES, never admission.
+{
+  const id = "fx-list-beach";
+  const d = { id, name: "Siesta Beach", types: ["beach", "natural_feature"], category: "beach" };
+  const list = cta("list", d, "beach", VT(id));
+  ok(/Viator options nearby/.test(list) && /Sunset Cruise from the harbor/.test(list), "beach detail: the nearby list renders, titled 'Viator options nearby' (probe: the item rendered)");
+  ok(!/admission/i.test(list), "beach detail: nearby list never says admission")
+  ok(!/Tickets\b|Book tickets|Beach (?:tickets|admission)/i.test(list.replace(/<[^>]+>/g, " ")), "beach detail: nearby list carries no ticket/admission wording (text only)");
+}
+
+// ── POSITIVE CONTROLS: names that CONTAIN 'Beach' but are not beaches ─────────
+// None has a real pin in the table, so the legitimate behaviour is asserted at
+// each layer that could suppress it: the beach predicates stay false, and when
+// an offer exists the Detail resolver and BookingCTA primary still book.
+const LEGIT = [
+  { name: "Palm Beach Zoo", types: ["zoo", "tourist_attraction"], kind: "attraction" },
+  { name: "Daytona Beach Boardwalk", types: ["tourist_attraction", "amusement_park"], kind: "attraction" },
+  { name: "Cocoa Beach Pier", types: ["tourist_attraction", "point_of_interest"], kind: "attraction" },
+  { name: "Miami Beach Botanical Garden", types: ["botanical_garden", "tourist_attraction"], kind: "attraction" },
+];
+const { isBeachPlace } = await import("../lib/placePartnerPicks.js");
+for (const l of LEGIT) {
+  const id = "fx-legit-" + l.name;
+  const d = { id, name: l.name, types: l.types };
+  ok(!isBeachName(l.name) && !isBeachPlace(d), `${l.name}: NOT classified as a beach by isBeachName/isBeachPlace`);
+  // Differential: identical types under a name WITHOUT "Beach" is the baseline. The
+  // word "Beach" in the name must change nothing (a botanical garden is not an
+  // attraction-identity place, so its baseline is "directions" in both).
+  const base = { id: id + "-base", name: l.name.replace(/ Beach/, ""), types: l.types };
+  const rr = (x) => { const r = resolveDetailCta({ detail: x, kind: l.kind, viaTours: VT(x.id), locName: "Miami, FL", offers: {}, openState: true }); return { type: r.type, monetized: r.monetized, provider: r.provider }; };
+  ok(JSON.stringify(rr(d)) === JSON.stringify(rr(base)), `${l.name}: resolveDetailCta identical to its beach-less twin (${JSON.stringify(rr(d))} vs ${JSON.stringify(rr(base))})`);
+  if (l.name !== "Miami Beach Botanical Garden") ok(rr(d).monetized === true, `${l.name}: resolveDetailCta monetizes when an offer exists`);
+  const prim = cta("primary", d, l.kind, VT(id));
+  ok(/\/api\/[a-z]+\/go/.test(prim) && /Tickets|Tours/.test(prim), `${l.name}: BookingCTA primary RENDERS a CTA when an offer exists (got ${prim.slice(0, 100)})`);
+  const html = render({ ...d, rating: 4.6, reviews: 5000, distMi: 3, lat: 25.8, lng: -80.1 });
+  ok(html.includes(l.name), `${l.name}: card renders (probe)`);
+}
+// A pin keyed to such a name (fixture row via the placeId path is not available;
+// the registry is frozen) is asserted through the real table instead: every
+// non-bare-beach alias in it keeps resolving.
+for (const row of PLACE_PARTNER_PICKS) {
+  for (const alias of row.aliases) if (!isBeachName(alias)) ok(placePartnerPick({ name: alias })?.offerId === row.offerId || placePartnerPick({ name: alias }) !== null, `table row ${row.offerId}: non-beach alias "${alias}" still resolves`);
+}
+
+// ── FERRY / TOUR PINS: still resolve, label is experience language ────────────
+const TOURS = [
+  { name: "Egmont Key State Park", types: ["park", "natural_feature", "tourist_attraction"], code: "237533P5" },
+  { name: "Egmont Key", types: ["natural_feature", "tourist_attraction"], code: "237533P5" },
+  { name: "Shell Key Preserve", types: ["park", "natural_feature", "tourist_attraction"], code: "173028P1" },
+];
+const ADMISSION_WORDS = /ticket|admission|entry|entrance|pass\b/i;
+for (const t of TOURS) {
+  const d = { id: "fx-tour-" + t.name, ...t };
+  ok(placePartnerPick(d)?.offerId === t.code && placePartnerPick(d)?.product === "tour", `${t.name}: pin still resolves and is marked product=tour`);
+  const html = render({ ...d, rating: 4.7, reviews: 1500, distMi: 5, lat: 27.6, lng: -82.7 });
+  const pill = (html.match(/<span class="wf-ticket-pill-lb">([^<]*)<\/span>/) || [])[1];
+  ok(goLinks(html).length === 1 && pill === "Tours", `${t.name}: card CTA label is "Tours" (got ${JSON.stringify(pill)})`);
+  ok(!ADMISSION_WORDS.test(pill || "") && !/Partner tickets/.test(html) && /Partner tours for/.test(html), `${t.name}: card label + aria carry no admission wording`);
+  const r = resolveDetailCta({ detail: d, kind: "attraction", viaTours: {}, locName: "St. Petersburg, FL", offers: {}, openState: false });
+  ok(r.monetized === true && r.exact === true && /Tours/.test(r.label) && !ADMISSION_WORDS.test(r.label), `${t.name}: resolveDetailCta (even closed) keeps the pin, label "${r.label}" is experience language`);
+  const prim = cta("primary", d, "attraction", {});
+  const txt = prim.replace(/<[^>]+>/g, " ");
+  ok(/\/api\/[a-z]+\/go/.test(prim) && /Tours/.test(txt) && !ADMISSION_WORDS.test(txt), `${t.name}: BookingCTA primary renders "${txt.trim().replace(/\s+/g, " ")}" (experience wording)`);
+}
+{
+  // CONTROL: a true admission pin keeps "Tickets".
+  const html = render({ ...control, rating: 4.8, reviews: 3000, distMi: 3, lat: 27.77, lng: -82.63 });
+  ok(/<span class="wf-ticket-pill-lb">Tickets<\/span>/.test(html), "CONTROL: the Dali admission pin still says Tickets");
+}
+
 if (fails.length) {
   console.error("test-beach-never-booking: FAIL");
   fails.forEach((m) => console.error("  - " + m));
   process.exit(1);
 }
-console.log(`test-beach-never-booking: OK — ${pass} assertions (placePartnerPick, placePagePartner, resolveDetailCta CALLED; real IconicPlaceCard RENDERED for Siesta/Turtle/Coquina x 3 shapes + generic beaches; Dali control keeps its pill; natural_feature-only places deliberately out of scope)`);
+console.log(`test-beach-never-booking: OK — ${pass} assertions (placePartnerPick, placePagePartner, resolveDetailCta CALLED; real IconicPlaceCard RENDERED for Siesta/Turtle/Coquina x 3 shapes + generic beaches; BookingCTA primary/list/disclosure RENDERED; Palm Beach Zoo / Daytona Boardwalk / Cocoa Beach Pier / Miami Beach Botanical stay bookable; Egmont Key + Shell Key keep pins with Tours wording; Dali control keeps Tickets; natural_feature NOT a ban)`);
