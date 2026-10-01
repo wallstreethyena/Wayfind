@@ -8,6 +8,7 @@ import ShareButton from "../components/ShareButton";
 // which is the whole difference between this page and a municipal calendar.
 import CommerceClickBeacon from "../components/CommerceClickBeacon";
 import { SITE_URL } from "../../lib/site";
+import { eventVenueImageSrc } from "../../lib/eventPageImage.js";
 import { pageShareUrl } from "../../lib/pageShareUrl";
 import { isSsgBuild } from "../../lib/landingInventory";
 import { unstable_cache, unstable_noStore as noStore } from "next/cache";
@@ -40,6 +41,12 @@ export const metadata = {
   twitter: { card: "summary_large_image", title: TITLE, images: [_og] },
   alternates: { canonical: SITE_URL + "/florida-events" },
 };
+
+// The same picture the event's own page and Fall rail card show: the stored
+// hero, else the venue's own photo by exact place_id (lib/eventPageImage.js).
+function cardImage(e) {
+  return e.hero_image || eventVenueImageSrc(e) || "";
+}
 
 const S = {
   page: { maxWidth: 760, margin: "0 auto", padding: "28px 18px 60px", background: "#0D1117", color: "#E6EDF3", fontFamily: "var(--wf-sans)", lineHeight: 1.6 },
@@ -143,8 +150,8 @@ export default async function FloridaEventsHub() {
           {rail.cards.map((e) => (
             <a key={e.event_id} href={"/florida-events/" + e.slug} style={S.card}>
               <div style={S.imgWrap}>
-                {e.hero_image
-                  ? <img src={e.hero_image} alt="" loading="lazy" style={S.img} />
+                {cardImage(e)
+                  ? <img src={cardImage(e)} alt="" loading="lazy" style={S.img} />
                   : <div style={S.imgFallback} aria-hidden="true">{(e.short_title || e.event_name || "?").trim().charAt(0)}</div>}
                 <span style={S.badge}>{dateRangeLabel(e)}</span>
               </div>
