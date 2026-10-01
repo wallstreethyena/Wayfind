@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 767,
-    "totalRegistryEntries": 768,
-    "guardsTxtLineCount": 767,
-    "guardsTxtReachedFileCount": 760,
+    "totalOnDiskGuardFiles": 768,
+    "totalRegistryEntries": 769,
+    "guardsTxtLineCount": 768,
+    "guardsTxtReachedFileCount": 761,
     "criticalCount": 92,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 530,
-      "RENDER": 97,
+      "RENDER": 98,
       "STRUCTURAL": 140,
       "OTHER": 1
     }
