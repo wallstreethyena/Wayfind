@@ -508,7 +508,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   };
 
   return (
-    <li ref={cardRef} data-iconic-place-card data-card-opens-detail data-place-id={place.id || undefined}
+    <li ref={cardRef} data-iconic-place-card data-card-opens-detail data-place-id={place.id}
       onPointerDown={tapIntent.onPointerDown} onPointerMove={tapIntent.onPointerMove}
       onPointerUp={tapIntent.onPointerUp} onPointerCancel={tapIntent.onPointerCancel}
       onClick={openCard} className={`wf-place-card${fallCardClass(place.id, siteTodayStr())}${isCuratorPick ? " is-curator-pick" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${hasTake ? "" : " is-no-take"}${cta ? " has-cta" : ""}`} style={{ listStyle: "none", cursor: cardHref ? "pointer" : "default" }}>
