@@ -76,7 +76,7 @@ ok(landingWhyFits({ name: "Pangea Alchemy Lab", distMi: 18.6 }) === "",
     "that older copy is not a house two-beat sit-line — do not promote it");
   ok(landingWhyFits({ name: "Pangea Alchemy Lab" }) === "",
     "landings do not paint editorial.js Pangea copy — empty, no invented replacement");
-  const land = strip(read("lib/landing.js"));
+  const land = strip(read("lib/landing.js") + "\n" + read("lib/landingPage.js")); // LandingPage lives in landingPage.js
   const rw = strip(read("lib/rankingWhy.js"));
   ok(!/from\s+["'][^"']*editorial\.js["']/.test(land) && !/from\s+["'][^"']*editorial\.js["']/.test(rw),
     "landing + rankingWhy do not import lib/editorial.js — that path stays unpainted");
@@ -131,7 +131,7 @@ ok(toHookLine(FARM_WHY, "Welcome To The Farm").length >= 20,
   "toHookLine still compresses the Farm two-beat (does not empty it)");
 
 {
-  const land = strip(read("lib/landing.js"));
+  const land = strip(read("lib/landing.js") + "\n" + read("lib/landingPage.js")); // LandingPage lives in landingPage.js
   ok(land.length > 500, "positive control: landing.js body after comment-strip");
   ok(/landingWhyFits\(p,\s*eds\[p\.id\]\)/.test(land),
     "the Why it fits block CALLS landingWhyFits(p, eds[p.id])");

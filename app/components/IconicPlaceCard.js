@@ -235,7 +235,10 @@ const compactCount = (n) => Number(n) >= 1000
 // homepage bundle — 0.7KB gz, against 1.1KB of headroom. Rung 1 is a server
 // and landing-page concern; a row that reaches this card has already been
 // through it. Same definitions, same order, no duplicated string-building.
+// photoNoSpend (evergreen landing towns): the row's own no-spend `photo` only,
+// and the id retry below keeps nospend=1 — see lib/evergreenCities.js.
 const photoUrl = (p) => {
+  if (p && p.photoNoSpend) return p.photo || ownedPlacePhotoSrc(p.place_id || p.id, 640, true) || null;
   const ref = p && (p.photoRef || p.photo_ref);
   if (hasPlacePhotoRef(ref)) return "/api/photo?ref=" + encodeURIComponent(ref) + "&g=2&w=640";
   if (p && typeof p.photo === "string" && p.photo) return p.photo;
@@ -400,7 +403,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   }, actionsLive);
   if (!place) return null;
   const primaryPhoto = photoSrcFilter(photoUrl(place));
-  const stablePlacePhoto = photoSrcFilter(ownedPlacePhotoSrc(place.place_id || place.id, 640));
+  const stablePlacePhoto = photoSrcFilter(ownedPlacePhotoSrc(place.place_id || place.id, 640, !!place.photoNoSpend));
   const samePlacePhotoFallback = stablePlacePhoto && stablePlacePhoto !== primaryPhoto ? stablePlacePhoto : "";
   const expTags = experienceTags(place, 3);
   // Resolve the offer in the shared card itself so every IconicPlaceCard
@@ -561,7 +564,16 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
                 style={{ objectFit: "cover" }}
               />
             )
-            : <div className="wf-place-card-monogram" aria-hidden="true">{initials}</div>}
+            // Evergreen landing cards (photoNoSpend) may only show a photo
+            // already owned for that exact place, so many have none. Say so
+            // instead of leaving an unexplained letter tile: a visible caption
+            // and an image label naming the place. Other surfaces unchanged.
+            : place.photoNoSpend
+              ? <div className="wf-place-card-monogram" role="img" aria-label={(place.name || "This place") + ": no verified photo yet"}>
+                  {initials}
+                  <span aria-hidden="true" style={{ position: "absolute", left: 6, right: 6, bottom: 10, textAlign: "center", fontSize: 10.5, fontWeight: 700, letterSpacing: ".03em", color: "#94A3B8" }}>No verified photo yet</span>
+                </div>
+              : <div className="wf-place-card-monogram" aria-hidden="true">{initials}</div>}
           {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
           {/* v8.56.13 (#1188) — same CC credit badge as RailCard.js, same
               reasoning: see its comment above the equivalent block. */}
@@ -674,7 +686,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
                 target="_blank"
                 rel="sponsored noopener"
                 data-commerce-owner="IconicPlaceCard"
-                aria-label={`Partner tickets for ${place.name} via ${partner.merchant}`}
+                aria-label={`Partner ${partner.product === "tour" ? "tours" : "tickets"} for ${place.name} via ${partner.merchant}`}
                 title="Partner link. Wayfind may earn a commission; rankings never change."
                 onClick={(event) => {
                   const clickId = mintClickId();
@@ -699,7 +711,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
                   the click-id mint, the commerce event and the rel are
                   untouched. */}
                 <TicketGlyph />
-                <span className="wf-ticket-pill-lb">Tickets</span>
+                <span className="wf-ticket-pill-lb">{partner.product === "tour" ? "Tours" : "Tickets"}</span>
                 <span className="wf-ticket-pill-sep" aria-hidden="true" />
                 <span className="wf-ticket-pill-mr">{partner.merchant}</span>
                 <span className="wf-ticket-pill-ar" aria-hidden="true">↗</span>

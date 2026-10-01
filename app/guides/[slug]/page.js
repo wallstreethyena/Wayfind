@@ -390,7 +390,7 @@ import { HERO_CARD_DESIGN_V } from "../../../lib/heroCard.js";
 import ExploreBridge from "../../components/ExploreBridgeGate";
 import IntentPartnerPick from "../../components/IntentPartnerPick";
 import { guideRailIntent } from "../../../lib/railPlacement";
-import { LANDING_CITIES } from "../../../lib/landing";
+import { LANDING_CITIES, evergreenLinksForTown } from "../../../lib/landing";
 import { isSsgBuild, guideFetch } from "../../../lib/landingInventory";
 import { ssrPartnerInventory } from "../../../lib/landingRails";
 import { guideArticleImage, guideContextLinks, guideQuickChoices } from "../../../lib/guideSeo";
@@ -1137,6 +1137,19 @@ export default async function GuidePage({ params }) {
           answers 200 with a "Not found" body: a soft-404, the exact shape
           scripts/check-rail-routes.mjs exists to forbid. Passing null omits
           segmented hrefs rather than inventing Sarasota. */}
+      {/* The ranked lists for this guide's town, when it is an evergreen landing
+          town (Naples, St. Petersburg, St. Augustine guides). Published pairs
+          only — evergreenLinksForTown() goes through landingPair(). */}
+      {chrome.keepExploring && evergreenLinksForTown(g.region).length ? (
+        <nav aria-label={`Ranked lists for ${g.region}`} style={{ margin: "22px 0 4px" }}>
+          <h2 style={{ fontSize: 19, fontWeight: 800, margin: "0 0 8px", color: "#F8FAFC" }}>Ranked lists for {g.region}</h2>
+          <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexWrap: "wrap", gap: "8px 18px" }}>
+            {evergreenLinksForTown(g.region).map((l) => (
+              <li key={l.href}><a href={l.href} style={{ color: "#F97316", fontWeight: 700, textDecoration: "none" }}>{l.label}</a></li>
+            ))}
+          </ul>
+        </nav>
+      ) : null}
       {chrome.keepExploring ? (
       <DiscoveryPaths
         region={g.region === "Orlando" ? "orlando" : "fl"}

@@ -316,7 +316,7 @@ ok(!PAGE_HANDOFF.test("import ShareRedirect from \"../ShareRedirect\";\nreturn <
 
 // ── 4c. The city landing pages: built apart, rendered by LandingPage ────────
 {
-  const landing = strip(read("lib/landing.js"));
+  const landing = strip(read("lib/landingPage.js")); // LandingPage moved here from lib/landing.js (2026-10-01)
   const body = fnBody(landing, "LandingPage") || "";
   ok(/export async function LandingPage\(\{[^}]*\bshareAction\b/.test(landing), "LandingPage no longer takes shareAction — the four city pages lose their Share");
   ok(/<PremiumIntentHero\b[\s\S]*?\bactions=\{shareAction\}/.test(body), "LandingPage does not hand shareAction to the hero's actions slot, so it never renders");

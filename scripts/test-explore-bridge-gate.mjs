@@ -118,6 +118,7 @@ ok(iAside >= 0, "the bridge markup is SERVER-rendered (it used to be null until 
 ok(iStyle >= 0 && iScript > iStyle && iAside > iScript, "gate CSS, then the pre-paint script, then the aside — so the arm is set before the parser reaches the block");
 ok(html.includes(EXPLORE_BRIDGE_GATE_CSS.replace(/"/g, "&quot;")) || html.includes(EXPLORE_BRIDGE_GATE_CSS), "the gate CSS is emitted verbatim");
 ok(!/data-ready/.test(html.slice(iAside, iAside + 300)), "server markup is inert (no data-ready) until the client records exposure");
+ok(/^<aside[^>]*\sinert(?:=(?:""|"inert"))?[\s>]/.test(html.slice(iAside, iAside + 400)), "server markup carries `inert`: no tap, Tab or Enter reaches a link before exposure is recorded");
 for (const p of PICKS) ok(html.includes(p.name), "the server render carries pick: " + p.name);
 ok(html.includes("What are you looking for in Orlando?"), "the treatment's content is unchanged");
 for (const page of ["app/guides/[slug]/page.js", "app/culture/[metro]/page.js"]) {
@@ -166,11 +167,17 @@ try {
       const first = window.__first;
       const asideH = aside ? Math.round(aside.getBoundingClientRect().height) : 0;
       const tapsBefore = aside ? getComputedStyle(aside).pointerEvents : "none";
+      // Keyboard: can a link inside the block take focus before exposure?
+      const link = aside && aside.querySelector("a");
+      if (link) link.focus();
+      const focusBefore = !!link && document.activeElement === link;
       // What ExploreBridge does after its layout effect resolves the arm:
-      if (label === "treatment") aside.setAttribute("data-ready", ""); else aside.remove();
+      if (label === "treatment") { aside.setAttribute("data-ready", ""); aside.removeAttribute("inert"); } else aside.remove();
+      if (label === "treatment" && link) link.focus();
+      const focusAfter = label === "treatment" && !!link && document.activeElement === link;
       const after = Math.round(document.getElementById("pick1").getBoundingClientRect().top + scrollY);
       const tapsAfter = label === "treatment" ? getComputedStyle(aside).pointerEvents : "n/a";
-      return { arm: document.documentElement.getAttribute("data-wf-bridge"), first, after, asideH, tapsBefore, tapsAfter, innerWidth };
+      return { arm: document.documentElement.getAttribute("data-wf-bridge"), first, after, asideH, tapsBefore, tapsAfter, focusBefore, focusAfter, innerWidth };
     }, label);
     measured[label] = r;
     await ctx.close();
@@ -182,6 +189,7 @@ ok(T.arm === "treatment" && C.arm === "control" && X.arm === null, `the pre-pain
 ok(T.asideH > 150, `treatment: the bridge occupies its space at FIRST PAINT (${T.asideH}px)`);
 ok(T.first === T.after, `treatment: pick 1 does not move when the client resolves (${T.first} → ${T.after})`);
 ok(T.tapsBefore === "none" && T.tapsAfter === "auto", "treatment: no taps before exposure is recorded, normal taps after");
+ok(T.focusBefore === false && T.focusAfter === true, `treatment: keyboard cannot reach a bridge link before exposure (focus=${T.focusBefore}), and can after (focus=${T.focusAfter})`);
 ok(C.asideH === 0 && C.first === C.after && C.first === X.first, `control: nothing visible and nothing moves (${C.first} → ${C.after})`);
 ok(X.asideH === 0 && X.first === X.after, "automation: nothing visible and nothing moves");
 console.log(`test-explore-bridge-gate: OK — ${pass} assertions (4000-id CALL equivalence vs recordExposure; real server render; Chromium 390px: treatment ${T.asideH}px painted at first paint, pick 1 ${T.first}→${T.after}; control ${C.first}→${C.after})`);
