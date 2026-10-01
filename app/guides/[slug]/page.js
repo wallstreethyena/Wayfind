@@ -868,6 +868,13 @@ export default async function GuidePage({ params }) {
       {itemListLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }} /> : null}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: g.title, description: g.description, ...((g.published || g.updated) ? { datePublished: ldDateTime(g.published || g.updated) } : {}), ...(g.updated ? { dateModified: ldDateTime(g.updated) } : {}), ...(articleImage ? { image: articleImage } : {}), author: { "@type": "Person", name: "Gabriel Pereira", url: SITE_URL + "/about" }, publisher: { "@type": "Organization", name: "WAYFIND LLC", logo: { "@type": "ImageObject", url: SITE_URL + "/icon-512.png" } }, mainEntityOfPage: SITE_URL + "/guides/" + params.slug }) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Wayfind", item: SITE_URL }, { "@type": "ListItem", position: 2, name: "Guides", item: SITE_URL + "/guides" }, { "@type": "ListItem", position: 3, name: g.title, item: SITE_URL + "/guides/" + params.slug }] }) }} />
+      {/* ALREADY HAPPENED goes ABOVE the hero: the hero's own dek still reads
+          like a plan ("lands on Saturday..."), so on a phone the reader must
+          learn it is over before the first scroll (visual review, 2026-09-30). */}
+      {past ? <aside aria-label="Past guide" data-guide-past style={{ maxWidth: 860, margin: "0 auto 22px", padding: "16px 18px", border: "1px solid #594332", borderRadius: 12, color: "#D6C8BA", fontSize: 15 }}>
+        <strong style={{ color: "#F4DECB" }}>This already happened{guideEndsOn(g) ? <> · ended {endedLabel(guideEndsOn(g))}</> : null}</strong>
+        <p style={{ margin: "6px 0 0" }}>This guide is kept as an archive, so its dates, prices and schedules may no longer apply. For what is on now, <a href="/florida-events" style={{ color: "#FDBA74" }}>see upcoming Florida events</a>. <a href="/guides/past" style={{ color: "#FDBA74" }}>More past guides</a>.</p>
+      </aside> : null}
       <GuideArticleHero
         // v8.23 — ONE destination each. "All guides" used to appear twice on
         // every guide page: here, and again in the breadcrumb above. The
@@ -913,10 +920,6 @@ export default async function GuidePage({ params }) {
         />}
       />
       <article id="guide" className="wf-guide-article">
-      {past ? <aside aria-label="Past guide" data-guide-past style={{ margin: "0 0 24px", padding: "16px 18px", border: "1px solid #594332", borderRadius: 12, color: "#D6C8BA", fontSize: 15 }}>
-        <strong style={{ color: "#F4DECB" }}>This already happened{guideEndsOn(g) ? <> · ended {endedLabel(guideEndsOn(g))}</> : null}</strong>
-        <p style={{ margin: "6px 0 0" }}>This guide is kept as an archive, so its dates, prices and schedules may no longer apply. For what is on now, <a href="/florida-events" style={{ color: "#FDBA74" }}>see upcoming Florida events</a>. <a href="/guides/past" style={{ color: "#FDBA74" }}>More past guides</a>.</p>
-      </aside> : null}
       <div style={S.meta}>By <a href="/about" style={{ color: "#CBD5E1", textDecoration: "none", fontWeight: 700 }}>Gabriel Pereira</a> · {g.published ? <>Published {g.published} · </> : null}Updated {g.updated}</div>
       {/* §2 OPEN LOOP, above the fold. One honest line the body resolves — a
           reader who wants the answer scrolls. Every teaser is derived from that
