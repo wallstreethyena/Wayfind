@@ -118,11 +118,12 @@ ok(isOwnerPick(null) === false && isOwnerPick({}) === false, "total over garbage
   ok(!!tog, "positive control: toggleLike is still found under its known shape");
   ok(!!tog && /refreshOwnerPick\(p\.id, supabase\.from\("likes"\)\.upsert\(/.test(tog[0]) && /refreshOwnerPick\(p\.id, supabase\.from\("likes"\)\.delete\(\)/.test(tog[0]),
     "toggleLike hands BOTH the like and the unlike write to the sequenced reconcile");
-  ok(/function refreshOwnerPick\([^)]*\) \{[\s\S]{0,200}trackCuratorWrite\(/.test(home),
+  ok(/function refreshOwnerPick\([^)]*\) \{[\s\S]{0,400}trackCuratorWrite\(/.test(home),
     "refreshOwnerPick reconciles through the store's trackCuratorWrite");
   ok(/fetchPlaceById\(placeId\)/.test(home) && /withMemberSignal\(\[p\], sig\)/.test(home),
     "/p/{id} runs fetchPlaceById through withMemberSignal so the sheet is not stuck on the raw score");
-  ok(/&fresh=1/.test(cpSrc) && /fetchCuratorVerdict/.test(cpSrc),
+  const cpwSrc = strip(readFileSync(join(ROOT, "lib/curatorPicksWrite.js"), "utf8"));
+  ok(/&fresh=1/.test(cpwSrc) && /fetchCuratorVerdict/.test(cpwSrc),
     "the post-tap verdict read cache-busts (fresh=1) then stamps from the server owner map");
   ok(/lRes\.sessionOwner === true/.test(home) && /likesSessionOwner = true/.test(home),
     "the client caches the server's sessionOwner flag — it does not decide owner from an email or UUID");

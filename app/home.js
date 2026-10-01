@@ -224,7 +224,7 @@ import { sponsorRailNear, partnerCollectionById, hydratePartnerCollection } from
 import { toDisplayScore, pickEligibleByScore, cardComplete, displayableAt } from "../lib/score";
 import { stampOwnerPick } from "../lib/ownerBump.js";
 import { restampGoverned } from "../lib/lawfulOrder.js";
-import { applyCuratorPicks, getCuratorPicks, useCuratorPicks, noteSessionOwner, trackCuratorWrite } from "../lib/curatorPicks.js";
+import { applyCuratorPicks, getCuratorPicks, useCuratorPicks, noteSessionOwner, beginCuratorToggle, noteOwnerReads } from "../lib/curatorPicks.js";
 import { frontPageEvents, bestFirst } from "../lib/frontEvents";
 import { settleLoad } from "../lib/loadState.js";
 import { HOME_AFFILIATE_ACTIVITY_FETCH_LIMIT, HOME_AFFILIATE_ACTIVITY_RADIUS_MI, homeAffiliateActivities } from "../lib/homeAffiliateActivities";
@@ -292,7 +292,15 @@ import CreatorAvatar from "./components/CreatorAvatar";
 // dimension is stored or which Google tokens collapse together.
 import { signalWeights as tasteSignals, applyLocalTaste, blendTaste as tasteBlend, localToVector as tasteLocalToVector, tasteChips, hasLearnedTaste, tasteNorm } from "../lib/taste";
 import { canonicalShareUrl } from "../lib/site";
-import { askShareIntent } from "./components/shareIntentSheet";
+// The share-intent sheet loads on the first Share tap, not with the homepage
+// (bundle budget, scripts/check-bundle.mjs). It always opens its own panel
+// first, so the native share it may call later runs from a fresh tap inside
+// that panel — the user activation is not lost to this import. A failed load
+// never swallows the share: it falls back to the plain share.
+const askShareIntent = (o) => {
+  // Delegation only: the options (onPlain + onInvite) pass through unchanged.
+  import("./components/shareIntentSheet").then(({ askShareIntent: ask }) => ask(o), () => { try { o && o.onPlain && o.onPlain(); } catch (e) {} });
+};
 import { placeKinds } from "../lib/dateInvite";
 import { isDateRoom } from "../lib/dateRoom.js";
 import { isSeedCenter, cityLabel, landingSlugFromLoc, centerAgreesWithLabel, firstPaintRailOrigin, localityFromFormattedAddress, storedPinFresh } from "../lib/locationHonesty";
@@ -901,6 +909,10 @@ async function fetchMemberSignals(sb, list, opts) {
     noteSessionOwner(likesSessionOwner);
     const lc = lRes && lRes.counts ? lRes.counts : null;
     const lo = lRes && lRes.owner ? lRes.owner : null; // Curator Boost: which places the owner picked (display-only chip; the weight is already in the count)
+    // This read is the newest answer for exactly these ids: the curator store
+    // takes it (lib/curatorPicks.js noteOwnerReads), so withMemberSignal and the
+    // curation effects read ONE verdict and can never flip-flop between two.
+    if (lc) noteOwnerReads(ids, lo || {});
     if (lc) for (const k in lc) { if (!out[k]) out[k] = { authors: 0, warnAuthors: 0 }; out[k].likes = lc[k]; if (lo && lo[k]) out[k].ownerPick = true; }
     return Object.keys(out).length ? out : null;
   } catch (e) { return null; }
@@ -6568,7 +6580,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // verdict is the server's owner map.
   function refreshOwnerPick(placeId, writePromise, on, prior) {
     if (!placeId || !writePromise) return;
-    trackCuratorWrite(placeId, on, writePromise, curatorHeaders, prior);
+    // Optimistic pick in THIS turn; the reconcile path loads on first tap.
+    const seq = beginCuratorToggle(placeId, on);
+    import("../lib/curatorPicksWrite.js").then((m) => m.trackCuratorWrite(placeId, on, writePromise, curatorHeaders, prior, seq), () => {});
   }
   function toggleLike(e, p) {
     e.stopPropagation();

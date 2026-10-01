@@ -24,19 +24,21 @@ function place(id, name, rating, reviews) {
     primaryType: "bar", businessStatus: "OPERATIONAL", formattedAddress: "Parrish, FL",
   };
 }
-// wayfindScore: 4.8/400 → 9.1, 4.6/800 → 9.0, 4.7/400 → 8.9.
+// wayfindScore: 4.8/400 → 9.1, 4.6/800 → 9.0, 4.7/400 → 8.9. Neutral names:
+// none matches a creator-video entry, so the shown score is the base score.
 const PLACES = [
-  place("scooters", "Scooter's Live", 4.8, 400),
-  place("ryans", "Ryan's Music House", 4.6, 800),
-  place("control", "Control Lounge", 4.7, 400),
+  place("scooters", "Alpha Live Hall", 4.8, 400),
+  place("ryans", "Bravo Music Room", 4.6, 800),
+  place("control", "Charlie Lounge", 4.7, 400),
 ];
 
 async function cardOrder(page) {
   return page.$$eval("[data-wf-position-key^='place-']", (els) => els.map((el) => {
     const id = el.getAttribute("data-wf-position-key").slice(6);
     const rank = (el.querySelector(".wf-place-card-rank") || {}).textContent || "";
-    const score = ((el.querySelector(".wf-place-card-score") || {}).textContent || "").match(/\d+\.\d/);
-    return { id, rank: rank.trim(), score: score ? score[0] : null };
+    // The badge prints the number then "/10"; a whole number may print as "9".
+    const score = ((el.querySelector(".wf-place-card-score") || {}).textContent || "").match(/(\d+(?:\.\d)?)\s*\/\s*10/);
+    return { id, rank: rank.trim(), score: score ? Number(score[1]).toFixed(1) : null };
   }).filter((c) => ["scooters", "ryans", "control"].includes(c.id)));
 }
 

@@ -101,7 +101,7 @@ for (const f of ["lib/memberSignals.js", "app/api/signals/likes/route.js"]) {
   const iconic = read("app/components/IconicPlaceCard.js");
   ok(/topPickAward\(\{\s*category,\s*rank,\s*curator:\s*isCuratorPick\s*\}\)/.test(iconic) && /award\.curator \? " is-curator"/.test(iconic), "the shared iconic card uses the same single curator award treatment via topPickAward");
   ok(!/WF_OWNER|OWNER_USER_ID/.test(home), "the client never references the owner id/env — it only renders the server's ownerPick");
-  ok(/function refreshOwnerPick\(/.test(home) && /&fresh=1/.test(read("lib/curatorPicks.js")), "the owner post-tap refetch (refreshOwnerPick → lib/curatorPicks fetchCuratorVerdict) cache-busts with fresh=1");
+  ok(/function refreshOwnerPick\(/.test(home) && /&fresh=1/.test(read("lib/curatorPicksWrite.js")), "the owner post-tap refetch (refreshOwnerPick → lib/curatorPicksWrite fetchCuratorVerdict) cache-busts with fresh=1");
   ok(/setPlaces\(\(cur\) => applyCuratorPicks\(cur, curator\)\)/.test(home) && /setDetail\(\(cur\) => \{[^\n]{0,80}applyCuratorPicks\(\[cur\], curator\)/.test(home) && /return stampOwnerPick\(p, want\);/.test(read("lib/curatorPicks.js")),
     "the like path stamps ownerPick AND wfScore (via stampOwnerPick in applyCuratorPicks) on list cards AND the open detail sheet — 8.1→8.8, then reconcile");
   ok(/withMemberSignal\(\[p\], sig\)/.test(home) && /fetchPlaceById\(placeId\)/.test(home),

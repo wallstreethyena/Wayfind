@@ -9,9 +9,9 @@
 import { readFileSync } from "fs";
 import {
   applyCuratorPicks, applyCuratorPicksRanked, getCuratorPicks, mergeServerSet, noteSessionOwner,
-  beginCuratorToggle, settleCuratorToggle, trackCuratorWrite, curatorVerdictFromLikes,
-  __resetCuratorPicksForTest,
+  beginCuratorToggle, settleCuratorToggle, __resetCuratorPicksForTest,
 } from "../lib/curatorPicks.js";
+import { trackCuratorWrite, curatorVerdictFromLikes } from "../lib/curatorPicksWrite.js";
 import { applyCuratorPicksServer } from "../lib/curatorPicksServer.js";
 import { stampOwnerPick } from "../lib/ownerBump.js";
 import { lawfulSort, governedScoreOf } from "../lib/lawfulOrder.js";
@@ -166,6 +166,35 @@ const tick = () => new Promise((r) => setTimeout(r, 0));
   ok(getCuratorPicks().has("v") === false, "write FAILED, verdict unreadable → back to the prior (not picked) state");
 }
 
+// ── 7b. AUDIT FIXES: a confirmed pick never lapses; the freshest per-id read
+//        wins; an older whole-set copy cannot override a newer per-id read.
+{
+  const { noteOwnerReads, CONFIRMED_HOLD_MS } = await import("../lib/curatorPicks.js");
+  fresh();
+  noteSessionOwner(true);
+  mergeServerSet([]);
+  const s1 = beginCuratorToggle("h", true);
+  settleCuratorToggle("h", s1, "on");
+  const realNow = Date.now;
+  Date.now = () => realNow() + CONFIRMED_HOLD_MS + 1000;
+  try {
+    ok(getCuratorPicks().has("h") === true, "a confirmed pick does NOT lapse when its hold expires (the verdict is folded into the server set)");
+  } finally { Date.now = realNow; }
+  fresh();
+  ok(getCuratorPicks().known("k") === false, "control: before any read, a place is unknown (rows are left alone)");
+  noteOwnerReads(["k", "j"], { k: true });
+  ok(getCuratorPicks().known("k") && getCuratorPicks().has("k") && !getCuratorPicks().has("j"), "a per-place likes read is known immediately and decides those ids");
+  const requestedAt = Date.now() - 5000; // the page set was requested BEFORE that read
+  mergeServerSet(["j"], requestedAt);
+  ok(getCuratorPicks().has("k") === true && getCuratorPicks().has("j") === false, "an older whole-set copy cannot override a newer per-id read");
+  mergeServerSet(["j"], Date.now() + 1);
+  ok(getCuratorPicks().has("j") === true, "…while a set requested after the read does apply");
+  // ThingsToDo ranks through rankForNow: the shown score must be the primary key.
+  const { rankForNow } = await import("../lib/ranking.js");
+  const rows = [{ id: "a", wfScore: 91, reviews: 10, score: 99 }, { id: "b", wfScore: 92, reviews: 10, score: 1 }];
+  ok(rankForNow(rows, { hour: 12, timeBucket: "afternoon", weather: null }, (p) => p.score)[0].id === "b", "rankForNow orders by the shown score first — a caller's `score` key only breaks ties");
+}
+
 // ── 8. trackCuratorWrite by CALL: fresh=1 verdict read, failure path, out-of-order.
 {
   fresh();
@@ -255,7 +284,7 @@ const tick = () => new Promise((r) => setTimeout(r, 0));
   ok(/applyCuratorPicksServer\(resolved, ownerPickIds\)/.test(read("lib/guidePlaceRails.js")) && /resolveGuidePlaceRail\(railConfig, railInventory, ownerPickIds\)/.test(read("app/guides/[slug]/page.js")),
     "guide place rails apply the pick before their order is decided");
   // Client bundles never import the server loader (it carries the service key path).
-  const clientFiles = ["app/home.js", ...Object.keys(surfaces), "lib/curatorPicks.js", "lib/cardActions.js"];
+  const clientFiles = ["app/home.js", ...Object.keys(surfaces), "lib/curatorPicks.js", "lib/curatorPicksWrite.js", "lib/cardActions.js"];
   for (const f of clientFiles) ok(!/curatorPicksServer/.test(read(f)), f + " does not import the server pick loader");
   ok(/curatorAfterWrite\(place\.id, !wasLiked, next\.write, wasLiked\)/.test(read("lib/cardActions.js")), "standalone cards (cardActions) reconcile the owner verdict after the like write");
   const route = read("app/api/signals/curator-picks/route.js");

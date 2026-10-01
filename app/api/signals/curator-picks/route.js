@@ -33,7 +33,9 @@ export async function GET(req) {
   const hasAuth = /^Bearer\s+\S{20,}/i.test(String(req.headers.get("authorization") || ""));
   const sessionUser = hasAuth ? await sessionUserFromRequest(req) : null;
   const sessionOwner = isOwnerSession(sessionUser, String(process.env.WF_OWNER_USER_ID || "").trim());
-  const ids = await loadOwnerPickIds({ fresh: sessionOwner, revalidate: 60 });
+  // A verified owner session is a second identity door (as on /api/signals/likes),
+  // so the owner's own view never depends on WF_OWNER_USER_ID alone.
+  const ids = await loadOwnerPickIds({ fresh: sessionOwner, revalidate: 60, sessionOwnerId: sessionOwner ? sessionUser.id : null });
   if (!ids) {
     // Unknown — the client keeps whatever the server already stamped.
     return Response.json({ ok: false }, { status: 503, headers: { "Cache-Control": "no-store" } });
