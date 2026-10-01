@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 759,
-    "totalRegistryEntries": 760,
-    "guardsTxtLineCount": 758,
-    "guardsTxtReachedFileCount": 752,
+    "totalOnDiskGuardFiles": 760,
+    "totalRegistryEntries": 761,
+    "guardsTxtLineCount": 759,
+    "guardsTxtReachedFileCount": 753,
     "criticalCount": 91,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 526,
+      "CALL": 527,
       "RENDER": 92,
       "STRUCTURAL": 141,
       "OTHER": 1
@@ -15102,6 +15102,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 100,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-photo-credit-capture.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 27,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
