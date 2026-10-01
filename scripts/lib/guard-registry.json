@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 777,
-    "totalRegistryEntries": 778,
-    "guardsTxtLineCount": 777,
-    "guardsTxtReachedFileCount": 770,
+    "totalOnDiskGuardFiles": 778,
+    "totalRegistryEntries": 779,
+    "guardsTxtLineCount": 778,
+    "guardsTxtReachedFileCount": 771,
     "criticalCount": 94,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 534,
+      "CALL": 535,
       "RENDER": 103,
       "STRUCTURAL": 140,
       "OTHER": 1
@@ -10772,6 +10772,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 36,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-cc-stale-cache-shape.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 9,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
