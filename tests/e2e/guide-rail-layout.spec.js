@@ -129,6 +129,7 @@ async function measure(page, path, { anchor = false, wait = SLOW_MS + 4000 } = {
       bridgeAtStart: b ? Math.round(b.getBoundingClientRect().height) : 0,
       before: Math.round(document.querySelector("#pick-1 h2").getBoundingClientRect().top),
       hydratedAtStart: !!(b && b.hasAttribute("data-ready")),
+      inertAtStart: !!(b && b.hasAttribute("inert")),
     };
   });
   await page.waitForTimeout(wait);
@@ -151,6 +152,7 @@ async function measure(page, path, { anchor = false, wait = SLOW_MS + 4000 } = {
       railAtEnd: a ? Math.round(a.getBoundingClientRect().height) : 0,
       bridgeAtEnd: b ? Math.round(b.getBoundingClientRect().height) : 0,
       bridgeReady: !!(b && b.hasAttribute("data-ready")),
+      inertAtEnd: !!(b && b.hasAttribute("inert")),
       arm: document.documentElement.getAttribute("data-wf-bridge"),
       cls: Number(window.__shifts.reduce((s, e) => s + e.v, 0).toFixed(3)),
       shifts: window.__shifts.filter((e) => e.v >= 0.005).map((e) => ({ v: Number(e.v.toFixed(3)), t: e.t, src: e.src })),
@@ -217,6 +219,11 @@ for (const [guide, path] of Object.entries(GUIDES)) {
           expect(r.bridgeAtStart, "treatment: the bridge is painted at its final size BEFORE hydration").toBeGreaterThan(150);
           expect(Math.abs(r.bridgeAtEnd - r.bridgeAtStart), "the bridge did not resize at hydration").toBeLessThanOrEqual(2);
           expect(r.bridgeReady, "the client resolved the arm and released taps").toBe(true);
+          // Asserted against the REAL build (React 19 in the App Router): the
+          // server markup is inert until exposure, so no tap/Tab/Enter can
+          // reach a link before it exists; the client releases it.
+          expect(r.inertAtStart, "treatment: inert before hydration (exposure not yet recorded)").toBe(true);
+          expect(r.inertAtEnd, "treatment: released after the client resolved the arm").toBe(false);
         }
         expectStill(r);
         assertContained(log, expect);
