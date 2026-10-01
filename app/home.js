@@ -155,7 +155,14 @@ const loadThingsToDo = () => import("./components/ThingsToDoList");
 const ThingsToDoList = nextDynamic(loadThingsToDo, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
 const UnifiedBrowseCommerceRail = nextDynamic(() => import("./components/UnifiedBrowseCommerceRail"), { ssr: false });
 const TripConnections = nextDynamic(() => import("./components/TripConnections"), { ssr: false });
-const ThemeParkRail = nextDynamic(() => import("./components/ThemeParkRail"), { ssr: false });
+// 2026-10-01 — EAGER ON PURPOSE, and counted by check-bundle. Unlike
+// ThingsToDoList above, this rail renders on the first paint whenever no
+// category is picked (it holds the homepage's first place cards, ~860px down
+// at 390px). It used to reach the initial chunk only by accident (lib/landing.js
+// dragged it in; see check-landing-data-client-free). As next/dynamic it waited
+// on a lazy chunk + then its own /api/theme-parks fetch: first card 4.2s vs
+// 2.7s (median of 5, same Vercel preview infra, 390px).
+import ThemeParkRail from "./components/ThemeParkRail";
 const SHEET_LOADERS = [loadHookDetail, loadAccount, loadMenu, loadAuth, loadDetail, loadIntro, loadSocialFind];
 const SCREEN_LOADERS = [loadSurprise, loadCoupons, loadSaved, loadItinerary, loadShared, loadEventsScreen, loadMap, loadExperience, loadThingsToDo, ...SHEET_LOADERS];
 const SurpriseScreen = nextDynamic(loadSurprise, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
