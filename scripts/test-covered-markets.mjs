@@ -137,6 +137,8 @@ for (const slug of ["tallahassee", "jacksonville", "st-petersburg"]) {
   ok(tzForPoint(c.lat, c.lng) === "America/New_York", `${slug} stays Eastern`);
 }
 ok(tzForPoint(29.8119, -85.303) === "America/New_York", "Port St. Joe (Gulf County, Eastern) stays Eastern");
+ok(tzForPoint(29.6697, -85.3577) === "America/New_York", "Cape San Blas (Gulf County, Eastern) stays Eastern");
+ok(tzForPoint(29.9483, -85.4202) === "America/Chicago", "Mexico Beach (Bay County, Central) is Central");
 // Meal selection: the same expression railMenuData uses
 // (partForHour(siteHourFloat(now, tzForPoint(lat, lng)))), across the 11:30
 // morning→lunch edge, before and after the 2026-11-01 DST change. With the old
