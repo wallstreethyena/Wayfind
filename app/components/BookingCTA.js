@@ -174,7 +174,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
             }}
             style={{ flex: 1, minWidth: 0, minHeight: 48, padding: "0 14px", background: "linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.018))", border: `1px solid ${C.border}`, borderRadius: 14, color: C.light, fontSize: 13.5, fontWeight: 800, textDecoration: "none", lineHeight: 1.15, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, whiteSpace: "nowrap", boxSizing: "border-box" }}
           >
-            <span>{labelOverride || partnerTicketLabel(pin.merchant, { arrow: false })}</span>
+            <span>{labelOverride || partnerTicketLabel(pin.merchant, { arrow: false, product: pin.product })}</span>
             <span aria-hidden="true" style={{ color: C.accent, fontSize: 16, lineHeight: 1 }}>↗</span>
           </a>
         );

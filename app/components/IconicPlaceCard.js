@@ -686,7 +686,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
                 target="_blank"
                 rel="sponsored noopener"
                 data-commerce-owner="IconicPlaceCard"
-                aria-label={`Partner tickets for ${place.name} via ${partner.merchant}`}
+                aria-label={`Partner ${partner.product === "tour" ? "tours" : "tickets"} for ${place.name} via ${partner.merchant}`}
                 title="Partner link. Wayfind may earn a commission; rankings never change."
                 onClick={(event) => {
                   const clickId = mintClickId();
@@ -711,7 +711,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
                   the click-id mint, the commerce event and the rel are
                   untouched. */}
                 <TicketGlyph />
-                <span className="wf-ticket-pill-lb">Tickets</span>
+                <span className="wf-ticket-pill-lb">{partner.product === "tour" ? "Tours" : "Tickets"}</span>
                 <span className="wf-ticket-pill-sep" aria-hidden="true" />
                 <span className="wf-ticket-pill-mr">{partner.merchant}</span>
                 <span className="wf-ticket-pill-ar" aria-hidden="true">↗</span>
