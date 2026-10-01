@@ -767,5 +767,13 @@
       "detail": "A regression would either paint a wrong or low-quality partner product next to an editorial pick, change indexed guide HTML, send a partner link that bypasses our attributed redirect, or double-count commerce clicks and corrupt the experiment's primary metric."
     },
     "owner": "Revenue QA"
+  },
+  "scripts/test-beach-never-booking.mjs": {
+    "protects": "A beach (Siesta, Turtle, Coquina, any beach-typed/category/bare-beach-named place) never renders a booking CTA on its own card, whatever PLACE_PARTNER_PICKS pins say: placePartnerPick, placePagePartner, resolveDetailCta and the rendered IconicPlaceCard all refuse, while a non-beach attraction control keeps its ticket pill.",
+    "blastRadius": {
+      "category": "trust",
+      "detail": "A regression puts a Viator ticket link on free sand (a beach that looks like it needs a ticket), the owner-reported v6.53 failure, and sends paid-looking traffic to a product that is not beach admission."
+    },
+    "owner": "Revenue QA"
   }
 }

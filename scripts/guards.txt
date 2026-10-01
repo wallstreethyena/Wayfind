@@ -1944,3 +1944,4 @@ node scripts/test-photo-monitor-cold-rate.mjs
 # pre-React handler). Executes the inline recovery script against simulated
 # failures, the reload-once rule, and renders both boundaries.
 node scripts/test-chunk-recovery.mjs
+node scripts/test-beach-never-booking.mjs

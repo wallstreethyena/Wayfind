@@ -23,7 +23,7 @@
 // would pass on a file whose lookup was broken some other way. Every assertion
 // below therefore INVOKES the real resolver and checks the returned offer id,
 // which is the thing that actually ships.
-import { PLACE_PARTNER_PICKS, RETIRED_VIATOR_PINS, placePartnerPick } from "../lib/placePartnerPicks.js";
+import { PLACE_PARTNER_PICKS, RETIRED_VIATOR_PINS, placePartnerPick, isBeachName } from "../lib/placePartnerPicks.js";
 import { VENUE_OFFERS, venueOfferFor } from "../lib/venueOffers.js";
 import { PARTNER_OFFER_REGISTRY, partnerOfferById } from "../lib/partnerOfferRegistry.js";
 import { UT_PLACE_DEAL_IDS } from "../lib/deals.js";
@@ -112,6 +112,9 @@ for (const row of PLACE_PARTNER_PICKS) {
     aliasOwner.set(key, row.offerId);
 
     const got = placePartnerPick({ name: alias });
+    // A bare beach name is refused by the beach rule (placePartnerPick never
+    // serves a beach card); every OTHER alias must still resolve to its row.
+    if (isBeachName(alias)) { ok(got === null, `beach alias "${alias}" resolves to null (the beach rule), never to ${row.offerId}`); continue; }
     ok(got && got.offerId === row.offerId,
        `placePartnerPick("${alias}") returns ${row.offerId} (got ${got ? got.offerId : "null"}) — the lookup must resolve each alias to the row that declared it`);
   }
