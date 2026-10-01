@@ -19,6 +19,7 @@ import { eventPhotos } from "../../../lib/eventPhotos";
 import { eventVenueImageSrc } from "../../../lib/eventPageImage.js";
 import { addressLine, appleDirectionsUrl } from "../../../lib/placeWhere";
 import ShareButton from "../../components/ShareButton";
+import PhotoCreditLink from "../../components/PhotoCreditLink";
 import SaveEventButton from "./SaveEventButton.js";
 import EventWhere from "../../components/EventWhere";
 import ReturnToWayfind from "../../components/ReturnToWayfind.js";
@@ -335,7 +336,7 @@ export default async function CuratedEventPage({ params }) {
       ))}
         </>}
         credit={shots && shots.credit ? <p style={S.credit}>
-          Photos: {shots.creditUrl ? <a style={S.link} href={shots.creditUrl} rel="nofollow noopener" target="_blank">{shots.credit}</a> : shots.credit}, shared with Wayfind for this listing.
+          Photos: {shots.creditUrl ? <PhotoCreditLink style={S.link} href={shots.creditUrl} rel="nofollow noopener">{shots.credit}</PhotoCreditLink> : shots.credit}, shared with Wayfind for this listing.
         </p> : null}
       />
 

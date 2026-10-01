@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 766,
-    "totalRegistryEntries": 767,
-    "guardsTxtLineCount": 766,
-    "guardsTxtReachedFileCount": 759,
+    "totalOnDiskGuardFiles": 767,
+    "totalRegistryEntries": 768,
+    "guardsTxtLineCount": 767,
+    "guardsTxtReachedFileCount": 760,
     "criticalCount": 92,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 530,
-      "RENDER": 96,
+      "RENDER": 97,
       "STRUCTURAL": 140,
       "OTHER": 1
     }
@@ -13197,7 +13197,7 @@
       "npmScript": null,
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 42,
+      "assertionCount": 43,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -15235,6 +15235,28 @@
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-photo-credit-new-tab.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 38,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
