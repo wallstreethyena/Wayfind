@@ -62,10 +62,12 @@ function run({ getThrows = false, setThrows = false, now = 1_790_000_000_000 } =
     body: { appendChild(c) { appended.push(c); } },
     createElement: el,
     getElementById: (id) => byId.get(id) || null,
+    querySelector: (sel) => (sel === "[data-wf-recovery]" && w.__recoveryShown ? {} : null),
     addEventListener() {},
   };
   vm.runInContext(chunkRecoveryScript(), vm.createContext({ window: w, document, Date: FakeDate, Number, String, RegExp, isFinite }));
   const fire = (type, ev) => { for (const l of listeners[type] || []) l.fn(ev); };
+  w.__listeners = listeners;
   return { w, store, clock, listeners, fire, appended };
 }
 const SCRIPT = (src) => ({ target: { tagName: "SCRIPT", src } });
@@ -138,8 +140,18 @@ const OWN_CHUNK = "https://www.gowayfind.com/_next/static/chunks/4968-2dcc614085
     "2: a repeat failure inside the window shows ONE #wf-chunk-bar (role=alert) instead of reloading again");
   const btn = bar && bar.children.find((c) => c.tagName === "BUTTON");
   ok(btn && /min-height:44px/.test(btn.style.cssText) && btn.textContent === "Reload", "2: the bar carries a 44px Reload button");
-  if (btn && typeof btn.onclick === "function") btn.onclick();
-  ok(w.reloads === 2, "2: tapping the bar's Reload reloads (a user action, not a loop)");
+  // The tap must be handled at WINDOW capture: live 2026-10-01, React 18's
+  // document-level root listener stopPropagation()s clicks into a page stuck
+  // mid-hydration, so a handler on the button itself never runs. Model that:
+  // dispatch only through window-capture listeners, never the button.
+  ok(btn && typeof btn.onclick !== "function", "2: the bar's Reload does not rely on the button's own onclick (React swallows it mid-hydration)");
+  const winCapture = (w.__listeners.click || []).filter((l) => l.capture === true);
+  ok(winCapture.length === 1, `2: exactly one window CAPTURE click listener handles the bar (got ${winCapture.length})`);
+  const tapTarget = { closest: (sel) => (sel === "[data-wf-chunk-reload]" && btn && btn.attrs["data-wf-chunk-reload"] === "1" ? btn : null) };
+  for (const l of winCapture) l.fn({ target: tapTarget });
+  ok(w.reloads === 2, "2: a tap on the bar's Reload reloads via the window-capture listener (a user action, not a loop)");
+  for (const l of winCapture) l.fn({ target: { closest: () => null } });
+  ok(w.reloads === 2, "2: a tap anywhere else on the page does not reload");
   fire("error", SCRIPT(OWN_CHUNK));
   ok(appended.length === 1, "2: the bar is never stacked");
 }
@@ -149,6 +161,14 @@ const OWN_CHUNK = "https://www.gowayfind.com/_next/static/chunks/4968-2dcc614085
   clock.now += 1000;
   ok(w.__wfChunkRecover(POSITIVES[0]) === true && w.reloads === 1 && appended.length === 0,
     "2: a failure a React boundary caught never paints the bar (the boundary's own screen is showing)");
+}
+{
+  // One prompt at a time: a React recovery screen already showing suppresses
+  // the bar (positive control: the same failure paints it when none is shown).
+  const shown = run({ getThrows: true });
+  shown.w.__recoveryShown = true;
+  shown.fire("error", SCRIPT(OWN_CHUNK));
+  ok(shown.appended.length === 0, "2: the bar never paints over a React recovery screen ([data-wf-recovery])");
 }
 {
   const { w, fire, appended } = run({ getThrows: true });
@@ -165,6 +185,7 @@ const OWN_CHUNK = "https://www.gowayfind.com/_next/static/chunks/4968-2dcc614085
 const screenMod = await loadComponent(fileURLToPath(new URL("../app/components/RecoveryScreen.js", import.meta.url)), REPO);
 const html = renderToStaticMarkup(createElement(screenMod.default, { error: POSITIVES[0], reset() {}, boundary: "route" }));
 ok(/role="alert"/.test(html), "3: the screen is announced (role=alert)");
+ok(/data-wf-recovery="1"/.test(html), "3: the screen carries data-wf-recovery, which the pre-React bar defers to");
 ok(/That took a wrong turn/.test(html) && /Reload Wayfind/.test(html), "3: the home screen's own words and its Reload Wayfind button");
 ok(/Try again/.test(html), "3: first paint offers Try again (reset) — the chunk-only copy swaps in after the effect asks the inline script");
 ok(/href="\/"/.test(html), "3: there is always a way home");
@@ -190,6 +211,8 @@ ok(!OWN_DOCUMENT.test(routeHtml), "3: app/error.js renders INSIDE the root layou
   const effect = /useEffect\(\(\) => \{([\s\S]*?)\}, \[/.exec(screen);
   ok(effect && /window\.reportError\(error\)/.test(effect[1]),
     "4: the boundary effect reports every caught error via reportError() (Sentry's global handler + the early shim capture it) — none is swallowed");
+  ok(effect && /getElementById\("wf-chunk-bar"\)[\s\S]*\.remove\(\)/.test(effect[1]),
+    "4: the boundary effect removes a #wf-chunk-bar painted for the same failure (one prompt at a time)");
   ok(effect && /window\.__wfChunkRecover\(error\)/.test(effect[1]),
     "4: the boundary effect applies the ONE chunk rule through window.__wfChunkRecover (reload once, never a loop)");
   // Bundle ratchet (scripts/check-bundle.mjs, 498KB, 0.3KB headroom on
