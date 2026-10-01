@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 762,
-    "totalRegistryEntries": 763,
-    "guardsTxtLineCount": 762,
-    "guardsTxtReachedFileCount": 755,
-    "criticalCount": 92,
+    "totalOnDiskGuardFiles": 763,
+    "totalRegistryEntries": 764,
+    "guardsTxtLineCount": 763,
+    "guardsTxtReachedFileCount": 756,
+    "criticalCount": 93,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 527,
-      "RENDER": 94,
+      "RENDER": 95,
       "STRUCTURAL": 141,
       "OTHER": 1
     }
@@ -2840,6 +2840,34 @@
       "protects": null,
       "blastRadius": null,
       "owner": null
+    },
+    {
+      "file": "scripts/check-evergreen-landing-zero-spend.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 54,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-filename:spend",
+        "money-keyword-in-import:../lib/spendGate.js"
+      ],
+      "protects": "The evergreen landing towns (lib/evergreenCities.js: St. Petersburg, Naples, Fort Myers, Jacksonville, St. Augustine) publish exactly their 15 qualifying cat x city pairs (routes + sitemap, no event windows) and withhold the 5 weak pairs; rendering or ranking any of them makes zero googleapis calls and zero spend-ledger asks (inventory-only ranking, nospend=1 card photos honored by /api/photo as a probe), proven by call with Sarasota as the spend-allowed positive control; photo-warm's landingCityList never walks them and only lib/landing.js imports the table.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "2026-09-30: the towns were added for SEO with a ZERO-new-Google-spend constraint. Without this lock, a cold ISR regen would fall back to paid Places Text Search, a card photo cache miss would buy a Places photo, and adding the towns to LANDING_CITIES would enrol them in the photo-warm cron that buys photos 4x/hour."
+      },
+      "owner": "claude.exe (Wayfind lane)"
     },
     {
       "file": "scripts/check-experiences-link-health.mjs",
