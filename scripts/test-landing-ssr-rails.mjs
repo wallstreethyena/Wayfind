@@ -104,7 +104,7 @@ const nb = await rails.landingRailSeeds({ catSlug: "nightlife", city: { name: "O
 ok(!nb.tourItems && !nb.partnerInventory && !nb.themeParks, "nightlife (no partner inventory) gets no seeds");
 
 // ── the wiring: landing.js passes the seeds (JSX position; source-level) ──
-const landing = readFileSync(rel("../lib/landing.js"), "utf8").replace(/\{\s*\/\*[\s\S]*?\*\/\s*\}/g, "").replace(/^\s*\/\*[\s\S]*?\*\//gm, "").replace(/^\s*\/\/.*$/gm, ""); // only comments that START a line / JSX comments: a naive strip pairs a "/*" inside a string with a later "*/" and eats real code
+const landing = (readFileSync(rel("../lib/landing.js"), "utf8") + "\n" + readFileSync(rel("../lib/landingPage.js"), "utf8")).replace(/\{\s*\/\*[\s\S]*?\*\/\s*\}/g, "").replace(/^\s*\/\*[\s\S]*?\*\//gm, "").replace(/^\s*\/\/.*$/gm, ""); // only comments that START a line / JSX comments: a naive strip pairs a "/*" inside a string with a later "*/" and eats real code
 ok(/await\s+landingRailSeeds\(/.test(landing), "landing.js CALLS landingRailSeeds");
 ok((landing.match(/<TourStrip\s[^>]*initialItems=\{railSeeds\.tourItems\}/g) || []).length === 2, "both <TourStrip/> uses (things-to-do, beaches) receive initialItems");
 ok(/<IntentPartnerPick[^>]*initialInventory=\{railSeeds\.partnerInventory\}/.test(landing), "<IntentPartnerPick/> receives initialInventory");

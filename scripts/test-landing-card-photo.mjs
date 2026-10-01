@@ -179,7 +179,7 @@ ok(isLandingCardImageAllowed("/api/photo?ref=" + encodeURIComponent(SHAMROCK_REF
 }
 
 {
-  const land = strip(read("lib/landing.js"));
+  const land = strip(read("lib/landing.js") + "\n" + read("lib/landingPage.js")); // LandingPage lives in landingPage.js
   ok(land.length > 500, "positive control: landing.js has a body after comment-strip");
   ok(/landingCardPhotoSrc\(/.test(land),
     "LandingPage CALLS landingCardPhotoSrc — a mention is the substring trap");
