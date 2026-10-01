@@ -161,6 +161,7 @@ const TOURS = [
   { name: "Shell Key Preserve", types: ["park", "natural_feature", "tourist_attraction"], code: "173028P1" },
 ];
 const ADMISSION_WORDS = /ticket|admission|entry|entrance|pass\b/i;
+ok(ADMISSION_WORDS.test("Wayfind pick · Tickets at Viator") && ADMISSION_WORDS.test("Beach admission"), "PROBE: the admission-word detector does find admission wording (so its absence below means something)");
 for (const t of TOURS) {
   const d = { id: "fx-tour-" + t.name, ...t };
   ok(placePartnerPick(d)?.offerId === t.code && placePartnerPick(d)?.product === "tour", `${t.name}: pin still resolves and is marked product=tour`);
