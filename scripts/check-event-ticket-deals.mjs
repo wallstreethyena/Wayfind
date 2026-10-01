@@ -15,6 +15,7 @@
 //      still rejects every other relative path.
 //   4. THE CTA HIDES ON A DEAD ROW. A retired deal (active=false / link_ok=false)
 //      produces no ticket, never a redirect to a dead partner page.
+import { siteTodayStr } from "../lib/siteTime.js";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -149,9 +150,12 @@ const plain = curatedToFeedEvent({ event_id: "fantasy-fest-2026", slug: "ff", st
 ok(plain.url === "https://fantasyfest.com/" && plain.ticketVia === "" && plain.ticketProduct === "" && plain.ticketed === undefined, "an unmapped event keeps its official URL and no ticket claim");
 
 // ── 3. the pipeline admits the shape, executed ─────────────────────────────
-ok(validateEvent({ name: "HHN", date: "2026-10-01", url: feed.url }).ok === true, "validateEvent accepts a commerce-go ticket URL");
-ok(validateEvent({ name: "HHN", date: "2026-10-01", url: "/anywhere-else" }).ok === false, "…and still rejects every other relative path");
-ok(validateEvent({ name: "HHN", date: "2026-10-01", url: "/api/commerce/go?provider=x&offer=<script>" }).ok === false, "…and a commerce-go URL carrying junk");
+// A date that is always ahead of the venue-local "today" (was a literal 2026-10-01 that turned
+// these into failures the day after it, failing every build — the same class as the Clipp fuse).
+const FUTURE_DAY = new Date(Date.parse(siteTodayStr() + "T00:00:00Z") + 30 * 86400000).toISOString().slice(0, 10);
+ok(validateEvent({ name: "HHN", date: FUTURE_DAY, url: feed.url }).ok === true, "validateEvent accepts a commerce-go ticket URL");
+ok(validateEvent({ name: "HHN", date: FUTURE_DAY, url: "/anywhere-else" }).ok === false, "…and still rejects every other relative path");
+ok(validateEvent({ name: "HHN", date: FUTURE_DAY, url: "/api/commerce/go?provider=x&offer=<script>" }).ok === false, "…and a commerce-go URL carrying junk");
 
 // ── 4. a dead row hides the CTA, executed ──────────────────────────────────
 ok(eventTicketCta("hhn-orlando-2026", { liveDeal: { active: false, link_ok: true } }) === null, "active=false → no ticket CTA");
