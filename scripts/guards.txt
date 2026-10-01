@@ -2006,3 +2006,8 @@ node scripts/test-covered-markets.mjs
 # reference dates; the coupon selection fix; Family-day/fall/coupon fuses warn through the Command Center.
 node scripts/test-coupon-selection.mjs
 node scripts/test-family-evidence-expiry.mjs
+
+# 2026-10-01: /api/health/photos keyed wf_spend_ledger by the Eastern date, so for the
+# first four UTC hours of every month it reported LAST month's exhausted photo budget
+# while grants landed on the new row. Every ledger reader keys months in UTC.
+node scripts/test-ledger-month.mjs

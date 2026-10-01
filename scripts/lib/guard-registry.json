@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 780,
-    "totalRegistryEntries": 781,
-    "guardsTxtLineCount": 780,
-    "guardsTxtReachedFileCount": 773,
+    "totalOnDiskGuardFiles": 781,
+    "totalRegistryEntries": 782,
+    "guardsTxtLineCount": 781,
+    "guardsTxtReachedFileCount": 774,
     "criticalCount": 94,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 535,
+      "CALL": 536,
       "RENDER": 105,
       "STRUCTURAL": 140,
       "OTHER": 1
@@ -14351,6 +14351,28 @@
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
       "assertionCount": 30,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-ledger-month.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 9,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
