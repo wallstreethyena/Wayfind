@@ -7,6 +7,7 @@ export const dynamic = "force-dynamic";
 import { DB_DEADLINE_MS, NET_DEADLINE_MS, fetchDeadline } from "../../../lib/fetchDeadline.js";
 import { distMeters, invRowToPlace } from "../../../lib/inventoryServe.js";
 import { fetchOwnedPool } from "../../../lib/ownedPool.js";
+import { loadOwnerPickIds, applyCuratorPicksServer } from "../../../lib/curatorPicksServer.js";
 import { lunchRailMembership } from "../../../lib/lunchBreakRails.js";
 import { completeAnswersOnly, fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
 import atlasCards from "../../../data/atlas/editorial-cards.json";
@@ -170,7 +171,10 @@ async function loadLunchPlaces(lat, lng) {
         seen.add(place.id);
         places.push(place);
       }
-      return { places, degraded: !!pool.stats.degraded, sourceStats: pool.stats };
+      // Owner picks before the client composer ranks/caps (lib/curatorPicksServer.js); unknown -> untouched.
+      let ranked = places;
+      try { ranked = applyCuratorPicksServer(places, await loadOwnerPickIds()); } catch { ranked = places; }
+      return { places: ranked, degraded: !!pool.stats.degraded, sourceStats: pool.stats };
     }, { name: "lunch-break", usable: completeAnswersOnly((value) => value.places?.length) });
   return cached;
 }
