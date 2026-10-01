@@ -280,6 +280,58 @@ const render = async (c, s, city) => {
   ok(ctlPlace.ledger >= 1, `POSITIVE CONTROL: the same place URL WITHOUT nospend=1 asks the ledger (${ctlPlace.ledger}) via place discovery`);
 }
 
+// ── F. RAILS: the two client/server rails that carry their OWN photo URLs ────
+// Found by rendering against REAL inventory (2026-10-01): St. Petersburg
+// resolves to the Tampa metro, so /things-to-do/st-petersburg rendered the
+// statewide "Florida's Biggest Parks" rail, whose cards use spend-capable
+// /api/photo URLs. The fixture rig above returns no park rows, so section C
+// could not see it. Evergreen pages never mount that rail or read its seed.
+// IntentPartnerPick (client; fills from /api/deals on mount) builds a deal's
+// Google-ref photo URL — evergreen pages pass photoNoSpend so it carries nospend=1.
+{
+  const { LANDING_CITIES: LC } = await import("../lib/landingCities.js");
+  const parkQuery = (cs) => cs.filter((c) => c.kind === "supabase" && /name\.ilike/.test(decodeURIComponent(c.u)));
+  calls = [];
+  const evHtml = await render("things-to-do", "st-petersburg", landing.landingPair("things-to-do", "st-petersburg").city);
+  ok(parkQuery(calls).length === 0, "st-petersburg (Tampa metro) things-to-do read no theme-park seed");
+  ok(!/Biggest Parks/.test(evHtml), "st-petersburg things-to-do does not mount the Florida's Biggest Parks rail");
+  const tampaSlug = Object.keys(LC).find((k) => k === "tampa");
+  ok(!!tampaSlug, "PROBE: tampa is a LANDING_CITIES town (the control)");
+  calls = [];
+  const tHtml = await render("things-to-do", "tampa", LC.tampa);
+  ok(parkQuery(calls).length >= 1 && tHtml.length > 1000, `CONTROL: tampa things-to-do (LANDING_CITIES) DOES read the theme-park seed (${parkQuery(calls).length}) in this same rig`);
+  const ipp = strip(readFileSync(path.join(ROOT, "app/components/IntentPartnerPick.js"), "utf8"));
+  ok(/const dealImage = \(deal, noSpend\) =>[^;]*nospend=1/.test(ipp) && /dealImage\(deal, photoNoSpend\)/.test(ipp), "IntentPartnerPick builds a deal's Google-ref photo with nospend=1 when photoNoSpend (SOURCE check: client effect, not executable here)");
+  const lsrc = strip(readFileSync(path.join(ROOT, "lib/landing.js"), "utf8"));
+  ok(/<IntentPartnerPick[\s\S]*?photoNoSpend=\{evergreen\}/.test(lsrc), "landing.js passes photoNoSpend={evergreen} to <IntentPartnerPick>");
+}
+
+// ── G. LOCATION: a venue from the next metro never ranks on an evergreen page ─
+// Found 2026-10-01 against real inventory: the owned-inventory read is a lat/lng
+// BOX (corners ~1.4x the radius), so /things-to-do/st-augustine ranked "Game Over
+// Escape Rooms Jacksonville" (17.9 mi up the road) FIRST. Evergreen ranking now
+// clamps to true haversine miles <= the 17 mi tight radius (opts.maxMi).
+{
+  const withFar = (c, city, s) => {
+    const rows = fixture(c, city, s);
+    const dLat = 18.5 / 69; // ~18.5 mi north: inside the read's box corner, outside the radius
+    rows.push({ ...rows[0], place_id: "ChIJEvgFarAwayMetro00001", id: "ChIJEvgFarAwayMetro00001", name: "Far Metro Venue", rating: 4.9, userRatingCount: 9000,
+      location: { latitude: city.lat + dLat, longitude: city.lng }, photoRef: null });
+    return rows;
+  };
+  for (const k of EXPECTED) {
+    const [c, s] = k.split("/");
+    const city = landing.landingPair(c, s).city;
+    const list = await landing.landingRanked(c, s, { inventoryRows: withFar(c, city, s) });
+    ok(Array.isArray(list) && list.length >= 8, `${k}: clamp keeps the in-city fixture (${list && list.length} ranked)`);
+    ok(!list.some((p) => p.name === "Far Metro Venue"), `${k}: a 4.9-star, 9000-review venue 18.5 mi away is NOT ranked`);
+    ok(list.every((p) => p.distMi == null || p.distMi <= 17.01), `${k}: every ranked place is within 17 mi (max ${Math.max(...list.map((p) => p.distMi || 0)).toFixed(1)})`);
+  }
+  const sar = LANDING_CITIES.sarasota;
+  const ctl = await landing.rankedFor("things-to-do", "sarasota", { inventoryRows: withFar("things-to-do", sar, "sarasota"), inventoryOnly: true });
+  ok(Array.isArray(ctl) && ctl.some((p) => p.name === "Far Metro Venue"), "CONTROL: sarasota (LANDING_CITIES, unchanged ranking) still ranks the same far venue — the clamp is evergreen-only");
+}
+
 // ── E. CRONS: photo-warm's walk, and who may import the evergreen table ──────
 {
   const { landingCityList } = await import("../lib/photoSurfaces.js");
