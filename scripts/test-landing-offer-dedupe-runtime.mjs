@@ -78,6 +78,11 @@ class TestNode {
   removeAttribute(k) { this.attributes.delete(k); mutated(); }
   getAttribute(k) { return this.attributes.has(k) ? this.attributes.get(k) : null; }
   hasAttribute(k) { return this.attributes.has(k); }
+  get dataset() { // data-offer-id -> dataset.offerId, read from the real attributes
+    const o = {};
+    for (const [k, v] of this.attributes) if (k.startsWith("data-")) o[k.slice(5).replace(/-([a-z])/g, (_, c) => c.toUpperCase())] = v;
+    return o;
+  }
   addEventListener() {}
   removeEventListener() {}
   *walk() { for (const c of this.childNodes) { if (c.nodeType === 1) { yield c; yield* c.walk(); } } }

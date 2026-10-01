@@ -77,20 +77,20 @@ export function tourHref(t) {
 const RAIL_LINKS = '[data-commerce-owner="IntentPartnerPick"][href*="provider=viator&"]';
 export default function TourStrip({ lat, lng, title, subtitle, waterOnly, initialItems, excludeCodes }) {
   const seeded = Array.isArray(initialItems) && initialItems.length >= 2;
-  const [res, setRes] = useState(null); // raw /api/experiences body once the refresh lands
+  // { items }: the server pool until the refresh lands, then the raw /api/experiences body.
+  const [res, setRes] = useState(seeded ? { items: initialItems } : null);
   const [shown, setShown] = useState(null); // offer ids the rail renders visibly; null until mounted
   useEffect(() => {
     // A string, so an unchanged set is a no-op setState (no render loop).
-    const read = () => setShown([...document.querySelectorAll(RAIL_LINKS)].filter((a) => a.offsetParent !== null).map((a) => a.getAttribute("data-offer-id")).join("\n"));
+    const read = () => setShown([...document.querySelectorAll(RAIL_LINKS)].filter((a) => a.offsetParent !== null).map((a) => a.dataset.offerId).join());
     read();
     const mo = new MutationObserver(read);
-    mo.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["href", "data-offer-id", "hidden", "style", "class"] });
+    mo.observe(document.body, { childList: true, subtree: true, attributes: true }); // attributes: hidden/style/href changes
     return () => mo.disconnect();
   }, []);
-  const pool = res || (seeded ? { items: initialItems } : null);
-  const items = pool && prepareTourStripItems(pool, { waterOnly, excludeCodes: shown === null ? excludeCodes : shown.split("\n") });
+  const items = prepareTourStripItems(res, { waterOnly, excludeCodes: shown === null ? excludeCodes : shown.split(",") });
   useEffect(() => {
-    if (!isFinite(lat)) { setRes({ items: [] }); return; }
+    if (!isFinite(lat)) { setRes({}); return; }
     let dead = false;
     const q = new URLSearchParams({ lat: String(lat), lng: String(lng), mi: "60", cat: "all", limit: "12", page: "0" });
     fetch("/api/experiences?" + q.toString()).then((r) => (r.ok ? r.json() : null), () => null).then((res) => {
@@ -99,11 +99,11 @@ export default function TourStrip({ lat, lng, title, subtitle, waterOnly, initia
       // Filter/dedupe/rank lives in lib/tourStripItems.js so the server seed and
       // this refresh cannot diverge (t.code required; never the raw partner URL).
       // The raw body is kept so a later rail change re-runs it with backfill.
-      setRes(res || { items: [] });
+      setRes(res || {});
     });
     return () => { dead = true; };
   }, [lat, lng, waterOnly]);
-  if (!items || items.length < 2) return null;
+  if (items.length < 2) return null;
   return (
     <section style={{ background: "#0B0E15", border: "1px solid #1F2937", borderRadius: 16, padding: "16px 18px", margin: "24px 0 8px" }}>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 4 }}>
