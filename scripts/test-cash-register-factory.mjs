@@ -45,7 +45,6 @@ const RETIRED_NAMES = new Set(RETIRED_VIATOR_PINS.flatMap((r) => r.names));
 const STILL_HOOKED = [
   "Fort De Soto Park",
   "Pier 60",
-  "Turtle Beach",
   "Silver Springs State Park Glass Bottom Boat Tours",
 ];
 const NOW_LEFTOVER = [
@@ -71,7 +70,12 @@ for (const name of NOW_LEFTOVER) {
   ok(inv.unmatched.some((r) => r.name === name),
     `${name} is back in leftover — a retired pin becomes replacement work, not a silently dropped card`);
 }
-ok(STILL_HOOKED.length >= 4,
+// Beaches: never hooked AND never on the pin worklist (2026-09-30 beach rule).
+for (const name of ["Turtle Beach", "Siesta Beach", "Coquina Beach"]) {
+  ok(!inv.hooked.some((r) => r.name === name), `${name} is not hooked — a beach never carries a booking pin`);
+  ok(!inv.unmatched.some((r) => r.name === name), `${name} is not on the unmatched worklist — no replacement pin is requested for a beach`);
+}
+ok(STILL_HOOKED.length >= 3,
   `the hooked branch still covers real cards (got ${STILL_HOOKED.length}) — at zero this block would prove nothing`);
 ok(!inv.hooked.some((r) => r.name === "Clearwater Beach"),
   "Clearwater Beach is not hooked — no exact Atlas/summer/curated card, do not invent one");
