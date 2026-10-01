@@ -41,7 +41,34 @@
       "verification": "Downloaded the original from Wikimedia Commons and inspected it: the file's own title names Calle Ocho, Little Havana, and its embedded GPS (25.7656, -80.2191) sits on Calle Ocho; a cigar-bar sign is a direct match for this pick's mention of hand-rolled cigars, and no people are visible. Reused for the same venue/area in things-to-do-in-miami-florida; image visually reviewed on 2026-09-24. Not a new license claim.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-24"
+    },
+    "Pérez Art Museum Miami": {
+      "src": "/guides/picks/things-to-do-in-miami-florida/pamm-hanging-gardens-exterior.webp",
+      "width": 1024,
+      "height": 768,
+      "alt": "Pérez Art Museum Miami building with its white slatted canopy, columns draped in hanging plants, trees and wide concrete steps under a blue sky",
+      "caption": "The Pérez Art Museum Miami building and its hanging gardens in Museum Park on Biscayne Boulevard, photographed in 2015.",
+      "credit": "Phillip Pessar",
+      "creditHref": "https://www.flickr.com/photos/southbeachcars/22601118889",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/southbeachcars/22601118889",
+      "author": "Phillip Pessar",
+      "position": "50% 45%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "flickr",
+      "placeId": null,
+      "verification": "Flickr photo 22601118889 by Phillip Pessar (the same image is on Commons as File:PAMM_MRD_23.jpg, described as Pérez Art Museum Miami, GPS 25.785333,-80.186889 = Museum Park). Viewed the full image: the distinctive slatted canopy with suspended vertical gardens and the museum's name lettering on the right-hand wall confirm identity. No people visible. Flickr 1024px rendition used because the Commons original could not fit the 200KB budget. Live Flickr licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-29"
     }
   },
-  "gaps": {}
+  "gaps": {
+    "Wynwood Walls": {
+      "reason": "public-art",
+      "placeId": "ChIJ98BffLK22YgRsymdIvOgjNA",
+      "needsPermissionFrom": null,
+      "note": "Best licensed candidate (Commons 'Wynwood Walls (9971919736).jpg', Pessar 2013) frames a Shepard Fairey mural as the visual centre behind the entrance gate; the venue's murals are copyrighted artwork and rotate, and the gate signage restricts commercial photography. Rejected on review 2026-09-30."
+    }
+  }
 }
