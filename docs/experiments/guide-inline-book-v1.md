@@ -51,3 +51,25 @@ Baseline: carousel ≈ 1.5% of guide sessions.
 | `element_click` (existing) | any tap, now with `place_id` (PR #1560) | place_id, destination_type |
 
 Known undercount: a long-press or middle-click "open in new tab" skips onClick. The redirect then happens without a click event. This is symmetric across arms.
+
+## Change history
+
+Append-only. Each entry records a production change that touched the page or the
+measurement while the test runs. **Nothing here changes a metric, threshold,
+population, split or the decision rule above.** Those stay as pre-registered.
+
+| when (UTC) | change | SHA / deploy | effect on this test |
+|---|---|---|---|
+| 2026-09-30 03:08 (merge) | Launch: #1564 | `12a6e9a` | Test starts. Assignment `wf_exp_id`, 50/50. |
+| 2026-10-01 02:33 (prod ready) | #1586 records taps on the body of home-feed place cards (`IconicPlaceCard`), with `place_id` | merge `05f8724`, `dpl_Gnh3FmG6Q3hpNYe1dKWiW3EYwaaN` | There is no change on the guide page. Off-guide card taps now carry `place_id`, so an exposed session that later taps a home-feed card can newly count toward **secondary metric 1**. This affects both arms equally, but the level shifts at this timestamp. **Analysis note (not a criterion change):** the registered definition stays the metric. *In addition*, report secondary 1 restricted to `page_path = /guides/things-to-do-orlando-not-theme-parks`, and split before and after this timestamp, so this shift is visible. |
+| 2026-10-01 02:50 (prod ready) | #1596 server-renders the "Bookable highlights" rail so it can't pop in above pick 1 | merge `2dfb20b`, `dpl_HBbgyMjWPUDZhGWGt3NiQ5D49JEs` | **Orlando is unchanged.** Its rail was already painted at first load from the static curated picks (measured: pick 1 held still before and after). The fix matters on the 39 other guides that have an owned cache. No effect on either arm here is expected. |
+
+Observations logged at the same time (2026-10-01, production, 390×844). These are **not results and not a decision**:
+
+- The treatment's "Best for" cue mounts after hydration. It adds about **0.03 CLS** in the treatment arm only. This is below the 0.1 "good" line. It is part of the approved treatment, so it is left unchanged.
+- The **`explore-bridge-v1`** treatment (a separate experiment that assigns independently from the same `wf_exp_id`) inserts about 563px at hydration on this guide. That is up to **0.66 CLS**. Both arms of this test are equally exposed to it, so the comparison stays balanced, but it lowers absolute engagement. The decision belongs to that experiment's owner and is tracked in #1602. It is not a reason to change this test.
+- Instrumentation re-checked live after both deploys:
+  - treatment: cue on picks 1–3 (not 4), one offer through `/api/commerce/go`, `offer_ready` reported;
+  - control: unchanged;
+  - automated browsers: get no exposure and no `$feature/…` property.
+- The "8–9 weeks" in the decision rule is an **estimate** from about 60 exposed sessions per arm per week. The stopping rule is the **500 exposed sessions per arm**, not the calendar.
