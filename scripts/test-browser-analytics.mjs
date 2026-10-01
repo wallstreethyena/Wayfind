@@ -155,4 +155,26 @@ ok(/ph\.capture\(event, properties, \{ timestamp \}\)/.test(provider), "idle-que
 ok(/mask_all_text:\s*true/.test(provider) && /mask_all_element_attributes:\s*true/.test(provider), "provider keeps automatic signals while masking DOM text and attributes");
 ok(/sanitize_properties:\s*sanitizeAnalyticsProperties/.test(provider), "provider applies URL redaction to every PostHog payload");
 
+// Public page names stay readable; secrets stay redacted (2026-09-30: every
+// 28+ char guide slug used to read "/guides/:private" in the Command Center).
+equal(analytics.safePagePath("/guides/things-to-do-orlando-not-theme-parks"), "/guides/things-to-do-orlando-not-theme-parks", "a long editorial slug is a public page name");
+equal(analytics.safePagePath("/events/sarasota/sarasota-jazz-festival-2026"), "/events/sarasota/sarasota-jazz-festival-2026", "a dated event slug is a public page name");
+equal(analytics.safePagePath("/p/ChIJd_yTxUh054gR9cGD0gI_yHw"), "/p/ChIJd_yTxUh054gR9cGD0gI_yHw", "a Google place id (public business id) is kept");
+equal(analytics.safePagePath("/x/3fa85f64-5717-4562-b3fc-2c963f66afa6"), "/x/:private", "a UUID is still redacted even though it is lowercase and hyphenated");
+equal(analytics.safePagePath("/x/k3j2-9dk2-x8s7-2jd9-a8s7-2kd8-q9w8"), "/x/:private", "a hyphenated random token is not mistaken for a slug");
+equal(analytics.safePagePath("/x/aB3dE5gH7jK9mN1pQ3sT5vW7yZ9bC1dE"), "/x/:private", "a long mixed-case token is still redacted");
+equal(analytics.safePagePath("/s/weekend-in-orlando-with-the-family-list"), "/s/:private", "anything under a share parent stays private, slug-shaped or not");
+equal(analytics.safePagePath("/x/someone%40example.com"), "/x/:private", "an encoded email is always private");
+// Card taps name their place; our earning redirect is a partner click.
+const placeHost = { getAttribute: (name) => (name === "data-wf-position-key" ? "place-ChIJu3hNU-N654gR0x0I9_3iNvc" : null) };
+const cardButton = { tagName: "BUTTON", textContent: "Lake Eola Park 9.1", getAttribute: () => null, closest: (sel) => (sel.startsWith("[data") ? placeHost : cardButton) };
+equal(analytics.clickProperties(cardButton, { origin: "https://gowayfind.com" }), { element_type: "button", destination_type: "none", place_id: "ChIJu3hNU-N654gR0x0I9_3iNvc" }, "a home card tap carries the place id, never the card text");
+const railHost = { getAttribute: (name) => (name === "data-place-id" ? "ChIJrailcard123" : null) };
+const railCard = { tagName: "ARTICLE", textContent: "", getAttribute: (name) => (name === "role" ? "button" : null), closest: (sel) => (sel.startsWith("[data") ? railHost : railCard) };
+equal(analytics.clickProperties(railCard, { origin: "https://gowayfind.com" }).place_id, "ChIJrailcard123", "a RailCard tap carries its data-place-id");
+const goLink = { tagName: "A", textContent: "Book", getAttribute: (name) => (name === "href" ? "/api/commerce/go?provider=viator&offer=5039P5&click_id=abc" : null), closest: (sel) => (sel.startsWith("[data") ? null : goLink) };
+equal(analytics.clickProperties(goLink, { origin: "https://gowayfind.com" }), { element_type: "link", destination_type: "partner", element_label: "Book", destination_path: "/api/commerce/go" }, "a click into /api/*/go is a partner click and drops its query (offer, click id)");
+const placeLink = { tagName: "A", textContent: "Open place", getAttribute: (name) => (name === "href" ? "/places/ChIJGSMzu2Oi54gR-rlDDL6V3Qs" : null), closest: (sel) => (sel.startsWith("[data") ? null : placeLink) };
+equal(analytics.clickProperties(placeLink, { origin: "https://gowayfind.com" }).place_id, "ChIJGSMzu2Oi54gR-rlDDL6V3Qs", "a link to a place page names that place");
+
 console.log(`test-browser-analytics: OK — ${passed} assertions (owner/bot gate, URL redaction, safe clicks, incremental attention + visible duration)`);

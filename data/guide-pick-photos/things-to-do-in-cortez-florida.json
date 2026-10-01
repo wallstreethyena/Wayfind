@@ -1,0 +1,24 @@
+{
+  "slug": "things-to-do-in-cortez-florida",
+  "picks": {},
+  "gaps": {
+    "FISH Preserve": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "Searched Commons (Category:Cortez, Florida, Category:Cortez Historic District, geosearch 2.5km around Cortez village), Openverse and Flickr CC search for FISH Preserve / Cortez preserve / Florida Institute for Saltwater Heritage: no licensed photo identifiable as the preserve; only historic-district houses, HDR detail shots and unrelated fish species."
+    },
+    "Swordfish Grill & Tiki Bar": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "Searched Commons (Cortez categories and geosearch), Openverse and Flickr CC search for Swordfish Grill / Swordfish Grill Cortez: zero results for the venue; only generic grilled-swordfish food photos from other restaurants."
+    },
+    "Star Fish Company": {
+      "reason": "people-privacy",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "Only licensed candidate (Flickr 32449700360, Carol VanHook, CC BY-SA 2.0, Feb 2017) shows the STARFISH CO. building and dock, but about six diners sit mid-frame directly beneath the sign with two faces recognizable at full size. Crops were tested 2026-09-30: every crop that keeps the sign also keeps the diners, and the only diner-free crop is mostly sky and trees with the sign cut off at the bottom edge. Owner decision: no photo with recognizable diners, no generic substitute."
+    }
+  }
+}

@@ -266,6 +266,8 @@ node scripts/test-city-viator.mjs
 node scripts/test-analytics.mjs
 node scripts/test-paid-landing.mjs
 node scripts/test-landing-inventory-ssg.mjs
+# 2026-09-29 owner decision: exact-place_id not-public registry (Le Mans Kitchen) - excluded from landing pool + inventory, /places stays noindex
+node scripts/check-not-public-places.mjs
 node scripts/test-eat-ssg-failsoft.mjs
 
 # v8.99 (2026-09-06) — every /guides/[slug] page baked out with ZERO place
@@ -472,6 +474,7 @@ node scripts/check-coupon-link-attribution.mjs
 node scripts/test-partner-rail-render.mjs
 node scripts/test-bookable-highlights-30.mjs
 node scripts/check-tour-strip-redirect.mjs
+node scripts/test-landing-ssr-rails.mjs
 node scripts/check-food-tour-rail.mjs
 node scripts/test-booking-resolve-extraction.mjs
 # Founder P0 (2026-08-19): Book/commerce clicks same-tab through /api/*/go
@@ -483,6 +486,8 @@ node scripts/check-guide-conversion.mjs
 # name on the same click). Renders the real component, invokes onClick, spies
 # on posthog.capture, and red-proves against origin/main's pre-fix source.
 node scripts/check-guide-cta-single-capture.mjs
+node scripts/test-guide-inline-book.mjs
+node scripts/test-guide-inline-book.mjs --red-prove
 node scripts/test-guide-park-ticket-cta.mjs
 node scripts/check-guide-teasers.mjs
 node scripts/test-guide-editorial-mode.mjs
@@ -796,6 +801,7 @@ node scripts/test-hotel-card-cta.mjs
 node scripts/check-hotel-library-quality.mjs
 scripts/check-hotel-booking-verified.mjs
 scripts/check-owned-hotel-identity.mjs
+scripts/test-harvest-owned-hotel-identity.mjs
 
 # 2026-09-23 — customer-facing hotel copy (whyGo/knownFor/vibe) must never
 # carry internal curation/prompt scaffolding ("Use X when the user wants...
@@ -1377,6 +1383,12 @@ node scripts/test-inverse-booking-cta.mjs
 # "billing:"/"quota:"-prefixed dead run after one run, per lib/jobPulse.js)
 # picks it up on its next run.
 node scripts/test-revenue-heartbeat.mjs
+# 2026-09-30 heartbeat-watch paged "photo-monitor OVERDUE (371min vs 240min
+# max)" while photo-monitor was green on every run: GitHub starts the three
+# scheduled monitors with a median gap of ~4h and a worst of 516min. Replays
+# every wf_heartbeat_expected migration and fails if a GitHub-scheduled
+# monitor's tolerance is below that measured worst gap (or missing).
+node scripts/check-heartbeat-tolerance.mjs
 # 2026-09-04 PRODUCTION-LIKE SYNTHETIC USER MONITORING. scripts/run-synthetic-monitor.mjs
 # drives real Chromium against production across 12 named flows (homepage, rails,
 # place-card controls, Today/Night Out/Fall, events, save/share, itinerary, Book
@@ -1511,6 +1523,8 @@ node scripts/test-spend-bypass-regression.mjs
 # ledger for the same numbers with the switch on. One grant == one outbound
 # Google request across the whole media/Details/self-heal fan-out.
 node scripts/test-photos-paid-cap.mjs
+scripts/check-photo-cap-parses.mjs
+scripts/check-photo-outcome-provenance.mjs
 # 2026-09-28: promotion-only paid details ceiling — must never widen to another SKU.
 node scripts/test-promote-paid-cap.mjs
 node scripts/test-spend-tests-prod-env.mjs
@@ -1911,6 +1925,9 @@ node scripts/check-hub-place-links.mjs
 # Google photo author credits are kept from responses already received
 # (never re-bought), bounded, and stored only for their own place (2026-09-23).
 node scripts/test-photo-credits.mjs
+# A guide never shows a Google photo without Google's required visible credit;
+# licensed photos (with credit) or none instead (owner, 2026-09-30).
+node scripts/test-google-photo-attribution.mjs
 node scripts/test-jev-mcp.mjs
 
 node scripts/test-guide-editorial-photos.mjs
@@ -1921,3 +1938,9 @@ node scripts/test-card-photo-fallback.mjs
 node scripts/test-photo-serving-alert.mjs
 node scripts/test-intl-cache.mjs
 node scripts/test-browse-back.mjs
+node scripts/test-photo-monitor-cold-rate.mjs
+# 2026-09-30: one /_next/static chunk answering 502 left production on Next's
+# bare white "Application error" page (no app/error.js, no global-error.js, no
+# pre-React handler). Executes the inline recovery script against simulated
+# failures, the reload-once rule, and renders both boundaries.
+node scripts/test-chunk-recovery.mjs

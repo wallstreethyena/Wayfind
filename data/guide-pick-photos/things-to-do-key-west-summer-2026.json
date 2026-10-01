@@ -100,15 +100,29 @@
       "verification": "Downloaded the original from Wikimedia Commons and inspected it: the building's own sign reads \"Blue Heaven / Restaurant & Bar,\" and the street-name signs on the same pole read \"Petronia\" and \"Thomas,\" matching the file's description of the corner of Thomas and Petronia Streets, Key West, exactly; no people are visible.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
+    },
+    "Snorkeling the continental US's only living reef": {
+      "src": "/guides/picks/things-to-do-key-west-summer-2026/key-west-reef-sea-turtle.webp",
+      "width": 1023,
+      "height": 576,
+      "alt": "A sea turtle swimming over a coral reef with purple sea fans and a sandy bottom in clear turquoise water",
+      "caption": "A sea turtle glides over coral and sea fans on a snorkel reef off Key West.",
+      "credit": "SNORKELINGDIVES.COM",
+      "creditHref": "https://www.flickr.com/photos/77111848@N07/16292642896",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/77111848@N07/16292642896",
+      "author": "SNORKELINGDIVES.COM",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "flickr",
+      "placeId": null,
+      "verification": "Flickr photo 16292642896 by SNORKELINGDIVES.COM titled 'Snorkeling Key West, Florida', CC BY 2.0, tagged keywest/snorkeling. Seen: shallow Florida Keys-type patch reef with sea fans, brain/star coral and a sea turtle, the reef, turtles and snorkel conditions the pick describes. No watermark. No people. Reef site not named more precisely than off Key West, so caption stays general. Live Flickr licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-29"
     }
   },
   "gaps": {
-    "Snorkeling the continental US's only living reef": {
-      "reason": "not-a-place",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "A bookable activity run by many different catamaran operators out of the Historic Seaport, not a single visitable place."
-    },
     "The Reserve, the new bank takeover": {
       "reason": "no-verified-source",
       "placeId": null,

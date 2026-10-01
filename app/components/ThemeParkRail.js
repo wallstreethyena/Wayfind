@@ -8,17 +8,23 @@ import { themeParkHeading, themeParkForPlace, orderThemeParks, filterFamilyTheme
 import { placePartnerPick } from "../../lib/placePartnerPicks.js";
 import { usePinQuarantine } from "../../lib/pinQuarantine.js";
 
-export default function ThemeParkRail({ mode = "flagship", query = "", items = null, familyContext = null, onOpenPlace,
+export default function ThemeParkRail({ mode = "flagship", query = "", items = null, initialItems = null, familyContext = null, onOpenPlace,
   isSaved, isOnTrip, isLiked, isDisliked, liked, disliked,
   onSave, onItinerary, onLike, onDislike, onShare, onBadge }) {
-  const [loaded, setLoaded] = useState(Array.isArray(items) ? items : []);
+  // `initialItems` (2026-09-29) is a SERVER seed from lib/landingRails.js — the
+  // same loadThemeParks() read /api/theme-parks serves — so the park cards and
+  // their ticket links are in the crawlable HTML. Unlike `items` it does NOT stop
+  // the fetch: the mount refresh still runs and wins, and a failed refresh keeps
+  // the seed. No seed = the old behaviour exactly.
+  const seeded = Array.isArray(initialItems) && initialItems.length > 0;
+  const [loaded, setLoaded] = useState(Array.isArray(items) ? items : seeded ? initialItems : []);
   const pinQ = usePinQuarantine();
   useEffect(() => {
     if (Array.isArray(items)) { setLoaded(items); return undefined; }
     const controller = new AbortController();
     fetch(`/api/theme-parks?mode=${encodeURIComponent(mode)}${query ? `&q=${encodeURIComponent(query)}` : ""}`, { signal: controller.signal })
       .then((response) => response.ok ? response.json() : Promise.reject(new Error("theme parks unavailable")))
-      .then((body) => setLoaded(Array.isArray(body.items) ? body.items : []), () => setLoaded([]));
+      .then((body) => setLoaded(Array.isArray(body.items) ? body.items : []), () => { if (!seeded) setLoaded([]); });
     return () => controller.abort();
   }, [mode, query, items]);
   const rows = orderThemeParks(filterFamilyThemeParks(loaded.filter((place) => themeParkForPlace(place) && placePartnerPick(place, pinQ)), familyContext));

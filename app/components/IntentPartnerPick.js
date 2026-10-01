@@ -11,6 +11,7 @@ import { clipCouponToWallet } from "../../lib/couponWallet";
 import { C, PlaceScoreChip } from "./kit";
 import { discountDepthBonus, timeOfDayBonus } from "../../lib/experienceNowRank";
 import { siteHourFloat } from "../../lib/nowContext";
+import { usePhotoSrcFilter } from "./photoPolicyContext";
 
 const disclosureVersion = "partner-rail-v2";
 
@@ -34,7 +35,7 @@ const dealImage = (deal) => deal?.image || (deal?.photoRef ? `/api/photo?ref=${e
 // placement rule and scripts/test-experience-now-rank.mjs for the proof.
 // Unrated inventory (base < 0) is left exactly as unrated: no bonus can pull
 // a card with no real evidence ahead of one that has it.
-const evidenceScore = (pick) => {
+const evidenceScore = (pick, hour) => {
   const explicit = Number(pick?.quality10 || 0);
   const base = explicit > 0 ? explicit : (() => {
     const rating = Number(pick?.rating || 0);
@@ -48,11 +49,27 @@ const evidenceScore = (pick) => {
   })();
   if (base < 0) return base;
   const text = [pick?.title, pick?.eyebrow, pick?.discount, pick?.badge].filter(Boolean).join(" ");
-  return base + discountDepthBonus(pick?.discount || pick?.badge || pick?.eyebrow || "") + timeOfDayBonus(text, siteHourFloat());
+  return base + discountDepthBonus(pick?.discount || pick?.badge || pick?.eyebrow || "") + timeOfDayBonus(text, hour);
 };
 
-export default function IntentPartnerPick({ city, intent, inventory, accent = "#F97316", lat, lng, couponIntent, onOpenCoupons, onLog }) {
+export default function IntentPartnerPick({ city, intent, inventory, initialInventory, accent = "#F97316", lat, lng, couponIntent, onOpenCoupons, onLog }) {
   const [networkDeals, setNetworkDeals] = useState([]);
+  // HYDRATION-SAFE TIME-OF-DAY (2026-09-29). The order below folds in
+  // siteHourFloat() — the hour it is RIGHT NOW. Once this rail is server-rendered
+  // (ISR: rendered hours before the visitor arrives) the server's hour and the
+  // browser's hour differ, so ordering by the live hour on the first render would
+  // hand React different markup than the HTML it is hydrating. The first render
+  // (server AND hydration) therefore orders with NO hour (`null` -> no bonus), and
+  // the time-of-day term is applied right after mount, which is when this rail
+  // used to order anyway (it was empty until its fetch landed).
+  const [hour, setHour] = useState(null);
+  useEffect(() => { setHour(siteHourFloat()); }, []);
+  // 2026-09-30 — under a PhotoPolicyProvider (guides) a card whose only image
+  // is a Google photo (a network deal's venue photo via /api/photo) is left
+  // out, exactly like any other imageless pick: the card has no room for
+  // Google's required visible credit. Partner-supplied product images are
+  // unaffected.
+  const photoSrcFilter = usePhotoSrcFilter();
   // SELF-SUPPLY (2026-08-02, audit F2). `inventory` is where every pick's IMAGE
   // comes from, and a pick without an image is dropped below — so a caller that
   // could not run IntentPageClient's fetch got a rail that resolved its curated
@@ -63,14 +80,23 @@ export default function IntentPartnerPick({ city, intent, inventory, accent = "#
   // A caller that DOES supply inventory is untouched: IntentPageClient still
   // wins and this fetch never fires, so the capability is added without
   // changing the path that already worked.
-  const [selfInventory, setSelfInventory] = useState(null);
+  //
+  // `initialInventory` (2026-09-29) is the SERVER seed from lib/landingRails.js:
+  // the OWNED wf_experiences leg of that same fetch (free Supabase read — the
+  // live /api/viator/tours + curated legs are paid provider calls and are NOT run
+  // at render). It is a first-paint seed only: the fetch below still runs and its
+  // answer wins, so the settled rail is what it always was; if that refresh comes
+  // back empty the seed is kept rather than blanking a rail that already
+  // rendered. Links are unchanged (commerceHref -> /api/commerce/go).
+  const seededInventory = Array.isArray(initialInventory) && initialInventory.length ? initialInventory : null;
+  const [selfInventory, setSelfInventory] = useState(seededInventory);
   const suppliedInventory = Array.isArray(inventory) && inventory.length ? inventory : null;
   useEffect(() => {
     if (suppliedInventory || !city || !intent) return;
     let dead = false;
-    fetchPartnerInventory(city, intent).then((rows) => { if (!dead) setSelfInventory(rows); });
+    fetchPartnerInventory(city, intent).then((rows) => { if (!dead && !(seededInventory && !(Array.isArray(rows) && rows.length))) setSelfInventory(rows); });
     return () => { dead = true; };
-  }, [city, intent, suppliedInventory]);
+  }, [city, intent, suppliedInventory]); // seededInventory is a mount-time prop; deliberately not a dependency
   const activeInventory = suppliedInventory || selfInventory || [];
 
   useEffect(() => {
@@ -135,15 +161,15 @@ export default function IntentPartnerPick({ city, intent, inventory, accent = "#
       return [...bookable, ...networkDeals, ...localCoupons].filter((pick) => {
         const key = `${pick.provider}:${pick.offerId}`;
         const titleKey = String(pick.title || "").trim().toLowerCase();
-        if (!pick.image) return false;
+        if (!pick.image || !photoSrcFilter(pick.image)) return false;
         if (!pick.offerId || !pick.provider || pick.link_ok === false) return false;
         if (seen.has(key) || (titleKey && seen.has(titleKey))) return false;
         seen.add(key);
         if (titleKey) seen.add(titleKey);
         return true;
-      }).sort((a, b) => evidenceScore(b) - evidenceScore(a)).slice(0, PARTNER_RAIL_RENDER_LIMIT);
+      }).sort((a, b) => evidenceScore(b, hour) - evidenceScore(a, hour)).slice(0, PARTNER_RAIL_RENDER_LIMIT);
     },
-    [city, intent, activeInventory, networkDeals, localCoupons]
+    [city, intent, activeInventory, networkDeals, localCoupons, hour, photoSrcFilter]
   );
   const rootRef = useRef(null);
   const railRef = useRef(null);
