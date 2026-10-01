@@ -78,7 +78,7 @@ Observations logged at the same time (2026-10-01, production, 390×844). These a
   - treatment: cue on picks 1–3 (not 4), one offer through `/api/commerce/go`, `offer_ready` reported;
   - control: unchanged;
   - automated browsers: get no exposure and no `$feature/…` property.
-- Pre-existing, separate from both experiments: when webfonts land after first paint (Fraunces is `preload:false`), text reflows and "Right now" grows by about 24px, a shift of about 0.03–0.04 CLS above pick 1. It reproduces on production with fonts delayed 2.5s, in both arms equally. It is not fixed by any change above; it is recorded so that a CLS reading is not misattributed to this test.
+- Pre-existing, separate from both experiments: when webfonts land after first paint (Fraunces is `preload:false`), text reflows and "Right now" grows by about 24px, a shift of about 0.03–0.04 CLS above pick 1. It reproduces on production with fonts delayed 2.5s, in both arms equally. It is not fixed by any change above; it is recorded so that a CLS reading is not misattributed to this test. **Fixed by #1618** (2026-10-01 11:23:20 UTC; see the row above): Fraunces is now preloaded on these routes and has a metric-matched Android fallback.
 - The "8–9 weeks" in the decision rule is an **estimate** from about 60 exposed sessions per arm per week. The stopping rule is the **500 exposed sessions per arm**, not the calendar.
 
 Production check after #1618 (2026-10-01, `29803ad`), real production site, contained browser:
