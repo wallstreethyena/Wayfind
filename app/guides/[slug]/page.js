@@ -387,7 +387,7 @@ import { HERO_CARD_DESIGN_V } from "../../../lib/heroCard.js";
 // The floating pill stays (it catches people who DO read to the end). This adds
 // the above-the-fold handoff under a 50/50 experiment — measured dwell on these
 // pages is 0-25s, so almost nobody reaches the pill. Control renders nothing.
-import ExploreBridge from "../../components/ExploreBridge";
+import ExploreBridge from "../../components/ExploreBridgeGate";
 import IntentPartnerPick from "../../components/IntentPartnerPick";
 import { guideRailIntent } from "../../../lib/railPlacement";
 import { LANDING_CITIES } from "../../../lib/landing";
