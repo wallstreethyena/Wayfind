@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 758,
-    "totalRegistryEntries": 759,
-    "guardsTxtLineCount": 757,
-    "guardsTxtReachedFileCount": 751,
+    "totalOnDiskGuardFiles": 759,
+    "totalRegistryEntries": 760,
+    "guardsTxtLineCount": 758,
+    "guardsTxtReachedFileCount": 752,
     "criticalCount": 91,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 526,
-      "RENDER": 91,
+      "RENDER": 92,
       "STRUCTURAL": 141,
       "OTHER": 1
     }
@@ -13873,6 +13873,28 @@
       "owner": null
     },
     {
+      "file": "scripts/test-landing-offer-dedupe.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 51,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-landing-ssr-rails.mjs",
       "npmScript": null,
       "class": "RENDER",
@@ -16179,7 +16201,7 @@
       "assertionCount": 12,
       "unprovenAbsenceCount": 3,
       "honestyViolations": [
-        "3 absence assertion(s) with no positive control in the same file (e.g. \"/setItems\\(prepareTourStripItems\\(/.test(read(\"                           \").rep\")"
+        "3 absence assertion(s) with no positive control in the same file (e.g. \"/prepareTourStripItems\\(res, \\{ waterOnly, excludeCodes/.test(read(\"\")"
       ],
       "selfDocumentsRedProve": false,
       "wiring": {

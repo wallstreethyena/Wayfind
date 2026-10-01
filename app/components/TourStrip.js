@@ -25,12 +25,13 @@
 // The pid is not lost: /api/commerce/go re-applies withViatorTracking
 // server-side (PROVIDERS.viator), so attribution is identical and the handoff
 // is ours.
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { wayfindScore } from "../../lib/google";
 import { toDisplayScore } from "../../lib/score";
 import { isPerfectScore } from "../../lib/lawfulOrder";
 import { prepareTourStripItems } from "../../lib/tourStripItems";
 import { commerceHref } from "../../lib/commerce";
+import { readRailOffers, subscribeRailOffers, normalizeCodes } from "../../lib/railOffers";
 
 /**
  * THE href for a strip card. Exported so a guard can CALL it.
@@ -60,11 +61,30 @@ export function tourHref(t) {
 // as before. A failed refresh keeps the seed rather than blanking the strip;
 // with no seed (server read failed / dark) behaviour is byte-for-byte the old
 // client-only path. Links are unchanged: tourHref -> /api/commerce/go.
-export default function TourStrip({ lat, lng, title, subtitle, waterOnly, initialItems }) {
+//
+// ONE OFFER, ONE SLOT (2026-09-30). `excludeCodes` is the server's prediction of the
+// viator products IntentPartnerPick renders on the same page; the rail then
+// publishes what it really rendered (lib/railOffers.js) and this strip follows it.
+// Both feed prepareTourStripItems' exclusion, on the seed AND on the refresh, so
+// hydration cannot bring a duplicate back. All excluded -> fewer than 2 -> the
+// strip hides (the rail already carries those products).
+export default function TourStrip({ lat, lng, title, subtitle, waterOnly, initialItems, excludeCodes }) {
   const seeded = Array.isArray(initialItems) && initialItems.length >= 2;
-  const [items, setItems] = useState(seeded ? initialItems : null);
+  // The mount-time prop is the ONLY first-render input, identical on server and client.
+  const [railCodes, setRailCodes] = useState(() => normalizeCodes(excludeCodes));
+  const [res, setRes] = useState(null); // raw /api/experiences body once the refresh lands
   useEffect(() => {
-    if (!isFinite(lat)) { setItems([]); return; }
+    const cur = readRailOffers();
+    if (cur.size) setRailCodes((prev) => new Set([...prev, ...cur]));
+    return subscribeRailOffers((codes) => setRailCodes(codes));
+  }, []);
+  const items = useMemo(() => {
+    if (res) return prepareTourStripItems(res, { waterOnly, excludeCodes: railCodes });
+    if (seeded) return initialItems.filter((t) => !railCodes.has(String(t && t.code).trim()));
+    return null;
+  }, [res, seeded, initialItems, waterOnly, railCodes]);
+  useEffect(() => {
+    if (!isFinite(lat)) { setRes({ items: [] }); return; }
     let dead = false;
     const q = new URLSearchParams({ lat: String(lat), lng: String(lng), mi: "60", cat: "all", limit: "12", page: "0" });
     fetch("/api/experiences?" + q.toString()).then((r) => (r.ok ? r.json() : null), () => null).then((res) => {
@@ -72,11 +92,12 @@ export default function TourStrip({ lat, lng, title, subtitle, waterOnly, initia
       if (!res && seeded) return; // failed refresh: keep the server-rendered seed
       // Filter/dedupe/rank lives in lib/tourStripItems.js so the server seed and
       // this refresh cannot diverge (t.code required; never the raw partner URL).
-      setItems(prepareTourStripItems(res, { waterOnly }));
+      // The raw body is kept so a later rail publication re-runs it with backfill.
+      setRes(res || { items: [] });
     });
     return () => { dead = true; };
   }, [lat, lng, waterOnly]);
-  if (items === null || items.length < 2) return null;
+  if (!items || items.length < 2) return null;
   return (
     <section style={{ background: "#0B0E15", border: "1px solid #1F2937", borderRadius: 16, padding: "16px 18px", margin: "24px 0 8px" }}>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 4 }}>

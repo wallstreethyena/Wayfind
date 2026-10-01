@@ -98,7 +98,9 @@ ok(Array.isArray(inv) && inv.length === 3, "ssrPartnerInventory returns qualifie
 ok(await rails.ssrPartnerInventory({ city: "Sarasota", intent: "best-of", serve: throws }) === undefined, "ssrPartnerInventory is fail-soft");
 ok(await rails.ssrPartnerInventory({ city: "Nowhereville", intent: "best-of", serve: good }) === undefined, "a non-owned destination yields undefined (paid live legs are never run at render)");
 const seeds = await rails.landingRailSeeds({ catSlug: "things-to-do", city: { name: "Orlando", lat: 28.5, lng: -81.4 }, metro: "orlando", railIntent: "best-of",
-  deps: { tour: { serve: good }, inventory: { serve: good }, parks: { load: async () => [park("a", "Magic Kingdom Park")] } } });
+  // Rail and strip get DISJOINT products here: a product present in both is (correctly)
+  // dropped from the strip since 2026-09-30 — that overlap is test-landing-offer-dedupe's job.
+  deps: { tour: { serve: good }, inventory: { serve: async () => ({ dark: false, items: INV.map((r, i) => ({ ...r, code: `77777P${i + 1}`, title: `Rail-only adventure ${i + 1}`, url: "x" })) }) }, parks: { load: async () => [park("a", "Magic Kingdom Park")] } } });
 ok(seeds.tourItems && seeds.partnerInventory && seeds.themeParks, "landingRailSeeds fills all three seeds for orlando things-to-do");
 const nb = await rails.landingRailSeeds({ catSlug: "nightlife", city: { name: "Orlando", lat: 28.5, lng: -81.4 }, metro: "orlando", railIntent: null, deps: { tour: { serve: good }, parks: { load: async () => [park("a", "x")] } } });
 ok(!nb.tourItems && !nb.partnerInventory && !nb.themeParks, "nightlife (no partner inventory) gets no seeds");

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { commerceHref, emitCommerce, mintClickId } from "../../lib/commerce";
 import { resolvedIntentPartnerPicks, fetchPartnerInventory, qualifyPartnerInventory, PARTNER_INVENTORY_CANDIDATE_COUNT, PARTNER_RAIL_RENDER_LIMIT } from "../../lib/intentPartnerPicks";
 import { rankExperiences, experienceWayfindScore } from "../../lib/experiencesData";
+import { publishRailOffers } from "../../lib/railOffers";
 import { couponsForIntent } from "../../lib/coupons";
 import { dealScope } from "../../lib/dealSheet";
 import { nearestMetro } from "../../lib/orderInFeatured";
@@ -171,6 +172,13 @@ export default function IntentPartnerPick({ city, intent, inventory, initialInve
     },
     [city, intent, activeInventory, networkDeals, localCoupons, hour, photoSrcFilter]
   );
+  // Tell TourStrip which viator products this rail rendered so the same product is
+  // not shown twice on the page (lib/railOffers.js). Cleared on unmount.
+  const railViatorKey = picks.filter((p) => p.provider === "viator" && p.kind !== "coupon" && p.kind !== "network-deal").map((p) => p.offerId).join("|");
+  useEffect(() => {
+    publishRailOffers(railViatorKey ? railViatorKey.split("|") : []);
+    return () => publishRailOffers([]);
+  }, [railViatorKey]);
   const rootRef = useRef(null);
   const railRef = useRef(null);
   const seenRef = useRef(new Set());
