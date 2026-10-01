@@ -33,8 +33,9 @@ process.env.NODE_ENV = "test";
 // stderr directly: console.error is filtered below (React logs the deliberate rail crash).
 const fail = (m) => { process.stderr.write("test-landing-offer-dedupe-runtime: FAIL — " + m + "\n"); process.exit(1); };
 let pass = 0;
-// WF_REPORT=1 prints every result instead of stopping at the first failure (before/after tables).
-const REPORT = process.env.WF_REPORT === "1";
+// `--report` prints every result instead of stopping at the first failure (before/after
+// tables). A CLI flag, not an env var: the verdict must not depend on the shell.
+const REPORT = process.argv.includes("--report");
 const ok = (c, m) => { if (REPORT) console.log((c ? "PASS " : "FAIL ") + m); else if (!c) fail(m); pass += 1; };
 const REPO = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const rel = (p) => fileURLToPath(new URL(p, import.meta.url));
