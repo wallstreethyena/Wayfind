@@ -1972,6 +1972,7 @@ node scripts/test-photo-monitor-cold-rate.mjs
 # pre-React handler). Executes the inline recovery script against simulated
 # failures, the reload-once rule, and renders both boundaries.
 node scripts/test-chunk-recovery.mjs
+node scripts/test-beach-never-booking.mjs
 
 # 2026-10-01: the Clipp owner-audit fuses used to fail every Vercel build when they lapsed
 # (check-guide-deal-cards read the real date). The guard is pinned; this proves the lapse is
