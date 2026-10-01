@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 772,
-    "totalRegistryEntries": 773,
-    "guardsTxtLineCount": 772,
-    "guardsTxtReachedFileCount": 765,
+    "totalOnDiskGuardFiles": 774,
+    "totalRegistryEntries": 775,
+    "guardsTxtLineCount": 774,
+    "guardsTxtReachedFileCount": 767,
     "criticalCount": 94,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 531,
-      "RENDER": 101,
+      "RENDER": 103,
       "STRUCTURAL": 140,
       "OTHER": 1
     }
@@ -14102,6 +14102,50 @@
       "owner": null
     },
     {
+      "file": "scripts/test-landing-offer-dedupe-runtime.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 43,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-landing-offer-dedupe.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 47,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-landing-ssr-rails.mjs",
       "npmScript": null,
       "class": "RENDER",
@@ -16474,7 +16518,7 @@
       "assertionCount": 12,
       "unprovenAbsenceCount": 3,
       "honestyViolations": [
-        "3 absence assertion(s) with no positive control in the same file (e.g. \"/setItems\\(prepareTourStripItems\\(/.test(read(\"                           \").rep\")"
+        "3 absence assertion(s) with no positive control in the same file (e.g. \"/const items = prepareTourStripItems\\(res, \\{ waterOnly,/.test(read(\"\")"
       ],
       "selfDocumentsRedProve": false,
       "wiring": {

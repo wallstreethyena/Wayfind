@@ -1970,6 +1970,8 @@ node scripts/test-photo-serving-alert.mjs
 node scripts/test-intl-cache.mjs
 node scripts/test-browse-back.mjs
 node scripts/test-photo-monitor-cold-rate.mjs
+node scripts/test-landing-offer-dedupe.mjs
+node scripts/test-landing-offer-dedupe-runtime.mjs
 # 2026-09-30: one /_next/static chunk answering 502 left production on Next's
 # bare white "Application error" page (no app/error.js, no global-error.js, no
 # pre-React handler). Executes the inline recovery script against simulated
