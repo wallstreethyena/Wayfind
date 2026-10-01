@@ -89,6 +89,8 @@ function landingHarness({ deny, staleRow }) {
     const isSsgBuild = () => false;
     const gateShut = () => false;
     const spendAllow = async () => !__L.deny;
+    const spendAllowCapped = async () => !__L.deny;
+    const textEnterpriseCap = () => 1000;
     const _sb = () => ({ url: "https://db.test", k: "k" });
     const fetchDeadline = async (url, init) => {
       const u = String(url);
