@@ -66,6 +66,7 @@ function run({ getThrows = false, setThrows = false, now = 1_790_000_000_000 } =
   };
   vm.runInContext(chunkRecoveryScript(), vm.createContext({ window: w, document, Date: FakeDate, Number, String, RegExp, isFinite }));
   const fire = (type, ev) => { for (const l of listeners[type] || []) l.fn(ev); };
+  w.__listeners = listeners;
   return { w, store, clock, listeners, fire, appended };
 }
 const SCRIPT = (src) => ({ target: { tagName: "SCRIPT", src } });
@@ -138,8 +139,18 @@ const OWN_CHUNK = "https://www.gowayfind.com/_next/static/chunks/4968-2dcc614085
     "2: a repeat failure inside the window shows ONE #wf-chunk-bar (role=alert) instead of reloading again");
   const btn = bar && bar.children.find((c) => c.tagName === "BUTTON");
   ok(btn && /min-height:44px/.test(btn.style.cssText) && btn.textContent === "Reload", "2: the bar carries a 44px Reload button");
-  if (btn && typeof btn.onclick === "function") btn.onclick();
-  ok(w.reloads === 2, "2: tapping the bar's Reload reloads (a user action, not a loop)");
+  // The tap must be handled at WINDOW capture: live 2026-10-01, React 18's
+  // document-level root listener stopPropagation()s clicks into a page stuck
+  // mid-hydration, so a handler on the button itself never runs. Model that:
+  // dispatch only through window-capture listeners, never the button.
+  ok(btn && typeof btn.onclick !== "function", "2: the bar's Reload does not rely on the button's own onclick (React swallows it mid-hydration)");
+  const winCapture = (w.__listeners.click || []).filter((l) => l.capture === true);
+  ok(winCapture.length === 1, `2: exactly one window CAPTURE click listener handles the bar (got ${winCapture.length})`);
+  const tapTarget = { closest: (sel) => (sel === "[data-wf-chunk-reload]" && btn && btn.attrs["data-wf-chunk-reload"] === "1" ? btn : null) };
+  for (const l of winCapture) l.fn({ target: tapTarget });
+  ok(w.reloads === 2, "2: a tap on the bar's Reload reloads via the window-capture listener (a user action, not a loop)");
+  for (const l of winCapture) l.fn({ target: { closest: () => null } });
+  ok(w.reloads === 2, "2: a tap anywhere else on the page does not reload");
   fire("error", SCRIPT(OWN_CHUNK));
   ok(appended.length === 1, "2: the bar is never stacked");
 }
