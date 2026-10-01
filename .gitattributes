@@ -11,3 +11,9 @@
 # kept instead of conflicting on a shared line. Union is safe here because the
 # runner de-duplicates and order is not load-bearing between guards.
 scripts/guards.txt merge=union
+
+# One guard per line, sorted by path, no aggregate counters: two PRs adding
+# different guards touch different lines. Deliberately NOT merge=union — a
+# same-guard edit on two branches must surface as a conflict for a human,
+# never be silently concatenated.
+scripts/lib/guard-expectations.tsv text eol=lf

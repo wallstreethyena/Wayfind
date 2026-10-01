@@ -36,8 +36,8 @@
 //      hold (the dir now DOES render a place-photo card) is a guard failure,
 //      not a silent pass — the exemption cannot go stale unnoticed.
 //
-// Registered in scripts/guards.txt; regenerate scripts/lib/guard-registry.json
-// with `node scripts/lib/build-guard-registry.mjs` after any edit here.
+// Registered in scripts/guards.txt; its reviewed expectation line lives in
+// scripts/lib/guard-expectations.tsv (check-guard-registry names any drift).
 import { readFileSync, readdirSync, statSync } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";

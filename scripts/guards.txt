@@ -1001,7 +1001,7 @@ node scripts/check-breakfast-identity.mjs
 # secondary `diner` on a pizzeria put Pizza Haven - NY Style on "Best Breakfast
 # Picks near Parrish" (owner screenshot). Every row asserted here is a real
 # wf_inventory row, so a future rewrite is measured against the data.
-node scripts/check-breakfast-identity.mjs
+# ^ scripts/check-breakfast-identity.mjs is registered once, earlier in this file (duplicate line removed 2026-10-01; check-guard-registry rejects duplicates).
 # 2026-08-22 — RETRIEVAL FOLLOWS THE READER (lib/nearbyPool.js). The owner,
 # standing in Sarasota, got the same list the app serves from Parrish eighteen
 # miles away: every rail's candidates came from a Google "best X" search around
@@ -1296,7 +1296,7 @@ node scripts/check-social-extract-cannot-invent.mjs
 # identity must be current; literal or LLM-extracted names remain candidates;
 # trend reports count only qualified observations; rights default closed; and
 # neither enrichment route can write an event or publish a card.
-node scripts/check-social-qualification.mjs
+# ^ scripts/check-social-qualification.mjs is registered once, earlier in this file (duplicate line removed 2026-10-01; check-guard-registry rejects duplicates).
 node scripts/check-social-intelligence.mjs
 node scripts/check-social-provider-registry.mjs
 # 2026-09-04 A BOOK BUTTON NEEDS SOMEBODY SELLING ENTRY. Measured on
@@ -1547,7 +1547,7 @@ node scripts/test-client-paid-boundary.mjs
 
 # Supported city submission resolves against owned coordinates after the
 # browser geocoder was removed; unknown text fails soft without provider spend.
-node scripts/test-known-city-geocode.mjs
+# ^ scripts/test-known-city-geocode.mjs is registered once, earlier in this file (duplicate line removed 2026-10-01; check-guard-registry rejects duplicates).
 
 # Non-Google provider credentials are also finite budgets: each actual Viator,
 # Foursquare, Tripadvisor, YouTube, or Pexels request needs an atomic grant.

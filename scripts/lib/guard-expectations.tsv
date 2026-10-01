@@ -1,0 +1,773 @@
+# scripts/lib/guard-expectations.tsv — the REVIEWED expectation for every guard.
+# Checked by scripts/check-guard-registry.mjs against a live derivation
+# (scripts/lib/deriveGuardRegistry.mjs). The checker never writes this file.
+#
+# One guard per line, TAB-separated, sorted by path (byte order), no
+# duplicates, no totals. Adding a guard = adding its line. Removing a guard,
+# demoting critical 1->0, unwiring it from scripts/guards.txt (guards_txt
+# 1->0), or dropping its assertion count = an explicit edit to its line,
+# visible in review. Numeric columns are kept exact (ratchets): a rise must
+# be recorded too, so a later drop back is still caught. "-" means none.
+# `node scripts/check-guard-registry.mjs --suggest <path>` prints the
+# derived line for one guard; a failing run prints it as well.
+path	critical	class	gating	guards_txt	owner	min_assertions	max_violations	max_unproven
+npm:check:jsx	0	OTHER	blocks-ci-and-deploy	1	Qwen (Engineering)	-	0	-
+scripts/check-affiliate-coverage.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	64	0	0
+scripts/check-affiliate-opportunity-refresh.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	19	0	0
+scripts/check-anchors.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0
+scripts/check-apns-sender.mjs	0	CALL	blocks-ci-and-deploy	1	-	58	0	0
+scripts/check-app-viewport.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	14	1	0
+scripts/check-area-seasonal-context.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	1	2
+scripts/check-art-assets.mjs	0	CALL	blocks-ci-and-deploy	1	-	7	0	0
+scripts/check-atlas-cache-batch.mjs	0	CALL	blocks-ci-and-deploy	1	-	52	0	0
+scripts/check-atlas-diag-not-live.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	12	1	0
+scripts/check-atlas-retry-cron.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	13	1	0
+scripts/check-augtober-rail.mjs	0	CALL	blocks-ci-and-deploy	1	-	82	0	0
+scripts/check-auth.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0
+scripts/check-awin-links.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	40	0	0
+scripts/check-banned-art.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	4	1	0
+scripts/check-book-cta-needs-a-seller.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	26	0	0
+scripts/check-booking-cta.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	16	0	0
+scripts/check-boundary-alert.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0
+scripts/check-brand-assets.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	10	1	0
+scripts/check-brand-derivatives.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	19	1	0
+scripts/check-brand-pin.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	17	1	0
+scripts/check-breakfast-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	21	0	0
+scripts/check-build-lifecycle.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	9	2	2
+scripts/check-bundle.mjs	0	STRUCTURAL	blocks-ci-and-deploy	0	-	3	1	0
+scripts/check-business-events.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0
+scripts/check-cache-epoch.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	11	1	0
+scripts/check-cache-refresh.mjs	0	RENDER	blocks-ci-and-deploy	1	-	22	0	0
+scripts/check-canary-workflow-installed.mjs	0	RENDER	blocks-ci-and-deploy	1	-	0	0	0
+scripts/check-candidate-pools.mjs	0	CALL	blocks-ci-and-deploy	1	-	73	0	0
+scripts/check-canon.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0
+scripts/check-card-action-parity.mjs	0	RENDER	blocks-ci-and-deploy	1	-	13	0	0
+scripts/check-card-actions.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	40	1	0
+scripts/check-card-memo.mjs	0	RENDER	blocks-ci-and-deploy	1	-	18	0	0
+scripts/check-card-photo-error-fallback.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	17	0	0
+scripts/check-cards.mjs	0	CALL	blocks-ci-and-deploy	1	-	21	0	0
+scripts/check-categories.mjs	0	CALL	blocks-ci-and-deploy	1	-	56	0	0
+scripts/check-census-tos-boundary.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	15	1	0
+scripts/check-cget-envelope.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0
+scripts/check-chef-picks.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0
+scripts/check-citypass.mjs	0	CALL	blocks-ci-and-deploy	1	-	34	0	0
+scripts/check-client-writes-have-policies.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	3	1	0
+scripts/check-clipp-deals.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	115	0	0
+scripts/check-collection-look.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	60	1	0
+scripts/check-commerce-events.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Revenue QA	17	1	0
+scripts/check-commerce-redirect.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	52	1	2
+scripts/check-community-footer.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	27	1	0
+scripts/check-copy-no-empty-hype.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	14	1	0
+scripts/check-copy.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0
+scripts/check-cost-gate.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Qwen (Engineering)	4	1	0
+scripts/check-coupon-link-attribution.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0
+scripts/check-coupon-place-match.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0
+scripts/check-creator-avatars.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0
+scripts/check-creator-events.mjs	0	CALL	blocks-ci-and-deploy	1	-	41	0	0
+scripts/check-creator-registry-bundle-wall.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	17	1	0
+scripts/check-creator-rights.mjs	0	CALL	blocks-ci-and-deploy	1	-	21	0	0
+scripts/check-creator-signal-equivalence.mjs	0	RENDER	blocks-ci-and-deploy	1	-	46	0	0
+scripts/check-creator-signals-fresh.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	1	1	0
+scripts/check-creator-summary-counts.mjs	0	CALL	blocks-ci-and-deploy	1	-	7	0	0
+scripts/check-creator-tile-navigates.mjs	0	RENDER	blocks-ci-and-deploy	1	-	13	0	0
+scripts/check-creator-video-boost.mjs	0	CALL	blocks-ci-and-deploy	1	-	70	0	0
+scripts/check-credential-discipline.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0
+scripts/check-credentialed-paths.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	27	0	0
+scripts/check-cron-failclosed.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0
+scripts/check-cron-honesty.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	11	2	4
+scripts/check-cron-post-nostore.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	6	2	2
+scripts/check-cron-pulse-coverage.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	11	0	0
+scripts/check-css-comment-bytes.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0
+scripts/check-cuisine-chip-floor.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0
+scripts/check-cuisine-never-queried.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0
+scripts/check-cuisine-sheet.mjs	0	CALL	blocks-ci-and-deploy	1	-	70	1	1
+scripts/check-cuisine-shortlist.mjs	0	RENDER	blocks-ci-and-deploy	1	-	36	0	0
+scripts/check-cuisine-sql-in-sync.mjs	0	CALL	blocks-ci-and-deploy	1	-	5	0	0
+scripts/check-curated-events-read.mjs	0	CALL	blocks-ci-and-deploy	1	-	69	0	0
+scripts/check-curated-events-surface.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0
+scripts/check-curated-events.mjs	0	CALL	blocks-ci-and-deploy	1	-	61	0	0
+scripts/check-curated-library-fallback.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	0	0
+scripts/check-customer-copy-leaks.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0
+scripts/check-cwv.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	14	1	0
+scripts/check-date-invite.mjs	0	RENDER	blocks-ci-and-deploy	1	-	271	0	0
+scripts/check-date-night-cacheable.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0
+scripts/check-date-night-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0
+scripts/check-datenight-rail-uncropped.mjs	0	CALL	blocks-ci-and-deploy	1	-	52	0	0
+scripts/check-daypart-art-ready.mjs	0	CALL	blocks-ci-and-deploy	1	-	42	0	0
+scripts/check-daypart-crosssell.mjs	0	CALL	blocks-ci-and-deploy	1	-	15	0	0
+scripts/check-daypart-rotation.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0
+scripts/check-dead-provider-parked.mjs	0	CALL	blocks-ci-and-deploy	1	-	21	0	0
+scripts/check-deal-art.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	6	1	0
+scripts/check-deal-sheet.mjs	0	CALL	blocks-ci-and-deploy	1	-	80	0	0
+scripts/check-design.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	14	1	0
+scripts/check-destination-share.mjs	0	CALL	blocks-ci-and-deploy	1	-	41	0	0
+scripts/check-detail-plan-add-only.mjs	0	RENDER	blocks-ci-and-deploy	1	-	10	0	0
+scripts/check-direct-affiliate-urls.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Revenue QA	0	1	0
+scripts/check-district-not-a-meal.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0
+scripts/check-doc-ownership.mjs	1	CALL	blocks-ci-and-deploy	1	owner (Gabriel)	4	1	0
+scripts/check-drop-photo-window.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	33	1	0
+scripts/check-dupes.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0
+scripts/check-editorial-coverage-pipeline.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0
+scripts/check-editorial-everywhere.mjs	1	CALL	blocks-ci-and-deploy	1	Llama (Editorial)	51	1	5
+scripts/check-editorial-publish-symmetry.mjs	0	CALL	blocks-ci-and-deploy	1	-	40	0	0
+scripts/check-editorial-publish.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	38	1	0
+scripts/check-editorial-read-gate.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0
+scripts/check-editorial-retry-state.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	9	1	0
+scripts/check-editorial-template.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	14	2	2
+scripts/check-env-discipline.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Qwen (Engineering)	2	1	0
+scripts/check-env-guard-can-fail.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	23	0	0
+scripts/check-env-placeholders.mjs	1	CALL	blocks-ci-and-deploy	1	Qwen (Engineering)	12	0	0
+scripts/check-env-value-overrides.mjs	1	CALL	blocks-ci-and-deploy	1	Qwen (Engineering)	25	0	0
+scripts/check-env.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	0	0	0
+scripts/check-event-date-honesty.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0
+scripts/check-event-day-is-venue-local.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0
+scripts/check-event-hero-and-directions.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	0	0
+scripts/check-event-outing.mjs	0	CALL	blocks-ci-and-deploy	1	-	103	0	0
+scripts/check-event-pairings.mjs	0	CALL	blocks-ci-and-deploy	1	-	50	0	0
+scripts/check-event-photo-rights.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0
+scripts/check-event-providers-not-google-gated.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0
+scripts/check-event-ticket-deals.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	61	0	0
+scripts/check-event-where.mjs	0	CALL	blocks-ci-and-deploy	1	-	65	0	0
+scripts/check-events-rail-renders.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	11	1	0
+scripts/check-events.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0
+scripts/check-experiences-link-health.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	52	0	0
+scripts/check-exploding-nearby-floor.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	1	1
+scripts/check-fall-date-order-and-when.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	0
+scripts/check-fall-evidence-rules.mjs	0	CALL	blocks-ci-and-deploy	1	-	60	0	0
+scripts/check-fall-is-calling.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	0	0
+scripts/check-fall-offering-freshness.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0
+scripts/check-fall-registry-integrity.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0
+scripts/check-fall-share.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0
+scripts/check-family.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0
+scripts/check-favorites-auth.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0
+scripts/check-fetch-deadlines.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0
+scripts/check-floor-derivation.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0
+scripts/check-florida-events-are-florida.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	0
+scripts/check-florida-festivals-import.mjs	0	CALL	blocks-ci-and-deploy	1	-	84	0	0
+scripts/check-florida-icons.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0
+scripts/check-food-list-continuation.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	36	0	0
+scripts/check-food-no-tour-rail.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0
+scripts/check-food-tour-rail.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	0
+scripts/check-gate.mjs	0	CALL	blocks-ci-and-deploy	1	-	5	0	0
+scripts/check-geo-gated-boosts.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Qwen (Engineering)	11	1	0
+scripts/check-go-florida-landing.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	63	0	0
+scripts/check-go-routes-crawler-gate.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0
+scripts/check-guard-hermeticity.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	14	1	0
+scripts/check-guard-honesty.mjs	0	CALL	blocks-ci-and-deploy	1	-	4	0	0
+scripts/check-guard-integrity.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	7	1	0
+scripts/check-guard-manifest.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0
+scripts/check-guard-registry.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0
+scripts/check-guards-can-fail.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0
+scripts/check-guards-emit-no-analytics.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0
+scripts/check-guide-conversion.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	0
+scripts/check-guide-cta-honesty.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	40	1	1
+scripts/check-guide-cta-single-capture.mjs	0	RENDER	blocks-ci-and-deploy	1	-	16	0	0
+scripts/check-guide-deal-cards.mjs	0	CALL	blocks-ci-and-deploy	1	-	51	0	0
+scripts/check-guide-dedicated-routes.mjs	0	CALL	blocks-ci-and-deploy	1	-	6	0	0
+scripts/check-guide-editorial.mjs	0	RENDER	blocks-ci-and-deploy	1	-	66	0	0
+scripts/check-guide-pick-photos.mjs	0	RENDER	blocks-ci-and-deploy	1	-	95	0	0
+scripts/check-guide-place-identities.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0
+scripts/check-guide-product-isr-cache.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0
+scripts/check-guide-product-resolution.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	34	0	0
+scripts/check-guide-published.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0
+scripts/check-guide-seo-audit.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0
+scripts/check-guide-share.mjs	1	CALL	blocks-ci-and-deploy	1	Llama (Editorial)	38	1	2
+scripts/check-guide-ssg-not-phase-gated.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0
+scripts/check-guide-standard.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	10	0	0
+scripts/check-guide-teasers.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0
+scripts/check-guide-visual-standard.mjs	0	RENDER	blocks-ci-and-deploy	1	-	43	0	0
+scripts/check-guides.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0
+scripts/check-headers.mjs	0	CALL	manual-npm-script-only	0	-	4	1	0
+scripts/check-heartbeat-tolerance.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	10	0	0
+scripts/check-hero-card.mjs	0	CALL	blocks-ci-and-deploy	1	-	158	0	0
+scripts/check-hero-chrome.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	12	1	0
+scripts/check-home-answer-first.mjs	0	CALL	blocks-ci-and-deploy	1	-	143	0	0
+scripts/check-home-eager-supabase.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0
+scripts/check-home-location.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	10	1	0
+scripts/check-hook-order.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	5	1	0
+scripts/check-hotel-booking-verified.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	29	0	0
+scripts/check-hotel-image-provider-terms.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0
+scripts/check-hotel-library-quality.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0
+scripts/check-hours.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0
+scripts/check-house-card.mjs	0	RENDER	blocks-ci-and-deploy	1	-	61	0	0
+scripts/check-hub-conversion.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	33	0	0
+scripts/check-hub-place-links.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0
+scripts/check-hydration-style.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Qwen (Engineering)	0	1	0
+scripts/check-identity-before-cap.mjs	0	CALL	blocks-ci-and-deploy	1	-	66	0	0
+scripts/check-imports.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	1	1	0
+scripts/check-ingest-never-blanks.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	13	1	0
+scripts/check-instagram-scout.mjs	0	RENDER	blocks-ci-and-deploy	1	-	46	0	0
+scripts/check-intent-cards.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0
+scripts/check-intent-copy-matches-filter.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	17	2	1
+scripts/check-intent-hero-fits.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	18	1	0
+scripts/check-intent-partner-picks.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	165	0	0
+scripts/check-intent-rail-inventory-fed.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0
+scripts/check-intro-gate.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	0
+scripts/check-intro-instrumentation.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	15	1	0
+scripts/check-inventory-integrity.mjs	0	CALL	scheduled-monitoring-only	0	-	11	0	0
+scripts/check-inventory-paging.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0
+scripts/check-inventory-serve-complete-read.mjs	0	CALL	blocks-ci-and-deploy	1	-	50	0	0
+scripts/check-invisible-text.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0
+scripts/check-ios-device-family.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0
+scripts/check-ios-privacy-manifest.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0
+scripts/check-ios-shell-wiring.mjs	0	CALL	blocks-ci-and-deploy	1	-	70	0	0
+scripts/check-job-pulse-contract.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	7	1	0
+scripts/check-job-watch-delivery.mjs	0	CALL	scheduled-monitoring-only	0	-	0	1	0
+scripts/check-kit-focus.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	13	1	0
+scripts/check-known-for-tiers.mjs	0	RENDER	blocks-ci-and-deploy	1	-	18	0	0
+scripts/check-known-for.mjs	0	CALL	blocks-ci-and-deploy	1	-	32	0	0
+scripts/check-landing-photos.mjs	0	CALL	blocks-ci-and-deploy	1	-	15	0	0
+scripts/check-lands-on-results.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	37	1	0
+scripts/check-legal.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	6	1	0
+scripts/check-lib-call-imports.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	5	1	0
+scripts/check-libs.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0
+scripts/check-like-store-writes.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0
+scripts/check-link-quarantine.mjs	0	CALL	blocks-ci-and-deploy	1	-	41	0	0
+scripts/check-links.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0
+scripts/check-live-event-poster-laws.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0
+scripts/check-live-reads.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0
+scripts/check-local-picks.mjs	0	CALL	blocks-ci-and-deploy	1	-	51	0	0
+scripts/check-location-fail-open.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	43	2	5
+scripts/check-location-honesty.mjs	0	CALL	blocks-ci-and-deploy	1	-	101	0	0
+scripts/check-locks.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0
+scripts/check-lodging.mjs	0	CALL	blocks-ci-and-deploy	1	-	4	0	0
+scripts/check-lunch-in-my-city.mjs	0	CALL	blocks-ci-and-deploy	1	-	57	0	0
+scripts/check-major-music-festivals.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0
+scripts/check-map-controls.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	23	1	0
+scripts/check-map-filter-panel.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	23	1	0
+scripts/check-map-keeps-chosen-category.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0
+scripts/check-map-pin-glyph.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0
+scripts/check-map-place-card.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	38	1	0
+scripts/check-map-search-area.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0
+scripts/check-maps-deferral.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	14	2	3
+scripts/check-market-photo-honesty.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	5	1	0
+scripts/check-market-photo.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0
+scripts/check-meal-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0
+scripts/check-meals.mjs	0	CALL	blocks-ci-and-deploy	1	-	53	0	0
+scripts/check-menu-partner-offers.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	85	0	0
+scripts/check-metered-matcher.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0
+scripts/check-migration-apply-canonical-path.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0
+scripts/check-migration-reconciliation.mjs	0	CALL	scheduled-monitoring-only	0	-	0	0	0
+scripts/check-mobile-poster-fit.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	6	1	0
+scripts/check-moment.mjs	0	CALL	unwired	0	-	32	0	0
+scripts/check-monetized-degrade.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	11	0	0
+scripts/check-money-funnel.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	21	0	0
+scripts/check-narrow-chip-inventory.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	1	2
+scripts/check-native-no-ad-tracking.mjs	0	CALL	blocks-ci-and-deploy	1	-	21	0	0
+scripts/check-nearby-pool.mjs	0	CALL	blocks-ci-and-deploy	1	-	47	0	0
+scripts/check-no-card-cap.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0
+scripts/check-no-dead-end-pages.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0
+scripts/check-no-disney-sources.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	6	1	0
+scripts/check-no-imageless-card.mjs	0	CALL	blocks-ci-and-deploy	1	-	49	0	0
+scripts/check-no-llm-in-render-path.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	6	1	0
+scripts/check-no-monoculture.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	0	0
+scripts/check-no-sideways-scroll.mjs	0	RENDER	blocks-ci-and-deploy	1	-	8	0	0
+scripts/check-no-sitewide-autolinker.mjs	0	RENDER	blocks-ci-and-deploy	1	-	15	0	0
+scripts/check-no-stuck-loading.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0
+scripts/check-no-terminal-loading.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	10	1	0
+scripts/check-no-third-party-rating-schema.mjs	0	CALL	blocks-ci-and-deploy	1	-	7	0	0
+scripts/check-not-public-places.mjs	0	RENDER	blocks-ci-and-deploy	1	-	45	0	0
+scripts/check-og-absolute.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0
+scripts/check-one-clock.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0
+scripts/check-one-main.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	18	1	0
+scripts/check-one-nav-per-screen.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	11	1	0
+scripts/check-one-price-source.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0
+scripts/check-os-state.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	14	2	1
+scripts/check-outdoors-cache-first.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	16	2	1
+scripts/check-outing-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0
+scripts/check-overscroll-containment.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	6	1	0
+scripts/check-owned-hotel-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0
+scripts/check-owned-library-no-rebuy.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0
+scripts/check-owned-pool-fallback-scope.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0
+scripts/check-owner-approval-pr.mjs	0	CALL	scheduled-monitoring-only	0	-	0	0	0
+scripts/check-owner-batch-schema.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	7	1	0
+scripts/check-owner-bump.mjs	0	CALL	blocks-ci-and-deploy	1	-	58	0	0
+scripts/check-owner-curation-one-path.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	14	2	1
+scripts/check-parity-formula-lock.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	10	2	1
+scripts/check-partner-collections.mjs	0	CALL	blocks-ci-and-deploy	1	-	60	0	0
+scripts/check-partner-hook-collisions.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0
+scripts/check-photo-cache-liveness.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0
+scripts/check-photo-cap-parses.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	14	0	0
+scripts/check-photo-outcome-provenance.mjs	0	CALL	blocks-ci-and-deploy	1	Revenue QA	22	0	0
+scripts/check-photo-surface-registry.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0
+scripts/check-photos.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	6	1	0
+scripts/check-pick-medallion.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	7	2	2
+scripts/check-pin-quarantine-live.mjs	0	RENDER	blocks-ci-and-deploy	1	Revenue QA	44	0	0
+scripts/check-pinned-offer-serveable.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	28	0	0
+scripts/check-pintos-farm-guide.mjs	0	CALL	blocks-ci-and-deploy	1	-	40	0	0
+scripts/check-place-card-css-contract.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	9	1	0
+scripts/check-place-card-navigation.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	9	1	0
+scripts/check-place-card-no-directions.mjs	0	RENDER	blocks-ci-and-deploy	1	-	9	0	0
+scripts/check-place-card-standard.mjs	0	RENDER	blocks-ci-and-deploy	1	-	76	0	0
+scripts/check-place-classification.mjs	0	CALL	blocks-ci-and-deploy	1	-	48	0	0
+scripts/check-place-detail-honest.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	12	1	0
+scripts/check-place-featured-in.mjs	0	CALL	blocks-ci-and-deploy	1	-	38	0	0
+scripts/check-place-page-partner.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0
+scripts/check-place-sitemap-parity.mjs	0	CALL	blocks-ci-and-deploy	1	-	56	0	0
+scripts/check-popularity-attempt-ledger.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0
+scripts/check-position-memory.mjs	0	RENDER	blocks-ci-and-deploy	1	-	34	0	0
+scripts/check-poster-open-contract.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0
+scripts/check-premium-event-card-system.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	30	1	0
+scripts/check-price-badge.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Qwen (Engineering)	15	1	0
+scripts/check-promo-location-honesty.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0
+scripts/check-promote-batch-clamp.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0
+scripts/check-promote-metros-live-drift.mjs	0	CALL	scheduled-monitoring-only	0	-	5	0	0
+scripts/check-promote-metros-parity.mjs	0	CALL	blocks-ci-and-deploy	1	-	4	0	0
+scripts/check-promote-spend-gate.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	27	1	2
+scripts/check-provider-empty-answers.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0
+scripts/check-provider-health-says-why.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0
+scripts/check-provider-redirects.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0
+scripts/check-push-registration.mjs	0	CALL	blocks-ci-and-deploy	1	-	47	0	0
+scripts/check-quick-bite-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	7	0	0
+scripts/check-quota-reservation.mjs	0	CALL	blocks-ci-and-deploy	1	-	66	0	0
+scripts/check-radius.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0
+scripts/check-rail-art-matches-copy.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0
+scripts/check-rail-card-fits-its-content.mjs	0	RENDER	blocks-ci-and-deploy	1	-	13	0	0
+scripts/check-rail-card-width-is-global.mjs	0	RENDER	blocks-ci-and-deploy	1	-	9	0	0
+scripts/check-rail-compute-budget.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0
+scripts/check-rail-deck-copy.mjs	0	RENDER	blocks-ci-and-deploy	1	-	15	0	0
+scripts/check-rail-dots.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0
+scripts/check-rail-drop-images.mjs	0	RENDER	blocks-ci-and-deploy	1	-	16	0	0
+scripts/check-rail-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	51	0	0
+scripts/check-rail-paging-contract.mjs	0	RENDER	blocks-ci-and-deploy	1	-	38	0	0
+scripts/check-rail-pool-waves.mjs	0	RENDER	blocks-ci-and-deploy	1	-	35	0	0
+scripts/check-rail-rank-law.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0
+scripts/check-rail-routes.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0
+scripts/check-rail-scroll-reset.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	11	1	0
+scripts/check-rail-seed-not-frozen.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	0	0
+scripts/check-rail-share.mjs	0	CALL	blocks-ci-and-deploy	1	-	101	0	0
+scripts/check-rail-source-reachable.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0
+scripts/check-rails-geo-grid.mjs	0	CALL	blocks-ci-and-deploy	1	-	20	0	0
+scripts/check-rails-wire.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0
+scripts/check-ranking-integrity.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	0	0
+scripts/check-response-imports.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0
+scripts/check-reverse-migration-reconciliation.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0
+scripts/check-rpc-schema-contract.mjs	0	CALL	scheduled-monitoring-only	0	-	1	0	0
+scripts/check-ryans-cafe-sentinel.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0
+scripts/check-scarcity-needs-an-answer.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	19	1	0
+scripts/check-schema-watch.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0
+scripts/check-score-badge-honesty.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0
+scripts/check-score-law.mjs	0	CALL	blocks-ci-and-deploy	1	-	103	0	0
+scripts/check-scout-law.mjs	0	CALL	blocks-ci-and-deploy	1	-	79	0	0
+scripts/check-search-no-rebuy.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0
+scripts/check-seo.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	61	1	0
+scripts/check-share-card.mjs	0	CALL	blocks-ci-and-deploy	1	-	91	0	0
+scripts/check-shell-decomposition.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0
+scripts/check-shell-routes.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	3	1	0
+scripts/check-shell-scroll.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	8	1	0
+scripts/check-sitemap.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0
+scripts/check-sitetime.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0
+scripts/check-skeleton-has-a-voice.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	22	2	1
+scripts/check-social-extract-cannot-invent.mjs	0	CALL	blocks-ci-and-deploy	1	-	40	0	0
+scripts/check-social-intelligence.mjs	0	CALL	blocks-ci-and-deploy	1	-	50	0	0
+scripts/check-social-provider-registry.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0
+scripts/check-social-qualification.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0
+scripts/check-soft-404.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0
+scripts/check-spend-effective-cap.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	11	1	3
+scripts/check-spend-guard.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	10	1	0
+scripts/check-sponsored-places.mjs	0	RENDER	blocks-ci-and-deploy	1	-	192	0	0
+scripts/check-state-affordance.mjs	0	RENDER	blocks-ci-and-deploy	1	-	8	0	0
+scripts/check-sub-contracts.mjs	0	CALL	blocks-ci-and-deploy	1	-	7	0	0
+scripts/check-subfilter-experience-coverage.mjs	0	CALL	blocks-ci-and-deploy	1	-	39	0	0
+scripts/check-supabase-key-live.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0
+scripts/check-surface-parity-hermetic.mjs	0	CALL	blocks-ci-and-deploy	1	-	63	0	0
+scripts/check-synthetic-monitor-hermetic.mjs	0	CALL	blocks-ci-and-deploy	1	-	121	0	0
+scripts/check-temp-closed-recheck.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	12	0	0
+scripts/check-theme-park-coverage.mjs	0	CALL	blocks-ci-and-deploy	1	-	15	0	0
+scripts/check-top40-rail.mjs	0	RENDER	blocks-ci-and-deploy	1	-	49	0	0
+scripts/check-tour-strip-redirect.mjs	0	RENDER	blocks-ci-and-deploy	1	-	20	0	0
+scripts/check-tp-short-url-constraint-parity.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0
+scripts/check-trend-integrity.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	1	2
+scripts/check-trend-score.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	1	2
+scripts/check-trend-section-honesty.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0
+scripts/check-trend-signal.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	1	1
+scripts/check-trend-sources.mjs	0	CALL	blocks-ci-and-deploy	1	-	34	0	0
+scripts/check-ttd-dedup.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	8	1	0
+scripts/check-unbound-refs.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0
+scripts/check-unified-commerce-rail.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	49	0	0
+scripts/check-universal-links.mjs	0	CALL	blocks-ci-and-deploy	1	-	36	0	0
+scripts/check-untracked-affiliate-links.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	19	0	0
+scripts/check-ut-crawler-clicks.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	18	1	2
+scripts/check-ux.mjs	0	CALL	unwired	0	-	87	0	0
+scripts/check-vendor-tag-cannot-throw.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0
+scripts/check-venue-timezone.mjs	0	CALL	blocks-ci-and-deploy	1	-	26	0	0
+scripts/check-version-watch.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	27	1	0
+scripts/check-version.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0
+scripts/check-viator-monitor-spend-skip.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	25	0	0
+scripts/check-viator-redirect-layer.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	41	0	0
+scripts/check-water.mjs	0	CALL	blocks-ci-and-deploy	1	-	7	0	0
+scripts/check-weather-code-plumbed.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	5	1	0
+scripts/check-weather-race.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	1	2
+scripts/check-why-picked-empty.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	0	0
+scripts/check-wikimedia-backoff-ledger-truth.mjs	0	CALL	blocks-ci-and-deploy	1	-	39	0	0
+scripts/check-wikipedia-identity-verification.mjs	0	CALL	blocks-ci-and-deploy	1	-	42	0	0
+scripts/check-writes-fail-loudly.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	6	1	0
+scripts/test-account-delete.mjs	0	CALL	blocks-ci-and-deploy	1	-	91	0	0
+scripts/test-activation.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	0	0
+scripts/test-adaptive-widen.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0
+scripts/test-address-search.mjs	0	CALL	blocks-ci-and-deploy	1	-	82	0	0
+scripts/test-affiliate-chip.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	22	0	0
+scripts/test-affiliates.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	16	0	0
+scripts/test-analytics.mjs	0	CALL	blocks-ci-and-deploy	1	-	133	0	0
+scripts/test-api-guard.mjs	0	RENDER	blocks-ci-and-deploy	1	-	49	0	0
+scripts/test-app-rating.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	0	0
+scripts/test-atlas-build.mjs	0	CALL	blocks-ci-and-deploy	1	-	41	1	5
+scripts/test-atlas-card-hooks.mjs	0	CALL	blocks-ci-and-deploy	1	-	40	0	0
+scripts/test-atlas-editorial-row.mjs	0	CALL	blocks-ci-and-deploy	1	-	32	0	0
+scripts/test-atlas-extract.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0
+scripts/test-atlas-place-pages.mjs	0	CALL	blocks-ci-and-deploy	1	-	82	1	2
+scripts/test-atlas-reclassify.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0
+scripts/test-atlas-retry.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	21	1	0
+scripts/test-atlas-ride-filter.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	11	1	0
+scripts/test-atlas-verify-timefmt.mjs	0	CALL	blocks-ci-and-deploy	1	-	34	0	0
+scripts/test-atlas-verify.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0
+scripts/test-attraction-discovery.mjs	0	CALL	blocks-ci-and-deploy	1	-	63	0	0
+scripts/test-audit-candidate-starvation.mjs	0	CALL	blocks-ci-and-deploy	1	-	15	0	0
+scripts/test-auth-admin-tombstones.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0
+scripts/test-autocomplete-proxy.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	31	0	0
+scripts/test-batch-completeness.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0
+scripts/test-beach-alert-recovery.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0
+scripts/test-beach-decision.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	0	0
+scripts/test-beach-geo.mjs	0	CALL	blocks-ci-and-deploy	1	-	66	0	0
+scripts/test-beach-local-conditions.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	0	0
+scripts/test-beach-planning.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0
+scripts/test-beach-water.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0
+scripts/test-beaches-page.mjs	0	CALL	blocks-ci-and-deploy	1	-	55	0	0
+scripts/test-best-photo-selection.mjs	0	CALL	blocks-ci-and-deploy	1	-	50	0	0
+scripts/test-birthday-intent.mjs	0	CALL	blocks-ci-and-deploy	1	-	53	0	0
+scripts/test-birthday-nearby.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0
+scripts/test-birthday-universe.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0
+scripts/test-blurbs-cache.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	15	1	0
+scripts/test-book-it-venues.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	30	0	0
+scripts/test-book-it.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	30	0	0
+scripts/test-bookable-highlights-30.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	53	0	0
+scripts/test-bookable-near-50.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	17	0	0
+scripts/test-booking-audit.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	7	0	0
+scripts/test-booking-integrity.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	49	1	1
+scripts/test-booking-resolve-extraction.mjs	1	CALL	blocks-ci-and-deploy	1	Qwen (Engineering)	41	1	4
+scripts/test-booking-resolver.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	22	0	0
+scripts/test-brand.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	12	1	0
+scripts/test-browse-back.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0
+scripts/test-browse-bookable-match.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	76	0	0
+scripts/test-browse-library.mjs	0	CALL	blocks-ci-and-deploy	1	-	85	0	0
+scripts/test-browser-analytics.mjs	0	CALL	blocks-ci-and-deploy	1	-	53	0	0
+scripts/test-business-status.mjs	0	CALL	blocks-ci-and-deploy	1	-	63	0	0
+scripts/test-buzz.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0
+scripts/test-cache-refresh.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0
+scripts/test-card-a11y.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	22	1	0
+scripts/test-card-action-row.mjs	0	RENDER	blocks-ci-and-deploy	1	-	8	0	0
+scripts/test-card-analytics.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	31	0	0
+scripts/test-card-booking.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Revenue QA	19	1	0
+scripts/test-card-gate.mjs	0	CALL	blocks-ci-and-deploy	1	-	52	0	0
+scripts/test-card-photo-fallback.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0
+scripts/test-card-store-coherence.mjs	0	RENDER	blocks-ci-and-deploy	1	-	47	0	0
+scripts/test-cash-register-batch-2026-08-20.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	62	0	0
+scripts/test-cash-register-batch-2026-08-20b.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	90	0	0
+scripts/test-cash-register-factory.mjs	0	CALL	blocks-ci-and-deploy	1	-	34	0	0
+scripts/test-chip-contracts.mjs	0	CALL	blocks-ci-and-deploy	1	-	82	0	0
+scripts/test-chunk-recovery.mjs	0	RENDER	blocks-ci-and-deploy	1	-	71	0	0
+scripts/test-city-fetch.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	12	1	0
+scripts/test-city-gate.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Qwen (Engineering)	20	1	0
+scripts/test-city-search.mjs	0	CALL	blocks-ci-and-deploy	1	-	28	0	0
+scripts/test-city-viator.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	21	0	0
+scripts/test-classification.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0
+scripts/test-classifier-veto.mjs	0	CALL	blocks-ci-and-deploy	1	-	35	0	0
+scripts/test-classify.mjs	0	CALL	blocks-ci-and-deploy	1	-	62	0	0
+scripts/test-client-paid-boundary.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	Revenue QA	0	0	0
+scripts/test-closed-policy.mjs	0	CALL	blocks-ci-and-deploy	1	-	64	1	1
+scripts/test-command-center-briefing.mjs	0	CALL	blocks-ci-and-deploy	1	-	49	0	0
+scripts/test-command-center-feedback.mjs	0	RENDER	blocks-ci-and-deploy	1	-	21	0	0
+scripts/test-command-center-requests.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0
+scripts/test-command-center.mjs	0	CALL	blocks-ci-and-deploy	1	-	190	0	0
+scripts/test-comment-photos.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	28	1	0
+scripts/test-commerce-emit-queue.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	47	0	0
+scripts/test-commons-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0
+scripts/test-commons-photos.mjs	0	CALL	blocks-ci-and-deploy	1	-	145	0	0
+scripts/test-community-feedback.mjs	0	RENDER	blocks-ci-and-deploy	1	-	33	0	0
+scripts/test-composition-render.mjs	1	RENDER	blocks-ci-and-deploy	1	Qwen (Engineering)	41	0	0
+scripts/test-containment.mjs	0	CALL	blocks-ci-and-deploy	1	-	87	0	0
+scripts/test-coupon-geo.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0
+scripts/test-coupon-value.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0
+scripts/test-coupon-wallet.mjs	0	CALL	blocks-ci-and-deploy	1	-	34	0	0
+scripts/test-coverage-waitlist.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	9	0	0
+scripts/test-creator-archetypes.mjs	0	CALL	blocks-ci-and-deploy	1	-	38	1	2
+scripts/test-creator-card-mark.mjs	0	RENDER	blocks-ci-and-deploy	1	-	22	0	0
+scripts/test-creator-corroboration.mjs	0	CALL	blocks-ci-and-deploy	1	-	61	0	0
+scripts/test-creator-finds-render-smoke.mjs	0	RENDER	blocks-ci-and-deploy	1	-	11	0	0
+scripts/test-creator-pages.mjs	0	RENDER	blocks-ci-and-deploy	1	-	100	0	0
+scripts/test-creator-picks-rails.mjs	0	CALL	blocks-ci-and-deploy	1	-	55	0	0
+scripts/test-cuisine-classify.mjs	0	CALL	blocks-ci-and-deploy	1	-	65	0	0
+scripts/test-cuisine-write.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0
+scripts/test-curator-boost.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	1	1
+scripts/test-daily-trend-intelligence.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0
+scripts/test-date-night-intent.mjs	0	RENDER	blocks-ci-and-deploy	1	-	125	0	0
+scripts/test-datenight-tag.mjs	0	RENDER	blocks-ci-and-deploy	1	-	13	0	0
+scripts/test-dayparts.mjs	0	CALL	blocks-ci-and-deploy	1	-	99	0	0
+scripts/test-deal-rails.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	29	0	0
+scripts/test-deals-geo.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0
+scripts/test-deals.mjs	0	CALL	blocks-ci-and-deploy	1	-	36	0	0
+scripts/test-destinations.mjs	0	CALL	blocks-ci-and-deploy	1	-	47	0	0
+scripts/test-detail-cta-ladder.mjs	0	CALL	blocks-ci-and-deploy	1	-	26	0	0
+scripts/test-detail-event-editorial.mjs	0	CALL	blocks-ci-and-deploy	1	-	55	0	0
+scripts/test-detail-hero.mjs	0	CALL	blocks-ci-and-deploy	1	-	47	0	0
+scripts/test-detail-nearby.mjs	0	RENDER	blocks-ci-and-deploy	1	-	31	0	0
+scripts/test-detail-render-smoke.mjs	0	RENDER	blocks-ci-and-deploy	1	-	18	0	0
+scripts/test-detail-take.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	8	1	0
+scripts/test-device-id.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	12	1	0
+scripts/test-direct-search.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0
+scripts/test-doc-ownership-shallow.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0
+scripts/test-document-position.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0
+scripts/test-drop-rail-parity.mjs	0	RENDER	blocks-ci-and-deploy	1	-	7	0	0
+scripts/test-dupes-imports.mjs	1	CALL	blocks-ci-and-deploy	1	Qwen (Engineering)	19	0	0
+scripts/test-dynamic-daily.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	1	5
+scripts/test-earning-handoff.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	95	0	0
+scripts/test-eat-ssg-failsoft.mjs	0	CALL	blocks-ci-and-deploy	1	-	42	1	4
+scripts/test-editorial-card.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0
+scripts/test-editorial-contract.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0
+scripts/test-editorial-endpoint-servable.mjs	0	RENDER	blocks-ci-and-deploy	1	-	28	0	0
+scripts/test-editorial-retry-content.mjs	0	CALL	blocks-ci-and-deploy	1	-	6	0	0
+scripts/test-editorial-rollout.mjs	0	CALL	blocks-ci-and-deploy	1	-	41	0	0
+scripts/test-editorial.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0
+scripts/test-empty-rail-visibility.mjs	0	RENDER	blocks-ci-and-deploy	1	-	35	0	0
+scripts/test-event-apple-maps.mjs	0	CALL	blocks-ci-and-deploy	1	-	28	0	0
+scripts/test-event-category-art.mjs	0	CALL	blocks-ci-and-deploy	1	-	6	0	0
+scripts/test-event-driving-route.mjs	0	RENDER	blocks-ci-and-deploy	1	-	10	0	0
+scripts/test-event-experience.mjs	0	RENDER	blocks-ci-and-deploy	1	-	48	0	0
+scripts/test-event-mobile-repair.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0
+scripts/test-event-nearby-cards.mjs	0	RENDER	blocks-ci-and-deploy	1	-	42	0	0
+scripts/test-event-popularity.mjs	0	CALL	blocks-ci-and-deploy	1	-	26	0	0
+scripts/test-event-poster.mjs	0	CALL	blocks-ci-and-deploy	1	-	46	0	0
+scripts/test-event-rail-images.mjs	0	RENDER	blocks-ci-and-deploy	1	-	41	0	0
+scripts/test-event-section-nav.mjs	0	RENDER	blocks-ci-and-deploy	1	-	25	0	0
+scripts/test-event-stays.mjs	0	CALL	blocks-ci-and-deploy	1	-	36	0	0
+scripts/test-events-contract.mjs	0	CALL	blocks-ci-and-deploy	1	-	49	0	0
+scripts/test-events-list.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0
+scripts/test-events-prime.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	19	1	0
+scripts/test-events-spend.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	20	0	0
+scripts/test-events-tours.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	28	1	0
+scripts/test-experience-concepts.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0
+scripts/test-experience-now-rank.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	1	4
+scripts/test-experiences-location.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0
+scripts/test-experiences-v3.mjs	0	CALL	blocks-ci-and-deploy	1	-	41	0	0
+scripts/test-experiment.mjs	0	CALL	blocks-ci-and-deploy	1	-	59	1	1
+scripts/test-exploding-nearby.mjs	0	CALL	blocks-ci-and-deploy	1	-	117	0	0
+scripts/test-explore-menu.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	1	1
+scripts/test-extra-miles.mjs	0	RENDER	blocks-ci-and-deploy	1	-	87	0	0
+scripts/test-fall-destination-stays.mjs	0	RENDER	blocks-ci-and-deploy	1	-	58	0	0
+scripts/test-fall-intent-rails.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0
+scripts/test-family-day-data.mjs	0	CALL	blocks-ci-and-deploy	1	-	39	0	0
+scripts/test-family-day-events.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0
+scripts/test-family-day-taxonomy.mjs	0	CALL	blocks-ci-and-deploy	1	-	59	0	0
+scripts/test-feedback-notification.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0
+scripts/test-feedback-storage.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0
+scripts/test-first-screen.mjs	0	RENDER	blocks-ci-and-deploy	1	-	61	0	0
+scripts/test-florida-catalog-location.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0
+scripts/test-food-collections.mjs	0	CALL	blocks-ci-and-deploy	1	-	34	1	1
+scripts/test-foursquare.mjs	0	CALL	blocks-ci-and-deploy	1	-	81	0	0
+scripts/test-free-photo-serving.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	95	0	0
+scripts/test-free-source-hotlink.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0
+scripts/test-front-events.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0
+scripts/test-google-photo-attribution.mjs	0	RENDER	blocks-ci-and-deploy	1	-	34	0	0
+scripts/test-guide-city-coverage.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0
+scripts/test-guide-editorial-mode.mjs	0	RENDER	blocks-ci-and-deploy	1	-	30	0	0
+scripts/test-guide-editorial-photos.mjs	0	RENDER	blocks-ci-and-deploy	1	-	42	0	0
+scripts/test-guide-event-ticket-cta.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0
+scripts/test-guide-inline-book.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	24	0	0
+scripts/test-guide-lovebug-rail.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	91	0	0
+scripts/test-guide-park-ticket-cta.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0
+scripts/test-guide-place-indexability.mjs	0	CALL	blocks-ci-and-deploy	1	-	50	0	0
+scripts/test-guide-search-as-book.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	33	0	0
+scripts/test-gulf-coast-brunch-date-night.mjs	0	CALL	blocks-ci-and-deploy	1	-	47	0	0
+scripts/test-harvest-owned-hotel-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	34	0	0
+scripts/test-hero-image.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	15	2	1
+scripts/test-hero-people-free.mjs	0	CALL	blocks-ci-and-deploy	1	-	15	0	0
+scripts/test-home-bookable.mjs	1	RENDER	blocks-ci-and-deploy	1	Qwen (Engineering)	29	0	0
+scripts/test-home-first-paint.mjs	0	RENDER	blocks-ci-and-deploy	1	-	61	0	0
+scripts/test-home-rails-render-smoke.mjs	0	RENDER	blocks-ci-and-deploy	1	-	27	0	0
+scripts/test-hotel-card-cta.mjs	0	RENDER	blocks-ci-and-deploy	1	-	28	0	0
+scripts/test-hotel-image-resolver.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	34	0	0
+scripts/test-house-card-photo.mjs	0	RENDER	blocks-ci-and-deploy	1	-	50	0	0
+scripts/test-idle-defer.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0
+scripts/test-image-fallback.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0
+scripts/test-image-score.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	24	1	0
+scripts/test-intent-composition.mjs	0	CALL	blocks-ci-and-deploy	1	-	82	0	0
+scripts/test-intent-header-clarity.mjs	0	RENDER	blocks-ci-and-deploy	1	-	58	0	0
+scripts/test-intent-pages.mjs	0	CALL	blocks-ci-and-deploy	1	-	47	0	0
+scripts/test-intl-cache.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0
+scripts/test-inventory-batch-concurrency.mjs	0	CALL	blocks-ci-and-deploy	1	-	55	0	0
+scripts/test-inventory-serve.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0
+scripts/test-inverse-booking-cta.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	16	0	0
+scripts/test-jev-mcp.mjs	0	CALL	blocks-ci-and-deploy	1	-	21	0	0
+scripts/test-job-pulse.mjs	0	CALL	blocks-ci-and-deploy	1	-	76	0	0
+scripts/test-job-watch-delivery.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0
+scripts/test-job-watch-fallback.mjs	0	CALL	blocks-ci-and-deploy	1	-	50	0	0
+scripts/test-klook-coupons.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	1	1
+scripts/test-known-city-geocode.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0
+scripts/test-landing-card-photo.mjs	0	CALL	blocks-ci-and-deploy	1	-	46	1	2
+scripts/test-landing-inventory-ssg.mjs	0	RENDER	blocks-ci-and-deploy	1	-	73	0	0
+scripts/test-landing-ssr-rails.mjs	0	RENDER	blocks-ci-and-deploy	1	-	41	0	0
+scripts/test-landing-tours.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	13	1	0
+scripts/test-landing-why-fits.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0
+scripts/test-layout-shift.mjs	0	RENDER	blocks-ci-and-deploy	1	-	30	0	0
+scripts/test-lightbox-paging.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	17	1	0
+scripts/test-links.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0
+scripts/test-list-engine.mjs	0	CALL	blocks-ci-and-deploy	1	-	65	0	0
+scripts/test-live-event-posters-location.mjs	0	CALL	blocks-ci-and-deploy	1	-	83	0	0
+scripts/test-live-picks.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	0	0
+scripts/test-live-poster-art.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0
+scripts/test-local-store.mjs	0	CALL	blocks-ci-and-deploy	1	-	48	1	1
+scripts/test-location-context.mjs	0	CALL	blocks-ci-and-deploy	1	-	41	0	0
+scripts/test-location-pairing-integrity.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0
+scripts/test-lunch-break-rails.mjs	0	CALL	blocks-ci-and-deploy	1	-	32	0	0
+scripts/test-map-cost.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	15	2	2
+scripts/test-map-explorer.mjs	0	CALL	blocks-ci-and-deploy	1	-	34	0	0
+scripts/test-map-pin-standard.mjs	0	RENDER	blocks-ci-and-deploy	1	-	8	0	0
+scripts/test-map-render-smoke.mjs	0	RENDER	blocks-ci-and-deploy	1	-	4	0	0
+scripts/test-map-teardown.mjs	0	RENDER	blocks-ci-and-deploy	1	-	18	0	0
+scripts/test-map-worker.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0
+scripts/test-marine.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0
+scripts/test-marquee-day-trips.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0
+scripts/test-member-score.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0
+scripts/test-menu-taxonomy-audit.mjs	0	CALL	blocks-ci-and-deploy	1	-	43	0	0
+scripts/test-moment-contract.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0
+scripts/test-money-honest.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	14	0	0
+scripts/test-morning-candidate-integrity.mjs	0	RENDER	blocks-ci-and-deploy	1	-	13	0	0
+scripts/test-morning-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	99	0	0
+scripts/test-morning-picks.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0
+scripts/test-night-out-identity-first.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0
+scripts/test-night-out-intent.mjs	0	CALL	blocks-ci-and-deploy	1	-	99	0	0
+scripts/test-night-out-inventory-merge.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0
+scripts/test-night-tour-products.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0
+scripts/test-nightlife-census.mjs	0	CALL	blocks-ci-and-deploy	1	-	52	0	0
+scripts/test-nightlife-ranking.mjs	0	CALL	blocks-ci-and-deploy	1	-	53	0	0
+scripts/test-noresult-telemetry.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	11	1	0
+scripts/test-now-context.mjs	0	CALL	blocks-ci-and-deploy	1	-	112	0	0
+scripts/test-og-bodies.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0
+scripts/test-outbound-ssrf.mjs	0	CALL	blocks-ci-and-deploy	1	-	6	0	0
+scripts/test-owned-editorial-review.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0
+scripts/test-owned-hotel-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	154	0	0
+scripts/test-owner-approval-gate.mjs	0	CALL	blocks-ci-and-deploy	1	-	39	0	0
+scripts/test-owner-approval.mjs	0	CALL	blocks-ci-and-deploy	1	-	122	0	0
+scripts/test-owner-places-2026-08-29.mjs	0	CALL	blocks-ci-and-deploy	1	-	68	0	0
+scripts/test-owner-places-2026-08-29b.mjs	0	CALL	blocks-ci-and-deploy	1	-	58	0	0
+scripts/test-owner-places-2026-08-29c.mjs	0	CALL	blocks-ci-and-deploy	1	-	75	0	0
+scripts/test-owner-places-2026-08-29d.mjs	0	CALL	blocks-ci-and-deploy	1	-	82	1	1
+scripts/test-owner-places-2026-08-29e.mjs	0	CALL	blocks-ci-and-deploy	1	-	112	0	0
+scripts/test-paid-landing.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	52	2	3
+scripts/test-pairs-well-with.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0
+scripts/test-partner-geo.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0
+scripts/test-partner-rail-render.mjs	0	RENDER	blocks-ci-and-deploy	1	-	18	0	0
+scripts/test-personalization.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0
+scripts/test-photo-cache-width-reuse.mjs	0	CALL	blocks-ci-and-deploy	1	-	100	0	0
+scripts/test-photo-credits.mjs	0	CALL	blocks-ci-and-deploy	1	-	67	0	0
+scripts/test-photo-liveness-sweep.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0
+scripts/test-photo-monitor-cold-rate.mjs	0	CALL	blocks-ci-and-deploy	1	-	15	0	0
+scripts/test-photo-protection.mjs	0	CALL	blocks-ci-and-deploy	1	-	329	0	0
+scripts/test-photo-queue-batch.mjs	0	CALL	blocks-ci-and-deploy	1	-	6	0	0
+scripts/test-photo-quota-truth.mjs	0	CALL	blocks-ci-and-deploy	1	-	104	0	0
+scripts/test-photo-repair-deadline.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0
+scripts/test-photo-serving-alert.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0
+scripts/test-photo-spend-efficiency.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	102	0	0
+scripts/test-photo-upstream-truth.mjs	0	CALL	blocks-ci-and-deploy	1	-	75	0	0
+scripts/test-photo-vault-rendition.mjs	0	CALL	blocks-ci-and-deploy	1	-	75	0	0
+scripts/test-photo-vault-wiring.mjs	0	CALL	blocks-ci-and-deploy	1	-	195	0	0
+scripts/test-photo-vault.mjs	0	CALL	blocks-ci-and-deploy	1	-	59	0	0
+scripts/test-photo-warm.mjs	0	CALL	blocks-ci-and-deploy	1	-	79	0	0
+scripts/test-photos-paid-cap.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	95	0	0
+scripts/test-place-card-hook.mjs	0	RENDER	blocks-ci-and-deploy	1	-	67	0	0
+scripts/test-place-card-layout.mjs	0	RENDER	blocks-ci-and-deploy	1	-	35	0	0
+scripts/test-place-page-book-click-id.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	42	0	0
+scripts/test-place-photo-replay.mjs	0	CALL	blocks-ci-and-deploy	1	-	74	0	0
+scripts/test-place-products.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	14	1	0
+scripts/test-place-suggestions.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	41	1	0
+scripts/test-plist-parse.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0
+scripts/test-popularity.mjs	0	CALL	blocks-ci-and-deploy	1	-	94	0	0
+scripts/test-poster-accepts-healthy-art.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0
+scripts/test-poster-events.mjs	0	CALL	blocks-ci-and-deploy	1	-	42	0	0
+scripts/test-poster-pool-parallel.mjs	0	RENDER	blocks-ci-and-deploy	1	-	27	0	0
+scripts/test-poster-recovery.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	0
+scripts/test-price.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0
+scripts/test-privileged-rpc-contract.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0
+scripts/test-prominence.mjs	0	CALL	blocks-ci-and-deploy	1	-	43	0	0
+scripts/test-promote-backfill.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	0
+scripts/test-promote-decision.mjs	0	CALL	blocks-ci-and-deploy	1	-	75	0	0
+scripts/test-promote-details.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	49	0	0
+scripts/test-promote-index.mjs	0	CALL	blocks-ci-and-deploy	1	-	72	0	0
+scripts/test-promote-paid-cap.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	14	0	0
+scripts/test-promote-throttle.mjs	0	CALL	blocks-ci-and-deploy	1	-	26	0	0
+scripts/test-provider-health.mjs	0	CALL	blocks-ci-and-deploy	1	-	20	0	0
+scripts/test-provider-spend-caps.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	10	0	0
+scripts/test-public-diagnostics-retired.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	6	0	0
+scripts/test-rail-compute-budget.mjs	0	RENDER	blocks-ci-and-deploy	1	-	0	0	0
+scripts/test-rail-daylight.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0
+scripts/test-rail-like-stays.mjs	0	RENDER	blocks-ci-and-deploy	1	-	49	0	0
+scripts/test-rail-paging.mjs	0	CALL	blocks-ci-and-deploy	1	-	82	0	0
+scripts/test-rail-score-order.mjs	0	CALL	blocks-ci-and-deploy	1	-	7	0	0
+scripts/test-rail-select.mjs	0	CALL	blocks-ci-and-deploy	1	-	247	0	0
+scripts/test-rail-visual-standard.mjs	0	RENDER	blocks-ci-and-deploy	1	-	41	0	0
+scripts/test-rails-failed-is-not-covered.mjs	0	CALL	blocks-ci-and-deploy	1	-	39	0	0
+scripts/test-ranked-experience-rails.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	1	3
+scripts/test-ranking-editorial.mjs	0	CALL	blocks-ci-and-deploy	1	-	47	0	0
+scripts/test-reaction-affordance.mjs	0	RENDER	blocks-ci-and-deploy	1	-	6	0	0
+scripts/test-red-tide.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0
+scripts/test-redirect-integrity.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	12	0	0
+scripts/test-resolver-word-boundary.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	7	0	0
+scripts/test-revenue-heartbeat.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0
+scripts/test-review-depth-deduction.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0
+scripts/test-safe-force-push.mjs	0	CALL	blocks-ci-and-deploy	1	-	52	0	0
+scripts/test-saved-items.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0
+scripts/test-score-band.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0
+scripts/test-scorelabel.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0
+scripts/test-search-experience.mjs	0	CALL	blocks-ci-and-deploy	1	-	49	0	0
+scripts/test-searched-location.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0
+scripts/test-seasonal-brand.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	0
+scripts/test-seasonal-picks.mjs	0	CALL	blocks-ci-and-deploy	1	-	72	0	0
+scripts/test-secret-output-guard.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0
+scripts/test-seed.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0
+scripts/test-sentry-lazy.mjs	0	CALL	blocks-ci-and-deploy	1	-	35	1	4
+scripts/test-session-map-parity.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	1	1
+scripts/test-share-metrics.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	0	0
+scripts/test-share-out-chooser.mjs	0	RENDER	blocks-ci-and-deploy	1	-	54	0	0
+scripts/test-shared-photo-lifecycle.mjs	0	CALL	blocks-ci-and-deploy	1	-	20	0	0
+scripts/test-sheet-booking.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Revenue QA	15	2	2
+scripts/test-shell-key-clear-kayak-pin.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	70	0	0
+scripts/test-shell-key-guide-deeplinks.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	1	2
+scripts/test-shopping.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	1	1
+scripts/test-showtime-dedup.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	3	1	0
+scripts/test-site-feedback.mjs	0	RENDER	blocks-ci-and-deploy	1	-	21	0	0
+scripts/test-site-time.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	1	1
+scripts/test-sort-modes.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0
+scripts/test-sparse-category.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	9	1	0
+scripts/test-spend-bypass-regression.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	60	0	0
+scripts/test-spend-tests-prod-env.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	0	0	0
+scripts/test-sports-rail.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0
+scripts/test-stale-tab.mjs	0	CALL	blocks-ci-and-deploy	1	-	20	0	0
+scripts/test-subfilters.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	24	1	0
+scripts/test-summer-universe.mjs	0	CALL	blocks-ci-and-deploy	1	-	39	0	0
+scripts/test-sync-inflight-merge.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0
+scripts/test-sync-reconcile.mjs	0	CALL	blocks-ci-and-deploy	1	-	39	0	0
+scripts/test-tags.mjs	0	CALL	blocks-ci-and-deploy	1	-	80	0	0
+scripts/test-taste.mjs	0	CALL	blocks-ci-and-deploy	1	-	126	0	0
+scripts/test-taxonomy.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0
+scripts/test-theme-park-core.mjs	0	CALL	blocks-ci-and-deploy	1	Revenue QA	57	0	0
+scripts/test-theme-park-surfaces.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0
+scripts/test-things-to-do.mjs	0	CALL	blocks-ci-and-deploy	1	-	21	1	1
+scripts/test-today-discovery-rails.mjs	0	CALL	blocks-ci-and-deploy	1	-	51	0	0
+scripts/test-todays-best.mjs	0	CALL	blocks-ci-and-deploy	1	-	105	0	0
+scripts/test-top-rated.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0
+scripts/test-travelpayouts-attribution.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	51	0	0
+scripts/test-travelpayouts-provisioning.mjs	0	CALL	blocks-ci-and-deploy	1	Revenue QA	42	0	0
+scripts/test-travelpayouts.mjs	0	CALL	blocks-ci-and-deploy	1	-	43	1	3
+scripts/test-treeumph-empty-slot.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0
+scripts/test-trend-classify.mjs	0	CALL	blocks-ci-and-deploy	1	-	81	0	0
+scripts/test-trend-ingest.mjs	0	CALL	blocks-ci-and-deploy	1	-	70	0	0
+scripts/test-trend-order.mjs	0	CALL	blocks-ci-and-deploy	1	-	81	0	0
+scripts/test-trend-rights.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	1	2
+scripts/test-trend-vocab.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	1	3
+scripts/test-trending-page.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	9	1	0
+scripts/test-trending-time.mjs	0	CALL	blocks-ci-and-deploy	1	-	20	0	0
+scripts/test-trip-connections.mjs	0	RENDER	blocks-ci-and-deploy	1	-	61	0	0
+scripts/test-viator-fanout.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Revenue QA	6	1	0
+scripts/test-viator-integrity-lock.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	73	0	0
+scripts/test-viator-smoke-shape.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	36	0	0
+scripts/test-vitals-attribution.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0

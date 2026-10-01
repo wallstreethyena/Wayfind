@@ -57,3 +57,8 @@ trend-export*.csv
 artifacts/
 scripts/festivals/logs/
 .share-samples/
+
+# Guard registry: a GENERATED artifact (pure function of the repo), written by
+# scripts/lib/build-guard-registry.mjs on every guard-suite run. The reviewed,
+# committed expectation is scripts/lib/guard-expectations.tsv.
+scripts/lib/guard-registry.json
