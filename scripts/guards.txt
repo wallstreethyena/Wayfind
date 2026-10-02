@@ -80,6 +80,8 @@ node scripts/test-inventory-serve.mjs
 node scripts/test-events-list.mjs
 node scripts/test-list-engine.mjs
 node scripts/test-share-metrics.mjs
+# Session rows carry the referring host; partner CTAs carry meta.monetized (2026-10-02).
+node scripts/test-analytics-attribution-meta.mjs
 node scripts/test-explore-menu.mjs
 node scripts/test-destinations.mjs
 node scripts/test-travelpayouts.mjs
