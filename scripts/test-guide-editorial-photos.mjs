@@ -76,6 +76,7 @@ function compileComponent(file, overrides = {}) {
 const photoComponent = compileComponent("../app/components/GuidePhoto.js");
 const figureComponent = compileComponent("../app/components/GuideFigure.js", {
   "./GuidePhoto": photoComponent,
+  "./PhotoCreditLink": compileComponent("../app/components/PhotoCreditLink.js"),
   "../../lib/guideCaption.js": caption,
   "../../lib/googlePhotoSrc.js": googlePhotoSrc,
   "./GuideFigure.module.css": { __esModule: true, default: new Proxy({}, { get: (_t, name) => String(name) }) },
@@ -87,6 +88,7 @@ assert.ok(html.includes('alt="Sample Venue"'));
 assert.ok(html.includes('href="https://example.org/author"'));
 assert.ok(html.includes('Photo: Actual photographer'));
 assert.ok(html.includes('href="https://maps.google.com/photo"'));
+assert.ok(/<a[^>]*href="https:\/\/example\.org\/author"[^>]*target="_blank"[^>]*rel="[^"]*noopener/.test(html), 'author credit opens in a new tab (#1601)');
 assert.ok(!html.includes('wf-place-card'));
 assert.equal(renderToStaticMarkup(React.createElement(figureComponent.default, { role: "pick", image: null })), "");
 console.log("test-guide-editorial-photos: real render OK — one venue photo, linked author/provider credits, no place card, and no fake image on a miss");

@@ -16,8 +16,10 @@ import { safeUrl } from "../../../lib/links.js";
 import { SITE_URL } from "../../../lib/site";
 import { fetchCuratedEvents, fetchCuratedEventBySlug, eventJsonLd, dateRangeLabel, eventWebsiteUrl } from "../../../lib/curatedEvents";
 import { eventPhotos } from "../../../lib/eventPhotos";
+import { eventVenueImageSrc } from "../../../lib/eventPageImage.js";
 import { addressLine, appleDirectionsUrl } from "../../../lib/placeWhere";
 import ShareButton from "../../components/ShareButton";
+import PhotoCreditLink from "../../components/PhotoCreditLink";
 import SaveEventButton from "./SaveEventButton.js";
 import EventWhere from "../../components/EventWhere";
 import ReturnToWayfind from "../../components/ReturnToWayfind.js";
@@ -159,6 +161,12 @@ export default async function CuratedEventPage({ params }) {
   if (!e) notFound();
 
   const shots = eventPhotos(e.event_id);
+  // The photo this event's rail card already shows (lib/eventPageImage.js):
+  // the venue's own photo by exact place_id when the row has no stored
+  // hero_image. Without this rung the card showed the farm and the page it
+  // opened showed only initials (owner, 2026-10-01).
+  const venueImage = shots && shots.hero ? "" : (e.hero_image ? "" : eventVenueImageSrc(e));
+  const heroSrc = shots && shots.hero ? shots.hero.src : (e.hero_image || venueImage || null);
   // SERVER-resolved, never window.location — on a preview deploy that is a host
   // the recipient cannot open (lib/site.js canonicalShareUrl).
   const shareUrl = SITE_URL + "/florida-events/" + params.slug;
@@ -196,7 +204,7 @@ export default async function CuratedEventPage({ params }) {
   // The card's creator mark promises that the post is one tap away. Reuse the
   // event's already-cleared hero as the click-to-load cover so that promise is
   // visible before Instagram's third-party iframe is requested.
-  const socialPoster = shots && shots.hero ? shots.hero.src : (e.hero_image || null);
+  const socialPoster = heroSrc;
   const socialPosterFallback = shots && shots.hero ? (e.hero_image || null) : null;
   const socialDetails = (post) => <>
     <div style={{ padding: "18px 16px 14px" }}>
@@ -291,7 +299,7 @@ export default async function CuratedEventPage({ params }) {
           <SaveEventButton
             id={`wfc:${e.event_id}`}
             name={e.event_name}
-            image={shots && shots.hero ? shots.hero.src : (e.hero_image || null)}
+            image={heroSrc}
             url={shareUrl}
           />
           <ShareButton
@@ -313,6 +321,8 @@ export default async function CuratedEventPage({ params }) {
         <div className="wf-event-photo"><EventPlacePhoto priority src={shots.hero.src} name={shots.hero.alt || e.event_name} /></div>
       ) : e.hero_image ? (
         <div className="wf-event-photo"><EventPlacePhoto priority src={e.hero_image} name={e.image_alt || `${e.event_name} at ${e.venue || e.city}`} /></div>
+      ) : venueImage ? (
+        <div className="wf-event-photo"><EventPlacePhoto priority src={venueImage} name={`${e.venue || e.event_name}, venue photo`} /></div>
       ) : (
         <div className="wf-event-photo wf-event-photo-fallback" role="img" aria-label={`${e.event_name} — no photo available yet`}>
           <div style={S.heroFallbackRing}><span style={S.heroFallbackMark}>{heroInitials(e.short_title || e.event_name)}</span></div>
@@ -326,7 +336,7 @@ export default async function CuratedEventPage({ params }) {
       ))}
         </>}
         credit={shots && shots.credit ? <p style={S.credit}>
-          Photos: {shots.creditUrl ? <a style={S.link} href={shots.creditUrl} rel="nofollow noopener" target="_blank">{shots.credit}</a> : shots.credit}, shared with Wayfind for this listing.
+          Photos: {shots.creditUrl ? <PhotoCreditLink style={S.link} href={shots.creditUrl} rel="nofollow noopener">{shots.credit}</PhotoCreditLink> : shots.credit}, shared with Wayfind for this listing.
         </p> : null}
       />
 

@@ -19,7 +19,6 @@ import { chipIdentity } from "../lib/chipIdentity.js";
 import { placeAllowed } from "../lib/placeFilter.js";
 import { fallCardClass, FALL_CARD_IDS } from "../lib/fallSkin.js";
 import { verifiedInSeasonWindow } from "../lib/fallEvidence.js";
-import { siteTodayStr } from "../lib/siteTime.js";
 import { RYANS_COFFEE_HOUSE, PARRISH } from "./lib/synthetic/fixtures.mjs";
 
 let pass = 0;
@@ -177,7 +176,11 @@ ok(fallCardClass(RYANS_COFFEE_HOUSE.placeId, "2026-12-01") === "",
 // today), the same call scripts/check-fall-registry-integrity.mjs makes per
 // entry — against a synthetic Ryan's-shaped row, proving the invariant on the
 // call rather than re-asserting the guard's source text.
-const today = siteTodayStr();
+// EXPLICIT reference day inside a fall season window (2026-10-15). This sentinel's positive control asks
+// "would a record verified TODAY pass windowOk?" — with the real date that becomes false once the season
+// window closes (~Thanksgiving) on unchanged code, so the fixture is anchored. The production gate
+// (check-fall-registry-integrity) still evaluates real time.
+const today = "2026-10-15"; // was siteTodayStr()
 // The EXACT gate scripts/check-fall-registry-integrity.mjs computes per entry:
 // `const windowOk = !!entry.verified && verifiedInSeasonWindow(entry.verified, today);`
 const windowOk = (entry) => !!entry.verified && verifiedInSeasonWindow(entry.verified, today);

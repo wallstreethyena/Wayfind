@@ -93,8 +93,12 @@ const E = await import("../lib/experiment.js");
     "exposure is suppressed within one analytics session");
   ok(exp.indexOf("setItem(K_EXPOSED, sid") >= 0, "the exposure marker stores the session id it belongs to");
 
-  // Control must render NOTHING.
-  ok(/if \(variant !== "treatment"\) return null/.test(comp), "control (and SSR) render nothing at all");
+  // Control must SEE nothing. Since #1602 the markup is server-rendered for
+  // every arm and hidden by the CSS gate unless the pre-paint script marked
+  // the treatment; once the arm resolves, control/automation drop it entirely.
+  // test-explore-bridge-gate proves the visible behaviour in Chromium.
+  ok(/if \(resolved && variant !== "treatment"\) return null/.test(comp), "control (and automation) render nothing once the arm resolves");
+  ok(/\[data-explore-bridge\]\{display:none\}/.test(readFileSync(join(ROOT, "lib/exploreBridgeGate.js"), "utf8")), "until then the server markup is hidden by default (CSS gate)");
   // Exposure must be recorded before interaction — it is in a layout effect,
   // which runs before paint and therefore before any click is possible.
   ok(comp.indexOf("useIsoLayoutEffect") >= 0 && comp.indexOf("recordExposure") >= 0,

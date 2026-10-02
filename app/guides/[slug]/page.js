@@ -33,6 +33,7 @@ import { findFreePhoto } from "../../../lib/freePhoto";
 import { findSamePlaceCachedPhoto } from "../../../lib/photoCacheRecovery.js";
 import { guideAppHandoffHref, guidePlacePath } from "../../../lib/guideHandoff";
 import { declaredGuideRailPlaceIds, guidePlaceRailConfig, resolveGuidePlaceRail } from "../../../lib/guidePlaceRails";
+import { loadOwnerPickIds } from "../../../lib/curatorPicksServer.js";
 import GuideDealCards from "./GuideDealCards";
 // v8.23 — the share control every guide was missing, and the resolver that
 // finally connects 39 guides to a 69-row deal registry they were never wired
@@ -386,10 +387,10 @@ import { HERO_CARD_DESIGN_V } from "../../../lib/heroCard.js";
 // The floating pill stays (it catches people who DO read to the end). This adds
 // the above-the-fold handoff under a 50/50 experiment — measured dwell on these
 // pages is 0-25s, so almost nobody reaches the pill. Control renders nothing.
-import ExploreBridge from "../../components/ExploreBridge";
+import ExploreBridge from "../../components/ExploreBridgeGate";
 import IntentPartnerPick from "../../components/IntentPartnerPick";
 import { guideRailIntent } from "../../../lib/railPlacement";
-import { LANDING_CITIES } from "../../../lib/landing";
+import { LANDING_CITIES, evergreenLinksForTown } from "../../../lib/landing";
 import { isSsgBuild, guideFetch } from "../../../lib/landingInventory";
 import { ssrPartnerInventory } from "../../../lib/landingRails";
 import { guideArticleImage, guideContextLinks, guideQuickChoices } from "../../../lib/guideSeo";
@@ -556,8 +557,11 @@ export default async function GuidePage({ params }) {
     : null;
   const pickPlaces = await Promise.all((g.picks || []).map((p) => inventoryPlace(p, regionCoords)));
   const railConfig = guidePlaceRailConfig(g.placeRail || params.slug);
-  const railInventory = railConfig ? await inventoryPlacesByExactIds(declaredGuideRailPlaceIds(railConfig)) : [];
-  const placeRail = resolveGuidePlaceRail(railConfig, railInventory);
+  const [railInventory, ownerPickIds] = await Promise.all([
+    railConfig ? inventoryPlacesByExactIds(declaredGuideRailPlaceIds(railConfig)) : [],
+    railConfig ? loadOwnerPickIds().catch(() => null) : null,
+  ]);
+  const placeRail = resolveGuidePlaceRail(railConfig, railInventory, ownerPickIds);
   // Event map: only for a guide that names a curated event slug. A failed read
   // or a missing/undisplayable row renders no map (the article still stands),
   // and the pairings keep their own "unavailable" contract.
@@ -1133,6 +1137,19 @@ export default async function GuidePage({ params }) {
           answers 200 with a "Not found" body: a soft-404, the exact shape
           scripts/check-rail-routes.mjs exists to forbid. Passing null omits
           segmented hrefs rather than inventing Sarasota. */}
+      {/* The ranked lists for this guide's town, when it is an evergreen landing
+          town (Naples, St. Petersburg, St. Augustine guides). Published pairs
+          only — evergreenLinksForTown() goes through landingPair(). */}
+      {chrome.keepExploring && evergreenLinksForTown(g.region).length ? (
+        <nav aria-label={`Ranked lists for ${g.region}`} style={{ margin: "22px 0 4px" }}>
+          <h2 style={{ fontSize: 19, fontWeight: 800, margin: "0 0 8px", color: "#F8FAFC" }}>Ranked lists for {g.region}</h2>
+          <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexWrap: "wrap", gap: "8px 18px" }}>
+            {evergreenLinksForTown(g.region).map((l) => (
+              <li key={l.href}><a href={l.href} style={{ color: "#F97316", fontWeight: 700, textDecoration: "none" }}>{l.label}</a></li>
+            ))}
+          </ul>
+        </nav>
+      ) : null}
       {chrome.keepExploring ? (
       <DiscoveryPaths
         region={g.region === "Orlando" ? "orlando" : "fl"}

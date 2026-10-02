@@ -7,6 +7,7 @@ export const runtime = "nodejs";
 import { birthdayAttributesFor } from "../../../lib/birthdayAttributes.js";
 import { distMeters, invRowToPlace, serveInventoryByPlaceIds } from "../../../lib/inventoryServe.js";
 import { fetchOwnedPool } from "../../../lib/ownedPool.js";
+import { loadOwnerPickIds, applyCuratorPicksServer } from "../../../lib/curatorPicksServer.js";
 import { NET_DEADLINE_MS } from "../../../lib/fetchDeadline.js";
 import { BIRTHDAY_WIDEN_MI, BIRTHDAY_RAIL_ORDER, birthdayRailMembership, composeBirthdayRails } from "../../../lib/birthdayIntent.js";
 import { BIRTHDAY_REWARD_PLACE_IDS, birthdayRewardFor } from "../../../lib/birthdayRewards.js";
@@ -144,7 +145,7 @@ export async function GET(request) {
 
       // One bounded attempt per read. Retrying the same cold query doubled the
       // wait and made a 6s miss look like a broken page.
-      const [pool, rewards] = await Promise.all([
+      const [pool, rewards, pickIds] = await Promise.all([
         fetchOwnedPool(lat, lng, {
           categories: ["food", "nightlife"],
           radiusMi: BIRTHDAY_WIDEN_MI,
@@ -154,6 +155,7 @@ export async function GET(request) {
           identity: birthdayClaims,
         }),
         serveInventoryByPlaceIds(BIRTHDAY_REWARD_PLACE_IDS, lat, lng, radiusM, exactRead),
+        loadOwnerPickIds().catch(() => null), // owner picks (lib/curatorPicksServer.js); null = unknown
       ]);
 
       const seen = new Set();
@@ -167,7 +169,10 @@ export async function GET(request) {
         if (!place.photo && !place.photoRef) continue;
         places.push(place);
       }
-      const composed = composeBirthdayRails(places);
+      // Picks land before the composer ranks/caps; unknown -> untouched.
+      let ranked = places;
+      try { ranked = applyCuratorPicksServer(places, pickIds); } catch { ranked = places; }
+      const composed = composeBirthdayRails(ranked);
       if (composed && Array.isArray(composed.rails)) await attachCachedPhotos(composed.rails);
       // A partial owned pool (food read but nightlife failed, or the reverse)
       // must not be cached as this town's answer — see completeAnswersOnly.

@@ -313,7 +313,7 @@ ok(governedWayfindScore(90, { hasCreatorVideo: true, trending: true, distanceMi:
 // flag into the SAME governed call the parity lock reads, and disclosure
 // rides whyLine + the landing template's unified flame.
 {
-  const land = readFileSync(path.resolve("lib/landing.js"), "utf8");
+  const land = readFileSync(path.resolve("lib/landing.js"), "utf8") + "\n" + readFileSync(path.resolve("lib/landingPage.js"), "utf8"); // LandingPage lives in landingPage.js
   ok(/await attachTrendSignals\(pool, \{\}\);/.test(land), "rankedFor attaches the unified signal BEFORE scoring");
   // RE-POINTED 2026-08-16: the pattern hard-coded the BARE `hasCreatorVideoAt(p)`
   // while asserting something else entirely (that the trending flag reaches the
@@ -389,7 +389,7 @@ const HOME = readFileSync(path.join(REPO, "app/home.js"), "utf8");
 ok(!/\(_d - 4\) \* 1\.3/.test(HOME), "the v4.24 hidden 1.3/mi model is gone from the personalised feed");
 ok((HOME.match(/hasCreatorVideoAt\(p\) \? CREATOR_VIDEO_BONUS : 0/g) || []).length >= 5,
   "every home.js ranking site applies the flat law term");
-const LANDING = readFileSync(path.join(REPO, "lib/landing.js"), "utf8");
+const LANDING = readFileSync(path.join(REPO, "lib/landing.js"), "utf8") + "\n" + readFileSync(path.join(REPO, "lib/landingPage.js"), "utf8"); // LandingPage lives in landingPage.js
 ok(!/Math\.min\(30, \(mi - 4\) \* 1\.3\)/.test(LANDING), "the landing pages' 1.3/mi model is gone");
 ok(/governedWayfindScore\(/.test(LANDING), "…and the landing rank runs through the governed score");
 

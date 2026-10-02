@@ -9,7 +9,7 @@
 import { readFileSync } from "node:fs";
 import { commerceHref } from "../lib/commerce.js";
 import { PARTNER_OFFER_REGISTRY, partnerOfferById } from "../lib/partnerOfferRegistry.js";
-import { PLACE_PARTNER_PICKS, RETIRED_VIATOR_PINS, pinServeability, placePartnerPick } from "../lib/placePartnerPicks.js";
+import { PLACE_PARTNER_PICKS, RETIRED_VIATOR_PINS, pinServeability, placePartnerPick, isBeachName } from "../lib/placePartnerPicks.js";
 import { PROVIDERS, resolveOffer } from "../lib/commerceProviders.js";
 import { SUMMER_UNIVERSE } from "../lib/summerUniverse.js";
 import { BIRTHDAY_UNIVERSE } from "../lib/birthdayUniverse.js";
@@ -134,6 +134,15 @@ for (const row of BATCH) {
       `${row.name}: containment is case-insensitive, exactly as the match is`);
     ok(!PLACE_PARTNER_PICKS.some((r) => String(r.offerId).toUpperCase() === String(row.sku).toUpperCase()),
       `${row.name}: ${row.sku} is not still pinned under some other alias`);
+    continue;
+  }
+  if (isBeachName(row.name)) {
+    // 2026-09-30 BEACH RULE: the pin row stays in the table (data is not
+    // deleted), but no beach card may serve it. Follows the code, see
+    // scripts/test-beach-never-booking.mjs for the rendered-card proof.
+    ok(pick === null, `${row.name}: beach rule — placePartnerPick serves no pin for a beach even though ${row.sku} is still in the table`);
+    ok(PLACE_PARTNER_PICKS.some((r) => String(r.offerId).toUpperCase() === String(row.sku).toUpperCase()),
+      `${row.name}: ${row.sku} row still exists, so the null above is the RULE and not data deletion`);
     continue;
   }
   ok(!!pick, `placePartnerPick({ name: "${row.name}" }) returns a pin`);

@@ -33,6 +33,8 @@
 // contradict nowContext's three.
 import { browsePosition, restoreBrowsePosition } from "../../lib/restoreBrowsePosition";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { applyCuratorPicks, useCuratorPicks } from "../../lib/curatorPicks.js";
+import { settleRescored, rescoredIds } from "../../lib/lawfulOrder.js";
 import dynamic from "next/dynamic";
 
 // LAZY, and not for tidiness — for the homepage's JS budget, which this change
@@ -116,7 +118,7 @@ import { settleLoad, LOAD_PENDING, LOAD_FAILED, LOAD_TIMEOUT_MS, isPending, isFa
 // zero imports — safe in this "use client" file, unlike lib/landing.js
 // (server-only: React components and DB access at module scope) which the
 // route this component calls actually reads its city table from.
-import { LANDING_CITIES } from "../../lib/landingCities.js";
+import { COVERED_CITIES } from "../../lib/landingCities.js";
 import { nearestCoveredCity, COVERAGE_MI } from "../../lib/railCoverage.js";
 
 // Reader-facing rails are inventory-only now. Ten seconds is the visible
@@ -686,7 +688,7 @@ export default function DaypartRail({
   // CDN-key reduction the wider grid was chosen for.
   //
   // A SEPARATE, MORE SERIOUS DEFECT the same measurement surfaced: nearestCity
-  // (app/api/rails/route.js) picks among LANDING_CITIES by raw distance, and
+  // (app/api/rails/route.js) picks among the covered cities by raw distance, and
   // several of those towns sit far closer together than the ~13km "break"
   // gate this change was originally scoped against — Palmetto and Bradenton
   // are 1.56 MILES apart. A 0.05° snap (max positional error ~2.3mi) can move
@@ -708,10 +710,10 @@ export default function DaypartRail({
   const snapPre = (v) => Math.round(v * 100) / 100;
   // WHY THE CITY IS RESOLVED HERE, EXACTLY, BEFORE THE SNAP ABOVE. This is the
   // identical call app/api/rails/route.js makes server-side —
-  // nearestCoveredCity(LANDING_CITIES, lat, lng, COVERAGE_MI) — run here on
+  // nearestCoveredCity(COVERED_CITIES, lat, lng, COVERAGE_MI) — run here on
   // `center`'s real value, before `snapPre` rounds it for the request URL. The
   // route already prefers an explicit `&city=` over its own nearestCity(la,
-  // ln) (`asked = sp.get("city"); slug = LANDING_CITIES[asked] ? asked :
+  // ln) (`asked = sp.get("city"); slug = COVERED_CITIES[asked] ? asked :
   // nearestCity(la, ln)`), so sending it is enough: city selection stops being
   // sensitive to the snap grid at all, at any width, forever — closing the
   // Palmetto/Bradenton-class defect above without touching the ranking
@@ -719,7 +721,7 @@ export default function DaypartRail({
   // COVERAGE_MI resolves to `null` and is simply not sent, so the server's own
   // out-of-coverage fallback (nearestCity(la, ln) on the snapped point, honest
   // `covered:false` past that) is untouched.
-  const resolveCitySlug = useCallback((la, ln) => nearestCoveredCity(LANDING_CITIES, la, ln, COVERAGE_MI), []);
+  const resolveCitySlug = useCallback((la, ln) => nearestCoveredCity(COVERED_CITIES, la, ln, COVERAGE_MI), []);
   const lastPointRef = useRef(null);
   useEffect(() => {
     if (!center || !Number.isFinite(center.lat) || !Number.isFinite(center.lng)) {
@@ -1301,10 +1303,16 @@ export default function DaypartRail({
       .catch(() => { if (!dead) setMemberSig(null); });
     return () => { dead = true; };
   }, [memberSignalsFor, _selRaw]);
-  const selPlaces = useMemo(
-    () => (memberSig && applyMemberSignal ? applyMemberSignal(_selRaw, memberSig) : _selRaw),
-    [applyMemberSignal, memberSig, _selRaw]
-  );
+  // The owner's curator pick (lib/curatorPicks.js) applies on top of the
+  // member signal, including a like made AFTER this drop opened, and only the
+  // cards whose shown score moved are settled into the rank they now earn —
+  // the server's order of every other card is kept.
+  const curator = useCuratorPicks();
+  const selPlaces = useMemo(() => {
+    const signed = memberSig && applyMemberSignal ? applyMemberSignal(_selRaw, memberSig) : _selRaw;
+    const curated = applyCuratorPicks(signed, curator);
+    return curated === _selRaw ? _selRaw : settleRescored(curated, rescoredIds(_selRaw, curated));
+  }, [applyMemberSignal, memberSig, _selRaw, curator]);
   // Chef is static testimony in HIS order (the shape IconicPlaceCard reads;
   // `photo` self-heals once refs are harvested). Augtober now owns its complete
   // answer in FallIntentRails, behind the same lazy boundary as Birthday,

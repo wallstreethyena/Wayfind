@@ -28,7 +28,7 @@
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-import { computePhotoCoverage, computePhotoRunway } from "../../../../lib/photoCoverage";
+import { computePhotoCoverage, computePhotoRunway, ledgerMonth } from "../../../../lib/photoCoverage";
 import { describePhotoRunway, photosPaidConfigured } from "../../../../lib/photoRunwayTruth";
 import { siteTodayStr } from "../../../../lib/siteTime";
 import { GOOGLE_PHOTOS_QUOTA_PROVIDER, quotaBreakerCooldownMs } from "../../../../lib/placePhotoServe";
@@ -68,7 +68,9 @@ export async function GET(req) {
 
   const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
   const today = siteTodayStr();
-  const month = today.slice(0, 7);
+  // The spend ledger keys months in UTC; today (Eastern) stays for the daily
+  // outcome table, which is keyed by the site's day.
+  const month = ledgerMonth();
   let activeWithRef, openRows, unresolvedRows, recoveries7d, lastPulse, lastRepairPulses, photoAllowanceRows;
   try {
     [activeWithRef, openRows, unresolvedRows, recoveries7d, lastPulse, lastRepairPulses, photoAllowanceRows] = await Promise.all([

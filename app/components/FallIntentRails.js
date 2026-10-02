@@ -11,6 +11,8 @@ import RailHeading from "./RailHeading";
 import RailLoading from "./RailLoading";
 import { directionsUrl } from "./kit";
 import { toDisplayScore } from "../../lib/score.js";
+import { useCuratorPicks, applyCuratorPicks } from "../../lib/curatorPicks.js";
+import { settleRescored, rescoredIds } from "../../lib/lawfulOrder.js";
 import { fallSkinLive } from "../../lib/fallSkin.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
 import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
@@ -72,9 +74,22 @@ function eventCta(card, onTrack) {
 function FallRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, fallSkin, isSaved, liked, disliked, isLiked, isDisliked, onSave, onLike, onDislike, onShare }) {
   const seedItems = useMemo(() => (rail.cards || []).slice(0, RAIL_PAGE_SIZE), [rail]);
   const params = useMemo(() => (lat != null && lng != null ? { lat, lng, rail: rail.id } : null), [lat, lng, rail.id]);
-  const { items, total, sentinelIndex, sentinelRef, loading, loadingMore, error, fetchMore } = usePagedRail(
+  const { items: pagedItems, total, sentinelIndex, sentinelRef, loading, loadingMore, error, fetchMore } = usePagedRail(
     "/api/events/fall", params, { enabled: !!params, seedItems, seedTotal: (rail.cards || []).length, itemsKey: "cards" },
   );
+  const curatorPicks = useCuratorPicks();
+  // Owner picks on PLACE cards only (events untouched), applied before render (lib/curatorPicks.js).
+  // A re-scored place settles among the place slots; event slots and the date-first order stay put.
+  const items = useMemo(() => {
+    const slots = [], places = [];
+    pagedItems.forEach((c, i) => { if (c && c.kind !== "event") { slots.push(i); places.push(c); } });
+    const next = applyCuratorPicks(places, curatorPicks);
+    if (next === places) return pagedItems;
+    const settled = settleRescored(next, rescoredIds(places, next));
+    const out = pagedItems.slice();
+    slots.forEach((slot, n) => { out[slot] = settled[n]; });
+    return out;
+  }, [pagedItems, curatorPicks]);
   const cardCount = Number.isFinite(total) ? total : items.length;
   const railId = "fall-intent-" + rail.id;
   const renderState = railRenderState(items, { loading, error });
@@ -119,7 +134,7 @@ function FallRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, fallSkin,
             photoAttr={card.photoAttr || null} photoAttrHref={card.photoAttrHref || null} place={place}
             creatorVideos={isEvent ? card.creatorReels : undefined}
             title={card.title || card.name} eyebrow={rail.title} rank={rank}
-            score={isEvent ? null : toDisplayScore(card.wfScore)} when={isEvent ? card.when : null}
+            score={isEvent ? null : toDisplayScore(Number.isFinite(card.governed_score) ? card.governed_score : card.wfScore)} when={isEvent ? card.when : null}
             facts={facts} chips={isEvent ? eventChips(card, { onOpenVenue: card.detailHref || card.officialOnly ? openEventVenue : null }) : placeChips}
             take={card.hook || (card.shotLocation ? `${card.shotLocation}. ${card.take} ${card.fallReason || ""}`.trim() : card.take) || null} cta={cta}
             href={eventBodyHref} external={eventBodyExternal}
