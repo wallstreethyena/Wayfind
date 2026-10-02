@@ -7328,6 +7328,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             }
           } catch (e) {}
           const name = await reverseGeocode(c.lat, c.lng);
+          // The reverse geocode takes ~1s. A city the reader picked while it
+          // was in flight wins: the fix above was checked against manualRef
+          // BEFORE the await, so re-check it after (a late GPS answer used to
+          // load Tampa's feed over a just-picked St. Petersburg).
+          if (manualRef.current) return;
           setCenter(c);
           setLocResolved(true);
           setLocName(name);
@@ -8780,6 +8785,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       // before anything commits makes the two halves land in one render, which
       // is the same order the mount GPS handler already uses.
       const name = await reverseGeocode(deviceLoc.lat, deviceLoc.lng).catch(() => "");
+      // recenterToMe cleared manualRef on entry; set again means the reader
+      // picked a city during the geocode, and that pick wins.
+      if (manualRef.current) return;
       setCenter({ lat: deviceLoc.lat, lng: deviceLoc.lng });
       setLocResolved(true);
       setMapFocus({ lat: deviceLoc.lat, lng: deviceLoc.lng, ts: Date.now() });
@@ -8801,6 +8809,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         // render, so a failed or slow geocode can never strand the old city's
         // name on a new city's pin.
         const name = await reverseGeocode(c.lat, c.lng).catch(() => "");
+        if (manualRef.current) return; // a city picked during the geocode wins (see above)
         setCenter(c);
         setLocResolved(true);
         setMapFocus({ ...c, ts: Date.now() });

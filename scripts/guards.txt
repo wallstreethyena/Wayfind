@@ -570,6 +570,8 @@ node scripts/check-unified-commerce-rail.mjs
 node scripts/test-event-rail-images.mjs
 node scripts/test-experience-now-rank.mjs
 node scripts/check-guards-emit-no-analytics.mjs
+# Partner redirects never count as visitors: personless cookie-less capture + visitor-query scope (2026-10-02).
+node scripts/test-redirect-visitor-scope.mjs
 node scripts/check-known-for.mjs
 node scripts/check-atlas-retry-cron.mjs
 node scripts/check-guide-cta-honesty.mjs
@@ -767,6 +769,8 @@ node scripts/check-location-fail-open.mjs
 node scripts/check-location-honesty.mjs
 node scripts/test-rails-failed-is-not-covered.mjs
 node scripts/test-location-pairing-integrity.mjs
+# A city picked while a GPS fix is still reverse-geocoding must win (2026-10-02 St. Pete race).
+node scripts/check-gps-manual-pick-race.mjs
 # The rail tile headline is PIXELS. Renaming a rail in code changes nothing
 # the reader sees until the art is redrawn — pin copy and art together.
 node scripts/check-rail-art-matches-copy.mjs
@@ -1598,6 +1602,10 @@ node scripts/check-reverse-migration-reconciliation.mjs
 # breakfast, coffee and bakery-cafe cards remain reachable), including rows
 # whose provider omitted primaryType.
 node scripts/test-morning-identity.mjs
+node scripts/test-taxonomy-identity.mjs
+node scripts/test-creator-name-fallback.mjs
+node scripts/test-bump-within-eligible.mjs
+node scripts/test-inventory-all-adult.mjs
 # 2026-09-09 (owner's affiliate deep-link audit): the only writer of
 # wf_affiliate_opportunities used PostgREST `resolution=ignore-duplicates`, which
 # SKIPS an existing row rather than updating it — so a place already in the queue

@@ -36,7 +36,10 @@ export async function GET(req) {
   const clickIdFromClient = String(sp.get("click_id") || "").trim();
 
   const clickId = UUID_LIKE.test(clickIdFromClient) ? clickIdFromClient : randomUUID();
-  const distinctId = distinctIdFromCookies(req.headers.get("cookie")) || clickId;
+  // The visitor's PostHog id when the cookie is present; otherwise the click id,
+  // sent personless so a cookie-less click never becomes a new "visitor".
+  const cookieDistinctId = distinctIdFromCookies(req.headers.get("cookie"));
+  const distinctId = cookieDistinctId || clickId;
 
   const base = {
     provider: "ticketmaster",
@@ -52,7 +55,7 @@ export async function GET(req) {
   const emit = (event, extra) => {
     try {
       const props = commercePayload(event, { ...base, ...(extra || {}) });
-      captureServer(event, { distinctId, properties: props, headers: req.headers });
+      captureServer(event, { distinctId, properties: props, headers: req.headers, personless: !cookieDistinctId });
     } catch {}
   };
 
