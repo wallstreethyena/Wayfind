@@ -13,7 +13,8 @@
  *    command-center.sql, and the migration defines exactly the 9 it should.
  * 2. The out-action list equals eventMap.OUT_ACTIONS (imported), contains every
  *    action an app emitter writes, and none that only the dashboard knew about
- *    (maps_list is a map intent; hotel_out / eats_out / ta_out have no emitter).
+ *    (maps_list is a map intent). hotel_out / eats_out / ta_out stay: no current
+ *    emitter, but 16 stored July rows are real partner clicks (production, 2026-10-02).
  * 3. Every out-click reader calls wf_cc_is_out(action, meta): the bare list is
  *    used in exactly one place, the predicate itself. A reader still using the
  *    bare list would undercount the place sheet's monetized primary CTA.
@@ -65,7 +66,8 @@ ok(!/\b(delete|update|insert|truncate|drop table|alter table)\b/i.test(strip(mig
 const listM = (F.get("wf_cc_out_actions") || "").match(/array\[([^\]]+)\]/);
 const list = listM ? listM[1].split(",").map((s) => s.trim().replace(/'/g, "")) : [];
 ok(list.join("|") === OUT_ACTIONS.join("|"), `SQL out list === eventMap.OUT_ACTIONS (${list.join(",")})`);
-for (const a of ["maps_list", "hotel_out", "eats_out", "ta_out"]) ok(!list.includes(a), `${a} is not a partner click`);
+ok(!list.includes("maps_list"), "maps_list (a map intent) is not a partner click");
+for (const a of ["hotel_out", "eats_out", "ta_out"]) ok(list.includes(a), `${a} (July partner clicks still in the store) stays counted`);
 for (const a of ["tickets_out", "coupon_out", "tour_card_out", "book_it_out", "partner_program_out", "sponsor_out"]) ok(list.includes(a), `${a} (written by the app) is counted`);
 
 // ── 3. readers use the predicate ───────────────────────────────────────────
@@ -87,7 +89,7 @@ const pred = F.get("wf_cc_is_out") || "";
 ok(/returns boolean language sql immutable/.test(pred), "wf_cc_is_out is an immutable boolean SQL function");
 ok(/_action = 'primary_cta_clicked'/.test(pred), "primary_cta_clicked is the only metadata-qualified action");
 ok(/case when \(coalesce\(_meta, '\{\}'::jsonb\) -> 'monetized'\) is not null then \(_meta->>'monetized'\) = 'true'/.test(pred), "meta.monetized, when present, decides (a monetized:false tickets tap is NOT counted)");
-ok(/else coalesce\(_meta->>'cta_type',''\) in \('tickets','rates'\) end/.test(pred), "rows written before the flag count only for always-monetized cta_types (tickets, rates)");
+ok(/else coalesce\(_meta->>'provider',''\) <> '' end/.test(pred), "rows written before the flag count when they carry a provider (production: 11/11 provider rows were partner rungs, 0/95 without)");
 ok(!/\?/.test(pred.replace(/\$\$/g, "")), "no jsonb `?` operator (a driver placeholder hazard)");
 
 // ── 5. #1603 exclusion ─────────────────────────────────────────────────────

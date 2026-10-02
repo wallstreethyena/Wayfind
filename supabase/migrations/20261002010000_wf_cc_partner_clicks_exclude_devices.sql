@@ -2,14 +2,15 @@
 -- confirmed test devices be excluded by device_id (2026-10-02, analytics
 -- reconciliation; #1603).
 --
--- 1. PARTNER CLICKS. wf_cc_out_actions() listed maps_list (a "see this list on
---    the map" intent, never a partner click) and hotel_out / eats_out / ta_out
---    (no emitter writes them), and missed book_it_out, partner_program_out and
---    sponsor_out, which the app does write. The Detail sheet's primary CTA
---    (primary_cta_clicked) also fires for plan/directions/menu taps, so it is
---    counted through the new predicate wf_cc_is_out(action, meta): partner when
---    meta.monetized is true (written since 2026-10-02), and for older rows only
---    when cta_type is tickets/rates (always-monetized rungs, lib/detailCta.js).
+-- 1. PARTNER CLICKS. wf_cc_out_actions() counted maps_list (a "see this list
+--    on the map" intent, never a partner click) and missed book_it_out,
+--    partner_program_out and sponsor_out, which the app writes. hotel_out /
+--    eats_out / ta_out are kept: 16 stored July rows are real partner clicks.
+--    The Detail sheet's primary CTA (primary_cta_clicked) also fires for
+--    plan/directions/menu taps, so it is counted through the new predicate
+--    wf_cc_is_out(action, meta): partner when meta.monetized is true (written
+--    since 2026-10-02); older rows when they carry a provider (production,
+--    2026-10-02: 11 provider rows, all partner rungs; 95 without, none).
 --    Every out-click reader (kpis, daily, top_places, breakdown, funnel,
 --    time_to_action) now calls the predicate instead of the bare list.
 --    A read-time change: no events row is written, updated or deleted.
@@ -29,14 +30,14 @@
 
 create or replace function public.wf_cc_out_actions()
 returns text[] language sql immutable as
-$$ select array['tickets_out','coupon_out','tour_card_out','book_it_out','partner_program_out','sponsor_out'] $$;
+$$ select array['tickets_out','coupon_out','tour_card_out','book_it_out','partner_program_out','sponsor_out','hotel_out','eats_out','ta_out'] $$;
 
 create or replace function public.wf_cc_is_out(_action text, _meta jsonb)
 returns boolean language sql immutable as
 $$ select _action = any(public.wf_cc_out_actions())
        or (_action = 'primary_cta_clicked'
            and case when (coalesce(_meta, '{}'::jsonb) -> 'monetized') is not null then (_meta->>'monetized') = 'true'
-                    else coalesce(_meta->>'cta_type','') in ('tickets','rates') end) $$;
+                    else coalesce(_meta->>'provider','') <> '' end) $$;
 
 create or replace function public.wf_cc_excluded_devices()
 returns setof text language sql stable security definer set search_path = public as $$

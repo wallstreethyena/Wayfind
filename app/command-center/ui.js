@@ -819,7 +819,7 @@ function PlacesSection({ auth, range }) {
       <div style={{ height: 12 }} />
       <Two min={280}>
         <Card>
-          <Frame title="Partner clicks by provider type" def="Outbound clicks grouped by which partner action fired (tickets_out=tours/tickets, coupon_out=deals, tour_card_out=tour cards, book_it_out=Book it, partner_program_out=partner programs, sponsor_out=sponsors, primary_cta_clicked=the place sheet's monetized primary button)."
+          <Frame title="Partner clicks by provider type" def="Outbound clicks grouped by which partner action fired (tickets_out=tours/tickets, coupon_out=deals, tour_card_out=tour cards, book_it_out=Book it, partner_program_out=partner programs, sponsor_out=sponsors, primary_cta_clicked=the place sheet's monetized primary button; hotel_out=stays, eats_out=food delivery, ta_out=Tripadvisor from the July builds)."
             source={dget(d, "affiliate.providers.source")}
             columns={["Action", "Clicks", "Devices"]} rows={(dget(d, "affiliate.providers.data", null) || []).map((r) => [r.k, r.n, r.devices])}>
             <HBarList color={CAT[1]} items={(dget(d, "affiliate.providers.data", null) || []).map((r) => ({ label: r.k, value: r.n, secondary: `${r.devices} devices` }))} />

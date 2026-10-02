@@ -75,29 +75,31 @@ $$;
 -- Affiliate / outbound partner click actions (kept in ONE place server-side;
 -- lib/commandCenter/eventMap.js mirrors this list for the UI legend).
 -- 2026-10-02 (analytics reconciliation): the list now holds the partner
--- actions the app actually writes to public.events. Removed: maps_list (a
--- "see this list on the map" intent, never a partner click) and hotel_out /
--- eats_out / ta_out (no emitter writes them; always 0). Added: book_it_out
+-- actions the app writes to public.events. Removed: maps_list (a "see this
+-- list on the map" intent, never a partner click). Added: book_it_out
 -- (BookItLink), partner_program_out (HookDetail), sponsor_out
--- (SponsoredPlaceCard). The Detail sheet's primary CTA is counted through
+-- (SponsoredPlaceCard). hotel_out / eats_out / ta_out stay: no current code
+-- writes them, but 16 stored rows (2026-07-08..08-12) are real partner clicks
+-- from the July builds. The Detail sheet's primary CTA is counted through
 -- wf_cc_is_out() below, because primary_cta_clicked also fires for
 -- plan/directions/menu taps.
 create or replace function public.wf_cc_out_actions()
 returns text[] language sql immutable as
-$$ select array['tickets_out','coupon_out','tour_card_out','book_it_out','partner_program_out','sponsor_out'] $$;
+$$ select array['tickets_out','coupon_out','tour_card_out','book_it_out','partner_program_out','sponsor_out','hotel_out','eats_out','ta_out'] $$;
 
 -- Is this events row a partner click? Every out-click reader uses this, never
 -- the bare list. primary_cta_clicked is a partner click when the app said so
 -- (meta.monetized, written since 2026-10-02). Rows from before that carry no
--- monetized key: only cta_type tickets/rates is counted for them, because those
--- rungs are always monetized (lib/detailCta.js); a historical "deal" tap cannot
--- be told from a non-partner dashboard offer, so it is not counted.
+-- monetized key; for them a provider is the partner signal. Measured on
+-- production 2026-10-02: all 11 provider-bearing rows were partner rungs
+-- (Klook / Tiqets / Undercover Tourist tickets, Uber Eats pickup/delivery);
+-- the 95 provider-less rows were menu / directions / plan / conditions taps.
 create or replace function public.wf_cc_is_out(_action text, _meta jsonb)
 returns boolean language sql immutable as
 $$ select _action = any(public.wf_cc_out_actions())
        or (_action = 'primary_cta_clicked'
            and case when (coalesce(_meta, '{}'::jsonb) -> 'monetized') is not null then (_meta->>'monetized') = 'true'
-                    else coalesce(_meta->>'cta_type','') in ('tickets','rates') end) $$;
+                    else coalesce(_meta->>'provider','') <> '' end) $$;
 
 -- Engagement actions = a "meaningful action" on a place or surface.
 create or replace function public.wf_cc_engage_actions()
