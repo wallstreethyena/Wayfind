@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 785,
-    "totalRegistryEntries": 786,
-    "guardsTxtLineCount": 785,
-    "guardsTxtReachedFileCount": 778,
+    "totalOnDiskGuardFiles": 786,
+    "totalRegistryEntries": 787,
+    "guardsTxtLineCount": 786,
+    "guardsTxtReachedFileCount": 779,
     "criticalCount": 94,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 540,
+      "CALL": 541,
       "RENDER": 105,
       "STRUCTURAL": 140,
       "OTHER": 1
@@ -16846,6 +16846,28 @@
         "detail": "2026-08-16: a missing-query redirect dumped users on the unattributed homepage (free traffic to the partner). 2026-08-25: Book resolve was hardened to fail closed to Wayfind's own site rather than an unattributed partner page."
       },
       "owner": "Revenue QA"
+    },
+    {
+      "file": "scripts/test-redirect-visitor-scope.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 16,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
     },
     {
       "file": "scripts/test-resolver-word-boundary.mjs",

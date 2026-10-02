@@ -212,7 +212,10 @@ export async function GET(req) {
   const rawProduct = (searchParams.get("product") || "").trim();
   const clientClickId = sanitizeClientClickId(searchParams.get("click_id"));
   const clickId = clientClickId || randomUUID();
-  const distinctId = distinctIdFromCookies(req.headers.get("cookie")) || clickId;
+  // The visitor's PostHog id when the cookie is present; otherwise the click id,
+  // sent personless so a cookie-less click never becomes a new "visitor".
+  const cookieDistinctId = distinctIdFromCookies(req.headers.get("cookie"));
+  const distinctId = cookieDistinctId || clickId;
 
   const baseProps = {
     provider: "viator",
@@ -229,7 +232,7 @@ export async function GET(req) {
   const emit = (event, extra) => {
     try {
       const props = commercePayload(event, { ...baseProps, ...(extra || {}) });
-      captureServer(event, { distinctId, properties: props, headers: req.headers });
+      captureServer(event, { distinctId, properties: props, headers: req.headers, personless: !cookieDistinctId });
     } catch {}
   };
 
