@@ -143,8 +143,8 @@ ok(toHookLine(FARM_WHY, "Welcome To The Farm").length >= 20,
     "no loose 'Why it fits:' paragraph under ranked cards — the line is on the card");
   ok(!/Insider:<\/b>/.test(land) && !/insiderByIdx/.test(land) && !/getInsider\(/.test(land),
     "no loose Insider line (and no model call feeding it) under ranked cards");
-  ok(/editorial=\{take\}/.test(land) && /editorialMore=\{take \?/.test(land),
-    "card take + 'Why Wayfind picked it' cue only when a sourced take exists");
+  ok(/editorial=\{take\}/.test(land) && /editorialMore=\{take && hasPlaceViewEditorial\(p, eds\[p\.id\]\) \?/.test(land),
+    "card take + 'Why Wayfind picked it' cue only when a sourced take exists AND the place view holds the read");
   ok(/href=\{landingCardHref\(p\)\}/.test(land),
     "ranked card opens the full place detail via landingCardHref");
   ok(!/mi from the town center/.test(land),
