@@ -1,28 +1,77 @@
 # Analytics reconciliation: what each number means, and how to check it
 
-**Status, 2026-10-01** (Website user flow analysis).
+**Status, 2026-10-02 — production truth.** Access verified this day: PostHog project 507756 (the key the live site ships) and Supabase project `gbhtoehdxkzjsmmkisgu` (the host the live site writes to), both read-only. Every number below is an aggregate read on 2026-10-02; no row was written, updated or deleted.
 
 | item | status |
 |---|---|
-| Event contract: every writer and every Command Center reader, traced in code | **done**: the map below |
-| Stored-data verification (PostHog / Supabase rows) and the dashboard reconciliation | **blocked**: the PostHog and Supabase connectors are not authorized for the agent environment, and the Visitors API needs the owner's sign-in. The queries in §5 are ready to run read-only; nothing in this document was executed against either store. |
-| M1 `recordLikeEvent` without suppression | **fixed**, #1617 (`848610c`, `dpl_CuqGLe5bBRR7BRuKwcqtxvEaEQQf`, live 2026-10-01 10:28:55 UTC). Verified on production in a contained browser: a human-mode Like tap attempts one `events` insert; webdriver and internal-marked taps attempt none. |
-| M2 `llm_call` rows as device `"server"` | **fixed** forward-only, #1617. Historical `"server"` rows remain; S1 below shows the effect (`active_devices` vs `active_devices_ex_server`). |
-| M13 stale cache turns arrays into objects | **fixed**, #1619 (`2c149e1`, `dpl_7EwvArLpZ6xWrL3cqVw7Dg765Hxa`, live 2026-10-01 11:04:44 UTC). Before the fix, a stale owner-exclusion list also silently became `{}` during a provider flap. |
-| #1603 test-traffic exclusion | **not applied**. No supported per-`device_id` exclusion exists (§4), and no test `device_id` has been confirmed (the early runs kept none, and rows carry no user agent). Nothing was deleted or rewritten. |
-| M3-M12, M14-M16 | open; see "Next" in the release notes. Each is a definition or coverage difference, not lost data. |
+| M1 likes/saves/shares/dislikes unsuppressed | **fixed** #1617 (live 2026-10-01 10:28:55 UTC) |
+| M2 `llm_call` as device `"server"` | **fixed** #1617; history: 27,306 rows, 2026-07-10..09-23, one device, no user |
+| M3 Referrers showed entry type as a site | **fixed** writer #1623 (`22212c87`, live 01:09:51 UTC: 29 of 34 new session rows carry a real host). Legacy-row relabel **prepared in #1627**, live when the owner applies it |
+| M4/M5 partner-click definition | **prepared in #1627** (owner-applied migration, merged and applied together); production still runs the old list until then |
+| M9 redirects minted PostHog visitors | **fixed** #1625 (`a6083d7c`, live 01:46:13 UTC; 57 of the first 60 redirect events personless) |
+| M13 stale cache array→object | **fixed** #1619; guard `test-cc-stale-cache-shape` |
+| #1603 test-traffic exclusion | **mechanism ready in #1627, zero devices excluded** because identity evidence is insufficient (below) |
+| M6-M8, M10-M12, M14-M16 | definition/coverage differences, documented below; no lost data |
 
-**Reading the two stores together.** PostHog and Supabase `events` never share an identifier (below). Their totals measure different populations by design:
-- Supabase sessions and devices cover only the home shell.
-- PostHog sessions cover every page.
-- The Visitors tab applies the `tq-2026-09-30` bot rule. Overview applies only PostHog's own bot flag.
+### The analytics contract (what each number is)
 
-Do not force them to match. Compare each against its own definition with the queries in §5.
+| flow event | writer → store | identity | owner | bot | server/internal | Command Center reader |
+|---|---|---|---|---|---|---|
+| visit/session | `markSessionStart` → `events.session` (home shell only); `page_visit`/`$pageview` → PostHog (every page) | `device_id` / PostHog `person_id` | client suppression + `wf_cc_excluded_devices()`; PostHog owner ids | client suppression (webdriver/bot UA); PostHog `$virt_is_bot` | `llm_call` stopped by #1617; PostHog visitor queries exclude `$lib='wayfind-server'` (#1625) | `wf_cc_kpis.sessions/active_devices`; PostHog `overviewCounts` |
+| like / save / share / dislike | `recordLikeEvent`, card actions → `events` (+ PostHog `track`) | `device_id` | as above (M1 fixed) | client suppression | n/a | `wf_cc_kpis.likes/saves/shares` |
+| map interaction | `map_pin_selected`, `map_pin_tap`, `maps_list` → `events` | `device_id` | as above | as above | n/a | browse set only; **never a partner click** |
+| partner/booking click | `tickets_out`, `coupon_out`, `tour_card_out`, `book_it_out`, `partner_program_out`, `sponsor_out`, legacy `hotel_out`/`eats_out`/`ta_out`, and `primary_cta_clicked` with `meta.monetized` → `events`; `commerce_cta_clicked` → PostHog only | `device_id` / `person_id` | as above | as above | n/a | today `wf_cc_out_actions()`; `wf_cc_is_out(action, meta)` once #1627 is applied; PostHog commerce panels |
+| partner redirect | `/api/*/go` `captureServer` → PostHog `provider_redirect_*` | visitor's cookie id, else click id **personless** | cannot match an owner with no PostHog cookie (residual) | `$virt_is_bot` via `REAL_EVENTS` | is the server event; excluded from visitor counts | commerce/revenue panels only |
+| referrer | `session.meta.ref` (host since #1623) / PostHog `$referring_domain` | — | as above | as above | n/a | `wf_cc_breakdown('referrer')` (labelled limited); PostHog channels/referrers |
+
+One click writes exactly one of `tickets_out` / `primary_cta_clicked` (BookingCTA renders the tickets/rates primary without the primary handler), so nothing double counts.
+
+### Reconciliation on stored data (UTC windows)
+
+W1 = 2026-09-24 00:00 → 2026-10-01 00:00 (before #1617). W2 = 2026-10-01 10:29 → 2026-10-02 02:00 (after).
+
+| metric | W1 raw | W1 ex owner | Command Center W1 | PostHog W1 | W2 raw | W2 ex owner |
+|---|---|---|---|---|---|---|
+| devices / visitors | 446 dev* | 446 | 446 `active_devices` | 1,622 persons (`page_visit`) | 57 | 57 |
+| sessions | 464 | 454 | 454 | — | 58 | 58 |
+| detail opens | 518 | 502 | 502 | 564 | 18 | 18 |
+| likes / saves / shares | 1 / 3 / 1 | 0 / 3 / 0 | 0 / 3 / 0 | 1 / 0 / 1 | 0 / 1 / 0 | 0 / 1 / 0 |
+| primary CTA taps | 15 | 9 | — | 15 | 1 | 1 |
+| partner clicks, current rule | 2 | 2 | 2 | 22 `commerce_cta_clicked` (16 persons) | 0 | 0 |
+| partner clicks, #1627 rule | 3 | 3 | — | | 0 | 0 |
+
+\*447 raw incl. one owner device. The Command Center's first-party numbers equal the owner-excluded counts exactly. The two stores are different populations and must not be forced to match: Supabase covers the home shell; PostHog covers every page (M6). The first-party partner count is a narrow subset: card and chip partner clicks emit `commerce_cta_clicked` to PostHog only, so **PostHog commerce clicks are the partner-click number to use**.
+
+**PostHog visitor inflation (M9), measured.** W1: 2,114 persons, 1,634 with any client event; ~480 (23%) existed only through server redirects. 516 of the week's redirect failures came from bot user agents; `$virt_is_bot` flags 497 of them, so commerce panels (which use `REAL_EVENTS`) drop them; ~22 unflagged remain.
+
+### Historical contamination (raw rows kept; filtered at read time)
+
+| set | rows | dates | identified how | handled |
+|---|---|---|---|---|
+| owner-linked devices | 23,470 of 80,854 (29%) | all time | deterministic: 4 `exclude_emails` users → 14 devices | excluded by every `wf_cc_*` reader |
+| owner partner clicks | 106 of 121 all-time partner clicks | all time | same | excluded; real-visitor partner clicks all-time = 15 (22 under #1627) |
+| `server` device | 27,306 `llm_call` | 07-10..09-23 | deterministic: `device_id='server'` | not a counted action; stopped by #1617 |
+| redirect-only PostHog persons | ~480/week before #1625 | to 2026-10-02 01:46 | `$lib='wayfind-server'` | excluded from visitor queries (#1625, read time, so history is corrected too) |
+| test browsers | not identifiable | — | every `device_id` is `d_`+random; no test token in ids, places or meta (the only hits were random substrings: 8 Google place ids containing "e2E") | **left untouched** |
+
+### #1603 outcome
+
+Mechanism ready, zero devices excluded because identity evidence is insufficient. #1627 adds `wf_cc_settings` key `exclude_devices` (jsonb array of ids, trimmed; blanks and non-arrays exclude nothing), read by `wf_cc_excluded_devices()`. The table has RLS on and no policies, so no public user can write it. Adding an id excludes that device at read time; deleting it restores the device. Raw events are never touched.
+
+### Partner clicks (#1627, takes effect when applied)
+
+`maps_list` (a map intent) leaves the count; `book_it_out`, `partner_program_out`, `sponsor_out` join; the July `hotel_out`/`eats_out`/`ta_out` rows stay (16 real clicks). `primary_cta_clicked` counts when `meta.monetized` is true (written since #1623; verified live on a Magic Kingdom ticket CTA: `{cta_type:"tickets", provider:"undercover_tourist", monetized:true, exact:true}`); older rows count when they carry a provider (11 rows, all partner rungs; the 95 without a provider were menu/directions/plan/conditions). Production effect at apply: all-time 121 → 128, owner-excluded 15 → 22. `ttd_book` (14 rows, July) linked to a things-to-do `booking_url` that may be the venue's own site, so it is not counted.
+
+### Residual limits
+
+- An owner partner click with no PostHog cookie reaches PostHog personless and unmatched; it is excluded from visitors but can appear in commerce counts.
+- ~22 bot redirect failures a week are not flagged by `$virt_is_bot`.
+- First-party Supabase bots are filtered only by client suppression; rows carry no user agent, so historical bot rows cannot be separated.
 
 Line numbers in the map refer to `961c5e25` (2026-10-01).
 
 
-Everything below was read with `git show origin/main:<path>`. Nothing was executed against PostHog or Supabase. Where a finding has since been fixed, the row says so.
+The code map below was read with `git show origin/main:<path>`; the stored-data figures above were read from production on 2026-10-02. Where a finding has since been fixed, the row says so.
 
 Stores in play:
 
@@ -154,13 +203,13 @@ Other `events` readers **with no owner exclusion**:
 |---|---|---|---|
 | M1 | **`recordLikeEvent` writes Supabase with no suppression** *(fixed by #1617, 2026-10-01; historical rows only)* | `lib/likeSignal.js:230-242` vs suppressed sibling `track()` on the same lines (`lib/cardActions.js:161-162`, `IntentPageClient.js:124`, `TrendingNowClient.js:87`) | Owner/internal-marked browsers, bots and webdriver test runs write `like/dislike/save/share` rows. These are excluded only if the row carries the owner user_id, or the device ever did (D/U). An internal-marked but not-signed-in device (for example one authorised by Command Center key only, `ui.js:1199-1201`) leaks into `likes`, `saves`, `shares`, `engaged_devices`, `active_devices` and top places |
 | M2 | **`llm_call` rows use `device_id = "server"`**, which no RPC excludes *(fixed by #1617, 2026-10-01; historical rows only)* | `lib/insiderServer.js:68`; `wf_cc_kpis` `:99` counts `count(distinct device_id)` over all actions | Adds **+1 active device** (and +1 "Live now" device) in any window that had a model call. It also enters `wf_cc_minutes` events, `new_returning` and `time_to_action` t0 (the latter only if "server" ever performs an action, so mainly devices and minutes) |
-| M3 | **First-party referrer breakdown reads `meta.ref` as a URL, but the emitter writes `"share"` or `"direct"`** | reader `command-center.sql:210,225`; emitter `lib/shareMetrics.js:62` | The "Referrers" panel fallback (`ui.js:608-611`, used when PostHog channels are missing) can only ever show `direct` / `share` |
-| M4 | Readers filter on actions **no code emits** | `hotel_out`, `eats_out`, `ta_out` in `wf_cc_out_actions` (`:68`) / `eventMap.js:16`; `hero_tap` in `wf_cc_browse_actions` (`:79`) is emitted only to PostHog (`app/home.js:1201`); `vrbo_out` is in `AFFILIATE_EVENTS` (`lib/analytics.js:109-111`) with no emitter | Those terms are always 0. `maps_list` (an *intent* event per `lib/activation.js:47-50`) is counted as a **partner click** in `out_clicks`/funnel step 5 |
-| M5 | Emitters the readers ignore | Supabase receives `primary_cta_clicked` (`Detail.js:531,553`), `book_it_out` (`BookItLink.js:97`), `sponsor_out`, `partner_program_out`; none is in `wf_cc_out_actions`. Commerce clicks (`commerce_cta_clicked`, `provider_redirect_*`) are PostHog-only | First-party "out_clicks"/"Clicked a partner link" undercounts real partner clicks |
+| M3 | **First-party referrer breakdown reads `meta.ref` as a URL, but the emitter writes `"share"` or `"direct"`** *(writer fixed by #1623; legacy relabel in #1627)* | reader `command-center.sql:210,225`; emitter `lib/shareMetrics.js:62` | The "Referrers" panel fallback (`ui.js:608-611`, used when PostHog channels are missing) can only ever show `direct` / `share` |
+| M4 | Readers filter on actions **no code emits** *(#1627: `maps_list` removed; `hotel_out`/`eats_out`/`ta_out` kept for 16 real July rows)* | `hotel_out`, `eats_out`, `ta_out` in `wf_cc_out_actions` (`:68`) / `eventMap.js:16`; `hero_tap` in `wf_cc_browse_actions` (`:79`) is emitted only to PostHog (`app/home.js:1201`); `vrbo_out` is in `AFFILIATE_EVENTS` (`lib/analytics.js:109-111`) with no emitter | Those terms are always 0. `maps_list` (an *intent* event per `lib/activation.js:47-50`) is counted as a **partner click** in `out_clicks`/funnel step 5 |
+| M5 | Emitters the readers ignore *(#1627 counts them once applied)* | Supabase receives `primary_cta_clicked` (`Detail.js:531,553`), `book_it_out` (`BookItLink.js:97`), `sponsor_out`, `partner_program_out`; none is in `wf_cc_out_actions`. Commerce clicks (`commerce_cta_clicked`, `provider_redirect_*`) are PostHog-only | First-party "out_clicks"/"Clicked a partner link" undercounts real partner clicks |
 | M6 | **Surface coverage differs** | Supabase `session`/`screen_view`/`detail_open` come only from the home shell (`app/page.js`, `app/p/[id]/page.js` import `home.js`; `startSessionRecording` only at `home.js:7202`). Guides, intent and landing pages use `track()`, which is PostHog-only (`lib/track.js:34`) | PostHog sessions/visitors ≫ Supabase `sessions`/`active_devices`. The two are not comparable totals |
 | M7 | **Session definitions differ** | Supabase `session` = once per tab (sessionStorage `SS_SESSION`, `shareMetrics.js:58-64`), with no idle timeout, and only after the Supabase client is ready. PostHog = `$session_id` (30-min idle rollover). The Visitors tab additionally drops automated sessions | Three different "session" counts on one dashboard |
 | M8 | **Overview "Unique visitors"/"Sessions" do not apply the trafficQuality bot rule; the Visitors tab does** | `posthog.js:180-184` (only `$virt_is_bot`) vs `visitorReport.js:451-461`; `trafficQuality.js:6-9` says ~800 desktop sessions/week were *not* flagged by `$virt_is_bot` | Overview counts > Visitors-tab "real visits" by design. Report them as different metrics |
-| M9 | **Server redirect events mint a new PostHog person when there is no PH cookie**, and they are not owner-suppressed | `serverEvents.js:155-190` (no owner check); distinct fallback to `click_id` (`commerce/go:59`, etc.) | Each such click adds +1 to `uniq(person_id)` in Overview visitors (`posthog.js:181` counts all events). The owner's partner clicks (owner browsers never boot PostHog, so they have no cookie) reach PostHog as anonymous people that the user-id exclusion cannot match |
+| M9 | **Server redirect events mint a new PostHog person when there is no PH cookie**, and they are not owner-suppressed *(fixed by #1625: personless capture + visitor queries exclude server events)* | `serverEvents.js:155-190` (no owner check); distinct fallback to `click_id` (`commerce/go:59`, etc.) | Each such click adds +1 to `uniq(person_id)` in Overview visitors (`posthog.js:181` counts all events). The owner's partner clicks (owner browsers never boot PostHog, so they have no cookie) reach PostHog as anonymous people that the user-id exclusion cannot match |
 | M10 | **DNT / `wf_optout` handling differs** | `deviceId.js:66-71` mints a per-tab id; PostHog init has no `respect_dnt` (`PostHogProvider.js:83-93`) | DNT visitors become one Supabase "device" per tab (this inflates active_devices and new devices and deflates retention), while PostHog keeps one person |
 | M11 | Exclusion scope inconsistent across RPCs | U is applied in kpis/daily/signups but **not** in minutes/top_places/breakdown/funnel/retention/new_returning/time_to_action | Rows with an owner user_id on a not-yet-excluded device (impossible after the first such row, because D then catches it) are mostly harmless. It still breaks strict parity between panels |
 | M12 | Ad-blocker asymmetry | PostHog goes direct to `us.i.posthog.com` (no proxy, `next.config.js:73,255`); Supabase inserts go to `*.supabase.co` | Blocked browsers appear in Supabase only. This is the documented 09-17..19 gap pattern, `browserAnalytics.js:134-136` |
@@ -180,9 +229,7 @@ Double-emission checked and **not** found for PostHog product events: `logEvent`
 | Browser (both stores) | localStorage `wf_internal_browser_v1="1"`. Set automatically on owner sign-in (`browserAnalytics.js:83-85`, `PostHogProvider.js:59-64`) or after a successful Command Center auth (`ui.js:1199-1201`) | `analyticsSuppressionReason` | Yes: remove the key in that browser. There is no UI for it | PostHog client, `logEvent`, `logEventAnon`, `track`, `emitCommerce`, `CommerceClickBeacon`. Honored by `recordLikeEvent` since #1617 (was M1); **not** honored by server `/api/*/go` (M9), or GA4 (M15). Prevents future writes only and never excludes history |
 | Supabase reports | `wf_cc_settings` row `exclude_emails` (jsonb array of emails). The seed is applied out-of-repo (`command-center.sql:38-44`) → users → **every device that ever wrote a row as that user** | `wf_cc_excluded_users/devices` in every `wf_cc_*` (with the gaps in M11) | Yes: edit the row, takes effect at read time (TTL ≤10 min) | first-party RPCs only |
 | PostHog reports | `wf_cc_excluded_users()` ids ∪ env `WF_OWNER_USER_ID`, matched against `distinct_id` / `$user_id` / merged persons. Also the `$internal_or_test_user` person prop and project test-account filters (`filterTestAccounts`) | `posthog.js:98-154` | Yes (settings row / env / PostHog project settings) | all PostHog readers |
-| **Per-device_id exclusion** | **Does not exist** in either store. `docs/analytics-testing.md` previously said "Exclude confirmed test devices from reports **by `device_id`**", but no table, setting, env var or RPC parameter implements it. No `wf_cc_*` function accepts a device list, and the PostHog side has no device concept at all (`device_id` is not sent). `trafficQuality.js` is a heuristic and has no allow/deny list. A synthetic-tag scheme is explicitly "not implemented yet" (same doc, Mode 2 §2) | — | — | — |
-
-So excluding specific `device_id`s needs new code: for example a `wf_cc_settings('exclude_devices')` key unioned into `wf_cc_excluded_devices()` on the Supabase side. On the PostHog side there is no mapping from `device_id` to `distinct_id`, so specific PostHog persons can only be excluded by `distinct_id` or person (in project test-account filters, or by adding ids to the exclusion list).
+| Per-device_id exclusion | `wf_cc_settings` row `exclude_devices` (jsonb array of device ids), unioned into `wf_cc_excluded_devices()` by #1627. Empty: no device is proven to be test traffic | every `wf_cc_*` reader | Yes: delete the id | first-party RPCs only |
 
 ---
 
