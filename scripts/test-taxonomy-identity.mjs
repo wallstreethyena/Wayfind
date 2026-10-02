@@ -80,6 +80,10 @@ const cafeLeaks = [
   row("Cajun Cafe on the Bayou", "restaurant", ["restaurant", "cajun_restaurant", "american_restaurant"]),
   row("Ngọc Hà Vietnamese Restaurant", "restaurant", ["restaurant", "coffee_shop", "cafe", "food_store"]),
   row("Keys Jam - Rock Grill", "restaurant", ["cafe", "restaurant", "food"]),
+  // 2026-10-02 production audit: juice/shake bars with only a bare `cafe` tag.
+  row("Get Fit Fuel", "restaurant", ["juice_shop", "acai_shop", "brazilian_restaurant", "cafe", "restaurant", "food"]),
+  row("Buddys Juice Bar", "restaurant", ["sandwich_shop", "cafe", "juice_shop", "restaurant", "food"]),
+  row("Protein Lab Shake Bar", "restaurant", ["health_food_store", "snack_bar", "cafe", "meal_takeaway", "food_store", "store"]),
 ];
 for (const p of cafeLeaks) {
   ok(placeAllowed("food", "cafes", p) === false && placeAllowed("food", "coffee", p) === false, `Food → Cafés/Coffee refuse ${p.name}`);
@@ -97,6 +101,8 @@ const cafeKeepers = [
   // "Caffè" (accented) gets the same café-name rescue as "Cafe".
   row("Caffè Italia", "restaurant", ["restaurant", "pizza_restaurant", "cafe"]),
   row("Cafe Italia", "restaurant", ["restaurant", "pizza_restaurant", "cafe"]),
+  // …while a juice bar with REAL coffee evidence stays a café.
+  row("BARE Blends Tampa", "restaurant", ["salad_shop", "coffee_shop", "cafe", "juice_shop", "vegan_restaurant"]),
 ];
 for (const p of cafeKeepers) {
   ok(placeAllowed("food", "cafes", p) === true && placeAllowed("food", "coffee", p) === true, `keeper: Food → Cafés/Coffee keep ${p.name}`);
