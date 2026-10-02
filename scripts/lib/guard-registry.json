@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 787,
-    "totalRegistryEntries": 788,
-    "guardsTxtLineCount": 787,
-    "guardsTxtReachedFileCount": 780,
+    "totalOnDiskGuardFiles": 788,
+    "totalRegistryEntries": 789,
+    "guardsTxtLineCount": 788,
+    "guardsTxtReachedFileCount": 781,
     "criticalCount": 94,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 541,
+      "CALL": 542,
       "RENDER": 105,
       "STRUCTURAL": 141,
       "OTHER": 1
@@ -14070,6 +14070,28 @@
       "owner": null
     },
     {
+      "file": "scripts/test-inventory-all-adult.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 9,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-inventory-batch-concurrency.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -17785,7 +17807,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 130,
+      "assertionCount": 134,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
