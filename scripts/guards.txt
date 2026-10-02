@@ -169,6 +169,8 @@ node scripts/test-owner-places-2026-08-29d.mjs
 node scripts/test-owner-places-2026-08-29e.mjs
 node scripts/test-command-center.mjs
 node scripts/test-command-center-feedback.mjs
+# Stale-on-error cache keeps the shape it serves (arrays stay arrays).
+node scripts/test-cc-stale-cache-shape.mjs
 node scripts/test-vitals-attribution.mjs
 node scripts/test-layout-shift.mjs
 node scripts/test-lightbox-paging.mjs
@@ -288,6 +290,9 @@ node scripts/test-activation.mjs
 node scripts/test-containment.mjs
 node scripts/test-experiment.mjs
 node scripts/test-explore-bridge-gate.mjs
+# Fraunces: metric-matched Android fallback + scoped preload; every --wf-display
+# route under <DisplayFontScope> (2026-10-01, the "Right now" font jump).
+node scripts/test-font-fallback-metrics.mjs
 node scripts/test-beach-geo.mjs
 node scripts/check-app-viewport.mjs
 node scripts/check-shell-decomposition.mjs
@@ -536,6 +541,9 @@ node scripts/test-rail-like-stays.mjs
 # 2026-09-29 — the sponsored card (and every unwired card-store write) must never erase
 # a save/like made elsewhere: re-read before write, same-tab delta, home's own handlers.
 node scripts/test-card-store-coherence.mjs
+# Every first-party events write obeys the owner/internal/bot gate; the server
+# never poses as a visitor device (2026-10-01, Website user flow analysis).
+node scripts/test-analytics-write-suppression.mjs
 node scripts/check-viator-redirect-layer.mjs
 node scripts/check-intent-partner-picks.mjs
 # 2026-09-15 (Lane C) — every registered partner offer earns an intent-page or
@@ -1988,3 +1996,18 @@ node scripts/test-beach-never-booking.mjs
 # (check-guide-deal-cards read the real date). The guard is pinned; this proves the lapse is
 # announced in the Command Center instead — warn 2 days ahead and while lapsed, never a build.
 node scripts/test-coupon-audit-alert.mjs
+
+# 2026-10-01: "saint pete" offered a restaurant, never the city — LANDING_CITIES was
+# the only city table, so Florida markets with owned inventory but no published page
+# did not exist to search, the Location box or /api/rails. Locks the COVERED vs
+# PUBLISHED split: markets are searchable + feed-covered, mint no page/link/sitemap URL.
+node scripts/test-covered-markets.mjs
+# 2026-10-01: ownerless expiry fuses fail builds or hide data silently. Time-dependent tests run on explicit
+# reference dates; the coupon selection fix; Family-day/fall/coupon fuses warn through the Command Center.
+node scripts/test-coupon-selection.mjs
+node scripts/test-family-evidence-expiry.mjs
+
+# 2026-10-01: /api/health/photos keyed wf_spend_ledger by the Eastern date, so for the
+# first four UTC hours of every month it reported LAST month's exhausted photo budget
+# while grants landed on the new row. Every ledger reader keys months in UTC.
+node scripts/test-ledger-month.mjs

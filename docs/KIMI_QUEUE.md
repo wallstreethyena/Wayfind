@@ -10,6 +10,24 @@ past answers gets the same question re-asked.
 
 ---
 
+## 2026-10-01 — Dated owner maintenance (expiry fuses): triggers, owners, actions
+
+Not product decisions — dated actions that keep a deliberate freshness gate from blocking a deploy or silently
+shrinking a feature. Where a warning exists it is the existing Command Center rule (`lib/couponAuditFuses.js` →
+`lib/commandCenter/alerts.js` → `/api/cron/cc-alerts`, warn, 6h cooldown); no new scheduler.
+
+| What | Exact trigger (ET) | Owner | Action |
+|---|---|---|---|
+| `docs/os` live state (`check-os-state`, 45-day gate) | build fails after **2026-10-09 23:33** (stamp 2026-08-26T03:33:07Z + 45d) | Gabriel (needs `.env.local` Supabase credentials) | `node scripts/os-state.mjs --write --mirror`, review the diff, PR |
+| Family-day verified facts (`lib/familyDayEvidence.js`, 20 entries) | facts return `null` from **2026-10-09 20:00** (`expiresAt` 2026-10-10, 00:00Z) and **2026-10-10 20:00**; warning `audit_fuse_family_day_evidence` from 10-07 | Gabriel | re-verify each first-party source, then bump `verifiedAt`/`expiresAt`; unverified = stays expired (filters fall back to unknown) |
+| Clipp city-page cards (`CLIPP_AUDIT_EXPIRY`) | last live day **2026-10-12**; warning `coupon_audit_clipp_city_pages` from 10-10 | Gabriel | open Sarasota/Bradenton/Tampa/Orlando city pages in a real browser; renew only if live deals show |
+| Clipp merchant certificate cards (`CLIPP_MERCHANT_AUDIT_EXPIRY`) | **lapsed 2026-09-28**, cards hidden; warning `coupon_audit_clipp_merchant_cards` | Gabriel | clipp.com returns Access Denied to automated browsers, so this needs a human browser pass over the certificate pages; renew only what is verified. PR #1570 (nightly stale-audit) is the other lane's work |
+| Fall offerings with an end date (`lib/fallPool.js`) | `check-fall-registry-integrity` fails the day after each end: **11-01 → 11-02 00:00**, 11-08 → 11-09, 11-29 → 11-30; warning `audit_fuse_fall_offering_end` 2 days ahead | content owner / weekly fall discovery run | retire the entry (as Gideon's was) or re-verify with a new end date; never extend without evidence |
+| Required pre-merge build check | `main` accepted #1600 with a **failing `Vercel` commit status** on its exact head | repo admin | in GitHub branch protection/ruleset for `main`, add the `Vercel` status as a required check (that status is the production-equivalent `npm run build` + `check-bundle` for the exact head) |
+| Coupon alert email delivery | unobserved: Command Center needs owner auth; the first `coupon_audit_*` send logs `cc_alerts_cron ... ids` | Gabriel | confirm one `coupon_audit_*` email (or the panel entry) after the deploy |
+
+---
+
 ## 6. Money now — config and approval gates
 
 **Owner:** Gabe. Kim cannot enter values because they would land in this transcript.

@@ -18,11 +18,16 @@ import CommerceClickBeacon from "../components/CommerceClickBeacon";
 // The provider is a client island that only carries one boolean; the pages
 // stay server components. See app/components/PhotoPolicy.js.
 import { PhotoPolicyProvider } from "../components/PhotoPolicy";
+// Every /guides route sets --wf-display (Fraunces): scope + preload it here,
+// not site-wide. See app/fontsDisplay.js.
+import { DisplayFontScope } from "../fontsDisplay";
 
 export default function GuidesLayout({ children }) {
   return (
     <>
-      <PhotoPolicyProvider requireGoogleCredit>{children}</PhotoPolicyProvider>
+      <DisplayFontScope>
+        <PhotoPolicyProvider requireGoogleCredit>{children}</PhotoPolicyProvider>
+      </DisplayFontScope>
       <CommerceClickBeacon surface="guide" />
     </>
   );

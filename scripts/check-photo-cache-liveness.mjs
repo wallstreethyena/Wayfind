@@ -253,6 +253,47 @@ for (const s of [0, 301, 302, 429, 500, 502, 503, undefined]) ok(classifyPhotoUr
     "red-proof: with eviction removed, the dead uri IS served — so rule 1 above is a real assertion, not a tautology");
 }
 
+// ── 2026-10-01: inventory photo_url that is a RENTED Google uri ──────────
+// Club Vault / Munchie's / The Twisted Tonic stored a dead lh3 uri in
+// wf_inventory.photo_url; the resolver's inventory rung served it unprobed,
+// so the card's /api/photo?place= fallback got the same dead uri back.
+{
+  const INV_REF = `places/${PLACE}/photos/AAAAINVENTORYREF`;
+  const OWNED_HOST = "https://images.example-owned.test/venue.jpg";
+  const run = async ({ ownedUri, verdict }) => {
+    const st = { probes: [], inv: 0, google: 0 };
+    const r = await resolvePlacePhoto({ place: PLACE, w: 640, spendAllowed: false, serverKey: "k" }, {
+      now: NOW,
+      cacheGet: async (k) => (k === photoCacheKey(INV_REF, 640) ? { v: { uri: LIVE_URI, vok: NOW - 1000 }, ageMs: 2 * DAY } : null),
+      cacheDel: async () => {}, cacheSet: async () => {},
+      probeUri: async (u) => { st.probes.push(u); return verdict; },
+      inventoryGet: async () => { st.inv++; return { place_id: PLACE, photo_url: ownedUri, photo_ref: INV_REF }; },
+      fetchOwnedUri: async () => { st.google++; return null; },
+    });
+    return { r, st };
+  };
+  {
+    const { r, st } = await run({ ownedUri: DEAD_URI, verdict: PHOTO_URI_DEAD });
+    ok(st.probes.includes(DEAD_URI), "an inventory Google-hosted photo_url is liveness-probed before it is served");
+    ok(!(r.type === "redirect" && r.location === DEAD_URI), `a DEAD inventory Google uri is never served (got ${r.type}/${r.reason} ${r.location || ""})`);
+    ok(r.type === "redirect" && r.location === LIVE_URI && r.reason === "inventory-ref-cache",
+      `a dead inventory uri falls through to the place's own photo ref (got ${r.type}/${r.reason})`);
+    ok(st.google === 0, "the fall-through found a cached same-ref photo: zero Google calls");
+  }
+  {
+    const { r } = await run({ ownedUri: DEAD_URI, verdict: PHOTO_URI_ALIVE });
+    ok(r.type === "redirect" && r.location === DEAD_URI && r.reason === "inventory", "control: an ALIVE inventory Google uri is served as before");
+  }
+  {
+    const { r } = await run({ ownedUri: DEAD_URI, verdict: PHOTO_URI_UNKNOWN });
+    ok(r.type === "redirect" && r.location === DEAD_URI && r.reason === "inventory", "UNKNOWN (our timeout) is not dead: the inventory uri is still served");
+  }
+  {
+    const { r, st } = await run({ ownedUri: OWNED_HOST, verdict: PHOTO_URI_DEAD });
+    ok(st.probes.length === 0 && r.location === OWNED_HOST, "a non-Google owned photo is never probed (no rented-uri expiry class)");
+  }
+}
+
 if (fail.length) {
   console.error(`check-photo-cache-liveness: FAIL (${pass} passed, ${fail.length} failed)`);
   for (const m of fail) console.error("  ✗ " + m);

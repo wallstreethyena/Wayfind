@@ -135,12 +135,12 @@ const marker = "export async function GET(req) {";
 const routeBody = routeRaw.slice(routeRaw.indexOf(marker) + marker.length).trim().slice(0, -1);
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 const invokeGet = new AsyncFunction("deps", "req",
-  "const { NextResponse, LANDING_CITIES, DAYPART_IDS, nearestCity, geoCell, completeAnswersOnly, fastCachedRail, railMenuData, dedupeWire, windowRailData } = deps;\n" + routeBody);
+  "const { NextResponse, COVERED_CITIES, DAYPART_IDS, nearestCity, geoCell, completeAnswersOnly, fastCachedRail, railMenuData, dedupeWire, windowRailData } = deps;\n" + routeBody);
 let routeBuilds = 0;
 async function routeCase(value, throws = false, covered = true, cachedValue) {
   return invokeGet({
     NextResponse: { json: (body, options) => Response.json(body, options) },
-    LANDING_CITIES: {}, DAYPART_IDS: ["morning"], nearestCity: () => covered ? "sarasota" : null,
+    COVERED_CITIES: {}, DAYPART_IDS: ["morning"], nearestCity: () => covered ? "sarasota" : null,
     geoCell: (n) => n.toFixed(2),
     completeAnswersOnly,
     railMenuData: async () => { routeBuilds++; if (throws) throw new Error("fixture database timeout"); return value; },

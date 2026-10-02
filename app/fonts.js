@@ -38,45 +38,12 @@
 // The CSS variables below are the ONLY sanctioned way to reference a typeface in
 // app code. Do not re-introduce a literal system stack — scripts/check-typography.mjs
 // fails the build if one appears in a customer-facing surface.
-import { Fraunces, Inter } from "next/font/google";
+import { Inter } from "next/font/google";
 
-// --wf-display. `display: "swap"` over "optional" on purpose: this face carries
-// the headline, and a headline that silently never upgrades to the brand face on
-// a slow connection is the exact failure this file exists to fix.
-export const displayFont = Fraunces({
-  subsets: ["latin"],
-  display: "swap",
-  // v7.29 — 146KB OF FRAUNCES WAS BEING PRELOADED ON EVERY ROUTE AND USED ON
-  // ALMOST NONE OF THEM. This module is imported by app/layout.js, so next/font
-  // emitted <link rel=preload> for both faces on every page in the site — at
-  // TOP fetch priority, i.e. competing with the LCP image on the home page,
-  // which does not reference --wf-display at all. It is used in exactly three
-  // places (ExploreBridge, /culture/[metro], /guides/[slug]) and in italic in
-  // none of them, in the whole repo.
-  //
-  //   preload:false — the face is still fetched, just at normal priority when a
-  //     page that actually uses it asks for it. display:"swap" is UNCHANGED, so
-  //     those three surfaces still upgrade from the Georgia fallback exactly as
-  //     before; the only thing that changed is that the home page stops paying
-  //     for a font it never renders a glyph of.
-  //   the italic instance is dropped — nothing in the repo sets an italic style
-  //     on --wf-display, so it was ~73KB fetched to render zero characters.
-  preload: false,
-  style: ["normal"],
-  variable: "--wf-display",
-  // NO `weight` key on purpose. Passing an explicit weight list makes next/font
-  // fetch STATIC instances, which (a) costs one file per weight and (b) makes
-  // `axes` illegal — the build fails with "Axes can only be defined for variable
-  // fonts". Omitting weight keeps the variable font, so the full 400-700 range
-  // this codebase uses arrives in a single file and the optical-size axis below
-  // stays available.
-  //
-  // Fraunces ships an optical-size axis; next/font needs it named explicitly or
-  // it pins to a single opsz and large headlines render with text-sized contrast.
-  axes: ["opsz"],
-  fallback: ["Georgia", "Times New Roman", "serif"],
-});
-
+// --wf-display (Fraunces) lives in app/fontsDisplay.js, NOT here (2026-10-01).
+// This module is imported by the root layout, so a font declared here is
+// in scope — and, with preload, fetched — on every route. Fraunces is set on
+// four route trees only, and those are the ones that import fontsDisplay.js.
 // --wf-sans. The UI face. Weight range is a span rather than a list because the
 // shell uses a lot of intermediate weights inline.
 export const textFont = Inter({
@@ -86,7 +53,8 @@ export const textFont = Inter({
   fallback: ["-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
 });
 
-// Applied to <html> in app/layout.js. Both variables must be in scope at the root
-// so that every route — including the ones that render outside the home shell,
-// like /guides and /events — inherits them.
-export const fontVariables = `${displayFont.variable} ${textFont.variable}`;
+// Applied to <html> in app/layout.js, so every route — including the ones that
+// render outside the home shell, like /guides and /events — inherits --wf-sans.
+// --wf-display is applied by <DisplayFontScope> (app/fontsDisplay.js) on the
+// routes that set it.
+export const fontVariables = textFont.variable;
