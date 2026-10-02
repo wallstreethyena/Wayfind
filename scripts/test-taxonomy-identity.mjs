@@ -60,6 +60,8 @@ const breakfastKeepers = [
   // contains a nationality word, are not night-cuisine evidence.
   row("Sunrise Grill", "restaurant", ["restaurant", "breakfast_restaurant", "food"]),
   row("Indian Rocks Family Restaurant", "restaurant", ["restaurant", "breakfast_restaurant", "diner", "food"]),
+  // Caribbean is a real morning format (lib/breakfast.js): the name alone is not night evidence.
+  row("Island Caribbean Grill", "restaurant", ["restaurant", "breakfast_restaurant", "food"]),
 ];
 for (const p of breakfastKeepers) {
   ok(placeAllowed("food", "breakfast", p) === true, `keeper: Food → Breakfast keeps ${p.name}`);
@@ -219,6 +221,12 @@ for (const [sub, p] of attrKeepers) ok(placeAllowed("attractions", sub, p) === t
 for (const p of [
   row("LeVisa Massage Spa & Wellness", "massage", ["hotel", "spa", "massage", "lodging"]),
   row("The Ritz-Carlton Members Golf Club", "sports_club", ["resort_hotel", "golf_course", "hotel", "sports_club"]),
+  // The resort escape is for golf/spa primaries named "Resort" only.
+  row("Serenity Inn Spa", "massage", ["massage", "spa", "hotel", "lodging"]),
+  row("Hotel Massage Co", "massage", ["massage", "lodging"]),
+  row("Iron Suites Gym", "gym", ["gym", "fitness_center", "lodging"]),
+  row("Tranquil Inn Day Spa", "spa", ["spa", "lodging"]),                 // spa primary, but not a "Resort"
+  row("Resort Massage Studio", "massage", ["massage", "lodging"]),        // "Resort" name, but a massage primary
 ]) ok(placeAllowed("hotels", "all", p) === false && placeAllowed("hotels", "luxury", p) === false, `Hotels refuse ${p.name} (${p.primaryType})`);
 ok(placeAllowed("hotels", "all", row("The Ritz-Carlton, Sarasota", "resort_hotel", ["resort_hotel", "hotel", "lodging", "spa"])) === true,
   "keeper: a resort hotel with a spa stays in Hotels");
