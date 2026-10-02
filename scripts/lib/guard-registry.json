@@ -14054,9 +14054,7 @@
       "hasStructuralOnlyTag": false,
       "assertionCount": 9,
       "unprovenAbsenceCount": 0,
-      "honestyViolations": [
-        "has a real import/render/exec capability but zero assertions whose subject is a value RETURNED by code — every check reads source text only"
-      ],
+      "honestyViolations": [],
       "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,

@@ -51,15 +51,14 @@ globalThis.fetch = async (input) => {
     : world;
   return { ok: true, status: 200, json: async () => body, text: async () => JSON.stringify(body) };
 };
-const names = async (sub) => {
-  const out = await serveFromInventory("nightlife", CENTER.lat, CENTER.lng, RADIUS_M, 40, sub, { env: ENV, skipEditorial: true });
-  return (Array.isArray(out) ? out : (out && out.places) || []).map((p) => p.name || (p.displayName && p.displayName.text));
-};
+const nameOf = (p) => p.name || (p.displayName && p.displayName.text);
 try {
   for (const sub of ["all", "", "clubs", "bars", "music"]) {
-    const got = await names(sub);
-    ok(!got.some((x) => ADULT.some((a) => a.name === x)), `Night out → ${sub || "(no sub)"} serves no adult venue (got: ${got.join(" | ")})`);
-    if (sub === "all" || sub === "") ok(KEEP.every((k) => got.includes(k.name)), `keeper: Night out → ${sub || "(no sub)"} still serves every real club and bar (got: ${got.join(" | ")})`);
+    const served = await serveFromInventory("nightlife", CENTER.lat, CENTER.lng, RADIUS_M, 40, sub, { env: ENV, skipEditorial: true });
+    ok(Array.isArray(served) && !served.some((p) => ADULT.some((a) => a.name === nameOf(p))),
+      `Night out → ${sub || "(no sub)"} serves no adult venue (got: ${(served || []).map(nameOf).join(" | ")})`);
+    if (sub === "all" || sub === "") ok(KEEP.every((k) => served.some((p) => nameOf(p) === k.name)),
+      `keeper: Night out → ${sub || "(no sub)"} still serves every real club and bar (got: ${served.map(nameOf).join(" | ")})`);
   }
 } finally { globalThis.fetch = orig; }
 
