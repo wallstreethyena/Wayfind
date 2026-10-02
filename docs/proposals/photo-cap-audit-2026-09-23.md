@@ -66,3 +66,33 @@ that the store sits inside Universal Studios, so the ticket is a real way
 to visit it. It is still a weak match, since a 3 day park ticket is a much
 bigger purchase than a single tribute store visit. Keep this match for now,
 and look for a closer affiliate offer to replace it with later.
+
+## 2026-10-02 owner decision: 3,000 is the approved cap
+
+**Approved photo monthly cap: 3,000. Decision date: October 2, 2026.** The
+owner's decision is final unless the owner explicitly changes it later. The
+7,000 and 7,700 settings are superseded. Their history above and below stays
+unedited as evidence.
+
+| | Value | Evidence |
+|---|---|---|
+| Historical configuration | 7,000 (raised 2026-09-17, restored to 3,000 on 2026-09-23), then **7,700** | Vercel `GOOGLE_PHOTOS_MONTH_CAP` updated 2026-09-28 19:48:49 UTC. The variable's own comment read "owner raised from 7000 to 7700 (photos ledger at 6,024; +700 paid events <= ~$4.90)". No PR recorded an approval. The `wf_spend_ledger` 2026-09 photos row closed at 6,681 used against cap 7,700. |
+| Current approved configuration | **3,000** | Owner decision, 2026-10-02. |
+| Current effective production configuration | 3,000 set; enforcement shown when the ledger is stamped | `GOOGLE_PHOTOS_MONTH_CAP` set to 3000 at 2026-10-02 00:58:46 UTC. Production redeployed with no code change (`dpl_HWQ4BLsgwER2cQt8TDiURjhsTPBV`, commit `b26db5c2`, READY 01:04:51 UTC). |
+
+**Where it is enforced.** `lib/spendGate.js` `photosCeiling()` reads
+`GOOGLE_PHOTOS_MONTH_CAP` (only when `WAYFIND_PHOTOS_PAID=1`). `spendAllowPhotos()`
+then calls `wf_spend_take('photos', cap)`, which grants only while
+`used + 1 <= cap`.
+
+**How to read the effective ceiling.** Every successful grant writes
+`cap = p_cap` on the month's `photos` row. The row's `cap` therefore always
+shows the ceiling of the deployment that took the latest grant.
+
+**Separate limit.** Google's own daily Place Photos quota is a different
+limit. When it is exhausted, `provider-breaker|v1|google-photos-quota` holds
+every fetch until the next Pacific midnight plus 60 s, whatever the monthly
+ledger says.
+
+The September 23 rule above still applies: any future change to
+`GOOGLE_PHOTOS_MONTH_CAP` needs explicit written owner approval recorded in a PR.
