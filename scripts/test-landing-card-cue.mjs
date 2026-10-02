@@ -24,10 +24,11 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadComponent } from "./lib/jsxLoad.mjs";
 import { landingCardHref } from "../lib/placeCardRoute.js";
-import { hasPlaceViewEditorial } from "../lib/rankingWhy.js";
+import { hasPlaceViewEditorial, landingCardLine, LANDING_LINE_CAP } from "../lib/rankingWhy.js";
 import { mapWfEditorial } from "../lib/editorialRule.js";
 import { cardToEditorial } from "../lib/atlasCards.js";
 import { hasSourcedEditorialFields } from "../lib/editorialLookup.js";
+import { toHookLine } from "../lib/editorialHook.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 let pass = 0;
@@ -100,6 +101,20 @@ ok(hasPlaceViewEditorial(DRAC, { hook: TAKE, why_here: "long read", local_tip: "
   const land = strip(readFileSync(path.join(ROOT, "lib/landingPage.js"), "utf8"));
   ok(/editorialMore=\{take && hasPlaceViewEditorial\(p, eds\[p\.id\]\) \?/.test(land),
     "landing gates the cue on hasPlaceViewEditorial(p, eds[p.id])");
+}
+
+// 7 — the card line: one sentence, two phone lines, never a blind chop.
+{
+  const farm = "Chase Rice's country bar in the old MacDinton's space, pouring from a wall of nearly 100 whiskeys";
+  ok(landingCardLine(farm, "Welcome To The Farm") === "Chase Rice's country bar in the old MacDinton's space",
+    "a too-long line is shortened at its clause break (Farm, live 2026-10-02)");
+  ok(landingCardLine(TAKE, DRAC.name) === TAKE, "a line within " + LANDING_LINE_CAP + " chars is untouched");
+  const noClause = "McCurdy's has run stand-up in Sarasota since Pam and Les McCurdy founded it back in 1988 for good";
+  ok(landingCardLine(noClause, "X") === toHookLine(noClause, "X") && landingCardLine(noClause, "X").length > LANDING_LINE_CAP,
+    "no clause break -> no new space-chop below the global cap (the 2-line clamp is the backstop)");
+  ok(landingCardLine("", "X") === "", "no copy -> empty (no invented line)");
+  const land = strip(readFileSync(path.join(ROOT, "lib/landingPage.js"), "utf8"));
+  ok(/const take = landingCardLine\(/.test(land), "landing computes the card line through landingCardLine");
 }
 
 // 6 — what left the landing renders in the place view (same mappers the route uses).
