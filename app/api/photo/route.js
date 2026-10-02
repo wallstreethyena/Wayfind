@@ -17,6 +17,11 @@ import { findSamePlaceCachedPhoto } from "../../../lib/photoCacheRecovery";
 import { findFreePhoto } from "../../../lib/freePhoto";
 import { recordPhotoOutcome, recordPhotoDeniedCeiling } from "../../../lib/photoOutcomes";
 import { recordReaderPhotoMiss } from "../../../lib/photoReaderMissQueue";
+import { keepPhotoCredits } from "../../../lib/photoCredits";
+
+// Credits live as long as the photo cache row they pair with (30 days, the
+// Google ToS maximum for cached place content).
+const PHOTO_CREDIT_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
 export const dynamic = "force-dynamic";
 
@@ -127,7 +132,13 @@ export async function GET(req) {
   // only ever DENY spend, never grant it — lib/placePhotoServe's resolver
   // never even calls authorizeSpend while probing, so this is provable by
   // call count, not merely "asked and denied".
-  const probe = req.headers.get("x-wayfind-photo-probe") === "1";
+  // NO-SPEND READS (2026-09-30): `nospend=1` is the same no-spend read as the
+  // header, in the only form an <img src> can carry. Evergreen landing towns
+  // (lib/evergreenCities.js) put it on every card photo so a reader view can
+  // never buy a photo for them. Like the header it can only DENY spend: the
+  // resolver's probe branch never calls authorizeSpend, and a probe is never
+  // queued for repair. Locked by scripts/check-evergreen-landing-zero-spend.mjs.
+  const probe = req.headers.get("x-wayfind-photo-probe") === "1" || searchParams.get("nospend") === "1";
   const recoveryPlaceId = placeIdFromRef(ref) || (PLACE_RX.test(place) ? place : "");
   let recoveryPromise = null;
   const getRecovery = () => {
@@ -167,6 +178,9 @@ export async function GET(req) {
     // the place's current photo through the same gated path (see
     // lib/placePhotoServe.js PLACE-ONLY DISCOVERY).
     discoverPlace: true,
+    // Keep the photographer credits from the free Details response the
+    // resolver already received (never an extra Google call).
+    keepCredits: (placeId, photos) => keepPhotoCredits([{ id: placeId, photos }], PHOTO_CREDIT_TTL_MS),
     gateShut: shut,
     probe,
     // Ask the ledger only after resolvePlacePhoto has missed both the exact

@@ -72,7 +72,10 @@ const railsData = readFileSync(new URL("../lib/railsData.js", import.meta.url), 
 // 2) the PLACES rotate, because they are re-ranked every regeneration
 ok(/revalidate = 3600/.test(readFileSync(new URL("../app/page.js", import.meta.url), "utf8")),
   "the homepage must regenerate hourly, or the rail's places freeze with the page");
-ok(/const rank = \(deps && deps\.rankedFor\) \|\| rankedFor;/.test(railsData)
+// 2026-10-01: rankerFor() wraps the engine so a covered market (no landing
+// page) ranks its own centre via rankedForCenter — still the live engine.
+ok(/const rank = rankerFor\(\(deps && deps\.rankedFor\) \|\| rankedFor\);/.test(railsData)
+  && /function rankerFor\(rank\) \{[\s\S]*?\? rankedForCenter\([\s\S]*?: rank\(cat, city, opts\)\);\s*\}/.test(railsData)
   && /then\(\(\) => rank\(cat, city, \{/.test(railsData),
 "the rail's production dependency is the live ranking engine and the read queue invokes it, not a stored list");
 // 3) and no rail may be a frozen single pick

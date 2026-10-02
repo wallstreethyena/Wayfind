@@ -30,7 +30,7 @@
 // novel-key space to iterate over.
 import { NextResponse } from "next/server";
 import { dedupeWire, windowRailData } from "../../../lib/railsWire.js";
-import { LANDING_CITIES } from "../../../lib/landing";
+import { COVERED_CITIES } from "../../../lib/landingCities.js";
 import { railMenuData } from "../../../lib/railsData";
 import { DAYPART_IDS } from "../../../lib/dayparts";
 import { nearestCoveredCity, COVERAGE_MI } from "../../../lib/railCoverage";
@@ -52,9 +52,9 @@ export const maxDuration = 12;
 // needs the identical value client-side, and a route file cannot be imported
 // there. See that constant's own comment for why.
 
-/** Nearest LANDING_CITIES slug to a point, or null when nothing is close. */
+/** Nearest covered-city slug (published or market) to a point, or null when nothing is close. */
 export function nearestCity(lat, lng) {
-  return nearestCoveredCity(LANDING_CITIES, lat, lng, COVERAGE_MI);
+  return nearestCoveredCity(COVERED_CITIES, lat, lng, COVERAGE_MI);
 }
 
 export async function GET(req) {
@@ -94,7 +94,7 @@ export async function GET(req) {
   const askedBand = String(sp.get("band") || "");
   const band = DAYPART_IDS.includes(askedBand) ? askedBand : undefined;
   const asked = String(sp.get("city") || "");
-  const slug = LANDING_CITIES[asked] ? asked : nearestCity(la, ln);
+  const slug = COVERED_CITIES[asked] ? asked : nearestCity(la, ln);
   if (!slug) {
     // Out of coverage. 200 with a null payload, not a 404: the client must
     // empty the flagship rails (honest empty / CityGate), never keep Sarasota

@@ -5,6 +5,14 @@ import { governedScoreOf } from "../lib/lawfulOrder.js";
 import { RAILS } from "../lib/rails.js";
 import { dateNightIntentHref } from "../lib/dayparts.js";
 
+// This test checks rail COMPOSITION. Evidence freshness is a separate production policy
+// (lib/familyDayEvidence.js: expiresAt vs Date.now(), covered by test-family-evidence-expiry.mjs), so
+// the clock is anchored inside the evidence window and keeps ADVANCING (timers/deadlines stay real).
+// Without this the test failed on the day the evidence expired (2026-10-10) on unchanged code.
+const REF_MS = Date.parse("2026-09-20T16:00:00Z");
+const PERF0 = performance.now();
+Date.now = () => REF_MS + (performance.now() - PERF0);
+
 const origin = { lat: 27.3, lng: -82.5, radiusMi: 25, rail: "beach" };
 const row = (id, overrides = {}) => ({ place_id: id, name: "Public Beach", category: "beach", primary_type: "beach", google_types: ["beach"], lat: 27.3, lng: -82.5, signals: { rating: 4.7, reviews: 1000 }, status: "OPERATIONAL", ...overrides });
 const low = row("low", { signals: { rating: 4.5, reviews: 500 } });

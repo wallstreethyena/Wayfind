@@ -1,0 +1,31 @@
+/* app/fontFallbacks.css — a metric-matched fallback for Fraunces where next/font's
+   own fallback cannot resolve (2026-10-01, the "Right now" font jump).
+
+   next/font gives Fraunces ONE adjusted fallback face: local("Times New Roman")
+   with size-adjust etc. computed against Times. iOS, macOS and Windows ship Times,
+   so there the fallback text is already the size Fraunces will be and the swap is
+   still (measured: 0px on the Orlando and Sarasota guides, 390 and 1280).
+   Android ships no Times New Roman and no Georgia: the chain falls through to the
+   UNADJUSTED system serif (Noto Serif), which sets wider and taller than Fraunces.
+   When Fraunces (preload:false, see app/fonts.js) lands after first paint, every
+   Fraunces block reflows. Measured on production, Fraunces late, Inter on time:
+   "Right now" / pick 1 moved 42px (Orlando 390), 103px (Orlando 1280), 38px
+   (Sarasota 1280).
+
+   This face is the Android equivalent of next/font's Times face: the same
+   formula (next/dist/server/font-utils.js calculateSizeAdjustValues) applied to
+   Noto Serif's metrics from next's own capsize table. It is named in
+   displayFont's `fallback` list right after next/font's face, so it is only
+   reached where Times New Roman is absent, and a device without Noto Serif
+   falls through to Georgia/Times/serif exactly as before. No bytes are fetched:
+   local() only. scripts/test-font-fallback-metrics.mjs recomputes the four
+   numbers and fails if they drift; tests/e2e/font-fallback-swap.spec.js measures
+   the swap on the real build. */
+@font-face {
+  font-family: "Fraunces Fallback Noto";
+  src: local("Noto Serif"), local("Noto Serif Regular"), local("NotoSerif-Regular");
+  ascent-override: 100.30%;
+  descent-override: 26.15%;
+  line-gap-override: 0.00%;
+  size-adjust: 97.51%;
+}

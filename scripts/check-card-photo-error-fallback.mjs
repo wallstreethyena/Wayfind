@@ -133,7 +133,9 @@ const ROUTE = read("app/api/photo/route.js");
   ok(/const primaryPhoto = (?:photoSrcFilter\()?photoUrl\(place\)/.test(ICONIC)
     && /primaryPhoto && imgFailed !== primaryPhoto/.test(ICONIC),
     "IconicPlaceCard resolves one primary source and its img-vs-monogram gate reads keyed error state");
-  ok(/ownedPlacePhotoSrc\(place\.place_id \|\| place\.id, 640\)/.test(ICONIC)
+  // 2026-09-30: the optional third arg is the evergreen no-spend flag
+  // (lib/evergreenCities.js) — still THIS place's own id, only never spending.
+  ok(/ownedPlacePhotoSrc\(place\.place_id \|\| place\.id, 640(?:, !!place\.photoNoSpend)?\)/.test(ICONIC)
     && /samePlacePhotoFallback/.test(ICONIC),
     "IconicPlaceCard prepares an identity-safe same-place retry, never a neighbour image");
   // Scoped to the media block specifically (check-drop-photo-window.mjs's own
