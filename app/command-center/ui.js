@@ -604,8 +604,8 @@ function TrafficSection({ auth, range }) {
           </Frame>
         </Card>
         <Card>
-          <Frame title="Top referrers" def="Referring domains of session entries ($direct = typed/bookmark). First-party 'session.ref' shown when PostHog is absent."
-            source={channels ? dget(d, "referrers.source") : dget(d, "firstPartyReferrers.source")}
+          <Frame title={dget(d, "referrers.data", null) ? "Top referrers" : "Referring site & Wayfind entry (first-party)"} def={dget(d, "referrers.data", null) ? "Referring domains of session entries from PostHog ($direct = typed/bookmark)." : "PostHog referrers are unavailable, so this is the first-party session row: the referring site's host since 2026-10-02, and only the entry type ('(entry: Wayfind share link)' or '(direct/none)') before that. Not a full acquisition report: no search, social or campaign breakdown is inferred."}
+            source={dget(d, "referrers.data", null) ? dget(d, "referrers.source") : dget(d, "firstPartyReferrers.source")}
             columns={["Referrer", "Sessions"]}
             rows={((dget(d, "referrers.data", null) || dget(d, "firstPartyReferrers.data", null)) || []).map((r) => [r.referrer || r.k, r.sessions || r.n])}>
             <HBarList color={CAT[2]} items={((dget(d, "referrers.data", null) || dget(d, "firstPartyReferrers.data", null)) || []).map((r) => ({ label: r.referrer || r.k, value: r.sessions || r.n }))} />

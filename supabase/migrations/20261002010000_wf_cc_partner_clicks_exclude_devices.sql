@@ -15,7 +15,13 @@
 --    time_to_action) now calls the predicate instead of the bare list.
 --    A read-time change: no events row is written, updated or deleted.
 --
--- 2. #1603 DEVICE EXCLUSION. wf_cc_excluded_devices() also returns the device
+-- 2. REFERRERS. Session rows written before #1623 (2026-10-02) stored the entry
+--    type ("share"/"direct") in meta.ref, which wf_cc_breakdown('referrer') then
+--    showed as if it were a referring site (W1 2026-09-24..10-01: "share" 343,
+--    "direct" 111). Those legacy values now read "(entry: Wayfind share link)" and
+--    "(direct/none)"; new rows carry the real referring host.
+--
+-- 3. #1603 DEVICE EXCLUSION. wf_cc_excluded_devices() also returns the device
 --    ids listed in wf_cc_settings 'exclude_devices' (jsonb array). The row does
 --    not exist after this migration: nothing is excluded until the owner adds a
 --    CONFIRMED test device id. Reversible by editing or deleting that row.
@@ -143,7 +149,11 @@ language sql stable security definer set search_path = public as $$
         when 'no_result'  then coalesce(nullif(meta->>'cat',''),'?') || ' · ' ||
                                coalesce(nullif(regexp_replace(coalesce(meta->>'loc',''), '^[^,]*[0-9][^,]*,\\s*', ''),''),'(unknown area)')
         when 'no_result_city' then coalesce(nullif(regexp_replace(coalesce(meta->>'loc',''), '^[^,]*[0-9][^,]*,\\s*', ''),''),'(unknown area)')
-        when 'referrer'   then coalesce(nullif(lower(split_part(regexp_replace(meta->>'ref','^https?://',''),'/',1)),''),'(direct/none)')
+        -- rows before 2026-10-02 (#1623) stored the entry type, not a site: label it as such
+        when 'referrer'   then case lower(coalesce(meta->>'ref',''))
+                                 when 'share'  then '(entry: Wayfind share link)'
+                                 when 'direct' then '(direct/none)'
+                                 else coalesce(nullif(lower(split_part(regexp_replace(meta->>'ref','^https?://',''),'/',1)),''),'(direct/none)') end
         when 'share_kind' then nullif(meta->>'kind','')
         when 'curated'    then nullif(meta->>'kind','')
         when 'out_provider' then action

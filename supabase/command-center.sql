@@ -241,7 +241,11 @@ language sql stable security definer set search_path = public as $$
         when 'no_result'  then coalesce(nullif(meta->>'cat',''),'?') || ' · ' ||
                                coalesce(nullif(regexp_replace(coalesce(meta->>'loc',''), '^[^,]*[0-9][^,]*,\\s*', ''),''),'(unknown area)')
         when 'no_result_city' then coalesce(nullif(regexp_replace(coalesce(meta->>'loc',''), '^[^,]*[0-9][^,]*,\\s*', ''),''),'(unknown area)')
-        when 'referrer'   then coalesce(nullif(lower(split_part(regexp_replace(meta->>'ref','^https?://',''),'/',1)),''),'(direct/none)')
+        -- rows before 2026-10-02 (#1623) stored the entry type, not a site: label it as such
+        when 'referrer'   then case lower(coalesce(meta->>'ref',''))
+                                 when 'share'  then '(entry: Wayfind share link)'
+                                 when 'direct' then '(direct/none)'
+                                 else coalesce(nullif(lower(split_part(regexp_replace(meta->>'ref','^https?://',''),'/',1)),''),'(direct/none)') end
         when 'share_kind' then nullif(meta->>'kind','')
         when 'curated'    then nullif(meta->>'kind','')
         when 'out_provider' then action

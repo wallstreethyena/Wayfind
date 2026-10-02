@@ -92,6 +92,13 @@ ok(/case when \(coalesce\(_meta, '\{\}'::jsonb\) -> 'monetized'\) is not null th
 ok(/else coalesce\(_meta->>'provider',''\) <> '' end/.test(pred), "rows written before the flag count when they carry a provider (production: 11/11 provider rows were partner rungs, 0/95 without)");
 ok(!/\?/.test(pred.replace(/\$\$/g, "")), "no jsonb `?` operator (a driver placeholder hazard)");
 
+// ── 4b. referrers stay honest ──────────────────────────────────────────────
+const brk = F.get("wf_cc_breakdown") || "";
+ok(/when 'share'\s+then '\(entry: Wayfind share link\)'/.test(brk), "legacy meta.ref 'share' reads as an entry type, never as a referring site");
+ok(/when 'direct' then '\(direct\/none\)'/.test(brk), "legacy meta.ref 'direct' reads as (direct/none)");
+const uiSrc = read("app/command-center/ui.js");
+ok(/"Referring site & Wayfind entry \(first-party\)"/.test(uiSrc) && /Not a full acquisition report/.test(uiSrc), "the first-party referrer fallback is labelled as limited, not as a referrer report");
+
 // ── 5. #1603 exclusion ─────────────────────────────────────────────────────
 const exd = F.get("wf_cc_excluded_devices") || "";
 ok(/s\.k = 'exclude_devices'/.test(exd), "excluded devices include the exclude_devices setting");
