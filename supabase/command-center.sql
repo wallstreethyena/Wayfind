@@ -67,7 +67,7 @@ returns setof text language sql stable security definer set search_path = public
   select distinct e.device_id from public.events e
   where e.user_id in (select public.wf_cc_excluded_users()) and e.device_id is not null
   union
-  select d from public.wf_cc_settings s, jsonb_array_elements_text(
+  select trim(d) from public.wf_cc_settings s, jsonb_array_elements_text(
     case when jsonb_typeof(s.v) = 'array' then s.v else '[]'::jsonb end) as d
   where s.k = 'exclude_devices' and nullif(trim(d), '') is not null
 $$;

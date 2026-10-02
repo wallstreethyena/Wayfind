@@ -70,10 +70,14 @@ for (const a of ["tickets_out", "coupon_out", "tour_card_out", "book_it_out", "p
 
 // ── 3. readers use the predicate ───────────────────────────────────────────
 const code = strip(full);
-const bare = (code.match(/(?<!_)action = any\(public\.wf_cc_out_actions\(\)\)/g) || []).length;
-const inPred = (code.match(/_action = any\(public\.wf_cc_out_actions\(\)\)/g) || []).length;
-ok(bare === 0, `no reader uses the bare out list (found ${bare})`);
-ok(inPred === 1, `the bare list is used exactly once, inside wf_cc_is_out (found ${inPred})`);
+// Every CALL of the list, however it is spelled (= any(...), in (select unnest(...)), ...),
+// outside its own definition must be inside wf_cc_is_out.
+const calls = (code.match(/public\.wf_cc_out_actions\s*\(\s*\)/gi) || []).length;
+const predCalls = ((F.get("wf_cc_is_out") || "").match(/public\.wf_cc_out_actions\s*\(\s*\)/gi) || []).length;
+const defs = (code.match(/create or replace function public\.wf_cc_out_actions\s*\(\s*\)/gi) || []).length;
+ok(defs === 1 && predCalls === 1, `the list is defined once and called once inside wf_cc_is_out (defs ${defs}, predicate calls ${predCalls})`);
+ok(calls - defs - predCalls === 0, `no reader calls the out list directly, any spelling (found ${calls - defs - predCalls})`);
+
 for (const name of ["wf_cc_kpis", "wf_cc_daily", "wf_cc_top_places", "wf_cc_breakdown", "wf_cc_funnel", "wf_cc_time_to_action"]) {
   ok(/public\.wf_cc_is_out\(action, meta\)/.test(F.get(name) || ""), `${name} counts partner clicks through wf_cc_is_out(action, meta)`);
 }
@@ -91,7 +95,8 @@ const exd = F.get("wf_cc_excluded_devices") || "";
 ok(/s\.k = 'exclude_devices'/.test(exd), "excluded devices include the exclude_devices setting");
 ok(/case when jsonb_typeof\(s\.v\) = 'array' then s\.v else '\[\]'::jsonb end/.test(exd), "a non-array setting excludes nothing");
 ok(/nullif\(trim\(d\), ''\) is not null/.test(exd), "blank ids are dropped");
-ok(/select distinct e\.device_id\s+from public\.events e/.test(exd) || /wf_cc_excluded_users\(\)/.test(exd), "the existing owner-derived device exclusion is kept (union, not replace)");
+ok(/select distinct e\.device_id from public\.events e\s+where e\.user_id in \(select public\.wf_cc_excluded_users\(\)\)/.test(exd) && /\bunion\b/.test(exd), "the existing owner-derived device exclusion is kept (union, not replace)");
+ok(/select trim\(d\) from public\.wf_cc_settings s/.test(exd), "excluded ids are trimmed before comparison (a pasted ' id ' still matches)");
 ok(!/insert into public\.wf_cc_settings[^;]*exclude_devices/i.test(strip(mig)), "the migration adds NO device ids: nothing is excluded until the owner confirms one");
 
 if (fail.length) {

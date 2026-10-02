@@ -21,7 +21,8 @@
 --
 -- Mirrors supabase/command-center.sql exactly (the function bodies below are
 -- copied from it; scripts/test-cc-partner-click-predicate.mjs checks they match
--- and executes both against a fixture database).
+-- byte for byte. The SQL was executed against PGlite at authoring time; the
+-- guard itself is text-only).
 --
 -- ROLLBACK: re-run the previous definitions from git (supabase/command-center.sql
 -- at the parent commit) and `drop function if exists public.wf_cc_is_out(text,jsonb);`.
@@ -42,7 +43,7 @@ returns setof text language sql stable security definer set search_path = public
   select distinct e.device_id from public.events e
   where e.user_id in (select public.wf_cc_excluded_users()) and e.device_id is not null
   union
-  select d from public.wf_cc_settings s, jsonb_array_elements_text(
+  select trim(d) from public.wf_cc_settings s, jsonb_array_elements_text(
     case when jsonb_typeof(s.v) = 'array' then s.v else '[]'::jsonb end) as d
   where s.k = 'exclude_devices' and nullif(trim(d), '') is not null
 $$;
