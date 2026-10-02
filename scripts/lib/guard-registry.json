@@ -27,16 +27,16 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 786,
-    "totalRegistryEntries": 787,
-    "guardsTxtLineCount": 786,
-    "guardsTxtReachedFileCount": 779,
+    "totalOnDiskGuardFiles": 787,
+    "totalRegistryEntries": 788,
+    "guardsTxtLineCount": 787,
+    "guardsTxtReachedFileCount": 780,
     "criticalCount": 94,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 541,
       "RENDER": 105,
-      "STRUCTURAL": 140,
+      "STRUCTURAL": 141,
       "OTHER": 1
     }
   },
@@ -3358,6 +3358,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 23,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-gps-manual-pick-race.mjs",
+      "npmScript": null,
+      "class": "STRUCTURAL",
+      "hasStructuralOnlyTag": true,
+      "assertionCount": 3,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
