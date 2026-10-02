@@ -1,0 +1,310 @@
+{
+  "batch": 6,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "ilovetheburg:pints-pilates",
+      "lead_name": "Pints & Pilates",
+      "source": "ilovetheburg",
+      "venue": "Grand Central Brewhouse",
+      "address": "2340 Central Avenue",
+      "city": "St. Petersburg",
+      "zip": "33712",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://0z156jg1w75.typeform.com/to/EOX6TAdJ"
+      ],
+      "organizer_names": [
+        "CASA Pinellas"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-04 10:00:00",
+          "end": "2026-10-04 12:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:tampa-girls-pilates-in-bloom",
+      "lead_name": "Tampa Girls – Pilates in Bloom",
+      "source": "ilovetheburg",
+      "venue": "Station House",
+      "address": "260 1st Ave South",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": "$20",
+      "organizer_url_hints": [
+        "https://events.sweatpals.com/e210a710"
+      ],
+      "organizer_names": [
+        "tampagirlsocial"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-04 10:00:00",
+          "end": "2026-10-04 12:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:sips-spirits-sunday-football",
+      "lead_name": "Sips, Spirits & Sunday Football",
+      "source": "thatssotampa",
+      "venue": "Renaissance Tampa International Plaza Hotel",
+      "address": "4200 Jim Walter Blvd.",
+      "city": "Tampa",
+      "zip": "33607",
+      "cost_text": "$49",
+      "organizer_url_hints": [
+        "https://www.opentable.com/r/renaissance-tampa-international-plaza-hotel-special-events-tampa",
+        "https://www.marriott.com/en-us/hotels/tpaim-renaissance-tampa-international-plaza-hotel/overview/"
+      ],
+      "organizer_names": [
+        "Renaissance Tampa International Plaza Hotel"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-04 12:00:00",
+          "end": "2026-10-04 14:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:tampa-bay-buccaneers-vs-green-bay-packers",
+      "lead_name": "Tampa Bay Buccaneers vs Green Bay Packers",
+      "source": "ilovetheburg",
+      "venue": "Raymond James Stadium",
+      "address": "4201 N Dale Mabry Hwy",
+      "city": "Tampa",
+      "zip": "33607",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.buccaneers.com/tickets/single-game"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-04 13:00:00",
+          "end": "2026-10-04 16:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:tampa-bay-buccaneers-vs-green-bay-packers",
+      "lead_name": "Tampa Bay Buccaneers vs Green Bay Packers",
+      "source": "thatssotampa",
+      "venue": "Raymond James Stadium",
+      "address": "4201 N Dale Mabry Hwy",
+      "city": "Tampa",
+      "zip": "33607",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.buccaneers.com/tickets/single-game?source=sgthome",
+        "https://secure.acsevents.org/site/TR?fr_id=109431&pg=informational&sid=212807&name=event-details"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-04 13:00:00",
+          "end": "2026-10-04 16:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:tampa-paint-party-field-of-jacks",
+      "lead_name": "Tampa Paint Party – Field Of Jacks",
+      "source": "thatssotampa",
+      "venue": "New World Tampa",
+      "address": "810 East Skagway Avenue Tampa",
+      "city": "Tampa",
+      "zip": "33604",
+      "cost_text": "$35.00 – $39.00",
+      "organizer_url_hints": [
+        "https://wineandcanvas.com/florida/event/tampa-paint-party-field-of-jacks/",
+        "https://wineandcanvas.com/tampa/events/"
+      ],
+      "organizer_names": [
+        "Wine and Canvas – Paint and Sip Classes"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-04 13:00:00",
+          "end": "2026-10-04 16:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:trivia-night-hopped-up-on-democracy",
+      "lead_name": "Trivia Night: Hopped Up on Democracy",
+      "source": "ilovetheburg",
+      "venue": "Grand Central Brewhouse",
+      "address": "2340 Central Avenue",
+      "city": "St. Petersburg",
+      "zip": "33712",
+      "cost_text": "Free",
+      "organizer_url_hints": [],
+      "organizer_names": [
+        "Common Cause Florida"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-04 16:00:00",
+          "end": "2026-10-04 18:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:tampa-bay-sun-vs-lexington-sc",
+      "lead_name": "Tampa Bay Sun vs. Lexington SC",
+      "source": "thatssotampa",
+      "venue": "Suncoast Credit Union Field",
+      "address": "1701 North Boulevard",
+      "city": "Tampa",
+      "zip": "33607",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.tampabaysunfc.com/schedule/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-04 17:00:00",
+          "end": "2026-10-04 19:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:tour-of-terror",
+      "lead_name": "Tour of Terror",
+      "source": "ilovetheburg",
+      "venue": "Bayboro Brewing",
+      "address": "2390 5th Ave S.",
+      "city": "Saint Petersburg",
+      "zip": null,
+      "cost_text": "$15",
+      "organizer_url_hints": [
+        "https://www.eventbrite.com/e/tour-of-terror-tampa-tickets-2002096765320?aff=oddtdtcreator&amp;keep_tld=true",
+        "https://www.instagram.com/stampedesounds/"
+      ],
+      "organizer_names": [
+        "Stampede Sounds"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-04 19:00:00",
+          "end": "2026-10-04 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:tampa-bay-lightning-vs-philadelphia-flyers-2",
+      "lead_name": "Tampa Bay Lightning vs. Philadelphia Flyers",
+      "source": "ilovetheburg",
+      "venue": null,
+      "address": null,
+      "city": null,
+      "zip": null,
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.nhl.com/lightning/tickets/single-game-tickets"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-05 19:00:00",
+          "end": "2026-10-05 21:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:tampa-bay-lightning-vs-philadelphia-flyers",
+      "lead_name": "Tampa Bay Lightning vs. Philadelphia Flyers",
+      "source": "thatssotampa",
+      "venue": "Benchmark International Arena",
+      "address": "401 Channelside Dr",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.nhl.com/lightning/tickets/single-game-tickets",
+        "https://www.benchmarkintlarena.com"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-05 19:00:00",
+          "end": "2026-10-05 19:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:tampa-bay-rays-vs-new-york-yankees-american-league-division-series-game-2",
+      "lead_name": "Tampa Bay Rays vs. New York Yankees — American League Division Series Game 2",
+      "source": "ilovetheburg",
+      "venue": "Tropicana Field",
+      "address": "1 Tropicana Dr",
+      "city": "St. Petersburg",
+      "zip": "33705",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.mlb.com/rays/tickets/postseason"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-05 20:00:00",
+          "end": "2026-10-05 22:30:00",
+          "all_day": false
+        }
+      ]
+    }
+  ]
+}

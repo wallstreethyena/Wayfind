@@ -1,0 +1,303 @@
+{
+  "batch": 33,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "ilovetheburg:professor-brian-cox-at-mahaffey-theater",
+      "lead_name": "Professor Brian Cox at Mahaffey Theater",
+      "source": "ilovetheburg",
+      "venue": "Duke Energy Center for the Arts – Mahaffey Theater",
+      "address": "400 1st St S",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": "$102",
+      "organizer_url_hints": [
+        "https://www.theaterstpetersburg.com/events/professor-brian-cox-22-november-2026/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-22 19:30:00",
+          "end": "2026-11-22 21:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:beat-the-music-of-king-crimson",
+      "lead_name": "BEAT – The Music of King Crimson",
+      "source": "ilovetheburg",
+      "venue": "Duke Energy Center for the Arts – Mahaffey Theater",
+      "address": "400 1st St S",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-24 20:00:00",
+          "end": "2026-11-24 23:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:buzzcocks-2026-north-american-tour",
+      "lead_name": "Buzzcocks: 2026 North American Tour",
+      "source": "ilovetheburg",
+      "venue": "Jannus Live",
+      "address": "200 1st Ave N STE 206",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.jannuslive.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-24 20:00:00",
+          "end": "2026-11-24 23:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:sting-3-0-tour",
+      "lead_name": "STING 3.0 Tour",
+      "source": "thatssotampa",
+      "venue": "Seminole Hard Rock Tampa Event Center",
+      "address": "5223 Orient Rd",
+      "city": "Tampa",
+      "zip": "33610",
+      "cost_text": null,
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-24 20:00:00",
+          "end": "2026-11-24 23:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:tampa-bay-lightning-vs-carolina-hurricanes-2",
+      "lead_name": "Tampa Bay Lightning vs. Carolina Hurricanes",
+      "source": "ilovetheburg",
+      "venue": null,
+      "address": null,
+      "city": null,
+      "zip": null,
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.nhl.com/lightning/tickets/single-game-tickets"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-25 19:00:00",
+          "end": "2026-11-25 21:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:tampa-bay-lightning-vs-carolina-hurricanes",
+      "lead_name": "Tampa Bay Lightning vs. Carolina Hurricanes",
+      "source": "thatssotampa",
+      "venue": "Benchmark International Arena",
+      "address": "401 Channelside Dr",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.nhl.com/lightning/tickets/single-game-tickets",
+        "https://www.benchmarkintlarena.com"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-25 19:00:00",
+          "end": "2026-11-25 19:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:tape-b-presents-tapesgiving",
+      "lead_name": "Tape B presents: Tapesgiving",
+      "source": "ilovetheburg",
+      "venue": "The BayCare Sound",
+      "address": "255 Drew St",
+      "city": "Clearwater",
+      "zip": "33755",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.rutheckerdhall.com/events/detail/tape-b"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-27 02:00:00",
+          "end": "2026-11-28 01:59:59",
+          "all_day": true
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:tampa-bay-lightning-vs-ottawa-senators-2",
+      "lead_name": "Tampa Bay Lightning vs. Ottawa Senators",
+      "source": "ilovetheburg",
+      "venue": null,
+      "address": null,
+      "city": null,
+      "zip": null,
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.nhl.com/lightning/tickets/single-game-tickets"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-27 15:00:00",
+          "end": "2026-11-27 17:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:tampa-bay-lightning-vs-ottawa-senators",
+      "lead_name": "Tampa Bay Lightning vs. Ottawa Senators",
+      "source": "thatssotampa",
+      "venue": "Benchmark International Arena",
+      "address": "401 Channelside Dr",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.nhl.com/lightning/tickets/single-game-tickets",
+        "https://www.benchmarkintlarena.com"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-27 15:00:00",
+          "end": "2026-11-27 15:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:night-out-cooking-class-italian-seafood-table",
+      "lead_name": "Night Out Cooking Class – Italian Seafood Table",
+      "source": "ilovetheburg",
+      "venue": "The Chef Upstairs (inside The Foodie Labs)",
+      "address": "515 22nd St S",
+      "city": "St Pete",
+      "zip": "33712",
+      "cost_text": "$95",
+      "organizer_url_hints": [
+        "https://square.link/u/LarO2wRz",
+        "https://thechefupstairsusa.com/"
+      ],
+      "organizer_names": [
+        "@thechefupstairsusa"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-27 18:00:00",
+          "end": "2026-11-27 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:16th-annual-shopapalooza-festival",
+      "lead_name": "16th Annual Shopapalooza Festival",
+      "source": "ilovetheburg",
+      "venue": "Vinoy Park",
+      "address": "701 Bayshore Dr NE",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://www.shopapaloozafestival.com",
+        "https://www.localshops1.com/"
+      ],
+      "organizer_names": [
+        "LocalShops1"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-28 02:00:00",
+          "end": "2026-11-29 01:59:59",
+          "all_day": true
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:shop-local-saturday",
+      "lead_name": "Shop Local Saturday",
+      "source": "ilovetheburg",
+      "venue": "FloridaRAMA",
+      "address": "2606 Fairfield Ave S",
+      "city": "St. Petersburg",
+      "zip": "33712",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://docs.google.com/forms/d/e/1FAIpQLSeij6fhy78DnybOtDKFnSFLy7aIY3Y8YA6E7LXDxtPa_CcpCg/viewform",
+        "https://tampamuseum.org/event/nextgen-art-network-vibe-2024-08-16/",
+        "https://www.floridarama.art/"
+      ],
+      "organizer_names": [
+        "FloridaRAMA"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-28 10:00:00",
+          "end": "2026-11-28 17:00:00",
+          "all_day": false
+        }
+      ]
+    }
+  ]
+}

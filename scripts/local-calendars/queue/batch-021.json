@@ -1,0 +1,331 @@
+{
+  "batch": 21,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "thatssotampa:kids-market-at-trunk-or-treat-at-yuengling",
+      "lead_name": "Kids Market at Trunk or Treat at Yuengling",
+      "source": "thatssotampa",
+      "venue": "Yuengling Draft Haus & Kitchen",
+      "address": "11109 North 30th St.",
+      "city": "Tampa",
+      "zip": "33612",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://kidsmarkets.com/markets/tampa-9",
+        "https://www.yuengling.com/tampa/",
+        "https://kidsmarkets.com"
+      ],
+      "organizer_names": [
+        "Kids Markets"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-24 17:00:00",
+          "end": "2026-10-24 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:hearts-for-the-arts-back-to-broadway-30th-anniversary-gala",
+      "lead_name": "Hearts for the Arts Back to Broadway 30th Anniversary Gala",
+      "source": "ilovetheburg",
+      "venue": "Central Park Performing Arts Center",
+      "address": "105 Central Park Drive",
+      "city": "Largo",
+      "zip": null,
+      "cost_text": "$175.00",
+      "organizer_url_hints": [
+        "https://www.centralparkperformingarts.org/index.php"
+      ],
+      "organizer_names": [
+        "Central Park Performing Arts Foundation"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-24 18:00:00",
+          "end": "2026-10-24 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:tall-tales-of-old-florida",
+      "lead_name": "Tall Tales of Old Florida",
+      "source": "thatssotampa",
+      "venue": "Cracker Country",
+      "address": "4800 N U.S. 301",
+      "city": "Tampa",
+      "zip": "33610",
+      "cost_text": "$18",
+      "organizer_url_hints": [
+        "https://floridastatefairgrounds.com/event/tall-tales-of-old-florida-2/",
+        "https://www.crackercountry.org/events/lecture",
+        "https://crackercountry.org/"
+      ],
+      "organizer_names": [
+        "cracker country",
+        "florida state fairgrounds"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-24 18:30:00",
+          "end": "2026-10-24 22:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:halloween-lock-key-singles-party",
+      "lead_name": "Halloween Lock & Key Singles Party",
+      "source": "thatssotampa",
+      "venue": "City Dog Cantina",
+      "address": "1208 E Kennedy Blvd suite 114",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": "$32.78",
+      "organizer_url_hints": [
+        "https://eventvesta.com/events/165286/t/tickets"
+      ],
+      "organizer_names": [
+        "Pre-Dating Speed Dating"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-24 19:30:00",
+          "end": "2026-10-24 21:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:tampa-bay-rowdies-vs-sporting-jax",
+      "lead_name": "Tampa Bay Rowdies vs. Sporting JAX",
+      "source": "ilovetheburg",
+      "venue": "Al Lang Stadium",
+      "address": "230 1st St. S",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.rowdiessoccer.com/tampa-bay-rowdies-tickets/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-24 19:30:00",
+          "end": "2026-10-24 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:tampa-bay-rowdies-vs-sporting-jax",
+      "lead_name": "Tampa Bay Rowdies vs. Sporting JAX",
+      "source": "thatssotampa",
+      "venue": "Al Lang Stadium",
+      "address": "230 1st St SE",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.rowdiessoccer.com/tampa-bay-rowdies-tickets/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-24 19:30:00",
+          "end": "2026-10-24 19:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:candlelight-a-haunted-evening-of-halloween-classics",
+      "lead_name": "Candlelight: A Haunted Evening of Halloween Classics",
+      "source": "ilovetheburg",
+      "venue": "First Baptist Church of St Petersburg",
+      "address": "1900 Gandy Blvd N",
+      "city": "St. Petersburg",
+      "zip": "33702",
+      "cost_text": "$44.50",
+      "organizer_url_hints": [
+        "https://eventvesta.com/events/155086/t/tickets"
+      ],
+      "organizer_names": [
+        "Fever"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-24 20:00:00",
+          "end": "2026-10-24 21:15:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:stand-up-comedy-at-st-pete-brewing",
+      "lead_name": "Stand up Comedy at St Pete Brewing",
+      "source": "ilovetheburg",
+      "venue": "The Nest @ St Pete Brewing",
+      "address": "538 1st Ave N",
+      "city": "St Petersburg",
+      "zip": "33701",
+      "cost_text": "$10",
+      "organizer_url_hints": [
+        "https://www.eventbrite.com/e/stand-up-comedy-at-st-pete-brewing-tickets-2002007843352",
+        "https://www.stpetebrewingcompany.com",
+        "https://www.instagram.com/discocatcomedy/"
+      ],
+      "organizer_names": [
+        "Disco Cat Comedy"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-24 20:00:00",
+          "end": "2026-10-24 21:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:disco-cat-presents-a-comedy-variety-showcase",
+      "lead_name": "Disco Cat Presents: A Comedy + Variety Showcase",
+      "source": "ilovetheburg",
+      "venue": "The Nest @ St Pete Brewing",
+      "address": "538 1st Ave N",
+      "city": "St Petersburg",
+      "zip": "33701",
+      "cost_text": "$10",
+      "organizer_url_hints": [
+        "https://www.eventbrite.com/e/disco-cat-presents-a-comedy-variety-showcase-tickets-2002071166754",
+        "https://www.stpetebrewingcompany.com",
+        "https://www.instagram.com/discocatcomedy/"
+      ],
+      "organizer_names": [
+        "Disco Cat Comedy"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-24 22:00:00",
+          "end": "2026-10-24 23:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:sunday-morning-market-at-westshore-marina-district-2",
+      "lead_name": "Sunday Morning Market at Westshore Marina District",
+      "source": "thatssotampa",
+      "venue": "Westshore Marina District",
+      "address": "4900 Bridge Street",
+      "city": "Tampa",
+      "zip": "33611",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://www.facebook.com/sundaymarketatwmd/events",
+        "https://www.tampabaymarkets.com/upcoming-markets-events"
+      ],
+      "organizer_names": [
+        "Tampa Bay Markets, Inc."
+      ],
+      "source_categories": [
+        "Markets/Shopping"
+      ],
+      "ticketmaster_venue": false,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-10-25 09:00:00",
+          "end": "2026-10-25 13:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-11-22 09:00:00",
+          "end": "2026-11-22 13:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:2026-voodoo-vendor-village-halloween-on-central",
+      "lead_name": "2026 Voodoo Vendor Village @ Halloween on Central",
+      "source": "ilovetheburg",
+      "venue": "Grand Central District",
+      "address": null,
+      "city": "St. Petersburg",
+      "zip": "33713",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://www.facebook.com/events/s/2026-voodoo-vendor-village-hal/1060286263379203/",
+        "https://www.localshops1.com/"
+      ],
+      "organizer_names": [
+        "LocalShops1"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-25 12:00:00",
+          "end": "2026-10-25 17:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:turnpike-troubadours-muscadine-bloodline-drayton-farley-at-baycare-sound",
+      "lead_name": "Turnpike Troubadours, Muscadine Bloodline & Drayton Farley at BayCare Sound",
+      "source": "ilovetheburg",
+      "venue": "The BayCare Sound",
+      "address": "255 Drew St",
+      "city": "Clearwater",
+      "zip": "33755",
+      "cost_text": "$44",
+      "organizer_url_hints": [
+        "https://www.clearwateramphitheater.com/events/turnpike-troubadours-muscadine-bloodline-drayton-farley-25-october-2026/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-25 18:00:00",
+          "end": "2026-10-25 20:00:00",
+          "all_day": false
+        }
+      ]
+    }
+  ]
+}

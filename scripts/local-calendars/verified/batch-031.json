@@ -1,0 +1,167 @@
+{
+  "batch": 31,
+  "verified_by": "claude-sonnet",
+  "verified_at": "2026-10-02T12:54:18Z",
+  "publish": [
+    {
+      "year": 2026,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "state": "FL",
+      "select_nights": false,
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-10-02T12:54:18Z",
+      "official_ticket_url": "https://www.eventbrite.com/e/chrissy-chlapecka-tickets-1992776553315",
+      "price_min": 29.67,
+      "price_max": 86.38,
+      "minimum_age": 18,
+      "is_free": false,
+      "end_time": null,
+      "start_time": "19:00",
+      "lead_key": "thatssotampa:chrissy-chlapecka",
+      "event_id": "chrissy-chlapecka-2026",
+      "event_series_id": "chrissy-chlapecka-tampa",
+      "slug": "chrissy-chlapecka-2026",
+      "city": "Tampa",
+      "county": "Hillsborough",
+      "category": "music",
+      "subcategory": "concert",
+      "tags": [
+        "concert",
+        "pop",
+        "live-music",
+        "18-plus"
+      ],
+      "audience": [
+        "adults",
+        "music-fans"
+      ],
+      "event_name": "Chrissy Chlapecka",
+      "short_title": "Chrissy Chlapecka",
+      "start_date": "2026-11-17",
+      "end_date": "2026-11-17",
+      "schedule_note": "Tue Nov 17, show starts 7pm, ages 18+.",
+      "venue": "New World Music Hall",
+      "address": "810 E Skagway Ave, Tampa, FL 33604",
+      "lat": 28.032243526731,
+      "lng": -82.453063911034,
+      "card_hook": "Chrissy Chlapecka live at New World Music Hall in Tampa with special guests, for ages 18 and up.",
+      "official_event_url": "https://www.eventbrite.com/e/chrissy-chlapecka-tickets-1992776553315",
+      "source_url": "https://www.eventbrite.com/e/chrissy-chlapecka-tickets-1992776553315",
+      "verify_note": "2026-10-02: organizer (Aestheticized Presents) Eventbrite page states Tue Nov 17 2026 7pm at New World Music Hall, 810 E Skagway Ave, Tampa, ages 18+. Audit 2026-10-02: rewrote hook (removed unstated pop genre), set price from Eventbrite offer."
+    },
+    {
+      "year": 2026,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "state": "FL",
+      "select_nights": false,
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-10-02T12:54:18Z",
+      "official_ticket_url": "https://www.etix.com/ticket/p/56592309/blade-runner-live-tampa-historic-duncan-auditorium?partner_id=240",
+      "price_min": 29.5,
+      "price_max": 99.5,
+      "minimum_age": null,
+      "is_free": false,
+      "end_time": null,
+      "start_time": "20:00",
+      "lead_key": "thatssotampa:blade-runner-live",
+      "event_id": "blade-runner-live-2026",
+      "event_series_id": "blade-runner-live-tampa",
+      "slug": "blade-runner-live-2026",
+      "city": "Tampa",
+      "county": "Hillsborough",
+      "category": "arts",
+      "subcategory": "film",
+      "tags": [
+        "film",
+        "live-music",
+        "orchestra",
+        "theatre"
+      ],
+      "audience": [
+        "adults",
+        "film-fans"
+      ],
+      "event_name": "Blade Runner Live",
+      "short_title": "Blade Runner Live",
+      "start_date": "2026-11-18",
+      "end_date": "2026-11-18",
+      "schedule_note": "Wed Nov 18, doors 7pm, show 8pm.",
+      "venue": "Tampa Theatre",
+      "address": "711 N Franklin St, Tampa, FL 33602",
+      "lat": 27.950052754133,
+      "lng": -82.458916154666,
+      "card_hook": "See the 1982 film on screen while The Avex Ensemble plays the Vangelis score live at Tampa Theatre.",
+      "official_event_url": "https://tampatheatre.org/live/blade-runner-live/",
+      "source_url": "https://tampatheatre.org/live/blade-runner-live/",
+      "verify_note": "2026-10-02: Tampa Theatre page states Blade Runner Live at 8pm Wednesday Nov 18 2026, tickets via Etix. Audit 2026-10-02: rewrote hook (removed unstated historic), added doors and price."
+    }
+  ],
+  "hold": [
+    {
+      "lead_key": "thatssotampa:soldiers-lens-gallery-walk-show-share",
+      "event_name": "Soldier's Lens Gallery Walk Show & Share",
+      "reason": "Organizer pages (fmopa.org, tampa.gov) show no Show & Share on Nov 15; exhibition runs Nov 5 2026 to Jan 10 2027 only; Constant Contact page unreadable",
+      "url": "https://www.fmopa.org/soldiers-lens-2026/"
+    },
+    {
+      "lead_key": "ilovetheburg:the-wrecks-finally-outside-tour",
+      "event_name": "The Wrecks - Finally : OUTSIDE Tour",
+      "reason": "ticketmaster-feed",
+      "url": "https://www.jannuslive.com/"
+    },
+    {
+      "lead_key": "ilovetheburg:periphery-a-pale-white-dot-north-america-tour",
+      "event_name": "Periphery - A Pale White Dot North America Tour",
+      "reason": "ticketmaster-feed",
+      "url": "https://www.jannuslive.com/"
+    },
+    {
+      "lead_key": "ilovetheburg:tampa-bay-lightning-vs-washington-capitals-3",
+      "event_name": "Tampa Bay Lightning vs. Washington Capitals",
+      "reason": "ticketmaster-feed; also duplicate of thatssotampa:tampa-bay-lightning-vs-washington-capitals-2",
+      "url": "https://www.nhl.com/lightning/tickets/single-game-tickets"
+    },
+    {
+      "lead_key": "thatssotampa:tampa-bay-lightning-vs-washington-capitals-2",
+      "event_name": "Tampa Bay Lightning vs. Washington Capitals",
+      "reason": "ticketmaster-feed",
+      "url": "https://www.nhl.com/lightning/tickets/single-game-tickets"
+    },
+    {
+      "lead_key": "thatssotampa:dante-gebel-presidante-world-tour-despedida",
+      "event_name": "Dante Gebel - PresiDante: World Tour Despedida",
+      "reason": "ticketmaster-feed",
+      "url": "https://casino.hardrock.com/tampa/newsroom/2026/03/dante-gebel-despedida-world-tour-coming-to-hard-rock-event-center-at-seminole-hard-rock-hotel-and-casino-tampa-tuesday-november-17-at-8-pm"
+    },
+    {
+      "lead_key": "thatssotampa:opening-day-of-our-101st-live-thoroughbred-racing-meet",
+      "event_name": "Opening Day of our 101st Live Thoroughbred Racing Meet",
+      "reason": "no coordinates: Census and Nominatim cannot place 11225 Race Track Rd (lead address 10327 Race Track Road Oldsmar also conflicts); organizer lists Nov 18 2026, first post 12:25pm, not 11am",
+      "url": "https://www.tampabaydowns.com/tampa-bay-downs-racing-calendar/"
+    },
+    {
+      "lead_key": "thatssotampa:tampa-bay-downs-opening-day",
+      "event_name": "Tampa Bay Downs Opening Day",
+      "reason": "no coordinates (see other Tampa Bay Downs lead); also duplicate of thatssotampa:opening-day-of-our-101st-live-thoroughbred-racing-meet",
+      "url": "https://www.tampabaydowns.com/racing-calendar/"
+    },
+    {
+      "lead_key": "ilovetheburg:the-revivalists-get-it-honest-tour",
+      "event_name": "The Revivalists - Get It Honest Tour",
+      "reason": "ticketmaster-feed",
+      "url": "https://www.jannuslive.com/"
+    },
+    {
+      "lead_key": "thatssotampa:figure-drawing-study-4",
+      "event_name": "Figure Drawing Study",
+      "reason": "duplicate of the same Tampa Museum of Art sessions published in batch-018 (figure-drawing-study-*)",
+      "url": null
+    }
+  ]
+}

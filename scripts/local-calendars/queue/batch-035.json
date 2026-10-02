@@ -1,0 +1,310 @@
+{
+  "batch": 35,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "ilovetheburg:senses-fail-koyo-initiate-still-searching-tour",
+      "lead_name": "Senses Fail, Koyo & Initiate – Still Searching Tour",
+      "source": "ilovetheburg",
+      "venue": "Jannus Live",
+      "address": "200 1st Ave N STE 206",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.jannuslive.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-04 18:00:00",
+          "end": "2026-12-04 23:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:max-amini-live-in-tampa",
+      "lead_name": "Max Amini Live in Tampa!",
+      "source": "thatssotampa",
+      "venue": "Tampa Theatre",
+      "address": null,
+      "city": null,
+      "zip": null,
+      "cost_text": "$38.50 – $303.50",
+      "organizer_url_hints": [
+        "https://www.etix.com/ticket/p/30795422/max-amini-live-in-tampa-tampa-historic-duncan-auditorium?partner_id=8717",
+        "https://tampatheatre.org"
+      ],
+      "organizer_names": [
+        "Tampa Theatre"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-04 18:30:00",
+          "end": "2026-12-04 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:trisha-paytas-trishmas-live-tour",
+      "lead_name": "Trisha Paytas – Trishmas LIVE! Tour",
+      "source": "ilovetheburg",
+      "venue": "Duke Energy Center for the Arts – Mahaffey Theater",
+      "address": "400 1st St S",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-04 19:30:00",
+          "end": "2026-12-04 22:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:corey-avenue-holiday-art-craft-festival",
+      "lead_name": "Corey Avenue Holiday Art & Craft Festival",
+      "source": "ilovetheburg",
+      "venue": "300 Corey Avenue, St. Pete Beach, FL 33706",
+      "address": "300 Corey Ave",
+      "city": "St. Pete Beach",
+      "zip": "33706",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://www.facebook.com/SIKpromotions/events",
+        "https://www.sikpromotions.com/"
+      ],
+      "organizer_names": [
+        "SIK Promotions"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-05 02:00:00",
+          "end": "2026-12-06 01:59:59",
+          "all_day": true
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:mezzo-market-2",
+      "lead_name": "Mezzo Market",
+      "source": "thatssotampa",
+      "venue": "The Lot at Willa’s",
+      "address": "1700 W Fig St",
+      "city": "Tampa",
+      "zip": "33606",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://mezzomarket.co",
+        "https://www.seltzerland.com/"
+      ],
+      "organizer_names": [
+        "Mezzo Market LLC"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-05 08:00:00",
+          "end": "2026-12-05 17:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:st-pete-on-foot-a-walking-tour-of-the-sunshine-city-3",
+      "lead_name": "St. Pete on Foot – A Walking Tour of the Sunshine City",
+      "source": "ilovetheburg",
+      "venue": "Saint Petersburg Museum of History",
+      "address": "335 2nd Avenue NE, St. Petersburg, FL 33701",
+      "city": "saint petersburg",
+      "zip": "33701",
+      "cost_text": "$15",
+      "organizer_url_hints": [
+        "http://historystpete.org/events",
+        "https://spmoh.com/event/historic-boat-tour-51/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-05 09:00:00",
+          "end": "2026-12-05 11:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:deck-the-halls-holiday-market",
+      "lead_name": "Deck the Halls Holiday Market",
+      "source": "ilovetheburg",
+      "venue": "Saint Petersburg Shuffleboard Club",
+      "address": "599 Mirror Lake Drive",
+      "city": "Saint Petersburg",
+      "zip": "33701",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://gfwc-spjwc.org/deckthehalls/",
+        "https://stpeteshuffle.com/",
+        "https://gfwc-spjwc.org"
+      ],
+      "organizer_names": [
+        "St. Petersburg Junior Woman’s Club"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-05 11:00:00",
+          "end": "2026-12-05 16:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:holiday-village-presented-by-carrollwood-village-phases-ii-iii",
+      "lead_name": "Holiday Village presented by Carrollwood Village Phases II & III",
+      "source": "thatssotampa",
+      "venue": "Carrollwood Cultural Center",
+      "address": "4537 Lowell Rd",
+      "city": "Tampa",
+      "zip": "33618",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://eventvesta.com/events/150490/t/tickets"
+      ],
+      "organizer_names": [
+        "Carrollwood Cultural Center"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-05 11:00:00",
+          "end": "2026-12-05 18:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:the-inaugural-stakes-the-sandpiper-stakes",
+      "lead_name": "The Inaugural Stakes, The Sandpiper Stakes",
+      "source": "thatssotampa",
+      "venue": "Tampa Bay Downs",
+      "address": "10327 Race Track Road",
+      "city": "Oldsmar",
+      "zip": null,
+      "cost_text": "$3",
+      "organizer_url_hints": [
+        "https://www.tampabaydowns.com"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-05 11:00:00",
+          "end": "2026-12-05 17:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:st-pete-ugly-sweater-bar-crawl-11th-annual",
+      "lead_name": "St. Pete Ugly Sweater Bar Crawl: 11th Annual",
+      "source": "ilovetheburg",
+      "venue": "Registration: Where’s Jubes",
+      "address": "277 Central Avenue",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.eventbrite.com/e/st-pete-ugly-sweater-bar-crawl-11th-annual-tickets-1984375267844",
+        "http://barcrawlusa.com"
+      ],
+      "organizer_names": [
+        "Bar Crawl USA"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-05 17:00:00",
+          "end": "2026-12-05 23:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:state-champs-10-years-of-around-the-world-and-back-tour",
+      "lead_name": "State Champs – 10 Years of Around the World and Back Tour",
+      "source": "ilovetheburg",
+      "venue": "Jannus Live",
+      "address": "200 1st Ave N STE 206",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.jannuslive.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-05 19:00:00",
+          "end": "2026-12-05 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:the-florida-orchestra-nightmare-before-christmas",
+      "lead_name": "The Florida Orchestra: Nightmare Before Christmas",
+      "source": "ilovetheburg",
+      "venue": "Duke Energy Center for the Arts – Mahaffey Theater",
+      "address": "400 1st St S",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-05 19:30:00",
+          "end": "2026-12-05 21:30:00",
+          "all_day": false
+        }
+      ]
+    }
+  ]
+}
