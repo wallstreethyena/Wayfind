@@ -764,6 +764,8 @@ node scripts/check-location-fail-open.mjs
 node scripts/check-location-honesty.mjs
 node scripts/test-rails-failed-is-not-covered.mjs
 node scripts/test-location-pairing-integrity.mjs
+# A city picked while a GPS fix is still reverse-geocoding must win (2026-10-02 St. Pete race).
+node scripts/check-gps-manual-pick-race.mjs
 # The rail tile headline is PIXELS. Renaming a rail in code changes nothing
 # the reader sees until the art is redrawn — pin copy and art together.
 node scripts/check-rail-art-matches-copy.mjs
