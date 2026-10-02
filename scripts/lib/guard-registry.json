@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 788,
-    "totalRegistryEntries": 789,
-    "guardsTxtLineCount": 788,
-    "guardsTxtReachedFileCount": 781,
+    "totalOnDiskGuardFiles": 789,
+    "totalRegistryEntries": 790,
+    "guardsTxtLineCount": 789,
+    "guardsTxtReachedFileCount": 782,
     "criticalCount": 94,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 542,
+      "CALL": 543,
       "RENDER": 105,
       "STRUCTURAL": 141,
       "OTHER": 1
@@ -10838,6 +10838,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 36,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-cc-partner-click-predicate.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 27,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
