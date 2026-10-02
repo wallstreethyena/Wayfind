@@ -528,7 +528,10 @@ export default function DetailSheet({ ctx }) {
   }, [detail && detail.id, primaryCta, ctaCity, ctaCategory, logEvent]);
 
   function handlePrimaryCtaClick() {
-    try { logEvent("primary_cta_clicked", detail, { cta_type: primaryCta.type, provider: primaryCta.provider }); } catch (e) {}
+    // monetized/exact (2026-10-02): the Command Center partner-click count needs
+    // to tell a partner CTA (an exact pin, a deal, a tracked delivery) from a
+    // plan/directions/menu tap; both arrive here as primary_cta_clicked.
+    try { logEvent("primary_cta_clicked", detail, { cta_type: primaryCta.type, provider: primaryCta.provider, monetized: !!primaryCta.monetized, exact: !!primaryCta.exact }); } catch (e) {}
     if (primaryCta.monetized && commerceCtx) {
       try { emitCommerce("commerce_cta_clicked", commerceCtx); } catch (e) {}
     }
@@ -550,7 +553,7 @@ export default function DetailSheet({ ctx }) {
   // rework — the #486 defined-but-uncalled class). One handler for the trip
   // CTA whether it renders as the primary (closed place) or the dock row.
   function addToPlan() {
-    try { logEvent("primary_cta_clicked", detail, { cta_type: "add_to_plan" }); } catch (e) {}
+    try { logEvent("primary_cta_clicked", detail, { cta_type: "add_to_plan", monetized: false }); } catch (e) {}
     addToTripOnly();
   }
 
