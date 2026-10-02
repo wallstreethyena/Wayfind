@@ -19,7 +19,10 @@ const boundedContext = (value, max, fallback = null) => {
 export async function GET(req) {
   const params = new URL(req.url).searchParams;
   const clickId = sanitizeClientClickId(params.get("click_id")) || randomUUID();
-  const distinctId = distinctIdFromCookies(req.headers.get("cookie")) || clickId;
+  // The visitor's PostHog id when the cookie is present; otherwise the click id,
+  // sent personless so a cookie-less click never becomes a new "visitor".
+  const cookieDistinctId = distinctIdFromCookies(req.headers.get("cookie"));
+  const distinctId = cookieDistinctId || clickId;
   const surface = boundedContext(params.get("surface"), 60, "hotel_search");
   const contentId = boundedContext(params.get("content"), 120);
   const hotel = normalizedHotelLocation({
@@ -42,7 +45,7 @@ export async function GET(req) {
   const emit = (event, extra) => {
     try {
       const properties = commercePayload(event, { ...base, ...(extra || {}) });
-      captureServer(event, { distinctId, properties, headers: req.headers });
+      captureServer(event, { distinctId, properties, headers: req.headers, personless: !cookieDistinctId });
     } catch {}
   };
 

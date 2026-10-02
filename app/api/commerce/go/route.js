@@ -56,7 +56,10 @@ export async function GET(req) {
   // mintClickId fallback (`wf-…`) and reminted, so a human same-tab Book
   // hop could not join provider_redirect_started.
   const clickId = sanitizeClientClickId(sp.get("click_id")) || randomUUID();
-  const distinctId = distinctIdFromCookies(req.headers.get("cookie")) || clickId;
+  // The visitor's PostHog id when the cookie is present; otherwise the click id,
+  // sent personless so a cookie-less click never becomes a new "visitor".
+  const cookieDistinctId = distinctIdFromCookies(req.headers.get("cookie"));
+  const distinctId = cookieDistinctId || clickId;
 
   const base = {
     provider, offer_id: offerId, surface, content_id: contentId,
@@ -71,7 +74,7 @@ export async function GET(req) {
     // redirect. Errors are swallowed inside captureServer.
     // Visitor UA/IP attach inside captureServer (after the whitelist). Passing
     // them through commercePayload would drop them.
-    captureServer(event, { distinctId, properties: props, headers: req.headers });
+    captureServer(event, { distinctId, properties: props, headers: req.headers, personless: !cookieDistinctId });
   };
 
   const fail = (reason) => {
