@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 784,
-    "totalRegistryEntries": 785,
-    "guardsTxtLineCount": 784,
-    "guardsTxtReachedFileCount": 777,
+    "totalOnDiskGuardFiles": 785,
+    "totalRegistryEntries": 786,
+    "guardsTxtLineCount": 785,
+    "guardsTxtReachedFileCount": 778,
     "criticalCount": 94,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 539,
+      "CALL": 540,
       "RENDER": 105,
       "STRUCTURAL": 140,
       "OTHER": 1
@@ -9388,6 +9388,28 @@
       "owner": "Revenue QA"
     },
     {
+      "file": "scripts/test-analytics-attribution-meta.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 12,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-analytics-write-suppression.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -17719,7 +17741,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 108,
+      "assertionCount": 124,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
