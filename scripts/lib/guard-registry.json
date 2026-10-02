@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 786,
-    "totalRegistryEntries": 787,
-    "guardsTxtLineCount": 786,
-    "guardsTxtReachedFileCount": 779,
+    "totalOnDiskGuardFiles": 787,
+    "totalRegistryEntries": 788,
+    "guardsTxtLineCount": 787,
+    "guardsTxtReachedFileCount": 780,
     "criticalCount": 94,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 541,
+      "CALL": 542,
       "RENDER": 105,
       "STRUCTURAL": 140,
       "OTHER": 1
@@ -14033,6 +14033,30 @@
       "assertionCount": 12,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-inventory-all-adult.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 9,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [
+        "has a real import/render/exec capability but zero assertions whose subject is a value RETURNED by code — every check reads source text only"
+      ],
       "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,
