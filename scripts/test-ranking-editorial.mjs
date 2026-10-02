@@ -13,8 +13,11 @@ const code = s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
 ok(s.includes("async function landingEditorials"), "the verified-editorial join exists");
 ok(s.includes("verified=is.true&select=place_id,hook,why_here,local_tip"), "it reads the verified Wayfind cards");
 ok(/landingWhyFits\(p,\s*eds\[p\.id\]\)/.test(s), "Why it fits CALLS landingWhyFits — sourced two-beat or empty, never whyLine filler");
-ok(/eds\[p\.id\] && eds\[p\.id\]\.hook \?/.test(s), "the hook renders as the row subtitle");
-ok(/eds\[p\.id\] && eds\[p\.id\]\.local_tip/.test(s), "local_tip renders as the insider line");
+ok(/const hook = \(eds\[p\.id\] && eds\[p\.id\]\.hook\) \|\| null/.test(code) && /const take = landingCardLine\(hook \|\| why \|\| "", p\.name\) \|\| null/.test(code) && /editorial=\{take\}/.test(code),
+  "the hook renders as the card line (sourced why as the fallback)");
+// 2026-10-01 (owner): the list is one line per card; local_tip lives in the
+// place detail's Wayfind editorial rail, not as a loose line under the card.
+ok(!/eds\[p\.id\] && eds\[p\.id\]\.local_tip/.test(code), "local_tip no longer renders as a loose insider line under the card");
 
 // whyLine must not assemble a reason from rating/reviews. Assert the
 // declaration body, then EXECUTE the function — a regex that only looks

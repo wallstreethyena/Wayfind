@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 782,
-    "totalRegistryEntries": 783,
-    "guardsTxtLineCount": 782,
-    "guardsTxtReachedFileCount": 775,
+    "totalOnDiskGuardFiles": 783,
+    "totalRegistryEntries": 784,
+    "guardsTxtLineCount": 783,
+    "guardsTxtReachedFileCount": 776,
     "criticalCount": 94,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 537,
-      "RENDER": 105,
+      "RENDER": 106,
       "STRUCTURAL": 140,
       "OTHER": 1
     }
@@ -14210,6 +14210,28 @@
       "owner": null
     },
     {
+      "file": "scripts/test-landing-card-cue.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 38,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-landing-card-photo.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -14350,7 +14372,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 45,
+      "assertionCount": 50,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
