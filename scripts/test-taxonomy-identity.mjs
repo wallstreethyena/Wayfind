@@ -21,6 +21,8 @@ import { splitBreakfastRails } from "../lib/breakfastRails.js";
 import { isBreakfastPlace } from "../lib/breakfast.js";
 import { exclusionReason, isAdultVenue, EXCLUSION } from "../lib/placeCategory.js";
 import { RAIL_SELECT, selectFor } from "../lib/railSelect.js";
+import { composeNightOutRails } from "../lib/nightOutIntent.js";
+import { composeBirthdayRails } from "../lib/birthdayIntent.js";
 
 let total = 0;
 let failed = 0;
@@ -54,6 +56,10 @@ const breakfastKeepers = [
   row("Toasted Mango Cafe", "american_restaurant", ["american_restaurant", "brunch_restaurant", "diner", "breakfast_restaurant", "cafe"]),
   row("Millie's", "american_restaurant", ["american_restaurant", "breakfast_restaurant", "cafe", "restaurant"]),
   row("Cortez Cafe", "restaurant", ["restaurant", "diner", "breakfast_restaurant", "cafe", "food"]),
+  // review controls: a grill typed breakfast_restaurant, and a place NAME that
+  // contains a nationality word, are not night-cuisine evidence.
+  row("Sunrise Grill", "restaurant", ["restaurant", "breakfast_restaurant", "food"]),
+  row("Indian Rocks Family Restaurant", "restaurant", ["restaurant", "breakfast_restaurant", "diner", "food"]),
 ];
 for (const p of breakfastKeepers) {
   ok(placeAllowed("food", "breakfast", p) === true, `keeper: Food → Breakfast keeps ${p.name}`);
@@ -71,6 +77,7 @@ const cafeLeaks = [
   row("Hard Rock Cafe", "restaurant", ["restaurant", "american_restaurant", "food"]),
   row("Cajun Cafe on the Bayou", "restaurant", ["restaurant", "cajun_restaurant", "american_restaurant"]),
   row("Ngọc Hà Vietnamese Restaurant", "restaurant", ["restaurant", "coffee_shop", "cafe", "food_store"]),
+  row("Keys Jam - Rock Grill", "restaurant", ["cafe", "restaurant", "food"]),
 ];
 for (const p of cafeLeaks) {
   ok(placeAllowed("food", "cafes", p) === false && placeAllowed("food", "coffee", p) === false, `Food → Cafés/Coffee refuse ${p.name}`);
@@ -85,6 +92,9 @@ const cafeKeepers = [
   row("JOE & THE JUICE", "juice_shop", ["juice_shop", "vegan_restaurant", "coffee_shop", "cafe", "sandwich_shop"]),
   row("Starlite Cafe", "restaurant", ["restaurant", "food"]),
   row("Buddy Brew Coffee", "coffee_shop", ["coffee_shop", "cafe", "food"]),
+  // "Caffè" (accented) gets the same café-name rescue as "Cafe".
+  row("Caffè Italia", "restaurant", ["restaurant", "pizza_restaurant", "cafe"]),
+  row("Cafe Italia", "restaurant", ["restaurant", "pizza_restaurant", "cafe"]),
 ];
 for (const p of cafeKeepers) {
   ok(placeAllowed("food", "cafes", p) === true && placeAllowed("food", "coffee", p) === true, `keeper: Food → Cafés/Coffee keep ${p.name}`);
@@ -145,6 +155,30 @@ for (const railId of ["tonight", "birthday"]) {
   ok(!out.some((n) => adult.some((a) => a.name === n)), `the ${railId} home rail never serves a strip club (got: ${out.join(", ") || "none"})`);
 }
 ok(placeAllowed("nightlife", "clubs", row("The Gator Club", "night_club", ["night_club", "bar"])) === true, "keeper: a real night club stays under Clubs");
+// Provider shapes: `types` may arrive as a comma string, and Google names use
+// the curly apostrophe. Both must still be read as adult entertainment.
+ok(isAdultVenue({ name: "2001 Odyssey", types: "adult_entertainment,night_club" }) === true
+  && exclusionReason({ name: "2001 Odyssey", types: "adult_entertainment,night_club" }) === EXCLUSION.ADULT,
+  "a string-typed adult_entertainment row is excluded (string `types` shape)");
+ok(isAdultVenue({ name: "Emperors Gentlemen’s Club Tampa", primaryType: "night_club", types: ["night_club"] }) === true, "a curly-apostrophe gentlemen’s club is excluded");
+// The Night out and Birthday DROPS (/api/night-out, /api/birthday and their
+// client fallbacks) compose their own rails — the gap the 2026-10-02 review
+// found: a night_club-typed strip club reached their Clubs rail.
+{
+  const at = (p) => ({ ...p, lat: 27.951, lng: -82.451, distMi: 0.1, rating: 4.9, reviews: 3000, wfScore: 99, priceLevel: 2 });
+  const pool = [
+    at(row("Mons Venus World Famous Nude Strip Club Tampa", "night_club", ["night_club", "bar"])),
+    at(row("Emperors Gentlemen’s Club Tampa", "night_club", ["night_club", "bar"])), // U+2019 apostrophe
+    at({ id: "string-types", name: "2001 Odyssey", primaryType: "", types: "adult_entertainment,night_club" }), // string-typed row
+    at(row("The Gator Club", "night_club", ["night_club", "bar"])),
+  ];
+  const night = composeNightOutRails([], pool, { lat: 27.95, lng: -82.45 }).rails.flatMap((r) => r.places.map((p) => p.name));
+  const bday = composeBirthdayRails(pool).rails.flatMap((r) => r.places.map((p) => p.name));
+  for (const [label, names] of [["Night out drop", night], ["Birthday drop", bday]]) {
+    ok(names.includes("The Gator Club"), `keeper: the ${label} still serves a real club (got ${names.join(", ")})`);
+    ok(!names.some((n) => /Mons Venus|Gentlemen|2001 Odyssey/.test(n)), `the ${label} never serves an adult venue — curly apostrophe and string-typed rows included (got ${names.join(", ")})`);
+  }
+}
 ok(!isAdultVenue(row("Haulover Beach", "beach", ["beach", "park", "tourist_attraction"])) && !isAdultVenue({ name: "Haulover Nude Beach", primaryType: "beach", types: ["beach"] }),
   "keeper: a clothing-optional public beach is not adult entertainment (the rule targets the trade, not the word)");
 
@@ -170,6 +204,7 @@ const attrKeepers = [
   ["spa", row("Hand & Stone Massage and Facial Spa", "massage", ["massage", "spa", "skin_care_clinic"])],
   ["themeparks", row("Busch Gardens Tampa Bay", "tourist_attraction", ["tourist_attraction", "amusement_park", "amusement_center"])],
   ["themeparks", row("Adventure Island", "water_park", ["water_park", "amusement_park", "tourist_attraction"])],
+  ["themeparks", row("Weeki Wachee Springs State Park", "state_park", ["state_park", "water_park", "amusement_park", "tourist_attraction"])],
   ["museums", row("Ybor City Museum State Park", "state_park", ["state_park", "park", "point_of_interest"])],
   ["museums", row("The Dalí Museum", "art_museum", ["art_museum", "museum", "tourist_attraction"])],
   ["arts", row("Pérez Art Museum Miami", "art_museum", ["art_museum", "museum", "tourist_attraction"])],
@@ -187,6 +222,10 @@ for (const p of [
 ]) ok(placeAllowed("hotels", "all", p) === false && placeAllowed("hotels", "luxury", p) === false, `Hotels refuse ${p.name} (${p.primaryType})`);
 ok(placeAllowed("hotels", "all", row("The Ritz-Carlton, Sarasota", "resort_hotel", ["resort_hotel", "hotel", "lodging", "spa"])) === true,
   "keeper: a resort hotel with a spa stays in Hotels");
+for (const p of [
+  row("Innisbrook Golf Resort", "golf_course", ["golf_course", "resort_hotel", "hotel", "lodging"]),
+  row("Safety Harbor Resort & Spa", "spa", ["spa", "resort_hotel", "hotel", "lodging"]),
+]) ok(placeAllowed("hotels", "all", p) === true, `keeper: ${p.name} (a resort whose Google primary is its ${p.primaryType}) stays in Hotels`);
 for (const p of [
   row("Total Wine & More", "liquor_store", ["liquor_store", "catering_service", "gift_shop", "store"]),
   row("Holmes Beach Ace Hardware", "hardware_store", ["hardware_store", "building_materials_store", "gift_shop"]),
