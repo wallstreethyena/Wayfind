@@ -100,7 +100,8 @@ const SURFACES = [
     // 2026-10-01 (owner, /nightlife/parrish): the ranked card now opens the
     // full place detail (/p/{id}) where the Wayfind editorial lives, through
     // the tested lib/placeCardRoute.js landingCardHref. Until that is on
-    // origin/main, section 4 accepts the previous expression there.
+    // origin/main, section 4 accepts the previous expression there. FOLLOW-UP:
+    // drop cardHrefPrev once #1624 is on main so section 4 is a real diff again.
     cardHref: "href={landingCardHref(p)}",
     cardHrefPrev: 'href={"/?q=" + encodeURIComponent(p.name || "")}',
   },

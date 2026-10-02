@@ -81,14 +81,21 @@ ok(landingCardHref({ name: "No Id Place" }) === "/?q=No%20Id%20Place", "only an 
 }
 
 // 5 — the cue is truthful.
-ok(hasPlaceViewEditorial({ name: "Perq Coffee Bar", id: "ChIJXyaPvkVAw4gRxzzecD3I0Po" }, null) === false,
-  "curated one-liner only (Perq) -> no cue; /api/editorial serves nothing for it");
-ok(hasPlaceViewEditorial({ name: "Mote Marine Laboratory", id: "ChIJrXZ3LLxqw4gRjYTBNBMgJnA" }, null) === false,
-  "curated one-liner only (Mote) -> no cue");
+// Synthetic ids/names: these must hold whatever Atlas grows to cover.
+ok(hasPlaceViewEditorial({ name: "Wayfind Fixture Curated Only Cafe", id: "ChIJ_fixture_no_atlas" }, null) === false,
+  "no fleet row + no Atlas card (the curated-one-liner case: Perq/Mote on 2026-10-02) -> no cue");
+ok(hasPlaceViewEditorial({ name: "Wayfind Fixture Curated Only Cafe", id: "ChIJ_fixture_no_atlas" }, { hook: "", why_here: "", local_tip: "" }) === false,
+  "an empty fleet row does not earn the cue");
 ok(hasPlaceViewEditorial(DRAC, { hook: TAKE, why_here: "long read", local_tip: "tip" }) === true,
   "verified fleet row -> cue");
-ok(hasPlaceViewEditorial({ name: "Ca' d’Zan", id: "ChIJpXGK53VC24gRWMneFVtK6hY" }, null) === true,
-  "Atlas card (by id) -> cue");
+{
+  const cards = JSON.parse(readFileSync(path.join(ROOT, "data/atlas/editorial-cards.json"), "utf8"));
+  const c = cards.find((x) => x && x.placeId && x.name);
+  ok(hasPlaceViewEditorial({ name: "Wayfind Fixture Other Name", id: c.placeId }, null) === true, "Atlas card by id -> cue");
+  ok(hasPlaceViewEditorial({ name: c.name, id: "ChIJ_fixture_other_id" }, null) === true, "Atlas card by exact name (route tier 3) -> cue");
+  ok(hasPlaceViewEditorial({ name: c.name.replace(/[^A-Za-z0-9]/g, "") + "xyz", id: "ChIJ_fixture_other_id" }, null) === false,
+    "a name the route's atlasNameKey would not match -> no cue");
+}
 {
   const land = strip(readFileSync(path.join(ROOT, "lib/landingPage.js"), "utf8"));
   ok(/editorialMore=\{take && hasPlaceViewEditorial\(p, eds\[p\.id\]\) \?/.test(land),
