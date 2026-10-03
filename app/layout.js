@@ -9,6 +9,7 @@ import { SITE_URL } from "../lib/site";
 import { cardActionBridgeScript } from "../lib/cardActionAttrs";
 import { chunkRecoveryScript } from "../lib/chunkRecovery";
 import { GUIDES } from "../lib/guides";
+import { currentGuides } from "../lib/guideLifecycle";
 import { RAILS_COLLAPSED_KEY, RAILS_COLLAPSED_ATTR, DEFAULT_COLLAPSED_RAILS, DEFAULT_COLLAPSED_RAILS_DESKTOP, RAILS_DESKTOP_MQ } from "../lib/railCollapse";
 // v8.46.1 — the pairing law, interpolated into the pre-hydration events primer
 // below (it runs before React, so it cannot import the module at runtime).
@@ -340,8 +341,8 @@ export default function RootLayout({ children }) {
             <nav aria-label="Guides and cities" style={{ display: "flex", flexWrap: "wrap", gap: 28 }}>
               <div>
                 <div style={{ fontSize: 11, fontWeight: 800, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>Local guides</div>
-                {Object.keys(GUIDES).slice(0, 8).map((k) => (
-                  <a key={k} href={"/guides/" + k} style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>{GUIDES[k].title}</a>
+                {Object.entries(currentGuides(GUIDES)).slice(0, 8).map(([k, guide]) => (
+                  <a key={k} href={"/guides/" + k} style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>{guide.title}</a>
                 ))}
                 <a href="/guides" style={{ display: "block", fontSize: 12.5, color: "#CBD5E1", textDecoration: "none", padding: "3px 0", fontWeight: 700 }}>All guides</a>
               </div>
