@@ -1,0 +1,373 @@
+{
+  "batch": 10,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "ilovetheburg:a-century-of-baseball-history-trolley-tour",
+      "lead_name": "A Century of Baseball History Trolley Tour",
+      "source": "ilovetheburg",
+      "venue": "St Petersburg Museum of History",
+      "address": "335 2nd Ave NE, St Pete Pier",
+      "city": "St Petersburg",
+      "zip": "33701",
+      "cost_text": "$45.00",
+      "organizer_url_hints": [
+        "https://spmoh.com/events/",
+        "https://spmoh.org/",
+        "https://spmoh.com/"
+      ],
+      "organizer_names": [
+        "St. Petersburg Museum of History"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-10-10 09:00:00",
+          "end": "2026-10-10 11:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-11-14 09:00:00",
+          "end": "2026-11-14 11:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-12-12 09:00:00",
+          "end": "2026-12-12 11:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:fall-2026-plant-festival",
+      "lead_name": "Fall 2026 Plant Festival",
+      "source": "thatssotampa",
+      "venue": "USF Botanical Gardens",
+      "address": "12210 USF Pine Drive",
+      "city": "Tampa",
+      "zip": null,
+      "cost_text": "$8.60",
+      "organizer_url_hints": [
+        "https://www.usf.edu/arts-sciences/ecore/where-we-are/botanical-gardens/plant-festivals/index.aspx",
+        "https://www.usf.edu/arts-sciences/ecore/where-we-are/botanical-gardens/"
+      ],
+      "organizer_names": [
+        "USF Botanical Gardens"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-10-10 09:00:00",
+          "end": "2026-10-10 15:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-10-11 09:00:00",
+          "end": "2026-10-11 15:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:usf-botanical-gardens-fall-2026-plant-festival",
+      "lead_name": "USF Botanical Gardens’ Fall 2026 Plant Festival",
+      "source": "thatssotampa",
+      "venue": "12210 USF Pine Dr, Tampa, FL, United States, Florida 33612",
+      "address": "12210 USF Pine Dr",
+      "city": "Tampa",
+      "zip": "33612",
+      "cost_text": "$8.60 – $12",
+      "organizer_url_hints": [
+        "https://www.usf.edu/arts-sciences/ecore/where-we-are/botanical-gardens/plant-festivals/index.aspx",
+        "https://www.usf.edu/arts-sciences/ecore/where-we-are/botanical-gardens/"
+      ],
+      "organizer_names": [
+        "USF Botanical Gardens"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-10-10 09:00:00",
+          "end": "2026-10-10 15:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-10-11 09:00:00",
+          "end": "2026-10-11 15:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:harvest-brooms-and-autumn-blooms-broom-decorating-workshop-at-kerbys-nursery",
+      "lead_name": "Harvest Brooms and Autumn Blooms: Broom-Decorating Workshop at Kerby’s Nursery",
+      "source": "thatssotampa",
+      "venue": "Kerby’s Nursery",
+      "address": "2311 S. Parsons Ave.",
+      "city": "Seffner",
+      "zip": "33584",
+      "cost_text": "$95.00",
+      "organizer_url_hints": [
+        "https://shop.kerbysnursery.com/item/3448/Harvest-Brooms-and-Autumn-Blooms-Broom-Decorating-Workshop-10-10-2026-10-AM?cid=2",
+        "https://www.kerbysnursery.com/"
+      ],
+      "organizer_names": [
+        "Kerby’s Nursery"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-10 10:00:00",
+          "end": "2026-10-10 11:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:market-marie-at-coachman-park-2",
+      "lead_name": "Market Marie at Coachman Park",
+      "source": "thatssotampa",
+      "venue": "Coachman Park",
+      "address": "101 Drew Street",
+      "city": "Clearwater",
+      "zip": "33755",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://www.facebook.com/themarketmarie/events"
+      ],
+      "organizer_names": [],
+      "source_categories": [
+        "Markets/Shopping"
+      ],
+      "ticketmaster_venue": false,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-10-10 10:00:00",
+          "end": "2026-10-10 14:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-11-14 10:00:00",
+          "end": "2026-11-14 14:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-12-12 10:00:00",
+          "end": "2026-12-12 14:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:tarpon-springs-fall-art-and-craft-festival",
+      "lead_name": "Tarpon Springs Fall Art and Craft Festival",
+      "source": "ilovetheburg",
+      "venue": "Tarpon Springs Sponge Docks",
+      "address": "735 Dodecanese Blvd",
+      "city": "Tarpon Springs",
+      "zip": "34689",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://sikpromotions.com/applicants/fall/sponge-docks-art-craft-festival-fall",
+        "https://www.sikpromotions.com/"
+      ],
+      "organizer_names": [
+        "SIK Promotions"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-10-10 10:00:00",
+          "end": "2026-10-10 17:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-10-11 10:00:00",
+          "end": "2026-10-11 17:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:the-market-marie-coachman-park",
+      "lead_name": "The Market Marie: Coachman Park",
+      "source": "ilovetheburg",
+      "venue": "Coachman Park",
+      "address": "301 Drew St",
+      "city": "Clearwater",
+      "zip": "33756",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://fb.me/e/6WatORov5"
+      ],
+      "organizer_names": [],
+      "source_categories": [
+        "Markets/Shopping"
+      ],
+      "ticketmaster_venue": false,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-10-10 10:00:00",
+          "end": "2026-10-10 14:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-11-14 10:00:00",
+          "end": "2026-11-14 14:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-12-12 10:00:00",
+          "end": "2026-12-12 14:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:time-travelers-vintage-expo",
+      "lead_name": "Time Travelers Vintage Expo",
+      "source": "thatssotampa",
+      "venue": "Florda State Fairgrounds Special Events Center",
+      "address": "4802 U.S. 301 N",
+      "city": "Tampa",
+      "zip": "33617",
+      "cost_text": "$1 – $12",
+      "organizer_url_hints": [
+        "https://www.timetravelersexpo.com/",
+        "https://floridastatefair.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-10 10:00:00",
+          "end": "2026-10-10 17:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:st-pete-paint-party-spooky-starry-night",
+      "lead_name": "St Pete Paint Party – Spooky Starry Night",
+      "source": "ilovetheburg",
+      "venue": "Pinellas Ale Works (St. Petersburg)",
+      "address": "1962 1st Ave S",
+      "city": "St. Petersburg",
+      "zip": "33712",
+      "cost_text": "$35.00 – $39.00",
+      "organizer_url_hints": [
+        "https://wineandcanvas.com/florida/event/st-pete-paint-party-spooky-starry-night/",
+        "https://wineandcanvas.com/tampa/"
+      ],
+      "organizer_names": [
+        "Wine and Canvas – Paint and Sip Tampa"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-10 13:00:00",
+          "end": "2026-10-10 16:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:teen-takeover-night-at-the-museum",
+      "lead_name": "Teen Takeover – Night at the Museum",
+      "source": "thatssotampa",
+      "venue": "Tampa Museum of Art",
+      "address": "120 W Gasparilla Plaza",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://tampamuseum.org/event/youth-council-teens-turf-night-at-the-museum/",
+        "https://shop.tampamuseum.org/products/fundamental-figure-drawing-1?_gl=1*17fvdef*_gcl_au*MTE2MzU3ODczNi4xNzU4OTAxNzc2",
+        "https://tampamuseum.org/event/pride-passion-2024/"
+      ],
+      "organizer_names": [
+        "Tampa Museum of Art"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-10 14:00:00",
+          "end": "2026-10-10 17:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:bienvenido-a-bsp",
+      "lead_name": "Bienvenido a BSP",
+      "source": "thatssotampa",
+      "venue": "Bonnet Springs Park",
+      "address": "400 Bonnet Springs Blvd.",
+      "city": "Lakeland",
+      "zip": "33815",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://bonnetspringspark.com/event/bienvenido-a-bsp-oct-10-2026/",
+        "https://bonnetspringspark.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-10 15:00:00",
+          "end": "2026-10-10 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:opening-reception-meet-the-artist-palehorse-for-shapeshifter-new-and-select-works-exhibition",
+      "lead_name": "Opening Reception/Meet the Artist Palehorse for Shapeshifter: New and Select Works Exhibition",
+      "source": "ilovetheburg",
+      "venue": "Morean Arts Center",
+      "address": "719 Central Avenue",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://moreanartscenter.org/exibition/shapeshifter-new-and-select-works-by-palehorse/",
+        "https://moreanartscenter.org/exibition/joyland-benaiah-cusack/",
+        "http://www.moreanartscenter.org/"
+      ],
+      "organizer_names": [
+        "Morean Arts Center"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-10 17:00:00",
+          "end": "2026-10-10 20:00:00",
+          "all_day": false
+        }
+      ]
+    }
+  ]
+}

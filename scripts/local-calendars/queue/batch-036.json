@@ -1,0 +1,306 @@
+{
+  "batch": 36,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "ilovetheburg:tampa-bay-buccaneers-vs-los-angeles-chargers",
+      "lead_name": "Tampa Bay Buccaneers vs Los Angeles Chargers",
+      "source": "ilovetheburg",
+      "venue": "Raymond James Stadium",
+      "address": "4201 N Dale Mabry Hwy",
+      "city": "Tampa",
+      "zip": "33607",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.buccaneers.com/tickets/single-game"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-06 13:00:00",
+          "end": "2026-12-06 16:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:tampa-bay-buccaneers-vs-los-angeles-chargers",
+      "lead_name": "Tampa Bay Buccaneers vs Los Angeles Chargers",
+      "source": "thatssotampa",
+      "venue": "Raymond James Stadium",
+      "address": "4201 N Dale Mabry Hwy",
+      "city": "Tampa",
+      "zip": "33607",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.buccaneers.com/tickets/single-game?source=sgthome",
+        "https://secure.acsevents.org/site/TR?fr_id=109431&pg=informational&sid=212807&name=event-details"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-06 13:00:00",
+          "end": "2026-12-06 16:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:lecture-ptolemaic-queens",
+      "lead_name": "Lecture: Ptolemaic Queens",
+      "source": "thatssotampa",
+      "venue": "Tampa Museum of Art",
+      "address": "120 W Gasparilla Plaza",
+      "city": "St. Petersburg",
+      "zip": "33602",
+      "cost_text": "$25",
+      "organizer_url_hints": [
+        "https://tampamuseum.org/event/lecture-ptolemaic-queens-women-power-in-hellenistic-egypt/",
+        "https://tampamuseum.org/",
+        "https://tampamuseum.org/event/pride-passion-2024/"
+      ],
+      "organizer_names": [
+        "Tampa Museum of Art"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-06 14:00:00",
+          "end": "2026-12-06 15:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:the-florida-orchestra-nightmare-before-christmas-2",
+      "lead_name": "The Florida Orchestra: Nightmare Before Christmas",
+      "source": "ilovetheburg",
+      "venue": "Duke Energy Center for the Arts – Mahaffey Theater",
+      "address": "400 1st St S",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-06 14:00:00",
+          "end": "2026-12-06 16:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:infinitys-winter-white",
+      "lead_name": "Infinity’s Winter White",
+      "source": "ilovetheburg",
+      "venue": "Saint Petersburg Shuffleboard Club",
+      "address": "599 Mirror Lake Drive",
+      "city": "Saint Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.silentauctionpro.com/signinregisterolb.php?groupId=3731&amp;olbreturn=/memberhome.php?groupId=3731&amp;ks=1",
+        "https://stpeteshuffle.com/"
+      ],
+      "organizer_names": [
+        "Infinity, the league to aid abused children and adults"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-06 16:00:00",
+          "end": "2026-12-06 20:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:tampa-bay-lightning-vs-columbus-blue-jackets-2",
+      "lead_name": "Tampa Bay Lightning vs. Columbus Blue Jackets",
+      "source": "ilovetheburg",
+      "venue": null,
+      "address": null,
+      "city": null,
+      "zip": null,
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.nhl.com/lightning/tickets/single-game-tickets"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-07 19:00:00",
+          "end": "2026-12-07 21:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:tampa-bay-lightning-vs-columbus-blue-jackets",
+      "lead_name": "Tampa Bay Lightning vs. Columbus Blue Jackets",
+      "source": "thatssotampa",
+      "venue": "Benchmark International Arena",
+      "address": "401 Channelside Dr",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.nhl.com/lightning/tickets/single-game-tickets",
+        "https://www.benchmarkintlarena.com"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-07 19:00:00",
+          "end": "2026-12-07 19:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:st-pete-gift-grab-2",
+      "lead_name": "St. Pete Gift Grab",
+      "source": "ilovetheburg",
+      "venue": "Fergs Sports Bar",
+      "address": "1320 Central Ave",
+      "city": "St. Petersburg",
+      "zip": "33705",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://stpeteissupercool.com/pages/st-pete-gift-grab",
+        "http://www.stpeteissupercool.com"
+      ],
+      "organizer_names": [
+        "St. Pete is Super Cool"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-08 18:00:00",
+          "end": "2026-12-08 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:holiday-botanicals",
+      "lead_name": "Holiday Botanicals",
+      "source": "ilovetheburg",
+      "venue": "Weedon Island Preserve",
+      "address": "1800 Weedon Drive Northeast",
+      "city": "St. Petersburg",
+      "zip": "33702",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://www.eventbrite.com/cc/master-gardener-lectures-weedon-island-preserve-3000029",
+        "https://sfyl.ifas.ufl.edu/pinellas/"
+      ],
+      "organizer_names": [
+        "Pinellas County Extention"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-10 11:30:00",
+          "end": "2026-12-10 12:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:vienna-light-orchestra-christmas-concert-tour-2026",
+      "lead_name": "Vienna Light Orchestra – Christmas Concert Tour 2026",
+      "source": "ilovetheburg",
+      "venue": "Duke Energy Center for the Arts – Mahaffey Theater",
+      "address": "400 1st St S",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-10 15:00:00",
+          "end": "2026-12-10 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:vienna-light-orchestra-christmas-tour-2026",
+      "lead_name": "Vienna Light Orchestra Christmas Tour 2026",
+      "source": "ilovetheburg",
+      "venue": "Duke Energy Center for the Arts – Mahaffey Theater",
+      "address": "400 1st St S",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.viennalightorchestra.com/concerts/st-petersburg-fl"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-10 15:00:00",
+          "end": "2026-12-10 17:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:tampa-bay-lightning-vs-boston-bruins-2",
+      "lead_name": "Tampa Bay Lightning vs. Boston Bruins",
+      "source": "ilovetheburg",
+      "venue": null,
+      "address": null,
+      "city": null,
+      "zip": null,
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.nhl.com/lightning/tickets/single-game-tickets"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-10 19:00:00",
+          "end": "2026-12-10 21:30:00",
+          "all_day": false
+        }
+      ]
+    }
+  ]
+}

@@ -60,6 +60,8 @@ const STANDARD = {
   "app/florida-events/page.js": "app/florida-events/page.js",
   "app/florida-events/[slug]/page.js": "app/florida-events/[slug]/page.js",
   "app/guides/page.js": "app/guides/page.js",
+  // 2026-09-23: the archive of guides that already happened, a list page like /guides.
+  "app/guides/past/page.js": "app/guides/past/page.js",
   "app/guides/[slug]/page.js": "app/guides/[slug]/page.js",
   "app/guides/florida-fall-festivals-2026/page.js": "app/guides/florida-fall-festivals-2026/page.js",
   "app/guides/pintos-farm-miami-2026/page.js": "app/guides/pintos-farm-miami-2026/page.js",

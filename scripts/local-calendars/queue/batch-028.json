@@ -1,0 +1,315 @@
+{
+  "batch": 28,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "ilovetheburg:christmas-under-the-oaks-holiday-market",
+      "lead_name": "Christmas Under the Oaks – Holiday Market",
+      "source": "ilovetheburg",
+      "venue": "St. Petersburg College Clearwater Campus",
+      "address": "2465 Drew Street",
+      "city": "Clearwater",
+      "zip": "33765",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://gfwcnpwc.org/events/christmas-under-the-oaks/",
+        "https://gfwcnpwc.org/"
+      ],
+      "organizer_names": [
+        "GFWC North Pinellas Woman’s Club"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-08 09:00:00",
+          "end": "2026-11-08 15:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:99-5-qyk-guitar-pull",
+      "lead_name": "99.5 QYK Guitar Pull",
+      "source": "ilovetheburg",
+      "venue": "Duke Energy Center for the Arts – Mahaffey Theater",
+      "address": "400 1st St S",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-08 19:30:00",
+          "end": "2026-11-08 22:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:the-brook-and-the-bluff-the-werewolf-tour",
+      "lead_name": "The Brook and The Bluff – The Werewolf Tour",
+      "source": "ilovetheburg",
+      "venue": "Jannus Live",
+      "address": "200 1st Ave N STE 206",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.jannuslive.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-08 20:00:00",
+          "end": "2026-11-08 23:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:blind-date-with-a-book",
+      "lead_name": "Blind Date with a Book",
+      "source": "thatssotampa",
+      "venue": "Snow Park",
+      "address": "662 W John F Kennedy Blvd",
+      "city": "Tampa",
+      "zip": "33606",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://www.tampasdowntown.com/events/west-riverfront-blind-date-with-a-book/",
+        "https://www.tampasdowntown.com/"
+      ],
+      "organizer_names": [
+        "Tampa Downtown Partnership"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-09 16:30:00",
+          "end": "2026-11-09 19:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:rush-fifty-something-tour",
+      "lead_name": "Rush – Fifty Something Tour",
+      "source": "thatssotampa",
+      "venue": "Benchmark International Arena",
+      "address": "401 Channelside Dr",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.benchmarkintlarena.com"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-11-09 19:30:00",
+          "end": "2026-11-09 22:30:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-11-11 19:30:00",
+          "end": "2026-11-11 22:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:st-pete-clearwater-senior-expo-2",
+      "lead_name": "St. Pete Clearwater Senior Expo",
+      "source": "ilovetheburg",
+      "venue": "Ruth Eckerd Hall",
+      "address": "1111 McMullen Booth Rd",
+      "city": "Clearwater",
+      "zip": "33759",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://www.facebook.com/events/950812787507972",
+        "https://www.floridapenguinproductions.com"
+      ],
+      "organizer_names": [
+        "Florida Penguin Productions"
+      ],
+      "source_categories": [
+        "Adults",
+        "Community"
+      ],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-10 11:00:00",
+          "end": "2026-11-10 14:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:judah-and-the-lion-the-boys-are-back-tour",
+      "lead_name": "Judah and The Lion – The Boys Are Back Tour",
+      "source": "ilovetheburg",
+      "venue": "Jannus Live",
+      "address": "200 1st Ave N STE 206",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.jannuslive.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-11 18:30:00",
+          "end": "2026-11-11 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:the-altons-w-special-guests-tba",
+      "lead_name": "The Altons w/ Special Guests TBA",
+      "source": "ilovetheburg",
+      "venue": "Bayboro Brewing Co.",
+      "address": "2390 5th Ave S",
+      "city": "St. Petersburg",
+      "zip": "33712",
+      "cost_text": "$25 – $30",
+      "organizer_url_hints": [
+        "https://aestheticized.com/"
+      ],
+      "organizer_names": [
+        "Aestheticized Presents >>>"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-11 19:00:00",
+          "end": "2026-11-11 23:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:celebrity-housewives",
+      "lead_name": "Celebrity Housewives",
+      "source": "thatssotampa",
+      "venue": "Straz Center for the Performing Arts",
+      "address": "1010 N WC MacInnes Pl",
+      "city": "Tampa",
+      "zip": null,
+      "cost_text": "$39.50",
+      "organizer_url_hints": [
+        "https://www.strazcenter.org/events/2627-season/theater/an-evening-with-the-celebrity-housewives/"
+      ],
+      "organizer_names": [
+        "Straz Center for the Performing Arts"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-11 19:30:00",
+          "end": "2026-11-11 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:mannheim-steamroller-christmas-annual-christmas-2026-tour",
+      "lead_name": "Mannheim Steamroller Christmas – Annual Christmas 2026 Tour",
+      "source": "ilovetheburg",
+      "venue": "Duke Energy Center for the Arts – Mahaffey Theater",
+      "address": "400 1st St S",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-11 19:30:00",
+          "end": "2026-11-11 22:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:common-weed-identification",
+      "lead_name": "Common Weed Identification",
+      "source": "ilovetheburg",
+      "venue": "Weedon Island Preserve",
+      "address": "1800 Weedon Drive Northeast",
+      "city": "St. Petersburg",
+      "zip": "33702",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://www.eventbrite.com/cc/master-gardener-lectures-weedon-island-preserve-3000029",
+        "https://sfyl.ifas.ufl.edu/pinellas/"
+      ],
+      "organizer_names": [
+        "Pinellas County Extention"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-12 11:30:00",
+          "end": "2026-11-12 12:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:hawthorne-heights-if-only-you-were-lonely-20th-anniversary-tour",
+      "lead_name": "Hawthorne Heights – If Only You Were Lonely 20th Anniversary Tour",
+      "source": "ilovetheburg",
+      "venue": "Jannus Live",
+      "address": "200 1st Ave N STE 206",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.jannuslive.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-12 18:00:00",
+          "end": "2026-11-12 23:00:00",
+          "all_day": false
+        }
+      ]
+    }
+  ]
+}

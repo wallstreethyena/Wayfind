@@ -36,6 +36,15 @@ Revenue-audit detail: `docs/POSTMORTEM_2026-08-25_REVENUE_PATH.md`.
 
 ## Concurrency & git
 
+> **🔒 The shared clone is infrastructure, not a workspace (owner directive, 2026-09-29).**
+> `/Users/gabrielpereira/Projects/wayfind` is shared infrastructure only — it hosts every
+> lane's worktrees. **Never use it as an active development workspace. Never commit, stash,
+> reset, clean, apply patches, or create PRs from that shared clone.** Every new development
+> lane must start from a **fresh `origin/main` in its own isolated worktree**
+> (`git worktree add -b <lane> <path-outside-the-clone> origin/main`). Editing directly in
+> the shared tree risks sweeping another lane's uncommitted work into your commit — the
+> merge-#346 contamination failure.
+
 - **Never assume your base is current.** `git fetch origin main` and diff immediately before
   every commit; branch every fix off fresh `origin/main`. `git fetch --prune --all` before
   trusting `git branch -r`.

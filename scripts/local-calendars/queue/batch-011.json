@@ -1,0 +1,325 @@
+{
+  "batch": 11,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "ilovetheburg:practice-dying-a-skull-bones-exhibit-opening-reception",
+      "lead_name": "Practice Dying: A Skull & Bones Exhibit Opening Reception",
+      "source": "ilovetheburg",
+      "venue": "Morean Arts Center",
+      "address": "719 Central Avenue",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://moreanartscenter.org/exibition/practice-dying-a-skull-and-bones-exhibit/",
+        "https://moreanartscenter.org/exibition/joyland-benaiah-cusack/",
+        "http://www.moreanartscenter.org/"
+      ],
+      "organizer_names": [
+        "Morean Arts Center"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-10 17:00:00",
+          "end": "2026-10-10 20:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:second-saturday-artwalk-3",
+      "lead_name": "Second Saturday ArtWalk",
+      "source": "ilovetheburg",
+      "venue": null,
+      "address": null,
+      "city": null,
+      "zip": null,
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://stpeteartsalliance.org/experience-arts/artwalk",
+        "http://www.stpeteartsalliance.org/"
+      ],
+      "organizer_names": [
+        "St. Petersburg Arts Alliance"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-10-10 17:00:00",
+          "end": "2026-10-10 21:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-11-14 17:00:00",
+          "end": "2026-11-14 21:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-12-12 17:00:00",
+          "end": "2026-12-12 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:johnny-cougars-birthday-celebration",
+      "lead_name": "Johnny Cougar’s Birthday Celebration",
+      "source": "thatssotampa",
+      "venue": "Shuffle",
+      "address": "2612 North Tampa Street",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": "$12.00",
+      "organizer_url_hints": [
+        "https://eventvesta.com/events/162419/t/tickets"
+      ],
+      "organizer_names": [
+        "Shuffle"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-10 19:00:00",
+          "end": "2026-10-10 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:phil-wickham-song-of-the-saints-2026-tour",
+      "lead_name": "Phil Wickham – Song of the Saints 2026 Tour",
+      "source": "thatssotampa",
+      "venue": "Benchmark International Arena",
+      "address": "401 Channelside Dr",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.benchmarkintlarena.com"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-10 19:00:00",
+          "end": "2026-10-10 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:rocktoberfest",
+      "lead_name": "Rocktoberfest",
+      "source": "thatssotampa",
+      "venue": "Saddlebook Resort",
+      "address": "Saddlebrook way",
+      "city": "Wesley Chapel",
+      "zip": "33543",
+      "cost_text": "$33.85",
+      "organizer_url_hints": [
+        "https://www.facebook.com/events/2336736180490340",
+        "https://www.saddlebrook.com/golf/?utm_source=extnet&utm_medium=yext"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-10 19:00:00",
+          "end": "2026-10-10 21:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:the-florida-orchestra-revolution-the-music-of-the-beatles",
+      "lead_name": "The Florida Orchestra: Revolution – The Music of The Beatles",
+      "source": "ilovetheburg",
+      "venue": "Duke Energy Center for the Arts – Mahaffey Theater",
+      "address": "400 1st St S",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-10 19:30:00",
+          "end": "2026-10-10 21:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:the-artimus-pyle-band-honoring-ronnie-van-zant",
+      "lead_name": "The Artimus Pyle Band-Honoring Ronnie Van Zant",
+      "source": "ilovetheburg",
+      "venue": "Central Park Performing Arts Center",
+      "address": "105 Central Park Drive",
+      "city": "Largo",
+      "zip": null,
+      "cost_text": "$40 – $55",
+      "organizer_url_hints": [
+        "https://centralparkpac.thundertix.com/events/268847",
+        "https://www.largoarts.com/"
+      ],
+      "organizer_names": [
+        "cppac_largo"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-10 20:00:00",
+          "end": "2026-10-10 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:willow-avalon-pink-pocket-pistol-tour",
+      "lead_name": "Willow Avalon – Pink Pocket Pistol Tour",
+      "source": "ilovetheburg",
+      "venue": "Jannus Live",
+      "address": "200 1st Ave N STE 206",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.jannuslive.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-10 20:00:00",
+          "end": "2026-10-10 23:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:eww-elite-world-wrestling-improvised-pro-wrestling-comedy",
+      "lead_name": "EWW: Elite World Wrestling | Improvised Pro Wrestling Comedy",
+      "source": "ilovetheburg",
+      "venue": "Spitfire Comedy House",
+      "address": "1920 1st Ave South",
+      "city": "Saint Petersburg",
+      "zip": "33713",
+      "cost_text": "$25",
+      "organizer_url_hints": [
+        "http://spitfirecomedy.vbotickets.com/event/eww_elite_world_wrestling_-_an_improvised_pro_wrestling_show/206483",
+        "https://spitfirecomedy.com/"
+      ],
+      "organizer_names": [
+        "@spitfirecomedyhouse"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-10 21:00:00",
+          "end": "2026-10-10 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:grandma-rocks",
+      "lead_name": "GrandMa Rocks",
+      "source": "ilovetheburg",
+      "venue": "Central Park Performing Arts Center",
+      "address": "105 Central Park Drive",
+      "city": "Largo",
+      "zip": null,
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.mytbtickets.com/events/sages-theater-grandma-rocks-largo-10-11-2026"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-11 14:00:00",
+          "end": "2026-10-11 15:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:peace-memorial-concert-series-the-bay-string-quartet-classics-to-pops",
+      "lead_name": "Peace Memorial Concert Series-The Bay String Quartet- Classics to Pops",
+      "source": "ilovetheburg",
+      "venue": "Peace Memorial Presbyterian Church",
+      "address": "110 S. Ft. Harrison Ave.",
+      "city": "Clearwater",
+      "zip": "33756",
+      "cost_text": "Donation/Offering",
+      "organizer_url_hints": [
+        "https://peacememorialpresbyterian.org/"
+      ],
+      "organizer_names": [
+        "Beth Daniels"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-11 15:00:00",
+          "end": "2026-10-11 16:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:ms-veteran-america",
+      "lead_name": "Ms Veteran America",
+      "source": "thatssotampa",
+      "venue": "Renaissance Tampa International Plaza Hotel",
+      "address": "4200 Jim Walter Blvd.",
+      "city": "Tampa",
+      "zip": "33607",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.eventbrite.com/e/ms-veteran-america-2026-tickets-1993797714636",
+        "https://www.marriott.com/en-us/hotels/tpaim-renaissance-tampa-international-plaza-hotel/overview/",
+        "https://www.finalsaluteinc.org/Home.html"
+      ],
+      "organizer_names": [
+        "Final Salute Inc"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-11 18:00:00",
+          "end": "2026-10-11 21:00:00",
+          "all_day": false
+        }
+      ]
+    }
+  ]
+}

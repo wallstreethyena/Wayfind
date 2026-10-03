@@ -1,14 +1,16 @@
 #!/usr/bin/env node
 // Validate and optionally publish a reviewed, source-grounded editorial pack.
 // Default is offline and read-only. --live adds Supabase preflight reads.
-// --commit inserts only rows whose three editorial slots are still blank.
+// --commit inserts only rows whose editorial slots are still blank, or replaces
+// a never-verified, all-blank wf_editorial placeholder through a guarded UPDATE
+// after recording its prior state in <pack>.audit.json (owner rules 2026-09-29).
 // No AI or Places provider is called anywhere in this path.
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { atlasCardForName, indexAtlasCards, resolveAtlasId } from "../lib/atlasCards.js";
 import { editorialFor } from "../lib/editorial.js";
-import { preflightOwnedEditorial, writeOwnedEditorial } from "./lib/ownedEditorialPublisher.mjs";
+import { buildReplacementAudit, preflightOwnedEditorial, writeOwnedEditorial } from "./lib/ownedEditorialPublisher.mjs";
 import {
   findStaticEditorialConflicts,
   reviewOwnedEditorialPack,
@@ -120,14 +122,31 @@ async function main() {
   if (!env.url || !env.key) throw new Error("--live requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY");
   const preflight = await preflightOwnedEditorial(pack.candidates, env);
   if (!preflight.ok) { printErrors("live blank-slot preflight failed", preflight.errors); process.exitCode = 1; return; }
-  console.log(`live preflight: ${preflight.reports.length}/${pack.candidates.length} exact identities are operational, unflagged, and blank in all three editorial stores`);
+  const replacing = preflight.reports.filter((report) => report.replaces_placeholder);
+  console.log(`live preflight: ${preflight.reports.length}/${pack.candidates.length} exact identities are operational and unflagged; ${preflight.reports.length - replacing.length} blank in all editorial stores, ${replacing.length} carry a never-verified all-blank wf_editorial placeholder to replace`);
+
+  // Preserve the prior placeholder rows' audit history BEFORE any write. The
+  // audit sits next to the pack and is committed with it. On --commit a failure
+  // to record it aborts the run.
+  if (replacing.length) {
+    const auditPath = auditPathFor(args.input);
+    const audit = buildReplacementAudit(preflight.reports, { pack: args.input.replace(ROOT + "/", ""), reviewedBy: args.reviewedBy, researchedAt: pack.researched_at });
+    writeFileSync(auditPath, JSON.stringify(audit, null, 2) + "\n");
+    console.log(`replacement audit recorded: ${auditPath.replace(ROOT + "/", "")} (${audit.replaced.length} prior row(s))`);
+  }
   if (!args.commit) {
     console.log("live read-only run: no database write; no provider call");
     return;
   }
 
-  const saved = await writeOwnedEditorial(review.rows, env);
-  console.log(`inserted ${saved.length}/${review.rows.length} verified wf_editorial rows; reviewer=${args.reviewedBy}`);
+  const replacements = new Set(replacing.map((report) => report.place_id));
+  const saved = await writeOwnedEditorial(review.rows, env, { replacements });
+  console.log(`wrote ${saved.length}/${review.rows.length} verified wf_editorial rows (${replacements.size} guarded placeholder replacement(s)); reviewer=${args.reviewedBy}`);
+}
+
+/** <pack>.json -> <pack>.audit.json, next to the pack. */
+export function auditPathFor(inputPath) {
+  return resolve(inputPath).replace(/\.json$/i, "") + ".audit.json";
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

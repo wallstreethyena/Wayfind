@@ -2057,6 +2057,56 @@ function makeQueueFetchStub({ dueOpen = [], blocked = [], reconcile = [], refs =
   }
 }
 
+// ── case 29 — missing-source inventory must enter the repair lane immediately ──
+//
+// Production audit 2026-09-27 found 145 Florida OPERATIONAL place rows with
+// no truthful image source. 119 of them had no repair-queue row at all, so
+// neither the free Commons worker nor an operator could see the gap unless a
+// reader/monitor happened to touch that exact card first. The migration below
+// makes queue membership an inventory invariant instead of a sampling side
+// effect. The live migration was also transaction-tested with a synthetic
+// Florida inventory row and rolled back after its open/no-source queue row was
+// observed.
+{
+  const migrationSrc = readFileSync(
+    new URL("../supabase/migrations/20260927120325_queue_missing_photo_source_on_inventory_transition.sql", import.meta.url),
+    "utf8"
+  );
+
+  ok(/create or replace function public\.wf_queue_inventory_missing_photo\(\)/i.test(migrationSrc),
+    "case 29: the migration must own one named missing-photo queue function");
+  ok(/language\s+plpgsql[\s\S]*set search_path\s*=\s*public/i.test(migrationSrc),
+    "case 29: trigger function must pin search_path instead of inheriting caller search state");
+  ok(!/security\s+definer/i.test(migrationSrc),
+    "case 29: the inventory trigger does not need SECURITY DEFINER and must not gain bypass privileges");
+  ok(/new\.status\s*=\s*'OPERATIONAL'[\s\S]*coalesce\(new\.excluded,\s*false\)\s*=\s*false/i.test(migrationSrc),
+    "case 29: only live, non-excluded inventory can enter this repair invariant");
+  ok(/new\.metro\s*=\s*any\(fl_metros\)/i.test(migrationSrc)
+    && /'manatee-sarasota'/.test(migrationSrc) && /'miami-dade'/.test(migrationSrc) && /'keys'/.test(migrationSrc),
+    "case 29: the trigger is scoped to Wayfind's explicit Florida live-coverage metros");
+  ok(/new\.photo_ref\s+is\s+null/i.test(migrationSrc)
+    && /new\.signals->>'photo_url'/.test(migrationSrc)
+    && /new\.signals->>'photoUrl'/.test(migrationSrc),
+    "case 29: a row is missing-source only when Google ref and owned signal URL are both absent");
+  ok(/not exists\s*\([\s\S]*from public\.wf_place_photo p[\s\S]*p\.place_id\s*=\s*new\.place_id[\s\S]*p\.status\s*=\s*'active'/i.test(migrationSrc),
+    "case 29: an active exact-place free photo prevents a false missing-source queue entry");
+  ok(/insert into public\.wf_photo_repair_queue/i.test(migrationSrc),
+    "case 29: the trigger writes the existing repair queue, never a second shadow backlog");
+  ok(/'no-source'[\s\S]*now\(\)[\s\S]*'open'/i.test(migrationSrc),
+    "case 29: newly discovered missing-source inventory enters as open/no-source immediately");
+  ok(/when public\.wf_photo_repair_queue\.status\s*=\s*'recovered'\s+then\s+'open'[\s\S]*else public\.wf_photo_repair_queue\.status/i.test(migrationSrc),
+    "case 29: a newly missing recovered row reopens while unresolved/retired operator history is preserved");
+  ok(/after insert or update of photo_ref, signals, status, excluded, metro[\s\S]*on public\.wf_inventory/i.test(migrationSrc),
+    "case 29: the trigger covers every inventory field that can change photo eligibility");
+  ok(/revoke all on function public\.wf_queue_inventory_missing_photo\(\) from public, anon, authenticated/i.test(migrationSrc),
+    "case 29: the internal trigger helper is not a public Data API action");
+  ok(/one-time census/i.test(migrationSrc)
+    && /insert into public\.wf_photo_repair_queue[\s\S]*from public\.wf_inventory i[\s\S]*on conflict \(place_id\) do nothing/i.test(migrationSrc),
+    "case 29: existing missing-source rows are backfilled idempotently instead of waiting for a future update");
+  ok(/q\.failure_reason\s*=\s*'source-unavailable'[\s\S]*set failure_reason\s*=\s*'no-source'|set failure_reason\s*=\s*'no-source'[\s\S]*q\.failure_reason\s*=\s*'source-unavailable'/i.test(migrationSrc),
+    "case 29: stale queue bookkeeping is corrected when inventory no longer has any Google source");
+}
+
 if (fail.length) {
   console.error(`test-photo-protection: ${pass} passed, ${fail.length} FAILED`);
   for (const f of fail) console.error("  ✗ " + f);

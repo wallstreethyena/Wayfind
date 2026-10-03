@@ -47,6 +47,7 @@ npm run check:photos
 node scripts/check-landing-photos.mjs
 node scripts/test-landing-card-photo.mjs
 node scripts/test-landing-why-fits.mjs
+node scripts/test-landing-card-cue.mjs
 node scripts/test-score-band.mjs
 node scripts/test-business-status.mjs
 node scripts/test-closed-policy.mjs
@@ -55,6 +56,9 @@ npm run check:events
 node scripts/check-business-events.mjs
 node scripts/check-guides.mjs
 node scripts/check-guide-standard.mjs
+# 2026-09-23 (owner): guides that already happened move to /guides/past via
+# endsOn (lib/guideLifecycle.js); never deleted, never promoted as current.
+node scripts/check-guide-lifecycle.mjs
 node scripts/test-affiliates.mjs
 node scripts/check-legal.mjs
 node scripts/check-favorites-auth.mjs
@@ -170,6 +174,9 @@ node scripts/test-owner-places-2026-08-29c.mjs
 node scripts/test-owner-places-2026-08-29d.mjs
 node scripts/test-owner-places-2026-08-29e.mjs
 node scripts/test-command-center.mjs
+# Command Center partner-click predicate + #1603 exclude_devices: the migration
+# must stay byte-identical to command-center.sql (2026-10-02).
+node scripts/test-cc-partner-click-predicate.mjs
 node scripts/test-command-center-feedback.mjs
 # Stale-on-error cache keeps the shape it serves (arrays stay arrays).
 node scripts/test-cc-stale-cache-shape.mjs
@@ -1761,6 +1768,11 @@ node scripts/test-beach-local-conditions.mjs
 
 # Reviewed source-backed prose fills only verified empty editorial slots.
 node scripts/test-owned-editorial-review.mjs
+# Owner rules 2026-09-29 (owner path only): best_time/local_tip optional,
+# guarded replacement of a never-verified all-blank wf_editorial placeholder with
+# its prior state audited, occupied inventory summary needs an explicit owner
+# disposition, and local_press is descriptive-only (press-operational-claim).
+node scripts/test-owned-editorial-rules.mjs
 node scripts/check-guide-editorial.mjs
 
 # Every guide and blog article renders through ONE premium editorial standard
@@ -1904,6 +1916,13 @@ node scripts/test-live-poster-art.mjs
 # published.json names only verified rows. Hermetic.
 node scripts/check-florida-festivals-import.mjs
 
+# Local media calendar import (2026-10-02, docs/LOCAL_CALENDARS_IMPORT.md):
+# leads keep facts only (no copy, images, emails, phones); rows never cite the
+# lead calendar or a reseller; the city-calendar same-event rule keeps real
+# duplicates and refuses town-name / season-word false matches; every verified
+# batch answers every queued series; published.json names only verified rows.
+node scripts/check-local-calendars-import.mjs
+
 # Shared category teardrops: real legend render and browser sprite geometry.
 node scripts/test-map-pin-standard.mjs
 
@@ -1977,6 +1996,10 @@ node scripts/test-photo-credit-new-tab.mjs
 # A guide never shows a Google photo without Google's required visible credit;
 # licensed photos (with credit) or none instead (owner, 2026-09-30).
 node scripts/test-google-photo-attribution.mjs
+# Expired credits are deleted hourly by SQL (no Google call); the purge can
+# only reach rows expired over an hour ago and undoes any batch that would
+# lower the live count (2026-09-30).
+node scripts/test-photo-credit-purge.mjs
 node scripts/test-jev-mcp.mjs
 
 node scripts/test-guide-editorial-photos.mjs
@@ -2021,3 +2044,6 @@ node scripts/test-family-evidence-expiry.mjs
 # first four UTC hours of every month it reported LAST month's exhausted photo budget
 # while grants landed on the new row. Every ledger reader keys months in UTC.
 node scripts/test-ledger-month.mjs
+
+# 2026-09-28 — place-photo contributions stay pending/private and cannot mutate Google photo identity.
+node scripts/check-place-photo-contributions.mjs

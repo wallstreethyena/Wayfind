@@ -1,0 +1,204 @@
+{
+  "batch": 38,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "ilovetheburg:ax-and-the-hatchetmen-the-late-checkout-tour",
+      "lead_name": "Ax and the Hatchetmen – The Late Checkout Tour",
+      "source": "ilovetheburg",
+      "venue": "Jannus Live",
+      "address": "200 1st Ave N STE 206",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.jannuslive.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-12 19:00:00",
+          "end": "2026-12-12 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:the-fab-four-tribute-to-the-beatles-a-hard-days-night",
+      "lead_name": "The Fab Four: Tribute to the Beatles’ A Hard Day’s Night",
+      "source": "thatssotampa",
+      "venue": "Tampa Theatre",
+      "address": null,
+      "city": null,
+      "zip": null,
+      "cost_text": "$29.50 – $119.50",
+      "organizer_url_hints": [
+        "https://www.etix.com/ticket/p/31934927/the-fab-fourtribute-to-the-beatlesa-hard-days-night-tampa-historic-duncan-auditorium?partner_id=8717",
+        "https://tampatheatre.org"
+      ],
+      "organizer_names": [
+        "Tampa Theatre"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-12 19:30:00",
+          "end": "2026-12-12 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:8th-annual-jingle-bell-bazaar-at-ybor",
+      "lead_name": "8th Annual Jingle Bell Bazaar at Ybor",
+      "source": "thatssotampa",
+      "venue": "Centennial Park in Historic Ybor City",
+      "address": "1800 E 8th Ave",
+      "city": "Tampa",
+      "zip": "33605",
+      "cost_text": "Free",
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-13 12:00:00",
+          "end": "2026-12-13 18:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:jodeci-forever-my-lady-35th-anniversary-tour",
+      "lead_name": "Jodeci – Forever My Lady 35th Anniversary Tour",
+      "source": "ilovetheburg",
+      "venue": "Duke Energy Center for the Arts – Mahaffey Theater",
+      "address": "400 1st St S",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-13 19:00:00",
+          "end": "2026-12-13 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:wax-dj-hoppa-highway-hotel-tour",
+      "lead_name": "Wax & DJ Hoppa | Highway Hotel Tour",
+      "source": "thatssotampa",
+      "venue": "Zodiac Live",
+      "address": "1507 E 7th Ave",
+      "city": "Tampa",
+      "zip": "33605",
+      "cost_text": "$34.91",
+      "organizer_url_hints": [
+        "https://www.eventbrite.com/e/wax-dj-hoppa-tampa-tickets-1991511661991?aff=oddtdtcreator"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-13 19:00:00",
+          "end": "2026-12-13 23:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:black-history-book-club-why-we-cant-wait-by-martin-luther-king-jr",
+      "lead_name": "Black History Book Club: “Why We Can’t Wait” by Martin Luther King, Jr.",
+      "source": "thatssotampa",
+      "venue": "Tampa’s Black History Museum",
+      "address": "1213 N. Central Avenue",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://tampabayhistorycenter.org/event/black-history-book-club-why-we-cant-wait-by-martin-luther-king-jr/",
+        "https://tampabayhistorycenter.org/organizer/tampas-black-history-museum/",
+        "https://tampabayhistorycenter.org/tampas-black-history-museum/"
+      ],
+      "organizer_names": [
+        "Tampa’s Black History Museum"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-14 17:30:00",
+          "end": "2026-12-14 18:45:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:growing-creatively-early-learner-gallery-art-experience-3",
+      "lead_name": "Growing Creatively: Early Learner Gallery & Art Experience",
+      "source": "thatssotampa",
+      "venue": "Tampa Museum of Art",
+      "address": "120 W Gasparilla Plaza",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": "$30",
+      "organizer_url_hints": [
+        "https://shop.tampamuseum.org/products/growing-creatively-early-learners-gallery-art-experience?_gl=1*19snvc9*_gcl_au*NjQwODQ0MzE4LjE3ODExMTg4MDA",
+        "https://shop.tampamuseum.org/products/fundamental-figure-drawing-1?_gl=1*17fvdef*_gcl_au*MTE2MzU3ODczNi4xNzU4OTAxNzc2",
+        "https://tampamuseum.org/event/pride-passion-2024/"
+      ],
+      "organizer_names": [
+        "Tampa Museum of Art"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-16 09:30:00",
+          "end": "2026-12-16 10:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:josh-johnsons-comedy-band-camp-3",
+      "lead_name": "Josh Johnson’s Comedy Band Camp",
+      "source": "ilovetheburg",
+      "venue": "Duke Energy Center for the Arts – Mahaffey Theater",
+      "address": "400 1st St S",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-16 19:00:00",
+          "end": "2026-12-16 21:00:00",
+          "all_day": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-02",
+  "generated": "2026-10-03",
   "generator": "scripts/lib/build-guard-registry.mjs",
   "derivation": "scripts/lib/deriveGuardRegistry.mjs",
   "schemaNotes": "Mechanically-derived fields (class/assertionCount/wiring/gating/critical/criticalReasons) are regenerated every run from scripts/guards.txt, package.json, .github/workflows/*.yml, ops/*.workflow.yml and scripts/lib/guardHonestyAnalysis.mjs — editing them by hand will be overwritten on the next `node scripts/lib/build-guard-registry.mjs`. Hand-authored fields (protects/blastRadius/owner) live in scripts/lib/guard-registry-overrides.json and are merged in; they are REQUIRED for every entry with critical:true and optional elsewhere. scripts/check-guard-registry.mjs (the CI guard) re-derives guards.txt wiring LIVE rather than trusting this file's cached `wiring.guardsTxt` — and since 2026-09-07 it also re-derives EVERY mechanically-derived field via scripts/lib/deriveGuardRegistry.mjs and fails when the committed snapshot disagrees, so a stale registry can no longer be merged unnoticed.",
@@ -27,16 +27,16 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 788,
-    "totalRegistryEntries": 789,
-    "guardsTxtLineCount": 788,
-    "guardsTxtReachedFileCount": 781,
+    "totalOnDiskGuardFiles": 795,
+    "totalRegistryEntries": 796,
+    "guardsTxtLineCount": 795,
+    "guardsTxtReachedFileCount": 788,
     "criticalCount": 94,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 542,
-      "RENDER": 105,
-      "STRUCTURAL": 141,
+      "CALL": 547,
+      "RENDER": 106,
+      "STRUCTURAL": 142,
       "OTHER": 1
     }
   },
@@ -3704,6 +3704,28 @@
       "owner": null
     },
     {
+      "file": "scripts/check-guide-lifecycle.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 40,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/check-guide-pick-photos.mjs",
       "npmScript": null,
       "class": "RENDER",
@@ -3894,9 +3916,9 @@
     {
       "file": "scripts/check-guide-standard.mjs",
       "npmScript": null,
-      "class": "STRUCTURAL",
+      "class": "CALL",
       "hasStructuralOnlyTag": true,
-      "assertionCount": 10,
+      "assertionCount": 13,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -5133,6 +5155,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 16,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-local-calendars-import.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 63,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -6936,6 +6980,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 16,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-place-photo-contributions.mjs",
+      "npmScript": null,
+      "class": "STRUCTURAL",
+      "hasStructuralOnlyTag": true,
+      "assertionCount": 14,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -10855,6 +10921,28 @@
       "owner": null
     },
     {
+      "file": "scripts/test-cc-partner-click-predicate.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 27,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-cc-stale-cache-shape.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -14298,6 +14386,28 @@
       "owner": null
     },
     {
+      "file": "scripts/test-landing-card-cue.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 38,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-landing-card-photo.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -14438,7 +14548,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 45,
+      "assertionCount": 50,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -15333,6 +15443,28 @@
       "owner": null
     },
     {
+      "file": "scripts/test-owned-editorial-rules.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 68,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-owned-hotel-identity.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -15700,6 +15832,28 @@
       "owner": null
     },
     {
+      "file": "scripts/test-photo-credit-purge.mjs",
+      "npmScript": null,
+      "class": "STRUCTURAL",
+      "hasStructuralOnlyTag": true,
+      "assertionCount": 0,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-photo-credits.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -15770,7 +15924,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 329,
+      "assertionCount": 343,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,
@@ -17411,7 +17565,7 @@
       "assertionCount": 31,
       "unprovenAbsenceCount": 2,
       "honestyViolations": [
-        "2 absence assertion(s) with no positive control in the same file (e.g. \"/const regions = guideRegions\\(GUIDES\\)/.test(hub) && /regions\\.map\\(/.test(hub)\")"
+        "2 absence assertion(s) with no positive control in the same file (e.g. \"/const regions = guideRegions\\(currentGuides\\(GUIDES\\)\\)/.test(hub) && /regions\\\")"
       ],
       "selfDocumentsRedProve": false,
       "wiring": {

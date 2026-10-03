@@ -1,0 +1,304 @@
+{
+  "batch": 29,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "ilovetheburg:hawthorne-heights-live-in-concert",
+      "lead_name": "Hawthorne Heights Live In Concert",
+      "source": "ilovetheburg",
+      "venue": "Jannus Live",
+      "address": "200 1st Ave N STE 206",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.jannuslive.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-12 18:00:00",
+          "end": "2026-11-12 23:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:lenny-pearce-toddler-rave-world-tour",
+      "lead_name": "Lenny Pearce – Toddler Rave World Tour",
+      "source": "ilovetheburg",
+      "venue": "Duke Energy Center for the Arts – Mahaffey Theater",
+      "address": "400 1st St S",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-12 18:00:00",
+          "end": "2026-11-12 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:o-a-r-three-decades-tour-2026",
+      "lead_name": "O.A.R. – Three Decades Tour 2026",
+      "source": "thatssotampa",
+      "venue": "Seminole Hard Rock Tampa Event Center",
+      "address": "5223 Orient Rd",
+      "city": "Tampa",
+      "zip": "33610",
+      "cost_text": null,
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-12 18:30:00",
+          "end": "2026-11-12 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:ice-featuring-the-polar-express",
+      "lead_name": "ice! featuring The Polar Express™",
+      "source": "ilovetheburg",
+      "venue": "Gaylord Palms",
+      "address": "6000 W Osceola Pkwy",
+      "city": "Kissimmee",
+      "zip": "34746",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://tickets.gaylordpalms.com/eventperformances.asp?evt=162"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-13 02:00:00",
+          "end": "2026-11-15 01:59:59",
+          "all_day": true
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:ice-featuring-the-polar-express",
+      "lead_name": "ice! featuring The Polar Express™",
+      "source": "thatssotampa",
+      "venue": "Gaylord Palms",
+      "address": "6000 W Osceola Pkwy",
+      "city": "Kissimmee",
+      "zip": "34746",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://tickets.gaylordpalms.com/eventperformances.asp?evt=162"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-13 03:00:00",
+          "end": "2026-11-16 02:59:59",
+          "all_day": true
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:tampa-doom-gloom-fest-iii",
+      "lead_name": "Tampa Doom & Gloom Fest III",
+      "source": "thatssotampa",
+      "venue": "Deviant Libation",
+      "address": "3800 N Nebraska Ave",
+      "city": "Tampa",
+      "zip": "33603",
+      "cost_text": "$25 – $75",
+      "organizer_url_hints": [
+        "https://www.facebook.com/share/1BKDNYq9eU/?mibextid=wwXIfr",
+        "https://www.deviantlibation.com/"
+      ],
+      "organizer_names": [
+        "terror bay distro"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-13 03:00:00",
+          "end": "2026-11-16 02:59:59",
+          "all_day": true
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:tampa-bay-history-center-annual-gala-golden-hour",
+      "lead_name": "Tampa Bay History Center Annual Gala: Golden Hour",
+      "source": "thatssotampa",
+      "venue": "Tampa Bay History Center",
+      "address": "801 Water Street",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": "$300",
+      "organizer_url_hints": [
+        "https://tampabayhistorycenter.org/support/annual-gala/"
+      ],
+      "organizer_names": [
+        "Tampa Bay History Center"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-13 17:30:00",
+          "end": "2026-11-13 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:home-for-the-holidays",
+      "lead_name": "Home for the Holidays",
+      "source": "thatssotampa",
+      "venue": "Westshore Yacht Club Marina",
+      "address": "6005 Beacon Shores St",
+      "city": "Tampa",
+      "zip": "33616",
+      "cost_text": "$25",
+      "organizer_url_hints": [
+        "https://secure.qgiv.com/for/newlifevillagedonations/event/homefortheholidays/",
+        "https://newlifevillage.org/"
+      ],
+      "organizer_names": [
+        "New Life Village"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-13 18:00:00",
+          "end": "2026-11-13 20:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:deer-tick-w-special-guests",
+      "lead_name": "Deer Tick w/ Special Guests",
+      "source": "ilovetheburg",
+      "venue": "Bayboro Brewing",
+      "address": "2390 5th Ave S.",
+      "city": "Saint Petersburg",
+      "zip": null,
+      "cost_text": "$30 – $35",
+      "organizer_url_hints": [
+        "https://deertick26.eventbrite.com",
+        "https://aestheticized.com/"
+      ],
+      "organizer_names": [
+        "Aestheticized Presents >>>"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-13 19:00:00",
+          "end": "2026-11-13 23:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:doja-cat-tour-ma-vie-world-tour",
+      "lead_name": "Doja Cat – Tour Ma Vie World Tour",
+      "source": "thatssotampa",
+      "venue": "Benchmark International Arena",
+      "address": "401 Channelside Dr",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.benchmarkintlarena.com"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-13 19:30:00",
+          "end": "2026-11-13 22:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:david-foster-katharine-mcphee",
+      "lead_name": "David Foster & Katharine McPhee",
+      "source": "ilovetheburg",
+      "venue": "Duke Energy Center for the Arts – Mahaffey Theater",
+      "address": "400 1st St S",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-13 20:00:00",
+          "end": "2026-11-13 23:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:encaustics-mixed-media-monotypes",
+      "lead_name": "Encaustics Mixed Media & Monotypes",
+      "source": "thatssotampa",
+      "venue": "Tampa Museum of Art",
+      "address": "120 W Gasparilla Plaza",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": "$150",
+      "organizer_url_hints": [
+        "https://shop.tampamuseum.org/products/encaustics-mixed-media-monotypes?_gl=1*tpf28h*_gcl_au*NjQwODQ0MzE4LjE3ODExMTg4MDA",
+        "https://shop.tampamuseum.org/products/fundamental-figure-drawing-1?_gl=1*17fvdef*_gcl_au*MTE2MzU3ODczNi4xNzU4OTAxNzc2",
+        "https://tampamuseum.org/event/pride-passion-2024/"
+      ],
+      "organizer_names": [
+        "Tampa Museum of Art"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-14 10:00:00",
+          "end": "2026-11-14 16:00:00",
+          "all_day": false
+        }
+      ]
+    }
+  ]
+}

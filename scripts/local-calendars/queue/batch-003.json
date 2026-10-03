@@ -1,0 +1,458 @@
+{
+  "batch": 3,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "thatssotampa:goruck-ruckapalooza-fitness-festival",
+      "lead_name": "GORUCK – Ruckapalooza Fitness Festival",
+      "source": "thatssotampa",
+      "venue": "NOEQL Training Co.",
+      "address": "1703 N 24th St",
+      "city": "Tampa",
+      "zip": "33605",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.goruck.com/products/mog-mile-city-ruck-weekend-tampa-fl",
+        "https://www.noeqltraining.com/"
+      ],
+      "organizer_names": [
+        "@goruck"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-03 06:00:00",
+          "end": "2026-10-03 18:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:flamingo-swing-classic",
+      "lead_name": "Flamingo Swing Classic",
+      "source": "ilovetheburg",
+      "venue": "Mangrove Bay Golf Course",
+      "address": "875 62nd Ave NE",
+      "city": "St. Petersburg",
+      "zip": "33702",
+      "cost_text": null,
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-03 08:00:00",
+          "end": "2026-10-03 11:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:sensory-saturday",
+      "lead_name": "Sensory Saturday",
+      "source": "thatssotampa",
+      "venue": "MOSI",
+      "address": "4801 E Fowler Ave",
+      "city": "Tampa",
+      "zip": "33617-2017",
+      "cost_text": "$7 – $10",
+      "organizer_url_hints": [
+        "https://mosi.org/event/sensory-saturday/",
+        "https://mosi.org/"
+      ],
+      "organizer_names": [
+        "MOSI"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-03 08:00:00",
+          "end": "2026-10-03 10:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:walk-to-end-alzheimers",
+      "lead_name": "Walk To End Alzheimer’s",
+      "source": "ilovetheburg",
+      "venue": "Poynter Park",
+      "address": "100 3rd St S",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "http://alz.org/PinellasCountyWalk"
+      ],
+      "organizer_names": [
+        "Alzheimer’s Association"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-03 08:00:00",
+          "end": "2026-10-03 12:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:yoga-poolside-at-the-hollander-hotel",
+      "lead_name": "Yoga Poolside at The Hollander Hotel",
+      "source": "ilovetheburg",
+      "venue": "Hollander Hotel St. Petersburg / Downtown",
+      "address": "421 4th Ave N",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": "$5 – $20",
+      "organizer_url_hints": [
+        "https://fb.me/e/6Inf3UjEg"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-10-03 08:30:00",
+          "end": "2026-10-03 09:15:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-10-10 08:30:00",
+          "end": "2026-10-10 09:15:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-10-17 08:30:00",
+          "end": "2026-10-17 09:15:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-10-24 08:30:00",
+          "end": "2026-10-24 09:15:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-10-31 08:30:00",
+          "end": "2026-10-31 09:15:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:dunedin-downtown-market-2",
+      "lead_name": "Dunedin Downtown Market",
+      "source": "ilovetheburg",
+      "venue": "John R. Lawrence Pioneer Park",
+      "address": "420 Main St.",
+      "city": "Dunedin",
+      "zip": "34698",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://www.tampabaymarkets.com/dunedin-downtown-market",
+        "https://www.tampabaymarkets.com/"
+      ],
+      "organizer_names": [
+        "Tampa Bay Markets"
+      ],
+      "source_categories": [
+        "Markets/Shopping"
+      ],
+      "ticketmaster_venue": false,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-10-03 09:00:00",
+          "end": "2026-10-03 14:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-10-10 09:00:00",
+          "end": "2026-10-10 14:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-10-17 09:00:00",
+          "end": "2026-10-17 14:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-10-24 09:00:00",
+          "end": "2026-10-24 14:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-10-31 09:00:00",
+          "end": "2026-10-31 14:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-11-07 09:00:00",
+          "end": "2026-11-07 14:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-11-14 09:00:00",
+          "end": "2026-11-14 14:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-11-21 09:00:00",
+          "end": "2026-11-21 14:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-11-28 09:00:00",
+          "end": "2026-11-28 14:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-12-05 09:00:00",
+          "end": "2026-12-05 14:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-12-12 09:00:00",
+          "end": "2026-12-12 14:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:historic-downtown-st-pete-trolley-tour-6",
+      "lead_name": "Historic Downtown St. Pete Trolley Tour",
+      "source": "ilovetheburg",
+      "venue": "St. Petersburg Museum of History",
+      "address": "335 2nd Ave NE",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://spmoh.com/events/",
+        "https://spmoh.com/"
+      ],
+      "organizer_names": [
+        "St. Petersburg Museum of History"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-10-03 09:00:00",
+          "end": "2026-10-03 11:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-11-07 09:00:00",
+          "end": "2026-11-07 11:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-12-05 09:00:00",
+          "end": "2026-12-05 11:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:saturday-morning-market-2",
+      "lead_name": "Saturday Morning Market",
+      "source": "ilovetheburg",
+      "venue": "Saturday Morning Market",
+      "address": "212 3rd St N",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://saturdaymorningmarket.com/events/",
+        "https://saturdaymorningmarket.com"
+      ],
+      "organizer_names": [
+        "Saturday Morning Market"
+      ],
+      "source_categories": [
+        "Markets/Shopping"
+      ],
+      "ticketmaster_venue": false,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-10-03 09:00:00",
+          "end": "2026-10-03 13:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-10-10 09:00:00",
+          "end": "2026-10-10 13:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-10-17 09:00:00",
+          "end": "2026-10-17 13:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-10-24 09:00:00",
+          "end": "2026-10-24 13:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-10-31 09:00:00",
+          "end": "2026-10-31 13:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-11-07 09:00:00",
+          "end": "2026-11-07 13:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-11-14 09:00:00",
+          "end": "2026-11-14 13:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-11-21 09:00:00",
+          "end": "2026-11-21 13:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-11-28 09:00:00",
+          "end": "2026-11-28 13:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-12-05 09:00:00",
+          "end": "2026-12-05 13:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-12-12 09:00:00",
+          "end": "2026-12-12 13:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:st-pete-on-foot-a-walking-tour-of-the-sunshine-city",
+      "lead_name": "St. Pete on Foot – A Walking Tour of the Sunshine City",
+      "source": "ilovetheburg",
+      "venue": "Saint Petersburg Museum of History",
+      "address": "335 2nd Avenue NE, St. Petersburg, FL 33701",
+      "city": "saint petersburg",
+      "zip": "33701",
+      "cost_text": "$15",
+      "organizer_url_hints": [
+        "http://historystpete.org/events",
+        "https://spmoh.com/event/historic-boat-tour-51/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-03 09:00:00",
+          "end": "2026-10-03 11:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:corey-avenue-art-craft-festival-3",
+      "lead_name": "Corey Avenue Art & Craft Festival",
+      "source": "ilovetheburg",
+      "venue": "300 Corey Avenue, St. Pete Beach, FL 33706",
+      "address": "300 Corey Ave",
+      "city": "St. Pete Beach",
+      "zip": "33706",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://www.facebook.com/events/1699409504413627",
+        "https://www.sikpromotions.com/"
+      ],
+      "organizer_names": [
+        "SIK Promotions"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-10-03 10:00:00",
+          "end": "2026-10-03 17:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-10-04 10:00:00",
+          "end": "2026-10-04 17:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:hispanic-heritage-month-celebration-at-sparkman-wharf",
+      "lead_name": "Hispanic Heritage Month Celebration at Sparkman Wharf",
+      "source": "thatssotampa",
+      "venue": "Sparkman Wharf",
+      "address": "615 Channelside Dr",
+      "city": "Tampa",
+      "zip": null,
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.facebook.com/share/19KUe3k1bt/",
+        "https://sparkmanwharf.com"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-03 10:00:00",
+          "end": "2026-10-03 17:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:next-level-workshop-sew-seen-stitching-new-narratives-with-nneka-jones",
+      "lead_name": "Next Level Workshop – Sew Seen: Stitching New Narratives with Nneka Jones",
+      "source": "thatssotampa",
+      "venue": "Tampa Museum of Art",
+      "address": "120 W Gasparilla Plaza",
+      "city": "St. Petersburg",
+      "zip": "33602",
+      "cost_text": "$1,100",
+      "organizer_url_hints": [
+        "https://shop.tampamuseum.org/collections/summer-2026-studio-classes-copy/products/next-level-workshop-sew-seen-stitching-new-narratives-with-nneka-jones",
+        "https://tampamuseum.org/",
+        "https://shop.tampamuseum.org/collections/tickets/products/daily-admission-advance-purchase"
+      ],
+      "organizer_names": [
+        "@tampamuseumofart"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-03 10:00:00",
+          "end": "2026-10-03 16:00:00",
+          "all_day": false
+        }
+      ]
+    }
+  ]
+}
