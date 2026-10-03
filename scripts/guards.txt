@@ -1764,6 +1764,11 @@ node scripts/test-beach-local-conditions.mjs
 
 # Reviewed source-backed prose fills only verified empty editorial slots.
 node scripts/test-owned-editorial-review.mjs
+# Owner rules 2026-09-29 (owner path only): best_time/local_tip optional,
+# guarded replacement of a never-verified all-blank wf_editorial placeholder with
+# its prior state audited, occupied inventory summary needs an explicit owner
+# disposition, and local_press is descriptive-only (press-operational-claim).
+node scripts/test-owned-editorial-rules.mjs
 node scripts/check-guide-editorial.mjs
 
 # Every guide and blog article renders through ONE premium editorial standard
