@@ -6,6 +6,7 @@ import {
   nightOutEventRail, nightOutEventRails, nightOutPlaceRail, nightOutPlaceRails,
 } from "../lib/nightOutIntent.js";
 import { windowRailAnswer } from "../lib/railResponse.js";
+import { selectPosterEvents } from "../lib/posterEvents.js";
 import {
   NIGHT_OUT_DISTRICT_EVIDENCE, NIGHT_OUT_DISTRICT_IDS,
   NIGHT_OUT_EDITORIAL_EVIDENCE, nightOutEditorialEvidence,
@@ -17,26 +18,32 @@ const failures = [];
 const ok = (condition, message) => condition ? pass++ : failures.push(message);
 const place = (over = {}) => ({ id: "fixture", name: "Fixture", distMi: 5, rating: 4.6, reviews: 180, types: [], ...over });
 
-const expected = ["clubs", "cocktails", "live-music", "dinner-entertainment", "date-dining", "shows", "districts", "waterfront", "night-tours", "social-play"];
-ok(NIGHT_OUT_RAIL_DEFS.length === 10, "Night Out has exactly ten intent rails");
-ok(NIGHT_OUT_RAIL_DEFS.map((rail) => rail.id).join("|") === expected.join("|"), "the approved ten intents are present in order");
-ok(new Set(NIGHT_OUT_RAIL_DEFS.map((rail) => rail.title)).size === 10, "all ten titles are unique");
+const expected = ["clubs", "cocktails", "live-music", "date-dining", "shows", "districts", "waterfront", "night-tours", "social-play"];
+ok(NIGHT_OUT_RAIL_DEFS.length === 9, "Night Out has exactly nine intent rails");
+ok(NIGHT_OUT_RAIL_DEFS.map((rail) => rail.id).join("|") === expected.join("|"), "the approved nine intents are present in order");
+ok(new Set(NIGHT_OUT_RAIL_DEFS.map((rail) => rail.title)).size === 9, "all nine titles are unique");
+// Owner, 2026-09-23: "this is repetitive … we need to remove this rail". The
+// Dinner + Entertainment shelf was a copy of Live Music (every concert was
+// cross-posted into it). It must not come back under its id or its title.
+ok(!NIGHT_OUT_RAIL_DEFS.some((rail) => rail.id === "dinner-entertainment" || /dinner \+ entertainment/i.test(rail.title)), "the removed Dinner + Entertainment rail stays removed");
 ok(NIGHT_OUT_NEAR_MI === 17, "the first Night Out ring ends at 17 miles");
 ok(NIGHT_OUT_MAX_MI === 27, "Night Out never widens beyond 27 miles");
 
 ok(nightOutPlaceRail(place({ primaryType: "night_club", description: "A real nightclub with DJs and a dance floor" })) === "clubs", "actual dancing evidence enters Clubs");
 ok(nightOutPlaceRail(place({ primaryType: "bar", editorial: "A lively room with a cozy dance floor and DJs" })) === "clubs", "a bar with direct dance-floor evidence enters Clubs");
 ok(nightOutPlaceRail(place({ primaryType: "bar", editorial: "A neighborhood bar with music" })) !== "clubs", "a generic bar does not become a dance club");
-ok(NIGHT_OUT_EDITORIAL_EVIDENCE.ChIJrYGdKBJAw4gRafewzUWWYnk?.source.startsWith("https://") && /dinner theatre/.test(nightOutEditorialEvidence("ChIJrYGdKBJAw4gRafewzUWWYnk")), "Dinner + Entertainment evidence is source-backed and addressable by inventory ID");
+ok(NIGHT_OUT_EDITORIAL_EVIDENCE.ChIJrYGdKBJAw4gRafewzUWWYnk?.source.startsWith("https://") && /dinner theatre/.test(nightOutEditorialEvidence("ChIJrYGdKBJAw4gRafewzUWWYnk")), "the dinner-theatre evidence is source-backed and addressable by inventory ID");
+ok(NIGHT_OUT_EDITORIAL_EVIDENCE.ChIJrYGdKBJAw4gRafewzUWWYnk?.rail === "shows", "the curated dinner-theatre overlay points at Shows, a rail that exists");
 ok(NIGHT_OUT_DISTRICT_IDS.length === 3 && NIGHT_OUT_DISTRICT_IDS.every((id) => NIGHT_OUT_DISTRICT_EVIDENCE[id]?.verifiedAt === "2026-07-18" && NIGHT_OUT_DISTRICT_EVIDENCE[id].sources.every((url) => url.startsWith("https://"))), "the three governed district IDs carry dated source evidence");
 ok(nightOutPlaceRail(place({ primaryType: "bar", description: "A friendly neighborhood bar" })) === "cocktails", "a real bar enters the broad Bars and Cocktails rail without being relabelled as a rooftop");
 ok(nightOutPlaceRail(place({ primaryType: "cocktail_bar", description: "Craft cocktails" })) === "cocktails", "a cocktail room enters Bars and Cocktails");
 ok(nightOutPlaceRail(place({ primaryType: "bar", description: "Patio drinks with city views" })) === "cocktails", "a patio remains a bar and is never used as rooftop evidence");
 ok(nightOutPlaceRail(place({ primaryType: "bar", description: "Explicit rooftop bar and skyline" })) === "cocktails", "explicit rooftop evidence enters the cocktail rail");
 ok(nightOutPlaceRail(place({ primaryType: "live_music_venue", name: "The Jazz Room" })) === "live-music", "a live-music venue enters Live Music");
-ok(nightOutPlaceRails(place({ primaryType: "live_music_venue", name: "The Jazz Room" })).join("|") === "live-music|shows|dinner-entertainment", "live music keeps its canonical rail and also enters Shows and Dinner + Entertainment");
-ok(nightOutPlaceRails(place({ primaryType: "performing_arts_theater", name: "Mahaffey Theater", editorial: "Touring concerts and theater" })).includes("live-music"), "a theater with direct concert evidence enters Live Music & Concerts");
-ok(nightOutPlaceRail(place({ primaryType: "restaurant", name: "Mystery Dinner Theater" })) === "dinner-entertainment", "a dinner show enters Dinner + Entertainment");
+ok(nightOutPlaceRails(place({ primaryType: "live_music_venue", name: "The Jazz Room" })).join("|") === "live-music", "a live-music venue lands on Live Music only, never repeated on Shows");
+ok(nightOutPlaceRails(place({ primaryType: "performing_arts_theater", name: "Mahaffey Theater", editorial: "Touring concerts and theater" })).join("|") === "shows", "a performing-arts theater is one card on Shows; its dated concerts reach Live Music as events");
+ok(nightOutPlaceRail(place({ primaryType: "restaurant", name: "Mystery Dinner Theater" })) === "shows", "a dinner show is a show");
+ok(nightOutPlaceRail(place({ primaryType: "tour_operator", name: "Sunset Dinner Cruise" })) === "waterfront", "a dinner cruise is a Waterfront night, not a dinner show");
 ok(nightOutPlaceRail(place({ primaryType: "fine_dining_restaurant", name: "Candlelit Omakase", description: "Romantic tasting menu" })) === "date-dining", "occasion-level dining enters Date-Night Dining");
 ok(nightOutPlaceRail(place({ primaryType: "restaurant", name: "Ordinary Grill" })) == null, "an ordinary restaurant cannot become Date-Night Dining");
 ok(nightOutPlaceRail(place({ primaryType: "comedy_club", name: "Laugh House Comedy Club" })) === "shows", "a comedy club enters Shows rather than Clubs");
@@ -48,9 +55,9 @@ ok(nightOutPlaceRail(place({ id: "ChIJ3VLBF5Jqw4gRkT1TfU3ULd8", primaryType: "sh
 ok(nightOutPlaceRail(place({ primaryType: "tour_operator", name: "Moonlight Harbor Cruise" })) === "waterfront", "a night cruise enters Waterfront");
 ok(nightOutPlaceRail(place({ primaryType: "tour_operator", name: "Downtown Ghost Night Tour" })) === "night-tours", "a ghost walk enters Night Tours");
 ok(nightOutPlaceRail(place({ primaryType: "bar", name: "Player One Arcade Bar" })) === "social-play", "an arcade bar stays exclusively in Social Play");
-ok(nightOutPlaceRails(place({ primaryType: "bar", name: "Player One Karaoke Bar" })).join("|") === "social-play|dinner-entertainment", "karaoke can serve Social Play and Dinner + Entertainment without changing its first rail");
-ok(nightOutPlaceRails(place({ primaryType: "cocktail_bar", name: "The Hidden Room Speakeasy", editorial: "A genuine speakeasy cocktail bar" })).join("|") === "cocktails|dinner-entertainment", "a speakeasy from the nightlife menu also enters Dinner + Entertainment");
-ok(nightOutPlaceRails(place({ primaryType: "cocktail_bar", name: "Sky Bar", editorial: "An explicit rooftop bar overlooking downtown" })).join("|") === "cocktails|dinner-entertainment", "an evidenced rooftop from the nightlife menu also enters Dinner + Entertainment");
+ok(nightOutPlaceRails(place({ primaryType: "bar", name: "Player One Karaoke Bar" })).join("|") === "social-play", "karaoke keeps its one Social Play card");
+ok(nightOutPlaceRails(place({ primaryType: "cocktail_bar", name: "The Hidden Room Speakeasy", editorial: "A genuine speakeasy cocktail bar" })).join("|") === "cocktails", "a speakeasy keeps its one Cocktails card");
+ok(nightOutPlaceRails(place({ primaryType: "cocktail_bar", name: "Sky Bar", editorial: "An explicit rooftop bar overlooking downtown" })).join("|") === "cocktails", "an evidenced rooftop keeps its one Cocktails card");
 
 // Exact identities from the 2026-09-10 Sarasota production response. These
 // reached rails before scoring because unrelated words were treated as venue
@@ -87,7 +94,16 @@ ok(nightOutPlaceRail(place({ id: "invented-riverwalk", name: "Riverwalk", primar
 
 ok(nightOutEventRail({ id: "concert", name: "The National in Concert", segment: "Music", date: "2026-09-02" }) === "live-music", "a dated concert enters Live Music");
 ok(nightOutEventRail({ id: "comedy", name: "Kevin Nealon Comedy", segment: "Arts & Theatre", date: "2026-09-02" }) === "shows", "a dated comedy show enters Shows");
-ok(nightOutEventRails({ id: "concert-theater", name: "Live at the Theater", segment: "Concerts", genre: "Rock", date: "2026-09-02" }).includes("live-music"), "a dated theater concert enters Live Music & Concerts from its event taxonomy");
+ok(nightOutEventRails({ id: "concert-theater", name: "Live at the Theater", segment: "Concerts", genre: "Rock", date: "2026-09-02" }).join("|") === "live-music", "a dated theater concert enters Live Music & Concerts only, from its event taxonomy");
+// The owner's screenshot, exactly: these three concerts filled a separate
+// "Dinner + Entertainment" shelf AND Shows AND Live Music.
+for (const [id, name, venue] of [["franti", "Michael Franti Trio - Heartstrings & Dynamite", "Jannus Live"], ["lbt", "Little Big Town - For The Art Of It Tour", "Mahaffey Theater"], ["winger", "WINGER and STEELHEART with special guest PITBULL DAYCARE", "Ferg's Pavilion"]]) {
+  ok(nightOutEventRails({ id, name, venue, segment: "Music", genre: "Rock", date: "2026-09-24" }).join("|") === "live-music", `${name} is one card on Live Music, not three`);
+}
+ok(nightOutEventRail({ id: "arcade-fire", name: "Arcade Fire", segment: "Music", genre: "Rock", date: "2026-09-24" }) === "live-music", "a band whose name holds a play word is still a concert");
+ok(nightOutEventRail({ id: "ghost", name: "Downtown Ghost Night Tour", date: "2026-09-24" }) === "night-tours", "an untaxonomied ghost walk still reaches Night Tours");
+ok(nightOutEventRails({ id: "play", name: "Hamilton", segment: "Arts & Theatre", genre: "Theatre", date: "2026-09-24" }).join("|") === "shows", "a play is a Show, never Live Music");
+ok(nightOutEventRails({ id: "dinner-mystery", name: "Murder Mystery Dinner Show", segment: "Arts & Theatre", date: "2026-09-24" }).join("|") === "shows", "a dated dinner show enters Shows");
 ok(nightOutEventRail({ id: "venue", name: "Downtown Event Venue", category: "event_venue" }) == null, "a generic event venue cannot impersonate a happening");
 ok(nightOutEventRail({ id: "sports", name: "Baseball Game", segment: "Sports", date: "2026-09-02" }) == null, "an unrelated event is not forced into the ten rails");
 
@@ -111,7 +127,7 @@ const fixtures = [
   { id: "unknown", name: "Unknown Cocktail Room", primaryType: "cocktail_bar" },
 ];
 const composed = composeNightOutRails([], fixtures, {});
-ok(composed.rails.length === 10, "composition always returns all ten rails, including honest empties");
+ok(composed.rails.length === 9, "composition always returns all nine rails, including honest empties");
 ok(composed.rails.every((rail) => expected.includes(rail.id)), "composition returns only approved intents");
 // THE OWNER'S BUG, exactly: a 9.9-scored wider-ring club used to be exiled
 // below a 7.0-scored near one by a distance RING evaluated ahead of the
@@ -121,8 +137,31 @@ ok(composed.rails.find((rail) => rail.id === "clubs").places.map((row) => row.id
 ok(!composed.rails.flatMap((rail) => rail.places).some((row) => row.id === "far"), "anything beyond 27 miles is rejected");
 ok(!composed.rails.flatMap((rail) => rail.places).some((row) => row.id === "unknown"), "unknown-distance places are rejected");
 ok(composed.rails.find((rail) => rail.id === "live-music").places.some((row) => row.id === "music")
-  && composed.rails.find((rail) => rail.id === "dinner-entertainment").places.some((row) => row.id === "music"),
-"explicitly requested venue identities can belong to more than one Night Out rail");
+  && !composed.rails.find((rail) => rail.id === "shows").places.some((row) => row.id === "music"),
+"a live-music venue is on Live Music and not repeated on Shows");
+ok(composed.rails.find((rail) => rail.id === "shows").places.some((row) => row.id === "dinner-show"), "the dinner show fixture reaches Shows");
+{
+  // ONE ITEM, ONE RAIL across the whole screen: no place and no event id may
+  // appear on two Night Out rails.
+  const placeIds = composed.rails.flatMap((rail) => rail.places.map((row) => row.id));
+  ok(placeIds.length === new Set(placeIds).size, `a place repeats across Night Out rails (${placeIds.length} cards, ${new Set(placeIds).size} places)`);
+  const soon = new Date(Date.now() + 2 * 864e5).toISOString().slice(0, 10);
+  const evt = (id, name, segment, genre) => ({ id, name, segment, genre, date: soon, start_date: soon, local_date: soon, dest: "https://example.com/" + id, lat: 27.5, lng: -82.5 });
+  const pool = [
+    evt("e-rock", "Michael Franti Trio", "Music", "Rock"),
+    evt("e-country", "Little Big Town", "Music", "Country"),
+    evt("e-play", "Hamilton", "Arts & Theatre", "Theatre"),
+    evt("e-comedy", "Kevin Nealon Comedy", "Arts & Theatre", "Comedy"),
+  ];
+  const byRail = selectPosterEvents(pool, { mode: "night-out", center: { lat: 27.5, lng: -82.5 } });
+  ok(!("dinner-entertainment" in byRail), "the event surface no longer builds a Dinner + Entertainment shelf");
+  const eventIds = Object.values(byRail).flat().map((event) => event.id);
+  ok(eventIds.length === new Set(eventIds).size, `an event repeats across Night Out rails (${eventIds.join(", ")})`);
+  const railIds = (rail) => (byRail[rail] || []).map((event) => event.id).sort().join("|");
+  ok(eventIds.length > 0, `positive control: the dated fixtures must reach the event surface (got ${JSON.stringify(Object.fromEntries(Object.entries(byRail).map(([k, v]) => [k, v.length])))})`);
+  ok(eventIds.length === 0 || railIds("live-music") === "e-country|e-rock", `Live Music holds the concerts only (${railIds("live-music")})`);
+  ok(eventIds.length === 0 || railIds("shows") === "e-comedy|e-play", `Shows holds the play and the comedy set only (${railIds("shows")})`);
+}
 ok(!composed.rails.flatMap((rail) => rail.places).some((row) => row.id === publixUniversityWalk.id), "ineligible identities never reach a ranked bucket");
 
 const longAnswer = { rails: [{ id: "cocktails", places: Array.from({ length: 20 }, (_, id) => ({ id })) }] };
@@ -142,7 +181,7 @@ const pagedRail = readFileSync(new URL("../app/components/usePagedRail.js", impo
 ok(/id: "events"[\s\S]{0,420}retiredInto: "tonight"/.test(rails), "the standalone Events poster is retired into Night Out without deleting its metadata");
 ok(/!r\.retiredInto/.test(daypart), "retired posters are hidden from the tile track");
 ok(/requested\.retiredInto \|\| id/.test(daypart), "legacy Events deep links resolve to Night Out");
-ok(/NightOutRails = dynamic/.test(daypart) && /<NightOutRails/.test(daypart), "the ten-rail Night Out component is lazy and mounted behind its tile");
+ok(/NightOutRails = dynamic/.test(daypart) && /<NightOutRails/.test(daypart), "the nine-rail Night Out component is lazy and mounted behind its tile");
 ok(/eventsSlot=\{eventsSlot\}/.test(daypart) && /eventsSlot\("night-out", selectPosterEvents\)/.test(component), "Night Out consumes the existing dated event inventory");
 ok(/import \{ selectPosterEvents \} from "\.\.\/\.\.\/lib\/posterEvents\.js"/.test(component)
   && /mode = "events", selectPosterEvents = null/.test(home)
