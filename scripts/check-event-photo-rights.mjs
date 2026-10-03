@@ -144,7 +144,7 @@ ok(/shots\.credit/.test(code), `${PAGE} must render the photo credit alongside t
 
 /* ── 7. THE SHARE CARD IS THE PHOTOGRAPH, PREMIUM-CARDED, and it resolves ── */
 // v9 (owner, 2026-09-23 — "everything on wayfind that is sharable looks
-// premium"; see docs/proposals/claude-sonnet-hero-photo-standard.md (proposed rule 9)). The raw consented photo is
+// premium"; see docs/share-card-standard.md rule 9). The raw consented photo is
 // no longer pointed at directly: a bare, uncropped portrait file behind
 // og:image is the exact "cheap"/tiny-thumbnail bug the owner reported for
 // guides, and an event photo is no different. app/api/og/hero/route.js now

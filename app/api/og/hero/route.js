@@ -7,7 +7,7 @@
 // /guides/sarasota-restaurants showed a tiny left-aligned PORTRAIT thumbnail
 // next to "www.gowayfind.com" — og:image pointed straight at the reviewed
 // guide asset (a raw 1067x1600 webp), with no card, no crop and no brand
-// around it. See docs/proposals/claude-sonnet-hero-photo-standard.md (proposed rule 9).
+// around it. See docs/share-card-standard.md rule 9.
 //
 // NODE RUNTIME, NOT EDGE — the only OG route that needs to be. Every other
 // /api/og/* route runs on the edge because Satori + fonts is all they need;

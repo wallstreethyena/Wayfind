@@ -11,7 +11,7 @@
  * reviewed guide asset — a raw 1067x1600 webp — with no card, no crop and no
  * brand around it.
  *
- * See docs/proposals/claude-sonnet-hero-photo-standard.md (proposed rule 9) for the amendment this guard enforces,
+ * See docs/share-card-standard.md rule 9 for the amendment this guard enforces,
  * and scripts/check-rail-share.mjs for the sibling guard this one is modelled
  * on (the rail poster was the first photo ever let onto a share card; this
  * is the second, and it must be exactly as safe).
@@ -597,6 +597,32 @@ for (const { f, src } of ogPages) {
   const noRatingHeadline = noRating.lines.join(" ");
   ok(!/Google/.test(noRatingHeadline) && !/Google/.test(noRating.foot),
      `a place with no rating data must never mention Google — nothing here is actually attributed to it, got headline="${noRatingHeadline}" foot="${noRating.foot}"`);
+}
+
+// ── Doc/guard agreement (owner, 2026-09-23: "make the guard and documentation
+// agree so a future lane cannot 'fix' one by breaking the other"). Rule 9 now
+// lives in the owner-only standard itself; the proposal is retired. If either
+// side drifts, this fails: the standard must still describe the hero photo
+// exactly as the code ships it, and the code must still match the standard.
+{
+  const ROOT_DIR = fileURLToPath(new URL("..", import.meta.url));
+  const stdPath = path.join(ROOT_DIR, "docs/share-card-standard.md");
+  const std = readFileSync(stdPath, "utf8");
+  const rule9 = (std.split(/\n9\. THE HERO PHOTO/)[1] || "");
+  ok(rule9.length > 0, "docs/share-card-standard.md carries rule 9, THE HERO PHOTO (the shipped photo-led guide/place/event card)");
+  ok(/\{m\.poster\}/.test(rule9) && /\{m\.hero\}/.test(rule9) && /exactly two <img>/.test(rule9),
+     "rule 9 names the same two allowed <img> sources check-share-card.mjs enforces ({m.poster}, {m.hero})");
+  ok(/no \?src=/.test(rule9) && /no \?pos=/.test(rule9), "rule 9 states the route reads no photo source from the query string");
+  ok(/HERO_CARD_DESIGN_V/.test(rule9) && /immutable cache ONLY/.test(rule9), "rule 9 states the design-version cache rule");
+  ok(/Google reviews/.test(rule9), "rule 9 states ratings name Google as their source");
+  ok(/1200x630/.test(rule9) && /#040810/.test(rule9), "rule 9 records the premium hero geometry (1200x630, scrim into #040810)");
+  const heroCardSrc = readFileSync(path.join(ROOT_DIR, "lib/heroCard.js"), "utf8");
+  ok(/export const HERO_CARD_DESIGN_V = "[a-z0-9]+"/.test(heroCardSrc), "lib/heroCard.js exports the HERO_CARD_DESIGN_V rule 9 names");
+  const shareGuard = readFileSync(path.join(ROOT_DIR, "scripts/check-share-card.mjs"), "utf8");
+  ok(/imgTags\.length === 2/.test(shareGuard) && /m\\\.\(poster\|hero\)/.test(shareGuard),
+     "check-share-card.mjs still allows exactly the two sources rule 9 documents");
+  ok(!existsSync(path.join(ROOT_DIR, "docs/proposals/claude-sonnet-hero-photo-standard.md")),
+     "the retired rule 9 proposal is gone, so there is one source of truth");
 }
 
 if (fails.length) {
