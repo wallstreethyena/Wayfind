@@ -170,6 +170,9 @@ node scripts/test-owner-places-2026-08-29c.mjs
 node scripts/test-owner-places-2026-08-29d.mjs
 node scripts/test-owner-places-2026-08-29e.mjs
 node scripts/test-command-center.mjs
+# Command Center partner-click predicate + #1603 exclude_devices: the migration
+# must stay byte-identical to command-center.sql (2026-10-02).
+node scripts/test-cc-partner-click-predicate.mjs
 node scripts/test-command-center-feedback.mjs
 # Stale-on-error cache keeps the shape it serves (arrays stay arrays).
 node scripts/test-cc-stale-cache-shape.mjs

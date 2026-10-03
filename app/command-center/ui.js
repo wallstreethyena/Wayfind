@@ -604,8 +604,8 @@ function TrafficSection({ auth, range }) {
           </Frame>
         </Card>
         <Card>
-          <Frame title="Top referrers" def="Referring domains of session entries ($direct = typed/bookmark). First-party 'session.ref' shown when PostHog is absent."
-            source={channels ? dget(d, "referrers.source") : dget(d, "firstPartyReferrers.source")}
+          <Frame title={dget(d, "referrers.data", null) ? "Top referrers" : "Referring site & Wayfind entry (first-party)"} def={dget(d, "referrers.data", null) ? "Referring domains of session entries from PostHog ($direct = typed/bookmark)." : "PostHog referrers are unavailable, so this is the first-party session row: the referring site's host since 2026-10-02, and only the entry type ('(entry: Wayfind share link)' or '(direct/none)') before that. Not a full acquisition report: no search, social or campaign breakdown is inferred."}
+            source={dget(d, "referrers.data", null) ? dget(d, "referrers.source") : dget(d, "firstPartyReferrers.source")}
             columns={["Referrer", "Sessions"]}
             rows={((dget(d, "referrers.data", null) || dget(d, "firstPartyReferrers.data", null)) || []).map((r) => [r.referrer || r.k, r.sessions || r.n])}>
             <HBarList color={CAT[2]} items={((dget(d, "referrers.data", null) || dget(d, "firstPartyReferrers.data", null)) || []).map((r) => ({ label: r.referrer || r.k, value: r.sessions || r.n }))} />
@@ -819,7 +819,7 @@ function PlacesSection({ auth, range }) {
       <div style={{ height: 12 }} />
       <Two min={280}>
         <Card>
-          <Frame title="Partner clicks by provider type" def="Outbound clicks grouped by which partner action fired (tickets_out=tours/tickets, hotel_out=stays, coupon_out=deals, eats_out=food delivery, ta_out=Tripadvisor, tour_card_out=tour cards, maps_list=Google Maps list)."
+          <Frame title="Partner clicks by provider type" def="Outbound clicks grouped by which partner action fired (tickets_out=tours/tickets, coupon_out=deals, tour_card_out=tour cards, book_it_out=Book it, partner_program_out=partner programs, sponsor_out=sponsors, primary_cta_clicked=the place sheet's monetized primary button; hotel_out=stays, eats_out=food delivery, ta_out=Tripadvisor from the July builds)."
             source={dget(d, "affiliate.providers.source")}
             columns={["Action", "Clicks", "Devices"]} rows={(dget(d, "affiliate.providers.data", null) || []).map((r) => [r.k, r.n, r.devices])}>
             <HBarList color={CAT[1]} items={(dget(d, "affiliate.providers.data", null) || []).map((r) => ({ label: r.k, value: r.n, secondary: `${r.devices} devices` }))} />
