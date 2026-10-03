@@ -1,0 +1,316 @@
+{
+  "batch": 2,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "thatssotampa:atsuko-okatsuka-the-big-bowl-tour",
+      "lead_name": "Atsuko Okatsuka: The Big Bowl Tour",
+      "source": "thatssotampa",
+      "venue": "Tampa Theatre",
+      "address": null,
+      "city": null,
+      "zip": null,
+      "cost_text": "$39.50",
+      "organizer_url_hints": [
+        "https://www.etix.com/ticket/p/60115238/atsuko-okatsukathe-big-bowl-tour-tampa-historic-duncan-auditorium?partner_id=8717",
+        "https://tampatheatre.org"
+      ],
+      "organizer_names": [
+        "Tampa Theatre"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-02 19:30:00",
+          "end": "2026-10-02 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:popcorn-punchlines-the-beach-theatre-standup-comedy-show-2",
+      "lead_name": "Popcorn & Punchlines: The Beach Theatre Standup Comedy Show",
+      "source": "ilovetheburg",
+      "venue": "The Beach Theatre",
+      "address": "315 Corey Ave",
+      "city": "St. Pete Beach",
+      "zip": "33706",
+      "cost_text": "$15",
+      "organizer_url_hints": [
+        "https://www.etix.com/ticket/p/36292620/popcorn-punchlines-stpete-beach-the-beach-theatre?fbclid=IwY2xjawUnjQlleHRuA2FlbQIxMQBwZG9mAXNydGMGYXBwX2lkEDIyMjAzOTE3ODgyMDA4OTIAAR6J9QN8cAYD0fiynRDkfzrdOb0a-5yuOIu46kH7jwDW7YXH1dbXxaUKe3sk_g_aem_MApNgqt0QZWZDDlzcp3IGw"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-02 19:30:00",
+          "end": "2026-10-02 21:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:tchaikovskys-1812-overture",
+      "lead_name": "Tchaikovsky’s 1812 Overture",
+      "source": "ilovetheburg",
+      "venue": "Duke Energy Center for the Arts – Mahaffey Theater",
+      "address": "400 1st St S",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://floridaorchestra.org/event/tchaikovskys-1812-overture/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-10-02 19:30:00",
+          "end": "2026-10-02 21:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-10-04 14:00:00",
+          "end": "2026-10-04 15:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:tchaikovskys-1812-overture",
+      "lead_name": "Tchaikovsky’s 1812 Overture",
+      "source": "thatssotampa",
+      "venue": "Duke Energy Center for the Arts – Mahaffey Theater",
+      "address": "400 1st St S",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://floridaorchestra.org/event/tchaikovskys-1812-overture/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-10-02 19:30:00",
+          "end": "2026-10-02 21:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-10-04 14:00:00",
+          "end": "2026-10-04 15:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:los-tigres-del-norte-la-loteria-tour-2",
+      "lead_name": "Los Tigres del Norte – La Lotería Tour",
+      "source": "thatssotampa",
+      "venue": "Benchmark International Arena",
+      "address": "401 Channelside Dr",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.benchmarkintlarena.com"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-02 20:00:00",
+          "end": "2026-10-02 23:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:streetlight-manifesto-the-presence-of-the-past-tour",
+      "lead_name": "Streetlight Manifesto – The Presence of the Past Tour",
+      "source": "ilovetheburg",
+      "venue": "Jannus Live",
+      "address": "200 1st Ave N STE 206",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.jannuslive.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-02 20:00:00",
+          "end": "2026-10-02 23:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:duo-date-nite-live-comedy-improv",
+      "lead_name": "Duo Date Nite | Live Comedy & Improv",
+      "source": "ilovetheburg",
+      "venue": "Spitfire Comedy House",
+      "address": "1920 1st Ave South",
+      "city": "Saint Petersburg",
+      "zip": "33713",
+      "cost_text": "$15",
+      "organizer_url_hints": [
+        "http://spitfirecomedy.vbotickets.com/event/duo_date_nite_comedy_for_you_and_your_boo/190631",
+        "https://spitfirecomedy.com/"
+      ],
+      "organizer_names": [
+        "@spitfirecomedyhouse"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-02 21:00:00",
+          "end": "2026-10-02 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:relics-lore-a-radley-experience-opening-weekend",
+      "lead_name": "Relics & Lore: A Radley Experience — Opening Weekend",
+      "source": "ilovetheburg",
+      "venue": "FloridaRAMA",
+      "address": "2606 Fairfield Ave S",
+      "city": "St. Petersburg",
+      "zip": "33712",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.floridarama.art/events/relics-lore-a-radley-experience/",
+        "https://tampamuseum.org/event/nextgen-art-network-vibe-2024-08-16/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-03 02:00:00",
+          "end": "2026-10-04 01:59:59",
+          "all_day": true
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:taste-of-the-beaches-2026",
+      "lead_name": "Taste of the Beaches 2026",
+      "source": "ilovetheburg",
+      "venue": null,
+      "address": null,
+      "city": null,
+      "zip": null,
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.tampabaybeaches.com/taste/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-03 02:00:00",
+          "end": "2026-10-11 01:59:59",
+          "all_day": true
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:relics-lore-a-radley-experience-opening-weekend",
+      "lead_name": "Relics & Lore: A Radley Experience — Opening Weekend",
+      "source": "thatssotampa",
+      "venue": "FloridaRAMA",
+      "address": "2606 Fairfield Ave S",
+      "city": "St. Petersburg",
+      "zip": "33712",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.floridarama.art/events/relics-lore-a-radley-experience/",
+        "https://tampamuseum.org/event/nextgen-art-network-vibe-2024-08-16/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-03 03:00:00",
+          "end": "2026-10-05 02:59:59",
+          "all_day": true
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:serve-for-strength-charity-tournament",
+      "lead_name": "Serve For Strength Charity Tournament",
+      "source": "thatssotampa",
+      "venue": "Saddlebrook Resort",
+      "address": "5700 Saddlebrook Way",
+      "city": "Wesley Chapel",
+      "zip": "33543",
+      "cost_text": "$60",
+      "organizer_url_hints": [
+        "https://pickleballtournaments.com/tournaments/serve-for-strength-charity-tournament-1",
+        "https://serveforstrength.org/"
+      ],
+      "organizer_names": [
+        "Serve for Strength"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-03 03:00:00",
+          "end": "2026-10-05 02:59:59",
+          "all_day": true
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:tampa-bay-rays-american-league-division-series-game-1",
+      "lead_name": "Tampa Bay Rays vs. New York Yankees — American League Division Series Game 1",
+      "source": "thatssotampa",
+      "venue": "Tropicana Field",
+      "address": "1 Tropicana Dr",
+      "city": "St. Petersburg",
+      "zip": "33705",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.mlb.com/rays/tickets/postseason"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-03 03:00:00",
+          "end": "2026-10-04 02:59:59",
+          "all_day": true
+        }
+      ]
+    }
+  ]
+}

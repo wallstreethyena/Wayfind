@@ -1,0 +1,336 @@
+{
+  "batch": 12,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "thatssotampa:free-comedy-show-bigfoot-on-the-river-2",
+      "lead_name": "FREE Comedy Show @ Bigfoot on the River!",
+      "source": "thatssotampa",
+      "venue": "Bigfoot on the River",
+      "address": "7201 N 41st St",
+      "city": "Tampa",
+      "zip": "33604",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://www.eventbrite.com/e/free-comedy-show-bigfoot-on-the-river-tickets-2001895119191",
+        "https://www.bigfootontheriver.com/"
+      ],
+      "organizer_names": [
+        "Bigfoot on the River"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-11 19:30:00",
+          "end": "2026-10-11 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:eddie-9v-2026-tour",
+      "lead_name": "Eddie 9v – 2026 Tour",
+      "source": "ilovetheburg",
+      "venue": "Jannus Live",
+      "address": "200 1st Ave N STE 206",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.jannuslive.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-11 20:00:00",
+          "end": "2026-10-11 23:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:october-1-day-art-camp",
+      "lead_name": "October 1-Day Art Camp",
+      "source": "ilovetheburg",
+      "venue": "Morean Arts Center",
+      "address": "719 Central Avenue",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": "$70",
+      "organizer_url_hints": [
+        "https://moreanartscenter.org/camp/october-art-camp-2026/",
+        "https://moreanartscenter.org/exibition/joyland-benaiah-cusack/",
+        "http://www.moreanartscenter.org/"
+      ],
+      "organizer_names": [
+        "Morean Arts Center"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-12 09:00:00",
+          "end": "2026-10-12 15:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:abstract-explorations-with-amy-howell",
+      "lead_name": "Abstract Explorations with Amy Howell",
+      "source": "ilovetheburg",
+      "venue": "DRV Gallery",
+      "address": "5401 Gulfport Blvd S",
+      "city": "Gulfport",
+      "zip": "33707",
+      "cost_text": "$45",
+      "organizer_url_hints": [
+        "https://www.drvgallery.com/calendar-of-events/abstract-painting-with-a-palette-knife",
+        "https://www.drvgallery.com/calendar-of-events/la-lucha-live-at-drv-gallery"
+      ],
+      "organizer_names": [
+        "DRV Gallery"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-10-13 10:00:00",
+          "end": "2026-10-13 12:30:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-11-10 10:00:00",
+          "end": "2026-11-10 12:30:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-12-08 10:00:00",
+          "end": "2026-12-08 12:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:florida-treasures-with-a-c-t-for-youth",
+      "lead_name": "Florida Treasures with A.C.T. for Youth",
+      "source": "thatssotampa",
+      "venue": "Carrollwood Cultural Center",
+      "address": "4537 Lowell Rd",
+      "city": "Tampa",
+      "zip": "33618",
+      "cost_text": "$7.00",
+      "organizer_url_hints": [
+        "https://eventvesta.com/events/152456/t/tickets"
+      ],
+      "organizer_names": [
+        "Carrollwood Cultural Center"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-10-13 10:45:00",
+          "end": "2026-10-13 12:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-10-14 10:45:00",
+          "end": "2026-10-14 12:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:whataburger-x-metropolitan-ministries-c-r-e-a-t-e-fundraiser",
+      "lead_name": "Whataburger X Metropolitan Ministries C.R.E.A.T.E. Fundraiser",
+      "source": "ilovetheburg",
+      "venue": "Whataburger",
+      "address": "10150 Ulmerton Rd.",
+      "city": "Largo",
+      "zip": "33771",
+      "cost_text": null,
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-13 16:00:00",
+          "end": "2026-10-13 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:whataburger-x-metropolitan-ministries-c-r-e-a-t-e-fundraiser",
+      "lead_name": "Whataburger X Metropolitan Ministries C.R.E.A.T.E. Fundraiser",
+      "source": "thatssotampa",
+      "venue": "Whataburger",
+      "address": "10150 Ulmerton Rd.",
+      "city": "Largo",
+      "zip": "33771",
+      "cost_text": null,
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-13 16:00:00",
+          "end": "2026-10-13 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:pickleball-101-get-fit-st-pete-2",
+      "lead_name": "Pickleball 101 | Get Fit St. Pete",
+      "source": "ilovetheburg",
+      "venue": "Bartlett Park Sports Complex",
+      "address": "2000 7th St. S.",
+      "city": "St. Petersburg",
+      "zip": "33705",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.healthystpetefl.com/series/get-fit-st-pete-pickleball-101/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-10-13 18:00:00",
+          "end": "2026-10-13 19:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-11-10 18:00:00",
+          "end": "2026-11-10 19:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-12-08 18:00:00",
+          "end": "2026-12-08 19:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:ruskin-paint-party-colorful-pumpkin",
+      "lead_name": "Ruskin Paint Party – Colorful Pumpkin",
+      "source": "thatssotampa",
+      "venue": "Ybor Grille",
+      "address": "339 19th Ave NE Ruskin, FL, FL 33570",
+      "city": "Ruskin",
+      "zip": "33570",
+      "cost_text": "$35.00 – $39.00",
+      "organizer_url_hints": [
+        "https://wineandcanvas.com/florida/event/ruskin-paint-party-colorful-pumpkin/",
+        "https://wineandcanvas.com/tampa/events/"
+      ],
+      "organizer_names": [
+        "Wine and Canvas – Paint and Sip Classes"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-13 18:00:00",
+          "end": "2026-10-13 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:tampa-paint-and-wine-vampires-kiss",
+      "lead_name": "Tampa Paint and Wine – Vampire’s Kiss",
+      "source": "thatssotampa",
+      "venue": "Dracula’s Legacy Wine Bar & Bistro",
+      "address": "811 N Tampa St",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": "$34.00",
+      "organizer_url_hints": [
+        "https://wineandcanvas.com/florida/event/tampa-paint-and-wine-vampires-kiss/",
+        "https://wineandcanvas.com/tampa/events/"
+      ],
+      "organizer_names": [
+        "Wine and Canvas – Paint and Sip Classes"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-13 18:00:00",
+          "end": "2026-10-13 20:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:basement-momma-wired-usa-tour-2026",
+      "lead_name": "Basement & Momma – Wired USA Tour 2026",
+      "source": "ilovetheburg",
+      "venue": "Jannus Live",
+      "address": "200 1st Ave N STE 206",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.jannuslive.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-13 19:00:00",
+          "end": "2026-10-13 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:black-violin",
+      "lead_name": "Black Violin",
+      "source": "thatssotampa",
+      "venue": "Straz Center for the Performing Arts",
+      "address": "1010 N WC MacInnes Pl",
+      "city": "Tampa",
+      "zip": null,
+      "cost_text": "$45.00",
+      "organizer_url_hints": [
+        "https://www.strazcenter.org/events/2627-season/music/black-violin/"
+      ],
+      "organizer_names": [
+        "Straz Center for the Performing Arts"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-13 19:30:00",
+          "end": "2026-10-13 22:00:00",
+          "all_day": false
+        }
+      ]
+    }
+  ]
+}

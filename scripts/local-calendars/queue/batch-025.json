@@ -1,0 +1,315 @@
+{
+  "batch": 25,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "ilovetheburg:fleetwood-mac-performed-by-the-seven-wonders",
+      "lead_name": "Fleetwood Mac performed by the Seven Wonders!",
+      "source": "ilovetheburg",
+      "venue": "300 Corey Avenue, St. Pete Beach, FL 33706",
+      "address": "300 Corey Ave",
+      "city": "St. Pete Beach",
+      "zip": "33706",
+      "cost_text": null,
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-01 16:00:00",
+          "end": "2026-11-01 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:daniel-sloss-bitter-brand-new-tour",
+      "lead_name": "Daniel Sloss: BITTER (Brand New Tour!)",
+      "source": "thatssotampa",
+      "venue": "Tampa Theatre",
+      "address": null,
+      "city": null,
+      "zip": null,
+      "cost_text": "$39.50 – $69.50",
+      "organizer_url_hints": [
+        "https://www.etix.com/ticket/p/81496617/daniel-slossbitter-brand-new-tour-tampa-historic-duncan-auditorium?partner_id=398",
+        "https://tampatheatre.org"
+      ],
+      "organizer_names": [
+        "Tampa Theatre"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-01 19:00:00",
+          "end": "2026-11-01 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:tampa-bay-lightning-vs-detroit-red-wings-2",
+      "lead_name": "Tampa Bay Lightning vs. Detroit Red Wings",
+      "source": "ilovetheburg",
+      "venue": null,
+      "address": null,
+      "city": null,
+      "zip": null,
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.nhl.com/lightning/tickets/single-game-tickets"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-03 19:00:00",
+          "end": "2026-11-03 21:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:tampa-bay-lightning-vs-detroit-red-wings",
+      "lead_name": "Tampa Bay Lightning vs. Detroit Red Wings",
+      "source": "thatssotampa",
+      "venue": "Benchmark International Arena",
+      "address": "401 Channelside Dr",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.nhl.com/lightning/tickets/single-game-tickets",
+        "https://www.benchmarkintlarena.com"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-03 19:00:00",
+          "end": "2026-11-03 19:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:hokus-pokus-live",
+      "lead_name": "Hokus Pokus Live!",
+      "source": "thatssotampa",
+      "venue": "Tampa Theatre",
+      "address": null,
+      "city": null,
+      "zip": null,
+      "cost_text": "$23.50 – $73",
+      "organizer_url_hints": [
+        "https://www.etix.com/ticket/p/93355811/hokus-pokus-live-tampa-historic-duncan-auditorium?partner_id=8717",
+        "https://tampatheatre.org"
+      ],
+      "organizer_names": [
+        "Tampa Theatre"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-03 20:00:00",
+          "end": "2026-11-03 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:florida-conversations-an-evening-with-mac-stone",
+      "lead_name": "Florida Conversations: An Evening with Mac Stone",
+      "source": "thatssotampa",
+      "venue": "Tampa Bay History Center",
+      "address": "801 Water Street",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": "$5",
+      "organizer_url_hints": [
+        "https://tampabayhistorycenter.org/event/florida-conversations-an-evening-with-mac-stone/"
+      ],
+      "organizer_names": [
+        "Tampa Bay History Center"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-04 18:30:00",
+          "end": "2026-11-04 19:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:movements-happier-now-usa-tour",
+      "lead_name": "Movements – Happier Now USA Tour",
+      "source": "ilovetheburg",
+      "venue": "Jannus Live",
+      "address": "200 1st Ave N STE 206",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.jannuslive.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-04 19:00:00",
+          "end": "2026-11-04 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:sawyer-hill",
+      "lead_name": "Sawyer Hill",
+      "source": "thatssotampa",
+      "venue": "New World Tampa Music Hall",
+      "address": "810 E Skagway Ave",
+      "city": "Tampa",
+      "zip": "33604",
+      "cost_text": "$25",
+      "organizer_url_hints": [
+        "https://www.newworldtampa.com/",
+        "https://aestheticized.com/"
+      ],
+      "organizer_names": [
+        "Aestheticized Presents >>>"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-04 19:00:00",
+          "end": "2026-11-04 23:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:unhinged",
+      "lead_name": "Unhinged",
+      "source": "ilovetheburg",
+      "venue": "American Stage Theatre Company",
+      "address": "163 3rd St N",
+      "city": "St. Petersburg",
+      "zip": null,
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.americanstage.org/shows/unhinged",
+        "https://www.americanstage.org/2022-2023"
+      ],
+      "organizer_names": [
+        "American Stage"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-04 19:00:00",
+          "end": "2026-11-22 14:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:soldiers-lens-2026-opening-reception",
+      "lead_name": "Soldier’s Lens 2026 Opening Reception",
+      "source": "thatssotampa",
+      "venue": "Florida Museum of Photographic Arts",
+      "address": "1630 E 7th Avenue",
+      "city": "Tampa",
+      "zip": null,
+      "cost_text": "$12.00",
+      "organizer_url_hints": [
+        "https://lp.constantcontactpages.com/ev/reg/ks2ttn3",
+        "https://www.fmopa.org/"
+      ],
+      "organizer_names": [
+        "Florida Museum of Photographic Arts"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-05 17:30:00",
+          "end": "2026-11-05 19:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:remix-c-paul-jennewein",
+      "lead_name": "Remix: C Paul Jennewein",
+      "source": "thatssotampa",
+      "venue": "Tampa Museum of Art",
+      "address": "120 W Gasparilla Plaza",
+      "city": "St. Petersburg",
+      "zip": "33602",
+      "cost_text": "$55",
+      "organizer_url_hints": [
+        "https://shop.tampamuseum.org/products/remix-c-paul-jennewein?_gl=1*14edfc0*_gcl_au*NjQwODQ0MzE4LjE3ODExMTg4MDA.",
+        "https://tampamuseum.org/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-05 18:00:00",
+          "end": "2026-11-05 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:science-after-dark-chemistry-uncorked",
+      "lead_name": "Science After Dark – Chemistry Uncorked!",
+      "source": "thatssotampa",
+      "venue": "MOSI",
+      "address": "4801 E Fowler Ave",
+      "city": "Tampa",
+      "zip": "33617-2017",
+      "cost_text": "$40",
+      "organizer_url_hints": [
+        "https://mosi.org/event/science-after-dark/",
+        "https://mosi.org/"
+      ],
+      "organizer_names": [
+        "MOSI"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-05 18:00:00",
+          "end": "2026-11-05 21:00:00",
+          "all_day": false
+        }
+      ]
+    }
+  ]
+}

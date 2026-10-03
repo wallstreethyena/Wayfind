@@ -1,0 +1,318 @@
+{
+  "batch": 22,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "thatssotampa:studio-55-encaustic-sculpture",
+      "lead_name": "Studio 55: Encaustic Sculpture",
+      "source": "thatssotampa",
+      "venue": "Tampa Museum of Art",
+      "address": "120 W Gasparilla Plaza",
+      "city": "St. Petersburg",
+      "zip": "33602",
+      "cost_text": "$60",
+      "organizer_url_hints": [
+        "https://shop.tampamuseum.org/products/studio-55-encaustic-sculpture?_gl=1*1jujkv9*_gcl_au*NjQwODQ0MzE4LjE3ODExMTg4MDA",
+        "https://tampamuseum.org/",
+        "https://tampamuseum.org/event/pride-passion-2024/"
+      ],
+      "organizer_names": [
+        "Tampa Museum of Art"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-26 03:00:00",
+          "end": "2026-10-29 02:59:59",
+          "all_day": true
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:black-history-book-club-the-talented-ribkins-by-ladee-hubbard",
+      "lead_name": "Black History Book Club: “The Talented Ribkins” by Ladee Hubbard",
+      "source": "thatssotampa",
+      "venue": "Tampa’s Black History Museum",
+      "address": "1213 N. Central Avenue",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://tampabayhistorycenter.org/event/black-history-book-club-the-talented-ribkins-by-ladee-hubbard/",
+        "https://tampabayhistorycenter.org/organizer/tampas-black-history-museum/",
+        "https://tampabayhistorycenter.org/tampas-black-history-museum/"
+      ],
+      "organizer_names": [
+        "Tampa’s Black History Museum"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-26 17:30:00",
+          "end": "2026-10-26 18:45:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:ruskin-canvas-and-wine-ghostly-flowers",
+      "lead_name": "Ruskin Canvas and Wine – Ghostly Flowers",
+      "source": "thatssotampa",
+      "venue": "Ybor Grille",
+      "address": "339 19th Ave NE Ruskin, FL, FL 33570",
+      "city": "Ruskin",
+      "zip": "33570",
+      "cost_text": "$35.00 – $39.00",
+      "organizer_url_hints": [
+        "https://wineandcanvas.com/florida/event/ruskin-canvas-and-wine-ghostly-flowers/",
+        "https://wineandcanvas.com/tampa/events/"
+      ],
+      "organizer_names": [
+        "Wine and Canvas – Paint and Sip Classes"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-27 18:00:00",
+          "end": "2026-10-27 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:st-pete-tot-fall-festival",
+      "lead_name": "St. Pete TOT Fall Festival",
+      "source": "ilovetheburg",
+      "venue": "The Salvation Army St. Pete Citadel Center",
+      "address": "3800 9th Ave N",
+      "city": "St. Petersburg",
+      "zip": "33713",
+      "cost_text": "$4 – $5",
+      "organizer_url_hints": [
+        "https://www.facebook.com/share/19XSrT8gLq/",
+        "https://give.salvationarmyflorida.org/TOT2026"
+      ],
+      "organizer_names": [
+        "@salarmysuncoast"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-27 18:00:00",
+          "end": "2026-10-27 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:acotar-6-release-faerie-ball",
+      "lead_name": "ACOTAR 6 Release Faerie Ball!",
+      "source": "ilovetheburg",
+      "venue": "The Floridian Social",
+      "address": "687 Central Avenue North",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": "$100.00",
+      "organizer_url_hints": [
+        "https://thebooklounge.com/products/acotar-release-fairy-ball",
+        "http://www.thebooklounge.com"
+      ],
+      "organizer_names": [
+        "@thebookloungeSTP"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-27 19:00:00",
+          "end": "2026-10-27 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:double-feature-movie-night-at-lower-deck-great-pumpkin-hocus-pocus",
+      "lead_name": "Double Feature Movie Night at Lower Deck: Great Pumpkin / Hocus Pocus",
+      "source": "thatssotampa",
+      "venue": "Lower Deck",
+      "address": "601 S Harbour Island Blvd suite 110",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": "Free",
+      "organizer_url_hints": [],
+      "organizer_names": [
+        "Three Oaks Hospitality"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-28 20:00:00",
+          "end": "2026-10-28 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:the-florida-orchestra-monumental-sounds",
+      "lead_name": "The Florida Orchestra: Monumental Sounds",
+      "source": "ilovetheburg",
+      "venue": "Duke Energy Center for the Arts – Mahaffey Theater",
+      "address": "400 1st St S",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-29 11:00:00",
+          "end": "2026-10-29 13:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:art-after-dark-spooky-edition-2",
+      "lead_name": "Art After Dark: Spooky Edition",
+      "source": "ilovetheburg",
+      "venue": "Museum of Fine Arts St. Petersburg",
+      "address": "255 Beach Dr NE",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": "Free – $16",
+      "organizer_url_hints": [
+        "https://mfastpete.org/event/art-after-dark-spooky-edition/",
+        "https://mfastpete.org/"
+      ],
+      "organizer_names": [
+        "Museum of Fine Arts St. Petersburg"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-29 17:00:00",
+          "end": "2026-10-29 20:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:mini-blooms-brooms",
+      "lead_name": "Mini Blooms & Brooms",
+      "source": "ilovetheburg",
+      "venue": "Gypsea Blooms",
+      "address": "1622 Central Ave.",
+      "city": "St.Petersburg",
+      "zip": "33712",
+      "cost_text": "$38.00",
+      "organizer_url_hints": [
+        "https://gypseablooms.com/products/mini-blooms-brooms",
+        "https://gypseablooms.com/"
+      ],
+      "organizer_names": [
+        "Gypsea Blooms"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-29 18:00:00",
+          "end": "2026-10-29 19:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:resonance-gala",
+      "lead_name": "Resonance Gala",
+      "source": "thatssotampa",
+      "venue": "Tampa Museum of Art",
+      "address": "120 W Gasparilla Plaza",
+      "city": "St. Petersburg",
+      "zip": "33602",
+      "cost_text": "$125",
+      "organizer_url_hints": [
+        "https://floridawindband.org/resonance-gala",
+        "https://tampamuseum.org/",
+        "https://floridawindband.org"
+      ],
+      "organizer_names": [
+        "Florida Wind Band"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-29 18:00:00",
+          "end": "2026-10-29 20:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:cece-winans-come-worship-tour",
+      "lead_name": "CeCe Winans – COME WORSHIP! Tour",
+      "source": "thatssotampa",
+      "venue": "The Yuengling Center",
+      "address": "4202 E Fowler Ave SUN 130",
+      "city": "Tampa",
+      "zip": "33620",
+      "cost_text": null,
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-29 19:00:00",
+          "end": "2026-10-29 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:dillinger-escape-plan-final-calculating-infinity-shows",
+      "lead_name": "Dillinger Escape Plan – Final Calculating Infinity Shows",
+      "source": "ilovetheburg",
+      "venue": "Jannus Live",
+      "address": "200 1st Ave N STE 206",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.jannuslive.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-29 19:00:00",
+          "end": "2026-10-29 22:00:00",
+          "all_day": false
+        }
+      ]
+    }
+  ]
+}

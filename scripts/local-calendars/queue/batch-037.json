@@ -1,0 +1,317 @@
+{
+  "batch": 37,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "thatssotampa:tampa-bay-lightning-vs-boston-bruins",
+      "lead_name": "Tampa Bay Lightning vs. Boston Bruins",
+      "source": "thatssotampa",
+      "venue": "Benchmark International Arena",
+      "address": "401 Channelside Dr",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.nhl.com/lightning/tickets/single-game-tickets",
+        "https://www.benchmarkintlarena.com"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-10 19:00:00",
+          "end": "2026-12-10 19:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:we-belong-here-tampa-bay",
+      "lead_name": "We Belong Here: Tampa Bay",
+      "source": "thatssotampa",
+      "venue": "Amature Works Riverfront",
+      "address": "1910 N Ola Ave",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.webelonghere.world/tampabay/",
+        "https://www.webelonghere.world/"
+      ],
+      "organizer_names": [
+        "We Belong Here"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-11 03:00:00",
+          "end": "2026-12-14 02:59:59",
+          "all_day": true
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:vienna-light-orchestra-christmas-concert-tour-2026-2",
+      "lead_name": "Vienna Light Orchestra – Christmas Concert Tour 2026",
+      "source": "ilovetheburg",
+      "venue": "Duke Energy Center for the Arts – Mahaffey Theater",
+      "address": "400 1st St S",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-11 15:00:00",
+          "end": "2026-12-11 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:kids-market-at-movie-night",
+      "lead_name": "Kids Market at Movie Night",
+      "source": "thatssotampa",
+      "venue": "Yuengling Draft Haus & Kitchen",
+      "address": "11109 North 30th St.",
+      "city": "Tampa",
+      "zip": "33612",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://kidsmarkets.com/markets/tampa-11",
+        "https://www.yuengling.com/tampa/",
+        "https://kidsmarkets.com"
+      ],
+      "organizer_names": [
+        "Kids Markets",
+        "Yuengling Draft Haus & Kitchen"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-11 17:00:00",
+          "end": "2026-12-11 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:maacm-studio-sips-watercolor",
+      "lead_name": "MAACM Studio Sips: Watercolor",
+      "source": "ilovetheburg",
+      "venue": "Museum of the Amercian Arts and Crafts Movement",
+      "address": "355 4th Street North",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": "$1058 – $3952",
+      "organizer_url_hints": [
+        "https://my.museumaacm.org/1058/3952",
+        "https://my.museumaacm.org/1058/3555"
+      ],
+      "organizer_names": [
+        "Museum of the American Arts and Crafts Movement"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-11 17:00:00",
+          "end": "2026-12-11 20:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:city-of-south-pasadena-boat-parade-viewing-watch-party-2",
+      "lead_name": "City of South Pasadena Boat Parade Viewing & Watch Party",
+      "source": "ilovetheburg",
+      "venue": "Barbara Gilberg Habitat",
+      "address": "1600 Pasadena Ave S",
+      "city": "South Pasadena",
+      "zip": "33707",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://www.facebook.com/events/1534667317947104",
+        "https://www.mysouthpasadena.com/"
+      ],
+      "organizer_names": [
+        "City of South Pasadena"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-11 18:00:00",
+          "end": "2026-12-11 20:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:mojo-brookzz-outta-pocket-tour",
+      "lead_name": "Mojo Brookzz: Outta Pocket Tour",
+      "source": "thatssotampa",
+      "venue": "Tampa Theatre",
+      "address": null,
+      "city": null,
+      "zip": null,
+      "cost_text": "$53 – $158",
+      "organizer_url_hints": [
+        "https://www.etix.com/ticket/p/77201368/mojo-brookzzoutta-pocket-tour-tampa-historic-duncan-auditorium?partner_id=8717",
+        "https://tampatheatre.org"
+      ],
+      "organizer_names": [
+        "Tampa Theatre"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-11 19:30:00",
+          "end": "2026-12-11 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:lily-rose-2026-fall-tour",
+      "lead_name": "Lily Rose – 2026 Fall Tour",
+      "source": "ilovetheburg",
+      "venue": "Jannus Live",
+      "address": "200 1st Ave N STE 206",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.jannuslive.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-11 20:00:00",
+          "end": "2026-12-11 23:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:christmas-in-the-country-at-cracker-country",
+      "lead_name": "Christmas in the Country at Cracker Country",
+      "source": "thatssotampa",
+      "venue": "Cracker Country",
+      "address": "4800 N U.S. 301",
+      "city": "Tampa",
+      "zip": "33610",
+      "cost_text": "$12 – $16",
+      "organizer_url_hints": [
+        "https://floridastatefairgrounds.com/visit/cracker-country/field-trips/#field-trips-and-school-tours-7",
+        "https://www.crackercountry.org/events/lecture"
+      ],
+      "organizer_names": [
+        "florida state fairgrounds"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-12 10:00:00",
+          "end": "2026-12-12 16:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:tampa-bay-lightning-vs-pittsburgh-penguins-2",
+      "lead_name": "Tampa Bay Lightning vs. Pittsburgh Penguins",
+      "source": "ilovetheburg",
+      "venue": null,
+      "address": null,
+      "city": null,
+      "zip": null,
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.nhl.com/lightning/tickets/single-game-tickets"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-12 15:30:00",
+          "end": "2026-12-12 18:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:tampa-bay-lightning-vs-pittsburgh-penguins",
+      "lead_name": "Tampa Bay Lightning vs. Pittsburgh Penguins",
+      "source": "thatssotampa",
+      "venue": "Benchmark International Arena",
+      "address": "401 Channelside Dr",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.nhl.com/lightning/tickets/single-game-tickets",
+        "https://www.benchmarkintlarena.com"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-12 15:30:00",
+          "end": "2026-12-12 15:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:pabse-winter-celebration",
+      "lead_name": "PABSE Winter Celebration",
+      "source": "ilovetheburg",
+      "venue": "Hammock Hall Banquet Room",
+      "address": "3010 31st Street South",
+      "city": "St. Petersburg",
+      "zip": "33712",
+      "cost_text": "$10",
+      "organizer_url_hints": [
+        "http://boydhillpreserve.com"
+      ],
+      "organizer_names": [
+        "PABSE"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-12 16:00:00",
+          "end": "2026-12-12 23:30:00",
+          "all_day": false
+        }
+      ]
+    }
+  ]
+}

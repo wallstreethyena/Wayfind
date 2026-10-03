@@ -1,0 +1,336 @@
+{
+  "batch": 7,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "thatssotampa:tampa-bay-rays-american-league-division-series-game-2",
+      "lead_name": "Tampa Bay Rays vs. New York Yankees — American League Division Series Game 2",
+      "source": "thatssotampa",
+      "venue": "Tropicana Field",
+      "address": "1 Tropicana Dr",
+      "city": "St. Petersburg",
+      "zip": "33705",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.mlb.com/rays/tickets/postseason"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-05 20:00:00",
+          "end": "2026-10-05 22:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:gulfport-tuesday-fresh-market-3",
+      "lead_name": "Gulfport Tuesday Fresh Market",
+      "source": "ilovetheburg",
+      "venue": "Downtown Gulfport",
+      "address": "3101 Beach Blvd S",
+      "city": "Gulfport",
+      "zip": "33707",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://visitgulfportflorida.com/event/gulfport-fresh-market/",
+        "https://www.sikpromotions.com/"
+      ],
+      "organizer_names": [
+        "SIK Promotions"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-06 09:00:00",
+          "end": "2026-10-06 14:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:temple-terrace-police-department-national-night-out",
+      "lead_name": "Temple Terrace Police Department National Night Out",
+      "source": "thatssotampa",
+      "venue": "Temple Terrace Family Recreation Complex",
+      "address": "6610 Whiteway Drive",
+      "city": "Temple Terrace",
+      "zip": "33617",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.templeterrace.gov",
+        "https://www.templeterrace.gov/304/Home"
+      ],
+      "organizer_names": [
+        "City of Temple Terrace"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-06 18:00:00",
+          "end": "2026-10-06 20:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:industrious-coworking-day",
+      "lead_name": "Industrious Coworking Day",
+      "source": "thatssotampa",
+      "venue": "615 Channelside Drive",
+      "address": "615 Channelside Drive",
+      "city": "Tampa",
+      "zip": null,
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://luma.com/5gbvvok6",
+        "https://www.industriousoffice.com/"
+      ],
+      "organizer_names": [
+        "Industrious"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-07 09:00:00",
+          "end": "2026-10-07 17:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:coffee-with-a-curator-2",
+      "lead_name": "Coffee With a Curator",
+      "source": "ilovetheburg",
+      "venue": "The Dalí (Salvador Dalí Museum)",
+      "address": "1 Dali Blvd",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://thedali.org/event/coffee-with-a-curator-october-2026/",
+        "https://thedali.org/"
+      ],
+      "organizer_names": [
+        "The Dali Museum"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-07 10:30:00",
+          "end": "2026-10-07 11:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:mayors-food-truck-fiesta-2",
+      "lead_name": "Mayor’s Food Truck Fiesta",
+      "source": "thatssotampa",
+      "venue": "Lykes Gaslight Park",
+      "address": "241 E. Madison St.",
+      "city": "Tampa",
+      "zip": null,
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.facebook.com/TampasDowntown/events"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-10-07 11:00:00",
+          "end": "2026-10-07 14:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-11-04 11:00:00",
+          "end": "2026-11-04 14:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-12-02 11:00:00",
+          "end": "2026-12-02 14:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:health-on-the-horizon",
+      "lead_name": "Health on the Horizon",
+      "source": "ilovetheburg",
+      "venue": "Horizon West Bay",
+      "address": "440 West Bay Drive",
+      "city": "Largo",
+      "zip": "33770",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://www.playlargo.com/special_events_detail_T40_R129.php"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-07 12:00:00",
+          "end": "2026-10-07 13:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:oktoberfest%f0%9f%8d%bb",
+      "lead_name": "OKTOBERFEST🍻",
+      "source": "ilovetheburg",
+      "venue": "the he Ale and the Witch",
+      "address": "111 2nd Ave NE",
+      "city": "Saint Petersburg",
+      "zip": "33701",
+      "cost_text": "Free",
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-07 17:30:00",
+          "end": "2026-10-07 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:dia-de-los-muertos-dinner",
+      "lead_name": "Dia De Los Muertos Dinner",
+      "source": "thatssotampa",
+      "venue": "Lona",
+      "address": "505 Water St",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.opentable.com/booking/experiences-availability?rid=1309483&amp;restref=1309483&amp;experienceId=804967&amp;utm_source=external&amp;utm_medium=referral&amp;utm_campaign=shared",
+        "https://www.lonatampa.com/"
+      ],
+      "organizer_names": [
+        "@lonatampa"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-07 18:00:00",
+          "end": "2026-10-07 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:dia-de-los-muertos-tequila-pairing-dinner-with-chef-richard-sandoval",
+      "lead_name": "Día de los Muertos Tequila Pairing Dinner with Chef Richard Sandoval",
+      "source": "thatssotampa",
+      "venue": "Lona",
+      "address": "505 Water St",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": "$95",
+      "organizer_url_hints": [
+        "https://www.lonatampa.com/ddlm-dinner-2026",
+        "https://www.lonatampa.com/"
+      ],
+      "organizer_names": [
+        "@lonatampa"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-07 18:00:00",
+          "end": "2026-10-07 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:st-pete-night-market-2",
+      "lead_name": "St. Pete Night Market",
+      "source": "ilovetheburg",
+      "venue": "Fergs Sports Bar",
+      "address": "1320 Central Ave",
+      "city": "St. Petersburg",
+      "zip": "33705",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://stpeteissupercool.com/pages/st-pete-night-market",
+        "http://www.stpeteissupercool.com"
+      ],
+      "organizer_names": [
+        "St. Pete is Super Cool"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-10-07 18:00:00",
+          "end": "2026-10-07 22:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-11-04 18:00:00",
+          "end": "2026-11-04 22:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-12-02 18:00:00",
+          "end": "2026-12-02 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:movie-night-at-lower-deck-halloweentown",
+      "lead_name": "Movie Night at Lower Deck: Halloweentown",
+      "source": "thatssotampa",
+      "venue": "Lower Deck",
+      "address": "601 S Harbour Island Blvd suite 110",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://www.eventvesta.com/events/165086-movie-night-at-lower-deck-halloweentown"
+      ],
+      "organizer_names": [
+        "Three Oaks Hospitality"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-07 20:00:00",
+          "end": "2026-10-07 22:00:00",
+          "all_day": false
+        }
+      ]
+    }
+  ]
+}

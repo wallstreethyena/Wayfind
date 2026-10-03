@@ -1,0 +1,328 @@
+{
+  "batch": 18,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "ilovetheburg:dying-fetus-sanguisugabogg-2026-tour",
+      "lead_name": "Dying Fetus & Sanguisugabogg – 2026 Tour",
+      "source": "ilovetheburg",
+      "venue": "Jannus Live",
+      "address": "200 1st Ave N STE 206",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.jannuslive.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-20 17:30:00",
+          "end": "2026-10-20 23:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:figure-drawing-study-3",
+      "lead_name": "Figure Drawing Study",
+      "source": "thatssotampa",
+      "venue": "Tampa Museum of Art",
+      "address": "120 W Gasparilla Plaza",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": "$45",
+      "organizer_url_hints": [
+        "https://shop.tampamuseum.org/products/figure-drawing-study-3?_gl=1*gi9nud*_gcl_au*NjQwODQ0MzE4LjE3ODExMTg4MDA",
+        "https://shop.tampamuseum.org/products/fundamental-figure-drawing-1?_gl=1*17fvdef*_gcl_au*MTE2MzU3ODczNi4xNzU4OTAxNzc2",
+        "https://tampamuseum.org/event/pride-passion-2024/"
+      ],
+      "organizer_names": [
+        "Tampa Museum of Art"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-20 18:00:00",
+          "end": "2026-10-20 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:hip-hop-in-the-heights",
+      "lead_name": "Hip Hop In The Heights",
+      "source": "thatssotampa",
+      "venue": "Shuffle",
+      "address": "2612 North Tampa Street",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://eventvesta.com/events/129428/t/tickets"
+      ],
+      "organizer_names": [
+        "Shuffle"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-10-20 21:00:00",
+          "end": "2026-10-20 23:59:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-11-17 21:00:00",
+          "end": "2026-11-17 23:59:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-12-15 21:00:00",
+          "end": "2026-12-15 23:59:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:growing-creatively-early-learner-gallery-art-experience-2",
+      "lead_name": "Growing Creatively: Early Learner Gallery & Art Experience",
+      "source": "thatssotampa",
+      "venue": "Tampa Museum of Art",
+      "address": "120 W Gasparilla Plaza",
+      "city": "St. Petersburg",
+      "zip": "33602",
+      "cost_text": "$30",
+      "organizer_url_hints": [
+        "https://tampamuseum.org/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-21 09:30:00",
+          "end": "2026-10-21 10:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:goth-floral-workshop",
+      "lead_name": "Goth Floral Workshop",
+      "source": "ilovetheburg",
+      "venue": "3 Daughters Brewing – St. Pete",
+      "address": "222 22nd Street S",
+      "city": "St. Petersburg",
+      "zip": "33712",
+      "cost_text": "$45.00",
+      "organizer_url_hints": [
+        "https://www.facebook.com/share/1cypuys8C6/?mibextid=wwXIfr",
+        "https://www.3dbrewing.com/"
+      ],
+      "organizer_names": [
+        "3 Daughters Brewing"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-21 18:30:00",
+          "end": "2026-10-21 20:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:movie-night-at-lower-deck-coraline",
+      "lead_name": "Movie Night at Lower Deck: Coraline",
+      "source": "thatssotampa",
+      "venue": "Lower Deck",
+      "address": "601 S Harbour Island Blvd suite 110",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://eventvesta.com/events/165091/t/tickets"
+      ],
+      "organizer_names": [
+        "Three Oaks Hospitality"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-21 20:00:00",
+          "end": "2026-10-21 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:grand-opening-fred-astaire-dance-studios-palm-harbor",
+      "lead_name": "GRAND OPENING Fred Astaire Dance Studios Palm Harbor",
+      "source": "ilovetheburg",
+      "venue": "Fred Astaire Dance Studios Palm Harbor",
+      "address": "34302 US Hwy 19 N",
+      "city": "Palm Harbor",
+      "zip": "34684",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://www.fredastaire.com/palm-harbor/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-22 18:00:00",
+          "end": "2026-10-22 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:photography-social-networking-event",
+      "lead_name": "Photography Social & Networking Event",
+      "source": "thatssotampa",
+      "venue": "Florida Museum of Photographic Arts",
+      "address": "1630 E 7th Avenue",
+      "city": "Tampa",
+      "zip": null,
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://www.eventbrite.com/e/photography-social-networking-event-tickets-1996124700714?aff=oddtdtcreator",
+        "https://www.fmopa.org/"
+      ],
+      "organizer_names": [
+        "Florida Museum of Photographic Arts"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-22 18:00:00",
+          "end": "2026-10-22 20:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:gameface-drag-the-river-w-the-arrival-note",
+      "lead_name": "Gameface & Drag The River w/ The Arrival Note",
+      "source": "thatssotampa",
+      "venue": "New World Tampa Music Hall",
+      "address": "810 E Skagway Ave",
+      "city": "Tampa",
+      "zip": "33604",
+      "cost_text": "$20 – $25",
+      "organizer_url_hints": [
+        "https://gameface26.eventbrite.com",
+        "https://www.newworldtampa.com/",
+        "https://aestheticized.com/"
+      ],
+      "organizer_names": [
+        "Aestheticized Presents >>>"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-22 19:00:00",
+          "end": "2026-10-22 23:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:marly-music-presents-andrew-york",
+      "lead_name": "Marly Music Presents Andrew York",
+      "source": "ilovetheburg",
+      "venue": "Museum of Fine Arts St. Petersburg",
+      "address": "255 Beach Dr NE",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": "$15 – $35",
+      "organizer_url_hints": [
+        "https://mfastpete.org/event/marly-music-presents-andrew-york/",
+        "https://mfastpete.org/"
+      ],
+      "organizer_names": [
+        "Museum of Fine Arts St. Petersburg"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-22 19:00:00",
+          "end": "2026-10-22 20:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:savor-the-bay-sun-sea",
+      "lead_name": "Savor the Bay, Sun + Sea",
+      "source": "ilovetheburg",
+      "venue": "LUMA at SkyBeach Resort",
+      "address": "6800 Sunshine Skyway Ln S",
+      "city": "St. Petersburg",
+      "zip": "33711",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.eventliveus.com/event/10546/savor-the-sun-sea-chef-dinner-series-at-luma?_v=1790131403662"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-22 19:00:00",
+          "end": "2026-10-22 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:rocky-horror-picture-show-spooktacular-tour-with-patricia-quinn",
+      "lead_name": "Rocky Horror Picture Show Spooktacular Tour with Patricia Quinn",
+      "source": "thatssotampa",
+      "venue": "Straz Center for the Performing Arts",
+      "address": "1010 N WC MacInnes Pl",
+      "city": "Tampa",
+      "zip": null,
+      "cost_text": "$59.00",
+      "organizer_url_hints": [
+        "https://www.strazcenter.org/events/2627-season/theater/rocky-horror-picture-show-spooktacular-tour/"
+      ],
+      "organizer_names": [
+        "Straz Center for the Performing Arts"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-22 19:30:00",
+          "end": "2026-10-22 21:30:00",
+          "all_day": false
+        }
+      ]
+    }
+  ]
+}
