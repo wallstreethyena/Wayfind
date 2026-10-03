@@ -73,6 +73,10 @@ const ALLOWED_THIRD_PARTY = [
   // tourism boards / official destination marketing
   "visitsarasota.com", "visitvenicefl.org", "annamariaisland.com", "enjoyflorida.com",
   "lakewoodranch.com", "mylwr.com", "starmandscircleassoc.com",
+  // Pinellas County's official tourism board (St. Pete / Clearwater), the
+  // peer of visitsarasota.com above. Added 2026-10-03 for the Best Breakfast
+  // 2026 winner editorial (La Croisette).
+  "visitstpeteclearwater.com",
   // Visit Orlando's Magical Dining program site (prix-fixe event listings)
   "magicaldining.com",
   // conservation / naturalist / trail authorities
@@ -100,6 +104,13 @@ const EXPLICIT_CROSS_CARD_SOURCES = new Map([
   // Sharky's On the Pier: its history names the sibling Fins opening next door;
   // the cited Fins about page is the first-party evidence for that relationship.
   ["ChIJnXtixd5bw4gRxq8VhqIqo3I", new Set(["finsatsharkys.com"])],
+  // Best Breakfast 2026 winners (2026-10-03), reviewed per card:
+  // La Croisette has no official site; Paradise News, the local St. Pete Beach
+  // paper, profiled the current owners and the building's 1986 photo.
+  ["ChIJFfdjBlz9wogR6wSfGKbqL0k", new Set(["paradisenewsfl.com"])],
+  // Bistro Café Coral Gables: the Miami Herald opening feature (Sarah Moreno,
+  // May 2023), read through its AOL syndication URL.
+  ["ChIJRUCXlqO32YgR2cVEptp7ZW8", new Set(["aol.com"])],
 ]);
 
 // ── hostname handling ─────────────────────────────────────────────────────

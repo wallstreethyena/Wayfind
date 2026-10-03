@@ -408,6 +408,8 @@ ${WF_SKELETON_CSS}
 .wf-place-card-award.is-rank-1 .wf-place-card-award-icon,.wf-place-card-award.is-rank-2 .wf-place-card-award-icon,.wf-place-card-award.is-rank-3 .wf-place-card-award-icon{background:#334155;color:#F8FAFC}
 .wf-place-card-award.is-curator{border-color:rgba(244,212,119,.52);background:linear-gradient(110deg,rgba(244,212,119,.17),rgba(244,212,119,.025));color:#F7D982}
 .wf-place-card-award.is-curator .wf-place-card-award-icon{background:radial-gradient(circle at 35% 28%,#FFF1BC,#E1A72D 58%,#80500A 100%);color:#2A1A03}
+.wf-place-card-award.is-wayfind-award{border-color:rgba(252,110,9,.62);background:linear-gradient(110deg,rgba(252,110,9,.24),rgba(252,110,9,.05));color:#FFB27A}
+.wf-place-card-award.is-wayfind-award .wf-place-card-award-icon{background:linear-gradient(145deg,#FFB067,#FC6E09 55%,#B44400);color:#1F0B00}
 .wf-place-card-highlights{gap:5px!important;margin-bottom:6px!important}
 .wf-place-card-highlights>button,.wf-place-card-highlights>span{
   display:inline-flex!important;

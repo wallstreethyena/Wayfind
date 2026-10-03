@@ -69,6 +69,7 @@ import { safeUrl } from "../../lib/links.js";
 import { creatorVideosFor } from "../../lib/creatorSignals.js";
 import CreatorCardMark from "./CreatorCardMark";
 import { couponForPlace } from "../../lib/coupons.js";
+import { wayfindAwardFor } from "../../lib/wayfindAwards.js";
 import { normalizePlaceCardHref } from "../../lib/placeCardRoute.js";
 import { ownedPlacePhotoSrc } from "../../lib/placePhoto.js";
 import { usePhotoSrcFilter } from "./photoPolicyContext";
@@ -338,6 +339,10 @@ export default function RailCard({
   // /places/{id} remains the durable SEO document. Normalizing at this shared
   // renderer boundary makes the rule apply to every present and future rail.
   const cardHref = place && place.id ? normalizePlaceCardHref(href, place.id) : href;
+  // An EARNED Wayfind award (lib/wayfindAwards.js) is a fact about the PLACE,
+  // so the shared renderer resolves it from the row itself and it wins the
+  // one credential slot over whatever rank/creator band the caller passed.
+  const shownAward = (place && wayfindAwardFor(place)) || award;
   if (place && place.id && cta && !cta.external && cta.href) {
     cta = { ...cta, href: normalizePlaceCardHref(cta.href, place.id) };
   }
@@ -519,10 +524,10 @@ export default function RailCard({
             </div>
           ) : null}
 
-          {award ? (
-            <div className={`wf-place-card-award is-${award.tone === "creator" ? "creator" : "rank-" + (award.tone || 1)}`}>
-              <span className="wf-place-card-award-icon" aria-hidden="true">{award.icon}</span>
-              <span>{award.label}</span>
+          {shownAward ? (
+            <div className={`wf-place-card-award is-${shownAward.tone === "creator" ? "creator" : shownAward.tone === "wayfind-award" ? "wayfind-award" : "rank-" + (shownAward.tone || 1)}`} aria-label={shownAward.ariaLabel || undefined}>
+              <span className="wf-place-card-award-icon" aria-hidden="true">{shownAward.icon}</span>
+              <span>{shownAward.label}</span>
             </div>
           ) : null}
 
