@@ -63,6 +63,7 @@ import { siteTodayStr } from "../../lib/siteTime.js";
 import { nowContext } from "../../lib/nowContext.js";
 import { gateOutdoor, coarseCat } from "../../lib/ranking.js";
 import { topPickAward } from "../../lib/topPickAward.js";
+import { wayfindAwardFor } from "../../lib/wayfindAwards.js";
 import { PLACE_CARD_HEIGHT_PX } from "../../lib/placeCardStandard.js";
 // v7.06 — ONE editorial-line implementation, shared by every place surface.
 import { toHookLine } from "../../lib/editorialHook.js";
@@ -1219,7 +1220,7 @@ export default function BestNearby({
                           <RailCard key={p.place_id} rank={i + 1}
                             photo={cardPhoto(p, 480)} title={p.name} eyebrow={prettyType(p.primary_type)}
                             score={toDisplayScore(p.governed_score)}
-                            award={topPickAward({ category: coarseCat(tagged) || "Food", rank: i + 1 })}
+                            award={wayfindAwardFor(p) || topPickAward({ category: coarseCat(tagged) || "Food", rank: i + 1 })}
                             take={toHookLine(hooks[p.place_id], p.name)}
                             badge={<>{p.trending ? <Flame reason={p.trend_reason} /> : null}<TrendReason r={p} /></>}
                             facts={[

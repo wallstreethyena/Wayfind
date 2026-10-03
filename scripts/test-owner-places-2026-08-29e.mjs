@@ -46,8 +46,8 @@ ok(HOLD_GOOGLE.length === 5, `expected 5 hold_google_id shops, got ${HOLD_GOOGLE
 ok(HOLD_GOOGLE.every((p) => /Cha Cha Coconuts|ofKors Bakery|ofKors Cafe|Turmeric Indian|Cinnaholic South Tampa/.test(p.name)),
   "hold_google_id names are Cha Cha, ofKors bakery/cafe, Turmeric, Cinnaholic South Tampa");
 
-ok(listPublishReadyAtlasIds().length === 459,
-  "Atlas publish-ready lock is 459 (owner-approved 2026-09-29 Atlas-590 additive merge; was 264) — 263 from #1019 plus the official NRB ChIJ");
+ok(listPublishReadyAtlasIds().length === 464,
+  "Atlas publish-ready lock is 464 (owner-approved 2026-09-29 Atlas-590 additive merge 459, +5 Best Breakfast 2026 winners 2026-10-03) — 263 from #1019 plus the official NRB ChIJ");
 
 for (const p of ADD) {
   ok(PLACE_ID.test(p.placeId), `${p.name}: real Google placeId, not invented`);

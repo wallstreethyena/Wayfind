@@ -86,7 +86,9 @@ for (const f of ["lib/memberSignals.js", "app/api/signals/likes/route.js"]) {
 {
   const home = read("app/home.js");
   ok(/const isCuratorPick = !!\(p\._members && p\._members\.ownerPick\);/.test(home), "isCuratorPick is derived SOLELY from the server's _members.ownerPick (false -> stays false)");
-  ok(/const cardAward = isCuratorPick\s*\? \{ rank: cardRank, label: "Wayfind curator's pick", curator: true \}/.test(home), "ownerPick promotes the existing award slot to the single curator credential");
+  // 2026-10-03: an EARNED, dated Wayfind award (lib/wayfindAwards.js) may sit
+  // ahead of this in the same single slot; the curator branch is unchanged.
+  ok(/const cardAward = (?:wayfindAwardFor\(p\) \|\| \()?isCuratorPick\s*\? \{ rank: cardRank, label: "Wayfind curator's pick", curator: true \}/.test(home), "ownerPick promotes the existing award slot to the single curator credential");
   ok(/cardAward\.curator \? " is-curator"/.test(home) && /cardAward\.curator\s*\? "✦"/.test(home), "the curator credential has one restrained treatment in the established award position");
   ok((home.match(/Wayfind curator's pick/g) || []).length === 1, "PlaceCard contains exactly one curator label — duplicates cannot appear after a like");
   ok(!/wf-place-card-owner/.test(home), "the old media/action overlay badge is absent from PlaceCard");

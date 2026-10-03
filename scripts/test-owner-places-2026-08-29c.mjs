@@ -57,8 +57,8 @@ ok(HOLDS.some((h) => /Chicken Guy/i.test(h.name)) &&
    HOLDS.some((h) => /Fat Beet Farm/i.test(h.name)),
   "location / Coming Soon / mobile / Bern HOLDs plus the three still-held Tampa farms are named");
 
-ok(listPublishReadyAtlasIds().length === 459,
-  "Atlas publish-ready lock is 459 (owner-approved 2026-09-29 Atlas-590 additive merge; was 264) — this batch minted none; 2026-08-29e added the official NRB ChIJ");
+ok(listPublishReadyAtlasIds().length === 464,
+  "Atlas publish-ready lock is 464 (owner-approved 2026-09-29 Atlas-590 additive merge 459, +5 Best Breakfast 2026 winners 2026-10-03) — this batch minted none; 2026-08-29e added the official NRB ChIJ");
 
 for (const p of HOLD_GOOGLE) {
   ok(p.placeId == null, `${p.name}: invented a Google id — HOLD the id, do not mint a ChIJ`);

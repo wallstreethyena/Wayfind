@@ -42,6 +42,7 @@ import { eventWhenLabel } from "../lib/eventTime";
 // surface shares. See lib/editorialHook.js for the law it enforces.
 import { editorialLine } from "../lib/editorialHook";
 import { topPickAward } from "../lib/topPickAward";
+import { wayfindAwardFor } from "../lib/wayfindAwards.js";
 import { eventCategoryArt } from "../lib/eventCategoryArt";
 import { startSessionRecording, markShareOpen, checkShareReturn } from "../lib/shareMetrics";
 import { priceWord } from "../lib/price";
@@ -12084,9 +12085,11 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   // Owner 2026-08-25: TOP {CATEGORY} PICK + rank, never BEST … PICK, never
   // a gold trophy. Category is the section (Food / Activities), not cuisine
   // — cuisine stays a chip. lib/topPickAward.js is the only composer.
-  const cardAward = isCuratorPick
+  // An EARNED, dated Wayfind award (lib/wayfindAwards.js) takes the one
+  // credential slot first; the live rank chip only fills it otherwise.
+  const cardAward = wayfindAwardFor(p) || (isCuratorPick
     ? { rank: cardRank, label: "Wayfind curator's pick", curator: true }
-    : topPickAward({ category: pcat, rank: cardRank });
+    : topPickAward({ category: pcat, rank: cardRank }));
   return (
     <div data-wf-position-key={"place-" + p.id} className={`wf-place-card${fallCardClass(p && p.id, siteTodayStr())}${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${isCuratorPick ? " is-curator-pick" : ""}${!(curatedHook || knownForHook || aiSummary) ? " is-no-take" : ""}`} style={{ position: "relative" }}>
       <button type="button" className="wf-place-card-open" onPointerDown={tapIntent.onPointerDown} onPointerMove={tapIntent.onPointerMove} onPointerUp={tapIntent.onPointerUp} onPointerCancel={tapIntent.onPointerCancel} onClick={(event) => { if (tapIntent.shouldOpen()) onDetail?.(event); }} aria-label={`Open ${p.name}`} style={{ position: "absolute", inset: 0, zIndex: 0, width: "100%", height: "100%", opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
@@ -12169,7 +12172,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
             </div>
           )}
           {cardAward && (
-            <div className={`wf-place-card-award${cardAward.curator ? " is-curator" : ` is-rank-${cardAward.rank}`}`} aria-label={cardAward.curator ? "Personally selected by Wayfind's curator" : `Wayfind ranked this the number ${cardAward.rank} ${pcat || "local"} option`}>
+            <div className={`wf-place-card-award${cardAward.wayfindAward ? " is-wayfind-award" : cardAward.curator ? " is-curator" : ` is-rank-${cardAward.rank}`}`} aria-label={cardAward.wayfindAward ? cardAward.ariaLabel : cardAward.curator ? "Personally selected by Wayfind's curator" : `Wayfind ranked this the number ${cardAward.rank} ${pcat || "local"} option`}>
               <span className="wf-place-card-award-icon" aria-hidden="true">{cardAward.curator ? "✦" : cardAward.icon}</span>
               <span>{cardAward.label}</span>
             </div>

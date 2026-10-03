@@ -52,6 +52,7 @@ import { stayOnRailReaction } from "../../lib/railReaction.js";
 import { creatorVideosFor } from "../../lib/creatorSignals.js";
 import CreatorCardMark from "./CreatorCardMark";
 import { topPickAward } from "../../lib/topPickAward";
+import { wayfindAwardFor } from "../../lib/wayfindAwards.js";
 import { couponForPlace } from "../../lib/coupons";
 import { normalizePlaceCardHref } from "../../lib/placeCardRoute.js";
 import { useCardTapIntent } from "./useCardTapIntent.js";
@@ -448,7 +449,9 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   // is the rejected merchandising chip. lib/topPickAward.js is the only
   // composer (strips a trailing "pick" so "Local pick" cannot become
   // "top local pick pick").
-  const award = topPickAward({ category, rank, curator: isCuratorPick });
+  // An EARNED, dated Wayfind award (lib/wayfindAwards.js) takes the one
+  // credential slot ahead of the live rank chip: one credential per card.
+  const award = wayfindAwardFor(place) || topPickAward({ category, rank, curator: isCuratorPick });
   // v6.87 (owner): the rank-summary fallback ("Our #1 pick — 4.9★ with 921
   // reviews, and it holds up.") is GONE — rating, reviews, rank, price,
   // status and distance already render above in `facts`/`award`, and
@@ -604,7 +607,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
           </div>
 
           {award ? (
-            <div className={`wf-place-card-award${award.curator ? " is-curator" : ` is-rank-${award.rank}`}`} aria-label={award.curator ? "Personally selected by Wayfind's curator" : undefined}>
+            <div className={`wf-place-card-award${award.wayfindAward ? " is-wayfind-award" : award.curator ? " is-curator" : ` is-rank-${award.rank}`}`} aria-label={award.wayfindAward ? award.ariaLabel : award.curator ? "Personally selected by Wayfind's curator" : undefined}>
               <span className="wf-place-card-award-icon" aria-hidden="true">{award.icon}</span>
               <span>{award.label}</span>
             </div>
