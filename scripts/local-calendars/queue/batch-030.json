@@ -1,0 +1,314 @@
+{
+  "batch": 30,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "thatssotampa:hello-friend-night-market",
+      "lead_name": "Hello Friend Night Market",
+      "source": "thatssotampa",
+      "venue": "England Brothers Park",
+      "address": "5010 81st Ave N",
+      "city": "Pinellas Park",
+      "zip": null,
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://hellofriendfest.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-11-14 10:24:15",
+          "end": "2026-11-15 10:24:15",
+          "all_day": true
+        },
+        {
+          "start": "2026-11-14 11:58:05",
+          "end": "2026-11-15 11:58:05",
+          "all_day": true
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:kids-markets-at-the-hillsborough-county-fair",
+      "lead_name": "Kids Markets at The Hillsborough County Fair",
+      "source": "thatssotampa",
+      "venue": "Hillsborough County Fairgrounds",
+      "address": "215 Sydney Washer Road",
+      "city": "Dover",
+      "zip": "33527",
+      "cost_text": "Fair tickets required to enter",
+      "organizer_url_hints": [
+        "https://kidsmarkets.com/markets/dover-3",
+        "https://www.hillsboroughcountyfair.com/events/2025/2025-festival-of-lights",
+        "https://kidsmarkets.com"
+      ],
+      "organizer_names": [
+        "Kids Markets"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-14 12:00:00",
+          "end": "2026-11-14 15:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:blooms-bottles-fall-centerpiece-workshop",
+      "lead_name": "Blooms & Bottles: Fall Centerpiece Workshop",
+      "source": "ilovetheburg",
+      "venue": "The Roaming Petal",
+      "address": "1506 54th Avenue North",
+      "city": "St. Petersburg",
+      "zip": "33703",
+      "cost_text": "$80.00",
+      "organizer_url_hints": [
+        "https://www.eventbrite.com/e/blooms-bottles-fall-centerpiece-workshop-tickets-2002086850665",
+        "http://thevenlist.com"
+      ],
+      "organizer_names": [
+        "@thevenlist"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-14 13:00:00",
+          "end": "2026-11-14 14:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:fall-fest-in-the-garden-2",
+      "lead_name": "Fall Fest In the Garden",
+      "source": "ilovetheburg",
+      "venue": "Gulf Orchids",
+      "address": "5313 Gulfport Blvd S.",
+      "city": "Gulfport",
+      "zip": "33707",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://www.gulforchids.com/",
+        "https://gulforchids.com/"
+      ],
+      "organizer_names": [
+        "@gulforchids"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-14 15:00:00",
+          "end": "2026-11-14 19:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:poynters-bowtie-ball",
+      "lead_name": "Poynter’s Bowtie Ball",
+      "source": "thatssotampa",
+      "venue": "JW Marriott Tampa Water Street",
+      "address": "510 Water Street",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.poynter.org/event/poynters-bowtie-ball-2026/"
+      ],
+      "organizer_names": [
+        "The Poynter Institute"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-14 18:00:00",
+          "end": "2026-11-14 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:jimmy-eat-world-bleed-american-anniversary-tour",
+      "lead_name": "Jimmy Eat World – Bleed American Anniversary Tour",
+      "source": "thatssotampa",
+      "venue": "Florida State Fairgrounds",
+      "address": "4800 US-301",
+      "city": "Tampa",
+      "zip": null,
+      "cost_text": null,
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-14 19:00:00",
+          "end": "2026-11-14 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:paul-oakenfold-the-crystal-method-united-champions-tour",
+      "lead_name": "Paul Oakenfold & The Crystal Method – United Champions Tour",
+      "source": "ilovetheburg",
+      "venue": "Jannus Live",
+      "address": "200 1st Ave N STE 206",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.jannuslive.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-14 19:00:00",
+          "end": "2026-11-14 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:tampa-bay-lightning-vs-detroit-red-wings-3",
+      "lead_name": "Tampa Bay Lightning vs. Detroit Red Wings",
+      "source": "ilovetheburg",
+      "venue": null,
+      "address": null,
+      "city": null,
+      "zip": null,
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.nhl.com/lightning/tickets/single-game-tickets"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-14 19:00:00",
+          "end": "2026-11-14 21:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:tampa-bay-lightning-vs-detroit-red-wings-2",
+      "lead_name": "Tampa Bay Lightning vs. Detroit Red Wings",
+      "source": "thatssotampa",
+      "venue": "Benchmark International Arena",
+      "address": "401 Channelside Dr",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.nhl.com/lightning/tickets/single-game-tickets",
+        "https://www.benchmarkintlarena.com"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-14 19:00:00",
+          "end": "2026-11-14 19:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:ub40-the-unstoppable-tour",
+      "lead_name": "UB40 – The Unstoppable Tour",
+      "source": "ilovetheburg",
+      "venue": "Duke Energy Center for the Arts – Mahaffey Theater",
+      "address": "400 1st St S",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-14 20:00:00",
+          "end": "2026-11-14 23:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:kids-market-at-yuengling-family-days",
+      "lead_name": "Kids Market at Yuengling Family Days",
+      "source": "thatssotampa",
+      "venue": "Yuengling Draft Haus & Kitchen",
+      "address": "11109 North 30th St.",
+      "city": "Tampa",
+      "zip": "33612",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://kidsmarkets.com/markets/tampa-10",
+        "https://www.yuengling.com/tampa/",
+        "https://kidsmarkets.com"
+      ],
+      "organizer_names": [
+        "Yuengling Draft Haus & Kitchen",
+        "Kids Markets"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-15 12:00:00",
+          "end": "2026-11-15 17:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:sunday-vibes-forever-janis-all-fired-up-a-janis-joplin-pat-benatar-tribute",
+      "lead_name": "Sunday Vibes: “Forever Janis/All Fired up” a Janis Joplin & Pat Benatar Tribute",
+      "source": "ilovetheburg",
+      "venue": "Largo Community Center",
+      "address": "400 Alt Keene Rd",
+      "city": "Largo",
+      "zip": null,
+      "cost_text": "$15",
+      "organizer_url_hints": [
+        "https://www.playlargo.com/special_events_detail_T40_R114.php"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-15 13:00:00",
+          "end": "2026-11-15 15:00:00",
+          "all_day": false
+        }
+      ]
+    }
+  ]
+}

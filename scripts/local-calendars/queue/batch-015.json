@@ -1,0 +1,317 @@
+{
+  "batch": 15,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "thatssotampa:gulf-coast-bike-trek",
+      "lead_name": "Gulf Coast Bike Trek",
+      "source": "thatssotampa",
+      "venue": "John R. Lawrence Pioneer Park",
+      "address": "420 Main St.",
+      "city": "Dunedin",
+      "zip": "34698",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://action.lung.org/site/TR?fr_id=23558&pg=entry"
+      ],
+      "organizer_names": [
+        "American Lung Association"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-17 08:00:00",
+          "end": "2026-10-17 12:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:fall-fest-presented-by-carrollwood-village-phases-ii-iii",
+      "lead_name": "Fall Fest presented by Carrollwood Village Phases II & III",
+      "source": "thatssotampa",
+      "venue": "Carrollwood Cultural Center",
+      "address": "4537 Lowell Rd",
+      "city": "Tampa",
+      "zip": "33618",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://eventvesta.com/events/150488/t/tickets"
+      ],
+      "organizer_names": [
+        "Carrollwood Cultural Center"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-17 10:00:00",
+          "end": "2026-10-17 17:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:fire-cider-make-take-workshop-at-kerbys-nursery",
+      "lead_name": "Fire Cider Make & Take Workshop at Kerby’s Nursery",
+      "source": "thatssotampa",
+      "venue": "Kerby’s Nursery",
+      "address": "2311 S. Parsons Ave.",
+      "city": "Seffner",
+      "zip": "33584",
+      "cost_text": "$60.00",
+      "organizer_url_hints": [
+        "https://shop.kerbysnursery.com/item/3437/Fire-Cider-Make-Take-Workshop-10-17-2026-10-AM?cid=2",
+        "https://www.kerbysnursery.com/"
+      ],
+      "organizer_names": [
+        "Kerby’s Nursery"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-17 10:00:00",
+          "end": "2026-10-17 12:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:holiday-food-box-christmas-toy-registration",
+      "lead_name": "Holiday Food Box & Christmas Toy Registration",
+      "source": "thatssotampa",
+      "venue": "Tampa Bay Mission of Hope",
+      "address": "110 S Parsons Ave",
+      "city": "Brandon",
+      "zip": "33511",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "http://www.tbmissionofhope.org"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-17 10:00:00",
+          "end": "2026-10-17 14:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:saddlebrook-wellness-expo-2",
+      "lead_name": "Saddlebrook Wellness Expo",
+      "source": "thatssotampa",
+      "venue": "Saddlebook Resort",
+      "address": "Saddlebrook way",
+      "city": "Wesley Chapel",
+      "zip": "33543",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://www.facebook.com/events/1595023248904567/?acontext=%7B%22event_action_history%22%3A[%7B%22extra_data%22%3A%22%22%2C%22mechanism%22%3A%22surface%22%2C%22surface%22%3A%22edit_dialog%22%7D%2C%7B%22extra_data%22%3A%22%22%2C%22mechanism%22%3A%22surface%22%2C%22surface%22%3A%22permalink%22%7D%2C%7B%22extra_data%22%3A%22%22%2C%22mechanism%22%3A%22surface%22%2C%22surface%22%3A%22edit_dialog%22%7D]%2C%22ref_notif_type%22%3Anull%7D",
+        "https://www.saddlebrook.com/golf/?utm_source=extnet&utm_medium=yext"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-17 11:00:00",
+          "end": "2026-10-17 15:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:tampa-bay-lightning-vs-vancouver-canucks-2",
+      "lead_name": "Tampa Bay Lightning vs. Vancouver Canucks",
+      "source": "ilovetheburg",
+      "venue": null,
+      "address": null,
+      "city": null,
+      "zip": null,
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.nhl.com/lightning/tickets/single-game-tickets"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-17 16:00:00",
+          "end": "2026-10-17 18:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:tampa-bay-lightning-vs-vancouver-canucks",
+      "lead_name": "Tampa Bay Lightning vs. Vancouver Canucks",
+      "source": "thatssotampa",
+      "venue": "Benchmark International Arena",
+      "address": "401 Channelside Dr",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.nhl.com/lightning/tickets/single-game-tickets",
+        "https://www.benchmarkintlarena.com"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-17 16:00:00",
+          "end": "2026-10-17 16:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:4th-annual-pups-pumpkins-fundraiser",
+      "lead_name": "4th Annual Pups & Pumpkins Fundraiser",
+      "source": "ilovetheburg",
+      "venue": "3 Daughters Brewing – St. Pete",
+      "address": "222 22nd Street S",
+      "city": "St. Petersburg",
+      "zip": "33712",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://www.instagram.com/p/DccOA30nz7I/",
+        "https://www.3dbrewing.com/",
+        "https://safepawsrescue.com/"
+      ],
+      "organizer_names": [
+        "Safe Paws Rescue"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-17 17:00:00",
+          "end": "2026-10-17 20:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:don-and-cristina-williams-a-change-of-seasons-exhibition-opening-reception",
+      "lead_name": "Don and Cristina Williams: A Change of Seasons Exhibition Opening Reception",
+      "source": "ilovetheburg",
+      "venue": "Morean Center for Clay",
+      "address": "420 22nd St S",
+      "city": "St. Petersburg",
+      "zip": null,
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://moreanartscenter.org/exibition/don-williams-change-of-seasons/"
+      ],
+      "organizer_names": [
+        "Morean Center for Clay"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-17 17:00:00",
+          "end": "2026-10-17 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:experience-the-evolution-of-nelson-fisher-gallery",
+      "lead_name": "Experience the Evolution of Nelson Fisher Gallery",
+      "source": "ilovetheburg",
+      "venue": "Nelson Fisher Gallery",
+      "address": "400 23rd St S",
+      "city": "St. Petersburg",
+      "zip": "33712-1254",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://www.nelsonfishergallery.com/about-4",
+        "https://www.nelsonfishergallery.com"
+      ],
+      "organizer_names": [
+        "@NelsonFisherGallery"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-17 17:00:00",
+          "end": "2026-10-17 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:yuengling-oktoberfest",
+      "lead_name": "Yuengling Oktoberfest",
+      "source": "thatssotampa",
+      "venue": "Yuengling Draft Haus & Kitchen",
+      "address": "11109 North 30th St.",
+      "city": "Tampa",
+      "zip": "33612",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://eventvesta.com/events/163856/t/tickets",
+        "https://www.yuengling.com/tampa/"
+      ],
+      "organizer_names": [
+        "Yuengling Draft Haus & Kitchen"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-17 17:00:00",
+          "end": "2026-10-17 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:artist-talk-with-debra-vivi-steinfeld",
+      "lead_name": "Artist Talk with Debra Vivi Steinfeld",
+      "source": "ilovetheburg",
+      "venue": "Brenda McMahon Gallery",
+      "address": "2901 Beach Blvd S #104",
+      "city": "Gulfport",
+      "zip": "33707",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://brendamcmahongallery.com/pages/brenda-mcmahon-gallery-art-events-monthly-first-friday-art-walk-art-fair-art-festival-stpetersburg-gulfport-events#calendar-9a2bdb84-4a0e-4c7a-8ce4-88e3c0e0a9b0-event-84913de4-3750-465f-a2af-4751bef4e4fb",
+        "https://brendamcmahongallery.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-17 18:00:00",
+          "end": "2026-10-17 20:00:00",
+          "all_day": false
+        }
+      ]
+    }
+  ]
+}

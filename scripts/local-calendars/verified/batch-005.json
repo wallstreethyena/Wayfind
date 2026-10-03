@@ -1,0 +1,210 @@
+{
+  "batch": 5,
+  "verified_by": "claude-sonnet",
+  "verified_at": "2026-10-02T12:27:06Z",
+  "publish": [
+    {
+      "year": 2026,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "state": "FL",
+      "select_nights": false,
+      "minimum_age": null,
+      "price_min": 30,
+      "price_max": 30,
+      "is_free": false,
+      "official_ticket_url": "https://checkout.square.site/merchant/67HRSAWVE1DT0/checkout/JLAUIKTRGTQM4RUFQ6N7T35N",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-10-02T12:27:06Z",
+      "end_time": null,
+      "start_time": "14:00",
+      "lead_key": "ilovetheburg:cheesemaking-class",
+      "event_id": "cheese-making-workshop-2026",
+      "event_series_id": "cheese-making-workshop-beech-kombucha",
+      "slug": "cheese-making-workshop-2026",
+      "city": "St. Petersburg",
+      "county": "Pinellas",
+      "category": "food",
+      "subcategory": "class",
+      "tags": [
+        "class",
+        "food",
+        "cheese",
+        "workshop"
+      ],
+      "audience": [
+        "adults",
+        "locals"
+      ],
+      "event_name": "Cheese Making Workshop",
+      "short_title": "Cheese Making Workshop",
+      "start_date": "2026-10-03",
+      "end_date": "2026-10-03",
+      "schedule_note": "Sat Oct 3, two sessions at 2pm and 4pm. Ticket required.",
+      "venue": "Beech Kombucha",
+      "address": "3100 Freemont Terrace South, St. Petersburg, FL 33712",
+      "lat": 27.764196,
+      "lng": -82.67536,
+      "card_hook": "Learn homestead cheese making, maybe yogurt too, from a Gainesville-area farmer. Profits help her buy a new milk cow.",
+      "official_event_url": "https://checkout.square.site/merchant/67HRSAWVE1DT0/checkout/JLAUIKTRGTQM4RUFQ6N7T35N",
+      "source_url": "https://checkout.square.site/merchant/67HRSAWVE1DT0/checkout/JLAUIKTRGTQM4RUFQ6N7T35N",
+      "verify_note": "2026-10-02: Beech Kombucha's own ticket page states classes on October 3 at 2pm and 4pm, $30 ticket; beechbucha.com lists 3100 Freemont Terrace South, St. Petersburg, FL 33712. Audit 2026-10-02: no change."
+    },
+    {
+      "year": 2026,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "state": "FL",
+      "select_nights": false,
+      "minimum_age": null,
+      "price_min": null,
+      "price_max": null,
+      "is_free": true,
+      "official_ticket_url": null,
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-10-02T12:27:06Z",
+      "end_time": "22:00",
+      "start_time": "19:00",
+      "lead_key": "thatssotampa:usf-ice-hockey-vs-university-of-tampa-hockey-battle-for-the-bay",
+      "event_id": "usf-ice-hockey-club-vs-university-of-tampa-hockey-battle-for-the-bay-2026",
+      "event_series_id": "usf-ice-hockey-club-vs-university-of-tampa-hockey-battle-for-the-bay",
+      "slug": "usf-ice-hockey-club-vs-university-of-tampa-hockey-battle-for-the-bay-2026",
+      "city": "Wesley Chapel",
+      "county": "Pasco",
+      "category": "sports",
+      "subcategory": "hockey",
+      "tags": [
+        "hockey",
+        "college",
+        "free",
+        "rivalry"
+      ],
+      "audience": [
+        "families",
+        "sports-fans"
+      ],
+      "event_name": "USF Ice Hockey Club vs. University of Tampa Hockey: Battle for the Bay",
+      "short_title": "Battle for the Bay Hockey",
+      "start_date": "2026-10-03",
+      "end_date": "2026-10-03",
+      "schedule_note": "Sat Oct 3, 7pm to 10pm. Free.",
+      "venue": "AdventHealth Center Ice",
+      "address": "3173 Cypress Ridge Blvd, Wesley Chapel, FL 33544",
+      "lat": 28.194288,
+      "lng": -82.380975,
+      "card_hook": "USF Bulls and University of Tampa face off in a free college hockey rivalry game, the Bulls' first home game of the season.",
+      "official_event_url": "https://ahcenterice.com/event/usf-ice-hockey-club-vs-university-of-tampa-hockey-battle-for-the-bay/",
+      "source_url": "https://ahcenterice.com/event/usf-ice-hockey-club-vs-university-of-tampa-hockey-battle-for-the-bay/",
+      "verify_note": "2026-10-02: AdventHealth Center Ice event page states October 3, 7:00 pm to 10:00 pm, Free, at 3173 Cypress Ridge Blvd. Audit 2026-10-02: no change."
+    },
+    {
+      "year": 2026,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "state": "FL",
+      "select_nights": false,
+      "minimum_age": null,
+      "price_min": null,
+      "price_max": null,
+      "is_free": null,
+      "official_ticket_url": null,
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-10-02T12:27:06Z",
+      "end_time": null,
+      "start_time": "19:30",
+      "lead_key": "ilovetheburg:tampa-bay-rowdies-vs-miami-fc",
+      "event_id": "tampa-bay-rowdies-vs-miami-fc-2026",
+      "event_series_id": "tampa-bay-rowdies-vs-miami-fc",
+      "slug": "tampa-bay-rowdies-vs-miami-fc-2026",
+      "city": "St. Petersburg",
+      "county": "Pinellas",
+      "category": "sports",
+      "subcategory": "soccer",
+      "tags": [
+        "soccer",
+        "rowdies",
+        "usl",
+        "al-lang"
+      ],
+      "audience": [
+        "families",
+        "sports-fans"
+      ],
+      "event_name": "Tampa Bay Rowdies vs. Miami FC",
+      "short_title": "Rowdies vs Miami FC",
+      "start_date": "2026-10-03",
+      "end_date": "2026-10-03",
+      "schedule_note": "Sat Oct 3, 7:30pm kickoff. USL Championship Matchday 27.",
+      "venue": "Al Lang Stadium",
+      "address": "230 1st St S, St. Petersburg, FL 33701",
+      "lat": 27.768115,
+      "lng": -82.633915,
+      "card_hook": "Rowdies host Miami FC at Al Lang Stadium in USL Championship play; first 1,000 fans get a free reusable shopping bag.",
+      "official_event_url": "https://www.rowdiessoccer.com/news/2026/10/01/preview-rowdies-vs-miami-fc-2/",
+      "source_url": "https://www.rowdiessoccer.com/news/2026/10/01/preview-rowdies-vs-miami-fc-2/",
+      "verify_note": "2026-10-02: Rowdies site states USL Championship Matchday 27, Rowdies vs Miami FC, Saturday October 3, 7:30 p.m. ET, Al Lang Stadium; tickets via team (tickets.com). Audit 2026-10-02: removed unstated waterfront claim; hook now cites bag giveaway from the page."
+    }
+  ],
+  "hold": [
+    {
+      "lead_key": "ilovetheburg:%f0%9f%94%a5-phoenix5-is-coming-in-hot-at-whiskey-wings-clearwater-%f0%9f%94%a5",
+      "event_name": "PHOENIX5 at Whiskey Wings Clearwater",
+      "reason": "date conflict: Facebook event says Sat Oct 3 2026, band's own shows page lists Whiskey Wings Oct 3, 2027",
+      "url": "https://phoenix5live.com/upcoming-shows/"
+    },
+    {
+      "lead_key": "ilovetheburg:tampa-bay-lightning-vs-washington-capitals-2",
+      "event_name": "Tampa Bay Lightning vs. Washington Capitals",
+      "reason": "ticketmaster-feed (NHL ticket link is ticketmaster.com); also no venue in lead",
+      "url": "https://www.nhl.com/lightning/tickets/single-game-tickets"
+    },
+    {
+      "lead_key": "thatssotampa:tampa-bay-lightning-vs-washington-capitals",
+      "event_name": "Tampa Bay Lightning vs. Washington Capitals",
+      "reason": "ticketmaster-feed (official ticket link is ticketmaster.com)",
+      "url": "https://www.nhl.com/lightning/tickets/single-game-tickets"
+    },
+    {
+      "lead_key": "ilovetheburg:caamp-live-in-concert",
+      "event_name": "Caamp Live In Concert",
+      "reason": "ticketmaster-feed (ticket link is livenation.com); no organizer page hint",
+      "url": "https://www.livenation.com/event/vvG1VZ_a9uSVRy/caamp"
+    },
+    {
+      "lead_key": "thatssotampa:tampa-bay-rowdies-vs-miami-fc",
+      "event_name": "Tampa Bay Rowdies vs. Miami FC",
+      "reason": "duplicate of ilovetheburg:tampa-bay-rowdies-vs-miami-fc",
+      "url": "https://www.rowdiessoccer.com/news/2026/10/01/preview-rowdies-vs-miami-fc-2/"
+    },
+    {
+      "lead_key": "ilovetheburg:mariachi-el-bronx-2026-fall-tour",
+      "event_name": "Mariachi El Bronx at Jannus Live",
+      "reason": "ticketmaster-feed (Jannus event page Get Tickets goes to ticketmaster.com)",
+      "url": "https://jannuslive.com/events/mariachi-el-bronx/"
+    },
+    {
+      "lead_key": "ilovetheburg:delirium",
+      "event_name": "Delirium (No Sleep)",
+      "reason": "organizer ticket page is script-only and unreadable; venue page found is the 2024 edition, no 2026 date confirmed",
+      "url": "https://theticketing.co/e/deliriumstpete"
+    },
+    {
+      "lead_key": "ilovetheburg:corey-ave-sunday-fresh-market",
+      "event_name": "Corey Ave Sunday Fresh Market",
+      "reason": "no organizer page readable (visitstpeteclearwater blocked, coreyave.com captcha); only a chamber listing with no street address",
+      "url": "https://business.tampabaybeaches.com/list/member/corey-avenue-sunday-market-on-st-pete-beach-17779"
+    },
+    {
+      "lead_key": "ilovetheburg:tampa-bay-rays-american-league-division-series-game-1",
+      "event_name": "Tampa Bay Rays ALDS Home Game 1",
+      "reason": "sold out (Rays postseason page, 2026-10-02)",
+      "url": null
+    }
+  ]
+}

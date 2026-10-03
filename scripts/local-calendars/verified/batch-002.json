@@ -1,0 +1,210 @@
+{
+  "batch": 2,
+  "verified_by": "claude-sonnet",
+  "verified_at": "2026-10-02T12:27:36Z",
+  "publish": [
+    {
+      "year": 2026,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "state": "FL",
+      "select_nights": false,
+      "minimum_age": 18,
+      "price_min": 39.5,
+      "price_max": 69.5,
+      "is_free": false,
+      "official_ticket_url": null,
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-10-02T12:27:36Z",
+      "start_time": "20:00",
+      "end_time": null,
+      "lead_key": "thatssotampa:atsuko-okatsuka-the-big-bowl-tour",
+      "event_id": "atsuko-okatsuka-the-big-bowl-tour-2026",
+      "event_series_id": "atsuko-okatsuka-the-big-bowl-tour",
+      "slug": "atsuko-okatsuka-the-big-bowl-tour-2026",
+      "city": "Tampa",
+      "county": "Hillsborough",
+      "category": "arts",
+      "subcategory": "comedy",
+      "tags": [
+        "comedy",
+        "standup",
+        "indoor",
+        "ages-18-plus"
+      ],
+      "audience": [
+        "adults",
+        "locals"
+      ],
+      "event_name": "Atsuko Okatsuka: The Big Bowl Tour",
+      "short_title": "Atsuko Okatsuka",
+      "start_date": "2026-10-02",
+      "end_date": "2026-10-02",
+      "schedule_note": "Fri Oct 2, doors 7pm, show 8pm. Moved from Tampa Theatre to the Straz Center.",
+      "venue": "Straz Center for the Performing Arts",
+      "address": "1010 N W.C. MacInnes Pl, Tampa, FL 33602",
+      "lat": 27.9516158,
+      "lng": -82.4639851,
+      "card_hook": "Stand-up night with comedian Atsuko Okatsuka, reserved seats, 18 and up.",
+      "official_event_url": "https://tampatheatre.org/live/atsuko-okatsuka-the-big-bowl-tour/",
+      "source_url": "https://tampatheatre.org/live/atsuko-okatsuka-the-big-bowl-tour/",
+      "verify_note": "2026-10-02: Tampa Theatre's own page states Fri Oct 2, doors 7pm, show 8pm, ages 18+, $39.50 to $69.50 plus fees, and that the show moved to the Straz Center. Straz address geocoded via OpenStreetMap; Straz page itself was not readable. Audit 2026-10-02: no change."
+    },
+    {
+      "year": 2026,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "state": "FL",
+      "select_nights": false,
+      "minimum_age": null,
+      "price_min": null,
+      "price_max": null,
+      "is_free": null,
+      "official_ticket_url": "https://www.axs.com/events/1414760/streetlight-manifesto-tickets",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-10-02T12:27:36Z",
+      "start_time": "19:00",
+      "end_time": null,
+      "lead_key": "ilovetheburg:streetlight-manifesto-the-presence-of-the-past-tour",
+      "event_id": "streetlight-manifesto-2026",
+      "event_series_id": "streetlight-manifesto",
+      "slug": "streetlight-manifesto-2026",
+      "city": "St. Petersburg",
+      "county": "Pinellas",
+      "category": "music",
+      "subcategory": "concert",
+      "tags": [
+        "concert",
+        "ska",
+        "outdoor",
+        "standing-room"
+      ],
+      "audience": [
+        "adults",
+        "locals"
+      ],
+      "event_name": "Streetlight Manifesto",
+      "short_title": "Streetlight Manifesto",
+      "start_date": "2026-10-02",
+      "end_date": "2026-10-02",
+      "schedule_note": "Fri Oct 2, 7pm listed on the venue page. Outdoor, standing room only.",
+      "venue": "Jannus Live",
+      "address": "200 1st Ave N, St. Petersburg, FL 33701",
+      "lat": 27.772064,
+      "lng": -82.635586,
+      "card_hook": "Seven-piece band with a horn-heavy sound plays Jannus Live, an outdoor, standing room only venue.",
+      "official_event_url": "https://jannuslive.com/events/streetlight-manifesto/",
+      "source_url": "https://jannuslive.com/events/streetlight-manifesto/",
+      "verify_note": "2026-10-02: Jannus Live event page states Friday 02 Oct, 07:00PM, tickets via AXS. Price not stated. Audit 2026-10-02: removed 'ska punk' and 'downtown', not on page."
+    },
+    {
+      "year": 2026,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "state": "FL",
+      "select_nights": false,
+      "minimum_age": null,
+      "price_min": null,
+      "price_max": null,
+      "is_free": null,
+      "official_ticket_url": "https://fareharbor.com/embeds/book/floridarama/items/756803/calendar/?flow=1438415&full-items=yes",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-10-02T12:27:36Z",
+      "start_time": null,
+      "end_time": null,
+      "lead_key": "ilovetheburg:relics-lore-a-radley-experience-opening-weekend",
+      "event_id": "relics-and-lore-a-radley-experience-2026",
+      "event_series_id": "relics-and-lore-a-radley-experience",
+      "slug": "relics-and-lore-a-radley-experience-2026",
+      "city": "St. Petersburg",
+      "county": "Pinellas",
+      "category": "arts",
+      "subcategory": "immersive-experience",
+      "tags": [
+        "immersive",
+        "art",
+        "paranormal",
+        "indoor"
+      ],
+      "audience": [
+        "adults",
+        "locals"
+      ],
+      "event_name": "Relics & Lore: A Radley Experience",
+      "short_title": "Relics and Lore",
+      "start_date": "2026-10-03",
+      "end_date": "2026-11-02",
+      "schedule_note": "Opens Sat Oct 3 and runs through Mon Nov 2. Included with general admission. Rated PG-13.",
+      "venue": "FloridaRAMA",
+      "address": "2606 Fairfield Ave S Bldg 5, St. Petersburg, FL 33712",
+      "lat": 27.763707,
+      "lng": -82.669225,
+      "card_hook": "An immersive PG-13 paranormal experience mixing local art, Victorian Gothic looks and theatrical effects, included with general admission.",
+      "official_event_url": "https://www.floridarama.art/events/relics-lore-a-radley-experience/",
+      "source_url": "https://www.floridarama.art/events/relics-lore-a-radley-experience/",
+      "verify_note": "2026-10-02: FloridaRAMA page states Oct 3 2026 10:00am through Nov 2 2026, included with General Admission, PG-13. Audit 2026-10-02: removed 'walk-through', reworded to page text."
+    }
+  ],
+  "hold": [
+    {
+      "lead_key": "ilovetheburg:popcorn-punchlines-the-beach-theatre-standup-comedy-show-2",
+      "event_name": "Popcorn & Punchlines: The Beach Theatre Standup Comedy Show",
+      "reason": "Organizer pages unreadable (Etix blocked, Beach Theatre showtimes load by script); only a local newspaper listing seen, so no organizer-confirmed Oct 2 date",
+      "url": "https://www.thebeachtheatre.org/"
+    },
+    {
+      "lead_key": "thatssotampa:tchaikovskys-1812-overture",
+      "event_name": "Tchaikovsky's 1812 Overture",
+      "reason": "duplicate of ilovetheburg:tchaikovskys-1812-overture",
+      "url": "https://floridaorchestra.org/event/tchaikovskys-1812-overture/"
+    },
+    {
+      "lead_key": "thatssotampa:los-tigres-del-norte-la-loteria-tour-2",
+      "event_name": "Los Tigres del Norte",
+      "reason": "ticketmaster-feed",
+      "url": "https://www.benchmarkintlarena.com/event/lostigres-2026/"
+    },
+    {
+      "lead_key": "ilovetheburg:taste-of-the-beaches-2026",
+      "event_name": "Taste of the Beaches 2026",
+      "reason": "Organizer confirms Oct 3 to 11 but it happens at many restaurants, no single street address or coordinates for the event",
+      "url": "https://www.tampabaybeaches.com/taste/"
+    },
+    {
+      "lead_key": "thatssotampa:relics-lore-a-radley-experience-opening-weekend",
+      "event_name": "Relics & Lore: A Radley Experience",
+      "reason": "duplicate of ilovetheburg:relics-lore-a-radley-experience-opening-weekend",
+      "url": "https://www.floridarama.art/events/relics-lore-a-radley-experience/"
+    },
+    {
+      "lead_key": "thatssotampa:serve-for-strength-charity-tournament",
+      "event_name": "Serve For Strength Charity Tournament",
+      "reason": "Charity pickleball tournament for registered players, registration closed, Saturday is at a different venue (Lutz) than the lead's Saddlebrook",
+      "url": "https://serveforstrength.org/"
+    },
+    {
+      "lead_key": "thatssotampa:tampa-bay-rays-american-league-division-series-game-1",
+      "event_name": "Tampa Bay Rays ALDS Game 1",
+      "reason": "ticketmaster-feed; organizer page also shows no confirmed ALDS Game 1 date",
+      "url": "https://www.mlb.com/rays/tickets/postseason"
+    },
+    {
+      "lead_key": "ilovetheburg:tchaikovskys-1812-overture",
+      "event_name": "Tchaikovsky's 1812 Overture",
+      "reason": "ticketmaster-feed (Florida Orchestra page: Mahaffey performances sold through Ticketmaster; found by independent QA)",
+      "url": null
+    },
+    {
+      "lead_key": "ilovetheburg:duo-date-nite-live-comedy-improv",
+      "event_name": "Duo Date Nite: Comedy for You and Your Boo",
+      "reason": "organizer ticket page shows no show dates and lists $15 plus fees, not $16.05, so dates and price cannot be confirmed",
+      "url": "https://spitfirecomedy.vbotickets.com/event/duo_date_nite_comedy_for_you_and_your_boo/190631"
+    }
+  ]
+}

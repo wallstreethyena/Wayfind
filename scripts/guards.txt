@@ -1907,6 +1907,13 @@ node scripts/test-live-poster-art.mjs
 # published.json names only verified rows. Hermetic.
 node scripts/check-florida-festivals-import.mjs
 
+# Local media calendar import (2026-10-02, docs/LOCAL_CALENDARS_IMPORT.md):
+# leads keep facts only (no copy, images, emails, phones); rows never cite the
+# lead calendar or a reseller; the city-calendar same-event rule keeps real
+# duplicates and refuses town-name / season-word false matches; every verified
+# batch answers every queued series; published.json names only verified rows.
+node scripts/check-local-calendars-import.mjs
+
 # Shared category teardrops: real legend render and browser sprite geometry.
 node scripts/test-map-pin-standard.mjs
 

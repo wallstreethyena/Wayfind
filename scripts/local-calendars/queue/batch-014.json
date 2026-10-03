@@ -1,0 +1,335 @@
+{
+  "batch": 14,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "thatssotampa:vintage-market-days-of-greater-tampa-timeless-traditions",
+      "lead_name": "Vintage Market Days® of Greater Tampa: “Timeless Traditions”",
+      "source": "thatssotampa",
+      "venue": "Florida Strawberry Festival",
+      "address": "303 BerryFest Place",
+      "city": "Plant City",
+      "zip": "33563",
+      "cost_text": "$12",
+      "organizer_url_hints": [
+        "https://www.vintagemarketdays.com/market/metro-tampa/index.php"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-10-16 10:00:00",
+          "end": "2026-10-16 16:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-10-17 10:00:00",
+          "end": "2026-10-17 16:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-10-18 11:00:00",
+          "end": "2026-10-18 15:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:pairing-with-pros-beer-food-pairing-cookbook-release-party-at-green-bench-brewing",
+      "lead_name": "Pairing with Pros: Beer & Food Pairing Cookbook Release Party at Green Bench Brewing",
+      "source": "ilovetheburg",
+      "venue": "Webb’s City Cellar by Green Bench Brewery",
+      "address": "1133 Baum Ave N",
+      "city": "St. Petersburg",
+      "zip": "33705",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.facebook.com/share/1L3rJMAjFH/",
+        "https://pairingwithpros.com"
+      ],
+      "organizer_names": [
+        "Author Barry Elwonger"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-16 17:00:00",
+          "end": "2026-10-16 20:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:pattern-and-pause-meet-the-artists-event",
+      "lead_name": "Pattern and Pause: Meet the Artists Event",
+      "source": "ilovetheburg",
+      "venue": "Chihuly Collection",
+      "address": "720 Central Avenue",
+      "city": "Saint Petersburg",
+      "zip": "33701",
+      "cost_text": "$25",
+      "organizer_url_hints": [
+        "https://moreanartscenter.org/exibition/pattern-pause-matthew-szidik-kailey-carleton-and-kimberly-fahey/",
+        "https://moreanartscenter.org/chihuly-collection-location/",
+        "http://www.moreanartscenter.org/"
+      ],
+      "organizer_names": [
+        "Morean Arts Center"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-16 18:00:00",
+          "end": "2026-10-16 20:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:pee-pas-garage-craft-brewery-halloween-party-2",
+      "lead_name": "Pee-pa’s Garage Craft Brewery Halloween Party",
+      "source": "ilovetheburg",
+      "venue": "Pee-pa’s Garage Craft Brewery",
+      "address": "6340 49 Street N",
+      "city": "Pinellas Park",
+      "zip": "33781",
+      "cost_text": "free",
+      "organizer_url_hints": [
+        "https://www.peepasgaragecraftbrewery.com/",
+        "https://www.peepasgaragecraftbrewery.com/events"
+      ],
+      "organizer_names": [
+        "Pee-pa’s Garage Craft Brewery"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-16 18:00:00",
+          "end": "2026-10-16 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:rhythm-hues-an-alleyway-art-show",
+      "lead_name": "Rhythm & Hues: An Alleyway Art Show",
+      "source": "thatssotampa",
+      "venue": "Rialto Theatre",
+      "address": "1617 N Franklin St",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://www.tampasdowntown.com/events/rhythm-hues-alleyway-art-show/",
+        "https://rialtotampa.com/",
+        "https://www.tampasdowntown.com/"
+      ],
+      "organizer_names": [
+        "Tampa Downtown Partnership"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-16 18:00:00",
+          "end": "2026-10-16 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:dishes-wishes-make-a-wish-southern-florida",
+      "lead_name": "Dishes & Wishes | Make-A-Wish Southern Florida",
+      "source": "thatssotampa",
+      "venue": "Armature Works",
+      "address": "1910 North Ola Avenue",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": "$150",
+      "organizer_url_hints": [
+        "https://wish.org/sfla"
+      ],
+      "organizer_names": [
+        "Make-A-Wish® Southern Florida"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-16 19:00:00",
+          "end": "2026-10-16 23:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:the-bat-a-fully-improvised-comedy-show-performed-in-complete-darkness",
+      "lead_name": "The Bat: A Fully Improvised Comedy Show Performed in Complete Darkness",
+      "source": "ilovetheburg",
+      "venue": "Spitfire Comedy House",
+      "address": "1920 1st Ave South",
+      "city": "Saint Petersburg",
+      "zip": "33713",
+      "cost_text": "$20",
+      "organizer_url_hints": [
+        "http://spitfirecomedy.vbotickets.com/event/spitfire_presents_bat_-_an_improv_show_entirely_in_the_dark/204106",
+        "https://spitfirecomedy.com/"
+      ],
+      "organizer_names": [
+        "@spitfirecomedyhouse"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-16 19:00:00",
+          "end": "2026-10-16 20:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:bassem-youssef-belly-of-the-beast-tour",
+      "lead_name": "Bassem Youssef: Belly of the Beast Tour",
+      "source": "thatssotampa",
+      "venue": "Tampa Theatre",
+      "address": null,
+      "city": null,
+      "zip": null,
+      "cost_text": "$49.50 – $89.50",
+      "organizer_url_hints": [
+        "https://www.etix.com/ticket/p/48721456/bassem-youssefthe-belly-of-the-beast-tour-tampa-historic-duncan-auditorium?partner_id=8717",
+        "https://tampatheatre.org"
+      ],
+      "organizer_names": [
+        "Tampa Theatre"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-16 19:30:00",
+          "end": "2026-10-16 21:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:bat-boy-the-musical",
+      "lead_name": "Bat Boy: The Musical",
+      "source": "thatssotampa",
+      "venue": "Carrollwood Cultural Center",
+      "address": "4537 Lowell Rd",
+      "city": "Tampa",
+      "zip": "33618",
+      "cost_text": "$35.00",
+      "organizer_url_hints": [
+        "https://eventvesta.com/events/163191/t/tickets"
+      ],
+      "organizer_names": [
+        "Carrollwood Cultural Center"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-16 20:00:00",
+          "end": "2026-10-16 22:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:titan-vitality-grand-opening-celebration",
+      "lead_name": "Titan Vitality Grand Opening Celebration",
+      "source": "ilovetheburg",
+      "venue": "Titan Vitality",
+      "address": "1510 4th St. North",
+      "city": "St. Petersburg",
+      "zip": "33704",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://eventvesta.com/events/159316/t/tickets"
+      ],
+      "organizer_names": [
+        "Titan Vitality"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-17 07:30:00",
+          "end": "2026-10-17 12:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:bubble-run-tampa",
+      "lead_name": "Bubble Run – Tampa",
+      "source": "thatssotampa",
+      "venue": "Florida State Fairgrounds",
+      "address": "4800 US-301",
+      "city": "Tampa",
+      "zip": null,
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://eventvesta.com/events/160155/t/tickets"
+      ],
+      "organizer_names": [
+        "Bubble RUN"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-17 08:00:00",
+          "end": "2026-10-17 11:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:gulf-coast-bike-trek-2",
+      "lead_name": "Gulf Coast Bike Trek",
+      "source": "ilovetheburg",
+      "venue": "John R. Lawrence Pioneer Park",
+      "address": "420 Main St.",
+      "city": "Dunedin",
+      "zip": "34698",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://action.lung.org/site/TR?fr_id=23558&pg=entry"
+      ],
+      "organizer_names": [
+        "American Lung Association"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-17 08:00:00",
+          "end": "2026-10-17 12:00:00",
+          "all_day": false
+        }
+      ]
+    }
+  ]
+}

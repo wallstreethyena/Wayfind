@@ -1,0 +1,316 @@
+{
+  "batch": 27,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "ilovetheburg:38th-annual-tarpon-springs-seafood-festival",
+      "lead_name": "38th Annual Tarpon Springs Seafood Festival",
+      "source": "ilovetheburg",
+      "venue": "Tarpon Springs Sponge Docks",
+      "address": "735 Dodecanese Blvd",
+      "city": "Tarpon Springs",
+      "zip": "34689",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://www.sikpromotions.com/"
+      ],
+      "organizer_names": [
+        "SIK Promotions"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-11-07 10:00:00",
+          "end": "2026-11-07 21:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-11-08 10:00:00",
+          "end": "2026-11-08 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:boyd-hill-backyard-plant-giveaway",
+      "lead_name": "Boyd Hill Backyard Plant Giveaway",
+      "source": "ilovetheburg",
+      "venue": "3010 31st st south",
+      "address": "3010 31st south",
+      "city": "St. Petersburg",
+      "zip": "33707-2344",
+      "cost_text": "Free",
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-07 10:00:00",
+          "end": "2026-11-07 15:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:mezzo-market",
+      "lead_name": "Mezzo Market",
+      "source": "thatssotampa",
+      "venue": "The Lot at Willa’s",
+      "address": "1700 W Fig St",
+      "city": "Tampa",
+      "zip": "33606",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://mezzomarket.co",
+        "https://www.seltzerland.com/"
+      ],
+      "organizer_names": [
+        "Mezzo Market LLC"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-07 10:00:00",
+          "end": "2026-11-07 15:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:mellenheads",
+      "lead_name": "Mellenheads",
+      "source": "ilovetheburg",
+      "venue": "The Ale and the Witch",
+      "address": "111 2nd Ave NE",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": "Free",
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-07 16:30:00",
+          "end": "2026-11-07 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:central-florida-food-fest",
+      "lead_name": "Central Florida Food Fest",
+      "source": "thatssotampa",
+      "venue": "Bonnet Springs Park",
+      "address": "400 Bonnet Springs Blvd.",
+      "city": "Lakeland",
+      "zip": "33815",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://centralfloridafoodfest.com/",
+        "https://bonnetspringspark.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-07 17:00:00",
+          "end": "2026-11-07 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:ed-sheeran-live-in-tampa-loop-2026-tour",
+      "lead_name": "Ed Sheeran Live In Tampa – LOOP 2026 Tour",
+      "source": "thatssotampa",
+      "venue": "Raymond James Stadium",
+      "address": "4201 N Dale Mabry Hwy",
+      "city": "Tampa",
+      "zip": "33607",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://secure.acsevents.org/site/TR?fr_id=109431&pg=informational&sid=212807&name=event-details"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-07 17:30:00",
+          "end": "2026-11-07 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:history-in-a-bottle-wine-with-a-twist-of-history",
+      "lead_name": "“History in a Bottle – Wine with a Twist of History “",
+      "source": "ilovetheburg",
+      "venue": "Saint Petersburg Museum of History",
+      "address": "335 2nd Avenue NE, St. Petersburg, FL 33701",
+      "city": "saint petersburg",
+      "zip": "33701",
+      "cost_text": "$90",
+      "organizer_url_hints": [
+        "http://historystpete.org/events",
+        "https://spmoh.com/event/historic-boat-tour-51/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-07 18:00:00",
+          "end": "2026-11-07 20:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:breakthrough-t1d-tampa-dream-gala-2026",
+      "lead_name": "Breakthrough T1D Tampa Dream Gala 2026",
+      "source": "thatssotampa",
+      "venue": "Tampa Hilton Downtown",
+      "address": "211 N Tampa St.",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.breakthrought1d.org/northerngulfcoastfl/events/breakthrough-t1d-tampa-dream-gala-2026/",
+        "https://www.breakthrought1d.org/northernflorida/"
+      ],
+      "organizer_names": [
+        "Breakthrough T1D"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-07 18:00:00",
+          "end": "2026-11-07 23:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:4th-annual-viva-speakeasy-soiree",
+      "lead_name": "4th Annual ¡VIVA! Speakeasy Soirée",
+      "source": "thatssotampa",
+      "venue": "JC Newman Cigar Company",
+      "address": "2701 N. 16th St.",
+      "city": "Tampa",
+      "zip": "33605",
+      "cost_text": "$35 – $250",
+      "organizer_url_hints": [
+        "https://lp.constantcontactpages.com/ev/reg/9zgttkd/lp/e99a3603-d528-4810-9574-6ee202a5be2d",
+        "https://www.ybormuseum.org/events-programs",
+        "https://www.ybormuseum.org/"
+      ],
+      "organizer_names": [
+        "Ybor City Museum Society"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-07 18:30:00",
+          "end": "2026-11-07 22:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:matt-mccusker-the-healing-frequency-tour",
+      "lead_name": "Matt McCusker: The Healing Frequency Tour",
+      "source": "thatssotampa",
+      "venue": "Tampa Theatre",
+      "address": null,
+      "city": null,
+      "zip": null,
+      "cost_text": "$35.75 – $55.75",
+      "organizer_url_hints": [
+        "https://www.etix.com/ticket/p/51681160/matt-mccusker-tampa-historic-duncan-auditorium?partner_id=8717",
+        "https://tampatheatre.org"
+      ],
+      "organizer_names": [
+        "Tampa Theatre"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-07 19:00:00",
+          "end": "2026-11-07 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:tribal-burn-pirate-seize-the-night",
+      "lead_name": "Tribal Burn: Pirate Seize the Night",
+      "source": "ilovetheburg",
+      "venue": "Sacred Lands",
+      "address": "1700 Park St. N",
+      "city": "St. Petersburg",
+      "zip": "33710",
+      "cost_text": "$30 – $50",
+      "organizer_url_hints": [
+        "https://www.zeffy.com/en-US/ticketing/tribal-burn-pirate-adventures",
+        "https://hip-expressions.com"
+      ],
+      "organizer_names": [
+        "Hip Expressions Belly Dance Studio"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-07 20:00:00",
+          "end": "2026-11-07 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:wednesday-mannequin-pussy-the-bitch-cabal-tour",
+      "lead_name": "Wednesday & Mannequin Pussy – The Bitch Cabal Tour",
+      "source": "ilovetheburg",
+      "venue": "Jannus Live",
+      "address": "200 1st Ave N STE 206",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.jannuslive.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-07 20:00:00",
+          "end": "2026-11-07 23:00:00",
+          "all_day": false
+        }
+      ]
+    }
+  ]
+}

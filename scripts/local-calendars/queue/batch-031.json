@@ -1,0 +1,310 @@
+{
+  "batch": 31,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "thatssotampa:soldiers-lens-gallery-walk-show-share",
+      "lead_name": "Soldier’s Lens Gallery Walk Show & Share",
+      "source": "thatssotampa",
+      "venue": "Florida Museum of Photographic Arts",
+      "address": "1630 E 7th Avenue",
+      "city": "Tampa",
+      "zip": null,
+      "cost_text": "$12.00",
+      "organizer_url_hints": [
+        "https://lp.constantcontactpages.com/ev/reg/547gcxe",
+        "https://www.fmopa.org/"
+      ],
+      "organizer_names": [
+        "Florida Museum of Photographic Arts"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-15 14:00:00",
+          "end": "2026-11-15 16:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:the-wrecks-finally-outside-tour",
+      "lead_name": "The Wrecks – Finally : OUTSIDE Tour",
+      "source": "ilovetheburg",
+      "venue": "Jannus Live",
+      "address": "200 1st Ave N STE 206",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.jannuslive.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-15 18:00:00",
+          "end": "2026-11-15 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:periphery-a-pale-white-dot-north-america-tour",
+      "lead_name": "Periphery – A Pale White Dot North America Tour",
+      "source": "ilovetheburg",
+      "venue": "Jannus Live",
+      "address": "200 1st Ave N STE 206",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.jannuslive.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-16 18:30:00",
+          "end": "2026-11-16 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:figure-drawing-study-4",
+      "lead_name": "Figure Drawing Study",
+      "source": "thatssotampa",
+      "venue": "Tampa Museum of Art",
+      "address": "120 W Gasparilla Plaza",
+      "city": "St. Petersburg",
+      "zip": "33602",
+      "cost_text": "$45",
+      "organizer_url_hints": [
+        "https://shop.tampamuseum.org/products/figure-drawing-study-3?_gl=1*gi9nud*_gcl_au*NjQwODQ0MzE4LjE3ODExMTg4MDA",
+        "https://tampamuseum.org/",
+        "https://tampamuseum.org/event/pride-passion-2024/"
+      ],
+      "organizer_names": [
+        "Tampa Museum of Art"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-17 18:00:00",
+          "end": "2026-11-17 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:chrissy-chlapecka",
+      "lead_name": "Chrissy Chlapecka",
+      "source": "thatssotampa",
+      "venue": "New World Brewery",
+      "address": "810 E Skagway Ave",
+      "city": "Tampa",
+      "zip": "33604",
+      "cost_text": "$25",
+      "organizer_url_hints": [
+        "https://chrissy26.eventbrite.com",
+        "https://aestheticized.com/"
+      ],
+      "organizer_names": [
+        "Aestheticized Presents >>>"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-17 19:00:00",
+          "end": "2026-11-17 23:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:tampa-bay-lightning-vs-washington-capitals-3",
+      "lead_name": "Tampa Bay Lightning vs. Washington Capitals",
+      "source": "ilovetheburg",
+      "venue": null,
+      "address": null,
+      "city": null,
+      "zip": null,
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.nhl.com/lightning/tickets/single-game-tickets"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-17 19:30:00",
+          "end": "2026-11-17 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:tampa-bay-lightning-vs-washington-capitals-2",
+      "lead_name": "Tampa Bay Lightning vs. Washington Capitals",
+      "source": "thatssotampa",
+      "venue": "Benchmark International Arena",
+      "address": "401 Channelside Dr",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.nhl.com/lightning/tickets/single-game-tickets",
+        "https://www.benchmarkintlarena.com"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-17 19:30:00",
+          "end": "2026-11-17 19:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:dante-gebel-presidante-world-tour-despedida",
+      "lead_name": "Dante Gebel – PresiDante: World Tour Despedida",
+      "source": "thatssotampa",
+      "venue": "Seminole Hard Rock Tampa Event Center",
+      "address": "5223 Orient Rd",
+      "city": "Tampa",
+      "zip": "33610",
+      "cost_text": null,
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-17 20:00:00",
+          "end": "2026-11-17 23:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:opening-day-of-our-101st-live-thoroughbred-racing-meet",
+      "lead_name": "Opening Day of our 101st Live Thoroughbred Racing Meet",
+      "source": "thatssotampa",
+      "venue": "Tampa Bay Downs",
+      "address": "10327 Race Track Road",
+      "city": "Oldsmar",
+      "zip": null,
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://www.tampabaydowns.com"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-18 11:00:00",
+          "end": "2026-11-18 17:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:tampa-bay-downs-opening-day",
+      "lead_name": "Tampa Bay Downs Opening Day",
+      "source": "thatssotampa",
+      "venue": "Tampa Bay Downs",
+      "address": "10327 Race Track Road",
+      "city": "Oldsmar",
+      "zip": null,
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://www.tampabaydowns.com/racing-calendar/",
+        "https://www.tampabaydowns.com"
+      ],
+      "organizer_names": [
+        "Tampa Bay Downs"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-18 11:00:00",
+          "end": "2026-11-18 17:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:the-revivalists-get-it-honest-tour",
+      "lead_name": "The Revivalists – Get It Honest Tour",
+      "source": "ilovetheburg",
+      "venue": "Jannus Live",
+      "address": "200 1st Ave N STE 206",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.jannuslive.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-18 18:00:00",
+          "end": "2026-11-18 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:blade-runner-live",
+      "lead_name": "Blade Runner Live",
+      "source": "thatssotampa",
+      "venue": "Tampa Theatre",
+      "address": null,
+      "city": null,
+      "zip": null,
+      "cost_text": "$29.50 – $99.50",
+      "organizer_url_hints": [
+        "https://www.etix.com/ticket/p/56592309/blade-runner-live-tampa-historic-duncan-auditorium?partner_id=8717",
+        "https://tampatheatre.org"
+      ],
+      "organizer_names": [
+        "Tampa Theatre"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-18 20:00:00",
+          "end": "2026-11-18 23:00:00",
+          "all_day": false
+        }
+      ]
+    }
+  ]
+}

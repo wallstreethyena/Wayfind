@@ -1,0 +1,306 @@
+{
+  "batch": 32,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "thatssotampa:book-club-fourteenth-colony-the-forgotten-story-of-the-gulf-south-during-americas-revolutionary-era-by-mike-bunn",
+      "lead_name": "Book Club: “Fourteenth Colony: The Forgotten Story of the Gulf South During America’s Revolutionary Era” by Mike Bunn",
+      "source": "thatssotampa",
+      "venue": "Tampa Bay History Center",
+      "address": "801 Water Street",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://tampabayhistorycenter.org/event/book-club-fourteenth-colony-the-forgotten-story-of-the-gulf-south-during-americas-revolutionary-era-by-mike-bunn/"
+      ],
+      "organizer_names": [
+        "Tampa Bay History Center"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-19 10:30:00",
+          "end": "2026-11-19 11:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:tampa-bay-lightning-vs-edmonton-oilers-2",
+      "lead_name": "Tampa Bay Lightning vs. Edmonton Oilers",
+      "source": "ilovetheburg",
+      "venue": null,
+      "address": null,
+      "city": null,
+      "zip": null,
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.nhl.com/lightning/tickets/single-game-tickets"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-19 19:30:00",
+          "end": "2026-11-19 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:tampa-bay-lightning-vs-edmonton-oilers",
+      "lead_name": "Tampa Bay Lightning vs. Edmonton Oilers",
+      "source": "thatssotampa",
+      "venue": "Benchmark International Arena",
+      "address": "401 Channelside Dr",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.nhl.com/lightning/tickets/single-game-tickets",
+        "https://www.benchmarkintlarena.com"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-19 19:30:00",
+          "end": "2026-11-19 19:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:jonathan-van-ness-hot-healed-comedy-tour",
+      "lead_name": "Jonathan Van Ness – Hot & Healed Comedy Tour",
+      "source": "thatssotampa",
+      "venue": "Seminole Hard Rock Tampa Event Center",
+      "address": "5223 Orient Rd",
+      "city": "Tampa",
+      "zip": "33610",
+      "cost_text": null,
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-19 20:00:00",
+          "end": "2026-11-19 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:city-of-south-pasadena-holiday-tree-lighting-2",
+      "lead_name": "City of South Pasadena Holiday Tree Lighting",
+      "source": "ilovetheburg",
+      "venue": "Maynard A Duryea Bay View Park",
+      "address": "7054 Sunset Dr S",
+      "city": "South Pasadena",
+      "zip": "33707",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://www.facebook.com/events/1024047770247326/",
+        "https://www.mysouthpasadena.com/"
+      ],
+      "organizer_names": [
+        "City of South Pasadena"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-20 18:30:00",
+          "end": "2026-11-20 20:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:a-magical-cirque-christmas",
+      "lead_name": "A Magical Cirque Christmas",
+      "source": "ilovetheburg",
+      "venue": "Duke Energy Center for the Arts – Mahaffey Theater",
+      "address": "400 1st St S",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-20 20:00:00",
+          "end": "2026-11-20 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:leslie-jones-im-hot-tour",
+      "lead_name": "Leslie Jones: I’m Hot Tour",
+      "source": "thatssotampa",
+      "venue": "Tampa Theatre",
+      "address": null,
+      "city": null,
+      "zip": null,
+      "cost_text": "$40 – $70",
+      "organizer_url_hints": [
+        "https://www.etix.com/ticket/p/48941316/leslie-jonesim-hot-tour-tampa-historic-duncan-auditorium?partner_id=8717",
+        "https://tampatheatre.org"
+      ],
+      "organizer_names": [
+        "Tampa Theatre"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-20 20:00:00",
+          "end": "2026-11-20 23:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:the-early-elf-art-market-2",
+      "lead_name": "The Early Elf Art Market",
+      "source": "ilovetheburg",
+      "venue": "Downtown Tarpon Springs",
+      "address": "Tarpon Ave & ALT 19",
+      "city": "Tarpon Springs",
+      "zip": null,
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://www.facebook.com/SIKpromotions/events",
+        "https://www.sikpromotions.com/",
+        "https://sikpromotions.com/applicants/fall/the-early-elf-art-market"
+      ],
+      "organizer_names": [
+        "SIK Promotions",
+        "Tarpon Springs Chamber of Commerce"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-21 02:00:00",
+          "end": "2026-11-22 01:59:59",
+          "all_day": true
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:spafford-2026-tour",
+      "lead_name": "Spafford – 2026 Tour",
+      "source": "ilovetheburg",
+      "venue": "Jannus Live",
+      "address": "200 1st Ave N STE 206",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.jannuslive.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-21 19:00:00",
+          "end": "2026-11-21 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:spafford-southeast-tour",
+      "lead_name": "Spafford – Southeast Tour",
+      "source": "ilovetheburg",
+      "venue": "Jannus Live",
+      "address": "200 1st Ave N STE 206",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.jannuslive.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-21 19:00:00",
+          "end": "2026-11-21 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:tampa-bay-lightning-vs-buffalo-sabres-2",
+      "lead_name": "Tampa Bay Lightning vs. Buffalo Sabres",
+      "source": "ilovetheburg",
+      "venue": null,
+      "address": null,
+      "city": null,
+      "zip": null,
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.nhl.com/lightning/tickets/single-game-tickets"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-22 17:00:00",
+          "end": "2026-11-22 19:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:tampa-bay-lightning-vs-buffalo-sabres",
+      "lead_name": "Tampa Bay Lightning vs. Buffalo Sabres",
+      "source": "thatssotampa",
+      "venue": "Benchmark International Arena",
+      "address": "401 Channelside Dr",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.nhl.com/lightning/tickets/single-game-tickets",
+        "https://www.benchmarkintlarena.com"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-22 17:00:00",
+          "end": "2026-11-22 17:00:00",
+          "all_day": false
+        }
+      ]
+    }
+  ]
+}
