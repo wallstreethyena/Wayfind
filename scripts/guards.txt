@@ -47,6 +47,7 @@ npm run check:photos
 node scripts/check-landing-photos.mjs
 node scripts/test-landing-card-photo.mjs
 node scripts/test-landing-why-fits.mjs
+node scripts/test-landing-card-cue.mjs
 node scripts/test-score-band.mjs
 node scripts/test-business-status.mjs
 node scripts/test-closed-policy.mjs

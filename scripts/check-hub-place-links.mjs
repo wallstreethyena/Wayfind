@@ -97,7 +97,13 @@ const SURFACES = [
     formerly: "lib/landing.js",
     callPattern: /selectEligiblePlaceLinks\(list,\s*eligiblePlaceIds\)/,
     emptyPattern: /if \(!navIds\.length\) return null;/,
-    cardHref: 'href={"/?q=" + encodeURIComponent(p.name || "")}',
+    // 2026-10-01 (owner, /nightlife/parrish): the ranked card now opens the
+    // full place detail (/p/{id}) where the Wayfind editorial lives, through
+    // the tested lib/placeCardRoute.js landingCardHref. Until that is on
+    // origin/main, section 4 accepts the previous expression there. FOLLOW-UP:
+    // drop cardHrefPrev once #1624 is on main so section 4 is a real diff again.
+    cardHref: "href={landingCardHref(p)}",
+    cardHrefPrev: 'href={"/?q=" + encodeURIComponent(p.name || "")}',
   },
   {
     file: "app/florida/[town]/page.js",
@@ -147,7 +153,7 @@ if (!mainReadable) {
     const mainSrc = gitShow("origin/main", s.file) ?? (s.formerly ? gitShow("origin/main", s.formerly) : null);
     ok(mainSrc !== null, `origin/main has a copy of ${s.file}${s.formerly ? ` (or its former home ${s.formerly})` : ""} to diff the card href against`);
     if (mainSrc == null) continue;
-    ok(mainSrc.includes(s.cardHref),
+    ok(mainSrc.includes(s.cardHref) || (s.cardHrefPrev && mainSrc.includes(s.cardHrefPrev)),
       `origin/main's ${s.file} already contains this exact card href expression (so the assertion above is a real diff, not a coincidence): ${s.cardHref}`);
   }
 }
