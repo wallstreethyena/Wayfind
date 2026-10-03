@@ -127,7 +127,9 @@ export default function PlacePhotoContribution({ place, user, authReady = false,
         });
       }
 
-      const { error: insertError } = await supabase.from("wf_user_media").insert(rows);
+      // Signed-in only (gated above): the RLS policy wf_user_media_insert is
+      // `authenticated` with user_id = auth.uid(), so the identity rides on the write itself.
+      const { error: insertError } = await supabase.from("wf_user_media").insert(rows.map((r) => ({ ...r, user_id: user.id })));
       if (insertError) throw new Error(insertError.message || "Submission failed");
 
       setFiles([]);

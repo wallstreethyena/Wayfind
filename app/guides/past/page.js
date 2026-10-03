@@ -1,5 +1,6 @@
 import ReturnToWayfind from "../../components/ReturnToWayfind";
 import ShareButton from "../../components/ShareButton";
+import PhotoCreditLink from "../../components/PhotoCreditLink";
 // Past guides (owner, 2026-09-23): guides for events that already happened, or
 // dated editions that will not come back, are kept here instead of crowding
 // the live /guides hub. Every article URL stays live; this page only changes
@@ -82,7 +83,7 @@ export default function PastGuides() {
                   <p className={styles.credit}>
                     {art.credit ? <a href={art.source}>Image: {art.credit}</a> : null}
                     {art.credit && art.license ? " · " : ""}
-                    {art.license ? <a href={art.licenseUrl || art.source}>{art.license}</a> : null}
+                    {art.license ? <PhotoCreditLink href={art.licenseUrl || art.source}>{art.license}</PhotoCreditLink> : null}
                   </p>
                 </div> : null}
               </article>;

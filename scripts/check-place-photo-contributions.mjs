@@ -1,3 +1,6 @@
+// STRUCTURAL-ONLY: the control needs a browser Supabase session and real File uploads to
+// execute, so this guard pins the source contract; the RLS half is checked by
+// check-client-writes-have-policies against lib/policySnapshot.json.
 import fs from "node:fs";
 import assert from "node:assert/strict";
 
@@ -7,7 +10,8 @@ const detail = fs.readFileSync(new URL("../app/components/sheets/Detail.js", imp
 function ok(v, m) { assert.ok(v, m); }
 
 ok(ui.includes('const BUCKET = "user-media"'), "contributions use the existing private user-media bucket");
-ok(ui.includes('.from("wf_user_media").insert(rows)'), "submission metadata enters wf_user_media");
+ok(/\.from\("wf_user_media"\)\.insert\(rows\.map\(\(r\) => \(\{ \.\.\.r, user_id: user\.id \}\)\)\)/.test(ui), "submission metadata enters wf_user_media carrying the signed-in user's id (RLS: authenticated, user_id = auth.uid())");
+ok(/if \(!authReady \|\| !user\?\.id\)/.test(ui), "submitting while signed out opens sign-in instead of writing");
 ok(ui.includes('status: "pending"'), "a browser can only create pending submissions");
 ok(ui.includes("rights_attested: true"), "the stored moderation metadata records the rights attestation");
 ok(ui.includes("Wayfind reviews submissions before publishing"), "the user is told review is required");
