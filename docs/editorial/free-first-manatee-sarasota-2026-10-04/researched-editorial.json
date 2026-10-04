@@ -1,0 +1,242 @@
+{
+  "schema_version": "owned-editorial-review-v1",
+  "researched_at": "2026-10-04T13:42:06.745679+00:00",
+  "scope_note": "Three exact operational, unflagged identities with all database editorial slots absent and no runtime Atlas/legacy match. Research-only pack; not published. No Google Places or Anthropic API call. Fresh public official-source retrieval supplements existing Wayfind inventory.",
+  "paid_provider_calls": 0,
+  "paid_provider_cost_usd": 0,
+  "candidates": [
+    {
+      "place_id": "ChIJ39-Cmb5qw4gR3tlLRUM8-sw",
+      "name": "Quick Point Nature Preserve",
+      "category": "attractions",
+      "metro": "manatee-sarasota",
+      "primary_type": "nature_preserve",
+      "inventory_snapshot": {
+        "checked_at": "2026-10-04",
+        "status": "OPERATIONAL",
+        "needs_review": false,
+        "lat": 27.336014,
+        "lng": -82.5831582,
+        "wf_editorial_present": false,
+        "inventory_editorial_present": false,
+        "inventory_editorial_card_present": false
+      },
+      "evidence": [
+        {
+          "source": "https://www.longboatkey.org/197/Quick-Point-Nature-Preserve",
+          "source_name": "Town of Longboat Key \u2014 Quick Point Nature Preserve",
+          "source_class": "government",
+          "checked_at": "2026-10-04",
+          "supports": [
+            "Quick Point has natural and excavated tidal lagoons that shelter small fish and juvenile crabs.",
+            "The preserve prohibits pets.",
+            "Red mangroves grow nearest open water and have arching prop roots."
+          ],
+          "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+        },
+        {
+          "source": "https://floridabirdingtrail.com/site/quick-point-nature-preserve/",
+          "source_name": "Florida Fish and Wildlife Conservation Commission \u2014 Great Florida Birding and Wildlife Trail",
+          "source_class": "government",
+          "checked_at": "2026-10-04",
+          "supports": [
+            "Boardwalk overlooks offer shorebird viewing at low tide.",
+            "The approach from Overlook Park passes beneath a bridge to trails along Sarasota Bay.",
+            "The preserve has no restrooms."
+          ],
+          "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+        }
+      ],
+      "editorial": {
+        "hook": "Restored tidal habitat and mangrove boardwalks put Sarasota Bay's wildlife within watching distance.",
+        "why_here": "One lagoon is natural; another was shaped at different depths to support wildlife. Along the bay, look for wading birds and the small fish and juvenile crabs these sheltered waters support.",
+        "know_before": "No pets or restrooms. Park at Overlook Park and follow the route beneath the bridge to the preserve.",
+        "best_time": "Low tide for shorebirds around the boardwalk overlooks.",
+        "local_tip": "Look for red mangroves nearest open water; their arching prop roots are the giveaway.",
+        "citations": {
+          "hook": [
+            "https://www.longboatkey.org/197/Quick-Point-Nature-Preserve",
+            "https://floridabirdingtrail.com/site/quick-point-nature-preserve/"
+          ],
+          "why_here": [
+            "https://www.longboatkey.org/197/Quick-Point-Nature-Preserve",
+            "https://floridabirdingtrail.com/site/quick-point-nature-preserve/"
+          ],
+          "know_before": [
+            "https://www.longboatkey.org/197/Quick-Point-Nature-Preserve",
+            "https://floridabirdingtrail.com/site/quick-point-nature-preserve/"
+          ],
+          "best_time": [
+            "https://floridabirdingtrail.com/site/quick-point-nature-preserve/"
+          ],
+          "local_tip": [
+            "https://www.longboatkey.org/197/Quick-Point-Nature-Preserve"
+          ]
+        },
+        "facts": [
+          {
+            "claim": "Quick Point has natural and excavated tidal lagoons that shelter small fish and juvenile crabs.",
+            "source": "https://www.longboatkey.org/197/Quick-Point-Nature-Preserve"
+          },
+          {
+            "claim": "Boardwalk overlooks offer shorebird viewing at low tide.",
+            "source": "https://floridabirdingtrail.com/site/quick-point-nature-preserve/"
+          }
+        ]
+      }
+    },
+    {
+      "place_id": "ChIJ6_2ktsAiw4gRmtDM9D5jAts",
+      "name": "Felts Audubon Preserve & The Manatee County Audubon Society Inc.",
+      "category": "attractions",
+      "metro": "manatee-sarasota",
+      "primary_type": "nature_preserve",
+      "inventory_snapshot": {
+        "checked_at": "2026-10-04",
+        "status": "OPERATIONAL",
+        "needs_review": false,
+        "lat": 27.555058,
+        "lng": -82.53916,
+        "wf_editorial_present": false,
+        "inventory_editorial_present": false,
+        "inventory_editorial_card_present": false
+      },
+      "evidence": [
+        {
+          "source": "https://manateeaudubon.org/felts-preserve/",
+          "source_name": "Manatee County Audubon Society \u2014 Felts Preserve",
+          "source_class": "official_venue",
+          "checked_at": "2026-10-04",
+          "supports": [
+            "The bird blind has feeders and a fountain.",
+            "Habitats include ponds, fields, conifer forest, hardwood hammock and bay swamp.",
+            "Painted and Indigo Buntings visit during migration and winter.",
+            "Pets and bicycles on trails are prohibited.",
+            "Native gardens at the bird blind entrance have educational signs."
+          ],
+          "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+        }
+      ],
+      "editorial": {
+        "hook": "A bird blind with feeders and a fountain gives this sanctuary a place to pause and watch.",
+        "why_here": "Ponds, open fields and woodland habitats give different birds room to feed and shelter. The mix of conifer forest, hardwood hammock and bay swamp makes this a walk through several habitats rather than a single pond-side stop.",
+        "know_before": "Pets are prohibited, and bicycles are not allowed on trails or pathways.",
+        "best_time": "Migration and winter bring opportunities to look for Painted and Indigo Buntings; sightings are never guaranteed.",
+        "local_tip": "Pause at the native gardens before the blind for signs explaining how native plants support wildlife.",
+        "citations": {
+          "hook": [
+            "https://manateeaudubon.org/felts-preserve/"
+          ],
+          "why_here": [
+            "https://manateeaudubon.org/felts-preserve/"
+          ],
+          "know_before": [
+            "https://manateeaudubon.org/felts-preserve/"
+          ],
+          "best_time": [
+            "https://manateeaudubon.org/felts-preserve/"
+          ],
+          "local_tip": [
+            "https://manateeaudubon.org/felts-preserve/"
+          ]
+        },
+        "facts": [
+          {
+            "claim": "The bird blind has feeders and a fountain.",
+            "source": "https://manateeaudubon.org/felts-preserve/"
+          },
+          {
+            "claim": "Painted and Indigo Buntings visit during migration and winter.",
+            "source": "https://manateeaudubon.org/felts-preserve/"
+          }
+        ]
+      }
+    },
+    {
+      "place_id": "ChIJMUR20OkXw4gRzw1NgpgA3hs",
+      "name": "Manatee County Agricultural Museum",
+      "category": "attractions",
+      "metro": "manatee-sarasota",
+      "primary_type": "museum",
+      "inventory_snapshot": {
+        "checked_at": "2026-10-04",
+        "status": "OPERATIONAL",
+        "needs_review": false,
+        "lat": 27.5162744,
+        "lng": -82.5762976,
+        "wf_editorial_present": false,
+        "inventory_editorial_present": false,
+        "inventory_editorial_card_present": false
+      },
+      "evidence": [
+        {
+          "source": "https://www.manateecountyagmuseum.com/permanent-exhibits",
+          "source_name": "Manatee County Agricultural Museum \u2014 Core Exhibits",
+          "source_class": "official_venue",
+          "checked_at": "2026-10-04",
+          "supports": [
+            "The farm workshop display includes a restored 1925 Model T Ford pickup.",
+            "Cattle brands are burned into the livestock room floor.",
+            "Exhibits cover citrus, local tomato farming and gladioli cultivation."
+          ],
+          "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+        },
+        {
+          "source": "https://www.manateecountyagmuseum.com/plan-your-visit",
+          "source_name": "Manatee County Agricultural Museum \u2014 Plan Your Visit",
+          "source_class": "official_venue",
+          "checked_at": "2026-10-04",
+          "supports": [
+            "Admission is free and the museum is step-free and wheelchair accessible.",
+            "Paved sidewalks and a wooden ramp connect the entrance to the outdoor sensory garden."
+          ],
+          "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+        },
+        {
+          "source": "https://www.manateecountyagmuseum.com/",
+          "source_name": "Manatee County Agricultural Museum \u2014 Open Hours",
+          "source_class": "official_venue",
+          "checked_at": "2026-10-04",
+          "supports": [
+            "During January through April, school programming often runs on Wednesdays and Thursdays from 10 AM to 1 PM; the museum recommends calling ahead."
+          ],
+          "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+        }
+      ],
+      "editorial": {
+        "hook": "A 1925 Model T in a recreated farm workshop, with cattle brands burned into the livestock room's floor.",
+        "why_here": "The county's agricultural story reaches beyond citrus. Exhibits connect tomato growing and the history of gladioli as a cash crop to the tools people used, giving you a concrete way to picture the work behind the fields and nurseries.",
+        "know_before": "Admission is free, and the museum is step-free and wheelchair accessible.",
+        "best_time": "Call ahead in January through April, when Wednesday and Thursday school visits can overlap the morning.",
+        "local_tip": "Use the paved path and wooden ramp from the entrance to reach the outdoor sensory garden.",
+        "citations": {
+          "hook": [
+            "https://www.manateecountyagmuseum.com/permanent-exhibits"
+          ],
+          "why_here": [
+            "https://www.manateecountyagmuseum.com/permanent-exhibits"
+          ],
+          "know_before": [
+            "https://www.manateecountyagmuseum.com/plan-your-visit"
+          ],
+          "best_time": [
+            "https://www.manateecountyagmuseum.com/"
+          ],
+          "local_tip": [
+            "https://www.manateecountyagmuseum.com/plan-your-visit"
+          ]
+        },
+        "facts": [
+          {
+            "claim": "The farm workshop display includes a restored 1925 Model T Ford pickup.",
+            "source": "https://www.manateecountyagmuseum.com/permanent-exhibits"
+          },
+          {
+            "claim": "Cattle brands are burned into the livestock room floor.",
+            "source": "https://www.manateecountyagmuseum.com/permanent-exhibits"
+          }
+        ]
+      }
+    }
+  ]
+}

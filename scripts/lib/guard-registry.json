@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 789,
-    "totalRegistryEntries": 790,
-    "guardsTxtLineCount": 789,
-    "guardsTxtReachedFileCount": 782,
+    "totalOnDiskGuardFiles": 790,
+    "totalRegistryEntries": 791,
+    "guardsTxtLineCount": 790,
+    "guardsTxtReachedFileCount": 783,
     "criticalCount": 94,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 542,
+      "CALL": 543,
       "RENDER": 106,
       "STRUCTURAL": 141,
       "OTHER": 1
@@ -18375,6 +18375,28 @@
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
       "assertionCount": 33,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-wikipedia-outcomes.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 35,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
