@@ -231,7 +231,7 @@ import { C, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useD
 import { sponsorRailNear, partnerCollectionById, hydratePartnerCollection } from "../lib/partnerCollections";
 import { toDisplayScore, pickEligibleByScore, cardComplete, displayableAt } from "../lib/score";
 import { stampOwnerPick } from "../lib/ownerBump.js";
-import { restampGoverned } from "../lib/lawfulOrder.js";
+import { restampGoverned, attachOfficialScoreReceipt } from "../lib/lawfulOrder.js";
 import { applyCuratorPicks, getCuratorPicks, useCuratorPicks, noteSessionOwner, beginCuratorToggle, noteOwnerReads } from "../lib/curatorPicks.js";
 import { frontPageEvents, bestFirst } from "../lib/frontEvents";
 import { settleLoad } from "../lib/loadState.js";
@@ -6796,13 +6796,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // v6.08 (PR-C): remember where we were in the list so back returns here, not to the top.
     try { if (scrollRef.current) { const _k = screen + "|" + cat + "|" + sub + "|" + vibe; const _t = scrollRef.current.scrollTop; scrollRestore.current = { key: _k, ...browsePosition(scrollRef.current) };  } } catch (e) {}
     setDetail(p);
+    setDetail(attachOfficialScoreReceipt({ ...p }, locName));
     // /p/{id} and any card that skipped withMemberSignal still show the raw
     // score until this overlay lands. Same function as the list path.
     fetchMemberSignals(supabase, [p]).then((sig) => {
       if (!sig) return;
       const next = withMemberSignal([p], sig)[0];
       if (!next || next.id !== p.id) return;
-      setDetail((cur) => (cur && cur.id === p.id ? withSignalFields(cur, next) : cur));
+      setDetail((cur) => (cur && cur.id === p.id ? attachOfficialScoreReceipt(withSignalFields(cur, next), locName) : cur));
       const patch = (cur) => (cur || []).map((pl) => (pl && pl.id === p.id ? withSignalFields(pl, next) : pl));
       setPlaces(patch);
       setExpPlaces(patch);

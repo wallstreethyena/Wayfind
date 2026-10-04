@@ -1,0 +1,258 @@
+{
+  "captured_at": "2026-10-04T13:38:56Z",
+  "base_sha": "f88356590728bb218f0a9d8498d5584eb113dfae",
+  "pull_request_count": 35,
+  "pull_requests": [
+    {
+      "number": 1632,
+      "title": "Handoff: every unshipped item from the week of 9/26 to 10/3, combined on current main (DB steps before merge)",
+      "head": "handoff/unshipped-week-2026-10-03",
+      "sha": "981e6fea8453bae0baa840463c93d76dedbc9b8f",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1632"
+    },
+    {
+      "number": 1630,
+      "title": "feat(events): Tampa Bay media calendars import, 268 verified rows",
+      "head": "local-calendars-import",
+      "sha": "e90370ba623d7626add47ed23a96540a9f2bf837",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1630"
+    },
+    {
+      "number": 1627,
+      "title": "fix(command-center): count the partner clicks the app writes; #1603 device exclusion setting (owner-applied migration)",
+      "head": "fix/cc-partner-clicks-exclude-devices",
+      "sha": "56b500b681f5a79e2d76ff1dbe421f8fc3df4e97",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1627"
+    },
+    {
+      "number": 1624,
+      "title": "Landing cards: one sharp line on the card, full Wayfind read one tap away",
+      "head": "claude/beautiful-keller-5d9bdn",
+      "sha": "eadb4e9b34541b55a35d1016d3d2c6810ffac244",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1624"
+    },
+    {
+      "number": 1599,
+      "title": "db: retire Siesta Key Village duplicate \u2014 DO NOT MERGE until applied + verified (#1593)",
+      "head": "db/siesta-key-village-retire",
+      "sha": "b3bfa43271b88cf604cac5c83c2663eb9028df72",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1599"
+    },
+    {
+      "number": 1597,
+      "title": "Guides: keep the #1575 production photo verifier in the repo (manual tool)",
+      "head": "claude/guide-photo-prod-verifier",
+      "sha": "95d38857b43b9d6f31e8bba3bbd66bd65271b6ff",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1597"
+    },
+    {
+      "number": 1592,
+      "title": "Guides: move guides that already happened to /guides/past",
+      "head": "feat/guides-past-archive",
+      "sha": "ce2d4c93de878466972947fe3d2f34d604807473",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1592"
+    },
+    {
+      "number": 1588,
+      "title": "guards: registry JSON becomes generated; reviewed per-guard expectations replace the conflict-prone snapshot",
+      "head": "claude/guard-registry-generated",
+      "sha": "712c2bcf47d9244774fa7a7b5d35fc68eb2f42f5",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1588"
+    },
+    {
+      "number": 1571,
+      "title": "Editorial owner path: optional tips, guarded placeholder replace, descriptive-only local press",
+      "head": "seo/owner-editorial-rules",
+      "sha": "158388cc436e9776be4cac64887cd95472f5fd80",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1571"
+    },
+    {
+      "number": 1570,
+      "title": "fix(clipp): stale Clipp audit pages nightly instead of blocking deploys (no cards re-enabled)",
+      "head": "fix/clipp-merchant-audit-nightly",
+      "sha": "e0b2288b44670f621381e977161dbe4dc9040d2e",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1570"
+    },
+    {
+      "number": 1561,
+      "title": "docs(governance): shared clone is infrastructure-only; new lanes use isolated worktrees",
+      "head": "docs/shared-clone-governance",
+      "sha": "5b682557d00c6a0c95db23721e540c0798fad7d5",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1561"
+    },
+    {
+      "number": 1558,
+      "title": "Delete expired photo credits hourly, never a live one (owner approval needed to apply)",
+      "head": "claude/photo-credit-purge",
+      "sha": "48a4ae897fcb4096baf94f6b421d50eebc5edb77",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1558"
+    },
+    {
+      "number": 1533,
+      "title": "Add Help improve this place photo submissions",
+      "head": "feature/place-photo-contributions",
+      "sha": "aa81aaa42777f5956a294ecb45fa4080498c1b8c",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1533"
+    },
+    {
+      "number": 1531,
+      "title": "Queue every Florida place that loses its real photo source",
+      "head": "astra/photo-missing-source-invariant",
+      "sha": "4425459ef7ba65c8e6be6731f9022e966bfb3535",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1531"
+    },
+    {
+      "number": 1524,
+      "title": "Ship Fall guide image repair on current main",
+      "head": "astra/fall-guide-image-repair-r2",
+      "sha": "36a6229ef63399f4db1a310b530cce6f96a4eda9",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1524"
+    },
+    {
+      "number": 1523,
+      "title": "Polish global place cards, Fall hotels, and swipe behavior on current main",
+      "head": "astra/place-card-polish-r2",
+      "sha": "c55e01c468b638fb7d9b2046d15b2a5fbeea051d",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1523"
+    },
+    {
+      "number": 1519,
+      "title": "Repair missing images across the complete Florida Fall Guide",
+      "head": "astra/fall-guide-image-repair-2026-09-25",
+      "sha": "3904f731100bc2d9490159de9c1d648e24fbc1a2",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1519"
+    },
+    {
+      "number": 1506,
+      "title": "Schedule the fall offering discovery run weekly in season (owner approval needed)",
+      "head": "claude/fall-discovery-workflow",
+      "sha": "db30c1f196b08f40ce1f7ed866e7803f7807933d",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1506"
+    },
+    {
+      "number": 1496,
+      "title": "docs(share-cards): promote hero-photo rule 9 into the share-card standard (owner approval required)",
+      "head": "docs/share-card-standard-hero",
+      "sha": "38abc55e8350d7de12a3575fc55bcbf12f64af9d",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1496"
+    },
+    {
+      "number": 1488,
+      "title": "fix(night-out): remove Dinner + Entertainment rail; one item, one rail",
+      "head": "fix/remove-dinner-entertainment-rail",
+      "sha": "b8375380ecb1b56bfb33803c7cd5a5e0ddfa7cea",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1488"
+    },
+    {
+      "number": 1385,
+      "title": "Native Wayfind trend research: self-feeding private snapshots",
+      "head": "feat/native-trend-research-20260920",
+      "sha": "eb9b1a95a2a1200677f1c026a9c81b0896abb562",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1385"
+    },
+    {
+      "number": 1383,
+      "title": "Require current evidence for Fall place cards",
+      "head": "fix/fall-place-evidence-2026-09-20",
+      "sha": "d462ab12db40393a710d64bb2232551941242bc1",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1383"
+    },
+    {
+      "number": 1319,
+      "title": "fix: narrow FallbackImg lifecycle (URL outcomes, no hang policy)",
+      "head": "cursor/fallback-img-lifecycle-96ed",
+      "sha": "7b7aad1540b3767d8571872af6fae9acbffc1e74",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1319"
+    },
+    {
+      "number": 1285,
+      "title": "Protect Google Places spend without removing place information",
+      "head": "fix/google-sku-cost-protection",
+      "sha": "7fb9817bb62d782d6aefecc14098a7f24cc8d268",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1285"
+    },
+    {
+      "number": 1274,
+      "title": "Show event creator covers in nearby rail and add recovery navigation",
+      "head": "fix/event-creator-cover-recovery",
+      "sha": "b9c65fae2d0229d358f4b170f445cb11b5546861",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1274"
+    },
+    {
+      "number": 1272,
+      "title": "Fix Bookable Near Me empty Viator short-circuit",
+      "head": "cursor/bookable-near-me-empty-rail",
+      "sha": "ee1fa81e6b9d27cb0e6b0af5b485b0647ce7ad9b",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1272"
+    },
+    {
+      "number": 1268,
+      "title": "Use Apple Maps for all 9.2+ places in the viewed area",
+      "head": "feat/apple-map-all-categories",
+      "sha": "0d285484c27abf289fb5ace79adc5e5dc413e525",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1268"
+    },
+    {
+      "number": 1267,
+      "title": "Expand Family Day picks and match menu event cards",
+      "head": "fix/family-day-expanded-rails",
+      "sha": "4dad24133b64715287af3483c25eecd52fcbf003",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1267"
+    },
+    {
+      "number": 1263,
+      "title": "Improve shared poster loading and measure visible results",
+      "head": "perf/all-poster-speed",
+      "sha": "77d9c4c8092d00bc697e5de30ea25198cce09b2c",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1263"
+    },
+    {
+      "number": 1250,
+      "title": "Close verify-offers reliability gap: token preflight and managed crons",
+      "head": "fix/verify-offers-token-managed-cron-2026-09-10",
+      "sha": "2ca814b6baa9b467f6b79f724fc2f80da80611f1",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1250"
+    },
+    {
+      "number": 1249,
+      "title": "Complete staged rail outage recovery and register its guards",
+      "head": "feat/graceful-outage-state-2026-09-10",
+      "sha": "765f7dbba7516135a0d2d5eddc71042669829568",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1249"
+    },
+    {
+      "number": 1248,
+      "title": "Bound beach data reads during prerender and ISR",
+      "head": "fix/beach-build-deadlines-2026-09-10",
+      "sha": "b5511a36b36bd2c4f498994b92dcd93709bb9cad",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1248"
+    },
+    {
+      "number": 1233,
+      "title": "fix(photos): the drain stopped being killed, then idled a whole hour on a cold query plan (v8.56.17)",
+      "head": "lane/photo-vault/at-risk-read-retry-2026-09-09",
+      "sha": "fd129993eba672470873f367e9fe1f96a21a599b",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1233"
+    },
+    {
+      "number": 1209,
+      "title": "fix(lanes): make file locks lane-owned instead of author-name owned",
+      "head": "lane/codex/lock-ownership-hardening-2026-09-09",
+      "sha": "46c5908e3827884547886adb49280f40339845fc",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1209"
+    },
+    {
+      "number": 1145,
+      "title": "Explain Wayfind Score with calculation receipts and sourced verdicts",
+      "head": "feat/explainable-wayfind-score",
+      "sha": "eb766d84ec8bd5f2e39aa49e34fe630dc7187174",
+      "url": "https://github.com/wallstreethyena/Wayfind/pull/1145"
+    }
+  ],
+  "remote_branch_count": 1033,
+  "cleanup_candidates_without_open_pr": 857,
+  "preserved_unresolved_without_open_pr": 140,
+  "note": "A source receipt is not a deletion authorization or proof of production deployment. Current refs must be rechecked before cleanup.",
+  "initial_base_sha": "0709738350181c0e3d79aba24150246b08d4d594",
+  "base_rechecked_at": "2026-10-04T14:22:41Z"
+}

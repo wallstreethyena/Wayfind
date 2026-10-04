@@ -1,4 +1,5 @@
 "use client";
+import GuideRailCollection from "./GuideRailCollection";
 
 import { useEffect, useMemo, useRef } from "react";
 import RailHeading from "./RailHeading";
@@ -41,6 +42,7 @@ export default function CreatorPicksRails({
   if (!rails.length) return null;
 
   return <>
+    <GuideRailCollection rails={rails} collectionId="creator-picks">
     {rails.map((rail) => {
       const platform = PLATFORM[rail.platform] || null;
       const railId = `creator-picks-${rail.id}`;
@@ -88,6 +90,7 @@ export default function CreatorPicksRails({
         {rail.places.length > 1 ? <RailDots railId={railId} count={rail.places.length} /> : null}
       </section>;
     })}
+    </GuideRailCollection>
     {hasMore ? <>
       {loadFailed ? <p role="status" className="wf-rail-deck" style={{ color: "#AEB8C6" }}>
         Some creator picks could not be loaded. The picks above are still available.

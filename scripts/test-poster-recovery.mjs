@@ -114,6 +114,14 @@ function componentHarness(name) {
     '../../lib/clientJson.js':{fetchJsonWithDeadline:(url,opts)=>new Promise((resolve,reject)=>pending.push({url,resolve,reject,opts}))},
     '../../lib/nightOutIntent.js':{composeNightOutRails:()=>({rails:[{id:'live-music',places:[]},{id:'night-tours',places:[]}]})},
     '../../lib/nightTourProducts.js':{nightTourCacheCovers:()=>true,nightTourProducts:items=>items || []},
+    '../../lib/railFailure.js':{
+      fetchRailJson:(url,opts)=>new Promise((resolve,reject)=>pending.push({url,resolve,reject,opts})),
+      railDeveloperFailure:(reason,meta={})=>Object.assign(new Error(reason),{kind:'developer',reason,requestId:'fixture-dev',route:meta.route||'/fixture',retryAttempts:0}),
+      isRailCancelled:error=>error?.kind==='cancelled', emitRailDegraded:()=>true,
+    },
+    './kit':{directionsUrl:()=>null,RailDevError:'RailDevError',RailMascotBusy:'RailMascotBusy'},
+    './kit.js':{directionsUrl:()=>null,RailDevError:'RailDevError',RailMascotBusy:'RailMascotBusy'},
+    '../../lib/posterJson.js':{fetchPosterJson:(url,opts)=>new Promise((resolve,reject)=>pending.push({url,resolve,reject,opts})),fetchClassifiedPosterJson:(url,opts)=>new Promise((resolve,reject)=>pending.push({url,resolve,reject,opts}))},
     '../../lib/seasons.js':{fallSkinLive:()=>true},
     '../../lib/homeAffiliateActivities.js':{homeAffiliateActivities:items=>items || []},
     '../../lib/summerPicks.js':{composeSummerPickRails:(places,tours)=>[{cards:[...places,...tours]}]},
@@ -127,8 +135,8 @@ const n=componentHarness('NightOutRails');
 n.render(p);
 const parrishMain = n.pending.find((request) => request.url.startsWith('/api/night-out?'));
 const parrishTours = n.pending.find((request) => request.url.startsWith('/api/experiences?'));
-ok(n.pending.length === 2 && parrishMain?.opts.retries === 1 && parrishTours?.opts.retries == null,
-  'Night Out retries its owned place read while its cached experience read remains a one-attempt request');
+ok(n.pending.length === 2 && parrishMain?.opts.signal instanceof AbortSignal && parrishMain?.opts.timeoutMs === 22000 && parrishTours?.opts.retries == null,
+  'Night Out uses its full deadline with cancellable classified recovery while its cached experience read remains a one-attempt request');
 n.render({...p,center:{lat:27.581,lng:-82.431}});
 ok(n.pending.length === 2, 'same-cell coordinate jitter does not cancel and strand in-flight requests');
 parrishMain.resolve({rails:[{id:'cocktails',places:[{id:'parrish-card'}]}]}); await n.flush();
@@ -138,7 +146,7 @@ ok(!JSON.stringify(n.render(other)).includes('parrish-card'), 'a new city hides 
 const miamiMain = n.pending.find((request) => request.url.startsWith('/api/night-out?') && request.url.includes('lat=25.76'));
 ok(!!miamiMain, 'the city change starts a new Night Out place read identified by its request URL');
 miamiMain.resolve({bad:'malformed'}); await n.flush();
-ok(JSON.stringify(n.render(other)).includes('Try again'), 'malformed Night Out success reaches a recoverable error instead of eternal loading');
+ok(n.render(other).type === 'RailDevError', 'malformed Night Out success is a developer state, not a mascot or eternal loading');
 const missing=componentHarness('NightOutRails');
 ok(JSON.stringify(missing.render({})).includes('Choose a location') && missing.pending.length === 0, 'missing coordinates never become a request for zero-zero');
 const eventDown=componentHarness('NightOutRails');
@@ -171,6 +179,6 @@ const summerEmpty=componentHarness('SummerIntentRails');
 summerEmpty.render(p); summerEmpty.pending[0].resolve({places:[]}); summerEmpty.pending[1].resolve({items:[]}); await summerEmpty.flush();
 ok(JSON.stringify(summerEmpty.render(p)).includes('No nearby summer options'), 'healthy empty Summer responses do not claim the service is broken');
 const summerDown=componentHarness('SummerIntentRails');
-summerDown.render(p); summerDown.pending[0].reject(new Error('db down')); summerDown.pending[1].resolve({items:[]}); await summerDown.flush();
-ok(JSON.stringify(summerDown.render(p)).includes('Try again'), 'an unavailable Summer source remains a recoverable service failure');
+summerDown.render(p); summerDown.pending[0].reject(Object.assign(new Error('db down'),{kind:'degraded',reason:'network',requestId:'fixture-down',route:'/api/summer/places',retryAttempts:1})); summerDown.pending[1].resolve({items:[]}); await summerDown.flush();
+ok(JSON.stringify(summerDown.render(p)).includes('RailMascotBusy'), 'an unavailable Summer source remains a recoverable service failure');
 console.log(`test-poster-recovery: ${checks} behavioural assertions passed`);

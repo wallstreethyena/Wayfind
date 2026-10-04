@@ -12,18 +12,16 @@
 // existing guarded /api/photo proxy, never Google directly.
 //
 // `kind` selects one of two FIXED field masks below, NOT an arbitrary
-// client-supplied field list — Google's New Places API bills by SKU tier per
-// field group (Basic vs Atmosphere), so accepting a free-form field list would
-// let any caller upgrade every request to the priciest tier. "place" mirrors
-// the old place-kind fetchFields (incl. Atmosphere-tier fields); "area"
-// mirrors the old area-kind fetchFields (Basic-tier only) — same cost shape
-// as before this route existed, just guarded.
+// client-supplied field list — a free-form list would let any caller upgrade
+// requests to the priciest tier. "place" reaches Enterprise by fields, "area"
+// reaches Pro, and "detail" reaches Atmosphere. A terminal Autocomplete
+// session request is also billed at Atmosphere, regardless of those masks.
 //
 // Fail-soft, same contract as /api/places/autocomplete: no
 // GOOGLE_MAPS_SERVER_KEY configured -> 501, client falls back to the direct
 // SDK path (see pickSuggestionDetails's fallback in app/home.js).
 import { NextResponse } from "next/server";
-import { gateShut, spendAllow } from "../../../../lib/spendGate";
+import { gateShut, spendAllow, spendAllowDetailsAtmosphere } from "../../../../lib/spendGate";
 import { getInventoryIdentity } from "../../../../lib/inventoryIdentity.js";
 
 export const dynamic = "force-dynamic";
@@ -84,9 +82,14 @@ export async function POST(req) {
     // COST GUARD (2026-09-04): this route reached Google with NO gate and NO
     // ledger. FIELDS.place carries rating/userRatingCount/priceLevel — the
     // ENTERPRISE tier whose editorialSummary sibling cost $1,198 in August.
-    // FIELDS.area is location/address/name only, which bills at Pro.
+    // Area fields alone bill Pro. A terminal Autocomplete session request,
+    // or the fixed editorialSummary/reviews detail mask, bills Atmosphere.
+    // https://developers.google.com/maps/documentation/places/web-service/session-pricing
     if (gateShut()) return NextResponse.json({ error: "gate shut" }, { status: 200 });
-    if (!(await spendAllow(kind === "area" ? "details_pro" : "details_enterprise"))) {
+    const legacySku = kind === "area" ? "details_pro" : "details_enterprise";
+    const atmosphere = !!sessionToken || kind === "detail";
+    const allowed = atmosphere ? await spendAllowDetailsAtmosphere(legacySku) : await spendAllow(legacySku);
+    if (!allowed) {
       return NextResponse.json({ error: "budget" }, { status: 200 });
     }
     const r = await fetch("https://places.googleapis.com/v1/places/" + encodeURIComponent(placeId) + qs, {

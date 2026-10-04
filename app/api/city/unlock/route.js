@@ -150,6 +150,7 @@ export async function POST(req) {
   // 1) Google Places → wf_inventory (opens the gate). Skipped when already
   //    covered, or when the Google key is absent (Viator can still run below).
   const byId = new Map();
+  let googleBudgetDenied = false;
   if (!covered && gkey) {
     await pool(PULLS, 3, async (pl) => {
       try {
@@ -157,7 +158,10 @@ export async function POST(req) {
         // grant at all. FIELD_MASK carries rating / userRatingCount /
         // regularOpeningHours, so each pull bills Text Search ENTERPRISE — one
         // grant per request on that row, under the operator's ceiling.
-        if (!(await spendAllowCapped("text_enterprise", textEnterpriseCap()))) return;
+        if (!(await spendAllowCapped("text_enterprise", textEnterpriseCap()))) {
+          googleBudgetDenied = true;
+          return;
+        }
         const r = await fetch("https://places.googleapis.com/v1/places:searchText", {
           method: "POST",
           headers: { "Content-Type": "application/json", "X-Goog-Api-Key": gkey, "X-Goog-FieldMask": FIELD_MASK },
@@ -183,7 +187,9 @@ export async function POST(req) {
 
   // 2) Insert into wf_inventory via the shared add function (sets refreshed_at=now
   //    → flips the gate to live). Bounded.
-  const rows = [...byId.values()].filter(({ p }) => p.displayName && p.displayName.text && p.location).slice(0, MAX_INSERT);
+  // A budget-truncated crawl is not established coverage. Do not publish
+  // partial rows that would make wf_gate_status report this city as live.
+  const rows = googleBudgetDenied ? [] : [...byId.values()].filter(({ p }) => p.displayName && p.displayName.text && p.location).slice(0, MAX_INSERT);
   let added = 0;
   await pool(rows, 5, async ({ p, cat }) => {
     try {
@@ -251,5 +257,10 @@ export async function POST(req) {
   // 3) Coverage established → mark the request(s) live.
   const live = covered || added > 0;
   await setStatus(s, svcH, lat, lng, live ? "live" : "fetching");
-  return Response.json({ ok: live || exp > 0, status: live ? "live" : "fetching", metro, found: rows.length, added, experiences: exp }, { headers: { "Cache-Control": "no-store" } });
+  return Response.json({
+    ok: live || exp > 0,
+    status: live ? "live" : (googleBudgetDenied ? "budget" : "fetching"),
+    google_spend: covered ? "skipped_covered" : (!gkey ? "skipped_unconfigured" : (googleBudgetDenied ? "denied" : "granted")),
+    metro, found: rows.length, added, experiences: exp,
+  }, { headers: { "Cache-Control": "no-store" } });
 }

@@ -1,14 +1,16 @@
 import assert from "node:assert/strict";
 import { mock } from "node:test";
-import { FAMILY_DAY_RAILS, familyRailMatches, familyWeatherSafe, matchesFamilyFilters } from "../lib/familyDayTaxonomy.js";
+import { FAMILY_DAY_RAILS, canonicalFamilyRailId, familyRailMatches, familyWeatherSafe, matchesFamilyFilters } from "../lib/familyDayTaxonomy.js";
 
 // Exercise the reviewed evidence window without depending on the wall clock.
 mock.method(Date, "now", () => Date.parse("2026-09-10T12:00:00Z"));
 
 assert.deepEqual(FAMILY_DAY_RAILS.map((rail) => rail.id), [
   "beach", "attractions", "water", "animals", "outdoors",
-  "indoor", "space", "active", "culture", "food",
+  "indoor", "active", "culture", "food",
 ]);
+assert.equal(FAMILY_DAY_RAILS.find((rail) => rail.id === "indoor")?.title, "Museums, Indoor Play & Discovery");
+assert.equal(canonicalFamilyRailId("space"), "indoor", "the former space endpoint remains an alias for the merged rail");
 assert.ok(FAMILY_DAY_RAILS.every((rail) => rail.cats.every((cat) => ["beach", "attractions", "food", "shopping"].includes(cat))),
   "cats are physical wf_inventory categories");
 
@@ -17,8 +19,12 @@ assert.equal(familyRailMatches(p("Siesta Beach", "beach"), "beach"), true);
 assert.equal(familyRailMatches(p("Theme Park", "amusement_park"), "attractions"), true);
 assert.equal(familyRailMatches(p("The Florida Aquarium", "aquarium"), "animals"), true);
 assert.equal(familyRailMatches(p("City Museum", "museum"), "indoor"), true);
+assert.equal(familyRailMatches(p("Kennedy Space Center", "museum"), "indoor"), true,
+  "the merged rail retains narrow space identity");
+assert.equal(familyRailMatches(p("Florida Air Museum", "museum"), "indoor"), true,
+  "the merged discovery rail retains a narrowly named aviation museum");
 assert.equal(familyRailMatches(p("Kennedy Space Center", "museum"), "space"), true,
-  "narrow space identity refines a generic museum primary");
+  "the legacy rail id resolves to the same merged inventory");
 assert.equal(familyRailMatches(p("Beach House Grill", "restaurant", ["beach"]), "beach"), false,
   "a specific restaurant primary vetoes an incidental beach type and name");
 assert.equal(familyRailMatches(p("Museum Hotel", "hotel", ["museum"]), "indoor"), false,
@@ -33,8 +39,10 @@ assert.equal(familyRailMatches(p("Sky Zone Trampoline Park", "amusement_park"), 
 assert.equal(familyRailMatches(p("The Great Escape Room", "amusement_center", ["amusement_park"]), "active"), true,
   "an escape room is active play rather than a major attraction");
 assert.equal(familyRailMatches(p("The Great Escape Room", "amusement_center", ["amusement_park"]), "attractions"), false);
-assert.equal(familyRailMatches(p("The Bishop Museum of Science and Nature", "museum"), "space"), true,
-  "museum-of-science wording enters big learning");
+assert.equal(familyRailMatches(p("The Bishop Museum of Science and Nature", "museum"), "indoor"), true,
+  "museum-of-science wording enters the merged discovery rail");
+assert.equal(familyRailMatches(p("Science Center Cafe", "restaurant", ["science_museum"]), "indoor"), false,
+  "a discovery phrase and incidental type cannot override a specific restaurant identity");
 assert.equal(familyRailMatches(p("Unconditional Surrender", "tourist_attraction", ["tourist_attraction", "park"]), "outdoors"), false,
   "an incidental park secondary type cannot turn a statue into an outdoors destination");
 for (const adult of [

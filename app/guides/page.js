@@ -6,6 +6,7 @@ import { GUIDES } from "../../lib/guides";
 import { FLORIDA_CITY_GUIDES } from "../../lib/guidesCoverage2026";
 import { guideHero } from "../../lib/guideHero";
 import { guideRegions } from "../../lib/guideIndex";
+import { currentGuides, pastGuides } from "../../lib/guideLifecycle";
 import styles from "./guides.module.css";
 import { SITE_URL } from "../../lib/site";
 import { pageShareUrl } from "../../lib/pageShareUrl";
@@ -13,6 +14,10 @@ import { experienceGoUrl } from "../../lib/affiliates";
 import HubConversion from "../components/HubConversion";
 import GuideFigure from "../components/GuideFigure";
 import PhotoCreditLink from "../components/PhotoCreditLink";
+
+// Re-evaluate hourly so a dated guide leaves the hub the morning after its
+// last day (lib/guideLifecycle.js) instead of waiting for the next deploy.
+export const revalidate = 3600;
 
 const _ogGuides = SITE_URL + "/api/og?t=" + encodeURIComponent("Florida travel guides, written by a local");
 export const metadata = {
@@ -37,7 +42,10 @@ const S = {
 };
 
 export default function GuidesHub() {
-  const regions = guideRegions(GUIDES);
+  // Current guides only. Anything that already happened lives on /guides/past
+  // (owner, 2026-09-23); its article URL is untouched.
+  const regions = guideRegions(currentGuides(GUIDES));
+  const pastCount = pastGuides(GUIDES).length;
   return (
     <div className={styles.page}>
       {/* v8.22 (owner, live /guides: "there is nothing on this page that makes
@@ -130,6 +138,14 @@ export default function GuidesHub() {
         }}
         next={{ label: "Read the Orlando guide", href: "/guides/things-to-do-orlando-not-theme-parks" }}
       />
+      {pastCount ? (
+        <section className={styles.section} aria-labelledby="guides-past-title" data-guides-past-link>
+          <div className={styles.sectionHead}>
+            <h2 id="guides-past-title">Already happened</h2><span>{pastCount} {pastCount === 1 ? "guide" : "guides"}</span>
+          </div>
+          <p className={styles.description}>Event weekends and seasonal editions that have wrapped. <a href="/guides/past" style={S.link}>See past guides</a></p>
+        </section>
+      ) : null}
       <p style={S.foot}>Planning around a specific spot? <a href="/" style={S.link}>Open Wayfind</a> and search it, or start with what each city is known for: <a href="/culture/orlando" style={S.link}>Orlando</a>, <a href="/culture/sarasota" style={S.link}>Sarasota</a>, <a href="/culture/tampa" style={S.link}>Tampa</a>.</p>
     </div>
   );

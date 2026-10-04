@@ -1,0 +1,312 @@
+{
+  "batch": 9,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "ilovetheburg:natural-history-speaker-series-18",
+      "lead_name": "Natural History Speaker Series",
+      "source": "ilovetheburg",
+      "venue": "Hammock Hall",
+      "address": "3010 31st Street South",
+      "city": "St. Petersburg",
+      "zip": "33712",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://boydhillpreserve.com"
+      ],
+      "organizer_names": [
+        "Boyd Hill Nature Preserve"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-08 19:00:00",
+          "end": "2026-10-08 20:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:tampa-bay-lightning-vs-minnesota-wild",
+      "lead_name": "Tampa Bay Lightning vs. Minnesota Wild",
+      "source": "ilovetheburg",
+      "venue": null,
+      "address": null,
+      "city": null,
+      "zip": null,
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.nhl.com/lightning/tickets/single-game-tickets"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-08 19:00:00",
+          "end": "2026-10-08 21:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:tampa-bay-lightning-vs-minnesota-wild",
+      "lead_name": "Tampa Bay Lightning vs. Minnesota Wild",
+      "source": "thatssotampa",
+      "venue": "Benchmark International Arena",
+      "address": "401 Channelside Dr",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.nhl.com/lightning/tickets/single-game-tickets",
+        "https://www.benchmarkintlarena.com"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-08 19:00:00",
+          "end": "2026-10-08 19:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:cannons-2026-north-american-tour",
+      "lead_name": "CANNONS – 2026 North American Tour",
+      "source": "ilovetheburg",
+      "venue": "Jannus Live",
+      "address": "200 1st Ave N STE 206",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.jannuslive.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-08 20:00:00",
+          "end": "2026-10-08 23:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:dermot-kennedy-the-weight-of-the-woods-tour",
+      "lead_name": "Dermot Kennedy – The Weight of the Woods Tour",
+      "source": "thatssotampa",
+      "venue": "The Yuengling Center",
+      "address": "4202 E Fowler Ave SUN 130",
+      "city": "Tampa",
+      "zip": "33620",
+      "cost_text": null,
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-08 20:00:00",
+          "end": "2026-10-08 23:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:forces-of-nature-dance-theatre",
+      "lead_name": "Forces of Nature Dance Theatre",
+      "source": "thatssotampa",
+      "venue": "HC Mainstage Theatre 1411 E 11th Ave, Ybor City",
+      "address": "HC Mainstage Theatre 1411 E 11th Ave, Ybor City",
+      "city": "Tampa",
+      "zip": "33605.",
+      "cost_text": "$23",
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-09 03:00:00",
+          "end": "2026-10-11 02:59:59",
+          "all_day": true
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:oktoberfest-with-byte-burger-and-hidden-springs",
+      "lead_name": "Oktoberfest with BYTE Burger and Hidden Springs",
+      "source": "thatssotampa",
+      "venue": "Hidden Spings",
+      "address": "1631 N Franklin ST",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://hiddenspringsaleworks.com/home",
+        "https://www.byte-burgers.com/"
+      ],
+      "organizer_names": [
+        "@byteusa"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-10-09 16:00:00",
+          "end": "2026-10-09 20:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-10-30 16:00:00",
+          "end": "2026-10-30 20:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:keys-in-the-park-a-melodic-duel",
+      "lead_name": "Keys in the Park: A Melodic Duel",
+      "source": "thatssotampa",
+      "venue": "Lykes Gaslight Park",
+      "address": "241 E. Madison St.",
+      "city": "Tampa",
+      "zip": null,
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://www.tampasdowntown.com/events/keys-in-the-park-a-melodic-duel/",
+        "https://www.tampasdowntown.com/"
+      ],
+      "organizer_names": [
+        "Tampa Downtown Partnership"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-10-09 17:30:00",
+          "end": "2026-10-09 19:30:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-12-11 17:30:00",
+          "end": "2026-12-11 19:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:here-we-come-mutts-martinis-dogs",
+      "lead_name": "Here We Come Mutts & Martinis Dogs",
+      "source": "ilovetheburg",
+      "venue": "Mutts & Martinis on Central",
+      "address": "2900 Central Avenue",
+      "city": "St. Petersburg",
+      "zip": "33712",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://eventvesta.com/events/165033/t/tickets"
+      ],
+      "organizer_names": [
+        "Dotfilmz"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-09 19:00:00",
+          "end": "2026-10-09 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:nurse-john-against-medical-advice-tour",
+      "lead_name": "Nurse John – Against Medical Advice Tour",
+      "source": "ilovetheburg",
+      "venue": "Duke Energy Center for the Arts – Mahaffey Theater",
+      "address": "400 1st St S",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-09 19:30:00",
+          "end": "2026-10-09 21:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:st-pete-fall-festival",
+      "lead_name": "St Pete Fall Festival",
+      "source": "ilovetheburg",
+      "venue": "Spa Beach",
+      "address": "600 2nd ave NE",
+      "city": "St Petersburg",
+      "zip": null,
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://stpetepier.org/signature-event/st-pete-fall-festival/",
+        "https://stpetepier.org/venue/spa-beach/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-10 02:00:00",
+          "end": "2026-10-11 01:59:59",
+          "all_day": true
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:st-pete-fall-festival",
+      "lead_name": "St Pete Fall Festival",
+      "source": "thatssotampa",
+      "venue": "Spa Beach",
+      "address": "600 2nd ave NE",
+      "city": "St Petersburg",
+      "zip": null,
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://stpetepier.org/signature-event/st-pete-fall-festival/",
+        "https://stpetepier.org/venue/spa-beach/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-10 03:00:00",
+          "end": "2026-10-12 02:59:59",
+          "all_day": true
+        }
+      ]
+    }
+  ]
+}

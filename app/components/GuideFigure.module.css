@@ -75,7 +75,9 @@
   place-items: center;
   padding: 20px;
   color: #b9c3ce;
-  font-family: var(--wf-display), Georgia, serif;
+  /* This shared failure placeholder also appears in app/menu cards, outside
+     the guide-only display-font scope. Inherit the already-loaded UI font. */
+  font-family: inherit;
   font-size: 16px;
   letter-spacing: -0.01em;
   text-align: center;

@@ -1,4 +1,7 @@
 import fs from "node:fs";
+import ts from "typescript";
+import { fetchClassifiedPosterJson } from "../lib/posterJson.js";
+import { isRailCancelled, railDeveloperFailure } from "../lib/railFailure.js";
 import {
   TODAY_DISCOVERY_RAIL_DEFS,
   composeTodayDiscoveryRails,
@@ -124,8 +127,125 @@ ok(/identity:\s*\(place\)\s*=>\s*claimsTodayRail\(/.test(route),
 // across deployments and a membership change that inherits an earlier
 // generation's answer is invisible.
 ok(/today-discovery:v\d+:/.test(route) && /cityKey/.test(route) && /inventoryCategories\?\.includes\("beach"\)/.test(route), "versioned cache identity includes creator city and duplicated beach inventory still receives water evidence");
-const component = fs.readFileSync(new URL("../app/components/TodayDiscoveryRails.js", import.meta.url), "utf8");
-ok(/fetchJsonWithDeadline\("\/api\/today-discovery\?"/.test(component) && /payload\.rails\.map/.test(component), "the lazy drop fetches and renders the dedicated ten-rail answer through the bounded client helper");
+const component = fs.readFileSync(process.argv[2] || new URL("../app/components/TodayDiscoveryRails.js", import.meta.url), "utf8");
+// Follow the production import rather than pinning the old transport's spelling.
+// The classified poster helper retains the deadline and caller cancellation,
+// and adds recoverable service failures without treating outages as emptiness.
+const componentAst = ts.createSourceFile("TodayDiscoveryRails.jsx", component, ts.ScriptTarget.Latest, true, ts.ScriptKind.JSX);
+const posterImport = componentAst.statements.find((node) => ts.isImportDeclaration(node)
+  && node.moduleSpecifier.text === "../../lib/posterJson.js"
+  && node.importClause?.namedBindings?.elements?.some((item) => (item.propertyName || item.name).text === "fetchClassifiedPosterJson"));
+const fetchName = posterImport?.importClause.namedBindings.elements.find((item) => (item.propertyName || item.name).text === "fetchClassifiedPosterJson")?.name.text;
+let requestEffect;
+function findRequestEffect(node) {
+  if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === "useEffect") {
+    let fetchesToday = false;
+    function findFetch(child) {
+      if (ts.isCallExpression(child) && ts.isIdentifier(child.expression) && child.expression.text === fetchName
+        && ts.isBinaryExpression(child.arguments[0]) && ts.isStringLiteral(child.arguments[0].left)
+        && child.arguments[0].left.text === "/api/today-discovery?") fetchesToday = true;
+      ts.forEachChild(child, findFetch);
+    }
+    if (node.arguments[0]) findFetch(node.arguments[0]);
+    if (fetchesToday) requestEffect = node.arguments[0].getText(componentAst);
+  }
+  ts.forEachChild(node, findRequestEffect);
+}
+findRequestEffect(componentAst);
+ok(!!fetchName && !!requestEffect && /payload\.rails\.map/.test(component), "the lazy drop fetches and renders the dedicated ten-rail answer through the current classified bounded helper");
+
+// Execute the actual request effect with the actual imported transport. Only
+// React state and fetch are fixture boundaries; no request algorithm is copied.
+if (fetchName && requestEffect) {
+  const realFetch = globalThis.fetch;
+  const realSetTimeout = globalThis.setTimeout;
+  const realNow = Date.now;
+  const tick = () => new Promise((resolve) => realSetTimeout(resolve, 0));
+  const healthyPayload = { degraded: false, sourceFailures: 0, rails: TODAY_DISCOVERY_RAIL_DEFS.map((rail, index) => ({
+    ...rail, places: [fixtures[index]], total: 1, page: 0, hasMore: false,
+  })) };
+  const effectHarness = (city) => {
+    const state = { payload: null, failure: null, tracks: [], errors: [] };
+    const ctx = {
+      key: "28.54|-81.38", city, retry: 0, asked: { current: "" },
+      [fetchName]: fetchClassifiedPosterJson, isRailCancelled, railDeveloperFailure,
+      setPayload: (payload) => { state.payload = payload; },
+      setFailure: (failure) => { state.failure = failure; },
+      onTrack: (...args) => { state.tracks.push(args); },
+      console: { error: (...args) => { state.errors.push(args); } },
+    };
+    const effect = new Function("ctx", `with(ctx) { return (${requestEffect}); }`)(ctx);
+    return { state, ctx, start: effect };
+  };
+  const settle = async (harness) => {
+    const deadline = realNow() + 1500;
+    while (!harness.state.payload && !harness.state.failure && realNow() < deadline) await tick();
+    ok(!!harness.state.payload || !!harness.state.failure, "the exercised request effect actually reached a terminal state");
+  };
+  try {
+    let calls = [];
+    globalThis.fetch = async (url, options) => { calls.push({ url, options }); return Response.json(healthyPayload); };
+    const healthy = effectHarness("Fixture healthy");
+    const cleanupHealthy = healthy.start(); await settle(healthy);
+    ok(calls.length === 1 && calls[0].url.startsWith("/api/today-discovery?"), "the real effect fetches only its dedicated owned-inventory endpoint");
+    const query = new URL(calls[0].url, "https://fixture.invalid").searchParams;
+    ok(query.get("lat") === "28.54" && query.get("lng") === "-81.38" && query.get("city") === "Fixture healthy", "the actual fetch preserves its location and creator city");
+    ok(calls[0].options.signal instanceof AbortSignal && calls[0].options.priority === "high", "the production classified helper supplies cancellable high-priority transport");
+    ok(healthy.state.payload.rails.length === 10 && healthy.state.payload.rails.every((rail, index) => rail.places[0].id === fixtures[index].id), "the effect delivers all ten original rail definitions and place rows intact");
+    ok(healthy.state.tracks.length === 1 && healthy.state.tracks[0][1].places === 10, "the successful effect tracks the ten real loaded rows once");
+    cleanupHealthy();
+
+    for (const [label, response, kind, reason, expectedCalls] of [
+      ["malformed", () => Response.json({ rails: null }), "developer", "invalid_payload", 1],
+      ["forbidden", () => new Response("", { status: 403 }), "developer", "http_403", 1],
+      ["outage", () => new Response("", { status: 503 }), "degraded", "http_503", 2],
+    ]) {
+      calls = [];
+      globalThis.fetch = async (url, options) => { calls.push({ url, options }); return response(); };
+      const failed = effectHarness(`Fixture ${label}`);
+      const cleanup = failed.start(); await settle(failed);
+      ok(failed.state.failure?.kind === kind && failed.state.failure?.reason === reason && !failed.state.payload,
+        `${label} remains an explicit ${kind} state instead of successful empty inventory`);
+      ok(calls.length === expectedCalls, `${label} retains the transport's bounded retry contract`);
+      cleanup();
+    }
+
+    let release, transportSignal;
+    globalThis.fetch = async (_url, options) => { transportSignal = options.signal; return new Promise((resolve) => { release = resolve; }); };
+    const cancelled = effectHarness("Fixture cancelled");
+    const cleanupCancelled = cancelled.start(); await tick();
+    ok(typeof release === "function", "the cancellation control really starts an in-flight fetch");
+    cleanupCancelled(); await tick();
+    ok(transportSignal.aborted && cancelled.ctx.asked.current === "", "effect cleanup cancels transport and releases the same-location retry gate");
+    release(Response.json(healthyPayload)); await tick(); await tick();
+    ok(!cancelled.state.payload && !cancelled.state.failure, "a cancelled late answer cannot paint stale cards or an outage");
+
+    // Fire the real scheduled deadline callbacks deterministically, rather
+    // than waiting ten seconds or swapping out the transport under test.
+    const deadlines = [];
+    let now = realNow();
+    Date.now = () => now;
+    globalThis.setTimeout = (fn, ms, ...args) => {
+      const handle = realSetTimeout(fn, ms, ...args);
+      if (ms === 10000) deadlines.push({ fn, args, handle });
+      return handle;
+    };
+    globalThis.fetch = async () => new Promise(() => {});
+    const stalled = effectHarness("Fixture deadline");
+    const cleanupStalled = stalled.start(); await tick();
+    ok(deadlines.length > 0, "the real effect arms its ten-second deadline in the current transport");
+    now += 10000;
+    for (const timer of deadlines) { clearTimeout(timer.handle); timer.fn(...timer.args); }
+    await settle(stalled);
+    ok(stalled.state.failure?.kind === "degraded" && stalled.state.failure?.reason === "timeout" && !stalled.state.payload,
+      "a stalled current transport settles as a recoverable timeout rather than an endless skeleton");
+    cleanupStalled();
+  } finally {
+    globalThis.fetch = realFetch;
+    globalThis.setTimeout = realSetTimeout;
+    Date.now = realNow;
+  }
+}
 
 if (fail.length) {
   console.error("test-today-discovery-rails: FAIL");

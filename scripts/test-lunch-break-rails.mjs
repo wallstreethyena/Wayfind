@@ -52,7 +52,7 @@ ok(!leakMembership.has("seasons"), "an upscale American room does not become Hea
 
 const daypartSource = fs.readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
 ok(/\["break", "eat", "breakfast"\]\.flatMap/.test(daypartSource) && /places=\{lunchBreakLive \|\| lunchBreakPlaces\}/.test(daypartSource), "Lunch Break keeps the broad meal response as its immediate fallback");
-ok(/fetch\("\/api\/lunch-break\?"/.test(daypartSource) && /setLunchBreakLive\(body\.places\)/.test(daypartSource), "Lunch Break hydrates from its dedicated owned-inventory endpoint");
+ok(/fetchJsonWithDeadline\("\/api\/lunch-break\?"/.test(daypartSource) && /setLunchBreakLive\(body\.places\)/.test(daypartSource), "Lunch Break hydrates from its dedicated owned-inventory endpoint");
 
 const routeSource = fs.readFileSync(new URL("../app/api/lunch-break/route.js", import.meta.url), "utf8");
 ok(/serveFromInventory\("food"/.test(routeSource) && /fastCachedRail\(key/.test(routeSource), "the dedicated endpoint is owned-inventory-only and FastCache-backed");

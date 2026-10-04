@@ -1,4 +1,5 @@
 "use client";
+import GuideRailCollection from "./GuideRailCollection";
 
 import { useMemo } from "react";
 import RailCard, { RailDots, RailNav } from "./RailCard";
@@ -20,6 +21,7 @@ export default function LunchBreakRails({ places = [], city = "", onOpenPlace, i
   const curated = useCuratedRows(places);
   const rails = useMemo(() => visibleRails(composeLunchBreakRails(curated), "places"), [curated]);
   return <>
+    <GuideRailCollection rails={rails} collectionId="lunch-break">
     {rails.map((rail) => (
       <section key={rail.id} aria-label={rail.title} style={{ marginTop: 22 }}>
         <RailHeading title={rail.title} description={rail.deck}>
@@ -51,5 +53,6 @@ export default function LunchBreakRails({ places = [], city = "", onOpenPlace, i
         </>
       </section>
     ))}
+    </GuideRailCollection>
   </>;
 }

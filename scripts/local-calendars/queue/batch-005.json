@@ -1,0 +1,356 @@
+{
+  "batch": 5,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "ilovetheburg:cheesemaking-class",
+      "lead_name": "Cheesemaking Class",
+      "source": "ilovetheburg",
+      "venue": "Beech Kombucha",
+      "address": "3100 Freemont Terrace South",
+      "city": "St. Petersburg",
+      "zip": "33712",
+      "cost_text": "$30",
+      "organizer_url_hints": [
+        "https://square.link/u/boXg4afc",
+        "https://www.beechbucha.com/"
+      ],
+      "organizer_names": [
+        "Beech Kombucha"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-03 14:00:00",
+          "end": "2026-10-03 17:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:tampa-bay-rays-american-league-division-series-game-1",
+      "lead_name": "Tampa Bay Rays vs. New York Yankees — American League Division Series Game 1",
+      "source": "ilovetheburg",
+      "venue": "Tropicana Field",
+      "address": "1 Tropicana Dr",
+      "city": "St. Petersburg",
+      "zip": "33705",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.mlb.com/rays/tickets/postseason"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-03 18:30:00",
+          "end": "2026-10-03 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:%f0%9f%94%a5-phoenix5-is-coming-in-hot-at-whiskey-wings-clearwater-%f0%9f%94%a5",
+      "lead_name": "🔥 PHOENIX5 Is Coming in Hot at Whiskey Wings Clearwater 🔥",
+      "source": "ilovetheburg",
+      "venue": "Whiskey Wings Countryside",
+      "address": "26210 US Hwy 19 N",
+      "city": "Clearwater",
+      "zip": "33761",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://eventvesta.com/events/165031/t/tickets"
+      ],
+      "organizer_names": [
+        "Dotfilmz"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-03 19:00:00",
+          "end": "2026-10-03 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:tampa-bay-lightning-vs-washington-capitals-2",
+      "lead_name": "Tampa Bay Lightning vs. Washington Capitals",
+      "source": "ilovetheburg",
+      "venue": null,
+      "address": null,
+      "city": null,
+      "zip": null,
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.nhl.com/lightning/tickets/single-game-tickets"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-03 19:00:00",
+          "end": "2026-10-03 21:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:tampa-bay-lightning-vs-washington-capitals",
+      "lead_name": "Tampa Bay Lightning vs. Washington Capitals",
+      "source": "thatssotampa",
+      "venue": "Benchmark International Arena",
+      "address": "401 Channelside Dr",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.nhl.com/lightning/tickets/single-game-tickets",
+        "https://www.benchmarkintlarena.com"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-03 19:00:00",
+          "end": "2026-10-03 19:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:usf-ice-hockey-vs-university-of-tampa-hockey-battle-for-the-bay",
+      "lead_name": "USF Ice Hockey vs. University of Tampa Hockey: Battle for the Bay",
+      "source": "thatssotampa",
+      "venue": "AdventHealth Center Ice",
+      "address": "3173 Cypress Ridge Blvd",
+      "city": "Wesley Chapel",
+      "zip": "33544",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://eventvesta.com/events/164017/t/tickets",
+        "https://ahcenterice.com/venue/adventhealth-center-ice/",
+        "https://ahcenterice.com/organizer/adventhealth-center-ice/"
+      ],
+      "organizer_names": [
+        "AdventHealth Center Ice"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-03 19:00:00",
+          "end": "2026-10-03 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:caamp-live-in-concert",
+      "lead_name": "Caamp Live In Concert",
+      "source": "ilovetheburg",
+      "venue": "Duke Energy Center for the Arts – Mahaffey Theater",
+      "address": "400 1st St S",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-03 19:30:00",
+          "end": "2026-10-03 22:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:tampa-bay-rowdies-vs-miami-fc",
+      "lead_name": "Tampa Bay Rowdies vs. Miami FC",
+      "source": "ilovetheburg",
+      "venue": "Al Lang Stadium",
+      "address": "230 1st St. S",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.rowdiessoccer.com/tampa-bay-rowdies-tickets/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-03 19:30:00",
+          "end": "2026-10-03 19:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:tampa-bay-rowdies-vs-miami-fc",
+      "lead_name": "Tampa Bay Rowdies vs. Miami FC",
+      "source": "thatssotampa",
+      "venue": "Al Lang Stadium",
+      "address": "230 1st St SE",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.rowdiessoccer.com/tampa-bay-rowdies-tickets/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-03 19:30:00",
+          "end": "2026-10-03 19:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:mariachi-el-bronx-2026-fall-tour",
+      "lead_name": "Mariachi El Bronx – 2026 Fall Tour",
+      "source": "ilovetheburg",
+      "venue": "Jannus Live",
+      "address": "200 1st Ave N STE 206",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.jannuslive.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-03 20:00:00",
+          "end": "2026-10-03 23:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:delirium",
+      "lead_name": "Delirium",
+      "source": "ilovetheburg",
+      "venue": "Coastal Creative",
+      "address": "2201 1st Avenue South",
+      "city": "St. Petersburg",
+      "zip": "33712",
+      "cost_text": "$15 – $30",
+      "organizer_url_hints": [
+        "https://theticketing.co/e/deliriumstpete",
+        "https://www.instagram.com/nosleeppresents/?hl=en"
+      ],
+      "organizer_names": [
+        "No Sleep"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-03 22:00:00",
+          "end": "2026-10-04 03:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:corey-ave-sunday-fresh-market",
+      "lead_name": "Corey Ave Sunday Fresh Market",
+      "source": "ilovetheburg",
+      "venue": "St. Pete Beach",
+      "address": "6850 Beach Plaza",
+      "city": "St. Pete Beach",
+      "zip": null,
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.visitstpeteclearwater.com/event/corey-avenue-sunday-fresh-market-st-pete-beach/51371"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-10-04 10:00:00",
+          "end": "2026-10-04 14:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-10-11 10:00:00",
+          "end": "2026-10-11 14:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-10-18 10:00:00",
+          "end": "2026-10-18 14:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-10-25 10:00:00",
+          "end": "2026-10-25 14:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-11-01 10:00:00",
+          "end": "2026-11-01 14:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-11-08 10:00:00",
+          "end": "2026-11-08 14:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-11-15 10:00:00",
+          "end": "2026-11-15 14:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-11-22 10:00:00",
+          "end": "2026-11-22 14:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-11-29 10:00:00",
+          "end": "2026-11-29 14:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-12-06 10:00:00",
+          "end": "2026-12-06 14:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-12-13 10:00:00",
+          "end": "2026-12-13 14:00:00",
+          "all_day": false
+        }
+      ]
+    }
+  ]
+}

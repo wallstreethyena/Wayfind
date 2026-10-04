@@ -60,6 +60,7 @@
 // reporting green on a check that never ran.
 import { FALL_CARD_IDS, fallSeasonEnd } from "../lib/fallSkin.js";
 import { FALL_PLACE_IDS, FALL_PLACE_RAIL, FALL_REJECTED_IDS, FALL_OFFERING_SOURCES } from "../lib/fallPool.js";
+import { fallPlaceEvidenceCurrent } from "../lib/fallPlaceEvidence.js";
 import { YEAR_ROUND_EVERGREEN_IDS, verifiedInSeasonWindow, offeringActive, nameOnlyCandidate } from "../lib/fallEvidence.js";
 import { siteTodayStr } from "../lib/siteTime.js";
 
@@ -126,6 +127,18 @@ for (const id of poolIds) {
   }
 }
 ok(blockers.length === 0, `${blockers.length} of ${poolIds.size} FALL_PLACE_IDS entries are not current-season verified:\n    ` + (blockers.join("\n    ") || "(none)"));
+// Runtime admission uses the same current registry and stronger current-season
+// re-check contract. A static build cannot keep last year's seasonal claims.
+for (const id of poolIds) {
+  ok(fallPlaceEvidenceCurrent(id, today), `${id}: current registry evidence also passes serve-time admission`);
+  ok(!fallPlaceEvidenceCurrent(id, "2027-10-01"), `${id}: previous-season static evidence cannot survive into next fall`);
+}
+ok(!fallPlaceEvidenceCurrent("missing-fixture-id", today), "unknown IDs cannot borrow registry evidence");
+ok(!fallPlaceEvidenceCurrent([...poolIds][0], "2026-01-01"), "future verification cannot publish a place early");
+const datedId = Object.keys(FALL_OFFERING_SOURCES).find((id) => FALL_OFFERING_SOURCES[id].until);
+ok(!!datedId, "positive probe: the present registry has a dated offering");
+ok(!fallPlaceEvidenceCurrent(datedId, "2026-12-01"), "a dated offering is unavailable after its own end date");
+
 // Print each blocker as its own line too, even though the summary assertion
 // above already lists them — a reviewer scanning stderr for "BLOCKED" should
 // not have to parse a single run-on message to find every offender.
@@ -192,4 +205,4 @@ if (fails.length) {
   for (const m of fails) console.error("  ✗ " + m);
   process.exit(1);
 }
-console.log(`check-fall-registry-integrity: OK — ${pass} assertions (client/server/rail sets identical, rejected ids stay out, every member current-season verified or evergreen-exempt, no expired dated offering survives)`);
+console.log(`check-fall-registry-integrity: OK — ${pass} assertions (client/server/rail sets identical, rejected ids stay out, every member current-season verified, serve-time rollover eligibility held, no expired dated offering survives)`);

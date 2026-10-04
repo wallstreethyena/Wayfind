@@ -5,18 +5,34 @@
 //   node scripts/festivals/publish.mjs --sql out.sql    # one transaction for the Supabase SQL connector
 //   node scripts/festivals/publish.mjs --apply          # write via PostgREST (needs NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY)
 //   node scripts/festivals/publish.mjs --verify         # prove each published slug renders on gowayfind.com
+//   node scripts/festivals/publish.mjs --record         # after an --sql run: ledger every verified row now live
 //
 // INSERT ONLY. An existing row is never updated or overwritten: a lead whose
 // event_id, slug, or (normalized name + start_date) already exists in wf_events
 // is skipped, so an editor's hand-curated row always wins and re-runs are safe.
 // Only rows that pass festivalRows.rowProblems AND have not ended are written.
+//
+// --root scripts/local-calendars runs the SAME publisher over the local media
+// calendar import (docs/LOCAL_CALENDARS_IMPORT.md), with that import's row
+// contract (eventRows.mjs) and its own ledger. Default root is the festivals.
+//
+// Reading live rows for the duplicate check needs only read access, so
+// SUPABASE_READ_KEY (the publishable key; RLS exposes displayable rows) is
+// accepted for --dry and --sql. --apply still requires the service role key.
+// With live rows available, --sql writes only the rows --dry calls new, so the
+// same-event-different-name skip is honored on the SQL path too.
 import { readFileSync, readdirSync, writeFileSync, existsSync } from "node:fs";
-import { rowProblems, normName, dbRow, isSameEvent } from "./festivalRows.mjs";
+import { siteTodayStr } from "../../lib/siteTime.js";
 
 const has = (k) => process.argv.includes(k);
 const arg = (k) => { const i = process.argv.indexOf(k); return i > -1 ? process.argv[i + 1] : null; };
-const today = new Date().toISOString().slice(0, 10);
-const dir = "scripts/festivals/verified";
+const root = (arg("--root") || "scripts/festivals").replace(/\/+$/, "");
+const ROWS_MODULE = { "scripts/festivals": "./festivalRows.mjs", "scripts/local-calendars": "../local-calendars/eventRows.mjs" };
+if (!ROWS_MODULE[root]) { console.error(`publish: unknown --root ${root}`); process.exit(1); }
+const { rowProblems, normName, dbRow, isSameEvent } = await import(ROWS_MODULE[root]);
+const today = siteTodayStr();
+const dir = `${root}/verified`;
+const ledgerPath = `${root}/published.json`;
 
 const rows = []; const seen = new Set(); let refused = 0;
 for (const f of readdirSync(dir).filter((x) => /^batch-\d{3}\.json$/.test(x)).sort()) {
@@ -33,7 +49,9 @@ console.log(`publish: ${rows.length} publishable rows (${refused} refused or alr
 const literal = (v) => "'" + String(v).replaceAll("'", "''") + "'";
 const NORM = (col) => `regexp_replace(regexp_replace(lower(${col}), '(19|20)[0-9]{2}', '', 'g'), '[^a-z0-9]+', '', 'g')`;
 
-if (has("--sql")) {
+let writeRows = rows;
+async function writeSql() {
+  const rows = writeRows;
   const out = arg("--sql");
   const sql = [
     "BEGIN;",
@@ -47,7 +65,7 @@ if (has("--sql")) {
     "COMMIT;",
   ].join("\n");
   writeFileSync(out, sql + "\n");
-  console.log(`publish: wrote ${out}`);
+  console.log(`publish: wrote ${out} (${rows.length} rows)`);
 }
 
 async function existing(base, key) {
@@ -62,10 +80,15 @@ async function existing(base, key) {
   }
 }
 
-if (has("--apply") || has("--dry")) {
+if (has("--apply") || has("--dry") || has("--sql") || has("--record")) {
   const base = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!base || !key) { console.error("publish: set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY (e.g. from .env.local)"); process.exit(1); }
+  const service = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const key = service || process.env.SUPABASE_READ_KEY;
+  if (has("--apply") && (!base || !service)) { console.error("publish: --apply needs NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY (e.g. from .env.local)"); process.exit(1); }
+  if (!base || !key) {
+    if (has("--sql") && !has("--dry")) { await writeSql(); }   // no live read: SQL keeps its own id/name+date guard
+    else { console.error("publish: set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY or SUPABASE_READ_KEY"); process.exit(1); }
+  } else {
   const live = await existing(base, key);
   const ids = new Set(live.flatMap((l) => [l.event_id, l.slug]));
   const nameDate = new Set(live.map((l) => normName(l.event_name) + "|" + l.start_date));
@@ -73,12 +96,23 @@ if (has("--apply") || has("--dry")) {
   // SUBSET test, not an overlap test, so a shared town name is not evidence.
   const sameEvent = (r) => live.find((l) => isSameEvent(r, l));
   const fresh = rows.filter((r) => {
-    if (ids.has(r.event_id) || ids.has(r.slug) || nameDate.has(normName(r.event_name) + "|" + r.start_date)) return false;
+    if (ids.has(r.event_id) || ids.has(r.slug)) { console.log(`skip ${r.event_id}: id already live`); return false; }
+    if (nameDate.has(normName(r.event_name) + "|" + r.start_date)) { console.log(`skip ${r.event_id}: same name and date already live`); return false; }
     const twin = sameEvent(r);
     if (twin) { console.log(`skip ${r.event_id}: same event already live as ${twin.event_id}`); return false; }
     return true;
   });
   console.log(`publish: ${live.length} rows already live, ${rows.length - fresh.length} duplicates skipped, ${fresh.length} new`);
+  writeRows = fresh;
+  if (has("--sql")) await writeSql();
+  // --record: after the SQL path ran, read back and ledger every verified id now live.
+  if (has("--record")) {
+    const liveIds = new Set(live.map((l) => l.event_id));
+    const landed = rows.filter((r) => liveIds.has(r.event_id)).map((r) => r.event_id);
+    const prev = existsSync(ledgerPath) ? JSON.parse(readFileSync(ledgerPath, "utf8")) : [];
+    writeFileSync(ledgerPath, JSON.stringify([...new Set([...prev, ...landed])].sort(), null, 2) + "\n");
+    console.log(`publish: recorded ${landed.length} live verified rows in ${ledgerPath}`);
+  }
   if (has("--apply") && fresh.length) {
     for (let i = 0; i < fresh.length; i += 100) {
       const chunk = fresh.slice(i, i + 100);
@@ -93,15 +127,16 @@ if (has("--apply") || has("--dry")) {
     const liveIds = new Set(after.map((l) => l.event_id));
     const missing = fresh.filter((r) => !liveIds.has(r.event_id));
     if (missing.length) { console.error(`publish: ${missing.length} rows did not land: ${missing.map((m) => m.event_id).join(", ")}`); process.exit(1); }
-    const ledger = "scripts/festivals/published.json";
+    const ledger = ledgerPath;
     const prev = existsSync(ledger) ? JSON.parse(readFileSync(ledger, "utf8")) : [];
     writeFileSync(ledger, JSON.stringify([...new Set([...prev, ...fresh.map((r) => r.event_id)])].sort(), null, 2) + "\n");
     console.log(`publish: inserted and read back ${fresh.length} rows; ledger ${ledger}`);
   }
+  }
 }
 
 if (has("--verify")) {
-  const ledger = "scripts/festivals/published.json";
+  const ledger = ledgerPath;
   const ids = existsSync(ledger) ? JSON.parse(readFileSync(ledger, "utf8")) : [];
   const byId = new Map(rows.map((r) => [r.event_id, r]));
   let ok = 0; const bad = [];

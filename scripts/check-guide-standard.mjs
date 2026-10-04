@@ -36,8 +36,8 @@
 //      hold (the dir now DOES render a place-photo card) is a guard failure,
 //      not a silent pass — the exemption cannot go stale unnoticed.
 //
-// Registered in scripts/guards.txt; regenerate scripts/lib/guard-registry.json
-// with `node scripts/lib/build-guard-registry.mjs` after any edit here.
+// Registered in scripts/guards.txt; its reviewed expectation line lives in
+// scripts/lib/guard-expectations.tsv (check-guard-registry names any drift).
 import { readFileSync, readdirSync, statSync } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -82,7 +82,23 @@ function listJsFiles(dir) {
   return out;
 }
 
-const guideDirs = listDirs(GUIDES_DIR).filter((d) => d !== TEMPLATE_DIR);
+// Index routes under app/guides that LIST guides rather than render one, like
+// the /guides hub itself (app/guides/page.js, which this scan never covered).
+// They carry no article hero by design. Each must stay a non-guide slug AND
+// must not render a guide body, so a real guide can never hide behind this list.
+const INDEX_ROUTES = {
+  past: "the /guides/past archive of guides that already happened (lib/guideLifecycle.js), a list page like /guides",
+};
+{
+  const { GUIDES } = await import("../lib/guides.js");
+  for (const d of Object.keys(INDEX_ROUTES)) {
+    if (GUIDES[d]) fail(`app/guides/${d} is exempt as an index route but is also a GUIDES slug`);
+    const src = readFileSync(path.join(GUIDES_DIR, d, "page.js"), "utf8");
+    if (!/pastGuides\(|guideRegions\(/.test(src)) fail(`app/guides/${d}/page.js is exempt as an index route but does not list guides`);
+    if (CARD_COMPONENT_RX.test(src) || PLACE_PHOTO_RX.test(src)) fail(`app/guides/${d}/page.js is exempt as an index route but renders place cards or place photos, which belong to the guide standard`);
+  }
+}
+const guideDirs = listDirs(GUIDES_DIR).filter((d) => d !== TEMPLATE_DIR && !Object.hasOwn(INDEX_ROUTES, d));
 if (!guideDirs.length) fail("no bespoke guide directories found under app/guides — is the scan path still correct?");
 
 let checkedBespoke = 0;

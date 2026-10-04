@@ -19,6 +19,7 @@ import { TOWN_HUBS } from "../lib/cultureHubs";
 // prose into the homepage's client bundle to render three titles. See
 // lib/localEdit.js for why the split is safe.
 import { GUIDES } from "../lib/guides";
+import { currentGuides } from "../lib/guideLifecycle";
 import { localEditIndex } from "../lib/localEdit";
 // v8 — the rail menu's places are ranked HERE, on the server, at regeneration.
 // lib/railsData.js reaches lib/landing.js, which holds the Places call, the junk
@@ -138,7 +139,7 @@ export default async function Page() {
       <h1 style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0 }}>
         Wayfind — find the best things to do, right now
       </h1>
-      <Home initialEvents={initialEvents} localEditGuides={localEditIndex(GUIDES)} railMenu={railMenu} />
+      <Home initialEvents={initialEvents} localEditGuides={localEditIndex(currentGuides(GUIDES))} railMenu={railMenu} />
       {/* Suspense so the app shell streams immediately; the proof block
           follows without adding a byte to time-to-first-paint. ProofVeil keeps
           it in the DOM for crawlers but removes it from the interactive view

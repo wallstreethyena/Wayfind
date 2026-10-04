@@ -1,0 +1,349 @@
+{
+  "batch": 1,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "ilovetheburg:largo-vibe-fest-a-three-day-arts-festival-in-largo",
+      "lead_name": "Largo Vibe Fest: A Three-Day Arts Festival in Largo",
+      "source": "ilovetheburg",
+      "venue": "Largo Central Park",
+      "address": "101 Central Park Dr",
+      "city": "Largo",
+      "zip": "33771",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://www.largoarts.com/news_detail_T11_R84.php",
+        "https://p2p.onecause.com/petwalk24/home",
+        "https://www.largoarts.com/"
+      ],
+      "organizer_names": [
+        "cppac_largo"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-02 02:00:00",
+          "end": "2026-10-04 01:59:59",
+          "all_day": true
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:drv-gallery-5-year-anniversary-season-reopening",
+      "lead_name": "DRV Gallery: 5-Year Anniversary & Season Reopening",
+      "source": "ilovetheburg",
+      "venue": "DRV Gallery",
+      "address": "5401 Gulfport Blvd S",
+      "city": "Gulfport",
+      "zip": "33707",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://www.drvgallery.com/calendar-of-events/5-year-anniversary-five-exhibition",
+        "https://www.drvgallery.com/calendar-of-events/abstract-painting-with-a-palette-knife",
+        "https://www.drvgallery.com/calendar-of-events/la-lucha-live-at-drv-gallery"
+      ],
+      "organizer_names": [
+        "DRV Gallery"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-02 17:30:00",
+          "end": "2026-10-02 20:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:first-friday-in-the-heights-spooky-scavenger-hunt",
+      "lead_name": "First Friday in the Heights Spooky Scavenger Hunt",
+      "source": "thatssotampa",
+      "venue": "The Disco Dolls Studio",
+      "address": "4220 N Florida Ave",
+      "city": "tampa",
+      "zip": "33603",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "http://www.thediscodolls.com"
+      ],
+      "organizer_names": [
+        "The Disco Dolls"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-02 18:00:00",
+          "end": "2026-10-02 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:seeking-mastery-process-practice-with-debra-vivi-steinfeld-artist-reception",
+      "lead_name": "Seeking Mastery ~ Process & Practice with Debra Vivi Steinfeld ARTIST RECEPTION",
+      "source": "ilovetheburg",
+      "venue": "Brenda McMahon Gallery",
+      "address": "2901 Beach Blvd S #104",
+      "city": "Gulfport",
+      "zip": "33707",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://brendamcmahongallery.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-02 18:00:00",
+          "end": "2026-10-02 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:thee-mighty-pi-iota",
+      "lead_name": "Thee Mighty Pi Iota",
+      "source": "thatssotampa",
+      "venue": "Tampa’s Black History Museum",
+      "address": "1213 N. Central Avenue",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://tampabayhistorycenter.org/",
+        "https://tampabayhistorycenter.org/organizer/tampas-black-history-museum/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-02 18:00:00",
+          "end": "2026-10-02 20:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:usf-volleyball-vs-rice",
+      "lead_name": "USF Volleyball vs Rice",
+      "source": "thatssotampa",
+      "venue": "The Corral",
+      "address": "4202 E Fowler Ave",
+      "city": "Tampa",
+      "zip": "33620",
+      "cost_text": "$15",
+      "organizer_url_hints": [
+        "https://am.ticketmaster.com/univsouthflorida/South_Florida_Volleyball",
+        "https://am.ticketmaster.com/univsouthflorida/South_Florida_Womens_Basketball"
+      ],
+      "organizer_names": [
+        "USF Athletics"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-02 18:00:00",
+          "end": "2026-10-02 20:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:dogtoberfest",
+      "lead_name": "Dogtoberfest",
+      "source": "ilovetheburg",
+      "venue": "Dog Bar St. Pete",
+      "address": "2300 Central Avenue",
+      "city": "St. Petersburg",
+      "zip": null,
+      "cost_text": "Free – $7",
+      "organizer_url_hints": [
+        "https://www.facebook.com/events/919333514089529/"
+      ],
+      "organizer_names": [
+        "Dog Bar"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-02 18:30:00",
+          "end": "2026-10-02 20:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:free-yoga-closet-clean-out-clothing-swap",
+      "lead_name": "Free Yoga, Closet Clean out & Clothing Swap",
+      "source": "ilovetheburg",
+      "venue": "The Velvet Mat",
+      "address": "475 Central Ave B100 Basement",
+      "city": "St Petersburg",
+      "zip": "33701",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://www.thevelvetmat.com/event-details/free-yoga-closet-clean-out-clothing-swap",
+        "https://www.thevelvetmat.com/"
+      ],
+      "organizer_names": [
+        "The Velvet Mat Yoga events"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-02 19:00:00",
+          "end": "2026-10-02 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:open-mic-night-2",
+      "lead_name": "Open Mic Night!",
+      "source": "ilovetheburg",
+      "venue": "Pee-pa’s Garage Craft Brewery",
+      "address": "6340 49 Street N",
+      "city": "Pinellas Park",
+      "zip": "33781",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.peepasgaragecraftbrewery.com/",
+        "https://www.peepasgaragecraftbrewery.com/events"
+      ],
+      "organizer_names": [
+        "Pee-pa’s Garage Craft Brewery"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-10-02 19:00:00",
+          "end": "2026-10-02 22:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-11-06 19:00:00",
+          "end": "2026-11-06 22:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-12-04 19:00:00",
+          "end": "2026-12-04 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:pee-pas-open-mic-night-2",
+      "lead_name": "PEE-PA’S OPEN MIC NIGHT",
+      "source": "ilovetheburg",
+      "venue": "Pee-pa’s Garage Craft Brewery",
+      "address": "6340 49 Street N",
+      "city": "Pinellas Park",
+      "zip": "33781",
+      "cost_text": "free",
+      "organizer_url_hints": [
+        "https://www.peepasgaragecraftbrewery.com/events",
+        "https://www.peepasgaragecraftbrewery.com/"
+      ],
+      "organizer_names": [
+        "Pee-pa’s Garage Craft Brewery"
+      ],
+      "source_categories": [
+        "Concert/Live Show"
+      ],
+      "ticketmaster_venue": false,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-10-02 19:00:00",
+          "end": "2026-10-02 22:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-11-06 19:00:00",
+          "end": "2026-11-06 22:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-12-04 19:00:00",
+          "end": "2026-12-04 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:stand-up-improv-a-comedy-mashup",
+      "lead_name": "Stand-Up + Improv: A Comedy Mashup",
+      "source": "ilovetheburg",
+      "venue": "Spitfire Comedy House",
+      "address": "1920 1st Ave South",
+      "city": "Saint Petersburg",
+      "zip": "33713",
+      "cost_text": "$15",
+      "organizer_url_hints": [
+        "http://spitfirecomedy.vbotickets.com/event/stand-up_+_improv_a_comedy_mashup/98509",
+        "https://spitfirecomedy.com/"
+      ],
+      "organizer_names": [
+        "@spitfirecomedyhouse"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-02 19:00:00",
+          "end": "2026-10-02 20:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:art-aces-a-night-of-vintage-glamour",
+      "lead_name": "Art & Aces: A Night of Vintage Glamour",
+      "source": "thatssotampa",
+      "venue": "Tampa Museum of Art",
+      "address": "120 W Gasparilla Plaza",
+      "city": "St. Petersburg",
+      "zip": "33602",
+      "cost_text": "$250.00",
+      "organizer_url_hints": [
+        "https://tampamuseum.org/event/art-aces-2026/",
+        "https://tampamuseum.org/",
+        "https://tampamuseum.org/event/pride-passion-2024/"
+      ],
+      "organizer_names": [
+        "Tampa Museum of Art"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-02 19:30:00",
+          "end": "2026-10-02 23:00:00",
+          "all_day": false
+        }
+      ]
+    }
+  ]
+}

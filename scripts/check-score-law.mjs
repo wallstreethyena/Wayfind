@@ -347,8 +347,10 @@ ok(governedWayfindScore(90, { hasCreatorVideo: true, trending: true, distanceMi:
 // ── 2g. MAP + EXPERIENCE POOLS (2026-08-08, patch 5) ────────────────────────
 {
   const mapSrc = readFileSync(path.resolve("app/components/screens/Map.js"), "utf8");
-  ok(/\+ \(q\.trending \? TRENDING_BONUS : 0\)/.test(mapSrc),
-    "the map's pin-selection score carries the disclosed trend term");
+  const mapArea = readFileSync(path.resolve("lib/mapAreaData.js"), "utf8");
+  ok(/p\.governed_score = governedScoreOf\(p, row\.metro\)/.test(mapArea) && /byGovernedScore\(a, b\)/.test(mapArea)
+    && /selectMapPlaces\(applyCuratorPicks\(liveAreaPlaces, curatorSnap\)/.test(mapSrc),
+    "the full map pool uses the same governed score (including recorded trend and creator inputs) that the shared card displays");
   // v7.16: the map's bottom slot renders IconicPlaceCard, whose facts row
   // carries the mandatory 🔥 trend_reason disclosure — assert the card is
   // there and that the shared card still discloses.

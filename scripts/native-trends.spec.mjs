@@ -1,6 +1,7 @@
 // Hermetic tests for actual native code. No live services, private data or keys.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { NATIVE_MODE, DAY_MS, utcDay, wikiWindow, wikiObservation,
   windowGrowth, activityObservations, buildNativeTopics } from '../lib/trendSources/nativeCore.js';
 import { nativeTransport, persistNativeSnapshot, runNativeTrends, nativeMaintenance,
@@ -59,7 +60,7 @@ assert.equal(buildNativeTopics([],options).length,0);
 const inventory = [{ place_id:'place_123',name:'Fixture Venue',metro:'orlando',lat:28.5,lng:-81.4,
   status:'OPERATIONAL',refreshed_at:new Date(now-DAY_MS).toISOString() }];
 const users = Array.from({length:10},(_,i)=>({id:`account${i}`,email:`fixture${i}@example.test`,email_confirmed_at:'2026-01-01T00:00:00Z'}));
-users.push({id:'owner',email:'gabrielpereira@me.com',email_confirmed_at:'2026-01-01T00:00:00Z'});
+users.push({id:'owner',email:'internal-fixture@example.test',app_metadata:{is_internal:true},email_confirmed_at:'2026-01-01T00:00:00Z'});
 const event = (id,days,extra={})=>({user_id:id,place_id:'place_123',device_id:`device-${id}`,action:'detail_open',
   created_at:new Date(utcDay(now)-days*DAY_MS).toISOString(),meta:{environment:'production'},...extra});
 const events = [...users.slice(0,5).map((u)=>event(u.id,10)),...users.slice(0,10).map((u)=>event(u.id,1)),
@@ -98,6 +99,63 @@ await assert.rejects(transport.publicRequest('https://user:pass@wikimedia.org'),
 assert.throws(()=>nativeTransport({url:'https://invalid.test',key:'x'}),/invalid-service-origin/);
 assert.throws(()=>nativeTransport({url:service.url}),/missing-service-configuration/);
 await assert.rejects(nativeTransport(service,{deadline:0}).db('/rest/v1/events'),/run-deadline/);
+
+// Port/origin control and streaming body cap are exercised through the real
+// database reader, so switching back to response.text() makes this guard red.
+assert.throws(() => nativeTransport({ url: 'https://fixture.supabase.co:444', key: 'fixture' }), /invalid-service-origin/);
+const encoder = new TextEncoder();
+const unicode = encoder.encode(JSON.stringify({ text: 'café ☕' }));
+const streamed = nativeTransport(service, { fetchImpl: async () => new Response(new ReadableStream({
+  start(controller) { controller.enqueue(unicode.slice(0, 13)); controller.enqueue(unicode.slice(13)); controller.close(); },
+})) });
+assert.deepEqual(await streamed.db('/rest/v1/events'), { text: 'café ☕' }, 'UTF-8 across chunk boundaries remains intact');
+let bodyReads = 0, canceled = false;
+const oversize = nativeTransport(service, { fetchImpl: async () => ({
+  ok: true, headers: new Headers(), body: { getReader: () => ({
+    read: async () => { bodyReads++; return { done: false, value: new Uint8Array(1024 * 1024) }; },
+    cancel: async () => { canceled = true; }, releaseLock: () => {},
+  }) },
+  text: async () => { throw new Error('unbounded-text-reader'); },
+}) });
+await assert.rejects(oversize.db('/rest/v1/events'), /body-cap/);
+assert.equal(bodyReads, 3, 'the reader stops at the first chunk above the 2 MiB ceiling');
+assert.equal(canceled, true, 'the remaining stream is canceled');
+let headerReads = 0;
+await assert.rejects(nativeTransport(service, { fetchImpl: async () => ({
+  ok: true, headers: new Headers({ 'content-length': String(2 * 1024 * 1024 + 1) }),
+  body: { getReader: () => { headerReads++; throw new Error('body-read-after-header-cap'); } },
+}) }).db('/rest/v1/events'), /body-cap/);
+assert.equal(headerReads, 0, 'an oversized declared body is rejected before buffering');
+const coreSource = readFileSync(new URL('../lib/trendSources/nativeCore.js', import.meta.url), 'utf8');
+assert(!/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/.test(coreSource), 'private exclusion emails are represented only by digests');
+
+// Retain coverage of email-derived exclusion without placing a private email
+// in a public fixture. Substitute only the configured digest DATA, then run
+// the actual production transform and normalization with public test users.
+const exclusions = coreSource.match(/const INTERNAL_EMAIL_DIGESTS = new Set\((\[[^;]+\])\);/);
+assert(exclusions, 'positive probe: the fixed digest exclusion set exists');
+assert.deepEqual([...exclusions[1].matchAll(/[a-f0-9]{64}/g)].map((m) => m[0]).sort(), [
+  '7de1bbc72acfb58f060d88d822deb490ae715f12549ce3dedb6936e37536fc46',
+  '6a354aa9619400a486be56b22671761fb617f5585a6740a818d56cbd7791eee1',
+].sort(), 'the two owner-designated exclusion digests are preserved exactly');
+const fixtureHash = createHash('sha256').update('internal-fixture@example.test').digest('hex');
+const fixtureCore = await import('data:text/javascript,' + encodeURIComponent(coreSource.replace(
+  exclusions[0], `const INTERNAL_EMAIL_DIGESTS = new Set(["${fixtureHash}"]);`
+)));
+const fixtureUsers = users.map((u) => u.id === 'owner'
+  ? { ...u, email: ' INTERNAL-FIXTURE@EXAMPLE.TEST ', app_metadata: {} }
+  : u);
+assert.equal(fixtureCore.activityObservations(events, inventory, fixtureUsers, now, ['orlando'])[0].current, 10,
+  'digest-only exclusion normalizes case/whitespace and removes the internal account without metadata');
+const unrelatedUsers = fixtureUsers.map((u) => u.id === 'owner'
+  ? { ...u, email: 'internal-fixture@example.test.evil' } : u);
+assert.equal(fixtureCore.activityObservations(events, inventory, unrelatedUsers, now, ['orlando'])[0].current, 11,
+  'positive control: a different email cannot borrow the excluded digest');
+assert.equal(fixtureCore.activityObservations([
+  event('owner', 1, { device_id: 'shared' }), event('account1', 1, { device_id: 'shared' }),
+], inventory, fixtureUsers, now, ['orlando']).length, 0,
+  'digest-excluded internal devices remain excluded when the next event has a different user');
+
 
 function memoryDb({failTopics=false,truncate=false}={}) {
   const state={snapshots:[],topics:[],writes:[]};

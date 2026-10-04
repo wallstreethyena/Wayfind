@@ -1,0 +1,313 @@
+{
+  "batch": 34,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "ilovetheburg:night-out-cooking-class-mexican-fiesta",
+      "lead_name": "Night Out Cooking Class – Mexican Fiesta",
+      "source": "ilovetheburg",
+      "venue": "The Chef Upstairs (inside The Foodie Labs)",
+      "address": "515 22nd St S",
+      "city": "St Pete",
+      "zip": "33712",
+      "cost_text": "$95",
+      "organizer_url_hints": [
+        "https://square.link/u/MfuYGl1b",
+        "https://thechefupstairsusa.com/"
+      ],
+      "organizer_names": [
+        "@thechefupstairsusa"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-28 18:00:00",
+          "end": "2026-11-28 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:disney-descendants-zombies-worlds-collide",
+      "lead_name": "Disney Descendants & Zombies: Worlds Collide",
+      "source": "thatssotampa",
+      "venue": "Benchmark International Arena",
+      "address": "401 Channelside Dr",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.benchmarkintlarena.com"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-28 19:00:00",
+          "end": "2026-11-28 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:silverstein-story-of-the-year-camp-screamo-tour",
+      "lead_name": "Silverstein & Story Of The Year – Camp Screamo Tour",
+      "source": "ilovetheburg",
+      "venue": "Jannus Live",
+      "address": "200 1st Ave N STE 206",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.jannuslive.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-29 18:00:00",
+          "end": "2026-11-29 23:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:a-j-croce-presents-croce-plays-croce",
+      "lead_name": "A.J. Croce Presents CROCE PLAYS CROCE",
+      "source": "thatssotampa",
+      "venue": "Tampa Theatre",
+      "address": null,
+      "city": null,
+      "zip": null,
+      "cost_text": "$34.50 – $89.50",
+      "organizer_url_hints": [
+        "https://www.etix.com/ticket/p/72257236/croce-plays-croce-tampa-historic-duncan-auditorium?partner_id=8717",
+        "https://tampatheatre.org"
+      ],
+      "organizer_names": [
+        "Tampa Theatre"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-30 20:00:00",
+          "end": "2026-11-30 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:tampa-bay-buccaneers-vs-carolina-panthers-2",
+      "lead_name": "Tampa Bay Buccaneers vs Carolina Panthers",
+      "source": "ilovetheburg",
+      "venue": "Raymond James Stadium",
+      "address": "4201 N Dale Mabry Hwy",
+      "city": "Tampa",
+      "zip": "33607",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.buccaneers.com/tickets/single-game"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-30 20:15:00",
+          "end": "2026-11-30 23:15:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:tampa-bay-buccaneers-vs-carolina-panthers",
+      "lead_name": "Tampa Bay Buccaneers vs Carolina Panthers",
+      "source": "thatssotampa",
+      "venue": "Raymond James Stadium",
+      "address": "4201 N Dale Mabry Hwy",
+      "city": "Tampa",
+      "zip": "33607",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.buccaneers.com/tickets/single-game?source=sgthome",
+        "https://secure.acsevents.org/site/TR?fr_id=109431&pg=informational&sid=212807&name=event-details"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-30 20:15:00",
+          "end": "2026-11-30 23:15:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:celebrate-the-holidays-with-the-dizzy-desserts-a-dali-inspired-culinary-competition",
+      "lead_name": "Celebrate the Holidays with the Dizzy Desserts – A Dalí-Inspired Culinary Competition",
+      "source": "ilovetheburg",
+      "venue": "The Chef Upstairs (inside The Foodie Labs)",
+      "address": "515 22nd St S",
+      "city": "St Pete",
+      "zip": "33712",
+      "cost_text": "$77",
+      "organizer_url_hints": [
+        "https://square.link/u/rmCdez98",
+        "https://thechefupstairsusa.com/"
+      ],
+      "organizer_names": [
+        "@thechefupstairsusa"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-02 19:00:00",
+          "end": "2026-12-02 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:eli-young-band-live-in-concert",
+      "lead_name": "Eli Young Band Live In Concert",
+      "source": "ilovetheburg",
+      "venue": "Jannus Live",
+      "address": "200 1st Ave N STE 206",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.jannuslive.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-02 19:00:00",
+          "end": "2026-12-02 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:remix-david-hockney-holiday-cards",
+      "lead_name": "Remix: David Hockney Holiday Cards",
+      "source": "thatssotampa",
+      "venue": "Tampa Museum of Art",
+      "address": "120 W Gasparilla Plaza",
+      "city": "St. Petersburg",
+      "zip": "33602",
+      "cost_text": "$55",
+      "organizer_url_hints": [
+        "https://shop.tampamuseum.org/products/remix-david-hockney?_gl=1*19bl4hq*_gcl_au*NjQwODQ0MzE4LjE3ODExMTg4MDA",
+        "https://tampamuseum.org/",
+        "https://shop.tampamuseum.org/collections/tickets/products/daily-admission-advance-purchase"
+      ],
+      "organizer_names": [
+        "@tampamuseumofart"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-03 18:00:00",
+          "end": "2026-12-03 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:ice-featuring-the-polar-express-2",
+      "lead_name": "ice! featuring The Polar Express™",
+      "source": "ilovetheburg",
+      "venue": "Gaylord Palms",
+      "address": "6000 W Osceola Pkwy",
+      "city": "Kissimmee",
+      "zip": "34746",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://tickets.gaylordpalms.com/eventperformances.asp?evt=162"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-04 02:00:00",
+          "end": "2026-12-06 01:59:59",
+          "all_day": true
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:ice-featuring-the-polar-express-2",
+      "lead_name": "ice! featuring The Polar Express™",
+      "source": "thatssotampa",
+      "venue": "Gaylord Palms",
+      "address": "6000 W Osceola Pkwy",
+      "city": "Kissimmee",
+      "zip": "34746",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://tickets.gaylordpalms.com/eventperformances.asp?evt=162"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-04 03:00:00",
+          "end": "2026-12-07 02:59:59",
+          "all_day": true
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:kids-market-at-brandon-rec-center-movie-night",
+      "lead_name": "Kids Market At Brandon Rec Center Movie Night",
+      "source": "thatssotampa",
+      "venue": "Brandon Rec Center",
+      "address": "502 E Sadie St",
+      "city": "Tampa",
+      "zip": "33510",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://kidsmarkets.com/markets/brandon-2",
+        "https://kidsmarkets.com/event/brandon/",
+        "https://kidsmarkets.com"
+      ],
+      "organizer_names": [
+        "Kids Markets"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-12-04 17:30:00",
+          "end": "2026-12-04 20:30:00",
+          "all_day": false
+        }
+      ]
+    }
+  ]
+}

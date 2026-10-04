@@ -1,4 +1,5 @@
 "use client";
+import GuideRailCollection from "./GuideRailCollection";
 
 import { useMemo } from "react";
 import RailCard, { RailDots, RailNav } from "./RailCard";
@@ -21,6 +22,7 @@ export default function WorthEatingRails({ places = [], city = "", hasMore = fal
   const curated = useCuratedRows(places);
   const rails = useMemo(() => visibleRails(composeWorthEatingRails(curated), "places"), [curated]);
   return <>
+    <GuideRailCollection rails={rails} collectionId="worth-eating">
     {rails.map((rail) => (
       <section key={rail.id} aria-label={rail.title} style={{ marginTop: 22 }}>
         <RailHeading title={rail.title} description={rail.deck}>
@@ -55,6 +57,7 @@ export default function WorthEatingRails({ places = [], city = "", hasMore = fal
         </>
       </section>
     ))}
+    </GuideRailCollection>
     {hasMore ? <button type="button" className="wf8-thinbtn" disabled={loadingMore} onClick={() => onLoadMore?.()}>
       {loadingMore ? "Loading more places…" : "Show more ranked places"}
     </button> : null}

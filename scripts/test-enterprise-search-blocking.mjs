@@ -54,6 +54,9 @@ const S = {
   google: [],        // { endpoint, mask, sku }
   cacheWrites: [],   // wf_places_cache POST keys
   inventoryWrites: 0,
+  inventoryMutations: [], // direct wf_inventory writes, including photo PATCHes
+  experienceWrites: [],
+  cityStatuses: [],  // allowed bookkeeping must never establish false coverage
   googleMode: "ok",  // ok | 500 | throw
   googlePlaces: 1,
   cacheFor: () => null,
@@ -61,6 +64,7 @@ const S = {
 const tick = () => new Promise((r) => setTimeout(r, Math.floor(Math.random() * 4)));
 function resetRec(ledger = {}) {
   S.ledger = { ...ledger }; S.ledgerCalls = []; S.google = []; S.cacheWrites = []; S.inventoryWrites = 0;
+  S.inventoryMutations = []; S.experienceWrites = []; S.cityStatuses = [];
   S.googleMode = "ok"; S.googlePlaces = 1; S.cacheFor = () => null;
 }
 let placeSeq = 0;
@@ -99,6 +103,11 @@ globalThis.fetch = async (input, init = {}) => {
   if (url.includes("googleapis.com")) { fail.push("recorder: unexpected Google URL " + url); throw new Error("unexpected Google URL"); }
   if (url.startsWith("https://db.test/")) {
     const method = String(init.method || "GET").toUpperCase();
+    if (["POST", "PATCH", "PUT", "DELETE"].includes(method)) {
+      if (/\/rest\/v1\/wf_inventory(\?|$)/.test(url)) S.inventoryMutations.push({ method, url });
+      if (/\/rest\/v1\/wf_experiences(\?|$)/.test(url)) S.experienceWrites.push({ method, url });
+      if (/\/rest\/v1\/wf_city_requests(\?|$)/.test(url)) S.cityStatuses.push(JSON.parse(init.body).status);
+    }
     if (/\/rest\/v1\/wf_places_cache(\?|$)/.test(url)) {
       if (method === "POST") { try { S.cacheWrites.push(JSON.parse(init.body).k); } catch { S.cacheWrites.push("?"); } return new Response("", { status: 201 }); }
       const m = url.match(/[?&]k=eq\.([^&]+)/);
@@ -302,16 +311,31 @@ try {
     ok(sw && Array.isArray(sw.places) && sw.places.length === 0 && S.google.length === 0, `fallback 4d: blocked sweep should return an empty census with no Google, got ${sw && sw.places && sw.places.length} / ${S.google.length}`);
     report.push(`  4d sweepDistricts(all ${nl.ORLANDO_DISTRICTS.length} districts) blocked: places=0, google=0, no throw`);
   }
-  // 4e. city/unlock blocked: answers JSON, inserts nothing, does not throw.
-  {
-    resetRec();
+  // 4e. A denied or partially granted crawl reports budget, never coverage.
+  // Status bookkeeping may remain fetching; no candidate/cache write may land.
+  for (const [label, cap, ledger, expectedRequests, expectedAsks] of [
+    ["missing ceiling", undefined, {}, 0, 0],
+    ["exhausted ceiling", "1000", { text_enterprise: 0 }, 0, 6],
+    ["partial crawl", "1000", { text_enterprise: 1 }, 1, 6],
+  ]) {
+    setCap(TEXT_CAP, cap); resetRec(ledger);
     let res, threw = null;
     try { res = await TEXT_CALLERS["app/api/city/unlock POST (6 pulls)"](); } catch (e) { threw = e; }
-    ok(!threw, `fallback 4e: unlock threw ${threw && threw.message}`);
+    ok(!threw, `fallback 4e [${label}]: unlock threw ${threw && threw.message}`);
     const j = res ? await res.json() : null;
-    ok(res && res.status === 200 && j && j.added === 0 && j.status === "fetching", `fallback 4e: unlock answered ${res && res.status} ${JSON.stringify(j)}`);
-    ok(S.google.length === 0 && S.inventoryWrites === 0, `fallback 4e: unlock google=${S.google.length} inserts=${S.inventoryWrites}`);
-    report.push(`  4e city/unlock blocked: HTTP ${res && res.status} ${JSON.stringify(j)}, google=0, inserts=0`);
+    ok(res && res.status === 200 && res.headers.get("cache-control") === "no-store",
+      `fallback 4e [${label}]: unlock response must be HTTP 200 and uncacheable`);
+    ok(j && j.ok === false && j.status === "budget" && j.google_spend === "denied"
+      && j.found === 0 && j.added === 0 && j.experiences === 0,
+      `fallback 4e [${label}]: unlock answered ${JSON.stringify(j)}`);
+    ok(S.google.length === expectedRequests && count("text_enterprise") === expectedRequests
+      && grants("text_enterprise") === expectedRequests && asks("text_enterprise") === expectedAsks,
+      `fallback 4e [${label}]: google=${S.google.length} grants=${grants("text_enterprise")} asks=${asks("text_enterprise")}`);
+    ok(S.inventoryWrites === 0 && S.inventoryMutations.length === 0 && S.experienceWrites.length === 0 && S.cacheWrites.length === 0,
+      `fallback 4e [${label}]: inserts=${S.inventoryWrites} inventory mutations=${S.inventoryMutations.length} experience writes=${S.experienceWrites.length} cache writes=${S.cacheWrites.length}`);
+    ok(S.cityStatuses.length === 2 && S.cityStatuses.every((status) => status === "fetching"),
+      `fallback 4e [${label}]: city status writes=${JSON.stringify(S.cityStatuses)} — a denied crawl must not establish coverage`);
+    report.push(`  4e city/unlock ${label}: HTTP ${res && res.status} ${JSON.stringify(j)}, google=${S.google.length}, inserts=0, inventory/cache/experience writes=0, statuses=${S.cityStatuses.join("/")}`);
   }
 } catch (e) {
   fail.push("harness threw: " + (e && e.stack || e));

@@ -13,6 +13,7 @@ export const dynamic = "force-dynamic";
 // vetted year-round spooky PLACES ride along as normal scored place rows.
 import { fetchCuratedEvents, isTrusted, eventOutboundUrl } from "../../../../lib/curatedEvents.js";
 import { siteTodayStr } from "../../../../lib/siteTime.js";
+import { fallPlaceEvidenceCurrent } from "../../../../lib/fallPlaceEvidence.js";
 import { isFallEvent, fallEventLive, fallWhenLabel, fallScheduleChip, FALL_PLACE_IDS, FALL_PLACE_RAIL, FALL_OFFERING_SOURCES, FALL_EVENT_TICKET_DEALS } from "../../../../lib/fallPool.js";
 import { eventTicketDeal, eventTicketCta, isServableDeal } from "../../../../lib/eventTicketDeals.js";
 import { supabase } from "../../../../lib/supabase.js";
@@ -296,6 +297,7 @@ export async function GET(request) {
         .map((p) => (CURATED_OWNED_PLACE_PHOTOS[p.place_id] ? { ...p, photo_url: CURATED_OWNED_PLACE_PHOTOS[p.place_id].url } : p))
         .filter((p) => !seasonalPlaceIds.has(p.place_id))
         .filter((p) => hasStoredPlacePhoto(p))
+        .filter((p) => !FALL_PLACE_IDS[p.place_id] || fallPlaceEvidenceCurrent(p.place_id, today))
         .filter((p) => (!p.status || p.status === "OPERATIONAL")
           && (FALL_PLACE_IDS[p.place_id] || (typeof p.signals?.rating === "number" && p.signals.rating > 0)))
         .map((p) => ({
@@ -337,16 +339,19 @@ export async function GET(request) {
       return { today, ...composed, sourceCount: events.length + places.length, sourceFailures };
     }, {
       name: "fall-intent-rails",
-      usable: (value) => value?.rails?.length === 10 && Number(value?.sourceCount || 0) > 0,
+      usable: (value) => value?.sourceFailures === 0
+        && value?.rails?.length === 10 && Number(value?.sourceCount || 0) > 0,
     });
+    const complete = cached.value?.sourceFailures === 0;
     const headers = {
-      "cache-control": "public, s-maxage=900, stale-while-revalidate=86400",
+      "cache-control": complete ? "public, s-maxage=900, stale-while-revalidate=86400" : "no-store",
       "x-wayfind-fast-cache": cached.state,
     };
     if (railId) {
       const paged = pageOneRail(cached.value.rails, railId, { page, size });
       if (!paged) return Response.json({ error: "unknown rail" }, { status: 404, headers: { "cache-control": "no-store" } });
-      return Response.json({ rail: railId, today: cached.value.today, phase: cached.value.phase, ...paged }, { headers });
+      return Response.json({ rail: railId, today: cached.value.today, phase: cached.value.phase,
+        sourceFailures: cached.value.sourceFailures, ...paged }, { headers });
     }
     // Derive against the full cached rails outside the cache compute. This
     // makes the selector work immediately with v14 entries written before the

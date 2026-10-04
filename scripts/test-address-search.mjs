@@ -5,6 +5,8 @@ import { knownCityGeocode } from '../lib/knownCityGeocode.js';
 import { localCitySuggestions, createSearchAttempt } from '../lib/searchExperience.js';
 import { localityFromFormattedAddress, centerAgreesWithLabel } from '../lib/locationHonesty.js';
 import { themeParkIntent } from '../lib/themeParks.js';
+import { attachOfficialScoreReceipt } from '../lib/lawfulOrder.js';
+import { readableScoreReceipt } from '../lib/scoreExplanation.js';
 
 // Run the actual UI handlers. React setters, the network and sheet rendering
 // are the only boundaries mocked here; no copied search algorithm.
@@ -24,7 +26,7 @@ function harness(query, response = {status:'ok',places:[row()]}) {
     query, center:{lat:28.54,lng:-81.38}, deviceLoc:{lat:25.76,lng:-80.19}, locName:'Orlando, FL', screen:'suggested',
     manualRef:{current:true}, debounceRef:{current:null}, suggestionRequestRef:{current:0},
     searchInputRef:{current:{focus(){state.inputFocused=true;}}}, mainSearchAbortRef:{current:null}, mainSearchAttemptRef:{current:null}, detailOpenRequestRef:{current:0},
-    localCitySuggestions, createSearchAttempt, themeParkIntent, localityFromFormattedAddress, centerAgreesWithLabel,
+    localCitySuggestions, createSearchAttempt, themeParkIntent, localityFromFormattedAddress, centerAgreesWithLabel, attachOfficialScoreReceipt,
     geocodeCity: async q => knownCityGeocode(q), feelingToMoment:()=>null,
     EXPERIENCES:{ pizza:{label:'Pizza',keyword:'pizza'}, coffee:{label:'Coffee',keyword:'coffee shop'}, citytrap:{label:'Best of Sarasota',keyword:'Sarasota highlights'} },
     C:{accent:'#ff7a12'},
@@ -175,6 +177,19 @@ for (const [query,kind,value] of [['Coffee shop','experience','coffee'],['Pizza'
  const realDetail=new Function('ctx',`with(ctx){return (${functions.get('openDetail')});}`)(ctx);
  await realDetail(state.detail,'search');
  assert.equal(state.detailExtra._resolved,true,'uncached details settle to honest unavailable state');
+ assert.equal(readableScoreReceipt(state.detail),null,'an unscored search result invents no score receipt');
+ const scoredPlace={...state.detail,wfScore:90,creator_video:true,distMi:4};
+ await realDetail(scoredPlace,'search');
+ const receipt=readableScoreReceipt(state.detail);
+ assert(receipt,'the real imported official scorer reaches the owned-search detail');
+ assert.equal(state.detail.governed_score,92,'creator evidence uses the official score calculation');
+ assert.equal(receipt.score,state.detail.governed_score,'detail receipt explains the displayed number');
+ assert.equal(scoredPlace.score_explanation,undefined,'detail decoration leaves the source search result untouched');
+ const mismatchedPlace={...scoredPlace,governed_score:99};
+ await realDetail(mismatchedPlace,'search');
+ assert.equal(state.detail.governed_score,99,'a stamped result keeps its authoritative number');
+ assert.equal(readableScoreReceipt(state.detail),null,'a mismatched calculation never invents an explanation');
+ assert.equal(state.calls.length,1,'official score receipts add no provider request to free search');
  for(const name of ['loadInsight','loadFullInsight']) {
    const actual=new Function('ctx',`with(ctx){return (${functions.get(name)});}`)(ctx);
    const before=state.calls.length; await actual(state.detail,state.detailExtra);

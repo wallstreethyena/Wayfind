@@ -1,0 +1,322 @@
+{
+  "batch": 4,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "thatssotampa:pickle-party-pickling-workshop",
+      "lead_name": "Pickle Party: Pickling Workshop",
+      "source": "thatssotampa",
+      "venue": "Tampa Bay History Center",
+      "address": "801 Water Street",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": "$45",
+      "organizer_url_hints": [
+        "https://tampabayhistorycenter.org/event/pickle-party-pickling-workshop/"
+      ],
+      "organizer_names": [
+        "Tip Top Canning Co."
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-03 10:00:00",
+          "end": "2026-10-03 12:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:sensory-saturday-hands-on-with-curious-creations-co",
+      "lead_name": "Sensory Saturday | Hands-On with Curious Creations Co.",
+      "source": "ilovetheburg",
+      "venue": "Museum of Fine Arts St. Petersburg",
+      "address": "255 Beach Dr NE",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://mfastpete.org/events-calendar",
+        "https://mfastpete.org/"
+      ],
+      "organizer_names": [
+        "Museum of Fine Arts St. Petersburg"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-10-03 10:00:00",
+          "end": "2026-10-03 12:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-11-07 10:00:00",
+          "end": "2026-11-07 12:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:florida-explorers-marine-mammal-madness",
+      "lead_name": "Florida Explorers: Marine Mammal Madness",
+      "source": "ilovetheburg",
+      "venue": "Indian Rocks Beach Civic Auditorium",
+      "address": "507 Bay Palm Blvd",
+      "city": "Indian Rocks Beach",
+      "zip": "33785",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://012026.aidaform.com/florida-explorers-irb-registration-form"
+      ],
+      "organizer_names": [
+        "Florida Explorers"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-03 11:00:00",
+          "end": "2026-10-03 12:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:kids-market-at-largo-vibe-fest",
+      "lead_name": "Kids Market at Largo Vibe Fest",
+      "source": "ilovetheburg",
+      "venue": "Largo Central Park",
+      "address": "101 Central Park Dr",
+      "city": "Largo",
+      "zip": "33771",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://kidsmarkets.com/markets/largo",
+        "https://p2p.onecause.com/petwalk24/home"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-03 11:00:00",
+          "end": "2026-10-03 15:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:mezzo-market",
+      "lead_name": "Mezzo Market",
+      "source": "ilovetheburg",
+      "venue": "Intermezzo Coffee and Cocktails",
+      "address": "1111 Central Ave.",
+      "city": "St. Petersburg",
+      "zip": "33705",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://mezzomarket.co"
+      ],
+      "organizer_names": [
+        "Intermezzo"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-03 11:00:00",
+          "end": "2026-10-03 16:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:saddlebrook-wellness-expo",
+      "lead_name": "Saddlebrook Wellness Expo",
+      "source": "thatssotampa",
+      "venue": "Saddlebook Resort",
+      "address": "Saddlebrook way",
+      "city": "Wesley Chapel",
+      "zip": "33543",
+      "cost_text": "free",
+      "organizer_url_hints": [
+        "https://www.facebook.com/events/1595023248904567/?acontext=%7B%22event_action_history%22%3A[%7B%22extra_data%22%3A%22%22%2C%22mechanism%22%3A%22surface%22%2C%22surface%22%3A%22edit_dialog%22%7D%2C%7B%22extra_data%22%3A%22%22%2C%22mechanism%22%3A%22surface%22%2C%22surface%22%3A%22permalink%22%7D%2C%7B%22extra_data%22%3A%22%22%2C%22mechanism%22%3A%22surface%22%2C%22surface%22%3A%22edit_dialog%22%7D]%2C%22ref_notif_type%22%3Anull%7D",
+        "https://www.saddlebrook.com/golf/?utm_source=extnet&utm_medium=yext"
+      ],
+      "organizer_names": [
+        "lk@floridapingunprodactions.com"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-03 11:00:00",
+          "end": "2026-10-03 15:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:empower-educate-connect",
+      "lead_name": "Empower – Educate – Connect",
+      "source": "ilovetheburg",
+      "venue": "Fifth Avenue Church of Christ",
+      "address": "4200 5th Ave South",
+      "city": "Saint Petersburg",
+      "zip": "33711",
+      "cost_text": "free",
+      "organizer_url_hints": [
+        "https://www.pinellascoalitiontoenddv.com/"
+      ],
+      "organizer_names": [
+        "Pinellas Coalition to End Domestic Violence"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-03 12:00:00",
+          "end": "2026-10-03 16:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:fiesta-at-ferman-chevrolet-brandon",
+      "lead_name": "Fiesta at Ferman Chevrolet Brandon",
+      "source": "thatssotampa",
+      "venue": "Ferman Chevrolet Brandon",
+      "address": "9751 E Adamo Dr",
+      "city": "Tampa",
+      "zip": "33619",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://fiestatampabay.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-03 12:00:00",
+          "end": "2026-10-03 15:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:piertoberfest-st-pete",
+      "lead_name": "Piertoberfest St. Pete",
+      "source": "ilovetheburg",
+      "venue": "St. Pete Pier",
+      "address": "600 2nd Ave NE",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://stpetepier.org/signature-event/piertoberfest/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-03 12:00:00",
+          "end": "2026-10-03 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:piertoberfest-st-pete",
+      "lead_name": "Piertoberfest St. Pete",
+      "source": "thatssotampa",
+      "venue": "St. Pete Pier",
+      "address": "600 2nd Ave NE",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://stpetepier.org/signature-event/piertoberfest/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-03 12:00:00",
+          "end": "2026-10-03 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:pumpkin-patch-fun-fall-fest",
+      "lead_name": "Pumpkin Patch & Fun Fall Fest",
+      "source": "thatssotampa",
+      "venue": "Yuengling Draft Haus & Kitchen",
+      "address": "11109 North 30th St.",
+      "city": "Tampa",
+      "zip": "33612",
+      "cost_text": "$10.75",
+      "organizer_url_hints": [
+        "https://eventvesta.com/events/163855/t/tickets",
+        "https://www.yuengling.com/tampa/"
+      ],
+      "organizer_names": [
+        "Yuengling Draft Haus & Kitchen"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-03 12:00:00",
+          "end": "2026-10-03 16:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:usf-football-vs-temple",
+      "lead_name": "USF Football vs. Temple",
+      "source": "thatssotampa",
+      "venue": "Raymond James Stadium",
+      "address": "4201 N Dale Mabry Hwy",
+      "city": "Tampa",
+      "zip": "33607",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://gousfbulls.com/sports/2020/3/11/bulls-tickets",
+        "https://secure.acsevents.org/site/TR?fr_id=109431&pg=informational&sid=212807&name=event-details",
+        "https://am.ticketmaster.com/univsouthflorida/South_Florida_Mens_Basketball"
+      ],
+      "organizer_names": [
+        "University of South Florida Athletics"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-03 13:00:00",
+          "end": "2026-10-03 16:00:00",
+          "all_day": false
+        }
+      ]
+    }
+  ]
+}

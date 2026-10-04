@@ -1,0 +1,103 @@
+import assert from 'node:assert/strict';
+import { readFileSync, existsSync } from 'node:fs';
+import { GUIDES } from '../lib/guides.js';
+import { currentGuides } from '../lib/guideLifecycle.js';
+import { guideDiscoveryIndex } from '../lib/guideDiscoveryIndex.js';
+import { guideForPlaceRail } from '../lib/guideDiscovery.js';
+import { guideHero, GUIDE_IMAGE_BRIEFS } from '../lib/guideHero.js';
+import { guideImageProblems } from '../lib/guideImagePolicy.js';
+const guides = guideDiscoveryIndex(currentGuides(GUIDES, '2026-10-04'));
+assert(guides.length > 30, 'nonempty production guide corpus');
+assert(guides.every(g => g.image?.src && existsSync(new URL('../public' + g.image.src, import.meta.url))), 'every current guide has its real licensed asset');
+assert(guides.every(g => !('reviewNotes' in g.image) && !('intro' in g)), 'no review or article bulk reaches client');
+assert(!guides.some(g => g.slug === 'red-bull-dance-your-style-tampa-2026'), 'ended guide is excluded');
+const local = guides.find(g => g.slug === 'robinson-preserve-bradenton');
+const candidate = local || guides.find(g => g.region === 'Bradenton' && g.placeIds.length);
+assert(candidate, 'real local guide with covered venues');
+const places = Array.from({length:12}, (_,i) => ({id: i===4 ? candidate.placeIds[0] : 'unrelated-'+i, _s:100-i}));
+const before=JSON.stringify(places);
+const selected=guideForPlaceRail(guides,places,'outdoors');
+assert(selected && selected.before>=3 && selected.before<=6, 'insert follows top three ranked places');
+assert(selected.guide.placeIds.some(id=>places.some(p=>p.id===id)), 'exact venue relevance');
+assert.equal(JSON.stringify(places),before,'ranked list untouched');
+assert.deepEqual(guideForPlaceRail(guides,places,'outdoors'),selected,'no render jitter');
+assert.deepEqual(guideForPlaceRail(guides,[...places,{id:'new-page'}],'outdoors'),selected,'paging does not move initial insert');
+assert.equal(guideForPlaceRail(guides,places.map(p=>({...p,id:'miami-'+p.id})),'outdoors'),null,'unrelated city/venue IDs do not match');
+assert.equal(guideForPlaceRail(guides,places.slice(0,3),'outdoors'),null,'thin rails have no insert');
+assert.equal(guideForPlaceRail([{...candidate,image:null}],places,'outdoors'),null,'no unreviewed image insert');
+assert.equal(guideForPlaceRail([candidate],places.map(p=>({...p,_sponsored:true})),'outdoors'),null,'ads never authorize relevance');
+assert(guideForPlaceRail([candidate,candidate],places,'outdoors'),'duplicates yield just one selection');
+const withAd=[{id:'ad',_sponsored:true},...places];
+assert(guideForPlaceRail(guides,withAd,'outdoors').before>=4,'top three organic results stay ahead of insert even with an ad');
+const positions = new Set(Array.from({length:30},(_,i)=>guideForPlaceRail([candidate],places,'rail-'+i).before));
+assert(positions.size>1,'position varies across rails');
+const miami = guideHero('things-to-do-in-miami-florida');
+assert(miami.src.includes('vizcaya'), 'beyond the beach uses covered museum, not beach');
+assert.deepEqual(guideImageProblems(miami,GUIDE_IMAGE_BRIEFS['things-to-do-in-miami-florida']),[],'Miami rights and subject policy passes');
+assert(guideImageProblems({...miami,subject:'beach'},GUIDE_IMAGE_BRIEFS['things-to-do-in-miami-florida']).includes('wrong-subject'),'red proof: beach mismatch fails');
+const component=readFileSync(new URL('../app/components/GuideDiscoveryCard.js',import.meta.url),'utf8');
+assert(component.includes('<GuideFigure ') && component.includes('<GuideFigureCredit '),'shared loading and credit renderer');
+assert(component.indexOf('</a>')<component.indexOf('<GuideFigureCredit '),'credit links outside story link');
+console.log(`test-guide-discovery: OK — ${guides.length} active guide images, stable relevant inserts, source list immutability, archive exclusion, attribution and subject negative controls`);
+
+// A short first page is the boundary the old length-only test missed.
+const shortPlaces = Array.from({length:4}, (_,i)=>({id:i===1?candidate.placeIds[0]:'short-'+i}));
+const shortSelection = guideForPlaceRail([candidate], shortPlaces, 'short-rail');
+assert(shortSelection && shortSelection.before===3);
+const laterGuide={...candidate,slug:'new-guide-on-next-page',placeIds:['late-match']};
+const eight=[...shortPlaces,{id:'late-match'},...Array.from({length:3},(_,i)=>({id:'page-'+i}))];
+const keptEight=guideForPlaceRail([laterGuide,candidate],eight,'short-rail',shortSelection);
+assert.equal(keptEight.guide.slug,shortSelection.guide.slug,'4→8 retains selected guide despite newly eligible guide');
+assert.equal(keptEight.before,3,'4→8 retains initial slot');
+const keptTwelve=guideForPlaceRail([laterGuide,candidate],[...eight,...places.slice(8)],'short-rail',keptEight);
+assert.equal(keptTwelve.before,3,'8→12 retains initial slot');
+assert.equal(guideForPlaceRail([laterGuide],eight,'short-rail',shortSelection).guide.slug,laterGuide.slug,'removed or archived selection releases slot');
+
+const {guideRailCandidates,settleGuideRailSelection}=await import('../lib/guideRailCollections.js');
+const rails=[{id:'unrelated',places:[{id:'other'}]},{id:'covered',places:[{id:candidate.placeIds[0]}]},{id:'event',cards:[{id:candidate.placeIds[0],kind:'event'}]},{id:'tour',cards:[{id:candidate.placeIds[0],kind:'tour'}]}];
+const railsBefore=JSON.stringify(rails);
+const matches=guideRailCandidates([candidate,candidate],rails,'collection');
+assert.equal(matches.length,1,'one exact guide/rail match, no duplicate event or tour inference');
+assert.equal(matches[0].railId,'covered');
+assert.equal(JSON.stringify(rails),railsBefore,'ranked composer rows untouched');
+const previous=matches[0];
+const nextMatches=guideRailCandidates([candidate,laterGuide],[...rails,{id:'new',places:[{id:'late-match'}]}],'collection');
+assert.equal(settleGuideRailSelection(nextMatches,previous).guide.slug,candidate.slug,'late collection results do not displace a valid guide');
+assert.equal(settleGuideRailSelection([],previous),null,'location/filter/no-match removes stale guide');
+assert.equal(guideRailCandidates([candidate],[{id:'ad',places:[{id:candidate.placeIds[0],_sponsored:true}]}],'collection').length,0,'sponsored rows excluded');
+console.log('test-guide-discovery: short-page stability and all composer matching negative controls OK');
+
+// Execute the real collection and card, including linked credit rendering.
+const React=(await import('react')).default;
+const {renderToStaticMarkup}=await import('react-dom/server');
+const ts=(await import('typescript')).default;
+const vm=await import('node:vm');
+const path=await import('node:path');
+const {createRequire}=await import('node:module');
+const require=createRequire(import.meta.url);
+const root=path.resolve(path.dirname(new URL(import.meta.url).pathname),'..');
+const modules=new Map();
+function loadComponent(relative) {
+  const filename=path.resolve(root,relative);
+  if(modules.has(filename)) return modules.get(filename).exports;
+  const result={exports:{}};modules.set(filename,result);
+  const code=ts.transpileModule(readFileSync(filename,'utf8'),{compilerOptions:{jsx:ts.JsxEmit.ReactJSX,module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020,esModuleInterop:true}}).outputText;
+  vm.runInNewContext(code,{module:result,exports:result.exports,require:(name)=>{
+    if(name.endsWith('.css')) return {__esModule:true,default:new Proxy({},{get:(_t,key)=>String(key)})};
+    if(!name.startsWith('.'))return require(name);
+    const local=path.resolve(path.dirname(filename),name.endsWith('.js')?name:name+'.js');
+    return loadComponent(local);
+  }},{filename});return result.exports;
+}
+const Collection=loadComponent('app/components/GuideRailCollection.js').default;
+const Context=loadComponent('app/components/GuideDiscoveryContext.js').GuideDiscoveryContext;
+const collectionMarkup=renderToStaticMarkup(React.createElement(Context.Provider,{value:[candidate]},
+  React.createElement(Collection,{rails,collectionId:'collection'},rails.map(rail=>React.createElement('section',{key:rail.id,'data-test-rail':rail.id},rail.id)))));
+assert.equal((collectionMarkup.match(/data-guide-discovery=/g)||[]).length,1,'actual shared collection renders exactly one guide');
+assert(collectionMarkup.indexOf('data-guide-discovery')>collectionMarkup.indexOf('data-test-rail="covered"'),'actual insertion follows its covered rail');
+assert(collectionMarkup.indexOf('data-guide-discovery')<collectionMarkup.indexOf('data-test-rail="event"'),'actual insertion is between rails');
+assert(collectionMarkup.includes(`/guides/${candidate.slug}`) && collectionMarkup.includes(candidate.image.source),'actual guide and credited source links survive');
+assert.equal((collectionMarkup.match(/data-test-rail=/g)||[]).length,rails.length,'every original child stays present');
+const withoutContext=renderToStaticMarkup(React.createElement(Collection,{rails,collectionId:'collection'},rails.map(rail=>React.createElement('section',{key:rail.id},rail.id))));
+assert(!withoutContext.includes('data-guide-discovery'),'no context means no guessed guide suggestions');
+console.log('test-guide-discovery: real React collection/card render passed; one attributed guide between unchanged rails');

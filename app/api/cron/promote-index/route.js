@@ -103,8 +103,13 @@ function isTerminalStatus(status) {
   return status >= 400 && status < 500 && status !== 429;
 }
 
-async function details(key, placeId, mask = DETAILS_MASK) {
+async function details(key, placeId, mask = DETAILS_MASK, sku = PROMOTE_SKU, monthCap = 4800) {
   for (let attempt = 0; attempt < 3; attempt++) {
+    // Attempt zero was granted by the caller. Every subsequent provider
+    // request must obtain its own grant under that same SKU and ceiling.
+    if (attempt > 0 && !(await spendAllowCapped(sku, monthCap))) {
+      return { ok: false, budget: true, terminal: false, error: `details retry budget unavailable (${sku})` };
+    }
     const r = await fetch(`https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}`, {
       cache: "no-store", // a cached 200 here would mean promoting a place from a stale snapshot
       headers: { "X-Goog-Api-Key": key, "X-Goog-FieldMask": mask },
@@ -360,8 +365,14 @@ export async function GET(req) {
         continue;
       }
     }
-    const d = await details(gkey, item.place_id, mask);
+    const requestSku = mask === RATING_DETAILS_MASK ? RATING_SKU : PROMOTE_SKU;
+    const d = await details(gkey, item.place_id, mask, requestSku, monthCap);
     if (!d.ok) {
+      if (d.budget) {
+        budgetExhausted = true;
+        released.push(item.place_id);
+        continue;
+      }
       (d.terminal ? rejects : retries).push({ place_id: item.place_id, name: item.name, error: d.error });
       continue;
     }

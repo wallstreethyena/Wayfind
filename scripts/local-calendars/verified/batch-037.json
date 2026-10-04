@@ -1,0 +1,169 @@
+{
+  "batch": 37,
+  "verified_by": "claude-sonnet",
+  "verified_at": "2026-10-02T12:50:00Z",
+  "publish": [
+    {
+      "year": 2026,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "state": "FL",
+      "select_nights": false,
+      "price_min": null,
+      "price_max": null,
+      "minimum_age": null,
+      "official_ticket_url": null,
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-10-02T12:50:00Z",
+      "is_free": null,
+      "lead_key": "thatssotampa:kids-market-at-movie-night",
+      "event_id": "kids-market-at-movie-night-2026",
+      "event_series_id": "kids-market-at-movie-night-tampa",
+      "slug": "kids-market-at-movie-night-2026",
+      "city": "Tampa",
+      "county": "Hillsborough",
+      "category": "community",
+      "subcategory": "kids-market",
+      "tags": [
+        "market",
+        "kids",
+        "holiday",
+        "evening",
+        "local"
+      ],
+      "audience": [
+        "families",
+        "locals"
+      ],
+      "event_name": "Kids Market at Movie Night",
+      "short_title": "Kids Market at Movie Night",
+      "start_date": "2026-12-11",
+      "end_date": "2026-12-11",
+      "start_time": "17:00",
+      "end_time": "21:00",
+      "schedule_note": "Fri Dec 11, 5pm to 9pm.",
+      "venue": "Yuengling Draft Haus & Kitchen",
+      "address": "11109 N 30th St, Tampa, FL 33612",
+      "lat": 28.0474,
+      "lng": -82.4261,
+      "card_hook": "Kids sell things they made to holiday shoppers at an evening market during movie night at Yuengling.",
+      "official_event_url": "https://kidsmarkets.com/markets/tampa-11",
+      "source_url": "https://kidsmarkets.com/markets/tampa-11",
+      "verify_note": "2026-10-02: Kids Markets page lists Tampa market Dec 11, 2026, 5:00 PM to 9:00 PM at Yuengling Draft Haus & Kitchen, 11109 N 30th St. Audit 2026-10-02: rewrote card_hook (removed handmade)."
+    },
+    {
+      "year": 2026,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "state": "FL",
+      "select_nights": false,
+      "price_min": 12,
+      "price_max": 16,
+      "minimum_age": null,
+      "official_ticket_url": "https://floridastatefair.ticketspice.com/christmas-in-the-country",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-10-02T12:50:00Z",
+      "is_free": false,
+      "lead_key": "thatssotampa:christmas-in-the-country-at-cracker-country",
+      "event_id": "christmas-in-the-country-at-cracker-country-2026",
+      "event_series_id": "christmas-in-the-country-at-cracker-country",
+      "slug": "christmas-in-the-country-at-cracker-country-2026",
+      "city": "Tampa",
+      "county": "Hillsborough",
+      "category": "holiday",
+      "subcategory": "living-history",
+      "tags": [
+        "holiday",
+        "family",
+        "history",
+        "crafts",
+        "live-music"
+      ],
+      "audience": [
+        "families",
+        "kids"
+      ],
+      "event_name": "Christmas in the Country at Cracker Country",
+      "short_title": "Christmas in the Country",
+      "start_date": "2026-12-12",
+      "end_date": "2026-12-12",
+      "start_time": "10:00",
+      "end_time": "16:00",
+      "schedule_note": "Sat Dec 12, 10am to 4pm. Live music at 11am, 1pm and 3pm. Advance tickets required, none sold on site.",
+      "venue": "Cracker Country, Florida State Fairgrounds",
+      "address": "4800 N US Highway 301, Tampa, FL 33610",
+      "lat": 27.9882,
+      "lng": -82.3661,
+      "card_hook": "Tour 13 historic buildings, churn butter, collect ornaments and hear live music at Cracker Country.",
+      "official_event_url": "https://floridastatefairgrounds.com/event/christmas-in-the-country-2/",
+      "source_url": "https://floridastatefairgrounds.com/event/christmas-in-the-country-2/",
+      "verify_note": "2026-10-02: Fairgrounds page lists Dec 12, 2026, 10am to 4pm; adults 16, seniors 14, students 6 to 11 12, ages 0 to 5 free; ticketspice sales. Audit 2026-10-02: rewrote card_hook (removed holiday dress, make ornaments), schedule_note clarified."
+    }
+  ],
+  "hold": [
+    {
+      "lead_key": "thatssotampa:tampa-bay-lightning-vs-boston-bruins",
+      "event_name": "Tampa Bay Lightning vs. Boston Bruins",
+      "reason": "ticketmaster-feed",
+      "url": "https://www.nhl.com/lightning/tickets/single-game-tickets"
+    },
+    {
+      "lead_key": "thatssotampa:tampa-bay-lightning-vs-pittsburgh-penguins",
+      "event_name": "Tampa Bay Lightning vs. Pittsburgh Penguins",
+      "reason": "ticketmaster-feed",
+      "url": "https://www.nhl.com/lightning/tickets/single-game-tickets"
+    },
+    {
+      "lead_key": "ilovetheburg:tampa-bay-lightning-vs-pittsburgh-penguins-2",
+      "event_name": "Tampa Bay Lightning vs. Pittsburgh Penguins",
+      "reason": "duplicate of thatssotampa:tampa-bay-lightning-vs-pittsburgh-penguins (held ticketmaster-feed)",
+      "url": "https://www.nhl.com/lightning/tickets/single-game-tickets"
+    },
+    {
+      "lead_key": "ilovetheburg:vienna-light-orchestra-christmas-concert-tour-2026-2",
+      "event_name": "Vienna Light Orchestra Christmas Concert Tour 2026",
+      "reason": "ticketmaster-feed (Mahaffey sells via Ticketmaster; shows Dec 10 and 11 3pm/7pm)",
+      "url": "https://themahaffey.com/show/vienna-light-orchestra/"
+    },
+    {
+      "lead_key": "ilovetheburg:lily-rose-2026-fall-tour",
+      "event_name": "Lily Rose 2026 Fall Tour",
+      "reason": "ticketmaster-feed (Jannus Live sells via Ticketmaster)",
+      "url": "https://www.jannuslive.com/"
+    },
+    {
+      "lead_key": "thatssotampa:mojo-brookzz-outta-pocket-tour",
+      "event_name": "Mojo Brookzz: Outta Pocket Tour",
+      "reason": "sold out per Tampa Theatre page",
+      "url": "https://tampatheatre.org/live/mojo-brookzz-outta-pocket-tour/"
+    },
+    {
+      "lead_key": "ilovetheburg:maacm-studio-sips-watercolor",
+      "event_name": "MAACM Studio Sips: Watercolor",
+      "reason": "organizer ticket page blocked and no organizer page confirms date, time or price",
+      "url": "https://my.museumaacm.org/1058/3952"
+    },
+    {
+      "lead_key": "ilovetheburg:city-of-south-pasadena-boat-parade-viewing-watch-party-2",
+      "event_name": "City of South Pasadena Boat Parade Viewing & Watch Party",
+      "reason": "city confirms boat parade Fri Dec 11 2026 but not the watch party site, time or cost for 2026; Facebook event not readable",
+      "url": "https://www.mysouthpasadena.com/news_detail_T11_R115.php"
+    },
+    {
+      "lead_key": "ilovetheburg:pabse-winter-celebration",
+      "event_name": "PABSE Winter Celebration",
+      "reason": "no organizer page confirms date, time or public access; only aggregator and Facebook",
+      "url": "http://boydhillpreserve.com"
+    },
+    {
+      "lead_key": "thatssotampa:we-belong-here-tampa-bay",
+      "event_name": "We Belong Here: Tampa Bay",
+      "reason": "organizer page unreadable (captcha), claims unconfirmable",
+      "url": "https://www.webelonghere.world/tampabay/"
+    }
+  ]
+}

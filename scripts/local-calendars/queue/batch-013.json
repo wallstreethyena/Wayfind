@@ -1,0 +1,320 @@
+{
+  "batch": 13,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "ilovetheburg:breakfast-for-scholars-2",
+      "lead_name": "Breakfast for Scholars",
+      "source": "ilovetheburg",
+      "venue": "St. Petersburg Yacht Club",
+      "address": "11 Central Ave",
+      "city": "St. Petersburg",
+      "zip": null,
+      "cost_text": "$60",
+      "organizer_url_hints": [
+        "https://stpete.academyprep.org/events",
+        "https://www.academyprep.org"
+      ],
+      "organizer_names": [
+        "Academy Prep"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-14 07:30:00",
+          "end": "2026-10-14 11:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:teen-ceramics",
+      "lead_name": "Teen Ceramics",
+      "source": "thatssotampa",
+      "venue": "Tampa Museum of Art",
+      "address": "120 W Gasparilla Plaza",
+      "city": "St. Petersburg",
+      "zip": "33602",
+      "cost_text": "$200",
+      "organizer_url_hints": [
+        "https://shop.tampamuseum.org/products/teen-ceramics?_gl=1*sbc9wi*_gcl_au*NjQwODQ0MzE4LjE3ODExMTg4MDA",
+        "https://tampamuseum.org/",
+        "https://tampamuseum.org/event/pride-passion-2024/"
+      ],
+      "organizer_names": [
+        "Tampa Museum of Art"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-14 16:30:00",
+          "end": "2026-10-14 18:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:teen-animation-workshop",
+      "lead_name": "Teen Animation Workshop",
+      "source": "thatssotampa",
+      "venue": "Tampa Museum of Art",
+      "address": "120 W Gasparilla Plaza",
+      "city": "St. Petersburg",
+      "zip": "33602",
+      "cost_text": "$185",
+      "organizer_url_hints": [
+        "https://shop.tampamuseum.org/products/animation-workshop-2?_gl=1*vysczk*_gcl_au*NjQwODQ0MzE4LjE3ODExMTg4MDA",
+        "https://tampamuseum.org/",
+        "https://tampamuseum.org/event/pride-passion-2024/"
+      ],
+      "organizer_names": [
+        "Tampa Museum of Art"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-14 18:30:00",
+          "end": "2026-10-14 20:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:weezer-the-gathering-tour",
+      "lead_name": "Weezer – The Gathering Tour",
+      "source": "thatssotampa",
+      "venue": "Benchmark International Arena",
+      "address": "401 Channelside Dr",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.benchmarkintlarena.com"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-14 19:00:00",
+          "end": "2026-10-14 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:movie-night-at-lower-deck-scream",
+      "lead_name": "Movie Night at Lower Deck: Scream",
+      "source": "thatssotampa",
+      "venue": "Lower Deck",
+      "address": "601 S Harbour Island Blvd suite 110",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://eventvesta.com/events/165088/t/tickets"
+      ],
+      "organizer_names": [
+        "Three Oaks Hospitality"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-14 20:00:00",
+          "end": "2026-10-14 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:book-club-brawler-by-lauren-groff",
+      "lead_name": "Book Club: “Brawler” by Lauren Groff",
+      "source": "thatssotampa",
+      "venue": "Tampa Bay History Center",
+      "address": "801 Water Street",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://tampabayhistorycenter.org/event/book-club-brawler-stories-by-lauren-groff/"
+      ],
+      "organizer_names": [
+        "Tampa Bay History Center"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-15 10:30:00",
+          "end": "2026-10-15 11:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:3rd-thursday-tampa",
+      "lead_name": "3rd Thursday Tampa",
+      "source": "thatssotampa",
+      "venue": "Grand Central at Kennedy",
+      "address": "1120 E John F Kennedy Blvd",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.facebook.com/3rdthursdaytampa/upcoming_hosted_events"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-10-15 18:00:00",
+          "end": "2026-10-15 22:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-11-19 18:00:00",
+          "end": "2026-11-19 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:boys-girls-clubs-great-futures-trivia-night",
+      "lead_name": "Boys & Girls Clubs Great Futures Trivia Night",
+      "source": "ilovetheburg",
+      "venue": "Pinellas Ale Works (PAW)",
+      "address": "1962 1st Ave S",
+      "city": "St. Petersburg",
+      "zip": "33712",
+      "cost_text": "$200.00",
+      "organizer_url_hints": [
+        "https://onecau.se/_nb79v1"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-15 18:00:00",
+          "end": "2026-10-15 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:razor-and-the-boogie-men-tour-kickoff-last-bias-ekibyo-at-the-potion-portal",
+      "lead_name": "Razor and the Boogie Men (Tour Kickoff), Last Bias, Ekibyo at The Potion Portal",
+      "source": "ilovetheburg",
+      "venue": "The Potion Portal",
+      "address": "2329 28th St N",
+      "city": "St. Petersburg",
+      "zip": "33713",
+      "cost_text": "$1 – $15",
+      "organizer_url_hints": [
+        "https://leadfootpromotions.limitedrun.com/Shows/21551",
+        "https://www.thepotionportal.com/",
+        "https://leadfootpromotions.lftix.com"
+      ],
+      "organizer_names": [
+        "Leadfoot Promotions"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-15 19:00:00",
+          "end": "2026-10-15 23:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:tampa-bay-lightning-vs-seattle-kraken-2",
+      "lead_name": "Tampa Bay Lightning vs. Seattle Kraken",
+      "source": "ilovetheburg",
+      "venue": null,
+      "address": null,
+      "city": null,
+      "zip": null,
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.nhl.com/lightning/tickets/single-game-tickets"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-15 19:00:00",
+          "end": "2026-10-15 21:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:tampa-bay-lightning-vs-seattle-kraken",
+      "lead_name": "Tampa Bay Lightning vs. Seattle Kraken",
+      "source": "thatssotampa",
+      "venue": "Benchmark International Arena",
+      "address": "401 Channelside Dr",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.nhl.com/lightning/tickets/single-game-tickets",
+        "https://www.benchmarkintlarena.com"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-15 19:00:00",
+          "end": "2026-10-15 19:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:the-four-horsemen-tribute-to-metallica",
+      "lead_name": "The Four Horsemen – Tribute to Metallica",
+      "source": "ilovetheburg",
+      "venue": "Jannus Live",
+      "address": "200 1st Ave N STE 206",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.jannuslive.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-15 19:30:00",
+          "end": "2026-10-15 22:30:00",
+          "all_day": false
+        }
+      ]
+    }
+  ]
+}

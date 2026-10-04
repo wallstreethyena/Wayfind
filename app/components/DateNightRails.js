@@ -1,4 +1,5 @@
 "use client";
+import GuideRailCollection from "./GuideRailCollection";
 
 import { selectPosterEvents } from "../../lib/posterEvents.js";
 
@@ -53,7 +54,7 @@ import { toHookLine } from "../../lib/editorialHook";
 import { toDisplayScore } from "../../lib/score.js";
 import { useCuratedRows } from "../../lib/curatorPicks.js";
 import { railScoreOf } from "../../lib/railRank.js";
-import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
+import { fetchPosterJson as fetchJsonWithDeadline } from "../../lib/posterJson.js";
 import { topPickAward } from "../../lib/topPickAward.js";
 import { coarseCat } from "../../lib/ranking.js";
 import { priceLabel } from "../../lib/price.js";
@@ -308,13 +309,13 @@ export default function DateNightRails({
           Concerts are ready, but we could not reach the venue collection.
         </p>
       ) : null}
-      {rails.map((rail) => (
+      <GuideRailCollection rails={rails} collectionId="date-night">{rails.map((rail) => (
         <DateNightRailSection key={rail.id} rail={rail} lat={lat} lng={lng} city={city} hour={hour}
           eventCards={rail.id === "livemusic" ? liveMusicEvents : []} isFirstNightOut={rail.id === firstNightOutId} onOpenPlace={onOpenPlace}
           eventsPending={rail.id === "livemusic" && !!eventSurface?.pending} eventsFailed={rail.id === "livemusic" && !!eventSurface?.failed}
           isSaved={isSaved} liked={liked} disliked={disliked} isLiked={isLiked} isDisliked={isDisliked}
           onSave={onSave} onLike={onLike} onDislike={onDislike} onShare={onShare} />
-      ))}
+      ))}</GuideRailCollection>
     </>
   );
 }
