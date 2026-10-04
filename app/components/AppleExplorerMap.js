@@ -12,15 +12,15 @@ function MapFallback({ count, onRetry }) {
 
 export default function AppleExplorerMap({
   places, center, category, deviceLoc, onSelect, events, onSelectEvent, focus,
-  fit, rings, compact = false, styleMode = "bright", onRetry,
+  fit, rings, compact = false, styleMode = "bright", onRetry, onLoadError,
   selectedId = null, onAreaChange = null, onViewportChange = null,
   showOrigin = true,
 }) {
   const hostRef = useRef(null);
   const controllerRef = useRef(null);
-  const callbacksRef = useRef({ onSelect, onSelectEvent, onAreaChange, onViewportChange });
+  const callbacksRef = useRef({ onSelect, onSelectEvent, onAreaChange, onViewportChange, onLoadError });
   const dataRef = useRef({ places, center, category, deviceLoc, events, selectedId, fit, rings, showOrigin, focus });
-  callbacksRef.current = { onSelect, onSelectEvent, onAreaChange, onViewportChange };
+  callbacksRef.current = { onSelect, onSelectEvent, onAreaChange, onViewportChange, onLoadError };
   // MapKit loads asynchronously. Keep the newest result set here so a category
   // response that arrives during SDK startup cannot be dropped and leave a
   // fully loaded Apple map with zero markers until some unrelated rerender.
@@ -48,7 +48,13 @@ export default function AppleExplorerMap({
       controllerRef.current = controller;
       const latest = dataRef.current;
       if (latest.focus && latest.focus.lat != null && latest.focus.lng != null) controller.focusOn(latest.focus, latest.selectedId);
-    }).catch(() => { if (!dead) setFailed(true); });
+    }).catch(() => {
+      if (dead) return;
+      setFailed(true);
+      // Area inventory may still be loading independently. Let the screen
+      // prioritize this renderer failure over its area-status overlay.
+      callbacksRef.current.onLoadError?.();
+    });
     return () => {
       dead = true;
       controllerRef.current?.destroy();

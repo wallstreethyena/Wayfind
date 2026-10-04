@@ -661,7 +661,7 @@ scripts/test-map-cost.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	15	2	2	b3679bd41
 scripts/test-map-explorer.mjs	0	CALL	blocks-ci-and-deploy	1	-	34	0	0	ff5316810d8eb1e83878baaefb584ea020e1ad188abfb6e0a6e9e5d3d8318216
 scripts/test-map-family-layout.mjs	0	RENDER	blocks-ci-and-deploy	1	-	10	0	0	c681f2c2efaad60891a18471039a73a39e98ccb44e1893f7476fe922af8aff52
 scripts/test-map-pin-standard.mjs	0	RENDER	blocks-ci-and-deploy	1	-	8	0	0	51290b0e14583f222045f1cf58d1ff18a2f7b9f02178dbbc7d094a2521f712d2
-scripts/test-map-render-smoke.mjs	0	RENDER	blocks-ci-and-deploy	1	-	7	0	0	14084f0dade4630ba15a0aacf3fb583c273fa31d967fc7a22836bfed4ec5c33f
+scripts/test-map-render-smoke.mjs	0	RENDER	blocks-ci-and-deploy	1	-	25	0	0	d1d7a534b1081c0d12ecae766f1424c675366dece18034dde972d2367820fa22
 scripts/test-map-teardown.mjs	0	RENDER	blocks-ci-and-deploy	1	-	18	0	0	e26ed8d8c761a6cfbf2fec6cf10e04b9fe88007581b27f589b166a9eb1cf585b
 scripts/test-map-worker.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0	2f8097cfa17238a0cdf813749786945d4c7d086ea2768ba82f383ee0fa3f36e0
 scripts/test-marine.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0	58a610338d99cabb366be6837e3a126ace985b9a8f766971f6fa2e1073c2eb21

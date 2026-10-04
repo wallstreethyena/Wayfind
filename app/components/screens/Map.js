@@ -59,6 +59,14 @@ export default function MapScreen({ ctx }) {
   const [areaPlaces, setAreaPlaces] = useState([]);
   const [areaStatus, setAreaStatus] = useState("loading");
   const [areaRetry, setAreaRetry] = useState(0);
+  // Keep renderer failure separate from area inventory. An attempt identity
+  // changes on retry AND on every 2D/3D switch (including a switch back), so
+  // a late failure from an old Apple mount cannot hide the new map's status.
+  const rendererAttempt = useMemo(() => ({}), [map3D, mapRetryKey]);
+  const currentRendererAttempt = useRef(rendererAttempt);
+  currentRendererAttempt.current = rendererAttempt;
+  const [failedRendererAttempt, setFailedRendererAttempt] = useState(null);
+  const appleMapFailed = !map3D && failedRendererAttempt === rendererAttempt;
   // The settled renderer viewport is authoritative. A center-derived initial
   // box also provides a discoverable results list when MapKit cannot load.
   useEffect(() => {
@@ -240,8 +248,8 @@ export default function MapScreen({ ctx }) {
                     </svg>
                   </button>
                   {map3D ? <MapView key={mapRetryKey} onRetry={() => setMapRetryKey((k) => k + 1)} onAreaChange={setAreaOffer} onViewportChange={setViewport} rings styleMode="3d" fit={explicitList} places={mapMode === "events" ? [] : view} events={mapEvents} center={center} category={mapCategory} deviceLoc={deviceLoc} focus={mapFocus} selectedId={mapPreview && mapPreview.id} onSelect={(p) => { setMapPreview(p); setMapDrawer(false); try { logEvent("map_pin_tap", p, { rank: 1 + view.findIndex((x) => x.id === p.id) }); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />
-                    : <AppleExplorerMap fit={explicitList} key={mapRetryKey} onRetry={() => setMapRetryKey((k) => k + 1)} onAreaChange={setAreaOffer} onViewportChange={setViewport} rings places={mapMode === "events" ? [] : view} events={mapEvents} center={center} category={mapCategory} deviceLoc={deviceLoc} focus={mapFocus} selectedId={mapPreview && mapPreview.id} onSelect={(p) => { setMapPreview(p); setMapDrawer(false); try { logEvent("map_pin_tap", p, { rank: 1 + view.findIndex((x) => x.id === p.id) }); logEvent("map_pin_selected", p, {}); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />}
-                  {mapMode === "places" && !explicitList && (areaStatus !== "ready" || !view.length) && <div role="status" style={{ position: "absolute", left: 12, right: 72, top: 330, zIndex: 4, background: "rgba(15,23,35,.94)", border: `1px solid ${C.border}`, color: C.text, borderRadius: 14, padding: "11px 14px", fontSize: 12 }}>
+                    : <AppleExplorerMap fit={explicitList} key={mapRetryKey} onRetry={() => setMapRetryKey((k) => k + 1)} onLoadError={() => { if (currentRendererAttempt.current === rendererAttempt) setFailedRendererAttempt(rendererAttempt); }} onAreaChange={setAreaOffer} onViewportChange={setViewport} rings places={mapMode === "events" ? [] : view} events={mapEvents} center={center} category={mapCategory} deviceLoc={deviceLoc} focus={mapFocus} selectedId={mapPreview && mapPreview.id} onSelect={(p) => { setMapPreview(p); setMapDrawer(false); try { logEvent("map_pin_tap", p, { rank: 1 + view.findIndex((x) => x.id === p.id) }); logEvent("map_pin_selected", p, {}); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />}
+                  {mapMode === "places" && !explicitList && !appleMapFailed && (areaStatus !== "ready" || !view.length) && <div role="status" style={{ position: "absolute", left: 12, right: 72, top: 330, zIndex: 4, background: "rgba(15,23,35,.94)", border: `1px solid ${C.border}`, color: C.text, borderRadius: 14, padding: "11px 14px", fontSize: 12 }}>
                     {areaStatus === "loading" ? "Finding every 9.2+ place in this area…" : areaStatus === "error" ? "This area could not finish loading." : "No 9.2+ places match these filters here. Move the map or choose All places."}
                     {areaStatus === "error" && <button type="button" onClick={() => setAreaRetry((n) => n + 1)} style={{ marginLeft: 8, color: "#FDBA74", background: "transparent", border: 0, cursor: "pointer" }}>Retry area</button>}
                   </div>}

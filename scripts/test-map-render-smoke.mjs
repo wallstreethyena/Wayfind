@@ -14,7 +14,7 @@
  */
 import { fileURLToPath } from "node:url";
 import { readFileSync, writeFileSync } from "node:fs";
-import { createElement } from "react";
+import React, { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadComponent } from "./lib/jsxLoad.mjs";
 
@@ -29,6 +29,7 @@ const entry = fileURLToPath(new URL("../app/components/screens/Map.js", import.m
 // the real selectMapPlaces, drawer, card and score rendering still execute.
 // Product source is untouched, and exact initializer counts prevent an empty
 // injection from turning a loaded-drawer assertion into an empty-screen test.
+let appleCompiledForRuntime = null;
 const mod = await loadComponent(entry, REPO, { onGraph(graph) {
   const compiled = graph.get(entry);
   if (!compiled) throw new Error("MapScreen was not emitted");
@@ -37,6 +38,7 @@ const mod = await loadComponent(entry, REPO, { onGraph(graph) {
     [/const \[areaPlaces, setAreaPlaces\] = useState\(\[\]\);/g, 'const [areaPlaces, setAreaPlaces] = useState(ctx.__mapSmokePlaces);'],
     [/const \[areaStatus, setAreaStatus\] = useState\("loading"\);/g, 'const [areaStatus, setAreaStatus] = useState(ctx.__mapSmokeStatus);'],
     [/const \[areaOnly, setAreaOnly\] = useState\(false\);/g, 'const [areaOnly, setAreaOnly] = useState(ctx.__mapSmokeAreaOnly === true);'],
+    [/const \[failedRendererAttempt, setFailedRendererAttempt\] = useState\(null\);/g, 'const [failedRendererAttempt, setFailedRendererAttempt] = useState(ctx.__mapSmokeMapFailed === true ? rendererAttempt : null);'],
   ];
   for (const [pattern, replacement] of seeds) {
     const matches = [...source.matchAll(pattern)];
@@ -50,11 +52,19 @@ const mod = await loadComponent(entry, REPO, { onGraph(graph) {
   const appleEntry = fileURLToPath(new URL("../app/components/AppleExplorerMap.js", import.meta.url));
   const appleCompiled = graph.get(appleEntry);
   if (!appleCompiled) throw new Error("AppleExplorerMap was not emitted");
+  appleCompiledForRuntime = appleCompiled;
   const appleSource = readFileSync(appleCompiled, "utf8");
   const appleDeclaration = "export default function AppleExplorerMap(";
   if (appleSource.split(appleDeclaration).length !== 2) throw new Error("Expected one AppleExplorerMap export");
+  const appleFailedState = "const [failed, setFailed] = useState(false);";
+  if (appleSource.split(appleFailedState).length !== 2) throw new Error("Expected one Apple failure state initializer");
   writeFileSync(appleCompiled, appleSource.replace(appleDeclaration, "function AppleExplorerMap(")
+    .replace(appleFailedState, "const [failed, setFailed] = useState(globalThis.__wfMapSmokeMapFailed === true);")
     + '\nexport default function AppleExplorerMapRenderProbe(props) { globalThis.__wfMapRenderProbe?.(props); return AppleExplorerMap(props); }\n');
+  const runtimeEntry = fileURLToPath(new URL("../lib/appleMapsRuntime.js", import.meta.url));
+  const runtimeCompiled = graph.get(runtimeEntry);
+  if (!runtimeCompiled) throw new Error("Apple MapKit runtime was not emitted");
+  writeFileSync(runtimeCompiled, "export const loadAppleMapKit = () => globalThis.__wfMapKitDeferred.promise;\n");
 } });
 const MapScreen = mod.default;
 ok(typeof MapScreen === "function", "MapScreen has a default export");
@@ -109,6 +119,149 @@ for (const [label, over, check] of STATES) {
   ok(!!html && check(html), `${label}: renders the expected content`);
 }
 
+// Render the actual parent and Apple fallback together in the failure state.
+// A map load failure must own the map surface while independently fetched
+// inventory and the list remain available. Healthy 2D and 3D keep area errors.
+for (const [label, over, failedApple, check] of [
+  ["Apple failure while area loads", { __mapSmokeMapFailed: true, __mapSmokeStatus: "loading", __mapSmokePlaces: [] }, true,
+    (h) => h.includes("Apple Maps could not load right now.") && h.includes("Try again") && !h.includes("Finding every 9.2+ place")],
+  ["Apple failure with partial area results", { __mapSmokeMapFailed: true, __mapSmokeStatus: "error", mapDrawer: true }, true,
+    (h) => h.includes("Apple Maps could not load right now.") && !h.includes("This area could not finish loading.") && h.includes("partial results") && h.includes("place-card")],
+  ["Apple failure with empty area", { __mapSmokeMapFailed: true, __mapSmokePlaces: [] }, true,
+    (h) => h.includes("Try again") && !h.includes("No 9.2+ places match these filters here.")],
+  ["healthy Apple map with area error", { __mapSmokeStatus: "error" }, false,
+    (h) => h.includes("This area could not finish loading.") && !h.includes("Apple Maps could not load right now.")],
+  ["3D map with area error", { map3D: true, __mapSmokeMapFailed: true, __mapSmokeStatus: "error" }, false,
+    (h) => h.includes("This area could not finish loading.") && !h.includes("Apple Maps could not load right now.")],
+]) {
+  let html = null, err = null, rendererProps = null;
+  globalThis.__wfMapSmokeMapFailed = failedApple;
+  globalThis.__wfMapRenderProbe = (props) => { rendererProps = props; };
+  try { html = renderToStaticMarkup(createElement(MapScreen, { ctx: ctxFor(over) })); } catch (e) { err = e; }
+  finally { delete globalThis.__wfMapSmokeMapFailed; delete globalThis.__wfMapRenderProbe; }
+  ok(!err, `${label}: renders without throwing${err ? " — " + String(err && err.message).slice(0, 120) : ""}`);
+  ok(!!html && check(html), `${label}: renderer and area states remain distinct`);
+  if (!over.map3D) ok(!!rendererProps && typeof rendererProps.onLoadError === "function", `${label}: Apple reports load failures to its parent`);
+}
+
+// Narrow client-hook harness: execute the emitted component functions and
+// their actual hook callbacks without a browser/MapKit token. The fake SDK
+// promises reject on demand; neither the load effect nor the screen's
+// onLoadError/attempt-identity algorithm is copied into this test.
+function hookHost() {
+  const slots = [];
+  const pendingEffects = [];
+  let cursor = 0;
+  const same = (a, b) => Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((v, i) => Object.is(v, b[i]));
+  const dispatcher = {
+    useState(initial) {
+      const i = cursor++;
+      if (!(i in slots)) slots[i] = typeof initial === "function" ? initial() : initial;
+      return [slots[i], (next) => { slots[i] = typeof next === "function" ? next(slots[i]) : next; }];
+    },
+    useRef(initial) { const i = cursor++; return slots[i] ||= { current: initial }; },
+    useMemo(make, deps) {
+      const i = cursor++;
+      if (!(i in slots) || !same(slots[i].deps, deps)) slots[i] = { deps, value: make() };
+      return slots[i].value;
+    },
+    useEffect(effect, deps) {
+      const i = cursor++;
+      if (!(i in slots) || !same(slots[i].deps, deps)) pendingEffects.push([i, effect, deps]);
+    },
+    useSyncExternalStore(_subscribe, getSnapshot) { cursor++; return getSnapshot(); },
+  };
+  const internals = React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+  return {
+    render(fn, props) {
+      cursor = 0;
+      const previous = internals.ReactCurrentDispatcher.current;
+      internals.ReactCurrentDispatcher.current = dispatcher;
+      try { return fn(props); } finally { internals.ReactCurrentDispatcher.current = previous; }
+    },
+    flushEffects() {
+      for (const [i, effect, deps] of pendingEffects.splice(0)) {
+        slots[i]?.cleanup?.();
+        slots[i] = { deps, cleanup: effect() };
+      }
+    },
+    unmount() { for (const slot of slots) slot?.cleanup?.(); },
+  };
+}
+function visitElement(root, predicate) {
+  if (Array.isArray(root)) return root.map((child) => visitElement(child, predicate)).find(Boolean) || null;
+  if (!React.isValidElement(root)) return null;
+  if (predicate(root)) return root;
+  return visitElement(root.props.children, predicate);
+}
+function hasAreaBanner(tree) {
+  return !!visitElement(tree, (element) => element.props.role === "status" && element.props.children?.some?.((child) =>
+    typeof child === "string" && child.includes("This area could not finish loading.")));
+}
+const deferred = () => {
+  let reject;
+  const promise = new Promise((_resolve, no) => { reject = no; });
+  return { promise, reject };
+};
+const AppleRuntime = (await import(appleCompiledForRuntime)).default;
+const parentHooks = hookHost();
+const parentCtx = ctxFor({ __mapSmokeStatus: "error" });
+const parentTree = () => parentHooks.render(MapScreen, { ctx: parentCtx });
+const appleNode = (tree) => visitElement(tree, (element) => typeof element.props.onLoadError === "function");
+let tree = parentTree();
+ok(hasAreaBanner(tree), "active Apple map preserves a real area error");
+const firstApple = appleNode(tree);
+ok(!!firstApple, "screen passes a failure callback to the active Apple renderer");
+const sdkFailure = deferred();
+globalThis.__wfMapKitDeferred = sdkFailure;
+const appleHooks = hookHost();
+const appleTree = appleHooks.render(AppleRuntime, firstApple.props);
+const hostNode = visitElement(appleTree, (element) => !!element.ref);
+if (!hostNode) throw new Error("Apple renderer host ref was not rendered");
+hostNode.ref.current = {};
+appleHooks.flushEffects();
+sdkFailure.reject(new Error("preview MapKit token unavailable"));
+await new Promise((resolve) => setImmediate(resolve));
+tree = parentTree();
+ok(!hasAreaBanner(tree), "actual rejected Apple load signals the parent and removes the covering area banner");
+const failedAppleTree = appleHooks.render(AppleRuntime, firstApple.props);
+ok(renderToStaticMarkup(failedAppleTree).includes("Try again"), "actual rejected Apple load renders its retry fallback");
+parentCtx.mapRetryKey = 1;
+tree = parentTree();
+ok(hasAreaBanner(tree), "retry creates a fresh attempt whose area error remains visible until that renderer fails");
+const retriedApple = appleNode(tree);
+firstApple.props.onLoadError();
+ok(hasAreaBanner(parentTree()), "late callback from the pre-retry Apple attempt cannot fail the retry");
+retriedApple.props.onLoadError();
+ok(!hasAreaBanner(parentTree()), "the active retry attempt can report its own failure");
+parentCtx.map3D = true;
+tree = parentTree();
+ok(hasAreaBanner(tree) && !appleNode(tree), "switching to 3D restores the real area error without an Apple failure");
+retriedApple.props.onLoadError();
+ok(hasAreaBanner(parentTree()), "late Apple callback cannot fail the active 3D renderer");
+parentCtx.map3D = false;
+tree = parentTree();
+ok(hasAreaBanner(tree), "switching back to Apple creates a fresh attempt even with the same retry key");
+retriedApple.props.onLoadError();
+ok(hasAreaBanner(parentTree()), "late pre-switch Apple callback cannot fail the switched-back map");
+appleNode(tree).props.onLoadError();
+ok(!hasAreaBanner(parentTree()), "the switched-back Apple attempt can report its own failure");
+appleHooks.unmount();
+const lateFailure = deferred();
+globalThis.__wfMapKitDeferred = lateFailure;
+const lateHooks = hookHost();
+let lateCalls = 0;
+const lateTree = lateHooks.render(AppleRuntime, { ...firstApple.props, onLoadError: () => { lateCalls++; } });
+const lateHost = visitElement(lateTree, (element) => !!element.ref);
+if (!lateHost) throw new Error("late Apple renderer host ref was not rendered");
+lateHost.ref.current = {};
+lateHooks.flushEffects();
+lateHooks.unmount();
+lateFailure.reject(new Error("old map rejected after unmount"));
+await new Promise((resolve) => setImmediate(resolve));
+ok(lateCalls === 0, "an unmounted Apple renderer cannot report a late SDK rejection");
+delete globalThis.__wfMapKitDeferred;
+
 // A selected list can be well beyond the current origin. Both renderer
 // branches must frame it; default viewport discovery must not auto-fit, even
 // after an All/category choice leaves the old list stored in ctx.
@@ -144,4 +297,4 @@ const one = renderToStaticMarkup(createElement(MapScreen, { ctx: ctxFor({ mapPre
 ok(one.includes("9.2") && one.includes("wayfind-score-badge") && !one.includes("[object Object]"), "the score renders through the real WayfindScoreBadge, never the {s, word} object");
 
 if (fail.length) { console.error(`test-map-render-smoke: ${fail.length} FAILURE(S)`); for (const f of fail) console.error("  ✗ " + f); process.exit(1); }
-console.log(`test-map-render-smoke: OK — ${pass} assertions; MapScreen MOUNTED in ${STATES.length} states (pin-tap card with score/none/sparse, strip, drawer, events) plus Apple/MapLibre explicit-list/default framing parity — the #31 object-child class can no longer ship`);
+console.log(`test-map-render-smoke: OK — ${pass} assertions; MapScreen SSR-rendered in ${STATES.length} states plus Apple/MapLibre framing parity; emitted-component hook/effect harness verified SDK rejection, retry, switching and unmount safety`);
