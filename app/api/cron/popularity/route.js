@@ -37,7 +37,7 @@ export const dynamic = "force-dynamic";
 // lib/popularity.js) now that it gets a dedicated food/nightlife batch
 // instead of whatever happened to land in the old shared one.
 import { createClient } from "@supabase/supabase-js";
-import { FETCHERS, categoriesForSource, primaryTypesForSource, minReviewsForSource, SOURCE_CAPS, CONFIDENCE_FLOOR, POP_DIAG, resetPopDiag } from "../../../../lib/popularity";
+import { FETCHERS, fetchWikipediaObserved, categoriesForSource, primaryTypesForSource, minReviewsForSource, SOURCE_CAPS, CONFIDENCE_FLOOR, POP_DIAG, resetPopDiag } from "../../../../lib/popularity";
 import { installWikimediaFetchPolicy } from "../../../../lib/wikimediaFetchPolicy";
 import { popularityAvailability } from "../../../../lib/popularity";
 import { breakerOpen } from "../../../../lib/providerHealth";
@@ -114,6 +114,9 @@ export async function GET(req) {
     unique_places: uniquePlaces.size,
     candidates_by_source: Object.fromEntries(SOURCES.map((s) => [s, bySourcePlaces[s].length])),
     upserts: 0,
+    wikipedia_outcomes: {},
+    wikipedia_failed: 0,
+    wikipedia_persisted: 0,
     skipped_low_confidence: 0,
     skipped_no_data: 0,
     skipped_rate_limit_backoff: 0,
@@ -169,7 +172,17 @@ export async function GET(req) {
     if (cap != null && (spent[src] || 0) >= cap) return; // budget spent — untouched, no ledger write, stays eligible
     spent[src] = (spent[src] || 0) + 1;
     let out = null;
-    try { out = await FETCHERS[src](p); } catch (e) { out = null; }
+    let wikiObservation;
+    try {
+      if (src === "wikipedia") {
+        wikiObservation = await fetchWikipediaObserved(p);
+        out = wikiObservation.metric;
+      } else { out = await FETCHERS[src](p); }
+    } catch (e) {
+      out = null;
+      if (src === "wikipedia") wikiObservation = { reason: "exception", failed: true };
+    }
+    if (wikiObservation?.failed) stats.wikipedia_failed++;
 
     // A Wikipedia 429/503 can happen at opensearch, identity-info, or pageviews.
     // In every case fetchWikipedia returns null, while the transport policy has
@@ -177,6 +190,8 @@ export async function GET(req) {
     // increment no-data, do not push an attempt row, and therefore do not rotate
     // it away from the next eligible batch merely because Wikimedia throttled us.
     if (src === "wikipedia" && !out && !wikimediaPolicy.canRequest()) {
+      const reason = wikiObservation.reason;
+      stats.wikipedia_outcomes[reason] = (stats.wikipedia_outcomes[reason] || 0) + 1;
       stats.skipped_rate_limit_backoff++;
       return;
     }
@@ -184,7 +199,7 @@ export async function GET(req) {
     let outcome;
     if (!out || out.metric_value == null) {
       stats.skipped_no_data++;
-      outcome = "no_data";
+      outcome = wikiObservation?.reason || "no_data";
     } else if (!(out.match_confidence >= CONFIDENCE_FLOOR)) {
       stats.skipped_low_confidence++;
       outcome = "low_confidence";
@@ -201,6 +216,7 @@ export async function GET(req) {
       });
       stats.by_source[src] = (stats.by_source[src] || 0) + 1;
     }
+    if (src === "wikipedia") stats.wikipedia_outcomes[outcome] = (stats.wikipedia_outcomes[outcome] || 0) + 1;
     attempts.push({ place_id: p.place_id, source: src, outcome });
   };
 
@@ -216,7 +232,20 @@ export async function GET(req) {
 
   for (let k = 0; k < rows.length; k += 200) {
     const { error: upErr } = await db.from("wf_place_popularity").upsert(rows.slice(k, k + 200), { onConflict: "place_id,source" });
-    if (!upErr) stats.upserts += Math.min(200, rows.length - k);
+    const wikiRows = rows.slice(k, k + 200).filter((row) => row.source === "wikipedia").length;
+    if (!upErr) {
+      stats.upserts += Math.min(200, rows.length - k);
+      stats.wikipedia_persisted += wikiRows;
+    } else if (wikiRows) {
+      stats.wikipedia_failed += wikiRows;
+      stats.wikipedia_outcomes.write_error = (stats.wikipedia_outcomes.write_error || 0) + wikiRows;
+      stats.wikipedia_outcomes.ok -= wikiRows;
+      if (!stats.wikipedia_outcomes.ok) delete stats.wikipedia_outcomes.ok;
+      // The lookup produced data but it was not persisted. Keep the ledger's
+      // terminal outcome aligned with the pulse; rotation timing is unchanged.
+      const failedIds = new Set(rows.slice(k, k + 200).filter((row) => row.source === "wikipedia").map((row) => row.place_id));
+      for (const attempt of attempts) if (attempt.source === "wikipedia" && failedIds.has(attempt.place_id)) attempt.outcome = "write_error";
+    }
   }
 
   // Persist completed observations in bulk (200 per call, same chunking as the
@@ -241,8 +270,9 @@ export async function GET(req) {
   // jobPulse exists for, one level down: the JOB looked alive while whole
   // SOURCES were dead. So each source records its OWN pulse:
   //   attempted  = candidate fetches invoked for that source this run
-  //   succeeded  = calls that produced a metric row ("ok" in POP_DIAG)
-  //   note       = the dominant failure outcome (http_401, network, no_match…)
+  //   succeeded  = Wikipedia metric rows actually persisted; other sources use POP_DIAG.ok
+  //   failed     = Wikipedia operational failures only, excluding observed rejections
+  //   note       = Wikipedia reason tally; other sources retain their dominant outcome
   // A source with a missing key pulses attempted:0 (idle — "not configured"
   // is a state, not a failure; envAudit doctrine), so removing a key on
   // purpose never pages anyone, while a key that stops WORKING flatlines its
@@ -257,8 +287,13 @@ export async function GET(req) {
     const dominant = Object.entries(o).filter(([k]) => k !== "ok").sort((a, b) => b[1] - a[1])[0];
     await recordPulse("popularity:" + src, {
       attempted: onlyNoKey ? 0 : spent[src] || 0,
-      succeeded: o.ok || 0,
-      note: dominant ? dominant[0] + " x" + dominant[1] : null,
+      succeeded: src === "wikipedia" ? stats.wikipedia_persisted : o.ok || 0,
+      failed: src === "wikipedia" ? stats.wikipedia_failed : null,
+      // Include the full reason tally in structured cron output above; the
+      // compact pulse retains rejection counts without calling them failures.
+      note: src === "wikipedia"
+        ? `errors=${stats.wikipedia_failed}; metrics=${stats.wikipedia_persisted}; ` + Object.entries(stats.wikipedia_outcomes).filter(([reason]) => reason !== "ok").sort((a, b) => b[1] - a[1]).map(([reason, count]) => `${reason}=${count}`).join("; ")
+        : dominant ? dominant[0] + " x" + dominant[1] : null,
     });
   }
   return Response.json(stats, { status: 200 });
