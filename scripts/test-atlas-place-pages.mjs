@@ -56,7 +56,8 @@ const index = indexAtlasCards(cards);
 // + 1 official North Redington Beach Frog Pond ChIJ from 2026-08-29e.
 // The three Tampa farms stay HOLD — they must not mint ids or grow this count.
 // 2026-09-29: owner-approved Atlas-590 completion (wayfind-atlas-editorial #1/#2) → additive merge: 262 live kept + 197 new = 459 (was 264); 28 held for source vetting.
-const PUBLISH_READY = 459;
+// 2026-10-03: owner-requested Best Breakfast 2026 winners editorial (La Croisette, Bistro Café, Eggs Up Grill, two Keke's) → 459 + 5 = 464.
+const PUBLISH_READY = 464;
 
 // ── 1. allowlist size + the three live-404 examples open ──────────────────
 const allow = listPublishReadyAtlasIds();
