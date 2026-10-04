@@ -1,3 +1,5 @@
+import { eventCostSummary, eventRestrictions } from "../../../lib/eventVisitFacts.js";
+import { eventImageIsVenue } from "../../../lib/fallEventImage.js";
 // v7.45 — The individual event page. Google is explicit that Event structured
 // data belongs on a single-event page with its own URL, not on a roundup, and
 // this is that page.
@@ -260,14 +262,15 @@ export default async function CuratedEventPage({ params }) {
         facts={[
           { label: "When", value: `${dateRangeLabel(e)}, ${e.year}${clockLabel(e.start_time) ? ` · ${clockLabel(e.start_time)}${clockLabel(e.end_time) ? "–" + clockLabel(e.end_time) : ""}` : ""}` },
           { label: "Where", value: <>{e.venue ? <div>{e.venue}</div> : null}{where && (e.venue ? where !== `${e.city}, ${e.state}` : true) ? <div style={S.addr}>{where}</div> : (!e.venue ? <div style={S.addr}>{e.city}, {e.state}</div> : null)}</> },
-          { label: "Cost", value: e.is_free ? "Free" : (e.price_band || (e.is_free === false ? "Ticketed · see the organiser" : "See the organiser for admission details")) },
-          { label: "Age", value: e.minimum_age ? `${e.minimum_age}+` : null },
+          { label: "Cost", value: eventCostSummary(e) },
+          { label: "Entry rules", value: eventRestrictions(e).join(" · ") || null },
           { label: "Time needed", value: e.duration_recommendation },
           { label: "Crowds", value: e.crowd_level },
           { label: "Verdict", value: e.wayfind_verdict },
         ]}
         story={<>
           {e.schedule_note ? <p style={S.note}>{e.schedule_note}</p> : null}
+          {e.visit_cost?.note ? <p style={S.note}>{e.visit_cost.note}</p> : null}
           {e.card_hook ? <p style={S.hook}>{e.card_hook}</p> : null}
           {e.editorial_summary ? <p style={S.p}>{e.editorial_summary}</p> : null}
           {e.why_go ? <><h2 style={S.h2}>Why it&rsquo;s worth going</h2><p style={S.p}>{e.why_go}</p></> : null}
@@ -337,7 +340,7 @@ export default async function CuratedEventPage({ params }) {
         </>}
         credit={shots && shots.credit ? <p style={S.credit}>
           Photos: {shots.creditUrl ? <PhotoCreditLink style={S.link} href={shots.creditUrl} rel="nofollow noopener">{shots.credit}</PhotoCreditLink> : shots.credit}, shared with Wayfind for this listing.
-        </p> : null}
+        </p> : eventImageIsVenue(e, heroSrc) ? <p style={S.credit}>Venue photo · {e.event_name} is not pictured.{heroSrc?.startsWith("/api/photo?") ? <> Photo: <PhotoCreditLink style={S.link} href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(e.venue || e.event_name)}${e.place_id ? `&query_place_id=${encodeURIComponent(e.place_id)}` : ""}`}>Google Maps</PhotoCreditLink>.</> : e.photoAttr ? <> Photo: {e.photoAttrHref ? <PhotoCreditLink style={S.link} href={e.photoAttrHref}>{e.photoAttr}</PhotoCreditLink> : e.photoAttr}.</> : null}</p> : null}
       />
 
       {/* A Fall card that names a creator must pay that promise off before the

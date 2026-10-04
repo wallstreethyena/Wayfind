@@ -46,7 +46,7 @@ ok(fallEventLive(store, "2026-09-25") === true, "…and a month in — the open-
 ok(fallEventLive(store, "2026-08-26".slice(0, 8) + "26") === true, "control repeats");
 ok(fallEventLive(store, "2027-01-15") === false, `…but an open run cannot outlive OPEN_RUN_DAYS (${OPEN_RUN_DAYS}) unre-verified`);
 const lbl = fallWhenLabel(store, "2026-09-01");
-ok(lbl.label === "Open now" && !/thru/i.test(lbl.label), "open-run label says 'Open now' — it NEVER claims an end date");
+ok(lbl.label === "In season" && !/thru/i.test(lbl.label), "open-run label says 'In season' without inventing hours — it NEVER claims an end date");
 // ONE-DAY ROW WITH A NULL END (the Wellen Oktoberfest / Boo at The Bay bug):
 // no declared open run -> live through its day, retired the morning after,
 // and labelled as the single date it is — never "Open now" for 90 days.
@@ -59,8 +59,8 @@ ok(fallWhenLabel(oneDay, "2026-10-17").label === "Today", "…and reads 'Today' 
 ok(/^Sat · 5pm$/.test(fallScheduleChip(oneDay)?.label || ""), "the schedule chip carries the 3-letter weekday and the clock");
 ok(/Select nights · 7pm/.test(fallScheduleChip({ ...hhn, select_nights: true, start_time: "19:00:00", schedule_note: "Select nights. Event starts at 7 p.m." })?.label || ""), "…and 'Select nights · 7pm' for a select-night run with a clock");
 ok(fallScheduleChip({ start_date: "2026-10-01", end_date: "2026-10-31" }) === null, "no clock and no note -> no chip, never a template");
-ok(/Thru Nov 1/.test(fallWhenLabel(hhn, "2026-09-01").label) || /Select nights thru Nov 1/.test(fallWhenLabel({ ...hhn, select_nights: true }, "2026-09-01").label),
-  "dated label states the real verified end");
+ok(fallWhenLabel(hhn, "2026-09-01").label === "In season" && !/thru|open now/i.test(fallWhenLabel(hhn, "2026-09-01").label),
+  "active season never claims an open session and leaves the end date to the guide");
 
 // ── 2. The vetted place pool stays vetted — RE-VETTED per the owner's
 // 2026-08-26 rejection: a spooky NAME is not a fall offering. ───────────────

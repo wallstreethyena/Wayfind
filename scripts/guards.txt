@@ -2081,3 +2081,7 @@ node scripts/test-map-family-layout.mjs
 
 # Classified recovery and healthy poster reuse compose at the real call boundary.
 node scripts/test-classified-poster-json.mjs
+
+node scripts/test-fall-visit-facts.mjs
+node scripts/test-place-recommendation-order.mjs
+node scripts/test-fall-card-integration.mjs

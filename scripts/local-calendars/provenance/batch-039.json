@@ -1,0 +1,127 @@
+[
+  {
+    "event_id": "eli-brown-halloween-night-2026",
+    "sources": [
+      "https://www.theritzybor.com/event/halloween2026/",
+      "https://wl.eventim.us/event/eli-brown/705901?afflky=SunsetEvents"
+    ],
+    "coordinate_source": "Existing wf_events red-bull-dys-battle-day-tampa-2026, matching exact venue/address.",
+    "booking_status": "available_ticket_selector",
+    "price_note": "Observed current GA advance $31.15 including $6.15 service fee; next tier $37.39 including $7.39 fee. Early bird sold out. Any additional tax/shipping unknown; prices dynamic."
+  },
+  {
+    "event_id": "halloween-rock-the-bay-2026",
+    "sources": [
+      "https://yachtstarship.com/event/halloween-rock-the-bay/"
+    ],
+    "coordinate_source": "Existing wf_places_cache pd1|ChIJHxcB0vPEwogR3fFnuF_MWmg matches exact Tampa address.",
+    "booking_status": "official_booking_offered_capacity_unverified",
+    "price_note": "Advertised from $40 excludes tax, administrative/processing and marine fees; final price unknown. Drinks/food extra. Limited $6 validated parking advertised."
+  },
+  {
+    "event_id": "armature-works-9th-annual-fall-fest-2026",
+    "sources": [
+      "https://www.armatureworks.com/fall-festival/"
+    ],
+    "coordinate_source": "Existing wf_places_cache pd1|ChIJYWj9iZ_PwogRQebjN7pJ_Nw matches1910N Ola.",
+    "booking_status": "no_reservation_required",
+    "price_note": "Free admission/no reservation; bounce zone optional $20 per day (ages5+); animal rides/face painting/food/pumpkins extra. Parking charge not verified from organizer event page; do not label free parking."
+  },
+  {
+    "event_id": "witches-night-out-2026",
+    "sources": [
+      "https://www.scgov.net/Home/Components/Calendar/Event/33760/24?loadingmode=PreviewContent&sortd=desc&sortn=EName&toggle=allupcoming-46&widgetId=46",
+      "https://www.sarasotacountyparks.com/programs-and-events/events-and-activities-guide"
+    ],
+    "coordinate_source": "Verified live venue cache supplied by parent: Phillippi Estate Park, 5500 S Tamiami Trail",
+    "booking_status": "Official registration link published; live availability unverified because county page/browser access denied",
+    "price_note": "Official county activity guide lists $40; checkout fees and remaining capacity unverified. Psychic/tarot readings cost extra."
+  },
+  {
+    "event_id": "hallow-winder-a-ghouls-night-out-2026",
+    "sources": [
+      "https://ticketscandy.com/e/hallow-winder-a-ghouls-night-out-at-the-nest-oct-9th-2026-19579"
+    ],
+    "coordinate_source": "St Pete Brewing venue coordinates from existing verified batch-021, supplied by parent",
+    "booking_status": "Public ticket selector and checkout button present; quantity/capacity not verified",
+    "price_note": "$10 advance plus applicable fees; $15 at door. Displayed early-bird GA is $10; no final checkout total obtained."
+  },
+  {
+    "event_id": "a-ghoulish-gathering-2026",
+    "sources": [
+      "https://www.thevenicesymphony.org/tvs-events/a-ghoulish-gathering/",
+      "https://www.thevenicesymphony.org/wp-content/uploads/2026/03/TVS-2627-order-form.1.pdf"
+    ],
+    "coordinate_source": "Existing wf_places_cache pd1|ChIJ19i72bBbw4gRbAZaOOPhzKE, matching Venice Performing Arts Center address.",
+    "booking_status": "Organizer publishes Buy Tickets; live seat inventory unverified",
+    "price_note": "Current single-ticket price not verified. Official 2026–27 subscription form shows seating tiers $44–$84 and a $10 processing fee; do not treat this as a current single-ticket checkout quote."
+  },
+  {
+    "event_id": "witches-walk-venice-2026",
+    "sources": [
+      "https://www.visitvenicefl.org/event/new-witches-walk/"
+    ],
+    "coordinate_source": "Existing wf_events sun-fiesta-venice-2026, matching Centennial Park 200 W Venice Ave.",
+    "booking_status": "Official online presale announced through Oct 19 at 4pm; day-of tickets limited. Live capacity unverified.",
+    "price_note": "$10 wristband includes 1-ounce beer/cider samples at participating businesses while supplies last. Online fee total unverified; other beverage specials may cost extra."
+  },
+  {
+    "event_id": "haunted-fest-st-pete-2026",
+    "sources": [
+      "https://www.eventliveus.com/event/10384/hauntedfest26",
+      "https://www.breakawayfestival.com/festival/haunted-fest---st-pete-2026",
+      "https://stpetepier.org/event/haunted-fest/"
+    ],
+    "coordinate_source": "Staged verified St Pete Fall Festival record at Spa Beach, 600 2nd Ave NE.",
+    "booking_status": "Direct authorized ticketing tiers displayed; inventory not reserved or guaranteed",
+    "price_note": "Direct Event Live: single-day GA entry before 7pm $50 incl fees; regular single-day GA $75 incl fees; 2-day GA $150 incl fees; 2-day VIP $250 incl fees. Premium stage access $175–$200 shown. Table prices by inquiry."
+  },
+  {
+    "event_id": "casa-blanca-perreo-paranormal-2026",
+    "sources": [
+      "https://www.eventbrite.com/e/casa-blanca-perreo-paranormal-tickets-2002600369614"
+    ],
+    "booking_status": "Current primary ticket page accessible; ticket widget did not expose current selectable inventory, so availability unverified",
+    "price_note": "$25 early-bird and $35 at door advertised; fees/current ticket tier availability unverified. VIP tables, bottles and reserved parking cost extra."
+  },
+  {
+    "event_id": "hocus-pocus-2026",
+    "sources": [
+      "https://www.factorytown.com/hocus-pocus/",
+      "https://dice.fm/event/eoxxmw-hocus-pocus-2026-3-day-pass-30th-oct-factory-town-miami-tickets"
+    ],
+    "coordinate_source": "Official linked DICE venue map link contains coordinates.",
+    "booking_status": "Live DICE Buy now selection shows GA fourth release at $199.99 available; VIP On Stage fifth release $355.49 on wait list. Organizer advertises single-day passes on sale.",
+    "price_note": "DICE 3-day GA $199.99 is displayed as the final price, with no later fees. Individual-night prices are organizer-advertised and may change as tiers sell out; their fee-inclusive totals were not verified."
+  },
+  {
+    "event_id": "sinners-and-saints-jays-annual-halloween-party-2026",
+    "sources": [
+      "https://www.jaysfortlauderdale.com/halloween",
+      "https://www.eventbrite.com/e/sinners-saints-jays-annual-halloween-party-tickets-2002656407224?aff=jayswebsite"
+    ],
+    "coordinate_source": "Official organizer Eventbrite listing's map/directions link.",
+    "booking_status": "Organizer says available online and at door, subject to capacity. Live official Eventbrite listing has Get tickets; actual tier availability is not confirmed because its ticket widget failed.",
+    "price_note": "Venue advertises $50 GA/$25 after midnight. Mandatory Eventbrite fees could not be verified: its embedded ticket selector displayed 'This page is currently unavailable' and response 429 Too Many Requests - WAF. Do not call $50 an all-in online total."
+  },
+  {
+    "event_id": "perreoween-the-halloween-edition-of-perreoland-2026",
+    "sources": [
+      "https://thevanguard.live/events",
+      "https://thevanguard.live/event/perreoween-the-halloween-edition-of-perreoland-1999057301201"
+    ],
+    "coordinate_source": "Parent supplied verified live venue cache for matching 578 N Orange Ave.",
+    "booking_status": "Current venue page shows embedded Purchase Tickets controls. Actual available tiers not confirmed. Static web extraction included contradictory template fields (5pm show time, Sold Out and a 2024 Night Market description); current visible browser page instead shows 9pm doors and 18+.",
+    "price_note": "$1–$50 is a venue headline range, not a verified purchasable tier or all-in total. Mandatory fees and cheapest current tier remain unknown."
+  },
+  {
+    "event_id": "e11even-halloween-night-featuring-dj-diesel-2026",
+    "sources": [
+      "https://www.11miami.com/special-events/best-halloween-parties-in-miami",
+      "https://speakeasygo.com/E11EVEN/E11EVEN-HALLOWEEN-NIGHT-FT-DJ-DIESEL-AKA-SHAQ?eid=EVE-1IN495"
+    ],
+    "coordinate_source": "Official ticket page's venue Google Maps link.",
+    "booking_status": "Live official Speakeasy BUY NOW / General Admission selector exposes female and male GA tiers without a sold-out label.",
+    "price_note": "Official Speakeasy ticket modal states female GA $55.53 including $5.53 fees, male GA $82.63 including $7.63 fees; no hidden fees. Late arrival after1am may require a door-price difference."
+  }
+]

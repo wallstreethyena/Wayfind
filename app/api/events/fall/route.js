@@ -26,7 +26,7 @@ import { pageOneRail } from "../../../../lib/railPage.js";
 import { FALL_PHOTO_PLACE_IDS, FALL_PHOTO_SPOTS } from "../../../../lib/fallPhotoSpots.js";
 import { FALL_DISCOVERIES_2026, FALL_DISCOVERY_RAIL, FALL_SEASONAL_PLACE_IDS } from "../../../../lib/fallDiscoveries2026.js";
 import { windowRailAnswer } from "../../../../lib/railResponse.js";
-import { FALL_COLLECTION_POSTER, FALL_EVENT_VENUE_PLACE_IDS, fallEventCardImageSrc, mergeFallDiscoveryRows } from "../../../../lib/fallEventImage.js";
+import { FALL_COLLECTION_POSTER, FALL_EVENT_VENUE_PLACE_IDS, fallEventCardImageSrc, eventImageIsVenue, mergeFallDiscoveryRows } from "../../../../lib/fallEventImage.js";
 import { eventSocialPosts } from "../../../../lib/eventSocial.js";
 import { fallStayDestinations } from "../../../../lib/fallStayDestinations.js";
 import { loadOwnerPickIds, applyCuratorPicksServer } from "../../../../lib/curatorPicksServer.js";
@@ -86,7 +86,7 @@ export async function GET(request) {
     // v23 (2026-09-30, owner) orders each rail by date then DISTANCE (open-now
     // places and running select-nights events key as today) and emits the
     // compact when-pill grammar (3-letter weekdays) — a v22 payload holds both.
-    const key = `fall-intents:v23:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    const key = `fall-intents:v24:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
@@ -209,11 +209,11 @@ export async function GET(request) {
         // destination. The helper also rejects legacy DB rows that were seeded
         // with that poster and derives this venue's own photo from place_id.
         image: image || null,
-        imageIsVenue: !!image && (e.image_is_venue === true || !e.hero_image || e.hero_image === FALL_COLLECTION_POSTER || /^\/api\/photo\?place=/.test(e.hero_image)),
+        imageIsVenue: eventImageIsVenue(e, image),
         photoAttr: e.photoAttr || null,
         photoAttrHref: e.photoAttrHref || null,
         url: eventOutboundUrl(e) || null,   // 2026-09-02: link_ok + quarantine + safeUrl gated
-        is_free: !!e.is_free, price_band: e.price_band || null,
+        is_free: e.is_free, price_band: e.price_band || null,
         tags: e.tags || [],
         creatorReels,
         ticket,

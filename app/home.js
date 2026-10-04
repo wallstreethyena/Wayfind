@@ -3119,6 +3119,8 @@ function EventRailCard({ event, rank, relativeLabel, saved, liked, disliked, onS
   return (
     <RailCard
       photo={railImage}
+      visitFacts={event.visitFacts || null}
+      planningHref={internal ? event.dest : null}
       photoFallback={eventUseImage(event) ? categoryImage : ""}
       title={event.name}
       eyebrow={seg.short}

@@ -355,7 +355,7 @@ const route = readFileSync(new URL("../app/api/events/fall/route.js", import.met
 const daypart = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
 const component = readFileSync(new URL("../app/components/FallIntentRails.js", import.meta.url), "utf8");
 const card = readFileSync(new URL("../app/components/RailCard.js", import.meta.url), "utf8");
-ok(route.includes("fall-intents:v23:") && route.includes("fastCachedRail"), "the API uses the v23 shared FastCache key after the date-then-distance order + compact when-pill publish");
+ok(route.includes("fall-intents:v24:") && route.includes("fastCachedRail"), "the API uses the v24 shared FastCache key after verified visit facts and truthful operating-status publish");
 const imageProofId = "ChIJB-QyVtEXw4gRk5F8bn3YV28";
 ok(hasStoredPlacePhoto({ place_id: imageProofId, signals: { photo_url: "https://cdn.example.test/owned.jpg" } }),
   "an owned signals.photo_url is stored image proof");
@@ -512,7 +512,7 @@ ok(/officialOnly = FALL_FEATURED_FESTIVAL_IDS\.has\(e\.event_id\) && !!eventOutb
   && /card\.officialOnly \|\| !openEventVenue/.test(component)
   && /card\.detailHref \|\| card\.officialOnly \? undefined/.test(component),
   "featured cards open verified organizer information; a dead official link keeps venue fallback");
-ok(/photoAttr=\{card\.photoAttr \|\| null\}/.test(component) && /photoAttrHref=\{card\.photoAttrHref \|\| null\}/.test(component),
+ok(/photoAttr=\{card\.photoAttr \|\|/.test(component) && /photoAttrHref=\{card\.photoAttrHref \|\|/.test(component),
   "event photos use the shared card's visible attribution controls");
 
 if (failures.length) {

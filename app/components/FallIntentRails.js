@@ -22,6 +22,8 @@ import { RAIL_PAGE_SIZE } from "../../lib/railPage.js";
 import { usePagedRail } from "./usePagedRail.js";
 import { railRenderState, RAIL_RENDER_STATE } from "../../lib/railVisibility.js";
 import FallRecommendedHotels from "./FallRecommendedHotels.js";
+import useEventClock from "./useEventClock.js";
+import { eventVisitStatus, eventRestrictionChips } from "../../lib/eventVisitFacts.js";
 import { partnerTicketLabel } from "../../lib/partnerCopy.js";
 import { ownedPlacePhotoSrc } from "../../lib/placePhoto.js";
 
@@ -40,12 +42,11 @@ function eventChips(card, { onOpenVenue = null } = {}) {
   if (card.schedule?.label) chips.push({ key: "schedule", icon: "🗓", label: card.schedule.label, title: card.schedule.title || card.schedule.label });
   if (tags.includes("scary")) chips.push({ key: "scary", icon: "👻", label: "Intense scares" });
   else if (audience.includes("families") || audience.includes("kids")) chips.push({ key: "family", icon: "🎃", label: "Family-friendly" });
-  if (card.minimum_age) chips.push({ key: "age", icon: "✓", label: `${card.minimum_age}+` });
-  if (card.is_free) chips.push({ key: "free", icon: "✓", label: "Free" });
+  for (const rule of eventRestrictionChips(card)) chips.push({ key: rule, icon: "✓", label: rule });
   // The venue keeps its door: the card body now opens the EVENT page, so the
   // place sheet (saves, photos, directions) moves to a chip.
   if (onOpenVenue) chips.push({ key: "venue", icon: "📍", label: "Venue", title: card.venue || card.name, onClick: onOpenVenue });
-  return chips.slice(0, 4);
+  return chips;
 }
 
 function eventCta(card, onTrack) {
@@ -69,7 +70,7 @@ function eventCta(card, onTrack) {
       }).catch(() => {});
     },
   };
-  if (card.url) return { label: "Event details ↗", href: card.url, external: true, onClick: () => onTrack?.("fall_event_open", { id: card.id, name: card.name }) };
+  if (card.url) return { label: "Official details ↗", href: card.url, external: true, onClick: () => onTrack?.("fall_event_open", { id: card.id, name: card.name }) };
   return null;
 }
 
@@ -80,19 +81,22 @@ function FallRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, fallSkin,
     "/api/events/fall", params, { enabled: !!params, seedItems, seedTotal: (rail.cards || []).length, itemsKey: "cards" },
   );
   const curatorPicks = useCuratorPicks();
+  const now = useEventClock();
+  const nowStamp = now.getTime();
   // Owner picks on PLACE cards only (events untouched), applied before render (lib/curatorPicks.js).
   // A re-scored place settles among the place slots; event slots and the date-first order stay put.
   const items = useMemo(() => {
+    const currentItems = pagedItems.filter((card) => card.kind !== "event" || !eventVisitStatus(card, new Date(nowStamp))?.expired);
     const slots = [], places = [];
-    pagedItems.forEach((c, i) => { if (c && c.kind !== "event") { slots.push(i); places.push(c); } });
+    currentItems.forEach((c, i) => { if (c && c.kind !== "event") { slots.push(i); places.push(c); } });
     const next = applyCuratorPicks(places, curatorPicks);
-    if (next === places) return pagedItems;
+    if (next === places) return currentItems;
     const settled = settleRescored(next, rescoredIds(places, next));
-    const out = pagedItems.slice();
+    const out = currentItems.slice();
     slots.forEach((slot, n) => { out[slot] = settled[n]; });
     return out;
-  }, [pagedItems, curatorPicks]);
-  const cardCount = Number.isFinite(total) ? total : items.length;
+  }, [pagedItems, curatorPicks, nowStamp]);
+  const cardCount = Number.isFinite(total) ? Math.max(items.length, total - (pagedItems.length - items.length)) : items.length;
   const railId = "fall-intent-" + rail.id;
   const renderState = railRenderState(items, { loading, error });
   if (renderState === RAIL_RENDER_STATE.HIDDEN) return null;
@@ -116,7 +120,7 @@ function FallRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, fallSkin,
           const isEvent = card.kind === "event";
           const place = isEvent ? null : { ...card, id: card.id, photo: card.image || null, hook: card.take || null };
           const facts = isEvent
-            ? [card.city || null, card.is_free ? "Free" : card.price_band || null, Number.isFinite(card.distMi) ? card.distMi + " mi" : null].filter(Boolean)
+            ? [card.city || null, Number.isFinite(card.distMi) ? card.distMi + " mi" : null].filter(Boolean)
             : [card.bestTime || null, card.reviews ? compact(card.reviews) + " reviews" : null, Number.isFinite(card.distMi) ? card.distMi + " mi" : null].filter(Boolean);
           const placeChips = !isEvent && card.shotLocation ? [
             { key: "shot", icon: "📍", label: "Exact shot", title: card.shotLocation },
@@ -129,11 +133,14 @@ function FallRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, fallSkin,
             : null;
           const eventBodyHref = isEvent ? (card.detailHref || (card.officialOnly || !openEventVenue ? card.url || null : null)) : null;
           const eventBodyExternal = isEvent && !card.detailHref;
-          return <RailCard key={card.id} className="wf-exploding-primary" domRef={index === sentinelIndex ? sentinelRef : undefined}
+          return <RailCard key={card.id} className="wf-exploding-primary" domRef={index === Math.min(sentinelIndex, items.length - 1) ? sentinelRef : undefined}
             photo={card.image || null}
             photoFallback={isEvent && card.place_id ? ownedPlacePhotoSrc(card.place_id, 640) : null}
             eagerMedia={index < 3}
-            photoAttr={card.photoAttr || null} photoAttrHref={card.photoAttrHref || null} place={place}
+            visitFacts={isEvent ? card : null} planningHref={isEvent ? card.detailHref : null}
+            photoCaption={isEvent && card.imageIsVenue ? "Venue photo · event not pictured" : null}
+            photoPosition={card.photoPosition || "50% 50%"}
+            photoAttr={card.photoAttr || (card.image?.startsWith("/api/photo?") ? "Google Maps" : null)} photoAttrHref={card.photoAttrHref || (card.image?.startsWith("/api/photo?") && card.place_id ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(card.venue || card.name)}&query_place_id=${encodeURIComponent(card.place_id)}` : null)} place={place}
             creatorVideos={isEvent ? card.creatorReels : undefined}
             title={card.title || card.name} eyebrow={rail.title} rank={rank}
             score={isEvent ? null : toDisplayScore(Number.isFinite(card.governed_score) ? card.governed_score : card.wfScore)} when={isEvent ? card.when : null}
@@ -168,7 +175,9 @@ export default function FallIntentRails({
   const asked = useRef("");
   const lat = center && Number.isFinite(center.lat) ? center.lat : null;
   const lng = center && Number.isFinite(center.lng) ? center.lng : null;
-  const key = useMemo(() => active && lat != null && lng != null ? `${lat.toFixed(2)}|${lng.toFixed(2)}` : "", [active, lat, lng]);
+  const clock = useEventClock(active);
+  const today = siteTodayStr(clock);
+  const key = useMemo(() => active && lat != null && lng != null ? `${lat.toFixed(2)}|${lng.toFixed(2)}|${today}` : "", [active, lat, lng, today]);
   const fallSkin = fallSkinLive(siteTodayStr());
 
   useEffect(() => {
@@ -203,11 +212,11 @@ export default function FallIntentRails({
 
   if (!active) return null;
   if (!key) return <p style={{ color: COLORS.muted, fontSize: 13 }}>Share your location to rank Florida&apos;s fall options for you.</p>;
-  if (!payload && !failure) return <RailLoading label="Ranking Florida fall experiences" />;
+  if ((!payload && !failure) || (payload?.today && payload.today !== today)) return <RailLoading label="Ranking Florida fall experiences" />;
   if (failure) return failure.kind === "developer" ? <RailDevError /> : <RailMascotBusy rail="fall" failure={failure} onRetry={() => setRetry((value) => value + 1)} onVisible={() => { void emitRailDegraded(failure, { rail: "fall" }); }} />;
 
   return <>
-    <GuideRailCollection rails={payload.rails} collectionId="fall">{payload.rails.map((rail) => <FallRailSection key={rail.id} rail={rail} lat={lat} lng={lng} onOpenPlace={onOpenPlace} onTrack={onTrack} city={city} fallSkin={fallSkin}
+    <GuideRailCollection rails={payload.rails} collectionId="fall">{payload.rails.map((rail) => <FallRailSection key={`${today}:${rail.id}`} rail={rail} lat={lat} lng={lng} onOpenPlace={onOpenPlace} onTrack={onTrack} city={city} fallSkin={fallSkin}
       isSaved={isSaved} liked={liked} disliked={disliked} isLiked={isLiked} isDisliked={isDisliked}
       onSave={onSave} onLike={onLike} onDislike={onDislike} onShare={onShare} />)}</GuideRailCollection>
     <FallRecommendedHotels center={center} />

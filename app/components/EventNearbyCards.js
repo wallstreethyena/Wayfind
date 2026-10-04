@@ -2,6 +2,7 @@
 
 import IconicPlaceCard from "./IconicPlaceCard.js";
 import EventPlaceRail from "./EventPlaceRail.js";
+import { orderPlaceRecommendations } from "../../lib/placeRecommendationOrder.js";
 
 // The map's nearby results use the house place card unchanged. IconicPlaceCard
 // owns the shared Save / Like / Dislike / Share behavior; this wrapper owns
@@ -16,13 +17,14 @@ import EventPlaceRail from "./EventPlaceRail.js";
 // itself. Legacy rows without `outing` (a stale cache entry, or a caller
 // this pass missed) fall back to the old copy rather than rendering "undefined".
 export default function EventNearbyCards({ places = [] }) {
-  if (!places.length) return null;
-  const outing = places[0] && places[0].outing;
+  const orderedPlaces = orderPlaceRecommendations(places);
+  if (!orderedPlaces.length) return null;
+  const outing = orderedPlaces[0] && orderedPlaces[0].outing;
   const title = (outing && outing.railTitle) || "Nearby places";
   const description = (outing && outing.railNote) || "Nearby picks by Wayfind Score.";
   return (
-    <EventPlaceRail railClassName="wf-event-nearby-rail" title={title} description={description} label={title + " shown on the map"} count={places.length}>
-      {places.map((place, index) => (
+    <EventPlaceRail railClassName="wf-event-nearby-rail" title={title} description={description} label={title + " shown on the map"} count={orderedPlaces.length}>
+      {orderedPlaces.map((place, index) => (
         <IconicPlaceCard
           key={place.id}
           place={place}

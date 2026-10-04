@@ -68,26 +68,26 @@ const states = {
   "running with end": { start_date: "2026-08-26", end_date: "2026-11-01" },
   "select nights": { start_date: "2026-09-11", end_date: "2026-10-31", select_nights: true },
   "select nights sep": { start_date: "2026-09-11", end_date: "2026-09-30", select_nights: true },
-  "open run": { start_date: "2026-09-01" },
+  "open run": { start_date: "2026-09-01", schedule_note: "Closing date unpublished" },
 };
 for (const [name, e] of Object.entries(states)) {
   for (const start_time of [null, "12:30:00", "19:00:00"]) fits(compactWhen(fallWhenLabel({ ...e, start_time }, today)), `${name}${start_time ? " @" + start_time : ""}`);
 }
 // The owner's reference shape is preserved exactly.
 const ref = compactWhen(fallWhenLabel({ start_date: "2026-10-01", end_date: "2026-10-31" }, "2026-09-30"));
-ok(ref.label === "Opens Oct 1" && ref.value === "thru Oct 31", `reference pill unchanged: ${JSON.stringify(ref)}`);
+ok(ref.label === "Opens Oct 1" && !ref.value, `future opening remains compact without end-date clutter: ${JSON.stringify(ref)}`);
 const sat = compactWhen(fallWhenLabel({ start_date: "2026-10-17", end_date: "2026-10-17", start_time: "17:00:00" }, today));
 ok(sat.label === "Oct 17" && sat.value === "Sat 5pm", `one-day: "Oct 17 / Sat 5pm" (got ${JSON.stringify(sat)})`);
 const sel = compactWhen(fallWhenLabel({ start_date: "2026-09-11", end_date: "2026-10-31", select_nights: true, start_time: "19:00:00" }, today));
-ok(sel.label === "Select nights" && sel.value === "thru Oct 31", `select nights split as kicker + "thru" (got ${JSON.stringify(sel)})`);
+ok(sel.label === "Select dates" && sel.value === "Check hours", `legacy select_nights flag alone cannot assert nighttime hours (got ${JSON.stringify(sel)})`);
 const thru = compactWhen({ label: "Thru Nov 1", tone: "now" });
 ok(thru.label === "Now on" && thru.value === "thru Nov 1", `bare "Thru X" becomes "Now on / thru X" (got ${JSON.stringify(thru)})`);
 // Browser-measured budget (Inter, 104px badge, all 1,114 fall pill strings Sep–Dec
 // fit with ≥3px): a weekday + clock too long for the value moves its weekday up.
 const longClock = compactWhen(fallWhenLabel({ start_date: "2026-10-21", end_date: "2026-10-21", start_time: "12:30:00" }, today));
 ok(longClock.label === "Wed Oct 21" && longClock.value === "12:30pm", `long weekday+clock splits to kicker (got ${JSON.stringify(longClock)})`);
-const tba = compactWhen(fallWhenLabel({ start_date: "2026-09-01" }, today));
-ok(tba.label === "Open now" && tba.value === "Ends TBA", `open run reads "Open now / Ends TBA" (got ${JSON.stringify(tba)})`);
+const tba = compactWhen(fallWhenLabel({ start_date: "2026-09-01", schedule_note: "Closing date unpublished" }, today));
+ok(tba.label === "In season" && tba.value === "Check hours", `open run requests hours instead of claiming Open now (got ${JSON.stringify(tba)})`);
 // Other producers (event rails, Events screen, poster cards) pass through the same boundary.
 fits(compactWhen({ label: "SATURDAY", value: "October 17" }), "uppercase producer");
 ok(compactWhen({ label: "SATURDAY", value: "October 17" }).label === "SAT", "case is preserved when abbreviating");

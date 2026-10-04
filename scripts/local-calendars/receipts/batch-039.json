@@ -1,0 +1,42 @@
+{
+  "project": "gbhtoehdxkzjsmmkisgu",
+  "target": "public.wf_events",
+  "batch": 39,
+  "operation": "insert-only",
+  "sql_sha256": "fcd89dee91bae9e4854cbdae38bec120c2f8def905a613952604aecdcaa2d4df",
+  "canonical_publisher_sha256": "c680fefb71380bff2baeb6fe71991968bd2564d5def38dadfe4b2ead1fa48650",
+  "snapshot_at": "2026-10-04T22:54:53.744Z",
+  "snapshot_sha256": "254bc54dbf7777515e2cbd8213b07475768903bc7c04e32da628b0eeb1e6a6e4",
+  "insert_tool_succeeded_at": "2026-10-04T22:58:39Z",
+  "verified_at": "2026-10-04T22:59:58.220849Z",
+  "rows_before": 836,
+  "rows_after": 849,
+  "expected_count": 13,
+  "readback_count": 13,
+  "mismatches": [],
+  "comparison_normalization": "Numeric database serialization; equivalent SQL time/timestamp formats; coordinate representation <1e-10.",
+  "published_ids": [
+    "a-ghoulish-gathering-2026",
+    "armature-works-9th-annual-fall-fest-2026",
+    "casa-blanca-perreo-paranormal-2026",
+    "e11even-halloween-night-featuring-dj-diesel-2026",
+    "eli-brown-halloween-night-2026",
+    "hallow-winder-a-ghouls-night-out-2026",
+    "halloween-rock-the-bay-2026",
+    "haunted-fest-st-pete-2026",
+    "hocus-pocus-2026",
+    "perreoween-the-halloween-edition-of-perreoland-2026",
+    "sinners-and-saints-jays-annual-halloween-party-2026",
+    "witches-night-out-2026",
+    "witches-walk-venice-2026"
+  ],
+  "method": "Unchanged canonical event publisher SQL over only batch039. Full live duplicate predicate independently replayed against authenticated connector snapshot using unchanged exported contract helpers. Connector SQL path explicitly documented in docs/LOCAL_CALENDARS_IMPORT.md. CLI --dry/--record not claimed; equivalent readback ID ledger compiled from verified rows.",
+  "public_page_verification": {
+    "checked_at": "2026-10-04T23:01:27Z",
+    "command": "node scripts/festivals/publish.mjs --root scripts/local-calendars --verify",
+    "exit_code": 0,
+    "rendered": 13,
+    "failed": 0,
+    "scope": "HTTP success and actual event name in production HTML, not visual or purchase-flow acceptance"
+  }
+}

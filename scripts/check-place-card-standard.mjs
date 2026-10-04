@@ -306,6 +306,18 @@ if (!browserConfig) {
     cta: { label: "See details", href: "/places/rich-rail" },
     place: place("rich-rail"), onSave: noop, onLike: noop, onDislike: noop, onShare: noop,
   });
+  const richFall = React.createElement(RailCard, {
+    title: "Sweetfields Farm Corn Maze & Pumpkin Patch", rank: 1,
+    href: "/florida-events/sweetfields-fall-2026", planningHref: "/florida-events/sweetfields-fall-2026",
+    photo: "/guides/verified/hunsader-farms-goats.webp", photoCaption: "Venue photo · event not pictured",
+    photoAttr: "Robin Teng · Unsplash License", photoAttrHref: "https://unsplash.com/photos/i_sBNY7UoNQ",
+    eyebrow: "Pumpkin Patches & Fall Farms", facts: ["Brooksville", "32.5 mi"],
+    chips: [{ key: "schedule", label: "Select dates · daytime", icon: "🗓" }, { key: "age", label: "Ages 3+ need a ticket" }],
+    visitFacts: { start_date: "2099-09-01", end_date: "2099-11-01", visit_cost: { currency: "USD", entry: 13.28, parking: 0, fees_note: "+ tax" }, visit_restrictions: ["Ages 3+ need a ticket"] },
+    cta: { label: "Official details ↗", href: "https://www.sweetfieldsfarm.com/", external: true },
+  });
+  const richFallMarkup = renderToStaticMarkup(richFall);
+  ok(richFallMarkup.includes("Plan your visit") && richFallMarkup.includes("Official details") && richFallMarkup.includes("$13.28") && richFallMarkup.includes("free parking") && richFallMarkup.includes("Venue photo"), "PROBE: rich Fall fixture includes actual conditional price, parking, provenance and both destinations");
   const eventPlaces = [place("event-a"), place("event-b")].map((item) => ({ ...item, href: `/p/${item.id}`, editorial: "A verified local favorite." }));
   const event = React.createElement(EventNearbyCards, { places: eventPlaces });
   const stayPlaces = [place("stay-a", "Sarasota Harbor Hotel"), place("stay-b", "Carlisle Inn & Conference Center Sarasota Waterfront Suites")].map((item) => ({ ...item, types: ["hotel", "lodging"], address: "1 Hotel Way, Orlando, FL", city: "Orlando", detailHref: `/p/${item.id}`, blurb: "A practical stay near the venue.", mapsOnly: false }));
@@ -326,7 +338,7 @@ if (!browserConfig) {
   const section = (adapter, body, cls = "wf-rail") => `<section data-adapter="${adapter}"><div class="${cls}">${renderToStaticMarkup(body)}</div></section>`;
   const fixture = `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>*{box-sizing:border-box}body{padding:0 13px;color:#fff;font:12px sans-serif}section[data-adapter]{display:block;margin:12px 0 24px}section[data-adapter]::before{content:attr(data-adapter);display:block;margin-bottom:6px;color:#86efac;font-weight:800}${WF_PLACE_CARD_CSS}</style></head><body style="margin:0;background:#040810">
   ${section("iconic", React.createElement(React.Fragment, null, iconic("iconic-a"), iconic("iconic-b")))}
-  ${section("rail-card", React.createElement(React.Fragment, null, rail, richRail))}
+  ${section("rail-card", React.createElement(React.Fragment, null, rail, richRail, richFall))}
   <section data-adapter="event-nearby-place-rail">${renderToStaticMarkup(event)}</section>
   <section data-adapter="event-stay-place-rail">${renderToStaticMarkup(stays)}</section>
   ${section("things-to-do", React.createElement(React.Fragment, null, thing, thing))}
