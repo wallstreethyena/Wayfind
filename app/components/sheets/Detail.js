@@ -166,7 +166,7 @@ function WorthTheDriveWidget({ place, myVote, votes, onVote }) {
 // One aspect per card; the next peeks in and the dots track the swipe, so the
 // reader always sees there is more and what it is. Body is near-white and
 // regular-weight for readability.
-function WayfindTakeRail({ editorial }) {
+function WayfindTakeRail({ editorial, alreadyShown = null }) {
   const railRef = useRef(null);
   const [active, setActive] = useState(0);
   const SPEC = [
@@ -179,7 +179,14 @@ function WayfindTakeRail({ editorial }) {
     ["story", "The story", "📖", "#7DD3FC"], ["vibe", "Vibe check", "🎭", C.accent],
     ["funFact", "Fun fact", "💡", C.gold],
   ];
-  const items = SPEC.map(([k, label, icon, color]) => ({ label, icon, color, body: editorial[k] })).filter((x) => x.body);
+  // Owner (2026-10-04): "don't waste the reader's time by saying the same
+  // thing over and over". A card whose text is already on the page (the "Why
+  // Wayfind picked this" block above renders editorial.why) or already in an
+  // earlier card is dropped, so each sentence shows once.
+  const norm = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  const seen = new Set([norm(alreadyShown)].filter(Boolean));
+  const items = SPEC.map(([k, label, icon, color]) => ({ label, icon, color, body: editorial[k] }))
+    .filter((x) => { const n = norm(x.body); if (!n || seen.has(n)) return false; seen.add(n); return true; });
   if (!items.length) return null;
   const multi = items.length > 1;
   const onScroll = () => {
@@ -1175,7 +1182,7 @@ export default function DetailSheet({ ctx }) {
                   is dropped). Body is near-white, 14px, REGULAR weight — larger
                   and lighter than the label, the readability fix the owner asked
                   for. */}
-              {editorial ? <WayfindTakeRail editorial={editorial} /> : null}
+              {editorial ? <WayfindTakeRail editorial={editorial} alreadyShown={whyWayfindPickedBody(insight) || whyWayfindPickedBody({ why_wayfind_picked_this: editorial?.why })} /> : null}
 
               {(() => { const _ins = insider[detail.id]; if (!_ins || _ins.none) return null; const _cf = curatedFor && curatedFor(detail); const rows = [["🗝️", "Insider tip", _ins.tip], ["🕐", "Best time", _ins.bestTime], ["⭐", "Don't miss", _ins.dontMiss], ["💡", "Fun fact", (_cf && _cf.funFact) || _ins.funFact]].filter((r) => r[2]); if (!rows.length) return null; return (
                 <div style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>

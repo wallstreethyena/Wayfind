@@ -223,7 +223,7 @@ ok(/kind !== "experience"/.test(code("app/components/BestNearby.js")),
   "BestNearby excludes bookable experiences from hook resolution — a Viator product has no wf_editorial row");
 ok(!/!detail\._event && editorial/.test(code("app/components/sheets/Detail.js")),
   "the detail sheet no longer skips the Wayfind take when detail._event is set");
-ok(/\{editorial \? <WayfindTakeRail editorial=\{editorial\} \/> : null\}/.test(code("app/components/sheets/Detail.js")),
+ok(/\{editorial \? <WayfindTakeRail editorial=\{editorial\}(?:\s+alreadyShown=\{[^\n]*?\})? \/> : null\}/.test(code("app/components/sheets/Detail.js")),
   "the detail sheet mounts WayfindTakeRail whenever sourced editorial exists — events included");
 
 if (fails.length) {

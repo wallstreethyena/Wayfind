@@ -179,7 +179,9 @@ ok(!/!detail\._event \? detail\.name/.test(detail),
   "Detail no longer blanks the editorial name when `_event` is set");
 ok(!/!detail\._event && editorial \?/.test(detail),
   "Detail no longer gates WayfindTakeRail on `!detail._event`");
-ok(/\{editorial \? <WayfindTakeRail editorial=\{editorial\} \/> : null\}/.test(detail),
+// 2026-10-04: the rail also receives `alreadyShown` (the Why Wayfind picked
+// text) so it can drop a duplicate card; the mount gate is still editorial alone.
+ok(/\{editorial \? <WayfindTakeRail editorial=\{editorial\}(?:\s+alreadyShown=\{[^\n]*?\})? \/> : null\}/.test(detail),
   "WayfindTakeRail mounts from `editorial` alone — sourced or carried, events included");
 ok(/function WayfindTakeRail/.test(read("app/components/sheets/Detail.js")),
   "WayfindTakeRail still lives on the detail sheet (control: the probe can see a known positive)");

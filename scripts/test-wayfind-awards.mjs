@@ -92,6 +92,35 @@ for (const id of ids) {
   ok(Array.isArray(c.sourceUrls) && c.sourceUrls.length >= 2, c.name + " editorial cites its sources");
 }
 
+// ── 3b. No repetition (owner, 2026-10-04: "don't waste the reader's time by
+//        saying the same thing over and over"). Every section renders as its
+//        own card on the detail page, so a 4-word phrase that appears in two
+//        sections of one winner card is the same point told twice.
+{
+  const FIELDS = ["whyGo", "knownFor", "insiderMove", "powerhouseProof", "currentUsefulDetail", "watchOut",
+    "bestFor", "proMove", "foodMove", "drinkMove", "verifiedStory", "vibeCheck", "funFact"];
+  const words = (t) => String(t || "").toLowerCase().replace(/[^a-z0-9' ]+/g, " ").split(/\s+/).filter(Boolean);
+  const grams = (t) => { const w = words(t); const g = new Set(); for (let i = 0; i + 4 <= w.length; i++) g.add(w.slice(i, i + 4).join(" ")); return g; };
+  // positive control: the probe finds a planted repeat
+  const a = grams("Croissants baked every morning by the owner"), b = grams("the croissants baked every morning are best");
+  ok([...a].some((g) => b.has(g)), "positive control: the repeat probe catches a shared 4-word phrase");
+  for (const id of ids) {
+    const c = byId.get(id);
+    const owner = new Map();
+    for (const f of FIELDS) {
+      for (const g of grams(c[f])) {
+        const prev = owner.get(g);
+        ok(!prev || prev === f, c.name + ": \"" + g + "\" appears in both " + prev + " and " + f + " (say it once)");
+        owner.set(g, f);
+      }
+    }
+  }
+  const detail = strip(readFileSync(path.join(ROOT, "app/components/sheets/Detail.js"), "utf8"));
+  ok(/function WayfindTakeRail\(\{\s*editorial,\s*alreadyShown/.test(detail), "WayfindTakeRail takes the text already shown above it");
+  ok(/<WayfindTakeRail\s+editorial=\{editorial\}\s+alreadyShown=\{/.test(detail), "Detail passes the Why Wayfind picked text into the rail so Why go is not printed twice");
+  ok(/seen\.has\(n\)/.test(detail), "the rail drops a card whose text already appeared");
+}
+
 // ── 4. Other renderers route through the helper ─────────────────────────────
 {
   const home = strip(readFileSync(path.join(ROOT, "app/home.js"), "utf8"));
