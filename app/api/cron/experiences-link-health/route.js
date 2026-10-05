@@ -10,7 +10,7 @@
 // never marks a product dead, but a run that cannot establish any health
 // verdict fails loudly and records a pulse instead of looking successful.
 import { sbEnv } from "../../../../lib/serverCache.js";
-import { classifyProductProbe, nextHealthState } from "../../../../lib/experienceLinkHealth.js";
+import { describeProductProbe, nextHealthState } from "../../../../lib/experienceLinkHealth.js";
 import { credential } from "../../../../lib/envPlaceholder.js";
 import { jobCannotRun, jobFailed } from "../../../../lib/jobFail.js";
 import { recordPulse } from "../../../../lib/jobPulse.js";
@@ -31,10 +31,15 @@ async function probe(code) {
       cache: "no-store", signal: ctrl.signal, headers: VH(),
     });
     let body = null;
-    if (r.status === 200) { try { body = await r.json(); } catch { body = null; } }
-    return classifyProductProbe(r.status, body);
+    if (r.status === 200) {
+      try { body = await r.json(); }
+      catch (error) {
+        return { verdict: "unknown", reason: ctrl.signal.aborted || error?.name === "AbortError" ? "timeout" : error?.name === "SyntaxError" ? "invalid_json" : "network_error" };
+      }
+    }
+    return describeProductProbe(r.status, body);
   } catch {
-    return "unknown";
+    return { verdict: "unknown", reason: ctrl.signal.aborted ? "timeout" : "network_error" };
   } finally { clearTimeout(timer); }
 }
 
@@ -76,7 +81,17 @@ export async function GET(req) {
     return Response.json({ ok: true, checked: 0 }, { headers: { "Cache-Control": "no-store" } });
   }
 
-  const verdicts = await pool(rows.map((row) => () => probe(row.product_code)), 8);
+  const probes = await pool(rows.map((row) => () => probe(row.product_code)), 8);
+  const verdicts = probes.map((p) => p.verdict);
+  const probeOutcomes = {}, unknownOutcomes = {};
+  for (const { verdict, reason } of probes) {
+    probeOutcomes[reason] = (probeOutcomes[reason] || 0) + 1;
+    if (verdict === "unknown") unknownOutcomes[reason] = (unknownOutcomes[reason] || 0) + 1;
+  }
+  // The pulse's 200-character budget holds all nine fixed unknown codes even
+  // at the 400-row cap. Full outcomes remain in the authenticated response.
+  const pulseOutcomes = Object.keys(unknownOutcomes).length ? unknownOutcomes : probeOutcomes;
+  const probeNote = JSON.stringify({ probes: pulseOutcomes });
 
   const nowIso = new Date().toISOString();
   const buckets = { alive: [], dead: [], unknown: [] }; // arrays of product_code
@@ -117,16 +132,24 @@ export async function GET(req) {
     alive: buckets.alive.length,
     newly_or_still_dead: buckets.dead.length,
     unknown: buckets.unknown.length,
+    probe_outcomes: probeOutcomes,
   };
   const definitive = buckets.alive.length + perRow.length;
-  if (err) return jobFailed(JOB, `health-state persistence failed: ${err}`, { attempted: rows.length, succeeded: 0, ...stats });
-  if (definitive === 0) return jobFailed(JOB, "all provider probes were inconclusive", { attempted: rows.length, succeeded: 0, ...stats });
+  if (err || definitive === 0) {
+    // jobFailed truncates its prose reason to 180 chars. Keep the structured
+    // diagnosis intact and the existing failure status/counters unchanged.
+    const error = err ? `health-state persistence failed: ${err}` : "all provider probes were inconclusive";
+    await recordPulse(JOB, { attempted: rows.length, succeeded: 0, failed: 1,
+      note: JSON.stringify({ ...(err ? { write: err } : {}), probes: pulseOutcomes }) });
+    return Response.json({ ok: false, job: JOB, error, ranWork: true, attempted: rows.length, succeeded: 0, ...stats },
+      { status: 500, headers: { "cache-control": "no-store" } });
+  }
 
   await recordPulse(JOB, {
     attempted: rows.length,
     succeeded: definitive,
     failed: buckets.unknown.length,
-    note: buckets.unknown.length ? `${buckets.unknown.length} provider probe(s) inconclusive` : null,
+    note: probeNote,
   });
   return Response.json({ ok: true, error: null, ...stats }, { headers: { "Cache-Control": "no-store" } });
 }

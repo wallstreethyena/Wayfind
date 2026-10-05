@@ -108,3 +108,25 @@ The root cause is an incomplete operational handoff: one applied migration
 was never merged, one merged migration was never applied, and the reviewed
 Siesta data repair remains unapplied. The alarms are correctly detecting all
 three; suppressing them would hide unresolved production state.
+
+## Follow-up verified — 2026-10-05
+
+Current main is `f88356590728bb218f0a9d8498d5584eb113dfae`.
+Canary run `37357464849` now reports only two remaining defects:
+inventory job `111923398297` reports the Siesta twin, and contract job
+`111923398738` reports the unapplied heartbeat migration. The imported
+photo-purge migration no longer appears as a reconciliation failure.
+
+The existing Vercel connection supplied the existing Supabase URL and
+service credential privately. The canonical heartbeat runner was invoked
+with them and refused before applying because `SUPABASE_ACCESS_TOKEN` is
+still absent. No new credentials, database writes, direct SQL workaround or
+ledger edits were used for this canary repair. A fresh ledger query returned
+no entry for either remaining migration.
+
+Next operator action: securely configure the existing Management API access
+token in the canonical runner environment, then follow the separate clean
+main heartbeat apply and clean approved #1599 Siesta apply described above.
+Refresh the inventory/reference preconditions, preserve private snapshots,
+and verify the genuine receipts and fresh canary afterward. Do not merge
+#1599 until its apply and verification requirements pass.

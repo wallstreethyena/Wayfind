@@ -15,6 +15,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import {
   classifyProductProbe,
+  describeProductProbe,
   nextHealthState,
   dropDeadLinkRows,
   DEAD_AFTER_FAILS,
@@ -84,19 +85,20 @@ let routeSrc = "";
 try { routeSrc = readFileSync(REPO + "app/api/cron/experiences-link-health/route.js", "utf8"); } catch {}
 ok(/export async function GET/.test(routeSrc), "the sweep route must exist and export GET");
 ok(/CRON_SECRET/.test(routeSrc), "the sweep must carry the fail-closed cron auth");
-ok(/classifyProductProbe/.test(routeSrc) && /nextHealthState/.test(routeSrc), "the sweep must decide through the shared, guard-called logic — not a private copy");
+ok(/describeProductProbe/.test(routeSrc) && /nextHealthState/.test(routeSrc), "the sweep must decide through the shared, guard-called logic — not a private copy");
 let crons = [];
 try { crons = JSON.parse(readFileSync(REPO + "vercel.json", "utf8")).crons || []; } catch {}
 ok(crons.some((c) => String(c.path || "").startsWith("/api/cron/experiences-link-health")), "vercel.json must schedule the sweep — a pipeline that ran once is indistinguishable from no pipeline");
 
 /* ── 7. the real route reports work truthfully ──────────────────────────── */
-async function runSweep({ selected = [], selectStatus = 200, patchStatus = 204, patchThrows = false, productStatus = 200, productBody = { status: "ACTIVE" }, withViatorKey = true } = {}) {
+async function runSweep({ selected = [], selectStatus = 200, patchStatus = 204, patchThrows = false, productStatus = 200, productBody = { status: "ACTIVE" }, withViatorKey = true, products = {} } = {}) {
   const saved = {
     CRON_SECRET: process.env.CRON_SECRET,
     VIATOR_API_KEY: process.env.VIATOR_API_KEY,
     SUPABASE_URL: process.env.SUPABASE_URL,
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
     fetch: globalThis.fetch,
+    setTimeout: globalThis.setTimeout,
   };
   process.env.CRON_SECRET = "cron-fixture";
   process.env.SUPABASE_URL = "https://fixture.supabase.co";
@@ -105,6 +107,8 @@ async function runSweep({ selected = [], selectStatus = 200, patchStatus = 204, 
   else delete process.env.VIATOR_API_KEY;
 
   const pulses = [], patches = [], providerRequests = [];
+  // Exercise the real abort signal without waiting six seconds per fixture.
+  globalThis.setTimeout = (fn, ms, ...args) => saved.setTimeout(fn, ms === 6000 ? 0 : ms, ...args);
   globalThis.fetch = async (url, init = {}) => {
     const u = String(url);
     const method = String(init.method || "GET").toUpperCase();
@@ -124,6 +128,16 @@ async function runSweep({ selected = [], selectStatus = 200, patchStatus = 204, 
     }
     if (u.includes("api.viator.com/partner/products/")) {
       providerRequests.push(u);
+      const fixture = products[decodeURIComponent(u.split("/").at(-1))];
+      if (fixture) {
+        if (fixture.timeout) return new Promise((resolve, reject) => {
+          init.signal.addEventListener("abort", () => reject(new DOMException("fixture", "AbortError")), { once: true });
+        });
+        if (fixture.networkError) throw new Error("secret-bearing upstream error must never be logged");
+        if (fixture.bodyNetworkError) return { status: 200, json: async () => { throw new TypeError("secret-bearing response body failure"); } };
+        if (fixture.invalidJson) return new Response("not json, must never be logged", { status: 200 });
+        return new Response(JSON.stringify(fixture.body ?? null), { status: fixture.status ?? 200 });
+      }
       return productStatus === 200
         ? Response.json(productBody)
         : new Response(null, { status: productStatus });
@@ -138,6 +152,7 @@ async function runSweep({ selected = [], selectStatus = 200, patchStatus = 204, 
     return { response, body: await response.json(), pulses, patches, providerRequests };
   } finally {
     globalThis.fetch = saved.fetch;
+    globalThis.setTimeout = saved.setTimeout;
     for (const key of ["CRON_SECRET", "VIATOR_API_KEY", "SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY"]) {
       if (saved[key] === undefined) delete process.env[key];
       else process.env[key] = saved[key];
@@ -210,6 +225,59 @@ async function runSweep({ selected = [], selectStatus = 200, patchStatus = 204, 
   const r = await runSweep({ selected: [row] });
   ok(r.response.status === 200 && r.body.ok === true && r.body.alive === 1, "a definitive healthy probe preserves the successful response contract");
   ok(r.pulses.length === 1 && r.pulses[0].attempted === 1 && r.pulses[0].succeeded === 1 && r.pulses[0].failed === 0, "a healthy run records one truthful successful pulse");
+}
+
+/* ── 8. reason evidence survives the real cron and pulse boundary ──────── */
+{
+  const cases = [
+    [200, { status: "ACTIVE" }, "active"], [200, { status: "INACTIVE" }, "inactive"],
+    [200, {}, "missing_status"], [404, null, "http_404"], [410, null, "http_410"],
+    [401, null, "http_401"], [403, null, "http_403"], [429, null, "http_429"],
+    [503, null, "http_5xx"], [400, null, "http_other"],
+  ];
+  for (const [status, body, reason] of cases) {
+    const detail = describeProductProbe(status, body);
+    ok(detail.verdict === classifyProductProbe(status, body) && detail.reason === reason, `detailed ${reason} preserves the existing verdict`);
+  }
+  const products = {
+    ACTIVE: { body: { status: "ACTIVE" } }, DEAD: { body: { status: "INACTIVE" } },
+    FIRST404: { status: 404 }, SECOND404: { status: 404 }, GONE: { status: 410 },
+    AUTH: { status: 401 }, DENIED: { status: 403 }, RATE: { status: 429 },
+    UPSTREAM: { status: 503 }, OTHER: { status: 400 }, SCHEMA: { body: {} },
+    JSON: { invalidJson: true }, NETWORK: { networkError: true }, TIMEOUT: { timeout: true },
+  };
+  const selected = Object.keys(products).map((code) => ({ product_code: code, link_ok: true, fail_count: code === "SECOND404" ? 1 : 0 }));
+  const r = await runSweep({ selected, products });
+  const expected = { active: 1, inactive: 1, http_404: 2, http_410: 1, http_401: 1, http_403: 1, http_429: 1, http_5xx: 1, http_other: 1, missing_status: 1, invalid_json: 1, network_error: 1, timeout: 1 };
+  ok(JSON.stringify(r.body.probe_outcomes) === JSON.stringify(expected), "mixed route returns every fixed probe reason and count");
+  ok(r.providerRequests.length === selected.length, "diagnostics make exactly the existing one request per product, with no retry");
+  ok(r.body.alive === 1 && r.body.newly_or_still_dead === 2 && r.body.unknown === 9, "mixed probe diagnostics preserve health decisions");
+  const pulse = r.pulses[0];
+  ok(r.pulses.length === 1 && pulse.attempted === 14 && pulse.succeeded === 5 && pulse.failed === 9, "mixed pulse keeps truthful definitive and inconclusive counters");
+  const unknown = Object.fromEntries(Object.entries(expected).filter(([k]) => !["active", "inactive", "http_404", "http_410"].includes(k)));
+  ok(JSON.stringify(JSON.parse(pulse.note).probes) === JSON.stringify(unknown), "all unknown reasons survive the real recordPulse writer without truncation");
+  const unknownPatch = r.patches.find((p) => p.url.includes("NETWORK"));
+  ok(unknownPatch && Object.keys(unknownPatch.body).join() === "last_checked_at", "diagnostics preserve unknown-row scheduling without changing health or fail count");
+  ok(!JSON.stringify(r).includes("secret-bearing") && !JSON.stringify(r).includes("must never be logged"), "upstream payload and exception text never enter diagnostic output");
+
+  const allUnknown = selected.filter((row) => !["ACTIVE", "DEAD", "FIRST404", "SECOND404", "GONE"].includes(row.product_code));
+  const bad = await runSweep({ selected: allUnknown, products });
+  ok(bad.response.status === 500 && bad.pulses.length === 1 && bad.pulses[0].failed === 1, "all-unknown diagnostics retain existing visible failure semantics");
+  ok(JSON.stringify(JSON.parse(bad.pulses[0].note).probes) === JSON.stringify(unknown), "all-unknown failure pulse retains the complete reason tally");
+
+  // Maximum nightly cap and every reason plus persistence failure: assert the
+  // stored pulse is valid JSON after recordPulse's real 200-character limit.
+  const capRows = Array.from({ length: 400 }, (_, i) => ({ ...allUnknown[i % allUnknown.length], product_code: `CAP${i}` }));
+  const capProducts = Object.fromEntries(capRows.map((row, i) => [row.product_code, products[allUnknown[i % allUnknown.length].product_code]]));
+  const write = await runSweep({ selected: capRows, products: capProducts, patchThrows: true });
+  const note = JSON.parse(write.pulses[0].note);
+  ok(write.response.status === 500 && write.pulses.length === 1 && note.write === "patch-fetch-error", "persistence failure is distinct from provider reasons");
+  ok(Object.values(note.probes).reduce((a, b) => a + b, 0) === 400 && Object.keys(note.probes).length === 9, "400-row failure pulse preserves all nine reason counts within storage limit");
+  ok(write.pulses[0].note.length <= 200 && write.pulses[0].succeeded === 0, "failed persistence never claims saved successes");
+  const bodyNetwork = await runSweep({ selected: [{ product_code: "BODY", link_ok: true }], products: { BODY: { bodyNetworkError: true } } });
+  ok(bodyNetwork.body.probe_outcomes.network_error === 1 && !bodyNetwork.body.probe_outcomes.invalid_json, "response-body transport failure is distinct from malformed JSON");
+  const healthy = await runSweep({ selected: [{ product_code: "GOOD", link_ok: false }] });
+  ok(healthy.pulses.length === 1 && JSON.parse(healthy.pulses[0].note).probes.active === 1 && healthy.pulses[0].failed === 0, "healthy control preserves alive confirmation in the structured pulse");
 }
 
 /* ── verdict ─────────────────────────────────────────────────────────────── */
