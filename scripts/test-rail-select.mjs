@@ -25,6 +25,7 @@ import { isFamilyPlace, isStrongFamilyPlace } from "../lib/familyPlace.js";
 import { isTicketedVenue, isStrongTicketedVenue } from "../lib/eventVenue.js";
 import { isBirthdayPlace, isStrongBirthdayPlace, BIRTHDAY_NEAR_MI } from "../lib/birthdayPlace.js";
 import { readFileSync } from "node:fs";
+import { checkFallPaging } from "./lib/fall-paging-regression.mjs";
 
 let pass = 0, fail = 0;
 const ok = (c, m) => { c ? pass++ : (fail++, console.log("  FAIL:", m)); };
@@ -713,8 +714,13 @@ const WIDEN_RADIUS_MI = 25;
     const railUi = readFileSync(new URL(`../app/components/${file}.js`, import.meta.url), "utf8");
     ok(/usePagedRail\(/.test(railUi),
       `${file} pages its rails through the shared usePagedRail hook`);
-    ok(/domRef=\{\w+ === sentinelIndex \? sentinelRef : undefined\}/.test(railUi),
-      `${file} wires the loaded−3 sentinel onto its cards so scrolling near the end fetches the next ten`);
+    if (file === "FallIntentRails") {
+      const pagingChecks = await checkFallPaging();
+      ok(pagingChecks > 0, `FallIntentRails executes ${pagingChecks} real paging, expiry and date-generation controls`);
+    } else {
+      ok(/domRef=\{\w+ === sentinelIndex \? sentinelRef : undefined\}/.test(railUi),
+        `${file} wires the loaded−3 sentinel onto its cards so scrolling near the end fetches the next ten`);
+    }
     ok(!/railScrollNeedsMore/.test(railUi) && !/setFull/.test(railUi),
       `${file} no longer carries the other lane's whole-blob scroll-triggered full=1 loader`);
   }

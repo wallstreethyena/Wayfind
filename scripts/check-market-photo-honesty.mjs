@@ -36,14 +36,31 @@ for (const file of HOUSE) {
   ok(calls.length === 0, `${file}: house cards must not call the shared stock-photo ladder (got ${JSON.stringify(calls)})`);
 }
 
-// 2026-09-07 (GUARD-HONESTY): the gate now also re-checks `imgFailed` so a
-// verified photo that fails to LOAD falls to the monogram too — `[^?]*`
-// tolerates that extra `&& imgFailed !== photo` clause without loosening
-// what this proves: only a real <img src={photo}> stands before the monogram.
-// 2026-09-30: `shownPhoto` is photoSrcFilter(photo) — exactly `photo` outside
-// a guide's PhotoPolicyProvider, "" for a Google photo inside one.
-ok(/const shownPhoto = photoSrcFilter\(photo\);/.test(rail) && /\{shownPhoto[^?]*\?/.test(rail) && /src=\{shownPhoto\}/.test(rail),
-  "RailCard renders only the caller's verified photo and otherwise uses its branded monogram");
+// STRUCTURAL-ONLY: the primary is still the caller's policy-filtered source.
+// RailCard now keeps a one-shot recovery source in state so React does not
+// restore the failed primary on rerender. That source is keyed to the same
+// primary, not a new stock-image rung. The recovery identity/filter contract
+// is checked by check-card-photo-error-fallback.mjs.
+function railPhotoContract(src) {
+  const imageSources = [...src.matchAll(/<img\b[^>]*\bsrc=(\{[^}]*\})/g)].map((match) => match[1]);
+  return /const shownPhoto = photoSrcFilter\(photo\);/.test(src)
+    && /const usingFallback = !!fallbackPhoto && fallbackPhoto\.primary === shownPhoto;/.test(src)
+    && /const displayedPhoto = usingFallback \? fallbackPhoto\.src : shownPhoto;/.test(src)
+    && /\{shownPhoto && imgFailed !== shownPhoto\s*\? <img\s+src=\{displayedPhoto\}/.test(src)
+    && imageSources.length === 2 && imageSources.every((value) => value === "{displayedPhoto}")
+    && /: <div className="wf-place-card-monogram"/.test(src);
+}
+ok(railPhotoContract(rail),
+  "RailCard renders the policy-filtered caller photo or its keyed recovery source, then its branded monogram (source contract)");
+for (const [label, from, to] of [
+  ["an unfiltered primary", "const shownPhoto = photoSrcFilter(photo);", "const shownPhoto = photo;"],
+  ["a fallback retained for a different primary", "fallbackPhoto.primary === shownPhoto", "fallbackPhoto.primary !== shownPhoto"],
+  ["a stock scene replacing the displayed venue", "src={displayedPhoto}", 'src={"/api/market-photo?query=food"}'],
+  ["a photo gate that ignores failure", "{shownPhoto && imgFailed !== shownPhoto", "{shownPhoto"],
+]) {
+  const mutated = rail.replace(from, to);
+  ok(mutated !== rail && !railPhotoContract(mutated), `RED PROOF: rejects ${label}`);
+}
 
 console.log(fail === 0
   ? `check-market-photo-honesty: OK — ${pass} assertions (named place cards never share stock imagery)`

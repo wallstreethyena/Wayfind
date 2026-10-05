@@ -20,7 +20,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { GUIDES } from "../lib/guides.js";
-import { shareOut, canShareNatively, isTouchDevice } from "../lib/shareOut.js";
+import { shareOut, shareNatively, canShareNatively, isTouchDevice } from "../lib/shareOut.js";
 
 const REPO = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 let n = 0;
@@ -65,48 +65,37 @@ const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm,
      "the share event must record WHICH path ran — 'shares are flat' and 'the sheet never opens on iOS' look identical in one counter, and only one of them is a bug");
 }
 
-// ── 2. THE SHEET COMES BEFORE THE CLIPBOARD, IN BOTH IMPLEMENTATIONS ───────
-// WHAT THE INVARIANT ACTUALLY IS. Both implementations DEFINE their copy
-// helper as a closure at the top of the function and only INVOKE it after the
-// native attempt — which is correct, and which a naive
-// indexOf("clipboard.writeText") comparison reports as a failure. This guard's
-// own first draft did exactly that and failed on two correct implementations.
-// What matters is the first activation-CONSUMING CALL, so that is what is
-// measured: the first native attempt must precede the first copy() invocation.
-const firstNativeAttempt = (body) => {
-  const at = ["nativeShare(", "navigator.share("].map((k) => { const i = body.indexOf(k); return i < 0 ? Infinity : i; });
-  return Math.min.apply(null, at);
-};
-const firstCopyCall = (body) => {
-  // An invocation, not the definition: "const copy = () =>" has a space and an
-  // "=" between the name and the parens, so it cannot match.
-  const m = body.match(/(?<![\w.])(doCopy|copy)\(\)/);
-  return m ? m.index : Infinity;
-};
+// ── 2. ONE TEXT-FIRST POLICY, NATIVE ONLY FROM ITS OWN CHOICE ────────────
+// Runtime transport and activation controls live in test-unified-share-flow.
 {
   const so = strip(read("lib/shareOut.js"));
   const chooser = strip(read("lib/shareChooser.js"));
   const body = so.slice(so.indexOf("export function shareOut"));
-  ok(body.indexOf("navigator.share(") > -1 && chooser.indexOf("clipboard.writeText") > -1, "shared sharing must have both native and explicit-copy paths");
-  ok(firstNativeAttempt(body) < body.indexOf("showShareChooser("),
-     "lib/shareOut.js calls the clipboard before attempting the native sheet — on iOS that consumes the tap's activation and the sheet is then refused (v4.07)");
-  ok(/AbortError/.test(so), "a user who cancels the sheet has not failed — cancelling must not fall through to a silent copy");
-  ok(/execCommand/.test(chooser), "no legacy fallback: on an insecure origin navigator.clipboard is simply absent");
-  ok(/^\s*import\s+.*openShareChooser.*shareChooser/m.test(so) && !/import\("\.\/shareChooser\.js"\)/.test(so),
-     "the fallback chooser must ship with shareOut — a lazy chunk can fail or arrive late after shareOut already reported chooser, leaving the original tap silent");
-  ok(!/window\.location/.test(so), "shareOut must share the url it is handed, never one it reads off the page");
-}
-{
+  const native = so.slice(so.indexOf("export function shareNatively"), so.indexOf("export function shareOut"));
+  ok(/openShareChooser\(/.test(body) && !/navigator\.share\(/.test(body), "opening a share must offer explicit text-first choices rather than silently choose a native/clipboard path");
+  ok(/navigator\.share\(/.test(native) && !/clipboard\.writeText/.test(native), "the explicit native choice must invoke Web Share without an earlier clipboard write");
+  ok(/AbortError/.test(native), "cancelling a native sheet must not start another action");
+  ok(/execCommand/.test(chooser), "explicit Copy needs a legacy fallback on insecure origins");
+  ok(/import\s+.*openShareChooser.*shareChooser/.test(so) && !/import\("\.\/shareChooser\.js"\)/.test(so), "the visible text chooser must ship synchronously with the transport");
+  ok(!/window\.location/.test(so), "shareOut must share the handed URL, never the page address");
   const home = strip(read("app/home.js"));
-  const i = home.indexOf("function shareLink(");
-  ok(i > -1, "app/home.js shareLink is gone — this guard is pinning the wrong thing");
-  const body = home.slice(i, i + 4000);
-  ok(body.indexOf("navigator.share(") > -1 && body.indexOf("clipboard.writeText") > -1, "app/home.js shareLink must have both paths");
-  // In the app shell the FIRST attempt is the Capacitor sheet (lib/native.js),
-  // with navigator.share behind it — both are native attempts and either one
-  // satisfies the rule, which is why firstNativeAttempt() looks for both.
-  ok(firstNativeAttempt(body) < firstCopyCall(body),
-     "app/home.js shareLink calls the clipboard before attempting a native sheet — the v4.06 bug is back");
+  const at = home.indexOf("function shareLink(");
+  const shell = home.slice(at, home.indexOf("function randCode", at));
+  ok(at > -1 && /inShareChoice\(\) \? shareOut : openShareFlow/.test(shell), "the shell must delegate to the same menu/transport policy, avoiding nested menus");
+  ok(!/navigator\.share|clipboard\.writeText|execCommand/.test(shell), "the shell must not regain a divergent copy of share transport");
+}
+
+// Each newly forbidden source shape has an injected regression fixture using
+// the same actual probe. Their absence is measured, not assumed from a grep.
+{
+  const directWebShare = /navigator\.share\(/;
+  const clipboardWrite = /clipboard\.writeText/;
+  const lazyChooser = /import\("\.\/shareChooser\.js"\)/;
+  const shellTransport = /navigator\.share|clipboard\.writeText|execCommand/;
+  ok(directWebShare.test("navigator.share(payload)"), "the direct-share detector must find an injected transport bypass");
+  ok(clipboardWrite.test("navigator.clipboard.writeText(url)"), "the clipboard detector must find an activation-consuming regression");
+  ok(lazyChooser.test('import("./shareChooser.js")'), "the lazy-chooser detector must find the delayed-visible-fallback regression");
+  ok(shellTransport.test("document.execCommand('copy')"), "the shell transport detector must find a divergent legacy-copy implementation");
 }
 
 // ── 3. IT RUNS, AND IT NEVER THROWS ────────────────────────────────────────
@@ -120,6 +109,30 @@ ok(canShareNatively() === false, "with no navigator there is no native sheet, an
   try { out = shareOut({ url: "https://www.gowayfind.com/guides/x", title: "x" }); } catch (e) { threw = true; }
   ok(!threw, "shareOut threw in a headless environment — it runs inside a click handler, where that is fatal and silent");
   ok(out === "failed", 'a headless caller without a DOM cannot claim that a link was copied');
+}
+
+// Native is an explicit secondary choice: exercise the real synchronous
+// transport and cancellation callbacks with a controlled browser dependency.
+{
+  const priorNavigator = globalThis.navigator;
+  let calls = 0, copies = 0, completions = 0, received = null;
+  try {
+    Object.defineProperty(globalThis, "navigator", { configurable: true, value: {
+      share(data) { calls++; received = data; return Promise.reject(Object.assign(new Error("cancelled"), { name: "AbortError" })); },
+      clipboard: { writeText() { copies++; return Promise.resolve(); } },
+    } });
+    const payload = { title: "A Wayfind guide", text: "Check out this guide", url: "https://www.gowayfind.com/guides/fixture" };
+    const result = shareNatively(payload, null, { onShared() { completions++; } });
+    ok(result === "native", "the explicitly selected native transport reports its actual attempted path");
+    ok(calls === 1, "Web Share must execute synchronously from the native-choice tap");
+    ok(received && received.url === payload.url && received.text === payload.text, "native transport retains the caller's canonical URL and authored message");
+    ok(copies === 0, "no clipboard API may consume activation before the native choice");
+    await Promise.resolve(); await Promise.resolve();
+    ok(completions === 0 && copies === 0, "native cancellation must earn no completion and trigger no automatic copy");
+  } finally {
+    if (priorNavigator === undefined) delete globalThis.navigator;
+    else Object.defineProperty(globalThis, "navigator", { configurable: true, value: priorNavigator });
+  }
 }
 
 // ── 4. THE HERO SLOT IS ADDITIVE ───────────────────────────────────────────
@@ -189,4 +202,4 @@ if (fails.length) {
   process.exit(1);
 }
 console.log("check-guide-share: OK — " + n + " assertions; every one of " + Object.keys(GUIDES).length
-  + " guides renders two share controls over a server-built canonical URL, and both share implementations open the native sheet before touching the clipboard");
+  + " guides renders two share controls over a server-built canonical URL, and all share entry points reuse the same explicit text-first policy");

@@ -1,4 +1,6 @@
 "use client";
+import { openShareFlow } from "../../lib/shareFlow.js";
+import { shareOut } from "../../lib/shareOut.js";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -356,10 +358,9 @@ export default function FamilyDayPage({ embedded = false, center = null, city = 
     });
   }, []);
 
-  const share = async () => {
+  const share = () => {
     const url = canonicalShareUrl(typeof window !== "undefined" ? window.location.href : "/family");
-    try { if (navigator.share) { await navigator.share({ title: "Family day, solved", url }); return; } } catch (error) { if (error && error.name === "AbortError") return; }
-    try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch (error) {}
+    openShareFlow({ title: "Family day, solved", url }, () => { setCopied(true); setTimeout(() => setCopied(false), 1800); });
   };
 
   const hasPoint = Number.isFinite(loc.lat) && Number.isFinite(loc.lng);

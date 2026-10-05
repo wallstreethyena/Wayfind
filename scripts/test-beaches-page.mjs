@@ -66,7 +66,7 @@ ok(pageSrc2.includes("editorialsFor(") && pageSrc2.includes("ed.why"), "verified
 ok(pageSrc2.includes("Know before you go:") && pageSrc2.includes("ed.watchOut, ed.goodToKnow") && pageSrc2.includes("How we verified this"), "know_before (ed.watchOut/ed.goodToKnow) renders as the 'Know before you go' line, collapsed behind the verify details");
 ok(pageSrc2.includes("Sourced:"), "sources footnote renders (transparency = the brand)");
 ok(/water QUALITY[\s\S]{0,80}no wired source/i.test(parts), "water quality stays absent until a real source is wired");
-ok(parts.includes("navigator.share"), "native share with clipboard fallback");
+ok(parts.includes("openShareFlow(data"), "ranking share reuses the unified text-first policy");
 // THE FORMULA IS NO LONGER COPIED, so this no longer compares two copies of
 // its constants (2026-08-06). It used to read `const m = 60; const C = 3.9;`
 // out of both lib/google.js and lib/beaches.js and assert they matched — a

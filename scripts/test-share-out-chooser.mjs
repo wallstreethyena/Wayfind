@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { canShareNatively, shareOut } from "../lib/shareOut.js";
+import { canShareNatively, shareOut, shareNatively } from "../lib/shareOut.js";
 import { shareMessage } from "../lib/shareChooser.js";
 import { ACTION_ATTR, PLACE_ATTR, PENDING_ACTIONS_KEY, WAS_ATTR, cardActionBridgeScript } from "../lib/cardActionAttrs.js";
 import { loadComponent } from "./lib/jsxLoad.mjs";
@@ -63,23 +63,23 @@ try {
   setGlobal("navigator", { share: (value) => { nativePayload = value; return Promise.resolve(); } });
   setGlobal("document", new FakeDocument());
   assert.equal(canShareNatively(), true, "Web Share availability must not be rejected just because the pointer is fine");
-  assert.equal(shareOut(payload), "native");
+  assert.equal(shareNatively(payload), "native");
   assert.deepEqual(nativePayload, payload);
   assert.equal(document.getElementById("wf-share-out-chooser"), null);
 
   setGlobal("navigator", { share: () => Promise.reject(Object.assign(new Error("refused"), { name: "NotAllowedError" })), clipboard: { writeText: async () => { throw new Error("must not silently copy"); } } });
-  assert.equal(shareOut(payload), "native", "a promise-returning Web Share attempt starts on the original tap");
+  assert.equal(shareNatively(payload), "native", "a promise-returning Web Share attempt starts on the original tap");
   assert.equal(await waitFor(() => document.getElementById("wf-share-out-chooser")), true);
   assert.ok(document.getElementById("wf-share-out-chooser"), "a refused native share opens the chooser");
   document.key("Escape");
 
   setGlobal("navigator", { share: () => { throw Object.assign(new Error("blocked"), { name: "NotAllowedError" }); } });
-  assert.equal(shareOut(payload), "chooser", "a synchronous Web Share refusal falls back during the original click");
+  assert.equal(shareNatively(payload), "chooser", "a synchronous Web Share refusal falls back during the original click");
   assert.ok(document.getElementById("wf-share-out-chooser"), "the chooser must already exist when shareOut reports chooser");
   document.key("Escape");
 
   setGlobal("navigator", { share: () => Promise.reject(Object.assign(new Error("cancelled"), { name: "AbortError" })) });
-  assert.equal(shareOut(payload), "native");
+  assert.equal(shareNatively(payload), "native");
   await Promise.resolve();
   await Promise.resolve();
   assert.equal(document.getElementById("wf-share-out-chooser"), null, "cancelling native share must not trigger another action");
@@ -121,7 +121,7 @@ try {
   doc.getElementById("wf-share-out-chooser").querySelectorAll("a[href],button:not([disabled])").find((n) => n.textContent === "Copy link").click();
   assert.equal(await waitFor(() => {
     const active = doc.getElementById("wf-share-out-chooser");
-    return active && flatten(active).some((n) => n.getAttribute("role") === "status" && /Couldn’t copy the link/.test(n.textContent));
+    return active && flatten(active).some((n) => n.getAttribute("role") === "status" && /Couldn’t copy/.test(n.textContent));
   }), true, "a failed copy exposes a visible live status");
   assert.equal(falseSuccess, 0, "failed clipboard and legacy copy must not announce success");
   const failedDialog = doc.getElementById("wf-share-out-chooser");
@@ -136,7 +136,8 @@ try {
   setGlobal("window", { location: { origin: "https://www.gowayfind.com" } });
   setGlobal("navigator", {});
   const { drainPendingActions, shareCard } = await loadComponent(path.join(ROOT, "lib/cardActions.js"), ROOT);
-  assert.equal(shareCard({ id: "nearby-place", name: "Nearby Place" }, { surface: "event_nearby" }), "chooser");
+  assert.equal(shareCard({ id: "nearby-place", name: "Nearby Place" }, { surface: "event_nearby" }), "menu");
+  flatten(doc.getElementById("wf-share-intent")).find((n) => n.tagName === "BUTTON" && n.children.some((x) => x.textContent === "Just share it")).click();
   const cardDialog = doc.getElementById("wf-share-out-chooser");
   assert.ok(cardDialog, "the real IconicPlaceCard store fallback opens the shared chooser");
   const cardEmail = flatten(cardDialog).find((n) => n.textContent === "Email");
@@ -174,7 +175,7 @@ try {
   }), 1, "hydration drains the queued Share once");
   assert.deepEqual(replayed, ["share"]);
   assert.deepEqual(window[PENDING_ACTIONS_KEY], []);
-  assert.ok(earlyDoc.getElementById("wf-share-out-chooser"), "the replay reaches the real card share fallback and produces visible UI");
+  assert.ok(earlyDoc.getElementById("wf-share-intent"), "the replay reaches the real card share fallback and produces visible UI");
   earlyDoc.key("Escape");
 
   const earlySave = earlyDoc.createElement("button");

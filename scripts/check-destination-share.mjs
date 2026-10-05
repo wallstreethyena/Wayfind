@@ -91,6 +91,7 @@ const STANDARD = {
 // app). Folding them into ShareButton is worthwhile cleanup, but they are not
 // missing, so they are pinned here rather than rewritten under a bug fix.
 const EQUIVALENT = {
+  "app/group-plans/[id]/page.js": { via: "app/group-plans/[id]/page.js", file: "app/group-plans/GroupPlanClient.js", label: /Share final plan/ },
   "app/family/page.js": { via: "app/family/client.js", file: "app/components/FamilyDayPage.js", label: /Share this list/ },
   "app/date-night/page.js": { via: "app/date-night/client.js", file: "app/components/DateNightIntentPage.js", label: /Share this list/ },
   "app/tonight/page.js": { via: "app/tonight/client.js", file: "app/components/NightOutIntentPage.js", label: /Share this list/ },
@@ -110,6 +111,8 @@ const EQUIVALENT = {
 // hand off (the item then opens inside the app shell, which has its own Share
 // on every card and sheet).
 const EXEMPT = {
+  "app/group-plans/page.js": { kind: "internal", why: "private signed-in organizer dashboard; individual invite/final-plan capabilities are shared from inside the plan" },
+  "app/group-plans/new/page.js": { kind: "internal", why: "private plan-creation form; no recipient link exists until a plan is created" },
   "app/page.js": { kind: "shell", why: "the app shell itself; every card and sheet in it carries its own share" },
   "app/p/[id]/page.js": { kind: "handoff", why: "opens the place inside the app shell, whose place sheet has Share" },
   "app/r/[rail]/page.js": { kind: "handoff", why: "shared rail card: redirects into the shell with the rail open" },
@@ -246,7 +249,7 @@ for (const [spec, served] of Object.entries(groups)) {
 for (const [page, e] of Object.entries(EQUIVALENT)) {
   const comp = strip(read(e.file));
   ok(e.label.test(comp), page + ": " + e.file + " no longer renders its page share (" + e.label + ") — move this page to STANDARD and give it <ShareButton>");
-  ok(/navigator\.share\(|shareOut\(|askShareIntent\(/.test(comp), page + ": " + e.file + " has a share label but no share call behind it");
+  ok(/openShareFlow\(|shareOut\(|askShareIntent\(/.test(comp), page + ": " + e.file + " has a share label but no share call behind it");
   const base = e.file.replace(/\.js$/, "").split("/").pop();
   ok(read(e.via).includes(base), page + ": " + e.via + " does not use " + e.file);
 }

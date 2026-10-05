@@ -1,4 +1,6 @@
 "use client";
+import { openShareFlow } from "../../lib/shareFlow.js";
+import { shareOut } from "../../lib/shareOut.js";
 // TrendingNowClient — the page behind the "Trending near you" hero (owner:
 // the card must open a RANKED page of the top picks, not one detail sheet).
 // Real tier-2 popularity via wf_buzz_picks; each row's editorial line is
@@ -159,11 +161,10 @@ export default function TrendingNowClient() {
   const heroImg = passedRef ? "/api/photo?ref=" + encodeURIComponent(passedRef) + "&g=2&w=800"
     : (rows && rows[0] && rows[0].photo_ref ? "/api/photo?ref=" + encodeURIComponent(rows[0].photo_ref) + "&g=2&w=800" : null);
 
-  const share = async () => {
+  const share = () => {
     // Canonical origin — see lib/site.canonicalShareUrl.
     const url = canonicalShareUrl(window.location.href);
-    try { if (navigator.share) { await navigator.share({ title: "Trending near " + loc.city, url }); return; } } catch (e) { if (e && e.name === "AbortError") return; }
-    try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch (e) {}
+    openShareFlow({ title: "Trending near " + loc.city, url }, () => { setCopied(true); setTimeout(() => setCopied(false), 1800); });
   };
 
   const sharePlace = (place) => {
@@ -171,16 +172,11 @@ export default function TrendingNowClient() {
     try { track("place_card_share", { place_id: place.id, surface: "trending_now" }); } catch (e) {}
     try { recordLikeEvent("share", place, { supabase, user }); } catch (e) {}
     try { recordTasteSignal("share", place, { supabase, user }); } catch (e) {}
-    // RETURNS TRUE IF THE OS SHEET OPENED. askShareIntent() confirms the invite
-    // itself when nothing native took over the screen, so `quiet` suppresses the
-    // page's own Copied chip on that path — one confirmation, not two.
-    const doShare = (u, title, quiet) => {
-      // NOT async, and not awaited. navigator.share() has to run inside the tap
-      // that called it — the sheet button's own click — or iOS refuses it.
-      try { if (navigator.share) { const pr = navigator.share({ title, url: u }); if (pr && pr.catch) pr.catch(() => {}); return true; } } catch (e) {}
-      try { navigator.clipboard.writeText(u); if (!quiet) { setCopied(true); setTimeout(() => setCopied(false), 1800); } } catch (e) {}
-      return false;
-    };
+    // Report whether visible text-first choices opened. The intent sheet must
+    // not start another composer underneath them. Copy feedback stays explicit.
+    const doShare = (u, title, quiet) => shareOut({ title, text: title, url: u }, () => {
+      if (!quiet) { setCopied(true); setTimeout(() => setCopied(false), 1800); }
+    }) !== "failed";
     askShareIntent({
       name: place.name, city: loc.city, id: place.id, kind: placeKinds(place),
       onPlain: () => doShare(url, place.name),

@@ -709,7 +709,8 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
     // the two files rather than deleting the protection: CreatorFinds hands
     // the resolved photo to the card, and the card renders a real <img> when
     // it has one and a placeholder tile only when it does not.
-    const RC = readFileSync(path.join(REPO, "app/components/RailCard.js"), "utf8");
+    const RC = readFileSync(path.join(REPO, "app/components/RailCard.js"), "utf8")
+      .replace(/\{\/\*[\s\S]*?\*\/\}/g, "").replace(/^\s*\/\/.*$/gm, "");
     // v7.07 (#690) — the hydrated PLACE, not a photo-only map. `h` is the
     // resolved Google place or null, and that SAME null decides every optional
     // field on the card: photo, score and facts. That is the honesty rule in
@@ -721,18 +722,36 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
     // 2026-09-01: named venue cards must not share category stock. A real
     // <img> renders only when the caller resolved that venue's own photo;
     // otherwise the branded monogram is the honest state.
-    // 2026-09-07 (GUARD-HONESTY): the gate now also re-checks `imgFailed`
-    // (a resolved photo that then fails to LOAD must fall to the monogram
-    // too, not just an unresolved one) — `[^?]*` tolerates that extra
-    // `&& imgFailed !== photo` clause between `{photo` and the `?` without
-    // loosening what this actually proves: an <img> with src={photo} is
-    // still the only thing standing between the gate and the monogram.
-    // 2026-09-30: the rendered src is `shownPhoto`, which is exactly `photo`
-    // outside a PhotoPolicyProvider (and "" for a Google photo inside one, so
-    // a guide falls to the same monogram). The proof is unchanged: nothing but
-    // the caller's resolved photo can reach the <img>.
-    ok(/const shownPhoto = photoSrcFilter\(photo\);/.test(RC) && /\{shownPhoto[^?]*\?\s*<img/.test(RC) && /src=\{shownPhoto\}/.test(RC) && /wf-place-card-monogram/.test(RC),
-      "…and RailCard renders only the resolved venue photo, with a branded monogram on a genuine miss");
+    // 2026-10-04: displayedPhoto tracks the filtered original or its owned,
+    // filtered fallback for this exact primary. Pin the whole chain, including
+    // one-shot retry and the genuine-miss branch, rather than merely accepting
+    // a different src variable. Actual onError/render/credit behavior is also
+    // exercised by scripts/test-fall-card-integration.mjs.
+    const railPhotoContract = (source) => [
+      /const shownPhoto = photoSrcFilter\(photo\);\s*const usingFallback = !!fallbackPhoto && fallbackPhoto\.primary === shownPhoto;\s*const displayedPhoto = usingFallback \? fallbackPhoto\.src : shownPhoto;/,
+      /const samePlacePhoto = place\?\.id \? photoSrcFilter\(ownedPlacePhotoSrc\(place\.id, 640\)\) : "";\s*const resolvedPhotoFallback = photoSrcFilter\(photoFallback\) \|\| \(samePlacePhoto && samePlacePhoto !== shownPhoto \? samePlacePhoto : ""\);/,
+      /const handleImageError = \(ev\) => \{\s*const fallback = ev\.currentTarget\.dataset\.fallback;\s*if \(fallback\) \{\s*ev\.currentTarget\.dataset\.fallback = "";\s*ev\.currentTarget\.src = fallback;\s*setFallbackPhoto\(\{ primary: shownPhoto, src: fallback \}\);\s*\} else setImgFailed\(shownPhoto\);\s*\};/,
+      /\{shownPhoto && imgFailed !== shownPhoto\s*\?\s*<img\s+src=\{displayedPhoto\}\s+data-fallback=\{usingFallback \? "" : resolvedPhotoFallback\}[^>]*onError=\{handleImageError\}[^>]*\/>\s*:\s*<div className="wf-place-card-monogram" aria-hidden="true">\{initialsOf\(title\)\}<\/div>\}/,
+    ].every((probe) => probe.test(source));
+    // The real source is the positive control; each red-prove changes a live
+    // contract expression and must both apply and make the SAME probe reject.
+    const photoRegressions = [
+      ["photoSrcFilter(photo);", "photo;"],
+      ["fallbackPhoto.primary === shownPhoto", "true"],
+      ["usingFallback ? fallbackPhoto.src : shownPhoto", 'usingFallback ? "/category-stock.jpg" : shownPhoto'],
+      ["photoSrcFilter(ownedPlacePhotoSrc(place.id, 640))", "ownedPlacePhotoSrc(place.id, 640)"],
+      ["photoSrcFilter(photoFallback) ||", "photoFallback ||"],
+      ['ev.currentTarget.dataset.fallback = "";', 'ev.currentTarget.dataset.fallback = fallback;'],
+      ["else setImgFailed(shownPhoto);", 'else ev.currentTarget.style.visibility = "hidden";'],
+      ["{shownPhoto && imgFailed !== shownPhoto\n", "{shownPhoto\n"],
+      ['className="wf-place-card-monogram"', 'className="wf-place-card-empty"'],
+    ];
+    const rejectsPhotoRegressions = photoRegressions.every(([before, after]) => {
+      const mutated = RC.replace(before, after);
+      return mutated !== RC && !railPhotoContract(mutated);
+    });
+    ok(railPhotoContract(RC) && rejectsPhotoRegressions,
+      "…and RailCard renders the policy-filtered venue photo or its owned one-shot fallback, with a branded monogram on a genuine miss (positive and mutation controls)");
     ok(/\/api\/photo\?ref=/.test(CF) && /REF_RX\.test\(ref\)/.test(CF),
       "the photo goes through the guarded /api/photo proxy with a shape-checked ref — never a bare Google URL");
     ok(/center=\{center\}/.test(HOME) || /center: center/.test(HOME),

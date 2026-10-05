@@ -195,10 +195,6 @@
       "reason": "1 absence check(s) with no same-file positive control"
     },
     {
-      "file": "scripts/check-guide-share.mjs",
-      "reason": "3 absence check(s) with no same-file positive control"
-    },
-    {
       "file": "scripts/check-hero-chrome.mjs",
       "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
     },
@@ -316,10 +312,6 @@
     },
     {
       "file": "scripts/check-no-terminal-loading.mjs",
-      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
-    },
-    {
-      "file": "scripts/check-og-absolute.mjs",
       "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
     },
     {

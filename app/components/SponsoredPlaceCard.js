@@ -3,6 +3,7 @@
 // Paid inventory uses the canonical place renderer. The purchased position,
 // advertiser copy and links live in the slot around it; score, facts, frame,
 // typography, spacing and card actions remain the shared place-card system.
+import { openShareFlow } from "../../lib/shareFlow.js";
 import IconicPlaceCard from "./IconicPlaceCard";
 import { useCommerceImpression } from "./useCommerceImpression";
 import { emitCommerce } from "../../lib/commerce";
@@ -106,8 +107,7 @@ export default function SponsoredPlaceCard({ pick, onLog, saved: savedProp, like
     pick.mapsHref ? { key: "map", label: "Directions", href: pick.mapsHref, external: true } : null,
     pick.pagePath ? { key: "share", label: "Share", onTap: () => {
       const url = "https://www.gowayfind.com" + pick.pagePath + "?utm_source=wayfind&utm_medium=sponsored_card_share";
-      try { if (navigator.share) { const result = navigator.share({ title: pick.name, url }); if (result && result.catch) result.catch(() => {}); return; } } catch (error) {}
-      try { navigator.clipboard && navigator.clipboard.writeText(url); } catch (error) {}
+      openShareFlow({ title: pick.name, url });
     } } : null,
     pick.pagePath ? { key: "page", label: "Full details", href: pick.pagePath } : null,
   ].filter(Boolean);

@@ -245,7 +245,7 @@ for (const a of ROW) {
 ok(/needsFallback\s*=\s*!cardActionsReadOnly\s*&&\s*!\(onSave\s*&&\s*onLike\s*&&\s*onDislike\s*&&\s*onShare\)/.test(cardSrc),
   `${CARD}: needsFallback must count EVERY action-row prop, share included — otherwise the fallback is off exactly when one control is missing`);
 ok(/export function shareCard\b/.test(storeSrc), `${STORE}: must export shareCard — the share fallback`);
-ok(/from "\.\/shareOut"/.test(storeSrc), `${STORE}: the share fallback must reuse lib/shareOut.js, which owns the iOS sheet-before-clipboard ordering (check-share-out.mjs), not a fourth copy of it`);
+ok(/from "\.\/shareFlow\.js"/.test(storeSrc), `${STORE}: the share fallback must reuse lib/shareFlow.js and its shared text-first transport, not a fourth copy`);
 
 // ---------------------------------------------------------------------------
 // 3. Nobody else builds a ?action= link. The card owns that URL shape; a second

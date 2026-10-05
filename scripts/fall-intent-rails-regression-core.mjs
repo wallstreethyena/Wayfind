@@ -19,6 +19,7 @@ import { FALL_COLLECTION_POSTER, fallEventCardImageSrc } from "../lib/fallEventI
 import { FALL_EVENT_VENUE_PLACE_IDS } from "../lib/fallEventImage.js";
 import { DISPLAYABLE_STATUS } from "../lib/curatedEvents.js";
 import { railRenderState, RAIL_RENDER_STATE } from "../lib/railVisibility.js";
+import { checkFallPaging } from "./lib/fall-paging-regression.mjs";
 
 let pass = 0;
 const failures = [];
@@ -416,8 +417,8 @@ ok(/\}, \[key, retry\]\);/.test(component) && !/\[key, city, retry, onTrack\]/.t
 // contract night-out/date-night/today-discovery/birthday speak.
 ok(/function FallRailSection\(/.test(component) && /usePagedRail\(/.test(component),
   "Fall's rails page independently through the shared usePagedRail hook");
-ok(/domRef=\{\w+ === sentinelIndex \? sentinelRef : undefined\}/.test(component),
-  "Fall wires the paging sentinel onto its cards, per the WO11 loaded−3 contract");
+const pagingChecks = await checkFallPaging();
+ok(pagingChecks > 0, `Fall executes ${pagingChecks} real loaded-ten, visible-expiry and fresh-date paging controls`);
 ok(!/Load every verified fall option/.test(component) && !/setFull/.test(component) && !/railScrollNeedsMore/.test(component),
   "the old whole-blob scroll-triggered full=1 loader is fully removed from Fall, not merely unreachable");
 ok(/if \(failure\) return failure.kind === "developer" \? <RailDevError \/> : <RailMascotBusy rail="fall"/.test(component), "a failed service is not misreported as an empty location");

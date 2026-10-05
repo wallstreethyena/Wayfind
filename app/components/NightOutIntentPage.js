@@ -1,4 +1,6 @@
 "use client";
+import { openShareFlow } from "../../lib/shareFlow.js";
+import { shareOut } from "../../lib/shareOut.js";
 
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -63,10 +65,9 @@ export default function NightOutIntentPage() {
         key={event.id} event={event} rank={index + 1} surface={`night_out_${railId}`} />),
     ])),
   }), [posterEvents]);
-  const share = async () => {
+  const share = () => {
     const url = canonicalShareUrl(typeof window !== "undefined" ? window.location.href : "/tonight");
-    try { if (navigator.share) { await navigator.share({ title: header.eyebrow || "Night Out", url }); return; } } catch (error) { if (error?.name === "AbortError") return; }
-    try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch {}
+    openShareFlow({ title: header.eyebrow || "Night Out", url }, () => { setCopied(true); setTimeout(() => setCopied(false), 1800); });
   };
 
   return <RankedExperiencePage

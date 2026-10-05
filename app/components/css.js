@@ -111,6 +111,10 @@ export const WF_SEARCH_CSS = `.wf-search-row{filter:drop-shadow(0 11px 20px rgba
 // Shared event information slots retain the standard card geometry.
 const EVENT_VISIT_CARD_CSS = `
 .wf-rail-card-links{display:flex;align-items:center;gap:8px;min-width:0;flex-wrap:wrap}
+/* Two destinations share one row. Each label may wrap inside its own track;
+   a narrow card must not stack two full CTA rows above the fixed action row. */
+.wf-rail-card-links:has(>a+a){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;align-items:stretch}
+.wf-rail-card-links:has(>a+a)>a{margin-top:0;overflow-wrap:anywhere}
 .wf-rail-card-links .wf-rail-card-cta{min-width:0;max-width:100%;font-size:10.5px!important;padding:6px 8px!important;line-height:1.2;white-space:normal}
 .wf-event-card-cost{display:block;text-align:left;border:0!important;background:transparent!important;padding:0!important;color:inherit!important;font:inherit;font-size:11px!important;line-height:1.35;font-weight:750!important;margin:5px 0;max-width:100%;cursor:pointer;white-space:normal}
 .wf-event-card-backdrop{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover;pointer-events:none;opacity:.8}

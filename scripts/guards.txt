@@ -2085,3 +2085,21 @@ node scripts/test-classified-poster-json.mjs
 node scripts/test-fall-visit-facts.mjs
 node scripts/test-place-recommendation-order.mjs
 node scripts/test-fall-card-integration.mjs
+# Unified share intent, gated group action and text-first transport runtime/negative controls.
+node scripts/test-unified-share-flow.mjs
+
+node scripts/test-group-plan.mjs
+
+node scripts/test-group-plan-time.mjs
+
+node scripts/test-group-plan-service.mjs
+
+node scripts/test-group-plan-candidates.mjs
+
+node scripts/test-group-plan-ui.mjs
+
+node scripts/test-group-plan-schema.mjs
+
+node scripts/test-group-plan-notifications.mjs
+
+node scripts/test-place-share-metadata.mjs

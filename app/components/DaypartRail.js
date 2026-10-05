@@ -31,6 +31,7 @@
 // rail must lead with tonight, not the afternoon. scripts/check-one-clock.mjs
 // enforces this; scripts/test-dayparts.mjs proves the four bands never
 // contradict nowContext's three.
+import { openShareFlow } from "../../lib/shareFlow.js";
 import { browsePosition, restoreBrowsePosition } from "../../lib/restoreBrowsePosition";
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { guideForPlaceRail } from "../../lib/guideDiscovery.js";
@@ -1103,16 +1104,12 @@ export default function DaypartRail({
       region: shown.region, city: shown.citySlug,
       open: selected === r.id, src: "rail_tile",
     });
-    let native = false;
-    try { native = onShareRail ? onShareRail(intent) === true : false; } catch (e) { native = false; }
-    if (native) return;
-    // /v8 mounts this component without the prop. Rather than have the button
-    // do nothing there, copy the link directly — a share that quietly fails is
-    // worse than one that only half-works.
-    if (!onShareRail && typeof navigator !== "undefined" && navigator.clipboard && navigator.clipboard.writeText) {
-      try { navigator.clipboard.writeText(intent.url); } catch (e) {}
-    }
-    setSaid(r.id);
+    let opened = false;
+    try { opened = onShareRail ? onShareRail(intent) === true : false; } catch {}
+    if (opened) return;
+    // /v8 has no shell handler: reuse the same visible text-first menu.
+    // Paint copied feedback only after the user chooses Copy and it succeeds.
+    openShareFlow({ title: intent.title || r.title, text: intent.text, url: intent.url }, () => setSaid(r.id));
   }, [onShareRail, daypart, shown, selected]);
 
   // v8.92 — goDateNightIntent() DELETED. Its only two callers were the two

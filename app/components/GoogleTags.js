@@ -23,6 +23,7 @@ import { usePathname } from "next/navigation";
 import { ga4Id, adsId, trackPageView } from "../../lib/analytics";
 import { captureAttribution } from "../../lib/attribution";
 import { isNative } from "../../lib/native";
+import { isGroupPlanPath } from "../../lib/groupPlanPrivacy.js";
 
 export default function GoogleTags() {
   const pathname = usePathname();
@@ -41,6 +42,7 @@ export default function GoogleTags() {
   // GA4 page_view on client-side route changes only — the initial page_view
   // comes from gtag's own config call, so firing here too would double it.
   useEffect(() => {
+    if (isGroupPlanPath(pathname)) return;
     if (firstRun.current) { firstRun.current = false; return; }
     try { trackPageView(pathname); } catch (e) {}
   }, [pathname]);
@@ -62,6 +64,7 @@ export default function GoogleTags() {
   // Apple's definition while nothing is shared with data brokers or joined to
   // third-party ad data.
   if (isNative()) return null;
+  if (isGroupPlanPath(pathname)) return null;
   if (!ads && !ga4) return null; // nothing configured — render nothing at all
 
   const configLines = [

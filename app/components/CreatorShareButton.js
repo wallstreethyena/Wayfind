@@ -5,19 +5,9 @@
 // Owner, 2026-08-30: "don't forget to have a share button so that cindy can
 // share her page professionally and start having SEO optimization."
 //
-// TWO PATHS, ONE BUTTON, AND THE FALLBACK IS THE POINT. navigator.share opens
-// the phone's real sheet (Instagram story, TikTok DM, Messages) — which is how
-// a creator actually shares a link, and it is the whole reason this exists. But
-// it is undefined on most desktop browsers and THROWS on a non-secure origin,
-// so a button that only calls it is a dead button on the machine she edits from.
-// Clipboard is the fallback, and a manual text-selection copy is the fallback to
-// THAT (Safari refuses navigator.clipboard outside a user gesture chain often
-// enough to matter). Every rung leaves the reader with the URL.
-//
-// The URL is read from window.location at click time rather than baked in, so a
-// share from a page reached through any host or with any tracking suffix shares
-// the page the reader is actually on. AbortError is a user closing the sheet —
-// it is a normal outcome, not a failure, and must not fall through to "copied".
+// Reuses the sitewide dark/orange intent menu and explicit text-first choices.
+// Copy feedback is earned only after an explicitly requested clipboard write.
+import { openShareFlow } from "../../lib/shareFlow.js";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 export default function CreatorShareButton({ handle, title }) {
@@ -32,27 +22,12 @@ export default function CreatorShareButton({ handle, title }) {
     timer.current = setTimeout(() => setState("idle"), 2400);
   }, []);
 
-  const onClick = useCallback(async () => {
+  const onClick = useCallback(() => {
     const url = typeof window !== "undefined" ? window.location.href : "";
     if (!url) return;
     const text = title || `Every place @${handle} has featured, on Wayfind`;
-    try {
-      if (typeof navigator !== "undefined" && navigator.share) {
-        await navigator.share({ title: text, text, url });
-        return;
-      }
-    } catch (e) {
-      // The reader dismissed the sheet. Nothing was shared and nothing failed.
-      if (e && e.name === "AbortError") return;
-    }
-    try {
-      if (typeof navigator !== "undefined" && navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(url);
-        flash("copied");
-        return;
-      }
-    } catch (e) { /* fall through to the manual rung */ }
-    flash("manual");
+    const how = openShareFlow({ title: text, text, url }, () => flash("copied"));
+    if (how === "failed") flash("manual");
   }, [handle, title, flash]);
 
   return (

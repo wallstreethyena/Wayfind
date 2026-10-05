@@ -169,7 +169,7 @@ export async function GET(req) {
 
     if (!heroDataUri) {
       const res = await shareCardResponse(
-        heroFallbackModel({ kind, title, cat, loc, r, rev, n, sc, mi, hook: hk, tone }),
+        heroFallbackModel({ kind, title, cat, loc, r, rev, n, sc, mi, hook: hk, tone,purpose:["group","group_final"].includes(url.searchParams.get("purpose"))?url.searchParams.get("purpose"):null }),
         { cache, fontBuffers },
       );
       return await toJpegResponse(res);
@@ -178,7 +178,7 @@ export async function GET(req) {
     // the rating row and the "SEE THE SPOT" pill on kind === "place" itself,
     // so a stray r/rev on a guide or event card still renders nothing extra.
     const model = heroCardModel({
-      kind, title, cat, loc, n, r, rev, hero: heroDataUri,
+      kind, title, cat, loc, n, r, rev, hero: heroDataUri,purpose:["group","group_final"].includes(url.searchParams.get("purpose"))?url.searchParams.get("purpose"):null,
       position: source.position, alt: source.alt || title,
     });
     const res = await shareCardResponse(model, { cache, fontBuffers });

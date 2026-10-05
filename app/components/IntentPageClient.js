@@ -1,4 +1,6 @@
 "use client";
+import { openShareFlow } from "../../lib/shareFlow.js";
+import { shareOut } from "../../lib/shareOut.js";
 // IntentPageClient — the dynamic engine behind /date-night and /family
 // (owner: "pull a dynamic search when the user clicks"). Location from URL
 // params (the hero cards pass them) with a wf_center fallback; queries per
@@ -584,7 +586,7 @@ export default function IntentPageClient({ intent }) {
     if (sortBy === "price") return (a.priceLevel ?? 9) - (b.priceLevel ?? 9) || ratedKey(b) - ratedKey(a);
     return ratedKey(b) - ratedKey(a);
   });
-  const share = async () => {
+  const share = () => {
     // THE SHARE-CARD STANDARD: the link we hand out carries the hero's real
     // photoRef, so every recipient's unfurl shows the actual top place —
     // never generic art (owner, 2026-07-22).
@@ -596,24 +598,18 @@ export default function IntentPageClient({ intent }) {
       const heroRef = passedRef || (rows && rows[0] && rows[0].photoRef) || null;
       if (heroRef && !u.searchParams.get("img")) { u.searchParams.set("img", heroRef); url = u.toString(); }
     } catch (e) {}
-    try { if (navigator.share) { await navigator.share({ title: intentEyebrow(def, variant) + " — " + loc.city, url }); return; } } catch (e) { if (e && e.name === "AbortError") return; }
-    try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch (e) {}
+    openShareFlow({ title: intentEyebrow(def, variant) + " — " + loc.city, url }, () => { setCopied(true); setTimeout(() => setCopied(false), 1800); });
   };
   const sharePlace = (p) => {
     const url = canonicalShareUrl("/p/" + encodeURIComponent(p.id));
     try { track("place_card_share", { place_id: p.id, intent }); } catch (e) {}
     try { recordLikeEvent("share", p, { supabase, user }); } catch (e) {}
     try { recordTasteSignal("share", p, { supabase, user }); } catch (e) {}
-    // RETURNS TRUE IF THE OS SHEET OPENED. askShareIntent() confirms the invite
-    // itself when nothing native took over the screen, so `quiet` suppresses the
-    // page's own Copied chip on that path — one confirmation, not two.
-    const doShare = (u, title, quiet) => {
-      // NOT async, and not awaited. navigator.share() has to run inside the tap
-      // that called it — the sheet button's own click — or iOS refuses it.
-      try { if (navigator.share) { const pr = navigator.share({ title, url: u }); if (pr && pr.catch) pr.catch(() => {}); return true; } } catch (e) {}
-      try { navigator.clipboard.writeText(u); if (!quiet) { setCopied(true); setTimeout(() => setCopied(false), 1800); } } catch (e) {}
-      return false;
-    };
+    // Report whether visible text-first choices opened. The intent sheet must
+    // not start another composer underneath them. Copy feedback stays explicit.
+    const doShare = (u, title, quiet) => shareOut({ title, text: title, url: u }, () => {
+      if (!quiet) { setCopied(true); setTimeout(() => setCopied(false), 1800); }
+    }) !== "failed";
     askShareIntent({
       name: p.name, city: loc.city, id: p.id, kind: placeKinds(p),
       onPlain: () => doShare(url, p.name),

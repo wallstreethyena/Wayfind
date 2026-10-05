@@ -1,4 +1,6 @@
 "use client";
+import { openShareFlow } from "../../lib/shareFlow.js";
+import { shareOut } from "../../lib/shareOut.js";
 
 // Date Night as a QUALIFIED INTENT — not a category list.
 // Homepage Date Night poster lands here. Existing RankedExperiencePage shell,
@@ -70,10 +72,9 @@ export default function DateNightIntentPage() {
   // v8.92 — the fetch, the skeleton, the failure copy and the rail render all
   // live in <DateNightRails> now. This page owns the shell and the share.
 
-  const share = async () => {
+  const share = () => {
     const url = canonicalShareUrl(typeof window !== "undefined" ? window.location.href : "/date-night");
-    try { if (navigator.share) { await navigator.share({ title: header.eyebrow || "Date night", url }); return; } } catch (e) { if (e && e.name === "AbortError") return; }
-    try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch (e) {}
+    openShareFlow({ title: header.eyebrow || "Date night", url }, () => { setCopied(true); setTimeout(() => setCopied(false), 1800); });
   };
 
   return (

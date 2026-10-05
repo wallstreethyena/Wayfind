@@ -5,6 +5,7 @@
 // alerts). Rip-current status is the NWS alert feed verbatim — when no
 // statement is active we report the absence of advisories, never a promise of safety. Water QUALITY
 // (bacteria testing) has no wired source yet, so it does not render at all.
+import { openShareFlow } from "../../../lib/shareFlow.js";
 import { useEffect, useState } from "react";
 import { supabase } from "../../../lib/supabase";
 import { TRENDING_POPULARITY_THRESHOLD } from "../../components/kit";
@@ -24,13 +25,10 @@ export default function BeachPageClient({ topBeach, metro, label, variant }) {
   const [copied, setCopied] = useState(false);
 
 
-  const share = async () => {
+  const share = () => {
     const url = window.location.origin + "/best-beaches/" + metro;
     const data = { title: "The best beaches — " + label, text: "Every beach ranked by the Wayfind Score. One list, no ads.", url };
-    try {
-      if (navigator.share) { await navigator.share(data); return; }
-    } catch (e) { if (e && e.name === "AbortError") return; }
-    try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch (e) {}
+    openShareFlow(data, () => { setCopied(true); setTimeout(() => setCopied(false), 1800); });
   };
 
 

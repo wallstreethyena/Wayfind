@@ -28,6 +28,14 @@ const SELF = fileURLToPath(import.meta.url);
 const REQUIRE_BROWSER = process.argv.includes("--require-browser");
 const MUTATION = process.argv.includes("--mutation-control-child");
 const ARTIFACT_DIR = path.join(ROOT, "artifacts/place-card-standard");
+// Exact fixture inventory: the shared RailCard adapter includes its ordinary,
+// creator-rich and Fall-rich states; every other adapter has two specimens.
+const FIXTURE_CARD_COUNTS = Object.freeze({
+  iconic: 2, "rail-card": 3, "event-nearby-place-rail": 2, "event-stay-place-rail": 2,
+  "things-to-do": 2, skeleton: 2, "home-live-route": 2, sponsored: 2, "guide-list-slot": 2,
+});
+const LIVE_CARD_COUNT = Object.entries(FIXTURE_CARD_COUNTS).reduce((sum, [id, count]) => sum + (id === "skeleton" ? 0 : count), 0);
+
 if (REQUIRE_BROWSER && !MUTATION) {
   rmSync(ARTIFACT_DIR, { recursive: true, force: true });
   mkdirSync(ARTIFACT_DIR, { recursive: true });
@@ -373,7 +381,7 @@ if (!browserConfig) {
             const cs = getComputedStyle(card), contentCss = content ? getComputedStyle(content) : null, nameCss = name ? getComputedStyle(name) : null, actionCss = actions ? getComputedStyle(actions) : null;
             const headingCss = heading ? getComputedStyle(heading) : null;
             const headingTextWidth = name ? name.getBoundingClientRect().width - parseFloat(nameCss.paddingLeft || "0") - parseFloat(nameCss.paddingRight || "0") : null;
-            return { box: box(card), scrollWidth: card.scrollWidth, hrefs: [...card.querySelectorAll("a[href]")].map((a) => a.getAttribute("href") || ""), root: [cs.height, cs.width, cs.borderRadius, cs.backgroundColor], content: contentCss ? [contentCss.paddingTop, contentCss.paddingRight, contentCss.paddingBottom, contentCss.paddingLeft] : null, name: nameCss ? [nameCss.fontSize, nameCss.lineHeight, nameCss.fontWeight] : null, headingTextWidth, extras: [...card.querySelectorAll(".wf-rail-card-cta,.wf-place-card-credit")].map(box), nameBox: name ? box(name) : null, labelFits: [...card.querySelectorAll(".wf-place-card-save,.wf-place-card-share,.wf-place-card-book")].map(el => ({name:el.className, fits:el.scrollWidth <= el.clientWidth + 1, text:el.textContent, hasIcon:!!el.querySelector("svg")})), hasBooking: !!card.querySelector('.wf-place-card-book'), actionStyles: Object.fromEntries(['save','like','dislike','share'].map(key => { const el = card.querySelector('.wf-place-card-' + key); if (!el) return [key,null]; const style = getComputedStyle(el); return [key,[style.height,style.fontSize,style.fontWeight,style.paddingLeft,style.paddingRight,style.borderRadius]]; })), actions: actionCss ? [actionCss.display, actionCss.gridTemplateColumns, actionCss.height, actionCss.columnGap] : null, media: media ? box(media) : null, score: score ? box(score) : null, controls: [...card.querySelectorAll(".wf-place-card-actions>*")].map(box) };
+            return { box: box(card), scrollWidth: card.scrollWidth, hrefs: [...card.querySelectorAll("a[href]")].map((a) => a.getAttribute("href") || ""), root: [cs.height, cs.width, cs.borderRadius, cs.backgroundColor], content: contentCss ? [contentCss.paddingTop, contentCss.paddingRight, contentCss.paddingBottom, contentCss.paddingLeft] : null, name: nameCss ? [nameCss.fontSize, nameCss.lineHeight, nameCss.fontWeight] : null, headingTextWidth, extras: [...card.querySelectorAll(".wf-rail-card-cta,.wf-place-card-credit,.wf-event-card-cost")].map(box), nameBox: name ? box(name) : null, labelFits: [...card.querySelectorAll(".wf-place-card-save,.wf-place-card-share,.wf-place-card-book")].map(el => ({name:el.className, fits:el.scrollWidth <= el.clientWidth + 1, text:el.textContent, hasIcon:!!el.querySelector("svg")})), hasBooking: !!card.querySelector('.wf-place-card-book'), actionStyles: Object.fromEntries(['save','like','dislike','share'].map(key => { const el = card.querySelector('.wf-place-card-' + key); if (!el) return [key,null]; const style = getComputedStyle(el); return [key,[style.height,style.fontSize,style.fontWeight,style.paddingLeft,style.paddingRight,style.borderRadius]]; })), actions: actionCss ? [actionCss.display, actionCss.gridTemplateColumns, actionCss.height, actionCss.columnGap] : null, media: media ? box(media) : null, score: score ? box(score) : null, controls: [...card.querySelectorAll(".wf-place-card-actions>*")].map(box) };
           }),
         }));
         return { innerWidth, scrollWidth: document.documentElement.scrollWidth, adapters };
@@ -382,12 +390,26 @@ if (!browserConfig) {
       if (REQUIRE_BROWSER && !MUTATION && [320, 390, 1440].includes(width)) {
         await page.screenshot({ path: path.join(ARTIFACT_DIR, `place-card-standard-${width}.png`), fullPage: true });
       }
+      // Replay the exact class of 320px CI failure on the real rich Fall
+      // fixture: restoring stacked dual links must push reactions out again.
+      // Keep the negative control local to this page; it never changes source.
+      if (width === 320 && !MUTATION) {
+        const oldLinks = await page.addStyleTag({ content: ".wf-rail-card-links:has(>a+a){display:flex;flex-wrap:wrap;gap:8px}" });
+        const overflowing = await page.evaluate(() => {
+          const card = document.querySelector('[data-adapter="rail-card"] .wf-event-photo-led');
+          if (!card) return null;
+          const body = card.getBoundingClientRect();
+          return [...card.querySelectorAll('.wf-place-card-actions>button')].filter((control) => control.getBoundingClientRect().bottom > body.bottom + 1).length;
+        });
+        ok(overflowing === 4, "RED-PROOF 320px: restoring stacked dual CTAs reproduces all four clipped reactions from hosted CI");
+        await oldLinks.evaluate((node) => node.remove());
+      }
       await context.close();
       ok(measured.innerWidth === width, `PROBE ${width}px: achieved viewport equals requested viewport (got ${measured.innerWidth})`);
-      ok(measured.adapters.length === 9 && measured.adapters.every((adapter) => adapter.cards.length === 2), `PROBE ${width}px: all nine real adapter fixtures rendered two cards`);
+      ok(measured.adapters.length === Object.keys(FIXTURE_CARD_COUNTS).length && new Set(measured.adapters.map((adapter) => adapter.id)).size === Object.keys(FIXTURE_CARD_COUNTS).length && measured.adapters.every((adapter) => adapter.cards.length === FIXTURE_CARD_COUNTS[adapter.id]), `PROBE ${width}px: all nine real adapters match their exact fixture inventory (three RailCard states, two of each other adapter)`);
       const live = measured.adapters.filter((adapter) => adapter.id !== "skeleton").flatMap((adapter) => adapter.cards.map((card) => ({ ...card, adapter: adapter.id })));
       const routed = live.filter((card) => card.adapter === "iconic" || card.adapter === "rail-card").flatMap((card) => card.hrefs || []);
-      ok(live.length === 16 && routed.some((href) => href.startsWith("/p/")) && routed.every((href) => !href.startsWith("/places/")), `PROBE ${width}px: sixteen live cards measured and stale /places inputs cannot escape the shared place-card renderers (got ${live.length})`);
+      ok(live.length === LIVE_CARD_COUNT && routed.some((href) => href.startsWith("/p/")) && routed.every((href) => !href.startsWith("/places/")), `PROBE ${width}px: ${LIVE_CARD_COUNT} live cards measured and stale /places inputs cannot escape the shared place-card renderers (got ${live.length})`);
       const STACKED = new Set(["home-live-route", "guide-list-slot"]);
       const expectedRailWidth = Math.min(PLACE_CARD_MAX_WIDTH_PX, (width - PLACE_CARD_PAGE_GUTTER_PX * 2 - (PLACE_CARD_PHONE_PEEK - 1) * PLACE_CARD_GAP_PX) / PLACE_CARD_PHONE_PEEK);
       const listFills = width < PLACE_CARD_LIST_FILL_BELOW_PX;

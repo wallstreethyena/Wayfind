@@ -95,12 +95,63 @@ const failedMarkup = renderToStaticMarkup(React.createElement(SummerPicksRails, 
 assert.match(failedMarkup, /role="alert"/, "a failed rail stays distinguishable from healthy empty inventory");
 assert.doesNotMatch(failedMarkup, /wf-rail-exploding/, "a failed rail does not render an empty carousel");
 
-const eventMarkup = renderToStaticMarkup(React.createElement(SummerPicksRails, {
-  city: "Test City",
-  rails: [{ id: "sports", title: "Sports Events", deck: "Games", cards: [{ kind: "event", id: "game-1", name: "Home Match", dest: "/events/game-1" }] }],
-}));
+// The shared card is a keyboard-accessible role=button. Its destination lives
+// in the actual click handler, not necessarily in the server's anchor markup.
+// Capture the real article props while rendering the unmocked component chain.
+function renderSportsCard(event) {
+  let article;
+  const createElement = React.createElement;
+  React.createElement = (type, props, ...children) => {
+    if (type === "article" && props?.["aria-label"] === `Open ${event.name}`) article = props;
+    return createElement(type, props, ...children);
+  };
+  try {
+    const markup = renderToStaticMarkup(React.createElement(SummerPicksRails, {
+      city: "Test City",
+      rails: [{ id: "sports", title: "Sports Events", deck: "Games", cards: [{ kind: "event", ...event }] }],
+    }));
+    return { markup, article };
+  } finally {
+    React.createElement = createElement;
+  }
+}
+const { markup: eventMarkup, article: sportsArticle } = renderSportsCard({ id: "game-1", name: "Home Match", dest: "/events/game-1" });
 assert.match(eventMarkup, /Home Match/, "a raw sports event renders through the shared event card");
-assert.match(eventMarkup, /\/events\/game-1/, "a raw sports event keeps its truthful destination");
+assert.equal(sportsArticle?.role, "button", "the raw event exposes the shared interactive card body");
+assert.equal(sportsArticle?.tabIndex, 0, "the raw event card remains reachable by keyboard");
+assert.equal(typeof sportsArticle?.onClick, "function", "the real card body has a navigation handler");
+const assigned = [], opened = [];
+const originalWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
+Object.defineProperty(globalThis, "window", { configurable: true, value: {
+  location: { assign: (url) => assigned.push(url) },
+  open: (...args) => opened.push(args),
+} });
+try {
+  const bodyClick = { target: { closest: () => null } };
+  sportsArticle.onClick(bodyClick);
+  assert.deepEqual(assigned, ["/events/game-1"], "a raw sports event body opens its exact truthful destination");
+  for (const key of ["Enter", " "]) {
+    let prevented = false;
+    sportsArticle.onKeyDown({ key, preventDefault: () => { prevented = true; }, currentTarget: { click: () => sportsArticle.onClick(bodyClick) } });
+    assert.equal(prevented, true, `${key} activates the real sports card without scrolling the page`);
+  }
+  assert.deepEqual(assigned, Array(3).fill("/events/game-1"), "pointer, Enter and Space agree on the event destination");
+  sportsArticle.onClick({ target: { closest: () => ({ tagName: "BUTTON" }) } });
+  assert.equal(assigned.length, 3, "a nested action must not also navigate the event body");
+  const external = renderSportsCard({ id: "game-2", name: "Official Match", dest: "https://www.ticketmaster.com/event/fixture", destKind: "external" });
+  external.article.onClick(bodyClick);
+  assert.deepEqual(opened, [["https://www.ticketmaster.com/event/fixture", "_blank", "noopener"]], "external raw events retain their official destination and safe handoff");
+  assert.equal(assigned.length, 3, "an external event cannot masquerade as an internal detail route");
+  const quarantined = renderSportsCard({ id: "game-3", name: "Unsafe Match", dest: "javascript:alert(1)", destKind: "external" });
+  quarantined.article.onClick(bodyClick);
+  assert.equal(opened.length, 1, "unsafe raw event destinations never open");
+} finally {
+  if (originalWindow) Object.defineProperty(globalThis, "window", originalWindow);
+  else delete globalThis.window;
+}
+const noDestination = renderSportsCard({ id: "game-4", name: "No verified destination" });
+assert.equal(noDestination.article, undefined, "an event without a destination cannot expose a dead card button");
+assert.doesNotMatch(noDestination.markup, /Open No verified destination/, "missing-destination events have no false body action");
 
 const eventNodeMarkup = renderToStaticMarkup(React.createElement(SummerPicksRails, {
   city: "Test City",

@@ -1,7 +1,9 @@
 "use client";
-import { encodeInvite, invitePath, inviteShareText, smsHref, activityForPlace } from "../../lib/dateInvite";
+import { encodeInvite, invitePath, inviteShareText, activityForPlace } from "../../lib/dateInvite";
 // v8.46 — the pairing law. wf_center is shared state; every reader validates.
 import { centerAgreesWithLabel } from "../../lib/locationHonesty";
+import { shareOut } from "../../lib/shareOut.js";
+import { groupPlanHref, placeSharePreview, runShareChoice } from "../../lib/shareContext.js";
 
 // app/components/shareIntentSheet.js — the question, callable from anywhere (v7.28).
 //
@@ -27,6 +29,7 @@ import { centerAgreesWithLabel } from "../../lib/locationHonesty";
 // module-scope helpers in home.js that are not components and have no tree.
 
 const ID = "wf-share-intent";
+let activeIntentClose = null;
 
 function el(tag, style, text) {
   const n = document.createElement(tag);
@@ -46,8 +49,8 @@ function el(tag, style, text) {
  *                               recipient builds cannot contradict it later
  * @param {Function} o.onPlain   share exactly as before
  * @param {Function} o.onInvite  (absoluteUrl, text, {to, key}) => share the invite.
- *                               MUST RETURN TRUTHY IF IT OPENED A NATIVE SHARE
- *                               SHEET. That return value is the only way this
+ *                               MUST RETURN TRUTHY IF VISIBLE SHARE UI OPENED.
+ *                               That return value is the only way this
  *                               sheet can know whether anything visible happened
  *                               — see showReady() below for why guessing fails.
  */
@@ -56,6 +59,8 @@ export function askShareIntent(o) {
   // Server, or a browser too old for this: never swallow the share.
   if (typeof document === "undefined") { try { opt.onPlain && opt.onPlain(); } catch (e) {} return; }
 
+  if (activeIntentClose) activeIntentClose();
+  const returnFocus = document.activeElement;
   const prior = document.getElementById(ID);
   if (prior) { try { prior.remove(); } catch (e) {} }
 
@@ -89,8 +94,18 @@ export function askShareIntent(o) {
   const card = el("div",
     "position:relative;width:100%;max-width:520px;background:#0D1218;border-top:1px solid #30363D;" +
     "border-radius:16px 16px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom));" +
-    "box-shadow:0 -18px 48px rgba(0,0,0,.55);animation:wfSiUp .22s cubic-bezier(.22,.61,.36,1)");
+    "box-shadow:0 -18px 48px rgba(0,0,0,.55);animation:wfSiUp .22s cubic-bezier(.22,.61,.36,1);max-height:90dvh;overflow-y:auto;box-sizing:border-box");
 
+  const preview = placeSharePreview(opt.id, name, opt.city);
+  if (preview) {
+    const img = el("img", "display:block;width:100%;aspect-ratio:1200/630;object-fit:cover;border-radius:12px;margin-bottom:14px");
+    img.src = preview;
+    img.alt = name ? "Share preview for " + name : "Wayfind place share preview";
+    // /api/og/hero owns licensed real-photo resolution and honest typography.
+    // A failed preview never blocks the share or substitutes invented imagery.
+    img.addEventListener("error", () => { try { img.remove(); } catch {} });
+    card.appendChild(img);
+  }
   card.appendChild(el("div", "font-size:16px;font-weight:800;color:#E6EDF3;margin-bottom:3px",
     name ? "Share " + name : "Share this"));
   card.appendChild(el("div", "font-size:13px;color:#8B98A9;margin-bottom:14px", "Who is this for?"));
@@ -99,14 +114,23 @@ export function askShareIntent(o) {
     try { wrap.dispatchEvent(new Event("wf-si-close")); } catch (e) {}
     try { wrap.remove(); } catch (e) {}
     document.removeEventListener("keydown", onKey);
+    if (activeIntentClose === close) activeIntentClose = null;
+    try { returnFocus?.focus?.({ preventScroll: true }); } catch {}
   };
-  const onKey = (e) => { if (e.key === "Escape") close(); };
+  const onKey = (e) => {
+    if (e.key === "Escape") { e.preventDefault(); close(); return; }
+    if (e.key !== "Tab") return;
+    const items = Array.from(card.querySelectorAll?.("button,input") || []);
+    const first = items[0], last = items[items.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last?.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first?.focus(); }
+  };
 
   // NOTHING ASYNC BETWEEN THE TAP AND THE SHARE.
   const act = (fn) => (e) => {
     e.preventDefault(); e.stopPropagation();
-    try { fn(); } catch (err) {}
     close();
+    try { runShareChoice(fn); } catch (err) {}
   };
 
   const button = (primary, title, sub, onTap, keepOpen) => {
@@ -129,78 +153,16 @@ export function askShareIntent(o) {
     return b;
   };
 
-  // No legacy textarea fallback on purpose: navigator.clipboard is present on
-  // every https browser this ships to, and the link is on screen to be selected
-  // by hand if it ever is not. A hidden textarea is also the exact thing the
-  // one-field rule forbids on this sheet.
-  const copyNow = (url, btn) => {
-    try {
-      if (typeof navigator !== "undefined" && navigator.clipboard && navigator.clipboard.writeText) {
-        const pr = navigator.clipboard.writeText(url);
-        if (pr && pr.catch) pr.catch(() => {});
-      }
-    } catch (e) {}
-    try { if (btn && btn._wfLabel) btn._wfLabel.textContent = "Copied — go paste it"; } catch (e) {}
-  };
-
-  // NO SHARE SHEET IS COMING — SO WRITE THE TEXT AND SAY SO.
-  //
-  // Owner, 2026-08-12, twice: "i hit send invite and nothing happens", then
-  // "it still said invite copied instead of automatically sending the text."
-  //
-  // Both are the same defect. On a laptop there is no OS share sheet, so
-  // shareLink() fell through to a quiet clipboard write and the overlay closed:
-  // nothing was broken and nothing was visible, which is the same thing to the
-  // person holding the mouse — on the one tap in this product they are actually
-  // nervous about. And a clipboard write is not a send. It is homework.
-  //
-  // So the invite goes out as a REAL message: sms:?&body= hands macOS, iOS and
-  // Android a composed text with the invite already written in it, and all that
-  // is left is choosing the person and pressing send. The panel underneath is
-  // the honest fallback — we cannot observe whether the OS took the handoff, so
-  // it says what we did, shows the link, and keeps it on the clipboard.
-  //
-  // WE ARE TOLD WHICH CASE THIS IS, WE DO NOT SNIFF. The obvious version tests
-  // navigator.share here, and it is wrong: shareLink() decides with
-  // `touchDevice && navigator.share` while the two intent clients decide with
-  // navigator.share alone. On desktop Safari — which has navigator.share and is
-  // not a touch device — a sheet that guessed would be wrong for one of them
-  // every time. onInvite returns whether it opened something, and a caller that
-  // returns nothing lands here, which is the safe way to be wrong.
+  // A caller reporting no visible handoff gets the same explicit choices.
+  // Never silently copy, claim delivery, or open a second composer underneath
+  // a native sheet. More share options owns its own fresh user gesture.
   const showReady = (url, who, text) => {
-    // The handoff first, while the tap is still warm. Unhandled schemes are a
-    // no-op in every browser this ships to, so the worst case is the panel.
-    try {
-      if (typeof window !== "undefined" && window.location) window.location.href = smsHref(url, text);
-    } catch (e) {}
-    copyNow(url); // silent safety net — the panel promises this below
-
+    const how = shareOut({ title: who ? "Invite for " + who : "Your invite", url, text });
+    if (how !== "failed") { close(); return; }
     card.textContent = "";
-    card.appendChild(el("div", "font-size:16px;font-weight:800;color:#E6EDF3;margin-bottom:3px",
-      who ? "Off to " + who + " 💌" : "Your invite is written 💌"));
-    card.appendChild(el("div", "font-size:13px;color:#8B98A9;margin-bottom:12px",
-      "We started the text for you — all that’s left is hitting send. If nothing " +
-      "popped open, it’s copied, so paste it into a message and it works the same."));
-
-    // ONE LINE, ELLIPSED. The payload is the invite, so the URL is 140+
-    // characters of base64 and wrapping it turns the panel into a wall of
-    // gibberish. user-select:all still selects the WHOLE string on one click,
-    // clipped or not, so nothing is lost by not showing all of it.
-    card.appendChild(el("div",
-      "display:block;width:100%;padding:12px 14px;margin-bottom:10px;border-radius:12px;" +
-      "background:rgba(255,255,255,.045);border:1px solid #30363D;color:#8B98A9;" +
-      "font-size:12.5px;font-weight:600;line-height:1.35;white-space:nowrap;overflow:hidden;" +
-      "text-overflow:ellipsis;user-select:all;-webkit-user-select:all", url));
-
-    const copyBtn = button(true, "Copy the link again", "", () => copyNow(url, copyBtn), true);
-    card.appendChild(copyBtn);
-
-    const done = el("button",
-      "display:block;width:100%;padding:11px;background:transparent;border:none;color:#8B98A9;" +
-      "font-size:13px;font-weight:700;cursor:pointer", "Done");
-    done.addEventListener("click", act(() => {}));
-    card.appendChild(done);
-    try { copyBtn.focus({ preventScroll: true }); } catch (e) {}
+    card.appendChild(el("div", "color:#E6EDF3;font-size:14px", "Couldn’t open share options. You can select this invite link:"));
+    card.appendChild(el("div", "color:#8B98A9;overflow-wrap:anywhere;user-select:all", url));
+    card.appendChild(button(false, "Done", "", () => {}));
   };
 
   // The plain share is FIRST and primary. Sharing already worked in one tap, and
@@ -272,9 +234,10 @@ export function askShareIntent(o) {
       // Seeded off THIS invite, so the same link always carries the same line —
       // and never "Open this", which is not a sentence a person types.
       const text = inviteShareText({ place: name, city: opt.city, from: who }, who);
+      close();
       let opened = false;
-      try { opened = !!(opt.onInvite && opt.onInvite(url, text, { to: who, key: code })); } catch (err) {}
-      if (opened) { close(); return; } // the OS sheet is up — get out of its way
+      try { opened = !!runShareChoice(() => opt.onInvite && opt.onInvite(url, text, { to: who, key: code })); } catch (err) {}
+      if (opened) { close(); return; } // the chosen transport has visible UI
       showReady(url, who, text);
     };
 
@@ -325,7 +288,11 @@ export function askShareIntent(o) {
   };
 
   card.appendChild(button(false, "I’m asking someone out",
-    "We’ll send a little invite instead — and help them say yes", askWho, true));
+    "Write a little invite they can answer", askWho, true));
+
+  const groupHref = groupPlanHref(opt.id, name);
+  if (groupHref) card.appendChild(button(false, "Organize a group",
+    "Pick a place. Find a time.", () => { window.location.href = groupHref; }));
 
   const cancel = el("button",
     "display:block;width:100%;padding:11px;background:transparent;border:none;color:#8B98A9;" +
@@ -338,5 +305,6 @@ export function askShareIntent(o) {
   wrap.appendChild(card);
   document.body.appendChild(wrap);
   document.addEventListener("keydown", onKey);
+  activeIntentClose = close;
   try { card.querySelector("button").focus({ preventScroll: true }); } catch (e) {}
 }
