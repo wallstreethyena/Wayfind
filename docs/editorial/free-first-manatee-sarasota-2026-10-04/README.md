@@ -2,7 +2,7 @@
 
 Research date: 2026-10-04. Baseline: `0709738350181c0e3d79aba24150246b08d4d594`.
 
-Three new descriptions are prepared in `researched-editorial.json`. They are **not published**. The existing owner publisher accepts all three offline. No application code, ranking, refresh behavior, spend gate, provider adapter, or verification flag in production was changed.
+Three new descriptions are prepared in `researched-editorial.json`. They were published on **2026-10-05** using the canonical guarded publisher; the October 4 preparation record below is retained as history. The existing owner publisher accepts all three offline. No application code, ranking, refresh behavior, spend gate, provider adapter, or verification flag in production was changed.
 
 ## Why this path
 
@@ -56,3 +56,11 @@ node scripts/publish-owned-editorial.mjs --input docs/editorial/free-first-manat
 ```
 
 Then read back the three exact IDs from `wf_editorial_servable` and verify `/api/editorial` and the public place detail surfaces. The existing publisher inserts missing rows with ignore-duplicates; it does not reclassify unknown legacy rows as verified or overwrite existing prose. Do not substitute a raw SQL insert for the unavailable publisher credentials.
+
+## Publication completed — 2026-10-05
+
+The existing Vercel connection supplied the existing publisher configuration privately; no new key was created. All six official source pages were reopened and their factual claims rechecked. The canonical publisher passed its immediate live identity and blank-slot preflight, then inserted **3/3 verified rows** with no overwrites or provider calls. Reviewer record: `Source review /root/astra_oct04_lead; refreshed by /root 2026-10-05`.
+
+A fresh read of `wf_editorial_servable` returned exactly the three expected IDs, each verified with no issues. The live `/api/editorial?id=<exact-ID>` endpoint returned HTTP 200 and a populated editorial object for all three. This verifies the production API; the full place-detail browser rendering was not independently checked in this publication pass.
+
+This batch does not resolve the wider editorial backlog. Production migrations still require the separate `SUPABASE_ACCESS_TOKEN`, which is unavailable in this execution environment.
