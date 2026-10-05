@@ -89,6 +89,19 @@ for (const rid of FALL_REJECTED_IDS) {
 }
 ok(FALL_REJECTED_IDS.length >= 6, `positive control — the owner-rejected list still carries its known members (${FALL_REJECTED_IDS.length}); a guard reporting 0 here would be checking nothing`);
 
+// Owner 2026-10-04: Hashtag Café must stay visible in Fall Drinks & Seasonal Bites
+// while its verified Spooktober food series is active. Pin the exact place identity
+// so a future registry refresh cannot silently drop the Sarasota feature.
+const HASHTAG_CAFE = "ChIJEUEmzE1Bw4gRHHXe_oxJF7E";
+ok(poolIds.has(HASHTAG_CAFE) && cardIds.has(HASHTAG_CAFE) && railIds.has(HASHTAG_CAFE) && srcIds.has(HASHTAG_CAFE),
+  "Hashtag Café Sarasota stays present across the fall pool, card skin, rail assignment and evidence registry");
+ok(FALL_PLACE_RAIL[HASHTAG_CAFE] === "food",
+  "Hashtag Café Sarasota is assigned to Fall Drinks & Seasonal Bites (food rail)");
+ok(FALL_OFFERING_SOURCES[HASHTAG_CAFE]?.sourceType === "official_site"
+  && FALL_OFFERING_SOURCES[HASHTAG_CAFE]?.verified === "2026-10-04"
+  && FALL_OFFERING_SOURCES[HASHTAG_CAFE]?.until === "2026-10-30",
+  "Hashtag Café uses current official Spooktober evidence with a bounded October window");
+
 // ── 3. every pool member: https source, real offering text, current-season
 // verification (or the documented evergreen exemption), and — for a DATED
 // offering — its own end date has not passed. Collected, not short-circuited,
