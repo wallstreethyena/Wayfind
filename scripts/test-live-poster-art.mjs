@@ -1,7 +1,7 @@
 // scripts/test-live-poster-art.mjs
 //
 // Owner directions 2026-09-18 and 2026-09-20: baseball uses "Catch a Game"
-// and eligible music events use "Live Tonight." Only the tile picture changes.
+// only; the concert poster was removed 2026-10-06. Only the tile picture changes.
 //
 // Proves, against the real shipped modules:
 //   1. A real Ticketmaster baseball event (shape copied from the live
@@ -19,9 +19,10 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFileSync, existsSync } from "node:fs";
 import {
-  LIVE_POSTER_CONCERT_ART, LIVE_POSTER_SPORT_ART,
-  isConcertEvent, sportOfEvent, livePosterArtFor,
+  LIVE_POSTER_SPORT_ART,
+  sportOfEvent, livePosterArtFor,
 } from "../lib/livePosterArt.js";
+import { LIVE_POSTER_TYPE_CONFIG } from "../lib/liveEventPosterTypes.js";
 import { POSTER_RATIO } from "../lib/posterImageFit.js";
 
 let n = 0;
@@ -35,7 +36,6 @@ const RAYS = {
 
 const OWNER_ART_SHA256 = Object.freeze({
   baseball: "30617ef805fd94afdb4e4bd5da6074a68bec914bc3abf8095219a08277d20f76",
-  concerts: "447444de0f8826017141ca423ca6dbe5b225bb09a38c81e4f59d6c0de20bf8d3",
 });
 
 check("a real Ticketmaster MLB game gets the baseball art on the sports poster", () => {
@@ -48,13 +48,16 @@ check("league-only and name-only baseball still match", () => {
   assert.equal(sportOfEvent({ genre: "", name: "Spring Training Baseball: Pirates vs Orioles" }), "baseball");
 });
 
-check("an eligible music event gets concert art without crossing buckets", () => {
+check("no concert live poster type or art exists (removed 2026-10-06)", () => {
   const music = { name: "Live Tonight", segment: "Music", genre: "Rock" };
-  assert.equal(isConcertEvent(music), true);
-  assert.equal(livePosterArtFor("concerts", music), LIVE_POSTER_CONCERT_ART);
-  assert.equal(livePosterArtFor("concerts", RAYS), null);
+  assert.equal(livePosterArtFor("concerts", music), null);
   assert.equal(livePosterArtFor("sports", music), null);
-  assert.equal(isConcertEvent({ name: "Marching Band Concert", segment: "Sports", genre: "Football" }), false);
+  assert.deepEqual(Object.keys(LIVE_POSTER_TYPE_CONFIG), ["sports"]);
+  assert.ok(!existsSync("public/posters/live/concerts-owner-20260920.webp"), "concert art file must stay deleted");
+  for (const f of ["lib/livePosterArt.js", "lib/liveEventPosterTypes.js", "lib/livePosterSelection.js", "app/components/useLivePosterTiles.js"]) {
+    const src = readFileSync(f, "utf8");
+    assert.doesNotMatch(src, /LIVE_POSTER_CONCERT_ART|isConcertEvent|concerts-owner|useOneLivePoster\("concerts"/, `${f} must not reference the concert live poster`);
+  }
 });
 
 check("other sports and non-sports keep their Ticketmaster artwork", () => {
@@ -74,13 +77,12 @@ check("a team name alone is never guessed into a sport", () => {
 check("junk input is safe", () => {
   for (const bad of [null, undefined, 3, "baseball", {}]) {
     assert.equal(livePosterArtFor("sports", bad), null);
-    assert.equal(livePosterArtFor("concerts", bad), null);
   }
   assert.equal(livePosterArtFor("unknown", { segment: "Music" }), null);
 });
 
 check("every mapped art file exists, is WebP, and is 9:16 like the tile", () => {
-  for (const [sport, url] of [...Object.entries(LIVE_POSTER_SPORT_ART), ["concerts", LIVE_POSTER_CONCERT_ART]]) {
+  for (const [sport, url] of Object.entries(LIVE_POSTER_SPORT_ART)) {
     const file = `public${url}`;
     assert.ok(existsSync(file), `${sport}: ${file} is missing`);
     const b = readFileSync(file);

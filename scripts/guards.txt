@@ -2103,3 +2103,4 @@ node scripts/test-group-plan-schema.mjs
 node scripts/test-group-plan-notifications.mjs
 
 node scripts/test-place-share-metadata.mjs
+node scripts/test-events-fall-feed-image.mjs

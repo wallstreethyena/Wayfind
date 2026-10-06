@@ -16,7 +16,8 @@ import { siteAnchorDate } from "../../../lib/siteTime.js";
 import { localStaplesFor, parseLibCalICS, parseICSDate, libcalId, LIBCAL_FEED } from "../../../lib/eventResolve.js";
 import { getBusinessFeeds, businessEventsFrom } from "../../../lib/businessFeeds.js";
 import { creatorEventsFor } from "../../../lib/creatorEvents.js";
-import { fetchCuratedEvents, curatedFeedEvents, CURATED_REACH_MI, CURATED_SOURCE } from "../../../lib/curatedEvents.js";
+import { curatedFeedEventsWithFall } from "../../../lib/curatedFallFeed.js";
+import { fetchCuratedEvents, CURATED_REACH_MI, CURATED_SOURCE } from "../../../lib/curatedEvents.js";
 import { stockPhotoPool, fromPool } from "../../../lib/stockPhoto.js";
 import { cget, cset, DAY } from "../../../lib/serverCache";
 import { breakerOpen, tripBreaker, classifyProviderFailure, BREAKER_COOLDOWN_MS } from "../../../lib/providerHealth.js";
@@ -731,7 +732,7 @@ async function fromCuratedEvents(lat, lng) {
     if (!rows.length) return { configured: true, events: [] };
     // Filter to reach BEFORE resolving photos: a cold aggregation should cost
     // at most a handful of pool lookups, not one per row in the table.
-    const near = curatedFeedEvents(rows).filter((e) =>
+    const near = curatedFeedEventsWithFall(rows).filter((e) =>
       e.lat != null && e.lng != null && haversineMiLocal(lat, lng, e.lat, e.lng) <= CURATED_REACH_MI);
     if (!near.length) return { configured: true, events: [] };
     await Promise.all(near.map(async (e) => {

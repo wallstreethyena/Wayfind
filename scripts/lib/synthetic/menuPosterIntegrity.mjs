@@ -36,7 +36,7 @@ export const EXPECTED_VISIBLE_POSTER_IDS = Object.freeze([
 ]);
 
 // Optional synthetic tiles are product-owned too, but their presence depends
-// on live context: sports/concerts appear only when a qualifying nearby event
+// on live context: sports appears only when a qualifying nearby event
 // exists, and sponsor tiles appear only inside an approved partner geo gate.
 // Derive ONLY this optional allowlist from the product registries so adding a
 // new live-event type or partner collection cannot make the monitor reject an
