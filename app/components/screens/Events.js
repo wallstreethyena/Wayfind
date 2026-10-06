@@ -34,6 +34,8 @@ function EventCard({ e, onVenue, ctx }) {
   const image = (ctx.eventUseImage(e) ? (e.thumb || e.image) : "") || categoryImage;
   return <RailCard
     photo={image}
+    visitFacts={e.visitFacts || null}
+    planningHref={internal ? e.dest : null}
     photoFallback={categoryImage}
     title={e.name}
     eyebrow={seg.short}

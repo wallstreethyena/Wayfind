@@ -1,4 +1,5 @@
 "use client";
+import GuideRailCollection from "./GuideRailCollection";
 
 import { Fragment } from "react";
 import RailCard, { RailDots, RailNav } from "./RailCard";
@@ -18,7 +19,7 @@ export default function SummerPicksRails({ rails, city, onOpenPlace = null }) {
   const renderedRails = (Array.isArray(rails) ? rails : []).filter((rail) =>
     rail?.pending || rail?.failed || railRenderState(rail?.cards) === RAIL_RENDER_STATE.CONTENT
   );
-  return <>{renderedRails.map((rail) => {
+  return <><GuideRailCollection rails={renderedRails} collectionId="summer">{renderedRails.map((rail) => {
     const railId = `summer-picks-${rail.id}`;
     const total = Number.isFinite(rail.total) ? rail.total : (rail.cards || []).length;
     return <section key={rail.id} aria-labelledby={`${railId}-title`} style={{ marginTop: 28 }}>
@@ -63,5 +64,5 @@ export default function SummerPicksRails({ rails, city, onOpenPlace = null }) {
         <RailDots railId={railId} count={rail.cards.length} />
       </>}
     </section>;
-  })}</>;
+  })}</GuideRailCollection></>;
 }

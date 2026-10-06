@@ -31,7 +31,7 @@ import { primaryCategory, catOfType } from "../lib/placeCategory";
 import { deviceId } from "../lib/deviceId";
 import { analyticsSuppressionReason, captureOrQueue } from "../lib/browserAnalytics";
 import { markIntroSeen } from "../lib/introGate";
-import { isNative, nativeAppleCredential, nativeOAuthSignIn, nativeShare } from "../lib/native";
+import { isNative, nativeAppleCredential, nativeOAuthSignIn } from "../lib/native";
 import { noteHighPointAndMaybeAsk } from "../lib/appRating";
 import { wcRotation } from "../lib/shareCards";
 // v6.31: THE single source of truth for open/closed. Every surface reads status
@@ -231,7 +231,7 @@ import { C, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useD
 import { sponsorRailNear, partnerCollectionById, hydratePartnerCollection } from "../lib/partnerCollections";
 import { toDisplayScore, pickEligibleByScore, cardComplete, displayableAt } from "../lib/score";
 import { stampOwnerPick } from "../lib/ownerBump.js";
-import { restampGoverned } from "../lib/lawfulOrder.js";
+import { restampGoverned, attachOfficialScoreReceipt } from "../lib/lawfulOrder.js";
 import { applyCuratorPicks, getCuratorPicks, useCuratorPicks, noteSessionOwner, beginCuratorToggle, noteOwnerReads } from "../lib/curatorPicks.js";
 import { frontPageEvents, bestFirst } from "../lib/frontEvents";
 import { settleLoad } from "../lib/loadState.js";
@@ -300,11 +300,12 @@ import CreatorAvatar from "./components/CreatorAvatar";
 // dimension is stored or which Google tokens collapse together.
 import { signalWeights as tasteSignals, applyLocalTaste, blendTaste as tasteBlend, localToVector as tasteLocalToVector, tasteChips, hasLearnedTaste, tasteNorm } from "../lib/taste";
 import { canonicalShareUrl } from "../lib/site";
-// The share-intent sheet loads on the first Share tap, not with the homepage
-// (bundle budget, scripts/check-bundle.mjs). It always opens its own panel
-// first, so the native share it may call later runs from a fresh tap inside
-// that panel — the user activation is not lost to this import. A failed load
-// never swallows the share: it falls back to the plain share.
+import { shareOut } from "../lib/shareOut.js";
+import { openShareFlow } from "../lib/shareFlow.js";
+import { inShareChoice } from "../lib/shareContext.js";
+// Keep the existing shell adapter callable from its legacy place callbacks.
+// The common entry helper also uses this same menu. Its subsequent native
+// choice has a fresh tap, so this adapter never spends native activation.
 const askShareIntent = (o) => {
   // Delegation only: the options (onPlain + onInvite) pass through unchanged.
   import("./components/shareIntentSheet").then(({ askShareIntent: ask }) => ask(o), () => { try { o && o.onPlain && o.onPlain(); } catch (e) {} });
@@ -1229,68 +1230,30 @@ function offerRedeemable(o) {
 // partner/affiliate pages NEVER replace the app. Delegates so every window.open
 // path in the app goes through one validated function.
 function openExternal(url) { return safeOpenExternal(url); }
-// RETURNS TRUE IF A NATIVE SHARE SHEET WAS OPENED, false if the link was only
-// copied. askShareIntent() needs that answer to decide whether the screen just
-// changed for the user or whether it has to say so itself — see showReady() in
-// app/components/shareIntentSheet.js. Every caller may ignore it; none may lie.
+// Returns true only when visible share UI opened. No path silently copies,
+// opens Messages underneath another sheet, or claims a message was delivered.
 function shareLink(title, url, onCopied, text, onShared) {
-  // v4.07: the native sheet must be the FIRST activation-consuming API in the tap.
-  // v4.06 copied to the clipboard first; on iOS the clipboard write consumes the
-  // tap's transient user activation, so navigator.share() that followed was
-  // rejected (NotAllowedError) on every tap: toast showed, sheet never opened.
-  // Order inverted: touch devices get the sheet immediately, copy is the
-  // fallback only when the sheet is unsupported or fails (not on user cancel).
-  // Desktop keeps the old instant-copy behavior.
   let credited = false;
-  const credit = () => { if (credited) return; credited = true; if (onShared) { try { onShared(); } catch (e) {} } };
-  const legacyCopy = () => {
-    try { const ta = document.createElement("textarea"); ta.value = url; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.left = "-9999px"; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); } catch (e) {}
-    if (onCopied) onCopied(); credit();
+  const credit = () => {
+    if (credited) return;
+    credited = true;
+    try { onShared?.(); } catch {}
   };
-  const doCopy = () => {
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(url).then(() => { if (onCopied) onCopied(); credit(); _sharePath("copied"); }, () => { legacyCopy(); _sharePath("copied_legacy"); });
-      } else { legacyCopy(); _sharePath("copied_legacy"); }
-    } catch (e) { legacyCopy(); _sharePath("copied_legacy"); }
-  };
-  const touchDevice = (() => { try { return (typeof window !== "undefined") && (("ontouchstart" in window) || (window.matchMedia && window.matchMedia("(pointer: coarse)").matches)); } catch (e) { return false; } })();
-  // Inside the iOS wrapper, the Capacitor share sheet is preferred over the
-  // web Share API: it doesn't compete with the WKWebView for the tap's
-  // transient user activation the way navigator.share sometimes does, and
-  // it's real native functionality (see lib/native.js). A no-op on the
-  // website — isNative() is false there, so this branch never runs.
-  if (isNative()) {
-    nativeShare({ title, text, url }).then((handled) => {
-      if (handled) {
-        _sharePath("native_capacitor_ok"); credit();
-        // THE high point in this product: the user just recommended
-        // Wayfind to another person under their own name. Gated in
-        // lib/appRating.js (3 shares minimum, 120-day cooldown, native
-        // only) and fire-and-forget -- a rating prompt must never be
-        // able to fail a share.
-        try { noteHighPointAndMaybeAsk(); } catch (e) {}
-      }
-      else { _sharePath("native_capacitor_fail"); doCopy(); }
-    });
-    return true;
-  }
-  if (touchDevice && typeof navigator !== "undefined" && navigator.share) {
-    try {
-      const payload = text ? { title, text, url } : { title, url };
-      const pr = navigator.share(payload);
-      _sharePath("native_called");
-      if (pr && typeof pr.then === "function") {
-        pr.then(function () { _sharePath("native_ok"); credit(); }, function (e) {
-          if (e && e.name === "AbortError") { _sharePath("native_cancel"); return; }
-          _sharePath("native_reject"); doCopy();
-        });
-      }
-      return true;
-    } catch (e) { _sharePath("native_throw"); doCopy(); return false; }
-  }
-  _sharePath(touchDevice ? "nonative" : "desktop_copy"); doCopy();
-  return false;
+  const start = inShareChoice() ? shareOut : openShareFlow;
+  const how = start({ title, url, text }, () => {
+    try { onCopied?.(); } catch {}
+    _sharePath("copied");
+    credit();
+  }, { onComposerChosen: () => {
+    _sharePath("composer_chosen");
+    credit();
+  }, onShared: () => {
+    _sharePath("native_ok");
+    credit();
+    if (isNative()) { try { noteHighPointAndMaybeAsk(); } catch {} }
+  } });
+  _sharePath(how);
+  return how !== "failed";
 }
 // Short random code for shareable list links (no ambiguous chars).
 function randCode() {
@@ -3119,6 +3082,8 @@ function EventRailCard({ event, rank, relativeLabel, saved, liked, disliked, onS
   return (
     <RailCard
       photo={railImage}
+      visitFacts={event.visitFacts || null}
+      planningHref={internal ? event.dest : null}
       photoFallback={eventUseImage(event) ? categoryImage : ""}
       title={event.name}
       eyebrow={seg.short}
@@ -6796,13 +6761,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // v6.08 (PR-C): remember where we were in the list so back returns here, not to the top.
     try { if (scrollRef.current) { const _k = screen + "|" + cat + "|" + sub + "|" + vibe; const _t = scrollRef.current.scrollTop; scrollRestore.current = { key: _k, ...browsePosition(scrollRef.current) };  } } catch (e) {}
     setDetail(p);
+    setDetail(attachOfficialScoreReceipt({ ...p }, locName));
     // /p/{id} and any card that skipped withMemberSignal still show the raw
     // score until this overlay lands. Same function as the list path.
     fetchMemberSignals(supabase, [p]).then((sig) => {
       if (!sig) return;
       const next = withMemberSignal([p], sig)[0];
       if (!next || next.id !== p.id) return;
-      setDetail((cur) => (cur && cur.id === p.id ? withSignalFields(cur, next) : cur));
+      setDetail((cur) => (cur && cur.id === p.id ? attachOfficialScoreReceipt(withSignalFields(cur, next), locName) : cur));
       const patch = (cur) => (cur || []).map((pl) => (pl && pl.id === p.id ? withSignalFields(pl, next) : pl));
       setPlaces(patch);
       setExpPlaces(patch);
@@ -9300,7 +9266,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       return originUrl("/c?d=" + b64);
     } catch { return originUrl("/coupons"); }
   }
-  async function shareCoupon(c) {
+  function shareCoupon(c) {
     if (!c) return;
     const url = couponShareUrl(c);
     // v6.99 (owner): the share text SELLS — value first, in one line, same
@@ -9314,27 +9280,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     if (c.expires) lines.push("Valid through " + String(c.expires).slice(0, 10));
     lines.push("Grab it on Wayfind:");
     const fallback = () => shareLink((c.business ? c.business + " — " : "") + (c.title || "Wayfind coupon"), url, () => showToast("Link copied"), lines.join("\n"), () => { try { logEvent("coupon_share", null, { id: c.id }); } catch (e) {} });
-    // v6.99 (owner): "I want the actual card to be sent as a text message."
-    // Web Share Level 2: fetch the /api/og coupon card and hand the PNG to the
-    // native sheet, so Messages shows THE CARD, not a bare link. Every failure
-    // (no canShare, fetch miss, file share unsupported) falls to the existing
-    // text/link ladder; a user closing the sheet (AbortError) shares nothing —
-    // never punished with a surprise clipboard write. Native (Capacitor) keeps
-    // its own sheet: nativeShare has no file lane.
-    try {
-      if (!isNative() && v && typeof navigator !== "undefined" && navigator.canShare && navigator.share) {
-        const qs = new URLSearchParams({ kind: "coupon", pay: String(v.pay), get: String(v.get), pct: String(v.pct), biz: c.business || "", what: v.what || "", exp: c.expires ? String(c.expires).slice(0, 10) : "" });
-        const r = await fetch("/api/og?" + qs.toString());
-        if (r.ok) {
-          const file = new File([await r.blob()], "wayfind-deal.png", { type: "image/png" });
-          if (navigator.canShare({ files: [file] })) {
-            await navigator.share({ files: [file], text: lines.join("\n") + "\n" + url });
-            try { logEvent("coupon_share", null, { id: c.id, path: "card_image" }); } catch (e) {}
-            return;
-          }
-        }
-      }
-    } catch (e) { if (e && e.name === "AbortError") return; }
+    // Text first. The URL keeps the existing deal OG preview; fetching a PNG
+    // before sharing would spend the original tap’s transient activation.
     fallback();
   }
 

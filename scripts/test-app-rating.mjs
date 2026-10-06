@@ -26,6 +26,8 @@
 // plutil wherever plutil exists. Skipping this check off-Mac would have been
 // strictly worse than deleting it: green on CI while verifying nothing.
 import { readFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import ts from "typescript";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { readPlist } from "./lib/plistParse.mjs";
@@ -133,14 +135,82 @@ ok(/import\s*\{\s*noteHighPointAndMaybeAsk\s*\}\s*from/.test(home),
 const call = home.indexOf("noteHighPointAndMaybeAsk()");
 ok(call > -1, "…and calls it");
 
-// The call must sit inside the SUCCESSFUL native-share branch. Anywhere else —
-// on mount, on a cancelled share, next to the copy fallback — is a neutral
-// moment, which is the whole thing this design refuses to do.
-const okBranch = home.indexOf('_sharePath("native_capacitor_ok")');
-const failBranch = home.indexOf('_sharePath("native_capacitor_fail")');
-ok(okBranch > -1 && failBranch > -1, "control: both the share success and share failure paths were located");
-ok(call > okBranch && call < failBranch,
-   "the prompt fires between the SUCCESS marker and the failure branch — i.e. only after a share the user actually completed. On mount, or after a cancelled share, it would be exactly the neutral-moment prompt this design exists to avoid.");
+// Execute the real shell callback adapter against the real shared transport.
+// Native success is now an onShared callback, not an inline Capacitor marker;
+// Copy/composer selection must never become a StoreKit high point.
+const MUTATION = process.argv.includes("--neutral-moment-mutation-child");
+const homeAst = ts.createSourceFile("home.js", read("app/home.js"), ts.ScriptTarget.ES2022, true, ts.ScriptKind.JSX);
+const declaration = homeAst.statements.find((node) => ts.isFunctionDeclaration(node) && node.name?.text === "shareLink");
+ok(!!declaration, "control: the real shell shareLink declaration is extracted before testing its callbacks");
+let adapterSource = declaration.getText(homeAst);
+if (MUTATION) {
+  const marker = '_sharePath(how);';
+  ok(adapterSource.includes(marker), "neutral-moment mutation must find the actual share-opening return path");
+  adapterSource = adapterSource.replace(marker, 'noteHighPointAndMaybeAsk(); ' + marker);
+}
+process.env.NEXT_PUBLIC_SITE_URL = "https://www.gowayfind.com";
+const { shareOut } = await import("../lib/shareOut.js");
+class Node {
+  constructor(tag, doc) { this.tagName = tag.toUpperCase(); this.doc = doc; this.children = []; this.events = {}; this.style = {}; this._text = ""; }
+  set textContent(value) { this._text = String(value); this.children = []; }
+  get textContent() { return this._text + this.children.map((n) => n.textContent).join(" "); }
+  appendChild(child) { child.parentNode = this; this.children.push(child); return child; }
+  setAttribute(name, value) { if (name === "id") this.id = String(value); }
+  addEventListener(type, fn) { (this.events[type] ||= []).push(fn); }
+  remove() { if (this.parentNode) this.parentNode.children = this.parentNode.children.filter((n) => n !== this); this.parentNode = null; }
+  focus() { this.doc.activeElement = this; }
+  querySelectorAll() { return nodes(this).filter((n) => n.tagName === "BUTTON" || n.tagName === "A"); }
+  click() { for (const fn of this.events.click || []) fn({ preventDefault() {}, stopPropagation() {} }); }
+}
+const nodes = (node) => node.children.flatMap((child) => [child, ...nodes(child)]);
+class Document {
+  constructor() { this.body = new Node("body", this); this.events = {}; }
+  createElement(tag) { return new Node(tag, this); }
+  getElementById(id) { return nodes(this.body).find((n) => n.id === id) || null; }
+  addEventListener(type, fn) { (this.events[type] ||= []).push(fn); }
+  removeEventListener(type, fn) { this.events[type] = (this.events[type] || []).filter((f) => f !== fn); }
+}
+const original = Object.fromEntries(["document", "window", "navigator"].map((key) => [key, globalThis[key]]));
+const setGlobal = (key, value) => Object.defineProperty(globalThis, key, { configurable: true, writable: true, value });
+const settle = async () => { for (let i = 0; i < 6; i++) await Promise.resolve(); };
+try {
+  for (const outcome of ["success", "cancelled", "failed", "copy", "composer", "web-success", "rating-throws"]) {
+    const doc = new Document();
+    const native = outcome !== "web-success";
+    let ratingCalls = 0, nativeCalls = 0, creditedShares = 0, resolve, reject;
+    const completion = new Promise((a, b) => { resolve = a; reject = b; });
+    setGlobal("document", doc); setGlobal("window", { location: { origin: "https://www.gowayfind.com" } });
+    setGlobal("navigator", { share() { nativeCalls++; return completion; }, clipboard: { writeText() { return Promise.resolve(); } } });
+    const paths = [];
+    const adapter = Function("shareOut", "openShareFlow", "inShareChoice", "_sharePath", "isNative", "noteHighPointAndMaybeAsk", adapterSource + "; return shareLink;")(
+      shareOut, () => { throw new Error("fixture runs from the actual intent-choice callback"); }, () => true,
+      (value) => paths.push(value), () => native, () => { ratingCalls++; if (outcome === "rating-throws") throw new Error("fixture StoreKit failure"); },
+    );
+    const opened = adapter("Fixture place", "/p/fixture", null, "Use this link", () => { creditedShares++; });
+    ok(opened === true && !!doc.getElementById("wf-share-out-chooser"), `${outcome}: the real adapter opens the shared chooser before a native attempt`);
+    ok(ratingCalls === 0 && nativeCalls === 0, `${outcome}: merely opening share choices must not become a rating moment`);
+    const choice = nodes(doc.body).find((n) => outcome === "copy" ? n.textContent === "Copy link" : outcome === "composer" ? n.tagName === "A" && n.textContent === "Text message" : n.textContent === "More share options");
+    ok(!!choice, `${outcome}: the exercised transport actually exposes its intended user choice`);
+    choice.click();
+    if (outcome === "cancelled") reject(Object.assign(new Error("cancelled"), { name: "AbortError" }));
+    else if (outcome === "failed") reject(Object.assign(new Error("refused"), { name: "NotAllowedError" }));
+    else if (outcome !== "copy" && outcome !== "composer") resolve();
+    await settle();
+    const completedNative = outcome === "success" || outcome === "rating-throws";
+    ok(ratingCalls === (completedNative ? 1 : 0), `${outcome}: only completed native-wrapper sharing can reach the rating trigger`);
+    ok(creditedShares === (["success", "rating-throws", "web-success", "copy", "composer"].includes(outcome) ? 1 : 0), `${outcome}: success/copy/composer share-credit semantics remain distinct from cancellation or refusal`);
+    if (outcome === "failed") ok(!!doc.getElementById("wf-share-out-chooser"), "native refusal leaves visible alternatives without a rating prompt");
+    if (outcome === "cancelled") ok(!doc.getElementById("wf-share-out-chooser"), "native cancellation stays inert instead of opening another chooser or rating prompt");
+    if (completedNative) ok(paths.includes("native_ok"), `${outcome}: actual native completion reaches the adapter's successful path`);
+  }
+} finally {
+  for (const [key, value] of Object.entries(original)) { if (value === undefined) delete globalThis[key]; else setGlobal(key, value); }
+  delete process.env.NEXT_PUBLIC_SITE_URL;
+}
+if (!MUTATION) {
+  const child = spawnSync(process.execPath, [fileURLToPath(import.meta.url), "--neutral-moment-mutation-child"], { cwd: REPO, encoding: "utf8" });
+  ok(child.status === 1 && child.stderr.includes("merely opening share choices must not become a rating moment"), "moving the real trigger onto a neutral opening must make the child process fail for the intended reason");
+}
 
 // And it must not be able to break the thing it rides on.
 const around = home.slice(call - 90, call + 40);
@@ -149,4 +219,4 @@ ok(/try\s*\{[^}]*noteHighPointAndMaybeAsk\(\)/.test(around),
 ok(!/await\s+noteHighPointAndMaybeAsk/.test(home),
    "it is not awaited — the share path must not wait on a StoreKit round trip");
 
-console.log(`test-app-rating: OK — ${pass} assertions (decide() CALLED across every gate: below-threshold silent but counting, at-threshold prompts, cooldown blocks without sliding forward and expires after ${COOLDOWN_DAYS}d, corrupt state fails closed; bridge names "${jsName}" agree across Swift and JS; AppRatingPlugin.swift resolved INTO the Sources phase alongside ${compiled.length - 1} other files; trigger proven to sit inside the completed-share branch, wrapped and un-awaited)`);
+console.log(`test-app-rating: OK — ${pass} assertions (decide() CALLED across every gate: below-threshold silent but counting, at-threshold prompts, cooldown blocks without sliding forward and expires after ${COOLDOWN_DAYS}d, corrupt state fails closed; bridge names "${jsName}" agree across Swift and JS; AppRatingPlugin.swift resolved INTO the Sources phase alongside ${compiled.length - 1} other files; real completed/cancelled/failed/copy/composer/web branches executed; neutral-moment trigger mutation rejected; trigger remains wrapped and un-awaited)`);

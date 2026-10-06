@@ -1,0 +1,316 @@
+{
+  "batch": 17,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "ilovetheburg:boo-ling-for-a-cause",
+      "lead_name": "Boo-ling for a Cause",
+      "source": "ilovetheburg",
+      "venue": "Ten Pin Lanes",
+      "address": "1453 Pasadena Avenue",
+      "city": "St. Petersburg",
+      "zip": "33707",
+      "cost_text": "$30",
+      "organizer_url_hints": [
+        "https://secure.qgiv.com/for/boo-lingforacause2026/event/daystarlife/",
+        "http://www.daystarlife.com"
+      ],
+      "organizer_names": [
+        "Daystar Life Center"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-18 12:00:00",
+          "end": "2026-10-18 15:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:kids-market-at-seminole-heights-great-pumpkin-patch",
+      "lead_name": "Kids Market at Seminole Heights Great Pumpkin Patch",
+      "source": "thatssotampa",
+      "venue": "The Seminole Heights Great Pumpkin Patch",
+      "address": "6111 N Central Ave",
+      "city": "Tamp",
+      "zip": "33604",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://kidsmarkets.com/markets/seminole-heights-2",
+        "https://kidsmarkets.com"
+      ],
+      "organizer_names": [
+        "Kids Markets"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-18 12:00:00",
+          "end": "2026-10-18 16:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:paint-your-pet-rags-to-riches-pet-fundraiser",
+      "lead_name": "Paint Your Pet – Rags to Riches Pet Fundraiser",
+      "source": "thatssotampa",
+      "venue": "Florida Avenue Brewing Co Tampa",
+      "address": "4315 N Florida Avenue",
+      "city": "Tampa",
+      "zip": "33603",
+      "cost_text": "$44.00",
+      "organizer_url_hints": [
+        "https://wineandcanvas.com/florida/event/paint-your-pet-rags-to-riches-pet-fundraiser/",
+        "https://wineandcanvas.com/tampa/events/"
+      ],
+      "organizer_names": [
+        "Wine and Canvas – Paint and Sip Classes"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-18 13:00:00",
+          "end": "2026-10-18 16:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:tampa-bay-buccaneers-vs-pittsburgh-steelers",
+      "lead_name": "Tampa Bay Buccaneers vs Pittsburgh Steelers",
+      "source": "ilovetheburg",
+      "venue": "Raymond James Stadium",
+      "address": "4201 N Dale Mabry Hwy",
+      "city": "Tampa",
+      "zip": "33607",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.buccaneers.com/tickets/single-game"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-18 13:00:00",
+          "end": "2026-10-18 16:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:tampa-bay-buccaneers-vs-pittsburgh-steelers",
+      "lead_name": "Tampa Bay Buccaneers vs Pittsburgh Steelers",
+      "source": "thatssotampa",
+      "venue": "Raymond James Stadium",
+      "address": "4201 N Dale Mabry Hwy",
+      "city": "Tampa",
+      "zip": "33607",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.buccaneers.com/tickets/single-game?source=sgthome",
+        "https://secure.acsevents.org/site/TR?fr_id=109431&pg=informational&sid=212807&name=event-details"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-18 13:00:00",
+          "end": "2026-10-18 16:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:howl-o-ween",
+      "lead_name": "Howl-O-Ween",
+      "source": "thatssotampa",
+      "venue": "Sparkman Wharf",
+      "address": "615 Channelside Dr",
+      "city": "Tampa",
+      "zip": null,
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://sparkmanwharf.com/events/howl-o-ween/?date=2026-10-18&amp;utm_source=Newsletter+Sign+up+-+Stay+in+the+Know&amp;utm_campaign=dc67a711f2-EMAIL_CAMPAIGN_2026_10_01_12_50&amp;utm_medium=email&amp;utm_term=0_-dc67a711f2-414042356",
+        "https://sparkmanwharf.com"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-18 16:00:00",
+          "end": "2026-10-18 18:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:arch-enemy-the-black-dahlia-murder-wrath-across-north-america-tour",
+      "lead_name": "Arch Enemy & The Black Dahlia Murder – Wrath Across North America Tour",
+      "source": "ilovetheburg",
+      "venue": "Jannus Live",
+      "address": "200 1st Ave N STE 206",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.jannuslive.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-18 17:00:00",
+          "end": "2026-10-18 23:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:community-invited-to-celebrate-the-life-of-bill-edwards",
+      "lead_name": "Community Invited to Celebrate the Life of Bill Edwards",
+      "source": "ilovetheburg",
+      "venue": "Duke Energy Center for the Arts – Mahaffey Theater",
+      "address": "400 1st St S",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://www.prlog.org/13174013-community-invited-to-celebrate-the-life-of-bill-edwards.htmlhttps://www.prlog.org/13174013-community-invited-to-celebrate-the-life-of-bill-edwards.html",
+        "https://billedwardsfoundationforthearts.org/"
+      ],
+      "organizer_names": [
+        "Bill Edwards Foundation for the Arts"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-18 17:00:00",
+          "end": "2026-10-18 18:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:grief-sucks-a-one-man-show-by-kevonstage",
+      "lead_name": "Grief Sucks: A One Man Show By KevOnStage",
+      "source": "thatssotampa",
+      "venue": "Tampa Theatre",
+      "address": null,
+      "city": null,
+      "zip": null,
+      "cost_text": "$45.50 – $75.50",
+      "organizer_url_hints": [
+        "https://www.etix.com/ticket/p/52062900/grief-sucksa-one-man-show-by-kevonstage-tampa-historic-duncan-auditorium?partner_id=8717",
+        "https://tampatheatre.org"
+      ],
+      "organizer_names": [
+        "Tampa Theatre"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-18 19:30:00",
+          "end": "2026-10-18 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:garden-to-table-dinner",
+      "lead_name": "Garden To Table Dinner",
+      "source": "ilovetheburg",
+      "venue": "Beech Kombucha",
+      "address": "3100 Freemont Terrace South",
+      "city": "St. Petersburg",
+      "zip": "33712",
+      "cost_text": "$150",
+      "organizer_url_hints": [
+        "https://docs.google.com/forms/d/e/1FAIpQLSeSrlzPRL9pVb9Yn4r0AOkS6Uf5-uUAiAONU2DnoNT3Mf6njw/viewform?usp=header",
+        "https://www.beechbucha.com/"
+      ],
+      "organizer_names": [
+        "Beech Kombucha"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-19 17:30:00",
+          "end": "2026-10-19 21:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:breaking-benjamin-north-american-tour-2026",
+      "lead_name": "Breaking Benjamin – North American Tour 2026",
+      "source": "thatssotampa",
+      "venue": "Florida State Fairgrounds",
+      "address": "4800 US-301",
+      "city": "Tampa",
+      "zip": null,
+      "cost_text": null,
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-19 18:00:00",
+          "end": "2026-10-19 23:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:innovation-showcase",
+      "lead_name": "Innovation Showcase",
+      "source": "ilovetheburg",
+      "venue": "ARK Innovation Center",
+      "address": "1101 4th Street South",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.eventbrite.com/e/innovation-showcase-tickets-2000876583724",
+        "https://sp-ark-labs.com/"
+      ],
+      "organizer_names": [
+        "spARK Labs by ARK Invest"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-20 14:00:00",
+          "end": "2026-10-20 18:00:00",
+          "all_day": false
+        }
+      ]
+    }
+  ]
+}

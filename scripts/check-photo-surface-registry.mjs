@@ -148,6 +148,20 @@ for (const rel of Object.keys(EXEMPT)) {
     `red-proof failed: removing the "theme-parks" surface from PHOTO_SURFACES must leave ${themeParkFile} unregistered and unexempt (reproducing the EPCOT hole) — it is somehow still covered by another surface, which means this red-proof cannot prove the guard bites`);
 }
 
+// ── RED-PROOF — curated event heroes are real venue-photo surfaces too.
+// Removing this detail route must reopen the exact registry hole that this
+// release exposed; the route must not be hidden behind a renderer exemption.
+{
+  const eventDetail = "app/florida-events/[slug]/page.js";
+  const surface = PHOTO_SURFACES.find((s) => s.id === "event-detail-pages");
+  ok(candidateRels.has(eventDetail), `red-proof precondition failed: ${eventDetail} no longer triggers the photo renderer detector`);
+  ok(surface?.components.includes(eventDetail) && !EXEMPT[eventDetail],
+    "curated event detail belongs to the event-detail-pages photo surface, never a renderer exemption");
+  const withoutEventDetail = new Set(PHOTO_SURFACES.flatMap((s) => (s.components || []).filter((c) => c !== eventDetail)));
+  ok(!withoutEventDetail.has(eventDetail) && !EXEMPT[eventDetail],
+    "red-proof: removing the curated event detail registration leaves a detected, unregistered, unexempt venue-photo renderer");
+}
+
 // ── EXTRACTION HONESTY (2026-09-17, production-measured) ──────────────────
 // A rail SECTION HEADER is not a place card, and an RSC-escaped URL must not
 // leak "\u0026w=640" into a place id. Both produced false "unsourceable"

@@ -1,0 +1,320 @@
+{
+  "batch": 8,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "ilovetheburg:thundercat-distracted-af-tour",
+      "lead_name": "Thundercat – Distracted AF Tour",
+      "source": "ilovetheburg",
+      "venue": "Jannus Live",
+      "address": "200 1st Ave N STE 206",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.jannuslive.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-07 20:00:00",
+          "end": "2026-10-07 23:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:1st-annual-suncoast-classic-inshore-challenge",
+      "lead_name": "1st annual Suncoast Classic Inshore Challenge",
+      "source": "ilovetheburg",
+      "venue": "Tiki Docks Skyway Bar & Grill at Maximo Marina",
+      "address": "3769 50th Ave S",
+      "city": "St. Petersburg",
+      "zip": "33711",
+      "cost_text": "Free",
+      "organizer_url_hints": [],
+      "organizer_names": [
+        "Suncoast Classic Events"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-08 02:00:00",
+          "end": "2026-10-10 01:59:59",
+          "all_day": true
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:putt-the-pier-fall-pumpkin-edition",
+      "lead_name": "Putt The Pier: Fall Pumpkin Edition",
+      "source": "ilovetheburg",
+      "venue": "St. Pete Pier",
+      "address": "600 2nd Ave NE",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://stpetepier.org/signature-event/putt-the-pier-pumpkins-fall-edition/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-08 02:00:00",
+          "end": "2026-10-24 01:59:59",
+          "all_day": true
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:putt-the-pier-fall-pumpkin-edition",
+      "lead_name": "Putt The Pier: Fall Pumpkin Edition",
+      "source": "thatssotampa",
+      "venue": "St. Pete Pier",
+      "address": "600 2nd Ave NE",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://stpetepier.org/signature-event/putt-the-pier-pumpkins-fall-edition/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-08 03:00:00",
+          "end": "2026-10-25 02:59:59",
+          "all_day": true
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:convodojo-live",
+      "lead_name": "ConvoDojo Live",
+      "source": "thatssotampa",
+      "venue": "2701 West Busch Boulevard",
+      "address": "2701 West Busch Boulevard",
+      "city": "Tampa",
+      "zip": "33618",
+      "cost_text": "$99",
+      "organizer_url_hints": [
+        "https://www.convocontrol.com/live_events",
+        "https://demisarworkspace.com/"
+      ],
+      "organizer_names": [
+        "@convocontrol"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-08 09:00:00",
+          "end": "2026-10-08 15:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:senior-lifestyle-expo",
+      "lead_name": "Senior Lifestyle Expo",
+      "source": "thatssotampa",
+      "venue": "The Mall at University Town Center",
+      "address": "140 University Town Center Dr",
+      "city": "Sarasota",
+      "zip": "34243",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://www.facebook.com/events/26058479923794169/?active_tab=discussion",
+        "https://www.floridapenguinproductions.com"
+      ],
+      "organizer_names": [
+        "Florida Penguin Productions"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-08 10:00:00",
+          "end": "2026-10-08 14:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:the-florida-orchestra-once-upon-a-time-in-paris",
+      "lead_name": "The Florida Orchestra: Once Upon A Time in Paris",
+      "source": "ilovetheburg",
+      "venue": "Duke Energy Center for the Arts – Mahaffey Theater",
+      "address": "400 1st St S",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-08 11:00:00",
+          "end": "2026-10-08 13:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:appy-hour-cooking-class-dumpling-party",
+      "lead_name": "Appy Hour Cooking Class – Dumpling Party",
+      "source": "ilovetheburg",
+      "venue": "The Chef Upstairs (inside The Foodie Labs)",
+      "address": "515 22nd St S",
+      "city": "St Pete",
+      "zip": "33712",
+      "cost_text": "$55",
+      "organizer_url_hints": [
+        "https://square.link/u/38moP5Mg",
+        "https://thechefupstairsusa.com/"
+      ],
+      "organizer_names": [
+        "@thechefupstairsusa"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-08 16:00:00",
+          "end": "2026-10-08 17:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:happy-hour-with-the-historian-the-thing-about-florida-man-poems-revisited",
+      "lead_name": "Happy Hour with the Historian – The Thing About Florida Man: Poems Revisited",
+      "source": "ilovetheburg",
+      "venue": "Saint Petersburg Museum of History",
+      "address": "335 2nd Avenue NE, St. Petersburg, FL 33701",
+      "city": "saint petersburg",
+      "zip": "33701",
+      "cost_text": "$15",
+      "organizer_url_hints": [
+        "http://historystpete.org/events",
+        "https://spmoh.com/event/historic-boat-tour-51/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-08 18:00:00",
+          "end": "2026-10-08 20:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:pilates-in-the-park",
+      "lead_name": "Pilates in the Park",
+      "source": "ilovetheburg",
+      "venue": "Shore Acres Recreation Center",
+      "address": "4230 Shore Acres Blvd NE",
+      "city": "St. Petersburg",
+      "zip": "33703",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.healthystpetefl.com/series/get-fit-st-pete-pilates-in-the-park/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-10-08 18:00:00",
+          "end": "2026-10-08 19:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-11-12 18:00:00",
+          "end": "2026-11-12 19:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-12-10 18:00:00",
+          "end": "2026-12-10 19:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:poetry-at-the-dali-6",
+      "lead_name": "Poetry at The Dalí",
+      "source": "ilovetheburg",
+      "venue": "The Dalí (Salvador Dalí Museum)",
+      "address": "1 Dali Blvd",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://thedali.org/event/poetry-at-the-dali-10-8-26/",
+        "https://thedali.org/"
+      ],
+      "organizer_names": [
+        "The Dali Museum"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-08 18:00:00",
+          "end": "2026-10-08 19:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:remix-mysteries-of-the-nile",
+      "lead_name": "Remix: Mysteries of the Nile",
+      "source": "thatssotampa",
+      "venue": "Tampa Museum of Art",
+      "address": "120 W Gasparilla Plaza",
+      "city": "St. Petersburg",
+      "zip": "33602",
+      "cost_text": "$55",
+      "organizer_url_hints": [
+        "https://shop.tampamuseum.org/products/remix-mysteries-of-the-nile-ancient-egypt-1?_gl=1*1wy6f9a*_gcl_au*NjQwODQ0MzE4LjE3ODExMTg4MDA",
+        "https://tampamuseum.org/",
+        "https://tampamuseum.org/event/pride-passion-2024/"
+      ],
+      "organizer_names": [
+        "Tampa Museum of Art"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-08 18:00:00",
+          "end": "2026-10-08 21:00:00",
+          "all_day": false
+        }
+      ]
+    }
+  ]
+}

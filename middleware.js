@@ -31,6 +31,8 @@ export const config = {
     "/api/search",
     // In-app feedback and recommendations write to the existing review inbox.
     "/api/feedback",
+    // Private group ballots use their own capability/owner authorization too.
+    "/api/group-plans/:path*",
     "/api/places/search",
     // Search box autocomplete + suggestion-detail proxies (2026-07-25 audit):
     // these used to be direct client->Google calls via the Maps JS library —

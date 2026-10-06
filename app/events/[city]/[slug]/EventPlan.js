@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import RailCard, { RailDots, RailNav } from "../../../components/RailCard";
 import { WF_PLACE_CARD_CSS } from "../../../components/css";
 import { cardImageSrc } from "../../../../lib/placePhoto";
-import { toDisplayScore } from "../../../../lib/score";
+import { orderPlaceRecommendations, placeRecommendationDisplayScore } from "../../../../lib/placeRecommendationOrder.js";
 import { fetchJsonWithDeadline } from "../../../../lib/clientJson";
 
 const EVENT_PLAN_RAILS = [
@@ -41,20 +41,14 @@ function milesBetween(a, b) {
   return 3958.8 * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
 }
 
-function quality(place) {
-  const ownedScore = Number(place && (place.wfScore ?? place.score));
-  if (isFinite(ownedScore) && ownedScore > 0) return ownedScore * 10;
-  return rating(place) * 20 + Math.min(12, Math.log10(reviews(place) + 1) * 4);
-}
-
-function chooseBest(rows, origin, venueName, excluded = new Set(), limit = 8) {
+export function chooseEventPlanPlaces(rows, origin, venueName, excluded = new Set(), limit = 8) {
   const venue = String(venueName || "").toLowerCase();
-  return (rows || [])
+  const admitted = (rows || [])
     .filter((p) => p && p.id && !excluded.has(p.id) && textName(p) && textName(p).toLowerCase() !== venue)
-    .map((p) => ({ ...p, _name: textName(p), _miles: milesBetween(origin, point(p)) }))
-    .filter((p) => p._miles == null || p._miles <= 12)
-    .sort((a, b) => quality(b) - quality(a) || reviews(b) - reviews(a) || (a._miles ?? 99) - (b._miles ?? 99))
-    .slice(0, limit);
+    .map((p) => ({ ...p, name: textName(p), rating: rating(p), reviews: reviews(p),
+      wfScore: p.wfScore ?? p.score, _name: textName(p), _miles: milesBetween(origin, point(p)) }))
+    .filter((p) => p._miles == null || p._miles <= 12);
+  return orderPlaceRecommendations(admitted).slice(0, limit);
 }
 
 function detailHref(place) {
@@ -93,18 +87,18 @@ export default function EventPlan({ lat, lng, city, venue, time }) {
       const used = new Set();
 
       const foodRows = await foodRequest;
-      const food = chooseBest(foodRows, origin, venue, used);
+      const food = chooseEventPlanPlaces(foodRows, origin, venue, used);
       food.forEach((place) => used.add(place.id));
       publish("food", food);
 
       const afterRows = await afterRequest;
-      const after = chooseBest(afterRows, origin, venue, used);
+      const after = chooseEventPlanPlaces(afterRows, origin, venue, used);
       after.forEach((place) => used.add(place.id));
       publish("after", after);
 
       let stayRows = await stayRequest;
       if (!stayRows.length) stayRows = await search(`best hotel near ${venue || city || "the event"}`, "hotels");
-      const stay = chooseBest(stayRows, origin, venue, used);
+      const stay = chooseEventPlanPlaces(stayRows, origin, venue, used);
       publish("stay", stay);
     })();
     return () => { dead = true; };
@@ -127,7 +121,7 @@ export default function EventPlan({ lat, lng, city, venue, time }) {
             <div className="wf-rail" data-rail={railId} tabIndex={0} role="region" aria-label={title}>
               {places.map((place, index) => {
                 const href = detailHref(place);
-                const score = Number(place.wfScore ?? place.score);
+                const score = placeRecommendationDisplayScore(place);
                 return <RailCard
                   key={place.id}
                   place={place}
@@ -135,7 +129,7 @@ export default function EventPlan({ lat, lng, city, venue, time }) {
                   title={place._name}
                   eyebrow={title}
                   rank={index + 1}
-                  score={Number.isFinite(score) && score > 0 ? toDisplayScore(score) : null}
+                  score={score}
                   facts={[rating(place) ? `${rating(place).toFixed(1)}★` : null, reviews(place) ? `${reviews(place).toLocaleString()} reviews` : null, place._miles != null ? (place._miles < .2 ? "Steps away" : `${place._miles.toFixed(1)} mi`) : null].filter(Boolean)}
                   href={href}
                   ariaLabel={`Open ${place._name}`}

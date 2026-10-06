@@ -118,12 +118,23 @@ const ROUTE = read("app/api/photo/route.js");
     "RailCard's img-vs-monogram gate reads the error state, not only whether `photo` is truthy");
   ok(/setImgFailed\(shownPhoto\)/.test(RAIL),
     "RailCard's onError reaches the state setter on a failure with no (or an exhausted) fallback");
-  ok(/ownedPlacePhotoSrc\(place\.id, 640\)/.test(RAIL)
-    && /resolvedPhotoFallback = (?:photoSrcFilter\(photoFallback\)|photoFallback) \|\|/.test(RAIL)
-    && /data-fallback=\{resolvedPhotoFallback\}/.test(RAIL),
-    "RailCard retries the exact same place id before using the monogram; caller event fallbacks still win");
+  ok(railRecoveryContract(RAIL),
+    "RailCard policy-filters caller and exact-place recovery, persists it for this primary, and consumes it once before the monogram (source contract)");
   ok(!/style\.visibility\s*=\s*"hidden"/.test(RAIL),
     "the old hide-without-replacing failure path is GONE — a hidden <img> inside a CSS-forced-size box is the same blank panel as no fallback at all");
+}
+
+// This source contract deliberately follows the state-backed recovery path.
+// Testing only data-fallback={resolvedPhotoFallback} would reject its one-shot
+// guard and reward the old rerender bug that rearmed an exhausted fallback.
+function railRecoveryContract(src) {
+  return /const samePlacePhoto = place\?\.id \? photoSrcFilter\(ownedPlacePhotoSrc\(place\.id, 640\)\) : "";/.test(src)
+    && /const resolvedPhotoFallback = photoSrcFilter\(photoFallback\) \|\| \(samePlacePhoto && samePlacePhoto !== shownPhoto \? samePlacePhoto : ""\);/.test(src)
+    && /data-fallback=\{usingFallback \? "" : resolvedPhotoFallback\}/.test(src)
+    && /const handleImageError = \(ev\) => \{\s*const fallback = ev\.currentTarget\.dataset\.fallback;\s*if \(fallback\) \{\s*ev\.currentTarget\.dataset\.fallback = "";\s*ev\.currentTarget\.src = fallback;\s*setFallbackPhoto\(\{ primary: shownPhoto, src: fallback \}\);\s*\} else setImgFailed\(shownPhoto\);\s*\};/.test(src)
+    && /const usingFallback = !!fallbackPhoto && fallbackPhoto\.primary === shownPhoto;/.test(src)
+    && /const displayedPhoto = usingFallback \? fallbackPhoto\.src : shownPhoto;/.test(src)
+    && /onError=\{handleImageError\}/.test(src);
 }
 
 /* ── 2. IconicPlaceCard.js ──────────────────────────────────────────────── */
@@ -203,6 +214,18 @@ const RED = [
   }],
 ];
 for (const [label, fn] of RED) ok(fn() === true, "RED PROOF failed to fail: " + label);
+for (const [label, from, to] of [
+  ["an unfiltered caller fallback", "photoSrcFilter(photoFallback) ||", "photoFallback ||"],
+  ["an unfiltered same-place fallback", "photoSrcFilter(ownedPlacePhotoSrc(place.id, 640))", "ownedPlacePhotoSrc(place.id, 640)"],
+  ["a neighbouring place retry", "ownedPlacePhotoSrc(place.id, 640)", "ownedPlacePhotoSrc(place.neighbourId, 640)"],
+  ["rearming an exhausted fallback", 'data-fallback={usingFallback ? "" : resolvedPhotoFallback}', "data-fallback={resolvedPhotoFallback}"],
+  ["a retry without consuming its dataset", 'ev.currentTarget.dataset.fallback = "";', 'ev.currentTarget.dataset.fallback = fallback;'],
+  ["reverting to the primary on rerender", "src: fallback", "src: shownPhoto"],
+  ["hiding the failed image instead of its monogram", "else setImgFailed(shownPhoto);", 'else ev.currentTarget.style.visibility = "hidden";'],
+]) {
+  const mutated = RAIL.replace(from, to);
+  ok(mutated !== RAIL && !railRecoveryContract(mutated), `RED PROOF: rejects ${label}`);
+}
 
 if (fails) {
   console.error(`check-card-photo-error-fallback: FAIL — ${fails} of ${pass + fails} assertions`);

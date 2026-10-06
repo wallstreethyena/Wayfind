@@ -1,0 +1,314 @@
+{
+  "batch": 23,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "ilovetheburg:tampa-bay-lightning-vs-winnipeg-jets",
+      "lead_name": "Tampa Bay Lightning vs. Winnipeg Jets",
+      "source": "ilovetheburg",
+      "venue": null,
+      "address": null,
+      "city": null,
+      "zip": null,
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.nhl.com/lightning/tickets/single-game-tickets"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-29 19:00:00",
+          "end": "2026-10-29 21:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:tampa-bay-lightning-vs-winnipeg-jets",
+      "lead_name": "Tampa Bay Lightning vs. Winnipeg Jets",
+      "source": "thatssotampa",
+      "venue": "Benchmark International Arena",
+      "address": "401 Channelside Dr",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.nhl.com/lightning/tickets/single-game-tickets",
+        "https://www.benchmarkintlarena.com"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-29 19:00:00",
+          "end": "2026-10-29 19:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:anchors-irons-invitational-charity-golf-tournament-social",
+      "lead_name": "Anchors & Irons Invitational Charity Golf Tournament & Social",
+      "source": "ilovetheburg",
+      "venue": "Cove Cay Golf Club",
+      "address": "2612 Cove Cay Drive",
+      "city": "Clearwater",
+      "zip": "33760",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://jacksoncopeland.org/event/golf/",
+        "https://covecaygolf.com/",
+        "https://jacksoncopeland.org"
+      ],
+      "organizer_names": [
+        "The Jackson Copeland Foundation"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-30 13:00:00",
+          "end": "2026-10-30 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:halloween-movie-on-the-lawn-pirates-of-the-caribbean",
+      "lead_name": "Halloween Movie on the Lawn: Pirates of the Caribbean",
+      "source": "thatssotampa",
+      "venue": "Sparkman Wharf",
+      "address": "615 Channelside Dr",
+      "city": "Tampa",
+      "zip": null,
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://sparkmanwharf.com/events/halloween-movie-on-the-lawn-pirates-of-the-caribbean/?date=2026-10-30",
+        "https://sparkmanwharf.com"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-30 17:00:00",
+          "end": "2026-10-30 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:sip-stroll-on-corey-avenue-2",
+      "lead_name": "Sip & Stroll on Corey Avenue",
+      "source": "ilovetheburg",
+      "venue": "Corey Avenue",
+      "address": "7395 Gulf Blvd",
+      "city": "St. Pete Beach",
+      "zip": "33706",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://eventvesta.com/events/139881/t/tickets"
+      ],
+      "organizer_names": [
+        "St Pete Beach Downtown Corey Ave"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-10-30 17:00:00",
+          "end": "2026-10-30 20:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-11-27 17:00:00",
+          "end": "2026-11-27 20:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:halloween-fest-at-usf-st-petersburg",
+      "lead_name": "Halloween Fest at USF St. Petersburg",
+      "source": "ilovetheburg",
+      "venue": "USF St. Pete Campus",
+      "address": "104 7th Ave S",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://www.stpetersburg.usf.edu/events/halloween-fest/index.aspx",
+        "https://www.stpetersburg.usf.edu/"
+      ],
+      "organizer_names": [
+        "University of South Florida St. Petersburg"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-30 17:30:00",
+          "end": "2026-10-30 20:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:halloween-carnival",
+      "lead_name": "Halloween Carnival",
+      "source": "ilovetheburg",
+      "venue": "1190 Georgia Ave, Palm Harbor, FL 34683",
+      "address": "1190 Georgia Ave, Palm Harbor, FL 34683",
+      "city": "Palm Harbor",
+      "zip": "34683",
+      "cost_text": "$10",
+      "organizer_url_hints": [
+        "https://phparksandrec.org/events/",
+        "https://phparksandrec.org/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-30 18:00:00",
+          "end": "2026-10-30 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:trunk-or-treat-at-keystone-recreation-center",
+      "lead_name": "Trunk or Treat at Keystone Recreation Center",
+      "source": "thatssotampa",
+      "venue": "Keystone Park & Recreation Center",
+      "address": "17928 Gunn Hwy",
+      "city": "Odessa",
+      "zip": "33556",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://hcfl.gov/events/trunk-or-treat/2026/10/30/blt4fe499e411f6525e"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-30 18:30:00",
+          "end": "2026-10-30 20:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:sonic-live-in-concert",
+      "lead_name": "Sonic Live In Concert",
+      "source": "ilovetheburg",
+      "venue": "Duke Energy Center for the Arts – Mahaffey Theater",
+      "address": "400 1st St S",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://themahaffey.com/show/sonic-live-in-concert/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-30 20:00:00",
+          "end": "2026-10-30 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:little-stranger",
+      "lead_name": "Little Stranger",
+      "source": "ilovetheburg",
+      "venue": "Jannus Live",
+      "address": "200 1st Ave N STE 206",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.jannuslive.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-30 21:30:00",
+          "end": "2026-10-30 23:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:relics-lore-a-radley-experience-closing-weekend",
+      "lead_name": "Relics & Lore: A Radley Experience — Closing Weekend",
+      "source": "ilovetheburg",
+      "venue": "FloridaRAMA",
+      "address": "2606 Fairfield Ave S",
+      "city": "St. Petersburg",
+      "zip": "33712",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.floridarama.art/events/relics-lore-a-radley-experience/",
+        "https://tampamuseum.org/event/nextgen-art-network-vibe-2024-08-16/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-31 02:00:00",
+          "end": "2026-11-03 01:59:59",
+          "all_day": true
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:relics-lore-a-radley-experience-closing-weekend",
+      "lead_name": "Relics & Lore: A Radley Experience — Closing Weekend",
+      "source": "thatssotampa",
+      "venue": "FloridaRAMA",
+      "address": "2606 Fairfield Ave S",
+      "city": "St. Petersburg",
+      "zip": "33712",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.floridarama.art/events/relics-lore-a-radley-experience/",
+        "https://tampamuseum.org/event/nextgen-art-network-vibe-2024-08-16/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-31 03:00:00",
+          "end": "2026-11-02 02:59:59",
+          "all_day": true
+        }
+      ]
+    }
+  ]
+}

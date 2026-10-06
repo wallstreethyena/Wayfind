@@ -1,0 +1,318 @@
+{
+  "batch": 24,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "thatssotampa:charmed-loaves-a-bewitching-sourdough-focaccia-workshop-at-kerbys-nursery",
+      "lead_name": "Charmed Loaves: A Bewitching Sourdough Focaccia Workshop at Kerby’s Nursery",
+      "source": "thatssotampa",
+      "venue": "Kerby’s Nursery",
+      "address": "2311 S. Parsons Ave.",
+      "city": "Seffner",
+      "zip": "33584",
+      "cost_text": "$115.00",
+      "organizer_url_hints": [
+        "https://shop.kerbysnursery.com/item/3449/Charmed-Loaves-A-Bewitching-Sourdough-Focaccia-Workshop-10-31-2026-10-AM?cid=2",
+        "https://www.kerbysnursery.com/"
+      ],
+      "organizer_names": [
+        "Kerby’s Nursery"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-31 10:00:00",
+          "end": "2026-10-31 12:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:haunted-tea-party",
+      "lead_name": "Haunted Tea Party",
+      "source": "thatssotampa",
+      "venue": "Beacon Tampa Rooftop Lounge",
+      "address": "510 Water Street",
+      "city": "Tampa",
+      "zip": "33602",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.opentable.com/booking/experiences-availability?rid=1333426&amp;restref=1333426&amp;experienceId=793636&amp;utm_source=external&amp;utm_medium=referral&amp;utm_campaign=shared",
+        "https://www.beacontampa.com/",
+        "https://www.beacontampa.com"
+      ],
+      "organizer_names": [
+        "@beacontampa"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-31 11:00:00",
+          "end": "2026-10-31 13:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:st-pete-official-halloween-bar-crawl-2026-halloween-night",
+      "lead_name": "St. Pete Official Halloween Bar Crawl 2026 – Halloween Night",
+      "source": "ilovetheburg",
+      "venue": "Thirsty First",
+      "address": "515 Central Avenue",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": "$20",
+      "organizer_url_hints": [
+        "https://www.eventbrite.com/e/st-pete-official-halloween-bar-crawl-2026-bar-crawl-live-tickets-1987574975255",
+        "https://barcrawllive.com"
+      ],
+      "organizer_names": [
+        "Bar Crawl LIVE!"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-31 15:00:00",
+          "end": "2026-10-31 23:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:the-halloween-bar-crawl-st-petersburg",
+      "lead_name": "The Halloween Bar Crawl – St Petersburg",
+      "source": "ilovetheburg",
+      "venue": "Park & Rec DTSP",
+      "address": "100 4th Street South",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": "$19.70",
+      "organizer_url_hints": [
+        "https://eventvesta.com/events/153722/t/tickets"
+      ],
+      "organizer_names": [
+        "Crawl With US"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-31 16:00:00",
+          "end": "2026-10-31 23:59:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:halloween-gong-portal-beyond-the-veil",
+      "lead_name": "Halloween Gong Portal: Beyond the Veil",
+      "source": "ilovetheburg",
+      "venue": "The Body Electric Yoga Company",
+      "address": "3015 7th St N",
+      "city": "St. Petersburg",
+      "zip": "33704",
+      "cost_text": "$25",
+      "organizer_url_hints": [
+        "https://clients.mindbodyonline.com/classic/ws?studioid=35808&amp;stype=-8&amp;sView=day&amp;sLoc=0&amp;sTrn=100000011",
+        "https://thebodyelectricyoga.com/"
+      ],
+      "organizer_names": [
+        "The Body Electric Yoga Company"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-31 18:00:00",
+          "end": "2026-10-31 19:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:13-ugly-men-the-halloween-party-2026",
+      "lead_name": "13 Ugly Men – The Halloween Party 2026",
+      "source": "thatssotampa",
+      "venue": "The Cuban Club",
+      "address": "2010 Republica de Cuba",
+      "city": "Ybor City",
+      "zip": "33605",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://eventliveus.com/event/10472/13-ugly-men-presents-the-halloween-party?utm_id=97758_v0_s00_e0_tv4_a1demo0e5tmmyn&amp;fbclid=IwY2xjawUNUsRwZG9mAWV4dG4DYWVtAjEwAHNydGMGYXBwX2lkEDIyMjAzOTE3ODgyMDA4OTIAAR7UhRrj7c5DjN2wXvSbAAtAP2snk1bU8YaEZuquD2l6Hkk3AHvsYHrmha5SZw_aem_Zud2jwRR5jjWfoUwUEIbWQ&amp;_v=1788900212343"
+      ],
+      "organizer_names": [
+        "13 Ugly Men"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-31 20:00:00",
+          "end": "2026-11-01 03:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:little-stranger-2",
+      "lead_name": "Little Stranger",
+      "source": "ilovetheburg",
+      "venue": "Jannus Live",
+      "address": "200 1st Ave N STE 206",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.jannuslive.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-31 21:30:00",
+          "end": "2026-10-31 23:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:localpalooza-2026",
+      "lead_name": "LocalPalooza 2026",
+      "source": "ilovetheburg",
+      "venue": "USF St. Pete Campus",
+      "address": "104 7th Ave S",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://stpeteissupercool.com/pages/localpalooza",
+        "https://www.stpetersburg.usf.edu/",
+        "http://www.stpeteissupercool.com"
+      ],
+      "organizer_names": [
+        "St. Pete is Super Cool"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-01 10:00:00",
+          "end": "2026-11-01 14:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:gallery-talk-with-executive-curator-robin-odell",
+      "lead_name": "Gallery Talk with Executive Curator, Robin O’Dell",
+      "source": "thatssotampa",
+      "venue": "Florida Museum of Photographic Arts",
+      "address": "1630 E 7th Avenue",
+      "city": "Tampa",
+      "zip": null,
+      "cost_text": "$12.00",
+      "organizer_url_hints": [
+        "https://lp.constantcontactpages.com/ev/reg/edjf2c6",
+        "https://www.fmopa.org/"
+      ],
+      "organizer_names": [
+        "Florida Museum of Photographic Arts"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-01 13:00:00",
+          "end": "2026-11-01 14:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:tampa-bay-buccaneers-vs-atlanta-falcons-2",
+      "lead_name": "Tampa Bay Buccaneers vs Atlanta Falcons",
+      "source": "ilovetheburg",
+      "venue": "Raymond James Stadium",
+      "address": "4201 N Dale Mabry Hwy",
+      "city": "Tampa",
+      "zip": "33607",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.buccaneers.com/tickets/single-game"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-01 13:00:00",
+          "end": "2026-11-01 16:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:tampa-bay-buccaneers-vs-atlanta-falcons",
+      "lead_name": "Tampa Bay Buccaneers vs Atlanta Falcons",
+      "source": "thatssotampa",
+      "venue": "Raymond James Stadium",
+      "address": "4201 N Dale Mabry Hwy",
+      "city": "Tampa",
+      "zip": "33607",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.buccaneers.com/tickets/single-game?source=sgthome",
+        "https://secure.acsevents.org/site/TR?fr_id=109431&pg=informational&sid=212807&name=event-details"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-01 13:00:00",
+          "end": "2026-11-01 16:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:the-florida-orchestra-john-williams-95-from-star-wars-to-harry-potter",
+      "lead_name": "The Florida Orchestra: John Williams @ 95 – From Star Wars to Harry Potter",
+      "source": "ilovetheburg",
+      "venue": "Duke Energy Center for the Arts – Mahaffey Theater",
+      "address": "400 1st St S",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-11-01 14:00:00",
+          "end": "2026-11-01 16:00:00",
+          "all_day": false
+        }
+      ]
+    }
+  ]
+}

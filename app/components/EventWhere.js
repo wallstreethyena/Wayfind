@@ -27,6 +27,7 @@ import EventMapPlaces from "./EventMapPlaces.js";
 import { WF_PLACE_CARD_CSS } from "./css.js";
 import { websiteHost } from "../../lib/placeWhere.js";
 import { Suspense } from "react";
+import { orderPlaceRecommendations } from "../../lib/placeRecommendationOrder.js";
 
 const ACCENT = "#F97316";
 const PICK = "#2EC9A6";
@@ -65,7 +66,7 @@ const CSS = `
 // construction, including after malformed provider rows are removed.
 export function eventNearbyPlaces(picks, hasPoint) {
   if (!hasPoint || !Array.isArray(picks)) return [];
-  return picks.filter((place) => place
+  return orderPlaceRecommendations(picks.filter((place) => place
     && place.id
     && place.name
     && typeof place.href === "string"
@@ -76,7 +77,7 @@ export function eventNearbyPlaces(picks, hasPoint) {
     && place.distMi >= 0
     && Number.isFinite(place.wfScore)
     && place.wfScore > 0
-    && place.wfScore <= 100);
+    && place.wfScore <= 100));
 }
 
 /**

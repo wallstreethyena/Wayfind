@@ -1591,6 +1591,149 @@ const PHOTO = (id) => ({
   } finally {globalThis.fetch = savedFetch;}
 }
 
+// ── SECTION K — BOUNDED CURRENT-CANDIDATE READ RETRY ────────────────────
+// Actual current-main worker: retry SQLSTATE 57014/5xx once, never 4xx,
+// preserve deadlines and the unavailable: pulse prefix. All IO is scripted.
+{
+  const AT_RISK_URL = SB.url + "/rest/v1/wf_photo_at_risk_free_candidate";
+  const ROWS = [{ place_id: "kretry0001xxxxxxxxxxx", name: "Retry Place", category: "beach", earliest_expiry: "2026-09-25T05:09:18.298+00:00" }];
+
+  // A double whose at-risk answers are scripted per call, so "how many times
+  // was it asked" is a COUNT, not an inference from the outcome.
+  const scripted = (answers) => {
+    const calls = [];
+    const saved = globalThis.fetch;
+    globalThis.fetch = async (url, init) => {
+      const u = String(url);
+      const method = (init && init.method) || "GET";
+      if (u.startsWith(AT_RISK_URL)) {
+        // THROWS past the script instead of repeating the last answer. A
+        // repeat would let an unbounded retry spin until Node dies of memory
+        // exhaustion — a "failure" that names nothing and reads like a crashed
+        // runner rather than a broken invariant. Throwing lands in
+        // runBackfill's own catch, the run ends, and K2's call-count assertion
+        // reports the real fault in one line.
+        if (calls.length >= answers.length) {
+          calls.push(u);
+          throw new Error("at-risk view asked " + calls.length + " times; the script provides " + answers.length);
+        }
+        const a = answers[calls.length];
+        calls.push(u);
+        if (a.status === 200) return { ok: true, status: 200, json: async () => a.rows || [] };
+        return { ok: false, status: a.status, json: async () => (a.code ? { code: a.code } : {}) };
+      }
+      if (u.startsWith(SB.url + "/rest/v1/wf_photo_general_free_candidate")) return { ok: true, json: async () => [] };
+      if (u.startsWith(SB.url + "/rest/v1/wf_inventory")) return { ok: true, json: async () => [] };
+      if (u.startsWith(SB.url + "/rest/v1/wf_place_photo") && method === "GET") return { ok: true, json: async () => [] };
+      if (u.startsWith(SB.url + "/rest/v1/wf_place_photo") && method === "POST") return { ok: true, json: async () => [] };
+      throw new Error("UNEXPECTED NETWORK CALL: " + method + " " + u);
+    };
+    return { calls, restore: () => { globalThis.fetch = saved; } };
+  };
+
+  // K1 (THE HEADLINE INVARIANT) — a 500/57014 followed by a good answer
+  // recovers inside the same run, and says it recovered.
+  {
+    const d = scripted([{ status: 500, code: "57014" }, { status: 200, rows: ROWS }]);
+    const result = await runBackfill({
+      limit: 5, sbEnv: SB, source: "at-risk",
+      resolvePhoto: async (_p, deps) => { deps.onReject("no_lead_image"); return null; },
+      storePhoto: null, dryRun: false,
+    });
+    d.restore();
+    eq(d.calls.length, 2, "K1 (THE HEADLINE INVARIANT): a statement timeout is retried EXACTLY once — proven by call count on the view, not inferred from the outcome");
+    eq(result.atRiskUnavailable, false, "K1: and the run recovers — the worklist is not reported unavailable");
+    eq(result.atRiskScanned, 1, "K1: the retry's rows are the ones actually used");
+    eq(result.atRiskRetried, true, "K1: the recovery is recorded, not hidden — an hour that needed a retry is not the same as one that did not");
+    ok(describeAtRisk(result).includes("(retried)"), "K1: and the note says so ALONGSIDE the counts, never instead of them (got " + JSON.stringify(describeAtRisk(result)) + ")");
+    ok(describeAtRisk(result).startsWith("at-risk 1/1"), "K1: the counts still lead the note");
+  }
+
+  // K2 — two timeouts stop. This keeps the insurance from becoming a hot loop
+  // that eats the run's whole time budget re-asking a question the database
+  // has already refused twice.
+  {
+    const d = scripted([{ status: 500, code: "57014" }, { status: 500, code: "57014" }]);
+    const result = await runBackfill({
+      limit: 5, sbEnv: SB, source: "at-risk",
+      resolvePhoto: async () => null, storePhoto: null, dryRun: false,
+    });
+    d.restore();
+    eq(d.calls.length, 2, "K2 (THE HEADLINE INVARIANT): after a second timeout the run STOPS asking — exactly 2 calls, never 3");
+    eq(result.atRiskUnavailable, true, "K2: and reports the worklist unavailable");
+    const note = String(result.note || "");
+    ok(note.includes("57014"), "K2: naming the SQLSTATE, so an operator can tell a cold query plan from an outage (got " + JSON.stringify(note) + ")");
+    ok(note.includes("retried once"), "K2: and saying the retry was already spent, so nobody re-runs it by hand expecting a different answer");
+  }
+
+  // K3 — a 4xx is not retried. A missing relation or a malformed request
+  // answers identically however many times it is asked; retrying it only
+  // spends budget and muddies the diagnosis.
+  {
+    const d = scripted([{ status: 404, code: "PGRST205" }]);
+    const result = await runBackfill({
+      limit: 5, sbEnv: SB, source: "at-risk",
+      resolvePhoto: async () => null, storePhoto: null, dryRun: false,
+    });
+    d.restore();
+    eq(d.calls.length, 1, "K3 (THE HEADLINE INVARIANT): a 404 is asked ONCE — proven by call count");
+    eq(result.atRiskUnavailable, true, "K3: and is still reported unavailable");
+    eq(result.atRiskRetried, false, "K3: with no retry claimed");
+    ok(String(result.note || "").includes("404"), "K3: the note names the status");
+    ok(!String(result.note || "").includes("retried once"), "K3: and does not claim a retry that never happened");
+  }
+
+  // K4 (POSITIVE CONTROL) — a healthy read is asked once and renders EXACTLY
+  // the note it rendered before this change. Without this, K1's "(retried)"
+  // could be passing because every run now claims a retry.
+  {
+    const d = scripted([{ status: 200, rows: ROWS }]);
+    const result = await runBackfill({
+      limit: 5, sbEnv: SB, source: "at-risk",
+      resolvePhoto: async (_p, deps) => { deps.onReject("no_lead_image"); return null; },
+      storePhoto: null, dryRun: false,
+    });
+    d.restore();
+    eq(d.calls.length, 1, "K4 (positive control): a healthy read is asked exactly once — no speculative second call");
+    eq(result.atRiskRetried, false, "K4: and claims no retry");
+    eq(describeAtRisk(result), "at-risk 1/1", "K4: rendering the note byte-identically to before this change (H2/H4's strings are unmoved)");
+  }
+
+  // K5 — a generic 5xx is transient too; retry once under the same bound.
+  {
+    const d = scripted([{ status: 503 }, { status: 200, rows: [] }]);
+    const result = await runBackfill({ limit: 5, sbEnv: SB, source: "at-risk", resolvePhoto: async () => null, storePhoto: null, dryRun: false });
+    d.restore();
+    eq(d.calls.length, 2, "K5: a generic 503 is retried once");
+    eq(result.atRiskUnavailable, false, "K5: recovered 503 is available");
+    eq(result.atRiskRetried, true, "K5: recovered 503 records retry");
+  }
+  // K6 — an expired worker clock cannot launch a second view read.
+  {
+    const d = scripted([{ status: 500, code: "57014" }]);
+    const result = await runBackfill({ limit: 5, sbEnv: SB, source: "at-risk", deadlineAt: Date.now() - 1, resolvePhoto: async () => null, storePhoto: null, dryRun: false });
+    d.restore();
+    eq(d.calls.length, 1, "K6: no transient retry is launched after the worker deadline");
+    eq(result.atRiskRetried, false, "K6: an unstarted retry is not claimed");
+    ok(String(result.note).startsWith("unavailable:"), "K6: deadline-bound failure preserves the actionable pulse prefix");
+  }
+
+  // K7 — a lost candidate read remains unavailable even when other pools are
+  // empty. The pulse classifier needs that prefix at column zero.
+  {
+    const d = scripted([{ status: 500, code: "57014" }, { status: 500, code: "57014" }]);
+    const result = await runBackfill({ limit: 5, sbEnv: SB, source: "at-risk-then-all", resolvePhoto: async () => null, storePhoto: null, dryRun: false });
+    d.restore();
+    eq(d.calls.length, 2, "K7: an empty combined run retains the one-retry bound");
+    eq(result.atRiskRetried, true, "K7: empty combined return retains retry diagnostics");
+    ok(String(result.note).startsWith("unavailable:"), "K7: an empty general pool cannot erase the failed at-risk prefix");
+    ok(String(result.note).includes("57014"), "K7: combined empty failure still names SQLSTATE");
+  }
+
+  console.log("test-photo-vault-wiring: Section K OK — a cold-plan statement timeout is retried exactly once and recovers in-run; a second timeout stops; a 4xx is never retried; and a healthy read is unchanged");
+}
+
+
 if (failures) {
   console.error(`test-photo-vault-wiring: FAIL — ${failures} assertion(s) failed`);
   process.exit(1);

@@ -1,4 +1,5 @@
 "use client";
+import { shareOut } from "../../lib/shareOut.js";
 import { useState, useMemo, useEffect } from "react";
 import { Cat, Heart, Portrait, Couple } from "./pixel.js";
 import { ASK_CSS } from "./style.js";
@@ -242,18 +243,7 @@ export default function AskClient({ inv }) {
     if (step === "yay") { const t = setTimeout(() => setStep("activity"), 2600); return () => clearTimeout(t); }
   }, [step]);
 
-  // OWNER: "when the user clicks sent it needs to show that it hit sent."
-  //
-  // It did not. The first version flipped to SENT the instant the button was
-  // pressed — before the share sheet had even appeared, and it stayed SENT if
-  // they cancelled it. That is the worst possible lie to tell on this screen:
-  // the person believes their yes has gone and it has not, and they will not
-  // check, because the button said so.
-  //
-  // So the state is only set by what ACTUALLY happened. navigator.share()
-  // resolves when the message went, rejects with AbortError when they backed
-  // out, and rejects otherwise when it failed — three different truths, told
-  // three different ways.
+  // Delivery is outside this page’s control. Only explicit copy success is observable.
   // Fired from the button's real position so the hearts come out of the thing
   // they pressed, not out of the middle of the screen.
   const burst = (e) => {
@@ -286,11 +276,7 @@ export default function AskClient({ inv }) {
 
   const replyText = () => yesText(inv, activity, dayLabel, { name: who, note });
 
-  const copyIt = (text) => {
-    try {
-      navigator.clipboard.writeText(text).then(() => setSent("copied"), () => setSent("failed"));
-    } catch (e) { setSent("failed"); }
-  };
+
 
   // Their suggestion first, everything else in its usual order.
   // Resolved the same way the fit check resolves it — from the payload when it
@@ -344,31 +330,11 @@ export default function AskClient({ inv }) {
 
   const tellThem = () => {
     const text = replyText();
-    setSent("");
-    try {
-      if (typeof navigator !== "undefined" && navigator.share) {
-        const pr = navigator.share({ text });
-        if (pr && pr.then) {
-          pr.then(() => setSent("sent"), (e) => {
-            // Backing out of the sheet is not a failure and must not be dressed
-            // up as one — they are still on the screen and can press it again.
-            if (e && e.name === "AbortError") return;
-            copyIt(text);
-          });
-        } else { setSent("sent"); }
-        return;
-      }
-    } catch (e) {}
-    copyIt(text);
+    const how = shareOut({ title: "Your reply", text }, () => setSent("copied"), { textOnly: true });
+    setSent(how === "failed" ? "failed" : "options");
   };
 
-  // NO sms: ESCAPE HATCH. A previous pass added an "Open Messages instead"
-  // button, and the owner killed it on sight — correctly. This page spends five
-  // frames building something, and a raw sms: link throws the person out of it
-  // into a grey compose window mid-moment. The native share sheet already lists
-  // Messages, it appears OVER this page instead of replacing it, and it also
-  // covers the half of the world that answers in WhatsApp or Instagram. One
-  // button, one path.
+  // The reply uses the same explicit text/email/native choices as every share.
 
   return (
     <div className="wfx">
@@ -477,13 +443,13 @@ export default function AskClient({ inv }) {
               placeholder="Say something back (optional)" />
 
             <button className="wfx-go" onClick={tellThem}>
-              {sent === "sent" ? "SENT ♥" : "TELL " + (from ? from.toUpperCase() : "THEM")}
+              {sent === "options" ? "SHARE OPTIONS ♥" : "TELL " + (from ? from.toUpperCase() : "THEM")}
             </button>
             {sent ? (
               <p className="wfx-sub" role="status" aria-live="polite">
-                {sent === "sent" ? "Sent — they know." :
+                {sent === "options" ? "Choose how to share your reply. You’ll press Send in your message app." :
                  sent === "copied" ? "Copied. Paste it into your chat with " + (from || "them") + "." :
-                 "Could not send it — copy the plan above and text it to " + (from || "them") + "."}
+                 "Could not open share options — copy the plan above and text it to " + (from || "them") + "."}
               </p>
             ) : null}
             {/* Only here, after the yes and the plan, does Wayfind say anything.

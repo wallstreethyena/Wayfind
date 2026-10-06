@@ -1,0 +1,311 @@
+{
+  "batch": 16,
+  "created_from": "scripts/local-calendars/leads/2026-10-02.json",
+  "horizon_end": "2026-12-16",
+  "leads": [
+    {
+      "key": "thatssotampa:spooktacular-science",
+      "lead_name": "Spooktacular Science",
+      "source": "thatssotampa",
+      "venue": "MOSI",
+      "address": "4801 E Fowler Ave",
+      "city": "Tampa",
+      "zip": "33617-2017",
+      "cost_text": "$20 – $30",
+      "organizer_url_hints": [
+        "https://mosi.org/event/spooktacular-science/",
+        "https://mosi.org/"
+      ],
+      "organizer_names": [
+        "MOSI"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-17 18:00:00",
+          "end": "2026-10-17 21:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:uicideboy-grey-day-tour-2026",
+      "lead_name": "$uicideboy$ – Grey Day Tour 2026",
+      "source": "thatssotampa",
+      "venue": "Florida State Fairgrounds",
+      "address": "4800 US-301",
+      "city": "Tampa",
+      "zip": null,
+      "cost_text": null,
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-17 18:30:00",
+          "end": "2026-10-17 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:candlelight-tribute-to-fleetwood-mac",
+      "lead_name": "Candlelight: Tribute to Fleetwood Mac",
+      "source": "ilovetheburg",
+      "venue": "The Karol Hotel",
+      "address": "2675 Ulmerton Road",
+      "city": "Clearwater",
+      "zip": null,
+      "cost_text": "$46.01",
+      "organizer_url_hints": [
+        "https://www.eventvesta.com/events/158849-candlelight-tribute-to-fleetwood-mac"
+      ],
+      "organizer_names": [
+        "Fever"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-17 18:30:00",
+          "end": "2026-10-17 19:45:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:toadies-local-h-the-charmer-tour",
+      "lead_name": "Toadies & Local H – The Charmer Tour",
+      "source": "ilovetheburg",
+      "venue": "Jannus Live",
+      "address": "200 1st Ave N STE 206",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.jannuslive.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-17 19:00:00",
+          "end": "2026-10-17 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:tampa-bay-rowdies-vs-detroit-city-fc",
+      "lead_name": "Tampa Bay Rowdies vs. Detroit City FC",
+      "source": "ilovetheburg",
+      "venue": "Al Lang Stadium",
+      "address": "230 1st St. S",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.rowdiessoccer.com/tampa-bay-rowdies-tickets/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-17 19:30:00",
+          "end": "2026-10-17 19:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "thatssotampa:tampa-bay-rowdies-vs-detroit-city-fc",
+      "lead_name": "Tampa Bay Rowdies vs. Detroit City FC",
+      "source": "thatssotampa",
+      "venue": "Al Lang Stadium",
+      "address": "230 1st St SE",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://www.rowdiessoccer.com/tampa-bay-rowdies-tickets/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-17 19:30:00",
+          "end": "2026-10-17 19:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:the-florida-orchestra-scheherazade",
+      "lead_name": "The Florida Orchestra: Scheherazade",
+      "source": "ilovetheburg",
+      "venue": "Duke Energy Center for the Arts – Mahaffey Theater",
+      "address": "400 1st St S",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": null,
+      "organizer_url_hints": [],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": true,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-17 19:30:00",
+          "end": "2026-10-17 21:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:performer-purgatory",
+      "lead_name": "Performer Purgatory",
+      "source": "ilovetheburg",
+      "venue": "2606 Fairfield Ave S, St. Pete, FL",
+      "address": "2606 Fairfield Ave S",
+      "city": "Saint Petersburg",
+      "zip": "33712",
+      "cost_text": "$30",
+      "organizer_url_hints": [
+        "https://fareharbor.com/embeds/book/floridarama/items/758031/calendar/?flow=1438415&amp;full-items=yes",
+        "https://theindieflea.com/st-pete-indie-space",
+        "https://www.floridarama.art/tickets"
+      ],
+      "organizer_names": [
+        "jessica baird"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-17 20:00:00",
+          "end": "2026-10-17 22:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:obscura-a-dance-theatre-of-mystery-revelation",
+      "lead_name": "OBSCURA: A Dance Theatre of Mystery & Revelation",
+      "source": "ilovetheburg",
+      "venue": "Zubrick Magic Theatre",
+      "address": "1211 1st Avenue N., Suite 101",
+      "city": "Saint Petersburg",
+      "zip": "33705",
+      "cost_text": "$60 – $150",
+      "organizer_url_hints": [
+        "http://www.zubrickmagic.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-17 21:00:00",
+          "end": "2026-10-17 23:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:obscura",
+      "lead_name": "OBSCURA",
+      "source": "ilovetheburg",
+      "venue": "Zubrick Magic Theatre",
+      "address": "1211 1st Avenue N., Suite 101",
+      "city": "Saint Petersburg",
+      "zip": "33705",
+      "cost_text": "$60 – $200",
+      "organizer_url_hints": [
+        "http://www.zubrickmagic.com/"
+      ],
+      "organizer_names": [],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-17 21:30:00",
+          "end": "2026-10-17 23:30:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:727fit-sand-in-my-boots",
+      "lead_name": "727FIT: Sand in my Boots",
+      "source": "ilovetheburg",
+      "venue": "Upham Beach",
+      "address": "6850 Beach Plaza",
+      "city": "St. Pete Beach",
+      "zip": "33706",
+      "cost_text": null,
+      "organizer_url_hints": [
+        "https://sweatpals.com/event/sandy-sunday-727fit?utm_source=user_share_f22a079b-b9de-4265-86ab-c6032dd89c33&amp;utm_medium=shared_link&amp;utm_campaign=event_share"
+      ],
+      "organizer_names": [
+        "727FIT"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": false,
+      "dates": [
+        {
+          "start": "2026-10-18 08:00:00",
+          "end": "2026-10-18 09:00:00",
+          "all_day": false
+        }
+      ]
+    },
+    {
+      "key": "ilovetheburg:st-pete-sunday-market-7",
+      "lead_name": "St. Pete Sunday Market",
+      "source": "ilovetheburg",
+      "venue": "USF St. Pete Campus",
+      "address": "104 7th Ave S",
+      "city": "St. Petersburg",
+      "zip": "33701",
+      "cost_text": "Free",
+      "organizer_url_hints": [
+        "https://stpeteissupercool.com/pages/st-pete-sunday-market",
+        "https://www.stpetersburg.usf.edu/",
+        "http://www.stpeteissupercool.com"
+      ],
+      "organizer_names": [
+        "St. Pete is Super Cool"
+      ],
+      "source_categories": [],
+      "ticketmaster_venue": false,
+      "recurring": true,
+      "dates": [
+        {
+          "start": "2026-10-18 11:00:00",
+          "end": "2026-10-18 16:00:00",
+          "all_day": false
+        },
+        {
+          "start": "2026-11-15 11:00:00",
+          "end": "2026-11-15 16:00:00",
+          "all_day": false
+        }
+      ]
+    }
+  ]
+}

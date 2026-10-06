@@ -137,8 +137,16 @@ ok(toHookLine(FARM_WHY, "Welcome To The Farm").length >= 20,
     "the Why it fits block CALLS landingWhyFits(p, eds[p.id])");
   ok(!/whyLine\(p,\s*cat\.singular\)/.test(land),
     "landing cards no longer fall back to whyLine (that appended miles-from-center)");
-  ok(/if \(!why\) return null/.test(land),
-    "empty why returns null — no Why it fits heading with a blank body");
+  // 2026-10-01 (owner): the why is ON the card as one line; the long read
+  // lives in the detail view. No loose paragraph / Insider line under cards.
+  ok(!/Why it fits:/.test(land),
+    "no loose 'Why it fits:' paragraph under ranked cards — the line is on the card");
+  ok(!/Insider:<\/b>/.test(land) && !/insiderByIdx/.test(land) && !/getInsider\(/.test(land),
+    "no loose Insider line (and no model call feeding it) under ranked cards");
+  ok(/editorial=\{take\}/.test(land) && /editorialMore=\{take && hasPlaceViewEditorial\(p, eds\[p\.id\]\) \?/.test(land),
+    "card take + 'Why Wayfind picked it' cue only when a sourced take exists AND the place view holds the read");
+  ok(/href=\{landingCardHref\(p\)\}/.test(land),
+    "ranked card opens the full place detail via landingCardHref");
   ok(!/mi from the town center/.test(land),
     "landing.js does not template miles-from-center into Why it fits");
 }
@@ -149,6 +157,12 @@ ok(toHookLine(FARM_WHY, "Welcome To The Farm").length >= 20,
     "landingWhyFits is declared (syntactic position)");
   ok(!/mi from the town center/.test(rw),
     "rankingWhy.js no longer appends miles-from-center");
+}
+
+{
+  const { landingCardHref } = await import("../lib/placeCardRoute.js");
+  ok(landingCardHref({ id: "ChIJabc", name: "X" }) === "/p/ChIJabc", "landingCardHref -> /p/{id}");
+  ok(landingCardHref({ name: "St. Pete Comedy Club" }) === "/?q=St.%20Pete%20Comedy%20Club", "no id -> search handoff");
 }
 
 console.log(`test-landing-why-fits: OK — ${pass} assertions (filler stripped; sourced two-beats render; empty cards stay empty; no distance)`);

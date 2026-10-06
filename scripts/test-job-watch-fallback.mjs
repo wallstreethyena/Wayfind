@@ -140,11 +140,16 @@ const CHILD = `
   register(${HOOK_URL}, import.meta.url);
   const route = await import(${ROUTE_URL});
 
+  Date.now = () => Number(process.env.__WF_NOW);
   const rows = JSON.parse(process.env.__WF_ROWS);
+  const heartbeatRows = JSON.parse(process.env.__WF_HEARTBEAT_ROWS);
+  const heartbeatMode = process.env.__WF_HEARTBEAT_MODE;
   const resendMode = process.env.__WF_RESEND_MODE;
   const healthMode = process.env.__WF_HEALTH_MODE;
   const pulseWrites = [];
   const healthReads = [];
+  const heartbeatReads = [];
+  const unexpectedFetches = [];
   globalThis.fetch = async (url, opts) => {
     const u = String(url);
     if (u.includes("/rest/v1/rpc/wf_job_health")) {
@@ -157,16 +162,29 @@ const CHILD = `
       return { ok: true, status: 200, json: async () => rows };
     }
     if (u.includes("/rest/v1/wf_job_pulse")) {
-      let body = {};
-      try { body = JSON.parse((opts && opts.body) || "{}"); } catch (e) {}
-      pulseWrites.push(body);
-      return { ok: true, status: 201, json: async () => ({}) };
+      const endpoint = new URL(u);
+      const method = opts?.method || "GET";
+      if (method === "GET" && endpoint.searchParams.get("job") === "eq.heartbeat-watch") {
+        heartbeatReads.push({ cache: opts.cache, bounded: !!opts.signal, query: Object.fromEntries(endpoint.searchParams) });
+        if (heartbeatMode === "http") return { ok: false, status: 503 };
+        if (heartbeatMode === "network") throw new Error("fixture heartbeat network down");
+        if (heartbeatMode === "invalid-json") return { ok: true, status: 200, json: async () => { throw new SyntaxError("fixture invalid heartbeat JSON"); } };
+        return { ok: true, status: 200, json: async () => heartbeatRows };
+      }
+      if (method === "GET" && endpoint.searchParams.get("job") === "eq.job-watch") {
+        return { ok: true, status: 200, json: async () => [] };
+      }
+      if (method === "POST" && !endpoint.search) {
+        pulseWrites.push(JSON.parse(opts.body));
+        return { ok: true, status: 201, json: async () => ({}) };
+      }
     }
     if (u.includes("api.resend.com/emails")) {
       if (resendMode === "success") return { ok: true, status: 200, json: async () => ({ id: "email_1" }) };
       if (resendMode === "fail") return { ok: false, status: 429, json: async () => ({ message: "rate limited" }) };
       throw new Error("network down");
     }
+    unexpectedFetches.push(u);
     throw new Error("TRAP: unexpected fetch " + u);
   };
 
@@ -183,14 +201,22 @@ const CHILD = `
     flushCalls: globalThis.__wfSentryFlushCalls || [],
     pulseWrites,
     healthReads,
+    heartbeatReads,
+    unexpectedFetches,
   }));
 `;
 
-function runScenario({ rows, resendMode = "unset", resendKeySet = false, healthMode = "ok", supabaseConfigured = true }) {
+const FIXTURE_NOW = Date.parse("2026-10-04T12:00:00Z");
+const FRESH_HEARTBEAT_ROWS = [{ job: "heartbeat-watch", ran_at: new Date(FIXTURE_NOW - 15 * 60_000).toISOString() }];
+
+function runScenario({ rows, resendMode = "unset", resendKeySet = false, healthMode = "ok", supabaseConfigured = true, heartbeatRows = FRESH_HEARTBEAT_ROWS, heartbeatMode = "ok" }) {
   const env = {
     NODE_ENV: "test",
     CRON_SECRET: "test-cron-secret",
+    __WF_NOW: String(FIXTURE_NOW),
     __WF_ROWS: JSON.stringify(rows),
+    __WF_HEARTBEAT_ROWS: JSON.stringify(heartbeatRows),
+    __WF_HEARTBEAT_MODE: heartbeatMode,
     __WF_RESEND_MODE: resendMode,
     __WF_HEALTH_MODE: healthMode,
     __WF_CRON_SECRET: "test-cron-secret",
@@ -203,7 +229,9 @@ function runScenario({ rows, resendMode = "unset", resendKeySet = false, healthM
   const out = execFileSync(process.execPath, ["--input-type=module", "-e", CHILD], {
     env, encoding: "utf8", timeout: 30000, stdio: ["ignore", "pipe", "pipe"],
   });
-  return JSON.parse(out.trim().split("\n").pop());
+  const result = JSON.parse(out.trim().split("\n").pop());
+  if (result.unexpectedFetches.length) throw new Error("TRAP: unexpected fixture requests: " + result.unexpectedFetches.join(", "));
+  return result;
 }
 
 const INCIDENT_ROWS = [
@@ -220,9 +248,32 @@ const HEALTHY_ROWS = [
   ok(r.status === 200, `healthy: status is 200 (got ${r.status})`);
   ok(r.body.ok === true && r.body.incidents === 0, "healthy: ok:true, incidents:0");
   ok(r.healthReads.length === 1 && r.healthReads[0].cache === "no-store" && r.healthReads[0].bounded, "health decisions use a fresh, time-bounded database read");
+  const read = r.heartbeatReads[0];
+  ok(r.heartbeatReads.length === 1 && read.cache === "no-store" && read.bounded, "healthy: the independent watcher read is fresh and time-bounded");
+  ok(read && read.query.job === "eq.heartbeat-watch" && read.query.select === "job,ran_at" && read.query.order === "ran_at.desc,id.desc" && read.query.limit === "1", "healthy: liveness reads exactly the latest heartbeat-watch pulse, independently of the health feed");
   ok((r.sentryCalls || []).length === 0, "healthy: NO Sentry event — this is the negative control the whole guard exists to prove");
+  ok(r.pulseWrites.length === 1, "healthy: GET reads are never counted as pulse writes");
   const heartbeat = (r.pulseWrites || []).find((p) => p.job === "job-watch");
   ok(heartbeat && heartbeat.attempted === 0 && heartbeat.failed === 0, "healthy: a zero-work heartbeat distinguishes a healthy watcher from a stopped watcher");
+}
+// A healthy lookback feed cannot prove the independent watcher is still alive.
+for (const fixture of [
+  { heartbeatRows: [], pattern: /No latest heartbeat-watch pulse/, label: "missing watcher" },
+  { heartbeatRows: [{ job: "heartbeat-watch", ran_at: new Date(FIXTURE_NOW - 60 * 60_000 - 1).toISOString() }], pattern: /pulse is stale/, label: "stale watcher" },
+  { heartbeatRows: [{ job: "heartbeat-watch", ran_at: "invalid" }], pattern: /Malformed heartbeat-watch pulse/, label: "malformed watcher" },
+  { heartbeatMode: "http", pattern: /pulse read failed: HTTP 503/, label: "watcher HTTP failure" },
+  { heartbeatMode: "network", pattern: /fixture heartbeat network down/, label: "watcher network failure" },
+  { heartbeatMode: "invalid-json", pattern: /fixture invalid heartbeat JSON/, label: "watcher invalid JSON" },
+]) {
+  const r = runScenario({ rows: HEALTHY_ROWS, ...fixture });
+  ok(r.heartbeatReads.length === 1 && r.healthReads.length === 1, `${fixture.label}: the independent source is actually read alongside healthy fleet evidence`);
+  ok(r.status === 500 && r.body.ok === false && r.body.sent === false, `${fixture.label}: undelivered watcher alarm fails loudly`);
+  ok(r.body.incidents === 1 && r.body.detail.length === 1 && /^heartbeat-watch:/.test(r.body.detail[0]) && fixture.pattern.test(r.body.detail[0]), `${fixture.label}: exactly one independent watcher incident names the actual failure`);
+  const calls = r.sentryCalls || [];
+  ok(calls.length === 1 && calls[0].opts.level === "fatal" && fixture.pattern.test(calls[0].opts.extra.incidents[0]), `${fixture.label}: Sentry receives the watcher incident at fatal severity`);
+  ok(r.flushCalls.length === 1 && r.flushCalls[0] === 2000, `${fixture.label}: the independent alarm is flushed with a bounded wait`);
+  const pw = (r.pulseWrites || []).find((p) => p.job === "job-watch");
+  ok(r.pulseWrites.length === 1 && pw && pw.attempted === 1 && pw.succeeded === 0 && pw.failed === 1 && /CANNOT SEND/.test(pw.note || ""), `${fixture.label}: one failed self-pulse preserves undelivered watcher evidence`);
 }
 // Missing health evidence must not masquerade as a healthy empty fleet.
 {

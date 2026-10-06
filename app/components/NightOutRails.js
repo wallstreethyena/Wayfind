@@ -1,8 +1,9 @@
 "use client";
+import GuideRailCollection from "./GuideRailCollection";
 
 import { selectPosterEvents } from "../../lib/posterEvents.js";
 
-// One Night Out answer: ten evidence-gated rails over venue inventory and the
+// One Night Out answer: nine evidence-gated rails over venue inventory and the
 // dated event cards owned by home.js. Events lead each shelf because a dated
 // happening is not interchangeable with the building where one might occur.
 //
@@ -20,7 +21,7 @@ import { useEffect, useMemo, useState } from "react";
 import RailCard, { RailDots, RailNav } from "./RailCard";
 import RailHeading from "./RailHeading";
 import RailLoading from "./RailLoading";
-import { directionsUrl } from "./kit";
+import { directionsUrl, RailDevError, RailMascotBusy } from "./kit.js";
 import { toHookLine } from "../../lib/editorialHook";
 import { composeNightOutRails } from "../../lib/nightOutIntent.js";
 import { cardImageSrc } from "../../lib/placePhoto.js";
@@ -28,7 +29,9 @@ import { priceLabel } from "../../lib/price.js";
 import { toDisplayScore } from "../../lib/score.js";
 import { useCuratedRows } from "../../lib/curatorPicks.js";
 import { railScoreOf } from "../../lib/railRank.js";
-import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
+import { fetchPosterJson } from "../../lib/posterJson.js";
+import { emitRailDegraded, isRailCancelled, railDeveloperFailure } from "../../lib/railFailure.js";
+import { fetchClassifiedPosterJson as fetchRailJson } from "../../lib/posterJson.js";
 import { RAIL_PAGE_SIZE } from "../../lib/railPage.js";
 import { usePagedRail } from "./usePagedRail.js";
 import { nightTourCacheCovers, nightTourProducts } from "../../lib/nightTourProducts.js";
@@ -76,8 +79,8 @@ function NightOutRailSection({
   //
   // A horizontal rail with a single card promises a choice and delivers one,
   // and it reads worse than the honest empty state directly above. Measured at
-  // Parrish AFTER the retrieval fix: Dinner + Entertainment really does have
-  // exactly one qualifying place within 27 miles, so this is now genuine
+  // Parrish AFTER the retrieval fix: the (since removed) Dinner + Entertainment
+  // rail really did have exactly one qualifying place within 27 miles, so this is now genuine
   // scarcity rather than the candidate starvation that used to produce it.
   //
   // The answer is presentation, never data. Nothing is padded, nothing is
@@ -189,7 +192,7 @@ export default function NightOutRails({
   const curatedPlaces = useCuratedRows(places);
   const fallback = useMemo(() => composeNightOutRails([], curatedPlaces, center || {}), [curatedPlaces, center]);
   const [remoteResult, setRemote] = useState(null);
-  const [failed, setFailed] = useState(false);
+  const [failure, setFailure] = useState(null);
   const [retry, setRetry] = useState(0);
   const [tourResult, setTourResult] = useState(null);
   const [toursFailed, setToursFailed] = useState(false);
@@ -205,19 +208,27 @@ export default function NightOutRails({
   useEffect(() => {
     if (!key) return;
     let dead = false;
+    const controller = new AbortController();
     setRemote(null);
-    setFailed(false);
+    setFailure(null);
     const [queryLat, queryLng] = key.split("|");
     const query = new URLSearchParams({ lat: queryLat, lng: queryLng });
-    // Allow the bounded server pool plus hydration path to finish.
-    fetchJsonWithDeadline("/api/night-out?" + query.toString(), { timeoutMs: 22000, retries: 1 })
+    // Preserve the current 22s server pool and hydration deadline.
+    fetchRailJson("/api/night-out?" + query.toString(), { timeoutMs: 22000, signal: controller.signal })
       .then((value) => {
         if (dead) return;
-        if (!Array.isArray(value?.rails)) { setFailed(true); return; }
+        if (!Array.isArray(value?.rails)) {
+          setFailure(railDeveloperFailure("invalid_payload", { route: "/api/night-out" }));
+          return;
+        }
         setRemote({ key, value });
       })
-      .catch(() => { if (!dead) setFailed(true); });
-    return () => { dead = true; };
+      .catch((error) => {
+        if (dead || isRailCancelled(error)) return;
+        if (error?.kind === "developer") console.error("[NightOutRails] request contract failure", error);
+        setFailure(error);
+      });
+    return () => { dead = true; controller.abort(); };
   }, [key]);
   useEffect(() => {
     if (!key) return;
@@ -234,7 +245,7 @@ export default function NightOutRails({
     });
     // Owned cache only. `/api/experiences` reads wf_experiences and never
     // spends a provider call when this market has no matching inventory.
-    fetchJsonWithDeadline("/api/experiences?" + query.toString(), { timeoutMs: 10000 })
+    fetchPosterJson("/api/experiences?" + query.toString(), { timeoutMs: 10000 })
       .then((value) => {
         if (dead) return;
         // `reason: empty` is the cache route's healthy zero-row result for the
@@ -257,15 +268,15 @@ export default function NightOutRails({
   if (!active) return null;
   if (!key) return <p style={{ color: C.muted, fontSize: 13 }}>Choose a location to see Night Out places near you.</p>;
 
-  if (!remote && !failed && !hasContent) {
+  if (!remote && !failure && !hasContent) {
     return <RailLoading label="Building Night Out" />;
   }
 
-  if (failed && !hasContent) {
-    return <div><p style={{ color: C.muted, fontSize: 13 }}>We could not reach Wayfind&apos;s Night Out inventory. That is a service miss, not an empty town.</p><button type="button" onClick={() => setRetry((value) => value + 1)} style={{ border: "1px solid #4B5563", borderRadius: 999, background: "#111827", color: C.text, padding: "7px 12px", fontWeight: 800 }}>Try again</button></div>;
+  if (failure && !hasContent) {
+    return failure.kind === "developer" ? <RailDevError /> : <RailMascotBusy rail="night-out" failure={failure} onRetry={() => setRetry((value) => value + 1)} onVisible={() => { void emitRailDegraded(failure, { rail: "night-out" }); }} />;
   }
 
-  return <>{failed ? <p role="status" style={{ margin: "8px 0 0", fontSize: 13, color: C.muted }}>Some venue results are unavailable. Available events and tours are shown below.</p> : null}{eventSurface?.failed ? <p role="status" style={{ margin: "8px 0 0", fontSize: 13, color: C.muted }}>Wayfind could not reach current event inventory. Venue and cached tour results are still available.</p> : null}{payload.rails.map((rail) => {
+  return <>{failure ? <p role="status" style={{ margin: "8px 0 0", fontSize: 13, color: C.muted }}>Some venue results are unavailable. Available events and tours are shown below.</p> : null}{eventSurface?.failed ? <p role="status" style={{ margin: "8px 0 0", fontSize: 13, color: C.muted }}>Wayfind could not reach current event inventory. Venue and cached tour results are still available.</p> : null}<GuideRailCollection rails={payload.rails} collectionId="night-out">{payload.rails.map((rail) => {
     const eventCards = Array.isArray(eventSurface?.byRail?.[rail.id]) ? eventSurface.byRail[rail.id] : [];
     const isNightTourRail = rail.id === "night-tours";
     return <NightOutRailSection key={rail.id} rail={rail} lat={Number.isFinite(lat) ? lat : 0} lng={Number.isFinite(lng) ? lng : 0}
@@ -276,5 +287,5 @@ export default function NightOutRails({
       onRetryTours={isNightTourRail ? () => setTourRetry((value) => value + 1) : null}
       isSaved={isSaved} liked={liked} disliked={disliked} isLiked={isLiked} isDisliked={isDisliked}
       onSave={onSave} onLike={onLike} onDislike={onDislike} onShare={onShare} />;
-  })}</>;
+  })}</GuideRailCollection></>;
 }

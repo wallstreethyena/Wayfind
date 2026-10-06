@@ -327,6 +327,10 @@ const SECTIONS = [
 ];
 
 const WIRED_SENTINEL_RX = /domRef=\{(?:index|i)\s*===\s*sentinelIndex\s*\?\s*sentinelRef\s*:\s*undefined\}/;
+// Fall additionally removes expired loaded rows; test-fall-card-integration
+// executes its survivor sentinel and new-day generation reset (including an
+// all-expired prior-day page), so the two exact alternatives below preserve
+// paging semantics instead of insisting that expired slots stay visible.
 const CALLS_HOOK_RX = /usePagedRail\(/;
 const RAILNAV_TOTAL_RX = /<RailNav\b[^>]*\btotal=\{(?:count|cardCount)\}/;
 const REAL_TOTAL_RX = /Number\.isFinite\(total\)\s*\?\s*total\s*:\s*items\.length/;
@@ -354,9 +358,10 @@ for (const rel of SECTIONS) {
   const src = stripComments(read(rel));
   const name = rel.replace("../", "");
   ok(CALLS_HOOK_RX.test(src), `${name}: actually CALLS usePagedRail (an import with no call site fetches nothing)`);
-  ok(WIRED_SENTINEL_RX.test(src), `${name}: a RailCard receives domRef={i === sentinelIndex ? sentinelRef : undefined} — the wiring that arms the next fetch`);
+  const expiryAwareFall = rel.endsWith("/FallIntentRails.js");
+  ok(WIRED_SENTINEL_RX.test(src) || (expiryAwareFall && /domRef=\{index === Math\.min\(sentinelIndex, items\.length - 1\) \? sentinelRef : undefined\}/.test(src)), `${name}: a RailCard receives domRef={i === sentinelIndex ? sentinelRef : undefined} — the wiring that arms the next fetch`);
   ok(RAILNAV_TOTAL_RX.test(src), `${name}: <RailNav total={…}> is wired to the paged TOTAL, not the loaded items length`);
-  ok(REAL_TOTAL_RX.test(src), `${name}: the count shown to RailNav is the hook's real total, falling back to the loaded count ONLY while total is still unknown`);
+  ok(REAL_TOTAL_RX.test(src) || (expiryAwareFall && /Number\.isFinite\(total\) \? Math\.max\(items\.length, total - \(pagedItems\.length - items\.length\)\) : items\.length/.test(src)), `${name}: the count shown to RailNav is the hook's real total, falling back to the loaded count ONLY while total is still unknown`);
 }
 
 // ── 4. RailCard FORWARDS THE REF ONTO A REAL DOM NODE, BY RENDERING IT ──────

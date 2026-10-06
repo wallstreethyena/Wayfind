@@ -127,7 +127,8 @@ class WatchlistTests(unittest.TestCase):
         rows = AUDIT.audit_legacy_watchlist(AUDIT.ROOT)
         self.assertEqual(len(rows), 6)
         self.assertTrue(all(row["classification"] == "SOURCE_HYPOTHESIS" for row in rows))
-        self.assertTrue(all(row["sourceContractHeld"] for row in rows))
+        self.assertTrue(all(row["sourceContractHeld"] for row in rows),
+                        [(row["id"], row["failures"]) for row in rows if not row["sourceContractHeld"]])
         retired = next(row for row in rows if row["id"] == "generic-intent-feed")
         self.assertEqual(retired["sourceStatus"], "RETIRED")
 
@@ -145,6 +146,72 @@ class WatchlistTests(unittest.TestCase):
             batch = next(row for row in mutated if row["id"] == "inventory-box-batch")
             self.assertFalse(batch["sourceContractHeld"])
             self.assertEqual(batch["sourceStatus"], "CHANGED")
+
+    def test_night_out_contract_follows_the_imported_bounded_transport(self):
+        files = [
+            "app/api/night-out/route.js", "app/components/NightOutRails.js",
+            "lib/nightOutPool.js", "lib/posterJson.js", "lib/railFailure.js",
+        ]
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            sources = {}
+            for rel in files:
+                target = root / rel
+                target.parent.mkdir(parents=True, exist_ok=True)
+                sources[rel] = (AUDIT.ROOT / rel).read_text(encoding="utf8")
+                target.write_text(sources[rel], encoding="utf8")
+
+            def contract():
+                return next(row for row in AUDIT.audit_legacy_watchlist(root)
+                            if row["id"] == "generic-intent-feed")
+
+            self.assertTrue(contract()["sourceContractHeld"], contract()["failures"])
+            component = "app/components/NightOutRails.js"
+            # The import binding, not its local spelling, establishes the path.
+            renamed = sources[component].replace("fetchClassifiedPosterJson as fetchRailJson",
+                                                  "fetchClassifiedPosterJson as loadNightPoster")
+            renamed = renamed.replace('fetchRailJson("/api/night-out?"', 'loadNightPoster("/api/night-out?"')
+            self.assertNotEqual(renamed, sources[component])
+            (root / component).write_text(renamed, encoding="utf8")
+            self.assertTrue(contract()["sourceContractHeld"], contract()["failures"])
+            (root / component).write_text(sources[component], encoding="utf8")
+
+            call = 'fetchRailJson("/api/night-out?" + query.toString(), { timeoutMs: 22000, signal: controller.signal })'
+            mutations = [
+                (component, call, call.replace("/api/night-out?", "/api/other?"), "NightOutRails lacks"),
+                (component, "fetchClassifiedPosterJson as fetchRailJson",
+                 "fetchPosterJson as fetchRailJson", "NightOutRails lacks"),
+                (component, call, call.replace("timeoutMs: 22000", "timeoutMs: 0"), "NightOutRails lacks"),
+                (component, call, call.replace("signal: controller.signal", "signal: null"), "NightOutRails lacks"),
+                (component, call, call.replace("fetchRailJson(", "unboundedJson("), "NightOutRails lacks"),
+                ("lib/posterJson.js", "fetchRailJson(url, { ...networkOptions, signal: owned.controller.signal })",
+                 "fetch(url, { ...networkOptions, signal: owned.controller.signal })", "classified poster helper bypasses"),
+                ("lib/posterJson.js", 'from "./railFailure.js"',
+                 'from "./unboundedTransport.js"', "classified poster helper bypasses"),
+                ("lib/railFailure.js", "deadlinePromise,", "Promise.resolve({ response: null }),",
+                 "transport lost its settling deadline"),
+                ("lib/railFailure.js", "}, attemptBudget);", "}, 60000);",
+                 "transport lost its settling deadline"),
+            ]
+            for rel, before, after, failure in mutations:
+                with self.subTest(file=rel, mutation=after):
+                    self.assertEqual(sources[rel].count(before), 1, "mutation must hit exactly one protected source site")
+                    target = root / rel
+                    target.write_text(sources[rel].replace(before, after), encoding="utf8")
+                    try:
+                        result = contract()
+                        self.assertFalse(result["sourceContractHeld"], result["evidence"])
+                        self.assertTrue(any(failure in item for item in result["failures"]), result["failures"])
+                    finally:
+                        target.write_text(sources[rel], encoding="utf8")
+            # A reassuring request in an unrelated function cannot replace the
+            # actual component's successor call.
+            decoy = sources[component].replace(call, call.replace("fetchRailJson(", "unboundedJson("))
+            decoy += "\nfunction decoy() { return " + call + "; }\n"
+            (root / component).write_text(decoy, encoding="utf8")
+            self.assertFalse(contract()["sourceContractHeld"])
+            (root / component).write_text(sources[component], encoding="utf8")
+            self.assertTrue(contract()["sourceContractHeld"], contract()["failures"])
 
 
 if __name__ == "__main__":

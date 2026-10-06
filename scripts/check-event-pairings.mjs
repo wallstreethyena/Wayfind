@@ -219,7 +219,7 @@ ok(!/PlaceScoreChip|wayfindScore\s*\(/.test(hub), "the hub never renders a Wayfi
   await cached({ ...base, segment: "Music" });
   await cached({ ...base, category: "food", subcategory: "food-festival" });
 
-  ok(configs.length === 1 && configs[0].keyParts[0] === EVENT_PAIRINGS_CACHE_KEY && EVENT_PAIRINGS_CACHE_KEY === "event-pairings-v7", "event pairings use a fresh versioned Data Cache namespace");
+  ok(configs.length === 1 && configs[0].keyParts[0] === EVENT_PAIRINGS_CACHE_KEY && EVENT_PAIRINGS_CACHE_KEY === "event-pairings-v8", "event pairings use a fresh versioned Data Cache namespace");
   ok(configs[0].options.revalidate === EVENT_PAIRINGS_REVALIDATE_SECONDS && EVENT_PAIRINGS_REVALIDATE_SECONDS === 3600, "the pairing cache and parent ISR page share a one-hour lifetime");
   ok(!escapedBoundary, "every exhaustive pairing load executes inside the Data Cache boundary");
   ok(loads.length === 7, `identical inputs (and fields classifyEvent does not read) coalesce, while lat, lng, city, venue identity, AND classification each split the cache (got ${loads.length} loads)`);

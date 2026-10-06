@@ -1,5 +1,5 @@
 import { familyDayAnswer, validFamilyOrigin } from "../../../lib/familyDayData.js";
-import { FAMILY_DAY_RAILS } from "../../../lib/familyDayTaxonomy.js";
+import { canonicalFamilyRailId } from "../../../lib/familyDayTaxonomy.js";
 import { getFamilyDayEvents } from "../../../lib/familyDayEvents.js";
 
 export const runtime = "nodejs";
@@ -11,11 +11,11 @@ export async function GET(req) {
   const lat = Number.parseFloat(q.get("lat"));
   const lng = Number.parseFloat(q.get("lng"));
   const radiusMi = q.has("radiusMi") ? Number(q.get("radiusMi")) : 25;
-  const rail = q.get("rail");
+  const rail = canonicalFamilyRailId(q.get("rail"));
   const page = q.get("page");
   const size = q.get("size");
   const indoorOnly = q.get("indoorOnly") === "1";
-  if (!validFamilyOrigin(lat, lng) || ![10, 25, 50].includes(radiusMi) || !FAMILY_DAY_RAILS.some((r) => r.id === rail)) {
+  if (!validFamilyOrigin(lat, lng) || ![10, 25, 50].includes(radiusMi) || !rail) {
     return Response.json({ error: "Choose a Florida location, a family rail, and a supported distance." }, { status: 400, headers });
   }
   let filters = {};

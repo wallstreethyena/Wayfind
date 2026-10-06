@@ -165,7 +165,7 @@ function markerNode({ label, color, kind, selected }) {
   return el;
 }
 
-export default function MapView({ places, center, category, deviceLoc, onSelect, events, onSelectEvent, focus, fit, rings, compact = false, styleMode = "bright", onRetry, selectedId = null, onAreaChange = null, showOrigin = true }) {
+export default function MapView({ places, center, category, deviceLoc, onSelect, events, onSelectEvent, focus, fit, rings, compact = false, styleMode = "bright", onRetry, selectedId = null, onAreaChange = null, onViewportChange = null, showOrigin = true }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
@@ -174,6 +174,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
   // the live origin and callback ride refs rather than stale closures.
   const searchOriginRef = useRef(null);
   const onAreaChangeRef = useRef(null);
+  const onViewportChangeRef = useRef(null);
   const placesByIdRef = useRef(new Map());
   const [failed, setFailed] = useState(false);
 
@@ -184,6 +185,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
 
   searchOriginRef.current = deviceLoc || center || null;
   onAreaChangeRef.current = onAreaChange;
+  onViewportChangeRef.current = onViewportChange;
 
   const redraw = () => {
     const map = mapRef.current;
@@ -434,8 +436,18 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
       map.addLayer({ id: "wf-rings-line", type: "line", source: "wf-rings", filter: ["==", ["get", "kind"], "ring"], paint: { "line-color": "#FDBA74", "line-width": 1.6, "line-opacity": .82 } });
       map.addLayer({ id: "wf-rings-label", type: "symbol", source: "wf-rings", filter: ["==", ["get", "kind"], "label"], layout: { "text-field": ["get", "label"], "text-size": 12, "text-offset": [0, -.7], "text-allow-overlap": true }, paint: { "text-color": "#FFF7ED", "text-halo-color": "#111827", "text-halo-width": 2 } });
       redraw();
+      emitViewport();
     });
+    const emitViewport = () => {
+      const cb = onViewportChangeRef.current;
+      if (!cb) return;
+      try {
+        const b = map.getBounds();
+        cb({ north: b.getNorth(), south: b.getSouth(), east: b.getEast(), west: b.getWest() });
+      } catch (e) {}
+    };
     map.on("moveend", () => {
+      emitViewport();
       const cb = onAreaChangeRef.current;
       if (!cb) return;
       try {

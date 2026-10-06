@@ -32,6 +32,7 @@
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import ts from "typescript";
 import { addressLine, directionsUrl, appleDirectionsUrl, canNavigate } from "../lib/placeWhere.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -125,14 +126,72 @@ const PAGES = [
   "app/florida-events/[slug]/page.js",
   "app/events/[city]/[slug]/page.js",
 ];
+
+// A source-credit link answers who supplied a photo, not how to drive there.
+// Keep that visible Google attribution while rejecting map searches anywhere
+// else. Parse JSX so a nested expression cannot make a broad regex swallow
+// neighbouring navigation. Only the canonical PhotoCreditLink component with
+// its exact visible source label and row-bound place id qualifies.
+function withoutGooglePhotoCredits(src, rel) {
+  const file = ts.createSourceFile(rel, src, ts.ScriptTarget.Latest, true, ts.ScriptKind.JSX);
+  const canonicalCredit = file.statements.some((node) => ts.isImportDeclaration(node)
+    && node.importClause?.name?.text === "PhotoCreditLink"
+    && ts.isStringLiteral(node.moduleSpecifier)
+    && join(ROOT, dirname(rel), node.moduleSpecifier.text.replace(/\.js$/, "") + ".js") === join(ROOT, "app/components/PhotoCreditLink.js"));
+  const ranges = [];
+  const visit = (node) => {
+    if (canonicalCredit && ts.isJsxElement(node) && node.openingElement.tagName.getText(file) === "PhotoCreditLink") {
+      const href = node.openingElement.attributes.properties.find((attr) => ts.isJsxAttribute(attr) && attr.name.text === "href");
+      const value = href?.initializer?.getText(file) || "";
+      const label = node.children.every(ts.isJsxText) ? node.children.map((child) => child.text).join("").trim() : "";
+      if (label === "Google Maps" && /maps\/search\/\?api=1&query=/.test(value)
+        && /query_place_id=/.test(value) && /encodeURIComponent\(e\.place_id\)/.test(value)) {
+        ranges.push([node.getStart(file), node.end]);
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(file);
+  let navigationSource = src;
+  for (const [start, end] of ranges.sort((a, b) => b[0] - a[0])) {
+    navigationSource = navigationSource.slice(0, start) + navigationSource.slice(end);
+  }
+  return navigationSource;
+}
+function usesCanonicalDirections(src) {
+  const binding = src.match(/const (\w+) = appleDirectionsUrl\(e\);/);
+  return !!binding && new RegExp(`<EventWhere\\b[^>]*directionsHref=\\{${binding[1]}\\}`).test(src)
+    && !/[^a-zA-Z]directionsUrl\(/.test(src);
+}
 for (const rel of PAGES) {
   const src = stripComments(readFileSync(join(ROOT, rel), "utf8"));
-  ok(/appleDirectionsUrl\(/.test(src) && !/[^a-zA-Z]directionsUrl\(/.test(src),
-    `${rel} builds its map link by CALLING appleDirectionsUrl — the one Apple rule, never the Google ladder (weaker check, source: these are async server components that node cannot import)`);
-  ok(!/maps\/search/.test(src),
-    `${rel} no longer hand-builds a /maps/search URL — that endpoint ignores the address and coordinates on the very row it is describing`);
+  ok(usesCanonicalDirections(src),
+    `${rel} passes the row's appleDirectionsUrl result to EventWhere, never the Google ladder (weaker check, source)`);
+  ok(!/maps\/search/.test(withoutGooglePhotoCredits(src, rel)),
+    `${rel} has no hand-built map-search navigation; a visible, row-bound Google photo source credit is attribution only (weaker check, source)`);
   ok(/addressLine\(/.test(src),
     `${rel} states the street through addressLine, so the page and the JSON-LD cannot disagree about where something is`);
+}
+
+// Positive control and mutation controls use the real curated detail source.
+// Removing credits wholesale or allowing every Maps link cannot pass these.
+{
+  const rel = PAGES[0];
+  const src = stripComments(readFileSync(join(ROOT, rel), "utf8"));
+  ok(/maps\/search/.test(src) && !/maps\/search/.test(withoutGooglePhotoCredits(src, rel)),
+    "positive control: the existing visible Google Maps photo credit is accepted separately from directions");
+  for (const [label, from, to] of [
+    ["a map search assigned to directions", "const dirs = appleDirectionsUrl(e);", 'const dirs = "https://www.google.com/maps/search/?api=1&query=Sarasota";'],
+    ["a navigation label disguised as a source credit", ">Google Maps</PhotoCreditLink>", ">Directions</PhotoCreditLink>"],
+    ["an unbound Google photo credit", "encodeURIComponent(e.place_id)", "encodeURIComponent(e.neighbour_place_id)"],
+    ["a noncanonical component claiming to be a credit", 'from "../../components/PhotoCreditLink"', 'from "../../components/OtherLink"'],
+  ]) {
+    const mutated = src.replace(from, to);
+    ok(mutated !== src && /maps\/search/.test(withoutGooglePhotoCredits(mutated, rel)), `RED PROOF: rejects ${label}`);
+  }
+  const brokenBinding = src.replace("directionsHref={dirs}", 'directionsHref={"https://maps.apple.com/?daddr=Sarasota"}');
+  ok(brokenBinding !== src && !usesCanonicalDirections(brokenBinding),
+    "RED PROOF: an unused canonical directions calculation cannot excuse a hand-built EventWhere destination");
 }
 
 // ── 3. NO CONTENT PAGE IS A DEAD END (weaker check, source) ─────────────────

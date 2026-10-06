@@ -1,4 +1,5 @@
 "use client";
+import GuideRailCollection from "./GuideRailCollection";
 
 import { useMemo } from "react";
 import RailCard, { RailDots, RailNav } from "./RailCard";
@@ -22,7 +23,8 @@ export default function BreakfastRails({ places = [], city = "", hasMore = false
   const rails = useMemo(() => visibleRails(splitBreakfastRails(curated), "places"), [curated]);
   return (
     <>
-      {rails.map((rail) => (
+      <GuideRailCollection rails={rails} collectionId="breakfast">
+    {rails.map((rail) => (
         <section key={rail.id} aria-label={rail.title} style={{ marginTop: 22 }}>
           <RailHeading title={rail.title} description={rail.deck}>
             <RailNav railId={rail.id} count={rail.places.length} unit={rail.places.length === 1 ? "ranked place" : "ranked places"} />
@@ -71,6 +73,7 @@ export default function BreakfastRails({ places = [], city = "", hasMore = false
           </>
         </section>
       ))}
+    </GuideRailCollection>
       {hasMore ? <button type="button" className="wf8-thinbtn" disabled={loadingMore} onClick={() => onLoadMore?.()}>
         {loadingMore ? "Loading more places…" : "Show more ranked places"}
       </button> : null}

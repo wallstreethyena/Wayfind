@@ -7,7 +7,7 @@
 // /guides/sarasota-restaurants showed a tiny left-aligned PORTRAIT thumbnail
 // next to "www.gowayfind.com" — og:image pointed straight at the reviewed
 // guide asset (a raw 1067x1600 webp), with no card, no crop and no brand
-// around it. See docs/proposals/claude-sonnet-hero-photo-standard.md (proposed rule 9).
+// around it. See docs/share-card-standard.md rule 9.
 //
 // NODE RUNTIME, NOT EDGE — the only OG route that needs to be. Every other
 // /api/og/* route runs on the edge because Satori + fonts is all they need;
@@ -169,7 +169,7 @@ export async function GET(req) {
 
     if (!heroDataUri) {
       const res = await shareCardResponse(
-        heroFallbackModel({ kind, title, cat, loc, r, rev, n, sc, mi, hook: hk, tone }),
+        heroFallbackModel({ kind, title, cat, loc, r, rev, n, sc, mi, hook: hk, tone,purpose:["group","group_final"].includes(url.searchParams.get("purpose"))?url.searchParams.get("purpose"):null }),
         { cache, fontBuffers },
       );
       return await toJpegResponse(res);
@@ -178,7 +178,7 @@ export async function GET(req) {
     // the rating row and the "SEE THE SPOT" pill on kind === "place" itself,
     // so a stray r/rev on a guide or event card still renders nothing extra.
     const model = heroCardModel({
-      kind, title, cat, loc, n, r, rev, hero: heroDataUri,
+      kind, title, cat, loc, n, r, rev, hero: heroDataUri,purpose:["group","group_final"].includes(url.searchParams.get("purpose"))?url.searchParams.get("purpose"):null,
       position: source.position, alt: source.alt || title,
     });
     const res = await shareCardResponse(model, { cache, fontBuffers });

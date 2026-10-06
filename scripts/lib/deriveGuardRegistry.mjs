@@ -22,19 +22,23 @@
 // So the derivation moved HERE, and both sides now call it:
 //
 //   build-guard-registry.mjs  -> deriveGuardRegistry(root) -> writes JSON
-//   check-guard-registry.mjs  -> deriveGuardRegistry(root) -> compares JSON
+//   check-guard-registry.mjs  -> deriveGuardRegistry(root) -> compares it to
+//                                scripts/lib/guard-expectations.tsv
 //
-// One function, two callers, no second implementation to drift. A stale
-// snapshot is now a merge-blocking failure that names the exact field.
+// One function, two callers, no second implementation to drift.
+//
+// 2026-10-01: the JSON is no longer committed. Its aggregate `counts` block
+// and `generated` stamp made nearly every guard-adding PR conflict with every
+// other. The reviewed, committed expectation is now the one-line-per-guard
+// scripts/lib/guard-expectations.tsv (see scripts/lib/guardExpectations.mjs).
 //
 // DETERMINISM IS THE LOAD-BEARING PROPERTY. Everything this function returns
 // is a pure function of the repo contents: the guard files on disk,
 // scripts/guards.txt, package.json, the workflow YAML, check-guard-manifest's
 // EXCLUDED block, and scripts/lib/guard-registry-overrides.json. It reads no
-// environment, no clock, no network. The ONE nondeterministic field in the
-// published registry — `generated`, a date stamp — is deliberately NOT
-// produced here; the generator adds it on write and the comparison ignores
-// it, so a registry regenerated on a different day is not reported as drift.
+// environment, no clock, no network. (The old `generated` date stamp is gone:
+// the JSON is a gitignored artifact now, and the stamp was the only thing
+// that made two runs on the same tree differ.)
 //
 // The hand-authored fields (protects / blastRadius / owner) are still
 // hand-authored, but they are hand-authored IN A CHECKED-IN FILE
@@ -119,21 +123,17 @@ function classifyGating({ inGuardsTxt, npmScripts, workflows }) {
 }
 
 export const SCHEMA_NOTES =
-  "Mechanically-derived fields (class/assertionCount/wiring/gating/critical/criticalReasons) are regenerated every run from " +
-  "scripts/guards.txt, package.json, .github/workflows/*.yml, ops/*.workflow.yml and scripts/lib/guardHonestyAnalysis.mjs — " +
-  "editing them by hand will be overwritten on the next `node scripts/lib/build-guard-registry.mjs`. Hand-authored fields " +
-  "(protects/blastRadius/owner) live in scripts/lib/guard-registry-overrides.json and are merged in; they are REQUIRED for " +
-  "every entry with critical:true and optional elsewhere. scripts/check-guard-registry.mjs (the CI guard) re-derives guards.txt " +
-  "wiring LIVE rather than trusting this file's cached `wiring.guardsTxt` — and since 2026-09-07 it also re-derives EVERY " +
-  "mechanically-derived field via scripts/lib/deriveGuardRegistry.mjs and fails when the committed snapshot disagrees, so a " +
-  "stale registry can no longer be merged unnoticed.";
+  "GENERATED ARTIFACT — not committed (gitignored since 2026-10-01). Every field is a pure function of the repo, derived by " +
+  "scripts/lib/deriveGuardRegistry.mjs from the guard files, scripts/guards.txt, package.json, .github/workflows/*.yml, " +
+  "ops/*.workflow.yml, scripts/check-guard-manifest.mjs's EXCLUDED block and scripts/lib/guard-registry-overrides.json " +
+  "(hand-authored protects/blastRadius/owner, REQUIRED for every critical:true entry). The REVIEWED expectation is " +
+  "scripts/lib/guard-expectations.tsv (one line per guard: critical/class/gating/guards_txt/owner/assertion and honesty " +
+  "ratchets plus complete-entry SHA-256 parity); scripts/check-guard-registry.mjs compares this derivation against that committed file and fails on any " +
+  "unrecorded change. Regenerate with `node scripts/lib/build-guard-registry.mjs`.";
 
 /**
  * The single canonical derivation. Pure with respect to the repo: reads only
  * checked-in files, never the environment or the clock.
- *
- * Deliberately does NOT set `generated` — that is the one nondeterministic
- * field, added by the generator on write and skipped by diffRegistry.
  *
  * @param {string} root absolute repo root
  * @returns {{doc: object, missingOverrides: string[], incompleteCritical: {id:string, missing:string[]}[]}}
@@ -202,6 +202,10 @@ export function deriveGuardRegistry(root) {
   // check:jsx`. Documented for completeness but deliberately outside the
   // file-based enumeration, so it can never be reported as an on-disk guard
   // missing a registry entry.
+  // Unlike the old cached wrapper entry, this flag is derived from the real
+  // manifest so removing the npm guard cannot be hidden by hardcoded wiring.
+  const checkJsxInGuardsTxt = readFileSync(path.join(root, "scripts/guards.txt"), "utf8")
+    .split(/\r?\n/).some((line) => line.trim() === "npm run check:jsx");
   entries.push({
     file: null,
     npmScript: "check:jsx",
@@ -211,8 +215,8 @@ export function deriveGuardRegistry(root) {
     unprovenAbsenceCount: null,
     honestyViolations: [],
     selfDocumentsRedProve: false,
-    wiring: { guardsTxt: true, npmScripts: ["check:jsx"], githubWorkflows: [] },
-    gating: "blocks-ci-and-deploy",
+    wiring: { guardsTxt: checkJsxInGuardsTxt, npmScripts: ["check:jsx"], githubWorkflows: [] },
+    gating: checkJsxInGuardsTxt ? "blocks-ci-and-deploy" : "manual-npm-script-only",
     excludedReason: null,
     critical: false,
     criticalReasons: [],
@@ -262,79 +266,16 @@ export function deriveGuardRegistry(root) {
 }
 
 /**
- * Fields in the published registry that are NOT a function of repo contents.
- * The comparison skips these, so regenerating on a different day is not drift.
- * Keep this list as small as it possibly can be: every name here is a field
- * the parity check cannot protect.
- */
-export const NONDETERMINISTIC_TOP_LEVEL_FIELDS = Object.freeze(["generated"]);
-
-function entryId(e) {
-  return e && e.file != null ? e.file : `npm:${e && e.npmScript}`;
-}
-
-function isPlainObject(v) {
-  return v !== null && typeof v === "object" && !Array.isArray(v);
-}
-
-function deepDiff(committed, derived, prefix, out, limit) {
-  if (out.length >= limit) return;
-  if (Array.isArray(committed) && Array.isArray(derived)) {
-    if (committed.length !== derived.length) {
-      out.push({ path: `${prefix}.length`, committed: committed.length, derived: derived.length });
-      // Still walk the overlap so the reader sees WHICH element changed, not
-      // just that the count moved.
-    }
-    const n = Math.min(committed.length, derived.length);
-    for (let i = 0; i < n; i++) deepDiff(committed[i], derived[i], `${prefix}[${i}]`, out, limit);
-    return;
-  }
-  if (isPlainObject(committed) && isPlainObject(derived)) {
-    const keys = [...new Set([...Object.keys(committed), ...Object.keys(derived)])].sort();
-    for (const k of keys) {
-      if (!(k in committed)) { out.push({ path: `${prefix}.${k}`, committed: "<absent>", derived: derived[k] }); continue; }
-      if (!(k in derived)) { out.push({ path: `${prefix}.${k}`, committed: committed[k], derived: "<absent>" }); continue; }
-      deepDiff(committed[k], derived[k], `${prefix}.${k}`, out, limit);
-      if (out.length >= limit) return;
-    }
-    return;
-  }
-  if (committed !== derived) out.push({ path: prefix, committed, derived });
-}
-
-/**
- * Compare a committed registry document against a freshly derived one.
+ * The ONE serialization of a registry document. The generator writes exactly
+ * these bytes and scripts/check-guard-registry.mjs compares the generator's
+ * output against them, so "the generator ran and produced the derivation" is
+ * a byte-level fact, not a semantic approximation.
  *
- * Entries are matched by IDENTITY (file path, or "npm:<script>"), never by
- * array position, so a guard added in the middle of the alphabet reports as
- * one added entry rather than as several hundred shifted ones.
- *
- * @returns {{path:string, committed:any, derived:any}[]} empty when in sync
+ * Since 2026-10-01 the document carries no `generated` date stamp: the JSON is
+ * no longer committed (it is a build/CI artifact, gitignored), so a clock read
+ * bought nothing and was the one thing that made two runs differ. Output is a
+ * pure function of the repo — two runs on the same tree are byte-identical.
  */
-export function diffRegistry(committed, derived, limit = 40) {
-  const out = [];
-  const skip = new Set([...NONDETERMINISTIC_TOP_LEVEL_FIELDS, "entries"]);
-
-  const topKeys = [...new Set([...Object.keys(committed || {}), ...Object.keys(derived || {})])]
-    .filter((k) => !skip.has(k))
-    .sort();
-  for (const k of topKeys) {
-    if (out.length >= limit) return out;
-    if (!(k in (committed || {}))) { out.push({ path: k, committed: "<absent>", derived: derived[k] }); continue; }
-    if (!(k in (derived || {}))) { out.push({ path: k, committed: committed[k], derived: "<absent>" }); continue; }
-    deepDiff(committed[k], derived[k], k, out, limit);
-  }
-
-  const cEntries = Array.isArray(committed?.entries) ? committed.entries : [];
-  const dEntries = Array.isArray(derived?.entries) ? derived.entries : [];
-  const cById = new Map(cEntries.map((e) => [entryId(e), e]));
-  const dById = new Map(dEntries.map((e) => [entryId(e), e]));
-  const ids = [...new Set([...cById.keys(), ...dById.keys()])].sort();
-  for (const id of ids) {
-    if (out.length >= limit) return out;
-    if (!cById.has(id)) { out.push({ path: `entries[${id}]`, committed: "<absent>", derived: "<present>" }); continue; }
-    if (!dById.has(id)) { out.push({ path: `entries[${id}]`, committed: "<present>", derived: "<absent>" }); continue; }
-    deepDiff(cById.get(id), dById.get(id), `entries[${id}]`, out, limit);
-  }
-  return out;
+export function serializeRegistry(doc) {
+  return JSON.stringify(doc, null, 2) + "\n";
 }

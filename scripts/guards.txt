@@ -47,6 +47,7 @@ npm run check:photos
 node scripts/check-landing-photos.mjs
 node scripts/test-landing-card-photo.mjs
 node scripts/test-landing-why-fits.mjs
+node scripts/test-landing-card-cue.mjs
 node scripts/test-score-band.mjs
 node scripts/test-business-status.mjs
 node scripts/test-closed-policy.mjs
@@ -55,6 +56,9 @@ npm run check:events
 node scripts/check-business-events.mjs
 node scripts/check-guides.mjs
 node scripts/check-guide-standard.mjs
+# 2026-09-23 (owner): guides that already happened move to /guides/past via
+# endsOn (lib/guideLifecycle.js); never deleted, never promoted as current.
+node scripts/check-guide-lifecycle.mjs
 node scripts/test-affiliates.mjs
 node scripts/check-legal.mjs
 node scripts/check-favorites-auth.mjs
@@ -170,6 +174,9 @@ node scripts/test-owner-places-2026-08-29c.mjs
 node scripts/test-owner-places-2026-08-29d.mjs
 node scripts/test-owner-places-2026-08-29e.mjs
 node scripts/test-command-center.mjs
+# Command Center partner-click predicate + #1603 exclude_devices: the migration
+# must stay byte-identical to command-center.sql (2026-10-02).
+node scripts/test-cc-partner-click-predicate.mjs
 node scripts/test-command-center-feedback.mjs
 # Stale-on-error cache keeps the shape it serves (arrays stay arrays).
 node scripts/test-cc-stale-cache-shape.mjs
@@ -1028,7 +1035,7 @@ node scripts/check-breakfast-identity.mjs
 # secondary `diner` on a pizzeria put Pizza Haven - NY Style on "Best Breakfast
 # Picks near Parrish" (owner screenshot). Every row asserted here is a real
 # wf_inventory row, so a future rewrite is measured against the data.
-node scripts/check-breakfast-identity.mjs
+# ^ node scripts/check-breakfast-identity.mjs is registered once, earlier in this file (duplicate line removed 2026-10-04; check-guard-registry rejects duplicates).
 # 2026-08-22 — RETRIEVAL FOLLOWS THE READER (lib/nearbyPool.js). The owner,
 # standing in Sarasota, got the same list the app serves from Parrish eighteen
 # miles away: every rail's candidates came from a Google "best X" search around
@@ -1335,7 +1342,7 @@ node scripts/check-social-extract-cannot-invent.mjs
 # identity must be current; literal or LLM-extracted names remain candidates;
 # trend reports count only qualified observations; rights default closed; and
 # neither enrichment route can write an event or publish a card.
-node scripts/check-social-qualification.mjs
+# ^ node scripts/check-social-qualification.mjs is registered once, earlier in this file (duplicate line removed 2026-10-04; check-guard-registry rejects duplicates).
 node scripts/check-social-intelligence.mjs
 node scripts/check-social-provider-registry.mjs
 # 2026-09-04 A BOOK BUTTON NEEDS SOMEBODY SELLING ENTRY. Measured on
@@ -1353,6 +1360,7 @@ node scripts/check-book-cta-needs-a-seller.mjs
 node scripts/check-rail-deck-copy.mjs
 
 node scripts/test-poster-recovery.mjs
+node scripts/test-rail-failure.mjs
 # 2026-09-04 WO-D-atlas-cache-batch: prompt caching must be REAL, not
 # decorative — a cache_control block below the active model's documented
 # minimum is legal JSON that silently does nothing. Table-driven minimum
@@ -1587,7 +1595,7 @@ node scripts/test-client-paid-boundary.mjs
 
 # Supported city submission resolves against owned coordinates after the
 # browser geocoder was removed; unknown text fails soft without provider spend.
-node scripts/test-known-city-geocode.mjs
+# ^ node scripts/test-known-city-geocode.mjs is registered once, earlier in this file (duplicate line removed 2026-10-04; check-guard-registry rejects duplicates).
 
 # Non-Google provider credentials are also finite budgets: each actual Viator,
 # Foursquare, Tripadvisor, YouTube, or Pexels request needs an atomic grant.
@@ -1763,6 +1771,11 @@ node scripts/test-beach-local-conditions.mjs
 
 # Reviewed source-backed prose fills only verified empty editorial slots.
 node scripts/test-owned-editorial-review.mjs
+# Owner rules 2026-09-29 (owner path only): best_time/local_tip optional,
+# guarded replacement of a never-verified all-blank wf_editorial placeholder with
+# its prior state audited, occupied inventory summary needs an explicit owner
+# disposition, and local_press is descriptive-only (press-operational-claim).
+node scripts/test-owned-editorial-rules.mjs
 node scripts/check-guide-editorial.mjs
 
 # Every guide and blog article renders through ONE premium editorial standard
@@ -1790,6 +1803,11 @@ node scripts/check-guide-seo-audit.mjs
 # `published` fields and app/guides/[slug]/page.js's datePublished fallback.
 node scripts/check-guide-published.mjs
 
+node scripts/test-poster-cache-timing.mjs
+node scripts/test-poster-json.mjs
+node scripts/test-poster-performance.mjs
+# Consolidation: node scripts/test-poster-pool-parallel.mjs is already registered above (one execution retained).
+node scripts/test-fall-cache-completeness.mjs
 node scripts/test-travelpayouts-attribution.mjs
 
 node scripts/test-travelpayouts-provisioning.mjs
@@ -1906,6 +1924,13 @@ node scripts/test-live-poster-art.mjs
 # published.json names only verified rows. Hermetic.
 node scripts/check-florida-festivals-import.mjs
 
+# Local media calendar import (2026-10-02, docs/LOCAL_CALENDARS_IMPORT.md):
+# leads keep facts only (no copy, images, emails, phones); rows never cite the
+# lead calendar or a reseller; the city-calendar same-event rule keeps real
+# duplicates and refuses town-name / season-word false matches; every verified
+# batch answers every queued series; published.json names only verified rows.
+node scripts/check-local-calendars-import.mjs
+
 # Shared category teardrops: real legend render and browser sprite geometry.
 node scripts/test-map-pin-standard.mjs
 
@@ -1979,6 +2004,10 @@ node scripts/test-photo-credit-new-tab.mjs
 # A guide never shows a Google photo without Google's required visible credit;
 # licensed photos (with credit) or none instead (owner, 2026-09-30).
 node scripts/test-google-photo-attribution.mjs
+# Expired credits are deleted hourly by SQL (no Google call); the purge can
+# only reach rows expired over an hour ago and undoes any batch that would
+# lower the live count (2026-09-30).
+node scripts/test-photo-credit-purge.mjs
 node scripts/test-jev-mcp.mjs
 
 node scripts/test-guide-editorial-photos.mjs
@@ -2023,3 +2052,54 @@ node scripts/test-family-evidence-expiry.mjs
 # first four UTC hours of every month it reported LAST month's exhausted photo budget
 # while grants landed on the new row. Every ledger reader keys months in UTC.
 node scripts/test-ledger-month.mjs
+
+# 2026-09-28 — place-photo contributions stay pending/private and cannot mutate Google photo identity.
+node scripts/check-place-photo-contributions.mjs
+
+# Scheduled seasonal research must leave an honest, complete report.
+node scripts/test-fall-discovery-report.mjs
+# Bounded beach SSR reads and event error/cover hydration recovery.
+node scripts/test-beach-build-deadline.mjs
+node scripts/test-event-recovery.mjs
+
+# Lane lock ownership cannot be bypassed by a git display name.
+node scripts/test-lane-lock-ownership.mjs
+# Relevant visual guide discovery
+node scripts/test-guide-discovery.mjs
+# Score receipts and independently gated source verdicts (PR #1145 current-main adaptation)
+node scripts/test-score-explanation.mjs
+node scripts/test-score-explanation-runtime.mjs
+# Current-main backend residual runtime controls (#1285/#1272).
+node scripts/test-google-details-accounting.mjs
+node scripts/test-viator-provider-state.mjs
+
+# Complete owned Apple viewport map and current-standard Family Day expansion.
+node scripts/test-apple-explorer-map.mjs
+node scripts/test-map-area-data.mjs
+node scripts/test-family-day-presentation.mjs
+node scripts/test-map-family-layout.mjs
+
+# Classified recovery and healthy poster reuse compose at the real call boundary.
+node scripts/test-classified-poster-json.mjs
+
+node scripts/test-fall-visit-facts.mjs
+node scripts/test-place-recommendation-order.mjs
+node scripts/test-fall-card-integration.mjs
+# Unified share intent, gated group action and text-first transport runtime/negative controls.
+node scripts/test-unified-share-flow.mjs
+
+node scripts/test-group-plan.mjs
+
+node scripts/test-group-plan-time.mjs
+
+node scripts/test-group-plan-service.mjs
+
+node scripts/test-group-plan-candidates.mjs
+
+node scripts/test-group-plan-ui.mjs
+
+node scripts/test-group-plan-schema.mjs
+
+node scripts/test-group-plan-notifications.mjs
+
+node scripts/test-place-share-metadata.mjs

@@ -77,7 +77,7 @@ const failingMapView = () => {
 
 const mapCtx = {
   searchMapArea: noop, mapMode: "places", setMapMode: noop, mapBrowse: true, setMapBrowse: noop,
-  mapPool: [], mapListOverride: null, map3D: false, setMap3D: noop, mapRetryKey: 0, setMapRetryKey: noop,
+  mapPool: [], mapListOverride: null, map3D: true, setMap3D: noop, mapRetryKey: 0, setMapRetryKey: noop,
   cat: "shopping", setCat: noop, sub: "all", setSub: noop, setVibe: noop, sortBy: "fit",
   center: { lat: 27.95, lng: -82.46 }, deviceLoc: null, mapFocus: null, setMapFocus: noop, setMapSearchOpen: noop,
   events: [], eventsLoading: false, eventsUnavailable: false, mapDate: "all", setMapDate: noop,

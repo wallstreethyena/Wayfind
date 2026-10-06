@@ -12,7 +12,10 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { eventVenueImageSrc } from '../lib/eventPageImage.js';
 import { FALL_EVENT_IMAGE_HOLDS } from '../lib/fallEventImage.js';
 import { FALL_DISCOVERIES_2026 } from '../lib/fallDiscoveries2026.js';
+import { orderPlaceRecommendations } from '../lib/placeRecommendationOrder.js';
+import * as eventVisitFacts from '../lib/eventVisitFacts.js';
 let event, curated, photographs, social = [];
+let mapPicks, nearbyPicks;
 const reviewDir = process.argv.includes("--write-review") ? "public/design" : null;
 const leaf = () => null;
 const modules = new Map();
@@ -48,6 +51,8 @@ function page(file) {
  };
  const require=(spec)=>{
   if(spec==='react')return React;
+  if(spec.includes('eventVisitFacts'))return eventVisitFacts;
+  if(spec.includes('placeRecommendationOrder'))return {orderPlaceRecommendations};
   if(spec.includes('CreatorPlaybackDetails'))return {default:p=>React.createElement(React.Fragment,null,p.children,React.createElement('button',null,'Details'),React.createElement('div',null,p.details)),usePlaybackDetails:()=>null};
   if(spec.includes('CreatorVideoRail'))return {default:page('app/components/CreatorVideoRail.js')};
   if(spec.includes('VideoFacade'))return {default:page('app/components/VideoFacade.js')};
@@ -58,7 +63,9 @@ function page(file) {
   if(spec.includes('SaveEventButton'))return {default:page('app/florida-events/[slug]/SaveEventButton.js')};
   if(spec.includes('ShareButton'))return {default:page('app/components/ShareButton.js')};
   if(spec.includes('EventPlacePhoto'))return {default:page('app/components/EventPlacePhoto.js')};
-  if(spec.includes('EventVenueMapLoader'))return {default:()=>React.createElement('div',{style:{height:420,display:'grid',placeItems:'center',background:'#17202b'}},'Map area · layout fixture')};
+  if(spec.includes('EventVenueMapLoader'))return {default:p=>{mapPicks=p.picks;return React.createElement('div',{style:{height:420,display:'grid',placeItems:'center',background:'#17202b'}},'Map area · layout fixture');}};
+  if(spec.includes('EventNearbyCards'))return {default:p=>{nearbyPicks=p.places;return null;}};
+  if(spec.includes('EventMapPlaces'))return {default:page('app/components/EventMapPlaces.js')};
   if(spec.includes('TicketButton'))return {default:p=>React.createElement('a',{'data-ticket':p.provider,href:p.url},p.label)};
   if(spec.includes('EventWhere'))return {default:page('app/components/EventWhere.js')};
   if(spec.includes('EventRouteJump'))return {default:p=>React.createElement('a',{className:'wfw-btn wfw-dir',href:'#event-route'},p.children)};
@@ -87,6 +94,26 @@ function assertShellOrder(html,label){
 }
 function photoCount(html){return (html.match(/class="wf-event-photo(?: [^"]+)?"/g)||[]).length;}
 let checks=0;
+// EventWhere's admission and displayed-score order are real, not a null leaf.
+// The provider/map leaves record the ONE array sent to both card and pin views.
+const where=page('app/components/EventWhere.js');
+const nearbyFixture=[
+ {id:'lower',name:'Lower score',href:'/p/lower',lat:27.31,lng:-82.51,distMi:1,wfScore:80},
+ {id:'invalid',name:'No exact point',href:'/p/invalid',lat:null,lng:-82.51,distMi:1,wfScore:100},
+ {id:'higher',name:'Higher score',href:'/p/higher',lat:27.32,lng:-82.52,distMi:2,wfScore:98},
+ {id:'no-route',name:'No detail route',lat:27.33,lng:-82.53,distMi:1,wfScore:99},
+];
+const whereProps={venue:'Fixture Hall',address:'123 Test St',lat:27.3,lng:-82.5,picks:nearbyFixture};
+renderToStaticMarkup(React.createElement(where,whereProps));
+assert.deepEqual(mapPicks.map(p=>p.id),['higher','lower'],'EventWhere admits valid rows in displayed-score order');
+assert.equal(nearbyPicks,mapPicks,'map pins and nearby cards receive the same ordered array');
+assert.deepEqual(nearbyFixture.map(p=>p.id),['lower','invalid','higher','no-route'],'recommendation rendering does not mutate provider selection');
+mapPicks=nearbyPicks=undefined;
+const noPoint=renderToStaticMarkup(React.createElement(where,{...whereProps,lat:null}));
+assert.equal(mapPicks,undefined,'missing venue coordinates cannot claim map pins');
+assert.equal(nearbyPicks,undefined,'missing venue coordinates cannot claim nearby cards');
+assert.doesNotMatch(noPoint,/id="event-nearby"|aria-label="Map key"/,'unlocated venue has no map or nearby shell');
+checks+=6;
 for(const cancelled of [false,true])for(const hasPhoto of [false,true]){
  event={...fixture,status:cancelled?'cancelled':'scheduled',image:hasPhoto?fixture.image:null};
  const html=renderToStaticMarkup(await live({params:{city:'sarasota',slug:'fixture'}}));
@@ -100,7 +127,7 @@ for(const cancelled of [false,true])for(const hasPhoto of [false,true]){
  checks+=5;assertShellOrder(html,`live ${cancelled?'cancelled':'scheduled'} ${hasPhoto?'photo':'fallback'}`);
 }
 for(const free of [false,true])for(const hasPhoto of [false,true]){
- curated={event_id:'fixture',event_name:'Fixture local event with a deliberately long title',year:2026,city:'Sarasota',state:'FL',venue:'Fixture Hall',is_free:free,price_band:'$25',lat:27.3,lng:-82.5,card_hook:longReason,why_go:longReason,wayfind_verdict:longVerdict,hero_image:hasPhoto?'/row-photo.jpg':null,image_alt:'Venue exterior'};
+ curated={event_id:'fixture',event_name:'Fixture local event with a deliberately long title',year:2026,city:'Sarasota',state:'FL',venue:'Fixture Hall',is_free:free,price_band:'$25',visit_restrictions:['Timed entry required'],lat:27.3,lng:-82.5,card_hook:longReason,why_go:longReason,wayfind_verdict:longVerdict,hero_image:hasPhoto?'/row-photo.jpg':null,image_alt:'Venue exterior'};
  photographs=hasPhoto?{hero:{src:'/owned-photo.jpg',alt:'Owned event photo',w:1200,h:630},photos:[{src:'/owned-photo.jpg',alt:'Duplicate hero',w:1200,h:630},{src:'/portrait-one.jpg',alt:'Portrait one',w:853,h:1280},{src:'/portrait-two.jpg',alt:'Portrait two',w:853,h:1280}],credit:'Fixture photographer'}:null;
  const html=renderToStaticMarkup(await local({params:{slug:'fixture'}}));
  assert.match(html,/class="wf-event-booking"/);assert.match(html,/Fixture local event/);assert.match(html,/123 Test St/);
@@ -112,7 +139,8 @@ for(const free of [false,true])for(const hasPhoto of [false,true]){
  assert.ok(!html.includes('$59'));checks+=6;
  assert.match(html,/Worth traveling for/);assert.match(html,/A specific reason to go/);
  assert.match(html,/>Save</);assert.match(html,/>Share</);
- checks+=7;assertShellOrder(html,`curated ${free?'free':'paid'} ${hasPhoto?'owned':'fallback'}`);
+ assert.match(html,/Timed entry required/,'the real visit-facts helper preserves the provider entry restriction');
+ checks+=8;assertShellOrder(html,`curated ${free?'free':'paid'} ${hasPhoto?'owned':'fallback'}`);
  if(reviewDir && !free && hasPhoto){
   fs.mkdirSync(reviewDir,{recursive:true});
   const document='<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Event layout fixture</title></head><body style="margin:0;background:#080b10">'+html.replaceAll('/owned-photo.jpg','/brand/orlando-roller-coaster-portrait.jpg').replaceAll(/src="\/api\/photo[^"]*"/g,'src="/fixture-intentionally-missing.jpg"')+'</body></html>';

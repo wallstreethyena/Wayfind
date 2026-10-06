@@ -119,6 +119,8 @@ ok(/mergeHealedPlacePhotos\s*\(/.test(home),
   "openDetail merges healed photos onto the already-open sheet");
 ok(/setDetail\(\s*p\s*\)/.test(home),
   "openDetail still setDetail(p) immediately so the sheet opens fast");
+ok(/setDetail\(\s*p\s*\)\s*;[\s\S]{0,120}setDetail\(\s*attachOfficialScoreReceipt/.test(home),
+  "receipt attach is a same-turn follow-up after setDetail(p), not a replacement of the first paint");
 
 // List PlaceCard monogram is out of this cut — pin the existing branch so this
 // PR cannot silently redesign it.

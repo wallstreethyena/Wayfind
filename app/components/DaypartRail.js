@@ -31,8 +31,11 @@
 // rail must lead with tonight, not the afternoon. scripts/check-one-clock.mjs
 // enforces this; scripts/test-dayparts.mjs proves the four bands never
 // contradict nowContext's three.
+import { openShareFlow } from "../../lib/shareFlow.js";
 import { browsePosition, restoreBrowsePosition } from "../../lib/restoreBrowsePosition";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { guideForPlaceRail } from "../../lib/guideDiscovery.js";
+import { GuideDiscoveryContext } from "./GuideDiscoveryContext";
 import { applyCuratorPicks, useCuratorPicks } from "../../lib/curatorPicks.js";
 import { settleRescored, rescoredIds } from "../../lib/lawfulOrder.js";
 import dynamic from "next/dynamic";
@@ -49,6 +52,7 @@ import dynamic from "next/dynamic";
 // ssr:false costs nothing here: the drop renders no HTML until a card is
 // picked, so there was never any server markup to lose, and the crawlable link
 // is the tile's own href.
+const GuideDiscoveryCard = dynamic(() => import("./GuideDiscoveryCard"), { ssr: false });
 const IconicPlaceCard = dynamic(() => import("./IconicPlaceCard"), {
   ssr: false,
   loading: () => <PlaceCardSkeleton count={1} />,
@@ -88,6 +92,25 @@ const FallIntentRails = dynamic(() => import("./FallIntentRails"), { ssr: false 
 const SummerIntentRails = dynamic(() => import("./SummerIntentRails"), { ssr: false });
 const NightOutRails = dynamic(() => import("./NightOutRails"), { ssr: false });
 const CreatorPicksRails = dynamic(() => import("./CreatorPicksRails"), { ssr: false });
+// Warm only the poster the reader points to or focuses. Keep all other lazy
+// chunks off the critical path and leave public inventory reads to the opener.
+const POSTER_MODULES = {
+  trending: () => import("./ExplodingNearby"),
+  datenight: () => import("./DateNightRails"),
+  birthday: () => import("./BirthdayRails"),
+  breakfast: () => import("./BreakfastRails"),
+  eat: () => import("./WorthEatingRails"),
+  break: () => import("./LunchBreakRails"),
+  today: () => import("./TodayDiscoveryRails"),
+  augtober: () => import("./FallIntentRails"),
+  season: () => import("./SummerIntentRails"),
+  tonight: () => import("./NightOutRails"),
+};
+function preparePoster(id) {
+  const load = POSTER_MODULES[id];
+  if (load) load().catch(() => {});
+}
+
 import { DAYPARTS, partForHour, orderFor, railHref, dateNightIntentHref, LEGACY_HERO_EVENT } from "../../lib/dayparts.js";
 import { siteHourFloat, tzForPoint } from "../../lib/nowContext.js";
 import { railArt, railArtSrcSet, railArtFallback, railTint, RAIL_ART_SIZES, railArtSize } from "../../lib/rails.js";
@@ -100,7 +123,21 @@ import { servableRows, isNowRail } from "../../lib/daylight.js";
 // name. The import is the LAW (never "you", never "your area"); the prop is a
 // string the caller handed down.
 import { emptyRailLive, liveFromRailsResponse, mergeRailPage, isFailedRailsResponse, cityLabel as honestCityLabel } from "../../lib/locationHonesty.js";
-import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
+// Paging and Lunch Break need this only after a poster opens. Keep the reuse
+// machinery outside the homepage's eager graph and its fixed bundle budget.
+const fetchJsonWithDeadline = (url, options = {}) => {
+  let expired = false;
+  return settleLoad(async () => {
+    const { fetchPosterJson } = await import("../../lib/posterJson.js");
+    if (expired) throw new Error("poster module deadline");
+    return fetchPosterJson(url, options);
+  }, { timeoutMs: options.timeoutMs || RAILS_LOAD_TIMEOUT_MS }).then((result) => {
+    expired = true;
+    if (!result.ok) throw new Error(result.reason || "poster request failed");
+    return result.data;
+  });
+};
+import { observePosterPerformance } from "../../lib/posterPerformance.js";
 import { railScrollNeedsMore, railUsesSharedPaging, railHasNextPage, railPageScope, isCurrentRailPageScope, settleRailPageStateForScope, SHARED_POOL_COMPOSER_RAILS } from "../../lib/railResponse.js";
 import { posterImgIsReady, bindPosterArtReady, posterImgInTile } from "../../lib/posterArtReady.js";
 // v8.46 — THE GREY BOX, AGAIN. lib/loadState.js was written on 2026-08-12 for
@@ -525,6 +562,7 @@ export default function DaypartRail({
   const trackRef = useRef(null);
   const pcRef = useRef(null);
   const menuRef = useRef(null);
+  const posterOpenedAt = useRef(null);
   // v8.46 — THE SERVER PROPS ARE AN ANSWER AGAIN. dd783d8 ("leftover Sarasota
   // after Tampa") replaced `{ places, thin, … }` with `{ places: {}, thin: [] }`
   // to stop a Tampa reader inheriting the flagship's places. It over-corrected:
@@ -960,6 +998,7 @@ export default function DaypartRail({
     const root = document.querySelector(".wf-scrollarea");
     if (!selected && root) posterReturn.current = browsePosition(root);
     resumePoster.current = false;
+    posterOpenedAt.current = typeof performance !== "undefined" ? performance.now() : null;
     setSelected(targetId);
     logEvent("rail_open", {
       rail_id: targetId, rail_title: rail.title, daypart, region: shown.region, city: shown.citySlug,
@@ -1003,6 +1042,21 @@ export default function DaypartRail({
     window.addEventListener("wf:home", returnHome);
     return () => window.removeEventListener("wf:home", returnHome);
   }, []);
+
+  useEffect(() => {
+    if (!selected || !menuRef.current || posterOpenedAt.current == null) return undefined;
+    const startedAt = posterOpenedAt.current;
+    posterOpenedAt.current = null;
+    return observePosterPerformance(menuRef.current, {
+      startedAt,
+      report: (timing) => logEvent("poster_visible_timing", {
+        rail_id: selected, city: shown.citySlug, daypart, ...timing,
+      }),
+    });
+    // A new location cancels the old observation. It is not a new poster tap.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected, center && center.lat, center && center.lng, daypart]);
+
 
   // Which tile is currently saying "Link copied". One at a time, cleared on a
   // timer that matches the wf8Said animation — a toast that outlives its own
@@ -1050,16 +1104,12 @@ export default function DaypartRail({
       region: shown.region, city: shown.citySlug,
       open: selected === r.id, src: "rail_tile",
     });
-    let native = false;
-    try { native = onShareRail ? onShareRail(intent) === true : false; } catch (e) { native = false; }
-    if (native) return;
-    // /v8 mounts this component without the prop. Rather than have the button
-    // do nothing there, copy the link directly — a share that quietly fails is
-    // worse than one that only half-works.
-    if (!onShareRail && typeof navigator !== "undefined" && navigator.clipboard && navigator.clipboard.writeText) {
-      try { navigator.clipboard.writeText(intent.url); } catch (e) {}
-    }
-    setSaid(r.id);
+    let opened = false;
+    try { opened = onShareRail ? onShareRail(intent) === true : false; } catch {}
+    if (opened) return;
+    // /v8 has no shell handler: reuse the same visible text-first menu.
+    // Paint copied feedback only after the user chooses Copy and it succeeds.
+    openShareFlow({ title: intent.title || r.title, text: intent.text, url: intent.url }, () => setSaid(r.id));
   }, [onShareRail, daypart, shown, selected]);
 
   // v8.92 — goDateNightIntent() DELETED. Its only two callers were the two
@@ -1352,6 +1402,18 @@ export default function DaypartRail({
     return base;
   }, [selected, chefPlaces, selPlaces, sponsorCard]);
 
+  const guideInsertScope = `${selected || ""}|${center?.lat ?? lat}|${center?.lng ?? lng}|${daypart}`;
+  const [guidePlacement, setGuidePlacement] = useState(null);
+  const guideInsert = useMemo(() => guideForPlaceRail(guides, dropList, selected,
+    guidePlacement?.scope === guideInsertScope ? guidePlacement.selection : null),
+  [guides, dropList, selected, guidePlacement, guideInsertScope]);
+  useEffect(() => {
+    if (guidePlacement?.scope !== guideInsertScope || guidePlacement?.selection?.guide.slug !== guideInsert?.guide.slug ||
+      guidePlacement?.selection?.organicSlot !== guideInsert?.organicSlot) {
+      setGuidePlacement({ scope: guideInsertScope, selection: guideInsert });
+    }
+  }, [guideInsertScope, guideInsert, guidePlacement]);
+
   const selectedLoaded = selected && Array.isArray(shown.places?.[selected]) ? shown.places[selected].length : 0;
   const selectedTotal = selected
     ? Math.max(selectedLoaded, Number(shown.railTotals?.[selected]) || 0)
@@ -1456,8 +1518,7 @@ export default function DaypartRail({
     if (selected !== "break" || !center || !Number.isFinite(center.lat) || !Number.isFinite(center.lng)) return undefined;
     let cancelled = false;
     const q = new URLSearchParams({ lat: center.lat.toFixed(2), lng: center.lng.toFixed(2) });
-    fetch("/api/lunch-break?" + q.toString())
-      .then((response) => response.ok ? response.json() : null)
+    fetchJsonWithDeadline("/api/lunch-break?" + q.toString())
       .then((body) => { if (!cancelled && Array.isArray(body?.places) && body.places.length) setLunchBreakLive(body.places); }, () => {});
     return () => { cancelled = true; };
   }, [selected, center && center.lat, center && center.lng]);
@@ -1611,6 +1672,7 @@ export default function DaypartRail({
   const dropCity = honestCityLabel(locName) || (shown.cityLabel ? honestCityLabel(shown.cityLabel) : "") || "";
 
   return (
+    <GuideDiscoveryContext.Provider value={guides}>
     <div className={`wf8 is-${daypart}${selected ? " is-open" : ""}`} data-daypart={daypart}>
       <section className="wf8-railsec" aria-label="What to do right now">
         <div className="wf8-in">
@@ -1710,6 +1772,9 @@ export default function DaypartRail({
                     key={id}
                     className={tileClass}
                     data-id={id}
+                    onPointerEnter={() => preparePoster(id)}
+                    onPointerDown={() => preparePoster(id)}
+                    onFocus={() => preparePoster(id)}
                     style={{ background: railTint(id) }}
                   >
                     {/* Poster tiles already ship <img class="wf8-tim"> — Tonight's
@@ -2012,15 +2077,10 @@ export default function DaypartRail({
           ) : null}
           {selRail && selRail.guides ? (
             <ul className="wf8-grail" aria-label="Local guides">
-              {guides.map((g, i) => (
+              {guides.map((g) => (
                 <li key={g.slug}>
-                  <a className="wf8-gcard" style={{ "--wf8-i": i }} href={`/guides/${g.slug}`}
-                    onClick={() => logEvent("guide_open", { slug: g.slug, region: g.region, src: "rail_library" })}>
-                    <div className="wf8-gtop">{g.region}<em>· {g.mins} min read</em></div>
-                    <h4 className="wf8-gtit">{g.title}</h4>
-                    <p className="wf8-gtea">{g.teaser}</p>
-                    <div className="wf8-gread">Read the guide →</div>
-                  </a>
+                  <GuideDiscoveryCard guide={g}
+                    onOpen={() => logEvent("guide_open", { slug: g.slug, region: g.region, src: "rail_library" })} />
                 </li>
               ))}
               <li>
@@ -2065,7 +2125,8 @@ export default function DaypartRail({
                   // measured that the intersection heuristic never resolves in
                   // .wf8-pcrail, so lazy there means NEVER rather than later.
                   // The window IS the loading mechanism.
-                  const inWin = i >= pcWin.lo && i <= pcWin.hi;
+                  const visualIndex = i + (guideInsert && i >= guideInsert.before ? 1 : 0);
+                  const inWin = visualIndex >= pcWin.lo && visualIndex <= pcWin.hi;
                   const isPaid = !!(sponsorCard && p && p.id === sponsorCard.place.id && selected === sponsorCard.rail);
                   // v8.88 — THE PAID CARD GETS ITS LIKE, DISLIKE AND SAVE BACK
                   // (owner, 2026-08-29): "you should actually be able to like
@@ -2153,6 +2214,11 @@ export default function DaypartRail({
                     shown.cityLabel || "",
                   ].join("|");
                   return (
+                  <Fragment key={p.id}>
+                  {guideInsert && i === guideInsert.before ? <li className="wf8-guide-insert">
+                    <GuideDiscoveryCard guide={guideInsert.guide} compact
+                      onOpen={(g) => logEvent("guide_open", { slug: g.slug, region: g.region, src: "place_rail", rail: selected })} />
+                  </li> : null}
                   <IconicPlaceCard
                     key={p.id}
                     memoKey={memoKey}
@@ -2243,6 +2309,7 @@ export default function DaypartRail({
                     eagerMedia={inWin}
                     mediaPriority={i < 4 ? "high" : "low"}
                   />
+                  </Fragment>
                   );
                 })}
               </ul>
@@ -2368,5 +2435,6 @@ export default function DaypartRail({
         </div>
       </section>
     </div>
+    </GuideDiscoveryContext.Provider>
   );
 }

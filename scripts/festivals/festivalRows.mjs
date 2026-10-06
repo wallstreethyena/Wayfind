@@ -35,9 +35,11 @@ export function festivalSlug(name, year) {
   return `${base}-${year}`;
 }
 
+const BATCH_META = new Set(["lead_name", "lead_key"]);
+
 /** The DB row: every allowed column, and nothing that is only batch metadata. */
-export function dbRow(row) {
-  const out = Object.fromEntries(ALLOWED_COLUMNS.filter((k) => k in row).map((k) => [k, row[k]]));
+export function dbRow(row, columns = ALLOWED_COLUMNS) {
+  const out = Object.fromEntries(columns.filter((k) => k in row).map((k) => [k, row[k]]));
   // wf_events.audience is NOT NULL. The brief lets a row say nothing about who
   // an event is for, and "nothing stated" is an empty list, not a null: sending
   // the null makes Postgres refuse the whole insert batch (23502).
@@ -117,20 +119,38 @@ export function isSameEvent(a, b) {
 const isDate = (s) => typeof s === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(s + "T00:00:00Z"));
 const isHttps = (s) => typeof s === "string" && /^https:\/\/[^\s/]+\.[^\s/]+/.test(s);
 
+// A PROFILE is what differs between imports that share this row contract:
+// which categories are allowed, whether a tag is required, how event_id is
+// derived, and which extra columns may be written. The festival profile is
+// the original behavior, unchanged. scripts/local-calendars/eventRows.mjs
+// defines the local-calendar profile (recurring rows are <series>-<date>).
+export const FESTIVAL_PROFILE = Object.freeze({
+  categories: CATEGORIES,
+  requiredTag: "festival",
+  columns: ALLOWED_COLUMNS,
+  expectedIds: (row) => [festivalSlug(row.event_name, row.year)],
+});
+
 /** Returns [] when the row may be published, else the list of reasons it may not. */
-export function rowProblems(row, { today, now } = {}) {
+export function rowProblems(row, opts = {}) {
+  return rowProblemsFor(FESTIVAL_PROFILE, row, opts);
+}
+
+export function rowProblemsFor(profile, row, { today, now } = {}) {
+  const { categories, requiredTag, columns, expectedIds } = profile;
   const p = [];
   if (!row || typeof row !== "object") return ["not an object"];
-  // lead_name is batch metadata (the aggregator name this row answers), never a column.
-  for (const k of Object.keys(row)) if (k !== "lead_name" && !ALLOWED_COLUMNS.includes(k)) p.push(`column not allowed: ${k}`);
+  // lead_name / lead_key are batch metadata (which lead this row answers), never columns.
+  for (const k of Object.keys(row)) if (!BATCH_META.has(k) && !columns.includes(k)) p.push(`column not allowed: ${k}`);
   for (const k of ["event_id", "event_series_id", "slug", "event_name", "short_title", "city", "county", "venue", "address", "card_hook", "official_event_url", "source_url", "verify_note", "schedule_note"]) {
     if (typeof row[k] !== "string" || !row[k].trim()) p.push(`missing ${k}`);
   }
   if (row.state !== "FL") p.push("state must be FL");
   if (row.timezone !== "America/New_York" && row.timezone !== "America/Chicago") p.push("timezone must be America/New_York or America/Chicago");
   if (row.event_status !== "scheduled") p.push("event_status must be scheduled");
-  if (!CATEGORIES.includes(row.category)) p.push(`category must be one of ${CATEGORIES.join(",")}`);
-  if (!Array.isArray(row.tags) || !row.tags.includes("festival")) p.push("tags must be an array containing \"festival\"");
+  if (!categories.includes(row.category)) p.push(`category must be one of ${categories.join(",")}`);
+  if (!Array.isArray(row.tags) || row.tags.some((t) => typeof t !== "string")) p.push("tags must be an array of strings");
+  else if (requiredTag && !row.tags.includes(requiredTag)) p.push(`tags must be an array containing "${requiredTag}"`);
   if (!isDate(row.start_date) || !isDate(row.end_date)) p.push("start_date/end_date must be YYYY-MM-DD");
   else {
     if (row.end_date < row.start_date) p.push("end_date before start_date");
@@ -138,7 +158,10 @@ export function rowProblems(row, { today, now } = {}) {
     if (Number(row.start_date.slice(0, 4)) !== row.year) p.push("year must equal start_date year");
   }
   if (row.slug !== row.event_id) p.push("slug must equal event_id");
-  if (row.event_name && row.year && row.event_id !== festivalSlug(row.event_name, row.year)) p.push(`event_id must be ${festivalSlug(row.event_name, row.year)}`);
+  if (row.event_name && row.year) {
+    const ids = expectedIds(row);
+    if (!ids.includes(row.event_id)) p.push(`event_id must be ${ids.join(" or ")}`);
+  }
   if (!Number.isFinite(row.lat) || !Number.isFinite(row.lng)) p.push("lat/lng must be numbers");
   else if (row.lat < FL_BOX.minLat || row.lat > FL_BOX.maxLat || row.lng < FL_BOX.minLng || row.lng > FL_BOX.maxLng) p.push("coordinates are not in Florida");
   if (!isHttps(row.official_event_url)) p.push("official_event_url must be https");
@@ -165,12 +188,12 @@ export function rowProblems(row, { today, now } = {}) {
 }
 
 /** A verified batch file: { batch, verified_by, verified_at, publish: [rows], hold: [{event_name, start_date, reason, url}] } */
-export function batchProblems(file, opts) {
+export function batchProblems(file, opts, profile = FESTIVAL_PROFILE) {
   const out = [];
   if (!file || !Array.isArray(file.publish) || !Array.isArray(file.hold)) return ["batch must have publish[] and hold[]"];
   const ids = new Set();
   file.publish.forEach((row, i) => {
-    for (const msg of rowProblems(row, opts)) out.push(`publish[${i}] ${row?.event_name || "?"}: ${msg}`);
+    for (const msg of rowProblemsFor(profile, row, opts)) out.push(`publish[${i}] ${row?.event_name || "?"}: ${msg}`);
     if (ids.has(row?.event_id)) out.push(`publish[${i}] duplicate event_id ${row.event_id}`);
     ids.add(row?.event_id);
   });

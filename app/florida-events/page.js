@@ -1,3 +1,4 @@
+import { eventCostSummary } from "../../lib/eventVisitFacts.js";
 import ReturnToWayfind from "../components/ReturnToWayfind";
 import ShareButton from "../components/ShareButton";
 // v7.45 — The Florida Events hub. Server-rendered so crawlers read every card
@@ -160,8 +161,8 @@ export default async function FloridaEventsHub() {
                 <p style={S.t}>{e.event_name}</p>
                 <p style={S.hook}>{e.card_hook}</p>
                 <p style={S.meta}>
-                  {e.is_free ? "Free" : e.price_band || ""}
-                  {e.wayfind_verdict ? (e.is_free || e.price_band ? " · " : "") + e.wayfind_verdict : ""}
+                  {eventCostSummary(e)}
+                  {e.wayfind_verdict ? " · " + e.wayfind_verdict : ""}
                 </p>
               </div>
             </a>

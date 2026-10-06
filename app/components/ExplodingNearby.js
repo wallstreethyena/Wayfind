@@ -1,4 +1,5 @@
 "use client";
+import { openShareFlow } from "../../lib/shareFlow.js";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import RailCard, { RailNav, RailDots } from "./RailCard";
@@ -181,16 +182,13 @@ function TrendBlock({ trend, index, photoRefFor, onLog, onMeaningful, onOpenPlac
     );
   };
 
-  const shareTrend = async () => {
+  const shareTrend = () => {
     const place = asPlace(primary, photoRefFor(primary));
     onMeaningful("share", place, { surface: "exploding_nearby", share_kind: "trend", concept_key: trend.conceptKey });
     const title = "🔥 " + trend.headline;
     const text = `${title}. ${primary.name} is one of Wayfind's best nearby places to try it.`;
     const url = typeof window !== "undefined" ? window.location.href : "";
-    try {
-      if (navigator.share) await navigator.share({ title, text, url });
-      else if (navigator.clipboard) await navigator.clipboard.writeText(text + (url ? " " + url : ""));
-    } catch (e) {}
+    openShareFlow({ title, text, url });
   };
 
   return (

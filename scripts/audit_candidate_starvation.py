@@ -773,6 +773,19 @@ def _calls(src: str | None, name: str) -> list[str]:
     return found
 
 
+def _named_import_alias(src: str | None, exported: str, module: str) -> str | None:
+    """Resolve one real named import; a comment or unrelated binding is no proof."""
+    aliases = []
+    for match in re.finditer(r"^\s*import\s*\{([^}]+)\}\s*from\s*([\"'])([^\"']+)\2", src or "", re.M):
+        if match.group(3) != module:
+            continue
+        for item in match.group(1).split(","):
+            binding = re.fullmatch(re.escape(exported) + r"(?:\s+as\s+([A-Za-z_$][\w$]*))?", item.strip())
+            if binding:
+                aliases.append(binding.group(1) or exported)
+    return aliases[0] if len(aliases) == 1 else None
+
+
 def _result(meta: dict, checks: list[tuple[bool, str, str]]) -> dict:
     failures = [failure for held, _, failure in checks if not held]
     evidence = [proof for held, proof, _ in checks if held]
@@ -808,6 +821,26 @@ def audit_legacy_watchlist(root: Path = ROOT) -> list[dict]:
     old_hook = root / "app/components/useIntentCandidates.js"
     night_route = _source(root, "app/api/night-out/route.js")
     night_component = _source(root, "app/components/NightOutRails.js")
+    night_client = _function(night_component, "NightOutRails")
+    poster_binding = _named_import_alias(night_component, "fetchClassifiedPosterJson", "../../lib/posterJson.js")
+    night_client_calls = _calls(night_client, poster_binding) if poster_binding else []
+    night_endpoint_calls = [call for call in night_client_calls
+                            if re.search(r"\(\s*[\"']/api/night-out\?[\"']\s*\+", call)]
+    night_endpoint_call = night_endpoint_calls[0] if len(night_endpoint_calls) == 1 else ""
+    poster = _source(root, "lib/posterJson.js")
+    classified = _function(poster, "fetchClassifiedPosterJson")
+    transport_binding = _named_import_alias(poster, "fetchRailJson", "./railFailure.js")
+    transport_calls = _calls(classified, transport_binding) if transport_binding else []
+    transport = _function(_source(root, "lib/railFailure.js"), "fetchRailJson")
+    bounded_poster_transport = bool(
+        len(transport_calls) == 2
+        and all(re.search(r"\(\s*url\s*,\s*\{\s*\.\.\.networkOptions\s*,\s*signal\b", call)
+                for call in transport_calls)
+        and transport and "const deadline = started +" in transport
+        and "const remaining = deadline - nowMs()" in transport
+        and "Promise.race([" in transport and "deadlinePromise," in transport
+        and re.search(r"\},\s*attemptBudget\s*\)", transport)
+    )
     night_reader = _source(root, "lib/nightOutPool.js")
     night_fetch = _function(night_reader, "fetchNightOutPool")
     night_admit = _function(night_reader, "admitNightOutRows")
@@ -830,9 +863,13 @@ def audit_legacy_watchlist(root: Path = ROOT) -> list[dict]:
         (bool(night_route and re.search(r"\bfetchNightOutPool\s*\(", night_route)),
          "the dedicated Night Out route calls its identity-first owned reader",
          "dedicated Night Out successor is missing or does not call fetchNightOutPool"),
-        (bool(night_component and re.search(r"fetchJsonWithDeadline\s*\(\s*[\"']/api/night-out\?", night_component)),
-         "NightOutRails calls the dedicated bounded endpoint",
-         "NightOutRails does not call the dedicated Night Out endpoint"),
+        (bool(night_endpoint_call and re.search(r"\btimeoutMs\s*:\s*22000\b", night_endpoint_call)
+              and re.search(r"\bsignal\s*:\s*controller\.signal\b", night_endpoint_call)),
+         "NightOutRails calls the dedicated endpoint through its imported classified poster helper with the 22s deadline and caller signal",
+         "NightOutRails lacks its imported classified Night Out request, 22s deadline, or caller signal"),
+        (bounded_poster_transport,
+         "both classified poster paths forward the URL and signal to the imported deadline-bounded rail transport",
+         "the classified poster helper bypasses its imported transport or the transport lost its settling deadline"),
         (bool(night_fetch and night_admit and "readCategory(" in night_fetch
               and "admitNightOutRows(raw" in night_fetch and "railOf(place)" in night_admit),
          "the successor reads the owned pool before calling the shipped Night Out identity",

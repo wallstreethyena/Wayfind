@@ -791,5 +791,21 @@
       "detail": "A regression puts a Viator ticket link on free sand (a beach that looks like it needs a ticket), the owner-reported v6.53 failure, and sends paid-looking traffic to a product that is not beach admission."
     },
     "owner": "Revenue QA"
+  },
+  "scripts/test-google-details-accounting.mjs": {
+    "protects": "Every paid Details request is granted against its actual field/session SKU without resetting legacy monthly headroom, and missing configuration cannot consume a grant.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "Incorrect Atmosphere or Autocomplete terminal accounting can overspend provider limits; fixture requests prove cache-first, key-before-grant and conservative legacy-ledger denial."
+    },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-viator-provider-state.mjs": {
+    "protects": "Provider-state diagnostics distinguish healthy empty, configuration, budget and provider failure without changing eligibility or bypassing per-page spend grants.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "A misleading provider success or an ungranted retry can hide failed booking discovery or consume provider budget; runtime fixtures cover cold, warm-cache, denial and pagination cases."
+    },
+    "owner": "Revenue QA"
   }
 }

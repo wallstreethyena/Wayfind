@@ -1,0 +1,210 @@
+{
+  "batch": 36,
+  "verified_by": "claude-sonnet",
+  "verified_at": "2026-10-02T12:43:26Z",
+  "publish": [
+    {
+      "year": 2026,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "state": "FL",
+      "select_nights": false,
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-10-02T12:43:26Z",
+      "lead_key": "thatssotampa:lecture-ptolemaic-queens",
+      "event_id": "lecture-ptolemaic-queens-women-and-power-in-hellenistic-egypt-2026",
+      "event_series_id": "lecture-ptolemaic-queens-women-and-power-in-hellenistic-egypt",
+      "slug": "lecture-ptolemaic-queens-women-and-power-in-hellenistic-egypt-2026",
+      "city": "Tampa",
+      "county": "Hillsborough",
+      "category": "arts",
+      "subcategory": "lecture",
+      "tags": [
+        "lecture",
+        "museum",
+        "history",
+        "art"
+      ],
+      "audience": [
+        "adults",
+        "locals"
+      ],
+      "event_name": "Lecture: Ptolemaic Queens: Women & Power in Hellenistic Egypt",
+      "short_title": "Ptolemaic Queens Lecture",
+      "start_date": "2026-12-06",
+      "end_date": "2026-12-06",
+      "start_time": "14:00",
+      "end_time": "15:00",
+      "schedule_note": "Sun Dec 6, 2pm to 3pm. RSVP. Free for museum members and college students.",
+      "venue": "Tampa Museum of Art",
+      "address": "120 W Gasparilla Plaza, Tampa, FL 33602",
+      "lat": 27.949795,
+      "lng": -82.462006,
+      "is_free": false,
+      "price_min": 0,
+      "price_max": 25,
+      "minimum_age": null,
+      "card_hook": "A museum curator on the queens who ruled Ptolemaic Egypt, tied to a sculpture in the Tampa collection.",
+      "official_event_url": "https://tampamuseum.org/event/lecture-ptolemaic-queens-women-power-in-hellenistic-egypt/",
+      "official_ticket_url": null,
+      "source_url": "https://tampamuseum.org/event/lecture-ptolemaic-queens-women-power-in-hellenistic-egypt/",
+      "verify_note": "2026-10-02: museum page states Dec 6, 2pm to 3pm, $25 for non-members, free for Art+ members and college students, RSVP. Audit 2026-10-02: no change."
+    },
+    {
+      "year": 2026,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "state": "FL",
+      "select_nights": false,
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-10-02T12:43:26Z",
+      "lead_key": "ilovetheburg:st-pete-gift-grab-2",
+      "event_id": "st-pete-gift-grab-2026",
+      "event_series_id": "st-pete-gift-grab",
+      "slug": "st-pete-gift-grab-2026",
+      "city": "St. Petersburg",
+      "county": "Pinellas",
+      "category": "holiday",
+      "subcategory": "holiday-market",
+      "tags": [
+        "market",
+        "holiday",
+        "local",
+        "shopping"
+      ],
+      "audience": [
+        "locals",
+        "adults"
+      ],
+      "event_name": "St. Pete Gift Grab",
+      "short_title": "St. Pete Gift Grab",
+      "start_date": "2026-12-08",
+      "end_date": "2026-12-08",
+      "start_time": "18:00",
+      "end_time": "22:00",
+      "schedule_note": "Tue Dec 8, 6pm to 10pm.",
+      "venue": "Ferg's Sports Bar",
+      "address": "1320 Central Ave, St. Petersburg, FL 33705",
+      "lat": 27.771067,
+      "lng": -82.652043,
+      "is_free": null,
+      "price_min": null,
+      "price_max": null,
+      "minimum_age": null,
+      "card_hook": "Local vendors set up for a holiday shopping night at Ferg's in downtown St. Pete.",
+      "official_event_url": "https://stpeteissupercool.com/pages/st-pete-gift-grab",
+      "official_ticket_url": null,
+      "source_url": "https://stpeteissupercool.com/pages/st-pete-gift-grab",
+      "verify_note": "2026-10-02: organizer page states Tuesday Dec 8 2026, 6PM to 10PM at Ferg's Sports Bar, 1320 Central Ave. No price stated. Audit 2026-10-02: no change."
+    },
+    {
+      "year": 2026,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "state": "FL",
+      "select_nights": false,
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-10-02T12:43:26Z",
+      "lead_key": "ilovetheburg:holiday-botanicals",
+      "event_id": "holiday-botanicals-2026",
+      "event_series_id": "holiday-botanicals",
+      "slug": "holiday-botanicals-2026",
+      "city": "St. Petersburg",
+      "county": "Pinellas",
+      "category": "community",
+      "subcategory": "lecture",
+      "tags": [
+        "lecture",
+        "gardening",
+        "native-plants",
+        "free"
+      ],
+      "audience": [
+        "adults",
+        "locals"
+      ],
+      "event_name": "Holiday Botanicals",
+      "short_title": "Holiday Botanicals",
+      "start_date": "2026-12-10",
+      "end_date": "2026-12-10",
+      "start_time": "11:30",
+      "end_time": "12:30",
+      "schedule_note": "Thu Dec 10, 11:30am to 12:30pm. Register on Eventbrite.",
+      "venue": "Weedon Island Preserve Cultural and Natural History Center",
+      "address": "1800 Weedon Drive NE, St. Petersburg, FL 33702",
+      "lat": 27.849601,
+      "lng": -82.608149,
+      "is_free": true,
+      "price_min": null,
+      "price_max": null,
+      "minimum_age": null,
+      "card_hook": "A Master Gardener talk on decorating for the holidays with native plants, and how early settlers used them, at Weedon Island Preserve.",
+      "official_event_url": "https://www.eventbrite.com/e/holiday-botanicals-tickets-1994948626043",
+      "official_ticket_url": "https://www.eventbrite.com/e/holiday-botanicals-tickets-1994948626043",
+      "source_url": "https://www.eventbrite.com/e/holiday-botanicals-tickets-1994948626043",
+      "verify_note": "2026-10-02: UF/IFAS Pinellas Extension's own Eventbrite page states Thu Dec 10, 11:30 AM to 12:30 PM at Weedon Island Preserve center, listed Free. Audit 2026-10-02: card_hook reworded (removed unstated \"Florida\")."
+    }
+  ],
+  "hold": [
+    {
+      "lead_key": "ilovetheburg:tampa-bay-buccaneers-vs-los-angeles-chargers",
+      "event_name": "Tampa Bay Buccaneers vs Los Angeles Chargers",
+      "reason": "ticketmaster-feed",
+      "url": "https://www.buccaneers.com/tickets/single-game"
+    },
+    {
+      "lead_key": "thatssotampa:tampa-bay-buccaneers-vs-los-angeles-chargers",
+      "event_name": "Tampa Bay Buccaneers vs Los Angeles Chargers",
+      "reason": "ticketmaster-feed",
+      "url": "https://www.buccaneers.com/tickets/single-game"
+    },
+    {
+      "lead_key": "ilovetheburg:the-florida-orchestra-nightmare-before-christmas-2",
+      "event_name": "The Florida Orchestra: Nightmare Before Christmas",
+      "reason": "ticketmaster-feed: Mahaffey page confirms Dec 6 2pm but its Buy Tickets links go to ticketmaster.com",
+      "url": "https://themahaffey.com/show/disney-tim-burtons-the-nightmare-before-christmas-in-concert-2/"
+    },
+    {
+      "lead_key": "ilovetheburg:infinitys-winter-white",
+      "event_name": "Infinity's Winter White",
+      "reason": "sponsor-table fundraiser gala; organizer page says Dec 6 but gives no time or address, tickets limited",
+      "url": "https://infinitystpete.org/winter-white-eve-of-hope"
+    },
+    {
+      "lead_key": "ilovetheburg:tampa-bay-lightning-vs-columbus-blue-jackets-2",
+      "event_name": "Tampa Bay Lightning vs. Columbus Blue Jackets",
+      "reason": "ticketmaster-feed",
+      "url": "https://www.nhl.com/lightning/tickets/single-game-tickets"
+    },
+    {
+      "lead_key": "thatssotampa:tampa-bay-lightning-vs-columbus-blue-jackets",
+      "event_name": "Tampa Bay Lightning vs. Columbus Blue Jackets",
+      "reason": "ticketmaster-feed",
+      "url": "https://www.nhl.com/lightning/tickets/single-game-tickets"
+    },
+    {
+      "lead_key": "ilovetheburg:tampa-bay-lightning-vs-boston-bruins-2",
+      "event_name": "Tampa Bay Lightning vs. Boston Bruins",
+      "reason": "ticketmaster-feed",
+      "url": "https://www.nhl.com/lightning/tickets/single-game-tickets"
+    },
+    {
+      "lead_key": "ilovetheburg:vienna-light-orchestra-christmas-concert-tour-2026",
+      "event_name": "Vienna Light Orchestra Christmas Concert Tour 2026",
+      "reason": "ticketmaster-feed",
+      "url": "https://www.viennalightorchestra.com/concerts/st-petersburg-fl"
+    },
+    {
+      "lead_key": "ilovetheburg:vienna-light-orchestra-christmas-tour-2026",
+      "event_name": "Vienna Light Orchestra Christmas Tour 2026",
+      "reason": "ticketmaster-feed",
+      "url": "https://www.viennalightorchestra.com/concerts/st-petersburg-fl"
+    }
+  ]
+}

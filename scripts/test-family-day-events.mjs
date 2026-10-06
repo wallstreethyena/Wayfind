@@ -52,6 +52,11 @@ ok(composeFamilyDayEvents([event()], { ...ORIGIN, radiusMi: 25, filters: { logis
 const many = Array.from({ length: 15 }, (_, index) => event({ event_id: `event-${index}`, event_series_id: `event-${index}`, slug: `event-${index}`, editorial_score: index }));
 const capped = composeFamilyDayEvents(many, { ...ORIGIN, radiusMi: 50, now: NOW });
 ok(capped.events.length === 12 && capped.matched === 15 && capped.more === true, "payload is capped at 12 and reports omitted matches");
+const imageFor = (overrides) => composeFamilyDayEvents([event(overrides)], { ...ORIGIN, radiusMi: 25, now: NOW }).events[0].image;
+ok(imageFor({ hero_image: "/events/exact-family-event.jpg" }) === "/events/exact-family-event.jpg", "event-specific photo takes precedence over venue fallback");
+ok(imageFor({ hero_image: "", place_id: "ChIJRyOEfAo5w4gR664aD_YYBLU" }).includes("ChIJRyOEfAo5w4gR664aD_YYBLU"), "missing event hero uses only the exact venue photo identity");
+ok(imageFor({ hero_image: "", place_id: null }) === "", "no image identity stays unknown instead of borrowing another venue photo");
+ok(imageFor({ event_id: "hunsader-pumpkin-2026", hero_image: "/cards-v8/augtober-760.webp" }) === "", "existing image holds and collection poster exclusion remain enforced");
 for (const bad of [9, 20, 60]) {
   assert.throws(() => composeFamilyDayEvents([], { ...ORIGIN, radiusMi: bad, now: NOW }), /exactly 10, 25, or 50/); pass++;
 }

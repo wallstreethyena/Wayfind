@@ -33,7 +33,11 @@ ok(/\{\(pick\.appQuery !== null\) \? <a href=\{appUrl\(/.test(page),
   "'Explore this place' survives per pick, gated on pick.appQuery and not on a constant");
 ok(/Explore this place/.test(page), "...and carries the neutral experience-first label");
 ok(!/Open in Wayfind/.test(page), "guide conversion copy must not pitch Wayfind inside the article");
-ok(/guidePrimaryCta\(g\)/.test(page), "exactly one CTA is resolved per guide");
+// 2026-09-23: a past guide resolves its CTA without its own event ticket
+// (lib/guideLifecycle.js), still through the ONE guidePrimaryCta call. The
+// count makes "exactly one" literal; the old substring only proved "at least one".
+ok(/guidePrimaryCta\((?:g|past \? \{ \.\.\.g, eventTicket: undefined \} : g)\)/.test(page)
+  && (page.match(/guidePrimaryCta\(/g) || []).length === 1, "exactly one CTA is resolved per guide");
 ok(/guideContinue\(/.test(page), "one continue card, not a four-link 'More guides' wall");
 ok(!/More Wayfind guides/.test(page), "the old four-link list is removed");
 

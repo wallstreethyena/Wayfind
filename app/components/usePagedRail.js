@@ -16,7 +16,7 @@
 // `<article>`, the same node `.wf-rail>.wf-rail-card` sizes) and the hook
 // fetches page N+1 the moment that ONE card intersects the viewport.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
+import { fetchPosterJson as fetchJsonWithDeadline } from "../../lib/posterJson.js";
 import { RAIL_PAGE_SIZE, pageOf, seedSignature } from "../../lib/railPage.js";
 
 export const RAIL_LOAD_MORE_OFFSET = 3;

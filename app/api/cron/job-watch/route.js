@@ -6,6 +6,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 import { jobHealthDetailed, classifyHealth, incidentLine, recordPulse, DEAD_RUN_THRESHOLD } from "../../../../lib/jobPulse";
+import { heartbeatWatchSilenceIncident, readHeartbeatWatchPulse } from "../../../../lib/heartbeatWatch";
 import { resolveOverride } from "../../../../lib/envAudit";
 import { sbEnv } from "../../../../lib/serverCache";
 import {
@@ -98,6 +99,21 @@ export async function GET(req) {
   }
 
   const s = sbEnv();
+  // Supabase pg_cron and Vercel are independent clocks. A disappeared
+  // heartbeat row cannot be classified by a lookback feed alone.
+  let heartbeatFailure;
+  try {
+    heartbeatFailure = (await readHeartbeatWatchPulse({ url: s?.url, key: s?.key, now: Date.now() })).failure;
+  } catch (error) {
+    heartbeatFailure = String(error?.message || error);
+  }
+  if (heartbeatFailure) {
+    if (!incidents.some((row) => row?.job === "heartbeat-watch")) incidents.push(heartbeatWatchSilenceIncident(heartbeatFailure));
+    for (const bucket of [healthy, idle]) {
+      const index = bucket.findIndex((row) => row?.job === "heartbeat-watch");
+      if (index >= 0) bucket.splice(index, 1);
+    }
+  }
   const previousState = await readJobWatchAlertState({ url: s?.url, key: s?.key });
   const now = Date.now();
   const decision = jobWatchNotificationDecision(incidents, previousState, now);

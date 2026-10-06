@@ -285,7 +285,7 @@ const HeartIcon = ({ filled = false }) => (
   </svg>
 );
 
-function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfind", aiSummary, badge, rankingNote, onShare, saved, liked, disliked, inTrip, onSave, onItinerary, onLike, onDislike, onOpen, onBadge, cardActionsReadOnly = false, surface = "place_card", eagerMedia = false, mediaPriority = null, memoKey = null,
+function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfind", editorialMore = null, aiSummary, badge, rankingNote, onShare, saved, liked, disliked, inTrip, onSave, onItinerary, onLike, onDislike, onOpen, onBadge, cardActionsReadOnly = false, surface = "place_card", eagerMedia = false, mediaPriority = null, memoKey = null,
   // #1188 — the free permanent photo lane's CC credit. Same prop names as
   // RailCard.js; see its JSDoc. Omit for a photo that needs no credit.
   photoAttr = null, photoAttrHref = null,
@@ -522,7 +522,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
     <li ref={cardRef} data-iconic-place-card data-card-opens-detail data-place-id={place.id}
       onPointerDown={tapIntent.onPointerDown} onPointerMove={tapIntent.onPointerMove}
       onPointerUp={tapIntent.onPointerUp} onPointerCancel={tapIntent.onPointerCancel}
-      onClick={openCard} className={`wf-place-card${fallCardClass(place.id, siteTodayStr())}${isCuratorPick ? " is-curator-pick" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${hasTake ? "" : " is-no-take"}${cta ? " has-cta" : ""}`} style={{ listStyle: "none", cursor: cardHref ? "pointer" : "default" }}>
+      onClick={openCard} className={`wf-place-card${fallCardClass(place.id, siteTodayStr())}${isCuratorPick ? " is-curator-pick" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${hasTake ? "" : " is-no-take"}${take && editorialMore && cardHref ? " has-more" : ""}${cta ? " has-cta" : ""}`} style={{ listStyle: "none", cursor: cardHref ? "pointer" : "default" }}>
       {/* v8.62 (owner, 2026-08-26, live): the Wayfind Score sits in the top
           right corner of the CARD, never on the photo. Direct child of
           .wf-place-card so the shared css.js rule anchors it to the card. */}
@@ -740,6 +740,13 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
               <div>{validAiSummary.card_line_1}</div>
               <div style={{ marginTop: 2 }}>{validAiSummary.card_line_2}</div>
             </div>
+          ) : null}
+          {/* 2026-10-01 — the door to the full read (owner: "place it on the
+              card so the user will want to open the card"). Opt-in: only a
+              caller whose detail view holds the long editorial passes it, and
+              it only shows under a real take — never a cue to an empty sheet. */}
+          {take && editorialMore && cardHref ? (
+            <a className="wf-place-card-more" href={cardHref} onClick={onOpen ? (e) => { e.preventDefault(); e.stopPropagation(); onOpen(place); } : (e) => e.stopPropagation()}>{editorialMore}<span aria-hidden="true">{" \u203a"}</span></a>
           ) : null}
           {rankingNote ? <div style={{ color: "#8791A4", fontSize: 9.5, marginTop: 4 }}>{rankingNote}</div> : null}
 

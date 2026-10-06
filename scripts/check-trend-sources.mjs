@@ -22,6 +22,13 @@ const ok = (m) => console.log("  ok:", m);
 const fail = (m) => { failures++; console.error("  FAIL:", m); };
 const assert = (cond, m) => (cond ? ok(m) : fail(m));
 
+// Direct controls on the native growth law, alongside the legacy source adapters.
+const { windowGrowth } = await import("../lib/trendSources/nativeCore.js");
+assert(windowGrowth(100, 200, 5) === 100, "native windowGrowth positive control: a genuine doubling is 100%");
+assert(windowGrowth(100, 50, 5) === -50, "native windowGrowth preserves negative growth");
+assert(windowGrowth(0, 50, 5) === null && windowGrowth(4, 50, 5) === null, "native windowGrowth rejects zero and tiny baselines");
+assert(windowGrowth(100, 200, 0) === null && windowGrowth(100, Infinity, 5) === null, "native windowGrowth rejects invalid minimum and non-finite counts");
+
 // ── 1. keyword -> concept matcher, executed ─────────────────────────────────
 const { conceptForKeyword, allConceptAliases } = await import("../lib/trendSources/keywordMatch.js");
 {

@@ -22,6 +22,7 @@ import { homeShellData } from "../../../lib/homeShellData";
 // a season that is over.
 import { FALL_CARD_IDS, fallSkinLive } from "../../../lib/fallSkin";
 import { siteTodayStr } from "../../../lib/siteTime";
+import { getInventoryIdentity } from "../../../lib/inventoryIdentity.js";
 
 function s(v) {
   if (Array.isArray(v)) return v[0] || "";
@@ -29,8 +30,14 @@ function s(v) {
 }
 
 export async function generateMetadata({ params, searchParams }) {
+  params = await params;
+  searchParams = (await searchParams) || {};
   const id = s(params.id);
-  const t = s(searchParams.t) || "A spot worth your time";
+  // Bare /p links from shared card stores carry no t=. Recover the actual
+  // fresh server-held identity without a paid place lookup. A verified name
+  // also outranks a caller-supplied title, which is an untrusted URL field.
+  const identity = await getInventoryIdentity(id, { freshOnly: true });
+  const t = identity?.name || s(searchParams.t) || "A spot worth your time";
   const loc = s(searchParams.loc);
   const r = s(searchParams.r);
   const rev = s(searchParams.rev);
@@ -56,8 +63,7 @@ export async function generateMetadata({ params, searchParams }) {
   // share link's name, category, city, rating, and — the two fields the bare
   // typographic card always had that the photo layout has no room for — a
   // Wayfind score + distance or a hook line) rather than the generic
-  // homepage line. See docs/proposals/claude-sonnet-hero-photo-standard.md
-  // (proposed rule 9).
+  // homepage line. See docs/share-card-standard.md rule 9.
   let og = SITE_URL + "/api/og/hero?kind=place&id=" + encodeURIComponent(id) + "&t=" + encodeURIComponent(t);
   if (loc) og += "&loc=" + encodeURIComponent(loc);
   if (r) og += "&r=" + encodeURIComponent(r);

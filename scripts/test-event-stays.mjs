@@ -72,9 +72,9 @@ if (serviceRows.places.length !== 1 || serviceRows.places[0].id !== "spa-hotel")
   const scoreOrder = selectEventStays(pool, jannus, 3);
   assert.deepEqual(scoreOrder.map((p) => p.id), ["the-saint-beach", "inn-on-the-beach", "hollander"], "default rank stays pure Wayfind Score order for the destination poster");
   // Sparse venue: when there are not enough close stays, farther good ones fill,
-  // nearest-and-best first, and weak ones come last.
+  // selected by venue fit, then displayed by score; weak ones come last.
   const sparse = [at("far-good", 6, 92), at("mid-good", 2.5, 88), at("near-weak", 0.3, 65)];
-  assert.deepEqual(selectEventStays(sparse, jannus, 6, { rank: "venue" }).map((p) => p.id), ["mid-good", "far-good", "near-weak"], "a thin venue still gets a ranked list, floor-clearing stays first");
+  assert.deepEqual(selectEventStays(sparse, jannus, 6, { rank: "venue" }).map((p) => p.id), ["far-good", "mid-good", "near-weak"], "a thin venue keeps its practical selection and displays descending score, floor-clearing stays first");
   // The hard 3 mile rule, isolated: six floor-clearing stays at 2.8 mi must
   // hold off a 99 at 3.5 mi that would win on the blend alone.
   const edge = [...[1, 2, 3, 4, 5, 6].map((i) => at("edge-" + i, 2.8, 76)), at("just-past", 3.5, 99)];

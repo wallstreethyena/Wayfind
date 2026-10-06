@@ -19,6 +19,7 @@ import { FALL_COLLECTION_POSTER, fallEventCardImageSrc } from "../lib/fallEventI
 import { FALL_EVENT_VENUE_PLACE_IDS } from "../lib/fallEventImage.js";
 import { DISPLAYABLE_STATUS } from "../lib/curatedEvents.js";
 import { railRenderState, RAIL_RENDER_STATE } from "../lib/railVisibility.js";
+import { checkFallPaging } from "./lib/fall-paging-regression.mjs";
 
 let pass = 0;
 const failures = [];
@@ -355,7 +356,7 @@ const route = readFileSync(new URL("../app/api/events/fall/route.js", import.met
 const daypart = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
 const component = readFileSync(new URL("../app/components/FallIntentRails.js", import.meta.url), "utf8");
 const card = readFileSync(new URL("../app/components/RailCard.js", import.meta.url), "utf8");
-ok(route.includes("fall-intents:v23:") && route.includes("fastCachedRail"), "the API uses the v23 shared FastCache key after the date-then-distance order + compact when-pill publish");
+ok(route.includes("fall-intents:v24:") && route.includes("fastCachedRail"), "the API uses the v24 shared FastCache key after verified visit facts and truthful operating-status publish");
 const imageProofId = "ChIJB-QyVtEXw4gRk5F8bn3YV28";
 ok(hasStoredPlacePhoto({ place_id: imageProofId, signals: { photo_url: "https://cdn.example.test/owned.jpg" } }),
   "an owned signals.photo_url is stored image proof");
@@ -408,7 +409,7 @@ ok(/selRail\.id === "augtober"/.test(daypart) && /<FallIntentRails/.test(daypart
 ok(/selRail\.id === "augtober" \|\| selRail\.id === "tonight"/.test(daypart), "generic place fallback is suppressed for Augtober and Night Out");
 ok(!/fallEvents\.map|wf8-falltile/.test(daypart), "the old mixed inline fall strip is retired rather than duplicated");
 ok(/result\.rails\.length !== 10/.test(component), "the client fails closed on an incomplete rail contract");
-ok(/FALL_LOAD_TIMEOUT_MS = 10000/.test(component) && /fetchJsonWithDeadline/.test(component), "the collection cannot leave a first-time reader on an endless skeleton");
+ok(/FALL_LOAD_TIMEOUT_MS = 10000/.test(component) && /fetchRailJson/.test(component), "the collection cannot leave a first-time reader on an endless skeleton");
 ok(/\}, \[key, retry\]\);/.test(component) && !/\[key, city, retry, onTrack\]/.test(component), "parent telemetry re-renders cannot abort the rail request and strand its duplicate guard");
 // WO11 (2026-09-02): the whole-blob "Load every verified fall option" button
 // (a scroll-triggered `full=1` refetch of every rail at once) is gone. Every
@@ -416,11 +417,11 @@ ok(/\}, \[key, retry\]\);/.test(component) && !/\[key, city, retry, onTrack\]/.t
 // contract night-out/date-night/today-discovery/birthday speak.
 ok(/function FallRailSection\(/.test(component) && /usePagedRail\(/.test(component),
   "Fall's rails page independently through the shared usePagedRail hook");
-ok(/domRef=\{\w+ === sentinelIndex \? sentinelRef : undefined\}/.test(component),
-  "Fall wires the paging sentinel onto its cards, per the WO11 loaded−3 contract");
+const pagingChecks = await checkFallPaging();
+ok(pagingChecks > 0, `Fall executes ${pagingChecks} real loaded-ten, visible-expiry and fresh-date paging controls`);
 ok(!/Load every verified fall option/.test(component) && !/setFull/.test(component) && !/railScrollNeedsMore/.test(component),
   "the old whole-blob scroll-triggered full=1 loader is fully removed from Fall, not merely unreachable");
-ok(/service miss, not an empty city/.test(component), "a failed service is not misreported as an empty location");
+ok(/if \(failure\) return failure.kind === "developer" \? <RailDevError \/> : <RailMascotBusy rail="fall"/.test(component), "a failed service is not misreported as an empty location");
 ok(/railRenderState/.test(component)
   && railRenderState([]) === RAIL_RENDER_STATE.HIDDEN
   && railRenderState([], { loading: true }) === RAIL_RENDER_STATE.LOADING
@@ -512,7 +513,7 @@ ok(/officialOnly = FALL_FEATURED_FESTIVAL_IDS\.has\(e\.event_id\) && !!eventOutb
   && /card\.officialOnly \|\| !openEventVenue/.test(component)
   && /card\.detailHref \|\| card\.officialOnly \? undefined/.test(component),
   "featured cards open verified organizer information; a dead official link keeps venue fallback");
-ok(/photoAttr=\{card\.photoAttr \|\| null\}/.test(component) && /photoAttrHref=\{card\.photoAttrHref \|\| null\}/.test(component),
+ok(/photoAttr=\{card\.photoAttr \|\|/.test(component) && /photoAttrHref=\{card\.photoAttrHref \|\|/.test(component),
   "event photos use the shared card's visible attribution controls");
 
 if (failures.length) {

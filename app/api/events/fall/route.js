@@ -13,6 +13,7 @@ export const dynamic = "force-dynamic";
 // vetted year-round spooky PLACES ride along as normal scored place rows.
 import { fetchCuratedEvents, isTrusted, eventOutboundUrl } from "../../../../lib/curatedEvents.js";
 import { siteTodayStr } from "../../../../lib/siteTime.js";
+import { fallPlaceEvidenceCurrent } from "../../../../lib/fallPlaceEvidence.js";
 import { isFallEvent, fallEventLive, fallWhenLabel, fallScheduleChip, FALL_PLACE_IDS, FALL_PLACE_RAIL, FALL_OFFERING_SOURCES, FALL_EVENT_TICKET_DEALS } from "../../../../lib/fallPool.js";
 import { eventTicketDeal, eventTicketCta, isServableDeal } from "../../../../lib/eventTicketDeals.js";
 import { supabase } from "../../../../lib/supabase.js";
@@ -25,7 +26,7 @@ import { pageOneRail } from "../../../../lib/railPage.js";
 import { FALL_PHOTO_PLACE_IDS, FALL_PHOTO_SPOTS } from "../../../../lib/fallPhotoSpots.js";
 import { FALL_DISCOVERIES_2026, FALL_DISCOVERY_RAIL, FALL_SEASONAL_PLACE_IDS } from "../../../../lib/fallDiscoveries2026.js";
 import { windowRailAnswer } from "../../../../lib/railResponse.js";
-import { FALL_COLLECTION_POSTER, FALL_EVENT_VENUE_PLACE_IDS, fallEventCardImageSrc, mergeFallDiscoveryRows } from "../../../../lib/fallEventImage.js";
+import { FALL_COLLECTION_POSTER, FALL_EVENT_VENUE_PLACE_IDS, fallEventCardImageSrc, eventImageIsVenue, mergeFallDiscoveryRows } from "../../../../lib/fallEventImage.js";
 import { eventSocialPosts } from "../../../../lib/eventSocial.js";
 import { fallStayDestinations } from "../../../../lib/fallStayDestinations.js";
 import { loadOwnerPickIds, applyCuratorPicksServer } from "../../../../lib/curatorPicksServer.js";
@@ -85,7 +86,7 @@ export async function GET(request) {
     // v23 (2026-09-30, owner) orders each rail by date then DISTANCE (open-now
     // places and running select-nights events key as today) and emits the
     // compact when-pill grammar (3-letter weekdays) — a v22 payload holds both.
-    const key = `fall-intents:v23:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    const key = `fall-intents:v24:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
@@ -208,11 +209,11 @@ export async function GET(request) {
         // destination. The helper also rejects legacy DB rows that were seeded
         // with that poster and derives this venue's own photo from place_id.
         image: image || null,
-        imageIsVenue: !!image && (e.image_is_venue === true || !e.hero_image || e.hero_image === FALL_COLLECTION_POSTER || /^\/api\/photo\?place=/.test(e.hero_image)),
+        imageIsVenue: eventImageIsVenue(e, image),
         photoAttr: e.photoAttr || null,
         photoAttrHref: e.photoAttrHref || null,
         url: eventOutboundUrl(e) || null,   // 2026-09-02: link_ok + quarantine + safeUrl gated
-        is_free: !!e.is_free, price_band: e.price_band || null,
+        is_free: e.is_free, price_band: e.price_band || null,
         tags: e.tags || [],
         creatorReels,
         ticket,
@@ -296,6 +297,7 @@ export async function GET(request) {
         .map((p) => (CURATED_OWNED_PLACE_PHOTOS[p.place_id] ? { ...p, photo_url: CURATED_OWNED_PLACE_PHOTOS[p.place_id].url } : p))
         .filter((p) => !seasonalPlaceIds.has(p.place_id))
         .filter((p) => hasStoredPlacePhoto(p))
+        .filter((p) => !FALL_PLACE_IDS[p.place_id] || fallPlaceEvidenceCurrent(p.place_id, today))
         .filter((p) => (!p.status || p.status === "OPERATIONAL")
           && (FALL_PLACE_IDS[p.place_id] || (typeof p.signals?.rating === "number" && p.signals.rating > 0)))
         .map((p) => ({
@@ -337,16 +339,19 @@ export async function GET(request) {
       return { today, ...composed, sourceCount: events.length + places.length, sourceFailures };
     }, {
       name: "fall-intent-rails",
-      usable: (value) => value?.rails?.length === 10 && Number(value?.sourceCount || 0) > 0,
+      usable: (value) => value?.sourceFailures === 0
+        && value?.rails?.length === 10 && Number(value?.sourceCount || 0) > 0,
     });
+    const complete = cached.value?.sourceFailures === 0;
     const headers = {
-      "cache-control": "public, s-maxage=900, stale-while-revalidate=86400",
+      "cache-control": complete ? "public, s-maxage=900, stale-while-revalidate=86400" : "no-store",
       "x-wayfind-fast-cache": cached.state,
     };
     if (railId) {
       const paged = pageOneRail(cached.value.rails, railId, { page, size });
       if (!paged) return Response.json({ error: "unknown rail" }, { status: 404, headers: { "cache-control": "no-store" } });
-      return Response.json({ rail: railId, today: cached.value.today, phase: cached.value.phase, ...paged }, { headers });
+      return Response.json({ rail: railId, today: cached.value.today, phase: cached.value.phase,
+        sourceFailures: cached.value.sourceFailures, ...paged }, { headers });
     }
     // Derive against the full cached rails outside the cache compute. This
     // makes the selector work immediately with v14 entries written before the

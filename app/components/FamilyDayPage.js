@@ -1,11 +1,13 @@
 "use client";
+import { openShareFlow } from "../../lib/shareFlow.js";
+import { shareOut } from "../../lib/shareOut.js";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import RankedExperiencePage from "./RankedExperiencePage";
 import RailLoading from "./RailLoading";
 import RailHeading from "./RailHeading";
-import { RailNav, RailDots } from "./RailCard";
+import RailCard, { RailNav, RailDots } from "./RailCard";
 import IconicPlaceCard from "./IconicPlaceCard";
 import ThemeParkRail from "./ThemeParkRail";
 import { usePagedRail } from "./usePagedRail";
@@ -109,23 +111,23 @@ async function fetchFamilyRail({ lat, lng, radiusMi, railId, filters, indoorOnly
   return body;
 }
 
-function FamilyEventCard({ event }) {
-  const href = event.href || event.dest;
-  const distance = Number.isFinite(Number(event.distMi ?? event.distanceMi))
-    ? `${Number(event.distMi ?? event.distanceMi) < 10 ? Number(event.distMi ?? event.distanceMi).toFixed(1) : Math.round(Number(event.distMi ?? event.distanceMi))} mi`
+export function FamilyEventCard({ event }) {
+  const href = event.href || event.dest || null;
+  const rawDistance = event.distMi ?? event.distanceMi;
+  const distance = rawDistance != null && Number.isFinite(Number(rawDistance))
+    ? `${Number(rawDistance) < 10 ? Number(rawDistance).toFixed(1) : Math.round(Number(rawDistance))} mi`
     : null;
-  const facts = [event.whenFact, event.venue, distance].filter(Boolean);
-  return (
-    <li className="wf-family-event-card">
-      {event.image ? <img src={event.image} alt="" loading="lazy" /> : <span className="wf-family-event-monogram" aria-hidden="true">{String(event.name || "Event").slice(0, 1)}</span>}
-      <div>
-        <span className="wf-family-event-kicker">Family event</span>
-        <h3>{href ? <a href={href}>{event.name}</a> : event.name}</h3>
-        {facts.length ? <p>{facts.join(" · ")}</p> : null}
-        {href ? <a className="wf-family-event-link" href={href}>Event details <span aria-hidden="true">›</span></a> : null}
-      </div>
-    </li>
-  );
+  return <RailCard
+    photo={event.image || null}
+    title={event.name}
+    eyebrow="Family event"
+    facts={[event.whenFact, event.venue, distance, event.price].filter(Boolean)}
+    href={href}
+    ariaLabel={`Open ${event.name}`}
+    cta={href ? { label: "Event details", href } : null}
+    actionItem={{ id: event.id, type: "event", title: event.name, image: event.image || null, url: href }}
+    surface="family_day_event"
+  />;
 }
 
 function FamilyRail({ rail, loc, radiusMi, filters, weatherSettled, weatherPaused, retryAll, onOpenPlace, cardActions, indoorOnly }) {
@@ -191,7 +193,7 @@ function FamilyRail({ rail, loc, radiusMi, filters, weatherSettled, weatherPause
       && (rail.id !== "culture" || (state.eventsAvailable === true && !state.events.length && !state.eventsTruncated))) return null;
   return (
     <section ref={sectionRef} className="wf-family-section" aria-labelledby={`family-${rail.id}-title`}>
-      <RailHeading id={`family-${rail.id}-title`} title={rail.title} description={rail.description}>
+      <RailHeading id={`family-${rail.id}-title`} title={rail.title} description={`${rail.description} Within ${radiusMi} miles.`}>
         {ready && cards.length ? <RailNav railId={`family-${rail.id}`} loaded={cards.length}
           count={state.more && !state.truncated ? state.matched : cards.length}
           total={state.more && !state.truncated ? state.matched : cards.length} unit="picks" /> : null}
@@ -245,7 +247,7 @@ function FamilyRail({ rail, loc, radiusMi, filters, weatherSettled, weatherPause
           {state.eventsAvailable === true && !state.events.length ? <p className="wf-family-empty">No verified family events match this location and these filters right now.</p> : null}
           {state.eventsAvailable === true && state.events.length ? (
             <>
-              <ol className="wf-family-event-rail" tabIndex="0" aria-label="Family events, horizontal list">
+              <ol className="wf-family-event-rail wf-rail wf-rail-exploding" tabIndex="0" aria-label="Family events, horizontal list">
                 {state.events.map((event) => <FamilyEventCard key={event.id} event={event} />)}
               </ol>
               {state.eventsTruncated ? <p className="wf-family-note">More matching family events are available.</p> : null}
@@ -356,10 +358,9 @@ export default function FamilyDayPage({ embedded = false, center = null, city = 
     });
   }, []);
 
-  const share = async () => {
+  const share = () => {
     const url = canonicalShareUrl(typeof window !== "undefined" ? window.location.href : "/family");
-    try { if (navigator.share) { await navigator.share({ title: "Family day, solved", url }); return; } } catch (error) { if (error && error.name === "AbortError") return; }
-    try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch (error) {}
+    openShareFlow({ title: "Family day, solved", url }, () => { setCopied(true); setTimeout(() => setCopied(false), 1800); });
   };
 
   const hasPoint = Number.isFinite(loc.lat) && Number.isFinite(loc.lng);
@@ -378,8 +379,8 @@ export default function FamilyDayPage({ embedded = false, center = null, city = 
         .wf-family-filter-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin-top:14px}.wf-family-filter-grid label span{display:block;margin:0 0 5px;color:#BEC8D6;font-size:10px;font-weight:850;letter-spacing:.07em;text-transform:uppercase}.wf-family-filter-grid select{width:100%;min-height:39px;border:1px solid rgba(255,255,255,.14);border-radius:10px;background:#111A27;color:${COLORS.text};padding:7px;font:inherit;font-size:12px}.wf-family-filters>p,.wf-family-note{margin:10px 0 0;color:${COLORS.muted};font-size:11.5px;line-height:1.45}.wf-family-clear{margin-top:11px;color:#BBF7D0}
         .wf-family-weather{margin:16px 0 0;padding:12px 14px;border-left:3px solid #F59E0B;border-radius:8px;background:rgba(245,158,11,.09);color:#FDE68A;font-size:12.5px;line-height:1.5}
         .wf-family-section{min-height:170px;margin-top:30px;scroll-margin-top:20px}
-        .wf-family-event-rail{display:grid;grid-auto-flow:column;grid-auto-columns:min(82vw,360px);gap:13px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0;padding:2px 2px 9px;list-style:none}.wf-family-event-rail::-webkit-scrollbar{display:none}.wf-family-event-card{scroll-snap-align:start;margin:0!important}.wf-family-fact{display:inline-flex!important;align-items:center;gap:7px;max-width:100%;overflow:hidden;color:#D1FAE5!important;background:rgba(34,197,94,.1)!important;border:1px solid rgba(74,222,128,.25)!important}.wf-family-fact>a{flex:none;color:#86EFAC;text-decoration:none;font-weight:850}.wf-family-message,.wf-family-empty{margin:0;padding:16px;border:1px solid rgba(255,255,255,.08);border-radius:14px;background:#0A0F18;color:${COLORS.muted};font-size:13px;line-height:1.55}.wf-family-message p{margin:0 0 11px}
-        .wf-family-events{margin-top:18px}.wf-family-events>h3{margin:0 0 10px;color:${COLORS.text};font-size:15px}.wf-family-event-card{display:grid;grid-template-columns:104px minmax(0,1fr);min-height:150px;overflow:hidden;border:1px solid rgba(159,177,203,.25);border-radius:17px;background:#111824}.wf-family-event-card>img,.wf-family-event-monogram{width:104px;height:100%;min-height:150px;object-fit:cover}.wf-family-event-monogram{display:grid;place-items:center;color:#FFC08F;background:linear-gradient(155deg,#192230,#0D131E);font-size:24px;font-weight:900}.wf-family-event-card>div{padding:15px}.wf-family-event-kicker{color:#86EFAC;font-size:9px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}.wf-family-event-card h3{margin:6px 0 0;font-size:16px;line-height:1.2}.wf-family-event-card h3 a{color:${COLORS.text};text-decoration:none}.wf-family-event-card p{margin:7px 0;color:${COLORS.muted};font-size:11.5px;line-height:1.4}.wf-family-event-link{color:#86EFAC;font-size:11.5px;font-weight:800;text-decoration:none}
+        .wf-family-events{margin-top:18px}.wf-family-events>h3{margin:0 0 10px;color:${COLORS.text};font-size:15px}
+        .wf-family-fact{display:inline-flex!important;align-items:center;gap:7px;max-width:100%;overflow:hidden;color:#D1FAE5!important;background:rgba(34,197,94,.1)!important;border:1px solid rgba(74,222,128,.25)!important}.wf-family-fact>a{flex:none;color:#86EFAC;text-decoration:none;font-weight:850}.wf-family-message,.wf-family-empty{margin:0;padding:16px;border:1px solid rgba(255,255,255,.08);border-radius:14px;background:#0A0F18;color:${COLORS.muted};font-size:13px;line-height:1.55}.wf-family-message p{margin:0 0 11px}
         @media(max-width:720px){.wf-family-filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.wf-family-distance{align-items:flex-start;flex-direction:column}.wf-family-section{margin-top:26px}}
 
       ` }} />
@@ -388,7 +389,7 @@ export default function FamilyDayPage({ embedded = false, center = null, city = 
       <ThemeParkRail mode="family" familyContext={{ lat: loc.lat, lng: loc.lng, radiusMi, filters, indoorOnly, ready: weatherSettled && !!moment, paused: weatherPaused }} onOpenPlace={onOpenPlace} {...cardActions} />
       {!hasPoint ? <div className="wf-family-message"><p>This page needs a location before it can rank nearby family picks. Open the Family Day poster after choosing a location.</p></div> : (
         <>
-          {FAMILY_DAY_RAILS.map((rail) => <FamilyRail key={rail.id} rail={rail} loc={loc} radiusMi={radiusMi} filters={filters} indoorOnly={indoorOnly} weatherSettled={weatherSettled && !!moment} weatherPaused={weatherPaused} retryAll={retryAll} onOpenPlace={onOpenPlace} cardActions={cardActions} />)}
+          {FAMILY_DAY_RAILS.map((rail) => <FamilyRail key={rail.id} rail={rail} loc={loc} radiusMi={embedded && ["water", "animals"].includes(rail.id) ? 50 : radiusMi} filters={filters} indoorOnly={indoorOnly} weatherSettled={weatherSettled && !!moment} weatherPaused={weatherPaused} retryAll={retryAll} onOpenPlace={onOpenPlace} cardActions={cardActions} />)}
           <button type="button" className="wf-family-clear" onClick={() => setRetryAll((value) => value + 1)}>Refresh loaded rails</button>
         </>
       )}
@@ -400,7 +401,7 @@ export default function FamilyDayPage({ embedded = false, center = null, city = 
       topLeft={<BackControl fallback="/" variant="editorial" />}
       eyebrow="Memories for life"
       titleTop="Family day, solved"
-      subtitle={loc.city ? `Ten ways to plan a family day around ${loc.city}, ranked from real place evidence.` : "Ten ways to plan a family day, ranked from real place evidence."}
+      subtitle={loc.city ? `${FAMILY_DAY_RAILS.length} ways to plan a family day around ${loc.city}, ranked from real place evidence.` : `${FAMILY_DAY_RAILS.length} ways to plan a family day, ranked from real place evidence.`}
       heroImg="/cards/family-day-solved-v2.webp"
       location={loc.city || undefined}
       imageKicker="THE WAYFIND FAMILY EDITION"

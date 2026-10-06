@@ -11,19 +11,11 @@
 // whose birthday it is had to select the address bar. The share that never
 // happened is the cheapest acquisition channel this product has.
 //
-// TWO THINGS THIS DOES THAT A MAILTO LINK WOULD NOT:
-//
-//   1. It uses the OS sheet on a phone, where the reader already is. The link
-//      lands in the thread they were going to paste it into anyway, with the
-//      page's own OG card (each guide has one — see the guide's
-//      generateMetadata) rather than a bare blue URL.
-//   2. A browser without Web Share opens the shared Text message / Email / Copy
-//      chooser. Copy confirms only after the reader explicitly chooses it.
-//
-// The ordering rule it depends on — sheet BEFORE clipboard, because on iOS the
-// clipboard consumes the tap's activation — lives in lib/shareOut.js.
+// The same dark/orange intent menu and explicit Text/Email/Copy/native choices
+// now serve every share family. Native Web Share starts only from its own fresh
+// button tap; merely opening the menu never sends or copies anything.
 import { useEffect, useRef, useState } from "react";
-import { shareOut } from "../../lib/shareOut";
+import { openShareFlow } from "../../lib/shareFlow.js";
 import { track } from "../../lib/track";
 
 const Glyph = () => (
@@ -77,7 +69,7 @@ export default function ShareButton({
   const onClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    const how = shareOut({ url, title, text }, () => {
+    const how = openShareFlow({ url, title, text }, () => {
       setSaid("Link copied");
       if (timer.current) clearTimeout(timer.current);
       timer.current = setTimeout(() => setSaid(""), 2400);

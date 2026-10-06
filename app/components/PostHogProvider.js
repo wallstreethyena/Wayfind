@@ -18,6 +18,7 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { supabase } from "../../lib/supabase";
+import { isGroupPlanPath } from "../../lib/groupPlanPrivacy.js";
 import {
   analyticsSuppressionReason,
   clearPreReadyQueue,
@@ -34,6 +35,7 @@ export default function PostHogProvider({ children }) {
   useEffect(() => {
     const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
     if (typeof window === "undefined" || window._phInit) return;
+    if (isGroupPlanPath(window.location.pathname)) { window.__WF_ANALYTICS_SUPPRESSED="private_group_plan"; clearPreReadyQueue(window); return; }
     window._phInit = "starting";
     let cancelled = false;
     let tracker = null;
@@ -146,6 +148,10 @@ export default function PostHogProvider({ children }) {
   }, []);
 
   useEffect(() => {
+    if (isGroupPlanPath(pathname)) {
+      try { window.__WF_ANALYTICS_SUPPRESSED="private_group_plan";window.posthog?.opt_out_capturing();window.__WF_PAGE_TRACKER?.stop({emitExit:false});clearPreReadyQueue(window); } catch (e) {}
+      return;
+    }
     try { if (window.__WF_PAGE_TRACKER) window.__WF_PAGE_TRACKER.navigate(pathname); } catch (e) {}
   }, [pathname]);
 

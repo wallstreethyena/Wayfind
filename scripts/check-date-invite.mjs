@@ -22,7 +22,7 @@
  */
 import { readFileSync, existsSync, readdirSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import {
   ACTIVITIES, activityFor, activityHref, activityLinkLabel, encodeInvite, decodeInvite,
   curiousLine, curiousFoot, MOOD_LADDER, moodAt, PLEAS, pleaAt, yesScale, noScale, SCALE,
@@ -328,14 +328,10 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
      "the invited person must be able to send a message back — the owner asked for it by name");
   ok(/yesText\(inv, activity, dayLabel, \{ name: who, note \}\)/.test(client),
      "the reply must be built from what they actually typed");
-  // THE SEND STATE MUST BE EARNED. The first version flipped to SENT the instant
-  // the button was pressed and stayed there if the person cancelled the share
-  // sheet — telling them their yes had gone when it had not, on the one screen
-  // where they will never think to check.
-  ok(/setSent\("sent"\)/.test(client) && /AbortError/.test(client),
-     "the sent state must come from what the share actually did, not from the tap");
-  ok(!/setSent\("sent"\)[\s\S]{0,80}navigator\.share/.test(client),
-     "the sent state is set before the share is attempted");
+  // OS handoff never proves delivery. Latest owner direction unifies text-first
+  // shares, so the reply may acknowledge choices/copy, never claim SENT.
+  ok(!/setSent\("sent"\)|Sent — they know/.test(client), "the reply must not equate native resolution with delivery");
+  ok(/shareOut\(\{ title: "Your reply", text \}/.test(client) && /textOnly: true/.test(client), "the reply must use the shared text-first transport without inventing a URL");
   ok(/aria-live/.test(client), "the result of sending has to be announced, not just coloured");
   // The burst and the resume both have to respect the person on the other end.
   // THE CAT WATCHES THEM DECIDE. Owner: "make the little guy track the mouse,
@@ -373,17 +369,8 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
      "progress must survive them closing the page — the worst thing here is losing a yes halfway through");
   ok(/m\.step !== "yay"/.test(client),
      "coming back must not land on the 2.6s celebration frame, which auto-advances and reads as a glitch cold");
-  // REVERSED, one commit after it was written. It required an "Open Messages"
-  // sms: link; the owner killed that on sight and he was right. This page spends
-  // five frames building something and a raw sms: link throws the person out of
-  // it into a grey compose window mid-moment. The share sheet appears OVER the
-  // page rather than replacing it, and it also covers the half of the world that
-  // answers in WhatsApp. A guard that pins the wrong decision is worse than no
-  // guard, so it pins the right one instead of being deleted.
-  ok(!/sms:/.test(client),
-     "an sms: link throws the person out of the page mid-moment — the share sheet opens over it and covers more apps");
-  ok((client.match(/navigator\.share/g) || []).length >= 1,
-     "there must still be exactly one way to send the answer, and it must be the native sheet");
+  ok(!/window\.location.*sms:|clipboard\.writeText/.test(client), "the reply must not regain automatic SMS/copy side effects outside the shared transport");
+  ok(/navigator\.share\(\{ files:/.test(client), "the explicit image-card export keeps its distinct file-share behavior");
   ok(!/\brequired\b/.test(client),
      "nothing on this page may be required — a mandatory field between a yes and telling them is a place to lose the yes");
 }
@@ -981,7 +968,19 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
   const btn = (body, txt) => body.walk((x) => x.tag === "button" && x.textContent.indexOf(txt) >= 0);
   const SHEET_ID = "wf-share-intent";
 
-  const { askShareIntent } = await loadComponent(path.join(REPO, "app/components/shareIntentSheet.js"), REPO);
+  const originalNavigator = globalThis.navigator;
+  const copyRequests = [];
+  Object.defineProperty(globalThis, "navigator", { configurable: true, value: {
+    clipboard: { writeText(value) { copyRequests.push(value); return Promise.resolve(); } },
+  } });
+  // The caller constructs a preview-origin invite, but the shared transport
+  // delivers its canonical production counterpart. Use the actual helper from
+  // this executed module graph, not a second handwritten URL transformation.
+  process.env.NEXT_PUBLIC_SITE_URL = "https://www.gowayfind.com";
+  let moduleGraph;
+  const { askShareIntent } = await loadComponent(path.join(REPO, "app/components/shareIntentSheet.js"), REPO, { onGraph(graph) { moduleGraph = graph; } });
+  const { canonicalShareUrl } = await import(pathToFileURL(moduleGraph.get(path.join(REPO, "lib/site.js"))).href);
+  ok(typeof canonicalShareUrl === "function", "control: the executed transport graph exposes its real canonical URL helper");
   ok(typeof askShareIntent === "function", "the sheet did not load — everything below this line is vacuous");
 
   // (a) A LAPTOP. Nothing native opened, so the sheet owes the user a sentence.
@@ -1005,25 +1004,29 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
        "the link was built from a hard-coded origin, so a preview deploy shares production links");
     ok(handed && handed.m && handed.m.to === "Cindy", "the name did not travel with the invite");
 
-    // THE BUG ITSELF: this is the assertion that was missing.
-    ok(!!document.getElementById(SHEET_ID),
-       "the sheet closed after a send that opened nothing — that is the owner's 'i hit send invite and nothing happens'");
-    const seen = body.textContent.replace(/\s+/g, " ");
-    ok(/Off to Cindy/.test(seen), `the confirmation does not name who it is for: ${seen.slice(0, 120)}`);
-    ok(/copied/i.test(seen), "the confirmation never says the link was copied, which is the one fact the user needs");
-
-    // THE SECOND HALF OF THE OWNER'S REPORT: "it still said invite copied
-    // instead of automatically sending the text." A copy is not a send.
-    ok(body.nav.length === 1, `the send made ${body.nav.length} navigations — it must compose exactly one text`);
-    const sms = body.nav[0] || "";
-    ok(sms.indexOf("sms:") === 0, `the send did not open a message composer: ${sms.slice(0, 40)}`);
-    const composed = decodeURIComponent(sms.slice(sms.indexOf("body=") + 5));
-    ok(composed.indexOf(handed.u) >= 0, "the composed text does not contain the invite link, so the message is useless");
-    ok(composed.indexOf("Cindy") === 0, `the composed text does not open with their name: ${composed.slice(0, 40)}`);
-    ok(composed.length > handed.u.length + 8, "the composed text is a bare link — the owner asked for witty, cute and charming");
-    ok(seen.indexOf(handed.u) >= 0, "the link is not on screen, so a failed clipboard write leaves nothing to grab");
-    ok(!!btn(body, "Copy the link again"), "no way to retry the copy — clipboard writes fail silently");
-    ok(!!btn(body, "Done"), "the confirmation has no way out");
+    ok(!!document.getElementById("wf-share-out-chooser"), "an invite handler opening nothing must leave visible text-first choices");
+    ok(!document.getElementById(SHEET_ID), "the intent menu must close when transport choices open");
+    const sms = body.walk((x) => x.tag === "a" && String(x.href || "").startsWith("sms:"));
+    ok(!!sms, "the fallback must expose an explicit text composer choice");
+    const composed = decodeURIComponent(String(sms?.href || "").split("body=")[1] || "");
+    const canonicalInvite = canonicalShareUrl(handed.u);
+    const canonicalParsed = new URL(canonicalInvite), originalParsed = new URL(handed.u);
+    ok(canonicalParsed.search === originalParsed.search && canonicalParsed.searchParams.get("d") === handed.m.key, "canonicalization must preserve the actual invitation capability query exactly");
+    const withFragment = new URL(canonicalShareUrl(handed.u + "#reply"));
+    ok(withFragment.search === originalParsed.search && withFragment.hash === "#reply", "the real canonical helper must preserve both the invite query and an explicit reply fragment");
+    ok(composed === handed.t + " " + canonicalInvite, "the text choice must contain the exact authored message and canonical invite link");
+    ok(composed.indexOf("Cindy") === 0, "the text choice must retain the recipient name");
+    ok(body.nav.length === 0, "opening choices must not automatically navigate to SMS");
+    ok(!!btn(body, "Copy link"), "the user must be able to choose Copy explicitly");
+    ok(!/copied/i.test(body.textContent), "opening choices must not claim a clipboard write succeeded");
+    ok(copyRequests.length === 0, "writing the invite/opening transport choices must not automatically touch the clipboard");
+    ok(String(sms.getAttribute("style") || "").includes("#F97316"), "the real text composer choice retains the orange primary treatment");
+    const email = body.walk((x) => x.tag === "a" && String(x.href || "").startsWith("mailto:"));
+    ok(email && new URL(email.href).searchParams.get("body") === handed.t + " " + canonicalInvite, "the alternate email composer must carry the exact same authored message and canonical invite link");
+    btn(body, "Copy link").fire("click");
+    await Promise.resolve(); await Promise.resolve();
+    ok(copyRequests.length === 1 && copyRequests[0] === canonicalInvite, "only an explicitly chosen Copy writes this invite's exact canonical URL");
+    ok(!document.getElementById("wf-share-out-chooser"), "successful explicit copy closes the transport chooser");
   }
 
   // (b) A PHONE. The OS sheet took the screen, so ours must get out of the way.
@@ -1051,9 +1054,8 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
     btn(body, "asking someone out").fire("click");
     btn(body, "Skip").fire("click");
     ok(handed && /\/ask\?d=/.test(handed.u), "skipping the name abandoned the share instead of sending a mystery invite");
-    ok(/Your invite is written/.test(body.textContent.replace(/\s+/g, " ")),
-       "an unnamed invite gets no confirmation at all");
-    ok((body.nav[0] || "").indexOf("sms:") === 0, "an unnamed invite does not get its text written for it");
+    ok(!!document.getElementById("wf-share-out-chooser"), "an unnamed invite must still open visible text choices");
+    ok(body.nav.length === 0, "an unnamed invite must wait for an explicit composer choice");
   }
 
   // (d) A CALLER THAT RETURNS NOTHING gets the confirmation. Being wrong in the
@@ -1065,8 +1067,8 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
       onPlain() {}, onInvite() { /* forgets to return */ } });
     btn(body, "asking someone out").fire("click");
     btn(body, "Skip").fire("click");
-    ok(!!document.getElementById(SHEET_ID),
-       "a caller that returns nothing must still leave the user with a confirmation, not silence");
+    ok(!!document.getElementById("wf-share-out-chooser"),
+       "a caller that returns nothing must still leave visible text-first choices");
   }
 
   // (e) NOTHING TO SHARE. An unencodable invite must fall back to the plain
@@ -1092,6 +1094,9 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
     ok(!document.getElementById(SHEET_ID), "Cancel no longer closes the sheet");
   }
 
+  if (originalNavigator === undefined) delete globalThis.navigator;
+  else Object.defineProperty(globalThis, "navigator", { configurable: true, value: originalNavigator });
+  delete process.env.NEXT_PUBLIC_SITE_URL;
   delete globalThis.document;
   delete globalThis.window;
 }
