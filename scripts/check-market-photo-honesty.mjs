@@ -47,7 +47,7 @@ function railPhotoContract(src) {
     && /const usingFallback = !!fallbackPhoto && fallbackPhoto\.primary === shownPhoto;/.test(src)
     && /const displayedPhoto = usingFallback \? fallbackPhoto\.src : shownPhoto;/.test(src)
     && /\{shownPhoto && imgFailed !== shownPhoto\s*\? <img\s+src=\{displayedPhoto\}/.test(src)
-    && imageSources.length === 2 && imageSources.every((value) => value === "{displayedPhoto}")
+    && imageSources.length === 1 && imageSources.every((value) => value === "{displayedPhoto}")
     && /: <div className="wf-place-card-monogram"/.test(src);
 }
 ok(railPhotoContract(rail),

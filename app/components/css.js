@@ -108,27 +108,7 @@ export const WF_SEARCH_CSS = `.wf-search-row{filter:drop-shadow(0 11px 20px rgba
 // Every place-card surface consumes the single geometry contract in
 // lib/placeCardStandard.js. The viewport formula keeps a 1.08-card phone peek
 // and caps the same card body at the desktop measure.
-// Shared event information slots retain the standard card geometry.
-// Two destinations share one row. Each label may wrap inside its own track;
-// a narrow card must not stack two full CTA rows above the fixed action row.
-const EVENT_VISIT_CARD_CSS = `
-.wf-rail-card-links{display:flex;align-items:center;gap:8px;min-width:0;flex-wrap:wrap}
-.wf-rail-card-links:has(>a+a){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;align-items:stretch}
-.wf-rail-card-links:has(>a+a)>a{margin-top:0;overflow-wrap:anywhere}
-.wf-rail-card-links .wf-rail-card-cta{min-width:0;max-width:100%;font-size:10.5px!important;padding:6px 8px!important;line-height:1.2;white-space:normal}
-.wf-event-card-cost{display:block;text-align:left;border:0!important;background:transparent!important;padding:0!important;color:inherit!important;font:inherit;font-size:11px!important;line-height:1.35;font-weight:750!important;margin:5px 0;max-width:100%;cursor:pointer;white-space:normal}
-.wf-event-card-backdrop{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover;pointer-events:none;opacity:.8}
-.wf-event-photo-led .wf-place-card-layout{position:relative;z-index:1}
-.wf-event-photo-led .wf-place-card-content{background:linear-gradient(90deg,rgba(10,14,21,.76),rgba(10,14,21,.91))}
-.wf-event-photo-led .wf-place-card-media{background:transparent!important}
-.wf-event-photo-credit{width:auto!important;height:auto!important;max-width:calc(100% - 10px);font-size:8px!important;line-height:1.2!important;padding:4px;border-radius:5px!important;text-align:center;overflow-wrap:anywhere;right:5px;bottom:5px}
-.wf-event-photo-caption{position:absolute;left:5px;top:52px;right:5px;background:rgba(0,0,0,.76);color:#fff;border-radius:4px;padding:3px;font-size:9px;text-align:center;line-height:1.25;pointer-events:none}
-.wf-event-visit-dialog{width:min(440px,calc(100vw - 28px));max-height:85vh;overflow:auto;border:1px solid #805330;border-radius:16px;padding:22px;background:#131922;color:#fff;box-shadow:0 20px 80px #000;font:14px/1.5 var(--wf-sans,sans-serif)}
-.wf-event-visit-dialog::backdrop{background:rgba(0,0,0,.72)}
-.wf-event-visit-dialog h3{padding-right:25px;margin:0 0 12px;font-size:20px}.wf-event-visit-dialog p{margin:10px 0}.wf-event-visit-dialog a{color:#ffb572}.wf-event-visit-close{position:absolute;right:10px;top:8px;color:inherit;background:transparent;border:0;font-size:28px;cursor:pointer}.wf-event-visit-note{font-size:12px;color:#b9c1ce}
-`;
-
-export const WF_PLACE_CARD_CSS = `${EVENT_VISIT_CARD_CSS}
+export const WF_PLACE_CARD_CSS = `
 ${WF_SKELETON_CSS}
 .wf-ticket-pill{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 9px 0 8px;border-radius:7px;text-decoration:none;position:relative;color:#FFD9AE;background:linear-gradient(180deg,rgba(253,186,116,.17),rgba(249,115,22,.10));border:1px solid rgba(253,186,116,.44);box-shadow:inset 0 1px 0 rgba(255,236,209,.18),0 1px 0 rgba(0,0,0,.34);transition:background .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease}
 .wf-ticket-pill svg{width:13px;height:13px;display:block;flex:0 0 13px;color:#FDBA74}
