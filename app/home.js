@@ -8,6 +8,7 @@ import { localCitySuggestions, createSearchAttempt } from "../lib/searchExperien
 import { mergeHealedPlacePhotos } from "../lib/detailHero";
 import { RON_DUPRAT_TOP7, chefHookCard, chefPickPlaces } from "../lib/chefPicks";
 import { fallCardClass, fallShareLine } from "../lib/fallSkin.js";
+import { spookyOverFall } from "../lib/spookySkin.js";
 import { siteTodayStr } from "../lib/siteTime";
 import { activeSeasonalMark } from "../lib/seasonalBrand";
 import { lunchRevealCookieValue, lunchRevealCount, lunchRevealLimit } from "../lib/lunchReveal";
@@ -12038,7 +12039,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
     ? { rank: cardRank, label: "Wayfind curator's pick", curator: true }
     : topPickAward({ category: pcat, rank: cardRank }));
   return (
-    <div data-wf-position-key={"place-" + p.id} className={`wf-place-card${fallCardClass(p && p.id, siteTodayStr())}${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${isCuratorPick ? " is-curator-pick" : ""}${!(curatedHook || knownForHook || aiSummary) ? " is-no-take" : ""}`} style={{ position: "relative" }}>
+    <div data-wf-position-key={"place-" + p.id} className={`wf-place-card${fallCardClass(p && p.id, siteTodayStr())}${spookyOverFall(p, siteTodayStr())}${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${isCuratorPick ? " is-curator-pick" : ""}${!(curatedHook || knownForHook || aiSummary) ? " is-no-take" : ""}`} style={{ position: "relative" }}>
       <button type="button" className="wf-place-card-open" onPointerDown={tapIntent.onPointerDown} onPointerMove={tapIntent.onPointerMove} onPointerUp={tapIntent.onPointerUp} onPointerCancel={tapIntent.onPointerCancel} onClick={(event) => { if (tapIntent.shouldOpen()) onDetail?.(event); }} aria-label={`Open ${p.name}`} style={{ position: "absolute", inset: 0, zIndex: 0, width: "100%", height: "100%", opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
       {/* v8.62 (owner, 2026-08-26, live): "top right hand corner of the card,
           not in front of the image." The score badge is a direct child of the

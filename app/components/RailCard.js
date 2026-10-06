@@ -313,7 +313,7 @@ export function RailDots({ railId, count }) {
  * @param {string}   p.href        when the card body is a link rather than a handler
  */
 export default function RailCard({
-  photo, photoFallback, photoAttr, photoAttrHref, photoPosition = "50% 50%", visitFacts = null, title, eyebrow, onEyebrow, rank, score, when, facts, award, chips, badge, cta, ctaNode, take,
+  photo, photoFallback, photoAttr, photoAttrHref, photoPosition = "50% 50%", visitFacts = null, spooky = false, title, eyebrow, onEyebrow, rank, score, when, facts, award, chips, badge, cta, ctaNode, take,
   onOpen, href, external, ariaLabel, className, creatorVideos = null,
   // v8.70 — see the IconicPlaceCard note: inside .wf8-pcrail (the rail's
   // tap-expanded horizontal scroller) `loading="lazy"` never resolves, so a
@@ -454,7 +454,7 @@ export default function RailCard({
     <article
       ref={domRef}
       data-place-id={place?.id || undefined}
-      className={`wf-place-card wf-rail-card${fallCardClass(place && place.id, siteTodayStr())}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${className ? " " + className : ""}`}
+      className={`wf-place-card wf-rail-card${fallCardClass(place && place.id, siteTodayStr())}${spooky ? " wf-spooky-card" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${className ? " " + className : ""}`}
       role="button"
       tabIndex={0}
       onPointerDown={tapIntent.onPointerDown}

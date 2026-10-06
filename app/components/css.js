@@ -667,7 +667,6 @@ ${WF_SKELETON_CSS}
   letter-spacing:.2px;
   text-decoration:none;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;max-width:100%;
-  /* real card labels (Tickets at Undercover Tourist) must FIT the ~150px box; ellipsis is only the safety net */
   font-size:9.5px;letter-spacing:0;padding-inline:4px;
   transition:border-color .18s ease,background .18s ease;
 }
@@ -739,6 +738,28 @@ ${WF_SKELETON_CSS}
 .wf-rail-when-body{display:flex;box-sizing:border-box;flex:1;min-width:0;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:5px 2px;text-align:center}
 .wf-rail-when-label{width:100%;overflow:hidden;color:#D4DCE7;font-size:7px;font-weight:850;letter-spacing:.35px;text-overflow:ellipsis;text-transform:uppercase;white-space:nowrap}
 .wf-rail-when-value{width:100%;overflow:hidden;color:#F8FAFC;font-size:12.25px;font-weight:850;letter-spacing:-.1px;line-height:1;text-overflow:ellipsis;white-space:nowrap}
+
+.wf-place-card.wf-spooky-card:not(.is-liked):not(.is-disliked){border:1.5px solid rgba(150,86,255,.5)!important}
+.wf-place-card.wf-spooky-card{background:radial-gradient(130% 80% at 100% 0%,rgba(138,60,255,.2),transparent 60%),#0B0B12!important;box-shadow:0 10px 26px rgba(8,3,20,.62),0 0 0 1px rgba(138,60,255,.1),0 0 20px rgba(138,60,255,.2)!important}
+.wf-place-card.wf-spooky-card .wf-place-card-media{background:#150A2B}
+.wf-place-card.wf-spooky-card .wf-place-card-category{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#F7760F!important;font-weight:900!important;font-size:7.5px;letter-spacing:.05em;text-shadow:none}
+.wf-place-card.wf-spooky-card .wf-place-card-category:before{content:"\\1F383\\00A0";display:inline}
+.wf-place-card.wf-spooky-card .wf-place-card-name{color:#FFF!important}
+.wf-place-card.wf-spooky-card .wf-place-card-meta{color:#A39EBD!important}
+.wf-place-card.wf-spooky-card .wf-place-card-meta>span+span:before{color:#6F5BA6!important}
+.wf-place-card.wf-spooky-card .wf-place-card-take{color:#E0DCF2!important;border-left-color:#8A3CFF!important}
+.wf-place-card.wf-spooky-card .wf-place-card-highlights>button,.wf-place-card.wf-spooky-card .wf-place-card-highlights>span,.wf-place-card.wf-spooky-card .wf-place-card-highlights>a{background:rgba(22,18,40,.92)!important;border:1px solid rgba(165,128,235,.34)!important;color:#EAE5FA!important;box-shadow:none!important}
+.wf-place-card.wf-spooky-card button:not(.is-active){background:rgba(16,13,30,.92)!important;border:1px solid rgba(165,128,235,.34)!important;color:#EFEBFC!important}
+.wf-place-card.wf-spooky-card .wf-place-card-actions>.wf-place-card-book,.wf-place-card.wf-spooky-card .wf-rail-card-cta{border:1px solid rgba(255,176,102,.85)!important;border-radius:999px!important;background:linear-gradient(180deg,#F26A12,#B83F06)!important;color:#FFF7EC!important;box-shadow:inset 0 1px rgba(255,255,255,.28),0 4px 14px rgba(247,118,15,.28)}
+.wf-place-card.wf-spooky-card .wf-rail-card-cta:hover,.wf-place-card.wf-spooky-card .wf-rail-card-cta:focus-visible{border-color:#FFD2A1!important;background:linear-gradient(180deg,#FF7A20,#C7470A)!important}
+.wf-place-card.wf-spooky-card button.wayfind-score-badge,.wf-place-card.wf-spooky-card .wf-rail-when{--wf-score-color:#8A3CFF;--wf-score-border:#B44CFF;--wf-score-glow:rgba(180,76,255,.55);--wf-score-tint:rgba(138,60,255,.2);--wf-when-color:#8A3CFF;--wf-when-border:#B44CFF;--wf-when-glow:rgba(180,76,255,.55);--wf-when-tint:rgba(138,60,255,.2);position:relative;border:1.5px solid #B44CFF!important;background:linear-gradient(135deg,rgba(60,20,110,.5),transparent 70%),#0A0612!important;box-shadow:0 0 0 1px rgba(180,76,255,.18),0 0 11px rgba(180,76,255,.45)}
+.wf-place-card.wf-spooky-card .wayfind-score-badge>span:first-child,.wf-place-card.wf-spooky-card .wf-rail-when-rail{background:linear-gradient(180deg,#2E1160,#1A0838)!important;color:#D9A8FF!important;box-shadow:inset -1px 0 rgba(180,76,255,.55)}
+.wf-place-card.wf-spooky-card .wayfind-score-badge>span:first-child svg{stroke:#D49BFF!important;filter:drop-shadow(0 0 3px #B44CFF) drop-shadow(0 0 6px rgba(138,60,255,.9))}
+.wf-place-card.wf-spooky-card .wayfind-score-badge>span:first-child svg circle{fill:#D49BFF!important}
+.wf-place-card.wf-spooky-card .wf-rail-when-rail svg{filter:drop-shadow(0 0 3px #B44CFF)}
+.wf-place-card.wf-spooky-card .wayfind-score-badge>span:last-child>span:first-child,.wf-place-card.wf-spooky-card .wf-rail-when-label{color:#B98BFF!important}
+.wf-place-card.wf-spooky-card .wayfind-score-badge>span:last-child>span:last-child,.wf-place-card.wf-spooky-card .wf-rail-when-value{color:#FFF!important}
+.wf-place-card.wf-spooky-card .wayfind-score-badge:before,.wf-place-card.wf-spooky-card .wf-rail-when:before{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23C9A0FF' stroke-opacity='.8' stroke-width='.75'%3E%3Cpath d='M0 0H24M0 0L21 9M0 0L15 16M0 0L9 21M0 0V24M7 0Q5 5 0 7M13 0Q9 9 0 13M19 0Q13 13 0 19'/%3E%3C/svg%3E") left 0 top 0/17px 17px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23C9A0FF' stroke-opacity='.8' stroke-width='.75'%3E%3Cpath transform='rotate(180 12 12)' d='M0 0H24M0 0L21 9M0 0L15 16M0 0L9 21M0 0V24M7 0Q5 5 0 7M13 0Q9 9 0 13M19 0Q13 13 0 19'/%3E%3C/svg%3E") right 0 bottom 0/17px 17px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 15' fill='%23B44CFF'%3E%3Crect width='36' height='3'/%3E%3Crect x='5' width='3' height='8' rx='1.5'/%3E%3Crect x='15' width='2.6' height='6' rx='1.3'/%3E%3Crect x='26' width='3.2' height='11' rx='1.6'/%3E%3Ccircle cx='27.6' cy='13.2' r='1.3'/%3E%3C/svg%3E") right 7px top 0/26px 11px no-repeat}
 
 /* An affiliate card may itself be wrapped by a tracked <a>. These explicit
    descendants prevent browser link blue from leaking into the house card. */

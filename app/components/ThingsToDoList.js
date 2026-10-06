@@ -16,6 +16,7 @@ import { C, FOCUS, WayfindScoreBadge } from "./kit";
 import IconicPlaceCard from "./IconicPlaceCard";
 import { topPickAward } from "../../lib/topPickAward";
 import { fallCardClass } from "../../lib/fallSkin.js";
+import { spookyOverFall } from "../../lib/spookySkin.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
 import { toDisplayScore } from "../../lib/score";
 // v7.06 — the ONE editorial-line compressor, shared by every place surface.
@@ -172,7 +173,7 @@ export function Card({ r, first, rank, city, blurb, beachSignal, onOpenPlace, on
   ].filter(Boolean);
   const take = toHookLine(r.editorial_hook, r.title);
   const body = (
-    <article className={"wf-place-card wf-ttd-focus" + fallCardClass(r.place_id || r.id, siteTodayStr())} style={{ marginBottom: 12 }}>
+    <article className={"wf-place-card wf-ttd-focus" + fallCardClass(r.place_id || r.id, siteTodayStr()) + spookyOverFall(r, siteTodayStr())} style={{ marginBottom: 12 }}>
       {/* v8.62: score in the top right corner of the CARD, never on the photo
           (owner, 2026-08-26). Direct child of .wf-place-card — css.js rule. */}
       {ds != null ? <div className="wf-place-card-score"><WayfindScoreBadge score={ds} /></div> : null}

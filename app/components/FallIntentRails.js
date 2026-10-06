@@ -15,6 +15,7 @@ import { toDisplayScore } from "../../lib/score.js";
 import { useCuratorPicks, applyCuratorPicks } from "../../lib/curatorPicks.js";
 import { settleRescored, rescoredIds } from "../../lib/lawfulOrder.js";
 import { fallSkinLive } from "../../lib/fallSkin.js";
+import { isSpookyCard, sayHalloween, withSpookyChip } from "../../lib/spookySkin.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
 import { emitRailDegraded, isRailCancelled, railDeveloperFailure } from "../../lib/railFailure.js";
 import { fetchClassifiedPosterJson as fetchRailJson } from "../../lib/posterJson.js";
@@ -132,6 +133,11 @@ function FallRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, fallSkin,
             : null;
           const eventBodyHref = isEvent ? (card.detailHref || (card.officialOnly || !openEventVenue ? card.url || null : null)) : null;
           const eventBodyExternal = isEvent && !card.detailHref;
+          // Spooky skin (lib/spookySkin.js): only inside the fall skin, only through Nov 1.
+          const spooky = fallSkin && isSpookyCard(card, siteTodayStr(), { railId: rail.id });
+          const baseChips = isEvent ? eventChips(card, { onOpenVenue: card.detailHref || card.officialOnly ? openEventVenue : null }) : placeChips;
+          // "Halloween event" only when the event's own text says Halloween; otherwise the real rail title stays.
+          const eyebrow = spooky && isEvent && sayHalloween(card) ? "Halloween event" : rail.title;
           return <RailCard key={card.id} className="wf-exploding-primary" domRef={index === Math.min(sentinelIndex, items.length - 1) ? sentinelRef : undefined}
             photo={card.image || null}
             photoFallback={isEvent && card.place_id ? ownedPlacePhotoSrc(card.place_id, 640) : null}
@@ -140,9 +146,9 @@ function FallRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, fallSkin,
             photoPosition={card.photoPosition || "50% 50%"}
             photoAttr={card.photoAttr || null} photoAttrHref={card.photoAttrHref || null} place={place}
             creatorVideos={isEvent ? card.creatorReels : undefined}
-            title={card.title || card.name} eyebrow={rail.title} rank={rank}
+            title={card.title || card.name} eyebrow={eyebrow} rank={rank} spooky={spooky}
             score={isEvent ? null : toDisplayScore(Number.isFinite(card.governed_score) ? card.governed_score : card.wfScore)} when={isEvent ? card.when : null}
-            facts={facts} chips={isEvent ? eventChips(card, { onOpenVenue: card.detailHref || card.officialOnly ? openEventVenue : null }) : placeChips}
+            facts={facts} chips={spooky ? withSpookyChip(baseChips) : baseChips}
             take={card.hook || (card.shotLocation ? `${card.shotLocation}. ${card.take} ${card.fallReason || ""}`.trim() : card.take) || null} cta={cta}
             href={eventBodyHref} external={eventBodyExternal}
             ariaLabel={`Open ${card.title || card.name}`} onOpen={isEvent ? (card.detailHref || card.officialOnly ? undefined : openEventVenue || undefined) : (place && onOpenPlace ? () => onOpenPlace(place) : undefined)}

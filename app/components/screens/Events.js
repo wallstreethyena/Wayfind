@@ -7,6 +7,7 @@ import { C, TARGET } from "../kit";
 import * as Culture from "../../../lib/culture";
 import { eventCategoryArt } from "../../../lib/eventCategoryArt";
 import { fallSkinLive } from "../../../lib/fallSkin.js";
+import { isSpookyCard, sayHalloween, withSpookyChip } from "../../../lib/spookySkin.js";
 import { siteTodayStr } from "../../../lib/siteTime";
 import { rankExperiences } from "../../../lib/experiencesData";
 import { partnerTicketLabel } from "../../../lib/partnerCopy";
@@ -38,6 +39,9 @@ function EventCard({ e, onVenue, ctx }) {
   // "Plan your visit" second button; affiliate/ticket CTAs stay.
   const fall = !!e.isFall;
   const fallSkin = fall && fallSkinLive(siteTodayStr());
+  const spookyCard = { id: e.id, name: e.name, category: e.category, subcategory: e.subcategory, tags: e.tags };
+  const spooky = fallSkin && isSpookyCard(spookyCard, siteTodayStr());
+  const venueChips = venue && onVenue ? [{ key: "venue", icon: "📍", label: venue, onClick: onVenue }] : [];
   const categoryImage = fall ? "" : eventCategoryArt(ctx.eventBucket(e), e);
   const image = (ctx.eventUseImage(e) || fall ? (e.thumb || e.image) : "") || categoryImage;
   const hasCta = !fall || !!e.ticketVia || !!e.ticketed;
@@ -46,12 +50,13 @@ function EventCard({ e, onVenue, ctx }) {
     visitFacts={e.visitFacts || null}
     planningHref={internal && !fall ? e.dest : null}
     className={fallSkin ? "wf-fall-card" : undefined}
+    spooky={spooky}
     photoFallback={categoryImage}
     title={e.name}
-    eyebrow={seg.short}
+    eyebrow={spooky && sayHalloween(spookyCard) ? "Halloween event" : seg.short}
     when={{ label: (rec || f.wd || f.mo || "Event").toUpperCase(), value: f.time || `${f.mo} ${f.day}`, tone: "later" }}
     facts={[venue || null, e.price || null, e.source ? `via ${e.source}` : null].filter(Boolean)}
-    chips={venue && onVenue ? [{ key: "venue", icon: "📍", label: venue, onClick: onVenue }] : []}
+    chips={spooky ? withSpookyChip(venueChips) : venueChips}
     href={href}
     external={!internal}
     actionItem={{ id: e.id, type: "event", title: e.name, image, url: href, provider: e.source || null }}
