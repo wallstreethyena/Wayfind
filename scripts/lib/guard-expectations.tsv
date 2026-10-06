@@ -610,7 +610,7 @@ scripts/test-group-plan.mjs	0	CALL	blocks-ci-and-deploy	1	-	124	0	0	9feb2e75222f
 scripts/test-guide-city-coverage.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	c6a465e7282b1e60a693f376ebcef9066f918ad5a6a75a58a145c0d51a5b9ee2
 scripts/test-guide-discovery.mjs	0	RENDER	blocks-ci-and-deploy	1	-	49	0	0	068ca6d1cf45ceea019920403479348dedc628f7642f9bb2d1566f8f23e12512
 scripts/test-guide-editorial-mode.mjs	0	RENDER	blocks-ci-and-deploy	1	-	30	0	0	1143cfcf22aa5141699214ff1ec91bd33f894c0e624c3806bf91cc86cddb631b
-scripts/test-guide-editorial-photos.mjs	0	RENDER	blocks-ci-and-deploy	1	-	56	0	0	ffd4640e874ac97e0e3d7f2a0cf0d075fa60c585976080a002fea67b410e05b3
+scripts/test-guide-editorial-photos.mjs	0	RENDER	blocks-ci-and-deploy	1	-	60	0	0	6425aa5b856571d28b7a216e7776f9289281d3a047252dea2b4eb140d1f274d5
 scripts/test-guide-event-ticket-cta.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	4c24b43bf5556b3c6f06a5d6e653db81ac13e68196b85783d89f0d8e32a5b5d9
 scripts/test-guide-inline-book.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	24	0	0	8111527adc831e1d5059cf5dd4fd735f314522bae672d8d6392142c3dacceea7
 scripts/test-guide-lovebug-rail.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	91	0	0	1b0c16587c6bbc8eac01f417c4a312ae71bd109f1a6f4733640b4ff6d7cb88d2
@@ -775,7 +775,7 @@ scripts/test-resolver-word-boundary.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA
 scripts/test-revenue-heartbeat.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	7917041ebf9acc5edb73f65b7ea94cf57e1b109c29d446fd610f7d616fd63633
 scripts/test-review-depth-deduction.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	0b678c1ae6a5ca8dd778a212c5c51ea2db88d85266cebea6d2103da1c4f61e01
 scripts/test-safe-force-push.mjs	0	CALL	blocks-ci-and-deploy	1	-	52	0	0	09804c6ab5a9bf5154763b7c14e422d56ec58f4fdbaab039ef805a0b1e0566d2
-scripts/test-saved-items.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0	d03daa861aa5c9943d59bb4c87f3ede09f7a15fd9a554c886ffa8dcf319219e6
+scripts/test-saved-items.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	80b413bed0d1ff93e69541e5e1d91d0e6590745d2f0565967b09ef392b885010
 scripts/test-score-band.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0	66ce6bb8d963c3794ed7e0a60023cae63e93fc48bec98c83697c4743d4415f40
 scripts/test-score-explanation-runtime.mjs	0	RENDER	blocks-ci-and-deploy	1	-	43	0	0	b08797f25d0470fcf8046e56b5eb010d91346a71e8a08b6c72bb1bffe05c8e56
 scripts/test-score-explanation.mjs	0	RENDER	blocks-ci-and-deploy	1	-	133	0	0	439a45a4a9c8e64c7a003c7a739680d20582908715f5057da42067191fae0fa1

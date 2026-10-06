@@ -40,9 +40,11 @@ export function googleCreditMissing(media, showCaption = true) {
   if (!media || !isGooglePhotoSrc(media.src)) return false;
   // The no-spend cached rung (lib/guidePlaceFigureImage.js) is the venue's own
   // already-cached photo, read-only. It shows with the photographer when one
-  // is known; a missing credit is not a reason to blank the article's only
-  // picture (owner, 2026-10-06). Any other Google-served src keeps the rule.
-  if (isNoSpendCachedMedia(media)) return showCaption === false && !!media.credit;
+  // is known, otherwise with the generic visible "Photo: Google Maps" credit
+  // (GuideFigureCredit), so a missing wf_photo_credit row never blanks the
+  // article's only picture yet is never drawn uncredited. Only a hidden
+  // caption makes it unsafe. Any other Google-served src keeps the full rule.
+  if (isNoSpendCachedMedia(media)) return showCaption === false;
   const credit = typeof media.credit === "string" ? media.credit.trim() : "";
   const provider = typeof media.providerHref === "string" && /^https:\/\//.test(media.providerHref);
   return !credit || !provider || showCaption === false;
@@ -83,7 +85,8 @@ export function GuideFigureCredit({ image, as: As = "div", className }) {
   if (!media) return null;
   const license = compactGuideLicense(media.license);
   const caption = guideFigureCaptionParts(media);
-  const hasCaption = Boolean(caption.caption || caption.notice || media.credit || license || media.providerHref);
+  const genericGoogle = isNoSpendCachedMedia(media) && !media.credit;
+  const hasCaption = Boolean(caption.caption || caption.notice || media.credit || license || media.providerHref || genericGoogle);
   if (!hasCaption) return null;
   const creditHref = media.creditHref || media.source || null;
   const licenseHref = media.licenseUrl || media.licenseURL || media.license?.url || media.source || null;
@@ -94,8 +97,9 @@ export function GuideFigureCredit({ image, as: As = "div", className }) {
           {caption.caption}
         </span>
       ) : null}
-      {media.credit || license || media.providerHref ? (
+      {media.credit || license || media.providerHref || genericGoogle ? (
         <span className={styles.creditText}>
+          {genericGoogle ? <>Photo: Google Maps</> : null}
           {media.credit ? (creditHref ? <PhotoCreditLink href={creditHref}>Photo: {media.credit}</PhotoCreditLink> : <>Photo: {media.credit}</>) : null}
           {media.credit && license ? <span aria-hidden="true"> · </span> : null}
           {license ? (licenseHref ? <PhotoCreditLink href={licenseHref}>{license}</PhotoCreditLink> : <>{license}</>) : null}

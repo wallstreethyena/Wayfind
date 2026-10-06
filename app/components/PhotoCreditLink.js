@@ -21,7 +21,7 @@ export default function PhotoCreditLink({ href, rel, children, ...rest }) {
   const tokens = String(rel || "").split(/\s+/).filter(Boolean);
   if (!tokens.includes("noopener")) tokens.push("noopener");
   return (
-    <a {...rest} href={href} target="_blank" rel={tokens.join(" ")}>
+    <a {...rest} style={{ position: "relative", ...(rest.style || {}) }} href={href} target="_blank" rel={tokens.join(" ")}>
       {children}
       <span style={SR_ONLY}> (opens in a new tab)</span>
     </a>
