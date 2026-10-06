@@ -2595,7 +2595,7 @@ function eventCTA(e) {
   const ticketHost = /ticketmaster|eventbrite|seatgeek|axs\.com|stubhub|ticketweb|etix|dice\.fm|tickets\./.test(u);
   // An affiliate-sold event names its merchant (lib/eventTicketDeals.js via
   // curatedToFeedEvent.ticketVia) so the reader knows where the tap lands.
-  if (e.ticketVia) return { show: true, label: partnerTicketLabel(e.ticketVia, { product: e.ticketProduct }) };
+  if (e.ticketVia) return { show: true, label: partnerTicketLabel(e.ticketVia, { product: e.ticketProduct, card: true }) };
   if (e.ticketed === true || ticketHost) return { show: true, label: "Get tickets ↗" };
   if (e.ticketed === false) return { show: true, label: "View details ↗" };
   if (src.includes("google") || u.includes("google.")) return { show: true, label: "View on Google ↗" };
