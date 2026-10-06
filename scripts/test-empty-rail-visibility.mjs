@@ -198,21 +198,21 @@ const placeRails = [
   { id: "other", title: "Other places", cards: [{ kind: "place", id: "other-place", name: "Other Place" }] },
 ];
 const guidedMarkup = renderWithGuide(placeRails);
-assert.equal((guidedMarkup.match(/data-guide-discovery=/g) || []).length, 1, "a covered place renders one actual guide card");
-assert.match(guidedMarkup, /data-guide-figure="card"/, "the guide's CSS-module figure dependency really renders");
-assert.match(guidedMarkup, /href="https:\/\/example.test\/credit"/, "the actual guide keeps its separate credit link");
+assert.equal((guidedMarkup.match(/data-guide-rail=/g) || []).length, 1, "a covered place renders one actual guide card");
+assert.match(guidedMarkup, /wf-rail-card/, "the guide renders as the standard rail place card");
+assert.doesNotMatch(guidedMarkup, /example.test\/credit|Illustrative/, "the guide card carries no stock photo credit or disclaimer");
 assert.equal((guidedMarkup.match(/data-rail=/g) || []).length, 2, "the guide wrapper preserves both original place rails");
 assert.match(guidedMarkup, /Covered Place/);
 assert.match(guidedMarkup, /Other Place/);
 assert.equal(renderWithGuide([{ ...placeRails[0], cards: [] }]), "", "guide context cannot revive a healthy empty rail shell");
 const guidedPending = renderWithGuide([{ ...placeRails[0], pending: true, cards: [] }]);
 assert.match(guidedPending, /role="status"/, "guide context preserves the real pending rail");
-assert.doesNotMatch(guidedPending, /data-guide-discovery=/, "pending inventory cannot invent guide relevance");
+assert.doesNotMatch(guidedPending, /data-guide-rail=/, "pending inventory cannot invent guide relevance");
 const unrelatedMarkup = renderWithGuide([{ ...placeRails[0], cards: [{ kind: "place", id: "unrelated", name: "Unrelated Place" }] }]);
 assert.match(unrelatedMarkup, /Unrelated Place/);
-assert.doesNotMatch(unrelatedMarkup, /data-guide-discovery=/, "unrelated place identity cannot authorize a guide");
+assert.doesNotMatch(unrelatedMarkup, /data-guide-rail=/, "unrelated place identity cannot authorize a guide");
 const guidedEvent = renderWithGuide([{ ...placeRails[0], cards: [{ kind: "event", id: "covered-place", name: "Covered ID concert", dest: "/events/concert" }] }]);
 assert.match(guidedEvent, /Covered ID concert/);
-assert.doesNotMatch(guidedEvent, /data-guide-discovery=/, "event identity cannot authorize a place guide");
+assert.doesNotMatch(guidedEvent, /data-guide-rail=/, "event identity cannot authorize a place guide");
 
 console.log("empty rail visibility: original behavioral/render/event wiring controls and real guide/CSS-module positive and negative controls passed");

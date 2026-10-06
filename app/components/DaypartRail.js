@@ -2216,7 +2216,7 @@ export default function DaypartRail({
                   return (
                   <Fragment key={p.id}>
                   {guideInsert && i === guideInsert.before ? <li className="wf8-guide-insert">
-                    <GuideDiscoveryCard guide={guideInsert.guide} compact
+                    <GuideDiscoveryCard guide={guideInsert.guide} matched={guideInsert.matched}
                       onOpen={(g) => logEvent("guide_open", { slug: g.slug, region: g.region, src: "place_rail", rail: selected })} />
                   </li> : null}
                   <IconicPlaceCard

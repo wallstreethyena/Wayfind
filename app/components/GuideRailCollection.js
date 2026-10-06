@@ -22,7 +22,7 @@ export default function GuideRailCollection({ rails = [], collectionId, children
     {child}
     {selected?.railId === rails[index].id ? <aside aria-label="Go deeper with a local guide"
       data-guide-rail={selected.railId} style={{ margin: '22px 0 4px', width: '100%', maxWidth: PLACE_CARD_MAX_WIDTH_PX }}>
-      <GuideDiscoveryCard guide={selected.guide} compact />
+      <GuideDiscoveryCard guide={selected.guide} matched={selected.matched} />
     </aside> : null}
   </Fragment>)}</>;
 }
