@@ -36,8 +36,11 @@ assert(miami.src.includes('vizcaya'), 'beyond the beach uses covered museum, not
 assert.deepEqual(guideImageProblems(miami,GUIDE_IMAGE_BRIEFS['things-to-do-in-miami-florida']),[],'Miami rights and subject policy passes');
 assert(guideImageProblems({...miami,subject:'beach'},GUIDE_IMAGE_BRIEFS['things-to-do-in-miami-florida']).includes('wrong-subject'),'red proof: beach mismatch fails');
 const component=readFileSync(new URL('../app/components/GuideDiscoveryCard.js',import.meta.url),'utf8');
-assert(component.includes('<GuideFigure ') && component.includes('<GuideFigureCredit '),'shared loading and credit renderer');
-assert(component.indexOf('</a>')<component.indexOf('<GuideFigureCredit '),'credit links outside story link');
+assert(component.includes("from './RailCard'") && component.includes('<RailCard'),'guide card renders the standard RailCard');
+assert(!/GuideFigure|Illustrative|unsplash|module\.css/i.test(component),'no illustrative hero, credit or private stylesheet');
+assert(!existsSync(new URL('../app/components/GuideDiscoveryCard.module.css',import.meta.url)),'old guide card stylesheet is gone');
+assert(component.includes('ownedPlacePhotoSrc(placeId, 640, true)'),'photo is the matched pick, no-spend');
+assert(candidate.topics?.length>=1 && candidate.pickCount>=1,'index carries deterministic topics and pick count');
 console.log(`test-guide-discovery: OK — ${guides.length} active guide images, stable relevant inserts, source list immutability, archive exclusion, attribution and subject negative controls`);
 
 // A short first page is the boundary the old length-only test missed.
@@ -54,7 +57,7 @@ assert.equal(keptTwelve.before,3,'8→12 retains initial slot');
 assert.equal(guideForPlaceRail([laterGuide],eight,'short-rail',shortSelection).guide.slug,laterGuide.slug,'removed or archived selection releases slot');
 
 const {guideRailCandidates,settleGuideRailSelection}=await import('../lib/guideRailCollections.js');
-const rails=[{id:'unrelated',places:[{id:'other'}]},{id:'covered',places:[{id:candidate.placeIds[0]}]},{id:'event',cards:[{id:candidate.placeIds[0],kind:'event'}]},{id:'tour',cards:[{id:candidate.placeIds[0],kind:'tour'}]}];
+const rails=[{id:'unrelated',places:[{id:'other'}]},{id:'covered',places:[{id:candidate.placeIds[0],name:'Test Spot'}]},{id:'event',cards:[{id:candidate.placeIds[0],kind:'event'}]},{id:'tour',cards:[{id:candidate.placeIds[0],kind:'tour'}]}];
 const railsBefore=JSON.stringify(rails);
 const matches=guideRailCandidates([candidate,candidate],rails,'collection');
 assert.equal(matches.length,1,'one exact guide/rail match, no duplicate event or tour inference');
@@ -67,37 +70,29 @@ assert.equal(settleGuideRailSelection([],previous),null,'location/filter/no-matc
 assert.equal(guideRailCandidates([candidate],[{id:'ad',places:[{id:candidate.placeIds[0],_sponsored:true}]}],'collection').length,0,'sponsored rows excluded');
 console.log('test-guide-discovery: short-page stability and all composer matching negative controls OK');
 
-// Execute the real collection and card, including linked credit rendering.
+// Execute the real collection and card.
 const React=(await import('react')).default;
 const {renderToStaticMarkup}=await import('react-dom/server');
-const ts=(await import('typescript')).default;
-const vm=await import('node:vm');
 const path=await import('node:path');
-const {createRequire}=await import('node:module');
-const require=createRequire(import.meta.url);
+const {loadComponent}=await import('./lib/jsxLoad.mjs');
 const root=path.resolve(path.dirname(new URL(import.meta.url).pathname),'..');
-const modules=new Map();
-function loadComponent(relative) {
-  const filename=path.resolve(root,relative);
-  if(modules.has(filename)) return modules.get(filename).exports;
-  const result={exports:{}};modules.set(filename,result);
-  const code=ts.transpileModule(readFileSync(filename,'utf8'),{compilerOptions:{jsx:ts.JsxEmit.ReactJSX,module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020,esModuleInterop:true}}).outputText;
-  vm.runInNewContext(code,{module:result,exports:result.exports,require:(name)=>{
-    if(name.endsWith('.css')) return {__esModule:true,default:new Proxy({},{get:(_t,key)=>String(key)})};
-    if(!name.startsWith('.'))return require(name);
-    const local=path.resolve(path.dirname(filename),name.endsWith('.js')?name:name+'.js');
-    return loadComponent(local);
-  }},{filename});return result.exports;
-}
-const Collection=loadComponent('app/components/GuideRailCollection.js').default;
-const Context=loadComponent('app/components/GuideDiscoveryContext.js').GuideDiscoveryContext;
+const {Collection,GuideDiscoveryContext:Context}=await loadComponent(path.join(root,'scripts/lib/guideCollectionHarness.js'),root);
 const collectionMarkup=renderToStaticMarkup(React.createElement(Context.Provider,{value:[candidate]},
   React.createElement(Collection,{rails,collectionId:'collection'},rails.map(rail=>React.createElement('section',{key:rail.id,'data-test-rail':rail.id},rail.id)))));
-assert.equal((collectionMarkup.match(/data-guide-discovery=/g)||[]).length,1,'actual shared collection renders exactly one guide');
-assert(collectionMarkup.indexOf('data-guide-discovery')>collectionMarkup.indexOf('data-test-rail="covered"'),'actual insertion follows its covered rail');
-assert(collectionMarkup.indexOf('data-guide-discovery')<collectionMarkup.indexOf('data-test-rail="event"'),'actual insertion is between rails');
-assert(collectionMarkup.includes(`/guides/${candidate.slug}`) && collectionMarkup.includes(candidate.image.source),'actual guide and credited source links survive');
+const cardAt=collectionMarkup.indexOf('wf-rail-card');
+assert(collectionMarkup.includes('wf-rail-card')&&collectionMarkup.includes('wf-place-card'),'card carries the standard place card classes');
+assert.equal((collectionMarkup.match(/<article/g)||[]).length,1,'actual shared collection renders exactly one guide card, as a standard rail card');
+assert(cardAt>collectionMarkup.indexOf('data-test-rail="covered"'),'actual insertion follows its covered rail');
+assert(cardAt<collectionMarkup.indexOf('data-test-rail="event"'),'actual insertion is between rails');
+assert(!collectionMarkup.includes('Illustrative') && !collectionMarkup.includes('data-guide-discovery') && !collectionMarkup.includes('<figcaption'),'no illustrative disclaimer, no old guide grid, no photographer line');
+const chipRow=(collectionMarkup.match(/wf-place-card-highlights">(.*?)<\/div>/)||[])[1]||'';
+assert(((chipRow.match(/<span/g)||[]).length)>=3,'at least three category chips');
+assert(chipRow.includes(candidate.region) && chipRow.includes(`${candidate.pickCount} picks`),'chips carry region and pick count');
+assert(new RegExp(`wf-place-card-take">Covers Test Spot and ${candidate.pickCount-1} more picks near you`).test(collectionMarkup),'a one line why this is recommended');
+assert(!/[\u2013\u2014]/.test((collectionMarkup.match(/wf-place-card-take">(.*?)<\/div>/)||[])[1]||''),'why line has no dashes');
+assert(collectionMarkup.includes('Local guide') && collectionMarkup.includes(`${candidate.mins} min read`) && collectionMarkup.includes('Read the guide'),'eyebrow, read time badge and single CTA');
+assert(collectionMarkup.includes(`/guides/${candidate.slug}`),'internal guide link survives');
 assert.equal((collectionMarkup.match(/data-test-rail=/g)||[]).length,rails.length,'every original child stays present');
 const withoutContext=renderToStaticMarkup(React.createElement(Collection,{rails,collectionId:'collection'},rails.map(rail=>React.createElement('section',{key:rail.id},rail.id))));
-assert(!withoutContext.includes('data-guide-discovery'),'no context means no guessed guide suggestions');
-console.log('test-guide-discovery: real React collection/card render passed; one attributed guide between unchanged rails');
+assert(!withoutContext.includes('wf-rail-card'),'no context means no guessed guide suggestions');
+console.log('test-guide-discovery: real React collection/card render passed; one standard guide card between unchanged rails');
