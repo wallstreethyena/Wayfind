@@ -2,7 +2,7 @@ import GuidePhoto from "./GuidePhoto";
 import PhotoCreditLink from "./PhotoCreditLink";
 import styles from "./GuideFigure.module.css";
 import { guideCaptionText } from "../../lib/guideCaption.js";
-import { isGooglePhotoSrc } from "../../lib/googlePhotoSrc.js";
+import { isGooglePhotoSrc, isNoSpendCachedMedia } from "../../lib/googlePhotoSrc.js";
 
 // Wayfind Guide Visual Standard (docs/design/guide-visual-standard.md).
 // GuideFigure is the ONLY component guides and blog articles use to render a
@@ -38,6 +38,11 @@ export function guideFigureMedia(image) {
  */
 export function googleCreditMissing(media, showCaption = true) {
   if (!media || !isGooglePhotoSrc(media.src)) return false;
+  // The no-spend cached rung (lib/guidePlaceFigureImage.js) is the venue's own
+  // already-cached photo, read-only. It shows with the photographer when one
+  // is known; a missing credit is not a reason to blank the article's only
+  // picture (owner, 2026-10-06). Any other Google-served src keeps the rule.
+  if (isNoSpendCachedMedia(media)) return showCaption === false && !!media.credit;
   const credit = typeof media.credit === "string" ? media.credit.trim() : "";
   const provider = typeof media.providerHref === "string" && /^https:\/\//.test(media.providerHref);
   return !credit || !provider || showCaption === false;

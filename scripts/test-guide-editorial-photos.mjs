@@ -56,7 +56,19 @@ assert.equal((await findEditorialPhotoCredit(ref, place.id, creditDeps)).author_
 assert.equal(await findEditorialPhotoCredit(ref, "AnotherPlace", creditDeps), null);
 assert.equal(await findEditorialPhotoCredit(ref, place.id, { ...creditDeps, fetchImpl: async () => ({ ok: true, json: async () => [{ ...creditRow, photo_name: ref + "different" }] }) }), null);
 assert.equal(await findEditorialPhotoCredit(ref, place.id, { ...creditDeps, now: 3600000 }), null);
-assert.equal(await guidePlaceFigureImage(place, { ...deps, findFreePhoto: async () => null, findCredit: async () => null }), null, "missing exact photographer credit fails closed");
+// Missing credit no longer blanks the pick: the last rung serves the venue's own
+// cached photo through the no-spend route, uncredited and marked as such.
+const uncredited = await guidePlaceFigureImage(place, { ...deps, findFreePhoto: async () => null, findCredit: async () => null, findAlternative: async () => null });
+assert.equal(uncredited.src, `/api/photo?ref=${encodeURIComponent(`places/${place.id}/photos/exact`)}&g=2&w=1200&nospend=1`, "no-spend rung serves the exact cached ref");
+assert.equal(uncredited.noSpendCached, true);
+assert.equal(uncredited.credit, undefined, "no credit is invented");
+assert.ok(/[?&]nospend=1(?:&|$)/.test(uncredited.src) && uncredited.src.startsWith("/api/photo?ref="), "the rung can only emit the no-spend form");
+const creditedNoSpend = await guidePlaceFigureImage(place, { ...deps, findFreePhoto: async () => null, findAlternative: async () => null, findSamePlaceCachedPhoto: async () => ({ uri: "https://lh3.googleusercontent.com/v", ttlSeconds: 100, ref: `places/${place.id}/photos/exact` }) });
+assert.equal(creditedNoSpend.noSpendCached, true, "a short-lived cached photo is served through our route, not by its expiring Google URL");
+assert.equal(creditedNoSpend.credit, "Actual photographer", "attribution rides along when a credit row exists");
+assert.equal(creditedNoSpend.providerHref, "https://maps.google.com/photo");
+assert.equal(await guidePlaceFigureImage(place, { ...deps, findFreePhoto: async () => null, findCredit: async () => null, findAlternative: async () => null, findSamePlaceCachedPhoto: async () => ({ uri: "https://lh3.googleusercontent.com/x", ttlSeconds: 3600, ref: "places/SomeOtherVenue1234/photos/exact" }) }), null, "a cached ref for a different place never stands in (exact match, ambiguous fails closed)");
+assert.equal(await guidePlaceFigureImage(place, { findFreePhoto: async () => null, findSamePlaceCachedPhoto: async () => null, findCredit: async () => null, findAlternative: async () => null }), null, "no cached bytes means no photo and no spend");
 
 console.log("test-guide-editorial-photos: OK — same-place free/cache media, exact photographer credits, expiry, honest misses, and photo-first article contract");
 
@@ -91,6 +103,13 @@ assert.ok(html.includes('href="https://maps.google.com/photo"'));
 assert.ok(/<a[^>]*href="https:\/\/example\.org\/author"[^>]*target="_blank"[^>]*rel="[^"]*noopener/.test(html), 'author credit opens in a new tab (#1601)');
 assert.ok(!html.includes('wf-place-card'));
 assert.equal(renderToStaticMarkup(React.createElement(figureComponent.default, { role: "pick", image: null })), "");
+const noSpendHtml = renderToStaticMarkup(React.createElement(figureComponent.default, { role: "pick", image: uncredited }));
+assert.equal((noSpendHtml.match(/<img /g) || []).length, 1, "the no-spend cached photo draws even with no known photographer");
+assert.ok(noSpendHtml.includes("nospend=1"));
+const creditedNoSpendHtml = renderToStaticMarkup(React.createElement(figureComponent.default, { role: "pick", image: creditedNoSpend }));
+assert.ok(creditedNoSpendHtml.includes("Photo: Actual photographer"), "attribution shows when it exists");
+assert.equal(renderToStaticMarkup(React.createElement(figureComponent.default, { role: "pick", image: { src: "/api/photo?ref=x&g=2&w=1200", alt: "x" } })), "", "a plain uncredited /api/photo image (no no-spend marker) is still refused");
+assert.equal(renderToStaticMarkup(React.createElement(figureComponent.default, { role: "pick", image: { src: "/api/photo?ref=x&w=1200", noSpendCached: true, alt: "x" } })), "", "the marker alone, without nospend=1 in the URL, never unlocks the figure");
 console.log("test-guide-editorial-photos: real render OK — one venue photo, linked author/provider credits, no place card, and no fake image on a miss");
 
 const olderRef = `places/${place.id}/photos/older`;
