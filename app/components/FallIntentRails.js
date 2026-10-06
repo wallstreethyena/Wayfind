@@ -46,7 +46,7 @@ function eventChips(card, { onOpenVenue = null } = {}) {
   // The venue keeps its door: the card body now opens the EVENT page, so the
   // place sheet (saves, photos, directions) moves to a chip.
   if (onOpenVenue) chips.push({ key: "venue", icon: "📍", label: "Venue", title: card.venue || card.name, onClick: onOpenVenue });
-  return chips;
+  return chips.slice(0, 4);
 }
 
 function eventCta(card, onTrack) {
@@ -70,7 +70,6 @@ function eventCta(card, onTrack) {
       }).catch(() => {});
     },
   };
-  if (card.url) return { label: "Official details ↗", href: card.url, external: true, onClick: () => onTrack?.("fall_event_open", { id: card.id, name: card.name }) };
   return null;
 }
 
@@ -137,10 +136,9 @@ function FallRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, fallSkin,
             photo={card.image || null}
             photoFallback={isEvent && card.place_id ? ownedPlacePhotoSrc(card.place_id, 640) : null}
             eagerMedia={index < 3}
-            visitFacts={isEvent ? card : null} planningHref={isEvent ? card.detailHref : null}
-            photoCaption={isEvent && card.imageIsVenue ? "Venue photo · event not pictured" : null}
+            visitFacts={isEvent ? card : null}
             photoPosition={card.photoPosition || "50% 50%"}
-            photoAttr={card.photoAttr || (card.image?.startsWith("/api/photo?") ? "Google Maps" : null)} photoAttrHref={card.photoAttrHref || (card.image?.startsWith("/api/photo?") && card.place_id ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(card.venue || card.name)}&query_place_id=${encodeURIComponent(card.place_id)}` : null)} place={place}
+            photoAttr={card.photoAttr || null} photoAttrHref={card.photoAttrHref || null} place={place}
             creatorVideos={isEvent ? card.creatorReels : undefined}
             title={card.title || card.name} eyebrow={rail.title} rank={rank}
             score={isEvent ? null : toDisplayScore(Number.isFinite(card.governed_score) ? card.governed_score : card.wfScore)} when={isEvent ? card.when : null}
