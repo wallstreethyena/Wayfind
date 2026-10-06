@@ -666,6 +666,9 @@ ${WF_SKELETON_CSS}
   font-weight:800;
   letter-spacing:.2px;
   text-decoration:none;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;max-width:100%;
+  /* real card labels (Tickets at Undercover Tourist) must FIT the ~150px box; ellipsis is only the safety net */
+  font-size:9.5px;letter-spacing:0;padding-inline:4px;
   transition:border-color .18s ease,background .18s ease;
 }
 .wf-rail-card-cta:hover,.wf-rail-card-cta:focus-visible{border-color:rgba(255,155,80,.85);background:linear-gradient(180deg,rgba(249,115,22,.3),rgba(249,115,22,.12))}
