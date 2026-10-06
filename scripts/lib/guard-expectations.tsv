@@ -129,13 +129,13 @@ scripts/check-event-where.mjs	0	CALL	blocks-ci-and-deploy	1	-	65	0	0	bd62f7314e9
 scripts/check-events-rail-renders.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	11	1	0	f65a588601579de8281a5e396f6a3e675ade8f840f69b32baa8ca116dfdbd097
 scripts/check-events.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	0f500965aed1ebe43af6b45b5a3ec45c2f020d1d85a8ab358ed34f857fac286c
 scripts/check-evergreen-landing-zero-spend.mjs	1	RENDER	blocks-ci-and-deploy	1	claude.exe (Wayfind lane)	54	0	0	8cabc45b801d34a5956e388fc655f7a9f8f7f1f46256e35a74ca898bd3ac359d
-scripts/check-experiences-link-health.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	52	0	0	f910a945fcad46ffde1db7698cac4b8f43eb5d966efa25e0c0e90ab8b2c5f94a
+scripts/check-experiences-link-health.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	67	0	0	854dde6fb5fee9017e7d208f9beb1970884a544cde7da4fd9bf044f4ab4799af
 scripts/check-exploding-nearby-floor.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	1	1	3f2a8f206a514832c5b1fd1ce498e29d21a27b75cf1b5848d03b2502c26de7b2
 scripts/check-fall-date-order-and-when.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	0	61bbeeefa29ad5941a3367db694c301803b5df17fbcebfaf76adba85b50d7d74
 scripts/check-fall-evidence-rules.mjs	0	CALL	blocks-ci-and-deploy	1	-	60	0	0	16ab10b0900dd3df4d8820402773fd40aacd8d01c8ad1abd92f11b8bfbb7e684
 scripts/check-fall-is-calling.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	0	0	7fc906fb7c2916d8187d01b003000b9baf497693074d32901754e055cb224bf3
 scripts/check-fall-offering-freshness.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0	98f3485ccee60ed1be8d56b55b9b7f829ff72795f194bb61acbb413de49d645a
-scripts/check-fall-registry-integrity.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0	53a6af3ad8251584599ca29454288b5417b8389449248eee99449fbb667b4303
+scripts/check-fall-registry-integrity.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	739a38992d88da22ffb715a879e4aefba01b9860ead67259dbacea48ca250440
 scripts/check-fall-share.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0	f624d4c9457ac3eeea2f0e5cd3c9a0b792b8a8cea9c31d4271fc0287a2ed4266
 scripts/check-family.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	15031df1dd6a7d99113360f50447a6af00a95639b1adf37b7aeaeba3e3908c89
 scripts/check-favorites-auth.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	859f42c43e3b795df3a2be315fb01d8fff1708f5d080d3b2d6f9661f1bd95b2c
