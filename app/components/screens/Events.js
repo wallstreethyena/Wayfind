@@ -6,6 +6,8 @@ import { useState } from "react";
 import { C, TARGET } from "../kit";
 import * as Culture from "../../../lib/culture";
 import { eventCategoryArt } from "../../../lib/eventCategoryArt";
+import { fallSkinLive } from "../../../lib/fallSkin.js";
+import { siteTodayStr } from "../../../lib/siteTime";
 import { rankExperiences } from "../../../lib/experiencesData";
 import { partnerTicketLabel } from "../../../lib/partnerCopy";
 import RailCard, { RailDots, RailNav } from "../RailCard";
@@ -30,12 +32,20 @@ function EventCard({ e, onVenue, ctx }) {
   const actionHref = externalTickets || href;
   const actionExternal = Boolean(externalTickets || !internal);
   const actionLabel = e.ticketVia ? partnerTicketLabel(e.ticketVia, { product: e.ticketProduct, arrow: false }) : e.ticketed ? "Get tickets" : (internal ? "Explore event" : "Official details");
-  const categoryImage = eventCategoryArt(ctx.eventBucket(e), e);
-  const image = (ctx.eventUseImage(e) ? (e.thumb || e.image) : "") || categoryImage;
+  // Fall events (flagged server-side by app/api/events) never wear generic
+  // stock category art: their photo is the event's own or its venue's owned
+  // photo. They also get the fall card skin and no "Official details" /
+  // "Plan your visit" second button; affiliate/ticket CTAs stay.
+  const fall = !!e.isFall;
+  const fallSkin = fall && fallSkinLive(siteTodayStr());
+  const categoryImage = fall ? "" : eventCategoryArt(ctx.eventBucket(e), e);
+  const image = (ctx.eventUseImage(e) || fall ? (e.thumb || e.image) : "") || categoryImage;
+  const hasCta = !fall || !!e.ticketVia || !!e.ticketed;
   return <RailCard
     photo={image}
     visitFacts={e.visitFacts || null}
-    planningHref={internal ? e.dest : null}
+    planningHref={internal && !fall ? e.dest : null}
+    className={fallSkin ? "wf-fall-card" : undefined}
     photoFallback={categoryImage}
     title={e.name}
     eyebrow={seg.short}
@@ -45,7 +55,7 @@ function EventCard({ e, onVenue, ctx }) {
     href={href}
     external={!internal}
     actionItem={{ id: e.id, type: "event", title: e.name, image, url: href, provider: e.source || null }}
-    cta={{ label: `${actionLabel} ↗`, href: actionHref, external: actionExternal, sponsored: !!e.ticketVia, onClick: () => { try { logEvent(e.ticketed ? "ticket" : "event_open", null, { id: e.id, kind: e.destKind, src: "events_grid_cta" }); } catch {} } }}
+    cta={hasCta ? { label: `${actionLabel} ↗`, href: actionHref, external: actionExternal, sponsored: !!e.ticketVia, onClick: () => { try { logEvent(e.ticketed ? "ticket" : "event_open", null, { id: e.id, kind: e.destKind, src: "events_grid_cta" }); } catch {} } } : undefined}
     ariaLabel={`Open ${e.name}`}
     onOpen={() => {
       try { logEvent("event_open", null, { id: e.id, kind: e.destKind, src: "events_grid" }); } catch {}
