@@ -17,7 +17,7 @@ import { FALL_PLACE_RAIL } from "../lib/fallPool.js";
 import { FALL_DISCOVERIES_2026 } from "../lib/fallDiscoveries2026.js";
 import { fallEventRail } from "../lib/fallIntentRails.js";
 import {
-  spookyOverFall, SPOOKY_RAIL_IDS, SPOOKY_PLACE_IDS, isSpookyCard, spookySkinLive, spookyCardClass, fallSpookyCardClass, withSpookyChip, sayHalloween,
+  spookyOverFall, SPOOKY_RAIL_IDS, SPOOKY_PLACE_IDS, isSpookyCard, spookySkinLive, spookyCardClass, fallSpookyCardClass, withSpookyChip, sayHalloween, spookyEyebrow,
 } from "../lib/spookySkin.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -69,6 +69,8 @@ const full = [...base, { key: "age", label: "21+" }];
 const swapped = withSpookyChip(full);
 ok(swapped.length === 4 && swapped.some((c) => c.label === "Halloween") && !swapped.some((c) => c.key === "family") && swapped.some((c) => c.key === "schedule") && swapped.some((c) => c.key === "age"), "chips: at 4, the weakest generic chip (family) is replaced; schedule and restriction survive");
 ok(withSpookyChip(swapped).filter((c) => /halloween/i.test(c.label)).length === 1 && withSpookyChip([{ key: "x", label: "Halloween party" }]).length === 1, "chips: never duplicated");
+ok(spookyEyebrow("Halloween Theme Parks") === "Halloween Nights" && spookyEyebrow("Haunted Houses & Fright Nights") === "Haunted House" && spookyEyebrow("Spooky Date Night") === "Spooky Date Night", "eyebrows: known long spooky rail titles shortened");
+ok(withSpookyChip([{ key: "x", icon: "\uD83D\uDC7B", label: "Intense scares" }]).length === 1 && /😱/.test(readFileSync(path.join(ROOT, "app/components/FallIntentRails.js"), "utf8")), "chips: no second ghost when one chip already uses it; Intense scares has its own icon");
 ok(withSpookyChip([]).length === 1 && withSpookyChip(undefined).length === 1 && withSpookyChip(full, { max: 4 }).length === 4, "chips: empty/undefined safe, cap of 4 holds");
 ok(sayHalloween({ name: "The Halloween Party at Cuban Club" }) && !sayHalloween({ name: "Haunted Mangoni" }), "eyebrow: 'Halloween event' only when the card's own text says Halloween");
 
@@ -129,8 +131,8 @@ if (!browser) {
   const common = { photo, rank: null, onSave: noop, onLike: noop, onDislike: noop, onShare: noop, href: "/p/x" };
   const cards = {
     "spooky-event": React.createElement(RailCard, { ...common, spooky: true, className: "wf-fall-card", title: "The Halloween Party at Cuban Club", eyebrow: "Halloween event", when: { label: "SAT", value: "Oct 31", tone: "soon" }, facts: ["Tampa", "6.9 mi"], chips: withSpookyChip([{ key: "schedule", icon: "🗓", label: "8 PM to 3 AM" }, { key: "family", icon: "🎃", label: "Family-friendly" }, { key: "age", icon: "✓", label: "21+" }, { key: "venue", icon: "📍", label: "Venue", onClick: noop }]), cta: { label: "Tickets at Undercover Tourist ↗", href: "/api/commerce/go?x=1", external: true, sponsored: true }, place: null }),
-    "spooky-place": React.createElement(RailCard, { ...common, spooky: true, className: "wf-fall-card", title: "Dead Coconut Club at Universal CityWalk", eyebrow: "Spooky Date Night", score: 9.3, facts: ["Orlando", "1.8k reviews", "6.9 mi"], take: "Free, all ages: CityWalk's Red Coconut Club turns into the Dead Coconut Club for Horror Nights season.", chips: withSpookyChip([{ key: "scary", icon: "👻", label: "Intense scares" }, { key: "family", icon: "🎃", label: "Family-friendly" }]), cta: { label: "Get tickets ↗", href: "/api/commerce/go?x=2", external: true }, place: place("sp", "Dead Coconut Club") }),
-    "spooky-perfect": React.createElement(RailCard, { ...common, spooky: true, className: "wf-fall-card", title: "Halloween Horror Nights 35 at Universal Orlando Resort", eyebrow: "Halloween Theme Parks", score: 10, facts: ["Orlando", "4.5k reviews"], chips: withSpookyChip([{ key: "family", icon: "🎃", label: "Family-friendly" }]), cta: { label: "Tickets at Undercover Tourist ↗", href: "/api/commerce/go?x=3", external: true }, place: place("hhn", "HHN") }),
+    "spooky-place": React.createElement(RailCard, { ...common, spooky: true, className: "wf-fall-card", title: "Dead Coconut Club at Universal CityWalk", eyebrow: "Spooky Date Night", score: 9.3, facts: ["Orlando", "1.8k reviews", "6.9 mi"], take: "Free, all ages: CityWalk's Red Coconut Club turns into the Dead Coconut Club for Horror Nights season.", chips: withSpookyChip([{ key: "scary", icon: "😱", label: "Intense scares" }, { key: "family", icon: "🎃", label: "Family-friendly" }]), cta: { label: "Get tickets ↗", href: "/api/commerce/go?x=2", external: true }, place: place("sp", "Dead Coconut Club") }),
+    "spooky-perfect": React.createElement(RailCard, { ...common, spooky: true, className: "wf-fall-card", title: "Halloween Horror Nights 35 at Universal Orlando Resort", eyebrow: spookyEyebrow("Halloween Theme Parks"), score: 10, facts: ["Orlando", "4.5k reviews"], chips: withSpookyChip([{ key: "family", icon: "🎃", label: "Family-friendly" }]), cta: { label: "Tickets at Undercover Tourist ↗", href: "/api/commerce/go?x=3", external: true }, place: place("hhn", "HHN") }),
     "fall-plain": React.createElement(RailCard, { ...common, className: "wf-fall-card", title: "Hunsader Farms Pumpkin Festival", eyebrow: "Pumpkin Patches & Fall Farms", score: 8.4, facts: ["Bradenton", "9 mi"], chips: [{ key: "family", icon: "🎃", label: "Family-friendly" }], cta: { label: "Get tickets ↗", href: "/api/commerce/go?x=4", external: true }, place: place("hf", "Hunsader") }),
     "standard": React.createElement(RailCard, { ...common, title: "Clear Kayak Tour of Shell Key Preserve", eyebrow: "Bookable activity", score: 10, facts: ["St. Petersburg", "6,647 reviews", "from $79"], chips: [{ key: "k", icon: "🛶", label: "Kayaking" }, { key: "w", icon: "🚤", label: "Water Tours" }], cta: { label: "Book with Viator ↗", href: "/api/viator/go?x=5", external: true }, place: place("kay", "Kayak") }),
   };
@@ -162,6 +164,10 @@ if (!browser) {
             badgeFits: badge ? badge.scrollWidth <= badge.clientWidth + 1 : null, badgeInside: badge ? inside(badge) : null, badgeBorder: badge ? cs(badge, "borderTopColor") : null,
             labelColor: label ? cs(label, "color") : null, valueColor: value ? cs(value, "color") : null, valueVisible: value ? value.getBoundingClientRect().width > 0 : null,
             eyebrow: card.querySelector(".wf-place-card-category") ? [cs(card.querySelector(".wf-place-card-category"), "color"), getComputedStyle(card.querySelector(".wf-place-card-category"), "::before").content] : null,
+            eyebrowDims: card.querySelector(".wf-place-card-category") ? [card.querySelector(".wf-place-card-category").scrollWidth, card.querySelector(".wf-place-card-category").clientWidth, card.querySelector(".wf-place-card-category").parentElement.clientWidth, getComputedStyle(card.querySelector(".wf-place-card-category")).fontSize].join("/") : null,
+            eyebrowFits: card.querySelector(".wf-place-card-category") ? card.querySelector(".wf-place-card-category").scrollWidth <= card.querySelector(".wf-place-card-category").clientWidth : null,
+            ghosts: card.querySelector(".wf-place-card-highlights") ? (card.querySelector(".wf-place-card-highlights").textContent.match(/\u{1F47B}/gu) || []).length : 0,
+            ctaColors: cta ? [cs(cta, "color"), cs(cta, "backgroundColor"), cs(cta, "opacity")] : null,
             chips: [...card.querySelectorAll(".wf-place-card-highlights>*")].map((c) => c.textContent.trim()),
             controlsInside: [...card.querySelectorAll(".wf-place-card-actions>*")].every(inside),
             webBg: badge ? getComputedStyle(badge, "::before").backgroundImage.split("data:image/svg+xml").length - 1 : 0,
@@ -181,13 +187,23 @@ if (!browser) {
         ok(c.webBg === 3, `${width}px ${k}: badge draws web, web and drip as inline SVG layers (${c.webBg})`);
         ok(c.bg === "rgb(11, 11, 18)" || /rgb\(11, 11, 18\)/.test(c.bg) || /^rgba?\(/.test(c.bg), `${width}px ${k}: near-black card background`);
         ok(c.eyebrow && c.eyebrow[0] === "rgb(247, 118, 15)" && /1F383|🎃/i.test(c.eyebrow[1].replace(/"/g, "") + "🎃" ) , `${width}px ${k}: orange eyebrow with the pumpkin (${c.eyebrow})`);
+        ok(c.eyebrowFits || width < 390, `${width}px ${k}: eyebrow is not truncated (${c.eyebrowDims})`);
+        ok(c.ghosts <= 1, `${width}px ${k}: at most one ghost icon in the chips (${c.ghosts})`);
         ok(c.controlsInside, `${width}px ${k}: the four action controls stay inside the card`);
         ok(c.chips.length <= 4, `${width}px ${k}: at most 4 chips (${c.chips.length})`);
       }
       ok(m.cards["spooky-event"].chips.some((x) => /Halloween/.test(x)) && m.cards["spooky-place"].chips.some((x) => /Halloween/.test(x)), `${width}px: spooky cards carry the Halloween chip`);
       ok(!m.cards["fall-plain"].chips.some((x) => /Halloween/.test(x)) && m.cards["fall-plain"].eyebrow[0] !== "rgb(247, 118, 15)" && m.cards["fall-plain"].border !== "rgb(150, 86, 255)", `${width}px: the plain fall card keeps the orange fall look (no violet, no Halloween chip)`);
       ok(Math.abs(m.cards["fall-plain"].h - PLACE_CARD_HEIGHT_PX) <= 0.5 && Math.abs(m.cards.standard.h - PLACE_CARD_HEIGHT_PX) <= 0.5, `${width}px: fall and standard cards are unchanged at ${PLACE_CARD_HEIGHT_PX}px`);
-      if (width === 390 && SHOT) await page.screenshot({ path: SHOT, fullPage: true });
+      {
+        const lum = (rgb) => { const [r, g, b] = rgb.match(/[\d.]+/g).slice(0, 3).map(Number).map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+        const [fg, bg, op] = m.cards["fall-plain"].ctaColors;
+        const cr = (lum(fg) + 0.05) / (lum(bg) + 0.05);
+        const hi = Math.max(lum(fg), lum(bg)), lo = Math.min(lum(fg), lum(bg)), ratio = (hi + 0.05) / (lo + 0.05);
+        ok(ratio >= 4.5 && op === "1", `${width}px fall CTA is cream on dark brown, WCAG AA (contrast ${ratio.toFixed(2)}:1, ${fg} on ${bg})`);
+        void cr;
+      }
+      if (SHOT) await page.screenshot({ path: width === 390 ? SHOT : SHOT.replace(/\.png$/, "-" + width + ".png"), fullPage: true });
       await ctx.close();
     }
   } finally {

@@ -15,7 +15,7 @@ import { toDisplayScore } from "../../lib/score.js";
 import { useCuratorPicks, applyCuratorPicks } from "../../lib/curatorPicks.js";
 import { settleRescored, rescoredIds } from "../../lib/lawfulOrder.js";
 import { fallSkinLive } from "../../lib/fallSkin.js";
-import { isSpookyCard, sayHalloween, withSpookyChip } from "../../lib/spookySkin.js";
+import { isSpookyCard, sayHalloween, spookyEyebrow, withSpookyChip } from "../../lib/spookySkin.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
 import { emitRailDegraded, isRailCancelled, railDeveloperFailure } from "../../lib/railFailure.js";
 import { fetchClassifiedPosterJson as fetchRailJson } from "../../lib/posterJson.js";
@@ -41,7 +41,7 @@ function eventChips(card, { onOpenVenue = null } = {}) {
   // what time, from the row's own clock and verified note; the full note is
   // the title. No schedule on the row -> no chip, never a template.
   if (card.schedule?.label) chips.push({ key: "schedule", icon: "🗓", label: card.schedule.label, title: card.schedule.title || card.schedule.label });
-  if (tags.includes("scary")) chips.push({ key: "scary", icon: "👻", label: "Intense scares" });
+  if (tags.includes("scary")) chips.push({ key: "scary", icon: "😱", label: "Intense scares" });
   else if (audience.includes("families") || audience.includes("kids")) chips.push({ key: "family", icon: "🎃", label: "Family-friendly" });
   for (const rule of eventRestrictionChips(card)) chips.push({ key: rule, icon: "✓", label: rule });
   // The venue keeps its door: the card body now opens the EVENT page, so the
@@ -137,7 +137,7 @@ function FallRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, fallSkin,
           const spooky = fallSkin && isSpookyCard(card, siteTodayStr(), { railId: rail.id });
           const baseChips = isEvent ? eventChips(card, { onOpenVenue: card.detailHref || card.officialOnly ? openEventVenue : null }) : placeChips;
           // "Halloween event" only when the event's own text says Halloween; otherwise the real rail title stays.
-          const eyebrow = spooky && isEvent && sayHalloween(card) ? "Halloween event" : rail.title;
+          const eyebrow = spooky && isEvent && sayHalloween(card) ? "Halloween event" : (spooky ? spookyEyebrow(rail.title) : rail.title);
           return <RailCard key={card.id} className="wf-exploding-primary" domRef={index === Math.min(sentinelIndex, items.length - 1) ? sentinelRef : undefined}
             photo={card.image || null}
             photoFallback={isEvent && card.place_id ? ownedPlacePhotoSrc(card.place_id, 640) : null}
