@@ -264,7 +264,7 @@ scripts/check-no-disney-sources.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	6	1	0	
 scripts/check-no-imageless-card.mjs	0	CALL	blocks-ci-and-deploy	1	-	49	0	0	7c03d08f8f612be2449da91e84cc7d5470da6b8cb2bc3cd8e195f0d52ca9cfc1
 scripts/check-no-llm-in-render-path.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	6	1	0	c3a009e234c00ff9e1c15ad76ae5d544a7a617963ef9a49a2883d751f2cf245f
 scripts/check-no-monoculture.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	0	0	47c8d3e9dcfb4d2ec7d39d79935e146dc46b1b7adee5addb264280d5bfefe4db
-scripts/check-no-sideways-scroll.mjs	0	RENDER	blocks-ci-and-deploy	1	-	8	0	0	edc58da229b4cac2788389d0add11a43d797d1286c996a8889162379d54c4ad0
+scripts/check-no-sideways-scroll.mjs	0	RENDER	blocks-ci-and-deploy	1	-	14	0	0	7f8e4f82315661162dfe1164e52fc813e1ea6ece41d6550fd2bea3501d41494c
 scripts/check-no-sitewide-autolinker.mjs	0	RENDER	blocks-ci-and-deploy	1	-	15	0	0	80bc3cca8dfc00439d53d2988aba2cf6cc02bd4a857456e19b357be40054600d
 scripts/check-no-stuck-loading.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	1ffdc14bc9356bb43919b92c25fc53e719bcf3205c3eec88ef037a2e25792727
 scripts/check-no-terminal-loading.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	10	1	0	8e20c5e0a675a98f6d397fe21bc1825350f7764450ef9fb33b2042293308934f
@@ -610,7 +610,7 @@ scripts/test-group-plan.mjs	0	CALL	blocks-ci-and-deploy	1	-	124	0	0	9feb2e75222f
 scripts/test-guide-city-coverage.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	c6a465e7282b1e60a693f376ebcef9066f918ad5a6a75a58a145c0d51a5b9ee2
 scripts/test-guide-discovery.mjs	0	RENDER	blocks-ci-and-deploy	1	-	49	0	0	068ca6d1cf45ceea019920403479348dedc628f7642f9bb2d1566f8f23e12512
 scripts/test-guide-editorial-mode.mjs	0	RENDER	blocks-ci-and-deploy	1	-	30	0	0	1143cfcf22aa5141699214ff1ec91bd33f894c0e624c3806bf91cc86cddb631b
-scripts/test-guide-editorial-photos.mjs	0	RENDER	blocks-ci-and-deploy	1	-	43	0	0	d921c0d13a690a7472eace5f541090b9de7b28632a1554bd44209670aa6d35aa
+scripts/test-guide-editorial-photos.mjs	0	RENDER	blocks-ci-and-deploy	1	-	56	0	0	ffd4640e874ac97e0e3d7f2a0cf0d075fa60c585976080a002fea67b410e05b3
 scripts/test-guide-event-ticket-cta.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	4c24b43bf5556b3c6f06a5d6e653db81ac13e68196b85783d89f0d8e32a5b5d9
 scripts/test-guide-inline-book.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	24	0	0	8111527adc831e1d5059cf5dd4fd735f314522bae672d8d6392142c3dacceea7
 scripts/test-guide-lovebug-rail.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	91	0	0	1b0c16587c6bbc8eac01f417c4a312ae71bd109f1a6f4733640b4ff6d7cb88d2
