@@ -53,7 +53,7 @@ function eventCta(card, onTrack) {
   if (card.ticket?.href) return {
     // /api/commerce/go, never the partner URL: the redirect mints the click
     // id, refuses crawlers, and applies the CJ deep link server-side.
-    label: partnerTicketLabel(card.ticket.via, { product: card.ticket.product }), href: card.ticket.href, external: true, sponsored: true,
+    label: partnerTicketLabel(card.ticket.via, { product: card.ticket.product, card: true }), href: card.ticket.href, external: true, sponsored: true,
     onClick: (event) => {
       // offerId: deal_id (a wf_deals int) for Undercover Tourist, offer_id (a
       // partnerOfferRegistry key) for Tiqets/Klook — eventTicketCta sets

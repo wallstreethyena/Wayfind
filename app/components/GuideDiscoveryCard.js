@@ -27,7 +27,7 @@ export default function GuideDiscoveryCard({ guide, matched = null, onOpen }) {
     photo={photo}
     title={clean(guide.title)}
     eyebrow="Local guide"
-    when={guide.mins ? { label: 'GUIDE', value: `${guide.mins} min read` } : undefined}
+    when={guide.mins ? { label: 'READ', value: `${guide.mins} min` } : undefined}
     chips={chips}
     take={why || undefined}
     cta={{ label: 'Read the guide', href, onClick: () => onOpen?.(guide) }}

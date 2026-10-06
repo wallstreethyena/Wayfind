@@ -527,7 +527,7 @@ ${WF_SKELETON_CSS}
 .wf-place-card-more:focus-visible{outline:2px solid #FDBA74;outline-offset:2px;border-radius:3px}
 .wf-place-card.has-cta .wf-place-card-name{-webkit-line-clamp:2!important}
 .wf-place-card-cta{display:flex;width:100%;margin-top:6px}
-.wf-place-card-cta>a{flex:1;width:100%;min-height:38px!important;height:38px!important}
+.wf-place-card-cta>a{flex:1;width:100%;min-height:38px!important;height:38px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .wf-place-card-actions{--wf-act-h:38px;align-items:center;gap:5px!important;margin-top:auto!important;padding-top:9px;flex-wrap:wrap!important;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
 .wf-place-card-actions>a,.wf-place-card-actions>button,.wf-place-card-actions>span{
   display:inline-flex!important;

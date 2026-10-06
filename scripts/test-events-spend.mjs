@@ -35,6 +35,8 @@ async function routeWith({ cacheValue = null, spendAllowed = false }) {
     const creatorEventsFor = () => [];
     const fetchCuratedEvents = async () => [];
     const curatedFeedEvents = () => [];
+    const curatedFeedEventsWithFall = () => [];
+    const FALL_FEED_CACHE_VERSION = "test";
     const CURATED_REACH_MI = 60;
     const CURATED_SOURCE = "Wayfind curated";
     const stockPhotoPool = async () => [];

@@ -90,9 +90,19 @@ assert(((chipRow.match(/<span/g)||[]).length)>=3,'at least three category chips'
 assert(chipRow.includes(candidate.region) && chipRow.includes(`${candidate.pickCount} picks`),'chips carry region and pick count');
 assert(new RegExp(`wf-place-card-take">Covers Test Spot and ${candidate.pickCount-1} more picks near you`).test(collectionMarkup),'a one line why this is recommended');
 assert(!/[\u2013\u2014]/.test((collectionMarkup.match(/wf-place-card-take">(.*?)<\/div>/)||[])[1]||''),'why line has no dashes');
-assert(collectionMarkup.includes('Local guide') && collectionMarkup.includes(`${candidate.mins} min read`) && collectionMarkup.includes('Read the guide'),'eyebrow, read time badge and single CTA');
+assert(collectionMarkup.includes('Local guide') && collectionMarkup.includes(`${candidate.mins} min`) && collectionMarkup.includes('Read the guide'),'eyebrow, read time badge and single CTA');
 assert(collectionMarkup.includes(`/guides/${candidate.slug}`),'internal guide link survives');
 assert.equal((collectionMarkup.match(/data-test-rail=/g)||[]).length,rails.length,'every original child stays present');
 const withoutContext=renderToStaticMarkup(React.createElement(Collection,{rails,collectionId:'collection'},rails.map(rail=>React.createElement('section',{key:rail.id},rail.id))));
 assert(!withoutContext.includes('wf-rail-card'),'no context means no guessed guide suggestions');
 console.log('test-guide-discovery: real React collection/card render passed; one standard guide card between unchanged rails');
+{
+  const css = readFileSync(new URL('../app/components/railMenuCss.js', import.meta.url), 'utf8');
+  const rule = css.match(/\.wf8-guide-insert\{[^`]*/)?.[0] || '';
+  assert(/--wf-place-card-width:min\(100%,/.test(rule) && /flex:0 0 var\(--wf-place-card-width\)/.test(rule) && /width:var\(--wf-place-card-width\)/.test(rule), 'guide insert uses the same width token as place-card slots');
+  const ccss = readFileSync(new URL('../app/components/css.js', import.meta.url), 'utf8');
+  const tok = ccss.match(/\.wf8-pcrail \.wf-place-card-slot\{--wf-place-card-width:(.*)\}\n/)?.[1];
+  const mine = rule.match(/--wf-place-card-width:(.*?);flex/)?.[1];
+  const norm = (x) => x.replace(/\$\{[^}]*\}/g, (m) => m);
+  assert(tok && mine && norm(tok) === norm(mine), 'guide insert width formula is byte-identical to the sibling place-card width formula');
+}

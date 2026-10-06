@@ -31,7 +31,7 @@ function EventCard({ e, onVenue, ctx }) {
   const externalTickets = internal && e.url ? ticketUrl(e.url, { surface: "events_grid_tickets", offerId: e.id }) : null;
   const actionHref = externalTickets || href;
   const actionExternal = Boolean(externalTickets || !internal);
-  const actionLabel = e.ticketVia ? partnerTicketLabel(e.ticketVia, { product: e.ticketProduct, arrow: false }) : e.ticketed ? "Get tickets" : (internal ? "Explore event" : "Official details");
+  const actionLabel = e.ticketVia ? partnerTicketLabel(e.ticketVia, { product: e.ticketProduct, arrow: false, card: true }) : e.ticketed ? "Get tickets" : (internal ? "Explore event" : "Official details");
   // Fall events (flagged server-side by app/api/events) never wear generic
   // stock category art: their photo is the event's own or its venue's owned
   // photo. They also get the fall card skin and no "Official details" /
