@@ -89,21 +89,36 @@ for (const p of cafeLeaks) {
   ok(placeAllowed("food", "cafes", p) === false && placeAllowed("food", "coffee", p) === false, `Food → Cafés/Coffee refuse ${p.name}`);
   ok(morningDisplayIdentity(p) !== "cafe", `the Best Cafés poster rail refuses ${p.name}`);
 }
+// 2026-10-07 OWNER ASK (lib/cafeIdentity.js): Cafés/Coffee are REAL coffee shops only.
+// The rows below used to be keepers under the broader morning identity. They now split:
+// genuine cafés stay; cuisine-primary restaurants with a café tag, juice/smoothie bars and
+// bakery-led rooms moved to cafeStrictDrops (the intent "a real café is never lost" is kept
+// on the rows that ARE cafés, and the intent "not a restaurant/juice bar" is asserted below).
 const cafeKeepers = [
+  // MERCI CAFÉ's production primary is `cafe` (owner's keeper list); the old french_restaurant
+  // primary fixture is also kept (see below).
+  row("MERCI CAFÉ", "cafe", ["cafe", "coffee_stand", "coffee_shop", "breakfast_restaurant"]),
+  // Live 2026-10-07: MERCI CAFÉ is served as french_restaurant + coffee_stand +
+  // coffee_shop. A cuisine primary with a real coffee_shop type and a café name
+  // is a café (lib/cafeIdentity.js), so it stays a keeper.
+  row("MERCI CAFÉ (cuisine-primary fixture)", "french_restaurant", ["french_restaurant", "coffee_stand", "coffee_shop", "breakfast_restaurant", "cafe"]),
+  row("Buddy Brew Coffee", "coffee_shop", ["coffee_shop", "cafe", "food"]),
+  row("Cafe Soleil", "cafe", ["cafe", "brunch_restaurant", "deli", "breakfast_restaurant", "coffee_shop"]),
+];
+const cafeStrictDrops = [
   row("Arte Caffè", "italian_restaurant", ["italian_restaurant", "bakery", "cafe", "food"]),
-  row("MERCI CAFÉ", "french_restaurant", ["french_restaurant", "coffee_stand", "coffee_shop", "breakfast_restaurant", "cafe"]),
   row("Boûlan Wynwood", "bistro", ["bistro", "coffee_shop", "cafe", "bakery", "restaurant"]),
   row("CRAFT Coconut Grove", "restaurant", ["restaurant", "breakfast_restaurant", "brunch_restaurant", "coffee_shop", "cafe"]),
   row("Las Olas Cafe", "cuban_restaurant", ["cuban_restaurant", "breakfast_restaurant", "cafe", "latin_american_restaurant"]),
   row("JOE & THE JUICE", "juice_shop", ["juice_shop", "vegan_restaurant", "coffee_shop", "cafe", "sandwich_shop"]),
   row("Starlite Cafe", "restaurant", ["restaurant", "food"]),
-  row("Buddy Brew Coffee", "coffee_shop", ["coffee_shop", "cafe", "food"]),
-  // "Caffè" (accented) gets the same café-name rescue as "Cafe".
   row("Caffè Italia", "restaurant", ["restaurant", "pizza_restaurant", "cafe"]),
   row("Cafe Italia", "restaurant", ["restaurant", "pizza_restaurant", "cafe"]),
-  // …while a juice bar with REAL coffee evidence stays a café.
   row("BARE Blends Tampa", "restaurant", ["salad_shop", "coffee_shop", "cafe", "juice_shop", "vegan_restaurant"]),
 ];
+for (const p of cafeStrictDrops) {
+  ok(placeAllowed("food", "cafes", p) === false && placeAllowed("food", "coffee", p) === false, `strict (2026-10-07): Food → Cafés/Coffee refuse ${p.name}`);
+}
 for (const p of cafeKeepers) {
   ok(placeAllowed("food", "cafes", p) === true && placeAllowed("food", "coffee", p) === true, `keeper: Food → Cafés/Coffee keep ${p.name}`);
 }
@@ -111,7 +126,7 @@ for (const p of cafeKeepers) {
 // the leak set as well as the keepers (an identity that only one surface
 // enforces is the Adobe Kava bug).
 {
-  const all = [...breakfastLeaks, ...breakfastKeepers, ...cafeLeaks, ...cafeKeepers].map((p, i) => ({ ...p, id: "p" + i, rating: 4.6, reviews: 300 }));
+  const all = [...breakfastLeaks, ...breakfastKeepers, ...cafeLeaks, ...cafeKeepers, ...cafeStrictDrops].map((p, i) => ({ ...p, id: "p" + i, rating: 4.6, reviews: 300 }));
   const [bk, cafes] = splitBreakfastRails(all);
   const bkIds = new Set(bk.places.map((p) => p.id));
   const cafeIds = new Set(cafes.places.map((p) => p.id));

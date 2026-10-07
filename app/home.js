@@ -1305,7 +1305,7 @@ const LINE_TTL = 21 * 24 * 3600 * 1000; // refresh after 3 weeks; server keeps t
 // block just renders empty until a fresh generation lands), but same
 // reasoning as epoch 3: no reason to sit on months-old field-name mismatches
 // for up to LINE_TTL when a validated rewrite is one request away.
-const CACHE_EPOCH = 4;
+const CACHE_EPOCH = 5;
 const LINES_KEY = "wf_lines_v" + CACHE_EPOCH;
 const INSIGHTS_KEY = "wf_insights_v" + CACHE_EPOCH;
 function allCachedLines() {

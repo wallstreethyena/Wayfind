@@ -47,7 +47,10 @@ ok(storyHeadline({ place_id: "b" }) === storyHeadline({ place_id: "b" }), "headl
 const split = splitBreakfastRails([
   { id: "meal", name: "First Watch", primaryType: "breakfast_restaurant", rating: 4.2, reviews: 50 },
   { id: "cafe", name: "Buddy Brew Coffee", primaryType: "coffee_shop", rating: 4.5, reviews: 300 },
-  { id: "named", name: "Downtown Café", primaryType: "restaurant", rating: 4.1, reviews: 20 },
+  // 2026-10-07 owner ask: the café rail is real coffee shops only, so a restaurant-primary "Café"
+  // no longer qualifies; the ranking intent is kept with a real cafe-primary row.
+  { id: "named", name: "Downtown Café", primaryType: "cafe", rating: 4.1, reviews: 20 },
+  { id: "named-restaurant", name: "Uptown Café", primaryType: "restaurant", rating: 4.9, reviews: 900 },
   { id: "keke", name: "Keke's Breakfast Cafe", primaryType: "breakfast_restaurant", rating: 4.8, reviews: 800 },
 ]);
 ok(split.length === 2 && split[0].id === "breakfast-restaurants" && split[1].id === "breakfast-cafes", "breakfast answer has exactly two named rails");

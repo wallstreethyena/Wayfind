@@ -15,6 +15,7 @@ import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chipIdentity } from "../lib/chipIdentity.js";
+import { isCoffeeCafe } from "../lib/cafeIdentity.js";
 import { toHookLine, isUsableCardHook } from "../lib/editorialHook.js";
 import { listPublishReadyAtlasIds } from "../lib/atlasPlaceAllowlist.js";
 
@@ -77,7 +78,10 @@ for (const p of HOLD_GOOGLE) {
     `${p.name}: tiny umbrellas leaked — official page did not print them`);
   const shaped = { name: p.name, types: p.types, primaryType: p.primaryType, primary_type: p.primaryType };
   for (const [cat, sub] of p.chipsKeep) {
-    ok(chipIdentity(cat, sub, shaped) === true,
+    // 2026-10-07 owner ask (lib/cafeIdentity.js): Cafés/Coffee are real coffee shops only, so a
+    // bakery/donut/restaurant the batch once kept under Cafés is now refused there; every other chip is unchanged.
+    const strictCafeOut = cat === "food" && (sub === "cafes" || sub === "coffee") && !isCoffeeCafe(shaped);
+    ok(chipIdentity(cat, sub, shaped) === !strictCafeOut,
       `${p.name}: chipIdentity FAILED [${cat}:${sub}] — identity-before-rank`);
   }
   for (const [cat, sub] of p.chipsBlock) {

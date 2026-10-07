@@ -20,6 +20,7 @@ copyFileSync(new URL("../lib/breakfast.js", import.meta.url), join(tmp, "breakfa
 // Morning menu identity is shared with the Breakfast poster.  Copy its real
 // module with the standalone gate rather than testing a stripped import graph.
 copyFileSync(new URL("../lib/morningIdentity.js", import.meta.url), join(tmp, "morningIdentity.js"));
+copyFileSync(new URL("../lib/cafeIdentity.js", import.meta.url), join(tmp, "cafeIdentity.js")); // placeFilter imports it (owner 2026-10-07 coffee-only cafés)
 copyFileSync(new URL("../lib/placeFilter.js", import.meta.url), join(tmp, "placeFilter.mjs"));
 const { placeAllowed } = await import(join(tmp, "placeFilter.mjs"));
 if (typeof placeAllowed !== "function") fail("placeAllowed not exported from lib/placeFilter.js");
@@ -156,13 +157,10 @@ const MUST_PASS = [
   // Morning identity is exclusive. With no primary type, a dual-service
   // bakery/café resolves Café-first, so it cannot be a duplicate Breakfast
   // assertion whose only difference is provider type order.
-  ["food", "cafes", "Farmer's Milk Cafe & Bakery", ["cafe", "bakery", "coffee_shop"]],
-  ["food", "cafes", "Peachey's Baking Co — Landings", ["donut_shop", "bakery", "coffee_shop"]],
   ["food", "dessert", "Peachey's Baking Co — Landings", ["donut_shop", "bakery", "coffee_shop"]],
   ["food", "breakfast", "The Frog Pond SPB", ["breakfast_restaurant", "brunch_restaurant", "restaurant"]],
   ["food", "breakfast", "The Frog Pond Downtown St. Petersburg", ["breakfast_restaurant", "brunch_restaurant"]],
   ["food", "breakfast", "The Frog Pond North Redington Beach", ["breakfast_restaurant", "brunch_restaurant", "restaurant"]],
-  ["food", "cafes", "Campfired", ["cafe", "brunch_restaurant", "breakfast_restaurant"]],
   ["nightlife", "all", "Dive Cocktail Den", ["cocktail_bar", "bar"]],
   ["nightlife", "speakeasy", "Dive Cocktail Den", ["cocktail_bar", "bar"]],
   ["food", "lunch", "P J's Sandwich Shop", ["sandwich_shop"]],
@@ -186,6 +184,18 @@ const MUST_PASS = [
 ];
 for (const [cat, sub, name, types] of MUST_PASS) {
   if (!placeAllowed(cat, sub, { name, types })) fail(`legit place wrongly killed: [${cat}:${sub}] ${name}`);
+}
+
+// 2026-10-07 OWNER ASK (lib/cafeIdentity.js): Cafés/Coffee are real coffee shops only. These three
+// used to be MUST_PASS under the broad morning identity; the intent "café rows are reachable"
+// is kept by Toasted Mango above, and these bakery / donut / no-coffee-evidence rows are now OUT.
+for (const [cat, sub, name, types] of [
+  ["food", "cafes", "Farmer's Milk Cafe & Bakery", ["cafe", "bakery", "coffee_shop"]],
+  ["food", "coffee", "Farmer's Milk Cafe & Bakery", ["cafe", "bakery", "coffee_shop"]],
+  ["food", "cafes", "Peachey's Baking Co — Landings", ["donut_shop", "bakery", "coffee_shop"]],
+  ["food", "cafes", "Campfired", ["cafe", "brunch_restaurant", "breakfast_restaurant"]],
+]) {
+  if (placeAllowed(cat, sub, { name, types })) fail(`strict café menu wrongly admitted: [${cat}:${sub}] ${name}`);
 }
 
 // Named CHIP_IDENTITY — server-side. These rows pass a loose SUB_ALLOW
