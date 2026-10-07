@@ -250,7 +250,7 @@ ok(SG.creditedPhotoWarmCap() === 800, "cap 800 parses to 800");
   ok(/recordPulse\("credited-photos"/.test(code), "route records a pulse");
   const vj = JSON.parse(rd("vercel.json"));
   const crons = vj.crons.filter((c) => /credited-photos/.test(c.path));
-  ok(crons.length === 1 && /\?run=1/.test(crons[0].path) && /^\d+ \d+ \* \* \*$/.test(crons[0].schedule), "vercel.json schedules the warm exactly once, daily, with run=1: " + JSON.stringify(crons));
+  ok(crons.length === 1 && /\?run=1/.test(crons[0].path) && /^\d+ (?:\d+|\*\/[1-9]\d?) \* \* \*$/.test(crons[0].schedule), "vercel.json schedules the warm exactly once (daily or every N hours; idempotent, so extra runs only cover more venues sooner), with run=1: " + JSON.stringify(crons));
 }
 
 // ── 7. targets ────────────────────────────────────────────────────────────

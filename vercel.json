@@ -151,7 +151,7 @@
     },
     {
       "path": "/api/cron/credited-photos?run=1&limit=120",
-      "schedule": "37 6 * * *"
+      "schedule": "37 */4 * * *"
     },
     {
       "path": "/api/cron/weekend-picks",
