@@ -39,7 +39,8 @@ const component=readFileSync(new URL('../app/components/GuideDiscoveryCard.js',i
 assert(component.includes("from './RailCard'") && component.includes('<RailCard'),'guide card renders the standard RailCard');
 assert(!/GuideFigure|Illustrative|unsplash|module\.css/i.test(component),'no illustrative hero, credit or private stylesheet');
 assert(!existsSync(new URL('../app/components/GuideDiscoveryCard.module.css',import.meta.url)),'old guide card stylesheet is gone');
-assert(component.includes('ownedPlacePhotoSrc(placeId, 640, true)'),'photo is the matched pick, no-spend');
+const ladder=readFileSync(new URL('../lib/guideCardPhoto.js',import.meta.url),'utf8');
+assert(component.includes("guideCardPhoto(guide, matched)") && ladder.includes('ownedPlacePhotoSrc(placeId, 640, true)'),'photo ladder ends at the matched pick, no-spend (lib/guideCardPhoto.js)');
 assert(candidate.topics?.length>=1 && candidate.pickCount>=1,'index carries deterministic topics and pick count');
 console.log(`test-guide-discovery: OK — ${guides.length} active guide images, stable relevant inserts, source list immutability, archive exclusion, attribution and subject negative controls`);
 
@@ -85,12 +86,14 @@ assert.equal((collectionMarkup.match(/<article/g)||[]).length,1,'actual shared c
 assert(cardAt>collectionMarkup.indexOf('data-test-rail="covered"'),'actual insertion follows its covered rail');
 assert(cardAt<collectionMarkup.indexOf('data-test-rail="event"'),'actual insertion is between rails');
 assert(!collectionMarkup.includes('Illustrative') && !collectionMarkup.includes('data-guide-discovery') && !collectionMarkup.includes('<figcaption'),'no illustrative disclaimer, no old guide grid, no photographer line');
-const chipRow=(collectionMarkup.match(/wf-place-card-highlights">(.*?)<\/div>/)||[])[1]||'';
-assert(((chipRow.match(/<span/g)||[]).length)>=3,'at least three category chips');
-assert(chipRow.includes(candidate.region) && chipRow.includes(`${candidate.pickCount} picks`),'chips carry region and pick count');
-assert(new RegExp(`wf-place-card-take">Covers Test Spot and ${candidate.pickCount-1} more picks near you`).test(collectionMarkup),'a one line why this is recommended');
-assert(!/[\u2013\u2014]/.test((collectionMarkup.match(/wf-place-card-take">(.*?)<\/div>/)||[])[1]||''),'why line has no dashes');
-assert(collectionMarkup.includes('Local guide') && collectionMarkup.includes(`${candidate.mins} min`) && collectionMarkup.includes('Read the guide'),'eyebrow, read time badge and single CTA');
+// Guide cards (owner, 2026-10-07): NO chip bubbles, the full title is the focus
+// (scripts/check-guide-card.mjs pins the unclamped title), the read time rides
+// in the filled "Local guide" tag.
+assert(collectionMarkup.includes('wf-guide-card') && !collectionMarkup.includes('wf-place-card-highlights'),'guide card is the guide variant and carries no chip bubbles');
+assert(!/[\u2013\u2014]/.test((collectionMarkup.match(/wf-place-card-name">(.*?)<\/div>/)||[])[1]||''),'title has no dashes');
+assert(!collectionMarkup.includes('wf-place-card-score'),'no score or READ badge box competes with the title');
+assert(/wf-place-card-category">Local guide/.test(collectionMarkup),'the filled Local guide tag leads the card');
+assert(collectionMarkup.includes('Local guide') && collectionMarkup.includes(`${candidate.mins} min`) && collectionMarkup.includes('Read the guide'),'tag with read time and single CTA');
 assert(collectionMarkup.includes(`/guides/${candidate.slug}`),'internal guide link survives');
 assert.equal((collectionMarkup.match(/data-test-rail=/g)||[]).length,rails.length,'every original child stays present');
 const withoutContext=renderToStaticMarkup(React.createElement(Collection,{rails,collectionId:'collection'},rails.map(rail=>React.createElement('section',{key:rail.id},rail.id))));

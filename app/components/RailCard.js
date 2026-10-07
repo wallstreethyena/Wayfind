@@ -332,6 +332,10 @@ export default function RailCard({
   // reactions into place ranking, so this prop no longer removes the row.
   actionsReadOnly = false,
   actionItem = null,
+  // Opt-in look. variant="guide" adds .wf-guide-card (css.js): full, unclamped
+  // title and the guide treatment. Omitted (every place/event/tour card) adds
+  // nothing, so the markup is byte-identical to before. Place cards never pass it.
+  variant = null,
   // WO11 — usePagedRail's IntersectionObserver watches ONE card (the loaded−3
   // sentinel) to know when to fetch the next page. This is a plain prop, not
   // React.forwardRef: every call site is ours, nothing renders
@@ -455,7 +459,7 @@ export default function RailCard({
     <article
       ref={domRef}
       data-place-id={place?.id || undefined}
-      className={`wf-place-card wf-rail-card${fallCardClass(place && place.id, siteTodayStr())}${spooky ? " wf-spooky-card" : ""}${awardWinnerClass(shownAward)}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${className ? " " + className : ""}`}
+      className={`wf-place-card wf-rail-card${fallCardClass(place && place.id, siteTodayStr())}${spooky ? " wf-spooky-card" : ""}${awardWinnerClass(shownAward)}${variant === "guide" ? " wf-guide-card" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${className ? " " + className : ""}`}
       role="button"
       tabIndex={0}
       onPointerDown={tapIntent.onPointerDown}
