@@ -356,7 +356,7 @@ const route = readFileSync(new URL("../app/api/events/fall/route.js", import.met
 const daypart = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
 const component = readFileSync(new URL("../app/components/FallIntentRails.js", import.meta.url), "utf8");
 const card = readFileSync(new URL("../app/components/RailCard.js", import.meta.url), "utf8");
-ok(route.includes("fall-intents:v24:") && route.includes("fastCachedRail"), "the API uses the v24 shared FastCache key after verified visit facts and truthful operating-status publish");
+ok(route.includes("fall-intents:v25:") && route.includes("fastCachedRail"), "the API uses the v25 shared FastCache key after the 2026-10-06 Halloween DB seed (v24: verified visit facts and truthful operating-status publish)");
 const imageProofId = "ChIJB-QyVtEXw4gRk5F8bn3YV28";
 ok(hasStoredPlacePhoto({ place_id: imageProofId, signals: { photo_url: "https://cdn.example.test/owned.jpg" } }),
   "an owned signals.photo_url is stored image proof");

@@ -86,7 +86,10 @@ export async function GET(request) {
     // v23 (2026-09-30, owner) orders each rail by date then DISTANCE (open-now
     // places and running select-nights events key as today) and emits the
     // compact when-pill grammar (3-letter weekdays) — a v22 payload holds both.
-    const key = `fall-intents:v24:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v25 (2026-10-06) publishes the 98 verified Halloween/fall rows seeded by
+    // scripts/seed-fall-additions-2026-10-06.mjs, so a v24 payload computed
+    // before that seed can never be served after the deploy.
+    const key = `fall-intents:v25:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
