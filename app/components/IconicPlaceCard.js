@@ -54,6 +54,7 @@ import { creatorVideosFor } from "../../lib/creatorSignals.js";
 import CreatorCardMark from "./CreatorCardMark";
 import { topPickAward } from "../../lib/topPickAward";
 import { wayfindAwardFor } from "../../lib/wayfindAwards.js";
+import { AwardSticker, AwardBand, AwardListRank, awardWinnerClass } from "./AwardCardParts";
 import { couponForPlace } from "../../lib/coupons";
 import { normalizePlaceCardHref } from "../../lib/placeCardRoute.js";
 import { useCardTapIntent } from "./useCardTapIntent.js";
@@ -523,7 +524,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
     <li ref={cardRef} data-iconic-place-card data-card-opens-detail data-place-id={place.id}
       onPointerDown={tapIntent.onPointerDown} onPointerMove={tapIntent.onPointerMove}
       onPointerUp={tapIntent.onPointerUp} onPointerCancel={tapIntent.onPointerCancel}
-      onClick={openCard} className={`wf-place-card${fallCardClass(place.id, siteTodayStr())}${spookyOverFall(place, siteTodayStr())}${isCuratorPick ? " is-curator-pick" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${hasTake ? "" : " is-no-take"}${take && editorialMore && cardHref ? " has-more" : ""}${cta ? " has-cta" : ""}`} style={{ listStyle: "none", cursor: cardHref ? "pointer" : "default" }}>
+      onClick={openCard} className={`wf-place-card${fallCardClass(place.id, siteTodayStr())}${spookyOverFall(place, siteTodayStr())}${awardWinnerClass(award)}${isCuratorPick ? " is-curator-pick" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${hasTake ? "" : " is-no-take"}${take && editorialMore && cardHref ? " has-more" : ""}${cta ? " has-cta" : ""}`} style={{ listStyle: "none", cursor: cardHref ? "pointer" : "default" }}>
       {/* v8.62 (owner, 2026-08-26, live): the Wayfind Score sits in the top
           right corner of the CARD, never on the photo. Direct child of
           .wf-place-card so the shared css.js rule anchors it to the card. */}
@@ -579,6 +580,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
                 </div>
               : <div className="wf-place-card-monogram" aria-hidden="true">{initials}</div>}
           {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
+          <AwardSticker award={award} />
           {/* v8.56.13 (#1188) — same CC credit badge as RailCard.js, same
               reasoning: see its comment above the equivalent block. */}
           {photoAttr && primaryPhoto
@@ -599,6 +601,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
           <div className="wf-place-card-title-row" style={{ display: "flex", alignItems: "flex-start" }}>
             <div className="wf-place-card-heading">
               <span className="wf-place-card-category">{category}</span>
+              <AwardListRank award={award} rank={rank} />
               <a className="wf-place-card-name" href={cardHref} onClick={onOpen ? (e) => { e.preventDefault(); e.stopPropagation(); onOpen(place); } : undefined} style={{ display: "block", color: "#F8F5EE", textDecoration: "none" }}>{place.name}</a>
             </div>
           </div>
@@ -607,7 +610,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
             {facts.map((fact) => <span key={fact} style={{ color: fact === "Open" ? "#22C55E" : fact === "Closed" ? "#EF4444" : fact.startsWith("🔥") ? "#FB923C" : undefined, fontWeight: fact.startsWith("🔥") ? 700 : undefined }}>{fact}</span>)}
           </div>
 
-          {award ? (
+          {award && award.wayfindAward ? <AwardBand award={award} /> : award ? (
             <div className={`wf-place-card-award${award.wayfindAward ? " is-wayfind-award" : award.curator ? " is-curator" : ` is-rank-${award.rank}`}`} aria-label={award.wayfindAward ? award.ariaLabel : award.curator ? "Personally selected by Wayfind's curator" : undefined}>
               <span className="wf-place-card-award-icon" aria-hidden="true">{award.icon}</span>
               <span>{award.label}</span>

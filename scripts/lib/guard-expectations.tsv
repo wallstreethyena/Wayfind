@@ -840,5 +840,5 @@ scripts/test-viator-integrity-lock.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	
 scripts/test-viator-provider-state.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	47	0	0	cc1d5644b9caf302bef30ccd99ac861eeaf81feec272273bdf29fda6bdd3aa16
 scripts/test-viator-smoke-shape.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	36	0	0	9571e62fdcc76105558585c44faf8c6d75145ff1b721729bc393f11f9ba77c36
 scripts/test-vitals-attribution.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	603cf9d499ba7108915aa9ac0ba51205a607d7ecbb09561ce3cd5c7a7984cf6a
-scripts/test-wayfind-awards.mjs	0	RENDER	blocks-ci-and-deploy	1	-	33	0	0	8bee7068883f19732c094cb67bcec353e76454764755f5ebc0bd9dffbe45a456
+scripts/test-wayfind-awards.mjs	0	RENDER	blocks-ci-and-deploy	1	-	51	0	0	10888a8d385152aec40c0cce4936abca57eb43fe2a6cf8129c547172219d0e7f
 scripts/test-wikipedia-outcomes.mjs	0	CALL	blocks-ci-and-deploy	1	-	35	0	0	8d24a1dc4b3fda197fa5ed57cb414d34c4aca5732c3ec840f56304b9b4b99ed0

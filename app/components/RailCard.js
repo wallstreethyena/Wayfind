@@ -73,6 +73,7 @@ import { creatorVideosFor } from "../../lib/creatorSignals.js";
 import CreatorCardMark from "./CreatorCardMark";
 import { couponForPlace } from "../../lib/coupons.js";
 import { wayfindAwardFor } from "../../lib/wayfindAwards.js";
+import { AwardSticker, AwardBand, AwardListRank, awardWinnerClass } from "./AwardCardParts";
 import { normalizePlaceCardHref } from "../../lib/placeCardRoute.js";
 import { ownedPlacePhotoSrc } from "../../lib/placePhoto.js";
 import { usePhotoSrcFilter } from "./photoPolicyContext";
@@ -454,7 +455,7 @@ export default function RailCard({
     <article
       ref={domRef}
       data-place-id={place?.id || undefined}
-      className={`wf-place-card wf-rail-card${fallCardClass(place && place.id, siteTodayStr())}${spooky ? " wf-spooky-card" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${className ? " " + className : ""}`}
+      className={`wf-place-card wf-rail-card${fallCardClass(place && place.id, siteTodayStr())}${spooky ? " wf-spooky-card" : ""}${awardWinnerClass(shownAward)}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${className ? " " + className : ""}`}
       role="button"
       tabIndex={0}
       onPointerDown={tapIntent.onPointerDown}
@@ -508,6 +509,7 @@ export default function RailCard({
               />
             : <div className="wf-place-card-monogram" aria-hidden="true">{initialsOf(title)}</div>}
           {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
+          <AwardSticker award={shownAward} />
           {/* v8.56.13 (#1188) — CC-license credit for the free permanent photo
               lane (lib/freePhoto.js, wf_place_photo). Not decoration: Wikimedia
               licenses REQUIRE a visible author + license credit. Bottom-right —
@@ -534,6 +536,7 @@ export default function RailCard({
               {eyebrow ? (onEyebrow
                 ? <button type="button" className="wf-place-card-category is-tappable" onClick={(e) => { e.stopPropagation(); e.preventDefault(); onEyebrow(e); }}>{eyebrow} ›</button>
                 : <span className="wf-place-card-category">{eyebrow}</span>) : null}
+              <AwardListRank award={shownAward} rank={rank} />
               <div className="wf-place-card-name">{title}</div>
             </div>
           </div>
@@ -544,7 +547,7 @@ export default function RailCard({
             </div>
           ) : null}
 
-          {shownAward ? (
+          {shownAward && shownAward.wayfindAward ? <AwardBand award={shownAward} /> : shownAward ? (
             <div className={`wf-place-card-award is-${shownAward.tone === "creator" ? "creator" : shownAward.tone === "wayfind-award" ? "wayfind-award" : "rank-" + (shownAward.tone || 1)}`} aria-label={shownAward.ariaLabel || undefined}>
               <span className="wf-place-card-award-icon" aria-hidden="true">{shownAward.icon}</span>
               <span>{shownAward.label}</span>
