@@ -925,6 +925,20 @@ a:has(>.wf-place-card)>.wf-place-card .wf-place-card-share{color:#DFE5EE!importa
 .wf8-pcrail>.wf-place-card-sk{flex:0 0 var(--wf-place-card-width);width:var(--wf-place-card-width);scroll-snap-align:start;margin-bottom:0!important}
 .wf8-tile-sk{position:absolute;inset:12px 12px auto;z-index:1;pointer-events:none}
 .wf8-tile.is-art-ready .wf8-tile-sk{display:none}
+` +
+// GUIDE CARD (RailCard variant="guide", 2026-10-07, owner: guide cards are not
+// place cards; the TITLE is the centre of attention and is never compressed or
+// cut). Opt-in via the .wf-guide-card root class ONLY: a place card never
+// carries it, so every rule above keeps governing place cards untouched. Same
+// fixed --wf-card-h as a place card (rails do not jump); the room the title
+// needs comes from what the guide card leaves out (no chips, no take line, no
+// score/READ badge box, whose 32px name offset is gone). The "Local guide" tag
+// is a small filled pill that also carries the read time.
+`.wf-place-card.wf-guide-card{border-top:3px solid #F97316!important;background:linear-gradient(160deg,rgba(249,115,22,.13),transparent 52%),#111824!important}
+.wf-place-card.wf-guide-card .wf-place-card-name{display:block!important;-webkit-line-clamp:unset!important;line-clamp:unset!important;overflow:visible!important;text-overflow:clip!important;max-height:none!important;font-size:17px!important;font-weight:840!important;line-height:1.14!important;letter-spacing:-.02em;color:#FFF;overflow-wrap:break-word}
+.wf-place-card.wf-guide-card .wf-place-card-category{display:inline-flex;align-self:flex-start;max-width:100%;margin:0 0 7px;padding:3px 8px;border-radius:999px;background:#F97316;color:#1A0F05!important;font-size:8.5px;font-weight:900;letter-spacing:.1em;white-space:nowrap}
+.wf-place-card.wf-guide-card .wf-place-card-category:before{display:none}
+@media(min-width:${WF_DESKTOP_BP}px){.wf-place-card.wf-guide-card .wf-place-card-name{font-size:19px!important}}
 `;
 // v6.44 — the "Your taste" panel (owner: "image 4 is new and i love, just not
 // crazy on how it looks... we need to leverage the way that we enhanced the

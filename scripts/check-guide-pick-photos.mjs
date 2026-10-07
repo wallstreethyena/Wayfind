@@ -49,7 +49,7 @@ import sharp from "sharp";
 import { GUIDES } from "../lib/guides.js";
 import { GUIDE_PICK_PHOTOS } from "../lib/guidePickPhotoManifest.js";
 import { selectGuidePickPhoto, guidePickPhoto, attachFreePhotoCredit } from "../lib/guidePickPhotos.js";
-import { loadGuidePickPhotoFiles, buildGuidePickPhotos, DATA_DIR } from "./build-guide-pick-photos.mjs";
+import { loadGuidePickPhotoFiles, buildGuidePickPhotos, buildGuideCardPhotoIndex, DATA_DIR } from "./build-guide-pick-photos.mjs";
 import { guideImageProblems } from "../lib/guideImagePolicy.js";
 import { loadComponent } from "./lib/jsxLoad.mjs";
 import { GUIDE_HERO_ART } from "../lib/guideHero.js";
@@ -80,6 +80,14 @@ const derivedJson = JSON.stringify(derived, null, 2);
 const committedJson = JSON.stringify(GUIDE_PICK_PHOTOS, null, 2);
 ok(derivedJson === committedJson,
   "lib/guidePickPhotoManifest.js is out of sync with data/guide-pick-photos/*.json — run `node scripts/build-guide-pick-photos.mjs` and commit the result");
+{
+  // The slim index the guide CARD reads (lib/guideCardPhotoIndex.js) is derived
+  // from the same manifest + the guide heroes; it must never drift from them.
+  const { GUIDE_CARD_PHOTOS } = await import("../lib/guideCardPhotoIndex.js");
+  const derivedIndex = buildGuideCardPhotoIndex(derived, GUIDE_HERO_ART);
+  ok(JSON.stringify(derivedIndex, null, 2) === JSON.stringify(GUIDE_CARD_PHOTOS, null, 2),
+    "lib/guideCardPhotoIndex.js is out of sync with the manifest + lib/guideHero.js — run `node scripts/build-guide-pick-photos.mjs` and commit the result");
+}
 {
   // red-proof: a manifest that DIFFERS from the derivation must not compare equal.
   const tampered = JSON.stringify({ ...derived, __not_a_real_slug__: { picks: {} } }, null, 2);
