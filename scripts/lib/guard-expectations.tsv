@@ -51,7 +51,7 @@ scripts/check-chef-picks.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	cfaea31fa7ce
 scripts/check-citypass.mjs	0	CALL	blocks-ci-and-deploy	1	-	34	0	0	0d8c182546f20762819ff16535323a8cde407967f6a41884e27dacdc18380d1a
 scripts/check-client-writes-have-policies.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	3	1	0	46db82c5841a98f27be9cd3ba7aea88b3b802145534e092603ed9b0d608cd0da
 scripts/check-clipp-deals.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	115	0	0	2a888d958cdabc7bd85afa68f6f43e4b1172b1a119ac4e3581fa8e1119dd77e5
-scripts/check-collection-look.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	60	1	0	c0517110d3888749b4657dfa33707e7720c0cb2cffd5c0769267fbe4f7bdf6dc
+scripts/check-collection-look.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	62	1	0	50ee03e73e333de1ec6a8e5d8071e73e6f72cff41f0c0a2a985cad27d7e5df0c
 scripts/check-commerce-events.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Revenue QA	17	1	0	19527220538c5fb3dfe1262cbfa6311cf028a97c559d2eecf4b17042283476a2
 scripts/check-commerce-redirect.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	52	1	2	63dab8bc422cd8d0d9e4fe15595fd83165c652d5d8b7ff77ebfa0303000f2030
 scripts/check-community-footer.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	27	1	0	9e745a720049b5e7c3c72654745aa6184b009974107244cd42b1c13a666c27a7
@@ -217,7 +217,7 @@ scripts/check-job-pulse-contract.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	7	1	0
 scripts/check-job-watch-delivery.mjs	0	CALL	scheduled-monitoring-only	0	-	0	1	0	0a6cef8913ad176b4d0d917ee1658dd9b5baaffefb2bda61ef801aba2d52e659
 scripts/check-kit-focus.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	13	1	0	6ad909590ec6e6824d1d3017283b09d429a6ab0735bb6677cab2366f0561430e
 scripts/check-known-for-tiers.mjs	0	RENDER	blocks-ci-and-deploy	1	-	18	0	0	8d57cfb53020ee5e90ca56ced905458dc353b5af404fbe370a0844b8983d846f
-scripts/check-known-for.mjs	0	CALL	blocks-ci-and-deploy	1	-	32	0	0	99e64d2d978a0ef9f6884d873708a120a58abf04908e0be577369a19de44f025
+scripts/check-known-for.mjs	0	RENDER	blocks-ci-and-deploy	1	-	39	0	0	0ada7bcc2ae45301d9fba93d3d9042a4fc904dece57ab6c5d15dc698e5aaed52
 scripts/check-landing-data-client-free.mjs	0	RENDER	blocks-ci-and-deploy	1	-	13	0	0	79513aef97d0555623778b9a6acc054f8525e7ab3d66649446a1e8ea854c1219
 scripts/check-landing-photos.mjs	0	CALL	blocks-ci-and-deploy	1	-	15	0	0	e8a45c8a6ba2834c71b57ba40d753437263b174955d84f500aae484f8cdf2a4f
 scripts/check-lands-on-results.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	37	1	0	72acde08ec2136bd9f4645b33b07362231c5b0885c4e0cf05ccc031fad27e332
@@ -472,6 +472,7 @@ scripts/test-card-a11y.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	22	1	0	a77d7f52
 scripts/test-card-action-row.mjs	0	RENDER	blocks-ci-and-deploy	1	-	8	0	0	90695f2bcb19a8ff34c031999d31df2109a08fa68a65e20b3902f2feaea23ed5
 scripts/test-card-analytics.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	31	0	0	dca1e6742fbca17e4ed8c6fbc7c89a9406adf02a01d8b2982d66f6164020c30b
 scripts/test-card-booking.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Revenue QA	19	1	0	a70ee6b1d322cbcac5a771365fbbbb7359d9d2505f102ce2a238d31174f7f4e0
+scripts/test-card-chips-deterministic.mjs	0	RENDER	blocks-ci-and-deploy	1	-	14	0	0	e32c58b2eb8eaffcaeab9539b9ddd45f490ab402df5406258a11f9119b505ccd
 scripts/test-card-gate.mjs	0	CALL	blocks-ci-and-deploy	1	-	52	0	0	16fa6f4413a8f9f8a90c8d017f626ac8ec0dbbb02473c4e5360fd04b2c93c033
 scripts/test-card-photo-fallback.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	01ca9684dac839a3abeceb4ecad39fccf3b3e2a2b7123bf4401bcdc4593938b3
 scripts/test-card-store-coherence.mjs	0	RENDER	blocks-ci-and-deploy	1	-	47	0	0	beecd02d00e38744089602b4c26f4781e5acd97f43a98aaa58e1507f7424de92
@@ -643,6 +644,7 @@ scripts/test-intent-pages.mjs	0	CALL	blocks-ci-and-deploy	1	-	47	0	0	a72e2345722
 scripts/test-intl-cache.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	5b0a244c74a2e9162785d1741a6dd23a55c785e8f583e2b625bed49940ed6824
 scripts/test-inventory-all-adult.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0	6ae755d3b086a2e1cc272ebf28abf6c5515585029a9b8d78ac34ac7f43b31f0b
 scripts/test-inventory-batch-concurrency.mjs	0	CALL	blocks-ci-and-deploy	1	-	55	0	0	5e792872c76b8f69c8ad369827096f677f320acd4c494f65304d0d29f9efb356
+scripts/test-inventory-row-card-fields.mjs	0	RENDER	blocks-ci-and-deploy	1	-	19	0	0	aba7c91a65ee7177267fc71d88dd7a301647ab03728eae30ae8dc5ff12c55c7a
 scripts/test-inventory-serve.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0	aa21f75f53d5223eb9334a6d755172239f1ae348d4da4e994b128846bea5310f
 scripts/test-inverse-booking-cta.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	16	0	0	69b2842b1e6984e7515c77c884a4b3806816a49af40b65168337598e45577bdb
 scripts/test-jev-mcp.mjs	0	CALL	blocks-ci-and-deploy	1	-	21	0	0	92b552a17c1ffe5ea593b0296922d167adf48e497cf0d6f736dff321b8786477

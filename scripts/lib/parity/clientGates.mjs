@@ -31,13 +31,14 @@
 import { normName, dedupePlaces } from "../../../lib/placeDedupe.js";
 import { cardComplete } from "../../../lib/score.js";
 import { wayfindScore } from "../../../lib/wayfindScore.js";
+import { priceLevelOf } from "../../../lib/price.js";
 import { milesBetween } from "./eligibility.mjs";
 
 export const SLIDER_MI_DEFAULT = 17; // DEFAULT_RADIUS_MI, lib/google.js — the app's default "Within X mi" opening value
 
 /** Ground-truth place (Google-Places-(New) shape, invRowToPlace()'s output or
  * a live Google normalize()'d result) -> the APP-shaped candidate
- * app/home.js's mapInventoryRow(x, center) produces, computed from a given
+ * lib/inventoryRowClient.js's mapInventoryRow(x, center) produces, computed from a given
  * origin. Same fields dedupePlaces/betterPlace/cardComplete read: id, name,
  * distMi, rating, reviews, wfScore, photo, openNow. `distMi` uses
  * eligibility.mjs's milesBetween (itself lib/ownedPool.js's own formula) —
@@ -60,6 +61,11 @@ export function toAppShape(p, originLat, originLng) {
     wfScore: wayfindScore(rating || 0, reviews || 0),
     photo: photoRef ? "photo" : null, // presence-only; betterPlace only checks truthiness
     openNow: null, // mapInventoryRow always sets this null for inventory-sourced rows
+    // richer-card fields (2026-10-06): mirrored from mapInventoryRow so parity sees the same shape
+    priceNum: priceLevelOf(p && p.priceLevel),
+    cuisines: Array.isArray(p && p.cuisines) ? p.cuisines : [],
+    tags: Array.isArray(p && p.tags) ? p.tags : [],
+    _invEditorial: (p && p.editorialSummary && p.editorialSummary.text) || null,
   };
 }
 

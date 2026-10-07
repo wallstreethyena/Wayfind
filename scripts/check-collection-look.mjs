@@ -182,8 +182,12 @@ ok(/expTags\.map/.test(iconic), "IconicPlaceCard renders its experience-tag chip
 // the v7.15 state, and the drift shipped. Both cards now carry the pills, and
 // BOTH renders are asserted — on the ROLE (the engine spread into the badges
 // array), not a substring.
-ok(/const badges = \[[\s\S]{0,400}\.\.\.experienceBadges\(p, selectedBadge, 3\)\]/.test(read("app/home.js")),
-  "the browse PlaceCard spreads experienceBadges into its badge row — the v8.5 'bring that everywhere' reversal covers the canonical card, not only IconicPlaceCard");
+// 2026-10-06 (richer cards): the cap is 4 and the order is deterministic (lib/cardChips.js);
+// the ROLE is unchanged — the engine (experienceBadges, all keys) feeds the badge row.
+ok(/const _engine = experienceBadges\(p, selectedBadge, 99\);[\s\S]{0,1200}const badges = arrangeChips\(\{[\s\S]{0,900}engineKeys: _chipKeys/.test(read("app/home.js")),
+  "the browse PlaceCard feeds experienceBadges into its badge row through arrangeChips — the v8.5 'bring that everywhere' reversal covers the canonical card, not only IconicPlaceCard");
+ok(/export const CARD_CHIP_CAP = 4;/.test(read("lib/cardChips.js")), "the card chip cap is 4 (lib/cardChips.js CARD_CHIP_CAP)");
+ok(/experienceTags\(place, CARD_CHIP_CAP\)/.test(iconic), "IconicPlaceCard asks experienceTags for the same cap-4 set as the browse card");
 ok(!/experienceTags\(tagged/.test(read("app/components/BestNearby.js")), "BestNearby rails pass no tag bubbles to RailCard — Deal and the creator-video score disclosure only");
 ok(!/experienceTags\(r, \d/.test(read("app/components/IntentRail.js")), "the home intent rails pass no tag bubbles — Deal only");
 ok(!/experienceBadges\(detail, null, 4\)\.map/.test(read("app/components/sheets/Detail.js")), "the detail sheet renders no tag-bubble row");

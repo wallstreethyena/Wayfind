@@ -16,7 +16,7 @@
 //
 // Batched on purpose. The card list needs up to ~20 lines at once, and the
 // alternative — one request per card — is what makes a sheet feel slow.
-import { knownForMap } from "../../../lib/knownFor";
+import { knownForMap, knownForLine } from "../../../lib/knownFor";
 import { atlasLinesFor } from "../../../lib/atlasCards";
 import atlasCards from "../../../data/atlas/editorial-cards.json";
 
@@ -127,15 +127,43 @@ export async function POST(req) {
       } catch (e) { inv = {}; }
     }
 
+    // ── RUNG 2.5 (2026-10-06): wf_inventory.editorial_card whyGo, then bestFor ──
+    // Hand-reviewed card copy that sits on the inventory row. Above the descriptive
+    // inventory editorial (it is a reason to go, not a place description), below the
+    // verified hook. Composed by knownForLine (same gates, same budget) — nothing is
+    // generated; a row with neither field says nothing here.
+    const card = {};
+    if (stillSilent.length) {
+      try {
+        const cq = url + "/rest/v1/wf_inventory?select=place_id,name,whyGo:editorial_card->>whyGo,bestFor:editorial_card->>bestFor&editorial_card=not.is.null&place_id=in.("
+          + stillSilent.map((i) => '"' + encodeURIComponent(i) + '"').join(",") + ")";
+        const cr = await fetch(cq, {
+          headers: { apikey: anon, Authorization: "Bearer " + anon },
+          next: { revalidate: 3600 },
+        });
+        if (cr.ok) {
+          const crows = await cr.json();
+          if (Array.isArray(crows)) {
+            for (const r of crows) {
+              if (!r || !r.place_id) continue;
+              const line = knownForLine({ place_id: r.place_id, name: r.name, hook: r.whyGo, why_here: r.bestFor });
+              if (line) card[r.place_id] = line;
+            }
+          }
+        }
+      } catch (e) { /* fail soft: the inventory editorial rung still answers */ }
+    }
+
     const tiers = {};
     for (const id of Object.keys(researched)) tiers[id] = "wayfind";
-    for (const id of Object.keys(inv)) if (!researched[id]) tiers[id] = "known";
+    for (const id of Object.keys(card)) if (!researched[id]) tiers[id] = "wayfind";
+    for (const id of Object.keys(inv)) if (!researched[id] && !card[id]) tiers[id] = "known";
 
     return Response.json({
-      lines: { ...inv, ...researched },
+      lines: { ...inv, ...card, ...researched },
       tiers,
-      found: Object.keys(researched).length + Object.keys(inv).length,
-      fromInventory: Object.keys(inv).length,
+      found: Object.keys({ ...inv, ...card, ...researched }).length,
+      fromInventory: Object.keys(inv).length + Object.keys(card).length,
     });
   } catch (e) {
     return Response.json({ lines: {}, degraded: "threw" }, { status: 200 });

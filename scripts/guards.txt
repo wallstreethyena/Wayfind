@@ -2114,3 +2114,8 @@ node scripts/test-fall-additions-2026-10-06.mjs
 node scripts/test-fall-gap-fill-2026-10-06.mjs
 node scripts/check-guide-card.mjs
 node scripts/test-credited-photo-warm.mjs
+
+# 2026-10-06 richer place cards: inventory rows keep price/cuisine/tags/editorial; chips are
+# deterministic, cap 4, highest value first.
+node scripts/test-inventory-row-card-fields.mjs
+node scripts/test-card-chips-deterministic.mjs

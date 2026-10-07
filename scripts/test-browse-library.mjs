@@ -197,7 +197,7 @@ ok(/if\s*\(\s*inv\.length\s*\)\s*return\s+inv/.test(HOME),
   "a filled library is returned as-is; Google is only the empty-library fallback");
 ok(/n=400&cat=/.test(HOME),
   "the inv=1 serve asks for 400 (the cost bound), not a merchandising 40");
-ok(/primaryType:\s*x\.primaryType/.test(HOME),
+ok(/primaryType:\s*x\.primaryType/.test(HOME) || /primaryType:\s*x\.primaryType/.test(readFileSync("lib/inventoryRowClient.js", "utf8")),
   "inventory rows keep primaryType so lunch identity can see breakfast_restaurant");
 
 const FETCH = HOME.slice(HOME.indexOf("const _fetchAt"), HOME.indexOf("const _startM"));

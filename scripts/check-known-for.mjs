@@ -7,6 +7,7 @@
 // as filler and teaches the reader to skip every line, including the good ones.
 import { readFileSync } from "node:fs";
 import { knownForLine, knownForMap, editorialUsable } from "../lib/knownFor.js";
+import { toHookLine } from "../lib/editorialHook.js";
 
 let n = 0, bad = 0;
 const ok = (c, m) => { n++; if (!c) { bad++; console.error("  - " + m); } };
@@ -66,7 +67,10 @@ ok(/fetch\("\/api\/known-for"/.test(home), "home.js never calls /api/known-for, 
 // Editorial must be applied AFTER the seeded cache and be able to overwrite the
 // generated blurb. Merging in the other order would let the generic line win.
 ok(/\.\.\.kd\.lines/.test(home), "known-for lines are not merged into the card line map");
-ok(home.indexOf("...seeded") < home.indexOf("...kd.lines"), "known-for must merge AFTER the cached generic line, or the generic line wins");
+// fetchKnownFor (the one place that merges kd.lines) is only CALLED from loadBlurbs after the
+// seeded cache + inventory-editorial seed, and its merge is async, so it lands last.
+ok(home.indexOf("...seeded") < home.indexOf("fetchKnownFor(list.map"), "known-for must be requested AFTER the cached generic line is seeded, or the generic line wins");
+ok(/async function fetchKnownFor[\s\S]{0,900}\.\.\.prev, \.\.\.kd\.lines/.test(home), "fetchKnownFor merges kd.lines over the previous map (verified hooks overwrite the seed)");
 
 ok(/knownForMap\(/.test(api), "the route does not use the shared composer, so the tested behaviour is not the shipped behaviour");
 ok(!/openai|anthropic|aiKey|generate|completion/i.test(api), "the known-for route reaches a model — this text must be research we already hold, never generated");
@@ -81,6 +85,49 @@ ok(!/openai|anthropic|aiKey|generate|completion/i.test(code(readFileSync(new URL
 const unpublished = { place_id: "x8", hook: "A twelve-seat listening bar hidden behind an unmarked door.", verified: false, issues: null };
 ok(editorialUsable(unpublished) === false, "a verified:false row is treated as usable");
 ok(knownForLine(unpublished) === null, "a verified:false row produced a card line — unpublished research must not ship");
+
+// No dashes in public copy: a spaced em/en dash becomes a comma at the card's compressor.
+{
+  const dl = toHookLine("Florida's only 360-degree ocean tunnel — you stand inside the tank while sharks pass overhead.", "Other Name");
+  ok(dl && !/[—–]/.test(dl) && /tunnel, you stand/.test(dl), `toHookLine must turn a spaced dash into a comma (got "${dl}")`);
+}
+
+// ---- precedence, EXECUTED against the real route with a mocked Supabase ----
+// verified hook > editorial_card whyGo > editorial_card bestFor > inventory editorial.
+{
+  const path = await import("node:path");
+  const { loadComponent } = await import("./lib/jsxLoad.mjs");
+  const route = await loadComponent(path.resolve("app/api/known-for/route.js"), process.cwd());
+  const realFetch = globalThis.fetch;
+  process.env.NEXT_PUBLIC_SUPABASE_URL = "https://kf-mock.supabase.co";
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "mock";
+  const INV = "Laid-back spot offering grouper, jumbo shrimp, lobsters and other seafood plus a market";
+  const respond = (rows) => ({ ok: true, status: 200, json: async () => rows });
+  globalThis.fetch = async (u) => {
+    const url = String(u);
+    if (url.includes("wf_editorial_servable")) return respond([{ place_id: "kfA", name: "Alpha Grill", hook: "Hand-cut steaks and a patio over the water.", verified: true, issues: null }]);
+    if (url.includes("editorial_card")) return respond([
+      { place_id: "kfA", name: "Alpha Grill", whyGo: "Card line that must lose to the verified hook.", bestFor: null },
+      { place_id: "kfB", name: "Bravo Cafe", whyGo: "Fresh-pressed Cuban sandwiches with a pond-view patio.", bestFor: "Bestfor line that loses to whyGo." },
+      { place_id: "kfC", name: "Charlie Pub", whyGo: null, bestFor: "A quiet corner pub with live blues on Fridays." },
+    ]);
+    if (url.includes("wf_inventory")) return respond([
+      { place_id: "kfB", editorial: INV }, { place_id: "kfC", editorial: INV }, { place_id: "kfD", editorial: INV },
+    ]);
+    return respond([]);
+  };
+  try {
+    const res = await route.POST(new Request("http://x/api/known-for", { method: "POST", body: JSON.stringify({ ids: ["kfA", "kfB", "kfC", "kfD"] }) }));
+    const { lines } = await res.json();
+    ok(/steaks/.test(lines.kfA || ""), "a verified hook must beat the editorial_card whyGo");
+    ok(/Cuban sandwiches/.test(lines.kfB || ""), "editorial_card whyGo must beat the inventory editorial");
+    ok(!/Bestfor/.test(lines.kfB || ""), "bestFor must lose to whyGo when both exist");
+    ok(/blues/.test(lines.kfC || ""), "editorial_card bestFor must beat the inventory editorial when whyGo is absent");
+    ok(lines.kfD === INV, "a row with only inventory editorial still gets that line (the lowest rung survives)");
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+}
 
 // The mood prompt: four words, hard cap (owner).
 const intro = readFileSync(new URL("../app/components/sheets/Intro.js", import.meta.url), "utf8");
