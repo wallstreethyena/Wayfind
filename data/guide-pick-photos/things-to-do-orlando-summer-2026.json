@@ -100,38 +100,94 @@
       "verification": "Downloaded the original (3024x4032) from Wikimedia Commons and inspected it directly: the 400-foot observation wheel at ICON Park lit purple at night, titled 'The Wheel at ICON Park (purple)' -- an unmistakable, one-of-a-kind landmark. No people in frame.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
+    },
+    "Universal Celestial Goodnight, the new night show": {
+      "src": "/guides/picks/things-to-do-orlando-summer-2026/universal-celestial-goodnight-the-new-night-show.webp",
+      "width": 1024,
+      "height": 683,
+      "alt": "Aerial view of Celestial Park at Universal Epic Universe with its central lagoon and ring walkways",
+      "caption": "Aerial view of Celestial Park at Universal Epic Universe, where the show runs. Daytime photo.",
+      "credit": "Gfgbeach",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Celestial_Park.jpg",
+      "license": "CC0 1.0 Universal",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Celestial_Park.jpg",
+      "author": "Gfgbeach",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons title and description: aerial overview of Celestial Park; viewed, shows the circular lagoon park Live Commons licence checked: CC0 1.0 Universal.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
+    },
+    "The after-dark water park parties": {
+      "src": "/guides/picks/things-to-do-orlando-summer-2026/the-after-dark-water-park-parties.webp",
+      "width": 1024,
+      "height": 661,
+      "alt": "Wave pool and shipwreck tower at Disney's Typhoon Lagoon seen through tropical plants",
+      "caption": "Disney's Typhoon Lagoon by day, one of the water parks that runs evening events. Daytime photo.",
+      "credit": "Chad Sparkes from Kissimmee,Florida, United States",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Disney's_Typhoon_Lagoon_(28923104866).jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Disney's_Typhoon_Lagoon_(28923104866).jpg",
+      "author": "Chad Sparkes from Kissimmee,Florida, United States",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons description names Disney's Typhoon Lagoon; viewed, shows the wave pool and Miss Tilly shipwreck Live Commons licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
+    },
+    "Level99 at Disney Springs": {
+      "src": "/guides/picks/things-to-do-orlando-summer-2026/level99-at-disney-springs.webp",
+      "width": 1400,
+      "height": 1050,
+      "alt": "Level99 entrance with glowing blue neon arches at night at Disney Springs",
+      "caption": "The Level99 entrance at Disney Springs at night.",
+      "credit": "Nielsoncaetanosalmeron",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Level99_at_Disney_Springs_in_Orlando,_Florida_-_nighttime.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Level99_at_Disney_Springs_in_Orlando,_Florida_-_nighttime.jpg",
+      "author": "Nielsoncaetanosalmeron",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Viewed: Level99 sign legible on the facade; Commons description says exterior of Level99 at Disney Springs, former NBA Experience site Live Commons licence checked: CC BY 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
+    },
+    "Eola Food Hall and the Mills 50 crawl": {
+      "src": "/guides/picks/things-to-do-orlando-summer-2026/eola-food-hall-and-the-mills-50-crawl.webp",
+      "width": 1400,
+      "height": 933,
+      "alt": "Lake Eola fountain with downtown Orlando high-rises behind it under gray clouds",
+      "caption": "Lake Eola and the downtown Orlando skyline.",
+      "credit": "JER3L1337",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Lake_Eola_and_Orlando_Skyline_seen_in_2024.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Lake_Eola_and_Orlando_Skyline_seen_in_2024.jpg",
+      "author": "JER3L1337",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons description names Lake Eola fountain and Orlando skyline; viewed. Fallback for a food hall with no licensed photo, shows the downtown Eola area only Live Commons licence checked: CC BY 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     }
   },
   "gaps": {
-    "Universal Celestial Goodnight, the new night show": {
-      "reason": "not-a-place",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "This pick describes a nightly show/event at Universal Epic Universe, not a distinct place -- the park entrance itself is already covered by the 'Universal Epic Universe' pick's photo."
-    },
     "Rock 'n' Roller Coaster Starring The Muppets": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": "Disney's Hollywood Studios",
       "note": "Wikimedia Commons has several good photos of this coaster, but every one available shows the ride's prior 'Starring Aerosmith' branding and signage. The guide's pick describes the 2025 retheme to 'Starring The Muppets' (Aerosmith imagery removed); using an old-branded photo would misrepresent the attraction as it exists today, so this is treated as a gap rather than a mismatch, similar to using a different branch of a chain. Pass 2 (2026-09-23): searched Openverse for \"Rock Roller Coaster Muppets Hollywood Studios\"; the one result was an unrelated 2006 travel photo, and no post-2025 Muppets-branded photo of the coaster exists among CC-licensed results. No usable candidate found."
-    },
-    "The after-dark water park parties": {
-      "reason": "not-a-place",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "Describes a seasonal ticketed event format spanning multiple Orlando water parks, not a single place."
-    },
-    "Level99 at Disney Springs": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": "Level99 Disney Springs",
-      "note": "Level99 is a newly opened (2025) competitive-games venue; no Commons search (title, category, or geosearch near Disney Springs) returned any photo of it. Pass 2 (2026-09-23): searched Openverse for \"Level99 Disney Springs\"; zero results. No usable candidate found, unsurprising for a venue this new."
-    },
-    "Eola Food Hall and the Mills 50 crawl": {
-      "reason": "not-a-place",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "Combines a specific new food hall with a broader multi-venue restaurant crawl through the Mills 50 district; no single place to photograph, and Commons has no coverage of the newly opened Eola Food Hall itself either."
     }
   }
 }

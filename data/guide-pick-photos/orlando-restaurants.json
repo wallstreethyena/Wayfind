@@ -33,7 +33,7 @@
       "reason": "no-verified-source",
       "placeId": "ChIJYb7ys7N654gRxvFvaVDAB0c",
       "needsPermissionFrom": "DOMU",
-      "note": "Restaurant pass (2026-09-23): Checked 25 Commons candidates, all photos of house/shop facades in Poland, Singapore and Czechia matching the generic Slavic word 'domu' ('of the house'), none in Orlando. Openverse queries 'DOMU Orlando' and 'DOMU ramen Orlando' both returned zero results. No qualifying photo of this East End Market restaurant exists in either source."
+      "note": "Pass 3 (2026-10-07): Commons searches 'East End Market Orlando' and 'Audubon Park Orlando' returned only unrelated agriculture, newspaper and FEMA files; Openverse 'East End Market', 'Corrine Drive Orlando' (only interior shots of Redlight Redlight Brewery, a different business), 'Audubon Park Garden District' returned nothing of the market or its street; Flickr feed tags eastendmarket, eastendmarket+orlando, audubonpark+orlando, domu+orlando returned zero."
     },
     "Zaru": {
       "reason": "no-verified-source",
@@ -75,7 +75,7 @@
       "reason": "no-verified-source",
       "placeId": "ChIJuclcIkWB3YgRi8GT12wxByM",
       "needsPermissionFrom": "Kappo Tsan",
-      "note": "Restaurant pass (2026-09-23): rest-commons.json listed zero Commons candidates. Openverse queries 'Kappo Tsan Orlando' and 'Kappo Tsan sushi' both returned zero results. No CC-licensed photo of this west Orlando restaurant was found."
+      "note": "Pass 3 (2026-10-07): Restaurant opened late 2025 at 7300 Sand Lake Commons Blvd (Dr. Phillips). Commons and Openverse 'Kappo Tsan', 'Sand Lake Commons Orlando', 'Sand Lake Road Orlando', 'Dr. Phillips Orlando' returned only unrelated stores, the downtown Dr. Phillips Center, and a generic road shot; Flickr feed tags kappotsan, sandlakecommons, drphillips+orlando returned zero. No licensed photo of the restaurant or its plaza exists."
     }
   }
 }

@@ -100,6 +100,26 @@
       "verification": "Same file as Wayfind's own verified wf_place_photo record for this place; the building's glass dome and the readable \"THE FLORIDA AQUARIUM\" sign confirm the exact venue. Not geotagged; identified by the sign and architecture.",
       "sameAsCardPhoto": true,
       "reviewedAt": "2026-09-23"
+    },
+    "The soft-serve margarita crawl": {
+      "src": "/guides/picks/things-to-do-tampa-summer-2026/the-soft-serve-margarita-crawl.webp",
+      "width": 1400,
+      "height": 764,
+      "alt": "A red and orange sunset sky over the boardwalk and shops at John's Pass Village in Madeira Beach",
+      "caption": "The boardwalk at John's Pass Village in Madeira Beach at sunset. The soft-serve margarita first appeared at Mad Beach Cantina in Madeira Beach; this is the local scene, not the drink.",
+      "credit": "Richard Mc Neil",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Red_sky_over_the_boardwalk_at_Madeira_Beach%2C_florida._Quand_le_ciel_rougit_la_journ%C3%A9e_qui_ach%C3%A8ve..._-_panoramio.jpg",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Red_sky_over_the_boardwalk_at_Madeira_Beach%2C_florida._Quand_le_ciel_rougit_la_journ%C3%A9e_qui_ach%C3%A8ve..._-_panoramio.jpg",
+      "author": "Richard Mc Neil",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons file title names the boardwalk at Madeira Beach, geotag 27.7859N 82.7808W (John's Pass Village). Mad Beach is the local name for Madeira Beach; photo shows the scene, not a margarita. Live Commons licence checked: CC BY 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     }
   },
   "gaps": {
@@ -108,12 +128,6 @@
       "placeId": "ChIJYWj9iZ_PwogRQebjN7pJ_Nw",
       "needsPermissionFrom": "Armature Works",
       "note": "Commons title search, category search and geosearch around the venue's coordinates (repeated with radii up to 500m) returned no photo of this food hall — only unrelated electrical-engineering \"armature\" documents. No CC-licensed photo found. Pass 2 (2026-09-23): same Openverse searches as the other two guides' Armature Works gaps ('Armature Works Tampa', 'Armature Works' source=flickr, 'Tampa Heights trolley barn', 'Tampa food hall river') found no verified photo, let alone one at golden hour; not re-queried a third time per the shared-place rule."
-    },
-    "The soft-serve margarita crawl": {
-      "reason": "not-a-place",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "A roving drink trend across multiple Mexican restaurants around the bay, not one specific venue named in the pick text (Mad Beach Cantina is named only as where it started, not as the pick itself)."
     },
     "Sparkman Wharf": {
       "reason": "no-verified-source",

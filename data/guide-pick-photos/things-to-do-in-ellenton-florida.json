@@ -32,8 +32,8 @@
     "Ellenton Ice & Sports Complex": {
       "reason": "no-verified-source",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "Searched Commons ('Ellenton Ice', all 'Ellenton' files) and Openverse ('Ellenton Ice Sports Complex', 'Ellenton ice rink', 'Ellenton ice skating', 'Ellenton Florida'); zero results for the rink; no licensed photo of this venue exists (2026-09-30)."
+      "needsPermissionFrom": "Ellenton Ice & Sports Complex",
+      "note": "Pass 3 (2026-10-07): Openverse \"Ellenton ice skating rink\" (0), \"Ellenton Florida outlets\" (0), \"Ellenton Gulf Coast Factory Shops\" (0), \"ice rink Bradenton\" (0), \"Ellenton Florida\" (only Gamble Mansion and Rocky Bluff Library, which are not near this venue). No licensed photo of the rink, its building or the outlet-centre street exists."
     }
   }
 }

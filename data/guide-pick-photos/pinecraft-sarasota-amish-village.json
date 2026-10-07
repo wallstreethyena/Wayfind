@@ -40,6 +40,26 @@
       "verification": "Flickr photo titled \"Sarasota - Yoder's Amish Village - Restaurant Sign\" by Jared, taken 2013-04-25; the building's own sign reads \"Yoder's, Amish Home Cooking, Homemade Pies, Sarasota Tradition Since 1975,\" matching the guide's own description of the restaurant's 1975 founding. Live Flickr page licence checked: CC BY 2.0.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
+    },
+    "How to visit respectfully": {
+      "src": "/guides/picks/pinecraft-sarasota-amish-village/how-to-visit-respectfully.webp",
+      "width": 1400,
+      "height": 799,
+      "alt": "The small Pinecraft post office on Yoder Avenue with a community notice board beside the door",
+      "caption": "The Pinecraft post office on Yoder Avenue, a working neighborhood building in Pinecraft, Sarasota. The photo shows the place only, with no residents.",
+      "credit": "Witherpshins",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Pinecraft_Florida_Post_Office%2C_1240_Yoder_Avenue%2C_Pinecraft_Florida_34278.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Pinecraft_Florida_Post_Office%2C_1240_Yoder_Avenue%2C_Pinecraft_Florida_34278.JPG",
+      "author": "Witherpshins",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons title Pinecraft Florida Post Office, 1240 Yoder Avenue, Pinecraft Florida 34278; building sign reads United States Post Office, Pinecraft Florida 34278 Live Commons licence checked: CC BY-SA 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     }
   },
   "gaps": {
@@ -48,12 +68,6 @@
       "placeId": null,
       "needsPermissionFrom": "Der Dutchman (Sarasota location)",
       "note": "The only 'Der Dutchman' photos on Commons are explicitly captioned as the original Walnut Creek, Ohio location (a different branch of the same chain), so they cannot represent the Sarasota restaurant this pick names. No photo of the Sarasota branch was found. Pass 2 (2026-09-23): Openverse searched \"Der Dutchman Sarasota\" and \"Der Dutchman restaurant Pinecraft\" — zero results; still no CC-licensed photo of the Sarasota branch exists."
-    },
-    "How to visit respectfully": {
-      "reason": "not-a-place",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "Etiquette guidance for visiting the residential neighborhood; not a single place."
     }
   }
 }

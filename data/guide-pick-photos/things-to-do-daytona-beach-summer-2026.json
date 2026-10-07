@@ -180,14 +180,27 @@
       "verification": "Verified on the live Flickr page (flickr.com/photos/31195825@N07/3227641605): CC BY 2.0 confirmed via the page's own licence link (creativecommons.org/licenses/by/2.0/). The page title 'SunglowPier4-DBS-FL' and meta description 'The Sunglow Fishing Pier in Daytona Beach Shores, Volusia County, Florida' name the exact pier; dateTaken 2008-04-12 (an older photo, but this pick's own blurb describes a 'deck-and-dive seafood joint perched directly over the Atlantic on a wooden pier in Daytona Beach Shores' and the pier and its restaurant building are the same long-standing structure). Inspected the full-resolution image at 1024x768: a restaurant building sits at the pier's end with a crab-mascot mural and a hanging 'BAR & GRILL' banner on the railing, consistent with Crabby Joe's Deck and Grill; per the assignment's own guidance, a photo of the pier itself with the restaurant satisfies this gap. Two sunbathers at bottom-left and a child on a raft at bottom-right are small, incidental and not the subject.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
+    },
+    "The Coke Zero Sugar 400 under the lights": {
+      "src": "/guides/picks/things-to-do-daytona-beach-summer-2026/the-coke-zero-sugar-400-under-the-lights.webp",
+      "width": 1400,
+      "height": 1050,
+      "alt": "Fireworks over the frontstretch at Daytona International Speedway after the night race",
+      "caption": "Fireworks over the frontstretch at Daytona International Speedway after the 2018 Coke Zero Sugar 400, the July night race.",
+      "credit": "Dough4872",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:2018_Coke_Zero_Sugar_400_fireworks_from_frontstretch.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:2018_Coke_Zero_Sugar_400_fireworks_from_frontstretch.jpg",
+      "author": "Dough4872",
+      "position": "50% 40%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Viewed the image: night scene with fireworks over the Daytona frontstretch grandstand and pit area; the Commons file title and description name the 2018 Coke Zero Sugar 400 at Daytona. No people as subject. Live Commons licence checked: CC BY-SA 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     }
   },
-  "gaps": {
-    "The Coke Zero Sugar 400 under the lights": {
-      "reason": "not-a-place",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "A single race date at the Speedway (already covered as its own pick), not a distinct place."
-    }
-  }
+  "gaps": {}
 }

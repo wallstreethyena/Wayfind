@@ -20,6 +20,26 @@
       "verification": "File is titled \"AMI City Pier\" and shows the rebuilt Anna Maria City Pier structure over the Gulf, matching the pier half of this two-part pick (Pine Avenue's shops themselves have no qualifying Commons photo). People walking the pier are incidental, distant and not the subject.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
+    },
+    "The free trolley, your parking cheat code": {
+      "src": "/guides/picks/anna-maria-island-day-trip/the-free-trolley-your-parking-cheat-code.webp",
+      "width": 1400,
+      "height": 1050,
+      "alt": "A wooden lifeguard tower on the sand at Coquina Beach on Anna Maria Island",
+      "caption": "Coquina Beach at the south end of Anna Maria Island, the big-lot stop where the free trolley route begins. The photo shows the beach, not the trolley.",
+      "credit": "Fred Hsu on en.wikipedia",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:2017_Sarasota_Coquina_Beach_Lifeguard_Station_FRD_9087.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:2017_Sarasota_Coquina_Beach_Lifeguard_Station_FRD_9087.jpg",
+      "author": "Fred Hsu on en.wikipedia",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Viewed the image: wooden lifeguard tower on the beach with a few distant people; Commons title and description name the lifeguard station at Coquina Beach on Anna Maria Island. No trolley photo under an allowed licence was found (Openverse queries for Anna Maria trolley returned zero). Live Commons licence checked: CC BY-SA 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     }
   },
   "gaps": {
@@ -28,12 +48,6 @@
       "placeId": null,
       "needsPermissionFrom": null,
       "note": "No Wikimedia Commons photo found under an allowed licence for Bean Point specifically; left as a gap rather than substituting an unrelated beach image. Pass 2 (2026-09-23): Searched Openverse for \"Bean Point Anna Maria Island\", \"Bean Point Anna Maria\" (source=flickr), \"Bean Point beach\", \"Bean Point Florida\" (source=flickr), \"Anna Maria Island north end beach\" (source=flickr) and \"Bean Point sunset\" (source=flickr). Found one CC BY-SA 2.0 Flickr photo titled \"Bean Point, Anna Maria, Florida\" (Ken Lund) but rejected it: it is a hazy shot through an airplane window at altitude, with no geotag, no description and no readable signage, so it cannot be verified as the ground-level sunset vantage this pick describes rather than just the island's general shape seen from a plane."
-    },
-    "The free trolley, your parking cheat code": {
-      "reason": "not-a-place",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "A transit/logistics tip pick (the island's free trolley), not a single real place."
     }
   }
 }

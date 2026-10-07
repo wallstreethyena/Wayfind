@@ -1,19 +1,48 @@
 {
   "slug": "things-to-do-in-cortez-florida",
-  "picks": {},
-  "gaps": {
+  "picks": {
     "FISH Preserve": {
-      "reason": "no-verified-source",
+      "src": "/guides/picks/things-to-do-in-cortez-florida/fish-preserve.webp",
+      "width": 1400,
+      "height": 1050,
+      "alt": "White wooden Bratton Store building with a covered porch in Cortez village",
+      "caption": "The Bratton Store, a historic building in Cortez village. Photo does not show the FISH Preserve.",
+      "credit": "Ebyabe",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Cortez_FL_HD_Bratton_Store01.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Cortez_FL_HD_Bratton_Store01.jpg",
+      "author": "Ebyabe",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "Searched Commons (Category:Cortez, Florida, Category:Cortez Historic District, geosearch 2.5km around Cortez village), Openverse and Flickr CC search for FISH Preserve / Cortez preserve / Florida Institute for Saltwater Heritage: no licensed photo identifiable as the preserve; only historic-district houses, HDR detail shots and unrelated fish species."
+      "verification": "Commons file in Category:Cortez Historic District, named Bratton Store; viewed. Fallback: no licensed photo of the preserve exists Live Commons licence checked: CC BY-SA 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     },
     "Swordfish Grill & Tiki Bar": {
-      "reason": "no-verified-source",
+      "src": "/guides/picks/things-to-do-in-cortez-florida/swordfish-grill-tiki-bar.webp",
+      "width": 1400,
+      "height": 897,
+      "alt": "A white wooden house with a gabled roof in the Cortez Historic District",
+      "caption": "A historic wooden house in the Cortez Historic District. Photo does not show the restaurant.",
+      "credit": "Ebyabe",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Cortez_FL_HD06a.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Cortez_FL_HD06a.jpg",
+      "author": "Ebyabe",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "Searched Commons (Cortez categories and geosearch), Openverse and Flickr CC search for Swordfish Grill / Swordfish Grill Cortez: zero results for the venue; only generic grilled-swordfish food photos from other restaurants."
-    },
+      "verification": "Commons file in Category:Cortez Historic District, Cortez FL; viewed. Fallback: no licensed photo of the restaurant exists Live Commons licence checked: CC BY-SA 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
+    }
+  },
+  "gaps": {
     "Star Fish Company": {
       "reason": "people-privacy",
       "placeId": null,

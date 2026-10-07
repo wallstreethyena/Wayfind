@@ -80,26 +80,67 @@
       "verification": "Commons file 'Three Sisters Springs, Crystal River - panoramio.jpg' by qwesy qwesy, taken 1 September 2015, geotagged 28.888512,-82.589190 at Three Sisters Springs. Shows the wooden boardwalk platforms with posted refuge signs directly above the clear spring water, the land-side viewing the pick recommends. No people. Image visually reviewed. Live Commons licence checked: CC BY 3.0.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-29"
-    }
-  },
-  "gaps": {
+    },
     "A manatee eco-cruise for non-swimmers": {
-      "reason": "not-a-place",
+      "src": "/guides/picks/swim-with-manatees-crystal-river/a-manatee-eco-cruise-for-non-swimmers.webp",
+      "width": 1024,
+      "height": 768,
+      "alt": "A cluster of manatees visible in clear water beside a tree trunk in Crystal River",
+      "caption": "Manatees gathered in the clear water of the Crystal River National Wildlife Refuge, visible from the surface.",
+      "credit": "U.S. Fish and Wildlife Service Headquarters",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Endangered_Florida_manatee_(Trichechus_manatus),_Crystal_River_National_Wildlife_Refuge_(7636809258).jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Endangered_Florida_manatee_(Trichechus_manatus),_Crystal_River_National_Wildlife_Refuge_(7636809258).jpg",
+      "author": "U.S. Fish and Wildlife Service Headquarters",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "Describes an activity offered by multiple tour operators, not one distinct place."
+      "verification": "Commons title and description: manatees, Crystal River National Wildlife Refuge; viewed, shows a group of manatees from above water Live Commons licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     },
     "Paddle Kings Bay by clear kayak": {
-      "reason": "not-a-place",
+      "src": "/guides/picks/swim-with-manatees-crystal-river/paddle-kings-bay-by-clear-kayak.webp",
+      "width": 1400,
+      "height": 694,
+      "alt": "Calm waterway with docks and trees leading toward Kings Bay in Crystal River",
+      "caption": "A calm waterway with docks heading toward Kings Bay in Crystal River.",
+      "credit": "qwesy qwesy",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Looking_direction_Kings_Bay_-_panoramio.jpg",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Looking_direction_Kings_Bay_-_panoramio.jpg",
+      "author": "qwesy qwesy",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "Describes an activity (a style of kayak rental) rather than one distinct place; Kings Bay itself is already photographed under the swim pick."
+      "verification": "Commons title: Looking direction Kings Bay; viewed, shows the canal and docks Live Commons licence checked: CC BY 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     },
     "The summer counterpart: bay scalloping": {
-      "reason": "not-a-place",
+      "src": "/guides/picks/swim-with-manatees-crystal-river/the-summer-counterpart-bay-scalloping.webp",
+      "width": 1400,
+      "height": 1119,
+      "alt": "A hand holding a striped Atlantic bay scallop shell",
+      "caption": "An Atlantic bay scallop shell, the species gathered on Crystal River scallop trips. Photo not taken at Crystal River.",
+      "credit": "Plant Image Library",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Argopecten_irradians_(Atlantic_Bay_Scallop)_(26923439904).jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Argopecten_irradians_(Atlantic_Bay_Scallop)_(26923439904).jpg",
+      "author": "Plant Image Library",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "Describes a seasonal activity (snorkeling the grass flats for scallops) spanning open water, not one distinct place."
+      "verification": "Commons file title names Argopecten irradians (Atlantic Bay Scallop); viewed, shows the shell in hand. Subject photo, location not stated Live Commons licence checked: CC BY-SA 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     }
-  }
+  },
+  "gaps": {}
 }

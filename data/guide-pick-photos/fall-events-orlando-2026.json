@@ -320,26 +320,54 @@
       "reviewedAt": "2026-09-23",
       "alt": "The Orlando Science Center building and the Orlando Loch Haven Park sign",
       "caption": "Loch Haven Park, FusionFest's home in Ivanhoe Village."
+    },
+    "Visit Orlando's Magical Dining": {
+      "src": "/guides/picks/fall-events-orlando-2026/visit-orlando-s-magical-dining.webp",
+      "width": 1024,
+      "height": 683,
+      "alt": "Downtown Orlando towers and the Lake Eola fountain lit at dusk across the water",
+      "caption": "Downtown Orlando at dusk across Lake Eola. Magical Dining runs across restaurants throughout the city, so this shows the city rather than one restaurant.",
+      "credit": "R9 Studios FL (Thanks to all the fans!!!)",
+      "creditHref": "https://www.flickr.com/photos/53477219@N02/8413506032",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/53477219@N02/8413506032",
+      "author": "R9 Studios FL (Thanks to all the fans!!!)",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "flickr",
+      "placeId": null,
+      "verification": "Flickr tags eola, florida, orlando, lake, landscape; photo shows downtown Orlando skyline over Lake Eola. Illustrative of the city the citywide program covers. Live Flickr licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
+    },
+    "Candlelight: A Haunted Evening of Halloween Classics": {
+      "src": "/guides/picks/fall-events-orlando-2026/candlelight-a-haunted-evening-of-halloween-classics.webp",
+      "width": 600,
+      "height": 800,
+      "alt": "Bald cypress trees with rust coloured autumn foliage standing in the water at Lake Eola in downtown Orlando",
+      "caption": "Cypress trees in autumn colour at Lake Eola, the downtown Orlando lake that The Abbey faces on South Eola Drive. The concert hall itself is not shown.",
+      "credit": "Sharife",
+      "creditHref": "https://www.flickr.com/photos/17525000@N00/3196407027",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/17525000@N00/3196407027",
+      "author": "Sharife",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "flickr",
+      "placeId": null,
+      "verification": "Flickr title 'Lake Eola Orlando, Fl', tags lakeeola, downtown, cypress; The Abbey address is 100 S Eola Drive (Orlando Weekly listing). Photo shows the lake, not the venue; caption says so. Live Flickr licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     }
   },
   "gaps": {
-    "Visit Orlando's Magical Dining": {
-      "reason": "not-a-place",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "The pick names a citywide dining program spanning 188 independent restaurants, not one venue. A single restaurant photo would misrepresent the program, so this is a gap rather than a place substitution. A related Magical Dining guide (magical-dining-orlando-2026) covers individual participating restaurants."
-    },
     "Green Meadows Farm Fall": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": "Green Meadows Petting Farm",
-      "note": "No static placeId in source data; the app resolves the venue by name search at request time. No CC-licensed Commons photo of Green Meadows Petting Farm was found. Pass 2 (2026-09-23): searched Openverse for \"Green Meadows Petting Farm Kissimmee\" (zero results), \"Green Meadows Farm Florida\" (13 results, all an unrelated ornamental shrub cultivar named 'Weigela florida'), and \"Green Meadows Kissimmee farm animals\" (zero results). No usable candidate found."
-    },
-    "Candlelight: A Haunted Evening of Halloween Classics": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": "The Abbey Orlando",
-      "note": "No static placeId in source data. No CC-licensed Commons photo of The Abbey, the downtown Orlando venue hosting this Candlelight concert, was found. Pass 2 (2026-09-23): searched Openverse for \"The Abbey Orlando downtown\" and \"The Abbey venue Orlando\" (license by,by-sa,cc0); zero results for both. No usable candidate found, so no venue-only photo (which the brief allows with a clear caption) could be sourced either."
+      "note": "Pass 3 (2026-10-07): Openverse \"Kissimmee petting farm\" (0), \"Kissimmee Florida farm\" (only unrelated horse and eagle photos), \"Poinciana Boulevard Kissimmee\" (one Sunrail station photo), \"pumpkin patch Florida\" (private-party photos of people, Key West palm pumpkins); Commons \"Green Meadows Petting Farm Kissimmee\" returned only unrelated USDA documents. No licensed photo of the farm, its entrance or its road exists."
     }
   }
 }

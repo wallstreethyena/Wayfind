@@ -1,6 +1,27 @@
 {
   "slug": "st-armands-circle-restaurants",
-  "picks": {},
+  "picks": {
+    "Shore": {
+      "src": "/guides/picks/st-armands-circle-restaurants/shore.webp",
+      "width": 1400,
+      "height": 1050,
+      "alt": "Shops and storefronts along a street at St. Armands Circle in Sarasota with palm trees in front",
+      "caption": "Storefronts on St. Armands Circle on Lido Key, where Shore is located. The restaurant itself is not shown.",
+      "credit": "Ebyabe",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Sarasota_FL_Harding_Circle_HD_St_Armands_Circle03.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Sarasota_FL_Harding_Circle_HD_St_Armands_Circle03.jpg",
+      "author": "Ebyabe",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons title Sarasota FL Harding Circle HD St Armands Circle03; description Harding Circle Historic District; closest-feature fallback since no licensed photo of Shore exists Live Commons licence checked: CC BY-SA 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
+    }
+  },
   "hero": {
     "src": "/guides/picks/st-armands-circle-restaurants/st-armands-circle-storefronts.webp",
     "width": 1280,
@@ -33,12 +54,6 @@
       "placeId": "ChIJ8_xGlpFqw4gRpBDnt0x_mdg",
       "needsPermissionFrom": "Café on St. Armands",
       "note": "No Commons photo found for this restaurant; Wayfind's inventory carries only a Google Places photo. Pass 2 (2026-09-23): Openverse searched \"Café on St. Armands\" — the one result was an unrelated Paris street-clock photo; no photo of this restaurant exists on Openverse."
-    },
-    "Shore": {
-      "reason": "google-only",
-      "placeId": null,
-      "needsPermissionFrom": "Shore, St. Armands Circle",
-      "note": "No Commons photo found for this restaurant; the app resolves its photo via a live Google Places name search. Pass 2 (2026-09-23): \"Shore\" alone is too generic a word to search meaningfully on Openverse; searched \"St Armands Circle Sarasota restaurants\" instead as a broader net — zero relevant results. No photo of this restaurant exists on Openverse."
     },
     "Crab & Fin": {
       "reason": "google-only",

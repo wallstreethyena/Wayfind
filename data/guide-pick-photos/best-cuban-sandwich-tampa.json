@@ -40,6 +40,26 @@
       "verification": "The building's visible sign reads \"La Segunda Central BAKERY,\" confirming the exact bakery named in the pick. Not geotagged; identified by the sign text.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
+    },
+    "The rules of a Tampa Cuban": {
+      "src": "/guides/picks/best-cuban-sandwich-tampa/the-rules-of-a-tampa-cuban.webp",
+      "width": 1400,
+      "height": 758,
+      "alt": "Rows of Cuban sandwiches being assembled on Cuban bread with salami and Swiss cheese at La Segunda in Ybor City",
+      "caption": "Cuban sandwiches being assembled at La Segunda in Ybor City, Tampa, with salami and Swiss cheese layered on Cuban bread before pressing.",
+      "credit": "Kramtronik",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Cuban_Sandwiches_at_La_Segunda%2C_Ybor_City.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Cuban_Sandwiches_at_La_Segunda%2C_Ybor_City.jpg",
+      "author": "Kramtronik",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Viewed the image: rows of split Cuban loaves layered with salami and Swiss cheese; Commons title and description name La Segunda, Ybor City, Tampa. It illustrates the salami and Swiss rule of the Tampa style. No people. Live Commons licence checked: CC BY-SA 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     }
   },
   "hero": {
@@ -68,12 +88,6 @@
       "placeId": "ChIJPbUnl43DwogRz7WNKvF2Avw",
       "needsPermissionFrom": "West Tampa Sandwich Shop",
       "note": "Commons title and category search for this counter-service shop returned nothing (only unrelated West Tampa historic-district building photos, which are not this business). No verified CC-licensed photo of this exact shop was found. Pass 2 (2026-09-23): Openverse query 'West Tampa Sandwich Shop' found three CC BY 2.0 Flickr photos (kendrickmeekdotcom, Aug 2010) that DO show the shop's readable 'WEST TAMPA Sandwich Shop and Restaurant' sign at N Armenia Ave/W Douglas St, confirming the exact place — but all three center a then-candidate (on the phone at the sign being filmed by a TV crew, posed with staff in the kitchen, seated with aides) as the photo's clear subject, which the people rule excludes. A follow-up query, 'West Tampa Sandwich Shop Douglas Armenia', returned zero further results, so no people-free photo of this shop was found."
-    },
-    "The rules of a Tampa Cuban": {
-      "reason": "not-a-place",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "This pick states the recipe rules for a Tampa Cuban sandwich (salami, ham, mojo pork, Swiss, pickles, mustard, pressed) — it names no single restaurant or address to photograph."
     }
   }
 }

@@ -60,20 +60,47 @@
       "verification": "Commons file 'Manatees in Weeki Wachee River.JPG' by Fredlyfish4, dated 2014-01-05; description: 'A manatee cow and calf in the Weeki Wachee River in Weeki Wachee Springs State Park in Florida.' Visually confirmed two manatees in clear shallow water against the vegetated bank; January matches the cool-season arrival the pick describes. No people. Image visually reviewed. Live Commons licence checked: CC BY-SA 3.0.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-29"
-    }
-  },
-  "gaps": {
+    },
     "The river rules that keep it this clear": {
-      "reason": "not-a-place",
+      "src": "/guides/picks/weeki-wachee-kayak-mermaids-guide/the-river-rules-that-keep-it-this-clear.webp",
+      "width": 1200,
+      "height": 900,
+      "alt": "The Weeki Wachee River winding between wooded banks under a blue sky, clear water in the foreground",
+      "caption": "The Weeki Wachee River, protected by the Springs Protection Zone rules.",
+      "credit": "Fredlyfish4",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Weeki_Wachee_River.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Weeki_Wachee_River.JPG",
+      "author": "Fredlyfish4",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "Describes the Springs Protection Zone rules, not a place."
+      "verification": "Commons title Weeki Wachee River; viewed on candidate sheet, shows the clear river between wooded banks Live Commons licence checked: CC BY-SA 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     },
     "Buccaneer Bay, the spring-fed water park": {
-      "reason": "no-verified-source",
+      "src": "/guides/picks/weeki-wachee-kayak-mermaids-guide/buccaneer-bay-the-spring-fed-water-park.webp",
+      "width": 800,
+      "height": 600,
+      "alt": "A fountain with a white statue column in front of a low building on the grounds of Weeki Wachee Springs",
+      "caption": "A fountain and building on the grounds of Weeki Wachee Springs, the park that holds Buccaneer Bay. Photo does not show the water park itself.",
+      "credit": "eutrophication&hypoxia",
+      "creditHref": "https://www.flickr.com/photos/48722974@N07/4584923946",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/48722974@N07/4584923946",
+      "author": "eutrophication&hypoxia",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "flickr",
       "placeId": "ChIJz3OOrDIg6IgRMKjzAPsV3NI",
-      "needsPermissionFrom": "Florida State Parks, Weeki Wachee Springs State Park (public agency)",
-      "note": "No Commons search turned up any photo of Buccaneer Bay (the spring-fed water park within Weeki Wachee Springs State Park); every 'Weeki Wachee' result on Commons is either the river, the springs, the mermaid show's history, or the front-gate sign. Pass 2 (2026-09-23): searched Openverse for \"Buccaneer Bay Weeki Wachee\"; the one result was the general park highway sign (already effectively covered by this guide's existing 'live mermaid show' pick), not the water park itself. No usable candidate found. Re-checked 2026-09-30: the only licensed candidate (Flickr 1343753945, Oct 2006) is dominated by the Thunderbolt flume slide, which the state removed in early 2021, so it no longer represents the park; rejected on owner review. Current licensed photos of the remaining slides were not found."
+      "verification": "Flickr photo titled Weeki Wachee Springs, Florida; viewed, shows park grounds with fountain. Fallback, no licensed photo of current Buccaneer Bay exists Live Flickr licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     }
-  }
+  },
+  "gaps": {}
 }

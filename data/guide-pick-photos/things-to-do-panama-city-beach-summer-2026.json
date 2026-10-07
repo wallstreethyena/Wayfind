@@ -80,6 +80,86 @@
       "verification": "Downloaded the original from Wikimedia Commons and inspected it: the file's own title names Pier Park in Panama City Beach, Florida, and its embedded GPS (30.2165, -85.8761) matches Pier Park's location; the SkyWheel itself is not visible in this storefront view, but the pick covers the Pier Park district as a whole. Pedestrians in the distance are small and unidentifiable, not the subject.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
+    },
+    "A dolphin cruise from the marinas": {
+      "src": "/guides/picks/things-to-do-panama-city-beach-summer-2026/a-dolphin-cruise-from-the-marinas.webp",
+      "width": 1400,
+      "height": 933,
+      "alt": "A bottlenose dolphin surfacing in clear green water near Shell Island with a jet ski in the distance",
+      "caption": "A dolphin in the Gulf near Shell Island off Panama City Beach, seen on a dolphin tour. The photo is from a jet ski tour operator, not a marina cruise boat.",
+      "credit": "Nonrev.me",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Jet_Ski_Dolphin_Tours_Lagoon_Pontoons.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Jet_Ski_Dolphin_Tours_Lagoon_Pontoons.jpg",
+      "author": "Nonrev.me",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons description: three people on a jet ski riding with dolphins near Shell Island in Florida; file from Lagoon Pontoons Dolphin Tours, a Panama City Beach operator; dolphin is the subject Live Commons licence checked: CC BY 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
+    },
+    "Shipwreck Island Waterpark": {
+      "src": "/guides/picks/things-to-do-panama-city-beach-summer-2026/shipwreck-island-waterpark.webp",
+      "width": 1400,
+      "height": 933,
+      "alt": "Umbrellas and sunbathers on the white sand beach at Panama City Beach with a boardwalk and dunes in front",
+      "caption": "The Gulf beach at Panama City Beach, the alternative the pick describes. This is not the waterpark.",
+      "credit": "Bart Everson",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:The_Beach_-_Panama_City_Beach_Florida.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Beach_-_Panama_City_Beach_Florida.jpg",
+      "author": "Bart Everson",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons file title The Beach - Panama City Beach Florida; closest-feature fallback because no licensed photo of Shipwreck Island exists (the only candidate found was a different waterpark in Devon, England) Live Commons licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
+    },
+    "Free concerts at Aaron Bessant Park": {
+      "src": "/guides/picks/things-to-do-panama-city-beach-summer-2026/free-concerts-at-aaron-bessant-park.webp",
+      "width": 1200,
+      "height": 900,
+      "alt": "Sandy beach and Gulf water along Panama City Beach on a June day",
+      "caption": "The beach at Panama City Beach, the daytime half of the pick. The concert lawn is not shown.",
+      "credit": "Jesselikeswx",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Panama_City_Beach_-_View_1.jpg",
+      "license": "CC0 1.0 Universal",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Panama_City_Beach_-_View_1.jpg",
+      "author": "Jesselikeswx",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons description: a view to the south of Panama City Beach on an early June day; closest-feature fallback, no licensed photo of Aaron Bessant Park found Live Commons licence checked: CC0 1.0 Universal.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
+    },
+    "The TikTok food crawl: Boondocks and Coco Loco": {
+      "src": "/guides/picks/things-to-do-panama-city-beach-summer-2026/the-tiktok-food-crawl-boondocks-and-coco-loco.webp",
+      "width": 1024,
+      "height": 1365,
+      "alt": "Sunset light over waves breaking on the shore at Panama City Beach",
+      "caption": "Sunset over the Gulf at Panama City Beach. Boondocks and Coco Loco are not shown.",
+      "credit": "Waspleg",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Sunset_over_Panama_City_Beach%2C_Florida_(December_2024).jpg",
+      "license": "CC0 1.0 Universal",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Sunset_over_Panama_City_Beach%2C_Florida_(December_2024).jpg",
+      "author": "Waspleg",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons description: sunset over Panama City Beach, Florida, December 2024; closest-feature fallback, no licensed photo of either restaurant found Live Commons licence checked: CC0 1.0 Universal.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     }
   },
   "gaps": {
@@ -94,30 +174,6 @@
       "placeId": "ChIJK0m8N2eNk4gR3Q6Fe6gYs_w",
       "needsPermissionFrom": "Topgolf Panama City Beach",
       "note": "No Wikimedia Commons photo of this venue or the new Pier Park City Center district exists; Wayfind's inventory shows only a Google Places photo for Topgolf, which is not licensed for reuse. Pass 2 (2026-09-23): Searched Openverse for 'Topgolf Panama City Beach' — zero results. No CC-licensed source found."
-    },
-    "A dolphin cruise from the marinas": {
-      "reason": "not-a-place",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "A bookable activity offered by several different marina operators (speedboat, pirate-ship, eco-tour), not a single visitable place."
-    },
-    "Shipwreck Island Waterpark": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": "Shipwreck Island Waterpark",
-      "note": "No Wikimedia Commons photo exists, and this waterpark is not indexed in Wayfind's inventory at all, so there is no licensed source of any kind, including Google. Pass 2 (2026-09-23): Searched Openverse for 'Shipwreck Island Waterpark Panama City Beach' and 'Shipwreck Island Waterpark' via source=flickr — zero results both times. No CC-licensed source found."
-    },
-    "The TikTok food crawl: Boondocks and Coco Loco": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": "Boondocks or Coco Loco (either one)",
-      "note": "No Wikimedia Commons photo exists for either restaurant, and neither Boondocks nor Coco Loco is indexed in Wayfind's inventory, so there is no licensed source of any kind, including Google. Pass 2 (2026-09-23): Searched Openverse for 'Boondocks Panama City Beach' and 'Coco Loco Panama City Beach' — zero results for either. No CC-licensed source found."
-    },
-    "Free concerts at Aaron Bessant Park": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": "City of Panama City Beach (public agency)",
-      "note": "No Wikimedia Commons photo exists, and Aaron Bessant Park is not indexed in Wayfind's inventory, so there is no licensed source of any kind, including Google. Pass 2 (2026-09-23): Searched Openverse for 'Aaron Bessant Park Panama City Beach' and 'Aaron Bessant Park' via source=flickr — zero results both times. No CC-licensed source found for the park or its amphitheater."
     }
   }
 }

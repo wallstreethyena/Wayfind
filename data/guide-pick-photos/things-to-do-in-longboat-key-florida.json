@@ -20,6 +20,26 @@
       "verification": "Commons title and description 'Quick Point Nature Preserve in Longboat Key, Florida' by Ryan Hodnett, 2023-01-24, geotag 27.336745,-82.582433 falls inside the preserve at the island's south end; part of the photographer's same-day Quick Point series. Seen: sheltered mangrove-fringed tidal lagoon matching the town's description of the restored lagoon. No people. Live Commons licence checked: CC BY-SA 4.0.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-29"
+    },
+    "Public beach access at 4001 Gulf of Mexico Drive": {
+      "src": "/guides/picks/things-to-do-in-longboat-key-florida/public-beach-access-at-4001-gulf-of-mexico-drive.webp",
+      "width": 1400,
+      "height": 1050,
+      "alt": "A wooden boardwalk crossing the dunes to the Gulf beach on Longboat Key",
+      "caption": "A Gulf-side beach access boardwalk on Longboat Key. The photo does not identify which access it is, so it shows the kind of path to the sand, not the exact access at 4001 Gulf of Mexico Drive.",
+      "credit": "Ebyabe",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Longboat_Key_FL_beach_bdwk01.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Longboat_Key_FL_beach_bdwk01.jpg",
+      "author": "Ebyabe",
+      "position": "50% 60%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Viewed the image: wooden boardwalk over dune vegetation leading to white sand and Gulf water, no people. Commons title and description place it on Longboat Key, FL. The file is not geotagged to 4001 Gulf of Mexico Drive, so the caption says so. Live Commons licence checked: CC BY-SA 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     }
   },
   "gaps": {
@@ -28,12 +48,6 @@
       "placeId": null,
       "needsPermissionFrom": null,
       "note": "Commons/Openverse searches for 'Bayfront Park Longboat Key' and a geosearch around 4052 Gulf of Mexico Dr return only Miami's Bayfront Park (same-name, wrong city) and unrelated Longboat Key shots (Durante Park, Diplomat, beaches); no photo verifiably showing Longboat Key's bayside Bayfront Park."
-    },
-    "Public beach access at 4001 Gulf of Mexico Drive": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "Finder returned 0 candidates; Commons 'Longboat Key beach' results (Ebyabe 2011 boardwalk/beach, Guspederson 2016 = guide hero) carry no location beyond 'Longboat Key', so none can be tied to the 4001 Gulf of Mexico Drive access; generic Longboat beach would be a stand-in and duplicates the hero subject."
     }
   }
 }

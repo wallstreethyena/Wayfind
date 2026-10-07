@@ -140,26 +140,67 @@
       "verification": "Flickr photo 'Airboat @Everglades City' by Guillaume Capron, taken 2011-09-02, CC BY-SA 2.0 (checked on live page), geotag 25.857215,-81.383113 which is on the Barron River at Everglades City, Collier County. Visually: a flat-bottomed airboat with a caged rear propeller at a wooden dock, mangrove shoreline behind - literally the pick's subject (an Everglades airboat) in its real setting. No people visible. Ghost orchids are not shown and the caption says so. Live Flickr licence checked: CC BY-SA 2.0.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-29"
-    }
-  },
-  "gaps": {
-    "Tigress at The Perry Hotel": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": "The Perry Hotel Naples",
-      "note": "No Wikimedia Commons photo exists for this restaurant or the Perry Hotel, and neither is indexed in Wayfind's inventory, so there is no licensed source of any kind, including Google. Pass 2 (2026-09-23, re-run for the correct city): searched for The Perry Hotel in Naples, the venue this pick's blurb names (appQuery 'The Perry Hotel Naples'). Openverse, limited to CC0, CC BY and CC BY-SA: 'Perry Hotel Naples', 'Perry Hotel Naples Florida', 'Tigress Naples' and 'Tigress Dale Talde' each returned zero results; 'Perry Hotel Naples' on Flickr under any licence also returned zero. Wikimedia Commons file search for 'Perry Hotel Naples', 'Tigress Naples' and 'Naples Florida Perry' returned only unrelated scanned books, maps and documents. No photo of the hotel or the restaurant exists under a usable licence, so a real photo needs The Perry Hotel Naples' permission."
-    },
-    "An FC Naples match night": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": "FC Naples",
-      "note": "No Wikimedia Commons photo exists for the Paradise Coast Sports Complex, and it is not indexed in Wayfind's inventory, so there is no licensed source of any kind, including Google. Pass 2 (2026-09-23): Searched Openverse for 'Paradise Coast Sports Complex Naples' — zero results. No CC-licensed source found."
     },
     "Keewaydin Island by boat": {
-      "reason": "no-verified-source",
+      "src": "/guides/picks/things-to-do-naples-summer-2026/keewaydin-island-by-boat.webp",
+      "width": 1400,
+      "height": 930,
+      "alt": "Aerial view of a white sand beach, mangroves and tidal channels on an island in Rookery Bay",
+      "caption": "Aerial view of a barrier island in the Rookery Bay reserve, the protected waters next to Keewaydin Island. Not a photo of Keewaydin itself.",
+      "credit": "RW at RookeryBay",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Aerial_view_of_an_island_in_Rookery_Bay.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Aerial_view_of_an_island_in_Rookery_Bay.jpg",
+      "author": "RW at RookeryBay",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
       "placeId": null,
-      "needsPermissionFrom": "Rookery Bay Reserve / Conservancy of Southwest Florida (public land)",
-      "note": "The only Wikimedia Commons photos of this exact barrier island beach are licensed CC BY-SA 2.5 or plain Public Domain, neither of which is in Wayfind's allowed licence list (CC0, or CC BY/CC BY-SA at 2.0, 3.0 or 4.0); the island is not indexed in Wayfind's inventory either. Pass 2 (2026-09-23): Searched Openverse for 'Keewaydin Island Naples' (zero allowed-licence results), 'Keewaydin Island' via source=flickr (41 results, all CC BY-NC-SA 2.0 from two Flickr photographers — disallowed), and 'Keewaydin Island boat' with the licence filter (zero results). No allowed-licence photo of the island found on Flickr either."
+      "verification": "Commons title Aerial view of an island in Rookery Bay; viewed, shows sand spit, mangroves, channels. Fallback: Keewaydin photos on Commons are CC BY-SA 2.5 or PD only Live Commons licence checked: CC BY-SA 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
+    },
+    "Tigress at The Perry Hotel": {
+      "src": "/guides/picks/things-to-do-naples-summer-2026/tigress-at-the-perry-hotel.webp",
+      "width": 1024,
+      "height": 576,
+      "alt": "Naples Pier silhouetted against the setting sun over the Gulf",
+      "caption": "Sunset at the Naples Pier. Photo is of Naples, not the Perry Hotel or its restaurant.",
+      "credit": "Wilhelm Rosenkranz",
+      "creditHref": "https://www.flickr.com/photos/99896715@N05/14457904205",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/99896715@N05/14457904205",
+      "author": "Wilhelm Rosenkranz",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "flickr",
+      "placeId": null,
+      "verification": "Flickr title: Naples, Florida, Pier, Sonnenuntergang; viewed, shows the Naples Pier at sunset. Fallback: no licensed photo of the Perry Hotel exists Live Flickr licence checked: CC BY-SA 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
+    },
+    "An FC Naples match night": {
+      "src": "/guides/picks/things-to-do-naples-summer-2026/an-fc-naples-match-night.webp",
+      "width": 1024,
+      "height": 641,
+      "alt": "A night soccer match under floodlights at a stadium in Naples, Florida, seen from the stands",
+      "caption": "A night soccer match in Naples, Florida, from a 2003 exhibition at a local stadium. Not FC Naples or the Paradise Coast Sports Complex.",
+      "credit": "Roger W",
+      "creditHref": "https://www.flickr.com/photos/24736216@N07/4943328008",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/24736216@N07/4943328008",
+      "author": "Roger W",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "flickr",
+      "placeId": null,
+      "verification": "Flickr description: exhibition match in Naples, Florida, January 2003, probably Naples High School stadium; viewed, wide shot, players small. Fallback: no licensed photo of FC Naples or its venue exists Live Flickr licence checked: CC BY-SA 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     }
-  }
+  },
+  "gaps": {}
 }

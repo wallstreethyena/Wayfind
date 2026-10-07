@@ -3,3 +3,7 @@ pick,placeId,source,outcome,reason,needsPermissionFrom
 "Gecko's Grill & Pub","","","gap","no-verified-source","Gecko's Grill & Pub"
 "Bar Bingo at Gecko's Hillview","","","gap","no-verified-source","Gecko's Grill & Pub"
 "Pie On Main","","","gap","no-verified-source","Pie On Main"
+Pie On Main,,flickr,used,,
+Clipp half-price certificates,,flickr,used,,
+Gecko's Grill & Pub,,,gap,no-verified-source,Gecko's Grill & Pub
+Bar Bingo at Gecko's Hillview,,,gap,no-verified-source,Gecko's Grill & Pub

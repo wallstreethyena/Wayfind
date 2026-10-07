@@ -100,38 +100,94 @@
       "verification": "Downloaded the original from Wikimedia Commons and inspected it: the file's own title and Commons category (\"Anastasia State Park\", \"Beaches of state parks of Florida\") identify this exact beach; distant beachgoers are small and unidentifiable, not the subject.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
+    },
+    "Ghost tours after dark": {
+      "src": "/guides/picks/things-to-do-st-augustine-summer-2026/ghost-tours-after-dark.webp",
+      "width": 1200,
+      "height": 900,
+      "alt": "The red brick Victorian Old Jail in St. Augustine with a palm tree and white picket fence",
+      "caption": "The Old Jail in St. Augustine, a stop on the city's ghost tours. Daytime photo.",
+      "credit": "Ebyabe",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:St_Aug_old_county_jail01.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:St_Aug_old_county_jail01.jpg",
+      "author": "Ebyabe",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons file is the St. Augustine Old County Jail; viewed, shows the red brick Victorian jail building Live Commons licence checked: CC BY-SA 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
+    },
+    "Founder's Day and the America 250 season": {
+      "src": "/guides/picks/things-to-do-st-augustine-summer-2026/founder-s-day-and-the-america-250-season.webp",
+      "width": 1200,
+      "height": 900,
+      "alt": "Footbridge leading to the Great Cross among trees at Mission Nombre de Dios",
+      "caption": "The footbridge toward the Great Cross at Mission Nombre de Dios, site of the Founder's Day landing reenactment.",
+      "credit": "Ebyabe",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:St_Aug_Nombre_de_Dios_bridge01.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:St_Aug_Nombre_de_Dios_bridge01.jpg",
+      "author": "Ebyabe",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons file title St Aug Nombre de Dios; viewed, shows the cross among the trees at the mission grounds Live Commons licence checked: CC BY-SA 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
+    },
+    "The crab-boil giants: Outback Crab Shack and Crabby's": {
+      "src": "/guides/picks/things-to-do-st-augustine-summer-2026/the-crab-boil-giants-outback-crab-shack-and-crabby-s.webp",
+      "width": 1200,
+      "height": 1199,
+      "alt": "St. Johns County Ocean and Fishing Pier reaching into the Atlantic from St. Augustine Beach",
+      "caption": "The St. Johns County Ocean and Fishing Pier at St. Augustine Beach, near Crabby's Beachside. Photo shows the pier, not the restaurant.",
+      "credit": "Cstickel(byu)",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:St._Johns_County_Ocean_%26_Fishing_Pier.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:St._Johns_County_Ocean_%26_Fishing_Pier.jpg",
+      "author": "Cstickel(byu)",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons description names the St. Johns County Ocean & Fishing Pier, St. Augustine Beach; viewed. Fallback: pier named in the pick text Live Commons licence checked: CC BY-SA 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
+    },
+    "A food and wine tour through the old city": {
+      "src": "/guides/picks/things-to-do-st-augustine-summer-2026/a-food-and-wine-tour-through-the-old-city.webp",
+      "width": 1400,
+      "height": 1050,
+      "alt": "Coquina stone Benet House on St. George Street in St. Augustine's old city",
+      "caption": "The Benet House on St. George Street in St. Augustine's old city.",
+      "credit": "w_lemay",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Benet_House,_St._George_Street,_Colonial_Quarter,_St._Augustine,_FL.jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Benet_House,_St._George_Street,_Colonial_Quarter,_St._Augustine,_FL.jpg",
+      "author": "w_lemay",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons title and description: Benet House, St. George Street, Colonial Quarter, St. Augustine Live Commons licence checked: CC BY-SA 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     }
   },
   "gaps": {
-    "Ghost tours after dark": {
-      "reason": "not-a-place",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "A citywide after-dark activity (walking/trolley/pub ghost tours), not a single visitable place."
-    },
     "The Drunken Horse": {
       "reason": "google-only",
       "placeId": "ChIJD8rK2Y0n5IgRnagsN_AKOXQ",
       "needsPermissionFrom": "The Drunken Horse (St. Augustine)",
       "note": "No Wikimedia Commons photo of this wine bar exists; Wayfind's inventory shows only a Google Places photo for this venue, which is not licensed for reuse. Pass 2 (2026-09-23): Searched Openverse for 'Drunken Horse St Augustine' — zero results. No CC-licensed source found."
-    },
-    "A food and wine tour through the old city": {
-      "reason": "not-a-place",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "A bookable tour experience that runs through multiple stops in the old city, not a single place."
-    },
-    "The crab-boil giants: Outback Crab Shack and Crabby's": {
-      "reason": "google-only",
-      "placeId": null,
-      "needsPermissionFrom": "Outback Crab Shack or Crabby's Beachside (either one)",
-      "note": "No Wikimedia Commons photo exists for either restaurant; Crabby's Beachside has only a Google Places photo in Wayfind's inventory, and Outback Crab Shack is not indexed at all, so neither has a licensed source. Pass 2 (2026-09-23): Searched Openverse for 'Outback Crab Shack St Augustine' and \"Crabby's Beachside St Augustine\" — zero results for either. No CC-licensed source found for either restaurant."
-    },
-    "Founder's Day and the America 250 season": {
-      "reason": "not-a-place",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "A dated civic event/season (Founder's Day reenactment plus the America 250 anniversary), not a single place."
     }
   }
 }

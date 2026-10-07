@@ -100,6 +100,66 @@
       "verification": "Commons file 'Nu Stadium (1).jpg' by Cuban Boy, dated 2026-04-04, geotagged 25.793158,-80.258858 at the Miami Freedom Park site. The image shows the stadium bowl with Inter Miami's pink seating, pink-shirted fans and the canopy roof. Fans in the stands are small, mostly seen from behind, and incidental; the video board shows a small crowd shot. Image visually reviewed. Live Commons licence checked: CC0 1.0 Universal.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-29"
+    },
+    "The Coral Gables restaurant boom": {
+      "src": "/guides/picks/things-to-do-miami-summer-2026/the-coral-gables-restaurant-boom.webp",
+      "width": 1024,
+      "height": 710,
+      "alt": "Palm-lined Miracle Mile with parked cars and storefronts in downtown Coral Gables",
+      "caption": "Miracle Mile, the main dining and shopping street in downtown Coral Gables. The photo shows the street, not the new restaurants.",
+      "credit": "Averette",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Miracle_Mile_in_Coral_Gables_20100403.jpg",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Miracle_Mile_in_Coral_Gables_20100403.jpg",
+      "author": "Averette",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons file title Miracle Mile in Coral Gables 20100403; palm-lined downtown street with storefronts Live Commons licence checked: CC BY 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
+    },
+    "Joia Beach Club on Watson Island": {
+      "src": "/guides/picks/things-to-do-miami-summer-2026/joia-beach-club-on-watson-island.webp",
+      "width": 1400,
+      "height": 490,
+      "alt": "Aerial style view of Watson Island in Biscayne Bay with the MacArthur Causeway and the port beyond",
+      "caption": "Watson Island in Miami, the island where Joia Beach sits, seen from downtown. The club itself is not identified in the photo.",
+      "credit": "Averette",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Watson_Island.png",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Watson_Island.png",
+      "author": "Averette",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons description: view of Watson Island, Miami, Florida from the 1800 Club in downtown Miami; closest-feature fallback because no licensed photo of Joia Beach exists Live Commons licence checked: CC BY 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
+    },
+    "Miami Spice month": {
+      "src": "/guides/picks/things-to-do-miami-summer-2026/miami-spice-month.webp",
+      "width": 1400,
+      "height": 933,
+      "alt": "Empty outdoor dining tables under an awning along a sidewalk on Ocean Drive in Miami Beach",
+      "caption": "Sidewalk restaurant seating on Ocean Drive in Miami Beach. Miami Spice runs at restaurants across Greater Miami; this photo is not of a specific participating restaurant.",
+      "credit": "Visitor7",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Sidewalk_Cafe_(Miami_Beach)-2.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Sidewalk_Cafe_(Miami_Beach)-2.jpg",
+      "author": "Visitor7",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons description: a sidewalk cafe on Ocean Drive in Miami Beach, Florida; set tables visible, no people as subject Live Commons licence checked: CC BY-SA 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     }
   },
   "gaps": {
@@ -113,25 +173,7 @@
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": "Balloon Museum (Mana Wynwood)",
-      "note": "A temporary traveling exhibition; no Wikimedia Commons photo exists and it is not indexed in Wayfind's inventory, so there is no licensed source of any kind, including Google. Pass 2 (2026-09-23): Searched Openverse for 'Balloon Museum Mana Wynwood Miami' — zero results. Still no CC-licensed coverage of this temporary exhibition."
-    },
-    "Miami Spice month": {
-      "reason": "not-a-place",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "An annual prix-fixe dining promotion spanning roughly 300 restaurants citywide, not a single visitable place."
-    },
-    "Joia Beach Club on Watson Island": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": "Joia Beach",
-      "note": "No Wikimedia Commons photo exists for this venue, and it is not indexed in Wayfind's inventory, so there is no licensed source of any kind, including Google. Pass 2 (2026-09-23): Searched Openverse for 'Joia Beach Watson Island Miami' — zero results. No CC-licensed source found."
-    },
-    "The Coral Gables restaurant boom": {
-      "reason": "not-a-place",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "A wave of new restaurant openings (Buccan, Imoto, Stand) across Coral Gables, not a single visitable place."
+      "note": "Pass 3 (2026-10-07): Searched Commons and Openverse for 'Mana Wynwood', 'Mana Wynwood Convention Center', 'Balloon Museum Mana Wynwood' and 'Wynwood Miami warehouse building'. Mana results were unrelated motorcycle show photos at a different event (Fearless bikes, Dark Rider flickr set); all Wynwood results are murals or Wynwood Walls, which are public art (not allowed as focal subject) and show the neighborhood, not the venue. No licensed photo of the venue or exhibition exists."
     }
   }
 }

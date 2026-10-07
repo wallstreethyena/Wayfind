@@ -40,14 +40,27 @@
       "verification": "Flickr page by Mike Whaling, titled 'Rollins College Bell Tower', taken 2009-02-21 15:21, part of the same uploader's photo session as his confirmed Scenic Boat Tour dock-sign photo (taken 14:48 the same day) and a 'Home Along the Winter Park Boat Tour' shot (taken 15:42) -- consecutive Flickr photo IDs from one outing on the tour. Live page license checked directly: creativecommons.org/licenses/by-sa/2.0 link present, i.e. CC BY-SA 2.0. Knowles Memorial Chapel's tower is an unmistakable, named Rollins College landmark on the Lake Virginia shoreline this pick's own blurb calls out ('Rollins College history'), among the sights the hour-long narrated route passes.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
+    },
+    "Make it a Winter Park day": {
+      "src": "/guides/picks/winter-park-scenic-boat-tour/make-it-a-winter-park-day.webp",
+      "width": 1024,
+      "height": 656,
+      "alt": "The brick-paved Park Avenue in Winter Park lined with oak trees, shops and parked cars",
+      "caption": "Park Avenue in Winter Park, the shopping and dining street two blocks from the boat dock.",
+      "credit": "Jared",
+      "creditHref": "https://www.flickr.com/photos/93283041@N00/8312342768",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/93283041@N00/8312342768",
+      "author": "Jared",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "flickr",
+      "placeId": null,
+      "verification": "Flickr title 'Winter Park - Park Avenue Shopping'; photo shows the brick street under oak canopy with storefronts, matching Park Avenue. Live Flickr licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     }
   },
-  "gaps": {
-    "Make it a Winter Park day": {
-      "reason": "not-a-place",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "This pick is a multi-stop day-trip itinerary (Morse Museum, Park Avenue, the boat tour) rather than a single real place."
-    }
-  }
+  "gaps": {}
 }
