@@ -1614,6 +1614,8 @@ node scripts/check-reverse-migration-reconciliation.mjs
 # whose provider omitted primaryType.
 node scripts/test-morning-identity.mjs
 node scripts/test-taxonomy-identity.mjs
+# Owner 2026-10-07: Cafés/Coffee are real coffee shops only (lib/cafeIdentity.js).
+node scripts/test-cafe-identity.mjs
 node scripts/test-creator-name-fallback.mjs
 node scripts/test-bump-within-eligible.mjs
 node scripts/test-inventory-all-adult.mjs

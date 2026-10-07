@@ -61,8 +61,10 @@ const place = (id, name, primaryType, types, wfScore, extra = {}) => ({ id, name
     place("eggs", "Eggs Up Grill", "restaurant", ["restaurant", "brunch_restaurant", "breakfast_restaurant"], 85),
     place("dennys", "Denny's Restaurant", "restaurant", ["restaurant", "breakfast_restaurant", "diner", "american_restaurant"], 70),
     place("buddy", "Buddy Brew Coffee", "coffee_shop", ["coffee_shop", "cafe"], 92),
-    place("arte", "Arte Caffè", "italian_restaurant", ["italian_restaurant", "bakery", "cafe"], 80),
-    place("merci", "MERCI CAFÉ", "french_restaurant", ["french_restaurant", "coffee_shop", "coffee_stand", "cafe"], 66),
+    // (2026-10-07: a cuisine-primary restaurant is no longer a café; Arte Caffè is modelled as the café it is.)
+    place("arte", "Arte Caffè", "cafe", ["cafe", "bakery"], 80),
+    // 2026-10-07 owner ask: cafés are coffee shops only; MERCI CAFÉ's production primary is `cafe`.
+    place("merci", "MERCI CAFÉ", "cafe", ["cafe", "coffee_shop", "coffee_stand"], 66),
   ];
   const run = (pickIds) => splitBreakfastRails(applyCuratorPicks(base.map((p) => ({ ...p })), snap(pickIds)));
   const [bk0, cf0] = run([]);

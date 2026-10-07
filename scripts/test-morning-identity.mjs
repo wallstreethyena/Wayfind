@@ -102,14 +102,15 @@ ok(isBreakfastPlace(ryansCoffeeHouse) === true && isMorningCandidate(ryansCoffee
 // Recall: bakery cafés are still useful coffee/morning results; meal-first
 // breakfast rooms still survive even when their name includes Café.
 ok(morningDisplayIdentity(bakeryCafe) === "cafe", "bakery café remains a café identity");
-ok(menu("cafes", bakeryCafe) === true && menu("coffee", bakeryCafe) === true, "bakery café remains in both café aliases");
+// 2026-10-07 owner ask (lib/cafeIdentity.js): Cafés/Coffee are real coffee shops only; the MORNING identity is unchanged.
+ok(menu("cafes", bakeryCafe) === false && menu("coffee", bakeryCafe) === false, "bakery café keeps its morning identity but is OUT of both café aliases (strict coffee-only menu)");
 ok(menu("breakfast", bakeryCafe) === false, "bakery café does not become a breakfast restaurant");
-ok(morningDisplayIdentity(arte) === "cafe" && menu("cafes", arte) === true && menu("coffee", arte) === true,
-  "Arte Caffè keeps its real bakery/café identity despite an Italian primary");
+ok(morningDisplayIdentity(arte) === "cafe" && menu("cafes", arte) === false && menu("coffee", arte) === false,
+  "Arte Caffè keeps its morning identity despite an Italian primary but is OUT of the strict coffee-only menu");
 ok(morningDisplayIdentity(neutralPrimaryCoffee) === "cafe" && menu("cafes", neutralPrimaryCoffee) === true && menu("coffee", neutralPrimaryCoffee) === true,
   "primary coffee_shop remains visible even with an empty types array");
-ok(morningDisplayIdentity(bagels) === "cafe" && menu("cafes", bagels) === true && menu("coffee", bagels) === true,
-  "primary bagel_shop remains visible even with an empty types array");
+ok(morningDisplayIdentity(bagels) === "cafe" && menu("cafes", bagels) === false && menu("coffee", bagels) === false,
+  "primary bagel_shop keeps its morning identity even with an empty types array but is OUT of the strict café menu");
 ok(morningDisplayIdentity(crackerBarrel) === "breakfast" && menu("breakfast", crackerBarrel) === true,
   "Cracker Barrel keeps breakfast from its explicit secondary breakfast type");
 ok(morningDisplayIdentity(adobeKava) === null && menu("breakfast", adobeKava) === false && menu("cafes", adobeKava) === false && menu("coffee", adobeKava) === false,
@@ -118,8 +119,8 @@ ok(morningDisplayIdentity(namedItalian) === null && menu("cafes", namedItalian) 
   "a cuisine-primary restaurant needs explicit café type evidence, not just a coffee name");
 ok(morningDisplayIdentity(southernComfort) === null && menu("breakfast", southernComfort) === false && menu("cafes", southernComfort) === false && menu("coffee", southernComfort) === false,
   "Southern Comfort Bed and Breakfast is lodging, never a morning discovery card");
-ok(morningDisplayIdentity(campfired) === "cafe" && menu("breakfast", campfired) === false && menu("cafes", campfired) === true && menu("coffee", campfired) === true,
-  "Campfired missing-primary dual service follows the café-safe tie policy");
+ok(morningDisplayIdentity(campfired) === "cafe" && menu("breakfast", campfired) === false && menu("cafes", campfired) === false && menu("coffee", campfired) === false,
+  "Campfired missing-primary dual service follows the café-safe tie policy for Breakfast (never there); no coffee_shop evidence so strict Cafés refuses it");
 ok(morningDisplayIdentity(jimmyDean) === null && menu("breakfast", jimmyDean) === false && menu("cafes", jimmyDean) === false && menu("coffee", jimmyDean) === false,
   "Jimmy Dean Bed and Breakfast is rejected even when the provider sends no types");
 ok(isBreakfastPlace(pizzaHaven) === false && morningDisplayIdentity(pizzaHaven) === null && menu("breakfast", pizzaHaven) === false && menu("cafes", pizzaHaven) === false,
@@ -130,8 +131,11 @@ ok(morningDisplayIdentity(herbalifeCafe) === null && menu("cafes", herbalifeCafe
   "a generic Herbalife Nutrition Cafe cannot bypass the canonical nutrition veto by name");
 ok(morningDisplayIdentity(mcdonaldsCoffee) === null && menu("cafes", mcdonaldsCoffee) === false && menu("coffee", mcdonaldsCoffee) === false,
   "McDonald's Coffee cannot bypass the canonical national quick-service veto by name");
-ok(morningDisplayIdentity(googleTypesCafe) === "cafe" && menu("cafes", googleTypesCafe) === true && menu("coffee", googleTypesCafe) === true,
-  "googleTypes-only café is normalized before canonical eligibility and remains visible");
+ok(morningDisplayIdentity(googleTypesCafe) === "cafe" && menu("cafes", googleTypesCafe) === false && menu("coffee", googleTypesCafe) === false,
+  "googleTypes-only café is normalized before canonical eligibility (morning identity) but a bare cafe tag is not a coffee shop");
+const googleTypesCoffee = { name: "Neutral GoogleTypes Coffee", googleTypes: ["coffee_shop", "cafe", "food"] };
+ok(morningDisplayIdentity(googleTypesCoffee) === "cafe" && menu("cafes", googleTypesCoffee) === true && menu("coffee", googleTypesCoffee) === true,
+  "googleTypes-only coffee_shop is normalized and remains visible in both café aliases");
 
 // Provider completeness varies.  Missing explicit primary must use type
 // evidence, and type array order must never alter the answer.
@@ -140,10 +144,12 @@ const dualA = { name: "Neutral Dual Service", google_types: ["breakfast_restaura
 const dualB = { name: "Neutral Dual Service", google_types: ["food", "cafe", "breakfast_restaurant"] };
 ok(isMorningCandidate(noPrimaryCafe) === true && morningDisplayIdentity(noPrimaryCafe) === "cafe", "missing primary uses café type evidence");
 ok(menu("breakfast", noPrimaryCafe) === false, "neutral café with no primary cannot fall into Breakfast");
-ok(menu("cafes", noPrimaryCafe) === true, "neutral café with no primary remains visible in Cafés");
+ok(menu("cafes", noPrimaryCafe) === false, "neutral café with no primary and no coffee_shop evidence is OUT of strict Cafés");
+const noPrimaryCoffee = { name: "Neutral Morning Coffee", types: ["coffee_shop", "cafe", "food"] };
+ok(menu("cafes", noPrimaryCoffee) === true && menu("breakfast", noPrimaryCoffee) === false, "no-primary coffee_shop with a coffee name remains visible in Cafés");
 ok(morningDisplayIdentity(dualA) === "cafe" && morningDisplayIdentity(dualB) === "cafe", "dual-service type order is invariant and café-safe");
 ok(menu("cafes", dualA) === menu("cafes", dualB) && menu("coffee", dualA) === menu("coffee", dualB), "google_types order cannot split menu aliases");
-ok(menu("cafes", dualA) === true && menu("coffee", dualA) === true, "google_types-only café is visible through both menu aliases");
+ok(menu("cafes", dualA) === false && menu("coffee", dualA) === false, "google_types-only breakfast+cafe dual service has no coffee_shop evidence: OUT of both café aliases");
 
 // The two labels are contractual aliases for every representative identity,
 // including an excluded meal-first venue and a specific non-morning venue.
@@ -173,8 +179,8 @@ const poster = splitBreakfastRails([
   { id: "dinner", name: "Dinner Place", primaryType: "italian_restaurant", types: ["italian_restaurant", "food"], rating: 4.9, reviews: 999 },
 ]);
 ok(poster[0].places.map((place) => place.id).join(",") === "keke,cracker", "poster keeps meal-first and secondary-breakfast rooms in Best Breakfast");
-ok(poster[1].places.map((place) => place.id).join(",") === "coffee,missing-primary,arte,campfired,neutral-primary,google-types-cafe,bagels", "poster keeps every café identity and excludes Kava/lodging/canonical vetoes");
-ok(new Set(poster.flatMap((rail) => rail.places.map((place) => place.id))).size === 9, "poster excludes non-morning/Kava/lodging/rail-veto candidates and never duplicates a card");
+ok(poster[1].places.map((place) => place.id).join(",") === "coffee,neutral-primary", "poster café rail keeps only real coffee shops (2026-10-07) and excludes Kava/lodging/canonical vetoes");
+ok(new Set(poster.flatMap((rail) => rail.places.map((place) => place.id))).size === 4, "poster excludes non-morning/Kava/lodging/rail-veto candidates and never duplicates a card");
 
 // Exact surface parity: every shared fixture has one answer in the menu and
 // the same answer in the two poster rails.  This catches either kind of drift:

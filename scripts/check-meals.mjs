@@ -25,7 +25,10 @@ if (mealEligible("Breakfast", P("Prime Steakhouse", ["steak_house", "restaurant"
 
 // 3b. v6.34 — the Cafés sub keeps its promise: EXCLUSIVELY cafés.
 if (!placeAllowed("food", "cafes", P("Perq Coffee Bar", ["coffee_shop", "cafe"], null))) fail("Cafés: coffee shop failed the sub it defines");
-if (!placeAllowed("food", "cafes", P("Oscura", ["cafe", "restaurant"], null))) fail("Cafés: café that also serves food failed");
+// 2026-10-07 owner ask (lib/cafeIdentity.js): Cafés are real coffee shops only. A café that also
+// serves food still passes when it is a coffee shop; a bare `cafe` tag on a restaurant does not.
+if (!placeAllowed("food", "cafes", P("Oscura Coffee", ["coffee_shop", "cafe", "restaurant"], null))) fail("Cafés: coffee shop that also serves food failed");
+if (placeAllowed("food", "cafes", P("Oscura", ["cafe", "restaurant"], null))) fail("Cafés: restaurant with only a bare cafe tag passed");
 if (placeAllowed("food", "cafes", P("Olive Garden", ["italian_restaurant", "restaurant"], null))) fail("Cafés: plain restaurant passed");
 if (placeAllowed("food", "cafes", P("Sunrise Diner", ["breakfast_restaurant", "restaurant"], null))) fail("Cafés: breakfast diner passed");
 if (placeAllowed("food", "cafes", P("First Watch", ["breakfast_restaurant", "brunch_restaurant", "restaurant"], null))) fail("Cafés: brunch chain passed");
