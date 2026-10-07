@@ -250,6 +250,7 @@ scripts/check-meals.mjs	0	CALL	blocks-ci-and-deploy	1	-	53	0	0	5a11b66c55076c098
 scripts/check-menu-partner-offers.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	85	0	0	3accf947040cb479568d99d9a5036f5ffc1dc783dd44854ece2915e861eec82e
 scripts/check-metered-matcher.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	9307270825640702e629d703a45ead8b933db4ca337fe9eeb8b80ef6afcee18c
 scripts/check-migration-apply-canonical-path.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0	70affa3b24edbe8377fbd22b36ea7720e6fad763ed6c6fd624d9df4341ea976e
+scripts/check-migration-receipts.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	0	0	e09a78313bc85fe38ae39776b21353fd723b5886c22e58d9d82629bef2e7e9ef
 scripts/check-migration-reconciliation.mjs	0	CALL	scheduled-monitoring-only	0	-	0	0	0	19079997b95685815c4374810c31390c6a19f886a5d2511101fdc16d3b8c8c34
 scripts/check-mobile-poster-fit.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	6	1	0	c57a8725fc98c49213dc09e2c4fc7d61fd07cb4c0fe6208934b4f99c6ec7ee55
 scripts/check-moment.mjs	0	CALL	unwired	0	-	32	0	0	d019099a86adeb301cdf7442e69078ef849215df21d725897d928c3da004d003
