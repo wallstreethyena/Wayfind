@@ -1,0 +1,23 @@
+[
+  {
+    "file": "supabase/migrations/20260910145500_wf_managed_monitor_cron_contract.sql",
+    "sha256": "aa033e45471d7482b097c7dc6178af4e34bb0feca39846475cebd57694b6e97e",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#1636",
+    "reason": "Assertion-only cron contract (fea3dbd3, 2026-09-10). No owner apply approval on record. Read-only check 2026-10-07: production cron already matches it exactly (wf-heartbeat-watch '*/15 * * * *' active; wf-affiliate-link-integrity inactive), so applying would write no data and only add the ledger row. Needs an explicit owner go before apply."
+  },
+  {
+    "file": "supabase/migrations/20261002010000_wf_cc_partner_clicks_exclude_devices.sql",
+    "sha256": "d3c05b3e1b0e8be7425aa653de1c498330461a74442f48dd1dcc7d9cccd7e279",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#1627",
+    "reason": "Command Center read-time analytics change (#1627, carried by #1636). Its PR declares an 'owner step: merge and apply together'; that apply has not been approved. Read-only check 2026-10-07: wf_cc_is_out absent, so not applied. Changes reported partner-click KPIs when applied."
+  },
+  {
+    "file": "supabase/migrations/20261004232233_wf_group_planning.sql",
+    "sha256": "2adb9c859541b728e0ce3155f39f0a788f54e467364eccbbfdecdf308b0552fd",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#1636",
+    "reason": "New group-planning tables/functions (84b74b70, safe-off: gated by NEXT_PUBLIC_GROUP_PLANS_ENABLED / WF_GROUP_PLANS_ENABLED). File header requires approval before production; none on record. Read-only check 2026-10-07: wf_group_plans tables absent. Apply together with the activation plan in docs/design/group-planning-activation.md."
+  }
+]

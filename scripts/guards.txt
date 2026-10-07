@@ -1501,6 +1501,9 @@ node scripts/social-acquisition-conveyor-regression.mjs
 # SHA-256 recording is real, not decorative — see scripts/lib/migrationApply.mjs
 # for the full incident writeup.
 node scripts/check-migration-apply-canonical-path.mjs
+# Every migration from 2026-09-29 on must carry an applied receipt or a declared
+# pending decision (2026-10-07: #1636 merged five unapplied migrations silently).
+node scripts/check-migration-receipts.mjs
 
 node scripts/test-known-city-geocode.mjs
 
