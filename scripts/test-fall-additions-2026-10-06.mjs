@@ -144,12 +144,13 @@ check("the seed script defaults to --dry, needs --apply, uses ON CONFLICT (slug)
   assert.doesNotMatch(seedSrc, /method:\s*"(?:PATCH|PUT|DELETE)"/);
 });
 
-check("FALL_DB_SEED_VERSION is hashed into the /api/events key and the fall rail key is v25", () => {
+check("FALL_DB_SEED_VERSION is hashed into the /api/events key and the fall rail key is v25 or later", () => {
   const lib = readFileSync(new URL("../lib/curatedFallFeed.js", import.meta.url), "utf8");
   assert.match(lib, /export const FALL_DB_SEED_VERSION = "[^"]+"/);
   assert.match(lib, /FALL_FEED_CACHE_VERSION = fnv1a\(JSON\.stringify\(\[[^\]]*FALL_DB_SEED_VERSION\]\)\)/);
   const route = readFileSync(new URL("../app/api/events/fall/route.js", import.meta.url), "utf8");
-  assert.match(route, /fall-intents:v25:/);
+  // v25 or any later key: a later seed may only move the key forward.
+  assert.match(route, /fall-intents:v(?:2[5-9]|[3-9]\d):/);
 });
 
 console.log(`test-fall-additions-2026-10-06: ${n} checks passed, ${rows.length} rows`);
