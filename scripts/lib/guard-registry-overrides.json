@@ -807,5 +807,13 @@
       "detail": "A misleading provider success or an ungranted retry can hide failed booking discovery or consume provider budget; runtime fixtures cover cold, warm-cache, denial and pagination cases."
     },
     "owner": "Revenue QA"
+  },
+  "scripts/test-credited-photo-warm.mjs": {
+    "protects": "The credited-photo warm cannot spend unless CREDITED_PHOTO_WARM_MONTH_CAP, the gate, production and the shared photos ledger all allow it; it skips venues that already hold a live cached+credited pair, is bounded per run, makes every Google request through the grant-per-request resolver helper, and stores the credit and the cache row for the same photo name.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "A regression could let a scheduled job buy Place Photo media past the owner's monthly ceiling, re-buy photos it already holds every day, or cache a Google photo whose photographer credit was not stored (an uncredited Google photo on the blog or a guide breaks Google's attribution terms)."
+    },
+    "owner": "Revenue QA"
   }
 }
