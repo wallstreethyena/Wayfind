@@ -15,7 +15,8 @@ import { usePinQuarantine } from "../../lib/pinQuarantine";
 import { fallCardClass } from "../../lib/fallSkin.js";
 import { spookyOverFall } from "../../lib/spookySkin.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
-import { cuisineLabel } from "../../lib/dining";
+import { cuisineOf } from "../../lib/dining";
+import { arrangeChips, mealKeyFromTags, CARD_CHIP_CAP } from "../../lib/cardChips";
 import { overrideFor } from "../../lib/placeOverrides";
 import * as Tags from "../../lib/tags";
 import { directionsHref } from "../../lib/directions.js";
@@ -138,14 +139,18 @@ const EXP_META = {
   sports: { icon: "📺", label: "Sports bar" },
   breakfast: { icon: "🥞", label: "Breakfast" },
   dog: { icon: "🐾", label: "Dog friendly" },
+  // 2026-10-06 (richer cards) — meal tags from the inventory row's own sub-filter tags.
+  lunch: { icon: "🥪", label: "Lunch" },
+  dinner: { icon: "🍽️", label: "Dinner" },
+  quickbites: { icon: "🥡", label: "Quick bite" },
 };
 // Same display precedence as home.js's `order` array in experienceBadges,
 // minus the keys this surface cannot ground in real data (see comment above).
-const EXP_ORDER = ["museum", "nature", "entertainment", "waterfront", "instagram", "rooftop", "romantic", "datenight", "livemusic", "cocktails", "wine", "breakfast", "sports", "dog", "outdoor", "pizza", "sushi", "steak", "seafood", "burgers", "mexican", "italian", "dessert", "beer", "coffee", "family", "gem", "value", "localfav"];
+const EXP_ORDER = ["museum", "nature", "entertainment", "waterfront", "instagram", "rooftop", "romantic", "datenight", "livemusic", "cocktails", "wine", "breakfast", "sports", "dog", "outdoor", "pizza", "sushi", "steak", "seafood", "burgers", "mexican", "italian", "dessert", "beer", "coffee", "lunch", "dinner", "quickbites", "family", "gem", "value", "localfav"];
 
 export function experienceTags(place, max) {
   if (!place) return [];
-  const lim = max || 3;
+  const lim = max || CARD_CHIP_CAP;
   const q = new Set();
   const nm = (place.name || "").toLowerCase();
   const said = (arr) => arr.some((w) => nm.includes(w));
@@ -187,7 +192,7 @@ export function experienceTags(place, max) {
   if (["amusement_park", "theme_park", "water_park", "bowling_alley", "movie_theater", "aquarium", "zoo"].some((x) => ts.includes(x))) q.add("entertainment");
   if (said(["skyway", "overlook", "lookout", "lighthouse", "observation deck"]) || tokens.includes("natural_feature")) q.add("instagram");
 
-  const cz = (cuisineLabel(place) || "").toLowerCase();
+  const cz = (cuisineOf(place) || "").toLowerCase();
   const CUIS = [["pizza", "pizza"], ["sushi", "sushi"], ["steak", "steak"], ["seafood", "seafood"], ["hamburger", "burgers"], ["burger", "burgers"], ["mexican", "mexican"], ["taco", "mexican"], ["italian", "italian"]];
   for (const [needle, key] of CUIS) { if (cz.includes(needle) || nm.includes(needle)) q.add(key); }
   if ((tokens.includes("bakery") && !cz) || cz.includes("bakery") || cz.includes("dessert") || /bakery|dessert|donut|doughnut|ice cream|gelato|patisserie|pastry/.test(nm)) q.add("dessert");
@@ -205,12 +210,22 @@ export function experienceTags(place, max) {
   if (tokens.includes("breakfast_restaurant") || tokens.includes("brunch_restaurant") || said(["breakfast", "brunch", "pancake", "waffle", "omelette", "omelet"])) q.add("breakfast");
   if (tokens.includes("dog_park") || said(["dog friendly", "dog-friendly", "dog park", "barkery", "paws "])) q.add("dog");
 
+  // Inventory sub-filter tags (same evidence home.js's engine reads): meal lists the row sits in.
+  const _tg = Array.isArray(place.tags) ? place.tags : [];
+  for (const m of ["breakfast", "lunch", "dinner", "quickbites", "dessert"]) if (_tg.includes(m)) q.add(m);
+
   let keys = EXP_ORDER.filter((k) => q.has(k) && EXP_META[k]);
   // Same v2.0 trust gate as home.js: a tag must ALSO be compatible with the
   // place's resolved identity, or it is dropped even with real evidence.
   const identity = Tags.resolveIdentity(types, false);
   keys = Tags.filterAllowed(identity, keys).shown;
-  return keys.slice(0, lim).map((k) => ({ key: k, icon: EXP_META[k].icon, label: EXP_META[k].label }));
+  // Same ordering law as home.js's PlaceCard (lib/cardChips.js): cuisine, meal, other
+  // earned tags, value, reputation. Cap 4. Cuisine only for dining identities.
+  const cuisine = identity === "dining" ? cuisineOf(place) : null;
+  const meal = mealKeyFromTags(_tg, (k) => Tags.filterAllowed(identity, [k]).shown.length > 0);
+  return arrangeChips({ cuisine, meal, engineKeys: keys, cap: lim }).map((c) => c.kind === "cuisine"
+    ? { key: "cuisine", icon: "🍴", label: cuisine }
+    : { key: c.key, icon: EXP_META[c.key].icon, label: EXP_META[c.key].label });
 }
 
 const compactCount = (n) => Number(n) >= 1000
@@ -408,7 +423,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   const primaryPhoto = photoSrcFilter(photoUrl(place));
   const stablePlacePhoto = photoSrcFilter(ownedPlacePhotoSrc(place.place_id || place.id, 640, !!place.photoNoSpend));
   const samePlacePhotoFallback = stablePlacePhoto && stablePlacePhoto !== primaryPhoto ? stablePlacePhoto : "";
-  const expTags = experienceTags(place, 3);
+  const expTags = experienceTags(place, CARD_CHIP_CAP);
   // Resolve the offer in the shared card itself so every IconicPlaceCard
   // surface (browse, map, saved, guides and intent pages) gets the same
   // location-safe deal marker. couponForPlace is identity-first and fails
@@ -675,7 +690,9 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
               <span className="wf-place-card-deal" title={cardCoupon.title || "Deal available"}>🏷️ Deal</span>
             ) : null}
             {badge || null}
-            {expTags.map((tag) => (
+            {expTags.map((tag) => tag.key === "cuisine" ? (
+              <span key="cuisine">{tag.icon} {tag.label}</span>
+            ) : (
               <button
                 key={tag.key}
                 type="button"

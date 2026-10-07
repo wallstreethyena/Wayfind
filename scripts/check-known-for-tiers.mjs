@@ -71,7 +71,7 @@ const strip = (src) => src
   // spreads the descriptive tier FIRST so a researched line overwrites it.
   // Reversed, every Atlas card in the product would be silently replaced by a
   // Google summary — the exact opposite of what this change is for.
-  ok(/lines:\s*\{\s*\.\.\.inv,\s*\.\.\.researched\s*\}/.test(route),
+  ok(/lines:\s*\{\s*\.\.\.inv,\s*(?:\.\.\.card,\s*)?\.\.\.researched\s*\}/.test(route),
     "the researched line WINS: inv is spread first so Atlas and the verified fleet card overwrite it, never the reverse");
   ok(/const stillSilent = need\.filter\(\(id\) => !researched\[id\]\)/.test(route),
     "…and the inventory lookup is only asked about ids nothing researched answered — a card we have real copy for never costs a second query");

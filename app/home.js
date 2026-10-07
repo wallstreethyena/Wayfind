@@ -48,6 +48,7 @@ import { AwardSticker, AwardBand, AwardListRank, awardWinnerClass } from "./comp
 import { eventCategoryArt } from "../lib/eventCategoryArt";
 import { startSessionRecording, markShareOpen, checkShareReturn } from "../lib/shareMetrics";
 import { priceWord } from "../lib/price";
+import { mapInventoryRow } from "../lib/inventoryRowClient";
 // v6.51 PERF: defers decorative hero-photo fetches off the critical path.
 // v8: onIdle's last callers were the two decorative hero photo fetches, which
 // were removed rather than deferred (lib/idleTask.js and its contract tests
@@ -224,6 +225,7 @@ import * as Hol from "../lib/holidays";
 import { locationPromoAllowed } from "../lib/promoLocation.js";
 import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
+import { arrangeChips, mealKeyFromTags } from "../lib/cardChips";
 import { CURATED } from "../lib/curated";
 import { INV_CAT_FOR_TILE, sameIdSet, tileAdmits } from "../lib/curatedLibrary";
 import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/exploreMenu";
@@ -1646,6 +1648,9 @@ const EXPERIENCES = {
   sports:    { icon: "📺", label: "Sports",          title: "Sports Bars",      cat: "nightlife", keyword: "sports bar", lead: "Big screens, cold beer, game on." },
   coffee:    { icon: "☕", label: "Coffee",          title: "Coffee Shops",     cat: "food",      keyword: "coffee shop", lead: "Where the day starts and the laptops open." },
   breakfast: { icon: "🍳", label: "Breakfast & brunch", title: "Breakfast & Brunch", cat: "food",   keyword: "breakfast brunch", lead: "The most important meal, done right." },
+  lunch:     { icon: "🥪", label: "Lunch",           title: "Lunch Spots",      cat: "food",      keyword: "lunch", lead: "Midday plates worth leaving your desk for." },
+  dinner:    { icon: "🍽️", label: "Dinner",          title: "Dinner Spots",     cat: "food",      keyword: "dinner", lead: "Where the evening meal is the main event." },
+  quickbites:{ icon: "🥡", label: "Quick bite",      title: "Quick Bites",      cat: "food",      keyword: "quick casual eats", lead: "Fast, good, and easy on the clock." },
   pizza:     { icon: "🍕", label: "Pizza",           title: "Best Pizza",       cat: "food",      keyword: "pizza", lead: "Slices and pies worth the napkins." },
   sushi:     { icon: "🍣", label: "Sushi",           title: "Best Sushi",       cat: "food",      keyword: "sushi", lead: "Fresh fish and a steady hand." },
   steak:     { icon: "🥩", label: "Steakhouse",      title: "Steakhouses",      cat: "food",      keyword: "steakhouse", lead: "For when only a great steak will do." },
@@ -1823,6 +1828,10 @@ function experienceBadges(p, selectedKey, max, audit) {
   if (L.includes("Coffee")) q.add("coffee");
   if (L.includes("Breakfast")) q.add("breakfast");
   if (L.includes("Brunch")) q.add("breakfast");
+  // 2026-10-06: inventory rows carry sub-filter tags (lib/placeTaxonomy.js); the meal ones are
+  // real evidence (the row was classified into that meal list). lib/tags.js ALLOW gates them to
+  // dining identities, so a state park can never wear "Quick bite".
+  { const _tg = Array.isArray(p.tags) ? p.tags : []; for (const _m of ["breakfast", "lunch", "dinner", "quickbites", "dessert"]) if (_tg.includes(_m)) q.add(_m); }
   if (L.includes("Outdoor seating")) q.add("outdoor");
   if (L.includes("Good for groups")) q.add("groups");
   if (L.includes("Dog friendly")) q.add("dog");
@@ -1838,7 +1847,7 @@ function experienceBadges(p, selectedKey, max, audit) {
   if (tokens.includes("coffee_shop") || (tokens.includes("cafe") && !cz) || cz.includes("coffee") || cz.includes("cafe") || /coffee|café|cafe\b|espresso|roaster/.test(nm)) q.add("coffee");
   if (tokens.some((x) => x.includes("brew")) || /brewery|brewing|brewpub|brew pub|taproom/.test(nm)) q.add("beer");
 
-  const order = ["bestof", "museum", "nature", "entertainment", "waterfront", "instagram", "rooftop", "romantic", "livemusic", "outdoor", "pizza", "sushi", "steak", "seafood", "burgers", "mexican", "italian", "dessert", "cocktails", "wine", "beer", "sports", "coffee", "breakfast", "family", "groups", "dog", "gem", "value", "localfav"];
+  const order = ["bestof", "museum", "nature", "entertainment", "waterfront", "instagram", "rooftop", "romantic", "livemusic", "outdoor", "pizza", "sushi", "steak", "seafood", "burgers", "mexican", "italian", "dessert", "cocktails", "wine", "beer", "sports", "coffee", "breakfast", "lunch", "dinner", "quickbites", "family", "groups", "dog", "gem", "value", "localfav"];
   let keys = order.filter((k) => q.has(k) && EXPERIENCES[k]);
   // v2.0 trust gate: category compatibility on top of the evidence gates. A tag
   // must pass BOTH to show. Audit (when passed) records the decision trail.
@@ -3813,27 +3822,6 @@ function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage, hideLike,
 // server page IDENTICALLY to the first one, rather than carrying a second,
 // driftable copy of the same row->card shape. Pure; a row already in the
 // app's own shape (has `name`, no `displayName`) passes through unchanged.
-function mapInventoryRow(x, center) {
-  if (!x) return null;
-  if (x.name && !x.displayName) return x; // already app-shaped
-  const _la = x.location && x.location.latitude, _ln = x.location && x.location.longitude;
-  const _ph = x.photos && x.photos[0] && x.photos[0].name;
-  return {
-    id: x.id,
-    name: (x.displayName && x.displayName.text) || x.name || "",
-    lat: _la, lng: _ln,
-    distMi: _la != null ? distMeters(center, { lat: _la, lng: _ln }) / 1609.34 : null,
-    rating: typeof x.rating === "number" ? x.rating : null,
-    reviews: x.userRatingCount || 0,
-    wfScore: wayfindScore(typeof x.rating === "number" ? x.rating : 0, x.userRatingCount || 0),
-    types: Array.isArray(x.types) ? x.types : [],
-    primaryType: x.primaryType || x.primary_type || null,
-    photo: _ph ? "/api/photo?ref=" + encodeURIComponent(_ph) + "&g=2&w=640" : null,
-    openNow: null,
-    businessStatus: x.businessStatus || "OPERATIONAL",
-    _wfInventory: true,
-  };
-}
 
 // 2026-09-23 (fix round, item 1) — THE ONE "Wayfind 5 more spots" control
 // definition. It used to render only inside the Food/category list
@@ -4684,7 +4672,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // Ranked at RENDER from the curated pools, not frozen at open: a like made
   // while the sheet is open re-ranks it, and a newly picked place can enter
   // the top 10 because the cut happens after the bump.
-  const cuisineList = (label) => Ranking.rankByConditions(intentPool().filter((p) => Dining.cuisineLabel(p) === label), condCtxFromNow(nowContext({ weather }))).slice(0, 10);
+  const cuisineList = (label) => Ranking.rankByConditions(intentPool().filter((p) => Dining.cuisineOf(p) === label), condCtxFromNow(nowContext({ weather }))).slice(0, 10);
   // v2.1: intent entries. Each opens an existing surface or a ranked quick list
   // built from data already loaded. No new fetching, no new card systems.
   const intentCtx = () => condCtxFromNow(nowContext({ weather }));
@@ -6937,6 +6925,27 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     } catch (e) {}
   }
   const blurbsInFlight = useRef(new Set());
+  // Ids /api/known-for was already asked about (or is being asked right now) — the
+  // dedupe for fetchKnownFor, so the sorted-slice effect never re-requests an id.
+  const knownForAsked = useRef(new Set());
+  // KNOWN FOR BEATS THE GENERATED LINE, ALWAYS (see loadBlurbs). Fails soft: on any
+  // failure the ids are released for a retry and the existing line stays.
+  async function fetchKnownFor(allIds) {
+    const ids = (allIds || []).filter((id) => id && !knownForAsked.current.has(id)).slice(0, 40);
+    if (!ids.length) return;
+    ids.forEach((id) => knownForAsked.current.add(id));
+    try {
+      const kr = await fetch("/api/known-for", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ ids }),
+      });
+      const kd = await kr.json();
+      if (kd && kd.lines && typeof kd.lines === "object" && Object.keys(kd.lines).length) {
+        setBlurbs((prev) => ({ ...prev, ...kd.lines }));
+        try { setCachedLines(kd.lines); } catch (e) {}
+      }
+    } catch (e) { ids.forEach((id) => knownForAsked.current.delete(id)); }
+  }
   async function loadBlurbs(list) {
     loadOffers(list);
     if (!Array.isArray(list) || !list.length) { setBlurbs({}); return; }
@@ -6944,6 +6953,12 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     //    no Google call, no AI call. Repeat searches of the same area are free.
     const seeded = {};
     list.forEach((p) => { const c = getCachedLine(p.id); if (c) seeded[p.id] = c; });
+    // 2026-10-06 (richer cards): an inventory row already CARRIES its researched
+    // description (mapInventoryRow -> _invEditorial), so seed it synchronously, no
+    // round trip. It beats a cached GENERATED summary (object) but never a cached
+    // researched string; the verified/card hooks below overwrite it (same map, merged
+    // after). The 24-char floor is the route's own "a fragment is not a line".
+    list.forEach((p) => { const e = p && p._invEditorial; if (e && e.length >= 24 && (!seeded[p.id] || typeof seeded[p.id] === "object")) seeded[p.id] = e; });
     // MERGE, never replace — six sections share this map, and a late caller
     // used to wipe every other section's lines mid-screen.
     setBlurbs((prev) => ({ ...prev, ...seeded }));
@@ -6958,21 +6973,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     //
     // Fails soft on purpose — if the lookup degrades the existing line stays. A
     // card must never LOSE text it already had because a lookup blinked.
-    (async () => {
-      try {
-        const ids = list.map((p) => p.id).filter(Boolean).slice(0, 40);
-        if (!ids.length) return;
-        const kr = await fetch("/api/known-for", {
-          method: "POST", headers: { "content-type": "application/json" },
-          body: JSON.stringify({ ids }),
-        });
-        const kd = await kr.json();
-        if (kd && kd.lines && typeof kd.lines === "object" && Object.keys(kd.lines).length) {
-          setBlurbs((prev) => ({ ...prev, ...kd.lines }));
-          try { setCachedLines(kd.lines); } catch (e) {}
-        }
-      } catch (e) {}
-    })();
+    fetchKnownFor(list.map((p) => p.id).filter(Boolean).slice(0, 40));
     // 2. cacheOnly CARD_SUMMARY for the same id set as known-for (up to 40),
     //    not just the top 3. Food > Cafés rank 4+ with a 30-day hook were blank
     //    while a neighbor with wf_editorial showed copy — that hides a sourced
@@ -9337,6 +9338,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // rendering a silent void. A data regression can still lose places; it can no
   // longer look like a broken page.
   const view = viewBase.filter(cardComplete);
+  // 2026-10-06 (richer cards): ask /api/known-for for the cards the user can actually
+  // SEE first. loadBlurbs only ever requested the first 40 ids of the UNSORTED fetch
+  // order, so the top-ranked rows often got no why line. Keyed on the sorted ids.
+  const _viewTopIds = view.slice(0, 40).map((p) => p.id).join(",");
+  useEffect(() => { if (_viewTopIds) fetchKnownFor(_viewTopIds.split(",")); }, [_viewTopIds]); // eslint-disable-line react-hooks/exhaustive-deps
   // Consolidate the FULL ranked pool before selecting the hero. Doing this
   // after removing the hero stranded its children as peer recommendations:
   // SeaWorld could become the hero while Bayside Stadium survived below as if
@@ -11951,7 +11957,22 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   // the owner saw pill-less cards under Breakfast/Cafés. Same engine, same
   // evidence discipline, capped at 3; the two ranking DISCLOSURES stay first.
   // check-collection-look §8 now asserts this render too.
-  const badges = [...(hasCreatorVideo(p) ? [{ key: "creatorvideo", icon: "🎬", label: "Creator video" }] : []), ...(featuredBoost(p) > 0 ? [{ key: "featured", icon: "🏅", label: "Featured" }] : []), ...experienceBadges(p, selectedBadge, 3)];
+  // 2026-10-06 (richer cards): cap 4, deterministic, highest value first (lib/cardChips.js):
+  // disclosures, cuisine, meal, other earned tags, value, reputation. Price is in the meta row.
+  const _engine = experienceBadges(p, selectedBadge, 99);
+  const _pcatEarly = primaryCategory(p);
+  const _chipCuisine = (_pcatEarly === "Food" || _pcatEarly === "Nightlife") ? Dining.cuisineOf(p) : null;
+  const _chipKeys = _engine.map((b) => b.key);
+  const badges = arrangeChips({
+    disclosures: [...(hasCreatorVideo(p) ? ["creatorvideo"] : []), ...(featuredBoost(p) > 0 ? ["featured"] : [])],
+    cuisine: _chipCuisine,
+    meal: mealKeyFromTags(p.tags, (k) => Tags.filterAllowed(Tags.resolveIdentity(p.types || [], !!p._event), [k]).shown.length > 0),
+    engineKeys: _chipKeys,
+    selectedKey: selectedBadge,
+  }).map((c) => c.kind === "cuisine" ? { key: "cuisine", icon: "🍴", label: _chipCuisine }
+    : c.key === "creatorvideo" ? { key: "creatorvideo", icon: "🎬", label: "Creator video" }
+    : c.key === "featured" ? { key: "featured", icon: "🏅", label: "Featured" }
+    : { key: c.key, icon: EXPERIENCES[c.key].icon, label: EXPERIENCES[c.key].label });
   // v8.33 (owner, 2026-08-22) — the SAME resolved set the "Creator video" chip
   // above is derived from (hasCreatorVideo() is creatorVideosFor().length > 0),
   // so the face on the photo and the chip in the pills lane can never disagree
@@ -12010,7 +12031,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   // whole fix rather than a nicety.
   const dispScore = SCORE_BADGE_OFF ? null : toDisplayScore(displayedWfScore(p));
   const cardInitials = String(p.name || "WF").split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]).join("").toUpperCase();
-  const cardCuisine = Dining.cuisineLabel(p);
+  const cardCuisine = Dining.cuisineOf(p);
   const cardShowsCuisine = (pcat === "Food" || pcat === "Nightlife") && cardCuisine;
   const cardPrimaryLabel = cardShowsCuisine ? cardCuisine : pcat;
   const cardCuisineCanTap = !!(cardShowsCuisine && onCuisineTap);
@@ -12140,6 +12161,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
                 // The honest destination for that chip is the place's own
                 // detail, where the creator video actually plays.
                 if (b.key === "creatorvideo") { if (onDetail) onDetail(); return; }
+                if (b.key === "cuisine") { if (onCuisineTap) onCuisineTap(b.label, p); return; }
                 if (onBadge) onBadge(b.key);
               }} style={{ pointerEvents: "auto", display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 999, padding: "3px 9px", cursor: "pointer" }}>{b.icon} {cityFixM(b.label)} ›</button>
             ))}
