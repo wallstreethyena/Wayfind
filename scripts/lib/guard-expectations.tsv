@@ -372,7 +372,7 @@ scripts/check-soft-404.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	4ff2f1813
 scripts/check-spend-effective-cap.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	11	1	3	f7bf12fa0f2929101500ba8c301fa1545884da68536b3466ad76f90840b0a56b
 scripts/check-spend-guard.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	10	1	0	3010ea715836a87f9cb87534e58bc57406020a3a5a8efcded7b6fe8374404df1
 scripts/check-sponsored-places.mjs	0	RENDER	blocks-ci-and-deploy	1	-	192	0	0	55c102a120bfa6a62654c59323fadab45aabf71898b5161e7cf1e5b61f8732f7
-scripts/check-spooky-skin.mjs	0	RENDER	blocks-ci-and-deploy	1	-	97	0	0	411048629f6c7be4f7c2e3352a1d9bd985c880e9ccbc47159599a3af59214c38
+scripts/check-spooky-skin.mjs	0	RENDER	blocks-ci-and-deploy	1	-	113	0	0	ec0babbc9a4cfac3cabfa9505358584aac69930ca420eae0d618974909489353
 scripts/check-state-affordance.mjs	0	RENDER	blocks-ci-and-deploy	1	-	8	0	0	128c6c78e702d511f4ebbead87ce144bcbd949dbaf15ed4a486a23a3aa7664a5
 scripts/check-sub-contracts.mjs	0	CALL	blocks-ci-and-deploy	1	-	7	0	0	094d35a19f9397472c7b6b5062c179f2d645181739dc038ef07da9e245fc8adf
 scripts/check-subfilter-experience-coverage.mjs	0	CALL	blocks-ci-and-deploy	1	-	39	0	0	65f61f7d4840c7097af0781772e10e5aff4b8d70148d30e1bfdd703071b1b3f0

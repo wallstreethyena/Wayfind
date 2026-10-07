@@ -100,7 +100,10 @@ ok(rules.every((l) => /^\.wf-place-card\.wf-spooky-card[ ,.:{>]/.test(l)), "ever
 ok(!/@keyframes|animation|transition/.test(block), "static skin: no animation, so prefers-reduced-motion has nothing to stop");
 ok(!/\.png|\.jpg|\.webp|\.avif/i.test(block) && /image\/svg\+xml/.test(block), "badge art is inline SVG, no PNG shipped");
 ok(Buffer.byteLength(block) < 9000, `spooky CSS stays tiny (${Buffer.byteLength(block)} bytes)`);
-ok(!/(?:^|[;{])\s*(?:height|min-height|max-height|width|padding|margin)\s*:/.test(block.replace(/background:[^;}]*/g, "")), "the skin sets colour only: no height/width/padding/margin, so geometry stays the shared 268px");
+// the CTA drips (:before) and cobweb (:after) are absolutely positioned decoration inside the button, so their own size is exempt
+const geomScope = rules.filter((l) => !/:(?:before|after)\{/.test(l.replace(/\{.*$/, (m) => m.slice(0, 1) === "{" ? "{" : m)) || !/wf-(?:rail-card-cta|place-card-book)/.test(l)).join("\n");
+ok(!/(?:^|[;{])\s*(?:height|min-height|max-height|width|padding|margin)\s*:/.test(geomScope.replace(/background:[^;}]*/g, "")), "the skin sets colour only: no height/width/padding/margin (CTA decoration pseudo-elements exempt), so geometry stays the shared 268px");
+ok(/rail-card-cta:before\{[^}]*position:absolute[^}]*pointer-events:none/.test(block) && /rail-card-cta:after\{[^}]*position:absolute[^}]*pointer-events:none/.test(block) && /rail-card-cta:focus-visible\{outline:2px solid #F3E8FF/.test(block), "CTA haunted glass: drips on :before, cobweb on :after (both decorative, non-interactive), visible focus ring");
 ok(/:not\(\.is-active\)/.test(block) && /:not\(\.is-liked\):not\(\.is-disliked\)/.test(block), "state law: skin never paints active buttons or liked/disliked borders");
 ok(/#B44CFF/i.test(block) && /#8A3CFF/i.test(block) && /#F7760F/i.test(block) && /#0B0B12/i.test(block) && /1F383/.test(block), "mock palette: violet #B44CFF/#8A3CFF, orange #F7760F, near-black #0B0B12, pumpkin glyph");
 const src = (f) => readFileSync(path.join(ROOT, f), "utf8");
@@ -167,21 +170,38 @@ if (!browser) {
             eyebrowDims: card.querySelector(".wf-place-card-category") ? [card.querySelector(".wf-place-card-category").scrollWidth, card.querySelector(".wf-place-card-category").clientWidth, card.querySelector(".wf-place-card-category").parentElement.clientWidth, getComputedStyle(card.querySelector(".wf-place-card-category")).fontSize].join("/") : null,
             eyebrowFits: card.querySelector(".wf-place-card-category") ? card.querySelector(".wf-place-card-category").scrollWidth <= card.querySelector(".wf-place-card-category").clientWidth : null,
             ghosts: card.querySelector(".wf-place-card-highlights") ? (card.querySelector(".wf-place-card-highlights").textContent.match(/\u{1F47B}/gu) || []).length : 0,
+            ctaBorder: cta ? cs(cta, "borderTopColor") : null, ctaRadius: cta ? cs(cta, "borderTopLeftRadius") : null, ctaFg: cta ? cs(cta, "color") : null,
+            ctaDrips: cta ? cs(cta, "display") : null, ctaDripsContent: cta ? getComputedStyle(cta, "::before").content : null, ctaWebContent: cta ? getComputedStyle(cta, "::after").content : null,
+            ctaStops: cta ? (cs(cta, "backgroundImage").match(/rgba?\([^)]*\)/g) || []) : [], ctaBorderW: cta ? cs(cta, "borderTopWidth") : null, ctaOutline: cta ? cs(cta, "outlineStyle") : null,
             ctaColors: cta ? [cs(cta, "color"), cs(cta, "backgroundColor"), cs(cta, "opacity")] : null,
             chips: [...card.querySelectorAll(".wf-place-card-highlights>*")].map((c) => c.textContent.trim()),
             controlsInside: [...card.querySelectorAll(".wf-place-card-actions>*")].every(inside),
             webBg: badge ? getComputedStyle(badge, "::before").backgroundImage.split("data:image/svg+xml").length - 1 : 0,
           };
         }
+        out.docOverflow = document.documentElement.scrollWidth;
         return out;
       });
+      {
+        const toLin = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
+        const L = ([r, g, b]) => 0.2126 * toLin(r) + 0.7152 * toLin(g) + 0.0722 * toLin(b);
+        const nums = (str) => str.match(/[\d.]+/g).map(Number);
+        for (const k of ["spooky-event", "spooky-place", "spooky-perfect"]) {
+          const c = m.cards[k], under = [11, 11, 18], fg = nums(c.ctaFg).slice(0, 3);
+          c.ctaGlassContrast = Math.min(...c.ctaStops.map((st) => { const n = nums(st), a = n[3] ?? 1, bgc = [0, 1, 2].map((i) => n[i] * a + under[i] * (1 - a)); const hi = Math.max(L(fg), L(bgc)), lo = Math.min(L(fg), L(bgc)); return (hi + 0.05) / (lo + 0.05); }));
+          if (!Number.isFinite(c.ctaGlassContrast)) c.ctaGlassContrast = 0;
+        }
+      }
       ok(m.innerWidth === width, `${width}px: real viewport achieved (got ${m.innerWidth})`);
       for (const k of ["spooky-event", "spooky-place", "spooky-perfect"]) {
         const c = m.cards[k];
         ok(Math.abs(c.h - PLACE_CARD_HEIGHT_PX) <= 0.5, `${width}px ${k}: card keeps the shared ${PLACE_CARD_HEIGHT_PX}px height (got ${c.h})`);
         ok(c.sw <= c.cw + 1, `${width}px ${k}: nothing overflows the card (scrollWidth ${c.sw} <= ${c.cw})`);
         ok(c.ctaLines === 1 && c.ctaFits && c.ctaInside, `${width}px ${k}: CTA is one line, fits, inside the card (${c.ctaLines} lines ${c.ctaDims})`);
-        ok(/gradient/.test(c.ctaBg), `${width}px ${k}: CTA wears the orange gradient pill`);
+        ok(/gradient/.test(c.ctaBg) && c.ctaBorder === "rgb(176, 92, 255)" && c.ctaRadius !== "0px", `${width}px ${k}: CTA is purple haunted glass pill with #B05CFF border (${c.ctaBorder})`);
+        ok(c.ctaFg === "rgb(243, 232, 255)" && c.ctaGlassContrast >= 4.5, `${width}px ${k}: CTA text #F3E8FF on the glass, AA (worst contrast ${c.ctaGlassContrast.toFixed(2)}:1)`);
+        ok(c.ctaDripsContent !== "none" && c.ctaWebContent !== "none", `${width}px ${k}: CTA drips and cobweb pseudo-elements render`);
+        ok(m.docOverflow <= width, `${width}px ${k}: no horizontal page overflow from the CTA decoration (docScrollWidth ${m.docOverflow})`);
         ok(c.badgeFits && c.badgeInside && c.valueVisible, `${width}px ${k}: badge is legible: contents fit inside it and it sits inside the card`);
         ok(c.badgeBorder === "rgb(180, 76, 255)" && c.valueColor === "rgb(255, 255, 255)" && c.labelColor !== "rgb(184, 194, 208)", `${width}px ${k}: violet border, white value, violet label (${c.badgeBorder} / ${c.valueColor} / ${c.labelColor})`);
         ok(c.webBg === 3, `${width}px ${k}: badge draws web, web and drip as inline SVG layers (${c.webBg})`);
@@ -195,6 +215,7 @@ if (!browser) {
       ok(m.cards["spooky-event"].chips.some((x) => /Halloween/.test(x)) && m.cards["spooky-place"].chips.some((x) => /Halloween/.test(x)), `${width}px: spooky cards carry the Halloween chip`);
       ok(!m.cards["fall-plain"].chips.some((x) => /Halloween/.test(x)) && m.cards["fall-plain"].eyebrow[0] !== "rgb(247, 118, 15)" && m.cards["fall-plain"].border !== "rgb(150, 86, 255)", `${width}px: the plain fall card keeps the orange fall look (no violet, no Halloween chip)`);
       ok(Math.abs(m.cards["fall-plain"].h - PLACE_CARD_HEIGHT_PX) <= 0.5 && Math.abs(m.cards.standard.h - PLACE_CARD_HEIGHT_PX) <= 0.5, `${width}px: fall and standard cards are unchanged at ${PLACE_CARD_HEIGHT_PX}px`);
+      ok(m.cards["fall-plain"].ctaBorder === "rgb(255, 196, 110)" && m.cards["fall-plain"].ctaColors[1] === "rgb(59, 26, 5)" && !/gradient/.test(m.cards["fall-plain"].ctaBg) && m.cards["fall-plain"].ctaDripsContent === "none", `${width}px: fall CTA unchanged (amber border, dark brown fill, no drips/cobweb)`);
       {
         const lum = (rgb) => { const [r, g, b] = rgb.match(/[\d.]+/g).slice(0, 3).map(Number).map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
         const [fg, bg, op] = m.cards["fall-plain"].ctaColors;
