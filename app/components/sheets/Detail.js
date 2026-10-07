@@ -12,7 +12,7 @@ import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import ScoreExplanation from "../ScoreExplanation.js";
 import { safeUrl } from "../../../lib/links.js";
-import { wayfindAwardFor } from "../../../lib/wayfindAwards.js";
+import AwardsRail from "../AwardsRail";
 import { C, sheetBg, sheet, SHEET_EASE, Grabber, directionsUrl, offerLabel, scoreLabel, stars, PlaceScoreChip, PriceBadge, TRENDING_POPULARITY_THRESHOLD } from "../kit";
 import { priceLevelOf } from "../../../lib/price";
 // v8.82 — the season travels with the share (see lib/fallSkin.fallShareLine).
@@ -833,7 +833,6 @@ export default function DetailSheet({ ctx }) {
               <div style={{ display: "flex", alignItems: "center", gap: 9, flexWrap: "wrap", marginBottom: 14, fontSize: 13, fontWeight: 700 }}>
                 <PlaceScoreChip p={detail} size={13} />
                 {isOwnerPick(detail) ? <span style={{ color: C.gold, fontWeight: 800, fontSize: 11 }}>✦ Curator's pick</span> : null}
-                {(() => { const aw = wayfindAwardFor(detail); return aw ? <span className="wf-detail-award" aria-label={aw.ariaLabel} style={{ display: "inline-flex", alignItems: "center", gap: 5, color: "#FFB27A", fontWeight: 850, fontSize: 11, textTransform: "uppercase", letterSpacing: ".05em", border: "1px solid rgba(252,110,9,.62)", background: "linear-gradient(110deg,rgba(252,110,9,.24),rgba(252,110,9,.05))", borderRadius: 999, padding: "3px 9px 3px 4px" }}><span aria-hidden="true" style={{ display: "grid", placeItems: "center", width: 17, height: 17, borderRadius: "50%", background: "linear-gradient(145deg,#FFB067,#FC6E09 55%,#B44400)", color: "#1F0B00", fontSize: 9, fontWeight: 950 }}>1</span>{aw.title} · {aw.detail}</span> : null; })()}
                 {(() => { const a = new Set((placePosts || []).map((x) => x.user_id)).size; if (!a) return null; return (<><span style={{ color: C.border }}>·</span><span style={{ color: C.muted, fontWeight: 700, fontSize: 11 }}>{a} member take{a === 1 ? "" : "s"}{a >= 3 ? " · in score" : ""}</span></>); })()}
                 {detail.reviews > 0 && (<>
                   <span style={{ color: C.border }}>·</span>
@@ -864,6 +863,7 @@ export default function DetailSheet({ ctx }) {
                 {(() => { const cz = Dining.cuisineLabel(detail) || primaryCategory(detail); return cz ? (<><span style={{ color: C.border }}>·</span><button onClick={() => { try { logEvent("cuisine_link", detail, { cz }); } catch (e) {} openCuisine(cz, detail); }} style={{ background: "transparent", border: "none", padding: 0, color: C.light, fontWeight: 700, fontSize: "inherit", cursor: "pointer" }}>{cz} ›</button></>) : null; })()}
                 {(() => { if (detail._event) return null; const isD = ["Food", "Nightlife"].includes(Ranking.coarseCat(detail) || ""); const cost = isD ? Dining.costForTwo(detail) : null; /* PriceBadge reads the NUMBER, not the glyph string: detail.price was pre-rendered "$$" with no word, and a glyph without its label is exactly the half-signal that let "$$$$" and "Moderate" disagree. costForTwo stays ahead of it — a real dollar range for two is more specific than a band. */ const lvl = priceLevelOf(detail.priceNum != null ? detail.priceNum : (detail.price_level != null ? detail.price_level : detail.priceLevel)); if (cost && cost.listed) return (<><span style={{ color: C.border }}>·</span><span style={{ color: C.green, fontWeight: 800 }}>{cost.text}</span></>); if (lvl) return (<><span style={{ color: C.border }}>·</span><PriceBadge level={lvl} /></>); return null; })()}
               </div>
+              <AwardsRail place={detail} colors={C} />
               {!detail._event && <ScoreExplanation place={detail} />}
               {!detail._event && Tags.requiresParkAdmission(detail.types) && (
                 <div style={{ fontSize: 11.5, fontWeight: 600, color: C.muted, marginTop: -4, marginBottom: 12 }}>May require park admission.</div>

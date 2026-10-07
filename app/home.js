@@ -44,6 +44,7 @@ import { eventWhenLabel } from "../lib/eventTime";
 import { editorialLine } from "../lib/editorialHook";
 import { topPickAward } from "../lib/topPickAward";
 import { wayfindAwardFor } from "../lib/wayfindAwards.js";
+import { AwardSticker, AwardBand, AwardListRank, awardWinnerClass } from "./components/AwardCardParts";
 import { eventCategoryArt } from "../lib/eventCategoryArt";
 import { startSessionRecording, markShareOpen, checkShareReturn } from "../lib/shareMetrics";
 import { priceWord } from "../lib/price";
@@ -12039,7 +12040,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
     ? { rank: cardRank, label: "Wayfind curator's pick", curator: true }
     : topPickAward({ category: pcat, rank: cardRank }));
   return (
-    <div data-wf-position-key={"place-" + p.id} className={`wf-place-card${fallCardClass(p && p.id, siteTodayStr())}${spookyOverFall(p, siteTodayStr())}${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${isCuratorPick ? " is-curator-pick" : ""}${!(curatedHook || knownForHook || aiSummary) ? " is-no-take" : ""}`} style={{ position: "relative" }}>
+    <div data-wf-position-key={"place-" + p.id} className={`wf-place-card${fallCardClass(p && p.id, siteTodayStr())}${spookyOverFall(p, siteTodayStr())}${awardWinnerClass(cardAward)}${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${isCuratorPick ? " is-curator-pick" : ""}${!(curatedHook || knownForHook || aiSummary) ? " is-no-take" : ""}`} style={{ position: "relative" }}>
       <button type="button" className="wf-place-card-open" onPointerDown={tapIntent.onPointerDown} onPointerMove={tapIntent.onPointerMove} onPointerUp={tapIntent.onPointerUp} onPointerCancel={tapIntent.onPointerCancel} onClick={(event) => { if (tapIntent.shouldOpen()) onDetail?.(event); }} aria-label={`Open ${p.name}`} style={{ position: "absolute", inset: 0, zIndex: 0, width: "100%", height: "100%", opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
       {/* v8.62 (owner, 2026-08-26, live): "top right hand corner of the card,
           not in front of the image." The score badge is a direct child of the
@@ -12055,6 +12056,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
             ? <FallbackImg src={cardPrimarySrc} fallbackSrc={cardPlaceSrc && cardPlaceSrc !== cardPrimarySrc ? cardPlaceSrc : undefined} icon={iconForPlace(p)} />
             : <div className="wf-place-card-monogram" aria-hidden="true">{cardInitials}</div>}
           {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
+          <AwardSticker award={cardAward} />
         </div>
         <div className="wf-place-card-content" style={{ position: "relative" }}>
           <div className="wf-place-card-title-row">
@@ -12063,6 +12065,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
                 ? <button type="button" className="wf-place-card-category is-tappable" style={{ pointerEvents: "auto" }} onClick={(e) => { e.stopPropagation(); onCuisineTap(cardCuisine, p); }}>{pcat} ›</button>
                 : <span className="wf-place-card-category">{pcat || cardPrimaryLabel}</span>
               )}
+              <AwardListRank award={cardAward} rank={rank} />
               <div className="wf-place-card-name">{p.name}</div>
             </div>
           </div>
@@ -12119,7 +12122,8 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
               })()}
             </div>
           )}
-          {cardAward && (
+          {cardAward && cardAward.wayfindAward && <AwardBand award={cardAward} />}
+          {cardAward && !cardAward.wayfindAward && (
             <div className={`wf-place-card-award${cardAward.wayfindAward ? " is-wayfind-award" : cardAward.curator ? " is-curator" : ` is-rank-${cardAward.rank}`}`} aria-label={cardAward.wayfindAward ? cardAward.ariaLabel : cardAward.curator ? "Personally selected by Wayfind's curator" : `Wayfind ranked this the number ${cardAward.rank} ${pcat || "local"} option`}>
               <span className="wf-place-card-award-icon" aria-hidden="true">{cardAward.curator ? "✦" : cardAward.icon}</span>
               <span>{cardAward.label}</span>

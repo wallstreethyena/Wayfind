@@ -411,6 +411,18 @@ ${WF_SKELETON_CSS}
 .wf-place-card-award.is-curator .wf-place-card-award-icon{background:radial-gradient(circle at 35% 28%,#FFF1BC,#E1A72D 58%,#80500A 100%);color:#2A1A03}
 .wf-place-card-award.is-wayfind-award{border-color:rgba(252,110,9,.62);background:linear-gradient(110deg,rgba(252,110,9,.24),rgba(252,110,9,.05));color:#FFB27A}
 .wf-place-card-award.is-wayfind-award .wf-place-card-award-icon{background:linear-gradient(145deg,#FFB067,#FC6E09 55%,#B44400);color:#1F0B00}
+.wf-place-card.is-award-winner{border-color:rgba(252,110,9,.7)!important;box-shadow:0 0 0 1px rgba(252,110,9,.25),0 0 18px rgba(252,110,9,.12)!important}
+.wf-place-card-award.is-wayfind-award{display:flex;flex-direction:column;align-items:flex-start;gap:0;min-height:0;padding:3px 9px 4px;border-radius:12px;text-transform:none;letter-spacing:0;font-weight:700;line-height:1.15;color:#FFF3E0}
+.wf-place-card-award.is-wayfind-award .wf-award-text{display:flex;flex-direction:column;min-width:0;max-width:100%;overflow:hidden}
+.wf-place-card-award.is-wayfind-award .wf-award-eyebrow{font-size:11px;font-weight:700;letter-spacing:.2em;color:#FC6E09;white-space:nowrap}
+.wf-place-card-award.is-wayfind-award .wf-award-name{font-size:13px;font-weight:900;color:#FFF3E0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wf-place-card-award.is-wayfind-award .wf-award-detail{font-size:10.5px;font-weight:600;color:#F6C76B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wf-award-sticker{position:absolute;z-index:5;left:5px;top:5px;display:block;width:min(84px,calc(100% - 10px));aspect-ratio:1;box-sizing:border-box;padding:3px;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.6),rgba(0,0,0,.35) 70%,transparent);filter:drop-shadow(0 2px 4px rgba(0,0,0,.5));pointer-events:none}
+.wf-awards-rail-scroll::-webkit-scrollbar{display:none}
+.wf-place-card.is-award-winner .wf-place-card-rank{display:none!important}
+.wf-place-card.is-award-winner .wf-place-card-category{display:inline-flex;vertical-align:middle}
+.wf-award-listrank{display:inline-flex;align-items:center;vertical-align:middle;margin:0 0 4px 6px;padding:1px 7px;border:1px solid rgba(255,255,255,.18);border-radius:999px;color:#C9D1DC;font-size:9.5px;font-weight:700;line-height:1.4;white-space:nowrap}
+.wf-award-sticker>svg{display:block;width:100%;height:100%}
 .wf-place-card-highlights{gap:5px!important;margin-bottom:6px!important}
 .wf-place-card-highlights>button,.wf-place-card-highlights>span{
   display:inline-flex!important;

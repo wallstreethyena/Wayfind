@@ -65,3 +65,13 @@ apart deliberately.
 
 See `docs/VISUAL_RELEASE_01.md` for the final appearance specification and
 Vercel deployment handoff.
+
+## Annual awards badge
+
+| File | Purpose | Use |
+| --- | --- | --- |
+| `awards/wayfind-award-badge-master.png` | Owner-supplied master art for the Wayfind annual award (laurel, gradient pin, year, award, area). Approved 2026-10-06. | Source reference only. The live badge is `app/components/AwardBadge.js`, traced 1:1 from this file. |
+
+To issue next year's awards (or a new category) add an entry to `lib/wayfindAwards.js`
+with its `year`, `name` and winners. The badge, the winner card treatment and the place
+page "Awards & recognition" rail all read from there; nothing is redrawn.
