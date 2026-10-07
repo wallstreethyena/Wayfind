@@ -43,8 +43,8 @@
     },
     "Ted Sperling Nature Park at South Lido": {
       "src": "/guides/picks/things-to-do-in-sarasota-florida/ted-sperling-south-lido.webp",
-      "width": 1280,
-      "height": 427,
+      "width": 960,
+      "height": 640,
       "alt": "A mangrove-lined lagoon at South Lido County Park in Sarasota, with the city's condo skyline visible beyond the mangrove tree line",
       "caption": "The mangrove-fringed water at South Lido County Park, with Sarasota's skyline beyond.",
       "credit": "Ryan Hodnett",
@@ -53,13 +53,13 @@
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File:South_Lido_County_Park_-_Sarasota,_Florida_2023-01-22_(01).jpg",
       "author": "Ryan Hodnett",
-      "position": "50% 52%",
+      "position": "50% 50%",
       "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
       "sourceKind": "commons",
-      "placeId": null,
-      "verification": "File is titled and dated (2023-01-22) as South Lido County Park, Sarasota; the mangrove tree line and condo towers visible across the water match Ted Sperling Nature Park's setting at South Lido, where the guide's pick is the mangrove-tunnel paddling water. No people in frame.",
+      "placeId": "ChIJJ3XVfEhrw4gRY3oXQ874Cco",
+      "verification": "File is titled and dated (2023-01-22) as South Lido County Park, Sarasota; the mangrove tree line and condo towers visible across the water match Ted Sperling Nature Park's setting at South Lido, where the guide's pick is the mangrove-tunnel paddling water. No people in frame. Cropped to 3:2 from a wide panorama so it does not render as a thin strip. Live Commons licence checked: CC BY-SA 4.0.",
       "sameAsCardPhoto": false,
-      "reviewedAt": "2026-09-23"
+      "reviewedAt": "2026-10-07"
     },
     "The Ringling": {
       "src": "/guides/picks/things-to-do-in-sarasota-florida/the-ringling-entrance.webp",

@@ -3,8 +3,8 @@
   "picks": {
     "Castillo de San Marcos": {
       "src": "/guides/picks/things-to-do-st-augustine-summer-2026/castillo-de-san-marcos.webp",
-      "width": 1400,
-      "height": 445,
+      "width": 915,
+      "height": 610,
       "alt": "Panoramic view of the coquina walls, corner watchtower and seawall of Castillo de San Marcos in St. Augustine, with cannons lined up on the grass and palm trees along the fort's edge",
       "caption": "The coquina walls, corner watchtower and cannon-lined seawall of Castillo de San Marcos on Matanzas Bay.",
       "credit": "Daniel Schwen",
@@ -13,13 +13,13 @@
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File:Castillo_de_San_Marcos_pano1.jpg",
       "author": "Daniel Schwen",
-      "position": "50% 45%",
+      "position": "50% 50%",
       "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
       "sourceKind": "commons",
-      "placeId": null,
-      "verification": "Downloaded the original panorama from Wikimedia Commons and inspected it: the coquina bastion, corner turret, cannon row and seawall match Castillo de San Marcos exactly, and the file's own title and description name the fort in St. Augustine, Florida; the file's embedded GPS (29.897, -81.311) sits within about 60m of the fort's coordinates in Wayfind's inventory (29.8979, -81.3115).",
+      "placeId": "ChIJH6jzd74n5IgRsYpaqo4LwNk",
+      "verification": "Downloaded the original panorama from Wikimedia Commons and inspected it: the coquina bastion, corner turret, cannon row and seawall match Castillo de San Marcos exactly, and the file's own title and description name the fort in St. Augustine, Florida; the file's embedded GPS (29.897, -81.311) sits within about 60m of the fort's coordinates in Wayfind's inventory (29.8979, -81.3115). Cropped to 3:2 from a wide panorama so it does not render as a thin strip. Live Commons licence checked: CC BY-SA 4.0.",
       "sameAsCardPhoto": false,
-      "reviewedAt": "2026-09-23"
+      "reviewedAt": "2026-10-07"
     },
     "St. George Street and the old town": {
       "src": "/guides/picks/things-to-do-st-augustine-summer-2026/st-george-street-shop.webp",
