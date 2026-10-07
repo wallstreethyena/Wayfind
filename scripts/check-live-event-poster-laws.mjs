@@ -134,8 +134,8 @@ function git(cmd) {
 }
 
 // 5. The type-to-bucket mapping (lib/liveEventPosterTypes.js) must be
-// exactly sports + concerts, mapped onto exactly the two real, pre-existing
-// event buckets this whole feature depends on -- nothing invented, nothing
+// exactly sports (concerts removed 2026-10-06, locked), mapped onto the real, pre-existing
+// event bucket this whole feature depends on -- nothing invented, nothing
 // silently added later without this guard catching it.
 {
   const cfgPath = "lib/liveEventPosterTypes.js";
@@ -144,11 +144,11 @@ function git(cmd) {
     const types = [...text.matchAll(/^\s*(\w+):\s*Object\.freeze/gm)].map((x) => x[1]).sort();
     const modes = [...text.matchAll(/mode:\s*"([\w-]+)"/g)].map((x) => x[1]).sort();
     const bucketKeys = [...text.matchAll(/bucketKey:\s*"([\w-]+)"/g)].map((x) => x[1]).sort();
-    const typesOk = JSON.stringify(types) === JSON.stringify(["concerts", "sports"]);
-    const modesOk = JSON.stringify(modes) === JSON.stringify(["date-night", "summer-sports"]);
-    const bucketsOk = JSON.stringify(bucketKeys) === JSON.stringify(["livemusic", "sports"]);
+    const typesOk = JSON.stringify(types) === JSON.stringify(["sports"]);
+    const modesOk = JSON.stringify(modes) === JSON.stringify(["summer-sports"]);
+    const bucketsOk = JSON.stringify(bucketKeys) === JSON.stringify(["sports"]);
     if (typesOk && modesOk && bucketsOk) {
-      ok("exactly two live-poster types exist (sports, concerts), mapped to the two real event buckets");
+      ok("exactly one live-poster type exists (sports); no concert live poster");
     } else {
       bad("live-poster type/mode/bucket mapping does not match the approved shape", `types=${types} modes=${modes} buckets=${bucketKeys}`);
     }

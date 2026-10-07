@@ -62,7 +62,7 @@ check(() => {
 // --- 2/3. Changing the selector produces a genuinely different key for
 // BOTH posters, city by city, exactly the sequence in the spec ----------
 check(() => {
-  for (const type of ["sports", "concerts"]) {
+  for (const type of ["sports"]) {
     const mode = LIVE_POSTER_TYPE_CONFIG[type].mode;
     const kB = posterEventsKey({ active: true, disabled: false, lat: BRADENTON.lat, lng: BRADENTON.lng, city: "Bradenton", mode });
     const kT = posterEventsKey({ active: true, disabled: false, lat: TAMPA.lat, lng: TAMPA.lng, city: "Tampa", mode });
@@ -147,11 +147,10 @@ check(() => {
 // --- 9. The two live-poster types map onto real, pre-existing buckets,
 // nothing invented for this feature ---------------------------------------
 check(() => {
-  assert.deepEqual(Object.keys(LIVE_POSTER_TYPE_CONFIG).sort(), ["concerts", "sports"], "exactly two poster types exist: sports and concerts");
+  assert.deepEqual(Object.keys(LIVE_POSTER_TYPE_CONFIG).sort(), ["sports"], "exactly one live poster type exists: sports (concerts removed)");
   assert.equal(LIVE_POSTER_TYPE_CONFIG.sports.mode, "summer-sports");
   assert.equal(LIVE_POSTER_TYPE_CONFIG.sports.bucketKey, "sports");
-  assert.equal(LIVE_POSTER_TYPE_CONFIG.concerts.mode, "date-night");
-  assert.equal(LIVE_POSTER_TYPE_CONFIG.concerts.bucketKey, "livemusic");
+  assert.equal(LIVE_POSTER_TYPE_CONFIG.concerts, undefined);
 });
 
 // --- 10. posterEventBucket itself classifies by real segment/genre data,
@@ -240,10 +239,8 @@ check(() => {
   const concert = makeEvent({ id: "concert", name: "Orlando Live", segment: "Music", genre: "Rock", image: null, thumb: null, imageVariants: [] });
   assert.equal(mayHaveUsableLivePosterArt("sports", baseball), true, "owner baseball art must bypass provider-image prefiltering");
   assert.deepEqual(livePosterCandidates("sports", [baseball]).map((e) => e.id), ["baseball"], "owner baseball event must remain selected in ranked order");
-  assert.equal(mayHaveUsableLivePosterArt("concerts", baseball), false, "owner baseball art must never leak into Concerts");
-  assert.equal(mayHaveUsableLivePosterArt("concerts", concert), true, "owner concert art must bypass provider-image prefiltering");
-  assert.deepEqual(livePosterCandidates("concerts", [concert]).map((e) => e.id), ["concert"], "owner concert event must remain selected in ranked order");
-  assert.equal(mayHaveUsableLivePosterArt("sports", concert), false, "owner concert art must never leak into Sporting Events");
+  assert.equal(mayHaveUsableLivePosterArt("concerts", baseball), false, "no art for a removed concert type");
+  assert.equal(mayHaveUsableLivePosterArt("sports", concert), false, "music events must never get owner art on Sporting Events");
 });
 
 // --- 16. The cheap browser prefilter and authoritative server import the same
@@ -286,7 +283,6 @@ n++;
 const realFetch = globalThis.fetch;
 try {
   const ownerEvent = makeEvent({ id: "owner-worker", name: "Orlando Baseball", segment: "Sports", genre: "Baseball", image: null });
-  const ownerConcert = makeEvent({ id: "owner-concert", name: "Orlando Live Tonight", segment: "Music", genre: "Rock", image: null });
   let fetches = 0;
   globalThis.fetch = async () => { fetches++; throw new Error("owner art must not fetch"); };
   const ownerTile = await resolveLivePosterTile("sports", LIVE_POSTER_TYPE_CONFIG.sports, [ownerEvent]);
@@ -294,22 +290,12 @@ try {
   assert.equal(ownerTile?.title, ownerEvent.name);
   assert.equal(ownerTile?.livePosterEventId, ownerEvent.id);
   assert.equal(ownerTile?.livePosterStrategy, "owner-art");
-  const concertTile = await resolveLivePosterTile("concerts", LIVE_POSTER_TYPE_CONFIG.concerts, [ownerConcert]);
-  assert.equal(concertTile?.href, ownerConcert.dest);
-  assert.equal(concertTile?.title, ownerConcert.name);
-  assert.equal(concertTile?.livePosterEventId, ownerConcert.id);
-  assert.equal(concertTile?.livePosterStrategy, "owner-art");
-  assert.equal(fetches, 0, "baseball and concert owner art must resolve without fitted-art requests");
+  assert.equal(fetches, 0, "baseball owner art must resolve without fitted-art requests");
 
-  const invalidDest = { ...ownerConcert, id: "missing-dest", dest: "" };
-  const invalidName = { ...ownerConcert, id: "missing-name", name: "" };
-  assert.equal(await resolveLivePosterTile("concerts", LIVE_POSTER_TYPE_CONFIG.concerts, [invalidDest, invalidName]), null, "owner art must not create a tile without event identity and destination");
+  const invalidDest = { ...ownerEvent, id: "missing-dest", dest: "" };
+  const invalidName = { ...ownerEvent, id: "missing-name", name: "" };
+  assert.equal(await resolveLivePosterTile("sports", LIVE_POSTER_TYPE_CONFIG.sports, [invalidDest, invalidName]), null, "owner art must not create a tile without event identity and destination");
   assert.equal(fetches, 0, "invalid owner-art events must fail before any fitted-art request");
-
-  const laterConcert = { ...ownerConcert, id: "owner-concert-2", name: "Later Ranked Concert", dest: "/events/orlando/later" };
-  const rankedTile = await resolveLivePosterTile("concerts", LIVE_POSTER_TYPE_CONFIG.concerts, [ownerConcert, laterConcert]);
-  assert.equal(rankedTile?.livePosterEventId, ownerConcert.id, "owner concert art must preserve event ranking");
-  assert.equal(rankedTile?.href, ownerConcert.dest, "owner concert art must preserve the winning event destination");
 
   const first = makeEvent({ id: "fit-first", segment: "Sports", genre: "Football", image: "https://img.example/first.jpg" });
   const second = makeEvent({ id: "fit-second", name: "Second Honest Sport", segment: "Sports", genre: "Soccer", image: "https://img.example/second.jpg" });

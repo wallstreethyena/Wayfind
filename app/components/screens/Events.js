@@ -6,6 +6,9 @@ import { useState } from "react";
 import { C, TARGET } from "../kit";
 import * as Culture from "../../../lib/culture";
 import { eventCategoryArt } from "../../../lib/eventCategoryArt";
+import { fallSkinLive } from "../../../lib/fallSkin.js";
+import { isSpookyCard, sayHalloween, withSpookyChip } from "../../../lib/spookySkin.js";
+import { siteTodayStr } from "../../../lib/siteTime";
 import { rankExperiences } from "../../../lib/experiencesData";
 import { partnerTicketLabel } from "../../../lib/partnerCopy";
 import RailCard, { RailDots, RailNav } from "../RailCard";
@@ -29,23 +32,35 @@ function EventCard({ e, onVenue, ctx }) {
   const externalTickets = internal && e.url ? ticketUrl(e.url, { surface: "events_grid_tickets", offerId: e.id }) : null;
   const actionHref = externalTickets || href;
   const actionExternal = Boolean(externalTickets || !internal);
-  const actionLabel = e.ticketVia ? partnerTicketLabel(e.ticketVia, { product: e.ticketProduct, arrow: false }) : e.ticketed ? "Get tickets" : (internal ? "Explore event" : "Official details");
-  const categoryImage = eventCategoryArt(ctx.eventBucket(e), e);
-  const image = (ctx.eventUseImage(e) ? (e.thumb || e.image) : "") || categoryImage;
+  const actionLabel = e.ticketVia ? partnerTicketLabel(e.ticketVia, { product: e.ticketProduct, arrow: false, card: true }) : e.ticketed ? "Get tickets" : (internal ? "Explore event" : "Official details");
+  // Fall events (flagged server-side by app/api/events) never wear generic
+  // stock category art: their photo is the event's own or its venue's owned
+  // photo. They also get the fall card skin and no "Official details" /
+  // "Plan your visit" second button; affiliate/ticket CTAs stay.
+  const fall = !!e.isFall;
+  const fallSkin = fall && fallSkinLive(siteTodayStr());
+  const spookyCard = { id: e.id, name: e.name, category: e.category, subcategory: e.subcategory, tags: e.tags };
+  const spooky = fallSkin && isSpookyCard(spookyCard, siteTodayStr());
+  const venueChips = venue && onVenue ? [{ key: "venue", icon: "📍", label: venue, onClick: onVenue }] : [];
+  const categoryImage = fall ? "" : eventCategoryArt(ctx.eventBucket(e), e);
+  const image = (ctx.eventUseImage(e) || fall ? (e.thumb || e.image) : "") || categoryImage;
+  const hasCta = !fall || !!e.ticketVia || !!e.ticketed;
   return <RailCard
     photo={image}
     visitFacts={e.visitFacts || null}
-    planningHref={internal ? e.dest : null}
+    planningHref={internal && !fall ? e.dest : null}
+    className={fallSkin ? "wf-fall-card" : undefined}
+    spooky={spooky}
     photoFallback={categoryImage}
     title={e.name}
-    eyebrow={seg.short}
+    eyebrow={spooky && sayHalloween(spookyCard) ? "Halloween event" : seg.short}
     when={{ label: (rec || f.wd || f.mo || "Event").toUpperCase(), value: f.time || `${f.mo} ${f.day}`, tone: "later" }}
     facts={[venue || null, e.price || null, e.source ? `via ${e.source}` : null].filter(Boolean)}
-    chips={venue && onVenue ? [{ key: "venue", icon: "📍", label: venue, onClick: onVenue }] : []}
+    chips={spooky ? withSpookyChip(venueChips) : venueChips}
     href={href}
     external={!internal}
     actionItem={{ id: e.id, type: "event", title: e.name, image, url: href, provider: e.source || null }}
-    cta={{ label: `${actionLabel} ↗`, href: actionHref, external: actionExternal, sponsored: !!e.ticketVia, onClick: () => { try { logEvent(e.ticketed ? "ticket" : "event_open", null, { id: e.id, kind: e.destKind, src: "events_grid_cta" }); } catch {} } }}
+    cta={hasCta ? { label: `${actionLabel} ↗`, href: actionHref, external: actionExternal, sponsored: !!e.ticketVia, onClick: () => { try { logEvent(e.ticketed ? "ticket" : "event_open", null, { id: e.id, kind: e.destKind, src: "events_grid_cta" }); } catch {} } } : undefined}
     ariaLabel={`Open ${e.name}`}
     onOpen={() => {
       try { logEvent("event_open", null, { id: e.id, kind: e.destKind, src: "events_grid" }); } catch {}

@@ -48,5 +48,14 @@ ok(/className="wf-saved-list-grid"/.test(saved) && /className="wf-saved-list-car
 ok(/className="wf-saved-activity-grid"/.test(saved) && /Your taste, remembered/.test(saved), "automatic folders are framed as understandable taste memory");
 ok(/prefers-reduced-motion:reduce/.test(saved), "Saved premium motion honors reduced-motion preferences");
 
+// ── guide cards: Save/Share keep the guide's own type, URL and title ──
+const cca = read("lib/contentCardActions.js");
+ok(/\["event", "deal", "experience", "guide"\]\.includes\(item\.type\)/.test(cca), "a saved guide keeps item_type guide instead of falling back to experience");
+ok(/url: resolvedUrl\(item\)/.test(cca) && /item_url: resolvedUrl\(item\)/.test(cca), "share and save both carry the item's own URL");
+const gdc = read("app/components/GuideDiscoveryCard.js");
+ok(/type: 'guide'/.test(gdc) && /url: href/.test(gdc) && /title: clean\(guide\.title\)/.test(gdc), "the guide card passes type guide, its /guides URL and title");
+ok(/it\.item_type === "guide"/.test(saved) && /"Guide"/.test(saved), "Saved labels a guide as Guide");
+ok(/it\.item_type === "guide" \? \{\}/.test(saved), "a saved guide opens its guide page in the same tab (not a sponsored new tab)");
+
 console.log(`test-saved-items: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);

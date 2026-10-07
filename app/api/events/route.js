@@ -16,7 +16,8 @@ import { siteAnchorDate } from "../../../lib/siteTime.js";
 import { localStaplesFor, parseLibCalICS, parseICSDate, libcalId, LIBCAL_FEED } from "../../../lib/eventResolve.js";
 import { getBusinessFeeds, businessEventsFrom } from "../../../lib/businessFeeds.js";
 import { creatorEventsFor } from "../../../lib/creatorEvents.js";
-import { fetchCuratedEvents, curatedFeedEvents, CURATED_REACH_MI, CURATED_SOURCE } from "../../../lib/curatedEvents.js";
+import { curatedFeedEventsWithFall, FALL_FEED_CACHE_VERSION } from "../../../lib/curatedFallFeed.js";
+import { fetchCuratedEvents, CURATED_REACH_MI, CURATED_SOURCE } from "../../../lib/curatedEvents.js";
 import { stockPhotoPool, fromPool } from "../../../lib/stockPhoto.js";
 import { cget, cset, DAY } from "../../../lib/serverCache";
 import { breakerOpen, tripBreaker, classifyProviderFailure, BREAKER_COOLDOWN_MS } from "../../../lib/providerHealth.js";
@@ -731,7 +732,7 @@ async function fromCuratedEvents(lat, lng) {
     if (!rows.length) return { configured: true, events: [] };
     // Filter to reach BEFORE resolving photos: a cold aggregation should cost
     // at most a handful of pool lookups, not one per row in the table.
-    const near = curatedFeedEvents(rows).filter((e) =>
+    const near = curatedFeedEventsWithFall(rows).filter((e) =>
       e.lat != null && e.lng != null && haversineMiLocal(lat, lng, e.lat, e.lng) <= CURATED_REACH_MI);
     if (!near.length) return { configured: true, events: [] };
     await Promise.all(near.map(async (e) => {
@@ -800,7 +801,7 @@ async function aggregateEvents({ lat, lng, keyword, radius, city }) {
     // visitor inside one cell was always going to receive substantially the
     // same event set; the finer key bought nothing and billed for it. Same bug
     // shape as the city-unlock metro fallback fixed in v8.29.8, different meter.
-    evK = "ev1|" + Number(lat).toFixed(1) + "|" + Number(lng).toFixed(1) + "|" + (radius || 25) + "|" + String(city || "").toLowerCase().slice(0, MAX_CITY_LENGTH) + "|" + String(keyword || "").toLowerCase().slice(0, MAX_KEYWORD_LENGTH);
+    evK = "ev2|" + FALL_FEED_CACHE_VERSION + "|" + Number(lat).toFixed(1) + "|" + Number(lng).toFixed(1) + "|" + (radius || 25) + "|" + String(city || "").toLowerCase().slice(0, MAX_CITY_LENGTH) + "|" + String(keyword || "").toLowerCase().slice(0, MAX_KEYWORD_LENGTH);
     // A normal/default feed is shared, so the 21-day fresh cache is the first
     // source consulted.  Interactive keyword searches deliberately continue
     // to refresh, while still retaining the existing stale fallback below.

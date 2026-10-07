@@ -1,8 +1,8 @@
 "use client";
 // app/components/useLivePosterTiles.js
 //
-// Builds the SYNTHETIC rail tiles for the two live event posters (Sporting
-// Events, Concerts) so they ride the ordinary poster rail in
+// Builds the SYNTHETIC rail tiles for the live sporting-events poster (Sporting
+// Events) so they ride the ordinary poster rail in
 // app/components/DaypartRail.js at exactly the same size as every other
 // poster. Owner direction 2026-09-17: these are posters IN that rail, not a
 // separate row above it.
@@ -49,7 +49,7 @@ function useOneLivePoster(type, center, city) {
   // The ranked bucket, not just its top event. A poster must show artwork OF
   // the event it links to, and the top-ranked event does not always have any:
   // a Wayfind curated event carries a photo of its VENUE, which produced a
-  // playground photo as the Concerts poster. When the top event has no usable
+  // playground photo as a live poster. When the top event has no usable
   // event artwork the poster walks DOWN the same ranking rather than giving
   // up, so the reader still gets the most relevant event that can be shown
   // honestly. Definitive venue/stock/undersized failures do not consume one of
@@ -81,11 +81,9 @@ function useOneLivePoster(type, center, city) {
 
 /**
  * center/city MUST be the canonical active location (railCenter/center +
- * locName in app/home.js). Returns an array of 0, 1 or 2 synthetic tiles,
- * sports first, ready to hand to <DaypartRail livePosters={...} />.
+ * locName in app/home.js). Returns an array of 0 or 1 synthetic tiles (sports), ready to hand to <DaypartRail livePosters={...} />.
  */
 export function useLivePosterTiles({ center, city }) {
   const sports = useOneLivePoster("sports", center, city);
-  const concerts = useOneLivePoster("concerts", center, city);
-  return [sports, concerts].filter(Boolean);
+  return [sports].filter(Boolean);
 }

@@ -8,6 +8,7 @@ import { localCitySuggestions, createSearchAttempt } from "../lib/searchExperien
 import { mergeHealedPlacePhotos } from "../lib/detailHero";
 import { RON_DUPRAT_TOP7, chefHookCard, chefPickPlaces } from "../lib/chefPicks";
 import { fallCardClass, fallShareLine } from "../lib/fallSkin.js";
+import { spookyOverFall } from "../lib/spookySkin.js";
 import { siteTodayStr } from "../lib/siteTime";
 import { activeSeasonalMark } from "../lib/seasonalBrand";
 import { lunchRevealCookieValue, lunchRevealCount, lunchRevealLimit } from "../lib/lunchReveal";
@@ -2595,7 +2596,7 @@ function eventCTA(e) {
   const ticketHost = /ticketmaster|eventbrite|seatgeek|axs\.com|stubhub|ticketweb|etix|dice\.fm|tickets\./.test(u);
   // An affiliate-sold event names its merchant (lib/eventTicketDeals.js via
   // curatedToFeedEvent.ticketVia) so the reader knows where the tap lands.
-  if (e.ticketVia) return { show: true, label: partnerTicketLabel(e.ticketVia, { product: e.ticketProduct }) };
+  if (e.ticketVia) return { show: true, label: partnerTicketLabel(e.ticketVia, { product: e.ticketProduct, card: true }) };
   if (e.ticketed === true || ticketHost) return { show: true, label: "Get tickets ↗" };
   if (e.ticketed === false) return { show: true, label: "View details ↗" };
   if (src.includes("google") || u.includes("google.")) return { show: true, label: "View on Google ↗" };
@@ -10459,7 +10460,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           gets a desktop-only padding-bottom bump in css.js rather than
           raising the flat mobile value, which would add dead space on phones
           that don't need it. */}
-      <div ref={scrollRef} className="wf-scrollarea" data-analytics-page={screen} data-analytics-overlay={detail ? "place" : undefined} style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overscrollBehavior: "contain", overflowY: screen === "map" ? "hidden" : "auto", padding: screen === "map" ? 0 : "7px 12px calc(28px + env(safe-area-inset-bottom))" }}>
+      <div ref={scrollRef} className="wf-scrollarea" data-analytics-page={screen} data-analytics-overlay={detail ? "place" : undefined} style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overscrollBehavior: "contain", overflowX: "hidden", overflowY: screen === "map" ? "hidden" : "auto", padding: screen === "map" ? 0 : "7px 12px calc(28px + env(safe-area-inset-bottom))" }}>
         <>
             {screen === "explore" && <div className="wf-explore">{exploreList}</div>}
             <MapErrorBoundary>{screen === "map" && <MapScreen ctx={ctx} />}</MapErrorBoundary>
@@ -12038,7 +12039,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
     ? { rank: cardRank, label: "Wayfind curator's pick", curator: true }
     : topPickAward({ category: pcat, rank: cardRank }));
   return (
-    <div data-wf-position-key={"place-" + p.id} className={`wf-place-card${fallCardClass(p && p.id, siteTodayStr())}${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${isCuratorPick ? " is-curator-pick" : ""}${!(curatedHook || knownForHook || aiSummary) ? " is-no-take" : ""}`} style={{ position: "relative" }}>
+    <div data-wf-position-key={"place-" + p.id} className={`wf-place-card${fallCardClass(p && p.id, siteTodayStr())}${spookyOverFall(p, siteTodayStr())}${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${isCuratorPick ? " is-curator-pick" : ""}${!(curatedHook || knownForHook || aiSummary) ? " is-no-take" : ""}`} style={{ position: "relative" }}>
       <button type="button" className="wf-place-card-open" onPointerDown={tapIntent.onPointerDown} onPointerMove={tapIntent.onPointerMove} onPointerUp={tapIntent.onPointerUp} onPointerCancel={tapIntent.onPointerCancel} onClick={(event) => { if (tapIntent.shouldOpen()) onDetail?.(event); }} aria-label={`Open ${p.name}`} style={{ position: "absolute", inset: 0, zIndex: 0, width: "100%", height: "100%", opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
       {/* v8.62 (owner, 2026-08-26, live): "top right hand corner of the card,
           not in front of the image." The score badge is a direct child of the

@@ -822,6 +822,7 @@ node scripts/check-one-main.mjs
 # v8.14 — the card contract CSS must travel with every IconicPlaceCard surface (the unstyled-/guides bug)
 node scripts/check-place-card-css-contract.mjs
 node scripts/check-place-card-standard.mjs
+node scripts/check-spooky-skin.mjs
 node scripts/check-place-card-no-directions.mjs
 
 # v8.57.0 — the browse card's hotel earning CTA must actually RENDER (the
@@ -2103,3 +2104,5 @@ node scripts/test-group-plan-schema.mjs
 node scripts/test-group-plan-notifications.mjs
 
 node scripts/test-place-share-metadata.mjs
+node scripts/test-events-fall-feed-image.mjs
+node scripts/test-fall-additions-2026-10-06.mjs

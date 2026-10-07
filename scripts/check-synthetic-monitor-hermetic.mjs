@@ -236,13 +236,13 @@ for (const s of SCENARIOS) {
   // Contextual live-event and sponsor posters are intentionally optional.
   // They are allowed ONLY when their IDs come from the product registries;
   // an invented synthetic tile must still red-prove as unowned.
-  ok(OPTIONAL_VISIBLE_POSTER_IDS.includes("live-concerts") && OPTIONAL_VISIBLE_POSTER_IDS.includes("live-sports"),
-    "menu-poster contract includes both product-owned live-event poster types");
+  ok(OPTIONAL_VISIBLE_POSTER_IDS.includes("live-sports") && !OPTIONAL_VISIBLE_POSTER_IDS.includes("live-concerts"),
+    "menu-poster contract includes the sports live poster and no concert live poster (removed 2026-10-06)");
   ok(OPTIONAL_VISIBLE_POSTER_IDS.includes("sponsor-coconut-grove"),
     "menu-poster contract includes the product-owned geo-gated Coconut Grove sponsor tile");
-  const withOptional = posterMenuDiff([...EXPECTED_VISIBLE_POSTER_IDS, "live-concerts", "sponsor-coconut-grove"]);
+  const withOptional = posterMenuDiff([...EXPECTED_VISIBLE_POSTER_IDS, "live-sports", "sponsor-coconut-grove"]);
   ok(withOptional.missingIds.length === 0 && withOptional.extraIds.length === 0
-      && withOptional.optionalPresentIds.includes("live-concerts")
+      && withOptional.optionalPresentIds.includes("live-sports")
       && withOptional.optionalPresentIds.includes("sponsor-coconut-grove"),
     "menu-poster positive control: approved contextual posters can appear without becoming false extras");
 

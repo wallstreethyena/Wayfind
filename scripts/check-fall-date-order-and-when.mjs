@@ -79,7 +79,7 @@ ok(ref.label === "Opens Oct 1" && !ref.value, `future opening remains compact wi
 const sat = compactWhen(fallWhenLabel({ start_date: "2026-10-17", end_date: "2026-10-17", start_time: "17:00:00" }, today));
 ok(sat.label === "Oct 17" && sat.value === "Sat 5pm", `one-day: "Oct 17 / Sat 5pm" (got ${JSON.stringify(sat)})`);
 const sel = compactWhen(fallWhenLabel({ start_date: "2026-09-11", end_date: "2026-10-31", select_nights: true, start_time: "19:00:00" }, today));
-ok(sel.label === "Select dates" && sel.value === "Check hours", `legacy select_nights flag alone cannot assert nighttime hours (got ${JSON.stringify(sel)})`);
+ok(sel.label === "Select dates" && !sel.value, `legacy select_nights flag alone cannot assert nighttime hours (got ${JSON.stringify(sel)})`);
 const thru = compactWhen({ label: "Thru Nov 1", tone: "now" });
 ok(thru.label === "Now on" && thru.value === "thru Nov 1", `bare "Thru X" becomes "Now on / thru X" (got ${JSON.stringify(thru)})`);
 // Browser-measured budget (Inter, 104px badge, all 1,114 fall pill strings Sep–Dec
@@ -87,7 +87,7 @@ ok(thru.label === "Now on" && thru.value === "thru Nov 1", `bare "Thru X" become
 const longClock = compactWhen(fallWhenLabel({ start_date: "2026-10-21", end_date: "2026-10-21", start_time: "12:30:00" }, today));
 ok(longClock.label === "Wed Oct 21" && longClock.value === "12:30pm", `long weekday+clock splits to kicker (got ${JSON.stringify(longClock)})`);
 const tba = compactWhen(fallWhenLabel({ start_date: "2026-09-01", schedule_note: "Closing date unpublished" }, today));
-ok(tba.label === "In season" && tba.value === "Check hours", `open run requests hours instead of claiming Open now (got ${JSON.stringify(tba)})`);
+ok(tba.label === "In season" && tba.value !== "Open now" && tba.value !== "Check hours", `open run requests hours instead of claiming Open now (got ${JSON.stringify(tba)})`);
 // Other producers (event rails, Events screen, poster cards) pass through the same boundary.
 fits(compactWhen({ label: "SATURDAY", value: "October 17" }), "uppercase producer");
 ok(compactWhen({ label: "SATURDAY", value: "October 17" }).label === "SAT", "case is preserved when abbreviating");

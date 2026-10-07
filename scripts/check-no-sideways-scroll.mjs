@@ -84,4 +84,46 @@ const css = String(WF_PLACE_CARD_CSS);
 ok(/\.wf-rail\b[^}]*overscroll-behavior(-inline)?:\s*contain/.test(css) || /overscrollBehaviorInline:\s*"contain"/.test(read("app/components/RailCard.js")),
    "the shared rail must set overscroll-behavior-inline:contain, or a flick past the last card chains the scroll to the page");
 
-console.log(`check-no-sideways-scroll: OK — ${pass} assertions; the ROOT element is clipped (not merely the body), and no focus/scrollIntoView in the shell can move the inline axis`);
+// ── 4. THE INNER SCROLLER MUST NEVER PAN SIDEWAYS ─────────────────────────
+// html/body `clip` (section 1) does not protect div.wf-scrollarea: overflowY
+// "auto" computes overflow-x to "auto" as well, so anything wider than the
+// column made the feed itself draggable sideways on iOS Safari (the poster
+// menus "Local Guides" / "Trending Near You" rendered shifted left with empty
+// space on the right). The measured cause was PhotoCreditLink's position:
+// absolute sr-only span: its containing block was OUTSIDE the horizontal rail
+// (.wf8-in), so the rail's overflow did not clip it and it sat ~14000px right
+// at its static position, stretching the scroller's scrollWidth.
+const home = read("app/home.js").replace(/\/\*[\s\S]*?\*\//g, "");
+const scrollArea = (home.match(/<div[^>]*className="wf-scrollarea"[^>]*>/) || [""])[0];
+ok(scrollArea, "app/home.js: div.wf-scrollarea not found");
+ok(/overflowX:\s*"hidden"/.test(scrollArea),
+   "div.wf-scrollarea must carry overflowX:\"hidden\" — it is the inner scroller, and with overflowY:auto its overflow-x computes to auto, so the feed can be dragged sideways");
+const menuCss = String((await loadComponent(path.join(REPO, "app/components/railMenuCss.js"), REPO)).WF_RAIL_MENU_CSS);
+ok(/\.wf8-menusec\{[^}]*overflow-x:clip/.test(menuCss), "the poster menu panel (.wf8-menusec) must clip its inline axis");
+for (const rail of [".wf8-grail", ".wf8-pcrail", ".wf8-track"]) {
+  const rule = (menuCss.match(new RegExp("\\" + rail + "\\{[^}]*\\}")) || [""])[0];
+  ok(/position:relative/.test(rule), `${rail} must be position:relative so absolutely positioned descendants (the sr-only credit span) are contained and clipped by the rail instead of widening the page scroller`);
+}
+
+// ── 5. MEASURED, WHEN A BROWSER IS AVAILABLE ──────────────────────────────
+// Offline fixture: the REAL rail CSS, a 390px viewport, a scroller shaped like
+// .wf-scrollarea, and a rail whose cards carry the SR_ONLY credit span. Skipped
+// (loudly) when chromium cannot launch; a failure here is a real regression.
+// Run with a bad CSS to prove it reports offenders: --break.
+let browserNote = "browser fixture skipped (no chromium)";
+try {
+  const { chromium } = await import("playwright");
+  const browser = await chromium.launch();
+  try {
+    const page = await browser.newPage({ viewport: { width: 390, height: 800 } });
+    const broken = process.argv.includes("--break");
+    const css = menuCss.replace(/\.wf8-grail\{position:relative;/, ".wf8-grail{").replace(/\.wf8-menusec\{([^}]*?)overflow-x:clip;/, ".wf8-menusec{$1");
+    const lis = Array.from({ length: 40 }, (_, i) => `<li><a class="wf8-gcard" href="#">Guide ${i}<span style="position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap"> (opens in a new tab)</span></a></li>`).join("");
+    await page.setContent(`<!doctype html><meta name="viewport" content="width=device-width"><style>body{margin:0}${broken ? css : menuCss}</style><div class="wf-scrollarea" style="height:700px;overflow-y:auto;${broken ? "" : "overflow-x:hidden;"}padding:7px 12px"><div class="wf8"><section class="wf8-menusec" style="display:block"><div class="wf8-in"><ul class="wf8-grail">${lis}</ul></div></section></div></div>`);
+    const m = await page.evaluate(() => { const sa = document.querySelector(".wf-scrollarea"); return { sw: sa.scrollWidth, cw: sa.clientWidth }; });
+    if (broken) { ok(m.sw > m.cw + 1, "fixture sanity: the broken variant must report an offender"); browserNote = `browser fixture reports the offender (scrollWidth ${m.sw} > ${m.cw})`; }
+    else { ok(m.sw <= m.cw + 1, `the inner scroller is ${m.sw}px wide in a ${m.cw}px column at 390px: something inside a poster menu escapes its rail`); browserNote = `browser fixture at 390px: scroller ${m.sw}/${m.cw}`; }
+  } finally { await browser.close(); }
+} catch (e) { if (e && /ok\(|assert|FAIL/.test(String(e.message))) throw e; }
+
+console.log(`check-no-sideways-scroll: OK — ${pass} assertions; the ROOT element is clipped (not merely the body), and no focus/scrollIntoView in the shell can move the inline axis, and the inner scroller is overflow-x hidden; ${browserNote}`);

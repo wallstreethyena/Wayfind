@@ -108,27 +108,7 @@ export const WF_SEARCH_CSS = `.wf-search-row{filter:drop-shadow(0 11px 20px rgba
 // Every place-card surface consumes the single geometry contract in
 // lib/placeCardStandard.js. The viewport formula keeps a 1.08-card phone peek
 // and caps the same card body at the desktop measure.
-// Shared event information slots retain the standard card geometry.
-// Two destinations share one row. Each label may wrap inside its own track;
-// a narrow card must not stack two full CTA rows above the fixed action row.
-const EVENT_VISIT_CARD_CSS = `
-.wf-rail-card-links{display:flex;align-items:center;gap:8px;min-width:0;flex-wrap:wrap}
-.wf-rail-card-links:has(>a+a){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;align-items:stretch}
-.wf-rail-card-links:has(>a+a)>a{margin-top:0;overflow-wrap:anywhere}
-.wf-rail-card-links .wf-rail-card-cta{min-width:0;max-width:100%;font-size:10.5px!important;padding:6px 8px!important;line-height:1.2;white-space:normal}
-.wf-event-card-cost{display:block;text-align:left;border:0!important;background:transparent!important;padding:0!important;color:inherit!important;font:inherit;font-size:11px!important;line-height:1.35;font-weight:750!important;margin:5px 0;max-width:100%;cursor:pointer;white-space:normal}
-.wf-event-card-backdrop{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover;pointer-events:none;opacity:.8}
-.wf-event-photo-led .wf-place-card-layout{position:relative;z-index:1}
-.wf-event-photo-led .wf-place-card-content{background:linear-gradient(90deg,rgba(10,14,21,.76),rgba(10,14,21,.91))}
-.wf-event-photo-led .wf-place-card-media{background:transparent!important}
-.wf-event-photo-credit{width:auto!important;height:auto!important;max-width:calc(100% - 10px);font-size:8px!important;line-height:1.2!important;padding:4px;border-radius:5px!important;text-align:center;overflow-wrap:anywhere;right:5px;bottom:5px}
-.wf-event-photo-caption{position:absolute;left:5px;top:52px;right:5px;background:rgba(0,0,0,.76);color:#fff;border-radius:4px;padding:3px;font-size:9px;text-align:center;line-height:1.25;pointer-events:none}
-.wf-event-visit-dialog{width:min(440px,calc(100vw - 28px));max-height:85vh;overflow:auto;border:1px solid #805330;border-radius:16px;padding:22px;background:#131922;color:#fff;box-shadow:0 20px 80px #000;font:14px/1.5 var(--wf-sans,sans-serif)}
-.wf-event-visit-dialog::backdrop{background:rgba(0,0,0,.72)}
-.wf-event-visit-dialog h3{padding-right:25px;margin:0 0 12px;font-size:20px}.wf-event-visit-dialog p{margin:10px 0}.wf-event-visit-dialog a{color:#ffb572}.wf-event-visit-close{position:absolute;right:10px;top:8px;color:inherit;background:transparent;border:0;font-size:28px;cursor:pointer}.wf-event-visit-note{font-size:12px;color:#b9c1ce}
-`;
-
-export const WF_PLACE_CARD_CSS = `${EVENT_VISIT_CARD_CSS}
+export const WF_PLACE_CARD_CSS = `
 ${WF_SKELETON_CSS}
 .wf-ticket-pill{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 9px 0 8px;border-radius:7px;text-decoration:none;position:relative;color:#FFD9AE;background:linear-gradient(180deg,rgba(253,186,116,.17),rgba(249,115,22,.10));border:1px solid rgba(253,186,116,.44);box-shadow:inset 0 1px 0 rgba(255,236,209,.18),0 1px 0 rgba(0,0,0,.34);transition:background .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease}
 .wf-ticket-pill svg{width:13px;height:13px;display:block;flex:0 0 13px;color:#FDBA74}
@@ -317,6 +297,7 @@ ${WF_SKELETON_CSS}
 // scripts/check-state-affordance.mjs, which fails the build on any new
 // blanket `button`/`a` override inside a skin scope that lacks this guard.
 `.wf-fall .wf-place-card button:not(.is-active),.wf-place-card.wf-fall-card button:not(.is-active){background:rgba(59,26,5,.62)!important;border:1px solid rgba(255,196,110,.6)!important;color:#FFE9CB!important}
+.wf-fall .wf-place-card:not(.wf-spooky-card) .wf-rail-card-cta,.wf-fall .wf-place-card:not(.wf-spooky-card) .wf-place-card-actions>.wf-place-card-book,.wf-place-card.wf-fall-card:not(.wf-spooky-card) .wf-rail-card-cta,.wf-place-card.wf-fall-card:not(.wf-spooky-card) .wf-place-card-actions>.wf-place-card-book{background:#3B1A05!important;border:1.5px solid #FFC46E!important;color:#FFF1DC!important;opacity:1!important;box-shadow:none}
 .wf-fall .wf8-falltile{border:1.5px solid rgba(255,196,110,.7)!important;background:linear-gradient(150deg,#B8641B,#7A3C0D)!important;color:#FFF3E2!important}
 .wf-fall .wf-place-card .wf-place-card-category,.wf-place-card.wf-fall-card .wf-place-card-category{color:#FFF0D5!important;font-weight:900!important;text-shadow:0 1px 1px rgba(76,28,0,.32)}
 .wf-fall .wf-place-card .wf-place-card-category:before,.wf-place-card.wf-fall-card .wf-place-card-category:before{content:"\\1F341";width:auto;height:auto;background:none;font-size:11px;line-height:1}
@@ -547,7 +528,7 @@ ${WF_SKELETON_CSS}
 .wf-place-card-more:focus-visible{outline:2px solid #FDBA74;outline-offset:2px;border-radius:3px}
 .wf-place-card.has-cta .wf-place-card-name{-webkit-line-clamp:2!important}
 .wf-place-card-cta{display:flex;width:100%;margin-top:6px}
-.wf-place-card-cta>a{flex:1;width:100%;min-height:38px!important;height:38px!important}
+.wf-place-card-cta>a{flex:1;width:100%;min-height:38px!important;height:38px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .wf-place-card-actions{--wf-act-h:38px;align-items:center;gap:5px!important;margin-top:auto!important;padding-top:9px;flex-wrap:wrap!important;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
 .wf-place-card-actions>a,.wf-place-card-actions>button,.wf-place-card-actions>span{
   display:inline-flex!important;
@@ -686,6 +667,8 @@ ${WF_SKELETON_CSS}
   font-weight:800;
   letter-spacing:.2px;
   text-decoration:none;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;max-width:100%;
+  font-size:9.5px;letter-spacing:0;padding-inline:4px;
   transition:border-color .18s ease,background .18s ease;
 }
 .wf-rail-card-cta:hover,.wf-rail-card-cta:focus-visible{border-color:rgba(255,155,80,.85);background:linear-gradient(180deg,rgba(249,115,22,.3),rgba(249,115,22,.12))}
@@ -756,6 +739,28 @@ ${WF_SKELETON_CSS}
 .wf-rail-when-body{display:flex;box-sizing:border-box;flex:1;min-width:0;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:5px 2px;text-align:center}
 .wf-rail-when-label{width:100%;overflow:hidden;color:#D4DCE7;font-size:7px;font-weight:850;letter-spacing:.35px;text-overflow:ellipsis;text-transform:uppercase;white-space:nowrap}
 .wf-rail-when-value{width:100%;overflow:hidden;color:#F8FAFC;font-size:12.25px;font-weight:850;letter-spacing:-.1px;line-height:1;text-overflow:ellipsis;white-space:nowrap}
+
+.wf-place-card.wf-spooky-card:not(.is-liked):not(.is-disliked){border:1.5px solid rgba(150,86,255,.5)!important}
+.wf-place-card.wf-spooky-card{background:radial-gradient(130% 80% at 100% 0%,rgba(138,60,255,.2),transparent 60%),#0B0B12!important;box-shadow:0 10px 26px rgba(8,3,20,.62),0 0 0 1px rgba(138,60,255,.1),0 0 20px rgba(138,60,255,.2)!important}
+.wf-place-card.wf-spooky-card .wf-place-card-media{background:#150A2B}
+.wf-place-card.wf-spooky-card .wf-place-card-category{display:block;max-width:calc(100% - 4px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#F7760F!important;font-weight:900!important;font-size:7px;letter-spacing:.02em;text-shadow:none}
+.wf-place-card.wf-spooky-card .wf-place-card-category:before{content:"\\1F383\\00A0";display:inline}
+.wf-place-card.wf-spooky-card .wf-place-card-name{color:#FFF!important}
+.wf-place-card.wf-spooky-card .wf-place-card-meta{color:#A39EBD!important}
+.wf-place-card.wf-spooky-card .wf-place-card-meta>span+span:before{color:#6F5BA6!important}
+.wf-place-card.wf-spooky-card .wf-place-card-take{color:#E0DCF2!important;border-left-color:#8A3CFF!important}
+.wf-place-card.wf-spooky-card .wf-place-card-highlights>button,.wf-place-card.wf-spooky-card .wf-place-card-highlights>span,.wf-place-card.wf-spooky-card .wf-place-card-highlights>a{background:rgba(22,18,40,.92)!important;border:1px solid rgba(165,128,235,.34)!important;color:#EAE5FA!important;box-shadow:none!important}
+.wf-place-card.wf-spooky-card button:not(.is-active){background:rgba(16,13,30,.92)!important;border:1px solid rgba(165,128,235,.34)!important;color:#EFEBFC!important}
+.wf-place-card.wf-spooky-card .wf-place-card-actions>.wf-place-card-book,.wf-place-card.wf-spooky-card .wf-rail-card-cta{border:1px solid rgba(255,176,102,.85)!important;border-radius:999px!important;background:linear-gradient(180deg,#F26A12,#B83F06)!important;color:#FFF7EC!important;box-shadow:inset 0 1px rgba(255,255,255,.28),0 4px 14px rgba(247,118,15,.28)}
+.wf-place-card.wf-spooky-card .wf-rail-card-cta:hover,.wf-place-card.wf-spooky-card .wf-rail-card-cta:focus-visible{border-color:#FFD2A1!important;background:linear-gradient(180deg,#FF7A20,#C7470A)!important}
+.wf-place-card.wf-spooky-card button.wayfind-score-badge,.wf-place-card.wf-spooky-card .wf-rail-when{--wf-score-color:#8A3CFF;--wf-score-border:#B44CFF;--wf-score-glow:rgba(180,76,255,.55);--wf-score-tint:rgba(138,60,255,.2);--wf-when-color:#8A3CFF;--wf-when-border:#B44CFF;--wf-when-glow:rgba(180,76,255,.55);--wf-when-tint:rgba(138,60,255,.2);position:relative;border:1.5px solid #B44CFF!important;background:linear-gradient(135deg,rgba(60,20,110,.5),transparent 70%),#0A0612!important;box-shadow:0 0 0 1px rgba(180,76,255,.18),0 0 11px rgba(180,76,255,.45)}
+.wf-place-card.wf-spooky-card .wayfind-score-badge>span:first-child,.wf-place-card.wf-spooky-card .wf-rail-when-rail{background:linear-gradient(180deg,#2E1160,#1A0838)!important;color:#D9A8FF!important;box-shadow:inset -1px 0 rgba(180,76,255,.55)}
+.wf-place-card.wf-spooky-card .wayfind-score-badge>span:first-child svg{stroke:#D49BFF!important;filter:drop-shadow(0 0 3px #B44CFF) drop-shadow(0 0 6px rgba(138,60,255,.9))}
+.wf-place-card.wf-spooky-card .wayfind-score-badge>span:first-child svg circle{fill:#D49BFF!important}
+.wf-place-card.wf-spooky-card .wf-rail-when-rail svg{filter:drop-shadow(0 0 3px #B44CFF)}
+.wf-place-card.wf-spooky-card .wayfind-score-badge>span:last-child>span:first-child,.wf-place-card.wf-spooky-card .wf-rail-when-label{color:#B98BFF!important}
+.wf-place-card.wf-spooky-card .wayfind-score-badge>span:last-child>span:last-child,.wf-place-card.wf-spooky-card .wf-rail-when-value{color:#FFF!important}
+.wf-place-card.wf-spooky-card .wayfind-score-badge:before,.wf-place-card.wf-spooky-card .wf-rail-when:before{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23C9A0FF' stroke-opacity='.8' stroke-width='.75'%3E%3Cpath d='M0 0H24M0 0L21 9M0 0L15 16M0 0L9 21M0 0V24M7 0Q5 5 0 7M13 0Q9 9 0 13M19 0Q13 13 0 19'/%3E%3C/svg%3E") left 0 top 0/17px 17px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23C9A0FF' stroke-opacity='.8' stroke-width='.75'%3E%3Cpath transform='rotate(180 12 12)' d='M0 0H24M0 0L21 9M0 0L15 16M0 0L9 21M0 0V24M7 0Q5 5 0 7M13 0Q9 9 0 13M19 0Q13 13 0 19'/%3E%3C/svg%3E") right 0 bottom 0/17px 17px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 14' fill='%23B44CFF' fill-opacity='.85'%3E%3Cpath d='M0 0H40V2H0z'/%3E%3Cpath d='M4 1.5Q4 9 5.5 9Q7 9 7 1.5z'/%3E%3Cpath d='M13 1.5Q13 6 14.2 6Q15.4 6 15.4 1.5z'/%3E%3Cpath d='M22 1.5Q22 12 23.8 12Q25.6 12 25.6 1.5z'/%3E%3Cpath d='M32 1.5Q32 7.5 33.3 7.5Q34.6 7.5 34.6 1.5z'/%3E%3C/svg%3E") right 7px top 0/30px 8px no-repeat}
 
 /* An affiliate card may itself be wrapped by a tracked <a>. These explicit
    descendants prevent browser link blue from leaking into the house card. */

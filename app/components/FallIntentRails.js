@@ -15,6 +15,7 @@ import { toDisplayScore } from "../../lib/score.js";
 import { useCuratorPicks, applyCuratorPicks } from "../../lib/curatorPicks.js";
 import { settleRescored, rescoredIds } from "../../lib/lawfulOrder.js";
 import { fallSkinLive } from "../../lib/fallSkin.js";
+import { isSpookyCard, sayHalloween, spookyEyebrow, withSpookyChip } from "../../lib/spookySkin.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
 import { emitRailDegraded, isRailCancelled, railDeveloperFailure } from "../../lib/railFailure.js";
 import { fetchClassifiedPosterJson as fetchRailJson } from "../../lib/posterJson.js";
@@ -40,20 +41,20 @@ function eventChips(card, { onOpenVenue = null } = {}) {
   // what time, from the row's own clock and verified note; the full note is
   // the title. No schedule on the row -> no chip, never a template.
   if (card.schedule?.label) chips.push({ key: "schedule", icon: "🗓", label: card.schedule.label, title: card.schedule.title || card.schedule.label });
-  if (tags.includes("scary")) chips.push({ key: "scary", icon: "👻", label: "Intense scares" });
+  if (tags.includes("scary")) chips.push({ key: "scary", icon: "😱", label: "Intense scares" });
   else if (audience.includes("families") || audience.includes("kids")) chips.push({ key: "family", icon: "🎃", label: "Family-friendly" });
   for (const rule of eventRestrictionChips(card)) chips.push({ key: rule, icon: "✓", label: rule });
   // The venue keeps its door: the card body now opens the EVENT page, so the
   // place sheet (saves, photos, directions) moves to a chip.
   if (onOpenVenue) chips.push({ key: "venue", icon: "📍", label: "Venue", title: card.venue || card.name, onClick: onOpenVenue });
-  return chips;
+  return chips.slice(0, 4);
 }
 
 function eventCta(card, onTrack) {
   if (card.ticket?.href) return {
     // /api/commerce/go, never the partner URL: the redirect mints the click
     // id, refuses crawlers, and applies the CJ deep link server-side.
-    label: partnerTicketLabel(card.ticket.via, { product: card.ticket.product }), href: card.ticket.href, external: true, sponsored: true,
+    label: partnerTicketLabel(card.ticket.via, { product: card.ticket.product, card: true }), href: card.ticket.href, external: true, sponsored: true,
     onClick: (event) => {
       // offerId: deal_id (a wf_deals int) for Undercover Tourist, offer_id (a
       // partnerOfferRegistry key) for Tiqets/Klook — eventTicketCta sets
@@ -70,7 +71,6 @@ function eventCta(card, onTrack) {
       }).catch(() => {});
     },
   };
-  if (card.url) return { label: "Official details ↗", href: card.url, external: true, onClick: () => onTrack?.("fall_event_open", { id: card.id, name: card.name }) };
   return null;
 }
 
@@ -133,18 +133,22 @@ function FallRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, fallSkin,
             : null;
           const eventBodyHref = isEvent ? (card.detailHref || (card.officialOnly || !openEventVenue ? card.url || null : null)) : null;
           const eventBodyExternal = isEvent && !card.detailHref;
+          // Spooky skin (lib/spookySkin.js): only inside the fall skin, only through Nov 1.
+          const spooky = fallSkin && isSpookyCard(card, siteTodayStr(), { railId: rail.id });
+          const baseChips = isEvent ? eventChips(card, { onOpenVenue: card.detailHref || card.officialOnly ? openEventVenue : null }) : placeChips;
+          // "Halloween event" only when the event's own text says Halloween; otherwise the real rail title stays.
+          const eyebrow = spooky && isEvent && sayHalloween(card) ? "Halloween event" : (spooky ? spookyEyebrow(rail.title) : rail.title);
           return <RailCard key={card.id} className="wf-exploding-primary" domRef={index === Math.min(sentinelIndex, items.length - 1) ? sentinelRef : undefined}
             photo={card.image || null}
             photoFallback={isEvent && card.place_id ? ownedPlacePhotoSrc(card.place_id, 640) : null}
             eagerMedia={index < 3}
-            visitFacts={isEvent ? card : null} planningHref={isEvent ? card.detailHref : null}
-            photoCaption={isEvent && card.imageIsVenue ? "Venue photo · event not pictured" : null}
+            visitFacts={isEvent ? card : null}
             photoPosition={card.photoPosition || "50% 50%"}
-            photoAttr={card.photoAttr || (card.image?.startsWith("/api/photo?") ? "Google Maps" : null)} photoAttrHref={card.photoAttrHref || (card.image?.startsWith("/api/photo?") && card.place_id ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(card.venue || card.name)}&query_place_id=${encodeURIComponent(card.place_id)}` : null)} place={place}
+            photoAttr={card.photoAttr || null} photoAttrHref={card.photoAttrHref || null} place={place}
             creatorVideos={isEvent ? card.creatorReels : undefined}
-            title={card.title || card.name} eyebrow={rail.title} rank={rank}
+            title={card.title || card.name} eyebrow={eyebrow} rank={rank} spooky={spooky}
             score={isEvent ? null : toDisplayScore(Number.isFinite(card.governed_score) ? card.governed_score : card.wfScore)} when={isEvent ? card.when : null}
-            facts={facts} chips={isEvent ? eventChips(card, { onOpenVenue: card.detailHref || card.officialOnly ? openEventVenue : null }) : placeChips}
+            facts={facts} chips={spooky ? withSpookyChip(baseChips) : baseChips}
             take={card.hook || (card.shotLocation ? `${card.shotLocation}. ${card.take} ${card.fallReason || ""}`.trim() : card.take) || null} cta={cta}
             href={eventBodyHref} external={eventBodyExternal}
             ariaLabel={`Open ${card.title || card.name}`} onOpen={isEvent ? (card.detailHref || card.officialOnly ? undefined : openEventVenue || undefined) : (place && onOpenPlace ? () => onOpenPlace(place) : undefined)}

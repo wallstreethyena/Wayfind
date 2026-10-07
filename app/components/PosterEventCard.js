@@ -38,7 +38,6 @@ export default function PosterEventCard({ event, rank = null, surface = "poster_
   return <RailCard
     photo={image}
     visitFacts={event.visitFacts || null}
-    planningHref={internal ? event.dest : null}
     title={event.name}
     eyebrow={segmentLabel(event)}
     rank={rank}
@@ -47,7 +46,7 @@ export default function PosterEventCard({ event, rank = null, surface = "poster_
     href={event.dest}
     external={!internal}
     ariaLabel={`Open ${event.name}`}
-    cta={internal ? (event.url ? { label: event.ticketed ? "Tickets ↗" : "Official details ↗", href: event.url, external: true, sponsored: !!event.ticketVia } : null) : { label: "Official details ↗", href: event.dest, external: true }}
+    cta={event.ticketed && event.url ? { label: "Tickets ↗", href: event.url, external: true, sponsored: !!event.ticketVia } : null}
     actionItem={{ id: event.id, type: "event", title: event.name, image, url: event.dest, provider: event.source || null }}
     surface={surface}
   />;

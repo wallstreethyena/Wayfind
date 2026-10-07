@@ -73,19 +73,19 @@ ok(!eventImageIsVenue({ hero_image:'/licensed/event-2026.webp' }), 'event-specif
 const corrected = withVerifiedFallVisitFacts({ event_id: 'fat-beet-pumpkin-parlour-2026', start_date:'2026-09-27', schedule_note:'Closing date unpublished' });
 ok(status(corrected, new Date('2026-10-04T22:00:00Z')).label === 'Closed now', 'published registry itself fixes the observed Parlour failure');
 const { default: RailCard } = await loadComponent(path.join(ROOT,'app/components/RailCard.js'), ROOT);
-const { default: VisitDetails } = await loadComponent(path.join(ROOT,'app/components/EventVisitDetails.js'), ROOT);
 const fixture = { ...parlour, start_date:'2026-09-27', visit_cost:{ currency:'USD', free:true, parking:10 }, visit_restrictions:['Timed entry required'], visit_source_url:'https://example.com/official' };
-const props = { title:'Verified Pumpkin Event', photo:'/event.webp', visitFacts:fixture, planningHref:'/florida-events/verified-pumpkin-event-2026', photoCaption:'Venue photo · event not pictured', photoAttr:'Photographer · CC BY 4.0', photoAttrHref:'https://example.com/license', facts:['Tampa','8.2 mi'], chips:[{key:'schedule',label:'Wed–Sun · hours vary'}], cta:{ label:'Official details ↗', href:'https://example.com/event', external:true } };
+const props = { title:'Verified Pumpkin Event', photo:'/event.webp', visitFacts:fixture, photoAttr:'Photographer · CC BY 4.0', photoAttrHref:'https://example.com/license', facts:['Tampa','8.2 mi'], chips:[{key:'schedule',label:'Wed–Sun · hours vary'}], cta:{ label:'Tickets ↗', href:'https://example.com/event', external:true } };
 ok(renderToStaticMarkup(React.createElement(RailCard,{title:'No photo control'})).includes('wf-place-card-monogram'), 'unrelated no-photo place/event cards retain their safe monogram render');
 const markup = renderToStaticMarkup(React.createElement(RailCard, props));
-ok(markup.includes('Plan your visit') && markup.includes('href="/florida-events/verified-pumpkin-event-2026"'), 'real card renders exact internal planning link');
-ok(markup.includes('Official details') && markup.includes('href="https://example.com/event"'), 'real card separately renders exact outside link');
-ok(markup.includes('Free entry · $10 parking'), 'entry and parking are visible card text, not only title');
-ok(markup.includes('Venue photo · event not pictured') && markup.includes('Photographer · CC BY 4.0'), 'real card displays provenance and author/license');
-ok(markup.includes('wf-event-card-backdrop'), 'photo treatment uses the actual source image across shared card body');
-ok(!renderToStaticMarkup(React.createElement(RailCard,{...props,planningHref:'https://wrong.example'})).includes('Plan your visit'), 'planning control cannot be repurposed to an external destination');
-const dialog = renderToStaticMarkup(React.createElement(VisitDetails,{event:fixture,title:props.title,onClose:()=>{}}));
-ok(dialog.includes('<dialog') && dialog.includes('Timed entry required') && dialog.includes('Close visit details'), 'touch/keyboard details contain full rules and a close control');
+ok(!markup.includes('Plan your visit') && !markup.includes('wf-rail-card-links') && (markup.match(/wf-rail-card-cta/g)||[]).length===1, 'real card renders exactly one CTA, no second planning link or link grid');
+ok(!markup.includes('Official details'), 'cards never carry an Official details link');
+ok(!markup.includes('wf-event-card-cost') && !markup.includes('Free entry · $10 parking'), 'cost is not a card control (it lives on the detail page)');
+ok(markup.includes('wf-place-card-photo-attr') && markup.includes('>©<') && !markup.includes('>Photographer'), 'photo credit is the small chip, author only in title/aria');
+ok(!markup.includes('Venue photo') && !markup.includes('wf-event-photo-caption') && !markup.includes('wf-event-card-backdrop') && !markup.includes('wf-event-photo-led'), 'no venue caption, backdrop or photo-led treatment on the card');
+for (const file of ['RailCard','FallIntentRails','PosterEventCard']) { const src=readFileSync(path.join(ROOT,'app/components',file+'.js'),'utf8'); ok(!/Official details|Venue photo|wf-event-card-backdrop|wf-rail-card-links/.test(src), file+' source holds none of the removed card pieces'); }
+ok(!existsSync(path.join(ROOT,'app/components/EventVisitDetails.js')), 'the unreachable visit dialog stays deleted');
+const inSeason = status({ start_date:'2026-09-01', end_date:'2026-11-01', schedule_note:'Open daily' }, new Date('2026-10-04T16:00:00Z'));
+ok(inSeason.value !== 'Check hours', 'in-season when badge never says Check hours');
 if (!mutation) {
   const child = spawnSync(process.execPath,[process.argv[1],'--mutation-child'],{cwd:ROOT,encoding:'utf8'});
   ok(child.status === 1 && (child.stderr + child.stdout).includes('Pumpkin Parlour is closed Sunday'), 'negative control: restoring always-open defect makes the real guard process fail');
@@ -93,7 +93,7 @@ if (!mutation) {
 if (process.argv.includes('--require-browser')) {
   const { chromium } = await import('@playwright/test');
   const { WF_PLACE_CARD_CSS } = await loadComponent(path.join(ROOT,'app/components/css.js'),ROOT);
-  const browser = await chromium.launch({ executablePath:'/usr/bin/chromium', args:['--no-sandbox'] });
+  const browser = await chromium.launch({ executablePath:[ '/usr/bin/chromium','/opt/pw-browsers/chromium-1194/chrome-linux/chrome','/usr/local/bin/google-chrome' ].find((candidate)=>existsSync(candidate)), args:['--no-sandbox'] });
   const output = path.join(ROOT,'artifacts/fall-visit-cards'); mkdirSync(output,{recursive:true});
   try {
     for (const width of [320,395,768,1280]) {
@@ -104,8 +104,8 @@ if (process.argv.includes('--require-browser')) {
       await page.setContent(`<html><head><style>body{margin:13px;background:#0d1117;font-family:Arial;color:white}${WF_PLACE_CARD_CSS}</style></head><body><div class="wf-rail wf-fall">${html}</div></body></html>`);
       const box=await page.locator('article').boundingBox();
       ok(box && Math.abs(box.height-268)<1 && box.width<=440 && box.width<=width-26, `${width}px actual card retains body/width contract`);
-      const contained=await page.locator('article').evaluate((card)=>{ const b=card.getBoundingClientRect();return [...card.querySelectorAll('.wf-rail-card-links a,.wf-sheet-card-actions button,.wf-event-card-cost')].every(el=>{const r=el.getBoundingClientRect();return r.x>=b.x&&r.right<=b.right+1&&r.y>=b.y&&r.bottom<=b.bottom+1;}); });
-      ok(contained,`${width}px actual costs, dual CTAs and all four actions are contained`);
+      const contained=await page.locator('article').evaluate((card)=>{ const b=card.getBoundingClientRect();return [...card.querySelectorAll('.wf-rail-card-cta,.wf-place-card-actions button')].every(el=>{const r=el.getBoundingClientRect();return r.x>=b.x&&r.right<=b.right+1&&r.y>=b.y&&r.bottom<=b.bottom+1;}); });
+      ok(contained,`${width}px the single CTA and all four actions are contained`);
       ok(await page.evaluate(()=>innerWidth)===width,`${width}px achieved viewport verified`);
       await page.screenshot({path:path.join(output,`card-${width}.png`)}); await page.close();
     }

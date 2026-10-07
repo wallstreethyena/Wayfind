@@ -39,10 +39,9 @@
 // is invented to fill a slot — an event does not get a fabricated score, it gets
 // the `when` badge in the same box, which is a fact it really carries. That is
 // the same never-fabricate rule the rest of this codebase runs on.
-import { eventImageIsVenue, eventPhotoCredit } from "../../lib/eventImageProvenance.js";
+import { eventPhotoCredit } from "../../lib/eventImageProvenance.js";
 import useEventClock from "./useEventClock.js";
-import EventVisitDetails from "./EventVisitDetails.js";
-import { eventVisitStatus, eventCostSummary } from "../../lib/eventVisitFacts.js";
+import { eventVisitStatus } from "../../lib/eventVisitFacts.js";
 import { compactWhen } from "../../lib/whenCompact.js";
 import { useEffect, useState } from "react";
 // v8.29.2 — the same fallback hands IconicPlaceCard grew in v8.29. RailCard's
@@ -314,7 +313,7 @@ export function RailDots({ railId, count }) {
  * @param {string}   p.href        when the card body is a link rather than a handler
  */
 export default function RailCard({
-  photo, photoFallback, photoAttr, photoAttrHref, photoCaption = null, photoPosition = "50% 50%", visitFacts = null, planningHref = null, title, eyebrow, onEyebrow, rank, score, when, facts, award, chips, badge, cta, ctaNode, take,
+  photo, photoFallback, photoAttr, photoAttrHref, photoPosition = "50% 50%", visitFacts = null, spooky = false, title, eyebrow, onEyebrow, rank, score, when, facts, award, chips, badge, cta, ctaNode, take,
   onOpen, href, external, ariaLabel, className, creatorVideos = null,
   // v8.70 — see the IconicPlaceCard note: inside .wf8-pcrail (the rail's
   // tap-expanded horizontal scroller) `loading="lazy"` never resolves, so a
@@ -397,7 +396,6 @@ export default function RailCard({
   // the live 2026-09-07 measurement (ChIJJZq0DJ1Bw4gRcuZ5y_XuNxM: one photo
   // ref 302→ok, a second 404 "owned-miss" — a currently-real, intermittent
   // failure of a well-formed ref, not a bad record).
-  const [visitOpen, setVisitOpen] = useState(false);
   const visitNow = useEventClock(!!visitFacts);
   const liveWhen = visitFacts ? eventVisitStatus(visitFacts, visitNow) : null;
   if (liveWhen) when = liveWhen;
@@ -413,8 +411,7 @@ export default function RailCard({
   const displayedPhoto = usingFallback ? fallbackPhoto.src : shownPhoto;
   if (visitFacts) {
     const photoEvent = usingFallback ? { ...visitFacts, image_is_venue: false, imageIsVenue: false, photoAttr: null, photoAttrHref: null } : visitFacts;
-    if (usingFallback) { photoCaption = null; photoAttr = null; photoAttrHref = null; }
-    if (!photoCaption && eventImageIsVenue(photoEvent, displayedPhoto)) photoCaption = "Venue photo · event not pictured";
+    if (usingFallback) { photoAttr = null; photoAttrHref = null; }
     const credit = eventPhotoCredit(photoEvent, displayedPhoto);
     if (!photoAttr && credit) { photoAttr = credit.label; photoAttrHref = credit.href; }
   }
@@ -444,11 +441,6 @@ export default function RailCard({
   const isDislikedNow = onDislike ? !!disliked : useFb ? !!fb.disliked[place.id] : contentSubject ? content.disliked : !!disliked;
   const list = Array.isArray(facts) ? facts.filter(Boolean) : [];
   const pills = Array.isArray(chips) ? chips.filter(Boolean).map((chip) => ({ ...chip })) : [];
-  if (visitFacts) {
-    const schedule = pills.find((chip) => chip.key === "schedule");
-    if (schedule) schedule.onClick = () => setVisitOpen(true);
-    else pills.unshift({ key: "visit", icon: "🗓", label: "Visit details", onClick: () => setVisitOpen(true) });
-  }
   // Deal ownership belongs to the shared card, not to whichever rail happened
   // to remember the lookup. Exact place-id matching wins; the coupon resolver
   // deliberately returns null for an ambiguous branch or expired offer.
@@ -462,7 +454,7 @@ export default function RailCard({
     <article
       ref={domRef}
       data-place-id={place?.id || undefined}
-      className={`wf-place-card wf-rail-card${fallCardClass(place && place.id, siteTodayStr())}${visitFacts && shownPhoto ? " wf-event-photo-led" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${className ? " " + className : ""}`}
+      className={`wf-place-card wf-rail-card${fallCardClass(place && place.id, siteTodayStr())}${spooky ? " wf-spooky-card" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${className ? " " + className : ""}`}
       role="button"
       tabIndex={0}
       onPointerDown={tapIntent.onPointerDown}
@@ -490,7 +482,6 @@ export default function RailCard({
       }}
       aria-label={ariaLabel || title}
     >
-      {visitFacts && shownPhoto && imgFailed !== shownPhoto ? <img className="wf-event-card-backdrop" src={displayedPhoto} alt="" loading={eagerMedia ? "eager" : "lazy"} decoding="async" style={{ objectPosition: photoPosition }} onError={(e) => { e.currentTarget.style.display = "none"; }} /> : null}
       {/* v8.62: score (or the when-badge that borrows its slot) in the top
           right corner of the CARD, never on the photo (owner, 2026-08-26).
           Direct child of .wf-place-card — the shared css.js rule anchors it. */}
@@ -517,7 +508,6 @@ export default function RailCard({
               />
             : <div className="wf-place-card-monogram" aria-hidden="true">{initialsOf(title)}</div>}
           {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
-          {photoCaption && shownPhoto && imgFailed !== shownPhoto ? <span className="wf-event-photo-caption">{photoCaption}</span> : null}
           {/* v8.56.13 (#1188) — CC-license credit for the free permanent photo
               lane (lib/freePhoto.js, wf_place_photo). Not decoration: Wikimedia
               licenses REQUIRE a visible author + license credit. Bottom-right —
@@ -527,15 +517,15 @@ export default function RailCard({
           {photoAttr && shownPhoto
             ? (photoAttrHref
                 ? <a
-                    className={"wf-place-card-photo-attr" + (visitFacts ? " wf-event-photo-credit" : "")}
+                    className="wf-place-card-photo-attr"
                     href={photoAttrHref}
                     target="_blank"
                     rel="noopener noreferrer"
                     title={"Photo: " + photoAttr}
                     aria-label={"Photo credit: " + photoAttr + " (new tab)"}
                     onClick={(e) => e.stopPropagation()}
-                  >{visitFacts ? photoAttr : "©"}</a>
-                : <span className={"wf-place-card-photo-attr" + (visitFacts ? " wf-event-photo-credit" : "")} title={"Photo: " + photoAttr} aria-label={"Photo credit: " + photoAttr}>{visitFacts ? photoAttr : "©"}</span>)
+                  >©</a>
+                : <span className="wf-place-card-photo-attr" title={"Photo: " + photoAttr} aria-label={"Photo credit: " + photoAttr}>©</span>)
             : null}
         </div>
         <div className="wf-place-card-content" style={{ position: "relative" }}>
@@ -583,10 +573,8 @@ export default function RailCard({
               this place" — the app-wide law (2026-08-09). Rendered only when a
               VERIFIED line exists: no fallback, no template, no generated
               filler. An empty slot is honest; a generic line is not. */}
-          {visitFacts ? <button type="button" className="wf-event-card-cost" onClick={(e) => { e.stopPropagation(); setVisitOpen(true); }}>{eventCostSummary(visitFacts)}</button> : take ? <div className="wf-place-card-take">{take}</div> : null}
+          {take ? <div className="wf-place-card-take">{take}</div> : null}
 
-          <div className="wf-rail-card-links">
-          {planningHref && /^\/florida-events\/[^/?#]+$/.test(planningHref) ? <a className="wf-place-card-book wf-rail-card-cta" href={planningHref} onClick={(e) => e.stopPropagation()}>Plan your visit</a> : null}
           {ctaNode || (ctaHref || (cta && !cta.external) ? (
             <a
               className="wf-place-card-book wf-rail-card-cta"
@@ -595,7 +583,6 @@ export default function RailCard({
               onClick={(e) => { e.stopPropagation(); if (cta.onClick) cta.onClick(e); }}
             >{cta.label}</a>
           ) : null)}
-          </div>
 
           {/* Every card exposes the same four controls. Non-place cards use
               contentCardActions; place cards keep the ranking-aware store. */}
@@ -643,7 +630,6 @@ export default function RailCard({
           </div>
         </div>
       </div>
-      {visitOpen && visitFacts ? <EventVisitDetails event={visitFacts} title={title} onClose={() => setVisitOpen(false)} /> : null}
     </article>
   );
 }

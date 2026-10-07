@@ -21,6 +21,7 @@ import {
   PLACE_CARD_PAGE_GUTTER_PX,
   PLACE_CARD_PHONE_PEEK,
 } from "../lib/placeCardStandard.js";
+import { partnerTicketLabel } from "../lib/partnerCopy.js";
 import { hydrateSponsoredPlace, sponsoredPlaceById } from "../lib/sponsoredPlaces.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -316,16 +317,21 @@ if (!browserConfig) {
   });
   const richFall = React.createElement(RailCard, {
     title: "Sweetfields Farm Corn Maze & Pumpkin Patch", rank: 1,
-    href: "/florida-events/sweetfields-fall-2026", planningHref: "/florida-events/sweetfields-fall-2026",
-    photo: "/guides/verified/hunsader-farms-goats.webp", photoCaption: "Venue photo · event not pictured",
+    href: "/florida-events/sweetfields-fall-2026",
+    photo: "/guides/verified/hunsader-farms-goats.webp",
     photoAttr: "Robin Teng · Unsplash License", photoAttrHref: "https://unsplash.com/photos/i_sBNY7UoNQ",
     eyebrow: "Pumpkin Patches & Fall Farms", facts: ["Brooksville", "32.5 mi"],
     chips: [{ key: "schedule", label: "Select dates · daytime", icon: "🗓" }, { key: "age", label: "Ages 3+ need a ticket" }],
     visitFacts: { start_date: "2099-09-01", end_date: "2099-11-01", visit_cost: { currency: "USD", entry: 13.28, parking: 0, fees_note: "+ tax" }, visit_restrictions: ["Ages 3+ need a ticket"] },
-    cta: { label: "Official details ↗", href: "https://www.sweetfieldsfarm.com/", external: true },
+    cta: { label: partnerTicketLabel("Undercover Tourist", { product: "park-admission", card: true }), href: "https://www.sweetfieldsfarm.com/", external: true, sponsored: true },
   });
   const richFallMarkup = renderToStaticMarkup(richFall);
-  ok(richFallMarkup.includes("Plan your visit") && richFallMarkup.includes("Official details") && richFallMarkup.includes("$13.28") && richFallMarkup.includes("free parking") && richFallMarkup.includes("Venue photo"), "PROBE: rich Fall fixture includes actual conditional price, parking, provenance and both destinations");
+  ok(richFallMarkup.includes("Tickets at Undercover Tourist") && richFallMarkup.includes("wf-place-card-photo-attr") && !richFallMarkup.includes("Plan your visit") && !richFallMarkup.includes("Official details") && !richFallMarkup.includes("Venue photo") && !richFallMarkup.includes("wf-event-card-backdrop") && !richFallMarkup.includes("wf-rail-card-links") && richFallMarkup.includes(">©<") && !richFallMarkup.includes(">Robin Teng"), "PROBE: rich Fall fixture is the standard card: one CTA, (c) chip only, no caption, backdrop, link grid or Official details");
+  ok((richFallMarkup.match(/wf-rail-card-cta/g) || []).length === 1, "LOCK: a rail card never renders two .wf-rail-card-cta links");
+  for (const file of ["app/components/RailCard.js", "app/components/FallIntentRails.js", "app/components/PosterEventCard.js"]) {
+    const src = readFileSync(path.join(ROOT, file), "utf8");
+    for (const banned of ["Official details", "Venue photo", "wf-event-card-backdrop", "wf-rail-card-links", "wf-event-card-cost", "Visit details"]) ok(!src.includes(banned), `LOCK: ${file} never contains "${banned}"`);
+  }
   const eventPlaces = [place("event-a"), place("event-b")].map((item) => ({ ...item, href: `/p/${item.id}`, editorial: "A verified local favorite." }));
   const event = React.createElement(EventNearbyCards, { places: eventPlaces });
   const stayPlaces = [place("stay-a", "Sarasota Harbor Hotel"), place("stay-b", "Carlisle Inn & Conference Center Sarasota Waterfront Suites")].map((item) => ({ ...item, types: ["hotel", "lodging"], address: "1 Hotel Way, Orlando, FL", city: "Orlando", detailHref: `/p/${item.id}`, blurb: "A practical stay near the venue.", mapsOnly: false }));
@@ -390,19 +396,31 @@ if (!browserConfig) {
       if (REQUIRE_BROWSER && !MUTATION && [320, 390, 1440].includes(width)) {
         await page.screenshot({ path: path.join(ARTIFACT_DIR, `place-card-standard-${width}.png`), fullPage: true });
       }
-      // Replay the exact class of 320px CI failure on the real rich Fall
-      // fixture: restoring stacked dual links must push reactions out again.
-      // Keep the negative control local to this page; it never changes source.
+      // The rich Fall card is the standard card: one CTA row, four action buttons inside the card box.
       if (width === 320 && !MUTATION) {
-        const oldLinks = await page.addStyleTag({ content: ".wf-rail-card-links:has(>a+a){display:flex;flex-wrap:wrap;gap:8px}" });
-        const overflowing = await page.evaluate(() => {
-          const card = document.querySelector('[data-adapter="rail-card"] .wf-event-photo-led');
+        const rich = await page.evaluate(() => {
+          const card = [...document.querySelectorAll('[data-adapter="rail-card"] .wf-rail-card')].find((el) => el.textContent.includes("Sweetfields"));
           if (!card) return null;
           const body = card.getBoundingClientRect();
-          return [...card.querySelectorAll('.wf-place-card-actions>button')].filter((control) => control.getBoundingClientRect().bottom > body.bottom + 1).length;
+          return { ctas: card.querySelectorAll(".wf-rail-card-cta").length, buttons: card.querySelectorAll(".wf-place-card-actions>button").length, outside: [...card.querySelectorAll(".wf-place-card-actions>button")].filter((c) => c.getBoundingClientRect().bottom > body.bottom + 1).length };
         });
-        ok(overflowing === 4, "RED-PROOF 320px: restoring stacked dual CTAs reproduces all four clipped reactions from hosted CI");
-        await oldLinks.evaluate((node) => node.remove());
+        ok(rich && rich.ctas === 1 && rich.buttons === 4 && rich.outside === 0, "PROBE 320px: rich Fall card has one CTA and all four action buttons inside the card");
+        // 2026-10-06: the long partner label ("Park tickets at Undercover Tourist ↗") wrapped to
+        // two lines because the nowrap/ellipsis rule only covered `.wf-place-card-cta>a`, not the
+        // bare `<a class="wf-rail-card-cta">`. Assert ONE LINE BOX on the rendered anchor.
+        const ctaLines = await page.evaluate(() => {
+          const a = [...document.querySelectorAll('[data-adapter="rail-card"] .wf-rail-card')].find((el) => el.textContent.includes("Sweetfields"))?.querySelector(".wf-rail-card-cta");
+          if (!a) return null;
+          const lines = () => { const range = document.createRange(); range.selectNodeContents(a); return new Set([...range.getClientRects()].filter((r) => r.width > 0).map((r) => Math.round(r.top))).size; };
+          const cs = getComputedStyle(a);
+          const real = lines();
+          const original = a.textContent;
+          a.textContent = "Park tickets at Undercover Tourist and Friends of the Florida Theme Parks \u2197"; // stress: far too long for any box
+          const stressed = lines(), stressedH = a.getBoundingClientRect().height;
+          a.textContent = original;
+          return { sw: a.scrollWidth, cw: a.clientWidth, lineTops: real, stressed, stressedH, whiteSpace: cs.whiteSpace, height: a.getBoundingClientRect().height, text: original, overflow: cs.textOverflow };
+        });
+        ok(ctaLines && ctaLines.lineTops === 1 && ctaLines.stressed === 1 && ctaLines.stressedH <= 34 && ctaLines.whiteSpace === "nowrap" && ctaLines.overflow === "ellipsis" && ctaLines.height <= 34, `PROBE 320px: long partner CTA label is ONE line box, nowrap + ellipsis (got ${JSON.stringify(ctaLines)})`);
       }
       await context.close();
       ok(measured.innerWidth === width, `PROBE ${width}px: achieved viewport equals requested viewport (got ${measured.innerWidth})`);

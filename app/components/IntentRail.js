@@ -549,7 +549,7 @@ export default function IntentRailBody({
                   chips={chips}
                   take={toHookLine(hooks[r.id], r.name)}
                   cta={partner ? {
-                    label: partnerTicketLabel(partner.merchant),
+                    label: partnerTicketLabel(partner.merchant, { card: true }),
                     href: commerceHref({ provider: partner.provider, offerId: partner.offerId, surface: "intent_rail", contentId: r.id }),
                     external: true,
                     onClick: (e) => {
