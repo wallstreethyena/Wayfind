@@ -60,14 +60,27 @@
       "verification": "Commons file 'Bradenton Riverwalk Tower Plaza.jpg' by The Grid, dated 2018-04-14, described as 'Tower Plaza at Bradenton Riverwalk in downtown Bradenton, FL', embedded geotag 27.498914, -82.569786 on the downtown riverfront. Visually confirmed: the tower's oval sign reads BRADENTON RIVERWALK, and the Manatee River, the US 41 Green Bridge and the raised CSX railroad bridge span are visible behind it. A decorative banner hangs on the tower but the subject is the Riverwalk plaza and sign tower, not the artwork. No people in frame. Image visually reviewed at 1280px. Live Commons licence checked: CC BY-SA 4.0.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-29"
+    },
+    "Village of the Arts": {
+      "src": "/guides/picks/things-to-do-in-bradenton-florida/village-of-the-arts.webp",
+      "width": 1400,
+      "height": 1050,
+      "alt": "Painted studio sign reading Herbie Rose and Graciela Giles, Village of the Arts, hanging outside a cottage studio",
+      "caption": "A studio sign at a cottage gallery in the Village of the Arts, Bradenton. Studio hours on the sign are old; check before visiting.",
+      "credit": "Bfpage",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Rose_Giles_studio_sign.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Rose_Giles_studio_sign.jpg",
+      "author": "Bfpage",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons title Rose Giles studio sign in Category:Village of the Arts; viewed, sign text reads VILLAGE of the ARTS Live Commons licence checked: CC BY-SA 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     }
   },
-  "gaps": {
-    "Village of the Arts": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "Searched Commons Category:Village of the Arts (28 files), Commons full-text and Openverse/Flickr for Village of the Arts Bradenton. Best streetscapes, File:12th_Street_and_12th_Avenue_(Bradenton,_Florida).jpg (CC BY-SA 3.0, street signs visible) and File:Village_of_the_Arts_(Bradenton,_Florida).jpg (dated 'Coming Fall 2014' sign, visitors), are foliage-heavy and cannot fit the 200KB WebP budget at 1400px even at q50. Cottage gallery photos by Bfpage (e.g. Charming_gallery_one.jpg, 10th Avenue West Studios, verified current) are public domain, which the pick-photo licence contract refuses. Remaining files are closeups of artworks (public-art rule) or a 2012 studio sign with dated hours."
-    }
-  }
+  "gaps": {}
 }

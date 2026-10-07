@@ -360,26 +360,54 @@
       "verification": "Unsplash source uploaded by the Tampa Bay Estuary Program explicitly identifies Shell Key, Florida, and photographer Joe Whalen, with the free Unsplash License. Downloaded and visually inspected 1400px image: clear kayaks with rear-facing paddlers, calm blue water and dense green mangrove shore. Subject directly matches the guides’ Shell Key paddle trip; no generic substitute or identifiable face.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-24"
+    },
+    "A real Tampa Cuban sandwich": {
+      "src": "/guides/picks/things-to-do-in-tampa-florida/a-real-tampa-cuban-sandwich.webp",
+      "width": 1400,
+      "height": 758,
+      "alt": "Rows of Cuban sandwiches being assembled on bread with salami, ham and Swiss cheese in Ybor City",
+      "caption": "Cuban sandwiches being assembled at La Segunda in Ybor City, Tampa. The rows of salami, ham and Swiss are the Tampa style.",
+      "credit": "Kramtronik",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Cuban_Sandwiches_at_La_Segunda%2C_Ybor_City.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Cuban_Sandwiches_at_La_Segunda%2C_Ybor_City.jpg",
+      "author": "Kramtronik",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons title Cuban Sandwiches at La Segunda, Ybor City; photo shows salami slices on the sandwiches, the Tampa signature Live Commons licence checked: CC BY-SA 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
+    },
+    "Gasparilla Pirate Fest": {
+      "src": "/guides/picks/things-to-do-in-tampa-florida/gasparilla-pirate-fest.webp",
+      "width": 1400,
+      "height": 788,
+      "alt": "The Gasparilla pirate ship with colorful flags moored beside the Tampa Convention Center",
+      "caption": "The Gasparilla pirate ship moored beside the Tampa Convention Center during the 2017 invasion.",
+      "credit": "Zeng8r",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Gasparilla_invasion_2017.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Gasparilla_invasion_2017.jpg",
+      "author": "Zeng8r",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons description: Gasparilla pirate ship moors beside the Tampa Convention Center, 2017; ship is the focal subject, crowd only in the foreground edge Live Commons licence checked: CC BY-SA 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     }
   },
   "gaps": {
-    "A real Tampa Cuban sandwich": {
-      "reason": "not-a-place",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "This pick describes the sandwich itself (a food concept, contrasted with Miami's), not one specific restaurant or address — it names no single verifiable place to photograph. The guide's separate Columbia Restaurant pick already carries a real, verified photo."
-    },
     "Armature Works": {
       "reason": "no-verified-source",
       "placeId": "ChIJYWj9iZ_PwogRQebjN7pJ_Nw",
       "needsPermissionFrom": "Armature Works",
       "note": "Commons title search, category search and geosearch around the venue's coordinates (repeated with radii up to 500m) returned no photo of this food hall — only unrelated electrical-engineering \"armature\" documents. No CC-licensed photo found. Pass 2 (2026-09-23): same Openverse searches as the Tampa Riverwalk guide's identical gap ('Armature Works Tampa', 'Armature Works' source=flickr, 'Tampa Heights trolley barn', 'Tampa food hall river') found no verified photo of this venue; not re-queried a second time per the shared-place rule."
-    },
-    "Gasparilla Pirate Fest": {
-      "reason": "not-a-place",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "An annual citywide parade and flotilla along Bayshore Boulevard and the bay rather than a single fixed venue; available event photos on Commons also center on identifiable crowds, so this is left as a gap rather than substituting a different place's photo."
     },
     "Parque Amigos de Jose Marti": {
       "reason": "public-art",

@@ -72,7 +72,23 @@ async function flickrLive(sourceUrl, imageUrl) {
   return { license: allowedLicence("", lic?.[1]), licenseRaw: lic?.[1] || "(none on page)", author: owner ? (owner[3] || owner[2]) : "", download: imageUrl };
 }
 
-async function toWebp(buf, out) {
+async function toWebp(buf, out, crop) {
+  // Optional centre/offset crop for panoramic sources that would render as a thin strip:
+  // crop = { w, h, x } where w:h is the target aspect and x (0-100) is the horizontal focus.
+  if (crop) {
+    const m0 = await sharp(buf).rotate().metadata();
+    const target = crop.w / crop.h;
+    if (m0.width / m0.height > target) {
+      const cw = Math.round(m0.height * target);
+      const left = Math.max(0, Math.min(m0.width - cw, Math.round((m0.width - cw) * (crop.x / 100))));
+      buf = await sharp(buf).rotate().extract({ left, top: 0, width: cw, height: m0.height }).toBuffer();
+    } else if (m0.width / m0.height < target) {
+      // Portrait source: trim height instead; crop.y (0-100) is the vertical focus.
+      const ch = Math.round(m0.width / target);
+      const top = Math.max(0, Math.min(m0.height - ch, Math.round((m0.height - ch) * ((crop.y ?? 50) / 100))));
+      buf = await sharp(buf).rotate().extract({ left: 0, top, width: m0.width, height: ch }).toBuffer();
+    }
+  }
   const meta = await sharp(buf).metadata();
   // Busy scenes can't reach 200KB at 1400px without visible artefacts; step the
   // width down before dropping quality below a clean floor.
@@ -146,7 +162,13 @@ async function main() {
   const base = slugify(o.file && o.file !== true ? o.file : o.pick);
   const rel = `/guides/picks/${o.slug}/${base}.webp`;
   mkdirSync(path.dirname("public" + rel), { recursive: true });
-  const img = await toWebp(Buffer.from(await res.arrayBuffer()), "public" + rel);
+  let crop = null;
+  if (o["crop-aspect"] && o["crop-aspect"] !== true) {
+    const [cw, ch] = String(o["crop-aspect"]).split(":").map(Number);
+    if (!(cw > 0 && ch > 0)) throw new Error("--crop-aspect must look like 3:2");
+    crop = { w: cw, h: ch, x: o["crop-x"] && o["crop-x"] !== true ? Number(o["crop-x"]) : 50, y: o["crop-y"] && o["crop-y"] !== true ? Number(o["crop-y"]) : 50 };
+  }
+  const img = await toWebp(Buffer.from(await res.arrayBuffer()), "public" + rel, crop);
 
   const sourceUrl = o.source.replace(/\/$/, "");
   data.picks[o.pick] = {

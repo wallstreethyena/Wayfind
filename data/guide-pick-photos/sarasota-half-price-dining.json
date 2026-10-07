@@ -1,30 +1,59 @@
 {
   "slug": "sarasota-half-price-dining",
-  "picks": {},
-  "gaps": {
-    "Clipp half-price certificates": {
-      "reason": "not-a-place",
+  "picks": {
+    "Pie On Main": {
+      "src": "/guides/picks/sarasota-half-price-dining/pie-on-main.webp",
+      "width": 1000,
+      "height": 629,
+      "alt": "Shopfronts and awnings along Main Street in downtown Sarasota",
+      "caption": "Main Street in downtown Sarasota, the street Pie On Main sits on, in a photograph from the late 1990s.",
+      "credit": "Roger W",
+      "creditHref": "https://www.flickr.com/photos/24736216@N07/5005430450",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/24736216@N07/5005430450",
+      "author": "Roger W",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "flickr",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "This pick is a prepaid-certificate app/service that rotates across many restaurants, not a single physical place."
+      "verification": "Flickr title 'Sarasota - Main Street', tags mainstreet, downtown, florida, 1995, 1999; shows the Main Street shopfront row; not a photo of the business itself. Live Flickr licence checked: CC BY-SA 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     },
+    "Clipp half-price certificates": {
+      "src": "/guides/picks/sarasota-half-price-dining/clipp-half-price-certificates.webp",
+      "width": 1023,
+      "height": 625,
+      "alt": "Aerial view of downtown Sarasota and the bayfront",
+      "caption": "Downtown Sarasota and the bayfront from the air, in a photograph from 2000. Clipp certificates are used at restaurants around the city.",
+      "credit": "Roger W",
+      "creditHref": "https://www.flickr.com/photos/24736216@N07/5033849130",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/24736216@N07/5033849130",
+      "author": "Roger W",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "flickr",
+      "placeId": null,
+      "verification": "Flickr title 'Sarasota - Downtown from Air (2000)', tags downtown, florida, gulfofmexico, harbor; shows downtown Sarasota and Sarasota Bay. Illustrative of the service area, not of any one restaurant. Live Flickr licence checked: CC BY-SA 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
+    }
+  },
+  "gaps": {
     "Gecko's Grill & Pub": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": "Gecko's Grill & Pub",
-      "note": "The guide names the regional chain generically with no specific address or placeId, so which of several Sarasota-area locations it refers to cannot be pinned down; no Commons photo of any Gecko's Grill & Pub location was found either way. Pass 2 (2026-09-23): The pick's own text describes this as a chain whose \"offer holds across locations,\" so no single-branch photo could satisfy the exact-place rule even if one existed; no Openverse search was run for this reason (a location-specific search was run instead for the Hillview branch below)."
+      "note": "Pass 3 (2026-10-07): Openverse (cc0,by,by-sa) queries \"Gecko's Grill\", \"Gecko's Sarasota\" (only gecko lizard photos), \"Sarasota bar pub\", \"Sarasota restaurant happy hour\", \"Hillview Sarasota\", \"Gulf Gate Sarasota\"; Commons \"Gecko's Grill Pub Sarasota\" returned nothing. No licensed photo of any Gecko's Grill & Pub location or of a Sarasota pub interior tied to it exists; the pick is a multi-location chain with no single street to substitute."
     },
     "Bar Bingo at Gecko's Hillview": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": "Gecko's Grill & Pub",
-      "note": "Names the specific Hillview branch, but no Commons photo of that location exists, and the pick itself describes a recurring bar-game night rather than the building. Pass 2 (2026-09-23): Openverse searched \"Gecko's Grill Pub Hillview Sarasota\" — zero results; no CC-licensed photo of this specific branch exists."
-    },
-    "Pie On Main": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": "Pie On Main",
-      "note": "Small independent downtown lunch counter; no Commons photo of this business was found. Pass 2 (2026-09-23): Openverse searched \"Pie On Main Sarasota\" — the only result was an unrelated personal \"365 project\" photo; no photo of this restaurant exists on Openverse."
+      "note": "Pass 3 (2026-10-07): Openverse queries \"Gecko's Grill\", \"Gecko's Sarasota\", \"Hillview Sarasota\" (only Hillview Grill food photos from another restaurant), \"Gulf Gate Sarasota\"; no licensed photo of the Hillview Street location, its street or a bar bingo night. Nothing honest to substitute."
     }
   }
 }

@@ -120,6 +120,26 @@
       "verification": "Downloaded the original (4032x3024) from Wikimedia Commons and viewed it directly: geotagged at 28.543119, -81.377372 in downtown Orlando, and the file's own description names it 'The Orange County Regional History Center, in the former Orange County Courthouse building, in Orlando, Florida in 2024', matching the pick exactly.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
+    },
+    "Museum of Illusions Orlando": {
+      "src": "/guides/picks/orlando-in-the-rain/museum-of-illusions-orlando.webp",
+      "width": 1024,
+      "height": 771,
+      "alt": "The Wheel and the ICON Park entrance sign lit up at night",
+      "caption": "ICON Park on International Drive at night, the complex that houses Museum of Illusions Orlando.",
+      "credit": "Jeremy Thompson",
+      "creditHref": "https://www.flickr.com/photos/32916425@N04/54163428477",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/32916425@N04/54163428477",
+      "author": "Jeremy Thompson",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "flickr",
+      "placeId": "ChIJc1x01Xl_54gR3yyWFYterI4",
+      "verification": "Flickr title ICON Park Orlando; viewed, ICON PARK sign legible below the Wheel. Museum of Illusions Orlando is located at ICON Park per its press release. Fallback: exterior of host complex Live Flickr licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     }
   },
   "gaps": {
@@ -128,12 +148,6 @@
       "placeId": null,
       "needsPermissionFrom": "Crayola Experience Orlando",
       "note": "A Commons search surfaced a file titled 'Crayola Experience Orlando Home - Night of a Million Lights 2020', but on inspection it shows a private homeowner's Crayola-themed holiday light display, not the actual attraction inside The Florida Mall — rejected. No other CC-licensed photo of the real Crayola Experience Orlando was found. Pass 2 (2026-09-23): searched Openverse for \"Crayola Experience Orlando Florida Mall\" (zero results) and the broader \"Crayola Experience\" (24 results): every result was either the Easton, Pennsylvania flagship, the Mall of America location, or that same private-home holiday-lights file already rejected by Pass 1 -- none is the real Florida Mall attraction, so all were rejected as a different branch or the same non-match. No usable candidate found."
-    },
-    "Museum of Illusions Orlando": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": "Museum of Illusions Orlando",
-      "note": "No CC-licensed Commons photo of this specific International Drive location was found; Museum of Illusions has many branded locations worldwide and Commons results for the name return other cities. Pass 2 (2026-09-23): searched Openverse for \"Museum of Illusions Orlando\"; zero results. No usable candidate found."
     },
     "The Great Escape Room Orlando": {
       "reason": "no-verified-source",

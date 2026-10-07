@@ -80,32 +80,87 @@
       "verification": "The building's lettering reads \"RUTH ECKERD HALL,\" confirming the exact venue named in the pick. A crowd near the entrance is incidental background, not the photo's subject. Not geotagged; identified by the building signage.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
-    }
-  },
-  "gaps": {
-    "St. Pete ArtWalk": {
-      "reason": "not-a-place",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "A self-guided crawl across many galleries and studios in St. Petersburg's arts district, not one fixed venue to photograph."
     },
     "Endless Summer Afterglow": {
-      "reason": "not-a-place",
+      "src": "/guides/picks/tonights-move-tampa-september-12-2026/endless-summer-afterglow.webp",
+      "width": 1400,
+      "height": 2045,
+      "alt": "The clock tower and covered walkway of the Historic Bridge Street Pier in Bradenton Beach beside the water",
+      "caption": "The Bridge Street Pier clock tower in Bradenton Beach, at the water end of the street the festival closes to cars.",
+      "credit": "Wolfgang Moroder",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Florida_pier_Bradenton_Beach.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Florida_pier_Bradenton_Beach.jpg",
+      "author": "Wolfgang Moroder",
+      "position": "50% 30%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "A street festival spanning Bridge Street in Bradenton Beach rather than one named venue."
+      "verification": "Commons file titled 'Florida pier Bradenton Beach', described as the pier in Bradenton Beach on Anna Maria Island, geotag 27.466N 82.695W. The clock tower is the Historic Bridge Street Pier landmark. Shows the pier, not the festival. Live Commons licence checked: CC BY-SA 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
+    },
+    "St. Pete ArtWalk": {
+      "src": "/guides/picks/tonights-move-tampa-september-12-2026/st-pete-artwalk.webp",
+      "width": 1200,
+      "height": 800,
+      "alt": "The brick Crislip Arcade building on Central Avenue in downtown St. Petersburg with parked cars in front",
+      "caption": "The Crislip Arcade on Central Avenue in downtown St. Petersburg. ArtWalk is a crawl across many galleries and studios, so this shows one downtown block, not the whole route.",
+      "credit": "Beyond My Ken",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Crislip_Arcade,_645_Central_Avenue,_St._Petersburg,_Florida.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Crislip_Arcade,_645_Central_Avenue,_St._Petersburg,_Florida.jpg",
+      "author": "Beyond My Ken",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons description: Crislip Arcade at 645 Central Avenue, downtown St. Petersburg, geotag 27.771N 82.643W. Illustrative of the downtown arts district street; not a named ArtWalk stop. Live Commons licence checked: CC BY-SA 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     },
     "MORFLOW FEST": {
-      "reason": "no-verified-source",
+      "src": "/guides/picks/tonights-move-tampa-september-12-2026/morflow-fest.webp",
+      "width": 1024,
+      "height": 683,
+      "alt": "Downtown Clearwater buildings beside the Memorial Causeway bridge on the water under a full moon",
+      "caption": "Downtown Clearwater and the Memorial Causeway bridge from across the water at moonrise. BayCare Sound sits on the downtown waterfront; the venue itself is not shown.",
+      "credit": "Ben Garcia",
+      "creditHref": "https://www.flickr.com/photos/23383542@N06/8430858471",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/23383542@N06/8430858471",
+      "author": "Ben Garcia",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "flickr",
       "placeId": null,
-      "needsPermissionFrom": "BayCare Sound",
-      "note": "The venue (BayCare Sound, the renamed Coachman Park amphitheater in Clearwater) is a fixed venue, but Commons title search, category search and geosearch around its coordinates found no photo of it under either its current or former name. Pass 2 (2026-09-23): Openverse queries 'BayCare Sound Clearwater' (0), 'Coachman Park amphitheater Clearwater' (0), 'Coachman Park Clearwater' (34 results, all unrelated 2008-2009 Scientology-protest photos centered on identifiable protesters, not the venue's architecture) and 'Clearwater waterfront amphitheater' (0) found no usable photo of the venue under either name. The festival itself is also not a fixed subject to substitute for, per the gap's own scope."
+      "verification": "Flickr title 'Clearwater Florida memorial bridge full moonrise', tag clearwaterfl; shows the downtown Clearwater waterfront. No licensed photo of BayCare Sound exists, so this is the nearest real feature; caption says so. Live Flickr licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     },
     "Not tonight": {
-      "reason": "not-a-place",
+      "src": "/guides/picks/tonights-move-tampa-september-12-2026/not-tonight.webp",
+      "width": 1024,
+      "height": 537,
+      "alt": "The downtown Tampa skyline seen across the water from Ballast Point Park",
+      "caption": "The downtown Tampa skyline across the water from Ballast Point Park. A general photo of the city, not of any event on the list.",
+      "credit": "Jared",
+      "creditHref": "https://www.flickr.com/photos/93283041@N00/6138947157",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/93283041@N00/6138947157",
+      "author": "Jared",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "flickr",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "A wrap-up note about events NOT worth going to (a cleanup that already ended, a show starting later in the week, a weekend-only expo) rather than a single place."
+      "verification": "Flickr title 'Tampa - Ballast Point Park - Downtown Tampa Skyline Across Hillsborough Bay'; shows Tampa skyline. Illustrative for a wrap-up pick that lists no single place. Live Flickr licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     }
-  }
+  },
+  "gaps": {}
 }

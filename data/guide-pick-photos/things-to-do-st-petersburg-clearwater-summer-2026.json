@@ -180,20 +180,47 @@
       "verification": "Unsplash source uploaded by the Tampa Bay Estuary Program explicitly identifies Shell Key, Florida, and photographer Joe Whalen, with the free Unsplash License. Downloaded and visually inspected 1400px image: clear kayaks with rear-facing paddlers, calm blue water and dense green mangrove shore. Subject directly matches the guides’ Shell Key paddle trip; no generic substitute or identifiable face.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-24"
-    }
-  },
-  "gaps": {
-    "Central Park, the new five-story food hall": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": "Central Park food hall (St. Petersburg)",
-      "note": "A newly opened (2026) downtown St. Petersburg food hall with no Commons coverage yet under any search phrasing tried. Pass 2 (2026-09-23): Openverse queries 'Central Park food hall St Petersburg' (0 results) and 'Central Park St Petersburg Florida' (4 results: a bookstore facade and municipal-parking photos, all unrelated) found no coverage of this brand-new venue; too recent for CC-licensed photography."
     },
     "St. Pete's new fine-dining wave": {
-      "reason": "not-a-place",
+      "src": "/guides/picks/things-to-do-st-petersburg-clearwater-summer-2026/st-pete-s-new-fine-dining-wave.webp",
+      "width": 1400,
+      "height": 786,
+      "alt": "The pink Vinoy Renaissance Resort with its tower seen across the marina in St. Petersburg",
+      "caption": "The Vinoy Renaissance Resort on the St. Petersburg waterfront, home of Elliott Aster.",
+      "credit": "Beyond My Ken",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:2021_Vinoy_Renaissance_Resort,_St._Petersburg.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:2021_Vinoy_Renaissance_Resort,_St._Petersburg.jpg",
+      "author": "Beyond My Ken",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "Covers three separate restaurants (Elliott Aster at the Vinoy, Olivia, the Oyster Bar), not one place."
+      "verification": "Commons title: Vinoy Renaissance Resort, St. Petersburg; viewed, shows the pink hotel and tower from the marina Live Commons licence checked: CC BY-SA 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
+    },
+    "Central Park, the new five-story food hall": {
+      "src": "/guides/picks/things-to-do-st-petersburg-clearwater-summer-2026/central-park-the-new-five-story-food-hall.webp",
+      "width": 1400,
+      "height": 1299,
+      "alt": "The tiered cream-colored Snell Arcade tower on Central Avenue in downtown St. Petersburg",
+      "caption": "The Snell Arcade on Central Avenue in downtown St. Petersburg. Photo does not show the food hall.",
+      "credit": "Beyond My Ken",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Snell_Arcade,_405_Central_Avenue,_St._Petersburg,_Florida.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Snell_Arcade,_405_Central_Avenue,_St._Petersburg,_Florida.jpg",
+      "author": "Beyond My Ken",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons title names Snell Arcade, 405 Central Avenue, St. Petersburg; viewed. Fallback: downtown streetscape, no licensed photo of the new food hall Live Commons licence checked: CC BY-SA 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     }
-  }
+  },
+  "gaps": {}
 }

@@ -43,8 +43,8 @@
     },
     "Ted Sperling Nature Park at South Lido": {
       "src": "/guides/picks/things-to-do-in-sarasota-florida/ted-sperling-south-lido.webp",
-      "width": 1280,
-      "height": 427,
+      "width": 960,
+      "height": 640,
       "alt": "A mangrove-lined lagoon at South Lido County Park in Sarasota, with the city's condo skyline visible beyond the mangrove tree line",
       "caption": "The mangrove-fringed water at South Lido County Park, with Sarasota's skyline beyond.",
       "credit": "Ryan Hodnett",
@@ -53,13 +53,13 @@
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File:South_Lido_County_Park_-_Sarasota,_Florida_2023-01-22_(01).jpg",
       "author": "Ryan Hodnett",
-      "position": "50% 52%",
+      "position": "50% 50%",
       "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
       "sourceKind": "commons",
-      "placeId": null,
-      "verification": "File is titled and dated (2023-01-22) as South Lido County Park, Sarasota; the mangrove tree line and condo towers visible across the water match Ted Sperling Nature Park's setting at South Lido, where the guide's pick is the mangrove-tunnel paddling water. No people in frame.",
+      "placeId": "ChIJJ3XVfEhrw4gRY3oXQ874Cco",
+      "verification": "File is titled and dated (2023-01-22) as South Lido County Park, Sarasota; the mangrove tree line and condo towers visible across the water match Ted Sperling Nature Park's setting at South Lido, where the guide's pick is the mangrove-tunnel paddling water. No people in frame. Cropped to 3:2 from a wide panorama so it does not render as a thin strip. Live Commons licence checked: CC BY-SA 4.0.",
       "sameAsCardPhoto": false,
-      "reviewedAt": "2026-09-23"
+      "reviewedAt": "2026-10-07"
     },
     "The Ringling": {
       "src": "/guides/picks/things-to-do-in-sarasota-florida/the-ringling-entrance.webp",
@@ -280,6 +280,26 @@
       "verification": "Same Flickr photo verified for the standalone 'Yoder's Restaurant' pick in pinecraft-sarasota-amish-village.json (titled \"Sarasota - Yoder's Amish Village - Restaurant Sign\" by Jared, taken 2013-04-25; building's own sign reads \"Yoder's ... Sarasota Tradition Since 1975\"; live licence CC BY 2.0 confirmed). This pick names two restaurants, so only the Yoder's half is depicted, following this guide's own precedent of partial-pick photos (e.g. 'Bayfront Park and Unconditional Surrender' shows only the park). No CC-licensed photo of the Sarasota Der Dutchman location was found (only the unrelated Walnut Creek, Ohio branch exists on Commons).",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
+    },
+    "Owen's Fish Camp": {
+      "src": "/guides/picks/things-to-do-in-sarasota-florida/owen-s-fish-camp.webp",
+      "width": 1024,
+      "height": 576,
+      "alt": "String lights over the shaded backyard seating and wooden porch at Owen's Fish Camp in Sarasota at dusk",
+      "caption": "The string lit backyard at Owen's Fish Camp in Burns Court, Sarasota, in the evening.",
+      "credit": "Carol VanHook",
+      "creditHref": "https://www.flickr.com/photos/97651299@N00/35463538942",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/97651299@N00/35463538942",
+      "author": "Carol VanHook",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "flickr",
+      "placeId": "ChIJ5ab4TmtAw4gROiDA30SjNWY",
+      "verification": "Flickr photo titled Owen's Fish Camp in the heart of Sarasota, Florida Series by Carol (vanhookc), CC BY-SA 2.0, tagged owensfishcamp and sarasotaflorida; shows the restaurant's lit yard with only tiny distant diners Live Flickr licence checked: CC BY-SA 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     }
   },
   "gaps": {
@@ -294,12 +314,6 @@
       "placeId": "ChIJLZ2vzRxBw4gRMOtW0ArhBhw",
       "needsPermissionFrom": "The Bay Sarasota / City of Sarasota",
       "note": "No Commons file found for this specific park (distinct from the older, separately-picked Bayfront Park); Wayfind's inventory carries only a Google Places photo. Pass 2 (2026-09-23): Openverse searched \"The Bay Park Sarasota\" and \"The Bay Sarasota park\" — no result matched this specific, recently redeveloped bayfront park; only unrelated Sarasota-area photos (crabs at Mullet Key, other parks, the separate Bayfront Park already pictured elsewhere in this guide) came back."
-    },
-    "Owen's Fish Camp": {
-      "reason": "people-privacy",
-      "placeId": "ChIJ5ab4TmtAw4gROiDA30SjNWY",
-      "needsPermissionFrom": "Owen's Fish Camp",
-      "note": "The only Commons photo geotagged at this restaurant is a close-up of a performing musician with his face clearly visible as the photo's subject, not the venue; rejected on the no-identifiable-people-as-subject rule rather than used."
     }
   }
 }

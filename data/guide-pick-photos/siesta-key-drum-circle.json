@@ -20,6 +20,46 @@
       "verification": "File title 'Siesta Key Beach Pavilion' matches the guide's own described landmark ('the main Siesta Beach pavilion'), part of a dated 2017 Fred Hsu series photographing Siesta Beach. Not geotagged for a coordinate check.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
+    },
+    "The unwritten rules": {
+      "src": "/guides/picks/siesta-key-drum-circle/the-unwritten-rules.webp",
+      "width": 768,
+      "height": 1024,
+      "alt": "A djembe drum standing on white sand beside bags and a towel at the Sunday drum circle on Siesta Key Beach",
+      "caption": "A djembe drum on the sand at the Sunday drum circle on Siesta Key Beach.",
+      "credit": "nikoretro",
+      "creditHref": "https://www.flickr.com/photos/22768390@N00/130918902",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/22768390@N00/130918902",
+      "author": "nikoretro",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "flickr",
+      "placeId": null,
+      "verification": "Flickr title 'Siesta Key Drum Circle', tags siestakeyfl and sundaydrummingcircle; same uploader's set shows the beach drum circle; photo shows a djembe on white sand. Live Flickr licence checked: CC BY-SA 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
+    },
+    "Parking without the meltdown": {
+      "src": "/guides/picks/siesta-key-drum-circle/parking-without-the-meltdown.webp",
+      "width": 1400,
+      "height": 933,
+      "alt": "The white Siesta Key Beach Pavilion with its flat roof, palm trees and paved plaza under a blue sky",
+      "caption": "The Siesta Key Beach Pavilion at the public beach entrance, beside the main free lot and the trolley drop-off.",
+      "credit": "Ryan Gamma",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Siesta_Key_Beach_Pavilion_.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Siesta_Key_Beach_Pavilion_.jpg",
+      "author": "Ryan Gamma",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons file 'Siesta Key Beach Pavilion', described as Siesta Key Park and Pavilion, the public beach entrance. Shows the pavilion, not the parking lot or trolley itself. Live Commons licence checked: CC BY-SA 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     }
   },
   "hero": {
@@ -42,18 +82,5 @@
     "sameAsCardPhoto": false,
     "reviewedAt": "2026-09-23"
   },
-  "gaps": {
-    "Parking without the meltdown": {
-      "reason": "not-a-place",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "Parking-lot and trolley logistics advice; not a single place to photograph."
-    },
-    "The unwritten rules": {
-      "reason": "not-a-place",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "Etiquette advice for the circle; not a place."
-    }
-  }
+  "gaps": {}
 }

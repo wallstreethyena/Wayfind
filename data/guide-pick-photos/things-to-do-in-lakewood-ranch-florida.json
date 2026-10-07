@@ -6,7 +6,7 @@
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": null,
-      "note": "Finder returned 0 licensed candidates. Commons Category:Lakewood Ranch, Florida holds only Town Hall (Lakewood Ranch Blvd, not Main Street), a Walgreens on SR 70 and an SCF campus; Commons and Openverse/Flickr searches for Lakewood Ranch Main Street / Lakewood Main Street returned nothing of the street."
+      "note": "Pass 3 (2026-10-07): Commons search 'Lakewood Ranch Main Street' returned zero files; 'Lakewood Ranch' returned only Town Hall operations facility, Walgreens on SR 70, SCF campus. Openverse (Lakewood Ranch, Main Street, Town Center, Boulevard, Florida variants) returned only an airplane aerial, polo, food and palm photos. Flickr public feed tags lakewoodranch+mainstreet returned about 25 photos (Main Street, areaguides, 26437251) but every one is All Rights Reserved. Nothing licensed shows Main Street or a nearby street feature."
     },
     "Waterside Place": {
       "reason": "no-verified-source",
@@ -18,7 +18,7 @@
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": null,
-      "note": "Finder candidates were all Chelsea Waterside Park, New York. Commons and Openverse/Flickr searches for Waterside Park / Kingfisher Lake Lakewood Ranch returned no photo of the island park or its bridge."
+      "note": "Pass 3 (2026-10-07): Commons 'Waterside Lakewood Ranch' returned zero files; Openverse 'Waterside Place Lakewood Ranch' and 'Kingfisher Lake Lakewood Ranch' returned zero; Flickr feed tags waterside+lakewoodranch found one photo (Ranch Nite Reggae, a concert with people, All Rights Reserved) and kingfisherlake returned only English fishing lakes. The only Lakewood Ranch aerial (Starr Environmental, CC BY 2.0, airplane window) cannot be tied to the park."
     }
   }
 }

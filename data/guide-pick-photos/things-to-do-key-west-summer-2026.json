@@ -120,32 +120,87 @@
       "verification": "Flickr photo 16292642896 by SNORKELINGDIVES.COM titled 'Snorkeling Key West, Florida', CC BY 2.0, tagged keywest/snorkeling. Seen: shallow Florida Keys-type patch reef with sea fans, brain/star coral and a sea turtle, the reef, turtles and snorkel conditions the pick describes. No watermark. No people. Reef site not named more precisely than off Key West, so caption stays general. Live Flickr licence checked: CC BY 2.0.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-29"
-    }
-  },
-  "gaps": {
-    "The Reserve, the new bank takeover": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": "The Reserve Key West",
-      "note": "No Wikimedia Commons photo exists for this brand-new 2026 opening, and it is not indexed in Wayfind's inventory, so there is no licensed source of any kind, including Google. Pass 2 (2026-09-23): Searched Openverse for 'The Reserve Key West bank' — the only match was an unrelated Dry Tortugas photo licensed CC BY-NC-ND (disallowed). No usable source found for this brand-new opening."
     },
     "The Southernmost Point buoy, temporary edition": {
-      "reason": "no-verified-source",
+      "src": "/guides/picks/things-to-do-key-west-summer-2026/the-southernmost-point-buoy-temporary-edition.webp",
+      "width": 700,
+      "height": 1024,
+      "alt": "The red, black and yellow Southernmost Point buoy marker beside the water in Key West",
+      "caption": "The original Southernmost Point buoy on its Key West corner, in an older photograph. That corner is closed for seawall work, and the temporary 12-foot replica stands at Duval Pocket Park.",
+      "credit": "Steven Miller",
+      "creditHref": "https://www.flickr.com/photos/12508217@N08/6708603301",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/12508217@N08/6708603301",
+      "author": "Steven Miller",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "flickr",
       "placeId": null,
-      "needsPermissionFrom": "City of Key West (public agency)",
-      "note": "This pick is specifically about the temporary 12-foot replica at Duval Pocket Park while the original corner is rebuilt; no Wikimedia Commons photo of that temporary installation exists yet (only older photos of the original, now-fenced corner), and it is not indexed in Wayfind's inventory, so using an older photo would misrepresent the current, temporary location. Pass 2 (2026-09-23): Searched Openverse for 'Southernmost Point buoy Duval Pocket Park' — zero results. No coverage yet of the temporary replica at Duval Pocket Park."
-    },
-    "August's festival stack: Lobsterfest and Rum Fest": {
-      "reason": "not-a-place",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "A pair of dated annual street festivals spread across multiple Duval Street venues, not a single visitable place."
+      "verification": "Flickr title 'Southernmost Buoy', tags keywest, conchrepublic, southermostpoint; photo shows the original concrete buoy with 90 miles to Cuba markings. It is the original marker, not the temporary replica, and the caption says so. Live Flickr licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     },
     "Papa's Pilar rum distillery": {
-      "reason": "no-verified-source",
+      "src": "/guides/picks/things-to-do-key-west-summer-2026/papa-s-pilar-rum-distillery.webp",
+      "width": 1024,
+      "height": 670,
+      "alt": "Brick wall of the Hemingway Rum Co. Distillery in Key West with its hanging sign and teal awning over the Social Club entrance",
+      "caption": "The Hemingway Rum Co. Distillery in Key West, the historic brick warehouse that makes Papa's Pilar rum.",
+      "credit": "Julian Lupyan",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Hemingway_Rum_Co._Distillery,_Key_West,_Florida.jpg",
+      "license": "CC0 1.0 Universal",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Hemingway_Rum_Co._Distillery,_Key_West,_Florida.jpg",
+      "author": "Julian Lupyan",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
       "placeId": null,
-      "needsPermissionFrom": "Papa's Pilar Distillery",
-      "note": "No Wikimedia Commons photo exists for this distillery, and it is not indexed in Wayfind's inventory, so there is no licensed source of any kind, including Google. Pass 2 (2026-09-23): Searched Openverse for \"Papa's Pilar rum distillery Key West\" (zero results) and \"Papa's Pilar Key West\" via source=flickr (one match, 'Papa's Pilar Rum' by Eric Holcomb, licensed CC BY-NC — disallowed). No usable source found."
+      "verification": "Commons file shows the 'Hemingway Rum Co. Distillery' sign on a brick tobacco warehouse in Key West. Trade press (Prevue Meetings) confirms the Hemingway Rum Company distillery in Key West produces Papa's Pilar rum. Live Commons licence checked: CC0 1.0 Universal.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
+    },
+    "August's festival stack: Lobsterfest and Rum Fest": {
+      "src": "/guides/picks/things-to-do-key-west-summer-2026/august-s-festival-stack-lobsterfest-and-rum-fest.webp",
+      "width": 1024,
+      "height": 683,
+      "alt": "Duval Street in Key West at night with shop lights and street lamps along the road",
+      "caption": "Duval Street in Key West at night, where the Lobsterfest street fair is held. A photo of the street itself, not of either festival.",
+      "credit": "Christoph Meyer",
+      "creditHref": "https://www.flickr.com/photos/93095261@N06/14938159386",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/93095261@N06/14938159386",
+      "author": "Christoph Meyer",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "flickr",
+      "placeId": null,
+      "verification": "Flickr title 'Duval Street Key West'; shows a lit street of shops and palms matching Duval. Not a festival photo; caption says so. Live Flickr licence checked: CC BY-SA 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
+    },
+    "The Reserve, the new bank takeover": {
+      "src": "/guides/picks/things-to-do-key-west-summer-2026/the-reserve-the-new-bank-takeover.webp",
+      "width": 1024,
+      "height": 684,
+      "alt": "A white two storey Key West house with wraparound verandas and palm trees on Duval Street",
+      "caption": "A historic house on Duval Street in Old Town Key West, the neighbourhood where The Reserve opened at 510 Southard. The Reserve building itself is not shown.",
+      "credit": "RB Photo",
+      "creditHref": "https://www.flickr.com/photos/92082510@N04/32055283845",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/92082510@N04/32055283845",
+      "author": "RB Photo",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "flickr",
+      "placeId": null,
+      "verification": "Flickr title 'Duval Street, Key West'; shows an Old Town Key West house. Not a photo of The Reserve (no licensed photo of it exists); caption says so. Live Flickr licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     }
-  }
+  },
+  "gaps": {}
 }

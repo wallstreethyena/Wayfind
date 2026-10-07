@@ -23,8 +23,8 @@
     },
     "Lake Manatee State Park": {
       "src": "/guides/picks/things-to-do-in-parrish-florida/lake-manatee-state-park.webp",
-      "width": 1280,
-      "height": 254,
+      "width": 572,
+      "height": 381,
       "alt": "A wide panoramic view of Lake Manatee State Park's lake, calm blue water bordered by a sandy shore and a tree line under a clear sky",
       "caption": "The lake at Lake Manatee State Park.",
       "credit": "Ebyabe",
@@ -33,13 +33,13 @@
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File:Lake_Manatee_SP_lake_pano01.jpg",
       "author": "Ebyabe",
-      "position": "50% 55%",
+      "position": "50% 50%",
       "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
       "sourceKind": "commons",
       "placeId": "ChIJU17a-Akxw4gR3ppLxjXbveg",
-      "verification": "File is titled \"Lake Manatee SP lake pano01\" by the same photographer (Ebyabe) whose sign photo of this park is Wayfind's existing card photo; this is a different Commons file, showing the lake itself rather than the entrance sign.",
+      "verification": "File is titled \"Lake Manatee SP lake pano01\" by the same photographer (Ebyabe) whose sign photo of this park is Wayfind's existing card photo; this is a different Commons file, showing the lake itself rather than the entrance sign. Cropped to 3:2 from a wide panorama so it does not render as a thin strip. Live Commons licence checked: CC BY-SA 3.0.",
       "sameAsCardPhoto": false,
-      "reviewedAt": "2026-09-23"
+      "reviewedAt": "2026-10-07"
     },
     "Coquina Beach and Anna Maria Island": {
       "src": "/guides/picks/things-to-do-in-parrish-florida/coquina-beach.webp",
@@ -60,6 +60,46 @@
       "verification": "File is titled and categorized as Coquina Beach's lifeguard station on Anna Maria Island, from a prolific, geographically precise Florida contributor (Fred Hsu). Beachgoers are ordinary incidental beach activity, not the photo's subject; cropped toward the lifeguard stand rather than the group.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
+    },
+    "Fort Hamer Park": {
+      "src": "/guides/picks/things-to-do-in-parrish-florida/fort-hamer-park.webp",
+      "width": 1134,
+      "height": 756,
+      "alt": "The Fort Hamer Bridge crossing the Manatee River, seen from the Fort Hamer boat ramp",
+      "caption": "The Fort Hamer Bridge over the Manatee River, seen from the Fort Hamer boat ramp in 2018.",
+      "credit": "Mykhaylovdimitriy",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Fort_Hamer_Bridge.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Fort_Hamer_Bridge.jpg",
+      "author": "Mykhaylovdimitriy",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": "ChIJu9V8cNY6w4gR14jQbFoNfsE",
+      "verification": "Commons description: the Fort Hamer Bridge viewed from Fort Hamer Boat Ramp in 2018; geotag 27.5248N 82.4302W, at the park on the Manatee River. Cropped to 3:2 from a wide panorama so it does not render as a thin strip. Live Commons licence checked: CC BY-SA 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
+    },
+    "Good Liquid Brewing Company": {
+      "src": "/guides/picks/things-to-do-in-parrish-florida/good-liquid-brewing-company.webp",
+      "width": 1400,
+      "height": 1050,
+      "alt": "The intersection of State Road 62 and U.S. 301 in Parrish, Florida seen from a car with a truck waiting at the stop line",
+      "caption": "U.S. 301 at State Road 62 in Parrish. Good Liquid sits on the same highway, in Creekside Commons at Erie Road. The brewery itself is not shown.",
+      "credit": "DanTD",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:W_End_FL_62_@_US_301;_Parrish.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:W_End_FL_62_@_US_301;_Parrish.jpg",
+      "author": "DanTD",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": "ChIJay8TEmElw4gRmgRP3SXl7eM",
+      "verification": "Commons description: west end of Florida SR 62 at US 301 in Parrish. Brewery address 8980 US-301 #138, Parrish (Creekside Commons at Erie Road, per WhatNow Tampa Bay). No licensed photo of the brewery exists; this is the highway it is on. Live Commons licence checked: CC BY-SA 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     }
   },
   "gaps": {
@@ -87,23 +127,11 @@
       "needsPermissionFrom": "Ferraro's Italian Grille",
       "note": "No Commons photo found for this restaurant; Wayfind's inventory carries only a Google Places photo. Pass 2 (2026-09-23): Openverse searched \"Ferraro's Italian Grille Parrish\" — zero results; no CC-licensed photo of this restaurant exists."
     },
-    "Good Liquid Brewing Company": {
-      "reason": "google-only",
-      "placeId": "ChIJay8TEmElw4gRmgRP3SXl7eM",
-      "needsPermissionFrom": "Good Liquid Brewing Company",
-      "note": "No Commons photo found for this brewery; Wayfind's inventory carries only a Google Places photo. Pass 2 (2026-09-23): Openverse searched \"Good Liquid Brewing Company Parrish\" — zero results; no CC-licensed photo of this brewery exists."
-    },
     "Ellenton Premium Outlets": {
       "reason": "google-only",
       "placeId": "ChIJKYwJVy0jw4gRkXnEq-Or48M",
       "needsPermissionFrom": "Ellenton Premium Outlets / Simon Property Group",
       "note": "No Commons photo found for this shopping center; Wayfind's inventory carries only a Google Places photo. Pass 2 (2026-09-23): Openverse searched \"Ellenton Premium Outlets\" — zero results; no CC-licensed photo of this mall or any tenant inside it exists."
-    },
-    "Fort Hamer Park": {
-      "reason": "google-only",
-      "placeId": "ChIJu9V8cNY6w4gR14jQbFoNfsE",
-      "needsPermissionFrom": "Manatee County Parks and Natural Resources",
-      "note": "No Commons photo found for this park; Wayfind's inventory carries only a Google Places photo. Pass 2 (2026-09-23): Openverse searched \"Fort Hamer Park Parrish Florida\" and \"Fort Hamer bridge Manatee River\" — zero results for both; no CC-licensed photo of this park exists. Re-checked 2026-09-30: the only licensed candidate (Commons 'Fort Hamer Bridge.jpg', 2018) is place-accurate but a flat, overcast dock-railing view that crops poorly; rejected on quality."
     }
   }
 }

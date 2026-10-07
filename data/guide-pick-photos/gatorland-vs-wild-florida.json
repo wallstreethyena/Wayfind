@@ -20,20 +20,47 @@
       "verification": "Flickr page by William Warby (realname; username/pathAlias wwarby), titled 'Gatorland | Gatorland entrance, Florida...', taken 2002-04-22. Live page license checked directly on the Flickr page: license id 4 and a creativecommons.org/licenses/by/2.0 link, i.e. CC BY 2.0, matching Openverse's cached license. The photo shows Gatorland's giant alligator-mouth entrance building lettered 'GatOrland ORLANDO FL' across the lower jaw -- the park's iconic, one-of-a-kind roadside entrance -- proving the exact place beyond doubt. This is a different file than the guide's existing hero (Jawlene.jpg) and is not reused from any other pick in this guide. The structure is a long-standing unchanged fixture of the park (in place since the 1960s per the park's own history) so the 2002 date does not raise a currency concern.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
-    }
-  },
-  "gaps": {
+    },
     "Wild Florida: the airboat experience": {
-      "reason": "no-verified-source",
+      "src": "/guides/picks/gatorland-vs-wild-florida/wild-florida-the-airboat-experience.webp",
+      "width": 1024,
+      "height": 683,
+      "alt": "An empty airboat with its caged propeller fan parked on a grassy shore beside open lake and marsh",
+      "caption": "An airboat of the kind used on Central Florida lake and marsh rides, here at Boggy Creek Airboat Adventures near Kissimmee. This is a different operator, not Wild Florida.",
+      "credit": "Anthony Clark",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Boggy_Creek_Airboat_-_April_2010_-_panoramio.jpg",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Boggy_Creek_Airboat_-_April_2010_-_panoramio.jpg",
+      "author": "Anthony Clark",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
       "placeId": null,
-      "needsPermissionFrom": "Wild Florida Airboats and Wildlife Park",
-      "note": "Commons title search for Wild Florida's airboat attraction returned no results. No verified CC-licensed photo found. Pass 2 (2026-09-23): searched Openverse for \"Wild Florida airboat Kenansville\" (zero results), \"Wild Florida airboat\" (229 results, all Everglades-area airboat operators such as Cooper Town Airboat Rides and an unrelated \"April 7, 2015\" Everglades/Turner River series -- a different operator and location, rejected as a different branch), \"Wild Florida Kenansville\" restricted to source=flickr (zero), and \"Wild Florida Irwin\" (zero). No usable candidate found."
+      "verification": "Commons title Boggy Creek Airboat April 2010 (panoramio); Kissimmee operator; illustrative only, no licensed photo of Wild Florida (Kenansville) found after Commons and Openverse searches Live Commons licence checked: CC BY 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     },
     "The verdict": {
-      "reason": "not-a-place",
+      "src": "/guides/picks/gatorland-vs-wild-florida/the-verdict.webp",
+      "width": 1024,
+      "height": 768,
+      "alt": "Greetings from Gatorland Since 1949 sign on a stone wall at Gatorland in Orlando",
+      "caption": "The Greetings from Gatorland sign at Gatorland in Orlando, one of the two parks the verdict compares.",
+      "credit": "Rusty Clark ~ 100K Photos",
+      "creditHref": "https://www.flickr.com/photos/23206546@N04/10476045076",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/23206546@N04/10476045076",
+      "author": "Rusty Clark ~ 100K Photos",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "flickr",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "A head-to-head recommendation between the two parks, not a place of its own."
+      "verification": "Flickr photo titled Gatorland, Orlando FL by Rusty Clark, CC BY 2.0; sign text reads Gatorland Since 1949 Live Flickr licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     }
-  }
+  },
+  "gaps": {}
 }

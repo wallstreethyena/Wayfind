@@ -20,32 +20,87 @@
       "verification": "Commons file description explicitly names Crystal River National Wildlife Refuge and Kings Bay as the location, uploaded from the USFWS Endangered Species Flickr account; an exact place match for the pick. Not geotagged, so no coordinate-distance check is possible.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
-    }
-  },
-  "gaps": {
+    },
     "A guided scallop trip from Crystal River or Homosassa": {
-      "reason": "no-verified-source",
+      "src": "/guides/picks/florida-scalloping-crystal-river-homosassa/a-guided-scallop-trip-from-crystal-river-or-homosassa.webp",
+      "width": 1024,
+      "height": 684,
+      "alt": "An osprey on its nest atop a slow speed minimum wake channel marker beside houseboats on the Homosassa River",
+      "caption": "An osprey nest on a channel marker beside houseboats on the Homosassa River, one of the two waterways the guide covers. Charter captains run guests out from rivers like this one.",
+      "credit": "Kate Ter Haar",
+      "creditHref": "https://www.flickr.com/photos/8489692@N03/16888503408",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/8489692@N03/16888503408",
+      "author": "Kate Ter Haar",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "flickr",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "Describes booking any of several charter operators from either town, not one fixed dock or business; no verified photo of an actual guided scallop trip in progress was found. Pass 2 (2026-09-23): searched Openverse for \"scalloping Crystal River Florida\", \"bay scallop Florida snorkeling\", \"scallop Homosassa\", and \"bay scallop\" (240 results, all restaurant dishes or scallops from other US/international waters); no in-water scalloping-trip photo turned up, and Florida FWC's own scalloping photos on Flickr are CC BY-ND, which this project's license list excludes. No usable candidate found for this pick; a real Crystal River Gulf-flats photo was used for this guide's HERO instead, per the brief's fallback."
+      "verification": "Flickr title 'Homosassa', tags homosassafl, homasassa; scene shows a channel marker with osprey nest and slow-speed sign beside houseboats on a Florida river. No boat tour is shown; the caption describes only the river scene. Live Flickr licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     },
     "The season, and why you check the exact dates": {
-      "reason": "not-a-place",
+      "src": "/guides/picks/florida-scalloping-crystal-river-homosassa/the-season-and-why-you-check-the-exact-dates.webp",
+      "width": 800,
+      "height": 600,
+      "alt": "Calm blue water and a palm-lined shoreline at Crystal River, Florida",
+      "caption": "The shoreline at Crystal River, Florida, in the Citrus County zone where the scallop season dates are set.",
+      "credit": "eutrophication&hypoxia",
+      "creditHref": "https://www.flickr.com/photos/48722974@N07/5686916873",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/48722974@N07/5686916873",
+      "author": "eutrophication&hypoxia",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "flickr",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "Explains the FWC season calendar; not a place."
+      "verification": "Flickr title 'Crystal River, Florida', tags crystalriver, florida; shows the water and palm shoreline. Illustrative of the location, not of the season. Live Flickr licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     },
     "The license and the limits": {
-      "reason": "not-a-place",
+      "src": "/guides/picks/florida-scalloping-crystal-river-homosassa/the-license-and-the-limits.webp",
+      "width": 1280,
+      "height": 960,
+      "alt": "Monkey Island, a small tree-covered island with a red and white striped lighthouse and a boat, in the Homosassa River",
+      "caption": "Monkey Island in the Homosassa River, in the Citrus County waters where the saltwater license and bag limits apply.",
+      "credit": "ChrisNovak",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Monkey_Island_on_Homosassa_River,_Florida_USA,_Jan_2013.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Monkey_Island_on_Homosassa_River,_Florida_USA,_Jan_2013.jpg",
+      "author": "ChrisNovak",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "Explains licensing rules and bag limits; not a place."
+      "verification": "Commons file 'Monkey Island on Homosassa River, Florida USA', geotag 28.7855N 82.6172W on the Homosassa River. Illustrates the location only; the section is about rules, not a place. Live Commons licence checked: CC BY-SA 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     },
     "How you actually catch them": {
-      "reason": "not-a-place",
+      "src": "/guides/picks/florida-scalloping-crystal-river-homosassa/how-you-actually-catch-them.webp",
+      "width": 1400,
+      "height": 1867,
+      "alt": "A large bay scallop shell with ridged grey green valves resting on a pale surface",
+      "caption": "A bay scallop shell, Argopecten irradians, collected in Saint Andrew Bay on Florida's Gulf coast. It shows the shell scallopers bring home, not the snorkeling.",
+      "credit": "wiregrasser",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Argopecten_irradians_508176684.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Argopecten_irradians_508176684.jpg",
+      "author": "wiregrasser",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "Explains the snorkel-and-hand-pick technique; not a single place."
+      "verification": "Viewed the photo (iNaturalist research grade upload, observation place St. Andrew Bay, FL, May 2025): single bay scallop shell, ridged valves, no people. Live Commons licence checked: CC BY 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     }
-  }
+  },
+  "gaps": {}
 }

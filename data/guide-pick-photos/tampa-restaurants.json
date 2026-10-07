@@ -100,15 +100,29 @@
       "verification": "Flickr photo 14989438915 by Under the same moon..., titled 'Ulele Restaurant entrance, Tampa, FL', taken 2014-08-20 (the month the restaurant opened). Viewed the full image: the ú·lē·lē sign over the arched door of the red-brick Water Works building matches the Tampa Heights restaurant, same institution today. No people visible. 1024px rendition used because the 1600px version could not fit the 200KB budget. Live Flickr licence checked: CC BY 2.0.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-29"
+    },
+    "Rocca": {
+      "src": "/guides/picks/tampa-restaurants/rocca.webp",
+      "width": 1200,
+      "height": 900,
+      "alt": "A historic bungalow with a deep front porch on a tree-lined street in the Tampa Heights Historic District",
+      "caption": "A historic home in the Tampa Heights Historic District, the neighborhood where Rocca is. The restaurant itself is not shown.",
+      "credit": "Ebyabe",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Tampa_FL_Tampa_Heights_HD01.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Tampa_FL_Tampa_Heights_HD01.jpg",
+      "author": "Ebyabe",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": "ChIJ1WZIXhjFwogR1M-_3DXnG6Y",
+      "verification": "Commons title Tampa FL Tampa Heights HD01; description Tampa Heights Historic District; closest-feature fallback since no licensed photo of Rocca exists (Commons 'Rocca' results are Italian fortresses) Live Commons licence checked: CC BY-SA 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     }
   },
   "gaps": {
-    "Rocca": {
-      "reason": "google-only",
-      "placeId": "ChIJ1WZIXhjFwogR1M-_3DXnG6Y",
-      "needsPermissionFrom": "Rocca",
-      "note": "Restaurant pass (2026-09-23): All 25 Commons candidates for 'Rocca' are unrelated medieval Italian fortresses (Rocca Abbaziale, Rocca Malatestiana, Rocca Maggiore, etc.) — 'rocca' is Italian for 'fortress', a name collision. Openverse searches for 'Rocca Tampa Heights restaurant' and 'Rocca Italian Tampa' both returned 0 results. No verified photo found."
-    },
     "Psomi": {
       "reason": "google-only",
       "placeId": "ChIJ_RvwD3nDwogRCeHQydPsx_k",

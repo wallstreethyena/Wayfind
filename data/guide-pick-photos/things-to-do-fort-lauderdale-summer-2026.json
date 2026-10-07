@@ -40,26 +40,94 @@
       "verification": "Commons file 'Water Taxi (Fort Lauderdale, Florida) 1.jpg' by Tamanoeconomico, 2018-11-08, description 'A water taxi moves along the Tarpon River in Fort Lauderdale, Florida', geotag 26.118393,-80.137383 (downtown riverfront), categories 'Boats in Fort Lauderdale, Florida' and 'Water taxis in the United States'. Seen: the yellow boat's canopy reads 'Watertaxi.com 954-467-6677' and the hull 'Water Taxi' - the Fort Lauderdale Water Taxi operator itself; downtown towers behind. Pilot/passengers are tiny and unidentifiable. Replaces earlier not-a-place gap under the tip rule (the actual service in its real setting). Live Commons licence checked: CC BY-SA 4.0.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-29"
+    },
+    "Las Olas Boulevard's restaurant wave": {
+      "src": "/guides/picks/things-to-do-fort-lauderdale-summer-2026/las-olas-boulevard-s-restaurant-wave.webp",
+      "width": 1024,
+      "height": 1365,
+      "alt": "Sidewalk cafe tables with red umbrellas and a bakery awning along Las Olas Boulevard in Fort Lauderdale",
+      "caption": "Sidewalk dining along Las Olas Boulevard in downtown Fort Lauderdale. Photo shows the street, not the specific new restaurants.",
+      "credit": "Infrogmation",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Las_Olas_Boulevard%2C_Fort_Lauderdale%2C_Florida_08.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Las_Olas_Boulevard%2C_Fort_Lauderdale%2C_Florida_08.jpg",
+      "author": "Infrogmation",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons file titled Las Olas Boulevard, Fort Lauderdale, Florida 08; image shows the Las Olas Bakery awning, outdoor cafe seating and the boulevard's palms Live Commons licence checked: CC BY-SA 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
+    },
+    "An Everglades airboat morning": {
+      "src": "/guides/picks/things-to-do-fort-lauderdale-summer-2026/an-everglades-airboat-morning.webp",
+      "width": 1200,
+      "height": 1200,
+      "alt": "An airboat carrying a tour group across open water with sawgrass behind it at Everglades Holiday Park",
+      "caption": "An airboat tour at Everglades Holiday Park, the Broward County Everglades gateway west of Fort Lauderdale. One example of the tours the pick describes.",
+      "credit": "Gary Troutt",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Evergladesairboattour.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Evergladesairboattour.jpg",
+      "author": "Gary Troutt",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons file description: A group takes an airboat tour at Everglades Holiday Park in Fort Lauderdale, Florida; boat hull reads Everglades Holiday Park Live Commons licence checked: CC BY-SA 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
+    },
+    "Las Olas Beach at sunrise": {
+      "src": "/guides/picks/things-to-do-fort-lauderdale-summer-2026/las-olas-beach-at-sunrise.webp",
+      "width": 1400,
+      "height": 1050,
+      "alt": "Lifeguard tower and palm trees on the sand at Las Olas Beach in Fort Lauderdale",
+      "caption": "Las Olas Beach in Fort Lauderdale, with a lifeguard tower and palms on the sand. The photo was not taken at sunrise.",
+      "credit": "donnamper",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Las_Olas_Beach.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Las_Olas_Beach.jpg",
+      "author": "donnamper",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons file Las Olas Beach.jpg, description: by Las Olas Boulevard in Fort Lauderdale, Florida; lifeguard tower and beach visible Live Commons licence checked: CC BY-SA 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
+    },
+    "Pier Sixty-Six and the rotating Pier Top": {
+      "src": "/guides/picks/things-to-do-fort-lauderdale-summer-2026/pier-sixty-six-and-the-rotating-pier-top.webp",
+      "width": 768,
+      "height": 576,
+      "alt": "A raised view along the 17th Street Causeway in Fort Lauderdale with a parking lot, marinas and yachts beside the Intracoastal Waterway",
+      "caption": "The 17th Street Causeway and the Intracoastal marinas in Fort Lauderdale, the crossing where Pier Sixty-Six sits. The hotel itself is not identified in the photo.",
+      "credit": "Nancy Folgmann",
+      "creditHref": "https://www.flickr.com/photos/119099736@N06/12860000745",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/119099736@N06/12860000745",
+      "author": "Nancy Folgmann",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "flickr",
+      "placeId": null,
+      "verification": "Viewed the photo: raised view of the causeway and marinas; Flickr title '17th Street Causeway Bridge', description 'Fort Lauderdale Florida'. Pier Sixty-Six is on the 17th Street Causeway; no photo of the hotel itself under an allowed licence was found. No people as subject. Live Flickr licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     }
   },
   "gaps": {
-    "Pier Sixty-Six and the rotating Pier Top": {
+    "The Fort, the world's first pickleball stadium": {
       "reason": "no-verified-source",
       "placeId": null,
-      "needsPermissionFrom": "Pier Sixty-Six Hotel & Marina",
-      "note": "The only Wikimedia Commons photo of this resort is a decades-old image licensed plain \"Public domain,\" which is not in Wayfind's allowed licence list (CC0, or CC BY/CC BY-SA at 2.0, 3.0 or 4.0), and it predates the resort's recent luxury revamp; the property is not indexed in Wayfind's inventory either. Pass 2 (2026-09-23): Searched Openverse for 'Pier Sixty-Six Fort Lauderdale', 'Pier 66 Fort Lauderdale tower' (source=flickr), and 'Pier 66 Hotel Fort Lauderdale'. Found only CC BY-NC-ND (US Coast Guard, unrelated) and CC BY-NC-SA ('Pier 66' by bobdole369, 2009) Flickr photos, both disallowed licences; a third, nominally CC BY 2.0 result's Flickr page now redirects to Flickr's Explore feed instead of the photo, so it could not be verified live and was not used. No usable photo of the tower or rotating Pier Top found."
-    },
-    "Las Olas Boulevard's restaurant wave": {
-      "reason": "not-a-place",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "A wave of new restaurant openings (Little Hen, Skinny Louie) along a boulevard, not a single visitable place."
-    },
-    "The Fort, the world's first pickleball stadium": {
-      "reason": "google-only",
-      "placeId": "ChIJxarXNwCr2YgRZvrLZ_ZW9dQ",
       "needsPermissionFrom": "The FORT pickleball stadium (Fort Lauderdale)",
-      "note": "No Wikimedia Commons photo exists for this brand-new stadium; Wayfind's inventory shows only a Google Places photo, which is not licensed for reuse. Pass 2 (2026-09-23): Searched Openverse for 'The Fort pickleball Fort Lauderdale' — zero results. This brand-new venue has no CC-licensed Flickr or Commons coverage yet."
+      "note": "Pass 3 (2026-10-07): The FORT sits inside Snyder Park, Fort Lauderdale. Searched Commons and Openverse for 'The Fort pickleball Fort Lauderdale', 'Association of Pickleball Players stadium', 'pickleball Fort Lauderdale Florida', 'Snyder Park Fort Lauderdale' and 'Snyder Park'. Results were only unrelated US county maps and Snyder Park in Springfield, Ohio. No CC-licensed photo of the stadium or of Fort Lauderdale's Snyder Park exists."
     },
     "Huizenga Park, rebuilt": {
       "reason": "google-only",
@@ -67,29 +135,11 @@
       "needsPermissionFrom": "Huizenga Park (Fort Lauderdale)",
       "note": "No Wikimedia Commons photo exists of the park's recent rebuild; Wayfind's inventory shows only a Google Places photo, which is not licensed for reuse. Pass 2 (2026-09-23): Searched Openverse for 'Huizenga Park Fort Lauderdale' — zero results. No CC-licensed photo of the rebuilt park found on Flickr or Commons."
     },
-    "An Everglades airboat morning": {
-      "reason": "not-a-place",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "A bookable airboat tour offered by multiple operators, not a single visitable place."
-    },
     "Puttshack at Dania Beach": {
       "reason": "google-only",
       "placeId": "ChIJT1fY8CWr2YgRPfvi-_9cSiU",
       "needsPermissionFrom": "Puttshack - Dania Beach",
       "note": "No Wikimedia Commons photo exists for this venue; Wayfind's inventory shows only a Google Places photo, which is not licensed for reuse. Pass 2 (2026-09-23): Searched Openverse for 'Puttshack Dania Beach' — zero results. No CC-licensed source found."
-    },
-    "Peppi's Pizza after the One Bite review": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": "Peppi's Pizza (Fort Lauderdale)",
-      "note": "No Wikimedia Commons photo exists for this restaurant, and it is not indexed in Wayfind's inventory, so there is no licensed source of any kind, including Google. Pass 2 (2026-09-23): Searched Openverse for \"Peppi's Pizza Fort Lauderdale\" — zero results. No CC-licensed source found."
-    },
-    "Las Olas Beach at sunrise": {
-      "reason": "public-art",
-      "placeId": null,
-      "needsPermissionFrom": "City of Fort Lauderdale (public agency)",
-      "note": "The only allowed-licence Commons photo is dominated by a temporary pink-ribbon sculpture; US freedom of panorama does not cover sculpture, so it cannot be used without the artist's licence. Needs a clean beach photo."
     }
   }
 }

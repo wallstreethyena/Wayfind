@@ -40,26 +40,67 @@
       "verification": "File title and Commons category both name 'Kennedy Space Center Visitor Complex in 2022'; the countdown-clock sculpture shown is the visitor complex's well-known entrance landmark, matching the guide's exact pick. Not geotagged.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
-    }
-  },
-  "gaps": {
-    "A clear-kayak bioluminescence tour": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "This pick describes a bookable nighttime clear-kayak tour product run by several operators, not one fixed, identifiable place; no verified CC-licensed photo of an actual nighttime bioluminescent clear-kayak tour on this stretch of lagoon was found (bioluminescence photography is rare and essentially never CC-licensed on Commons). Pass 2 (2026-09-23): searched Openverse for \"bioluminescence Mosquito Lagoon\" and \"Haulover Canal Merritt Island\"; found one real Mosquito Lagoon bioluminescence photo (Commons, CC BY 4.0) but it is dominated by moonlight with no legible glow visible on inspection, so it was used for this guide's HERO instead (with an honest caption) rather than for this pick, since a pick photo has to show the described product itself, not a stand-in place. No clear-kayak or in-tour photo exists. No usable candidate found for this specific pick."
     },
-    "Summer or winter: what actually glows": {
-      "reason": "not-a-place",
+    "A clear-kayak bioluminescence tour": {
+      "src": "/guides/picks/bioluminescence-kayak-tour-space-coast/a-clear-kayak-bioluminescence-tour.webp",
+      "width": 1024,
+      "height": 683,
+      "alt": "Brightly colored kayaks stacked on a rack beside the sand at Haulover Canal",
+      "caption": "Kayaks racked at Haulover Canal on Merritt Island, a launch point for paddling Mosquito Lagoon. These are daytime kayaks, not the clear kayaks or the glow.",
+      "credit": "Rusty Clark ~ 100K Photos",
+      "creditHref": "https://www.flickr.com/photos/23206546@N04/31203377283",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/23206546@N04/31203377283",
+      "author": "Rusty Clark ~ 100K Photos",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "flickr",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "Explains the seasonal difference between dinoflagellate and comb-jelly glow; not a single physical place to photograph."
+      "verification": "Flickr photo titled Haulover Canal by Rusty Clark, CC BY 2.0; shows stacked kayaks on the sandy shore; Haulover Canal is the Merritt Island channel linking Mosquito Lagoon and the Indian River; closest-feature fallback since no licensed photo of a clear-kayak tour exists Live Flickr licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     },
     "Come prepared for a warm, dark paddle": {
-      "reason": "not-a-place",
+      "src": "/guides/picks/bioluminescence-kayak-tour-space-coast/come-prepared-for-a-warm-dark-paddle.webp",
+      "width": 1024,
+      "height": 768,
+      "alt": "Calm shallow lagoon water with a low mangrove island on the horizon at Haulover Canal",
+      "caption": "Calm, shallow lagoon water at Haulover Canal on Merritt Island. Taken in daylight.",
+      "credit": "Rusty Clark ~ 100K Photos",
+      "creditHref": "https://www.flickr.com/photos/23206546@N04/6704973001",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/23206546@N04/6704973001",
+      "author": "Rusty Clark ~ 100K Photos",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "flickr",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "Packing/etiquette advice for the paddle, not a place."
+      "verification": "Flickr photo titled Haulover Canal by Rusty Clark, CC BY 2.0; shows the shallow lagoon shore at the canal; closest-feature fallback since no licensed photo of a night paddle exists Live Flickr licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
+    },
+    "Summer or winter: what actually glows": {
+      "src": "/guides/picks/bioluminescence-kayak-tour-space-coast/summer-or-winter-what-actually-glows.webp",
+      "width": 1400,
+      "height": 1089,
+      "alt": "A transparent warty comb jelly with rows of iridescent cilia against a black background",
+      "caption": "A warty comb jelly (Mnemiopsis leidyi), the kind of comb jelly behind the cool-season glow. The photographer does not name where it was taken.",
+      "credit": "Bruno C. Vellutini",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Comb_jelly_2.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Comb_jelly_2.jpg",
+      "author": "Bruno C. Vellutini",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons description: Ctenophore Mnemiopsis leidyi; species photo, not a place photo Live Commons licence checked: CC BY-SA 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
     }
-  }
+  },
+  "gaps": {}
 }
