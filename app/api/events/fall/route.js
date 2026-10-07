@@ -89,7 +89,9 @@ export async function GET(request) {
     // v25 (2026-10-06) publishes the 98 verified Halloween/fall rows seeded by
     // scripts/seed-fall-additions-2026-10-06.mjs, so a v24 payload computed
     // before that seed can never be served after the deploy.
-    const key = `fall-intents:v25:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v26 (2026-10-06, statewide gap fill) publishes the verified rows seeded by
+    // scripts/seed-fall-gap-fill-2026-10-06.mjs, so no v25 payload outlives it.
+    const key = `fall-intents:v26:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
