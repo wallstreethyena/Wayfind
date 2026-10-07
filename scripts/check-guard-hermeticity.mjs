@@ -48,6 +48,8 @@ const ok = (c, m) => { if (c) pass++; else fails.push(m); };
 // Every exemption names a file and argues for itself. An exemption that stops
 // being true is itself a failure below, so this list cannot quietly rot.
 const EXEMPT = {
+  "test-credited-photo-warm.mjs":
+    "Hermetic by construction: its env() helper DELETES every variable the verdict depends on (gate, VERCEL_ENV, the warm cap, Google and Supabase keys) and then sets exactly the values each case needs, so the ambient shell never reaches an assertion; it also restores the original environment at exit. It has to write process.env because blockedReason() and the cap parser read it at call time, and that is the behaviour under test.",
   "check-owner-approval-pr.mjs":
     "The \"owner-approval\" check (2026-09-23). It is not a prebuild guard: .github/workflows/owner-approval.yml runs it on pull_request_target from the BASE branch, so a pull request cannot rewrite the rule that judges it. Its whole input is GitHub Actions context (GITHUB_ACTIONS, GITHUB_EVENT_NAME, GITHUB_EVENT_PATH, GITHUB_TOKEN, GITHUB_REPOSITORY, GITHUB_API_URL) and it refuses whenever any of it is missing, including every local run. test-owner-approval.mjs runs it as a child process with that context set explicitly and a stub API.",
   "check-doc-ownership.mjs":
