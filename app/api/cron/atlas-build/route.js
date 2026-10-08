@@ -1,5 +1,6 @@
 import { gateFree, gateShut, spendAllow, takeFromLedger } from "../../../../lib/spendGate";
-import { atlasPaidLane, readPriorityIds, ATLAS_LANE_MODEL } from "../../../../lib/atlasPaidLane";
+import { readDryUsedCents, recordDryCents, usdToCents, reserveCents } from "../../../../lib/atlasDryMeter";
+import { atlasPaidLane, readPriorityIds, loadPriorityIds, ATLAS_LANE_MODEL } from "../../../../lib/atlasPaidLane";
 import { laneRequestBody, extractLaneResult, identityProblems, dashProblems, deniedFetched, geocodeCensus, haversineKm, metroCity, dryBudgetAllows, DRY_WORST_NEXT_FLOOR_USD } from "../../../../lib/atlasWebLane";
 // app/api/cron/atlas-build/route.js — bulk-builds the Wayfind "Atlas" editorial
 // (atlas-590-v1) for places that don't have one yet. Sources facts from the
@@ -484,7 +485,12 @@ export async function GET(req) {
     }
   }
 
-  const limit0 = Math.max(1, Math.min(parseInt(url.searchParams.get("limit") || "10", 10) || 10, 25));
+  // ids= (DRY SAMPLES ONLY): the owner picks the places. Anything else ignores it entirely.
+  const idsList = dryMetered ? loadPriorityIds(String(url.searchParams.get("ids") || "").split(",")).slice(0, 10) : [];
+  const idsMode = idsList.length > 0;
+  // A dry request with no limit and no ids does ONE place, so an accidental call is cheap.
+  const limitDefault = dry ? (idsMode ? idsList.length : 1) : 10;
+  const limit0 = Math.max(1, Math.min(parseInt(url.searchParams.get("limit") || String(limitDefault), 10) || limitDefault, 25));
   const limit1 = dry ? Math.min(limit0, 10) : limit0; // dry review runs are capped at 10
   const limit = lane ? Math.min(limit1, dryMetered ? 10 : 5) : limit1; // dry samples may take 10 (the dollar ceiling is the bound) // web-search calls are slow and metered: 5 places per run
   const reqCat = (url.searchParams.get("category") || "").trim();
@@ -521,7 +527,34 @@ export async function GET(req) {
 
   let category = reqCat, places = [];
   const placeById = new Map();
-  if (lane && !reqCat) {
+  const startInfo = new Map();
+  let notFound = [];
+  if (idsMode) {
+    // Owner-picked places: ANY status, ANY metro, with or without an editorial row (dry
+    // never writes, and failed/verified places are the interesting test cases).
+    try {
+      const chunk = idsList.join(",");
+      const [er, ir] = await Promise.all([
+        fetch(`${s.url}/rest/v1/wf_editorial?place_id=in.(${chunk})&select=place_id,verified`, { headers: svcH, cache: "no-store" }),
+        fetch(`${s.url}/rest/v1/wf_inventory?place_id=in.(${chunk})&select=place_id,name,metro,category,primary_type,lat,lng,status,photo_ref`, { headers: svcH, cache: "no-store" }),
+      ]);
+      if (!er.ok || !ir.ok) throw new Error("ids lookup");
+      const ed = new Map((await er.json()).map((r) => [r.place_id, r]));
+      const inv = new Map((await ir.json()).map((r) => [r.place_id, r]));
+      for (const id of idsList) {
+        const r = inv.get(id);
+        if (!r) { notFound.push(id); continue; }
+        places.push(r);
+        const e = ed.get(id);
+        startInfo.set(id, { status: r.status || null, category: r.category || null, metro: r.metro || null, has_editorial_row: !!e, editorial_verified: e ? e.verified === true : null, has_photo_ref: !!r.photo_ref });
+      }
+      category = "(ids)";
+    } catch (e) {
+      await pulse({ attempted: 0, succeeded: 0, note: ("SELECTOR UNREACHABLE: ids lookup | " + cachePulseFragment).slice(0, 200) });
+      return Response.json({ ok: false, dry: true, error: "ids-lookup-failed" }, { status: 503 });
+    }
+  }
+  if (lane && !reqCat && !idsMode) {
     // Owner priority list FIRST (places people actually open), then the normal
     // selection order. Same "needs a row" predicate as wf_atlas_missing: OPERATIONAL,
     // target metros, no wf_editorial row. Fail-soft: any error -> normal selection.
@@ -548,14 +581,16 @@ export async function GET(req) {
       }
     } catch (e) { places = []; }
   }
-  if (lane && places.length && places.length < limit) {
+  if (lane && !idsMode && places.length && places.length < limit) {
     const taken = new Set(places.map((p) => p.place_id));
     for (const c of CATS) {
       const rows = await missing(c);
       if (Array.isArray(rows) && rows.length) { for (const r of rows) if (!taken.has(r.place_id) && places.length < limit) { taken.add(r.place_id); places.push(r); } break; }
     }
   }
-  if (places.length && lane) {
+  if (idsMode) {
+    // ids path already filled places; NEVER fall through to the normal selector
+  } else if (places.length && lane) {
     // priority path already filled places/category; skip the normal selection below
   } else if (retryMode && !category) {
     // The backlog is worked by VALUE, not category by category: these rows
@@ -566,6 +601,9 @@ export async function GET(req) {
     places = await missing(category);
   } else {
     for (const c of CATS) { const rows = await missing(c); if (Array.isArray(rows) && rows.length) { category = c; places = rows; break; } }
+  }
+  if (idsMode && !places.length) {
+    return Response.json({ ok: true, dry: true, lane: true, processed: 0, rows: [], not_found: notFound, note: "none of the ids exist in wf_inventory" }, { headers: { "Cache-Control": "no-store" } });
   }
   if (!category || !places.length) {
     // Idle, not broken. attempted:0 is what stops a self-terminating job from
@@ -621,8 +659,10 @@ export async function GET(req) {
   const DISPATCH_DEADLINE_MS = 45000;
 
   // Dry-sample budget state: sequential, metered from real usage, stops before the ceiling.
-  const dryCosts = [];
-  let drySpent = 0, stoppedForBudget = false;
+  const dryCosts = [], dryCents = [];
+  let drySpent = 0, stoppedForBudget = false, meterRecordFailed = false, meterReadFailed = false;
+  let usedBefore = null, usedAfter = null;
+  const capCents = lane && lane.dryCapUsd ? Math.round(lane.dryCapUsd * 100) : 0;
   await pool(places, dryMetered ? 1 : 6, async (place) => {
     if (Date.now() - startedAt > DISPATCH_DEADLINE_MS) { deferred++; return; } // stays in wf_atlas_missing, picked up next run
     // In-run circuit: after one billing/quota refusal, every further place this
@@ -641,10 +681,26 @@ export async function GET(req) {
     if (lane) {
       // WEB LANE: grant the search sku BEFORE the spend (paidAi then grants the anthropic
       // sku). No placeDetails / officialPage / Google key anywhere on this path.
-      if (dryMetered && (stoppedForBudget || !dryBudgetAllows(drySpent, dryCosts, lane.dryCapUsd))) { stoppedForBudget = true; deferred++; return; }
+      if (dryMetered) {
+        if (stoppedForBudget || meterRecordFailed || !dryBudgetAllows(drySpent, dryCosts, lane.dryCapUsd)) { stoppedForBudget = true; deferred++; return; }
+        // CROSS-REQUEST METER: the month's used cents come from the ledger BEFORE every
+        // place. Unreadable -> fail closed (stop, spend nothing).
+        const used = await readDryUsedCents(s);
+        if (used === null) { meterReadFailed = true; stoppedForBudget = true; deferred++; return; }
+        if (usedBefore === null) usedBefore = used;
+        if (used + reserveCents(dryCents) > capCents) { usedAfter = used; stoppedForBudget = true; deferred++; return; }
+      }
       if (!(await takeFromLedger(lane.searchSku, lane.cap))) { deferred++; return; }
       const res = await writeLaneEditorial(place, akey, stats, sysInfo.blocks, lane, laneModel());
-      if (dryMetered && res) { dryCosts.push(res.costUsd || 0); drySpent += res.costUsd || 0; }
+      if (dryMetered) {
+        // A null result (refused / unreachable / timed out) may still have been billed:
+        // charge the reserve floor, never zero. Recorded BEFORE any other work on the result.
+        const usd = res ? (res.costUsd || 0) : reserveCents([]) / 100;
+        const cents = usdToCents(usd);
+        dryCosts.push(usd); drySpent += usd; dryCents.push(cents);
+        if (await recordDryCents(s, cents)) { usedAfter = (usedAfter === null ? usedBefore : usedAfter) + cents; }
+        else { meterRecordFailed = true; stoppedForBudget = true; }
+      }
       if (res) { laneSearches += res.searches; laneFetched += res.fetched.length; }
       const meta = { sources: res ? res.fetched.map((f) => f.url) : [], found_address: null, distance_km: null, searches: res ? res.searches : 0 };
       laneMeta.set(place.place_id, meta);
@@ -724,8 +780,8 @@ export async function GET(req) {
     const names = new Map(places.map((p) => [p.place_id, p.name]));
     return Response.json({
       ok: true, dry: true, mode: "build", lane: !!lane, processed: rows.length, deferred, provider_halt: stats.providerHalt || null, searches: laneSearches, fetched: laneFetched,
-      ...(dryMetered ? { cost_usd_total: Math.round(drySpent * 10000) / 10000, cost_usd_per_place: dryCosts.map((c) => Math.round(c * 10000) / 10000), stopped_for_budget: stoppedForBudget, cap_usd: lane.dryCapUsd } : {}),
-      rows: rows.map((r) => ({ place_id: r.place_id, name: names.get(r.place_id) || null, hook: r.hook, why_here: r.why_here, verified: r.verified, issues: r.issues, ...(laneMeta.get(r.place_id) || {}) })),
+      ...(dryMetered ? { cost_usd_total: Math.round(drySpent * 10000) / 10000, cost_usd_per_place: dryCosts.map((c) => Math.round(c * 10000) / 10000), stopped_for_budget: stoppedForBudget, cap_usd: lane.dryCapUsd, meter_record_failed: meterRecordFailed, meter_read_failed: meterReadFailed, budget: { cap_cents: capCents, used_cents_before: usedBefore, used_cents_after: usedAfter }, ...(idsMode ? { not_found: notFound } : {}) } : {}),
+      rows: rows.map((r) => ({ place_id: r.place_id, name: names.get(r.place_id) || null, hook: r.hook, why_here: r.why_here, verified: r.verified, issues: r.issues, ...(startInfo.has(r.place_id) ? { start: startInfo.get(r.place_id) } : {}), ...(laneMeta.get(r.place_id) || {}) })),
     }, { headers: { "Cache-Control": "no-store" } });
   }
   if (rows.length) {

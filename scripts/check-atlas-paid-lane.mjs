@@ -65,7 +65,13 @@ ok(/if \(gateShut\(\) \|\| gateFree\(\)\) \{\s*if \(gateShut\(\) \|\| !lane\) \{
 ok(/takeFromLedger\(lane\.searchSku, lane\.cap\)/.test(route) && /spendAllow\("details_enterprise"\)/.test(route), "search grant must use the lane sku, shared sku only as the non-lane branch");
 ok(/\{ sku: lane\.anthropicSku, cap: lane\.cap, timeoutMs: 48000 \}/.test(route), "lane Anthropic call must carry the lane sku+cap+48s timeout; shared path stays lane-free");
 ok(/const lane = laneCfg && \(laneCfg\.mode === "full" \|\| dry\) \? laneCfg : null;/.test(route), "dry-only mode: the lane is active for ?dry=1 only unless ATLAS_PAID_ENABLED=1 (full)");
-ok(/dryMetered && \(stoppedForBudget \|\| !dryBudgetAllows\(drySpent, dryCosts, lane\.dryCapUsd\)\)/.test(route), "the dollar-ceiling stop must run before each place's grant");
+ok(/stoppedForBudget \|\| meterRecordFailed \|\| !dryBudgetAllows\(drySpent, dryCosts, lane\.dryCapUsd\)/.test(route), "the in-request dollar-ceiling stop must run before each place's grant");
+{
+  const iRead = route.indexOf("readDryUsedCents(s)"), iStop = route.indexOf("used + reserveCents(dryCents) > capCents"), iGrant = route.indexOf("takeFromLedger(lane.searchSku"), iRec = route.indexOf("recordDryCents(s, cents)");
+  ok(iRead > 0 && iRead < iStop && iStop < iGrant && iGrant < iRec, "cross-request meter order: read, reserve check, grant, Anthropic call, then record");
+  ok(/used === null\) \{ meterReadFailed = true; stoppedForBudget = true/.test(route), "an unreadable meter must fail closed (stop, spend nothing)");
+  ok(/idsList = dryMetered \? loadPriorityIds/.test(route) && /const limitDefault = dry \? \(idsMode \? idsList\.length : 1\) : 10;/.test(route), "ids= is read only for metered dry requests; a dry request without ids/limit does one place");
+}
 ok(/pool\(places, dryMetered \? 1 : 6/.test(route), "dry samples must run sequentially");
 ok((route.match(/takeFromLedger\(/g) || []).length === 1, "exactly one lane grant call expected in the route");
 ok(!/process\.env\.WAYFIND_GATE/.test(route), "route must not read WAYFIND_GATE itself");

@@ -147,16 +147,18 @@ try {
     import { register } from "node:module";
     register(${HOOK}, import.meta.url);
     const F = ${JSON.stringify({ GOOD_RESP, NO_FETCH_RESP, food })};
-    const rec = { spend: [], writes: 0, urls: [], anthropicBodies: [], pulses: [] };
+    const rec = { spend: [], writes: 0, urls: [], anthropicBodies: [], pulses: [], invUrls: [], ledgerReads: 0 };
+    let dryUsed = Number(process.env.LEDGER_USED || 0);
     const jr = (v, ok = true) => ({ ok, status: ok ? 200 : 500, json: async () => v, text: async () => JSON.stringify(v) });
     globalThis.fetch = async (u, init = {}) => {
       const url = String(u), method = (init.method || "GET").toUpperCase();
       rec.urls.push(url.slice(0, 160));
-      if (url.includes("/rpc/wf_spend_take")) { rec.spend.push(JSON.parse(init.body)); return jr(true); }
+      if (url.includes("/rest/v1/wf_spend_ledger")) { rec.ledgerReads++; if (process.env.LEDGER_FAIL) return jr({}, false); return jr(process.env.LEDGER_NOROW ? [] : [{ used: dryUsed }]); }
+      if (url.includes("/rpc/wf_spend_take")) { const b = JSON.parse(init.body); rec.spend.push(b); if (b.p_sku === "atlas_dry_cents") { if (process.env.RECORD_FAIL) return jr(false); dryUsed += b.p_n; } return jr(true); }
       if (url.includes("/rest/v1/wf_job_pulse")) { rec.pulses.push(JSON.parse(init.body)); return jr({}); }
       if (url.includes("/rest/v1/wf_editorial") && method !== "GET") { rec.writes++; return jr([]); }
-      if (url.includes("/rest/v1/wf_editorial")) return jr([]);
-      if (url.includes("/rest/v1/wf_inventory")) { const m = url.match(/place_id=in\.\(([^)]*)\)/); return jr((m ? m[1].split(",") : [F.food.place_id]).map((id) => ({ ...F.food, place_id: id }))); }
+      if (url.includes("/rest/v1/wf_editorial")) return jr(process.env.EDITORIAL_JSON ? JSON.parse(process.env.EDITORIAL_JSON) : []);
+      if (url.includes("/rest/v1/wf_inventory")) { rec.invUrls.push(url); if (!url.includes("status=eq.OPERATIONAL")) { const ids = (url.match(/place_id=in\\.\\(([^)]*)\\)/) || [, ""])[1].split(","); const missing = (process.env.NOTFOUND || "").split(","); const closed = (process.env.CLOSED || "").split(","); return jr(ids.filter((id) => !missing.includes(id)).map((id) => ({ ...F.food, place_id: id, metro: closed.includes(id) ? "miami-dade" : F.food.metro, status: closed.includes(id) ? "CLOSED_PERMANENTLY" : "OPERATIONAL", photo_ref: closed.includes(id) ? null : "places/x/photos/y" }))); } const m = url.match(/place_id=in\\.\\(([^)]*)\\)/); return jr((m ? m[1].split(",") : [F.food.place_id]).map((id) => ({ ...F.food, place_id: id }))); }
       if (url.includes("/rpc/wf_atlas_missing")) return jr([]);
       if (url.includes("api.anthropic.com")) { rec.anthropicBodies.push(JSON.parse(init.body)); const base = process.env.SCEN === "nofetch" ? F.NO_FETCH_RESP : F.GOOD_RESP; return jr(process.env.USAGE_JSON ? { ...base, usage: JSON.parse(process.env.USAGE_JSON) } : base); }
       if (url.includes("geocoding.geo.census.gov")) return jr({ result: { addressMatches: [{ coordinates: { x: -82.458, y: 27.951 } }] } });
@@ -221,6 +223,42 @@ try {
   ok(Z2.body.cap_usd === 1 && Z2.rec.anthropicBodies.length === 3, "malformed ATLAS_DRY_USD_CAP falls back to $1.00");
   const cheap = run({ ATLAS_PAID_ENABLED: "dry", QS: "?dry=1&limit=10" });
   ok(cheap.body.cost_usd_total < 0.5 && cheap.body.stopped_for_budget === false && cheap.rec.anthropicBodies.length === 10, "cheap usage processes all 10 places sequentially without stopping");
+  // ---- persistent cross-request meter, ids=, default limit ---------------------------------
+  const sumDry = (r) => r.rec.spend.filter((x) => x.p_sku === "atlas_dry_cents").reduce((a, x) => a + x.p_n, 0);
+  const M1 = run({ ATLAS_PAID_ENABLED: "dry", QS: "?dry=1&limit=1", LEDGER_USED: "80" });
+  ok(M1.rec.anthropicBodies.length === 0 && M1.rec.spend.length === 0 && M1.body.stopped_for_budget === true && M1.body.budget.used_cents_before === 80 && M1.body.budget.cap_cents === 100, `ledger used=80 + reserve 25 > cap 100: blocked with ZERO Anthropic calls and zero grants (calls ${M1.rec.anthropicBodies.length}, spend ${M1.rec.spend.length}, ${JSON.stringify(M1.body.budget)})`);
+  const M2 = run({ ATLAS_PAID_ENABLED: "dry", QS: "?dry=1&limit=1", LEDGER_USED: "75" });
+  ok(M2.rec.anthropicBodies.length === 1 && M2.body.budget.used_cents_before === 75, "ledger used=75 + reserve 25 = cap 100: exactly fits, the place runs");
+  const U23 = JSON.stringify({ input_tokens: 100000, output_tokens: 2340, server_tool_use: { web_search_requests: 0 } }); // $0.2234 -> 23 cents
+  const M3 = run({ ATLAS_PAID_ENABLED: "dry", QS: "?dry=1&limit=1", LEDGER_USED: "10", USAGE_JSON: U23 });
+  ok(sumDry(M3) === 23 && M3.rec.spend.filter((x) => x.p_sku === "atlas_dry_cents").every((x) => x.p_cap === 1000000 && x.p_n >= 1 && x.p_n <= 10) && M3.body.budget.used_cents_after === 33 && M3.body.meter_record_failed === false, `a $0.2234 place records ceil = 23 cents on the ledger (recorded ${sumDry(M3)}, ${JSON.stringify(M3.body.budget)})`);
+  const M4 = run({ ATLAS_PAID_ENABLED: "dry", QS: "?dry=1&limit=1", LEDGER_FAIL: "1" });
+  ok(M4.rec.anthropicBodies.length === 0 && M4.rec.spend.length === 0 && M4.body.meter_read_failed === true && M4.body.stopped_for_budget === true, "unreadable ledger -> fail closed: zero Anthropic calls, zero grants");
+  const M5 = run({ ATLAS_PAID_ENABLED: "dry", QS: "?dry=1&limit=3", RECORD_FAIL: "1" });
+  ok(M5.rec.anthropicBodies.length === 1 && M5.body.meter_record_failed === true && M5.body.stopped_for_budget === true, "a failed meter record stops further places and reports meter_record_failed");
+  const M6 = run({ ATLAS_PAID_ENABLED: "dry", QS: "?dry=1&limit=1", LEDGER_NOROW: "1" });
+  ok(M6.rec.anthropicBodies.length === 1 && M6.body.budget.used_cents_before === 0, "a missing ledger row reads as 0 used");
+  const M7 = run({ ATLAS_PAID_ENABLED: "dry", QS: "?dry=1" });
+  ok(M7.rec.anthropicBodies.length === 1, `dry without ids or limit does exactly ONE place (got ${M7.rec.anthropicBodies.length})`);
+
+  const IDS = ["ChIJidsTestAAAA1", "ChIJidsTestBBBB2", "ChIJidsTestCCCC3"];
+  const I1 = run({ ATLAS_PAID_ENABLED: "dry", QS: "?dry=1&ids=" + IDS.join(",") + ",bad id,ChIJidsTestAAAA1", CLOSED: IDS[1], NOTFOUND: IDS[2], EDITORIAL_JSON: JSON.stringify([{ place_id: IDS[0], verified: false }]) });
+  ok(I1.rec.anthropicBodies.length === 2 && I1.body.rows.map((r) => r.place_id).join() === IDS[0] + "," + IDS[1], "ids= processes exactly the found ids, in order, deduped, junk dropped (incl. a non-OPERATIONAL one)");
+  ok(JSON.stringify(I1.body.not_found) === JSON.stringify([IDS[2]]), "ids= reports unknown ids as not_found");
+  const r0 = I1.body.rows[0], r1 = I1.body.rows[1];
+  ok(r0.start && r0.start.status === "OPERATIONAL" && r0.start.has_editorial_row === true && r0.start.editorial_verified === false && r0.start.has_photo_ref === true && r0.start.category === "food" && r0.start.metro === "tampa", "dry row start = status, category, metro, editorial row + verified, photo ref (existing row, unverified)");
+  ok(r1.start && r1.start.status === "CLOSED_PERMANENTLY" && r1.start.metro === "miami-dade" && r1.start.has_editorial_row === false && r1.start.editorial_verified === null && r1.start.has_photo_ref === false, "a closed, off-metro place with no editorial row is processed and reported as such");
+  ok(I1.rec.invUrls.length === 1 && !/status=eq|metro=in/.test(I1.rec.invUrls[0]), "ids= inventory lookup carries no status or metro filter");
+  ok(I1.rec.writes === 0, "ids= dry run wrote nothing to wf_editorial");
+  const I2 = run({ ATLAS_PAID_ENABLED: "1", QS: "?limit=2&ids=" + IDS.join(",") });
+  ok(!I2.rec.invUrls.concat(I2.rec.urls).some((u) => u.includes(IDS[0])), "ids= on a non-dry request has no effect (ignored entirely)");
+  const I3 = run({ ATLAS_PAID_ENABLED: "dry", QS: "?limit=2&ids=" + IDS.join(",") });
+  ok(I3.rec.anthropicBodies.length === 0 && I3.rec.spend.length === 0 && I3.rec.invUrls.length === 0, "ids= on a non-dry request under the dry flag: skip, zero calls");
+  const I4 = run({ ATLAS_PAID_ENABLED: "1", QS: "?dry=1&limit=1&ids=" + IDS.join(",") });
+  ok(!I4.rec.invUrls.concat(I4.rec.urls).some((u) => u.includes(IDS[0])), "ids= is honoured only for ATLAS_PAID_ENABLED=dry (metered) dry requests");
+  const I5 = run({ ATLAS_PAID_ENABLED: "dry", QS: "?dry=1&ids=" + IDS[2], NOTFOUND: IDS[2] });
+  ok(I5.body.processed === 0 && I5.rec.anthropicBodies.length === 0 && JSON.stringify(I5.body.not_found) === JSON.stringify([IDS[2]]), "all ids unknown: nothing runs, nothing falls through to the normal selector");
+
   const bogus = run({ ATLAS_PAID_ENABLED: "yes", QS: "?dry=1&limit=3" });
   ok(bogus.body.skipped && bogus.rec.spend.length === 0, "any other ATLAS_PAID_ENABLED value fails closed");
 } finally {
