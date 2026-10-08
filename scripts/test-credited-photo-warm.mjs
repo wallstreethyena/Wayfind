@@ -291,6 +291,26 @@ ok(SG.creditedPhotoWarmCap() === 800, "cap 800 parses to 800");
 }
 
 Object.assign(process.env, ENV0);
+// VIEWED FIRST (2026-10-08). Order decides who gets a photo when the budget
+// cannot cover everyone, so places real readers failed to see go first.
+{
+  const t = [{ placeId: "ChIJaaaaaaaaaaaaaaaa" }, { placeId: "ChIJbbbbbbbbbbbbbbbb" }, { placeId: "ChIJcccccccccccccccc" }, { placeId: "ChIJdddddddddddddddd" }];
+  const views = new Map([["ChIJcccccccccccccccc", 9], ["ChIJbbbbbbbbbbbbbbbb", 2]]);
+  const order = T.viewedFirst(t, views).map((x) => x.placeId);
+  ok(JSON.stringify(order) === JSON.stringify(["ChIJcccccccccccccccc", "ChIJbbbbbbbbbbbbbbbb", "ChIJaaaaaaaaaaaaaaaa", "ChIJdddddddddddddddd"]), `viewedFirst: most-viewed first, unviewed keep placeId order (got ${order.join(",")})`);
+  ok(JSON.stringify(T.viewedFirst(t, new Map()).map((x) => x.placeId)) === JSON.stringify(t.map((x) => x.placeId)), "viewedFirst: no view data leaves the deterministic order unchanged");
+  ok(t[0].placeId === "ChIJaaaaaaaaaaaaaaaa", "viewedFirst does not mutate its input");
+  // loadReaderViews: reads ONLY the reader-miss table, sums detections, last 30 days.
+  const seen = [];
+  const fake = async (u) => { seen.push(String(u)); return { ok: true, json: async () => [{ place_id: "ChIJcccccccccccccccc", detections: 4 }, { place_id: "ChIJcccccccccccccccc", detections: 5 }] }; };
+  const m = await T.loadReaderViews(["ChIJcccccccccccccccc", "bad id"], { url: "https://x.test", key: "k", fetchImpl: fake, now: Date.parse("2026-10-08T00:00:00Z") });
+  ok(m.get("ChIJcccccccccccccccc") === 9, `loadReaderViews sums detections (got ${m.get("ChIJcccccccccccccccc")})`);
+  ok(seen.length === 1 && /\/rest\/v1\/wf_photo_repair_queue\?select=place_id,detections&place_id=in\.\(ChIJcccccccccccccccc\)&last_seen_at=gte\.2026-09-08/.test(seen[0]), `loadReaderViews reads the reader-miss queue for valid ids only, last 30 days (got ${seen[0]})`);
+  // The cron applies it to the merged list before the worker sees it.
+  const cron = readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "app/api/cron/credited-photos/route.js"), "utf8").replace(/\/\/[^\n]*/g, "");
+  ok(/targets\s*=\s*viewedFirst\(targets,\s*views\)/.test(cron) && cron.indexOf("viewedFirst(targets") < cron.indexOf("warmCreditedPhotos({"), "the credited-photos cron orders targets viewed-first before the worker runs");
+}
+
 if (fails.length) {
   console.error("test-credited-photo-warm: FAIL\n - " + fails.join("\n - "));
   process.exit(1);
