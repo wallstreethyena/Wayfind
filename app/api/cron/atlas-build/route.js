@@ -1,4 +1,6 @@
-import { gateFree, gateShut, spendAllow } from "../../../../lib/spendGate";
+import { gateFree, gateShut, spendAllow, takeFromLedger } from "../../../../lib/spendGate";
+import { atlasPaidLane, readPriorityIds, ATLAS_LANE_MODEL } from "../../../../lib/atlasPaidLane";
+import { laneRequestBody, extractLaneResult, identityProblems, dashProblems, deniedFetched, geocodeCensus, haversineKm, metroCity } from "../../../../lib/atlasWebLane";
 // app/api/cron/atlas-build/route.js — bulk-builds the Wayfind "Atlas" editorial
 // (atlas-590-v1) for places that don't have one yet. Sources facts from the
 // Google Places Details API, writes each entry with Claude, and upserts to
@@ -319,6 +321,38 @@ async function writeEditorial(place, d, key, sources, stats, systemBlocks, timeo
   }
 }
 
+// ATLAS PAID LANE writer: ONE Anthropic Messages call with server-side web_search +
+// web_fetch. No Google call of any kind. Returns { text, fetched, searches } or null.
+// Same provider-halt handling as writeEditorial; the lane sku/cap/timeout ride on `lane`.
+async function writeLaneEditorial(place, key, stats, systemBlocks, lane, model) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 48000);
+  try {
+    const r = await paidAnthropicRequest({
+      method: "POST", cache: "no-store", signal: ctrl.signal,
+      headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
+      body: JSON.stringify(laneRequestBody(place, model, systemBlocks, metroCity(place.metro))),
+    }, { sku: lane.anthropicSku, cap: lane.cap, timeoutMs: 48000 });
+    if (!r.ok) {
+      let msg = "";
+      try { msg = String(((await r.json()) || {}).error?.message || "").slice(0, 200); } catch (e) { msg = "(unparseable body)"; }
+      console.error(`ATLAS-DIAG anthropic lane status=${r.status} model=${model} msg=${msg}`);
+      const kind = classifyProviderFailure(r.status, msg);
+      if (kind && stats) {
+        stats.providerHalt = { kind, msg: `anthropic ${r.status}: ${msg}`.slice(0, 180) };
+        tripBreaker("anthropic", kind, stats.providerHalt.msg).catch(() => {});
+      }
+      return null;
+    }
+    return extractLaneResult(await r.json());
+  } catch (e) {
+    console.error(`ATLAS-DIAG anthropic lane threw name=${e && e.name} msg=${String(e && e.message).slice(0, 160)}`);
+    return null;
+  } finally {
+    clearTimeout(t);
+  }
+}
+
 async function pool(items, limit, fn) {
   const out = []; let i = 0;
   await Promise.all(Array.from({ length: Math.min(limit, items.length || 1) }, async () => {
@@ -390,16 +424,24 @@ export async function GET(req) {
   // The note must NOT begin with "billing:" or "quota:" — classifyHealth
   // anchors its escalation match to the START of the note, and this is a
   // deliberate configuration, not a provider failure.
+  // ATLAS PAID LANE: the one narrow exception. Only plain build mode, only while the
+  // gate is "free" (shut still blocks everything), only with BOTH owner flags valid.
+  // The global gate and spendGate semantics are untouched for every other caller.
+  const lane = !retryMode && !refreshMode && gateFree() ? atlasPaidLane() : null;
+  const dry = url.searchParams.get("dry") === "1";
   if (gateShut() || gateFree()) {
-    const mode = gateShut() ? "shut" : "free";
-    await pulse({ attempted: 0, succeeded: 0, failed: 0, note: `intentional skip: gate=${mode}; paid Atlas re-buy disabled` });
-    return Response.json({ ok: true, skipped: `gate ${mode}: atlas re-buy is disabled`, gate: mode, ranWork: false });
+    // The paid lane bypasses ONLY the free-mode skip; shut always skips.
+    if (gateShut() || !lane) {
+      const mode = gateShut() ? "shut" : "free";
+      await pulse({ attempted: 0, succeeded: 0, failed: 0, note: `intentional skip: gate=${mode}; paid Atlas re-buy disabled` });
+      return Response.json({ ok: true, skipped: `gate ${mode}: atlas re-buy is disabled`, gate: mode, ranWork: false });
+    }
   }
   const s = sbEnv();
   const gkey = GKEY();
   const akey = aiKey();
   if (!s) return jobCannotRun("atlas-build", "SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_URL is missing");
-  if (!gkey || !akey) return jobCannotRun("atlas-build", "GOOGLE_MAPS_SERVER_KEY or ANTHROPIC_API_KEY is missing");
+  if (!akey || (!lane && !gkey)) return jobCannotRun("atlas-build", "GOOGLE_MAPS_SERVER_KEY or ANTHROPIC_API_KEY is missing");
   const svcH = { apikey: s.key, Authorization: `Bearer ${s.key}`, "Content-Type": "application/json" };
 
   // THE CACHE HONESTY GATE, computed ONCE per invocation (both blocks are
@@ -414,7 +456,9 @@ export async function GET(req) {
   // EVERY pulse note below (cachePulseFragment) rather than silently assumed
   // either way. Computed before the circuit breaker so even an early-exit
   // pulse states it.
-  const sysInfo = buildAtlasSystemBlocks(MODEL());
+  // Lane default model: a current model for the web tools, unless the owner pinned ATLAS_MODEL.
+  const laneModel = () => (resolveOverride("ATLAS_MODEL").status === "default" ? ATLAS_LANE_MODEL : MODEL());
+  const sysInfo = buildAtlasSystemBlocks(lane ? laneModel() : MODEL());
   const cachePulseFragment = `cacheEligible=${sysInfo.eligible} tokens=${sysInfo.tokens} min=${sysInfo.min ?? "unknown"} model=${sysInfo.model}`;
 
   // CIRCUIT BREAKER (2026-08-25, after the 579-call billing incident). If a
@@ -435,7 +479,9 @@ export async function GET(req) {
     }
   }
 
-  const limit = Math.max(1, Math.min(parseInt(url.searchParams.get("limit") || "10", 10) || 10, 25));
+  const limit0 = Math.max(1, Math.min(parseInt(url.searchParams.get("limit") || "10", 10) || 10, 25));
+  const limit1 = dry ? Math.min(limit0, 10) : limit0; // dry review runs are capped at 10
+  const limit = lane ? Math.min(limit1, 5) : limit1; // web-search calls are slow and metered: 5 places per run
   const reqCat = (url.searchParams.get("category") || "").trim();
   // RETRY MODE. Same generation machinery, different selector and different
   // write. wf_atlas_missing returns places with NO row; wf_atlas_retryable
@@ -469,7 +515,44 @@ export async function GET(req) {
   }
 
   let category = reqCat, places = [];
-  if (retryMode && !category) {
+  const placeById = new Map();
+  if (lane && !reqCat) {
+    // Owner priority list FIRST (places people actually open), then the normal
+    // selection order. Same "needs a row" predicate as wf_atlas_missing: OPERATIONAL,
+    // target metros, no wf_editorial row. Fail-soft: any error -> normal selection.
+    try {
+      const ids = readPriorityIds();
+      if (ids.length) {
+        const have = new Set();
+        const cands = new Map();
+        for (let i = 0; i < ids.length; i += 100) {
+          const chunk = ids.slice(i, i + 100).join(",");
+          const [er, ir] = await Promise.all([
+            fetch(`${s.url}/rest/v1/wf_editorial?place_id=in.(${chunk})&select=place_id`, { headers: svcH, cache: "no-store" }),
+            fetch(`${s.url}/rest/v1/wf_inventory?place_id=in.(${chunk})&status=eq.OPERATIONAL&metro=in.(${METROS.join(",")})&select=place_id,name,metro,category,primary_type,lat,lng`, { headers: svcH, cache: "no-store" }),
+          ]);
+          if (!er.ok || !ir.ok) { selectorError = `priority ${er.status}/${ir.status}`; throw new Error("priority lookup"); }
+          for (const r of await er.json()) have.add(r.place_id);
+          for (const r of await ir.json()) cands.set(r.place_id, r);
+        }
+        for (const id of ids) {
+          if (places.length >= limit) break;
+          if (!have.has(id) && cands.has(id)) places.push(cands.get(id));
+        }
+        if (places.length) { selectorError = null; category = "(priority)"; }
+      }
+    } catch (e) { places = []; }
+  }
+  if (lane && places.length && places.length < limit) {
+    const taken = new Set(places.map((p) => p.place_id));
+    for (const c of CATS) {
+      const rows = await missing(c);
+      if (Array.isArray(rows) && rows.length) { for (const r of rows) if (!taken.has(r.place_id) && places.length < limit) { taken.add(r.place_id); places.push(r); } break; }
+    }
+  }
+  if (places.length && lane) {
+    // priority path already filled places/category; skip the normal selection below
+  } else if (retryMode && !category) {
     // The backlog is worked by VALUE, not category by category: these rows
     // failed for a reason that had nothing to do with what they are.
     category = "(retry)";
@@ -511,6 +594,8 @@ export async function GET(req) {
   // Salvage visibility: how many replies needed truncation salvage this run.
   // Persistently non-zero means max_tokens is too tight for the page corpus.
   const stats = { salvaged: 0 };
+  let laneSearches = 0, laneFetched = 0;
+  const laneMeta = new Map();
 
   // v6.49 DEADLINE GUARD. The upsert happens once, after every place resolves,
   // so a run that overruns maxDuration loses the WHOLE batch — every Places
@@ -541,6 +626,36 @@ export async function GET(req) {
     if (RIDE_RX.test(String(place.name || "")) || parkZone) {
       rides++;
       if (!refreshMode) rows.push(editorialRow(place, null, nowIso, ["RIDE-LEVEL — merge into parent park"]));
+      return;
+    }
+    // Lane: own sku, own cap, granted atomically per place BEFORE the Details call.
+    // Otherwise today's shared grant, unchanged.
+    if (lane) {
+      // WEB LANE: grant the search sku BEFORE the spend (paidAi then grants the anthropic
+      // sku). No placeDetails / officialPage / Google key anywhere on this path.
+      if (!(await takeFromLedger(lane.searchSku, lane.cap))) { deferred++; return; }
+      const res = await writeLaneEditorial(place, akey, stats, sysInfo.blocks, lane, laneModel());
+      if (res) { laneSearches += res.searches; laneFetched += res.fetched.length; }
+      const meta = { sources: res ? res.fetched.map((f) => f.url) : [], found_address: null, distance_km: null, searches: res ? res.searches : 0 };
+      laneMeta.set(place.place_id, meta);
+      if (!res || !res.fetched.length) { pending++; if (!refreshMode) rows.push(editorialRow(place, null, nowIso, ["PENDING SOURCE"])); return; }
+      if (deniedFetched(res.fetched)) { pending++; rows.push(editorialRow(place, null, nowIso, ["BLOCKED — §7 source"])); return; }
+      const ext = extractModelJson(res.text);
+      const lp = ext && ext.value;
+      if (!lp || lp.pending === true || !lp.hook) { pending++; rows.push(editorialRow(place, null, nowIso, ["PENDING SOURCE"])); return; }
+      meta.found_address = typeof lp.found_address === "string" ? lp.found_address : null;
+      const geo = meta.found_address ? await geocodeCensus(meta.found_address) : null;
+      if (geo) { const km = haversineKm(place.lat, place.lng, geo.lat, geo.lng); meta.distance_km = km == null ? null : Math.round(km * 100) / 100; }
+      const idp = identityProblems(lp, res.fetched, place, geo);
+      const verifyProblems = verifyAtlasEditorial(lp, corpusOf({ name: place.name }, res.fetched), res.fetched.map((f) => f.url));
+      const issues = [
+        ...idp.map((x) => "identity:" + x),
+        ...dashProblems(lp).map((x) => x.split(":")[0] === "dash" ? "dash" : x),
+        ...verifyProblems.slice(0, 6).map((p) => `${p.check}:${p.field}:${p.value}`.slice(0, 90)),
+      ];
+      if (issues.length) { unverified++; rows.push(editorialRow(place, null, nowIso, ["FAILED VERIFICATION", ...issues.slice(0, 8)])); return; }
+      sourced++;
+      rows.push(editorialRow(place, lp, nowIso, null));
       return;
     }
     if (!(await spendAllow("details_enterprise"))) { deferred++; return; }
@@ -594,6 +709,14 @@ export async function GET(req) {
 
   // Upsert — ON CONFLICT (place_id) DO NOTHING keeps the 373 existing rows safe.
   let written = 0, upErr = null, persistedPublished = 0;
+  if (dry) {
+    // DRY RUN: the pipeline above already spent (capped); NOTHING is written to wf_editorial.
+    const names = new Map(places.map((p) => [p.place_id, p.name]));
+    return Response.json({
+      ok: true, dry: true, mode: "build", lane: !!lane, processed: rows.length, deferred, provider_halt: stats.providerHalt || null, searches: laneSearches, fetched: laneFetched,
+      rows: rows.map((r) => ({ place_id: r.place_id, name: names.get(r.place_id) || null, hook: r.hook, why_here: r.why_here, verified: r.verified, issues: r.issues, ...(laneMeta.get(r.place_id) || {}) })),
+    }, { headers: { "Cache-Control": "no-store" } });
+  }
   if (rows.length) {
     if (retryMode) {
       // These rows ALREADY EXIST, so the insert path (resolution=ignore-duplicates)
@@ -661,7 +784,7 @@ export async function GET(req) {
     } catch (e) {}
   }
 
-  const left = await missing(category);
+  const left = category === "(priority)" ? null : await missing(category);
 
   // THE PULSE. `succeeded` is PUBLISHED rows, not written ones — that distinction
   // is the entire lesson of the five-day outage: 525 rows were written and zero
@@ -708,7 +831,7 @@ export async function GET(req) {
   await pulse({
     attempted: rows.length || places.length,
     succeeded: publishedCount,
-    note: [failureNote, cachePulseFragment].filter(Boolean).join(" | ").slice(0, 200) || null,
+    note: [failureNote, lane ? `searches=${laneSearches} fetched=${laneFetched}` : null, cachePulseFragment].filter(Boolean).join(" | ").slice(0, 200) || null,
   });
 
   return Response.json({
@@ -731,7 +854,7 @@ export async function GET(req) {
     sourced, pending, rides, salvaged: stats.salvaged, opportunities: opps, opportunityDetail: oppDetail,
     provider_halt: stats.providerHalt || null,
     took_ms: Date.now() - startedAt,
-    remaining_after: Array.isArray(left) ? left.length + "+ (paged)" : "?", error: upErr, model: MODEL(),
+    remaining_after: Array.isArray(left) ? left.length + "+ (paged)" : "?", error: upErr, model: lane ? laneModel() : MODEL(),
     // Stated plainly on every response, not just the pulse note: whether the
     // cache_control this run attached (if any) can do anything real.
     cache: { eligible: sysInfo.eligible, prefix_tokens: sysInfo.tokens, model_minimum: sysInfo.min, reason: sysInfo.reason },

@@ -579,6 +579,12 @@ node scripts/check-guards-emit-no-analytics.mjs
 node scripts/test-redirect-visitor-scope.mjs
 node scripts/check-known-for.mjs
 node scripts/check-atlas-retry-cron.mjs
+# 2026-10-07 Atlas paid lane: env-gated spend branch (CLAUDE.md revenue rule 1). Both flags, own skus, dry never writes.
+node scripts/check-atlas-paid-lane.mjs
+# 2026-10-07 Atlas paid lane web path: zero Google calls, identity gate, dry never writes (fixtures only).
+node scripts/test-atlas-web-lane.mjs
+# 2026-10-07 Owner rule: once a verified editorial line is written it stays. No wf_editorial deletes; reconcile restores reopened places.
+node scripts/check-editorial-stays.mjs
 node scripts/check-guide-cta-honesty.mjs
 # 2026-08-26 — guide bookQuery must not paint as Book. Crystal River
 # leaked /api/viator/go?q=…&intent=search onto searchResults. ASSERT ON
