@@ -21,7 +21,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { loadComponent } from "./lib/jsxLoad.mjs";
 import { cardToEditorial } from "../lib/atlasCards.js";
 import { mapWfEditorial } from "../lib/editorialRule.js";
-import { scrubEditorial, scrubEditorialText } from "../lib/editorialScrub.js";
+import { isGeneralHoursClause, scrubEditorial, scrubEditorialText } from "../lib/editorialScrub.js";
 
 const repo = fileURLToPath(new URL("..", import.meta.url));
 let pass = 0;
@@ -47,10 +47,10 @@ for (const c of cards) {
   if (raw && /refresh before display/i.test(raw)) {
     flagged++;
     if (ed.goodToKnow !== raw) changed++;
-    // 2. A stale-flagged card yields NO hours sentence.
-    ok(!ed.goodToKnow || !/\b\d{1,2}(?::\d{2})?\s*(?:[ap]\.?m\.?)\s*[–-]\s*\d/i.test(ed.goodToKnow) || /not (?:posted|printed)|vary|differ|tour|storytime|music|market|event|special|happy|lesson|check-?in|check-?out|ride|program/i.test(ed.goodToKnow),
-      `${c.name}: stale-flagged card still states hours: ${ed.goodToKnow}`);
-    ok(!/\bopen daily\b/i.test(ed.goodToKnow || ""), `${c.name}: stale-flagged card still says "open daily"`);
+    // 2. A stale-flagged card yields NO general-opening-hours clause.
+    const left = (ed.goodToKnow || "").split(/(?<=[.!?])\s+|;\s+/);
+    ok(!left.some((cl) => isGeneralHoursClause(cl)), `${c.name}: stale-flagged card still states opening hours: ${ed.goodToKnow}`);
+    ok(!/\bopen (?:daily|every ?day|(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*) ?[–-]? ?\d/i.test(ed.goodToKnow || ""), `${c.name}: stale-flagged card still says "open daily <time>"`);
   } else if (raw && !NOTE.test(raw)) {
     // 3. Positive control: a normal card's text is byte-for-byte unchanged.
     normal++;
@@ -74,6 +74,17 @@ ok(scrubEditorialText("Open 8am to sundown, 365 days a year; $5 per vehicle. Ver
 ok(scrubEditorialText("Closed for repairs. Verified 2026-07-18; refresh before display.") === "Closed for repairs.", "non-hours fact survives, note stripped");
 ok(scrubEditorialText("Lunch 11am–2pm at St. Armands. Refresh before display.") === null, "'St.' does not split a sentence");
 ok(scrubEditorial({ a: "x. Refresh before display.", b: 5, c: null }).b === 5, "non-strings pass through");
+
+// 4b. Narrow scope (reviewer, PR #1670): non-hours facts that merely contain a time are KEPT.
+const FL = " Verified 2026-07-18; refresh before display.";
+for (const keep of ["Happy hour 4-6pm half-price oysters.", "Shows daily at 1pm and 2pm.", "Closed for summer, reopens Oct 1.", "Free tours Saturdays at 10am.", "Reservations: 941-383-0102."]) {
+  ok(scrubEditorialText(keep + FL) === keep, `kept (non-hours): ${keep} -> ${scrubEditorialText(keep + FL)}`);
+}
+ok(scrubEditorialText("Open daily 11am–10pm, with live music nightly." + FL) === "Live music nightly.", "', with' tail kept when the head is hours");
+ok(scrubEditorialText("Daily 3:30–10pm, happy hour 3:30–5, live music Fri–Sat 6–9." + FL) === "Happy hour 3:30–5, live music Fri–Sat 6–9.", "mixed clause: hours piece dropped, happy hour kept");
+const bee = cards.find((c) => c.name === "Bee Ridge Park");
+ok(!!bee && !/open daily 6am/i.test(cardToEditorial(bee).goodToKnow || ""), "Bee Ridge Park: 'open daily 6am–11pm' dropped");
+ok(/open daily/i.test(bee.currentUsefulDetail), "Bee Ridge fixture drifted");
 
 // 5b. Fleet rows (wf_editorial -> mapWfEditorial) get the same scrub (Ringling-class: not an Atlas card).
 const fleet = mapWfEditorial({ verified: true, name: "Fleet Place", why_here: "A real why.", best_time: "Open daily 10am–5pm. Verified 2026-09-28; refresh before display.", know_before: "Closed Mondays. Refresh before display.", facts: [] });
