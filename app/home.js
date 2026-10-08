@@ -46,6 +46,7 @@ import { topPickAward } from "../lib/topPickAward";
 import { wayfindAwardFor } from "../lib/wayfindAwards.js";
 import { AwardSticker, AwardBand, AwardListRank, awardWinnerClass } from "./components/AwardCardParts";
 import { eventPlaceholder } from "../lib/eventPlaceholder.js";
+import { eventPriceFact } from "../lib/eventPriceFact.js";
 import { startSessionRecording, markShareOpen, checkShareReturn } from "../lib/shareMetrics";
 import { priceWord } from "../lib/price";
 import { mapInventoryRow } from "../lib/inventoryRowClient";
@@ -3062,8 +3063,9 @@ function EventRailCard({ event, rank, relativeLabel, saved, liked, disliked, onS
   const awardTone = tone === "now" ? 1 : tone === "soon" ? 2 : relLower === "this weekend" ? 3 : null;
   const award = awardTone ? { tone: awardTone, icon: "🎟️", label: "Happening " + relLower } : null;
   const repeats = recurrenceLabel(event);
-  const isFree = event.ticketed === false || /^free$/i.test(String(event.price || "").trim());
-  const facts = [venue, isFree ? "Free" : event.price || null, repeats].filter(Boolean);
+  // 2026-10-08 (owner): "not ticketed" is not evidence of free. The price line
+  // is the shared card rule (lib/eventPriceFact.js), same words as the Events tab.
+  const facts = [venue, eventPriceFact(event), repeats].filter(Boolean);
   // The chips are ATTRIBUTES, never a second copy of the eyebrow. The first
   // pass shipped the segment in both places, so every card read "— THEATER ›"
   // above "🎭 Theater ›" — the same repeat-the-list's-own-name filler v6.88
