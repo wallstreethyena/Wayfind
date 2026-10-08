@@ -11,7 +11,7 @@ export const runtime = "nodejs";
 // or erroring never touches another provider's events. "unavailable" is
 // only true when NO provider is configured at all.
 
-import { processEvents, siteTodayStr } from "../../../lib/eventsPipeline.js";
+import { processEvents, siteTodayStr, lastEventDay } from "../../../lib/eventsPipeline.js";
 import { siteAnchorDate } from "../../../lib/siteTime.js";
 import { localStaplesFor, parseLibCalICS, parseICSDate, libcalId, LIBCAL_FEED } from "../../../lib/eventResolve.js";
 import { getBusinessFeeds, businessEventsFrom } from "../../../lib/businessFeeds.js";
@@ -787,10 +787,16 @@ async function withDeadline(provider, promise, ms = PROVIDER_TIMEOUT_MS) {
 // v6.55: the aggregation body is shared between POST (interactive/keyworded,
 // always fresh) and GET (the LCP-critical primer/default-feed call, which the
 // CDN may cache for 15 min per rounded center — see GET below).
+// Bumped whenever the feed's own inclusion rules change (not its data), so a
+// cached payload built under the old rule is never served. running-v1
+// (2026-10-08): running events kept until their last day; curated twins of
+// aggregator rows absorbed.
+const EVENTS_FEED_RULES = "running-v1";
 async function aggregateEvents({ lat, lng, keyword, radius, city }) {
   let evK = null;
   const todayStr = today();
-  const upcoming = (evs) => (evs || []).filter((e) => e && (!e.date || e.date >= todayStr));
+  // Same rule as validateEvent: a running event stays until its LAST day.
+  const upcoming = (evs) => (evs || []).filter((e) => e && (!e.date || lastEventDay(e) >= todayStr));
   const staleEvents = async () => {
     if (!evK) return null;
     const s = await cget(evK, { staleMs: 30 * DAY });
@@ -813,7 +819,7 @@ async function aggregateEvents({ lat, lng, keyword, radius, city }) {
     // visitor inside one cell was always going to receive substantially the
     // same event set; the finer key bought nothing and billed for it. Same bug
     // shape as the city-unlock metro fallback fixed in v8.29.8, different meter.
-    evK = "ev2|" + FALL_FEED_CACHE_VERSION + "|" + Number(lat).toFixed(1) + "|" + Number(lng).toFixed(1) + "|" + (radius || 25) + "|" + String(city || "").toLowerCase().slice(0, MAX_CITY_LENGTH) + "|" + String(keyword || "").toLowerCase().slice(0, MAX_KEYWORD_LENGTH);
+    evK = "ev2|" + FALL_FEED_CACHE_VERSION + "|" + EVENTS_FEED_RULES + "|" + Number(lat).toFixed(1) + "|" + Number(lng).toFixed(1) + "|" + (radius || 25) + "|" + String(city || "").toLowerCase().slice(0, MAX_CITY_LENGTH) + "|" + String(keyword || "").toLowerCase().slice(0, MAX_KEYWORD_LENGTH);
     // A normal/default feed is shared, so the 21-day fresh cache is the first
     // source consulted.  Interactive keyword searches deliberately continue
     // to refresh, while still retaining the existing stale fallback below.

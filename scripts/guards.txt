@@ -757,6 +757,9 @@ node scripts/check-curated-events-read.mjs
 # The Events tab feed reads every curated row still running today, paged;
 # a first-200-by-date read ended on Oct 9 and hid the Halloween season.
 node scripts/check-events-feed-upcoming.mjs
+# Running events stay until their last day; run-aware day strip; nearest-first
+# ordering; theme-based Fall and Halloween filter; curated twins absorbed.
+node scripts/check-events-running-order.mjs
 
 # V8 rail menu (the homepage's daypart rail). Two failure modes it exists for:
 # (a) a rail card pointing at a segmented route without its segment — 200,

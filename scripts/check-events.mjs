@@ -79,7 +79,9 @@ const REPO = fileURLToPath(new URL("..", import.meta.url));
 const evMod = await loadComponent(fileURLToPath(new URL("../app/components/screens/Events.js", import.meta.url)), REPO);
 const bucketOf = (e) => (e.segment === "Concert" ? "concerts" : "community"); // mirrors app/home.js eventBucket for these fixtures
 const concert = { id: "c1", segment: "Concert", fall: false };
-const fallRow = { id: "f1", segment: "Halloween", fall: true };
+const fallRow = { id: "f1", segment: "Halloween", fall: true, fallTheme: true };
+// Season tag only (holiday lights, a musical running in October): fall:true but no theme.
+const seasonOnly = { id: "s1", segment: "Theater", fall: true, fallTheme: false };
 const keys = (live) => evMod.eventFiltersFor(live).map((f) => f.key);
 if (!keys(true).includes("fall")) fail("fall filter must exist while the season is live");
 if (keys(false).includes("fall")) fail("fall filter must NOT exist off season (2026-12-01 fixture)");
@@ -99,13 +101,21 @@ eq(resolve("concerts", [concert, fallRow], true), "concerts", "?cat=concerts sti
 eq(resolve("local", [concert, fallRow], true), "local", "?cat=local still resolves in season");
 eq(resolve("fall", [concert, fallRow], false), "concerts", "?cat=fall off season degrades to the normal default");
 const fallF = evMod.eventFiltersFor(true).find((f) => f.key === "fall");
-if (!(evMod.filterMatches(fallF, fallRow, bucketOf) && !evMod.filterMatches(fallF, concert, bucketOf))) fail("fall filter must match only fall === true rows");
+if (!(evMod.filterMatches(fallF, fallRow, bucketOf) && !evMod.filterMatches(fallF, concert, bucketOf))) fail("fall filter must match a themed fall row and not a concert");
+if (evMod.filterMatches(fallF, seasonOnly, bucketOf)) fail("fall filter must NOT match a row whose only fall signal is the season tag (fallTheme false)");
+eq(resolve("auto", [concert, seasonOnly], true), "concerts", "auto in season with only season-tagged rows does not open on Fall and Halloween");
 if (!/\{activeFilter\.label\} worth planning around/.test(ev)) fail("grid heading must read '<label> worth planning around' (Fall and Halloween worth planning around)");
 if (!ev.includes('label: "Fall and Halloween"')) fail("fall filter label missing");
 // The feed row carries the flag (boolean) from the same isFallEvent law.
 const baseRow = { event_id: "x1", slug: "x1", start_date: "2026-10-31", event_name: "Test" };
 eq(curatedToFeedEvent({ ...baseRow, category: "halloween", tags: ["halloween"] })?.fall, true, "curatedToFeedEvent flags a tagged fall row");
 eq(curatedToFeedEvent({ ...baseRow, event_name: "Jazz Night", category: "music" })?.fall, false, "curatedToFeedEvent flags a non-fall row false (boolean)");
+eq(curatedToFeedEvent({ ...baseRow, category: "halloween", tags: ["halloween"] })?.fallTheme, true, "a Halloween-tagged row carries fallTheme true");
+eq(curatedToFeedEvent({ ...baseRow, event_name: "Holiday Lights in Largo Central Park", category: "holiday", tags: ["festival", "holiday", "fall"] })?.fallTheme, false, "holiday lights tagged fall are not Fall and Halloween");
+eq(curatedToFeedEvent({ ...baseRow, event_name: "Dear Evan Hansen at Manatee Performing Arts Center", category: "arts", subcategory: "theatre", tags: ["theatre", "musical", "fall"] })?.fallTheme, false, "a musical running in October is not Fall and Halloween");
+eq(curatedToFeedEvent({ ...baseRow, event_name: "Big Mama's Collard Greens Fest", category: "food", subcategory: "food-festival", tags: ["festival", "food", "fall"] })?.fallTheme, false, "a food festival with only the season tag is not Fall and Halloween");
+eq(curatedToFeedEvent({ ...baseRow, event_name: "Hunsader Farms Pumpkin Festival", category: "seasonal", tags: ["fall"] })?.fallTheme, true, "a pumpkin festival is Fall and Halloween by its name");
+eq(curatedToFeedEvent({ ...baseRow, event_name: "Celtoberfest", category: "festival", subcategory: "fall-festival", tags: ["fall"] })?.fallTheme, true, "a fall festival subcategory counts");
 
 if (failed) process.exit(1);
-console.log("check-events: OK — same-day labels reflect the real hour (9:30 AM = 'This morning', not 'Tonight'); fall filter season gated, auto resolves fall then concerts, deep links keep working");
+console.log("check-events: OK — same-day labels reflect the real hour (9:30 AM = 'This morning', not 'Tonight'); fall filter season gated and theme based (season tag alone excluded), auto resolves fall then concerts, deep links keep working");
