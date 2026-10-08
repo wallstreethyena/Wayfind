@@ -26,6 +26,7 @@ import useEventClock from "./useEventClock.js";
 import { eventVisitStatus, eventRestrictionChips } from "../../lib/eventVisitFacts.js";
 import { ownedPlacePhotoSrc } from "../../lib/placePhoto.js";
 import { partnerTicketLabel } from "../../lib/partnerCopy.js";
+import { CHRISTMAS_CARD_LABELS } from "../../lib/christmasIntentRails.js";
 
 const TICKET_SURFACE = "christmas_intent_rail";
 
@@ -123,7 +124,7 @@ function ChristmasRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, isSa
             visitFacts={isEvent ? card : null}
             photoPosition={card.photoPosition || "50% 50%"}
             photoAttr={card.photoAttr || null} photoAttrHref={card.photoAttrHref || null} place={place}
-            title={card.title || card.name} eyebrow={rail.title} rank={rank}
+            title={card.title || card.name} eyebrow={CHRISTMAS_CARD_LABELS[rail.id] || rail.title} rank={rank}
             score={isEvent ? null : toDisplayScore(Number.isFinite(card.governed_score) ? card.governed_score : card.wfScore)} when={isEvent ? card.when : null}
             facts={facts} chips={isEvent ? eventChips(card, { onOpenVenue: card.detailHref ? openEventVenue : null }) : []}
             take={card.hook || card.take || null} cta={isEvent ? eventCta(card, onTrack) : null}

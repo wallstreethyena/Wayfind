@@ -14,7 +14,7 @@ import {
 } from "../lib/christmasIntentRails.js";
 import { NO_EXACT_AFFILIATE_PRODUCT } from "../lib/eventTicketDeals.js";
 import { CHRISTMAS_EVENT_VENUE_PLACE_IDS, enrichChristmasEvent, CHRISTMAS_PLACE_RAIL, CHRISTMAS_PLACE_TAKES, christmasEventTicket, CHRISTMAS_TICKET_DEAL_IDS } from "../lib/christmasPool.js";
-import { CHRISTMAS_RAIL_GUIDE_SLUGS } from "../lib/christmasIntentRails.js";
+import { CHRISTMAS_RAIL_GUIDE_SLUGS, CHRISTMAS_CARD_LABELS } from "../lib/christmasIntentRails.js";
 import { christmasRailGuide, withChristmasGuides } from "../lib/christmasGuides.js";
 import { GUIDES } from "../lib/guides.js";
 import { DAYPART_IDS, orderFor, christmasLeads } from "../lib/dayparts.js";
@@ -317,6 +317,18 @@ ok(christmasEventRail(live("Fall Harvest Lights Night", "2026-11-21", "2026-11-2
   const wraps = comp.match(/className="wf-rail wf-rail-exploding wf-christmas" data-rail=\{railId\}/g) || [];
   ok(wraps.length === 1, `the rail that holds every Christmas card carries .wf-christmas exactly once (found ${wraps.length})`);
   ok(!/wf-christmas/.test(read("app/components/FallIntentRails.js")) && !/wf-christmas/.test(read("app/components/RailCard.js")), "no other collection or the shared card opts into the Christmas skin");
+}
+
+// ── 6f. Short card labels: the red pill never truncates ────────────────────
+{
+  const WANT = { beaches: "BEACHES", "theme-parks": "THEME PARKS", "nights-out": "HOLIDAY NIGHTS", manatees: "MANATEES", "boat-parades": "BOAT PARADES" };
+  ok(Object.isFrozen(CHRISTMAS_CARD_LABELS) && Object.keys(CHRISTMAS_CARD_LABELS).length === 5, "five frozen card labels");
+  for (const def of CHRISTMAS_INTENT_RAIL_DEFS) {
+    const label = CHRISTMAS_CARD_LABELS[def.id];
+    ok(label === WANT[def.id] && label.length <= 14, `${def.id}: card label is the short "${WANT[def.id]}" (<= 14 chars; got "${label}")`);
+  }
+  const compSrc = read("app/components/ChristmasIntentRails.js");
+  ok(/eyebrow=\{CHRISTMAS_CARD_LABELS\[rail\.id\]/.test(compSrc), "cards wear the short label, not the full rail title (static)");
 }
 
 // ── 7. Wiring (STATIC: a component and a route cannot be executed here) ─────
