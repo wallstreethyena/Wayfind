@@ -943,6 +943,21 @@ a:has(>.wf-place-card)>.wf-place-card .wf-place-card-share{color:#DFE5EE!importa
 .wf-place-card.wf-guide-card .wf-place-card-category{display:inline-flex;align-self:flex-start;max-width:100%;margin:0 0 7px;padding:3px 8px;border-radius:999px;background:#F97316;color:#1A0F05!important;font-size:8.5px;font-weight:900;letter-spacing:.1em;white-space:nowrap}
 .wf-place-card.wf-guide-card .wf-place-card-category:before{display:none}
 @media(min-width:${WF_DESKTOP_BP}px){.wf-place-card.wf-guide-card .wf-place-card-name{font-size:19px!important}}
+.wf-place-card.wf-guide-card .wf-place-card-take{margin-top:6px;font-size:11px!important;line-height:1.35!important}
+.wf-place-card.wf-guide-card.wf-guide-teaser-2 .wf-place-card-take{-webkit-line-clamp:2}
+.wf-place-card.wf-guide-card.wf-guide-teaser-1 .wf-place-card-take{-webkit-line-clamp:1}
+.wf-place-card.wf-guide-card.wf-guide-teaser-0 .wf-place-card-take{display:none}
+.wf-place-card.wf-guide-card .wf-place-card-content>*{flex-shrink:0}
+.wf-place-card.wf-guide-card .wf-place-card-meta{margin:6px 0 0!important}
+.wf-guide-card-lead{display:flex;align-items:center;min-height:24px;margin-top:3px;min-width:0;overflow:hidden;white-space:nowrap;font-size:11px;line-height:1.2}
+.wf-guide-card-pick,.wf-guide-card-book{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wf-guide-card-pick{color:#FFF;font-weight:700}
+.wf-guide-card-pick-label{color:#FF9B50;font-size:9.5px;font-weight:850;letter-spacing:.06em;text-transform:uppercase}
+.wf-guide-card-book>a{display:inline-flex;align-items:center;min-height:24px;color:#FF9B50!important;font-weight:800;text-decoration:none}
+.wf-guide-card-book>a:hover,.wf-guide-card-book>a:focus-visible{color:#FFC08A!important;text-decoration:underline}
+.wf-guide-card-book>a:focus-visible{outline:2px solid #FFB27A;outline-offset:2px;border-radius:4px}
+.wf-place-card.wf-guide-card .wf-rail-card-cta{margin-top:auto!important}
+.wf-place-card.wf-guide-card .wf-place-card-actions,.wf-place-card.wf-guide-card .wf-place-card-credit~.wf-place-card-actions{margin-top:0!important;padding-top:7px}
 `;
 // v6.44 — the "Your taste" panel (owner: "image 4 is new and i love, just not
 // crazy on how it looks... we need to leverage the way that we enhanced the
