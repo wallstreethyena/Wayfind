@@ -55,7 +55,8 @@ const PINNED = [
 // Pierce walk (organizer names no meeting point). Named, not silently allowed.
 const NO_COORDS_ALLOWED = new Set([
   "hw26-gap-newberry-cornfield-maze-newberry-2026",
-  "hw26-gap-ghosts-of-fort-pierce-past-walking-tours-fort-pierce-2026",
+  // Fort Pierce left this list 2026-10-08: the organizer's own event page
+  // (mainstreetfortpierce.org) pins the tour at 122 A.E. Backus Ave, 27.4513979, -80.3252982.
 ]);
 const FL_BOX = { lat: [24.4, 31.1], lng: [-87.7, -79.9] }; // statewide, not just the Gulf Coast
 const DASH = /[-‐-―−]/;
