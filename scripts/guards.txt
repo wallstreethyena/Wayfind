@@ -2122,6 +2122,7 @@ node scripts/test-events-fall-feed-image.mjs
 node scripts/test-fall-additions-2026-10-06.mjs
 node scripts/test-fall-gap-fill-2026-10-06.mjs
 node scripts/test-fall-farm-food-gap-2026-10-07.mjs
+node scripts/test-fall-food-gap-2026-10-08.mjs
 node scripts/check-guide-card.mjs
 node scripts/test-credited-photo-warm.mjs
 
