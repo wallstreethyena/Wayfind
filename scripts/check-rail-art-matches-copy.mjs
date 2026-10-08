@@ -71,6 +71,10 @@ const PAIRS = {
   //   promise matches the statewide fall intent collection behind it.
   chef: { copy: "0b5d7b04d1dce6fd", art: "3df8871be0a36cc1" },
   augtober: { copy: "e7191fc07c1f6cd9", art: "a967d61a38691881" },
+  // christmas (2026-10-08): the owner's poster, read at 760px before pinning. It says
+  // "Florida Christmas / Beautifully Curated" over a red glass ornament, which matches the
+  // title "Florida Christmas" and makes no other claim.
+  christmas: { copy: "41d49a57d5cf7352", art: "89e374eef72e7a0f" },
   beach: { copy: "bc2e671d898c25b0", art: "10af9b34c86feb0b" },
   // Owner portrait, September 9: no baked text; DaypartRail overlays the live title and CTA.
   cindy: { copy: "30d97235cfc066b7", art: "a5712afd8afe9338" },

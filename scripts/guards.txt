@@ -1197,6 +1197,7 @@ node scripts/test-adaptive-widen.mjs
 node scripts/test-chip-contracts.mjs
 node scripts/check-css-comment-bytes.mjs
 node scripts/check-augtober-rail.mjs
+node scripts/check-christmas-rails.mjs
 # 2026-09-23 (WS4 fall-discovery) — lib/fallEvidence.js is the pure evidence-
 # classification law the discovery pipeline and the registry re-verification
 # both run through; check-fall-registry-integrity then applies it to the real

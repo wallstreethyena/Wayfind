@@ -32,7 +32,7 @@ import { PARTNER_COLLECTIONS } from "../../../lib/partnerCollections.js";
 export const EXPECTED_VISIBLE_POSTER_IDS = Object.freeze([
   "season", "today", "trending", "eat", "beach", "family",
   "locals", "cindy", "tonight", "datenight", "break",
-  "breakfast", "birthday", "blog", "augtober",
+  "breakfast", "birthday", "blog", "augtober", "christmas",
 ]);
 
 // Optional synthetic tiles are product-owned too, but their presence depends

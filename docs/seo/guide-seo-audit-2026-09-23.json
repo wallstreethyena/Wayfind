@@ -3740,6 +3740,411 @@
       }
     },
     {
+      "slug": "florida-winter-beaches-2026",
+      "url": "https://www.gowayfind.com/guides/florida-winter-beaches-2026",
+      "primary_query": "best florida beaches in winter 2026",
+      "geography": "Florida",
+      "decision": "Seven Florida beaches for a winter beach day, from Siesta Beach to Bahia Honda, with hours, lifeguard and capacity notes taken from the park and county pages.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-10-08) is a real recorded publish date, sourced from git history for legacy entries lacking one."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/verified/nature-florida-winter-beaches-2026.webp; 1600x800; Schwerdf; CC BY 4.0."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Reviewed source image is 1600x800 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "unknown",
+          "evidence": "No intent-fit sibling was added; a same-city link alone is insufficient evidence."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "florida-theme-park-christmas-2026",
+      "url": "https://www.gowayfind.com/guides/florida-theme-park-christmas-2026",
+      "primary_query": "florida theme park christmas 2026",
+      "geography": "Florida",
+      "decision": "Seven Florida Christmas theme park events for 2026 with the dates and details each park publishes, and which ones are included with admission.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-10-08) is a real recorded publish date, sourced from git history for legacy entries lacking one."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/verified/theme-park-florida-theme-park-christmas-2026.webp; 1600x1067; Jedi94; CC BY-SA 4.0."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Reviewed source image is 1600x1067 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "unknown",
+          "evidence": "No intent-fit sibling was added; a same-city link alone is insufficient evidence."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "florida-holiday-nights-out-2026",
+      "url": "https://www.gowayfind.com/guides/florida-holiday-nights-out-2026",
+      "primary_query": "florida christmas lights 2026",
+      "geography": "Florida",
+      "decision": "Six Florida holiday nights out for 2026, from Lights in Bloom at Selby Gardens to Largo's Holiday Lights, with dates, hours and closed nights from each organizer.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-10-08) is a real recorded publish date, sourced from git history for legacy entries lacking one."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/verified/garden-florida-holiday-nights-out-2026.webp; 1600x1067; Daderot; CC0 1.0 Universal."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Reviewed source image is 1600x1067 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "unknown",
+          "evidence": "No intent-fit sibling was added; a same-city link alone is insufficient evidence."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "florida-manatee-season-2026",
+      "url": "https://www.gowayfind.com/guides/florida-manatee-season-2026",
+      "primary_query": "where to see manatees in florida winter 2026",
+      "geography": "Florida",
+      "decision": "Where to see manatees in Florida this winter, from Three Sisters Springs and Blue Spring to the TECO Manatee Viewing Center, with what each place offers and how to watch respectfully.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-10-08) is a real recorded publish date, sourced from git history for legacy entries lacking one."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/verified/nature-florida-manatee-season-2026.webp; 1600x1067; CityofCrystalRiver; CC BY-SA 4.0."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Reviewed source image is 1600x1067 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "unknown",
+          "evidence": "No intent-fit sibling was added; a same-city link alone is insufficient evidence."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "florida-christmas-boat-parades-2026",
+      "url": "https://www.gowayfind.com/guides/florida-christmas-boat-parades-2026",
+      "primary_query": "christmas boat parades florida 2026",
+      "geography": "Florida",
+      "decision": "Five Florida Christmas boat parades for 2026, from Fort Lauderdale's Winterfest to Tampa, Jacksonville, Clearwater and Gulfport, with dates, start times and routes from each organizer.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-10-08) is a real recorded publish date, sourced from git history for legacy entries lacking one."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/verified/city-florida-christmas-boat-parades-2026.webp; 1600x1067; Tamanoeconomico; CC BY-SA 4.0."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Reviewed source image is 1600x1067 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "unknown",
+          "evidence": "No intent-fit sibling was added; a same-city link alone is insufficient evidence."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
       "slug": "fall-events-orlando-2026",
       "url": "https://www.gowayfind.com/guides/fall-events-orlando-2026",
       "primary_query": "fall events in orlando 2026",
