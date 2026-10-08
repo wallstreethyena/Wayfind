@@ -36,12 +36,19 @@ for (const b of ["concerts", "comedy", "theater", "sports", "community", "busine
   ok(t.icon && t.label && /gradient/.test(t.tint) && !/\.(jpe?g|png|webp|avif)\b|https?:/.test(JSON.stringify(t)), `the ${b || "fallback"} tile carries no photograph`);
 }
 
-// ── 2. venue photography says so ────────────────────────────────────────────
+// ── 2. venue photography is known as venue photography ─────────────────────
+// The approved card look (owner #1639, locked in check-place-card-standard and
+// test-fall-visit-facts) carries no venue caption on cards, so the
+// distinction lives in data (wf_events.hero_image_kind) and on the event page,
+// which prints "Venue photo · <event> is not pictured" for any venue image.
 const grande = { hero_image: "https://mds-assets.marriott.com/x.jpg", hero_image_kind: "venue" };
-ok(eventImageIsVenue(grande) && eventPhotoCredit(grande, grande.hero_image)?.label === "Venue photo", "the Grande Lakes resort image is labelled a venue photo");
+ok(eventImageIsVenue(grande) === true, "the Grande Lakes resort image (hero_image_kind venue) is known to be a venue photo");
+ok(eventImageIsVenue({ hero_image: "https://img.evbuc.com/x", hero_image_kind: "event" }) === false, "an organizer event image is not called a venue photo");
+ok(eventImageIsVenue({}, "/api/photo?place=ChIJx&w=640") === true, "a Google place photo is a venue photo");
 const g = eventPhotoCredit({ venue: "Krush Brau Park", place_id: "ChIJx" }, "/api/photo?place=ChIJx&w=640");
-ok(g && /^Venue photo · Google Maps$/.test(g.label), "a Google venue photo is labelled Venue photo · Google Maps");
-ok(eventPhotoCredit({ photoAttr: "Organizer", hero_image_kind: "event" }, "https://img.evbuc.com/x")?.label === "Organizer", "an organizer event image keeps its own credit, no venue label");
+ok(g && g.label === "Google Maps", "a Google venue photo keeps its Google Maps credit");
+const page = readFileSync(new URL("../app/florida-events/[slug]/page.js", import.meta.url), "utf8");
+ok(/eventImageIsVenue\(e, heroSrc\) \? <p style=\{S\.credit\}>Venue photo · \{e\.event_name\} is not pictured\./.test(page), "the event page says a venue photo is the venue and the event is not pictured");
 
 // ── 3. the real card ─────────────────────────────────────────────────────────
 const REPO = fileURLToPath(new URL("..", import.meta.url));
@@ -50,12 +57,17 @@ const render = (props) => renderToStaticMarkup(React.createElement(RailCard, { t
 const noPhoto = render({ photo: "", placeholder: eventPlaceholder("community", { name: "Fields of Fright Haunted Hayride" }) });
 ok(/wf-event-placeholder/.test(noPhoto) && />Halloween</.test(noPhoto) && !/<img/.test(noPhoto), "an event with no verified photo renders the designed tile and no image");
 const venueCard = render({ photo: grande.hero_image, visitFacts: { ...grande, start_date: "2026-10-11", end_date: "2026-10-11", venue: "Grande Lakes Orlando" } });
-ok(/class="wf-place-card-photo-attr is-venue"/.test(venueCard) && />Venue</.test(venueCard), "a venue photo on an event card wears the Venue mark");
-const eventCard = render({ photo: "https://img.evbuc.com/x", visitFacts: { hero_image: "https://img.evbuc.com/x", hero_image_kind: "event", photoAttr: "Organizer", start_date: "2026-10-31", end_date: "2026-10-31" } });
-ok(/>©</.test(eventCard) && !/is-venue/.test(eventCard), "an organizer event photo keeps the plain credit chip");
+// Positive control for the no-image assertion above: the same card WITH a photo renders an <img>.
+ok(/<img/.test(venueCard) && !/wf-event-placeholder/.test(venueCard), "positive control: a card with a photo renders the image, not the tile");
+ok(!/Venue photo|is-venue/.test(venueCard), "a venue photo on a card carries no venue caption (the locked card design)");
+const gCard = render({ photo: "/api/photo?place=ChIJx&w=640", visitFacts: { venue: "Krush Brau Park", place_id: "ChIJx", start_date: "2026-10-11", end_date: "2026-10-11" } });
+ok(/>©</.test(gCard) && /Photo: Google Maps/.test(gCard) && !/Venue photo/.test(gCard), "a Google venue photo on a card keeps the plain (c) chip with its Google Maps credit");
 
 // ── 4. no event surface reaches for stock ───────────────────────────────────
 const code = (p) => readFileSync(new URL("../" + p, import.meta.url), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`\\])\/\/.*$/gm, "$1");
+// Positive control: the stock probe finds the retired call shape.
+ok(/eventCategoryArt|stockPhotoPool|\/api\/stock-photo/.test("image: eventCategoryArt(bucket, e)"), "positive control: the stock probe finds a stock lookup");
+ok(/\.(jpe?g|png|webp|avif)\b|https?:/.test(JSON.stringify({ tint: "url(https://x/y.jpg)" })), "positive control: the photo probe finds a photo in a tile");
 for (const p of ["app/components/screens/Events.js", "app/home.js", "app/events/[city]/[slug]/page.js", "app/api/events/route.js"]) {
   const src = code(p);
   ok(!/eventCategoryArt|stockPhotoPool|\/api\/stock-photo/.test(src), `${p} attaches no stock photography to an event`);
@@ -67,4 +79,4 @@ if (fail.length) {
   for (const m of fail) console.error("  ✗ " + m);
   process.exit(1);
 }
-console.log(`check-event-photo-honesty: OK — ${pass} assertions; eventPlaceholder/eventPhotoCredit CALLED, the real RailCard rendered (designed tile with no <img>, Venue mark on a venue photo, plain chip on an event photo); 4 event surfaces scanned (comments stripped) for stock`);
+console.log(`check-event-photo-honesty: OK — ${pass} assertions; eventPlaceholder/eventPhotoCredit CALLED, the real RailCard rendered (designed tile with no <img>, plain chip on venue and event photos); venue photos known via hero_image_kind and captioned on the event page; 4 event surfaces scanned (comments stripped) for stock`);

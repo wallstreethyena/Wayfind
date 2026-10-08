@@ -39,7 +39,7 @@
 // is invented to fill a slot — an event does not get a fabricated score, it gets
 // the `when` badge in the same box, which is a fact it really carries. That is
 // the same never-fabricate rule the rest of this codebase runs on.
-import { eventPhotoCredit, eventImageIsVenue } from "../../lib/eventImageProvenance.js";
+import { eventPhotoCredit } from "../../lib/eventImageProvenance.js";
 import useEventClock from "./useEventClock.js";
 import { eventVisitStatus } from "../../lib/eventVisitFacts.js";
 import { compactWhen } from "../../lib/whenCompact.js";
@@ -429,19 +429,12 @@ export default function RailCard({
   const shownPhoto = photoSrcFilter(photo);
   const usingFallback = !!fallbackPhoto && fallbackPhoto.primary === shownPhoto;
   const displayedPhoto = usingFallback ? fallbackPhoto.src : shownPhoto;
-  // 2026-10-08 (owner): "Keep venue photography distinguishable from event
-  // photography." A venue photo on an event card wears a small "Venue" mark in
-  // the existing credit chip (no caption bar, the approved card look stays).
-  let venuePhoto = false;
   if (visitFacts) {
     const photoEvent = usingFallback ? { ...visitFacts, image_is_venue: false, imageIsVenue: false, photoAttr: null, photoAttrHref: null } : visitFacts;
     if (usingFallback) { photoAttr = null; photoAttrHref = null; }
-    venuePhoto = eventImageIsVenue(photoEvent, displayedPhoto);
     const credit = eventPhotoCredit(photoEvent, displayedPhoto);
     if (!photoAttr && credit) { photoAttr = credit.label; photoAttrHref = credit.href; }
-    else if (photoAttr && venuePhoto && !/^Venue photo/.test(photoAttr)) photoAttr = "Venue photo · " + photoAttr;
   }
-  const creditMark = venuePhoto ? (photoAttr === "Venue photo" ? "Venue" : "Venue ©") : "©";
   // If a stored photo_ref goes stale, retry the SAME venue through the stable
   // place-id resolver before giving up to the monogram. Caller-supplied event
   // fallbacks still win. Internal slugs are refused by ownedPlacePhotoSrc.
@@ -546,15 +539,15 @@ export default function RailCard({
           {photoAttr && shownPhoto
             ? (photoAttrHref
                 ? <a
-                    className={"wf-place-card-photo-attr" + (venuePhoto ? " is-venue" : "")}
+                    className="wf-place-card-photo-attr"
                     href={photoAttrHref}
                     target="_blank"
                     rel="noopener noreferrer"
                     title={"Photo: " + photoAttr}
                     aria-label={"Photo credit: " + photoAttr + " (new tab)"}
                     onClick={(e) => e.stopPropagation()}
-                  >{creditMark}</a>
-                : <span className={"wf-place-card-photo-attr" + (venuePhoto ? " is-venue" : "")} title={"Photo: " + photoAttr} aria-label={"Photo credit: " + photoAttr}>{creditMark}</span>)
+                  >©</a>
+                : <span className="wf-place-card-photo-attr" title={"Photo: " + photoAttr} aria-label={"Photo credit: " + photoAttr}>©</span>)
             : null}
         </div>
         <div className="wf-place-card-content" style={{ position: "relative" }}>
