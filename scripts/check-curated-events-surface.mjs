@@ -133,8 +133,10 @@ ok(/withDeadline\(CURATED_SOURCE, fromCuratedEvents\(/.test(route),
   "app/api/events still runs the curated provider in its fan-out");
 ok(!/near\.filter\(\(e\) => e\.image\)/.test(route),
   "the scene photo must never GATE the rail again — a stubbed PEXELS_API_KEY once emptied it in silence");
-ok(/curatedSceneImage/.test(route) && /category and the city, never the/i.test(route),
-  "the scene photo is still resolved, and the honesty line is still written where the next editor will read it");
+// 2026-10-08 (owner): no stock "scene" photo stands in for an event any more;
+// a curated row without its own image gets the designed placeholder.
+ok(!/curatedSceneImage|stockPhotoPool|\/api\/stock-photo/.test(route.replace(/\/\/.*$/gm, "")) && /Do not display unrelated\s*\n?\/\/ photography/.test(route),
+  "the events feed attaches no stock scene photo to a curated event, and the owner's reason is written where the next editor will read it");
 
 const screen = readFileSync(new URL("../app/components/screens/Events.js", import.meta.url), "utf8");
 ok(/aria-label="Worth planning for"/.test(screen),
