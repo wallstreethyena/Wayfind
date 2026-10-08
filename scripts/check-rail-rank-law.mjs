@@ -81,6 +81,7 @@ ok(discovered.length >= 8, `the glob discovers a plausible number of composer ex
 const COVERED = new Set([
   "lib/nightOutIntent.js:composeNightOutRails",
   "lib/fallIntentRails.js:composeFallIntentRails",
+  "lib/christmasIntentRails.js:composeChristmasIntentRails",
   "lib/dateNightIntent.js:composeDateNightRails",
   "lib/birthdayIntent.js:composeBirthdayRails",
   "lib/todayDiscoveryRails.js:composeTodayDiscoveryRails",
@@ -159,6 +160,17 @@ function assertMonotonic(label, result) {
   ok(!!rail, "fallIntentRails: the fixture lands in the Farms rail");
   if (rail) assertLeads("fallIntentRails (food)", cardsOf(rail).map((c) => c.id));
   assertMonotonic("fallIntentRails", composed);
+}
+{
+  // Christmas reuses Fall's chronologicalCards ordering; the same owner numbers
+  // land in the Beaches rail (120mi) and must be score-led, never distance-led.
+  const { composeChristmasIntentRails } = modules.get("lib/christmasIntentRails.js");
+  const places = OWNER_FIXTURE.map((f) => ({ ...f, christmasRail: "beaches" }));
+  const composed = composeChristmasIntentRails([], places, { lat: 27.95, lng: -82.46, today: "2026-12-01", now: new Date("2026-12-01T12:00:00Z") });
+  const rail = railsArrayOf(composed).find((r) => r.id === "beaches");
+  ok(!!rail, "christmasIntentRails: the fixture lands in the Winter Beach Days rail");
+  if (rail) assertLeads("christmasIntentRails (beaches)", cardsOf(rail).map((c) => c.id));
+  assertMonotonic("christmasIntentRails", composed);
 }
 {
   const { composeDateNightRails } = modules.get("lib/dateNightIntent.js");
