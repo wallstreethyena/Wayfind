@@ -65,9 +65,10 @@ const railsData = readFileSync(new URL("../lib/railsData.js", import.meta.url), 
   // the tonight-leads list (owner, 2026-08-29 12:25: night poster from 1pm).
   // Three distinct orders across the day is the rotation; four identical
   // ones would be a frozen homepage.
-  ok(new Set(orders).size === 3, `three distinct rail orders (morning / lunch / tonight-from-1pm) — got ${new Set(orders).size}`);
-  ok(DAYPARTS.afternoon.order.join(",") === DAYPARTS.night.order.join(","),
-    "afternoon and night share the tonight-leads order");
+  // Christmas (owner slot rule, 2026-10-08) sits 3rd behind tonight in the afternoon but 2nd at night, so afternoon and night now differ by that one tile.
+  ok(new Set(orders).size === 4, `four distinct rail orders (morning / lunch / afternoon / night) — got ${new Set(orders).size}`);
+  ok(DAYPARTS.afternoon.order.filter((id) => id !== "christmas").join(",") === DAYPARTS.night.order.filter((id) => id !== "christmas").join(","),
+    "afternoon and night share the tonight-leads order (christmas excepted: 3rd behind tonight in the afternoon, 2nd at night)");
 }
 // 2) the PLACES rotate, because they are re-ranked every regeneration
 ok(/revalidate = 3600/.test(readFileSync(new URL("../app/page.js", import.meta.url), "utf8")),
