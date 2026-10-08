@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { FALL_GAP_FILL_2026_10_07 } from "../lib/fallGapFill20261007.js";
 import { FALL_FOOD_GAP_2026_10_08 } from "../lib/fallFoodGap20261008.js";
+import { FALL_TAMPA_PICKS_2026_10_08 } from "../lib/fallTampaPicks20261008.js";
 import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import {
@@ -242,6 +243,13 @@ const seedSources = ["seed-fall-sarasota-2026.mjs", "seed-fall-instagram-finds-s
 const seededJsonIds = ["fall-2026-gap-fill-2026-10-06.json"]
   .flatMap((name) => JSON.parse(readFileSync(new URL("../data/" + name, import.meta.url), "utf8")).map((row) => row.event_id));
 const seededJsonIdSet = new Set(seededJsonIds);
+// 2026-10-08 Tampa pass: the checked-in Tampa registry, plus the reviewed
+// local-calendar batch whose published Halloween rows (Eli Brown at The Ritz,
+// Rock the Bay on Yacht StarShip) are pinned by event_id.
+const tampaPassIds = new Set([
+  ...FALL_TAMPA_PICKS_2026_10_08.map((row) => row.event_id),
+  ...JSON.parse(readFileSync(new URL("../scripts/local-calendars/verified/batch-039.json", import.meta.url), "utf8")).publish.map((row) => row.event_id),
+]);
 const seededIds = new Set(seedSources.flatMap((src) => [...src.matchAll(/event_id: "([a-z0-9-]+-2026)"/g)].map((m) => m[1])));
 const gulfCoastIds = new Set(GULF_COAST_FALL_2026_ROWS.map((row) => row.event_id));
 const gulfById = new Map(GULF_COAST_FALL_2026_ROWS.map((row) => [row.event_id, row]));
@@ -302,7 +310,7 @@ ok(sarasotaSelectedByRail.festivals.join("|") === [
   "wellen-park-wine-festival-2026",
 ].sort().join("|"), "Sarasota composition returns the exact five remaining audited outdoor-night and festival cards");
 ok(sarasotaSelected.rails.flatMap((rail) => rail.cards).map((card) => card.event_id || card.id).sort().join("|") === auditSelectedIds.slice().sort().join("|"), "Sarasota composition renders every selected audit card exactly once");
-ok(Object.keys(FALL_DISCOVERY_RAIL).every((id) => FALL_FEATURED_FESTIVAL_IDS.has(id) || discoveryIds.includes(id) || seededIds.has(id) || seededJsonIdSet.has(id) || gulfCoastIds.has(id) || publicationIds.has(id) || gapFill20261007Ids.has(id) || foodGap20261008Ids.has(id)), "every explicit rail pin names canonical discovery source data");
+ok(Object.keys(FALL_DISCOVERY_RAIL).every((id) => FALL_FEATURED_FESTIVAL_IDS.has(id) || discoveryIds.includes(id) || seededIds.has(id) || seededJsonIdSet.has(id) || gulfCoastIds.has(id) || publicationIds.has(id) || gapFill20261007Ids.has(id) || foodGap20261008Ids.has(id) || tampaPassIds.has(id)), "every explicit rail pin names canonical discovery source data");
 ok([...gulfCoastIds].every((id) => id in FALL_DISCOVERY_RAIL), "every reviewed Gulf Coast event has one explicit primary intent");
 ok([...seededIds].filter((id) => !(id in FALL_DISCOVERY_RAIL)).length === 0 && seededIds.size >= 22, `every seeded row (${seededIds.size}) is pinned to one shelf`);
 ok(Object.values(FALL_DISCOVERY_RAIL).every((rail) => expected.includes(rail)), "every explicit pin targets an approved rail");
@@ -366,7 +374,7 @@ const route = readFileSync(new URL("../app/api/events/fall/route.js", import.met
 const daypart = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
 const component = readFileSync(new URL("../app/components/FallIntentRails.js", import.meta.url), "utf8");
 const card = readFileSync(new URL("../app/components/RailCard.js", import.meta.url), "utf8");
-ok(route.includes("fall-intents:v28:") && route.includes("fastCachedRail"), "the API uses the v28 shared FastCache key after the 2026-10-08 food gap fill and hidden-farm recovery (v27: 2026-10-07 farm/food gap fill; v26: statewide gap fill; v25: Halloween DB seed; v24: verified visit facts and truthful operating-status publish)");
+ok(route.includes("fall-intents:v29:") && route.includes("fastCachedRail"), "the API uses the v29 shared FastCache key after the 2026-10-08 Tampa pass (v28: 2026-10-08 food gap fill and hidden-farm recovery; v27: 2026-10-07 farm/food gap fill; v26: statewide gap fill; v25: Halloween DB seed; v24: verified visit facts and truthful operating-status publish)");
 const imageProofId = "ChIJB-QyVtEXw4gRk5F8bn3YV28";
 ok(hasStoredPlacePhoto({ place_id: imageProofId, signals: { photo_url: "https://cdn.example.test/owned.jpg" } }),
   "an owned signals.photo_url is stored image proof");
