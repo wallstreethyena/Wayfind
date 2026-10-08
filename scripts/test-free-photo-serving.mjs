@@ -44,6 +44,7 @@ import { readFileSync } from "node:fs";
 import { findFreePhoto, selectFreePhotoRow } from "../lib/freePhoto.js";
 import { gateShut, spendAllow, spendAllowPhotos } from "../lib/spendGate.js";
 import { FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef } from "../lib/placePhotoServe.js";
+import { isAutomatedPhotoReader } from "../lib/crawler.js";
 
 let failures = 0;
 const ok = (condition, message) => {
@@ -198,6 +199,7 @@ async function sourceRoute(routeSource) {
     const gateShut = (...a) => globalThis.__wfFreePhotoTest.gateShut(...a);
     const spendAllow = (...a) => globalThis.__wfFreePhotoTest.spendAllow(...a);
     const spendAllowPhotos = (...a) => globalThis.__wfFreePhotoTest.spendAllowPhotos(...a);
+    const isAutomatedPhotoReader = (...a) => globalThis.__wfFreePhotoTest.isAutomatedPhotoReader(...a);
   `;
   return import("data:text/javascript," + encodeURIComponent(prelude + "\n" + stripped));
 }
@@ -207,6 +209,7 @@ async function sourceRoute(routeSource) {
 // comes from intercepting globalThis.fetch at exactly one URL below.
 globalThis.__wfFreePhotoTest = {
   FALLBACK_PATH,
+  isAutomatedPhotoReader, // real UA rule (lib/crawler.js): automated readers never buy
   PHOTO_REF_RX,
   placeIdFromRef,
   gateShut,
@@ -331,7 +334,9 @@ function cacheHitResolve() {
 // Same request builder as req(), with explicit user-agent / x-forwarded-for
 // values so Section B8 can assert the logged line actually carries THESE
 // exact values (not merely "logs something").
-const TEST_UA = "TestCrawler/1.0 (+https://example.test/bot)";
+// 2026-10-08: a PERSON-shaped UA. A crawler UA is now a no-spend reader (lib/crawler.js),
+// so it can no longer stand in for a request that buys a photo.
+const TEST_UA = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) WayfindTestPhone/1.0";
 const TEST_XFF = "203.0.113.77";
 function reqWithHeaders({ probe = false, ref = REF } = {}) {
   const headers = { "user-agent": TEST_UA, "x-forwarded-for": TEST_XFF };
