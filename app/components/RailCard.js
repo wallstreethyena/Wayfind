@@ -596,7 +596,7 @@ export default function RailCard({
               href={ctaHref || cta.href || "#"}
               {...(cta.external ? { target: "_blank", rel: cta.sponsored ? "sponsored nofollow noopener" : "noreferrer" } : {})}
               onClick={(e) => { e.stopPropagation(); if (cta.onClick) cta.onClick(e); }}
-            >{cta.label}</a>
+            >{spooky ? <span className="wf-spooky-ghost" aria-hidden="true">{"\u{1F47B}"}</span> : null}{cta.label}</a>
           ) : null)}
 
           {/* Every card exposes the same four controls. Non-place cards use
