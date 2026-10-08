@@ -73,6 +73,12 @@ ok(/stoppedForBudget \|\| meterRecordFailed \|\| !dryBudgetAllows\(drySpent, dry
   ok(/idsList = dryMetered \? loadPriorityIds/.test(route) && /const limitDefault = dry \? \(idsMode \? idsList\.length : 1\) : 10;/.test(route), "ids= is read only for metered dry requests; a dry request without ids/limit does one place");
 }
 {
+  const lanesrc = strip(read("lib/atlasPaidLane.js"));
+  ok(/ATLAS_DRY_KEY_HEADER = "x-atlas-dry-key"/.test(lanesrc) && /timingSafeEqual\(a, b\)/.test(lanesrc) && /a\.length === b\.length/.test(lanesrc), "trigger key compared with timingSafeEqual on equal-length buffers, header x-atlas-dry-key");
+  ok(/key\.length < 32 \|\| String\(env\.ATLAS_PAID_ENABLED \|\| ""\)\.trim\(\) !== "dry"/.test(lanesrc) && /dry !== true \|\| retry \|\| refresh/.test(lanesrc), "trigger key needs >=32 chars, ATLAS_PAID_ENABLED=dry, dry=1, no retry/refresh");
+  ok(/req\.headers\.get\(ATLAS_DRY_KEY_HEADER\)/.test(route) && !/searchParams\.get\("dry_key"\)/.test(route) && !/console\.\w+\([^)]*ATLAS_DRY_TRIGGER_KEY/.test(route), "route reads the key from the header only and never logs it");
+}
+{
   const meter = strip(read("lib/atlasDryMeter.js"));
   ok(/DRY_ANTHROPIC_TIMEOUT_MS = 35000;/.test(meter) && /DRY_IO_TIMEOUT_MS = 3000;/.test(meter), "dry Anthropic timeout is 35000 ms and meter I/O timeout 3000 ms (3+3+35+3+3 = 47s inside maxDuration 60)");
   ok(/const laneTimeout = dryRun \? DRY_ANTHROPIC_TIMEOUT_MS : 48000;/.test(route) && /timeoutMs: laneTimeout/.test(route), "the lane uses the 35s dry timeout for dry runs only (48s for real runs), for both the outer timer and paidAi");

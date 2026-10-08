@@ -166,7 +166,7 @@ try {
       return jr({}, false);
     };
     const route = await import(${ROUTE});
-    const res = await route.GET(new Request("https://gowayfind.com/api/cron/atlas-build" + (process.env.QS ? process.env.QS : "?dry=1&limit=3"), { headers: { authorization: "Bearer probe" } }));
+    const res = await route.GET(new Request("https://gowayfind.com/api/cron/atlas-build" + (process.env.QS ? process.env.QS : "?dry=1&limit=3"), { headers: process.env.SENDKEY ? { "x-atlas-dry-key": process.env.SENDKEY } : (process.env.CRON_SECRET ? { authorization: "Bearer probe" } : {}) }));
     let body = null; try { body = await res.json(); } catch (e) {}
     console.log("@@" + JSON.stringify({ status: res.status, body, rec }));
   `;
@@ -175,7 +175,7 @@ try {
   const run = (over) => {
     const out = execFileSync(process.execPath, [f], {
       encoding: "utf8", timeout: 60000, cwd: ROOT,
-      env: { ...process.env, CRON_SECRET: "probe", WAYFIND_GATE: "free", ATLAS_PAID_ENABLED: "1", ATLAS_MONTH_PLACE_CAP: "5", ATLAS_MODEL: "", SUPABASE_URL: "https://probe.supabase.co", NEXT_PUBLIC_SUPABASE_URL: "https://probe.supabase.co", SUPABASE_SERVICE_ROLE_KEY: "probe-key", ANTHROPIC_API_KEY: "sk-ant-api03-probeprobeprobeprobeprobeprobe", LLM_API_KEY: "", GOOGLE_MAPS_SERVER_KEY: "", SCEN: "good", ...over },
+      env: { ...process.env, CRON_SECRET: "probe", WAYFIND_GATE: "free", ATLAS_PAID_ENABLED: "1", ATLAS_MONTH_PLACE_CAP: "5", ATLAS_MODEL: "", SUPABASE_URL: "https://probe.supabase.co", NEXT_PUBLIC_SUPABASE_URL: "https://probe.supabase.co", SUPABASE_SERVICE_ROLE_KEY: "probe-key", ANTHROPIC_API_KEY: "sk-ant-api03-probeprobeprobeprobeprobeprobe", LLM_API_KEY: "", GOOGLE_MAPS_SERVER_KEY: "", SCEN: "good", SENDKEY: "", ATLAS_DRY_TRIGGER_KEY: "", ...over },
     });
     return JSON.parse(out.split("\n").filter((l) => l.startsWith("@@")).pop().slice(2));
   };
@@ -279,6 +279,28 @@ try {
   ok(O1.body.stopped_for_overage === false && O1.rec.anthropicBodies.length === 2 && dryRecs(O1)[0].p_n === 40, "a place costing exactly the 40 cent reserve does not trip the overage stop");
   const O2 = run({ ATLAS_PAID_ENABLED: "dry", QS: "?dry=1&limit=3", USAGE_JSON: U61 });
   ok(O2.body.stopped_for_overage === true && O2.rec.anthropicBodies.length === 1 && dryRecs(O2)[0].p_n === 41, `a place over the reserve (41 cents) is recorded, then the run stops (stopped_for_overage; calls ${O2.rec.anthropicBodies.length})`);
+
+  // ---- ATLAS_DRY_TRIGGER_KEY: narrow header auth for the dry test (no CRON_SECRET) --------
+  const KEY = "k".repeat(40);
+  const kr = (over) => run({ CRON_SECRET: "", SENDKEY: KEY, ATLAS_DRY_TRIGGER_KEY: KEY, ATLAS_PAID_ENABLED: "dry", QS: "?dry=1&limit=1", ...over });
+  const K1 = kr({});
+  ok(K1.status === 200 && K1.body.dry === true && K1.rec.anthropicBodies.length === 1, `valid key + dry flag + dry=1 authorizes and runs exactly one place (status ${K1.status})`);
+  ok(JSON.stringify(K1).indexOf(KEY) === -1, "the trigger key is never echoed in the response or recorded calls");
+  for (const [name, over] of [
+    ["ATLAS_PAID_ENABLED=1", { ATLAS_PAID_ENABLED: "1" }],
+    ["no dry=1", { QS: "?limit=1" }],
+    ["retry=1", { QS: "?dry=1&retry=1&limit=1" }],
+    ["refresh=1", { QS: "?dry=1&refresh=1&limit=1" }],
+    ["wrong key", { SENDKEY: "x".repeat(40) }],
+    ["31 char env key", { ATLAS_DRY_TRIGGER_KEY: "k".repeat(31), SENDKEY: "k".repeat(31) }],
+    ["key in query string", { SENDKEY: "", QS: "?dry=1&limit=1&dry_key=" + KEY }],
+    ["no header", { SENDKEY: "" }],
+  ]) {
+    const X = kr(over);
+    ok(X.status === 401 && X.rec.anthropicBodies.length === 0 && X.rec.spend.length === 0, `trigger key rejected (401, zero spend): ${name} (got ${X.status})`);
+  }
+  const KC = run({ ATLAS_PAID_ENABLED: "dry", QS: "?dry=1&limit=1", ATLAS_DRY_TRIGGER_KEY: KEY });
+  ok(KC.status === 200 && KC.rec.anthropicBodies.length === 1, "the CRON_SECRET path is unchanged");
 
   const bogus = run({ ATLAS_PAID_ENABLED: "yes", QS: "?dry=1&limit=3" });
   ok(bogus.body.skipped && bogus.rec.spend.length === 0, "any other ATLAS_PAID_ENABLED value fails closed");

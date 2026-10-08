@@ -1,6 +1,6 @@
 import { gateFree, gateShut, spendAllow, takeFromLedger } from "../../../../lib/spendGate";
 import { readDryUsedCents, recordDryCents, usdToCents, reserveCents, DRY_ANTHROPIC_TIMEOUT_MS, DRY_IO_TIMEOUT_MS, DRY_RESERVE_FLOOR_CENTS } from "../../../../lib/atlasDryMeter";
-import { atlasPaidLane, readPriorityIds, loadPriorityIds, ATLAS_LANE_MODEL } from "../../../../lib/atlasPaidLane";
+import { atlasPaidLane, readPriorityIds, loadPriorityIds, ATLAS_LANE_MODEL, ATLAS_DRY_KEY_HEADER, dryTriggerAuthorized } from "../../../../lib/atlasPaidLane";
 import { laneRequestBody, extractLaneResult, identityProblems, dashProblems, deniedFetched, geocodeCensus, haversineKm, metroCity, dryBudgetAllows, DRY_WORST_NEXT_FLOOR_USD } from "../../../../lib/atlasWebLane";
 // app/api/cron/atlas-build/route.js — bulk-builds the Wayfind "Atlas" editorial
 // (atlas-590-v1) for places that don't have one yet. Sources facts from the
@@ -414,8 +414,11 @@ export async function GET(req) {
   };
   const secret = process.env.CRON_SECRET;
   const auth = req.headers.get("authorization") || "";
-  if (!secret || (auth !== "Bearer " + secret && url.searchParams.get("key") !== secret)) {
-    return Response.json({ error: "unauthorized" }, { status: 401 });
+  const dryKeyOk = dryTriggerAuthorized({ header: req.headers.get(ATLAS_DRY_KEY_HEADER), dry: url.searchParams.get("dry") === "1", retry: retryMode, refresh: refreshMode });
+  if (!dryKeyOk) {
+    if (!secret || (auth !== "Bearer " + secret && url.searchParams.get("key") !== secret)) {
+      return Response.json({ error: "unauthorized" }, { status: 401 });
+    }
   }
 
   // The owned Atlas is permanent. Free mode serves that library and must not
