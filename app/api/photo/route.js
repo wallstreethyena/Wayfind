@@ -18,7 +18,7 @@ import { findFreePhoto } from "../../../lib/freePhoto";
 import { recordPhotoOutcome, recordPhotoDeniedCeiling } from "../../../lib/photoOutcomes";
 import { recordReaderPhotoMiss } from "../../../lib/photoReaderMissQueue";
 import { keepPhotoCredits } from "../../../lib/photoCredits";
-import { isCrawler, isSyntheticMonitor } from "../../../lib/crawler.js";
+import { isAutomatedPhotoReader } from "../../../lib/crawler.js";
 
 // Credits live as long as the photo cache row they pair with (30 days, the
 // Google ToS maximum for cached place content).
@@ -147,10 +147,10 @@ export async function GET(req) {
   // own synthetic monitor gets the SAME no-spend read as the probe header: cached,
   // inventory and free photos still serve (with their credits); only the paid Google
   // media call is withheld. Same conservative UA list the /go routes use
-  // (lib/crawler.js) so an odd or empty UA is still treated as a person. Server-side
+  // (lib/crawler.js) minus real in-app browsers, so an odd or empty UA is still a person. Server-side
   // callers (photo-warm cron, vision scoring) send no browser UA and are unaffected.
   const ua = req.headers.get("user-agent") || "";
-  const automated = isCrawler(ua) || isSyntheticMonitor(ua);
+  const automated = isAutomatedPhotoReader(ua);
   const probe = req.headers.get("x-wayfind-photo-probe") === "1" || searchParams.get("nospend") === "1" || automated;
   const recoveryPlaceId = placeIdFromRef(ref) || (PLACE_RX.test(place) ? place : "");
   let recoveryPromise = null;

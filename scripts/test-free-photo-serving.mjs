@@ -44,7 +44,7 @@ import { readFileSync } from "node:fs";
 import { findFreePhoto, selectFreePhotoRow } from "../lib/freePhoto.js";
 import { gateShut, spendAllow, spendAllowPhotos } from "../lib/spendGate.js";
 import { FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef } from "../lib/placePhotoServe.js";
-import { isCrawler, isSyntheticMonitor } from "../lib/crawler.js";
+import { isAutomatedPhotoReader } from "../lib/crawler.js";
 
 let failures = 0;
 const ok = (condition, message) => {
@@ -199,8 +199,7 @@ async function sourceRoute(routeSource) {
     const gateShut = (...a) => globalThis.__wfFreePhotoTest.gateShut(...a);
     const spendAllow = (...a) => globalThis.__wfFreePhotoTest.spendAllow(...a);
     const spendAllowPhotos = (...a) => globalThis.__wfFreePhotoTest.spendAllowPhotos(...a);
-    const isCrawler = (...a) => globalThis.__wfFreePhotoTest.isCrawler(...a);
-    const isSyntheticMonitor = (...a) => globalThis.__wfFreePhotoTest.isSyntheticMonitor(...a);
+    const isAutomatedPhotoReader = (...a) => globalThis.__wfFreePhotoTest.isAutomatedPhotoReader(...a);
   `;
   return import("data:text/javascript," + encodeURIComponent(prelude + "\n" + stripped));
 }
@@ -210,8 +209,7 @@ async function sourceRoute(routeSource) {
 // comes from intercepting globalThis.fetch at exactly one URL below.
 globalThis.__wfFreePhotoTest = {
   FALLBACK_PATH,
-  isCrawler, // real UA rule (lib/crawler.js): automated readers never buy
-  isSyntheticMonitor,
+  isAutomatedPhotoReader, // real UA rule (lib/crawler.js): automated readers never buy
   PHOTO_REF_RX,
   placeIdFromRef,
   gateShut,

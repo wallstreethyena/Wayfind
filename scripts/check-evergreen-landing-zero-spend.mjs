@@ -233,7 +233,7 @@ const render = async (c, s, city) => {
   // this rig's recording fetch, so the zero-spend assertions still see it.
   const { keepPhotoCredits } = await import("../lib/photoCredits.js");
   // 2026-10-08: the route asks the REAL UA rule whether the reader is automated.
-  const { isCrawler, isSyntheticMonitor } = await import("../lib/crawler.js");
+  const { isAutomatedPhotoReader } = await import("../lib/crawler.js");
   let googlePhotoFetches = 0;
   const deps = {
     cacheGet: async () => null, cacheSet: async () => {}, cacheDel: async () => {},
@@ -248,7 +248,7 @@ const render = async (c, s, city) => {
     recordReaderPhotoMiss: async () => false, recordPhotoOutcome: async () => {}, recordPhotoDeniedCeiling: async () => {},
     photosCeiling: () => 0,
     keepPhotoCredits,
-    isCrawler, isSyntheticMonitor,
+    isAutomatedPhotoReader,
   };
   const routeSrc = readFileSync(path.join(ROOT, "app/api/photo/route.js"), "utf8");
   // Same sourcing technique as scripts/test-free-photo-serving.mjs: strip the
@@ -310,9 +310,18 @@ const render = async (c, s, city) => {
     ok(r.ledger === 0 && r.google === 0 && r.res.headers.get("x-wayfind-photo-result") === "probe-no-spend",
       `automated reader (${name}) on a spend-capable URL took ${r.ledger} grant(s), ${r.google} Google fetch(es), result ${r.res.headers.get("x-wayfind-photo-result")} — must be 0/0 probe-no-spend`);
   }
-  const human = await hit(spendable, { "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1" });
-  ok(human.ledger >= 1 && human.google >= 1 && human.res.headers.get("x-wayfind-photo-result") === "google",
-    `POSITIVE CONTROL: a real iPhone Safari UA on the same URL still buys (${human.ledger} grant, ${human.google} fetch) — so the bot 0/0 is the UA rule, not a blind rig`);
+  const PEOPLE = {
+    iphoneSafari: "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1",
+    // In-app browsers whose UA carries a crawler-looking word: real people (review 2026-10-08).
+    pinterestApp: "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 [Pinterest/iOS]",
+    instagramApp: "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 350.0.0.0 (iPhone15,2; iOS 18_6; en_US)",
+    cubotPhone: "Mozilla/5.0 (Linux; Android 13; CUBOT KINGKONG 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Mobile Safari/537.36",
+  };
+  for (const [name, ua] of Object.entries(PEOPLE)) {
+    const human = await hit(spendable, { "user-agent": ua });
+    ok(human.ledger >= 1 && human.google >= 1 && human.res.headers.get("x-wayfind-photo-result") === "google",
+      `POSITIVE CONTROL (${name}): a real person on the same URL still buys (${human.ledger} grant, ${human.google} fetch) — so the bot 0/0 is the UA rule, not a blind rig, and in-app browsers are people`);
+  }
 }
 
 // ── F. RAILS: the two client/server rails that carry their OWN photo URLs ────
