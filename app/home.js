@@ -12212,13 +12212,16 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
                   fee. The label now names WHAT the verified product books,
                   derived from the product's own title — never invented; falls
                   back to the generic label when the title names no activity. */}
-              {(() => {
+              {spookyOverFall(p, siteTodayStr()) ? <span className="wf-spooky-ghost" aria-hidden="true">{"\u{1F47B}"}</span> : null}{(() => {
+                // Spooky cards: the ghost REPLACES the leading activity emoji (never two icons).
+                const spookyBook = !!spookyOverFall(p, siteTodayStr());
+                const lab = (l) => (spookyBook ? l.replace(/^\S+\s/, "") : l);
                 const t = String((cardProduct && cardProduct.title) || "");
-                if (/jet ?ski|waverunner/i.test(t)) return "🌊 Book a jet ski tour ↗";
-                if (/kayak/i.test(t)) return "🛶 Book a kayak tour ↗";
-                if (/paddle/i.test(t)) return "🏄 Book a paddle tour ↗";
-                if (/cruise|boat/i.test(t)) return "🚤 Book a cruise ↗";
-                if (/tour|safari|walk/i.test(t)) return "🎟️ Book a tour ↗";
+                if (/jet ?ski|waverunner/i.test(t)) return lab("🌊 Book a jet ski tour ↗");
+                if (/kayak/i.test(t)) return lab("🛶 Book a kayak tour ↗");
+                if (/paddle/i.test(t)) return lab("🏄 Book a paddle tour ↗");
+                if (/cruise|boat/i.test(t)) return lab("🚤 Book a cruise ↗");
+                if (/tour|safari|walk/i.test(t)) return lab("🎟️ Book a tour ↗");
                 return "Book on Viator ↗";
               })()}</ViatorCommerceLink>
             )}
