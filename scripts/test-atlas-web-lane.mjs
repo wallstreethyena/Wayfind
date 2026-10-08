@@ -101,7 +101,7 @@ const fetchedGood = [{ url: URL1, text: PAGE }];
   const c = W.laneCostUsd({ input_tokens: 1000000, cache_creation_input_tokens: 1000000, cache_read_input_tokens: 1000000, output_tokens: 1000000, server_tool_use: { web_search_requests: 3 } });
   ok(Math.abs(c - (2 + 2.5 + 0.2 + 10 + 0.03)) < 1e-9, "laneCostUsd: $2/MTok input, 1.25x cache write, 0.1x cache read, $10/MTok output, $0.01 per search; got " + c);
   ok(W.laneCostUsd(null) === 0 && W.laneCostUsd({ input_tokens: "x" }) === 0, "laneCostUsd tolerates junk usage");
-  ok(W.dryBudgetAllows(0.76, [0.1], 1) === false && W.dryBudgetAllows(0.75, [0.1], 1) === true && W.dryBudgetAllows(0.5, [0.6], 1) === false, "dryBudgetAllows: spent + max($0.25, highest seen) must fit the cap");
+  ok(W.dryBudgetAllows(0.61, [0.1], 1) === false && W.dryBudgetAllows(0.6, [0.1], 1) === true && W.dryBudgetAllows(0.5, [0.6], 1) === false, "dryBudgetAllows: spent + max($0.40, highest seen) must fit the cap");
   const lanes = await import(href("lib/atlasPaidLane.js"));
   const E = (o) => lanes.atlasPaidLane({ ATLAS_MONTH_PLACE_CAP: "5", ...o });
   ok(E({ ATLAS_PAID_ENABLED: "dry" }).mode === "dry" && E({ ATLAS_PAID_ENABLED: "1" }).mode === "full" && E({ ATLAS_PAID_ENABLED: "DRY!" }) === null && E({ ATLAS_PAID_ENABLED: "true" }) === null, "lane mode: dry / full / anything else null");
@@ -226,9 +226,9 @@ try {
   // ---- persistent cross-request meter, ids=, default limit ---------------------------------
   const sumDry = (r) => r.rec.spend.filter((x) => x.p_sku === "atlas_dry_cents").reduce((a, x) => a + x.p_n, 0);
   const M1 = run({ ATLAS_PAID_ENABLED: "dry", QS: "?dry=1&limit=1", LEDGER_USED: "80" });
-  ok(M1.rec.anthropicBodies.length === 0 && M1.rec.spend.length === 0 && M1.body.stopped_for_budget === true && M1.body.budget.used_cents_before === 80 && M1.body.budget.cap_cents === 100, `ledger used=80 + reserve 25 > cap 100: blocked with ZERO Anthropic calls and zero grants (calls ${M1.rec.anthropicBodies.length}, spend ${M1.rec.spend.length}, ${JSON.stringify(M1.body.budget)})`);
-  const M2 = run({ ATLAS_PAID_ENABLED: "dry", QS: "?dry=1&limit=1", LEDGER_USED: "75" });
-  ok(M2.rec.anthropicBodies.length === 1 && M2.body.budget.used_cents_before === 75, "ledger used=75 + reserve 25 = cap 100: exactly fits, the place runs");
+  ok(M1.rec.anthropicBodies.length === 0 && M1.rec.spend.length === 0 && M1.body.stopped_for_budget === true && M1.body.budget.used_cents_before === 80 && M1.body.budget.cap_cents === 100, `ledger used=80 + reserve 40 > cap 100: blocked with ZERO Anthropic calls and zero grants (calls ${M1.rec.anthropicBodies.length}, spend ${M1.rec.spend.length}, ${JSON.stringify(M1.body.budget)})`);
+  const M2 = run({ ATLAS_PAID_ENABLED: "dry", QS: "?dry=1&limit=1", LEDGER_USED: "60" });
+  ok(M2.rec.anthropicBodies.length === 1 && M2.body.budget.used_cents_before === 60, "ledger used=60 + reserve 40 = cap 100: exactly fits, the place runs");
   const U23 = JSON.stringify({ input_tokens: 100000, output_tokens: 2340, server_tool_use: { web_search_requests: 0 } }); // $0.2234 -> 23 cents
   const M3 = run({ ATLAS_PAID_ENABLED: "dry", QS: "?dry=1&limit=1", LEDGER_USED: "10", USAGE_JSON: U23 });
   ok(sumDry(M3) === 23 && M3.rec.spend.filter((x) => x.p_sku === "atlas_dry_cents").every((x) => x.p_cap === 1000000 && x.p_n >= 1 && x.p_n <= 10) && M3.body.budget.used_cents_after === 33 && M3.body.meter_record_failed === false, `a $0.2234 place records ceil = 23 cents on the ledger (recorded ${sumDry(M3)}, ${JSON.stringify(M3.body.budget)})`);
