@@ -18,7 +18,7 @@ import { wayfindScore } from "../../../../lib/wayfindScore.js";
 import { cardImageSrc, hasStoredPlacePhoto } from "../../../../lib/placePhoto.js";
 import { fastCachedRail, geoCell } from "../../../../lib/railFastCache.js";
 import { composeChristmasIntentRails, christmasEventRail } from "../../../../lib/christmasIntentRails.js";
-import { CHRISTMAS_PLACE_IDS, CHRISTMAS_PLACE_RAIL, CHRISTMAS_PLACE_TAKES, CHRISTMAS_TICKET_DEAL_IDS, christmasEventTicket } from "../../../../lib/christmasPool.js";
+import { CHRISTMAS_PLACE_IDS, CHRISTMAS_PLACE_RAIL, CHRISTMAS_PLACE_TAKES, CHRISTMAS_TICKET_DEAL_IDS, CHRISTMAS_VENUE_PLACE_IDS, enrichChristmasEvent, christmasEventTicket } from "../../../../lib/christmasPool.js";
 import { nextFallOccurrence } from "../../../../lib/fallIntentRails.js";
 import { pageOneRail } from "../../../../lib/railPage.js";
 import { windowRailAnswer } from "../../../../lib/railResponse.js";
@@ -47,13 +47,14 @@ export async function GET(request) {
     const today = siteTodayStr();
     // v1 (2026-10-08): first publish of the Christmas collection.
     // v2 (2026-10-08): each rail carries its own guide (server projected).
-    const key = `christmas-intents:v2:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v3 (2026-10-08): events missing place_id or coordinates are enriched from their venue.
+    const key = `christmas-intents:v3:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     const cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const signal = AbortSignal.timeout(CHRISTMAS_DB_DEADLINE_MS);
       const [rows, placeResult, dealResult] = await Promise.all([
         fetchCuratedEvents({ signal, fresh: true }),
-        supabase.from("wf_inventory").select(PLACE_COLUMNS).in("place_id", CHRISTMAS_PLACE_IDS).abortSignal(signal),
+        supabase.from("wf_inventory").select(PLACE_COLUMNS).in("place_id", [...new Set([...CHRISTMAS_PLACE_IDS, ...CHRISTMAS_VENUE_PLACE_IDS])]).abortSignal(signal),
         // wf_deals health for Undercover Tourist entries; owned read, no paid call.
         CHRISTMAS_TICKET_DEAL_IDS.length
           ? supabase.from("wf_deals").select("id,affiliate_url,active,link_ok,provider").in("id", CHRISTMAS_TICKET_DEAL_IDS).abortSignal(signal)
@@ -65,12 +66,13 @@ export async function GET(request) {
       if (placeResult.error) console.error("[api/events/christmas] place inventory degraded", { message: String(placeResult.error.message || placeResult.error) });
 
       const pageSlugs = new Set((rows || []).map((row) => row?.slug).filter(Boolean));
-      const eligibleRows = (rows || []).filter((e) => isTrusted(e) && christmasEventRail(e));
+      const inventoryById = new Map((placeResult.data || []).map((row) => [row.place_id, row]));
+      // Fill the venue identity and coordinates the row lacks (never guessed: lib/christmasPool.js).
+      const eligibleRows = (rows || []).filter((e) => isTrusted(e) && christmasEventRail(e)).map((e) => enrichChristmasEvent(e, inventoryById));
 
       // Venue photos for the events: one more owned read for the venues the
       // pool above did not already cover. An event with no resolvable venue
       // photo is dropped below, never shown with an empty media well.
-      const inventoryById = new Map((placeResult.data || []).map((row) => [row.place_id, row]));
       const extraIds = [...new Set(eligibleRows.map((e) => e.place_id).filter((id) => id && !inventoryById.has(id)))];
       if (extraIds.length) {
         const extra = await supabase.from("wf_inventory").select(PLACE_COLUMNS).in("place_id", extraIds).abortSignal(signal);

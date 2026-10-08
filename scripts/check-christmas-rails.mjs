@@ -13,7 +13,7 @@ import {
   CHRISTMAS_INTENT_RAIL_DEFS, christmasEventRail, composeChristmasIntentRails,
 } from "../lib/christmasIntentRails.js";
 import { NO_EXACT_AFFILIATE_PRODUCT } from "../lib/eventTicketDeals.js";
-import { CHRISTMAS_PLACE_RAIL, CHRISTMAS_PLACE_TAKES, christmasEventTicket, CHRISTMAS_TICKET_DEAL_IDS } from "../lib/christmasPool.js";
+import { CHRISTMAS_EVENT_VENUE_PLACE_IDS, enrichChristmasEvent, CHRISTMAS_PLACE_RAIL, CHRISTMAS_PLACE_TAKES, christmasEventTicket, CHRISTMAS_TICKET_DEAL_IDS } from "../lib/christmasPool.js";
 import { CHRISTMAS_RAIL_GUIDE_SLUGS } from "../lib/christmasIntentRails.js";
 import { christmasRailGuide, withChristmasGuides } from "../lib/christmasGuides.js";
 import { GUIDES } from "../lib/guides.js";
@@ -245,6 +245,38 @@ ok(christmasRailGuide("beaches", "2027-04-01") === null, "an archived guide (pas
 ok(christmasRailGuide("beaches", "2026-12-01", {}) === null, "a missing guide is omitted");
 ok(christmasRailGuide("no-such-rail", "2026-12-01") === null, "an unknown rail gets no guide");
 
+// ── 6d. Venue enrichment: rows with no place_id or coordinates (EXECUTED) ───
+// Live rows for these events arrive with lat/lng null and no place_id; without
+// enrichment the composer drops them. Inventory rows below mirror wf_inventory.
+const INV = new Map([
+  ["ChIJfyPWjCh-54gR1SvWozmef5k", { lat: 28.4110, lng: -81.4612 }],
+  ["ChIJvRBCrN9-54gRGZuuaCLGrQE", { lat: 28.4724, lng: -81.4690 }],
+  ["ChIJ38rlfogN3YgRGic46M9dbLw", { lat: 27.9899, lng: -81.6914 }],
+  ["ChIJl0CYCGZ_3YgRL05pG5wZSsE", { lat: 28.3432, lng: -81.5260 }],
+  ["ChIJhRo4DU_GwogRUgjhMAj-pag", { lat: 28.0371, lng: -82.4195 }],
+  ["ChIJBQ5SjLHGwogRL4X19g4J5tI", { lat: 28.0138, lng: -82.4700 }],
+]);
+for (const id of THEME_PARK_IDS.filter((x) => x !== "mvmcp-2026" && x !== "epcot-festival-holidays-2026")) {
+  const raw = { event_id: id, event_name: "Holiday Night", start_date: "2026-11-20", end_date: "2027-01-03", lat: null, lng: null, place_id: null, tags: [] };
+  const out = enrichChristmasEvent(raw, INV);
+  ok(!!out.place_id && Number.isFinite(out.lat) && Number.isFinite(out.lng), `theme park ${id} gets a place_id and coordinates through enrichment (got ${out.place_id}, ${out.lat}, ${out.lng})`);
+  ok(raw.lat === null && raw.place_id === null, `${id}: enrichment does not mutate the source row`);
+  const placed = composeChristmasIntentRails([{ ...out, event_name: "Park Holiday Night" }], [], { ...ORLANDO, today: TODAY }).rails.find((r) => r.id === "theme-parks");
+  ok(placed.cards.some((c) => c.id === id), `${id}: once enriched it lands in theme-parks (was dropped as unplaceable before)`);
+  const unplaced = composeChristmasIntentRails([{ ...raw, event_name: "Park Holiday Night" }], [], { ...ORLANDO, today: TODAY }).rails.find((r) => r.id === "theme-parks");
+  ok(!unplaced.cards.some((c) => c.id === id), `${id}: without enrichment it is dropped (negative control, strict: no guessed coordinates)`);
+}
+ok(enrichChristmasEvent({ event_id: "x", lat: 1, lng: 2, place_id: "keep" }, INV).place_id === "keep" && enrichChristmasEvent({ event_id: "x", lat: 1, lng: 2, place_id: "keep" }, INV).lat === 1, "enrichment never overwrites values the event already has");
+ok(enrichChristmasEvent({ event_id: "seaworld-orlando-christmas-2026", lat: null, lng: null }, new Map()).lat === null, "no inventory row means no coordinates (never guessed)");
+ok(Object.isFrozen(CHRISTMAS_EVENT_VENUE_PLACE_IDS) && !CHRISTMAS_EVENT_VENUE_PLACE_IDS["tampa-riverwalk-boat-parade-2026"], "ambiguous venues (Tampa Riverwalk) stay out of the map");
+// Classifier gaps found in live rows.
+const live = (name, start, end, tags) => ev("x-" + name, name, start, end, { tags });
+ok(christmasEventRail(live("St. Pete Indie Flea Fall/Winter Market", "2027-01-03", "2027-01-03", ["market"])) === null, "St. Pete Indie Flea is excluded (not Christmas)");
+for (const n of ["Holiday Lights in Largo Central Park", "Holiday Fantasy of Lights", "Haven Holiday Market"]) {
+  ok(christmasEventRail(live(n, "2026-11-21", "2027-01-02", ["festival", "holiday", "fall"])) === "nights-out", `${n}: a stray fall tag does not veto a holiday named event`);
+}
+ok(christmasEventRail(live("Fall Harvest Lights Night", "2026-11-21", "2026-11-21", ["fall"])) === null, "a fall tagged event with no holiday word in its name stays out");
+
 // ── 7. Wiring (STATIC: a component and a route cannot be executed here) ─────
 const route = read("app/api/events/christmas/route.js");
 ok(/christmas-intents:v\d+:/.test(route), "the route has its own christmas cache key");
@@ -255,7 +287,7 @@ const comp = read("app/components/ChristmasIntentRails.js");
 ok(/result\.rails\.length !== RAIL_COUNT/.test(comp) && /RAIL_COUNT = 5/.test(comp), "the component requires exactly five rails");
 ok(/<GuideDiscoveryCard guide=\{rail\.guide\}/.test(comp) && !/GuideRailCollection/.test(comp), "the component renders each rail's own guide card straight after the rail (static)");
 ok(/guide_open/.test(comp) && /rail: rail\.id/.test(comp), "a guide click is tracked with the rail and slug (static)");
-ok(/christmas-intents:v2:/.test(route) && /withChristmasGuides\(composed\.rails, today\)/.test(route), "the route bumps its cache key and attaches guides server side (static)");
+ok(/christmas-intents:v3:/.test(route) && /enrichChristmasEvent\(e, inventoryById\)/.test(route) && /withChristmasGuides\(composed\.rails, today\)/.test(route), "the route bumps its cache key and attaches guides server side (static)");
 ok(!/directionsUrl|fallSkin|isSpookyCard|spookySkin|wf-fall/.test(comp), "the component wears no fall or spooky skin and no Directions button");
 ok(/christmasEventTicket\(e\.event_id, byDealId\)/.test(route) && /ticket,\s*\n/.test(route), "the route attaches ticket to every event card (static)");
 ok(/kind: TICKET_SURFACE/.test(comp) && /surface: TICKET_SURFACE/.test(comp) && /TICKET_SURFACE = "christmas_intent_rail"/.test(comp) && /cta=\{isEvent \? eventCta\(card, onTrack\)/.test(comp), "the component renders the CTA with tickets_out and commerce tracking (static)");
