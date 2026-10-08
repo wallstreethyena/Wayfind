@@ -119,6 +119,8 @@ export const WF_SEARCH_CSS = `.wf-search-row{filter:drop-shadow(0 11px 20px rgba
 // with its placeholder pills removed (decoration sits on the body corners,
 // the photo stays clean). A skin paints the RESTING state only: buttons carry
 // :not(.is-active) and the border yields to liked/disliked.
+// The take rule is written "<sel> {" with a space, as the fall one is, so
+// check-known-for-tiers keeps matching the BASE .wf-place-card-take{ rule.
 const XMAS_SCOPES = [".wf-christmas .wf-place-card:not(.wf-guide-card)", ".wf-place-card.wf-christmas-card:not(.wf-guide-card)"];
 const XMAS = (tail = "", scopeTail = "") => XMAS_SCOPES.map((scope) => scope + scopeTail + (tail ? " " + tail : "")).join(",");
 const XMAS_GOLD = "#D4A74A";
@@ -332,7 +334,7 @@ ${XMAS(".wf-place-card-category:before")}{content:"\\1F384";display:inline-block
 ${XMAS(".wf-place-card-name")}{color:#FFF8EC!important;text-shadow:0 1px 3px rgba(0,0,0,.65)}
 ${XMAS(".wf-place-card-meta")}{color:#F1E3C4!important;text-shadow:0 1px 2px rgba(0,0,0,.6)}
 ${XMAS(".wf-place-card-meta>span+span:before")}{color:${XMAS_GOLD}!important}
-${XMAS(".wf-place-card-take")}{color:#FFF3DF!important;text-shadow:0 1px 2px rgba(0,0,0,.6);border-left-color:${XMAS_GOLD}!important}
+${XMAS(".wf-place-card-take")} {color:#FFF3DF!important;text-shadow:0 1px 2px rgba(0,0,0,.6);border-left-color:${XMAS_GOLD}!important}
 ${XMAS("button:not(.is-active)")}{background:linear-gradient(180deg,#0F3D27,#07291A)!important;border:1px solid rgba(212,167,74,.78)!important;color:#FFF3DC!important}
 ${XMAS(".wf-place-card-highlights>button")},${XMAS(".wf-place-card-highlights>span")},${XMAS(".wf-place-card-highlights>a")}{background:linear-gradient(180deg,#3A3416,#2E2A12)!important;border:1px solid rgba(212,167,74,.85)!important;color:#FFF3D6!important;box-shadow:none!important}
 ${XMAS(".wf-rail-card-cta")},${XMAS(".wf-place-card-actions>.wf-place-card-book")}{background:linear-gradient(180deg,#8E1222,#650A16)!important;border:1.5px solid ${XMAS_GOLD}!important;color:#FFF6E6!important;opacity:1!important;box-shadow:0 0 8px rgba(212,167,74,.25)!important}
