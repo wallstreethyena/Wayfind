@@ -54,8 +54,13 @@ const PINNED = [
 // No free geocoder could place these: Newberry's maze address and the Fort
 // Pierce walk (organizer names no meeting point). Named, not silently allowed.
 const NO_COORDS_ALLOWED = new Set([
+  // Newberry stays unknown (2026-10-08). Its venue address (20015 W Newberry Rd)
+  // sits near SW/NW 200th St on the Alachua County grid; a point another session
+  // wrote at SW 226th St was ~1.5 mi off and was cleared rather than guessed.
+  // Directions use the street address, so the event still routes correctly.
   "hw26-gap-newberry-cornfield-maze-newberry-2026",
-  "hw26-gap-ghosts-of-fort-pierce-past-walking-tours-fort-pierce-2026",
+  // Fort Pierce left this list 2026-10-08: the live point is the Census geocode of
+  // the organizer's meeting address (mainstreetfortpierce.org, 122 A.E. Backus Ave).
 ]);
 const FL_BOX = { lat: [24.4, 31.1], lng: [-87.7, -79.9] }; // statewide, not just the Gulf Coast
 const DASH = /[-‐-―−]/;

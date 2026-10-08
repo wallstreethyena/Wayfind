@@ -74,5 +74,26 @@ let tapped = null;
 const chipsSrc = readFileSync(path.join(ROOT, "lib/cardChips.js"), "utf8");
 ok(/if \(cuisine\) push\("cuisine", "cuisine"\);/.test(chipsSrc), "lib/cardChips.js keeps its cuisine branch");
 
+// 2026-10-08 (owner: "the cut off food card chip"). The browse lane wears up to 4 chips;
+// on a narrow card the 4th was cut mid-pill by the swipe strip. The lane now carries
+// wf-chip-fit: wrap + crop to ONE row, so a chip that does not fit drops out WHOLE. The
+// rendered lane must carry the class, and css.js must define it with wrap + hidden overflow
+// + a row gap that beats the inline gap:6 (else a sliver of row two shows under the crop).
+{
+  const html = chipsOf(thai).html;
+  ok(/class="wf-place-card-highlights wf-chip-fit"/.test(html), "the browse PlaceCard chip lane carries wf-chip-fit (whole-chip fit, never half cut)");
+  const cssSrc = readFileSync(path.join(ROOT, "app/components/css.js"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+  const rule = (cssSrc.match(/\.wf-place-card \.wf-place-card-highlights\.wf-chip-fit[^{]*\{([^}]*)\}/) || [])[1] || "";
+  ok(/flex-wrap:wrap/.test(rule), "wf-chip-fit wraps (a chip that does not fit moves to row two)");
+  ok(/overflow:hidden/.test(rule) && /max-height:30px/.test(rule), "wf-chip-fit crops to one 30px row");
+  const rg = Number((rule.match(/row-gap:(\d+)px!important/) || [])[1] || 0);
+  ok(rg >= 10, `wf-chip-fit row-gap is !important and >= 10px so row two starts below the crop (got ${rg})`);
+  ok(/mask-image:none/.test(rule), "wf-chip-fit drops the swipe fade (nothing to swipe to)");
+  // IconicPlaceCard's lane ends in the PARTNER ticket pill: it must keep its swipe lane,
+  // never the crop, or the revenue link is the chip that drops out.
+  const iconic = readFileSync(path.join(ROOT, "app/components/IconicPlaceCard.js"), "utf8").replace(/\{\/\*[\s\S]*?\*\/\}/g, "");
+  ok(/className="wf-place-card-highlights" ref=\{laneRef\}/.test(iconic) && !/wf-chip-fit/.test(iconic), "IconicPlaceCard keeps its swipe lane (its last pill is the partner ticket link)");
+}
+
 if (bad.length) { console.error("test-card-chips-deterministic: FAIL\n  - " + bad.join("\n  - ")); process.exit(1); }
 console.log(`test-card-chips-deterministic: OK — ${n} assertions (real PlaceCard rendered: cuisine, meal, value order; cap 4; identity-gated; deterministic)`);
