@@ -102,6 +102,15 @@ const DEFAULT_PRIORITY = ["concerts", "sports", "comedy", "theater", "local"];
 // Halloween" just because they run in October (2026-10-08).
 const FALL_FILTER = { key: "fall", label: "Fall and Halloween", icon: "🎃", match: (e) => e.fallTheme === true };
 export function eventFiltersFor(seasonLive) { return seasonLive ? [FALL_FILTER, ...EVENT_FILTERS] : EVENT_FILTERS; }
+// 2026-10-08 (owner): later October events must stay discoverable by date.
+// The strip shows the next eight days; while the fall season is live and
+// Halloween is past that window, one more chip jumps straight to Oct 31.
+export function halloweenChipFor(chips, todayStr, seasonLive) {
+  if (!seasonLive || typeof todayStr !== "string" || todayStr.length !== 10) return null;
+  const value = todayStr.slice(0, 4) + "-10-31";
+  if (todayStr > value || (chips || []).some((c) => c.value === value)) return null;
+  return { value, top: "Halloween", day: 31, label: "Halloween, Oct 31" };
+}
 export function defaultPriorityFor(seasonLive) { return seasonLive ? ["fall", ...DEFAULT_PRIORITY] : DEFAULT_PRIORITY; }
 export function filterMatches(f, e, eventBucket) { return f.match ? f.match(e) : eventBucket(e) === f.bucket; }
 
@@ -241,6 +250,8 @@ export default function EventsScreen({ ctx }) {
     const value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
     eventDateChips.push({ value, top: i === 0 ? "Today" : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()], day: d.getDate() });
   }
+  const halloweenChip = halloweenChipFor(eventDateChips, siteTodayStr(), seasonLive);
+  if (halloweenChip) eventDateChips.push(halloweenChip);
   const dchip = (on) => ({ flexShrink: 0, minWidth: 46, padding: "6px 9px", borderRadius: 12, border: `1px solid ${on ? C.light : C.border}`, cursor: "pointer", textAlign: "center", background: on ? C.light : C.panel, color: on ? "#0D1117" : C.light, fontWeight: 700 });
   const businessEmpty = (
     <div style={{ textAlign: "center", padding: "40px 24px", color: C.muted }}>
@@ -308,7 +319,7 @@ export default function EventsScreen({ ctx }) {
           <div style={{ display: "flex", gap: 6, overflowX: "auto", overscrollBehaviorX: "contain", paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
             <button aria-label="Show events on any date" onClick={() => setEventDate("all")} style={dchip(eventDate === "all")}><div style={{ fontSize: 10, opacity: 0.85 }}>Any</div><div style={{ fontSize: 14 }}>All</div><div style={{ fontSize: 9, opacity: 0.75, height: 11 }}>{allCount}</div></button>
             {eventDateChips.map((d) => { const count = countFor(d.value); return (
-              <button key={d.value} aria-label={`Show events ${d.top} ${d.day}`} onClick={() => setEventDate(d.value)} style={dchip(eventDate === d.value)}>
+              <button key={d.value} aria-label={d.label ? `Show events on ${d.label}` : `Show events ${d.top} ${d.day}`} onClick={() => setEventDate(d.value)} style={dchip(eventDate === d.value)}>
                 <div style={{ fontSize: 10, opacity: 0.85 }}>{d.top}</div>
                 <div style={{ fontSize: 14 }}>{d.day}</div>
                 <div style={{ fontSize: 9, opacity: 0.75, height: 11 }}>{count > 0 ? count : ""}</div>
