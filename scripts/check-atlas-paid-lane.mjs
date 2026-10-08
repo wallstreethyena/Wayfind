@@ -21,7 +21,7 @@ const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm,
 const lane = await import(pathToFileURL(path.join(ROOT, "lib/atlasPaidLane.js")).href);
 const L = (e) => lane.atlasPaidLane(e);
 const good = L({ ATLAS_PAID_ENABLED: "1", ATLAS_MONTH_PLACE_CAP: "40" });
-ok(good && good.cap === 40 && good.detailsSku === "atlas_details_enterprise" && good.anthropicSku === "atlas_anthropic_requests", "valid flags must yield cap 40 and the two atlas_* skus (positive control)");
+ok(good && good.cap === 40 && good.searchSku === "atlas_web_search" && good.anthropicSku === "atlas_anthropic_requests", "valid flags must yield cap 40 and the two atlas_* skus, atlas_web_search + atlas_anthropic_requests (positive control)");
 for (const [name, env] of [
   ["no flags", {}],
   ["cap only", { ATLAS_MONTH_PLACE_CAP: "40" }],
@@ -44,17 +44,17 @@ ok(Array.isArray(seed) && seed.length >= 20 && lane.loadPriorityIds(seed).length
 
 // 2. Global gate untouched; lane referenced nowhere else.
 const gateSrc = read("lib/spendGate.js");
-ok(!/ATLAS_|atlas_details|atlas_anthropic|atlasPaidLane/.test(gateSrc), "lib/spendGate.js must not know about the Atlas lane (global gate semantics unchanged)");
+ok(!/ATLAS_|atlas_web_search|atlas_anthropic|atlasPaidLane|atlasWebLane/.test(gateSrc), "lib/spendGate.js must not know about the Atlas lane (global gate semantics unchanged)");
 ok(/export function gateFree\(\) \{ return gateMode\(\) === "free"; \}/.test(gateSrc), "gateFree() semantics changed");
 const walk = (d) => readdirSync(path.join(ROOT, d)).flatMap((f) => {
   if (f === "node_modules" || f === ".next" || f === ".git") return [];
   const rel = d + "/" + f; const st = statSync(path.join(ROOT, rel));
   return st.isDirectory() ? walk(rel) : /\.(js|jsx|mjs|ts|tsx)$/.test(f) ? [rel] : [];
 });
-const ALLOWED = new Set(["app/api/cron/atlas-build/route.js", "lib/atlasPaidLane.js", "scripts/check-atlas-paid-lane.mjs"]);
+const ALLOWED = new Set(["app/api/cron/atlas-build/route.js", "lib/atlasPaidLane.js", "lib/atlasWebLane.js", "scripts/check-atlas-paid-lane.mjs"]);
 for (const f of [...walk("app"), ...walk("lib"), ...walk("scripts")]) {
   if (ALLOWED.has(f)) continue;
-  if (/ATLAS_PAID_ENABLED|ATLAS_MONTH_PLACE_CAP|atlas_details_enterprise|atlas_anthropic_requests|atlasPaidLane/.test(read(f)))
+  if (/ATLAS_PAID_ENABLED|ATLAS_MONTH_PLACE_CAP|atlas_web_search|atlas_anthropic_requests|atlasPaidLane|atlasWebLane/.test(read(f)))
     ok(/^scripts\/test-|^scripts\/check-/.test(f), `${f} references the Atlas paid lane; only atlas-build may spend on it`);
 }
 
@@ -62,8 +62,8 @@ for (const f of [...walk("app"), ...walk("lib"), ...walk("scripts")]) {
 const route = strip(read("app/api/cron/atlas-build/route.js"));
 ok(/const lane = !retryMode && !refreshMode && gateFree\(\) \? atlasPaidLane\(\) : null;/.test(route), "lane must exist only in plain build mode, only while the gate is free");
 ok(/if \(gateShut\(\) \|\| gateFree\(\)\) \{\s*if \(gateShut\(\) \|\| !lane\) \{/.test(route), "gate skip must stay: shut always skips, free skips unless the lane is valid");
-ok(/takeFromLedger\(lane\.detailsSku, lane\.cap\)/.test(route) && /spendAllow\("details_enterprise"\)/.test(route), "details grant must use the lane sku, shared sku only as the non-lane branch");
-ok(/lane \? \{ sku: lane\.anthropicSku, cap: lane\.cap \} : undefined/.test(route), "Anthropic call must carry the lane sku+cap (undefined -> shared path)");
+ok(/takeFromLedger\(lane\.searchSku, lane\.cap\)/.test(route) && /spendAllow\("details_enterprise"\)/.test(route), "search grant must use the lane sku, shared sku only as the non-lane branch");
+ok(/\{ sku: lane\.anthropicSku, cap: lane\.cap, timeoutMs: 48000 \}/.test(route), "lane Anthropic call must carry the lane sku+cap+48s timeout; shared path stays lane-free");
 ok((route.match(/takeFromLedger\(/g) || []).length === 1, "exactly one lane grant call expected in the route");
 ok(!/process\.env\.WAYFIND_GATE/.test(route), "route must not read WAYFIND_GATE itself");
 
@@ -94,6 +94,14 @@ try {
     const r = await paidAnthropicRequest(init(), badLane);
     ok(r.status === 503 && calls.length === 0, `malformed lane ${JSON.stringify(badLane)} must fail closed with NO ledger or provider call (status ${r.status}, calls ${calls.length})`);
   }
+  for (const tm of [0, 50001, 1.5, "x"]) {
+    calls.length = 0;
+    const r = await paidAnthropicRequest(init(), { sku: "atlas_anthropic_requests", cap: 7, timeoutMs: tm });
+    ok(r.status === 503 && calls.length === 0, `lane timeoutMs ${tm} must fail closed before any call`);
+  }
+  calls.length = 0;
+  await paidAnthropicRequest(init(), { sku: "atlas_anthropic_requests", cap: 7, timeoutMs: 48000 });
+  ok(calls.some((c) => c.url.includes("api.anthropic.com")), "lane timeoutMs 48000 is accepted");
   process.env.WAYFIND_GATE = "shut"; calls.length = 0;
   const shut = await paidAnthropicRequest(init(), { sku: "atlas_anthropic_requests", cap: 7 });
   ok(shut.status === 503 && calls.length === 0, "gate shut must still block the lane");
