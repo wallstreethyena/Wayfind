@@ -763,6 +763,7 @@ node scripts/check-events-running-order.mjs
 # Event price wording follows the source-supported admission_offer; a $0 tier
 # never reads as free on the card, the page or the JSON-LD.
 node scripts/check-event-price-language.mjs
+node scripts/check-event-price-fact.mjs
 # Events without their own photo show a designed category tile, never stock;
 # venue photos carry a Venue mark.
 node scripts/check-event-photo-honesty.mjs

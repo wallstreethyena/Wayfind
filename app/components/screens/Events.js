@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { C, TARGET } from "../kit";
 import * as Culture from "../../../lib/culture";
 import { eventPlaceholder } from "../../../lib/eventPlaceholder.js";
+import { eventPriceFact } from "../../../lib/eventPriceFact.js";
 import { fallSkinLive } from "../../../lib/fallSkin.js";
 import { isSpookyCard, sayHalloween, withSpookyChip } from "../../../lib/spookySkin.js";
 import { siteTodayStr } from "../../../lib/siteTime";
@@ -58,7 +59,7 @@ function EventCard({ e, onVenue, ctx }) {
     title={e.name}
     eyebrow={spooky && sayHalloween(spookyCard) ? "Halloween event" : seg.short}
     when={{ label: (rec || f.wd || f.mo || "Event").toUpperCase(), value: f.time || `${f.mo} ${f.day}`, tone: "later" }}
-    facts={[venue || null, e.price || null, e.source ? `via ${e.source}` : null].filter(Boolean)}
+    facts={[venue || null, eventPriceFact(e), e.source ? `via ${e.source}` : null].filter(Boolean)}
     chips={spooky ? withSpookyChip(venueChips) : venueChips}
     href={href}
     external={!internal}
