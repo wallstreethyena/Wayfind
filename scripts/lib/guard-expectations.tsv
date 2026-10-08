@@ -19,7 +19,7 @@ scripts/check-area-seasonal-context.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	1	2	c
 scripts/check-art-assets.mjs	0	CALL	blocks-ci-and-deploy	1	-	7	0	0	6ad5bd33b68851cdfa15497e15c5b5cdaf3d74775ac804a385808c40e9cc90c0
 scripts/check-atlas-cache-batch.mjs	0	CALL	blocks-ci-and-deploy	1	-	52	0	0	08ac3f6eaf38a9877a61242b472a5c0df9e92d539431a909e43dc1421ec09868
 scripts/check-atlas-diag-not-live.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	12	1	0	ce840f125f8ea733dc98bc7de79c29e3d6293d89cee54640513f944fe5e151bb
-scripts/check-atlas-paid-lane.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	0	0	7781020c1344fb5f1aa7f0e153204857de588ce571785cd593d9a72c107bf6c5
+scripts/check-atlas-paid-lane.mjs	0	CALL	blocks-ci-and-deploy	1	-	28	0	0	fea84083366ea6132df7b83211390ac640418c7daae2ad23f4ebe2d632ff86f8
 scripts/check-atlas-retry-cron.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	13	1	0	0ac3a758d9ef8ff6d4d0bf023f9a9745ead185dd01793680aed8e42f12a08616
 scripts/check-augtober-rail.mjs	0	CALL	blocks-ci-and-deploy	1	-	82	0	0	e2766ec3c4547172f162bf5c8cd16e9457376a6ebc6421a5bea08955fb8ac5cd
 scripts/check-auth.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	c36a57c0cebdfa25c09df290e59c60a5e191192fe1748120ae983158f26ff18f
@@ -433,7 +433,7 @@ scripts/test-atlas-retry.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	21	1	0	8c8d53
 scripts/test-atlas-ride-filter.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	11	1	0	29aec8eeab8ca54bb978cb82116c03d05db2af6e9f26f8f7a721145f7cb0fa1f
 scripts/test-atlas-verify-timefmt.mjs	0	CALL	blocks-ci-and-deploy	1	-	34	0	0	69f807812a8db147462816c64579d805ca8c1cf3d201f7faf08a12caf4fee005
 scripts/test-atlas-verify.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	836315264df5eebeed523b69764c02ed56a83ad4184ddc1846339616c4a6060a
-scripts/test-atlas-web-lane.mjs	0	CALL	blocks-ci-and-deploy	1	-	58	0	0	28c24ef205512f2f9dd08b50bef89213e29edd901754a15c6cf637f5126a9c8c
+scripts/test-atlas-web-lane.mjs	0	CALL	blocks-ci-and-deploy	1	-	76	0	0	3cd598308a1caf6914d669ef2ed36a9fd7c45259564222314d3fee809515c9b7
 scripts/test-attraction-discovery.mjs	0	CALL	blocks-ci-and-deploy	1	-	63	0	0	2f7c73e3ed908a8b3227d3b4b758647fcc808a3d4b4470ffad1ee15e1b23e4f3
 scripts/test-audit-candidate-starvation.mjs	0	CALL	blocks-ci-and-deploy	1	-	15	0	0	0f0c6d161bbe2d6e661acaa1cb99cc986dd6a518380f5c0880757349ccb6e55c
 scripts/test-auth-admin-tombstones.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0	7ca0ff9d466ca8b6a423420cd35ab3db291ba725f00023816d2a10b57d7df79d

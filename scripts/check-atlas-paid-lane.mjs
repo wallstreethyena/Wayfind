@@ -60,10 +60,13 @@ for (const f of [...walk("app"), ...walk("lib"), ...walk("scripts")]) {
 
 // Route wiring (comments stripped).
 const route = strip(read("app/api/cron/atlas-build/route.js"));
-ok(/const lane = !retryMode && !refreshMode && gateFree\(\) \? atlasPaidLane\(\) : null;/.test(route), "lane must exist only in plain build mode, only while the gate is free");
+ok(/const laneCfg = !retryMode && !refreshMode && gateFree\(\) \? atlasPaidLane\(\) : null;/.test(route), "lane must exist only in plain build mode, only while the gate is free");
 ok(/if \(gateShut\(\) \|\| gateFree\(\)\) \{\s*if \(gateShut\(\) \|\| !lane\) \{/.test(route), "gate skip must stay: shut always skips, free skips unless the lane is valid");
 ok(/takeFromLedger\(lane\.searchSku, lane\.cap\)/.test(route) && /spendAllow\("details_enterprise"\)/.test(route), "search grant must use the lane sku, shared sku only as the non-lane branch");
 ok(/\{ sku: lane\.anthropicSku, cap: lane\.cap, timeoutMs: 48000 \}/.test(route), "lane Anthropic call must carry the lane sku+cap+48s timeout; shared path stays lane-free");
+ok(/const lane = laneCfg && \(laneCfg\.mode === "full" \|\| dry\) \? laneCfg : null;/.test(route), "dry-only mode: the lane is active for ?dry=1 only unless ATLAS_PAID_ENABLED=1 (full)");
+ok(/dryMetered && \(stoppedForBudget \|\| !dryBudgetAllows\(drySpent, dryCosts, lane\.dryCapUsd\)\)/.test(route), "the dollar-ceiling stop must run before each place's grant");
+ok(/pool\(places, dryMetered \? 1 : 6/.test(route), "dry samples must run sequentially");
 ok((route.match(/takeFromLedger\(/g) || []).length === 1, "exactly one lane grant call expected in the route");
 ok(!/process\.env\.WAYFIND_GATE/.test(route), "route must not read WAYFIND_GATE itself");
 

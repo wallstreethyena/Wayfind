@@ -96,6 +96,20 @@ const fetchedGood = [{ url: URL1, text: PAGE }];
   ok(Math.abs(W.haversineKm(27.9506, -82.4572, 27.9776, -82.4572) - 3.0) < 0.05, "haversine: 0.027 deg of latitude is about 3.0 km");
 }
 
+// ---- dry-sample cost metering --------------------------------------------------------------
+{
+  const c = W.laneCostUsd({ input_tokens: 1000000, cache_creation_input_tokens: 1000000, cache_read_input_tokens: 1000000, output_tokens: 1000000, server_tool_use: { web_search_requests: 3 } });
+  ok(Math.abs(c - (2 + 2.5 + 0.2 + 10 + 0.03)) < 1e-9, "laneCostUsd: $2/MTok input, 1.25x cache write, 0.1x cache read, $10/MTok output, $0.01 per search; got " + c);
+  ok(W.laneCostUsd(null) === 0 && W.laneCostUsd({ input_tokens: "x" }) === 0, "laneCostUsd tolerates junk usage");
+  ok(W.dryBudgetAllows(0.86, [0.1], 1) === false && W.dryBudgetAllows(0.85, [0.1], 1) === true && W.dryBudgetAllows(0.5, [0.6], 1) === false, "dryBudgetAllows: spent + max($0.15, highest seen) must fit the cap");
+  const lanes = await import(href("lib/atlasPaidLane.js"));
+  const E = (o) => lanes.atlasPaidLane({ ATLAS_MONTH_PLACE_CAP: "5", ...o });
+  ok(E({ ATLAS_PAID_ENABLED: "dry" }).mode === "dry" && E({ ATLAS_PAID_ENABLED: "1" }).mode === "full" && E({ ATLAS_PAID_ENABLED: "DRY!" }) === null && E({ ATLAS_PAID_ENABLED: "true" }) === null, "lane mode: dry / full / anything else null");
+  ok(lanes.dryUsdCap({}) === 1 && lanes.dryUsdCap({ ATLAS_DRY_USD_CAP: "2.5" }) === 2.5 && lanes.dryUsdCap({ ATLAS_DRY_USD_CAP: "9" }) === 5 && lanes.dryUsdCap({ ATLAS_DRY_USD_CAP: "-1" }) === 1 && lanes.dryUsdCap({ ATLAS_DRY_USD_CAP: "0" }) === 1 && lanes.dryUsdCap({ ATLAS_DRY_USD_CAP: "1e3" }) === 1, "dryUsdCap: default 1, max 5, malformed 1");
+  const b = W.laneRequestBody(food, "m", [], "Tampa");
+  ok(b.max_tokens === 2000 && b.tools.every((t) => t.max_uses === 3) && b.tools.find((t) => t.name === "web_fetch").max_content_tokens === 8000, "per-request bound for dry runs: max_tokens 2000, both max_uses 3, max_content_tokens 8000");
+}
+
 // ---- dashes -----------------------------------------------------------------------------
 {
   ok(W.hasDash("a — b") && W.hasDash("a – b") && W.hasDash("a - b") && !W.hasDash("oak-smoked brisket"), "hasDash: em, en and spaced hyphen yes; compound hyphen no");
@@ -121,7 +135,7 @@ const fetchedGood = [{ url: URL1, text: PAGE }];
   ok(!/googleapis|placeDetails|gkey|GOOGLE_MAPS|officialPage|PLACE_FIELDS/.test(laneBranch), "lane branch + lane writer contain no googleapis / placeDetails / gkey / officialPage");
   ok(!/googleapis|placeDetails|gkey|GOOGLE_MAPS|officialPage/.test(strip(read("lib/atlasWebLane.js"))), "lib/atlasWebLane.js contains no Google Places reference");
   ok(/if \(!akey \|\| \(!lane && !gkey\)\)/.test(route), "the Google key is required only off the lane");
-  ok(/Math\.min\(limit1, 5\)/.test(route), "lane per-run limit is min(limit, 5)");
+  ok(/Math\.min\(limit1, dryMetered \? 10 : 5\)/.test(route), "lane per-run limit is 5 (10 only for metered dry samples)");
 }
 
 // ---- the REAL route, in a child, with every outbound call stubbed -----------------------
@@ -142,14 +156,14 @@ try {
       if (url.includes("/rest/v1/wf_job_pulse")) { rec.pulses.push(JSON.parse(init.body)); return jr({}); }
       if (url.includes("/rest/v1/wf_editorial") && method !== "GET") { rec.writes++; return jr([]); }
       if (url.includes("/rest/v1/wf_editorial")) return jr([]);
-      if (url.includes("/rest/v1/wf_inventory")) return jr([F.food]);
+      if (url.includes("/rest/v1/wf_inventory")) { const m = url.match(/place_id=in\.\(([^)]*)\)/); return jr((m ? m[1].split(",") : [F.food.place_id]).map((id) => ({ ...F.food, place_id: id }))); }
       if (url.includes("/rpc/wf_atlas_missing")) return jr([]);
-      if (url.includes("api.anthropic.com")) { rec.anthropicBodies.push(JSON.parse(init.body)); return jr(process.env.SCEN === "nofetch" ? F.NO_FETCH_RESP : F.GOOD_RESP); }
+      if (url.includes("api.anthropic.com")) { rec.anthropicBodies.push(JSON.parse(init.body)); const base = process.env.SCEN === "nofetch" ? F.NO_FETCH_RESP : F.GOOD_RESP; return jr(process.env.USAGE_JSON ? { ...base, usage: JSON.parse(process.env.USAGE_JSON) } : base); }
       if (url.includes("geocoding.geo.census.gov")) return jr({ result: { addressMatches: [{ coordinates: { x: -82.458, y: 27.951 } }] } });
       return jr({}, false);
     };
     const route = await import(${ROUTE});
-    const res = await route.GET(new Request("https://gowayfind.com/api/cron/atlas-build?dry=1&limit=3", { headers: { authorization: "Bearer probe" } }));
+    const res = await route.GET(new Request("https://gowayfind.com/api/cron/atlas-build" + (process.env.QS ? process.env.QS : "?dry=1&limit=3"), { headers: { authorization: "Bearer probe" } }));
     let body = null; try { body = await res.json(); } catch (e) {}
     console.log("@@" + JSON.stringify({ status: res.status, body, rec }));
   `;
@@ -183,8 +197,32 @@ try {
 
   const C = run({ ATLAS_PAID_ENABLED: "" });
   ok(C.body && C.body.skipped && C.rec.spend.length === 0 && C.rec.anthropicBodies.length === 0, "without ATLAS_PAID_ENABLED=1 the route skips and spends nothing");
+  const E = run({ ATLAS_PAID_ENABLED: "1", QS: "?limit=3" });
+  ok(E.status === 200 && E.rec.anthropicBodies.length >= 1 && E.rec.spend.length >= 1, "ATLAS_PAID_ENABLED=1 still serves the plain cron URL exactly as before");
   const D = run({ ATLAS_MONTH_PLACE_CAP: "0" });
   ok(D.body && D.body.skipped && D.rec.spend.length === 0, "with a bad cap the route skips and spends nothing");
+
+  // ---- ATLAS_PAID_ENABLED=dry: dry samples only, with a hard dollar ceiling --------------
+  for (const qs of ["?limit=3", "?retry=1&limit=3", "?refresh=1&limit=3"]) {
+    const X = run({ ATLAS_PAID_ENABLED: "dry", QS: qs });
+    ok(X.status === 200 && X.body && X.body.skipped && X.body.ranWork === false, `dry flag + ${qs}: today's exact free-gate skip, got ${JSON.stringify(X.body).slice(0, 120)}`);
+    ok(X.rec.anthropicBodies.length === 0 && X.rec.spend.length === 0 && X.rec.writes === 0, `dry flag + ${qs}: ZERO Anthropic calls, ZERO wf_spend_take, ZERO wf_editorial writes (got ${X.rec.anthropicBodies.length}/${X.rec.spend.length}/${X.rec.writes})`);
+    ok(X.rec.pulses.length === 1 && /intentional skip: gate=free/.test(X.rec.pulses[0].note || ""), `dry flag + ${qs}: the usual pulse note is recorded`);
+  }
+  const USAGE30 = JSON.stringify({ input_tokens: 50000, output_tokens: 10000, server_tool_use: { web_search_requests: 10 } }); // $0.10 + $0.10 + $0.10
+  const Y = run({ ATLAS_PAID_ENABLED: "dry", QS: "?dry=1&limit=10", USAGE_JSON: USAGE30 });
+  ok(Y.status === 200 && Y.body && Y.body.dry === true && Y.body.lane === true, "dry flag + ?dry=1 runs the lane");
+  ok(Y.rec.writes === 0, "dry flag + ?dry=1 wrote nothing to wf_editorial");
+  ok(Y.rec.anthropicBodies.length === 3 && Y.body.stopped_for_budget === true, `$0.30/place stops after 3 places under the $1.00 ceiling (calls ${Y.rec.anthropicBodies.length}, stopped ${Y.body && Y.body.stopped_for_budget})`);
+  ok(Y.body.cost_usd_total <= 1.0 && Math.abs(Y.body.cost_usd_total - 0.9) < 1e-6 && Y.body.cost_usd_per_place.length === 3 && Y.body.cap_usd === 1, `cost_usd_total ${Y.body.cost_usd_total} <= 1.00, per place ${JSON.stringify(Y.body.cost_usd_per_place)}, cap ${Y.body.cap_usd}`);
+  const Z = run({ ATLAS_PAID_ENABLED: "dry", QS: "?dry=1&limit=10", USAGE_JSON: USAGE30, ATLAS_DRY_USD_CAP: "99" });
+  ok(Z.body.cap_usd === 5 && Z.rec.anthropicBodies.length === 10 && Math.abs(Z.body.cost_usd_total - 3) < 1e-6 && Z.body.stopped_for_budget === false, "ATLAS_DRY_USD_CAP above 5 is clamped to the $5.00 hard max");
+  const Z2 = run({ ATLAS_PAID_ENABLED: "dry", QS: "?dry=1&limit=10", USAGE_JSON: USAGE30, ATLAS_DRY_USD_CAP: "abc" });
+  ok(Z2.body.cap_usd === 1 && Z2.rec.anthropicBodies.length === 3, "malformed ATLAS_DRY_USD_CAP falls back to $1.00");
+  const cheap = run({ ATLAS_PAID_ENABLED: "dry", QS: "?dry=1&limit=10" });
+  ok(cheap.body.cost_usd_total < 0.5 && cheap.body.stopped_for_budget === false && cheap.rec.anthropicBodies.length === 10, "cheap usage processes all 10 places sequentially without stopping");
+  const bogus = run({ ATLAS_PAID_ENABLED: "yes", QS: "?dry=1&limit=3" });
+  ok(bogus.body.skipped && bogus.rec.spend.length === 0, "any other ATLAS_PAID_ENABLED value fails closed");
 } finally {
   rmSync(dir, { recursive: true, force: true });
 }
