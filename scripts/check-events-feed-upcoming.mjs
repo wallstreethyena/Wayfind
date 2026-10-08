@@ -125,8 +125,8 @@ ok(calls.length === 1, `fromCuratedEvents makes exactly one curated read (found 
 ok(calls.length === 1 && /upcomingFrom:\s*today\(\)/.test(calls[0]), "…for rows still running on the site's today");
 ok(calls.length === 1 && !/\blimit\s*:/.test(calls[0]), "…with no first-N limit (the read that ended on Oct 9)");
 ok(calls.length === 1 && /fresh:\s*true/.test(calls[0]), "…through the live reader");
-ok(/curatedSceneImage\(e,\s*sceneMemo\)/.test(body) && /const sceneMemo = new Map\(\)/.test(body),
-  "scene photos are looked up once per (kind, city) per aggregation, not once per row");
+ok(!/curatedSceneImage|stockPhotoPool/.test(body),
+  "the curated read makes no stock photo lookups at all (retired 2026-10-08), so paging every upcoming row costs no photo calls");
 
 if (fail.length) {
   console.error(`check-events-feed-upcoming: FAIL — ${fail.length} failed, ${pass} passed`);

@@ -45,7 +45,7 @@ import { editorialLine } from "../lib/editorialHook";
 import { topPickAward } from "../lib/topPickAward";
 import { wayfindAwardFor } from "../lib/wayfindAwards.js";
 import { AwardSticker, AwardBand, AwardListRank, awardWinnerClass } from "./components/AwardCardParts";
-import { eventCategoryArt } from "../lib/eventCategoryArt";
+import { eventPlaceholder } from "../lib/eventPlaceholder.js";
 import { startSessionRecording, markShareOpen, checkShareReturn } from "../lib/shareMetrics";
 import { priceWord } from "../lib/price";
 import { mapInventoryRow } from "../lib/inventoryRowClient";
@@ -3040,10 +3040,12 @@ function EventRailCard({ event, rank, relativeLabel, saved, liked, disliked, onS
   const internal = event.destKind === "internal";
   const href = internal ? event.dest : ticketUrl(event.dest);
   const venue = cleanVenueName(event.venue) || event.city || "Nearby";
-  const categoryImage = eventCategoryArt(bucket, event);
   // v6.99 (P1 speed): rail cards render the right-sized thumb the API now
   // ships (smallest 16:9 ≥ 320px); the 1024px pick stays hero-only.
-  const railImage = (eventUseImage(event) ? (event.thumb || event.image) : "") || categoryImage;
+  // 2026-10-08 (owner): no stock photo stands in for an event; a missing or
+  // broken image shows the designed category tile (lib/eventPlaceholder.js).
+  const railImage = eventUseImage(event) ? (event.thumb || event.image) : "";
+  const placeholder = eventPlaceholder(bucket, event);
   const cta = eventCTA(event);
   const tix = internal && event.url ? ticketUrl(event.url) : null;
   // The badge: relative when the event is close enough that "Tonight" is more
@@ -3095,7 +3097,7 @@ function EventRailCard({ event, rank, relativeLabel, saved, liked, disliked, onS
       photo={railImage}
       visitFacts={event.visitFacts || null}
       planningHref={internal ? event.dest : null}
-      photoFallback={eventUseImage(event) ? categoryImage : ""}
+      placeholder={placeholder}
       title={event.name}
       eyebrow={seg.short}
       onEyebrow={onCategory ? () => onCategory(bucket) : null}
@@ -5010,7 +5012,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       item_type: "event",
       item_id: ev.id,
       item_title: ev.name || "",
-      item_image: (eventUseImage(ev) ? (ev.thumb || ev.image) : "") || eventCategoryArt(eventBucket(ev), ev) || null,
+      item_image: (eventUseImage(ev) ? (ev.thumb || ev.image) : "") || null,
       item_url: internal ? originUrl(ev.dest) : ticketUrl(ev.dest),
       provider: ev.source || null,
     });

@@ -72,7 +72,7 @@ ok(/\.wf-rail-nav-btn\{/.test(css) && /scrollBy\(\{ left: dir \* rail\.clientWid
 
 // ── 2. THE ART IS SHOWN ──────────────────────────────────────────────────────
 ok(/photo=\{railImage\}/.test(card), "the card is given the event's art");
-ok(/photoFallback=\{eventUseImage\(event\) \? categoryImage : ""\}/.test(card), "branded category art is the fallback when provider art fails to load");
+ok(/placeholder=\{placeholder\}/.test(card) && /const placeholder = eventPlaceholder\(bucket, event\)/.test(card) && !/eventCategoryArt/.test(card), "a missing or broken event image falls back to the designed category tile, never stock art (owner, 2026-10-08)");
 ok(/objectFit: "cover"/.test(rail), "the art fills its column");
 ok(!/rgba\(5,9,15,\.94\)/.test(card) && !/rgba\(5,9,15,\.94\)/.test(rail), "the old 94%-opaque full-image scrim cannot return");
 ok(!/filter:\s*"saturate\(\.78\)/.test(card) && !/filter:\s*"saturate\(\.78\)/.test(rail), "the old desaturation cannot return");

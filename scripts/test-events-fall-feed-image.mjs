@@ -52,7 +52,9 @@ check("the isFall flag survives the events pipeline to the client", () => {
 
 check("the Events screen never applies category stock to fall rows and drops Official details", () => {
   const src = readFileSync("app/components/screens/Events.js", "utf8");
-  assert.match(src, /const categoryImage = fall \? "" : eventCategoryArt\(/);
+  // 2026-10-08: no event gets category stock; a missing image shows the designed tile.
+  assert.doesNotMatch(src, /eventCategoryArt/);
+  assert.match(src, /const placeholder = eventPlaceholder\(ctx\.eventBucket\(e\), e\);/);
   assert.match(src, /planningHref=\{internal && !fall \? e\.dest : null\}/);
   assert.match(src, /className=\{fallSkin \? "wf-fall-card" : undefined\}/);
   assert.match(src, /const hasCta = !fall \|\| !!e\.ticketVia \|\| !!e\.ticketed;/);
