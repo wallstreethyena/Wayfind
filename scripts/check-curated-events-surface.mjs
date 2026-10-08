@@ -61,7 +61,7 @@ ok(e.hook === ROW.card_hook, "the editorial hook travels — it is the whole rea
 ok(e.ticketed === true, "a row with an official ticket url is ticketed");
 const free = curatedToFeedEvent(FREE_ROW);
 ok(free.ticketed === false, "a free event is explicitly NOT ticketed — Gasparilla must never wear a ticket button");
-ok(free.price === "Free", "a free event prices as Free");
+ok(free.price === "Free admission", "a free event prices as Free admission (one wording on card and page, 2026-10-08)");
 // (on an UNMAPPED event id — a mapped one is ticketed by the affiliate registry)
 const unknown = curatedToFeedEvent({ ...ROW, event_id: "unmapped-fixture-2026", official_ticket_url: null, official_event_url: "https://example.com/", price_min: null, is_free: null });
 ok(unknown.ticketed === undefined, "no ticket url and no price -> ticketed is left undefined, which reads as 'View details', not 'Get tickets'");
