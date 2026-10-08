@@ -178,7 +178,9 @@ export function checkSocialAttachments(repo) {
   ensure(/const instagramPost = platform === "instagram"/.test(facade) && /instagramPost \? "View post" : "Play"/.test(facade), "every Instagram embed must use post-neutral wording because the provider may offer only a native handoff");
 
   const fallRoute = readFileSync(path.join(repo, "app/api/events/fall/route.js"), "utf8");
-  ensure(/fall-intents:v26:/.test(fallRoute), "fall rail cache must invalidate pre-v26 payloads (v24 added verified visit facts and operating status; v25 the 2026-10-06 Halloween DB seed; v26 the 2026-10-06 statewide gap fill)");
+  // v26 or later: each publication moves the key forward, never back.
+  const fallKeyVersion = Number((fallRoute.match(/fall-intents:v(\d+):/) || [])[1]);
+  ensure(fallKeyVersion >= 26, `fall rail cache must invalidate pre-v26 payloads (v24 added verified visit facts and operating status; v25 the 2026-10-06 Halloween DB seed; v26 the 2026-10-06 statewide gap fill; v27 the 2026-10-07 farm/food gap fill) — found v${fallKeyVersion}`);
   ensure(/const creatorReels = detailHref \? eventSocialPosts\(e\.event_id\)/.test(fallRoute), "fall event marks must require a reachable Wayfind detail page");
   ensure(/\.filter\(\(post\) => post\.platform === "instagram" && \/instagram/.test(fallRoute) && /creatorReels,/.test(fallRoute), "fall cards must receive compact Instagram reel credit, never ambiguous /p/ media");
   ensure(!/creatorReels[^\n]*url/.test(fallRoute), "fall card credit must not copy native URLs into the rail payload");

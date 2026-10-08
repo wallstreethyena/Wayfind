@@ -174,7 +174,10 @@ check("the seed version and the fall rail key moved forward with this seed (v26)
   const lib = readFileSync(new URL("../lib/curatedFallFeed.js", import.meta.url), "utf8");
   assert.match(lib, /export const FALL_DB_SEED_VERSION = "2026-10-06-statewide-gap-fill"/);
   const route = readFileSync(new URL("../app/api/events/fall/route.js", import.meta.url), "utf8");
-  assert.match(route, /fall-intents:v26:/);
+  // v26 or LATER: a later publication (v27, 2026-10-07 farm/food gap fill) must
+  // move the key forward again, never back below this seed's epoch.
+  const keyVersion = Number((route.match(/fall-intents:v(\d+):/) || [])[1]);
+  assert.ok(keyVersion >= 26, `fall rail key is v${keyVersion}, expected v26 or later`);
 });
 
 console.log(`test-fall-gap-fill-2026-10-06: ${n} checks passed, ${rows.length} rows`);

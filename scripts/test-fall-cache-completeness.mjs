@@ -32,6 +32,7 @@ async function routeHarness({ dealError = null, cachedValue } = {}) {
     "../../../../lib/fallPlaceEvidence.js": { fallPlaceEvidenceCurrent: () => true },
     "../../../../lib/curatedOwnedPlacePhotos.js": { CURATED_OWNED_PLACE_PHOTOS: {} },
     "../../../../lib/fallFeaturedFestivals2026.js": { FALL_FEATURED_FESTIVALS_2026: [], FALL_FEATURED_FESTIVAL_IDS: new Set() },
+    "../../../../lib/fallGapFill20261007.js": { FALL_GAP_FILL_2026_10_07: [] },
     "../../../../lib/curatorPicksServer.js": { loadOwnerPickIds: async () => new Set(), applyCuratorPicksServer: (places) => places },
     "../../../../lib/fallStayDestinations.js": { fallStayDestinations: () => [] },
     "../../../../lib/curatedEvents.js": {
