@@ -137,6 +137,50 @@ for (const s of slugs) {
   if (a.rung === "hero" || a.rung === "pick" || a.rung === "illustrative-hero") ok(!!a.credit, `${s}: ${a.rung} photo has no credit`);
 }
 
+// ── 6. TEASER, WHAT'S INSIDE, ONE LEAD LINE (owner, 2026-10-07) ──────────────
+// Under the title: the guide's own teaser, a plain-text "what's inside" meta
+// line (never chip bubbles), and ONE lead line: the guide's exact monetized
+// CTA through OUR redirect (tracked, surface guide_card), else its first
+// venue-shaped pick. "Read the guide" sits directly above the action row.
+{
+  const { guideDiscoveryIndex, guideCardCta, guideCardTopPick } = await import("../lib/guideDiscoveryIndex.js");
+  const { currentGuides } = await import("../lib/guideLifecycle.js");
+  const idx = guideDiscoveryIndex(currentGuides(GUIDES));
+  const withCta = idx.filter((g) => g.cta);
+  ok(withCta.length > 0, "positive control: some live guide resolves a monetized card CTA");
+  for (const g of withCta) {
+    ok(/^\/api\/[a-z-]+\/go\?/.test(g.cta.href), `${g.slug}: card CTA is not one of our /api/*/go redirects: ${g.cta.href}`);
+    ok(new URLSearchParams(g.cta.href.split("?")[1]).get("surface") === "guide_card", `${g.slug}: card CTA is not attributed to surface guide_card`);
+  }
+  // Fail closed: a raw partner URL, a non-exact or a non-earning CTA is never a card link.
+  ok(guideCardCta({ title: "Things to do", picks: [{ name: "What the hour actually covers" }] }) === null, "a guide with no resolvable CTA produced a card CTA");
+  const sarasota = GUIDES["things-to-do-sarasota"];
+  if (sarasota) ok(guideCardCta(sarasota) === null || /^\/api\//.test(guideCardCta(sarasota).href), "a raw partner URL (things-to-do-sarasota) became a card CTA");
+  ok(guideCardTopPick({ picks: [{ name: "What the hour actually covers" }, { name: "Yoder's Restaurant" }] })?.name === "Yoder's Restaurant", "top pick did not skip an editorial heading for the first venue-shaped pick");
+  ok(guideCardTopPick({ picks: [{ name: "When and exactly where" }] }) === null, "an editorial heading became a Top pick");
+  ok(guideCardTopPick({ picks: [{ name: "Siesta Key: the sand" }] })?.first === true, "first-pick venue was not marked first");
+
+  const ctaGuide = withCta[0];
+  const ctaHtml = html(h(GuideDiscoveryCard, { guide: ctaGuide }));
+  ok(ctaHtml.includes('class="wf-guide-card-lead"') && ctaHtml.includes('data-commerce-owner="TrackedOfferLink"'), `${ctaGuide.slug}: monetized CTA is not rendered through TrackedOfferLink in the lead line`);
+  ok(ctaHtml.includes(esc(ctaGuide.cta.label) + " ↗"), `${ctaGuide.slug}: card link lacks the guide's own CTA label`);
+  ok(/rel="[^"]*sponsored/.test(ctaHtml), "card affiliate link lacks rel=sponsored");
+  ok(!ctaHtml.includes("wf-guide-card-pick"), "a card with a booking link also renders a Top pick line (one lead line only)");
+  ok(!/commission/i.test(ctaHtml), "card repeats the commission disclosure (it lives in the footer)");
+
+  const pickGuide = idx.find((g) => !g.cta && g.topPick);
+  ok(!!pickGuide, "positive control: some live guide has a Top pick and no CTA");
+  const pickHtml = html(h(GuideDiscoveryCard, { guide: pickGuide }));
+  ok(pickHtml.includes("wf-guide-card-pick") && pickHtml.includes(esc(pickGuide.topPick.name)), `${pickGuide.slug}: Top pick line missing`);
+  ok(!pickHtml.includes("/api/"), `${pickGuide.slug}: a card without a CTA carries a money link`);
+  ok(pickHtml.includes('class="wf-place-card-take"') && pickHtml.includes(esc(clean(pickGuide.teaser))), `${pickGuide.slug}: teaser missing`);
+  ok(/class="wf-place-card-meta"/.test(pickHtml) && !pickHtml.includes("wf-place-card-highlights"), "what's-inside line missing, or rendered as chip bubbles");
+  ok(pickHtml.indexOf('class="wf-guide-card-lead"') < pickHtml.indexOf(">Read the guide<") && pickHtml.indexOf(">Read the guide<") < pickHtml.indexOf("wf-place-card-actions"), "order is not teaser/lead, then Read the guide, then the action row");
+  ok(/\.wf-place-card\.wf-guide-card \.wf-rail-card-cta\{margin-top:auto!important\}/.test(CSS), "Read the guide is not pinned to the bottom (margin-top:auto) on guide cards");
+  ok(/\.wf-place-card\.wf-guide-card\.wf-guide-teaser-0 \.wf-place-card-take\{display:none\}/.test(CSS), "no rule hides the teaser when the card cannot fit it");
+  ok(!html(h(RailCard, { ...placeProps, lead: "x" })).includes("wf-guide-card-lead"), "a place card rendered the guide-only lead slot");
+}
+
 if (failures.length) {
   console.error(`check-guide-card: ${failures.length} FAILED (${pass} passed)`);
   for (const f of failures) console.error("  - " + f);
