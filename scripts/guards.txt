@@ -760,6 +760,9 @@ node scripts/check-events-feed-upcoming.mjs
 # Running events stay until their last day; run-aware day strip; nearest-first
 # ordering; theme-based Fall and Halloween filter; curated twins absorbed.
 node scripts/check-events-running-order.mjs
+# Event price wording follows the source-supported admission_offer; a $0 tier
+# never reads as free on the card, the page or the JSON-LD.
+node scripts/check-event-price-language.mjs
 
 # V8 rail menu (the homepage's daypart rail). Two failure modes it exists for:
 # (a) a rail card pointing at a segmented route without its segment — 200,

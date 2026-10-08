@@ -125,6 +125,7 @@ scripts/check-event-hero-and-directions.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	0
 scripts/check-event-outing.mjs	0	CALL	blocks-ci-and-deploy	1	-	219	0	0	866a61fe318a4fe9d2ac9a239a8fd713e573526333094bb74bc166218f6dbee3
 scripts/check-event-pairings.mjs	0	CALL	blocks-ci-and-deploy	1	-	61	0	0	b6480bac0c254063e19415a95326009f680a30807d31d78dd8ebb1a63a951ba0
 scripts/check-event-photo-rights.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0	515267a064da683b917877be5d57a47908079c7017f72d1ba99259737a138443
+scripts/check-event-price-language.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	037c93a05348a8f360185bb2582a766b8f13fb0e1bef02b7f95af0881a0fa558
 scripts/check-event-providers-not-google-gated.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0	63d382c301f64eddbbf565aaf7f6fb225b828078c5e6cf9207e3ca56f44ed11e
 scripts/check-event-ticket-deals.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	65	0	0	8516606a3574dceff9e931b3f23fec34f1999d84408344a8a953291314018ea9
 scripts/check-event-where.mjs	0	CALL	blocks-ci-and-deploy	1	-	65	0	0	bd62f7314e95f534f8864d4845f6b7dbf0bfe1acb1d81f85470abe7044a08cd4
