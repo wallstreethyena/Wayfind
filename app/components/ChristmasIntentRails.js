@@ -110,7 +110,8 @@ function ChristmasRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, isSa
           const isEvent = card.kind === "event";
           const place = isEvent ? null : { ...card, id: card.id, photo: card.image || null, hook: card.take || null };
           const facts = isEvent
-            ? [card.city || null, Number.isFinite(card.distMi) ? card.distMi + " mi" : null].filter(Boolean)
+            // An approximate (city centre) location never claims an exact distance.
+            ? [card.city || null, Number.isFinite(card.distMi) ? (card.approxLocation ? "~" + Math.round(card.distMi) + " mi" : card.distMi + " mi") : null].filter(Boolean)
             : [card.reviews ? compact(card.reviews) + " reviews" : null, Number.isFinite(card.distMi) ? card.distMi + " mi" : null].filter(Boolean);
           const openEventVenue = isEvent && card.place_id && onOpenPlace
             ? () => onOpenPlace({ id: card.place_id, name: card.venue || card.name, lat: card.lat, lng: card.lng, types: [], hook: card.hook })
@@ -119,6 +120,7 @@ function ChristmasRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, isSa
           const eventBodyExternal = isEvent && !card.detailHref;
           return <RailCard key={card.id} className="wf-exploding-primary" domRef={index === Math.min(sentinelIndex, items.length - 1) ? sentinelRef : undefined}
             photo={card.image || null}
+            placeholder={isEvent && !card.image ? card.placeholder || null : null}
             photoFallback={isEvent && card.place_id ? ownedPlacePhotoSrc(card.place_id, 640) : null}
             eagerMedia={index < 3}
             visitFacts={isEvent ? card : null}

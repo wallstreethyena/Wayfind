@@ -108,7 +108,8 @@ export const WF_SEARCH_CSS = `.wf-search-row{filter:drop-shadow(0 11px 20px rgba
 // Every place-card surface consumes the single geometry contract in
 // lib/placeCardStandard.js. The viewport formula keeps a 1.08-card phone peek
 // and caps the same card body at the desktop measure.
-// CHRISTMAS SKIN (owner, 2026-10-08, from his own green and gold card art).
+// CHRISTMAS SKIN (owner, 2026-10-08, from his own red and rose gold card art,
+// which replaced the first green and gold version the same day).
 // The third owner approved exception to the one place card look, after Fall and
 // Halloween, and scoped like them: ONLY cards inside the Christmas collection's
 // rails (.wf-christmas, set by ChristmasIntentRails) or a card that opts in
@@ -123,7 +124,7 @@ export const WF_SEARCH_CSS = `.wf-search-row{filter:drop-shadow(0 11px 20px rgba
 // check-known-for-tiers keeps matching the BASE .wf-place-card-take{ rule.
 const XMAS_SCOPES = [".wf-christmas .wf-place-card:not(.wf-guide-card)", ".wf-place-card.wf-christmas-card:not(.wf-guide-card)"];
 const XMAS = (tail = "", scopeTail = "") => XMAS_SCOPES.map((scope) => scope + scopeTail + (tail ? " " + tail : "")).join(",");
-const XMAS_GOLD = "#D4A74A";
+const XMAS_ROSE = "#E8B48A";
 export const WF_PLACE_CARD_CSS = `
 ${WF_SKELETON_CSS}
 .wf-ticket-pill{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 9px 0 8px;border-radius:7px;text-decoration:none;position:relative;color:#FFD9AE;background:linear-gradient(180deg,rgba(253,186,116,.17),rgba(249,115,22,.10));border:1px solid rgba(253,186,116,.44);box-shadow:inset 0 1px 0 rgba(255,236,209,.18),0 1px 0 rgba(0,0,0,.34);transition:background .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease}
@@ -324,22 +325,24 @@ ${WF_SKELETON_CSS}
 .wf-fall .wf-place-card .wf-place-card-take,.wf-place-card.wf-fall-card .wf-place-card-take {color:#FFF2DF!important;border-left-color:#FFB45E!important}
 .wf-fall .wf-place-card .wf-place-card-highlights>button,.wf-fall .wf-place-card .wf-place-card-highlights>span,.wf-fall .wf-place-card .wf-place-card-highlights>a,.wf-place-card.wf-fall-card .wf-place-card-highlights>button,.wf-place-card.wf-fall-card .wf-place-card-highlights>span,.wf-place-card.wf-fall-card .wf-place-card-highlights>a{background:rgba(59,26,5,.62)!important;border:1px solid rgba(255,196,110,.6)!important;color:#FFE9CB!important;box-shadow:none!important}
 .wf-fall .wf-place-card .wf-place-card-highlights,.wf-place-card.wf-fall-card .wf-place-card-highlights{mask-image:linear-gradient(90deg,#000 94%,transparent 100%);-webkit-mask-image:linear-gradient(90deg,#000 94%,transparent 100%)}
-${XMAS()}{background:#0B3A24 url(/christmas/card-bg-640.webp?v=1) right top/cover no-repeat!important;box-shadow:0 10px 26px rgba(2,20,12,.55),0 0 12px rgba(212,167,74,.22)!important;overflow:hidden}
-@media(min-resolution:1.5dppx){${XMAS()}{background-image:url(/christmas/card-bg-1100.webp?v=1)!important}}
-${XMAS("", ":not(.is-liked):not(.is-disliked)")}{border:1.5px solid rgba(212,167,74,.85)!important}
-${XMAS(".wf-place-card-media")}{background:#062417;border-right:1px solid rgba(212,167,74,.7)}
-${XMAS(".wf-place-card-rank")}{background:rgba(4,24,17,.84)!important;border:1px solid ${XMAS_GOLD}!important;color:#FFF8EC!important}
-${XMAS(".wf-place-card-category")}{display:block;width:fit-content;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0 0 6px;padding:3px 6px 3px 3px;border:1px solid ${XMAS_GOLD};border-radius:999px;background:linear-gradient(180deg,#7A0E1C,#5A0914);color:#FFF4E6!important;font-weight:900!important;letter-spacing:.01em!important;font-size:8px!important;line-height:14px;text-shadow:0 1px 1px rgba(40,0,6,.45)}
-${XMAS(".wf-place-card-category:before")}{content:"\\1F384";display:inline-block;vertical-align:top;width:13px;height:13px;margin-right:4px;border-radius:50%;background:rgba(255,255,255,.16);font-size:8px;line-height:13px;text-align:center}
-${XMAS(".wf-place-card-name")}{color:#FFF8EC!important;text-shadow:0 1px 3px rgba(0,0,0,.65)}
-${XMAS(".wf-place-card-meta")}{color:#F1E3C4!important;text-shadow:0 1px 2px rgba(0,0,0,.6)}
-${XMAS(".wf-place-card-meta>span+span:before")}{color:${XMAS_GOLD}!important}
-${XMAS(".wf-place-card-take")} {color:#FFF3DF!important;text-shadow:0 1px 2px rgba(0,0,0,.6);border-left-color:${XMAS_GOLD}!important}
-${XMAS("button:not(.is-active)")}{background:linear-gradient(180deg,#0F3D27,#07291A)!important;border:1px solid rgba(212,167,74,.78)!important;color:#FFF3DC!important}
-${XMAS(".wf-place-card-highlights>button")},${XMAS(".wf-place-card-highlights>span")},${XMAS(".wf-place-card-highlights>a")}{background:linear-gradient(180deg,#3A3416,#2E2A12)!important;border:1px solid rgba(212,167,74,.85)!important;color:#FFF3D6!important;box-shadow:none!important}
-${XMAS(".wf-rail-card-cta")},${XMAS(".wf-place-card-actions>.wf-place-card-book")}{background:linear-gradient(180deg,#8E1222,#650A16)!important;border:1.5px solid ${XMAS_GOLD}!important;color:#FFF6E6!important;opacity:1!important;box-shadow:0 0 8px rgba(212,167,74,.25)!important}
-${XMAS(".wayfind-score-badge")},${XMAS(".wf-rail-when")}{border-color:${XMAS_GOLD}!important;background:linear-gradient(180deg,#0E3A26,#06241A)!important;box-shadow:0 8px 20px rgba(0,0,0,.3),0 0 10px rgba(212,167,74,.3)!important}
-${XMAS(".wayfind-score-badge>span:last-child>span:first-child")},${XMAS(".wf-rail-when-label")}{color:#E9D9AE!important}
+${XMAS()}{background:#5A0712 url(/christmas/card-bg-640.webp?v=2) right top/cover no-repeat!important;box-shadow:0 10px 26px rgba(40,2,8,.55),0 0 14px rgba(192,16,42,.28)!important;overflow:hidden}
+@media(min-resolution:1.5dppx){${XMAS()}{background-image:url(/christmas/card-bg-1100.webp?v=2)!important}}
+${XMAS("", ":not(.is-liked):not(.is-disliked)")}{border:1px solid rgba(232,180,138,.9)!important}
+${XMAS(".wf-place-card-media")}{background:#3A0510;border-right:1px solid rgba(232,180,138,.85)}
+${XMAS(".wf-place-card-rank")}{background:rgba(42,3,10,.86)!important;border:1px solid ${XMAS_ROSE}!important;color:#FFF4EE!important}
+${XMAS(".wf-place-card-category")}{display:block;width:fit-content;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0 0 6px;padding:3px 6px 3px 3px;border:1px solid ${XMAS_ROSE};border-radius:999px;background:linear-gradient(180deg,#4A0610,#33040B);color:#FFE9DC!important;font-weight:900!important;letter-spacing:.01em!important;font-size:8px!important;line-height:14px;text-shadow:0 1px 1px rgba(30,0,4,.5)}
+${XMAS(".wf-place-card-category:before")}{content:"\\1F384";display:inline-block;vertical-align:top;width:13px;height:13px;margin-right:4px;border-radius:50%;background:rgba(232,180,138,.2);font-size:8px;line-height:13px;text-align:center}
+${XMAS(".wf-place-card-name")}{color:#FFF6F0!important;text-shadow:0 1px 3px rgba(40,0,6,.7)}
+${XMAS(".wf-place-card-meta")}{color:#F7DCCB!important;text-shadow:0 1px 2px rgba(40,0,6,.65)}
+${XMAS(".wf-place-card-meta>span+span:before")}{color:${XMAS_ROSE}!important}
+${XMAS(".wf-place-card-take")} {color:#FFEFE6!important;text-shadow:0 1px 2px rgba(40,0,6,.65);border-left-color:${XMAS_ROSE}!important}
+${XMAS("button:not(.is-active)")}{background:linear-gradient(180deg,#4A0610,#33040B)!important;border:1px solid rgba(232,180,138,.85)!important;color:#FFEDE3!important}
+${XMAS(".wf-place-card-highlights>button")},${XMAS(".wf-place-card-highlights>span")},${XMAS(".wf-place-card-highlights>a")}{background:linear-gradient(180deg,#4A0610,#33040B)!important;border:1px solid rgba(232,180,138,.85)!important;color:#FFEDE3!important;box-shadow:none!important}
+${XMAS(".wf-rail-card-cta")},${XMAS(".wf-place-card-actions>.wf-place-card-book")}{background:linear-gradient(180deg,#D3172F,#A10E22)!important;border:1px solid ${XMAS_ROSE}!important;color:#FFFFFF!important;opacity:1!important;box-shadow:0 0 10px rgba(232,180,138,.25)!important}
+${XMAS(".wayfind-score-badge")},${XMAS(".wf-rail-when")}{border-color:${XMAS_ROSE}!important;background:linear-gradient(180deg,#4A0610,#2E0309)!important;box-shadow:0 8px 20px rgba(30,0,4,.35),0 0 10px rgba(232,180,138,.25)!important}
+${XMAS(".wayfind-score-badge>span:first-child")},${XMAS(".wf-rail-when-rail")}{background:linear-gradient(180deg,#E8B48A,#B97B58)!important;color:#3A0510!important}
+${XMAS(".wayfind-score-badge>span:first-child svg")},${XMAS(".wf-rail-when-rail svg")}{stroke:#3A0510!important;color:#3A0510!important}
+${XMAS(".wayfind-score-badge>span:last-child>span:first-child")},${XMAS(".wf-rail-when-label")}{color:#F2C9AD!important}
 ${XMAS(".wayfind-score-badge>span:last-child>span:last-child")},${XMAS(".wf-rail-when-value")}{color:#FFF8EC!important}
 
 .wf-place-card-score~.wf-place-card-layout .wf-place-card-heading{padding-right:calc(var(--wf-card-badge-w) + 10px)}
