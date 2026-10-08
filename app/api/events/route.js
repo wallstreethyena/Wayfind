@@ -710,34 +710,46 @@ function normalizeEventInput(value, { query = false } = {}) {
 // the CATEGORY and the CITY, never the event's or the venue's name, so it
 // cannot pretend to be a photograph of this event. A real hero_image, when one
 // is ever added to a row, always wins.
-async function curatedSceneImage(e) {
+async function curatedSceneImage(e, memo = null) {
   // subcategory first — "haunted house", "parade", "farm festival" — because it
   // is the more specific TRUE thing. The category is the fallback.
   const kind = String(e.genre || e.segment || "").trim();
   const q = [kind, e.city].filter(Boolean).join(" ").slice(0, 60);
   if (q.length < 3) return "";
-  try {
-    const photo = fromPool(await stockPhotoPool(q), 0);
-    return photo ? "/api/stock-photo?u=" + encodeURIComponent(photo.url) : "";
-  } catch (err) { return ""; }
+  // One pool lookup per distinct (kind, city) per aggregation: with every
+  // upcoming row in reach, many rows share a query, and firing them all at
+  // once would be N cold lookups for a handful of answers.
+  if (memo && memo.has(q)) return memo.get(q);
+  const look = (async () => {
+    try {
+      const photo = fromPool(await stockPhotoPool(q), 0);
+      return photo ? "/api/stock-photo?u=" + encodeURIComponent(photo.url) : "";
+    } catch (err) { return ""; }
+  })();
+  if (memo) memo.set(q, look);
+  return look;
 }
 
 async function fromCuratedEvents(lat, lng) {
   if (lat == null || lng == null) return { configured: false, events: [] };
   try {
     // fresh: this feed is live. It reads a different PostgREST URL than the
-    // ISR pages (limit=200) and so was accidentally immune; the flag makes
+    // ISR pages (its own filtered URL) and so was accidentally immune; the flag makes
     // that a decision instead of a coincidence.
-    const rows = await fetchCuratedEvents({ limit: 200, fresh: true });
+    // Every row still running today, paged in full. A first-200-by-date read
+    // ended on Oct 9 once the table grew, and hid the whole Halloween season
+    // from this feed (2026-10-08). See upcomingFilter in lib/curatedEvents.js.
+    const rows = await fetchCuratedEvents({ fresh: true, upcomingFrom: today() });
     if (!rows.length) return { configured: true, events: [] };
     // Filter to reach BEFORE resolving photos: a cold aggregation should cost
     // at most a handful of pool lookups, not one per row in the table.
     const near = curatedFeedEventsWithFall(rows).filter((e) =>
       e.lat != null && e.lng != null && haversineMiLocal(lat, lng, e.lat, e.lng) <= CURATED_REACH_MI);
     if (!near.length) return { configured: true, events: [] };
+    const sceneMemo = new Map();
     await Promise.all(near.map(async (e) => {
       if (e.image) return;
-      e.image = await curatedSceneImage(e);
+      e.image = await curatedSceneImage(e, sceneMemo);
       e.imageScene = !!e.image; // the card may say "scene", never "this event"
     }));
     // THE SCENE IS AN UPGRADE, NOT A GATE. The first cut dropped any row whose
