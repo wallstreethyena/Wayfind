@@ -330,7 +330,7 @@ async function writeLaneEditorial(place, key, stats, systemBlocks, lane, model) 
   try {
     const r = await paidAnthropicRequest({
       method: "POST", cache: "no-store", signal: ctrl.signal,
-      headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01", "anthropic-beta": "web-fetch-2025-09-10" },
+      headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
       body: JSON.stringify(laneRequestBody(place, model, systemBlocks, metroCity(place.metro))),
     }, { sku: lane.anthropicSku, cap: lane.cap, timeoutMs: 48000 });
     if (!r.ok) {
