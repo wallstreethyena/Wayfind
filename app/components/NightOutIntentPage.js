@@ -11,7 +11,6 @@ import { editorialIntentHeader } from "../../lib/collectionHeader";
 import { INTENT_PAGES } from "../../lib/intentPages";
 import { areaSeasonalContext } from "../../lib/areaSeasonalContext";
 import { currentSeason } from "../../lib/seasons";
-import { ScoreDisclosure } from "./ExperienceBlocks";
 import { resolveLocationContext, locationSurface, milesBetween } from "../../lib/locationHonesty";
 import { canonicalShareUrl } from "../../lib/site";
 import { usePosterEvents } from "./usePosterEvents";
@@ -78,7 +77,7 @@ export default function NightOutIntentPage() {
     actionSlot={<button onClick={share} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, minHeight: 46, padding: "10px 20px", borderRadius: 14, border: "1px solid rgba(17,24,36,.12)", background: def.accent, color: "#111824", fontSize: 12.5, fontWeight: 850, cursor: "pointer", whiteSpace: "nowrap" }}>
       {copied ? "Link copied" : "Share this list"} <span aria-hidden="true">↗</span>
     </button>}
-    footerSlot={<ScoreDisclosure />}>
+>
     <NightOutRails active center={{ lat: loc.lat, lng: loc.lng }} city={loc.city}
       eventsSlot={(mode) => mode === "night-out" ? eventSurface : null} />
   </RankedExperiencePage>;

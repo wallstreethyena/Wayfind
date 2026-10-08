@@ -26,7 +26,7 @@ import { editorialIntentHeader } from "../../lib/collectionHeader";
 // sheet. This page keeps its SHELL (dark chrome, serif headline, back button)
 // and adopts that CONTENT COMPOSITION inside it: shell from one, body from
 // the other. Nothing here re-implements a block.
-import { PerfectRightNow, ScoreDisclosure } from "./ExperienceBlocks";
+import { PerfectRightNow } from "./ExperienceBlocks";
 import IntentPartnerPick from "./IntentPartnerPick";
 import { fetchPartnerInventory } from "../../lib/intentPartnerPicks";
 // v6.72: this component had ZERO weather references. Its header rendered
@@ -642,7 +642,6 @@ export default function IntentPageClient({ intent }) {
           {copied ? "Link copied" : "Share this list"} <span aria-hidden="true">↗</span>
         </button>
       )}
-      footerSlot={<ScoreDisclosure />}
     >
       {/* ══ THE SHARED COMPOSITION (v6.72) ══════════════════════════════════
           Blocks 1, 2, 3 and 5 are the SAME components app/components/screens/

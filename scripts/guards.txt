@@ -2096,7 +2096,6 @@ node scripts/test-lane-lock-ownership.mjs
 node scripts/test-guide-discovery.mjs
 # Score receipts and independently gated source verdicts (PR #1145 current-main adaptation)
 node scripts/test-score-explanation.mjs
-node scripts/test-score-explanation-runtime.mjs
 # Current-main backend residual runtime controls (#1285/#1272).
 node scripts/test-google-details-accounting.mjs
 node scripts/test-viator-provider-state.mjs
