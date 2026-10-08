@@ -19,10 +19,9 @@ const check = (label, fn) => { n++; fn(); console.log(`  OK  ${label}`); };
 // Rows deliberately left without coordinates (no geocoder could place the street
 // address). The card still shows; it just cannot be distance ranked on the fall
 // rails, so these are named, not silently allowed.
-const NO_COORDS_ALLOWED = new Set([
-  "Annual Fall Festival",
-  "Halloweentown in Avalon Park",
-]);
+// 2026-10-08: both Avalon Park rows now carry the organizer listing venue pins
+// (mirrors the live wf_events rows); no row may ship without coordinates.
+const NO_COORDS_ALLOWED = new Set([]);
 const GEO_BOX = { lat: [26.5, 29.5], lng: [-83.2, -80.8] };
 const HTTPS = /^https:\/\//;
 const DASH = /[-‐-―−]/;
