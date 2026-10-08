@@ -5,7 +5,7 @@
 // Part 3 (needs Chromium; --require-browser in CI): real RailCard renders at 390px —
 //   a spooky card keeps the 268px box, the CTA is one line box, the badge is legible and
 //   clipped by nothing. --shot=<png> also writes the spooky / fall / standard screenshot.
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import React from "react";
@@ -98,7 +98,14 @@ const rules = block.split("\n").filter((l) => l.trim());
 ok(rules.length >= 15, `the spooky block has its rules (${rules.length})`);
 ok(rules.every((l) => /^(?:@media \(max-width:340px\)\{)?\.wf-place-card\.wf-spooky-card[ ,.:{>]/.test(l) && (!l.startsWith("@media") || l.slice(l.indexOf("{") + 1, -1).split(/[{}]/).every((seg, i) => i % 2 || !seg || seg.split(",").every((sel) => sel.startsWith(".wf-place-card.wf-spooky-card"))))), "every spooky rule is scoped to .wf-place-card.wf-spooky-card (nothing leaks to other cards)");
 ok(!/@keyframes|animation|transition/.test(block), "static skin: no animation, so prefers-reduced-motion has nothing to stop");
-ok(!/\.png|\.jpg|\.webp|\.avif/i.test(block) && /image\/svg\+xml/.test(block), "badge art is inline SVG, no PNG shipped");
+// Owner, 2026-10-08: "use this as the halloween place card" (his framed art: webs, pumpkins,
+// bats, orange glow frame). Exactly ONE raster ships: that frame, as a 9-slice overlay above the
+// photo and below every control; badge art stays inline SVG.
+const rasters = block.match(/[\w/.-]+\.(?:png|jpe?g|webp|avif)/gi) || [];
+ok(rasters.length === 1 && rasters[0] === "/fall/halloween-card-frame.webp" && /image\/svg\+xml/.test(block), `one raster (the owner's frame art), badge art inline SVG (${rasters.join(",")})`);
+ok(/wf-spooky-card:after\{[^}]*position:absolute[^}]*inset:0[^}]*z-index:2[^}]*pointer-events:none[^}]*border-image:url\(\/fall\/halloween-card-frame\.webp[^)]*\) \d+ \d+ \d+ \d+ fill stretch/.test(block), "frame overlay: absolute, full card, z 2, never takes a tap, 9-slice so pumpkins and webs keep their shape at every width");
+ok(/wf-spooky-card \.wf-place-card-content\{position:relative;z-index:3\}/.test(block), "card text and controls sit above the frame");
+{ const f = path.join(ROOT, "public/fall/halloween-card-frame.webp"); ok(existsSync(f) && statSync(f).size < 120000, `frame asset ships and stays small (${existsSync(f) ? statSync(f).size : "missing"} bytes)`); }
 ok(Buffer.byteLength(block) < 9000, `spooky CSS stays tiny (${Buffer.byteLength(block)} bytes)`);
 // the CTA drips (:before) and cobweb (:after) are absolutely positioned decoration inside the button, so their own size is exempt
 const geomScope = rules.filter((l) => !/:(?:before|after)\{/.test(l.replace(/\{.*$/, (m) => m.slice(0, 1) === "{" ? "{" : m)) || !/wf-(?:rail-card-cta|place-card-book)/.test(l)).join("\n");
@@ -139,7 +146,7 @@ if (!browser) {
     "fall-plain": React.createElement(RailCard, { ...common, className: "wf-fall-card", title: "Hunsader Farms Pumpkin Festival", eyebrow: "Pumpkin Patches & Fall Farms", score: 8.4, facts: ["Bradenton", "9 mi"], chips: [{ key: "family", icon: "🎃", label: "Family-friendly" }], cta: { label: "Get tickets ↗", href: "/api/commerce/go?x=4", external: true }, place: place("hf", "Hunsader") }),
     "standard": React.createElement(RailCard, { ...common, title: "Clear Kayak Tour of Shell Key Preserve", eyebrow: "Bookable activity", score: 10, facts: ["St. Petersburg", "6,647 reviews", "from $79"], chips: [{ key: "k", icon: "🛶", label: "Kayaking" }, { key: "w", icon: "🚤", label: "Water Tours" }], cta: { label: "Book with Viator ↗", href: "/api/viator/go?x=5", external: true }, place: place("kay", "Kayak") }),
   };
-  const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>*{box-sizing:border-box}body{margin:0;padding:10px 13px;background:#040810;color:#fff;font:12px sans-serif}.row{margin:0 0 14px}${WF_PLACE_CARD_CSS}</style></head><body>${Object.entries(cards).map(([k, c]) => `<div class="row" data-k="${k}"><div class="wf-rail ${k === "fall-plain" || k.startsWith("spooky") ? "wf-fall" : ""}">${renderToStaticMarkup(c)}</div></div>`).join("")}</body></html>`;
+  const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>*{box-sizing:border-box}body{margin:0;padding:10px 13px;background:#040810;color:#fff;font:12px sans-serif}.row{margin:0 0 14px}${WF_PLACE_CARD_CSS.replaceAll("url(/fall/", "url(" + pathToFileURL(path.join(ROOT, "public/fall")).href + "/")}</style></head><body>${Object.entries(cards).map(([k, c]) => `<div class="row" data-k="${k}"><div class="wf-rail ${k === "fall-plain" || k.startsWith("spooky") ? "wf-fall" : ""}">${renderToStaticMarkup(c)}</div></div>`).join("")}</body></html>`;
   const dir = mkdtempSync(path.join(ROOT, ".wf-spooky-"));
   const file = path.join(dir, "f.html");
   writeFileSync(file, html);
@@ -208,7 +215,7 @@ if (!browser) {
         ok(c.ctaDripsContent !== "none" && c.ctaWebContent !== "none", `${width}px ${k}: CTA drips and cobweb pseudo-elements render`);
         ok(m.docOverflow <= width, `${width}px ${k}: no horizontal page overflow from the CTA decoration (docScrollWidth ${m.docOverflow})`);
         ok(c.badgeFits && c.badgeInside && c.valueVisible, `${width}px ${k}: badge is legible: contents fit inside it and it sits inside the card`);
-        ok(c.badgeBorder === "rgb(180, 76, 255)" && c.valueColor === "rgb(255, 255, 255)" && c.labelColor !== "rgb(184, 194, 208)", `${width}px ${k}: violet border, white value, violet label (${c.badgeBorder} / ${c.valueColor} / ${c.labelColor})`);
+        ok(c.badgeBorder === "rgb(240, 136, 58)" && c.valueColor === "rgb(255, 255, 255)" && c.labelColor !== "rgb(184, 194, 208)", `${width}px ${k}: orange frame border (owner art 2026-10-08), white value, violet label (${c.badgeBorder} / ${c.valueColor} / ${c.labelColor})`);
         ok(c.webBg === 3, `${width}px ${k}: badge draws web, web and drip as inline SVG layers (${c.webBg})`);
         ok(c.bg === "rgb(11, 11, 18)" || /rgb\(11, 11, 18\)/.test(c.bg) || /^rgba?\(/.test(c.bg), `${width}px ${k}: near-black card background`);
         ok(c.eyebrow && c.eyebrow[0] === "rgb(247, 118, 15)" && /1F383|🎃/i.test(c.eyebrow[1].replace(/"/g, "") + "🎃" ) , `${width}px ${k}: orange eyebrow with the pumpkin (${c.eyebrow})`);
