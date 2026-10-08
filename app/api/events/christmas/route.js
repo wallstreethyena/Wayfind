@@ -24,6 +24,7 @@ import { pageOneRail } from "../../../../lib/railPage.js";
 import { windowRailAnswer } from "../../../../lib/railResponse.js";
 import { fallEventCardImageSrc, eventImageIsVenue } from "../../../../lib/fallEventImage.js";
 import { isServableDeal } from "../../../../lib/eventTicketDeals.js";
+import { withChristmasGuides } from "../../../../lib/christmasGuides.js";
 import { eventSocialPosts } from "../../../../lib/eventSocial.js";
 
 const CHRISTMAS_DB_DEADLINE_MS = 3500;
@@ -45,7 +46,8 @@ export async function GET(request) {
   try {
     const today = siteTodayStr();
     // v1 (2026-10-08): first publish of the Christmas collection.
-    const key = `christmas-intents:v1:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v2 (2026-10-08): each rail carries its own guide (server projected).
+    const key = `christmas-intents:v2:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     const cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const signal = AbortSignal.timeout(CHRISTMAS_DB_DEADLINE_MS);
@@ -142,7 +144,7 @@ export async function GET(request) {
       places.sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
 
       const composed = composeChristmasIntentRails(events, places, { lat, lng, today });
-      return { today, ...composed, sourceCount: events.length + places.length, sourceFailures };
+      return { today, rails: withChristmasGuides(composed.rails, today), sourceCount: events.length + places.length, sourceFailures };
     }, {
       name: "christmas-intent-rails",
       usable: (value) => value?.sourceFailures === 0

@@ -1,5 +1,7 @@
 "use client";
-import GuideRailCollection from "./GuideRailCollection";
+import { Fragment } from "react";
+import GuideDiscoveryCard from "./GuideDiscoveryCard";
+import { PLACE_CARD_MAX_WIDTH_PX } from "../../lib/placeCardStandard.js";
 
 // Christmas in Florida: five intent rails behind one poster tap, modeled on
 // FallIntentRails (owner, 2026-10-08). Every card is the STANDARD horizontal
@@ -194,7 +196,16 @@ export default function ChristmasIntentRails({
   if ((!payload && !failure) || (payload?.today && payload.today !== today)) return <RailLoading label="Ranking Florida Christmas plans" />;
   if (failure) return failure.kind === "developer" ? <RailDevError /> : <RailMascotBusy rail="christmas" failure={failure} onRetry={() => setRetry((value) => value + 1)} onVisible={() => { void emitRailDegraded(failure, { rail: "christmas" }); }} />;
 
-  return <GuideRailCollection rails={payload.rails} collectionId="christmas">{payload.rails.map((rail) => <ChristmasRailSection key={`${today}:${rail.id}`} rail={rail} lat={lat} lng={lng} onOpenPlace={onOpenPlace} onTrack={onTrack} city={city}
-    isSaved={isSaved} liked={liked} disliked={disliked} isLiked={isLiked} isDisliked={isDisliked}
-    onSave={onSave} onLike={onLike} onDislike={onDislike} onShare={onShare} />)}</GuideRailCollection>;
+  // Each rail links its OWN guide, straight after the rail (owner, 2026-10-08).
+  // The guide arrives server projected on rail.guide; none of it is bundled.
+  return <>{payload.rails.map((rail) => <Fragment key={`${today}:${rail.id}`}>
+    <ChristmasRailSection rail={rail} lat={lat} lng={lng} onOpenPlace={onOpenPlace} onTrack={onTrack} city={city}
+      isSaved={isSaved} liked={liked} disliked={disliked} isLiked={isLiked} isDisliked={isDisliked}
+      onSave={onSave} onLike={onLike} onDislike={onDislike} onShare={onShare} />
+    {rail.guide ? <aside aria-label="Go deeper with a local guide" data-guide-rail={rail.id}
+      style={{ margin: "22px 0 4px", width: "100%", maxWidth: PLACE_CARD_MAX_WIDTH_PX }}>
+      <GuideDiscoveryCard guide={rail.guide} matched={null}
+        onOpen={(g) => { try { onTrack?.("guide_open", { rail: rail.id, slug: g.slug, src: "christmas_rail" }); } catch {} }} />
+    </aside> : null}
+  </Fragment>)}</>;
 }

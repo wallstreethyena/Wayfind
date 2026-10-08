@@ -14,6 +14,9 @@ import {
 } from "../lib/christmasIntentRails.js";
 import { NO_EXACT_AFFILIATE_PRODUCT } from "../lib/eventTicketDeals.js";
 import { CHRISTMAS_PLACE_RAIL, CHRISTMAS_PLACE_TAKES, christmasEventTicket, CHRISTMAS_TICKET_DEAL_IDS } from "../lib/christmasPool.js";
+import { CHRISTMAS_RAIL_GUIDE_SLUGS } from "../lib/christmasIntentRails.js";
+import { christmasRailGuide, withChristmasGuides } from "../lib/christmasGuides.js";
+import { GUIDES } from "../lib/guides.js";
 import { DAYPART_IDS, orderFor, christmasLeads } from "../lib/dayparts.js";
 import { RAILS, railById } from "../lib/rails.js";
 import { deckProblems } from "../lib/railDeckCopy.js";
@@ -226,6 +229,22 @@ if (utId) {
   ok(christmasEventTicket(evId, dead) === null, "a dead Undercover Tourist deal (link_ok false) drops the CTA");
 }
 
+// ── 6c. Each rail links its OWN guide (EXECUTED) ───────────────────────────
+ok(Object.isFrozen(CHRISTMAS_RAIL_GUIDE_SLUGS), "the rail to guide map is frozen");
+const EXPECT_SLUG = { beaches: "florida-winter-beaches-2026", "theme-parks": "florida-theme-park-christmas-2026", "nights-out": "florida-holiday-nights-out-2026", manatees: "florida-manatee-season-2026", "boat-parades": "florida-christmas-boat-parades-2026" };
+const withGuides = withChristmasGuides(composed.rails, "2026-12-01");
+ok(withGuides.length === 5 && withGuides.every((r, i) => r.id === composed.rails[i].id && r.cards === composed.rails[i].cards), "attaching guides keeps the five rails, order and cards");
+for (const r of withGuides) {
+  ok(!!r.guide && r.guide.slug === EXPECT_SLUG[r.id], `${r.id}: gets its own guide ${EXPECT_SLUG[r.id]} (got ${r.guide && r.guide.slug})`);
+  ok(r.guide && !!GUIDES[r.guide.slug] && !!r.guide.image && !!r.guide.image.src, `${r.id}: the guide exists in GUIDES and carries a picture`);
+  ok(r.guide && r.guide.href === "/guides/" + r.guide.slug && r.guide.title && r.guide.teaser, `${r.id}: guide has href, title and teaser`);
+  ok(r.guide && !/[\u2014\u2013]| - /.test(r.guide.teaser), `${r.id}: guide teaser has no dash`);
+}
+ok(new Set(withGuides.map((r) => r.guide && r.guide.slug)).size === 5, "no two rails share a guide");
+ok(christmasRailGuide("beaches", "2027-04-01") === null, "an archived guide (past endsOn) is omitted");
+ok(christmasRailGuide("beaches", "2026-12-01", {}) === null, "a missing guide is omitted");
+ok(christmasRailGuide("no-such-rail", "2026-12-01") === null, "an unknown rail gets no guide");
+
 // ── 7. Wiring (STATIC: a component and a route cannot be executed here) ─────
 const route = read("app/api/events/christmas/route.js");
 ok(/christmas-intents:v\d+:/.test(route), "the route has its own christmas cache key");
@@ -234,7 +253,9 @@ ok(/\.from\("wf_inventory"\)/.test(route) && /fetchCuratedEvents\(/.test(route),
 ok(/rails\?\.length === 5/.test(route), "the route's cache gate requires exactly five rails");
 const comp = read("app/components/ChristmasIntentRails.js");
 ok(/result\.rails\.length !== RAIL_COUNT/.test(comp) && /RAIL_COUNT = 5/.test(comp), "the component requires exactly five rails");
-ok(/<GuideRailCollection[^>]*collectionId="christmas"/.test(comp), "the component keeps GuideRailCollection so guides auto link");
+ok(/<GuideDiscoveryCard guide=\{rail\.guide\}/.test(comp) && !/GuideRailCollection/.test(comp), "the component renders each rail's own guide card straight after the rail (static)");
+ok(/guide_open/.test(comp) && /rail: rail\.id/.test(comp), "a guide click is tracked with the rail and slug (static)");
+ok(/christmas-intents:v2:/.test(route) && /withChristmasGuides\(composed\.rails, today\)/.test(route), "the route bumps its cache key and attaches guides server side (static)");
 ok(!/directionsUrl|fallSkin|isSpookyCard|spookySkin|wf-fall/.test(comp), "the component wears no fall or spooky skin and no Directions button");
 ok(/christmasEventTicket\(e\.event_id, byDealId\)/.test(route) && /ticket,\s*\n/.test(route), "the route attaches ticket to every event card (static)");
 ok(/kind: TICKET_SURFACE/.test(comp) && /surface: TICKET_SURFACE/.test(comp) && /TICKET_SURFACE = "christmas_intent_rail"/.test(comp) && /cta=\{isEvent \? eventCta\(card, onTrack\)/.test(comp), "the component renders the CTA with tickets_out and commerce tracking (static)");
