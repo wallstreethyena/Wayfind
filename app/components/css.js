@@ -246,11 +246,6 @@ ${WF_SKELETON_CSS}
   backdrop-filter:blur(6px);
   cursor:pointer;
 }
-.wf-place-card-photo-attr.is-venue{
-  width:auto!important;
-  padding:0 7px;
-  letter-spacing:.02em;
-}
 .wf-place-card.is-curator-pick{
   border-color:rgba(238,190,75,.48)!important;
   background:
