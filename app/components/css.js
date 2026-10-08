@@ -108,6 +108,20 @@ export const WF_SEARCH_CSS = `.wf-search-row{filter:drop-shadow(0 11px 20px rgba
 // Every place-card surface consumes the single geometry contract in
 // lib/placeCardStandard.js. The viewport formula keeps a 1.08-card phone peek
 // and caps the same card body at the desktop measure.
+// CHRISTMAS SKIN (owner, 2026-10-08, from his own green and gold card art).
+// The third owner approved exception to the one place card look, after Fall and
+// Halloween, and scoped like them: ONLY cards inside the Christmas collection's
+// rails (.wf-christmas, set by ChristmasIntentRails) or a card that opts in
+// with .wf-christmas-card. Guide cards keep their own look. Every selector is
+// built by XMAS() so no rule can leak to a bare .wf-place-card; the scope also
+// outranks the fall card selectors, so a fall listed place could never wear
+// both skins. Background: public/christmas/card-bg-*.webp, the owner's art
+// with its placeholder pills removed (decoration sits on the body corners,
+// the photo stays clean). A skin paints the RESTING state only: buttons carry
+// :not(.is-active) and the border yields to liked/disliked.
+const XMAS_SCOPES = [".wf-christmas .wf-place-card:not(.wf-guide-card)", ".wf-place-card.wf-christmas-card:not(.wf-guide-card)"];
+const XMAS = (tail = "", scopeTail = "") => XMAS_SCOPES.map((scope) => scope + scopeTail + (tail ? " " + tail : "")).join(",");
+const XMAS_GOLD = "#D4A74A";
 export const WF_PLACE_CARD_CSS = `
 ${WF_SKELETON_CSS}
 .wf-ticket-pill{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 9px 0 8px;border-radius:7px;text-decoration:none;position:relative;color:#FFD9AE;background:linear-gradient(180deg,rgba(253,186,116,.17),rgba(249,115,22,.10));border:1px solid rgba(253,186,116,.44);box-shadow:inset 0 1px 0 rgba(255,236,209,.18),0 1px 0 rgba(0,0,0,.34);transition:background .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease}
@@ -308,6 +322,23 @@ ${WF_SKELETON_CSS}
 .wf-fall .wf-place-card .wf-place-card-take,.wf-place-card.wf-fall-card .wf-place-card-take {color:#FFF2DF!important;border-left-color:#FFB45E!important}
 .wf-fall .wf-place-card .wf-place-card-highlights>button,.wf-fall .wf-place-card .wf-place-card-highlights>span,.wf-fall .wf-place-card .wf-place-card-highlights>a,.wf-place-card.wf-fall-card .wf-place-card-highlights>button,.wf-place-card.wf-fall-card .wf-place-card-highlights>span,.wf-place-card.wf-fall-card .wf-place-card-highlights>a{background:rgba(59,26,5,.62)!important;border:1px solid rgba(255,196,110,.6)!important;color:#FFE9CB!important;box-shadow:none!important}
 .wf-fall .wf-place-card .wf-place-card-highlights,.wf-place-card.wf-fall-card .wf-place-card-highlights{mask-image:linear-gradient(90deg,#000 94%,transparent 100%);-webkit-mask-image:linear-gradient(90deg,#000 94%,transparent 100%)}
+${XMAS()}{background:#0B3A24 url(/christmas/card-bg-640.webp?v=1) right top/cover no-repeat!important;box-shadow:0 10px 26px rgba(2,20,12,.55),0 0 12px rgba(212,167,74,.22)!important;overflow:hidden}
+@media(min-resolution:1.5dppx){${XMAS()}{background-image:url(/christmas/card-bg-1100.webp?v=1)!important}}
+${XMAS("", ":not(.is-liked):not(.is-disliked)")}{border:1.5px solid rgba(212,167,74,.85)!important}
+${XMAS(".wf-place-card-media")}{background:#062417;border-right:1px solid rgba(212,167,74,.7)}
+${XMAS(".wf-place-card-rank")}{background:rgba(4,24,17,.84)!important;border:1px solid ${XMAS_GOLD}!important;color:#FFF8EC!important}
+${XMAS(".wf-place-card-category")}{display:block;width:fit-content;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0 0 6px;padding:3px 8px 3px 3px;border:1px solid ${XMAS_GOLD};border-radius:999px;background:linear-gradient(180deg,#7A0E1C,#5A0914);color:#FFF4E6!important;font-weight:900!important;letter-spacing:.05em!important;line-height:14px;text-shadow:0 1px 1px rgba(40,0,6,.45)}
+${XMAS(".wf-place-card-category:before")}{content:"\\1F384";display:inline-block;vertical-align:top;width:14px;height:14px;margin-right:5px;border-radius:50%;background:rgba(255,255,255,.16);font-size:8.5px;line-height:14px;text-align:center}
+${XMAS(".wf-place-card-name")}{color:#FFF8EC!important;text-shadow:0 1px 3px rgba(0,0,0,.65)}
+${XMAS(".wf-place-card-meta")}{color:#F1E3C4!important;text-shadow:0 1px 2px rgba(0,0,0,.6)}
+${XMAS(".wf-place-card-meta>span+span:before")}{color:${XMAS_GOLD}!important}
+${XMAS(".wf-place-card-take")}{color:#FFF3DF!important;text-shadow:0 1px 2px rgba(0,0,0,.6);border-left-color:${XMAS_GOLD}!important}
+${XMAS("button:not(.is-active)")}{background:linear-gradient(180deg,#0F3D27,#07291A)!important;border:1px solid rgba(212,167,74,.78)!important;color:#FFF3DC!important}
+${XMAS(".wf-place-card-highlights>button")},${XMAS(".wf-place-card-highlights>span")},${XMAS(".wf-place-card-highlights>a")}{background:linear-gradient(180deg,#3A3416,#2E2A12)!important;border:1px solid rgba(212,167,74,.85)!important;color:#FFF3D6!important;box-shadow:none!important}
+${XMAS(".wf-rail-card-cta")},${XMAS(".wf-place-card-actions>.wf-place-card-book")}{background:linear-gradient(180deg,#8E1222,#650A16)!important;border:1.5px solid ${XMAS_GOLD}!important;color:#FFF6E6!important;opacity:1!important;box-shadow:0 0 8px rgba(212,167,74,.25)!important}
+${XMAS(".wayfind-score-badge")},${XMAS(".wf-rail-when")}{border-color:${XMAS_GOLD}!important;background:linear-gradient(180deg,#0E3A26,#06241A)!important;box-shadow:0 8px 20px rgba(0,0,0,.3),0 0 10px rgba(212,167,74,.3)!important}
+${XMAS(".wayfind-score-badge>span:last-child>span:first-child")},${XMAS(".wf-rail-when-label")}{color:#E9D9AE!important}
+${XMAS(".wayfind-score-badge>span:last-child>span:last-child")},${XMAS(".wf-rail-when-value")}{color:#FFF8EC!important}
 
 .wf-place-card-score~.wf-place-card-layout .wf-place-card-heading{padding-right:calc(var(--wf-card-badge-w) + 10px)}
 .wf-place-card-score .wayfind-score-badge[data-score-band="excellent"]{--wf-score-color:#25C26E;--wf-score-tint:rgba(37,194,110,.10);--wf-score-border:rgba(37,194,110,.62);--wf-score-glow:rgba(37,194,110,.20)}

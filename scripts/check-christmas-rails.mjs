@@ -6,7 +6,7 @@
 // Owner-approved spec (2026-10-08): five rails in a fixed order, each event in
 // exactly one rail or none, owned data only. The wiring checks at the bottom
 // are static (a component cannot be rendered here) and say so.
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -276,6 +276,48 @@ for (const n of ["Holiday Lights in Largo Central Park", "Holiday Fantasy of Lig
   ok(christmasEventRail(live(n, "2026-11-21", "2027-01-02", ["festival", "holiday", "fall"])) === "nights-out", `${n}: a stray fall tag does not veto a holiday named event`);
 }
 ok(christmasEventRail(live("Fall Harvest Lights Night", "2026-11-21", "2026-11-21", ["fall"])) === null, "a fall tagged event with no holiday word in its name stays out");
+
+// ── 6e. Christmas card skin (owner art, 2026-10-08) ────────────────────────
+// CSS is loaded by EXECUTING app/components/css.js (jsxLoad) and its rules are
+// parsed; the component wrapper is asserted on comment stripped source because
+// ChristmasIntentRails needs a live fetch to render its rails.
+{
+  const { loadComponent } = await import("./lib/jsxLoad.mjs");
+  const { WF_PLACE_CARD_CSS } = await loadComponent(path.join(ROOT, "app/components/css.js"), ROOT);
+  const { PLACE_CARD_SKIN_EXCEPTIONS } = await import("../lib/placeCardStandard.js");
+  const rules = (cssText) => [...String(cssText).replace(/\/\*[\s\S]*?\*\//g, "").matchAll(/([^{}@]+)\{([^{}]*)\}/g)].map((m) => ({ sel: m[1].trim(), body: m[2] }));
+  const SCOPES = [/^\.wf-christmas \.wf-place-card:not\(\.wf-guide-card\)/, /^\.wf-place-card\.wf-christmas-card:not\(\.wf-guide-card\)/];
+  // A rule is Christmas skin when it names the scope class or paints the Christmas art.
+  const leaks = (cssText) => rules(cssText).filter((r) => /wf-christmas|\/christmas\//.test(r.sel + r.body))
+    .flatMap((r) => r.sel.split(",").map((one) => one.trim()).filter((one) => !SCOPES.some((rx) => rx.test(one))).map((one) => one + " {" + r.body.slice(0, 60) + "}"));
+  ok(leaks(".wf-place-card{background:url(/christmas/card-bg-640.webp)}").length === 1, "POSITIVE CONTROL: a bare .wf-place-card rule painting the Christmas art is caught");
+  ok(leaks(".wf-christmas .wf-place-card:not(.wf-guide-card) .wf-place-card-name{color:#FFF}").length === 0, "NEGATIVE CONTROL: a scoped rule passes");
+  const xmasRules = rules(WF_PLACE_CARD_CSS).filter((r) => /wf-christmas/.test(r.sel));
+  ok(xmasRules.length >= 15, `the Christmas skin rules exist in the shipped place card CSS (${xmasRules.length} rules)`);
+  const leaked = leaks(WF_PLACE_CARD_CSS);
+  ok(leaked.length === 0, `every Christmas skin selector is scoped to the Christmas collection or .wf-christmas-card, never a bare card (leaks: ${leaked.slice(0, 3).join(" | ")})`);
+  const has = (selRx, bodyRx, label) => ok(xmasRules.some((r) => selRx.test(r.sel) && bodyRx.test(r.body)), label);
+  has(/\.wf-place-card:not\(\.wf-guide-card\)(?:,|$)/, /url\(\/christmas\/card-bg-640\.webp/, "the card body wears the owner's art background (640)");
+  ok(/url\(\/christmas\/card-bg-1100\.webp/.test(WF_PLACE_CARD_CSS), "high density screens get the 1100 background");
+  has(/:not\(\.is-liked\):not\(\.is-disliked\)/, /border:1\.5px solid rgba\(212,167,74/, "the gold border yields to liked and disliked states");
+  has(/button:not\(\.is-active\)/, /#0F3D27/, "resting buttons are dark green with gold border; an active control is never repainted");
+  ok(!xmasRules.some((r) => /(^|,|\s)button(\s*,|\s*$)/.test(r.sel)), "no blanket button rule without :not(.is-active)");
+  has(/wf-place-card-category:before/, /1F384/, "the category pill carries the tree glyph");
+  has(/wf-place-card-category(?!:)/, /#7A0E1C/, "the category label is a deep red pill");
+  has(/wf-place-card-highlights>span/, /#2E2A12/, "chips are dark olive gold pills");
+  has(/wf-rail-card-cta/, /#8E1222/, "the primary ticket CTA is deep red with gold border");
+  ok(!xmasRules.some((r) => /wf-place-card-media/.test(r.sel) && /background-image|url\(/.test(r.body)), "no decoration is painted over the photo column");
+  const xmas = PLACE_CARD_SKIN_EXCEPTIONS.find((x) => x.id === "christmas");
+  ok(PLACE_CARD_SKIN_EXCEPTIONS.length === 3 && !!xmas && xmas.approved === "2026-10-08", "Christmas is registered as the third owner approved skin exception");
+  for (const [file, cap] of [["public/christmas/card-bg-640.webp", 60 * 1024], ["public/christmas/card-bg-1100.webp", 120 * 1024]]) {
+    const full = path.join(ROOT, file);
+    ok(existsSync(full) && statSync(full).size > 2000 && statSync(full).size <= cap, `${file} exists and is under ${cap / 1024}KB (${existsSync(full) ? statSync(full).size : "missing"} bytes)`);
+  }
+  const comp = read("app/components/ChristmasIntentRails.js").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  const wraps = comp.match(/className="wf-rail wf-rail-exploding wf-christmas" data-rail=\{railId\}/g) || [];
+  ok(wraps.length === 1, `the rail that holds every Christmas card carries .wf-christmas exactly once (found ${wraps.length})`);
+  ok(!/wf-christmas/.test(read("app/components/FallIntentRails.js")) && !/wf-christmas/.test(read("app/components/RailCard.js")), "no other collection or the shared card opts into the Christmas skin");
+}
 
 // ── 7. Wiring (STATIC: a component and a route cannot be executed here) ─────
 const route = read("app/api/events/christmas/route.js");

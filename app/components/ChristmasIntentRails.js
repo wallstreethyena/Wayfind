@@ -103,7 +103,7 @@ function ChristmasRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, isSa
       <RailNav railId={railId} count={cardCount} total={cardCount} loaded={items.length} unit={cardCount === 1 ? "ranked option" : "ranked options"} />
     </RailHeading>
     <>
-      <div className="wf-rail wf-rail-exploding" data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}>
+      <div className="wf-rail wf-rail-exploding wf-christmas" data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}>
         {items.map((card, index) => {
           const rank = index + 1;
           const isEvent = card.kind === "event";
