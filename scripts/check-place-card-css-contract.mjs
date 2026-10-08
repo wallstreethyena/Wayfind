@@ -150,17 +150,18 @@ if (renderSites < 3)
     fail("the shared Deal marker must keep its high-contrast orange pill contract");
 }
 
-// v8.19 (owner: "cut-off pills are driving me nuts"): the highlights row is a
-// single horizontal swipe lane — every pill reachable, none cropped. The
-// broken shape was wrap + a 30px crop, which shows a sliver of row two.
+// v8.19 (owner: "cut-off pills are driving me nuts"): no pill is ever shown cut off. The broken
+// shapes were wrap + a 30px crop (a sliver of row two) AND, 2026-10-08, the nowrap swipe lane with
+// an edge fade mask, which left the 4th Food chip half off the card edge in a ~248px column. The
+// lane now wraps and is cropped to exactly one chip row (23px; 21px compact), so an overflowing chip
+// is hidden whole. (scripts/test-card-chips-deterministic.mjs locks the same rules, plus the metrics.)
 {
   const rule = (cssSrc.match(/\.wf-place-card-highlights\{[^}]*\}/) || [""])[0];
-  if (!(/flex-wrap:nowrap/.test(rule) && /overflow-x:auto/.test(rule)))
-    fail("the highlights row must scroll horizontally instead of wrapping into a crop");
-  if (/flex-wrap:wrap/.test(rule) && /overflow:hidden/.test(rule))
-    fail("the wrap+crop combination (the sliver bug) returned to the base .wf-place-card-highlights rule");
-  if (!/wf-place-card-highlights::-webkit-scrollbar\{display:none\}/.test(cssSrc))
-    fail("the pill lane must hide its scrollbar (premium chrome, not a browser gutter)");
+  if (!/flex-wrap:wrap/.test(rule) || /overflow-x:auto/.test(rule) || /mask-image/.test(rule))
+    fail("the highlights row must wrap (hiding whole chips), not scroll or fade (a strip shows the last pill cut off)");
+  const mh = rule.match(/max-height:(\d+)px/);
+  if (!mh || +mh[1] !== 23)
+    fail("the highlights row must be cropped to exactly one chip row (23px); any taller crop shows a sliver of row two (the 30px bug)");
 }
 
 if (failed) process.exit(1);

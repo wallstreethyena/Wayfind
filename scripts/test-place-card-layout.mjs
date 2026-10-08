@@ -16,8 +16,8 @@
 //   1. No two action-row controls overlap (>1px intersection both axes).
 //   2. Every action-row control fits inside the card's box.
 //   3. Every highlights-lane pill sits fully inside the lane's VERTICAL box
-//      (horizontal overflow is the swipe lane, by design; a vertically
-//      cropped pill is the "sliver" bug).
+//      or wholly below it (wrapped onto the hidden second row, 2026-10-08;
+//      a pill straddling the lane's bottom edge is the "sliver" bug).
 //   4. No horizontal page overflow at 390px.
 //   5. Positive controls: the probe found the row, the controls, the pills —
 //      a selector miss must read as broken, never as clean.
@@ -239,8 +239,14 @@ m.cards.forEach((c, ci) => {
       `${tag}: the heading's reserved row or gutter clears the badge (text may reach ${Math.round(c.headingContentRight)}, badge starts ${Math.round(c.score.x)}) — the reserve is derived from --wf-card-badge-w, never a hardcoded px`);
   }
   if (c.laneBox) for (const pl of c.pills) {
-    ok(pl.y >= c.laneBox.y - 1 && pl.y + pl.h <= c.laneBox.y + (c.laneBox.h || 0) + 1.5,
-      `${tag}: pill fully inside the lane's vertical box (no cropped sliver) — ${String(pl.cls).slice(0, 30)}`);
+    // 2026-10-08: a pill is either FULLY inside the lane or FULLY outside it. The lane wraps and is
+    // cropped to exactly one chip row, so a pill that does not fit drops whole to row two and is
+    // hidden; what must never happen is a pill straddling the lane's bottom edge (the sliver).
+    const laneTop = c.laneBox.y, laneBot = c.laneBox.y + (c.laneBox.h || 0);
+    const inside = pl.y >= laneTop - 1 && pl.y + pl.h <= laneBot + 1.5;
+    const outside = pl.y >= laneBot - 1;
+    ok(inside || outside,
+      `${tag}: pill fully inside the lane's vertical box or wholly hidden below it (no cropped sliver) — ${String(pl.cls).slice(0, 30)}`);
   }
 });
 

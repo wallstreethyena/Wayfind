@@ -74,5 +74,33 @@ let tapped = null;
 const chipsSrc = readFileSync(path.join(ROOT, "lib/cardChips.js"), "utf8");
 ok(/if \(cuisine\) push\("cuisine", "cuisine"\);/.test(chipsSrc), "lib/cardChips.js keeps its cuisine branch");
 
+// Lock (2026-10-08): the 4th chip was clipped mid-pill. The lane was a nowrap, overflow-x:auto strip
+// with a right-edge fade mask inside a ~208-248px content column, so chip 4 sat half off the edge.
+// Fixed-height cards (check-place-card-standard) cannot grow, so the lane now WRAPS and is cropped to
+// EXACTLY one chip row: a chip that does not fit wraps to row two and is hidden whole, never shown
+// half-cut. No scroll strip, no fade mask, and no crop taller than a chip (the 30px crop showed a
+// sliver of row two). Asserts on the compiled stylesheet (rules actually shipped), not on source text.
+{
+  const cssMod = await loadComponent(path.join(ROOT, "app/components/css.js"), ROOT);
+  const sheet = (cssMod.WF_LAYOUT_CSS + "\n" + cssMod.WF_PLACE_CARD_CSS).replace(/\/\*[\s\S]*?\*\//g, "");
+  const rules = [...sheet.matchAll(/([^{}@]+)\{([^{}]*)\}/g)].map((m) => ({ sel: m[1].trim(), body: m[2].replace(/\s+/g, "") }));
+  const laneRules = rules.filter((r) => r.sel.split(",").some((x) => /\.wf-place-card-highlights$/.test(x.trim())));
+  ok(laneRules.length >= 2, `the chip lane rules are found in the shipped CSS (found ${laneRules.length})`);
+  const laneBase = laneRules.find((r) => /display:flex/.test(r.body));
+  ok(!!laneBase && /flex-wrap:wrap/.test(laneBase.body), "the chip lane wraps (flex-wrap:wrap), so an overflowing chip drops whole to row two");
+  ok(!!laneBase && /overflow:hidden/.test(laneBase.body), "the lane hides row two (overflow:hidden)");
+  ok(laneRules.every((r) => !/flex-wrap:nowrap/.test(r.body)), "no lane rule puts the chips back on one nowrap line");
+  ok(laneRules.every((r) => !/overflow-x:(auto|scroll)/.test(r.body)), "the lane is not a horizontal scroll strip (a scroll strip shows chip 4 half cut)");
+  ok(laneRules.every((r) => !/mask-image/.test(r.body)), "no mask-image fade sits on the lane (it dims/cuts the last pill)");
+  const minH = (re) => { const r = rules.find((x) => re.test(x.sel) && /(^|;)min-height:\d+px/.test(x.body)); return r ? +r.body.match(/(?:^|;)min-height:(\d+)px/)[1] : null; };
+  const maxH = laneRules.map((r) => { const m = r.body.match(/(?:^|;)max-height:(\d+)px/); return m ? +m[1] : null; }).filter((v) => v != null);
+  const chipSel = /^\.wf-place-card-highlights>button,\.wf-place-card-highlights>span$/;
+  const normalChip = minH(chipSel);
+  const compactChip = rules.filter((r) => chipSel.test(r.sel) && /min-height:\d+px/.test(r.body)).map((r) => +r.body.match(/min-height:(\d+)px/)[1]);
+  ok(normalChip === 23 && compactChip.includes(21), `chip heights read from the CSS (regular ${normalChip}, compact ${JSON.stringify(compactChip)})`);
+  ok(maxH.includes(normalChip) && maxH.includes(21), `lane max-height is exactly one chip row (${normalChip}px, compact 21px) so no sliver of row two shows (got ${JSON.stringify(maxH)})`);
+  ok(maxH.every((v) => v === 23 || v === 21), `no lane crop taller than one chip (the old 30px crop showed a sliver) (got ${JSON.stringify(maxH)})`);
+}
+
 if (bad.length) { console.error("test-card-chips-deterministic: FAIL\n  - " + bad.join("\n  - ")); process.exit(1); }
 console.log(`test-card-chips-deterministic: OK — ${n} assertions (real PlaceCard rendered: cuisine, meal, value order; cap 4; identity-gated; deterministic)`);

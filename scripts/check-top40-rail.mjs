@@ -120,8 +120,13 @@ ok(!/experienceTags\(tagged/.test(code),
 // produced a false failure when the global contract moved to shared constants.
 const { WF_PLACE_CARD_CSS } = await loadComponent(path.resolve("app/components/css.js"), path.resolve("."));
 const highlightsRule = (String(WF_PLACE_CARD_CSS).match(/\.wf-place-card-highlights\{([^}]*)\}/) || ["", ""])[1];
-ok(/flex-wrap:\s*nowrap/.test(highlightsRule) && /overflow-x:\s*auto/.test(highlightsRule),
-  "…and the shared tag lane keeps the full tag set reachable by horizontal scroll rather than clipping it");
+// 2026-10-08: RE-POINTED, not deleted. This pinned "nowrap + horizontal scroll", which is the
+// design that clipped the 4th Food chip mid-pill (nowrap strip + edge fade mask inside a ~248px
+// column). The invariant it was written for is "no chip is shown cut off": the lane now wraps onto
+// whole rows (flex-wrap:wrap, cropped to exactly one chip row) with no scroll strip and no fade mask.
+// scripts/test-card-chips-deterministic.mjs locks the exact metrics.
+ok(/flex-wrap:\s*wrap/.test(highlightsRule) && !/overflow-x:\s*auto/.test(highlightsRule) && !/mask-image/.test(highlightsRule),
+  "…and the shared tag lane wraps and hides whole chips (no scroll strip, no fade mask) so no chip is ever shown cut off");
 
 // ── 4. VERIFIED OFFERS ONLY ─────────────────────────────────────────────────
 // 2026-09-10: this pinned the literal `placePartnerPick(p)` and went red the
