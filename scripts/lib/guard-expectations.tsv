@@ -19,6 +19,7 @@ scripts/check-area-seasonal-context.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	1	2	c
 scripts/check-art-assets.mjs	0	CALL	blocks-ci-and-deploy	1	-	7	0	0	6ad5bd33b68851cdfa15497e15c5b5cdaf3d74775ac804a385808c40e9cc90c0
 scripts/check-atlas-cache-batch.mjs	0	CALL	blocks-ci-and-deploy	1	-	52	0	0	08ac3f6eaf38a9877a61242b472a5c0df9e92d539431a909e43dc1421ec09868
 scripts/check-atlas-diag-not-live.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	12	1	0	ce840f125f8ea733dc98bc7de79c29e3d6293d89cee54640513f944fe5e151bb
+scripts/check-atlas-paid-lane.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	63f8cfbca95c529b8f64cf0bf393f1aa4a5fc50abffe167c4660e6dc5bce6833
 scripts/check-atlas-retry-cron.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	13	1	0	0ac3a758d9ef8ff6d4d0bf023f9a9745ead185dd01793680aed8e42f12a08616
 scripts/check-augtober-rail.mjs	0	CALL	blocks-ci-and-deploy	1	-	82	0	0	e2766ec3c4547172f162bf5c8cd16e9457376a6ebc6421a5bea08955fb8ac5cd
 scripts/check-auth.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	c36a57c0cebdfa25c09df290e59c60a5e191192fe1748120ae983158f26ff18f
