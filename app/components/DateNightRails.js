@@ -117,7 +117,7 @@ function DateNightRailSection({ rail, lat, lng, city, hour, eventCards = [], eve
           const type = prettyType(p.primaryType || p.primary_type || p.category);
           const facts = [
             p.reviews ? compact(p.reviews) + " reviews" : null,
-            priceLabel(p.priceLevel != null ? p.priceLevel : p.priceNum) || null,
+            priceLabel(p) || null,
             Number.isFinite(p.distMi) ? p.distMi + " mi" : null,
           ].filter(Boolean);
           const chips = [type ? { key: "type", icon: "📍", label: type, title: type } : null].filter(Boolean);

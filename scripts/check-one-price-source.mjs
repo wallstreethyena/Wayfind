@@ -46,7 +46,7 @@ for (const n of [1, 2, 3, 4]) {
   ok(label.endsWith(mod.priceWord(n)), `priceLabel(${n}) word half matches priceWord (${label})`);
 }
 ok(mod.priceLabel(null) === null && mod.priceWord(null) === null, "unknown price yields null, not a guessed band");
-ok(mod.priceLevelOf(0) === 1, "the legacy Free band normalises into 1 — a band only one of three maps knew about is how the levels drifted");
+ok(mod.priceLevelOf(0) === null, "a numeric 0 is the defaulted-missing price, never a real tier — it must be unknown, not \"$ Inexpensive\" (2026-10-08)");
 ok(mod.priceLevelOf("PRICE_LEVEL_MODERATE") === 2, "Google's enum string normalises through the same function");
 
 // --- nobody else defines a qualitative map -----------------------------------
