@@ -89,6 +89,7 @@ const WorthEatingRails = dynamic(() => import("./WorthEatingRails"), { ssr: fals
 const LunchBreakRails = dynamic(() => import("./LunchBreakRails"), { ssr: false });
 const TodayDiscoveryRails = dynamic(() => import("./TodayDiscoveryRails"), { ssr: false });
 const FallIntentRails = dynamic(() => import("./FallIntentRails"), { ssr: false });
+const ChristmasIntentRails = dynamic(() => import("./ChristmasIntentRails"), { ssr: false });
 const SummerIntentRails = dynamic(() => import("./SummerIntentRails"), { ssr: false });
 const NightOutRails = dynamic(() => import("./NightOutRails"), { ssr: false });
 const CreatorPicksRails = dynamic(() => import("./CreatorPicksRails"), { ssr: false });
@@ -103,6 +104,7 @@ const POSTER_MODULES = {
   break: () => import("./LunchBreakRails"),
   today: () => import("./TodayDiscoveryRails"),
   augtober: () => import("./FallIntentRails"),
+  christmas: () => import("./ChristmasIntentRails"),
   season: () => import("./SummerIntentRails"),
   tonight: () => import("./NightOutRails"),
 };
@@ -113,6 +115,7 @@ function preparePoster(id) {
 
 import { DAYPARTS, partForHour, orderFor, railHref, dateNightIntentHref, LEGACY_HERO_EVENT } from "../../lib/dayparts.js";
 import { siteHourFloat, tzForPoint } from "../../lib/nowContext.js";
+import { siteTodayStr } from "../../lib/siteTime.js";
 import { railArt, railArtSrcSet, railArtFallback, railTint, RAIL_ART_SIZES, railArtSize } from "../../lib/rails.js";
 // Chef and Augtober open the same pop-down shell as every other rail. Their
 // answers stay lazy: Chef's testimony is static; FallIntentRails fetches the
@@ -658,7 +661,7 @@ export default function DaypartRail({
     return [...(livePosters || []), ...withSponsor];
   }, [livePosters, sponsor, rails]);
   const order = useMemo(() => {
-    const base = orderFor(daypart, rails.map((r) => r.id));
+    const base = orderFor(daypart, rails.map((r) => r.id), siteTodayStr());
     const withSponsor = sponsor ? [sponsor.id, ...base] : base;
     // WHERE THE LIVE POSTERS SIT (owner, 2026-09-17). Two reasons they are
     // NOT first:
@@ -1267,7 +1270,7 @@ export default function DaypartRail({
   // Neither may fall through to the generic place pool: doing so made the
   // Events drop begin with real happenings and end with buildings where an
   // event might happen on some other date.
-  const railOwnsItsOwnAnswer = !!(selRail && (selRail.id === "season" || selRail.id === "datenight" || selRail.id === "birthday" || selRail.id === "family" || selRail.id === "breakfast" || selRail.id === "break" || selRail.id === "eat" || selRail.id === "today" || selRail.id === "augtober" || selRail.id === "tonight" || selRail.id === "locals"));
+  const railOwnsItsOwnAnswer = !!(selRail && (selRail.id === "season" || selRail.id === "datenight" || selRail.id === "birthday" || selRail.id === "family" || selRail.id === "breakfast" || selRail.id === "break" || selRail.id === "eat" || selRail.id === "today" || selRail.id === "augtober" || selRail.id === "tonight" || selRail.id === "locals" || selRail.id === "christmas"));
   // A COMPOSER FED BY /api/rails HAS NO ANSWER UNTIL /api/rails DOES (v9.0).
   // Breakfast and Actually Worth Eating do not fetch anything of their own:
   // they split `shown.places` into identity rails. So while the rails request
@@ -1373,6 +1376,7 @@ export default function DaypartRail({
   })), []);
   const dropList = useMemo(() => {
     const base = selected === "chef" ? chefPlaces
+      : selected === "christmas" ? []
       : selected === "augtober" || selected === "season" ? []
       : selPlaces;
     // v8.69 (owner, 2026-08-26: "create a place card for them in our rail lists
@@ -1812,7 +1816,7 @@ export default function DaypartRail({
       <section className="wf8-menusec" ref={menuRef} aria-label={selRail ? `${selRail.title} — picks` : "Picks"} aria-hidden={!selRail}>
         <div className="wf8-in">
           <div className="wf8-mbar">
-            <p className="wf8-mhd">Showing <b>{selRail ? selRail.title : ""}</b>{selRail && !selRail.guides && selRail.id !== "chef" && selRail.id !== "augtober" ? near : ""}{selRail && !railOwnsItsOwnAnswer && selectedTotal ? ` · ${selectedTotal} options` : ""}</p>
+            <p className="wf8-mhd">Showing <b>{selRail ? selRail.title : ""}</b>{selRail && !selRail.guides && selRail.id !== "chef" && selRail.id !== "augtober" && selRail.id !== "christmas" ? near : ""}{selRail && !railOwnsItsOwnAnswer && selectedTotal ? ` · ${selectedTotal} options` : ""}</p>
             <button type="button" className="wf8-mclose" onClick={close}>✕ Close</button>
           </div>
 
@@ -2024,6 +2028,25 @@ export default function DaypartRail({
 
           {selRail && selRail.id === "augtober" ? (
             <FallIntentRails
+              active
+              center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
+              city={shown.cityLabel || ""}
+              onTrack={(name, props) => logEvent(name, props)}
+              onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
+              isSaved={isSaved || undefined}
+              liked={liked || undefined}
+              disliked={disliked || undefined}
+              isLiked={isLiked || undefined}
+              isDisliked={isDisliked || undefined}
+              onSave={onSave || undefined}
+              onLike={onLike || undefined}
+              onDislike={onDislike || undefined}
+              onShare={onShare || undefined}
+            />
+          ) : null}
+
+          {selRail && selRail.id === "christmas" ? (
+            <ChristmasIntentRails
               active
               center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
               city={shown.cityLabel || ""}

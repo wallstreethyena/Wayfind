@@ -278,8 +278,10 @@ ok(/floor:\s*\{\s*rating:\s*4(\.0)?\s*,/.test(intentPagesSrc),
     // FOUR of twenty in every band), and it is PREDICTABLE — the same index in
     // both tonight-led bands, so a reader who learns where it is keeps being
     // right. "Exactly index 2" was one expression of that, not the rule.
-    ok(o.indexOf("season") >= 1 && o.indexOf("season") <= 4,
-      `${band}: Summer Picks stays in the first five behind Fall (found ${o.indexOf("season") + 1})`);
+    // Christmas in Florida (2026-10-08) sits directly behind Fall, so the
+    // ceiling moves from index 4 to 5; the rule (never leads, never adrift) is unchanged.
+    ok(o.indexOf("season") >= 1 && o.indexOf("season") <= 5,
+      `${band}: Summer Picks stays in the first six behind Fall and Christmas (found ${o.indexOf("season") + 1})`);
   }
   // PREDICTABLE, proven across the bands rather than asserted per band: the two
   // tonight-led bands must agree with each other, or "where seasonal lives"
@@ -293,12 +295,12 @@ ok(/floor:\s*\{\s*rating:\s*4(\.0)?\s*,/.test(intentPagesSrc),
     // about the new TRENDING NEAR YOU poster), with Date Night immediately
     // after it. The three read as one thought in order: what is on, what
     // people are actually doing, and who you are going with.
-    const HEAD = ["augtober", "tonight", "trending", "datenight"];
+    const HEAD = ["augtober", "christmas", "tonight", "trending", "datenight"];
     for (const b of ["afternoon", "night"]) {
-      ok(DAYPARTS[b].order.slice(0, 4).join(",") === HEAD.join(","),
-        `${b} opens ${HEAD.join(" → ")} (got ${DAYPARTS[b].order.slice(0, 4).join(" → ")})`);
+      ok(DAYPARTS[b].order.slice(0, 5).join(",") === HEAD.join(","),
+        `${b} opens ${HEAD.join(" → ")} (got ${DAYPARTS[b].order.slice(0, 5).join(" → ")})`);
     }
-    ok(DAYPARTS.afternoon.order.slice(0, 4).join(",") === DAYPARTS.night.order.slice(0, 4).join(","),
+    ok(DAYPARTS.afternoon.order.slice(0, 5).join(",") === DAYPARTS.night.order.slice(0, 5).join(","),
       "…and both tonight-led bands open identically — one shared list, so the trio cannot drift between them");
   }
   ok(!/function LocalPlanHeroCard\(/.test(home), "LocalPlanHeroCard is back without the slide it rendered");

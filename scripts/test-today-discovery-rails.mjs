@@ -95,8 +95,9 @@ const todayRail = RAILS.find((rail) => rail.id === "today");
 ok(todayRail?.title === "Today's Best Options" && todayRail?.art === "today", "the combined poster replaces the guarded Today artwork slot");
 ok(!RAILS.some((rail) => rail.id === "best" || rail.id === "gems"), "Best Around You and Places You'd Never Find are retired from the homepage poster registry");
 for (const [band, definition] of Object.entries(DAYPARTS)) {
-  ok(definition.order.indexOf("today") >= 0 && definition.order.indexOf("today") <= 5,
-    `Today's Best Options stays in the first six posters during ${band}, after the approved Fall lead`);
+  // Christmas in Florida (2026-10-08) sits directly behind Fall: ceiling moves from index 5 to 6.
+  ok(definition.order.indexOf("today") >= 0 && definition.order.indexOf("today") <= 6,
+    `Today's Best Options stays in the first seven posters during ${band}, after the approved Fall and Christmas leads`);
 }
 
 const route = fs.readFileSync(new URL("../app/api/today-discovery/route.js", import.meta.url), "utf8");

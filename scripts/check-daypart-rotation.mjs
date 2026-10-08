@@ -127,7 +127,8 @@ for (const b of DAYPART_IDS) {
   //
   // `blog` stays pinned last on purpose: Local Guides is reading, not a plan
   // for tonight, so it is the one card that should never compete for a slot.
-  const ALLOWED_PINS = { augtober: 0, trending: 2, blog: ids.length - 1 };  // 0-indexed
+  // christmas (2026-10-08): the Christmas in Florida tile sits directly behind Fall in every band, which moves trending from 2 to 3.
+  const ALLOWED_PINS = { augtober: 0, christmas: 1, trending: 3, blog: ids.length - 1 };  // 0-indexed
   const pinned = [];
   for (const id of ids) {
     const pos = DAYPART_IDS.map((b) => order[b].indexOf(id));
