@@ -101,7 +101,7 @@ const fetchedGood = [{ url: URL1, text: PAGE }];
   const c = W.laneCostUsd({ input_tokens: 1000000, cache_creation_input_tokens: 1000000, cache_read_input_tokens: 1000000, output_tokens: 1000000, server_tool_use: { web_search_requests: 3 } });
   ok(Math.abs(c - (2 + 2.5 + 0.2 + 10 + 0.03)) < 1e-9, "laneCostUsd: $2/MTok input, 1.25x cache write, 0.1x cache read, $10/MTok output, $0.01 per search; got " + c);
   ok(W.laneCostUsd(null) === 0 && W.laneCostUsd({ input_tokens: "x" }) === 0, "laneCostUsd tolerates junk usage");
-  ok(W.dryBudgetAllows(0.86, [0.1], 1) === false && W.dryBudgetAllows(0.85, [0.1], 1) === true && W.dryBudgetAllows(0.5, [0.6], 1) === false, "dryBudgetAllows: spent + max($0.15, highest seen) must fit the cap");
+  ok(W.dryBudgetAllows(0.76, [0.1], 1) === false && W.dryBudgetAllows(0.75, [0.1], 1) === true && W.dryBudgetAllows(0.5, [0.6], 1) === false, "dryBudgetAllows: spent + max($0.25, highest seen) must fit the cap");
   const lanes = await import(href("lib/atlasPaidLane.js"));
   const E = (o) => lanes.atlasPaidLane({ ATLAS_MONTH_PLACE_CAP: "5", ...o });
   ok(E({ ATLAS_PAID_ENABLED: "dry" }).mode === "dry" && E({ ATLAS_PAID_ENABLED: "1" }).mode === "full" && E({ ATLAS_PAID_ENABLED: "DRY!" }) === null && E({ ATLAS_PAID_ENABLED: "true" }) === null, "lane mode: dry / full / anything else null");
