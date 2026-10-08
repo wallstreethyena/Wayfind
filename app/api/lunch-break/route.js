@@ -4,6 +4,7 @@ export const dynamic = "force-dynamic";
 // Lunch Break reads Wayfind's owned food inventory only: zero Google calls, a
 // bounded, deterministic, identity-first Supabase read (lib/ownedPool.js), then
 // FastCache + CDN reuse for nearby readers.
+import { priceNumFrom } from "../../../lib/price.js";
 import { DB_DEADLINE_MS, NET_DEADLINE_MS, fetchDeadline } from "../../../lib/fetchDeadline.js";
 import { distMeters, invRowToPlace } from "../../../lib/inventoryServe.js";
 import { fetchOwnedPool } from "../../../lib/ownedPool.js";
@@ -92,10 +93,8 @@ async function dishImagesFor(s, placeIds) {
   }
 }
 
-function priceNum(level) {
-  const values = ["PRICE_LEVEL_FREE", "PRICE_LEVEL_INEXPENSIVE", "PRICE_LEVEL_MODERATE", "PRICE_LEVEL_EXPENSIVE", "PRICE_LEVEL_VERY_EXPENSIVE"];
-  return typeof level === "number" ? level : Math.max(0, values.indexOf(level));
-}
+// Unknown stays null (never a fabricated 0 = Free); see lib/price.priceNumFrom.
+const priceNum = priceNumFrom;
 
 function toLunchPlace(raw, origin) {
   const id = String(raw?.id || "");

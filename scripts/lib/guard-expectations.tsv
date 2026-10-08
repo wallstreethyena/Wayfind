@@ -847,7 +847,7 @@ scripts/test-trending-page.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	9	1	0	699dd
 scripts/test-trending-time.mjs	0	CALL	blocks-ci-and-deploy	1	-	20	0	0	f09692794ca88e16f8e42aa820145034722fc51a0785fbaeeb190a14974a778d
 scripts/test-trip-connections.mjs	0	RENDER	blocks-ci-and-deploy	1	-	61	0	0	413f6ce0353bab239f53a94dbfbd32ecb9d1d0db414900575e223f6caf0b2a4b
 scripts/test-unified-share-flow.mjs	0	RENDER	blocks-ci-and-deploy	1	-	78	0	0	19a265ee1c3d3549dfaa0c2a4698c3eba71c7ecf97b02b1b66f960cab4e3b887
-scripts/test-unknown-price.mjs	0	CALL	blocks-ci-and-deploy	1	-	36	0	0	fba19e12b2f26d2023ad23bf18664d8d26f68d215c782ce88381d35cb8ceb0b0
+scripts/test-unknown-price.mjs	0	RENDER	blocks-ci-and-deploy	1	-	48	0	0	c5d67d729182711cdb72385c4a8e8da4bacc9666feb8231121df3d7e0251b780
 scripts/test-viator-fanout.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Revenue QA	6	1	0	e52a4ace80737075628558bb99888d8f2a60013d403bb4a521c170ae9172ac62
 scripts/test-viator-integrity-lock.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	73	0	0	b65083aace56a9bc63e3d55f053cfbbfa9910b672b94c3ac6f76fd587e4f09c4
 scripts/test-viator-provider-state.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	47	0	0	cc1d5644b9caf302bef30ccd99ac861eeaf81feec272273bdf29fda6bdd3aa16

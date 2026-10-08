@@ -35,9 +35,9 @@ ok(Array.isArray(card.tags) && card.tags.join() === "lunch,dinner", "tags must s
 ok(/crispy duck/.test(card._invEditorial || ""), "editorialSummary.text must survive as _invEditorial (seeds the why line)");
 ok(typeof card.wfScore === "number" && card.wfScore > 0 && card._wfInventory === true, "score and provenance are unchanged");
 
-// A stored signals.priceNum of 0 is indistinguishable from a defaulted missing price, so it is UNKNOWN (null) through lib/price.js — never "$" (2026-10-08 owner rule).
+// A stored signals.priceNum of 0 is a REAL free; it stays 0 (home.js PriceMeter + priceNum<=1 filters), never "$".
 const free = mapInventoryRow(serve.invRowToPlace({ ...dbRow, place_id: "f1", signals: { ...dbRow.signals, priceNum: 0 } }), center);
-ok(free.priceNum === null, `stored priceNum 0 is unknown, not 1 (got ${free.priceNum})`);
+ok(free.priceNum === 0, `stored priceNum 0 / PRICE_LEVEL_FREE stays free (0), never 1 or null (got ${free.priceNum})`);
 
 // A row with nothing: honest nulls, never invented.
 const bare = mapInventoryRow(serve.invRowToPlace({ place_id: "ChIJbare", name: "Bare Cafe", lat: 27.5, lng: -82.4, signals: { rating: 4.4, reviews: 30 } }), center);
