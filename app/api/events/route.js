@@ -18,7 +18,6 @@ import { getBusinessFeeds, businessEventsFrom } from "../../../lib/businessFeeds
 import { creatorEventsFor } from "../../../lib/creatorEvents.js";
 import { curatedFeedEventsWithFall, FALL_FEED_CACHE_VERSION } from "../../../lib/curatedFallFeed.js";
 import { fetchCuratedEvents, CURATED_REACH_MI, CURATED_SOURCE } from "../../../lib/curatedEvents.js";
-import { stockPhotoPool, fromPool } from "../../../lib/stockPhoto.js";
 import { cget, cset, DAY } from "../../../lib/serverCache";
 import { breakerOpen, tripBreaker, classifyProviderFailure, BREAKER_COOLDOWN_MS } from "../../../lib/providerHealth.js";
 import { eventProviderCap, eventProviderSpendAllow } from "../../../lib/eventProviderSpend.js";
@@ -701,35 +700,13 @@ function normalizeEventInput(value, { query = false } = {}) {
 // destination check and cap instead of growing a second path with its own idea
 // of what an event is.
 //
-// THE PHOTO. hero_image is NULL on all twenty rows, and no card in this product
-// may render imageless (v8.13.3, owner: "I don't want any of the place cards
-// not to have an image"). Rather than invent per-event photography we reuse the
-// ladder's own rung 3 — a real, cached Pexels SCENE keyed to what the event IS
-// and where it is ("haunted house Orlando", "parade Tampa", "farm festival
-// Bradenton"). Same honesty line as every other card that uses it: the query is
-// the CATEGORY and the CITY, never the event's or the venue's name, so it
-// cannot pretend to be a photograph of this event. A real hero_image, when one
-// is ever added to a row, always wins.
-async function curatedSceneImage(e, memo = null) {
-  // subcategory first — "haunted house", "parade", "farm festival" — because it
-  // is the more specific TRUE thing. The category is the fallback.
-  const kind = String(e.genre || e.segment || "").trim();
-  const q = [kind, e.city].filter(Boolean).join(" ").slice(0, 60);
-  if (q.length < 3) return "";
-  // One pool lookup per distinct (kind, city) per aggregation: with every
-  // upcoming row in reach, many rows share a query, and firing them all at
-  // once would be N cold lookups for a handful of answers.
-  if (memo && memo.has(q)) return memo.get(q);
-  const look = (async () => {
-    try {
-      const photo = fromPool(await stockPhotoPool(q), 0);
-      return photo ? "/api/stock-photo?u=" + encodeURIComponent(photo.url) : "";
-    } catch (err) { return ""; }
-  })();
-  if (memo) memo.set(q, look);
-  return look;
-}
-
+// THE PHOTO (revised 2026-10-08, owner): "Do not display unrelated
+// photography in a way that suggests it depicts the actual event." A curated
+// event shows its own image (the organizer's photo, or a labelled venue photo
+// through curatedFeedEventsWithFall) or NOTHING here, and the card draws a
+// designed category tile (lib/eventPlaceholder.js). The Pexels "scene" stock
+// photo this function used to attach is retired: it read as a picture of the
+// event on the card even though it was not.
 async function fromCuratedEvents(lat, lng) {
   if (lat == null || lng == null) return { configured: false, events: [] };
   try {
@@ -741,25 +718,11 @@ async function fromCuratedEvents(lat, lng) {
     // from this feed (2026-10-08). See upcomingFilter in lib/curatedEvents.js.
     const rows = await fetchCuratedEvents({ fresh: true, upcomingFrom: today() });
     if (!rows.length) return { configured: true, events: [] };
-    // Filter to reach BEFORE resolving photos: a cold aggregation should cost
-    // at most a handful of pool lookups, not one per row in the table.
     const near = curatedFeedEventsWithFall(rows).filter((e) =>
       e.lat != null && e.lng != null && haversineMiLocal(lat, lng, e.lat, e.lng) <= CURATED_REACH_MI);
     if (!near.length) return { configured: true, events: [] };
-    const sceneMemo = new Map();
-    await Promise.all(near.map(async (e) => {
-      if (e.image) return;
-      e.image = await curatedSceneImage(e, sceneMemo);
-      e.imageScene = !!e.image; // the card may say "scene", never "this event"
-    }));
-    // THE SCENE IS AN UPGRADE, NOT A GATE. The first cut dropped any row whose
-    // photo lookup came back empty — and a stubbed PEXELS_API_KEY then made the
-    // whole curated rail vanish in silence, which is the exact failure shape
-    // this work exists to end. It is also unnecessary: lib/eventCategoryArt.js
-    // already gives every bucket real art (concerts, theater, and five
-    // community scenes), so the v8.13.3 "no card without an image" law is
-    // satisfied whether or not Pexels answers. The scene photo is the more
-    // specific truth when we can get it; the category art is the floor.
+    // A row without its own image is never dropped: the card shows the
+    // designed placeholder. The image is an upgrade, never a gate.
     return { configured: true, events: near };
   } catch (err) { return { configured: true, ok: false, reason: String(err && err.message || err).slice(0, 160), events: [] }; }
 }

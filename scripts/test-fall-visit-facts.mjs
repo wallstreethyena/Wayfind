@@ -59,7 +59,7 @@ ok(eventScheduleLabel({...unknown,schedule_note:'Open daily, 10am–5pm.'}) === 
 const exact = { ...unknown, occurrence_dates:['2026-10-10'], start_time:'10:00', end_time:'17:00' };
 ok(status(exact, new Date('2026-10-04T16:00:00Z')).nextDate === '2026-10-10', 'exact calendar wins over season envelope');
 ok(status(exact, new Date('2026-10-10T16:00:00Z')).label === 'Open now', 'exact date and clocks prove a session');
-ok(cost({ is_free:true, visit_cost:{ currency:'USD', free:true, parking:10 } }) === 'Free entry · $10 parking', 'free entry cannot conceal mandatory parking');
+ok(cost({ is_free:true, visit_cost:{ currency:'USD', free:true, parking:10 } }) === 'Free admission · $10 parking', 'free admission cannot conceal mandatory parking');
 ok(cost({ visit_cost:{ currency:'USD', entry:34.90, from:true, parking:19 } }) === 'From $34.90 · $19 parking', 'entry + mandatory online fee and parking preserve cents');
 ok(cost({ visit_cost:{ currency:'CAD', entry:12.50 } }).includes('CA$12.50'), 'currency is explicit and not silently relabelled USD');
 ok(cost({ visit_cost:{ currency:'BAD!', entry:15 } }) === 'Check admission', 'invalid currency does not make up a price');
@@ -82,7 +82,7 @@ ok(renderToStaticMarkup(React.createElement(RailCard,{title:'No photo control'})
 const markup = renderToStaticMarkup(React.createElement(RailCard, props));
 ok(!markup.includes('Plan your visit') && !markup.includes('wf-rail-card-links') && (markup.match(/wf-rail-card-cta/g)||[]).length===1, 'real card renders exactly one CTA, no second planning link or link grid');
 ok(!markup.includes('Official details'), 'cards never carry an Official details link');
-ok(!markup.includes('wf-event-card-cost') && !markup.includes('Free entry · $10 parking'), 'cost is not a card control (it lives on the detail page)');
+ok(!markup.includes('wf-event-card-cost') && !markup.includes('Free admission · $10 parking'), 'cost is not a card control (it lives on the detail page)');
 ok(markup.includes('wf-place-card-photo-attr') && markup.includes('>©<') && !markup.includes('>Photographer'), 'photo credit is the small chip, author only in title/aria');
 ok(!markup.includes('Venue photo') && !markup.includes('wf-event-photo-caption') && !markup.includes('wf-event-card-backdrop') && !markup.includes('wf-event-photo-led'), 'no venue caption, backdrop or photo-led treatment on the card');
 for (const file of ['RailCard','FallIntentRails','PosterEventCard']) { const src=readFileSync(path.join(ROOT,'app/components',file+'.js'),'utf8'); ok(!/Official details|Venue photo|wf-event-card-backdrop|wf-rail-card-links/.test(src), file+' source holds none of the removed card pieces'); }

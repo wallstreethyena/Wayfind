@@ -45,7 +45,8 @@ import { editorialLine } from "../lib/editorialHook";
 import { topPickAward } from "../lib/topPickAward";
 import { wayfindAwardFor } from "../lib/wayfindAwards.js";
 import { AwardSticker, AwardBand, AwardListRank, awardWinnerClass } from "./components/AwardCardParts";
-import { eventCategoryArt } from "../lib/eventCategoryArt";
+import { eventPlaceholder } from "../lib/eventPlaceholder.js";
+import { eventPriceFact } from "../lib/eventPriceFact.js";
 import { startSessionRecording, markShareOpen, checkShareReturn } from "../lib/shareMetrics";
 import { priceWord } from "../lib/price";
 import { mapInventoryRow } from "../lib/inventoryRowClient";
@@ -3040,10 +3041,12 @@ function EventRailCard({ event, rank, relativeLabel, saved, liked, disliked, onS
   const internal = event.destKind === "internal";
   const href = internal ? event.dest : ticketUrl(event.dest);
   const venue = cleanVenueName(event.venue) || event.city || "Nearby";
-  const categoryImage = eventCategoryArt(bucket, event);
   // v6.99 (P1 speed): rail cards render the right-sized thumb the API now
   // ships (smallest 16:9 ≥ 320px); the 1024px pick stays hero-only.
-  const railImage = (eventUseImage(event) ? (event.thumb || event.image) : "") || categoryImage;
+  // 2026-10-08 (owner): no stock photo stands in for an event; a missing or
+  // broken image shows the designed category tile (lib/eventPlaceholder.js).
+  const railImage = eventUseImage(event) ? (event.thumb || event.image) : "";
+  const placeholder = eventPlaceholder(bucket, event);
   const cta = eventCTA(event);
   const tix = internal && event.url ? ticketUrl(event.url) : null;
   // The badge: relative when the event is close enough that "Tonight" is more
@@ -3060,8 +3063,12 @@ function EventRailCard({ event, rank, relativeLabel, saved, liked, disliked, onS
   const awardTone = tone === "now" ? 1 : tone === "soon" ? 2 : relLower === "this weekend" ? 3 : null;
   const award = awardTone ? { tone: awardTone, icon: "🎟️", label: "Happening " + relLower } : null;
   const repeats = recurrenceLabel(event);
-  const isFree = event.ticketed === false || /^free$/i.test(String(event.price || "").trim());
-  const facts = [venue, isFree ? "Free" : event.price || null, repeats].filter(Boolean);
+  // 2026-10-08 (owner): "not ticketed" is not evidence of free. The price line
+  // is the shared card rule (lib/eventPriceFact.js), same words as the Events tab.
+  const priceFact = eventPriceFact(event);
+  // The Free chip only for plain free admission (not "· paid activities").
+  const isFree = priceFact === "Free admission";
+  const facts = [venue, priceFact, repeats].filter(Boolean);
   // The chips are ATTRIBUTES, never a second copy of the eyebrow. The first
   // pass shipped the segment in both places, so every card read "— THEATER ›"
   // above "🎭 Theater ›" — the same repeat-the-list's-own-name filler v6.88
@@ -3095,7 +3102,7 @@ function EventRailCard({ event, rank, relativeLabel, saved, liked, disliked, onS
       photo={railImage}
       visitFacts={event.visitFacts || null}
       planningHref={internal ? event.dest : null}
-      photoFallback={eventUseImage(event) ? categoryImage : ""}
+      placeholder={placeholder}
       title={event.name}
       eyebrow={seg.short}
       onEyebrow={onCategory ? () => onCategory(bucket) : null}
@@ -5010,7 +5017,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       item_type: "event",
       item_id: ev.id,
       item_title: ev.name || "",
-      item_image: (eventUseImage(ev) ? (ev.thumb || ev.image) : "") || eventCategoryArt(eventBucket(ev), ev) || null,
+      item_image: (eventUseImage(ev) ? (ev.thumb || ev.image) : "") || null,
       item_url: internal ? originUrl(ev.dest) : ticketUrl(ev.dest),
       provider: ev.source || null,
     });

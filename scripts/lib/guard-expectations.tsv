@@ -124,11 +124,15 @@ scripts/check-event-day-is-venue-local.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	
 scripts/check-event-hero-and-directions.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	0	0	456075b8b7decac063799f05e69db89f1b2a7353a5f6ac3538e264b5b4022cbf
 scripts/check-event-outing.mjs	0	CALL	blocks-ci-and-deploy	1	-	219	0	0	866a61fe318a4fe9d2ac9a239a8fd713e573526333094bb74bc166218f6dbee3
 scripts/check-event-pairings.mjs	0	CALL	blocks-ci-and-deploy	1	-	61	0	0	b6480bac0c254063e19415a95326009f680a30807d31d78dd8ebb1a63a951ba0
+scripts/check-event-photo-honesty.mjs	0	RENDER	blocks-ci-and-deploy	1	-	18	0	0	d4b22cdc881a106bdbd88e0f0a03678073c6f2d44ec4025f1537f6647a830d30
 scripts/check-event-photo-rights.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0	515267a064da683b917877be5d57a47908079c7017f72d1ba99259737a138443
+scripts/check-event-price-fact.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	a07df857eada06cf050c0d2ce8fd85f563e4e637caef7b0a195dad6ff877c384
+scripts/check-event-price-language.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	037c93a05348a8f360185bb2582a766b8f13fb0e1bef02b7f95af0881a0fa558
 scripts/check-event-providers-not-google-gated.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0	63d382c301f64eddbbf565aaf7f6fb225b828078c5e6cf9207e3ca56f44ed11e
 scripts/check-event-ticket-deals.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	65	0	0	8516606a3574dceff9e931b3f23fec34f1999d84408344a8a953291314018ea9
 scripts/check-event-where.mjs	0	CALL	blocks-ci-and-deploy	1	-	65	0	0	bd62f7314e95f534f8864d4845f6b7dbf0bfe1acb1d81f85470abe7044a08cd4
-scripts/check-events-feed-upcoming.mjs	0	CALL	blocks-ci-and-deploy	1	-	15	0	0	bbcb62ac73dd3e76b5e590dabd679784deea8b02aa690b328848a91c8615a66b
+scripts/check-events-feed-upcoming.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	04de6037d7c7cce9fbe1f87b20236752cec16ebfc3c65e7deb22f24216df389a
+scripts/check-events-paged-list.mjs	0	RENDER	blocks-ci-and-deploy	1	-	10	0	0	e05630d63d3d144c04237482e3606021cdfe66fba0ff26a9c84091096c147c91
 scripts/check-events-rail-renders.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	11	1	0	f65a588601579de8281a5e396f6a3e675ade8f840f69b32baa8ca116dfdbd097
 scripts/check-events-running-order.mjs	0	RENDER	blocks-ci-and-deploy	1	-	26	0	0	a413bf9d41e16736096b19aab304d334b80f22badcbff61777df199da35efad7
 scripts/check-events.mjs	0	RENDER	blocks-ci-and-deploy	1	-	53	0	0	ebf7862dbf5898058d0c60b162294d8935be4d7ecf4d17e99029c379ce377286
@@ -574,7 +578,7 @@ scripts/test-event-recovery.mjs	0	RENDER	blocks-ci-and-deploy	1	-	7	0	0	74cc0aa2
 scripts/test-event-section-nav.mjs	0	RENDER	blocks-ci-and-deploy	1	-	25	0	0	6b4c731db2fbb850bfcd970312809bb6bf13f64f1a81dba40a64222add7aeebb
 scripts/test-event-stays.mjs	0	CALL	blocks-ci-and-deploy	1	-	62	0	0	fb81dd5fe3a9013daba42feef5d7e71abcbbf1b320dd72d744c031bcaac7e6fc
 scripts/test-events-contract.mjs	0	CALL	blocks-ci-and-deploy	1	-	49	0	0	76d4ae1541593922dd4bea6e0b8dffc6cebb115178d074a9534e0153cdd0abae
-scripts/test-events-fall-feed-image.mjs	0	CALL	blocks-ci-and-deploy	1	-	28	0	0	26a0cfa31d460804b86c73c16675ca53b884dcd5619701c83504c7ede75d96a3
+scripts/test-events-fall-feed-image.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	d8f683dcb256111c696868f97d87a11556b9fd1b5f165a103b29fa98554fbcf7
 scripts/test-events-list.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0	94818ba053c0bdb5b6a50b729f117c9a78cd8a5b449b2b3fd1b2c848c779f240
 scripts/test-events-prime.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	19	1	0	2ca675e35061d8ee6eb5883548eb1bf1a561bedebd5bbffc4e94fbf82a8bcd5c
 scripts/test-events-spend.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	20	0	0	8c9e3ce4cbc0447091e8d8e5e1452def9bb337cf7fda568b9f4c69e38fdcf1aa
