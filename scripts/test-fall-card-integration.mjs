@@ -43,10 +43,14 @@ try{
   walk(tree,(node)=>{if(node.type==='img'&&node.props['data-fallback'])primary=node;});
   ok(!!primary,'real primary image exposes its owned same-venue fallback');
   ok(renderToStaticMarkup(tree).includes('Original photographer'),'original image starts with its own credit');
+  ok(renderToStaticMarkup(tree).includes('>©<')&&!renderToStaticMarkup(tree).includes('is-venue'),'an event photo keeps the plain (c) chip');
   primary.props.onError({currentTarget:{dataset:{fallback:cardProps.photoFallback},src:cardProps.photo}});
   cursor=0;tree=RailCard(cardProps);const fallbackMarkup=renderToStaticMarkup(tree);
-  ok(!fallbackMarkup.includes('Venue photo')&&fallbackMarkup.includes('>©<'),'actual image onError keeps the plain (c) chip and prints no venue caption');
-  ok(fallbackMarkup.includes('Photo: Google Maps')&&!fallbackMarkup.includes('Original photographer'),'fallback cannot retain the old image author credit');
+  // 2026-10-08 (owner): a venue photo stays distinguishable. The fallback IS
+  // the venue photo, so the credit chip carries a small "Venue" mark, still
+  // no caption bar and no "is not pictured" sentence on the card.
+  ok(fallbackMarkup.includes('>Venue ©<')&&fallbackMarkup.includes('is-venue')&&!fallbackMarkup.includes('not pictured'),'actual image onError marks the venue fallback in the credit chip and prints no caption');
+  ok(fallbackMarkup.includes('Photo: Venue photo · Google Maps')&&!fallbackMarkup.includes('Original photographer'),'fallback cannot retain the old image author credit');
   let fallback=null;walk(tree,(node)=>{if(node.type==='img'&&node.props.src===cardProps.photoFallback&&node.props['data-fallback']!==undefined)fallback=node;});
   ok(!!fallback&&fallback.props['data-fallback']==='','fallback is used once, never an image-error loop');
   fallback.props.onError({currentTarget:{dataset:{fallback:''}}});

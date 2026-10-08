@@ -27,7 +27,7 @@ import RailCard, { RailDots, RailNav } from "../../../components/RailCard.js";
 import { WF_PLACE_CARD_CSS } from "../../../components/css.js";
 import ShareButton from "../../../components/ShareButton.js";
 import { pageShareUrl } from "../../../../lib/pageShareUrl.js";
-import { eventCategoryArt } from "../../../../lib/eventCategoryArt.js";
+import { eventPlaceholder } from "../../../../lib/eventPlaceholder.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -189,10 +189,12 @@ async function EventListPage({ params }) {
             <div className="wf-rail" data-rail={`event-window-${params.city}-${params.slug}`} role="region" tabIndex={0} aria-label={`Events ${win.label.toLowerCase()} in ${city.name}`}>
             {events.map((e) => {
               const internal = e.destKind === "internal";
-              const image = e.image || eventCategoryArt(e.segment || e.genre || "events", e);
+              // 2026-10-08 (owner): no stock photo stands in for an event.
+              const image = e.image || "";
               return <RailCard
                 key={e.id}
                 photo={image}
+                placeholder={eventPlaceholder(e.segment || e.genre || "events", e)}
                 title={e.name}
                 eyebrow="Event"
                 when={{ label: fmtDay(e.date).toUpperCase(), value: e.time ? e.time.slice(0, 5) : "All day", tone: "later" }}
