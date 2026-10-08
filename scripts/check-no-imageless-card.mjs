@@ -228,7 +228,7 @@ for (const source of FALL_FEATURED_FESTIVALS_2026) {
   ok(fallEventCardImageSrc(merged, 640) === source.hero_image && merged.link_ok === false,
     `${source.event_id}: exact featured venue image survives a stale seed without erasing link health`);
 }
-ok(/mergeFallDiscoveryRows\(rows, \[\.\.\.FALL_DISCOVERIES_2026, \.\.\.FALL_FEATURED_FESTIVALS_2026(?:, \.\.\.FALL_GAP_FILL_2026_10_07(?:, \.\.\.FALL_FOOD_GAP_2026_10_08)?)?\]\)/.test(fallRoute),
+ok(/mergeFallDiscoveryRows\(rows, \[\.\.\.FALL_DISCOVERIES_2026, \.\.\.FALL_FEATURED_FESTIVALS_2026, \.\.\.FALL_GAP_FILL_2026_10_07, \.\.\.FALL_FOOD_GAP_2026_10_08\]\)/.test(fallRoute),
   "the live endpoint merges verified identity before image resolution");
 // v6 was the identity fix; v7 (2026-09-03) is the commerce-go ticket + schedule
 // payload. Any epoch AT OR ABOVE v6 cannot replay the pre-identity payload.
