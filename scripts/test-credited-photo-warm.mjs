@@ -33,8 +33,8 @@ const stripComments = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:]
 
 const ENV0 = { ...process.env };
 function env(over) {
-  for (const k of ["WAYFIND_GATE", "VERCEL_ENV", "CREDITED_PHOTO_WARM_MONTH_CAP", "GOOGLE_MAPS_SERVER_KEY", "SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "WAYFIND_ALLOW_NONPROD_PHOTO_SPEND"]) delete process.env[k];
-  Object.assign(process.env, { WAYFIND_GATE: "free", VERCEL_ENV: "production", CREDITED_PHOTO_WARM_MONTH_CAP: "800", GOOGLE_MAPS_SERVER_KEY: "k", SUPABASE_URL: "https://x.supabase.co", SUPABASE_SERVICE_ROLE_KEY: "s" }, over || {});
+  for (const k of ["WAYFIND_GATE", "VERCEL_ENV", "CREDITED_PHOTO_WARM_MONTH_CAP", "GOOGLE_MAPS_SERVER_KEY", "SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "WAYFIND_ALLOW_NONPROD_PHOTO_SPEND", "GOOGLE_PHOTO_PREFETCH"]) delete process.env[k];
+  Object.assign(process.env, { GOOGLE_PHOTO_PREFETCH: "on", WAYFIND_GATE: "free", VERCEL_ENV: "production", CREDITED_PHOTO_WARM_MONTH_CAP: "800", GOOGLE_MAPS_SERVER_KEY: "k", SUPABASE_URL: "https://x.supabase.co", SUPABASE_SERVICE_ROLE_KEY: "s" }, over || {});
   for (const k of Object.keys(over || {})) if (over[k] === undefined) delete process.env[k];
 }
 
@@ -45,6 +45,11 @@ const SG = await import("../lib/spendGate.js");
 // ── 1. fail closed ─────────────────────────────────────────────────────────
 env();
 ok(W.blockedReason() === null, "CONTROL: a fully configured production env is not blocked (got " + W.blockedReason() + ")");
+// 2026-10-08: background pre-fetch is paused unless GOOGLE_PHOTO_PREFETCH=on (lib/googlePhotoPolicy.js).
+env({ GOOGLE_PHOTO_PREFETCH: undefined });
+ok(W.blockedReason() === "prefetch-paused", "unset GOOGLE_PHOTO_PREFETCH must pause the warm (Google Terms 3.2.3(a)(i)), got " + W.blockedReason());
+env({ GOOGLE_PHOTO_PREFETCH: "1" });
+ok(W.blockedReason() === "prefetch-paused", "only the literal 'on' resumes pre-fetch, got " + W.blockedReason());
 env({ CREDITED_PHOTO_WARM_MONTH_CAP: undefined });
 ok(W.blockedReason() === "cap-unset", "unset CREDITED_PHOTO_WARM_MONTH_CAP must block, got " + W.blockedReason());
 for (const bad of ["1,000", "8e2", "0", "-5", "abc", ""]) {
