@@ -25,6 +25,7 @@ import { composeFallIntentRails, nextFallOccurrence, hasUpcomingFallOccurrence }
 import { pageOneRail } from "../../../../lib/railPage.js";
 import { FALL_PHOTO_PLACE_IDS, FALL_PHOTO_SPOTS } from "../../../../lib/fallPhotoSpots.js";
 import { FALL_DISCOVERIES_2026, FALL_DISCOVERY_RAIL, FALL_SEASONAL_PLACE_IDS } from "../../../../lib/fallDiscoveries2026.js";
+import { FALL_GAP_FILL_2026_10_07 } from "../../../../lib/fallGapFill20261007.js";
 import { windowRailAnswer } from "../../../../lib/railResponse.js";
 import { FALL_COLLECTION_POSTER, FALL_EVENT_VENUE_PLACE_IDS, fallEventCardImageSrc, eventImageIsVenue, mergeFallDiscoveryRows } from "../../../../lib/fallEventImage.js";
 import { eventSocialPosts } from "../../../../lib/eventSocial.js";
@@ -91,13 +92,15 @@ export async function GET(request) {
     // before that seed can never be served after the deploy.
     // v26 (2026-10-06, statewide gap fill) publishes the verified rows seeded by
     // scripts/seed-fall-gap-fill-2026-10-06.mjs, so no v25 payload outlives it.
-    const key = `fall-intents:v26:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v27 (2026-10-07) publishes four verified pumpkin patches (lib/fallGapFill20261007.js)
+    // and two fall food places, so no v26 payload outlives the deploy.
+    const key = `fall-intents:v27:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
         ...Object.keys(FALL_PLACE_IDS),
         ...FALL_PHOTO_PLACE_IDS,
-        ...[...FALL_DISCOVERIES_2026, ...FALL_FEATURED_FESTIVALS_2026].map((row) => row.place_id).filter(Boolean),
+        ...[...FALL_DISCOVERIES_2026, ...FALL_FEATURED_FESTIVALS_2026, ...FALL_GAP_FILL_2026_10_07].map((row) => row.place_id).filter(Boolean),
         ...Object.values(FALL_EVENT_VENUE_PLACE_IDS),
       ])];
       const dealIds = [...new Set(Object.values(FALL_EVENT_TICKET_DEALS))];
@@ -130,7 +133,7 @@ export async function GET(request) {
       // The owner-supplied discovery registry is publish-ready source data,
       // not merely a seed script. Merge it at read time so a missed/lagging
       // database seed cannot erase verified farms, cafes and spooky dates.
-      const eventRows = mergeFallDiscoveryRows(rows, [...FALL_DISCOVERIES_2026, ...FALL_FEATURED_FESTIVALS_2026]);
+      const eventRows = mergeFallDiscoveryRows(rows, [...FALL_DISCOVERIES_2026, ...FALL_FEATURED_FESTIVALS_2026, ...FALL_GAP_FILL_2026_10_07]);
       // /florida-events/<slug> is served from wf_events by slug. A registry row
       // whose database seed is lagging has no page yet, so it gets no
       // detailHref — the card falls back to the venue sheet / official page
