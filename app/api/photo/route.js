@@ -18,6 +18,7 @@ import { findFreePhoto } from "../../../lib/freePhoto";
 import { recordPhotoOutcome, recordPhotoDeniedCeiling } from "../../../lib/photoOutcomes";
 import { recordReaderPhotoMiss } from "../../../lib/photoReaderMissQueue";
 import { keepPhotoCredits } from "../../../lib/photoCredits";
+import { isCrawler, isSyntheticMonitor } from "../../../lib/crawler.js";
 
 // Credits live as long as the photo cache row they pair with (30 days, the
 // Google ToS maximum for cached place content).
@@ -138,7 +139,19 @@ export async function GET(req) {
   // never buy a photo for them. Like the header it can only DENY spend: the
   // resolver's probe branch never calls authorizeSpend, and a probe is never
   // queued for repair. Locked by scripts/check-evergreen-landing-zero-spend.mjs.
-  const probe = req.headers.get("x-wayfind-photo-probe") === "1" || searchParams.get("nospend") === "1";
+  // AUTOMATED READERS NEVER BUY (owner, 2026-10-08: "investigate why normal visitor
+  // traffic consumes so much"). The photo-spend log for Oct 7 showed 258 of 304 paid
+  // grants from HeadlessChrome (automated QA browsers) and ~20/day from Meta's
+  // page-rendering crawler (meta-externalagent), which loads card images even though
+  // robots.js disallows /api/photo. A self-identified crawler, headless browser or our
+  // own synthetic monitor gets the SAME no-spend read as the probe header: cached,
+  // inventory and free photos still serve (with their credits); only the paid Google
+  // media call is withheld. Same conservative UA list the /go routes use
+  // (lib/crawler.js) so an odd or empty UA is still treated as a person. Server-side
+  // callers (photo-warm cron, vision scoring) send no browser UA and are unaffected.
+  const ua = req.headers.get("user-agent") || "";
+  const automated = isCrawler(ua) || isSyntheticMonitor(ua);
+  const probe = req.headers.get("x-wayfind-photo-probe") === "1" || searchParams.get("nospend") === "1" || automated;
   const recoveryPlaceId = placeIdFromRef(ref) || (PLACE_RX.test(place) ? place : "");
   let recoveryPromise = null;
   const getRecovery = () => {

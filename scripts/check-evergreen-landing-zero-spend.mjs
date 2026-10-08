@@ -232,6 +232,8 @@ const render = async (c, s, city) => {
   // read. Bound to the REAL keeper: no Google call; its Supabase write lands in
   // this rig's recording fetch, so the zero-spend assertions still see it.
   const { keepPhotoCredits } = await import("../lib/photoCredits.js");
+  // 2026-10-08: the route asks the REAL UA rule whether the reader is automated.
+  const { isCrawler, isSyntheticMonitor } = await import("../lib/crawler.js");
   let googlePhotoFetches = 0;
   const deps = {
     cacheGet: async () => null, cacheSet: async () => {}, cacheDel: async () => {},
@@ -246,6 +248,7 @@ const render = async (c, s, city) => {
     recordReaderPhotoMiss: async () => false, recordPhotoOutcome: async () => {}, recordPhotoDeniedCeiling: async () => {},
     photosCeiling: () => 0,
     keepPhotoCredits,
+    isCrawler, isSyntheticMonitor,
   };
   const routeSrc = readFileSync(path.join(ROOT, "app/api/photo/route.js"), "utf8");
   // Same sourcing technique as scripts/test-free-photo-serving.mjs: strip the
@@ -275,9 +278,9 @@ const render = async (c, s, city) => {
   ok(/^\/api\/photo\?ref=.*&nospend=1$/.test(evRefUrl), `the evergreen ref URL is built by landingCardPhotoSrc with nospend=1 (${evRefUrl})`);
   ok(/^\/api\/photo\?place=.*&nospend=1$/.test(evPlaceUrl), `the evergreen place URL is built by landingCardPhotoSrc with nospend=1 (${evPlaceUrl})`);
   ok(landingCardPhotoSrc(withoutRef) === "", "CONTROL: the non-evergreen ladder is unchanged (no ref, no url → \"\")");
-  const hit = async (rel) => {
+  const hit = async (rel, headers = {}) => {
     calls = []; googlePhotoFetches = 0;
-    const res = await route.GET(new Request("https://www.gowayfind.com" + rel));
+    const res = await route.GET(new Request("https://www.gowayfind.com" + rel, { headers }));
     return { res, ledger: calls.filter((c) => c.kind === "ledger").length, google: googlePhotoFetches + calls.filter((c) => c.kind === "google").length };
   };
   for (const u of [evRefUrl, evPlaceUrl]) {
@@ -290,6 +293,26 @@ const render = async (c, s, city) => {
     `POSITIVE CONTROL: the same ref URL WITHOUT nospend=1 takes a grant (${ctlRef.ledger}) and fetches from Google (${ctlRef.google}) — so 0/0 above is the flag, not a blind rig`);
   const ctlPlace = await hit(evPlaceUrl.replace("&nospend=1", ""));
   ok(ctlPlace.ledger >= 1, `POSITIVE CONTROL: the same place URL WITHOUT nospend=1 asks the ledger (${ctlPlace.ledger}) via place discovery`);
+
+  // D2. AUTOMATED READERS NEVER BUY (owner, 2026-10-08). Oct 7: 258 of 304 paid photo
+  // grants came from HeadlessChrome QA browsers; Meta's crawler ~20/day. The SAME
+  // spend-capable URL (no nospend) asked by a headless browser, a crawler, or our
+  // synthetic monitor must take 0 grants / 0 Google fetches; a real phone UA on the
+  // same URL is the positive control and must still buy (people keep their photos).
+  const spendable = evRefUrl.replace("&nospend=1", "");
+  const BOTS = {
+    headless: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/141.0.0.0 Safari/537.36",
+    meta: "meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler)",
+    googlebot: "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+  };
+  for (const [name, ua] of Object.entries(BOTS)) {
+    const r = await hit(spendable, { "user-agent": ua });
+    ok(r.ledger === 0 && r.google === 0 && r.res.headers.get("x-wayfind-photo-result") === "probe-no-spend",
+      `automated reader (${name}) on a spend-capable URL took ${r.ledger} grant(s), ${r.google} Google fetch(es), result ${r.res.headers.get("x-wayfind-photo-result")} — must be 0/0 probe-no-spend`);
+  }
+  const human = await hit(spendable, { "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1" });
+  ok(human.ledger >= 1 && human.google >= 1 && human.res.headers.get("x-wayfind-photo-result") === "google",
+    `POSITIVE CONTROL: a real iPhone Safari UA on the same URL still buys (${human.ledger} grant, ${human.google} fetch) — so the bot 0/0 is the UA rule, not a blind rig`);
 }
 
 // ── F. RAILS: the two client/server rails that carry their OWN photo URLs ────
