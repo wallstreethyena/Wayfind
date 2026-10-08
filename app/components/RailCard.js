@@ -157,6 +157,18 @@ const initialsOf = (name) => String(name || "WF").split(/\s+/).filter(Boolean).s
 // (app/home.js's rail lives in an IIFE inside the render tree). The query is
 // scoped to a data attribute this component owns, so it cannot collide with
 // anything else on the page.
+// 2026-10-08 (owner): an event with no verified photo shows a designed
+// category tile (lib/eventPlaceholder.js), never stock photography that could
+// read as a picture of the event.
+function EventPlaceholderTile({ tile }) {
+  return (
+    <div className="wf-place-card-monogram wf-event-placeholder" aria-hidden="true" style={{ background: tile.tint, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6 }}>
+      <span style={{ fontSize: 30, lineHeight: 1 }}>{tile.icon}</span>
+      <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: ".08em", textTransform: "uppercase", color: "rgba(255,255,255,.82)" }}>{tile.label}</span>
+    </div>
+  );
+}
+
 export function RailNav({ railId, count, unit, total, loaded }) {
   // v8.39 — `total` is how many CARDS the rail holds; `count` is the number the
   // hint is allowed to claim, which is not always the same thing (the trending
@@ -314,7 +326,7 @@ export function RailDots({ railId, count }) {
  * @param {string}   p.href        when the card body is a link rather than a handler
  */
 export default function RailCard({
-  photo, photoFallback, photoAttr, photoAttrHref, photoPosition = "50% 50%", visitFacts = null, spooky = false, title, eyebrow, onEyebrow, rank, score, when, facts, award, chips, badge, cta, ctaNode, take,
+  photo, photoFallback, photoAttr, photoAttrHref, photoPosition = "50% 50%", visitFacts = null, spooky = false, placeholder = null, title, eyebrow, onEyebrow, rank, score, when, facts, award, chips, badge, cta, ctaNode, take,
   onOpen, href, external, ariaLabel, className, creatorVideos = null,
   // v8.70 — see the IconicPlaceCard note: inside .wf8-pcrail (the rail's
   // tap-expanded horizontal scroller) `loading="lazy"` never resolves, so a
@@ -514,7 +526,8 @@ export default function RailCard({
                 onError={handleImageError}
                 style={{ objectFit: "cover", objectPosition: photoPosition }}
               />
-            : <div className="wf-place-card-monogram" aria-hidden="true">{initialsOf(title)}</div>}
+            : placeholder ? <EventPlaceholderTile tile={placeholder} />
+              : <div className="wf-place-card-monogram" aria-hidden="true">{initialsOf(title)}</div>}
           {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
           <AwardSticker award={shownAward} />
           {/* v8.56.13 (#1188) — CC-license credit for the free permanent photo

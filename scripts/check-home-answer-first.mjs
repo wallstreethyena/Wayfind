@@ -727,11 +727,14 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
     // one-shot retry and the genuine-miss branch, rather than merely accepting
     // a different src variable. Actual onError/render/credit behavior is also
     // exercised by scripts/test-fall-card-integration.mjs.
+    // 2026-10-08: an EVENT card with no verified photo may pass a designed
+    // category tile (lib/eventPlaceholder.js) instead of the monogram; place
+    // cards never pass one, so the monogram stays the genuine-miss fallback.
     const railPhotoContract = (source) => [
       /const shownPhoto = photoSrcFilter\(photo\);\s*const usingFallback = !!fallbackPhoto && fallbackPhoto\.primary === shownPhoto;\s*const displayedPhoto = usingFallback \? fallbackPhoto\.src : shownPhoto;/,
       /const samePlacePhoto = place\?\.id \? photoSrcFilter\(ownedPlacePhotoSrc\(place\.id, 640\)\) : "";\s*const resolvedPhotoFallback = photoSrcFilter\(photoFallback\) \|\| \(samePlacePhoto && samePlacePhoto !== shownPhoto \? samePlacePhoto : ""\);/,
       /const handleImageError = \(ev\) => \{\s*const fallback = ev\.currentTarget\.dataset\.fallback;\s*if \(fallback\) \{\s*ev\.currentTarget\.dataset\.fallback = "";\s*ev\.currentTarget\.src = fallback;\s*setFallbackPhoto\(\{ primary: shownPhoto, src: fallback \}\);\s*\} else setImgFailed\(shownPhoto\);\s*\};/,
-      /\{shownPhoto && imgFailed !== shownPhoto\s*\?\s*<img\s+src=\{displayedPhoto\}\s+data-fallback=\{usingFallback \? "" : resolvedPhotoFallback\}[^>]*onError=\{handleImageError\}[^>]*\/>\s*:\s*<div className="wf-place-card-monogram" aria-hidden="true">\{initialsOf\(title\)\}<\/div>\}/,
+      /\{shownPhoto && imgFailed !== shownPhoto\s*\?\s*<img\s+src=\{displayedPhoto\}\s+data-fallback=\{usingFallback \? "" : resolvedPhotoFallback\}[^>]*onError=\{handleImageError\}[^>]*\/>\s*:\s*(?:placeholder \? <EventPlaceholderTile tile=\{placeholder\} \/>\s*:\s*)?<div className="wf-place-card-monogram" aria-hidden="true">\{initialsOf\(title\)\}<\/div>\}/,
     ].every((probe) => probe.test(source));
     // The real source is the positive control; each red-prove changes a live
     // contract expression and must both apply and make the SAME probe reject.
