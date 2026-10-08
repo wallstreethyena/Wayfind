@@ -3,6 +3,10 @@
 // scans the event surfaces for the banned pattern.
 import { eventWhenLabel } from "../lib/eventTime.js";
 import { readFileSync, existsSync } from "fs";
+import { fileURLToPath } from "url";
+import { loadComponent } from "./lib/jsxLoad.mjs";
+import { curatedToFeedEvent } from "../lib/curatedEvents.js";
+import { fallSkinLive } from "../lib/fallSkin.js";
 
 let failed = 0;
 const fail = (m) => { failed++; console.error("check-events: FAIL — " + m); };
@@ -68,5 +72,40 @@ if (ev.includes("🎟️ Tours") || ev.includes("📍 Near me")) fail("the old T
 if (!ev.includes('aria-haspopup="listbox"')) fail("the category filter must be a dropdown button, not a chip row");
 if (!ev.includes('ViatorRail title="Bookable experiences near you"')) fail("the Viator tours rail must be pinned on top of the Events view");
 
+// ── Fall and Halloween default (owner, 2026-10-08) ─────────────────────────
+// EXECUTED, not grepped: load the real Events screen module and call its
+// exported resolution helpers with a fall row + a concert row.
+const REPO = fileURLToPath(new URL("..", import.meta.url));
+const evMod = await loadComponent(fileURLToPath(new URL("../app/components/screens/Events.js", import.meta.url)), REPO);
+const bucketOf = (e) => (e.segment === "Concert" ? "concerts" : "community"); // mirrors app/home.js eventBucket for these fixtures
+const concert = { id: "c1", segment: "Concert", fall: false };
+const fallRow = { id: "f1", segment: "Halloween", fall: true };
+const keys = (live) => evMod.eventFiltersFor(live).map((f) => f.key);
+if (!keys(true).includes("fall")) fail("fall filter must exist while the season is live");
+if (keys(false).includes("fall")) fail("fall filter must NOT exist off season (2026-12-01 fixture)");
+if (fallSkinLive("2026-12-01")) fail("fixture 2026-12-01 must be off season");
+if (!fallSkinLive("2026-10-08")) fail("fixture 2026-10-08 must be in season");
+for (const k of ["concerts", "comedy", "theater", "sports", "local", "business", "tours"]) if (!keys(true).includes(k) || !keys(false).includes(k)) fail("category must stay reachable in and out of season: " + k);
+// Mirror of the screen's resolution: explicit/deep-link key wins, else first populated priority key.
+const resolve = (cat, rows, live) => {
+  const fs = evMod.eventFiltersFor(live);
+  if (fs.some((f) => f.key === cat)) return cat;
+  return evMod.defaultPriorityFor(live).find((k) => { const f = fs.find((x) => x.key === k); return f && rows.filter((e) => evMod.filterMatches(f, e, bucketOf)).length > 0; }) || "local";
+};
+eq(resolve("auto", [concert, fallRow], true), "fall", "auto in season with a fall row");
+eq(resolve("auto", [concert], true), "concerts", "auto in season with no fall rows falls through to concerts");
+eq(resolve("auto", [concert, fallRow], false), "concerts", "auto off season ignores fall rows");
+eq(resolve("concerts", [concert, fallRow], true), "concerts", "?cat=concerts still resolves in season");
+eq(resolve("local", [concert, fallRow], true), "local", "?cat=local still resolves in season");
+eq(resolve("fall", [concert, fallRow], false), "concerts", "?cat=fall off season degrades to the normal default");
+const fallF = evMod.eventFiltersFor(true).find((f) => f.key === "fall");
+if (!(evMod.filterMatches(fallF, fallRow, bucketOf) && !evMod.filterMatches(fallF, concert, bucketOf))) fail("fall filter must match only fall === true rows");
+if (!/\{activeFilter\.label\} worth planning around/.test(ev)) fail("grid heading must read '<label> worth planning around' (Fall and Halloween worth planning around)");
+if (!ev.includes('label: "Fall and Halloween"')) fail("fall filter label missing");
+// The feed row carries the flag (boolean) from the same isFallEvent law.
+const baseRow = { event_id: "x1", slug: "x1", start_date: "2026-10-31", event_name: "Test" };
+eq(curatedToFeedEvent({ ...baseRow, category: "halloween", tags: ["halloween"] })?.fall, true, "curatedToFeedEvent flags a tagged fall row");
+eq(curatedToFeedEvent({ ...baseRow, event_name: "Jazz Night", category: "music" })?.fall, false, "curatedToFeedEvent flags a non-fall row false (boolean)");
+
 if (failed) process.exit(1);
-console.log("check-events: OK — same-day labels reflect the real hour (9:30 AM = 'This morning', not 'Tonight')");
+console.log("check-events: OK — same-day labels reflect the real hour (9:30 AM = 'This morning', not 'Tonight'); fall filter season gated, auto resolves fall then concerts, deep links keep working");
