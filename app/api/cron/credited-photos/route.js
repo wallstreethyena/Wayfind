@@ -32,7 +32,7 @@ const WORK_BUDGET_MS = 240_000;
 const DEFAULT_LIMIT = 120;
 
 import { warmCreditedPhotos, blockedReason, HARD_MAX_PER_RUN } from "../../../../lib/creditedPhotoWarm";
-import { loadBlogTargets, guideTargets, mergeTargets, PLACE_ID_RX } from "../../../../lib/creditedPhotoTargets";
+import { loadBlogTargets, guideTargets, mergeTargets, viewedFirst, loadReaderViews, PLACE_ID_RX } from "../../../../lib/creditedPhotoTargets";
 import { GUIDES } from "../../../../lib/guides";
 import { GUIDE_PLACE_RAILS } from "../../../../lib/guidePlaceRails";
 import { guidePickMayResolvePlaceCard } from "../../../../lib/guidePlaceIdentity";
@@ -75,6 +75,11 @@ export async function GET(req) {
     const blog = await loadBlogTargets({ url: s.url, key: s.key });
     const guide = guideTargets(GUIDES, GUIDE_PLACE_RAILS, guidePickMayResolvePlaceCard);
     targets = mergeTargets(blog.ids, guide.ids);
+    // 2026-10-08: places real readers recently failed to see go first. A failed
+    // read is not a reason to stop: the list just keeps its placeId order.
+    let views = new Map();
+    try { views = await loadReaderViews(targets.map((t) => t.placeId), { url: s.url, key: s.key }); } catch { views = new Map(); }
+    targets = viewedFirst(targets, views);
     stats = { blog: blog.stats, guide: guide.stats };
   } catch (e) {
     return jobFailed("credited-photos", "target list failed: " + (e && e.message ? e.message : String(e)));
