@@ -806,6 +806,7 @@ scripts/test-sentry-lazy.mjs	0	CALL	blocks-ci-and-deploy	1	-	35	1	4	addd3fe9f754
 scripts/test-session-map-parity.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	1	1	a36511cafb73ba6a31abf5983ddac2df07a17ef57d391695c6b292814fabca4e
 scripts/test-share-metrics.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	0	0	94908e8066fae716fd7c9fcddb5f8e569ecb4cc5ba7655c74ad93a4f672cd7a9
 scripts/test-share-out-chooser.mjs	0	RENDER	blocks-ci-and-deploy	1	-	54	0	0	94d5d3ae41c817d476a819339149c1a810a145d8fa232df312cd729bbbff7c60
+scripts/test-share-url-no-partner-leak.mjs	0	RENDER	blocks-ci-and-deploy	1	-	7	0	0	285a65fccf3051a235917ca647156100397204f975bf12a5b2d476c5fc8764dc
 scripts/test-shared-photo-lifecycle.mjs	0	CALL	blocks-ci-and-deploy	1	-	20	0	0	1e7cbf98ba269da4feb2b05b5aa3afa77ba612e4e916a54a0a51a59329900c46
 scripts/test-sheet-booking.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Revenue QA	15	2	2	eb44f447073981b945f2adc5c6f4ab71603b273111b9ccad524caa327f47e26c
 scripts/test-shell-key-clear-kayak-pin.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	70	0	0	0be1454eb40e715c817efd673d898ba0fadc537005a9844c6a46a4ba6ce386b8
