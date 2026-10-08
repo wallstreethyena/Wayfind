@@ -5,7 +5,8 @@
 // No Caching; Place Photos (New) docs "You cannot cache a photo name").
 //
 // Covers BOTH background pre-fetchers:
-//   1. lib/creditedPhotoWarm.js blockedReason() -> CALLED with the switch unset/odd/on.
+//   1. lib/creditedPhotoWarm.js blockedReason() -> switch checked first (source here;
+//      CALLED with the switch unset in scripts/test-credited-photo-warm.mjs).
 //   2. app/api/cron/photo-warm/route.js -> SOURCE check (comments stripped): the
 //      googlePhotoPrefetchAllowed() guard returns before runPhotoWarm( is called. The
 //      route imports Supabase/Next modules that this hermetic runner cannot load, so this
@@ -25,15 +26,14 @@ for (const v of ["", "1", "true", "yes", "off", "0"]) ok(P.googlePhotoPrefetchAl
 ok(P.googlePhotoPrefetchAllowed({ GOOGLE_PHOTO_PREFETCH: "on" }) === true, "CONTROL: 'on' resumes");
 ok(P.googlePhotoPrefetchAllowed({ GOOGLE_PHOTO_PREFETCH: " ON " }) === true, "CONTROL: ' ON ' resumes (trim, case)");
 
-const keep = { ...process.env };
-Object.assign(process.env, { WAYFIND_GATE: "free", VERCEL_ENV: "production", CREDITED_PHOTO_WARM_MONTH_CAP: "800", GOOGLE_MAPS_SERVER_KEY: "k", SUPABASE_URL: "https://x.supabase.co", SUPABASE_SERVICE_ROLE_KEY: "s" });
-delete process.env.GOOGLE_PHOTO_PREFETCH;
-const W = await import("../lib/creditedPhotoWarm.js");
-ok(W.blockedReason() === "prefetch-paused", `credited-photos warm is paused with the switch unset (got ${W.blockedReason()})`);
-process.env.GOOGLE_PHOTO_PREFETCH = "on";
-ok(W.blockedReason() === null, `CONTROL: with the switch on and a full env the warm is not blocked (got ${W.blockedReason()})`);
-for (const k of Object.keys(process.env)) if (!(k in keep)) delete process.env[k];
-Object.assign(process.env, keep);
+// The credited-photos warm half is CALLED in scripts/test-credited-photo-warm.mjs
+// (blockedReason() === "prefetch-paused" with the switch unset), which owns that
+// module's env fixture; this file reads no ambient env (check-guard-hermeticity).
+// Line comments only: this file contains "/*" inside strings, so a block-comment
+// strip would swallow real code.
+const warmSrc = readFileSync(path.join(ROOT, "lib/creditedPhotoWarm.js"), "utf8").replace(/^\s*\/\/.*$/gm, "");
+const br = warmSrc.slice(warmSrc.indexOf("export function blockedReason"));
+ok(/^export function blockedReason\(opts = \{\}\) \{\s*if \(!googlePhotoPrefetchAllowed\(\)\) return PREFETCH_PAUSED;/.test(br), "blockedReason() checks the pre-fetch switch FIRST (source check; behaviour is CALLED in test-credited-photo-warm)");
 
 const src = readFileSync(path.join(ROOT, "app/api/cron/photo-warm/route.js"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
 const guard = src.indexOf("if (!googlePhotoPrefetchAllowed())");
@@ -44,4 +44,4 @@ const block = guard > 0 ? src.slice(guard, call) : "";
 ok(/return Response\.json\(/.test(block) && /recordPulse\("photo-warm"/.test(block), "the paused branch records a pulse and returns before any photo request");
 
 if (bad.length) { console.error("test-google-photo-prefetch-pause: FAIL\n - " + bad.join("\n - ")); process.exit(1); }
-console.log(`test-google-photo-prefetch-pause: OK — ${n} assertions (switch default-off by call; credited warm paused by call; photo-warm guard before runPhotoWarm by source; 2 files, 1 env name)`);
+console.log(`test-google-photo-prefetch-pause: OK — ${n} assertions (switch default-off by call; credited warm guard first by source (called in test-credited-photo-warm); photo-warm guard before runPhotoWarm by source; 2 files, 1 env name)`);
