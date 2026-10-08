@@ -57,7 +57,7 @@ if (!layout.includes("wf-skeleton")) fail("layout.js lost the image-loading skel
 // CSP flips from Report-Only to enforcing.
 const cfg = readFileSync(join(root, "next.config.js"), "utf8");
 const imgSrc = (cfg.match(/"img-src[^"]*"/) || [""])[0];
-for (const host of ["s1.ticketm.net", "https://img.evbuc.com", "https://www.scf.edu", "https://parrishumc.com", "https://www.cmaquarium.org", "https://static.wixstatic.com", "https://www.centralfloridazoo.org"]) {
+for (const host of ["s1.ticketm.net", "https://img.evbuc.com", "https://www.scf.edu", "https://parrishumc.com", "https://www.cmaquarium.org", "https://static.wixstatic.com", "https://www.centralfloridazoo.org", "https://cdn.monkplatform.com", "https://www.northportfl.gov", "https://secure.meetupstatic.com", "https://mds-assets.marriott.com", "https://www.playlargo.com"]) {
   if (!imgSrc.includes(host)) fail(`CSP img-src is missing the live event-image host ${host} — cards will break when CSP enforces`);
 }
 
