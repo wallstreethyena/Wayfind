@@ -754,8 +754,12 @@ ${WF_SKELETON_CSS}
 .wf-rail-when-label{width:100%;overflow:hidden;color:#D4DCE7;font-size:7px;font-weight:850;letter-spacing:.35px;text-overflow:ellipsis;text-transform:uppercase;white-space:nowrap}
 .wf-rail-when-value{width:100%;overflow:hidden;color:#F8FAFC;font-size:12.25px;font-weight:850;letter-spacing:-.1px;line-height:1;text-overflow:ellipsis;white-space:nowrap}
 
-.wf-place-card.wf-spooky-card:not(.is-liked):not(.is-disliked){border:1.5px solid rgba(150,86,255,.5)!important}
-.wf-place-card.wf-spooky-card{background:radial-gradient(130% 80% at 100% 0%,rgba(138,60,255,.2),transparent 60%),#0B0B12!important;box-shadow:0 10px 26px rgba(8,3,20,.62),0 0 0 1px rgba(138,60,255,.1),0 0 20px rgba(138,60,255,.2)!important}
+.wf-place-card.wf-spooky-card:not(.is-liked):not(.is-disliked){border:1.5px solid rgba(240,136,58,.6)!important}
+.wf-place-card.wf-spooky-card{background:radial-gradient(90% 60% at 60% 100%,rgba(120,40,190,.28),transparent 70%),radial-gradient(130% 80% at 100% 0%,rgba(138,60,255,.14),transparent 60%),#0B0B12!important;box-shadow:0 10px 26px rgba(8,3,20,.62),0 0 0 1px rgba(240,136,58,.14),0 0 18px rgba(240,120,40,.28)!important}
+.wf-place-card.wf-spooky-card:after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;border-style:solid;border-color:transparent;border-width:101px 88px 96px 107px;border-image:url(/fall/halloween-card-frame.webp?v=1) 159 138 151 168 fill stretch}
+.wf-place-card.wf-spooky-card .wf-place-card-content{position:relative;z-index:3}
+.wf-place-card.wf-spooky-card .wf-place-card-rank,.wf-place-card.wf-spooky-card .wf-place-card-photo-attr{z-index:4}
+.wf-place-card.wf-spooky-card .wf-place-card-media{box-shadow:inset -1.5px 0 rgba(240,136,58,.7),1px 0 10px rgba(240,120,40,.35)}
 .wf-place-card.wf-spooky-card .wf-place-card-media{background:#150A2B}
 .wf-place-card.wf-spooky-card .wf-place-card-category{display:block;max-width:calc(100% - 4px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#F7760F!important;font-weight:900!important;font-size:7px;letter-spacing:.02em;text-shadow:none}
 .wf-place-card.wf-spooky-card .wf-place-card-category:before{content:"\\1F383\\00A0";display:inline}
@@ -763,8 +767,9 @@ ${WF_SKELETON_CSS}
 .wf-place-card.wf-spooky-card .wf-place-card-meta{color:#A39EBD!important}
 .wf-place-card.wf-spooky-card .wf-place-card-meta>span+span:before{color:#6F5BA6!important}
 .wf-place-card.wf-spooky-card .wf-place-card-take{color:#E0DCF2!important;border-left-color:#8A3CFF!important}
-.wf-place-card.wf-spooky-card .wf-place-card-highlights>button,.wf-place-card.wf-spooky-card .wf-place-card-highlights>span,.wf-place-card.wf-spooky-card .wf-place-card-highlights>a{background:rgba(22,18,40,.92)!important;border:1px solid rgba(165,128,235,.34)!important;color:#EAE5FA!important;box-shadow:none!important}
-.wf-place-card.wf-spooky-card button:not(.is-active){background:rgba(16,13,30,.92)!important;border:1px solid rgba(165,128,235,.34)!important;color:#EFEBFC!important}
+.wf-place-card.wf-spooky-card .wf-place-card-highlights>button,.wf-place-card.wf-spooky-card .wf-place-card-highlights>span,.wf-place-card.wf-spooky-card .wf-place-card-highlights>a{background:linear-gradient(180deg,rgba(44,14,40,.94),rgba(24,8,24,.94))!important;border:1px solid rgba(240,136,58,.78)!important;color:#F4ECFA!important;box-shadow:0 0 6px rgba(240,120,40,.3)!important}
+.wf-place-card.wf-spooky-card button:not(.is-active){background:linear-gradient(180deg,rgba(40,12,38,.95),rgba(20,7,22,.95))!important;border:1.5px solid rgba(240,136,58,.82)!important;color:#F6EEFB!important;box-shadow:0 0 7px rgba(240,120,40,.32)}
+.wf-place-card.wf-spooky-card .wf-place-card-save:not(.is-active){background:linear-gradient(180deg,#5E0C3A,#33061F)!important}
 .wf-place-card.wf-spooky-card .wf-place-card-actions>.wf-place-card-book,.wf-place-card.wf-spooky-card .wf-rail-card-cta{position:relative;border:1.5px solid #B05CFF!important;border-radius:999px!important;background:linear-gradient(180deg,rgba(139,61,240,.32),rgba(74,22,144,.55))!important;color:#F3E8FF!important;box-shadow:inset 0 0 18px rgba(176,92,255,.35),0 0 10px rgba(176,92,255,.35)}
 .wf-place-card.wf-spooky-card .wf-place-card-actions>.wf-place-card-book,.wf-place-card.wf-spooky-card .wf-rail-card-cta{gap:6px}
 .wf-place-card.wf-spooky-card .wf-spooky-ghost{font-size:13px;line-height:1;flex:none}
@@ -773,10 +778,10 @@ ${WF_SKELETON_CSS}
 .wf-place-card.wf-spooky-card .wf-place-card-actions>.wf-place-card-book:after,.wf-place-card.wf-spooky-card .wf-rail-card-cta:after{content:"";position:absolute;right:0;top:0;width:28px;height:28px;opacity:.55;pointer-events:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34' fill='none' stroke='%23E3C6FF' stroke-width='.8'%3E%3Cpath d='M34 0L4 30M34 0L14 34M34 0L0 18M34 0L26 34M34 0L0 6'/%3E%3Cpath d='M27 3Q30 7 31 10M20 6Q26 11 28 17M13 9Q21 16 24 26'/%3E%3C/svg%3E") no-repeat 0 0/100% 100%}
 .wf-place-card.wf-spooky-card .wf-place-card-actions>.wf-place-card-book:hover,.wf-place-card.wf-spooky-card .wf-rail-card-cta:hover,.wf-place-card.wf-spooky-card .wf-place-card-actions>.wf-place-card-book:focus-visible,.wf-place-card.wf-spooky-card .wf-rail-card-cta:focus-visible{border-color:#D9B3FF!important;background:linear-gradient(180deg,rgba(139,61,240,.42),rgba(74,22,144,.65))!important}
 .wf-place-card.wf-spooky-card .wf-place-card-actions>.wf-place-card-book:focus-visible,.wf-place-card.wf-spooky-card .wf-rail-card-cta:focus-visible{outline:2px solid #F3E8FF;outline-offset:2px}
-.wf-place-card.wf-spooky-card button.wayfind-score-badge,.wf-place-card.wf-spooky-card .wf-rail-when{--wf-score-color:#8A3CFF;--wf-score-border:#B44CFF;--wf-score-glow:rgba(180,76,255,.55);--wf-score-tint:rgba(138,60,255,.2);--wf-when-color:#8A3CFF;--wf-when-border:#B44CFF;--wf-when-glow:rgba(180,76,255,.55);--wf-when-tint:rgba(138,60,255,.2);position:relative;border:1.5px solid #B44CFF!important;background:linear-gradient(135deg,rgba(60,20,110,.5),transparent 70%),#0A0612!important;box-shadow:0 0 0 1px rgba(180,76,255,.18),0 0 11px rgba(180,76,255,.45)}
-.wf-place-card.wf-spooky-card .wayfind-score-badge>span:first-child,.wf-place-card.wf-spooky-card .wf-rail-when-rail{background:linear-gradient(180deg,#2E1160,#1A0838)!important;color:#D9A8FF!important;box-shadow:inset -1px 0 rgba(180,76,255,.55)}
-.wf-place-card.wf-spooky-card .wayfind-score-badge>span:first-child svg{stroke:#D49BFF!important;filter:drop-shadow(0 0 3px #B44CFF) drop-shadow(0 0 6px rgba(138,60,255,.9))}
-.wf-place-card.wf-spooky-card .wayfind-score-badge>span:first-child svg circle{fill:#D49BFF!important}
+.wf-place-card.wf-spooky-card button.wayfind-score-badge,.wf-place-card.wf-spooky-card .wf-rail-when{--wf-score-color:#8A3CFF;--wf-score-border:#B44CFF;--wf-score-glow:rgba(180,76,255,.55);--wf-score-tint:rgba(138,60,255,.2);--wf-when-color:#8A3CFF;--wf-when-border:#B44CFF;--wf-when-glow:rgba(180,76,255,.55);--wf-when-tint:rgba(138,60,255,.2);position:relative;border:1.5px solid #F0883A!important;background:linear-gradient(135deg,rgba(60,20,110,.5),transparent 70%),#0A0612!important;box-shadow:0 0 0 1px rgba(240,136,58,.2),0 0 11px rgba(240,120,40,.45)}
+.wf-place-card.wf-spooky-card .wayfind-score-badge>span:first-child,.wf-place-card.wf-spooky-card .wf-rail-when-rail{background:linear-gradient(180deg,#9B2BF0,#6A12C8)!important;color:#F3E8FF!important;box-shadow:inset -1px 0 rgba(240,136,58,.7)}
+.wf-place-card.wf-spooky-card .wayfind-score-badge>span:first-child svg{stroke:#FFFFFF!important;filter:drop-shadow(0 0 3px #B44CFF)}
+.wf-place-card.wf-spooky-card .wayfind-score-badge>span:first-child svg circle{fill:#FFFFFF!important}
 .wf-place-card.wf-spooky-card .wf-rail-when-rail svg{filter:drop-shadow(0 0 3px #B44CFF)}
 .wf-place-card.wf-spooky-card .wayfind-score-badge>span:last-child>span:first-child,.wf-place-card.wf-spooky-card .wf-rail-when-label{color:#B98BFF!important}
 .wf-place-card.wf-spooky-card .wayfind-score-badge>span:last-child>span:last-child,.wf-place-card.wf-spooky-card .wf-rail-when-value{color:#FFF!important}
