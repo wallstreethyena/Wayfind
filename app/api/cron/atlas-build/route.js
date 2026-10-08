@@ -1,4 +1,5 @@
-import { gateFree, gateShut, spendAllow } from "../../../../lib/spendGate";
+import { gateFree, gateShut, spendAllow, takeFromLedger } from "../../../../lib/spendGate";
+import { atlasPaidLane, readPriorityIds } from "../../../../lib/atlasPaidLane";
 // app/api/cron/atlas-build/route.js — bulk-builds the Wayfind "Atlas" editorial
 // (atlas-590-v1) for places that don't have one yet. Sources facts from the
 // Google Places Details API, writes each entry with Claude, and upserts to
@@ -246,7 +247,7 @@ async function officialPage(url, timeoutMs = 5000) {
   }
 }
 
-async function writeEditorial(place, d, key, sources, stats, systemBlocks, timeoutMs = 20000) {
+async function writeEditorial(place, d, key, sources, stats, systemBlocks, lane, timeoutMs = 20000) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), timeoutMs);
   const ctx = {
@@ -273,7 +274,7 @@ async function writeEditorial(place, d, key, sources, stats, systemBlocks, timeo
         model: MODEL(), max_tokens: 700, temperature: 0.4, system: systemBlocks,
         messages: [{ role: "user", content: "Write the atlas-590-v1 editorial for this place. Source every claim from the website or Google Maps URL provided; invent nothing.\n\n" + JSON.stringify(ctx) }],
       }),
-    });
+    }, lane);
     // TEMPORARY DIAGNOSTIC — remove once the 100%-failure cause is identified.
     // See the ATLAS-DIAG note in the file header. Status + provider message only;
     // the key is never read here and must never be logged.
@@ -390,10 +391,18 @@ export async function GET(req) {
   // The note must NOT begin with "billing:" or "quota:" — classifyHealth
   // anchors its escalation match to the START of the note, and this is a
   // deliberate configuration, not a provider failure.
+  // ATLAS PAID LANE: the one narrow exception. Only plain build mode, only while the
+  // gate is "free" (shut still blocks everything), only with BOTH owner flags valid.
+  // The global gate and spendGate semantics are untouched for every other caller.
+  const lane = !retryMode && !refreshMode && gateFree() ? atlasPaidLane() : null;
+  const dry = url.searchParams.get("dry") === "1";
   if (gateShut() || gateFree()) {
-    const mode = gateShut() ? "shut" : "free";
-    await pulse({ attempted: 0, succeeded: 0, failed: 0, note: `intentional skip: gate=${mode}; paid Atlas re-buy disabled` });
-    return Response.json({ ok: true, skipped: `gate ${mode}: atlas re-buy is disabled`, gate: mode, ranWork: false });
+    // The paid lane bypasses ONLY the free-mode skip; shut always skips.
+    if (gateShut() || !lane) {
+      const mode = gateShut() ? "shut" : "free";
+      await pulse({ attempted: 0, succeeded: 0, failed: 0, note: `intentional skip: gate=${mode}; paid Atlas re-buy disabled` });
+      return Response.json({ ok: true, skipped: `gate ${mode}: atlas re-buy is disabled`, gate: mode, ranWork: false });
+    }
   }
   const s = sbEnv();
   const gkey = GKEY();
@@ -435,7 +444,8 @@ export async function GET(req) {
     }
   }
 
-  const limit = Math.max(1, Math.min(parseInt(url.searchParams.get("limit") || "10", 10) || 10, 25));
+  const limit0 = Math.max(1, Math.min(parseInt(url.searchParams.get("limit") || "10", 10) || 10, 25));
+  const limit = dry ? Math.min(limit0, 10) : limit0; // dry review runs are capped at 10
   const reqCat = (url.searchParams.get("category") || "").trim();
   // RETRY MODE. Same generation machinery, different selector and different
   // write. wf_atlas_missing returns places with NO row; wf_atlas_retryable
@@ -469,7 +479,44 @@ export async function GET(req) {
   }
 
   let category = reqCat, places = [];
-  if (retryMode && !category) {
+  const placeById = new Map();
+  if (lane && !reqCat) {
+    // Owner priority list FIRST (places people actually open), then the normal
+    // selection order. Same "needs a row" predicate as wf_atlas_missing: OPERATIONAL,
+    // target metros, no wf_editorial row. Fail-soft: any error -> normal selection.
+    try {
+      const ids = readPriorityIds();
+      if (ids.length) {
+        const have = new Set();
+        const cands = new Map();
+        for (let i = 0; i < ids.length; i += 100) {
+          const chunk = ids.slice(i, i + 100).join(",");
+          const [er, ir] = await Promise.all([
+            fetch(`${s.url}/rest/v1/wf_editorial?place_id=in.(${chunk})&select=place_id`, { headers: svcH, cache: "no-store" }),
+            fetch(`${s.url}/rest/v1/wf_inventory?place_id=in.(${chunk})&status=eq.OPERATIONAL&metro=in.(${METROS.join(",")})&select=place_id,name,metro,category,primary_type,lat,lng`, { headers: svcH, cache: "no-store" }),
+          ]);
+          if (!er.ok || !ir.ok) { selectorError = `priority ${er.status}/${ir.status}`; throw new Error("priority lookup"); }
+          for (const r of await er.json()) have.add(r.place_id);
+          for (const r of await ir.json()) cands.set(r.place_id, r);
+        }
+        for (const id of ids) {
+          if (places.length >= limit) break;
+          if (!have.has(id) && cands.has(id)) places.push(cands.get(id));
+        }
+        if (places.length) { selectorError = null; category = "(priority)"; }
+      }
+    } catch (e) { places = []; }
+  }
+  if (lane && places.length && places.length < limit) {
+    const taken = new Set(places.map((p) => p.place_id));
+    for (const c of CATS) {
+      const rows = await missing(c);
+      if (Array.isArray(rows) && rows.length) { for (const r of rows) if (!taken.has(r.place_id) && places.length < limit) { taken.add(r.place_id); places.push(r); } break; }
+    }
+  }
+  if (places.length && lane) {
+    // priority path already filled places/category; skip the normal selection below
+  } else if (retryMode && !category) {
     // The backlog is worked by VALUE, not category by category: these rows
     // failed for a reason that had nothing to do with what they are.
     category = "(retry)";
@@ -543,7 +590,10 @@ export async function GET(req) {
       if (!refreshMode) rows.push(editorialRow(place, null, nowIso, ["RIDE-LEVEL — merge into parent park"]));
       return;
     }
-    if (!(await spendAllow("details_enterprise"))) { deferred++; return; }
+    // Lane: own sku, own cap, granted atomically per place BEFORE the Details call.
+    // Otherwise today's shared grant, unchanged.
+    const detailsOk = lane ? await takeFromLedger(lane.detailsSku, lane.cap) : await spendAllow("details_enterprise");
+    if (!detailsOk) { deferred++; return; }
     const d = await placeDetails(place.place_id, gkey);
     if (!d) { pending++; if (!refreshMode) rows.push(editorialRow(place, null, nowIso, ["PENDING SOURCE"])); return; }
 
@@ -552,7 +602,7 @@ export async function GET(req) {
     const sources = page ? [page] : [];
     if (page) withPage++;
 
-    const parsed = await writeEditorial(place, d, akey, sources, stats, sysInfo.blocks);
+    const parsed = await writeEditorial(place, d, akey, sources, stats, sysInfo.blocks, lane ? { sku: lane.anthropicSku, cap: lane.cap } : undefined);
     if (!parsed || parsed.pending === true || !parsed.hook) {
       // A venue whose only official source is a Disney host can NEVER be sourced
       // — §7 forbids the fetch, permanently. Labelling that PENDING SOURCE put it
@@ -594,6 +644,14 @@ export async function GET(req) {
 
   // Upsert — ON CONFLICT (place_id) DO NOTHING keeps the 373 existing rows safe.
   let written = 0, upErr = null, persistedPublished = 0;
+  if (dry) {
+    // DRY RUN: the pipeline above already spent (capped); NOTHING is written to wf_editorial.
+    const names = new Map(places.map((p) => [p.place_id, p.name]));
+    return Response.json({
+      ok: true, dry: true, mode: "build", lane: !!lane, processed: rows.length, deferred, provider_halt: stats.providerHalt || null,
+      rows: rows.map((r) => ({ place_id: r.place_id, name: names.get(r.place_id) || null, hook: r.hook, why_here: r.why_here, verified: r.verified, issues: r.issues })),
+    }, { headers: { "Cache-Control": "no-store" } });
+  }
   if (rows.length) {
     if (retryMode) {
       // These rows ALREADY EXIST, so the insert path (resolution=ignore-duplicates)
@@ -661,7 +719,7 @@ export async function GET(req) {
     } catch (e) {}
   }
 
-  const left = await missing(category);
+  const left = category === "(priority)" ? null : await missing(category);
 
   // THE PULSE. `succeeded` is PUBLISHED rows, not written ones — that distinction
   // is the entire lesson of the five-day outage: 525 rows were written and zero
