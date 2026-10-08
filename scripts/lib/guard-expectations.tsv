@@ -112,6 +112,7 @@ scripts/check-editorial-publish-symmetry.mjs	0	CALL	blocks-ci-and-deploy	1	-	40	
 scripts/check-editorial-publish.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	38	1	0	483199dca425b408e02adb8693b08daac1e807c81d47db4fd7fe2cb3529be588
 scripts/check-editorial-read-gate.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	59cde10366d11727f8d694b706d85b380b18f8182b05fb3a190813ff2480bba6
 scripts/check-editorial-retry-state.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	9	1	0	6bb05568998a99289c7b023ca3c9c20eed8e7e3501a2ea63509b24e1d1225210
+scripts/check-editorial-stays.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	f1152c9d87d76a4c79838c8e6bd50a9cead875d22c3411af1e4a0a488bc4c504
 scripts/check-editorial-template.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	14	2	2	653b182abf744e6a63c81f92bdd1bea2ae3a31490b457262a91dd95de6fdc226
 scripts/check-env-discipline.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Qwen (Engineering)	2	1	0	f96adedd19bd0244f7bdf1262aa6e70cacf9cba0f14f4ff4538d3acdd3fc0324
 scripts/check-env-guard-can-fail.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	23	0	0	5f2bf2b0859ccacf48a2bf31683910a8becaa679b578a95cb67bddf560e3b6b4

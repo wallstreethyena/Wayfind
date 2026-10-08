@@ -28,6 +28,7 @@ export const dynamic = "force-dynamic";
 import { createClient } from "@supabase/supabase-js";
 import { jobCannotRun } from "../../../../lib/jobFail";
 import { recordPulse } from "../../../../lib/jobPulse";
+import { planReconcile, DEMOTE_MARKER } from "../../../../lib/editorialReconcile";
 
 export async function GET(req) {
   const secret = process.env.CRON_SECRET;
@@ -55,8 +56,28 @@ export async function GET(req) {
     return Response.json({ ok: false, error: "servable read failed" }, { status: 500 });
   }
 
-  const live = new Set((servable || []).map((r) => r.place_id));
-  const stale = (published || []).map((r) => r.place_id).filter((id) => !live.has(id));
+  // RESTORE CANDIDATES (owner, 2026-10-07: "once it is written, it stays there").
+  // Rows this job demoted earlier whose place is OPERATIONAL again get the SAME
+  // verified text back. Read-failure here is fail-soft: demotion still runs.
+  let demotedRows = [], operational = [];
+  try {
+    const { data: dRows } = await db.from("wf_editorial")
+      .select("place_id,verified,issues").eq("verified", false).contains("issues", [DEMOTE_MARKER]);
+    demotedRows = dRows || [];
+    const ids = demotedRows.map((r) => r.place_id);
+    for (let i = 0; i < ids.length; i += 200) {
+      const { data: inv } = await db.from("wf_inventory")
+        .select("place_id").eq("status", "OPERATIONAL").in("place_id", ids.slice(i, i + 200));
+      for (const r of inv || []) operational.push(r.place_id);
+    }
+  } catch (e) { demotedRows = []; operational = []; }
+
+  const { stale, restore } = planReconcile({
+    published: (published || []).map((r) => r.place_id),
+    servable: (servable || []).map((r) => r.place_id),
+    demoted: demotedRows,
+    operational,
+  });
 
   let demoted = 0;
   if (stale.length) {
@@ -70,20 +91,33 @@ export async function GET(req) {
     }
   }
 
+  // Restore: only rows whose ONLY issue is our own marker (planReconcile
+  // enforces it); the eq/contains filters below repeat the guard in the write.
+  let restored = 0;
+  for (let i = 0; i < restore.length; i += 200) {
+    const { data: up, error } = await db.from("wf_editorial")
+      .update({ verified: true, issues: null })
+      .in("place_id", restore.slice(i, i + 200))
+      .eq("verified", false).contains("issues", [DEMOTE_MARKER]).containedBy("issues", [DEMOTE_MARKER])
+      .select("place_id");
+    if (!error) restored += (up || []).length;
+  }
+
   // ALWAYS pulse, including on a clean run. A job that only reports when it
   // finds something is indistinguishable from a job that stopped running — the
   // exact failure that left three canary guards silent for weeks.
   await recordPulse("editorial-reconcile", {
     attempted: (published || []).length,
     succeeded: (published || []).length - stale.length + demoted,
-    note: stale.length
+    note: ((stale.length
       ? `demoted ${demoted}/${stale.length} published row(s) whose place is no longer OPERATIONAL`
-      : `clean: ${(published || []).length} published, all still servable`,
+      : `clean: ${(published || []).length} published, all still servable`)
+      + (restore.length ? `; restored ${restored}/${restore.length} reopened` : "")).slice(0, 200),
   });
 
   return Response.json({
-    ok: true, published: (published || []).length, servable: live.size,
-    stale: stale.length, demoted,
+    ok: true, published: (published || []).length, servable: (servable || []).length,
+    stale: stale.length, demoted, restored, restore: restore.length,
     // Bounded sample so an operator can eyeball WHICH places drifted without
     // this response becoming a data dump.
     sample: stale.slice(0, 10),
