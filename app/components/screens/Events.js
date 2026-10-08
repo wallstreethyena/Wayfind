@@ -2,7 +2,7 @@
 // Extracted from app/home.js (G1, July 2026 decomposition). EventArt and
 // EventCard move too (this screen is their only consumer); the event helpers
 // they use stay in home.js — other surfaces share them — and arrive via ctx.
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { C, TARGET } from "../kit";
 import * as Culture from "../../../lib/culture";
 import { eventPlaceholder } from "../../../lib/eventPlaceholder.js";
@@ -146,6 +146,36 @@ export function sortEventsForList(list, { today, distMi = () => Infinity, nearMi
   }).map((x) => x[1]);
 }
 
+// RENDER THE LIST IN PAGES (2026-10-08). With the whole fall season in the
+// feed, the Fall and Halloween rail held ~180 cards, every one mounted at once
+// (each with its own live clock): measured on a 4x throttled 390px phone, the
+// first event card took 10.5 to 11.8 s and the main thread spent ~6.5 s in long
+// tasks. The rail now mounts EVENTS_PAGE cards and adds the next page when its
+// "More" tile scrolls into view (or is tapped). Nothing is filtered out: the
+// counts, the day strip and the order all come from the full list, and every
+// event is one swipe further along.
+export const EVENTS_PAGE = 24;
+export function pageOfEvents(list, visible) {
+  const all = Array.isArray(list) ? list : [];
+  const n = Math.max(EVENTS_PAGE, Math.min(all.length, Number(visible) || EVENTS_PAGE));
+  return { items: all.slice(0, n), remaining: Math.max(0, all.length - n), total: all.length };
+}
+function RailMore({ remaining, onMore }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === "undefined") return undefined;
+    const io = new IntersectionObserver((entries) => { if (entries.some((x) => x.isIntersecting)) onMore(); }, { rootMargin: "0px 400px 0px 0px" });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [onMore]);
+  return (
+    <button ref={ref} type="button" onClick={onMore} className="wf-events-more" aria-label={`Show ${Math.min(remaining, EVENTS_PAGE)} more events`} style={{ flex: "0 0 auto", alignSelf: "stretch", minWidth: 120, borderRadius: 18, border: `1px dashed ${C.border}`, background: "transparent", color: C.light, fontSize: 13, fontWeight: 800, cursor: "pointer", padding: "0 16px" }}>
+      {`+${remaining} more`}
+    </button>
+  );
+}
+
 export default function EventsScreen({ ctx }) {
   const { events, eventCat, setEventCat, eventDate, setEventDate, locName, center, submitSearch, eventsLoading, eventsUnavailable, eventsError, loadEvents, openVenue, dedupeEvents, AreaInsight, Loader, eventsTours, eventBucket, ViatorRail, eventSegmentMeta } = ctx;
   const all = events || [];
@@ -163,6 +193,7 @@ export default function EventsScreen({ ctx }) {
   // should put in your calendar", and every card opens OUR event page — the one
   // carrying the why-go, the parking and the insider tip a calendar cannot have.
   const [filterOpen, setFilterOpen] = useState(false);
+  const [paged, setPaged] = useState({ key: "", n: EVENTS_PAGE });
   // v6.20 — geo distance so ties break by proximity.
   const distMi = (e) => { if (!center || e == null || e.lat == null || e.lng == null) return Infinity; const R = 3958.8, t = (d) => (d * Math.PI) / 180; const s = Math.sin(t(e.lat - center.lat) / 2) ** 2 + Math.cos(t(center.lat)) * Math.cos(t(e.lat)) * Math.sin(t(e.lng - center.lng) / 2) ** 2; return R * 2 * Math.asin(Math.sqrt(s)); };
   const todayStr = siteTodayStr();
@@ -189,6 +220,10 @@ export default function EventsScreen({ ctx }) {
   shown = dedupeEvents(shown, eventDate === "all");
   // Soonest day first; nearby before the wider reach within a day.
   shown = sortEventsForList(shown, { today: todayStr, distMi });
+  // A new filter or day starts again at the first page.
+  const listKey = activeFilter.key + "|" + eventDate;
+  const page = pageOfEvents(shown, paged.key === listKey ? paged.n : EVENTS_PAGE);
+  const showMore = () => setPaged((prev) => ({ key: listKey, n: (prev.key === listKey ? prev.n : EVENTS_PAGE) + EVENTS_PAGE }));
   // Curated rows reach further than the feed radius (CURATED_REACH_MI); say so.
   const widerReach = shown.some((e) => e.curated && distMi(e) > EVENTS_NEAR_MI);
   // Defensive at the render boundary: the source normally arrives ranked,
@@ -320,11 +355,12 @@ export default function EventsScreen({ ctx }) {
             </div>
             <span style={{ fontSize: 11, fontWeight: 750, color: C.muted }}>{shown.length}</span>
           </div>
-          <RailNav railId={`events-${activeFilter.key}`} count={shown.length} total={shown.length} unit="events" />
+          <RailNav railId={`events-${activeFilter.key}`} count={shown.length} total={shown.length} loaded={page.items.length} unit="events" />
           <div className="wf-rail" data-rail={`events-${activeFilter.key}`} role="region" tabIndex={0} aria-label={`${activeFilter.label} events`}>
-            {shown.map((e) => <EventCard key={e.id} e={e} onVenue={() => openVenue(e)} ctx={ctx} />)}
+            {page.items.map((e) => <EventCard key={e.id} e={e} onVenue={() => openVenue(e)} ctx={ctx} />)}
+            {page.remaining > 0 ? <RailMore remaining={page.remaining} onMore={showMore} /> : null}
           </div>
-          <RailDots railId={`events-${activeFilter.key}`} count={shown.length} />
+          <RailDots railId={`events-${activeFilter.key}`} count={page.items.length} />
         </section>
       )}
       {!isTours && !eventsLoading && !eventsError && shown.length === 0 && (
