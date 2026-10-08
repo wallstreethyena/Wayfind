@@ -129,7 +129,7 @@ scripts/check-event-providers-not-google-gated.mjs	0	CALL	blocks-ci-and-deploy	1
 scripts/check-event-ticket-deals.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	65	0	0	8516606a3574dceff9e931b3f23fec34f1999d84408344a8a953291314018ea9
 scripts/check-event-where.mjs	0	CALL	blocks-ci-and-deploy	1	-	65	0	0	bd62f7314e95f534f8864d4845f6b7dbf0bfe1acb1d81f85470abe7044a08cd4
 scripts/check-events-rail-renders.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	11	1	0	f65a588601579de8281a5e396f6a3e675ade8f840f69b32baa8ca116dfdbd097
-scripts/check-events.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	0f500965aed1ebe43af6b45b5a3ec45c2f020d1d85a8ab358ed34f857fac286c
+scripts/check-events.mjs	0	RENDER	blocks-ci-and-deploy	1	-	45	0	0	66c3a833c5f8bebd1b28570fe30ebd6a28bdaf19fdb9efd9028e3cceaa2199bb
 scripts/check-evergreen-landing-zero-spend.mjs	1	RENDER	blocks-ci-and-deploy	1	claude.exe (Wayfind lane)	54	0	0	8cabc45b801d34a5956e388fc655f7a9f8f7f1f46256e35a74ca898bd3ac359d
 scripts/check-experiences-link-health.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	67	0	0	854dde6fb5fee9017e7d208f9beb1970884a544cde7da4fd9bf044f4ab4799af
 scripts/check-exploding-nearby-floor.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	1	1	3f2a8f206a514832c5b1fd1ce498e29d21a27b75cf1b5848d03b2502c26de7b2
@@ -594,7 +594,7 @@ scripts/test-fall-discovery-report.mjs	0	CALL	blocks-ci-and-deploy	1	-	4	0	0	85d
 scripts/test-fall-farm-food-gap-2026-10-07.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0	5f704f024266072c06901f004e91be43c48c84744a498394204e753da67055f7
 scripts/test-fall-gap-fill-2026-10-06.mjs	0	CALL	blocks-ci-and-deploy	1	-	63	0	0	036f15f671338df81c764094dca821e0a0c88d8bd823d246235718aa2df5b33d
 scripts/test-fall-intent-rails.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	cdfa40b616335324937e0932f8e41abc2366a0be023794557d707cdd957ea058
-scripts/test-fall-visit-facts.mjs	0	RENDER	blocks-ci-and-deploy	1	-	58	0	0	d2f558511e67c1c2266c793b53e10e5d65cc0c675bbf4555adb505195c68ad11
+scripts/test-fall-visit-facts.mjs	0	RENDER	blocks-ci-and-deploy	1	-	61	0	0	606361910a35358d533bc6dd8d8c8841e0ad92b02a8bbeda6a6d658384239051
 scripts/test-family-day-data.mjs	0	CALL	blocks-ci-and-deploy	1	-	43	0	0	d826b0f6a28abf9d7584d8af579e20cad9c3679004c3656c6ad60479506da13c
 scripts/test-family-day-events.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	04a6b4fb5f08c40bf26ae1f4e401511fac8f4c704f06cfdce86b11a8debfdacf
 scripts/test-family-day-presentation.mjs	0	RENDER	blocks-ci-and-deploy	1	-	14	0	0	9a3ed23896fad214f174a2a079acd33d8d01e6ea59c4125889607b755d78daa0

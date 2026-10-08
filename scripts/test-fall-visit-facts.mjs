@@ -64,6 +64,9 @@ ok(cost({ visit_cost:{ currency:'USD', entry:34.90, from:true, parking:19 } }) =
 ok(cost({ visit_cost:{ currency:'CAD', entry:12.50 } }).includes('CA$12.50'), 'currency is explicit and not silently relabelled USD');
 ok(cost({ visit_cost:{ currency:'BAD!', entry:15 } }) === 'Check admission', 'invalid currency does not make up a price');
 ok(cost({}) === 'Check admission' && cost({ price_min:-5 }) === 'Check admission', 'unknown/negative price stays unknown');
+ok(cost({ official_ticket_url:'https://example.com/t', category:'music' }) === 'Check ticket price', 'ticketed event with unknown price says Check ticket price');
+ok(cost({ official_ticket_url:'https://example.com/t', category:'festival', venue:'Hunsader Farms' }) === 'Check admission', 'farm/park admission type keeps Check admission');
+ok(cost({ official_ticket_url:'https://example.com/t', price_min:12 }) === 'From $12 · check fees', 'known price is never replaced by the unknown label');
 ok(cost({ visit_cost:{ currency:'USD', entry:0, parking:0 } }) === '$0 · free parking', 'known numeric zero is not missing');
 ok(eventRestrictions({}).length === 0, 'missing restrictions do not become a guessed minimum age');
 ok(eventRestrictions({ visit_restrictions:['Not recommended under 13'] })[0] === 'Not recommended under 13', 'recommended age remains a recommendation');

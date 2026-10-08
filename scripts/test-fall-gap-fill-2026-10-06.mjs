@@ -172,7 +172,8 @@ check("the seed script defaults to --dry, needs --apply, uses ON CONFLICT (slug)
 
 check("the seed version and the fall rail key moved forward with this seed (v26)", () => {
   const lib = readFileSync(new URL("../lib/curatedFallFeed.js", import.meta.url), "utf8");
-  assert.match(lib, /export const FALL_DB_SEED_VERSION = "2026-10-06-statewide-gap-fill"/);
+  // Dated prefix + suffix are bumped on purpose to retire cached /api/events payloads (2026-10-08: feed rows gained `fall`).
+  assert.match(lib, /export const FALL_DB_SEED_VERSION = "2026-10-\d\d-statewide-gap-fill[a-z-]*"/);
   const route = readFileSync(new URL("../app/api/events/fall/route.js", import.meta.url), "utf8");
   // v26 or LATER: a later publication (v27, 2026-10-07 farm/food gap fill) must
   // move the key forward again, never back below this seed's epoch.
