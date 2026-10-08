@@ -336,6 +336,9 @@ export default function RailCard({
   // title and the guide treatment. Omitted (every place/event/tour card) adds
   // nothing, so the markup is byte-identical to before. Place cards never pass it.
   variant = null,
+  // Guide-card only: a node rendered under the teaser (the "Top pick" or the
+  // guide's one booking link). Ignored unless variant === "guide".
+  lead = null,
   // WO11 — usePagedRail's IntersectionObserver watches ONE card (the loaded−3
   // sentinel) to know when to fetch the next page. This is a plain prop, not
   // React.forwardRef: every call site is ours, nothing renders
@@ -581,6 +584,11 @@ export default function RailCard({
               VERIFIED line exists: no fallback, no template, no generated
               filler. An empty slot is honest; a generic line is not. */}
           {take ? <div className="wf-place-card-take">{take}</div> : null}
+
+          {/* Guide-card only (variant="guide", 2026-10-07): the "Top pick" /
+              booking line under the teaser. Omitted by every place card, so
+              their markup stays byte-identical (check-guide-card fixture). */}
+          {variant === "guide" && lead ? <div className="wf-guide-card-lead">{lead}</div> : null}
 
           {ctaNode || (ctaHref || (cta && !cta.external) ? (
             <a
