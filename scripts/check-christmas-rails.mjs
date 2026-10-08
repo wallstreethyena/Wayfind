@@ -174,25 +174,31 @@ const copy = composed.rails.flatMap((r) => [r.title, r.deck, ...r.cards.flatMap(
 ok(copy.every(noDash), "no dash in any rendered title, deck or take");
 const posterRow = railById("christmas");
 ok(!!posterRow, "the christmas poster rail record exists");
-ok(posterRow && posterRow.title === "Christmas in Florida" && posterRow.short === "Beaches, lights, manatees & boat parades" && posterRow.cta === "Find your Christmas", "poster copy matches the spec");
+ok(posterRow && posterRow.title === "Florida Christmas" && posterRow.short === "Beaches, lights, manatees & boat parades" && posterRow.cta === "Find your Christmas", "poster copy matches the spec");
 ok(posterRow && ["title", "short", "sub", "cta", "axis", "emptyWhy"].every((k) => noDash(posterRow[k])), "poster copy has no dashes");
 ok(posterRow && posterRow.art === "christmas" && !posterRow.href && !posterRow.posterHidden, "the poster wears christmas art, carries no href and is not hidden (a tap opens the drop)");
 ok(RAILS.filter((r) => r.id === "christmas").length === 1, "exactly one christmas rail record");
 
 // ── 6. Poster position ──────────────────────────────────────────────────────
 const ids = RAILS.map((r) => r.id);
+// Owner slot rule (2026-10-08): 2nd in the morning, lunch and at night, 3rd in
+// the afternoon (behind tonight); 1st all day from the morning after
+// Thanksgiving through Jan 6.
+const LIVE_SLOT = { morning: 1, lunch: 1, afternoon: 2, night: 1 };
 for (const band of DAYPART_IDS) {
   const live = orderFor(band, ids, "2026-10-08");
-  ok(live[0] === "augtober" && live[1] === "christmas", `${band}: while fall is live, christmas sits right after augtober (got ${live.slice(0, 3).join(", ")})`);
+  ok(live[0] === "augtober" && live.indexOf("christmas") === LIVE_SLOT[band], `${band}: while fall is live, christmas is poster ${LIVE_SLOT[band] + 1} (got ${live.slice(0, 4).join(", ")})`);
   const noDate = orderFor(band, ids);
-  ok(noDate[0] === "augtober" && noDate[1] === "christmas", `${band}: with no date the static order keeps christmas right after augtober`);
-  const after = orderFor(band, ids, "2026-11-27"); // Thanksgiving 2026 is Nov 26
-  ok(after[0] === "christmas" && after[1] === "augtober", `${band}: the morning after Thanksgiving christmas leads (got ${after.slice(0, 3).join(", ")})`);
+  ok(noDate.indexOf("christmas") === LIVE_SLOT[band], `${band}: with no date the static order keeps the same slot`);
+  for (const d of ["2026-11-27", "2026-12-25", "2027-01-06"]) {
+    const after = orderFor(band, ids, d); // Thanksgiving 2026 is Nov 26
+    ok(after[0] === "christmas", `${band} ${d}: christmas is the first poster (got ${after.slice(0, 3).join(", ")})`);
+    ok(new Set(after).size === ids.length && after.length === ids.length, `${band} ${d}: nothing is dropped or duplicated`);
+  }
   const thanksgiving = orderFor(band, ids, "2026-11-26");
   ok(thanksgiving[0] === "augtober", `${band}: Thanksgiving Day itself still leads with fall`);
-  ok(new Set(after).size === ids.length, `${band}: nothing is dropped or duplicated`);
 }
-ok(christmasLeads("2026-11-27") && !christmasLeads("2026-11-26") && !christmasLeads("2026-07-15") && christmasLeads("2026-12-31") && !christmasLeads("2027-01-01"), "christmasLeads follows the fall season law, not a remembered date");
+ok(christmasLeads("2026-11-27") && !christmasLeads("2026-11-26") && !christmasLeads("2026-07-15") && christmasLeads("2026-12-31") && christmasLeads("2027-01-06") && !christmasLeads("2027-01-07") && christmasLeads("2025-11-28") && !christmasLeads("2025-11-27"), "christmasLeads follows the fall season law (Thanksgiving computed per year) through Jan 6");
 
 // ── 7. Wiring (STATIC: a component and a route cannot be executed here) ─────
 const route = read("app/api/events/christmas/route.js");

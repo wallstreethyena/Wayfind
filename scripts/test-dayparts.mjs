@@ -72,8 +72,8 @@ ok(orderFor('night',ALL).indexOf('events')<orderFor('night',ALL).indexOf('eat'),
 // Christmas in Florida takes slot two directly behind Fall; the axis follows it.
 ok(orderFor('morning',ALL)[1]==='christmas' && orderFor('lunch',ALL)[1]==='christmas' && orderFor('morning',ALL)[2]==='breakfast' && orderFor('lunch',ALL)[2]==='break',
    'the daypart axis remains directly behind the seasonal Fall and Christmas lead');
-ok(orderFor('afternoon',ALL)[1]==='christmas' && orderFor('night',ALL)[1]==='christmas' && orderFor('afternoon',ALL)[2]==='tonight' && orderFor('night',ALL)[2]==='tonight',
-   'from 1pm Tonight remains directly behind the seasonal Fall and Christmas lead');
+ok(orderFor('afternoon',ALL)[1]==='tonight' && orderFor('afternoon',ALL)[2]==='christmas' && orderFor('night',ALL)[1]==='christmas' && orderFor('night',ALL)[2]==='tonight',
+   'from 1pm Tonight stays right behind Fall (Christmas 3rd in the afternoon, 2nd at night, owner 2026-10-08)');
 ok(orderFor('night',ALL).indexOf('break')>10,'night: Break parked at the back');
 ok(orderFor('morning',ALL).indexOf('events')>10,'morning: Events parked at the back');
 

@@ -295,13 +295,19 @@ ok(/floor:\s*\{\s*rating:\s*4(\.0)?\s*,/.test(intentPagesSrc),
     // about the new TRENDING NEAR YOU poster), with Date Night immediately
     // after it. The three read as one thought in order: what is on, what
     // people are actually doing, and who you are going with.
-    const HEAD = ["augtober", "christmas", "tonight", "trending", "datenight"];
+    // Owner, 2026-10-08: the Christmas poster is 3rd in the afternoon and 2nd
+    // at night, so the two bands differ only in where christmas sits.
+    const HEAD = {
+      afternoon: ["augtober", "tonight", "christmas", "trending", "datenight"],
+      night: ["augtober", "christmas", "tonight", "trending", "datenight"],
+    };
     for (const b of ["afternoon", "night"]) {
-      ok(DAYPARTS[b].order.slice(0, 5).join(",") === HEAD.join(","),
-        `${b} opens ${HEAD.join(" → ")} (got ${DAYPARTS[b].order.slice(0, 5).join(" → ")})`);
+      ok(DAYPARTS[b].order.slice(0, 5).join(",") === HEAD[b].join(","),
+        `${b} opens ${HEAD[b].join(" → ")} (got ${DAYPARTS[b].order.slice(0, 5).join(" → ")})`);
     }
-    ok(DAYPARTS.afternoon.order.slice(0, 5).join(",") === DAYPARTS.night.order.slice(0, 5).join(","),
-      "…and both tonight-led bands open identically — one shared list, so the trio cannot drift between them");
+    const noXmas = (b) => DAYPARTS[b].order.filter((id) => id !== "christmas").join(",");
+    ok(noXmas("afternoon") === noXmas("night"),
+      "…and apart from the Christmas slot both tonight-led bands are the same list, so the trio cannot drift between them");
   }
   ok(!/function LocalPlanHeroCard\(/.test(home), "LocalPlanHeroCard is back without the slide it rendered");
   ok(!/<HeroRail>/.test(home), "the hero rail is back alongside the daypart rail");
