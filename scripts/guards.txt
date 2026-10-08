@@ -766,6 +766,8 @@ node scripts/check-event-price-language.mjs
 # Events without their own photo show a designed category tile, never stock;
 # venue photos carry a Venue mark.
 node scripts/check-event-photo-honesty.mjs
+# The Events list mounts a page at a time; every event stays reachable.
+node scripts/check-events-paged-list.mjs
 
 # V8 rail menu (the homepage's daypart rail). Two failure modes it exists for:
 # (a) a rail card pointing at a segmented route without its segment — 200,
