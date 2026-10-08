@@ -623,7 +623,7 @@ scripts/test-guide-editorial-photos.mjs	0	RENDER	blocks-ci-and-deploy	1	-	60	0	0
 scripts/test-guide-event-ticket-cta.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	4c24b43bf5556b3c6f06a5d6e653db81ac13e68196b85783d89f0d8e32a5b5d9
 scripts/test-guide-inline-book.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	24	0	0	8111527adc831e1d5059cf5dd4fd735f314522bae672d8d6392142c3dacceea7
 scripts/test-guide-lovebug-rail.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	91	0	0	1b0c16587c6bbc8eac01f417c4a312ae71bd109f1a6f4733640b4ff6d7cb88d2
-scripts/test-guide-park-ticket-cta.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	7738dfd21f1eb0a4724698b50bc27613b99e4356daf3dd429dee7104f12e7fad
+scripts/test-guide-park-ticket-cta.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	738c00f9e3494cdfa66e392f0f67d95f62f2cc80d485a1da842bfb7c6f40bf5f
 scripts/test-guide-place-indexability.mjs	0	CALL	blocks-ci-and-deploy	1	-	50	0	0	21ae009673cf910f1df0a42dc22e59f4aacf4d76cbf5d3bd50e2cc6eeb03486f
 scripts/test-guide-search-as-book.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	33	0	0	75a7c656b0b56bc49804ebbe653154accdbcc56ee273511e975b1868baf9fdd9
 scripts/test-gulf-coast-brunch-date-night.mjs	0	CALL	blocks-ci-and-deploy	1	-	47	0	0	e9f66b81ad1c2c33cfe7845b7b0677896a1e4f97032c01c6a288f093607ef963
