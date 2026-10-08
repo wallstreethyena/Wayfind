@@ -23,6 +23,9 @@ import { railRenderState, RAIL_RENDER_STATE } from "../../lib/railVisibility.js"
 import useEventClock from "./useEventClock.js";
 import { eventVisitStatus, eventRestrictionChips } from "../../lib/eventVisitFacts.js";
 import { ownedPlacePhotoSrc } from "../../lib/placePhoto.js";
+import { partnerTicketLabel } from "../../lib/partnerCopy.js";
+
+const TICKET_SURFACE = "christmas_intent_rail";
 
 const COLORS = { text: "#FFF7ED", muted: "#A99FA8" };
 export const CHRISTMAS_LOAD_TIMEOUT_MS = 10000;
@@ -38,7 +41,28 @@ function eventChips(card, { onOpenVenue = null } = {}) {
   return chips.slice(0, 4);
 }
 
-function ChristmasRailSection({ rail, lat, lng, onOpenPlace, city, isSaved, liked, disliked, isLiked, isDisliked, onSave, onLike, onDislike, onShare }) {
+function eventCta(card, onTrack) {
+  if (!card.ticket?.href) return null;
+  return {
+    // /api/commerce/go, never the partner URL: the redirect mints the click id,
+    // refuses crawlers and applies the deep link server side.
+    label: partnerTicketLabel(card.ticket.via, { product: card.ticket.product, card: true }), href: card.ticket.href, external: true, sponsored: true,
+    onClick: (event) => {
+      const offerId = card.ticket.offer_id ?? card.ticket.deal_id;
+      try { onTrack?.("tickets_out", { kind: TICKET_SURFACE, id: card.id, name: card.name, deal: offerId }); } catch {}
+      import("../../lib/commerce.js").then(({ commerceHref, emitCommerce, mintClickId }) => {
+        try {
+          const clickId = mintClickId();
+          const live = commerceHref({ provider: card.ticket.provider || "undercover_tourist", offerId, surface: TICKET_SURFACE, contentId: card.id, clickId });
+          if (live && event && event.currentTarget) event.currentTarget.href = live;
+          emitCommerce("commerce_cta_clicked", { surface: TICKET_SURFACE, content_id: card.id, provider: card.ticket.provider || "undercover_tourist", merchant: card.ticket.via, offer_id: String(offerId), click_id: clickId, disclosure_version: "fall-intent-v2" });
+        } catch {}
+      }).catch(() => {});
+    },
+  };
+}
+
+function ChristmasRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, isSaved, liked, disliked, isLiked, isDisliked, onSave, onLike, onDislike, onShare }) {
   const seedItems = useMemo(() => (rail.cards || []).slice(0, RAIL_PAGE_SIZE), [rail]);
   const params = useMemo(() => (lat != null && lng != null ? { lat, lng, rail: rail.id } : null), [lat, lng, rail.id]);
   const { items: pagedItems, total, sentinelIndex, sentinelRef, loading, loadingMore, error, fetchMore } = usePagedRail(
@@ -100,7 +124,8 @@ function ChristmasRailSection({ rail, lat, lng, onOpenPlace, city, isSaved, like
             title={card.title || card.name} eyebrow={rail.title} rank={rank}
             score={isEvent ? null : toDisplayScore(Number.isFinite(card.governed_score) ? card.governed_score : card.wfScore)} when={isEvent ? card.when : null}
             facts={facts} chips={isEvent ? eventChips(card, { onOpenVenue: card.detailHref ? openEventVenue : null }) : []}
-            take={card.hook || card.take || null}
+            take={card.hook || card.take || null} cta={isEvent ? eventCta(card, onTrack) : null}
+            creatorVideos={isEvent ? card.creatorReels : undefined}
             href={eventBodyHref} external={eventBodyExternal}
             ariaLabel={`Open ${card.title || card.name}`} onOpen={isEvent ? (card.detailHref ? undefined : openEventVenue || undefined) : (place && onOpenPlace ? () => onOpenPlace(place) : undefined)}
             actionItem={isEvent ? { id: card.id, type: "event", title: card.title || card.name, image: card.image || null, url: eventBodyHref || card.url || "", provider: card.source || null } : null}
@@ -169,7 +194,7 @@ export default function ChristmasIntentRails({
   if ((!payload && !failure) || (payload?.today && payload.today !== today)) return <RailLoading label="Ranking Florida Christmas plans" />;
   if (failure) return failure.kind === "developer" ? <RailDevError /> : <RailMascotBusy rail="christmas" failure={failure} onRetry={() => setRetry((value) => value + 1)} onVisible={() => { void emitRailDegraded(failure, { rail: "christmas" }); }} />;
 
-  return <GuideRailCollection rails={payload.rails} collectionId="christmas">{payload.rails.map((rail) => <ChristmasRailSection key={`${today}:${rail.id}`} rail={rail} lat={lat} lng={lng} onOpenPlace={onOpenPlace} city={city}
+  return <GuideRailCollection rails={payload.rails} collectionId="christmas">{payload.rails.map((rail) => <ChristmasRailSection key={`${today}:${rail.id}`} rail={rail} lat={lat} lng={lng} onOpenPlace={onOpenPlace} onTrack={onTrack} city={city}
     isSaved={isSaved} liked={liked} disliked={disliked} isLiked={isLiked} isDisliked={isDisliked}
     onSave={onSave} onLike={onLike} onDislike={onDislike} onShare={onShare} />)}</GuideRailCollection>;
 }

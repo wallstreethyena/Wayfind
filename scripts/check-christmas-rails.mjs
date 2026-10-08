@@ -12,7 +12,8 @@ import { fileURLToPath } from "node:url";
 import {
   CHRISTMAS_INTENT_RAIL_DEFS, christmasEventRail, composeChristmasIntentRails,
 } from "../lib/christmasIntentRails.js";
-import { CHRISTMAS_PLACE_RAIL, CHRISTMAS_PLACE_TAKES } from "../lib/christmasPool.js";
+import { NO_EXACT_AFFILIATE_PRODUCT } from "../lib/eventTicketDeals.js";
+import { CHRISTMAS_PLACE_RAIL, CHRISTMAS_PLACE_TAKES, christmasEventTicket, CHRISTMAS_TICKET_DEAL_IDS } from "../lib/christmasPool.js";
 import { DAYPART_IDS, orderFor, christmasLeads } from "../lib/dayparts.js";
 import { RAILS, railById } from "../lib/rails.js";
 import { deckProblems } from "../lib/railDeckCopy.js";
@@ -200,6 +201,31 @@ for (const band of DAYPART_IDS) {
 }
 ok(christmasLeads("2026-11-27") && !christmasLeads("2026-11-26") && !christmasLeads("2026-07-15") && christmasLeads("2026-12-31") && christmasLeads("2027-01-06") && !christmasLeads("2027-01-07") && christmasLeads("2025-11-28") && !christmasLeads("2025-11-27"), "christmasLeads follows the fall season law (Thanksgiving computed per year) through Jan 6");
 
+// ── 6b. Revenue: ticketed events carry the affiliate CTA (EXECUTED) ────────
+// Healthy wf_deals rows for every UT entry, as the route would read them (a missing row means "not servable", exactly as in Fall).
+const LIVE = new Map(CHRISTMAS_TICKET_DEAL_IDS.map((id) => [id, { id, active: true, link_ok: true }]));
+const TICKETED = ["mvmcp-2026", "christmas-town-2026", "seaworld-orlando-christmas-2026", "legoland-fl-holidays-2026", "epcot-festival-holidays-2026", "universal-orlando-holidays-2026"];
+// ZooTampa Christmas in the Wild has NO verified bookable partner product yet (lib/eventTicketDeals.js NO_EXACT_AFFILIATE_PRODUCT,
+// re-check due weekly). Until mapped it must carry that reviewed decision; once mapped it must carry a real CTA.
+const zt = christmasEventTicket("zootampa-christmas-wild-2026", LIVE);
+ok(zt ? /^\/api\/commerce\/go\?/.test(zt.href) : !!NO_EXACT_AFFILIATE_PRODUCT["zootampa-christmas-wild-2026"], "zootampa-christmas-wild-2026: either a /api/commerce/go CTA, or a reviewed no-exact-product decision (never silently unmapped)");
+for (const id of TICKETED) {
+  const cta = christmasEventTicket(id, LIVE);
+  ok(!!cta && /^\/api\/commerce\/go\?/.test(cta.href) && cta.href.includes("surface=christmas_intent_rail") && cta.href.includes("content=" + id),
+    `${id}: ticket CTA goes through /api/commerce/go on surface christmas_intent_rail (got ${cta && cta.href})`);
+  ok(cta && !/^https?:/.test(cta.href), `${id}: the CTA is never a raw partner URL`);
+  ok(cta && typeof cta.label === "string" && cta.label.length > 0, `${id}: the CTA has a button label`);
+}
+ok(Array.isArray(CHRISTMAS_TICKET_DEAL_IDS) && CHRISTMAS_TICKET_DEAL_IDS.length > 0, "the route bulk reads wf_deals health for Undercover Tourist entries");
+ok(christmasEventTicket("no-such-event-2026") === null, "an event with no ticket mapping gets no CTA");
+const utId = TICKETED.map((id) => christmasEventTicket(id, LIVE)).find((c) => c && c.provider === "undercover_tourist");
+if (utId) {
+  const dead = new Map([[utId.offer_id, { id: utId.offer_id, active: true, link_ok: false }]]);
+  ok(christmasEventTicket(TICKETED.find((id) => christmasEventTicket(id, LIVE)?.offer_id === utId.offer_id), LIVE) !== null, "positive control: the same event with a healthy deal row keeps its CTA");
+  const evId = TICKETED.find((id) => christmasEventTicket(id, LIVE)?.offer_id === utId.offer_id);
+  ok(christmasEventTicket(evId, dead) === null, "a dead Undercover Tourist deal (link_ok false) drops the CTA");
+}
+
 // ── 7. Wiring (STATIC: a component and a route cannot be executed here) ─────
 const route = read("app/api/events/christmas/route.js");
 ok(/christmas-intents:v\d+:/.test(route), "the route has its own christmas cache key");
@@ -210,6 +236,8 @@ const comp = read("app/components/ChristmasIntentRails.js");
 ok(/result\.rails\.length !== RAIL_COUNT/.test(comp) && /RAIL_COUNT = 5/.test(comp), "the component requires exactly five rails");
 ok(/<GuideRailCollection[^>]*collectionId="christmas"/.test(comp), "the component keeps GuideRailCollection so guides auto link");
 ok(!/directionsUrl|fallSkin|isSpookyCard|spookySkin|wf-fall/.test(comp), "the component wears no fall or spooky skin and no Directions button");
+ok(/christmasEventTicket\(e\.event_id, byDealId\)/.test(route) && /ticket,\s*\n/.test(route), "the route attaches ticket to every event card (static)");
+ok(/kind: TICKET_SURFACE/.test(comp) && /surface: TICKET_SURFACE/.test(comp) && /TICKET_SURFACE = "christmas_intent_rail"/.test(comp) && /cta=\{isEvent \? eventCta\(card, onTrack\)/.test(comp), "the component renders the CTA with tickets_out and commerce tracking (static)");
 const rail = read("app/components/DaypartRail.js");
 ok(/ChristmasIntentRails = dynamic\(/.test(rail) && /christmas: \(\) => import\("\.\/ChristmasIntentRails"\)/.test(rail), "DaypartRail lazy loads and prewarms the Christmas component");
 ok(/selRail && selRail\.id === "christmas" \? \(\s*<ChristmasIntentRails/.test(rail), "the pop down mounts the Christmas component for the christmas poster");

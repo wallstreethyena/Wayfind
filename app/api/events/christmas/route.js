@@ -18,11 +18,13 @@ import { wayfindScore } from "../../../../lib/wayfindScore.js";
 import { cardImageSrc, hasStoredPlacePhoto } from "../../../../lib/placePhoto.js";
 import { fastCachedRail, geoCell } from "../../../../lib/railFastCache.js";
 import { composeChristmasIntentRails, christmasEventRail } from "../../../../lib/christmasIntentRails.js";
-import { CHRISTMAS_PLACE_IDS, CHRISTMAS_PLACE_RAIL, CHRISTMAS_PLACE_TAKES } from "../../../../lib/christmasPool.js";
+import { CHRISTMAS_PLACE_IDS, CHRISTMAS_PLACE_RAIL, CHRISTMAS_PLACE_TAKES, CHRISTMAS_TICKET_DEAL_IDS, christmasEventTicket } from "../../../../lib/christmasPool.js";
 import { nextFallOccurrence } from "../../../../lib/fallIntentRails.js";
 import { pageOneRail } from "../../../../lib/railPage.js";
 import { windowRailAnswer } from "../../../../lib/railResponse.js";
 import { fallEventCardImageSrc, eventImageIsVenue } from "../../../../lib/fallEventImage.js";
+import { isServableDeal } from "../../../../lib/eventTicketDeals.js";
+import { eventSocialPosts } from "../../../../lib/eventSocial.js";
 
 const CHRISTMAS_DB_DEADLINE_MS = 3500;
 const PLACE_COLUMNS = "place_id,name,lat,lng,metro,category,primary_type,google_types,signals,editorial,photo_ref,status";
@@ -47,11 +49,17 @@ export async function GET(request) {
     const cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const signal = AbortSignal.timeout(CHRISTMAS_DB_DEADLINE_MS);
-      const [rows, placeResult] = await Promise.all([
+      const [rows, placeResult, dealResult] = await Promise.all([
         fetchCuratedEvents({ signal, fresh: true }),
         supabase.from("wf_inventory").select(PLACE_COLUMNS).in("place_id", CHRISTMAS_PLACE_IDS).abortSignal(signal),
+        // wf_deals health for Undercover Tourist entries; owned read, no paid call.
+        CHRISTMAS_TICKET_DEAL_IDS.length
+          ? supabase.from("wf_deals").select("id,affiliate_url,active,link_ok,provider").in("id", CHRISTMAS_TICKET_DEAL_IDS).abortSignal(signal)
+          : Promise.resolve({ data: [], error: null }),
       ]);
-      let sourceFailures = Number(!!placeResult.error);
+      let sourceFailures = Number(!!placeResult.error) + Number(!!dealResult.error);
+      // isServableDeal, not an inline link_ok check: only link_ok === false is dead.
+      const byDealId = new Map((dealResult.data || []).filter((deal) => isServableDeal(deal)).map((deal) => [deal.id, deal]));
       if (placeResult.error) console.error("[api/events/christmas] place inventory degraded", { message: String(placeResult.error.message || placeResult.error) });
 
       const pageSlugs = new Set((rows || []).map((row) => row?.slug).filter(Boolean));
@@ -75,6 +83,11 @@ export async function GET(request) {
         const inventory = inventoryById.get(e.place_id) || null;
         const image = fallEventCardImageSrc(e, 640, inventory);
         const detailHref = e.slug && pageSlugs.has(e.slug) ? "/florida-events/" + e.slug : null;
+        const ticket = christmasEventTicket(e.event_id, byDealId);
+        // The card marker promises a video one tap away: only when our event page exists, canonical reels only.
+        const creatorReels = detailHref ? eventSocialPosts(e.event_id)
+          .filter((post) => post.platform === "instagram" && /instagram\.com\/reels?\/[\w-]+\/?(?:[?#].*)?$/.test(post.url))
+          .map((post) => ({ platform: post.platform, creator: post.creator })) : [];
         const next = e.occurrence_dates?.length ? nextFallOccurrence(e, today) : null;
         return {
           ...e,
@@ -102,6 +115,8 @@ export async function GET(request) {
           url: eventOutboundUrl(e) || null,
           is_free: e.is_free, price_band: e.price_band || null,
           tags: e.tags || [],
+          creatorReels,
+          ticket,
         };
       }).filter((event) => event.image && (event.url || event.place_id));
 
