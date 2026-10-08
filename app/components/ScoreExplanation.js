@@ -6,6 +6,19 @@ import { displayableScoreVerdict } from "../../lib/scoreVerdict.js";
 
 const number = (n) => (n / 10).toFixed(1);
 const box = { ...TYPE.meta, marginBottom: SPACE.l, border: "1px solid " + C.border, borderRadius: RADII.control, padding: SPACE.m, color: C.light, overflowWrap: "anywhere" };
+// The "Wayfind's take" box. An empty state with nothing to say (not_researched)
+// renders NOTHING: a box announcing "has not been prepared yet" at the top of
+// the page is an internal status, not content (owner, 2026-10-08).
+export function VerdictBox({ result, verdict }) {
+  if (!verdict && result?.state === "not_researched") return null;
+  return <section aria-label="Sourced Wayfind take" style={box}>
+    <strong>Wayfind's take</strong>
+    {verdict ? <>
+      {verdict.sentences.map((s, i) => <p key={i}>{s.text} {s.sourceIds.map((sourceId) => { const source = verdict.sources.find((x) => x.id === sourceId); return source ? <a key={sourceId} href={source.url} target="_blank" rel="noreferrer" style={{ color: C.accent }}>Source</a> : null; })}</p>)}
+      <small>{verdict.coverage === "venue_information" ? "Based on venue information; independent review consensus has not been assessed." : verdict.coverage === "firsthand" ? "Based on firsthand observations." : "Based on independent sources."} Checked {verdict.reviewedAt.slice(0, 10)}.</small>
+    </> : <p role="status">{!result ? "Checking for a sourced verdict…" : result.state === "needs_review" ? "The verdict needs a fresh source check before we show it." : "The sourced verdict is temporarily unavailable."}</p>}
+  </section>;
+}
 export default function ScoreExplanation({ place }) {
   const receipt = visibleScoreMath(place);
   const [research, setResearch] = useState(null);
@@ -41,13 +54,7 @@ export default function ScoreExplanation({ place }) {
           <p style={{ marginBottom: 0 }}>Ranked lists put higher Wayfind Scores first. Equal scores can use context and review count to break ties. Editorial recommendations are separate from this calculation.</p>
         </details>
       ) : null}
-      {id ? <section aria-label="Sourced Wayfind take" style={box}>
-        <strong>Wayfind's take</strong>
-        {verdict ? <>
-          {verdict.sentences.map((s, i) => <p key={i}>{s.text} {s.sourceIds.map((sourceId) => { const source = verdict.sources.find((x) => x.id === sourceId); return source ? <a key={sourceId} href={source.url} target="_blank" rel="noreferrer" style={{ color: C.accent }}>Source</a> : null; })}</p>)}
-          <small>{verdict.coverage === "venue_information" ? "Based on venue information; independent review consensus has not been assessed." : verdict.coverage === "firsthand" ? "Based on firsthand observations." : "Based on independent sources."} Checked {verdict.reviewedAt.slice(0, 10)}.</small>
-        </> : <p role="status">{!result ? "Checking for a sourced verdict…" : result.state === "not_researched" ? "A sourced verdict has not been prepared for this place yet." : result.state === "needs_review" ? "The verdict needs a fresh source check before we show it." : "The sourced verdict is temporarily unavailable."}</p>}
-      </section> : null}
+      {id ? <VerdictBox result={result} verdict={verdict} /> : null}
     </>
   );
 }
