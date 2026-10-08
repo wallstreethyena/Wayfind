@@ -5,6 +5,9 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { eventProviderCap, eventProviderSpendAllow } from "../lib/eventProviderSpend.js";
+import { lastEventDay } from "../lib/eventsPipeline.js";
+// The route's cached-feed filter calls the REAL last-day rule (2026-10-08).
+globalThis.__lastEventDay = lastEventDay;
 
 const envKeys = [
   "WAYFIND_GATE", "SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY",
@@ -24,6 +27,7 @@ async function routeWith({ cacheValue = null, spendAllowed = false }) {
   const prelude = `
     const processEvents = () => ({ events: [], usableCount: 0, health: [], excludedByReason: {} });
     const siteTodayStr = () => "2099-01-01";
+    const lastEventDay = globalThis.__lastEventDay;
     const siteAnchorDate = (d) => d;
     const localStaplesFor = () => [];
     const parseLibCalICS = () => [];

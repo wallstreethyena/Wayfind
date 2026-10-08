@@ -93,10 +93,55 @@ const DEFAULT_PRIORITY = ["concerts", "sports", "comedy", "theater", "local"];
 // see local fall events without hunting for the "Local events" filter. The
 // filter exists, and leads the auto default, ONLY while fallSkinLive(today).
 // Off season it is absent, so ?cat=fall resolves like any unknown value.
-const FALL_FILTER = { key: "fall", label: "Fall and Halloween", icon: "🎃", match: (e) => e.fall === true };
+// The match needs a fall or Halloween THEME (e.fallTheme, lib/fallTheme.js),
+// not only the season tag: holiday lights and a musical are not "Fall and
+// Halloween" just because they run in October (2026-10-08).
+const FALL_FILTER = { key: "fall", label: "Fall and Halloween", icon: "🎃", match: (e) => e.fallTheme === true };
 export function eventFiltersFor(seasonLive) { return seasonLive ? [FALL_FILTER, ...EVENT_FILTERS] : EVENT_FILTERS; }
 export function defaultPriorityFor(seasonLive) { return seasonLive ? ["fall", ...DEFAULT_PRIORITY] : DEFAULT_PRIORITY; }
 export function filterMatches(f, e, eventBucket) { return f.match ? f.match(e) : eventBucket(e) === f.bucket; }
+
+// RUNNING EVENTS AND THE DAY STRIP (2026-10-08). A season-long event that
+// opened before today is still on: it belongs under Today and every later day
+// of its run, but only when it is open every day. A select-nights run (haunts,
+// ghost tours) is never claimed for a specific day it may be dark; it stays
+// under All with its own schedule on the card.
+const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
+export function eventLastDay(e) {
+  const start = String((e && e.date) || "");
+  const end = String((e && e.endDate) || "");
+  return ISO_DAY.test(end) && end > start ? end : start;
+}
+export function eventRunsOn(e, day) {
+  if (!e || !day) return false;
+  if (e.date === day) return true;
+  if (e.selectNights) return false;
+  return !!e.date && e.date < day && eventLastDay(e) >= day;
+}
+// The day an event belongs to in "soonest first": its start, or today while a
+// run that began earlier is still going.
+export function effectiveEventDate(e, today) {
+  if (!e || !e.date) return "9999-12-31";
+  return e.date < today && eventLastDay(e) >= today ? today : e.date;
+}
+// One ordering for every event list on this screen: soonest day first; within
+// a day, events inside the feed's own radius before the wider curated reach,
+// one-off dates before runs that are merely still open, then start time, then
+// distance. Nothing is dropped here; this only orders.
+export const EVENTS_NEAR_MI = 25;
+export function sortEventsForList(list, { today, distMi = () => Infinity, nearMi = EVENTS_NEAR_MI } = {}) {
+  const key = (e) => {
+    const d = distMi(e);
+    return [effectiveEventDate(e, today), Number.isFinite(d) && d <= nearMi ? 0 : 1, e.date < today ? 1 : 0, String(e.time || "99"), Number.isFinite(d) ? d : 1e9];
+  };
+  return (list || []).map((e) => [key(e), e]).sort((a, b) => {
+    for (let i = 0; i < a[0].length; i++) {
+      if (a[0][i] < b[0][i]) return -1;
+      if (a[0][i] > b[0][i]) return 1;
+    }
+    return 0;
+  }).map((x) => x[1]);
+}
 
 export default function EventsScreen({ ctx }) {
   const { events, eventCat, setEventCat, eventDate, setEventDate, locName, center, submitSearch, eventsLoading, eventsUnavailable, eventsError, loadEvents, openVenue, dedupeEvents, AreaInsight, Loader, eventsTours, eventBucket, ViatorRail, eventSegmentMeta } = ctx;
@@ -114,14 +159,11 @@ export default function EventsScreen({ ctx }) {
   // is the one place on this screen where the answer is "here is the thing you
   // should put in your calendar", and every card opens OUR event page — the one
   // carrying the why-go, the parking and the insider tip a calendar cannot have.
-  const plannable = all
-    .filter((e) => e && e.curated && e.dest)
-    .slice()
-    .sort((a, b) => String(a.date || "9999").localeCompare(String(b.date || "9999")))
-    .slice(0, 8);
   const [filterOpen, setFilterOpen] = useState(false);
   // v6.20 — geo distance so ties break by proximity.
   const distMi = (e) => { if (!center || e == null || e.lat == null || e.lng == null) return Infinity; const R = 3958.8, t = (d) => (d * Math.PI) / 180; const s = Math.sin(t(e.lat - center.lat) / 2) ** 2 + Math.cos(t(center.lat)) * Math.cos(t(e.lat)) * Math.sin(t(e.lng - center.lng) / 2) ** 2; return R * 2 * Math.asin(Math.sqrt(s)); };
+  const todayStr = siteTodayStr();
+  const plannable = sortEventsForList(all.filter((e) => e && e.curated && e.dest), { today: todayStr, distMi }).slice(0, 8);
   const seasonLive = fallSkinLive(siteTodayStr());
   const FILTERS = eventFiltersFor(seasonLive);
   const countForFilter = (f) => all.filter((e) => filterMatches(f, e, eventBucket)).length;
@@ -137,13 +179,15 @@ export default function EventsScreen({ ctx }) {
   const isBusiness = activeFilter.key === "business";
   const isTours = activeFilter.key === "tours"; // v6.34 — affiliate list view
   const catBase = all.filter((e) => filterMatches(activeFilter, e, eventBucket));
-  const countFor = (dateVal) => dedupeEvents(catBase.filter((e) => e.date === dateVal), false).length;
+  const countFor = (dateVal) => dedupeEvents(catBase.filter((e) => eventRunsOn(e, dateVal)), false).length;
   const allCount = dedupeEvents(catBase, true).length;
   let shown = catBase;
-  if (eventDate !== "all") shown = shown.filter((e) => e.date === eventDate);
+  if (eventDate !== "all") shown = shown.filter((e) => eventRunsOn(e, eventDate));
   shown = dedupeEvents(shown, eventDate === "all");
-  // What's coming up, nearest-when first; proximity breaks ties.
-  shown = shown.slice().sort((a, b) => (String(a.date || "9999").localeCompare(String(b.date || "9999"))) || (String(a.time || "99").localeCompare(String(b.time || "99"))) || (distMi(a) - distMi(b)));
+  // Soonest day first; nearby before the wider reach within a day.
+  shown = sortEventsForList(shown, { today: todayStr, distMi });
+  // Curated rows reach further than the feed radius (CURATED_REACH_MI); say so.
+  const widerReach = shown.some((e) => e.curated && distMi(e) > EVENTS_NEAR_MI);
   // Defensive at the render boundary: the source normally arrives ranked,
   // but this screen owns both the compact rail and the full Local tours grid.
   // Sorting here keeps both views honest even if a caller/API changes order.
@@ -269,7 +313,7 @@ export default function EventsScreen({ ctx }) {
           <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, marginBottom: 9 }}>
             <div>
               <div style={{ fontSize: 13.5, fontWeight: 800, color: C.text }}>{activeFilter.label} worth planning around</div>
-              <div style={{ marginTop: 2, fontSize: 10.5, color: C.muted }}>Soonest first · tap a card for the full story</div>
+              <div style={{ marginTop: 2, fontSize: 10.5, color: C.muted }}>{widerReach ? `Soonest first, nearest first each day · includes dated events up to 60 mi away` : "Soonest first · tap a card for the full story"}</div>
             </div>
             <span style={{ fontSize: 11, fontWeight: 750, color: C.muted }}>{shown.length}</span>
           </div>
