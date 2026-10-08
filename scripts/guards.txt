@@ -2137,6 +2137,7 @@ node scripts/test-fall-farm-food-gap-2026-10-07.mjs
 node scripts/test-fall-food-gap-2026-10-08.mjs
 node scripts/check-guide-card.mjs
 node scripts/test-credited-photo-warm.mjs
+node scripts/test-google-photo-prefetch-pause.mjs
 
 # 2026-10-06 richer place cards: inventory rows keep price/cuisine/tags/editorial; chips are
 # deterministic, cap 4, highest value first.
