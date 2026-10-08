@@ -291,6 +291,43 @@ ok(SG.creditedPhotoWarmCap() === 800, "cap 800 parses to 800");
 }
 
 Object.assign(process.env, ENV0);
+// VIEWED FIRST (2026-10-08). Order decides who gets a photo when the budget
+// cannot cover everyone, so places real readers failed to see go first.
+{
+  const t = [{ placeId: "ChIJaaaaaaaaaaaaaaaa" }, { placeId: "ChIJbbbbbbbbbbbbbbbb" }, { placeId: "ChIJcccccccccccccccc" }, { placeId: "ChIJdddddddddddddddd" }];
+  const views = new Map([["ChIJcccccccccccccccc", 9], ["ChIJbbbbbbbbbbbbbbbb", 2]]);
+  const order = T.viewedFirst(t, views).map((x) => x.placeId);
+  ok(JSON.stringify(order) === JSON.stringify(["ChIJcccccccccccccccc", "ChIJbbbbbbbbbbbbbbbb", "ChIJaaaaaaaaaaaaaaaa", "ChIJdddddddddddddddd"]), `viewedFirst: most-viewed first, unviewed keep placeId order (got ${order.join(",")})`);
+  ok(JSON.stringify(T.viewedFirst(t, new Map()).map((x) => x.placeId)) === JSON.stringify(t.map((x) => x.placeId)), "viewedFirst: no view data leaves the deterministic order unchanged");
+  ok(t[0].placeId === "ChIJaaaaaaaaaaaaaaaa", "viewedFirst does not mutate its input");
+  // loadReaderViews: reads ONLY the reader-miss table, sums detections, last 30 days.
+  const seen = [];
+  const fake = async (u) => { seen.push(String(u)); return { ok: true, json: async () => [{ place_id: "ChIJcccccccccccccccc", detections: 4 }, { place_id: "ChIJcccccccccccccccc", detections: 5 }] }; };
+  const m = await T.loadReaderViews(["ChIJcccccccccccccccc", "bad id"], { url: "https://x.test", key: "k", fetchImpl: fake, now: Date.parse("2026-10-08T00:00:00Z") });
+  ok(m.get("ChIJcccccccccccccccc") === 9, `loadReaderViews sums detections (got ${m.get("ChIJcccccccccccccccc")})`);
+  ok(seen.length === 1 && /\/rest\/v1\/wf_photo_repair_queue\?select=place_id,detections&place_id=in\.\(ChIJcccccccccccccccc\)&last_seen_at=gte\.2026-09-08/.test(seen[0]), `loadReaderViews reads the reader-miss queue for valid ids only, last 30 days (got ${seen[0]})`);
+  // The cron applies it to the merged list before the worker sees it.
+  const cron = readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "app/api/cron/credited-photos/route.js"), "utf8").replace(/\/\/[^\n]*/g, "");
+  ok(/targets\s*=\s*viewedFirst\(targets,\s*views\)/.test(cron) && cron.indexOf("viewedFirst(targets") < cron.indexOf("warmCreditedPhotos({"), "the credited-photos cron orders targets viewed-first before the worker runs");
+}
+
+// BUDGET-AWARE SCOPE (2026-10-08). Headroom below the everyday reserve -> viewed-only;
+// unknown ledger -> viewed-only (fail safe); a month with room -> full list.
+{
+  const oct8 = Date.parse("2026-10-08T12:37:00Z");
+  const tight = T.backfillScope({ used: 2039, cap: 3000, now: oct8 });
+  ok(tight.viewedOnly === true && tight.headroom === 961 && tight.reserve === Math.ceil(((Date.UTC(2026, 10, 1) - oct8) / 86400000) * T.EVERYDAY_PHOTOS_PER_DAY), `Oct 8 with 961 left is viewed-only (got ${JSON.stringify(tight)})`);
+  ok(T.backfillScope({ used: 0, cap: 3000, now: Date.parse("2026-11-25T00:00:00Z") }).viewedOnly === false, "a month with headroom above the reserve runs the full list");
+  ok(T.backfillScope({ used: null, cap: 3000, now: oct8 }).viewedOnly === true, "unknown ledger usage fails safe to viewed-only");
+  ok(T.backfillScope({ used: 2039, cap: null, now: oct8 }).viewedOnly === true, "unknown ceiling fails safe to viewed-only");
+  const seen = [];
+  const used = await T.loadPhotosUsed({ url: "https://x.test", key: "k", now: oct8, fetchImpl: async (u) => { seen.push(String(u)); return { ok: true, json: async () => [{ used: 2039 }] }; } });
+  ok(used === 2039 && /wf_spend_ledger\?select=used&month=eq\.2026-10&sku=eq\.photos$/.test(seen[0]), `loadPhotosUsed reads this month's photos row (got ${used} ${seen[0]})`);
+  ok((await T.loadPhotosUsed({ url: "https://x.test", key: "k", now: oct8, fetchImpl: async () => ({ ok: false }) })) === null, "an unreadable ledger is null (-> viewed-only), never 0");
+  const cron2 = readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "app/api/cron/credited-photos/route.js"), "utf8").replace(/\/\/[^\n]*/g, "");
+  ok(/if \(scope\.viewedOnly\) targets = targets\.filter\(\(t\) => \(views\.get\(t\.placeId\) \|\| 0\) > 0\)/.test(cron2) && cron2.indexOf("scope.viewedOnly") < cron2.indexOf("warmCreditedPhotos({"), "the cron drops unviewed targets in viewed-only mode before the worker runs");
+}
+
 if (fails.length) {
   console.error("test-credited-photo-warm: FAIL\n - " + fails.join("\n - "));
   process.exit(1);
