@@ -147,20 +147,21 @@ try {
     import { register } from "node:module";
     register(${HOOK}, import.meta.url);
     const F = ${JSON.stringify({ GOOD_RESP, NO_FETCH_RESP, food })};
-    const rec = { spend: [], writes: 0, urls: [], anthropicBodies: [], pulses: [], invUrls: [], ledgerReads: 0 };
+    const rec = { spend: [], writes: 0, urls: [], anthropicBodies: [], pulses: [], invUrls: [], ledgerReads: 0, cacheWrites: 0 };
     let dryUsed = Number(process.env.LEDGER_USED || 0);
-    const jr = (v, ok = true) => ({ ok, status: ok ? 200 : 500, json: async () => v, text: async () => JSON.stringify(v) });
+    const jr = (v, ok = true, st) => ({ ok, status: st || (ok ? 200 : 500), headers: { get: () => null }, json: async () => v, text: async () => JSON.stringify(v) });
     globalThis.fetch = async (u, init = {}) => {
       const url = String(u), method = (init.method || "GET").toUpperCase();
       rec.urls.push(url.slice(0, 160));
       if (url.includes("/rest/v1/wf_spend_ledger")) { rec.ledgerReads++; if (process.env.LEDGER_FAIL) return jr({}, false); return jr(process.env.LEDGER_NOROW ? [] : [{ used: dryUsed }]); }
-      if (url.includes("/rpc/wf_spend_take")) { const b = JSON.parse(init.body); rec.spend.push(b); if (b.p_sku === "atlas_dry_cents") { if (process.env.RECORD_FAIL) return jr(false); dryUsed += b.p_n; } return jr(true); }
+      if (url.includes("/rest/v1/wf_places_cache") && method !== "GET") { rec.cacheWrites++; return jr({}); }
+      if (url.includes("/rpc/wf_spend_take")) { const b = JSON.parse(init.body); rec.spend.push(b); if (process.env.ANTH_GRANT_DENY && b.p_sku === "atlas_anthropic_requests") return jr(false); if (b.p_sku === "atlas_dry_cents") { if (process.env.RECORD_FAIL) return jr(false); dryUsed += b.p_n; } return jr(true); }
       if (url.includes("/rest/v1/wf_job_pulse")) { rec.pulses.push(JSON.parse(init.body)); return jr({}); }
       if (url.includes("/rest/v1/wf_editorial") && method !== "GET") { rec.writes++; return jr([]); }
       if (url.includes("/rest/v1/wf_editorial")) return jr(process.env.EDITORIAL_JSON ? JSON.parse(process.env.EDITORIAL_JSON) : []);
       if (url.includes("/rest/v1/wf_inventory")) { rec.invUrls.push(url); if (!url.includes("status=eq.OPERATIONAL")) { const ids = (url.match(/place_id=in\\.\\(([^)]*)\\)/) || [, ""])[1].split(","); const missing = (process.env.NOTFOUND || "").split(","); const closed = (process.env.CLOSED || "").split(","); return jr(ids.filter((id) => !missing.includes(id)).map((id) => ({ ...F.food, place_id: id, metro: closed.includes(id) ? "miami-dade" : F.food.metro, status: closed.includes(id) ? "CLOSED_PERMANENTLY" : "OPERATIONAL", photo_ref: closed.includes(id) ? null : "places/x/photos/y" }))); } const m = url.match(/place_id=in\\.\\(([^)]*)\\)/); return jr((m ? m[1].split(",") : [F.food.place_id]).map((id) => ({ ...F.food, place_id: id }))); }
       if (url.includes("/rpc/wf_atlas_missing")) return jr([]);
-      if (url.includes("api.anthropic.com")) { rec.anthropicBodies.push(JSON.parse(init.body)); const base = process.env.SCEN === "nofetch" ? F.NO_FETCH_RESP : F.GOOD_RESP; return jr(process.env.USAGE_JSON ? { ...base, usage: JSON.parse(process.env.USAGE_JSON) } : base); }
+      if (url.includes("api.anthropic.com")) { if (process.env.ANTH_THROW) throw new Error("timeout"); if (process.env.ANTH_STATUS) return jr({ error: { message: "Your credit balance is too low" } }, false, Number(process.env.ANTH_STATUS)); rec.anthropicBodies.push(JSON.parse(init.body)); const base = process.env.SCEN === "nofetch" ? F.NO_FETCH_RESP : F.GOOD_RESP; return jr(process.env.USAGE_JSON ? { ...base, usage: JSON.parse(process.env.USAGE_JSON) } : base); }
       if (url.includes("geocoding.geo.census.gov")) return jr({ result: { addressMatches: [{ coordinates: { x: -82.458, y: 27.951 } }] } });
       return jr({}, false);
     };
@@ -231,7 +232,7 @@ try {
   ok(M2.rec.anthropicBodies.length === 1 && M2.body.budget.used_cents_before === 60, "ledger used=60 + reserve 40 = cap 100: exactly fits, the place runs");
   const U23 = JSON.stringify({ input_tokens: 100000, output_tokens: 2340, server_tool_use: { web_search_requests: 0 } }); // $0.2234 -> 23 cents
   const M3 = run({ ATLAS_PAID_ENABLED: "dry", QS: "?dry=1&limit=1", LEDGER_USED: "10", USAGE_JSON: U23 });
-  ok(sumDry(M3) === 23 && M3.rec.spend.filter((x) => x.p_sku === "atlas_dry_cents").every((x) => x.p_cap === 1000000 && x.p_n >= 1 && x.p_n <= 10) && M3.body.budget.used_cents_after === 33 && M3.body.meter_record_failed === false, `a $0.2234 place records ceil = 23 cents on the ledger (recorded ${sumDry(M3)}, ${JSON.stringify(M3.body.budget)})`);
+  ok(sumDry(M3) === 23 && M3.rec.spend.filter((x) => x.p_sku === "atlas_dry_cents").every((x) => x.p_cap === 1000000 && x.p_n === 23) && M3.body.budget.used_cents_after === 33 && M3.body.meter_record_failed === false, `a $0.2234 place records ceil = 23 cents on the ledger (recorded ${sumDry(M3)}, ${JSON.stringify(M3.body.budget)})`);
   const M4 = run({ ATLAS_PAID_ENABLED: "dry", QS: "?dry=1&limit=1", LEDGER_FAIL: "1" });
   ok(M4.rec.anthropicBodies.length === 0 && M4.rec.spend.length === 0 && M4.body.meter_read_failed === true && M4.body.stopped_for_budget === true, "unreadable ledger -> fail closed: zero Anthropic calls, zero grants");
   const M5 = run({ ATLAS_PAID_ENABLED: "dry", QS: "?dry=1&limit=3", RECORD_FAIL: "1" });
@@ -258,6 +259,26 @@ try {
   ok(!I4.rec.invUrls.concat(I4.rec.urls).some((u) => u.includes(IDS[0])), "ids= is honoured only for ATLAS_PAID_ENABLED=dry (metered) dry requests");
   const I5 = run({ ATLAS_PAID_ENABLED: "dry", QS: "?dry=1&ids=" + IDS[2], NOTFOUND: IDS[2] });
   ok(I5.body.processed === 0 && I5.rec.anthropicBodies.length === 0 && JSON.stringify(I5.body.not_found) === JSON.stringify([IDS[2]]), "all ids unknown: nothing runs, nothing falls through to the normal selector");
+
+  // ---- spend-then-kill window, single-RPC record, blocked vs sent, breaker, overage ---------
+  const dryRecs = (r) => r.rec.spend.filter((x) => x.p_sku === "atlas_dry_cents");
+  const B1 = run({ ATLAS_PAID_ENABLED: "dry", QS: "?dry=1&limit=3", ANTH_GRANT_DENY: "1" });
+  ok(B1.rec.anthropicBodies.length === 0 && dryRecs(B1).length === 0 && B1.body.meter_blocked === true && B1.body.stopped_for_budget === true && B1.body.cost_usd_total === 0, `a paidAi-blocked place (nothing sent) records 0 cents and stops the run with meter_blocked (anthropic ${B1.rec.anthropicBodies.length}, records ${dryRecs(B1).length}, ${JSON.stringify(B1.body.meter_blocked)})`);
+  const B2 = run({ ATLAS_PAID_ENABLED: "dry", QS: "?dry=1&limit=3", ANTH_THROW: "1" });
+  ok(dryRecs(B2).length >= 1 && dryRecs(B2).every((x) => x.p_n === 40) && B2.body.meter_blocked === false, `a request that was SENT and threw/timed out is charged the 40 cent floor (records ${JSON.stringify(dryRecs(B2))})`);
+  ok(dryRecs(B2).length === 2 && B2.body.stopped_for_overage === false && B2.body.stopped_for_budget === true && B2.body.budget.used_cents_after === 80, "a floor-charged place (40) is not an overage: a second place runs, then used 80 + reserve 40 > cap 100 stops the run");
+  const R1 = run({ ATLAS_PAID_ENABLED: "dry", QS: "?dry=1&limit=1", USAGE_JSON: U23 });
+  ok(dryRecs(R1).length === 1 && dryRecs(R1)[0].p_n === 23 && dryRecs(R1)[0].p_cap === 1000000, "the meter record is ONE wf_spend_take call with p_n = ceil(cents) (no 10-cent loop)");
+  const BR = run({ ATLAS_PAID_ENABLED: "dry", QS: "?dry=1&limit=1", ANTH_STATUS: "402" });
+  ok(BR.rec.cacheWrites === 0 && BR.body.provider_halt && BR.body.provider_halt.kind === "billing", `dry mode never writes the provider-health cache (cache writes ${BR.rec.cacheWrites}); the in-run halt is still reported`);
+  const BF = run({ ATLAS_PAID_ENABLED: "1", QS: "?limit=1", ANTH_STATUS: "402" });
+  ok(BF.rec.cacheWrites >= 1, "positive control: a full (non-dry) run still trips the breaker and writes the cache");
+  const U60 = JSON.stringify({ input_tokens: 150000, output_tokens: 10000, server_tool_use: { web_search_requests: 0 } }); // $0.40 -> exactly 40
+  const U61 = JSON.stringify({ input_tokens: 150000, output_tokens: 10500, server_tool_use: { web_search_requests: 0 } }); // $0.405 -> 41
+  const O1 = run({ ATLAS_PAID_ENABLED: "dry", QS: "?dry=1&limit=3", USAGE_JSON: U60 });
+  ok(O1.body.stopped_for_overage === false && O1.rec.anthropicBodies.length === 2 && dryRecs(O1)[0].p_n === 40, "a place costing exactly the 40 cent reserve does not trip the overage stop");
+  const O2 = run({ ATLAS_PAID_ENABLED: "dry", QS: "?dry=1&limit=3", USAGE_JSON: U61 });
+  ok(O2.body.stopped_for_overage === true && O2.rec.anthropicBodies.length === 1 && dryRecs(O2)[0].p_n === 41, `a place over the reserve (41 cents) is recorded, then the run stops (stopped_for_overage; calls ${O2.rec.anthropicBodies.length})`);
 
   const bogus = run({ ATLAS_PAID_ENABLED: "yes", QS: "?dry=1&limit=3" });
   ok(bogus.body.skipped && bogus.rec.spend.length === 0, "any other ATLAS_PAID_ENABLED value fails closed");

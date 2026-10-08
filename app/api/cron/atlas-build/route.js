@@ -1,5 +1,5 @@
 import { gateFree, gateShut, spendAllow, takeFromLedger } from "../../../../lib/spendGate";
-import { readDryUsedCents, recordDryCents, usdToCents, reserveCents } from "../../../../lib/atlasDryMeter";
+import { readDryUsedCents, recordDryCents, usdToCents, reserveCents, DRY_ANTHROPIC_TIMEOUT_MS, DRY_IO_TIMEOUT_MS, DRY_RESERVE_FLOOR_CENTS } from "../../../../lib/atlasDryMeter";
 import { atlasPaidLane, readPriorityIds, loadPriorityIds, ATLAS_LANE_MODEL } from "../../../../lib/atlasPaidLane";
 import { laneRequestBody, extractLaneResult, identityProblems, dashProblems, deniedFetched, geocodeCensus, haversineKm, metroCity, dryBudgetAllows, DRY_WORST_NEXT_FLOOR_USD } from "../../../../lib/atlasWebLane";
 // app/api/cron/atlas-build/route.js — bulk-builds the Wayfind "Atlas" editorial
@@ -325,23 +325,30 @@ async function writeEditorial(place, d, key, sources, stats, systemBlocks, timeo
 // ATLAS PAID LANE writer: ONE Anthropic Messages call with server-side web_search +
 // web_fetch. No Google call of any kind. Returns { text, fetched, searches } or null.
 // Same provider-halt handling as writeEditorial; the lane sku/cap/timeout ride on `lane`.
-async function writeLaneEditorial(place, key, stats, systemBlocks, lane, model) {
+async function writeLaneEditorial(place, key, stats, systemBlocks, lane, model, dryRun = false) {
+  // Dry samples: ONE 35s timer covers the paidAi grant and the request (time arithmetic in
+  // lib/atlasDryMeter.js). Real lane runs keep 48s.
+  const laneTimeout = dryRun ? DRY_ANTHROPIC_TIMEOUT_MS : 48000;
   const ctrl = new AbortController();
-  const t = setTimeout(() => ctrl.abort(), 48000);
+  const t = setTimeout(() => ctrl.abort(), laneTimeout);
   try {
     const r = await paidAnthropicRequest({
       method: "POST", cache: "no-store", signal: ctrl.signal,
       headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
       body: JSON.stringify(laneRequestBody(place, model, systemBlocks, metroCity(place.metro))),
-    }, { sku: lane.anthropicSku, cap: lane.cap, timeoutMs: 48000 });
+    }, { sku: lane.anthropicSku, cap: lane.cap, timeoutMs: laneTimeout });
     if (!r.ok) {
+      // Refused inside paidAi BEFORE any request left (gate / cap / ledger / validation):
+      // nothing was billed. The caller records 0 cents and stops the dry run.
+      if (r.headers.get("x-wf-request-sent") === "0") return { notSent: true, text: "", fetched: [], searches: 0, costUsd: 0 };
       let msg = "";
       try { msg = String(((await r.json()) || {}).error?.message || "").slice(0, 200); } catch (e) { msg = "(unparseable body)"; }
       console.error(`ATLAS-DIAG anthropic lane status=${r.status} model=${model} msg=${msg}`);
       const kind = classifyProviderFailure(r.status, msg);
       if (kind && stats) {
         stats.providerHalt = { kind, msg: `anthropic ${r.status}: ${msg}`.slice(0, 180) };
-        tripBreaker("anthropic", kind, stats.providerHalt.msg).catch(() => {});
+        // Dry samples never write the shared provider-health cache.
+        if (!dryRun) tripBreaker("anthropic", kind, stats.providerHalt.msg).catch(() => {});
       }
       return null;
     }
@@ -660,7 +667,7 @@ export async function GET(req) {
 
   // Dry-sample budget state: sequential, metered from real usage, stops before the ceiling.
   const dryCosts = [], dryCents = [];
-  let drySpent = 0, stoppedForBudget = false, meterRecordFailed = false, meterReadFailed = false;
+  let drySpent = 0, stoppedForBudget = false, meterRecordFailed = false, meterReadFailed = false, meterBlocked = false, stoppedForOverage = false;
   let usedBefore = null, usedAfter = null;
   const capCents = lane && lane.dryCapUsd ? Math.round(lane.dryCapUsd * 100) : 0;
   await pool(places, dryMetered ? 1 : 6, async (place) => {
@@ -691,15 +698,21 @@ export async function GET(req) {
         if (used + reserveCents(dryCents) > capCents) { usedAfter = used; stoppedForBudget = true; deferred++; return; }
       }
       if (!(await takeFromLedger(lane.searchSku, lane.cap))) { deferred++; return; }
-      const res = await writeLaneEditorial(place, akey, stats, sysInfo.blocks, lane, laneModel());
+      const res = await writeLaneEditorial(place, akey, stats, sysInfo.blocks, lane, laneModel(), dryMetered);
       if (dryMetered) {
-        // A null result (refused / unreachable / timed out) may still have been billed:
+        if (res && res.notSent) {
+          // No request left for Anthropic: records 0 cents and ends the run.
+          meterBlocked = true; stoppedForBudget = true; deferred++; return;
+        }
+        // A request that WAS sent but failed or timed out may still have been billed:
         // charge the reserve floor, never zero. Recorded BEFORE any other work on the result.
-        const usd = res ? (res.costUsd || 0) : reserveCents([]) / 100;
+        const usd = res ? (res.costUsd || 0) : DRY_RESERVE_FLOOR_CENTS / 100;
         const cents = usdToCents(usd);
         dryCosts.push(usd); drySpent += usd; dryCents.push(cents);
         if (await recordDryCents(s, cents)) { usedAfter = (usedAfter === null ? usedBefore : usedAfter) + cents; }
         else { meterRecordFailed = true; stoppedForBudget = true; }
+        // At most ONE over-reserve place per test: if this one cost more than the reserve, stop.
+        if (cents > DRY_RESERVE_FLOOR_CENTS) { stoppedForOverage = true; stoppedForBudget = true; }
       }
       if (res) { laneSearches += res.searches; laneFetched += res.fetched.length; }
       const meta = { sources: res ? res.fetched.map((f) => f.url) : [], found_address: null, distance_km: null, searches: res ? res.searches : 0 };
@@ -710,7 +723,7 @@ export async function GET(req) {
       const lp = ext && ext.value;
       if (!lp || lp.pending === true || !lp.hook) { pending++; rows.push(editorialRow(place, null, nowIso, ["PENDING SOURCE"])); return; }
       meta.found_address = typeof lp.found_address === "string" ? lp.found_address : null;
-      const geo = meta.found_address ? await geocodeCensus(meta.found_address) : null;
+      const geo = meta.found_address ? await geocodeCensus(meta.found_address, undefined, dryMetered ? DRY_IO_TIMEOUT_MS : undefined) : null;
       if (geo) { const km = haversineKm(place.lat, place.lng, geo.lat, geo.lng); meta.distance_km = km == null ? null : Math.round(km * 100) / 100; }
       const idp = identityProblems(lp, res.fetched, place, geo);
       const verifyProblems = verifyAtlasEditorial(lp, corpusOf({ name: place.name }, res.fetched), res.fetched.map((f) => f.url));
@@ -780,7 +793,7 @@ export async function GET(req) {
     const names = new Map(places.map((p) => [p.place_id, p.name]));
     return Response.json({
       ok: true, dry: true, mode: "build", lane: !!lane, processed: rows.length, deferred, provider_halt: stats.providerHalt || null, searches: laneSearches, fetched: laneFetched,
-      ...(dryMetered ? { cost_usd_total: Math.round(drySpent * 10000) / 10000, cost_usd_per_place: dryCosts.map((c) => Math.round(c * 10000) / 10000), stopped_for_budget: stoppedForBudget, cap_usd: lane.dryCapUsd, meter_record_failed: meterRecordFailed, meter_read_failed: meterReadFailed, budget: { cap_cents: capCents, used_cents_before: usedBefore, used_cents_after: usedAfter }, ...(idsMode ? { not_found: notFound } : {}) } : {}),
+      ...(dryMetered ? { cost_usd_total: Math.round(drySpent * 10000) / 10000, cost_usd_per_place: dryCosts.map((c) => Math.round(c * 10000) / 10000), stopped_for_budget: stoppedForBudget, cap_usd: lane.dryCapUsd, meter_record_failed: meterRecordFailed, meter_read_failed: meterReadFailed, meter_blocked: meterBlocked, stopped_for_overage: stoppedForOverage, budget: { cap_cents: capCents, used_cents_before: usedBefore, used_cents_after: usedAfter }, ...(idsMode ? { not_found: notFound } : {}) } : {}),
       rows: rows.map((r) => ({ place_id: r.place_id, name: names.get(r.place_id) || null, hook: r.hook, why_here: r.why_here, verified: r.verified, issues: r.issues, ...(startInfo.has(r.place_id) ? { start: startInfo.get(r.place_id) } : {}), ...(laneMeta.get(r.place_id) || {}) })),
     }, { headers: { "Cache-Control": "no-store" } });
   }

@@ -63,7 +63,7 @@ const route = strip(read("app/api/cron/atlas-build/route.js"));
 ok(/const laneCfg = !retryMode && !refreshMode && gateFree\(\) \? atlasPaidLane\(\) : null;/.test(route), "lane must exist only in plain build mode, only while the gate is free");
 ok(/if \(gateShut\(\) \|\| gateFree\(\)\) \{\s*if \(gateShut\(\) \|\| !lane\) \{/.test(route), "gate skip must stay: shut always skips, free skips unless the lane is valid");
 ok(/takeFromLedger\(lane\.searchSku, lane\.cap\)/.test(route) && /spendAllow\("details_enterprise"\)/.test(route), "search grant must use the lane sku, shared sku only as the non-lane branch");
-ok(/\{ sku: lane\.anthropicSku, cap: lane\.cap, timeoutMs: 48000 \}/.test(route), "lane Anthropic call must carry the lane sku+cap+48s timeout; shared path stays lane-free");
+ok(/\{ sku: lane\.anthropicSku, cap: lane\.cap, timeoutMs: laneTimeout \}/.test(route), "lane Anthropic call must carry the lane sku+cap+timeout; shared path stays lane-free");
 ok(/const lane = laneCfg && \(laneCfg\.mode === "full" \|\| dry\) \? laneCfg : null;/.test(route), "dry-only mode: the lane is active for ?dry=1 only unless ATLAS_PAID_ENABLED=1 (full)");
 ok(/stoppedForBudget \|\| meterRecordFailed \|\| !dryBudgetAllows\(drySpent, dryCosts, lane\.dryCapUsd\)/.test(route), "the in-request dollar-ceiling stop must run before each place's grant");
 {
@@ -71,6 +71,18 @@ ok(/stoppedForBudget \|\| meterRecordFailed \|\| !dryBudgetAllows\(drySpent, dry
   ok(iRead > 0 && iRead < iStop && iStop < iGrant && iGrant < iRec, "cross-request meter order: read, reserve check, grant, Anthropic call, then record");
   ok(/used === null\) \{ meterReadFailed = true; stoppedForBudget = true/.test(route), "an unreadable meter must fail closed (stop, spend nothing)");
   ok(/idsList = dryMetered \? loadPriorityIds/.test(route) && /const limitDefault = dry \? \(idsMode \? idsList\.length : 1\) : 10;/.test(route), "ids= is read only for metered dry requests; a dry request without ids/limit does one place");
+}
+{
+  const meter = strip(read("lib/atlasDryMeter.js"));
+  ok(/DRY_ANTHROPIC_TIMEOUT_MS = 35000;/.test(meter) && /DRY_IO_TIMEOUT_MS = 3000;/.test(meter), "dry Anthropic timeout is 35000 ms and meter I/O timeout 3000 ms (3+3+35+3+3 = 47s inside maxDuration 60)");
+  ok(/const laneTimeout = dryRun \? DRY_ANTHROPIC_TIMEOUT_MS : 48000;/.test(route) && /timeoutMs: laneTimeout/.test(route), "the lane uses the 35s dry timeout for dry runs only (48s for real runs), for both the outer timer and paidAi");
+  ok((meter.match(/new AbortController\(\)/g) || []).length === 2 && (meter.match(/signal: ctrl\.signal/g) || []).length === 2, "readDryUsedCents and recordDryCents both carry an AbortController timeout");
+  ok((meter.match(/rpc\/wf_spend_take/g) || []).length === 1 && !/while \(/.test(meter), "recordDryCents is ONE wf_spend_take call, no stepping loop");
+  ok(/x-wf-request-sent"\) === "0"\) return \{ notSent: true/.test(route) && /meterBlocked = true; stoppedForBudget = true/.test(route), "a paidAi-blocked (not sent) place records nothing and stops the run (meter_blocked)");
+  ok(/if \(!dryRun\) tripBreaker\(/.test(route), "dry mode never trips the shared provider-health breaker");
+  ok(/if \(cents > DRY_RESERVE_FLOOR_CENTS\) \{ stoppedForOverage = true/.test(route), "a place over the reserve stops the run after it is recorded (stopped_for_overage)");
+  const pai = strip(read("lib/paidAi.js"));
+  ok(/provider_unreachable", 503, true\)/.test(pai) && (pai.match(/x-wf-request-sent/g) || []).length === 1, "only provider_unreachable (a request that was attempted) is marked sent=1");
 }
 ok(/pool\(places, dryMetered \? 1 : 6/.test(route), "dry samples must run sequentially");
 ok((route.match(/takeFromLedger\(/g) || []).length === 1, "exactly one lane grant call expected in the route");
