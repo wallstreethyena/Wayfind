@@ -69,6 +69,7 @@ import { sameOriginHeaders } from "../../../../lib/photoSurfaces";
 import { recordPulse } from "../../../../lib/jobPulse";
 import { SITE_URL } from "../../../../lib/site";
 import { jobFailed } from "../../../../lib/jobFail";
+import { googlePhotoPrefetchAllowed, PREFETCH_PAUSED } from "../../../../lib/googlePhotoPolicy";
 
 export async function GET(req) {
   const secret = process.env.CRON_SECRET;
@@ -111,6 +112,16 @@ export async function GET(req) {
   try {
     ident = await runOwnedHotelIdentityIfEnabled({ limit: IDENTITY_MAX_ROWS, deadlineAt: Date.now() + IDENTITY_BUDGET_MS });
   } catch { ident = null; }
+
+  // 2026-10-08: the photo warm is background PRE-FETCHING of Google photos, which
+  // Google Maps Platform Terms 3.2.3(a)(i) prohibits. Paused unless
+  // GOOGLE_PHOTO_PREFETCH=on (lib/googlePhotoPolicy.js). The liveness sweep and
+  // hotel identity above still run; they buy no photo.
+  if (!googlePhotoPrefetchAllowed()) {
+    const sweepBit = sweep ? `live ${sweep.checked}/${sweep.dead} dead; ` : "";
+    await recordPulse("photo-warm", { attempted: 0, succeeded: 0, note: `${sweepBit}warm: ${PREFETCH_PAUSED} (GOOGLE_PHOTO_PREFETCH not on), zero photo requests` });
+    return Response.json({ ok: true, skipped: true, reason: PREFETCH_PAUSED, sweep, ident });
+  }
 
   let result;
   try {
