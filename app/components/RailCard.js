@@ -78,6 +78,7 @@ import { normalizePlaceCardHref } from "../../lib/placeCardRoute.js";
 import { ownedPlacePhotoSrc } from "../../lib/placePhoto.js";
 import { usePhotoSrcFilter } from "./photoPolicyContext";
 import { useCardTapIntent } from "./useCardTapIntent.js";
+import { trendPulseClass, trendPulseLabel } from "../../lib/trendPulse.js";
 
 // Same glyphs as IconicPlaceCard's action row, so a thumb is one drawing in
 // this app rather than two that almost match.
@@ -476,7 +477,7 @@ export default function RailCard({
     <article
       ref={domRef}
       data-place-id={place?.id || undefined}
-      className={`wf-place-card wf-rail-card${fallCardClass(place && place.id, siteTodayStr())}${spooky ? " wf-spooky-card" : ""}${awardWinnerClass(shownAward)}${variant === "guide" ? " wf-guide-card" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${className ? " " + className : ""}`}
+      className={`wf-place-card wf-rail-card${fallCardClass(place && place.id, siteTodayStr())}${spooky ? " wf-spooky-card" : ""}${trendPulseClass(place)}${awardWinnerClass(shownAward)}${variant === "guide" ? " wf-guide-card" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${className ? " " + className : ""}`}
       role="button"
       tabIndex={0}
       onPointerDown={tapIntent.onPointerDown}
@@ -502,7 +503,7 @@ export default function RailCard({
           else window.location.assign(cardHref);
         }
       }}
-      aria-label={ariaLabel || title}
+      aria-label={trendPulseLabel(ariaLabel || title, place)}
     >
       {/* v8.62: score (or the when-badge that borrows its slot) in the top
           right corner of the CARD, never on the photo (owner, 2026-08-26).
