@@ -1,5 +1,3 @@
--- 2026-10-08: source-supported price wording and honest image labels for events.
--- Applied to production via the Supabase MCP (migration wf_events_admission_offer_and_image_kind).
 alter table public.wf_events
   add column if not exists admission_offer text,
   add column if not exists hero_image_kind text;
