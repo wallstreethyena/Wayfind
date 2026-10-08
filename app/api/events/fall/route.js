@@ -26,6 +26,7 @@ import { pageOneRail } from "../../../../lib/railPage.js";
 import { FALL_PHOTO_PLACE_IDS, FALL_PHOTO_SPOTS } from "../../../../lib/fallPhotoSpots.js";
 import { FALL_DISCOVERIES_2026, FALL_DISCOVERY_RAIL, FALL_SEASONAL_PLACE_IDS } from "../../../../lib/fallDiscoveries2026.js";
 import { FALL_GAP_FILL_2026_10_07 } from "../../../../lib/fallGapFill20261007.js";
+import { FALL_TAMPA_PICKS_2026_10_08 } from "../../../../lib/fallTampaPicks20261008.js";
 import { windowRailAnswer } from "../../../../lib/railResponse.js";
 import { FALL_COLLECTION_POSTER, FALL_EVENT_VENUE_PLACE_IDS, fallEventCardImageSrc, eventImageIsVenue, mergeFallDiscoveryRows } from "../../../../lib/fallEventImage.js";
 import { eventSocialPosts } from "../../../../lib/eventSocial.js";
@@ -94,13 +95,16 @@ export async function GET(request) {
     // scripts/seed-fall-gap-fill-2026-10-06.mjs, so no v25 payload outlives it.
     // v27 (2026-10-07) publishes four verified pumpkin patches (lib/fallGapFill20261007.js)
     // and two fall food places, so no v26 payload outlives the deploy.
-    const key = `fall-intents:v27:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v28 (2026-10-08) publishes the Tampa pass (lib/fallTampaPicks20261008.js):
+    // Guppyween, the Armature Works patch, the five named crawl stops and two
+    // venue identities, so no v27 payload outlives the deploy.
+    const key = `fall-intents:v28:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
         ...Object.keys(FALL_PLACE_IDS),
         ...FALL_PHOTO_PLACE_IDS,
-        ...[...FALL_DISCOVERIES_2026, ...FALL_FEATURED_FESTIVALS_2026, ...FALL_GAP_FILL_2026_10_07].map((row) => row.place_id).filter(Boolean),
+        ...[...FALL_DISCOVERIES_2026, ...FALL_FEATURED_FESTIVALS_2026, ...FALL_GAP_FILL_2026_10_07, ...FALL_TAMPA_PICKS_2026_10_08].map((row) => row.place_id).filter(Boolean),
         ...Object.values(FALL_EVENT_VENUE_PLACE_IDS),
       ])];
       const dealIds = [...new Set(Object.values(FALL_EVENT_TICKET_DEALS))];
@@ -133,7 +137,7 @@ export async function GET(request) {
       // The owner-supplied discovery registry is publish-ready source data,
       // not merely a seed script. Merge it at read time so a missed/lagging
       // database seed cannot erase verified farms, cafes and spooky dates.
-      const eventRows = mergeFallDiscoveryRows(rows, [...FALL_DISCOVERIES_2026, ...FALL_FEATURED_FESTIVALS_2026, ...FALL_GAP_FILL_2026_10_07]);
+      const eventRows = mergeFallDiscoveryRows(rows, [...FALL_DISCOVERIES_2026, ...FALL_FEATURED_FESTIVALS_2026, ...FALL_GAP_FILL_2026_10_07, ...FALL_TAMPA_PICKS_2026_10_08]);
       // /florida-events/<slug> is served from wf_events by slug. A registry row
       // whose database seed is lagging has no page yet, so it gets no
       // detailHref — the card falls back to the venue sheet / official page
