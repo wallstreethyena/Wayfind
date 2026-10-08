@@ -29,7 +29,8 @@ ok(eventPriceFact(null) === null && eventPriceFact(undefined) === null, "missing
 const code = (p) => readFileSync(new URL("../" + p, import.meta.url), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`\\])\/\/.*$/gm, "$1");
 const home = code("app/home.js");
 const tab = code("app/components/screens/Events.js");
-ok(/const facts = \[venue, eventPriceFact\(event\), repeats\]/.test(home), "the home event rail prints eventPriceFact");
+ok(/const priceFact = eventPriceFact\(event\);/.test(home) && /const facts = \[venue, priceFact, repeats\]/.test(home), "the home event rail prints eventPriceFact");
+ok(/const isFree = priceFact === "Free admission";/.test(home), "the home rail's Free chip shows only for plain free admission");
 ok(/facts=\{\[venue \|\| null, eventPriceFact\(e\),/.test(tab), "the Events tab card prints eventPriceFact");
 const FREE_GUESS = /ticketed === false \|\|/;
 // Positive control: the probe finds the retired inference.

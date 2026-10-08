@@ -3065,7 +3065,10 @@ function EventRailCard({ event, rank, relativeLabel, saved, liked, disliked, onS
   const repeats = recurrenceLabel(event);
   // 2026-10-08 (owner): "not ticketed" is not evidence of free. The price line
   // is the shared card rule (lib/eventPriceFact.js), same words as the Events tab.
-  const facts = [venue, eventPriceFact(event), repeats].filter(Boolean);
+  const priceFact = eventPriceFact(event);
+  // The Free chip only for plain free admission (not "· paid activities").
+  const isFree = priceFact === "Free admission";
+  const facts = [venue, priceFact, repeats].filter(Boolean);
   // The chips are ATTRIBUTES, never a second copy of the eyebrow. The first
   // pass shipped the segment in both places, so every card read "— THEATER ›"
   // above "🎭 Theater ›" — the same repeat-the-list's-own-name filler v6.88
