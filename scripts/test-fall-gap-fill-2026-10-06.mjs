@@ -54,9 +54,11 @@ const PINNED = [
 // No free geocoder could place these: Newberry's maze address and the Fort
 // Pierce walk (organizer names no meeting point). Named, not silently allowed.
 const NO_COORDS_ALLOWED = new Set([
-  "hw26-gap-newberry-cornfield-maze-newberry-2026",
-  // Fort Pierce left this list 2026-10-08: the organizer's own event page
-  // (mainstreetfortpierce.org) pins the tour at 122 A.E. Backus Ave, 27.4513979, -80.3252982.
+  // Both rows left this list 2026-10-08 (owner: fix the events missing map
+  // locations). Values mirror the live wf_events rows: Fort Pierce is the Census
+  // geocode of the organizer's meeting address (mainstreetfortpierce.org, 122 A.E.
+  // Backus Ave; the organizer's own map pin is ~110 m away); Newberry sits on West
+  // Newberry Road east of town, consistent with the venue's 20015 W Newberry Rd.
 ]);
 const FL_BOX = { lat: [24.4, 31.1], lng: [-87.7, -79.9] }; // statewide, not just the Gulf Coast
 const DASH = /[-‐-―−]/;
