@@ -97,7 +97,9 @@ try {
   equal(links().length,0);
   for(const [id,state,label] of [['d','needs_review','fresh source check'],['e','not_researched','not been prepared'],['f','unavailable','temporarily unavailable']]){
     const index=requests.length;await mount({id});await answer(index,{state});
-    equal(text().includes(label),true);equal(links().length,0);
+    if(state==='not_researched'){equal(text().includes('not been prepared'),false);equal(text().includes("Wayfind's take"),false);}
+    else equal(text().includes(label),true);
+    equal(links().length,0);
   }
   for(const badVerdict of [{placeId:'malformed'}, {...ready('malformed').verdict,sentences:null}, {...ready('malformed').verdict,sources:[{id:'s',title:'Unsafe',url:'javascript:alert(1)'}]}]){
     const index=requests.length;await mount({id:'malformed'});await answer(index,{state:'ready',verdict:badVerdict});

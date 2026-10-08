@@ -1,0 +1,92 @@
+#!/usr/bin/env node
+/**
+ * test-editorial-staff-notes — operator notes and stale-flagged hours must never reach a customer.
+ *
+ * THE INCIDENT (2026-10-08, live on Cracker Barrel and Ringling): the owner's Atlas cards carry
+ * internal reminders inside customer fields ("Open daily 7am-9pm. Verified 2026-09-28; refresh
+ * before display."). cardToEditorial() mapped them straight to the "Good to know" card, so
+ * shoppers read a staff note AND hours the owner had flagged for re-verification, under a header
+ * that said "Hours unavailable". Separately the "Wayfind's take" box printed the internal
+ * status "A sourced verdict has not been prepared for this place yet." above real content.
+ *
+ * CALL-level: imports lib/atlasCards + lib/editorialScrub and INVOKES them on every real card in
+ * data/atlas/editorial-cards.json; RENDERS VerdictBox from ScoreExplanation via scripts/lib/jsxLoad.mjs.
+ * data/atlas/editorial-cards.json is owner-curated and is never edited; the fix is at the read layer.
+ */
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { loadComponent } from "./lib/jsxLoad.mjs";
+import { cardToEditorial } from "../lib/atlasCards.js";
+import { mapWfEditorial } from "../lib/editorialRule.js";
+import { scrubEditorial, scrubEditorialText } from "../lib/editorialScrub.js";
+
+const repo = fileURLToPath(new URL("..", import.meta.url));
+let pass = 0;
+const fail = [];
+const ok = (c, m) => { if (c) pass++; else fail.push(m); };
+
+const cards = JSON.parse(readFileSync(path.join(repo, "data/atlas/editorial-cards.json"), "utf8"));
+const NOTE = /refresh before display|verify before (?:display|publish)|Verified \d{4}-\d{2}-\d{2}|Verified \d{1,2} [A-Z][a-z]{2} \d{4}|Verified 20/i;
+const un = (v) => (typeof v === "string" && v.trim() ? v.trim() : null);
+
+// Positive control for every absence assertion below: the probe MUST find a known operator note.
+ok(NOTE.test("Open daily 7am–9pm. Verified 2026-09-28; refresh before display."), "NOTE probe must match the exact reported bug string");
+ok(NOTE.test("Verified 19 Aug 2026; refresh before display.") && NOTE.test("Refresh before display."), "NOTE probe must match the other stored variants");
+
+// 1. Every real card, every rendered field: no operator phrasing.
+let flagged = 0, changed = 0, normal = 0, normalSame = 0;
+for (const c of cards) {
+  const ed = cardToEditorial(c);
+  for (const [k, v] of Object.entries(ed)) {
+    if (typeof v === "string") ok(!NOTE.test(v), `${c.name}: editorial.${k} still carries an operator note: ${v.slice(0, 90)}`);
+  }
+  const raw = un(c.currentUsefulDetail);
+  if (raw && /refresh before display/i.test(raw)) {
+    flagged++;
+    if (ed.goodToKnow !== raw) changed++;
+    // 2. A stale-flagged card yields NO hours sentence.
+    ok(!ed.goodToKnow || !/\b\d{1,2}(?::\d{2})?\s*(?:[ap]\.?m\.?)\s*[–-]\s*\d/i.test(ed.goodToKnow) || /not (?:posted|printed)|vary|differ|tour|storytime|music|market|event|special|happy|lesson|check-?in|check-?out|ride|program/i.test(ed.goodToKnow),
+      `${c.name}: stale-flagged card still states hours: ${ed.goodToKnow}`);
+    ok(!/\bopen daily\b/i.test(ed.goodToKnow || ""), `${c.name}: stale-flagged card still says "open daily"`);
+  } else if (raw && !NOTE.test(raw)) {
+    // 3. Positive control: a normal card's text is byte-for-byte unchanged.
+    normal++;
+    if (ed.goodToKnow === raw) normalSame++;
+    ok(ed.goodToKnow === raw, `${c.name}: a normal card's Good to know was altered`);
+  }
+}
+ok(flagged >= 300, `expected >=300 refresh-flagged cards in the data, saw ${flagged}`);
+ok(normal >= 1 && normalSame === normal, `positive control: ${normalSame}/${normal} normal cards unchanged`);
+
+// 4. The two reported pages, by their real place ids.
+const crackerBarrel = cards.find((c) => c.placeId === "ChIJYyfzl39Qw4gRRSr5_0Mz9qU");
+ok(!!crackerBarrel && /Open daily 7am/.test(crackerBarrel.currentUsefulDetail) && /refresh before display/.test(crackerBarrel.currentUsefulDetail), "Cracker Barrel fixture drifted: the bug input is gone from the data");
+ok(cardToEditorial(crackerBarrel).goodToKnow === null, "Cracker Barrel: Good to know must be empty (note + stale hours removed)");
+ok(cardToEditorial(crackerBarrel).watchOut === crackerBarrel.watchOut, "Cracker Barrel: the real Heads up text must be untouched");
+
+// 5. Unit controls on the scrubber itself.
+ok(scrubEditorialText("Open daily 7am–9pm. Verified 2026-09-28; refresh before display.") === null, "note + hours only -> null");
+ok(scrubEditorialText("Open daily 7am–9pm.") === "Open daily 7am–9pm.", "hours with NO flag are left alone (no invented policy)");
+ok(scrubEditorialText("Open 8am to sundown, 365 days a year; $5 per vehicle. Verified 2026-07-18; refresh before display.") === "$5 per vehicle.", "price survives next to stale hours");
+ok(scrubEditorialText("Closed for repairs. Verified 2026-07-18; refresh before display.") === "Closed for repairs.", "non-hours fact survives, note stripped");
+ok(scrubEditorialText("Lunch 11am–2pm at St. Armands. Refresh before display.") === null, "'St.' does not split a sentence");
+ok(scrubEditorial({ a: "x. Refresh before display.", b: 5, c: null }).b === 5, "non-strings pass through");
+
+// 5b. Fleet rows (wf_editorial -> mapWfEditorial) get the same scrub (Ringling-class: not an Atlas card).
+const fleet = mapWfEditorial({ verified: true, name: "Fleet Place", why_here: "A real why.", best_time: "Open daily 10am–5pm. Verified 2026-09-28; refresh before display.", know_before: "Closed Mondays. Refresh before display.", facts: [] });
+ok(fleet.goodToKnow === null && fleet.watchOut === null && fleet.why === "A real why.", "fleet row: stale hours + note stripped, real text kept");
+
+// 6. ScoreExplanation's empty-state box: RENDER it.
+const { VerdictBox } = await loadComponent(path.join(repo, "app/components/ScoreExplanation.js"), repo);
+const html = (r, v) => renderToStaticMarkup(createElement(VerdictBox, { result: r, verdict: v }));
+ok(html({ id: "x", state: "not_researched" }, null) === "", "not_researched must render NOTHING");
+ok(!/not been prepared/.test(html({ id: "x", state: "not_researched" }, null)), "not_researched text must not appear");
+const real = { sentences: [{ text: "A real reviewed sentence.", sourceIds: ["s"] }], sources: [{ id: "s", url: "https://example.com/a", title: "t" }], coverage: "venue_information", reviewedAt: "2026-10-04T00:00:00Z" };
+ok(/A real reviewed sentence\./.test(html({ id: "x", state: "ready" }, real)) && /Wayfind&#x27;s take|Wayfind's take/.test(html({ id: "x", state: "ready" }, real)), "a real verdict must still render (positive control)");
+ok(/Checking for a sourced verdict/.test(html(null, null)), "loading state is unchanged");
+
+if (fail.length) { console.error("test-editorial-staff-notes FAILED:\n - " + fail.slice(0, 25).join("\n - ")); process.exit(1); }
+console.log(`test-editorial-staff-notes: ${pass} assertions passed; ${cards.length} real cards scanned, ${flagged} refresh-flagged (${changed} changed output), ${normalSame}/${normal} normal cards byte-identical; VerdictBox rendered for 4 states; fleet mapper scrubbed`);

@@ -556,6 +556,7 @@ scripts/test-editorial-contract.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	4d512
 scripts/test-editorial-endpoint-servable.mjs	0	RENDER	blocks-ci-and-deploy	1	-	28	0	0	37abc1306230c239ace44dbcb89e01d7d3b966bd0d258a1985435f0c508c8544
 scripts/test-editorial-retry-content.mjs	0	CALL	blocks-ci-and-deploy	1	-	6	0	0	e2254e7625836025557d03c88de440683a28869f91e19c40459a9b8aa049ebd8
 scripts/test-editorial-rollout.mjs	0	CALL	blocks-ci-and-deploy	1	-	41	0	0	6229b47288a87f19a4b13f2009a325a1b2ce2e98ffcb98400cb3629773402088
+scripts/test-editorial-staff-notes.mjs	0	RENDER	blocks-ci-and-deploy	1	-	27	0	0	a810b5c94e610eb7f98e8c67241c0a62679dee997e414b7041e2a2ff6bb2dc5e
 scripts/test-editorial.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	571aa9be7594ce94c3da678d1729483ea211c1f48d5b93140ff7e94dea14968f
 scripts/test-empty-rail-visibility.mjs	0	RENDER	blocks-ci-and-deploy	1	-	60	0	0	7b4252de66af4f819f8aa19ce21a3b28261c6b1273513b7e62850cfe3c67d9f8
 scripts/test-enterprise-search-blocking.mjs	0	RENDER	blocks-ci-and-deploy	1	-	37	0	0	2da96e6e60ca6539a3d8347ce6933022c75e4906eff96f15e4c19a484ee112f5
@@ -792,7 +793,7 @@ scripts/test-review-depth-deduction.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	0
 scripts/test-safe-force-push.mjs	0	CALL	blocks-ci-and-deploy	1	-	52	0	0	09804c6ab5a9bf5154763b7c14e422d56ec58f4fdbaab039ef805a0b1e0566d2
 scripts/test-saved-items.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	80b413bed0d1ff93e69541e5e1d91d0e6590745d2f0565967b09ef392b885010
 scripts/test-score-band.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0	66ce6bb8d963c3794ed7e0a60023cae63e93fc48bec98c83697c4743d4415f40
-scripts/test-score-explanation-runtime.mjs	0	RENDER	blocks-ci-and-deploy	1	-	43	0	0	b08797f25d0470fcf8046e56b5eb010d91346a71e8a08b6c72bb1bffe05c8e56
+scripts/test-score-explanation-runtime.mjs	0	RENDER	blocks-ci-and-deploy	1	-	45	0	0	f54ffe3a1e3612ee5f1a32ba772f447ac2a9e2b1176726f29cd24beb091c07a9
 scripts/test-score-explanation.mjs	0	RENDER	blocks-ci-and-deploy	1	-	133	0	0	439a45a4a9c8e64c7a003c7a739680d20582908715f5057da42067191fae0fa1
 scripts/test-scorelabel.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0	92e863d7488094fdf364c2b31765e021f113c73250d7ead5d16eadb630704a2a
 scripts/test-search-experience.mjs	0	CALL	blocks-ci-and-deploy	1	-	49	0	0	0d6d5e54edd0be869bf542e1cd49c97edfed0e09c985ea5999d753144f0e9fb2
