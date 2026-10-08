@@ -12150,7 +12150,14 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
               <span>{cardAward.label}</span>
             </div>
           )}
-          <div className="wf-place-card-highlights" style={{ display: "flex", gap: 6, marginBottom: 7 }}>
+          {/* 2026-10-08 (owner: "the cut off food card chip"). This lane wears up to
+              4 chips (lib/cardChips.js), ordered highest value first. On a narrow
+              card the 4th landed half off the edge of the swipe strip. wf-chip-fit
+              (css.js) wraps the lane and crops it to ONE row, so a chip that does
+              not fit drops out WHOLE and the lowest value chip is the one that
+              goes. Scoped to this card only: IconicPlaceCard keeps its swipe lane
+              because its LAST pill is the partner ticket link. */}
+          <div className="wf-place-card-highlights wf-chip-fit" style={{ display: "flex", gap: 6, marginBottom: 7 }}>
             {badges.map((b) => (
               <button key={b.key} onClick={(e) => {
                 e.stopPropagation();

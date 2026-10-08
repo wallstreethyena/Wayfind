@@ -475,7 +475,7 @@ scripts/test-card-a11y.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	22	1	0	a77d7f52
 scripts/test-card-action-row.mjs	0	RENDER	blocks-ci-and-deploy	1	-	8	0	0	90695f2bcb19a8ff34c031999d31df2109a08fa68a65e20b3902f2feaea23ed5
 scripts/test-card-analytics.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	31	0	0	dca1e6742fbca17e4ed8c6fbc7c89a9406adf02a01d8b2982d66f6164020c30b
 scripts/test-card-booking.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Revenue QA	19	1	0	a70ee6b1d322cbcac5a771365fbbbb7359d9d2505f102ce2a238d31174f7f4e0
-scripts/test-card-chips-deterministic.mjs	0	RENDER	blocks-ci-and-deploy	1	-	14	0	0	e32c58b2eb8eaffcaeab9539b9ddd45f490ab402df5406258a11f9119b505ccd
+scripts/test-card-chips-deterministic.mjs	0	RENDER	blocks-ci-and-deploy	1	-	20	0	0	faa512378c123860334fb7ea02a75be949b43eb464f4e557513f4b5a246643c4
 scripts/test-card-gate.mjs	0	CALL	blocks-ci-and-deploy	1	-	52	0	0	16fa6f4413a8f9f8a90c8d017f626ac8ec0dbbb02473c4e5360fd04b2c93c033
 scripts/test-card-photo-fallback.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	01ca9684dac839a3abeceb4ecad39fccf3b3e2a2b7123bf4401bcdc4593938b3
 scripts/test-card-store-coherence.mjs	0	RENDER	blocks-ci-and-deploy	1	-	47	0	0	beecd02d00e38744089602b4c26f4781e5acd97f43a98aaa58e1507f7424de92
