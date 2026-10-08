@@ -224,6 +224,17 @@ ${WF_SKELETON_CSS}
 // scrim; the full "Photo: <credit>" line rides the title/aria-label instead
 // of being spelled out in 18px, and a tap follows through to the license page
 // when photoAttrHref is given.
+// 2026-10-08 (owner) — Google's photo credit, VISIBLE. Google requires the author be
+// credited wherever a Places photo is displayed, clearly associated with it. The 18px
+// chip above hides the name in a tooltip, which no phone can show, so a Google photo
+// carries this strip instead: the author's name across the bottom of the photo, one
+// line, ellipsised to the media column, linked to their Google Maps profile.
+`.wf-place-card-google-credit{position:absolute!important;z-index:4;left:0;right:0;bottom:0;display:block!important;padding:10px 6px 4px;
+font-size:10px!important;line-height:1.25;font-weight:600;letter-spacing:.01em;color:#F8FAFC!important;text-decoration:none!important;
+white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:linear-gradient(to top,rgba(4,8,15,.86),rgba(4,8,15,0))!important;
+text-shadow:0 1px 2px rgba(0,0,0,.6)}
+.wf-place-card-google-credit:focus-visible{outline:2px solid #F97316;outline-offset:-2px}
+.wf-sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}` +
 `.wf-place-card-photo-attr{
   position:absolute!important;
   z-index:4;

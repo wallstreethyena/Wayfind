@@ -2022,6 +2022,7 @@ node scripts/test-photo-credit-new-tab.mjs
 # A guide never shows a Google photo without Google's required visible credit;
 # licensed photos (with credit) or none instead (owner, 2026-09-30).
 node scripts/test-google-photo-attribution.mjs
+node scripts/test-city-card-photo-credit.mjs
 # Expired credits are deleted hourly by SQL (no Google call); the purge can
 # only reach rows expired over an hour ago and undoes any batch that would
 # lower the live count (2026-09-30).

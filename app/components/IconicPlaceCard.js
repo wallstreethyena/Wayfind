@@ -335,7 +335,15 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   // 2026-09-30 — under a PhotoPolicyProvider (guides) no Google photo renders
   // here: this card cannot show Google's required visible credit. A hook, so
   // it sits above every early return with the others.
-  const photoSrcFilter = usePhotoSrcFilter();
+  const policySrcFilter = usePhotoSrcFilter();
+  // 2026-10-08 (owner): a Google photo may render under the photo policy ONLY
+  // with its exact credit. lib/landingPage.js sets googlePhotoCredit when
+  // lib/cardPhotoCredit.js paired a stored credit with this exact image, and
+  // the card prints it on the photo (below). The exception covers exactly that
+  // one src: the same-place fallback is still filtered, so a credited image
+  // that fails falls to the placeholder, never to an uncredited Google photo.
+  const creditedSrc = place && place.googlePhotoCredit && place.googlePhotoCredit.author ? photoUrl(place) : "";
+  const photoSrcFilter = (src) => (creditedSrc && src === creditedSrc ? src : policySrcFilter(src));
   // Interactive place cards always open the full app detail route. The
   // crawlable /places/{id} document remains for SEO, but a stale caller cannot
   // strand a reader there because the shared renderer owns this normalization.
@@ -420,6 +428,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
     else if (action === "share" && h.share) h.share(h.place);
   }, actionsLive);
   if (!place) return null;
+  const googleCredit = creditedSrc ? place.googlePhotoCredit : null;
   const primaryPhoto = photoSrcFilter(photoUrl(place));
   const stablePlacePhoto = photoSrcFilter(ownedPlacePhotoSrc(place.place_id || place.id, 640, !!place.photoNoSpend));
   const samePlacePhotoFallback = stablePlacePhoto && stablePlacePhoto !== primaryPhoto ? stablePlacePhoto : "";
@@ -588,7 +597,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
             // already owned for that exact place, so many have none. Say so
             // instead of leaving an unexplained letter tile: a visible caption
             // and an image label naming the place. Other surfaces unchanged.
-            : place.photoNoSpend
+            : (place.photoNoSpend || place.photoWithheld)
               ? <div className="wf-place-card-monogram" role="img" aria-label={(place.name || "This place") + ": no verified photo yet"}>
                   {initials}
                   <span aria-hidden="true" style={{ position: "absolute", left: 6, right: 6, bottom: 10, textAlign: "center", fontSize: 10.5, fontWeight: 700, letterSpacing: ".03em", color: "#94A3B8" }}>No verified photo yet</span>
@@ -596,6 +605,11 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
               : <div className="wf-place-card-monogram" aria-hidden="true">{initials}</div>}
           {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
           <AwardSticker award={award} />
+          {googleCredit && primaryPhoto && imgFailed !== primaryPhoto
+            ? (googleCredit.href
+                ? <a className="wf-place-card-google-credit" href={googleCredit.href} target="_blank" rel="noopener nofollow" title={"Photo: " + googleCredit.author + " (Google Maps)"} onClick={(e) => e.stopPropagation()}>{"Photo: " + googleCredit.author}<span className="wf-sr-only"> (opens in a new tab)</span></a>
+                : <span className="wf-place-card-google-credit" title={"Photo: " + googleCredit.author}>{"Photo: " + googleCredit.author}</span>)
+            : null}
           {/* v8.56.13 (#1188) — same CC credit badge as RailCard.js, same
               reasoning: see its comment above the equivalent block. */}
           {photoAttr && primaryPhoto

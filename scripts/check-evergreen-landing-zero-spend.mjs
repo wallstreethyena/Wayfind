@@ -87,6 +87,19 @@ globalThis.fetch = async (url, init = {}) => {
     calls.push({ kind: "ledger", sku, u });
     return new Response("true", { status: 200, headers: { "content-type": "application/json" } });
   }
+  // lib/cardPhotoCredit.js (2026-10-08): the photo-credit reads get a cached photo +
+  // an exact credit for about half the requested places, nothing for the rest, so a
+  // page renders BOTH a credited no-spend photo and a withheld placeholder.
+  if (u.startsWith(SB) && /\/rest\/v1\/wf_places_cache\?select=k,v&or=/.test(u)) {
+    calls.push({ kind: "supabase", u });
+    const ids = [...decodeURIComponent(u).matchAll(/photo\|places\/([A-Za-z0-9_-]+)\/photos\/\*\|640/g)].map((m) => m[1]).filter((id) => id.charCodeAt(id.length - 1) % 2 === 0);
+    return new Response(JSON.stringify(ids.map((id) => ({ k: `photo|places/${id}/photos/AXcreditedFixture|640`, v: { uri: `https://lh3.googleusercontent.com/place-photos/${id}=s4800-w640` } }))), { status: 200, headers: { "content-type": "application/json" } });
+  }
+  if (u.startsWith(SB) && /\/rest\/v1\/wf_photo_credit\?select=photo_name,place_id,author_name,author_uri/.test(u)) {
+    calls.push({ kind: "supabase", u });
+    const names = [...decodeURIComponent(u).matchAll(/"(places\/([A-Za-z0-9_-]+)\/photos\/[A-Za-z0-9_-]+)"/g)];
+    return new Response(JSON.stringify(names.map((m) => ({ photo_name: m[1], place_id: m[2], author_name: "Fixture Author", author_uri: "https://maps.google.com/maps/contrib/1" }))), { status: 200, headers: { "content-type": "application/json" } });
+  }
   if (u.startsWith(SB)) { calls.push({ kind: "supabase", u }); return new Response("[]", { status: 200, headers: { "content-type": "application/json" } }); }
   calls.push({ kind: "other", u });
   return new Response("[]", { status: 200, headers: { "content-type": "application/json" } });
@@ -208,13 +221,19 @@ const render = async (c, s, city) => {
     const pu = photoUrls(html);
     totalPhotoUrls += pu.length;
     const spendable = pu.filter((u) => !/[?&]nospend=1(&|$)/.test(u));
-    ok(pu.length >= cards, `${k}: every card carries a photo URL or a no-spend fallback (${pu.length} URLs, ${cards} cards)`);
+    // 2026-10-08: a card with no exactly-credited or licensed photo is WITHHELD (owner:
+    // no Google photo without its visible credit). It renders no image request at all,
+    // so it is zero-spend by construction; it must be the explicit placeholder, never an
+    // unexplained gap. Both states must appear, so neither branch passes vacuously.
+    const withheld = (html.match(/no verified photo yet/gi) || []).length;
+    ok(pu.length + withheld >= cards, `${k}: every card carries a no-spend photo URL or the explicit placeholder (${pu.length} URLs + ${withheld} placeholders, ${cards} cards)`);
+    ok(pu.length > 0 && withheld > 0, `${k}: CONTROL — the page exercised both a credited no-spend photo (${pu.length}) and a withheld placeholder (${withheld})`);
     ok(spendable.length === 0, `${k}: ${spendable.length} /api/photo URL(s) without nospend=1 — a reader view could buy a photo: ${spendable.slice(0, 3).join(" | ")}`);
     ok(!/\/api\/photo\?ref=[^"]*"[^>]*data-fallback="\/api\/photo\?place=[^"&]*&amp;g=2&amp;w=640"/.test(html), `${k}: the onError fallback is never a spend-capable place URL`);
     for (const w of WITHHELD) ok(!html.includes(`href="/${w}"`), `${k}: page links nowhere withheld (/${w})`);
     ok(!TOWNS.some((t) => html.includes(`href="/events/${t}`)), `${k}: page links to no evergreen /events window`);
   }
-  ok(totalCards >= 14 * 8 && totalPhotoUrls >= totalCards, `sanity: ${totalCards} cards / ${totalPhotoUrls} photo URLs rendered across 14 pages`);
+  ok(totalCards >= 14 * 8 && totalPhotoUrls > 0, `sanity: ${totalCards} cards / ${totalPhotoUrls} photo URLs rendered across 14 pages`);
   // CONTROL: same fixture, a LANDING_CITIES town — its cards are spend-capable.
   calls = [];
   const ctlHtml = await render("restaurants", "sarasota", LANDING_CITIES.sarasota);
