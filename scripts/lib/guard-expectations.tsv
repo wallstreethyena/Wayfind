@@ -593,6 +593,7 @@ scripts/test-fall-card-integration.mjs	0	RENDER	blocks-ci-and-deploy	1	-	17	0	0	
 scripts/test-fall-destination-stays.mjs	0	RENDER	blocks-ci-and-deploy	1	-	58	0	0	ae6627e9198b035a957a7be8268735ea0cfd395b269f33351dfce034c8b31579
 scripts/test-fall-discovery-report.mjs	0	CALL	blocks-ci-and-deploy	1	-	4	0	0	85d86782cc80ab88d387391fef8aa36a0812db41511128eb0ca06f41344fe9f1
 scripts/test-fall-farm-food-gap-2026-10-07.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0	5f704f024266072c06901f004e91be43c48c84744a498394204e753da67055f7
+scripts/test-fall-food-gap-2026-10-08.mjs	0	CALL	blocks-ci-and-deploy	1	-	50	0	0	a165e39633801e326f0121d7045596b67a532d8cfb7157aebc398551ff4b4eaa
 scripts/test-fall-gap-fill-2026-10-06.mjs	0	CALL	blocks-ci-and-deploy	1	-	63	0	0	036f15f671338df81c764094dca821e0a0c88d8bd823d246235718aa2df5b33d
 scripts/test-fall-intent-rails.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	cdfa40b616335324937e0932f8e41abc2366a0be023794557d707cdd957ea058
 scripts/test-fall-visit-facts.mjs	0	RENDER	blocks-ci-and-deploy	1	-	61	0	0	606361910a35358d533bc6dd8d8c8841e0ad92b02a8bbeda6a6d658384239051

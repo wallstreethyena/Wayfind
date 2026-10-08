@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { FALL_GAP_FILL_2026_10_07 } from "../lib/fallGapFill20261007.js";
+import { FALL_FOOD_GAP_2026_10_08 } from "../lib/fallFoodGap20261008.js";
 import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import {
@@ -22,6 +23,7 @@ import { DISPLAYABLE_STATUS } from "../lib/curatedEvents.js";
 import { railRenderState, RAIL_RENDER_STATE } from "../lib/railVisibility.js";
 import { checkFallPaging } from "./lib/fall-paging-regression.mjs";
 const gapFill20261007Ids = new Set(FALL_GAP_FILL_2026_10_07.map((row) => row.event_id));
+const foodGap20261008Ids = new Set(FALL_FOOD_GAP_2026_10_08.map((row) => row.event_id));
 
 let pass = 0;
 const failures = [];
@@ -300,7 +302,7 @@ ok(sarasotaSelectedByRail.festivals.join("|") === [
   "wellen-park-wine-festival-2026",
 ].sort().join("|"), "Sarasota composition returns the exact five remaining audited outdoor-night and festival cards");
 ok(sarasotaSelected.rails.flatMap((rail) => rail.cards).map((card) => card.event_id || card.id).sort().join("|") === auditSelectedIds.slice().sort().join("|"), "Sarasota composition renders every selected audit card exactly once");
-ok(Object.keys(FALL_DISCOVERY_RAIL).every((id) => FALL_FEATURED_FESTIVAL_IDS.has(id) || discoveryIds.includes(id) || seededIds.has(id) || seededJsonIdSet.has(id) || gulfCoastIds.has(id) || publicationIds.has(id) || gapFill20261007Ids.has(id)), "every explicit rail pin names canonical discovery source data");
+ok(Object.keys(FALL_DISCOVERY_RAIL).every((id) => FALL_FEATURED_FESTIVAL_IDS.has(id) || discoveryIds.includes(id) || seededIds.has(id) || seededJsonIdSet.has(id) || gulfCoastIds.has(id) || publicationIds.has(id) || gapFill20261007Ids.has(id) || foodGap20261008Ids.has(id)), "every explicit rail pin names canonical discovery source data");
 ok([...gulfCoastIds].every((id) => id in FALL_DISCOVERY_RAIL), "every reviewed Gulf Coast event has one explicit primary intent");
 ok([...seededIds].filter((id) => !(id in FALL_DISCOVERY_RAIL)).length === 0 && seededIds.size >= 22, `every seeded row (${seededIds.size}) is pinned to one shelf`);
 ok(Object.values(FALL_DISCOVERY_RAIL).every((rail) => expected.includes(rail)), "every explicit pin targets an approved rail");
@@ -364,7 +366,7 @@ const route = readFileSync(new URL("../app/api/events/fall/route.js", import.met
 const daypart = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
 const component = readFileSync(new URL("../app/components/FallIntentRails.js", import.meta.url), "utf8");
 const card = readFileSync(new URL("../app/components/RailCard.js", import.meta.url), "utf8");
-ok(route.includes("fall-intents:v27:") && route.includes("fastCachedRail"), "the API uses the v27 shared FastCache key after the 2026-10-07 farm/food gap fill (v26: statewide gap fill; v25: Halloween DB seed; v24: verified visit facts and truthful operating-status publish)");
+ok(route.includes("fall-intents:v28:") && route.includes("fastCachedRail"), "the API uses the v28 shared FastCache key after the 2026-10-08 food gap fill and hidden-farm recovery (v27: 2026-10-07 farm/food gap fill; v26: statewide gap fill; v25: Halloween DB seed; v24: verified visit facts and truthful operating-status publish)");
 const imageProofId = "ChIJB-QyVtEXw4gRk5F8bn3YV28";
 ok(hasStoredPlacePhoto({ place_id: imageProofId, signals: { photo_url: "https://cdn.example.test/owned.jpg" } }),
   "an owned signals.photo_url is stored image proof");
