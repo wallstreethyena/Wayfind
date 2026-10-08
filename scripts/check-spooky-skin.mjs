@@ -96,7 +96,7 @@ const block = cssAll.slice(start, cssAll.indexOf("\n", lastRule));
 ok(!cssAll.slice(cssAll.indexOf("\n", lastRule)).includes("wf-spooky-card"), "spooky rules are one contiguous block, the last spooky selector ends it");
 const rules = block.split("\n").filter((l) => l.trim());
 ok(rules.length >= 15, `the spooky block has its rules (${rules.length})`);
-ok(rules.every((l) => /^\.wf-place-card\.wf-spooky-card[ ,.:{>]/.test(l)), "every spooky rule is scoped to .wf-place-card.wf-spooky-card (nothing leaks to other cards)");
+ok(rules.every((l) => /^(?:@media \(max-width:340px\)\{)?\.wf-place-card\.wf-spooky-card[ ,.:{>]/.test(l) && (!l.startsWith("@media") || l.slice(l.indexOf("{") + 1, -1).split(/[{}]/).every((seg, i) => i % 2 || !seg || seg.split(",").every((sel) => sel.startsWith(".wf-place-card.wf-spooky-card"))))), "every spooky rule is scoped to .wf-place-card.wf-spooky-card (nothing leaks to other cards)");
 ok(!/@keyframes|animation|transition/.test(block), "static skin: no animation, so prefers-reduced-motion has nothing to stop");
 ok(!/\.png|\.jpg|\.webp|\.avif/i.test(block) && /image\/svg\+xml/.test(block), "badge art is inline SVG, no PNG shipped");
 ok(Buffer.byteLength(block) < 9000, `spooky CSS stays tiny (${Buffer.byteLength(block)} bytes)`);
@@ -155,6 +155,8 @@ if (!browser) {
         for (const row of document.querySelectorAll("[data-k]")) {
           const card = row.querySelector(".wf-place-card"), cr = card.getBoundingClientRect();
           const cta = card.querySelector(".wf-rail-card-cta");
+          // Line count of the LABEL text node only: the ghost emoji sits on its own baseline and must not read as a line.
+          const textLines = (el) => { const t = [...el.childNodes].filter((n) => n.nodeType === 3).pop(); if (!t) return 0; const r = document.createRange(); r.selectNodeContents(t); return new Set([...r.getClientRects()].filter((x) => x.width > 0).map((x) => Math.round(x.top))).size; };
           const lines = (el) => { const r = document.createRange(); r.selectNodeContents(el); return new Set([...r.getClientRects()].filter((x) => x.width > 0).map((x) => Math.round(x.top))).size; };
           const badge = card.querySelector(".wayfind-score-badge,.wf-rail-when");
           const inside = (el) => { const r = el.getBoundingClientRect(); return r.left >= cr.left - 1 && r.right <= cr.right + 1 && r.top >= cr.top - 1 && r.bottom <= cr.bottom + 1; };
@@ -163,13 +165,14 @@ if (!browser) {
           const value = badge && (badge.querySelector(".wf-rail-when-value") || badge.querySelector("span:last-child > span:last-child"));
           out.cards[row.dataset.k] = {
             h: cr.height, w: cr.width, sw: card.scrollWidth, cw: card.clientWidth, bg: cs(card, "backgroundColor"), border: cs(card, "borderTopColor"),
-            ctaLines: cta ? lines(cta) : null, ctaFits: cta ? cta.scrollWidth <= cta.clientWidth + 1 : null, ctaDims: cta ? [cta.scrollWidth, cta.clientWidth, cs(cta,"fontSize"), cs(cta,"fontWeight"), cs(cta,"letterSpacing"), cs(cta,"paddingLeft"), cs(cta,"fontFamily").slice(0,30)] : null, ctaBg: cta ? cs(cta, "backgroundImage") : null, ctaInside: cta ? inside(cta) : null,
+            ctaLines: cta ? textLines(cta) : null, ctaFits: cta ? cta.scrollWidth <= cta.clientWidth + 1 : null, ctaDims: cta ? [cta.scrollWidth, cta.clientWidth, cs(cta,"fontSize"), cs(cta,"fontWeight"), cs(cta,"letterSpacing"), cs(cta,"paddingLeft"), cs(cta,"fontFamily").slice(0,30)] : null, ctaBg: cta ? cs(cta, "backgroundImage") : null, ctaInside: cta ? inside(cta) : null,
             badgeFits: badge ? badge.scrollWidth <= badge.clientWidth + 1 : null, badgeInside: badge ? inside(badge) : null, badgeBorder: badge ? cs(badge, "borderTopColor") : null,
             labelColor: label ? cs(label, "color") : null, valueColor: value ? cs(value, "color") : null, valueVisible: value ? value.getBoundingClientRect().width > 0 : null,
             eyebrow: card.querySelector(".wf-place-card-category") ? [cs(card.querySelector(".wf-place-card-category"), "color"), getComputedStyle(card.querySelector(".wf-place-card-category"), "::before").content] : null,
             eyebrowDims: card.querySelector(".wf-place-card-category") ? [card.querySelector(".wf-place-card-category").scrollWidth, card.querySelector(".wf-place-card-category").clientWidth, card.querySelector(".wf-place-card-category").parentElement.clientWidth, getComputedStyle(card.querySelector(".wf-place-card-category")).fontSize].join("/") : null,
             eyebrowFits: card.querySelector(".wf-place-card-category") ? card.querySelector(".wf-place-card-category").scrollWidth <= card.querySelector(".wf-place-card-category").clientWidth : null,
             ghosts: card.querySelector(".wf-place-card-highlights") ? (card.querySelector(".wf-place-card-highlights").textContent.match(/\u{1F47B}/gu) || []).length : 0,
+            ctaGhosts: cta ? cta.querySelectorAll(".wf-spooky-ghost").length : null, ctaGhostFirst: cta ? !!(cta.firstElementChild && cta.firstElementChild.classList.contains("wf-spooky-ghost")) : null, ctaGhostHidden: cta && cta.querySelector(".wf-spooky-ghost") ? cta.querySelector(".wf-spooky-ghost").getAttribute("aria-hidden") : null, ctaText: cta ? cta.textContent : null, ctaGap: cta ? cs(cta, "columnGap") : null,
             ctaBorder: cta ? cs(cta, "borderTopColor") : null, ctaRadius: cta ? cs(cta, "borderTopLeftRadius") : null, ctaFg: cta ? cs(cta, "color") : null,
             ctaDrips: cta ? cs(cta, "display") : null, ctaDripsContent: cta ? getComputedStyle(cta, "::before").content : null, ctaWebContent: cta ? getComputedStyle(cta, "::after").content : null,
             ctaStops: cta ? (cs(cta, "backgroundImage").match(/rgba?\([^)]*\)/g) || []) : [], ctaBorderW: cta ? cs(cta, "borderTopWidth") : null, ctaOutline: cta ? cs(cta, "outlineStyle") : null,
@@ -200,6 +203,8 @@ if (!browser) {
         ok(c.ctaLines === 1 && c.ctaFits && c.ctaInside, `${width}px ${k}: CTA is one line, fits, inside the card (${c.ctaLines} lines ${c.ctaDims})`);
         ok(/gradient/.test(c.ctaBg) && c.ctaBorder === "rgb(176, 92, 255)" && c.ctaRadius !== "0px", `${width}px ${k}: CTA is purple haunted glass pill with #B05CFF border (${c.ctaBorder})`);
         ok(c.ctaFg === "rgb(243, 232, 255)" && c.ctaGlassContrast >= 4.5, `${width}px ${k}: CTA text #F3E8FF on the glass, AA (worst contrast ${c.ctaGlassContrast.toFixed(2)}:1)`);
+        ok(c.ctaGhosts === 1 && c.ctaGhostFirst && c.ctaGhostHidden === "true" && c.ctaGap === (width <= 340 ? "3px" : "6px"), `${width}px ${k}: exactly one aria-hidden ghost leads the spooky CTA, 6px gap (3px under 340px) (${c.ctaGhosts}, gap ${c.ctaGap})`);
+        ok(!/\u{1F47B}/u.test(c.ctaText.replace(/^\u{1F47B}/u, "")) , `${width}px ${k}: no second ghost glyph in the CTA label`);
         ok(c.ctaDripsContent !== "none" && c.ctaWebContent !== "none", `${width}px ${k}: CTA drips and cobweb pseudo-elements render`);
         ok(m.docOverflow <= width, `${width}px ${k}: no horizontal page overflow from the CTA decoration (docScrollWidth ${m.docOverflow})`);
         ok(c.badgeFits && c.badgeInside && c.valueVisible, `${width}px ${k}: badge is legible: contents fit inside it and it sits inside the card`);
@@ -214,6 +219,8 @@ if (!browser) {
       }
       ok(m.cards["spooky-event"].chips.some((x) => /Halloween/.test(x)) && m.cards["spooky-place"].chips.some((x) => /Halloween/.test(x)), `${width}px: spooky cards carry the Halloween chip`);
       ok(!m.cards["fall-plain"].chips.some((x) => /Halloween/.test(x)) && m.cards["fall-plain"].eyebrow[0] !== "rgb(247, 118, 15)" && m.cards["fall-plain"].border !== "rgb(150, 86, 255)", `${width}px: the plain fall card keeps the orange fall look (no violet, no Halloween chip)`);
+      ok(m.cards["fall-plain"].ctaGhosts === 0 && m.cards.standard.ctaGhosts === 0 && !/\u{1F47B}/u.test(m.cards["fall-plain"].ctaText + m.cards.standard.ctaText), `${width}px: fall and standard CTAs carry no ghost`);
+      ok(m.cards["spooky-event"].ctaText.replace(/^\u{1F47B}/u, "") === "Tickets at Undercover Tourist ↗" && m.cards["spooky-event"].ctaLines === 1 && m.cards["spooky-event"].ctaFits && m.cards["spooky-event"].ctaInside && m.cards["spooky-perfect"].ctaLines === 1 && m.cards["spooky-perfect"].ctaFits, `${width}px: "Tickets at Undercover Tourist ↗" fits one line with the ghost, no clipping (${m.cards["spooky-event"].ctaDims}, ${m.cards["spooky-perfect"].ctaDims})`);
       ok(Math.abs(m.cards["fall-plain"].h - PLACE_CARD_HEIGHT_PX) <= 0.5 && Math.abs(m.cards.standard.h - PLACE_CARD_HEIGHT_PX) <= 0.5, `${width}px: fall and standard cards are unchanged at ${PLACE_CARD_HEIGHT_PX}px`);
       ok(m.cards["fall-plain"].ctaBorder === "rgb(255, 196, 110)" && m.cards["fall-plain"].ctaColors[1] === "rgb(59, 26, 5)" && !/gradient/.test(m.cards["fall-plain"].ctaBg) && m.cards["fall-plain"].ctaDripsContent === "none", `${width}px: fall CTA unchanged (amber border, dark brown fill, no drips/cobweb)`);
       {

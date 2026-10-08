@@ -754,6 +754,9 @@ node scripts/check-curated-events.mjs
 # used to ISR-cache "Nothing verified…" + numberOfItems:0 while detail
 # pages and /api/events still had the same rows.
 node scripts/check-curated-events-read.mjs
+# The Events tab feed reads every curated row still running today, paged;
+# a first-200-by-date read ended on Oct 9 and hid the Halloween season.
+node scripts/check-events-feed-upcoming.mjs
 
 # V8 rail menu (the homepage's daypart rail). Two failure modes it exists for:
 # (a) a rail card pointing at a segmented route without its segment — 200,

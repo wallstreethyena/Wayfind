@@ -89,6 +89,14 @@ const EVENT_FILTERS = [
 // The category we land on when the user hasn't picked one: the best-paying
 // category that actually has events (ticketed first), then the local feed.
 const DEFAULT_PRIORITY = ["concerts", "sports", "comedy", "theater", "local"];
+// Fall and Halloween (owner, 2026-10-08): in season, people opening Events must
+// see local fall events without hunting for the "Local events" filter. The
+// filter exists, and leads the auto default, ONLY while fallSkinLive(today).
+// Off season it is absent, so ?cat=fall resolves like any unknown value.
+const FALL_FILTER = { key: "fall", label: "Fall and Halloween", icon: "🎃", match: (e) => e.fall === true };
+export function eventFiltersFor(seasonLive) { return seasonLive ? [FALL_FILTER, ...EVENT_FILTERS] : EVENT_FILTERS; }
+export function defaultPriorityFor(seasonLive) { return seasonLive ? ["fall", ...DEFAULT_PRIORITY] : DEFAULT_PRIORITY; }
+export function filterMatches(f, e, eventBucket) { return f.match ? f.match(e) : eventBucket(e) === f.bucket; }
 
 export default function EventsScreen({ ctx }) {
   const { events, eventCat, setEventCat, eventDate, setEventDate, locName, center, submitSearch, eventsLoading, eventsUnavailable, eventsError, loadEvents, openVenue, dedupeEvents, AreaInsight, Loader, eventsTours, eventBucket, ViatorRail, eventSegmentMeta } = ctx;
@@ -114,19 +122,21 @@ export default function EventsScreen({ ctx }) {
   const [filterOpen, setFilterOpen] = useState(false);
   // v6.20 — geo distance so ties break by proximity.
   const distMi = (e) => { if (!center || e == null || e.lat == null || e.lng == null) return Infinity; const R = 3958.8, t = (d) => (d * Math.PI) / 180; const s = Math.sin(t(e.lat - center.lat) / 2) ** 2 + Math.cos(t(center.lat)) * Math.cos(t(e.lat)) * Math.sin(t(e.lng - center.lng) / 2) ** 2; return R * 2 * Math.asin(Math.sqrt(s)); };
-  const countForFilter = (f) => all.filter((e) => eventBucket(e) === f.bucket).length;
+  const seasonLive = fallSkinLive(siteTodayStr());
+  const FILTERS = eventFiltersFor(seasonLive);
+  const countForFilter = (f) => all.filter((e) => filterMatches(f, e, eventBucket)).length;
   // Resolve the active filter. A real category the user picked is respected even
   // when empty; the "auto" default (and any legacy tours/all/community value)
   // resolves to the best populated category so the page never lands empty.
-  const isRealKey = EVENT_FILTERS.some((f) => f.key === eventCat);
+  const isRealKey = FILTERS.some((f) => f.key === eventCat);
   let activeKey = eventCat;
   if (!isRealKey) {
-    activeKey = DEFAULT_PRIORITY.find((k) => { const f = EVENT_FILTERS.find((x) => x.key === k); return f && countForFilter(f) > 0; }) || "local";
+    activeKey = defaultPriorityFor(seasonLive).find((k) => { const f = FILTERS.find((x) => x.key === k); return f && countForFilter(f) > 0; }) || "local";
   }
-  const activeFilter = EVENT_FILTERS.find((f) => f.key === activeKey) || EVENT_FILTERS[0];
+  const activeFilter = FILTERS.find((f) => f.key === activeKey) || FILTERS[0];
   const isBusiness = activeFilter.key === "business";
   const isTours = activeFilter.key === "tours"; // v6.34 — affiliate list view
-  const catBase = all.filter((e) => eventBucket(e) === activeFilter.bucket);
+  const catBase = all.filter((e) => filterMatches(activeFilter, e, eventBucket));
   const countFor = (dateVal) => dedupeEvents(catBase.filter((e) => e.date === dateVal), false).length;
   const allCount = dedupeEvents(catBase, true).length;
   let shown = catBase;
@@ -161,7 +171,7 @@ export default function EventsScreen({ ctx }) {
       <div style={{ paddingTop: 4, marginBottom: 12 }}>
         <h1 style={{ fontSize: 20, fontWeight: 800, color: C.text, margin: 0 }}>Events near you</h1>
         {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <div style={{ marginTop: 10 }}><AreaInsight metro={_cm} cat={"events"} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /></div> : null; })()}
-        <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>Bookable tours, concerts, comedy, theater, sports, and local happenings near you</div>
+        <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>{seasonLive ? "Fall and Halloween plans, bookable tours, concerts, comedy, theater, sports, and local happenings near you" : "Bookable tours, concerts, comedy, theater, sports, and local happenings near you"}</div>
       </div>
 
       {plannable.length > 0 && (
@@ -192,7 +202,7 @@ export default function EventsScreen({ ctx }) {
             <div onClick={() => setFilterOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 40 }} />
             <div role="listbox" style={{ position: "absolute", top: "calc(100% + 8px)", left: 0, zIndex: 41, width: 292, background: "#161B22", border: `1px solid ${C.border}`, borderRadius: 16, boxShadow: "0 16px 44px rgba(0,0,0,.55)", padding: 10 }}>
               <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1px", color: C.muted, textTransform: "uppercase", padding: "4px 8px 6px" }}>Category</div>
-              {EVENT_FILTERS.map((f) => { const on = f.key === activeFilter.key; const n = f.key === "tours" ? tours.length : countForFilter(f); return (
+              {FILTERS.map((f) => { const on = f.key === activeFilter.key; const n = f.key === "tours" ? tours.length : countForFilter(f); return (
                 <button key={f.key} role="option" aria-selected={on} onClick={() => { setEventCat(f.key); setFilterOpen(false); }} style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "10px 8px", borderRadius: 10, border: "none", background: on ? "rgba(249,115,22,.12)" : "transparent", cursor: "pointer", textAlign: "left" }}>
                   <span style={{ width: 17, height: 17, borderRadius: "50%", border: `2px solid ${on ? C.light : C.border}`, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{on ? <span style={{ width: 8, height: 8, borderRadius: "50%", background: C.accent }} /> : null}</span>
                   <span style={{ fontSize: 16 }}>{f.icon}</span>
