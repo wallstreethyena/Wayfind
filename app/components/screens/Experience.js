@@ -7,7 +7,7 @@ import { HeroPill, HeroIconButton, HeroCta } from "../CollectionHero";
 import EditorialLandingHero, { editorialHeroCss } from "../EditorialLandingHero";
 import { byTopRated } from "../../../lib/ranking";
 import { shareTextFor } from "../../../lib/shareCards";
-import { CouponStrip, PerfectRightNow, ScoreDisclosure } from "../ExperienceBlocks";
+import { CouponStrip, PerfectRightNow } from "../ExperienceBlocks";
 import { nowContext, siteHourFloat } from "../../../lib/nowContext.js";
 import { experienceHeader } from "../../../lib/collectionHeader.js";
 import { areaSeasonalContext } from "../../../lib/areaSeasonalContext.js";
@@ -164,7 +164,6 @@ export default function ExperienceScreen({ ctx }) {
               {!expLoading && list.map((p, i) => (
                 <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} selectedBadge={activeBadge} />
               ))}
-              <ScoreDisclosure />
             </div>
           );
 }

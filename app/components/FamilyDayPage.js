@@ -12,7 +12,6 @@ import IconicPlaceCard from "./IconicPlaceCard";
 import ThemeParkRail from "./ThemeParkRail";
 import { usePagedRail } from "./usePagedRail";
 import { BackControl } from "../best-beaches/[metro]/parts";
-import { ScoreDisclosure } from "./ExperienceBlocks";
 import { FAMILY_DAY_RAILS, matchesFamilyFilters } from "../../lib/familyDayTaxonomy";
 import { familyFilterFacts } from "../../lib/familyDayEvidence";
 import { resolveLocationContext, milesBetween } from "../../lib/locationHonesty";
@@ -408,7 +407,6 @@ export default function FamilyDayPage({ embedded = false, center = null, city = 
       imageTitle="A day everyone wants to repeat."
       dekLead="Start with what works for your family."
       actionSlot={<button type="button" onClick={share} className="wf-family-share">{copied ? "Link copied" : "Share this list"} <span aria-hidden="true">↗</span></button>}
-      footerSlot={<ScoreDisclosure />}
     >{content}</RankedExperiencePage>
   );
 }

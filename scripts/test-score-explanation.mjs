@@ -1,8 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { createElement } from 'react';
-import { renderToStaticMarkup } from 'react-dom/server';
 import { loadComponent } from './lib/jsxLoad.mjs';
 import { governedWayfindScore } from '../lib/wayfindScore.js';
 import { wayfindScore } from '../lib/wayfindScore.js';
@@ -232,8 +230,18 @@ try {
   delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 }
 const detail = readFileSync('app/components/sheets/Detail.js','utf8');
-equal(/<ScoreExplanation\s+place=\{detail\}\s*\/>/.test(detail),true);
-equal(detail.includes('!detail._event && <ScoreExplanation'),true);
+// Owner 2026-10-08: the score math is internal. The place sheet must never
+// render the breakdown (starting score, curator adjustment, method copy) or a
+// status box about Wayfind's own pipeline. The receipt still exists for us.
+equal(/ScoreExplanation/.test(detail),false);
+equal(detail.includes('Why this score?'),false);
+{
+  // Global lock: no page or component anywhere may print the score breakdown.
+  const { readdirSync, statSync } = await import('node:fs');
+  const walk = (d) => readdirSync(d).flatMap((n) => { const f = d + '/' + n; return statSync(f).isDirectory() ? walk(f) : /\.(js|jsx|ts|tsx)$/.test(n) ? [f] : []; });
+  const banned = ['Why this score?', 'Starting score', 'Wayfind curator recommendation', 'The earlier breakdown of the starting score', 'A sourced verdict has not been prepared'];
+  for (const f of walk('app')) { const src = readFileSync(f, 'utf8'); for (const b of banned) equal(src.includes(b), false, f + ' prints internal score copy: ' + b); }
+}
 const home = readFileSync('app/home.js','utf8');
 equal(/setDetail\(\s*attachOfficialScoreReceipt\(\s*\{\s*\.\.\.p\s*\}\s*,\s*locName\s*\)\s*\)/.test(home),true);
 equal(/attachOfficialScoreReceipt\(withSignalFields\(cur, next\), locName\)/.test(home),true);
@@ -292,33 +300,4 @@ equal(readableScoreReceipt(rankedCopy)?.score, 90);
 equal(record.placeId, OWENS_ID);
 equal(record.sentences[0].text, 'For a casual seafood dinner with old Florida character, the Burns Court location is a strong fit: its own site describes local fish, Southern dishes and a backyard tire swing.');
 equal(record.sentences[1].text, 'It does not accept reservations and seats parties of up to eight, so choose another option if booking ahead or accommodating a larger group matters.');
-const component = await loadComponent(fileURLToPath(new URL('../app/components/ScoreExplanation.js',import.meta.url)),fileURLToPath(new URL('..',import.meta.url)));
-const render = place => renderToStaticMarkup(createElement(component.default,{place}));
-const html = render(owned);
-equal(html.includes('Why this score?'),true);
-equal(html.includes('Wayfind curator recommendation'),true);
-equal(html.includes('+0.2'),true);
-equal(html.includes('+0.7'),false);
-equal(html.includes('The earlier breakdown of the starting score is unavailable.'),true);
-equal(render(stale).includes('Why this score?'),false);
-equal(render(stale).includes('No additional ranking adjustments were applied.'),false);
-equal(render(raw).includes('using a review average adjusted for review count and review depth'),true);
-equal(render(raw).includes('More than 17 miles away'),true);
-equal(render(null).includes('Why this score?'),false);
-const owensHtml = render(owensDeep);
-equal(owensHtml.includes('Why this score?'),false);
-equal(owensHtml.includes('This score starts at'),false);
-equal(owensHtml.includes('Starting score'),false);
-equal(owensHtml.includes('No additional ranking adjustments were applied.'),false);
-equal(owensHtml.includes('The calculation breakdown for this score is unavailable.'),false);
-equal(owensHtml.includes('Sourced Wayfind take'),true);
-equal(/Wayfind(?:&#x27;|')s take/.test(owensHtml),true);
-const farHtml = render(owensFar);
-equal(farHtml.includes('Why this score?'),true);
-equal(farHtml.includes('More than 17 miles away'),true);
-equal(farHtml.includes('-0.2'),true);
-equal(farHtml.includes('No additional ranking adjustments were applied.'),false);
-equal(render(staleNumber).includes('Why this score?'),false);
-equal(render(leftover).includes('Why this score?'),false);
-equal(render(leftover).includes('9.2'),false);
 console.log(`test-score-explanation: ${checks} assertions passed, including altered-receipt and revoked-source red proofs`);

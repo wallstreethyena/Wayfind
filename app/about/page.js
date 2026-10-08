@@ -67,7 +67,7 @@ export default function Page() {
       </div>
 
       <h2 style={S.h2}>How Wayfind decides</h2>
-      <p style={S.p}>Every ranked list starts from the same place: a review-weighted method we call the Wayfind Score, built so a place with thousands of consistent reviews isn&apos;t beaten by five perfect ones. From there, what&apos;s true right now takes over — how far you&apos;d have to go, whether the place is actually open, and whether the weather makes an outdoor pick a good idea or a bad one. Affiliate partnerships never change any of it: when we link to a booking partner we say so, and the pick was already ranked on merit before that link ever existed. The full method, unedited, is public at <a style={S.a} href="/how-wayfind-ranks">how Wayfind ranks</a>.</p>
+      <p style={S.p}>Every ranked list starts from the same place: a review-weighted method we call the Wayfind Score, built so a place with thousands of consistent reviews isn&apos;t beaten by five perfect ones. From there, what&apos;s true right now takes over — how far you&apos;d have to go, whether the place is actually open, and whether the weather makes an outdoor pick a good idea or a bad one. Affiliate partnerships never change any of it: when we link to a booking partner we say so, and the pick was already ranked on merit before that link ever existed. Read the principles at <a style={S.a} href="/how-wayfind-ranks">how Wayfind ranks</a>.</p>
 
       <h2 style={S.h2}>Who&apos;s behind it</h2>
       <div style={S.founder}>

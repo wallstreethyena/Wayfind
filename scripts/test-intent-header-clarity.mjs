@@ -149,14 +149,12 @@ ok(!intentSource.includes('?action=like"; return') && !intentSource.includes('?a
 const trendingSource = readFileSync(path.join(ROOT, "app/components/TrendingNowClient.js"), "utf8");
 ok(trendingSource.includes("persistSave") && trendingSource.includes("recordTasteSignal(\"share\""), "trending sheet actions feed the same shared persistence and taste loop");
 ok(intentSource.indexOf("areaCtx.headline_context") > intentSource.indexOf("<details"), "metro prose lives only in collapsed About city content below the list");
-ok(intentSource.includes("footerSlot={<ScoreDisclosure />}") && !intentSource.includes("<Methodology />"), "intent sheets render one glass-box disclosure instead of a duplicate methodology line");
-
-const disclosure = renderToStaticMarkup(createElement(Blocks.ScoreDisclosure));
-ok(disclosure.includes("The glass-box score") && disclosure.includes("published editorial opinion"), "the disclosure states the glass-box policy and editorial-opinion framing");
-ok(disclosure.includes('href="/how-wayfind-ranks"'), "the disclosure links to the published ranking method");
+// Owner 2026-10-08: ranked sheets talk about the places, never about how Wayfind scores them.
+ok(!intentSource.includes("ScoreDisclosure") && !intentSource.includes("<Methodology />"), "intent sheets carry no score-method explainer");
+ok(Blocks.ScoreDisclosure === undefined, "the score-method disclosure block is gone");
 
 const experienceSource = readFileSync(path.join(ROOT, "app/components/screens/Experience.js"), "utf8");
-ok((experienceSource.match(/<ScoreDisclosure\s*\/>/g) || []).length === 1 && !experienceSource.includes("<Methodology />"), "category sheets also render exactly one glass-box disclosure");
+ok(!experienceSource.includes("ScoreDisclosure") && !experienceSource.includes("<Methodology />"), "category sheets carry no score-method explainer either");
 
 const rankedSource = readFileSync(path.join(ROOT, "app/components/RankedExperiencePage.js"), "utf8");
 ok(rankedSource.includes("WF_PLACE_CARD_CSS"), "ranked sheets load the exact shared home place-card CSS");

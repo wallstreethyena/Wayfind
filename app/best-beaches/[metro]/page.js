@@ -175,8 +175,7 @@ export default async function BeachesPage({ params }) {
   if (beaches.length) {
     ld.push({ "@context": "https://schema.org", "@type": "ItemList", name: "The best beaches — " + meta.label, numberOfItems: beaches.length, itemListElement: beaches.map((b, i) => ({ "@type": "ListItem", position: i + 1, item: { "@type": "Beach", name: b.name, geo: b.lat != null ? { "@type": "GeoCoordinates", latitude: b.lat, longitude: b.lng } : undefined } })) });
     ld.push({ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: [
-      { "@type": "Question", name: "What is the best beach near " + meta.short + "?", acceptedAnswer: { "@type": "Answer", text: beaches[0].name + " currently ranks #1" + (beaches[0].rating != null ? " with a " + beaches[0].rating + "★ rating across " + (beaches[0].reviews || 0).toLocaleString() + " reviews" : "") + ", based on the Wayfind Score — rating strength × review depth, no ads, no paid placement." } },
-      { "@type": "Question", name: "How does Wayfind rank beaches?", acceptedAnswer: { "@type": "Answer", text: "One Bayesian formula weighs each beach's rating by how many people stand behind it — a 4.8 from thousands outranks a 5.0 from a handful. The method is published in full at " + SITE_URL + "/how-wayfind-ranks." } },
+      { "@type": "Question", name: "What is the best beach near " + meta.short + "?", acceptedAnswer: { "@type": "Answer", text: beaches[0].name + " currently ranks #1" + (beaches[0].rating != null ? " with a " + beaches[0].rating + "★ rating across " + (beaches[0].reviews || 0).toLocaleString() + " reviews" : "") + ", on the Wayfind Score. No ads, no paid placement." } },
     ] });
   }
 
@@ -222,13 +221,6 @@ export default async function BeachesPage({ params }) {
                   {ed.sources && ed.sources.length ? <p style={{ fontSize: 10, color: "rgba(139,147,161,.7)", margin: "5px 0 0" }}>Sourced: {ed.sources.join(" · ")}</p> : null}
                 </details> : null}
               </>; })()}
-              {i === 2 && beaches.length > 3 ? (
-                <section style={{ background: C.card, border: "1px solid " + C.border, borderRadius: 16, padding: "14px 16px", margin: "4px 0 16px" }}>
-                  <div style={{ fontSize: 13.5, fontWeight: 800, marginBottom: 6 }}>Why Wayfind ranked them this way</div>
-                  <p style={{ fontSize: 12.5, color: "rgba(241,245,249,.82)", lineHeight: 1.55, margin: 0 }}>A perfect rating from a handful of people should not outrank a great beach backed by thousands. The Wayfind Score weighs rating quality against review depth, then pairs the number with what each beach is actually best for. Rankings are never bought, and partner links never affect placement.</p>
-                  <a href="/how-wayfind-ranks" style={{ display: "inline-block", marginTop: 8, fontSize: 12, fontWeight: 800, color: C.gold, textDecoration: "none" }}>See how Wayfind ranks places →</a>
-                </section>
-              ) : null}
             </li>
           ))}
         </ol>

@@ -15,7 +15,6 @@ import { editorialIntentHeader } from "../../lib/collectionHeader";
 import { INTENT_PAGES } from "../../lib/intentPages";
 import { areaSeasonalContext } from "../../lib/areaSeasonalContext";
 import { currentSeason } from "../../lib/seasons";
-import { ScoreDisclosure } from "./ExperienceBlocks";
 import { resolveLocationContext, locationSurface, milesBetween } from "../../lib/locationHonesty";
 import { canonicalShareUrl } from "../../lib/site";
 import { track } from "../../lib/track";
@@ -93,7 +92,6 @@ export default function DateNightIntentPage() {
           {copied ? "Link copied" : "Share this list"} <span aria-hidden="true">↗</span>
         </button>
       )}
-      footerSlot={<ScoreDisclosure />}
     >
       {/* v8.92 — the rails moved into <DateNightRails> so the DROP and this
           PAGE cannot drift. Two copies of "what is a date night" is how that

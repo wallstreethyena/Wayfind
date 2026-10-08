@@ -159,7 +159,7 @@ ok(!/["'`][^"'`]*\.(png|jpe?g|webp)["'`]/.test(og), "no static file may stand in
   ok(src.includes('variant="premium"') && src.includes("No paid placement. No sponsored rankings."), "premium hero lost its share action or trust signal");
   ok(src.includes("Stop searching. Start choosing.") && src.includes("the shortlist we’d send a friend"), "premium hero lost its confident editorial hook");
   ok(src.includes("How we verified this") && src.includes("<details"), "the depth must collapse behind How-we-verified-this — too many words on a phone otherwise");
-  ok(src.includes("Why Wayfind ranked them this way") && src.includes('i === 2 && beaches.length > 3'), "the trust section after rank 3 is gone");
+  ok(!src.includes("Why Wayfind ranked them this way") && !src.includes("One Bayesian formula"), "the beach list explains the beaches, never the scoring method (owner 2026-10-08)");
   ok(src.includes("Partner stay option — it does not affect this ranking."), "the stay card lost its no-conflict label — it clashes with no-paid-placement without it");
   ok(src.includes("Know before you go:"), "the one practical line is gone");
   // Intent sheets now use the subject-neutral editorial template under their
