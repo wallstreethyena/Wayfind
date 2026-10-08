@@ -58,6 +58,8 @@ const guideOffers = [
   ["orlando-in-the-rain", "tiqets", "orlando-tonight-sealife", /^Tickets for SEA LIFE Orlando Aquarium$/],
   ["things-to-do-orlando-not-theme-parks", "tiqets", "orlando-hook-boggy-creek", /^Tickets for Boggy Creek Airboat Adventures$/],
   ["things-to-do-in-miami-florida", "tiqets", "miami-hook-wynwood-walls", /^Tickets for Wynwood Walls$/],
+  ["anna-maria-island-day-trip", "viator", "203023P2", /^Book an Anna Maria dolphin sunset cruise$/],
+  ["de-soto-national-memorial-bradenton", "viator", "454941P4", /^Book a Robinson Preserve mangrove tour$/],
 ];
 for (const [slug, provider, offerId, label] of guideOffers) {
   const g = GUIDES[slug];
@@ -72,6 +74,43 @@ for (const [slug, provider, offerId, label] of guideOffers) {
   assert.ok(picks.toLowerCase().includes(g.parkTicketPlace.split(" ")[0].toLowerCase()), `${slug}: ${g.parkTicketPlace} is one of the guide's own picks`);
 }
 assert.equal(honestPartnerLabel("Book the Myakka River e-bike safari", "Myakka River State Park"), "Book the Myakka River e-bike safari");
+// 2026-10-08: ONE exact tour from the live experience catalogue, named by
+// offer id on the guide (partnerTour). Each code was checked live that day:
+// /api/commerce/go 302s to this exact Viator product page, and the tour is the
+// bookable version of one of the guide's own picks.
+const partnerTours = [
+  ["bioluminescence-kayak-tour-space-coast", "123164P2", "Bioluminescent Clear Kayak Tours in Titusville (Haulover Canal, Merritt Island NWR)", /^Book a Merritt Island clear kayak glow tour$/],
+  ["things-to-do-sarasota", "300175P8", "Mangrove Tunnel Guided Kayak Tours: Explore Lido Key's Nature (Ted Sperling Park)", /^Book a Lido Key mangrove tunnel kayak tour$/],
+  ["ybor-city-tampa-guide", "5642110P1", "Historic Ybor City Food and Culture Walking Tour", /^Book the Ybor City food and culture tour$/],
+];
+for (const [slug, offerId, verifiedTitle, label] of partnerTours) {
+  const g = GUIDES[slug];
+  assert.ok(g && g.partnerTour, `${slug} declares a partnerTour`);
+  assert.equal(g.partnerTour.offerId, offerId, `${slug} tour code (verified: ${verifiedTitle})`);
+  const cta = guidePrimaryCta(g);
+  assert.equal(cta.exact, true, `${slug} resolves an exact product`);
+  assert.equal(cta.provider, "viator");
+  assert.match(cta.href, /^\/api\/commerce\/go\?/, `${slug} goes through our redirect`);
+  assert.equal(new URLSearchParams(cta.href.split("?")[1]).get("offer"), offerId);
+  assert.match(cta.label, label, `${slug} label`);
+  assert.doesNotMatch(cta.label, /^Tickets/i, `${slug}: a tour is not sold as tickets`);
+  const picks = (g.picks || []).map((p) => `${p.name} ${p.appQuery || ""}`).join(" | ").toLowerCase();
+  assert.ok(picks.includes(g.partnerTour.place.split(" ")[0].toLowerCase()), `${slug}: ${g.partnerTour.place} is one of the guide's own picks`);
+}
+// Fail closed: a non-Viator provider, a malformed or denied code, or a label
+// that does not name the place resolves to nothing from this rung.
+const tourCta = (t) => guidePrimaryCta({ region: "Sarasota", partnerTour: t, picks: [] });
+const good = { provider: "viator", offerId: "300175P8", place: "Lido Key", label: "Book a Lido Key mangrove tunnel kayak tour" };
+assert.equal(tourCta(good).exact, true, "positive control: a well-formed partnerTour resolves");
+assert.equal(tourCta({ ...good, provider: "tiqets" }).kind, "none", "only viator codes resolve through partnerTour");
+assert.equal(tourCta({ ...good, offerId: "https://www.viator.com/tours/x/d1-300175P8" }).kind, "none", "a URL is never an offer id");
+assert.equal(tourCta({ ...good, offerId: "236862P2" }).kind, "none", "a denied SKU never resolves");
+assert.equal(tourCta({ ...good, label: "Book now" }).kind, "none", "a label that does not name the place is refused");
+// The HHN food guide sells the admission its own teaser says you need.
+const hhnFood = guidePrimaryCta(GUIDES["orlando-halloween-food-2026"]);
+assert.equal(hhnFood.provider || new URLSearchParams(hhnFood.href.split("?")[1]).get("provider"), "undercover_tourist");
+assert.equal(hhnFood.label, "Halloween Horror Nights tickets");
+
 // Owner rule (test-guide-search-as-book): no Crystal River SKU is pinned.
 assert.equal(GUIDES["swim-with-manatees-crystal-river"].parkTicketPlace, undefined, "Crystal River stays unpinned");
 assert.equal(honestPartnerLabel("Book a great tour", "Myakka River State Park"), null, "a label that does not name the place is refused");
@@ -87,4 +126,4 @@ assert.match(conversion, /provider:\s*cta\.provider\s*\|\|/,
 assert.match(conversion, /offer_id:\s*cta\.offerId\s*\|\|/,
   "the click event keeps the exact park offer id");
 
-console.log("test-guide-park-ticket-cta: OK — five exact park offers, eight guide partner products (tours labelled as tours), negative identities, event priority, honest annotations, one conversion module");
+console.log("test-guide-park-ticket-cta: OK — five exact park offers, ten guide partner products + three catalogue tours (tours labelled as tours, fail-closed), HHN food admission, negative identities, event priority, honest annotations, one conversion module");
