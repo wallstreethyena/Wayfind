@@ -125,8 +125,13 @@ ok(calls.length === 1, `fromCuratedEvents makes exactly one curated read (found 
 ok(calls.length === 1 && /upcomingFrom:\s*today\(\)/.test(calls[0]), "…for rows still running on the site's today");
 ok(calls.length === 1 && !/\blimit\s*:/.test(calls[0]), "…with no first-N limit (the read that ended on Oct 9)");
 ok(calls.length === 1 && /fresh:\s*true/.test(calls[0]), "…through the live reader");
-ok(/curatedSceneImage\(e,\s*sceneMemo\)/.test(body) && /const sceneMemo = new Map\(\)/.test(body),
-  "scene photos are looked up once per (kind, city) per aggregation, not once per row");
+// Positive controls: both absence probes DO find the shapes they ban (the
+// pre-fix read and the retired stock lookup), so their silence above and below
+// means the code is gone, not that the probe is blind.
+ok(/\blimit\s*:/.test("fetchCuratedEvents({ limit: 400, fresh: true })"), "positive control: the limit probe finds a first-N read");
+ok(/curatedSceneImage|stockPhotoPool/.test("const scene = await curatedSceneImage(row, city)"), "positive control: the stock probe finds the retired lookup");
+ok(!/curatedSceneImage|stockPhotoPool/.test(body),
+  "the curated read makes no stock photo lookups at all (retired 2026-10-08), so paging every upcoming row costs no photo calls");
 
 if (fail.length) {
   console.error(`check-events-feed-upcoming: FAIL — ${fail.length} failed, ${pass} passed`);

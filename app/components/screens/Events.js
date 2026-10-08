@@ -5,7 +5,7 @@
 import { useState } from "react";
 import { C, TARGET } from "../kit";
 import * as Culture from "../../../lib/culture";
-import { eventCategoryArt } from "../../../lib/eventCategoryArt";
+import { eventPlaceholder } from "../../../lib/eventPlaceholder.js";
 import { fallSkinLive } from "../../../lib/fallSkin.js";
 import { isSpookyCard, sayHalloween, withSpookyChip } from "../../../lib/spookySkin.js";
 import { siteTodayStr } from "../../../lib/siteTime";
@@ -42,8 +42,11 @@ function EventCard({ e, onVenue, ctx }) {
   const spookyCard = { id: e.id, name: e.name, category: e.category, subcategory: e.subcategory, tags: e.tags };
   const spooky = fallSkin && isSpookyCard(spookyCard, siteTodayStr());
   const venueChips = venue && onVenue ? [{ key: "venue", icon: "📍", label: venue, onClick: onVenue }] : [];
-  const categoryImage = fall ? "" : eventCategoryArt(ctx.eventBucket(e), e);
-  const image = (ctx.eventUseImage(e) || fall ? (e.thumb || e.image) : "") || categoryImage;
+  // No stock photography stands in for an event (owner, 2026-10-08): an event
+  // shows its own image (organizer photo, or a labelled venue photo) or a
+  // designed category tile from lib/eventPlaceholder.js.
+  const image = ctx.eventUseImage(e) || fall ? (e.thumb || e.image || "") : "";
+  const placeholder = eventPlaceholder(ctx.eventBucket(e), e);
   const hasCta = !fall || !!e.ticketVia || !!e.ticketed;
   return <RailCard
     photo={image}
@@ -51,7 +54,7 @@ function EventCard({ e, onVenue, ctx }) {
     planningHref={internal && !fall ? e.dest : null}
     className={fallSkin ? "wf-fall-card" : undefined}
     spooky={spooky}
-    photoFallback={categoryImage}
+    placeholder={placeholder}
     title={e.name}
     eyebrow={spooky && sayHalloween(spookyCard) ? "Halloween event" : seg.short}
     when={{ label: (rec || f.wd || f.mo || "Event").toUpperCase(), value: f.time || `${f.mo} ${f.day}`, tone: "later" }}

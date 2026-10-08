@@ -61,7 +61,7 @@ ok(e.hook === ROW.card_hook, "the editorial hook travels — it is the whole rea
 ok(e.ticketed === true, "a row with an official ticket url is ticketed");
 const free = curatedToFeedEvent(FREE_ROW);
 ok(free.ticketed === false, "a free event is explicitly NOT ticketed — Gasparilla must never wear a ticket button");
-ok(free.price === "Free", "a free event prices as Free");
+ok(free.price === "Free admission", "a free event prices as Free admission (one wording on card and page, 2026-10-08)");
 // (on an UNMAPPED event id — a mapped one is ticketed by the affiliate registry)
 const unknown = curatedToFeedEvent({ ...ROW, event_id: "unmapped-fixture-2026", official_ticket_url: null, official_event_url: "https://example.com/", price_min: null, is_free: null });
 ok(unknown.ticketed === undefined, "no ticket url and no price -> ticketed is left undefined, which reads as 'View details', not 'Get tickets'");
@@ -133,8 +133,10 @@ ok(/withDeadline\(CURATED_SOURCE, fromCuratedEvents\(/.test(route),
   "app/api/events still runs the curated provider in its fan-out");
 ok(!/near\.filter\(\(e\) => e\.image\)/.test(route),
   "the scene photo must never GATE the rail again — a stubbed PEXELS_API_KEY once emptied it in silence");
-ok(/curatedSceneImage/.test(route) && /category and the city, never the/i.test(route),
-  "the scene photo is still resolved, and the honesty line is still written where the next editor will read it");
+// 2026-10-08 (owner): no stock "scene" photo stands in for an event any more;
+// a curated row without its own image gets the designed placeholder.
+ok(!/curatedSceneImage|stockPhotoPool|\/api\/stock-photo/.test(route.replace(/\/\/.*$/gm, "")) && /Do not display unrelated\s*\n?\/\/ photography/.test(route),
+  "the events feed attaches no stock scene photo to a curated event, and the owner's reason is written where the next editor will read it");
 
 const screen = readFileSync(new URL("../app/components/screens/Events.js", import.meta.url), "utf8");
 ok(/aria-label="Worth planning for"/.test(screen),
