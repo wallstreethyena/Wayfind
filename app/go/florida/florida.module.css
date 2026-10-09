@@ -107,12 +107,14 @@
 .cardCaption .credit { display:inline; }
 @media(max-width:1000px) { .hero { gap:32px; } }
 @media(max-width:700px) {
-  .hero { grid-template-columns:1fr; gap:24px; padding-block:32px 28px; }
+  .hero { grid-template-columns:1fr; gap:20px; padding-block:24px 24px; }
   .hero h1 { font-size:clamp(42px,10.8vw,62px); margin-bottom:18px; }
   .heroSub { font-size:14px; line-height:1.65; margin-bottom:20px; }
-  .heroMedia { aspect-ratio:1.9; border-radius:12px; }
+  .heroMedia { aspect-ratio:2.1; border-radius:12px; }
   .heroFigure figcaption { padding-top:7px; font-size:9px; }
-  .heroActions { gap:12px 20px; }
+  .heroActions { gap:10px; }
+  .heroActions .primary { padding:13px 16px; gap:12px; font-size:12px; }
+  .heroActions > .textLink { font-size:11px; gap:6px; letter-spacing:0; }
 }
 
 .imageCaption { color:var(--fl-muted); font-size:10px; line-height:1.5; margin:0 0 14px; }
