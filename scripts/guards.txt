@@ -2172,3 +2172,5 @@ node scripts/check-synthetic-map-contracts.mjs
 # -> job-watch (early cap = incident, WARN = non-paging). Read-only: changes no cap. Mutation-proofed.
 node scripts/test-spend-pacing.mjs
 node scripts/test-detail-open-once.mjs
+# 2026-10-09 event JSON-LD startDate/endDate carry the event's own UTC offset (Central Panhandle vs Eastern, DST-aware).
+node scripts/check-event-jsonld-offset.mjs
