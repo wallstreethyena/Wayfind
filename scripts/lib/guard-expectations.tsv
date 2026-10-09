@@ -436,6 +436,7 @@ scripts/test-atlas-build.mjs	0	CALL	blocks-ci-and-deploy	1	-	41	1	5	b75cad4e9770
 scripts/test-atlas-card-hooks.mjs	0	CALL	blocks-ci-and-deploy	1	-	40	0	0	71d1560b678291583ab1a05b4e7864cd781edffa4a9f65581df0106b4f7a4545
 scripts/test-atlas-editorial-row.mjs	0	CALL	blocks-ci-and-deploy	1	-	32	0	0	847c4f7c304f1e1dbb98ad12a3feb32208776af4f884358d918718577c5e6829
 scripts/test-atlas-extract.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0	b1b72162651fae34f6826a0f605ba9b9a955dd9be7808b0852ad88c3357c8108
+scripts/test-atlas-pilot.mjs	0	CALL	blocks-ci-and-deploy	1	-	94	0	0	fdcbbbb98fd500f0a45d199b4cd0f73d83b03454b2517f9a7f2a5578ef7cb881
 scripts/test-atlas-place-pages.mjs	0	CALL	blocks-ci-and-deploy	1	-	82	1	2	43c4284ed37f7148e4e21843edd1d6177ae30b9bb8a287a360303c6aa2bc2015
 scripts/test-atlas-reclassify.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	1ccfcbb199195044e8c358718ead9027d89fd25f14f32e1155ca1e79a11a550d
 scripts/test-atlas-retry.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	21	1	0	8c8d531e8b7cf4f508bc16c6d8746a8d41e5f9b40effc29a0da439c35dfa16ee

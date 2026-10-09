@@ -585,6 +585,8 @@ node scripts/check-atlas-paid-lane.mjs
 node scripts/test-atlas-web-lane.mjs
 # 2026-10-08 Atlas dollar budget: ceiling/reserve/settle invariant, exact micro-USD pricing, fail-closed (not wired into the cron yet).
 node scripts/test-atlas-budget.mjs
+# 2026-10-08 Atlas pilot runner + 5.5 sampling-param fix: mocked fetch only, host allow-list, budget stop, blind packet.
+node scripts/test-atlas-pilot.mjs
 # 2026-10-07 Owner rule: once a verified editorial line is written it stays. No wf_editorial deletes; reconcile restores reopened places.
 node scripts/check-editorial-stays.mjs
 node scripts/check-guide-cta-honesty.mjs

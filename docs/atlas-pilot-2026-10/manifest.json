@@ -1,0 +1,219 @@
+{
+  "pilotId": "atlas-pilot-2026-10-08",
+  "priceVersion": "anthropic-std-2026-10-08",
+  "selection": {
+    "queryDescription": "places with >=1 detail_open in [2026-09-09T00:00Z, 2026-10-09T00:00Z), OPERATIONAL, not excluded, metro in tampa/orlando/manatee-sarasota, no verified non-empty wf_editorial.why_here, names matching disney|epcot|magic kingdom|hollywood studios|animal kingdom|typhoon lagoon|blizzard beach excluded (AGENTS.md section 7) before any output, stratified quotas by metro x category, ranked by unique devices then md5(place_id||'atlas-pilot-2026-10-08')",
+    "frozenAt": "2026-10-09"
+  },
+  "models": [
+    "claude-haiku-5-5",
+    "claude-sonnet-5-5"
+  ],
+  "attemptsPerPlacePerModel": 1,
+  "retries": 0,
+  "continuations": 0,
+  "continuationsNote": "pause_turn is recorded as incomplete; no continuation call is ever made.",
+  "ceilingMicroUsd": 8000000,
+  "limits": {
+    "maxInputTokens": 350000,
+    "maxOutputTokens": 14000,
+    "maxSearches": 3,
+    "cacheWriteTokens": 350000
+  },
+  "limitsNote": "Conservative assumptions, NOT a provable hard maximum: input assumes cumulative re-billing across up to 7 server-loop iterations and search results up to 15k tokens each. Search result size is not bounded by any documented parameter. If real cost exceeds the reserved bound the overrun is recorded in full and the ledger halts until an operator clears it.",
+  "concurrency": 1,
+  "frozenConfig": {
+    "files": {
+      "lib/atlasWebLane.js": "05aabac068f5cceff972b379180550154f4b87018a6d13b40f4538b6b384fedf",
+      "lib/atlasVerify.js": "d9c85e8a9c7c6407be4864dd86ece070d03115de4366a36e4b8c1ca0e03f59dc",
+      "lib/atlasEditorial.js": "d51b1c0f769fdfb9de95c1718798ae51cfe7d60eeadd4ea11cfe67dd4969d819",
+      "lib/atlasCache.js": "e4f1d7a743258793f0e6383ed70787547976853e549c8cf12eb6d3ac8c9bd1cb"
+    },
+    "systemPrompt": {
+      "claude-haiku-5-5": "cbfc1cbb558b45ea1d8f73a7bdc8f721f1ae99769ca727ea6bad02b30b978ae6",
+      "claude-sonnet-5-5": "cbfc1cbb558b45ea1d8f73a7bdc8f721f1ae99769ca727ea6bad02b30b978ae6"
+    }
+  },
+  "places": [
+    {
+      "place_id": "ChIJd4gdriVHw4gRi_-RHaFV__o",
+      "name": "ULTIMATE KAYAK SRQ - Siesta Key Kayaking Tours & Rentals",
+      "category": "attractions",
+      "metro": "manatee-sarasota",
+      "devices30d": 5,
+      "opens30d": 5,
+      "editorialState": "no_row"
+    },
+    {
+      "place_id": "ChIJh8tXh-FBw4gR9kFzfZN_g60",
+      "name": "Siesta Beach",
+      "category": "beach",
+      "metro": "manatee-sarasota",
+      "devices30d": 65,
+      "opens30d": 124,
+      "editorialState": "unverified"
+    },
+    {
+      "place_id": "ChIJTZkqqwlqw4gRtRIs8aUAsIc",
+      "name": "Public Beach Access 5",
+      "category": "beach",
+      "metro": "manatee-sarasota",
+      "devices30d": 2,
+      "opens30d": 2,
+      "editorialState": "unverified"
+    },
+    {
+      "place_id": "ChIJ1U_vFp0Xw4gRGKl6mJGJ9UI",
+      "name": "Joy Coffee",
+      "category": "food",
+      "metro": "manatee-sarasota",
+      "devices30d": 4,
+      "opens30d": 12,
+      "editorialState": "no_row"
+    },
+    {
+      "place_id": "ChIJVS8Uf30lw4gRUwZqd4I4A0I",
+      "name": "Arby's",
+      "category": "food",
+      "metro": "manatee-sarasota",
+      "devices30d": 4,
+      "opens30d": 7,
+      "editorialState": "no_row"
+    },
+    {
+      "place_id": "ChIJwSIgGDNBw4gRHAQ7_Ybiu0M",
+      "name": "SoFresh - Healthy Salads, Wraps & Bowls",
+      "category": "food",
+      "metro": "manatee-sarasota",
+      "devices30d": 3,
+      "opens30d": 5,
+      "editorialState": "no_row"
+    },
+    {
+      "place_id": "ChIJo1atfnAlw4gRUCJ6Tf8CDKg",
+      "name": "Wendy's",
+      "category": "food",
+      "metro": "manatee-sarasota",
+      "devices30d": 3,
+      "opens30d": 5,
+      "editorialState": "no_row"
+    },
+    {
+      "place_id": "ChIJs8W2IIlBw4gRG6sbw3bA5OM",
+      "name": "The Breakfast Company",
+      "category": "food",
+      "metro": "manatee-sarasota",
+      "devices30d": 3,
+      "opens30d": 5,
+      "editorialState": "no_row"
+    },
+    {
+      "place_id": "ChIJqZAQtMVqw4gRQSMDzhntYY4",
+      "name": "The Resort at Longboat Key Club",
+      "category": "hotels",
+      "metro": "manatee-sarasota",
+      "devices30d": 4,
+      "opens30d": 7,
+      "editorialState": "empty_row"
+    },
+    {
+      "place_id": "ChIJDQyuk2RAw4gRXPQFqZioajI",
+      "name": "Shamrock Pub",
+      "category": "nightlife",
+      "metro": "manatee-sarasota",
+      "devices30d": 2,
+      "opens30d": 4,
+      "editorialState": "no_row"
+    },
+    {
+      "place_id": "ChIJyWJV1WxAw4gRv8El830m2PY",
+      "name": "Sarasota Farmers Market",
+      "category": "shopping",
+      "metro": "manatee-sarasota",
+      "devices30d": 2,
+      "opens30d": 4,
+      "editorialState": "no_row"
+    },
+    {
+      "place_id": "ChIJa7bjTAB_54gR-M-m-KIOCP0",
+      "name": "Universal Epic Universe",
+      "category": "attractions",
+      "metro": "orlando",
+      "devices30d": 116,
+      "opens30d": 252,
+      "editorialState": "no_row"
+    },
+    {
+      "place_id": "ChIJ4XkjoBtw54gRGiqFxtWvbM8",
+      "name": "Scenic Boat Tour",
+      "category": "attractions",
+      "metro": "orlando",
+      "devices30d": 12,
+      "opens30d": 29,
+      "editorialState": "empty_row"
+    },
+    {
+      "place_id": "ChIJd_yTxUh054gR9cGD0gI_yHw",
+      "name": "Wekiwa Springs State Park",
+      "category": "attractions",
+      "metro": "orlando",
+      "devices30d": 5,
+      "opens30d": 10,
+      "editorialState": "no_row"
+    },
+    {
+      "place_id": "ChIJIQE2BMF954gRRQ97-X89_G0",
+      "name": "Dolce and Bake Cafe/Bakery",
+      "category": "food",
+      "metro": "orlando",
+      "devices30d": 2,
+      "opens30d": 7,
+      "editorialState": "no_row"
+    },
+    {
+      "place_id": "ChIJG1opWwB754gRGs--XkuAER0",
+      "name": "Mills Market",
+      "category": "food",
+      "metro": "orlando",
+      "devices30d": 2,
+      "opens30d": 2,
+      "editorialState": "empty_row"
+    },
+    {
+      "place_id": "ChIJ5_NkHLUcw4gRndvLQGe_Ox8",
+      "name": "Shell Key Preserve",
+      "category": "attractions",
+      "metro": "tampa",
+      "devices30d": 2,
+      "opens30d": 2,
+      "editorialState": "empty_row"
+    },
+    {
+      "place_id": "ChIJH3DNubrRwogRYmh4hiVWUHI",
+      "name": "Gretchen's Goodies",
+      "category": "food",
+      "metro": "tampa",
+      "devices30d": 2,
+      "opens30d": 2,
+      "editorialState": "empty_row"
+    },
+    {
+      "place_id": "ChIJ0aykey3FwogRQmoxPBAZa58",
+      "name": "Street Crust",
+      "category": "food",
+      "metro": "tampa",
+      "devices30d": 2,
+      "opens30d": 4,
+      "editorialState": "no_row"
+    },
+    {
+      "place_id": "ChIJJeuujrDFwogRZWZ69psQAa4",
+      "name": "SORSI Waterfront",
+      "category": "nightlife",
+      "metro": "tampa",
+      "devices30d": 1,
+      "opens30d": 1,
+      "editorialState": "empty_row"
+    }
+  ]
+}

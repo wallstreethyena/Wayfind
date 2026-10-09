@@ -51,7 +51,9 @@ const walk = (d) => readdirSync(path.join(ROOT, d)).flatMap((f) => {
   const rel = d + "/" + f; const st = statSync(path.join(ROOT, rel));
   return st.isDirectory() ? walk(rel) : /\.(js|jsx|mjs|ts|tsx)$/.test(f) ? [rel] : [];
 });
-const ALLOWED = new Set(["app/api/cron/atlas-build/route.js", "lib/atlasPaidLane.js", "lib/atlasWebLane.js", "scripts/check-atlas-paid-lane.mjs"]);
+const ALLOWED = new Set(["app/api/cron/atlas-build/route.js", "lib/atlasPaidLane.js", "lib/atlasWebLane.js", "scripts/check-atlas-paid-lane.mjs",
+  // 2026-10-08 owner-run pilot: needs --confirm-spend + an outside-repo ledger + its own dollar budget (lib/atlasBudget.js); never wired to the cron.
+  "scripts/atlas-pilot.mjs"]);
 for (const f of [...walk("app"), ...walk("lib"), ...walk("scripts")]) {
   if (ALLOWED.has(f)) continue;
   if (/ATLAS_PAID_ENABLED|ATLAS_MONTH_PLACE_CAP|atlas_web_search|atlas_anthropic_requests|atlasPaidLane|atlasWebLane/.test(read(f)))
