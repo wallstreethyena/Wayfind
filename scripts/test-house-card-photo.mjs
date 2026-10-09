@@ -203,13 +203,13 @@ function leakSharedFallback() {
     rank: i + 1,
     href: "/p/" + p.id,
   })));
-  ok(htmls.every((h) => h.includes("wf-place-card") && /<img\b/i.test(h)),
-    "positive control: three Family house cards rendered with an <img>");
+  ok(htmls.every((h) => h.includes("wf-place-card") && h.includes("data-card-photo-request=")),
+    "positive control: three Family cards render their lazy, credited photo request");
   const srcs = htmls.map((h) => {
-    const m = h.match(/src="([^"]+)"/);
-    return m ? m[1] : "";
+    const m = h.match(/data-card-photo-request="([^"]+)"/);
+    return m ? m[1].replaceAll("&amp;", "&") : "";
   });
-  ok(srcs.every((s) => s.includes("/api/photo?ref=")),
+  ok(srcs.every((s) => s.includes("/api/photo?place=") && s.includes("s=card&fmt=json")),
     "each house card with a photoRef uses /api/photo (got " + srcs.join(" | ") + ")");
   ok(new Set(srcs).size === 3, "three Family house cards emit three distinct /api/photo refs");
 
@@ -225,6 +225,7 @@ function leakSharedFallback() {
     const u = new URL(src, "https://www.gowayfind.com");
     const r = await resolvePlacePhoto({
       ref: u.searchParams.get("ref") || "",
+      place: u.searchParams.get("place") || "",
       w: u.searchParams.get("w") || "640",
       gateShut: false,
       spendAllowed: false,

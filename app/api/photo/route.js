@@ -1,16 +1,7 @@
 import { gateShut, spendAllow, spendAllowPhotos, photosCeiling } from "../../../lib/spendGate";
-// v6.18 — server-side Google Places photo proxy.
-//
-// Why this exists: the browser was loading place photos directly from
-// places.googleapis.com/v1/{ref}/media?key={PUBLIC_KEY}. That URL is
-// referrer-restricted (the public key is locked to gowayfind.com), and the
-// Places (New) media endpoint's redirect drops the referrer — so the image
-// often failed to load. It also put an API key in every <img> src.
-//
-// This route fetches the photo bytes SERVER-side with GOOGLE_MAPS_SERVER_KEY
-// (no referrer restriction), streams them back from our own origin, and caches
-// them at the CDN for 30 days — the Google ToS maximum for cached place
-// content. No key ever reaches the browser, and images load reliably.
+// Server-side Places photo resolution keeps API keys out of the browser.
+// Licensed images may use their normal cache policy. Live Google image URLs,
+// photo names and credits are never persisted; responses are private/no-store.
 import { NextResponse } from "next/server";
 import { FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef, resolvePlacePhoto } from "../../../lib/placePhotoServe";
 import { findFreePhoto } from "../../../lib/freePhoto";
@@ -18,14 +9,11 @@ import { recordPhotoOutcome, recordPhotoDeniedCeiling } from "../../../lib/photo
 import { recordReaderPhotoMiss } from "../../../lib/photoReaderMissQueue";
 import { isAutomatedPhotoReader } from "../../../lib/crawler.js";
 
-// COMPLIANT PHOTOS (owner decision, 2026-10-08). No Google photo name, URL or
-// credit is stored or served from storage. Order: Wayfind's own photo, then a
-// permitted or licensed photo of THIS place (wf_place_photo), then a live
-// Google photo ONLY when the request comes from a surface that shows the full
-// credit (`s=detail`: the place detail hero and its viewer), else an honest
-// miss the card renders as a clean placeholder. `fmt=json` returns the chosen
-// image with its credit so that surface can show both together.
-const GOOGLE_SURFACES = new Set(["detail"]);
+// Licensed/owned photos of THIS place come first. Live Google photos require
+// a credited surface: the detail page or a card with a same-image full-credit
+// viewer (owner decision, 2026-10-09). Card requests must return JSON so the
+// renderer receives the image and its credit together.
+const GOOGLE_SURFACES = new Set(["detail", "card"]);
 
 export const dynamic = "force-dynamic";
 
@@ -156,8 +144,8 @@ export async function GET(req) {
   const automated = isAutomatedPhotoReader(ua);
   const probe = req.headers.get("x-wayfind-photo-probe") === "1" || searchParams.get("nospend") === "1" || automated;
   const recoveryPlaceId = placeIdFromRef(ref) || (PLACE_RX.test(place) ? place : "");
-  const googleSurface = GOOGLE_SURFACES.has(searchParams.get("s") || "");
   const wantJson = searchParams.get("fmt") === "json";
+  const googleSurface = GOOGLE_SURFACES.has(searchParams.get("s") || "") && (searchParams.get("s") !== "card" || wantJson);
   // Same memoized-promise shape as getRecovery(), and the same identity
   // scope (recoveryPlaceId — never a neighbour). Read-only: lib/freePhoto.js
   // never writes wf_place_photo, so a probe hitting this is exactly as safe
@@ -262,7 +250,7 @@ export async function GET(req) {
       if (result.reason === "google" && !probe) logGoogleGrant(req, result.reason);
       const c = result.credit || {};
       return result.reason === "google"
-        ? jsonAnswer({ src: result.location, source: "google", credit: { name: c.name || "", uri: c.uri || null, mapsUri: c.mapsUri || null } }, "private, no-store", "google")
+        ? jsonAnswer({ src: result.location, source: "google", credit: { name: c.name || "", uri: c.uri || null, mapsUri: c.mapsUri || null, authors: c.authors || [] } }, "private, no-store", "google")
         : jsonAnswer({ src: result.location, source: "wayfind", credit: null }, "private, max-age=300", result.reason || "inventory");
     }
     // "google" is the ONLY redirect reason that means a real ledger grant was

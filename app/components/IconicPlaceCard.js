@@ -4,6 +4,7 @@
 // classes and geometry come from WF_PLACE_CARD_CSS; keeping those names here
 // means collection cards cannot quietly become a second, taller card system.
 import { WayfindScoreBadge } from "./kit";
+import CardPhoto from "./CardPhoto";
 import { businessStatus } from "../../lib/businessStatus";
 import { coarseCat } from "../../lib/ranking";
 import { toDisplayScore } from "../../lib/score";
@@ -568,7 +569,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
             fold on landing pages, where lazy works and matters. */}
           {primaryPhoto && imgFailed !== primaryPhoto
             ? (
-              <img
+              <CardPhoto
                 src={primaryPhoto}
                 data-fallback={samePlacePhotoFallback}
                 alt=""

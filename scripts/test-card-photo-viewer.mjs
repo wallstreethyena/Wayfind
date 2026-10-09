@@ -1,0 +1,79 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import ts from "typescript";
+import { chromium } from "@playwright/test";
+import { cardPhotoRequest, fetchCardPhoto } from "../lib/cardPhotoRequest.js";
+
+const source = "/api/photo?place=ChIJCardPhotoTest0001";
+const request = cardPhotoRequest(source);
+assert.match(request, /s=card&fmt=json/);
+assert.match(cardPhotoRequest(source + "&nospend=1"), /nospend=1/);
+assert.equal(cardPhotoRequest("https://other.example" + source), null);
+assert.equal(cardPhotoRequest("/api/photo?place=bad"), null);
+let calls = 0, release;
+const wait = new Promise((r) => { release = r; });
+const fake = async () => { calls++; await wait; return { ok: true, json: async () => ({ src: "https://photo.test/a.jpg", source: "google", credit: { mapsUri: "https://maps.google.com/photo/a" } }) }; };
+const one = fetchCardPhoto(request, fake), two = fetchCardPhoto(request, fake);
+assert.equal(one, two);
+release(); await one;
+assert.equal(calls, 1);
+await fetchCardPhoto(request, fake);
+assert.equal(calls, 2, "completed results are not retained in a cache");
+assert.equal(await fetchCardPhoto(request, async () => ({ ok: true, json: async () => ({ src: "https://photo.test/a.jpg", source: "google", credit: {} }) })), null);
+assert.equal((await fetchCardPhoto(request, async () => ({ ok: true, json: async () => ({ src: "/images/owned.jpg", source: "wayfind", credit: null }) }))).src, "/images/owned.jpg", "local owned images remain available");
+
+let browser;
+try { browser = await chromium.launch({ headless: true, executablePath: process.argv.find((a) => a.startsWith("--browser="))?.slice(10) || undefined, args: ["--no-sandbox"] }); }
+catch (e) {
+  if (process.argv.includes("--require-browser")) throw e;
+  console.log("test-card-photo-viewer: request tests passed; browser unavailable, rendered behavior NOT verified");
+  process.exit(0);
+}
+const compile = (file) => ts.transpileModule(readFileSync(new URL(file, import.meta.url), "utf8"), { compilerOptions: { jsx: ts.JsxEmit.React, module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText;
+const helper = compile("../lib/cardPhotoRequest.js"), component = compile("../app/components/CardPhoto.js");
+try {
+  for (const width of [390, 1440]) {
+    const page = await browser.newPage({ viewport: { width, height: 900 } });
+    const errors = [];
+    page.on("pageerror", (e) => errors.push(e.message));
+    let photoCalls = 0;
+    const photo = { src: "https://photo.test/exact.jpg", source: "google", credit: { mapsUri: "https://maps.google.com/photo/exact", authors: [{ name: "First Author", uri: "https://maps.google.com/contrib/first", photoUri: "https://photo.test/avatar.jpg" }, { name: "Second Author", uri: "https://maps.google.com/contrib/second" }] } };
+    await page.route("**/*", async (route) => {
+      const u = new URL(route.request().url());
+      if (u.pathname === "/api/photo") {
+        photoCalls++;
+        assert.equal(u.searchParams.get("s"), "card");
+        assert.equal(u.searchParams.get("fmt"), "json");
+        return route.fulfill({ json: photo });
+      }
+      if (u.hostname === "photo.test") return route.fulfill({ contentType: "image/svg+xml", body: '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800"><rect width="1200" height="800" fill="#446655"/></svg>' });
+      return route.fulfill({ contentType: "text/html", body: '<div style="height:1400px"></div><div id="root" style="position:relative;width:100px;height:268px"></div>' });
+    });
+    await page.goto("https://wayfind.test/");
+    await page.addScriptTag({ path: new URL("../node_modules/react/umd/react.development.js", import.meta.url).pathname });
+    await page.addScriptTag({ path: new URL("../node_modules/react-dom/umd/react-dom.development.js", import.meta.url).pathname });
+    await page.addScriptTag({ content: `window.photoHelpers={};(function(exports){${helper}})(photoHelpers);window.photoModule={};(function(exports,require){${component}})(photoModule,id=>id==='react'?React:id==='react-dom'?ReactDOM:photoHelpers);window.root=ReactDOM.createRoot(document.getElementById('root'));root.render(React.createElement(photoModule.default,{src:${JSON.stringify(source)},alt:'Test venue',style:{width:'100%',height:'100%',objectFit:'cover'}}));` });
+    await page.waitForTimeout(100);
+    assert.equal(photoCalls, 0, "offscreen card makes no request");
+    await page.locator("#root").scrollIntoViewIfNeeded();
+    const button = page.getByRole("button", { name: "View larger photo and photographer credit" });
+    await button.waitFor();
+    assert.equal(photoCalls, 1);
+    const thumb = await page.locator("#root > img").getAttribute("src");
+    await button.click();
+    await page.locator("dialog[open]").waitFor();
+    assert.equal(await page.locator("dialog > img").getAttribute("src"), thumb);
+    assert.ok(await page.getByText("First Author", { exact: true }).isVisible());
+    assert.ok(await page.getByText("Second Author", { exact: true }).isVisible());
+    assert.equal(await page.locator("dialog a[translate=no]").getAttribute("href"), photo.credit.mapsUri);
+    assert.equal(photoCalls, 1, "viewer never purchases another photo");
+    await page.keyboard.press("Escape");
+    assert.equal(await page.locator("dialog").count(), 0);
+    const badge = await page.locator("[data-card-photo-credit] a").boundingBox();
+    const bounds = await page.locator("#root").boundingBox();
+    assert.ok(badge.x >= bounds.x && badge.x + badge.width <= bounds.x + bounds.width);
+    assert.deepEqual(errors, []);
+    await page.close();
+  }
+  console.log("test-card-photo-viewer: Chromium 390/1440 passed: lazy request, same image, all authors, source link, Escape, attribution fit, no extra viewer request");
+} finally { await browser.close(); }
