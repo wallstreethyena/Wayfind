@@ -120,13 +120,22 @@ export function filterMatches(f, e, eventBucket) { return f.match ? f.match(e) :
 // ghost tours) is never claimed for a specific day it may be dark; it stays
 // under All with its own schedule on the card.
 const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
+// A run with a verified day list (Armature Fall Fest: Oct 10, 11, 24, 25)
+// belongs under exactly those days: never the days between its weekends.
+function occurrenceList(e) {
+  return e && Array.isArray(e.occurrences) && e.occurrences.length ? e.occurrences : null;
+}
 export function eventLastDay(e) {
+  const occ = occurrenceList(e);
+  if (occ) return occ[occ.length - 1];
   const start = String((e && e.date) || "");
   const end = String((e && e.endDate) || "");
   return ISO_DAY.test(end) && end > start ? end : start;
 }
 export function eventRunsOn(e, day) {
   if (!e || !day) return false;
+  const occ = occurrenceList(e);
+  if (occ) return occ.includes(day);
   if (e.date === day) return true;
   if (e.selectNights) return false;
   return !!e.date && e.date < day && eventLastDay(e) >= day;
@@ -135,6 +144,8 @@ export function eventRunsOn(e, day) {
 // run that began earlier is still going.
 export function effectiveEventDate(e, today) {
   if (!e || !e.date) return "9999-12-31";
+  const occ = occurrenceList(e);
+  if (occ) return occ.find((d) => d >= today) || occ[occ.length - 1];
   return e.date < today && eventLastDay(e) >= today ? today : e.date;
 }
 // One ordering for every event list on this screen: soonest day first; within

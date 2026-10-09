@@ -18,7 +18,8 @@ import { safeUrl } from "../../../lib/links.js";
 import { SITE_URL } from "../../../lib/site";
 import { fetchCuratedEvents, fetchCuratedEventBySlug, eventJsonLd, dateRangeLabel, eventWebsiteUrl } from "../../../lib/curatedEvents";
 import { eventPhotos } from "../../../lib/eventPhotos";
-import { eventVenueImageSrc } from "../../../lib/eventPageImage.js";
+import { eventVenueImageSrc, withTampaPassFacts } from "../../../lib/eventPageImage.js";
+import { eventDatesLabel } from "../../../lib/eventOccurrences.js";
 import { addressLine, appleDirectionsUrl } from "../../../lib/placeWhere";
 import ShareButton from "../../components/ShareButton";
 import PhotoCreditLink from "../../components/PhotoCreditLink";
@@ -53,10 +54,10 @@ export async function generateMetadata({ params }) {
   // Throws on a failed read. Do not catch — an outage is not "this event
   // has no metadata", and catching would hide the same soft-fail the hub
   // used to cache as a successful empty page.
-  const e = await fetchCuratedEventBySlug(params.slug);
+  const e = await fetchCuratedEventBySlug(params.slug).then(withTampaPassFacts);
   if (!e) return {};
   const title = `${e.event_name} ${e.year}: Dates, Tickets & What to Know`;
-  const desc = `${e.event_name} runs ${dateRangeLabel(e)} in ${e.city}. ${e.card_hook || ""} Wayfind's verdict, timing, parking and what to pair it with.`.trim();
+  const desc = `${e.event_name} runs ${eventDatesLabel(e, dateRangeLabel(e))} in ${e.city}. ${e.card_hook || ""} Wayfind's verdict, timing, parking and what to pair it with.`.trim();
   // THE SHARE CARD (v9, owner 2026-09-23: "everything on wayfind that is
   // sharable looks premium"). An event that has owned, consent-cleared
   // photography (lib/eventPhotos.js) now previews through the HERO ROUTE
@@ -70,7 +71,7 @@ export async function generateMetadata({ params }) {
   // typographic card, carrying this exact event's own name — never a photo
   // Wayfind has no consent to reuse. Built on SITE_URL because a scraper
   // does not resolve a relative path (scripts/check-og-absolute.mjs).
-  const ogTitle = `${e.event_name} — ${dateRangeLabel(e)}`;
+  const ogTitle = `${e.event_name} — ${eventDatesLabel(e, dateRangeLabel(e))}`;
   const og = `${SITE_URL}/api/og/hero?kind=event&id=${encodeURIComponent(e.event_id)}`
     + `&t=${encodeURIComponent(ogTitle)}&cat=Event&loc=${encodeURIComponent(e.city || "")}`;
   return {
@@ -159,7 +160,7 @@ const S = {
 export default async function CuratedEventPage({ params }) {
   // Throws on a failed read. notFound() is only the honest miss (row
   // absent or not displayable). An outage must not 404 a live event.
-  const e = await fetchCuratedEventBySlug(params.slug);
+  const e = await fetchCuratedEventBySlug(params.slug).then(withTampaPassFacts);
   if (!e) notFound();
 
   const shots = eventPhotos(e.event_id);
@@ -172,7 +173,7 @@ export default async function CuratedEventPage({ params }) {
   // SERVER-resolved, never window.location — on a preview deploy that is a host
   // the recipient cannot open (lib/site.js canonicalShareUrl).
   const shareUrl = SITE_URL + "/florida-events/" + params.slug;
-  const shareText = `${e.event_name} — ${dateRangeLabel(e)}${e.is_free ? ", free" : ""}. Found this on Wayfind.`;
+  const shareText = `${e.event_name} — ${eventDatesLabel(e, dateRangeLabel(e))}${e.is_free ? ", free" : ""}. Found this on Wayfind.`;
   // v8.88 — WHERE IT IS, AND HOW TO GET THERE (owner, 2026-08-29, on this very
   // page): "how are people gonna be able to find it?"
   //
@@ -260,7 +261,7 @@ export default async function CuratedEventPage({ params }) {
       <EventDetailShell
         title={`${e.event_name} ${e.year}`}
         facts={[
-          { label: "When", value: `${dateRangeLabel(e)}, ${e.year}${clockLabel(e.start_time) ? ` · ${clockLabel(e.start_time)}${clockLabel(e.end_time) ? "–" + clockLabel(e.end_time) : ""}` : ""}` },
+          { label: "When", value: `${eventDatesLabel(e, dateRangeLabel(e))}, ${e.year}${clockLabel(e.start_time) ? ` · ${clockLabel(e.start_time)}${clockLabel(e.end_time) ? "–" + clockLabel(e.end_time) : ""}` : ""}` },
           { label: "Where", value: <>{e.venue ? <div>{e.venue}</div> : null}{where && (e.venue ? where !== `${e.city}, ${e.state}` : true) ? <div style={S.addr}>{where}</div> : (!e.venue ? <div style={S.addr}>{e.city}, {e.state}</div> : null)}</> },
           { label: "Cost", value: eventCostSummary(e) },
           { label: "Entry rules", value: eventRestrictions(e).join(" · ") || null },
