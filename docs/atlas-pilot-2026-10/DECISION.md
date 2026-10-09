@@ -66,3 +66,39 @@ Not answered: writing quality on identical evidence (separate, later stage if ne
 - The runner cannot raise the ceiling. `FileLedger.setBudget` refuses a raise unless the operator passes `--raise-ceiling <microUsd>` (printing old and new value). A new ledger file next to an existing `summary.json` for this pilot is refused unless `--new-ledger` is passed.
 - Validation errors (HTTP 400, 413 or 422 with an `invalid_request_error` body) settle at $0. That is an ASSUMPTION (Anthropic does not bill invalid requests); check the Console after the run.
 - Per-call timeout is 120s (server-side tool loop); a timeout is unresolved, never retried.
+
+## 7. Paid pilot BLOCKED: no provable per-request maximum (2026-10-09)
+Owner condition: a paid run needs an enforceable upper bound per request, or a provider
+control that actually prevents charges above the authorized total. Neither exists today.
+- Confirmed (official docs, read 2026-10-09): `max_tokens` is "the hard ceiling on total output",
+  thinking included. Output is bounded.
+- Confirmed: the web search tool documents no cap on results per search or on tokens per
+  result, and no cap on loop iterations within one request ("can repeat multiple times");
+  results from earlier iterations are billed as input. After `max_uses` the model receives an
+  error result; whether sampling continues is not documented. So input liability is unbounded.
+- Confirmed: token counting is free but rejects requests containing web search/fetch, so a
+  server-tool request cannot be priced before dispatch.
+- Not available as a guarantee: Console workspace spend limits exist (monthly, per workspace,
+  workspace-scoped keys), but the docs do not state that requests are rejected at the limit or
+  how quickly; an in-flight request could still be billed. Setting one needs the owner in the
+  Console. It is a backstop, not a bound.
+- Therefore `scripts/atlas-pilot.mjs` refuses any real-network run (PAID_RUN_BLOCKED_REASON),
+  tested and red-proved in test-atlas-pilot.
+
+Path to a bounded design (not built; needs an owner decision): research outside the model.
+Fetch a fixed set of source pages ourselves (no paid search), truncate each to a fixed byte
+budget, then send ONE Messages request with NO server tools. Input tokens are then bounded by
+the prompt's UTF-8 byte length (each token covers at least one byte; an assumption about the
+tokenizer that should be checked against the free token-counting endpoint on real prompts) and
+output by `max_tokens`. Example: 60 KB prompt + 4,000 max output = at most ~$0.16 (Sonnet 5.5)
+or ~$0.0081 (Haiku 5.5) per request. Open decision: where candidate source URLs come from
+without a paid search call (e.g., the venue's own website from data we already hold).
+
+Account checks (free model metadata, 2026-10-09, owner key, key not printed): claude-sonnet-5-5
+and claude-haiku-5-5 both resolve; max input 1,000,000, max output 128,000; web_search supported;
+thinking: Sonnet 5.5 adaptive only (cannot be disabled), Haiku 5.5 adaptive or disabled. This
+does not prove the full search and write workflow works.
+
+Gate coverage: the runner's only Anthropic call is inside `runAttempt` (one budget gate); no
+subprocess, retry, continuation, fallback model or atlas-batch.mjs path. Production paths
+(cron route, scripts/atlas-batch.mjs) are NOT on the dollar gate and remain off.

@@ -87,7 +87,7 @@ function setup({ ceiling = MANIFEST.ceilingMicroUsd, mutate } = {}) {
   const manifest = path.join(d, "manifest.json"); fs.writeFileSync(manifest, JSON.stringify(m));
   const cf = path.join(d, "coords.json"); fs.writeFileSync(cf, JSON.stringify(coords));
   calls = []; behave = goodBehave;
-  return { d, opts: { confirmSpend: true, ledger: path.join(d, "ledger.json"), out: path.join(d, "out"), manifest, coords: cf, env: { ANTHROPIC_API_KEY: KEY } } };
+  return { d, opts: { confirmSpend: true, ledger: path.join(d, "ledger.json"), out: path.join(d, "out"), manifest, coords: cf, env: { ANTHROPIC_API_KEY: KEY }, fetchImpl: (u, i) => globalThis.fetch(u, i) } };
 }
 const rejects = async (fn, rx, m) => { try { await fn(); } catch (e) { ok(e instanceof P.PilotUsageError && rx.test(e.message), `${m} (threw ${e && e.name}: ${e && e.message})`); return; } fail(`${m} (did not throw)`); };
 const readJson = (f) => JSON.parse(fs.readFileSync(f, "utf8"));
@@ -292,6 +292,15 @@ const readJson = (f) => JSON.parse(fs.readFileSync(f, "utf8"));
 // ===== H. guards: flags, env, out dir, ledger path, manifest, frozen config =====
 {
   const { opts } = setup();
+  {
+    // Owner 2026-10-09: no paid run while per-request liability is unprovable. The real-network
+    // path (no --mock, no injected fetch) must refuse before any I/O.
+    const before = anthropicCalls().length;
+    const { fetchImpl, ...real } = opts;
+    await rejects(() => P.runPilot(real), /paid run blocked/, "real-network run refused (server-side search loop has no provable maximum)");
+    eq(anthropicCalls().length, before, "blocked run made zero Anthropic calls");
+    ok(typeof P.PAID_RUN_BLOCKED_REASON === "string" && /DECISION\.md section 7/.test(P.PAID_RUN_BLOCKED_REASON), "block reason points at DECISION.md section 7");
+  }
   await rejects(() => P.runPilot({ ...opts, confirmSpend: false }), /--confirm-spend/, "missing --confirm-spend names the flag");
   await rejects(() => P.runPilot({ ...opts, ledger: undefined }), /--ledger/, "missing --ledger names the flag");
   await rejects(() => P.runPilot({ ...opts, env: {} }), /ANTHROPIC_API_KEY/, "missing key names ANTHROPIC_API_KEY");
@@ -381,10 +390,12 @@ const readJson = (f) => JSON.parse(fs.readFileSync(f, "utf8"));
 {
   const run = (args, env = {}) => spawnSync(process.execPath, [RUNNER, ...args], { encoding: "utf8", env: { ...env } });
   let r = run([]);
-  ok(r.status !== 0 && /--confirm-spend/.test(r.stderr), "CLI: no flags => non-zero naming --confirm-spend");
+  ok(r.status !== 0 && /paid run blocked/.test(r.stderr), "CLI: real (non-mock) invocation => non-zero, paid run blocked");
+  r = run(["--confirm-spend", "--ledger", "/tmp/x-ledger.json", "--out", "/tmp/x-out"], { ANTHROPIC_API_KEY: "sk-test-not-real" });
+  ok(r.status !== 0 && /paid run blocked/.test(r.stderr) && !/sk-test-not-real/.test(r.stderr + r.stdout), "CLI: even with every flag and a key, a real run is refused and the key is not echoed");
   const d = path.join(tmp, "cli"); fs.mkdirSync(d, { recursive: true });
   r = run(["--confirm-spend", "--ledger", path.join(d, "l.json"), "--out", path.join(d, "o")]);
-  ok(r.status !== 0 && /ANTHROPIC_API_KEY/.test(r.stderr), "CLI: missing key => non-zero naming ANTHROPIC_API_KEY");
+  ok(r.status !== 0 && /paid run blocked/.test(r.stderr), "CLI: real run without a key is still refused by the paid block first (key check is covered on runPilot above)");
   ok(!r.stderr.includes(KEY) && !r.stdout.includes(KEY), "CLI never prints a key");
   // --mock fixtures dir (free)
   const fx = path.join(d, "fx"); fs.mkdirSync(fx);

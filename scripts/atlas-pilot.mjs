@@ -104,8 +104,18 @@ function mockAnthropic(dir) {
 // Pre-generation 4xx validation error (an error object): Anthropic does not bill invalid requests (ASSUMPTION).
 const isValidationError = (status, body) => [400, 413, 422].includes(status) && body && body.type === "error" && body.error && body.error.type === "invalid_request_error";
 
+// PAID RUNS ARE BLOCKED (owner, 2026-10-09). The owner's condition for any paid run is a
+// provable maximum liability per request. The lane request uses Anthropic's server-side
+// web_search/web_fetch loop: output is hard-capped by max_tokens, but the docs give NO cap on
+// search result size or on loop iterations, and earlier loop context is billed again as input.
+// The reserved bound in manifest.limits is therefore an assumption, not a maximum (DECISION.md
+// section 7). Only --mock fixtures or an injected test fetch may run. Lifting this needs a
+// bounded request design (no server tools, or a documented hard cap) and a code change here.
+export const PAID_RUN_BLOCKED_REASON = "paid run blocked: the server-side search loop has no provable per-request maximum cost (docs/atlas-pilot-2026-10/DECISION.md section 7)";
+
 export async function runPilot(opts) {
   const env = opts.env || process.env;
+  need(opts.mock || opts.fetchImpl, PAID_RUN_BLOCKED_REASON);
   need(opts.confirmSpend, "missing flag --confirm-spend");
   const ledgerFile = checkLedgerPath(opts.ledger);
   const outDir = checkOutDir(opts.out);
