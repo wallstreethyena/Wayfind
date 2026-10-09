@@ -1,0 +1,2262 @@
+[
+ {
+  "file": "app/best-beaches/[metro]/page.js",
+  "line": 122,
+  "id": "ChIJjfu2YPBBw4gRo41o9hwHfmg",
+  "label": "Siesta Beach",
+  "status": "EXCLUDED/excl",
+  "class": "incorrectly_linked",
+  "replacement_id": "ChIJh8tXh-FBw4gR9kFzfZN_g60",
+  "evidence": "Excluded duplicate (exclusion_reason duplicate_of:ChIJh8tXh-FBw4gR9kFzfZN_g60); canonical Siesta Beach OPERATIONAL 4.8 star/27786 reviews"
+ },
+ {
+  "file": "app/best-beaches/[metro]/page.js",
+  "line": 130,
+  "id": "ChIJjfu2YPBBw4gRo41o9hwHfmg",
+  "label": "Siesta Beach",
+  "status": "EXCLUDED/excl",
+  "class": "incorrectly_linked",
+  "replacement_id": "ChIJh8tXh-FBw4gR9kFzfZN_g60",
+  "evidence": "Excluded duplicate (exclusion_reason duplicate_of:ChIJh8tXh-FBw4gR9kFzfZN_g60); canonical Siesta Beach OPERATIONAL 4.8 star/27786 reviews"
+ },
+ {
+  "file": "app/components/DaypartRail.js",
+  "line": 2165,
+  "id": "ChIJe5-RQ0Y_w4gRb7cZQa2GDkc",
+  "label": null,
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Code comment only (Mobius Sarasota sponsor id in a comment)"
+ },
+ {
+  "file": "app/guides/florida-fall-festivals-2026/page.js",
+  "line": 44,
+  "id": "ChIJuSnFvF8xw4gRt0WOWL_cqRc",
+  "label": "Hunsader Farms",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Hunsader Farms\") but no wf_inventory row; Event venue photo pin; events are not inventory cards"
+ },
+ {
+  "file": "app/guides/florida-fall-festivals-2026/page.js",
+  "line": 47,
+  "id": "ChIJ7zRUJ9CowogRM70pcoqrdUM",
+  "label": "Scream-A-Geddon Horror Park",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Scream-A-Geddon Horror Park\") but no wf_inventory row; Event venue photo pin; events are not inventory cards"
+ },
+ {
+  "file": "app/guides/florida-fall-festivals-2026/page.js",
+  "line": 50,
+  "id": "ChIJs_tsm0ix0YgRmYbIX_M5CT8",
+  "label": null,
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Event venue photo pin; events are not inventory cards"
+ },
+ {
+  "file": "lib/atlasCards.js",
+  "line": 52,
+  "id": "ChIJPbX5AxsTw4gROkfgzEmV-5M",
+  "label": "Coquina Beach",
+  "status": "EXCLUDED",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "ATLAS_PLACE_ALIASES alias map (duplicate->card holder). Line 52 key is the excluded dup; line 55 value is the excluded \"Coquina Beach\" dup pin that the editorial card for Coquina Beach Cafe is keyed to. Not a rendered reference; lane-owned by atlas PRs #1701/#1670. Advisory only."
+ },
+ {
+  "file": "lib/atlasCards.js",
+  "line": 55,
+  "id": "ChIJ4azy4NsTw4gRggI1e2ak_Rs",
+  "label": "Coquina Beach",
+  "status": "EXCLUDED",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "ATLAS_PLACE_ALIASES alias map (duplicate->card holder). Line 52 key is the excluded dup; line 55 value is the excluded \"Coquina Beach\" dup pin that the editorial card for Coquina Beach Cafe is keyed to. Not a rendered reference; lane-owned by atlas PRs #1701/#1670. Advisory only."
+ },
+ {
+  "file": "lib/birthdayRewards.js",
+  "line": 35,
+  "id": "ChIJmyxjyZgXw4gRB3WmGve_TxY",
+  "label": "Ulta Beauty",
+  "status": "MISSING",
+  "class": "not_ingested",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Ulta Beauty\") but no wf_inventory row"
+ },
+ {
+  "file": "lib/birthdayRewards.js",
+  "line": 85,
+  "id": "ChIJmyxjyZgXw4gRB3WmGve_TxY",
+  "label": "Ulta Beauty",
+  "status": "MISSING",
+  "class": "not_ingested",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Ulta Beauty\") but no wf_inventory row"
+ },
+ {
+  "file": "lib/chefPicks.js",
+  "line": 48,
+  "id": "ChIJZzgtHTW32YgR-k9p8IqD5m0",
+  "label": "Cafe La Trova",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Cafe La Trova\") but no wf_inventory row; Out-of-state/Miami-Naples chef picks (Ron Duprat top 7); self-contained row data (lat/lng/rating inline), rendered via chefPickPlaces in DaypartRail, not joined to inventory"
+ },
+ {
+  "file": "lib/chefPicks.js",
+  "line": 52,
+  "id": "ChIJFcYLJw32wokRnP5A9xO9JqM",
+  "label": "Red Rooster Harlem",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Out-of-state/Miami-Naples chef picks (Ron Duprat top 7); self-contained row data (lat/lng/rating inline), rendered via chefPickPlaces in DaypartRail, not joined to inventory"
+ },
+ {
+  "file": "lib/chefPicks.js",
+  "line": 56,
+  "id": "ChIJV7QQ6kdZwokRax4615zpSGU",
+  "label": "Le Bernardin",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Le Bernardin\") but no wf_inventory row; Out-of-state/Miami-Naples chef picks (Ron Duprat top 7); self-contained row data (lat/lng/rating inline), rendered via chefPickPlaces in DaypartRail, not joined to inventory"
+ },
+ {
+  "file": "lib/chefPicks.js",
+  "line": 60,
+  "id": "ChIJp-Z3mQzh2ogRLZyfV3MShoc",
+  "label": "Sea Salt",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Sea Salt\") but no wf_inventory row; Out-of-state/Miami-Naples chef picks (Ron Duprat top 7); self-contained row data (lat/lng/rating inline), rendered via chefPickPlaces in DaypartRail, not joined to inventory"
+ },
+ {
+  "file": "lib/chefPicks.js",
+  "line": 64,
+  "id": "ChIJPeQtHkOx2YgR4SI1-m0ugng",
+  "label": "Chef Creole Seasoned Restaurant",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Out-of-state/Miami-Naples chef picks (Ron Duprat top 7); self-contained row data (lat/lng/rating inline), rendered via chefPickPlaces in DaypartRail, not joined to inventory"
+ },
+ {
+  "file": "lib/chefPicks.js",
+  "line": 68,
+  "id": "ChIJGUenndMB2YgR3IXwJ2YfGIA",
+  "label": "Steak 954",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Steak 954\") but no wf_inventory row; Out-of-state/Miami-Naples chef picks (Ron Duprat top 7); self-contained row data (lat/lng/rating inline), rendered via chefPickPlaces in DaypartRail, not joined to inventory"
+ },
+ {
+  "file": "lib/chefPicks.js",
+  "line": 72,
+  "id": "ChIJaRaBhbcnTIYRWorlkgfpBGM",
+  "label": "Roots Southern Table",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Out-of-state/Miami-Naples chef picks (Ron Duprat top 7); self-contained row data (lat/lng/rating inline), rendered via chefPickPlaces in DaypartRail, not joined to inventory"
+ },
+ {
+  "file": "lib/christmasPool.js",
+  "line": 173,
+  "id": "ChIJV7hk7dQTw4gRNDR1PONlwis",
+  "label": "Coquina Beach",
+  "status": "EXCLUDED",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "Deliberate CHRISTMAS_KNOWN_DUPLICATE_IDS blocklist; excluded status is the point. Keep."
+ },
+ {
+  "file": "lib/christmasPool.js",
+  "line": 174,
+  "id": "ChIJ4azy4NsTw4gRggI1e2ak_Rs",
+  "label": "Coquina Beach",
+  "status": "EXCLUDED",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "Deliberate CHRISTMAS_KNOWN_DUPLICATE_IDS blocklist; excluded status is the point. Keep."
+ },
+ {
+  "file": "lib/christmasPool.js",
+  "line": 175,
+  "id": "ChIJPbX5AxsTw4gROkfgzEmV-5M",
+  "label": "Coquina Beach",
+  "status": "EXCLUDED",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "Deliberate CHRISTMAS_KNOWN_DUPLICATE_IDS blocklist; excluded status is the point. Keep."
+ },
+ {
+  "file": "lib/clippOffers.js",
+  "line": 142,
+  "id": "ChIJb3ZWipHFwogRf3492iZdVZU",
+  "label": "Pacific Counter - Downtown Tampa",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Clipp merchant offer photoRef only; merchant is not an inventory place"
+ },
+ {
+  "file": "lib/clippOffers.js",
+  "line": 150,
+  "id": "ChIJ-0q1Cp3FwogRFt9UWUtxFcQ",
+  "label": "Brown Bag Coffee Company",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Clipp merchant offer photoRef only; merchant is not an inventory place"
+ },
+ {
+  "file": "lib/clippOffers.js",
+  "line": 156,
+  "id": "ChIJ8TYSe2bFwogRv1zoFgdBVdc",
+  "label": "The Poke Company",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Clipp merchant offer photoRef only; merchant is not an inventory place"
+ },
+ {
+  "file": "lib/clippOffers.js",
+  "line": 198,
+  "id": "ChIJk6CFI8XcwogRkyaakn37ZYE",
+  "label": "QDOBA - Gandy",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Clipp merchant offer photoRef only; merchant is not an inventory place"
+ },
+ {
+  "file": "lib/clippOffers.js",
+  "line": 204,
+  "id": "ChIJCwCS6DXHwogRhUKlA53KGZU",
+  "label": "Marco's Pizza - Fletcher Ave",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Clipp merchant offer photoRef only; merchant is not an inventory place"
+ },
+ {
+  "file": "lib/clippOffers.js",
+  "line": 217,
+  "id": "ChIJe2RtO13hwogRJDqo5cJ4x-s",
+  "label": "4th Street Pizza",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Clipp merchant offer photoRef only; merchant is not an inventory place"
+ },
+ {
+  "file": "lib/clippOffers.js",
+  "line": 223,
+  "id": "ChIJR8nS5vvnwogRs-fqIIdVTpk",
+  "label": "Lucid Coffee and Kava",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Clipp merchant offer photoRef only; merchant is not an inventory place"
+ },
+ {
+  "file": "lib/clippOffers.js",
+  "line": 229,
+  "id": "ChIJTTxhRh3jwogRqkl3aF6iKG8",
+  "label": "Outcast Brewing Company",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Clipp merchant offer photoRef only; merchant is not an inventory place"
+ },
+ {
+  "file": "lib/clippOffers.js",
+  "line": 235,
+  "id": "ChIJe5tp6THiwogRnj98j2gP4xg",
+  "label": "Pinellas Ale Works",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Clipp merchant offer photoRef only; merchant is not an inventory place"
+ },
+ {
+  "file": "lib/clippOffers.js",
+  "line": 241,
+  "id": "ChIJmVWoF1bhwogRKpe0VhnzTSw",
+  "label": "Cinnaholic St. Petersburg",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Clipp merchant offer photoRef only; merchant is not an inventory place"
+ },
+ {
+  "file": "lib/clippOffers.js",
+  "line": 256,
+  "id": "ChIJWaOLldHkwogRqvp-ReHaI7Q",
+  "label": "McDonald's - 66th Street N",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Clipp merchant offer photoRef only; merchant is not an inventory place"
+ },
+ {
+  "file": "lib/clippOffers.js",
+  "line": 277,
+  "id": "ChIJPXKIA6PRwogR1RMJ-1_IMbc",
+  "label": "Marco's Pizza - Riverview",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Clipp merchant offer photoRef only; merchant is not an inventory place"
+ },
+ {
+  "file": "lib/clippOffers.js",
+  "line": 283,
+  "id": "ChIJ58_X4y4t3YgRiG24cVR1c5M",
+  "label": "Marco's Pizza - Lithia",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Clipp merchant offer photoRef only; merchant is not an inventory place"
+ },
+ {
+  "file": "lib/clippOffers.js",
+  "line": 289,
+  "id": "ChIJY8QiKnAnw4gRh1QETfS30sE",
+  "label": "Beanie's Bar & Sports Grill",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Clipp merchant offer photoRef only; merchant is not an inventory place"
+ },
+ {
+  "file": "lib/clippOffers.js",
+  "line": 295,
+  "id": "ChIJqdfnINi7wogRxMrYLHz7Qis",
+  "label": "Village Inn - Land O' Lakes",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Clipp merchant offer photoRef only; merchant is not an inventory place"
+ },
+ {
+  "file": "lib/clippOffers.js",
+  "line": 301,
+  "id": "ChIJc0G9_Rk03YgRxU9RIq3Es74",
+  "label": "O'Brien's Irish Pub & Grill - Plant City",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Clipp merchant offer photoRef only; merchant is not an inventory place"
+ },
+ {
+  "file": "lib/clippOffers.js",
+  "line": 314,
+  "id": "ChIJ1-3fCmwWw4gRZ3jzqZZumVM",
+  "label": "El Warike Peruvian Cuisine",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Clipp merchant offer photoRef only; merchant is not an inventory place"
+ },
+ {
+  "file": "lib/clippOffers.js",
+  "line": 340,
+  "id": "ChIJ0-3_7GRAw4gRmttY9pKuGss",
+  "label": "Five-O Donut Co",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Clipp merchant offer photoRef only; merchant is not an inventory place"
+ },
+ {
+  "file": "lib/clippOffers.js",
+  "line": 346,
+  "id": "ChIJ2aQyshdDw4gRmmFabE8pyLY",
+  "label": "Rosy's Ice Cream",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Clipp merchant offer photoRef only; merchant is not an inventory place"
+ },
+ {
+  "file": "lib/clippOffers.js",
+  "line": 401,
+  "id": "ChIJy_AuPHzPwogRzNAPPNWH1xw",
+  "label": "Bubbakoo's Burritos",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Clipp merchant offer photoRef only; merchant is not an inventory place"
+ },
+ {
+  "file": "lib/clippOffers.js",
+  "line": 413,
+  "id": "ChIJ76upIABl54gRlpTN_Si1MFw",
+  "label": "Vicky Bakery",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Clipp merchant offer photoRef only; merchant is not an inventory place"
+ },
+ {
+  "file": "lib/clippOffers.js",
+  "line": 425,
+  "id": "ChIJD6HdFQJv54gRsl_it-tiC1w",
+  "label": "Fusion Bar & Grill",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Clipp merchant offer photoRef only; merchant is not an inventory place"
+ },
+ {
+  "file": "lib/clippOffers.js",
+  "line": 431,
+  "id": "ChIJzQMJ_VZ654gRSp46MagM5tM",
+  "label": "QDOBA - Apopka Vineland",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Clipp merchant offer photoRef only; merchant is not an inventory place"
+ },
+ {
+  "file": "lib/clippOffers.js",
+  "line": 437,
+  "id": "ChIJg68gQRBp54gRWy9izCqAECI",
+  "label": "Handel's Ice Cream - Oviedo",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Clipp merchant offer photoRef only; merchant is not an inventory place"
+ },
+ {
+  "file": "lib/clippOffers.js",
+  "line": 443,
+  "id": "ChIJUc_6jvpp54gR54FpEEe3P3M",
+  "label": "Little Greek Oviedo",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Clipp merchant offer photoRef only; merchant is not an inventory place"
+ },
+ {
+  "file": "lib/clippOffers.js",
+  "line": 449,
+  "id": "ChIJFwU2hb6H54gRML-xr9aJnUw",
+  "label": "CleanEatz Windermere",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Clipp merchant offer photoRef only; merchant is not an inventory place"
+ },
+ {
+  "file": "lib/coupons.js",
+  "line": 476,
+  "id": "ChIJlYrpCEpBw4gR9Gqna7VKtgY",
+  "label": "Pie On Main, 1507 Main St, Sarasota",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; venuePlaceId is only used for the coupon thumbnail (/api/photo?place=)"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 42,
+  "id": "ChIJ44JHW22nwogR8PZqJvgwjlg",
+  "label": "Sweetfields Farm",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Sweetfields Farm\") but no wf_inventory row; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 46,
+  "id": "ChIJj2CAFaOVwogRF2YSVVe5Uvk",
+  "label": "Sweetfields Farm",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 62,
+  "id": "ChIJjWvQ7k3HwogRqIGfmAUf-Bc",
+  "label": "Ta Tropical Fruit Ranch",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 207,
+  "id": "ChIJ_wDB-_Mxw4gR7-VDggiDis0",
+  "label": "Lakewood Ranch Library",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Lakewood Ranch Library\") but no wf_inventory row; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 690,
+  "id": "ChIJmQAtQVTd2YgRp2sYrjBwi1M",
+  "label": "Knaus Berry Farm",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Knaus Berry Farm\") but no wf_inventory row; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 735,
+  "id": "ChIJ3TJxHZvHwogRwn4HI0koZbg",
+  "label": "arwa-coffee-temple-terrace",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1075,
+  "id": "ChIJ_8qUegDhwogRzpjJDDiY8Q4",
+  "label": "Forbici",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1083,
+  "id": "ChIJq9_svUThwogRG7K4WtuaWXY",
+  "label": "CALI - St. Pete",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"CALI - St. Pete\") but no wf_inventory row; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1087,
+  "id": "ChIJRXYxgcD7wogRa-OrJa9lrz8",
+  "label": "CALI - St. Pete",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1127,
+  "id": "ChIJ54ykeVPjwogRL6BAo2YMlJk",
+  "label": "Pin On Grand",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1132,
+  "id": "ChIJDVENUajjwogRhM7VwB41sqU",
+  "label": "New Power Medicine",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1136,
+  "id": "ChIJBZcEIE_9wogRhe70u_z23DY",
+  "label": "Dolphin Racer",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Dolphin Racer\") but no wf_inventory row; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1148,
+  "id": "ChIJb665ozDFwogRNrVsepGJrNY",
+  "label": "The Bagel Nook",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"The Bagel Nook\") but no wf_inventory row; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1164,
+  "id": "ChIJ25CTOATnwogRKwXjsYgh99I",
+  "label": "Agave Social",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1224,
+  "id": "ChIJWaAhpcG72YgRzHo_xlU6wLk",
+  "label": "Alfreds Bakery",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1231,
+  "id": "ChIJlZFyCaC22YgRbFtPKFIFrRM",
+  "label": "Alfreds Bakery",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1237,
+  "id": "ChIJiVoQKPW32YgRcBqp1YYscZ8",
+  "label": "Kaseya Center",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1241,
+  "id": "ChIJLdM5b4_p2YgRMMBQSpU30L0",
+  "label": "Arepera Araguaney",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1245,
+  "id": "ChIJS6usPha72YgRyZo3Xspq74Q",
+  "label": "South Florida Off Road Tours",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1249,
+  "id": "ChIJ71QojyS32YgRUy2lCCIsHxI",
+  "label": "Aloha Catering",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1253,
+  "id": "ChIJPQBFR8mpxIgRUFHMPbfyzuk",
+  "label": "La Esquina del Chicharr\u00f3n",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1257,
+  "id": "ChIJcYG4UWq_2YgRE7QTzwGqb5Q",
+  "label": "Manasota Key Resort",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1265,
+  "id": "ChIJ50CQep252YgRIBXSGDitzVk",
+  "label": "Madame Olivia Midtown",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1269,
+  "id": "ChIJy7RVBQC52YgRvXZ6o8vXHq8",
+  "label": "Hakuna Matata Pizzeria",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1273,
+  "id": "ChIJcyAwPKy22YgRDQNU5lP6UVI",
+  "label": "La Macha Taqueria",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1277,
+  "id": "ChIJeypiAQK32YgR5snBbBJSwxA",
+  "label": "Mister O1 Extraordinary Pizza",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1281,
+  "id": "ChIJz-3g0sDB2YgRO6WGPpqPHa0",
+  "label": "Mister 11:11",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1285,
+  "id": "ChIJNa1-V2O12YgRAqLfC-1lsb0",
+  "label": "Inka Nikkei",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1289,
+  "id": "ChIJO5IyrXW32YgRnyXQP2MkKnE",
+  "label": "Veganlitaly - 100% plant-based restaurant",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Veganlitaly - 100% plant-based restaurant\") but no wf_inventory row; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1301,
+  "id": "ChIJSdJjH-Wy2YgRUDTeZcMZAYo",
+  "label": "7tyone Restaurant & Coffee Bar",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"7tyone Restaurant & Coffee Bar\") but no wf_inventory row; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1309,
+  "id": "ChIJj84kH5e72YgR3ZT20enUvB8",
+  "label": "Madame Olivia North Miami",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1313,
+  "id": "ChIJhUvU1XW32YgR9VD9MK8CMLU",
+  "label": "Fresh Salad Miami",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1317,
+  "id": "ChIJH2nbBnC32YgRnNJ3RywrVOk",
+  "label": "Hot Dog Maracay",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1321,
+  "id": "ChIJdwA2tJml2YgRQmKB5vDJgHw",
+  "label": "The Barking Bun",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1325,
+  "id": "ChIJ-W890xS72YgRy7dmUNbvdYU",
+  "label": "El Lider",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1329,
+  "id": "ChIJOaxANQeh2YgRFppt3GMgsJ8",
+  "label": "Pal Perrero",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1333,
+  "id": "ChIJ3QbpMBe72YgR_zGWHA1zLuo",
+  "label": "Forages",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1341,
+  "id": "ChIJ2ZZybj-r2YgRzW-AJXm_GKU",
+  "label": "San Marco Miami",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1345,
+  "id": "ChIJeScTbwa32YgRwfibKQG-Bxg",
+  "label": "Sardelli's Italian Steakhouse",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1349,
+  "id": "ChIJh7DSwQe82YgRAxyadBFFXPw",
+  "label": "Ni\u00f1o Gordo",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1361,
+  "id": "ChIJa8EUn-632YgRCPUPVpld-LI",
+  "label": "M\u014cKAH",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1365,
+  "id": "ChIJExeuhVm32YgRxtpe7J2Pfl0",
+  "label": "Sawa Restaurant & Lounge",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1369,
+  "id": "ChIJc31-dGSx2YgRfPu3z13tJ0M",
+  "label": "Oh Mamma",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Oh Mamma\") but no wf_inventory row; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1373,
+  "id": "ChIJOZcVZ9S72YgRAek77F8bufE",
+  "label": "Oh Mamma",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1377,
+  "id": "ChIJV7tZbwC72YgRbiUCKntZn6g",
+  "label": "Brutal Pepitos",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1381,
+  "id": "ChIJ-x7MrSS52YgRzkbWmZlQfFM",
+  "label": "Piacere Wood Fired Pizza",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1385,
+  "id": "ChIJrbQZBQC_2YgRVlOuC4y6r54",
+  "label": "Mister Corn",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1389,
+  "id": "ChIJZ1SqfrK22YgRsnv5agRpB9w",
+  "label": "El Sushi by Soya",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1393,
+  "id": "ChIJhRdita6n2YgRAXGrnFK-BH0",
+  "label": "Plant the Future",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1401,
+  "id": "ChIJxV7_BnIJ2YgRx70VLv4ncu4",
+  "label": "SiF\u00da",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1405,
+  "id": "ChIJmTRdUKO32YgRG_aLnXYf5HA",
+  "label": "Rosso Coffee Club",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1409,
+  "id": "ChIJo_QCg1-r2YgR68lZFkEcwBI",
+  "label": "305 Peruvian Modern Cuisine",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1413,
+  "id": "ChIJJ22PHSG52YgRA_B3TOLKzCA",
+  "label": "ETARU",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1417,
+  "id": "ChIJ_1YhUzur2YgReuu9jiegbIQ",
+  "label": "PINCHO",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1421,
+  "id": "ChIJ8Qku8Fa72YgR2nvM9nRyE7c",
+  "label": "Rio Grande Churrascaria Hollywood",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1425,
+  "id": "ChIJjThZb8Gh2YgRXPsrehmDaFc",
+  "label": "Parrilla Point",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1429,
+  "id": "ChIJxXnzwtG72YgR2ngEfSeKA20",
+  "label": "Frenchies Calientes",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1433,
+  "id": "ChIJ9_gKQCix2YgRoLXkxdjuleE",
+  "label": "Na'guara hot dogs",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1437,
+  "id": "ChIJy_82XJ232YgRyMPLruA8h8w",
+  "label": "Diyon Hotdogs",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1441,
+  "id": "ChIJBwFsXuW32YgREo290MTrQHM",
+  "label": "Metro Caracas Hotdog",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1458,
+  "id": "ChIJCSwptQKt2YgRYw-RZ3Xkl-8",
+  "label": "Lira House",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1470,
+  "id": "ChIJgfpf6Qm32YgRGTHIgOFBjW4",
+  "label": "Le Specialita",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1474,
+  "id": "ChIJl2S_W9Lr2YgRtdR9_YtEUHU",
+  "label": "Majestic Portuguese Bakehouse",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1482,
+  "id": "ChIJBaHYVHq72YgRRJ6ayeJqRpo",
+  "label": "Mayami",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1490,
+  "id": "ChIJw0TRvEat2YgROpFgeN-2rc4",
+  "label": "Pasta e Basta",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1494,
+  "id": "ChIJE_-bfqi32YgRuEbR3HQXiq4",
+  "label": "Signor Sassi",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1498,
+  "id": "ChIJze21JQC72YgRI4f9-Z7ofEY",
+  "label": "El \u00d1a\u00f1o",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1502,
+  "id": "ChIJab7ZGDu32YgR377f_tXuWzU",
+  "label": "Mangiamo",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1531,
+  "id": "ChIJjVv1s8PBwogRKcHMfbnnYiQ",
+  "label": "Sogna Napoli",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1543,
+  "id": "ChIJpYJWz2_FwogRdPdhUqFdUYg",
+  "label": "Lady and the Mug",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1547,
+  "id": "ChIJL3wQOF3DwogRspNmaImYNks",
+  "label": "Bodega Bus",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1551,
+  "id": "ChIJl4yUMAC3wogRIsIpAqpCHRs",
+  "label": "SoDough Square",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1559,
+  "id": "ChIJ3Rit2Qq5wogRKv1xCNAklSs",
+  "label": "Brewly Cafe",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1563,
+  "id": "ChIJo9jsaGTOwogRdOmdOfqbAxc",
+  "label": "Station House BBQ",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1571,
+  "id": "ChIJy0nsMePHwogRDUr5WXBynR8",
+  "label": "SoFresh",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1579,
+  "id": "ChIJ12-F9xTHwogR2epNwOfvBfU",
+  "label": "Brick & Mortar",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1583,
+  "id": "ChIJLYqwFgDBwogR8jv9-KOOKAc",
+  "label": "Naz's Halal Food",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1587,
+  "id": "ChIJ352SLTf3wogR5QAhr23PJhE",
+  "label": "Marina Grille Restaurant",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Marina Grille Restaurant\") but no wf_inventory row; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1591,
+  "id": "ChIJL_P88M3HwogRxAdUGTdrcQE",
+  "label": "Marina Grille",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1603,
+  "id": "ChIJwZnbpBHpwogR3PZgkgesIoc",
+  "label": "Sunda New Asian",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1611,
+  "id": "ChIJ8RJCVp3ZwogRo-_z9hFUKjU",
+  "label": "Happy Fish",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1619,
+  "id": "ChIJj_gXZRrFwogRQGeho6l9TPk",
+  "label": "International Plaza",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1623,
+  "id": "ChIJwRGBsWcdw4gRNBMBx_4nXvk",
+  "label": "Con Amor",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1681,
+  "id": "ChIJd_ueXDW_2YgR_KpiHatf9mA",
+  "label": "Carvel",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1685,
+  "id": "ChIJuUT523632YgRBMFdMCwrT7A",
+  "label": "Carvel",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1701,
+  "id": "ChIJjexh77G32YgRjlfjbczZVVQ",
+  "label": "Takay",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1709,
+  "id": "ChIJ3Xp9YOGt2YgRIQUPDTGnNmE",
+  "label": "Honey Veil",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1721,
+  "id": "ChIJmV2XCADd2YgRde64fCaxsmc",
+  "label": "Venetian Pool",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1729,
+  "id": "ChIJWx-tm-Sx2YgR-WmuniqfB_g",
+  "label": "MAASS",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1741,
+  "id": "ChIJhw4bDvq22YgRt1rD2Am4AxY",
+  "label": "Sanguich",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Sanguich\") but no wf_inventory row; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1757,
+  "id": "ChIJd24p_Wut2YgREj-DrhuLKEU",
+  "label": "Edan Bistro",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1761,
+  "id": "ChIJy1mepf-32YgRbyBzPI647n4",
+  "label": "Humo Bodegon",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1765,
+  "id": "ChIJfR41HgDH2YgRPJvOcefxI0c",
+  "label": "Voodoo Doughnut",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1769,
+  "id": "ChIJ3zmyGIsJ2YgRVTBoYAuLo8c",
+  "label": "Skinny Louie",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1773,
+  "id": "ChIJ5927yBu32YgRhW6nCcO80-g",
+  "label": "My Cousin Nick",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"My Cousin Nick\") but no wf_inventory row; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1777,
+  "id": "ChIJr6p-2SKn2YgRq7wT9LkBsvk",
+  "label": "My Cousin Nick",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1781,
+  "id": "ChIJIf5xTgC32YgRChhM8pC28cU",
+  "label": "Wunderbar",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1785,
+  "id": "ChIJM5vU2qS32YgReejUakiPOQ4",
+  "label": "MYKA",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1793,
+  "id": "ChIJyZpQsa222YgRTVzO326qSV8",
+  "label": "Hate Mondays Tavern",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1805,
+  "id": "ChIJy7ck47K32YgRdj5lpfRK5uU",
+  "label": "Boia De",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1809,
+  "id": "ChIJ6XVQENW32YgRTWc7CXMsAjo",
+  "label": "Go Greek Yogurt",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1813,
+  "id": "ChIJk5Z6oJDG2YgRyAWZS8mqhNM",
+  "label": "Yauca",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1817,
+  "id": "ChIJXRQFsCS32YgR7FGFBSuy-p4",
+  "label": "The Butcher Shop",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 1946,
+  "id": "ChIJ1d7qegB_54gRgM3OALxZy_M",
+  "label": "Universal Studios Florida",
+  "status": "EXCLUDED",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "Universal Studios Florida excluded row, creator video pin; check creator-video lane"
+ },
+ {
+  "file": "lib/creatorVideos.js",
+  "line": 2035,
+  "id": "ChIJGbN0dcIhe0gRUXJQlOlTlew",
+  "label": "Splash Art",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Splash Art\") but no wf_inventory row; Creator-video association ledger shown on place detail sheet; matches by id then name, no inventory requirement"
+ },
+ {
+  "file": "lib/curatedPhotoRefs.js",
+  "line": 40,
+  "id": "ChIJQZ8lbY-O54gRJSKIfjA-Wr4",
+  "label": "Historic Downtown Clermont",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Historic Downtown Clermont\") but no wf_inventory row; Own-Google-photo override map for chefPicks/coupon venues; keyed by id, does not need an inventory row"
+ },
+ {
+  "file": "lib/curatedPhotoRefs.js",
+  "line": 41,
+  "id": "ChIJQZ8lbY-O54gRJSKIfjA-Wr4",
+  "label": "Historic Downtown Clermont",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Historic Downtown Clermont\") but no wf_inventory row; Own-Google-photo override map for chefPicks/coupon venues; keyed by id, does not need an inventory row"
+ },
+ {
+  "file": "lib/curatedPhotoRefs.js",
+  "line": 43,
+  "id": "ChIJZzgtHTW32YgR-k9p8IqD5m0",
+  "label": "Cafe La Trova",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Cafe La Trova\") but no wf_inventory row; Own-Google-photo override map for chefPicks/coupon venues; keyed by id, does not need an inventory row"
+ },
+ {
+  "file": "lib/curatedPhotoRefs.js",
+  "line": 44,
+  "id": "ChIJZzgtHTW32YgR-k9p8IqD5m0",
+  "label": "Cafe La Trova",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Cafe La Trova\") but no wf_inventory row; Own-Google-photo override map for chefPicks/coupon venues; keyed by id, does not need an inventory row"
+ },
+ {
+  "file": "lib/curatedPhotoRefs.js",
+  "line": 46,
+  "id": "ChIJFcYLJw32wokRnP5A9xO9JqM",
+  "label": null,
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Own-Google-photo override map for chefPicks/coupon venues; keyed by id, does not need an inventory row"
+ },
+ {
+  "file": "lib/curatedPhotoRefs.js",
+  "line": 47,
+  "id": "ChIJFcYLJw32wokRnP5A9xO9JqM",
+  "label": null,
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Own-Google-photo override map for chefPicks/coupon venues; keyed by id, does not need an inventory row"
+ },
+ {
+  "file": "lib/curatedPhotoRefs.js",
+  "line": 49,
+  "id": "ChIJV7QQ6kdZwokRax4615zpSGU",
+  "label": "Le Bernardin",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Le Bernardin\") but no wf_inventory row; Own-Google-photo override map for chefPicks/coupon venues; keyed by id, does not need an inventory row"
+ },
+ {
+  "file": "lib/curatedPhotoRefs.js",
+  "line": 50,
+  "id": "ChIJV7QQ6kdZwokRax4615zpSGU",
+  "label": "Le Bernardin",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Le Bernardin\") but no wf_inventory row; Own-Google-photo override map for chefPicks/coupon venues; keyed by id, does not need an inventory row"
+ },
+ {
+  "file": "lib/curatedPhotoRefs.js",
+  "line": 52,
+  "id": "ChIJp-Z3mQzh2ogRLZyfV3MShoc",
+  "label": "Sea Salt",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Sea Salt\") but no wf_inventory row; Own-Google-photo override map for chefPicks/coupon venues; keyed by id, does not need an inventory row"
+ },
+ {
+  "file": "lib/curatedPhotoRefs.js",
+  "line": 53,
+  "id": "ChIJp-Z3mQzh2ogRLZyfV3MShoc",
+  "label": "Sea Salt",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Sea Salt\") but no wf_inventory row; Own-Google-photo override map for chefPicks/coupon venues; keyed by id, does not need an inventory row"
+ },
+ {
+  "file": "lib/curatedPhotoRefs.js",
+  "line": 55,
+  "id": "ChIJPeQtHkOx2YgR4SI1-m0ugng",
+  "label": null,
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Own-Google-photo override map for chefPicks/coupon venues; keyed by id, does not need an inventory row"
+ },
+ {
+  "file": "lib/curatedPhotoRefs.js",
+  "line": 56,
+  "id": "ChIJPeQtHkOx2YgR4SI1-m0ugng",
+  "label": null,
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Own-Google-photo override map for chefPicks/coupon venues; keyed by id, does not need an inventory row"
+ },
+ {
+  "file": "lib/curatedPhotoRefs.js",
+  "line": 58,
+  "id": "ChIJGUenndMB2YgR3IXwJ2YfGIA",
+  "label": "Steak 954",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Steak 954\") but no wf_inventory row; Own-Google-photo override map for chefPicks/coupon venues; keyed by id, does not need an inventory row"
+ },
+ {
+  "file": "lib/curatedPhotoRefs.js",
+  "line": 59,
+  "id": "ChIJGUenndMB2YgR3IXwJ2YfGIA",
+  "label": "Steak 954",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Steak 954\") but no wf_inventory row; Own-Google-photo override map for chefPicks/coupon venues; keyed by id, does not need an inventory row"
+ },
+ {
+  "file": "lib/curatedPhotoRefs.js",
+  "line": 61,
+  "id": "ChIJaRaBhbcnTIYRWorlkgfpBGM",
+  "label": null,
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Own-Google-photo override map for chefPicks/coupon venues; keyed by id, does not need an inventory row"
+ },
+ {
+  "file": "lib/curatedPhotoRefs.js",
+  "line": 62,
+  "id": "ChIJaRaBhbcnTIYRWorlkgfpBGM",
+  "label": null,
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Own-Google-photo override map for chefPicks/coupon venues; keyed by id, does not need an inventory row"
+ },
+ {
+  "file": "lib/fallEventImage.js",
+  "line": 55,
+  "id": "ChIJs_tsm0ix0YgRmYbIX_M5CT8",
+  "label": null,
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Event venue photo pin (/api/photo); events are not inventory cards"
+ },
+ {
+  "file": "lib/fallEventImage.js",
+  "line": 62,
+  "id": "ChIJQZ8lbY-O54gRJSKIfjA-Wr4",
+  "label": "Historic Downtown Clermont",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Historic Downtown Clermont\") but no wf_inventory row; Event venue photo pin (/api/photo); events are not inventory cards"
+ },
+ {
+  "file": "lib/fallEventImage.js",
+  "line": 100,
+  "id": "ChIJ-39x7Uan3IgRUSQ8DSPahEw",
+  "label": "Prana Farms",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Prana Farms\") but no wf_inventory row; Event venue photo pin (/api/photo); events are not inventory cards"
+ },
+ {
+  "file": "lib/fallEventImage.js",
+  "line": 101,
+  "id": "ChIJ1fgxiXEa24gRNJZzfbu2uzM",
+  "label": "Farmer Mike's U-Pick of Bonita Springs",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Farmer Mike's U-Pick of Bonita Springs\") but no wf_inventory row; Event venue photo pin (/api/photo); events are not inventory cards"
+ },
+ {
+  "file": "lib/fallFeaturedFestivals2026.js",
+  "line": 52,
+  "id": "ChIJuSnFvF8xw4gRt0WOWL_cqRc",
+  "label": "Hunsader Farms",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Hunsader Farms\") but no wf_inventory row; Fall event row place_id = venue identity for photo; events not inventory cards"
+ },
+ {
+  "file": "lib/fallFoodGap20261008.js",
+  "line": 64,
+  "id": "ChIJhfVX8uUULEkRiaUo_cC0kf8",
+  "label": "The Bean Trolley Cafe",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"The Bean Trolley Cafe\") but no wf_inventory row; Fall event rows (seasonal food); place_id is venue identity resolved via Google search, card falls back to the event row when inventory has no row (app/api/events/fall/route.js)"
+ },
+ {
+  "file": "lib/fallFoodGap20261008.js",
+  "line": 93,
+  "id": "ChIJHwtZB8Af24gRC0AycQbO0YQ",
+  "label": "Black Letter Coffee + Cafe",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Black Letter Coffee + Cafe\") but no wf_inventory row; Fall event rows (seasonal food); place_id is venue identity resolved via Google search, card falls back to the event row when inventory has no row (app/api/events/fall/route.js)"
+ },
+ {
+  "file": "lib/fallFoodGap20261008.js",
+  "line": 118,
+  "id": "ChIJEVbdY68Z24gRFTJkr-rdchQ",
+  "label": "The Perry Hotel Naples",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"The Perry Hotel Naples\") but no wf_inventory row; Fall event rows (seasonal food); place_id is venue identity resolved via Google search, card falls back to the event row when inventory has no row (app/api/events/fall/route.js)"
+ },
+ {
+  "file": "lib/fallFoodGap20261008.js",
+  "line": 144,
+  "id": "ChIJVfAZTbtbw4gRnZMlnR6ZWkI",
+  "label": "Venice Avenue Creamery",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Venice Avenue Creamery\") but no wf_inventory row; Fall event rows (seasonal food); place_id is venue identity resolved via Google search, card falls back to the event row when inventory has no row (app/api/events/fall/route.js)"
+ },
+ {
+  "file": "lib/fallFoodGap20261008.js",
+  "line": 170,
+  "id": "ChIJV12TgcJbw4gR710nwEnWcTs",
+  "label": "Seed & Bean",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Seed & Bean\") but no wf_inventory row; Fall event rows (seasonal food); place_id is venue identity resolved via Google search, card falls back to the event row when inventory has no row (app/api/events/fall/route.js)"
+ },
+ {
+  "file": "lib/fallFoodGap20261008.js",
+  "line": 196,
+  "id": "ChIJkb4uPACr3IgR6cG5vYPJRmk",
+  "label": "HallowBean Coffee Co",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"HallowBean Coffee Co\") but no wf_inventory row; Fall event rows (seasonal food); place_id is venue identity resolved via Google search, card falls back to the event row when inventory has no row (app/api/events/fall/route.js)"
+ },
+ {
+  "file": "lib/fallFoodGap20261008.js",
+  "line": 223,
+  "id": "ChIJe46Ywqar3IgRZorq_9M44XM",
+  "label": "Brix Coffee",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Brix Coffee\") but no wf_inventory row; Fall event rows (seasonal food); place_id is venue identity resolved via Google search, card falls back to the event row when inventory has no row (app/api/events/fall/route.js)"
+ },
+ {
+  "file": "lib/fallFoodGap20261008.js",
+  "line": 248,
+  "id": "ChIJ1_w1YdCp3IgR2oG33UnAUls",
+  "label": "Goombah Coffee",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Goombah Coffee\") but no wf_inventory row; Fall event rows (seasonal food); place_id is venue identity resolved via Google search, card falls back to the event row when inventory has no row (app/api/events/fall/route.js)"
+ },
+ {
+  "file": "lib/fallFoodGap20261008.js",
+  "line": 274,
+  "id": "ChIJi2GwaNJB24gRiEGMCSX-vMQ",
+  "label": "Banyan Cafe Fort Myers",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Banyan Cafe Fort Myers\") but no wf_inventory row; Fall event rows (seasonal food); place_id is venue identity resolved via Google search, card falls back to the event row when inventory has no row (app/api/events/fall/route.js)"
+ },
+ {
+  "file": "lib/fallFoodGap20261008.js",
+  "line": 299,
+  "id": "ChIJRwbz1ncV24gRgcdv4nmcg4E",
+  "label": "Savour Coffee",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Savour Coffee\") but no wf_inventory row; Fall event rows (seasonal food); place_id is venue identity resolved via Google search, card falls back to the event row when inventory has no row (app/api/events/fall/route.js)"
+ },
+ {
+  "file": "lib/guidePickPhotoManifest.js",
+  "line": 3861,
+  "id": "ChIJjfu2YPBBw4gRo41o9hwHfmg",
+  "label": "Siesta Beach",
+  "status": "EXCLUDED/excl",
+  "class": "incorrectly_linked",
+  "replacement_id": "ChIJh8tXh-FBw4gR9kFzfZN_g60",
+  "evidence": "Excluded duplicate (exclusion_reason duplicate_of:ChIJh8tXh-FBw4gR9kFzfZN_g60); canonical Siesta Beach OPERATIONAL 4.8 star/27786 reviews"
+ },
+ {
+  "file": "lib/guides.js",
+  "line": 499,
+  "id": "ChIJmyxjyZgXw4gRB3WmGve_TxY",
+  "label": "Ulta Beauty",
+  "status": "MISSING",
+  "class": "not_ingested",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Ulta Beauty\") but no wf_inventory row"
+ },
+ {
+  "file": "lib/guidesChristmas2026.js",
+  "line": 40,
+  "id": "ChIJV7hk7dQTw4gRNDR1PONlwis",
+  "label": "Coquina Beach",
+  "status": "EXCLUDED",
+  "class": "incorrectly_linked",
+  "replacement_id": "ChIJ5eLMVXE9w4gR15l0tMZGkMY",
+  "evidence": "Excluded duplicate Coquina Beach pin; canonical OPERATIONAL row ChIJ5eLMVXE9w4gR15l0tMZGkMY (4.8 star/6457 reviews)"
+ },
+ {
+  "file": "lib/guidesGulfCoast2026.js",
+  "line": 61,
+  "id": "ChIJjfu2YPBBw4gRo41o9hwHfmg",
+  "label": "Siesta Beach",
+  "status": "EXCLUDED/excl",
+  "class": "incorrectly_linked",
+  "replacement_id": "ChIJh8tXh-FBw4gR9kFzfZN_g60",
+  "evidence": "Excluded duplicate (exclusion_reason duplicate_of:ChIJh8tXh-FBw4gR9kFzfZN_g60); canonical Siesta Beach OPERATIONAL 4.8 star/27786 reviews"
+ },
+ {
+  "file": "lib/hotelBookingVerificationData.js",
+  "line": 10,
+  "id": "ChIJ2T-loFxAw4gRiMRtmFiC1h0",
+  "label": "wfh-art-ovation-hotel-autograph-collection-27337",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; GENERATED Stay22 booking allow-list (key->placeId); an id absent from inventory simply never matches a card"
+ },
+ {
+  "file": "lib/hotelBookingVerificationData.js",
+  "line": 13,
+  "id": "ChIJGVfX-IE8w4gRX8KO6QLmUs8",
+  "label": "Best Western Plus Bradenton Hotel & Suites",
+  "status": "CLOSED_PERMANENTLY",
+  "class": "permanently_closed",
+  "replacement_id": null,
+  "evidence": "wf_inventory status CLOSED_PERMANENTLY (Best Western Plus Bradenton Hotel & Suites, manatee-sarasota); no OPERATIONAL Best Western Plus Bradenton row"
+ },
+ {
+  "file": "lib/hotelBookingVerificationData.js",
+  "line": 17,
+  "id": "ChIJY-XJdNs_w4gRkICZyqxST-4",
+  "label": "wfh-courtyard-by-marriott-bradenton-sarasota-riverfr-27499",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; GENERATED Stay22 booking allow-list (key->placeId); an id absent from inventory simply never matches a card"
+ },
+ {
+  "file": "lib/hotelBookingVerificationData.js",
+  "line": 26,
+  "id": "ChIJ41HLaBZBw4gR_yW1-hLguu4",
+  "label": "wfh-hampton-inn-by-hilton-27533",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; GENERATED Stay22 booking allow-list (key->placeId); an id absent from inventory simply never matches a card"
+ },
+ {
+  "file": "lib/hotelBookingVerificationData.js",
+  "line": 35,
+  "id": "ChIJz-ZAlMQ_w4gRLLYRhgPCJVg",
+  "label": "wfh-red-roof-inn-ellenton-27528",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; GENERATED Stay22 booking allow-list (key->placeId); an id absent from inventory simply never matches a card"
+ },
+ {
+  "file": "lib/hotelBookingVerificationData.js",
+  "line": 36,
+  "id": "ChIJzaHdGi9aw4gR5M3AZWT7QwQ",
+  "label": "wfh-residence-inn-sarasota-bradenton-27381",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; GENERATED Stay22 booking allow-list (key->placeId); an id absent from inventory simply never matches a card"
+ },
+ {
+  "file": "lib/localPicks.js",
+  "line": 294,
+  "id": "ChIJO1n8gdI7w4gR_BOt3UmR0Mg",
+  "label": "Lakewood Ranch YMCA",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Lakewood Ranch YMCA\") but no wf_inventory row; Owner handpicked board; railsData.buildLocalPicksPool falls back to live getPlaceDetails() for non-pool ids and drops CLOSED_PERMANENTLY at runtime"
+ },
+ {
+  "file": "lib/partnerCollectionsData.js",
+  "line": 24,
+  "id": "ChIJZRBieMW32YgRe9uja7jsGmQ",
+  "label": null,
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Self-contained partner-collection rows (full place data inline)"
+ },
+ {
+  "file": "lib/partnerCollectionsData.js",
+  "line": 24,
+  "id": "ChIJZRBieMW32YgRe9uja7jsGmQ",
+  "label": null,
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Self-contained partner-collection rows (full place data inline)"
+ },
+ {
+  "file": "lib/sponsoredPlaces.js",
+  "line": 82,
+  "id": "ChIJH0a_B7W_VogRrXeKuCFkr-Q",
+  "label": "Rio Body Wax",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Paid-partner registry; placeId verified via Places v1 at entry; sponsor rows carry own name/address/lat/lng and render independently of inventory (Rio Body Wax is Gastonia NC)"
+ },
+ {
+  "file": "lib/sponsoredPlaces.js",
+  "line": 104,
+  "id": "ChIJH0a_B7W_VogRrXeKuCFkr-Q",
+  "label": "Manu",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Paid-partner registry; placeId verified via Places v1 at entry; sponsor rows carry own name/address/lat/lng and render independently of inventory (Rio Body Wax is Gastonia NC)"
+ },
+ {
+  "file": "lib/sponsoredPlaces.js",
+  "line": 227,
+  "id": "ChIJe5-RQ0Y_w4gRb7cZQa2GDkc",
+  "label": "M\u00f6bius Sarasota",
+  "status": "MISSING",
+  "class": "by_design",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; Paid-partner registry; placeId verified via Places v1 at entry; sponsor rows carry own name/address/lat/lng and render independently of inventory (Rio Body Wax is Gastonia NC)"
+ },
+ {
+  "file": "lib/summerPlaceIds.js",
+  "line": 26,
+  "id": "ChIJG_fsz9b2wogRiW9DrnVgZ8Q",
+  "label": "Pier 60 Park",
+  "status": "MISSING",
+  "class": "not_ingested",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Pier 60 Park\") but no wf_inventory row; summer sidecar/universe entry is staged: /api/summer/places drops ids absent from inventory (and needs photo_ref+rating)"
+ },
+ {
+  "file": "lib/summerPlaceIds.js",
+  "line": 40,
+  "id": "ChIJNV0Tdv5654gRRCM0P3vkMo4",
+  "label": null,
+  "status": "MISSING",
+  "class": "not_ingested",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; summer sidecar/universe entry is staged: /api/summer/places drops ids absent from inventory (and needs photo_ref+rating)"
+ },
+ {
+  "file": "lib/summerPlaceIds.js",
+  "line": 42,
+  "id": "ChIJo1lbzETO6IgRX4KI-Zi8fc4",
+  "label": null,
+  "status": "MISSING",
+  "class": "not_ingested",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; summer sidecar/universe entry is staged: /api/summer/places drops ids absent from inventory (and needs photo_ref+rating)"
+ },
+ {
+  "file": "lib/summerPlaceIds.js",
+  "line": 43,
+  "id": "ChIJQ_mWlR2S6IgR9iXXyzVZkdY",
+  "label": null,
+  "status": "MISSING",
+  "class": "not_ingested",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; summer sidecar/universe entry is staged: /api/summer/places drops ids absent from inventory (and needs photo_ref+rating)"
+ },
+ {
+  "file": "lib/summerPlaceIds.js",
+  "line": 44,
+  "id": "ChIJV_YGBNFVzogRoR0zV_0OsVs",
+  "label": null,
+  "status": "MISSING",
+  "class": "not_ingested",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; summer sidecar/universe entry is staged: /api/summer/places drops ids absent from inventory (and needs photo_ref+rating)"
+ },
+ {
+  "file": "lib/summerPlaceIds.js",
+  "line": 45,
+  "id": "ChIJS7NZPXEx24gROKOrF8ols0w",
+  "label": null,
+  "status": "MISSING",
+  "class": "not_ingested",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; summer sidecar/universe entry is staged: /api/summer/places drops ids absent from inventory (and needs photo_ref+rating)"
+ },
+ {
+  "file": "lib/summerPlaceIds.js",
+  "line": 46,
+  "id": "ChIJydB_C0wq34gRxC9m-bp4pSs",
+  "label": null,
+  "status": "MISSING",
+  "class": "not_ingested",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; summer sidecar/universe entry is staged: /api/summer/places drops ids absent from inventory (and needs photo_ref+rating)"
+ },
+ {
+  "file": "lib/summerPlaceIds.js",
+  "line": 47,
+  "id": "ChIJ6f2bM71bw4gRm0YJYqc4FMY",
+  "label": null,
+  "status": "MISSING",
+  "class": "not_ingested",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; summer sidecar/universe entry is staged: /api/summer/places drops ids absent from inventory (and needs photo_ref+rating)"
+ },
+ {
+  "file": "lib/summerPlaceIds.js",
+  "line": 48,
+  "id": "ChIJxQh1CuNB24gRy6jB0Nwo2as",
+  "label": null,
+  "status": "MISSING",
+  "class": "not_ingested",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; summer sidecar/universe entry is staged: /api/summer/places drops ids absent from inventory (and needs photo_ref+rating)"
+ },
+ {
+  "file": "lib/summerPlaceIds.js",
+  "line": 49,
+  "id": "ChIJ28LTIB3v2ogRUiWmd2oH2MU",
+  "label": null,
+  "status": "MISSING",
+  "class": "not_ingested",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; summer sidecar/universe entry is staged: /api/summer/places drops ids absent from inventory (and needs photo_ref+rating)"
+ },
+ {
+  "file": "lib/summerPlaceIds.js",
+  "line": 50,
+  "id": "ChIJQXuFIOg024gRusADjWHhRIg",
+  "label": null,
+  "status": "MISSING",
+  "class": "not_ingested",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; summer sidecar/universe entry is staged: /api/summer/places drops ids absent from inventory (and needs photo_ref+rating)"
+ },
+ {
+  "file": "lib/summerPlaceIds.js",
+  "line": 51,
+  "id": "ChIJ8W-pgKe1lIgRKuK-2EjZsO0",
+  "label": null,
+  "status": "MISSING",
+  "class": "not_ingested",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; summer sidecar/universe entry is staged: /api/summer/places drops ids absent from inventory (and needs photo_ref+rating)"
+ },
+ {
+  "file": "lib/summerPlaceIds.js",
+  "line": 54,
+  "id": "ChIJxw-J5MS20YgRD1sUx45uC7k",
+  "label": null,
+  "status": "MISSING",
+  "class": "not_ingested",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; summer sidecar/universe entry is staged: /api/summer/places drops ids absent from inventory (and needs photo_ref+rating)"
+ },
+ {
+  "file": "lib/summerPlaceIds.js",
+  "line": 55,
+  "id": "ChIJ960sQ9k514gRzJnHxYzRgW8",
+  "label": null,
+  "status": "MISSING",
+  "class": "not_ingested",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; summer sidecar/universe entry is staged: /api/summer/places drops ids absent from inventory (and needs photo_ref+rating)"
+ },
+ {
+  "file": "lib/summerPlaceIds.js",
+  "line": 57,
+  "id": "ChIJyQ7UrCdr3ogRiy_YkEsIvzE",
+  "label": "Archie Carr National Wildlife Refuge",
+  "status": "MISSING",
+  "class": "not_ingested",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Archie Carr National Wildlife Refuge\") but no wf_inventory row; summer sidecar/universe entry is staged: /api/summer/places drops ids absent from inventory (and needs photo_ref+rating)"
+ },
+ {
+  "file": "lib/summerPlaceIds.js",
+  "line": 58,
+  "id": "ChIJ-61h3uq20YgRrPFtCkair2E",
+  "label": null,
+  "status": "MISSING",
+  "class": "not_ingested",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; summer sidecar/universe entry is staged: /api/summer/places drops ids absent from inventory (and needs photo_ref+rating)"
+ },
+ {
+  "file": "lib/summerPlaceIds.js",
+  "line": 59,
+  "id": "ChIJ-61h3uq20YgRrPFtCkair2E",
+  "label": null,
+  "status": "MISSING",
+  "class": "not_ingested",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; summer sidecar/universe entry is staged: /api/summer/places drops ids absent from inventory (and needs photo_ref+rating)"
+ },
+ {
+  "file": "lib/summerPlaceIds.js",
+  "line": 60,
+  "id": "ChIJbbo4A-i20YgR6klffX8jpBM",
+  "label": "The Hemingway Home and Museum",
+  "status": "MISSING",
+  "class": "not_ingested",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"The Hemingway Home and Museum\") but no wf_inventory row; summer sidecar/universe entry is staged: /api/summer/places drops ids absent from inventory (and needs photo_ref+rating)"
+ },
+ {
+  "file": "lib/summerPlaceIds.js",
+  "line": 61,
+  "id": "ChIJSeldnOi32YgR2eJbcYG2F4A",
+  "label": null,
+  "status": "MISSING",
+  "class": "not_ingested",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; summer sidecar/universe entry is staged: /api/summer/places drops ids absent from inventory (and needs photo_ref+rating)"
+ },
+ {
+  "file": "lib/summerPlaceIds.js",
+  "line": 62,
+  "id": "ChIJH-Mtg4O02YgRk_YbakHl9OY",
+  "label": null,
+  "status": "MISSING",
+  "class": "not_ingested",
+  "replacement_id": null,
+  "evidence": "no row in wf_inventory, wf_place_ids, wf_stale_inventory or any backup/dedup table; summer sidecar/universe entry is staged: /api/summer/places drops ids absent from inventory (and needs photo_ref+rating)"
+ },
+ {
+  "file": "lib/summerUniverse.js",
+  "line": 125,
+  "id": "ChIJ2xLazC4t74gRvvWbcPOcRIc",
+  "label": "Ichetucknee Springs State Park",
+  "status": "MISSING",
+  "class": "not_ingested",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Ichetucknee Springs State Park\") but no wf_inventory row; summer sidecar/universe entry is staged: /api/summer/places drops ids absent from inventory (and needs photo_ref+rating)"
+ },
+ {
+  "file": "lib/summerUniverse.js",
+  "line": 130,
+  "id": "ChIJ-UVvPIZk6IgRxhZzQKDXCZE",
+  "label": "Rainbow Springs State Park",
+  "status": "MISSING",
+  "class": "not_ingested",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Rainbow Springs State Park\") but no wf_inventory row; summer sidecar/universe entry is staged: /api/summer/places drops ids absent from inventory (and needs photo_ref+rating)"
+ },
+ {
+  "file": "lib/summerUniverse.js",
+  "line": 135,
+  "id": "ChIJq2_1qUxA6IgRCarDmMlmNgQ",
+  "label": "Three Sisters Springs",
+  "status": "MISSING",
+  "class": "not_ingested",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Three Sisters Springs\") but no wf_inventory row; summer sidecar/universe entry is staged: /api/summer/places drops ids absent from inventory (and needs photo_ref+rating)"
+ },
+ {
+  "file": "lib/summerUniverse.js",
+  "line": 244,
+  "id": "ChIJPylah1XxwogR9E_DFv5PZXc",
+  "label": "Caladesi Island State Park",
+  "status": "MISSING",
+  "class": "not_ingested",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Caladesi Island State Park\") but no wf_inventory row; summer sidecar/universe entry is staged: /api/summer/places drops ids absent from inventory (and needs photo_ref+rating)"
+ },
+ {
+  "file": "lib/summerUniverse.js",
+  "line": 269,
+  "id": "ChIJjfu2YPBBw4gRo41o9hwHfmg",
+  "label": "Siesta Beach",
+  "status": "EXCLUDED/excl",
+  "class": "incorrectly_linked",
+  "replacement_id": "ChIJh8tXh-FBw4gR9kFzfZN_g60",
+  "evidence": "Excluded duplicate (exclusion_reason duplicate_of:ChIJh8tXh-FBw4gR9kFzfZN_g60); canonical Siesta Beach OPERATIONAL 4.8 star/27786 reviews"
+ },
+ {
+  "file": "lib/summerUniverse.js",
+  "line": 301,
+  "id": "ChIJf0DevByX3YgRmEkTAhLtm-A",
+  "label": "Wild Florida Adventure Park",
+  "status": "MISSING",
+  "class": "not_ingested",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Wild Florida Adventure Park\") but no wf_inventory row; summer sidecar/universe entry is staged: /api/summer/places drops ids absent from inventory (and needs photo_ref+rating)"
+ },
+ {
+  "file": "lib/summerUniverse.js",
+  "line": 318,
+  "id": "ChIJiZrtZSvxwogRE9eu4Xpy9Yc",
+  "label": "Clearwater Marine Aquarium",
+  "status": "MISSING",
+  "class": "not_ingested",
+  "replacement_id": null,
+  "evidence": "in wf_place_ids (\"Clearwater Marine Aquarium\") but no wf_inventory row; summer sidecar/universe entry is staged: /api/summer/places drops ids absent from inventory (and needs photo_ref+rating)"
+ }
+]
