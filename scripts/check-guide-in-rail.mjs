@@ -50,10 +50,47 @@ const cards = (n) => Array.from({ length: n }, (_, i) => React.createElement("ar
 const html = renderToStaticMarkup(React.createElement("div", { className: "wf-rail" }, React.createElement(RailGuideSlot, { railId: "beaches", guide: g }, cards(5))));
 const order = [...html.matchAll(/data-card="(\d)"|data-guide-rail="beaches"/g)].map((m) => m[1] ?? "G").join();
 ok(order === "0,1,G,2,3,4", `the rendered track reads card, card, GUIDE, card... (got ${order})`);
-ok((html.match(/wf-guide-card/g) || []).length === 1 && !/wf-place-card-rank">/.test(html.slice(html.indexOf("data-guide-rail"), html.indexOf('data-card="2"'))), "exactly one guide card, carrying no rank badge");
+ok((html.match(/wf-guide-card/g) || []).length === 1 && !/wf-place-card-rank"[^>]*>/.test(html.slice(html.indexOf("data-guide-rail"), html.indexOf('data-card="2"'))), "exactly one guide card, carrying no rank badge");
 ok(/wf-exploding-primary/.test(html.slice(html.indexOf("data-guide-rail"))), "the guide wears the sibling card class, so it sizes like the rail's cards");
 const none = renderToStaticMarkup(React.createElement("div", null, React.createElement(RailGuideSlot, { railId: "beaches" }, cards(3))));
 ok(!/data-guide-rail/.test(none), "NEGATIVE: a rail with no matched guide renders only its own cards");
+
+// ── 3b. edge cases, EXECUTED (owner follow up, 2026-10-08) ─────────────────
+{
+  const { mergePagedItems } = await import("../lib/railPage.js");
+  const RailCard = (await loadComponent(path.join(ROOT, "app/components/RailCard.js"), ROOT)).default;
+  const H = await loadComponent(path.join(ROOT, "scripts/lib/guideCollectionHarness.js"), ROOT);
+  const tileOrder = (markup) => [...markup.matchAll(/data-guide-rail="[^"]*"|wf-place-card-rank"[^>]*>(\d+)</g)].map((m) => (m[1] ? m[1] : "G"));
+  const rankCards = (rows) => rows.map((row, index) => React.createElement(RailCard, { key: row.id, title: row.id, rank: index + 1, photo: "/x.webp", place: { id: row.id, name: row.id } }));
+  const rowsOf = (n, from = 0) => Array.from({ length: n }, (_, i) => ({ id: "row-" + (from + i) }));
+  const slot = (rows, gd = g) => renderToStaticMarkup(React.createElement("div", { className: "wf-rail" }, React.createElement(H.RailGuideSlot, { railId: "r", guide: gd }, rankCards(rows))));
+  // (a) 0, 1, 2 cards: the guide goes last, exactly once.
+  for (const n of [0, 1, 2]) {
+    const order = tileOrder(slot(rowsOf(n)));
+    ok(order.filter((x) => x === "G").length === 1 && order[order.length - 1] === "G" && order.length === n + 1, `(a) a rail of ${n} card(s) shows the guide last, once (got ${order.join()})`);
+  }
+  // (b) no guide: unchanged, ranks 1..n.
+  const plain = tileOrder(slot(rowsOf(5), null));
+  ok(plain.join() === "1,2,3,4,5", `(b) a rail without a guide keeps its cards and ranks 1..n (got ${plain.join()})`);
+  // (c) two page load through usePagedRail's own merge: the guide stays at index 2, once; ranks continue.
+  let items = mergePagedItems([], rowsOf(10), 0);
+  const page0 = tileOrder(slot(items));
+  items = mergePagedItems(items, [...rowsOf(1, 9), ...rowsOf(10, 10)], 1); // page 2 repeats row-9: the merge drops it
+  const page1 = tileOrder(slot(items));
+  ok(page0.join() === "1,2,G,3,4,5,6,7,8,9,10", `(c) page 1: guide third, ranks 1..10 around it (got ${page0.join()})`);
+  ok(items.length === 20 && page1.filter((x) => x === "G").length === 1 && page1.indexOf("G") === 2, `(c) after page 2 arrives the guide is still at index 2, exactly once (got index ${page1.indexOf("G")}, ${page1.filter((x) => x === "G").length} guide(s), ${items.length} rows)`);
+  ok(page1.filter((x) => x !== "G").join() === Array.from({ length: 20 }, (_, i) => i + 1).join() && page1[3] === "3", "(c) the third place card is rank 3 although it is the fourth tile; ranks run 1..20 with no gap");
+  ok(items.length === 20, "(c) counters and dots read the place list (20), which never contains the guide");
+  // (d) one guide, one rail per collection.
+  const matchG = { slug: "match", title: "Match", image: { src: "/x.webp" }, placeIds: ["shared"], teaser: "t" };
+  const three = [0, 1, 2].map((k) => ({ id: "rail-" + k, places: [{ id: "shared", name: "Shared" }, { id: "own-" + k, name: "Own " + k }] }));
+  const collectionHtml = renderToStaticMarkup(React.createElement(H.GuideDiscoveryContext.Provider, { value: [matchG] },
+    React.createElement(H.Collection, { rails: three, collectionId: "c" }, three.map((rail) => React.createElement("div", { key: rail.id, className: "wf-rail" },
+      React.createElement(H.RailGuideSlot, { railId: rail.id }, rankCards(rail.places)))))));
+  ok((collectionHtml.match(/data-guide-rail=/g) || []).length === 1, `(d) a guide that matches three rails of one collection shows in exactly one (got ${(collectionHtml.match(/data-guide-rail=/g) || []).length})`);
+  const own = ["a", "b", "c", "d", "e"].map((k) => renderToStaticMarkup(React.createElement(H.RailGuideSlot, { railId: k, guide: { ...matchG, slug: "own-" + k } }, rankCards(rowsOf(4)))));
+  ok(own.every((m) => (m.match(/data-guide-rail=/g) || []).length === 1) && new Set(own.map((m) => (m.match(/rail-guide|guides\/own-[a-e]/) || [""])[0])).size >= 1, "(d) Christmas: each rail carries its own guide, once");
+}
 
 // ── 4. the whole tree, statically: nothing between rails ───────────────────
 const files = [];

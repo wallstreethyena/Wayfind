@@ -17,14 +17,9 @@
 // fetches page N+1 the moment that ONE card intersects the viewport.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { fetchPosterJson as fetchJsonWithDeadline } from "../../lib/posterJson.js";
-import { RAIL_PAGE_SIZE, pageOf, seedSignature } from "../../lib/railPage.js";
+import { RAIL_PAGE_SIZE, pageOf, seedSignature, mergePagedItems } from "../../lib/railPage.js";
 
 export const RAIL_LOAD_MORE_OFFSET = 3;
-
-function idOf(item, getId) {
-  if (getId) return getId(item);
-  return item && (item.id ?? item.place_id ?? item.event_id ?? null);
-}
 
 /**
  * @param {string} endpoint       e.g. "/api/night-out" or "/api/rails"
@@ -122,18 +117,7 @@ export function usePagedRail(endpoint, params, {
     if (local) {
       // Already in memory — page it synchronously, no fetch, no loading flash.
       const paged = pageOf(sourceRef.current || [], { page: pageToLoad, size });
-      setItems((prev) => {
-        const base = pageToLoad === 0 ? [] : prev;
-        const seen = new Set(base.map((it) => idOf(it, getId)).filter((id) => id != null));
-        const merged = base.slice();
-        for (const it of paged.places) {
-          const id = idOf(it, getId);
-          if (id != null && seen.has(id)) continue;
-          if (id != null) seen.add(id);
-          merged.push(it);
-        }
-        return merged;
-      });
+      setItems((prev) => mergePagedItems(prev, paged.places, pageToLoad, getId));
       setTotal(paged.total);
       setHasMore(paged.hasMore);
       nextPageRef.current = pageToLoad + 1;
@@ -153,18 +137,7 @@ export function usePagedRail(endpoint, params, {
         // splice a stale rail's cards into the new one.
         if (currentKeyRef.current !== requestKey) return;
         const incoming = Array.isArray(body?.[itemsKey]) ? body[itemsKey] : [];
-        setItems((prev) => {
-          const base = pageToLoad === 0 ? [] : prev;
-          const seen = new Set(base.map((it) => idOf(it, getId)).filter((id) => id != null));
-          const merged = base.slice();
-          for (const it of incoming) {
-            const id = idOf(it, getId);
-            if (id != null && seen.has(id)) continue;
-            if (id != null) seen.add(id);
-            merged.push(it);
-          }
-          return merged;
-        });
+        setItems((prev) => mergePagedItems(prev, incoming, pageToLoad, getId));
         setTotal(Number.isFinite(body?.total) ? body.total : null);
         setHasMore(!!body?.hasMore);
         nextPageRef.current = pageToLoad + 1;
