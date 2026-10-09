@@ -534,6 +534,7 @@ scripts/test-creator-picks-rails.mjs	0	CALL	blocks-ci-and-deploy	1	-	55	0	0	86a8
 scripts/test-credited-photo-warm.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	50	0	0	5bdc6316592aaad5ef5ad3fbf439fcd1429603673205c7a55d3374c746701f14
 scripts/test-cuisine-classify.mjs	0	CALL	blocks-ci-and-deploy	1	-	65	0	0	ecf1ad381de9e680f050faa23b5acc1df53e9c15ea437216b8ab187b5d179a18
 scripts/test-cuisine-write.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	94421b4c849ca90d4bf945e21003932909f856d76e51dfc6a4cb4eb5a078e3c8
+scripts/test-curated-events-cache.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	927caee8703bcb2314912157621ed5b5957b9582ec9459e4da06589d0ab632c0
 scripts/test-curator-boost.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	1	2	57ce83b191efdd6fb7fec477711dcda15f37e3937133cad1c8d87ef2a891654d
 scripts/test-curator-picks.mjs	0	CALL	blocks-ci-and-deploy	1	-	66	0	0	c76fc9eccfe0f0298e99a3a0b8059f21dbf86d12cd16c6c1de4d83f70259e4ea
 scripts/test-daily-trend-intelligence.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	61d9790c0010704166b1481641010e830a3022f71d278f4438dc11ffefdf42ed
