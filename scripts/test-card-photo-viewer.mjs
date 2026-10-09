@@ -117,8 +117,13 @@ try {
     const badge = await page.locator("[data-card-photo-credit] a").boundingBox();
     const bounds = await page.locator("#root").boundingBox();
     assert.ok(badge.x >= bounds.x && badge.x + badge.width <= bounds.x + bounds.width);
-    assert.ok(badge.height <= 18, "credit remains a compact single line");
+    assert.ok(badge.height <= 16, "credit remains a compact single line without box padding");
     assert.equal(await page.locator("[data-card-photo-credit] a").evaluate((el) => getComputedStyle(el).fontSize), "12px", "credit preserves Google's minimum text size");
+    const creditStyle = await page.locator("[data-card-photo-credit] a").evaluate((el) => { const s = getComputedStyle(el); return { background: s.backgroundColor, color: s.color, padding: s.padding, halo: s.textShadow }; });
+    assert.equal(creditStyle.background, "rgba(0, 0, 0, 0)", "source label has no background rectangle");
+    assert.equal(creditStyle.color, "rgb(255, 255, 255)", "source label stays white");
+    assert.equal(creditStyle.padding, "0px", "source label has no box padding");
+    assert.match(creditStyle.halo, /rgb\(0, 0, 0\)/, "white credit has a dark text halo for photo contrast");
     const content = await page.locator("#card-content").boundingBox();
     await page.mouse.click(content.x + content.width / 2, content.y + content.height / 2);
     assert.equal(await page.evaluate(() => window.placeOpenActivations), 1, "ordinary card content still opens place details");
