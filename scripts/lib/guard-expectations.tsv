@@ -395,6 +395,7 @@ scripts/check-top40-rail.mjs	0	RENDER	blocks-ci-and-deploy	1	-	49	0	0	6da7946578
 scripts/check-tour-strip-redirect.mjs	0	RENDER	blocks-ci-and-deploy	1	-	20	0	0	ad1d90c40f2fcae1202af9302612c49ef28db9b5325bbd611054609bee0da14f
 scripts/check-tp-short-url-constraint-parity.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0	01722d9bc4f7f6925cddf7844fcd53ff19b3b91851f6bfd3252f931603cb1a51
 scripts/check-trend-integrity.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	1	2	2926024d5b04eaddcfa9c515746c46ab9f01b09ce19ec6d78990d14ab687a19e
+scripts/check-trend-pulse.mjs	0	RENDER	blocks-ci-and-deploy	1	-	29	0	0	fc71789f24504345986507cb3edc747e8a3e7c8285522b8bc46b5ae955276aee
 scripts/check-trend-score.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	1	2	1e5e029f790e96d617649f5f1e96b7bcbbd3c0cebcb36e8f2dd8d1e3a7b727a8
 scripts/check-trend-section-honesty.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0	d28a79c878a59f298255a50c77f3c6dc9ed47d1c840c587ec066f4a2e79ef4e6
 scripts/check-trend-signal.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	1	1	b68288b4264f677d633a9676bc7e8babd5cd7fd3f8f6aa2eabc6839196d8f7ba
