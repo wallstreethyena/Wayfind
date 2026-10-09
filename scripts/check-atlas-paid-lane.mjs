@@ -65,11 +65,21 @@ ok(/if \(gateShut\(\) \|\| gateFree\(\)\) \{\s*if \(gateShut\(\) \|\| !lane\) \{
 ok(/takeFromLedger\(lane\.searchSku, lane\.cap\)/.test(route) && /spendAllow\("details_enterprise"\)/.test(route), "search grant must use the lane sku, shared sku only as the non-lane branch");
 ok(/\{ sku: lane\.anthropicSku, cap: lane\.cap, timeoutMs: laneTimeout \}/.test(route), "lane Anthropic call must carry the lane sku+cap+timeout; shared path stays lane-free");
 ok(/const lane = laneCfg && \(laneCfg\.mode === "full" \|\| dry\) \? laneCfg : null;/.test(route), "dry-only mode: the lane is active for ?dry=1 only unless ATLAS_PAID_ENABLED=1 (full)");
-ok(/stoppedForBudget \|\| meterRecordFailed \|\| !dryBudgetAllows\(drySpent, dryCosts, lane\.dryCapUsd\)/.test(route), "the in-request dollar-ceiling stop must run before each place's grant");
 {
-  const iRead = route.indexOf("readDryUsedCents(s)"), iStop = route.indexOf("used + reserveCents(dryCents) > capCents"), iGrant = route.indexOf("takeFromLedger(lane.searchSku"), iRec = route.indexOf("recordDryCents(s, cents)");
-  ok(iRead > 0 && iRead < iStop && iStop < iGrant && iGrant < iRec, "cross-request meter order: read, reserve check, grant, Anthropic call, then record");
-  ok(/used === null\) \{ meterReadFailed = true; stoppedForBudget = true/.test(route), "an unreadable meter must fail closed (stop, spend nothing)");
+  // Dry branch order, on comment-stripped source: provable-cost gate -> atomic reservation ->
+  // search grant -> Anthropic call -> refund. Each anchor must exist exactly once.
+  const once = (re) => (route.match(re) || []).length === 1;
+  const ix = (re) => { const m = route.match(re); return m ? m.index : -1; };
+  const reWorst = /const worst = laneWorstCaseUsd\(dryBody, null\);/, reUnb = /if \(worst === null\) \{ costUnbounded = true; stoppedForBudget = true; deferred\+\+; return; \}/;
+  const reRes = /const granted = await reserveDryCents\(s, capCents, reserved\);/, reGrant = /takeFromLedger\(lane\.searchSku/, reCall = /await writeLaneEditorial\(place, akey, stats, sysInfo\.blocks, lane, laneModel\(\), dryMetered, dryBody\)/, reRefund = /await refundDryCents\(s, reserved - actual\)/;
+  ok([reWorst, reUnb, reRes, reGrant, reCall, reRefund].every(once), "dry branch anchors each present exactly once: laneWorstCaseUsd, unbounded stop, reserveDryCents, search grant, lane call with the reserved body, refund");
+  const iW = ix(reWorst), iU = ix(reUnb), iR = ix(reRes), iG = ix(reGrant), iC = ix(reCall), iF = ix(reRefund);
+  ok(iW > 0 && iW < iU && iU < iR && iR < iG && iG < iC && iC < iF, `dry order: laneWorstCaseUsd -> unbounded stop -> reserveDryCents -> takeFromLedger(lane.searchSku -> writeLaneEditorial -> refund (got ${[iW, iU, iR, iG, iC, iF].join(",")})`);
+  ok(/dryBody = laneRequestBody\(place, laneModel\(\), sysInfo\.blocks, metroCity\(place\.metro\)\);/.test(route) && route.indexOf("dryBody = laneRequestBody(") < iW, "the bound is computed on the exact body that is sent");
+  ok(/if \(granted === null\) \{ meterReadFailed = true; stoppedForBudget = true; deferred\+\+; return; \}/.test(route) && /if \(granted !== true\) \{ stoppedForBudget = true; deferred\+\+; return; \}/.test(route), "an unknown or denied reservation must fail closed (stop, spend nothing)");
+  ok(/const actual = res && res\.notSent \? 0 : \(known \? usdToCents\(res\.costUsd\) : reserved\);/.test(route), "sent-but-unknown keeps the whole reservation; not-sent is 0");
+  ok(!/readDryUsedCents|recordDryCents|dryBudgetAllows|reserveCents\(|DRY_RESERVE_FLOOR_CENTS|DRY_WORST_NEXT_FLOOR_USD/.test(route), "the old read-then-record meter is gone from the route");
+  ok(/return \{ text: "", fetched: \[\], searches: 0, costUsd: NaN \};/.test(route), "a lane request that threw reports cost UNKNOWN (NaN), never a floor");
   ok(/idsList = dryMetered \? loadPriorityIds/.test(route) && /const limitDefault = dry \? \(idsMode \? idsList\.length : 1\) : 10;/.test(route), "ids= is read only for metered dry requests; a dry request without ids/limit does one place");
 }
 {
@@ -82,11 +92,12 @@ ok(/stoppedForBudget \|\| meterRecordFailed \|\| !dryBudgetAllows\(drySpent, dry
   const meter = strip(read("lib/atlasDryMeter.js"));
   ok(/DRY_ANTHROPIC_TIMEOUT_MS = 35000;/.test(meter) && /DRY_IO_TIMEOUT_MS = 3000;/.test(meter), "dry Anthropic timeout is 35000 ms and meter I/O timeout 3000 ms (3+3+35+3+3 = 47s inside maxDuration 60)");
   ok(/const laneTimeout = dryRun \? DRY_ANTHROPIC_TIMEOUT_MS : 48000;/.test(route) && /timeoutMs: laneTimeout/.test(route), "the lane uses the 35s dry timeout for dry runs only (48s for real runs), for both the outer timer and paidAi");
-  ok((meter.match(/new AbortController\(\)/g) || []).length === 2 && (meter.match(/signal: ctrl\.signal/g) || []).length === 2, "readDryUsedCents and recordDryCents both carry an AbortController timeout");
-  ok((meter.match(/rpc\/wf_spend_take/g) || []).length === 1 && !/while \(/.test(meter), "recordDryCents is ONE wf_spend_take call, no stepping loop");
+  ok((meter.match(/new AbortController\(\)/g) || []).length === 2 && (meter.match(/rpcInit\(s, ctrl\.signal,/g) || []).length === 2 && (meter.match(/setTimeout\(\(\) => ctrl\.abort\(\), DRY_IO_TIMEOUT_MS\)/g) || []).length === 2, "reserveDryCents and refundDryCents both carry a DRY_IO_TIMEOUT_MS AbortController");
+  ok((meter.match(/rpc\/wf_spend_take/g) || []).length === 1 && (meter.match(/rpc\/wf_spend_refund/g) || []).length === 1 && (meter.match(/while \(/g) || []).length === 1, "reserveDryCents is ONE wf_spend_take call; only the refund loops (chunks of <= 10)");
+  ok(!/readDryUsedCents|recordDryCents|COUNTER_CAP|DRY_RESERVE_FLOOR_CENTS/.test(meter), "the old read-then-record meter API is gone");
   ok(/x-wf-request-sent"\) === "0"\) return \{ notSent: true/.test(route) && /meterBlocked = true; stoppedForBudget = true/.test(route), "a paidAi-blocked (not sent) place records nothing and stops the run (meter_blocked)");
   ok(/if \(!dryRun\) tripBreaker\(/.test(route), "dry mode never trips the shared provider-health breaker");
-  ok(/if \(cents > DRY_RESERVE_FLOOR_CENTS\) \{ stoppedForOverage = true/.test(route), "a place over the reserve stops the run after it is recorded (stopped_for_overage)");
+  ok(/if \(actual > reserved\) \{\s*stoppedForOverage = true; stoppedForBudget = true;/.test(route), "a place over its reservation takes nothing more and stops the run (stopped_for_overage)");
   const pai = strip(read("lib/paidAi.js"));
   ok(/provider_unreachable", 503, true\)/.test(pai) && (pai.match(/x-wf-request-sent/g) || []).length === 1, "only provider_unreachable (a request that was attempted) is marked sent=1");
 }
