@@ -147,12 +147,16 @@ await check("event pages read the same Tampa facts as the card (calls withTampaP
   assert.equal(withTampaPassFacts(other), other, "no other event page changes");
 });
 
-await check("Tampa Terrors is a meeting-point tour, never a storefront or a dated Halloween event", () => {
+await check("Tampa Terrors is a meeting-point tour, never a storefront or a dated Halloween event", async () => {
   const t = FALL_TAMPA_PICKS_2026_10_08.find((row) => row.event_id === "tampa-terrors-ghost-tour-2026");
   assert.equal(t.place_id, "ChIJ98cKiInEwogRfyDonUPi2bc", "Tampa Theatre identity (the published meeting point)");
   assert.match(t.venue, /meeting point/);
   assert.equal(t.end_date, null, "open run, no invented end date");
   assert.ok(!t.tags.includes("halloween"), "not dressed up as a Halloween event");
+  const { eventDatesLabel } = await import("../lib/eventOccurrences.js");
+  const { withTampaPassFacts } = await import("../lib/eventPageImage.js");
+  const page = withTampaPassFacts({ event_id: t.event_id, slug: t.slug, start_date: "2026-10-08", end_date: null });
+  assert.equal(eventDatesLabel(page, "Oct 8"), "Nightly, year-round", "the page never presents the nightly tour as one date");
 });
 
 console.log(`test-fall-tampa-picks-2026-10-08: ${n} checks passed`);
