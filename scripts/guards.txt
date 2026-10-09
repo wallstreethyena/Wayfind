@@ -764,6 +764,10 @@ node scripts/check-events-running-order.mjs
 # never reads as free on the card, the page or the JSON-LD.
 node scripts/check-event-price-language.mjs
 node scripts/check-event-price-fact.mjs
+# Pinless events are placed only by the reader's town; curated rows re-merge live on a feed cache hit.
+node scripts/check-events-pin-placement.mjs
+# Route shims (/events, /map, ...) hand off to the app while the HTML parses, not after hydration.
+node scripts/check-route-shim-handoff.mjs
 # Events without their own photo show a designed category tile, never stock;
 # venue photos carry a Venue mark.
 node scripts/check-event-photo-honesty.mjs

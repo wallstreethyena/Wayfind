@@ -14,5 +14,11 @@ export default function GoScreen({ screen }) {
       window.location.replace("/?go=" + encodeURIComponent(screen) + (qs ? "&" + qs : ""));
     } catch (e) {}
   }, [screen]);
-  return null;
+  // 2026-10-08 PERF: the effect above runs only after this route's own JS has
+  // downloaded and hydrated (measured ~2.1 s at 390px, 4x CPU, fast 4G before
+  // the shell even starts loading). The same hand-off as an inline script runs
+  // while the HTML is still being parsed. The effect stays as the fallback; the
+  // static text on the page stays for crawlers and no-JS visitors.
+  const target = JSON.stringify(String(screen || ""));
+  return <script dangerouslySetInnerHTML={{ __html: "(function(){try{var q=location.search.replace(/^\\?/,'');location.replace('/?go='+encodeURIComponent(" + target + ")+(q?'&'+q:''))}catch(e){}})();" }} />;
 }

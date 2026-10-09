@@ -39,7 +39,7 @@
 // is invented to fill a slot — an event does not get a fabricated score, it gets
 // the `when` badge in the same box, which is a fact it really carries. That is
 // the same never-fabricate rule the rest of this codebase runs on.
-import { eventPhotoCredit } from "../../lib/eventImageProvenance.js";
+import { eventPhotoCredit, eventImageIsVenue } from "../../lib/eventImageProvenance.js";
 import useEventClock from "./useEventClock.js";
 import { eventVisitStatus } from "../../lib/eventVisitFacts.js";
 import { compactWhen } from "../../lib/whenCompact.js";
@@ -429,10 +429,17 @@ export default function RailCard({
   const shownPhoto = photoSrcFilter(photo);
   const usingFallback = !!fallbackPhoto && fallbackPhoto.primary === shownPhoto;
   const displayedPhoto = usingFallback ? fallbackPhoto.src : shownPhoto;
+  // 2026-10-08 (owner): "distinguish venue photos from event photos wherever
+  // confusion is likely. Use a small, readable Venue photo label that fits the
+  // existing design. Preserve required attribution separately." An event card
+  // whose picture shows the venue, not the event, wears a small label on the
+  // photo; the credit chip stays its own control.
+  let venuePhoto = false;
   if (visitFacts) {
     const photoEvent = usingFallback ? { ...visitFacts, image_is_venue: false, imageIsVenue: false, photoAttr: null, photoAttrHref: null } : visitFacts;
     if (usingFallback) { photoAttr = null; photoAttrHref = null; }
     const credit = eventPhotoCredit(photoEvent, displayedPhoto);
+    venuePhoto = !!displayedPhoto && eventImageIsVenue(photoEvent, displayedPhoto);
     if (!photoAttr && credit) { photoAttr = credit.label; photoAttrHref = credit.href; }
   }
   // If a stored photo_ref goes stale, retry the SAME venue through the stable
@@ -529,6 +536,7 @@ export default function RailCard({
             : placeholder ? <EventPlaceholderTile tile={placeholder} />
               : <div className="wf-place-card-monogram" aria-hidden="true">{initialsOf(title)}</div>}
           {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
+          {venuePhoto && shownPhoto ? <span className="wf-place-card-photo-kind">Venue photo</span> : null}
           <AwardSticker award={shownAward} />
           {/* v8.56.13 (#1188) — CC-license credit for the free permanent photo
               lane (lib/freePhoto.js, wf_place_photo). Not decoration: Wikimedia

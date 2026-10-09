@@ -246,7 +246,9 @@ ${WF_SKELETON_CSS}
 // scrim; the full "Photo: <credit>" line rides the title/aria-label instead
 // of being spelled out in 18px, and a tap follows through to the license page
 // when photoAttrHref is given.
-`.wf-place-card-photo-attr{
+`.wf-place-card-photo-kind{position:absolute!important;z-index:4;top:8px;left:7px;max-width:calc(100% - 14px);box-sizing:border-box;padding:2px 6px;border:1px solid rgba(255,255,255,.26);border-radius:999px;background:rgba(4,8,15,.8);color:#F8FAFC;font-size:9px;font-weight:800;letter-spacing:.01em;line-height:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
+.wf-place-card-rank~.wf-place-card-photo-kind{top:49px}
+.wf-place-card-photo-attr{
   position:absolute!important;
   z-index:4;
   bottom:8px;
@@ -668,6 +670,11 @@ ${XMAS(".wayfind-score-badge>span:last-child>span:last-child")},${XMAS(".wf-rail
   .wf-sheet-card-actions>.wf-place-card-share{padding-inline:1px!important}
   .wf-sheet-card-actions>.wf-place-card-save{padding-inline:0!important}
   .wf-sheet-card-actions>a,.wf-sheet-card-actions>button,.wf-sheet-card-actions>span{min-width:0!important;padding-inline:4px!important;font-size:9.5px!important;overflow:hidden}
+}
+@media(max-width:430px){
+  .wf-place-card-score~.wf-place-card-layout .wf-place-card-heading>.wf-place-card-category{display:block;width:calc(100% + var(--wf-card-badge-w) + 10px);max-width:none;margin:42px 0 0;line-height:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .wf-place-card-score~.wf-place-card-layout .wf-place-card-heading>.wf-place-card-category:before{display:inline-block;vertical-align:middle;margin:0 5px 1px 0}
+  .wf-place-card-score~.wf-place-card-layout .wf-place-card-heading:has(>.wf-place-card-category) .wf-place-card-name{margin-top:0}
 }
 @media(min-width:${WF_DESKTOP_BP}px){
   .wf-place-card,.wf-rail .wf-place-card,.wf8-pcrail .wf-place-card{--wf-place-card-media:${PLACE_CARD_MEDIA_DESKTOP_PX}px}

@@ -321,6 +321,7 @@ if (!browserConfig) {
     photo: "/guides/verified/hunsader-farms-goats.webp",
     photoAttr: "Robin Teng · Unsplash License", photoAttrHref: "https://unsplash.com/photos/i_sBNY7UoNQ",
     eyebrow: "Pumpkin Patches & Fall Farms", facts: ["Brooksville", "32.5 mi"],
+    when: { label: "Select dates", value: "", tone: "later" },
     chips: [{ key: "schedule", label: "Select dates · daytime", icon: "🗓" }, { key: "age", label: "Ages 3+ need a ticket" }],
     visitFacts: { start_date: "2099-09-01", end_date: "2099-11-01", visit_cost: { currency: "USD", entry: 13.28, parking: 0, fees_note: "+ tax" }, visit_restrictions: ["Ages 3+ need a ticket"] },
     cta: { label: partnerTicketLabel("Undercover Tourist", { product: "park-admission", card: true }), href: "https://www.sweetfieldsfarm.com/", external: true, sponsored: true },
@@ -330,7 +331,9 @@ if (!browserConfig) {
   ok((richFallMarkup.match(/wf-rail-card-cta/g) || []).length === 1, "LOCK: a rail card never renders two .wf-rail-card-cta links");
   for (const file of ["app/components/RailCard.js", "app/components/FallIntentRails.js", "app/components/PosterEventCard.js"]) {
     const src = readFileSync(path.join(ROOT, file), "utf8");
-    for (const banned of ["Official details", "Venue photo", "wf-event-card-backdrop", "wf-rail-card-links", "wf-event-card-cost", "Visit details"]) ok(!src.includes(banned), `LOCK: ${file} never contains "${banned}"`);
+    for (const banned of ["Official details", "wf-event-card-backdrop", "wf-rail-card-links", "wf-event-card-cost", "Visit details"]) ok(!src.includes(banned), `LOCK: ${file} never contains "${banned}"`);
+    // 2026-10-08 (owner): the one exception is the small "Venue photo" label, owned by RailCard alone.
+    ok(file.endsWith("RailCard.js") ? (src.match(/>Venue photo</g) || []).length === 1 : !src.includes("Venue photo"), `LOCK: ${file} ${file.endsWith("RailCard.js") ? "owns exactly one Venue photo label" : "never adds its own Venue photo text"}`);
   }
   const eventPlaces = [place("event-a"), place("event-b")].map((item) => ({ ...item, href: `/p/${item.id}`, editorial: "A verified local favorite." }));
   const event = React.createElement(EventNearbyCards, { places: eventPlaces });
@@ -387,7 +390,7 @@ if (!browserConfig) {
             const cs = getComputedStyle(card), contentCss = content ? getComputedStyle(content) : null, nameCss = name ? getComputedStyle(name) : null, actionCss = actions ? getComputedStyle(actions) : null;
             const headingCss = heading ? getComputedStyle(heading) : null;
             const headingTextWidth = name ? name.getBoundingClientRect().width - parseFloat(nameCss.paddingLeft || "0") - parseFloat(nameCss.paddingRight || "0") : null;
-            return { box: box(card), scrollWidth: card.scrollWidth, hrefs: [...card.querySelectorAll("a[href]")].map((a) => a.getAttribute("href") || ""), root: [cs.height, cs.width, cs.borderRadius, cs.backgroundColor], content: contentCss ? [contentCss.paddingTop, contentCss.paddingRight, contentCss.paddingBottom, contentCss.paddingLeft] : null, name: nameCss ? [nameCss.fontSize, nameCss.lineHeight, nameCss.fontWeight] : null, headingTextWidth, extras: [...card.querySelectorAll(".wf-rail-card-cta,.wf-place-card-credit,.wf-event-card-cost")].map(box), nameBox: name ? box(name) : null, labelFits: [...card.querySelectorAll(".wf-place-card-save,.wf-place-card-share,.wf-place-card-book")].map(el => ({name:el.className, fits:el.scrollWidth <= el.clientWidth + 1, text:el.textContent, hasIcon:!!el.querySelector("svg")})), hasBooking: !!card.querySelector('.wf-place-card-book'), actionStyles: Object.fromEntries(['save','like','dislike','share'].map(key => { const el = card.querySelector('.wf-place-card-' + key); if (!el) return [key,null]; const style = getComputedStyle(el); return [key,[style.height,style.fontSize,style.fontWeight,style.paddingLeft,style.paddingRight,style.borderRadius]]; })), actions: actionCss ? [actionCss.display, actionCss.gridTemplateColumns, actionCss.height, actionCss.columnGap] : null, media: media ? box(media) : null, score: score ? box(score) : null, controls: [...card.querySelectorAll(".wf-place-card-actions>*")].map(box) };
+            return { box: box(card), scrollWidth: card.scrollWidth, hrefs: [...card.querySelectorAll("a[href]")].map((a) => a.getAttribute("href") || ""), root: [cs.height, cs.width, cs.borderRadius, cs.backgroundColor], content: contentCss ? [contentCss.paddingTop, contentCss.paddingRight, contentCss.paddingBottom, contentCss.paddingLeft] : null, name: nameCss ? [nameCss.fontSize, nameCss.lineHeight, nameCss.fontWeight] : null, headingTextWidth, eyebrow: (() => { const c = card.querySelector('.wf-place-card-category'); if (!c) return null; const r = c.getBoundingClientRect(); return { x: r.x, right: r.right, y: r.y, bottom: r.bottom, clipped: c.scrollWidth > c.clientWidth + 1, ellipsis: getComputedStyle(c).textOverflow === 'ellipsis' && getComputedStyle(c).display === 'block', text: c.textContent }; })(), extras: [...card.querySelectorAll(".wf-rail-card-cta,.wf-place-card-credit,.wf-event-card-cost")].map(box), nameBox: name ? box(name) : null, labelFits: [...card.querySelectorAll(".wf-place-card-save,.wf-place-card-share,.wf-place-card-book")].map(el => ({name:el.className, fits:el.scrollWidth <= el.clientWidth + 1, text:el.textContent, hasIcon:!!el.querySelector("svg")})), hasBooking: !!card.querySelector('.wf-place-card-book'), actionStyles: Object.fromEntries(['save','like','dislike','share'].map(key => { const el = card.querySelector('.wf-place-card-' + key); if (!el) return [key,null]; const style = getComputedStyle(el); return [key,[style.height,style.fontSize,style.fontWeight,style.paddingLeft,style.paddingRight,style.borderRadius]]; })), actions: actionCss ? [actionCss.display, actionCss.gridTemplateColumns, actionCss.height, actionCss.columnGap] : null, media: media ? box(media) : null, score: score ? box(score) : null, controls: [...card.querySelectorAll(".wf-place-card-actions>*")].map(box) };
           }),
         }));
         return { innerWidth, scrollWidth: document.documentElement.scrollWidth, adapters };
@@ -457,6 +460,13 @@ if (!browserConfig) {
           ok(card.score.y - card.box.y <= 24 && card.box.right - card.score.right <= 24, `${width}px ${card.adapter}: score preserves the owner’s top-right placement`);
           if (card.nameBox) ok(!(Math.min(card.score.right, card.nameBox.right) - Math.max(card.score.x, card.nameBox.x) > 1 && Math.min(card.score.bottom, card.nameBox.bottom) - Math.max(card.score.y, card.nameBox.y) > 1), `${width}px ${card.adapter}: score never overlaps the title`);
         }
+        // 2026-10-08: the eyebrow is never hidden under the score/when badge and
+        // never cut short (it read "HAL" for HALLOWEEN on 31 of 32 event cards at 320px).
+        if (card.score && card.eyebrow) {
+          const e = card.eyebrow;
+          ok(!(Math.min(card.score.right, e.right) - Math.max(card.score.x, e.x) > 1 && Math.min(card.score.bottom, e.bottom) - Math.max(card.score.y, e.y) > 1), `${width}px ${card.adapter}: eyebrow "${e.text}" never sits under the badge`);
+          ok(!e.clipped || e.ellipsis, `${width}px ${card.adapter}: eyebrow "${e.text}" is shown in full, or ends in a visible ellipsis when it is longer than the line (never cut mid-word)`);
+        }
         for (const label of card.labelFits) ok(label.fits, `${width}px ${card.adapter}: action label fits without clipping (${label.name})`);
         // 2026-09-23 — CI failed intermittently on EXACTLY the assertion above
         // (every surface, only wf-place-card-save, only sub-430px) with a
@@ -476,7 +486,7 @@ if (!browserConfig) {
           ok(saveLabel.hasIcon, `${width}px ${card.adapter}: Save label's heart is a real <svg> (font-independent), not a text glyph`);
         }
         ok(card.controls.length >= 4, `${width}px ${card.adapter}: positive control found at least four action controls (got ${card.controls.length})`);
-        for (const control of card.controls) ok(control.x >= card.box.x - 1 && control.right <= card.box.right + 1 && control.y >= card.box.y - 1 && control.bottom <= card.box.bottom + 1, `${width}px ${card.adapter}: action control stays inside card body`);
+        for (const control of card.controls) ok(control.x >= card.box.x - 1 && control.right <= card.box.right + 1 && control.y >= card.box.y - 1 && control.bottom <= card.box.bottom + 1, `${width}px ${card.adapter}: action control stays inside card body (bottom ${Math.round(control.bottom - card.box.bottom)}px past)`);
         for (const extra of card.extras) {
           ok(extra.h > 0 && extra.x >= card.box.x - 1 && extra.right <= card.box.right + 1 && extra.y >= card.box.y - 1 && extra.bottom <= card.box.bottom + 1, `${width}px ${card.adapter}: CTA and creator credit stay visible inside the card`);
           for (const control of card.controls) ok(!(Math.min(extra.right, control.right) - Math.max(extra.x, control.x) > 1 && Math.min(extra.bottom, control.bottom) - Math.max(extra.y, control.y) > 1), `${width}px ${card.adapter}: CTA/creator credit never overlaps reactions`);

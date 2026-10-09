@@ -120,9 +120,15 @@ const route = readFileSync(new URL("../app/api/events/route.js", import.meta.url
 const at = route.indexOf("async function fromCuratedEvents(");
 ok(at >= 0, "app/api/events still defines fromCuratedEvents");
 const body = route.slice(at, route.indexOf("\nasync function ", at + 10));
-const calls = body.match(/fetchCuratedEvents\(\{[^}]*\}\)/g) || [];
-ok(calls.length === 1, `fromCuratedEvents makes exactly one curated read (found ${calls.length})`);
-ok(calls.length === 1 && /upcomingFrom:\s*today\(\)/.test(calls[0]), "…for rows still running on the site's today");
+// 2026-10-08: the read moved into curatedRowsLive() (one live read per warm
+// lambda for 3 minutes, shared by fresh aggregations and cache-hit re-merges).
+// Follow the code: fromCuratedEvents must read through it, and IT holds the call.
+ok(/await curatedRowsLive\(\)/.test(body), "fromCuratedEvents reads through curatedRowsLive()");
+const liveAt = route.indexOf("function curatedRowsLive(");
+const liveBody = liveAt >= 0 ? route.slice(liveAt, route.indexOf("\n}\n", liveAt)) : "";
+const calls = liveBody.match(/fetchCuratedEvents\(\{[^}]*\}\)/g) || [];
+ok(calls.length === 1, `curatedRowsLive makes exactly one curated read (found ${calls.length})`);
+ok(calls.length === 1 && /upcomingFrom:\s*(?:today\(\)|day)/.test(calls[0]) && /const day = today\(\);/.test(liveBody), "…for rows still running on the site's today");
 ok(calls.length === 1 && !/\blimit\s*:/.test(calls[0]), "…with no first-N limit (the read that ended on Oct 9)");
 ok(calls.length === 1 && /fresh:\s*true/.test(calls[0]), "…through the live reader");
 // Positive controls: both absence probes DO find the shapes they ban (the

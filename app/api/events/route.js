@@ -11,7 +11,7 @@ export const runtime = "nodejs";
 // or erroring never touches another provider's events. "unavailable" is
 // only true when NO provider is configured at all.
 
-import { processEvents, siteTodayStr, lastEventDay } from "../../../lib/eventsPipeline.js";
+import { processEvents, siteTodayStr, lastEventDay, sameCityAsVisitor } from "../../../lib/eventsPipeline.js";
 import { siteAnchorDate } from "../../../lib/siteTime.js";
 import { localStaplesFor, parseLibCalICS, parseICSDate, libcalId, LIBCAL_FEED } from "../../../lib/eventResolve.js";
 import { getBusinessFeeds, businessEventsFrom } from "../../../lib/businessFeeds.js";
@@ -707,7 +707,25 @@ function normalizeEventInput(value, { query = false } = {}) {
 // designed category tile (lib/eventPlaceholder.js). The Pexels "scene" stock
 // photo this function used to attach is retired: it read as a picture of the
 // event on the card even though it was not.
-async function fromCuratedEvents(lat, lng) {
+// One live read of the curated table per warm lambda for a few minutes: the
+// feed re-merges curated rows on every cache hit (below), so this keeps that
+// to a single Supabase read per instance per window.
+const CURATED_LIVE_MS = 3 * 60 * 1000;
+let _curatedLive = { at: 0, day: "", p: null };
+function curatedRowsLive() {
+  const day = today();
+  if (_curatedLive.p && _curatedLive.day === day && Date.now() - _curatedLive.at < CURATED_LIVE_MS) return _curatedLive.p;
+  const p = fetchCuratedEvents({ fresh: true, upcomingFrom: day });
+  _curatedLive = { at: Date.now(), day, p };
+  p.catch(() => { if (_curatedLive.p === p) _curatedLive = { at: 0, day: "", p: null }; });
+  return p;
+}
+// PLACEMENT (2026-10-08): a row with a pin is placed by distance; a row whose
+// organizer publishes only a meeting area or a TBA check-in (a walking tour, a
+// bar crawl) has no pin and is placed by the reader's own TOWN, never by a
+// guessed point (sameCityAsVisitor). It then shows no distance and sorts after
+// the pinned rows of its day.
+async function fromCuratedEvents(lat, lng, city = "") {
   if (lat == null || lng == null) return { configured: false, events: [] };
   try {
     // fresh: this feed is live. It reads a different PostgREST URL than the
@@ -716,10 +734,12 @@ async function fromCuratedEvents(lat, lng) {
     // Every row still running today, paged in full. A first-200-by-date read
     // ended on Oct 9 once the table grew, and hid the whole Halloween season
     // from this feed (2026-10-08). See upcomingFilter in lib/curatedEvents.js.
-    const rows = await fetchCuratedEvents({ fresh: true, upcomingFrom: today() });
+    const rows = await curatedRowsLive();
     if (!rows.length) return { configured: true, events: [] };
     const near = curatedFeedEventsWithFall(rows).filter((e) =>
-      e.lat != null && e.lng != null && haversineMiLocal(lat, lng, e.lat, e.lng) <= CURATED_REACH_MI);
+      e.lat != null && e.lng != null
+        ? haversineMiLocal(lat, lng, e.lat, e.lng) <= CURATED_REACH_MI
+        : sameCityAsVisitor(e.city, city));
     if (!near.length) return { configured: true, events: [] };
     // A row without its own image is never dropped: the card shows the
     // designed placeholder. The image is an upgrade, never a gate.
@@ -790,7 +810,22 @@ async function aggregateEvents({ lat, lng, keyword, radius, city }) {
       const fresh = await cget(evK);
       if (fresh && Array.isArray(fresh.v)) {
         const events = upcoming(fresh.v);
-        if (events.length) return { events, cached: true, sources: [], counts: {}, health: [] };
+        if (events.length) {
+          // CURATED ROWS ARE NEVER SERVED FROM THE 21-DAY CACHE (2026-10-08).
+          // They are Wayfind's own verified records: a row published,
+          // corrected or cancelled today must show (or vanish) today, not when
+          // this cell next re-aggregates. The provider listings stay cached
+          // (their budgets are what the cache protects); the curated part is
+          // re-read live and merged through the same pipeline. If the live
+          // read fails, the cached copy is served unchanged.
+          const cur = await withDeadline(CURATED_SOURCE, fromCuratedEvents(lat, lng, city));
+          if (cur && cur.configured && cur.ok !== false) {
+            const rest = events.filter((e) => e && e.source !== CURATED_SOURCE);
+            const merged = processEvents([{ provider: "cache", configured: true, events: rest }, cur], { lat, lng, radius, city }).events;
+            if (merged.length) return { events: merged, cached: true, curatedLive: true, sources: [], counts: {}, health: [] };
+          }
+          return { events, cached: true, sources: [], counts: {}, health: [] };
+        }
       }
     }
     if (keyword === "__forceErr__") { const s = await staleEvents(); return s || { events: [] }; } // test hook
@@ -816,7 +851,7 @@ async function aggregateEvents({ lat, lng, keyword, radius, city }) {
       // last in the fan-out and first in the reader's rail: lib/frontEvents.js
       // eventStature scores curation, so a checked event with an editorial hook
       // outranks a listing nobody read.
-      withDeadline(CURATED_SOURCE, fromCuratedEvents(lat, lng)),
+      withDeadline(CURATED_SOURCE, fromCuratedEvents(lat, lng, city)),
     ]);
 
     const configuredCount = results.filter((r) => r.configured).length;
