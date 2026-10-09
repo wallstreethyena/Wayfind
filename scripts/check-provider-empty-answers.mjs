@@ -15,6 +15,7 @@
 // Both EXECUTE the real code with only the network edges mocked.
 import { readFileSync } from "node:fs";
 import { DAY } from "../lib/serverCache.js";
+import { placeDiscoveryRef } from "../lib/discoveryRef.js";
 
 let pass = 0;
 const fail = [];
@@ -73,19 +74,20 @@ const REQ = () => ({ url: "https://x.test/api/fsq/search?q=late+night+food&lat=2
 // ── 2. landing.js searchOnce / _searchGoogle, executed in isolation ─────────
 const LANDING = read("lib/landing.js");
 function fn(name) {
-  const m = LANDING.match(new RegExp("\\n(async function " + name + "\\([\\s\\S]*?\\n})\\n"));
+  const m = LANDING.match(new RegExp("\\n((?:async )?function " + name + "\\([\\s\\S]*?\\n})\\n"));
   if (!m) throw new Error("could not extract " + name);
   return m[1];
 }
 async function loadLanding(prelude) {
-  const body = [fn("_cacheRow"), fn("_cachePut"), fn("searchOnce"), fn("_searchGoogle")].join("\n");
+  const body = [fn("_cacheRow"), fn("_cachePut"), fn("scrubLandingRefs"), fn("searchOnce"), fn("_searchGoogle")].join("\n");
   return import("data:text/javascript," + encodeURIComponent(prelude + "\n" + body + "\nexport { searchOnce as __searchOnce };"));
 }
-function landingHarness({ deny, staleRow }) {
+function landingHarness({ deny, staleRow, gPlaces = [] }) {
   const S = { puts: [], google: 0 };
-  globalThis.__L = Object.assign(S, { deny, staleRow });
+  globalThis.__L = Object.assign(S, { deny, staleRow, ref: placeDiscoveryRef, gPlaces });
   const prelude = `
     const NET_DEADLINE_MS = 1000, DB_DEADLINE_MS = 1000;
+    const placeDiscoveryRef = __L.ref;
     const isSsgBuild = () => false;
     const gateShut = () => false;
     const spendAllow = async () => !__L.deny;
@@ -96,7 +98,7 @@ function landingHarness({ deny, staleRow }) {
       const u = String(url);
       if (u.includes("/rest/v1/wf_places_cache") && (!init || !init.method)) return new Response(JSON.stringify(__L.staleRow ? [__L.staleRow] : []), { status: 200 });
       if (u.includes("/rest/v1/wf_places_cache")) { __L.puts.push(JSON.parse(init.body)); return new Response("", { status: 201 }); }
-      if (u.includes("places.googleapis.com")) { __L.google++; return new Response(JSON.stringify({ places: [] }), { status: 200 }); }
+      if (u.includes("places.googleapis.com")) { __L.google++; return new Response(JSON.stringify({ places: __L.gPlaces }), { status: 200 }); }
       throw new Error("unexpected " + u);
     };
     globalThis.process.env.GOOGLE_MAPS_SERVER_KEY = "test-key";
@@ -125,6 +127,23 @@ const CITY = { name: "Parrish", state: "FL", lat: 27.58, lng: -82.42 };
   const m = await loadLanding(prelude);
   const out = await m.__searchOnce("best restaurants", CITY, 24000, true, false);
   ok(Array.isArray(out) && out.length === 0 && S.google === 1 && S.puts.length === 1, "landing 2c: a bought empty answer is still an answer and is cached (unchanged)");
+}
+{ // 2d. 2026-10-08 (Maps Terms 3.2.3): a stale row cached BEFORE the change holds a real photo name -> never served
+  const stale = { v: [{ id: "p1", name: "Ryan's Coffee House", photoRef: "places/p1/photos/REALNAME" }, { id: "p2", name: "No Photo", photoRef: null }], exp: new Date(Date.now() - DAY).toISOString() };
+  const { prelude } = landingHarness({ deny: true, staleRow: stale });
+  const m = await loadLanding(prelude);
+  const out = await m.__searchOnce("best restaurants", CITY, 24000, true, true);
+  ok(Array.isArray(out) && out[0].photoRef === "places/p1/photos/wfplacediscovery" && out[1].photoRef === null && JSON.stringify(out).indexOf("REALNAME") === -1,
+    "landing 2d: a legacy cached row's real photo name is collapsed to the place-only pseudo-ref when read (no-photo rows stay null)");
+}
+{ // 2e. a LIVE photo answer is cached with only the pseudo-ref, and the photos response is never put in the Next data cache
+  const gp = [{ id: "p1", displayName: { text: "A" }, rating: 4.5, userRatingCount: 10, photos: [{ name: "places/p1/photos/REALNAME", widthPx: 1500, heightPx: 1000, authorAttributions: [{ displayName: "Some Author" }] }] }];
+  const { S, prelude } = landingHarness({ deny: false, staleRow: null, gPlaces: gp });
+  const m = await loadLanding(prelude);
+  const out = await m.__searchOnce("best restaurants", CITY, 24000, true, true);
+  const wrote = JSON.stringify(S.puts);
+  ok(out && out[0].photoRef === "places/p1/photos/wfplacediscovery" && wrote.indexOf("REALNAME") === -1 && wrote.indexOf("Some Author") === -1,
+    "landing 2e: the live answer and the 30-day cache row carry only the pseudo-ref (no real photo name, no author credit)");
 }
 
 delete globalThis.__F; delete globalThis.__L;

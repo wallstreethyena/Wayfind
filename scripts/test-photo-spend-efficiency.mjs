@@ -1,53 +1,45 @@
 #!/usr/bin/env node
-// scripts/test-photo-spend-efficiency.mjs — Google Cloud metrics (2026-09-16):
-// EVERY billed Google photo call goes through lib/placePhotoServe.js's
-// resolvePlacePhoto -> defaultFetchOwnedUri, one ledger grant per outbound
-// call. On top of test-photo-quota-truth.mjs's classification/refund/breaker
-// fix, five further sources of WASTE were still spending real grants:
+// scripts/test-photo-spend-efficiency.mjs — Google photo calls are metered, so
+// every outbound call must be as cheap as it can be and never repeated.
 //
-//   (a) Cards request the same photo at eight different widths (240/280/
-//       400/480/600/640/720/800, plus 1200 heroes) — each width its own
-//       cache key and its own paid call.
-//   (b) On a stale (404) or client-400 media call, tryName() used to spend a
-//       SECOND media grant on the `follow` url, which returns the SAME
-//       404/400 every time — only THEN healing via Place Details.
-//   (c) No coalescing: concurrent requests for the same ref in one instance
-//       each took their own grant.
-//   (d) No negative cache: a ref whose heal found no photo, or that ended
-//       unowned/badjson/redirect, was re-spent on every subsequent request.
-//   (e) Nothing stopped a Preview deployment or a local `next dev` running
-//       with production env from spending the PRODUCTION photo ledger.
-//
-// THIS GUARD locks the fix for all five, on top of (never duplicating)
-// test-photo-quota-truth.mjs's own coverage:
-//   1. lib/photoCacheRecovery.js's canonicalPhotoWidth folds every card width
-//      <=800 down to 640; resolvePlacePhoto fetches AND writes at that
-//      canonical width, so w=240/400/480/600/640/720/800 all land on ONE
-//      cache row and ONE paid fetch. A hero (>800) keeps its own width.
-//   2. defaultFetchOwnedUri.tryName follows ONLY when skipCls === "unowned"
-//      — stale/client-400 go straight to the heal check, never a second
-//      media grant on a repeat of the same answer.
-//   3. A module-level singleflight Map in resolvePlacePhoto, keyed
-//      `${ref}|${canonicalWidth}`, so concurrent same-key callers in one
-//      instance share ONE paid attempt.
-//   4. A 24h negative cache (`photoneg|<ref>`) for the upstream classes that
-//      mean "no photo is coming back on an immediate retry" — never for a
-//      transient/rejection class.
-//   5. lib/spendGate.js's spendAllowPhotos() refuses outright outside
-//      VERCEL_ENV=production unless WAYFIND_ALLOW_NONPROD_PHOTO_SPEND=1.
+// HISTORY (2026-09-16/17) AND THE 2026-10-08 CONTRACT CHANGE. This guard was
+// written when a Google photo URL was cached for 30 days (width dedup into ONE
+// cache row, a 24h negative cache, stored-name self-heal). The owner's
+// COMPLIANT PHOTOS decision (Google Maps Platform terms: no pre-fetching,
+// storing or caching of Google Maps Content; a photo name may not be cached)
+// REMOVED that machinery. The assertions that protected it are replaced here by
+// the OPPOSITE invariants, and the spend protections that survive are still
+// executed through resolvePlacePhoto with googleSurface:true:
+//   1. Width: every card width <=800 asks Google for ONE canonical width (640),
+//      a >800 hero keeps its own width. (No cache row to share any more: each
+//      credited request is its own live, fully-granted attempt.)
+//   2. Singleflight: concurrent same-place callers share ONE attempt (one
+//      photos grant, one Details grant, one media call). RED-PROVED against a
+//      mutated COPY of the real module.
+//   3. A stale (404) or client-400 media answer on the CURRENT name never
+//      follows and never heals: stored names are not sent to Google at all.
+//   4. An unowned 2xx still follows (the one class that can differ).
+//   5. NO cache: the resolver never reads or writes a photo|/photoneg| row. A
+//      miss (nophoto, quota) is NOT remembered, so the next request asks again
+//      through the ledger.
+//   6. spendAllowPhotos() refuses outright outside production unless
+//      WAYFIND_ALLOW_NONPROD_PHOTO_SPEND=1.
+//   7. Fresh-name-first is the only order: free Details IDs Only, then exactly
+//      ONE billed media call; a failed lookup is a miss, never a stored-name
+//      fallback.
+//   8. Place-only discovery: the pseudo-name is never sent to the media endpoint.
 //
 // HERMETIC: zero network. Every scenario injects deps.fetchImpl (a scripted
 // Google stub), deps.authorizeSpend, deps.breakerOpen/deps.tripBreaker (fake,
-// in-memory — NEVER the real lib/providerHealth.js breaker) and deps.refund
-// (fake) — same shape as scripts/test-photo-quota-truth.mjs. Section 6
-// (the nonprod spend block) stubs globalThis.fetch directly around the REAL
-// lib/spendGate.js spendAllowPhotos(), the same technique
-// scripts/test-photos-paid-cap.mjs uses for that module.
-import { readFileSync } from "node:fs";
+// in-memory, NEVER the real lib/providerHealth.js breaker) and deps.refund
+// (fake). Section 6 (the nonprod spend block) stubs globalThis.fetch around the
+// REAL lib/spendGate.js spendAllowPhotos(), like scripts/test-photos-paid-cap.mjs.
+import { readFileSync, writeFileSync, mkdtempSync, unlinkSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 import { canonicalPhotoWidth } from "../lib/photoCacheRecovery.js";
 import {
-  NEGATIVE_CACHEABLE_UPSTREAM,
-  photoNegativeKey,
   placeDiscoveryRef,
   resolvePlacePhoto,
 } from "../lib/placePhotoServe.js";
@@ -73,20 +65,18 @@ function authorizer(allow) {
   return fn;
 }
 
-// A scripted Google double. `healedRefSubstring`, when given, routes a
-// request whose url contains it to the "healedSkip"/"healedFollow" kind
-// instead of "skip"/"follow" — omit it entirely when a scenario never heals
-// (so an ordinary skip/follow is never misrouted).
-function googleStub(script, healedRefSubstring) {
+// A scripted Google double (kinds: details / skip / follow).
+function googleStub(script) {
   const calls = [];
+  const urls = [];
   const fn = async (url) => {
     const u = String(url);
+    urls.push(u);
     if (!u.startsWith("https://places.googleapis.com/v1/")) throw new Error("test bug: unexpected url " + u);
-    const healed = healedRefSubstring ? u.includes(healedRefSubstring) : false;
     let kind;
     if (u.includes("?fields=photos")) kind = "details";
-    else if (u.includes("skipHttpRedirect=true")) kind = healed ? "healedSkip" : "skip";
-    else if (u.includes("/media?")) kind = healed ? "healedFollow" : "follow";
+    else if (u.includes("skipHttpRedirect=true")) kind = "skip";
+    else if (u.includes("/media?")) kind = "follow";
     else throw new Error("test bug: unclassified url " + u);
     const list = script[kind];
     if (!list || !list.length) throw new Error(`test bug: no scripted ${kind} response left for call #${calls.filter((k) => k === kind).length + 1}`);
@@ -99,29 +89,7 @@ function googleStub(script, healedRefSubstring) {
       json: async () => (step.body === undefined ? {} : step.body),
     };
   };
-  return { fn, calls };
-}
-
-// An in-memory cache mimicking lib/serverCache.js's {v, stale, ageMs}
-// read contract closely enough for the resolver's own use of it:
-// liveCachedUri reads hit.v (and hit.ageMs), the negative-cache read reads
-// only hit.stale. A row past its own ttlMs reads back as a genuine miss
-// (null) — no 30-day stale-serve grace here; that nuance is exercised
-// directly (not through this fake) in case 5c below.
-function memCache() {
-  const store = new Map();
-  const cacheGet = async (key) => {
-    const row = store.get(key);
-    if (!row) return null;
-    if (Date.now() >= row.exp) return null;
-    return { v: row.v, stale: false, ageMs: Date.now() - row.wrote };
-  };
-  const cacheSet = async (key, value, ttlMs) => {
-    const wrote = Date.now();
-    const exp = wrote + (Number.isFinite(ttlMs) && ttlMs > 0 ? ttlMs : 30 * 24 * 60 * 60 * 1000);
-    store.set(key, { v: value, exp, wrote });
-  };
-  return { store, cacheGet, cacheSet };
+  return { fn, calls, urls };
 }
 
 function deferred() {
@@ -132,192 +100,148 @@ function deferred() {
 
 const FAKE_DEPS = { breakerOpen: async () => null, tripBreaker: async () => true, refund: async () => true, retryDelayMs: 0 };
 
-/* ── 1. WIDTH DEDUP: 240/400/800 of the SAME photo cost ONE paid fetch ──── */
+const DET = (name) => ({ details: [{ status: 200, body: { photos: [{ name }] } }] });
+const VIA = { googleSurface: true };
+
+/* ── 1. WIDTH: every card width asks Google for ONE canonical width ─────── */
 {
   const PLACE = "ChIJSpendEfficiencyWidths01";
-  const REF = `places/${PLACE}/photos/WIDTHDEDUP`;
+  const FRESH = `places/${PLACE}/photos/WIDTHDEDUP`;
   const OWNED = "https://lh3.googleusercontent.com/p/width-dedup-owned";
-  const cache = memCache();
-  let authCalls = 0;
-  const authorizeSpend = async () => { authCalls++; return true; };
-  let fetchCalls = 0;
-  const seenUrls = [];
-  const fetchImpl = async (url) => {
-    fetchCalls++;
-    seenUrls.push(String(url));
-    return { ok: true, status: 200, url: "", json: async () => ({ photoUri: OWNED }) };
-  };
-  const deps = { ...FAKE_DEPS, cacheGet: cache.cacheGet, cacheSet: cache.cacheSet, inventoryGet: async () => null, fetchImpl };
-
-  const r240 = await resolvePlacePhoto({ ref: REF, w: 240, serverKey: "k", authorizeSpend }, deps);
-  const r400 = await resolvePlacePhoto({ ref: REF, w: 400, serverKey: "k", authorizeSpend }, deps);
-  const r800 = await resolvePlacePhoto({ ref: REF, w: 800, serverKey: "k", authorizeSpend }, deps);
-
-  eq(r240.type, "redirect", "1: cold w=240 redirects");
-  eq(r240.location, OWNED, "1: w=240 gets the real photo");
-  eq(r400.location, OWNED, "1: w=400 reuses the same photo, free");
-  eq(r800.location, OWNED, "1: w=800 reuses the same photo, free");
-  eq(authCalls, 1, "1: exactly ONE authorizeSpend(\"photos\") across w=240,400,800");
-  eq(fetchCalls, 1, "1: exactly ONE media call across w=240,400,800");
-  ok(!!seenUrls[0] && seenUrls[0].includes("maxWidthPx=640"), "1: the single Google fetch used maxWidthPx=640 (the canonical width), never the raw 240/400/800");
-
-  // Control: a >800 hero does NOT fold to 640 — a cold 1200 request (empty
-  // cache) still spends its own grant and its own media call.
-  let heroAuth = 0, heroFetch = 0, heroUrl = "";
-  const heroDeps = {
-    ...FAKE_DEPS, cacheGet: async () => null, cacheSet: async () => {}, inventoryGet: async () => null,
-    fetchImpl: async (url) => { heroFetch++; heroUrl = String(url); return { ok: true, status: 200, url: "", json: async () => ({ photoUri: OWNED }) }; },
-  };
-  const rHero = await resolvePlacePhoto({ ref: REF, w: 1200, serverKey: "k", authorizeSpend: async () => { heroAuth++; return true; } }, heroDeps);
-  eq(rHero.type, "redirect", "1: a cold 1200 hero still redirects");
-  eq(heroAuth, 1, "1: a cold 1200 hero still spends its own grant");
-  eq(heroFetch, 1, "1: a cold 1200 hero still makes its own media call");
-  ok(heroUrl.includes("maxWidthPx=1200"), "1: the hero fetch asks Google for its own 1200, not 640");
+  const widths = {};
+  for (const w of [240, 400, 480, 640, 720, 800, 1200]) {
+    const stub = googleStub({ ...DET(FRESH), skip: [{ status: 200, body: { photoUri: OWNED } }] });
+    const auth = authorizer({ photos: 99, details_ids_only: 99 });
+    const r = await resolvePlacePhoto({ place: PLACE, w, serverKey: "k", authorizeSpend: auth, ...VIA }, { ...FAKE_DEPS, inventoryGet: async () => null, fetchImpl: stub.fn });
+    eq(r.type, "redirect", `1: w=${w} redirects`);
+    eq(auth.granted("photos"), 1, `1: w=${w} takes exactly ONE photos grant`);
+    eq(stub.calls.join(","), "details,skip", `1: w=${w} is one Details + ONE media call`);
+    widths[w] = (stub.urls[1].match(/maxWidthPx=(\d+)/) || [])[1];
+  }
+  for (const w of [240, 400, 480, 640, 720, 800]) eq(widths[w], "640", `1: card width ${w} asks Google for the canonical 640, never the raw width`);
+  eq(widths[1200], "1200", "1: a >800 hero keeps its own 1200 (control: the fold is not unconditional)");
 }
 
-/* ── 2. SINGLEFLIGHT: concurrent same-ref callers share ONE paid attempt ── */
-{
-  const PLACE = "ChIJSpendEfficiencyConcurrency01";
-  const REF = `places/${PLACE}/photos/CONCURRENCYTEST`;
-  const OWNED = "https://lh3.googleusercontent.com/p/concurrency-owned";
-  const cache = memCache();
-  let authCalls = 0;
+/* ── 2. SINGLEFLIGHT: concurrent same-place callers share ONE paid attempt ─ */
+const SF_PLACE = "ChIJSpendEfficiencyConcurrency01";
+const SF_FRESH = `places/${SF_PLACE}/photos/CONCURRENCYTEST`;
+const SF_OWNED = "https://lh3.googleusercontent.com/p/concurrency-owned";
+async function singleflightScenario(resolveFn) {
+  const auth = authorizer({ photos: 99, details_ids_only: 99 });
   let fetchCalls = 0;
   const gate = deferred();
-  const authorizeSpend = async () => { authCalls++; return true; };
-  const fetchImpl = async () => {
+  const fetchImpl = async (url) => {
     fetchCalls++;
     await gate.promise; // held open until BOTH callers have reached the paid section
-    return { ok: true, status: 200, url: "", json: async () => ({ photoUri: OWNED }) };
+    if (String(url).includes("?fields=photos")) return { ok: true, status: 200, url: "", json: async () => ({ photos: [{ name: SF_FRESH }] }) };
+    return { ok: true, status: 200, url: "", json: async () => ({ photoUri: SF_OWNED }) };
   };
-  const deps = { ...FAKE_DEPS, cacheGet: cache.cacheGet, cacheSet: cache.cacheSet, inventoryGet: async () => null, fetchImpl };
-
-  // Different raw widths (480, 720) that BOTH canonicalize to 640 — proving
-  // the singleflight key is the CANONICAL width, not the raw one.
-  const p1 = resolvePlacePhoto({ ref: REF, w: 480, serverKey: "k", authorizeSpend }, deps);
-  const p2 = resolvePlacePhoto({ ref: REF, w: 720, serverKey: "k", authorizeSpend }, deps);
-  for (let i = 0; i < 20; i++) await Promise.resolve(); // let both callers' cache/inventory awaits settle
+  const deps = { ...FAKE_DEPS, inventoryGet: async () => null, fetchImpl };
+  // Different raw widths (480, 720) that BOTH canonicalize to 640 — the
+  // singleflight key is the CANONICAL width, not the raw one.
+  const p1 = resolveFn({ place: SF_PLACE, w: 480, serverKey: "k", authorizeSpend: auth, ...VIA }, deps);
+  const p2 = resolveFn({ place: SF_PLACE, w: 720, serverKey: "k", authorizeSpend: auth, ...VIA }, deps);
+  for (let i = 0; i < 20; i++) await Promise.resolve(); // let both callers' inventory awaits settle
   gate.resolve();
   const [r1, r2] = await Promise.all([p1, p2]);
-
-  eq(fetchCalls, 1, "2: two concurrent callers for the same ref (different raw widths, same canonical 640) make exactly ONE media call");
-  eq(authCalls, 1, "2: exactly ONE authorizeSpend grant for both callers combined");
+  return { auth, fetchCalls, r1, r2 };
+}
+{
+  const { auth, fetchCalls, r1, r2 } = await singleflightScenario(resolvePlacePhoto);
+  eq(auth.granted("photos"), 1, "2: two concurrent callers (same canonical 640) take exactly ONE photos grant combined");
+  eq(auth.granted("details_ids_only"), 1, "2: and exactly ONE Details grant");
+  eq(fetchCalls, 2, "2: one Details call + ONE media call for both callers");
   eq(r1.type, "redirect", "2: caller 1 gets a redirect");
   eq(r2.type, "redirect", "2: caller 2 gets a redirect");
   eq(r1.location, r2.location, "2: both callers get the SAME redirect target");
-  eq(r1.location, OWNED, "2: the shared redirect target is the real photo");
+  eq(r1.location, SF_OWNED, "2: the shared redirect target is the real photo");
+}
+// RED-PROOF (real module, mutated COPY): with the in-flight lookup removed the same two
+// callers take TWO photos grants — the exact waste singleflight removes.
+{
+  const src = readFileSync(new URL("../lib/placePhotoServe.js", import.meta.url), "utf8");
+  const needle = "  if (inflight) return inflight;\n";
+  ok(src.includes(needle), "2 red-proof setup: the in-flight lookup line was found in lib/placePhotoServe.js");
+  const mutated = src.replace(needle, "");
+  ok(mutated !== src, "2 red-proof: the mutation applied");
+  const libUrl = new URL("../lib/", import.meta.url);
+  const rewritten = mutated.replace(/from "\.\/([^"]+)"/g, (_, f) => `from ${JSON.stringify(new URL(f, libUrl).href)}`);
+  const tmp = join(mkdtempSync(join(tmpdir(), "wf-spend-eff-mut-")), "placePhotoServe.mjs");
+  writeFileSync(tmp, rewritten);
+  try {
+    const M = await import(pathToFileURL(tmp).href);
+    const { auth, fetchCalls } = await singleflightScenario(M.resolvePlacePhoto);
+    eq(auth.granted("photos"), 2, "2 RED-PROOF: without the in-flight lookup, two concurrent callers take TWO photos grants (so the 1-grant assertion above is falsifiable)");
+    ok(fetchCalls > 2, "2 RED-PROOF: and make more outbound calls (" + fetchCalls + ")");
+  } finally {
+    try { unlinkSync(tmp); } catch { /* cleanup */ }
+  }
 }
 
-/* ── 3. STALE/400 NO LONGER FOLLOWS: skip -> heal -> healed skip, 2+1 ────── */
+/* ── 3. A STALE / 400 MEDIA ANSWER NEVER FOLLOWS AND NEVER HEALS ─────────── */
 {
   const PLACE = "ChIJSpendEfficiencyHeal01";
-  const OLD_REF = `places/${PLACE}/photos/OLDNAME`;
-  const NEW_REF = `places/${PLACE}/photos/NEWNAME`;
-  const OWNED = "https://lh3.googleusercontent.com/p/heal-owned";
-
-  async function healScenario(skipStatus, label) {
+  const STORED = `places/${PLACE}/photos/OLDNAME`;
+  const FRESH = `places/${PLACE}/photos/NEWNAME`;
+  for (const status of [404, 400]) {
     const auth = authorizer({ photos: 99, details_ids_only: 99 });
-    const stub = googleStub({
-      skip: [{ status: skipStatus }],
-      details: [{ status: 200, body: { photos: [{ name: NEW_REF }] } }],
-      healedSkip: [{ status: 200, body: { photoUri: OWNED } }],
-    }, NEW_REF);
-    const deps = { ...FAKE_DEPS, cacheGet: async () => null, cacheSet: async () => {}, inventoryGet: async () => null, fetchImpl: stub.fn };
-    const result = await resolvePlacePhoto({ ref: OLD_REF, w: 640, serverKey: "k", authorizeSpend: auth }, deps);
-    eq(stub.calls.join(","), "skip,details,healedSkip", `3(${label}): exactly 2 media calls + 1 details call, no follow`);
-    eq(result.type, "redirect", `3(${label}): heal recovers a redirect`);
-    eq(result.location, OWNED, `3(${label}): the healed photo is served`);
+    const stub = googleStub({ ...DET(FRESH), skip: [{ status }] });
+    const result = await resolvePlacePhoto({ ref: STORED, w: 640, serverKey: "k", authorizeSpend: auth, ...VIA }, { ...FAKE_DEPS, inventoryGet: async () => null, fetchImpl: stub.fn });
+    eq(stub.calls.join(","), "details,skip", `3(${status}): one Details + one media call — no follow, no heal`);
+    eq(result.type, "miss", `3(${status}): an honest miss`);
+    eq(auth.granted("details_ids_only"), 1, `3(${status}): exactly one Details grant (a second lookup would be the old heal)`);
+    eq(auth.granted("photos"), 1, `3(${status}): exactly one photos grant (a follow would be a second)`);
+    ok(!stub.urls.some((u) => u.includes("OLDNAME")), `3(${status}): the stored name is never sent to Google`);
   }
-  await healScenario(404, "404");
-  await healScenario(400, "400");
 }
 
 /* ── 4. UNOWNED 2xx STILL FOLLOWS (positive control) ─────────────────────── */
 {
   const PLACE = "ChIJSpendEfficiencyUnowned01";
-  const REF = `places/${PLACE}/photos/UNOWNEDTEST`;
+  const FRESH = `places/${PLACE}/photos/UNOWNEDTEST`;
   const OWNED = "https://lh3.googleusercontent.com/p/unowned-then-owned";
   const auth = authorizer({ photos: 99, details_ids_only: 99 });
   const stub = googleStub({
+    ...DET(FRESH),
     skip: [{ status: 200, body: { photoUri: "http://not-owned.example/x.jpg" } }],
     follow: [{ status: 200, url: OWNED }],
   });
-  const deps = { ...FAKE_DEPS, cacheGet: async () => null, cacheSet: async () => {}, inventoryGet: async () => null, fetchImpl: stub.fn };
-  const result = await resolvePlacePhoto({ ref: REF, w: 640, serverKey: "k", authorizeSpend: auth }, deps);
-  eq(stub.calls.join(","), "skip,follow", "4: unowned 2xx still follows — the ONE skipCls that does");
+  const result = await resolvePlacePhoto({ place: PLACE, w: 640, serverKey: "k", authorizeSpend: auth, ...VIA }, { ...FAKE_DEPS, inventoryGet: async () => null, fetchImpl: stub.fn });
+  eq(stub.calls.join(","), "details,skip,follow", "4: unowned 2xx still follows — the ONE class that does");
   eq(result.type, "redirect", "4: the follow succeeds");
   eq(result.location, OWNED, "4: the followed uri is served");
 }
 
-/* ── 5. NEGATIVE CACHE ────────────────────────────────────────────────────── */
+/* ── 5. NO CACHE, NO NEGATIVE CACHE ──────────────────────────────────────── */
+// The removed 24h negative cache is replaced by its opposite: nothing about a
+// miss is remembered, so the next request goes through the ledger again.
 {
   const PLACE = "ChIJSpendEfficiencyNegCache01";
-  const REF = `places/${PLACE}/photos/NEGCACHETEST`;
-  const cache = memCache();
+  const cacheCalls = [];
+  const trap = { cacheGet: async (k) => { cacheCalls.push("get:" + k); return { v: { uri: "https://lh3.googleusercontent.com/p/legacy" }, stale: false, ageMs: 1 }; }, cacheSet: async (k) => { cacheCalls.push("set:" + k); } };
+  // First: the place has no photo (an old negative cache would now suppress the second ask).
   const auth1 = authorizer({ photos: 99, details_ids_only: 99 });
-  const stub1 = googleStub({ skip: [{ status: 404 }], details: [{ status: 200, body: { photos: [] } }] });
-  const deps = { ...FAKE_DEPS, cacheGet: cache.cacheGet, cacheSet: cache.cacheSet, inventoryGet: async () => null, fetchImpl: stub1.fn };
-
-  const first = await resolvePlacePhoto({ ref: REF, w: 640, serverKey: "k", authorizeSpend: auth1 }, deps);
+  const stub1 = googleStub({ details: [{ status: 200, body: { photos: [] } }] });
+  const first = await resolvePlacePhoto({ place: PLACE, w: 640, serverKey: "k", authorizeSpend: auth1, ...VIA }, { ...FAKE_DEPS, ...trap, inventoryGet: async () => null, fetchImpl: stub1.fn });
   eq(first.type, "miss", "5: first request is a genuine miss");
-  eq(first.upstream, "stale-heal-nophoto", "5: classified stale-heal-nophoto");
-  ok(cache.store.has(photoNegativeKey(REF)), "5: the negative-cache row was written");
-
-  let secondFetchCalls = 0;
-  const secondAuth = authorizer({ photos: 99, details_ids_only: 99 });
-  const second = await resolvePlacePhoto(
-    { ref: REF, w: 640, serverKey: "k", authorizeSpend: secondAuth },
-    { ...deps, fetchImpl: async () => { secondFetchCalls++; throw new Error("must not call Google on a negative-cache hit"); } }
-  );
-  eq(second.type, "miss", "5: second request is negative-cached");
-  eq(second.reason, "negative-cached", "5: reason is negative-cached");
-  eq(second.upstream, "negative-cached", "5: upstream is negative-cached");
-  eq(secondAuth.asked(), 0, "5: zero authorizeSpend calls on the negative-cached hit");
-  eq(secondFetchCalls, 0, "5: zero Google fetches on the negative-cached hit");
-}
-
-// 5b (NEGATIVE CONTROL). A quota outcome is NEVER negative-cached — it is
-// transient/rejection, not "this ref has no photo".
-{
-  ok(!NEGATIVE_CACHEABLE_UPSTREAM.has("quota"), "5b: quota is not in the negative-cacheable set (pure check)");
-  ok(!NEGATIVE_CACHEABLE_UPSTREAM.has("key-denied") && !NEGATIVE_CACHEABLE_UPSTREAM.has("server") && !NEGATIVE_CACHEABLE_UPSTREAM.has("network") && !NEGATIVE_CACHEABLE_UPSTREAM.has("denied") && !NEGATIVE_CACHEABLE_UPSTREAM.has("stale-heal-denied"),
-    "5b: none of quota/key-denied/server/network/denied/stale-heal-denied are negative-cacheable");
-
-  const PLACE = "ChIJSpendEfficiencyNegCacheControl01";
-  const REF = `places/${PLACE}/photos/NEGCACHEQUOTA`;
-  const cache = memCache();
-  const auth1 = authorizer({ photos: 99, details_ids_only: 99 });
-  const stub1 = googleStub({ skip: [{ status: 429 }] });
-  const deps = { ...FAKE_DEPS, cacheGet: cache.cacheGet, cacheSet: cache.cacheSet, inventoryGet: async () => null, fetchImpl: stub1.fn };
-  const first = await resolvePlacePhoto({ ref: REF, w: 640, serverKey: "k", authorizeSpend: auth1 }, deps);
-  eq(first.upstream, "quota", "5b: classified quota");
-  ok(!cache.store.has(photoNegativeKey(REF)), "5b: a quota outcome writes NO negative-cache row");
-
-  const secondAuth = authorizer({ photos: 99, details_ids_only: 99 });
-  const stub2 = googleStub({ skip: [{ status: 429 }] });
-  const second = await resolvePlacePhoto({ ref: REF, w: 640, serverKey: "k", authorizeSpend: secondAuth }, { ...deps, fetchImpl: stub2.fn });
-  eq(second.upstream, "quota", "5b: the SECOND request still reaches Google and re-classifies quota — never negative-cached");
-  ok(secondAuth.asked("photos") >= 1, "5b: the second request still asks the ledger — nothing was cached");
-}
-
-// 5c (defaultCacheGet semantics). A negative-cache row that reads back
-// `stale:true` (physically past its own 24h ttl, the shape a 30-day
-// stale-serve grace would still return non-null) must NOT be honoured —
-// only `stale:false` counts as a live negative-cache hit.
-{
-  const PLACE = "ChIJSpendEfficiencyNegCacheStale01";
-  const REF = `places/${PLACE}/photos/NEGCACHESTALE`;
-  const key = photoNegativeKey(REF);
-  const cacheGet = async (k) => (k === key ? { v: { cls: "unowned", at: Date.now() - 1000 }, stale: true, ageMs: 1000 } : null);
-  let fetchCalls = 0;
-  const auth = authorizer({ photos: 99, details_ids_only: 99 });
-  const deps = {
-    ...FAKE_DEPS, cacheGet, cacheSet: async () => {}, inventoryGet: async () => null,
-    fetchImpl: async () => { fetchCalls++; return { ok: true, status: 200, url: "", json: async () => ({ photoUri: "https://lh3.googleusercontent.com/p/stale-neg-owned" }) }; },
-  };
-  const result = await resolvePlacePhoto({ ref: REF, w: 640, serverKey: "k", authorizeSpend: auth }, deps);
-  eq(result.type, "redirect", "5c: a STALE negative-cache row (past its true 24h) is ignored, not honoured");
-  eq(fetchCalls, 1, "5c: the request still reaches Google — a stale negative marker never blocks it");
+  eq(first.upstream, "fresh-nophoto", "5: classified fresh-nophoto");
+  const auth2 = authorizer({ photos: 99, details_ids_only: 99 });
+  const stub2 = googleStub({ details: [{ status: 200, body: { photos: [] } }] });
+  const second = await resolvePlacePhoto({ place: PLACE, w: 640, serverKey: "k", authorizeSpend: auth2, ...VIA }, { ...FAKE_DEPS, ...trap, inventoryGet: async () => null, fetchImpl: stub2.fn });
+  eq(second.reason, "owned-miss", "5: the second request is NOT answered from a negative cache");
+  ok(auth2.asked("photos") >= 1 && stub2.calls.length === 1, "5: the second request asks the ledger and Google again (nothing was remembered)");
+  eq(cacheCalls.length, 0, "5: the resolver made ZERO cacheGet/cacheSet calls, even with a legacy warm row offered");
+  // A quota outcome is likewise not remembered.
+  const auth3 = authorizer({ photos: 99, details_ids_only: 99 });
+  const stub3 = googleStub({ ...DET(`places/${PLACE}/photos/Q`), skip: [{ status: 429 }] });
+  const q1 = await resolvePlacePhoto({ place: PLACE, w: 640, serverKey: "k", authorizeSpend: auth3, ...VIA }, { ...FAKE_DEPS, ...trap, inventoryGet: async () => null, fetchImpl: stub3.fn });
+  eq(q1.upstream, "fresh-failed:quota", "5: classified quota");
+  eq(cacheCalls.length, 0, "5: a quota outcome writes no marker anywhere");
+  // Static: the resolver module's executable code touches no photo cache at all.
+  const src = readFileSync(new URL("../lib/placePhotoServe.js", import.meta.url), "utf8")
+    .replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`\\])\/\/[^\n]*/g, "$1");
+  ok(!/\b(?:cacheGet|cacheSet|cacheDel|cget|cset)\s*\(/.test(src) && !/\bd\.cache(?:Get|Set|Del)\b/.test(src), "5: lib/placePhotoServe.js contains no cache read/write call (comment-stripped)");
+  ok(/export function photoCacheKey/.test(src), "5 positive control: the stripped probe still sees the legacy key helper it targets");
 }
 
 /* ── 6. NON-PRODUCTION SPEND BLOCK ────────────────────────────────────────── */
@@ -386,40 +310,15 @@ const FAKE_DEPS = { breakerOpen: async () => null, tripBreaker: async () => true
 // shape this release's regression surface depends on. The guard EXITS
 // NON-ZERO if a red-proof does NOT fail as expected.
 
-// RED-PROOF 1 — follow-on-stale must stay gone.
+// RED-PROOF 1 — follow-on-stale must stay gone (rule simulation; the real path is
+// executed in section 3, where a follow would show up as a third call).
 {
   const realFollowEligible = (skipCls) => skipCls === "unowned";
   const mutatedFollowEligible = (skipCls, status) => skipCls === "unowned" || skipCls === "stale" || (skipCls === "client" && status === 400);
   eq(realFollowEligible("stale"), false, "red-proof control: the real rule refuses to follow a stale skip");
   eq(mutatedFollowEligible("stale", 404), true, "red-proof: the OLD rule would still follow a stale skip");
   ok(realFollowEligible("stale") !== mutatedFollowEligible("stale", 404),
-    "RED-PROOF 1: re-enabling follow-on-stale changes the verdict — this guard's own case 3 (exactly 2 media calls, not 3) would fail under it");
-}
-
-// RED-PROOF 2 — singleflight must coalesce concurrent same-key callers.
-{
-  async function withoutSingleflight(n) {
-    let calls = 0;
-    async function attempt() { calls++; await Promise.resolve(); return "ok"; }
-    await Promise.all(Array.from({ length: n }, () => attempt()));
-    return calls;
-  }
-  async function withSingleflight(n) {
-    let calls = 0;
-    let inflight = null;
-    async function attempt() {
-      if (inflight) return inflight;
-      inflight = (async () => { calls++; await Promise.resolve(); return "ok"; })();
-      try { return await inflight; } finally { inflight = null; }
-    }
-    await Promise.all(Array.from({ length: n }, () => attempt()));
-    return calls;
-  }
-  const real = await withSingleflight(3);
-  const mutated = await withoutSingleflight(3);
-  eq(real, 1, "red-proof control: WITH singleflight, 3 concurrent callers make exactly 1 real attempt");
-  eq(mutated, 3, "red-proof: WITHOUT singleflight, 3 concurrent callers make 3 real attempts — the exact waste this release removes");
-  ok(real !== mutated, "RED-PROOF 2: removing singleflight changes the call count — this guard's own case 2 would fail under it");
+    "RED-PROOF 1: re-enabling follow-on-stale changes the verdict — this guard's own case 3 (details,skip only) would fail under it");
 }
 
 // RED-PROOF 3 — width canonicalization must stay in place.
@@ -433,146 +332,133 @@ const FAKE_DEPS = { breakerOpen: async () => null, tripBreaker: async () => true
   eq(canonicalPhotoWidth(800), 640, "red-proof control: the real canonicalPhotoWidth folds 800 down to 640");
   eq(mutatedCanonicalPhotoWidth(800), 800, "red-proof: a mutated copy without the <=800 fold leaves 800 as its own width");
   ok(canonicalPhotoWidth(800) !== mutatedCanonicalPhotoWidth(800),
-    "RED-PROOF 3: dropping the width fold changes the verdict — this guard's own case 1 (one grant across 240/400/800) would fail under it");
+    "RED-PROOF 3: dropping the width fold changes the verdict — this guard's own case 1 (every card width asks Google for 640) would fail under it");
 }
 
-/* 6. FRESH NAME FIRST: one free IDs-only lookup, then exactly ONE billed media call */
+/* 7. FRESH NAME FIRST IS THE ONLY ORDER: one free IDs-only lookup, then exactly ONE billed media call */
 // 2026-09-17: the first five visible cards filled after v8.56.20 all carried
 // expired stored names, so each paid a billed dead-name call before healing.
+// 2026-10-08: the stored-name fallback is gone altogether (a stored photo name
+// is never sent to Google), so a failed lookup is a miss.
 {
   const PLACE = "ChIJSpendEfficiencyFresh0001";
   const REF = `places/${PLACE}/photos/STOREDOLDNAME`;
   const FRESH = `places/${PLACE}/photos/FRESHCURRENTNAME`;
   const OWNED = "https://lh3.googleusercontent.com/p/fresh-first-owned";
-  const base = { ...FAKE_DEPS, cacheGet: async () => null, cacheSet: async () => {}, inventoryGet: async () => null };
+  const base = { ...FAKE_DEPS, inventoryGet: async () => null };
 
-  // 6a: fresh name found -> details then ONE media call on the fresh name; the stored name is never tried
+  // 7a: fresh name found -> details then ONE media call on the fresh name; the stored name is never tried
   {
     const auth = authorizer({ photos: 99, details_ids_only: 99 });
-    const stub = googleStub({ details: [{ status: 200, body: { photos: [{ name: FRESH }] } }], healedSkip: [{ status: 200, body: { photoUri: OWNED } }] }, "FRESHCURRENTNAME");
-    const r = await resolvePlacePhoto({ ref: REF, w: 640, serverKey: "k", authorizeSpend: auth, freshFirst: true }, { ...base, fetchImpl: stub.fn });
-    eq(stub.calls.join(","), "details,healedSkip", "6a: fresh-first makes the free lookup, then one media call on the FRESH name");
-    eq(r.type, "redirect", "6a: served");
-    eq(auth.granted("photos"), 1, "6a: exactly one photos grant (one billed media call)");
-    eq(auth.granted("details_ids_only"), 1, "6a: one IDs-only grant");
+    const stub = googleStub({ ...DET(FRESH), skip: [{ status: 200, body: { photoUri: OWNED } }] });
+    const r = await resolvePlacePhoto({ ref: REF, w: 640, serverKey: "k", authorizeSpend: auth, ...VIA }, { ...base, fetchImpl: stub.fn });
+    eq(stub.calls.join(","), "details,skip", "7a: the free lookup, then one media call on the FRESH name");
+    ok(stub.urls[1].includes("FRESHCURRENTNAME") && !stub.urls.some((u) => u.includes("STOREDOLDNAME")), "7a: the media call carries the fresh name; the stored name is never sent");
+    eq(r.type, "redirect", "7a: served");
+    eq(auth.granted("photos"), 1, "7a: exactly one photos grant (one billed media call)");
+    eq(auth.granted("details_ids_only"), 1, "7a: one IDs-only grant");
   }
-  // 6b: the place has no photo now -> no media call at all, the resolver's photos grant is refunded, negative-cached
+  // 7b: the place has no photo now -> no media call at all, the resolver's photos grant is refunded
   {
     const auth = authorizer({ photos: 99, details_ids_only: 99 });
     const refunds = [];
-    const cache = memCache();
     const stub = googleStub({ details: [{ status: 200, body: { photos: [] } }] });
-    const r = await resolvePlacePhoto({ ref: REF, w: 640, serverKey: "k", authorizeSpend: auth, freshFirst: true }, { ...base, cacheGet: cache.cacheGet, cacheSet: cache.cacheSet, fetchImpl: stub.fn, refund: async (sku, n) => { refunds.push(sku + ":" + n); return true; } });
-    eq(stub.calls.join(","), "details", "6b: no media call when Google reports no photo");
-    eq(r.upstream, "fresh-nophoto", "6b: classified fresh-nophoto");
-    ok(refunds.includes("photos:1"), `6b: the unused photos grant is refunded (refunds: ${JSON.stringify(refunds)})`);
-    ok(cache.store.has(photoNegativeKey(REF)), "6b: a photoless place is negative-cached");
+    const r = await resolvePlacePhoto({ ref: REF, w: 640, serverKey: "k", authorizeSpend: auth, ...VIA }, { ...base, fetchImpl: stub.fn, refund: async (sku, n) => { refunds.push(sku + ":" + n); return true; } });
+    eq(stub.calls.join(","), "details", "7b: no media call when Google reports no photo");
+    eq(r.upstream, "fresh-nophoto", "7b: classified fresh-nophoto");
+    ok(refunds.includes("photos:1"), `7b: the unused photos grant is refunded (refunds: ${JSON.stringify(refunds)})`);
   }
-  // 6c: lookup fails -> fall back to the stored name, and never repeat the lookup
+  // 7c: lookup fails -> NO stored-name fallback (the opposite of the old rule), nothing billed left over
   {
     const auth = authorizer({ photos: 99, details_ids_only: 99 });
     const stub = googleStub({ details: [{ status: 503 }], skip: [{ status: 200, body: { photoUri: OWNED } }] });
-    const r = await resolvePlacePhoto({ ref: REF, w: 640, serverKey: "k", authorizeSpend: auth, freshFirst: true }, { ...base, fetchImpl: stub.fn });
-    eq(stub.calls.join(","), "details,skip", "6c: a failed lookup falls back to the stored name");
-    eq(r.type, "redirect", "6c: still served");
+    const r = await resolvePlacePhoto({ ref: REF, w: 640, serverKey: "k", authorizeSpend: auth, ...VIA }, { ...base, fetchImpl: stub.fn });
+    eq(stub.calls.join(","), "details", "7c: a failed lookup does NOT fall back to the stored name");
+    eq(r.type, "miss", "7c: honest miss");
+    eq(r.upstream, "place-lookup-failed", "7c: classified place-lookup-failed");
+    eq(stub.urls.some((u) => u.includes("STOREDOLDNAME")), false, "7c: the stored name never reaches Google");
   }
-  {
-    const auth = authorizer({ photos: 99, details_ids_only: 99 });
-    const stub = googleStub({ details: [{ status: 503 }], skip: [{ status: 404 }] });
-    const r = await resolvePlacePhoto({ ref: REF, w: 640, serverKey: "k", authorizeSpend: auth, freshFirst: true }, { ...base, fetchImpl: stub.fn });
-    eq(stub.calls.join(","), "details,skip", "6c: a stale stored name after a failed lookup does NOT look up again");
-    eq(r.type, "miss", "6c: honest miss");
-  }
-  // 6d: fresh media call hits the daily quota -> classified and the breaker trips
+  // 7d: fresh media call hits the daily quota -> classified and the breaker trips
   {
     const auth = authorizer({ photos: 99, details_ids_only: 99 });
     const trips = [];
-    const stub = googleStub({ details: [{ status: 200, body: { photos: [{ name: FRESH }] } }], healedSkip: [{ status: 429, body: { error: { status: "RESOURCE_EXHAUSTED" } } }] }, "FRESHCURRENTNAME");
-    const r = await resolvePlacePhoto({ ref: REF, w: 640, serverKey: "k", authorizeSpend: auth, freshFirst: true }, { ...base, fetchImpl: stub.fn, tripBreaker: async (...a) => { trips.push(a[1]); return true; } });
-    eq(r.upstream, "fresh-failed:quota", "6d: quota on the fresh name is classified");
-    eq(trips.join(","), "quota", "6d: and trips the daily breaker");
+    const stub = googleStub({ ...DET(FRESH), skip: [{ status: 429, body: { error: { status: "RESOURCE_EXHAUSTED" } } }] });
+    const r = await resolvePlacePhoto({ ref: REF, w: 640, serverKey: "k", authorizeSpend: auth, ...VIA }, { ...base, fetchImpl: stub.fn, tripBreaker: async (...a) => { trips.push(a[1]); return true; } });
+    eq(r.upstream, "fresh-failed:quota", "7d: quota on the fresh name is classified");
+    eq(trips.join(","), "quota", "7d: and trips the daily breaker");
   }
-  // 6e: CONTROL: without the flag the stored-name order is unchanged
-  {
-    const auth = authorizer({ photos: 99, details_ids_only: 99 });
-    const stub = googleStub({ skip: [{ status: 404 }], details: [{ status: 200, body: { photos: [{ name: FRESH }] } }], healedSkip: [{ status: 200, body: { photoUri: OWNED } }] }, "FRESHCURRENTNAME");
-    const r = await resolvePlacePhoto({ ref: REF, w: 640, serverKey: "k", authorizeSpend: auth }, { ...base, fetchImpl: stub.fn });
-    eq(stub.calls.join(","), "skip,details,healedSkip", "6e: control: no flag keeps stored-name-first");
-    eq(r.type, "redirect", "6e: control served");
-  }
-  // 6f: the route opts in
+  // 7e: the route hands the resolver the surface decision (and nothing about stored names)
   {
     const route = readFileSync(new URL("../app/api/photo/route.js", import.meta.url), "utf8");
-    ok(/freshFirst:\s*true/.test(route), "6f: app/api/photo/route.js passes freshFirst: true to the resolver");
+    ok(/googleSurface,/.test(route), "7e: app/api/photo/route.js passes googleSurface to the resolver");
+    const cur = route.replace(/\/\/[^\n]*/g, "").match(/currentRef:\s*([^,\n]+)/);
+    ok(!!cur && cur[1].trim() === '""', "7e: the route never forwards a stored photo ref anywhere (currentRef is the empty string; the probe found it: " + (cur && cur[1].trim()) + ")");
   }
 }
 
-
-/* 7. PLACE-ONLY DISCOVERY: a `?place=` card with no stored photo name asks Google, through the same gate */
-// 2026-09-17: 211 visible place-only cards resolved to "no-photo" without ever asking Google.
+/* 8. PLACE-ONLY DISCOVERY: a `?place=` request asks Google through the same gate, only on the credited surface */
 {
   const PLACE = "ChIJSpendEfficiencyPlaceOnly01";
   const FRESH = `places/${PLACE}/photos/DISCOVEREDNAME`;
   const OWNED = "https://lh3.googleusercontent.com/p/place-only-owned";
   const noInv = { ...FAKE_DEPS, inventoryGet: async () => null };
-  // 7a: probe reports an honest miss that needs work (not "no-photo") and spends nothing
+  // 8a: probe reports an honest miss that needs work (not "no-photo") and spends nothing
   {
     const auth = authorizer({ photos: 99, details_ids_only: 99 });
     let calls = 0;
-    const r = await resolvePlacePhoto({ place: PLACE, w: 640, serverKey: "k", authorizeSpend: auth, probe: true, discoverPlace: true, freshFirst: true }, { ...noInv, cacheGet: async () => null, cacheSet: async () => {}, fetchImpl: async () => { calls++; throw new Error("probe must not fetch"); } });
-    eq(r.reason, "probe-no-spend", "7a: a place-only card with no stored name is a probe-no-spend miss, not no-photo");
-    eq(calls + auth.asked(), 0, "7a: the probe asks for nothing");
+    const r = await resolvePlacePhoto({ place: PLACE, w: 640, serverKey: "k", authorizeSpend: auth, probe: true, ...VIA }, { ...noInv, fetchImpl: async () => { calls++; throw new Error("probe must not fetch"); } });
+    eq(r.reason, "probe-no-spend", "8a: a place-only probe is a probe-no-spend miss, not no-photo");
+    eq(calls + auth.asked(), 0, "8a: the probe asks for nothing");
   }
-  // 7b: real request: free lookup, then ONE media call on the discovered name; cached under the discovery key
+  // 8b: real request: free lookup, then ONE media call on the discovered name; NOT cached
   {
     const auth = authorizer({ photos: 99, details_ids_only: 99 });
-    const cache = memCache();
-    const stub = googleStub({ details: [{ status: 200, body: { photos: [{ name: FRESH }] } }], healedSkip: [{ status: 200, body: { photoUri: OWNED } }] }, "DISCOVEREDNAME");
-    const deps = { ...noInv, cacheGet: cache.cacheGet, cacheSet: cache.cacheSet, fetchImpl: stub.fn };
-    const r = await resolvePlacePhoto({ place: PLACE, w: 640, serverKey: "k", authorizeSpend: auth, discoverPlace: true, freshFirst: true }, deps);
-    eq(stub.calls.join(","), "details,healedSkip", "7b: one free lookup, then one media call on the discovered name");
-    eq(r.type, "redirect", "7b: served");
-    eq(auth.granted("photos"), 1, "7b: exactly one photos grant");
-    ok([...cache.store.keys()].some((k) => k.includes(placeDiscoveryRef(PLACE))), "7b: the result is cached under the place's discovery key");
-    const again = await resolvePlacePhoto({ place: PLACE, w: 400, serverKey: "k", authorizeSpend: auth, discoverPlace: true, freshFirst: true }, deps);
-    eq(again.reason, "cache", "7b: the next request (any card width) is a free cache hit");
-    eq(stub.calls.length, 2, "7b: and makes no further Google calls");
+    const stub = googleStub({ ...DET(FRESH), skip: [{ status: 200, body: { photoUri: OWNED } }, { status: 200, body: { photoUri: OWNED } }], details: [{ status: 200, body: { photos: [{ name: FRESH }] } }, { status: 200, body: { photos: [{ name: FRESH }] } }] });
+    const deps = { ...noInv, fetchImpl: stub.fn };
+    const r = await resolvePlacePhoto({ place: PLACE, w: 640, serverKey: "k", authorizeSpend: auth, ...VIA }, deps);
+    eq(stub.calls.join(","), "details,skip", "8b: one free lookup, then one media call on the discovered name");
+    eq(r.type, "redirect", "8b: served");
+    eq(auth.granted("photos"), 1, "8b: exactly one photos grant");
+    eq(r.cacheControl, "private, no-store", "8b: the live redirect is never cacheable");
+    const again = await resolvePlacePhoto({ place: PLACE, w: 400, serverKey: "k", authorizeSpend: auth, ...VIA }, deps);
+    eq(again.reason, "google", "8b: the next request is a NEW live attempt, not a cache hit");
+    eq(stub.calls.length, 4, "8b: and pays its own lookup + media call (no cached copy exists)");
+    eq(auth.granted("photos"), 2, "8b: through its own photos grant");
   }
-  // 7c: Google has no photo for the place -> no media call, grant refunded, negative-cached
+  // 8c: Google has no photo for the place -> no media call, grant refunded
   {
     const auth = authorizer({ photos: 99, details_ids_only: 99 });
-    const cache = memCache();
     const refunds = [];
     const stub = googleStub({ details: [{ status: 200, body: {} }] });
-    const r = await resolvePlacePhoto({ place: PLACE, w: 640, serverKey: "k", authorizeSpend: auth, discoverPlace: true, freshFirst: true }, { ...noInv, cacheGet: cache.cacheGet, cacheSet: cache.cacheSet, fetchImpl: stub.fn, refund: async (sku, n) => { refunds.push(sku + ":" + n); return true; } });
-    eq(stub.calls.join(","), "details", "7c: no media call when the place has no photo");
-    eq(r.upstream, "fresh-nophoto", "7c: classified fresh-nophoto");
-    ok(refunds.includes("photos:1"), "7c: the unused photos grant is refunded");
-    ok(cache.store.has(photoNegativeKey(placeDiscoveryRef(PLACE))), "7c: negative-cached, so repeat views do not re-ask");
+    const r = await resolvePlacePhoto({ place: PLACE, w: 640, serverKey: "k", authorizeSpend: auth, ...VIA }, { ...noInv, fetchImpl: stub.fn, refund: async (sku, n) => { refunds.push(sku + ":" + n); return true; } });
+    eq(stub.calls.join(","), "details", "8c: no media call when the place has no photo");
+    eq(r.upstream, "fresh-nophoto", "8c: classified fresh-nophoto");
+    ok(refunds.includes("photos:1"), "8c: the unused photos grant is refunded");
   }
-  // 7d: the lookup fails -> the pseudo name is NEVER sent to the media endpoint
+  // 8d: the lookup fails -> the pseudo name is NEVER sent to the media endpoint
   {
     const auth = authorizer({ photos: 99, details_ids_only: 99 });
     const refunds = [];
     const stub = googleStub({ details: [{ status: 503 }] });
-    const r = await resolvePlacePhoto({ place: PLACE, w: 640, serverKey: "k", authorizeSpend: auth, discoverPlace: true, freshFirst: true }, { ...noInv, cacheGet: async () => null, cacheSet: async () => {}, fetchImpl: stub.fn, refund: async (sku, n) => { refunds.push(sku + ":" + n); return true; } });
-    eq(stub.calls.join(","), "details", "7d: a failed lookup never sends the discovery pseudo-name to the media endpoint");
-    eq(r.upstream, "place-lookup-failed", "7d: classified place-lookup-failed (transient, not negative-cached)");
-    ok(refunds.includes("photos:1"), "7d: the unused photos grant is refunded");
+    const r = await resolvePlacePhoto({ place: PLACE, w: 640, serverKey: "k", authorizeSpend: auth, ...VIA }, { ...noInv, fetchImpl: stub.fn, refund: async (sku, n) => { refunds.push(sku + ":" + n); return true; } });
+    eq(stub.calls.join(","), "details", "8d: a failed lookup never sends the discovery pseudo-name to the media endpoint");
+    eq(r.upstream, "place-lookup-failed", "8d: classified place-lookup-failed (transient)");
+    ok(refunds.includes("photos:1"), "8d: the unused photos grant is refunded");
+    eq(stub.urls.some((u) => u.includes("wfplacediscovery")), false, "8d: the pseudo segment never appears in an outbound URL");
   }
-  // 7e: CONTROL: without the flag the place-only request stays an honest no-photo, and nothing is asked
+  // 8e: CONTROL: on a non-credited surface a place-only request asks for nothing
   {
     const auth = authorizer({ photos: 99, details_ids_only: 99 });
-    const r = await resolvePlacePhoto({ place: PLACE, w: 640, serverKey: "k", authorizeSpend: auth }, { ...noInv, cacheGet: async () => null, cacheSet: async () => {}, fetchImpl: async () => { throw new Error("no fetch without the flag"); } });
-    eq(r.reason, "no-photo", "7e: control: no flag keeps no-photo");
-    eq(auth.asked(), 0, "7e: control: no grant asked");
+    const r = await resolvePlacePhoto({ place: PLACE, w: 640, serverKey: "k", authorizeSpend: auth }, { ...noInv, fetchImpl: async () => { throw new Error("no fetch without the credited surface"); } });
+    eq(r.reason, "not-google-surface", "8e: control: no credited surface keeps an honest no-spend miss");
+    eq(auth.asked(), 0, "8e: control: no grant asked");
   }
-  // 7f: the route opts in, and the red-proof: removing the placeOnly stop sends the pseudo-name to Google
+  // 8f: the resolver stays place-only, and the placeOnly stop exists before any stored-name attempt
   {
-    const route = readFileSync(new URL("../app/api/photo/route.js", import.meta.url), "utf8");
-    ok(/discoverPlace:\s*true/.test(route), "7f: app/api/photo/route.js passes discoverPlace: true");
     const src = readFileSync(new URL("../lib/placePhotoServe.js", import.meta.url), "utf8");
-    ok(/if \(opts && opts\.placeOnly\) \{\s*return flush/.test(src), "7f red-proof anchor: the placeOnly stop exists before the stored-name attempt (7d proves by call log that removing it would call the media endpoint with the pseudo-name)");
+    ok(/placeOnly:\s*true/.test(src), "8f: the resolver always calls the fetcher in placeOnly mode");
+    ok(/if \(opts && opts\.placeOnly\) \{\s*return flush/.test(src), "8f red-proof anchor: the placeOnly stop exists before the stored-name attempt (8d proves by call log that removing it would call the media endpoint with the pseudo-name)");
+    ok(placeDiscoveryRef(PLACE).endsWith("/photos/wfplacediscovery"), "8f: the pseudo segment is the fixed discovery marker");
   }
 }
 
@@ -588,15 +474,15 @@ const FAKE_DEPS = { breakerOpen: async () => null, tripBreaker: async () => true
   await tripBreaker("google-photos-quota", "quota", "hermetic-breaker control", 60 * 60 * 1000);
   ok(!!(await breakerOpen("google-photos-quota")), "hermetic control: the in-process breaker really is open for this case");
   let fetches = 0;
-  const faked = await resolvePlacePhoto({ ref: "places/ChIJHermeticPlace/photos/HERMETICREF", w: 640, spendAllowed: true, serverKey: "test-key" }, {
-    cacheGet: async () => null, cacheSet: async () => {}, inventoryGet: async () => null,
+  const faked = await resolvePlacePhoto({ ref: "places/ChIJHermeticPlaceXYZ/photos/HERMETICREF", w: 640, spendAllowed: true, serverKey: "test-key", googleSurface: true }, {
+    inventoryGet: async () => null,
     fetchOwnedUri: async () => { fetches++; return "https://lh3.googleusercontent.com/place-photos/hermetic"; },
   });
   eq(faked.type, "redirect", "HERMETIC: a caller with an injected fake Google is not blocked by the live breaker");
   eq(fetches, 1, "HERMETIC: the injected fake Google was actually called once");
   let grants = 0;
-  const real = await resolvePlacePhoto({ ref: "places/ChIJHermeticPlace/photos/HERMETICREF", w: 640, serverKey: "test-key", authorizeSpend: async () => { grants++; return true; } }, {
-    cacheGet: async () => null, cacheSet: async () => {}, inventoryGet: async () => null,
+  const real = await resolvePlacePhoto({ ref: "places/ChIJHermeticPlaceXYZ/photos/HERMETICREF", w: 640, serverKey: "test-key", googleSurface: true, authorizeSpend: async () => { grants++; return true; } }, {
+    inventoryGet: async () => null,
   });
   eq(real.reason, "quota-open", "CONTROL: the production shape (no injected fetcher) still honours an open breaker");
   eq(grants, 0, "CONTROL: an open breaker still asks the ledger for zero grants");
@@ -618,4 +504,4 @@ if (fail.length) {
   for (const f of fail) console.error("  - " + f);
   process.exit(1);
 }
-console.log(`test-photo-spend-efficiency: OK — ${pass} assertions; every card width folds to ONE canonical fetch, concurrent same-ref callers share ONE paid attempt, a stale/400 skip never spends a second grant on a repeat answer, unowned still follows, a 24h negative cache stops re-spending on a proven dead ref (never for a transient/rejection class), a Preview/dev deployment cannot spend the production ledger, and 3 red-proofs confirm this guard's own invariants are falsifiable`);
+console.log(`test-photo-spend-efficiency: OK — ${pass} assertions; every card width folds to ONE canonical fetch, concurrent same-place callers share ONE paid attempt (red-proved on a mutated copy), a stale/400 skip never follows or heals, unowned still follows, nothing is cached or negative-cached (resolver makes zero cache calls), a failed Details lookup never falls back to a stored name, a Preview/dev deployment cannot spend the production ledger, and the red-proofs confirm the invariants are falsifiable`);

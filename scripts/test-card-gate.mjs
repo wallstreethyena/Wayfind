@@ -61,7 +61,10 @@ ok(/const served = freeMode \? places\.filter\(hasScoreSignal\) : places;/.test(
 // cache HIT replayed them unfiltered (measured live post-deploy: "best
 // restaurants" near Parrish, 20 rows, 20 unrenderable). Every serve path now
 // passes through the same predicate.
-ok(/const clean = \(rows\) => \(freeMode && Array\.isArray\(rows\) \? rows\.filter\(hasScoreSignal\) : \(rows \|\| \[\]\)\);/.test(route),
+// 2026-10-08: clean() also runs scrubPhotos (collapses any cached real Google photo
+// name to the place-only pseudo-ref) on the same single choke point.
+ok(/const clean = \(rows\) => scrubPhotos\(freeMode && Array\.isArray\(rows\) \? rows\.filter\(hasScoreSignal\) : \(rows \|\| \[\]\)\);/.test(route)
+  && /function scrubPhotos\(rows\)/.test(route),
   "a single clean() applies the score-signal rule to every CACHED serve path");
 ok(/const rv = clean\(rich\.v\);/.test(route), "the rich-cache hit is cleaned before it is served");
 ok(/const fv = clean\(fresh\.v\);/.test(route), "the fresh-cache hit is cleaned before it is served");

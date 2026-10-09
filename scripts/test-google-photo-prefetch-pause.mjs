@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// Lock: background PRE-FETCH of Google place photos is OFF unless an operator sets
-// GOOGLE_PHOTO_PREFETCH=on (owner, 2026-10-08; Google Maps Platform Terms 3.2.3(a)(i)
+// Lock: background PRE-FETCH of Google place photos is OFF, and since 2026-10-08 (later) PROHIBITED
+// outright: GOOGLE_PHOTO_PREFETCH=on no longer re-enables it (owner, 2026-10-08; Google Maps Platform Terms 3.2.3(a)(i)
 // "will not pre-fetch, index, store, reshare, or rehost Google Maps Content", 3.2.3(b)
 // No Caching; Place Photos (New) docs "You cannot cache a photo name").
 //
@@ -26,22 +26,40 @@ for (const v of ["", "1", "true", "yes", "off", "0"]) ok(P.googlePhotoPrefetchAl
 ok(P.googlePhotoPrefetchAllowed({ GOOGLE_PHOTO_PREFETCH: "on" }) === true, "CONTROL: 'on' resumes");
 ok(P.googlePhotoPrefetchAllowed({ GOOGLE_PHOTO_PREFETCH: " ON " }) === true, "CONTROL: ' ON ' resumes (trim, case)");
 
-// The credited-photos warm half is CALLED in scripts/test-credited-photo-warm.mjs
-// (blockedReason() === "prefetch-paused" with the switch unset), which owns that
-// module's env fixture; this file reads no ambient env (check-guard-hermeticity).
-// Line comments only: this file contains "/*" inside strings, so a block-comment
-// strip would swallow real code.
+// 2026-10-08 (later the same day): the pause became a PROHIBITION. GOOGLE_PHOTO_PREFETCH=on no longer
+// re-enables anything; the policy module stays only as the legacy switch (asserted above) and nothing
+// may let it back in. Executed half: both warm modules refuse with "on" set in the env they are handed.
+const CW = await import("../lib/creditedPhotoWarm.js");
+ok(CW.PREFETCH_PROHIBITED === "prefetch-prohibited", "creditedPhotoWarm exports PREFETCH_PROHIBITED");
+ok(CW.blockedReason({ env: { GOOGLE_PHOTO_PREFETCH: "on" } }) === "prefetch-prohibited" && CW.blockedReason() === "prefetch-prohibited", "CALLED: blockedReason() is prohibited even with GOOGLE_PHOTO_PREFETCH=on");
+const wr = await CW.warmCreditedPhotos({ placeIds: ["ChIJaaaaaaaaaaaaaaaaaaa"], deps: { readPairs: async () => { throw new Error("touched"); }, fetchOwned: async () => { throw new Error("touched"); } } });
+ok(wr.blocked === "prefetch-prohibited" && wr.attempted === 0, "CALLED: warmCreditedPhotos makes no request and reports prohibited");
+const PW = await import("../lib/photoWarm.js");
+const pr = await PW.runPhotoWarm({ origin: "https://x.test", fetchImpl: async () => { throw new Error("touched"); }, max: 5 });
+ok(PW.PHOTO_WARM_PROHIBITED === true && pr.paused === true && pr.pausedReason === "prefetch-prohibited" && pr.attempted === 0, "CALLED: runPhotoWarm is a constant no-op (prohibited, zero attempts)");
+
+// Positional half. Line comments only for the lib file (it contains "/*" inside strings).
 const warmSrc = readFileSync(path.join(ROOT, "lib/creditedPhotoWarm.js"), "utf8").replace(/^\s*\/\/.*$/gm, "");
 const br = warmSrc.slice(warmSrc.indexOf("export function blockedReason"));
-ok(/^export function blockedReason\(opts = \{\}\) \{\s*if \(!googlePhotoPrefetchAllowed\(\)\) return PREFETCH_PAUSED;/.test(br), "blockedReason() checks the pre-fetch switch FIRST (source check; behaviour is CALLED in test-credited-photo-warm)");
+ok(/^export function blockedReason\(opts = \{\}\) \{\s*return PREFETCH_PROHIBITED;/.test(br), "blockedReason() returns PREFETCH_PROHIBITED as its FIRST statement (source check; behaviour CALLED above)");
 
-const src = readFileSync(path.join(ROOT, "app/api/cron/photo-warm/route.js"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
-const guard = src.indexOf("if (!googlePhotoPrefetchAllowed())");
-const call = src.indexOf("await runPhotoWarm(");
-ok(guard > 0, "photo-warm route calls googlePhotoPrefetchAllowed() (source check)");
-ok(guard > 0 && call > guard, "the pre-fetch guard sits BEFORE runPhotoWarm( (source check, not executed)");
-const block = guard > 0 ? src.slice(guard, call) : "";
-ok(/return Response\.json\(/.test(block) && /recordPulse\("photo-warm"/.test(block), "the paused branch records a pulse and returns before any photo request");
+ok(/if \(!googlePhotoPrefetchAllowed\(\)\)/.test("  if (!googlePhotoPrefetchAllowed()) {"), "CONTROL: the env-switch probe finds the old guard shape");
+ok(/return Response\.json\(/.test("return Response.json({ ok: true })") && /recordPulse\("photo-warm"/.test('await recordPulse("photo-warm", {})'), "CONTROL: the return/pulse probes find known positives");
+const strip = (f) => readFileSync(path.join(ROOT, f), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
+{
+  const src = strip("app/api/cron/photo-warm/route.js");
+  const call = src.indexOf("await runPhotoWarm(");
+  const guard = src.search(/if \(true\) \{/);
+  ok(guard > 0 && call > guard, "photo-warm route: an UNCONDITIONAL guard (not googlePhotoPrefetchAllowed()) sits BEFORE runPhotoWarm( (source check, not executed: the route imports Supabase/Next modules this hermetic runner cannot load)");
+  const block = guard > 0 ? src.slice(guard, call) : "";
+  ok(/return Response\.json\(/.test(block) && /recordPulse\("photo-warm"/.test(block), "photo-warm route: the guard records a pulse and returns before any photo request");
+  ok(!/if \(!googlePhotoPrefetchAllowed\(\)\)/.test(src), "photo-warm route: the env switch no longer decides anything");
+}
+{
+  const src = strip("app/api/cron/credited-photos/route.js");
+  const skip = src.search(/(?:^|[;}\n])\s*\{\s*const why = blockedReason\(\{ env: s \}\);\s*await recordPulse\("credited-photos"[^;]*;\s*return Response\.json\(\{ ok: true, skipped: true/);
+  ok(skip > 0 && skip < src.indexOf("warmCreditedPhotos({") && skip < src.indexOf("loadBlogTargets("), "credited-photos route: an unconditional skip (blockedReason is prohibited) precedes every target read and the worker (source check)");
+}
 
 if (bad.length) { console.error("test-google-photo-prefetch-pause: FAIL\n - " + bad.join("\n - ")); process.exit(1); }
-console.log(`test-google-photo-prefetch-pause: OK — ${n} assertions (switch default-off by call; credited warm guard first by source (called in test-credited-photo-warm); photo-warm guard before runPhotoWarm by source; 2 files, 1 env name)`);
+console.log(`test-google-photo-prefetch-pause: OK — ${n} assertions (legacy switch default-off by call; both warm modules prohibited by CALL even with the switch on; photo-warm and credited-photos route guards unconditional and before the worker by source; 4 files)`);

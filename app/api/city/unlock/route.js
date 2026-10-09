@@ -1,4 +1,5 @@
 import { gateShut, gateFree, spendAllowCapped, textEnterpriseCap } from "../../../../lib/spendGate";
+import { placeDiscoveryRef } from "../../../../lib/discoveryRef.js";
 // app/api/city/unlock/route.js — the on-demand city fetch (spec STEP 3 #10). A
 // SIGNED-IN user tapped "Unlock {city}" in an uncovered area; this pulls Google
 // Places for that city into wf_inventory. The moment inventory lands near the
@@ -211,8 +212,9 @@ export async function POST(req) {
         // contract alone. The value is the full Places resource name
         // ("places/{id}/photos/{ref}"), the exact shape /api/photo's REF_RX
         // proxy guard accepts and what every core-metro row already stores.
-        const ph = p.photos && p.photos[0] && p.photos[0].name;
-        if (ph && /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/.test(ph)) {
+        // 2026-10-08: store the place-only pseudo-ref, never Google's photo name.
+        const ph = Array.isArray(p.photos) && p.photos.length && p.id ? placeDiscoveryRef(p.id) : null;
+        if (ph) {
           try {
             await fetch(`${s.url}/rest/v1/wf_inventory?place_id=eq.${encodeURIComponent(p.id)}&photo_ref=is.null`, {
               method: "PATCH", headers: { ...svcH, Prefer: "return=minimal" }, cache: "no-store",

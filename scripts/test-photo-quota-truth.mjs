@@ -134,16 +134,20 @@ function authorizer(allow) {
 
 // A scripted Google double carrying a REAL error-body shape:
 // {"error":{"status":"<enum>"}} for any non-2xx step with a `googleStatus`.
+const allUrls = []; // every outbound URL, for the stored-name invariant
 function googleStub(script) {
   const calls = [];
+  // COMPLIANT PHOTOS (2026-10-08): every live attempt starts with Details; a
+  // scenario that does not script it gets the standard current-name answer.
+  if (!script.details) script.details = [{ status: 200, body: { photos: [{ name: NEW_REF }] } }];
   const fn = async (url) => {
     const u = String(url);
     if (!u.startsWith("https://places.googleapis.com/v1/")) throw new Error("test bug: unexpected url " + u);
-    const healed = u.includes(NEW_REF);
+    allUrls.push(u);
     let kind;
     if (u.includes("?fields=photos")) kind = "details";
-    else if (u.includes("skipHttpRedirect=true")) kind = healed ? "healedSkip" : "skip";
-    else if (u.includes("/media?")) kind = healed ? "healedFollow" : "follow";
+    else if (u.includes("skipHttpRedirect=true")) kind = "skip";
+    else if (u.includes("/media?")) kind = "follow";
     else throw new Error("test bug: unclassified url " + u);
     const list = script[kind];
     if (!list || !list.length) throw new Error(`test bug: no scripted ${kind} response left for call #${calls.filter((k) => k === kind).length + 1}`);
@@ -184,10 +188,10 @@ async function run(script, { authorizeSpend, breaker, refund, probe } = {}) {
   const b = breaker || fakeBreaker(false);
   const r = refund || fakeRefund();
   const auth = authorizeSpend || authorizer({ photos: 99, details_ids_only: 99 });
-  const input = { ref: OLD_REF, w: 640, serverKey: "server-key-test", authorizeSpend: auth, now: FIXED_NOW };
+  const input = { ref: OLD_REF, w: 640, serverKey: "server-key-test", authorizeSpend: auth, now: FIXED_NOW, googleSurface: true };
   if (probe) input.probe = true;
   const result = await resolvePlacePhoto(input, {
-    cacheGet: async () => null, cacheSet: async () => {}, inventoryGet: async () => null,
+    inventoryGet: async () => null,
     retryDelayMs: 0, fetchImpl: stub.fn, refund: r, breakerOpen: b.breakerOpen, tripBreaker: b.tripBreaker, now: FIXED_NOW,
   });
   return { calls: stub.calls, result, auth, breaker: b, refund: r };
@@ -200,7 +204,7 @@ const missResults = [];
 // P1. 200 owned -> ok, 0 refunds, breaker not tripped.
 {
   const { calls, result, breaker, refund } = await run({ skip: [{ status: 200, body: { photoUri: OWNED } }] });
-  eq(calls.join(","), "skip", "P1(200-owned): one request");
+  eq(calls.join(","), "details,skip", "P1(200-owned): Details then one media request");
   eq(result.type, "redirect", "P1(200-owned): redirect");
   eq(result.upstream, "ok", "P1(200-owned): classified ok");
   eq(result.refunded, 0, "P1(200-owned): no refund on success");
@@ -208,29 +212,25 @@ const missResults = [];
   eq(breaker.tripCalls.length, 0, "P1(200-owned): breaker not tripped");
 }
 
-// P2. 404 NOT_FOUND -> stale -> heal runs with exactly one details grant, 0 refunds.
-// SPEND EFFICIENCY (2026-09-16): `stale` no longer follows (see
-// scripts/test-photo-upstream-truth.mjs and scripts/test-photo-spend-
-// efficiency.mjs) — the skip 404 goes straight to heal, so no `follow` step
-// is scripted here at all.
+// P2. 404 NOT_FOUND on the FRESH name -> stale: no heal (the name just came from
+// Details), no follow, exactly one Details grant, and a BILLED 404 is never refunded.
 {
   const { calls, result, auth, refund } = await run({
     skip: [{ status: 404, googleStatus: "NOT_FOUND" }],
-    details: [{ status: 200, body: { photos: [{ name: NEW_REF }] } }],
-    healedSkip: [{ status: 200, body: { photoUri: OWNED } }],
   });
-  eq(calls.join(","), "skip,details,healedSkip", "P2(404-stale-heal): full heal path runs, no follow call");
-  eq(result.type, "redirect", "P2(404-stale-heal): the heal recovers a redirect");
-  eq(result.upstream, "ok", "P2(404-stale-heal): classified ok after heal");
-  eq(auth.granted("details_ids_only"), 1, "P2(404-stale-heal): exactly one details grant");
-  eq(result.refunded, 0, "P2(404-stale-heal): stale is billed — no refund");
-  eq(refund.calls.length, 0, "P2(404-stale-heal): refund() never called");
+  eq(calls.join(","), "details,skip", "P2(404-stale): Details then one media request — no heal, no follow");
+  eq(result.type, "miss", "P2(404-stale): an honest miss");
+  eq(result.upstream, "fresh-failed:stale", "P2(404-stale): classified stale on the fresh name");
+  eq(auth.granted("details_ids_only"), 1, "P2(404-stale): exactly one details grant, never a second");
+  eq(result.refunded, 0, "P2(404-stale): stale is billed — no refund");
+  eq(refund.calls.length, 0, "P2(404-stale): refund() never called");
+  missResults.push(result);
 }
 
 // P3. 503 then 200 -> ok, retried, 0 refunds.
 {
   const { calls, result, refund } = await run({ skip: [{ status: 503, googleStatus: "UNAVAILABLE" }, { status: 200, body: { photoUri: OWNED } }] });
-  eq(calls.join(","), "skip,skip", "P3(503-then-200): two physical attempts, one call site");
+  eq(calls.join(","), "details,skip,skip", "P3(503-then-200): two physical attempts, one call site");
   eq(result.upstream, "ok", "P3(503-then-200): classified ok after the retry");
   eq(result.retried, true, "P3(503-then-200): retried is true");
   eq(result.refunded, 0, "P3(503-then-200): recovered — nothing to refund");
@@ -247,11 +247,11 @@ const missResults = [];
     { skip: [{ status: 429, googleStatus: "RESOURCE_EXHAUSTED" }] },
     { breaker }
   );
-  eq(calls.join(","), "skip", "N1(429): exactly one outbound request — no retry, no follow");
-  eq(result.upstream, "quota", "N1(429): classified quota");
+  eq(calls.join(","), "details,skip", "N1(429): Details then exactly one media request — no retry, no follow");
+  eq(result.upstream, "fresh-failed:quota", "N1(429): classified quota (on the fresh name)");
   eq(result.retried, false, "N1(429): quota must never retry");
   eq(result.reason, "owned-miss", "N1(429): honest miss");
-  eq(auth.granted("details_ids_only"), 0, "N1(429): no Details grant — no heal on quota");
+  eq(auth.granted("details_ids_only"), 1, "N1(429): exactly the one Details grant — no second lookup/heal on quota");
   eq(refund.calls.length, 1, "N1(429): exactly one refund call");
   eq(refund.calls[0].sku, "photos", "N1(429): the refund is for the photos sku");
   eq(refund.calls[0].n, 1, "N1(429): exactly one grant refunded (the resolver's own pre-paid first grant)");
@@ -270,10 +270,10 @@ const missResults = [];
     { skip: [{ status: 403, googleStatus: "RESOURCE_EXHAUSTED" }] },
     { breaker }
   );
-  eq(calls.join(","), "skip", "N2(403-quota): exactly one outbound request");
-  eq(result.upstream, "quota", "N2(403-quota): classified quota, not key-denied");
+  eq(calls.join(","), "details,skip", "N2(403-quota): Details then exactly one media request");
+  eq(result.upstream, "fresh-failed:quota", "N2(403-quota): classified quota, not key-denied");
   eq(result.retried, false, "N2(403-quota): never retries");
-  eq(auth.granted("details_ids_only"), 0, "N2(403-quota): no Details grant — no heal on quota");
+  eq(auth.granted("details_ids_only"), 1, "N2(403-quota): exactly the one Details grant — no heal on quota");
   eq(refund.calls.length, 1, "N2(403-quota): exactly one refund call");
   eq(result.refunded, 1, "N2(403-quota): result.refunded is 1");
   eq(breaker.tripCalls.length, 1, "N2(403-quota): breaker tripped");
@@ -287,9 +287,9 @@ const missResults = [];
     { skip: [{ status: 403, googleStatus: "PERMISSION_DENIED" }] },
     { breaker }
   );
-  eq(calls.join(","), "skip", "N3(403-key-denied): exactly one outbound request");
-  eq(result.upstream, "key-denied", "N3(403-key-denied): classified key-denied");
-  eq(auth.granted("details_ids_only"), 0, "N3(403-key-denied): no Details grant — a key problem does not heal");
+  eq(calls.join(","), "details,skip", "N3(403-key-denied): Details then exactly one media request");
+  eq(result.upstream, "fresh-failed:key-denied", "N3(403-key-denied): classified key-denied");
+  eq(auth.granted("details_ids_only"), 1, "N3(403-key-denied): exactly the one Details grant — a key problem does not heal");
   eq(refund.calls.length, 1, "N3(403-key-denied): exactly one refund call (unbilled, per Google's table)");
   eq(result.refunded, 1, "N3(403-key-denied): result.refunded is 1");
   eq(breaker.tripCalls.length, 0, "N3(403-key-denied): breaker NOT tripped — a key/permission problem does not resolve itself at Pacific midnight");
@@ -303,8 +303,8 @@ const missResults = [];
     { skip: [{ status: 500, googleStatus: "INTERNAL" }, { status: 500, googleStatus: "INTERNAL" }] },
     { breaker }
   );
-  eq(calls.join(","), "skip,skip", "N4(500-persistent): retried exactly once");
-  eq(result.upstream, "server", "N4(500-persistent): classified server");
+  eq(calls.join(","), "details,skip,skip", "N4(500-persistent): retried exactly once");
+  eq(result.upstream, "fresh-failed:server", "N4(500-persistent): classified server");
   eq(result.retried, true, "N4(500-persistent): retried is true");
   eq(refund.calls.length, 1, "N4(500-persistent): exactly one refund call (the one grant, not one per physical attempt)");
   eq(result.refunded, 1, "N4(500-persistent): result.refunded is 1");
@@ -316,8 +316,8 @@ const missResults = [];
 // the request before the connection broke — never undercount the ledger).
 {
   const { calls, result, refund } = await run({ skip: [{ throw: true }, { throw: true }] });
-  eq(calls.join(","), "skip,skip", "N5(thrown-persistent): retried exactly once");
-  eq(result.upstream, "network", "N5(thrown-persistent): classified network");
+  eq(calls.join(","), "details,skip,skip", "N5(thrown-persistent): retried exactly once");
+  eq(result.upstream, "fresh-failed:network", "N5(thrown-persistent): classified network");
   eq(result.retried, true, "N5(thrown-persistent): retried is true");
   eq(refund.calls.length, 0, "N5(thrown-persistent): network is NEVER refunded");
   eq(result.refunded, 0, "N5(thrown-persistent): result.refunded is 0");
@@ -332,8 +332,8 @@ const missResults = [];
   const stub = googleStub({}); // no scripted responses at all — any call throws "test bug"
   const refund = fakeRefund();
   const result = await resolvePlacePhoto(
-    { ref: OLD_REF, w: 640, serverKey: "server-key-test", authorizeSpend: auth, now: FIXED_NOW },
-    { cacheGet: async () => null, cacheSet: async () => {}, inventoryGet: async () => null, retryDelayMs: 0, fetchImpl: stub.fn, refund, breakerOpen: breaker.breakerOpen, tripBreaker: breaker.tripBreaker, now: FIXED_NOW }
+    { ref: OLD_REF, w: 640, serverKey: "server-key-test", authorizeSpend: auth, now: FIXED_NOW, googleSurface: true },
+    { inventoryGet: async () => null, retryDelayMs: 0, fetchImpl: stub.fn, refund, breakerOpen: breaker.breakerOpen, tripBreaker: breaker.tripBreaker, now: FIXED_NOW }
   );
   eq(stub.calls.length, 0, "N6(breaker-open): ZERO fetch calls");
   eq(auth.asked(), 0, "N6(breaker-open): ZERO authorizeSpend calls");
@@ -357,8 +357,8 @@ const missResults = [];
   const stub = googleStub({});
   const refund = fakeRefund();
   const result = await resolvePlacePhoto(
-    { ref: OLD_REF, w: 640, serverKey: "server-key-test", authorizeSpend: auth, probe: true, now: FIXED_NOW },
-    { cacheGet: async () => null, cacheSet: async () => {}, inventoryGet: async () => null, retryDelayMs: 0, fetchImpl: stub.fn, refund, breakerOpen: wrappedBreakerOpen, tripBreaker: breaker.tripBreaker, now: FIXED_NOW }
+    { ref: OLD_REF, w: 640, serverKey: "server-key-test", authorizeSpend: auth, probe: true, now: FIXED_NOW, googleSurface: true },
+    { inventoryGet: async () => null, retryDelayMs: 0, fetchImpl: stub.fn, refund, breakerOpen: wrappedBreakerOpen, tripBreaker: breaker.tripBreaker, now: FIXED_NOW }
   );
   eq(result.reason, "probe-no-spend", "N7(probe): a probe never reaches the breaker check at all");
   eq(breakerOpenAsked, 0, "N7(probe): breakerOpen() is never even asked for a probe");
@@ -385,12 +385,18 @@ const missResults = [];
   {
     const { result } = await run({
       skip: [{ status: 404, googleStatus: "NOT_FOUND" }],
-      details: [{ status: 200, body: { photos: [] } }], // stale-heal-nophoto: still classed under the stale family, never refunded; no follow call
     });
-    eq(result.upstream, "stale-heal-nophoto", "invariant setup: a stale-heal-* outcome");
+    eq(result.upstream, "fresh-failed:stale", "invariant setup: a stale outcome on the fresh name");
     eq(result.refunded, 0, "INVARIANT: a stale result (billed, per Google's table) never refunds");
   }
 }
+
+// OPPOSITE INVARIANT of the removed stale-name heal: the stored ref's photo name
+// is never sent to Google, and no stale-heal-* class is produced.
+ok(allUrls.length >= 10, "self-test: the stored-name probe saw outbound requests (" + allUrls.length + ")");
+ok(allUrls.some((u) => u.includes(NEW_REF)), "positive control: the probe does see the CURRENT name in media URLs");
+ok(!allUrls.some((u) => u.includes("OLDNAME_expired")), "a stored Google photo name is NEVER sent to Google (COMPLIANT PHOTOS)");
+ok(!missResults.some((r) => /^stale-heal/.test(String(r.upstream))), "no stale-heal-* class is produced any more");
 
 /* ── 6. RED-PROOFS — mutated copies of the pure helpers, executed in-process ── */
 // Each red-proof shows a REAL vs MUTATED computation diverging on the exact
@@ -456,8 +462,10 @@ const missResults = [];
 /* ── 7. structural — route.js lists quota-open and emits the upstream header ── */
 {
   const route = readFileSync(new URL("../app/api/photo/route.js", import.meta.url), "utf8");
-  ok(/\["spend-denied",\s*"gate-shut",\s*"unconfigured",\s*"probe-no-spend",\s*"quota-open"\]/.test(route.replace(/\s+/g, " ")) || /"quota-open"/.test(route),
-    "app/api/photo/route.js must list \"quota-open\" among the free-recovery-eligible miss reasons");
+  // The route no longer has a recovery-eligible reasons list (same-place cache
+  // recovery is removed); every miss is reported through result.reason, so
+  // quota-open reaches the x-wayfind-photo-result header unchanged.
+  ok(/"x-wayfind-photo-result":\s*result\.reason/.test(route), "app/api/photo/route.js must report the resolver's reason (incl. quota-open) in x-wayfind-photo-result");
   ok(/x-wayfind-photo-upstream/.test(route), "app/api/photo/route.js must emit the x-wayfind-photo-upstream header (still true after this change)");
   ok(/recordPhotoOutcome/.test(route), "app/api/photo/route.js must call recordPhotoOutcome (lib/photoOutcomes.js) for telemetry");
   ok(/ledger-denied/.test(route), "app/api/photo/route.js must record a ledger (spend-denied) refusal as \"ledger-denied\"");
