@@ -21,6 +21,7 @@
 // built by commerceHref() / eventTicketCta() / experienceGoUrl(), each of
 // which returns an /api/*/go path on this origin — the destination is
 // resolved server-side, at click time, by the route the link points at.
+import { cachedCuratedEventList } from "../../../lib/curatedEventsCache";
 import ExperienceCatalog from "./ExperienceCatalog";
 import ThemeParkRail from "../../components/ThemeParkRail";
 import React from "react";
@@ -33,12 +34,10 @@ import GuidePhoto from "../../components/GuidePhoto";
 import PhotoCreditLink from "../../components/PhotoCreditLink";
 import { guideHero } from "../../../lib/guideHero";
 import { activeSeasonalMark, NORMAL_MARK } from "../../../lib/seasonalBrand";
-import { unstable_cache } from "next/cache";
 import { SITE_URL } from "../../../lib/site";
 import { GUIDES } from "../../../lib/guides";
 import { commerceHref } from "../../../lib/commerce";
 import {
-  fetchCuratedEvents,
   isFloridaEvent,
   isEligible,
   dateRangeLabel,
@@ -123,11 +122,10 @@ export const metadata = {
 // "THE LIVE READER" note), wrapped in unstable_cache so the ?focus= search
 // param making this page dynamic does not turn into a Supabase read on
 // every single request.
-const fetchLandingEvents = unstable_cache(
-  () => fetchCuratedEvents({ fresh: true, signal: AbortSignal.timeout(8000) }),
-  ["go-florida-landing-events-v1"],
-  { revalidate: 3600, tags: ["curated-events"] },
-);
+// Packed + scrubbed (lib/curatedEventsCache.js): the raw row list passed
+// Next's 2 MB data-cache limit, so the hourly refresh never saved and one old
+// entry was served for good. New key retires that pinned entry.
+const fetchLandingEvents = cachedCuratedEventList("fetchLandingEvents", ["go-florida-landing-events-packed-v2"]);
 
 async function loadHalloweenEvents() {
   try {
