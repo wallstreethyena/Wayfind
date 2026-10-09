@@ -138,7 +138,7 @@ ok(/shots\.credit/.test(code), `${PAGE} must render the photo credit alongside t
     `${CSS_PATH}: base mobile gallery wrappers have explicit 216x384 portrait geometry`);
   ok(/className="wf-event-photo-rail"/.test(shell) && /\{media\}/.test(shell),
     `${SHELL_PATH}: both event routes place supplied media inside the shared rail`);
-  ok(/<img[^>]*width="640"[^>]*height="640"/.test(photo),
+  ok(/<CardPhoto[^>]*width="640"[^>]*height="640"/.test(photo),
     `${PHOTO_PATH}: rendered images carry explicit dimensions while the shared wrapper controls display geometry`);
 }
 
