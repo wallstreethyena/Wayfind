@@ -164,6 +164,7 @@ ok(composeChristmasIntentRails(events, placeFixture(), { today: TODAY }).rails.l
     L("near-early", "2026-12-05", 30), L("mid-late", "2026-12-20", 40),
     L("same-day-tier1", "2026-12-10", 10, { source_tier: 1, verification_confidence: "high" }), L("same-day-tier3", "2026-12-10", 5, { source_tier: 3, verification_confidence: "medium" }),
     L("far-a", "2026-12-04", 150, { exceptional: true }), L("far-b", "2026-12-06", 100, { exceptional: true }), L("far-c", "2026-12-08", 300, { exceptional: true }),
+    L("far-plain-160", "2026-12-03", 160), L("far-head-180", "2026-12-03", 180, { exceptional: true }), L("far-head-210", "2026-12-03", 210, { exceptional: true }),
   ];
   const rail = composeChristmasIntentRails(lawEvents, [], { ...SARASOTA, today: TODAY }).rails.find((r) => r.id === "lights");
   const order = rail.cards.map((c) => c.id);
@@ -175,17 +176,19 @@ ok(composeChristmasIntentRails(events, placeFixture(), { today: TODAY }).rails.l
   const near = rail.cards.filter((c) => c.distanceGroup === "nearby").map((c) => c.id);
   ok(near.join() === "near-early,same-day-tier1,same-day-tier3,near-late", `inside Nearby, events run by date, then quality (better sourced first, even when farther) (${near.join(", ")})`);
   ok(rail.cards.filter((c) => c.distanceGroup === "within-reach").map((c) => c.id).join() === "mid-early,mid-late", "inside Within reach, events run by date");
-  // Day trips: ONLY exceptional headliners, nearest first, at most 6 (lead, 2026-10-09).
-  // far-plain (95 mi, not exceptional) never shows; far-early (91 mi) leads although far-a is sooner.
+  // Day trips (lead, 2026-10-09): any item 90 to 150 mi, headliners 150 to 200 mi, nothing past 200 mi,
+  // nearest first, at most 6. far-early (91 mi) leads although far-a is sooner.
   const far = rail.cards.filter((c) => c.distanceGroup === "day-trip").map((c) => c.id);
-  ok(far.join() === "far-early,far-b,far-a,far-c", `the Day trip group holds only exceptional items, nearest first (${far.join(", ")})`);
-  ok(!order.includes("far-plain"), "a far item that is not exceptional never pads a rail");
+  ok(far.join() === "far-early,far-plain,far-b,far-a,far-head-180", `the Day trip group: any item to 150 mi, headliners to 200 mi, nearest first (${far.join(", ")})`);
+  ok(!order.includes("far-plain-160"), "an ordinary item past 150 mi never shows");
+  ok(!order.includes("far-head-210") && !order.includes("far-c"), "the 200 mi hard cap holds even for headliners (210 and 300 mi stay out)");
+  ok(rail.cards.every((c) => c.distMi <= 200), "no card in a non statewide rail is past 200 mi");
   ok(rail.fallbackUsed === false, "nothing is ever padded in (fallbackUsed stays false)");
   ok(CHRISTMAS_DAY_TRIP_MAX === 6, "at most 6 day trips per rail");
-  const lots = composeChristmasIntentRails([1, 2, 3, 4, 5, 6, 7, 8].map((n) => L("ex-" + n, "2026-12-0" + n, 100 + n * 10, { exceptional: true })), [], { ...SARASOTA, today: TODAY }).rails.find((r) => r.id === "lights");
-  ok(lots.cards.length === 6 && lots.cards.map((c) => c.id).join() === "ex-1,ex-2,ex-3,ex-4,ex-5,ex-6", `eight exceptional day trips are capped at the nearest 6 (${lots.cards.map((c) => c.id).join(", ")})`);
-  const thin = composeChristmasIntentRails([L("only-far-1", "2026-12-02", 200), L("only-far-2", "2026-12-03", 120)], [], { ...SARASOTA, today: TODAY }).rails.find((r) => r.id === "lights");
-  ok(thin.cards.length === 0, "a rail with only ordinary far items is empty for this viewer (the page hides it), never padded");
+  const lots = composeChristmasIntentRails([1, 2, 3, 4, 5, 6, 7, 8].map((n) => L("ex-" + n, "2026-12-0" + n, 100 + n * 5)), [], { ...SARASOTA, today: TODAY }).rails.find((r) => r.id === "lights");
+  ok(lots.cards.length === 6 && lots.cards.map((c) => c.id).join() === "ex-1,ex-2,ex-3,ex-4,ex-5,ex-6", `eight eligible day trips are capped at the nearest 6 (${lots.cards.map((c) => c.id).join(", ")})`);
+  const thin = composeChristmasIntentRails([L("only-far-1", "2026-12-02", 199), L("only-far-2", "2026-12-03", 260, { exceptional: true })], [], { ...SARASOTA, today: TODAY }).rails.find((r) => r.id === "lights");
+  ok(thin.cards.length === 0, "a rail with only an ordinary 199 mi item and a 260 mi headliner is empty for this viewer (the page hides it), never padded");
   ok(JSON.stringify(CHRISTMAS_LOCAL_ONLY_RAILS) === JSON.stringify(["parties", "popup-bars", "parades"]), "parties, pop up bars and parades are local only");
   for (const id of CHRISTMAS_LOCAL_ONLY_RAILS) {
     const local = composeChristmasIntentRails([ev("lo-near-" + id, "Local " + id, "2026-12-05", "2026-12-05", { christmas_rail: id, ...at(80) }), ev("lo-far-" + id, "Far " + id, "2026-12-05", "2026-12-05", { christmas_rail: id, exceptional: true, ...at(95) })], [], { ...SARASOTA, today: TODAY }).rails.find((r) => r.id === id);
