@@ -2,9 +2,9 @@
 // scripts/test-seasonal-brand.mjs — guard for the reusable seasonal-wordmark
 // switch (lib/seasonalBrand.js) and its real call sites.
 //
-// WHAT THIS PROTECTS. A Halloween wordmark ships live today and must revert
-// to the normal mark automatically on Nov 1, every year, with no code change
-// — and every place the wordmark renders (five <img> components, the
+// WHAT THIS PROTECTS. Owner direction, 2026-10-09: the original wordmark
+// stays active year-round. The seasonal matcher remains tested with an
+// explicit fixture, and every place the wordmark renders (the <img> components, the
 // command-center header, and the two-slice header sprite split across
 // app/components/css.js + app/home.js) must show the SAME answer at the SAME
 // moment. Two ways this silently rots:
@@ -66,19 +66,31 @@ const oct31_2359 = new Date("2026-10-31T23:59:00-04:00"); // pre-2am -> still ED
 const nov1_0000 = new Date("2026-11-01T00:00:00-04:00"); // 00:00, pre-2am -> still EDT
 const oct15_2027 = new Date("2027-10-15T12:00:00-04:00"); // a different YEAR entirely
 
-const rOct15 = activeSeasonalMark(oct15_2026);
+// Production must keep the original mark, including the old Halloween window.
+const normalDates = [
+  new Date("2026-09-01T00:00:00-04:00"),
+  new Date("2026-10-09T12:00:00-04:00"),
+  oct15_2026, oct31_2359, nov1_0000, nov1_2026_noon, oct15_2027,
+];
+for (const date of normalDates) {
+  eq(activeSeasonalMark(date), null, `${date.toISOString()}: production must use the original wordmark`);
+}
+
+// Preserve date-boundary coverage independently of the disabled live schedule.
+const HALLOWEEN_TABLE = [{ id: "halloween", start: { m: 9, d: 1 }, end: { m: 10, d: 31 }, mark: HALLOWEEN_MARK }];
+const rOct15 = activeSeasonalMark(oct15_2026, HALLOWEEN_TABLE);
 ok(rOct15 !== null && rOct15.id === "halloween", `Oct 15 2026 (ET) must resolve to the halloween mark, got ${JSON.stringify(rOct15)}`);
 
-const rNov1 = activeSeasonalMark(nov1_2026_noon);
+const rNov1 = activeSeasonalMark(nov1_2026_noon, HALLOWEEN_TABLE);
 eq(rNov1, null, "Nov 1 2026 noon (ET) must resolve to null (normal mark)");
 
-const rOct31 = activeSeasonalMark(oct31_2359);
+const rOct31 = activeSeasonalMark(oct31_2359, HALLOWEEN_TABLE);
 ok(rOct31 !== null && rOct31.id === "halloween", `Oct 31 2026 23:59 ET must still resolve to halloween (inclusive end), got ${JSON.stringify(rOct31)}`);
 
-const rNov1Midnight = activeSeasonalMark(nov1_0000);
+const rNov1Midnight = activeSeasonalMark(nov1_0000, HALLOWEEN_TABLE);
 eq(rNov1Midnight, null, "Nov 1 2026 00:00 ET must resolve to null — the Oct 31 23:59 -> Nov 1 00:00 boundary is the whole window edge");
 
-const r2027 = activeSeasonalMark(oct15_2027);
+const r2027 = activeSeasonalMark(oct15_2027, HALLOWEEN_TABLE);
 ok(r2027 !== null && r2027.id === "halloween", `Oct 15 2027 (a different year) must ALSO resolve to halloween — the window is month/day only, proving no hardcoded year. Got ${JSON.stringify(r2027)}`);
 
 // The wrap-the-new-year shape (Dec 20 -> Jan 2 style). No such row exists in
@@ -271,18 +283,14 @@ for (const rule of PINNED_NORMAL_RULES) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// 6. The declarative table itself: month/day only (no 4-digit year literal
-//    anywhere in a window boundary), and at least one row exists.
+// 6. No automatic seasonal branding is enabled without new owner direction.
 // ─────────────────────────────────────────────────────────────────────────
-ok(Array.isArray(SEASONAL_WINDOWS) && SEASONAL_WINDOWS.length >= 1, "SEASONAL_WINDOWS must be a non-empty array");
-for (const w of SEASONAL_WINDOWS) {
-  ok(Number.isInteger(w.start?.m) && Number.isInteger(w.start?.d) && Number.isInteger(w.end?.m) && Number.isInteger(w.end?.d),
-    `SEASONAL_WINDOWS row ${JSON.stringify(w.id)} must have integer {m,d} start/end`);
-}
+ok(Array.isArray(SEASONAL_WINDOWS), "SEASONAL_WINDOWS must remain an array");
+eq(SEASONAL_WINDOWS.length, 0, "SEASONAL_WINDOWS must stay empty so the original logo remains active year-round");
 
 if (failures) process.exit(1);
 console.log(
-  `test-seasonal-brand: OK — ${5} date-window assertions on real activeSeasonalMark() calls (incl. the 2027 no-hardcoded-year case and an injected wrap-the-new-year table), ` +
+  `test-seasonal-brand: OK — ${normalDates.length} original-logo date assertions and 10 injected seasonal-window assertions on real activeSeasonalMark() calls, ` +
   `3 committed asset files verified by real header bytes (not filename), ${EXPECTED_CALL_SITE_FILES.length} call-site files discovered and confirmed routed through the resolver, ` +
   `avif+webp+png counted together in the seasonal CSS rule, and the 4 non-seasonal geometry rules pinned unchanged.`
 );

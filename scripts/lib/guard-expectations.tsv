@@ -812,7 +812,7 @@ scripts/test-scorelabel.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0	92e863d7488094
 scripts/test-search-experience.mjs	0	CALL	blocks-ci-and-deploy	1	-	49	0	0	0d6d5e54edd0be869bf542e1cd49c97edfed0e09c985ea5999d753144f0e9fb2
 scripts/test-search-sku-accounting.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	14	0	0	19b998eb08ec428ea56f3137cd0f00dedce5308bb7df386a17c1e42e54f258e5
 scripts/test-searched-location.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	8c6625375e2336d081a5ad4cd2659a6886cca7cbd95f0b10401e0daa4b1d1313
-scripts/test-seasonal-brand.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	0	7d3f2e606bb33befd1a130bbea702149aa1b1c23facb7facfa7860a6731ad41d
+scripts/test-seasonal-brand.mjs	0	CALL	blocks-ci-and-deploy	1	-	38	0	0	a29f3b33c45ed640650540ea0257cf120bac42dc644f9079e2887940a7e158ec
 scripts/test-seasonal-picks.mjs	0	CALL	blocks-ci-and-deploy	1	-	72	0	0	70045336e7739ee9777d1053a5f9f6f9f5e916bfc72562000562a397296e1af8
 scripts/test-seasonal-search.mjs	0	RENDER	blocks-ci-and-deploy	1	-	23	0	0	0ceb9a650249c5920688c7862d47413f468bcb265bac115d3fa0c00a1acf8ceb
 scripts/test-secret-output-guard.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	da1918de719a42249cfe743a5deb9d75fe0110a1b38467c897b69f0aac17f348
