@@ -261,7 +261,7 @@ export default async function CuratedEventPage({ params }) {
       <EventDetailShell
         title={`${e.event_name} ${e.year}`}
         facts={[
-          { label: "When", value: `${eventDatesLabel(e, dateRangeLabel(e))}, ${e.year}${clockLabel(e.start_time) ? ` · ${clockLabel(e.start_time)}${clockLabel(e.end_time) ? "–" + clockLabel(e.end_time) : ""}` : ""}` },
+          { label: "When", value: `${eventDatesLabel(e, dateRangeLabel(e))}${e.when_label ? "" : `, ${e.year}`}${clockLabel(e.start_time) ? ` · ${clockLabel(e.start_time)}${clockLabel(e.end_time) ? "–" + clockLabel(e.end_time) : ""}` : ""}` },
           { label: "Where", value: <>{e.venue ? <div>{e.venue}</div> : null}{where && (e.venue ? where !== `${e.city}, ${e.state}` : true) ? <div style={S.addr}>{where}</div> : (!e.venue ? <div style={S.addr}>{e.city}, {e.state}</div> : null)}</> },
           { label: "Cost", value: eventCostSummary(e) },
           { label: "Entry rules", value: eventRestrictions(e).join(" · ") || null },
