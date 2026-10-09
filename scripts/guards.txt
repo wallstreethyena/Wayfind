@@ -2036,6 +2036,7 @@ node scripts/test-photo-credits.mjs
 # The photo lane keeps the credit from the free Details response it already
 # received, tied to the exact fetched photo name (2026-10-01).
 node scripts/test-photo-credit-capture.mjs
+node scripts/test-card-photo-viewer.mjs
 # Every external photo-attribution link opens in a new tab (noopener, announced to
 # screen readers) with attribution byte-identical; a click on a credit inside a card
 # never opens the card (#1601).

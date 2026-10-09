@@ -21,7 +21,7 @@ if (!route.includes("REF_RX") || !route.includes("placeIdFromRef")) fail("photo 
 //   * the lazy spend boundary awaits ONLY the free permitted/licensed lookup,
 //     refuses a `photos` grant when one exists, and still ends in the ledger,
 //   * a live Google redirect/JSON is `private, no-store`, never immutable,
-//   * only the credited `detail` surface enables Google,
+//   * only detail and credited card JSON enable Google,
 //   * photoCacheRecovery has no live lookup left.
 const stripComments = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`\\])\/\/[^\n]*/g, "$1");
 const routeCode = stripComments(route);
@@ -31,7 +31,7 @@ const recoveryCode = stripComments(recovery);
   const body = auth ? auth[1] : "";
   if (!routeCode.includes("GOOGLE_MAPS_SERVER_KEY") || !auth || !/if \(shut\) return false;/.test(body) || !/if \(sku === "photos" && free\) return false;/.test(body) || !/spendAllowPhotos\(\)/.test(body)) fail("the free permitted/licensed lookup must run at the lazy photo spend boundary (refusing a `photos` grant on a hit) before Google authorization");
   if (/getRecovery|findSamePlaceCachedPhoto|\bcacheGet\b|\bcacheSet\b|photoCacheKey|photoNegativeKey/.test(routeCode)) fail("app/api/photo/route.js reads or writes a Google photo cache — no Google photo name/URL may be stored or read (COMPLIANT PHOTOS)");
-  if (!/const GOOGLE_SURFACES = new Set\(\["detail"\]\);/.test(routeCode) || !/googleSurface,/.test(routeCode)) fail("only s=detail may enable the live Google path (GOOGLE_SURFACES must be exactly {detail} and be passed to the resolver as googleSurface)");
+  if (!/const GOOGLE_SURFACES = new Set\(\["detail", "card"\]\);/.test(routeCode) || !/googleSurface,/.test(routeCode) || !routeCode.includes('searchParams.get("s") !== "card" || wantJson')) fail("only detail and credited card JSON may enable the live Google path");
   // Every redirect/JSON that carries a live Google photo must be private, no-store.
   if (!/"private, no-store", "google"\)/.test(routeCode) || !/result\.cacheControl \|\|/.test(routeCode)) fail("the live Google JSON answer must be `private, no-store` and the redirect must use the resolver's cacheControl");
 }
@@ -59,4 +59,4 @@ for (const [f, s] of [["lib/google.js", google], ["lib/hotels.js", hotels], ["li
   if (/googleapis\.com\/v1\/[^"']*\/media[^"']*key=/.test(s)) fail(`${f} still builds a keyed googleapis media URL for the browser — route it through /api/photo`);
 }
 
-console.log("check-photos: OK — proxy only; route reads/writes no Google photo cache, free lookup gates the ledger, only s=detail buys Google live, Google answers are private/no-store, same-place recovery is a constant null");
+console.log("check-photos: OK — proxy only; route reads/writes no Google photo cache, free lookup gates the ledger, only detail and credited card JSON buy Google live, Google answers are private/no-store, same-place recovery is a constant null");

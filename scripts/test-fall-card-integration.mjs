@@ -37,17 +37,18 @@ Module._load=function(request,parent,isMain){
 };
 try{
   const RailCard=require('../app/components/RailCard.js').default;
+  const CardPhoto=require('../app/components/CardPhoto.js').default;
   const cardProps={title:'Verified event',photo:'/licensed/current-event.webp',photoFallback:'/api/photo?place=ChIJExactVenue',visitFacts:{start_date:'2026-10-01',end_date:'2026-11-01',place_id:'ChIJExactVenue',venue:'Exact Venue',hero_image:'/licensed/current-event.webp',photoAttr:'Original photographer',photoAttrHref:'https://example.com/license'}};
   const walk=(node,fn)=>{if(!node||typeof node!=='object')return;fn(node);React.Children.forEach(node.props?.children,(child)=>walk(child,fn));};
   cursor=0;let tree=RailCard(cardProps), primary=null;
-  walk(tree,(node)=>{if(node.type==='img'&&node.props['data-fallback'])primary=node;});
+  walk(tree,(node)=>{if(node.type===CardPhoto&&node.props['data-fallback'])primary=node;});
   ok(!!primary,'real primary image exposes its owned same-venue fallback');
   ok(renderToStaticMarkup(tree).includes('Original photographer'),'original image starts with its own credit');
   primary.props.onError({currentTarget:{dataset:{fallback:cardProps.photoFallback},src:cardProps.photo}});
   cursor=0;tree=RailCard(cardProps);const fallbackMarkup=renderToStaticMarkup(tree);
   ok(!fallbackMarkup.includes('Venue photo')&&fallbackMarkup.includes('>©<'),'actual image onError keeps the plain (c) chip and prints no venue caption');
   ok(fallbackMarkup.includes('Photo: Google Maps')&&!fallbackMarkup.includes('Original photographer'),'fallback cannot retain the old image author credit');
-  let fallback=null;walk(tree,(node)=>{if(node.type==='img'&&node.props.src===cardProps.photoFallback&&node.props['data-fallback']!==undefined)fallback=node;});
+  let fallback=null;walk(tree,(node)=>{if(node.type===CardPhoto&&node.props.src===cardProps.photoFallback&&node.props['data-fallback']!==undefined)fallback=node;});
   ok(!!fallback&&fallback.props['data-fallback']==='','fallback is used once, never an image-error loop');
   fallback.props.onError({currentTarget:{dataset:{fallback:''}}});
   cursor=0;const failed=renderToStaticMarkup(RailCard(cardProps));

@@ -3,6 +3,8 @@ import { Component, useEffect, useMemo, useRef, useState } from "react";
 import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, distMeters, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces, normalizeSearchPlace, wayfindScore } from "../lib/google";
 import { fetchLivePhoto, detailGalleryPhotos, liveCreditFor } from "../lib/livePhoto";
 import PhotoCredit from "./components/PhotoCredit";
+import CardPhoto from "./components/CardPhoto";
+import { cardPhotoRequest } from "../lib/cardPhotoRequest.js";
 import { normName, betterPlace, dedupePlaces } from "../lib/placeDedupe";
 import { comparatorFor, sortPlacesBy, nearestBranch } from "../lib/sortModes";
 import { openBrowseHistory } from "../lib/browseHistory";
@@ -1972,6 +1974,7 @@ function FallbackImg({ src, fallbackSrc, alt, style, className, icon, onClick })
       }
     };
   }, [activeSrc, state]);
+  if (cardPhotoRequest(activeSrc)) return <div className={className} style={{ ...style, position: "relative", overflow: "hidden" }}><CardPhoto src={activeSrc} alt={alt || ""} onClick={onClick} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /></div>;
   if (state === "fallback") return <BrandedImageFallback className={className} style={style} />;
   return (
     <div className={className} style={{ ...style, position: "relative", overflow: "hidden" }}>
