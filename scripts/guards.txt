@@ -2152,3 +2152,6 @@ node scripts/test-google-photo-prefetch-pause.mjs
 # deterministic, cap 4, highest value first.
 node scripts/test-inventory-row-card-fields.mjs
 node scripts/test-card-chips-deterministic.mjs
+
+# 2026-10-08 shared/saved commercial cards: never origin + partner path, never raw partner params.
+node scripts/test-share-url-no-partner-leak.mjs
