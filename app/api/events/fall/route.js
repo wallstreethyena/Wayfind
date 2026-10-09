@@ -101,7 +101,9 @@ export async function GET(request) {
     // venue identities, so no v28 payload outlives the deploy.
     // v30 (2026-10-08 evening) adds Tampa Terrors and the Cuban Club party pin,
     // so no v29 payload outlives the deploy.
-    const key = `fall-intents:v30:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v31 (2026-10-09) publishes the Seminole Heights patch and Nightmare on
+    // Channelside and keeps Tampa Terrors as an open run, so no v30 payload outlives it.
+    const key = `fall-intents:v31:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
