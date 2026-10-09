@@ -1,4 +1,5 @@
 "use client";
+import RailGuideSlot from "./RailGuideSlot";
 import GuideRailCollection from "./GuideRailCollection";
 
 import { selectPosterEvents } from "../../lib/posterEvents.js";
@@ -143,7 +144,7 @@ function NightOutRailSection({
       {/* Page 0's `total` (from the seed) is the count RailNav shows, never
           the merely-loaded length — the reader sees "130 ranked options" on
           first paint, not "10". */}
-      <div className="wf-rail wf-rail-exploding" data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}>
+      <div className="wf-rail wf-rail-exploding" data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}><RailGuideSlot railId={rail.id}>
         {eventCards}
         <NightTourProductCards items={tourProducts} city={city} rankOffset={eventCards.length} />
         {items.map((place, index) => {
@@ -177,7 +178,7 @@ function NightOutRailSection({
             through what has already loaded while the next ten arrive. */}
         {loadingMore ? <div className="wf-rail-card wf-exploding-primary wf-sk" role="status" aria-busy="true" aria-label={`Loading more ${rail.title}`}
           style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 88, color: C.muted, fontSize: 12.5 }}>Loading more…</div> : null}
-      </div>
+      </RailGuideSlot></div>
       {eventCards.length + tourProducts.length + items.length > 1 ? <RailDots railId={railId} count={eventCards.length + tourProducts.length + items.length} /> : null}
     </section>
   );

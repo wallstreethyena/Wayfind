@@ -57,7 +57,8 @@ for(const p of DAYPART_IDS){
   // in the same place in both bands a reader meets after 1pm.
   // test-seasonal-picks owns the cross-band agreement; this file owns the
   // per-band bound, because orderFor() is what it executes.
-  ok(o.indexOf('season')>=1&&o.indexOf('season')<=4,`${p}: Summer Picks stays in the first five behind Fall (found ${o.indexOf('season')+1})`);
+  // Christmas in Florida (2026-10-08) sits directly behind Fall, so seasonal's ceiling moves from index 4 to 5.
+  ok(o.indexOf('season')>=1&&o.indexOf('season')<=5,`${p}: Summer Picks stays in the first six behind Fall and Christmas (found ${o.indexOf('season')+1})`);
   ok(o.indexOf('trending')<4,`${p}: Trending stays in the first four behind Fall (is #${o.indexOf('trending')+1})`);
 }
 // the specific calls Gabe made
@@ -68,10 +69,11 @@ for (const band of DAYPART_IDS) eq(orderFor(band,ALL)[0],'augtober',`${band}: Fa
 ok(orderFor('lunch',ALL).indexOf('eat')<orderFor('lunch',ALL).indexOf('breakfast'),'lunch: Eat ahead of breakfast (morning is over)');
 ok(orderFor('night',ALL).indexOf('events')<orderFor('night',ALL).indexOf('eat'),
    'night: Events ahead of Eat — a show still open beats a table');
-ok(orderFor('morning',ALL)[1]==='breakfast' && orderFor('lunch',ALL)[1]==='break',
-   'the daypart axis remains directly behind the seasonal Fall lead');
-ok(orderFor('afternoon',ALL)[1]==='tonight' && orderFor('night',ALL)[1]==='tonight',
-   'from 1pm Tonight remains directly behind the seasonal Fall lead');
+// Christmas in Florida takes slot two directly behind Fall; the axis follows it.
+ok(orderFor('morning',ALL)[1]==='christmas' && orderFor('lunch',ALL)[1]==='christmas' && orderFor('morning',ALL)[2]==='breakfast' && orderFor('lunch',ALL)[2]==='break',
+   'the daypart axis remains directly behind the seasonal Fall and Christmas lead');
+ok(orderFor('afternoon',ALL)[1]==='tonight' && orderFor('afternoon',ALL)[2]==='christmas' && orderFor('night',ALL)[1]==='christmas' && orderFor('night',ALL)[2]==='tonight',
+   'from 1pm Tonight stays right behind Fall (Christmas 3rd in the afternoon, 2nd at night, owner 2026-10-08)');
 ok(orderFor('night',ALL).indexOf('break')>10,'night: Break parked at the back');
 ok(orderFor('morning',ALL).indexOf('events')>10,'morning: Events parked at the back');
 

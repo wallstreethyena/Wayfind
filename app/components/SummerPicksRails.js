@@ -1,4 +1,5 @@
 "use client";
+import RailGuideSlot from "./RailGuideSlot";
 import GuideRailCollection from "./GuideRailCollection";
 
 import { Fragment } from "react";
@@ -33,7 +34,7 @@ export default function SummerPicksRails({ rails, city, onOpenPlace = null }) {
       ) : rail.failed && !rail.cards?.length ? (
         <p role="alert" style={{ margin: "8px 0 0", color: "#8B93A1", fontSize: 13 }}>We could not reach this rail&apos;s verified event inventory.</p>
       ) : <>
-        <div className="wf-rail wf-rail-exploding" data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}>
+        <div className="wf-rail wf-rail-exploding" data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}><RailGuideSlot railId={rail.id}>
           {rail.cards.map((card, index) => {
             const rank = index + 1;
             if (card.kind === "event") return <PosterEventCard key={`event:${card.id}`} event={card} rank={rank} surface="summer_sports" />;
@@ -60,7 +61,7 @@ export default function SummerPicksRails({ rails, city, onOpenPlace = null }) {
               ariaLabel={`Open ${card.name}`} href={`/p/${encodeURIComponent(card.id)}`}
               cta={null} />;
           })}
-        </div>
+        </RailGuideSlot></div>
         <RailDots railId={railId} count={rail.cards.length} />
       </>}
     </section>;

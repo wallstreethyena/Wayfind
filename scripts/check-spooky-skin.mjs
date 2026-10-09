@@ -98,21 +98,22 @@ const rules = block.split("\n").filter((l) => l.trim());
 ok(rules.length >= 15, `the spooky block has its rules (${rules.length})`);
 ok(rules.every((l) => /^(?:@media \(max-width:340px\)\{)?\.wf-place-card\.wf-spooky-card[ ,.:{>]/.test(l) && (!l.startsWith("@media") || l.slice(l.indexOf("{") + 1, -1).split(/[{}]/).every((seg, i) => i % 2 || !seg || seg.split(",").every((sel) => sel.startsWith(".wf-place-card.wf-spooky-card"))))), "every spooky rule is scoped to .wf-place-card.wf-spooky-card (nothing leaks to other cards)");
 ok(!/@keyframes|animation|transition/.test(block), "static skin: no animation, so prefers-reduced-motion has nothing to stop");
-// Owner, 2026-10-08: "use this as the halloween place card" (his framed art: webs, pumpkins,
-// bats, orange glow frame). Exactly ONE raster ships: that frame, as a 9-slice overlay above the
-// photo and below every control; badge art stays inline SVG.
+// Owner, 2026-10-08 (second art, 7:34pm): "i want this to be the halloween themed card" —
+// purple gradient card with lavender outlines and doodles (ghosts, bats, web, spider, pumpkin,
+// orange sparkles). Exactly ONE raster ships: that background, drawn right-anchored at full card
+// height so the doodles never stretch; the photo column covers its left edge. Badge art stays SVG.
 const rasters = block.match(/[\w/.-]+\.(?:png|jpe?g|webp|avif)/gi) || [];
-ok(rasters.length === 1 && rasters[0] === "/fall/halloween-card-frame.webp" && /image\/svg\+xml/.test(block), `one raster (the owner's frame art), badge art inline SVG (${rasters.join(",")})`);
-ok(/wf-spooky-card:after\{[^}]*position:absolute[^}]*inset:0[^}]*z-index:2[^}]*pointer-events:none[^}]*border-image:url\(\/fall\/halloween-card-frame\.webp[^)]*\) \d+ \d+ \d+ \d+ fill stretch/.test(block), "frame overlay: absolute, full card, z 2, never takes a tap, 9-slice so pumpkins and webs keep their shape at every width");
-ok(/wf-spooky-card \.wf-place-card-content\{position:relative;z-index:3\}/.test(block), "card text and controls sit above the frame");
-{ const f = path.join(ROOT, "public/fall/halloween-card-frame.webp"); ok(existsSync(f) && statSync(f).size < 120000, `frame asset ships and stays small (${existsSync(f) ? statSync(f).size : "missing"} bytes)`); }
+ok(rasters.length === 1 && rasters[0] === "/fall/halloween-card-bg.webp" && /image\/svg\+xml/.test(block), `one raster (the owner's card art), badge art inline SVG (${rasters.join(",")})`);
+ok(/\.wf-place-card\.wf-spooky-card\{background:url\(\/fall\/halloween-card-bg\.webp[^)]*\) right center\/auto 100% no-repeat,/.test(block), "card art: right-anchored at full height, no stretching, solid purple fallback under it");
+ok(!/wf-spooky-card:after\{/.test(block), "no overlay layer above the photo or controls");
+{ const f = path.join(ROOT, "public/fall/halloween-card-bg.webp"); ok(existsSync(f) && statSync(f).size < 60000, `card art ships and stays small (${existsSync(f) ? statSync(f).size : "missing"} bytes)`); }
 ok(Buffer.byteLength(block) < 9000, `spooky CSS stays tiny (${Buffer.byteLength(block)} bytes)`);
 // the CTA drips (:before) and cobweb (:after) are absolutely positioned decoration inside the button, so their own size is exempt
 const geomScope = rules.filter((l) => !/:(?:before|after)\{/.test(l.replace(/\{.*$/, (m) => m.slice(0, 1) === "{" ? "{" : m)) || !/wf-(?:rail-card-cta|place-card-book)/.test(l)).join("\n");
 ok(!/(?:^|[;{])\s*(?:height|min-height|max-height|width|padding|margin)\s*:/.test(geomScope.replace(/background:[^;}]*/g, "")), "the skin sets colour only: no height/width/padding/margin (CTA decoration pseudo-elements exempt), so geometry stays the shared 268px");
 ok(/rail-card-cta:before\{[^}]*position:absolute[^}]*pointer-events:none/.test(block) && /rail-card-cta:after\{[^}]*position:absolute[^}]*pointer-events:none/.test(block) && /rail-card-cta:focus-visible\{outline:2px solid #F3E8FF/.test(block), "CTA haunted glass: drips on :before, cobweb on :after (both decorative, non-interactive), visible focus ring");
 ok(/:not\(\.is-active\)/.test(block) && /:not\(\.is-liked\):not\(\.is-disliked\)/.test(block), "state law: skin never paints active buttons or liked/disliked borders");
-ok(/#B44CFF/i.test(block) && /#8A3CFF/i.test(block) && /#F7760F/i.test(block) && /#0B0B12/i.test(block) && /1F383/.test(block), "mock palette: violet #B44CFF/#8A3CFF, orange #F7760F, near-black #0B0B12, pumpkin glyph");
+ok(/#B44CFF/i.test(block) && /#8A3CFF/i.test(block) && /#F7760F/i.test(block) && /#B79CE8/i.test(block) && /#2B1243/i.test(block) && /1F383/.test(block), "owner palette: violet #B44CFF/#8A3CFF, orange #F7760F, lavender outline #B79CE8, deep purple #2B1243, pumpkin glyph");
 const src = (f) => readFileSync(path.join(ROOT, f), "utf8");
 ok(/spooky\s*=\s*false/.test(src("app/components/RailCard.js")) && /\$\{spooky \? " wf-spooky-card" : ""\}/.test(src("app/components/RailCard.js")), "RailCard takes `spooky` and appends wf-spooky-card");
 ok(/isSpookyCard\(card, siteTodayStr\(\), \{ railId: rail\.id \}\)/.test(src("app/components/FallIntentRails.js")) && /withSpookyChip\(baseChips\)/.test(src("app/components/FallIntentRails.js")) && /spooky=\{spooky\}/.test(src("app/components/FallIntentRails.js")), "FallIntentRails classifies per card with its rail id, adds the chip, passes spooky");
@@ -215,9 +216,9 @@ if (!browser) {
         ok(c.ctaDripsContent !== "none" && c.ctaWebContent !== "none", `${width}px ${k}: CTA drips and cobweb pseudo-elements render`);
         ok(m.docOverflow <= width, `${width}px ${k}: no horizontal page overflow from the CTA decoration (docScrollWidth ${m.docOverflow})`);
         ok(c.badgeFits && c.badgeInside && c.valueVisible, `${width}px ${k}: badge is legible: contents fit inside it and it sits inside the card`);
-        ok(c.badgeBorder === "rgb(240, 136, 58)" && c.valueColor === "rgb(255, 255, 255)" && c.labelColor !== "rgb(184, 194, 208)", `${width}px ${k}: orange frame border (owner art 2026-10-08), white value, violet label (${c.badgeBorder} / ${c.valueColor} / ${c.labelColor})`);
+        ok(c.badgeBorder === "rgb(183, 156, 232)" && c.valueColor === "rgb(255, 255, 255)" && c.labelColor !== "rgb(184, 194, 208)", `${width}px ${k}: lavender outline (owner art 2026-10-08), white value, violet label (${c.badgeBorder} / ${c.valueColor} / ${c.labelColor})`);
         ok(c.webBg === 3, `${width}px ${k}: badge draws web, web and drip as inline SVG layers (${c.webBg})`);
-        ok(c.bg === "rgb(11, 11, 18)" || /rgb\(11, 11, 18\)/.test(c.bg) || /^rgba?\(/.test(c.bg), `${width}px ${k}: near-black card background`);
+        ok(c.bg === "rgb(11, 11, 18)" || /rgb\(11, 11, 18\)/.test(c.bg) || /^rgba?\(/.test(c.bg), `${width}px ${k}: card base colour set`);
         ok(c.eyebrow && c.eyebrow[0] === "rgb(247, 118, 15)" && /1F383|🎃/i.test(c.eyebrow[1].replace(/"/g, "") + "🎃" ) , `${width}px ${k}: orange eyebrow with the pumpkin (${c.eyebrow})`);
         ok(c.eyebrowFits || width < 390, `${width}px ${k}: eyebrow is not truncated (${c.eyebrowDims})`);
         ok(c.ghosts <= 1, `${width}px ${k}: at most one ghost icon in the chips (${c.ghosts})`);

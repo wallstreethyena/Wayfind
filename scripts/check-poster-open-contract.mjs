@@ -44,7 +44,7 @@ for (const rail of routable) {
   if (rail.opensPage) {
     ok(!!rail.href, `${rail.id}: opensPage has no href, so its plain tap is inert`);
   } else {
-    ok(rail.list || rail.guides || rail.id === "chef" || rail.id === "augtober",
+    ok(rail.list || rail.guides || rail.id === "chef" || rail.id === "augtober" || rail.id === "christmas",
       `${rail.id}: no page navigation and no in-place answer contract`);
   }
 }

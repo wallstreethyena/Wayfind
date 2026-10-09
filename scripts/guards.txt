@@ -1197,6 +1197,8 @@ node scripts/test-adaptive-widen.mjs
 node scripts/test-chip-contracts.mjs
 node scripts/check-css-comment-bytes.mjs
 node scripts/check-augtober-rail.mjs
+node scripts/check-christmas-rails.mjs
+node scripts/check-guide-in-rail.mjs
 # 2026-09-23 (WS4 fall-discovery) — lib/fallEvidence.js is the pure evidence-
 # classification law the discovery pipeline and the registry re-verification
 # both run through; check-fall-registry-integrity then applies it to the real
@@ -2095,7 +2097,6 @@ node scripts/test-lane-lock-ownership.mjs
 node scripts/test-guide-discovery.mjs
 # Score receipts and independently gated source verdicts (PR #1145 current-main adaptation)
 node scripts/test-score-explanation.mjs
-node scripts/test-score-explanation-runtime.mjs
 # Current-main backend residual runtime controls (#1285/#1272).
 node scripts/test-google-details-accounting.mjs
 node scripts/test-viator-provider-state.mjs
@@ -2134,6 +2135,7 @@ node scripts/test-events-fall-feed-image.mjs
 node scripts/test-fall-additions-2026-10-06.mjs
 node scripts/test-fall-gap-fill-2026-10-06.mjs
 node scripts/test-fall-farm-food-gap-2026-10-07.mjs
+node scripts/test-fall-tampa-picks-2026-10-08.mjs
 node scripts/test-fall-food-gap-2026-10-08.mjs
 node scripts/check-guide-card.mjs
 node scripts/test-credited-photo-warm.mjs

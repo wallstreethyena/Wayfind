@@ -1,4 +1,5 @@
 "use client";
+import RailGuideSlot from "./RailGuideSlot";
 import GuideRailCollection from "./GuideRailCollection";
 
 // WO11 (2026-09-02): each of Birthday's seven rails now pages independently
@@ -66,7 +67,7 @@ function BirthdayRailSection({ rail, lat, lng, city, onOpenPlace, isSaved, liked
         <RailNav railId={railId} count={count} total={count} loaded={items.length} unit={count === 1 ? "verified place" : "verified places"} />
       </RailHeading>
       <>
-          <div className="wf-rail wf-rail-exploding" data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}>
+          <div className="wf-rail wf-rail-exploding" data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}><RailGuideSlot railId={rail.id}>
             {items.map((place, index) => {
               const rank = index + 1;
               const reward = place._birthdayReward || null;
@@ -114,7 +115,7 @@ function BirthdayRailSection({ rail, lat, lng, city, onOpenPlace, isSaved, liked
             })}
             {loadingMore ? <div className="wf-rail-card wf-exploding-primary wf-sk" role="status" aria-busy="true" aria-label={`Loading more ${rail.title}`}
               style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 88, color: COLORS.muted, fontSize: 12.5 }}>Loading more…</div> : null}
-          </div>
+          </RailGuideSlot></div>
           {items.length > 1 ? <RailDots railId={railId} count={items.length} /> : null}
       </>
     </section>
