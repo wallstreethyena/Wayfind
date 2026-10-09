@@ -844,6 +844,8 @@ node scripts/check-one-main.mjs
 node scripts/check-place-card-css-contract.mjs
 node scripts/check-place-card-standard.mjs
 node scripts/check-spooky-skin.mjs
+# Trending pulse on place cards (owner 2026-10-08): rule, both card roots, real render, reduced motion.
+node scripts/check-trend-pulse.mjs
 node scripts/check-place-card-no-directions.mjs
 
 # v8.57.0 — the browse card's hotel earning CTA must actually RENDER (the
@@ -1579,6 +1581,11 @@ node scripts/test-photo-quota-truth.mjs
 # VERCEL_ENV=production unless explicitly overridden, so a Preview deploy or
 # local dev with production env cannot spend the production ledger. Red-proved.
 node scripts/test-photo-spend-efficiency.mjs
+
+# 2026-10-08 COMPLIANT PHOTOS: executed lock for the Google Maps Platform contract (no stored
+# photo name/URL/credit, live Google only on s=detail, one grant per place under 50 concurrent
+# requests, probe/denied spend nothing, Details no-store). Red-proofed on mutated resolver/route copies.
+node scripts/test-google-photo-compliance.mjs
 
 node scripts/test-inventory-batch-concurrency.mjs
 

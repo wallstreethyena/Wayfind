@@ -59,6 +59,7 @@ import { AwardSticker, AwardBand, AwardListRank, awardWinnerClass } from "./Awar
 import { couponForPlace } from "../../lib/coupons";
 import { normalizePlaceCardHref } from "../../lib/placeCardRoute.js";
 import { useCardTapIntent } from "./useCardTapIntent.js";
+import { trendPulseClass } from "../../lib/trendPulse.js";
 
 // ---------------------------------------------------------------------------
 // Experience-tag chips (owner: "I need the cards to look like the cards from
@@ -539,7 +540,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
     <li ref={cardRef} data-iconic-place-card data-card-opens-detail data-place-id={place.id}
       onPointerDown={tapIntent.onPointerDown} onPointerMove={tapIntent.onPointerMove}
       onPointerUp={tapIntent.onPointerUp} onPointerCancel={tapIntent.onPointerCancel}
-      onClick={openCard} className={`wf-place-card${fallCardClass(place.id, siteTodayStr())}${spookyOverFall(place, siteTodayStr())}${awardWinnerClass(award)}${isCuratorPick ? " is-curator-pick" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${hasTake ? "" : " is-no-take"}${take && editorialMore && cardHref ? " has-more" : ""}${cta ? " has-cta" : ""}`} style={{ listStyle: "none", cursor: cardHref ? "pointer" : "default" }}>
+      onClick={openCard} className={`wf-place-card${fallCardClass(place.id, siteTodayStr())}${spookyOverFall(place, siteTodayStr())}${trendPulseClass(place)}${awardWinnerClass(award)}${isCuratorPick ? " is-curator-pick" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${hasTake ? "" : " is-no-take"}${take && editorialMore && cardHref ? " has-more" : ""}${cta ? " has-cta" : ""}`} style={{ listStyle: "none", cursor: cardHref ? "pointer" : "default" }}>
       {/* v8.62 (owner, 2026-08-26, live): the Wayfind Score sits in the top
           right corner of the CARD, never on the photo. Direct child of
           .wf-place-card so the shared css.js rule anchors it to the card. */}

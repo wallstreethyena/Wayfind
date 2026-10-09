@@ -13,7 +13,7 @@ import { gateFree, gateShut, spendAllow, spendAllowCapped, textEnterpriseCap } f
 import { cget, cset, upsertPlaceIds, cacheConfigured, lastWrite, memSize, DAY } from "../../../../lib/serverCache";
 import { serveFromInventory, serveInventoryByPlaceIds } from "../../../../lib/inventoryServe";
 import { hasScoreSignal } from "../../../../lib/score";
-import { keepPhotoCredits } from "../../../../lib/photoCredits";
+import { placeDiscoveryRef } from "../../../../lib/discoveryRef";
 import { mergeOwnedSignals, ownedLookupIds } from "../../../../lib/ownedLibrary";
 import { attractionDiscoveryPlaceIds, loadAttractionDiscovery } from "../../../../lib/attractionDiscovery";
 
@@ -97,6 +97,19 @@ function catFromTypes(types) {
   if (/tourist|museum|park|art_gallery|amusement|aquarium|zoo|stadium|landmark|historical|beach|marina|natural_feature/.test(t)) return "Activities";
   return null;
 }
+// COMPLIANCE (2026-10-08): Google forbids caching a photo name or author credit.
+// Replace each place's photos with one place-only pseudo-ref (or []), in place,
+// BEFORE anything is cached or returned. Also scrubs older cached rows on read.
+function scrubPhotos(rows) {
+  if (!Array.isArray(rows)) return rows;
+  for (const p of rows) {
+    if (!p || typeof p !== "object" || !("photos" in p || "photo_ref" in p)) continue;
+    const had = (Array.isArray(p.photos) && p.photos.length > 0) || (typeof p.photo_ref === "string" && p.photo_ref);
+    if ("photos" in p) p.photos = had && p.id ? [{ name: placeDiscoveryRef(p.id) }] : [];
+    if ("photo_ref" in p) p.photo_ref = had && p.id ? placeDiscoveryRef(p.id) : null;
+  }
+  return rows;
+}
 function skeletons(googlePlaces) {
   return (googlePlaces || []).map((p) => {
     if (!p || !p.id) return null;
@@ -108,8 +121,8 @@ function skeletons(googlePlaces) {
     // without a second Details round-trip. Added 2026-08-07 for the creator
     // "scouted spots" cards, which resolve a photo by name when the loaded pool
     // had no photo-bearing place for them.
-    const photoRef = Array.isArray(p.photos) && p.photos[0] && typeof p.photos[0].name === "string"
-      ? p.photos[0].name : null;
+    // 2026-10-08: place-only pseudo-ref, never the real Google photo name.
+    const photoRef = Array.isArray(p.photos) && p.photos.length ? placeDiscoveryRef(p.id) : null;
     return {
       id: p.id, name,
       lat: typeof loc.latitude === "number" ? loc.latitude : null,
@@ -316,7 +329,7 @@ async function handleSearch(params, origin) {
   // restaurants" near Parrish still returned 20 unrenderable rows after the
   // first fix deployed. Clean on the way OUT, not just on the way in, so a row
   // already written can never render as a blank feed.
-  const clean = (rows) => (freeMode && Array.isArray(rows) ? rows.filter(hasScoreSignal) : (rows || []));
+  const clean = (rows) => scrubPhotos(freeMode && Array.isArray(rows) ? rows.filter(hasScoreSignal) : (rows || []));
   // Every cached row was unrenderable: serve OWNED inventory (which carries its
   // own rating/reviews) rather than a blank list. Free — no Google call.
   const ownedOr = async (source) => {
@@ -420,7 +433,7 @@ async function handleSearch(params, origin) {
       return NextResponse.json({ error: "upstream " + r.status, debug: dbg() }, { status: 502 });
     }
     const data = await r.json();
-    const places = data.places || [];
+    const places = scrubPhotos(data.places || []);
     // FREE MODE FIX (2026-08-25): the Pro mask omits rating/userRatingCount/
     // businessStatus, and the ranking floors (correctly) refuse unrated places,
     // which emptied every list. We OWN those signals for 12k+ places - merge
@@ -455,10 +468,6 @@ async function handleSearch(params, origin) {
     else if (places.length) await cset(k, places, FRESH_TTL_MS);
     else await cset(k, [], NEG_TTL_MS);
     if (places.length) await upsertPlaceIds(skeletons(places));
-    // PHOTO CREDIT (2026-09-23): keep the author credit Google just sent with
-    // these photos (Places policy requires showing it). Copies from THIS
-    // response only, runs after the reply (waitUntil), never calls Google.
-    if (places.length) keepPhotoCredits(places, FRESH_TTL_MS);
     // The whole page was unrenderable: fall back to OWNED inventory, which
     // carries its own rating/reviews, rather than serving a confidently empty
     // list. Same reader-first order the 429 path already uses.

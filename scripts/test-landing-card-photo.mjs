@@ -126,10 +126,15 @@ ok(!/pexels/i.test(landingCardPhotoSrc({
   });
   ok(row && row.id === PANGEA && row.photo_url === OWNED_URL,
     "invRowToPlace KEEPS wf_inventory.photo_url at runtime");
-  ok(row.photo_ref === PANGEA_REF && row.photos && row.photos[0] && row.photos[0].name === PANGEA_REF,
-    "invRowToPlace KEEPS wf_inventory.photo_ref at runtime");
+  // 2026-10-08 (Maps Terms 3.2.3): a stored real Google photo name is never
+  // emitted; the row keeps only the place-only pseudo-ref (presence = a photo exists).
+  const PANGEA_DREF = "places/" + PANGEA + "/photos/wfplacediscovery";
+  ok(row.photo_ref === PANGEA_DREF && row.photos && row.photos[0] && row.photos[0].name === PANGEA_DREF,
+    "invRowToPlace emits the place-only pseudo-ref (never the stored real Google photo name)");
+  ok(JSON.stringify(row).indexOf(PANGEA_REF) === -1,
+    "invRowToPlace output carries no trace of the real stored Google photo name");
   const mapped = invPlaceToLanding(row);
-  ok(mapped && mapped.photo_url === OWNED_URL && mapped.photoRef === PANGEA_REF,
+  ok(mapped && mapped.photo_url === OWNED_URL && mapped.photoRef === PANGEA_DREF,
     "invPlaceToLanding does not discard a confirmed inventory photo");
   ok(landingCardPhotoSrc(mapped) === OWNED_URL,
     "runtime inventory photo_url is what the landing card displays");

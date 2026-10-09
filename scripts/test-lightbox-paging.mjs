@@ -20,6 +20,7 @@
 //      the exact symptom the owner reported, reintroduced by a different route.
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { detailGalleryPhotos, liveCreditFor } from "../lib/livePhoto.js";
 
 const root = new URL("../", import.meta.url);
 const p = (rel) => fileURLToPath(new URL(rel, root));
@@ -32,8 +33,11 @@ const home = readFileSync(p("app/home.js"), "utf8");
 const detail = readFileSync(p("app/components/sheets/Detail.js"), "utf8");
 
 // ─── 1. the viewer knows about a LIST, not one URL ───────────────────────────
-ok(/const lightboxPhotos =[\s\S]{0,220}?detail\.photos/.test(home),
-  "the viewer must derive its photo list from detail.photos — the same array the sheet gallery renders.");
+// 2026-10-08: the list is detailGalleryPhotos(detail) (owned photos + the one live credited photo,
+// lib/livePhoto.js) — the SAME function the sheet gallery maps over. detail.photos alone no longer
+// holds the live photo (Google photo names/URLs are never stored on the detail).
+ok(/const lightboxPhotos = detailGalleryPhotos\(detail\);/.test(home),
+  "the viewer must derive its photo list from detailGalleryPhotos(detail) — the same list the sheet gallery renders.");
 ok(/const lightboxIndex = lightbox \? lightboxPhotos\.indexOf\(lightbox\) : -1;/.test(home),
   "the viewer must track WHERE in that list it is; without an index there is nothing to page.");
 ok(/function goLightbox\(dir\)[\s\S]{0,320}?\(lightboxIndex \+ dir \+ n\) % n/.test(home),
@@ -72,13 +76,32 @@ ok(/lastLightboxIndex\.current/.test(home) && /galleryRef\.current/.test(home),
   "closing the viewer must scroll the sheet gallery to the photo the viewer was left on.");
 
 // ─── 6. the two lists must stay the same list ────────────────────────────────
-ok(/detail\.photos\.map\(\(src, i\) =>/.test(detail) && /onClick=\{\(\) => setLightbox\(src\)\}/.test(detail),
-  "the sheet gallery must still open the viewer on the tapped src from detail.photos — if these two "
+ok(/const galleryPhotos = detailGalleryPhotos\(detail\);/.test(detail) && /galleryPhotos\.map\(\(src, i\) =>/.test(detail) && /onClick=\{\(\) => setLightbox\(src\)\}/.test(detail),
+  "the sheet gallery must still open the viewer on the tapped src from detailGalleryPhotos(detail) — if these two "
   + "ever read different arrays the n / total counter lies.");
+{
+  // Executed, not grepped: the shared list = owned (non-proxy) photos, then the live photo; never a /api/photo proxy URL.
+  const d = { photos: ["https://cdn.wayfind.test/a.jpg", "/api/photo?ref=places%2Fx%2Fphotos%2Fwfplacediscovery", "https://cdn.wayfind.test/a.jpg"],
+    _live: { src: "https://live.test/g.jpg", source: "google", credit: { name: "Ann" } } };
+  const list = detailGalleryPhotos(d);
+  ok(JSON.stringify(list) === JSON.stringify(["https://cdn.wayfind.test/a.jpg", "https://live.test/g.jpg"]),
+    "detailGalleryPhotos must return owned photos (deduped, proxy URLs dropped) then the live photo; got " + JSON.stringify(list));
+  ok(detailGalleryPhotos({ photos: [], photo: "/api/photo?x=1" }).length === 0 && detailGalleryPhotos(null).length === 0,
+    "no owned photo and no live photo -> an empty list (no dead-end viewer of a proxy URL)");
+}
 
 // ─── 7. attribution is per-photo, not per-place ──────────────────────────────
-ok(/detail\.photoAttrs\[lightboxIndex\]/.test(home),
-  "the credit line must follow the VISIBLE photo (photoAttrs[lightboxIndex]); a paging viewer that "
-  + "keeps photo 1's credit on photo 3 misattributes the photographer.");
+ok(/liveCreditFor\(detail, lightbox\)/.test(home) && /<PhotoCredit credit=\{liveCredit\}/.test(home),
+  "the viewer must show liveCreditFor(detail, <the photo on screen>) through PhotoCredit; a paging viewer "
+  + "that keeps photo 1's credit on photo 3 misattributes the photographer.");
+ok(/detail\.photoAttrs\[oi\]/.test(home) && /detail\.photos\.indexOf\(lightbox\)/.test(home),
+  "the Wayfind-owned label must still be looked up per visible photo (photoAttrs[index of the photo on screen]).");
+{
+  const d = { photos: ["https://cdn.wayfind.test/a.jpg"], _live: { src: "https://live.test/g.jpg", source: "google", credit: { name: "Ann", uri: "https://maps.example/u/1" } } };
+  const c = liveCreditFor(d, "https://live.test/g.jpg");
+  ok(c && c.name === "Ann" && c.source === "google", "the live photo shows its live credit");
+  ok(liveCreditFor(d, "https://cdn.wayfind.test/a.jpg") === null, "an owned photo paged to does NOT inherit the live photo's credit");
+  ok(liveCreditFor({ ...d, _live: { ...d._live, source: "wayfind" } }, "https://live.test/g.jpg") === null, "a Wayfind-owned live photo carries no third-party credit");
+}
 
 console.log("test-lightbox-paging: OK — " + pass + " assertions (the full-screen photo viewer pages by arrow, key and swipe; the swipe decision is race-free)");

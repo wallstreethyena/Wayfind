@@ -30,6 +30,8 @@ const EXPECT_RAIL = {
   "armature-works-9th-annual-fall-fest-2026": "festivals",
   "tampa-terrors-ghost-tour-2026": "date-night",
   "the-halloween-party-the-hollywood-undead-2026": "date-night",
+  "seminole-heights-great-pumpkin-patch-2026": "farms",
+  "nightmare-on-channelside-2026": "date-night",
   "tampa-halloween-bar-crawl-2026": "date-night",
 };
 
@@ -61,7 +63,7 @@ const DB_ROWS = [
 ];
 
 await check("each new row is trusted, dated, live, image-backed and on its one pinned shelf", () => {
-  assert.equal(FALL_TAMPA_PICKS_2026_10_08.length, 6, "exactly six rows (positive control)");
+  assert.equal(FALL_TAMPA_PICKS_2026_10_08.length, 8, "exactly eight rows (positive control)");
   for (const row of FALL_TAMPA_PICKS_2026_10_08) {
     const want = EXPECT_RAIL[row.event_id];
     assert.ok(want, `${row.event_id} is an expected row`);
@@ -147,12 +149,27 @@ await check("event pages read the same Tampa facts as the card (calls withTampaP
   assert.equal(withTampaPassFacts(other), other, "no other event page changes");
 });
 
-await check("Tampa Terrors is a meeting-point tour, never a storefront or a dated Halloween event", () => {
+await check("Tampa Terrors is a meeting-point tour, never a storefront or a dated Halloween event", async () => {
   const t = FALL_TAMPA_PICKS_2026_10_08.find((row) => row.event_id === "tampa-terrors-ghost-tour-2026");
   assert.equal(t.place_id, "ChIJ98cKiInEwogRfyDonUPi2bc", "Tampa Theatre identity (the published meeting point)");
   assert.match(t.venue, /meeting point/);
   assert.equal(t.end_date, null, "open run, no invented end date");
   assert.ok(!t.tags.includes("halloween"), "not dressed up as a Halloween event");
+  // Open-run law (lib/fallPool.js): without a declared open run the row would
+  // vanish the day after it started (it did, 2026-10-09).
+  for (const day of ["2026-10-09", "2026-10-31", "2026-11-20"]) assert.ok(fallEventLive(t, day) && hasUpcomingFallOccurrence(t, day), `still on the shelf ${day}`);
+  const { eventDatesLabel } = await import("../lib/eventOccurrences.js");
+  const { withTampaPassFacts } = await import("../lib/eventPageImage.js");
+  const page = withTampaPassFacts({ event_id: t.event_id, slug: t.slug, start_date: "2026-10-08", end_date: null });
+  assert.equal(eventDatesLabel(page, "Oct 8"), "Nightly, year-round", "the page never presents the nightly tour as one date");
+});
+
+await check("Nightmare on Channelside publishes no unverified ticket link", () => {
+  const n = FALL_TAMPA_PICKS_2026_10_08.find((row) => row.event_id === "nightmare-on-channelside-2026");
+  assert.equal(n.official_ticket_url, null, "the Ticketmaster button could not be verified");
+  assert.equal(n.official_event_url, "https://www.benchmarkintlarena.com/event/noc-2026/");
+  assert.equal(n.place_id, "ChIJSV2_Mo3EwogRc8CZwwOroSs");
+  assert.match(n.schedule_note, /lineup may change/);
 });
 
 console.log(`test-fall-tampa-picks-2026-10-08: ${n} checks passed`);

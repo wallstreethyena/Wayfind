@@ -1,4 +1,5 @@
 import { gateShut, gateFree } from "../../../../lib/spendGate";
+import { placeDiscoveryRef } from "../../../../lib/discoveryRef.js";
 // app/api/cron/inventory-refresh/route.js — keep wf_inventory's Google content
 // inside the 30-day freshness ceiling, a few rows at a time.
 //
@@ -87,7 +88,9 @@ export async function GET(req) {
         };
         // Only overwrite the photo when Google actually returned one — a
         // missing photo on one refresh must not blank a card that had one.
-        if (d.photoRef) patch.photo_ref = d.photoRef;
+        // 2026-10-08: place-only pseudo-ref (getPlaceDetails never returns a real
+        // Google photo name); never store a real name.
+        if (d.photoRef) patch.photo_ref = placeDiscoveryRef(row.place_id);
         const { error: upErr } = await db.from("wf_inventory").update(patch).eq("place_id", row.place_id);
         if (upErr) failed++; else refreshed++;
       } catch (e) {

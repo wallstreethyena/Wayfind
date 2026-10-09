@@ -13,16 +13,19 @@ import { gateShut, spendAllow, spendAllowPhotos, photosCeiling } from "../../../
 // content. No key ever reaches the browser, and images load reliably.
 import { NextResponse } from "next/server";
 import { FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef, resolvePlacePhoto } from "../../../lib/placePhotoServe";
-import { findSamePlaceCachedPhoto } from "../../../lib/photoCacheRecovery";
 import { findFreePhoto } from "../../../lib/freePhoto";
 import { recordPhotoOutcome, recordPhotoDeniedCeiling } from "../../../lib/photoOutcomes";
 import { recordReaderPhotoMiss } from "../../../lib/photoReaderMissQueue";
-import { keepPhotoCredits } from "../../../lib/photoCredits";
 import { isAutomatedPhotoReader } from "../../../lib/crawler.js";
 
-// Credits live as long as the photo cache row they pair with (30 days, the
-// Google ToS maximum for cached place content).
-const PHOTO_CREDIT_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+// COMPLIANT PHOTOS (owner decision, 2026-10-08). No Google photo name, URL or
+// credit is stored or served from storage. Order: Wayfind's own photo, then a
+// permitted or licensed photo of THIS place (wf_place_photo), then a live
+// Google photo ONLY when the request comes from a surface that shows the full
+// credit (`s=detail`: the place detail hero and its viewer), else an honest
+// miss the card renders as a clean placeholder. `fmt=json` returns the chosen
+// image with its credit so that surface can show both together.
+const GOOGLE_SURFACES = new Set(["detail"]);
 
 export const dynamic = "force-dynamic";
 
@@ -153,14 +156,8 @@ export async function GET(req) {
   const automated = isAutomatedPhotoReader(ua);
   const probe = req.headers.get("x-wayfind-photo-probe") === "1" || searchParams.get("nospend") === "1" || automated;
   const recoveryPlaceId = placeIdFromRef(ref) || (PLACE_RX.test(place) ? place : "");
-  let recoveryPromise = null;
-  const getRecovery = () => {
-    if (!recoveryPlaceId) return Promise.resolve(null);
-    if (!recoveryPromise) {
-      recoveryPromise = findSamePlaceCachedPhoto({ placeId: recoveryPlaceId, width: w });
-    }
-    return recoveryPromise;
-  };
+  const googleSurface = GOOGLE_SURFACES.has(searchParams.get("s") || "");
+  const wantJson = searchParams.get("fmt") === "json";
   // Same memoized-promise shape as getRecovery(), and the same identity
   // scope (recoveryPlaceId — never a neighbour). Read-only: lib/freePhoto.js
   // never writes wf_place_photo, so a probe hitting this is exactly as safe
@@ -184,16 +181,9 @@ export async function GET(req) {
     ref,
     place,
     w,
-    // Ask Google for the place's CURRENT photo name (free IDs-only lookup)
-    // before the one billed media call. See lib/placePhotoServe.js.
-    freshFirst: true,
-    // A place-only card (`?place=`) with no stored photo name asks Google for
-    // the place's current photo through the same gated path (see
-    // lib/placePhotoServe.js PLACE-ONLY DISCOVERY).
-    discoverPlace: true,
-    // Keep the photographer credits from the free Details response the
-    // resolver already received (never an extra Google call).
-    keepCredits: (placeId, photos) => keepPhotoCredits([{ id: placeId, photos }], PHOTO_CREDIT_TTL_MS),
+    // Google is asked ONLY for a credited surface; everywhere else the
+    // resolver stops before any grant (reason not-google-surface).
+    googleSurface,
     gateShut: shut,
     probe,
     // Ask the ledger only after resolvePlacePhoto has missed both the exact
@@ -220,8 +210,8 @@ export async function GET(req) {
     // as it did before this change, free-photo or not, because a Details
     // response is what would let a FUTURE `photos` request find a fresher ref;
     // refusing it here would make the free lane quietly worse at healing.
-    authorizeSpend: (sku = "photos") => Promise.all([getRecovery(), getFreePhoto()]).then(([hit, free]) => {
-      if (hit || shut) return false;
+    authorizeSpend: (sku = "photos") => getFreePhoto().then((free) => {
+      if (shut) return false;
       if (sku === "photos" && free) return false;
       return sku === "photos" ? spendAllowPhotos() : spendAllow(sku);
     }),
@@ -260,7 +250,21 @@ export async function GET(req) {
     }
   }
 
+  // fmt=json: the chosen image and the credit that must be shown with it.
+  // Never cached anywhere when the image is Google's.
+  const jsonAnswer = (body, cacheControl, reason) => NextResponse.json(body, {
+    status: 200,
+    headers: { "Cache-Control": cacheControl, "x-wayfind-photo-result": reason, "x-wayfind-photo-probe": probe ? "1" : "0" },
+  });
+
   if (result.type === "redirect" && result.location) {
+    if (wantJson) {
+      if (result.reason === "google" && !probe) logGoogleGrant(req, result.reason);
+      const c = result.credit || {};
+      return result.reason === "google"
+        ? jsonAnswer({ src: result.location, source: "google", credit: { name: c.name || "", uri: c.uri || null, mapsUri: c.mapsUri || null } }, "private, no-store", "google")
+        : jsonAnswer({ src: result.location, source: "wayfind", credit: null }, "private, max-age=300", result.reason || "inventory");
+    }
     // "google" is the ONLY redirect reason that means a real ledger grant was
     // just taken (lib/placePhotoServe.js's other redirect reasons — cache,
     // inventory, inventory-ref-cache — are free reads). `!probe` is stated
@@ -293,40 +297,6 @@ export async function GET(req) {
     });
   }
 
-  // `gate-shut`, `unconfigured` and `probe-no-spend` stop before authorizeSpend
-  // runs (or, for a probe, never reach it at all). A budget denial with a
-  // recovery hit returns `spend-denied` because the wrapper above deliberately
-  // refused the grant. `quota-open` (2026-09-16) is the SAME shape: the
-  // resolver's own quota breaker refused the request before ever asking the
-  // ledger or Google, because Google's daily photo quota is known-exhausted
-  // until its own Pacific-midnight reset — same free, read-only recovery
-  // applies. `negative-cached` (2026-09-16, spend efficiency) is the SAME
-  // shape again: this exact ref already proved, within the last 24h, that it
-  // has no fetchable photo — the resolver refused the request before asking
-  // the ledger or Google, and this same free recovery still gets a chance to
-  // serve a real photo of the venue instead of the branded compass. In every
-  // case, serve only a fresh same-place cached photo if one
-  // exists — and, failing that, this exact place's FREE, PERMANENT photo if
-  // wf_place_photo has one. Same-place Google recovery is tried FIRST: it is
-  // a photo of the actual venue that Wayfind already paid for, so it
-  // outranks a substitute even a free one. Neither read ever writes or calls
-  // Google, and neither ever takes a photos-ledger grant — authorizeSpend
-  // above already refused the grant on a free-photo hit before this block
-  // runs, so this is just serving what was already decided.
-  if (result.type === "miss" && ["spend-denied", "gate-shut", "unconfigured", "probe-no-spend", "quota-open", "negative-cached"].includes(result.reason)) {
-    const recovery = await getRecovery();
-    if (recovery && recovery.uri) {
-      return NextResponse.redirect(recovery.uri, {
-        status: 302,
-        headers: {
-          "Cache-Control": recovery.cacheControl,
-          "x-wayfind-photo-result": "same-place-cache",
-          "x-wayfind-photo-probe": probe ? "1" : "0",
-        },
-      });
-    }
-  }
-
   // The free permanent rung, for EVERY remaining outcome — not just a budget
   // denial. Three cases reach here and all three used to end in a blank:
   //   miss/spend-denied etc. with no same-place recovery (handled above first,
@@ -341,6 +311,9 @@ export async function GET(req) {
   // verified against this exact entity. It is this place's own photo, never a
   // shared stock pool.
   const free = await getFreePhoto();
+  if (free && free.url && wantJson) {
+    return jsonAnswer({ src: free.url, source: free.source === "wikimedia" ? "licensed" : "permitted", credit: { name: free.attributionText, uri: free.attributionUrl, license: free.license } }, "public, max-age=" + FREE_REDIRECT_TTL + ", s-maxage=" + FREE_REDIRECT_TTL, "owned-free");
+  }
   if (free && free.url) {
     return NextResponse.redirect(free.url, {
       status: 302,
@@ -367,10 +340,15 @@ export async function GET(req) {
   // nothing at Google, and deliberately ignores global gate/config outages.
   await recordReaderPhotoMiss({
     placeId: recoveryPlaceId,
-    currentRef: ref,
+    // Never a Google photo name: only the place ID may be kept.
+    currentRef: "",
     result,
     probe,
   });
+
+  if (wantJson) {
+    return jsonAnswer({ src: null, source: "none", credit: null }, "private, no-store", result.reason || "no-photo");
+  }
 
   if (result.type === "empty") {
     return NextResponse.redirect(new URL(FALLBACK_PATH, req.url), {
