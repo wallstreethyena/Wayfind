@@ -753,8 +753,10 @@ ${XMAS(".wayfind-score-badge>span:last-child>span:last-child")},${XMAS(".wf-rail
   text-decoration:none;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;max-width:100%;
   font-size:9.5px;letter-spacing:0;padding-inline:4px;
+  font-variant-emoji:text;
   transition:border-color .18s ease,background .18s ease;
 }
+@media(max-width:340px){.wf-rail-card-cta{padding-inline:2px}}
 .wf-rail-card-cta:hover,.wf-rail-card-cta:focus-visible{border-color:rgba(255,155,80,.85);background:linear-gradient(180deg,rgba(249,115,22,.3),rgba(249,115,22,.12))}
 
 .wf-rail-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 10px;font-family:var(--wf-sans,-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif)}
