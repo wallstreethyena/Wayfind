@@ -21,11 +21,11 @@ const envKeys = [
 const savedFetch = globalThis.fetch;
 for (const key of envKeys) delete process.env[key];
 
-async function routeWith({ cacheValue = null, spendAllowed = false }) {
+async function routeWith({ cacheValue = null, spendAllowed = false, processed = null }) {
   let source = readFileSync("app/api/events/route.js", "utf8");
   source = source.replace(/^import[^;]+;\n/gm, "");
   const prelude = `
-    const processEvents = () => ({ events: [], usableCount: 0, health: [], excludedByReason: {} });
+    const processEvents = () => globalThis.__eventsSpend.processed || ({ events: [], usableCount: 0, health: [], excludedByReason: {} });
     const siteTodayStr = () => "2099-01-01";
     const lastEventDay = globalThis.__lastEventDay;
     const siteAnchorDate = (d) => d;
@@ -47,7 +47,7 @@ async function routeWith({ cacheValue = null, spendAllowed = false }) {
     const fromPool = () => null;
     const DAY = 86400000;
     const cget = async () => globalThis.__eventsSpend.cacheValue;
-    const cset = async () => {};
+    const cset = async (k, v, ttl) => { globalThis.__eventsSpend.csetTtl = ttl; };
     const breakerOpen = async () => null;
     const tripBreaker = async () => {};
     const classifyProviderFailure = () => null;
@@ -58,7 +58,7 @@ async function routeWith({ cacheValue = null, spendAllowed = false }) {
       return globalThis.__eventsSpend.spendAllowed;
     };
   `;
-  globalThis.__eventsSpend = { cacheValue, spendAllowed, cap: 5, grants: 0 };
+  globalThis.__eventsSpend = { cacheValue, spendAllowed, cap: 5, grants: 0, processed, csetTtl: null };
   return import("data:text/javascript," + encodeURIComponent(prelude + "\n" + source));
 }
 
@@ -138,6 +138,33 @@ try {
   assert.equal(httpCalls, 0, "fresh default cache performs zero HTTP requests");
   assert.equal(globalThis.__eventsSpend.grants, 0, "fresh default cache asks for no grants");
 
+  // 2026-10-08: a budget-denied Ticketmaster is a DEGRADED feed. Before, the
+  // denial reported ok and the aggregation was cached for 21 days with zero
+  // concerts (Sarasota, Oct 8). Now the provider says why, the response names
+  // the gap, and the aggregation is kept 6 hours instead of 21 days.
+  const oneEvent = { events: [{ id: "x", date: "2099-02-01", name: "X" }], usableCount: 1, health: [], excludedByReason: {} };
+  route = await routeWith({ spendAllowed: false, processed: oneEvent });
+  httpCalls = 0;
+  globalThis.fetch = async () => { httpCalls++; throw new Error("denied provider called"); };
+  response = await route.POST(new Request("https://www.gowayfind.com/api/events", {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ lat: 0, lng: 0, radius: 25, city: "Fixture" }),
+  }));
+  let body = await response.json();
+  assert.equal(httpCalls, 0, "denied default feed performs zero Ticketmaster requests");
+  assert.deepEqual(body.degraded, ["Ticketmaster"], "the response names the budget gap");
+  assert.equal(globalThis.__eventsSpend.csetTtl, 86400000 / 4, "a budget-gapped aggregation is cached 6 hours, not 21 days");
+  // Positive control: the same aggregation with the budget available is cached the full 21 days.
+  route = await routeWith({ spendAllowed: true, processed: oneEvent });
+  globalThis.fetch = async () => new Response(JSON.stringify({ _embedded: { events: [] } }), { status: 200, headers: { "content-type": "application/json" } });
+  response = await route.POST(new Request("https://www.gowayfind.com/api/events", {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ lat: 0, lng: 0, radius: 25, city: "Fixture" }),
+  }));
+  body = await response.json();
+  assert.equal(body.degraded, undefined, "a funded aggregation reports no gap");
+  assert.equal(globalThis.__eventsSpend.csetTtl, 21 * 86400000, "a funded aggregation keeps the 21-day cache");
+
   // Public inputs are typed and bounded before the route can consult a cache
   // or fan out.  Test GET too because it is publicly callable.
   response = await route.POST(new Request("https://www.gowayfind.com/api/events", {
@@ -153,7 +180,7 @@ try {
   }));
   assert.equal(response.status, 400, "POST bounds radius and keyword length");
 
-  console.log("test-events-spend: OK — input bounds, cache-first default feed, and per-request finite spend grants verified");
+  console.log("test-events-spend: OK — input bounds, cache-first default feed, per-request finite spend grants, and budget-gap feeds kept 6 hours (not 21 days) verified");
 } finally {
   delete globalThis.__eventsSpend;
   globalThis.fetch = savedFetch;

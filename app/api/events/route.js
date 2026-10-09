@@ -146,6 +146,10 @@ async function fromTicketmaster(lat, lng, radius, keyword) {
     // A denied budget did not ask Ticketmaster, so it must not poison the
     // provider's warm cache and suppress a later ledger-authorized request.
     if (requested) _tmMem.set(ck, { events, exp: Date.now() + TM_TTL });
+    // 2026-10-08: every grant denied means Ticketmaster was never asked. That
+    // is a degraded feed, not an empty one: say so, so the aggregation is not
+    // frozen in the 21-day cache as if "no concerts near you" were true.
+    if (!requested) return { configured: true, ok: false, budgetDenied: true, reason: "monthly budget used", events: [] };
     return { configured: true, events };
   } catch (e) { return { configured: true, ok: false, reason: String(e && e.message || e).slice(0, 160), events: [] }; }
 }
@@ -868,7 +872,13 @@ async function aggregateEvents({ lat, lng, keyword, radius, city }) {
     const counts = {};
     for (const e of events) counts[e.source] = (counts[e.source] || 0) + 1;
     // Fresh aggregation with events -> cache it (dates included) for the fallback, then return.
-    if (events.length) { await cset(evK, events, 21 * DAY); return { events, usableCount, sources, counts, health: health.filter((h) => h.configured) }; }
+    // A budget-denied provider (Ticketmaster at its monthly cap) left a gap
+    // that is not a fact about the place. Keep that aggregation for 6 hours,
+    // not 21 days, so the cell rebuilds with the provider soon after the
+    // budget allows it again (2026-10-08: Sarasota's feed had been frozen with
+    // zero concerts after the cap was reached).
+    const budgetGap = results.some((r) => r && r.budgetDenied);
+    if (events.length) { await cset(evK, events, budgetGap ? DAY / 4 : 21 * DAY); return { events, usableCount, sources, counts, degraded: budgetGap ? results.filter((r) => r && r.budgetDenied).map((r) => r.provider) : undefined, health: health.filter((h) => h.configured) }; }
     // Live returned nothing (providers limited/failed) -> serve cached UPCOMING events.
     const s = await staleEvents();
     return s || { events, usableCount, sources, counts, health: health.filter((h) => h.configured) };

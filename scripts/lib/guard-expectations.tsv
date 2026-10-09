@@ -584,7 +584,7 @@ scripts/test-events-contract.mjs	0	CALL	blocks-ci-and-deploy	1	-	49	0	0	76d4ae15
 scripts/test-events-fall-feed-image.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	d8f683dcb256111c696868f97d87a11556b9fd1b5f165a103b29fa98554fbcf7
 scripts/test-events-list.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0	94818ba053c0bdb5b6a50b729f117c9a78cd8a5b449b2b3fd1b2c848c779f240
 scripts/test-events-prime.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	19	1	0	2ca675e35061d8ee6eb5883548eb1bf1a561bedebd5bbffc4e94fbf82a8bcd5c
-scripts/test-events-spend.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	20	0	0	8c9e3ce4cbc0447091e8d8e5e1452def9bb337cf7fda568b9f4c69e38fdcf1aa
+scripts/test-events-spend.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	25	0	0	93e2fbd7f18ff1c44693b4cf400abdbf33b3e1a3d3ceb7e5004d8f247bf6ece2
 scripts/test-events-tours.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	28	1	0	90c282aaec22975a09ad3a04a2791578a8d70f974ebaac51f4588c937a3a8c82
 scripts/test-evergreen-eligibility.mjs	0	RENDER	blocks-ci-and-deploy	1	-	52	0	0	46c5b019feb8fcd67f5326a315af407641bb87ee5fd98b07d5f2e1a83279c9d1
 scripts/test-experience-concepts.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	cfe3ed0b1e3c155a57500585eb00c43578acc140aa11f5fc2ccda08f28eafd32
