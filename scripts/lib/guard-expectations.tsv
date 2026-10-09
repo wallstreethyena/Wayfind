@@ -636,7 +636,7 @@ scripts/test-group-plan-time.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	b6937b92
 scripts/test-group-plan-ui.mjs	0	RENDER	blocks-ci-and-deploy	1	-	131	0	0	dee6f61b0c02b934ac7c25c36bcff94ace3c3a68bc3e64af682bfd414d8420ed
 scripts/test-group-plan.mjs	0	CALL	blocks-ci-and-deploy	1	-	124	0	0	9feb2e75222fc23dbab358c95b7e14dd92c3eb96f8be3dbe49d9ab7b18ff4b77
 scripts/test-guide-city-coverage.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	c6a465e7282b1e60a693f376ebcef9066f918ad5a6a75a58a145c0d51a5b9ee2
-scripts/test-guide-discovery.mjs	0	RENDER	blocks-ci-and-deploy	1	-	52	0	0	dc163d72e9d868a7eec5389542618cce81c086d2bc72bc0d99ac0064542a0750
+scripts/test-guide-discovery.mjs	0	RENDER	blocks-ci-and-deploy	1	-	65	0	0	292cb9f5afb7dd50696a33d2cee909f3d6c652de22a63afc5ec9b27bcf5082c4
 scripts/test-guide-editorial-mode.mjs	0	RENDER	blocks-ci-and-deploy	1	-	30	0	0	1143cfcf22aa5141699214ff1ec91bd33f894c0e624c3806bf91cc86cddb631b
 scripts/test-guide-editorial-photos.mjs	0	RENDER	blocks-ci-and-deploy	1	-	31	0	0	b35a50435ad52c87994646888dd7d490b94c9a0a1c60eb319c136fc43d104e0c
 scripts/test-guide-event-ticket-cta.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	4c24b43bf5556b3c6f06a5d6e653db81ac13e68196b85783d89f0d8e32a5b5d9
