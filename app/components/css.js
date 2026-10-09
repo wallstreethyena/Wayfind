@@ -707,13 +707,16 @@ ${XMAS(".wayfind-score-badge>span:last-child>span:last-child")},${XMAS(".wf-rail
   overflow-x:auto;
   overflow-y:hidden;
     overscroll-behavior-inline:contain;
-  padding-bottom:4px;
+  padding:4px 4px 4px;
+  margin-top:-4px;
+  margin-inline:-4px;
+  scroll-padding-inline:4px;
   scroll-snap-type:x mandatory;
   -webkit-overflow-scrolling:touch;
   scrollbar-width:none;
 }
 .wf-rail::-webkit-scrollbar{display:none}
-.wf-rail-solo{max-width:min(100%,${PLACE_CARD_MAX_WIDTH_PX}px);margin:0}
+.wf-rail-solo{max-width:min(100%,${PLACE_CARD_MAX_WIDTH_PX}px);margin:0;padding:0 0 4px}
 .wf-rail>.wf-place-card,.wf-rail>.wf-rail-card,.wf8-pcrail>.wf-place-card,.wf8-pcrail>.wf-rail-card{
   margin-bottom:0!important;
   scroll-snap-align:start;

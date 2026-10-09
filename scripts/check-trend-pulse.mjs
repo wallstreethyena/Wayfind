@@ -104,6 +104,13 @@ ok(Math.max(...pulseOffs) + 1.5 <= 4, `CSS: the outward ring (offset + 1.5px out
 // the keyframes must animate outline, and no skin may pin the card root's outline.
 ok(/outline-color:/.test(pulseBlock) && /outline-offset:/.test(pulseBlock), "CSS: the pulse animates the outline ring (visible on skinned cards whose box-shadow is !important)");
 ok(!/\.wf-place-card[^{,]*\{[^}]*\boutline(?:-color|-offset)?:[^;}]*!important/.test(css), "CSS: no card skin pins the card root's outline with !important (that would hide the pulse)");
+// Base .wf-rail scrollers had 0px top and side padding, so the ring was cut off
+// there (seen live on "Florida's Biggest Parks", 2026-10-08). The rail now carries
+// 4px of room on top and both sides, cancelled by equal negative margins so no card
+// moves; a solo rail keeps its old box.
+const railBlock = (css.match(/\n\.wf-rail\{[^}]*\}/) || [""])[0];
+ok(/padding:4px 4px 4px;/.test(railBlock) && /margin-top:-4px;/.test(railBlock) && /margin-inline:-4px;/.test(railBlock) && /scroll-padding-inline:4px;/.test(railBlock), "CSS: base .wf-rail has 4px ring room on top and sides, cancelled by equal negative margins (zero layout shift)");
+ok(/\.wf-rail-solo\{[^}]*margin:0;padding:0 0 4px\}/.test(css), "CSS: a solo rail keeps its original box (no added padding)");
 ok(/\.wf-place-card\.is-trending:focus-visible\{animation:none;outline:2px/.test(css), "CSS: keyboard focus on a trending card shows the normal focus ring, not the pulse");
 
 if (failures.length) {
