@@ -64,6 +64,7 @@ scripts/check-coupon-link-attribution.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0
 scripts/check-coupon-place-match.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	cceb557c452f3955665ab5fcac849c94c737be85f1889771ab1d416fdbf94518
 scripts/check-creator-avatars.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0	93d3653a44ccc8a1259428c7776948368bca4604551ade42515708177564f461
 scripts/check-creator-events.mjs	0	CALL	blocks-ci-and-deploy	1	-	41	0	0	07f43ec6b8e94caba51550d70cb5371e410fff2acd3d02a037a0ca395008f50a
+scripts/check-creator-independence.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	5e6179856fbc4b63b156119a10a347a8d361968e96ff7d1bae6f370327f74940
 scripts/check-creator-registry-bundle-wall.mjs	0	RENDER	blocks-ci-and-deploy	1	-	26	0	0	ab25b5df421a6c184a60cae361c6bbe452b67d0867bb281ab3ee8b3459e2de8c
 scripts/check-creator-rights.mjs	0	CALL	blocks-ci-and-deploy	1	-	21	0	0	a1988804206ef27ffd05909fa5f724d77df6ee813852736807cc65e0a4a7a65e
 scripts/check-creator-signal-equivalence.mjs	0	RENDER	blocks-ci-and-deploy	1	-	46	0	0	a3be33a93b0408308b1713075db7ceb604edb1fdf0afdf7d21f6a8ecd90803cb
