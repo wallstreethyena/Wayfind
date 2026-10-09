@@ -822,7 +822,8 @@ async function aggregateEvents({ lat, lng, keyword, radius, city }) {
           // (their budgets are what the cache protects); the curated part is
           // re-read live and merged through the same pipeline. If the live
           // read fails, the cached copy is served unchanged.
-          const cur = await withDeadline(CURATED_SOURCE, fromCuratedEvents(lat, lng, city));
+          // Short deadline: this is the fast path; a slow read serves the cached copy.
+          const cur = await withDeadline(CURATED_SOURCE, fromCuratedEvents(lat, lng, city), 1500);
           if (cur && cur.configured && cur.ok !== false) {
             const rest = events.filter((e) => e && e.source !== CURATED_SOURCE);
             const merged = processEvents([{ provider: "cache", configured: true, events: rest }, cur], { lat, lng, radius, city }).events;
@@ -877,8 +878,13 @@ async function aggregateEvents({ lat, lng, keyword, radius, city }) {
     // not 21 days, so the cell rebuilds with the provider soon after the
     // budget allows it again (2026-10-08: Sarasota's feed had been frozen with
     // zero concerts after the cap was reached).
+    // The gap can only close when the monthly ledger resets (UTC month start),
+    // so keep the gapped copy until just after that reset, never past 21 days.
+    // Re-aggregating sooner would only spend other providers' budgets again.
     const budgetGap = results.some((r) => r && r.budgetDenied);
-    if (events.length) { await cset(evK, events, budgetGap ? DAY / 4 : 21 * DAY); return { events, usableCount, sources, counts, degraded: budgetGap ? results.filter((r) => r && r.budgetDenied).map((r) => r.provider) : undefined, health: health.filter((h) => h.configured) }; }
+    const nowD = new Date();
+    const untilReset = Date.UTC(nowD.getUTCFullYear(), nowD.getUTCMonth() + 1, 1) - nowD.getTime() + 5 * 60 * 1000;
+    if (events.length) { await cset(evK, events, budgetGap ? Math.min(21 * DAY, untilReset) : 21 * DAY); return { events, usableCount, sources, counts, degraded: budgetGap ? results.filter((r) => r && r.budgetDenied).map((r) => r.provider) : undefined, health: health.filter((h) => h.configured) }; }
     // Live returned nothing (providers limited/failed) -> serve cached UPCOMING events.
     const s = await staleEvents();
     return s || { events, usableCount, sources, counts, health: health.filter((h) => h.configured) };

@@ -19,6 +19,6 @@ export default function GoScreen({ screen }) {
   // the shell even starts loading). The same hand-off as an inline script runs
   // while the HTML is still being parsed. The effect stays as the fallback; the
   // static text on the page stays for crawlers and no-JS visitors.
-  const target = JSON.stringify(String(screen || ""));
+  const target = JSON.stringify(String(screen || "")).replace(/</g, "\\u003c");
   return <script dangerouslySetInnerHTML={{ __html: "(function(){try{var q=location.search.replace(/^\\?/,'');location.replace('/?go='+encodeURIComponent(" + target + ")+(q?'&'+q:''))}catch(e){}})();" }} />;
 }

@@ -21,10 +21,16 @@ const envKeys = [
 const savedFetch = globalThis.fetch;
 for (const key of envKeys) delete process.env[key];
 
-async function routeWith({ cacheValue = null, spendAllowed = false, processed = null }) {
+async function routeWith({ cacheValue = null, spendAllowed = false, processed = null, FakeDate = null }) {
   let source = readFileSync("app/api/events/route.js", "utf8");
   source = source.replace(/^import[^;]+;\n/gm, "");
   const prelude = `
+    // The route module is cached across routeWith() calls (same source), so the
+    // clock is looked up per use, not at module evaluation.
+    const Date = new Proxy(globalThis.Date, {
+      construct(t, a) { const D = (globalThis.__eventsSpend && globalThis.__eventsSpend.FakeDate) || t; return new D(...a); },
+      get(t, p) { const D = (globalThis.__eventsSpend && globalThis.__eventsSpend.FakeDate) || t; const v = D[p]; return typeof v === "function" ? v.bind(D) : v; },
+    });
     const processEvents = () => globalThis.__eventsSpend.processed || ({ events: [], usableCount: 0, health: [], excludedByReason: {} });
     const siteTodayStr = () => "2099-01-01";
     const lastEventDay = globalThis.__lastEventDay;
@@ -58,7 +64,7 @@ async function routeWith({ cacheValue = null, spendAllowed = false, processed = 
       return globalThis.__eventsSpend.spendAllowed;
     };
   `;
-  globalThis.__eventsSpend = { cacheValue, spendAllowed, cap: 5, grants: 0, processed, csetTtl: null };
+  globalThis.__eventsSpend = { cacheValue, spendAllowed, cap: 5, grants: 0, processed, csetTtl: null, FakeDate };
   return import("data:text/javascript," + encodeURIComponent(prelude + "\n" + source));
 }
 
@@ -141,9 +147,12 @@ try {
   // 2026-10-08: a budget-denied Ticketmaster is a DEGRADED feed. Before, the
   // denial reported ok and the aggregation was cached for 21 days with zero
   // concerts (Sarasota, Oct 8). Now the provider says why, the response names
-  // the gap, and the aggregation is kept 6 hours instead of 21 days.
+  // the gap, and the aggregation is kept only until just after the monthly ledger reset.
   const oneEvent = { events: [{ id: "x", date: "2099-02-01", name: "X" }], usableCount: 1, health: [], excludedByReason: {} };
-  route = await routeWith({ spendAllowed: false, processed: oneEvent });
+  // Fixed clock: Jan 28 12:00 UTC, so the ledger resets in 3.5 days.
+  const FIXED = Date.UTC(2099, 0, 28, 12);
+  class FakeDate extends Date { constructor(...a) { super(...(a.length ? a : [FIXED])); } static now() { return FIXED; } }
+  route = await routeWith({ spendAllowed: false, processed: oneEvent, FakeDate });
   httpCalls = 0;
   globalThis.fetch = async () => { httpCalls++; throw new Error("denied provider called"); };
   response = await route.POST(new Request("https://www.gowayfind.com/api/events", {
@@ -153,9 +162,10 @@ try {
   let body = await response.json();
   assert.equal(httpCalls, 0, "denied default feed performs zero Ticketmaster requests");
   assert.deepEqual(body.degraded, ["Ticketmaster"], "the response names the budget gap");
-  assert.equal(globalThis.__eventsSpend.csetTtl, 86400000 / 4, "a budget-gapped aggregation is cached 6 hours, not 21 days");
+  const untilReset = Date.UTC(2099, 1, 1) - FIXED + 5 * 60 * 1000;
+  assert.equal(globalThis.__eventsSpend.csetTtl, untilReset, "a budget-gapped aggregation lives until 5 minutes after the monthly ledger reset (3.5 days here), not 21 days");
   // Positive control: the same aggregation with the budget available is cached the full 21 days.
-  route = await routeWith({ spendAllowed: true, processed: oneEvent });
+  route = await routeWith({ spendAllowed: true, processed: oneEvent, FakeDate });
   globalThis.fetch = async () => new Response(JSON.stringify({ _embedded: { events: [] } }), { status: 200, headers: { "content-type": "application/json" } });
   response = await route.POST(new Request("https://www.gowayfind.com/api/events", {
     method: "POST", headers: { "content-type": "application/json" },
@@ -180,7 +190,7 @@ try {
   }));
   assert.equal(response.status, 400, "POST bounds radius and keyword length");
 
-  console.log("test-events-spend: OK — input bounds, cache-first default feed, per-request finite spend grants, and budget-gap feeds kept 6 hours (not 21 days) verified");
+  console.log("test-events-spend: OK — input bounds, cache-first default feed, per-request finite spend grants, and budget-gap feeds kept only until the monthly ledger reset verified");
 } finally {
   delete globalThis.__eventsSpend;
   globalThis.fetch = savedFetch;
