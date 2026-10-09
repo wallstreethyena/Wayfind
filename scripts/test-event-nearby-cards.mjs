@@ -73,7 +73,9 @@ for (const actionClass of ["wf-place-card-save", "wf-place-card-like", "wf-place
   assert.equal((railHtml.match(new RegExp(actionClass, "g")) || []).length, 3, `all three house cards carry shared ${actionClass} behavior`);
 }
 assert.equal((railHtml.match(/wf-place-card-score/g) || []).length, 3, "every card displays a real supplied Wayfind Score");
-assert.equal((railHtml.match(/loading="eager"/g) || []).length, 3, "every nearby image loads eagerly so horizontal scrolling cannot strand a lazy request");
+assert.equal((railHtml.match(/data-card-photo-request=/g) || []).length, 3, "every nearby Google photo uses the credited viewport request lane");
+const ownedRailHtml = renderToStaticMarkup(createElement(EventNearbyCards, { places: valid.map(p => ({ ...p, photo: "/licensed/nearby.webp" })) }));
+assert.equal((ownedRailHtml.match(/loading="eager"/g) || []).length, 3, "owned nearby images retain eager loading through the real card chain");
 assert.doesNotMatch(railHtml, /wfw-p|wfw-th/, "the retired standalone thumbnail card does not render");
 
 // v2 (2026-09-22) — the rail's title/description come from the outing

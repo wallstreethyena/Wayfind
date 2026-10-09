@@ -30,13 +30,13 @@ catch (e) {
   process.exit(0);
 }
 const compile = (file) => ts.transpileModule(readFileSync(new URL(file, import.meta.url), "utf8"), { compilerOptions: { jsx: ts.JsxEmit.React, module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText;
-const helper = compile("../lib/cardPhotoRequest.js"), component = compile("../app/components/CardPhoto.js");
+const helper = compile("../lib/cardPhotoRequest.js"), component = compile("../app/components/CardPhoto.js"), creditLink = compile("../app/components/PhotoCreditLink.js");
 try {
   for (const width of [390, 1440]) {
     const page = await browser.newPage({ viewport: { width, height: 900 } });
     const errors = [];
     page.on("pageerror", (e) => errors.push(e.message));
-    let photoCalls = 0;
+    let photoCalls = 0, responseMode = "success";
     const photo = { src: "https://photo.test/exact.jpg", source: "google", credit: { mapsUri: "https://maps.google.com/photo/exact", authors: [{ name: "First Author", uri: "https://maps.google.com/contrib/first", photoUri: "https://photo.test/avatar.jpg" }, { name: "Second Author", uri: "https://maps.google.com/contrib/second" }] } };
     await page.route("**/*", async (route) => {
       const u = new URL(route.request().url());
@@ -44,15 +44,16 @@ try {
         photoCalls++;
         assert.equal(u.searchParams.get("s"), "card");
         assert.equal(u.searchParams.get("fmt"), "json");
-        return route.fulfill({ json: photo });
+        return route.fulfill({ json: responseMode === "miss" ? { src: null, source: "none", credit: null } : responseMode === "broken" ? { ...photo, src: "https://photo.test/broken.jpg" } : photo });
       }
+      if (u.pathname === "/broken.jpg") return route.fulfill({ status: 404, body: "Unavailable" });
       if (u.hostname === "photo.test") return route.fulfill({ contentType: "image/svg+xml", body: '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800"><rect width="1200" height="800" fill="#446655"/></svg>' });
       return route.fulfill({ contentType: "text/html", body: '<div style="height:1400px"></div><div id="root" style="position:relative;width:100px;height:268px"></div>' });
     });
     await page.goto("https://wayfind.test/");
     await page.addScriptTag({ path: new URL("../node_modules/react/umd/react.development.js", import.meta.url).pathname });
     await page.addScriptTag({ path: new URL("../node_modules/react-dom/umd/react-dom.development.js", import.meta.url).pathname });
-    await page.addScriptTag({ content: `window.photoHelpers={};(function(exports){${helper}})(photoHelpers);window.photoModule={};(function(exports,require){${component}})(photoModule,id=>id==='react'?React:id==='react-dom'?ReactDOM:photoHelpers);window.root=ReactDOM.createRoot(document.getElementById('root'));root.render(React.createElement(photoModule.default,{src:${JSON.stringify(source)},alt:'Test venue',style:{width:'100%',height:'100%',objectFit:'cover'}}));` });
+    await page.addScriptTag({ content: `window.photoHelpers={};(function(exports){${helper}})(photoHelpers);window.creditLinkModule={};(function(exports){${creditLink}})(creditLinkModule);window.photoModule={};(function(exports,require){${component}})(photoModule,id=>id==='react'?React:id==='react-dom'?ReactDOM:id==='./PhotoCreditLink.js'?creditLinkModule:photoHelpers);window.root=ReactDOM.createRoot(document.getElementById('root'));root.render(React.createElement(photoModule.default,{src:${JSON.stringify(source)},alt:'Test venue',style:{width:'100%',height:'100%',objectFit:'cover'}}));` });
     await page.waitForTimeout(100);
     assert.equal(photoCalls, 0, "offscreen card makes no request");
     await page.locator("#root").scrollIntoViewIfNeeded();
@@ -70,8 +71,8 @@ try {
     await page.keyboard.press("Enter");
     await page.locator("dialog[open]").waitFor();
     assert.equal(await page.locator("dialog > img").getAttribute("src"), thumb);
-    assert.ok(await page.getByText("First Author", { exact: true }).isVisible());
-    assert.ok(await page.getByText("Second Author", { exact: true }).isVisible());
+    assert.ok(await page.getByRole("link", { name: "First Author (opens in a new tab)", exact: true }).isVisible());
+    assert.ok(await page.getByRole("link", { name: "Second Author (opens in a new tab)", exact: true }).isVisible());
     assert.equal(await page.locator("dialog a[translate=no]").getAttribute("href"), photo.credit.mapsUri);
     assert.equal(photoCalls, 1, "viewer never purchases another photo");
     assert.equal(await page.evaluate(() => window.parentKeyActivations), 0, "viewer controls do not activate the enclosing card");
@@ -80,8 +81,29 @@ try {
     const badge = await page.locator("[data-card-photo-credit] a").boundingBox();
     const bounds = await page.locator("#root").boundingBox();
     assert.ok(badge.x >= bounds.x && badge.x + badge.width <= bounds.x + bounds.width);
+    const render = (id, alt) => page.evaluate(({ id, alt }) => {
+      root.render(React.createElement(photoModule.default, { src: "/api/photo?place=" + id, alt, style: { width: "100%", height: "100%", objectFit: "cover" } }));
+    }, { id, alt });
+    responseMode = "miss";
+    await render("ChIJCardPhotoFail0001", "Missing photo");
+    await page.getByText("Photo unavailable", { exact: true }).waitFor();
+    assert.equal(await page.locator("#root > img").count(), 0);
+    assert.equal(await page.locator("[data-card-photo-credit]").count(), 0);
+    responseMode = "success";
+    await render("ChIJCardPhotoGood0002", "Other photo");
+    await page.locator('#root > img[alt="Other photo"]').waitFor();
+    await render("ChIJCardPhotoFail0001", "Recovered photo");
+    await page.locator('#root > img[alt="Recovered photo"]').waitFor();
+    assert.equal(await page.getByText("Photo unavailable", { exact: true }).count(), 0, "a previous failure cannot hide a later successful response");
+    responseMode = "broken";
+    await render("ChIJCardPhotoBroken03", "Broken photo");
+    await page.getByText("Photo unavailable", { exact: true }).waitFor();
+    assert.equal(await page.locator("#root > img").count(), 0);
+    assert.equal(await page.locator("[data-card-photo-credit]").count(), 0);
+    await page.waitForTimeout(100);
+    assert.equal(photoCalls, 5, "misses and image failures never retry the paid photo request");
     assert.deepEqual(errors, []);
     await page.close();
   }
-  console.log("test-card-photo-viewer: Chromium 390/1440 passed: lazy request, same image, all authors, source link, Escape, attribution fit, no extra viewer request");
+  console.log("test-card-photo-viewer: Chromium 390/1440 passed: lazy request, same image, all authors, source link, Escape, attribution fit, visible failures, recovered request, no paid retries");
 } finally { await browser.close(); }
