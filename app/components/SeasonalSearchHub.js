@@ -1,6 +1,6 @@
 import GuideArticleHero from "./GuideArticleHero";
 import SeasonalSearchNav from "./SeasonalSearchNav";
-import ShareButton from "./ShareButton";
+import ShareButton from "../components/ShareButton";
 import { seasonalSearchHub, seasonalSearchSections } from "../../lib/seasonalSearch";
 import { siteTodayStr } from "../../lib/siteTime";
 import { SITE_URL } from "../../lib/site";
@@ -25,15 +25,15 @@ export default function SeasonalSearchHub({ slug, today = siteTodayStr() }) {
   if (!hub) throw new Error("Unknown seasonal search hub: " + slug);
   const sections = seasonalSearchSections(hub, today);
   const feature = hub.feature && hub.feature.endsOn >= today ? hub.feature : null;
-  const url = SITE_URL + "/" + slug;
+  const shareUrl = SITE_URL + "/" + slug;
   const links = [...new Map(sections.flatMap((section) => section.links).map((link) => [link.href, link])).values()];
   const schema = {
     "@context": "https://schema.org", "@graph": [
-      { "@type": "CollectionPage", "@id": url, url, name: hub.title, description: hub.description,
+      { "@type": "CollectionPage", "@id": shareUrl, url: shareUrl, name: hub.title, description: hub.description,
         mainEntity: { "@type": "ItemList", itemListElement: links.map((link, i) => ({ "@type": "ListItem", position: i + 1, name: link.label, url: new URL(link.href, SITE_URL).href })) } },
       { "@type": "BreadcrumbList", itemListElement: [
         { "@type": "ListItem", position: 1, name: "Wayfind", item: SITE_URL },
-        { "@type": "ListItem", position: 2, name: hub.label, item: url }
+        { "@type": "ListItem", position: 2, name: hub.label, item: shareUrl }
       ] }
     ]
   };
@@ -41,7 +41,7 @@ export default function SeasonalSearchHub({ slug, today = siteTodayStr() }) {
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, "\\u003c") }} />
     <GuideArticleHero title={hub.title} description={hub.intro} category={hub.label} region="Florida"
       image={null} jumpHref="#plan" jumpLabel="Choose your plan"
-      actions={<ShareButton url={url} title={hub.title} text={hub.description} tone="dark" event="page_share" meta={{ surface: "seasonal_search", slug }} />} />
+      actions={<ShareButton url={shareUrl} title={hub.title} text={hub.description} tone="dark" event="page_share" meta={{ surface: "seasonal_search", slug }} />} />
     <SeasonalSearchNav />
     <article id="plan" style={{ maxWidth: 780, borderTop: "2px solid " + hub.accent, paddingTop: 20 }}>
       <nav className={styles.regions} aria-label="Choose your seasonal outing">

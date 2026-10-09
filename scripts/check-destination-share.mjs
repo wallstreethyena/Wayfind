@@ -57,6 +57,10 @@ const strip = (src) => src
 // STANDARD: page -> the file that renders its ShareButton, or file#Function when
 // a renderer module serves several pages (the button must be in THAT function).
 const STANDARD = {
+  "app/fall-in-florida/page.js": "app/components/SeasonalSearchHub.js",
+  "app/halloween-in-florida/page.js": "app/components/SeasonalSearchHub.js",
+  "app/christmas-in-florida/page.js": "app/components/SeasonalSearchHub.js",
+  "app/new-years-in-florida/page.js": "app/components/SeasonalSearchHub.js",
   "app/florida-events/page.js": "app/florida-events/page.js",
   "app/florida-events/[slug]/page.js": "app/florida-events/[slug]/page.js",
   "app/guides/page.js": "app/guides/page.js",
