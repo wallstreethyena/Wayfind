@@ -166,8 +166,11 @@ let swipe = "browser swipe not run";
         // one card width of swipe from card 2 lands on the guide (index 2)
         const step = left(tiles[2]) - left(tiles[1]);
         rail.scrollBy({ left: step * 0.62, behavior: "instant" }); await wait();
-        const landed = Math.abs(rail.scrollLeft - left(guide)) <= 2;
-        return { landed, idx: tiles.indexOf(guide), scroll: rail.scrollLeft, guideAt: left(guide), w: guide.getBoundingClientRect().width, sib: tiles[1].getBoundingClientRect().width, snap: getComputedStyle(guide).scrollSnapAlign };
+        // The snap position is the card's left edge minus the rail's scroll padding
+        // (main #1704 gave .wf-rail scroll-padding-inline:4px so the ring is not cut off).
+        const pad = parseFloat(getComputedStyle(rail).scrollPaddingInlineStart) || 0;
+        const landed = Math.abs(rail.scrollLeft - (left(guide) - pad)) <= 2;
+        return { landed, idx: tiles.indexOf(guide), scroll: rail.scrollLeft, guideAt: left(guide) - pad, w: guide.getBoundingClientRect().width, sib: tiles[1].getBoundingClientRect().width, snap: getComputedStyle(guide).scrollSnapAlign };
       });
       await browser.close();
       ok(res.idx === 2, `the guide is the third tile in the real track (index ${res.idx})`);
