@@ -118,7 +118,12 @@ export const WF_SEARCH_CSS = `.wf-search-row{filter:drop-shadow(0 11px 20px rgba
 // outranks the fall card selectors, so a fall listed place could never wear
 // both skins. Background: public/christmas/card-bg-*.webp, the owner's art
 // with its placeholder pills removed (decoration sits on the body corners,
-// the photo stays clean). A skin paints the RESTING state only: buttons carry
+// the photo stays clean).
+// LINE ART NEVER SITS BEHIND TEXT OR BUTTONS (owner, 2026-10-08): the art
+// lives only in bands measured empty on real cards. card-bg-top-* carries the
+// band between the label pill and the title (empty on every card); card-bg-*
+// adds the lower band above the action row, used only when the card has no
+// ticket or book button (:has), so a browser without :has gets the safe one. A skin paints the RESTING state only: buttons carry
 // :not(.is-active) and the border yields to liked/disliked.
 // The take rule is written "<sel> {" with a space, as the fall one is, so
 // check-known-for-tiers keeps matching the BASE .wf-place-card-take{ rule.
@@ -325,8 +330,9 @@ ${WF_SKELETON_CSS}
 .wf-fall .wf-place-card .wf-place-card-take,.wf-place-card.wf-fall-card .wf-place-card-take {color:#FFF2DF!important;border-left-color:#FFB45E!important}
 .wf-fall .wf-place-card .wf-place-card-highlights>button,.wf-fall .wf-place-card .wf-place-card-highlights>span,.wf-fall .wf-place-card .wf-place-card-highlights>a,.wf-place-card.wf-fall-card .wf-place-card-highlights>button,.wf-place-card.wf-fall-card .wf-place-card-highlights>span,.wf-place-card.wf-fall-card .wf-place-card-highlights>a{background:rgba(59,26,5,.62)!important;border:1px solid rgba(255,196,110,.6)!important;color:#FFE9CB!important;box-shadow:none!important}
 .wf-fall .wf-place-card .wf-place-card-highlights,.wf-place-card.wf-fall-card .wf-place-card-highlights{mask-image:linear-gradient(90deg,#000 94%,transparent 100%);-webkit-mask-image:linear-gradient(90deg,#000 94%,transparent 100%)}
-${XMAS()}{background:#5A0712 url(/christmas/card-bg-640.webp?v=2) right top/cover no-repeat!important;box-shadow:0 10px 26px rgba(40,2,8,.55),0 0 14px rgba(192,16,42,.28)!important;overflow:hidden}
-@media(min-resolution:1.5dppx){${XMAS()}{background-image:url(/christmas/card-bg-1100.webp?v=2)!important}}
+${XMAS()}{background:#5A0712 url(/christmas/card-bg-top-640.webp?v=3) right top/cover no-repeat!important;box-shadow:0 10px 26px rgba(40,2,8,.55),0 0 14px rgba(192,16,42,.28)!important;overflow:hidden}
+${XMAS("", ":not(:has(.wf-rail-card-cta)):not(:has(.wf-place-card-book))")}{background-image:url(/christmas/card-bg-640.webp?v=3)!important}
+@media(min-resolution:1.5dppx){${XMAS()}{background-image:url(/christmas/card-bg-top-1100.webp?v=3)!important}${XMAS("", ":not(:has(.wf-rail-card-cta)):not(:has(.wf-place-card-book))")}{background-image:url(/christmas/card-bg-1100.webp?v=3)!important}}
 ${XMAS("", ":not(.is-liked):not(.is-disliked)")}{border:1px solid rgba(232,180,138,.9)!important}
 ${XMAS(".wf-place-card-media")}{background:#3A0510;border-right:1px solid rgba(232,180,138,.85)}
 ${XMAS(".wf-place-card-rank")}{background:rgba(42,3,10,.86)!important;border:1px solid ${XMAS_ROSE}!important;color:#FFF4EE!important}

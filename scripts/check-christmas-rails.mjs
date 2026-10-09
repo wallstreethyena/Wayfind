@@ -302,7 +302,9 @@ ok(christmasEventRail(live("Fall Harvest Lights Night", "2026-11-21", "2026-11-2
   const leaked = leaks(WF_PLACE_CARD_CSS);
   ok(leaked.length === 0, `every Christmas skin selector is scoped to the Christmas collection or .wf-christmas-card, never a bare card (leaks: ${leaked.slice(0, 3).join(" | ")})`);
   const has = (selRx, bodyRx, label) => ok(xmasRules.some((r) => selRx.test(r.sel) && bodyRx.test(r.body)), label);
-  has(/\.wf-place-card:not\(\.wf-guide-card\)(?:,|$)/, /#5A0712 url\(\/christmas\/card-bg-640\.webp\?v=2/, "the card body wears the owner's red art background (640, v2 cache bust)");
+  has(/\.wf-place-card:not\(\.wf-guide-card\)(?:,|$)/, /#5A0712 url\(\/christmas\/card-bg-top-640\.webp\?v=3/, "every Christmas card defaults to the safe art (line art only in the band empty on every card)");
+  has(/:not\(:has\(\.wf-rail-card-cta\)\):not\(:has\(\.wf-place-card-book\)\)/, /card-bg-640\.webp\?v=3/, "the lower band art (gift, tree) only shows on cards with no ticket or book button");
+  ok(!xmasRules.some((r) => /card-bg-640\.webp|card-bg-1100\.webp/.test(r.body) && !/:not\(:has\(\.wf-rail-card-cta\)\)/.test(r.sel)), "the full art is never the unconditional background (it would sit behind a Tickets button)");
   has(/wayfind-score-badge>span:first-child/, /#E8B48A/, "the score badge has a rose gold left segment");
   ok(/url\(\/christmas\/card-bg-1100\.webp/.test(WF_PLACE_CARD_CSS), "high density screens get the 1100 background");
   has(/:not\(\.is-liked\):not\(\.is-disliked\)/, /border:1px solid rgba\(232,180,138/, "the rose gold border yields to liked and disliked states");
@@ -315,9 +317,9 @@ ok(christmasEventRail(live("Fall Harvest Lights Night", "2026-11-21", "2026-11-2
   ok(!xmasRules.some((r) => /wf-place-card-media/.test(r.sel) && /background-image|url\(/.test(r.body)), "no decoration is painted over the photo column");
   const xmas = PLACE_CARD_SKIN_EXCEPTIONS.find((x) => x.id === "christmas");
   ok(PLACE_CARD_SKIN_EXCEPTIONS.length === 3 && !!xmas && xmas.approved === "2026-10-08", "Christmas is registered as the third owner approved skin exception");
-  for (const [file, cap] of [["public/christmas/card-bg-640.webp", 60 * 1024], ["public/christmas/card-bg-1100.webp", 120 * 1024]]) {
+  for (const [file, cap] of [["public/christmas/card-bg-640.webp", 60 * 1024], ["public/christmas/card-bg-1100.webp", 120 * 1024], ["public/christmas/card-bg-top-640.webp", 60 * 1024], ["public/christmas/card-bg-top-1100.webp", 120 * 1024]]) {
     const full = path.join(ROOT, file);
-    ok(existsSync(full) && statSync(full).size > 2000 && statSync(full).size <= cap, `${file} exists and is under ${cap / 1024}KB (${existsSync(full) ? statSync(full).size : "missing"} bytes)`);
+    ok(existsSync(full) && statSync(full).size > 1000 && statSync(full).size <= cap, `${file} exists and is under ${cap / 1024}KB (${existsSync(full) ? statSync(full).size : "missing"} bytes)`);
   }
   const comp = read("app/components/ChristmasIntentRails.js").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
   const wraps = comp.match(/className="wf-rail wf-rail-exploding wf-christmas" data-rail=\{railId\}/g) || [];
