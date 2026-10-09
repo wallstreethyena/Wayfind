@@ -23,6 +23,7 @@ import { nextFallOccurrence } from "../../../../lib/fallIntentRails.js";
 import { pageOneRail } from "../../../../lib/railPage.js";
 import { windowRailAnswer } from "../../../../lib/railResponse.js";
 import { fallEventCardImageSrc, eventImageIsVenue } from "../../../../lib/fallEventImage.js";
+import { eventPlaceholder } from "../../../../lib/eventPlaceholder.js";
 import { isServableDeal } from "../../../../lib/eventTicketDeals.js";
 import { withChristmasGuides } from "../../../../lib/christmasGuides.js";
 import { eventSocialPosts } from "../../../../lib/eventSocial.js";
@@ -48,7 +49,9 @@ export async function GET(request) {
     // v1 (2026-10-08): first publish of the Christmas collection.
     // v2 (2026-10-08): each rail carries its own guide (server projected).
     // v3 (2026-10-08): events missing place_id or coordinates are enriched from their venue.
-    const key = `christmas-intents:v3:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v4 (2026-10-08): rails topped up to 8, every theme park statewide, designed tiles
+    //   for events with no photo, deeper place pool.
+    const key = `christmas-intents:v4:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     const cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const signal = AbortSignal.timeout(CHRISTMAS_DB_DEADLINE_MS);
@@ -113,6 +116,9 @@ export async function GET(request) {
           hook: e.card_hook,
           take: e.editorial_summary || null,
           image: image || null,
+          // No verified photo of the event or its venue: the owner approved
+          // designed tile (lib/eventPlaceholder.js), never stock, never dropped.
+          placeholder: image ? null : eventPlaceholder("community", { name: e.event_name, title: e.short_title, tags: e.tags }),
           imageIsVenue: eventImageIsVenue(e, image),
           photoAttr: e.photoAttr || null,
           photoAttrHref: e.photoAttrHref || null,
@@ -122,7 +128,7 @@ export async function GET(request) {
           creatorReels,
           ticket,
         };
-      }).filter((event) => event.image && (event.url || event.place_id));
+      }).filter((event) => (event.image || event.placeholder) && (event.url || event.place_id || event.detailHref));
 
       const places = (placeResult.error ? [] : (placeResult.data || []))
         .filter((p) => hasStoredPlacePhoto(p))

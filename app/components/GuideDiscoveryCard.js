@@ -78,7 +78,7 @@ function useTeaserFit(ref, initial, hasTeaser) {
 // The picture is never a blank monogram while we own one: guide hero, then the
 // guide's first curated licensed pick photo (both credited), then the matched /
 // first pick's own no-spend place photo. See lib/guideCardPhoto.js.
-export default function GuideDiscoveryCard({ guide, matched = null, onOpen }) {
+export default function GuideDiscoveryCard({ guide, matched = null, onOpen, className = "" }) {
   const href = `/guides/${guide?.slug || ''}`;
   const art = guide?.slug ? guideCardPhoto(guide, matched) : {};
   const title = clean(guide?.title);
@@ -110,7 +110,7 @@ export default function GuideDiscoveryCard({ guide, matched = null, onOpen }) {
   ) : null;
   return <RailCard
     variant="guide"
-    className={`wf-guide-teaser-${lines}`}
+    className={`wf-guide-teaser-${lines}${className ? " " + className : ""}`}
     photo={art.src}
     photoAttr={art.credit}
     photoAttrHref={art.creditHref}

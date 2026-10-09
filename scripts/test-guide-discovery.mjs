@@ -17,7 +17,8 @@ assert(candidate, 'real local guide with covered venues');
 const places = Array.from({length:12}, (_,i) => ({id: i===4 ? candidate.placeIds[0] : 'unrelated-'+i, _s:100-i}));
 const before=JSON.stringify(places);
 const selected=guideForPlaceRail(guides,places,'outdoors');
-assert(selected && selected.before>=3 && selected.before<=6, 'insert follows top three ranked places');
+// OWNER RULE 2026-10-08 (lib/railGuideSlot.js): the guide is the rail's THIRD card.
+assert(selected && selected.before===2, 'the guide is the third card of its rail (index 2)');
 assert(selected.guide.placeIds.some(id=>places.some(p=>p.id===id)), 'exact venue relevance');
 assert.equal(JSON.stringify(places),before,'ranked list untouched');
 assert.deepEqual(guideForPlaceRail(guides,places,'outdoors'),selected,'no render jitter');
@@ -28,9 +29,9 @@ assert.equal(guideForPlaceRail([{...candidate,image:null}],places,'outdoors'),nu
 assert.equal(guideForPlaceRail([candidate],places.map(p=>({...p,_sponsored:true})),'outdoors'),null,'ads never authorize relevance');
 assert(guideForPlaceRail([candidate,candidate],places,'outdoors'),'duplicates yield just one selection');
 const withAd=[{id:'ad',_sponsored:true},...places];
-assert(guideForPlaceRail(guides,withAd,'outdoors').before>=4,'top three organic results stay ahead of insert even with an ad');
+assert.equal(guideForPlaceRail(guides,withAd,'outdoors').before,2,'with an ad in front the guide is still the third card the reader sees');
 const positions = new Set(Array.from({length:30},(_,i)=>guideForPlaceRail([candidate],places,'rail-'+i).before));
-assert(positions.size>1,'position varies across rails');
+assert(positions.size===1 && positions.has(2),'every rail puts the guide at the same third slot');
 const miami = guideHero('things-to-do-in-miami-florida');
 assert(miami.src.includes('vizcaya'), 'beyond the beach uses covered museum, not beach');
 assert.deepEqual(guideImageProblems(miami,GUIDE_IMAGE_BRIEFS['things-to-do-in-miami-florida']),[],'Miami rights and subject policy passes');
@@ -47,14 +48,14 @@ console.log(`test-guide-discovery: OK — ${guides.length} active guide images, 
 // A short first page is the boundary the old length-only test missed.
 const shortPlaces = Array.from({length:4}, (_,i)=>({id:i===1?candidate.placeIds[0]:'short-'+i}));
 const shortSelection = guideForPlaceRail([candidate], shortPlaces, 'short-rail');
-assert(shortSelection && shortSelection.before===3);
+assert(shortSelection && shortSelection.before===2);
 const laterGuide={...candidate,slug:'new-guide-on-next-page',placeIds:['late-match']};
 const eight=[...shortPlaces,{id:'late-match'},...Array.from({length:3},(_,i)=>({id:'page-'+i}))];
 const keptEight=guideForPlaceRail([laterGuide,candidate],eight,'short-rail',shortSelection);
 assert.equal(keptEight.guide.slug,shortSelection.guide.slug,'4→8 retains selected guide despite newly eligible guide');
-assert.equal(keptEight.before,3,'4→8 retains initial slot');
+assert.equal(keptEight.before,2,'4→8 keeps the third slot');
 const keptTwelve=guideForPlaceRail([laterGuide,candidate],[...eight,...places.slice(8)],'short-rail',keptEight);
-assert.equal(keptTwelve.before,3,'8→12 retains initial slot');
+assert.equal(keptTwelve.before,2,'8→12 keeps the third slot');
 assert.equal(guideForPlaceRail([laterGuide],eight,'short-rail',shortSelection).guide.slug,laterGuide.slug,'removed or archived selection releases slot');
 
 const {guideRailCandidates,settleGuideRailSelection}=await import('../lib/guideRailCollections.js');
@@ -77,14 +78,20 @@ const {renderToStaticMarkup}=await import('react-dom/server');
 const path=await import('node:path');
 const {loadComponent}=await import('./lib/jsxLoad.mjs');
 const root=path.resolve(path.dirname(new URL(import.meta.url).pathname),'..');
-const {Collection,GuideDiscoveryContext:Context}=await loadComponent(path.join(root,'scripts/lib/guideCollectionHarness.js'),root);
+const {Collection,GuideDiscoveryContext:Context,RailGuideSlot}=await loadComponent(path.join(root,'scripts/lib/guideCollectionHarness.js'),root);
+// Each rail renders its own track; the collection only says which rail owns the
+// guide, and that rail's RailGuideSlot puts it third INSIDE the track.
+const track=(rail)=>React.createElement('div',{key:rail.id,className:'wf-rail','data-test-rail':rail.id},
+  React.createElement(RailGuideSlot,{railId:rail.id},[0,1,2,3].map(n=>React.createElement('i',{key:n,'data-card':rail.id+'-'+n}))));
 const collectionMarkup=renderToStaticMarkup(React.createElement(Context.Provider,{value:[candidate]},
-  React.createElement(Collection,{rails,collectionId:'collection'},rails.map(rail=>React.createElement('section',{key:rail.id,'data-test-rail':rail.id},rail.id)))));
+  React.createElement(Collection,{rails,collectionId:'collection'},rails.map(track))));
 const cardAt=collectionMarkup.indexOf('wf-rail-card');
 assert(collectionMarkup.includes('wf-rail-card')&&collectionMarkup.includes('wf-place-card'),'card carries the standard place card classes');
 assert.equal((collectionMarkup.match(/<article/g)||[]).length,1,'actual shared collection renders exactly one guide card, as a standard rail card');
-assert(cardAt>collectionMarkup.indexOf('data-test-rail="covered"'),'actual insertion follows its covered rail');
-assert(cardAt<collectionMarkup.indexOf('data-test-rail="event"'),'actual insertion is between rails');
+const covered=collectionMarkup.slice(collectionMarkup.indexOf('data-test-rail="covered"'),collectionMarkup.indexOf('data-test-rail="event"'));
+assert(covered.includes('wf-rail-card'),'the guide is INSIDE its covered rail track, not between rails');
+assert(covered.indexOf('data-card="covered-1"')<covered.indexOf('wf-rail-card') && covered.indexOf('wf-rail-card')<covered.indexOf('data-card="covered-2"'),'the guide is the third card of the track (after two place cards)');
+assert(cardAt>collectionMarkup.indexOf('data-test-rail="covered"') && cardAt<collectionMarkup.indexOf('data-test-rail="event"'),'nothing renders between rails');
 assert(!collectionMarkup.includes('Illustrative') && !collectionMarkup.includes('data-guide-discovery') && !collectionMarkup.includes('<figcaption'),'no illustrative disclaimer, no old guide grid, no photographer line');
 // Guide cards (owner, 2026-10-07): NO chip bubbles, the full title is the focus
 // (scripts/check-guide-card.mjs pins the unclamped title), the read time rides
@@ -95,10 +102,10 @@ assert(!collectionMarkup.includes('wf-place-card-score'),'no score or READ badge
 assert(/wf-place-card-category">Local guide/.test(collectionMarkup),'the filled Local guide tag leads the card');
 assert(collectionMarkup.includes('Local guide') && collectionMarkup.includes(`${candidate.mins} min`) && collectionMarkup.includes('Read the guide'),'tag with read time and single CTA');
 assert(collectionMarkup.includes(`/guides/${candidate.slug}`),'internal guide link survives');
-assert.equal((collectionMarkup.match(/data-test-rail=/g)||[]).length,rails.length,'every original child stays present');
-const withoutContext=renderToStaticMarkup(React.createElement(Collection,{rails,collectionId:'collection'},rails.map(rail=>React.createElement('section',{key:rail.id},rail.id))));
+assert.equal((collectionMarkup.match(/data-test-rail=/g)||[]).length,rails.length,'every original rail stays present');
+const withoutContext=renderToStaticMarkup(React.createElement(Collection,{rails,collectionId:'collection'},rails.map(track)));
 assert(!withoutContext.includes('wf-rail-card'),'no context means no guessed guide suggestions');
-console.log('test-guide-discovery: real React collection/card render passed; one standard guide card between unchanged rails');
+console.log('test-guide-discovery: real React collection/card render passed; one standard guide card, third inside its own rail');
 {
   const css = readFileSync(new URL('../app/components/railMenuCss.js', import.meta.url), 'utf8');
   const rule = css.match(/\.wf8-guide-insert\{[^`]*/)?.[0] || '';

@@ -1,4 +1,5 @@
 "use client";
+import RailGuideSlot from "./RailGuideSlot";
 import GuideRailCollection from "./GuideRailCollection";
 
 import { selectPosterEvents } from "../../lib/posterEvents.js";
@@ -84,7 +85,7 @@ function TodayRailSection({ rail, lat, lng, city, onOpenPlace, isSaved, liked, d
       <RailNav railId={railId} count={count} total={count} loaded={items.length} unit={count === 1 ? "ranked place" : "ranked places"} />
     </RailHeading>
     <>
-      <div className="wf-rail wf-rail-exploding" data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}>
+      <div className="wf-rail wf-rail-exploding" data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}><RailGuideSlot railId={rail.id}>
         {items.map((place, index) => {
           const rank = index + 1;
           const photo = place.photo || (place.photoRef ? "/api/photo?ref=" + encodeURIComponent(place.photoRef) + "&g=2&w=640" : null);
@@ -109,7 +110,7 @@ function TodayRailSection({ rail, lat, lng, city, onOpenPlace, isSaved, liked, d
         })}
         {loadingMore ? <div className="wf-rail-card wf-exploding-primary wf-sk" role="status" aria-busy="true" aria-label={`Loading more ${rail.title}`}
           style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 88, color: COLORS.muted, fontSize: 12.5 }}>Loading more…</div> : null}
-      </div>
+      </RailGuideSlot></div>
       {items.length > 1 ? <RailDots railId={railId} count={items.length} /> : null}
     </>
   </section>;
