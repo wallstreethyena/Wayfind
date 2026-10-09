@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 // provider call anywhere in this path and the spend gate is not involved.
 // Photos are plain /api/photo URLs built by the same helpers Fall uses
 // (cardImageSrc / fallEventCardImageSrc); nothing here calls Google.
-// Five fixed rails (lib/christmasIntentRails.js), so paging only ever applies
+// Eight fixed rails (lib/christmasIntentRails.js), so paging only ever applies
 // to ONE rail's cards via ?rail=&page=&size= (lib/railPage.js).
 import { fetchCuratedEvents, isTrusted, eventOutboundUrl } from "../../../../lib/curatedEvents.js";
 import { siteTodayStr } from "../../../../lib/siteTime.js";
@@ -18,7 +18,8 @@ import { wayfindScore } from "../../../../lib/wayfindScore.js";
 import { cardImageSrc, hasStoredPlacePhoto } from "../../../../lib/placePhoto.js";
 import { fastCachedRail, geoCell } from "../../../../lib/railFastCache.js";
 import { composeChristmasIntentRails, christmasEventRail } from "../../../../lib/christmasIntentRails.js";
-import { CHRISTMAS_PLACE_IDS, CHRISTMAS_PLACE_RAIL, CHRISTMAS_PLACE_TAKES, CHRISTMAS_TICKET_DEAL_IDS, CHRISTMAS_VENUE_PLACE_IDS, enrichChristmasEvent, christmasEventTicket } from "../../../../lib/christmasPool.js";
+import { mergeChristmasDiscoveryRows, CHRISTMAS_POPUP_SEASON_CHIP } from "../../../../lib/christmasDiscoveries2026.js";
+import { CHRISTMAS_PLACE_IDS, CHRISTMAS_PLACE_RAIL, CHRISTMAS_PLACE_TAKES, CHRISTMAS_PLACE_TITLES, CHRISTMAS_TICKET_DEAL_IDS, CHRISTMAS_VENUE_PLACE_IDS, enrichChristmasEvent, christmasEventTicket } from "../../../../lib/christmasPool.js";
 import { nextFallOccurrence } from "../../../../lib/fallIntentRails.js";
 import { pageOneRail } from "../../../../lib/railPage.js";
 import { windowRailAnswer } from "../../../../lib/railResponse.js";
@@ -51,7 +52,9 @@ export async function GET(request) {
     // v3 (2026-10-08): events missing place_id or coordinates are enriched from their venue.
     // v4 (2026-10-08): rails topped up to 8, every theme park statewide, designed tiles
     //   for events with no photo, deeper place pool.
-    const key = `christmas-intents:v4:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v5 (2026-10-09): eight rails, the verified 2026 registry merged at read
+    //   time, the five location corrections, the distance group ordering law.
+    const key = `christmas-intents:v5:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     const cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const signal = AbortSignal.timeout(CHRISTMAS_DB_DEADLINE_MS);
@@ -69,9 +72,12 @@ export async function GET(request) {
       if (placeResult.error) console.error("[api/events/christmas] place inventory degraded", { message: String(placeResult.error.message || placeResult.error) });
 
       const pageSlugs = new Set((rows || []).map((row) => row?.slug).filter(Boolean));
+      // The verified registry and the read time corrections (lib/christmasDiscoveries2026.js):
+      // one row per event_id, each carrying its rail. No DB write.
+      const mergedRows = mergeChristmasDiscoveryRows(rows || []);
       const inventoryById = new Map((placeResult.data || []).map((row) => [row.place_id, row]));
       // Fill the venue identity and coordinates the row lacks (never guessed: lib/christmasPool.js).
-      const eligibleRows = (rows || []).filter((e) => isTrusted(e) && christmasEventRail(e)).map((e) => enrichChristmasEvent(e, inventoryById));
+      const eligibleRows = mergedRows.filter((e) => isTrusted(e) && christmasEventRail(e)).map((e) => enrichChristmasEvent(e, inventoryById));
 
       // Venue photos for the events: one more owned read for the venues the
       // pool above did not already cover. An event with no resolvable venue
@@ -118,7 +124,7 @@ export async function GET(request) {
           image: image || null,
           // No verified photo of the event or its venue: the owner approved
           // designed tile (lib/eventPlaceholder.js), never stock, never dropped.
-          placeholder: image ? null : eventPlaceholder("community", { name: e.event_name, title: e.short_title, tags: e.tags }),
+          placeholder: image ? null : eventPlaceholder("community", { name: e.event_name, title: e.short_title, tags: e.tags, christmasRail: christmasEventRail(e) }),
           imageIsVenue: eventImageIsVenue(e, image),
           photoAttr: e.photoAttr || null,
           photoAttrHref: e.photoAttrHref || null,
@@ -138,7 +144,7 @@ export async function GET(request) {
           return {
             kind: "place",
             id: p.place_id,
-            title: p.name, name: p.name,
+            title: CHRISTMAS_PLACE_TITLES[p.place_id] || p.name, name: p.name,
             lat: p.lat, lng: p.lng, metro: p.metro, category: p.category,
             rating,
             reviews: p.signals?.reviews || 0,
@@ -146,6 +152,8 @@ export async function GET(request) {
             take: CHRISTMAS_PLACE_TAKES[p.place_id] || null,
             image: cardImageSrc({ place_id: p.place_id, photo_ref: p.photo_ref, photo_url: p.photo_url, signals: p.signals }, 640),
             christmasRail: CHRISTMAS_PLACE_RAIL[p.place_id],
+            // A pop up bar has a confirmed season and no date: it says exactly that.
+            seasonChip: CHRISTMAS_PLACE_RAIL[p.place_id] === "popup-bars" ? CHRISTMAS_POPUP_SEASON_CHIP : null,
           };
         })
         .filter((place) => place.image);
@@ -156,7 +164,7 @@ export async function GET(request) {
     }, {
       name: "christmas-intent-rails",
       usable: (value) => value?.sourceFailures === 0
-        && value?.rails?.length === 5 && Number(value?.sourceCount || 0) > 0,
+        && value?.rails?.length === 8 && Number(value?.sourceCount || 0) > 0,
     });
     const complete = cached.value?.sourceFailures === 0;
     const headers = {
