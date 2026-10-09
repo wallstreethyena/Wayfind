@@ -177,7 +177,7 @@ if (existsSync(p(HALLOWEEN_AVIF_REL))) {
 //    definition, which legitimately contains the raw path once, as
 //    NORMAL_MARK.png) lives outside app/ and is never walked.
 // ─────────────────────────────────────────────────────────────────────────
-const RAW_NORMAL_PATH = "/brand/wayfind-wordmark-transparent-v2.png";
+const RAW_NORMAL_PATH = "/brand/wayfind-wordmark-original-v3.png";
 const RESOLVER_CALL_RX = /\bactiveSeasonalMark\s*\(/;
 const HALLOWEEN_REF_RX = /\bHALLOWEEN_MARK\b/;
 
@@ -267,15 +267,14 @@ eq(HALLOWEEN_MARK.webp, "/brand/opt/wordmark-halloween-400.webp", "HALLOWEEN_MAR
 eq(HALLOWEEN_MARK.png, "/brand/wayfind-wordmark-halloween-v1.png", "HALLOWEEN_MARK.png must be the real committed asset path");
 
 // ─────────────────────────────────────────────────────────────────────────
-// 5. The NON-seasonal geometry is pinned to today's four real numbers, so a
+// 5. The NON-seasonal geometry is pinned to today's whole-artwork geometry, so a
 //    future edit to the seasonal rule (or anything else in this CSS blob)
 //    cannot quietly resize the normal, year-round wordmark.
 // ─────────────────────────────────────────────────────────────────────────
 const PINNED_NORMAL_RULES = [
-  '.wf-wordmark-text{width:117.4px;height:39.06px;background-size:151.2px 39.06px;background-position:left center}',
-  '.wf-wordmark-pin{width:31.65px;height:36.54px;background-size:141.45px 36.54px;background-position:right center}',
-  '.wf-wordmark-text{width:139.77px;height:46.5px;background-size:179.99px 46.5px}',
-  '.wf-wordmark-pin{width:37.68px;height:43.5px;background-size:168.38px 43.5px}',
+  '.wf-wordmark-text{width:154.05px;height:39.06px;background-size:contain;background-position:center}',
+  '.wf-wordmark>.wf-wordmark-pin{display:none}',
+  '.wf-wordmark-text{width:183.45px;height:46.5px}',
 ];
 for (const rule of PINNED_NORMAL_RULES) {
   const count = cssSrc.split(rule).length - 1;
@@ -292,5 +291,5 @@ if (failures) process.exit(1);
 console.log(
   `test-seasonal-brand: OK — ${normalDates.length} original-logo date assertions and 10 injected seasonal-window assertions on real activeSeasonalMark() calls, ` +
   `3 committed asset files verified by real header bytes (not filename), ${EXPECTED_CALL_SITE_FILES.length} call-site files discovered and confirmed routed through the resolver, ` +
-  `avif+webp+png counted together in the seasonal CSS rule, and the 4 non-seasonal geometry rules pinned unchanged.`
+  `avif+webp+png counted together in the seasonal CSS rule, and the 3 non-seasonal geometry rules pinned unchanged.`
 );

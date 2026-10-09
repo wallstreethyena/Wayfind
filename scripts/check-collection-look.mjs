@@ -70,7 +70,7 @@ ok(ranked.includes("./EditorialLandingHero"), "RankedExperiencePage imports the 
 // weaken the assertion instead of reading it.
 const strip = (s) => s.replace(/^\s*\/\/.*$/gm, "");
 ok(!/<header/.test(strip(ranked)), "RankedExperiencePage no longer declares its own <header> — it delegates, or the two heroes drift");
-ok(!ranked.includes("/brand/wayfind-wordmark-transparent-v2.png"), "the wordmark lives in exactly one place");
+ok(!ranked.includes("/brand/wayfind-wordmark-original-v3.png"), "the wordmark lives in exactly one place");
 ok(expScreen.includes("../EditorialLandingHero"), "screens/Experience.js imports the shared editorial hero");
 ok(/<EditorialLandingHero\b/.test(expScreen), "screens/Experience.js renders EditorialLandingHero");
 ok(/prefix="wf-experience-editorial"/.test(expScreen), "the in-app hero owns a separate prefix so beach styling remains untouched");
