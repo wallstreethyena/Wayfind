@@ -2157,3 +2157,5 @@ node scripts/test-google-photo-prefetch-pause.mjs
 node scripts/test-inventory-row-card-fields.mjs
 node scripts/test-card-chips-deterministic.mjs
 node scripts/check-creator-independence.mjs
+
+node scripts/test-seasonal-search.mjs
