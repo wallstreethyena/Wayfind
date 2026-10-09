@@ -117,16 +117,17 @@ function authorizer(allow) {
 // per matching outbound call — a scenario with two entries for the same kind
 // (e.g. skip: [{status:503},{status:200,...}]) is exactly how the one bounded
 // retry is exercised, with zero network.
+const allUrls = []; // every outbound URL of every scenario, for the stored-name invariant
 function googleStub(script) {
   const calls = [];
   const fn = async (url) => {
     const u = String(url);
+    allUrls.push(u);
     if (!u.startsWith("https://places.googleapis.com/v1/")) throw new Error("test bug: unexpected url " + u);
-    const healed = u.includes(NEW_REF);
     let kind;
     if (u.includes("?fields=photos")) kind = "details";
-    else if (u.includes("skipHttpRedirect=true")) kind = healed ? "healedSkip" : "skip";
-    else if (u.includes("/media?")) kind = healed ? "healedFollow" : "follow";
+    else if (u.includes("skipHttpRedirect=true")) kind = "skip";
+    else if (u.includes("/media?")) kind = "follow";
     else throw new Error("test bug: unclassified url " + u);
     const list = script[kind];
     if (!list || !list.length) throw new Error(`test bug: no scripted ${kind} response left for call #${calls.filter((k) => k === kind).length + 1}`);
@@ -152,12 +153,16 @@ function googleStub(script) {
 // in this same file, and so no scenario here depends on network reachability
 // for a refund call.
 const DEPS_BASE = {
-  cacheGet: async () => null, cacheSet: async () => {}, inventoryGet: async () => null, retryDelayMs: 0,
+  inventoryGet: async () => null, retryDelayMs: 0,
   breakerOpen: async () => null, tripBreaker: async () => true, refund: async () => true,
 };
 async function run(script, authorizeSpend) {
+  if (!script.details) script.details = [{ status: 200, body: { photos: [{ name: NEW_REF }] } }];
   const stub = googleStub(script);
-  const input = { ref: OLD_REF, w: 640, serverKey: "server-key-test" };
+  // COMPLIANT PHOTOS (2026-10-08): the live path is Details (current name) THEN
+  // media. A scenario that does not script `details` gets the standard answer.
+  if (!script.details) script.details = [{ status: 200, body: { photos: [{ name: NEW_REF }] } }];
+  const input = { ref: OLD_REF, w: 640, serverKey: "server-key-test", googleSurface: true };
   if (authorizeSpend) input.authorizeSpend = authorizeSpend;
   const result = await resolvePlacePhoto(input, { ...DEPS_BASE, fetchImpl: stub.fn });
   return { calls: stub.calls, result };
@@ -165,16 +170,22 @@ async function run(script, authorizeSpend) {
 
 const missResults = []; // every owned-miss result, for the invariant at the end
 
-// A. 429 — quota. No retry, no follow, no heal, no Details grant.
+// COMPLIANT PHOTOS (2026-10-08). Every Google-path scenario is now
+// Details (IDs Only, current name) -> media(name). A media failure on the FRESH
+// name is reported as "fresh-failed:<class>"; the stored-name self-heal
+// (stale-heal-*) is no longer reachable through the resolver, because a stored
+// photo name is never sent to Google. Each scenario below says which.
+
+// A. 429 on the media call — quota. No retry, no follow, no second Details.
 {
   const auth = authorizer({ photos: 99, details_ids_only: 99 });
   const { calls, result } = await run({ skip: [{ status: 429 }] }, auth);
-  eq(calls.join(","), "skip", "A(429): exactly one outbound request");
-  eq(result.upstream, "quota", "A(429): classified quota");
+  eq(calls.join(","), "details,skip", "A(429): Details then exactly one media request");
+  eq(result.upstream, "fresh-failed:quota", "A(429): classified quota (on the fresh name)");
   eq(result.retried, false, "A(429): quota must never retry");
   eq(result.reason, "owned-miss", "A(429): honest miss");
   eq(auth.asked("photos"), 1, "A(429): only the resolver's own covered first grant, no extra");
-  eq(auth.asked("details_ids_only"), 0, "A(429): no Details grant asked");
+  eq(auth.asked("details_ids_only"), 1, "A(429): exactly the one Details grant");
   missResults.push(result);
 }
 
@@ -182,12 +193,12 @@ const missResults = []; // every owned-miss result, for the invariant at the end
 for (const status of [500, 502, 503]) {
   const auth = authorizer({ photos: 99, details_ids_only: 99 });
   const { calls, result } = await run({ skip: [{ status }, { status }] }, auth);
-  eq(calls.join(","), "skip,skip", `B(${status}): retried exactly once (two physical requests, one call site)`);
-  eq(result.upstream, "server", `B(${status}): classified server`);
+  eq(calls.join(","), "details,skip,skip", `B(${status}): retried exactly once (two physical media requests, one call site)`);
+  eq(result.upstream, "fresh-failed:server", `B(${status}): classified server`);
   eq(result.retried, true, `B(${status}): server must retry once`);
   eq(result.reason, "owned-miss", `B(${status}): still an honest miss after a persistent 5xx`);
   eq(auth.asked("photos"), 1, `B(${status}): the retry took no additional grant`);
-  eq(auth.asked("details_ids_only"), 0, `B(${status}): no Details grant on a 5xx`);
+  eq(auth.asked("details_ids_only"), 1, `B(${status}): the retry took no additional Details grant`);
   missResults.push(result);
 }
 
@@ -195,138 +206,124 @@ for (const status of [500, 502, 503]) {
 {
   const auth = authorizer({ photos: 99, details_ids_only: 99 });
   const { calls, result } = await run({ skip: [{ throw: true }, { throw: true }] }, auth);
-  eq(calls.join(","), "skip,skip", "C(thrown): retried exactly once");
-  eq(result.upstream, "network", "C(thrown): classified network");
+  eq(calls.join(","), "details,skip,skip", "C(thrown): retried exactly once");
+  eq(result.upstream, "fresh-failed:network", "C(thrown): classified network");
   eq(result.retried, true, "C(thrown): network must retry once");
   eq(auth.asked("photos"), 1, "C(thrown): the retry took no additional grant");
   missResults.push(result);
 }
 
-// D. 3xx — redirect. Never retried (skipHttpRedirect means Google should not
-// 3xx here at all — if it ever does, that is itself the finding).
+// D. 3xx — redirect. Never retried.
 {
   const auth = authorizer({ photos: 99, details_ids_only: 99 });
   const { calls, result } = await run({ skip: [{ status: 301 }] }, auth);
-  eq(calls.join(","), "skip", "D(3xx): no retry");
-  eq(result.upstream, "redirect", "D(3xx): classified redirect");
+  eq(calls.join(","), "details,skip", "D(3xx): no retry");
+  eq(result.upstream, "fresh-failed:redirect", "D(3xx): classified redirect");
   eq(result.retried, false, "D(3xx): redirect must never retry");
   missResults.push(result);
 }
 
-// E. 2xx but the body is not JSON — badjson. Never reaches follow (matches
-// the pre-existing behaviour: a parse failure used to fall into the SAME
-// outer catch a thrown fetch did).
+// E. 2xx but the body is not JSON — badjson. Never reaches follow.
 {
   const auth = authorizer({ photos: 99, details_ids_only: 99 });
   const { calls, result } = await run({ skip: [{ status: 200, badjson: true }] }, auth);
-  eq(calls.join(","), "skip", "E(2xx-nonJSON): no follow attempted");
-  eq(result.upstream, "badjson", "E(2xx-nonJSON): classified badjson");
+  eq(calls.join(","), "details,skip", "E(2xx-nonJSON): no follow attempted");
+  eq(result.upstream, "fresh-failed:badjson", "E(2xx-nonJSON): classified badjson");
   eq(result.retried, false, "E(2xx-nonJSON): a 2xx is never retried");
   eq(auth.asked("photos"), 1, "E(2xx-nonJSON): no second photos grant");
   missResults.push(result);
 }
 
 // F. 2xx, valid JSON, but photoUri is not owned — unowned. This is the ONLY
-// skipCls that still follows (2026-09-16: stale/client-400 no longer do —
-// see G/H/I/J/K/L above); follow also comes back unowned here.
+// class that still follows; follow also comes back unowned here.
 {
   const auth = authorizer({ photos: 99, details_ids_only: 99 });
   const { calls, result } = await run({
     skip: [{ status: 200, body: { photoUri: UNOWNED_URL } }],
     follow: [{ status: 200, url: UNOWNED_URL }],
   }, auth);
-  eq(calls.join(","), "skip,follow", "F(2xx-unowned): follow is still attempted on an unowned 2xx");
-  eq(result.upstream, "unowned", "F(2xx-unowned): classified unowned");
+  eq(calls.join(","), "details,skip,follow", "F(2xx-unowned): follow is still attempted on an unowned 2xx");
+  eq(result.upstream, "fresh-failed:unowned", "F(2xx-unowned): classified unowned");
   eq(result.retried, false, "F(2xx-unowned): no retry involved");
   eq(auth.asked("photos"), 2, "F(2xx-unowned): the follow request took its own grant");
   missResults.push(result);
 }
 
-// G. 400 → heal attempted → Details grant refused — stale-heal-denied.
-// SPEND EFFICIENCY (2026-09-16): follow now runs ONLY when skipCls ===
-// "unowned" — a `client` (400) skip goes straight to healEligible, no
-// second media grant. No `follow` step is scripted below: if a regression
-// reintroduced the follow call, googleStub itself would throw ("no scripted
-// follow response left"), failing this guard.
+// G. 400 on the fresh name — client. The OLD behaviour healed (a second Details
+// lookup); now the name just came from Details, so there is nothing to heal:
+// no follow, no second Details grant.
+{
+  const auth = authorizer({ photos: 99, details_ids_only: 99 });
+  const { calls, result } = await run({ skip: [{ status: 400 }] }, auth);
+  eq(calls.join(","), "details,skip", "G(400): no follow call and no re-heal");
+  eq(result.upstream, "fresh-failed:client", "G(400): classified client");
+  eq(auth.asked("photos"), 1, "G(400): only the resolver's own ask — no follow grant");
+  eq(auth.asked("details_ids_only"), 1, "G(400): exactly one Details grant — never a second");
+  missResults.push(result);
+}
+
+// G2. Details grant refused — the lookup never leaves the building.
 {
   const auth = authorizer({ photos: 99, details_ids_only: 0 });
-  const { calls, result } = await run({ skip: [{ status: 400 }] }, auth);
-  eq(calls.join(","), "skip", "G(400-heal-denied): no follow call — straight to heal");
-  eq(result.upstream, "stale-heal-denied", "G(400-heal-denied): classified stale-heal-denied");
-  eq(auth.asked("photos"), 1, "G(400-heal-denied): only the resolver's own top-level ask — no second (follow) photos grant was even asked");
-  eq(auth.asked("details_ids_only"), 1, "G(400-heal-denied): Details asked once and refused");
-  eq(auth.granted("details_ids_only"), 0, "G(400-heal-denied): and refused");
+  const { calls, result } = await run({ skip: [{ status: 200, body: { photoUri: OWNED } }] }, auth);
+  eq(calls.length, 0, "G2(details-denied): zero outbound requests");
+  eq(result.upstream, "place-lookup-denied", "G2(details-denied): classified place-lookup-denied");
+  eq(auth.asked("details_ids_only"), 1, "G2(details-denied): Details asked once and refused");
   missResults.push(result);
 }
 
-// H. 404 → heal → Details returns a fresh name → healed fetch succeeds.
-// SPEND EFFICIENCY (2026-09-16): `stale` also no longer follows — the skip
-// 404 goes straight to heal, so this is now TWO media requests total (the
-// original skip + the healed skip), not three.
+// H. Success: Details -> media. The live credit rides with the redirect.
 {
   const auth = authorizer({ photos: 99, details_ids_only: 99 });
   const { calls, result } = await run({
-    skip: [{ status: 404 }],
-    details: [{ status: 200, body: { photos: [{ name: NEW_REF }] } }],
-    healedSkip: [{ status: 200, body: { photoUri: OWNED } }],
+    details: [{ status: 200, body: { photos: [{ name: NEW_REF, authorAttributions: [{ displayName: "Jane Photog", uri: "https://maps.google.com/contrib/1" }], googleMapsUri: "https://maps.google.com/?cid=1" }] } }],
+    skip: [{ status: 200, body: { photoUri: OWNED } }],
   }, auth);
-  eq(calls.join(","), "skip,details,healedSkip", "H(404-heal-ok): full heal path, no follow call");
-  eq(result.type, "redirect", "H(404-heal-ok): a healed success is a redirect, not a miss");
-  eq(result.reason, "google", "H(404-heal-ok): reason is google");
-  eq(result.location, OWNED, "H(404-heal-ok): the healed uri is served");
-  eq(result.upstream, "ok", "H(404-heal-ok): classified ok");
-  eq(result.retried, false, "H(404-heal-ok): no transient failure, no retry");
-  eq(auth.granted("photos"), 2, "H(404-heal-ok): two photo media grants (skip pre-check + healedSkip — no follow)");
-  eq(auth.granted("details_ids_only"), 1, "H(404-heal-ok): one Details grant");
+  eq(calls.join(","), "details,skip", "H(ok): Details then one media request");
+  eq(result.type, "redirect", "H(ok): a success is a redirect, not a miss");
+  eq(result.reason, "google", "H(ok): reason is google");
+  eq(result.location, OWNED, "H(ok): the uri is served");
+  eq(result.upstream, "ok", "H(ok): classified ok");
+  eq(result.retried, false, "H(ok): no transient failure, no retry");
+  eq(result.credit && result.credit.name, "Jane Photog", "H(ok): the live credit of the fetched photo is returned");
+  eq(result.cacheControl, "private, no-store", "H(ok): never cacheable downstream");
+  eq(auth.granted("photos"), 1, "H(ok): one photos grant");
+  eq(auth.granted("details_ids_only"), 1, "H(ok): one Details grant");
 }
 
-// I. 404 → heal → Details returns the SAME expired name — stale-heal-same.
+// I. Details returns a name that is not a Google photo resource name — treated as no photo.
 {
   const auth = authorizer({ photos: 99, details_ids_only: 99 });
-  const { calls, result } = await run({
-    skip: [{ status: 404 }],
-    details: [{ status: 200, body: { photos: [{ name: OLD_REF }] } }],
-  }, auth);
-  eq(calls.join(","), "skip,details", "I(404-heal-same): no follow, no healed request when Details offers nothing new");
-  eq(result.upstream, "stale-heal-same", "I(404-heal-same): classified stale-heal-same");
+  const { calls, result } = await run({ details: [{ status: 200, body: { photos: [{ name: "not-a-photo-name" }] } }] }, auth);
+  eq(calls.join(","), "details", "I(bad-name): no media request for an unusable name");
+  eq(result.upstream, "fresh-nophoto", "I(bad-name): classified fresh-nophoto");
   missResults.push(result);
 }
 
-// J. 404 → heal → Details returns no photo at all — stale-heal-nophoto.
+// J. Details returns no photo at all — fresh-nophoto.
 {
   const auth = authorizer({ photos: 99, details_ids_only: 99 });
-  const { calls, result } = await run({
-    skip: [{ status: 404 }],
-    details: [{ status: 200, body: { photos: [] } }],
-  }, auth);
-  eq(calls.join(","), "skip,details", "J(404-heal-nophoto): Details fetched, no fresh name, no follow");
-  eq(result.upstream, "stale-heal-nophoto", "J(404-heal-nophoto): classified stale-heal-nophoto");
+  const { calls, result } = await run({ details: [{ status: 200, body: { photos: [] } }] }, auth);
+  eq(calls.join(","), "details", "J(nophoto): Details fetched, no name, no media request");
+  eq(result.upstream, "fresh-nophoto", "J(nophoto): classified fresh-nophoto");
   missResults.push(result);
 }
 
-// K. 404 → heal → Details itself fails HTTP — stale-heal-http.
+// K. Details itself fails HTTP — place-lookup-failed, no media request.
 {
   const auth = authorizer({ photos: 99, details_ids_only: 99 });
-  const { calls, result } = await run({
-    skip: [{ status: 404 }],
-    details: [{ status: 500 }],
-  }, auth);
-  eq(calls.join(","), "skip,details", "K(404-heal-http): Details fetched but answered non-2xx, no follow");
-  eq(result.upstream, "stale-heal-http", "K(404-heal-http): classified stale-heal-http");
+  const { calls, result } = await run({ details: [{ status: 500 }] }, auth);
+  eq(calls.join(","), "details", "K(details-http): Details answered non-2xx, no media request");
+  eq(result.upstream, "place-lookup-failed", "K(details-http): classified place-lookup-failed");
   missResults.push(result);
 }
 
-// L. 404 → heal → fresh name found, but the healed name's OWN media call
-// fails (quota) — stale-heal-failed:<subclass>.
+// L. Details is rate limited (429) — still no media request and an honest miss.
 {
   const auth = authorizer({ photos: 99, details_ids_only: 99 });
-  const { calls, result } = await run({
-    skip: [{ status: 404 }],
-    details: [{ status: 200, body: { photos: [{ name: NEW_REF }] } }],
-    healedSkip: [{ status: 429 }],
-  }, auth);
-  eq(calls.join(","), "skip,details,healedSkip", "L(heal-failed): the healed name's own media call ran, no follow beforehand");
-  eq(result.upstream, "stale-heal-failed:quota", "L(heal-failed): subclass is carried in the string");
+  const { calls, result } = await run({ details: [{ status: 429 }] }, auth);
+  eq(calls.join(","), "details", "L(details-429): no media request after a Details refusal");
+  eq(result.upstream, "place-lookup-failed", "L(details-429): classified place-lookup-failed");
   missResults.push(result);
 }
 
@@ -334,13 +331,21 @@ for (const status of [500, 502, 503]) {
 {
   const auth = authorizer({ photos: 99, details_ids_only: 99 });
   const { calls, result } = await run({ skip: [{ status: 503 }, { status: 200, body: { photoUri: OWNED } }] }, auth);
-  eq(calls.join(","), "skip,skip", "M(503-then-200): two physical attempts, one call site");
+  eq(calls.join(","), "details,skip,skip", "M(503-then-200): two physical media attempts, one call site");
   eq(result.type, "redirect", "M(503-then-200): the retry's success is served");
   eq(result.location, OWNED, "M(503-then-200): the recovered uri is correct");
   eq(result.upstream, "ok", "M(503-then-200): classified ok after the retry");
   eq(result.retried, true, "M(503-then-200): retried is true");
   eq(auth.asked("photos"), 1, "M(503-then-200): the retry never asked for a second grant");
 }
+
+// N. OPPOSITE INVARIANT of the removed stale-name heal: across every scenario above, the
+// stored ref's photo name (OLDNAME_expired) was never sent to Google, and no
+// stale-heal-* class is ever produced.
+ok(allUrls.length >= 20, "self-test: the stored-name probe saw a non-trivial number of outbound requests (" + allUrls.length + ")");
+ok(allUrls.some((u) => u.includes(NEW_REF)), "positive control: the probe does see the CURRENT name in media URLs");
+ok(!allUrls.some((u) => u.includes("OLDNAME_expired")), "a stored Google photo name is NEVER sent to Google (COMPLIANT PHOTOS)");
+ok(!missResults.some((r) => /^stale-heal/.test(String(r.upstream))), "no stale-heal-* class is produced any more");
 
 /* ── 4. THE INVARIANT: reason "owned-miss" always has a non-empty upstream ─ */
 ok(missResults.length >= 10, "self-test: the invariant must actually be checked against a non-trivial sample");
@@ -404,4 +409,4 @@ if (fail.length) {
   for (const f of fail) console.error("  - " + f);
   process.exit(1);
 }
-console.log(`test-photo-upstream-truth: OK — ${pass} assertions; classifyUpstream's table locked case by case, server/network retry once (never quota/4xx), heal outcomes classified (denied/http/nophoto/same/failed:<sub>), owned-miss always carries a non-empty upstream (red-proved), and the route's header + structured log are wired and secret-free`);
+console.log(`test-photo-upstream-truth: OK — ${pass} assertions; classifyUpstream's table locked case by case, server/network retry once (never quota/4xx), live-path outcomes classified (fresh-failed:<class>, fresh-nophoto, place-lookup-denied/failed) with a stored photo name never sent to Google, owned-miss always carries a non-empty upstream (red-proved), and the route's header + structured log are wired and secret-free`);

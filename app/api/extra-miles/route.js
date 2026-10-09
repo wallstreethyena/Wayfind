@@ -13,6 +13,7 @@ import { NextResponse } from "next/server";
 import { supabase } from "../../../lib/supabase.js";
 import { getSkeleton } from "../../../lib/placeIndex.js";
 import { resolvePlacePhoto } from "../../../lib/placePhotoServe.js";
+import { toDiscoveryRef } from "../../../lib/discoveryRef.js";
 import { EXTRA_MILES_PLACE_IDS, EXTRA_MILES_TITLE, EXTRA_MILES_SUB, EXTRA_MILES_BAND, extraMilesFrom } from "../../../lib/extraMiles.js";
 
 export const runtime = "nodejs";
@@ -56,7 +57,8 @@ export async function GET(req) {
     // ships; otherwise it is held back and counted, never shown imageless.
     // The tail grows on its own the moment those refs are cached again.
     const photo = await Promise.all(selected.map((c) =>
-      resolvePlacePhoto({ ref: c.photoRef, w: 640, gateShut: true, spendAllowed: false }).catch(() => null)));
+      resolvePlacePhoto({ ref: toDiscoveryRef(c.photoRef) || c.photoRef, // 2026-10-08: place-only pseudo-ref; no photo| cache rows are read
+         w: 640, gateShut: true, spendAllowed: false }).catch(() => null)));
     const cards = selected.filter((c, i) => photo[i] && photo[i].type === "redirect").map(({ photoRef, ...c }) => c);
     return NextResponse.json({
       ok: true,

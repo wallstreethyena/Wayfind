@@ -61,6 +61,15 @@ export async function GET(req) {
   const s = sbEnv();
   if (!s) return jobCannotRun("credited-photos", "SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY missing");
 
+  // 2026-10-08: pre-fetching Google photos is prohibited outright (Google Maps
+  // Platform Terms 3.2.3(a)(i)). Clean skip in every mode: no target reads, no
+  // Google call, no cache or credit write.
+  {
+    const why = blockedReason({ env: s });
+    await recordPulse("credited-photos", { attempted: 0, succeeded: 0, note: `skipped: ${why}` });
+    return Response.json({ ok: true, skipped: true, reason: why }, { headers: { "cache-control": "no-store" } });
+  }
+
   // A real run that cannot spend is a clean skip, not a failure.
   if (wantRun) {
     const why = blockedReason({ env: s });

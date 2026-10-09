@@ -80,6 +80,17 @@ const EXEMPT = {
     "internal vision-scoring backend: it fetches its OWN /api/photo?ref= server-side to hand a candidate photo's bytes to a vision model and grade them — it never renders a card or serves a response a browser paints. The surface it scores (the card that eventually shows the winning photo) is covered by that card's own registry entry.",
 };
 
+// (2026-10-08) EXEMPT entry below: PhotoCredit.js is detected only because its header comment names
+// /api/photo?fmt=json; the component paints a text credit pill, never a photo.
+EXEMPT["app/components/PhotoCredit.js"] =
+  "credit pill only: renders the 'Photo: <author> · Google Maps' / licence line for a photo that ANOTHER component (Detail sheet, lightbox, EventHeroBg) already paints. It contains no <img>, no background-image and no place-photo URL; it is detected only because its header comment names /api/photo?fmt=json. The surfaces that paint the photo are registered in lib/photoSurfaces.js.";
+
+// The exemption's own claim is enforced, not trusted: PhotoCredit.js must paint no image.
+{
+  const pc = readFileSync(path.join(REPO, "app/components/PhotoCredit.js"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
+  ok(!/<img\b|<Image\b|backgroundImage|url\(|\/api\/photo/.test(pc), "app/components/PhotoCredit.js is EXEMPT as a credit-only component but now paints or references a photo (<img>/backgroundImage/url()//api/photo) — register it in a PHOTO_SURFACES entry instead");
+}
+
 const candidates = [];
 for (const abs of walk(APP_DIR, [])) {
   const rel = path.relative(REPO, abs).replace(/\\/g, "/");

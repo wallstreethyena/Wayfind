@@ -41,6 +41,8 @@ import { detailNearbyPool, detailDistanceMi, DETAIL_NEARBY_RADIUS_MI } from "../
 import { askShareIntent } from "../shareIntentSheet";
 import { placeKinds } from "../../../lib/dateInvite";
 import { hasRealPlacePhoto, realPlacePhotoSrc } from "../../../lib/detailHero";
+import { fetchLivePhoto, isLivePlaceId, detailGalleryPhotos, liveCreditFor } from "../../../lib/livePhoto";
+import PhotoCredit from "../PhotoCredit";
 import { editorialRequestQuery, carriedEditorial, hasSourcedEditorialFields } from "../../../lib/editorialLookup";
 import { whyWayfindPickedBody } from "../../../lib/insightWhy";
 import { isOwnerPick } from "../../../lib/ownerBump";
@@ -777,8 +779,25 @@ export default function DetailSheet({ ctx }) {
   }, [detail && detail.id, primaryCta.type, primaryCta.monetized]);
 
 
-  const showHero = hasRealPlacePhoto(detail);
-  const heroSrc = realPlacePhotoSrc(detail);
+  // Live credited photo: ONE fetch per place per page session (memoized in
+  // lib/livePhoto), only from this sheet. Owned non-proxy URLs + that photo.
+  const liveId = detail && !detail._event ? (detail.placeId || detail.id) : null;
+  useEffect(() => {
+    if (!detail || !isLivePlaceId(liveId)) return undefined;
+    if (detail._live || detail._liveDone) return undefined;
+    let off = false;
+    const id = detail.id;
+    fetchLivePhoto(liveId).then((live) => {
+      if (off) return;
+      setDetail((d) => (d && d.id === id ? (live ? { ...d, _live: live, _liveDone: true } : { ...d, _liveDone: true }) : d));
+    });
+    return () => { off = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detail && detail.id]);
+  const galleryPhotos = detailGalleryPhotos(detail);
+  const showHero = galleryPhotos.length > 0 && (hasRealPlacePhoto(detail) || !!(detail && detail._live));
+  const heroSrc = galleryPhotos[0] || null;
+  const creditStyle = { top: "max(60px, calc(env(safe-area-inset-top) + 56px))", bottom: "auto", left: 12, right: 64 };
 
   return (
         <div style={isSharedPlaceArrival ? { ...sheetBg, background: "#050608" } : sheetBg} onClick={() => window.history.back()}>
@@ -788,28 +807,29 @@ export default function DetailSheet({ ctx }) {
               <button onClick={() => window.history.back()} aria-label="Back" style={{ position: "absolute", top: "max(8px, env(safe-area-inset-top))", left: 12, zIndex: 6, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", border: showHero ? "1px solid rgba(255,255,255,.28)" : `1px solid ${C.border}`, background: showHero ? "rgba(13,17,23,.55)" : C.card, backdropFilter: showHero ? "blur(6px)" : "none", color: showHero ? "#fff" : C.text, cursor: "pointer" }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg></button>
               {showHero ? (
                 <>
-              {detail.photos && detail.photos.length > 0 ? (
+              {galleryPhotos.length > 0 ? (
                 <div style={{ position: "relative" }}>
                   <div ref={galleryRef} onScroll={onGalleryScroll} style={{ display: "flex", gap: 6, overflowX: "auto", overscrollBehaviorX: "contain", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}>
-                    {detail.photos.map((src, i) => (
-                      <FallbackImg key={i} src={src} icon={detail._event ? "🎟️" : "🍽️"} onClick={() => setLightbox(src)} style={{ width: "100%", flexShrink: 0, height: 250, objectFit: "cover", scrollSnapAlign: "start", cursor: "zoom-in" }} />
+                    {galleryPhotos.map((src, i) => (
+                      <FallbackImg key={src} src={src} icon={detail._event ? "🎟️" : "🍽️"} onClick={() => setLightbox(src)} style={{ width: "100%", flexShrink: 0, height: 250, objectFit: "cover", scrollSnapAlign: "start", cursor: "zoom-in" }} />
                     ))}
                   </div>
-                  {detail.photos.length > 1 && (
+                  {galleryPhotos.length > 1 && (
                     <>
                       {galleryIdx > 0 && (
                         <button onClick={() => scrollGallery(-1)} aria-label="Previous photo" style={galleryBtn("left")}>‹</button>
                       )}
-                      {galleryIdx < detail.photos.length - 1 && (
+                      {galleryIdx < galleryPhotos.length - 1 && (
                         <button onClick={() => scrollGallery(1)} aria-label="Next photo" style={galleryBtn("right")}>›</button>
                       )}
-                      <div aria-hidden="true" style={{ position: "absolute", top: "max(12px, calc(env(safe-area-inset-top) + 4px))", right: 12, zIndex: 6, padding: "3px 9px", borderRadius: 999, background: "rgba(13,17,23,.62)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", border: "1px solid rgba(255,255,255,.16)", color: "#fff", fontSize: 11, fontWeight: 700, letterSpacing: ".02em", lineHeight: 1.5, pointerEvents: "none" }}>{galleryIdx + 1} / {detail.photos.length}</div>
+                      <div aria-hidden="true" style={{ position: "absolute", top: "max(12px, calc(env(safe-area-inset-top) + 4px))", right: 12, zIndex: 6, padding: "3px 9px", borderRadius: 999, background: "rgba(13,17,23,.62)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", border: "1px solid rgba(255,255,255,.16)", color: "#fff", fontSize: 11, fontWeight: 700, letterSpacing: ".02em", lineHeight: 1.5, pointerEvents: "none" }}>{galleryIdx + 1} / {galleryPhotos.length}</div>
                     </>
                   )}
                 </div>
               ) : (
                 <FallbackImg src={heroSrc} icon={detail._event ? "🎟️" : "🍽️"} onClick={() => heroSrc && setLightbox(heroSrc)} style={{ width: "100%", height: 250, objectFit: "cover", cursor: heroSrc ? "zoom-in" : "default" }} />
               )}
+              <PhotoCredit credit={liveCreditFor(detail, galleryPhotos[Math.min(galleryIdx, galleryPhotos.length - 1)])} style={creditStyle} />
               <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "48px 18px 15px", background: "linear-gradient(180deg, transparent 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)", pointerEvents: "none" }}>
                 {(() => { const pc = primaryCategory(detail); return pc ? <div style={{ fontSize: 11, fontWeight: 800, color: C.light, textTransform: "uppercase", letterSpacing: "0.9px", marginBottom: 5, textShadow: "0 1px 5px rgba(0,0,0,.9)" }}>{pc}</div> : null; })()}
                 <div style={{ fontSize: 27, fontWeight: 800, color: "#fff", lineHeight: 1.13, letterSpacing: "-0.5px", textShadow: "0 2px 12px rgba(0,0,0,.8)" }}>{detail.name}</div>

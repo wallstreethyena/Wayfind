@@ -1580,6 +1580,11 @@ node scripts/test-photo-quota-truth.mjs
 # local dev with production env cannot spend the production ledger. Red-proved.
 node scripts/test-photo-spend-efficiency.mjs
 
+# 2026-10-08 COMPLIANT PHOTOS: executed lock for the Google Maps Platform contract (no stored
+# photo name/URL/credit, live Google only on s=detail, one grant per place under 50 concurrent
+# requests, probe/denied spend nothing, Details no-store). Red-proofed on mutated resolver/route copies.
+node scripts/test-google-photo-compliance.mjs
+
 node scripts/test-inventory-batch-concurrency.mjs
 
 node scripts/test-event-apple-maps.mjs

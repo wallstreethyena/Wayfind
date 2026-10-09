@@ -43,7 +43,7 @@ import { CURATED_PHOTO_REFS } from "../lib/curatedPhotoRefs.js";
 import { CURATED_OWNED_PLACE_PHOTOS } from "../lib/curatedOwnedPlacePhotos.js";
 import { photoRefOwnedByPlace } from "../lib/placePhoto.js";
 import { readFileSync } from "node:fs";
-import { resolvePlacePhoto } from "../lib/placePhotoServe.js";
+import { resolvePlacePhoto, placeDiscoveryRef } from "../lib/placePhotoServe.js";
 import { FALL_FEATURED_FESTIVALS_2026 } from "../lib/fallFeaturedFestivals2026.js";
 import { FALL_DISCOVERIES_2026 } from "../lib/fallDiscoveries2026.js";
 import { FALL_COLLECTION_POSTER, fallEventCardImageSrc, mergeFallDiscoveryRows, withFallVenueIdentity } from "../lib/fallEventImage.js";
@@ -112,6 +112,10 @@ for (const e of RON_DUPRAT_TOP7.entries) {
   const ref = CURATED_PHOTO_REFS[e.placeId];
   ok(typeof ref === "string" && ref.startsWith(`places/${e.placeId}/photos/`),
     `chefPicks #${e.rank} ${e.name}: no server-side photo ref, so /api/photo?place= has nothing to resolve and the card renders blank`);
+  // COMPLIANT PHOTOS (2026-10-08): the entry carries ONLY the place id inside a
+  // sentinel. A real Google photo name here would be a stored photo name.
+  ok(ref === placeDiscoveryRef(e.placeId),
+    `chefPicks #${e.rank} ${e.name}: curatedPhotoRefs must hold only the place-discovery sentinel, never a real Google photo name (got ...${String(ref).slice(-24)})`);
 }
 // Every curated ref belongs to the place that keys it — a map is exactly the
 // shape where a copy-paste puts one venue's photo on another's card.
@@ -124,29 +128,46 @@ for (const [id, ref] of Object.entries(CURATED_PHOTO_REFS)) {
 // INJECTABLE dep, so the fallback vanished for every caller that stubs it and
 // the card still resolved to nothing. Only the call catches that.
 for (const e of RON_DUPRAT_TOP7.entries) {
-  let seenRef = null;
-  const r = await resolvePlacePhoto({ place: e.placeId, w: 640, spendAllowed: true, serverKey: "test-key" }, {
-    cacheGet: async () => null,
-    cacheSet: async () => {},
+  // Credited surface (the detail page): the place id alone is enough to ask
+  // Google live, and the ref the fetcher is handed is the sentinel, never a name.
+  let seenRef = null, grants = 0;
+  const r = await resolvePlacePhoto({ place: e.placeId, w: 640, googleSurface: true, authorizeSpend: async () => { grants++; return true; }, serverKey: "test-key" }, {
     inventoryGet: async () => null,   // not in wf_inventory, and never will be
-    fetchOwnedUri: async (ref) => { seenRef = ref; return "https://lh3.googleusercontent.com/place-photos/ok"; },
+    fetchOwnedUri: async (ref) => { seenRef = ref; return { uri: "https://lh3.googleusercontent.com/place-photos/ok", upstream: "ok", credit: { name: "A", uri: null, mapsUri: null } }; },
   });
-  ok(r.type === "redirect",
-    `chef #${e.rank} ${e.name}: /api/photo?place= resolves to nothing when the library has no row — the card renders blank`);
-  ok(photoRefOwnedByPlace(seenRef, e.placeId),
+  ok(r.type === "redirect" && r.reason === "google" && r.cacheControl === "private, no-store",
+    `chef #${e.rank} ${e.name}: the detail surface resolves to a live, never-cached Google photo even when the library has no row (got ${r.type}/${r.reason})`);
+  ok(grants === 1, `chef #${e.rank} ${e.name}: exactly one photos grant is asked for the one live fetch (got ${grants})`);
+  ok(photoRefOwnedByPlace(seenRef, e.placeId) && seenRef === placeDiscoveryRef(e.placeId),
     `chef #${e.rank} ${e.name}: resolved to a photo that is not this place's own (${String(seenRef).slice(0, 40)})`);
+  // Every other surface (cards, rails): an honest miss that spends nothing, so the
+  // card paints its own placeholder instead of buying a photo.
+  let leaked = 0;
+  const card = await resolvePlacePhoto({ place: e.placeId, w: 640, authorizeSpend: async () => { leaked++; return true; }, serverKey: "test-key" }, {
+    inventoryGet: async () => null,
+    fetchOwnedUri: async () => { leaked++; return { uri: "https://lh3.googleusercontent.com/place-photos/ok", upstream: "ok" }; },
+  });
+  ok(card.type === "miss" && card.reason === "not-google-surface" && leaked === 0,
+    `chef #${e.rank} ${e.name}: a card (non-detail) request is a clean no-spend miss (got ${card.reason}, ${leaked} leaked calls)`);
 }
 // Inventory must still WIN. A curated entry may fill a hole, never override
 // the owned library — otherwise this map silently becomes the source of truth.
 {
   const id = RON_DUPRAT_TOP7.entries[0].placeId;
   const r = await resolvePlacePhoto({ place: id, w: 640 }, {
-    cacheGet: async () => null, cacheSet: async () => {},
     inventoryGet: async () => ({ photo_url: "https://cdn.example/owned-inventory.jpg" }),
-    fetchOwnedUri: async () => "https://lh3.googleusercontent.com/place-photos/ok",
+    probeUri: async () => null,
+    fetchOwnedUri: async () => ({ uri: "https://lh3.googleusercontent.com/place-photos/ok", upstream: "ok" }),
   });
   ok(r.type === "redirect" && String(r.location).includes("owned-inventory"),
     "wf_inventory still wins over the curated map — the map fills holes, it does not override the owned library");
+  // …but a Google-HOSTED inventory url is Google Maps Content and is never served.
+  const g = await resolvePlacePhoto({ place: id, w: 640 }, {
+    inventoryGet: async () => ({ photo_url: "https://lh3.googleusercontent.com/p/stored-google" }),
+    probeUri: async () => null,
+    fetchOwnedUri: async () => ({ uri: "https://lh3.googleusercontent.com/place-photos/ok", upstream: "ok" }),
+  });
+  ok(g.type === "miss" && !g.location, "a Google-hosted photo_url in inventory is ignored, never served");
 }
 
 // And the shared place card must climb the whole ladder, not its top two rungs.

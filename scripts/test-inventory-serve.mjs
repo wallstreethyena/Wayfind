@@ -18,7 +18,7 @@ const ok = (n, c) => { c ? pass++ : fail++; if (!c) console.log("FAIL " + n); };
   ok("priceNum 4 -> PRICE_LEVEL_VERY_EXPENSIVE", p.priceLevel === "PRICE_LEVEL_VERY_EXPENSIVE");
   ok("types = google_types", JSON.stringify(p.types) === JSON.stringify(["hotel", "lodging"]));
   ok("editorial -> editorialSummary.text", p.editorialSummary.text === "Waterfront luxury.");
-  ok("photo_ref -> photos[{name}] (client getURI builds the media URL)", p.photos[0].name === "places/g_ritz/photos/abc");
+  ok("photo_ref -> photos[{name}] is the place-only pseudo-ref, never the stored real Google photo name (Maps Terms 3.2.3)", p.photos[0].name === "places/g_ritz/photos/wfplacediscovery" && p.photo_ref === "places/g_ritz/photos/wfplacediscovery" && JSON.stringify(p).indexOf("/photos/abc") === -1);
   ok("provenance marker set", p._wfInventory === true);
   ok("businessStatus mapped", p.businessStatus === "OPERATIONAL");
 }

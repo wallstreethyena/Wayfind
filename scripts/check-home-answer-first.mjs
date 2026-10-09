@@ -689,8 +689,10 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
   // returns photo_ref, and the component hydrates + renders it.
   {
     const searchRoute = readFileSync(path.join(REPO, "app/api/places/search/route.js"), "utf8");
-    ok(/photo_ref: photoRef/.test(searchRoute) && /p\.photos\[0\]\.name/.test(searchRoute),
-      "the places/search route surfaces photo_ref (first photo resource name) so a caller can render a venue photo without a second round-trip");
+    // 2026-10-08 (Maps Terms 3.2.3, "cannot cache a photo name"): photo_ref is the place-only
+    // pseudo-ref, never the real first photo resource name.
+    ok(/photo_ref: photoRef/.test(searchRoute) && /const photoRef = [^;]*placeDiscoveryRef\(p\.id\)/.test(searchRoute) && !/photoRef = [^;]*p\.photos\[0\]\.name/.test(searchRoute),
+      "the places/search route surfaces photo_ref as the place-only pseudo-ref (placeDiscoveryRef(p.id)), never the real first photo name, so a caller can still render a venue photo without a second round-trip");
     // v7.07: renamed resolveScoutedPhoto -> resolveScoutedPlace when it started
     // also returning the rating/review pair behind the card's Wayfind Score —
     // same call, same endpoint, one more field read off the same response.
