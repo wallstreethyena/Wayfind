@@ -82,9 +82,83 @@ const bee = cards.find((c) => c.name === "Bee Ridge Park");
 ok(!!bee && !/open daily 6am/i.test(cardToEditorial(bee).goodToKnow || ""), "Bee Ridge Park: 'open daily 6am–11pm' dropped");
 ok(/open daily/i.test(bee.currentUsefulDetail), "Bee Ridge fixture drifted");
 
+// 4c. Price kept beside hours (release #1701 review): "Free entry, open 5am-11pm" must not lose "Free entry".
+ok(scrubEditorialText("Free entry, open 5am-11pm. Verified 2026-09-01; refresh before display.") === "Free entry.", "price comma-joined to hours survives");
+ok(scrubEditorialText("Open daily, 7am-9pm. Verified 2026-09-01; refresh before display.") === null, "hours + bare time residue only -> null");
+ok(scrubEditorialText("$5 per vehicle; open 8am to sundown. Verified 2026-09-01; refresh before display.") === "$5 per vehicle.", "price before ';' hours survives");
+
 // 5b. Fleet rows (wf_editorial -> mapWfEditorial) get the same scrub (Ringling-class: not an Atlas card).
 const fleet = mapWfEditorial({ verified: true, name: "Fleet Place", why_here: "A real why.", best_time: "Open daily 10am–5pm. Verified 2026-09-28; refresh before display.", know_before: "Closed Mondays. Refresh before display.", facts: [] });
 ok(fleet.goodToKnow === null && fleet.watchOut === null && fleet.why === "A real why.", "fleet row: stale hours + note stripped, real text kept");
+
+// 6. EVERY public read path of wf_editorial / wf_editorial_servable scrubs (release #1701 review).
+// Only cardToEditorial / mapWfEditorial / /api/editorial used to; placeIndex, landingPage, todaysBest,
+// explodingNearbyServe, known-for, IntentPageClient and the group planner read the rows raw.
+// STATIC lock: every app/ + lib/ file that READS those relations must import editorialScrub and call
+// scrubEditorial( / scrubEditorialText( (or go through mapWfEditorial, proven to scrub in 5b above).
+import { readdirSync, statSync } from "node:fs";
+const stripCode = (src) => src.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:"'`\\])\/\/[^\n]*/g, "$1 ");
+const READER = /\bwf_editorial(?:_servable)?\b|\bservingPath\s*\(|\bEDITORIAL_SERVING_SOURCE\b/;
+const SCRUBS = /\bscrubEditorial(?:Text)?\s*\(|\bmapWfEditorial\s*\(|\bcardToEditorial\s*\(/;
+const IMPORTS_SCRUB = /from\s*["'][^"']*editorialScrub(?:\.js)?["']|from\s*["'][^"']*editorialRule(?:\.js)?["']/;
+// Explicit allowlist: files that name the relations but never render editorial text to a reader.
+// (Files that only MENTION the relations in comments, e.g. mergePlacePage / placeData / rankingWhy, consume rows
+// the placeIndex.js reader already scrubbed, so they are not readers and need no entry.)
+const WRITE_ONLY = {
+  "app/api/cron/atlas-build/route.js": "cron writer: INSERTs wf_editorial rows and reads place_id only to skip existing ids",
+  "app/api/cron/beach-water/route.js": "cron: reads place_id,beach_extras (water-quality metadata, no prose)",
+  "app/api/cron/cuisine-classify/route.js": "cron classifier: reads hook/why_here only to infer a cuisine tag, never displays it",
+  "app/api/cron/editorial-reconcile/route.js": "admin/cron reconcile: reads place_id and writes the verified flag",
+  "lib/editorialSource.js": "defines the relation-name constants and servingPath(); issues no read itself",
+};
+function walk(dir, out = []) {
+  for (const n of readdirSync(dir)) {
+    if (n === "node_modules" || n === ".next") continue;
+    const f = path.join(dir, n); const st = statSync(f);
+    if (st.isDirectory()) walk(f, out); else if (/\.(?:js|jsx|mjs)$/.test(n)) out.push(f);
+  }
+  return out;
+}
+// Positive controls: the probe MUST see a real reader and MUST ignore a comment-only mention.
+ok(READER.test(stripCode('const r = await fetch(url + "/rest/v1/wf_editorial_servable?select=hook");')), "reader probe detects a REST read");
+ok(!READER.test(stripCode("// reads wf_editorial_servable\n/* wf_editorial */ const x = 1;")), "reader probe ignores comment-only mentions");
+ok(SCRUBS.test("scrubEditorialText(e.hook)") && !SCRUBS.test("e.hook"), "scrub probe distinguishes a call from a bare read");
+const readers = [], unlocked = [];
+for (const abs of [...walk(path.join(repo, "app")), ...walk(path.join(repo, "lib"))]) {
+  const rel = path.relative(repo, abs).split(path.sep).join("/");
+  const code = stripCode(readFileSync(abs, "utf8"));
+  if (!READER.test(code)) continue;
+  readers.push(rel);
+  if (WRITE_ONLY[rel]) continue;
+  const scrubbed = SCRUBS.test(code) && IMPORTS_SCRUB.test(code);
+  if (!scrubbed) unlocked.push(rel);
+}
+for (const must of ["lib/placeIndex.js", "lib/landingPage.js", "lib/todaysBest.js", "lib/explodingNearbyServe.js", "app/api/known-for/route.js", "app/components/IntentPageClient.js", "lib/groupPlanPlaceData.js", "app/api/editorial/route.js", "app/best-beaches/[metro]/page.js"]) {
+  ok(readers.includes(rel_(must)), `reader enumeration must find ${must}`);
+}
+function rel_(x) { return x; }
+ok(readers.length >= 14, `expected >=14 files referencing the editorial relations, saw ${readers.length}`);
+ok(unlocked.length === 0, `editorial read path(s) with no scrubEditorial/scrubEditorialText call (or allowlist reason): ${unlocked.join(", ")}`);
+for (const f of Object.keys(WRITE_ONLY)) ok(readers.includes(f), `allowlist entry ${f} no longer references the relations; remove it`);
+
+// CALL-level: feed the real placeIndex reader a stubbed view row carrying a staff note + a real fact.
+{
+  const { register } = await import("node:module");
+  register("./lib/placeDataNodeHook.mjs", import.meta.url); // extensionless lib imports, as check-place-sitemap-parity does
+  const { getVerifiedEditorial } = await import("../lib/placeIndex.js");
+  const realFetch = globalThis.fetch;
+  process.env.SUPABASE_URL = "https://stub.supabase.local";
+  process.env.SUPABASE_SERVICE_ROLE_KEY = "stub-key";
+  const NOTE_ROW = { place_id: "ed-1", why_here: "A long, genuinely researched reason this place is worth the trip, with sourced detail.", local_tip: "Open daily 9am-5pm. Verified 2026-10-01; refresh before display. Happy hour 4-6pm.", best_time: "Open daily 9am-5pm. Verified 2026-10-01; refresh before display." };
+  globalThis.fetch = async () => new Response(JSON.stringify([NOTE_ROW]), { status: 200, headers: { "content-type": "application/json" } });
+  try {
+    const row = await getVerifiedEditorial("ed-1");
+    ok(row && row.local_tip === "Happy hour 4-6pm.", `placeIndex local_tip: staff note + general hours gone, happy hour kept (got ${JSON.stringify(row && row.local_tip)})`);
+    ok(row && row.best_time === null, "placeIndex best_time: note + hours only -> null");
+    ok(row && row.why_here === NOTE_ROW.why_here && row.place_id === "ed-1", "placeIndex: untouched fields byte-identical");
+    ok(!NOTE.test(JSON.stringify(row)), "placeIndex row carries no operator note anywhere");
+  } finally { globalThis.fetch = realFetch; }
+}
 
 if (fail.length) { console.error("test-editorial-staff-notes FAILED:\n - " + fail.slice(0, 25).join("\n - ")); process.exit(1); }
 console.log(`test-editorial-staff-notes: ${pass} assertions passed; ${cards.length} real cards scanned, ${flagged} refresh-flagged (${changed} changed output), ${normalSame}/${normal} normal cards byte-identical; fleet mapper scrubbed`);

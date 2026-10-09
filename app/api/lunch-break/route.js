@@ -145,7 +145,7 @@ function toLunchPlace(raw, origin) {
  * widening what counts), the photo requirement, and the composer's ranking.
  */
 async function loadLunchPlaces(lat, lng) {
-  const key = `lunch-break:v4:${geoCell(lat)}:${geoCell(lng)}`;
+  const key = `lunch-break:v5:${geoCell(lat)}:${geoCell(lng)}`;
   const cached = await fastCachedRail(key, async () => {
       const origin = { lat, lng };
       // The pool's mapper is the route's OWN mapper, fed the exact shape the

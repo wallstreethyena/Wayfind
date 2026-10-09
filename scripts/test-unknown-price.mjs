@@ -100,4 +100,18 @@ for (const f of ["app/api/birthday/route.js", "app/api/today-discovery/route.js"
   ok(!/Math\.max\(0,\s*values\.indexOf/.test(src), f + ": no fabricated 0 for an unknown price");
 }
 
+// --- rail answers live in the Vercel Runtime Cache for 7 days across deploys: a payload whose
+// price meaning changed MUST ship under a new key version, or stale {priceNum 0, FREE} rows keep
+// rendering as "Free" (2026-10 review). Assert the declaration on comment-stripped source, once each.
+for (const [f, keyRe, label] of [
+  ["app/api/birthday/route.js", /const\s+key\s*=\s*`birthday:v3:/g, "birthday:v3"],
+  ["app/api/lunch-break/route.js", /const\s+key\s*=\s*`lunch-break:v5:/g, "lunch-break:v5"],
+  ["app/api/today-discovery/route.js", /const\s+key\s*=\s*`today-discovery:v5:/g, "today-discovery:v5"],
+  ["app/api/date-night/route.js", /const\s+key\s*=\s*`date-night:v2:/g, "date-night:v2"],
+]) {
+  const src = strip(readFileSync(f, "utf8"));
+  eq((src.match(keyRe) || []).length, 1, f + ": cache key declared exactly once as " + label);
+}
+ok(!/(?:birthday:v2|lunch-break:v4|today-discovery:v4):/.test(["birthday", "lunch-break", "today-discovery"].map((r) => strip(readFileSync("app/api/" + r + "/route.js", "utf8"))).join("\n")), "old cache key versions are gone");
+
 console.log(`test-unknown-price: OK — ${pass} assertions (normalizer fallback/real FREE/enum/number/null; date-night mapper emits no price for a price-blind row; price sort known-asc unknown-last)`);

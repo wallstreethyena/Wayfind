@@ -90,7 +90,7 @@ export async function GET(request) {
     return json({ error: "lat and lng are required" }, 400, "no-store");
   }
 
-  const key = `birthday:v2:${geoCell(lat)}:${geoCell(lng)}`;
+  const key = `birthday:v3:${geoCell(lat)}:${geoCell(lng)}`;
   try {
     const cached = await fastCachedRail(key, async () => {
       const radiusM = BIRTHDAY_WIDEN_MI * 1609.34;

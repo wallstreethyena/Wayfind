@@ -119,7 +119,7 @@ export async function GET(request) {
   const cityKey = city.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "unknown";
   // v4 adds exact creator-place admission. Never reuse a v3 cache assembled
   // from broad category shelves for the Instagram rail.
-  const key = `today-discovery:v4:${geoCell(lat)}:${geoCell(lng)}:${cityKey}`;
+  const key = `today-discovery:v5:${geoCell(lat)}:${geoCell(lng)}:${cityKey}`;
   try {
     const cached = await fastCachedRail(key, async () => {
       const radiusM = TODAY_NATURE_MI * 1609.34;
