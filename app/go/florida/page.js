@@ -27,7 +27,9 @@ import ThemeParkRail from "../../components/ThemeParkRail";
 import React from "react";
 import FloridaSections from "./FloridaSections";
 import LicensedPhoto from "../../components/LicensedPhoto";
-import { SPRINGS_PHOTO, EXPERIENCE_PHOTOS, FLORIDA_EVENT_PHOTOS, FLORIDA_PARK_PHOTOS } from "../../../lib/floridaPhotography";
+import { SPRINGS_PHOTO, FLORIDA_PARK_PHOTOS } from "../../../lib/floridaPhotography";
+import { floridaEventPhoto, floridaSearchPhoto } from "../../../lib/floridaEventPhotography";
+import { isFallThemedEvent } from "../../../lib/fallTheme";
 import styles from "./florida.module.css";
 import CommerceClickBeacon from "../../components/CommerceClickBeacon";
 import GuidePhoto from "../../components/GuidePhoto";
@@ -145,6 +147,7 @@ async function loadHalloweenEvents() {
     const now = new Date();
     const items = (Array.isArray(rows) ? rows : [])
       .filter(isFloridaEvent)
+      .filter((e) => isFallThemedEvent(e) || String(e.event_id || "").replace(/^wfc:/, "") === "epcot-food-wine-2026")
       .filter((e) => isEligible(e, { now }))
       .map((e) => ({ event: e, cta: eventTicketCta(e.event_id, { surface: SURFACE }) }))
       .filter((x) => Boolean(x.cta))
@@ -189,12 +192,9 @@ function SectionHead({ eyebrow, title, intro, titleNote }) {
 
 function GuideCard({ slug, title, blurb, rank }) {
   if (!GUIDES[slug]) return null;
-  const reviewedArt = guideHero(slug);
-  const art = reviewedArt.src ? reviewedArt : slug === "siesta-key-drum-circle"
-    ? { ...EXPERIENCE_PHOTOS["siesta-key-sunset-cruise"], caption: "Sarasota shoreline · Nathan Mullet / Unsplash. Drum circle not pictured." }
-    : { ...SPRINGS_PHOTO, caption: "Daytime kayaking illustration. Bioluminescence not pictured." };
+  const art = guideHero(slug);
   return <article className={`${styles.guideCard} ${styles.photoGuideCard}`}>
-    <div className={styles.media}><LicensedPhoto {...art} sizes="(max-width:700px) 100vw, 400px" className={styles.offerImage} /><div className={styles.photoCaption}>{art.cardCaption || art.caption} {art.source ? <PhotoCredit art={art} /> : null}</div></div>
+    {art?.src ? <figure className={styles.cardFigure}><div className={styles.media}><LicensedPhoto {...art} sizes="(max-width:700px) 100vw, 400px" className={styles.offerImage} /></div><figcaption className={styles.cardCaption}>{art.cardCaption || art.caption} {art.source ? <PhotoCredit art={art} /> : null}</figcaption></figure> : null}
     <div className={styles.cardBody}>
     {rank ? <span className={styles.rank} aria-label={"Reader rank " + rank}>{String(rank).padStart(2, "0")}</span> : <span className={styles.editorialLabel}>The local guide</span>}
     <h3><a href={"/guides/" + slug}>{title}</a></h3>
@@ -242,10 +242,10 @@ function OfferCard({ offer, ctaLabel, contentPrefix }) {
 
 function SearchIntentCard({ item }) {
   const href = experienceGoUrl(item.query, item.city, item.kind, null, { surface: SURFACE, contentId: "florida-nature-" + item.id });
-  const art = item.id === "manatee-crystal-river" ? { ...guideHero("swim-with-manatees-crystal-river"), caption: "Crystal River manatees · David Hinkel / USFWS · CC BY 2.0. Tour not pictured." } : EXPERIENCE_PHOTOS[item.id];
+  const art = floridaSearchPhoto(item);
   if (!href) return null;
   return <article className={styles.offerCard}>
-    <div className={styles.media}><LicensedPhoto {...art} sizes="(max-width:700px) 100vw, 400px" className={styles.offerImage} /><div className={styles.photoCaption}>{art.caption} {art.source ? <PhotoCredit art={art} /> : null}</div></div>
+    {art?.src ? <figure className={styles.cardFigure}><div className={styles.media}><GuidePhoto {...art} loading="lazy" className={styles.offerImage} fallbackClassName={styles.photoFallback} fallbackText={item.title} /></div><figcaption className={styles.cardCaption}>{art.cardCaption || art.caption} {art.source ? <PhotoCredit art={art} /> : art.credit}</figcaption></figure> : null}
     <div className={styles.cardBody}><p className={styles.meta}>{item.city}</p><h3>{item.title}</h3><p className={styles.cardBlurb}>{item.blurb}</p>
       <span className={styles.editorialLabel}>Compare tour options</span>
       <a className={styles.textLink} href={href} rel="sponsored noopener" target="_blank">{AVAILABILITY_CTA_LABEL}<span className={styles.srOnly}> for {item.title}, opens a new tab</span></a>
@@ -255,25 +255,13 @@ function SearchIntentCard({ item }) {
 
 function BoatRentalChoices({ offers }) {
   if (!offers.length) return null;
-  return <aside className={styles.rentalChoices}><figure className={styles.rentalPhoto}><GuidePhoto src={offers[0].image} alt="Sailboats anchored in turquoise water" width={960} height={600} loading="lazy" className={styles.offerImage} fallbackClassName={styles.photoFallback} fallbackText="Boat rentals with SamBoat" /><figcaption>Photo via SamBoat. Boats and locations vary.</figcaption></figure><div className={styles.rentalContent}><div><p className={styles.eyebrow}>Choose your departure city</p><h3>Rent a boat for your own kind of day</h3><p>Compare local boats, captained trips and rental requirements with SamBoat.</p></div><nav aria-label="Boat rental cities">{offers.map((offer) => <a key={offer.offerId} className={styles.textLink} href={commerceHref({ provider: offer.provider, offerId: offer.offerId, surface: SURFACE, contentId: "florida-nature-" + offer.offerId })} rel="sponsored noopener" target="_blank">{offer.market} ↗<span className={styles.srOnly}> boat rentals, opens a new tab</span></a>)}</nav></div></aside>;
+  return <aside className={styles.rentalChoices}><div className={styles.rentalContent}><div><p className={styles.eyebrow}>Choose your departure city</p><h3>Rent a boat for your own kind of day</h3><p>Compare local boats, captained trips and rental requirements with SamBoat.</p></div><nav aria-label="Boat rental cities">{offers.map((offer) => <a key={offer.offerId} className={styles.textLink} href={commerceHref({ provider: offer.provider, offerId: offer.offerId, surface: SURFACE, contentId: "florida-nature-" + offer.offerId })} rel="sponsored noopener" target="_blank">{offer.market} ↗<span className={styles.srOnly}> boat rentals, opens a new tab</span></a>)}</nav></div></aside>;
 }
 
 function EventCard({ event, cta }) {
-  const selectedPhoto = FLORIDA_EVENT_PHOTOS[event.event_id];
-  const parkByEvent = {
-    "howl-o-scream-tampa-2026": "Busch Gardens Tampa Bay",
-    "howl-o-scream-seaworld-2026": "SeaWorld Orlando",
-    "seaworld-spooktacular-2026": "SeaWorld Orlando",
-    "brick-or-treat-2026": "LEGOLAND Florida Resort",
-  };
-  const park = THEME_PARK_OFFERS.find((offer) => offer.title === parkByEvent[event.event_id]);
-  const art = event.event_id === "epcot-food-wine-2026"
-    ? { src: "/florida-photos/epcot-nicholas-fuentes.jpg", width:6000, height:3376, alt:"Spaceship Earth at EPCOT", caption:"EPCOT · Nicholas Fuentes / Unsplash. Festival not pictured." }
-    : event.event_id === "hhn-orlando-2026"
-      ? { src:"/florida-photos/universal-sean-nyatsine.jpg", width:4898, height:3265, alt:"Universal globe at Universal Studios Plaza in Orlando", caption:"Universal Orlando · Sean Nyatsine / Unsplash. Event not pictured." }
-      : park ? null : guideHero("fall-events-orlando-2026");
-  return <article className={`${styles.guideCard} ${styles.photoGuideCard}`}>
-    {selectedPhoto ? <div className={styles.media}><LicensedPhoto {...selectedPhoto} sizes="(max-width:700px) 100vw, 400px" className={styles.offerImage} /></div> : park ? <OfferImage offer={park} caption="Park photograph via Tiqets. Seasonal event not pictured." /> : <div className={styles.media}><LicensedPhoto {...art} sizes="(max-width:700px) 100vw, 400px" className={styles.offerImage} /><div className={styles.photoCaption}>{art.caption} {art.source ? <PhotoCredit art={art} /> : null}</div></div>}
+  const art = floridaEventPhoto(event);
+  return <article className={`${styles.guideCard} ${styles.photoGuideCard}`} data-event-id={event.event_id}>
+    {art?.src ? <figure className={styles.cardFigure}><div className={styles.media}><GuidePhoto {...art} loading="lazy" className={styles.offerImage} fallbackClassName={styles.photoFallback} fallbackText={event.event_name} /></div>{art.caption ? <figcaption className={styles.cardCaption}>{art.caption} {art.source ? <PhotoCredit art={art} /> : art.credit}</figcaption> : null}</figure> : null}
     <div className={styles.cardBody}>
     <p className={styles.meta}>{dateRangeLabel(event)} · {event.city}</p>
     <h3>{event.event_name}</h3>
@@ -384,9 +372,6 @@ export default async function GoFloridaPage({ searchParams }) {
   return <main id="go-florida" className={styles.page}>
     <CommerceClickBeacon surface={SURFACE} />
     <div className={styles.opening}>
-      <div className={styles.heroBackdrop}>
-        <LicensedPhoto {...SPRINGS_PHOTO} sizes="100vw" priority className={styles.heroPhoto} />
-      </div>
     <header className={styles.header}>
       <a href="/" aria-label="Wayfind home"><img className={styles.wordmark} src={mark.png} alt="Wayfind" width={mark.width} height={mark.height} /></a>
       <nav aria-label="Florida navigation"><a href="#experiences">Activities</a><a href="#hot">Guides</a><a href="#halloween">Events</a><a href="#shows">Nights out</a><a className={styles.headerAction} href="/">Find an outing <span aria-hidden="true">↗</span></a></nav>
@@ -399,9 +384,8 @@ export default async function GoFloridaPage({ searchParams }) {
         <div className={styles.heroActions}><a className={styles.primary} href={HERO.primaryHref}>{HERO.primaryLabel} <span aria-hidden="true">↗</span></a><a className={styles.textLink} href={HERO.secondaryHref}>{HERO.secondaryLabel} <span aria-hidden="true">↓</span></a></div>
         <p className={styles.disclosure}>{DISCLOSURE}</p>
       </div>
-      <a className={styles.destination} href="#nature"><span className={styles.destinationMarker} aria-hidden="true">↗</span><span><small>TAKE THE SCENIC ROUTE</small><strong>A slower kind of escape.</strong><span>Explore the water</span></span></a>
+      <figure className={styles.heroFigure}><div className={styles.heroMedia}><LicensedPhoto {...SPRINGS_PHOTO} sizes="(max-width:700px) 100vw, 50vw" priority className={styles.heroPhoto} /></div><figcaption>{SPRINGS_PHOTO.caption}</figcaption></figure>
     </div>
-    <div className={styles.heroFoot}><span>GOOD DAYS START WITH A LITTLE LOCAL KNOWLEDGE</span><span>{SPRINGS_PHOTO.caption}</span></div>
     </div>
     <FloridaSections sections={[
       { id: 'experiences', label: 'Top experiences', title: 'Top experiences', content: <ExperienceCatalog /> },

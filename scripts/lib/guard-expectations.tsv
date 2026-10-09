@@ -160,7 +160,7 @@ scripts/check-food-no-tour-rail.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	46611
 scripts/check-food-tour-rail.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	0	f70e96c4a0dcfe30ba3c8ae3860b77a602e3393a47d5f6095733a91f028fb073
 scripts/check-gate.mjs	0	CALL	blocks-ci-and-deploy	1	-	5	0	0	a950323ada49b469e997588d0d5c12525c13b4aaa7e636cdca4ae7c433a34704
 scripts/check-geo-gated-boosts.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Qwen (Engineering)	11	1	0	ca24402a9eeb218cc7c8c18da68105e373275a98f08f494d2e438e0b0ae76f01
-scripts/check-go-florida-landing.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	63	0	0	15ec7f2be6b221a57f85e21d26ce937b7b011a4e0d4a4397e719179f3ee95654
+scripts/check-go-florida-landing.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	87	0	0	388945ddeb91b005c574fd28d41bdb31f6398d90158b21b21c1ca2b9ea40b68e
 scripts/check-go-routes-crawler-gate.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	2e36a46f74af157c1d94e4dfdcd795ec7b800638319e1d79bb696b77910c8bd3
 scripts/check-gps-manual-pick-race.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	3	0	0	d56fc5a99d7b76d04d95e006ccc126f5a8152d80f7a651cdf3b090a9137d99d7
 scripts/check-guard-hermeticity.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	14	1	0	d0d9ef53e479d96dcd41e3d2f957b30030a27e4a62c583563cf8ef1edb822bdb
