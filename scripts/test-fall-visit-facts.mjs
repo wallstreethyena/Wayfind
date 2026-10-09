@@ -13,7 +13,8 @@ const ROOT = process.cwd();
 let checks = 0;
 const ok = (condition, message) => { assert.ok(condition, message); checks++; };
 const mutation = process.argv.includes('--mutation-child');
-let source = readFileSync('lib/eventVisitFacts.js', 'utf8').replace('from "./nowContext.js"', `from "${new URL('../lib/nowContext.js', import.meta.url).href}"`);
+// The module is loaded from a data: URL, so every relative lib import is made absolute.
+let source = readFileSync('lib/eventVisitFacts.js', 'utf8').replace(/from "\.\/([A-Za-z0-9_]+\.js)"/g, (_, f) => `from "${new URL('../lib/' + f, import.meta.url).href}"`);
 if (mutation) {
   const needle = 'export function eventVisitStatus(event, now = new Date(), todayOverride = null) {';
   assert.ok(source.includes(needle), 'Mutation must reach the real status function');
