@@ -45,6 +45,7 @@ function page(file) {
   eventSocialPosts:()=>social,
   isEmbeddable:()=>true,
   embedSrc:()=>"https://www.instagram.com/reel/fixture/embed/", PLATFORM:{instagram:{label:"Instagram",color:"#E1306C"}},
+  eventDetailTicketAction:()=>curated?.is_free?null:{kind:'affiliate',href:'/api/commerce/go?offer=test',label:'Get tickets ↗'},
   eventTicketCta:()=>curated?.is_free?null:{href:'/api/commerce/go?offer=test',label:'Get tickets ↗'},
   isTicketmasterFamily:()=>true,eventStoryEvidence:x=>x,eventStoryFallback:()=>({whyGo:longReason,bestFor:'People making a real plan together',expect:'A busy entrance and a full evening'}),
   useContentCardActions:()=>contentActions,addPlaceToTrips:(trips)=>trips,

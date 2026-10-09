@@ -16,7 +16,7 @@ import EventExperienceStyles from "../../components/EventExperienceStyles.js";
 import { notFound } from "next/navigation";
 import { safeUrl } from "../../../lib/links.js";
 import { SITE_URL } from "../../../lib/site";
-import { fetchCuratedEvents, fetchCuratedEventBySlug, eventJsonLd, dateRangeLabel, eventWebsiteUrl } from "../../../lib/curatedEvents";
+import { fetchCuratedEvents, fetchCuratedEventBySlug, eventJsonLd, dateRangeLabel, eventWebsiteUrl, eventDetailTicketAction } from "../../../lib/curatedEvents";
 import { eventPhotos } from "../../../lib/eventPhotos";
 import { eventVenueImageSrc, withTampaPassFacts } from "../../../lib/eventPageImage.js";
 import { eventDatesLabel } from "../../../lib/eventOccurrences.js";
@@ -28,7 +28,6 @@ import EventWhere from "../../components/EventWhere";
 import ReturnToWayfind from "../../components/ReturnToWayfind.js";
 import { pairingHref } from "../../../lib/eventPairings";
 import { cachedEventPairings } from "../../../lib/eventPairingsCache";
-import { eventTicketCta } from "../../../lib/eventTicketDeals.js";
 import { clockLabel } from "../../../lib/fallPool.js";
 import { eventSocialPosts } from "../../../lib/eventSocial.js";
 import VideoFacade from "../../components/VideoFacade.js";
@@ -202,7 +201,10 @@ export default async function CuratedEventPage({ params }) {
   // beside directions, not a text link at the foot of the page — owner,
   // 2026-09-06: "does not have the address nor the website for the place".
   const site = eventWebsiteUrl(e) || null;
-  const ticket = eventTicketCta(e.event_id, { surface: "florida_event_page" });
+  // ONE ticket button: the affiliate deal when the registry has one, else the
+  // organiser's own verified ticket link (rel nofollow, not sponsored). Same
+  // gates the card uses (lib/curatedEvents.eventDetailTicketAction).
+  const ticket = eventDetailTicketAction(e, { surface: "florida_event_page" });
   const socialPosts = eventSocialPosts(e.event_id) || [];
   // The card's creator mark promises that the post is one tap away. Reuse the
   // event's already-cleared hero as the click-to-load cover so that promise is
@@ -279,11 +281,11 @@ export default async function CuratedEventPage({ params }) {
         actions={<>
       {ticket ? (
         <div style={S.ticketWrap}>
-          <a style={S.tix} href={ticket.href} target="_blank" rel="sponsored nofollow noopener"
+          <a style={S.tix} href={ticket.href} target="_blank" rel={ticket.kind === "affiliate" ? "sponsored nofollow noopener" : ticket.rel}
             aria-label={ticket.label.replace(" ↗", "") + " for " + e.event_name}>
             {"🎟️ " + ticket.label}
           </a>
-          <p style={S.disclosure}>We may earn a commission when you book through partner links. It never changes our rankings.</p>
+          {ticket.kind === "affiliate" ? <p style={S.disclosure}>We may earn a commission when you book through partner links. It never changes our rankings.</p> : null}
         </div>
       ) : null}
 
