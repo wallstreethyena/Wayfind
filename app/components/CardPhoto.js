@@ -63,17 +63,23 @@ export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, sty
   if (!request) return <img {...props} src={src} alt={alt} style={style} onError={onError} onLoad={onLoad} onClick={onClick} />;
   const visible = !!photo && failed !== request;
   const open = (e) => { e.preventDefault(); e.stopPropagation(); setViewer(photo); };
+  const viewerProps = photo?.credit ? {
+    role: "button", tabIndex: 0,
+    "aria-label": alt ? "View larger photo of " + alt + " and photographer credit" : "View larger photo and photographer credit",
+    "aria-haspopup": "dialog",
+    onClick: open,
+    onKeyDown: (e) => { e.stopPropagation(); if (e.key === "Enter" || e.key === " ") open(e); },
+  } : { onClick };
   return <>
-    {visible ? <img {...props} ref={anchor} src={photo.src} alt={alt} style={style} onClick={onClick} onLoad={onLoad} onError={() => setFailed(request)} />
+    {visible ? <img {...props} {...viewerProps} ref={anchor} src={photo.src} alt={alt} style={{ ...style, ...(photo.credit ? { cursor: "zoom-in", outlineOffset: -3 } : {}) }} onLoad={onLoad} onError={() => setFailed(request)} />
       : <span ref={anchor} data-card-photo-request={request} role="img" aria-label={failed === request ? (alt ? "Photo unavailable for " + alt : "Photo unavailable") : "Loading photo"} style={{ width: "100%", height: "100%", minHeight: 60, ...style, display: "grid", placeContent: "center", textAlign: "center", gap: 8, color: "#acb9c8" }}>
           {failed === request ? <>
             <svg aria-hidden="true" width="28" height="34" viewBox="0 0 24 30" fill="none" stroke="currentColor" strokeWidth="1.8" style={{ margin: "0 auto" }}><path d="M12 28S3 17 3 11a9 9 0 1 1 18 0c0 6-9 17-9 17Z"/><circle cx="12" cy="11" r="3"/></svg>
             <small style={{ fontSize: 10, lineHeight: 1.3, padding: "0 4px" }}>Photo unavailable</small>
           </> : null}
         </span>}
-    {visible && photo.credit ? <div data-card-photo-credit onKeyDown={(e) => e.stopPropagation()} style={{ position: "absolute", bottom: 8, left: 4, right: 4, zIndex: 8, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 4, pointerEvents: "auto" }}>
-      <button type="button" onClick={open} aria-label="View larger photo and photographer credit" style={{ ...control, minHeight: 44, padding: "4px 7px", fontSize: 11 }}>View photo</button>
-      {photo.source === "google" ? <PhotoCreditLink href={safe(photo.credit.mapsUri)} target="_blank" rel="noopener noreferrer" translate="no" onClick={(e) => e.stopPropagation()} style={{ background: "#101820", color: "#fff", padding: "2px 3px", whiteSpace: "nowrap", fontFamily: "Roboto, sans-serif", fontSize: 12, fontWeight: 400 }}>Google Maps</PhotoCreditLink> : null}
+    {visible && photo.source === "google" && photo.credit ? <div data-card-photo-credit onKeyDown={(e) => e.stopPropagation()} style={{ position: "absolute", bottom: 4, left: 4, right: 4, zIndex: 8, display: "flex", alignItems: "flex-start", pointerEvents: "none" }}>
+      <PhotoCreditLink href={safe(photo.credit.mapsUri)} target="_blank" rel="noopener noreferrer" translate="no" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", background: "#101820", color: "#fff", padding: "1px 3px", borderRadius: 3, whiteSpace: "nowrap", fontFamily: "Roboto, sans-serif", fontSize: 12, lineHeight: "16px", fontWeight: 400, fontStyle: "normal", letterSpacing: "normal", textDecoration: "none", pointerEvents: "auto" }}>Google Maps</PhotoCreditLink>
     </div> : null}
     {viewer && visible ? <PhotoViewer photo={viewer} alt={alt} close={() => setViewer(null)} /> : null}
   </>;

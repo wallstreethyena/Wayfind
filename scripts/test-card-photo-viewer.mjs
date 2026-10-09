@@ -3,6 +3,9 @@ import { readFileSync } from "node:fs";
 import ts from "typescript";
 import { chromium } from "@playwright/test";
 import { cardPhotoRequest, fetchCardPhoto } from "../lib/cardPhotoRequest.js";
+import { loadComponent } from "./lib/jsxLoad.mjs";
+
+const { WF_PLACE_CARD_CSS } = await loadComponent(new URL("../app/components/css.js", import.meta.url).pathname, new URL("../", import.meta.url).pathname);
 
 const source = "/api/photo?place=ChIJCardPhotoTest0001";
 const request = cardPhotoRequest(source);
@@ -32,7 +35,7 @@ catch (e) {
 const compile = (file) => ts.transpileModule(readFileSync(new URL(file, import.meta.url), "utf8"), { compilerOptions: { jsx: ts.JsxEmit.React, module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText;
 const helper = compile("../lib/cardPhotoRequest.js"), component = compile("../app/components/CardPhoto.js"), creditLink = compile("../app/components/PhotoCreditLink.js");
 try {
-  for (const width of [390, 1440]) {
+  for (const width of [390, 768, 1440]) {
     const page = await browser.newPage({ viewport: { width, height: 900 } });
     const errors = [];
     page.on("pageerror", (e) => errors.push(e.message));
@@ -48,26 +51,32 @@ try {
       }
       if (u.pathname === "/broken.jpg") return route.fulfill({ status: 404, body: "Unavailable" });
       if (u.hostname === "photo.test") return route.fulfill({ contentType: "image/svg+xml", body: '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800"><rect width="1200" height="800" fill="#446655"/></svg>' });
-      return route.fulfill({ contentType: "text/html", body: '<div style="height:1400px"></div><div id="root" style="position:relative;width:100px;height:268px"></div>' });
+      return route.fulfill({ contentType: "text/html", body: `<style>${WF_PLACE_CARD_CSS}</style><div style="height:1400px"></div><article class="wf-place-card"><div class="wf-place-card-layout"><div id="root" class="wf-place-card-media"></div><div>Test venue</div></div></article>` });
     });
     await page.goto("https://wayfind.test/");
+    assert.equal(await page.evaluate(() => window.innerWidth), width, "achieved viewport matches the tested size");
     await page.addScriptTag({ path: new URL("../node_modules/react/umd/react.development.js", import.meta.url).pathname });
     await page.addScriptTag({ path: new URL("../node_modules/react-dom/umd/react-dom.development.js", import.meta.url).pathname });
     await page.addScriptTag({ content: `window.photoHelpers={};(function(exports){${helper}})(photoHelpers);window.creditLinkModule={};(function(exports){${creditLink}})(creditLinkModule);window.photoModule={};(function(exports,require){${component}})(photoModule,id=>id==='react'?React:id==='react-dom'?ReactDOM:id==='./PhotoCreditLink.js'?creditLinkModule:photoHelpers);window.root=ReactDOM.createRoot(document.getElementById('root'));root.render(React.createElement(photoModule.default,{src:${JSON.stringify(source)},alt:'Test venue',style:{width:'100%',height:'100%',objectFit:'cover'}}));` });
     await page.waitForTimeout(100);
     assert.equal(photoCalls, 0, "offscreen card makes no request");
     await page.locator("#root").scrollIntoViewIfNeeded();
-    const button = page.getByRole("button", { name: "View larger photo and photographer credit" });
+    const button = page.getByRole("button", { name: "View larger photo of Test venue and photographer credit" });
     await button.waitFor();
+    assert.equal(await button.evaluate((el) => el.tagName), "IMG", "photo itself opens the viewer");
+    assert.equal(await page.getByText("View photo", { exact: true }).count(), 0, "no visible View photo button");
     assert.equal(photoCalls, 1);
     const thumb = await page.locator("#root > img").getAttribute("src");
     await page.evaluate(() => {
       window.parentKeyActivations = 0;
+      window.parentClickActivations = 0;
+      document.body.addEventListener("click", () => window.parentClickActivations++);
       document.body.addEventListener("keydown", (e) => {
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); window.parentKeyActivations++; }
       });
     });
     await button.focus();
+    assert.notEqual(await button.evaluate((el) => getComputedStyle(el).outlineStyle), "none", "keyboard focus is visible on the photo");
     await page.keyboard.press("Enter");
     await page.locator("dialog[open]").waitFor();
     assert.equal(await page.locator("dialog > img").getAttribute("src"), thumb);
@@ -78,9 +87,21 @@ try {
     assert.equal(await page.evaluate(() => window.parentKeyActivations), 0, "viewer controls do not activate the enclosing card");
     await page.keyboard.press("Escape");
     assert.equal(await page.locator("dialog").count(), 0);
+    assert.ok(await button.evaluate((el) => document.activeElement === el), "closing restores focus to photo");
+    await page.keyboard.press("Space");
+    await page.locator("dialog[open]").waitFor();
+    await page.keyboard.press("Escape");
+    await button.click();
+    await page.locator("dialog[open]").waitFor();
+    await page.keyboard.press("Escape");
+    assert.equal(await page.evaluate(() => window.parentKeyActivations), 0);
+    assert.equal(await page.evaluate(() => window.parentClickActivations), 0, "photo click does not open enclosing card");
+    assert.equal(photoCalls, 1, "reopening keeps the same photo without extra API calls");
     const badge = await page.locator("[data-card-photo-credit] a").boundingBox();
     const bounds = await page.locator("#root").boundingBox();
     assert.ok(badge.x >= bounds.x && badge.x + badge.width <= bounds.x + bounds.width);
+    assert.ok(badge.height <= 18, "credit remains a compact single line");
+    assert.equal(await page.locator("[data-card-photo-credit] a").evaluate((el) => getComputedStyle(el).fontSize), "12px", "credit preserves Google's minimum text size");
     const render = (id, alt) => page.evaluate(({ id, alt }) => {
       root.render(React.createElement(photoModule.default, { src: "/api/photo?place=" + id, alt, style: { width: "100%", height: "100%", objectFit: "cover" } }));
     }, { id, alt });
@@ -105,5 +126,5 @@ try {
     assert.deepEqual(errors, []);
     await page.close();
   }
-  console.log("test-card-photo-viewer: Chromium 390/1440 passed: lazy request, same image, all authors, source link, Escape, attribution fit, visible failures, recovered request, no paid retries");
+  console.log("test-card-photo-viewer: Chromium 390/768/1440 passed: photo click/Enter/Space, visible focus and restoration, compact credit, same image, all authors, source link, visible failures, no paid retries");
 } finally { await browser.close(); }
