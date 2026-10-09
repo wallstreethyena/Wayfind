@@ -64,7 +64,7 @@ import { RAIL_PAGE_SIZE } from "../../lib/railPage.js";
 import { usePagedRail } from "./usePagedRail.js";
 import PosterEventCard from "./PosterEventCard.js";
 import { usePosterEvents } from "./usePosterEvents.js";
-import { DATE_NIGHT_RAIL_DEFS } from "../../lib/dateNightIntent.js";
+import { DATE_NIGHT_RAIL_DEFS, scrubLegacyPrice } from "../../lib/dateNightIntent.js";
 
 const C = { text: "#F1F5F9", muted: "#8b93a1" };
 
@@ -118,7 +118,7 @@ function DateNightRailSection({ rail, lat, lng, city, hour, eventCards = [], eve
           const type = prettyType(p.primaryType || p.primary_type || p.category);
           const facts = [
             p.reviews ? compact(p.reviews) + " reviews" : null,
-            priceLabel(p.priceLevel != null ? p.priceLevel : p.priceNum) || null,
+            priceLabel(scrubLegacyPrice(p)) || null,
             Number.isFinite(p.distMi) ? p.distMi + " mi" : null,
           ].filter(Boolean);
           const chips = [type ? { key: "type", icon: "📍", label: type, title: type } : null].filter(Boolean);
