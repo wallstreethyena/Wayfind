@@ -137,11 +137,48 @@ const readJson = (f) => JSON.parse(fs.readFileSync(f, "utf8"));
   eq(roundTrip, 40, "mapping round-trips: every blind side matches the raw output of its mapped model");
   ok(aIsHaiku > 0 && aIsHaiku < 20, "A/B assignment is randomized");
   eq(JSON.stringify(Object.keys(s)).includes("attempts"), true, "summary lists attempts");
-  // rerun on the same ledger: duplicate attempt keys -> zero calls
+  // rerun after a completed run: zero provider calls, results kept
   calls = [];
-  const rr = await P.runPilot({ ...opts, out: path.join(d, "out2") });
-  eq(anthropicCalls().length, 0, "re-running on a used ledger makes zero Anthropic calls");
-  ok(rr.attempts.every((a) => a.status === "not_run"), "all not_run on reuse");
+  const rr = await P.runPilot({ ...opts, out: opts.out });
+  eq(anthropicCalls().length, 0, "re-running a completed pilot makes zero Anthropic calls");
+  ok(rr.attempts.every((a) => a.status === "settled" && a.skipped === "already_settled"), "every attempt skipped: already_settled, result kept");
+  eq(rr.perModel["claude-sonnet-5-5"].accepted, 20, "accepted counts survive the rerun");
+  eq(rr.perModel["claude-sonnet-5-5"].settledMicroUsd, 20 * 38000, "settled micro-USD survives the rerun");
+  eq(readJson(path.join(d, "out/blind/packet.json")).items.length, 20, "blind packet rebuilt complete from stored results");
+  // a NEW ledger next to an existing summary is refused (silent reset), unless --new-ledger
+  await rejects(() => P.runPilot({ ...opts, ledger: path.join(d, "fresh-ledger.json") }), /NEW file/, "new ledger + existing summary.json refused");
+  eq(anthropicCalls().length, 0, "refused before any call");
+  const nl = await P.runPilot({ ...opts, ledger: path.join(d, "fresh-ledger2.json"), newLedger: true, out: path.join(d, "out-nl") });
+  eq(anthropicCalls().length, 40, "--new-ledger with a fresh --out starts over (explicit)");
+  void nl;
+}
+
+// ===== B2. resume after an unresolved attempt is reconciled =====
+{
+  const { d, opts } = setup();
+  const bad = MANIFEST.places[2].place_id;
+  behave = (p, model) => (p.place_id === bad ? { status: 200, body: okBody(p, model, null) } : goodBehave(p, model));
+  const s1 = await P.runPilot(opts);
+  const u = s1.attempts.find((a) => a.status === "unresolved");
+  const done1 = s1.attempts.filter((a) => a.status === "settled").length;
+  // rerun WITHOUT reconciling: stops immediately naming the attempt, zero calls
+  calls = [];
+  const s2 = await P.runPilot(opts);
+  eq(anthropicCalls().length, 0, "rerun with an unresolved attempt makes zero calls");
+  eq(s2.stoppedBecause, "unresolved_prior_attempt", "stopReason unresolved_prior_attempt");
+  ok(s2.stoppedDetail === `${MANIFEST.pilotId}:${u.place_id}:${u.model}`, "names the attemptKey");
+  // operator reconciles, then the rerun continues with exactly the remaining attempts
+  const { FileLedger } = await import(href("lib/atlasBudgetFileLedger.js"));
+  await new FileLedger({ file: opts.ledger }).reconcileAttempt(`${MANIFEST.pilotId}:${u.place_id}:${u.model}`, { settledMicroUsd: 30000 });
+  calls = []; behave = goodBehave;
+  const s3 = await P.runPilot(opts);
+  // attempts 0..done1-1 settled earlier (skipped), the reconciled one is settled (no raw => skipped), the rest run now
+  const remaining = 40 - done1 - 1;
+  eq(anthropicCalls().length, remaining, "rerun after reconcile makes exactly the remaining calls");
+  eq(s3.stoppedBecause, null, "and finishes");
+  ok(s3.attempts.filter((a) => a.skipped === "already_settled").length === done1, "earlier settled attempts were skipped, not re-called");
+  const rec = s3.attempts.find((a) => a.place_id === u.place_id && a.model === u.model);
+  ok(rec.status === "skipped" && rec.reason === "already_settled" && rec.microUsd === 30000, "reconciled attempt skipped with its operator-booked cost");
 }
 
 // ===== C. insufficient ceiling => ZERO Anthropic calls, outputs still written =====
@@ -246,6 +283,10 @@ const readJson = (f) => JSON.parse(fs.readFileSync(f, "utf8"));
   eq(cat(unsup), "unsupported_claim", "unsourced number/entity => unsupported_claim");
   eq(cat(dashp), "dash", "spaced hyphen => dash");
   ok(s.attempts.filter((a) => a.place_id === pend).every((a) => a.verified !== true), "failures are not accepted");
+  const pk = readJson(path.join(opts.out, "blind/packet.json")).items.find((x) => x.place_id === pend);
+  ok(pk && pk.A.status === "no_output" && !("reason" in pk.A) && !/insufficient|sources/.test(JSON.stringify(pk)), "failure reason is NOT in the blind packet");
+  const mp = readJson(path.join(opts.out, "blind/mapping.json")).mapping.find((x) => x.place_id === pend);
+  ok(mp.reasons.A === "insufficient_sources" && mp.reasons.B === "insufficient_sources", "failure reasons live in mapping.json");
 }
 
 // ===== H. guards: flags, env, out dir, ledger path, manifest, frozen config =====
@@ -278,6 +319,21 @@ const readJson = (f) => JSON.parse(fs.readFileSync(f, "utf8"));
   ok(!fs.existsSync(dz.opts.out), "...and nothing was written");
   const nc = setup(); fs.unlinkSync(nc.opts.coords);
   await rejects(() => P.runPilot(nc.opts), /--coords/, "missing coords names the flag");
+}
+
+// ===== H2. ceiling lock via the runner =====
+{
+  const { opts } = setup({ ceiling: 1000 });
+  await P.runPilot(opts); // creates the ledger budget at 1000
+  const hi = JSON.parse(fs.readFileSync(opts.manifest, "utf8")); hi.ceilingMicroUsd = 8000000; fs.writeFileSync(opts.manifest, JSON.stringify(hi));
+  calls = [];
+  await rejects(() => P.runPilot({ ...opts, out: opts.out + "2" }), /refusing to RAISE/, "runner refuses to raise an existing ceiling from the manifest");
+  eq(calls.length, 0, "no calls when the raise is refused");
+  const logs = []; const ol = console.log; console.log = (...a) => logs.push(a.join(" "));
+  await P.runPilot({ ...opts, out: opts.out + "3", raiseCeiling: 8000000 });
+  console.log = ol;
+  ok(logs.some((l) => /1000 -> 8000000/.test(l)), "--raise-ceiling prints old and new value");
+  eq(anthropicCalls().length, 40, "after the explicit raise the pilot runs");
 }
 
 // ===== I. manifest shape =====

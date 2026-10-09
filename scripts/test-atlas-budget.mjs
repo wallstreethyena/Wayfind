@@ -131,6 +131,18 @@ throwsSync(() => costOfUsage(H45, { input_tokens: 5, output_tokens: 5 }), UsageM
   eq(good.status, "settled", "runAttempt: no search blocks => settles"); eq(good.microUsd, 2000, "settled at 2000");
 }
 
+// ═════ 2c. ceiling lock: raise refused without {allowRaise:true}; lowering allowed ═════
+{
+  const { ledger, f } = await mk({ ceiling: 5000 });
+  await throwsAsync(() => ledger.setBudget("s", "2026-10", 5001), LedgerStateError, "raising an existing ceiling is refused");
+  eq((await ledger.totals("s", "2026-10")).ceiling, 5000, "ceiling unchanged after refused raise");
+  const same = await ledger.setBudget("s", "2026-10", 5000); eq(same.old, 5000, "re-setting the same ceiling is fine");
+  const low = await ledger.setBudget("s", "2026-10", 4000); eq(low.new, 4000, "lowering is allowed");
+  await throwsAsync(() => new FileLedger({ file: f }).setBudget("s", "2026-10", 4500), LedgerStateError, "raise refused after reload from disk");
+  const up = await ledger.setBudget("s", "2026-10", 9000, { allowRaise: true }); eq(up.old, 4000, "operator raise reports old value"); eq(up.new, 9000, "and new value");
+  eq((await ledger.totals("s", "2026-10")).ceiling, 9000, "explicit operator raise applied");
+}
+
 // ═════ 3. admission: insufficient budget => ZERO provider calls ═══════════════
 {
   const { budget } = await mk({ ceiling: BOUND - 1 });
@@ -329,8 +341,16 @@ let pgliteRan = false;
   ok(all.filter((x) => !x.ok).every((x) => x.reason === "over_ceiling"), "SQL: the rest over_ceiling");
   eq((await R("s0", "other", 1)).reason, "duplicate_attempt_key", "SQL: duplicate key");
   eq((await R("sX", "sp0", 1)).reason, "active_place", "SQL: duplicate active place");
-  eq((await db.query("select wf_ai_reserve('u','q','2026-10','pz','claude-haiku-4-5','bad',1) r")).rows[0].r.reason, "unknown_price_version", "SQL: unknown price version");
   const raised = async (sql, params) => { try { await db.query(sql, params); } catch (e) { return String(e.message); } return null; };
+  const sb = async (c, allow) => raised("select wf_ai_set_budget('q','2026-10',$1,$2)", [c, allow]);
+  ok(/refusing to RAISE/.test(await sb(9000, false)), "SQL: raising a ceiling is refused");
+  eq(await sb(7000, false), null, "SQL: lowering allowed");
+  eq(await sb(9000, true), null, "SQL: explicit allow_raise works");
+  await db.query("select wf_ai_set_budget('q','2026-10',7500,true)");
+  const acl = await db.query("select proname, coalesce(array_to_string(proacl, ','), '') a from pg_proc where proname in ('wf_ai__move','wf_ai__lock_scope','wf_ai_reserve')");
+  const pubExec = (nm) => /(^|,)=X/.test(acl.rows.find((x) => x.proname === nm).a);
+  ok(!pubExec("wf_ai__move") && !pubExec("wf_ai__lock_scope"), "SQL: internal helpers have no PUBLIC EXECUTE");
+  eq((await db.query("select wf_ai_reserve('u','q','2026-10','pz','claude-haiku-4-5','bad',1) r")).rows[0].r.reason, "unknown_price_version", "SQL: unknown price version");
   await db.query("select wf_ai_dispatch('s0')");
   ok(/illegal transition/.test(await raised("select wf_ai_release('s0')")), "SQL: release after dispatch raises");
   await db.query("select wf_ai_release('s1')");

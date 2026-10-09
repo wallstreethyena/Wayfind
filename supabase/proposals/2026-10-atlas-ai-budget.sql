@@ -136,20 +136,41 @@ begin
   update wf_ai_spend set settled_micro_usd = p_settled where attempt_key = p_key;
 end $$;
 
+-- Budget upsert: create, keep or LOWER a ceiling freely; RAISING an existing one needs p_allow_raise = true
+-- (an explicit operator decision; the pilot runner never passes it).
+create or replace function wf_ai_set_budget(p_scope text, p_period text, p_ceiling bigint, p_allow_raise boolean default false)
+returns jsonb language plpgsql security definer set search_path = public as $$
+declare v_old bigint;
+begin
+  if p_ceiling is null or p_ceiling < 0 then raise exception 'ceiling must be a non-negative integer' using errcode = 'P0001'; end if;
+  perform wf_ai__lock_scope(p_scope);
+  select ceiling_micro_usd into v_old from wf_ai_budget where scope = p_scope and period = p_period for update;
+  if found and p_ceiling > v_old and not coalesce(p_allow_raise, false) then
+    raise exception 'refusing to RAISE ceiling % -> % for %/% without p_allow_raise', v_old, p_ceiling, p_scope, p_period using errcode = 'P0001';
+  end if;
+  insert into wf_ai_budget (scope, period, ceiling_micro_usd) values (p_scope, p_period, p_ceiling)
+  on conflict (scope, period) do update set ceiling_micro_usd = excluded.ceiling_micro_usd;
+  return jsonb_build_object('old', v_old, 'new', p_ceiling);
+end $$;
+
 create or replace function wf_ai_clear_halt(p_scope text) returns void
 language sql security definer set search_path = public as $$
   update wf_ai_budget set halted = false where scope = p_scope;
 $$;
+
+-- Internal helpers are never callable by API roles (unconditional: PUBLIC holds EXECUTE by default).
+revoke all on function wf_ai__lock_scope(text) from public;
+revoke all on function wf_ai__move(text, text[], text, text) from public;
 
 -- Lock the functions down to service_role only (guarded so the file also loads in plain Postgres / PGlite).
 do $$
 begin
   if exists (select 1 from pg_roles where rolname = 'service_role') then
     revoke all on function wf_ai_reserve(text,text,text,text,text,text,bigint), wf_ai_dispatch(text), wf_ai_release(text),
-      wf_ai_unresolve(text,text), wf_ai_settle(text,bigint,jsonb,text), wf_ai_reconcile(text,bigint,text), wf_ai_clear_halt(text)
+      wf_ai_unresolve(text,text), wf_ai_settle(text,bigint,jsonb,text), wf_ai_reconcile(text,bigint,text), wf_ai_clear_halt(text), wf_ai_set_budget(text,text,bigint,boolean)
       from public, anon, authenticated;
     grant execute on function wf_ai_reserve(text,text,text,text,text,text,bigint), wf_ai_dispatch(text), wf_ai_release(text),
-      wf_ai_unresolve(text,text), wf_ai_settle(text,bigint,jsonb,text), wf_ai_reconcile(text,bigint,text), wf_ai_clear_halt(text)
+      wf_ai_unresolve(text,text), wf_ai_settle(text,bigint,jsonb,text), wf_ai_reconcile(text,bigint,text), wf_ai_clear_halt(text), wf_ai_set_budget(text,text,bigint,boolean)
       to service_role;
   end if;
 end $$;

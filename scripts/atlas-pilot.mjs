@@ -23,6 +23,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { LedgerStateError } from "../lib/atlasBudget.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 process.chdir(ROOT); // lib/atlasCache.js reads docs/* relative to cwd
@@ -32,7 +33,10 @@ export const ALLOWED_HOSTS = Object.freeze(["api.anthropic.com", "geocoding.geo.
 export const FROZEN_FILES = Object.freeze(["lib/atlasWebLane.js", "lib/atlasVerify.js", "lib/atlasEditorial.js", "lib/atlasCache.js"]);
 const DISNEY_RX = /disney|epcot|magic kingdom|hollywood studios|animal kingdom|typhoon lagoon|blizzard beach/i;
 const FORBIDDEN_OUT = ["data", "app", "lib", "public", "supabase", ".git"];
-const CALL_TIMEOUT_MS = 60000;
+// 120s: one call is a SERVER-SIDE tool loop (up to 3 searches + 3 fetches, several model iterations)
+// and can legitimately run past a minute. A timeout leaves the attempt UNRESOLVED (full bound held),
+// so a too-short limit costs budget and halts the run. The cron route keeps its own 48s (unchanged).
+const CALL_TIMEOUT_MS = 120000;
 
 export class PilotUsageError extends Error {
   constructor(msg) { super(msg); this.name = "PilotUsageError"; }
@@ -149,8 +153,23 @@ export async function runPilot(opts) {
     : (opts.fetchImpl || ((u, i) => globalThis.fetch(u, i)));
   const anthropicFetch = guardedFetch(rawFetch), geoFetch = guardedFetch(censusFetch);
 
+  // Refuse a silent ledger reset: a NEW ledger file while --out already holds this pilot's summary.
+  const priorSummary = path.join(outDir, "summary.json");
+  if (!fs.existsSync(ledgerFile) && fs.existsSync(priorSummary) && !opts.newLedger) {
+    let pid = null; try { pid = JSON.parse(fs.readFileSync(priorSummary, "utf8")).pilotId; } catch { /* unreadable summary: treat as same pilot */ pid = manifest.pilotId; }
+    need(pid !== manifest.pilotId, `--ledger ${ledgerFile} is a NEW file but ${priorSummary} already exists for ${manifest.pilotId}; a fresh ledger would reset spend tracking. Point at the original ledger or pass --new-ledger`);
+  }
+  fs.mkdirSync(outDir, { recursive: true });
   const ledger = new FileLedger({ file: ledgerFile });
-  await ledger.setBudget(manifest.pilotId, manifest.pilotId, manifest.ceilingMicroUsd);
+  try {
+    if (opts.raiseCeiling !== undefined) {
+      need(Number.isInteger(opts.raiseCeiling) && opts.raiseCeiling >= 0, "--raise-ceiling needs a non-negative integer micro-USD value");
+      const r = await ledger.setBudget(manifest.pilotId, manifest.pilotId, opts.raiseCeiling, { allowRaise: true });
+      console.log(`atlas-pilot: OPERATOR ceiling change ${r.old === null ? "(new)" : r.old} -> ${r.new} micro-USD`);
+    } else {
+      await ledger.setBudget(manifest.pilotId, manifest.pilotId, manifest.ceilingMicroUsd);
+    }
+  } catch (e) { if (e instanceof LedgerStateError) throw new PilotUsageError(e.message); throw e; }
   const budget = new B.Budget({ ledger, scope: manifest.pilotId, period: manifest.pilotId, priceVersion: manifest.priceVersion });
 
   const rnd = prng(manifest.pilotId);
@@ -158,7 +177,7 @@ export async function runPilot(opts) {
   const blindOrder = manifest.places.map(() => shuffled(manifest.models, rnd)); // A/B assignment, separate draws
   const nowIso = (opts.now || new Date()).toISOString();
   const attempts = []; // one record per place x model
-  let stopReason = null;
+  let stopReason = null, stopDetail = null;
   const sysCache = {};
 
   for (let pi = 0; pi < manifest.places.length; pi++) {
@@ -168,6 +187,23 @@ export async function runPilot(opts) {
       const rec = { place_id: mp.place_id, name: mp.name, model, status: null, category: null };
       attempts.push(rec);
       if (stopReason) { rec.status = "not_run"; rec.reason = stopReason; continue; }
+      // Resume: look the attempt up BEFORE reserving.
+      const attemptKey = `${manifest.pilotId}:${mp.place_id}:${model}`;
+      const prior = await ledger.getAttempt(attemptKey);
+      if (prior) {
+        if (prior.state === "settled" || prior.state === "released") {
+          const rawFile = path.join(outDir, "raw", `${mp.place_id}.${model}.json`);
+          if (prior.state === "settled" && fs.existsSync(rawFile)) {
+            const raw = JSON.parse(fs.readFileSync(rawFile, "utf8"));
+            Object.assign(rec, raw.record, { status: "settled", skipped: "already_settled" });
+            if (!rec.category || rec.category !== "provider_error") if (rec.category !== "incomplete") Object.assign(rec, await validate(raw.response, place));
+          } else { rec.status = "skipped"; rec.reason = `already_${prior.state}`; rec.microUsd = prior.settledMicroUsd; }
+        } else {
+          rec.status = "not_run"; rec.reason = `unresolved_prior_attempt: ${attemptKey} is ${prior.state}; operator must reconcileAttempt first`;
+          stopReason = "unresolved_prior_attempt"; stopDetail = attemptKey;
+        }
+        continue;
+      }
       if (RIDE_RX.test(String(place.name || "")) || isInsidePark(place.lat, place.lng, place.name)) { rec.status = "not_run"; rec.reason = "ride_level"; continue; }
 
       const sys = (sysCache[model] ||= buildAtlasSystemBlocks(model));
@@ -190,7 +226,7 @@ export async function runPilot(opts) {
         return { requestId, result: { httpStatus: r.status, json }, usage: json && json.usage, contentBlocks: Array.isArray(json && json.content) ? json.content : undefined };
       };
       const out = await B.runAttempt({
-        budget, attemptKey: `${manifest.pilotId}:${mp.place_id}:${model}`, placeId: mp.place_id, model,
+        budget, attemptKey, placeId: mp.place_id, model,
         limits: manifest.limits, call, timeoutMs: CALL_TIMEOUT_MS,
       });
       if (out.status === "rejected") {
@@ -257,12 +293,12 @@ export async function runPilot(opts) {
     if (pair.some((a) => !a || a.status !== "settled")) { incompletePairs.push(mp.place_id); return; }
     packet.push({ place_id: mp.place_id, name: mp.name, category: mp.category, metro: mp.metro,
       A: blindOutput(pair[0]), B: blindOutput(pair[1]) });
-    mapping.push({ place_id: mp.place_id, A: pair[0].model, B: pair[1].model });
+    mapping.push({ place_id: mp.place_id, A: pair[0].model, B: pair[1].model, reasons: { A: pair[0].parsed ? null : pair[0].category, B: pair[1].parsed ? null : pair[1].category } });
   });
   function blindOutput(a) {
     const p = a.parsed;
     return p ? { status: "output", hook: p.hook || null, why_here: p.why_here || null, know_before: p.know_before || null, best_time: p.best_time || null, local_tip: p.local_tip || null, facts: (p.facts || []).map((f) => ({ claim: f.claim, source: f.source })), sources_fetched: a.sources }
-      : { status: "no_output", reason: a.category };
+      : { status: "no_output" };
   }
   fs.writeFileSync(path.join(outDir, "blind", "packet.json"), JSON.stringify({ pilotId: manifest.pilotId, items: packet }, null, 2));
   fs.writeFileSync(path.join(outDir, "blind", "mapping.json"), JSON.stringify({ pilotId: manifest.pilotId, mapping }, null, 2));
@@ -285,7 +321,7 @@ export async function runPilot(opts) {
   }
   const summary = {
     pilotId: manifest.pilotId, priceVersion: manifest.priceVersion, ceilingMicroUsd: manifest.ceilingMicroUsd,
-    frozenConfigMatched: frozenOk, refrozen: !frozenOk, stoppedBecause: stopReason, ledgerTotals: totals,
+    frozenConfigMatched: frozenOk, refrozen: !frozenOk, stoppedBecause: stopReason, stoppedDetail: stopDetail, ledgerTotals: totals,
     executionOrder: order, incompletePairs, perModel,
     attempts: attempts.map(pick),
   };
@@ -308,6 +344,8 @@ function parseArgs(argv) {
     else if (a === "--manifest") o.manifest = val(i++);
     else if (a === "--coords") o.coords = val(i++);
     else if (a === "--mock") o.mock = val(i++);
+    else if (a === "--new-ledger") o.newLedger = true;
+    else if (a === "--raise-ceiling") { o.raiseCeiling = Number(val(i++)); }
     else if (a === "--print-frozen") o.printFrozen = true;
     else throw new PilotUsageError(`unknown flag ${a}`);
   }

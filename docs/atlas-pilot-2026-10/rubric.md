@@ -38,7 +38,8 @@ winner. If the packet shows `no_output` (the writer found too few sources and de
 
 ## Blinding protocol
 
-1. Scorer opens only `blind/packet.json`. No model names, costs or token counts are in it.
+1. Scorer opens only `blind/packet.json`. Never open `raw/` or `blind/mapping.json` (or `summary.json`) before scores are locked. No model names, costs, token counts or failure categories are in the packet.
+   Be aware that prose length, style, sentence habits and a "no_output" (declined) result can still hint at which model wrote a side, and failure categories (kept in `mapping.json`, with the reason a side had no output) would reveal identity. Score the text on its merits; failure categories are shown only after scores are locked.
 2. Scores go in one file, `scores.json`: per place, per side (A or B), gate results, unsupported
    claim count with quoted claims, five criterion scores, verdict, and a one-line note.
 3. Before anything is unblinded, compute `sha256sum scores.json` and record the hash (in the

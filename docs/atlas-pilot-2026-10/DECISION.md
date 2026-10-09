@@ -58,3 +58,11 @@ anatomy is ASSUMED; the pilot replaces it with measured usage. Per attempt:
 manifest.json (20 places, frozen), rubric.md, scripts/atlas-pilot.mjs, budget ledger.
 Question answered: complete research+writing workflow, each model researching independently.
 Not answered: writing quality on identical evidence (separate, later stage if needed).
+
+## 6. Runner behavior on failure
+- One unresolved attempt (timeout, network error, missing or ambiguous usage, non-validation HTTP error) halts the run. Its full reserved bound stays counted against the ceiling.
+- The operator lifts it with `reconcileAttempt(attemptKey, {settledMicroUsd})`, using the provider usage for that request id or the Console figure. A rerun then continues with the remaining attempts.
+- Reruns look every attempt up before reserving: settled or released attempts are skipped (stored results in `raw/` are reused); an attempt still reserved, dispatched or unresolved stops the run with `unresolved_prior_attempt` naming the key.
+- The runner cannot raise the ceiling. `FileLedger.setBudget` refuses a raise unless the operator passes `--raise-ceiling <microUsd>` (printing old and new value). A new ledger file next to an existing `summary.json` for this pilot is refused unless `--new-ledger` is passed.
+- Validation errors (HTTP 400, 413 or 422 with an `invalid_request_error` body) settle at $0. That is an ASSUMPTION (Anthropic does not bill invalid requests); check the Console after the run.
+- Per-call timeout is 120s (server-side tool loop); a timeout is unresolved, never retried.
