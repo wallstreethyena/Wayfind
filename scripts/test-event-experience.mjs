@@ -9,7 +9,8 @@ import ts from 'typescript';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 // REAL, not stubbed: the venue-photo rung is the thing under test below.
-import { eventVenueImageSrc } from '../lib/eventPageImage.js';
+import { eventVenueImageSrc, withTampaPassFacts } from '../lib/eventPageImage.js';
+import { eventDatesLabel } from '../lib/eventOccurrences.js';
 import { FALL_EVENT_IMAGE_HOLDS } from '../lib/fallEventImage.js';
 import { FALL_DISCOVERIES_2026 } from '../lib/fallDiscoveries2026.js';
 import { orderPlaceRecommendations } from '../lib/placeRecommendationOrder.js';
@@ -35,7 +36,7 @@ function page(file) {
   resolveEventById:async()=>event,idFromSlug:()=> 'fixture',isEventWindow:()=>false,
   fetchCuratedEventBySlug:async()=>curated,fetchCuratedEvents:async()=>[],
   eventJsonLd:()=>null,dateRangeLabel:()=> 'September 18',eventWebsiteUrl:()=>null,
-  eventPhotos:()=>photographs,eventVenueImageSrc,addressLine:()=> '123 Test St, Sarasota, FL',
+  eventPhotos:()=>photographs,eventVenueImageSrc,withTampaPassFacts,eventDatesLabel,addressLine:()=> '123 Test St, Sarasota, FL',
   directionsUrl:()=> 'https://www.google.com/maps/dir/?api=1&destination=test',
   appleDirectionsUrl:()=> 'https://maps.apple.com/?daddr=27.3,-82.5&dirflg=d',
   websiteUrl:()=> 'https://www.universalorlando.com',websiteHost:()=> 'universalorlando.com',safeUrl:()=>null,SITE_URL:'https://www.gowayfind.com',
@@ -44,6 +45,7 @@ function page(file) {
   eventSocialPosts:()=>social,
   isEmbeddable:()=>true,
   embedSrc:()=>"https://www.instagram.com/reel/fixture/embed/", PLATFORM:{instagram:{label:"Instagram",color:"#E1306C"}},
+  eventDetailTicketAction:()=>curated?.is_free?null:{kind:'affiliate',href:'/api/commerce/go?offer=test',label:'Get tickets ↗'},
   eventTicketCta:()=>curated?.is_free?null:{href:'/api/commerce/go?offer=test',label:'Get tickets ↗'},
   isTicketmasterFamily:()=>true,eventStoryEvidence:x=>x,eventStoryFallback:()=>({whyGo:longReason,bestFor:'People making a real plan together',expect:'A busy entrance and a full evening'}),
   useContentCardActions:()=>contentActions,addPlaceToTrips:(trips)=>trips,

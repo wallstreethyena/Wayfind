@@ -373,6 +373,11 @@ if (!browserConfig) {
       const context = await browser.newContext({ viewport: { width, height: 1000 }, deviceScaleFactor: 1 });
       const page = await context.newPage();
       await page.goto("file://" + fixturePath, { waitUntil: "load" });
+      // Readiness (2026-10-09): never measure before the font set is settled and two frames have run
+      // at the requested viewport. The fixture loads no web fonts, so this is a no-op today; it keeps the
+      // measurement deterministic if one is ever added, and an unsettled font set fails loudly.
+      const ready = await page.evaluate(async () => { await document.fonts.ready; await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))); return { status: document.fonts.status, iw: innerWidth }; });
+      ok(ready.status === "loaded" && ready.iw === width, `PROBE ${width}px: fonts settled (status ${ready.status}) at the requested viewport (innerWidth ${ready.iw}) before measuring`);
       const measured = await page.evaluate(() => {
         const box = (node) => { const r = node.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height, right: r.right, bottom: r.bottom }; };
         const adapters = [...document.querySelectorAll("[data-adapter]")].map((host) => ({
@@ -404,6 +409,26 @@ if (!browserConfig) {
           const body = card.getBoundingClientRect();
           return { ctas: card.querySelectorAll(".wf-rail-card-cta").length, buttons: card.querySelectorAll(".wf-place-card-actions>button").length, outside: [...card.querySelectorAll(".wf-place-card-actions>button")].filter((c) => c.getBoundingClientRect().bottom > body.bottom + 1).length };
         });
+        // 2026-10-09 suspected cause of the 320px-only flake (reproduced by forcing an emoji fallback; CI's actual fallback font was never observed): the partner CTA "Tickets at Undercover Tourist ↗" is
+        // ~143.2px of text; its U+2197 comes from a host-chosen FALLBACK font (143.2-145.4px in text fonts,
+        // 147.7px when Noto Color Emoji wins), and the old 4px padding left a 143px content box. Assert (a) the
+        // text box fits the content box with real slack, not only the rounded scrollWidth, and (b) no color
+        // emoji font supplied any glyph in the label.
+        const ctaFit = await page.evaluate(() => {
+          const a = [...document.querySelectorAll('[data-adapter="rail-card"] .wf-rail-card')].find((el) => el.textContent.includes("Sweetfields"))?.querySelector(".wf-rail-card-cta");
+          if (!a) return null;
+          const cs = getComputedStyle(a), range = document.createRange(); range.selectNodeContents(a);
+          return { inner: a.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight), text: range.getBoundingClientRect().width };
+        });
+        ok(ctaFit && ctaFit.text <= ctaFit.inner, `PROBE 320px: partner CTA text box fits its content box without relying on padding (text ${ctaFit && ctaFit.text.toFixed(2)}px vs content ${ctaFit && ctaFit.inner.toFixed(2)}px)`);
+        const cdp = await context.newCDPSession(page);
+        await cdp.send("DOM.enable"); await cdp.send("CSS.enable");
+        const dom = await cdp.send("DOM.getDocument", { depth: -1 });
+        const ctaNodes = (await cdp.send("DOM.querySelectorAll", { nodeId: dom.root.nodeId, selector: '[data-adapter="rail-card"] .wf-rail-card-cta' })).nodeIds;
+        let nodeId = null;
+        for (const id of ctaNodes) { const h = (await cdp.send("DOM.getOuterHTML", { nodeId: id })).outerHTML; if (/Undercover Tourist/.test(h)) { nodeId = id; break; } }
+        const platform = nodeId ? (await cdp.send("CSS.getPlatformFontsForNode", { nodeId })).fonts.map((f) => f.familyName) : null;
+        ok(platform && platform.length > 0 && !platform.some((name) => /emoji/i.test(name)), `PROBE 320px: partner CTA glyphs come from text fonts only, no color emoji font (got ${JSON.stringify(platform)})`);
         ok(rich && rich.ctas === 1 && rich.buttons === 4 && rich.outside === 0, "PROBE 320px: rich Fall card has one CTA and all four action buttons inside the card");
         // 2026-10-06: the long partner label ("Park tickets at Undercover Tourist ↗") wrapped to
         // two lines because the nowrap/ellipsis rule only covered `.wf-place-card-cta>a`, not the

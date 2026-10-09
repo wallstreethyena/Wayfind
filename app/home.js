@@ -1,6 +1,8 @@
 "use client";
 import { Component, useEffect, useMemo, useRef, useState } from "react";
 import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, distMeters, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces, normalizeSearchPlace, wayfindScore } from "../lib/google";
+import { fetchLivePhoto, detailGalleryPhotos, liveCreditFor } from "../lib/livePhoto";
+import PhotoCredit from "./components/PhotoCredit";
 import { normName, betterPlace, dedupePlaces } from "../lib/placeDedupe";
 import { comparatorFor, sortPlacesBy, nearestBranch } from "../lib/sortModes";
 import { openBrowseHistory } from "../lib/browseHistory";
@@ -1308,7 +1310,7 @@ const LINE_TTL = 21 * 24 * 3600 * 1000; // refresh after 3 weeks; server keeps t
 // block just renders empty until a fresh generation lands), but same
 // reasoning as epoch 3: no reason to sit on months-old field-name mismatches
 // for up to LINE_TTL when a validated rewrite is one request away.
-const CACHE_EPOCH = 5;
+const CACHE_EPOCH = 6;
 const LINES_KEY = "wf_lines_v" + CACHE_EPOCH;
 const INSIGHTS_KEY = "wf_insights_v" + CACHE_EPOCH;
 function allCachedLines() {
@@ -2684,30 +2686,30 @@ function EventHeroBg({ image, acc, venue, near }) {
   // gradient is the last resort, not the default.
   const [bad, setBad] = useState(false);
   const [alt, setAlt] = useState(null); // null = not tried, "" = tried and none, url = venue photo
-  const [altBy, setAltBy] = useState("");
+  const [altBy, setAltBy] = useState(null); // credit object for the live venue photo
   useEffect(() => {
     if (image && !bad) return;
     if (!venue || alt !== null) return;
     let off = false;
-    const key = "wf_evimg_" + String(venue).toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 60);
-    try {
-      const raw = localStorage.getItem(key);
-      if (raw) { const o = JSON.parse(raw); if (o && o.ts && Date.now() - o.ts < 7 * 24 * 3600 * 1000) { setAlt(o.url || ""); setAltBy(o.by || ""); return; } }
-    } catch (e) {}
+    // No on-device photo cache any more: the credited photo comes from the live
+    // JSON endpoint (memoized per page session in lib/livePhoto), never stored.
     // Budget guardrail: at most 12 venue-photo lookups per device per day. Past
     // the cap we cache "none" and fall back to the gradient instead of spending.
     try {
       const bk = "wf_evimg_budget_" + new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(new Date());
       const n = parseInt(localStorage.getItem(bk) || "0", 10) || 0;
-      if (n >= 12) { try { localStorage.setItem(key, JSON.stringify({ ts: Date.now(), url: "", by: "" })); } catch (e) {} setAlt(""); return; }
+      if (n >= 12) { setAlt(""); return; }
       localStorage.setItem(bk, String(n + 1));
     } catch (e) {}
     (async () => {
-      let url = "", by = "";
-      try { const pl = await findPlace(venue, near); url = (pl && pl.photo) || ""; by = (pl && pl.photoAttr) || ""; } catch (e) {}
+      let url = "", credit = null;
+      try {
+        const pl = await findPlace(venue, near);
+        const live = pl && pl.id ? await fetchLivePhoto(pl.id) : null;
+        if (live) { url = live.src; credit = liveCreditFor({ _live: live }, live.src); }
+      } catch (e) {}
       try { logEventAnon("venue_photo_lookup", null, { venue: String(venue).slice(0, 60), hit: !!url }); } catch (e) {}
-      try { localStorage.setItem(key, JSON.stringify({ ts: Date.now(), url, by })); } catch (e) {}
-      if (!off) { setAlt(url); setAltBy(by); }
+      if (!off) { setAlt(url); setAltBy(credit); }
     })();
     return () => { off = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -2717,7 +2719,7 @@ function EventHeroBg({ image, acc, venue, near }) {
   if (src) {
     return (<>
       <img src={src} alt="" fetchPriority="high" decoding="async" draggable={false} onError={() => { if (image && !bad) setBad(true); else setAlt(""); }} onLoad={(ev) => { try { if (image && !bad) { const w = ev.target && ev.target.naturalWidth; if (w && w < 640) setBad(true); } } catch (e) {} }} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-      {usingAlt && <div style={{ position: "absolute", bottom: 6, right: 8, fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,.85)", background: "rgba(0,0,0,.5)", padding: "2px 7px", borderRadius: 999, pointerEvents: "none" }}>{altBy ? "Photo: " + altBy + " · Google" : "via Google"}</div>}
+      {usingAlt && altBy && <PhotoCredit credit={altBy} style={{ left: 8, right: 8, bottom: 6 }} />}
     </>);
   }
   return <div style={{ position: "absolute", inset: 0, background: `linear-gradient(135deg, ${acc}55 0%, #0D1117 100%)` }} />;
@@ -5693,9 +5695,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // The viewer only ever knew one URL, so there was nothing to page through.
   // It now derives the same list the sheet gallery shows and moves within it
   // by swipe, arrow key, or the on-screen arrows.
-  const lightboxPhotos = (detail && Array.isArray(detail.photos) && detail.photos.length)
-    ? detail.photos
-    : (detail && detail.photo ? [detail.photo] : []);
+  const lightboxPhotos = detailGalleryPhotos(detail);
   const lightboxIndex = lightbox ? lightboxPhotos.indexOf(lightbox) : -1;
   // Wraps, so the last photo's "next" is the first — a dead-end arrow on a
   // full-screen viewer reads as broken.
@@ -11489,13 +11489,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                 // (test-lightbox-paging.mjs asserts on exactly this text) —
                 // the per-photo lookup that keeps a paging viewer's credit on
                 // the photo actually on screen.
-                const by = lightboxIndex >= 0 && detail && Array.isArray(detail.photoAttrs) ? (detail.photoAttrs[lightboxIndex] || "") : "";
+                // Google/permitted/licensed credit comes ONLY from the live JSON for the image on screen.
+                const liveCredit = liveCreditFor(detail, lightbox);
+                if (liveCredit) return <div style={{ marginBottom: 3 }}><PhotoCredit credit={liveCredit} style={{ position: "static" }} /></div>;
+                const oi = detail && Array.isArray(detail.photos) ? detail.photos.indexOf(lightbox) : -1;
+                const by = oi >= 0 && Array.isArray(detail.photoAttrs) ? (detail.photoAttrs[oi] || "") : "";
                 const singleSourceAttr = detail && Array.isArray(detail.photoAttrs) && detail.photoAttrs.length === 0 ? (detail.photoAttr || "") : "";
-                const label = by === "Wayfind" ? "Photo: Wayfind"
-                  : by ? "Photo: " + by + " · via Google"
-                  : singleSourceAttr ? "Photo: " + singleSourceAttr
-                  : "Photo via Google";
-                return <div style={{ color: "rgba(255,255,255,.85)", fontSize: 11.5, fontWeight: 600, marginBottom: 3 }}>{label}</div>;
+                const label = by === "Wayfind" ? "Photo: Wayfind" : singleSourceAttr ? "Photo: " + singleSourceAttr : "";
+                return label ? <div style={{ color: "rgba(255,255,255,.85)", fontSize: 11.5, fontWeight: 600, marginBottom: 3 }}>{label}</div> : null;
               })()}
               {canPage && <div aria-live="polite" style={{ color: "rgba(255,255,255,.92)", fontSize: 12.5, fontWeight: 700, marginBottom: 3 }}>{lightboxIndex + 1} / {total}</div>}
               <div style={{ color: "rgba(255,255,255,.6)", fontSize: 12 }}>{canPage ? "Swipe to browse · tap to close" : "Tap anywhere to close"}</div>

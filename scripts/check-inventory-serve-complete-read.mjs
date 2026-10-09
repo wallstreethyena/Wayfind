@@ -337,8 +337,10 @@ function installMock() {
   ok(servedIds.every((id) => photoIds.has(id)), "photo_ref hydration requested EVERY served id");
   ok([...photoIds].every((id) => servedIds.includes(id)), "photo_ref hydration requested ONLY served ids — never the full eligible set, filler, or a decoy");
   const ryansServed = result.places.find((p) => p.id === RYANS_COFFEE_HOUSE.placeId);
-  ok(!!ryansServed && ryansServed.photo_ref === `places/${RYANS_COFFEE_HOUSE.placeId}/photos/native`,
-    "Ryan's served place object does not carry the hydrated photo_ref — the exhaustive read must stay byte-identical in shape to before this split");
+  ok(!!ryansServed && ryansServed.photo_ref === `places/${RYANS_COFFEE_HOUSE.placeId}/photos/wfplacediscovery`,
+    "Ryan's served place object does not carry the hydrated photo_ref as the place-only pseudo-ref (2026-10-08: the stored real name `.../photos/native` must never be emitted; same shape otherwise)");
+  ok(!!ryansServed && JSON.stringify(ryansServed).indexOf("/photos/native") === -1,
+    "Ryan's served place leaks the stored real Google photo name");
   ok(!!ryansServed && Array.isArray(ryansServed.photos) && ryansServed.photos[0] && ryansServed.photos[0].name === ryansServed.photo_ref,
     "Ryan's served place's photos[0].name does not mirror the hydrated photo_ref — this is the exact shape invRowToPlace produced when photo_ref rode along on the box read");
 }

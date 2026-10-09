@@ -41,7 +41,7 @@
 // red for each, then the source was restored and this file confirmed green
 // again. See the PR/session notes for the full mutation list.
 import { readFileSync } from "node:fs";
-import { findFreePhoto, selectFreePhotoRow } from "../lib/freePhoto.js";
+import { findFreePhoto, selectFreePhotoRow, preferPermittedRow } from "../lib/freePhoto.js";
 import { gateShut, spendAllow, spendAllowPhotos } from "../lib/spendGate.js";
 import { FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef } from "../lib/placePhotoServe.js";
 import { isAutomatedPhotoReader } from "../lib/crawler.js";
@@ -163,6 +163,34 @@ ok(/^[A-Za-z0-9_-]{10,}$/.test(PLACE_ID) && PLACE_ID.length > 10, "PROBE: the fi
     ok(seenUrl.includes("status=eq.active"), "A13: the query is scoped to status=active (never rejected/stale)");
     ok(!seenInit || !seenInit.method || String(seenInit.method).toUpperCase() === "GET", "A13 (read-only): no write method is ever sent");
     ok(!seenInit || seenInit.body == null, "A13 (read-only): no request body is ever sent");
+  }
+
+  // A14 — PERMITTED BEFORE LICENSED (owner, 2026-10-08): a photo the business or
+  // a creator gave Wayfind permission to use outranks a licensed open-content
+  // (Wikimedia, Flickr CC, NPS, Openverse) photo, whatever order the DB returns.
+  {
+    const lic = { source: "wikimedia", image_url: "https://upload.wikimedia.org/a.jpg" };
+    const lic2 = { source: "flickr-cc", image_url: "https://live.staticflickr.com/b.jpg" };
+    const biz = { source: "business", image_url: "https://example.org/biz.jpg" };
+    const creator = { source: "creator", image_url: "https://example.org/creator.jpg" };
+    ok(preferPermittedRow([lic, biz]) === biz, "A14: a business-granted row outranks a Wikimedia row that the DB returned first");
+    ok(preferPermittedRow([lic, lic2, creator]) === creator, "A14: a creator-granted row outranks two licensed rows");
+    ok(preferPermittedRow([biz, creator]) === biz, "A14: equal permitted ranks keep the database order (stable)");
+    ok(preferPermittedRow([lic, lic2]) === lic, "A14: only licensed rows keep the database order (stable)");
+    ok(preferPermittedRow([]) === null && preferPermittedRow(null) === null, "A14: no rows resolves to null, never throws");
+    ok(preferPermittedRow([{ image_url: "x" }, biz]) === biz, "A14 (control): a row with no source is treated as licensed (wikimedia default), so a later permitted row still outranks it");
+    // And through findFreePhoto itself: the query asks for several rows and picks the permitted one.
+    let seen = "";
+    const picked = await findFreePhoto({ placeId: PLACE_ID }, {
+      fetchImpl: async (url) => { seen = String(url); return { ok: true, json: async () => [
+        { ...lic, license: "CC BY-SA 4.0", attribution_text: "L", attribution_url: "https://commons.wikimedia.org/wiki/File:a.jpg" },
+        { ...biz, license: "Permission granted", attribution_text: "Biz Owner", attribution_url: "https://example.org/biz" },
+      ] }; },
+      env: { SUPABASE_URL: "https://x.test", SUPABASE_SERVICE_ROLE_KEY: "k" },
+      vaultPublicUrl: "",
+    });
+    ok(/limit=([2-9]|\d{2,})/.test(seen), "A14: findFreePhoto asks for more than one row so a permitted photo can outrank the first licensed one (" + seen.slice(seen.indexOf("limit=")) + ")");
+    ok(!!picked && picked.source === "business", "A14: findFreePhoto serves the permitted (business) photo ahead of the licensed one (got " + (picked && picked.source) + ")");
   }
 
   console.log("test-free-photo-serving: Section A OK — lib/freePhoto.js: attribution-gated, stock-gated, fail-soft, read-only, identity-scoped");
@@ -325,9 +353,9 @@ function req({ probe = false, ref = REF } = {}) {
 function cacheHitResolve() {
   return async () => ({
     type: "redirect",
-    location: "https://lh3.googleusercontent.com/p/cached-photo",
+    location: "https://photos.wayfind-owned.example/p/inventory-photo.jpg",
     cacheControl: "public, max-age=2592000, s-maxage=2592000, immutable",
-    reason: "cache",
+    reason: "inventory",
   });
 }
 
@@ -402,18 +430,23 @@ async function run() {
     eq(res.headers.get("x-wayfind-photo-probe"), "0", "B2: a real (non-probe) reader is marked as such");
   }
 
-  // ── B3 — SAME-PLACE RECOVERY STILL WINS. Both a recovery hit and a free
-  //      photo exist; the recovery (a photo of the actual venue, already
-  //      paid for) must be served, not the free substitute. ──
+  // ── B3 — SAME-PLACE CACHE RECOVERY IS GONE (COMPLIANT PHOTOS, 2026-10-08).
+  //      The opposite invariant of the old "recovery wins over the free photo":
+  //      the route NEVER calls findSamePlaceCachedPhoto, even when the double
+  //      would hand back a cached Google photo, so a stored Google URL can never
+  //      outrank (or replace) the free permitted/licensed photo. ──
   {
     ledgerCalls = []; ledgerAnswer = true;
+    let recoveryCalls = 0;
     globalThis.__wfFreePhotoTest.resolvePlacePhoto = standardResolve();
-    globalThis.__wfFreePhotoTest.findSamePlaceCachedPhoto = HAS_RECOVERY;
+    globalThis.__wfFreePhotoTest.findSamePlaceCachedPhoto = async () => { recoveryCalls++; return HAS_RECOVERY(); };
     globalThis.__wfFreePhotoTest.findFreePhoto = HAS_FREE;
     const res = await route.GET(req());
-    eq(res.headers.get("x-wayfind-photo-result"), "same-place-cache", "B3: recovery wins over the free photo when both exist");
-    eq(res.headers.get("location"), (await HAS_RECOVERY()).uri, "B3: the redirect target is the RECOVERED photo, not the free one");
-    eq(ledgerCalls.length, 0, "B3: recovery winning still takes zero ledger calls");
+    eq(res.headers.get("x-wayfind-photo-result"), "owned-free", "B3: with a free photo and a (hypothetical) cached Google photo, the FREE photo is served");
+    eq(res.headers.get("location"), (await HAS_FREE()).url, "B3: the redirect target is the free photo, never a cached Google URL");
+    eq(recoveryCalls, 0, "B3: the route never calls findSamePlaceCachedPhoto (positive control: the double above WOULD have returned a cached URL)");
+    eq(ledgerCalls.length, 0, "B3: serving the free photo still takes zero ledger calls");
+    ok(!/findSamePlaceCachedPhoto|getRecovery/.test(routeSource.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`])\/\/[^\n]*/g, "$1")), "B3: the route's code (comment-stripped) mentions no same-place recovery at all");
   }
 
   // ── B4 — A PROBE TAKES NO GRANT AND WRITES NOTHING, even when it would
@@ -587,8 +620,8 @@ async function run() {
     ledgerCalls = [];
     globalThis.__wfFreePhotoTest.resolvePlacePhoto = cacheHitResolve();
     const { result: cacheRes, calls: cacheLogs } = await withCapturedLogs(() => route.GET(reqWithHeaders()));
-    eq(cacheRes.headers.get("x-wayfind-photo-result"), "cache", "B8b: control is a free cache hit");
-    eq(cacheLogs.length, 0, `B8b: a cache-hit redirect must log ZERO times, got ${cacheLogs.length}`);
+    eq(cacheRes.headers.get("x-wayfind-photo-result"), "inventory", "B8b: control is a free inventory-owned redirect");
+    eq(cacheLogs.length, 0, `B8b: an inventory redirect must log ZERO times, got ${cacheLogs.length}`);
 
     // (c) owned-free (the free PERMANENT lane) — must log ZERO times.
     ledgerCalls = []; ledgerAnswer = true;
@@ -599,11 +632,16 @@ async function run() {
     eq(freeRes.headers.get("x-wayfind-photo-result"), "owned-free", "B8c: control is the free-permanent lane");
     eq(freeLogs.length, 0, `B8c: an owned-free redirect must log ZERO times, got ${freeLogs.length}`);
 
-    // (d) same-place-cache recovery — must log ZERO times.
-    globalThis.__wfFreePhotoTest.findSamePlaceCachedPhoto = HAS_RECOVERY;
-    const { result: recRes, calls: recLogs } = await withCapturedLogs(() => route.GET(reqWithHeaders()));
-    eq(recRes.headers.get("x-wayfind-photo-result"), "same-place-cache", "B8d: control is a same-place recovery");
-    eq(recLogs.length, 0, `B8d: a same-place-cache redirect must log ZERO times, got ${recLogs.length}`);
+    // (d) a miss on a non-credited surface (not-google-surface) — must log ZERO times
+    //     and never call the (removed) same-place recovery.
+    let recoveryCallsD = 0;
+    globalThis.__wfFreePhotoTest.findSamePlaceCachedPhoto = async () => { recoveryCallsD++; return HAS_RECOVERY(); };
+    globalThis.__wfFreePhotoTest.findFreePhoto = NO_FREE;
+    globalThis.__wfFreePhotoTest.resolvePlacePhoto = async (input) => miss("not-google-surface", input);
+    const { result: surfRes, calls: surfLogs } = await withCapturedLogs(() => route.GET(reqWithHeaders()));
+    eq(surfRes.headers.get("x-wayfind-photo-result"), "not-google-surface", "B8d: control is a non-credited-surface miss");
+    eq(surfLogs.filter((c) => JSON.stringify(c).includes("photo-spend")).length, 0, `B8d: a non-credited-surface miss must log NO photo-spend line`);
+    eq(recoveryCallsD, 0, "B8d: and never calls same-place recovery");
 
     // (e) a probe — even one that WOULD reach a real Google grant if it were
     //     not probing — must log ZERO times.
@@ -618,18 +656,56 @@ async function run() {
     // MUTATION RED, applied to a TEMP COPY of the route source TEXT (the real
     // file on disk is never touched) — drop the reason/probe gate so
     // logGoogleGrant fires on EVERY redirect. Proves B8b/c/d are real checks,
-    // not vacuous ones: with the gate removed, the same cache-hit scenario
+    // not vacuous ones: with the gate removed, the same inventory scenario
     // that logged 0 times above now logs 1.
     const GATE_LINE = 'if (result.reason === "google" && !probe) logGoogleGrant(req, result.reason);';
     ok(routeSource.includes(GATE_LINE), "B8 MUTATION PRECONDITION: the exact reason/probe gate line exists in the real source — the mutation below has something to remove");
-    const mutatedSource = routeSource.replace(GATE_LINE, "logGoogleGrant(req, result.reason);");
+    ok(routeSource.split(GATE_LINE).length - 1 === 2, "B8 MUTATION PRECONDITION: the gate line appears at exactly the two redirect sites (JSON and plain)");
+    const mutatedSource = routeSource.split(GATE_LINE).join("logGoogleGrant(req, result.reason);");
     ok(mutatedSource !== routeSource, "B8 MUTATION: the sabotage actually landed (mutated source differs from the real source)");
     const mutatedRoute = await sourceRoute(mutatedSource);
     globalThis.__wfFreePhotoTest.resolvePlacePhoto = cacheHitResolve();
     globalThis.__wfFreePhotoTest.findSamePlaceCachedPhoto = NO_RECOVERY;
     globalThis.__wfFreePhotoTest.findFreePhoto = NO_FREE;
     const { calls: mutatedCacheLogs } = await withCapturedLogs(() => mutatedRoute.GET(reqWithHeaders()));
-    eq(mutatedCacheLogs.length, 1, `B8 MUTATION RED: with the reason/probe gate removed, a cache-hit redirect that logged 0 times under the real code now logs 1 — proves B8b was not vacuous. Got ${mutatedCacheLogs.length}`);
+    eq(mutatedCacheLogs.length, 1, `B8 MUTATION RED: with the reason/probe gate removed, an inventory redirect that logged 0 times under the real code now logs 1 — proves B8b was not vacuous. Got ${mutatedCacheLogs.length}`);
+  }
+
+  // ── B9 — fmt=json: the chosen image WITH its credit, and only the live Google
+  //      answer is private/no-store. Executed through the real route with doubles. ──
+  {
+    const jsonReq = (extra) => new Request("https://www.gowayfind.com/api/photo?ref=" + encodeURIComponent(REF) + "&w=1200&fmt=json" + extra);
+    ledgerCalls = []; ledgerAnswer = true;
+    globalThis.__wfFreePhotoTest.findSamePlaceCachedPhoto = NO_RECOVERY;
+    globalThis.__wfFreePhotoTest.findFreePhoto = NO_FREE;
+    globalThis.__wfFreePhotoTest.resolvePlacePhoto = async () => ({ type: "redirect", location: "https://lh3.googleusercontent.com/p/live", cacheControl: "private, no-store", reason: "google", credit: { name: "Jane Photog", uri: "https://maps.google.com/c/1", mapsUri: "https://maps.google.com/?cid=1" } });
+    const g = await route.GET(jsonReq("&s=detail"));
+    const gb = await g.json();
+    eq(g.status, 200, "B9: a live Google fmt=json answer is a 200");
+    eq(g.headers.get("cache-control"), "private, no-store", "B9: a live Google JSON answer is private, no-store");
+    eq(gb.source, "google", "B9: source is google");
+    eq(gb.src, "https://lh3.googleusercontent.com/p/live", "B9: src is the live photo");
+    eq(gb.credit && gb.credit.name, "Jane Photog", "B9: the credit of the photo rides with it");
+    eq(gb.credit && gb.credit.mapsUri, "https://maps.google.com/?cid=1", "B9: the Maps link rides with it");
+
+    globalThis.__wfFreePhotoTest.resolvePlacePhoto = async (input) => miss("not-google-surface", input);
+    globalThis.__wfFreePhotoTest.findFreePhoto = HAS_FREE;
+    const l = await route.GET(jsonReq(""));
+    const lb = await l.json();
+    eq(lb.source, "licensed", "B9: a Wikimedia photo is reported as licensed");
+    eq(lb.credit && lb.credit.name, "Jane Q. Photographer", "B9: and carries its attribution");
+    ok(!/private/.test(l.headers.get("cache-control") || ""), "B9 (control): a free licensed JSON answer is not marked private (it is the permanent lane)");
+    globalThis.__wfFreePhotoTest.findFreePhoto = async () => ({ ...(await HAS_FREE()), source: "business" });
+    const pb = await (await route.GET(jsonReq(""))).json();
+    eq(pb.source, "permitted", "B9: a business-granted photo is reported as permitted");
+
+    globalThis.__wfFreePhotoTest.findFreePhoto = NO_FREE;
+    const n = await route.GET(jsonReq(""));
+    const nb = await n.json();
+    eq(nb.src, null, "B9: nothing available -> src null");
+    eq(nb.source, "none", "B9: source none");
+    eq(n.headers.get("cache-control"), "private, no-store", "B9: a none answer is never cached");
+    eq(ledgerCalls.length, 0, "B9: none of the JSON answers took a ledger grant");
   }
 
   restoreEnv();
@@ -643,4 +719,4 @@ if (failures) {
   console.error(`test-free-photo-serving: FAIL — ${failures} assertion(s) failed`);
   process.exit(1);
 }
-console.log("test-free-photo-serving: OK — a free photo prevents the photos ledger grant entirely (by call count); same-place recovery still wins; a probe takes no grant; owned-free carries attribution; a broken free lookup fails closed to pre-#1188 behaviour; details_ids_only is untouched; the spend-attribution log fires exactly once on a real Google grant and never on cache/owned-free/recovery/probe, red-proved by console capture");
+console.log("test-free-photo-serving: OK — a free photo prevents the photos ledger grant entirely (by call count); a permitted photo outranks a licensed one and same-place cache recovery is gone (the route never calls it); fmt=json carries the credit and only live Google is no-store; a probe takes no grant; owned-free carries attribution; a broken free lookup fails closed to pre-#1188 behaviour; details_ids_only is untouched; the spend-attribution log fires exactly once on a real Google grant and never on inventory/owned-free/miss/probe, red-proved by console capture");

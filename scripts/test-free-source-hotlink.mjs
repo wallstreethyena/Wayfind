@@ -116,8 +116,13 @@ try {
   const { execSync } = await import("node:child_process");
   const root = new URL("..", import.meta.url).pathname;
   const hits = execSync("grep -rn --include=*.js '/api/photo?' app lib || true", { cwd: root, encoding: "utf8" }).split("\n");
-  const EXEMPT = /^(lib\/photoSurfaces\.js|app\/api\/image-score\/route\.js):/; // audit/warm helper; server-side scorer (no browser cache)
-  const offenders = hits.filter((l) => l && !EXEMPT.test(l) && !/^[^:]+:\d+:\s*(\/\/|\*)/.test(l)
+  // audit/warm helper; server-side scorer (no browser cache); and the credited
+  // live-photo fetch (JSON, never an <img> src, so no browser redirect cache).
+  const EXEMPT = /^(lib\/photoSurfaces\.js|app\/api\/image-score\/route\.js):/;
+  const liveHits = hits.filter((l) => l.startsWith("lib/livePhoto.js:") && !/^[^:]+:\d+:\s*(\/\/|\*)/.test(l) && /\/api\/photo\?(ref|place)=/.test(l));
+  ok(liveHits.length === 1 && /&s=detail&fmt=json&/.test(liveHits[0]), "F3b: the only g-less /api/photo builder is lib/livePhoto.js, and it is the credited s=detail fmt=json fetch (" + liveHits.length + " found)");
+  const EXEMPT_ALL = (l) => EXEMPT.test(l) || (l.startsWith("lib/livePhoto.js:") && /&s=detail&fmt=json&/.test(l));
+  const offenders = hits.filter((l) => l && !EXEMPT_ALL(l) && !/^[^:]+:\d+:\s*(\/\/|\*)/.test(l)
     && /\/api\/photo\?(ref|place)=/.test(l) && /&w=/.test(l) && !/&g=2&w=/.test(l));
   ok(offenders.length === 0, `F3: every card photo URL builder carries g=2 (offenders: ${offenders.slice(0, 5).join(" | ")})`);
   ok(/&g=2&w=/.test("/api/photo?ref=x&g=2&w=640") && !/&g=2&w=/.test("/api/photo?ref=x&w=640"), "F4: positive control for the builder scan");

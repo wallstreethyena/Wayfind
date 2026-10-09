@@ -78,6 +78,7 @@ import { normalizePlaceCardHref } from "../../lib/placeCardRoute.js";
 import { ownedPlacePhotoSrc } from "../../lib/placePhoto.js";
 import { usePhotoSrcFilter } from "./photoPolicyContext";
 import { useCardTapIntent } from "./useCardTapIntent.js";
+import { trendPulseClass, trendPulseLabel } from "../../lib/trendPulse.js";
 
 // Same glyphs as IconicPlaceCard's action row, so a thumb is one drawing in
 // this app rather than two that almost match.
@@ -162,9 +163,11 @@ const initialsOf = (name) => String(name || "WF").split(/\s+/).filter(Boolean).s
 // read as a picture of the event.
 function EventPlaceholderTile({ tile }) {
   return (
-    <div className="wf-place-card-monogram wf-event-placeholder" aria-hidden="true" style={{ background: tile.tint, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6 }}>
-      <span style={{ fontSize: 30, lineHeight: 1 }}>{tile.icon}</span>
-      <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: ".08em", textTransform: "uppercase", color: "rgba(255,255,255,.82)" }}>{tile.label}</span>
+    // Announced as artwork, never as a photo of the event or venue (owner,
+    // 2026-10-08): flat tint + emoji + label, no photographic texture, no credit.
+    <div className="wf-place-card-monogram wf-event-placeholder" role="img" aria-label={`${tile.label} illustration`} data-artwork="illustration" style={{ background: tile.tint, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6 }}>
+      <span aria-hidden="true" style={{ fontSize: 30, lineHeight: 1 }}>{tile.icon}</span>
+      <span aria-hidden="true" style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: ".08em", textTransform: "uppercase", color: "rgba(255,255,255,.82)" }}>{tile.label}</span>
     </div>
   );
 }
@@ -474,7 +477,7 @@ export default function RailCard({
     <article
       ref={domRef}
       data-place-id={place?.id || undefined}
-      className={`wf-place-card wf-rail-card${fallCardClass(place && place.id, siteTodayStr())}${spooky ? " wf-spooky-card" : ""}${awardWinnerClass(shownAward)}${variant === "guide" ? " wf-guide-card" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${className ? " " + className : ""}`}
+      className={`wf-place-card wf-rail-card${fallCardClass(place && place.id, siteTodayStr())}${spooky ? " wf-spooky-card" : ""}${trendPulseClass(place)}${awardWinnerClass(shownAward)}${variant === "guide" ? " wf-guide-card" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${className ? " " + className : ""}`}
       role="button"
       tabIndex={0}
       onPointerDown={tapIntent.onPointerDown}
@@ -500,7 +503,7 @@ export default function RailCard({
           else window.location.assign(cardHref);
         }
       }}
-      aria-label={ariaLabel || title}
+      aria-label={trendPulseLabel(ariaLabel || title, place)}
     >
       {/* v8.62: score (or the when-badge that borrows its slot) in the top
           right corner of the CARD, never on the photo (owner, 2026-08-26).

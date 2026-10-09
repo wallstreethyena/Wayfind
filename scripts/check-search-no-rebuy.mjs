@@ -28,6 +28,7 @@
 import { readFileSync } from "node:fs";
 // The REAL card gate and the REAL owned-signal merge run inside the harness;
 // only the network edges (ledger, cache, Google, Supabase) are mocked.
+import { placeDiscoveryRef } from "../lib/discoveryRef.js";
 import { hasScoreSignal } from "../lib/score.js";
 import { mergeOwnedSignals, ownedLookupIds } from "../lib/ownedLibrary.js";
 
@@ -56,7 +57,7 @@ function harness({ google, inventoryRows = () => [] }) {
     const cget = async (k, opts) => { const r = __S.cache.get(k); if (!r) return null; return { v: r.v, stale: false, due: false, ageMs: 0 }; };
     const cset = async (k, v, ttl) => { __S.cache.set(k, { v, ttl }); };
     const upsertPlaceIds = async (rows) => { __S.idUpserts += (rows || []).length; };
-    const keepPhotoCredits = (places) => { __S.creditKeeps++; };
+    const placeDiscoveryRef = __S.real.placeDiscoveryRef;
     const cacheConfigured = () => true, lastWrite = () => null, memSize = () => __S.cache.size;
     const DAY = 86400000;
     const serveFromInventory = async () => [];
@@ -77,7 +78,7 @@ function harness({ google, inventoryRows = () => [] }) {
       throw new Error("unexpected fetch " + u);
     };
   `;
-  globalThis.__S = Object.assign(state, { google, inventoryRows, real: { hasScoreSignal, ownedLookupIds, mergeOwnedSignals } });
+  globalThis.__S = Object.assign(state, { google, inventoryRows, real: { hasScoreSignal, ownedLookupIds, mergeOwnedSignals, placeDiscoveryRef } });
   return { state, prelude };
 }
 
@@ -92,7 +93,18 @@ const lean = (n) => Array.from({ length: n }, (_, i) => ({ id: "unowned" + i, di
   const r2 = await m.__handleSearch(P, "https://x.test");
   ok(Array.isArray(r1.body.places) && r1.body.places.length === 0, "A1: first answer is honestly empty (lean rows never reach the client)");
   ok(state.idUpserts === 20, "A2: the 20 discovered ids are still learned into wf_place_ids on the first buy");
-  ok(state.creditKeeps === 1 && state.googleCalls === 1, "A2b: photo credits are kept once, from the one paid answer (never a second Google call)");
+  ok(state.creditKeeps === 0 && state.googleCalls === 1, "A2b: no photo credit is kept (2026-10-08: Google forbids caching author credits) and Google is asked once");
+  // Photo-bearing answer: the CACHED rows and the ANSWER carry only the place-only pseudo-ref,
+  // never the real photo name nor the author attribution.
+  {
+    const withPhoto = (n) => lean(n).map((r) => ({ ...r, photos: [{ name: "places/" + r.id + "/photos/REALNAME", authorAttributions: [{ displayName: "Some Author" }] }] }));
+    const h = harness({ google: () => withPhoto(2) });
+    const mm = await loadRoute(h.prelude);
+    await mm.__handleSearch(P, "https://x.test");
+    const cached = JSON.stringify([...h.state.cache.values()]);
+    ok(cached.indexOf("REALNAME") === -1 && cached.indexOf("Some Author") === -1,
+      "A2c: nothing cached by the search route holds a real Google photo name or an author credit (Maps Terms 3.2.3)");
+  }
   ok(state.grants === 1, `A3: two identical requests take ONE ledger grant (got ${state.grants}) — the re-buy loop`);
   ok(state.googleCalls === 1, `A4: Google is asked once, not twice (got ${state.googleCalls})`);
   ok(Array.isArray(r2.body.places) && r2.body.places.length === 0, "A5: second answer is still honestly empty, not a fabricated list");

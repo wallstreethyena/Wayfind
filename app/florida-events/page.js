@@ -1,3 +1,4 @@
+import { cachedCuratedEventList } from "../../lib/curatedEventsCache";
 import { eventCostSummary } from "../../lib/eventVisitFacts.js";
 import ReturnToWayfind from "../components/ReturnToWayfind";
 import ShareButton from "../components/ShareButton";
@@ -12,9 +13,8 @@ import { SITE_URL } from "../../lib/site";
 import { eventVenueImageSrc } from "../../lib/eventPageImage.js";
 import { pageShareUrl } from "../../lib/pageShareUrl";
 import { isSsgBuild } from "../../lib/landingInventory";
-import { unstable_cache, unstable_noStore as noStore } from "next/cache";
+import { unstable_noStore as noStore } from "next/cache";
 import {
-  fetchCuratedEvents,
   dateRangeLabel,
   floridaEventsHubPageModel,
   FLORIDA_EVENTS_HUB_EMPTY_COPY,
@@ -25,11 +25,10 @@ export const revalidate = 3600;
 // Render at request time: a skipped build read must never become the first
 // cached page. Cache only validated rows for the same hourly lifetime. The
 // fresh inner read avoids a second, independently stale HTTP cache layer.
-const fetchHubEvents = unstable_cache(
-  () => fetchCuratedEvents({ fresh: true, signal: AbortSignal.timeout(8000) }),
-  ["florida-events-hub-validated-v1"],
-  { revalidate: 3600, tags: ["curated-events"] },
-);
+// Packed + scrubbed (lib/curatedEventsCache.js): the raw row list passed
+// Next's 2 MB data-cache limit, so the hourly refresh never saved and one old
+// entry was served for good. New key retires that pinned entry.
+const fetchHubEvents = cachedCuratedEventList("fetchHubEvents", ["florida-events-hub-packed-v2"]);
 
 const TITLE = "Florida Events 2026: What's Actually Worth Going To";
 const DESC = "Verified dates for Florida's best festivals and events — Halloween Horror Nights, Fantasy Fest, Hulaween, EDC Orlando, Gasparilla and more. Checked against official sources, never rolled forward from last year.";

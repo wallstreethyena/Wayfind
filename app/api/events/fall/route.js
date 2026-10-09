@@ -99,7 +99,11 @@ export async function GET(request) {
     // v29 (2026-10-08) publishes the Tampa pass (lib/fallTampaPicks20261008.js):
     // Guppyween, the Armature Works patch, the five named crawl stops and two
     // venue identities, so no v28 payload outlives the deploy.
-    const key = `fall-intents:v29:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v30 (2026-10-08 evening) adds Tampa Terrors and the Cuban Club party pin,
+    // so no v29 payload outlives the deploy.
+    // v31 (2026-10-09) publishes the Seminole Heights patch and Nightmare on
+    // Channelside and keeps Tampa Terrors as an open run, so no v30 payload outlives it.
+    const key = `fall-intents:v31:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([

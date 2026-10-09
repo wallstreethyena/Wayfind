@@ -24,7 +24,7 @@ import useEventClock from "./useEventClock.js";
 import { eventVisitStatus, eventRestrictionChips } from "../../lib/eventVisitFacts.js";
 import { ownedPlacePhotoSrc } from "../../lib/placePhoto.js";
 import { partnerTicketLabel } from "../../lib/partnerCopy.js";
-import { CHRISTMAS_CARD_LABELS } from "../../lib/christmasIntentRails.js";
+import { CHRISTMAS_CARD_LABELS, christmasDistanceLabel } from "../../lib/christmasIntentRails.js";
 
 const TICKET_SURFACE = "christmas_intent_rail";
 
@@ -107,10 +107,11 @@ function ChristmasRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, isSa
           const rank = index + 1;
           const isEvent = card.kind === "event";
           const place = isEvent ? null : { ...card, id: card.id, photo: card.image || null, hook: card.take || null };
+          // True distance on every card; farther (top up / day trip) and
+          // approximate (city centre) locations say so (christmasDistanceLabel).
           const facts = isEvent
-            // An approximate (city centre) location never claims an exact distance.
-            ? [card.city || null, Number.isFinite(card.distMi) ? (card.approxLocation ? "~" + Math.round(card.distMi) + " mi" : card.distMi + " mi") : null].filter(Boolean)
-            : [card.reviews ? compact(card.reviews) + " reviews" : null, Number.isFinite(card.distMi) ? card.distMi + " mi" : null].filter(Boolean);
+            ? [card.city || null, christmasDistanceLabel(card)].filter(Boolean)
+            : [card.reviews ? compact(card.reviews) + " reviews" : null, christmasDistanceLabel(card)].filter(Boolean);
           const openEventVenue = isEvent && card.place_id && onOpenPlace
             ? () => onOpenPlace({ id: card.place_id, name: card.venue || card.name, lat: card.lat, lng: card.lng, types: [], hook: card.hook })
             : null;

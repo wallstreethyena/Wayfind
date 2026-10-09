@@ -55,9 +55,20 @@ function git(cmd) {
     // reshaping a useMemo in place) carries no meaning to audit; only lines
     // with actual content are judged.
     const STRUCTURAL = /^-\s*[)\};,]*\s*$/;
-    const foreignRemovals = removed.filter((l) => !IN_SCOPE_REMOVAL.test(l) && !STRUCTURAL.test(l));
+    // 2026-10-08 PHOTO-COMPLIANCE CHANGE SET (owner decision; Google Maps Platform Terms 3.2.3). It
+    // legitimately edits app/home.js in exactly these places and no others, so each pattern is pinned to
+    // the specific line, never a broad word:
+    //   - CACHE_EPOCH bump (cached data semantics changed: locked by check-cache-epoch.mjs)
+    //   - EventHeroBg's alt hero photo: credit state is now an object, and the wf_evimg_<venue> localStorage
+    //     photo cache (a stored Google photo URL + author) is removed in favour of the live JSON photo.
+    //   - the lightbox list / credit now derive from lib/livePhoto (detailGalleryPhotos / liveCreditFor).
+    // Anything else removed from app/home.js is still foreign.
+    const PHOTO_COMPLIANCE_REMOVAL = /^-const CACHE_EPOCH = \d+;|^-\s*const \[altBy, setAltBy\] = useState\(""\);|^-\s*const key = "wf_evimg_" \+ String\(venue\)|^-    try \{$|^-\s*const raw = localStorage\.getItem\(key\);|^-\s*if \(raw\) \{ const o = JSON\.parse\(raw\);|^-    \} catch \(e\) \{\}$|localStorage\.setItem\(key, JSON\.stringify\(\{ ts: Date\.now\(\), url|^-\s*let url = "", by = "";|^-\s*try \{ const pl = await findPlace\(venue, near\); url = |^-\s*if \(!off\) \{ setAlt\(url\); setAltBy\(by\); \}|\{altBy \? "Photo: " \+ altBy \+ " · Google" : "via Google"\}|^-\s*const lightboxPhotos = \(detail && Array\.isArray\(detail\.photos\)|^-\s*\? detail\.photos\s*$|^-\s*: \(detail && detail\.photo \? \[detail\.photo\] : \[\]\);|^-\s*const by = lightboxIndex >= 0 && detail && Array\.isArray\(detail\.photoAttrs\)|^-\s*const label = by === "Wayfind" \? "Photo: Wayfind"|^-\s*: by \? "Photo: " \+ by \+ " · via Google"|^-\s*: singleSourceAttr \? "Photo: " \+ singleSourceAttr\s*$|^-\s*: "Photo via Google";|^-\s*return <div style=\{\{ color: "rgba\(255,255,255,\.85\)", fontSize: 11\.5, fontWeight: 600, marginBottom: 3 \}\}>\{label\}<\/div>;/;
+    const PHOTO_COMPLIANCE_IMPORT = /^\+import \{ fetchLivePhoto, detailGalleryPhotos, liveCreditFor \} from "\.\.\/lib\/livePhoto";|^\+import PhotoCredit from "\.\/components\/PhotoCredit";/;
+    const complianceScope = f === "app/home.js";
+    const foreignRemovals = removed.filter((l) => !IN_SCOPE_REMOVAL.test(l) && !STRUCTURAL.test(l) && !(complianceScope && PHOTO_COMPLIANCE_REMOVAL.test(l)));
     const suspicious = added.filter((l) =>
-      (/\bimport\s/.test(l) && !POSTER_SCOPE.test(l))
+      (/\bimport\s/.test(l) && !POSTER_SCOPE.test(l) && !(complianceScope && PHOTO_COMPLIANCE_IMPORT.test(l)))
       || /setCenter|setLocName|navigator\.geolocation/.test(l)
     );
     if (foreignRemovals.length === 0 && suspicious.length === 0) {

@@ -38,14 +38,17 @@ const read = (rel) => {
 const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`])\/\/[^\n]*/g, "$1");
 
 const FAMILY_RAIL = [
-  { id: "ChIJRiverWalkXX", name: "River Walk", photoRef: "places/ChIJRiverWalkXX/photos/Walk1" },
-  { id: "ChIJBendersonYY", name: "Nathan Benderson Park", photoRef: "places/ChIJBendersonYY/photos/Park1" },
-  { id: "ChIJBishopMuseum", name: "Bishop Museum of Science and Nature", photoRef: "places/ChIJBishopMuseum/photos/Museum1" },
+  { id: "ChIJRiverWalkXXXXX", name: "River Walk", photoRef: "places/ChIJRiverWalkXXXXX/photos/Walk1" },
+  { id: "ChIJBendersonYYYYY", name: "Nathan Benderson Park", photoRef: "places/ChIJBendersonYYYYY/photos/Park1" },
+  { id: "ChIJBishopMuseumZZ", name: "Bishop Museum of Science and Nature", photoRef: "places/ChIJBishopMuseumZZ/photos/Museum1" },
 ];
+// COMPLIANT PHOTOS (2026-10-08): "owned" means a NON-Google https photo. A
+// Google-hosted URL in inventory is Google Maps Content and is never served
+// (asserted below with the same rail).
 const OWNED = {
-  ChIJRiverWalkXX: "https://lh3.googleusercontent.com/p/river-walk-own",
-  ChIJBendersonYY: "https://lh3.googleusercontent.com/p/benderson-own",
-  ChIJBishopMuseum: "https://lh3.googleusercontent.com/p/bishop-own",
+  ChIJRiverWalkXXXXX: "https://photos.wayfind-owned.example/p/river-walk-own.jpg",
+  ChIJBendersonYYYYY: "https://photos.wayfind-owned.example/p/benderson-own.jpg",
+  ChIJBishopMuseumZZ: "https://photos.wayfind-owned.example/p/bishop-own.jpg",
 };
 
 const MANATEE = "places/ChIJBishop/photos/Manatee1";
@@ -70,7 +73,7 @@ const bendOwn = leakUnscoped({ id: BEND, photoRef: "places/ChIJBenderson/photos/
 ok(riverOwn !== bendOwn,
   "two adjacent house cards with different own refs must not emit the same photo URL");
 
-ok(isOwnedPhotoUrl("https://lh3.googleusercontent.com/p/river-walk-own"),
+ok(isOwnedPhotoUrl("https://photos.wayfind-owned.example/p/river-walk-own.jpg"),
   "positive control: a Google user-content URI is a place-owned photo");
 ok(!isOwnedPhotoUrl("https://images.pexels.com/photos/123/manatee.jpg"),
   "a Pexels URL is never a place-owned photo");
@@ -99,6 +102,7 @@ function leakSharedFallback() {
 {
   const inventory = {
     async inventoryGet(placeId) { return { place_id: placeId, photo_url: OWNED[placeId] }; },
+    async probeUri() { return null; },
     async cacheGet() { return null; },
     async cacheSet() {},
     async fetchOwnedUri() { return null; },
@@ -131,6 +135,21 @@ function leakSharedFallback() {
 }
 
 {
+  // Opposite invariant: the SAME rail with Google-hosted inventory URLs serves NONE of them.
+  let calls = 0;
+  for (const p of FAMILY_RAIL) {
+    const r = await resolvePlacePhoto({ ref: p.photoRef, w: 640, gateShut: false, serverKey: "" }, {
+      async inventoryGet(placeId) { return { place_id: placeId, photo_url: "https://lh3.googleusercontent.com/p/" + placeId }; },
+      async probeUri() { calls++; return null; },
+      async fetchOwnedUri() { calls++; return null; },
+    });
+    ok(r.type === "miss" && !r.location && r.reason === "not-google-surface",
+      p.name + ": a Google-hosted inventory photo_url is ignored, not served (got " + (r && r.reason) + " " + (r && r.location) + ")");
+  }
+  ok(calls === 0, "a Google-hosted inventory URL is not even probed, and nothing is fetched");
+}
+
+{
   // Ledger exhausted, no inventory photo_url — the budget denial must be a
   // hard stop. The former library-fill path fetched every Google ref anyway,
   // which turned a spent ledger into unmetered provider calls.
@@ -144,9 +163,9 @@ function leakSharedFallback() {
   };
   for (const p of FAMILY_RAIL) {
     const r = await resolvePlacePhoto({
-      ref: p.photoRef, w: 640, gateShut: false, spendAllowed: false, serverKey: "test-key",
+      ref: p.photoRef, w: 640, gateShut: false, spendAllowed: false, serverKey: "test-key", googleSurface: true,
     }, deps);
-    ok(r.type === "miss" && !r.location,
+    ok(r.type === "miss" && !r.location && r.reason === "spend-denied",
       p.name + " is cache/inventory-only when the photo ledger is exhausted (got " + (r && r.reason) + ")");
   }
   ok(paidFetches === 0,
@@ -162,7 +181,7 @@ function leakSharedFallback() {
   ok(r.type === "empty" && r.location === FALLBACK_PATH,
     "photoless /api/photo may 302 to the branded SVG");
   const shut = await resolvePlacePhoto({
-    ref: FAMILY_RAIL[0].photoRef, w: 640, gateShut: true, spendAllowed: false, serverKey: "test-key",
+    ref: FAMILY_RAIL[0].photoRef, w: 640, gateShut: true, spendAllowed: false, serverKey: "test-key", googleSurface: true,
   }, {
     inventoryGet: async () => null,
     cacheGet: async () => null,
@@ -196,6 +215,7 @@ function leakSharedFallback() {
 
   const deps = {
     async inventoryGet(placeId) { return { place_id: placeId, photo_url: OWNED[placeId] }; },
+    async probeUri() { return null; },
     async cacheGet() { return null; },
     async cacheSet() {},
     async fetchOwnedUri() { return null; },

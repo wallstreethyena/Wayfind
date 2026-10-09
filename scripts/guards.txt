@@ -754,6 +754,8 @@ node scripts/check-curated-events.mjs
 # used to ISR-cache "Nothing verified…" + numberOfItems:0 while detail
 # pages and /api/events still had the same rows.
 node scripts/check-curated-events-read.mjs
+# 2026-10-09: /florida-events served a pinned >2 MB-refused cache entry with legacy Google photo names
+node scripts/test-curated-events-cache.mjs
 # The Events tab feed reads every curated row still running today, paged;
 # a first-200-by-date read ended on Oct 9 and hid the Halloween season.
 node scripts/check-events-feed-upcoming.mjs
@@ -844,6 +846,8 @@ node scripts/check-one-main.mjs
 node scripts/check-place-card-css-contract.mjs
 node scripts/check-place-card-standard.mjs
 node scripts/check-spooky-skin.mjs
+# Trending pulse on place cards (owner 2026-10-08): rule, both card roots, real render, reduced motion.
+node scripts/check-trend-pulse.mjs
 node scripts/check-place-card-no-directions.mjs
 
 # v8.57.0 — the browse card's hotel earning CTA must actually RENDER (the
@@ -1211,6 +1215,7 @@ node scripts/check-fall-offering-freshness.mjs
 # 2026-09-03 — one event-affiliate registry (lib/eventTicketDeals.js), product-true,
 # routed through /api/commerce/go on the fall rail, the Events feed and the event page.
 node scripts/check-event-ticket-deals.mjs
+node scripts/check-event-ticket-fallback.mjs
 node scripts/check-affiliate-coverage.mjs
 # 2026-09-16 (Lane B) — MENU_PARTNER_OFFERS: the metro-gated, category:sub-keyed
 # partner rail feeding UnifiedBrowseCommerceRail independent of loaded places.
@@ -1579,6 +1584,11 @@ node scripts/test-photo-quota-truth.mjs
 # VERCEL_ENV=production unless explicitly overridden, so a Preview deploy or
 # local dev with production env cannot spend the production ledger. Red-proved.
 node scripts/test-photo-spend-efficiency.mjs
+
+# 2026-10-08 COMPLIANT PHOTOS: executed lock for the Google Maps Platform contract (no stored
+# photo name/URL/credit, live Google only on s=detail, one grant per place under 50 concurrent
+# requests, probe/denied spend nothing, Details no-store). Red-proofed on mutated resolver/route copies.
+node scripts/test-google-photo-compliance.mjs
 
 node scripts/test-inventory-batch-concurrency.mjs
 
@@ -2145,3 +2155,4 @@ node scripts/test-google-photo-prefetch-pause.mjs
 # deterministic, cap 4, highest value first.
 node scripts/test-inventory-row-card-fields.mjs
 node scripts/test-card-chips-deterministic.mjs
+node scripts/check-creator-independence.mjs

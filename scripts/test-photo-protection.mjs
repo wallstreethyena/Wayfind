@@ -18,6 +18,14 @@
 // "probe-no-spend" reason follows the same shape, and classifyProbe's
 // vocabulary changed from compass/owned-miss to compass/miss to match.
 //
+// 2026-10-08 COMPLIANT PHOTOS: the resolver no longer reads or writes any
+// Google photo cache, ignores a Google-hosted inventory URL, and reaches the
+// probe / ledger branches ONLY for a credited surface (input.googleSurface).
+// Case 1 therefore drives every spend scenario with googleSurface:true and adds
+// the opposite invariants (cache traps that must stay unread; a non-credited
+// surface that asks nothing). findSamePlaceCachedPhoto is now a constant null
+// (case 10 locks that instead of its old query shape).
+//
 // HERMETIC: no network, no process.env read that decides a verdict (see
 // scripts/check-guard-hermeticity.mjs). CALL-based: imports and invokes the
 // real functions rather than regexing source for behaviour, except the
@@ -53,19 +61,20 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
 
 // ── case 1 — probe never takes a grant, and outranks nothing but config ────
 {
-  const ref = "places/ChIJProbeOnly4444/photos/CURRENT";
-  let authCalls = 0, cacheSetCalls = 0;
+  const ref = "places/ChIJProbeOnly44444444/photos/CURRENT";
+  let authCalls = 0, cacheTouches = 0;
+  // Any cache access at all is a violation under COMPLIANT PHOTOS.
+  const trap = { cacheGet: async () => { cacheTouches++; return null; }, cacheSet: async () => { cacheTouches++; } };
   const r = await resolvePlacePhoto(
-    { ref, w: 640, gateShut: false, probe: true, authorizeSpend: async () => { authCalls++; return true; }, serverKey: "placeholder" },
+    { ref, w: 640, gateShut: false, probe: true, googleSurface: true, authorizeSpend: async () => { authCalls++; return true; }, serverKey: "placeholder" },
     {
-      cacheGet: async () => null,
-      cacheSet: async () => { cacheSetCalls++; },
+      ...trap,
       inventoryGet: async () => null,
       fetchOwnedUri: async () => { throw new Error("a probe must never fetch Google"); },
     }
   );
   ok(authCalls === 0, `case 1: a probe must invoke authorizeSpend 0x, got ${authCalls}x`);
-  ok(cacheSetCalls === 0, `case 1: a probe must invoke cacheSet 0x, got ${cacheSetCalls}x`);
+  ok(cacheTouches === 0, `case 1: a probe must touch the cache 0x (the resolver never reads or writes one), got ${cacheTouches}x`);
   ok(r.type === "miss", `case 1: a probe's uncached-ref result must be type "miss" (#1182's shape), got "${r.type}"`);
   ok(r.location === null, `case 1: a probe's uncached-ref result must carry no shared fallback location, got "${r.location}"`);
   // "probe-no-spend", NEVER "spend-denied": a probe never asked the ledger
@@ -74,24 +83,40 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
   // uncached ref would get a paid Google fetch, not a denial.
   ok(r.reason === "probe-no-spend", `case 1: a probe's uncached-ref result must report reason "probe-no-spend", never "spend-denied" — got "${r.reason}"`);
 
-  // The scenario above never reaches remember() at all (it short-circuits
-  // before the spend block, and there is no free hit to remember either) —
-  // so it cannot, by itself, prove remember()'s own `if (probe) return;`
-  // guard does anything. The ONLY path that calls remember() while probing
-  // is a free hit (inventory-owned) that still redirects successfully;
-  // exercise that path here so deleting remember()'s probe check is caught.
-  let cacheSetCallsOnHit = 0;
+  // A non-credited surface asks for nothing at all, probe or not: an honest
+  // not-google-surface miss (the probe branch is only reachable on s=detail).
+  let authCallsCard = 0;
+  const rCard = await resolvePlacePhoto(
+    { ref, w: 640, gateShut: false, probe: false, authorizeSpend: async () => { authCallsCard++; return true; }, serverKey: "placeholder" },
+    { ...trap, inventoryGet: async () => null, fetchOwnedUri: async () => { throw new Error("a card request must never fetch Google"); } }
+  );
+  ok(rCard.reason === "not-google-surface" && authCallsCard === 0, `case 1: a non-credited surface must report "not-google-surface" and ask the ledger 0x — got "${rCard.reason}" / ${authCallsCard}x`);
+
+  // The ONLY path that serves while probing is a free (inventory-owned,
+  // non-Google) photo. A Google-hosted inventory URL must NOT be served, even
+  // to a probe.
+  let probedUris = 0;
   const rHit = await resolvePlacePhoto(
-    { ref, w: 640, gateShut: false, probe: true, authorizeSpend: async () => { throw new Error("a probe must never call authorizeSpend"); }, serverKey: "placeholder" },
+    { ref, w: 640, gateShut: false, probe: true, googleSurface: true, authorizeSpend: async () => { throw new Error("a probe must never call authorizeSpend"); }, serverKey: "placeholder" },
     {
-      cacheGet: async () => null,
-      cacheSet: async () => { cacheSetCallsOnHit++; },
+      ...trap,
       inventoryGet: async () => ({ signals: { photo_url: "https://cdn.example.test/owned-during-probe.jpg" } }),
+      probeUri: async () => { probedUris++; return null; },
       fetchOwnedUri: async () => { throw new Error("a probe must never fetch Google"); },
     }
   );
   ok(rHit.reason === "inventory", `case 1: a probe with a free inventory hit should still redirect (reason "inventory"), got "${rHit.reason}"`);
-  ok(cacheSetCallsOnHit === 0, `case 1: a probe's free-hit path must still invoke cacheSet 0x (remember() must no-op under probe even on a redirecting hit), got ${cacheSetCallsOnHit}x`);
+  ok(cacheTouches === 0 && probedUris === 1, `case 1: the free-hit path touches the cache 0x and liveness-probes the owned url once, got cache ${cacheTouches}x / probe ${probedUris}x`);
+  const rGoogleHosted = await resolvePlacePhoto(
+    { ref, w: 640, gateShut: false, probe: true, googleSurface: true, authorizeSpend: async () => { throw new Error("a probe must never call authorizeSpend"); }, serverKey: "placeholder" },
+    {
+      ...trap,
+      inventoryGet: async () => ({ signals: { photo_url: "https://lh3.googleusercontent.com/p/stored-google" } }),
+      probeUri: async () => null,
+      fetchOwnedUri: async () => { throw new Error("a probe must never fetch Google"); },
+    }
+  );
+  ok(rGoogleHosted.type === "miss" && rGoogleHosted.reason === "probe-no-spend" && !rGoogleHosted.location, `case 1: a Google-hosted inventory photo_url is never served, even to a probe — got ${rGoogleHosted.type}/${rGoogleHosted.reason}`);
 
   // ABSENT CONFIGURATION OUTRANKS A BUDGET VERDICT (AGENTS.md §5). If the
   // probe short-circuit sat above the serverKey check, a missing
@@ -101,8 +126,8 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
   // 404/unconfigured, hiding a config outage behind a routine placeholder.
   let authCallsNoKey = 0;
   const rNoKey = await resolvePlacePhoto(
-    { ref, w: 640, gateShut: false, probe: true, authorizeSpend: async () => { authCallsNoKey++; return true; }, serverKey: "" },
-    { cacheGet: async () => null, cacheSet: async () => {}, inventoryGet: async () => null, fetchOwnedUri: async () => { throw new Error("a probe must never fetch Google"); } }
+    { ref, w: 640, gateShut: false, probe: true, googleSurface: true, authorizeSpend: async () => { authCallsNoKey++; return true; }, serverKey: "" },
+    { ...trap, inventoryGet: async () => null, fetchOwnedUri: async () => { throw new Error("a probe must never fetch Google"); } }
   );
   ok(rNoKey.reason === "unconfigured", `case 1: a probe against an unconfigured server key must still report "unconfigured", never "probe-no-spend" — got "${rNoKey.reason}"`);
   ok(authCallsNoKey === 0, `case 1: the unconfigured path still takes zero grants under probe, got ${authCallsNoKey}x`);
@@ -110,25 +135,25 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
   // A real (non-probe) denied request still reports "spend-denied", unchanged.
   let deniedAuthCalls = 0;
   const rDenied = await resolvePlacePhoto(
-    { ref, w: 640, gateShut: false, probe: false, authorizeSpend: async () => { deniedAuthCalls++; return false; }, serverKey: "placeholder" },
-    { cacheGet: async () => null, cacheSet: async () => {}, inventoryGet: async () => null, fetchOwnedUri: async () => { throw new Error("denied path must not fetch"); } }
+    { ref, w: 640, gateShut: false, probe: false, googleSurface: true, authorizeSpend: async () => { deniedAuthCalls++; return false; }, serverKey: "placeholder" },
+    { ...trap, inventoryGet: async () => null, fetchOwnedUri: async () => { throw new Error("denied path must not fetch"); } }
   );
   ok(deniedAuthCalls === 1, "case 1 (control): a real request still asks the ledger exactly once");
   ok(rDenied.reason === "spend-denied", `case 1 (control): a real denied request must report "spend-denied", got "${rDenied.reason}"`);
+  ok(cacheTouches === 0, `case 1: no scenario above touched a cache, got ${cacheTouches}`);
 
   const route = readFileSync(new URL("../app/api/photo/route.js", import.meta.url), "utf8");
-  // #1186 (2026-09-09) widened #1184's zero-arg closure to a per-SKU one —
-  // `photos` still goes through spendAllowPhotos() via the default param, and
-  // getRecovery().then(...) still gates every grant on the same free same-place
-  // read. check-photos.mjs and check-spend-guard.mjs assert this same shape.
-  // #1188 (2026-09-09) awaits the free-permanent-photo lookup (getFreePhoto())
-  // in the SAME Promise.all as recovery — still gating every grant, same free
-  // read-only shape, one more source. scripts/test-free-photo-serving.mjs
-  // executes this path instead of pattern-matching it.
-  ok(/authorizeSpend:\s*\(sku\s*=\s*"photos"\)\s*=>\s*Promise\.all\(\[getRecovery\(\),\s*getFreePhoto\(\)\]\)\.then/.test(route),
-    "case 1: app/api/photo/route.js must keep the Promise.all([getRecovery(),getFreePhoto()]).then(...)-gated authorizeSpend(sku) shape — check-photos.mjs and check-spend-guard.mjs also assert this");
-  ok(/probe-no-spend/.test(route) && /"spend-denied",\s*"gate-shut",\s*"unconfigured",\s*"probe-no-spend"/.test(route.replace(/\s+/g, " ")),
-    "case 1: the route's recovery-eligible reasons list must include \"probe-no-spend\" alongside #1184's spend-denied/gate-shut/unconfigured, so a probe still sees a free same-place recovery");
+  const routeCode = route.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`])\/\/[^\n]*/g, "$1");
+  // The per-SKU authorizer awaits ONLY the free permitted/licensed lookup now
+  // (same-place recovery is removed); `photos` still goes through
+  // spendAllowPhotos(). check-photos.mjs and check-spend-guard.mjs assert the
+  // same shape; scripts/test-free-photo-serving.mjs executes it.
+  ok(/authorizeSpend:\s*\(sku\s*=\s*"photos"\)\s*=>\s*getFreePhoto\(\)\.then/.test(routeCode),
+    "case 1: app/api/photo/route.js must keep the getFreePhoto().then(...)-gated authorizeSpend(sku) shape — check-photos.mjs and check-spend-guard.mjs also assert this");
+  ok(!/getRecovery|findSamePlaceCachedPhoto/.test(routeCode),
+    "case 1: the route must not perform same-place cache recovery (a stored Google URL is never served)");
+  ok(/const free = await getFreePhoto\(\);/.test(routeCode) && !/probe\s*\?[^;]*getFreePhoto|if\s*\(\s*!probe\s*\)\s*\{?\s*const free/.test(routeCode),
+    "case 1: the free permitted/licensed lane is consulted for EVERY remaining miss including a probe (it never takes a grant), so a probe still sees a free photo");
   const probeHeaderRead = /req\.headers\.get\("x-wayfind-photo-probe"\)\s*===\s*"1"/.test(route);
   ok(probeHeaderRead, "case 1: the route must still read the x-wayfind-photo-probe header and pass it into the resolver");
 }
@@ -629,19 +654,24 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
     // 640) — it destructures placeId off a string, gets undefined, fails its
     // own PLACE_ID_RX and returns null having queried NOTHING, so the worker
     // would recover nothing forever while every test stayed green.
+    // COMPLIANT PHOTOS (2026-10-08): the REAL findSamePlaceCachedPhoto is a
+    // constant null that issues NO lookup in either call shape, even with a
+    // warm fixture it could have returned. (It used to issue exactly one
+    // wf_places_cache query for the options-object shape.) The worker keeps
+    // its injected-findSamePlace seam; production recovers nothing from it.
     const realEnv = { SUPABASE_URL: "https://stub.supabase.test", SUPABASE_SERVICE_ROLE_KEY: "stub-key-not-real" };
     let realQueries = 0;
-    const stubFetch = async (u) => {
+    const stubFetch = async () => {
       realQueries++;
-      ok(String(u).includes("wf_places_cache"), `case 10: the real recovery lookup must query wf_places_cache, got ${String(u).slice(0, 80)}`);
-      return { ok: true, json: async () => [] };
+      return { ok: true, json: async () => [{ k: "photo|places/" + placeId + "/photos/X|640", v: { uri: "https://lh3.googleusercontent.com/p/warm" } }] };
     };
-    await findSamePlaceCachedPhoto({ placeId, width: 640, fetchImpl: stubFetch, env: realEnv });
-    ok(realQueries === 1, `case 10: called with an options object (the shape lib/photoRepair.js uses), the REAL findSamePlaceCachedPhoto must issue exactly 1 lookup, got ${realQueries}`);
-
-    realQueries = 0;
-    await findSamePlaceCachedPhoto(placeId, 640);
-    ok(realQueries === 0, "case 10 (negative control): a POSITIONAL call issues no query at all — which is why the worker must pass an options object, and why this control exists");
+    const viaOptions = await findSamePlaceCachedPhoto({ placeId, width: 640, fetchImpl: stubFetch, env: realEnv });
+    ok(viaOptions === null && realQueries === 0, `case 10: the REAL findSamePlaceCachedPhoto must return null and issue 0 lookups for the options-object shape, got ${JSON.stringify(viaOptions)} / ${realQueries} lookup(s)`);
+    const viaPositional = await findSamePlaceCachedPhoto(placeId, 640);
+    ok(viaPositional === null && realQueries === 0, "case 10: …and likewise for a positional call");
+    // Positive control: the stub fetch really would have been counted if it were called.
+    await stubFetch();
+    ok(realQueries === 1, "case 10 (control): the stub fetch counts a call, so 0 above is meaningful");
 
     const repairSrc = readFileSync(new URL("../lib/photoRepair.js", import.meta.url), "utf8");
     ok(/findSamePlace\(\s*\{\s*placeId:/.test(repairSrc),

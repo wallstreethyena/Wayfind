@@ -16,9 +16,10 @@ import EventExperienceStyles from "../../components/EventExperienceStyles.js";
 import { notFound } from "next/navigation";
 import { safeUrl } from "../../../lib/links.js";
 import { SITE_URL } from "../../../lib/site";
-import { fetchCuratedEvents, fetchCuratedEventBySlug, eventJsonLd, dateRangeLabel, eventWebsiteUrl } from "../../../lib/curatedEvents";
+import { fetchCuratedEvents, fetchCuratedEventBySlug, eventJsonLd, dateRangeLabel, eventWebsiteUrl, eventDetailTicketAction } from "../../../lib/curatedEvents";
 import { eventPhotos } from "../../../lib/eventPhotos";
-import { eventVenueImageSrc } from "../../../lib/eventPageImage.js";
+import { eventVenueImageSrc, withTampaPassFacts } from "../../../lib/eventPageImage.js";
+import { eventDatesLabel } from "../../../lib/eventOccurrences.js";
 import { addressLine, appleDirectionsUrl } from "../../../lib/placeWhere";
 import ShareButton from "../../components/ShareButton";
 import PhotoCreditLink from "../../components/PhotoCreditLink";
@@ -27,7 +28,6 @@ import EventWhere from "../../components/EventWhere";
 import ReturnToWayfind from "../../components/ReturnToWayfind.js";
 import { pairingHref } from "../../../lib/eventPairings";
 import { cachedEventPairings } from "../../../lib/eventPairingsCache";
-import { eventTicketCta } from "../../../lib/eventTicketDeals.js";
 import { clockLabel } from "../../../lib/fallPool.js";
 import { eventSocialPosts } from "../../../lib/eventSocial.js";
 import VideoFacade from "../../components/VideoFacade.js";
@@ -53,10 +53,10 @@ export async function generateMetadata({ params }) {
   // Throws on a failed read. Do not catch — an outage is not "this event
   // has no metadata", and catching would hide the same soft-fail the hub
   // used to cache as a successful empty page.
-  const e = await fetchCuratedEventBySlug(params.slug);
+  const e = await fetchCuratedEventBySlug(params.slug).then(withTampaPassFacts);
   if (!e) return {};
   const title = `${e.event_name} ${e.year}: Dates, Tickets & What to Know`;
-  const desc = `${e.event_name} runs ${dateRangeLabel(e)} in ${e.city}. ${e.card_hook || ""} Wayfind's verdict, timing, parking and what to pair it with.`.trim();
+  const desc = `${e.event_name} runs ${eventDatesLabel(e, dateRangeLabel(e))} in ${e.city}. ${e.card_hook || ""} Wayfind's verdict, timing, parking and what to pair it with.`.trim();
   // THE SHARE CARD (v9, owner 2026-09-23: "everything on wayfind that is
   // sharable looks premium"). An event that has owned, consent-cleared
   // photography (lib/eventPhotos.js) now previews through the HERO ROUTE
@@ -70,7 +70,7 @@ export async function generateMetadata({ params }) {
   // typographic card, carrying this exact event's own name — never a photo
   // Wayfind has no consent to reuse. Built on SITE_URL because a scraper
   // does not resolve a relative path (scripts/check-og-absolute.mjs).
-  const ogTitle = `${e.event_name} — ${dateRangeLabel(e)}`;
+  const ogTitle = `${e.event_name} — ${eventDatesLabel(e, dateRangeLabel(e))}`;
   const og = `${SITE_URL}/api/og/hero?kind=event&id=${encodeURIComponent(e.event_id)}`
     + `&t=${encodeURIComponent(ogTitle)}&cat=Event&loc=${encodeURIComponent(e.city || "")}`;
   return {
@@ -159,7 +159,7 @@ const S = {
 export default async function CuratedEventPage({ params }) {
   // Throws on a failed read. notFound() is only the honest miss (row
   // absent or not displayable). An outage must not 404 a live event.
-  const e = await fetchCuratedEventBySlug(params.slug);
+  const e = await fetchCuratedEventBySlug(params.slug).then(withTampaPassFacts);
   if (!e) notFound();
 
   const shots = eventPhotos(e.event_id);
@@ -172,7 +172,7 @@ export default async function CuratedEventPage({ params }) {
   // SERVER-resolved, never window.location — on a preview deploy that is a host
   // the recipient cannot open (lib/site.js canonicalShareUrl).
   const shareUrl = SITE_URL + "/florida-events/" + params.slug;
-  const shareText = `${e.event_name} — ${dateRangeLabel(e)}${e.is_free ? ", free" : ""}. Found this on Wayfind.`;
+  const shareText = `${e.event_name} — ${eventDatesLabel(e, dateRangeLabel(e))}${e.is_free ? ", free" : ""}. Found this on Wayfind.`;
   // v8.88 — WHERE IT IS, AND HOW TO GET THERE (owner, 2026-08-29, on this very
   // page): "how are people gonna be able to find it?"
   //
@@ -201,7 +201,10 @@ export default async function CuratedEventPage({ params }) {
   // beside directions, not a text link at the foot of the page — owner,
   // 2026-09-06: "does not have the address nor the website for the place".
   const site = eventWebsiteUrl(e) || null;
-  const ticket = eventTicketCta(e.event_id, { surface: "florida_event_page" });
+  // ONE ticket button: the affiliate deal when the registry has one, else the
+  // organiser's own verified ticket link (rel nofollow, not sponsored). Same
+  // gates the card uses (lib/curatedEvents.eventDetailTicketAction).
+  const ticket = eventDetailTicketAction(e, { surface: "florida_event_page" });
   const socialPosts = eventSocialPosts(e.event_id) || [];
   // The card's creator mark promises that the post is one tap away. Reuse the
   // event's already-cleared hero as the click-to-load cover so that promise is
@@ -260,7 +263,7 @@ export default async function CuratedEventPage({ params }) {
       <EventDetailShell
         title={`${e.event_name} ${e.year}`}
         facts={[
-          { label: "When", value: `${dateRangeLabel(e)}, ${e.year}${clockLabel(e.start_time) ? ` · ${clockLabel(e.start_time)}${clockLabel(e.end_time) ? "–" + clockLabel(e.end_time) : ""}` : ""}` },
+          { label: "When", value: `${eventDatesLabel(e, dateRangeLabel(e))}${e.when_label ? "" : `, ${e.year}`}${clockLabel(e.start_time) ? ` · ${clockLabel(e.start_time)}${clockLabel(e.end_time) ? "–" + clockLabel(e.end_time) : ""}` : ""}` },
           { label: "Where", value: <>{e.venue ? <div>{e.venue}</div> : null}{where && (e.venue ? where !== `${e.city}, ${e.state}` : true) ? <div style={S.addr}>{where}</div> : (!e.venue ? <div style={S.addr}>{e.city}, {e.state}</div> : null)}</> },
           { label: "Cost", value: eventCostSummary(e) },
           { label: "Entry rules", value: eventRestrictions(e).join(" · ") || null },
@@ -278,11 +281,11 @@ export default async function CuratedEventPage({ params }) {
         actions={<>
       {ticket ? (
         <div style={S.ticketWrap}>
-          <a style={S.tix} href={ticket.href} target="_blank" rel="sponsored nofollow noopener"
+          <a style={S.tix} href={ticket.href} target="_blank" rel={ticket.kind === "affiliate" ? "sponsored nofollow noopener" : ticket.rel}
             aria-label={ticket.label.replace(" ↗", "") + " for " + e.event_name}>
             {"🎟️ " + ticket.label}
           </a>
-          <p style={S.disclosure}>We may earn a commission when you book through partner links. It never changes our rankings.</p>
+          {ticket.kind === "affiliate" ? <p style={S.disclosure}>We may earn a commission when you book through partner links. It never changes our rankings.</p> : null}
         </div>
       ) : null}
 

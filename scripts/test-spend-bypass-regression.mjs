@@ -54,127 +54,117 @@ async function sourceModule(path, prelude) {
   }
 }
 
-// 1. Photo authorization is lazy: free cache/inventory hits never consume the
-// finite photo ledger. A cold denied ref never reaches Google, while the same
-// cold ref reaches it exactly once after one grant.
+// 1. Photo authorization is lazy and COMPLIANT (owner decision 2026-10-08): no
+// Google photo URL is read from or written to a cache, a non-credited surface
+// never reaches the ledger, an inventory-owned (non-Google) photo is free, and
+// on the credited surface a cold denied request never reaches Google while the
+// same request reaches it exactly once after one grant.
 {
-  const ref = "places/ChIJ1234567890/photos/A1234567890";
+  const ref = "places/ChIJ1234567890ABCDEF/photos/A1234567890";
+  const cacheTrap = {
+    cacheGet: async () => { throw new Error("the resolver must never read a Google photo cache"); },
+    cacheSet: async () => { throw new Error("the resolver must never write a Google photo cache"); },
+  };
+
+  // A warm legacy cache is NOT served: a non-credited surface is a free honest miss.
   let cacheAuthorizations = 0;
   let cacheFetches = 0;
-  const cached = await resolvePlacePhoto(
+  const cardMiss = await resolvePlacePhoto(
     { ref, w: 640, gateShut: false, authorizeSpend: async () => { cacheAuthorizations++; return true; }, serverKey: "placeholder" },
     {
-      cacheGet: async () => ({ uri: "https://lh3.googleusercontent.com/p/cached" }),
-      cacheSet: async () => {},
-      inventoryGet: async () => { throw new Error("cache hit must not read inventory"); },
+      ...cacheTrap,
+      inventoryGet: async () => null,
       fetchOwnedUri: async () => { cacheFetches++; return "https://lh3.googleusercontent.com/p/should-not-run"; },
     },
   );
-  eq(cacheAuthorizations, 0, "cached photo consumes zero ledger grants");
-  eq(cacheFetches, 0, "cached photo performs zero paid fetches");
-  eq(cached.reason, "cache", "cached photo remains a cache result");
+  eq(cacheAuthorizations, 0, "a non-credited surface consumes zero ledger grants");
+  eq(cacheFetches, 0, "a non-credited surface performs zero paid fetches");
+  eq(cardMiss.reason, "not-google-surface", "a non-credited surface is an honest no-spend miss");
+  eq(cardMiss.location, null, "a non-credited miss has no location (the card paints its placeholder)");
 
   let inventoryAuthorizations = 0;
   const inventory = await resolvePlacePhoto(
     { ref, w: 640, gateShut: false, authorizeSpend: async () => { inventoryAuthorizations++; return true; }, serverKey: "placeholder" },
     {
-      cacheGet: async () => null,
-      cacheSet: async () => {},
+      ...cacheTrap,
       inventoryGet: async () => ({ signals: { photo_url: "https://cdn.example.test/place-owned.jpg" } }),
+      probeUri: async () => null,
       fetchOwnedUri: async () => { throw new Error("inventory hit must not fetch Google"); },
     },
   );
   eq(inventoryAuthorizations, 0, "inventory-owned photo consumes zero ledger grants");
   eq(inventory.reason, "inventory", "inventory-owned photo remains an inventory result");
 
-  const oldRef = ref;
-  const currentRef = "places/ChIJ1234567890/photos/CURRENT123456";
-  let currentRefAuthorizations = 0;
-  let currentRefFetches = 0;
-  let currentRefWrites = 0;
-  const currentRefCache = await resolvePlacePhoto(
-    { ref: oldRef, w: 640, gateShut: false, authorizeSpend: async () => { currentRefAuthorizations++; return true; }, serverKey: "placeholder" },
+  // Opposite invariant of the removed same-place cache recovery: a Google-hosted
+  // inventory url is never served, and a newer same-place inventory ref's cache
+  // is never consulted (the cache trap above would throw).
+  let hostedAuthorizations = 0;
+  const hosted = await resolvePlacePhoto(
+    { ref, w: 640, gateShut: false, authorizeSpend: async () => { hostedAuthorizations++; return true; }, serverKey: "placeholder" },
     {
-      cacheGet: async (key) => key.includes(currentRef) ? { uri: "https://lh3.googleusercontent.com/p/current-ref-cache" } : null,
-      cacheSet: async () => { currentRefWrites++; },
-      inventoryGet: async () => ({ photo_ref: currentRef, signals: {} }),
-      fetchOwnedUri: async () => { currentRefFetches++; return "https://lh3.googleusercontent.com/p/should-not-run"; },
+      ...cacheTrap,
+      inventoryGet: async () => ({ photo_ref: "places/ChIJ1234567890ABCDEF/photos/CURRENT123456", signals: { photo_url: "https://lh3.googleusercontent.com/p/stored-google" } }),
+      probeUri: async () => null,
+      fetchOwnedUri: async () => { throw new Error("non-credited surface must not fetch"); },
     },
   );
-  eq(currentRefAuthorizations, 0, "a newer same-place inventory ref cache consumes zero ledger grants");
-  eq(currentRefFetches, 0, "a newer same-place inventory ref cache performs zero paid fetches");
-  eq(currentRefWrites, 0, "reusing a newer same-place cache does not rewrite or extend its 30-day lifetime");
-  eq(currentRefCache.reason, "inventory-ref-cache", "stale card ref reuses the current same-place cached ref");
+  eq(hosted.type, "miss", "a Google-hosted inventory photo_url is ignored, never served");
+  eq(hostedAuthorizations, 0, "ignoring a Google-hosted inventory url spends nothing");
 
-  let foreignAuthorizations = 0;
-  const foreignRef = "places/ChIJOTHERPLACE999/photos/FOREIGN123456";
-  const foreign = await resolvePlacePhoto(
-    { ref: oldRef, w: 640, gateShut: false, authorizeSpend: async () => { foreignAuthorizations++; return false; }, serverKey: "placeholder" },
-    {
-      cacheGet: async (key) => key.includes(foreignRef) ? { uri: "https://lh3.googleusercontent.com/p/foreign" } : null,
-      cacheSet: async () => {},
-      inventoryGet: async () => ({ photo_ref: foreignRef, signals: {} }),
-      fetchOwnedUri: async () => { throw new Error("denied path must not fetch"); },
-    },
-  );
-  eq(foreignAuthorizations, 1, "a foreign inventory ref is refused before its cache can be reused");
-  eq(foreign.reason, "spend-denied", "a place never wears another place's cached inventory photo");
-
+  // Credited surface, ledger denies: asked exactly once, zero fetches, no cache writes.
   let deniedAuthorizations = 0;
   let deniedFetches = 0;
   const denied = await resolvePlacePhoto(
-    { ref, w: 640, gateShut: false, authorizeSpend: async () => { deniedAuthorizations++; return false; }, serverKey: "placeholder" },
+    { ref, w: 640, gateShut: false, googleSurface: true, authorizeSpend: async () => { deniedAuthorizations++; return false; }, serverKey: "placeholder" },
     {
-      cacheGet: async () => null,
-      cacheSet: async () => { throw new Error("denied path must not cache a paid result"); },
+      ...cacheTrap,
       inventoryGet: async () => null,
       fetchOwnedUri: async () => { deniedFetches++; return "https://lh3.googleusercontent.com/p/should-not-run"; },
     },
   );
-  eq(deniedAuthorizations, 1, "cold photo asks the ledger exactly once");
+  eq(deniedAuthorizations, 1, "cold credited photo asks the ledger exactly once");
   eq(deniedFetches, 0, "denied photo budget performs zero paid fetches");
-  eq(denied.type, "miss", "denied uncached catalogued ref becomes an honest image miss, not a shared fallback");
-  eq(denied.location, null, "denied uncached catalogued ref has no shared fallback location");
+  eq(denied.type, "miss", "denied credited photo becomes an honest image miss, not a shared fallback");
+  eq(denied.location, null, "denied credited photo has no shared fallback location");
   eq(denied.reason, "spend-denied", "denied cold photo is distinguishable from a place with no photo");
 
   let grantedAuthorizations = 0;
   let grantedFetches = 0;
   const granted = await resolvePlacePhoto(
-    { ref, w: 640, gateShut: false, authorizeSpend: async () => { grantedAuthorizations++; return true; }, serverKey: "placeholder" },
+    { ref, w: 640, gateShut: false, googleSurface: true, authorizeSpend: async () => { grantedAuthorizations++; return true; }, serverKey: "placeholder" },
     {
-      cacheGet: async () => null,
-      cacheSet: async () => {},
+      ...cacheTrap,
       inventoryGet: async () => null,
-      fetchOwnedUri: async () => { grantedFetches++; return "https://lh3.googleusercontent.com/p/granted"; },
+      fetchOwnedUri: async () => { grantedFetches++; return { uri: "https://lh3.googleusercontent.com/p/granted", upstream: "ok", credit: { name: "A" } }; },
     },
   );
   eq(grantedAuthorizations, 1, "cold granted photo consumes exactly one ledger grant");
   eq(grantedFetches, 1, "positive control: granted photo budget reaches Google once");
   eq(granted.reason, "google", "positive control is labelled as a ledger-authorized Google fetch");
+  eq(granted.cacheControl, "private, no-store", "a live Google redirect is never cacheable downstream");
 
   let noKeyAuthorizations = 0;
   const noKey = await resolvePlacePhoto(
-    { ref, w: 640, gateShut: false, authorizeSpend: async () => { noKeyAuthorizations++; return true; }, serverKey: "" },
-    { cacheGet: async () => null, cacheSet: async () => {}, inventoryGet: async () => null, fetchOwnedUri: async () => { throw new Error("missing key must not fetch"); } },
+    { ref, w: 640, gateShut: false, googleSurface: true, authorizeSpend: async () => { noKeyAuthorizations++; return true; }, serverKey: "" },
+    { ...cacheTrap, inventoryGet: async () => null, fetchOwnedUri: async () => { throw new Error("missing key must not fetch"); } },
   );
   eq(noKeyAuthorizations, 0, "missing photo server key consumes zero ledger grants");
   eq(noKey.reason, "unconfigured", "missing photo server key remains operationally distinguishable");
 
   const route = readFileSync("app/api/photo/route.js", "utf8");
-  // 2026-09-09: the authorizer is per-SKU so the resolver's self-heal fan-out can
-  // take one grant per outbound request; `photos` goes through spendAllowPhotos
-  // (free tier, or the owner's photo-only cap), every other SKU through spendAllow.
-  // 2026-09-09 (#1188): recovery and the free-permanent-photo lookup are now
-  // awaited TOGETHER (Promise.all) before either decision — see
-  // scripts/test-free-photo-serving.mjs for the executed (not merely
-  // pattern-matched) proof that a free photo refuses a `photos` grant while
-  // leaving `details_ids_only` untouched.
-  const authorizer = route.match(/authorizeSpend:\s*\(sku\s*=\s*"photos"\)\s*=>\s*Promise\.all\(\[getRecovery\(\),\s*getFreePhoto\(\)\]\)\.then\(\(\[hit,\s*free\]\)\s*=>\s*\{([\s\S]*?)\}\),/);
-  ok(!!authorizer, "photo route injects lazy per-SKU ledger authorization (recovery + free-photo lookup, awaited together) into the resolver");
-  ok(!!authorizer && /if \(hit \|\| shut\) return false;/.test(authorizer[1]), "photo route's authorizer refuses on a same-place recovery hit and on a shut gate");
+  // The authorizer is per-SKU so the resolver can take one grant per outbound
+  // request; `photos` goes through spendAllowPhotos (free tier, or the owner's
+  // photo-only cap), every other SKU through spendAllow. Since 2026-10-08 only
+  // the free permitted/licensed lookup (lib/freePhoto.js) is awaited first:
+  // same-place cache recovery no longer exists. scripts/test-free-photo-serving.mjs
+  // executes the free-photo refusal.
+  const authorizer = route.match(/authorizeSpend:\s*\(sku\s*=\s*"photos"\)\s*=>\s*getFreePhoto\(\)\.then\(\(free\)\s*=>\s*\{([\s\S]*?)\}\),/);
+  ok(!!authorizer, "photo route injects lazy per-SKU ledger authorization (free-photo lookup awaited first) into the resolver");
+  ok(!!authorizer && /if \(shut\) return false;/.test(authorizer[1]), "photo route's authorizer refuses on a shut gate");
   ok(!!authorizer && /if \(sku === "photos" && free\) return false;/.test(authorizer[1]), "photo route's authorizer refuses a `photos` grant outright when a free permanent photo exists for this place, and ONLY for `photos`");
   ok(!!authorizer && /return sku === "photos" \? spendAllowPhotos\(\) : spendAllow\(sku\);/.test(authorizer[1]), "photo route's authorizer routes photos through spendAllowPhotos and every other SKU through spendAllow");
-  ok(!/const\s+spendAllowed\s*=\s*!shut\s*&&\s*\(await\s+spendAllow\("photos"\)\)/.test(route), "photo route cannot consume a grant before cache and inventory are checked");
+  ok(!/getRecovery|findSamePlaceCachedPhoto/.test(route.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`])\/\/[^\n]*/g, "$1")), "photo route no longer performs same-place cache recovery");
+  ok(!/const\s+spendAllowed\s*=\s*!shut\s*&&\s*\(await\s+spendAllow\("photos"\)\)/.test(route), "photo route cannot consume a grant before the free lane is checked");
 }
 
 // 2. The retired Nearby probe executes the actual GET body and cannot reach an
