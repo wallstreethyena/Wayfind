@@ -4,6 +4,7 @@ export const runtime = "nodejs";
 // poster. There are no live Google calls here. Owned reads happen in parallel,
 // then FastCache and Vercel's CDN make the result reusable by nearby readers.
 
+import { priceNumFrom } from "../../../lib/price.js";
 import { BROWSE_INVENTORY_N } from "../../../lib/browseInventory.js";
 import { toDiscoveryRef } from "../../../lib/discoveryRef.js";
 import { allCreators } from "../../../lib/creatorVideos.js";
@@ -22,10 +23,8 @@ function json(body, status = 200, cache = "public, s-maxage=3600, stale-while-re
   return Response.json(body, { status, headers: { "cache-control": cache } });
 }
 
-function priceNum(level) {
-  const values = ["PRICE_LEVEL_FREE", "PRICE_LEVEL_INEXPENSIVE", "PRICE_LEVEL_MODERATE", "PRICE_LEVEL_EXPENSIVE", "PRICE_LEVEL_VERY_EXPENSIVE"];
-  return typeof level === "number" ? level : Math.max(0, values.indexOf(level));
-}
+// Unknown stays null (never a fabricated 0 = Free); see lib/price.priceNumFrom.
+const priceNum = priceNumFrom;
 
 function toPlace(raw, origin, inventoryCategory) {
   const id = String(raw?.id || "");

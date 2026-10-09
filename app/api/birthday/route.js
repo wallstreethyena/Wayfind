@@ -4,6 +4,7 @@ export const runtime = "nodejs";
 // Places search: it composes the seven rails from Wayfind's owned inventory,
 // and every qualitative category is evidence-gated in lib/birthdayIntent.
 
+import { priceNumFrom } from "../../../lib/price.js";
 import { birthdayAttributesFor } from "../../../lib/birthdayAttributes.js";
 import { distMeters, invRowToPlace, serveInventoryByPlaceIds } from "../../../lib/inventoryServe.js";
 import { fetchOwnedPool } from "../../../lib/ownedPool.js";
@@ -45,13 +46,8 @@ function json(body, status = 200, cache = "public, s-maxage=3600, stale-while-re
   return Response.json(body, { status, headers: { "cache-control": cache } });
 }
 
-function priceNum(level) {
-  const values = [
-    "PRICE_LEVEL_FREE", "PRICE_LEVEL_INEXPENSIVE", "PRICE_LEVEL_MODERATE",
-    "PRICE_LEVEL_EXPENSIVE", "PRICE_LEVEL_VERY_EXPENSIVE",
-  ];
-  return typeof level === "number" ? level : Math.max(0, values.indexOf(level));
-}
+// Unknown stays null (never a fabricated 0 = Free); see lib/price.priceNumFrom.
+const priceNum = priceNumFrom;
 
 function toBirthdayPlace(raw, origin) {
   const id = String(raw?.id || "");
