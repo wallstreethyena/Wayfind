@@ -162,7 +162,7 @@ vm.runInNewContext(compiled, { module: mod, exports: mod.exports, require: (name
   if (name === './GuidePhoto') return photoModule.exports;
   if (name === './GuideFigure') return figureModule.exports;
   if (name.endsWith('.css')) return { __esModule: true, default: css };
-  if (name.includes('seasonalBrand')) return { activeSeasonalMark: () => null, NORMAL_MARK: { png: '/brand/wayfind-wordmark-transparent-v2.png', width: 1707, height: 441 } };
+  if (name.includes('seasonalBrand')) return { activeSeasonalMark: () => null, NORMAL_MARK: { png: '/brand/wayfind-wordmark-original-v3.png', width: 1707, height: 441 } };
   return require(name);
 } }, { filename });
 const Hero = mod.exports.default;

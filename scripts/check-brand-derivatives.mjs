@@ -49,7 +49,7 @@ for (const w of HERO_W) {
   }
 }
 for (const ext of ["avif", "webp"]) {
-  ok(existsSync(p(`public/brand/opt/wordmark-400.${ext}`)), `public/brand/opt/wordmark-400.${ext} is missing`);
+  ok(existsSync(p(`public/brand/opt/wordmark-original-v3-400.${ext}`)), `public/brand/opt/wordmark-original-v3-400.${ext} is missing`);
 }
 
 // ─── 2. every candidate is smaller than the original it replaces ────────────
@@ -114,11 +114,11 @@ ok(css.includes(".wf-discovery-visual picture{position:absolute;inset:0;display:
   "an inline <picture> contributes a line box above the copy. It must be taken out of flow, or wrapping an <img> that was already absolutely positioned silently makes the hero card taller.");
 
 // ─── 5. the wordmark keeps its PNG fallback AND its modern set ─────────────
-ok(/background-image:url\("\/brand\/wayfind-wordmark-transparent-v2\.png"\);background-image:image-set\(/.test(css),
+ok(/background-image:url\("\/brand\/wayfind-wordmark-original-v3\.png"\);background-image:image-set\(/.test(css),
   "the wordmark must declare the PNG FIRST and then override with image-set() — engines that cannot parse type() drop the second declaration and need the first one to still be there");
-ok(/image-set\(url\("\/brand\/opt\/wordmark-400\.avif"\) type\("image\/avif"\),url\("\/brand\/opt\/wordmark-400\.webp"\) type\("image\/webp"\)\)/.test(css),
+ok(/image-set\(url\("\/brand\/opt\/wordmark-original-v3-400\.avif"\) type\("image\/avif"\),url\("\/brand\/opt\/wordmark-original-v3-400\.webp"\) type\("image\/webp"\)\)/.test(css),
   "the wordmark image-set must offer avif then webp, each with an explicit type()");
-ok((css.match(/wayfind-wordmark-transparent-v2/g) || []).length === 1,
+ok((css.match(/wayfind-wordmark-original-v3/g) || []).length === 1,
   "the image-set must NOT name the PNG again — test-brand.mjs counts this string exactly once across the homepage shell");
 
 console.log(`check-brand-derivatives: OK — ${pass} assertions (the ${(HERO_SRC / 1024).toFixed(0)}KB hero and the 167KB wordmark are both off the critical path; the eager <img> cannot name the original, which is what the preload actually reads)`);

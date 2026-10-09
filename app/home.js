@@ -506,12 +506,11 @@ const CATEGORY_ROUTE = {
 };
 
 const WF_DESTINATIONS = [
-  { id: "home", icon: "home", label: "Home", href: "/" },
+  { id: "saved", icon: "saved", label: "Favorites", href: "/favorites" },
+  { id: "itinerary", icon: "itinerary", label: "Itinerary", href: "/itinerary" },
   { id: "events", icon: "events", label: "Events", href: "/events" },
   { id: "coupons", icon: "coupons", label: "Coupons", href: "/coupons" },
   { id: "map", icon: "map", label: "Map", href: "/map" },
-  { id: "saved", icon: "saved", label: "Favorites", href: "/favorites" },
-  { id: "itinerary", icon: "itinerary", label: "Itinerary", href: "/itinerary" },
 ];
 
 function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, showSubs = true, compact, nav, navRegion, navCitySlug, navOpenCat, onNavOpen, onNavSub }) {
@@ -10025,27 +10024,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         {screen !== "map" && (
         <div className="wf-topbar-row" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 7, minWidth: 0 }}>
-            {/* v6.54 (spec 4): code wordmark — the orange dot is the TITTLE of the
-                i (the PNG master bakes the pin after the d, which reads as a
-                period). The PNG stays
-                canonical for OG cards where it sits on its own dark band. */}
-            {/* THE LOGO (owner, 2026-07-22): the OFFICIAL asset, not a text lookalike.
-                Allowed here because the header background IS the logo's baked
-                #040810 — the one placement the brand rule sanctions in-app. */}
-            {/* v9 seasonal (lib/seasonalBrand.js): the mark is normally a
-                TWO-SLICE sprite (.wf-wordmark-text + .wf-wordmark-pin, see
-                WF_LAYOUT_CSS) because the normal asset has clean empty columns
-                to cut between the word and the pin. The Halloween asset does
-                NOT — the web physically connects pin to wordmark and the hat
-                spans both — so slicing it would cut the art. `.is-seasonal`
-                (added by app/components/css.js) hides the pin slice and gives
-                the text slice the whole image instead of a crop. Resolved
-                inline, same pattern as siteTodayStr() elsewhere in this file
-                (e.g. fallCardClass(..., siteTodayStr()) a few hundred lines
-                down): a plain function call at render time, not a hook — so
-                server and client agree on the same venue-local (ET) day
-                because both read the same wall-clock instant through
-                Intl/America-New-York, not the runtime's own default zone. */}
+            {/* The owner-supplied original artwork renders as one complete image.
+                The logo remains the home control after Home leaves the menu. */}
             <button type="button" className={`wf-wordmark${activeSeasonalMark() ? " is-seasonal" : ""}`} aria-label="Wayfind home" onClick={returnHomeTop} style={{ padding: 0, border: 0, background: "transparent", color: "inherit", font: "inherit" }}>
               <span className="wf-wordmark-text" aria-hidden="true" />
               <span className="wf-wordmark-pin" aria-hidden="true" />
@@ -10060,15 +10040,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                 "Parrish, FL" is a SHORT name — "St. Petersburg, FL" needs 118px.
                 A variable-length city cannot share this row, so it gets its own
                 (see below) where any name fits. Locked by check-home-location. */}
-            {/* WIDTH SAFETY for the seasonal mark (v9, lib/seasonalBrand.js):
-                the fixed 154px above is the NORMAL two-slice sprite's total
-                footprint (117.4px text + 5px gap + 31.65px pin, mobile). The
-                Halloween mark is ONE slice at 147.4px total (see
-                app/components/css.js's `.is-seasonal` rule) — 6.6px NARROWER
-                than the 154px this comment already measured against weather
-                (71px) and Sign in (86px), both flex-shrink:0. So the seasonal
-                mark cannot re-open the clipping this comment describes; it
-                only ever gives the row back space. */}
+
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
             {weather && (weather.feels != null || weather.temp != null) && (
@@ -10388,41 +10360,31 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         {searchMissing && searchRecovery && query.trim() && !searchBusy && <div style={{ marginTop: 10 }}>
           <CommunityFooter key={query + searchRecoveryNear} compact recommendation initialPlace={[query.trim(), searchRecoveryNear].filter(Boolean).join(", ")} path="/search" loc={locName || ""} build={BUILD_ID} userId={user?.id || null} />
         </div>}
-        <div style={{ marginTop: 6 }}>
-          <CommunityFooter key={screen} compact path={screen === "suggested" ? "/" : "/" + screen} loc={locName || ""} build={BUILD_ID} userId={user?.id || null} />
-        </div>
         {cityTransition && <div key={cityTransition.id} className="wf-city-transition" role="status" aria-live="polite"><span aria-hidden="true">✓</span> {cityTransition.text}</div>}
-        {/* v8.2 ROW C — THE DESTINATIONS, AT THE TOP (public/lab/menu.html
-            `.dests`). The same six targets the bottom bar has always carried,
-            mapped from the one WF_DESTINATIONS list so the two bars cannot
-            disagree, plus the Shortcuts opener that reveals the shortcut row as
-            a panel.
-
-            THE BOTTOM BAR STAYS (owner's call, 2026-08-15). Most Wayfind traffic
-            is mobile and thumb-reach navigation is what those readers already
-            use; a top row that scrolls out of the viewport is not a replacement
-            for it. So this row is additive on a phone and is the primary nav on
-            a desk, where there is no thumb and the bottom bar is a floating pill
-            in the corner of the eye. */}
+        {/* Personal destinations lead; Feedback ends the scrollable menu.
+            Shortcuts stays anchored at the right edge on every viewport. */}
         {screen !== "map" && (
-          <nav className="wf-dests" {...(suggestions.length ? { className: "wf-dests is-covered" } : null)} aria-label="Destinations" style={suggestions.length ? { pointerEvents: "none" } : undefined}>
+          <div className="wf-dest-row" style={suggestions.length ? { pointerEvents: "none" } : undefined}>
+            <nav className="wf-dests" {...(suggestions.length ? { className: "wf-dests is-covered" } : null)} aria-label="Destinations">
+              {WF_DESTINATIONS.map((d) => {
+                const active = d.id === screen;
+                return (
+                  <a key={d.id} className={"wf-dest" + (active ? " is-on" : "")} href={d.href} aria-current={active ? "page" : undefined}
+                     onClick={(e) => { e.preventDefault(); goDestination(d.id, active); }}>
+                    <NavIcon name={d.icon} color="currentColor" size={17} strokeWidth={1.8} />
+                    <span>{d.label}</span>
+                  </a>
+                );
+              })}
+              <CommunityFooter key={screen} compact navigation path={screen === "suggested" ? "/" : "/" + screen} loc={locName || ""} build={BUILD_ID} userId={user?.id || null} />
+            </nav>
             <button type="button" className={"wf-dest wf-dest-opener" + (navShortcuts ? " is-on" : "")}
                     aria-expanded={navShortcuts} aria-controls="wf-scpanel"
                     onClick={() => setNavShortcuts((v) => !v)}>
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
               <span>Shortcuts</span>
             </button>
-            {WF_DESTINATIONS.map((d) => {
-              const active = (d.id === "home" && (screen === "suggested" || screen === "explore" || screen === "experience" || screen === "surprise")) || d.id === screen;
-              return (
-                <a key={d.id} className={"wf-dest" + (active ? " is-on" : "")} href={d.href} aria-current={active ? "page" : undefined}
-                   onClick={(e) => { e.preventDefault(); goDestination(d.id, active); }}>
-                  <NavIcon name={d.icon} color="currentColor" size={17} strokeWidth={1.8} />
-                  <span>{d.label}</span>
-                </a>
-              );
-            })}
-          </nav>
+          </div>
         )}
         {/* The shortcut row, as a panel (public/lab/menu.html: body.scopen
             .scpanel). This is the SAME <DiscoveryMenu> that used to sit in the
