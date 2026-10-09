@@ -60,13 +60,21 @@ try {
     await button.waitFor();
     assert.equal(photoCalls, 1);
     const thumb = await page.locator("#root > img").getAttribute("src");
-    await button.click();
+    await page.evaluate(() => {
+      window.parentKeyActivations = 0;
+      document.body.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); window.parentKeyActivations++; }
+      });
+    });
+    await button.focus();
+    await page.keyboard.press("Enter");
     await page.locator("dialog[open]").waitFor();
     assert.equal(await page.locator("dialog > img").getAttribute("src"), thumb);
     assert.ok(await page.getByText("First Author", { exact: true }).isVisible());
     assert.ok(await page.getByText("Second Author", { exact: true }).isVisible());
     assert.equal(await page.locator("dialog a[translate=no]").getAttribute("href"), photo.credit.mapsUri);
     assert.equal(photoCalls, 1, "viewer never purchases another photo");
+    assert.equal(await page.evaluate(() => window.parentKeyActivations), 0, "viewer controls do not activate the enclosing card");
     await page.keyboard.press("Escape");
     assert.equal(await page.locator("dialog").count(), 0);
     const badge = await page.locator("[data-card-photo-credit] a").boundingBox();

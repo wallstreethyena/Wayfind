@@ -65,7 +65,7 @@ export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, sty
   return <>
     {visible ? <img {...props} ref={anchor} src={photo.src} alt={alt} style={style} onClick={onClick} onLoad={onLoad} onError={() => setFailed(request)} />
       : <span ref={anchor} data-card-photo-request={request} role="img" aria-label={alt ? "Photo unavailable for " + alt : "Photo unavailable"} style={{ display: "block", width: "100%", height: "100%", minHeight: 60, ...style }} />}
-    {visible && photo.credit ? <div data-card-photo-credit style={{ position: "absolute", bottom: 8, left: 4, right: 4, zIndex: 8, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 4, pointerEvents: "auto" }}>
+    {visible && photo.credit ? <div data-card-photo-credit onKeyDown={(e) => e.stopPropagation()} style={{ position: "absolute", bottom: 8, left: 4, right: 4, zIndex: 8, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 4, pointerEvents: "auto" }}>
       <button type="button" onClick={open} aria-label="View larger photo and photographer credit" style={{ ...control, minHeight: 44, padding: "4px 7px", fontSize: 11 }}>View photo</button>
       {photo.source === "google" ? <a href={safe(photo.credit.mapsUri)} target="_blank" rel="noopener noreferrer" translate="no" onClick={(e) => e.stopPropagation()} style={{ background: "#101820", color: "#fff", padding: "2px 3px", whiteSpace: "nowrap", fontFamily: "Roboto, sans-serif", fontSize: 12, fontWeight: 400 }}>Google Maps</a> : null}
     </div> : null}
