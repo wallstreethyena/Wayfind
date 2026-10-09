@@ -2155,3 +2155,4 @@ node scripts/test-google-photo-prefetch-pause.mjs
 # deterministic, cap 4, highest value first.
 node scripts/test-inventory-row-card-fields.mjs
 node scripts/test-card-chips-deterministic.mjs
+node scripts/check-creator-independence.mjs
