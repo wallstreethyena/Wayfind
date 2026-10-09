@@ -6,6 +6,13 @@ import { cardPhotoRequest, fetchCardPhoto } from "../lib/cardPhotoRequest.js";
 import { loadComponent } from "./lib/jsxLoad.mjs";
 
 const { WF_PLACE_CARD_CSS } = await loadComponent(new URL("../app/components/css.js", import.meta.url).pathname, new URL("../", import.meta.url).pathname);
+// Match the home card's hit-testing contract, including FallbackImg's extra
+// wrapper. Its content passes clicks through to a sibling Open button;
+// individual photo controls must explicitly opt back into pointer events.
+const homeSource = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
+assert.match(homeSource, /className="wf-place-card-layout" style=\{\{ position: "relative", zIndex: 1, pointerEvents: "none" \}\}/);
+assert.match(homeSource, /className="wf-place-card-open"[^\n]+zIndex: 0/);
+assert.match(homeSource, /if \(cardPhotoRequest\(activeSrc\)\) return <div[^\n]+position: "relative", overflow: "hidden"[^\n]+<CardPhoto/);
 
 const source = "/api/photo?place=ChIJCardPhotoTest0001";
 const request = cardPhotoRequest(source);
@@ -51,7 +58,7 @@ try {
       }
       if (u.pathname === "/broken.jpg") return route.fulfill({ status: 404, body: "Unavailable" });
       if (u.hostname === "photo.test") return route.fulfill({ contentType: "image/svg+xml", body: '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800"><rect width="1200" height="800" fill="#446655"/></svg>' });
-      return route.fulfill({ contentType: "text/html", body: `<style>${WF_PLACE_CARD_CSS}</style><div style="height:1400px"></div><article class="wf-place-card"><div class="wf-place-card-layout"><div id="root" class="wf-place-card-media"></div><div>Test venue</div></div></article>` });
+      return route.fulfill({ contentType: "text/html", body: `<style>${WF_PLACE_CARD_CSS}</style><div style="height:1400px"></div><article class="wf-place-card" style="position:relative"><button type="button" class="wf-place-card-open" aria-label="Open test venue" style="position:absolute;inset:0;z-index:0;width:100%;height:100%;opacity:0;border:0;padding:0;cursor:pointer;background:transparent"></button><div class="wf-place-card-layout" style="position:relative;z-index:1;pointer-events:none"><div class="wf-place-card-media"><div id="root" style="position:relative;overflow:hidden"></div></div><div id="card-content">Test venue</div></div></article>` });
     });
     await page.goto("https://wayfind.test/");
     assert.equal(await page.evaluate(() => window.innerWidth), width, "achieved viewport matches the tested size");
@@ -70,11 +77,20 @@ try {
     await page.evaluate(() => {
       window.parentKeyActivations = 0;
       window.parentClickActivations = 0;
+      window.placeOpenActivations = 0;
+      document.querySelector(".wf-place-card-open").addEventListener("click", () => window.placeOpenActivations++);
       document.body.addEventListener("click", () => window.parentClickActivations++);
       document.body.addEventListener("keydown", (e) => {
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); window.parentKeyActivations++; }
       });
     });
+    const photoCenter = await button.evaluate((el) => { const r = el.getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 }; });
+    await page.mouse.click(photoCenter.x, photoCenter.y);
+    assert.equal(await page.evaluate(() => window.placeOpenActivations), 0, "photo pointer click must not pass through to the home card Open button");
+    await page.locator("dialog[open]").waitFor();
+    await page.keyboard.press("Escape");
+    assert.equal(await button.evaluate((el) => getComputedStyle(el).pointerEvents), "auto", "credited photo opts into pointer events inside the home layout");
+    assert.ok(await button.evaluate((el) => { const r = el.getBoundingClientRect(); return document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2) === el; }), "photo receives hits above the sibling Open button");
     await button.focus();
     assert.notEqual(await button.evaluate((el) => getComputedStyle(el).outlineStyle), "none", "keyboard focus is visible on the photo");
     await page.keyboard.press("Enter");
@@ -96,12 +112,17 @@ try {
     await page.keyboard.press("Escape");
     assert.equal(await page.evaluate(() => window.parentKeyActivations), 0);
     assert.equal(await page.evaluate(() => window.parentClickActivations), 0, "photo click does not open enclosing card");
+    assert.equal(await page.evaluate(() => window.placeOpenActivations), 0, "all photo activation paths leave home place details closed");
     assert.equal(photoCalls, 1, "reopening keeps the same photo without extra API calls");
     const badge = await page.locator("[data-card-photo-credit] a").boundingBox();
     const bounds = await page.locator("#root").boundingBox();
     assert.ok(badge.x >= bounds.x && badge.x + badge.width <= bounds.x + bounds.width);
     assert.ok(badge.height <= 18, "credit remains a compact single line");
     assert.equal(await page.locator("[data-card-photo-credit] a").evaluate((el) => getComputedStyle(el).fontSize), "12px", "credit preserves Google's minimum text size");
+    const content = await page.locator("#card-content").boundingBox();
+    await page.mouse.click(content.x + content.width / 2, content.y + content.height / 2);
+    assert.equal(await page.evaluate(() => window.placeOpenActivations), 1, "ordinary card content still opens place details");
+    assert.equal(await page.locator("dialog").count(), 0, "ordinary card click does not open the photo viewer");
     const render = (id, alt) => page.evaluate(({ id, alt }) => {
       root.render(React.createElement(photoModule.default, { src: "/api/photo?place=" + id, alt, style: { width: "100%", height: "100%", objectFit: "cover" } }));
     }, { id, alt });
@@ -126,5 +147,5 @@ try {
     assert.deepEqual(errors, []);
     await page.close();
   }
-  console.log("test-card-photo-viewer: Chromium 390/768/1440 passed: photo click/Enter/Space, visible focus and restoration, compact credit, same image, all authors, source link, visible failures, no paid retries");
+  console.log("test-card-photo-viewer: Chromium 390/768/1440 passed: home overlay hit testing, ordinary card click, photo click/Enter/Space, visible focus and restoration, compact credit, same image, all authors, source link, visible failures, no paid retries");
 } finally { await browser.close(); }

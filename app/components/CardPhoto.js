@@ -71,7 +71,7 @@ export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, sty
     onKeyDown: (e) => { e.stopPropagation(); if (e.key === "Enter" || e.key === " ") open(e); },
   } : { onClick };
   return <>
-    {visible ? <img {...props} {...viewerProps} ref={anchor} src={photo.src} alt={alt} style={{ ...style, ...(photo.credit ? { cursor: "zoom-in", outlineOffset: -3 } : {}) }} onLoad={onLoad} onError={() => setFailed(request)} />
+    {visible ? <img {...props} {...viewerProps} ref={anchor} src={photo.src} alt={alt} style={{ ...style, ...(photo.credit ? { cursor: "zoom-in", outlineOffset: -3, pointerEvents: "auto" } : {}) }} onLoad={onLoad} onError={() => setFailed(request)} />
       : <span ref={anchor} data-card-photo-request={request} role="img" aria-label={failed === request ? (alt ? "Photo unavailable for " + alt : "Photo unavailable") : "Loading photo"} style={{ width: "100%", height: "100%", minHeight: 60, ...style, display: "grid", placeContent: "center", textAlign: "center", gap: 8, color: "#acb9c8" }}>
           {failed === request ? <>
             <svg aria-hidden="true" width="28" height="34" viewBox="0 0 24 30" fill="none" stroke="currentColor" strokeWidth="1.8" style={{ margin: "0 auto" }}><path d="M12 28S3 17 3 11a9 9 0 1 1 18 0c0 6-9 17-9 17Z"/><circle cx="12" cy="11" r="3"/></svg>
