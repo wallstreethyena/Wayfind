@@ -310,7 +310,7 @@
    "new": "keys",
    "id": "ChIJ9VqRrc230YgR5elzUc2Om0Y",
    "old": "key-west",
-   "name": "Sandy's Caf\u00e9"
+   "name": "Sandy's Café"
   },
   {
    "new": "keys",
@@ -478,13 +478,13 @@
    "new": "keys",
    "id": "ChIJK8nNygC30YgRhtNBN6d8nME",
    "old": "key-west",
-   "name": "Point Break Caf\u00e9 Key West"
+   "name": "Point Break Café Key West"
   },
   {
    "new": "keys",
    "id": "ChIJKQcneca20YgR955Fvrf61Ug",
    "old": "key-west",
-   "name": "Baby\u2019s Coffee"
+   "name": "Baby’s Coffee"
   },
   {
    "new": "keys",
@@ -718,7 +718,7 @@
    "new": "miami-dade",
    "id": "ChIJ0-VrOAC32YgRZqzYgYY4RM4",
    "old": "miami",
-   "name": "Inter Caf\u00e9"
+   "name": "Inter Café"
   },
   {
    "new": "miami-dade",
@@ -748,7 +748,7 @@
    "new": "miami-dade",
    "id": "ChIJ5Z1h9M3D2YgRkUQhvnVypfQ",
    "old": "miami",
-   "name": "Chefsfull aka \u201cThe Gorilla Truck\u201d"
+   "name": "Chefsfull aka “The Gorilla Truck”"
   },
   {
    "new": "miami-dade",
@@ -964,7 +964,7 @@
    "new": "miami-dade",
    "id": "ChIJK_G1qnix2YgRlpGUSr2iqSw",
    "old": "miami",
-   "name": "OFF SITE Kitchen \u2022 NO SEASONS Beer"
+   "name": "OFF SITE Kitchen • NO SEASONS Beer"
   },
   {
    "new": "miami-dade",
@@ -1000,7 +1000,7 @@
    "new": "miami-dade",
    "id": "ChIJM6d-F5Gt2YgR4xiZtJnzG68",
    "old": "miami",
-   "name": "H\u00fcrrem Hammam Wellness & Spa"
+   "name": "Hürrem Hammam Wellness & Spa"
   },
   {
    "new": "miami-dade",
@@ -1048,7 +1048,7 @@
    "new": "miami-dade",
    "id": "ChIJOZIFBwC12YgRieEn821YBic",
    "old": "miami",
-   "name": "Andr\u00e9s Carne de Res Miami"
+   "name": "Andrés Carne de Res Miami"
   },
   {
    "new": "miami-dade",
@@ -1150,7 +1150,7 @@
    "new": "miami-dade",
    "id": "ChIJtaM_HB602YgRWEIQVSrIQnY",
    "old": "miami",
-   "name": "Maurice A. Ferr\u00e9 Park"
+   "name": "Maurice A. Ferré Park"
   },
   {
    "new": "miami-dade",
@@ -1780,7 +1780,7 @@
    "new": "broward",
    "id": "ChIJwSQ76pAB2YgRGtJ3Sz31pY4",
    "old": "pompano-beach-fl",
-   "name": "The Alchemist Caf\u00e9"
+   "name": "The Alchemist Café"
   },
   {
    "new": "broward",
@@ -1816,7 +1816,7 @@
    "new": "broward",
    "id": "ChIJzd5MrSMB2YgRAZiio-rVkHw",
    "old": "pompano-beach-fl",
-   "name": "La Bottega Caff\u00e8"
+   "name": "La Bottega Caffè"
   },
   {
    "new": "broward",
@@ -1858,7 +1858,7 @@
    "new": "tampa",
    "id": "ChIJ97x3_GDuwogRfiuuYuMPAj0",
    "old": "spring-hill-fl",
-   "name": "Caf\u00e9 Vino Tinto"
+   "name": "Café Vino Tinto"
   },
   {
    "new": "tampa",
@@ -2014,7 +2014,7 @@
    "new": "st-pete",
    "id": "ChIJB2cBINfjwogRpbaMwxCtAjw",
    "old": "spring-hill-fl",
-   "name": "Caf\u00e9 COPA"
+   "name": "Café COPA"
   },
   {
    "new": "st-pete",
@@ -2557,5 +2557,280 @@
   "ChIJrbqUht6BolQROVVfJqnOTkk",
   "ChIJ8a2QAb2zAowRx3YZlEBqR-Y",
   "ChIJZQSYdDlvA4wR_EvjZNy2gy4"
+ ],
+ "pins_2026_10_09": [
+  {
+   "event_id": "screamageddon-2026",
+   "old": [
+    28.341,
+    -82.254
+   ],
+   "new": [
+    28.37711,
+    -82.353044
+   ],
+   "miles": 6.52,
+   "sources": [
+    "https://screamageddon.com (schema.org AmusementPark geo 28.37711,-82.353044; address 27839 Saint Joe Rd)",
+    "US Census single match 27839 SAINT JOE RD 28.375317,-82.355116 (0.17 mi from official geo)"
+   ],
+   "evidence": "Official site JSON-LD gives geo for 27839 Saint Joe Rd; Census same-number match is 0.17 mi away, so the old pin was 6.6 mi off."
+  },
+  {
+   "event_id": "fl26-holland-farms-corn-maze-2026",
+   "old": [
+    30.7,
+    -87.08
+   ],
+   "new": [
+    30.8347859,
+    -87.1124597
+   ],
+   "miles": 9.51,
+   "sources": [
+    "https://www.hollandfarmsonline.com/ (JSON-LD latitude 30.8347859, longitude -87.1124597; 2055 Homer Holland Rd)",
+    "US Census single match 30.832607,-87.112338 (0.15 mi from official coords)"
+   ],
+   "evidence": "Official site JSON-LD coordinates for 2055 Homer Holland Rd agree with the Census same-number match within 0.15 mi."
+  },
+  {
+   "event_id": "zoo-miami-monster-masquerade-2026",
+   "old": [
+    25.613,
+    -80.4
+   ],
+   "new": [
+    25.6119236,
+    -80.3975316
+   ],
+   "miles": 0.17,
+   "sources": [
+    "https://www.zoomiami.org/zoo-boo (Google Maps place link @25.6119236,-80.3975316)",
+    "https://nominatim.openstreetmap.org (Zoo Miami Foundation, 12400 SW 152nd St, 25.6114,-80.3981)"
+   ],
+   "evidence": "Zoo Miami's own site links a Google Maps place at 25.6119236,-80.3975316, matching OSM's 12400 SW 152nd St object within 0.07 mi; current pin is a 3-decimal zoo centroid 0.19 mi off."
+  },
+  {
+   "event_id": "zoo-boo-zoo-miami-2026",
+   "old": [
+    25.613,
+    -80.4
+   ],
+   "new": [
+    25.6119236,
+    -80.3975316
+   ],
+   "miles": 0.17,
+   "sources": [
+    "https://www.zoomiami.org/zoo-boo (Google Maps place link @25.6119236,-80.3975316)",
+    "https://nominatim.openstreetmap.org (Zoo Miami Foundation, 12400 SW 152nd St, 25.6114,-80.3981)"
+   ],
+   "evidence": "Same Zoo Miami official map point as the other Zoo Miami events (12400 SW 152 St); current pin is a 3-decimal centroid."
+  },
+  {
+   "event_id": "roars-smores-snores-spooktacular-campout-zoo-miami-2026",
+   "old": [
+    25.613,
+    -80.4
+   ],
+   "new": [
+    25.6119236,
+    -80.3975316
+   ],
+   "miles": 0.17,
+   "sources": [
+    "https://www.zoomiami.org/zoo-boo (Google Maps place link @25.6119236,-80.3975316)",
+    "https://nominatim.openstreetmap.org (Zoo Miami Foundation, 12400 SW 152nd St, 25.6114,-80.3981)"
+   ],
+   "evidence": "Same Zoo Miami official map point (12400 SW 152 St); current pin is a 3-decimal centroid."
+  },
+  {
+   "event_id": "fl26-seed-to-table-spanish-wine-tasting-2026",
+   "old": [
+    26.271,
+    -81.746
+   ],
+   "new": [
+    26.274606,
+    -81.752868
+   ],
+   "miles": 0.49,
+   "sources": [
+    "https://seedtotablemarket.com/ (official address 4835 Immokalee Rd)",
+    "OSM way 130862995 Seed to Table, 4835 Immokalee Rd (26.2746059,-81.7528676)"
+   ],
+   "evidence": "Official address 4835 Immokalee Rd matches the OSM way for Seed to Table and the Wayfind place pin (26.2743932,-81.7528735) within 0.03 mi; the event pin was 0.5 mi off."
+  },
+  {
+   "event_id": "fl26-seed-to-table-halloween-bash-2026",
+   "old": [
+    26.271,
+    -81.746
+   ],
+   "new": [
+    26.274606,
+    -81.752868
+   ],
+   "miles": 0.49,
+   "sources": [
+    "https://seedtotablemarket.com/ (official address 4835 Immokalee Rd)",
+    "OSM way 130862995 Seed to Table, 4835 Immokalee Rd (26.2746059,-81.7528676)"
+   ],
+   "evidence": "Same Seed to Table venue as above; OSM way with the 4835 Immokalee Rd address and the Wayfind place pin agree within 0.03 mi."
+  },
+  {
+   "event_id": "fl26-farmer-mike-s-fall-fest-and-corn-maze-2026",
+   "old": [
+    26.349,
+    -81.733
+   ],
+   "new": [
+    26.359583,
+    -81.748936
+   ],
+   "miles": 1.23,
+   "sources": [
+    "https://www.farmermikesupick.com/farmermikesfallfest26 (site map location mapLat 26.359583, mapLng -81.748936, 26031 Morton Avenue)",
+    "OSM way 11028659 Morton Avenue (26.3533,-81.7509, street only)"
+   ],
+   "evidence": "Official site's own map block sets the farm at 26.359583,-81.748936 for 26031 Morton Ave, on Morton Avenue per OSM; Census had no match; old pin was 1.2 mi off."
+  },
+  {
+   "event_id": "nightmare-village-xtreme-action-park-2026",
+   "old": [
+    26.193,
+    -80.154
+   ],
+   "new": [
+    26.1915977,
+    -80.1534226
+   ],
+   "miles": 0.1,
+   "sources": [
+    "https://xtremeactionpark.com/experience-nightmare-village/ (5300 North Powerline Road)",
+    "OSM node 8665236909 Xtreme Action Park, 5300 Powerline Road (26.1915977,-80.1534226)"
+   ],
+   "evidence": "Official address 5300 N Powerline Rd matches the OSM node for the park with the same house number; old pin 0.1 mi off."
+  },
+  {
+   "event_id": "fl26-halloween-symphony-spooktacular-2026",
+   "old": [
+    30.432,
+    -84.278
+   ],
+   "new": [
+    30.4341163,
+    -84.2767584
+   ],
+   "miles": 0.16,
+   "sources": [
+    "OSM way 1352432176 Adderley Amphitheater (30.4341163,-84.2767584)",
+    "https://www.tallahasseesymphony.org/event/free-halloween-symphony-spooktacular/ (organizer page, venue named; fetch returned 403 so read earlier via stored verify note)"
+   ],
+   "evidence": "Event is at the Adderley Amphitheater; the venue's own OSM way sits 0.17 mi from the old Cascades Park centroid pin, and Census mis-geocodes 1001 S Gadsden to 1001 N Gadsden so it was not used."
+  },
+  {
+   "event_id": "fl26-pumpkin-towne-wellington-2026",
+   "old": [
+    26.645,
+    -80.205
+   ],
+   "new": [
+    26.6412294,
+    -80.2063769
+   ],
+   "miles": 0.27,
+   "sources": [
+    "https://www.pumpkintowne.com/location (Wellington lot: Whole Foods shopping plaza, 2635 SR 7, Wellington FL 33414)",
+    "OSM node 2618948099 Whole Foods Market, 2635 State Road 7 (26.6412294,-80.2063769)"
+   ],
+   "evidence": "Official page puts the lot in the Whole Foods plaza at 2635 SR 7, and OSM's Whole Foods node carries exactly 2635 State Road 7; old pin was 0.3 mi north."
+  },
+  {
+   "event_id": "fl26-burroughs-home-paranormal-night-2026",
+   "old": [
+    26.645,
+    -81.871
+   ],
+   "new": [
+    26.646661,
+    -81.865823
+   ],
+   "miles": 0.34,
+   "sources": [
+    "https://nominatim.openstreetmap.org OSM way 211240186 Burroughs Home and Gardens, 2505 (26.647344,-81.866103)",
+    "US Census 2505 FIRST ST / 2505 1ST ST single point 26.646661,-81.865823",
+    "Wayfind place pin 26.6469699,-81.8658887"
+   ],
+   "evidence": "The two Census matches are the same point (First St vs 1st St spellings; the 0.34 mi was the pin's offset), and OSM and the place pin agree within 0.05 mi."
+  },
+  {
+   "event_id": "fl26-homecomin-fall-menu-2026",
+   "old": [
+    28.371,
+    -81.519
+   ],
+   "new": [
+    28.3704207,
+    -81.5181189
+   ],
+   "miles": 0.07,
+   "sources": [
+    "OSM way 519165054 Chef Art Smith's Homecomin' (1602 E Buena Vista Dr)",
+    "Wayfind place pin 28.3704659,-81.5181848"
+   ],
+   "evidence": "Own OSM object for this restaurant (distinct from the other three) agrees with its own Wayfind place pin within 0.02 mi; the shared complex address was not used. Event pin was the shared 28.371,-81.519 point."
+  },
+  {
+   "event_id": "fl26-frontera-cocina-muertos-treats-2026",
+   "old": [
+    28.371,
+    -81.519
+   ],
+   "new": [
+    28.3705727,
+    -81.5171607
+   ],
+   "miles": 0.12,
+   "sources": [
+    "OSM way 519160063 Frontera Cocina (1604 E Buena Vista Dr)",
+    "Wayfind place pin 28.3706546,-81.5171895"
+   ],
+   "evidence": "Own OSM object for this restaurant (distinct from the other three) agrees with its own Wayfind place pin within 0.02 mi; the shared complex address was not used. Event pin was the shared 28.371,-81.519 point."
+  },
+  {
+   "event_id": "fl26-raglan-road-halloween-menu-2026",
+   "old": [
+    28.371,
+    -81.519
+   ],
+   "new": [
+    28.3713076,
+    -81.5176186
+   ],
+   "miles": 0.09,
+   "sources": [
+    "OSM way 292502107 Raglan Road Irish Pub and Restaurant (1640 E Buena Vista Dr)",
+    "Wayfind place pin 28.3710834,-81.5177549"
+   ],
+   "evidence": "Own OSM object for this restaurant (distinct from the other three) agrees with its own Wayfind place pin within 0.02 mi; the shared complex address was not used. Event pin was the shared 28.371,-81.519 point."
+  },
+  {
+   "event_id": "fl26-everglazed-halloween-donuts-2026",
+   "old": [
+    28.371,
+    -81.519
+   ],
+   "new": [
+    28.3699227,
+    -81.5211921
+   ],
+   "miles": 0.15,
+   "sources": [
+    "OSM node 8677080017 Everglazed Donuts & Cold Brew (1504 E Buena Vista Dr)",
+    "Wayfind place pin 28.36986,-81.5212163"
+   ],
+   "evidence": "Own OSM object for this restaurant (distinct from the other three) agrees with its own Wayfind place pin within 0.02 mi; the shared complex address was not used. Event pin was the shared 28.371,-81.519 point."
+  }
  ]
 }
