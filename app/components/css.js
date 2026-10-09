@@ -177,16 +177,19 @@ ${WF_SKELETON_CSS}
   transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
 }
 @keyframes wfTrendPulse{
-  0%,100%{box-shadow:0 14px 36px rgba(0,0,0,.27),inset 0 1px rgba(255,255,255,.035),0 0 0 0 rgba(249,115,22,.62),0 0 10px rgba(249,115,22,.3),inset 0 0 0 1px rgba(249,115,22,.45),inset 0 0 12px rgba(249,115,22,.1)}
-  55%{box-shadow:0 14px 36px rgba(0,0,0,.27),inset 0 1px rgba(255,255,255,.035),0 0 0 4px rgba(249,115,22,0),0 0 14px rgba(249,115,22,.42),inset 0 0 0 1px rgba(249,115,22,.85),inset 0 0 22px rgba(249,115,22,.2)}
+  0%,100%{outline-color:rgba(249,115,22,.85);outline-offset:0;box-shadow:0 14px 36px rgba(0,0,0,.27),inset 0 1px rgba(255,255,255,.035),0 0 10px rgba(249,115,22,.3),inset 0 0 0 1px rgba(249,115,22,.45)}
+  60%{outline-color:rgba(249,115,22,0);outline-offset:2.5px;box-shadow:0 14px 36px rgba(0,0,0,.27),inset 0 1px rgba(255,255,255,.035),0 0 16px rgba(249,115,22,.45),inset 0 0 0 1px rgba(249,115,22,.85)}
 }
 .wf-place-card.is-trending{
   border-color:rgba(249,115,22,.6)!important;
+  outline:1.5px solid rgba(249,115,22,.85);
+  outline-offset:0;
   animation:wfTrendPulse 2.4s cubic-bezier(.4,0,.6,1) infinite;
 }
+.wf-place-card.is-trending:focus-visible{animation:none;outline:2px solid rgba(249,115,22,.72);outline-offset:3px}
 .wf8-pcrail>.wf-place-card.is-trending{contain:style;content-visibility:visible}
 @media (prefers-reduced-motion:reduce){
-  .wf-place-card.is-trending{animation:none;box-shadow:0 14px 36px rgba(0,0,0,.27),inset 0 1px rgba(255,255,255,.035),0 0 0 2px rgba(249,115,22,.38),0 0 12px rgba(249,115,22,.3),inset 0 0 0 1px rgba(249,115,22,.6)}
+  .wf-place-card.is-trending{animation:none;outline:1.5px solid rgba(249,115,22,.7);outline-offset:1px;box-shadow:0 14px 36px rgba(0,0,0,.27),inset 0 1px rgba(255,255,255,.035),0 0 12px rgba(249,115,22,.3),inset 0 0 0 1px rgba(249,115,22,.6)}
 }
 .wf-place-card:before{
   content:"";

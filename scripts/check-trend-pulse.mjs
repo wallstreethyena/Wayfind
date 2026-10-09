@@ -86,7 +86,7 @@ const css = String(WF_PLACE_CARD_CSS || "");
 ok(css.length > 1000, "PROBE: WF_PLACE_CARD_CSS loaded");
 ok(/@keyframes wfTrendPulse\{/.test(css), "CSS: @keyframes wfTrendPulse exists in the place card CSS");
 ok(/\.wf-place-card\.is-trending\{[^}]*animation:wfTrendPulse [^;}]*infinite/.test(css), "CSS: .wf-place-card.is-trending runs wfTrendPulse");
-ok(/@media \(prefers-reduced-motion:reduce\)\{\s*\.wf-place-card\.is-trending\{animation:none;box-shadow:[^}]+\}/.test(css), "CSS: reduced motion stops the pulse and shows a still glow");
+ok(/@media \(prefers-reduced-motion:reduce\)\{\s*\.wf-place-card\.is-trending\{animation:none;outline:[^;]+;outline-offset:[^;]+;box-shadow:[^}]+\}/.test(css), "CSS: reduced motion stops the pulse and shows a still glow");
 ok(!/\.is-trending[^{]*\{[^}]*(?:transform|width|height|margin|padding)\s*:/.test(css), "CSS: the pulse never changes the card's size or position (box-shadow / border only)");
 // The place-card rail paint-contains its cards (railMenuCss.js), which clips any
 // box-shadow to the card box. A trending card must opt out, at a specificity
@@ -94,8 +94,17 @@ ok(!/\.is-trending[^{]*\{[^}]*(?:transform|width|height|margin|padding)\s*:/.tes
 const rail8 = readFileSync(path.join(ROOT, "app/components/railMenuCss.js"), "utf8");
 ok(/\.wf8-pcrail>\.wf-place-card\{[^}]*contain:paint/.test(rail8), "PROBE: the rail still paint-contains its cards (if this changes, revisit the override below)");
 ok(/\.wf8-pcrail>\.wf-place-card\.is-trending\{contain:style;content-visibility:visible\}/.test(css), "CSS: trending cards in .wf8-pcrail drop paint containment so the ring is not clipped");
-const ringPx = [...css.matchAll(/0 0 0 (\d+(?:\.\d+)?)px rgba\(249,115,22/g)].map((m) => Number(m[1]));
-ok(ringPx.length >= 2 && Math.max(...ringPx) <= 4, `CSS: the outward ring never spreads past the rails' 4px top padding (got ${ringPx.join(",")}px)`);
+const offs = [...css.matchAll(/outline-offset:(\d+(?:\.\d+)?)px/g)].map((m) => Number(m[1]));
+const pulseBlock = (css.match(/@keyframes wfTrendPulse\{[\s\S]*?\n\}/) || [""])[0];
+const pulseOffs = [...pulseBlock.matchAll(/outline-offset:(\d+(?:\.\d+)?)px/g)].map((m) => Number(m[1]));
+ok(offs.length > 0 && pulseOffs.length >= 1, "PROBE: the pulse keyframes carry an outline-offset the check can read");
+ok(Math.max(...pulseOffs) + 1.5 <= 4, `CSS: the outward ring (offset + 1.5px outline) stays inside the rails' 4px top padding (got ${pulseOffs.join(",")}px)`);
+// Christmas, Halloween, Fall and award cards pin box-shadow with !important, which an
+// animation cannot override. The ring is drawn with OUTLINE so it shows on every skin:
+// the keyframes must animate outline, and no skin may pin the card root's outline.
+ok(/outline-color:/.test(pulseBlock) && /outline-offset:/.test(pulseBlock), "CSS: the pulse animates the outline ring (visible on skinned cards whose box-shadow is !important)");
+ok(!/\.wf-place-card[^{,]*\{[^}]*\boutline(?:-color|-offset)?:[^;}]*!important/.test(css), "CSS: no card skin pins the card root's outline with !important (that would hide the pulse)");
+ok(/\.wf-place-card\.is-trending:focus-visible\{animation:none;outline:2px/.test(css), "CSS: keyboard focus on a trending card shows the normal focus ring, not the pulse");
 
 if (failures.length) {
   console.error(`check-trend-pulse: FAIL (${failures.length} of ${pass})`);
