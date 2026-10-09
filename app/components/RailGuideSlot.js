@@ -21,6 +21,10 @@ export default function RailGuideSlot({ railId, guide = null, matched = null, cl
   };
   // display:contents keeps the card a real flex child of the track (same size
   // as its siblings) while carrying the data-guide-rail hook guards look for.
+  // The wrapper box does not exist, so the direct child snap rules never reach
+  // the card: css.js gives `.wf-rail-guide-slot>.wf-place-card` its own
+  // scroll-snap-align:start (locked by check-guide-in-rail), so a swipe stops
+  // on the guide like on every other card.
   const card = <div key={"rail-guide:" + picked.guide.slug} className="wf-rail-guide-slot" data-guide-rail={railId || ""} style={{ display: "contents" }}>
     <GuideDiscoveryCard guide={picked.guide} matched={picked.matched || null} className={className} onOpen={open} />
   </div>;
