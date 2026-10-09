@@ -7,7 +7,7 @@
 // spendGate are untouched and nothing else references the lane; (3) the separate skus are
 // what the route grants and what paidAi sends to the ledger (executed with a stubbed
 // fetch; no network); (4) dry mode returns before any wf_editorial write.
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -63,23 +63,27 @@ const route = strip(read("app/api/cron/atlas-build/route.js"));
 ok(/const laneCfg = !retryMode && !refreshMode && gateFree\(\) \? atlasPaidLane\(\) : null;/.test(route), "lane must exist only in plain build mode, only while the gate is free");
 ok(/if \(gateShut\(\) \|\| gateFree\(\)\) \{\s*if \(gateShut\(\) \|\| !lane\) \{/.test(route), "gate skip must stay: shut always skips, free skips unless the lane is valid");
 ok(/takeFromLedger\(lane\.searchSku, lane\.cap\)/.test(route) && /spendAllow\("details_enterprise"\)/.test(route), "search grant must use the lane sku, shared sku only as the non-lane branch");
-ok(/\{ sku: lane\.anthropicSku, cap: lane\.cap, timeoutMs: laneTimeout \}/.test(route), "lane Anthropic call must carry the lane sku+cap+timeout; shared path stays lane-free");
+ok(/\{ sku: lane\.anthropicSku, cap: lane\.cap, timeoutMs: 48000 \}/.test(route), "lane Anthropic call must carry the lane sku+cap+timeout; shared path stays lane-free");
 ok(/const lane = laneCfg && \(laneCfg\.mode === "full" \|\| dry\) \? laneCfg : null;/.test(route), "dry-only mode: the lane is active for ?dry=1 only unless ATLAS_PAID_ENABLED=1 (full)");
 {
-  // Dry branch order, on comment-stripped source: provable-cost gate -> atomic reservation ->
-  // search grant -> Anthropic call -> refund. Each anchor must exist exactly once.
+  // Dry branch, on comment-stripped source: the unbounded stop and the ledger_missing stop
+  // both come BEFORE any search grant or editorial write. Each anchor exists exactly once.
   const once = (re) => (route.match(re) || []).length === 1;
   const ix = (re) => { const m = route.match(re); return m ? m.index : -1; };
-  const reWorst = /const worst = laneWorstCaseUsd\(dryBody, null\);/, reUnb = /if \(worst === null\) \{ costUnbounded = true; stoppedForBudget = true; deferred\+\+; return; \}/;
-  const reRes = /const granted = await reserveDryCents\(s, capCents, reserved\);/, reGrant = /takeFromLedger\(lane\.searchSku/, reCall = /await writeLaneEditorial\(place, akey, stats, sysInfo\.blocks, lane, laneModel\(\), dryMetered, dryBody\)/, reRefund = /await refundDryCents\(s, reserved - actual\)/;
-  ok([reWorst, reUnb, reRes, reGrant, reCall, reRefund].every(once), "dry branch anchors each present exactly once: laneWorstCaseUsd, unbounded stop, reserveDryCents, search grant, lane call with the reserved body, refund");
-  const iW = ix(reWorst), iU = ix(reUnb), iR = ix(reRes), iG = ix(reGrant), iC = ix(reCall), iF = ix(reRefund);
-  ok(iW > 0 && iW < iU && iU < iR && iR < iG && iG < iC && iC < iF, `dry order: laneWorstCaseUsd -> unbounded stop -> reserveDryCents -> takeFromLedger(lane.searchSku -> writeLaneEditorial -> refund (got ${[iW, iU, iR, iG, iC, iF].join(",")})`);
-  ok(/dryBody = laneRequestBody\(place, laneModel\(\), sysInfo\.blocks, metroCity\(place\.metro\)\);/.test(route) && route.indexOf("dryBody = laneRequestBody(") < iW, "the bound is computed on the exact body that is sent");
-  ok(/if \(granted === null\) \{ meterReadFailed = true; stoppedForBudget = true; deferred\+\+; return; \}/.test(route) && /if \(granted !== true\) \{ stoppedForBudget = true; deferred\+\+; return; \}/.test(route), "an unknown or denied reservation must fail closed (stop, spend nothing)");
-  ok(/const actual = res && res\.notSent \? 0 : \(known \? usdToCents\(res\.costUsd\) : reserved\);/.test(route), "sent-but-unknown keeps the whole reservation; not-sent is 0");
-  ok(!/readDryUsedCents|recordDryCents|dryBudgetAllows|reserveCents\(|DRY_RESERVE_FLOOR_CENTS|DRY_WORST_NEXT_FLOOR_USD/.test(route), "the old read-then-record meter is gone from the route");
-  ok(/return \{ text: "", fetched: \[\], searches: 0, costUsd: NaN \};/.test(route), "a lane request that threw reports cost UNKNOWN (NaN), never a floor");
+  const reBody = /const dryBody = laneRequestBody\(place, laneModel\(\), sysInfo\.blocks, metroCity\(place\.metro\)\);/, reWorst = /const worst = laneWorstCaseUsd\(dryBody, null\);/;
+  const reUnb = /if \(worst === null\) \{ costUnbounded = true; stoppedForBudget = true; deferred\+\+; return; \}/;
+  const reLed = /ledgerMissing = true; stoppedForBudget = true; deferred\+\+; return;/;
+  const reGrant = /takeFromLedger\(lane\.searchSku/, reCall = /await writeLaneEditorial\(place, akey, stats, sysInfo\.blocks, lane, laneModel\(\)\)/;
+  ok([reBody, reWorst, reUnb, reLed, reGrant, reCall].every(once), "dry branch anchors each present exactly once: dry body, laneWorstCaseUsd, unbounded stop, ledger_missing stop, search grant, lane call");
+  const iB = ix(reBody), iW = ix(reWorst), iU = ix(reUnb), iL = ix(reLed), iG = ix(reGrant), iC = ix(reCall), iE = route.indexOf("writeLaneEditorial(");
+  ok(iB > 0 && iB < iW && iW < iU && iU < iL && iL < iG && iG < iC, `dry order: dry body -> laneWorstCaseUsd -> unbounded stop -> ledger_missing stop -> takeFromLedger(lane.searchSku -> writeLaneEditorial (got ${[iB, iW, iU, iL, iG, iC].join(",")})`);
+  // the first writeLaneEditorial( textual hit is its declaration (async function); the first CALL must follow both stops
+  const calls = [...route.matchAll(/writeLaneEditorial\(/g)].map((m) => m.index).filter((i) => !/function\s+$/.test(route.slice(Math.max(0, i - 20), i)));
+  ok(calls.length === 1 && calls[0] > iL && calls[0] > iU, "the only writeLaneEditorial call comes after both dry stops");
+  ok(/dryMetered = !!\(lane && dry && lane\.mode === "dry"\)/.test(route) && /if \(dryMetered\) \{\s*if \(stoppedForBudget\)/.test(route), "the dry stops sit inside an if (dryMetered) block");
+  ok(!/reserveDryCents|refundDryCents|readDryUsedCents|recordDryCents|dryBudgetAllows|reserveCents\(|usdToCents|atlasDryMeter/.test(route), "no reservation / refund / meter code remains in the route");
+  ok(!/wf_spend_refund|atlas_dry_cents|reservedTotal|refundedTotal|chargedTotal/.test(route), "the route never refunds and never touches the dry-cents sku");
+  ok(/cost_unbounded: costUnbounded, ledger_missing: ledgerMissing/.test(route), "the dry response reports cost_unbounded and ledger_missing");
   ok(/idsList = dryMetered \? loadPriorityIds/.test(route) && /const limitDefault = dry \? \(idsMode \? idsList\.length : 1\) : 10;/.test(route), "ids= is read only for metered dry requests; a dry request without ids/limit does one place");
 }
 {
@@ -88,18 +92,10 @@ ok(/const lane = laneCfg && \(laneCfg\.mode === "full" \|\| dry\) \? laneCfg : n
   ok(/key\.length < 32 \|\| String\(env\.ATLAS_PAID_ENABLED \|\| ""\)\.trim\(\) !== "dry"/.test(lanesrc) && /dry !== true \|\| retry \|\| refresh/.test(lanesrc), "trigger key needs >=32 chars, ATLAS_PAID_ENABLED=dry, dry=1, no retry/refresh");
   ok(/req\.headers\.get\(ATLAS_DRY_KEY_HEADER\)/.test(route) && !/searchParams\.get\("dry_key"\)/.test(route) && !/console\.\w+\([^)]*ATLAS_DRY_TRIGGER_KEY/.test(route), "route reads the key from the header only and never logs it");
 }
+ok(!existsSync(path.join(ROOT, "lib/atlasDryMeter.js")), "lib/atlasDryMeter.js is deleted (no reserve/refund primitives exist)");
 {
-  const meter = strip(read("lib/atlasDryMeter.js"));
-  ok(/DRY_ANTHROPIC_TIMEOUT_MS = 35000;/.test(meter) && /DRY_IO_TIMEOUT_MS = 3000;/.test(meter), "dry Anthropic timeout is 35000 ms and meter I/O timeout 3000 ms (3+3+35+3+3 = 47s inside maxDuration 60)");
-  ok(/const laneTimeout = dryRun \? DRY_ANTHROPIC_TIMEOUT_MS : 48000;/.test(route) && /timeoutMs: laneTimeout/.test(route), "the lane uses the 35s dry timeout for dry runs only (48s for real runs), for both the outer timer and paidAi");
-  ok((meter.match(/new AbortController\(\)/g) || []).length === 2 && (meter.match(/rpcInit\(s, ctrl\.signal,/g) || []).length === 2 && (meter.match(/setTimeout\(\(\) => ctrl\.abort\(\), DRY_IO_TIMEOUT_MS\)/g) || []).length === 2, "reserveDryCents and refundDryCents both carry a DRY_IO_TIMEOUT_MS AbortController");
-  ok((meter.match(/rpc\/wf_spend_take/g) || []).length === 1 && (meter.match(/rpc\/wf_spend_refund/g) || []).length === 1 && (meter.match(/while \(/g) || []).length === 1, "reserveDryCents is ONE wf_spend_take call; only the refund loops (chunks of <= 10)");
-  ok(!/readDryUsedCents|recordDryCents|COUNTER_CAP|DRY_RESERVE_FLOOR_CENTS/.test(meter), "the old read-then-record meter API is gone");
-  ok(/x-wf-request-sent"\) === "0"\) return \{ notSent: true/.test(route) && /meterBlocked = true; stoppedForBudget = true/.test(route), "a paidAi-blocked (not sent) place records nothing and stops the run (meter_blocked)");
-  ok(/if \(!dryRun\) tripBreaker\(/.test(route), "dry mode never trips the shared provider-health breaker");
-  ok(/if \(actual > reserved\) \{\s*stoppedForOverage = true; stoppedForBudget = true;/.test(route), "a place over its reservation takes nothing more and stops the run (stopped_for_overage)");
   const pai = strip(read("lib/paidAi.js"));
-  ok(/provider_unreachable", 503, true\)/.test(pai) && (pai.match(/x-wf-request-sent/g) || []).length === 1, "only provider_unreachable (a request that was attempted) is marked sent=1");
+  ok(!/x-wf-request-sent/.test(pai), "paidAi has no dry-meter request-sent marker");
 }
 ok(/pool\(places, dryMetered \? 1 : 6/.test(route), "dry samples must run sequentially");
 ok((route.match(/takeFromLedger\(/g) || []).length === 1, "exactly one lane grant call expected in the route");

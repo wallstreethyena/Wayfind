@@ -1,5 +1,4 @@
 import { gateFree, gateShut, spendAllow, takeFromLedger } from "../../../../lib/spendGate";
-import { reserveDryCents, refundDryCents, usdToCents, DRY_ANTHROPIC_TIMEOUT_MS, DRY_IO_TIMEOUT_MS } from "../../../../lib/atlasDryMeter";
 import { atlasPaidLane, readPriorityIds, loadPriorityIds, ATLAS_LANE_MODEL, ATLAS_DRY_KEY_HEADER, dryTriggerAuthorized } from "../../../../lib/atlasPaidLane";
 import { laneRequestBody, extractLaneResult, identityProblems, dashProblems, deniedFetched, geocodeCensus, haversineKm, metroCity, laneWorstCaseUsd } from "../../../../lib/atlasWebLane";
 // app/api/cron/atlas-build/route.js — bulk-builds the Wayfind "Atlas" editorial
@@ -325,41 +324,30 @@ async function writeEditorial(place, d, key, sources, stats, systemBlocks, timeo
 // ATLAS PAID LANE writer: ONE Anthropic Messages call with server-side web_search +
 // web_fetch. No Google call of any kind. Returns { text, fetched, searches } or null.
 // Same provider-halt handling as writeEditorial; the lane sku/cap/timeout ride on `lane`.
-// `body` (dry samples): the EXACT body whose worst case was reserved, so the bound applies to
-// what is sent. Real lane runs build it here as before.
-async function writeLaneEditorial(place, key, stats, systemBlocks, lane, model, dryRun = false, body = null) {
-  // Dry samples: ONE 35s timer covers the paidAi grant and the request (time arithmetic in
-  // lib/atlasDryMeter.js). Real lane runs keep 48s.
-  const laneTimeout = dryRun ? DRY_ANTHROPIC_TIMEOUT_MS : 48000;
+async function writeLaneEditorial(place, key, stats, systemBlocks, lane, model) {
   const ctrl = new AbortController();
-  const t = setTimeout(() => ctrl.abort(), laneTimeout);
+  const t = setTimeout(() => ctrl.abort(), 48000);
   try {
     const r = await paidAnthropicRequest({
       method: "POST", cache: "no-store", signal: ctrl.signal,
       headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
-      body: JSON.stringify(body || laneRequestBody(place, model, systemBlocks, metroCity(place.metro))),
-    }, { sku: lane.anthropicSku, cap: lane.cap, timeoutMs: laneTimeout });
+      body: JSON.stringify(laneRequestBody(place, model, systemBlocks, metroCity(place.metro))),
+    }, { sku: lane.anthropicSku, cap: lane.cap, timeoutMs: 48000 });
     if (!r.ok) {
-      // Refused inside paidAi BEFORE any request left (gate / cap / ledger / validation):
-      // nothing was billed. The caller records 0 cents and stops the dry run.
-      if (r.headers.get("x-wf-request-sent") === "0") return { notSent: true, text: "", fetched: [], searches: 0, costUsd: 0 };
       let msg = "";
       try { msg = String(((await r.json()) || {}).error?.message || "").slice(0, 200); } catch (e) { msg = "(unparseable body)"; }
       console.error(`ATLAS-DIAG anthropic lane status=${r.status} model=${model} msg=${msg}`);
       const kind = classifyProviderFailure(r.status, msg);
       if (kind && stats) {
         stats.providerHalt = { kind, msg: `anthropic ${r.status}: ${msg}`.slice(0, 180) };
-        // Dry samples never write the shared provider-health cache.
-        if (!dryRun) tripBreaker("anthropic", kind, stats.providerHalt.msg).catch(() => {});
+        tripBreaker("anthropic", kind, stats.providerHalt.msg).catch(() => {});
       }
       return null;
     }
     return extractLaneResult(await r.json());
   } catch (e) {
     console.error(`ATLAS-DIAG anthropic lane threw name=${e && e.name} msg=${String(e && e.message).slice(0, 160)}`);
-    // A request that timed out may still have been billed: cost UNKNOWN (NaN), so the dry
-    // meter keeps the whole reservation, never zero.
-    return { text: "", fetched: [], searches: 0, costUsd: NaN };
+    return null;
   } finally {
     clearTimeout(t);
   }
@@ -505,7 +493,7 @@ export async function GET(req) {
   const limitDefault = dry ? (idsMode ? idsList.length : 1) : 10;
   const limit0 = Math.max(1, Math.min(parseInt(url.searchParams.get("limit") || String(limitDefault), 10) || limitDefault, 25));
   const limit1 = dry ? Math.min(limit0, 10) : limit0; // dry review runs are capped at 10
-  const limit = lane ? Math.min(limit1, dryMetered ? 10 : 5) : limit1; // dry samples may take 10 (the dollar ceiling is the bound) // web-search calls are slow and metered: 5 places per run
+  const limit = lane ? Math.min(limit1, dryMetered ? 10 : 5) : limit1; // dry samples may take 10 (each is refused anyway) // web-search calls are slow and metered: 5 places per run
   const reqCat = (url.searchParams.get("category") || "").trim();
   // RETRY MODE. Same generation machinery, different selector and different
   // write. wf_atlas_missing returns places with NO row; wf_atlas_retryable
@@ -671,12 +659,9 @@ export async function GET(req) {
   const startedAt = Date.now();
   const DISPATCH_DEADLINE_MS = 45000;
 
-  // Dry-sample budget state: sequential, RESERVE the provable worst case on the ledger before
-  // every place (atomic wf_spend_take), then refund the unused part (lib/atlasDryMeter.js).
-  const dryCosts = [];
-  let drySpent = 0, stoppedForBudget = false, meterRecordFailed = false, meterReadFailed = false, meterBlocked = false, stoppedForOverage = false, costUnbounded = false;
-  let reservedTotal = 0, refundedTotal = 0, chargedTotal = 0;
-  const capCents = lane && lane.dryCapUsd ? Math.round(lane.dryCapUsd * 100) : 0;
+  // Dry samples (ATLAS_PAID_ENABLED=dry, ?dry=1) NEVER spend: they are refused when the cost
+  // is unbounded, and refused when it is bounded too (no settlement-safe ledger yet).
+  let stoppedForBudget = false, costUnbounded = false, ledgerMissing = false;
   await pool(places, dryMetered ? 1 : 6, async (place) => {
     if (Date.now() - startedAt > DISPATCH_DEADLINE_MS) { deferred++; return; } // stays in wf_atlas_missing, picked up next run
     // In-run circuit: after one billing/quota refusal, every further place this
@@ -695,54 +680,19 @@ export async function GET(req) {
     if (lane) {
       // WEB LANE: grant the search sku BEFORE the spend (paidAi then grants the anthropic
       // sku). No placeDetails / officialPage / Google key anywhere on this path.
-      let dryBody = null, reserved = 0;
       if (dryMetered) {
-        if (stoppedForBudget || meterRecordFailed) { stoppedForBudget = true; deferred++; return; }
+        if (stoppedForBudget) { deferred++; return; }
         // PROVABLE COST GATE: the exact body this place would send, and its worst-case USD.
-        // No token count is taken, and the lane body carries server tools (web_search /
-        // web_fetch) whose cost the docs do not bound: worst is null -> UNBOUNDED -> stop
-        // with ZERO grants and ZERO Anthropic calls.
-        dryBody = laneRequestBody(place, laneModel(), sysInfo.blocks, metroCity(place.metro));
+        // The lane body carries server tools (web_search / web_fetch) whose cost the docs do
+        // not bound: worst is null -> UNBOUNDED -> stop with ZERO grants and ZERO Anthropic calls.
+        const dryBody = laneRequestBody(place, laneModel(), sysInfo.blocks, metroCity(place.metro));
         const worst = laneWorstCaseUsd(dryBody, null);
         if (worst === null) { costUnbounded = true; stoppedForBudget = true; deferred++; return; }
-        // ATOMIC PRE-SEND RESERVATION of the whole worst case (concurrency-safe).
-        reserved = usdToCents(worst);
-        const granted = await reserveDryCents(s, capCents, reserved);
-        if (granted === null) { meterReadFailed = true; stoppedForBudget = true; deferred++; return; }
-        if (granted !== true) { stoppedForBudget = true; deferred++; return; }
-        reservedTotal += reserved;
+        // No settlement-safe ledger exists yet (needs request IDs, idempotent settle, period-correct release). Until one ships, a bounded body is refused too.
+        ledgerMissing = true; stoppedForBudget = true; deferred++; return;
       }
-      if (!(await takeFromLedger(lane.searchSku, lane.cap))) {
-        if (dryMetered) {
-          // Nothing was sent: give the whole reservation back.
-          const back = await refundDryCents(s, reserved);
-          refundedTotal += back;
-          if (back < reserved) { meterRecordFailed = true; stoppedForBudget = true; }
-        }
-        deferred++; return;
-      }
-      const res = await writeLaneEditorial(place, akey, stats, sysInfo.blocks, lane, laneModel(), dryMetered, dryBody);
-      if (dryMetered) {
-        // Reconcile. Not sent -> 0. Sent with a known usage -> its cost. Sent but failed or
-        // timed out (cost unknown) -> keep the WHOLE reservation, never zero.
-        const known = !!(res && Number.isFinite(res.costUsd));
-        const actual = res && res.notSent ? 0 : (known ? usdToCents(res.costUsd) : reserved);
-        const usd = res && res.notSent ? 0 : (known ? res.costUsd : reserved / 100);
-        dryCosts.push(usd); drySpent += usd; chargedTotal += actual;
-        if (actual > reserved) {
-          // Should be impossible for a provable bound. The ledger already holds `reserved`;
-          // take nothing more and stop the run.
-          stoppedForOverage = true; stoppedForBudget = true;
-        } else if (actual < reserved) {
-          const back = await refundDryCents(s, reserved - actual);
-          refundedTotal += back;
-          if (back < reserved - actual) { meterRecordFailed = true; stoppedForBudget = true; }
-        }
-        if (res && res.notSent) {
-          // No request left for Anthropic: refunded in full above, and the run ends.
-          meterBlocked = true; stoppedForBudget = true; deferred++; return;
-        }
-      }
+      if (!(await takeFromLedger(lane.searchSku, lane.cap))) { deferred++; return; }
+      const res = await writeLaneEditorial(place, akey, stats, sysInfo.blocks, lane, laneModel());
       if (res) { laneSearches += res.searches; laneFetched += res.fetched.length; }
       const meta = { sources: res ? res.fetched.map((f) => f.url) : [], found_address: null, distance_km: null, searches: res ? res.searches : 0 };
       laneMeta.set(place.place_id, meta);
@@ -752,7 +702,7 @@ export async function GET(req) {
       const lp = ext && ext.value;
       if (!lp || lp.pending === true || !lp.hook) { pending++; rows.push(editorialRow(place, null, nowIso, ["PENDING SOURCE"])); return; }
       meta.found_address = typeof lp.found_address === "string" ? lp.found_address : null;
-      const geo = meta.found_address ? await geocodeCensus(meta.found_address, undefined, dryMetered ? DRY_IO_TIMEOUT_MS : undefined) : null;
+      const geo = meta.found_address ? await geocodeCensus(meta.found_address) : null;
       if (geo) { const km = haversineKm(place.lat, place.lng, geo.lat, geo.lng); meta.distance_km = km == null ? null : Math.round(km * 100) / 100; }
       const idp = identityProblems(lp, res.fetched, place, geo);
       const verifyProblems = verifyAtlasEditorial(lp, corpusOf({ name: place.name }, res.fetched), res.fetched.map((f) => f.url));
@@ -822,7 +772,7 @@ export async function GET(req) {
     const names = new Map(places.map((p) => [p.place_id, p.name]));
     return Response.json({
       ok: true, dry: true, mode: "build", lane: !!lane, processed: rows.length, deferred, provider_halt: stats.providerHalt || null, searches: laneSearches, fetched: laneFetched,
-      ...(dryMetered ? { cost_usd_total: Math.round(drySpent * 10000) / 10000, cost_usd_per_place: dryCosts.map((c) => Math.round(c * 10000) / 10000), stopped_for_budget: stoppedForBudget, cap_usd: lane.dryCapUsd, meter_record_failed: meterRecordFailed, meter_read_failed: meterReadFailed, meter_blocked: meterBlocked, stopped_for_overage: stoppedForOverage, cost_unbounded: costUnbounded, budget: { cap_cents: capCents, reserved_cents: reservedTotal, refunded_cents: refundedTotal, charged_cents: chargedTotal }, ...(idsMode ? { not_found: notFound } : {}) } : {}),
+      ...(dryMetered ? { stopped_for_budget: stoppedForBudget, cap_usd: lane.dryCapUsd, cost_unbounded: costUnbounded, ledger_missing: ledgerMissing, ...(idsMode ? { not_found: notFound } : {}) } : {}),
       rows: rows.map((r) => ({ place_id: r.place_id, name: names.get(r.place_id) || null, hook: r.hook, why_here: r.why_here, verified: r.verified, issues: r.issues, ...(startInfo.has(r.place_id) ? { start: startInfo.get(r.place_id) } : {}), ...(laneMeta.get(r.place_id) || {}) })),
     }, { headers: { "Cache-Control": "no-store" } });
   }
