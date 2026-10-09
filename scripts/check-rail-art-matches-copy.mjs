@@ -74,7 +74,9 @@ const PAIRS = {
   // christmas (2026-10-08): the owner's poster, read at 760px before pinning. It says
   // "Florida Christmas / Beautifully Curated" over a red glass ornament, which matches the
   // title "Florida Christmas" and makes no other claim.
-  christmas: { copy: "41d49a57d5cf7352", art: "89e374eef72e7a0f" },
+  // Re-pinned 2026-10-09 (Christmas v3, lead decision): the copy now reads "Lights, parades,
+  // parties & pop up bars"; the art is unchanged and names no rail, so it still matches.
+  christmas: { copy: "6767f881b1a24730", art: "89e374eef72e7a0f" },
   beach: { copy: "bc2e671d898c25b0", art: "10af9b34c86feb0b" },
   // Owner portrait, September 9: no baked text; DaypartRail overlays the live title and CTA.
   cindy: { copy: "30d97235cfc066b7", art: "a5712afd8afe9338" },

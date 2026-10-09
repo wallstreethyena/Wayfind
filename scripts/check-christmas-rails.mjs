@@ -14,14 +14,14 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   CHRISTMAS_INTENT_RAIL_DEFS, christmasEventRail, composeChristmasIntentRails,
-  CHRISTMAS_RAIL_GUIDE_SLUGS, CHRISTMAS_CARD_LABELS, CHRISTMAS_MIN_CARDS, CHRISTMAS_NEARBY_MI, CHRISTMAS_DAY_TRIP_MI,
+  CHRISTMAS_RAIL_GUIDE_SLUGS, CHRISTMAS_CARD_LABELS, CHRISTMAS_DAY_TRIP_MAX, CHRISTMAS_LOCAL_ONLY_RAILS, isExceptional, CHRISTMAS_NEARBY_MI, CHRISTMAS_DAY_TRIP_MI,
   christmasDistanceLabel, christmasDistanceGroup, CHRISTMAS_STATEWIDE_RAILS,
 } from "../lib/christmasIntentRails.js";
 import { NO_EXACT_AFFILIATE_PRODUCT } from "../lib/eventTicketDeals.js";
 import { CHRISTMAS_KNOWN_DUPLICATE_IDS, CHRISTMAS_EVENT_VENUE_PLACE_IDS, enrichChristmasEvent, christmasCityCentre, CHRISTMAS_PLACE_RAIL, CHRISTMAS_PLACE_TAKES, CHRISTMAS_PLACE_TITLES, christmasEventTicket, CHRISTMAS_TICKET_DEAL_IDS } from "../lib/christmasPool.js";
 import {
   CHRISTMAS_DISCOVERIES_2026, CHRISTMAS_EVENT_CORRECTIONS_2026, CHRISTMAS_EVENT_RAIL, CHRISTMAS_POPUP_BARS_2026,
-  CHRISTMAS_POPUP_SEASON_LINE, CHRISTMAS_POPUP_SEASON_CHIP, CHRISTMAS_POPUP_DATE_LINE, CHRISTMAS_POPUP_SEASON_THROUGH, CHRISTMAS_CITY_POINTS, mergeChristmasDiscoveryRows,
+  CHRISTMAS_EXCEPTIONAL_IDS, CHRISTMAS_POPUP_SEASON_LINE, CHRISTMAS_POPUP_SEASON_CHIP, CHRISTMAS_POPUP_DATE_LINE, CHRISTMAS_POPUP_SEASON_THROUGH, CHRISTMAS_CITY_POINTS, mergeChristmasDiscoveryRows,
 } from "../lib/christmasDiscoveries2026.js";
 import { isTrusted } from "../lib/curatedEvents.js";
 import { eventPlaceholder } from "../lib/eventPlaceholder.js";
@@ -107,7 +107,7 @@ for (const id of THEME_PARK_IDS) ok(classify(id) === "theme-parks", `theme park 
 ok(classify("x-show-2026") === "shows-outings" && classify("x-party-2026") === "parties" && classify("x-train-2026") === "theme-parks", "an explicit christmas_rail wins over the name");
 ok(christmasEventRail(ev("x-bad-rail", "Christmas Lights", "2026-12-01", "2026-12-02", { christmas_rail: "beaches" })) === null, "an explicit rail that is not one of the eight is refused, never guessed");
 ok(christmasEventRail(ev("x-spooky", "Halloween Trail", "2026-12-01", "2026-12-02", { christmas_rail: "lights" })) === null, "a Halloween name is refused even with an explicit rail");
-ok(CHRISTMAS_EVENT_RAIL["mvmcp-2026"] === "parties" && CHRISTMAS_EVENT_RAIL["cocoa-beach-holiday-boat-parade-2026"] === "boat-parades" && CHRISTMAS_EVENT_RAIL["winter-park-christmas-parade-2026"] === "parades", "existing wf_events rows carry an explicit rail");
+ok(CHRISTMAS_EVENT_RAIL["mvmcp-2026"] === "theme-parks" && CHRISTMAS_EVENT_RAIL["jollywood-nights-2026"] === "theme-parks" && !Object.values(CHRISTMAS_EVENT_RAIL).filter((r) => r === "parties").length && CHRISTMAS_EVENT_RAIL["cocoa-beach-holiday-boat-parade-2026"] === "boat-parades" && CHRISTMAS_EVENT_RAIL["winter-park-christmas-parade-2026"] === "parades", "existing wf_events rows carry an explicit rail");
 ok(Object.values(CHRISTMAS_EVENT_RAIL).every((r) => SPEC_IDS.includes(r)), "every mapped rail is one of the eight");
 ok(classify("sarasota-boat-parade-2026") === "boat-parades" && classify("lighted-regatta-2026") === "boat-parades", "an unmapped boat parade or regatta falls back to boat-parades");
 ok(classify("both-words-2026") === "boat-parades", "an event matching boat parade AND lights is claimed once, by boat-parades");
@@ -160,10 +160,10 @@ ok(composeChristmasIntentRails(events, placeFixture(), { today: TODAY }).rails.l
   const at = (mi) => ({ lat: SARASOTA.lat + mi / 69.05, lng: SARASOTA.lng }); // due north, ~69.05 mi per degree
   const L = (id, start, mi, extra = {}) => ev(id, "Glow " + id, start, start, { christmas_rail: "lights", ...at(mi), ...extra });
   const lawEvents = [
-    L("far-early", "2026-12-02", 91), L("near-late", "2026-12-24", 18), L("mid-early", "2026-12-03", 60),
+    L("far-early", "2026-12-02", 91, { exceptional: true }), L("near-late", "2026-12-24", 18), L("mid-early", "2026-12-03", 60), L("far-plain", "2026-12-02", 95),
     L("near-early", "2026-12-05", 30), L("mid-late", "2026-12-20", 40),
     L("same-day-tier1", "2026-12-10", 10, { source_tier: 1, verification_confidence: "high" }), L("same-day-tier3", "2026-12-10", 5, { source_tier: 3, verification_confidence: "medium" }),
-    L("far-a", "2026-12-04", 150), L("far-b", "2026-12-06", 100), L("far-c", "2026-12-08", 300),
+    L("far-a", "2026-12-04", 150, { exceptional: true }), L("far-b", "2026-12-06", 100, { exceptional: true }), L("far-c", "2026-12-08", 300, { exceptional: true }),
   ];
   const rail = composeChristmasIntentRails(lawEvents, [], { ...SARASOTA, today: TODAY }).rails.find((r) => r.id === "lights");
   const order = rail.cards.map((c) => c.id);
@@ -175,20 +175,36 @@ ok(composeChristmasIntentRails(events, placeFixture(), { today: TODAY }).rails.l
   const near = rail.cards.filter((c) => c.distanceGroup === "nearby").map((c) => c.id);
   ok(near.join() === "near-early,same-day-tier1,same-day-tier3,near-late", `inside Nearby, events run by date, then quality (better sourced first, even when farther) (${near.join(", ")})`);
   ok(rail.cards.filter((c) => c.distanceGroup === "within-reach").map((c) => c.id).join() === "mid-early,mid-late", "inside Within reach, events run by date");
-  // 6 close cards, so exactly TWO day trips top the rail up to 8: the two nearest (91 and 100 mi), not the
-  // soonest (far-a, 150 mi, Dec 4), and once chosen they run by date.
+  // Day trips: ONLY exceptional headliners, nearest first, at most 6 (lead, 2026-10-09).
+  // far-plain (95 mi, not exceptional) never shows; far-early (91 mi) leads although far-a is sooner.
   const far = rail.cards.filter((c) => c.distanceGroup === "day-trip").map((c) => c.id);
-  ok(rail.cards.length === CHRISTMAS_MIN_CARDS && far.join() === "far-early,far-b" && rail.fallbackUsed === true, `day trips only top up to 8, nearest first (${far.join(", ")}; ${rail.cards.length} cards)`);
-  const many = composeChristmasIntentRails([...lawEvents, ...[1, 2, 3].map((n) => L("near-extra-" + n, "2026-12-1" + n, 12))], [], { ...SARASOTA, today: TODAY }).rails.find((r) => r.id === "lights");
-  ok(many.cards.every((c) => c.distanceGroup !== "day-trip") && many.fallbackUsed === false, "a rail with 8 or more close cards shows no day trip");
-  ok(many.cards.length === 9, `every Nearby and Within reach card stays (got ${many.cards.length})`);
+  ok(far.join() === "far-early,far-b,far-a,far-c", `the Day trip group holds only exceptional items, nearest first (${far.join(", ")})`);
+  ok(!order.includes("far-plain"), "a far item that is not exceptional never pads a rail");
+  ok(rail.fallbackUsed === false, "nothing is ever padded in (fallbackUsed stays false)");
+  ok(CHRISTMAS_DAY_TRIP_MAX === 6, "at most 6 day trips per rail");
+  const lots = composeChristmasIntentRails([1, 2, 3, 4, 5, 6, 7, 8].map((n) => L("ex-" + n, "2026-12-0" + n, 100 + n * 10, { exceptional: true })), [], { ...SARASOTA, today: TODAY }).rails.find((r) => r.id === "lights");
+  ok(lots.cards.length === 6 && lots.cards.map((c) => c.id).join() === "ex-1,ex-2,ex-3,ex-4,ex-5,ex-6", `eight exceptional day trips are capped at the nearest 6 (${lots.cards.map((c) => c.id).join(", ")})`);
   const thin = composeChristmasIntentRails([L("only-far-1", "2026-12-02", 200), L("only-far-2", "2026-12-03", 120)], [], { ...SARASOTA, today: TODAY }).rails.find((r) => r.id === "lights");
-  ok(thin.cards.length === 2, "a rail with fewer than 8 eligible items shows exactly those, never padding");
+  ok(thin.cards.length === 0, "a rail with only ordinary far items is empty for this viewer (the page hides it), never padded");
+  ok(JSON.stringify(CHRISTMAS_LOCAL_ONLY_RAILS) === JSON.stringify(["parties", "popup-bars", "parades"]), "parties, pop up bars and parades are local only");
+  for (const id of CHRISTMAS_LOCAL_ONLY_RAILS) {
+    const local = composeChristmasIntentRails([ev("lo-near-" + id, "Local " + id, "2026-12-05", "2026-12-05", { christmas_rail: id, ...at(80) }), ev("lo-far-" + id, "Far " + id, "2026-12-05", "2026-12-05", { christmas_rail: id, exceptional: true, ...at(95) })], [], { ...SARASOTA, today: TODAY }).rails.find((r) => r.id === id);
+    ok(local.cards.map((c) => c.id).join() === "lo-near-" + id, `${id}: shows items within 90 mi only, even an exceptional one at 95 mi stays out`);
+  }
+  const { railRenderState, RAIL_RENDER_STATE } = await import("../lib/railVisibility.js");
+  ok(railRenderState(thin.cards) === RAIL_RENDER_STATE.HIDDEN, "an empty rail renders HIDDEN (lib/railVisibility.js)");
+  ok(/railRenderState\(items, \{ loading, error \}\)/.test(read("app/components/ChristmasIntentRails.js")) && /RAIL_RENDER_STATE\.HIDDEN\) return null/.test(read("app/components/ChristmasIntentRails.js")), "the Christmas rail section returns nothing when its rail is empty (static)");
+  // Exceptional list.
+  for (const id of ["mvmcp-2026", "jollywood-nights-2026", "nights-of-lights-2026", "christmas-at-gaylord-palms-2026", "winterfest-boat-parade-2026", "selby-lights-in-bloom-2026", "pensacola-winterfest-2026", "north-pole-express-parrish-2026", "christmas-holiday-home-tour-at-stetson-mansion-deland-2026", "key-west-harbor-walk-of-lights-2026", "stephen-foster-festival-of-lights-2026"]) {
+    ok(CHRISTMAS_EXCEPTIONAL_IDS.includes(id) && isExceptional({ event_id: id }), `${id} is an exceptional headliner`);
+  }
+  ok(CHRISTMAS_EXCEPTIONAL_IDS.every((id) => CHRISTMAS_EVENT_RAIL[id] || CHRISTMAS_DISCOVERIES_2026.some((r) => r.event_id === id)), "every exceptional id is a real mapped or registry event");
+  ok(mergeChristmasDiscoveryRows([{ event_id: "selby-lights-in-bloom-2026" }], []).find((r) => r.event_id === "selby-lights-in-bloom-2026").exceptional === true && !isExceptional({ event_id: "tree-lighting-2026" }), "the merge marks headliners exceptional and nothing else");
   // Theme parks: statewide, still grouped.
   ok(CHRISTMAS_STATEWIDE_RAILS.length === 1 && CHRISTMAS_STATEWIDE_RAILS[0] === "theme-parks", "only theme parks are statewide");
   const parks = [...[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => ev("park-near-" + n, "Park Night " + n, "2026-12-0" + n, "2026-12-0" + n, { christmas_rail: "theme-parks", ...at(5 + n) })), ev("park-far", "Far Park Night", "2026-12-01", "2026-12-30", { christmas_rail: "theme-parks", ...at(200) })];
   const tp = composeChristmasIntentRails(parks, [], { ...SARASOTA, today: TODAY }).rails.find((r) => r.id === "theme-parks");
-  ok(tp.cards.length === 10 && tp.cards[tp.cards.length - 1].id === "park-far" && tp.fallbackUsed === false, "theme parks keep a 200 mi park even with 9 close ones, and it sits last");
+  ok(tp.cards.length === 10 && tp.cards[tp.cards.length - 1].id === "park-far" && tp.cards[tp.cards.length - 1].distanceGroup === "day-trip", "theme parks keep every park statewide (a 200 mi park, not flagged, still shows), grouped and labeled");
   // Places by score inside a group, events before places; affiliate data never moves a card.
   const bars = composeChristmasIntentRails([], [
     { id: "b-low", name: "Low", kind: "place", christmasRail: "popup-bars", wfScore: 70, ...at(5) },
@@ -281,9 +297,10 @@ ok(composeChristmasIntentRails(events, placeFixture(), { today: TODAY }).rails.l
   ok(copy.every(noDash), "no dash in any rendered title, deck or take");
   const posterRow = railById("christmas");
   ok(!!posterRow, "the christmas poster rail record exists");
-  // The poster copy is baked into the owner's art (public/cards-v8/christmas-760.jpg,
-  // check-rail-art-matches-copy), so it changes only with redrawn art: an open owner item.
-  ok(posterRow && posterRow.title === "Florida Christmas" && posterRow.cta === "Find your Christmas", "poster title and call to action match the spec");
+  // The art reads only "Florida Christmas / Beautifully Curated" and names no rail, so the copy
+  // follows the eight rails; check-rail-art-matches-copy re-pins the copy hash (2026-10-09).
+  ok(posterRow && posterRow.title === "Florida Christmas" && posterRow.short === "Lights, parades, parties & pop up bars" && posterRow.cta === "Find your Christmas", "poster copy matches the eight rails");
+  ok(posterRow && !/beach|manatee/i.test([posterRow.short, posterRow.sub, posterRow.axis, posterRow.emptyWhy].join(" ")), "the poster no longer promises beaches or manatees");
   ok(posterRow && ["title", "short", "sub", "cta", "axis", "emptyWhy"].every((k) => noDash(posterRow[k])), "poster copy has no dashes");
   ok(posterRow && posterRow.art === "christmas" && !posterRow.href && !posterRow.posterHidden, "the poster wears christmas art, carries no href and is not hidden (a tap opens the drop)");
   ok(RAILS.filter((r) => r.id === "christmas").length === 1, "exactly one christmas rail record");
@@ -496,7 +513,7 @@ ok(/placeholder=\{isEvent && !card\.image \? card\.placeholder/.test(read("app/c
   ok(christmasDistanceLabel({}) === null, "no distance, no label");
   ok(/christmasDistanceLabel\(card\)/.test(read("app/components/ChristmasIntentRails.js")), "both card kinds render christmasDistanceLabel (static)");
   const walk = (dir, out = []) => { for (const n of readdirSync(dir)) { const f = path.join(dir, n); if (statSync(f).isDirectory()) { if (!/node_modules|\.next|\.wf-jsx/.test(f)) walk(f, out); } else if (/\.m?js$/.test(n)) out.push(f); } return out; };
-  const uses = [...walk(path.join(ROOT, "lib")), ...walk(path.join(ROOT, "app"))].filter((f) => /\b(?:CHRISTMAS_MIN_CARDS|christmasDistanceLabel|christmasDistanceGroup|CHRISTMAS_DAY_TRIP_MI)\b/.test(readFileSync(f, "utf8")));
+  const uses = [...walk(path.join(ROOT, "lib")), ...walk(path.join(ROOT, "app"))].filter((f) => /\b(?:CHRISTMAS_DAY_TRIP_MAX|christmasDistanceLabel|christmasDistanceGroup|CHRISTMAS_DAY_TRIP_MI)\b/.test(readFileSync(f, "utf8")));
   ok(uses.length > 0 && uses.every((f) => /christmas/i.test(path.basename(f))), `distance grouping lives only in Christmas files (${uses.map((f) => path.relative(ROOT, f)).join(", ")})`);
   for (const other of ["lib/lunchBreakRails.js", "lib/nightOutIntent.js", "lib/todayDiscoveryRails.js", "lib/worthEatingRails.js", "lib/breakfastRails.js", "lib/fallIntentRails.js", "lib/dateNightIntent.js", "lib/birthdayIntent.js"]) {
     ok(!/christmasIntentRails|topped? up to/i.test(readFileSync(path.join(ROOT, other), "utf8")), `${other} has no Christmas style top up or distance grouping`);
