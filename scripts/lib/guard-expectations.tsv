@@ -124,6 +124,7 @@ scripts/check-env.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	0	0	0	13a38b0f290
 scripts/check-event-date-honesty.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	d94bd5fd9f9a6283a0c426a8c60bbb98b452d0ee26c81db8e5bc70f012e2b3bf
 scripts/check-event-day-is-venue-local.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	9d38a5765d4097b7c08ebb09b1c5a7d8cb212b9eb3f75fb6ecf3600bf029fce9
 scripts/check-event-hero-and-directions.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	0	0	456075b8b7decac063799f05e69db89f1b2a7353a5f6ac3538e264b5b4022cbf
+scripts/check-event-jsonld-offset.mjs	0	CALL	blocks-ci-and-deploy	1	-	62	0	0	d9e9a9a68aadd18d94c2a6539a21d7a1a6649942e67ffbfe48efd28190e5e16c
 scripts/check-event-outing.mjs	0	CALL	blocks-ci-and-deploy	1	-	219	0	0	866a61fe318a4fe9d2ac9a239a8fd713e573526333094bb74bc166218f6dbee3
 scripts/check-event-pairings.mjs	0	CALL	blocks-ci-and-deploy	1	-	61	0	0	b6480bac0c254063e19415a95326009f680a30807d31d78dd8ebb1a63a951ba0
 scripts/check-event-photo-honesty.mjs	0	RENDER	blocks-ci-and-deploy	1	-	18	0	0	d4b22cdc881a106bdbd88e0f0a03678073c6f2d44ec4025f1537f6647a830d30
