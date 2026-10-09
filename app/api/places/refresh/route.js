@@ -1,4 +1,5 @@
 import { gateShut, gateFree, spendAllowCapped, textEnterpriseCap } from "../../../../lib/spendGate";
+import { placeDiscoveryRef } from "../../../../lib/discoveryRef.js";
 // app/api/places/refresh/route.js — v6.35 REFRESH-AHEAD worker.
 //
 // Poked fire-and-forget by /api/places/search when it serves a fresh-but-aging
@@ -66,6 +67,9 @@ async function handle(params) {
     if (!r.ok) return NextResponse.json({ ok: false, status: r.status });
     const data = await r.json();
     const places = data.places || [];
+    // COMPLIANCE (2026-10-08): Google forbids caching a photo name or author credit.
+    // Keep only a place-only pseudo-ref (same rule as /api/places/search).
+    for (const pl of places) if (pl && typeof pl === "object" && "photos" in pl) pl.photos = Array.isArray(pl.photos) && pl.photos.length && pl.id ? [{ name: placeDiscoveryRef(pl.id) }] : [];
     if (places.length) await cset(k, places, FRESH_TTL_MS); // resets wrote_at → hot again
     return NextResponse.json({ ok: true, refreshed: places.length });
   } catch (e) {

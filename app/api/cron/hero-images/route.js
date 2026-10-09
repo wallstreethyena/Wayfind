@@ -7,6 +7,7 @@ export const dynamic = "force-dynamic";
 // wf_hero_images. Surfaces read the row first and fall back to their
 // current logic — no row, no behavior change. CRON_SECRET-gated.
 import { createClient } from "@supabase/supabase-js";
+import { placeDiscoveryRef } from "../../../../lib/discoveryRef.js";
 import { pickBestPhoto } from "../../../../lib/heroImage";
 import { jobCannotRun } from "../../../../lib/jobFail";
 import { gateShut, spendAllow } from "../../../../lib/spendGate";
@@ -48,7 +49,7 @@ export async function GET(req) {
     if (pick) {
       out.surfaces++;
       const best = pickBestPhoto(await photosOf(pick.place_id, gkey));
-      if (best) rows.push({ surface: "buzz", key: metro, place_id: pick.place_id, photo_ref: best.ref, chosen_at: new Date().toISOString(), reason: best.reason });
+      if (best) rows.push({ surface: "buzz", key: metro, place_id: pick.place_id, photo_ref: placeDiscoveryRef(pick.place_id), chosen_at: new Date().toISOString(), reason: best.reason });
       else out.skipped_no_better++;
     }
     // family surface (v6.57, owner: the daily image run feeds the SHARE cards
@@ -59,7 +60,7 @@ export async function GET(req) {
     if (fpick) {
       out.surfaces++;
       const best = pickBestPhoto(await photosOf(fpick.place_id, gkey));
-      if (best) rows.push({ surface: "family", key: metro, place_id: fpick.place_id, photo_ref: best.ref, chosen_at: new Date().toISOString(), reason: best.reason });
+      if (best) rows.push({ surface: "family", key: metro, place_id: fpick.place_id, photo_ref: placeDiscoveryRef(fpick.place_id), chosen_at: new Date().toISOString(), reason: best.reason });
       else out.skipped_no_better++;
     }
   }

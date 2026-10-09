@@ -117,9 +117,12 @@ export async function GET(req) {
   // Google Maps Platform Terms 3.2.3(a)(i) prohibits. Paused unless
   // GOOGLE_PHOTO_PREFETCH=on (lib/googlePhotoPolicy.js). The liveness sweep and
   // hotel identity above still run; they buy no photo.
-  if (!googlePhotoPrefetchAllowed()) {
+  // 2026-10-08 (later the same day): prohibited outright, not merely paused.
+  // The env switch no longer re-enables it; runPhotoWarm itself is also inert.
+  void googlePhotoPrefetchAllowed;
+  if (true) {
     const sweepBit = sweep ? `live ${sweep.checked}/${sweep.dead} dead; ` : "";
-    await recordPulse("photo-warm", { attempted: 0, succeeded: 0, note: `${sweepBit}warm: ${PREFETCH_PAUSED} (GOOGLE_PHOTO_PREFETCH not on), zero photo requests` });
+    await recordPulse("photo-warm", { attempted: 0, succeeded: 0, note: `${sweepBit}warm: ${PREFETCH_PAUSED} (prefetch-prohibited: Google Maps Platform Terms 3.2.3), zero photo requests` });
     return Response.json({ ok: true, skipped: true, reason: PREFETCH_PAUSED, sweep, ident });
   }
 

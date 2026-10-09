@@ -6,6 +6,7 @@ export const dynamic = "force-dynamic";
 // FastCache + CDN reuse for nearby readers.
 import { priceNumFrom } from "../../../lib/price.js";
 import { DB_DEADLINE_MS, NET_DEADLINE_MS, fetchDeadline } from "../../../lib/fetchDeadline.js";
+import { toDiscoveryRef } from "../../../lib/discoveryRef.js";
 import { distMeters, invRowToPlace } from "../../../lib/inventoryServe.js";
 import { fetchOwnedPool } from "../../../lib/ownedPool.js";
 import { loadOwnerPickIds, applyCuratorPicksServer } from "../../../lib/curatorPicksServer.js";
@@ -113,7 +114,7 @@ function toLunchPlace(raw, origin) {
     priceNum: priceNum(raw.priceLevel ?? raw.priceNum),
     editorial: raw?.editorialSummary?.text || raw?.editorial || null,
     photo: cardImageSrc(raw, 800) || null,
-    photoRef: raw?.photo_ref || raw?.photos?.[0]?.name || null,
+    photoRef: toDiscoveryRef(raw?.photo_ref || raw?.photos?.[0]?.name || null), // 2026-10-08: place-only pseudo-ref
     distMi: Math.round((distMeters(origin.lat, origin.lng, lat, lng) / 1609.34) * 10) / 10,
     _wfInventory: true,
   };

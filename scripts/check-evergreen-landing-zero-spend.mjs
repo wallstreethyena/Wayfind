@@ -30,8 +30,11 @@
  *   D. PHOTO ROUTE — app/api/photo/route.js, sourced and executed with the
  *      REAL lib/placePhotoServe resolvePlacePhoto and a fake upstream: the
  *      exact URLs the evergreen cards emit take zero ledger grants and make
- *      zero Google photo fetches. CONTROL: the same URLs without nospend=1
- *      take a grant and fetch.
+ *      zero Google photo fetches. Since the COMPLIANT PHOTOS decision
+ *      (2026-10-08) a card URL can never buy at all (only s=detail does), and
+ *      nospend=1 / bot UAs still hold the line on the detail surface.
+ *      CONTROL: the same URL with s=detail and no nospend takes a grant and
+ *      fetches.
  *   E. CRONS — landingCityList() (photo-warm's walk) contains no evergreen
  *      town (control: it contains sarasota), and nothing but the landing
  *      layer imports lib/evergreenCities.js.
@@ -209,6 +212,7 @@ const render = async (c, s, city) => {
     totalPhotoUrls += pu.length;
     const spendable = pu.filter((u) => !/[?&]nospend=1(&|$)/.test(u));
     ok(pu.length >= cards, `${k}: every card carries a photo URL or a no-spend fallback (${pu.length} URLs, ${cards} cards)`);
+    ok(!pu.some((u) => /[?&]s=detail(&|$)/.test(u)), `${k}: no card photo URL asks for the credited s=detail surface (only the detail hero may buy a live Google photo)`);
     ok(spendable.length === 0, `${k}: ${spendable.length} /api/photo URL(s) without nospend=1 — a reader view could buy a photo: ${spendable.slice(0, 3).join(" | ")}`);
     ok(!/\/api\/photo\?ref=[^"]*"[^>]*data-fallback="\/api\/photo\?place=[^"&]*&amp;g=2&amp;w=640"/.test(html), `${k}: the onError fallback is never a spend-capable place URL`);
     for (const w of WITHHELD) ok(!html.includes(`href="/${w}"`), `${k}: page links nowhere withheld (/${w})`);
@@ -286,20 +290,29 @@ const render = async (c, s, city) => {
   for (const u of [evRefUrl, evPlaceUrl]) {
     const r = await hit(u);
     ok(r.ledger === 0 && r.google === 0, `${u.slice(0, 40)}…: the evergreen card URL took ${r.ledger} ledger grant(s) and made ${r.google} Google photo fetch(es) — must be 0/0`);
-    ok(r.res.status === 404 && r.res.headers.get("x-wayfind-photo-result") === "probe-no-spend", `${u.slice(0, 40)}…: an uncached evergreen photo is an honest no-spend miss (monogram), got ${r.res.status} ${r.res.headers.get("x-wayfind-photo-result")}`);
+    ok(r.res.status === 404 && r.res.headers.get("x-wayfind-photo-result") === "not-google-surface", `${u.slice(0, 40)}…: an uncached evergreen photo is an honest no-spend miss (placeholder), got ${r.res.status} ${r.res.headers.get("x-wayfind-photo-result")}`);
+    // The SAME URL with the nospend flag removed is STILL a free miss: a card
+    // surface can never buy a photo any more (COMPLIANT PHOTOS, 2026-10-08).
+    const bare = await hit(u.replace("&nospend=1", ""));
+    ok(bare.ledger === 0 && bare.google === 0 && bare.res.headers.get("x-wayfind-photo-result") === "not-google-surface",
+      `${u.slice(0, 40)}…: even WITHOUT nospend=1 a card URL (no s=detail) takes ${bare.ledger} grant(s)/${bare.google} fetch(es), result ${bare.res.headers.get("x-wayfind-photo-result")} — must be 0/0 not-google-surface`);
+    // On the credited surface the nospend flag is what holds the line.
+    const flagged = await hit(u + "&s=detail");
+    ok(flagged.ledger === 0 && flagged.google === 0 && flagged.res.headers.get("x-wayfind-photo-result") === "probe-no-spend",
+      `${u.slice(0, 40)}…: s=detail + nospend=1 took ${flagged.ledger} grant(s)/${flagged.google} fetch(es), result ${flagged.res.headers.get("x-wayfind-photo-result")} — must be 0/0 probe-no-spend`);
   }
-  const ctlRef = await hit(evRefUrl.replace("&nospend=1", ""));
+  const ctlRef = await hit(evRefUrl.replace("&nospend=1", "") + "&s=detail");
   ok(ctlRef.ledger >= 1 && ctlRef.google >= 1 && ctlRef.res.headers.get("x-wayfind-photo-result") === "google",
-    `POSITIVE CONTROL: the same ref URL WITHOUT nospend=1 takes a grant (${ctlRef.ledger}) and fetches from Google (${ctlRef.google}) — so 0/0 above is the flag, not a blind rig`);
-  const ctlPlace = await hit(evPlaceUrl.replace("&nospend=1", ""));
-  ok(ctlPlace.ledger >= 1, `POSITIVE CONTROL: the same place URL WITHOUT nospend=1 asks the ledger (${ctlPlace.ledger}) via place discovery`);
+    `POSITIVE CONTROL: the same ref URL on s=detail WITHOUT nospend=1 takes a grant (${ctlRef.ledger}) and fetches from Google (${ctlRef.google}) — so 0/0 above is the flag/surface, not a blind rig`);
+  const ctlPlace = await hit(evPlaceUrl.replace("&nospend=1", "") + "&s=detail");
+  ok(ctlPlace.ledger >= 1, `POSITIVE CONTROL: the same place URL on s=detail WITHOUT nospend=1 asks the ledger (${ctlPlace.ledger}) via place discovery`);
 
   // D2. AUTOMATED READERS NEVER BUY (owner, 2026-10-08). Oct 7: 258 of 304 paid photo
   // grants came from HeadlessChrome QA browsers; Meta's crawler ~20/day. The SAME
   // spend-capable URL (no nospend) asked by a headless browser, a crawler, or our
   // synthetic monitor must take 0 grants / 0 Google fetches; a real phone UA on the
   // same URL is the positive control and must still buy (people keep their photos).
-  const spendable = evRefUrl.replace("&nospend=1", "");
+  const spendable = evRefUrl.replace("&nospend=1", "") + "&s=detail";
   const BOTS = {
     headless: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/141.0.0.0 Safari/537.36",
     meta: "meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler)",

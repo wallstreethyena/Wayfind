@@ -6,15 +6,15 @@
 // Owner-approved spec (2026-10-08): five rails in a fixed order, each event in
 // exactly one rail or none, owned data only. The wiring checks at the bottom
 // are static (a component cannot be rendered here) and say so.
-import { readFileSync, existsSync, statSync } from "node:fs";
+import { readFileSync, existsSync, statSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   CHRISTMAS_INTENT_RAIL_DEFS, christmasEventRail, composeChristmasIntentRails,
 } from "../lib/christmasIntentRails.js";
 import { NO_EXACT_AFFILIATE_PRODUCT } from "../lib/eventTicketDeals.js";
-import { CHRISTMAS_EVENT_VENUE_PLACE_IDS, enrichChristmasEvent, christmasCityCentre, CHRISTMAS_PLACE_RAIL, CHRISTMAS_PLACE_TAKES, christmasEventTicket, CHRISTMAS_TICKET_DEAL_IDS } from "../lib/christmasPool.js";
-import { CHRISTMAS_RAIL_GUIDE_SLUGS, CHRISTMAS_CARD_LABELS, CHRISTMAS_MIN_CARDS } from "../lib/christmasIntentRails.js";
+import { CHRISTMAS_KNOWN_DUPLICATE_IDS, CHRISTMAS_EVENT_VENUE_PLACE_IDS, enrichChristmasEvent, christmasCityCentre, CHRISTMAS_PLACE_RAIL, CHRISTMAS_PLACE_TAKES, christmasEventTicket, CHRISTMAS_TICKET_DEAL_IDS } from "../lib/christmasPool.js";
+import { CHRISTMAS_RAIL_GUIDE_SLUGS, CHRISTMAS_CARD_LABELS, CHRISTMAS_MIN_CARDS, CHRISTMAS_RAIL_RADIUS_MI, CHRISTMAS_DAY_TRIP_MI, christmasDistanceLabel } from "../lib/christmasIntentRails.js";
 import { eventPlaceholder } from "../lib/eventPlaceholder.js";
 import { christmasRailGuide, withChristmasGuides } from "../lib/christmasGuides.js";
 import { GUIDES } from "../lib/guides.js";
@@ -37,7 +37,7 @@ const SPEC_RAILS = [
   ["boat-parades", "Boat Parades & Waterfront Lights", "Christmas, Florida style, with lit boats."],
 ];
 const SPEC_PLACES = {
-  beaches: ["ChIJh8tXh-FBw4gR9kFzfZN_g60", "ChIJQR0CdIhqw4gR-BqidycQm8o", "ChIJV7hk7dQTw4gRNDR1PONlwis", "ChIJg7BBe7URw4gRIQTacN1Cla8", "ChIJgwiM83gFw4gRZQbHiDUoSIE", "ChIJ2wMEgdUCw4gRWcUhdrwmyVg", "ChIJOxaHOSX9wogRT6_58s6LWOY", "ChIJp6kyPa1Dw4gR5BhsSYE8pdo", "ChIJPfHzt4Nbw4gReInyfaTUn2Y", "ChIJ_4R4dXj0wogRhGK2MtUmBjI", "ChIJEU6v8Zgz24gRNkuw0EtKDt8", "ChIJu0jFtWc924gRf_9YuPnSc2w", "ChIJlb2_qywf24gRFYBsNGXcHW0", "ChIJxVcTIQ7i0IgRgYa6c5TNrgk", "ChIJYxGtrzGx0YgRO0FndRyfyLs", "ChIJT6PHOUbK2YgRamANgVMeFqk", "ChIJARLTeoy12YgRWrhf9BwKLXU"],
+  beaches: ["ChIJh8tXh-FBw4gR9kFzfZN_g60", "ChIJQR0CdIhqw4gR-BqidycQm8o", "ChIJ5eLMVXE9w4gR15l0tMZGkMY", "ChIJg7BBe7URw4gRIQTacN1Cla8", "ChIJgwiM83gFw4gRZQbHiDUoSIE", "ChIJ2wMEgdUCw4gRWcUhdrwmyVg", "ChIJOxaHOSX9wogRT6_58s6LWOY", "ChIJp6kyPa1Dw4gR5BhsSYE8pdo", "ChIJPfHzt4Nbw4gReInyfaTUn2Y", "ChIJ_4R4dXj0wogRhGK2MtUmBjI", "ChIJEU6v8Zgz24gRNkuw0EtKDt8", "ChIJu0jFtWc924gRf_9YuPnSc2w", "ChIJlb2_qywf24gRFYBsNGXcHW0", "ChIJxVcTIQ7i0IgRgYa6c5TNrgk", "ChIJYxGtrzGx0YgRO0FndRyfyLs", "ChIJT6PHOUbK2YgRamANgVMeFqk", "ChIJARLTeoy12YgRWrhf9BwKLXU"],
   manatees: ["ChIJjZq3rbFB6IgRb6e1zyAKbg4", "ChIJyYEUav8P54gRatuv_zQzm20", "ChIJpUJtM-_ZwogROGyfAWFNelo", "ChIJTTHiI8w_6IgR89hvVjSS-vc", "ChIJf9MKQU3U2IgR0Rp4MD467xw", "ChIJa1kHd4Vp24gRj7H2MiIoSwo", "ChIJyefyOo4f6YgR98DvEw2xLgA"],
   "nights-out": ["ChIJPTvxtmpAw4gReToYD5mTNwE", "ChIJlcQil-Pj2ogRZXbB55ldZcQ", "ChIJuyCMUy3G2YgRyrGn93iiGoM", "ChIJ3VLBF5Jqw4gRkT1TfU3ULd8", "ChIJ-0qgNoF_3YgRg3Lh7xHDooU"],
 };
@@ -305,7 +305,9 @@ ok(christmasEventRail(live("Fall Harvest Lights Night", "2026-11-21", "2026-11-2
   has(/\.wf-place-card:not\(\.wf-guide-card\)(?:,|$)/, /#5A0712 url\(\/christmas\/card-bg-top-640\.webp\?v=3/, "every Christmas card defaults to the safe art (line art only in the band empty on every card)");
   has(/:not\(:has\(\.wf-rail-card-cta\)\):not\(:has\(\.wf-place-card-book\)\)/, /card-bg-640\.webp\?v=3/, "the lower band art (gift, tree) only shows on cards with no ticket or book button");
   ok(!xmasRules.some((r) => /card-bg-640\.webp|card-bg-1100\.webp/.test(r.body) && !/:not\(:has\(\.wf-rail-card-cta\)\)/.test(r.sel)), "the full art is never the unconditional background (it would sit behind a Tickets button)");
-  has(/wayfind-score-badge>span:first-child/, /#E8B48A/, "the score badge has a rose gold left segment");
+  ok(!xmasRules.some((r) => /wayfind-score-badge>span:first-child|wf-rail-when-rail/.test(r.sel) && /background/.test(r.body)), "the score badge keeps its truthful tier colour segment (the skin never repaints it)");
+  has(/\.wayfind-score-badge(?:,|$)/, /border-color:#E8B48A/, "the score badge frame is rose gold");
+  has(/\.wf-place-card:not\(\.wf-guide-card\)(?:,|$)/, /right top\/auto 100%/, "the art is sized to the card height and anchored right, so desktop cards keep the bands empty");
   ok(/url\(\/christmas\/card-bg-1100\.webp/.test(WF_PLACE_CARD_CSS), "high density screens get the 1100 background");
   has(/:not\(\.is-liked\):not\(\.is-disliked\)/, /border:1px solid rgba\(232,180,138/, "the rose gold border yields to liked and disliked states");
   has(/button:not\(\.is-active\)/, /#4A0610[\s\S]*rgba\(232,180,138/, "resting buttons are dark maroon with a rose gold outline; an active control is never repainted");
@@ -376,7 +378,79 @@ ok(/placeholder=\{isEvent && !card\.image \? card\.placeholder/.test(read("app/c
   ok(enrichChristmasEvent({ event_id: "y", city: "Winter Park", lat: null, lng: null }, new Map()).lat === null, "a city with no vetted centre stays unplaced (never invented)");
   ok(christmasCityCentre("Naples", "GA") === null, "a non Florida state never borrows a Florida centre");
   ok(enrichChristmasEvent({ event_id: "z", city: "Naples", lat: 26.1, lng: -81.8 }, new Map()).approxLocation === undefined, "an event with its own coordinates is never marked approximate");
-  ok(/approxLocation \? "~"/.test(read("app/components/ChristmasIntentRails.js")), "an approximate distance shows as ~N mi (static)");
+  ok(/christmasDistanceLabel\(card\)/.test(read("app/components/ChristmasIntentRails.js")), "an approximate distance shows as ~N mi through christmasDistanceLabel (static; executed in 6i)");
+}
+
+// ── 6i. Follow up (owner, 2026-10-08): no padding, honest distances ───────
+{
+  ok(CHRISTMAS_KNOWN_DUPLICATE_IDS.length === 3 && CHRISTMAS_KNOWN_DUPLICATE_IDS.every((id) => !CHRISTMAS_PLACE_RAIL[id] && !Object.values(CHRISTMAS_EVENT_VENUE_PLACE_IDS).includes(id)), "the three EXCLUDED Coquina Beach duplicate pins are never pooled");
+  ok(CHRISTMAS_PLACE_RAIL["ChIJ5eLMVXE9w4gR15l0tMZGkMY"] === "beaches", "Coquina Beach uses the canonical OPERATIONAL row");
+  const extraFixture = [
+    ...events,
+    // same venue twice in one rail: only one card may represent it
+    ev("selby-dup-a-2026", "Selby Holiday Lights Night A", "2026-12-06", "2026-12-06", { place_id: "ChIJPTvxtmpAw4gReToYD5mTNwE" }),
+    ev("selby-dup-b-2026", "Selby Garden Christmas Stroll", "2026-12-07", "2026-12-07", { place_id: "ChIJPTvxtmpAw4gReToYD5mTNwE" }),
+    // same series twice
+    ev("series-a-2026", "Harbor Lighted Boat Parade", "2026-12-10", "2026-12-10", { event_series_id: "harbor", lat: 30.3, lng: -81.6 }),
+    ev("series-b-2026", "Harbor Lighted Boat Parade Encore", "2026-12-17", "2026-12-17", { event_series_id: "harbor", lat: 30.3, lng: -81.6 }),
+  ];
+  for (const [label, at] of [["Sarasota", SARASOTA], ["Naples", { lat: 26.142, lng: -81.7948 }], ["Jacksonville", { lat: 30.33, lng: -81.66 }]]) {
+    const out = composeChristmasIntentRails(extraFixture, placeFixture(), { ...at, today: TODAY });
+    for (const r of out.rails) {
+      ok(r.cards.every((c) => c.kind === "event" ? christmasEventRail(c) === r.id : CHRISTMAS_PLACE_RAIL[c.id] === r.id), `${label} ${r.id}: every card (top up included) belongs to this rail by the same classifier`);
+      const venues = r.cards.map((c) => c.kind === "event" ? c.place_id : c.id).filter(Boolean);
+      ok(new Set(venues).size === venues.length, `${label} ${r.id}: no venue appears twice`);
+      const series = r.cards.map((c) => c.event_series_id).filter(Boolean);
+      ok(new Set(series).size === series.length, `${label} ${r.id}: no event series appears twice`);
+      const names = r.cards.map((c) => String(c.name || c.event_name || "").toLowerCase());
+      ok(new Set(names).size === names.length, `${label} ${r.id}: no name appears twice`);
+      if (r.id === "theme-parks") ok(r.cards.every((c) => !c.beyondRadius), `${label}: theme parks are statewide by design, never flagged as a top up`);
+      else {
+        const radius = CHRISTMAS_RAIL_RADIUS_MI[r.id];
+        ok(r.cards.every((c) => c.beyondRadius ? c.distMi > radius : c.distMi <= radius), `${label} ${r.id}: only cards past the ${radius} mi radius are flagged farther`);
+        const firstFar = r.cards.findIndex((c) => c.beyondRadius);
+        ok(firstFar === -1 || r.cards.slice(firstFar).every((c) => c.beyondRadius), `${label} ${r.id}: local cards always come before farther ones`);
+      }
+    }
+    const boats = out.rails.find((r) => r.id === "boat-parades");
+    const boatsAvailable = composeChristmasIntentRails(extraFixture, placeFixture(), { lat: 0, lng: 0, today: TODAY }).rails.find((r) => r.id === "boat-parades").cards.length;
+    ok(boatsAvailable < 8 && boats.cards.length === boatsAvailable, `${label}: a rail with fewer than 8 eligible items shows exactly those (${boats.cards.length} of ${boatsAvailable}), never padding`);
+  }
+  ok(christmasDistanceLabel({ distMi: 8.1 }) === "8.1 mi", "a local card shows its true distance");
+  ok(christmasDistanceLabel({ distMi: 74.6, beyondRadius: true }) === "75 mi · Farther out", "a topped up card says it is farther out");
+  ok(christmasDistanceLabel({ distMi: 118.2 }) === "118 mi · Day trip" && christmasDistanceLabel({ distMi: 118.2, beyondRadius: true }) === "118 mi · Day trip", `over ${CHRISTMAS_DAY_TRIP_MI} mi a card says Day trip`);
+  ok(christmasDistanceLabel({ distMi: 12.4, approxLocation: true }) === "~12 mi" && christmasDistanceLabel({ distMi: 140, approxLocation: true }) === "~140 mi · Day trip", "a city centre location keeps ~N mi");
+  ok(christmasDistanceLabel({}) === null, "no distance, no label");
+  ok(/christmasDistanceLabel\(card\)/.test(read("app/components/ChristmasIntentRails.js")), "both card kinds render christmasDistanceLabel (static)");
+  // The top up and the farther label exist ONLY in the Christmas collection.
+  const walk = (dir, out = []) => { for (const n of readdirSync(dir)) { const f = path.join(dir, n); if (statSync(f).isDirectory()) { if (!/node_modules|\.next|\.wf-jsx/.test(f)) walk(f, out); } else if (/\.m?js$/.test(n)) out.push(f); } return out; };
+  const uses = [...walk(path.join(ROOT, "lib")), ...walk(path.join(ROOT, "app"))].filter((f) => /\b(?:beyondRadius|CHRISTMAS_MIN_CARDS|christmasDistanceLabel|CHRISTMAS_DAY_TRIP_MI)\b/.test(readFileSync(f, "utf8")));
+  ok(uses.length > 0 && uses.every((f) => /christmas/i.test(path.basename(f))), `distance expansion lives only in Christmas files (${uses.map((f) => path.relative(ROOT, f)).join(", ")})`);
+  for (const other of ["lib/lunchBreakRails.js", "lib/nightOutIntent.js", "lib/todayDiscoveryRails.js", "lib/worthEatingRails.js", "lib/breakfastRails.js", "lib/fallIntentRails.js", "lib/dateNightIntent.js", "lib/birthdayIntent.js"]) {
+    ok(!/christmasIntentRails|beyondRadius|topped? up to/i.test(readFileSync(path.join(ROOT, other), "utf8")), `${other} has no Christmas style top up or distance expansion`);
+  }
+}
+
+// ── 6j. Photoless events: decorative artwork, never a fake photo (EXECUTED) ─
+{
+  const { loadComponent: lc } = await import("./lib/jsxLoad.mjs");
+  const React = (await import("react")).default;
+  const { renderToStaticMarkup } = await import("react-dom/server");
+  const RailCard = (await lc(path.join(ROOT, "app/components/RailCard.js"), ROOT)).default;
+  const names = ["Holiday Lights in Largo Central Park", "Tampa Riverwalk Holiday Lighted Boat Parade", "Christmas on Las Olas", "Haven Holiday Market", "Some Unnamed Night"];
+  for (const n of names) {
+    const tile = eventPlaceholder("community", { name: n });
+    ok(!!tile && !!tile.label && /gradient/.test(tile.tint) && !/\.(jpe?g|png|webp|avif)|https?:/.test(JSON.stringify(tile)), `"${n}": a photoless event always gets a designed tile (never hidden, never a photo)`);
+    const html = renderToStaticMarkup(React.createElement(RailCard, { title: n, photo: "", placeholder: tile }));
+    ok(/role="img"/.test(html) && html.includes(`aria-label="${tile.label} illustration"`) && /data-artwork="illustration"/.test(html), `"${n}": the tile is announced as an illustration`);
+    ok(!/<img/.test(html) && !/wf-place-card-photo-attr/.test(html), `"${n}": no image element and no photo credit on the tile`);
+  }
+  const withPhoto = renderToStaticMarkup(React.createElement(RailCard, { title: "x", photo: "/api/photo?place=ChIJx&w=640", placeholder: eventPlaceholder("community", { name: "Christmas on Las Olas" }) }));
+  ok(/<img/.test(withPhoto) && !/wf-event-placeholder/.test(withPhoto), "a real venue photo always wins over the tile");
+  const routeSrc = read("app/api/events/christmas/route.js");
+  ok(/placeholder: image \? null : eventPlaceholder\(/.test(routeSrc) && /\.filter\(\(event\) => \(event\.image \|\| event\.placeholder\) && \(event\.url \|\| event\.place_id \|\| event\.detailHref\)\)/.test(routeSrc), "the route keeps every photoless event that has a destination (static)");
+  const css = (await lc(path.join(ROOT, "app/components/css.js"), ROOT)).WF_PLACE_CARD_CSS;
+  ok(/\.wf-event-placeholder:after\{display:none\}/.test(css), "the tile drops the monogram ring, so it reads as flat artwork");
 }
 
 // ── 7. Wiring (STATIC: a component and a route cannot be executed here) ─────

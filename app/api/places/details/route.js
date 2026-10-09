@@ -22,6 +22,7 @@
 // SDK path (see pickSuggestionDetails's fallback in app/home.js).
 import { NextResponse } from "next/server";
 import { gateShut, spendAllow, spendAllowDetailsAtmosphere } from "../../../../lib/spendGate";
+import { placeDiscoveryRef } from "../../../../lib/discoveryRef.js";
 import { getInventoryIdentity } from "../../../../lib/inventoryIdentity.js";
 
 export const dynamic = "force-dynamic";
@@ -109,6 +110,10 @@ export async function POST(req) {
     if (typeof place.priceLevel === "string" && place.priceLevel.startsWith("PRICE_LEVEL_")) {
       place.priceLevel = place.priceLevel.slice("PRICE_LEVEL_".length);
     }
+    // COMPLIANCE (2026-10-08): Google forbids caching a photo name, and this
+    // body is cached by clients. Reduce photos to one place-only pseudo-ref
+    // (or none): no real names, no author attributions.
+    if ("photos" in place) place.photos = Array.isArray(place.photos) && place.photos.length ? [{ name: placeDiscoveryRef(placeId) }] : [];
     return NextResponse.json({ place });
   } catch {
     const fallback = await inventoryPlace(placeId);

@@ -6,6 +6,7 @@ export const runtime = "nodejs";
 
 import { priceNumFrom } from "../../../lib/price.js";
 import { BROWSE_INVENTORY_N } from "../../../lib/browseInventory.js";
+import { toDiscoveryRef } from "../../../lib/discoveryRef.js";
 import { allCreators } from "../../../lib/creatorVideos.js";
 import { NET_DEADLINE_MS, fetchDeadline } from "../../../lib/fetchDeadline.js";
 import { distMeters, invRowToPlace, serveFromInventory, serveInventoryByPlaceIds } from "../../../lib/inventoryServe.js";
@@ -42,7 +43,7 @@ function toPlace(raw, origin, inventoryCategory) {
     priceNum: priceNum(raw.priceLevel ?? raw.priceNum),
     editorial: raw?.editorialSummary?.text || raw?.editorial || null,
     photo: raw.photo_url || raw.photoUrl || null,
-    photoRef: raw?.photo_ref || raw?.photos?.[0]?.name || null,
+    photoRef: toDiscoveryRef(raw?.photo_ref || raw?.photos?.[0]?.name || null), // 2026-10-08: place-only pseudo-ref
     distMi: Math.round((distMeters(origin.lat, origin.lng, lat, lng) / 1609.34) * 10) / 10,
     inventoryCategory,
     _wfInventory: true,

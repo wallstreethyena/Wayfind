@@ -3,6 +3,7 @@
 // the ledger call is stubbed by pointing fetch at a local function.
 import { CORE_DETAILS_MASK, RATING_DETAILS_MASK, PROMOTE_SKU, RATING_SKU, withIndexSignals, maskTier, hasIndexRating } from "../lib/promoteDetails.js";
 import { buildInventoryRow } from "../lib/seedPlaces.js";
+import { toWriteRow } from "../lib/promoteIndex.js";
 
 let pass = 0;
 const fail = (m) => { console.error("test-promote-details: FAIL — " + m); process.exit(1); };
@@ -49,7 +50,13 @@ eq(built.row.signals.rating, 4.6, "signals.rating comes from the index");
 eq(built.row.signals.reviews, 312, "signals.reviews comes from the index");
 eq(built.row.signals.price, null, "price is null (enrichment, not bought at promotion)");
 eq(built.row.editorial, null, "editorial is null (enrichment, not bought at promotion)");
-eq(built.row.photo_ref, "places/p1/photos/a", "photo reference is kept (Essentials, free)");
+// 2026-10-08 (Maps Terms 3.2.3, "cannot cache a photo name"): the row keeps only the place-only
+// pseudo-ref (presence = Google reported a photo), never the real name `.../photos/a`.
+eq(built.row.photo_ref, "places/p1/photos/wfplacediscovery", "photo presence is kept as the place-only pseudo-ref (Essentials, free), never the real photo name");
+eq(JSON.stringify(built.row).indexOf("/photos/a\""), -1, "the built inventory row carries no real Google photo name anywhere");
+const written = toWriteRow({ ...built.row, photo_ref: "places/p1/photos/REAL" }, nowIso);
+eq(written.photo_ref, "places/p1/photos/wfplacediscovery", "toWriteRow collapses a real photo name to the pseudo-ref before it reaches wf_inventory");
+eq(toWriteRow({ ...built.row, photo_ref: null }, nowIso).photo_ref, null, "toWriteRow keeps 'no photo' as null");
 eq(built.row.status, "OPERATIONAL", "businessStatus still gates closed listings");
 const bare = buildInventoryRow(withIndexSignals(core, null), "manatee-sarasota", { nowIso });
 eq(bare.row.signals.rating, null, "no index signal -> rating null (never invented)");

@@ -13,8 +13,7 @@ import { NET_DEADLINE_MS } from "../../../lib/fetchDeadline.js";
 import { BIRTHDAY_WIDEN_MI, BIRTHDAY_RAIL_ORDER, birthdayRailMembership, composeBirthdayRails } from "../../../lib/birthdayIntent.js";
 import { BIRTHDAY_REWARD_PLACE_IDS, birthdayRewardFor } from "../../../lib/birthdayRewards.js";
 import { completeAnswersOnly, fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
-import { cgetMany } from "../../../lib/serverCache.js";
-import { PHOTO_REF_RX, isOwnedPhotoUrl, photoCacheKey } from "../../../lib/placePhotoServe.js";
+import { toDiscoveryRef } from "../../../lib/discoveryRef.js";
 import { windowRailAnswer } from "../../../lib/railResponse.js";
 import { pageOneRail } from "../../../lib/railPage.js";
 
@@ -36,24 +35,11 @@ const PHOTO_CACHE_STALE_MS = 60 * 60 * 24 * 30 * 1000;
 // /api/photo route exactly as before (which is where the ledger lives).
 // Only owned googleusercontent URLs are attached (isOwnedPhotoUrl), so a
 // stock or fallback URL can never be laundered into a place card here.
+// COMPLIANCE (2026-10-08): this used to read the stored photo| cache rows (cached
+// Google photo URLs) and put them on cards. Google Maps Platform Terms 3.2.3
+// forbid caching that content, so photo| rows are no longer read or written
+// anywhere. Cards load through /api/photo, which resolves by place ID.
 async function attachCachedPhotos(rails) {
-  const refs = [];
-  for (const rail of rails || []) for (const p of rail.places || []) {
-    if (!p.photo && p.photoRef && PHOTO_REF_RX.test(p.photoRef)) refs.push(p.photoRef);
-  }
-  if (!refs.length) return rails;
-  let hits;
-  try {
-    hits = await cgetMany(refs.map((ref) => photoCacheKey(ref, RAIL_PHOTO_W)), { staleMs: PHOTO_CACHE_STALE_MS });
-  } catch {
-    return rails; // cache unreachable: the cards still load, one hop slower
-  }
-  for (const rail of rails || []) for (const p of rail.places || []) {
-    if (p.photo || !p.photoRef) continue;
-    const hit = hits.get(photoCacheKey(p.photoRef, RAIL_PHOTO_W));
-    const uri = hit && hit.v && typeof hit.v.uri === "string" ? hit.v.uri : null;
-    if (uri && isOwnedPhotoUrl(uri)) p.photo = uri;
-  }
   return rails;
 }
 function json(body, status = 200, cache = "public, s-maxage=3600, stale-while-revalidate=86400") {
@@ -69,7 +55,7 @@ function toBirthdayPlace(raw, origin) {
   const lat = Number(raw?.location?.latitude ?? raw?.lat);
   const lng = Number(raw?.location?.longitude ?? raw?.lng);
   if (!id || !name || !Number.isFinite(lat) || !Number.isFinite(lng)) return null;
-  const photoRef = raw?.photo_ref || raw?.photos?.[0]?.name || null;
+  const photoRef = toDiscoveryRef(raw?.photo_ref || raw?.photos?.[0]?.name || null); // 2026-10-08: place-only pseudo-ref
   const place = {
     id, name, lat, lng,
     rating: typeof raw.rating === "number" ? raw.rating : null,
