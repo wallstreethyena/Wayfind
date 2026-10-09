@@ -111,6 +111,26 @@ throwsSync(() => costOfUsage(H45, { input_tokens: "5", output_tokens: 5 }, PRICE
 throwsSync(() => costOfUsage(H45, { input_tokens: 5.5, output_tokens: 5 }, PRICE_VERSION, { toolsUsed: false }), UsageMissingError, "fractional input_tokens");
 throwsSync(() => costOfUsage(H45, { input_tokens: 5, output_tokens: 5 }), UsageMissingError, "missing server_tool_use is UNKNOWN, not 0, when a search tool was present");
 
+// ═════ 2b. absent search count: content blocks as second evidence ═════════════
+{
+  const u = { input_tokens: 1000, output_tokens: 200 }; // no server_tool_use; H45: 1,000,000 + 1,000,000 nano = 2000 micro
+  const noSearch = [{ type: "text", text: "hi" }];
+  const c0 = costOfUsage(H45, u, PRICE_VERSION, { contentBlocks: noSearch });
+  eq(c0.microUsd, 2000, "absent count + no search blocks => 0 searches priced"); eq(c0.breakdown.searchCountSource, "content_blocks", "source recorded");
+  throwsSync(() => costOfUsage(H45, u, PRICE_VERSION, { contentBlocks: [{ type: "server_tool_use", name: "web_search" }] }), UsageMissingError, "absent count + search call block => throws (ambiguous)");
+  throwsSync(() => costOfUsage(H45, u, PRICE_VERSION, { contentBlocks: [{ type: "web_search_tool_result" }] }), UsageMissingError, "absent count + search result block => throws");
+  throwsSync(() => costOfUsage(H45, u, PRICE_VERSION, {}), UsageMissingError, "no contentBlocks => still throws");
+  const withCount = costOfUsage(H45, { ...u, server_tool_use: { web_search_requests: 1 } }, PRICE_VERSION, { contentBlocks: noSearch });
+  eq(withCount.breakdown.webSearches, 1, "present count wins over content"); eq(withCount.breakdown.searchCountSource, "usage", "source usage"); eq(withCount.microUsd, 12000, "2000 + 10,000 for one search");
+  const withCount2 = costOfUsage(H45, { ...u, server_tool_use: { web_search_requests: 0 } }, PRICE_VERSION, { contentBlocks: [{ type: "server_tool_use", name: "web_search" }] });
+  eq(withCount2.breakdown.webSearches, 0, "present count (0) wins even when content shows a search block");
+  const { budget, ledger } = await mk({ ceiling: 100000 });
+  const bad = await runAttempt({ budget, attemptKey: "cb1", placeId: "cbp", model: H45, limits: { ...LIM, maxSearches: 3 }, call: async () => ({ usage: u, contentBlocks: [{ type: "web_search_tool_result" }] }) });
+  eq(bad.status, "unresolved", "runAttempt: ambiguous search evidence => unresolved");
+  const good = await runAttempt({ budget, attemptKey: "cb2", placeId: "cbp2", model: H45, limits: { ...LIM, maxSearches: 3 }, call: async () => ({ usage: u, contentBlocks: noSearch }) });
+  eq(good.status, "settled", "runAttempt: no search blocks => settles"); eq(good.microUsd, 2000, "settled at 2000");
+}
+
 // ═════ 3. admission: insufficient budget => ZERO provider calls ═══════════════
 {
   const { budget } = await mk({ ceiling: BOUND - 1 });

@@ -187,7 +187,7 @@ export async function runPilot(opts) {
           }
           throw new Error(`provider http ${r.status} ${(json && json.error && json.error.type) || ""}`); // -> unresolved
         }
-        return { requestId, result: { httpStatus: r.status, json }, usage: json && json.usage };
+        return { requestId, result: { httpStatus: r.status, json }, usage: json && json.usage, contentBlocks: Array.isArray(json && json.content) ? json.content : undefined };
       };
       const out = await B.runAttempt({
         budget, attemptKey: `${manifest.pilotId}:${mp.place_id}:${model}`, placeId: mp.place_id, model,
