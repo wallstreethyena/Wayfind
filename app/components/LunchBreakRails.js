@@ -1,4 +1,5 @@
 "use client";
+import RailGuideSlot from "./RailGuideSlot";
 import GuideRailCollection from "./GuideRailCollection";
 
 import { useMemo } from "react";
@@ -28,7 +29,7 @@ export default function LunchBreakRails({ places = [], city = "", onOpenPlace, i
           <RailNav railId={"lunch-break-" + rail.id} count={rail.places.length} unit={rail.places.length === 1 ? "ranked place" : "ranked places"} />
         </RailHeading>
         <>
-          <div className="wf-rail wf-rail-exploding" data-rail={"lunch-break-" + rail.id} tabIndex={0} role="region" aria-label={rail.title}>
+          <div className="wf-rail wf-rail-exploding" data-rail={"lunch-break-" + rail.id} tabIndex={0} role="region" aria-label={rail.title}><RailGuideSlot railId={rail.id}>
             {rail.places.map((place, index) => {
               const cardRank = index + 1;
               const photo = place.photo || place.photoUrl || (place.photoRef || place.photo_ref ? "/api/photo?ref=" + encodeURIComponent(place.photoRef || place.photo_ref) + "&g=2&w=640" : null);
@@ -48,7 +49,7 @@ export default function LunchBreakRails({ places = [], city = "", onOpenPlace, i
                 onDislike={onDislike ? (event) => onDislike(event, place) : undefined}
                 onShare={onShare ? () => onShare(place, { city }) : undefined} />;
             })}
-          </div>
+          </RailGuideSlot></div>
           {rail.places.length > 1 ? <RailDots railId={"lunch-break-" + rail.id} count={rail.places.length} /> : null}
         </>
       </section>

@@ -1,4 +1,5 @@
 "use client";
+import RailGuideSlot from "./RailGuideSlot";
 import GuideRailCollection from "./GuideRailCollection";
 
 import { useEffect, useMemo, useRef } from "react";
@@ -50,7 +51,7 @@ export default function CreatorPicksRails({
         <RailHeading title={`@${rail.handle}’s picks`} description={`Places @${rail.handle} posted about${city ? ` near ${city}` : ""}.`}>
           <RailNav railId={railId} count={rail.places.length} unit={rail.places.length === 1 ? "creator pick" : "creator picks"} />
         </RailHeading>
-        <div className="wf-rail wf-rail-exploding" data-rail={railId} tabIndex={0} role="region" aria-label={`@${rail.handle}'s picks`}>
+        <div className="wf-rail wf-rail-exploding" data-rail={railId} tabIndex={0} role="region" aria-label={`@${rail.handle}'s picks`}><RailGuideSlot railId={rail.id}>
           {rail.places.map((place, index) => {
             const rank = index + 1;
             const score = Number.isFinite(place.governed_score)
@@ -86,7 +87,7 @@ export default function CreatorPicksRails({
               onShare={onShare ? () => onShare(place, { city, creator: rail.handle }) : undefined}
             />;
           })}
-        </div>
+        </RailGuideSlot></div>
         {rail.places.length > 1 ? <RailDots railId={railId} count={rail.places.length} /> : null}
       </section>;
     })}

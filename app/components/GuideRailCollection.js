@@ -1,12 +1,13 @@
 "use client";
-import { Children, Fragment, useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { GuideDiscoveryContext } from './GuideDiscoveryContext';
-import GuideDiscoveryCard from './GuideDiscoveryCard';
+import { RailGuideContext } from './RailGuideContext';
 import { guideRailCandidates, settleGuideRailSelection } from '../../lib/guideRailCollections.js';
-import { PLACE_CARD_MAX_WIDTH_PX } from '../../lib/placeCardStandard.js';
 
-// A single editorial pause BETWEEN actual subrails. The existing ranked
-// children, their paging refs, event facts, and commerce controls stay intact.
+// The collection's ONE matched guide (same matching as before: exact place
+// evidence, stable selection). It is no longer an aside between rails (owner
+// rule 2026-10-08, lib/railGuideSlot.js): this component only says WHICH rail
+// owns the guide, and that rail's RailGuideSlot puts it third in its track.
 export default function GuideRailCollection({ rails = [], collectionId, children }) {
   const guides = useContext(GuideDiscoveryContext);
   const [previous, setPrevious] = useState(null);
@@ -15,14 +16,7 @@ export default function GuideRailCollection({ rails = [], collectionId, children
   useEffect(() => {
     if (selected?.railId !== previous?.railId || selected?.guide.slug !== previous?.guide?.slug) setPrevious(selected);
   }, [selected, previous]);
-  const rows = Children.toArray(children);
-  // A mismatched wrapper is not permission to guess which rail a node is.
-  if (rows.length !== rails.length) return <>{children}</>;
-  return <>{rows.map((child, index) => <Fragment key={rails[index].id}>
-    {child}
-    {selected?.railId === rails[index].id ? <aside aria-label="Go deeper with a local guide"
-      data-guide-rail={selected.railId} style={{ margin: '22px 0 4px', width: '100%', maxWidth: PLACE_CARD_MAX_WIDTH_PX }}>
-      <GuideDiscoveryCard guide={selected.guide} matched={selected.matched} />
-    </aside> : null}
-  </Fragment>)}</>;
+  const value = useMemo(() => (selected ? { [selected.railId]: { guide: selected.guide, matched: selected.matched } } : null),
+    [selected?.railId, selected?.guide, selected?.matched]); // eslint-disable-line react-hooks/exhaustive-deps
+  return <RailGuideContext.Provider value={value}>{children}</RailGuideContext.Provider>;
 }

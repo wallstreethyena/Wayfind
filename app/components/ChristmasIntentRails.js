@@ -1,7 +1,5 @@
 "use client";
-import { Fragment } from "react";
-import GuideDiscoveryCard from "./GuideDiscoveryCard";
-import { PLACE_CARD_MAX_WIDTH_PX } from "../../lib/placeCardStandard.js";
+import RailGuideSlot from "./RailGuideSlot";
 
 // Christmas in Florida: five intent rails behind one poster tap, modeled on
 // FallIntentRails (owner, 2026-10-08). Every card is the STANDARD horizontal
@@ -104,7 +102,7 @@ function ChristmasRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, isSa
       <RailNav railId={railId} count={cardCount} total={cardCount} loaded={items.length} unit={cardCount === 1 ? "ranked option" : "ranked options"} />
     </RailHeading>
     <>
-      <div className="wf-rail wf-rail-exploding wf-christmas" data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}>
+      <div className="wf-rail wf-rail-exploding wf-christmas" data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}><RailGuideSlot railId={rail.id} guide={rail.guide >
         {items.map((card, index) => {
           const rank = index + 1;
           const isEvent = card.kind === "event";
@@ -144,7 +142,7 @@ function ChristmasRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, isSa
         })}
         {loadingMore ? <div className="wf-rail-card wf-exploding-primary wf-sk" role="status" aria-busy="true" aria-label={`Loading more ${rail.title}`}
           style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 88, color: COLORS.muted, fontSize: 12.5 }}>Loading more…</div> : null}
-      </div>
+      </RailGuideSlot></div>
       {items.length > 1 ? <RailDots railId={railId} count={items.length} /> : null}
     </>
   </section>;
@@ -199,16 +197,10 @@ export default function ChristmasIntentRails({
   if ((!payload && !failure) || (payload?.today && payload.today !== today)) return <RailLoading label="Ranking Florida Christmas plans" />;
   if (failure) return failure.kind === "developer" ? <RailDevError /> : <RailMascotBusy rail="christmas" failure={failure} onRetry={() => setRetry((value) => value + 1)} onVisible={() => { void emitRailDegraded(failure, { rail: "christmas" }); }} />;
 
-  // Each rail links its OWN guide, straight after the rail (owner, 2026-10-08).
-  // The guide arrives server projected on rail.guide; none of it is bundled.
-  return <>{payload.rails.map((rail) => <Fragment key={`${today}:${rail.id}`}>
-    <ChristmasRailSection rail={rail} lat={lat} lng={lng} onOpenPlace={onOpenPlace} onTrack={onTrack} city={city}
-      isSaved={isSaved} liked={liked} disliked={disliked} isLiked={isLiked} isDisliked={isDisliked}
-      onSave={onSave} onLike={onLike} onDislike={onDislike} onShare={onShare} />
-    {rail.guide ? <aside aria-label="Go deeper with a local guide" data-guide-rail={rail.id}
-      style={{ margin: "22px 0 4px", width: "100%", maxWidth: PLACE_CARD_MAX_WIDTH_PX }}>
-      <GuideDiscoveryCard guide={rail.guide} matched={null}
-        onOpen={(g) => { try { onTrack?.("guide_open", { rail: rail.id, slug: g.slug, src: "christmas_rail" }); } catch {} }} />
-    </aside> : null}
-  </Fragment>)}</>;
+  // Each rail links its OWN guide (owner, 2026-10-08), carried server side on
+  // rail.guide and placed INSIDE that rail as its third card (RailGuideSlot,
+  // lib/railGuideSlot.js): nothing renders between the rails.
+  return <>{payload.rails.map((rail) => <ChristmasRailSection key={`${today}:${rail.id}`} rail={rail} lat={lat} lng={lng} onOpenPlace={onOpenPlace} onTrack={onTrack} city={city}
+    isSaved={isSaved} liked={liked} disliked={disliked} isLiked={isLiked} isDisliked={isDisliked}
+    onSave={onSave} onLike={onLike} onDislike={onDislike} onShare={onShare} />)}</>;
 }

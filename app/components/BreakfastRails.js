@@ -1,4 +1,5 @@
 "use client";
+import RailGuideSlot from "./RailGuideSlot";
 import GuideRailCollection from "./GuideRailCollection";
 
 import { useMemo } from "react";
@@ -33,7 +34,7 @@ export default function BreakfastRails({ places = [], city = "", hasMore = false
               <div className="wf-rail wf-rail-exploding" data-rail={rail.id} tabIndex={0} role="region" aria-label={rail.title}
                 onScroll={(event) => {
                   if (hasMore && !loadingMore && railScrollNeedsMore(event.currentTarget, Math.max(180, event.currentTarget.clientWidth * 0.75))) onLoadMore?.();
-                }}>
+                }}><RailGuideSlot railId={rail.id}>
                 {rail.places.map((place, index) => {
                   const rank = index + 1;
                   const photo = place.photo || place.photoUrl || (place.photoRef || place.photo_ref
@@ -68,7 +69,7 @@ export default function BreakfastRails({ places = [], city = "", hasMore = false
                     onShare={onShare ? () => onShare(place, { city }) : undefined}
                   />;
                 })}
-              </div>
+              </RailGuideSlot></div>
               {rail.places.length > 1 ? <RailDots railId={rail.id} count={rail.places.length} /> : null}
           </>
         </section>

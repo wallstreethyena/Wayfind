@@ -1,4 +1,5 @@
 "use client";
+import RailGuideSlot from "./RailGuideSlot";
 import GuideRailCollection from "./GuideRailCollection";
 
 import { selectPosterEvents } from "../../lib/posterEvents.js";
@@ -108,7 +109,7 @@ function DateNightRailSection({ rail, lat, lng, city, hour, eventCards = [], eve
         <RailNav railId={railId} count={count} total={count} loaded={eventCards.length + items.length}
           unit={count === 1 ? "place for " + rail.title.toLowerCase() : "places for " + rail.title.toLowerCase()} />
       </RailHeading>
-      <div className="wf-rail wf-rail-exploding" data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}>
+      <div className="wf-rail wf-rail-exploding" data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}><RailGuideSlot railId={rail.id}>
         {eventCards.map((card, index) => card?.$$typeof
           ? card
           : <PosterEventCard key={`event:${card.id || index}`} event={card} rank={index + 1} surface="date_night_livemusic" />)}
@@ -152,7 +153,7 @@ function DateNightRailSection({ rail, lat, lng, city, hour, eventCards = [], eve
         })}
         {loadingMore ? <div className="wf-rail-card wf-exploding-primary wf-sk" role="status" aria-busy="true" aria-label={`Loading more ${rail.title}`}
           style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 88, color: C.muted, fontSize: 12.5 }}>Loading more…</div> : null}
-      </div>
+      </RailGuideSlot></div>
       {eventCards.length + items.length > 1 ? <RailDots railId={railId} count={eventCards.length + items.length} /> : null}
     </section>
   );

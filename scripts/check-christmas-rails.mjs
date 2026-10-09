@@ -387,8 +387,8 @@ ok(/\.from\("wf_inventory"\)/.test(route) && /fetchCuratedEvents\(/.test(route),
 ok(/rails\?\.length === 5/.test(route), "the route's cache gate requires exactly five rails");
 const comp = read("app/components/ChristmasIntentRails.js");
 ok(/result\.rails\.length !== RAIL_COUNT/.test(comp) && /RAIL_COUNT = 5/.test(comp), "the component requires exactly five rails");
-ok(/<GuideDiscoveryCard guide=\{rail\.guide\}/.test(comp) && !/GuideRailCollection/.test(comp), "the component renders each rail's own guide card straight after the rail (static)");
-ok(/guide_open/.test(comp) && /rail: rail\.id/.test(comp), "a guide click is tracked with the rail and slug (static)");
+ok(/<RailGuideSlot railId=\{rail\.id\} guide=\{rail\.guide/.test(comp) && !/GuideRailCollection|<aside/.test(comp), "each rail puts its own guide third inside its own track, nothing between rails (static; owner rule 2026-10-08)");
+ok(/onTrack=\{onTrack\}/.test(comp) && /"guide_open", props/.test(read("app/components/RailGuideSlot.js")) && /rail: railId/.test(read("app/components/RailGuideSlot.js")), "a guide click is tracked as guide_open with the rail and slug (static)");
 ok(/christmas-intents:v4:/.test(route) && /enrichChristmasEvent\(e, inventoryById\)/.test(route) && /withChristmasGuides\(composed\.rails, today\)/.test(route), "the route bumps its cache key and attaches guides server side (static)");
 ok(!/directionsUrl|fallSkin|isSpookyCard|spookySkin|wf-fall/.test(comp), "the component wears no fall or spooky skin and no Directions button");
 ok(/christmasEventTicket\(e\.event_id, byDealId\)/.test(route) && /ticket,\s*\n/.test(route), "the route attaches ticket to every event card (static)");
