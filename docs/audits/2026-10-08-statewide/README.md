@@ -67,6 +67,9 @@ Every statement was a compare-and-set: it only changed a row still holding the o
 - **Tampa vs St. Pete metro, 227 rows** labeled `tampa` sit inside the `st-pete` box.
   Relabeling would drop them from `/eat/tampa` and other `tampa` pages. Decide whether
   St. Pete belongs on Tampa pages (fold `st-pete` into the Tampa reads) before relabeling.
+- 529 Florida rows still carry old area labels (`st-augustine-fl`, `jacksonville-fl`, `panama-city-florida`, 63 `avon-park-fl`...) where the coordinates fall in no core metro (the bucket answers only `florida`). Left as is: there is no better label to give them yet.
+- 12 low-confidence Wikipedia matches were kept because they are the right place (Fun Spot America, Turtle Hospital, UK Pavilion at Epcot, Orlando Premium Outlets, Stumphouse Tunnel, Sudha Cars Museum, Heritage Farm Museum, National Harbor, Nokomis Beach, Parque de Santurce, Monkey Joe's, Cortez Beach).
+- Guide placement and numbering were not audited here (the Christmas lane changed guide slots the same day).
 - 11 `manatee-sarasota` rows that bucket to `tampa` (Fort De Soto, Skyway: Pinellas;
   Moody Branch, North River Ranch: Manatee) and Everglades National Park: left as is.
 - 5 event pins more than 3 miles from their Census geocode (rural address interpolation:
