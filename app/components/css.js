@@ -131,6 +131,10 @@ export const WF_SEARCH_CSS = `.wf-search-row{filter:drop-shadow(0 11px 20px rgba
 // :not(.is-active) and the border yields to liked/disliked.
 // The take rule is written "<sel> {" with a space, as the fall one is, so
 // check-known-for-tiers keeps matching the BASE .wf-place-card-take{ rule.
+// .wf-event-placeholder (below, in the shared card CSS): the designed tile for
+// an event with no verified photo (lib/eventPlaceholder.js, owner 2026-10-08)
+// is flat artwork with a centred caption and no monogram ring, so it can never
+// read as a photograph.
 const XMAS_SCOPES = [".wf-christmas .wf-place-card:not(.wf-guide-card)", ".wf-place-card.wf-christmas-card:not(.wf-guide-card)"];
 const XMAS = (tail = "", scopeTail = "") => XMAS_SCOPES.map((scope) => scope + scopeTail + (tail ? " " + tail : "")).join(",");
 const XMAS_ROSE = "#E8B48A";
@@ -207,9 +211,6 @@ ${WF_SKELETON_CSS}
   background:radial-gradient(circle at 35% 24%,rgba(255,121,24,.18),transparent 35%),linear-gradient(155deg,#192230,#0D131E 72%);
   box-shadow:inset -1px 0 rgba(159,177,203,.1);
 }
-/* The designed tile for an event with no verified photo (lib/eventPlaceholder.js,
-   owner 2026-10-08): flat artwork, centred caption, no monogram ring, nothing
-   that could read as a photograph. */
 .wf-event-placeholder:after{display:none}
 .wf-event-placeholder{padding:10px 6px;text-align:center}
 .wf-event-placeholder>span:last-child{display:block;max-width:100%;text-align:center;line-height:1.25;overflow-wrap:anywhere}
