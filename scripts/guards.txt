@@ -1215,6 +1215,7 @@ node scripts/check-fall-offering-freshness.mjs
 # 2026-09-03 — one event-affiliate registry (lib/eventTicketDeals.js), product-true,
 # routed through /api/commerce/go on the fall rail, the Events feed and the event page.
 node scripts/check-event-ticket-deals.mjs
+node scripts/check-event-ticket-fallback.mjs
 node scripts/check-affiliate-coverage.mjs
 # 2026-09-16 (Lane B) — MENU_PARTNER_OFFERS: the metro-gated, category:sub-keyed
 # partner rail feeding UnifiedBrowseCommerceRail independent of loaded places.
