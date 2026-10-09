@@ -80,7 +80,7 @@ const daypart = strip(readFileSync(path.join(ROOT, "app/components/DaypartRail.j
 ok(/guideForPlaceRail\(/.test(daypart) && /i === guideInsert\.before/.test(daypart), "the homepage drop places its guide at guideForPlaceRail's slot, inside the track");
 ok(/guideSlotIndex\(/.test(strip(readFileSync(path.join(ROOT, "lib/guideDiscovery.js"), "utf8"))), "guideForPlaceRail takes its slot from the shared helper");
 const christmas = strip(readFileSync(path.join(ROOT, "app/components/ChristmasIntentRails.js"), "utf8"));
-ok(/<RailGuideSlot railId=\{rail\.id\} guide=\{rail\.guide/.test(christmas), "each Christmas rail puts its OWN guide third in its own track");
+ok(/<RailGuideSlot railId=\{rail\.id\} guide=\{rail\.guide \?\? null\} onTrack=\{onTrack\}>/.test(christmas), "each Christmas rail puts its OWN guide third in its own track");
 // Positive control for the static detector: a between-rails aside is caught.
 ok(/Go deeper with a local guide/.test(`<aside aria-label="Go deeper with a local guide">`), "POSITIVE CONTROL: the aside detector matches the old shape");
 
