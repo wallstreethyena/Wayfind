@@ -269,11 +269,11 @@
       "place_associations": [
         {
           "curated_key": "taza-cafe-fort-myers",
-          "place_id": null,
+          "place_id": "ChIJ67hmTotB24gRqyZaJDviGIE",
           "name": "Taza Cafe Fort Myers",
           "city": "Fort Myers",
           "address": "4458 Cleveland Avenue, Fort Myers, FL 33901",
-          "native_wayfind_surface": "creator_find_preview:taza-cafe-fort-myers",
+          "native_wayfind_surface": "/p/ChIJ67hmTotB24gRqyZaJDviGIE",
           "renderability": "registry_backed_creator_card"
         }
       ],
