@@ -386,12 +386,12 @@
       "place_associations": [
         {
           "curated_key": "roosters-cigars-coffee-tampa",
-          "place_id": null,
+          "place_id": "ChIJzzp4zxPDwogRuP2urL4IRTc",
           "name": "Roosters Cigars & Coffee",
           "city": "Tampa",
           "address": "3103 N Howard Avenue, Tampa, FL 33607",
-          "native_wayfind_surface": "creator_find_preview:roosters-cigars-coffee-tampa",
-          "renderability": "registry_backed_creator_card"
+          "native_wayfind_surface": "/p/ChIJzzp4zxPDwogRuP2urL4IRTc",
+          "renderability": "hydrated_place_detail_and_creator_card"
         }
       ],
       "event_associations": [],
