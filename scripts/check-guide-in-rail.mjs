@@ -121,5 +121,66 @@ ok(/<RailGuideSlot railId=\{rail\.id\} guide=\{rail\.guide \?\? null\} onTrack=\
 // Positive control for the static detector: a between-rails aside is caught.
 ok(/Go deeper with a local guide/.test(`<aside aria-label="Go deeper with a local guide">`), "POSITIVE CONTROL: the aside detector matches the old shape");
 
+// ── 5. the guide is a real swipe stop (owner, 2026-10-09) ──────────────────
+// RailGuideSlot wraps the card in display:contents, so the track's direct
+// child snap rules (.wf-rail>.wf-place-card) never reach it and a phone swipe
+// flew past the guide. The shipped CSS must give the guide card its own snap
+// point, and every track that hosts RailGuideSlot must be a snap container.
+let swipe = "browser swipe not run";
+{
+  const { WF_PLACE_CARD_CSS } = await loadComponent(path.join(ROOT, "app/components/css.js"), ROOT);
+  const css = String(WF_PLACE_CARD_CSS);
+  const snapRule = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)].find((m) => m[1].split(",").map((x) => x.trim()).includes(".wf-rail-guide-slot>.wf-place-card"));
+  ok(!!snapRule && /scroll-snap-align:start/.test(snapRule[2]), "the shipped CSS gives the guide card (.wf-rail-guide-slot>.wf-place-card) scroll-snap-align:start");
+  ok(/\.wf-rail\{[^}]*scroll-snap-type:x mandatory/.test(css), "the .wf-rail track is a mandatory snap container");
+  const hosts = files.filter((f) => /<RailGuideSlot[\s>]/.test(strip(readFileSync(f, "utf8"))));
+  for (const f of hosts) {
+    const src = strip(readFileSync(f, "utf8"));
+    const before = src.slice(0, src.search(/<RailGuideSlot[\s>]/));
+    const open = before.lastIndexOf("<div className=");
+    ok(open !== -1 && /^<div className=(?:"wf-rail[ "]|\{`wf-rail )/.test(before.slice(open)), `${rel(f)}: the track that hosts the guide is a .wf-rail snap container`);
+  }
+  ok(hosts.length >= 11, `every guide host track was checked (${hosts.length})`);
+  // A real swipe at 390px, when a browser is available.
+  let chromium = null;
+  try { ({ chromium } = await import("playwright")); } catch {}
+  const exe = "/opt/pw-browsers/chromium-1194/chrome-linux/chrome";
+  if (chromium) {
+    const { existsSync } = await import("node:fs");
+    const opts = existsSync(exe) ? { executablePath: exe } : {};
+    let browser = null;
+    try { browser = await chromium.launch(opts); } catch { browser = null; }
+    if (browser) {
+      const RailCard = (await loadComponent(path.join(ROOT, "app/components/RailCard.js"), ROOT)).default;
+      const cardsHtml = renderToStaticMarkup(React.createElement("div", { className: "wf-rail wf-rail-exploding", "data-rail": "t" },
+        React.createElement(RailGuideSlot, { railId: "t", guide: g }, [0, 1, 2, 3, 4].map((i) => React.createElement(RailCard, { key: i, className: "wf-exploding-primary", title: "Card " + i, rank: i + 1, photo: "", place: { id: "p" + i, name: "p" } })))));
+      const page = await browser.newPage({ viewport: { width: 390, height: 700 }, hasTouch: true, isMobile: true });
+      await page.setContent(`<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>*{box-sizing:border-box}body{margin:0;padding:0 13px}${css}</style></head><body>${cardsHtml}</body></html>`);
+      const res = await page.evaluate(async () => {
+        const rail = document.querySelector('[data-rail="t"]');
+        const tiles = [...rail.querySelectorAll(".wf-place-card")];
+        const guide = rail.querySelector(".wf-rail-guide-slot>.wf-place-card");
+        const left = (el) => el.getBoundingClientRect().left - rail.getBoundingClientRect().left + rail.scrollLeft;
+        const wait = () => new Promise((r) => setTimeout(r, 700));
+        rail.scrollTo({ left: left(tiles[1]), behavior: "instant" }); await wait();
+        // one card width of swipe from card 2 lands on the guide (index 2)
+        const step = left(tiles[2]) - left(tiles[1]);
+        rail.scrollBy({ left: step * 0.62, behavior: "instant" }); await wait();
+        // The snap position is the card's left edge minus the rail's scroll padding
+        // (main #1704 gave .wf-rail scroll-padding-inline:4px so the ring is not cut off).
+        const pad = parseFloat(getComputedStyle(rail).scrollPaddingInlineStart) || 0;
+        const landed = Math.abs(rail.scrollLeft - (left(guide) - pad)) <= 2;
+        return { landed, idx: tiles.indexOf(guide), scroll: rail.scrollLeft, guideAt: left(guide) - pad, w: guide.getBoundingClientRect().width, sib: tiles[1].getBoundingClientRect().width, snap: getComputedStyle(guide).scrollSnapAlign };
+      });
+      await browser.close();
+      ok(res.idx === 2, `the guide is the third tile in the real track (index ${res.idx})`);
+      ok(res.snap === "start", `the guide card's computed scroll-snap-align is start (got ${res.snap})`);
+      ok(Math.abs(res.w - res.sib) <= 1, `the guide card is as wide as its siblings (${res.w} vs ${res.sib})`);
+      ok(res.landed, `a swipe from card 2 snaps onto the guide at 390px (scroll ${Math.round(res.scroll)}, guide at ${Math.round(res.guideAt)})`);
+      swipe = `swipe at 390px landed on the guide (scroll ${Math.round(res.scroll)} = guide ${Math.round(res.guideAt)})`;
+    }
+  }
+}
+
 if (fail.length) { console.error("check-guide-in-rail: FAIL"); for (const m of fail) console.error("  - " + m); process.exit(1); }
-console.log(`check-guide-in-rail: OK: ${pass} assertions; helper and real slot executed, ${files.length} app files scanned, ${collections} guide collections route their guide into a rail track`);
+console.log(`check-guide-in-rail: OK: ${pass} assertions; ${swipe}; helper and real slot executed, ${files.length} app files scanned, ${collections} guide collections route their guide into a rail track`);

@@ -1,7 +1,7 @@
 "use client";
 import RailGuideSlot from "./RailGuideSlot";
 
-// Christmas in Florida: five intent rails behind one poster tap, modeled on
+// Christmas in Florida: eight intent rails behind one poster tap, modeled on
 // FallIntentRails (owner, 2026-10-08). Every card is the STANDARD horizontal
 // rail card: no seasonal skin, no spooky skin, no Directions button, score
 // badge top right. Each rail pages independently via usePagedRail, seeded from
@@ -24,13 +24,13 @@ import useEventClock from "./useEventClock.js";
 import { eventVisitStatus, eventRestrictionChips } from "../../lib/eventVisitFacts.js";
 import { ownedPlacePhotoSrc } from "../../lib/placePhoto.js";
 import { partnerTicketLabel } from "../../lib/partnerCopy.js";
-import { CHRISTMAS_CARD_LABELS, christmasDistanceLabel } from "../../lib/christmasIntentRails.js";
+import { CHRISTMAS_CARD_LABELS, christmasDistanceLabel } from "../../lib/christmasCardCopy.js";
 
 const TICKET_SURFACE = "christmas_intent_rail";
 
 const COLORS = { text: "#FFF7ED", muted: "#A99FA8" };
 export const CHRISTMAS_LOAD_TIMEOUT_MS = 10000;
-const RAIL_COUNT = 5;
+const RAIL_COUNT = 8;
 const compact = (value) => Number(value) >= 1000 ? Math.round(Number(value) / 100) / 10 + "k" : String(Number(value) || 0);
 
 function eventChips(card, { onOpenVenue = null } = {}) {
@@ -127,7 +127,7 @@ function ChristmasRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, isSa
             photoAttr={card.photoAttr || null} photoAttrHref={card.photoAttrHref || null} place={place}
             title={card.title || card.name} eyebrow={CHRISTMAS_CARD_LABELS[rail.id] || rail.title} rank={rank}
             score={isEvent ? null : toDisplayScore(Number.isFinite(card.governed_score) ? card.governed_score : card.wfScore)} when={isEvent ? card.when : null}
-            facts={facts} chips={isEvent ? eventChips(card, { onOpenVenue: card.detailHref ? openEventVenue : null }) : []}
+            facts={facts} chips={isEvent ? eventChips(card, { onOpenVenue: card.detailHref ? openEventVenue : null }) : card.seasonChip ? [{ key: "season", icon: "🗓", label: card.seasonChip, title: card.seasonChip + ", " + String(card.take || "").toLowerCase() }] : []}
             take={card.hook || card.take || null} cta={isEvent ? eventCta(card, onTrack) : null}
             creatorVideos={isEvent ? card.creatorReels : undefined}
             href={eventBodyHref} external={eventBodyExternal}
