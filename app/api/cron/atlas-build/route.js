@@ -1,6 +1,6 @@
 import { gateFree, gateShut, spendAllow, takeFromLedger } from "../../../../lib/spendGate";
-import { atlasPaidLane, readPriorityIds, ATLAS_LANE_MODEL } from "../../../../lib/atlasPaidLane";
-import { laneRequestBody, extractLaneResult, identityProblems, dashProblems, deniedFetched, geocodeCensus, haversineKm, metroCity } from "../../../../lib/atlasWebLane";
+import { atlasPaidLane, readPriorityIds, loadPriorityIds, ATLAS_LANE_MODEL, ATLAS_DRY_KEY_HEADER, dryTriggerAuthorized } from "../../../../lib/atlasPaidLane";
+import { laneRequestBody, extractLaneResult, identityProblems, dashProblems, deniedFetched, geocodeCensus, haversineKm, metroCity, laneWorstCaseUsd } from "../../../../lib/atlasWebLane";
 // app/api/cron/atlas-build/route.js — bulk-builds the Wayfind "Atlas" editorial
 // (atlas-590-v1) for places that don't have one yet. Sources facts from the
 // Google Places Details API, writes each entry with Claude, and upserts to
@@ -405,8 +405,11 @@ export async function GET(req) {
   };
   const secret = process.env.CRON_SECRET;
   const auth = req.headers.get("authorization") || "";
-  if (!secret || (auth !== "Bearer " + secret && url.searchParams.get("key") !== secret)) {
-    return Response.json({ error: "unauthorized" }, { status: 401 });
+  const dryKeyOk = dryTriggerAuthorized({ header: req.headers.get(ATLAS_DRY_KEY_HEADER), dry: url.searchParams.get("dry") === "1", retry: retryMode, refresh: refreshMode });
+  if (!dryKeyOk) {
+    if (!secret || (auth !== "Bearer " + secret && url.searchParams.get("key") !== secret)) {
+      return Response.json({ error: "unauthorized" }, { status: 401 });
+    }
   }
 
   // The owned Atlas is permanent. Free mode serves that library and must not
@@ -427,8 +430,12 @@ export async function GET(req) {
   // ATLAS PAID LANE: the one narrow exception. Only plain build mode, only while the
   // gate is "free" (shut still blocks everything), only with BOTH owner flags valid.
   // The global gate and spendGate semantics are untouched for every other caller.
-  const lane = !retryMode && !refreshMode && gateFree() ? atlasPaidLane() : null;
+  // ATLAS_PAID_ENABLED=dry activates the lane ONLY for ?dry=1: the hourly cron, retry and
+  // refresh then take today's exact free-gate skip with zero spend.
   const dry = url.searchParams.get("dry") === "1";
+  const laneCfg = !retryMode && !refreshMode && gateFree() ? atlasPaidLane() : null;
+  const lane = laneCfg && (laneCfg.mode === "full" || dry) ? laneCfg : null;
+  const dryMetered = !!(lane && dry && lane.mode === "dry");
   if (gateShut() || gateFree()) {
     // The paid lane bypasses ONLY the free-mode skip; shut always skips.
     if (gateShut() || !lane) {
@@ -479,9 +486,14 @@ export async function GET(req) {
     }
   }
 
-  const limit0 = Math.max(1, Math.min(parseInt(url.searchParams.get("limit") || "10", 10) || 10, 25));
+  // ids= (DRY SAMPLES ONLY): the owner picks the places. Anything else ignores it entirely.
+  const idsList = dryMetered ? loadPriorityIds(String(url.searchParams.get("ids") || "").split(",")).slice(0, 10) : [];
+  const idsMode = idsList.length > 0;
+  // A dry request with no limit and no ids does ONE place, so an accidental call is cheap.
+  const limitDefault = dry ? (idsMode ? idsList.length : 1) : 10;
+  const limit0 = Math.max(1, Math.min(parseInt(url.searchParams.get("limit") || String(limitDefault), 10) || limitDefault, 25));
   const limit1 = dry ? Math.min(limit0, 10) : limit0; // dry review runs are capped at 10
-  const limit = lane ? Math.min(limit1, 5) : limit1; // web-search calls are slow and metered: 5 places per run
+  const limit = lane ? Math.min(limit1, dryMetered ? 10 : 5) : limit1; // dry samples may take 10 (each is refused anyway) // web-search calls are slow and metered: 5 places per run
   const reqCat = (url.searchParams.get("category") || "").trim();
   // RETRY MODE. Same generation machinery, different selector and different
   // write. wf_atlas_missing returns places with NO row; wf_atlas_retryable
@@ -516,7 +528,34 @@ export async function GET(req) {
 
   let category = reqCat, places = [];
   const placeById = new Map();
-  if (lane && !reqCat) {
+  const startInfo = new Map();
+  let notFound = [];
+  if (idsMode) {
+    // Owner-picked places: ANY status, ANY metro, with or without an editorial row (dry
+    // never writes, and failed/verified places are the interesting test cases).
+    try {
+      const chunk = idsList.join(",");
+      const [er, ir] = await Promise.all([
+        fetch(`${s.url}/rest/v1/wf_editorial?place_id=in.(${chunk})&select=place_id,verified`, { headers: svcH, cache: "no-store" }),
+        fetch(`${s.url}/rest/v1/wf_inventory?place_id=in.(${chunk})&select=place_id,name,metro,category,primary_type,lat,lng,status,photo_ref`, { headers: svcH, cache: "no-store" }),
+      ]);
+      if (!er.ok || !ir.ok) throw new Error("ids lookup");
+      const ed = new Map((await er.json()).map((r) => [r.place_id, r]));
+      const inv = new Map((await ir.json()).map((r) => [r.place_id, r]));
+      for (const id of idsList) {
+        const r = inv.get(id);
+        if (!r) { notFound.push(id); continue; }
+        places.push(r);
+        const e = ed.get(id);
+        startInfo.set(id, { status: r.status || null, category: r.category || null, metro: r.metro || null, has_editorial_row: !!e, editorial_verified: e ? e.verified === true : null, has_photo_ref: !!r.photo_ref });
+      }
+      category = "(ids)";
+    } catch (e) {
+      await pulse({ attempted: 0, succeeded: 0, note: ("SELECTOR UNREACHABLE: ids lookup | " + cachePulseFragment).slice(0, 200) });
+      return Response.json({ ok: false, dry: true, error: "ids-lookup-failed" }, { status: 503 });
+    }
+  }
+  if (lane && !reqCat && !idsMode) {
     // Owner priority list FIRST (places people actually open), then the normal
     // selection order. Same "needs a row" predicate as wf_atlas_missing: OPERATIONAL,
     // target metros, no wf_editorial row. Fail-soft: any error -> normal selection.
@@ -543,14 +582,16 @@ export async function GET(req) {
       }
     } catch (e) { places = []; }
   }
-  if (lane && places.length && places.length < limit) {
+  if (lane && !idsMode && places.length && places.length < limit) {
     const taken = new Set(places.map((p) => p.place_id));
     for (const c of CATS) {
       const rows = await missing(c);
       if (Array.isArray(rows) && rows.length) { for (const r of rows) if (!taken.has(r.place_id) && places.length < limit) { taken.add(r.place_id); places.push(r); } break; }
     }
   }
-  if (places.length && lane) {
+  if (idsMode) {
+    // ids path already filled places; NEVER fall through to the normal selector
+  } else if (places.length && lane) {
     // priority path already filled places/category; skip the normal selection below
   } else if (retryMode && !category) {
     // The backlog is worked by VALUE, not category by category: these rows
@@ -561,6 +602,9 @@ export async function GET(req) {
     places = await missing(category);
   } else {
     for (const c of CATS) { const rows = await missing(c); if (Array.isArray(rows) && rows.length) { category = c; places = rows; break; } }
+  }
+  if (idsMode && !places.length) {
+    return Response.json({ ok: true, dry: true, lane: true, processed: 0, rows: [], not_found: notFound, note: "none of the ids exist in wf_inventory" }, { headers: { "Cache-Control": "no-store" } });
   }
   if (!category || !places.length) {
     // Idle, not broken. attempted:0 is what stops a self-terminating job from
@@ -615,7 +659,10 @@ export async function GET(req) {
   const startedAt = Date.now();
   const DISPATCH_DEADLINE_MS = 45000;
 
-  await pool(places, 6, async (place) => {
+  // Dry samples (ATLAS_PAID_ENABLED=dry, ?dry=1) NEVER spend: they are refused when the cost
+  // is unbounded, and refused when it is bounded too (no settlement-safe ledger yet).
+  let stoppedForBudget = false, costUnbounded = false, ledgerMissing = false;
+  await pool(places, dryMetered ? 1 : 6, async (place) => {
     if (Date.now() - startedAt > DISPATCH_DEADLINE_MS) { deferred++; return; } // stays in wf_atlas_missing, picked up next run
     // In-run circuit: after one billing/quota refusal, every further place this
     // run would spend a Places call + page fetch feeding a provider that cannot
@@ -633,6 +680,17 @@ export async function GET(req) {
     if (lane) {
       // WEB LANE: grant the search sku BEFORE the spend (paidAi then grants the anthropic
       // sku). No placeDetails / officialPage / Google key anywhere on this path.
+      if (dryMetered) {
+        if (stoppedForBudget) { deferred++; return; }
+        // PROVABLE COST GATE: the exact body this place would send, and its worst-case USD.
+        // The lane body carries server tools (web_search / web_fetch) whose cost the docs do
+        // not bound: worst is null -> UNBOUNDED -> stop with ZERO grants and ZERO Anthropic calls.
+        const dryBody = laneRequestBody(place, laneModel(), sysInfo.blocks, metroCity(place.metro));
+        const worst = laneWorstCaseUsd(dryBody, null);
+        if (worst === null) { costUnbounded = true; stoppedForBudget = true; deferred++; return; }
+        // No settlement-safe ledger exists yet (needs request IDs, idempotent settle, period-correct release). Until one ships, a bounded body is refused too.
+        ledgerMissing = true; stoppedForBudget = true; deferred++; return;
+      }
       if (!(await takeFromLedger(lane.searchSku, lane.cap))) { deferred++; return; }
       const res = await writeLaneEditorial(place, akey, stats, sysInfo.blocks, lane, laneModel());
       if (res) { laneSearches += res.searches; laneFetched += res.fetched.length; }
@@ -714,7 +772,8 @@ export async function GET(req) {
     const names = new Map(places.map((p) => [p.place_id, p.name]));
     return Response.json({
       ok: true, dry: true, mode: "build", lane: !!lane, processed: rows.length, deferred, provider_halt: stats.providerHalt || null, searches: laneSearches, fetched: laneFetched,
-      rows: rows.map((r) => ({ place_id: r.place_id, name: names.get(r.place_id) || null, hook: r.hook, why_here: r.why_here, verified: r.verified, issues: r.issues, ...(laneMeta.get(r.place_id) || {}) })),
+      ...(dryMetered ? { stopped_for_budget: stoppedForBudget, cap_usd: lane.dryCapUsd, cost_unbounded: costUnbounded, ledger_missing: ledgerMissing, ...(idsMode ? { not_found: notFound } : {}) } : {}),
+      rows: rows.map((r) => ({ place_id: r.place_id, name: names.get(r.place_id) || null, hook: r.hook, why_here: r.why_here, verified: r.verified, issues: r.issues, ...(startInfo.has(r.place_id) ? { start: startInfo.get(r.place_id) } : {}), ...(laneMeta.get(r.place_id) || {}) })),
     }, { headers: { "Cache-Control": "no-store" } });
   }
   if (rows.length) {
