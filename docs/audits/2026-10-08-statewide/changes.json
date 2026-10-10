@@ -1,0 +1,2836 @@
+{
+ "metro": [
+  {
+   "new": "tampa",
+   "id": "ChIJ-XMo55DRwogRwKGzZ0ojvr8",
+   "old": "avon-park-fl",
+   "name": "Alafia River Beer Shed"
+  },
+  {
+   "new": "orlando",
+   "id": "ChIJ0_C8juR754gRrtF_FaYGTOE",
+   "old": "avon-park-fl",
+   "name": "RockPit Brewing & Distilling"
+  },
+  {
+   "new": "orlando",
+   "id": "ChIJ26frqjhj54gRXxpCptCbxU0",
+   "old": "avon-park-fl",
+   "name": "Orlando Brewing"
+  },
+  {
+   "new": "orlando",
+   "id": "ChIJ2d5XugR53YgRfZbzi3euWV8",
+   "old": "avon-park-fl",
+   "name": "Celebration Brewing Company"
+  },
+  {
+   "new": "manatee-sarasota",
+   "id": "ChIJ6y2dx9g_w4gRWoZIRhLk-JI",
+   "old": "avon-park-fl",
+   "name": "The John and Mable Ringling Museum of Art"
+  },
+  {
+   "new": "orlando",
+   "id": "ChIJ8TCfPBl754gRscTiHuGfvOY",
+   "old": "avon-park-fl",
+   "name": "Sideward Brewing Co."
+  },
+  {
+   "new": "orlando",
+   "id": "ChIJ8U3jgFh_3YgRLAEhFIVbyxo",
+   "old": "avon-park-fl",
+   "name": "Old Town"
+  },
+  {
+   "new": "orlando",
+   "id": "ChIJ9RHZGx6H3YgRnWVYIWsHNPM",
+   "old": "avon-park-fl",
+   "name": "Gatorland"
+  },
+  {
+   "new": "tampa",
+   "id": "ChIJBcv0WybTwogRovIMhMyk03Y",
+   "old": "avon-park-fl",
+   "name": "Three Bulls Tavern & Brewery"
+  },
+  {
+   "new": "orlando",
+   "id": "ChIJc1x01Xl_54gR3yyWFYterI4",
+   "old": "avon-park-fl",
+   "name": "Museum of Illusions Orlando"
+  },
+  {
+   "new": "orlando",
+   "id": "ChIJcR49vyR-54gREbUPNUjImmY",
+   "old": "avon-park-fl",
+   "name": "Aquatica Orlando"
+  },
+  {
+   "new": "orlando",
+   "id": "ChIJdd8VlMN-54gRoaU0d_zYhfk",
+   "old": "avon-park-fl",
+   "name": "Universal Studios Florida"
+  },
+  {
+   "new": "orlando",
+   "id": "ChIJeXiG4e1-54gRvdcuVhbdizo",
+   "old": "avon-park-fl",
+   "name": "Fun Spot America"
+  },
+  {
+   "new": "tampa",
+   "id": "ChIJhRo4DU_GwogRUgjhMAj-pag",
+   "old": "avon-park-fl",
+   "name": "Busch Gardens Tampa Bay"
+  },
+  {
+   "new": "orlando",
+   "id": "ChIJi0zMhOKB3YgRDkW9L1hEIbc",
+   "old": "avon-park-fl",
+   "name": "Fun Spot America Theme Parks - Kissimmee"
+  },
+  {
+   "new": "tampa",
+   "id": "ChIJi3OlSSbHwogRRYuZf6TadkU",
+   "old": "avon-park-fl",
+   "name": "Ology Brewing Co [Tampa]"
+  },
+  {
+   "new": "orlando",
+   "id": "ChIJIxp7iWp-54gRjb4KkbJ_3Y4",
+   "old": "avon-park-fl",
+   "name": "Half Barrel Beer Project"
+  },
+  {
+   "new": "orlando",
+   "id": "ChIJKya42G-D54gR3hYVgWKiZmU",
+   "old": "avon-park-fl",
+   "name": "Crooked Can Brewing Company"
+  },
+  {
+   "new": "orlando",
+   "id": "ChIJM3CugoKA3YgRV1x2KktePi0",
+   "old": "avon-park-fl",
+   "name": "Discovery Cove"
+  },
+  {
+   "new": "tampa",
+   "id": "ChIJpf1KtJjSwogR5hWnhGJDCjw",
+   "old": "avon-park-fl",
+   "name": "Bullfrog Creek Brewing Co."
+  },
+  {
+   "new": "orlando",
+   "id": "ChIJs2ExTK5_3YgR54gMqtEkN0c",
+   "old": "avon-park-fl",
+   "name": "The Land"
+  },
+  {
+   "new": "orlando",
+   "id": "ChIJsUneXVFl54gREhs4P3Yqbu8",
+   "old": "avon-park-fl",
+   "name": "Blue Jacket Park"
+  },
+  {
+   "new": "orlando",
+   "id": "ChIJsycjbU5754gRFVnF_sGo19g",
+   "old": "avon-park-fl",
+   "name": "Hourglass Brewing at Hourglass District"
+  },
+  {
+   "new": "orlando",
+   "id": "ChIJv584_9SH54gRXzWGcoeOSPQ",
+   "old": "avon-park-fl",
+   "name": "Home State Brewing Co."
+  },
+  {
+   "new": "broward",
+   "id": "ChIJCZmI3KgA2YgRfL21qVw2b7s",
+   "old": "immokalee-fl",
+   "name": "Secret Woods Nature Center"
+  },
+  {
+   "new": "palm-beach",
+   "id": "ChIJEbEzEmcZ2YgRs6dvLOEXXzE",
+   "old": "immokalee-fl",
+   "name": "Daggerwing Nature Center"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJEUL1Zgqo2YgRruXJPFZpY1Y",
+   "old": "immokalee-fl",
+   "name": "Tree Tops Park"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJhWYGm0wD2YgRFcw6YoMU1P4",
+   "old": "immokalee-fl",
+   "name": "Butterfly World"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJkWXRuBC02YgRripCIoUAN9g",
+   "old": "immokalee-fl",
+   "name": "Jungle Island"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJO-aOHZOt2YgRtM-lrGTEVIk",
+   "old": "immokalee-fl",
+   "name": "Dezerland Action Park Miami"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJO1q3CPcA2YgR15MtK1Ghhek",
+   "old": "immokalee-fl",
+   "name": "Tarpon River Brewing"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJrRCdX5en2YgRJzCRjgTWb-A",
+   "old": "immokalee-fl",
+   "name": "Flamingo Gardens"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJu_e4BnTI2YgREAOg3GxMK8g",
+   "old": "immokalee-fl",
+   "name": "Fairchild Tropical Botanic Garden"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJxWXNtnC32YgRSjtndHSzTQM",
+   "old": "immokalee-fl",
+   "name": "Paradox Museum Miami"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJ_dJXHMC20YgRD0RwYhMY3UE",
+   "old": "key-west",
+   "name": "Cuban Coffee Queen Waterfront"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJ-2sY8Ou20YgRUlDaUCIMr4o",
+   "old": "key-west",
+   "name": "Birth Place of Pan Am"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJ-eAq3Ny20YgRDwU3nV05Sq0",
+   "old": "key-west",
+   "name": "Banana Cafe"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJ1TK7ewC30YgRHcHTYmN5WZk",
+   "old": "key-west",
+   "name": "Square Grouper Key West"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJ30wCydG20YgRFxMRa3wPzg0",
+   "old": "key-west",
+   "name": "Astro City Playground"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJ3RLavty20YgRRLgkQx6W5no",
+   "old": "key-west",
+   "name": "Frenchie's Cafe"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJ4wxVu-q20YgRBi9q7aFsUoE",
+   "old": "key-west",
+   "name": "The Waterfront Brewery"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJ6f_sk-y20YgRHSuAVDI4sVU",
+   "old": "key-west",
+   "name": "Hot Tin Roof Restaurant"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJ6RtqMs220YgR91SvnyJWf5M",
+   "old": "key-west",
+   "name": "The Key West Nature Preserve"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJ7_KiN6230YgRJJcRmFmJC2w",
+   "old": "key-west",
+   "name": "Funky Rooster Coffee House & Wine Bar"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJ79iHfuy20YgRPRrMNtoPag4",
+   "old": "key-west",
+   "name": "Hog's Breath Saloon"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJ7fOdSRu30YgRlrXGxljw7n8",
+   "old": "key-west",
+   "name": "Seaside Cafe at the Mansion"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJ7R5B8Fi30YgR_mk-6rs41SU",
+   "old": "key-west",
+   "name": "Hank's Hair of the Dog Saloon"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJ80iRhOi20YgR0SJsQEV7UTY",
+   "old": "key-west",
+   "name": "Santiago's Bodega"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJ8dhLT3W30YgRZdm0jG7Fhmw",
+   "old": "key-west",
+   "name": "Wasacaca KW Venezuelan Food"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJ8SZ_KKu30YgR-IWMyoWF7-g",
+   "old": "key-west",
+   "name": "Gato Village Pocket Park"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJ9ejcxuu20YgRzJQFn8SVbbc",
+   "old": "key-west",
+   "name": "Caroline's Cafe"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJ9VqRrc230YgR5elzUc2Om0Y",
+   "old": "key-west",
+   "name": "Sandy's Café"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJa7pRvMi20YgRSgPRPnUdcM0",
+   "old": "key-west",
+   "name": "Bayview Park"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJB2wsymm30YgRGiFtKwHM1ys",
+   "old": "key-west",
+   "name": "Dorada"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJbdkfvOu20YgRQb8VkE5rFJs",
+   "old": "key-west",
+   "name": "Fogarty's"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJBTspMuu30YgRSUDlP3OYl_Q",
+   "old": "key-west",
+   "name": "Caribbean Coffee Roasters by Caffeine"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJbVorqsO20YgRUxNvWPAxEuw",
+   "old": "key-west",
+   "name": "Little Pearl"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJbW0DuCra0IgRW-jZTHa3lqs",
+   "old": "key-west",
+   "name": "Florida Keys Aquarium Encounters"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJBWvigk4414gRyeEs5npOlGo",
+   "old": "key-west",
+   "name": "Theater of the Sea"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJc4_yD25B14gRwM8lywj20FA",
+   "old": "key-west",
+   "name": "Crooked Palm Cabana (Islamorada Brewery & Distille"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJc7bzQru30YgRnFWPMnxEI8s",
+   "old": "key-west",
+   "name": "The Kapok Tree"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJCVywTNa30YgRQ_PtDEaS7AU",
+   "old": "key-west",
+   "name": "Sunny Eggs"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJD-ZX8Q-r0YgR04eE3Af2G2w",
+   "old": "key-west",
+   "name": "Bay Point Park"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJDQRIDDc314gRTLjvzvM_vOc",
+   "old": "key-west",
+   "name": "Beer Garden"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJdSszJei20YgRerKAzIt1VbA",
+   "old": "key-west",
+   "name": "Better Than Sex - A Dessert Restaurant"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJdWV3CDex0YgRmhK5IisrdMo",
+   "old": "key-west",
+   "name": "Fran Ford White-crowned Pigeon Preserve"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJdXAOEAC30YgROxut8S1NNoo",
+   "old": "key-west",
+   "name": "Black rifle coffee company"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJe2UthfSx0YgRAqmeT-UWThE",
+   "old": "key-west",
+   "name": "Cayo Hueso Brewing"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJexe0ckCx0YgRJo9QkXxZ72o",
+   "old": "key-west",
+   "name": "The Mangrove"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJezHGQv780IgRwKzXrKQ-aoc",
+   "old": "key-west",
+   "name": "Blue Hole Observation Platform"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJf2LtZui20YgRGZXS-SvwkNI",
+   "old": "key-west",
+   "name": "Blue Heaven"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJFQMtxSX90IgROxT8TrnKbjs",
+   "old": "key-west",
+   "name": "Pine Channel Nature Park"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJFT3DzDG30YgRxZdBpNZzQjs",
+   "old": "key-west",
+   "name": "Doing Work Coffee Shop & Roaster"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJFx-m-OG30YgRwLkvfsJdHAI",
+   "old": "key-west",
+   "name": "Lucy's Cafe"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJg50tm-u20YgRIO2o5UlQ0cA",
+   "old": "key-west",
+   "name": "Tiki House"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJgw7NBdu20YgRE_2RzLU1mh0",
+   "old": "key-west",
+   "name": "Louie's Backyard"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJH-ynfM-20YgRA7haTq8XQbg",
+   "old": "key-west",
+   "name": "The Best Coffee in Town"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJh8tU9ty20YgR_AeKVyGB8Hk",
+   "old": "key-west",
+   "name": "The Key West Butterfly and Nature Conservatory"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJhXo1L9220YgRpnIsdSWh0BA",
+   "old": "key-west",
+   "name": "The Rum Bar"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJK8nNygC30YgRhtNBN6d8nME",
+   "old": "key-west",
+   "name": "Point Break Café Key West"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJKQcneca20YgR955Fvrf61Ug",
+   "old": "key-west",
+   "name": "Baby’s Coffee"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJKz1uv-q20YgRHfCT5Jq9aqg",
+   "old": "key-west",
+   "name": "Schooner Wharf Bar"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJM2_WXZm30YgRCw5Nwx3GBtA",
+   "old": "key-west",
+   "name": "SOUTHPOINT CAFE KEY WEST, FL"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJMdVq2-m30YgRIO7lShr9F_4",
+   "old": "key-west",
+   "name": "The Koffie House"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJMU6sagC30YgRimllJs6Ue70",
+   "old": "key-west",
+   "name": "Southernmost Pint Brewpub - Blast Beer Company Bre"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJN8Xged220YgR0kb_xc1Ldlo",
+   "old": "key-west",
+   "name": "Nelson English Park"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJNaLVUe-20YgR30CkySNavow",
+   "old": "key-west",
+   "name": "Florida Keys Eco-Discovery Center"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJNar9x0m30YgRj40m15erk04",
+   "old": "key-west",
+   "name": "Truman Waterfront Park"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJnRWYble30YgRCCE04zl55PU",
+   "old": "key-west",
+   "name": "Keys Cafecito"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJOcdl3Nqx0YgRXhfqf5INTmQ",
+   "old": "key-west",
+   "name": "Pines Park"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJoZBrVeC30YgRtJbYUka9-I4",
+   "old": "key-west",
+   "name": "Kaya Island Eats"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJP109g3HD2YgRu6OMzo99n2E",
+   "old": "key-west",
+   "name": "Quail Roost Park"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJp4JBQ9k514gRC6hjnN9mw_w",
+   "old": "key-west",
+   "name": "Islamorada Brewery & Distillery (Islamorada)"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJqe52weu20YgRd_tWX8F3Sdw",
+   "old": "key-west",
+   "name": "Key West Ghost and Mysteries Tour"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJReBoo9G20YgRnloP-YnRoh8",
+   "old": "key-west",
+   "name": "Key West Gardens at Fort West Martello"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJS64vE-y20YgRpw4XpsfCkQs",
+   "old": "key-west",
+   "name": "Latitudes - Sunset Key Cottages"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJs83f8dG20YgRitBvqyye0Hc",
+   "old": "key-west",
+   "name": "Indigenous Park"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJSx2ishz_0IgRpvkb8sqCy2M",
+   "old": "key-west",
+   "name": "Morning Joint"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJsxn4vuu20YgRJkGKUfQWyuk",
+   "old": "key-west",
+   "name": "Flying Monkeys"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJtc0sYey20YgR-zhJnw8WGwc",
+   "old": "key-west",
+   "name": "Key West Shipwreck Museum"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJtc0sYey20YgRhl72pVxdOnc",
+   "old": "key-west",
+   "name": "Conch Republic Seafood Company"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJtW75Vy630YgR5H78okuJ5So",
+   "old": "key-west",
+   "name": "The Retro Room"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJU7HIiOm20YgRM_I9ObgnAS8",
+   "old": "key-west",
+   "name": "The Roost"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJuToq3Ny20YgRwkZy5BL_tyo",
+   "old": "key-west",
+   "name": "La Grignote"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJv7LuybLe0IgRtF1HaL_uPhs",
+   "old": "key-west",
+   "name": "Crane Point Hammock"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJvd9r6-m20YgR27Z_2pM34TM",
+   "old": "key-west",
+   "name": "Keys Coffee Co."
+  },
+  {
+   "new": "keys",
+   "id": "ChIJvVqYsOWx0YgR8oaS75aiXe8",
+   "old": "key-west",
+   "name": "Bernstein Park"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJwW94luu20YgR_DHXthvjcac",
+   "old": "key-west",
+   "name": "22&Co"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJwxdKZAC30YgRHQz5FWKOq_o",
+   "old": "key-west",
+   "name": "The Parlour Coffee Bar at Avalon"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJWXNM3jG30YgR-DYvFdvwwY8",
+   "old": "key-west",
+   "name": "General Horseplay"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJwxS2OAC30YgRE_qSauGzRHU",
+   "old": "key-west",
+   "name": "Key West Cruise Port"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJwYxPGfu30YgRBuPGwZRZp-g",
+   "old": "key-west",
+   "name": "Mallory Square"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJX-RWar-30YgRQeMJRZGszGU",
+   "old": "key-west",
+   "name": "Bearded Lady Key West"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJy8K4-Nq20YgRBxUok0TGFa0",
+   "old": "key-west",
+   "name": "John & Mary Spottswood Waterfront Park"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJywnqHDu30YgRPGrEedr52nA",
+   "old": "key-west",
+   "name": "Old Town Tavern & Beer Garden"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJYxGtrzGx0YgRO0FndRyfyLs",
+   "old": "key-west",
+   "name": "Smathers Beach"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJyzpeD-u20YgRl7NK9vdZNVs",
+   "old": "key-west",
+   "name": "Garbo's Grill @ Hanks!"
+  },
+  {
+   "new": "keys",
+   "id": "ChIJZ1r97-u20YgRDk5-Rim5LUs",
+   "old": "key-west",
+   "name": "First Flight Island Restaurant & Brewery"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJ-WgWlqq12YgRLqHWVu34USo",
+   "old": "miami",
+   "name": "Bella Miami Beach"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJ0-VrOAC32YgRZqzYgYY4RM4",
+   "old": "miami",
+   "name": "Inter Café"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJ1ZdJ2WS32YgRUzj7gS9nYeY",
+   "old": "miami",
+   "name": "MIAM CAFE - BISCAYNE"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJ3RpaFAC32YgRI95UVOLDvQY",
+   "old": "miami",
+   "name": "Sky coffee"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJ56WSjYG22YgRV8CLvPG3z9E",
+   "old": "miami",
+   "name": "Crazy About You"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJ5x0-cRa32YgRuAbx-GJUYFs",
+   "old": "miami",
+   "name": "Soca Smart Cafe"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJ5Z1h9M3D2YgRkUQhvnVypfQ",
+   "old": "miami",
+   "name": "Chefsfull aka “The Gorilla Truck”"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJ61FPT4W02YgRkJQX7JyuJx0",
+   "old": "miami",
+   "name": "La Tiendita II"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJ687YflPA2YgR_QjPW4hRGyw",
+   "old": "miami",
+   "name": "Ay Bendito Con Sabor a Puerto Rico"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJ6dTjhLu32YgRswh7VguzoQ8",
+   "old": "miami",
+   "name": "maman"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJ7-w5aSC02YgR-NQEvVuL-Yc",
+   "old": "miami",
+   "name": "Miami Walk of Fame"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJ7cSMoTW22YgRgR1BQSV5Q1Y",
+   "old": "miami",
+   "name": "David T. Kennedy Park"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJ7xP4S-vC2YgRQ0P6hGfvZnc",
+   "old": "miami",
+   "name": "Monkey Jungle"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJ98BffLK22YgRsymdIvOgjNA",
+   "old": "miami",
+   "name": "Wynwood Walls"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJ9aBMC4S22YgRbGgugfhBkbA",
+   "old": "miami",
+   "name": "Dolores But You Can Call Me Lolita"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJa0ghn4yt2YgRKJfmfqsj4ro",
+   "old": "miami",
+   "name": "Enchanted Forest Elaine Gordon Park"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJA3BFE2G72YgRJ13Z8fc5eto",
+   "old": "miami",
+   "name": "Pronto Cafe"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJab3yr6C22YgRdh8TY4oVu_w",
+   "old": "miami",
+   "name": "Phillip & Patricia Frost Museum of Science"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJaSnpyl632YgRXs-pFumdXn0",
+   "old": "miami",
+   "name": "Ossobuco Miami - Steak house"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJAwdZvLa32YgRGyVtnqAXPsI",
+   "old": "miami",
+   "name": "Sky Coffee Buenos Aires"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJbeJWkJy12YgRlgzpLbSjpDU",
+   "old": "miami",
+   "name": "Canopy Park"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJC0Wl_qe32YgRsBh8j3fDJ10",
+   "old": "miami",
+   "name": "Naughty Coffee"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJc2PcMM612YgR_kdEdDDuTrQ",
+   "old": "miami",
+   "name": "Rusty Pelican Miami"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJc32XbEu52YgRwVCMPgXHbqE",
+   "old": "miami",
+   "name": "Schenley Park"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJCbrH49O32YgR7g1uptCnXEw",
+   "old": "miami",
+   "name": "Mamo Miami"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJCw9maZK02YgRb8OWE-wUtl4",
+   "old": "miami",
+   "name": "Discovery Miami Beach"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJd9nFxyC02YgRVdtnh8Obwp8",
+   "old": "miami",
+   "name": "Bayfront Park"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJDYH8btq72YgRqJoMK9Wcz5U",
+   "old": "miami",
+   "name": "Doral Glades Park"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJe09Qgem32YgRB2TzZpJ4k3o",
+   "old": "miami",
+   "name": "Marabu Restaurant"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJe8cEnS662YgRBENJrHMJHPs",
+   "old": "miami",
+   "name": "The Tank Brewing Co."
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJf4__A_HB2YgR9arNkSGbUaM",
+   "old": "miami",
+   "name": "Yambo Express"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJG-Tq3xy32YgR7QyvDubSiLA",
+   "old": "miami",
+   "name": "Yamashiro Miami"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJg3P8LKy32YgRXeY0Cr2NPI0",
+   "old": "miami",
+   "name": "The Henry"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJGTYZ1V632YgRVnSupWUjL0c",
+   "old": "miami",
+   "name": "Studio 24 Artful Coffee"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJh_TDGFC32YgRTUByJXtWQdU",
+   "old": "miami",
+   "name": "Bay 13 Brewery and Kitchen"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJh2zYt6ix2YgRZIHKlJjfYYM",
+   "old": "miami",
+   "name": "Wiener Dog Brewery"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJH5F-eWa22YgRZ8sgHaATJww",
+   "old": "miami",
+   "name": "Alice Wainwright Park"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJh86_of2z2YgRiGxGF1xx294",
+   "old": "miami",
+   "name": "Stearns Park"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJHyqmo-y32YgRYHnLUs7ScrA",
+   "old": "miami",
+   "name": "MIAMI GRIND COFFEE"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJI-aAsE-32YgRlQrq8LqdUa8",
+   "old": "miami",
+   "name": "Giselle Miami"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJIb1-3Wuz2YgRa1DMjiv3yGA",
+   "old": "miami",
+   "name": "Epoca Brewing"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJJTjxenrd2YgRmQ9YjR2nXNw",
+   "old": "miami",
+   "name": "Coral Castle"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJK_G1qnix2YgRlpGUSr2iqSw",
+   "old": "miami",
+   "name": "OFF SITE Kitchen • NO SEASONS Beer"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJK5eaSCC32YgRsOh5PEkPPGQ",
+   "old": "miami",
+   "name": "Ludlow Coffee Supply"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJk76p0LK32YgRiS5H0HUL9eQ",
+   "old": "miami",
+   "name": "Hideout Miami"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJLUIU6Wuz2YgRos9ETbGKims",
+   "old": "miami",
+   "name": "Pinetree Park"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJLXuwSom02YgRzi6nUmT4PCE",
+   "old": "miami",
+   "name": "Flamingo Park"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJlz72E5622YgRLXWCKTEFM_M",
+   "old": "miami",
+   "name": "CVI.CHE 105"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJM6d-F5Gt2YgR4xiZtJnzG68",
+   "old": "miami",
+   "name": "Hürrem Hammam Wellness & Spa"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJmdURy4O32YgRP4nStjQfHOk",
+   "old": "miami",
+   "name": "Heal Day Cafe"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJmQV87I232YgRSwYnFMm_PmQ",
+   "old": "miami",
+   "name": "Motek Brickell"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJMZYy4rK22YgRM_O-D2pKGDw",
+   "old": "miami",
+   "name": "MIAM CAFE-WYNWOOD"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJN_06nHi32YgRySCC7mR6HUM",
+   "old": "miami",
+   "name": "PASTA"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJnY-BzZS32YgRP-9tqv6E6xs",
+   "old": "miami",
+   "name": "domaselo"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJoW-clIS22YgRaw0kvcS1qV0",
+   "old": "miami",
+   "name": "Casa Tua Cucina Brickell"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJozbz3ums2YgRa7Tsuw8fGcE",
+   "old": "miami",
+   "name": "Heritage Park"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJOZIFBwC12YgRieEn821YBic",
+   "old": "miami",
+   "name": "Andrés Carne de Res Miami"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJP3-dSIa02YgRAWESfvHZAj4",
+   "old": "miami",
+   "name": "Balan's"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJP7Zy8Sm32YgRft46Ry2v194",
+   "old": "miami",
+   "name": "MAYU"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJp8bu1-m12YgRSlYgewIxLSk",
+   "old": "miami",
+   "name": "The Mexican Miami"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJPaXCsNmz2YgRoEOkaF_iJUU",
+   "old": "miami",
+   "name": "Legion Park"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJpwznMWi32YgRs_iFE7Vok3Y",
+   "old": "miami",
+   "name": "Rosa Sky"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJpX2bfWSt2YgRq6Xyxmrobwg",
+   "old": "miami",
+   "name": "Gorillas in the Mist"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJpYiE0s6_2YgRncfqRBxOs_M",
+   "old": "miami",
+   "name": "Sushiato"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJq6gx1Duy2YgR64rg9qkb2Qc",
+   "old": "miami",
+   "name": "Miami Shores Village Bayfront Park"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJqb9HxMO32YgRWIkpS9KUVNI",
+   "old": "miami",
+   "name": "Elizabeth Virrick Park"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJqxEB9li32YgRJOrdLqbY-LQ",
+   "old": "miami",
+   "name": "RosaNegra Miami"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJqZppyNO72YgRGGXMaUINCMM",
+   "old": "miami",
+   "name": "Tres Leches Factory"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJRZPNCpy22YgRU8hrrDZa9Oc",
+   "old": "miami",
+   "name": "Fox in a Box"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJsQI4pFG32YgRu9buf2FGB94",
+   "old": "miami",
+   "name": "Charlatam - Miami"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJSWdN2E3K2YgRHdwe2DVru2A",
+   "old": "miami",
+   "name": "Cape Florida Lighthouse"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJT2rHbuay2YgRfsErmiRgvMQ",
+   "old": "miami",
+   "name": "Mi Colombia cafeteria Miami Beach"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJt5rMrRO32YgRydNauniXhK4",
+   "old": "miami",
+   "name": "maman"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJtaM_HB602YgRWEIQVSrIQnY",
+   "old": "miami",
+   "name": "Maurice A. Ferré Park"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJtaxL6_y32YgR7_ChVcWolBE",
+   "old": "miami",
+   "name": "Mary Brickell Park"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJTwAMw0Cx2YgRw0ke2G7Z7ko",
+   "old": "miami",
+   "name": "Ichimi (Midtown)"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJtZSPCIi32YgRJ0-2E-I3dIY",
+   "old": "miami",
+   "name": "Allegro ma non Troppo"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJU-jJiI632YgRrR4AFKd6Ssg",
+   "old": "miami",
+   "name": "Magdalena Coffee & Houseplants"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJufqaSe232YgRR_wO9N82L34",
+   "old": "miami",
+   "name": "El Toro Loco Steakhouse Little Havana"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJuRFWJge32YgR7W8350fW4Es",
+   "old": "miami",
+   "name": "Felice Brickell"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJUY1e4Umz2YgRzxpN0du_88k",
+   "old": "miami",
+   "name": "Lost City Brewing Company"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJuYxt2jK22YgRes13glRZ104",
+   "old": "miami",
+   "name": "West Islands Nature Park"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJvVY0Wxe32YgRlZyPnfJA-M0",
+   "old": "miami",
+   "name": "Mirador Brickell"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJVWXNkUG32YgRix9vpkztA8M",
+   "old": "miami",
+   "name": "Vice City Bean Brickell"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJwRR64hm02YgRgNTohXz-2mQ",
+   "old": "miami",
+   "name": "Watson Island Park"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJwVcggR232YgRsfCXx2oDQaU",
+   "old": "miami",
+   "name": "Seia Miami"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJwZMnsji32YgRqwXnEPLhJb8",
+   "old": "miami",
+   "name": "ITSI Coffee - i think she is"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJX6h7jyyt2YgRUAM14JPW-Os",
+   "old": "miami",
+   "name": "Sesame Bakery"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJXed4lAK32YgRTQ2sU15kTnQ",
+   "old": "miami",
+   "name": "Corner Coffee Miami"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJXwcXtdy32YgR01JGfridKUU",
+   "old": "miami",
+   "name": "Chapola Cafe"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJXYAPlTG42YgRNqaVKZBQXWs",
+   "old": "miami",
+   "name": "City of West Miami - Edmund P. Cooper Park"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJXZMq7WS42YgRt3aFvIZRZtQ",
+   "old": "miami",
+   "name": "Lincoln's Beard Brewing & Cocktails"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJy5C9Qk2x2YgRe4lg1zuS8iA",
+   "old": "miami",
+   "name": "Borti Pasta Bar"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJYfn9iYSx2YgR4KhibSGC5WI",
+   "old": "miami",
+   "name": "Magic 13 Brewing Co."
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJYTi0cLTC2YgRe4PpurmXWQM",
+   "old": "miami",
+   "name": "Wat Buddharangsi Buddhist Temple"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJyUhYBZW22YgRfCcX66aPhDw",
+   "old": "miami",
+   "name": "Spring Garden Point Park"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJyWG-fJK22YgRv4W1Guk_wfk",
+   "old": "miami",
+   "name": "Riverside Park"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJZ3JrxAO32YgRbPAUfW6-19Q",
+   "old": "miami",
+   "name": "Claudie"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJZ8VImgCp2YgRDymqli3x3IE",
+   "old": "miami",
+   "name": "La Casita Tropical"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJZ9ywyYa22YgRmcA7U1_Be9o",
+   "old": "miami",
+   "name": "AHU/MAR"
+  },
+  {
+   "new": "orlando",
+   "id": "ChIJ6-nKxNV754gRih0FQCa5OMY",
+   "old": "ocala-fl",
+   "name": "The Commission Beer Chamber"
+  },
+  {
+   "new": "orlando",
+   "id": "ChIJffdWYztx54gR64l14Knn8q4",
+   "old": "ocala-fl",
+   "name": "The Ravenous Pig Beer Garden"
+  },
+  {
+   "new": "orlando",
+   "id": "ChIJm-1TQ1N-54gRtKSCx6hQ8SU",
+   "old": "ocala-fl",
+   "name": "Madame Tussauds Orlando"
+  },
+  {
+   "new": "orlando",
+   "id": "ChIJQwgqDB5_54gRmZYpJ_4z7Fo",
+   "old": "ocala-fl",
+   "name": "Camp Jurassic"
+  },
+  {
+   "new": "orlando",
+   "id": "ChIJU7bqHVV-54gRJAwZAp5qCpk",
+   "old": "ocala-fl",
+   "name": "The Orlando Eye"
+  },
+  {
+   "new": "orlando",
+   "id": "ChIJw5jVAVN-54gRScNxiRF16j4",
+   "old": "ocala-fl",
+   "name": "ICON Park"
+  },
+  {
+   "new": "tampa",
+   "id": "ChIJlbXrdgDNwogR6S5SHIqr79g",
+   "old": "orlando",
+   "name": "Voodoo Brewing Co - Valrico, FL"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJ_VCvunAD2YgRab3kqoKtDuY",
+   "old": "pompano-beach-fl",
+   "name": "Foxtail Coffee Co. Pompano Beach"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJ-WQavVID2YgRPG9Cn8RzlOI",
+   "old": "pompano-beach-fl",
+   "name": "New Level - Specialty Coffee & Breakfast & Bakery"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJ02U3I00D2YgR4mU9EHbGPjg",
+   "old": "pompano-beach-fl",
+   "name": "South Bar & Kitchen"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJ0d4vsD6r2YgR1wps5HwniBo",
+   "old": "pompano-beach-fl",
+   "name": "Hollywood Brewery Bar & Grill"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJ0Xt0BlS12YgR0Ds_rKXNjzs",
+   "old": "pompano-beach-fl",
+   "name": "South Beach Brewing Company Taproom & Restaurant"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJ0Y420vcD2YgRBTM8a9ztLD8",
+   "old": "pompano-beach-fl",
+   "name": "Pompano Beach Pier"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJ21jDxAsC2YgRe8q65VAmg3g",
+   "old": "pompano-beach-fl",
+   "name": "Blue Moon Fish Co."
+  },
+  {
+   "new": "broward",
+   "id": "ChIJ2f1pZPkA2YgRw01q-hlXoTQ",
+   "old": "pompano-beach-fl",
+   "name": "Museum of Discovery and Science"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJ2VW7G0j92IgRzFdw2yr3_0U",
+   "old": "pompano-beach-fl",
+   "name": "Living Room Cafe"
+  },
+  {
+   "new": "palm-beach",
+   "id": "ChIJ4e-IeI7h2IgRJE3qeOzeCuw",
+   "old": "pompano-beach-fl",
+   "name": "Gumbo Limbo Nature Center"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJ4UHTDDGr2YgRyfBdZBYVLzw",
+   "old": "pompano-beach-fl",
+   "name": "Twisted Roots Kava Brewery"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJ52JSnoj92IgRsUKa8TdwfPA",
+   "old": "pompano-beach-fl",
+   "name": "Aromas del Peru"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJ543487_92IgRCAK3IuJ3KIE",
+   "old": "pompano-beach-fl",
+   "name": "How You Brewin Coffee Company"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJ6_zHRM8D2YgREay04rprFG8",
+   "old": "pompano-beach-fl",
+   "name": "Evolution Escape Rooms"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJ6_zHRM8D2YgRiZr9gskLCVQ",
+   "old": "pompano-beach-fl",
+   "name": "Nightmare Village"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJ7eGn_GL92IgR1xbphQ1CtmI",
+   "old": "pompano-beach-fl",
+   "name": "The Foundry"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJ7TYg0QsC2YgR0k7Qv5dRMHY",
+   "old": "pompano-beach-fl",
+   "name": "Kaluz Restaurant"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJ8c-Pz_YB2YgRQvfmxVnph3s",
+   "old": "pompano-beach-fl",
+   "name": "Think Escape Games - Fort Lauderdale"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJ8VNm-WQF2YgRLMc4XwTm5lI",
+   "old": "pompano-beach-fl",
+   "name": "Herman and Dorothy Shooster Nature Preserve"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJ91Cm7I_92IgRuF6niwx_B_I",
+   "old": "pompano-beach-fl",
+   "name": "Lucky Fish Beach Bar + Grill"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJa_MQHREB2YgR0M_YIgZvlnU",
+   "old": "pompano-beach-fl",
+   "name": "Mario's Catalina Restaurant"
+  },
+  {
+   "new": "palm-beach",
+   "id": "ChIJa4Hgf0rg2IgRESgxJGvT_XM",
+   "old": "pompano-beach-fl",
+   "name": "Crazy Uncle Mike's"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJAQDAd2T92IgRGM7rYLHqJYA",
+   "old": "pompano-beach-fl",
+   "name": "Lola's on the Water"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJB6p1jv4H2YgRVPcuy3dvP4E",
+   "old": "pompano-beach-fl",
+   "name": "Un Attimo Specialty Coffee"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJBdtbedEa2YgRntKw76AcUGM",
+   "old": "pompano-beach-fl",
+   "name": "Sandy Ridge Sanctuary"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJCbHt04e02YgRSgndonaQOBo",
+   "old": "pompano-beach-fl",
+   "name": "Abbey Brewing Company"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJcXUIo28B2YgR4hySqdi6Gdc",
+   "old": "pompano-beach-fl",
+   "name": "Spud's Coffee"
+  },
+  {
+   "new": "palm-beach",
+   "id": "ChIJD21Nxwsf2YgRChKXwM5KZpo",
+   "old": "pompano-beach-fl",
+   "name": "Morikami Museum and Japanese Gardens"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJdY1GZgAD2YgR4ju-l2eCYpI",
+   "old": "pompano-beach-fl",
+   "name": "H2ocean Seafood Market & Restaurant"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJDzKYYS8D2YgRKiv0TMt4Lzc",
+   "old": "pompano-beach-fl",
+   "name": "The Vault Bar & Restaurant"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJe7660qL92IgRVgq-iONhnUE",
+   "old": "pompano-beach-fl",
+   "name": "Harat's by the Sea"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJEauA4vQB2YgRGM3v0FPm4xA",
+   "old": "pompano-beach-fl",
+   "name": "Uncommon Path Brewing"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJEfuXNVcA2YgRtSS3Jo9Jsw0",
+   "old": "pompano-beach-fl",
+   "name": "Riverwalk Fort Lauderdale"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJEWSIMvT92IgRSeV6GRY6Xtw",
+   "old": "pompano-beach-fl",
+   "name": "Aruba Beach Cafe"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJF_2RyIQB2YgRpfuf2UwzLzs",
+   "old": "pompano-beach-fl",
+   "name": "Island City Park Preserve"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJF3GmQRIF2YgRlCy9xhlybks",
+   "old": "pompano-beach-fl",
+   "name": "Tarrazu Coffee Co."
+  },
+  {
+   "new": "broward",
+   "id": "ChIJF7l0buwD2YgRZKhx4OvyNag",
+   "old": "pompano-beach-fl",
+   "name": "The Bradley Kitchen + Bar"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJffgOemb92IgRvDxe4fWGsSo",
+   "old": "pompano-beach-fl",
+   "name": "Beach House"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJFVozIPkA2YgRFI1Ccb_daY8",
+   "old": "pompano-beach-fl",
+   "name": "Booze Garden"
+  },
+  {
+   "new": "palm-beach",
+   "id": "ChIJg7-Twjge2YgRskT2ibgYSKM",
+   "old": "pompano-beach-fl",
+   "name": "Pondhawk Natural Area"
+  },
+  {
+   "new": "palm-beach",
+   "id": "ChIJgUinFcMd2YgRBIUVPmOwCaI",
+   "old": "pompano-beach-fl",
+   "name": "Sugar Sand Park"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJhdEC7MUD2YgRWqeIwaYujc4",
+   "old": "pompano-beach-fl",
+   "name": "Xtreme Action Park"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJj33vHYgB2YgRs3LnHdgp97g",
+   "old": "pompano-beach-fl",
+   "name": "Tenth Level Tavern"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJjTKm-wUd2YgRgSxiEDzZA38",
+   "old": "pompano-beach-fl",
+   "name": "The Hen and Hog Breakfast & Brunch in Pompano Beac"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJK3LR_acc2YgRSGF8JTxhi3I",
+   "old": "pompano-beach-fl",
+   "name": "World of Beer"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJKUAno1QA2YgRXjBVFXDDlrA",
+   "old": "pompano-beach-fl",
+   "name": "Rhythm & Vine"
+  },
+  {
+   "new": "palm-beach",
+   "id": "ChIJL_0anhri2IgRQ8WnVwxtwXA",
+   "old": "pompano-beach-fl",
+   "name": "Biergarten"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJL1g2rhkD2YgRqgriIKAfzdo",
+   "old": "pompano-beach-fl",
+   "name": "Chillers Kava and Coffee"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJlVEw8bmt2YgROjI2q32F598",
+   "old": "pompano-beach-fl",
+   "name": "Tap Beer Miami"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJm0gkTcQD2YgRcrCuKblAKZ4",
+   "old": "pompano-beach-fl",
+   "name": "Even Keel Fish Shack"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJMaOXORYF2YgRewyIWtaXd_Y",
+   "old": "pompano-beach-fl",
+   "name": "Sherwood Forest Park"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJMcrvJkWo2YgRhOnquXtAvJM",
+   "old": "pompano-beach-fl",
+   "name": "Wolf Lake Park"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJmfhZ0KQB2YgReqi5HpK-8Q4",
+   "old": "pompano-beach-fl",
+   "name": "Gulf Stream Brewery & Pizzeria"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJN6B_28MB2YgRZNhm_V_uacM",
+   "old": "pompano-beach-fl",
+   "name": "The Coffee Culture"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJnRtzL7gD2YgR-MJOVPUsdZc",
+   "old": "pompano-beach-fl",
+   "name": "Byte and Coffee"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJO_u_yvgD2YgRtRQwf60DEDo",
+   "old": "pompano-beach-fl",
+   "name": "Carmela Coffee - Pompano Beach"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJoW0ttI0D2YgRe3GSrdOMCKo",
+   "old": "pompano-beach-fl",
+   "name": "American Tapas Bar"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJoxlLon8E2YgR2ByW6EbjJZ8",
+   "old": "pompano-beach-fl",
+   "name": "Fern Forest Nature Center"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJOzih3MYB2YgRXy_dQqMscFA",
+   "old": "pompano-beach-fl",
+   "name": "Con Calma Specialty Coffee"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJP54F8O4A2YgRO0yIo94ZC7Q",
+   "old": "pompano-beach-fl",
+   "name": "The Riverside Market Cafe"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJPflEd7Aa2YgRkBEb_KcZwQM",
+   "old": "pompano-beach-fl",
+   "name": "Betti Stradling Park"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJPwLs8kID2YgRpz2v2ibSEl0",
+   "old": "pompano-beach-fl",
+   "name": "Tropical Rain Forest at Butterfly World"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJqWIQ-F-q2YgRfa7h2StaZAA",
+   "old": "pompano-beach-fl",
+   "name": "3 Sons Brewing Co"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJr0wYsUQB2YgRPx7EBUrBKDU",
+   "old": "pompano-beach-fl",
+   "name": "Black Flamingo Brews & Kitchen"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJR2zkqIMB2YgRoY4TSgMpR2g",
+   "old": "pompano-beach-fl",
+   "name": "Awesome coffee"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJR5WYD6z92IgRwgDlXyeW6GQ",
+   "old": "pompano-beach-fl",
+   "name": "The Rabbit Hole - Elevated Vegan Comfort Cuisine"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJrfaDzMH92IgRv8z7bsCLbIA",
+   "old": "pompano-beach-fl",
+   "name": "Oceanic at Pompano Beach Pier"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJTcziERsD2YgRT8ARmHUyD_M",
+   "old": "pompano-beach-fl",
+   "name": "The Soulful Steep"
+  },
+  {
+   "new": "miami-dade",
+   "id": "ChIJV_1rv4O02YgRwYPLnjrwnqE",
+   "old": "pompano-beach-fl",
+   "name": "Miami Beach Botanical Garden"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJvQtfSvID2YgRBRygPyp27Oc",
+   "old": "pompano-beach-fl",
+   "name": "Italia Station Cafe"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJwaTg6VkF2YgReiGweS86so8",
+   "old": "pompano-beach-fl",
+   "name": "Waters Edge Park"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJwSQ76pAB2YgRGtJ3Sz31pY4",
+   "old": "pompano-beach-fl",
+   "name": "The Alchemist Café"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJX1g72h8B2YgRpfzs0TAGU1Y",
+   "old": "pompano-beach-fl",
+   "name": "Orchestrated Minds Brewing"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJy2XxDJEB2YgRH3zAvxHf-bQ",
+   "old": "pompano-beach-fl",
+   "name": "Stork's Bakery & Cafe"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJZ_gQ3NSr2YgRma3UY-krB6M",
+   "old": "pompano-beach-fl",
+   "name": "Resurrection Cup Coffee"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJZ49yo6EB2YgRpiGFfFUEiaQ",
+   "old": "pompano-beach-fl",
+   "name": "Bulegreen Cafe Yard"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJz8lhOdwB2YgRwZvR1zsI-w8",
+   "old": "pompano-beach-fl",
+   "name": "Hugh Taylor Birch State Park"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJzd5MrSMB2YgRAZiio-rVkHw",
+   "old": "pompano-beach-fl",
+   "name": "La Bottega Caffè"
+  },
+  {
+   "new": "broward",
+   "id": "ChIJZe3fvN3j2IgRHCR-74XEX6I",
+   "old": "pompano-beach-fl",
+   "name": "Cove Brewery / Craft Beers & Spirits Deerfield Bea"
+  },
+  {
+   "new": "tampa",
+   "id": "ChIJ-9hjni3jwogR3ETjEXjeVaQ",
+   "old": "spring-hill-fl",
+   "name": "Brewed Awakenings Craft Cuban Cafe"
+  },
+  {
+   "new": "tampa",
+   "id": "ChIJ3Vyq7WTEwogRA-WDC7Mze2E",
+   "old": "spring-hill-fl",
+   "name": "Ulele"
+  },
+  {
+   "new": "tampa",
+   "id": "ChIJ48vuyDDFwogRKSAdVzb1NnI",
+   "old": "spring-hill-fl",
+   "name": "Tampa Big Letters"
+  },
+  {
+   "new": "tampa",
+   "id": "ChIJ51VeSZDJwogRrP0OAsYLynA",
+   "old": "spring-hill-fl",
+   "name": "Socotra Yemeni Coffee & Co."
+  },
+  {
+   "new": "tampa",
+   "id": "ChIJ97epfgDFwogR64olsB0w6TU",
+   "old": "spring-hill-fl",
+   "name": "Tampa Riverwalk"
+  },
+  {
+   "new": "tampa",
+   "id": "ChIJ97x3_GDuwogRfiuuYuMPAj0",
+   "old": "spring-hill-fl",
+   "name": "Café Vino Tinto"
+  },
+  {
+   "new": "tampa",
+   "id": "ChIJAz8Hv0TBwogRhgQNKQvkuW0",
+   "old": "spring-hill-fl",
+   "name": "Carrollwood Village Park"
+  },
+  {
+   "new": "tampa",
+   "id": "ChIJBQ5SjLHGwogRL4X19g4J5tI",
+   "old": "spring-hill-fl",
+   "name": "ZooTampa at Lowry Park"
+  },
+  {
+   "new": "tampa",
+   "id": "ChIJCXAq5_DEwogRjTPE2xlsZtE",
+   "old": "spring-hill-fl",
+   "name": "The Florida Aquarium"
+  },
+  {
+   "new": "tampa",
+   "id": "ChIJCZgnUKHcwogRbPR7qCWl-UA",
+   "old": "spring-hill-fl",
+   "name": "Ballast Point Park"
+  },
+  {
+   "new": "tampa",
+   "id": "ChIJEVArB1LGwogRM2k5RHvCuX4",
+   "old": "spring-hill-fl",
+   "name": "Adventure Island"
+  },
+  {
+   "new": "tampa",
+   "id": "ChIJf_GumVXFwogR3KW00_zdKw0",
+   "old": "spring-hill-fl",
+   "name": "Florida Avenue Brewing Co."
+  },
+  {
+   "new": "tampa",
+   "id": "ChIJISPK1O3AwogR2LouQ7gF7vo",
+   "old": "spring-hill-fl",
+   "name": "Tampa Tap Room"
+  },
+  {
+   "new": "tampa",
+   "id": "ChIJIZSp6LPHwogRSuxC6AoeqrY",
+   "old": "spring-hill-fl",
+   "name": "Qamaria Yemeni Coffee Co."
+  },
+  {
+   "new": "tampa",
+   "id": "ChIJjwQlh3DFwogRpP-tWRZrGx8",
+   "old": "spring-hill-fl",
+   "name": "Iconic Tampa Bay"
+  },
+  {
+   "new": "tampa",
+   "id": "ChIJjZzFfATHwogR_1C01JVzlUo",
+   "old": "spring-hill-fl",
+   "name": "Lunar Coffee"
+  },
+  {
+   "new": "tampa",
+   "id": "ChIJL_dfJozEwogRF_55TezQpYo",
+   "old": "spring-hill-fl",
+   "name": "Tampa Riverwalk"
+  },
+  {
+   "new": "tampa",
+   "id": "ChIJN_wfbqTGwogRozoYcFWbdCI",
+   "old": "spring-hill-fl",
+   "name": "Rooster & the Till"
+  },
+  {
+   "new": "tampa",
+   "id": "ChIJObt0oc3FwogRp6S69IOrc98",
+   "old": "spring-hill-fl",
+   "name": "Brewly cafe"
+  },
+  {
+   "new": "tampa",
+   "id": "ChIJP5IJEWTEwogRGG32fm4iHtw",
+   "old": "spring-hill-fl",
+   "name": "Hidden Springs Ale Works"
+  },
+  {
+   "new": "tampa",
+   "id": "ChIJpV9pjc3BwogR2IMzMVtvIqk",
+   "old": "spring-hill-fl",
+   "name": "CoffeeMe"
+  },
+  {
+   "new": "tampa",
+   "id": "ChIJU6N76oDBwogRjU3JNe6seko",
+   "old": "spring-hill-fl",
+   "name": "Eclipse Cafe / Coffee & Matcha Tampa"
+  },
+  {
+   "new": "tampa",
+   "id": "ChIJUQhKveHJwogRrOk41J361m0",
+   "old": "spring-hill-fl",
+   "name": "Wilderness Conservation Park Morris Bridge Site"
+  },
+  {
+   "new": "tampa",
+   "id": "ChIJVRDxSWbuwogRrizQhX9-apo",
+   "old": "spring-hill-fl",
+   "name": "Whimzeyland"
+  },
+  {
+   "new": "tampa",
+   "id": "ChIJW-W9OTbdwogRZqRDZ5Fm4lQ",
+   "old": "spring-hill-fl",
+   "name": "Picnic Island Park"
+  },
+  {
+   "new": "tampa",
+   "id": "ChIJy3uaZKvFwogRpk-ruMef9nE",
+   "old": "spring-hill-fl",
+   "name": "Coppertail Brewing Co."
+  },
+  {
+   "new": "tampa",
+   "id": "ChIJz4yvsVPGwogRnrM2DeWotBQ",
+   "old": "spring-hill-fl",
+   "name": "Congo River Rapids"
+  },
+  {
+   "new": "tampa",
+   "id": "ChIJzcPpJTbFwogRlBvxs-QX3EM",
+   "old": "spring-hill-fl",
+   "name": "Little Tina"
+  },
+  {
+   "new": "st-pete",
+   "id": "ChIJQy7d05ThwogRb6ZguKpTKCY",
+   "old": "avon-park-fl",
+   "name": "Lassing Park"
+  },
+  {
+   "new": "st-pete",
+   "id": "ChIJs9YbCILjwogRLrEPeOStU7o",
+   "old": "avon-park-fl",
+   "name": "FloridaRAMA"
+  },
+  {
+   "new": "st-pete",
+   "id": "ChIJAWaSVwPlwogRvBVTuyUh-HM",
+   "old": "spring-hill-fl",
+   "name": "The Brothers Thomas Bespoke Cafe"
+  },
+  {
+   "new": "st-pete",
+   "id": "ChIJB2cBINfjwogRpbaMwxCtAjw",
+   "old": "spring-hill-fl",
+   "name": "Café COPA"
+  },
+  {
+   "new": "st-pete",
+   "id": "ChIJk3R-AsHlwogRG15uPHSpkrY",
+   "old": "spring-hill-fl",
+   "name": "Luna Lux Restaurant & Lounge"
+  },
+  {
+   "new": "st-pete",
+   "id": "ChIJV5IKfmXhwogRV3X8VCd713A",
+   "old": "spring-hill-fl",
+   "name": "Sunken Gardens"
+  },
+  {
+   "new": "st-pete",
+   "id": "ChIJWStmwh7hwogRXMZKuKkDuSU",
+   "old": "spring-hill-fl",
+   "name": "Tampa Bay Watch Discovery Center"
+  }
+ ],
+ "timezone": [
+  "fl26-pensacola-interstate-fair-2026",
+  "hadji-haunted-house-2026",
+  "fl26-ghoul-ery-night-on-palafox-2026",
+  "pensacola-halloween-bar-crawl-2026",
+  "fl26-haunted-history-walking-tours-2026",
+  "fl26-tormented-trolley-tours-2026",
+  "fl26-halloweentowne-2026",
+  "fl26-victorian-seance-at-barkley-house-2026",
+  "fl26-beach-o-ween-2026",
+  "fl26-holland-farms-corn-maze-2026",
+  "fl26-spirits-of-the-simpson-house-2026",
+  "fl26-sweet-season-farms-2026",
+  "fl26-boo-at-the-zoo-2026",
+  "fl26-batty-fang-tastic-fall-fest-2026",
+  "fl26-festival-of-fears-haunted-trail-2026",
+  "fl26-30a-bbq-festival-2026",
+  "fl26-baytowne-trick-or-treat-street-2026",
+  "fl26-bloody-mary-festival-2026",
+  "fl26-harvest-wine-and-food-festival-2026",
+  "fl26-seaside-halloweener-derby-2026",
+  "fl26-witch-s-wine-walk-defuniak-2026",
+  "fl26-riverain-wine-dinner-cuvee-30a-2026",
+  "boat-parade-of-lights-2026",
+  "fright-nights-dreamwalkers-2026",
+  "medieval-fae-fest-2026"
+ ],
+ "county": [
+  [
+   "daytona-bike-week-2027",
+   "Volusia"
+  ],
+  [
+   "sun-n-fun-2027",
+   "Polk"
+  ],
+  [
+   "calle-ocho-2027",
+   "Miami-Dade"
+  ],
+  [
+   "miami-boat-show-2027",
+   "Miami-Dade"
+  ],
+  [
+   "art-basel-miami-beach-2026",
+   "Miami-Dade"
+  ],
+  [
+   "raprager-october-haunted-nights-2026",
+   "Hillsborough"
+  ],
+  [
+   "fear-fest-grounds-riverview-2026",
+   "Hillsborough"
+  ],
+  [
+   "sun-outdoors-festival-of-fright-haunted-house-2026",
+   "Sarasota"
+  ],
+  [
+   "sarasota-seafood-music-2027",
+   "Sarasota"
+  ],
+  [
+   "sarasota-frightfest-2026",
+   "Sarasota"
+  ],
+  [
+   "sarasota-film-festival-2027",
+   "Sarasota"
+  ],
+  [
+   "hollowgraves-haunted-manor-2026",
+   "Sarasota"
+  ],
+  [
+   "st-pete-indie-flea-2027-02-07",
+   "Pinellas"
+  ],
+  [
+   "st-pete-indie-flea-2026-10-11",
+   "Pinellas"
+  ],
+  [
+   "st-pete-indie-flea-2026-11-08",
+   "Pinellas"
+  ],
+  [
+   "st-pete-indie-flea-2027-01-03",
+   "Pinellas"
+  ],
+  [
+   "tampa-riverfest-2027",
+   "Hillsborough"
+  ],
+  [
+   "gasparilla-arts-2027",
+   "Hillsborough"
+  ],
+  [
+   "florida-state-fair-2027",
+   "Hillsborough"
+  ],
+  [
+   "undead-in-the-water-2026",
+   "Hillsborough"
+  ]
+ ],
+ "pins": [
+  [
+   "fl26-mercato-haunted-hoedown-2026",
+   "26.252",
+   "-81.801",
+   "26.253626",
+   "-81.798894"
+  ],
+  [
+   "fl26-boo-at-the-zoo-naples-zoo-2026",
+   "26.168",
+   "-81.79",
+   "26.166253",
+   "-81.791134"
+  ],
+  [
+   "fl26-festival-of-fears-haunted-trail-2026",
+   "30.41",
+   "-86.665",
+   "30.413611",
+   "-86.664908"
+  ],
+  [
+   "fl26-zoobilee-at-tallahassee-museum-2026",
+   "30.408",
+   "-84.352",
+   "30.410619",
+   "-84.343756"
+  ],
+  [
+   "fl26-the-haunting-pop-up-bar-2026",
+   "27.961",
+   "-82.462",
+   "27.962359",
+   "-82.464479"
+  ],
+  [
+   "fl26-halloween-notte-2026",
+   "26.99",
+   "-82.143",
+   "27.000823",
+   "-82.181987"
+  ],
+  [
+   "weekend-at-berryhaus-2026",
+   "25.562",
+   "-80.42",
+   "25.565903",
+   "-80.41348"
+  ],
+  [
+   "deerfield-beach-fall-festival-2026",
+   "26.318",
+   "-80.08",
+   "26.320763",
+   "-80.096811"
+  ],
+  [
+   "fl26-legends-of-oblivion-haunt-2026",
+   "26.718",
+   "-81.756",
+   "26.718472",
+   "-81.765795"
+  ],
+  [
+   "fl26-riverain-wine-dinner-cuvee-30a-2026",
+   "30.28",
+   "-86.004",
+   "30.281479",
+   "-86.011457"
+  ],
+  [
+   "fl26-heathcote-fall-garden-festival-2026",
+   "27.418",
+   "-80.331",
+   "27.417922",
+   "-80.322996"
+  ],
+  [
+   "fl26-batty-fang-tastic-fall-fest-2026",
+   "30.425",
+   "-86.88",
+   "30.444581",
+   "-86.882315"
+  ],
+  [
+   "fl26-taste-of-mercato-2026",
+   "26.252",
+   "-81.801",
+   "26.253626",
+   "-81.798894"
+  ],
+  [
+   "fl26-13th-floor-haunted-house-2026",
+   "30.328",
+   "-81.563",
+   "30.322086",
+   "-81.557305"
+  ],
+  [
+   "the-berry-farm-harvest-festival-2026",
+   "25.562",
+   "-80.42",
+   "25.565903",
+   "-80.41348"
+  ],
+  [
+   "fl26-north-florida-fair-2026",
+   "30.405",
+   "-84.279",
+   "30.405225",
+   "-84.276579"
+  ],
+  [
+   "fl26-vampirates-dinner-show-2026",
+   "28.457",
+   "-81.465",
+   "28.455952",
+   "-81.46815"
+  ],
+  [
+   "house-of-horror-carnival-2026",
+   "25.724",
+   "-80.319",
+   "25.732913",
+   "-80.319853"
+  ],
+  [
+   "fl26-congaree-and-penn-pumpkin-patch-2026",
+   "30.46",
+   "-81.77",
+   "30.448327",
+   "-81.776475"
+  ],
+  [
+   "boo-bash-pompano-beach-2026",
+   "26.241",
+   "-80.114",
+   "26.237282",
+   "-80.105952"
+  ],
+  [
+   "fl26-headless-bangers-costume-ball-2026",
+   "29.99",
+   "-81.465",
+   "29.99402",
+   "-81.469517"
+  ],
+  [
+   "oktoberfest-miami-german-american-social-club-2026",
+   "25.712",
+   "-80.388",
+   "25.715308",
+   "-80.389236"
+  ],
+  [
+   "fl26-edison-ford-fall-festival-2026",
+   "26.635",
+   "-81.883",
+   "26.634783",
+   "-81.879589"
+  ],
+  [
+   "fl26-goodwood-halloween-family-fun-day-2026",
+   "30.457",
+   "-84.253",
+   "30.456366",
+   "-84.257921"
+  ],
+  [
+   "fl26-hallowine-at-mercato-2026",
+   "26.252",
+   "-81.801",
+   "26.253626",
+   "-81.798894"
+  ],
+  [
+   "fl26-sykes-family-farms-crop-maze-2026",
+   "29.765",
+   "-81.428",
+   "29.779554",
+   "-81.442449"
+  ],
+  [
+   "fl26-tallahassee-oktoberfest-2026",
+   "30.436",
+   "-84.279",
+   "30.434584",
+   "-84.285715"
+  ],
+  [
+   "fl26-cape-coral-trunk-or-treat-2026",
+   "26.639",
+   "-81.974",
+   "26.63513",
+   "-81.958799"
+  ],
+  [
+   "fl26-jupiter-harbourfest-2026",
+   "26.944",
+   "-80.073",
+   "26.932226",
+   "-80.080114"
+  ],
+  [
+   "fl26-mercato-pumpkin-patch-2026",
+   "26.252",
+   "-81.801",
+   "26.253626",
+   "-81.798894"
+  ],
+  [
+   "fl26-pumpkin-towne-stuart-2026",
+   "27.227",
+   "-80.255",
+   "27.231808",
+   "-80.267306"
+  ],
+  [
+   "fl26-fenway-fright-night-2026",
+   "28.027",
+   "-82.792",
+   "28.005805",
+   "-82.791999"
+  ],
+  [
+   "fl26-sanibel-community-house-fall-fest-2026",
+   "26.44",
+   "-82.058",
+   "26.437726",
+   "-82.071995"
+  ],
+  [
+   "fl26-black-raven-booze-cruise-2026",
+   "29.894",
+   "-81.311",
+   "29.891803",
+   "-81.310734"
+  ],
+  [
+   "fl26-sanibel-spooktacular-storefront-trail-2026",
+   "26.45",
+   "-82.034",
+   "26.449411",
+   "-82.037875"
+  ],
+  [
+   "fl26-riptide-oktoberfest-2026",
+   "26.336",
+   "-81.77",
+   "26.329804",
+   "-81.746459"
+  ],
+  [
+   "fl26-salt-run-ghost-paddle-2026",
+   "29.874",
+   "-81.277",
+   "29.878486",
+   "-81.282207"
+  ],
+  [
+   "fl26-spirits-of-goodwood-2026",
+   "30.457",
+   "-84.253",
+   "30.456366",
+   "-84.257921"
+  ],
+  [
+   "fl26-30a-bbq-festival-2026",
+   "30.384",
+   "-86.35",
+   "30.386022",
+   "-86.335208"
+  ],
+  [
+   "fl26-harvest-wine-and-food-festival-2026",
+   "30.327",
+   "-86.16",
+   "30.324295",
+   "-86.143605"
+  ],
+  [
+   "fl26-beach-o-ween-2026",
+   "30.33",
+   "-87.142",
+   "30.334152",
+   "-87.140987"
+  ],
+  [
+   "fl26-bloody-mary-festival-2026",
+   "30.385",
+   "-86.315",
+   "30.378007",
+   "-86.331605"
+  ],
+  [
+   "fl26-spirits-of-the-simpson-house-2026",
+   "30.631",
+   "-87.049",
+   "30.612749",
+   "-87.083571"
+  ],
+  [
+   "fl26-pensacola-interstate-fair-2026",
+   "30.455",
+   "-87.313",
+   "30.474676",
+   "-87.307896"
+  ],
+  [
+   "fl26-boo-at-the-zoo-2026",
+   "30.398",
+   "-86.994",
+   "30.401554",
+   "-86.986928"
+  ],
+  [
+   "fl26-baytowne-trick-or-treat-street-2026",
+   "30.388",
+   "-86.324",
+   "30.377637",
+   "-86.337281"
+  ],
+  [
+   "fl26-halloweentowne-2026",
+   "30.41",
+   "-87.212",
+   "30.409264",
+   "-87.213525"
+  ],
+  [
+   "fl26-haunted-history-walking-tours-2026",
+   "30.41",
+   "-87.212",
+   "30.409264",
+   "-87.213525"
+  ],
+  [
+   "fl26-calusa-nature-center-haunted-walk-2026",
+   26.641,
+   -81.813,
+   26.6156711,
+   -81.8124695
+  ],
+  [
+   "fl26-trick-or-treat-stroll-jensen-2026",
+   27.246,
+   -80.2175,
+   27.2255462,
+   -80.2124299
+  ],
+  [
+   "fl26-boos-brews-and-ocean-views-2026",
+   30.185,
+   -81.366,
+   30.2171646,
+   -81.3714758
+  ],
+  [
+   "fl26-nightmare-on-orange-2026",
+   28.565,
+   -81.373,
+   28.587212,
+   -81.3627143
+  ]
+ ],
+ "popularity_quarantined": [
+  "ChIJJXbe2OcXw4gRXHtNPwN3XpE",
+  "ChIJy36eadvBwogRpEP0uiFtLYI",
+  "ChIJD-ZX8Q-r0YgR04eE3Af2G2w",
+  "ChIJB33UZ_tBw4gR6jAsqj3NynI",
+  "ChIJnZJc7_rCwogRCm3qM3fDMLM",
+  "ChIJ9ejcxuu20YgRzJQFn8SVbbc",
+  "ChIJPcnGStORyzsRuqJ9QZNryJM",
+  "ChIJma8pEzF5mFQRg5MpaWfHxPQ",
+  "ChIJM6wbMhQd3ogRLps3g2Kspcg",
+  "ChIJq8iUCkId3ogRcQOJ4qzucKg",
+  "ChIJ2fJHv2ThwogR0mfd-Wku3HA",
+  "ChIJH8IJewCPOIgRSxSCqOq4ymI",
+  "ChIJpw8UjA1BtokR1QZF-5avpXQ",
+  "ChIJiUlFhT2OwogRgGG1ARROqK0",
+  "ChIJHZkOM73VwogRGYUnbeDCKUI",
+  "ChIJhcub0Rs_w4gRCEvPuk8tBok",
+  "ChIJkR7vgRu5olQRL2Y9gNL7Yl8",
+  "ChIJn-WsgtvdZ4gRxENCDYRfEh4",
+  "ChIJsQf45dtd3IgRxoDfmoBd4oY",
+  "ChIJCSyEbPdrw4gR4-LWUbdh0k8",
+  "ChIJVRAhhobRwogR7EGN2UIYlWY",
+  "ChIJXzsNfUFZeUgRFr_KNIo1q0M",
+  "ChIJi1GLCvXVwogRWDIywvxmeww",
+  "ChIJzVxo4lI9w4gRtaicmCw6GkM",
+  "ChIJ0Y420vcD2YgRBTM8a9ztLD8",
+  "ChIJSdsR5mWXyzsRiJDBcbNUa-Y",
+  "ChIJV0qm-1j9wogR8fx4o1YZ7q8",
+  "ChIJzbC9VyApaYgRgPTPUzTfntg",
+  "ChIJq-sIQMk5w4gRB54ua0FA82c",
+  "ChIJH1Qx3_V_3YgRvTBNNpEd0FU",
+  "ChIJV9udjPAitokRcNXpo4ZFa1Q",
+  "ChIJb0sGWB39e0gRLzfq-2ioz2A",
+  "ChIJWX8mWN3WwogR389g0FwZ9GI",
+  "ChIJlXkGCqZ954gRBXSfvKlitoI",
+  "ChIJ-4uxkoJNvVQRyiQqgXmAVi8",
+  "ChIJH0zUFuPFyIAR0Yv3xOWyPGw",
+  "ChIJVVvOtizjwogRGaFkNBBbTHg",
+  "ChIJB-LJKFIaK4cRRwmvAm46RvU",
+  "ChIJu6KvXJ8134cRufycKUcV4iA",
+  "ChIJg-TRymzDwogR-DFNe3dFeDc",
+  "ChIJWynvDXc5w4gRAcvdh9rUU6g",
+  "ChIJH8fUZQPB54gRShVDGy9flnI",
+  "ChIJnaAWZid7mFQRoWI1Ui-0Y08",
+  "ChIJrbqUht6BolQROVVfJqnOTkk",
+  "ChIJ8a2QAb2zAowRx3YZlEBqR-Y",
+  "ChIJZQSYdDlvA4wR_EvjZNy2gy4"
+ ],
+ "pins_2026_10_09": [
+  {
+   "event_id": "screamageddon-2026",
+   "old": [
+    28.341,
+    -82.254
+   ],
+   "new": [
+    28.37711,
+    -82.353044
+   ],
+   "miles": 6.52,
+   "sources": [
+    "https://screamageddon.com (schema.org AmusementPark geo 28.37711,-82.353044; address 27839 Saint Joe Rd)",
+    "US Census single match 27839 SAINT JOE RD 28.375317,-82.355116 (0.17 mi from official geo)"
+   ],
+   "evidence": "Official site JSON-LD gives geo for 27839 Saint Joe Rd; Census same-number match is 0.17 mi away, so the old pin was 6.6 mi off."
+  },
+  {
+   "event_id": "fl26-holland-farms-corn-maze-2026",
+   "old": [
+    30.7,
+    -87.08
+   ],
+   "new": [
+    30.8347859,
+    -87.1124597
+   ],
+   "miles": 9.51,
+   "sources": [
+    "https://www.hollandfarmsonline.com/ (JSON-LD latitude 30.8347859, longitude -87.1124597; 2055 Homer Holland Rd)",
+    "US Census single match 30.832607,-87.112338 (0.15 mi from official coords)"
+   ],
+   "evidence": "Official site JSON-LD coordinates for 2055 Homer Holland Rd agree with the Census same-number match within 0.15 mi."
+  },
+  {
+   "event_id": "zoo-miami-monster-masquerade-2026",
+   "old": [
+    25.613,
+    -80.4
+   ],
+   "new": [
+    25.6119236,
+    -80.3975316
+   ],
+   "miles": 0.17,
+   "sources": [
+    "https://www.zoomiami.org/zoo-boo (Google Maps place link @25.6119236,-80.3975316)",
+    "https://nominatim.openstreetmap.org (Zoo Miami Foundation, 12400 SW 152nd St, 25.6114,-80.3981)"
+   ],
+   "evidence": "Zoo Miami's own site links a Google Maps place at 25.6119236,-80.3975316, matching OSM's 12400 SW 152nd St object within 0.07 mi; current pin is a 3-decimal zoo centroid 0.19 mi off."
+  },
+  {
+   "event_id": "zoo-boo-zoo-miami-2026",
+   "old": [
+    25.613,
+    -80.4
+   ],
+   "new": [
+    25.6119236,
+    -80.3975316
+   ],
+   "miles": 0.17,
+   "sources": [
+    "https://www.zoomiami.org/zoo-boo (Google Maps place link @25.6119236,-80.3975316)",
+    "https://nominatim.openstreetmap.org (Zoo Miami Foundation, 12400 SW 152nd St, 25.6114,-80.3981)"
+   ],
+   "evidence": "Same Zoo Miami official map point as the other Zoo Miami events (12400 SW 152 St); current pin is a 3-decimal centroid."
+  },
+  {
+   "event_id": "roars-smores-snores-spooktacular-campout-zoo-miami-2026",
+   "old": [
+    25.613,
+    -80.4
+   ],
+   "new": [
+    25.6119236,
+    -80.3975316
+   ],
+   "miles": 0.17,
+   "sources": [
+    "https://www.zoomiami.org/zoo-boo (Google Maps place link @25.6119236,-80.3975316)",
+    "https://nominatim.openstreetmap.org (Zoo Miami Foundation, 12400 SW 152nd St, 25.6114,-80.3981)"
+   ],
+   "evidence": "Same Zoo Miami official map point (12400 SW 152 St); current pin is a 3-decimal centroid."
+  },
+  {
+   "event_id": "fl26-seed-to-table-spanish-wine-tasting-2026",
+   "old": [
+    26.271,
+    -81.746
+   ],
+   "new": [
+    26.274606,
+    -81.752868
+   ],
+   "miles": 0.49,
+   "sources": [
+    "https://seedtotablemarket.com/ (official address 4835 Immokalee Rd)",
+    "OSM way 130862995 Seed to Table, 4835 Immokalee Rd (26.2746059,-81.7528676)"
+   ],
+   "evidence": "Official address 4835 Immokalee Rd matches the OSM way for Seed to Table and the Wayfind place pin (26.2743932,-81.7528735) within 0.03 mi; the event pin was 0.5 mi off."
+  },
+  {
+   "event_id": "fl26-seed-to-table-halloween-bash-2026",
+   "old": [
+    26.271,
+    -81.746
+   ],
+   "new": [
+    26.274606,
+    -81.752868
+   ],
+   "miles": 0.49,
+   "sources": [
+    "https://seedtotablemarket.com/ (official address 4835 Immokalee Rd)",
+    "OSM way 130862995 Seed to Table, 4835 Immokalee Rd (26.2746059,-81.7528676)"
+   ],
+   "evidence": "Same Seed to Table venue as above; OSM way with the 4835 Immokalee Rd address and the Wayfind place pin agree within 0.03 mi."
+  },
+  {
+   "event_id": "fl26-farmer-mike-s-fall-fest-and-corn-maze-2026",
+   "old": [
+    26.349,
+    -81.733
+   ],
+   "new": [
+    26.359583,
+    -81.748936
+   ],
+   "miles": 1.23,
+   "sources": [
+    "https://www.farmermikesupick.com/farmermikesfallfest26 (site map location mapLat 26.359583, mapLng -81.748936, 26031 Morton Avenue)",
+    "OSM way 11028659 Morton Avenue (26.3533,-81.7509, street only)"
+   ],
+   "evidence": "Official site's own map block sets the farm at 26.359583,-81.748936 for 26031 Morton Ave, on Morton Avenue per OSM; Census had no match; old pin was 1.2 mi off."
+  },
+  {
+   "event_id": "nightmare-village-xtreme-action-park-2026",
+   "old": [
+    26.193,
+    -80.154
+   ],
+   "new": [
+    26.1915977,
+    -80.1534226
+   ],
+   "miles": 0.1,
+   "sources": [
+    "https://xtremeactionpark.com/experience-nightmare-village/ (5300 North Powerline Road)",
+    "OSM node 8665236909 Xtreme Action Park, 5300 Powerline Road (26.1915977,-80.1534226)"
+   ],
+   "evidence": "Official address 5300 N Powerline Rd matches the OSM node for the park with the same house number; old pin 0.1 mi off."
+  },
+  {
+   "event_id": "fl26-halloween-symphony-spooktacular-2026",
+   "old": [
+    30.432,
+    -84.278
+   ],
+   "new": [
+    30.4341163,
+    -84.2767584
+   ],
+   "miles": 0.16,
+   "sources": [
+    "OSM way 1352432176 Adderley Amphitheater (30.4341163,-84.2767584)",
+    "https://www.tallahasseesymphony.org/event/free-halloween-symphony-spooktacular/ (organizer page, venue named; fetch returned 403 so read earlier via stored verify note)"
+   ],
+   "evidence": "Event is at the Adderley Amphitheater; the venue's own OSM way sits 0.17 mi from the old Cascades Park centroid pin, and Census mis-geocodes 1001 S Gadsden to 1001 N Gadsden so it was not used."
+  },
+  {
+   "event_id": "fl26-pumpkin-towne-wellington-2026",
+   "old": [
+    26.645,
+    -80.205
+   ],
+   "new": [
+    26.6412294,
+    -80.2063769
+   ],
+   "miles": 0.27,
+   "sources": [
+    "https://www.pumpkintowne.com/location (Wellington lot: Whole Foods shopping plaza, 2635 SR 7, Wellington FL 33414)",
+    "OSM node 2618948099 Whole Foods Market, 2635 State Road 7 (26.6412294,-80.2063769)"
+   ],
+   "evidence": "Official page puts the lot in the Whole Foods plaza at 2635 SR 7, and OSM's Whole Foods node carries exactly 2635 State Road 7; old pin was 0.3 mi north."
+  },
+  {
+   "event_id": "fl26-burroughs-home-paranormal-night-2026",
+   "old": [
+    26.645,
+    -81.871
+   ],
+   "new": [
+    26.646661,
+    -81.865823
+   ],
+   "miles": 0.34,
+   "sources": [
+    "https://nominatim.openstreetmap.org OSM way 211240186 Burroughs Home and Gardens, 2505 (26.647344,-81.866103)",
+    "US Census 2505 FIRST ST / 2505 1ST ST single point 26.646661,-81.865823",
+    "Wayfind place pin 26.6469699,-81.8658887"
+   ],
+   "evidence": "The two Census matches are the same point (First St vs 1st St spellings; the 0.34 mi was the pin's offset), and OSM and the place pin agree within 0.05 mi."
+  },
+  {
+   "event_id": "fl26-homecomin-fall-menu-2026",
+   "old": [
+    28.371,
+    -81.519
+   ],
+   "new": [
+    28.3704207,
+    -81.5181189
+   ],
+   "miles": 0.07,
+   "sources": [
+    "OSM way 519165054 Chef Art Smith's Homecomin' (1602 E Buena Vista Dr)",
+    "Wayfind place pin 28.3704659,-81.5181848"
+   ],
+   "evidence": "Own OSM object for this restaurant (distinct from the other three) agrees with its own Wayfind place pin within 0.02 mi; the shared complex address was not used. Event pin was the shared 28.371,-81.519 point."
+  },
+  {
+   "event_id": "fl26-frontera-cocina-muertos-treats-2026",
+   "old": [
+    28.371,
+    -81.519
+   ],
+   "new": [
+    28.3705727,
+    -81.5171607
+   ],
+   "miles": 0.12,
+   "sources": [
+    "OSM way 519160063 Frontera Cocina (1604 E Buena Vista Dr)",
+    "Wayfind place pin 28.3706546,-81.5171895"
+   ],
+   "evidence": "Own OSM object for this restaurant (distinct from the other three) agrees with its own Wayfind place pin within 0.02 mi; the shared complex address was not used. Event pin was the shared 28.371,-81.519 point."
+  },
+  {
+   "event_id": "fl26-raglan-road-halloween-menu-2026",
+   "old": [
+    28.371,
+    -81.519
+   ],
+   "new": [
+    28.3713076,
+    -81.5176186
+   ],
+   "miles": 0.09,
+   "sources": [
+    "OSM way 292502107 Raglan Road Irish Pub and Restaurant (1640 E Buena Vista Dr)",
+    "Wayfind place pin 28.3710834,-81.5177549"
+   ],
+   "evidence": "Own OSM object for this restaurant (distinct from the other three) agrees with its own Wayfind place pin within 0.02 mi; the shared complex address was not used. Event pin was the shared 28.371,-81.519 point."
+  },
+  {
+   "event_id": "fl26-everglazed-halloween-donuts-2026",
+   "old": [
+    28.371,
+    -81.519
+   ],
+   "new": [
+    28.3699227,
+    -81.5211921
+   ],
+   "miles": 0.15,
+   "sources": [
+    "OSM node 8677080017 Everglazed Donuts & Cold Brew (1504 E Buena Vista Dr)",
+    "Wayfind place pin 28.36986,-81.5212163"
+   ],
+   "evidence": "Own OSM object for this restaurant (distinct from the other three) agrees with its own Wayfind place pin within 0.02 mi; the shared complex address was not used. Event pin was the shared 28.371,-81.519 point."
+  }
+ ]
+}
