@@ -98,7 +98,7 @@ try {
      writeFileSync(entry,code.replace(guard,"false"));
    }
    if(HOURS_MUTATION){
-     const entry=graph.get(path.join(ROOT,"app/group-plans/GroupPlanClient.js"));const code=readFileSync(entry,"utf8");
+     const entry=graph.get(path.join(ROOT,"app/group-plans/GroupOrganizer.js"));const code=readFileSync(entry,"utf8");
      const guard=/busy \|\| !timeId \|\| venueClosed \|\| \(!venueHoursVerified && !hoursAck\)/;
      assert.ok(guard.test(code),"mutation must find the real venue-hours finalization gate");
      writeFileSync(entry,code.replace(guard,"busy || !timeId"));

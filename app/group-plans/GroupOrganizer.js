@@ -1,0 +1,50 @@
+"use client";
+import { useEffect, useRef, useState } from "react";
+import { formatGroupTime } from "../../lib/groupPlanTime.js";
+import { shareOut } from "../../lib/shareOut.js";
+import { SITE_URL } from "../../lib/site.js";
+import { GroupPlaceOptions } from "./GroupPlaceOptions.js";
+
+function planUrl(plan,token,kind="invite") {return `${SITE_URL}/group-plans/${encodeURIComponent(plan.id)}#${kind}=${encodeURIComponent(token)}`;}
+export function GroupOrganizer({plan,onCommand,busy}) {
+  const [notice,setNotice]=useState("");const [placeId,setPlaceId]=useState(plan.summary.winnerPlaceId||plan.places[0]?.id||"");
+  const [timeId,setTimeId]=useState(plan.summary.commonTimeIds[0]||"");const [ack,setAck]=useState(false),[hoursAck,setHoursAck]=useState(false);
+  const previousStatus=useRef(plan.status);
+  useEffect(()=>{if(plan.status==="closed"&&previousStatus.current!=="closed"){setPlaceId(plan.summary.winnerPlaceId||plan.places[0]?.id||"");setTimeId(plan.summary.commonTimeIds[0]||"");setAck(false);setHoursAck(false);}previousStatus.current=plan.status;},[plan.status,plan.summary.winnerPlaceId,plan.summary.commonTimeIds.join(",")]);
+  const summary=plan.summary;
+  const selectedPlace=plan.places.find((p)=>p.id===placeId),venueClosed=selectedPlace?.closedTimeIds?.includes(timeId)===true,venueHoursVerified=selectedPlace?.openTimeIds?.includes(timeId)===true;
+  const shareInvite=(slot)=>{
+    const token=plan.invites.find((i)=>i.slotId===slot.id)?.token;if(!token)return;
+    const result=shareOut({title:"Pick a place. Find a time.",text:`${slot.name}, help choose where we go and when. Cast your vote on Wayfind.`,url:planUrl(plan,token)},()=>setNotice(`Link for ${slot.name} copied. Send it privately.`));
+    if(result!=="failed"){setNotice(`Share options opened for ${slot.name}. Choose how to send their private link. Delivery isn’t confirmed by Wayfind.`);onCommand({type:"start",slotId:slot.id},{quiet:true});}
+    else setNotice("Share options could not open. Please try again.");
+  };
+  const finalShare=()=>{if(!plan.finalToken)return;shareOut({title:"Our plan is ready",text:plan.finalPlan.isCommonTime?"Our plan is ready. The time works for everyone who was invited.":"Here’s the plan. Check the attendance details on Wayfind.",url:planUrl(plan,plan.finalToken,"final")},()=>setNotice("Final-plan link copied."));};
+  return <>
+    <h1>{plan.status==="draft"?"Your group plan is ready":plan.status==="finalized"?"Make it happen":plan.status==="cancelled"?"Plan cancelled":"Your group, one plan"}</h1>
+    <p className="gp-lede gp-muted">{plan.status==="draft"?"Review the choices, then start your invitations. Each friend gets a private link.":`${summary.responseCount} of ${summary.expectedCount} people responded. ${summary.pendingCount?`${summary.pendingCount} still to hear from.`:"Everyone has responded."}`}</p>
+    <p className="gp-note">Reply by {formatGroupTime(plan.deadline,plan.timeZone)}. Voting closes earlier if everyone responds.</p>
+    <div className="gp-progress" role="progressbar" aria-label="Invite responses" aria-valuemin={0} aria-valuemax={summary.expectedCount} aria-valuenow={summary.responseCount}><span style={{width:`${100*summary.responseCount/summary.expectedCount}%`}}/></div>
+    <GroupPlaceOptions plan={plan} readOnly/>
+    {plan.places.length<3&&<p className="gp-status">{plan.alternativesStatus==="evidence_check_incomplete"?"We kept your original idea. The comparison checks could not finish; this is not a complete alternative search.":plan.places.length===1?"We kept your original idea. We couldn’t verify a similar, higher-scoring alternative.":"One alternative met the checks. We haven’t added a third option just to fill a space."}</p>}
+    <section className="gp-panel"><h2>Possible outing times</h2>{plan.times.map((t)=><p key={t.id}>{formatGroupTime(t,plan.timeZone)}</p>)}<p className="gp-note">You said you can make each of these times. The group is choosing among them.</p></section>
+    {["draft","open"].includes(plan.status)&&<section className="gp-panel"><div className="gp-step">Invite your people</div><h2>{plan.status==="draft"?"Start when you’re ready":"Send each private link"}</h2><p className="gp-muted">Send one link at a time in your own messaging app. A link is for the named friend; anyone it is forwarded to could answer for them.</p>
+      {plan.status==="draft"&&plan.draftExpired?<><p className="gp-status">This draft’s reply deadline has passed. No invitations were started.</p><a className="gp-button primary" href={`/group-plans/new?place=${encodeURIComponent(plan.originalPlaceId)}`}>Start a new plan</a></>:plan.status==="draft"?<><button className="gp-button primary" disabled={busy} onClick={()=>onCommand({type:"start"})}>Start invitations</button><p className="gp-note">This opens voting. It does not send messages. Choices and your guest list are then fixed.</p></>:plan.invitees.map((slot)=><div className="gp-row" key={slot.id}><div><strong>{slot.name}</strong><p className="gp-note" style={{margin:"5px 0 0"}}>{slot.response?(slot.response.declined?"Replied: can’t join":"Vote received"):slot.shareInitiatedAt?"Sharing started · no reply yet":"Link ready · sharing not started"}</p></div><button className="gp-button" disabled={busy} onClick={()=>shareInvite(slot)}>{slot.shareInitiatedAt?"Share again":"Share invite"}</button></div>)}
+      <p className="gp-note">Keep this page or return to My group plans. We don’t mark a link delivered when a share window opens.</p>
+    </section>}
+    {plan.status==="closed"&&<section className="gp-panel"><div className="gp-step">Your result</div><h2>{summary.commonTimeIds.length?"A time works for everyone":summary.pendingCount?"A result, with replies missing":"No time works for everyone"}</h2>
+      <p>{summary.tie?"The place vote is tied. You get to choose.":summary.winnerPlaceId?`${plan.places.find((p)=>p.id===summary.winnerPlaceId)?.name} has the most votes.`:"There are no place votes yet."}</p>
+      {summary.pendingCount>0&&<p>{summary.pendingCount} invitee{summary.pendingCount===1?" hasn’t":"s haven’t"} responded. A time that works for respondents is not confirmed for everyone.</p>}
+      {summary.declinedCount>0&&<p>{summary.declinedCount} invitee{summary.declinedCount===1?" can’t":"s can’t"} join.</p>}
+      <label className="gp-field">Choose the place<select value={placeId} onChange={(e)=>{setPlaceId(e.target.value);setAck(false);setHoursAck(false);}}>{plan.places.map((p)=><option key={p.id} value={p.id}>{p.name} · {summary.placeResults.find((r)=>r.placeId===p.id)?.votes||0} votes</option>)}</select></label>
+      <label className="gp-field">Choose a time<select required value={timeId} onChange={(e)=>{setTimeId(e.target.value);setAck(false);setHoursAck(false);}}><option value="">Pick a time</option>{plan.times.map((t)=><option key={t.id} value={t.id}>{formatGroupTime(t,plan.timeZone)} · {summary.availabilityCounts.find((r)=>r.timeId===t.id)?.count||0}/{summary.expectedCount} invitees available</option>)}</select></label>
+      {timeId&&venueClosed?<p className="gp-status gp-error">The venue’s known hours conflict with this time. Choose another time or place.</p>:timeId&&!venueHoursVerified?<><p className="gp-status">Your friends’ availability does not tell us the venue’s hours. Check the venue before confirming.</p>{selectedPlace?.placeUrl&&<a className="gp-button" href={selectedPlace.placeUrl} target="_blank" rel="noopener noreferrer">Check venue details</a>}<label className="gp-choice"><input type="checkbox" checked={hoursAck} onChange={(e)=>setHoursAck(e.target.checked)}/><span>I’ve checked with the venue that this time works.</span></label></>:null}
+      {(summary.pendingCount>0||summary.tie||!summary.commonTimeIds.includes(timeId))&&<label className="gp-choice"><input type="checkbox" checked={ack} onChange={(e)=>setAck(e.target.checked)}/><span>I understand this is my decision. Missing replies, tied votes and unconfirmed availability will stay visible on the final plan.</span></label>}
+      <div className="gp-actions"><button className="gp-button primary" disabled={busy||!timeId||venueClosed||(!venueHoursVerified&&!hoursAck)||((summary.pendingCount>0||summary.tie||!summary.commonTimeIds.includes(timeId))&&!ack)} onClick={()=>onCommand({type:"finalize",placeId,timeId,expectedRevision:plan.revision,acknowledgePartial:ack,acknowledgeTie:ack,acknowledgeUnavailable:ack,acknowledgeVenueHours:hoursAck})}>Confirm the plan</button><a className="gp-button" href={`/group-plans/new?place=${encodeURIComponent(plan.originalPlaceId)}`}>Try new times</a></div>
+    </section>}
+    {plan.status==="finalized"&&<section className="gp-panel"><GroupFinal plan={plan}/><button className="gp-button primary" onClick={finalShare}>Share final plan</button></section>}
+    {["draft","open","closed"].includes(plan.status)&&<details><summary>Cancel this plan</summary><p className="gp-note">This stops voting and makes its invitations unavailable. Your friends will not receive an automatic text.</p><button className="gp-button" disabled={busy} onClick={()=>onCommand({type:"cancel"})}>Cancel plan</button></details>}
+    {notice&&<p className="gp-status" role="status">{notice}</p>}
+  </>;
+}
+export function GroupFinal({plan}) {const final=plan.finalPlan;if(!final)return null;const place=plan.places.find((p)=>p.id===final.placeId),time=plan.times.find((t)=>t.id===final.timeId);return <><h2>{place?.name||"The final plan"}</h2>{time&&<p>{formatGroupTime(time,plan.timeZone)}</p>}<p className="gp-status">{final.isCommonTime?"This time was marked available by every invited person and the organizer.":`${final.confirmedInviteeCount} of ${final.expectedInviteeCount} invitees marked this time available. It is not confirmed for everyone.`}</p>{final.isTie&&<p className="gp-note">The organizer resolved a tied place vote.</p>}{final.isPartial&&<p className="gp-note">Some invitees had not responded when the plan was chosen.</p>}<p className="gp-note">This is a plan, not a reservation. Check opening hours and book directly if needed.</p>{place?.placeUrl&&<a className="gp-button" href={place.placeUrl}>See the place</a>}</>;}
