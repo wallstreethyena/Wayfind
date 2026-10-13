@@ -10,7 +10,7 @@
 // never marks a product dead, but a run that cannot establish any health
 // verdict fails loudly and records a pulse instead of looking successful.
 import { sbEnv } from "../../../../lib/serverCache.js";
-import { describeProductProbe, nextHealthState } from "../../../../lib/experienceLinkHealth.js";
+import { describeProductProbe, nextHealthState, parseRetryAfter, runPoliteProbes } from "../../../../lib/experienceLinkHealth.js";
 import { credential } from "../../../../lib/envPlaceholder.js";
 import { jobCannotRun, jobFailed } from "../../../../lib/jobFail.js";
 import { recordPulse } from "../../../../lib/jobPulse.js";
@@ -37,19 +37,17 @@ async function probe(code) {
         return { verdict: "unknown", reason: ctrl.signal.aborted || error?.name === "AbortError" ? "timeout" : error?.name === "SyntaxError" ? "invalid_json" : "network_error" };
       }
     }
-    return describeProductProbe(r.status, body);
+    const d = describeProductProbe(r.status, body);
+    return r.status === 429 ? { ...d, retryAfterMs: parseRetryAfter(r.headers && r.headers.get ? r.headers.get("retry-after") : null) } : d;
   } catch {
     return { verdict: "unknown", reason: ctrl.signal.aborted ? "timeout" : "network_error" };
   } finally { clearTimeout(timer); }
 }
 
-// bounded-concurrency runner (same shape as cron/experiences)
-async function pool(thunks, limit) {
-  const out = []; let i = 0;
-  async function worker() { while (i < thunks.length) { const idx = i++; out[idx] = await thunks[idx](); } }
-  await Promise.all(Array.from({ length: Math.min(limit, thunks.length) }, worker));
-  return out;
-}
+// Polite pacing for the one provider host (api.viator.com). Defaults keep a
+// 150-row sweep inside the 60s function budget; env overrides exist so the
+// guard can run the real route with zero waits.
+const num = (k, d) => { const n = Number(process.env[k]); return Number.isFinite(n) && n >= 0 ? n : d; };
 
 export async function GET(req) {
   const secret = process.env.CRON_SECRET;
@@ -64,7 +62,7 @@ export async function GET(req) {
   if (!s) return jobCannotRun(JOB, "SUPABASE_SERVICE_ROLE_KEY or SUPABASE_URL is missing");
   const h = { apikey: s.key, Authorization: `Bearer ${s.key}`, "Content-Type": "application/json" };
 
-  const limit = Math.min(Math.max(parseInt(sp.get("limit") || "250", 10) || 250, 1), 400);
+  const limit = Math.min(Math.max(parseInt(sp.get("limit") || "150", 10) || 150, 1), 400);
   // Oldest-checked first, never-checked before everything: a full 3,400-row
   // catalogue completes a sweep in ~2 weeks at 250/night, and every row a
   // sweep touches restarts at the back of the queue.
@@ -81,7 +79,23 @@ export async function GET(req) {
     return Response.json({ ok: true, checked: 0 }, { headers: { "Cache-Control": "no-store" } });
   }
 
-  const probes = await pool(rows.map((row) => () => probe(row.product_code)), 8);
+  const started = Date.now();
+  const raw = await runPoliteProbes(rows.map((row) => row.product_code), probe, {
+    concurrency: num("LINK_HEALTH_CONCURRENCY", 2) || 1,
+    minGapMs: num("LINK_HEALTH_PACE_MS", 250),
+    backoffBaseMs: num("LINK_HEALTH_BACKOFF_MS", 1000),
+    deadlineAt: started + 45000,
+  });
+  // Rows never reached before the deadline stay untouched (still oldest-checked,
+  // so tomorrow's sweep starts with them).
+  const notReached = raw.filter((p) => p === null).length;
+  const retries = raw.retries || 0;
+  const probes = raw.filter((p) => p !== null);
+  rows = rows.filter((_, i) => raw[i] !== null);
+  if (!rows.length) {
+    await recordPulse(JOB, { attempted: 0, succeeded: 0, failed: 1, note: "deadline hit before any probe ran" });
+    return Response.json({ ok: false, job: JOB, error: "deadline hit before any probe ran" }, { status: 500, headers: { "cache-control": "no-store" } });
+  }
   const verdicts = probes.map((p) => p.verdict);
   const probeOutcomes = {}, unknownOutcomes = {};
   for (const { verdict, reason } of probes) {
@@ -94,11 +108,18 @@ export async function GET(req) {
   const probeNote = JSON.stringify({ probes: pulseOutcomes });
 
   const nowIso = new Date().toISOString();
-  const buckets = { alive: [], dead: [], unknown: [] }; // arrays of product_code
+  const buckets = { alive: [], dead: [], unknown: [], deferred: [] }; // arrays of product_code
   const perRow = []; // rows needing an individual fail_count write
   rows.forEach((row, i) => {
     const next = nextHealthState(row, verdicts[i]);
-    if (!next) { buckets.unknown.push(row.product_code); return; }
+    if (!next) {
+      // 429 (rate_limited) = retry later: NO write, so the row keeps its place
+      // at the front of the queue. 401/403 (blocked) and other unknowns only
+      // advance last_checked_at. None touches link_ok or fail_count.
+      if (probes[i].outcome === "rate_limited") buckets.deferred.push(row.product_code);
+      else buckets.unknown.push(row.product_code);
+      return;
+    }
     // Only an actually-alive verdict belongs in the bulk reset bucket. A
     // first 404 deliberately keeps link_ok=true but increments fail_count;
     // bulk-resetting that row to fail_count=0 made the second-strike threshold
@@ -131,7 +152,10 @@ export async function GET(req) {
     checked: rows.length,
     alive: buckets.alive.length,
     newly_or_still_dead: buckets.dead.length,
-    unknown: buckets.unknown.length,
+    unknown: buckets.unknown.length + buckets.deferred.length,
+    rate_limited_deferred: buckets.deferred.length,
+    not_reached: notReached,
+    probe_retries: retries,
     probe_outcomes: probeOutcomes,
   };
   const definitive = buckets.alive.length + perRow.length;
@@ -148,7 +172,7 @@ export async function GET(req) {
   await recordPulse(JOB, {
     attempted: rows.length,
     succeeded: definitive,
-    failed: buckets.unknown.length,
+    failed: buckets.unknown.length + buckets.deferred.length,
     note: probeNote,
   });
   return Response.json({ ok: true, error: null, ...stats }, { headers: { "Cache-Control": "no-store" } });

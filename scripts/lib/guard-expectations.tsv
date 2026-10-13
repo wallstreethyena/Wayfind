@@ -140,7 +140,7 @@ scripts/check-events-rail-renders.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	11	1
 scripts/check-events-running-order.mjs	0	RENDER	blocks-ci-and-deploy	1	-	26	0	0	a413bf9d41e16736096b19aab304d334b80f22badcbff61777df199da35efad7
 scripts/check-events.mjs	0	RENDER	blocks-ci-and-deploy	1	-	53	0	0	ebf7862dbf5898058d0c60b162294d8935be4d7ecf4d17e99029c379ce377286
 scripts/check-evergreen-landing-zero-spend.mjs	1	RENDER	blocks-ci-and-deploy	1	claude.exe (Wayfind lane)	59	0	0	58192ae8d6bdcd564246989d56f3c7f8c938c86f560e726419af73e54b1441f7
-scripts/check-experiences-link-health.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	67	0	0	854dde6fb5fee9017e7d208f9beb1970884a544cde7da4fd9bf044f4ab4799af
+scripts/check-experiences-link-health.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	83	0	0	e1dc06e7089b85719a88d3db2b6a75e9501f2e4a2448f04c5ed2b7b6bdb1007e
 scripts/check-exploding-nearby-floor.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	1	1	3f2a8f206a514832c5b1fd1ce498e29d21a27b75cf1b5848d03b2502c26de7b2
 scripts/check-fall-date-order-and-when.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	0	61bbeeefa29ad5941a3367db694c301803b5df17fbcebfaf76adba85b50d7d74
 scripts/check-fall-evidence-rules.mjs	0	CALL	blocks-ci-and-deploy	1	-	60	0	0	16ab10b0900dd3df4d8820402773fd40aacd8d01c8ad1abd92f11b8bfbb7e684
@@ -237,7 +237,7 @@ scripts/check-legal.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	6	1	0	b82e9e560a28
 scripts/check-lib-call-imports.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	5	1	0	177564123727db73915eab0f1e7afcd41e879a507bfe1f917a53d9c4f6a37ee4
 scripts/check-libs.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	cf06f31f56a53f8174c2acacb2d6d8ae96db8fd6b42ed1e6b3b11877974ade44
 scripts/check-like-store-writes.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0	271f4fbf1c3d37c6f85b0ecac7b8bab27ff9195a52a93a80b51f0c2436a029d8
-scripts/check-link-quarantine.mjs	0	CALL	blocks-ci-and-deploy	1	-	41	0	0	d9b4d26ea2e27b3bb4b126e6ecc940d10dd2e97a8c9a56f8d9805548fcdeaf5f
+scripts/check-link-quarantine.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0	2a1979f8ef499b72be24ae886e752edd70886cdcd0ad12107cf30c78fa44451f
 scripts/check-links.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0	b3d7b31b487be6c72b9e6a8ddc0751b2bdcbe2f41c12904cbe0198871dd822a6
 scripts/check-live-event-poster-laws.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	2cd61930e021908648dc7dc4d54c96f2bfcd47ff34bf172e3d38f9b3591e9397
 scripts/check-live-reads.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	89fede7a30c20b6dafb870a62fc1d7cec918b07b6852676f9a380c4fc91ed277
