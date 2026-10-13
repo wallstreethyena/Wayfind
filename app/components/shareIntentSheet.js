@@ -291,8 +291,8 @@ export function askShareIntent(o) {
     "Write a little invite they can answer", askWho, true));
 
   const groupHref = groupPlanHref(opt.id, name);
-  if (groupHref) card.appendChild(button(false, "Organize a group",
-    "Pick a place. Find a time.", () => { window.location.href = groupHref; }));
+  if (groupHref) card.appendChild(button(false, "Group Vote",
+    "Friends vote on the spot and day", () => { window.location.href = groupHref; }));
 
   const cancel = el("button",
     "display:block;width:100%;padding:11px;background:transparent;border:none;color:#8B98A9;" +
