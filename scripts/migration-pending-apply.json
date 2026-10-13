@@ -15,9 +15,9 @@
   },
   {
     "file": "supabase/migrations/20261004232233_wf_group_planning.sql",
-    "sha256": "2adb9c859541b728e0ce3155f39f0a788f54e467364eccbbfdecdf308b0552fd",
+    "sha256": "6708f74ea648a418d8d5684b9e1e3af4bc7e35547516ed47eb19149a1586e4d2",
     "decision_owner": "wallstreethyena",
     "tracking": "#1636",
-    "reason": "New group-planning tables/functions (84b74b70, safe-off: gated by NEXT_PUBLIC_GROUP_PLANS_ENABLED / WF_GROUP_PLANS_ENABLED). File header requires approval before production; none on record. Read-only check 2026-10-07: wf_group_plans tables absent. Apply together with the activation plan in docs/design/group-planning-activation.md."
+    "reason": "New group-planning tables/functions (84b74b70, safe-off: gated by NEXT_PUBLIC_GROUP_PLANS_ENABLED / WF_GROUP_PLANS_ENABLED). File header requires approval before production; none on record. Read-only check 2026-10-07: wf_group_plans tables absent. Apply together with the activation plan in docs/design/group-planning-activation.md. 2026-10-13 (db/reconcile-2026-10-13): file made re-runnable (create table/index if not exists, create or replace function; no change to objects, RLS or grants), so the sha256 above is the NEW pin and the old pin 2adb9c85... is superseded; it needs this PR's owner approval. Absence re-verified read-only 2026-10-13: no wf_group* tables or functions. Same feature as Group Vote (#1731 builds its UI on this schema)."
   }
 ]
