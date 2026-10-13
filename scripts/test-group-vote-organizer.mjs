@@ -178,11 +178,25 @@ await test("countdown ring values",async () => {
 await test("finalized: flip card with Plan locked, confetti, share, no response controls",() => {
  const final = apply(unanimous2,{ id: "fin", type: "finalize", placeId: "place-2", timeId: "time-2", expectedRevision: unanimous2.revision });
  const plan = { ...view(final), finalToken: "fixture-final" };
+ // Opening an already finalized plan (reload, from the list) shows it locked, without replaying the celebration.
  const html = markup(Org,org(plan));
  matches(html,/gpo-flip-inner/); matches(html,/Plan locked<\/p><h2[^>]*>Alternative museum<\/h2>/); matches(html,/Share final plan/);
- const confetti = html.match(/<div class="gpo-confetti"[^>]*>((?:<i><\/i>)+)<\/div>/); yes(confetti); yes((confetti[1].match(/<i>/g)||[]).length >= 8); matches(html,/gpo-confetti" aria-hidden="true"/);
+ matches(html,/class="gpo-flip is-static"/,"static flip when the plan was already final on open");
+ absent(html,/class="gpo-confetti"/,"no confetti replay on reload");
  absent(html,/Confirm the plan|type="checkbox"|<select/);
  eq((html.match(/<style/g)||[]).length,1,"CSS is rendered once");
+ // Watching the plan go from closed to finalized on this screen plays the flip and the confetti once.
+ const h = hooks(Org,org(view(unanimous2)));
+ h.render();
+ const before = nodes(h.tree).filter(n => typeof n.props?.className === "string" && n.props.className.includes("gpo-confetti"));
+ eq(before.length,0,"positive control: no confetti while the plan is still closed");
+ h.render(org(plan));
+ const flip = nodes(h.tree).find(n => typeof n.props?.className === "string" && n.props.className.startsWith("gpo-flip") && !n.props.className.includes("inner"));
+ yes(flip,"flip card rendered after finalizing"); eq(flip.props.className,"gpo-flip","animated flip, not static, when finalized on this screen");
+ const confetti = nodes(h.tree).find(n => n.props?.className === "gpo-confetti");
+ yes(confetti,"confetti rendered after finalizing on this screen"); yes(nodes(confetti.props.children).filter(n => n.type === "i").length >= 8,"at least 8 confetti pieces");
+ eq(confetti.props["aria-hidden"],"true");
+ h.dispose();
 });
 await test("GroupFinal: read-only summary with place card, time, organizer, no controls",() => {
  const final = apply(tie2,{ id: "fin", type: "finalize", placeId: "place-1", timeId: "time-2", expectedRevision: tie2.revision, acknowledgeTie: true });

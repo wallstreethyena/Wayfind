@@ -40,6 +40,7 @@ export const GROUP_ORGANIZER_CSS=`
 .gpo-front{position:absolute;inset:0;display:grid;place-items:center;font-weight:800}
 .gpo-back{transform:rotateY(180deg);border-color:var(--gpo-ok);background:color-mix(in srgb,var(--gpo-ok) 12%,transparent)}
 .gpo-locked{color:var(--gpo-ok);font-weight:800;text-transform:uppercase;letter-spacing:1.2px;font-size:12px;margin:0 0 6px}
+.gpo-flip.is-static .gpo-flip-inner{animation:none}
 .gpo-confetti{position:absolute;left:50%;top:0;width:0;height:0;pointer-events:none}
 .gpo-confetti i{position:absolute;width:8px;height:12px;border-radius:2px;opacity:0;animation:gpo-fall .9s ease-out both;background:var(--gpo-accent)}
 .gpo-confetti i:nth-child(3n){background:var(--gpo-ok)}.gpo-confetti i:nth-child(3n+1){background:${C.blue}}.gpo-confetti i:nth-child(4n){background:${C.gold}}
@@ -111,6 +112,8 @@ export function GroupOrganizer({plan,onCommand,busy,nowMs:nowOverride}) {
   const nowMs=nowOverride??clock;
   const clearAcks=()=>{setAckPartial(false);setAckTie(false);setAckUnavailable(false);setHoursAck(false);};
   const previousStatus=useRef(plan.status);
+  // Celebrate only when this screen watched the plan become final, not on every reload.
+  const animateFinal=useRef(plan.status!=="finalized").current;
   useEffect(()=>{if(plan.status==="closed"&&previousStatus.current!=="closed"){setPlaceId(plan.summary.winnerPlaceId||plan.places[0]?.id||"");setTimeId(plan.summary.commonTimeIds[0]||"");clearAcks();}previousStatus.current=plan.status;},[plan.status,plan.summary.winnerPlaceId,plan.summary.commonTimeIds.join(",")]);
   useEffect(()=>{if(plan.status!=="open")return undefined;const id=setInterval(()=>setClock(Date.now()),30000);return ()=>clearInterval(id);},[plan.status]);
   const summary=plan.summary;
@@ -127,7 +130,7 @@ export function GroupOrganizer({plan,onCommand,busy,nowMs:nowOverride}) {
     if(result!=="failed"){setNotice(`Share options opened for ${slot.name}. Choose how to send their private link. Delivery isn’t confirmed by Wayfind.`);onCommand({type:"start",slotId:slot.id},{quiet:true});}
     else setNotice("Share options could not open. Please try again.");
   };
-  const finalShare=()=>{if(!plan.finalToken)return;shareOut({title:"Our plan is ready",text:plan.finalPlan.isCommonTime?"Our plan is ready. The time works for everyone who was invited.":"Here’s the plan. Check the attendance details on Wayfind.",url:planUrl(plan,plan.finalToken,"final")},()=>setNotice("Final-plan link copied."));};
+  const finalShare=()=>{if(!plan.finalToken)return;shareOut({title:"Our plan is ready",text:plan.finalPlan.isCommonTime?"Our plan is ready. The time works for everyone who was invited.":"Here’s the plan. Check the attendance details on Wayfind.",url:planUrl(plan,plan.finalToken,"final")},()=>setNotice("Final plan link copied."));};
   const finalPlace=plan.finalPlan&&plan.places.find((p)=>p.id===plan.finalPlan.placeId),finalTime=plan.finalPlan&&plan.times.find((t)=>t.id===plan.finalPlan.timeId);
   const ackBox=(checked,set,text)=><label className="gp-choice"><input type="checkbox" checked={checked} onChange={(e)=>set(e.target.checked)}/><span>{text}</span></label>;
   return <div className="gpo">
@@ -142,7 +145,7 @@ export function GroupOrganizer({plan,onCommand,busy,nowMs:nowOverride}) {
     <section className="gp-panel"><h2>Possible outing times</h2>{plan.times.map((t)=><p key={t.id}>{formatGroupTimeShort(t,plan.timeZone)}</p>)}<p className="gp-note">You said you can make each of these times. The group is choosing among them.</p></section>
     {["draft","open"].includes(plan.status)&&<section className="gp-panel"><div className="gp-step">Invite your people</div><h2>{plan.status==="draft"?"Start when you’re ready":"Send each private link"}</h2><p className="gp-muted">Send one link at a time in your own messaging app. A link is for the named friend; anyone it is forwarded to could answer for them.</p>
       {plan.status==="draft"&&plan.draftExpired?<><p className="gp-status">This draft’s reply deadline has passed. No invitations were started.</p><a className="gp-button primary" href={`/group-plans/new?place=${encodeURIComponent(plan.originalPlaceId)}`}>Start a new plan</a></>:plan.status==="draft"?<><button className="gp-button primary" disabled={busy} onClick={()=>onCommand({type:"start"})}>Start invitations</button><p className="gp-note">This opens voting. It does not send messages. Choices and your guest list are then fixed.</p></>:plan.invitees.map((slot)=><div className="gp-row" key={slot.id}><Friend slot={slot}/><button className="gp-button" disabled={busy} onClick={()=>shareInvite(slot)}>{slot.shareInitiatedAt?"Share again":"Share invite"}</button></div>)}
-      <p className="gp-note">Keep this page or return to My group plans. We don’t mark a link delivered when a share window opens.</p>
+      <p className="gp-note">Keep this page or return to My group votes. We don’t mark a link delivered when a share window opens.</p>
     </section>}
     {["closed","finalized"].includes(plan.status)&&<section className="gp-panel"><div className="gp-step">Your friends</div><ul className="gpo-friends">{plan.invitees.map((slot)=><li key={slot.id}><Friend slot={slot}/></li>)}</ul></section>}
     {["open","closed","finalized"].includes(plan.status)&&<Results plan={plan}/>}
@@ -162,7 +165,7 @@ export function GroupOrganizer({plan,onCommand,busy,nowMs:nowOverride}) {
       <p className="gp-note">Missing replies, tied votes and unconfirmed availability will stay visible on the final plan.</p>
       <div className="gp-actions"><button className="gp-button primary" disabled={busy||!timeId||venueClosed||acksMissing} onClick={()=>onCommand(finalizeCommand())}>Confirm the plan</button><a className="gp-button" href={`/group-plans/new?place=${encodeURIComponent(plan.originalPlaceId)}`}>Try new times</a></div>
     </section>}
-    {plan.status==="finalized"&&plan.finalPlan&&<section className="gp-panel"><div className="gpo-flip"><div className="gpo-confetti" aria-hidden="true">{CONFETTI}</div>
+    {plan.status==="finalized"&&plan.finalPlan&&<section className="gp-panel"><div className={`gpo-flip${animateFinal?"":" is-static"}`}>{animateFinal&&<div className="gpo-confetti" aria-hidden="true">{CONFETTI}</div>}
       <div className="gpo-flip-inner"><div className="gpo-face gpo-front" aria-hidden="true">Locking in your plan…</div>
         <div className="gpo-face gpo-back"><p className="gpo-locked">Plan locked</p><h2 style={{margin:"0 0 6px"}}>{finalPlace?.name||"The final plan"}</h2>{finalTime&&<p style={{margin:0}}>{formatGroupTimeShort(finalTime,plan.timeZone)}</p>}</div></div></div>
       <GroupFinal plan={plan} headline={false} withStyle={false}/><button className="gp-button primary" onClick={finalShare}>Share final plan</button></section>}

@@ -28,7 +28,7 @@ function VoteCard({place,label,selected,onSelect}) {
     {label&&<p className="gb-label">{label}</p>}
     {PlaceCard({place})}
     {PlaceResearch({place})}
-    <button type="button" className={`gb-vote${on?" is-on":""}`} aria-pressed={on} aria-label={on?undefined:`Vote for ${place.name}`} onClick={(e)=>{e.stopPropagation?.();onSelect(place.id);}}>{on?<><CheckIcon/><span>Your vote</span></>:<span>Vote for this place</span>}</button>
+    <button type="button" className={`gb-vote${on?" is-on":""}`} aria-pressed={on} aria-label={`Vote for ${place.name}`} onClick={(e)=>{e.stopPropagation?.();onSelect(place.id);}}>{on?<><CheckIcon/><span>Your vote</span></>:<span>Vote for this place</span>}</button>
   </section>;
 }
 

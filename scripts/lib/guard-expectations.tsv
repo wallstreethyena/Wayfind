@@ -638,7 +638,7 @@ scripts/test-group-plan-ui.mjs	0	RENDER	blocks-ci-and-deploy	1	-	148	0	0	e5234e9
 scripts/test-group-plan.mjs	0	CALL	blocks-ci-and-deploy	1	-	124	0	0	9feb2e75222fc23dbab358c95b7e14dd92c3eb96f8be3dbe49d9ab7b18ff4b77
 scripts/test-group-vote-ballot.mjs	0	RENDER	blocks-ci-and-deploy	1	-	140	0	0	7a9d8920ce77016d850e4c84a1f2eb5f0144bc172ea7c08c5fecf956b5a4dff6
 scripts/test-group-vote-frame.mjs	0	RENDER	blocks-ci-and-deploy	1	-	24	0	0	6656a6b7662600b0037bd5cc4bb8b1a34ba7b70aecf2620e495ac48051a84367
-scripts/test-group-vote-organizer.mjs	0	RENDER	blocks-ci-and-deploy	1	-	179	0	0	8df3d9346049b7ba79e382a062503fea9c801a269c6033794708f27da5becc2b
+scripts/test-group-vote-organizer.mjs	0	RENDER	blocks-ci-and-deploy	1	-	187	0	0	09ab1df2e24183941921fa73571acd62c587e361236f60651c7b331231c7846c
 scripts/test-guide-city-coverage.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	c6a465e7282b1e60a693f376ebcef9066f918ad5a6a75a58a145c0d51a5b9ee2
 scripts/test-guide-discovery.mjs	0	RENDER	blocks-ci-and-deploy	1	-	65	0	0	292cb9f5afb7dd50696a33d2cee909f3d6c652de22a63afc5ec9b27bcf5082c4
 scripts/test-guide-editorial-mode.mjs	0	RENDER	blocks-ci-and-deploy	1	-	30	0	0	1143cfcf22aa5141699214ff1ec91bd33f894c0e624c3806bf91cc86cddb631b
