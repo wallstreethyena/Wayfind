@@ -88,10 +88,12 @@ const page = readFileSync(join(root, "app", "home.js"), "utf8");
 const destDecl = page.match(/const WF_DESTINATIONS = \[([\s\S]*?)\n\];/);
 if (!destDecl) fail("WF_DESTINATIONS is gone — the nav routes have no single source, so nothing can prove the two bars agree");
 const declared = new Map([...destDecl[1].matchAll(/id: "([a-z]+)"[\s\S]{0,120}?href: "([^"]+)"/g)].map((m) => [m[1], m[2]]));
-for (const [id, href] of Object.entries({ home: "/", events: "/events", coupons: "/coupons", map: "/map", saved: "/favorites", itinerary: "/itinerary" })) {
+for (const [id, href] of Object.entries({ events: "/events", coupons: "/coupons", map: "/map", saved: "/favorites", itinerary: "/itinerary" })) {
   if (!declared.has(id)) fail(`WF_DESTINATIONS lost "${id}" — a nav destination no crawler can reach any more`);
   else if (declared.get(id) !== href) fail(`WF_DESTINATIONS."${id}" points at ${declared.get(id)}, expected ${href}`);
 }
+// Owner direction, 2026-10-09: Home leaves the menu; the header logo returns home.
+if (declared.has("home")) fail("Home must not return to the destinations menu");
 // Both bars, and both must emit anchors. A count alone would pass on one bar
 // rendering twice, so each render site is inspected on its own.
 // v8.3 — RE-POINTED. This required TWO render sites because v8.2 shipped two
@@ -105,7 +107,7 @@ for (const [id, href] of Object.entries({ home: "/", events: "/events", coupons:
 // render the list, and every site that does must emit real anchors — which is
 // asserted in the loop below and is the half that actually protects the routes.
 const navSites = [...page.matchAll(/WF_DESTINATIONS\.map\(\((\w+)\) =>/g)];
-if (navSites.length < 1) fail("no nav renders WF_DESTINATIONS — the six destinations are unreachable and uncrawlable");
+if (navSites.length < 1) fail("no nav renders WF_DESTINATIONS — the destinations are unreachable and uncrawlable");
 for (const site of navSites) {
   const body = page.slice(site.index, site.index + 1400);
   const v = site[1];

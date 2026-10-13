@@ -42,6 +42,9 @@ const sha = (b) => createHash("sha256").update(b).digest("hex").slice(0, 16);
 // art is known to contradict its copy and its tile is therefore not rendered.
 // Every rail with art must be in exactly one of those two states.
 const PAIRS = {
+  // Owner-supplied poster, viewed at 760px: "Halloween Starts Here".
+  // Resampled without cropping or redrawing the original frame.
+  halloween: { copy: "a5a0b3d947603eae", art: "088f64ffdadb7c26" },
   // Pin a rail here only after LOOKING at public/cards-v8/<id>-760.jpg and
   // confirming the words in the image match the words in lib/rails.js.
   //

@@ -6,6 +6,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import "./links.css";
 import { fontVariables } from "./fonts";
 import { SITE_URL } from "../lib/site";
+import SeasonalSearchNav from "./components/SeasonalSearchNav";
 import { cardActionBridgeScript } from "../lib/cardActionAttrs";
 import { chunkRecoveryScript } from "../lib/chunkRecovery";
 import { GUIDES } from "../lib/guides";
@@ -338,6 +339,7 @@ export default function RootLayout({ children }) {
         <FooterVeil>
         <footer style={{ background: "#040810", borderTop: "1px solid #1F2937", padding: "28px 20px 40px", fontFamily: "var(--wf-sans)" }}>
           <div style={{ maxWidth: 880, margin: "0 auto" }}>
+            <SeasonalSearchNav />
             <nav aria-label="Guides and cities" style={{ display: "flex", flexWrap: "wrap", gap: 28 }}>
               <div>
                 <div style={{ fontSize: 11, fontWeight: 800, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>Local guides</div>

@@ -104,9 +104,15 @@ for (const f of files) {
   const r = rel(f);
   if (/<GuideDiscoveryCard[\s/>]/.test(src)) ok(RENDERERS_ALLOWED.has(r), `${r} renders a guide card outside the rail slot (only RailGuideSlot, and DaypartRail's in-track drop insert / guides library, may)`);
   ok(!/Go deeper with a local guide/.test(src), `${r} still renders a between-rails guide aside`);
-  if (/<GuideRailCollection[\s>]/.test(src)) {
+  const conditionalCollection = /const GuideCollection = collection === "halloween" \? NoGuideSlot : GuideRailCollection;/.test(src);
+  if (conditionalCollection) {
+    ok(/function NoGuideSlot\(\{ children \}\) \{ return <>{children}<\/>; \}/.test(src), `${r} Halloween guide bypass only passes children through`);
+    ok(/const GuideSlot = collection === "halloween" \? NoGuideSlot : RailGuideSlot;/.test(src) && /<GuideSlot[\s>]/.test(src), `${r} default Fall still renders its shared guide slot`);
+    ok(/<GuideCollection[\s>]/.test(src), `${r} conditional guide collection is actually mounted`);
+  }
+  if (/<GuideRailCollection[\s>]/.test(src) || conditionalCollection) {
     collections += 1;
-    ok(/<RailGuideSlot[\s>]/.test(src), `${r} uses a guide collection but never puts the guide inside a rail (RailGuideSlot)`);
+    ok(/<RailGuideSlot[\s>]/.test(src) || (conditionalCollection && /<GuideSlot[\s>]/.test(src)), `${r} uses a guide collection but never puts the guide inside a rail (RailGuideSlot)`);
   }
 }
 ok(collections >= 10, `every guide collection was found and checked (${collections})`);
@@ -133,10 +139,14 @@ let swipe = "browser swipe not run";
   const snapRule = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)].find((m) => m[1].split(",").map((x) => x.trim()).includes(".wf-rail-guide-slot>.wf-place-card"));
   ok(!!snapRule && /scroll-snap-align:start/.test(snapRule[2]), "the shipped CSS gives the guide card (.wf-rail-guide-slot>.wf-place-card) scroll-snap-align:start");
   ok(/\.wf-rail\{[^}]*scroll-snap-type:x mandatory/.test(css), "the .wf-rail track is a mandatory snap container");
-  const hosts = files.filter((f) => /<RailGuideSlot[\s>]/.test(strip(readFileSync(f, "utf8"))));
+  // A host renders <RailGuideSlot> directly, or through FallIntentRails' seasonal alias
+  // (const GuideSlot = collection === "halloween" ? NoGuideSlot : RailGuideSlot, main #1726).
+  const hostTag = (src) => /<RailGuideSlot[\s>]/.test(src) ? /<RailGuideSlot[\s>]/
+    : (/const GuideSlot = [^;]*RailGuideSlot;/.test(src) && /<GuideSlot[\s>]/.test(src) ? /<GuideSlot[\s>]/ : null);
+  const hosts = files.filter((f) => hostTag(strip(readFileSync(f, "utf8"))));
   for (const f of hosts) {
     const src = strip(readFileSync(f, "utf8"));
-    const before = src.slice(0, src.search(/<RailGuideSlot[\s>]/));
+    const before = src.slice(0, src.search(hostTag(src)));
     const open = before.lastIndexOf("<div className=");
     ok(open !== -1 && /^<div className=(?:"wf-rail[ "]|\{`wf-rail )/.test(before.slice(open)), `${rel(f)}: the track that hosts the guide is a .wf-rail snap container`);
   }

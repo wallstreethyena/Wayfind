@@ -81,6 +81,7 @@ ok(discovered.length >= 8, `the glob discovers a plausible number of composer ex
 const COVERED = new Set([
   "lib/nightOutIntent.js:composeNightOutRails",
   "lib/fallIntentRails.js:composeFallIntentRails",
+  "lib/halloweenIntentRails.js:composeHalloweenRails",
   "lib/christmasIntentRails.js:composeChristmasIntentRails",
   "lib/dateNightIntent.js:composeDateNightRails",
   "lib/birthdayIntent.js:composeBirthdayRails",
@@ -160,6 +161,16 @@ function assertMonotonic(label, result) {
   ok(!!rail, "fallIntentRails: the fixture lands in the Farms rail");
   if (rail) assertLeads("fallIntentRails (food)", cardsOf(rail).map((c) => c.id));
   assertMonotonic("fallIntentRails", composed);
+}
+{
+  const { composeHalloweenRails } = modules.get("lib/halloweenIntentRails.js");
+  const cards = FALL_FIXTURE.map((row) => ({ ...row, name: `${row.name} Pumpkin Patch`,
+    kind: "place" }));
+  const composed = composeHalloweenRails([{ id: "farms", cards }], "2026-10-13");
+  const rail = railsArrayOf(composed).find((r) => r.id === "farms");
+  ok(cardsOf(rail).length === 3, "Halloween admits all three score controls into farms");
+  assertLeads("halloweenIntentRails (farms)", cardsOf(rail).map((card) => card.id));
+  assertMonotonic("halloweenIntentRails", composed);
 }
 {
   // Christmas v3 (lead packet, 2026-10-09) ranks inside distance GROUPS

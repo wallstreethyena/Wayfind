@@ -4,25 +4,19 @@ _Seeded 2026-08-25 from evidence in-session. **Numbers re-verified against live 
 ## LIVE STATE — generated, never typed
 _Written by `scripts/os-state.mjs` from live sources. Do not hand-edit._
 
-<!-- WF-LIVE-STATE:BEGIN generated=2026-08-26T03:33:07Z by=scripts/os-state.mjs -->
+<!-- WF-LIVE-STATE:BEGIN generated=2026-10-11T19:55:20Z by=scripts/os-state.mjs -->
 
 <!-- DO NOT HAND-EDIT. Regenerate: `node scripts/os-state.mjs --write --mirror` -->
 
 | fact | value | source |
 |---|---|---|
-| CI guards | **420** | `scripts/guards.txt`, counted as run-guards counts |
+| CI guards | **856** | `scripts/guards.txt`, counted as run-guards counts |
 | package version | **6.56.0** | `package.json` |
-| repo HEAD | **`ebac112` on `fix/os-state-generated`** | git |
-| Owned inventory | **12,717 rows · 12,673 OPERATIONAL** | `wf_inventory` live count |
-| Owned editorial | **2,469 rows carry `editorial` (19.4%)** | `wf_inventory` live count |
-| Google free tier · details_enterprise | **394/950 (41%)** | `wf_spend_ledger` 2026-08 |
-| Google free tier · details_pro | **16/4,800 (0%)** | `wf_spend_ledger` 2026-08 |
-| Google free tier · diag_test | **1/10 (10%)** | `wf_spend_ledger` 2026-08 |
-| Google free tier · nearby_pro | **79/4,800 (2%)** | `wf_spend_ledger` 2026-08 |
-| Google free tier · photos | **950/950 (100%)** | `wf_spend_ledger` 2026-08 — EXHAUSTED |
-| Google free tier · text_pro | **603/4,800 (13%)** | `wf_spend_ledger` 2026-08 |
+| repo HEAD | **`6587335` on `curation/discovery-cove-tiktok-20261011`** | git |
 
-_Read from live sources at 2026-08-26T03:33:07Z. Any live number outside this block is unverified prose._
+_Read from live sources at 2026-10-11T19:55:20Z. Any live number outside this block is unverified prose._
+
+> ⚠️ Supabase credentials absent — inventory and ledger rows omitted. Run with .env.local present.
 
 <!-- WF-LIVE-STATE:END -->
 

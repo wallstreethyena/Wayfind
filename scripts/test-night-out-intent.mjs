@@ -189,7 +189,7 @@ ok(/import \{ selectPosterEvents \} from "\.\.\/\.\.\/lib\/posterEvents\.js"/.te
   && /mode === "night-out"/.test(posterEvents) && /nightOutEventRails\(event\)/.test(posterEvents),
 "home reaches the shared poster selector, which subdivides real EventRailCards through the plural Night Out taxonomy");
 ok(!/selRail\.id === "events" && eventsSlot/.test(daypart), "the obsolete standalone Events drop is gone");
-ok(/selRail\.id === "augtober" \|\| selRail\.id === "tonight"/.test(daypart), "Night Out owns its complete answer and cannot fall through to generic places");
+ok(/selRail\.id === "augtober" \|\| selRail\.id === "halloween" \|\| selRail\.id === "tonight"/.test(daypart), "Night Out owns its complete answer and cannot fall through to generic places");
 ok(/if \(!count\) return null/.test(component), "a healthy empty intent hides its shelf instead of using a look-alike");
 // v8.97b — FOLLOWED, NOT LOOSENED. Both assertions below used to read the ROUTE
 // for strings the retrieval happened to contain. The retrieval moved into

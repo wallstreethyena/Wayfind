@@ -44,6 +44,7 @@ import useEventClock from "./useEventClock.js";
 import { eventVisitStatus } from "../../lib/eventVisitFacts.js";
 import { compactWhen } from "../../lib/whenCompact.js";
 import { useEffect, useState } from "react";
+import CardPhoto from "./CardPhoto";
 // v8.29.2 — the same fallback hands IconicPlaceCard grew in v8.29. RailCard's
 // thumbs were WORSE than a navigation: `onClick={... if (onLike) onLike(e)}`
 // renders an enabled, pressable button that silently does nothing when the
@@ -519,7 +520,7 @@ export default function RailCard({
               to the ORIGINAL `photo` prop, not the fallback src that just
               replaced it, so this still flips once the fallback also fails. */}
           {shownPhoto && imgFailed !== shownPhoto
-            ? <img
+            ? <CardPhoto
                 src={displayedPhoto}
                 data-fallback={usingFallback ? "" : resolvedPhotoFallback}
                 alt=""
