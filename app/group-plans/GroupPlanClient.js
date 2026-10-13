@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "../../lib/supabase.js";
 import { parseZonedDateTime } from "../../lib/groupPlanTime.js";
+import { signInUrlWithReturn } from "../../lib/authReturn.js";
 import { GroupFrame } from "./GroupFrame.js";
 import { GroupOrganizer, GroupFinal } from "./GroupOrganizer.js";
 import { GroupBallot } from "./GroupBallot.js";
@@ -31,7 +32,8 @@ async function groupRequest(path,body,session) {
   if(!response.ok||!result.ok) throw Object.assign(new Error(result.message||"Something went wrong. Please retry."),{code:result.error});
   return result;
 }
-function signInBlock() {return <section className="gp-panel"><h2>Keep your group together</h2><p>Sign in so you can return to your invites, see who replied, and share the final plan.</p><a className="gp-button primary" href="/favorites" target="_blank" rel="noopener noreferrer">Sign in to Wayfind</a><p className="gp-note">Sign in in the new tab, then return here. This page will pick up your account.</p></section>;}
+export function signInBlock(returnPath) {return <section className="gp-panel"><h2>Keep your group together</h2><p>Sign in so you can return to your invites, see who replied, and share the final plan.</p><a className="gp-button primary" href={signInUrlWithReturn(returnPath)}>Sign in to Wayfind</a><p className="gp-note">After you sign in, we bring you right back to this page.</p></section>;}
+function returnPathFor(mode,planId,placeId) {return mode==="new"?`/group-plans/new?place=${encodeURIComponent(placeId||"")}`:mode==="list"?"/group-plans":planId?`/group-plans/${encodeURIComponent(planId)}`:"/group-plans";}
 function localDefault(days,hour) {
   const date=new Date();date.setDate(date.getDate()+days);date.setHours(hour,0,0,0);
   return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}T${String(date.getHours()).padStart(2,"0")}:00`;
@@ -101,7 +103,7 @@ export default function GroupPlanClient({mode="view",planId,placeId,enabled=fals
   return <GroupFrame>
     {mode!=="view"&&<><h1>{mode==="new"?"Pick a place. Find a time.":"Your group plans"}</h1><p className="gp-lede gp-muted">A few good options. One clear reply from each friend. Less back-and-forth.</p></>}
     <ErrorNotice message={error}/>
-    {session===undefined||credentials===undefined?<p role="status">Loading your group plans…</p>:!guest&&!session?signInBlock():mode==="new"?<GroupCreateForm key={session.user.id} placeId={placeId} session={session} {...emailReady} onCreated={(next)=>window.location.assign(`/group-plans/${encodeURIComponent(next.id)}`)}/>:mode==="list"?<>
+    {session===undefined||credentials===undefined?<p role="status">Loading your group plans…</p>:!guest&&!session?signInBlock(returnPathFor(mode,planId,placeId)):mode==="new"?<GroupCreateForm key={session.user.id} placeId={placeId} session={session} {...emailReady} onCreated={(next)=>window.location.assign(`/group-plans/${encodeURIComponent(next.id)}`)}/>:mode==="list"?<>
       {list?.notices?.length>0&&<section className="gp-panel"><h2>Updates for you</h2>{list.notices.map((notice)=><p key={notice.id}><a className="gp-button" href={`/group-plans/${notice.plan_id}`}>{notice.event_type==="voting_closed"?"Voting has finished":notice.event_type==="plan_finalized"?"Your plan is ready":"Plan cancelled"}</a>{notice.email_status==="pending_configuration"&&<span className="gp-note"> Email update pending setup.</span>}{["failed","suppressed"].includes(notice.email_status)&&<span className="gp-note"> Email was not confirmed. Your result is saved here.{notice.next_attempt_at?" We’ll retry the email automatically.":""}</span>}</p>)}</section>}
       <section className="gp-panel"><h2>Pick up where you left off</h2>{list?.plans?.length?list.plans.map((item)=><div className="gp-row" key={item.id}><span>{item.status==="draft"?"Invites not started":item.status==="open"?"Waiting for replies":item.status==="closed"?"Ready for your decision":item.status==="finalized"?"Final plan":"Cancelled"}<small className="gp-note" style={{display:"block"}}>Created {new Date(item.created_at).toLocaleDateString()}</small></span><a className="gp-button" href={`/group-plans/${item.id}`}>Open plan</a></div>):<p className="gp-muted">Find a place you like, tap Share, then Organize a group.</p>}</section>
     </>:plan?<>{plan.role==="organizer"?<GroupOrganizer key={plan.id} plan={plan} onCommand={command} busy={busy}/>:plan.role==="final"?<><h1>Here’s the plan</h1><GroupFinal plan={plan}/></>:<GroupBallot key={plan.id} plan={plan} onCommand={command} busy={busy}/>}<button className="gp-button" disabled={busy} onClick={load}>Refresh replies</button></>:!error?<p role="status">Loading your invitation…</p>:<button className="gp-button" onClick={load}>Try again</button>}

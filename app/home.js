@@ -5,6 +5,7 @@ import { fetchLivePhoto, detailGalleryPhotos, liveCreditFor } from "../lib/liveP
 import PhotoCredit from "./components/PhotoCredit";
 import CardPhoto from "./components/CardPhoto";
 import { cardPhotoRequest } from "../lib/cardPhotoRequest.js";
+import { rememberAuthReturn, consumeAuthReturn } from "../lib/authReturn.js";
 import { normName, betterPlace, dedupePlaces } from "../lib/placeDedupe";
 import { comparatorFor, sortPlacesBy, nearestBranch } from "../lib/sortModes";
 import { openBrowseHistory } from "../lib/browseHistory";
@@ -5245,6 +5246,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       // always applies; the ONLY event allowed to clear one is SIGNED_OUT.
       if (session && session.user) setUser(session.user);
       else if (_event === "SIGNED_OUT") setUser(null);
+      // Group Vote sign-in resume: go back to the stored /group-plans path (same tab, validated).
+      try { if (session && session.user && (_event === "SIGNED_IN" || _event === "INITIAL_SESSION")) { const _ret = consumeAuthReturn(window.sessionStorage); if (_ret) window.location.assign(_ret); } } catch (e) {}
       try { if (session && session.user && typeof window !== "undefined" && window.__WF_NOTE_AUTH_USER) window.__WF_NOTE_AUTH_USER(session.user); } catch (e) {}
       try { if (typeof window !== "undefined") captureOrQueue(window, "auth_event", { event: _event, hasSession: !!(session && session.user) }); } catch (e) {}
       try { if (session && session.user && typeof window !== "undefined" && window.posthog) window.posthog.identify(session.user.id); } catch (e) {}
@@ -7845,6 +7848,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       const sp = new URLSearchParams(window.location.search);
       const go = sp.get("go");
       if (!go) return;
+      // Group Vote sign-in resume: /favorites?return=/group-plans/... (validated in lib/authReturn.js).
+      if (go === "saved") rememberAuthReturn(window.sessionStorage, sp.get("return"));
       const valid = { events: "events", map: "map", saved: "saved", favorites: "saved", itinerary: "itinerary", coupons: "coupons" };
       if (go === "lunch") setMenuSheet("pick");
       if (valid[go]) setScreen(valid[go]);
