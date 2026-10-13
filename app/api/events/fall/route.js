@@ -106,7 +106,7 @@ export async function GET(request) {
     // v31 (2026-10-09) publishes the Seminole Heights patch and Nightmare on
     // Channelside and keeps Tampa Terrors as an open run, so no v30 payload outlives it.
     // v33 also admits explicit Halloween parties into the shared seasonal pool.
-    const key = `fall-intents:v33:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    const key = `fall-intents:v34:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
