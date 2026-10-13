@@ -35,6 +35,8 @@ const read = (p) => readFileSync(path.join(ROOT, p), "utf8");
 let pass = 0, fail = 0;
 const ok = (c, m) => { c ? pass++ : (fail++, console.log("  FAIL:", m)); };
 
+const venueIdentity = (merchant, norm) => !!(merchant && merchant.partners.some((p) => p.provider === norm.provider && p.offerId === norm.offerId));
+const isExactTiqetsProduct = (dest) => /tiqets\.com\/.+-p\d+\/?$/.test(String(dest || ""));
 // ── 1. product integrity, executed ─────────────────────────────────────────
 const entries = Object.entries(EVENT_TICKET_DEALS);
 ok(entries.length >= 8, `registry holds the eight fall mappings (${entries.length})`);
@@ -63,12 +65,28 @@ for (const [eventId, raw] of entries) {
     ok(reg, `${eventId}: offer "${norm.offerId}" resolves in PARTNER_OFFER_REGISTRY under provider "${norm.provider}"`);
     const discoveryRow = FALL_DISCOVERIES_2026.find((r) => r.event_id === eventId);
     const organizerUrl = discoveryRow && (discoveryRow.official_ticket_url || discoveryRow.official_event_url);
-    ok(organizerUrl, `${eventId}: a discovery row names the organizer URL this mapping is checked against`);
     const merchant = organizerUrl ? affiliateMerchantForUrl(organizerUrl) : null;
-    ok(merchant && merchant.partners.some((p) => p.provider === norm.provider && p.offerId === norm.offerId),
-      `${eventId}: the organizer URL's merchant (${merchant && merchant.key}) actually lists ${norm.provider}/${norm.offerId} among its partners`);
-    ok(norm.product === "park-admission", `${eventId}: only park-admission is wired for a non-UT provider today`);
+    // Venue identity for EVERY non-UT product: the organizer URL's merchant must
+    // list this exact provider/offerId among its partners (the offer belongs to
+    // the same venue the reader is told about).
+    ok(venueIdentity(merchant, norm), `${eventId}: the organizer URL's merchant (${merchant && merchant.key}) actually lists ${norm.provider}/${norm.offerId} among its partners`);
+    if (norm.product === "event-ticket") {
+      // 2026-10-13: a non-UT EVENT ticket must additionally be an exact product
+      // page (Tiqets "...-p<id>/"), never a venue/location hub.
+      ok(norm.provider === "tiqets" && reg && isExactTiqetsProduct(reg.destination), `${eventId}: a non-UT event-ticket row resolves to an exact Tiqets product page (-p<id>), not a venue hub`);
+    }
+    ok(norm.product === "park-admission" || norm.product === "event-ticket", `${eventId}: a non-UT row names a wired product kind`);
   }
+}
+// NEGATIVE CONTROL (2026-10-13): an event-ticket row that points at a perfectly
+// good Tiqets -p<id> product of a DIFFERENT venue must fail venue identity.
+{
+  const zooMerchant = affiliateMerchantForUrl("https://zootampa.org/events/creatures-of-the-night/");
+  const wrongVenue = { provider: "tiqets", offerId: "tampa-deal-adventure-island", product: "event-ticket" };
+  const wrongReg = partnerOfferById(wrongVenue.offerId, "tiqets");
+  ok(wrongReg && isExactTiqetsProduct(wrongReg.destination), "control fixture: the other venue's offer really is an exact Tiqets product page");
+  ok(!venueIdentity(zooMerchant, wrongVenue), "NEGATIVE CONTROL: a ZooTampa event-ticket row pointing at Adventure Island's Tiqets product FAILS venue identity");
+  ok(!venueIdentity(null, wrongVenue), "NEGATIVE CONTROL: no merchant for the organizer URL fails venue identity");
 }
 for (const eventId of SEPARATELY_TICKETED) {
   const entry = EVENT_TICKET_DEALS[eventId];
