@@ -1,9 +1,12 @@
 -- Prepared with the Supabase CLI. Tested only on isolated embedded PostgreSQL.
 -- Use scripts/apply-migration.mjs with approval and reconciliation before production.
 -- No outbound delivery is enabled by this schema.
+-- Re-runnable (2026-10-13 reconciliation): create table/index if not exists and
+-- create or replace function; enable row level security, revoke and grant are
+-- already idempotent. Intent and object definitions are unchanged.
 begin;
 
-create table public.wf_group_plans (
+create table if not exists public.wf_group_plans (
   id uuid primary key,
   owner_id uuid not null references auth.users(id) on delete cascade,
   create_key uuid not null,
@@ -26,11 +29,11 @@ create table public.wf_group_plans (
   check (expires_at > deadline and expires_at <= created_at + interval '120 days'),
   check (pg_column_size(state) <= 65536)
 );
-create index wf_group_plans_owner_updated on public.wf_group_plans(owner_id,updated_at desc);
-create index wf_group_plans_due on public.wf_group_plans(deadline) where status='open';
-create index wf_group_plans_expiry on public.wf_group_plans(expires_at);
+create index if not exists wf_group_plans_owner_updated on public.wf_group_plans(owner_id,updated_at desc);
+create index if not exists wf_group_plans_due on public.wf_group_plans(deadline) where status='open';
+create index if not exists wf_group_plans_expiry on public.wf_group_plans(expires_at);
 
-create table public.wf_group_plan_notices (
+create table if not exists public.wf_group_plan_notices (
   id uuid primary key default gen_random_uuid(),
   plan_id uuid not null references public.wf_group_plans(id) on delete cascade,
   owner_id uuid not null references auth.users(id) on delete cascade,
@@ -45,10 +48,10 @@ create table public.wf_group_plan_notices (
   last_error_code text,
   unique(plan_id,event_type)
 );
-create index wf_group_plan_notices_owner on public.wf_group_plan_notices(owner_id,created_at desc);
-create index wf_group_plan_notices_retry on public.wf_group_plan_notices(next_attempt_at) where email_status in ('queued','failed');
+create index if not exists wf_group_plan_notices_owner on public.wf_group_plan_notices(owner_id,created_at desc);
+create index if not exists wf_group_plan_notices_retry on public.wf_group_plan_notices(next_attempt_at) where email_status in ('queued','failed');
 
-create table public.wf_group_plan_limits (
+create table if not exists public.wf_group_plan_limits (
   key text primary key check(key ~ '^[a-f0-9]{64}$'),
   window_start timestamptz not null,
   hits integer not null check(hits>0)
@@ -62,7 +65,7 @@ grant select,insert,update,delete on public.wf_group_plans,public.wf_group_plan_
 -- No public/authenticated RLS policy: all access is through an authenticated,
 -- same-origin application server that verifies owner or per-slot capability.
 
-create function public.wf_group_plan_rate_limit(p_key text,p_limit integer)
+create or replace function public.wf_group_plan_rate_limit(p_key text,p_limit integer)
 returns boolean language plpgsql security invoker set search_path='' as $$
 declare n integer;
 begin
@@ -76,7 +79,7 @@ begin
   return n<=p_limit;
 end $$;
 
-create function public.wf_group_plan_create(p_state jsonb,p_invite_secret text,p_create_key uuid,p_email_consent boolean)
+create or replace function public.wf_group_plan_create(p_state jsonb,p_invite_secret text,p_create_key uuid,p_email_consent boolean)
 returns jsonb language plpgsql security invoker set search_path='' as $$
 declare row public.wf_group_plans; owner uuid; made timestamptz; due timestamptz;
 begin
@@ -104,7 +107,7 @@ begin
   return to_jsonb(row);
 end $$;
 
-create function public.wf_group_plan_commit(p_id uuid,p_expected_revision integer,p_state jsonb,p_operation text)
+create or replace function public.wf_group_plan_commit(p_id uuid,p_expected_revision integer,p_state jsonb,p_operation text)
 returns jsonb language plpgsql security invoker set search_path='' as $$
 declare row public.wf_group_plans; next_status text; notice text; all_responded boolean;
 begin
@@ -148,7 +151,7 @@ grant execute on function public.wf_group_plan_rate_limit(text,integer),public.w
 
 -- A single claimed notice may be retried using the same provider idempotency key.
 -- SKIP LOCKED permits multiple workers without concurrent sends of one notice.
-create function public.wf_group_plan_claim_notice(p_claim_token uuid)
+create or replace function public.wf_group_plan_claim_notice(p_claim_token uuid)
 returns jsonb language plpgsql security invoker set search_path='' as $$
 declare notice public.wf_group_plan_notices; consent boolean;
 begin
@@ -163,7 +166,7 @@ begin
   return to_jsonb(notice)||jsonb_build_object('email_consent',true);
 end $$;
 
-create function public.wf_group_plan_finish_notice(p_id uuid,p_claim_token uuid,p_status text,p_error_code text)
+create or replace function public.wf_group_plan_finish_notice(p_id uuid,p_claim_token uuid,p_status text,p_error_code text)
 returns boolean language plpgsql security invoker set search_path='' as $$
 begin
   if p_status not in ('provider_accepted','failed','suppressed','pending_configuration') then return false; end if;
@@ -176,7 +179,7 @@ end $$;
 revoke all on function public.wf_group_plan_claim_notice(uuid),public.wf_group_plan_finish_notice(uuid,uuid,text,text) from public,anon,authenticated;
 grant execute on function public.wf_group_plan_claim_notice(uuid),public.wf_group_plan_finish_notice(uuid,uuid,text,text) to service_role;
 
-create function public.wf_group_plan_cleanup()
+create or replace function public.wf_group_plan_cleanup()
 returns jsonb language plpgsql security invoker set search_path='' as $$
 declare plans integer; limits integer;
 begin
