@@ -321,6 +321,65 @@ throwsSync(() => costOfUsage(H45, { input_tokens: 5, output_tokens: 5 }), UsageM
   fs.unlinkSync(f + ".lock");
 }
 
+// ═════ 12b. retries, reconcile, canSpend (JS twin of the SQL rules; the SQL is proven in a real Postgres by
+//            scripts/db/test-atlas-ledger-pg.mjs, which is NOT in prebuild because CI has no Postgres) ═════
+{
+  const { ledger, budget } = await mk({ ceiling: 100000 });
+  const a1 = await budget.reserve("rt1", "rtp", H45, 5000);
+  eq((await budget.reserve("rt1", "rtp", H45, 5000)).already, true, "identical reserve retry on reserved row is idempotent");
+  eq((await budget.reserve("rt1", "rtp", H45, 5001)).reason, "duplicate_attempt_key", "reserve retry with a different bound fails closed");
+  await budget.dispatch("rt1");
+  eq((await budget.reserve("rt1", "rtp", H45, 5000)).already, true, "identical reserve retry on dispatched row is idempotent");
+  ok(a1.ok && !a1.already, "first reserve is not 'already'");
+  const t0 = await ledger.totals("s", "2026-10");
+  const s1 = await ledger.settleAttempt("rt1", { settledMicroUsd: 3000 });
+  const t1 = await ledger.totals("s", "2026-10");
+  const s2 = await ledger.settleAttempt("rt1", { settledMicroUsd: 3000 });
+  eq(s2.already, true, "same-amount settle retry is idempotent"); eq(JSON.stringify(await ledger.totals("s", "2026-10")), JSON.stringify(t1), "retry changes no totals");
+  await throwsAsync(() => ledger.settleAttempt("rt1", { settledMicroUsd: 3001 }), LedgerStateError, "different-amount settle retry throws");
+  ok(t0.liability === 5000 && t1.liability === 0 && t1.settled === 3000 && s1.ok, "settled counts in its own period; bound freed");
+  eq((await budget.reserve("rt1", "rtp", H45, 5000)).reason, "duplicate_attempt_key", "reserve retry after settle fails closed");
+  await budget.reserve("rt2", "rtp2", H45, 100); await budget.release("rt2");
+  eq((await ledger.releaseAttempt("rt2")).already, true, "release retry on released row is a no-op");
+  // reconcile
+  await budget.reserve("rc1", "rcp", H45, 4000); await budget.dispatch("rc1"); await budget.markUnresolved("rc1", "timeout");
+  eq((await ledger.unresolveAttempt("rc1", "again")).already, true, "unresolve retry is a no-op");
+  const before = JSON.stringify(await ledger.totals("s", "2026-10"));
+  for (const bad of [null, undefined, -1, 1.5, NaN, "7"]) await throwsAsync(() => ledger.reconcileAttempt("rc1", { settledMicroUsd: bad }), LedgerStateError, `reconcile rejects ${String(bad)}`);
+  eq(JSON.stringify(await ledger.totals("s", "2026-10")), before, "rejected reconcile leaves the full bound counted");
+  eq((await ledger.getAttempt("rc1")).state, "unresolved", "row stays unresolved after rejected reconcile");
+  ok(await budget.canSpend(), "canSpend true when healthy");
+  const rr = await ledger.reconcileAttempt("rc1", { settledMicroUsd: 3500 });
+  eq(rr.overrun, false, "reconcile within bound is not an overrun");
+  eq((await ledger.reconcileAttempt("rc1", { settledMicroUsd: 3500 })).already, true, "reconcile retry same amount idempotent");
+  await throwsAsync(() => ledger.reconcileAttempt("rc1", { settledMicroUsd: 3501 }), LedgerStateError, "reconcile retry with another amount throws");
+  // overrun via reconcile: recorded in full, reason overrun, scope halted
+  await budget.reserve("rc2", "rcp2", H45, 1000); await budget.dispatch("rc2"); await budget.markUnresolved("rc2", "timeout");
+  const ro = await ledger.reconcileAttempt("rc2", { settledMicroUsd: 9000 });
+  const a2 = await ledger.getAttempt("rc2");
+  ok(ro.overrun && ro.halted && a2.settledMicroUsd === 9000 && /^overrun/.test(a2.reason), "reconcile overrun recorded in full with reason overrun");
+  eq(await budget.canSpend(), false, "canSpend false once halted");
+  eq((await budget.reserve("rc3", "rcp3", H45, 1)).reason, "halted", "reconcile overrun halts the scope");
+  // ceiling exceeded without exceeding the bound: ceiling lowered after reserve
+  const m = await mk({ ceiling: 10000, scope: "lc" });
+  await m.budget.reserve("lc1", "lcp", H45, 8000); await m.budget.dispatch("lc1"); await m.budget.markUnresolved("lc1", "t");
+  await m.ledger.setBudget("lc", "2026-10", 5000);
+  const lc = await m.ledger.reconcileAttempt("lc1", { settledMicroUsd: 6000 });
+  ok(!lc.overrun && lc.halted, "reconcile pushing the period over its (lowered) ceiling halts");
+  eq(await m.budget.canSpend(), false, "canSpend false after ceiling halt");
+  // month boundary: settle after the next period began is charged to the reserving period
+  const mb = await mk({ ceiling: 10000, scope: "mb", period: "2026-10" });
+  await mb.ledger.setBudget("mb", "2026-11", 10000);
+  const nov = new Budget({ ledger: mb.ledger, scope: "mb", period: "2026-11" });
+  await mb.budget.reserve("mb1", "mbp1", H45, 4000); await mb.budget.dispatch("mb1");
+  ok((await nov.reserve("mb2", "mbp2", H45, 6000)).ok, "Nov reserve 6000 with Oct 4000 in flight fits exactly");
+  eq((await nov.reserve("mb3", "mbp3", H45, 1)).reason, "over_ceiling", "Oct in-flight counts against Nov");
+  await mb.ledger.settleAttempt("mb1", { settledMicroUsd: 3000 });
+  eq((await mb.ledger.totals("mb", "2026-10")).settled, 3000, "settled after Nov began is charged to Oct");
+  eq((await mb.ledger.totals("mb", "2026-11")).settled, 0, "Nov settled untouched");
+  eq(await mb.budget.canSpend(), true, "no spurious halt from another period's in-flight");
+}
+
 // ═════ 13. SQL proposal in PGlite (single connection: Promise.all queues, so this proves the
 //           invariant and state machine, NOT multi-session FOR UPDATE contention) ═════
 let pgliteRan = false;
@@ -367,6 +426,20 @@ let pgliteRan = false;
   ok((await C("c1", "cp1", 4000, "2026-09")).ok, "SQL: Sep reserve"); await db.query("select wf_ai_dispatch('c1')"); await db.query("select wf_ai_unresolve('c1','crash')");
   eq((await C("c2", "cp2", 1500, "2026-10")).reason, "over_ceiling", "SQL: unresolved Sep row blocks Oct");
   eq((await C("c3", "cp3", 1000, "2026-10")).ok, true, "SQL: exact fit admitted");
+  // retries / reconcile / can_spend (full matrix incl. real concurrency: scripts/db/test-atlas-ledger-pg.mjs)
+  await db.query("insert into wf_ai_budget(scope,period,ceiling_micro_usd) values ('rx','2026-10',100000)");
+  const RX = (k, p, b) => db.query("select wf_ai_reserve($1,'rx','2026-10',$2,'claude-haiku-4-5','anthropic-std-2026-10-08',$3) r", [k, p, b]).then((x) => x.rows[0].r);
+  eq((await RX("rx1", "rxp", 500)).ok, true, "SQL: reserve"); eq((await RX("rx1", "rxp", 500)).already, true, "SQL: identical reserve retry idempotent");
+  eq((await RX("rx1", "rxp", 501)).reason, "duplicate_attempt_key", "SQL: changed-bound retry fails closed");
+  await db.query("select wf_ai_dispatch('rx1')"); await db.query("select wf_ai_unresolve('rx1','t')");
+  for (const bad of ["null", "-1", "1.5"]) ok(/non-negative integer/.test(await raised(`select wf_ai_reconcile('rx1', ${bad}, 'op')`)), `SQL: reconcile rejects ${bad}`);
+  eq((await db.query("select state from wf_ai_spend where attempt_key='rx1'")).rows[0].state, "unresolved", "SQL: rejected reconcile leaves it unresolved");
+  const rc = (await db.query("select wf_ai_reconcile('rx1', 900, 'op') r")).rows[0].r;
+  ok(rc.overrun && rc.halted, "SQL: reconcile overrun halts");
+  ok(/^overrun/.test((await db.query("select reason from wf_ai_spend where attempt_key='rx1'")).rows[0].reason), "SQL: reconcile overrun reason");
+  eq((await db.query("select wf_ai_reconcile('rx1', 900, 'op') r")).rows[0].r.already, true, "SQL: reconcile retry idempotent");
+  ok(/already settled/.test(await raised("select wf_ai_reconcile('rx1', 901, 'op')")), "SQL: reconcile retry with another amount raises");
+  eq((await db.query("select wf_ai_can_spend('rx') r")).rows[0].r, false, "SQL: can_spend false when halted");
 }
 
 fs.rmSync(dir, { recursive: true, force: true });
