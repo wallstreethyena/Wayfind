@@ -1,0 +1,349 @@
+{
+  "verified_on": "2026-10-13",
+  "new_events": [
+    {
+      "event_id": "moon-crawl-wpb-2026",
+      "event_name": "7th Annual Moon Crawl",
+      "city": "West Palm Beach",
+      "state": "FL",
+      "year": 2026,
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-24",
+      "start_time": "20:00",
+      "end_time": "23:59",
+      "timezone": "America/New_York",
+      "venue": "Roxy\u2019s Pub",
+      "address": "309 Clematis Street, West Palm Beach, FL",
+      "category": "halloween",
+      "subcategory": "bar-crawl",
+      "tags": [
+        "halloween",
+        "bar-crawl"
+      ],
+      "official_event_url": "https://downtownwpb.com/halloween/",
+      "official_ticket_url": "https://www.eventbrite.com/e/7th-annual-moon-crawl-bar-crawl-tickets-1994752558600",
+      "source_url": "https://downtownwpb.com/halloween/",
+      "source_type": "official",
+      "verification_confidence": "high",
+      "event_status": "scheduled",
+      "is_free": null,
+      "lat": 26.7134191,
+      "lng": -80.0523365,
+      "card_hook": "Costumed bar crawl starting at Roxy\u2019s Pub.",
+      "place_id": "ChIJLd_uxonW2IgRCHBSV77RI9E",
+      "audience": [
+        "adults"
+      ],
+      "slug": "moon-crawl-wpb-2026",
+      "source_tier": 2,
+      "verify_note": "Official source confirms 2026 date and venue; coordinates verified by existing inventory or Census address match. Verified 2026-10-13. Coordinates and venue identity matched existing Wayfind inventory. Venue photo uses existing exact-place pipeline.",
+      "event_series_id": "moon-crawl-wpb"
+    },
+    {
+      "event_id": "halloween-night-bar-crawl-camelot-2026",
+      "event_name": "Halloween Night Bar Crawl at Camelot",
+      "city": "West Palm Beach",
+      "state": "FL",
+      "year": 2026,
+      "start_date": "2026-10-31",
+      "end_date": "2026-10-31",
+      "start_time": "20:00",
+      "end_time": null,
+      "timezone": "America/New_York",
+      "venue": "Camelot",
+      "address": "114 S. Narcissus Avenue, West Palm Beach, FL",
+      "category": "halloween",
+      "subcategory": "bar-crawl",
+      "tags": [
+        "halloween",
+        "bar-crawl"
+      ],
+      "official_event_url": "https://downtownwpb.com/halloween/",
+      "official_ticket_url": "https://www.eventbrite.com/e/halloween-night-bar-crawl-tickets-1994755325877",
+      "source_url": "https://downtownwpb.com/halloween/",
+      "source_type": "official",
+      "verification_confidence": "high",
+      "event_status": "scheduled",
+      "is_free": null,
+      "lat": 26.7126502,
+      "lng": -80.0506057,
+      "card_hook": "Halloween crawl departing Camelot.",
+      "place_id": "ChIJB_x-d4nW2IgRA8KT7MrGCis",
+      "audience": [
+        "adults"
+      ],
+      "slug": "halloween-night-bar-crawl-camelot-2026",
+      "source_tier": 2,
+      "verify_note": "Official source confirms 2026 date and venue; coordinates verified by existing inventory or Census address match. Verified 2026-10-13. Coordinates and venue identity matched existing Wayfind inventory. Venue photo uses existing exact-place pipeline.",
+      "event_series_id": "halloween-night-bar-crawl-camelot"
+    },
+    {
+      "event_id": "olympus-after-dark-2026",
+      "event_name": "Olympus After Dark: A Halloween Rooftop Party",
+      "city": "West Palm Beach",
+      "state": "FL",
+      "year": 2026,
+      "start_date": "2026-10-31",
+      "end_date": "2026-10-31",
+      "start_time": "19:00",
+      "end_time": "23:00",
+      "timezone": "America/New_York",
+      "venue": "Treehouse Rooftop Bar & Restaurant",
+      "address": "380 Trinity Place, West Palm Beach, FL",
+      "category": "halloween",
+      "subcategory": "halloween-party",
+      "tags": [
+        "halloween",
+        "halloween-party"
+      ],
+      "official_event_url": "https://downtownwpb.com/halloween/",
+      "official_ticket_url": "https://www.eventbrite.com/e/olympus-after-dark-a-halloween-rooftop-party-tickets-2000516285061",
+      "source_url": "https://downtownwpb.com/halloween/",
+      "source_type": "official",
+      "verification_confidence": "high",
+      "event_status": "scheduled",
+      "is_free": null,
+      "lat": 26.7069251,
+      "lng": -80.0531973,
+      "card_hook": "Mythology-themed rooftop costume party.",
+      "place_id": "ChIJV8mRgbbX2IgRloAsUHzNI6s",
+      "audience": [
+        "adults"
+      ],
+      "slug": "olympus-after-dark-2026",
+      "source_tier": 2,
+      "verify_note": "Official source confirms 2026 date and venue; coordinates verified by existing inventory or Census address match. Verified 2026-10-13. Coordinates and venue identity matched existing Wayfind inventory. Venue photo uses existing exact-place pipeline.",
+      "event_series_id": "olympus-after-dark"
+    },
+    {
+      "event_name": "HarborWalk Village Halloween Spooktacular",
+      "city": "Destin",
+      "venue": "HarborWalk Village",
+      "address": "34 Harbor Boulevard, Destin, FL 32541",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-24",
+      "start_time": "15:00",
+      "end_time": "20:00",
+      "timezone": "America/Chicago",
+      "subcategory": "family-halloween",
+      "tags": [
+        "halloween",
+        "family-halloween",
+        "trick-or-treat",
+        "street-festival"
+      ],
+      "official_event_url": "https://www.destinfwb.com/event/harborwalk-village-halloween-spooktacular/50900/",
+      "card_hook": "Waterfront trick-or-treating and carnival games.",
+      "editorial_summary": "HarborWalk hosts Halloween activities along the harbor, including a scavenger hunt, carnival games and treats.",
+      "lat": 30.3940594,
+      "lng": -86.5121123,
+      "place_id": "ChIJqQ1Avv5DkYgR19YWeQV8UiQ",
+      "event_id": "harborwalk-halloween-spooktacular-2026",
+      "slug": "harborwalk-halloween-spooktacular-2026",
+      "year": 2026,
+      "state": "FL",
+      "category": "halloween",
+      "event_status": "scheduled",
+      "source_url": "https://www.destinfwb.com/event/harborwalk-village-halloween-spooktacular/50900/",
+      "source_type": "official_tourism",
+      "source_tier": 2,
+      "verification_confidence": "high",
+      "verify_note": "Official tourism page confirms2026,date,address,3\u20138pm and waterfront trick-or-treating. Free street carnival specifically; no blanket price assertion. Organizer calendar loads dynamically. Exact HarborWalk inventory identity supplies coordinates and venue photo routing. Destination website displayed a hurricane recovery advisory on verification day; the listed date is not a promise of current operations.",
+      "audience": [
+        "families"
+      ],
+      "event_series_id": "harborwalk-halloween-spooktacular"
+    }
+  ],
+  "existing_updates": [
+    {
+      "start_date": "2026-10-23",
+      "end_date": "2026-10-23",
+      "start_time": "19:00",
+      "end_time": "22:00",
+      "timezone": "America/New_York",
+      "subcategory": "halloween-party",
+      "minimum_age": 21,
+      "tags": [
+        "halloween",
+        "costume-party",
+        "adults"
+      ],
+      "official_event_url": "https://tallahasseemuseum.org/events/zoobilee/",
+      "official_ticket_url": "https://38648.blackbaudhosting.com/38648/Zoobilee-Advance-requires-registration-23Oct2026",
+      "card_hook": "A grown-up costume party at the museum.",
+      "editorial_summary": "Costumes, live music and restaurant tastings support Tallahassee Museum. This is an adults-only evening.",
+      "event_id": "fl26-zoobilee-at-tallahassee-museum-2026",
+      "source_url": "https://tallahasseemuseum.org/events/zoobilee/",
+      "verify_note": "Organizer explicitly dates October 23 2026, 7\u201310pm, 21+, music, food and open bar; official linked ticket page lists adult $55.",
+      "verification_confidence": "high",
+      "audience": [
+        "adults"
+      ]
+    },
+    {
+      "start_date": "2026-10-30",
+      "end_date": "2026-10-30",
+      "start_time": "18:00",
+      "end_time": "21:00",
+      "timezone": "America/New_York",
+      "subcategory": "family-halloween",
+      "tags": [
+        "halloween",
+        "family-halloween",
+        "trick-or-treat",
+        "outdoor"
+      ],
+      "official_event_url": "https://www.tallahasseesymphony.org/event/free-halloween-symphony-spooktacular/",
+      "card_hook": "Trick-or-treat, then hear the symphony outdoors.",
+      "editorial_summary": "Come in costume for candy, games and a concert in Cascades Park. General admission is free; reserved VIP seats are optional.",
+      "event_id": "fl26-halloween-symphony-spooktacular-2026",
+      "source_url": "https://www.tallahasseesymphony.org/event/free-halloween-symphony-spooktacular/",
+      "verify_note": "Organizer lists ISO date 2026-10-30, 6\u20139pm, venue address; trick-or-treat begins 6pm and music 7:30pm. Free admission; optional $5 VIP seating.",
+      "verification_confidence": "high"
+    },
+    {
+      "start_date": "2026-10-25",
+      "end_date": "2026-10-25",
+      "start_time": "15:00",
+      "end_time": "17:00",
+      "timezone": "America/New_York",
+      "subcategory": "family-halloween",
+      "tags": [
+        "halloween",
+        "family-halloween",
+        "costumes",
+        "outdoor"
+      ],
+      "official_event_url": "https://www.goodwoodmuseum.org/goodwood-events/",
+      "card_hook": "Free costumes, crafts and hayrides for families.",
+      "editorial_summary": "Goodwood and WFSU host a family afternoon with storytelling, face painting, hayrides and crafts on the front lawn.",
+      "event_id": "fl26-goodwood-halloween-family-fun-day-2026",
+      "source_url": "https://www.goodwoodmuseum.org/goodwood-events/",
+      "verify_note": "Organizer confirms Sunday Oct25, 3\u20135pm on front lawn, all activities free; official Visit Tallahassee explicitly confirms 2026 year.",
+      "verification_confidence": "high"
+    },
+    {
+      "start_date": "2026-10-30",
+      "end_date": "2026-10-30",
+      "start_time": "18:30",
+      "end_time": "20:30",
+      "timezone": "America/New_York",
+      "subcategory": "halloween-party",
+      "minimum_age": 21,
+      "tags": [
+        "halloween",
+        "ghost-stories",
+        "adults",
+        "spooky-date"
+      ],
+      "official_event_url": "https://www.goodwoodmuseum.org/goodwood-events/",
+      "official_ticket_url": "https://www.eventbrite.com/e/1998973275879?aff=oddtdtcreator",
+      "card_hook": "Ghost stories and a grown-up garden evening.",
+      "editorial_summary": "Storytellers and performers bring spooky tales to Goodwood's front lawn, with appetizers and drinks. Ages 21 and older.",
+      "event_id": "fl26-spirits-of-goodwood-2026",
+      "source_url": "https://www.goodwoodmuseum.org/goodwood-events/",
+      "verify_note": "Organizer Friday Oct30 6:30\u20138:30pm,21+,front lawn, stories,magicians,appetizers,beer/wine. Visit Tallahassee confirms2026. Ticket URL is organizer outbound link; ticket fetch429 so no price asserted.",
+      "verification_confidence": "high",
+      "audience": [
+        "adults"
+      ]
+    },
+    {
+      "event_id": "lincoln-road-halloween-block-party-2026",
+      "official_event_url": "https://lincolnroad.com/events-calendar/",
+      "official_ticket_url": "https://www.eventbrite.com/e/lincoln-road-halloween-block-party-tickets-1999726031391",
+      "start_date": "2026-10-31",
+      "end_date": "2026-11-01",
+      "start_time": "17:00",
+      "end_time": "02:00",
+      "verification_confidence": "high",
+      "source_url": "https://lincolnroad.com/events-calendar/",
+      "verify_note": "Official BID calendar confirms exact date and overnight hours. Existing specific URL may contain stale weekday; use current calendar."
+    },
+    {
+      "event_id": "boo-tacular-2026",
+      "official_event_url": "https://www.collierparks.com/Events-Directory/Boo-Tacular-2026",
+      "start_date": "2026-10-30",
+      "end_date": "2026-10-30",
+      "start_time": "18:00",
+      "end_time": "21:00",
+      "address": "15000 Livingston Rd, Naples, FL 34109",
+      "price_min": 5,
+      "source_url": "https://www.collierparks.com/Events-Directory/Boo-Tacular-2026",
+      "verify_note": "County official page confirms Halloween games and trick-or-treat lane.",
+      "verification_confidence": "high",
+      "is_free": false,
+      "admission_offer": "paid"
+    },
+    {
+      "event_id": "lynq-or-treat-trunk-or-treat-at-clover-park-2026",
+      "start_date": "2026-10-23",
+      "end_date": "2026-10-23",
+      "start_time": "17:00",
+      "end_time": "21:00",
+      "address": "31 Piazza Dr, Port St. Lucie, FL 34986",
+      "is_free": true,
+      "official_event_url": "https://lynqortreat.com/",
+      "source_url": "https://lynqortreat.com/",
+      "verify_note": "Organizer confirms free admission, no RSVP, family costumes and candy trunks.",
+      "verification_confidence": "high",
+      "price_band": "free",
+      "price_min": 0,
+      "price_max": 0
+    },
+    {
+      "event_id": "fl26-delray-halloween-kidsfest-and-parade-2026",
+      "start_date": "2026-10-24",
+      "end_date": "2026-10-24",
+      "start_time": "11:00",
+      "end_time": "15:00",
+      "address": "51 N Swinton Ave, Delray Beach, FL",
+      "is_free": true,
+      "official_event_url": "https://www.delraybeachfl.gov/Home/Components/Calendar/Event/4972/336",
+      "source_url": "https://www.delraybeachfl.gov/Home/Components/Calendar/Event/4972/336",
+      "verify_note": "City search result confirms Kidsfest 11-3 and parade1PM. Merchant trick-or-treat start conflicts: city11:30 vs DDA11. Do not override annual parade number without verification.",
+      "verification_confidence": "high",
+      "price_band": "free",
+      "price_min": 0,
+      "price_max": 0
+    }
+  ],
+  "held": [
+    {
+      "name": "Clematis by Fright",
+      "reason": "Exact venue identity or reusable image remains unverified; do not replace with collection artwork.",
+      "source_url": "https://downtownwpb.com/halloween/"
+    },
+    {
+      "name": "Not-So-Spooky Movie Marathon",
+      "reason": "Exact venue identity or reusable image remains unverified; do not replace with collection artwork.",
+      "source_url": "https://mandel-fl.whofi.com/calendar/event/344095?method=embed"
+    },
+    {
+      "name": "Boca Raton Howl-O-Ween",
+      "reason": "Exact venue identity or reusable image remains unverified; do not replace with collection artwork.",
+      "source_url": "https://myboca.us/3016/Howl-O-Ween"
+    },
+    {
+      "name": "Oakland Park Halloween Bash",
+      "reason": "Exact venue identity or reusable image remains unverified; do not replace with collection artwork.",
+      "source_url": "https://www.oaklandparkfl.gov/224/Halloween-Bash"
+    },
+    {
+      "name": "Delray Marketplace Trick or Treat",
+      "reason": "Exact venue identity or reusable image remains unverified; do not replace with collection artwork.",
+      "source_url": "https://www.delraymarket.com/event-list/2026/10/29/trick-or-treat"
+    },
+    {
+      "name": "Palafox Market Halloween Market",
+      "reason": "No verified reusable image or exact inventory place identity.",
+      "source_url": "https://www.visitpensacola.com/events/palafox-market-s-halloween-market/"
+    },
+    {
+      "name": "The Great Pumpkin Bash",
+      "reason": "No verified reusable image or exact inventory place identity.",
+      "source_url": "https://www.gainesvillefl.gov/Events-directory/PRCA-Events/The-Great-Pumpkin-Bash"
+    }
+  ]
+}

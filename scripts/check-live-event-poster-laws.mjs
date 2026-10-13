@@ -9,6 +9,8 @@ import { execSync } from "node:child_process";
 import { readFileSync, existsSync } from "node:fs";
 import { globSync } from "node:fs";
 
+import { RAILS } from "../lib/rails.js";
+
 const root = process.cwd();
 const fail = [];
 const ok = (label) => console.log(`  OK  ${label}`);
@@ -18,65 +20,37 @@ function git(cmd) {
   try { return execSync(`git ${cmd}`, { cwd: root, encoding: "utf8" }); } catch (e) { return ""; }
 }
 
-// 1. lib/rails.js must remain COMPLETELY untouched: the live posters are
-// synthetic tiles and must never join the canonical RAILS list, or the rail
-// identity, route and rotation guards stop meaning anything.
-//
-// app/components/DaypartRail.js and app/home.js ARE legitimately touched
-// (owner direction 2026-09-17: the Sporting Events and Concerts posters are
-// posters IN the existing poster rail, at the same size as every other
-// poster, which cannot be done from outside the rail). Their changes are
-// scoped instead: every added line must belong to the live-poster wiring,
-// and nothing may be deleted that is not part of it.
+// 1. Test the shipped contract, not whether unrelated files differ from HEAD.
+// Static seasonal posters may join RAILS; live sports posters remain synthetic.
+// The old diff-only gate rejected valid static additions before commit and
+// checked nothing after commit. These predicates hold in both states.
 {
-  const railsDiff = git("diff HEAD -- lib/rails.js");
-  if (railsDiff.trim().length > 0) bad("lib/rails.js has uncommitted changes", "the live posters must stay synthetic, never in RAILS");
-  else ok("lib/rails.js is untouched — the live posters are synthetic tiles");
-
-  const POSTER_SCOPE = /livePoster|LivePoster|useLivePosterTiles|live event|LIVE EVENT|Sporting Events|check-partner-collections|withSponsor/;
-  for (const f of ["app/components/DaypartRail.js", "app/home.js"]) {
-    const diff = git(`diff HEAD -- ${f}`);
-    const added = diff.split("\n").filter((l) => l.startsWith("+") && !l.startsWith("+++"));
-    const removed = diff.split("\n").filter((l) => l.startsWith("-") && !l.startsWith("---"));
-    if (!added.length && !removed.length) { ok(`${f} has no uncommitted changes`); continue; }
-    // A removal is in scope only if the line it replaced was itself part of
-    // the wiring, or it is one of the two sponsor expressions this feature
-    // had to re-shape in place to keep check-partner-collections's pinned
-    // literals intact.
-    // const BUILD_ID = "v…"; is excluded on purpose: the comment directly
-    // above that line in app/home.js says "BUMP THIS WITH EVERY RELEASE",
-    // meaning EVERY future PR — live-poster-related or not — legitimately
-    // removes and replaces that exact line. Without this, this guard would
-    // make it permanently impossible to ship any unrelated change alongside
-    // the mandated version bump (discovered 2026-09-23 by the v9 share-card
-    // PR, whose own bump tripped this).
-    const IN_SCOPE_REMOVAL = /livePoster|LivePoster|sponsor \? \[sponsor|const allRails|const order|const railById|const art = |LiveEventPoster|flex: "1 1 0"|maxWidth: 220|minWidth: 150|overscrollBehaviorX|rails=\{RAILS\}|const BUILD_ID = /;
-    // Bare structural punctuation (a closing paren or brace left over from
-    // reshaping a useMemo in place) carries no meaning to audit; only lines
-    // with actual content are judged.
-    const STRUCTURAL = /^-\s*[)\};,]*\s*$/;
-    // 2026-10-08 PHOTO-COMPLIANCE CHANGE SET (owner decision; Google Maps Platform Terms 3.2.3). It
-    // legitimately edits app/home.js in exactly these places and no others, so each pattern is pinned to
-    // the specific line, never a broad word:
-    //   - CACHE_EPOCH bump (cached data semantics changed: locked by check-cache-epoch.mjs)
-    //   - EventHeroBg's alt hero photo: credit state is now an object, and the wf_evimg_<venue> localStorage
-    //     photo cache (a stored Google photo URL + author) is removed in favour of the live JSON photo.
-    //   - the lightbox list / credit now derive from lib/livePhoto (detailGalleryPhotos / liveCreditFor).
-    // Anything else removed from app/home.js is still foreign.
-    const PHOTO_COMPLIANCE_REMOVAL = /^-const CACHE_EPOCH = \d+;|^-\s*const \[altBy, setAltBy\] = useState\(""\);|^-\s*const key = "wf_evimg_" \+ String\(venue\)|^-    try \{$|^-\s*const raw = localStorage\.getItem\(key\);|^-\s*if \(raw\) \{ const o = JSON\.parse\(raw\);|^-    \} catch \(e\) \{\}$|localStorage\.setItem\(key, JSON\.stringify\(\{ ts: Date\.now\(\), url|^-\s*let url = "", by = "";|^-\s*try \{ const pl = await findPlace\(venue, near\); url = |^-\s*if \(!off\) \{ setAlt\(url\); setAltBy\(by\); \}|\{altBy \? "Photo: " \+ altBy \+ " · Google" : "via Google"\}|^-\s*const lightboxPhotos = \(detail && Array\.isArray\(detail\.photos\)|^-\s*\? detail\.photos\s*$|^-\s*: \(detail && detail\.photo \? \[detail\.photo\] : \[\]\);|^-\s*const by = lightboxIndex >= 0 && detail && Array\.isArray\(detail\.photoAttrs\)|^-\s*const label = by === "Wayfind" \? "Photo: Wayfind"|^-\s*: by \? "Photo: " \+ by \+ " · via Google"|^-\s*: singleSourceAttr \? "Photo: " \+ singleSourceAttr\s*$|^-\s*: "Photo via Google";|^-\s*return <div style=\{\{ color: "rgba\(255,255,255,\.85\)", fontSize: 11\.5, fontWeight: 600, marginBottom: 3 \}\}>\{label\}<\/div>;/;
-    const PHOTO_COMPLIANCE_IMPORT = /^\+import \{ fetchLivePhoto, detailGalleryPhotos, liveCreditFor \} from "\.\.\/lib\/livePhoto";|^\+import PhotoCredit from "\.\/components\/PhotoCredit";/;
-    const complianceScope = f === "app/home.js";
-    const foreignRemovals = removed.filter((l) => !IN_SCOPE_REMOVAL.test(l) && !STRUCTURAL.test(l) && !(complianceScope && PHOTO_COMPLIANCE_REMOVAL.test(l)));
-    const suspicious = added.filter((l) =>
-      (/\bimport\s/.test(l) && !POSTER_SCOPE.test(l) && !(complianceScope && PHOTO_COMPLIANCE_IMPORT.test(l)))
-      || /setCenter|setLocName|navigator\.geolocation/.test(l)
-    );
-    if (foreignRemovals.length === 0 && suspicious.length === 0) {
-      ok(`${f}'s changes are confined to the live-poster wiring (${added.length} added, ${removed.length} removed)`);
-    } else {
-      bad(`${f} has changes outside the live-poster wiring`, `foreign-removals=${JSON.stringify(foreignRemovals.slice(0, 3))} suspicious=${JSON.stringify(suspicious.slice(0, 3))}`);
-    }
-  }
+  const strip = (text) => text.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  const home = strip(readFileSync("app/home.js", "utf8"));
+  const menu = strip(readFileSync("app/components/DaypartRail.js", "utf8"));
+  const hook = strip(readFileSync("app/components/useLivePosterTiles.js", "utf8"));
+  const staticOnly = (rows) => rows.length > 0 && rows.every((r) => !/^live-/.test(r.id) && !["sports", "concerts"].includes(r.id)
+    && !["livePosterSrc", "livePosterType", "livePosterEventId"].some((key) => key in r));
+  const canonical = (source) => /const livePosterTiles = useLivePosterTiles\(\{ center: railCenter \|\| center, city: locName \}\);/.test(source);
+  const handoff = (source) => /<DaypartRail\s+rails=\{RAILS\}\s+livePosters=\{livePosterTiles\}/.test(source);
+  const sharedFeed = (source) => /usePosterEvents\(\{ active: !!config, center, city, mode: config\?\.mode \}\)/.test(source);
+  const indexed = (source) => /new Map\(\[\.\.\.\(livePosters \|\| \[\]\), \.\.\.withSponsor\]\.map/.test(source);
+  const ordered = (source) => /const live = \(livePosters \|\| \[\]\)\.map\(\(r\) => r\.id\);/.test(source)
+    && /return \[\.\.\.withSponsor\.slice\(0, AT\), \.\.\.live, \.\.\.withSponsor\.slice\(AT\)\];/.test(source);
+  const check = (yes, label) => yes ? ok(label) : bad(label);
+  check(staticOnly(RAILS), "canonical RAILS contains only static posters");
+  check(canonical(home), "live poster hook uses the canonical active location");
+  check(handoff(home), "home passes static RAILS and synthetic live posters separately");
+  check(sharedFeed(hook), "live posters consume the shared bounded event feed");
+  check(indexed(menu), "synthetic live posters enter the menu lookup");
+  check(ordered(menu), "synthetic live IDs enter the displayed poster order");
+  check(!staticOnly([...RAILS, { id: "live-sports" }]), "negative control rejects a live registry ID");
+  check(!staticOnly([...RAILS, { id: "renamed", livePosterSrc: "/poster" }]), "negative control rejects renamed live metadata");
+  check(!canonical(home.replace("center: railCenter || center, city: locName", "center: otherCenter, city: locName")), "negative control rejects divergent live location");
+  check(!handoff(home.replace("rails={RAILS}", "rails={otherRails}")), "negative control rejects a swapped static registry");
+  check(!sharedFeed(hook.replace("usePosterEvents({", "useIndependentEvents({")), "negative control rejects an independent poster feed");
+  check(!indexed(menu.replace("new Map([...(livePosters || []), ...withSponsor]", "new Map([...withSponsor]")), "negative control rejects missing live lookup entries");
+  check(!ordered(menu.replace("...withSponsor.slice(0, AT), ...live, ...withSponsor.slice(AT)", "...withSponsor")), "negative control rejects missing live menu entries");
 }
 
 // 2. No second Ticketmaster fetcher added BY THIS LANE. The Discovery API
@@ -186,7 +160,7 @@ function git(cmd) {
 // default, nothing that could quietly diverge from Wayfind's own location
 // selector (app/home.js: center + locName).
 {
-  const files = ["app/components/LiveEventPoster.js", "lib/liveEventPosterTypes.js", "app/components/usePosterEvents.js"];
+  const files = ["app/components/LiveEventPoster.js", "lib/liveEventPosterTypes.js", "app/components/usePosterEvents.js", "app/components/useLivePosterTiles.js"];
   const offenders = [];
   for (const f of files) {
     if (!existsSync(f)) continue;

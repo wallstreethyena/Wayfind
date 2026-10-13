@@ -75,11 +75,13 @@ function eventCta(card, onTrack) {
   return null;
 }
 
-function FallRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, fallSkin, isSaved, liked, disliked, isLiked, isDisliked, onSave, onLike, onDislike, onShare }) {
+function NoGuideSlot({ children }) { return <>{children}</>; }
+
+function FallRailSection({ rail, collection, lat, lng, onOpenPlace, onTrack, city, fallSkin, isSaved, liked, disliked, isLiked, isDisliked, onSave, onLike, onDislike, onShare }) {
   const seedItems = useMemo(() => (rail.cards || []).slice(0, RAIL_PAGE_SIZE), [rail]);
-  const params = useMemo(() => (lat != null && lng != null ? { lat, lng, rail: rail.id } : null), [lat, lng, rail.id]);
+  const params = useMemo(() => (lat != null && lng != null ? { lat, lng, rail: rail.id, ...(collection === "halloween" ? { collection } : {}) } : null), [lat, lng, rail.id, collection]);
   const { items: pagedItems, total, sentinelIndex, sentinelRef, loading, loadingMore, error, fetchMore } = usePagedRail(
-    "/api/events/fall", params, { enabled: !!params, seedItems, seedTotal: (rail.cards || []).length, itemsKey: "cards" },
+    "/api/events/fall", params, { enabled: !!params, seedItems, seedTotal: Number.isFinite(rail.total) ? rail.total : (rail.cards || []).length, itemsKey: "cards" },
   );
   const curatorPicks = useCuratorPicks();
   const now = useEventClock();
@@ -98,7 +100,8 @@ function FallRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, fallSkin,
     return out;
   }, [pagedItems, curatorPicks, nowStamp]);
   const cardCount = Number.isFinite(total) ? Math.max(items.length, total - (pagedItems.length - items.length)) : items.length;
-  const railId = "fall-intent-" + rail.id;
+  const railId = collection + "-intent-" + rail.id;
+  const GuideSlot = collection === "halloween" ? NoGuideSlot : RailGuideSlot;
   const renderState = railRenderState(items, { loading, error });
   if (renderState === RAIL_RENDER_STATE.HIDDEN) return null;
   if (renderState === RAIL_RENDER_STATE.LOADING) return <section aria-label={rail.title} style={{ marginTop: 22 }}>
@@ -115,7 +118,7 @@ function FallRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, fallSkin,
       <RailNav railId={railId} count={cardCount} total={cardCount} loaded={items.length} unit={cardCount === 1 ? "ranked option" : "ranked options"} />
     </RailHeading>
     <>
-      <div className={`wf-rail wf-rail-exploding${fallSkin ? " wf-fall" : ""}`} data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}><RailGuideSlot railId={rail.id} onTrack={onTrack}>
+      <div className={`wf-rail wf-rail-exploding${fallSkin ? " wf-fall" : ""}`} data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}><GuideSlot railId={rail.id} onTrack={onTrack}>
         {items.map((card, index) => {
           const rank = index + 1;
           const isEvent = card.kind === "event";
@@ -164,14 +167,14 @@ function FallRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, fallSkin,
         })}
         {loadingMore ? <div className="wf-rail-card wf-exploding-primary wf-sk" role="status" aria-busy="true" aria-label={`Loading more ${rail.title}`}
           style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 88, color: COLORS.muted, fontSize: 12.5 }}>Loading more…</div> : null}
-      </RailGuideSlot></div>
+      </GuideSlot></div>
       {items.length > 1 ? <RailDots railId={railId} count={items.length} /> : null}
     </>
   </section>;
 }
 
 export default function FallIntentRails({
-  active = true, center = null, city = "", onOpenPlace = null, onTrack = null,
+  collection = "fall", active = true, center = null, city = "", onOpenPlace = null, onTrack = null,
   isSaved, liked, disliked, isLiked, isDisliked, onSave, onLike, onDislike, onShare,
 }) {
   const [payload, setPayload] = useState(null);
@@ -182,7 +185,9 @@ export default function FallIntentRails({
   const lng = center && Number.isFinite(center.lng) ? center.lng : null;
   const clock = useEventClock(active);
   const today = siteTodayStr(clock);
-  const key = useMemo(() => active && lat != null && lng != null ? `${lat.toFixed(2)}|${lng.toFixed(2)}|${today}` : "", [active, lat, lng, today]);
+  const expectedRailCount = collection === "halloween" ? 7 : 10;
+  const GuideCollection = collection === "halloween" ? NoGuideSlot : GuideRailCollection;
+  const key = useMemo(() => active && lat != null && lng != null ? `${lat.toFixed(2)}|${lng.toFixed(2)}|${today}|${collection}` : "", [active, lat, lng, today, collection]);
   const fallSkin = fallSkinLive(siteTodayStr());
 
   useEffect(() => {
@@ -195,14 +200,15 @@ export default function FallIntentRails({
     const controller = new AbortController();
     const [queryLat, queryLng] = key.split("|");
     const query = new URLSearchParams({ lat: queryLat, lng: queryLng, v: "2" });
+    if (collection === "halloween") query.set("collection", collection);
     fetchRailJson("/api/events/fall?" + query.toString(), { timeoutMs: FALL_LOAD_TIMEOUT_MS, signal: controller.signal })
       .then((result) => {
         if (cancelled) return;
-        if (!result || !Array.isArray(result.rails) || result.rails.length !== 10) {
+        if (!result || !Array.isArray(result.rails) || result.rails.length !== expectedRailCount) {
           setFailure(railDeveloperFailure("invalid_payload", { route: "/api/events/fall" }));
           return;
         }
-        setPayload(result);
+        setPayload({ ...result, requestKey: key });
         try { onTrack?.("fall_intent_collection_open", { city, phase: result.phase, rails: result.rails.map((rail) => rail.id).join(","), cards: result.rails.reduce((sum, rail) => sum + rail.cards.length, 0) }); } catch {}
       })
       .catch((error) => {
@@ -216,14 +222,14 @@ export default function FallIntentRails({
   }, [key, retry]);
 
   if (!active) return null;
-  if (!key) return <p style={{ color: COLORS.muted, fontSize: 13 }}>Share your location to rank Florida&apos;s fall options for you.</p>;
-  if ((!payload && !failure) || (payload?.today && payload.today !== today)) return <RailLoading label="Ranking Florida fall experiences" />;
+  if (!key) return <p style={{ color: COLORS.muted, fontSize: 13 }}>Share your location to rank Florida&apos;s {collection === "halloween" ? "Halloween" : "fall"} options for you.</p>;
+  if ((!payload && !failure) || (payload && payload.requestKey !== key) || (payload?.today && payload.today !== today)) return <RailLoading label={`Ranking Florida ${collection === "halloween" ? "Halloween" : "fall"} experiences`} />;
   if (failure) return failure.kind === "developer" ? <RailDevError /> : <RailMascotBusy rail="fall" failure={failure} onRetry={() => setRetry((value) => value + 1)} onVisible={() => { void emitRailDegraded(failure, { rail: "fall" }); }} />;
 
   return <>
-    <GuideRailCollection rails={payload.rails} collectionId="fall">{payload.rails.map((rail) => <FallRailSection key={`${today}:${rail.id}`} rail={rail} lat={lat} lng={lng} onOpenPlace={onOpenPlace} onTrack={onTrack} city={city} fallSkin={fallSkin}
+    <GuideCollection rails={payload.rails} collectionId={collection}>{payload.rails.map((rail) => <FallRailSection key={collection === "halloween" ? `${collection}:${today}:${rail.id}` : `${today}:${rail.id}`} collection={collection} rail={rail} lat={lat} lng={lng} onOpenPlace={onOpenPlace} onTrack={onTrack} city={city} fallSkin={fallSkin}
       isSaved={isSaved} liked={liked} disliked={disliked} isLiked={isLiked} isDisliked={isDisliked}
-      onSave={onSave} onLike={onLike} onDislike={onDislike} onShare={onShare} />)}</GuideRailCollection>
-    <FallRecommendedHotels center={center} />
+      onSave={onSave} onLike={onLike} onDislike={onDislike} onShare={onShare} />)}</GuideCollection>
+    {collection === "fall" ? <FallRecommendedHotels center={center} /> : null}
   </>;
 }

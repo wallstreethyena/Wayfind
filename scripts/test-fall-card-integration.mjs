@@ -23,7 +23,7 @@ Module._extensions['.js'] = (module, filename) => {
 Module._load=function(request,parent,isMain){
   let resolved='';try{resolved=Module._resolveFilename(request,parent,isMain);}catch{}
   if(request==='react' && parent?.filename===cardFile) return {...React,useState:(init)=>{const index=cursor++;if(!(index in state))state[index]=typeof init==='function'?init():init;return [state[index],(value)=>{state[index]=typeof value==='function'?value(state[index]):value;}];}};
-  if(request==='react' && parent?.filename===fallFile) return {...React,useState:(init)=>[fallStateCalls++===0?payload:typeof init==='function'?init():init,()=>{}],useRef:()=>({current:''}),useEffect:(fn,deps)=>{effects.push({fn,deps});},useMemo:(fn)=>fn()};
+  if(request==='react' && parent?.filename===fallFile) return {...React,useState:(init)=>[fallStateCalls++===0?(payload ? {requestKey:"27.95|-82.46|2026-10-04|fall",...payload} : null):typeof init==='function'?init():init,()=>{}],useRef:()=>({current:''}),useEffect:(fn,deps)=>{effects.push({fn,deps});},useMemo:(fn)=>fn()};
   if(resolved===path.join(root,'app/components/useEventClock.js'))return {__esModule:true,default:()=>now};
   if(parent?.filename===cardFile && resolved===path.join(root,'lib/cardActions.js'))return {useCardActions:()=>({hydrated:false})};
   if(parent?.filename===cardFile && resolved===path.join(root,'lib/contentCardActions.js'))return {useContentCardActions:()=>({toggleSave:()=>{},toggleLike:()=>{},toggleDislike:()=>{},share:()=>{}})};
@@ -68,7 +68,7 @@ try{
   state=[];cursor=0;fallStateCalls=0;
   const generation=renderToStaticMarkup(React.createElement(FallIntentRails,{center:{lat:27.95,lng:-82.46}}));
   ok(!generation.includes('Yesterday generation')&&generation.includes('Ranking Florida fall experiences'),'all-expired loaded page from yesterday refreshes its generation instead of draining obsolete offsets');
-  ok(effects.at(-1).deps[0].endsWith('|2026-10-04'),'new venue day participates in the actual bulk request effect identity');
+  ok(effects.at(-1).deps[0].endsWith('|2026-10-04|fall'),'new venue day participates in the actual bulk request effect identity');
   payload={phase:'opening',rails:[{id:'farms',title:'Sentinel rail',cards:Array.from({length:11},(_,i)=>({id:`sentinel-${i}`,kind:'event',name:i>=9?`Survivor ${i}`:'Expired event',start_date:i>=9?'2026-10-10':'2026-10-03',end_date:i>=9?'2026-10-11':null,image:'/event.webp'}))}]};
   state=[];cursor=0;fallStateCalls=0;
   const railRoot=FallIntentRails({center:{lat:27.95,lng:-82.46}});let section=null;

@@ -2,6 +2,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import ts from "typescript";
+import { composeHalloweenRails } from "../lib/halloweenIntentRails.js";
 import * as eventSocial from "../lib/eventSocial.js";
 import { windowRailAnswer } from "../lib/railResponse.js";
 
@@ -28,6 +29,7 @@ async function routeHarness({ dealError = null, cachedValue } = {}) {
     return builder;
   };
   const imports = {
+    "../../../../lib/halloweenIntentRails.js": { composeHalloweenRails },
     "../../../../lib/eventSocial.js": eventSocial,
     "../../../../lib/fallPlaceEvidence.js": { fallPlaceEvidenceCurrent: () => true },
     "../../../../lib/curatedOwnedPlacePhotos.js": { CURATED_OWNED_PLACE_PHOTOS: {} },

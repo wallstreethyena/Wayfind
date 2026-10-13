@@ -374,7 +374,7 @@ const route = readFileSync(new URL("../app/api/events/fall/route.js", import.met
 const daypart = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
 const component = readFileSync(new URL("../app/components/FallIntentRails.js", import.meta.url), "utf8");
 const card = readFileSync(new URL("../app/components/RailCard.js", import.meta.url), "utf8");
-ok(route.includes("fall-intents:v31:") && route.includes("fastCachedRail"), "the API uses the v31 shared FastCache key after the 2026-10-09 Tampa pass (v30: 2026-10-08 evening Tampa pass; v29: 2026-10-08 Tampa pass; v28: 2026-10-08 food gap fill and hidden-farm recovery; v27: 2026-10-07 farm/food gap fill; v26: statewide gap fill; v25: Halloween DB seed; v24: verified visit facts and truthful operating-status publish)");
+ok(Number((route.match(/fall-intents:v(\d+):/) || [])[1]) >= 32 && route.includes("fastCachedRail"), "the API invalidates pre-release inventory with shared FastCache v32 or newer");
 const imageProofId = "ChIJB-QyVtEXw4gRk5F8bn3YV28";
 ok(hasStoredPlacePhoto({ place_id: imageProofId, signals: { photo_url: "https://cdn.example.test/owned.jpg" } }),
   "an owned signals.photo_url is stored image proof");
@@ -424,9 +424,9 @@ ok(/FALL_COLLECTION_POSTER/.test(route) && /fallEventCardImageSrc/.test(route), 
 ok(/FALL_PHOTO_PLACE_IDS/.test(route) && /FALL_PHOTO_SPOTS/.test(route), "the photo rail reads the researched registry rather than trusting an Instagrammable label");
 ok(/FallIntentRails = dynamic/.test(daypart), "the ten-rail component is lazy and absent from first paint");
 ok(/selRail\.id === "augtober"/.test(daypart) && /<FallIntentRails/.test(daypart), "the Augtober poster opens the specialized collection");
-ok(/selRail\.id === "augtober" \|\| selRail\.id === "tonight"/.test(daypart), "generic place fallback is suppressed for Augtober and Night Out");
+ok(/selRail\.id === "augtober" \|\| selRail\.id === "halloween" \|\| selRail\.id === "tonight"/.test(daypart), "generic place fallback is suppressed for Augtober, Halloween and Night Out");
 ok(!/fallEvents\.map|wf8-falltile/.test(daypart), "the old mixed inline fall strip is retired rather than duplicated");
-ok(/result\.rails\.length !== 10/.test(component), "the client fails closed on an incomplete rail contract");
+ok(/const expectedRailCount = collection === "halloween" \? 7 : 10/.test(component) && /result\.rails\.length !== expectedRailCount/.test(component), "the client fails closed on an incomplete rail contract");
 ok(/FALL_LOAD_TIMEOUT_MS = 10000/.test(component) && /fetchRailJson/.test(component), "the collection cannot leave a first-time reader on an endless skeleton");
 ok(/\}, \[key, retry\]\);/.test(component) && !/\[key, city, retry, onTrack\]/.test(component), "parent telemetry re-renders cannot abort the rail request and strand its duplicate guard");
 // WO11 (2026-09-02): the whole-blob "Load every verified fall option" button
