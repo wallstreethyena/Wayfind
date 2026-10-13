@@ -14,6 +14,7 @@
 // CALLED: eventPlaceholder, eventPhotoCredit, and the real RailCard rendered to
 // markup through scripts/lib/jsxLoad.mjs. Syntactic (comments stripped): the
 // four event surfaces no longer reach for stock.
+import { mock } from "node:test";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import React from "react";
@@ -50,6 +51,9 @@ ok(g && g.label === "Google Maps", "a Google venue photo keeps its Google Maps c
 const page = readFileSync(new URL("../app/florida-events/[slug]/page.js", import.meta.url), "utf8");
 ok(/eventImageIsVenue\(e, heroSrc\) \? <p style=\{S\.credit\}>Venue photo · \{e\.event_name\} is not pictured\./.test(page), "the event page says a venue photo is the venue and the event is not pictured");
 
+// Fix the event clock: these photo assertions must not expire with the fixture.
+mock.timers.enable({ apis: ["Date"], now: new Date("2026-10-11T16:00:00Z") });
+
 // ── 3. the real card ─────────────────────────────────────────────────────────
 const REPO = fileURLToPath(new URL("..", import.meta.url));
 const RailCard = (await loadComponent(fileURLToPath(new URL("../app/components/RailCard.js", import.meta.url)), REPO)).default;
@@ -62,6 +66,8 @@ ok(/<img/.test(venueCard) && !/wf-event-placeholder/.test(venueCard), "positive 
 ok(!/Venue photo|is-venue/.test(venueCard), "a venue photo on a card carries no venue caption (the locked card design)");
 const gCard = render({ photo: "/api/photo?place=ChIJx&w=640", visitFacts: { venue: "Krush Brau Park", place_id: "ChIJx", start_date: "2026-10-11", end_date: "2026-10-11" } });
 ok(/>©</.test(gCard) && /Photo: Google Maps/.test(gCard) && !/Venue photo/.test(gCard), "a Google venue photo on a card keeps the plain (c) chip with its Google Maps credit");
+
+mock.timers.reset();
 
 // ── 4. no event surface reaches for stock ───────────────────────────────────
 const code = (p) => readFileSync(new URL("../" + p, import.meta.url), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`\\])\/\/.*$/gm, "$1");

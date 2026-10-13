@@ -44,10 +44,15 @@ for (const rail of routable) {
   if (rail.opensPage) {
     ok(!!rail.href, `${rail.id}: opensPage has no href, so its plain tap is inert`);
   } else {
-    ok(rail.list || rail.guides || rail.id === "chef" || rail.id === "augtober" || rail.id === "christmas",
+    ok(rail.list || rail.guides || rail.id === "chef" || rail.id === "augtober" || rail.id === "halloween" || rail.id === "christmas",
       `${rail.id}: no page navigation and no in-place answer contract`);
   }
 }
+
+const sharedFallMount = (source) => /selRail && \(selRail\.id === "augtober" \|\| selRail\.id === "halloween"\) \? \([\s\S]*?<FallIntentRails[\s\S]*?collection=\{selRail\.id === "halloween" \? "halloween" : "fall"\}/.test(source);
+ok(sharedFallMount(daypart), "Fall and Halloween must mount their exact shared collection");
+const brokenSelector = daypart.replace('collection={selRail.id === "halloween" ? "halloween" : "fall"}', 'collection="fall"');
+ok(brokenSelector !== daypart && !sharedFallMount(brokenSelector), "negative control rejects a Halloween poster that silently opens Fall");
 
 const ownerMatch = daypart.match(/const railOwnsItsOwnAnswer =[^;]+;/);
 ok(!!ownerMatch, "the dedicated-answer registry disappeared");
@@ -57,7 +62,7 @@ for (const id of ownedIds) {
   // rails answer is live (`&& !composerWaiting`); until then the shared load
   // chain speaks for it. Either shape is an answer component being mounted.
   const mounts = new RegExp(`selRail\\.id === "${id}"( && !composerWaiting)? \\? \\(`).test(daypart);
-  ok(mounts, `${id}: marked as owning its answer but mounts no answer component`);
+  ok(mounts || (["augtober", "halloween"].includes(id) && sharedFallMount(daypart)), `${id}: marked as owning its answer but mounts no answer component`);
 }
 
 const componentDir = new URL("app/components/", ROOT);
