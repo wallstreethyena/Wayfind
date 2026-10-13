@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import assert from "node:assert/strict";
+import { composeFallIntentRails, fallEventRail } from "../lib/fallIntentRails.js";
 import { composeHalloweenRails, halloweenCardRail, HALLOWEEN_INTENT_RAIL_DEFS } from "../lib/halloweenIntentRails.js";
 let checks = 0;
 const ok = (condition, message) => { assert.ok(condition, message); checks++; };
@@ -57,4 +58,17 @@ ok(rails.slice(0, 6).flatMap((r) => r.cards).length === new Set(rails.slice(0, 6
 assert.throws(() => composeHalloweenRails(source, "bad")); checks++;
 // Negative control: leaking a cancelled row must fail the actual eligibility check.
 assert.throws(() => assert.ok(![...ids("festivals"), "cancelled"].includes("cancelled"))); checks++;
+// A valid party must survive the upstream Fall composer before Halloween can
+// regroup it. The rooftop venue is intentionally not duplicated in its name.
+const olympus = { event_id: "olympus-after-dark-2026", event_name: "Olympus After Dark: A Halloween Rooftop Party", category: "halloween", subcategory: "halloween-party", tags: ["halloween", "halloween-party"], start_date: "2026-10-31", end_date: "2026-10-31", lat: 26.7069251, lng: -80.0531973 };
+ok(fallEventRail(olympus) === "festivals", "actual Olympus party admitted upstream");
+const upstream = composeFallIntentRails([olympus], [], { lat: olympus.lat, lng: olympus.lng, today: "2026-10-13" });
+ok(upstream.rails.find((r) => r.id === "festivals").cards.length === 1, "actual Fall composer retains Olympus");
+ok(composeHalloweenRails(upstream.rails, "2026-10-13").find((r) => r.id === "festivals").cards[0]?.event_id === olympus.event_id, "Olympus survives both real composers");
+ok(fallEventRail({ ...olympus, event_name: "Autumn Costume Social", subcategory: "costume-party", tags: ["fall"] }) === "festivals", "explicit seasonal costume-party subtype admitted");
+ok(fallEventRail({ event_name: "Friday Costume Social", subcategory: "costume-party", tags: [] }) === null, "unseasonal costume party still fails Fall gate");
+ok(fallEventRail({ ...olympus, event_name: "Halloween fundraiser", subcategory: "private-party" }) === null, "generic party subtype is not admitted");
+ok(fallEventRail({ ...olympus, tags: ["halloween", "scary"] }) === "haunts", "scary identity retains precedence");
+ok(fallEventRail({ ...olympus, audience: ["families"] }) === "family", "family audience retains precedence");
+ok(fallEventRail({ ...olympus, event_name: "Fall Street Festival", subcategory: "street-festival" }) === "festivals", "existing festival identity retained");
 console.log(`test-halloween-intent-rails: ${checks} runtime assertions passed`);
