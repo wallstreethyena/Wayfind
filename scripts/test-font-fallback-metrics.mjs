@@ -20,7 +20,7 @@
  *      normal style only, --wf-display, and its `fallback` starts with
  *      "Fraunces Fallback Noto" then Georgia, Times New Roman, serif; it imports
  *      ./fontFallbacks.css; app/fonts.js (root layout) declares no Fraunces.
- *   4. Scope: fontsDisplay.js is imported by exactly the four route layouts, each
+ *   4. Scope: fontsDisplay.js is imported by exactly the eight route layouts, each
  *      wraps {children} in <DisplayFontScope>, and EVERY file that sets
  *      var(--wf-display) renders only under one of them (importers walked up to
  *      the route files) — so no route sets Fraunces without it being in scope
@@ -120,7 +120,7 @@ const WRAP = '<div class="__variable_fraunces" style="display:contents">';
 const probe = () => React.createElement("p", { id: "wf-font-probe" }, "probe");
 const scoped = renderToStaticMarkup(React.createElement(dispMod.DisplayFontScope, null, probe()));
 ok(scoped === WRAP + '<p id="wf-font-probe">probe</p></div>', `DisplayFontScope renders ${JSON.stringify(scoped)}`);
-for (const l of ["app/guides/layout.js", "app/culture/layout.js", "app/go/florida/layout.js", "app/command-center/layout.js"]) {
+for (const l of ["app/guides/layout.js", "app/culture/layout.js", "app/go/florida/layout.js", "app/command-center/layout.js", "app/fall-in-florida/layout.js", "app/halloween-in-florida/layout.js", "app/christmas-in-florida/layout.js", "app/new-years-in-florida/layout.js"]) {
   let html = "";
   try { const m = await loadComponent(path.join(ROOT, l), ROOT); html = renderToStaticMarkup(React.createElement(m.default, null, probe())); }
   catch (e) { html = "THREW " + e.message; }
@@ -143,7 +143,7 @@ const files = [];
 for (const d of ["lib", "components"]) { try { statSync(path.join(ROOT, d)); (function walk(dd) { for (const n of readdirSync(path.join(ROOT, dd))) { const rel = path.join(dd, n); if (statSync(path.join(ROOT, rel)).isDirectory()) walk(rel); else if (/\.(m?js|jsx|css)$/.test(n)) files.push(rel); } })(d); } catch {} }
 const code = new Map(files.map((f) => [f, f.endsWith(".css") ? read(f).replace(/\/\*[\s\S]*?\*\//g, "") : stripJsComments(read(f))]));
 
-const SCOPED_LAYOUTS = ["app/guides/layout.js", "app/culture/layout.js", "app/go/florida/layout.js", "app/command-center/layout.js"];
+const SCOPED_LAYOUTS = ["app/guides/layout.js", "app/culture/layout.js", "app/go/florida/layout.js", "app/command-center/layout.js", "app/fall-in-florida/layout.js", "app/halloween-in-florida/layout.js", "app/christmas-in-florida/layout.js", "app/new-years-in-florida/layout.js"];
 const importsOf = (f) => [...code.get(f).matchAll(/^\s*import\s+(?:[^"']*?\s+from\s+)?["'](\.[^"']+)["']/gm)].map((m) => {
   const base = path.normalize(path.join(path.dirname(f), m[1]));
   for (const c of [base, base + ".js", base + ".mjs", path.join(base, "index.js")]) if (code.has(c)) return c;

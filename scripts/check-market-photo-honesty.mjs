@@ -42,11 +42,11 @@ for (const file of HOUSE) {
 // primary, not a new stock-image rung. The recovery identity/filter contract
 // is checked by check-card-photo-error-fallback.mjs.
 function railPhotoContract(src) {
-  const imageSources = [...src.matchAll(/<img\b[^>]*\bsrc=(\{[^}]*\})/g)].map((match) => match[1]);
+  const imageSources = [...src.matchAll(/<(?:img|CardPhoto)\b[^>]*\bsrc=(\{[^}]*\})/g)].map((match) => match[1]);
   return /const shownPhoto = photoSrcFilter\(photo\);/.test(src)
     && /const usingFallback = !!fallbackPhoto && fallbackPhoto\.primary === shownPhoto;/.test(src)
     && /const displayedPhoto = usingFallback \? fallbackPhoto\.src : shownPhoto;/.test(src)
-    && /\{shownPhoto && imgFailed !== shownPhoto\s*\? <img\s+src=\{displayedPhoto\}/.test(src)
+    && /\{shownPhoto && imgFailed !== shownPhoto\s*\? <CardPhoto\s+src=\{displayedPhoto\}/.test(src)
     && imageSources.length === 1 && imageSources.every((value) => value === "{displayedPhoto}")
     && /: <div className="wf-place-card-monogram"/.test(src);
 }

@@ -2,9 +2,9 @@
 // app/components/CommunityFooter.js — the one visible community strip on the app
 // route ("/"). Three things the owner asked for, in the ONE below-content area a
 // phone user actually reaches on the home screen (app/home.js's centered
-// Privacy · Terms · build block). Deliberately NOT the left/side nav — the owner
-// said not to touch that — and deliberately not the server footer in
-// app/layout.js, which is veiled on "/" for viewport reasons (FooterVeil).
+// Privacy · Terms · build block). The compact navigation variant also renders
+// the orange Feedback item in the header rail (owner direction, 2026-10-09).
+// The server footer in app/layout.js stays separate (FooterVeil).
 //
 //   1. Follow us      — Instagram @gowayfind.app, surfaced in-app (the layout
 //                       footer has it, but that footer is invisible on "/").
@@ -33,7 +33,7 @@ const CREATOR_BODY =
 
 const link = { color: C.muted, textDecoration: "none", fontSize: 12, fontWeight: 700 };
 
-export default function CommunityFooter({ path = "/", loc = "", build = "", userId = null, compact = false, initialPlace = "", recommendation = false, initialOpen = false, hideTrigger = false, onClose = null } = {}) {
+export default function CommunityFooter({ path = "/", loc = "", build = "", userId = null, compact = false, initialPlace = "", recommendation = false, initialOpen = false, hideTrigger = false, onClose = null, navigation = false } = {}) {
   const [open, setOpen] = useState(initialOpen);
   const [msg, setMsg] = useState("");
   const [place, setPlace] = useState(() => String(initialPlace || "").slice(0, 200));
@@ -130,8 +130,8 @@ export default function CommunityFooter({ path = "/", loc = "", build = "", user
   const fieldStyle = { width: "100%", boxSizing: "border-box", background: C.bg, color: C.text, border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 12px", fontSize: 16, minWidth: 0, maxWidth: "100%", lineHeight: 1.45, fontFamily: "inherit" };
 
   return (
-    <div style={{ width: "100%", minWidth: 0, boxSizing: "border-box", maxWidth: compact ? 520 : 340, margin: compact ? 0 : "0 auto" }}>
-      {!hideTrigger && <div style={{ display: "flex", alignItems: "center", justifyContent: compact ? "flex-start" : "center", gap: 14, flexWrap: "wrap", marginBottom: compact ? 0 : 10 }}>
+    <div style={navigation ? { display: "contents" } : { width: "100%", minWidth: 0, boxSizing: "border-box", maxWidth: compact ? 520 : 340, margin: compact ? 0 : "0 auto" }}>
+      {!hideTrigger && <div style={navigation ? { display: "contents" } : { display: "flex", alignItems: "center", justifyContent: compact ? "flex-start" : "center", gap: 14, flexWrap: "wrap", marginBottom: compact ? 0 : 10 }}>
         {!compact && <>
           <a href={WAYFIND_INSTAGRAM} target="_blank" rel="noopener noreferrer" aria-label="Wayfind on Instagram" style={{ ...link, display: "inline-flex", alignItems: "center", gap: 6 }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.muted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -145,14 +145,16 @@ export default function CommunityFooter({ path = "/", loc = "", build = "", user
         </>}
         <button
           ref={triggerRef}
+          className={navigation ? "wf-dest wf-dest-feedback" : undefined}
           type="button"
           onClick={() => { if (open) close(); else setOpen(true); }}
           disabled={state === "sending"}
           aria-expanded={open}
           aria-haspopup={dialogMode ? "dialog" : undefined}
           aria-controls={id + "-panel"}
-          style={{ ...link, color: recommendation ? C.accent : C.muted, background: "none", border: "none", padding: compact ? "7px 0" : 0, cursor: "pointer" }}
+          style={navigation ? undefined : { ...link, color: recommendation ? C.accent : C.muted, background: "none", border: "none", padding: compact ? "7px 0" : 0, cursor: "pointer" }}
         >
+          {navigation && <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H4l-3 2v-10A8.5 8.5 0 0 1 9.5 3h3A8.5 8.5 0 0 1 21 11.5Z" /><path d="M7 9h8M7 13h5" /></svg>}
           {recommendation ? "Recommend this place" : compact ? "Feedback" : "Send feedback"}
         </button>
       </div>}

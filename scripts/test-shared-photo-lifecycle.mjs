@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import ts from 'typescript';
 import { imageDisplayState } from '../lib/imageState.js';
+import { cardPhotoRequest } from '../lib/cardPhotoRequest.js';
 
 // Execute the shipped component with a deterministic hook/DOM event host.
 // No network, real image providers, wall-clock sleeps, or paid calls.
@@ -19,7 +20,7 @@ function host(initial, complete = false, width = 0) {
   const useRef = init => { const i = cursor++; return hooks[i] ||= { current: init }; };
   const useEffect = (fn, deps) => { const i = cursor++; const old = hooks[i]; if (!old || deps.some((v,j) => !Object.is(v,old.deps[j]))) effects.push(() => { old?.cleanup?.(); hooks[i] = { deps, cleanup: fn() }; }); };
   class Observer { constructor(cb) { this.cb = cb; observer = this; } observe(el) { this.el = el; } disconnect() { this.disconnected = true; } }
-  const Component = new Function('React','useState','useRef','useEffect','imageDisplayState','BrandedImageFallback','IntersectionObserver','setTimeout','clearTimeout', js + ';return FallbackImg;')({createElement},useState,useRef,useEffect,imageDisplayState,'artwork',Observer,fn => { timers.set(++timerId,fn); return timerId; },id => timers.delete(id));
+  const Component = new Function('React','useState','useRef','useEffect','imageDisplayState','BrandedImageFallback','IntersectionObserver','setTimeout','clearTimeout','cardPhotoRequest','CardPhoto', js + ';return FallbackImg;')({createElement},useState,useRef,useEffect,imageDisplayState,'artwork',Observer,fn => { timers.set(++timerId,fn); return timerId; },id => timers.delete(id),cardPhotoRequest,'credited-card-photo');
   const img = () => tree.children?.find(n => n?.type === 'img');
   const render = () => { let n = 0; do { assert(++n < 20,'settles without render loop'); dirty = false; cursor = 0; effects = []; tree = Component(props); const node = img(); if (node?.props.ref) node.props.ref.current = element; for (const effect of effects) effect(); } while (dirty); return tree; };
   render();
@@ -37,4 +38,7 @@ h = host({src:'a'}); const stale = h.img().props.onLoad; h.update({src:'b'}); st
 h = host({src:'pending'}); assert.equal(h.timers.size,0,'offscreen lazy image has no deadline'); h.visible(true); assert.equal(h.element.loading,'eager','visible lazy request starts'); assert.equal(h.timers.size,1); h.visible(true); assert.equal(h.timers.size,1); h.visible(false); assert.equal(h.timers.size,0); h.visible(true); h.expire(); assert.equal(h.tree().type,'artwork','visible hang terminates');
 h = host({src:'pending',fallbackSrc:'backup'}); h.visible(true); h.expire(); assert.equal(h.img().props.src,'backup'); h.visible(true); h.event('onLoad'); assert.equal(h.timers.size,0,'success cancels deadline');
 h = host({src:'pending'}); h.visible(true); h.unmount(); assert.equal(h.timers.size,0,'unmount cancels deadline');
+h = host({src:'/api/photo?place=ChIJFixtureAlpha0001'});
+assert.equal(h.tree().children[0].type,'credited-card-photo','API photos use the shared credited viewer lifecycle');
+assert.equal(h.tree().children[0].props.src,'/api/photo?place=ChIJFixtureAlpha0001');
 console.log('test-shared-photo-lifecycle: OK — cached completion, source races, fallback chain, visibility deadlines and cleanup');

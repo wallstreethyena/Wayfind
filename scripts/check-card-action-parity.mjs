@@ -254,7 +254,7 @@ async function redProveShareRemoval() {
     console.log(`  red-prove: sabotaged render is missing [${missing.join(", ")}] — expected exactly ["share"]`);
     return { setupOk: true, mutationApplied: mutatedCount === targetCount, caughtRed: missing.includes("share") && missing.length === 1 };
   } finally {
-    try { unlinkSync(scratchPath); } catch (e) {}
+    unlinkSync(scratchPath);
   }
 }
 

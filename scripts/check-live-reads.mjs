@@ -55,8 +55,13 @@ const hub = read("app/florida-events/page.js");
 const detail = read("app/florida-events/[slug]/page.js");
 ok(/fetchCuratedEvents\(\{[^}]*fresh:\s*true[^}]*\}\)/.test(fallRoute), "the fall rail reads fresh");
 ok(/fetchCuratedEvents\(\{[^}]*fresh:\s*true[^}]*\}\)/.test(eventsRoute), "the events feed reads fresh");
-ok(/unstable_cache\(/.test(hub) && /revalidate: 3600/.test(hub), "the hub caches validated rows for one hour");
-ok(/noStore\(\)/.test(hub) && /fetchCuratedEvents\(\{ fresh: true/.test(hub), "the hub renders at runtime and its cached loader reads fresh");
+// 2026-10-09: the hub's hourly cache moved into the shared packed loader
+// (lib/curatedEventsCache.js) after a >2 MB entry could never be refreshed.
+// Follow the code: the hub must use that loader, and the loader must cache for
+// one hour and read fresh.
+const eventsCache = read("lib/curatedEventsCache.js");
+ok(/=\s*cachedCuratedEventList\(/.test(hub) && /unstable_cache\(/.test(eventsCache) && /revalidate: 3600/.test(eventsCache), "the hub caches validated rows for one hour (through lib/curatedEventsCache.js)");
+ok(/noStore\(\)/.test(hub) && /fetchCuratedEvents\(\{ fresh: true/.test(eventsCache), "the hub renders at runtime and its cached loader reads fresh");
 ok(/export const revalidate = 3600/.test(detail) && !/fresh:\s*true/.test(detail), "the event page keeps its hourly cache on purpose");
 
 // ── 3. the plumbing, in syntactic position ────────────────────────────────

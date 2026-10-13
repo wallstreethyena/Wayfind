@@ -55,6 +55,7 @@
 // and there is no live production code to "restore" — it runs a second,
 // intentionally-wrong, self-contained computation on the same inputs and
 // shows the mismatch the equality assertions above would have caught.
+import { isIndependentCreator } from "../lib/creatorIndependence.js";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildLeanCurated } from "./gen-creator-signals.mjs";
@@ -152,7 +153,7 @@ function oldVideosFor(index, place, locName) {
 }
 function oldCreatorCountFor(index, place, locName) {
   const seen = new Set();
-  for (const v of oldVideosFor(index, place, locName)) if (v && v.creator) seen.add(oldNorm(v.creator));
+  for (const v of oldVideosFor(index, place, locName)) if (v && v.creator && isIndependentCreator(oldNorm(v.creator))) seen.add(oldNorm(v.creator)); // 2026-10: own-account/tourism handles never corroborate (lib/creatorIndependence.js)
   return seen.size;
 }
 function oldApplyCorroboration(index, p, locName) {

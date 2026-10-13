@@ -22,6 +22,7 @@ import { cardImageSrc, hasStoredPlacePhoto } from "../../../../lib/placePhoto.js
 import { CURATED_OWNED_PLACE_PHOTOS } from "../../../../lib/curatedOwnedPlacePhotos.js";
 import { fastCachedRail, geoCell } from "../../../../lib/railFastCache.js";
 import { composeFallIntentRails, nextFallOccurrence, hasUpcomingFallOccurrence } from "../../../../lib/fallIntentRails.js";
+import { composeHalloweenRails } from "../../../../lib/halloweenIntentRails.js";
 import { pageOneRail } from "../../../../lib/railPage.js";
 import { FALL_PHOTO_PLACE_IDS, FALL_PHOTO_SPOTS } from "../../../../lib/fallPhotoSpots.js";
 import { FALL_DISCOVERIES_2026, FALL_DISCOVERY_RAIL, FALL_SEASONAL_PLACE_IDS } from "../../../../lib/fallDiscoveries2026.js";
@@ -47,6 +48,7 @@ export async function GET(request) {
   const lat = Number.parseFloat(searchParams.get("lat") || "");
   const lng = Number.parseFloat(searchParams.get("lng") || "");
   const full = searchParams.get("full") === "1";
+  const halloween = searchParams.get("collection") === "halloween";
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return json({ error: "lat and lng are required" }, 400, "no-store");
   // WO11 paging contract — see app/api/night-out/route.js. Fall Intent's ten
   // rails are a fixed curated set (`usable` below requires exactly 10), so
@@ -101,7 +103,10 @@ export async function GET(request) {
     // venue identities, so no v28 payload outlives the deploy.
     // v30 (2026-10-08 evening) adds Tampa Terrors and the Cuban Club party pin,
     // so no v29 payload outlives the deploy.
-    const key = `fall-intents:v30:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v31 (2026-10-09) publishes the Seminole Heights patch and Nightmare on
+    // Channelside and keeps Tampa Terrors as an open run, so no v30 payload outlives it.
+    // v33 also admits explicit Halloween parties into the shared seasonal pool.
+    const key = `fall-intents:v33:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
@@ -357,6 +362,10 @@ export async function GET(request) {
       usable: (value) => value?.sourceFailures === 0
         && value?.rails?.length === 10 && Number(value?.sourceCount || 0) > 0,
     });
+    // Regroup the full trusted answer before either response window or paging.
+    // Copy instead of mutating the shared Fall cache, including warm entries.
+    if (halloween) cached = { ...cached, value: { ...cached.value,
+      rails: composeHalloweenRails(cached.value.rails, today), collection: "halloween" } };
     const complete = cached.value?.sourceFailures === 0;
     const headers = {
       "cache-control": complete ? "public, s-maxage=900, stale-while-revalidate=86400" : "no-store",
@@ -371,7 +380,7 @@ export async function GET(request) {
     // Derive against the full cached rails outside the cache compute. This
     // makes the selector work immediately with v14 entries written before the
     // metadata existed, without changing the rail cache epoch or its refresh.
-    cached = { ...cached, value: { ...cached.value, stayDestinations: fallStayDestinations(cached.value.rails) } };
+    if (!halloween) cached = { ...cached, value: { ...cached.value, stayDestinations: fallStayDestinations(cached.value.rails) } };
     return Response.json(windowRailAnswer(cached.value, full), { headers });
   } catch (error) {
     console.error("[api/events/fall] inventory unavailable", { message: String(error?.message || error) });

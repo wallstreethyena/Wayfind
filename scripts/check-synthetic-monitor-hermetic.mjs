@@ -229,7 +229,7 @@ for (const s of SCENARIOS) {
 // payloads prove the exact decision functions it relies on are not a pleasant
 // report that always says green.
 {
-  const healthyMenu = posterMenuDiff(EXPECTED_VISIBLE_POSTER_IDS);
+  const healthyMenu = posterMenuDiff(EXPECTED_VISIBLE_POSTER_IDS, "2026-10-31");
   ok(healthyMenu.missingIds.length === 0 && healthyMenu.extraIds.length === 0 && healthyMenu.duplicateIds.length === 0,
     "menu-poster positive control: every required static poster id is accepted");
 
@@ -240,7 +240,7 @@ for (const s of SCENARIOS) {
     "menu-poster contract includes the sports live poster and no concert live poster (removed 2026-10-06)");
   ok(OPTIONAL_VISIBLE_POSTER_IDS.includes("sponsor-coconut-grove"),
     "menu-poster contract includes the product-owned geo-gated Coconut Grove sponsor tile");
-  const withOptional = posterMenuDiff([...EXPECTED_VISIBLE_POSTER_IDS, "live-sports", "sponsor-coconut-grove"]);
+  const withOptional = posterMenuDiff([...EXPECTED_VISIBLE_POSTER_IDS, "live-sports", "sponsor-coconut-grove"], "2026-10-31");
   ok(withOptional.missingIds.length === 0 && withOptional.extraIds.length === 0
       && withOptional.optionalPresentIds.includes("live-sports")
       && withOptional.optionalPresentIds.includes("sponsor-coconut-grove"),
@@ -249,15 +249,25 @@ for (const s of SCENARIOS) {
   // Mutation red: remove the historical Breakfast tile from an otherwise
   // healthy menu. If this predicate stopped checking the required set, this
   // would turn green while the homepage lost its morning entry point.
-  const breakfastRemoved = posterMenuDiff(EXPECTED_VISIBLE_POSTER_IDS.filter((id) => id !== "breakfast"));
+  const breakfastRemoved = posterMenuDiff(EXPECTED_VISIBLE_POSTER_IDS.filter((id) => id !== "breakfast"), "2026-10-31");
   ok(breakfastRemoved.missingIds.includes("breakfast"),
     "menu-poster MUTATION RED: removing breakfast is detected as a missing visible poster id");
-  const duplicateMenu = posterMenuDiff([...EXPECTED_VISIBLE_POSTER_IDS, "eat"]);
+  const duplicateMenu = posterMenuDiff([...EXPECTED_VISIBLE_POSTER_IDS, "eat"], "2026-10-31");
   ok(duplicateMenu.duplicateIds.includes("eat"),
     "menu-poster negative control: a duplicated poster id is detected");
-  const extraMenu = posterMenuDiff([...EXPECTED_VISIBLE_POSTER_IDS, "unowned-poster"]);
+  const extraMenu = posterMenuDiff([...EXPECTED_VISIBLE_POSTER_IDS, "unowned-poster"], "2026-10-31");
   ok(extraMenu.extraIds.includes("unowned-poster"),
     "menu-poster MUTATION RED: an unapproved contextual poster id is still detected");
+
+  const withoutHalloween = EXPECTED_VISIBLE_POSTER_IDS.filter((id) => id !== "halloween");
+  ok(posterMenuDiff(withoutHalloween, "2026-10-31").missingIds.includes("halloween"),
+    "Halloween missing on its last live day is detected");
+  ok(posterMenuDiff(withoutHalloween, "2026-11-01").missingIds.length === 0,
+    "Halloween expires after Oct 31 without a false missing-poster alarm");
+  ok(posterMenuDiff(EXPECTED_VISIBLE_POSTER_IDS, "2026-11-01").extraIds.includes("halloween"),
+    "an expired Halloween poster is detected as an unexpected tile");
+  ok(RAILS.find((rail) => rail.id === "halloween")?.seasonalThrough === "2026-10-31",
+    "the product Halloween campaign deadline matches the monitored contract");
 
   const completePayload = {
     covered: true,
