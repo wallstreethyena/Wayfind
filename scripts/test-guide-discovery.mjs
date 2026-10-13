@@ -70,6 +70,25 @@ const nextMatches=guideRailCandidates([candidate,laterGuide],[...rails,{id:'new'
 assert.equal(settleGuideRailSelection(nextMatches,previous).guide.slug,candidate.slug,'late collection results do not displace a valid guide');
 assert.equal(settleGuideRailSelection([],previous),null,'location/filter/no-match removes stale guide');
 assert.equal(guideRailCandidates([candidate],[{id:'ad',places:[{id:candidate.placeIds[0],_sponsored:true}]}],'collection').length,0,'sponsored rows excluded');
+// Season fit (audit 2026-10-09): the live bug was the Christmas guide third in a Fall rail.
+const {guideSeason,guideFitsCollectionSeason}=await import('../lib/guideRailCollections.js');
+const xmasGuide={...candidate,slug:'florida-holiday-nights-out-2026',title:'Florida Holiday Nights Out 2026: Light Shows, Tree Lightings'};
+const fallGuide={...candidate,slug:'orlando-halloween-food-2026',title:'Orlando Halloween Food 2026'};
+const plainGuide={...candidate,slug:'things-to-do-in-sarasota-florida',title:'Things to Do in Sarasota'};
+assert.equal(guideSeason(xmasGuide),'winter','POSITIVE: holiday lights guide is a winter-holiday guide');
+assert.equal(guideSeason({slug:'winter-park-scenic-boat-tour',title:'Winter Park Scenic Boat Tour'}),null,'NEGATIVE: Winter Park is a city, not a season');
+assert.equal(guideSeason({slug:'magical-dining-orlando-2026',title:'Visit Orlando Magical Dining 2026: One Winter Park Table, One Orlando Table'}),null,'NEGATIVE: a Winter Park restaurant guide is not a winter guide');
+assert.equal(guideSeason(fallGuide),'fall','POSITIVE: Halloween guide is a Fall guide');
+assert.equal(guideSeason({slug:'florida-summer-2026',title:'Florida Summer'}),'summer','POSITIVE: summer guide');
+assert.equal(guideSeason(plainGuide),null,'NEGATIVE: a year-round guide has no season');
+assert.equal(guideSeason({slug:'fall-and-winter',title:'Fall and Winter Getaways'}),null,'two seasons read as year-round');
+const seasonRails=[{id:'covered',places:[{id:candidate.placeIds[0],name:'Test Spot'}]}];
+assert.equal(guideRailCandidates([xmasGuide],seasonRails,'fall').length,0,'Christmas guide never matches a Fall collection (the live bug)');
+assert.equal(guideRailCandidates([xmasGuide],seasonRails,'summer').length,0,'Christmas guide never matches a Summer collection');
+assert.equal(guideRailCandidates([fallGuide],seasonRails,'fall').length,1,'POSITIVE: Fall guide still matches a Fall collection');
+assert.equal(guideRailCandidates([plainGuide],seasonRails,'fall').length,1,'POSITIVE: year-round guide still matches a Fall collection');
+assert.equal(guideRailCandidates([xmasGuide],seasonRails,'today').length,1,'year-round collections unchanged (lifecycle is the caller\'s job)');
+assert.equal(guideFitsCollectionSeason(fallGuide,'summer'),false,'Fall guide does not fit Summer');
 console.log('test-guide-discovery: short-page stability and all composer matching negative controls OK');
 
 // Execute the real collection and card.

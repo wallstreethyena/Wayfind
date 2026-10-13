@@ -22,8 +22,8 @@
 //     column is 800 so 744css (x2 = 1488), the wide-tier column tops out at
 //     960 so 893css. The source is 1600px, so 1600 is the ceiling and asking
 //     for more would upscale.
-//   wordmark — a CSS background sprite painted at 180x46.5 at most (see
-//     .wf-wordmark-text / .wf-wordmark-pin). 400px covers 2x with room.
+//   wordmark — complete owner-supplied artwork in .wf-wordmark-text, at most
+//     183.45x46.5 CSS pixels. 400px covers 2x with room.
 import { mkdirSync, statSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
@@ -33,7 +33,7 @@ const p = (rel) => fileURLToPath(new URL(rel, root));
 
 const JOBS = [
   { src: "public/brand/wayfind-default-hero-adobestock-289023289.jpeg", out: "public/brand/opt/hero", widths: [460, 760, 1120, 1600] },
-  { src: "public/brand/wayfind-wordmark-transparent-v2.png", out: "public/brand/opt/wordmark", widths: [400] },
+  { src: "public/brand/wayfind-wordmark-original-v3.png", out: "public/brand/opt/wordmark-original-v3", widths: [400], quality: { avif: 70, webp: 85 } },
   // The World Cup card's player art — 85KB PNG painted at 64x116.
   { src: "public/wf-player.png", out: "public/opt/wf-player", widths: [142] },
   // The detail-sheet gallery. 1.09MB of owner-shot photos across three files,
@@ -68,7 +68,7 @@ for (const job of JOBS) {
       const dest = `${job.out}-${w}.${f.ext}`;
       await sharp(p(job.src))
         .resize({ width: w, withoutEnlargement: true })
-        .toFormat(f.ext, f.opts)
+        .toFormat(f.ext, { ...f.opts, ...(job.quality ? { quality: job.quality[f.ext] } : {}) })
         .toFile(p(dest));
       const n = statSync(p(dest)).size;
       after += n;

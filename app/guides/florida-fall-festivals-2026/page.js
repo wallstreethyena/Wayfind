@@ -1,4 +1,6 @@
 import GuideArticleHero from "../../components/GuideArticleHero";
+import SeasonalSearchNav from "../../components/SeasonalSearchNav";
+import { seasonalHubsForGuide } from "../../../lib/seasonalSearch";
 import ShareButton from "../../components/ShareButton";
 import { pageShareUrl } from "../../../lib/pageShareUrl";
 import { WF_PLACE_CARD_CSS } from "../../components/css";
@@ -845,6 +847,7 @@ export default function FloridaFallGuide() {
   return (
     <main className={styles.page}>
       <style dangerouslySetInnerHTML={{ __html: WF_PLACE_CARD_CSS }} />
+      <SeasonalSearchNav hubs={seasonalHubsForGuide("florida-fall-festivals-2026")} />
       <GuideArticleHero
         title="The Complete Florida Fall Guide 2026"
         description="Plan every October weekend with pumpkin patches, farm days, haunted nights, family Halloween, seasonal food, fairs and statewide fall festivals."

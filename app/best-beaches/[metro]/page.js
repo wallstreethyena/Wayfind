@@ -119,7 +119,7 @@ export async function generateMetadata({ params }) {
 const NEAR_LABEL = { "manatee-sarasota": "Sarasota & Anna Maria Island", tampa: "Tampa Bay", orlando: "Orlando" };
 const BEST_FOR = {
   "manatee-sarasota": {
-    "ChIJjfu2YPBBw4gRo41o9hwHfmg": "The softest sand — quartz so fine it squeaks",
+    "ChIJh8tXh-FBw4gR9kFzfZN_g60": "The softest sand — quartz so fine it squeaks",
     "ChIJFy96TuUPw4gRr3IUjLXDXfM": "A quiet escape at the island's north tip",
     "ChIJg7BBe7URw4gRIQTacN1Cla8": "Families — lifeguards 365 days a year",
     "ChIJ1-Da3XpZw4gRyPAkVf4SSAo": "Shells and shark teeth",
@@ -127,7 +127,7 @@ const BEST_FOR = {
   },
 };
 const QUICK_LABEL = {
-  "ChIJjfu2YPBBw4gRo41o9hwHfmg": "Best sand",
+  "ChIJh8tXh-FBw4gR9kFzfZN_g60": "Best sand",
   "ChIJFy96TuUPw4gRr3IUjLXDXfM": "Best quiet escape",
   "ChIJg7BBe7URw4gRIQTacN1Cla8": "Best for families",
   "ChIJ1-Da3XpZw4gRyPAkVf4SSAo": "Best for shells and shark teeth",

@@ -1,4 +1,5 @@
 import ReturnToWayfind from "../components/ReturnToWayfind";
+import SeasonalSearchNav from "../components/SeasonalSearchNav";
 import ShareButton from "../components/ShareButton";
 // v4.18 — Guides hub. A browsable index so humans and crawlers reach every
 // guide from one internally linked page, strengthening the authority flow.
@@ -73,6 +74,10 @@ export default function GuidesHub() {
           {regions.map(({ region }, i) => <a key={region} href={"#destination-" + i}>{region}</a>)}
         </nav>
       </header>
+      <section className={styles.section} aria-labelledby="seasonal-guide-title">
+        <div className={styles.sectionHead}><h2 id="seasonal-guide-title">Florida by season</h2></div>
+        <SeasonalSearchNav />
+      </section>
       <section className={styles.section} aria-labelledby="city-guide-title">
         <div className={styles.sectionHead}><h2 id="city-guide-title">Start with your city</h2></div>
         <nav className={styles.regions} aria-label="Guides for every Florida coverage area">

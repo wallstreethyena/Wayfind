@@ -1,4 +1,6 @@
 import ReturnToWayfind from "../../components/ReturnToWayfind";
+import SeasonalSearchNav from "../../components/SeasonalSearchNav";
+import { seasonalHubsForGuide } from "../../../lib/seasonalSearch";
 // v4.16 — Server-rendered SEO guide pages. No "use client": these render to
 // HTML at build time so search engines index the full content. Each pick can
 // carry a Viator experience link (bookQuery) or a Booking.com rate link
@@ -924,6 +926,7 @@ export default async function GuidePage({ params }) {
         />}
       />
       <article id="guide" className="wf-guide-article">
+      <SeasonalSearchNav hubs={seasonalHubsForGuide(params.slug)} />
       <div style={S.meta}>By <a href="/about" style={{ color: "#CBD5E1", textDecoration: "none", fontWeight: 700 }}>Gabriel Pereira</a> · {g.published ? <>Published {g.published} · </> : null}Updated {g.updated}</div>
       {/* §2 OPEN LOOP, above the fold. One honest line the body resolves — a
           reader who wants the answer scrolls. Every teaser is derived from that

@@ -104,9 +104,15 @@ for (const f of files) {
   const r = rel(f);
   if (/<GuideDiscoveryCard[\s/>]/.test(src)) ok(RENDERERS_ALLOWED.has(r), `${r} renders a guide card outside the rail slot (only RailGuideSlot, and DaypartRail's in-track drop insert / guides library, may)`);
   ok(!/Go deeper with a local guide/.test(src), `${r} still renders a between-rails guide aside`);
-  if (/<GuideRailCollection[\s>]/.test(src)) {
+  const conditionalCollection = /const GuideCollection = collection === "halloween" \? NoGuideSlot : GuideRailCollection;/.test(src);
+  if (conditionalCollection) {
+    ok(/function NoGuideSlot\(\{ children \}\) \{ return <>{children}<\/>; \}/.test(src), `${r} Halloween guide bypass only passes children through`);
+    ok(/const GuideSlot = collection === "halloween" \? NoGuideSlot : RailGuideSlot;/.test(src) && /<GuideSlot[\s>]/.test(src), `${r} default Fall still renders its shared guide slot`);
+    ok(/<GuideCollection[\s>]/.test(src), `${r} conditional guide collection is actually mounted`);
+  }
+  if (/<GuideRailCollection[\s>]/.test(src) || conditionalCollection) {
     collections += 1;
-    ok(/<RailGuideSlot[\s>]/.test(src), `${r} uses a guide collection but never puts the guide inside a rail (RailGuideSlot)`);
+    ok(/<RailGuideSlot[\s>]/.test(src) || (conditionalCollection && /<GuideSlot[\s>]/.test(src)), `${r} uses a guide collection but never puts the guide inside a rail (RailGuideSlot)`);
   }
 }
 ok(collections >= 10, `every guide collection was found and checked (${collections})`);
