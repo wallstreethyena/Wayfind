@@ -270,13 +270,35 @@ await test('hidden authenticated worker can be verified without enabling public 
   const {GET}=await import('../app/api/cron/group-plans/route.js'),root=await import('../app/api/group-plans/route.js');
   const req=()=>new Request('https://wayfind.example/api/cron/group-plans',{headers:{authorization:'Bearer fixture-cron-only'}});
   eq((await GET(new Request('https://wayfind.example/api/cron/group-plans'))).status,401,'hidden worker still requires scheduler authentication');eq(calls.length,0,'unauthenticated scheduler request never reaches storage');
-  const first=await GET(req());eq(first.status,200,'server-only scheduler verification succeeds before public rollout');const body=await first.json();eq(body.checked,0,'real worker path queried empty due roster');eq(body.maintenance,{enabled:false},'cleanup is explicitly disabled by default');eq(body.email.enabled,false,'email remains independently disabled');eq(calls.length,1,'no cleanup or external email call during bootstrap');
+  const first=await GET(req());eq(first.status,200,'server-only scheduler verification succeeds before public rollout');const body=await first.json();eq(body.checked,0,'real worker path queried empty due roster');eq(body.maintenance,{enabled:false},'cleanup is explicitly disabled by default');eq(body.email.enabled,false,'email remains independently disabled');eq(calls.filter(x=>!x.url.includes('/rest/v1/wf_job_pulse')).length,1,'no cleanup or external email call during bootstrap (pulse telemetry excluded)');
   const publicReq=new Request('https://wayfind.example/api/group-plans',{method:'POST',headers:{origin:'https://wayfind.example','content-type':'application/json'},body:'{"action":"create"}'});
   const publicResult=await root.POST(publicReq);eq(publicResult.status,503,'public create remains disabled during hidden verification');eq((await publicResult.json()).error,'GROUP_PLANS_DISABLED','hidden worker does not bypass the public API gate');
   process.env.WF_GROUP_PLANS_ENABLED='1';process.env.NEXT_PUBLIC_GROUP_PLANS_ENABLED='1';rejectSync(()=>groupPlanConfiguration(),'DEADLINE_WORKER_UNVERIFIED');
   process.env.WF_GROUP_PLAN_CLEANUP_ENABLED='true';eq((await (await GET(req())).json()).maintenance.enabled,false,'truthy text cannot enable permanent cleanup');
   process.env.WF_GROUP_PLAN_CLEANUP_ENABLED='1';eq((await (await GET(req())).json()).maintenance,{enabled:true,expired_plans_removed:0,old_limits_removed:0},'explicit retention enablement reaches cleanup RPC');eq(calls.filter(x=>x.url.includes('wf_group_plan_cleanup')).length,1,'exactly one separately enabled cleanup operation');
   process.env.WF_GROUP_PLAN_WORKER_ENABLED='0';eq((await GET(req())).status,503,'worker kill switch stops authenticated scheduler');
+ } finally {globalThis.fetch=originalFetch;for(const key of keys)delete process.env[key];}
+});
+await test('scheduled worker records exactly one fail-soft pulse per authenticated run and none when rejected',async()=>{
+ const keys=['WF_GROUP_PLAN_WORKER_ENABLED','WF_GROUP_PLANS_ENABLED','NEXT_PUBLIC_GROUP_PLANS_ENABLED','SUPABASE_URL','SUPABASE_SERVICE_ROLE_KEY','CRON_SECRET','WF_GROUP_PLAN_EMAIL_ENABLED','WF_GROUP_PLAN_CLEANUP_ENABLED'];
+ process.env.WF_GROUP_PLAN_WORKER_ENABLED='1';process.env.WF_GROUP_PLANS_ENABLED='0';process.env.NEXT_PUBLIC_GROUP_PLANS_ENABLED='0';
+ process.env.SUPABASE_URL='https://group-pulse.example';process.env.SUPABASE_SERVICE_ROLE_KEY='fixture-service-only';process.env.CRON_SECRET='pulse-secret';process.env.WF_GROUP_PLAN_EMAIL_ENABLED='0';delete process.env.WF_GROUP_PLAN_CLEANUP_ENABLED;
+ const originalFetch=globalThis.fetch,pulses=[];let pulseFails=false;
+ globalThis.fetch=async(url,init)=>{
+  if(String(url).includes('/rest/v1/wf_job_pulse')){if(pulseFails)throw new Error('pulse store down');pulses.push(JSON.parse(init.body));return new Response(null,{status:201});}
+  if(String(url).includes('/rest/v1/wf_group_plans?status=eq.open'))return Response.json([]);
+  throw new Error('Unexpected pulse-test network request');
+ };
+ const req=(auth)=>new Request('https://wayfind.example/api/cron/group-plans',auth?{headers:{authorization:auth}}:{});
+ try {
+  const {GET}=await import('../app/api/cron/group-plans/route.js');
+  eq((await GET(req(null))).status,401,'no auth rejected');eq((await GET(req('Bearer nope'))).status,401,'bad bearer rejected');eq(pulses.length,0,'rejected requests record no pulse');
+  const res=await GET(req('Bearer pulse-secret')),body=await res.json();
+  eq(res.status,200,'authenticated run still succeeds');eq(pulses.length,1,'exactly one pulse per authenticated run');
+  eq(pulses[0].job,'group-plans','pulse job name');eq(pulses[0].attempted,body.checked,'pulse attempted equals worker checked');eq(pulses[0].succeeded,body.closed,'pulse succeeded equals worker closed');
+  pulseFails=true;const soft=await GET(req('Bearer pulse-secret'));eq(soft.status,200,'pulse write failure never changes the response');eq((await soft.json()).checked,0,'worker result unchanged when pulse fails');pulseFails=false;
+  pulses.length=0;process.env.WF_GROUP_PLAN_WORKER_ENABLED='0';
+  eq((await GET(req('Bearer pulse-secret'))).status,503,'disabled worker keeps its 503');eq(pulses.length,1,'disabled path records one pulse');eq(pulses[0].note,'disabled','disabled pulse is labelled');eq(pulses[0].attempted+pulses[0].succeeded+pulses[0].failed,0,'disabled pulse carries zero counts');
  } finally {globalThis.fetch=originalFetch;for(const key of keys)delete process.env[key];}
 });
 await test('50-plan worker batch respects shared abort budget and resumes without losing notices',async()=>{

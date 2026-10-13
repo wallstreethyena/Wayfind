@@ -156,6 +156,10 @@
     {
       "path": "/api/cron/weekend-picks",
       "schedule": "0 15 * * 5"
+    },
+    {
+      "path": "/api/cron/group-plans",
+      "schedule": "*/5 * * * *"
     }
   ]
 }
