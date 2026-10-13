@@ -121,7 +121,7 @@ try {
  });
  await test("CSS uses shared card geometry and responsive mobile layout",()=>{
    const css=UI.GROUP_PLAN_CSS;matches(css,/@media\(max-width:560px\)/);matches(css,/\.gp-time\{grid-template-columns:1fr\}/);matches(css,/min-height:46px/);matches(css,/minmax\(min\(100%,280px\),1fr\)/);absent(css,/\.wf-place-card[^}]*\{[^}]*\b(?:height|width|max-width|font-size)\s*:/);
-   const frame=markup(UI.GroupFrame,{children:"Fixture"});matches(frame,/--wf-place-card/);matches(frame,/My group plans/);
+   const frame=markup(UI.GroupFrame,{children:"Fixture"});matches(frame,/--wf-place-card/);matches(frame,/My group plans/);matches(frame,/alt="Wayfind"/);absent(frame,/>wayfind</);
  });
  await test("create form value, caps, explicit zone and unavailable email",()=>{
    const html=markup(UI.GroupCreateForm,{placeId:"place-1",session:{},onCreated(){}});matches(html,/Invite up to 10 people/);matches(html,/Pick up to 3 times/);matches(html,/Nothing is sent yet/);matches(html,/voting deadline, not the outing date/);matches(html,/Repeated clock times/);matches(html,/type="checkbox" disabled=""/);matches(html,/Email updates are not available/);
@@ -151,8 +151,8 @@ try {
  await test("participant cannot see another invitee or organizer capabilities",()=>{
    const html=markup(UI.GroupBallot,{plan:participantPlanView(first,"guest-1",{now:NOW}),onCommand(){},busy:false});matches(html,/Alice Private/);absent(html,/Bob Private|fixture-invite-secret|Confirm the plan|Cancel plan|Share invite/);matches(html,/No text message is sent/);matches(html,/Leave them all unchecked if none work/);
  });
- await test("signed-out resume keeps return path and sign-in tab",()=>{
-   const h=hooks(UI.default,{enabled:true,mode:"new",placeId:"place-1"},{effects:false,seeds:[null,null,null,"",false,{},{}]});const tree=h.render();const sign=nodes(tree).find(n=>n.type==="a"&&text(n)==="Sign in to Wayfind");yes(sign);eq(sign.props.target,"_blank");matches(text(tree),/then return here/);h.dispose();
+ await test("signed-out resume keeps return path and signs in in the same tab",()=>{
+   const h=hooks(UI.default,{enabled:true,mode:"new",placeId:"place-1"},{effects:false,seeds:[null,null,null,"",false,{},{}]});const tree=h.render();const sign=nodes(tree).find(n=>n.type==="a"&&text(n)==="Sign in to Wayfind");yes(sign);eq(sign.props.target,undefined);eq(sign.props.href,"/favorites?return="+encodeURIComponent("/group-plans/new?place=place-1"));matches(text(tree),/right back to this page/);h.dispose();
  });
  await test("mutation command is synchronously gated and bounded",async()=>{
    const pending=deferred(),calls=[],timers=[];AbortSignal.timeout=(ms)=>{const controller=new AbortController();timers.push({ms,controller});return controller.signal;};
