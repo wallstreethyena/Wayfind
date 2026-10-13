@@ -2106,6 +2106,8 @@ node scripts/test-event-recovery.mjs
 node scripts/test-lane-lock-ownership.mjs
 # Relevant visual guide discovery
 node scripts/test-guide-discovery.mjs
+# 2026-10-13 owner: a shared venue alone never qualifies a guide for an unrelated rail (Birthday Freebies on Breakfast, Parrish things-to-do on Eat). Explicit rail->topic table, lib/guideRailTopics.js.
+node scripts/check-guide-rail-relevance.mjs
 # Score receipts and independently gated source verdicts (PR #1145 current-main adaptation)
 node scripts/test-score-explanation.mjs
 # Current-main backend residual runtime controls (#1285/#1272).

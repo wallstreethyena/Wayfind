@@ -38,10 +38,10 @@ ok(insertGuideAt(base, null).join() === "a,b,c,d" && insertGuideAt(base, null) !
 ok(insertGuideAt(base, "G").filter((x) => x !== "G").join() === base.join(), "the place order around the guide is unchanged (ranks are not shifted)");
 
 // ── 2. the homepage drop (DaypartRail) selector uses the same slot ─────────
-const guide = { slug: "g", image: { src: "/x.webp" }, placeIds: ["p4"] };
+const guide = { slug: "g", kinds: ["nature"], image: { src: "/x.webp" }, placeIds: ["p4"] };
 const rows = Array.from({ length: 10 }, (_, i) => ({ id: "p" + i }));
-ok(guideForPlaceRail([guide], rows, "rail-a")?.before === 2 && guideForPlaceRail([guide], rows, "rail-b")?.before === 2, "the homepage drop inserts its guide at index 2 on every rail");
-ok(guideForPlaceRail([guide], [{ id: "ad", _sponsored: true }, ...rows], "rail-a")?.before === 2, "an ad in front does not push the guide past the third card");
+ok(guideForPlaceRail([guide], rows, "drive")?.before === 2 && guideForPlaceRail([guide], rows, "today")?.before === 2, "the homepage drop inserts its guide at index 2 on every rail");
+ok(guideForPlaceRail([guide], [{ id: "ad", _sponsored: true }, ...rows], "drive")?.before === 2, "an ad in front does not push the guide past the third card");
 
 // ── 3. the real slot component, rendered ────────────────────────────────────
 const RailGuideSlot = (await loadComponent(path.join(ROOT, "app/components/RailGuideSlot.js"), ROOT)).default;
