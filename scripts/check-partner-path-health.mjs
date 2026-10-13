@@ -19,8 +19,8 @@
 //   5. verdict            zero clicks alone NEVER pages; invalid path + healthy traffic pages;
 //                         invalid path on a quiet window only warns; overdue renewal pages
 //   6. fail loud          an unreadable inventory source is UNMEASURED and pages, never "ok"
-//   7. the REAL registries, on fixed clocks: at 2026-09-20 every expected provider has live
-//      offers (collectors really read coupons/registry/hotel allow-list); at 2026-10-13 Clipp
+//   7. the REAL registries, on fixed clocks: the day before the Clipp fuses every expected provider has live
+//      offers (collectors really read coupons/registry/hotel allow-list); the day after the fuses Clipp
 //      is the FAIL the incident was (so reintroducing "expired counted as live" turns this red)
 //   8. wired: guards.txt, vercel.json cron, route uses recordPulse + the pure verdict,
 //      the PostHog exposure query exists, nothing in the path writes/renews offers.
@@ -31,6 +31,7 @@ import {
   evaluatePartnerPaths, partnerPathVerdict, partnerPathPulseRow, offerIsLive, addDays,
 } from "../lib/partnerPathHealth.js";
 import { collectPartnerOffers, REQUIRED_CITIES } from "../lib/partnerPathInventory.js";
+import * as Coupons from "../lib/coupons.js";
 import { exposureFromRows } from "../app/api/cron/partner-path/route.js";
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
@@ -92,16 +93,23 @@ let threw = false;
 try { evaluatePartnerPaths([], undefined); } catch { threw = true; }
 ok(threw, "no implicit clock: evaluate without a date throws");
 
-// 7. real registries on fixed clocks
-const utRows = [{ id: 1, provider: "undercover_tourist", active: true, link_ok: null, ends_at: "2026-11-01T03:59:00+00:00" }];
+// 7. real registries on clocks DERIVED FROM THE REAL FUSES (no wall date, no wall clock).
+// Positive control: the day before the earliest Clipp fuse -> Clipp is live everywhere.
+// Negative control: the day after the latest Clipp fuse -> Clipp FAILS and its offers are queued.
+// Renewing a fuse moves both clocks with it, so a legitimate renewal never breaks this guard.
+const fuses = [Coupons.CLIPP_AUDIT_EXPIRY, Coupons.CLIPP_MERCHANT_AUDIT_EXPIRY].map((d) => String(d).slice(0, 10)).sort();
+ok(fuses.length === 2 && fuses.every((d) => /^\d{4}-\d{2}-\d{2}$/.test(d)), "both Clipp fuse constants are exported by lib/coupons.js and are dates");
+const BEFORE = addDays(fuses[0], -1);
+const AFTER = addDays(fuses[1], 1);
+const utRows = [{ id: 1, provider: "undercover_tourist", active: true, link_ok: null, ends_at: addDays(AFTER, 60) + "T03:59:00+00:00" }];
 const real = collectPartnerOffers({ dbDeals: utRows });
-const before = evaluatePartnerPaths(real.offers, "2026-09-20", { requiredCities: REQUIRED_CITIES, unmeasured: real.unmeasured });
-for (const p of EXPECTED_PROVIDERS) ok(before.providers[p].live > 0 && before.providers[p].status !== "fail", `real code @2026-09-20: ${p} has live offers (${before.providers[p].live})`);
-for (const city of REQUIRED_CITIES.clipp) ok(before.providers.clipp.cities[city].live > 0, `real code @2026-09-20: Clipp has live offers in ${city}`);
+const before = evaluatePartnerPaths(real.offers, BEFORE, { requiredCities: REQUIRED_CITIES, unmeasured: real.unmeasured });
+for (const p of EXPECTED_PROVIDERS) ok(before.providers[p].live > 0 && before.providers[p].status !== "fail", `real code, the day before the Clipp fuses: ${p} has live offers (${before.providers[p].live})`);
+for (const city of REQUIRED_CITIES.clipp) ok(before.providers.clipp.cities[city].live > 0, `real code, the day before the Clipp fuses: Clipp has live offers in ${city}`);
 ok(before.providers.stay22.live >= 30, "real code: Stay22 verified-hotel allow-list is read (>=30)");
-const after = evaluatePartnerPaths(real.offers, "2026-10-13", { requiredCities: REQUIRED_CITIES, unmeasured: real.unmeasured });
-ok(after.providers.clipp.status === "fail" && after.providers.clipp.live === 0, "real code @2026-10-13: Clipp is the FAIL the incident was (both audit fuses lapsed)");
-ok(after.queue.some((x) => x.provider === "clipp" && x.expired && x.owner === "Gabe"), "real code @2026-10-13: lapsed Clipp offers are in the renewal queue");
+const after = evaluatePartnerPaths(real.offers, AFTER, { requiredCities: REQUIRED_CITIES, unmeasured: real.unmeasured });
+ok(after.providers.clipp.status === "fail" && after.providers.clipp.live === 0, "real code, the day after the Clipp fuses lapse: Clipp FAILS with 0 live (the incident)");
+ok(after.queue.some((x) => x.provider === "clipp" && x.expired && x.owner === "Gabe"), "real code, the day after the Clipp fuses lapse: lapsed Clipp offers are in the renewal queue");
 
 // 8. wired + read-only
 const read = (f) => readFileSync(path.join(ROOT, f), "utf8");
