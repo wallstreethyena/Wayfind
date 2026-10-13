@@ -68,7 +68,7 @@ import { gateShut, spendAllowCapped, effectiveCap, gateMode } from "../../../../
 // rate climbs past 20% or Google returns a 429. The job idles at $0 the
 // moment the queue is empty either way.
 import { sbEnv } from "../../../../lib/serverCache";
-import { recordPulse } from "../../../../lib/jobPulse";
+import { recordPulse, budgetLimitNote, readLedgerUsage } from "../../../../lib/jobPulse";
 import { decidePromotion, dedupeById, partitionSplitVenues, PROMOTE_METROS, metrosFromRows } from "../../../../lib/promoteIndex";
 import { clampBatchLimit, nextBatchLimit } from "../../../../lib/promoteThrottle";
 import { CORE_DETAILS_MASK, RATING_DETAILS_MASK, PROMOTE_SKU, RATING_SKU, withIndexSignals, hasIndexRating } from "../../../../lib/promoteDetails";
@@ -456,10 +456,17 @@ export async function GET(req) {
 
   const attempted = claimed.length - released.length; // places we actually paid to look at
   const succeeded = writeError ? 0 : written;
+  // Real used/cap for the label; a failed ledger read falls back to the ceiling
+  // (a refusal means used had reached it), never blocks the pulse.
+  let budgetUsed = effectiveCap(PROMOTE_SKU, monthCap);
+  if (budgetExhausted && !writeError) {
+    const led = await readLedgerUsage(PROMOTE_SKU);
+    if (led && Number.isFinite(led.used)) budgetUsed = led.used;
+  }
   const note = writeError
     ? `upsert failed: ${writeError.slice(0, 120)}`
     : budgetExhausted
-      ? `budget: ${PROMOTE_SKU} ceiling ${effectiveCap(PROMOTE_SKU, monthCap)} reached (month_cap ${monthCap}, gate ${gateMode()}); released ${released.length}/${claimed.length}`.slice(0, 200)
+      ? `${budgetLimitNote(PROMOTE_SKU, budgetUsed, effectiveCap(PROMOTE_SKU, monthCap))}; ceiling ${effectiveCap(PROMOTE_SKU, monthCap)} reached (month_cap ${monthCap}, gate ${gateMode()}); released ${released.length}/${claimed.length}`.slice(0, 200)
       : (succeeded === 0 && attempted > 0 ? `0/${attempted} promoted; top reject: ${(rejects[0] && rejects[0].error) || "none"}`.slice(0, 200) : null);
   // attempted counts only what was bought. A run that released its whole batch
   // pulses as attempted 0 with the budget note, so job-watch reads it as IDLE
