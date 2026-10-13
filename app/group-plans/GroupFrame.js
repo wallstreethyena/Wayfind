@@ -7,7 +7,7 @@ import { activeSeasonalMark, NORMAL_MARK } from "../../lib/seasonalBrand.js";
 // the same variables; place cards keep their own dark look in both.
 export const GROUP_PLAN_CSS=`
 .gp-shell{--gp-bg:${C.bg};--gp-panel:${C.panel};--gp-card:${C.card};--gp-border:${C.border};--gp-text:${C.text};--gp-muted:${C.muted};--gp-light:${C.light};--gp-accent:${C.accent};--gp-accent-ink:${C.bg};--gp-gold:${C.gold};--gp-red:#FCA5A5;--gp-green:#86EFAC;--gp-field:${C.bg};--gp-track:${C.border};color-scheme:dark;box-sizing:border-box;min-height:100vh;min-height:100dvh;background:var(--gp-bg);color:var(--gp-text);padding:16px 16px 80px;font-family:var(--wf-sans),system-ui,sans-serif;overflow-x:clip;-webkit-text-size-adjust:100%}
-@media(prefers-color-scheme:light){.gp-shell{--gp-bg:#F8FAFC;--gp-panel:#FFFFFF;--gp-card:#F1F5F9;--gp-border:#CBD5E1;--gp-text:#0F172A;--gp-muted:#475569;--gp-light:#334155;--gp-accent:#EA580C;--gp-accent-ink:#FFFFFF;--gp-gold:#B45309;--gp-red:#B91C1C;--gp-green:#15803D;--gp-field:#FFFFFF;--gp-track:#E2E8F0;color-scheme:light}}
+
 .gp-shell *,.gp-shell *::before,.gp-shell *::after{box-sizing:border-box}
 .gp-main{max-width:1040px;margin:0 auto;min-width:0}
 .gp-nav{display:flex;gap:16px;justify-content:space-between;align-items:center;margin-bottom:24px;min-width:0}.gp-nav a{color:var(--gp-text);text-decoration:none;font-weight:800}.gp-nav .gp-mark{display:block;flex:none;width:118px;height:47px}.gp-nav .gp-mark img{display:block;width:100%;height:100%;object-fit:contain}.gp-nav .gp-mark+a{color:var(--gp-light);font-size:14px;font-weight:700;padding:12px 0;min-height:44px;display:inline-flex;align-items:center}
@@ -26,5 +26,5 @@ export const GROUP_PLAN_CSS=`
 
 export function GroupFrame({children}) {
   const mark=activeSeasonalMark()||NORMAL_MARK;
-  return <div className="gp-shell"><style dangerouslySetInnerHTML={{__html:WF_PLACE_CARD_CSS+GROUP_PLAN_CSS}}/><div className="gp-main"><nav className="gp-nav" aria-label="Group planning"><a className="gp-mark" href="/" aria-label="Wayfind home"><picture>{mark.avif?<source srcSet={mark.avif} type="image/avif"/>:null}{mark.webp?<source srcSet={mark.webp} type="image/webp"/>:null}<img src={mark.png} alt="Wayfind" width="118" height="47"/></picture></a><a href="/group-plans">My group plans</a></nav>{children}</div></div>;
+  return <div className="gp-shell"><style dangerouslySetInnerHTML={{__html:WF_PLACE_CARD_CSS+GROUP_PLAN_CSS}}/><div className="gp-main"><nav className="gp-nav" aria-label="Group planning"><a className="gp-mark" href="/" aria-label="Wayfind home"><picture>{mark.avif?<source srcSet={mark.avif} type="image/avif"/>:null}{mark.webp?<source srcSet={mark.webp} type="image/webp"/>:null}<img src={mark.png} alt="Wayfind" width="118" height="47"/></picture></a><a href="/group-plans">My group votes</a></nav>{children}</div></div>;
 }

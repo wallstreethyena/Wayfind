@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { formatGroupTime } from "../../lib/groupPlanTime.js";
+import { formatGroupTimeShort } from "../../lib/groupPlanTime.js";
 import { LANDING_CITIES } from "../../lib/landingCities.js";
 import { C } from "../components/kit.js";
 import { GroupPlaceOptions } from "./GroupPlaceOptions.js";
@@ -26,7 +26,7 @@ export const GROUP_BALLOT_CSS=`
 .gb-chips{display:flex;flex-direction:column;gap:10px}
 .gb-chip{position:relative;display:flex;align-items:center;gap:12px;min-height:52px;padding:12px 16px;border:2px solid color-mix(in srgb,currentColor 22%,transparent);border-radius:14px;cursor:pointer;font-weight:700;line-height:1.35;transition:border-color .2s ease,background-color .2s ease}
 .gb-chip input{position:absolute;opacity:0;width:100%;height:100%;inset:0;margin:0;cursor:pointer}
-.gb-chip-box{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:8px;border:2px solid color-mix(in srgb,currentColor 40%,transparent);color:#0d1117}
+.gb-chip-box{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:8px;border:2px solid rgba(248,245,238,.55);color:#0d1117}
 .gb-chip .gb-check{opacity:0}
 .gb-chip:has(input:checked){border-color:${C.accent};background:color-mix(in srgb,${C.accent} 14%,transparent)}
 .gb-chip input:checked + .gb-chip-box{background:${C.accent};border-color:${C.accent};animation:gb-pop .3s ease-out}
@@ -93,7 +93,7 @@ export function GroupBallot({plan,onCommand,busy}) {
   const responseKey=JSON.stringify(plan.invitee?.response||null);
   useEffect(()=>{setSelected(plan.invitee?.response?.placeId||plan.originalPlaceId||plan.places[0]?.id||"");setAvailable(plan.invitee?.response?.availableTimeIds||[]);setError("");},[responseKey]);
   const response=plan.invitee?.response;
-  const deadline=formatGroupTime(plan.deadline,plan.timeZone);
+  const deadline=formatGroupTimeShort(plan.deadline,plan.timeZone);
   const chosen=plan.places.find((p)=>p.id===selected)||plan.places.find((p)=>p.id===plan.originalPlaceId)||plan.places[0];
   const toggle=(id,on)=>{setError("");setAvailable(on?(available.includes(id)?available:[...available,id]):available.filter((x)=>x!==id));};
   const send=()=>{
@@ -112,7 +112,7 @@ export function GroupBallot({plan,onCommand,busy}) {
       <section className="gb-step" aria-labelledby="gb-s1"><div className="gb-step-head"><span className="gb-num" aria-hidden="true">1</span><h2 id="gb-s1">Vote for one place</h2></div>
         <GroupPlaceOptions plan={plan} selected={selected} onSelect={setSelected}/></section>
       <section className="gb-step" aria-labelledby="gb-s2"><div className="gb-step-head"><span className="gb-num" aria-hidden="true">2</span><h2 id="gb-s2">Tap every day that works</h2></div>
-        <div className="gb-chips">{plan.times.map((t)=><label className="gb-chip" key={t.id}><input type="checkbox" checked={available.includes(t.id)} onChange={(e)=>toggle(t.id,e.target.checked)}/><span className="gb-chip-box"><CheckIcon/></span><span>{formatGroupTime(t,plan.timeZone)}</span></label>)}</div>
+        <div className="gb-chips">{plan.times.map((t)=><label className="gb-chip" key={t.id}><input type="checkbox" checked={available.includes(t.id)} onChange={(e)=>toggle(t.id,e.target.checked)}/><span className="gb-chip-box"><CheckIcon/></span><span>{formatGroupTimeShort(t,plan.timeZone)}</span></label>)}</div>
         {chosen?.hoursStatus==="unverified"&&chosen.hoursNote&&<p className="gp-note">{chosen.hoursNote}</p>}
       </section>
       <section className="gb-step" aria-labelledby="gb-s3"><div className="gb-step-head"><span className="gb-num" aria-hidden="true">3</span><h2 id="gb-s3">Send it</h2></div>

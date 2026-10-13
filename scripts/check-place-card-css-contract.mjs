@@ -58,6 +58,9 @@ const injects = (src) => {
 // injection they mount under. Extending this map is a conscious act: do it
 // only when the component genuinely cannot render outside the named shell.
 const SHELL_MAP = {
+  // Group Vote pieces render only inside <GroupFrame>, which injects WF_PLACE_CARD_CSS.
+  "app/group-plans/GroupOrganizer.js": "app/group-plans/GroupFrame.js",
+  "app/group-plans/GroupPlaceOptions.js": "app/group-plans/GroupFrame.js",
   "app/components/SponsoredPlaceCard.js": "app/home.js",
   "app/eat/[metro]/[cuisine]/parts.js": "app/eat/[metro]/[cuisine]/page.js",
   "app/components/EventNearbyCards.js": "app/components/EventWhere.js",

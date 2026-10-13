@@ -9,7 +9,7 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadComponent } from "./lib/jsxLoad.mjs";
 import { createGroupPlan, applyGroupPlanCommand, participantPlanView } from "../lib/groupPlan.js";
-import { formatGroupTime } from "../lib/groupPlanTime.js";
+import { formatGroupTimeShort } from "../lib/groupPlanTime.js";
 import { LANDING_CITIES } from "../lib/landingCities.js";
 
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
@@ -59,7 +59,8 @@ const Ballot = UI.GroupBallot;
 // The ballot's own GroupPlaceOptions element, taken from its rendered tree (one module graph).
 const Options = nodes(hooks(Ballot,props(view(voted))).render()).find(n => n.props?.onSelect && n.props?.plan && typeof n.type === "function")?.type;
 assert.equal(typeof Options,"function","ballot must render GroupPlaceOptions");
-const deadlineText = formatGroupTime(DEADLINE,"America/New_York");
+const deadlineText = formatGroupTimeShort(DEADLINE,"America/New_York");
+eq(deadlineText,"Mon, Oct 5, 8:00 AM EDT","friendly deadline text, no year and no dash");
 
 await test("header, three steps and organizer pick on top",() => {
   const html = markup(Ballot,props(view(open3)));

@@ -116,12 +116,12 @@ try {
  await test("canonical cards and honest alternative scarcity",()=>{
    const html=markup(UI.GroupPlaceOptions,{plan:view(open),readOnly:true});matches(html,/wf-place-card/);absent(html,/fixture-invite-secret|Alice Private|Bob Private/);
    const tree=UI.GroupPlaceOptions({plan:view(open),readOnly:true});const cards=nodes(tree).filter(n=>typeof n.type!=="string"&&n.props?.surface==="group_plan");eq(cards.length,2);yes(cards.every(c=>c.props.cardActionsReadOnly));yes(cards.every(c=>c.props.place.photoNoSpend));
-   const one={...view(draft),places:[view(draft).places[0]]};matches(markup(UI.GroupOrganizer,{plan:one,onCommand(){},busy:false}),/couldn’t verify a similar, higher-scoring alternative/);
-   matches(markup(UI.GroupOrganizer,{plan:view(draft),onCommand(){},busy:false}),/haven’t added a third option just to fill a space/);
+   const one={...view(draft),places:[view(draft).places[0]]};matches(markup(UI.GroupOrganizer,{plan:one,onCommand(){},busy:false}),/didn’t find a similar nearby place that scores higher/);
+   matches(markup(UI.GroupOrganizer,{plan:view(draft),onCommand(){},busy:false}),/We only show places that truly compare/);
  });
  await test("CSS uses shared card geometry and responsive mobile layout",()=>{
    const css=UI.GROUP_PLAN_CSS;matches(css,/@media\(max-width:560px\)/);matches(css,/\.gp-time\{grid-template-columns:1fr\}/);matches(css,/min-height:46px/);matches(css,/minmax\(min\(100%,280px\),1fr\)/);absent(css,/\.wf-place-card[^}]*\{[^}]*\b(?:height|width|max-width|font-size)\s*:/);
-   const frame=markup(UI.GroupFrame,{children:"Fixture"});matches(frame,/--wf-place-card/);matches(frame,/My group plans/);matches(frame,/alt="Wayfind"/);absent(frame,/>wayfind</);
+   const frame=markup(UI.GroupFrame,{children:"Fixture"});matches(frame,/--wf-place-card/);matches(frame,/My group votes/);matches(frame,/alt="Wayfind"/);absent(frame,/>wayfind</);
  });
  await test("create form value, caps, explicit zone and unavailable email",()=>{
    const html=markup(UI.GroupCreateForm,{placeId:"place-1",session:{},onCreated(){}});matches(html,/Invite up to 10 people/);matches(html,/Pick up to 3 times/);matches(html,/Nothing is sent yet/);matches(html,/voting deadline, not the outing date/);matches(html,/Repeated clock times/);matches(html,/type="checkbox" disabled=""/);matches(html,/Email updates are not available/);

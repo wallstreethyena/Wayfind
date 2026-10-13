@@ -9,7 +9,7 @@ function PlaceCard({place}) {
 }
 
 function PlaceResearch({place}) {
-  return <div className="gp-research">{place.editorial?.status==="verified"?<p>{place.editorial.text}</p>:<><p className="gp-muted">{place.comparisonReasons?.length?place.comparisonReasons.join(" · "):"We’re still checking what makes this place stand out."}</p><p className="gp-note">What it’s known for is still being checked.</p></>}
+  return <div className="gp-research">{place.editorial?.status==="verified"?<p>{place.editorial.text}</p>:<><p className="gp-muted">{place.comparisonReasons?.length?place.comparisonReasons.join(" · "):"We’re still checking what makes this place stand out."}</p>{place.comparisonReasons?.length?<p className="gp-note">What it’s known for is still being checked.</p>:null}</>}
     {place.hoursStatus&&<p className="gp-note">{place.hoursStatus==="unverified"?place.hoursNote:place.closedTimeIds?.length?"Known hours conflict with at least one proposed time. Choose carefully before confirming.":"Regular hours fit the checked times. Special closures can still change them."}</p>}
     {place.editorial?.checkedAt&&<p className="gp-note">Sources checked {new Date(place.editorial.checkedAt).toLocaleDateString("en-US",{timeZone:"UTC"})}</p>}
     {!!place.editorial?.sources?.length&&<div className="gp-source-list">{place.editorial.sources.map((url,n)=><a key={url} href={url} target="_blank" rel="noopener noreferrer">Source {n+1}</a>)}</div>}

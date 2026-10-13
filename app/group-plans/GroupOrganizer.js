@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { formatGroupTime } from "../../lib/groupPlanTime.js";
+import { formatGroupTimeShort } from "../../lib/groupPlanTime.js";
 import { shareOut } from "../../lib/shareOut.js";
 import { SITE_URL } from "../../lib/site.js";
 import { C } from "../components/kit.js";
@@ -12,7 +12,7 @@ import { GroupPlaceOptions } from "./GroupPlaceOptions.js";
 // and every animation is switched off under prefers-reduced-motion.
 export const GROUP_ORGANIZER_CSS=`
 .gpo{--gpo-ok:${C.green};--gpo-accent:${C.accent};--gpo-line:color-mix(in srgb,currentColor 28%,transparent);--gpo-track:color-mix(in srgb,currentColor 14%,transparent);--gpo-soft:color-mix(in srgb,currentColor 65%,transparent);font-family:var(--wf-sans),system-ui,sans-serif}
-@media(prefers-color-scheme:light){.gpo{--gpo-ok:#15803d;--gpo-accent:#c2570c}}
+
 .gpo-sub{margin:-4px 0 14px;font-size:15px;line-height:1.55;max-width:680px;color:var(--gpo-soft)}
 .gpo-head{display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
 .gpo-ring{position:relative;width:64px;height:64px;flex-shrink:0}.gpo-ring svg{width:64px;height:64px;transform:rotate(-90deg)}
@@ -94,7 +94,7 @@ function Results({plan}) {
       const organizerOk=organizerTimes.includes(t.id);const everyone=organizerOk&&unconfirmed.length===0&&summary.commonTimeIds.includes(t.id);
       const count=summary.availabilityCounts.find((r)=>r.timeId===t.id)?.count||0;
       const missing=organizerOk?unconfirmed:[...unconfirmed,"You"];
-      return <div key={t.id} className={`gpo-time${everyone?" everyone":""}`}><strong>{formatGroupTime(t,plan.timeZone)}</strong>{everyone&&<span className="gpo-pill">Works for everyone</span>}<p className="gpo-listing" style={{margin:"4px 0 0"}}>{count} of {summary.expectedCount} invitees said yes.{!everyone&&missing.length>0&&` Not confirmed by: ${names(missing)}.`}</p></div>;})}</div>
+      return <div key={t.id} className={`gpo-time${everyone?" everyone":""}`}><strong>{formatGroupTimeShort(t,plan.timeZone)}</strong>{everyone&&<span className="gpo-pill">Works for everyone</span>}<p className="gpo-listing" style={{margin:"4px 0 0"}}>{count} of {summary.expectedCount} friends said yes.{!everyone&&missing.length>0&&` Not confirmed by: ${names(missing)}.`}</p></div>;})}</div>
   </section>;
 }
 function FinalPlaceCard({place,plan}) {
@@ -123,7 +123,7 @@ export function GroupOrganizer({plan,onCommand,busy,nowMs:nowOverride}) {
     if(needUnavailable&&ackUnavailable)command.acknowledgeUnavailable=true;if(needHours&&hoursAck)command.acknowledgeVenueHours=true;return command;};
   const shareInvite=(slot)=>{
     const token=plan.invites.find((i)=>i.slotId===slot.id)?.token;if(!token)return;
-    const result=shareOut({title:"Pick a place. Find a time.",text:`${slot.name}, help choose where we go and when. Cast your vote on Wayfind.`,url:planUrl(plan,token)},()=>setNotice(`Link for ${slot.name} copied. Send it privately.`));
+    const result=shareOut({title:"Group Vote on Wayfind",text:`${slot.name}, ${plan.organizerName||"a friend"} started a group vote on Wayfind. Help pick the spot and the day.`,url:planUrl(plan,token)},()=>setNotice(`Link for ${slot.name} copied. Send it privately.`));
     if(result!=="failed"){setNotice(`Share options opened for ${slot.name}. Choose how to send their private link. Delivery isn’t confirmed by Wayfind.`);onCommand({type:"start",slotId:slot.id},{quiet:true});}
     else setNotice("Share options could not open. Please try again.");
   };
@@ -135,11 +135,11 @@ export function GroupOrganizer({plan,onCommand,busy,nowMs:nowOverride}) {
     <div className="gpo-head"><h1>Group Vote</h1>{plan.status==="open"&&<CountdownRing plan={plan} nowMs={nowMs}/>}</div>
     <p className="gpo-sub">Pick a place and a time together. Each friend gets a private link to vote. You see who replied, then you make the final call.</p>
     <p className="gp-lede gp-muted">{plan.status==="draft"?"Your group vote is ready. Review the choices, then start your invitations.":plan.status==="finalized"?"Make it happen. Your plan is locked.":plan.status==="cancelled"?"This plan was cancelled.":`${summary.responseCount} of ${summary.expectedCount} people responded. ${summary.pendingCount?`${summary.pendingCount} still to hear from.`:"Everyone has responded."}`}</p>
-    <p className="gp-note">Reply by {formatGroupTime(plan.deadline,plan.timeZone)}. Voting closes earlier if everyone responds.</p>
+    <p className="gp-note">Reply by {formatGroupTimeShort(plan.deadline,plan.timeZone)}. Voting closes earlier if everyone responds.</p>
     <div className="gp-progress" role="progressbar" aria-label="Invite responses" aria-valuemin={0} aria-valuemax={summary.expectedCount} aria-valuenow={summary.responseCount}><span style={{width:`${100*summary.responseCount/summary.expectedCount}%`}}/></div>
     <GroupPlaceOptions plan={plan} readOnly/>
-    {plan.places.length<3&&<p className="gp-status">{plan.alternativesStatus==="evidence_check_incomplete"?"We kept your original idea. The comparison checks could not finish; this is not a complete alternative search.":plan.places.length===1?"We kept your original idea. We couldn’t verify a similar, higher-scoring alternative.":"One alternative met the checks. We haven’t added a third option just to fill a space."}</p>}
-    <section className="gp-panel"><h2>Possible outing times</h2>{plan.times.map((t)=><p key={t.id}>{formatGroupTime(t,plan.timeZone)}</p>)}<p className="gp-note">You said you can make each of these times. The group is choosing among them.</p></section>
+    {plan.places.length<3&&<p className="gp-status">{plan.alternativesStatus==="evidence_check_incomplete"?"We kept your original idea. The comparison checks could not finish; this is not a complete alternative search.":plan.places.length===1?"Your pick is the one to beat. Wayfind didn’t find a similar nearby place that scores higher.":"Wayfind found one more great option nearby. We only show places that truly compare."}</p>}
+    <section className="gp-panel"><h2>Possible outing times</h2>{plan.times.map((t)=><p key={t.id}>{formatGroupTimeShort(t,plan.timeZone)}</p>)}<p className="gp-note">You said you can make each of these times. The group is choosing among them.</p></section>
     {["draft","open"].includes(plan.status)&&<section className="gp-panel"><div className="gp-step">Invite your people</div><h2>{plan.status==="draft"?"Start when you’re ready":"Send each private link"}</h2><p className="gp-muted">Send one link at a time in your own messaging app. A link is for the named friend; anyone it is forwarded to could answer for them.</p>
       {plan.status==="draft"&&plan.draftExpired?<><p className="gp-status">This draft’s reply deadline has passed. No invitations were started.</p><a className="gp-button primary" href={`/group-plans/new?place=${encodeURIComponent(plan.originalPlaceId)}`}>Start a new plan</a></>:plan.status==="draft"?<><button className="gp-button primary" disabled={busy} onClick={()=>onCommand({type:"start"})}>Start invitations</button><p className="gp-note">This opens voting. It does not send messages. Choices and your guest list are then fixed.</p></>:plan.invitees.map((slot)=><div className="gp-row" key={slot.id}><Friend slot={slot}/><button className="gp-button" disabled={busy} onClick={()=>shareInvite(slot)}>{slot.shareInitiatedAt?"Share again":"Share invite"}</button></div>)}
       <p className="gp-note">Keep this page or return to My group plans. We don’t mark a link delivered when a share window opens.</p>
@@ -149,9 +149,9 @@ export function GroupOrganizer({plan,onCommand,busy,nowMs:nowOverride}) {
     {plan.status==="closed"&&<section className="gp-panel"><div className="gp-step">Your result</div><h2>{summary.commonTimeIds.length?"A time works for everyone":summary.pendingCount?"A result, with replies missing":"No time works for everyone"}</h2>
       <p>{summary.tie?"The place vote is tied. You get to choose.":summary.winnerPlaceId?`${plan.places.find((p)=>p.id===summary.winnerPlaceId)?.name} has the most votes.`:"There are no place votes yet."}</p>
       {summary.pendingCount>0&&<p>{summary.pendingCount} invitee{summary.pendingCount===1?" hasn’t":"s haven’t"} responded. A time that works for respondents is not confirmed for everyone.</p>}
-      {summary.declinedCount>0&&<p>{summary.declinedCount} invitee{summary.declinedCount===1?" can’t":"s can’t"} join. Declines are not votes and don’t block you.</p>}
-      <label className="gp-field">Choose the place<select value={placeId} onChange={(e)=>{setPlaceId(e.target.value);clearAcks();}}>{plan.places.map((p)=><option key={p.id} value={p.id}>{p.name} · {summary.placeResults.find((r)=>r.placeId===p.id)?.votes||0} votes</option>)}</select></label>
-      <label className="gp-field">Choose a time<select required value={timeId} onChange={(e)=>{setTimeId(e.target.value);clearAcks();}}><option value="">Pick a time</option>{plan.times.map((t)=><option key={t.id} value={t.id}>{formatGroupTime(t,plan.timeZone)} · {summary.availabilityCounts.find((r)=>r.timeId===t.id)?.count||0}/{summary.expectedCount} invitees available</option>)}</select></label>
+      {summary.declinedCount>0&&<p>{summary.declinedCount} friend{summary.declinedCount===1?" can’t":"s can’t"} make it. Declines are not votes and don’t block you.</p>}
+      <label className="gp-field">Choose the place<select value={placeId} onChange={(e)=>{setPlaceId(e.target.value);clearAcks();}}>{plan.places.map((p)=><option key={p.id} value={p.id}>{p.name} · {(()=>{const v=summary.placeResults.find((r)=>r.placeId===p.id)?.votes||0;return `${v} ${v===1?"vote":"votes"}`;})()}</option>)}</select></label>
+      <label className="gp-field">Choose a time<select required value={timeId} onChange={(e)=>{setTimeId(e.target.value);clearAcks();}}><option value="">Pick a time</option>{plan.times.map((t)=><option key={t.id} value={t.id}>{formatGroupTimeShort(t,plan.timeZone)} · {summary.availabilityCounts.find((r)=>r.timeId===t.id)?.count||0}/{summary.expectedCount} invitees available</option>)}</select></label>
       {timeId&&venueClosed?<p className="gp-status gp-error">The venue’s known hours conflict with this time. Choose another time or place.</p>:needHours?<><p className="gp-status">Your friends’ availability does not tell us the venue’s hours. Check the venue before confirming.</p>{selectedPlace?.placeUrl&&<a className="gp-button" href={selectedPlace.placeUrl} target="_blank" rel="noopener noreferrer">Check venue details</a>}</>:null}
       {(needPartial||needTie||needUnavailable||needHours)&&<div className="gpo-acks">
         {needPartial&&ackBox(ackPartial,setAckPartial,"Not everyone replied. Finalize anyway.")}
@@ -164,7 +164,7 @@ export function GroupOrganizer({plan,onCommand,busy,nowMs:nowOverride}) {
     </section>}
     {plan.status==="finalized"&&plan.finalPlan&&<section className="gp-panel"><div className="gpo-flip"><div className="gpo-confetti" aria-hidden="true">{CONFETTI}</div>
       <div className="gpo-flip-inner"><div className="gpo-face gpo-front" aria-hidden="true">Locking in your plan…</div>
-        <div className="gpo-face gpo-back"><p className="gpo-locked">Plan locked</p><h2 style={{margin:"0 0 6px"}}>{finalPlace?.name||"The final plan"}</h2>{finalTime&&<p style={{margin:0}}>{formatGroupTime(finalTime,plan.timeZone)}</p>}</div></div></div>
+        <div className="gpo-face gpo-back"><p className="gpo-locked">Plan locked</p><h2 style={{margin:"0 0 6px"}}>{finalPlace?.name||"The final plan"}</h2>{finalTime&&<p style={{margin:0}}>{formatGroupTimeShort(finalTime,plan.timeZone)}</p>}</div></div></div>
       <GroupFinal plan={plan} headline={false} withStyle={false}/><button className="gp-button primary" onClick={finalShare}>Share final plan</button></section>}
     {["draft","open","closed"].includes(plan.status)&&<details><summary>Cancel this plan</summary><p className="gp-note">This stops voting and makes its invitations unavailable. Your friends will not receive an automatic text.</p><button className="gp-button" disabled={busy} onClick={()=>onCommand({type:"cancel"})}>Cancel plan</button></details>}
     {notice&&<p className="gp-status" role="status">{notice}</p>}
@@ -175,7 +175,7 @@ export function GroupFinal({plan,headline=true,withStyle=true}) {
   const final=plan.finalPlan;if(!final)return null;
   const place=plan.places.find((p)=>p.id===final.placeId),time=plan.times.find((t)=>t.id===final.timeId);
   return <div className="gpo">{withStyle&&<style dangerouslySetInnerHTML={{__html:GROUP_ORGANIZER_CSS}}/>}
-    {headline&&<><p className="gpo-locked">Plan locked</p><h2>{place?.name||"The final plan"}</h2>{time&&<p>{formatGroupTime(time,plan.timeZone)}</p>}</>}
+    {headline&&<><p className="gpo-locked">Plan locked</p><h2>{place?.name||"The final plan"}</h2>{time&&<p>{formatGroupTimeShort(time,plan.timeZone)}</p>}</>}
     {plan.organizerName&&<p className="gp-note">Organized by {plan.organizerName}</p>}
     <FinalPlaceCard place={place} plan={plan}/>
     <p className="gp-status">{final.isCommonTime?"This time was marked available by every invited person and the organizer.":`${final.confirmedInviteeCount} of ${final.expectedInviteeCount} invitees marked this time available. It is not confirmed for everyone.`}</p>

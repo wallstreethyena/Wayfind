@@ -42,7 +42,7 @@ ok(!/>wayfind</.test(html), "old text wordmark gone");
 const css = UI.GROUP_PLAN_CSS;
 ok(/@media\s*\(prefers-reduced-motion:\s*reduce\)/.test(css), "reduced-motion block");
 ok(/var\(--wf-sans\)/.test(css) && !/--font-body/.test(css), "uses --wf-sans");
-ok(/prefers-color-scheme:\s*light/.test(css), "light override present");
+ok(!/prefers-color-scheme:\s*light/.test(css), "Group Vote stays dark like the rest of Wayfind (no light override)"); ok(/--gp-bg/.test(css), "positive control: frame color tokens present");
 const secs = [...css.matchAll(/(?:transition|animation)(?:-duration)?:[^;}]*/g)].flatMap(m => [...m[0].matchAll(/(\d*\.?\d+)(ms|s)\b/g)].map(d => (d[2] === "ms" ? +d[1] / 1000 : +d[1])));
 ok(secs.length > 0 && secs.every(v => v <= 0.6), "durations <= .6s: " + secs.join(","));
 ok(!/overflow-x:\s*scroll/.test(css), "no forced horizontal scroll");
